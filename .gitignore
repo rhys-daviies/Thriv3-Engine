@@ -1,0 +1,10 @@
+node_modules
+dist
+.env
+.DS_Store
+
+# Runtime-generated — both created automatically by the app at startup
+# (see server/db/client.js and server/index.js). Contains local player
+# data / uploaded match-recommendation files — never commit these.
+server/data/
+server/uploads/

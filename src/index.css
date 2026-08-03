@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  --radius: 0.75rem;
+
+  /* Section 3 tokens */
+  --primary: 152 60% 36%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 220 60% 50%;
+  --accent-foreground: 0 0% 100%;
+  --background: 210 20% 98%;
+  --foreground: 220 25% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 220 25% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 25% 12%;
+  --muted: 210 20% 94%;
+  --muted-foreground: 220 10% 45%;
+  --border: 220 15% 90%;
+  --input: 220 15% 90%;
+  --ring: 152 60% 36%;
+  --secondary: 210 20% 94%;
+  --secondary-foreground: 220 25% 12%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+}
+
+.dark {
+  --background: 220 25% 6%;
+  --foreground: 210 20% 95%;
+  --primary: 152 60% 42%;
+  --primary-foreground: 220 25% 6%;
+  --accent: 220 60% 58%;
+  --accent-foreground: 0 0% 100%;
+  --card: 220 22% 10%;
+  --card-foreground: 210 20% 95%;
+  --popover: 220 22% 10%;
+  --popover-foreground: 210 20% 95%;
+  --muted: 220 18% 16%;
+  --muted-foreground: 220 10% 65%;
+  --border: 220 15% 20%;
+  --input: 220 15% 20%;
+  --ring: 152 60% 42%;
+  --secondary: 220 18% 16%;
+  --secondary-foreground: 210 20% 95%;
+  --destructive: 0 62% 50%;
+  --destructive-foreground: 0 0% 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+@keyframes pulse-badge {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}

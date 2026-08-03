@@ -1,0 +1,5387 @@
+[
+ {
+  "division": "NCAA D1",
+  "name": "Air Force",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Akron",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Albany",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "American",
+  "academic_score": 8.1
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Army West Point",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Bellarmine",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Belmont",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Binghamton",
+  "academic_score": 8.1
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Boston College",
+  "academic_score": 9.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Boston University",
+  "academic_score": 9.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Bowling Green",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Bradley",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Brown",
+  "academic_score": 9.9
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Bryant",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Bucknell",
+  "academic_score": 8.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Butler",
+  "academic_score": 7.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Cal Poly",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Cal State Bakersfield",
+  "academic_score": 4.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Cal State Fullerton",
+  "academic_score": 6.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "CSUN",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "California",
+  "academic_score": 9.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "California Baptist",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Campbell",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Canisius",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Central Arkansas",
+  "academic_score": 4.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Central Connecticut",
+  "academic_score": 4.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Charleston",
+  "academic_score": 7.1
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Charlotte",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Chicago State",
+  "academic_score": 3.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Clemson",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Cleveland State",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Coastal Carolina",
+  "academic_score": 5.9
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Colgate",
+  "academic_score": 8.7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Columbia",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Cornell",
+  "academic_score": 9.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Creighton",
+  "academic_score": 7.9
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Dartmouth",
+  "academic_score": 9.9
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Davidson",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Dayton",
+  "academic_score": 7.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "DePaul",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Delaware",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Denver",
+  "academic_score": 7.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Detroit Mercy",
+  "academic_score": 5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Drake",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Drexel",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Duke",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Duquesne",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "ETSU",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Eastern Illinois",
+  "academic_score": 4.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Elon",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Evansville",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "FIU",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Fairfield",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Fairleigh Dickinson",
+  "academic_score": 4.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Florida Atlantic",
+  "academic_score": 6.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "FGCU",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Fordham",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Furman",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Gardner-Webb",
+  "academic_score": 4.7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "George Mason",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "George Washington",
+  "academic_score": 8.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Georgetown",
+  "academic_score": 9.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Georgia Southern",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Georgia State",
+  "academic_score": 6.1
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Gonzaga",
+  "academic_score": 8.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Grand Canyon",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Green Bay",
+  "academic_score": 5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Harvard",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D1",
+  "name": "High Point",
+  "academic_score": 6.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Hofstra",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Holy Cross",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Houston Christian",
+  "academic_score": 3.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Howard",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "IU Indy",
+  "academic_score": 5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UIW",
+  "academic_score": 4.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Indiana",
+  "academic_score": 8.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Iona",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Jacksonville",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "James Madison",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Kentucky",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "LIU",
+  "academic_score": 4.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "La Salle",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Lafayette",
+  "academic_score": 8.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Le Moyne",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Lehigh",
+  "academic_score": 8.6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Liberty",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Lindenwood",
+  "academic_score": 4.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Lipscomb",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Longwood",
+  "academic_score": 5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Louisville",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Loyola Chicago",
+  "academic_score": 7.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Loyola Maryland",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Loyola Marymount",
+  "academic_score": 8.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Manhattan",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Marist",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Marquette",
+  "academic_score": 8.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Marshall",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Maryland",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Memphis",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Mercer",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Mercyhurst",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Merrimack",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Michigan",
+  "academic_score": 9.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Michigan State",
+  "academic_score": 8.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Milwaukee",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Missouri State",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Monmouth",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Mount St. Mary's",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "NC State",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "NJIT",
+  "academic_score": 6.7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Navy",
+  "academic_score": 8.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "New Hampshire",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "New Haven",
+  "academic_score": 6.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Niagara",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "North Carolina",
+  "academic_score": 9.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "North Florida",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Northeastern",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Northern Illinois",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Northern Kentucky",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Northwestern",
+  "academic_score": 9.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Notre Dame",
+  "academic_score": 9.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Oakland",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Ohio State",
+  "academic_score": 8.9
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Old Dominion",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Omaha",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Oral Roberts",
+  "academic_score": 4.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Oregon State",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Pacific",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Penn",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Penn State",
+  "academic_score": 8.7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Pittsburgh",
+  "academic_score": 8.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Portland",
+  "academic_score": 7.6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Presbyterian",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Princeton",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Providence",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Purdue Fort Wayne",
+  "academic_score": 4.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Queens (NC)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Quinnipiac",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Radford",
+  "academic_score": 4.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Rhode Island",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Rider",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Robert Morris",
+  "academic_score": 5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Rutgers",
+  "academic_score": 8.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "SIUE",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "SMU",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Sacramento State",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Sacred Heart",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Saint Joseph's",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Saint Louis",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Saint Mary's",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "San Diego",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "San Diego State",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "San Francisco",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "San Jose State",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Santa Clara",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Seattle",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Seton Hall",
+  "academic_score": 7.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Siena",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "South Carolina",
+  "academic_score": 7.9
+ },
+ {
+  "division": "NCAA D1",
+  "name": "South Florida",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Southern Indiana",
+  "academic_score": 4.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "St. Bonaventure",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "St. John's",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Saint Peter's",
+  "academic_score": 4.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "St. Thomas",
+  "academic_score": 7.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Stanford",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Stetson",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Stonehill",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Stony Brook",
+  "academic_score": 7.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Syracuse",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Temple",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Tulsa",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UAB",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UC Davis",
+  "academic_score": 8.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UC Irvine",
+  "academic_score": 8.7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UC Riverside",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UC San Diego",
+  "academic_score": 9.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UC Santa Barbara",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UCF",
+  "academic_score": 7.6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UCLA",
+  "academic_score": 9.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UConn",
+  "academic_score": 8.1
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UIC",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UMBC",
+  "academic_score": 7.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Kansas City",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Saint Francis (PA)",
+  "academic_score": 4.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UMass",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UMass Lowell",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UNC Asheville",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UNC Greensboro",
+  "academic_score": 6.4
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UNCW",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UNLV",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "USC Upstate",
+  "academic_score": 4.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "UTRGV",
+  "academic_score": 4.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Utah Tech",
+  "academic_score": 4.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Utah Valley",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "VCU",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "VMI",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Vermont",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Villanova",
+  "academic_score": 8.9
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Virginia",
+  "academic_score": 9.6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Virginia Tech",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Wake Forest",
+  "academic_score": 9.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Washington",
+  "academic_score": 8.9
+ },
+ {
+  "division": "NCAA D1",
+  "name": "West Virginia",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Western Illinois",
+  "academic_score": 4.5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Western Michigan",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "William & Mary",
+  "academic_score": 9
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Winthrop",
+  "academic_score": 5
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Wisconsin",
+  "academic_score": 9
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Wofford",
+  "academic_score": 7.6
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Wright State",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Xavier",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D1",
+  "name": "Yale",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Adams State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Adelphi",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Alabama Huntsville",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "American International",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Anderson (SC)",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Ashland",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Assumption",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Auburn Montgomery",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Barry",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Barton",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Belmont Abbey",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Bentley",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Biola",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Bridgeport",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Cal Poly Humboldt",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Cal Poly Pomona",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Cal State Dominguez Hills",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Cal State East Bay",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Cal State LA",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Cal State Monterey Bay",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Cal State San Bernardino",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Cal State San Marcos",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Cal State Stanislaus",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Caldwell",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Carson-Newman",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Catawba",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Cedarville",
+  "academic_score": 7.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Chaminade",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Charleston (WV)",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Chestnut Hill",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Chico State",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Chowan",
+  "academic_score": 4.6
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Christian Brothers",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Clayton State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Coker",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Colorado Christian",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Colorado Mesa",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Colorado School of Mines",
+  "academic_score": 9
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Colorado State-Pueblo",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Commonwealth University-Bloomsburg",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Commonwealth University-Lock Haven",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Concord",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Concordia Irvine",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Converse",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "D'Youville",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Daemen",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Dallas Baptist",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Davenport",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Davis & Elkins",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Delta State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "District of Columbia",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Dominican (CA)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Dominican College (NY)",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Drury",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "East Stroudsburg",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Eastern New Mexico",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Eckerd",
+  "academic_score": 7.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Embry-Riddle",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Emmanuel (GA)",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Emory & Henry",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Erskine",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Felician",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Findlay",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Flagler",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Florida Southern",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Florida Tech",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Fort Hays State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Fort Lewis",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Francis Marion",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Franklin Pierce",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Fresno Pacific",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Frostburg State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Gannon",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Georgia Southwestern",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Georgian Court",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Goldey-Beacom",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Harding",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Hawaii Hilo",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Hawaii Pacific",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Holy Family",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Illinois Springfield",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Indianapolis",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Inter American (PR)",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Jamestown",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Jessup",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Kentucky Wesleyan",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "King (TN)",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Lake Erie",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Lander",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Lee (TN)",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Lees-McRae",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Lenoir-Rhyne",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Lewis",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Lincoln (MO)",
+  "academic_score": 4.6
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Lincoln Memorial",
+  "academic_score": 4.6
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Lubbock Christian",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Lynn",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Malone",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Mars Hill",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Maryville (MO)",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "McKendree",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Menlo",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Mercy",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Metro State Denver",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Middle Georgia State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Midwestern State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Millersville",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Mississippi College",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Missouri S&T",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Molloy",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Monroe (NY)",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Montana State Billings",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Montevallo",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Mount Olive",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Newberry",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Newman",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "North Georgia",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Northeastern State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Northern Michigan",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Northwest Nazarene",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Northwood",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Nova Southeastern",
+  "academic_score": 7.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Ohio Dominican",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Oklahoma Christian",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Ouachita Baptist",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Palm Beach Atlantic",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "PennWest California",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "PennWest Johnstown",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Point Loma Nazarene",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Point Park",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Post",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Purdue Northwest",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Queens (CUNY)",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Quincy",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Regis (CO)",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Roberts Wesleyan",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Rockhurst",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Rogers State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Rollins",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Roosevelt",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Saginaw Valley State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Saint Anselm",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Saint Leo",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Saint Martin's",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Saint Michael's",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Salem",
+  "academic_score": 4.6
+ },
+ {
+  "division": "NCAA D2",
+  "name": "San Francisco State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Seattle Pacific",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Seton Hill",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Shaw",
+  "academic_score": 4.6
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Shawnee State",
+  "academic_score": 4.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Shepherd",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Shippensburg",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Shorter",
+  "academic_score": 4.6
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Simon Fraser",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Slippery Rock",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "South Carolina Aiken",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "South Dakota Mines",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Southern Connecticut State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Southern Nazarene",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Southern New Hampshire",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Southern Wesleyan",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Southwest Baptist",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Spring Hill",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "St. Cloud State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "St. Mary's (TX)",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "St. Thomas Aquinas",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Staten Island",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Sul Ross State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Tampa",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Texas A&M International",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Thomas Jefferson",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Thomas More",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Tiffin",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Trevecca Nazarene",
+  "academic_score": 5.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Truman State",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Tusculum",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "UC Merced",
+  "academic_score": 7.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "UCCS",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "UMSL",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "UT Dallas",
+  "academic_score": 9.2
+ },
+ {
+  "division": "NCAA D2",
+  "name": "UT Tyler",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Union (TN)",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Upper Iowa",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Vanguard",
+  "academic_score": 7
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Virginia State",
+  "academic_score": 5.3
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Walsh",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "West Alabama",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "West Chester",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "West Florida",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "West Liberty",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "West Texas A&M",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "West Virginia Wesleyan",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Western Oregon",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Western Washington",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Westminster (UT)",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Westmont",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Wheeling",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "William Jewell",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Wilmington (DE)",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Wingate",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Wisconsin-Parkside",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D2",
+  "name": "Young Harris",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Adrian",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Albertus Magnus",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Albion",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Albright",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Alfred State",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Alfred University",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Allegheny",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Alma",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Alvernia",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Amherst",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Anderson (IN)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Anna Maria",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Arcadia",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Asbury",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Augsburg",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Augustana (IL)",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Aurora",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Austin College",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Averett",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Babson",
+  "academic_score": 9.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Baldwin Wallace",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Bard",
+  "academic_score": 9.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Bates",
+  "academic_score": 9.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Belhaven",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Beloit",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Benedictine (IL)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Berea",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Berry",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Bethany (WV)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Bethany Lutheran",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Bethel (MN)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Blackburn",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Bluffton",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Bob Jones",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Bowdoin",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Brandeis",
+  "academic_score": 9.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Brevard",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Bridgewater (VA)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Bridgewater State",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Bryn Athyn",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Buena Vista",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Cairn",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Cal Lutheran",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Caltech",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Calvin",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Capital",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Carleton",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Carlow",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Carnegie Mellon",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Carroll (WI)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Carthage",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Case Western Reserve",
+  "academic_score": 9.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Catholic",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Cazenovia",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Centenary (LA)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Centenary (NJ)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Central (IA)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Centre",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Chapman",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Chatham",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Christopher Newport",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Claremont-Mudd-Scripps",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Clark (MA)",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Clarks Summit",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Clarkson",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Coe",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Colby",
+  "academic_score": 9.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Colby-Sawyer",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "College of Wooster",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Colorado College",
+  "academic_score": 9.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Concordia (MN)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Concordia Chicago",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Concordia Texas",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Concordia Wisconsin",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Connecticut College",
+  "academic_score": 9.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Cornell College",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Covenant",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Crown (MN)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Curry",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "DePauw",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "DeSales",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Dean College",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Delaware Valley",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Denison",
+  "academic_score": 9.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Dickinson",
+  "academic_score": 9
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Dominican (IL)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Drew",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Earlham",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "East Texas Baptist",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Eastern (PA)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Eastern Connecticut",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Eastern Mennonite",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Eastern Nazarene",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Edgewood",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Elizabethtown",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Elmhurst",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Elmira",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Elms",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Emerson",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Emmanuel (MA)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Emory",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Endicott",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Eureka",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "FDU-Florham",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Ferrum",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Fitchburg State",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Fontbonne",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Framingham State",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Franciscan (OH)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Franklin",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Franklin & Marshall",
+  "academic_score": 9.3
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Fredonia State",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Gallaudet",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Geneva",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "George Fox",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Gettysburg",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Gordon",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Goucher",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Grace Christian",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Greensboro",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Greenville",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Grinnell",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Grove City",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Guilford",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Gustavus Adolphus",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Gwynedd Mercy",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Hamilton",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Hamline",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Hampden-Sydney",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Hanover",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Hardin-Simmons",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Hartwick",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Haverford",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Heidelberg",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Hendrix",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Hilbert",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Hiram",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Hobart & William Smith",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Hood",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Hope",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Houghton",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Howard Payne",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Huntingdon",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Husson",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Illinois College",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Illinois Tech",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Illinois Wesleyan",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Immaculata",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Ithaca",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "John Carroll",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Johns Hopkins",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Johnson & Wales (Charlotte)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Johnson & Wales (Providence)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Juniata",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Kalamazoo",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Kean",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Keene State",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Kenyon",
+  "academic_score": 9.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Keuka",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Keystone",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "King's (PA)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Knox",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "La Roche",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "LaGrange",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Lake Forest",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Lakeland",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Lancaster Bible",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Lasell",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Lawrence",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "LeTourneau",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Lebanon Valley",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Lesley",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Lewis & Clark",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Linfield",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Loras",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Luther",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Lycoming",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Lyon College",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D3",
+  "name": "MIT",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Macalester",
+  "academic_score": 9.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Maine Maritime",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Manchester",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Manhattanville",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Marian (WI)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Marietta",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Martin Luther",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Mary Baldwin",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Marymount (VA)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Maryville (TN)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Marywood",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Massachusetts College of Liberal Arts",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Massachusetts Maritime",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "McDaniel",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "McMurry",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Messiah",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Methodist",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Middlebury",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Millikin",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Millsaps",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Monmouth (IL)",
+  "academic_score": 6
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Montclair State",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Moravian",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Mount St. Joseph",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Mount Union",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Muhlenberg",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Muskingum",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Nazareth",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "New England",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "New England College",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D3",
+  "name": "New Jersey City",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "New York University",
+  "academic_score": 9.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Nichols",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "North Carolina Wesleyan",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "North Central (IL)",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "North Park",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Oberlin",
+  "academic_score": 9.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Oglethorpe",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Ohio Northern",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Ohio Wesleyan",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Olivet",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Otterbein",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Pacific Lutheran",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Penn State Behrend",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Penn State Harrisburg",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Plattsburgh State",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Plymouth State",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Pomona-Pitzer",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Puget Sound",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Randolph-Macon",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Rensselaer",
+  "academic_score": 9.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Rhode Island College",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Rhodes",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Ripon",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Roanoke",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Rochester",
+  "academic_score": 9.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Rochester Institute of Technology",
+  "academic_score": 9
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Roger Williams",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Rose-Hulman",
+  "academic_score": 9.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Rowan",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Rutgers-Camden",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Rutgers-Newark",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "SCAD",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "SUNY Cortland",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "SUNY Geneseo",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "SUNY New Paltz",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "SUNY Old Westbury",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "SUNY Oneonta",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "SUNY Oswego",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "SUNY Potsdam",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Saint Francis (PA)",
+  "academic_score": 4.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Saint John Fisher",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Saint Joseph's (ME)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Saint Lawrence",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Saint Mary's (MN)",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Saint Olaf",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Saint Vincent",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Salisbury",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Salve Regina",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Scranton",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Shenandoah",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Simpson (IA)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Skidmore",
+  "academic_score": 9.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Southern Maine",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Southern Virginia",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Southwestern (TX)",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Springfield",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "St. Joseph's (NY)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "St. Mary's College of Maryland",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "St. Norbert",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "St. Scholastica",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Stevens Tech",
+  "academic_score": 9.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Stevenson",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Stockton",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Suffolk",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Susquehanna",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Swarthmore",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Trine",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Trinity (CT)",
+  "academic_score": 9.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Trinity (TX)",
+  "academic_score": 9.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Tufts",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Union (NY)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "University of Chicago",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "University of New England",
+  "academic_score": 6.6
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Ursinus",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Utica",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Virginia Wesleyan",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wartburg",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Washington & Jefferson",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Washington & Lee",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Washington (MO)",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Washington College (MD)",
+  "academic_score": 8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Waynesburg",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Webster",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wells",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wentworth",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wesley",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wesleyan (CT)",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Western Connecticut",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Western New England",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Westfield State",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Westminster (MO)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Westminster (PA)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wheaton (IL)",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wheaton (MA)",
+  "academic_score": 8.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Whitman",
+  "academic_score": 9.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Whitworth",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Widener",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wilkes",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Williams",
+  "academic_score": 10
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wilmington (OH)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wisconsin-Eau Claire",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wisconsin-La Crosse",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wisconsin-Oshkosh",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wisconsin-Platteville",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wisconsin-River Falls",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wisconsin-Stevens Point",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wisconsin-Stout",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wisconsin-Superior",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wisconsin-Whitewater",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Wittenberg",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Worcester Polytechnic",
+  "academic_score": 9.5
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Worcester State",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NCAA D3",
+  "name": "Yeshiva",
+  "academic_score": 8.8
+ },
+ {
+  "division": "NCAA D3",
+  "name": "York (PA)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Aquinas",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Arizona Christian",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NAIA",
+  "name": "Avila",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Baker",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Barclay",
+  "academic_score": 4.7
+ },
+ {
+  "division": "NAIA",
+  "name": "Benedictine (KS)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Bethany (KS)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Bethel (IN)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Bethel (TN)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Bethesda",
+  "academic_score": 4.7
+ },
+ {
+  "division": "NAIA",
+  "name": "Bryan",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Calumet College",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NAIA",
+  "name": "Cardinal Stritch",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Carroll (MT)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Cascade",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Central Christian",
+  "academic_score": 4.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Central Methodist",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Clarke",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "College of Idaho",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NAIA",
+  "name": "Columbia (MO)",
+  "academic_score": 10
+ },
+ {
+  "division": "NAIA",
+  "name": "Concordia (MI)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Concordia (NE)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Cornerstone",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Cumberlands",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Dakota State",
+  "academic_score": 7
+ },
+ {
+  "division": "NAIA",
+  "name": "Dakota Wesleyan",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Dallas Christian",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NAIA",
+  "name": "Dickinson State",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NAIA",
+  "name": "Doane",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Dordt",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NAIA",
+  "name": "Eastern Oregon",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Edward Waters",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Emmanuel (GA - NAIA)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Evangel",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Florida Memorial",
+  "academic_score": 4.7
+ },
+ {
+  "division": "NAIA",
+  "name": "Freed-Hardeman",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NAIA",
+  "name": "Friends",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Georgetown (KY)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Goshen",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Grace",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Grand View",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Greenville",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Hannibal-LaGrange",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Hastings",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Hillsdale Baptist",
+  "academic_score": 4.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Huntington",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Indiana Institute of Technology",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NAIA",
+  "name": "Indiana Wesleyan",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NAIA",
+  "name": "Iowa Wesleyan",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "John Brown",
+  "academic_score": 7.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Kansas Wesleyan",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Kentucky Christian",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NAIA",
+  "name": "Kentucky State",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NAIA",
+  "name": "Langston",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Lewis-Clark State",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Life (GA)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Lindsey Wilson",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NAIA",
+  "name": "MidAmerica Nazarene",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Midland",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Midway",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Missouri Baptist",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NAIA",
+  "name": "Montana State Northern",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NAIA",
+  "name": "Montana Western",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Morningside",
+  "academic_score": 7
+ },
+ {
+  "division": "NAIA",
+  "name": "Mount Mercy",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Mount Vernon Nazarene",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Multnomah",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Northwest University",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NAIA",
+  "name": "Northwestern (IA)",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NAIA",
+  "name": "Northwestern (MN)",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NAIA",
+  "name": "Olivet Nazarene",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NAIA",
+  "name": "Ottawa",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Ozarks (AR)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Ozarks (MO)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Park",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Peru State",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NAIA",
+  "name": "Pikeville",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Point (GA)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Providence (MT)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Rocky Mountain",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Saint Ambrose",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NAIA",
+  "name": "Saint Francis (IL)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Saint Mary (KS)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Saint Thomas (FL)",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NAIA",
+  "name": "Science & Arts (OK)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Siena Heights",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Southeastern (FL)",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Southeastern University",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Southern Oregon",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Southwest Minnesota State",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NAIA",
+  "name": "Southwestern (KS)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Spring Arbor",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NAIA",
+  "name": "Sterling",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Tabor",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Taylor",
+  "academic_score": 7.8
+ },
+ {
+  "division": "NAIA",
+  "name": "Trinity Christian",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NAIA",
+  "name": "Trinity International",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Union (KY)",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Valley City State",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NAIA",
+  "name": "Waldorf",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Warner",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Wayland Baptist",
+  "academic_score": 5.4
+ },
+ {
+  "division": "NAIA",
+  "name": "Webber International",
+  "academic_score": 4.7
+ },
+ {
+  "division": "NAIA",
+  "name": "William Jessup",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NAIA",
+  "name": "William Penn",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "William Woods",
+  "academic_score": 5.6
+ },
+ {
+  "division": "NAIA",
+  "name": "Xavier (LA)",
+  "academic_score": 7.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Allan Hancock",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Allegany",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Allen County Community",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "American River",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Ancilla",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Anne Arundel",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Arizona Western",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Atlantic Cape",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Barton County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Blinn",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Blue Mountain",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Bossier Parish",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Brookdale",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Broward",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Buffalo-Erie",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Butler County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Cape Fear",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Carl Sandburg",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Cascadia",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Catawba Valley",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Cecil",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Central Alabama",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Central Arizona",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Central Georgia Tech",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NJCAA",
+  "name": "Central Lakes",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Central Penn",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Chesapeake",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Chipola",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "City Colleges Chicago-Harold Washington",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "City Colleges Chicago-Olive Harvey",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "City Colleges Chicago-Richard Daley",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "City Colleges Chicago-Wilbur Wright",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Coffeyville",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "College of DuPage",
+  "academic_score": 7
+ },
+ {
+  "division": "NJCAA",
+  "name": "College of Lake County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "College of Marin",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "College of Southern Idaho",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "College of Southern Nevada",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Collin College",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Contra Costa",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Copiah-Lincoln",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Cowley County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Crowder",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Danville Area",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Daytona State",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Dean College",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Delta College (MI)",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Des Moines Area",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Diablo Valley",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Dodge City",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "East Central (OK)",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "East Mississippi",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Eastern Arizona",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Eastern Florida State",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Eastern Wyoming",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "El Camino",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Ellsworth",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Essex County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Everett",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Finger Lakes Community",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Florida State College Jacksonville",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Fort Scott Community",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Frederick",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Front Range",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Gadsden State",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Garden City Community",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Garrett",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Genesee Community",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "George C. Wallace",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Georgia Highlands",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Georgia Military",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Georgia Northwestern",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Georgia Piedmont",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Gloucester County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Grand Rapids Community",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Hagerstown",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Harford County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Harper",
+  "academic_score": 7
+ },
+ {
+  "division": "NJCAA",
+  "name": "Hawkeye",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Highland",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Hillsborough",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Hocking",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Holmes",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Holyoke",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Howard Community",
+  "academic_score": 7
+ },
+ {
+  "division": "NJCAA",
+  "name": "Hudson Valley",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Indian Hills",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Iowa Central",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Iowa Lakes",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Iowa Western",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "J. Sargeant Reynolds",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Jackson College",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Jefferson (NY)",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Jefferson Davis",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Johnson County Community",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Kalamazoo Valley",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Kankakee Community",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Kellogg Community",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Kilgore",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Kirkwood",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Labette",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Lake Land",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Lamar Institute",
+  "academic_score": 5.7
+ },
+ {
+  "division": "NJCAA",
+  "name": "Laramie County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Lewis & Clark (ID)",
+  "academic_score": 8.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Lincoln Land",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Lincoln Trail",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Lone Star",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Lord Fairfax",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Louisiana Delta",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Lower Columbia",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Lurleen B. Wallace",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "McLennan",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Merced",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Meridian",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Mesa Community",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Middlesex County",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Mineral Area",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Mississippi Delta",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Mississippi Gulf Coast",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Missouri State-West Plains",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Moberly Area",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Monroe Community",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Montgomery",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Motlow State",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Mount San Antonio",
+  "academic_score": 7.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Nassau Community",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Nebraska Central",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "New Mexico Junior",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Niagara County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "North Arkansas",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "North Central Missouri",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Northeast Mississippi",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Northeast Oklahoma A&M",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Northeast Texas",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Northern Essex",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Northern Idaho",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Northland Pioneer",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Northwest College",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Northwest Mississippi",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Northwest Shoals",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Odessa",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Oklahoma City Community",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Onondaga Community",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Orange Coast",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Otero College",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Owens",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Ozarka",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Panola",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Paradise Valley",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Parkland",
+  "academic_score": 7
+ },
+ {
+  "division": "NJCAA",
+  "name": "Passaic County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Paul D. Camp",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Pearl River",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Pellissippi State",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Penn State Hazleton",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Pensacola State",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Piedmont Virginia",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Pima",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Polk State",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Prairie State",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Pratt Community",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Queensborough",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Ranger",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Reading Area",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Rend Lake",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Richland",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Riverside",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Roane State",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Rock Valley",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Rockland Community",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Rose State",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Salt Lake Community",
+  "academic_score": 7
+ },
+ {
+  "division": "NJCAA",
+  "name": "San Bernardino Valley",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "San Diego Mesa",
+  "academic_score": 7
+ },
+ {
+  "division": "NJCAA",
+  "name": "San Diego Miramar",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "San Joaquin Delta",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Sandhills",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Santa Ana",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Santa Barbara City",
+  "academic_score": 7.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Santa Monica",
+  "academic_score": 7.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Santa Rosa Junior",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Scottsdale",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Seward County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Shawnee Community",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Sierra",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Sinclair",
+  "academic_score": 7
+ },
+ {
+  "division": "NJCAA",
+  "name": "Skagit Valley",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Snow",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Somerset",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "South Mountain Community",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "South Plains",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "South Puget Sound",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Southeastern Community (IA)",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Southwestern (CA)",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Southwestern Illinois",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Spartanburg Methodist",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "St. Charles Community",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "St. Louis Community-Florissant Valley",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "St. Louis Community-Forest Park",
+  "academic_score": 6.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "St. Louis Community-Meramec",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Suffolk County",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Sullivan County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Surry",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Tallahassee",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Terra State",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Three Rivers",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Tidewater",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Tompkins Cortland",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Trinity Valley",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Tulsa Community",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Tyler Junior",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Union County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Ventura",
+  "academic_score": 7.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Vernon",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Victor Valley",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Vincennes",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Virginia Highlands",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Virginia Western",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Volunteer State",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Wake Technical",
+  "academic_score": 7
+ },
+ {
+  "division": "NJCAA",
+  "name": "Wallace State",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "Walters State",
+  "academic_score": 6.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Weatherford",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Western Nebraska",
+  "academic_score": 5.8
+ },
+ {
+  "division": "NJCAA",
+  "name": "Western Wyoming",
+  "academic_score": 5.2
+ },
+ {
+  "division": "NJCAA",
+  "name": "Westmoreland County",
+  "academic_score": 6
+ },
+ {
+  "division": "NJCAA",
+  "name": "Wharton County Junior",
+  "academic_score": 6.5
+ },
+ {
+  "division": "NJCAA",
+  "name": "William Rainey Harper",
+  "academic_score": 7
+ },
+ {
+  "division": "NJCAA",
+  "name": "York County",
+  "academic_score": 6
+ }
+]

@@ -1,0 +1,171 @@
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import multer from 'multer';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { randomUUID } from 'node:crypto';
+
+import { Player } from './db/entities/player.js';
+import { College } from './db/entities/college.js';
+import { GraduatingSenior } from './db/entities/graduatingSenior.js';
+
+import { seedD1Schools } from './routes/seedD1Schools.js';
+import { importSoccerScores } from './routes/importSoccerScores.js';
+import { evaluateSoccerProgram } from './routes/evaluateSoccerProgram.js';
+import { buildGraduatingDatabase } from './routes/buildGraduatingDatabase.js';
+import { importGraduatingCSV } from './routes/importGraduatingCSV.js';
+import { exportGraduatingDatabaseCsv } from './routes/exportGraduatingDatabase.js';
+import { listSchoolsByDivision } from './routes/listSchoolsByDivision.js';
+import { cleanInactiveSchools } from './routes/cleanInactiveSchools.js';
+import { sendEmailStub } from './routes/sendEmail.js';
+import { csvAgentChat } from './routes/csvAgent.js';
+import { coachingImportPreview } from './routes/coachingImportPreview.js';
+import { coachingImportApply } from './routes/coachingImportApply.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const uploadsDir = path.resolve(__dirname, 'uploads');
+fs.mkdirSync(uploadsDir, { recursive: true });
+
+const app = express();
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+app.use('/uploads', express.static(uploadsDir));
+
+const ENTITIES = {
+  players: Player,
+  colleges: College,
+  graduating_seniors: GraduatingSenior,
+};
+
+function parseQuery(reqQuery) {
+  const { _sort, _limit, ...filters } = reqQuery;
+  return { filters, sort: _sort, limit: _limit ? Number(_limit) : undefined };
+}
+
+app.get('/api/entities/:table', (req, res) => {
+  const entity = ENTITIES[req.params.table];
+  if (!entity) return res.status(404).json({ error: 'Unknown entity' });
+  const { filters, sort, limit } = parseQuery(req.query);
+  const rows = Object.keys(filters).length > 0 ? entity.filter(filters, sort, limit) : entity.list(sort, limit);
+  res.json(rows);
+});
+
+app.get('/api/entities/:table/:id', (req, res) => {
+  const entity = ENTITIES[req.params.table];
+  if (!entity) return res.status(404).json({ error: 'Unknown entity' });
+  const row = entity.get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Not found' });
+  res.json(row);
+});
+
+app.post('/api/entities/:table', (req, res) => {
+  const entity = ENTITIES[req.params.table];
+  if (!entity) return res.status(404).json({ error: 'Unknown entity' });
+  res.json(entity.create(req.body));
+});
+
+app.put('/api/entities/:table/:id', (req, res) => {
+  const entity = ENTITIES[req.params.table];
+  if (!entity) return res.status(404).json({ error: 'Unknown entity' });
+  res.json(entity.update(req.params.id, req.body));
+});
+
+app.delete('/api/entities/:table/:id', (req, res) => {
+  const entity = ENTITIES[req.params.table];
+  if (!entity) return res.status(404).json({ error: 'Unknown entity' });
+  res.json(entity.delete(req.params.id));
+});
+
+// ---- Backend functions ----
+
+app.post('/api/functions/exportGraduatingDatabase', (req, res) => {
+  try {
+    const csv = exportGraduatingDatabaseCsv(req.body || {});
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="graduating_database_2025.csv"');
+    res.send(csv);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ---- Coaching Contacts Import (reusable, re-runnable against future CSVs) ----
+
+app.post('/api/coaching-import/preview', async (req, res) => {
+  try {
+    const result = await coachingImportPreview(req.body || {});
+    res.json(result);
+  } catch (err) {
+    console.error('[coaching-import/preview]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/coaching-import/apply', async (req, res) => {
+  try {
+    const result = await coachingImportApply(req.body || {});
+    res.json(result);
+  } catch (err) {
+    console.error('[coaching-import/apply]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+const FUNCTIONS = {
+  seedD1Schools,
+  importSoccerScores,
+  evaluateSoccerProgram,
+  buildGraduatingDatabase,
+  importGraduatingCSV,
+  listSchoolsByDivision,
+  cleanInactiveSchools,
+};
+
+app.post('/api/functions/:name', async (req, res) => {
+  const fn = FUNCTIONS[req.params.name];
+  if (!fn) return res.status(404).json({ error: `Unknown function: ${req.params.name}` });
+  try {
+    const result = await fn(req.body || {});
+    res.json(result);
+  } catch (err) {
+    console.error(`[${req.params.name}]`, err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ---- Uploads (UploadFile integration replacement) ----
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
+
+app.post('/api/uploads', upload.single('file'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file provided' });
+  const filename = `${randomUUID()}-${req.file.originalname}`;
+  fs.writeFileSync(path.join(uploadsDir, filename), req.file.buffer);
+  res.json({ file_url: `/uploads/${filename}` });
+});
+
+// ---- SendEmail integration replacement (stub) ----
+
+app.post('/api/send-email', async (req, res) => {
+  const result = await sendEmailStub(req.body || {});
+  res.json(result);
+});
+
+// ---- CSV specialist chat agent ----
+
+app.post('/api/csv-agent/chat', async (req, res) => {
+  try {
+    const result = await csvAgentChat(req.body || {});
+    res.json(result);
+  } catch (err) {
+    console.error('[csv-agent]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+const PORT = process.env.API_PORT || 8787;
+app.listen(PORT, () => {
+  console.log(`RecruitMatch API listening on http://localhost:${PORT}`);
+});

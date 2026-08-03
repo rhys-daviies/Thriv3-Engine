@@ -1,0 +1,1067 @@
+[
+ {
+  "name": "Albany",
+  "conference": "America East Conference",
+  "rpi_rank": 99
+ },
+ {
+  "name": "Binghamton",
+  "conference": "America East Conference",
+  "rpi_rank": 179
+ },
+ {
+  "name": "Bryant",
+  "conference": "America East Conference",
+  "rpi_rank": 6
+ },
+ {
+  "name": "New Hampshire",
+  "conference": "America East Conference",
+  "rpi_rank": 113
+ },
+ {
+  "name": "NJIT",
+  "conference": "America East Conference",
+  "rpi_rank": 174
+ },
+ {
+  "name": "UMass Lowell",
+  "conference": "America East Conference",
+  "rpi_rank": 105
+ },
+ {
+  "name": "UMBC",
+  "conference": "America East Conference",
+  "rpi_rank": 156
+ },
+ {
+  "name": "Vermont",
+  "conference": "America East Conference",
+  "rpi_rank": 2
+ },
+ {
+  "name": "Charlotte",
+  "conference": "American Conference",
+  "rpi_rank": 48
+ },
+ {
+  "name": "Florida Atlantic",
+  "conference": "American Conference",
+  "rpi_rank": 38
+ },
+ {
+  "name": "FIU",
+  "conference": "American Conference",
+  "rpi_rank": 69
+ },
+ {
+  "name": "Memphis",
+  "conference": "American Conference",
+  "rpi_rank": 148
+ },
+ {
+  "name": "Missouri State",
+  "conference": "American Conference",
+  "rpi_rank": 86
+ },
+ {
+  "name": "South Florida",
+  "conference": "American Conference",
+  "rpi_rank": 56
+ },
+ {
+  "name": "Temple",
+  "conference": "American Conference",
+  "rpi_rank": 180
+ },
+ {
+  "name": "Tulsa",
+  "conference": "American Conference",
+  "rpi_rank": 112
+ },
+ {
+  "name": "UAB",
+  "conference": "American Conference",
+  "rpi_rank": 116
+ },
+ {
+  "name": "Davidson",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 50
+ },
+ {
+  "name": "Dayton",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 83
+ },
+ {
+  "name": "Duquesne",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 125
+ },
+ {
+  "name": "Fordham",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 87
+ },
+ {
+  "name": "George Mason",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 79
+ },
+ {
+  "name": "George Washington",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 204
+ },
+ {
+  "name": "La Salle",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 163
+ },
+ {
+  "name": "Loyola Chicago",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 150
+ },
+ {
+  "name": "Rhode Island",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 135
+ },
+ {
+  "name": "St. Bonaventure",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 192
+ },
+ {
+  "name": "Saint Joseph's",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 140
+ },
+ {
+  "name": "Saint Louis",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 19
+ },
+ {
+  "name": "VCU",
+  "conference": "Atlantic 10 Conference",
+  "rpi_rank": 42
+ },
+ {
+  "name": "Boston College",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 81
+ },
+ {
+  "name": "California",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 49
+ },
+ {
+  "name": "Clemson",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 37
+ },
+ {
+  "name": "Duke",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 31
+ },
+ {
+  "name": "Louisville",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 77
+ },
+ {
+  "name": "NC State",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 3
+ },
+ {
+  "name": "North Carolina",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 27
+ },
+ {
+  "name": "Notre Dame",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 39
+ },
+ {
+  "name": "Pittsburgh",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 62
+ },
+ {
+  "name": "SMU",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 7
+ },
+ {
+  "name": "Stanford",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 12
+ },
+ {
+  "name": "Syracuse",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 36
+ },
+ {
+  "name": "Virginia",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 3
+ },
+ {
+  "name": "Virginia Tech",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 54
+ },
+ {
+  "name": "Wake Forest",
+  "conference": "Atlantic Coast Conference",
+  "rpi_rank": 47
+ },
+ {
+  "name": "Bellarmine",
+  "conference": "Atlantic Sun Conference",
+  "rpi_rank": 114
+ },
+ {
+  "name": "Central Arkansas",
+  "conference": "Atlantic Sun Conference",
+  "rpi_rank": 147
+ },
+ {
+  "name": "FGCU",
+  "conference": "Atlantic Sun Conference",
+  "rpi_rank": 91
+ },
+ {
+  "name": "Jacksonville",
+  "conference": "Atlantic Sun Conference",
+  "rpi_rank": 126
+ },
+ {
+  "name": "Lipscomb",
+  "conference": "Atlantic Sun Conference",
+  "rpi_rank": 173
+ },
+ {
+  "name": "North Florida",
+  "conference": "Atlantic Sun Conference",
+  "rpi_rank": 46
+ },
+ {
+  "name": "Queens (NC)",
+  "conference": "Atlantic Sun Conference",
+  "rpi_rank": 164
+ },
+ {
+  "name": "Stetson",
+  "conference": "Atlantic Sun Conference",
+  "rpi_rank": 122
+ },
+ {
+  "name": "Akron",
+  "conference": "Big East Conference",
+  "rpi_rank": 13
+ },
+ {
+  "name": "Butler",
+  "conference": "Big East Conference",
+  "rpi_rank": 157
+ },
+ {
+  "name": "Creighton",
+  "conference": "Big East Conference",
+  "rpi_rank": 52
+ },
+ {
+  "name": "DePaul",
+  "conference": "Big East Conference",
+  "rpi_rank": 181
+ },
+ {
+  "name": "Georgetown",
+  "conference": "Big East Conference",
+  "rpi_rank": 9
+ },
+ {
+  "name": "Marquette",
+  "conference": "Big East Conference",
+  "rpi_rank": 131
+ },
+ {
+  "name": "Providence",
+  "conference": "Big East Conference",
+  "rpi_rank": 71
+ },
+ {
+  "name": "St. John's",
+  "conference": "Big East Conference",
+  "rpi_rank": 43
+ },
+ {
+  "name": "Seton Hall",
+  "conference": "Big East Conference",
+  "rpi_rank": 26
+ },
+ {
+  "name": "UConn",
+  "conference": "Big East Conference",
+  "rpi_rank": 15
+ },
+ {
+  "name": "Villanova",
+  "conference": "Big East Conference",
+  "rpi_rank": 88
+ },
+ {
+  "name": "Xavier",
+  "conference": "Big East Conference",
+  "rpi_rank": 115
+ },
+ {
+  "name": "Gardner-Webb",
+  "conference": "Big South Conference",
+  "rpi_rank": 35
+ },
+ {
+  "name": "High Point",
+  "conference": "Big South Conference",
+  "rpi_rank": 11
+ },
+ {
+  "name": "Longwood",
+  "conference": "Big South Conference",
+  "rpi_rank": 185
+ },
+ {
+  "name": "Presbyterian",
+  "conference": "Big South Conference",
+  "rpi_rank": 144
+ },
+ {
+  "name": "Radford",
+  "conference": "Big South Conference",
+  "rpi_rank": 202
+ },
+ {
+  "name": "UNC Asheville",
+  "conference": "Big South Conference",
+  "rpi_rank": 143
+ },
+ {
+  "name": "USC Upstate",
+  "conference": "Big South Conference",
+  "rpi_rank": 153
+ },
+ {
+  "name": "Winthrop",
+  "conference": "Big South Conference",
+  "rpi_rank": 210
+ },
+ {
+  "name": "Indiana",
+  "conference": "Big Ten Conference",
+  "rpi_rank": 10
+ },
+ {
+  "name": "Maryland",
+  "conference": "Big Ten Conference",
+  "rpi_rank": 159
+ },
+ {
+  "name": "Michigan",
+  "conference": "Big Ten Conference",
+  "rpi_rank": 33
+ },
+ {
+  "name": "Michigan State",
+  "conference": "Big Ten Conference",
+  "rpi_rank": 33
+ },
+ {
+  "name": "Northwestern",
+  "conference": "Big Ten Conference",
+  "rpi_rank": 68
+ },
+ {
+  "name": "Ohio State",
+  "conference": "Big Ten Conference",
+  "rpi_rank": 101
+ },
+ {
+  "name": "Penn State",
+  "conference": "Big Ten Conference",
+  "rpi_rank": 75
+ },
+ {
+  "name": "Rutgers",
+  "conference": "Big Ten Conference",
+  "rpi_rank": 44
+ },
+ {
+  "name": "UCLA",
+  "conference": "Big Ten Conference",
+  "rpi_rank": 29
+ },
+ {
+  "name": "Washington",
+  "conference": "Big Ten Conference",
+  "rpi_rank": 24
+ },
+ {
+  "name": "Wisconsin",
+  "conference": "Big Ten Conference",
+  "rpi_rank": 57
+ },
+ {
+  "name": "Cal State Bakersfield",
+  "conference": "Big West Conference",
+  "rpi_rank": 182
+ },
+ {
+  "name": "Cal State Fullerton",
+  "conference": "Big West Conference",
+  "rpi_rank": 117
+ },
+ {
+  "name": "CSUN",
+  "conference": "Big West Conference",
+  "rpi_rank": 165
+ },
+ {
+  "name": "Sacramento State",
+  "conference": "Big West Conference",
+  "rpi_rank": 191
+ },
+ {
+  "name": "UC Irvine",
+  "conference": "Big West Conference",
+  "rpi_rank": 60
+ },
+ {
+  "name": "UC Santa Barbara",
+  "conference": "Big West Conference",
+  "rpi_rank": 80
+ },
+ {
+  "name": "Utah Valley",
+  "conference": "Big West Conference",
+  "rpi_rank": 82
+ },
+ {
+  "name": "Campbell",
+  "conference": "Coastal Athletic Association",
+  "rpi_rank": 111
+ },
+ {
+  "name": "Charleston",
+  "conference": "Coastal Athletic Association",
+  "rpi_rank": 103
+ },
+ {
+  "name": "Drexel",
+  "conference": "Coastal Athletic Association",
+  "rpi_rank": 119
+ },
+ {
+  "name": "Elon",
+  "conference": "Coastal Athletic Association",
+  "rpi_rank": 64
+ },
+ {
+  "name": "Hofstra",
+  "conference": "Coastal Athletic Association",
+  "rpi_rank": 27
+ },
+ {
+  "name": "Monmouth",
+  "conference": "Coastal Athletic Association",
+  "rpi_rank": 123
+ },
+ {
+  "name": "Northeastern",
+  "conference": "Coastal Athletic Association",
+  "rpi_rank": 142
+ },
+ {
+  "name": "Stony Brook",
+  "conference": "Coastal Athletic Association",
+  "rpi_rank": 61
+ },
+ {
+  "name": "UNCW",
+  "conference": "Coastal Athletic Association",
+  "rpi_rank": 128
+ },
+ {
+  "name": "William & Mary",
+  "conference": "Coastal Athletic Association",
+  "rpi_rank": 171
+ },
+ {
+  "name": "Cleveland State",
+  "conference": "Horizon League",
+  "rpi_rank": 95
+ },
+ {
+  "name": "Detroit Mercy",
+  "conference": "Horizon League",
+  "rpi_rank": 186
+ },
+ {
+  "name": "Green Bay",
+  "conference": "Horizon League",
+  "rpi_rank": 136
+ },
+ {
+  "name": "IU Indy",
+  "conference": "Horizon League",
+  "rpi_rank": 170
+ },
+ {
+  "name": "Milwaukee",
+  "conference": "Horizon League",
+  "rpi_rank": 188
+ },
+ {
+  "name": "Northern Illinois",
+  "conference": "Horizon League",
+  "rpi_rank": 85
+ },
+ {
+  "name": "Northern Kentucky",
+  "conference": "Horizon League",
+  "rpi_rank": 40
+ },
+ {
+  "name": "Oakland",
+  "conference": "Horizon League",
+  "rpi_rank": 195
+ },
+ {
+  "name": "Purdue Fort Wayne",
+  "conference": "Horizon League",
+  "rpi_rank": 146
+ },
+ {
+  "name": "Robert Morris",
+  "conference": "Horizon League",
+  "rpi_rank": 158
+ },
+ {
+  "name": "Wright State",
+  "conference": "Horizon League",
+  "rpi_rank": 205
+ },
+ {
+  "name": "Brown",
+  "conference": "Ivy League",
+  "rpi_rank": 73
+ },
+ {
+  "name": "Columbia",
+  "conference": "Ivy League",
+  "rpi_rank": 120
+ },
+ {
+  "name": "Cornell",
+  "conference": "Ivy League",
+  "rpi_rank": 28
+ },
+ {
+  "name": "Dartmouth",
+  "conference": "Ivy League",
+  "rpi_rank": 130
+ },
+ {
+  "name": "Harvard",
+  "conference": "Ivy League",
+  "rpi_rank": 65
+ },
+ {
+  "name": "Princeton",
+  "conference": "Ivy League",
+  "rpi_rank": 1
+ },
+ {
+  "name": "Penn",
+  "conference": "Ivy League",
+  "rpi_rank": 75
+ },
+ {
+  "name": "Yale",
+  "conference": "Ivy League",
+  "rpi_rank": 139
+ },
+ {
+  "name": "Canisius",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 196
+ },
+ {
+  "name": "Fairfield",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 84
+ },
+ {
+  "name": "Iona",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 118
+ },
+ {
+  "name": "Manhattan",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 172
+ },
+ {
+  "name": "Marist",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 76
+ },
+ {
+  "name": "Merrimack",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 203
+ },
+ {
+  "name": "Mount St. Mary's",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 194
+ },
+ {
+  "name": "Niagara",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 152
+ },
+ {
+  "name": "Quinnipiac",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 149
+ },
+ {
+  "name": "Rider",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 197
+ },
+ {
+  "name": "Sacred Heart",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 53
+ },
+ {
+  "name": "Saint Peter's",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 193
+ },
+ {
+  "name": "Siena",
+  "conference": "Metro Atlantic Athletic Conference",
+  "rpi_rank": 58
+ },
+ {
+  "name": "Belmont",
+  "conference": "Missouri Valley Conference",
+  "rpi_rank": 94
+ },
+ {
+  "name": "Bowling Green",
+  "conference": "Missouri Valley Conference",
+  "rpi_rank": 137
+ },
+ {
+  "name": "Bradley",
+  "conference": "Missouri Valley Conference",
+  "rpi_rank": 184
+ },
+ {
+  "name": "Drake",
+  "conference": "Missouri Valley Conference",
+  "rpi_rank": 74
+ },
+ {
+  "name": "Evansville",
+  "conference": "Missouri Valley Conference",
+  "rpi_rank": 94
+ },
+ {
+  "name": "UIC",
+  "conference": "Missouri Valley Conference",
+  "rpi_rank": 90
+ },
+ {
+  "name": "Western Michigan",
+  "conference": "Missouri Valley Conference",
+  "rpi_rank": 33
+ },
+ {
+  "name": "Air Force",
+  "conference": "Mountain West Conference",
+  "rpi_rank": 206
+ },
+ {
+  "name": "Grand Canyon",
+  "conference": "Mountain West Conference",
+  "rpi_rank": 32
+ },
+ {
+  "name": "San Jose State",
+  "conference": "Mountain West Conference",
+  "rpi_rank": 51
+ },
+ {
+  "name": "UC Davis",
+  "conference": "Mountain West Conference",
+  "rpi_rank": 161
+ },
+ {
+  "name": "UNLV",
+  "conference": "Mountain West Conference",
+  "rpi_rank": 134
+ },
+ {
+  "name": "Utah Tech",
+  "conference": "Mountain West Conference",
+  "rpi_rank": 151
+ },
+ {
+  "name": "Central Connecticut",
+  "conference": "NEC",
+  "rpi_rank": 213
+ },
+ {
+  "name": "Chicago State",
+  "conference": "NEC",
+  "rpi_rank": 212
+ },
+ {
+  "name": "Fairleigh Dickinson",
+  "conference": "NEC",
+  "rpi_rank": 72
+ },
+ {
+  "name": "Howard",
+  "conference": "NEC",
+  "rpi_rank": 208
+ },
+ {
+  "name": "Le Moyne",
+  "conference": "NEC",
+  "rpi_rank": 183
+ },
+ {
+  "name": "LIU",
+  "conference": "NEC",
+  "rpi_rank": 127
+ },
+ {
+  "name": "Mercyhurst",
+  "conference": "NEC",
+  "rpi_rank": 209
+ },
+ {
+  "name": "New Haven",
+  "conference": "NEC",
+  "rpi_rank": 198
+ },
+ {
+  "name": "Saint Francis (PA)",
+  "conference": "NEC",
+  "rpi_rank": 160
+ },
+ {
+  "name": "Stonehill",
+  "conference": "NEC",
+  "rpi_rank": 201
+ },
+ {
+  "name": "Eastern Illinois",
+  "conference": "Ohio Valley Conference",
+  "rpi_rank": 168
+ },
+ {
+  "name": "Houston Christian",
+  "conference": "Ohio Valley Conference",
+  "rpi_rank": 109
+ },
+ {
+  "name": "UIW",
+  "conference": "Ohio Valley Conference",
+  "rpi_rank": 175
+ },
+ {
+  "name": "Lindenwood",
+  "conference": "Ohio Valley Conference",
+  "rpi_rank": 93
+ },
+ {
+  "name": "SIUE",
+  "conference": "Ohio Valley Conference",
+  "rpi_rank": 167
+ },
+ {
+  "name": "Southern Indiana",
+  "conference": "Ohio Valley Conference",
+  "rpi_rank": 190
+ },
+ {
+  "name": "UTRGV",
+  "conference": "Ohio Valley Conference",
+  "rpi_rank": 199
+ },
+ {
+  "name": "Western Illinois",
+  "conference": "Ohio Valley Conference",
+  "rpi_rank": 189
+ },
+ {
+  "name": "California Baptist",
+  "conference": "Pac-12 Conference",
+  "rpi_rank": 55
+ },
+ {
+  "name": "Cal Poly",
+  "conference": "Pac-12 Conference",
+  "rpi_rank": 102
+ },
+ {
+  "name": "Gonzaga",
+  "conference": "Pac-12 Conference",
+  "rpi_rank": 129
+ },
+ {
+  "name": "Oregon State",
+  "conference": "Pac-12 Conference",
+  "rpi_rank": 30
+ },
+ {
+  "name": "San Diego State",
+  "conference": "Pac-12 Conference",
+  "rpi_rank": 98
+ },
+ {
+  "name": "UC Riverside",
+  "conference": "Pac-12 Conference",
+  "rpi_rank": 178
+ },
+ {
+  "name": "UC San Diego",
+  "conference": "Pac-12 Conference",
+  "rpi_rank": 162
+ },
+ {
+  "name": "American",
+  "conference": "Patriot League",
+  "rpi_rank": 70
+ },
+ {
+  "name": "Army West Point",
+  "conference": "Patriot League",
+  "rpi_rank": 110
+ },
+ {
+  "name": "Boston University",
+  "conference": "Patriot League",
+  "rpi_rank": 66
+ },
+ {
+  "name": "Bucknell",
+  "conference": "Patriot League",
+  "rpi_rank": 59
+ },
+ {
+  "name": "Colgate",
+  "conference": "Patriot League",
+  "rpi_rank": 133
+ },
+ {
+  "name": "Holy Cross",
+  "conference": "Patriot League",
+  "rpi_rank": 176
+ },
+ {
+  "name": "Lafayette",
+  "conference": "Patriot League",
+  "rpi_rank": 104
+ },
+ {
+  "name": "Lehigh",
+  "conference": "Patriot League",
+  "rpi_rank": 63
+ },
+ {
+  "name": "Loyola Maryland",
+  "conference": "Patriot League",
+  "rpi_rank": 159
+ },
+ {
+  "name": "Navy",
+  "conference": "Patriot League",
+  "rpi_rank": 207
+ },
+ {
+  "name": "ETSU",
+  "conference": "Southern Conference",
+  "rpi_rank": 200
+ },
+ {
+  "name": "Furman",
+  "conference": "Southern Conference",
+  "rpi_rank": 14
+ },
+ {
+  "name": "Liberty",
+  "conference": "Southern Conference",
+  "rpi_rank": 145
+ },
+ {
+  "name": "Mercer",
+  "conference": "Southern Conference",
+  "rpi_rank": 166
+ },
+ {
+  "name": "UNC Greensboro",
+  "conference": "Southern Conference",
+  "rpi_rank": 25
+ },
+ {
+  "name": "VMI",
+  "conference": "Southern Conference",
+  "rpi_rank": 211
+ },
+ {
+  "name": "Wofford",
+  "conference": "Southern Conference",
+  "rpi_rank": 154
+ },
+ {
+  "name": "Delaware",
+  "conference": "The Summit League",
+  "rpi_rank": 45
+ },
+ {
+  "name": "Kansas City",
+  "conference": "The Summit League",
+  "rpi_rank": 21
+ },
+ {
+  "name": "Omaha",
+  "conference": "The Summit League",
+  "rpi_rank": 141
+ },
+ {
+  "name": "Oral Roberts",
+  "conference": "The Summit League",
+  "rpi_rank": 132
+ },
+ {
+  "name": "St. Thomas",
+  "conference": "The Summit League",
+  "rpi_rank": 121
+ },
+ {
+  "name": "UMass",
+  "conference": "The Summit League",
+  "rpi_rank": 105
+ },
+ {
+  "name": "Coastal Carolina",
+  "conference": "Sun Belt Conference",
+  "rpi_rank": 155
+ },
+ {
+  "name": "Georgia Southern",
+  "conference": "Sun Belt Conference",
+  "rpi_rank": 34
+ },
+ {
+  "name": "Georgia State",
+  "conference": "Sun Belt Conference",
+  "rpi_rank": 169
+ },
+ {
+  "name": "James Madison",
+  "conference": "Sun Belt Conference",
+  "rpi_rank": 124
+ },
+ {
+  "name": "Kentucky",
+  "conference": "Sun Belt Conference",
+  "rpi_rank": 40
+ },
+ {
+  "name": "Marshall",
+  "conference": "Sun Belt Conference",
+  "rpi_rank": 22
+ },
+ {
+  "name": "Old Dominion",
+  "conference": "Sun Belt Conference",
+  "rpi_rank": 97
+ },
+ {
+  "name": "South Carolina",
+  "conference": "Sun Belt Conference",
+  "rpi_rank": 100
+ },
+ {
+  "name": "UCF",
+  "conference": "Sun Belt Conference",
+  "rpi_rank": 31
+ },
+ {
+  "name": "West Virginia",
+  "conference": "Sun Belt Conference",
+  "rpi_rank": 23
+ },
+ {
+  "name": "Denver",
+  "conference": "West Coast Conference",
+  "rpi_rank": 20
+ },
+ {
+  "name": "Loyola Marymount",
+  "conference": "West Coast Conference",
+  "rpi_rank": 107
+ },
+ {
+  "name": "Pacific",
+  "conference": "West Coast Conference",
+  "rpi_rank": 177
+ },
+ {
+  "name": "Portland",
+  "conference": "West Coast Conference",
+  "rpi_rank": 10
+ },
+ {
+  "name": "Saint Mary's",
+  "conference": "West Coast Conference",
+  "rpi_rank": 138
+ },
+ {
+  "name": "San Diego",
+  "conference": "West Coast Conference",
+  "rpi_rank": 98
+ },
+ {
+  "name": "San Francisco",
+  "conference": "West Coast Conference",
+  "rpi_rank": 41
+ },
+ {
+  "name": "Santa Clara",
+  "conference": "West Coast Conference",
+  "rpi_rank": 89
+ },
+ {
+  "name": "Seattle",
+  "conference": "West Coast Conference",
+  "rpi_rank": 108
+ }
+]

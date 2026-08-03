@@ -1,0 +1,7520 @@
+[
+ {
+  "name": "Clemson",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 100.0,
+  "national_ranking": 1
+ },
+ {
+  "name": "Duke",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 99.97,
+  "national_ranking": 2
+ },
+ {
+  "name": "SMU",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 99.92,
+  "national_ranking": 3
+ },
+ {
+  "name": "Stanford",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 99.53,
+  "national_ranking": 4
+ },
+ {
+  "name": "Indiana",
+  "division": "NCAA D1",
+  "conference": "Big Ten",
+  "soccer_score": 99.42,
+  "national_ranking": 5
+ },
+ {
+  "name": "Charlotte",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 99.28,
+  "national_ranking": 6
+ },
+ {
+  "name": "Virginia",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 98.76,
+  "national_ranking": 7
+ },
+ {
+  "name": "Washington",
+  "division": "NCAA D1",
+  "conference": "Big Ten",
+  "soccer_score": 98.17,
+  "national_ranking": 8
+ },
+ {
+  "name": "Wake Forest",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 97.86,
+  "national_ranking": 9
+ },
+ {
+  "name": "Oregon State",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 97.84,
+  "national_ranking": 10
+ },
+ {
+  "name": "Maryland",
+  "division": "NCAA D1",
+  "conference": "Big Ten",
+  "soccer_score": 97.45,
+  "national_ranking": 11
+ },
+ {
+  "name": "Portland",
+  "division": "NCAA D1",
+  "conference": "WCC",
+  "soccer_score": 97.25,
+  "national_ranking": 12
+ },
+ {
+  "name": "Georgetown",
+  "division": "NCAA D1",
+  "conference": "Big East",
+  "soccer_score": 97.01,
+  "national_ranking": 13
+ },
+ {
+  "name": "Kentucky",
+  "division": "NCAA D1",
+  "conference": "SEC",
+  "soccer_score": 96.84,
+  "national_ranking": 14
+ },
+ {
+  "name": "NC State",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 96.58,
+  "national_ranking": 15
+ },
+ {
+  "name": "San Diego",
+  "division": "NCAA D1",
+  "conference": "WCC",
+  "soccer_score": 96.33,
+  "national_ranking": 16
+ },
+ {
+  "name": "North Carolina",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 96.1,
+  "national_ranking": 17
+ },
+ {
+  "name": "Notre Dame",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 95.46,
+  "national_ranking": 18
+ },
+ {
+  "name": "Ohio State",
+  "division": "NCAA D1",
+  "conference": "Big Ten",
+  "soccer_score": 95.2,
+  "national_ranking": 19
+ },
+ {
+  "name": "Syracuse",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 94.72,
+  "national_ranking": 20
+ },
+ {
+  "name": "Vermont",
+  "division": "NCAA D1",
+  "conference": "America East",
+  "soccer_score": 94.51,
+  "national_ranking": 21
+ },
+ {
+  "name": "Pittsburgh",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 94.34,
+  "national_ranking": 22
+ },
+ {
+  "name": "UCLA",
+  "division": "NCAA D1",
+  "conference": "Big Ten",
+  "soccer_score": 94.07,
+  "national_ranking": 23
+ },
+ {
+  "name": "Marshall",
+  "division": "NCAA D1",
+  "conference": "Sun Belt",
+  "soccer_score": 93.88,
+  "national_ranking": 24
+ },
+ {
+  "name": "Michigan",
+  "division": "NCAA D1",
+  "conference": "Big Ten",
+  "soccer_score": 93.74,
+  "national_ranking": 25
+ },
+ {
+  "name": "Hofstra",
+  "division": "NCAA D1",
+  "conference": "CAA",
+  "soccer_score": 93.46,
+  "national_ranking": 26
+ },
+ {
+  "name": "Cornell",
+  "division": "NCAA D1",
+  "conference": "Ivy League",
+  "soccer_score": 93.04,
+  "national_ranking": 27
+ },
+ {
+  "name": "Northwestern",
+  "division": "NCAA D1",
+  "conference": "Big Ten",
+  "soccer_score": 92.22,
+  "national_ranking": 28
+ },
+ {
+  "name": "High Point",
+  "division": "NCAA D1",
+  "conference": "Big South",
+  "soccer_score": 92.04,
+  "national_ranking": 29
+ },
+ {
+  "name": "Bryant",
+  "division": "NCAA D1",
+  "conference": "America East",
+  "soccer_score": 91.87,
+  "national_ranking": 30
+ },
+ {
+  "name": "UConn",
+  "division": "NCAA D1",
+  "conference": "Big East",
+  "soccer_score": 91.55,
+  "national_ranking": 31
+ },
+ {
+  "name": "Louisville",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 91.16,
+  "national_ranking": 32
+ },
+ {
+  "name": "Wisconsin",
+  "division": "NCAA D1",
+  "conference": "Big Ten",
+  "soccer_score": 91.11,
+  "national_ranking": 33
+ },
+ {
+  "name": "UCF",
+  "division": "NCAA D1",
+  "conference": "AAC",
+  "soccer_score": 90.87,
+  "national_ranking": 34
+ },
+ {
+  "name": "Seton Hall",
+  "division": "NCAA D1",
+  "conference": "Big East",
+  "soccer_score": 90.67,
+  "national_ranking": 35
+ },
+ {
+  "name": "Akron",
+  "division": "NCAA D1",
+  "conference": "MAC",
+  "soccer_score": 90.59,
+  "national_ranking": 36
+ },
+ {
+  "name": "Creighton",
+  "division": "NCAA D1",
+  "conference": "Big East",
+  "soccer_score": 90.29,
+  "national_ranking": 37
+ },
+ {
+  "name": "Penn",
+  "division": "NCAA D1",
+  "conference": "Ivy League",
+  "soccer_score": 90.23,
+  "national_ranking": 38
+ },
+ {
+  "name": "Furman",
+  "division": "NCAA D1",
+  "conference": "SoCon",
+  "soccer_score": 90.16,
+  "national_ranking": 39
+ },
+ {
+  "name": "Rutgers",
+  "division": "NCAA D1",
+  "conference": "Big Ten",
+  "soccer_score": 90.05,
+  "national_ranking": 40
+ },
+ {
+  "name": "Saint Louis",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 89.89,
+  "national_ranking": 41
+ },
+ {
+  "name": "Providence",
+  "division": "NCAA D1",
+  "conference": "Big East",
+  "soccer_score": 89.85,
+  "national_ranking": 42
+ },
+ {
+  "name": "Western Michigan",
+  "division": "NCAA D1",
+  "conference": "MAC",
+  "soccer_score": 89.76,
+  "national_ranking": 43
+ },
+ {
+  "name": "St. John's",
+  "division": "NCAA D1",
+  "conference": "Big East",
+  "soccer_score": 89.75,
+  "national_ranking": 44
+ },
+ {
+  "name": "Florida Atlantic",
+  "division": "NCAA D1",
+  "conference": "AAC",
+  "soccer_score": 89.69,
+  "national_ranking": 45
+ },
+ {
+  "name": "Missouri State",
+  "division": "NCAA D1",
+  "conference": "MVC",
+  "soccer_score": 89.66,
+  "national_ranking": 46
+ },
+ {
+  "name": "Princeton",
+  "division": "NCAA D1",
+  "conference": "Ivy League",
+  "soccer_score": 89.6,
+  "national_ranking": 47
+ },
+ {
+  "name": "Dayton",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 89.52,
+  "national_ranking": 48
+ },
+ {
+  "name": "San Francisco",
+  "division": "NCAA D1",
+  "conference": "WCC",
+  "soccer_score": 89.34,
+  "national_ranking": 49
+ },
+ {
+  "name": "Iona",
+  "division": "NCAA D1",
+  "conference": "MAAC",
+  "soccer_score": 88.99,
+  "national_ranking": 50
+ },
+ {
+  "name": "South Florida",
+  "division": "NCAA D1",
+  "conference": "AAC",
+  "soccer_score": 88.96,
+  "national_ranking": 51
+ },
+ {
+  "name": "Penn State",
+  "division": "NCAA D1",
+  "conference": "Big Ten",
+  "soccer_score": 88.9,
+  "national_ranking": 52
+ },
+ {
+  "name": "South Carolina",
+  "division": "NCAA D1",
+  "conference": "SEC",
+  "soccer_score": 88.56,
+  "national_ranking": 53
+ },
+ {
+  "name": "UMass",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 88.39,
+  "national_ranking": 54
+ },
+ {
+  "name": "New Haven",
+  "division": "NCAA D1",
+  "conference": "Northeast-10",
+  "soccer_score": 88.33,
+  "national_ranking": 55
+ },
+ {
+  "name": "Gardner-Webb",
+  "division": "NCAA D1",
+  "conference": "Big South",
+  "soccer_score": 88.31,
+  "national_ranking": 56
+ },
+ {
+  "name": "UNC Greensboro",
+  "division": "NCAA D1",
+  "conference": "SoCon",
+  "soccer_score": 88.12,
+  "national_ranking": 57
+ },
+ {
+  "name": "California",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 88.11,
+  "national_ranking": 58
+ },
+ {
+  "name": "New Hampshire",
+  "division": "NCAA D1",
+  "conference": "America East",
+  "soccer_score": 88.05,
+  "national_ranking": 59
+ },
+ {
+  "name": "Virginia Tech",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 88.0,
+  "national_ranking": 60
+ },
+ {
+  "name": "Loyola Marymount",
+  "division": "NCAA D1",
+  "conference": "WCC",
+  "soccer_score": 87.81,
+  "national_ranking": 61
+ },
+ {
+  "name": "Duquesne",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 87.72,
+  "national_ranking": 62
+ },
+ {
+  "name": "West Virginia",
+  "division": "NCAA D1",
+  "conference": "Big 12",
+  "soccer_score": 87.65,
+  "national_ranking": 63
+ },
+ {
+  "name": "Michigan State",
+  "division": "NCAA D1",
+  "conference": "Big Ten",
+  "soccer_score": 87.55,
+  "national_ranking": 64
+ },
+ {
+  "name": "Kansas City",
+  "division": "NCAA D1",
+  "conference": "WAC",
+  "soccer_score": 87.32,
+  "national_ranking": 65
+ },
+ {
+  "name": "Xavier",
+  "division": "NCAA D1",
+  "conference": "Big East",
+  "soccer_score": 87.27,
+  "national_ranking": 66
+ },
+ {
+  "name": "Denver",
+  "division": "NCAA D1",
+  "conference": "Summit League",
+  "soccer_score": 87.14,
+  "national_ranking": 67
+ },
+ {
+  "name": "UC Santa Barbara",
+  "division": "NCAA D1",
+  "conference": "Big West",
+  "soccer_score": 86.99,
+  "national_ranking": 68
+ },
+ {
+  "name": "California Baptist",
+  "division": "NCAA D1",
+  "conference": "WAC",
+  "soccer_score": 86.59,
+  "national_ranking": 69
+ },
+ {
+  "name": "Elon",
+  "division": "NCAA D1",
+  "conference": "CAA",
+  "soccer_score": 86.48,
+  "national_ranking": 70
+ },
+ {
+  "name": "Campbell",
+  "division": "NCAA D1",
+  "conference": "Big South",
+  "soccer_score": 86.36,
+  "national_ranking": 71
+ },
+ {
+  "name": "Delaware",
+  "division": "NCAA D1",
+  "conference": "CAA",
+  "soccer_score": 86.23,
+  "national_ranking": 72
+ },
+ {
+  "name": "Santa Clara",
+  "division": "NCAA D1",
+  "conference": "WCC",
+  "soccer_score": 86.17,
+  "national_ranking": 73
+ },
+ {
+  "name": "Memphis",
+  "division": "NCAA D1",
+  "conference": "AAC",
+  "soccer_score": 86.04,
+  "national_ranking": 74
+ },
+ {
+  "name": "Green Bay",
+  "division": "NCAA D1",
+  "conference": "Horizon League",
+  "soccer_score": 85.93,
+  "national_ranking": 75
+ },
+ {
+  "name": "Grand Canyon",
+  "division": "NCAA D1",
+  "conference": "WAC",
+  "soccer_score": 85.62,
+  "national_ranking": 76
+ },
+ {
+  "name": "Seattle",
+  "division": "NCAA D1",
+  "conference": "WAC",
+  "soccer_score": 85.54,
+  "national_ranking": 77
+ },
+ {
+  "name": "UIC",
+  "division": "NCAA D1",
+  "conference": "Horizon League",
+  "soccer_score": 85.52,
+  "national_ranking": 78
+ },
+ {
+  "name": "San Jose State",
+  "division": "NCAA D1",
+  "conference": "Mountain West",
+  "soccer_score": 85.4,
+  "national_ranking": 79
+ },
+ {
+  "name": "Boston College",
+  "division": "NCAA D1",
+  "conference": "ACC",
+  "soccer_score": 85.37,
+  "national_ranking": 80
+ },
+ {
+  "name": "Marquette",
+  "division": "NCAA D1",
+  "conference": "Big East",
+  "soccer_score": 85.03,
+  "national_ranking": 81
+ },
+ {
+  "name": "Siena",
+  "division": "NCAA D1",
+  "conference": "MAAC",
+  "soccer_score": 85.02,
+  "national_ranking": 82
+ },
+ {
+  "name": "Belmont",
+  "division": "NCAA D1",
+  "conference": "MVC",
+  "soccer_score": 84.91,
+  "national_ranking": 83
+ },
+ {
+  "name": "Boston University",
+  "division": "NCAA D1",
+  "conference": "Patriot League",
+  "soccer_score": 84.85,
+  "national_ranking": 84
+ },
+ {
+  "name": "Fairleigh Dickinson",
+  "division": "NCAA D1",
+  "conference": "NEC",
+  "soccer_score": 84.8,
+  "national_ranking": 85
+ },
+ {
+  "name": "Drake",
+  "division": "NCAA D1",
+  "conference": "MVC",
+  "soccer_score": 84.72,
+  "national_ranking": 86
+ },
+ {
+  "name": "FIU",
+  "division": "NCAA D1",
+  "conference": "Conference USA",
+  "soccer_score": 84.68,
+  "national_ranking": 87
+ },
+ {
+  "name": "Drexel",
+  "division": "NCAA D1",
+  "conference": "CAA",
+  "soccer_score": 84.59,
+  "national_ranking": 88
+ },
+ {
+  "name": "Cal State Fullerton",
+  "division": "NCAA D1",
+  "conference": "Big West",
+  "soccer_score": 84.55,
+  "national_ranking": 89
+ },
+ {
+  "name": "UC Irvine",
+  "division": "NCAA D1",
+  "conference": "Big West",
+  "soccer_score": 84.49,
+  "national_ranking": 90
+ },
+ {
+  "name": "Lafayette",
+  "division": "NCAA D1",
+  "conference": "Patriot League",
+  "soccer_score": 84.2,
+  "national_ranking": 91
+ },
+ {
+  "name": "Cleveland State",
+  "division": "NCAA D1",
+  "conference": "Horizon League",
+  "soccer_score": 84.07,
+  "national_ranking": 92
+ },
+ {
+  "name": "Bellarmine",
+  "division": "NCAA D1",
+  "conference": "ASUN",
+  "soccer_score": 83.99,
+  "national_ranking": 93
+ },
+ {
+  "name": "UMBC",
+  "division": "NCAA D1",
+  "conference": "America East",
+  "soccer_score": 83.94,
+  "national_ranking": 94
+ },
+ {
+  "name": "Liberty",
+  "division": "NCAA D1",
+  "conference": "ASUN",
+  "soccer_score": 83.93,
+  "national_ranking": 95
+ },
+ {
+  "name": "Davidson",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 83.93,
+  "national_ranking": 96
+ },
+ {
+  "name": "Monmouth",
+  "division": "NCAA D1",
+  "conference": "CAA",
+  "soccer_score": 83.82,
+  "national_ranking": 97
+ },
+ {
+  "name": "Utah Valley",
+  "division": "NCAA D1",
+  "conference": "WAC",
+  "soccer_score": 83.65,
+  "national_ranking": 98
+ },
+ {
+  "name": "Fordham",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 83.61,
+  "national_ranking": 99
+ },
+ {
+  "name": "Loyola Chicago",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 83.43,
+  "national_ranking": 100
+ },
+ {
+  "name": "Marist",
+  "division": "NCAA D1",
+  "conference": "MAAC",
+  "soccer_score": 83.34,
+  "national_ranking": 101
+ },
+ {
+  "name": "LIU",
+  "division": "NCAA D1",
+  "conference": "NEC",
+  "soccer_score": 83.28,
+  "national_ranking": 102
+ },
+ {
+  "name": "Bowling Green",
+  "division": "NCAA D1",
+  "conference": "MAC",
+  "soccer_score": 83.07,
+  "national_ranking": 103
+ },
+ {
+  "name": "Lindenwood",
+  "division": "NCAA D1",
+  "conference": "OVC",
+  "soccer_score": 82.96,
+  "national_ranking": 104
+ },
+ {
+  "name": "Purdue Fort Wayne",
+  "division": "NCAA D1",
+  "conference": "Horizon League",
+  "soccer_score": 82.66,
+  "national_ranking": 105
+ },
+ {
+  "name": "American",
+  "division": "NCAA D1",
+  "conference": "Patriot League",
+  "soccer_score": 82.59,
+  "national_ranking": 106
+ },
+ {
+  "name": "Evansville",
+  "division": "NCAA D1",
+  "conference": "MVC",
+  "soccer_score": 82.53,
+  "national_ranking": 107
+ },
+ {
+  "name": "Rider",
+  "division": "NCAA D1",
+  "conference": "MAAC",
+  "soccer_score": 82.45,
+  "national_ranking": 108
+ },
+ {
+  "name": "George Mason",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 82.43,
+  "national_ranking": 109
+ },
+ {
+  "name": "Robert Morris",
+  "division": "NCAA D1",
+  "conference": "Horizon League",
+  "soccer_score": 82.37,
+  "national_ranking": 110
+ },
+ {
+  "name": "North Florida",
+  "division": "NCAA D1",
+  "conference": "ASUN",
+  "soccer_score": 82.34,
+  "national_ranking": 111
+ },
+ {
+  "name": "Tulsa",
+  "division": "NCAA D1",
+  "conference": "AAC",
+  "soccer_score": 82.24,
+  "national_ranking": 112
+ },
+ {
+  "name": "Queens (NC)",
+  "division": "NCAA D1",
+  "conference": "SAC",
+  "soccer_score": 81.84,
+  "national_ranking": 113
+ },
+ {
+  "name": "Harvard",
+  "division": "NCAA D1",
+  "conference": "Ivy League",
+  "soccer_score": 81.77,
+  "national_ranking": 114
+ },
+ {
+  "name": "San Diego State",
+  "division": "NCAA D1",
+  "conference": "Mountain West",
+  "soccer_score": 81.75,
+  "national_ranking": 115
+ },
+ {
+  "name": "Mercyhurst",
+  "division": "NCAA D1",
+  "conference": "PSAC",
+  "soccer_score": 81.61,
+  "national_ranking": 116
+ },
+ {
+  "name": "Cal Poly",
+  "division": "NCAA D1",
+  "conference": "Big West",
+  "soccer_score": 81.61,
+  "national_ranking": 117
+ },
+ {
+  "name": "Charleston",
+  "division": "NCAA D1",
+  "conference": "CAA",
+  "soccer_score": 81.59,
+  "national_ranking": 118
+ },
+ {
+  "name": "UNC Asheville",
+  "division": "NCAA D1",
+  "conference": "Big South",
+  "soccer_score": 81.3,
+  "national_ranking": 119
+ },
+ {
+  "name": "SIUE",
+  "division": "NCAA D1",
+  "conference": "OVC",
+  "soccer_score": 81.27,
+  "national_ranking": 120
+ },
+ {
+  "name": "Brown",
+  "division": "NCAA D1",
+  "conference": "Ivy League",
+  "soccer_score": 81.27,
+  "national_ranking": 121
+ },
+ {
+  "name": "Mercer",
+  "division": "NCAA D1",
+  "conference": "SoCon",
+  "soccer_score": 81.01,
+  "national_ranking": 122
+ },
+ {
+  "name": "Stetson",
+  "division": "NCAA D1",
+  "conference": "ASUN",
+  "soccer_score": 80.88,
+  "national_ranking": 123
+ },
+ {
+  "name": "Sacred Heart",
+  "division": "NCAA D1",
+  "conference": "NEC",
+  "soccer_score": 80.69,
+  "national_ranking": 124
+ },
+ {
+  "name": "Presbyterian",
+  "division": "NCAA D1",
+  "conference": "Big South",
+  "soccer_score": 80.66,
+  "national_ranking": 125
+ },
+ {
+  "name": "UC Davis",
+  "division": "NCAA D1",
+  "conference": "Big West",
+  "soccer_score": 80.39,
+  "national_ranking": 126
+ },
+ {
+  "name": "Georgia Southern",
+  "division": "NCAA D1",
+  "conference": "Sun Belt",
+  "soccer_score": 80.33,
+  "national_ranking": 127
+ },
+ {
+  "name": "Houston Christian",
+  "division": "NCAA D1",
+  "conference": "Southland",
+  "soccer_score": 80.29,
+  "national_ranking": 128
+ },
+ {
+  "name": "James Madison",
+  "division": "NCAA D1",
+  "conference": "Sun Belt",
+  "soccer_score": 80.25,
+  "national_ranking": 129
+ },
+ {
+  "name": "Rhode Island",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 80.19,
+  "national_ranking": 130
+ },
+ {
+  "name": "VCU",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 80.07,
+  "national_ranking": 131
+ },
+ {
+  "name": "Stony Brook",
+  "division": "NCAA D1",
+  "conference": "America East",
+  "soccer_score": 79.91,
+  "national_ranking": 132
+ },
+ {
+  "name": "Georgia State",
+  "division": "NCAA D1",
+  "conference": "Sun Belt",
+  "soccer_score": 79.87,
+  "national_ranking": 133
+ },
+ {
+  "name": "Saint Mary's",
+  "division": "NCAA D1",
+  "conference": "WCC",
+  "soccer_score": 79.78,
+  "national_ranking": 134
+ },
+ {
+  "name": "Northern Illinois",
+  "division": "NCAA D1",
+  "conference": "MAC",
+  "soccer_score": 79.74,
+  "national_ranking": 135
+ },
+ {
+  "name": "Oral Roberts",
+  "division": "NCAA D1",
+  "conference": "Summit League",
+  "soccer_score": 79.62,
+  "national_ranking": 136
+ },
+ {
+  "name": "Wofford",
+  "division": "NCAA D1",
+  "conference": "SoCon",
+  "soccer_score": 79.57,
+  "national_ranking": 137
+ },
+ {
+  "name": "Villanova",
+  "division": "NCAA D1",
+  "conference": "Big East",
+  "soccer_score": 79.44,
+  "national_ranking": 138
+ },
+ {
+  "name": "Quinnipiac",
+  "division": "NCAA D1",
+  "conference": "MAAC",
+  "soccer_score": 79.4,
+  "national_ranking": 139
+ },
+ {
+  "name": "Old Dominion",
+  "division": "NCAA D1",
+  "conference": "Sun Belt",
+  "soccer_score": 79.27,
+  "national_ranking": 140
+ },
+ {
+  "name": "Fairfield",
+  "division": "NCAA D1",
+  "conference": "MAAC",
+  "soccer_score": 79.22,
+  "national_ranking": 141
+ },
+ {
+  "name": "Lipscomb",
+  "division": "NCAA D1",
+  "conference": "ASUN",
+  "soccer_score": 79.17,
+  "national_ranking": 142
+ },
+ {
+  "name": "Bucknell",
+  "division": "NCAA D1",
+  "conference": "Patriot League",
+  "soccer_score": 79.07,
+  "national_ranking": 143
+ },
+ {
+  "name": "UNCW",
+  "division": "NCAA D1",
+  "conference": "CAA",
+  "soccer_score": 78.89,
+  "national_ranking": 144
+ },
+ {
+  "name": "Butler",
+  "division": "NCAA D1",
+  "conference": "Big East",
+  "soccer_score": 78.6,
+  "national_ranking": 145
+ },
+ {
+  "name": "Oakland",
+  "division": "NCAA D1",
+  "conference": "Horizon League",
+  "soccer_score": 78.59,
+  "national_ranking": 146
+ },
+ {
+  "name": "Gonzaga",
+  "division": "NCAA D1",
+  "conference": "WCC",
+  "soccer_score": 78.42,
+  "national_ranking": 147
+ },
+ {
+  "name": "DePaul",
+  "division": "NCAA D1",
+  "conference": "Big East",
+  "soccer_score": 78.41,
+  "national_ranking": 148
+ },
+ {
+  "name": "Milwaukee",
+  "division": "NCAA D1",
+  "conference": "Horizon League",
+  "soccer_score": 78.33,
+  "national_ranking": 149
+ },
+ {
+  "name": "Colgate",
+  "division": "NCAA D1",
+  "conference": "Patriot League",
+  "soccer_score": 78.3,
+  "national_ranking": 150
+ },
+ {
+  "name": "Army West Point",
+  "division": "NCAA D1",
+  "conference": "Patriot League",
+  "soccer_score": 78.13,
+  "national_ranking": 151
+ },
+ {
+  "name": "Manhattan",
+  "division": "NCAA D1",
+  "conference": "MAAC",
+  "soccer_score": 77.95,
+  "national_ranking": 152
+ },
+ {
+  "name": "Northeastern",
+  "division": "NCAA D1",
+  "conference": "CAA",
+  "soccer_score": 77.91,
+  "national_ranking": 153
+ },
+ {
+  "name": "IU Indy",
+  "division": "NCAA D1",
+  "conference": "Horizon League",
+  "soccer_score": 77.84,
+  "national_ranking": 154
+ },
+ {
+  "name": "ETSU",
+  "division": "NCAA D1",
+  "conference": "SoCon",
+  "soccer_score": 77.82,
+  "national_ranking": 155
+ },
+ {
+  "name": "CSUN",
+  "division": "NCAA D1",
+  "conference": "Big West",
+  "soccer_score": 77.79,
+  "national_ranking": 156
+ },
+ {
+  "name": "Lehigh",
+  "division": "NCAA D1",
+  "conference": "Patriot League",
+  "soccer_score": 77.73,
+  "national_ranking": 157
+ },
+ {
+  "name": "Yale",
+  "division": "NCAA D1",
+  "conference": "Ivy League",
+  "soccer_score": 77.72,
+  "national_ranking": 158
+ },
+ {
+  "name": "Loyola Maryland",
+  "division": "NCAA D1",
+  "conference": "Patriot League",
+  "soccer_score": 77.55,
+  "national_ranking": 159
+ },
+ {
+  "name": "La Salle",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 77.54,
+  "national_ranking": 160
+ },
+ {
+  "name": "Navy",
+  "division": "NCAA D1",
+  "conference": "Patriot League",
+  "soccer_score": 77.38,
+  "national_ranking": 161
+ },
+ {
+  "name": "UTRGV",
+  "division": "NCAA D1",
+  "conference": "WAC",
+  "soccer_score": 77.08,
+  "national_ranking": 162
+ },
+ {
+  "name": "UNLV",
+  "division": "NCAA D1",
+  "conference": "Mountain West",
+  "soccer_score": 76.56,
+  "national_ranking": 163
+ },
+ {
+  "name": "Jacksonville",
+  "division": "NCAA D1",
+  "conference": "ASUN",
+  "soccer_score": 76.28,
+  "national_ranking": 164
+ },
+ {
+  "name": "UC Riverside",
+  "division": "NCAA D1",
+  "conference": "Big West",
+  "soccer_score": 76.17,
+  "national_ranking": 165
+ },
+ {
+  "name": "UMass Lowell",
+  "division": "NCAA D1",
+  "conference": "America East",
+  "soccer_score": 76.07,
+  "national_ranking": 166
+ },
+ {
+  "name": "NJIT",
+  "division": "NCAA D1",
+  "conference": "America East",
+  "soccer_score": 75.38,
+  "national_ranking": 167
+ },
+ {
+  "name": "UAB",
+  "division": "NCAA D1",
+  "conference": "AAC",
+  "soccer_score": 75.38,
+  "national_ranking": 168
+ },
+ {
+  "name": "Albany",
+  "division": "NCAA D1",
+  "conference": "America East",
+  "soccer_score": 75.24,
+  "national_ranking": 169
+ },
+ {
+  "name": "Utah Tech",
+  "division": "NCAA D1",
+  "conference": "WAC",
+  "soccer_score": 74.74,
+  "national_ranking": 170
+ },
+ {
+  "name": "Omaha",
+  "division": "NCAA D1",
+  "conference": "Summit League",
+  "soccer_score": 74.54,
+  "national_ranking": 171
+ },
+ {
+  "name": "FGCU",
+  "division": "NCAA D1",
+  "conference": "ASUN",
+  "soccer_score": 74.24,
+  "national_ranking": 172
+ },
+ {
+  "name": "Binghamton",
+  "division": "NCAA D1",
+  "conference": "America East",
+  "soccer_score": 74.21,
+  "national_ranking": 173
+ },
+ {
+  "name": "Holy Cross",
+  "division": "NCAA D1",
+  "conference": "Patriot League",
+  "soccer_score": 74.15,
+  "national_ranking": 174
+ },
+ {
+  "name": "Niagara",
+  "division": "NCAA D1",
+  "conference": "MAAC",
+  "soccer_score": 74.15,
+  "national_ranking": 175
+ },
+ {
+  "name": "Central Arkansas",
+  "division": "NCAA D1",
+  "conference": "OVC",
+  "soccer_score": 74.0,
+  "national_ranking": 176
+ },
+ {
+  "name": "Le Moyne",
+  "division": "NCAA D1",
+  "conference": "NEC",
+  "soccer_score": 73.95,
+  "national_ranking": 177
+ },
+ {
+  "name": "Saint Joseph's",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 73.86,
+  "national_ranking": 178
+ },
+ {
+  "name": "Pacific",
+  "division": "NCAA D1",
+  "conference": "WCC",
+  "soccer_score": 73.63,
+  "national_ranking": 179
+ },
+ {
+  "name": "St. Bonaventure",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 73.49,
+  "national_ranking": 180
+ },
+ {
+  "name": "UIW",
+  "division": "NCAA D1",
+  "conference": "Southland",
+  "soccer_score": 73.34,
+  "national_ranking": 181
+ },
+ {
+  "name": "Dartmouth",
+  "division": "NCAA D1",
+  "conference": "Ivy League",
+  "soccer_score": 73.24,
+  "national_ranking": 182
+ },
+ {
+  "name": "Longwood",
+  "division": "NCAA D1",
+  "conference": "Big South",
+  "soccer_score": 73.15,
+  "national_ranking": 183
+ },
+ {
+  "name": "Charleston (WV)",
+  "division": "NCAA D2",
+  "conference": "MEC",
+  "soccer_score": 72.96,
+  "national_ranking": 184
+ },
+ {
+  "name": "Detroit Mercy",
+  "division": "NCAA D1",
+  "conference": "Horizon League",
+  "soccer_score": 72.19,
+  "national_ranking": 185
+ },
+ {
+  "name": "Bradley",
+  "division": "NCAA D1",
+  "conference": "MVC",
+  "soccer_score": 72.02,
+  "national_ranking": 186
+ },
+ {
+  "name": "Tampa",
+  "division": "NCAA D2",
+  "conference": "Sunshine State",
+  "soccer_score": 71.28,
+  "national_ranking": 187
+ },
+ {
+  "name": "UC San Diego",
+  "division": "NCAA D1",
+  "conference": "Big West",
+  "soccer_score": 71.27,
+  "national_ranking": 188
+ },
+ {
+  "name": "Northern Kentucky",
+  "division": "NCAA D1",
+  "conference": "Horizon League",
+  "soccer_score": 70.97,
+  "national_ranking": 189
+ },
+ {
+  "name": "Midwestern State",
+  "division": "NCAA D2",
+  "conference": "LSC",
+  "soccer_score": 70.95,
+  "national_ranking": 190
+ },
+ {
+  "name": "Franklin Pierce",
+  "division": "NCAA D2",
+  "conference": "Northeast-10",
+  "soccer_score": 70.8,
+  "national_ranking": 191
+ },
+ {
+  "name": "Coastal Carolina",
+  "division": "NCAA D1",
+  "conference": "Sun Belt",
+  "soccer_score": 70.47,
+  "national_ranking": 192
+ },
+ {
+  "name": "St. Thomas",
+  "division": "NCAA D1",
+  "conference": "Summit League",
+  "soccer_score": 70.38,
+  "national_ranking": 193
+ },
+ {
+  "name": "Merrimack",
+  "division": "NCAA D1",
+  "conference": "NEC",
+  "soccer_score": 70.38,
+  "national_ranking": 194
+ },
+ {
+  "name": "Lynn",
+  "division": "NCAA D2",
+  "conference": "Sunshine State",
+  "soccer_score": 70.25,
+  "national_ranking": 195
+ },
+ {
+  "name": "William & Mary",
+  "division": "NCAA D1",
+  "conference": "CAA",
+  "soccer_score": 70.01,
+  "national_ranking": 196
+ },
+ {
+  "name": "USC Upstate",
+  "division": "NCAA D1",
+  "conference": "Big South",
+  "soccer_score": 69.86,
+  "national_ranking": 197
+ },
+ {
+  "name": "Gannon",
+  "division": "NCAA D2",
+  "conference": "GLIAC",
+  "soccer_score": 69.8,
+  "national_ranking": 198
+ },
+ {
+  "name": "Wright State",
+  "division": "NCAA D1",
+  "conference": "Horizon League",
+  "soccer_score": 69.72,
+  "national_ranking": 199
+ },
+ {
+  "name": "West Florida",
+  "division": "NCAA D2",
+  "conference": "GSC",
+  "soccer_score": 69.44,
+  "national_ranking": 200
+ },
+ {
+  "name": "Temple",
+  "division": "NCAA D1",
+  "conference": "AAC",
+  "soccer_score": 69.27,
+  "national_ranking": 201
+ },
+ {
+  "name": "Stonehill",
+  "division": "NCAA D1",
+  "conference": "NEC",
+  "soccer_score": 68.95,
+  "national_ranking": 202
+ },
+ {
+  "name": "Tiffin",
+  "division": "NCAA D2",
+  "conference": "GLIAC",
+  "soccer_score": 68.69,
+  "national_ranking": 203
+ },
+ {
+  "name": "Colorado State-Pueblo",
+  "division": "NCAA D2",
+  "conference": "RMAC",
+  "soccer_score": 68.62,
+  "national_ranking": 204
+ },
+ {
+  "name": "Young Harris",
+  "division": "NCAA D2",
+  "conference": "Peach Belt",
+  "soccer_score": 68.53,
+  "national_ranking": 205
+ },
+ {
+  "name": "Southern New Hampshire",
+  "division": "NCAA D2",
+  "conference": "Northeast-10",
+  "soccer_score": 68.51,
+  "national_ranking": 206
+ },
+ {
+  "name": "Fort Hays State",
+  "division": "NCAA D2",
+  "conference": "MIAA",
+  "soccer_score": 68.45,
+  "national_ranking": 207
+ },
+ {
+  "name": "Mississippi College",
+  "division": "NCAA D2",
+  "conference": "GSC",
+  "soccer_score": 68.14,
+  "national_ranking": 208
+ },
+ {
+  "name": "George Washington",
+  "division": "NCAA D1",
+  "conference": "Atlantic 10",
+  "soccer_score": 67.69,
+  "national_ranking": 209
+ },
+ {
+  "name": "Sacramento State",
+  "division": "NCAA D1",
+  "conference": "Big Sky",
+  "soccer_score": 67.59,
+  "national_ranking": 210
+ },
+ {
+  "name": "Post",
+  "division": "NCAA D2",
+  "conference": "ECC",
+  "soccer_score": 67.46,
+  "national_ranking": 211
+ },
+ {
+  "name": "Commonwealth University-Bloomsburg",
+  "division": "NCAA D2",
+  "conference": "PSAC",
+  "soccer_score": 67.43,
+  "national_ranking": 212
+ },
+ {
+  "name": "Canisius",
+  "division": "NCAA D1",
+  "conference": "MAAC",
+  "soccer_score": 67.39,
+  "national_ranking": 213
+ },
+ {
+  "name": "Saint Peter's",
+  "division": "NCAA D1",
+  "conference": "MAAC",
+  "soccer_score": 67.37,
+  "national_ranking": 214
+ },
+ {
+  "name": "Millersville",
+  "division": "NCAA D2",
+  "conference": "PSAC",
+  "soccer_score": 66.98,
+  "national_ranking": 215
+ },
+ {
+  "name": "Saginaw Valley State",
+  "division": "NCAA D2",
+  "conference": "GLIAC",
+  "soccer_score": 66.92,
+  "national_ranking": 216
+ },
+ {
+  "name": "Menlo",
+  "division": "NCAA D2",
+  "conference": "Golden State",
+  "soccer_score": 66.63,
+  "national_ranking": 217
+ },
+ {
+  "name": "Monroe (NY)",
+  "division": "NCAA D2",
+  "conference": "ECC",
+  "soccer_score": 66.6,
+  "national_ranking": 218
+ },
+ {
+  "name": "McKendree",
+  "division": "NCAA D2",
+  "conference": "GLVC",
+  "soccer_score": 66.52,
+  "national_ranking": 219
+ },
+ {
+  "name": "Rollins",
+  "division": "NCAA D2",
+  "conference": "Sunshine State",
+  "soccer_score": 66.25,
+  "national_ranking": 220
+ },
+ {
+  "name": "Rogers State",
+  "division": "NCAA D2",
+  "conference": "Heartland",
+  "soccer_score": 66.2,
+  "national_ranking": 221
+ },
+ {
+  "name": "Flagler",
+  "division": "NCAA D2",
+  "conference": "Peach Belt",
+  "soccer_score": 66.09,
+  "national_ranking": 222
+ },
+ {
+  "name": "Western Illinois",
+  "division": "NCAA D1",
+  "conference": "Summit League",
+  "soccer_score": 65.98,
+  "national_ranking": 223
+ },
+ {
+  "name": "UCCS",
+  "division": "NCAA D2",
+  "conference": "RMAC",
+  "soccer_score": 65.92,
+  "national_ranking": 224
+ },
+ {
+  "name": "Lincoln (MO)",
+  "division": "NCAA D2",
+  "conference": "MIAA",
+  "soccer_score": 65.92,
+  "national_ranking": 225
+ },
+ {
+  "name": "Maryville (MO)",
+  "division": "NCAA D2",
+  "conference": "GLVC",
+  "soccer_score": 65.85,
+  "national_ranking": 226
+ },
+ {
+  "name": "Concord",
+  "division": "NCAA D2",
+  "conference": "Mountain East",
+  "soccer_score": 65.8,
+  "national_ranking": 227
+ },
+ {
+  "name": "Illinois Springfield",
+  "division": "NCAA D2",
+  "conference": "GLVC",
+  "soccer_score": 65.62,
+  "national_ranking": 228
+ },
+ {
+  "name": "Cal State LA",
+  "division": "NCAA D2",
+  "conference": "CCAA",
+  "soccer_score": 65.61,
+  "national_ranking": 229
+ },
+ {
+  "name": "Converse",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 65.55,
+  "national_ranking": 230
+ },
+ {
+  "name": "Auburn Montgomery",
+  "division": "NCAA D2",
+  "conference": "GSC",
+  "soccer_score": 65.36,
+  "national_ranking": 231
+ },
+ {
+  "name": "Clayton State",
+  "division": "NCAA D2",
+  "conference": "Peach Belt",
+  "soccer_score": 65.3,
+  "national_ranking": 232
+ },
+ {
+  "name": "Point Loma Nazarene",
+  "division": "NCAA D2",
+  "conference": "PacWest",
+  "soccer_score": 65.18,
+  "national_ranking": 233
+ },
+ {
+  "name": "Findlay",
+  "division": "NCAA D2",
+  "conference": "GLIAC",
+  "soccer_score": 65.14,
+  "national_ranking": 234
+ },
+ {
+  "name": "Palm Beach Atlantic",
+  "division": "NCAA D2",
+  "conference": "Sunshine State",
+  "soccer_score": 65.12,
+  "national_ranking": 235
+ },
+ {
+  "name": "Chowan",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 64.82,
+  "national_ranking": 236
+ },
+ {
+  "name": "District of Columbia",
+  "division": "NCAA D2",
+  "conference": "CIAA",
+  "soccer_score": 64.81,
+  "national_ranking": 237
+ },
+ {
+  "name": "Lewis",
+  "division": "NCAA D2",
+  "conference": "GLVC",
+  "soccer_score": 64.62,
+  "national_ranking": 238
+ },
+ {
+  "name": "Mercy",
+  "division": "NCAA D2",
+  "conference": "ECC",
+  "soccer_score": 64.57,
+  "national_ranking": 239
+ },
+ {
+  "name": "Anderson (SC)",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 64.57,
+  "national_ranking": 240
+ },
+ {
+  "name": "Seton Hill",
+  "division": "NCAA D2",
+  "conference": "PSAC",
+  "soccer_score": 64.56,
+  "national_ranking": 241
+ },
+ {
+  "name": "Southern Nazarene",
+  "division": "NCAA D2",
+  "conference": "Heartland",
+  "soccer_score": 64.39,
+  "national_ranking": 242
+ },
+ {
+  "name": "Felician",
+  "division": "NCAA D2",
+  "conference": "CACC",
+  "soccer_score": 64.34,
+  "national_ranking": 243
+ },
+ {
+  "name": "Francis Marion",
+  "division": "NCAA D2",
+  "conference": "Peach Belt",
+  "soccer_score": 64.22,
+  "national_ranking": 244
+ },
+ {
+  "name": "Mount St. Mary's",
+  "division": "NCAA D1",
+  "conference": "NEC",
+  "soccer_score": 64.14,
+  "national_ranking": 245
+ },
+ {
+  "name": "Fort Lewis",
+  "division": "NCAA D2",
+  "conference": "RMAC",
+  "soccer_score": 64.1,
+  "national_ranking": 246
+ },
+ {
+  "name": "West Chester",
+  "division": "NCAA D2",
+  "conference": "PSAC",
+  "soccer_score": 64.08,
+  "national_ranking": 247
+ },
+ {
+  "name": "Florida Tech",
+  "division": "NCAA D2",
+  "conference": "Sunshine State",
+  "soccer_score": 64.05,
+  "national_ranking": 248
+ },
+ {
+  "name": "Davis & Elkins",
+  "division": "NCAA D2",
+  "conference": "Mountain East",
+  "soccer_score": 63.92,
+  "national_ranking": 249
+ },
+ {
+  "name": "Nova Southeastern",
+  "division": "NCAA D2",
+  "conference": "Sunshine State",
+  "soccer_score": 63.82,
+  "national_ranking": 250
+ },
+ {
+  "name": "Davenport",
+  "division": "NCAA D2",
+  "conference": "WHAC",
+  "soccer_score": 63.76,
+  "national_ranking": 251
+ },
+ {
+  "name": "Christian Brothers",
+  "division": "NCAA D2",
+  "conference": "GSC",
+  "soccer_score": 63.76,
+  "national_ranking": 252
+ },
+ {
+  "name": "Cedarville",
+  "division": "NCAA D2",
+  "conference": "GMAC",
+  "soccer_score": 63.76,
+  "national_ranking": 253
+ },
+ {
+  "name": "Cal Poly Pomona",
+  "division": "NCAA D2",
+  "conference": "CCAA",
+  "soccer_score": 63.71,
+  "national_ranking": 254
+ },
+ {
+  "name": "Roberts Wesleyan",
+  "division": "NCAA D2",
+  "conference": "ECC",
+  "soccer_score": 63.65,
+  "national_ranking": 255
+ },
+ {
+  "name": "Lenoir-Rhyne",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 63.39,
+  "national_ranking": 256
+ },
+ {
+  "name": "Kentucky Wesleyan",
+  "division": "NCAA D2",
+  "conference": "GLVC",
+  "soccer_score": 63.37,
+  "national_ranking": 257
+ },
+ {
+  "name": "Lander",
+  "division": "NCAA D2",
+  "conference": "Peach Belt",
+  "soccer_score": 63.35,
+  "national_ranking": 258
+ },
+ {
+  "name": "Lincoln Memorial",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 63.29,
+  "national_ranking": 259
+ },
+ {
+  "name": "Adelphi",
+  "division": "NCAA D2",
+  "conference": "Northeast-10",
+  "soccer_score": 63.09,
+  "national_ranking": 260
+ },
+ {
+  "name": "East Stroudsburg",
+  "division": "NCAA D2",
+  "conference": "PSAC",
+  "soccer_score": 63.04,
+  "national_ranking": 261
+ },
+ {
+  "name": "VMI",
+  "division": "NCAA D1",
+  "conference": "SoCon",
+  "soccer_score": 62.98,
+  "national_ranking": 262
+ },
+ {
+  "name": "Cal State Dominguez Hills",
+  "division": "NCAA D2",
+  "conference": "CCAA",
+  "soccer_score": 62.96,
+  "national_ranking": 263
+ },
+ {
+  "name": "Cal State San Bernardino",
+  "division": "NCAA D2",
+  "conference": "CCAA",
+  "soccer_score": 62.96,
+  "national_ranking": 264
+ },
+ {
+  "name": "Wisconsin-Parkside",
+  "division": "NCAA D2",
+  "conference": "GLIAC",
+  "soccer_score": 62.91,
+  "national_ranking": 265
+ },
+ {
+  "name": "Winthrop",
+  "division": "NCAA D1",
+  "conference": "Big South",
+  "soccer_score": 62.88,
+  "national_ranking": 266
+ },
+ {
+  "name": "Rockhurst",
+  "division": "NCAA D2",
+  "conference": "MIAA",
+  "soccer_score": 62.85,
+  "national_ranking": 267
+ },
+ {
+  "name": "Bentley",
+  "division": "NCAA D2",
+  "conference": "Northeast-10",
+  "soccer_score": 62.75,
+  "national_ranking": 268
+ },
+ {
+  "name": "North Georgia",
+  "division": "NCAA D2",
+  "conference": "Peach Belt",
+  "soccer_score": 62.63,
+  "national_ranking": 269
+ },
+ {
+  "name": "Roosevelt",
+  "division": "NCAA D2",
+  "conference": "CCAC",
+  "soccer_score": 62.62,
+  "national_ranking": 270
+ },
+ {
+  "name": "Vanguard",
+  "division": "NCAA D2",
+  "conference": "PacWest",
+  "soccer_score": 62.49,
+  "national_ranking": 271
+ },
+ {
+  "name": "Westminster (UT)",
+  "division": "NCAA D2",
+  "conference": "RMAC",
+  "soccer_score": 62.46,
+  "national_ranking": 272
+ },
+ {
+  "name": "Bridgeport",
+  "division": "NCAA D2",
+  "conference": "Northeast-10",
+  "soccer_score": 62.26,
+  "national_ranking": 273
+ },
+ {
+  "name": "Western Oregon",
+  "division": "NCAA D2",
+  "conference": "GNAC",
+  "soccer_score": 62.26,
+  "national_ranking": 274
+ },
+ {
+  "name": "Barry",
+  "division": "NCAA D2",
+  "conference": "Sunshine State",
+  "soccer_score": 62.1,
+  "national_ranking": 275
+ },
+ {
+  "name": "Metro State Denver",
+  "division": "NCAA D2",
+  "conference": "RMAC",
+  "soccer_score": 62.05,
+  "national_ranking": 276
+ },
+ {
+  "name": "Colorado Mesa",
+  "division": "NCAA D2",
+  "conference": "RMAC",
+  "soccer_score": 61.88,
+  "national_ranking": 277
+ },
+ {
+  "name": "Columbia",
+  "division": "NCAA D1",
+  "conference": "Ivy League",
+  "soccer_score": 61.81,
+  "national_ranking": 278
+ },
+ {
+  "name": "Eastern Illinois",
+  "division": "NCAA D1",
+  "conference": "OVC",
+  "soccer_score": 61.75,
+  "national_ranking": 279
+ },
+ {
+  "name": "Hawaii Hilo",
+  "division": "NCAA D2",
+  "conference": "PacWest",
+  "soccer_score": 61.73,
+  "national_ranking": 280
+ },
+ {
+  "name": "Lake Erie",
+  "division": "NCAA D2",
+  "conference": "GLIAC",
+  "soccer_score": 61.58,
+  "national_ranking": 281
+ },
+ {
+  "name": "Regis (CO)",
+  "division": "NCAA D2",
+  "conference": "RMAC",
+  "soccer_score": 61.52,
+  "national_ranking": 282
+ },
+ {
+  "name": "Drury",
+  "division": "NCAA D2",
+  "conference": "GLVC",
+  "soccer_score": 61.39,
+  "national_ranking": 283
+ },
+ {
+  "name": "Catawba",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 61.24,
+  "national_ranking": 284
+ },
+ {
+  "name": "Emmanuel (GA)",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 61.2,
+  "national_ranking": 285
+ },
+ {
+  "name": "St. Thomas Aquinas",
+  "division": "NCAA D2",
+  "conference": "ECC",
+  "soccer_score": 61.15,
+  "national_ranking": 286
+ },
+ {
+  "name": "Ashland",
+  "division": "NCAA D2",
+  "conference": "GLIAC",
+  "soccer_score": 60.81,
+  "national_ranking": 287
+ },
+ {
+  "name": "Coker",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 60.79,
+  "national_ranking": 288
+ },
+ {
+  "name": "Lubbock Christian",
+  "division": "NCAA D2",
+  "conference": "Lone Star",
+  "soccer_score": 60.76,
+  "national_ranking": 289
+ },
+ {
+  "name": "Missouri S&T",
+  "division": "NCAA D2",
+  "conference": "GLVC",
+  "soccer_score": 60.75,
+  "national_ranking": 290
+ },
+ {
+  "name": "Barton",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 60.72,
+  "national_ranking": 291
+ },
+ {
+  "name": "Georgetown (KY)",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 60.58,
+  "national_ranking": 292
+ },
+ {
+  "name": "Chico State",
+  "division": "NCAA D2",
+  "conference": "CCAA",
+  "soccer_score": 60.53,
+  "national_ranking": 293
+ },
+ {
+  "name": "Shawnee State",
+  "division": "NCAA D2",
+  "conference": "GMAC",
+  "soccer_score": 60.51,
+  "national_ranking": 294
+ },
+ {
+  "name": "UT Dallas",
+  "division": "NCAA D2",
+  "conference": "Heartland",
+  "soccer_score": 60.46,
+  "national_ranking": 295
+ },
+ {
+  "name": "William Penn",
+  "division": "NAIA",
+  "conference": "HAAC",
+  "soccer_score": 60.44,
+  "national_ranking": 296
+ },
+ {
+  "name": "Southern Connecticut State",
+  "division": "NCAA D2",
+  "conference": "Northeast-10",
+  "soccer_score": 60.4,
+  "national_ranking": 297
+ },
+ {
+  "name": "Commonwealth University-Lock Haven",
+  "division": "NCAA D2",
+  "conference": "PSAC",
+  "soccer_score": 60.38,
+  "national_ranking": 298
+ },
+ {
+  "name": "Mars Hill",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 60.27,
+  "national_ranking": 299
+ },
+ {
+  "name": "Slippery Rock",
+  "division": "NCAA D2",
+  "conference": "PSAC",
+  "soccer_score": 60.21,
+  "national_ranking": 300
+ },
+ {
+  "name": "Seattle Pacific",
+  "division": "NCAA D2",
+  "conference": "GNAC",
+  "soccer_score": 60.21,
+  "national_ranking": 301
+ },
+ {
+  "name": "Saint Michael's",
+  "division": "NCAA D2",
+  "conference": "Northeast-10",
+  "soccer_score": 60.04,
+  "national_ranking": 302
+ },
+ {
+  "name": "West Texas A&M",
+  "division": "NCAA D2",
+  "conference": "LSC",
+  "soccer_score": 60.04,
+  "national_ranking": 303
+ },
+ {
+  "name": "Western Washington",
+  "division": "NCAA D2",
+  "conference": "GNAC",
+  "soccer_score": 59.91,
+  "national_ranking": 304
+ },
+ {
+  "name": "Thomas Jefferson",
+  "division": "NCAA D2",
+  "conference": "CACC",
+  "soccer_score": 59.9,
+  "national_ranking": 305
+ },
+ {
+  "name": "UT Tyler",
+  "division": "NCAA D2",
+  "conference": "Heartland",
+  "soccer_score": 59.89,
+  "national_ranking": 306
+ },
+ {
+  "name": "Lindsey Wilson",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 59.88,
+  "national_ranking": 307
+ },
+ {
+  "name": "Dallas Baptist",
+  "division": "NCAA D2",
+  "conference": "Heartland",
+  "soccer_score": 59.82,
+  "national_ranking": 308
+ },
+ {
+  "name": "Alabama Huntsville",
+  "division": "NCAA D2",
+  "conference": "GSC",
+  "soccer_score": 59.7,
+  "national_ranking": 309
+ },
+ {
+  "name": "West Alabama",
+  "division": "NCAA D2",
+  "conference": "GSC",
+  "soccer_score": 59.7,
+  "national_ranking": 310
+ },
+ {
+  "name": "Westmont",
+  "division": "NCAA D2",
+  "conference": "PacWest",
+  "soccer_score": 59.69,
+  "national_ranking": 311
+ },
+ {
+  "name": "Northeastern State",
+  "division": "NCAA D2",
+  "conference": "GAC",
+  "soccer_score": 59.69,
+  "national_ranking": 312
+ },
+ {
+  "name": "Wingate",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 59.67,
+  "national_ranking": 313
+ },
+ {
+  "name": "Howard",
+  "division": "NCAA D1",
+  "conference": "SWAC",
+  "soccer_score": 59.64,
+  "national_ranking": 314
+ },
+ {
+  "name": "Union (TN)",
+  "division": "NCAA D2",
+  "conference": "Mid-South",
+  "soccer_score": 59.57,
+  "national_ranking": 315
+ },
+ {
+  "name": "Central Christian",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 59.57,
+  "national_ranking": 316
+ },
+ {
+  "name": "Lee (TN)",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 59.5,
+  "national_ranking": 317
+ },
+ {
+  "name": "Lees-McRae",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 59.44,
+  "national_ranking": 318
+ },
+ {
+  "name": "Indiana Institute of Technology",
+  "division": "NAIA",
+  "conference": "WHAC",
+  "soccer_score": 59.34,
+  "national_ranking": 319
+ },
+ {
+  "name": "Thomas More",
+  "division": "NCAA D2",
+  "conference": "AMC",
+  "soccer_score": 59.27,
+  "national_ranking": 320
+ },
+ {
+  "name": "Cal State Monterey Bay",
+  "division": "NCAA D2",
+  "conference": "CCAA",
+  "soccer_score": 58.9,
+  "national_ranking": 321
+ },
+ {
+  "name": "Caldwell",
+  "division": "NCAA D2",
+  "conference": "Northeast-10",
+  "soccer_score": 58.82,
+  "national_ranking": 322
+ },
+ {
+  "name": "Radford",
+  "division": "NCAA D1",
+  "conference": "Big South",
+  "soccer_score": 58.77,
+  "national_ranking": 323
+ },
+ {
+  "name": "Simon Fraser",
+  "division": "NCAA D2",
+  "conference": "GNAC",
+  "soccer_score": 58.76,
+  "national_ranking": 324
+ },
+ {
+  "name": "Cumberlands",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 58.74,
+  "national_ranking": 325
+ },
+ {
+  "name": "Holy Family",
+  "division": "NCAA D2",
+  "conference": "CACC",
+  "soccer_score": 58.7,
+  "national_ranking": 326
+ },
+ {
+  "name": "Life (GA)",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 58.65,
+  "national_ranking": 327
+ },
+ {
+  "name": "Indianapolis",
+  "division": "NCAA D2",
+  "conference": "GLVC",
+  "soccer_score": 58.58,
+  "national_ranking": 328
+ },
+ {
+  "name": "MidAmerica Nazarene",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 58.58,
+  "national_ranking": 329
+ },
+ {
+  "name": "Central Methodist",
+  "division": "NAIA",
+  "conference": "Heart",
+  "soccer_score": 58.55,
+  "national_ranking": 330
+ },
+ {
+  "name": "Grand View",
+  "division": "NAIA",
+  "conference": "HAAC",
+  "soccer_score": 58.54,
+  "national_ranking": 331
+ },
+ {
+  "name": "Wilmington (DE)",
+  "division": "NCAA D2",
+  "conference": "CACC",
+  "soccer_score": 58.47,
+  "national_ranking": 332
+ },
+ {
+  "name": "UMSL",
+  "division": "NCAA D2",
+  "conference": "GLVC",
+  "soccer_score": 58.47,
+  "national_ranking": 333
+ },
+ {
+  "name": "Colorado School of Mines",
+  "division": "NCAA D2",
+  "conference": "RMAC",
+  "soccer_score": 58.36,
+  "national_ranking": 334
+ },
+ {
+  "name": "Southern Oregon",
+  "division": "NAIA",
+  "conference": "Cascade",
+  "soccer_score": 58.17,
+  "national_ranking": 335
+ },
+ {
+  "name": "Concordia (NE)",
+  "division": "NAIA",
+  "conference": "GPAC",
+  "soccer_score": 58.13,
+  "national_ranking": 336
+ },
+ {
+  "name": "Northwest Nazarene",
+  "division": "NCAA D2",
+  "conference": "GNAC",
+  "soccer_score": 58.11,
+  "national_ranking": 337
+ },
+ {
+  "name": "Frostburg State",
+  "division": "NCAA D2",
+  "conference": "ECAC",
+  "soccer_score": 58.11,
+  "national_ranking": 338
+ },
+ {
+  "name": "Northern Michigan",
+  "division": "NCAA D2",
+  "conference": "GLIAC",
+  "soccer_score": 58.1,
+  "national_ranking": 339
+ },
+ {
+  "name": "Point (GA)",
+  "division": "NAIA",
+  "conference": "Appalachian",
+  "soccer_score": 58.08,
+  "national_ranking": 340
+ },
+ {
+  "name": "Montevallo",
+  "division": "NCAA D2",
+  "conference": "GSC",
+  "soccer_score": 58.06,
+  "national_ranking": 341
+ },
+ {
+  "name": "Air Force",
+  "division": "NCAA D1",
+  "conference": "Mountain West",
+  "soccer_score": 57.79,
+  "national_ranking": 342
+ },
+ {
+  "name": "Indiana Wesleyan",
+  "division": "NAIA",
+  "conference": "CCAC",
+  "soccer_score": 57.67,
+  "national_ranking": 343
+ },
+ {
+  "name": "Southeastern (FL)",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 57.58,
+  "national_ranking": 344
+ },
+ {
+  "name": "Southeastern University",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 57.58,
+  "national_ranking": 345
+ },
+ {
+  "name": "Georgian Court",
+  "division": "NCAA D2",
+  "conference": "CACC",
+  "soccer_score": 57.45,
+  "national_ranking": 346
+ },
+ {
+  "name": "UC Merced",
+  "division": "NCAA D2",
+  "conference": "CCAA",
+  "soccer_score": 57.21,
+  "national_ranking": 347
+ },
+ {
+  "name": "John Brown",
+  "division": "NAIA",
+  "conference": "Sooner",
+  "soccer_score": 57.13,
+  "national_ranking": 348
+ },
+ {
+  "name": "Oklahoma Christian",
+  "division": "NCAA D2",
+  "conference": "Heartland",
+  "soccer_score": 57.11,
+  "national_ranking": 349
+ },
+ {
+  "name": "Carroll (MT)",
+  "division": "NAIA",
+  "conference": "Frontier",
+  "soccer_score": 56.99,
+  "national_ranking": 350
+ },
+ {
+  "name": "Dominican (CA)",
+  "division": "NCAA D2",
+  "conference": "PacWest",
+  "soccer_score": 56.94,
+  "national_ranking": 351
+ },
+ {
+  "name": "Mount Olive",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 56.92,
+  "national_ranking": 352
+ },
+ {
+  "name": "Ottawa",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 56.91,
+  "national_ranking": 353
+ },
+ {
+  "name": "Quincy",
+  "division": "NCAA D2",
+  "conference": "GLVC",
+  "soccer_score": 56.9,
+  "national_ranking": 354
+ },
+ {
+  "name": "Newman",
+  "division": "NCAA D2",
+  "conference": "MIAA",
+  "soccer_score": 56.83,
+  "national_ranking": 355
+ },
+ {
+  "name": "Florida Southern",
+  "division": "NCAA D2",
+  "conference": "Sunshine State",
+  "soccer_score": 56.59,
+  "national_ranking": 356
+ },
+ {
+  "name": "Point Park",
+  "division": "NCAA D2",
+  "conference": "AMC",
+  "soccer_score": 56.54,
+  "national_ranking": 357
+ },
+ {
+  "name": "Midland",
+  "division": "NAIA",
+  "conference": "GPAC",
+  "soccer_score": 56.51,
+  "national_ranking": 358
+ },
+ {
+  "name": "Morningside",
+  "division": "NAIA",
+  "conference": "GPAC",
+  "soccer_score": 56.5,
+  "national_ranking": 359
+ },
+ {
+  "name": "West Liberty",
+  "division": "NCAA D2",
+  "conference": "Mountain East",
+  "soccer_score": 56.45,
+  "national_ranking": 360
+ },
+ {
+  "name": "Bethany (KS)",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 56.36,
+  "national_ranking": 361
+ },
+ {
+  "name": "Bethesda",
+  "division": "NAIA",
+  "conference": "NAIA Independent",
+  "soccer_score": 56.32,
+  "national_ranking": 362
+ },
+ {
+  "name": "Grace",
+  "division": "NAIA",
+  "conference": "CCAC",
+  "soccer_score": 56.27,
+  "national_ranking": 363
+ },
+ {
+  "name": "Biola",
+  "division": "NCAA D2",
+  "conference": "PacWest",
+  "soccer_score": 56.24,
+  "national_ranking": 364
+ },
+ {
+  "name": "Arizona Christian",
+  "division": "NAIA",
+  "conference": "Golden State",
+  "soccer_score": 56.16,
+  "national_ranking": 365
+ },
+ {
+  "name": "Chicago State",
+  "division": "NCAA D1",
+  "conference": "WAC",
+  "soccer_score": 56.11,
+  "national_ranking": 366
+ },
+ {
+  "name": "Purdue Northwest",
+  "division": "NCAA D2",
+  "conference": "GLIAC",
+  "soccer_score": 56.11,
+  "national_ranking": 367
+ },
+ {
+  "name": "College of Idaho",
+  "division": "NAIA",
+  "conference": "Frontier",
+  "soccer_score": 56.08,
+  "national_ranking": 368
+ },
+ {
+  "name": "Belmont Abbey",
+  "division": "NCAA D2",
+  "conference": "Conference USA",
+  "soccer_score": 55.93,
+  "national_ranking": 369
+ },
+ {
+  "name": "Eastern New Mexico",
+  "division": "NCAA D2",
+  "conference": "LSC",
+  "soccer_score": 55.82,
+  "national_ranking": 370
+ },
+ {
+  "name": "Eastern Oregon",
+  "division": "NAIA",
+  "conference": "Cascade",
+  "soccer_score": 55.79,
+  "national_ranking": 371
+ },
+ {
+  "name": "Concordia (MI)",
+  "division": "NAIA",
+  "conference": "WHAC",
+  "soccer_score": 55.76,
+  "national_ranking": 372
+ },
+ {
+  "name": "Iowa Wesleyan",
+  "division": "NAIA",
+  "conference": "HAAC",
+  "soccer_score": 55.73,
+  "national_ranking": 373
+ },
+ {
+  "name": "Bethel (TN)",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 55.69,
+  "national_ranking": 374
+ },
+ {
+  "name": "Southwest Minnesota State",
+  "division": "NAIA",
+  "conference": "NSIC",
+  "soccer_score": 55.67,
+  "national_ranking": 375
+ },
+ {
+  "name": "Cal State East Bay",
+  "division": "NCAA D2",
+  "conference": "CCAA",
+  "soccer_score": 55.67,
+  "national_ranking": 376
+ },
+ {
+  "name": "Shaw",
+  "division": "NCAA D2",
+  "conference": "CIAA",
+  "soccer_score": 55.6,
+  "national_ranking": 377
+ },
+ {
+  "name": "Queens (CUNY)",
+  "division": "NCAA D2",
+  "conference": "ECC",
+  "soccer_score": 55.51,
+  "national_ranking": 378
+ },
+ {
+  "name": "Baker",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 55.5,
+  "national_ranking": 379
+ },
+ {
+  "name": "Saint Anselm",
+  "division": "NCAA D2",
+  "conference": "Northeast-10",
+  "soccer_score": 55.49,
+  "national_ranking": 380
+ },
+ {
+  "name": "Walsh",
+  "division": "NCAA D2",
+  "conference": "GMAC",
+  "soccer_score": 55.46,
+  "national_ranking": 381
+ },
+ {
+  "name": "Newberry",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 55.33,
+  "national_ranking": 382
+ },
+ {
+  "name": "Trevecca Nazarene",
+  "division": "NCAA D2",
+  "conference": "Mid-South",
+  "soccer_score": 55.31,
+  "national_ranking": 383
+ },
+ {
+  "name": "Southern Indiana",
+  "division": "NCAA D1",
+  "conference": "OVC",
+  "soccer_score": 55.09,
+  "national_ranking": 384
+ },
+ {
+  "name": "Kansas Wesleyan",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 55.03,
+  "national_ranking": 385
+ },
+ {
+  "name": "Salem",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 55.03,
+  "national_ranking": 386
+ },
+ {
+  "name": "Cardinal Stritch",
+  "division": "NAIA",
+  "conference": "NACC",
+  "soccer_score": 54.95,
+  "national_ranking": 387
+ },
+ {
+  "name": "Aquinas",
+  "division": "NAIA",
+  "conference": "WHAC",
+  "soccer_score": 54.93,
+  "national_ranking": 388
+ },
+ {
+  "name": "Mount Mercy",
+  "division": "NAIA",
+  "conference": "HAAC",
+  "soccer_score": 54.89,
+  "national_ranking": 389
+ },
+ {
+  "name": "Cal State San Marcos",
+  "division": "NCAA D2",
+  "conference": "CCAA",
+  "soccer_score": 54.87,
+  "national_ranking": 390
+ },
+ {
+  "name": "Colorado Christian",
+  "division": "NCAA D2",
+  "conference": "RMAC",
+  "soccer_score": 54.8,
+  "national_ranking": 391
+ },
+ {
+  "name": "Freed-Hardeman",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 54.78,
+  "national_ranking": 392
+ },
+ {
+  "name": "Spring Arbor",
+  "division": "NAIA",
+  "conference": "WHAC",
+  "soccer_score": 54.66,
+  "national_ranking": 393
+ },
+ {
+  "name": "West Virginia Wesleyan",
+  "division": "NCAA D2",
+  "conference": "Mountain East",
+  "soccer_score": 54.63,
+  "national_ranking": 394
+ },
+ {
+  "name": "Fresno Pacific",
+  "division": "NCAA D2",
+  "conference": "PacWest",
+  "soccer_score": 54.63,
+  "national_ranking": 395
+ },
+ {
+  "name": "Saint Leo",
+  "division": "NCAA D2",
+  "conference": "Sunshine State",
+  "soccer_score": 54.42,
+  "national_ranking": 396
+ },
+ {
+  "name": "Tusculum",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 54.33,
+  "national_ranking": 397
+ },
+ {
+  "name": "Molloy",
+  "division": "NCAA D2",
+  "conference": "ECC",
+  "soccer_score": 54.12,
+  "national_ranking": 398
+ },
+ {
+  "name": "Sul Ross State",
+  "division": "NCAA D2",
+  "conference": "Heartland",
+  "soccer_score": 54.08,
+  "national_ranking": 399
+ },
+ {
+  "name": "Delta State",
+  "division": "NCAA D2",
+  "conference": "GSC",
+  "soccer_score": 54.06,
+  "national_ranking": 400
+ },
+ {
+  "name": "Hawaii Pacific",
+  "division": "NCAA D2",
+  "conference": "PacWest",
+  "soccer_score": 53.99,
+  "national_ranking": 401
+ },
+ {
+  "name": "Truman State",
+  "division": "NCAA D2",
+  "conference": "GLVC",
+  "soccer_score": 53.93,
+  "national_ranking": 402
+ },
+ {
+  "name": "Eckerd",
+  "division": "NCAA D2",
+  "conference": "Sunshine State",
+  "soccer_score": 53.74,
+  "national_ranking": 403
+ },
+ {
+  "name": "Georgia Southwestern",
+  "division": "NCAA D2",
+  "conference": "Peach Belt",
+  "soccer_score": 53.59,
+  "national_ranking": 404
+ },
+ {
+  "name": "Texas A&M International",
+  "division": "NCAA D2",
+  "conference": "Heartland",
+  "soccer_score": 53.02,
+  "national_ranking": 405
+ },
+ {
+  "name": "Wayland Baptist",
+  "division": "NAIA",
+  "conference": "RRAC",
+  "soccer_score": 52.94,
+  "national_ranking": 406
+ },
+ {
+  "name": "Rocky Mountain",
+  "division": "NAIA",
+  "conference": "Frontier",
+  "soccer_score": 52.94,
+  "national_ranking": 407
+ },
+ {
+  "name": "Greenville",
+  "division": "NAIA",
+  "conference": "SLIAC",
+  "soccer_score": 52.91,
+  "national_ranking": 408
+ },
+ {
+  "name": "Missouri Baptist",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 52.86,
+  "national_ranking": 409
+ },
+ {
+  "name": "Trinity Christian",
+  "division": "NAIA",
+  "conference": "CCAC",
+  "soccer_score": 52.78,
+  "national_ranking": 410
+ },
+ {
+  "name": "Saint Francis (IL)",
+  "division": "NAIA",
+  "conference": "CCAC",
+  "soccer_score": 52.75,
+  "national_ranking": 411
+ },
+ {
+  "name": "Olivet Nazarene",
+  "division": "NAIA",
+  "conference": "CCAC",
+  "soccer_score": 52.65,
+  "national_ranking": 412
+ },
+ {
+  "name": "Hastings",
+  "division": "NAIA",
+  "conference": "GPAC",
+  "soccer_score": 52.61,
+  "national_ranking": 413
+ },
+ {
+  "name": "Chestnut Hill",
+  "division": "NCAA D2",
+  "conference": "CACC",
+  "soccer_score": 52.61,
+  "national_ranking": 414
+ },
+ {
+  "name": "St. Mary's (TX)",
+  "division": "NCAA D2",
+  "conference": "Heartland",
+  "soccer_score": 52.58,
+  "national_ranking": 415
+ },
+ {
+  "name": "Dordt",
+  "division": "NAIA",
+  "conference": "GPAC",
+  "soccer_score": 52.52,
+  "national_ranking": 416
+ },
+ {
+  "name": "Waldorf",
+  "division": "NAIA",
+  "conference": "HAAC",
+  "soccer_score": 52.52,
+  "national_ranking": 417
+ },
+ {
+  "name": "Florida Memorial",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 52.5,
+  "national_ranking": 418
+ },
+ {
+  "name": "Science & Arts (OK)",
+  "division": "NAIA",
+  "conference": "Sooner",
+  "soccer_score": 52.34,
+  "national_ranking": 419
+ },
+ {
+  "name": "Southwestern (KS)",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 51.83,
+  "national_ranking": 420
+ },
+ {
+  "name": "Tufts",
+  "division": "NCAA D3",
+  "conference": "NESCAC",
+  "soccer_score": 51.51,
+  "national_ranking": 421
+ },
+ {
+  "name": "Saint Mary (KS)",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 51.46,
+  "national_ranking": 422
+ },
+ {
+  "name": "Webber International",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 51.43,
+  "national_ranking": 423
+ },
+ {
+  "name": "King (TN)",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 51.3,
+  "national_ranking": 424
+ },
+ {
+  "name": "Dominican College (NY)",
+  "division": "NCAA D2",
+  "conference": "ECC",
+  "soccer_score": 51.26,
+  "national_ranking": 425
+ },
+ {
+  "name": "Saint Olaf",
+  "division": "NCAA D3",
+  "conference": "MIAC",
+  "soccer_score": 51.21,
+  "national_ranking": 426
+ },
+ {
+  "name": "American International",
+  "division": "NCAA D2",
+  "conference": "Northeast-10",
+  "soccer_score": 51.15,
+  "national_ranking": 427
+ },
+ {
+  "name": "Shepherd",
+  "division": "NCAA D2",
+  "conference": "Mountain East",
+  "soccer_score": 50.76,
+  "national_ranking": 428
+ },
+ {
+  "name": "Tabor",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 50.55,
+  "national_ranking": 429
+ },
+ {
+  "name": "Dakota Wesleyan",
+  "division": "NAIA",
+  "conference": "GPAC",
+  "soccer_score": 50.39,
+  "national_ranking": 430
+ },
+ {
+  "name": "Southern Wesleyan",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 50.31,
+  "national_ranking": 431
+ },
+ {
+  "name": "Assumption",
+  "division": "NCAA D2",
+  "conference": "Northeast-10",
+  "soccer_score": 50.25,
+  "national_ranking": 432
+ },
+ {
+  "name": "Evangel",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 50.24,
+  "national_ranking": 433
+ },
+ {
+  "name": "South Carolina Aiken",
+  "division": "NCAA D2",
+  "conference": "Peach Belt",
+  "soccer_score": 50.13,
+  "national_ranking": 434
+ },
+ {
+  "name": "Bryan",
+  "division": "NAIA",
+  "conference": "Appalachian",
+  "soccer_score": 50.03,
+  "national_ranking": 435
+ },
+ {
+  "name": "Amherst",
+  "division": "NCAA D3",
+  "conference": "NESCAC",
+  "soccer_score": 49.94,
+  "national_ranking": 436
+ },
+ {
+  "name": "Gustavus Adolphus",
+  "division": "NCAA D3",
+  "conference": "MIAC",
+  "soccer_score": 49.92,
+  "national_ranking": 437
+ },
+ {
+  "name": "Cal Poly Humboldt",
+  "division": "NCAA D2",
+  "conference": "GNAC",
+  "soccer_score": 49.71,
+  "national_ranking": 438
+ },
+ {
+  "name": "Middlebury",
+  "division": "NCAA D3",
+  "conference": "NESCAC",
+  "soccer_score": 49.68,
+  "national_ranking": 439
+ },
+ {
+  "name": "Upper Iowa",
+  "division": "NCAA D2",
+  "conference": "NSIC",
+  "soccer_score": 49.67,
+  "national_ranking": 440
+ },
+ {
+  "name": "Augsburg",
+  "division": "NCAA D3",
+  "conference": "MIAC",
+  "soccer_score": 49.58,
+  "national_ranking": 441
+ },
+ {
+  "name": "Trinity (TX)",
+  "division": "NCAA D3",
+  "conference": "SCAC",
+  "soccer_score": 49.4,
+  "national_ranking": 442
+ },
+ {
+  "name": "Jamestown",
+  "division": "NCAA D2",
+  "conference": "NSIC",
+  "soccer_score": 49.39,
+  "national_ranking": 443
+ },
+ {
+  "name": "Ohio Dominican",
+  "division": "NCAA D2",
+  "conference": "GMAC",
+  "soccer_score": 49.31,
+  "national_ranking": 444
+ },
+ {
+  "name": "Connecticut College",
+  "division": "NCAA D3",
+  "conference": "NESCAC",
+  "soccer_score": 49.21,
+  "national_ranking": 445
+ },
+ {
+  "name": "Northwest University",
+  "division": "NAIA",
+  "conference": "Cascade",
+  "soccer_score": 49.11,
+  "national_ranking": 446
+ },
+ {
+  "name": "University of Chicago",
+  "division": "NCAA D3",
+  "conference": "UAA",
+  "soccer_score": 49.1,
+  "national_ranking": 447
+ },
+ {
+  "name": "Benedictine (KS)",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 49.09,
+  "national_ranking": 448
+ },
+ {
+  "name": "Staten Island",
+  "division": "NCAA D2",
+  "conference": "ECC",
+  "soccer_score": 49.08,
+  "national_ranking": 449
+ },
+ {
+  "name": "Dickinson",
+  "division": "NCAA D3",
+  "conference": "Centennial",
+  "soccer_score": 49.05,
+  "national_ranking": 450
+ },
+ {
+  "name": "Jessup",
+  "division": "NCAA D2",
+  "conference": "PacWest",
+  "soccer_score": 49.04,
+  "national_ranking": 451
+ },
+ {
+  "name": "Macalester",
+  "division": "NCAA D3",
+  "conference": "MIAC",
+  "soccer_score": 49.02,
+  "national_ranking": 452
+ },
+ {
+  "name": "Babson",
+  "division": "NCAA D3",
+  "conference": "NEWMAC",
+  "soccer_score": 49.02,
+  "national_ranking": 453
+ },
+ {
+  "name": "Hannibal-LaGrange",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 48.91,
+  "national_ranking": 454
+ },
+ {
+  "name": "Washington & Lee",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 48.89,
+  "national_ranking": 455
+ },
+ {
+  "name": "Shippensburg",
+  "division": "NCAA D2",
+  "conference": "PSAC",
+  "soccer_score": 48.86,
+  "national_ranking": 456
+ },
+ {
+  "name": "William Jewell",
+  "division": "NCAA D2",
+  "conference": "GLVC",
+  "soccer_score": 48.8,
+  "national_ranking": 457
+ },
+ {
+  "name": "Trinity International",
+  "division": "NAIA",
+  "conference": "CCAC",
+  "soccer_score": 48.67,
+  "national_ranking": 458
+ },
+ {
+  "name": "Wisconsin-Eau Claire",
+  "division": "NCAA D3",
+  "conference": "WIAC",
+  "soccer_score": 48.66,
+  "national_ranking": 459
+ },
+ {
+  "name": "Emory",
+  "division": "NCAA D3",
+  "conference": "UAA",
+  "soccer_score": 48.5,
+  "national_ranking": 460
+ },
+ {
+  "name": "Emory & Henry",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 48.46,
+  "national_ranking": 461
+ },
+ {
+  "name": "Calvin",
+  "division": "NCAA D3",
+  "conference": "MIAA-D3",
+  "soccer_score": 48.46,
+  "national_ranking": 462
+ },
+ {
+  "name": "Carleton",
+  "division": "NCAA D3",
+  "conference": "MIAC",
+  "soccer_score": 48.42,
+  "national_ranking": 463
+ },
+ {
+  "name": "PennWest California",
+  "division": "NCAA D2",
+  "conference": "PSAC",
+  "soccer_score": 48.4,
+  "national_ranking": 464
+ },
+ {
+  "name": "Carson-Newman",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 48.31,
+  "national_ranking": 465
+ },
+ {
+  "name": "Montclair State",
+  "division": "NCAA D3",
+  "conference": "NJAC",
+  "soccer_score": 48.29,
+  "national_ranking": 466
+ },
+ {
+  "name": "Bowdoin",
+  "division": "NCAA D3",
+  "conference": "NESCAC",
+  "soccer_score": 48.25,
+  "national_ranking": 467
+ },
+ {
+  "name": "Rose-Hulman",
+  "division": "NCAA D3",
+  "conference": "HCAC",
+  "soccer_score": 48.19,
+  "national_ranking": 468
+ },
+ {
+  "name": "Hanover",
+  "division": "NCAA D3",
+  "conference": "HCAC",
+  "soccer_score": 48.16,
+  "national_ranking": 469
+ },
+ {
+  "name": "SUNY Cortland",
+  "division": "NCAA D3",
+  "conference": "SUNYAC",
+  "soccer_score": 48.13,
+  "national_ranking": 470
+ },
+ {
+  "name": "Johns Hopkins",
+  "division": "NCAA D3",
+  "conference": "Centennial",
+  "soccer_score": 48.08,
+  "national_ranking": 471
+ },
+ {
+  "name": "Washington (MO)",
+  "division": "NCAA D3",
+  "conference": "UAA",
+  "soccer_score": 48.03,
+  "national_ranking": 472
+ },
+ {
+  "name": "Colorado College",
+  "division": "NCAA D3",
+  "conference": "SCAC",
+  "soccer_score": 48.02,
+  "national_ranking": 473
+ },
+ {
+  "name": "Messiah",
+  "division": "NCAA D3",
+  "conference": "MAC Commonwealth",
+  "soccer_score": 47.91,
+  "national_ranking": 474
+ },
+ {
+  "name": "Wheaton (MA)",
+  "division": "NCAA D3",
+  "conference": "NEWMAC",
+  "soccer_score": 47.91,
+  "national_ranking": 475
+ },
+ {
+  "name": "Spring Hill",
+  "division": "NCAA D2",
+  "conference": "GSC",
+  "soccer_score": 47.86,
+  "national_ranking": 476
+ },
+ {
+  "name": "Cornerstone",
+  "division": "NAIA",
+  "conference": "WHAC",
+  "soccer_score": 47.84,
+  "national_ranking": 477
+ },
+ {
+  "name": "Central Connecticut",
+  "division": "NCAA D1",
+  "conference": "NEC",
+  "soccer_score": 47.79,
+  "national_ranking": 478
+ },
+ {
+  "name": "Pacific Lutheran",
+  "division": "NCAA D3",
+  "conference": "NWC",
+  "soccer_score": 47.76,
+  "national_ranking": 479
+ },
+ {
+  "name": "Wisconsin-Superior",
+  "division": "NCAA D3",
+  "conference": "WIAC",
+  "soccer_score": 47.73,
+  "national_ranking": 480
+ },
+ {
+  "name": "Muhlenberg",
+  "division": "NCAA D3",
+  "conference": "Centennial",
+  "soccer_score": 47.71,
+  "national_ranking": 481
+ },
+ {
+  "name": "Mount Union",
+  "division": "NCAA D3",
+  "conference": "OAC",
+  "soccer_score": 47.69,
+  "national_ranking": 482
+ },
+ {
+  "name": "Malone",
+  "division": "NCAA D2",
+  "conference": "GMAC",
+  "soccer_score": 47.67,
+  "national_ranking": 483
+ },
+ {
+  "name": "Williams",
+  "division": "NCAA D3",
+  "conference": "NESCAC",
+  "soccer_score": 47.55,
+  "national_ranking": 484
+ },
+ {
+  "name": "Hillsdale Baptist",
+  "division": "NAIA",
+  "conference": "RRAC",
+  "soccer_score": 47.51,
+  "national_ranking": 485
+ },
+ {
+  "name": "St. Cloud State",
+  "division": "NCAA D2",
+  "conference": "NSIC",
+  "soccer_score": 47.5,
+  "national_ranking": 486
+ },
+ {
+  "name": "Huntington",
+  "division": "NAIA",
+  "conference": "CCAC",
+  "soccer_score": 47.49,
+  "national_ranking": 487
+ },
+ {
+  "name": "Denison",
+  "division": "NCAA D3",
+  "conference": "NCAC",
+  "soccer_score": 47.49,
+  "national_ranking": 488
+ },
+ {
+  "name": "D'Youville",
+  "division": "NCAA D2",
+  "conference": "ECC",
+  "soccer_score": 47.44,
+  "national_ranking": 489
+ },
+ {
+  "name": "Pikeville",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 47.34,
+  "national_ranking": 490
+ },
+ {
+  "name": "Concordia (MN)",
+  "division": "NCAA D3",
+  "conference": "MIAC",
+  "soccer_score": 47.31,
+  "national_ranking": 491
+ },
+ {
+  "name": "Kenyon",
+  "division": "NCAA D3",
+  "conference": "NCAC",
+  "soccer_score": 47.25,
+  "national_ranking": 492
+ },
+ {
+  "name": "Western Connecticut",
+  "division": "NCAA D3",
+  "conference": "LEC",
+  "soccer_score": 47.25,
+  "national_ranking": 493
+ },
+ {
+  "name": "Southwest Baptist",
+  "division": "NCAA D2",
+  "conference": "MIAA",
+  "soccer_score": 47.22,
+  "national_ranking": 494
+ },
+ {
+  "name": "Bridgewater State",
+  "division": "NCAA D3",
+  "conference": "MASCAC",
+  "soccer_score": 47.21,
+  "national_ranking": 495
+ },
+ {
+  "name": "Rochester",
+  "division": "NCAA D3",
+  "conference": "UAA",
+  "soccer_score": 47.18,
+  "national_ranking": 496
+ },
+ {
+  "name": "Saint Ambrose",
+  "division": "NAIA",
+  "conference": "CCAC",
+  "soccer_score": 47.12,
+  "national_ranking": 497
+ },
+ {
+  "name": "Saint Joseph's (ME)",
+  "division": "NCAA D3",
+  "conference": "NAC",
+  "soccer_score": 47.08,
+  "national_ranking": 498
+ },
+ {
+  "name": "Friends",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 47.07,
+  "national_ranking": 499
+ },
+ {
+  "name": "Ozarks (AR)",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 47.05,
+  "national_ranking": 500
+ },
+ {
+  "name": "Ozarks (MO)",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 47.05,
+  "national_ranking": 501
+ },
+ {
+  "name": "Goldey-Beacom",
+  "division": "NCAA D2",
+  "conference": "CACC",
+  "soccer_score": 47.04,
+  "national_ranking": 502
+ },
+ {
+  "name": "SUNY Oneonta",
+  "division": "NCAA D3",
+  "conference": "SUNYAC",
+  "soccer_score": 46.98,
+  "national_ranking": 503
+ },
+ {
+  "name": "Anderson (IN)",
+  "division": "NCAA D3",
+  "conference": "HCAC",
+  "soccer_score": 46.91,
+  "national_ranking": 504
+ },
+ {
+  "name": "Carnegie Mellon",
+  "division": "NCAA D3",
+  "conference": "UAA",
+  "soccer_score": 46.84,
+  "national_ranking": 505
+ },
+ {
+  "name": "Virginia Wesleyan",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 46.81,
+  "national_ranking": 506
+ },
+ {
+  "name": "Wisconsin-Whitewater",
+  "division": "NCAA D3",
+  "conference": "WIAC",
+  "soccer_score": 46.79,
+  "national_ranking": 507
+ },
+ {
+  "name": "Embry-Riddle",
+  "division": "NCAA D2",
+  "conference": "Sunshine State",
+  "soccer_score": 46.79,
+  "national_ranking": 508
+ },
+ {
+  "name": "Middle Georgia State",
+  "division": "NCAA D2",
+  "conference": "Peach Belt",
+  "soccer_score": 46.67,
+  "national_ranking": 509
+ },
+ {
+  "name": "Grove City",
+  "division": "NCAA D3",
+  "conference": "PAC",
+  "soccer_score": 46.65,
+  "national_ranking": 510
+ },
+ {
+  "name": "South Dakota Mines",
+  "division": "NCAA D2",
+  "conference": "RMAC",
+  "soccer_score": 46.61,
+  "national_ranking": 511
+ },
+ {
+  "name": "Rowan",
+  "division": "NCAA D3",
+  "conference": "NJAC",
+  "soccer_score": 46.58,
+  "national_ranking": 512
+ },
+ {
+  "name": "Wisconsin-Oshkosh",
+  "division": "NCAA D3",
+  "conference": "WIAC",
+  "soccer_score": 46.54,
+  "national_ranking": 513
+ },
+ {
+  "name": "Sterling",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 46.44,
+  "national_ranking": 514
+ },
+ {
+  "name": "Franklin & Marshall",
+  "division": "NCAA D3",
+  "conference": "Centennial",
+  "soccer_score": 46.43,
+  "national_ranking": 515
+ },
+ {
+  "name": "Ouachita Baptist",
+  "division": "NCAA D2",
+  "conference": "GAC",
+  "soccer_score": 46.42,
+  "national_ranking": 516
+ },
+ {
+  "name": "Otterbein",
+  "division": "NCAA D3",
+  "conference": "OAC",
+  "soccer_score": 46.4,
+  "national_ranking": 517
+ },
+ {
+  "name": "Catholic",
+  "division": "NCAA D3",
+  "conference": "LANDMARK",
+  "soccer_score": 46.39,
+  "national_ranking": 518
+ },
+ {
+  "name": "Washington College (MD)",
+  "division": "NCAA D3",
+  "conference": "Centennial",
+  "soccer_score": 46.35,
+  "national_ranking": 519
+ },
+ {
+  "name": "Wesleyan (CT)",
+  "division": "NCAA D3",
+  "conference": "NESCAC",
+  "soccer_score": 46.3,
+  "national_ranking": 520
+ },
+ {
+  "name": "Whitman",
+  "division": "NCAA D3",
+  "conference": "NWC",
+  "soccer_score": 46.29,
+  "national_ranking": 521
+ },
+ {
+  "name": "Alfred State",
+  "division": "NCAA D3",
+  "conference": "AMCC",
+  "soccer_score": 46.25,
+  "national_ranking": 522
+ },
+ {
+  "name": "Penn State Behrend",
+  "division": "NCAA D3",
+  "conference": "AMCC",
+  "soccer_score": 46.25,
+  "national_ranking": 523
+ },
+ {
+  "name": "Aurora",
+  "division": "NCAA D3",
+  "conference": "NACC",
+  "soccer_score": 46.24,
+  "national_ranking": 524
+ },
+ {
+  "name": "Case Western Reserve",
+  "division": "NCAA D3",
+  "conference": "UAA",
+  "soccer_score": 46.2,
+  "national_ranking": 525
+ },
+ {
+  "name": "Hope",
+  "division": "NCAA D3",
+  "conference": "MIAA-D3",
+  "soccer_score": 46.15,
+  "national_ranking": 526
+ },
+ {
+  "name": "North Park",
+  "division": "NCAA D3",
+  "conference": "CCIW",
+  "soccer_score": 46.1,
+  "national_ranking": 527
+ },
+ {
+  "name": "Park",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 46.06,
+  "national_ranking": 528
+ },
+ {
+  "name": "St. Joseph's (NY)",
+  "division": "NCAA D3",
+  "conference": "Skyline",
+  "soccer_score": 46.0,
+  "national_ranking": 529
+ },
+ {
+  "name": "Claremont-Mudd-Scripps",
+  "division": "NCAA D3",
+  "conference": "SCIAC",
+  "soccer_score": 45.99,
+  "national_ranking": 530
+ },
+ {
+  "name": "Carroll (WI)",
+  "division": "NCAA D3",
+  "conference": "MWC-D3",
+  "soccer_score": 45.94,
+  "national_ranking": 531
+ },
+ {
+  "name": "Roger Williams",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 45.92,
+  "national_ranking": 532
+ },
+ {
+  "name": "Loras",
+  "division": "NCAA D3",
+  "conference": "Iowa Conference",
+  "soccer_score": 45.89,
+  "national_ranking": 533
+ },
+ {
+  "name": "William Jessup",
+  "division": "NAIA",
+  "conference": "Golden State",
+  "soccer_score": 45.89,
+  "national_ranking": 534
+ },
+ {
+  "name": "Covenant",
+  "division": "NCAA D3",
+  "conference": "SAA",
+  "soccer_score": 45.75,
+  "national_ranking": 535
+ },
+ {
+  "name": "Christopher Newport",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 45.68,
+  "national_ranking": 536
+ },
+ {
+  "name": "Scranton",
+  "division": "NCAA D3",
+  "conference": "Landmark",
+  "soccer_score": 45.68,
+  "national_ranking": 537
+ },
+ {
+  "name": "Maryville (TN)",
+  "division": "NCAA D3",
+  "conference": "SAA",
+  "soccer_score": 45.64,
+  "national_ranking": 538
+ },
+ {
+  "name": "Penn State Harrisburg",
+  "division": "NCAA D3",
+  "conference": "AMCC",
+  "soccer_score": 45.61,
+  "national_ranking": 539
+ },
+ {
+  "name": "Plattsburgh State",
+  "division": "NCAA D3",
+  "conference": "SUNYAC",
+  "soccer_score": 45.61,
+  "national_ranking": 540
+ },
+ {
+  "name": "Wheaton (IL)",
+  "division": "NCAA D3",
+  "conference": "CCIW",
+  "soccer_score": 45.53,
+  "national_ranking": 541
+ },
+ {
+  "name": "Eastern (PA)",
+  "division": "NCAA D3",
+  "conference": "MAC Freedom",
+  "soccer_score": 45.53,
+  "national_ranking": 542
+ },
+ {
+  "name": "Dallas Christian",
+  "division": "NAIA",
+  "conference": "RRAC",
+  "soccer_score": 45.47,
+  "national_ranking": 543
+ },
+ {
+  "name": "Hobart & William Smith",
+  "division": "NCAA D3",
+  "conference": "Liberty League",
+  "soccer_score": 45.45,
+  "national_ranking": 544
+ },
+ {
+  "name": "Bethany (WV)",
+  "division": "NCAA D3",
+  "conference": "PAC",
+  "soccer_score": 45.43,
+  "national_ranking": 545
+ },
+ {
+  "name": "Bethany Lutheran",
+  "division": "NCAA D3",
+  "conference": "UMAC",
+  "soccer_score": 45.43,
+  "national_ranking": 546
+ },
+ {
+  "name": "Midway",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 45.41,
+  "national_ranking": 547
+ },
+ {
+  "name": "Ohio Northern",
+  "division": "NCAA D3",
+  "conference": "OAC",
+  "soccer_score": 45.34,
+  "national_ranking": 548
+ },
+ {
+  "name": "Ohio Wesleyan",
+  "division": "NCAA D3",
+  "conference": "NCAC",
+  "soccer_score": 45.34,
+  "national_ranking": 549
+ },
+ {
+  "name": "Illinois College",
+  "division": "NCAA D3",
+  "conference": "MWC-D3",
+  "soccer_score": 45.34,
+  "national_ranking": 550
+ },
+ {
+  "name": "Bethel (MN)",
+  "division": "NCAA D3",
+  "conference": "MIAC",
+  "soccer_score": 45.32,
+  "national_ranking": 551
+ },
+ {
+  "name": "Franciscan (OH)",
+  "division": "NCAA D3",
+  "conference": "PAC",
+  "soccer_score": 45.24,
+  "national_ranking": 552
+ },
+ {
+  "name": "Suffolk",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 45.24,
+  "national_ranking": 553
+ },
+ {
+  "name": "St. Mary's College of Maryland",
+  "division": "NCAA D3",
+  "conference": "CAC",
+  "soccer_score": 45.23,
+  "national_ranking": 554
+ },
+ {
+  "name": "Brandeis",
+  "division": "NCAA D3",
+  "conference": "UAA",
+  "soccer_score": 45.22,
+  "national_ranking": 555
+ },
+ {
+  "name": "Siena Heights",
+  "division": "NAIA",
+  "conference": "WHAC",
+  "soccer_score": 45.15,
+  "national_ranking": 556
+ },
+ {
+  "name": "Edgewood",
+  "division": "NCAA D3",
+  "conference": "NACC",
+  "soccer_score": 45.15,
+  "national_ranking": 557
+ },
+ {
+  "name": "Gettysburg",
+  "division": "NCAA D3",
+  "conference": "Centennial",
+  "soccer_score": 45.09,
+  "national_ranking": 558
+ },
+ {
+  "name": "Worcester Polytechnic",
+  "division": "NCAA D3",
+  "conference": "NEWMAC",
+  "soccer_score": 45.08,
+  "national_ranking": 559
+ },
+ {
+  "name": "Lake Forest",
+  "division": "NCAA D3",
+  "conference": "MWC-D3",
+  "soccer_score": 45.03,
+  "national_ranking": 560
+ },
+ {
+  "name": "SUNY New Paltz",
+  "division": "NCAA D3",
+  "conference": "SUNYAC",
+  "soccer_score": 45.02,
+  "national_ranking": 561
+ },
+ {
+  "name": "Stevens Tech",
+  "division": "NCAA D3",
+  "conference": "MAC",
+  "soccer_score": 45.01,
+  "national_ranking": 562
+ },
+ {
+  "name": "McDaniel",
+  "division": "NCAA D3",
+  "conference": "Centennial",
+  "soccer_score": 45.0,
+  "national_ranking": 563
+ },
+ {
+  "name": "Lebanon Valley",
+  "division": "NCAA D3",
+  "conference": "MAC Commonwealth",
+  "soccer_score": 44.97,
+  "national_ranking": 564
+ },
+ {
+  "name": "Concordia Texas",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 44.95,
+  "national_ranking": 565
+ },
+ {
+  "name": "John Carroll",
+  "division": "NCAA D3",
+  "conference": "OAC",
+  "soccer_score": 44.91,
+  "national_ranking": 566
+ },
+ {
+  "name": "Hamline",
+  "division": "NCAA D3",
+  "conference": "MIAC",
+  "soccer_score": 44.86,
+  "national_ranking": 567
+ },
+ {
+  "name": "Hampden-Sydney",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 44.7,
+  "national_ranking": 568
+ },
+ {
+  "name": "SUNY Geneseo",
+  "division": "NCAA D3",
+  "conference": "SUNYAC",
+  "soccer_score": 44.7,
+  "national_ranking": 569
+ },
+ {
+  "name": "Virginia State",
+  "division": "NCAA D2",
+  "conference": "CIAA",
+  "soccer_score": 44.63,
+  "national_ranking": 570
+ },
+ {
+  "name": "Wartburg",
+  "division": "NCAA D3",
+  "conference": "Iowa Conference",
+  "soccer_score": 44.58,
+  "national_ranking": 571
+ },
+ {
+  "name": "Nazareth",
+  "division": "NCAA D3",
+  "conference": "Empire 8",
+  "soccer_score": 44.56,
+  "national_ranking": 572
+ },
+ {
+  "name": "DePauw",
+  "division": "NCAA D3",
+  "conference": "NCAC",
+  "soccer_score": 44.54,
+  "national_ranking": 573
+ },
+ {
+  "name": "Stockton",
+  "division": "NCAA D3",
+  "conference": "NJAC",
+  "soccer_score": 44.51,
+  "national_ranking": 574
+ },
+ {
+  "name": "Belhaven",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 44.51,
+  "national_ranking": 575
+ },
+ {
+  "name": "Swarthmore",
+  "division": "NCAA D3",
+  "conference": "Centennial",
+  "soccer_score": 44.44,
+  "national_ranking": 576
+ },
+ {
+  "name": "Illinois Wesleyan",
+  "division": "NCAA D3",
+  "conference": "CCIW",
+  "soccer_score": 44.35,
+  "national_ranking": 577
+ },
+ {
+  "name": "Harding",
+  "division": "NCAA D2",
+  "conference": "GAC",
+  "soccer_score": 44.35,
+  "national_ranking": 578
+ },
+ {
+  "name": "San Francisco State",
+  "division": "NCAA D2",
+  "conference": "CCAA",
+  "soccer_score": 44.31,
+  "national_ranking": 579
+ },
+ {
+  "name": "Webster",
+  "division": "NCAA D3",
+  "conference": "SLIAC",
+  "soccer_score": 44.27,
+  "national_ranking": 580
+ },
+ {
+  "name": "Rhodes",
+  "division": "NCAA D3",
+  "conference": "SAA",
+  "soccer_score": 44.26,
+  "national_ranking": 581
+ },
+ {
+  "name": "Endicott",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 44.24,
+  "national_ranking": 582
+ },
+ {
+  "name": "Bridgewater (VA)",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 44.24,
+  "national_ranking": 583
+ },
+ {
+  "name": "Albertus Magnus",
+  "division": "NCAA D3",
+  "conference": "NAC",
+  "soccer_score": 44.19,
+  "national_ranking": 584
+ },
+ {
+  "name": "Husson",
+  "division": "NCAA D3",
+  "conference": "NAC",
+  "soccer_score": 44.13,
+  "national_ranking": 585
+ },
+ {
+  "name": "Pomona-Pitzer",
+  "division": "NCAA D3",
+  "conference": "SCIAC",
+  "soccer_score": 44.09,
+  "national_ranking": 586
+ },
+ {
+  "name": "Clarkson",
+  "division": "NCAA D3",
+  "conference": "Liberty League",
+  "soccer_score": 44.09,
+  "national_ranking": 587
+ },
+ {
+  "name": "Haverford",
+  "division": "NCAA D3",
+  "conference": "Centennial",
+  "soccer_score": 44.07,
+  "national_ranking": 588
+ },
+ {
+  "name": "Chapman",
+  "division": "NCAA D3",
+  "conference": "SCIAC",
+  "soccer_score": 44.06,
+  "national_ranking": 589
+ },
+ {
+  "name": "Goshen",
+  "division": "NAIA",
+  "conference": "CCAC",
+  "soccer_score": 44.06,
+  "national_ranking": 590
+ },
+ {
+  "name": "Mount Vernon Nazarene",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 44.06,
+  "national_ranking": 591
+ },
+ {
+  "name": "Wesley",
+  "division": "NCAA D3",
+  "conference": "CSAC",
+  "soccer_score": 44.0,
+  "national_ranking": 592
+ },
+ {
+  "name": "Drew",
+  "division": "NCAA D3",
+  "conference": "Landmark",
+  "soccer_score": 43.97,
+  "national_ranking": 593
+ },
+ {
+  "name": "FDU-Florham",
+  "division": "NCAA D3",
+  "conference": "Skyline",
+  "soccer_score": 43.97,
+  "national_ranking": 594
+ },
+ {
+  "name": "Grace Christian",
+  "division": "NCAA D3",
+  "conference": "NEAC",
+  "soccer_score": 43.94,
+  "national_ranking": 595
+ },
+ {
+  "name": "Lycoming",
+  "division": "NCAA D3",
+  "conference": "MAC Freedom",
+  "soccer_score": 43.89,
+  "national_ranking": 596
+ },
+ {
+  "name": "Geneva",
+  "division": "NCAA D3",
+  "conference": "PAC",
+  "soccer_score": 43.89,
+  "national_ranking": 597
+ },
+ {
+  "name": "William Woods",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 43.88,
+  "national_ranking": 598
+ },
+ {
+  "name": "Juniata",
+  "division": "NCAA D3",
+  "conference": "Landmark",
+  "soccer_score": 43.86,
+  "national_ranking": 599
+ },
+ {
+  "name": "Daemen",
+  "division": "NCAA D2",
+  "conference": "ECC",
+  "soccer_score": 43.81,
+  "national_ranking": 600
+ },
+ {
+  "name": "Doane",
+  "division": "NAIA",
+  "conference": "GPAC",
+  "soccer_score": 43.77,
+  "national_ranking": 601
+ },
+ {
+  "name": "Albion",
+  "division": "NCAA D3",
+  "conference": "MIAA-D3",
+  "soccer_score": 43.76,
+  "national_ranking": 602
+ },
+ {
+  "name": "Whitworth",
+  "division": "NCAA D3",
+  "conference": "NWC",
+  "soccer_score": 43.75,
+  "national_ranking": 603
+ },
+ {
+  "name": "Oglethorpe",
+  "division": "NCAA D3",
+  "conference": "SAA",
+  "soccer_score": 43.73,
+  "national_ranking": 604
+ },
+ {
+  "name": "Lyon College",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 43.72,
+  "national_ranking": 605
+ },
+ {
+  "name": "Ripon",
+  "division": "NCAA D3",
+  "conference": "MWC-D3",
+  "soccer_score": 43.62,
+  "national_ranking": 606
+ },
+ {
+  "name": "Colby",
+  "division": "NCAA D3",
+  "conference": "NESCAC",
+  "soccer_score": 43.48,
+  "national_ranking": 607
+ },
+ {
+  "name": "Skidmore",
+  "division": "NCAA D3",
+  "conference": "Liberty League",
+  "soccer_score": 43.39,
+  "national_ranking": 608
+ },
+ {
+  "name": "North Carolina Wesleyan",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 43.38,
+  "national_ranking": 609
+ },
+ {
+  "name": "Manhattanville",
+  "division": "NCAA D3",
+  "conference": "Skyline",
+  "soccer_score": 43.3,
+  "national_ranking": 610
+ },
+ {
+  "name": "Hamilton",
+  "division": "NCAA D3",
+  "conference": "Liberty League",
+  "soccer_score": 43.25,
+  "national_ranking": 611
+ },
+ {
+  "name": "College of Wooster",
+  "division": "NCAA D3",
+  "conference": "NCAC",
+  "soccer_score": 43.14,
+  "national_ranking": 612
+ },
+ {
+  "name": "Rutgers-Newark",
+  "division": "NCAA D3",
+  "conference": "NJAC",
+  "soccer_score": 43.02,
+  "national_ranking": 613
+ },
+ {
+  "name": "Elmira",
+  "division": "NCAA D3",
+  "conference": "Empire 8",
+  "soccer_score": 43.02,
+  "national_ranking": 614
+ },
+ {
+  "name": "Randolph-Macon",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 42.99,
+  "national_ranking": 615
+ },
+ {
+  "name": "Cairn",
+  "division": "NCAA D3",
+  "conference": "CSAC",
+  "soccer_score": 42.98,
+  "national_ranking": 616
+ },
+ {
+  "name": "Westminster (PA)",
+  "division": "NCAA D3",
+  "conference": "PAC",
+  "soccer_score": 42.93,
+  "national_ranking": 617
+ },
+ {
+  "name": "Emerson",
+  "division": "NCAA D3",
+  "conference": "NEWMAC",
+  "soccer_score": 42.91,
+  "national_ranking": 618
+ },
+ {
+  "name": "Illinois Tech",
+  "division": "NCAA D3",
+  "conference": "NACC",
+  "soccer_score": 42.81,
+  "national_ranking": 619
+ },
+ {
+  "name": "New York University",
+  "division": "NCAA D3",
+  "conference": "UAA",
+  "soccer_score": 42.8,
+  "national_ranking": 620
+ },
+ {
+  "name": "Brevard",
+  "division": "NCAA D3",
+  "conference": "SAA",
+  "soccer_score": 42.8,
+  "national_ranking": 621
+ },
+ {
+  "name": "Arcadia",
+  "division": "NCAA D3",
+  "conference": "MAC Freedom",
+  "soccer_score": 42.79,
+  "national_ranking": 622
+ },
+ {
+  "name": "Asbury",
+  "division": "NCAA D3",
+  "conference": "CCS",
+  "soccer_score": 42.77,
+  "national_ranking": 623
+ },
+ {
+  "name": "Salve Regina",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 42.7,
+  "national_ranking": 624
+ },
+ {
+  "name": "Methodist",
+  "division": "NCAA D3",
+  "conference": "USA South",
+  "soccer_score": 42.69,
+  "national_ranking": 625
+ },
+ {
+  "name": "Hardin-Simmons",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 42.64,
+  "national_ranking": 626
+ },
+ {
+  "name": "Moravian",
+  "division": "NCAA D3",
+  "conference": "MAC Freedom",
+  "soccer_score": 42.51,
+  "national_ranking": 627
+ },
+ {
+  "name": "Puget Sound",
+  "division": "NCAA D3",
+  "conference": "NWC",
+  "soccer_score": 42.5,
+  "national_ranking": 628
+ },
+ {
+  "name": "MIT",
+  "division": "NCAA D3",
+  "conference": "NEWMAC",
+  "soccer_score": 42.5,
+  "national_ranking": 629
+ },
+ {
+  "name": "Saint John Fisher",
+  "division": "NCAA D3",
+  "conference": "Empire 8",
+  "soccer_score": 42.47,
+  "national_ranking": 630
+ },
+ {
+  "name": "Wittenberg",
+  "division": "NCAA D3",
+  "conference": "OAC",
+  "soccer_score": 42.42,
+  "national_ranking": 631
+ },
+ {
+  "name": "Marymount (VA)",
+  "division": "NCAA D3",
+  "conference": "CSAC",
+  "soccer_score": 42.41,
+  "national_ranking": 632
+ },
+ {
+  "name": "Goucher",
+  "division": "NCAA D3",
+  "conference": "LANDMARK",
+  "soccer_score": 42.37,
+  "national_ranking": 633
+ },
+ {
+  "name": "Alvernia",
+  "division": "NCAA D3",
+  "conference": "MAC Commonwealth",
+  "soccer_score": 42.34,
+  "national_ranking": 634
+ },
+ {
+  "name": "Roanoke",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 42.3,
+  "national_ranking": 635
+ },
+ {
+  "name": "Grinnell",
+  "division": "NCAA D3",
+  "conference": "MWC-D3",
+  "soccer_score": 42.29,
+  "national_ranking": 636
+ },
+ {
+  "name": "Westfield State",
+  "division": "NCAA D3",
+  "conference": "MASCAC",
+  "soccer_score": 42.27,
+  "national_ranking": 637
+ },
+ {
+  "name": "Wilmington (OH)",
+  "division": "NCAA D3",
+  "conference": "HCAC",
+  "soccer_score": 42.24,
+  "national_ranking": 638
+ },
+ {
+  "name": "Bates",
+  "division": "NCAA D3",
+  "conference": "NESCAC",
+  "soccer_score": 42.19,
+  "national_ranking": 639
+ },
+ {
+  "name": "Lawrence",
+  "division": "NCAA D3",
+  "conference": "MWC-D3",
+  "soccer_score": 42.19,
+  "national_ranking": 640
+ },
+ {
+  "name": "St. Norbert",
+  "division": "NCAA D3",
+  "conference": "MWC-D3",
+  "soccer_score": 42.17,
+  "national_ranking": 641
+ },
+ {
+  "name": "Western New England",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 42.1,
+  "national_ranking": 642
+ },
+ {
+  "name": "Widener",
+  "division": "NCAA D3",
+  "conference": "MAC Commonwealth",
+  "soccer_score": 42.07,
+  "national_ranking": 643
+ },
+ {
+  "name": "Caltech",
+  "division": "NCAA D3",
+  "conference": "SCIAC",
+  "soccer_score": 42.07,
+  "national_ranking": 644
+ },
+ {
+  "name": "SCAD",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 41.99,
+  "national_ranking": 645
+ },
+ {
+  "name": "Emmanuel (MA)",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 41.96,
+  "national_ranking": 646
+ },
+ {
+  "name": "Manchester",
+  "division": "NCAA D3",
+  "conference": "HCAC",
+  "soccer_score": 41.96,
+  "national_ranking": 647
+ },
+ {
+  "name": "Eastern Connecticut",
+  "division": "NCAA D3",
+  "conference": "LEC",
+  "soccer_score": 41.96,
+  "national_ranking": 648
+ },
+ {
+  "name": "Lancaster Bible",
+  "division": "NCAA D3",
+  "conference": "CSAC",
+  "soccer_score": 41.91,
+  "national_ranking": 649
+ },
+ {
+  "name": "Rhode Island College",
+  "division": "NCAA D3",
+  "conference": "LEC",
+  "soccer_score": 41.91,
+  "national_ranking": 650
+ },
+ {
+  "name": "Maine Maritime",
+  "division": "NCAA D3",
+  "conference": "NIAC",
+  "soccer_score": 41.67,
+  "national_ranking": 651
+ },
+ {
+  "name": "Rutgers-Camden",
+  "division": "NCAA D3",
+  "conference": "NJAC",
+  "soccer_score": 41.63,
+  "national_ranking": 652
+ },
+ {
+  "name": "Ursinus",
+  "division": "NCAA D3",
+  "conference": "Centennial",
+  "soccer_score": 41.55,
+  "national_ranking": 653
+ },
+ {
+  "name": "Salisbury",
+  "division": "NCAA D3",
+  "conference": "CAC",
+  "soccer_score": 41.49,
+  "national_ranking": 654
+ },
+ {
+  "name": "Central (IA)",
+  "division": "NCAA D3",
+  "conference": "Iowa Conference",
+  "soccer_score": 41.46,
+  "national_ranking": 655
+ },
+ {
+  "name": "Simpson (IA)",
+  "division": "NCAA D3",
+  "conference": "Iowa Conference",
+  "soccer_score": 41.43,
+  "national_ranking": 656
+ },
+ {
+  "name": "Waynesburg",
+  "division": "NCAA D3",
+  "conference": "PAC",
+  "soccer_score": 41.42,
+  "national_ranking": 657
+ },
+ {
+  "name": "Delaware Valley",
+  "division": "NCAA D3",
+  "conference": "MAC Freedom",
+  "soccer_score": 41.37,
+  "national_ranking": 658
+ },
+ {
+  "name": "Union (NY)",
+  "division": "NCAA D3",
+  "conference": "Liberty League",
+  "soccer_score": 41.35,
+  "national_ranking": 659
+ },
+ {
+  "name": "Rochester Institute of Technology",
+  "division": "NCAA D3",
+  "conference": "Liberty League",
+  "soccer_score": 41.29,
+  "national_ranking": 660
+ },
+ {
+  "name": "New England College",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 41.27,
+  "national_ranking": 661
+ },
+ {
+  "name": "Springfield",
+  "division": "NCAA D3",
+  "conference": "NEWMAC",
+  "soccer_score": 41.25,
+  "national_ranking": 662
+ },
+ {
+  "name": "Dominican (IL)",
+  "division": "NCAA D3",
+  "conference": "NACC",
+  "soccer_score": 41.2,
+  "national_ranking": 663
+ },
+ {
+  "name": "LeTourneau",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 40.93,
+  "national_ranking": 664
+ },
+ {
+  "name": "Hendrix",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 40.93,
+  "national_ranking": 665
+ },
+ {
+  "name": "Carthage",
+  "division": "NCAA D3",
+  "conference": "CCIW",
+  "soccer_score": 40.81,
+  "national_ranking": 666
+ },
+ {
+  "name": "Wisconsin-Platteville",
+  "division": "NCAA D3",
+  "conference": "WIAC",
+  "soccer_score": 40.81,
+  "national_ranking": 667
+ },
+ {
+  "name": "Utica",
+  "division": "NCAA D3",
+  "conference": "Empire 8",
+  "soccer_score": 40.77,
+  "national_ranking": 668
+ },
+ {
+  "name": "Crown (MN)",
+  "division": "NCAA D3",
+  "conference": "UMAC",
+  "soccer_score": 40.73,
+  "national_ranking": 669
+ },
+ {
+  "name": "Centre",
+  "division": "NCAA D3",
+  "conference": "SAA",
+  "soccer_score": 40.7,
+  "national_ranking": 670
+ },
+ {
+  "name": "LaGrange",
+  "division": "NCAA D3",
+  "conference": "SAA",
+  "soccer_score": 40.6,
+  "national_ranking": 671
+ },
+ {
+  "name": "Cal Lutheran",
+  "division": "NCAA D3",
+  "conference": "SCIAC",
+  "soccer_score": 40.55,
+  "national_ranking": 672
+ },
+ {
+  "name": "George Fox",
+  "division": "NCAA D3",
+  "conference": "NWC",
+  "soccer_score": 40.5,
+  "national_ranking": 673
+ },
+ {
+  "name": "Trine",
+  "division": "NCAA D3",
+  "conference": "HCAC",
+  "soccer_score": 40.46,
+  "national_ranking": 674
+ },
+ {
+  "name": "Fredonia State",
+  "division": "NCAA D3",
+  "conference": "SUNYAC",
+  "soccer_score": 40.37,
+  "national_ranking": 675
+ },
+ {
+  "name": "DeSales",
+  "division": "NCAA D3",
+  "conference": "MAC Freedom",
+  "soccer_score": 40.33,
+  "national_ranking": 676
+ },
+ {
+  "name": "Keene State",
+  "division": "NCAA D3",
+  "conference": "LEC",
+  "soccer_score": 40.33,
+  "national_ranking": 677
+ },
+ {
+  "name": "Washington & Jefferson",
+  "division": "NCAA D3",
+  "conference": "PAC",
+  "soccer_score": 40.2,
+  "national_ranking": 678
+ },
+ {
+  "name": "Yeshiva",
+  "division": "NCAA D3",
+  "conference": "Skyline",
+  "soccer_score": 40.15,
+  "national_ranking": 679
+ },
+ {
+  "name": "Wisconsin-La Crosse",
+  "division": "NCAA D3",
+  "conference": "WIAC",
+  "soccer_score": 40.12,
+  "national_ranking": 680
+ },
+ {
+  "name": "Massachusetts Maritime",
+  "division": "NCAA D3",
+  "conference": "MASCAC",
+  "soccer_score": 40.1,
+  "national_ranking": 681
+ },
+ {
+  "name": "Hartwick",
+  "division": "NCAA D3",
+  "conference": "Liberty League",
+  "soccer_score": 40.09,
+  "national_ranking": 682
+ },
+ {
+  "name": "Avila",
+  "division": "NAIA",
+  "conference": "Heart",
+  "soccer_score": 40.01,
+  "national_ranking": 683
+ },
+ {
+  "name": "Kean",
+  "division": "NCAA D3",
+  "conference": "NJAC",
+  "soccer_score": 39.99,
+  "national_ranking": 684
+ },
+ {
+  "name": "East Texas Baptist",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 39.98,
+  "national_ranking": 685
+ },
+ {
+  "name": "Baldwin Wallace",
+  "division": "NCAA D3",
+  "conference": "OAC",
+  "soccer_score": 39.96,
+  "national_ranking": 686
+ },
+ {
+  "name": "Fontbonne",
+  "division": "NCAA D3",
+  "conference": "SLIAC",
+  "soccer_score": 39.92,
+  "national_ranking": 687
+ },
+ {
+  "name": "Cornell College",
+  "division": "NCAA D3",
+  "conference": "MWC-D3",
+  "soccer_score": 39.9,
+  "national_ranking": 688
+ },
+ {
+  "name": "Saint Vincent",
+  "division": "NCAA D3",
+  "conference": "PAC",
+  "soccer_score": 39.84,
+  "national_ranking": 689
+ },
+ {
+  "name": "Allegheny",
+  "division": "NCAA D3",
+  "conference": "NCAC",
+  "soccer_score": 39.78,
+  "national_ranking": 690
+ },
+ {
+  "name": "Eastern Mennonite",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 39.76,
+  "national_ranking": 691
+ },
+ {
+  "name": "Southern Virginia",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 39.75,
+  "national_ranking": 692
+ },
+ {
+  "name": "Stevenson",
+  "division": "NCAA D3",
+  "conference": "MAC Commonwealth",
+  "soccer_score": 39.73,
+  "national_ranking": 693
+ },
+ {
+  "name": "Bard",
+  "division": "NCAA D3",
+  "conference": "Liberty League",
+  "soccer_score": 39.72,
+  "national_ranking": 694
+ },
+ {
+  "name": "Averett",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 39.72,
+  "national_ranking": 695
+ },
+ {
+  "name": "Marywood",
+  "division": "NCAA D3",
+  "conference": "MAC Freedom",
+  "soccer_score": 39.68,
+  "national_ranking": 696
+ },
+ {
+  "name": "Hood",
+  "division": "NCAA D3",
+  "conference": "Centennial",
+  "soccer_score": 39.64,
+  "national_ranking": 697
+ },
+ {
+  "name": "Wheeling",
+  "division": "NCAA D2",
+  "conference": "Mountain East",
+  "soccer_score": 39.64,
+  "national_ranking": 698
+ },
+ {
+  "name": "Capital",
+  "division": "NCAA D3",
+  "conference": "OAC",
+  "soccer_score": 39.58,
+  "national_ranking": 699
+ },
+ {
+  "name": "Benedictine (IL)",
+  "division": "NCAA D3",
+  "conference": "CCIW",
+  "soccer_score": 39.57,
+  "national_ranking": 700
+ },
+ {
+  "name": "New Jersey City",
+  "division": "NCAA D3",
+  "conference": "NJAC",
+  "soccer_score": 39.54,
+  "national_ranking": 701
+ },
+ {
+  "name": "Saint Mary's (MN)",
+  "division": "NCAA D3",
+  "conference": "MIAC",
+  "soccer_score": 39.49,
+  "national_ranking": 702
+ },
+ {
+  "name": "Elizabethtown",
+  "division": "NCAA D3",
+  "conference": "MAC Commonwealth",
+  "soccer_score": 39.47,
+  "national_ranking": 703
+ },
+ {
+  "name": "Gordon",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 39.46,
+  "national_ranking": 704
+ },
+ {
+  "name": "Curry",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 39.17,
+  "national_ranking": 705
+ },
+ {
+  "name": "Rensselaer",
+  "division": "NCAA D3",
+  "conference": "Liberty League",
+  "soccer_score": 39.16,
+  "national_ranking": 706
+ },
+ {
+  "name": "Albright",
+  "division": "NCAA D3",
+  "conference": "MAC Commonwealth",
+  "soccer_score": 39.12,
+  "national_ranking": 707
+ },
+ {
+  "name": "Saint Francis (PA)",
+  "division": "NCAA D3",
+  "conference": "NEC",
+  "soccer_score": 39.09,
+  "national_ranking": 708
+ },
+ {
+  "name": "Chatham",
+  "division": "NCAA D3",
+  "conference": "PAC",
+  "soccer_score": 39.07,
+  "national_ranking": 709
+ },
+ {
+  "name": "Shorter",
+  "division": "NCAA D2",
+  "conference": "Peach Belt",
+  "soccer_score": 39.03,
+  "national_ranking": 710
+ },
+ {
+  "name": "Warner",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 38.84,
+  "national_ranking": 711
+ },
+ {
+  "name": "Concordia Chicago",
+  "division": "NCAA D3",
+  "conference": "NACC",
+  "soccer_score": 38.82,
+  "national_ranking": 712
+ },
+ {
+  "name": "Concordia Wisconsin",
+  "division": "NCAA D3",
+  "conference": "NACC",
+  "soccer_score": 38.82,
+  "national_ranking": 713
+ },
+ {
+  "name": "Millikin",
+  "division": "NCAA D3",
+  "conference": "CCIW",
+  "soccer_score": 38.74,
+  "national_ranking": 714
+ },
+ {
+  "name": "Austin College",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 38.67,
+  "national_ranking": 715
+ },
+ {
+  "name": "Kalamazoo",
+  "division": "NCAA D3",
+  "conference": "MIAA-D3",
+  "soccer_score": 38.66,
+  "national_ranking": 716
+ },
+ {
+  "name": "Clark (MA)",
+  "division": "NCAA D3",
+  "conference": "NEWMAC",
+  "soccer_score": 38.63,
+  "national_ranking": 717
+ },
+ {
+  "name": "Southern Maine",
+  "division": "NCAA D3",
+  "conference": "LEC",
+  "soccer_score": 38.61,
+  "national_ranking": 718
+ },
+ {
+  "name": "Elmhurst",
+  "division": "NCAA D3",
+  "conference": "CCIW",
+  "soccer_score": 38.38,
+  "national_ranking": 719
+ },
+ {
+  "name": "Erskine",
+  "division": "NCAA D2",
+  "conference": "SAC",
+  "soccer_score": 38.36,
+  "national_ranking": 720
+ },
+ {
+  "name": "Plymouth State",
+  "division": "NCAA D3",
+  "conference": "LEC",
+  "soccer_score": 38.25,
+  "national_ranking": 721
+ },
+ {
+  "name": "Richland",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 38.22,
+  "national_ranking": 722
+ },
+ {
+  "name": "Worcester State",
+  "division": "NCAA D3",
+  "conference": "MASCAC",
+  "soccer_score": 38.18,
+  "national_ranking": 723
+ },
+ {
+  "name": "Nichols",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 38.08,
+  "national_ranking": 724
+ },
+ {
+  "name": "Susquehanna",
+  "division": "NCAA D3",
+  "conference": "MAC Freedom",
+  "soccer_score": 37.78,
+  "national_ranking": 725
+ },
+ {
+  "name": "Iowa Western",
+  "division": "NJCAA",
+  "conference": "ICCAC",
+  "soccer_score": 37.77,
+  "national_ranking": 726
+ },
+ {
+  "name": "Nassau Community",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 37.75,
+  "national_ranking": 727
+ },
+ {
+  "name": "Suffolk County",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 37.75,
+  "national_ranking": 728
+ },
+ {
+  "name": "Salt Lake Community",
+  "division": "NJCAA",
+  "conference": "RMJCAA",
+  "soccer_score": 37.73,
+  "national_ranking": 729
+ },
+ {
+  "name": "King's (PA)",
+  "division": "NCAA D3",
+  "conference": "MAC Freedom",
+  "soccer_score": 37.72,
+  "national_ranking": 730
+ },
+ {
+  "name": "Alma",
+  "division": "NCAA D3",
+  "conference": "MIAA-D3",
+  "soccer_score": 37.7,
+  "national_ranking": 731
+ },
+ {
+  "name": "Chaminade",
+  "division": "NCAA D2",
+  "conference": "PacWest",
+  "soccer_score": 37.7,
+  "national_ranking": 732
+ },
+ {
+  "name": "SUNY Oswego",
+  "division": "NCAA D3",
+  "conference": "SUNYAC",
+  "soccer_score": 37.56,
+  "national_ranking": 733
+ },
+ {
+  "name": "Alfred University",
+  "division": "NCAA D3",
+  "conference": "Empire 8",
+  "soccer_score": 37.55,
+  "national_ranking": 734
+ },
+ {
+  "name": "Immaculata",
+  "division": "NCAA D3",
+  "conference": "CSAC",
+  "soccer_score": 37.28,
+  "national_ranking": 735
+ },
+ {
+  "name": "Marian (WI)",
+  "division": "NCAA D3",
+  "conference": "NACC",
+  "soccer_score": 37.21,
+  "national_ranking": 736
+ },
+ {
+  "name": "Berea",
+  "division": "NCAA D3",
+  "conference": "HCAC",
+  "soccer_score": 37.15,
+  "national_ranking": 737
+ },
+ {
+  "name": "El Camino",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 37.12,
+  "national_ranking": 738
+ },
+ {
+  "name": "Allen County Community",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 37.05,
+  "national_ranking": 739
+ },
+ {
+  "name": "Daytona State",
+  "division": "NJCAA",
+  "conference": "FCSAA",
+  "soccer_score": 36.98,
+  "national_ranking": 740
+ },
+ {
+  "name": "Marietta",
+  "division": "NCAA D3",
+  "conference": "OAC",
+  "soccer_score": 36.95,
+  "national_ranking": 741
+ },
+ {
+  "name": "Eastern Florida State",
+  "division": "NJCAA",
+  "conference": "FCSAA",
+  "soccer_score": 36.89,
+  "national_ranking": 742
+ },
+ {
+  "name": "Iowa Lakes",
+  "division": "NJCAA",
+  "conference": "ICCAC",
+  "soccer_score": 36.84,
+  "national_ranking": 743
+ },
+ {
+  "name": "Wallace State",
+  "division": "NJCAA",
+  "conference": "ACCC",
+  "soccer_score": 36.78,
+  "national_ranking": 744
+ },
+ {
+  "name": "Wisconsin-River Falls",
+  "division": "NCAA D3",
+  "conference": "WIAC",
+  "soccer_score": 36.71,
+  "national_ranking": 745
+ },
+ {
+  "name": "Southwestern (CA)",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 36.67,
+  "national_ranking": 746
+ },
+ {
+  "name": "Adrian",
+  "division": "NCAA D3",
+  "conference": "MIAA-D3",
+  "soccer_score": 36.61,
+  "national_ranking": 747
+ },
+ {
+  "name": "Coe",
+  "division": "NCAA D3",
+  "conference": "Iowa Conference",
+  "soccer_score": 36.52,
+  "national_ranking": 748
+ },
+ {
+  "name": "Massachusetts College of Liberal Arts",
+  "division": "NCAA D3",
+  "conference": "MASCAC",
+  "soccer_score": 36.51,
+  "national_ranking": 749
+ },
+ {
+  "name": "Colby-Sawyer",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 36.41,
+  "national_ranking": 750
+ },
+ {
+  "name": "Eastern Nazarene",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 36.41,
+  "national_ranking": 751
+ },
+ {
+  "name": "Carl Sandburg",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 36.41,
+  "national_ranking": 752
+ },
+ {
+  "name": "SUNY Potsdam",
+  "division": "NCAA D3",
+  "conference": "SUNYAC",
+  "soccer_score": 36.39,
+  "national_ranking": 753
+ },
+ {
+  "name": "SUNY Old Westbury",
+  "division": "NCAA D3",
+  "conference": "Skyline",
+  "soccer_score": 36.39,
+  "national_ranking": 754
+ },
+ {
+  "name": "Prairie State",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 36.36,
+  "national_ranking": 755
+ },
+ {
+  "name": "Northern Essex",
+  "division": "NJCAA",
+  "conference": "MVAL",
+  "soccer_score": 36.27,
+  "national_ranking": 756
+ },
+ {
+  "name": "Oberlin",
+  "division": "NCAA D3",
+  "conference": "NCAC",
+  "soccer_score": 36.18,
+  "national_ranking": 757
+ },
+ {
+  "name": "Fitchburg State",
+  "division": "NCAA D3",
+  "conference": "MASCAC",
+  "soccer_score": 36.09,
+  "national_ranking": 758
+ },
+ {
+  "name": "Mesa Community",
+  "division": "NJCAA",
+  "conference": "ACCAC",
+  "soccer_score": 36.07,
+  "national_ranking": 759
+ },
+ {
+  "name": "Snow",
+  "division": "NJCAA",
+  "conference": "UCAC",
+  "soccer_score": 36.07,
+  "national_ranking": 760
+ },
+ {
+  "name": "Greensboro",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 36.05,
+  "national_ranking": 761
+ },
+ {
+  "name": "Olivet",
+  "division": "NCAA D3",
+  "conference": "MIAA-D3",
+  "soccer_score": 36.03,
+  "national_ranking": 762
+ },
+ {
+  "name": "Finger Lakes Community",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 35.97,
+  "national_ranking": 763
+ },
+ {
+  "name": "McLennan",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 35.97,
+  "national_ranking": 764
+ },
+ {
+  "name": "Otero College",
+  "division": "NJCAA",
+  "conference": "RMJCAA",
+  "soccer_score": 35.94,
+  "national_ranking": 765
+ },
+ {
+  "name": "Hilbert",
+  "division": "NCAA D3",
+  "conference": "AMCC",
+  "soccer_score": 35.82,
+  "national_ranking": 766
+ },
+ {
+  "name": "Johnson County Community",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 35.76,
+  "national_ranking": 767
+ },
+ {
+  "name": "Lakeland",
+  "division": "NCAA D3",
+  "conference": "NACC",
+  "soccer_score": 35.68,
+  "national_ranking": 768
+ },
+ {
+  "name": "Anne Arundel",
+  "division": "NJCAA",
+  "conference": "MDJUCO",
+  "soccer_score": 35.59,
+  "national_ranking": 769
+ },
+ {
+  "name": "Frederick",
+  "division": "NJCAA",
+  "conference": "MDJUCO",
+  "soccer_score": 35.59,
+  "national_ranking": 770
+ },
+ {
+  "name": "Harford County",
+  "division": "NJCAA",
+  "conference": "MDJUCO",
+  "soccer_score": 35.59,
+  "national_ranking": 771
+ },
+ {
+  "name": "Hillsborough",
+  "division": "NJCAA",
+  "conference": "FCSAA",
+  "soccer_score": 35.58,
+  "national_ranking": 772
+ },
+ {
+  "name": "Mississippi Gulf Coast",
+  "division": "NJCAA",
+  "conference": "MACJC",
+  "soccer_score": 35.57,
+  "national_ranking": 773
+ },
+ {
+  "name": "Indian Hills",
+  "division": "NJCAA",
+  "conference": "ICCAC",
+  "soccer_score": 35.55,
+  "national_ranking": 774
+ },
+ {
+  "name": "Eureka",
+  "division": "NCAA D3",
+  "conference": "SLIAC",
+  "soccer_score": 35.55,
+  "national_ranking": 775
+ },
+ {
+  "name": "Monroe Community",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 35.52,
+  "national_ranking": 776
+ },
+ {
+  "name": "Everett",
+  "division": "NJCAA",
+  "conference": "NWAACC",
+  "soccer_score": 35.51,
+  "national_ranking": 777
+ },
+ {
+  "name": "North Central (IL)",
+  "division": "NCAA D3",
+  "conference": "CCIW",
+  "soccer_score": 35.46,
+  "national_ranking": 778
+ },
+ {
+  "name": "Wentworth",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 35.39,
+  "national_ranking": 779
+ },
+ {
+  "name": "Blinn",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 35.39,
+  "national_ranking": 780
+ },
+ {
+  "name": "Ferrum",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 35.37,
+  "national_ranking": 781
+ },
+ {
+  "name": "St. Charles Community",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 35.31,
+  "national_ranking": 782
+ },
+ {
+  "name": "Howard Community",
+  "division": "NJCAA",
+  "conference": "MDJUCO",
+  "soccer_score": 35.29,
+  "national_ranking": 783
+ },
+ {
+  "name": "Mineral Area",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 35.27,
+  "national_ranking": 784
+ },
+ {
+  "name": "Central Penn",
+  "division": "NJCAA",
+  "conference": "EPAC",
+  "soccer_score": 35.11,
+  "national_ranking": 785
+ },
+ {
+  "name": "Grand Rapids Community",
+  "division": "NJCAA",
+  "conference": "MCCAA",
+  "soccer_score": 35.05,
+  "national_ranking": 786
+ },
+ {
+  "name": "Lasell",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 34.91,
+  "national_ranking": 787
+ },
+ {
+  "name": "Montgomery",
+  "division": "NJCAA",
+  "conference": "ACCC",
+  "soccer_score": 34.86,
+  "national_ranking": 788
+ },
+ {
+  "name": "Blackburn",
+  "division": "NCAA D3",
+  "conference": "SLIAC",
+  "soccer_score": 34.83,
+  "national_ranking": 789
+ },
+ {
+  "name": "Onondaga Community",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 34.8,
+  "national_ranking": 790
+ },
+ {
+  "name": "Sierra",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 34.76,
+  "national_ranking": 791
+ },
+ {
+  "name": "Southwestern (TX)",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 34.76,
+  "national_ranking": 792
+ },
+ {
+  "name": "Beloit",
+  "division": "NCAA D3",
+  "conference": "MWC-D3",
+  "soccer_score": 34.74,
+  "national_ranking": 793
+ },
+ {
+  "name": "Parkland",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 34.69,
+  "national_ranking": 794
+ },
+ {
+  "name": "San Bernardino Valley",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 34.59,
+  "national_ranking": 795
+ },
+ {
+  "name": "Rock Valley",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 34.57,
+  "national_ranking": 796
+ },
+ {
+  "name": "Hiram",
+  "division": "NCAA D3",
+  "conference": "PAC",
+  "soccer_score": 34.48,
+  "national_ranking": 797
+ },
+ {
+  "name": "Earlham",
+  "division": "NCAA D3",
+  "conference": "HCAC",
+  "soccer_score": 34.46,
+  "national_ranking": 798
+ },
+ {
+  "name": "Georgia Military",
+  "division": "NJCAA",
+  "conference": "GCAA",
+  "soccer_score": 34.44,
+  "national_ranking": 799
+ },
+ {
+  "name": "Tyler Junior",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 34.34,
+  "national_ranking": 800
+ },
+ {
+  "name": "Muskingum",
+  "division": "NCAA D3",
+  "conference": "OAC",
+  "soccer_score": 34.26,
+  "national_ranking": 801
+ },
+ {
+  "name": "Keystone",
+  "division": "NCAA D3",
+  "conference": "NEAC",
+  "soccer_score": 34.18,
+  "national_ranking": 802
+ },
+ {
+  "name": "Essex County",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 34.1,
+  "national_ranking": 803
+ },
+ {
+  "name": "Iowa Central",
+  "division": "NJCAA",
+  "conference": "ICCAC",
+  "soccer_score": 34.07,
+  "national_ranking": 804
+ },
+ {
+  "name": "Northwest College",
+  "division": "NJCAA",
+  "conference": "RMJCAA",
+  "soccer_score": 33.85,
+  "national_ranking": 805
+ },
+ {
+  "name": "Skagit Valley",
+  "division": "NJCAA",
+  "conference": "NWAACC",
+  "soccer_score": 33.83,
+  "national_ranking": 806
+ },
+ {
+  "name": "Southwestern Illinois",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 33.8,
+  "national_ranking": 807
+ },
+ {
+  "name": "Elms",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 33.77,
+  "national_ranking": 808
+ },
+ {
+  "name": "Millsaps",
+  "division": "NCAA D3",
+  "conference": "SAA",
+  "soccer_score": 33.77,
+  "national_ranking": 809
+ },
+ {
+  "name": "Wilkes",
+  "division": "NCAA D3",
+  "conference": "MAC Freedom",
+  "soccer_score": 33.7,
+  "national_ranking": 810
+ },
+ {
+  "name": "Houghton",
+  "division": "NCAA D3",
+  "conference": "Empire 8",
+  "soccer_score": 33.67,
+  "national_ranking": 811
+ },
+ {
+  "name": "Kankakee Community",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 33.57,
+  "national_ranking": 812
+ },
+ {
+  "name": "Buena Vista",
+  "division": "NCAA D3",
+  "conference": "Iowa Conference",
+  "soccer_score": 33.38,
+  "national_ranking": 813
+ },
+ {
+  "name": "Centenary (LA)",
+  "division": "NCAA D3",
+  "conference": "SLIAC",
+  "soccer_score": 33.29,
+  "national_ranking": 814
+ },
+ {
+  "name": "Centenary (NJ)",
+  "division": "NCAA D3",
+  "conference": "CSAC",
+  "soccer_score": 33.29,
+  "national_ranking": 815
+ },
+ {
+  "name": "Mount St. Joseph",
+  "division": "NCAA D3",
+  "conference": "OAC",
+  "soccer_score": 33.23,
+  "national_ranking": 816
+ },
+ {
+  "name": "Gwynedd Mercy",
+  "division": "NCAA D3",
+  "conference": "CSAC",
+  "soccer_score": 33.18,
+  "national_ranking": 817
+ },
+ {
+  "name": "Crowder",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 33.16,
+  "national_ranking": 818
+ },
+ {
+  "name": "McMurry",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 33.09,
+  "national_ranking": 819
+ },
+ {
+  "name": "Copiah-Lincoln",
+  "division": "NJCAA",
+  "conference": "MACJC",
+  "soccer_score": 33.06,
+  "national_ranking": 820
+ },
+ {
+  "name": "Barton County",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 32.94,
+  "national_ranking": 821
+ },
+ {
+  "name": "Cowley County",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 32.94,
+  "national_ranking": 822
+ },
+ {
+  "name": "Dodge City",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 32.94,
+  "national_ranking": 823
+ },
+ {
+  "name": "Garden City Community",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 32.94,
+  "national_ranking": 824
+ },
+ {
+  "name": "Seward County",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 32.94,
+  "national_ranking": 825
+ },
+ {
+  "name": "Ranger",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 32.81,
+  "national_ranking": 826
+ },
+ {
+  "name": "Augustana (IL)",
+  "division": "NCAA D3",
+  "conference": "CCIW",
+  "soccer_score": 32.81,
+  "national_ranking": 827
+ },
+ {
+  "name": "Guilford",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 32.7,
+  "national_ranking": 828
+ },
+ {
+  "name": "St. Scholastica",
+  "division": "NCAA D3",
+  "conference": "UMAC",
+  "soccer_score": 32.66,
+  "national_ranking": 829
+ },
+ {
+  "name": "Monmouth (IL)",
+  "division": "NCAA D3",
+  "conference": "MWC-D3",
+  "soccer_score": 32.62,
+  "national_ranking": 830
+ },
+ {
+  "name": "Vernon",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 32.6,
+  "national_ranking": 831
+ },
+ {
+  "name": "College of DuPage",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 32.27,
+  "national_ranking": 832
+ },
+ {
+  "name": "La Roche",
+  "division": "NCAA D3",
+  "conference": "AMCC",
+  "soccer_score": 32.27,
+  "national_ranking": 833
+ },
+ {
+  "name": "Eastern Arizona",
+  "division": "NJCAA",
+  "conference": "ACCAC",
+  "soccer_score": 32.18,
+  "national_ranking": 834
+ },
+ {
+  "name": "Western Nebraska",
+  "division": "NJCAA",
+  "conference": "RMJCAA",
+  "soccer_score": 32.14,
+  "national_ranking": 835
+ },
+ {
+  "name": "Framingham State",
+  "division": "NCAA D3",
+  "conference": "MASCAC",
+  "soccer_score": 32.13,
+  "national_ranking": 836
+ },
+ {
+  "name": "South Mountain Community",
+  "division": "NJCAA",
+  "conference": "ACCAC",
+  "soccer_score": 32.02,
+  "national_ranking": 837
+ },
+ {
+  "name": "Spartanburg Methodist",
+  "division": "NJCAA",
+  "conference": "CCAC-NJCAA",
+  "soccer_score": 32.02,
+  "national_ranking": 838
+ },
+ {
+  "name": "Bryn Athyn",
+  "division": "NCAA D3",
+  "conference": "CSAC",
+  "soccer_score": 31.96,
+  "national_ranking": 839
+ },
+ {
+  "name": "College of Southern Idaho",
+  "division": "NJCAA",
+  "conference": "NWAACC",
+  "soccer_score": 31.76,
+  "national_ranking": 840
+ },
+ {
+  "name": "Eastern Wyoming",
+  "division": "NJCAA",
+  "conference": "RMJCAA",
+  "soccer_score": 31.76,
+  "national_ranking": 841
+ },
+ {
+  "name": "Brookdale",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 31.43,
+  "national_ranking": 842
+ },
+ {
+  "name": "Coffeyville",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 31.26,
+  "national_ranking": 843
+ },
+ {
+  "name": "Hudson Valley",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 31.13,
+  "national_ranking": 844
+ },
+ {
+  "name": "Hagerstown",
+  "division": "NJCAA",
+  "conference": "MDJUCO",
+  "soccer_score": 31.09,
+  "national_ranking": 845
+ },
+ {
+  "name": "Jefferson (NY)",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 31.03,
+  "national_ranking": 846
+ },
+ {
+  "name": "Pratt Community",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 31.01,
+  "national_ranking": 847
+ },
+ {
+  "name": "Wake Technical",
+  "division": "NJCAA",
+  "conference": "CCAC-NJCAA",
+  "soccer_score": 30.99,
+  "national_ranking": 848
+ },
+ {
+  "name": "Huntingdon",
+  "division": "NCAA D3",
+  "conference": "SAA",
+  "soccer_score": 30.88,
+  "national_ranking": 849
+ },
+ {
+  "name": "Northeast Oklahoma A&M",
+  "division": "NJCAA",
+  "conference": "SACC",
+  "soccer_score": 30.85,
+  "national_ranking": 850
+ },
+ {
+  "name": "Linfield",
+  "division": "NCAA D3",
+  "conference": "NWC",
+  "soccer_score": 30.69,
+  "national_ranking": 851
+ },
+ {
+  "name": "Queensborough",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 30.61,
+  "national_ranking": 852
+ },
+ {
+  "name": "Meridian",
+  "division": "NJCAA",
+  "conference": "MACJC",
+  "soccer_score": 30.58,
+  "national_ranking": 853
+ },
+ {
+  "name": "Hawkeye",
+  "division": "NJCAA",
+  "conference": "ICCAC",
+  "soccer_score": 30.55,
+  "national_ranking": 854
+ },
+ {
+  "name": "Arizona Western",
+  "division": "NJCAA",
+  "conference": "ACCAC",
+  "soccer_score": 30.49,
+  "national_ranking": 855
+ },
+ {
+  "name": "College of Southern Nevada",
+  "division": "NJCAA",
+  "conference": "ACCAC",
+  "soccer_score": 30.49,
+  "national_ranking": 856
+ },
+ {
+  "name": "Mount San Antonio",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 30.49,
+  "national_ranking": 857
+ },
+ {
+  "name": "Genesee Community",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 30.47,
+  "national_ranking": 858
+ },
+ {
+  "name": "York (PA)",
+  "division": "NCAA D3",
+  "conference": "MAC Freedom",
+  "soccer_score": 30.46,
+  "national_ranking": 859
+ },
+ {
+  "name": "York County",
+  "division": "NJCAA",
+  "conference": "VCCAA",
+  "soccer_score": 30.42,
+  "national_ranking": 860
+ },
+ {
+  "name": "Cape Fear",
+  "division": "NJCAA",
+  "conference": "CCAC-NJCAA",
+  "soccer_score": 30.39,
+  "national_ranking": 861
+ },
+ {
+  "name": "Harper",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 30.38,
+  "national_ranking": 862
+ },
+ {
+  "name": "Atlantic Cape",
+  "division": "NJCAA",
+  "conference": "NJCAAD3",
+  "soccer_score": 30.37,
+  "national_ranking": 863
+ },
+ {
+  "name": "New England",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 30.35,
+  "national_ranking": 864
+ },
+ {
+  "name": "University of New England",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 30.35,
+  "national_ranking": 865
+ },
+ {
+  "name": "Kentucky Christian",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 30.33,
+  "national_ranking": 866
+ },
+ {
+  "name": "College of Marin",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 30.28,
+  "national_ranking": 867
+ },
+ {
+  "name": "Delta College (MI)",
+  "division": "NJCAA",
+  "conference": "MCCAA",
+  "soccer_score": 30.1,
+  "national_ranking": 868
+ },
+ {
+  "name": "Dean College",
+  "division": "NJCAA",
+  "conference": "NECC",
+  "soccer_score": 29.91,
+  "national_ranking": 869
+ },
+ {
+  "name": "Franklin",
+  "division": "NCAA D3",
+  "conference": "HCAC",
+  "soccer_score": 29.74,
+  "national_ranking": 870
+ },
+ {
+  "name": "Lincoln Trail",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 29.39,
+  "national_ranking": 871
+ },
+ {
+  "name": "Cecil",
+  "division": "NJCAA",
+  "conference": "MDJUCO",
+  "soccer_score": 29.09,
+  "national_ranking": 872
+ },
+ {
+  "name": "East Central (OK)",
+  "division": "NJCAA",
+  "conference": "SACC",
+  "soccer_score": 29.08,
+  "national_ranking": 873
+ },
+ {
+  "name": "Mississippi Delta",
+  "division": "NJCAA",
+  "conference": "MACJC",
+  "soccer_score": 28.84,
+  "national_ranking": 874
+ },
+ {
+  "name": "Panola",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 28.76,
+  "national_ranking": 875
+ },
+ {
+  "name": "Jackson College",
+  "division": "NJCAA",
+  "conference": "MCCAA",
+  "soccer_score": 28.73,
+  "national_ranking": 876
+ },
+ {
+  "name": "Howard Payne",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 28.58,
+  "national_ranking": 877
+ },
+ {
+  "name": "Lesley",
+  "division": "NCAA D3",
+  "conference": "NECC",
+  "soccer_score": 28.46,
+  "national_ranking": 878
+ },
+ {
+  "name": "Lone Star",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 28.28,
+  "national_ranking": 879
+ },
+ {
+  "name": "Holmes",
+  "division": "NJCAA",
+  "conference": "MACJC",
+  "soccer_score": 27.93,
+  "national_ranking": 880
+ },
+ {
+  "name": "Victor Valley",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 27.72,
+  "national_ranking": 881
+ },
+ {
+  "name": "Blue Mountain",
+  "division": "NJCAA",
+  "conference": "NWAACC",
+  "soccer_score": 27.46,
+  "national_ranking": 882
+ },
+ {
+  "name": "Rockland Community",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 27.18,
+  "national_ranking": 883
+ },
+ {
+  "name": "College of Lake County",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 27.13,
+  "national_ranking": 884
+ },
+ {
+  "name": "Allegany",
+  "division": "NJCAA",
+  "conference": "MDJUCO",
+  "soccer_score": 27.0,
+  "national_ranking": 885
+ },
+ {
+  "name": "Luther",
+  "division": "NCAA D3",
+  "conference": "Iowa Conference",
+  "soccer_score": 26.93,
+  "national_ranking": 886
+ },
+ {
+  "name": "Martin Luther",
+  "division": "NCAA D3",
+  "conference": "UMAC",
+  "soccer_score": 26.93,
+  "national_ranking": 887
+ },
+ {
+  "name": "Northwest Mississippi",
+  "division": "NJCAA",
+  "conference": "MACJC",
+  "soccer_score": 26.72,
+  "national_ranking": 888
+ },
+ {
+  "name": "Hocking",
+  "division": "NJCAA",
+  "conference": "OHSJCC",
+  "soccer_score": 26.46,
+  "national_ranking": 889
+ },
+ {
+  "name": "Saint Martin's",
+  "division": "NCAA D2",
+  "conference": "GNAC",
+  "soccer_score": 26.42,
+  "national_ranking": 890
+ },
+ {
+  "name": "San Diego Mesa",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 26.4,
+  "national_ranking": 891
+ },
+ {
+  "name": "Mary Baldwin",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 26.26,
+  "national_ranking": 892
+ },
+ {
+  "name": "Orange Coast",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 26.12,
+  "national_ranking": 893
+ },
+ {
+  "name": "Carlow",
+  "division": "NCAA D3",
+  "conference": "AMCC",
+  "soccer_score": 25.85,
+  "national_ranking": 894
+ },
+ {
+  "name": "Northeast Texas",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 24.31,
+  "national_ranking": 895
+ },
+ {
+  "name": "Lincoln Land",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 23.52,
+  "national_ranking": 896
+ },
+ {
+  "name": "Wisconsin-Stout",
+  "division": "NCAA D3",
+  "conference": "WIAC",
+  "soccer_score": 22.59,
+  "national_ranking": 897
+ },
+ {
+  "name": "Heidelberg",
+  "division": "NCAA D3",
+  "conference": "OAC",
+  "soccer_score": 22.45,
+  "national_ranking": 898
+ },
+ {
+  "name": "Niagara County",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 20.19,
+  "national_ranking": 899
+ },
+ {
+  "name": "Adams State",
+  "division": "NCAA D2",
+  "conference": "RMAC",
+  "soccer_score": 19.13,
+  "national_ranking": 900
+ },
+ {
+  "name": "Gallaudet",
+  "division": "NCAA D3",
+  "conference": "CSAC",
+  "soccer_score": 18.5,
+  "national_ranking": 901
+ },
+ {
+  "name": "Keuka",
+  "division": "NCAA D3",
+  "conference": "NEAC",
+  "soccer_score": 16.69,
+  "national_ranking": 902
+ },
+ {
+  "name": "Terra State",
+  "division": "NJCAA",
+  "conference": "OHSJCC",
+  "soccer_score": 15.52,
+  "national_ranking": 903
+ },
+ {
+  "name": "Cal State Bakersfield",
+  "division": "NCAA D1",
+  "conference": "WAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Cal State Stanislaus",
+  "division": "NCAA D2",
+  "conference": "CCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Concordia Irvine",
+  "division": "NCAA D2",
+  "conference": "PacWest",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Inter American (PR)",
+  "division": "NCAA D2",
+  "conference": "CAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Montana State Billings",
+  "division": "NCAA D2",
+  "conference": "GNAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Northwood",
+  "division": "NCAA D2",
+  "conference": "GLIAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "PennWest Johnstown",
+  "division": "NCAA D2",
+  "conference": "PSAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Anna Maria",
+  "division": "NCAA D3",
+  "conference": "MASCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Berry",
+  "division": "NCAA D3",
+  "conference": "SAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Bluffton",
+  "division": "NCAA D3",
+  "conference": "HCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Bob Jones",
+  "division": "NCAA D3",
+  "conference": "ASC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Cazenovia",
+  "division": "NCAA D3",
+  "conference": "NEAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Clarks Summit",
+  "division": "NCAA D3",
+  "conference": "CSAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Ithaca",
+  "division": "NCAA D3",
+  "conference": "Liberty League",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Johnson & Wales (Charlotte)",
+  "division": "NCAA D3",
+  "conference": "SAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Johnson & Wales (Providence)",
+  "division": "NCAA D3",
+  "conference": "CCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Knox",
+  "division": "NCAA D3",
+  "conference": "MWC-D3",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Lewis & Clark",
+  "division": "NCAA D3",
+  "conference": "NWC",
+  "soccer_score": 0.0,
+  "national_ranking": 904
+ },
+ {
+  "name": "Saint Lawrence",
+  "division": "NCAA D3",
+  "conference": "Liberty League",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Shenandoah",
+  "division": "NCAA D3",
+  "conference": "ODAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Trinity (CT)",
+  "division": "NCAA D3",
+  "conference": "NESCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Wells",
+  "division": "NCAA D3",
+  "conference": "Empire 8",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Westminster (MO)",
+  "division": "NCAA D3",
+  "conference": "SLIAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Wisconsin-Stevens Point",
+  "division": "NCAA D3",
+  "conference": "WIAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Barclay",
+  "division": "NAIA",
+  "conference": "KCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Bethel (IN)",
+  "division": "NAIA",
+  "conference": "CCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Calumet College",
+  "division": "NAIA",
+  "conference": "CCAC",
+  "soccer_score": 0.0,
+  "national_ranking": 905
+ },
+ {
+  "name": "Cascade",
+  "division": "NAIA",
+  "conference": "Cascade",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Clarke",
+  "division": "NAIA",
+  "conference": "Heart",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Columbia (MO)",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Dakota State",
+  "division": "NAIA",
+  "conference": "GPAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Dickinson State",
+  "division": "NAIA",
+  "conference": "NDCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Edward Waters",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Emmanuel (GA - NAIA)",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Kentucky State",
+  "division": "NAIA",
+  "conference": "RRAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Langston",
+  "division": "NAIA",
+  "conference": "RRAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Lewis-Clark State",
+  "division": "NAIA",
+  "conference": "Cascade",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Montana State Northern",
+  "division": "NAIA",
+  "conference": "Frontier",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Montana Western",
+  "division": "NAIA",
+  "conference": "Frontier",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Multnomah",
+  "division": "NAIA",
+  "conference": "Cascade",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Northwestern (IA)",
+  "division": "NAIA",
+  "conference": "GPAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Northwestern (MN)",
+  "division": "NAIA",
+  "conference": "UMAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Peru State",
+  "division": "NAIA",
+  "conference": "GPAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Providence (MT)",
+  "division": "NAIA",
+  "conference": "Frontier",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Saint Thomas (FL)",
+  "division": "NAIA",
+  "conference": "Mid-South",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Taylor",
+  "division": "NAIA",
+  "conference": "CCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Union (KY)",
+  "division": "NAIA",
+  "conference": "AMC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Valley City State",
+  "division": "NAIA",
+  "conference": "NDCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Xavier (LA)",
+  "division": "NAIA",
+  "conference": "RRAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Allan Hancock",
+  "division": "NJCAA",
+  "conference": "WSC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "American River",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Ancilla",
+  "division": "NJCAA",
+  "conference": "MCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Bossier Parish",
+  "division": "NJCAA",
+  "conference": "MSJC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Broward",
+  "division": "NJCAA",
+  "conference": "FCSAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Buffalo-Erie",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Butler County",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Cascadia",
+  "division": "NJCAA",
+  "conference": "NWAACC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Catawba Valley",
+  "division": "NJCAA",
+  "conference": "CCAC-NJCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Central Alabama",
+  "division": "NJCAA",
+  "conference": "ACCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Central Arizona",
+  "division": "NJCAA",
+  "conference": "ACCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Central Georgia Tech",
+  "division": "NJCAA",
+  "conference": "GCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Central Lakes",
+  "division": "NJCAA",
+  "conference": "MCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Chesapeake",
+  "division": "NJCAA",
+  "conference": "MDJUCO",
+  "soccer_score": 0.0,
+  "national_ranking": 906
+ },
+ {
+  "name": "Chipola",
+  "division": "NJCAA",
+  "conference": "FCSAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "City Colleges Chicago-Harold Washington",
+  "division": "NJCAA",
+  "conference": "NJCAAD1",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "City Colleges Chicago-Olive Harvey",
+  "division": "NJCAA",
+  "conference": "NJCAAD1",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "City Colleges Chicago-Richard Daley",
+  "division": "NJCAA",
+  "conference": "NJCAAD1",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "City Colleges Chicago-Wilbur Wright",
+  "division": "NJCAA",
+  "conference": "NJCAAD1",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Collin College",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Contra Costa",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Danville Area",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Des Moines Area",
+  "division": "NJCAA",
+  "conference": "ICCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Diablo Valley",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "East Mississippi",
+  "division": "NJCAA",
+  "conference": "MACJC",
+  "soccer_score": 0.0,
+  "national_ranking": 907
+ },
+ {
+  "name": "Ellsworth",
+  "division": "NJCAA",
+  "conference": "ICCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Florida State College Jacksonville",
+  "division": "NJCAA",
+  "conference": "FCSAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Fort Scott Community",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Front Range",
+  "division": "NJCAA",
+  "conference": "RMJCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Gadsden State",
+  "division": "NJCAA",
+  "conference": "ACCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Garrett",
+  "division": "NJCAA",
+  "conference": "MDJUCO",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "George C. Wallace",
+  "division": "NJCAA",
+  "conference": "ACCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Georgia Highlands",
+  "division": "NJCAA",
+  "conference": "GCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Georgia Northwestern",
+  "division": "NJCAA",
+  "conference": "GCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Georgia Piedmont",
+  "division": "NJCAA",
+  "conference": "GCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Gloucester County",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Highland",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Holyoke",
+  "division": "NJCAA",
+  "conference": "MVAL",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "J. Sargeant Reynolds",
+  "division": "NJCAA",
+  "conference": "VCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Jefferson Davis",
+  "division": "NJCAA",
+  "conference": "ACCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Kalamazoo Valley",
+  "division": "NJCAA",
+  "conference": "MCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Kellogg Community",
+  "division": "NJCAA",
+  "conference": "MCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Kilgore",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Kirkwood",
+  "division": "NJCAA",
+  "conference": "ICCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Labette",
+  "division": "NJCAA",
+  "conference": "KJCCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Lake Land",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Lamar Institute",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Laramie County",
+  "division": "NJCAA",
+  "conference": "RMJCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Lewis & Clark (ID)",
+  "division": "NJCAA",
+  "conference": "NWAACC",
+  "soccer_score": 0.0,
+  "national_ranking": 908
+ },
+ {
+  "name": "Lord Fairfax",
+  "division": "NJCAA",
+  "conference": "VCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Louisiana Delta",
+  "division": "NJCAA",
+  "conference": "MSJC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Lower Columbia",
+  "division": "NJCAA",
+  "conference": "NWAACC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Lurleen B. Wallace",
+  "division": "NJCAA",
+  "conference": "ACCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Merced",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Middlesex County",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Missouri State-West Plains",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Moberly Area",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Motlow State",
+  "division": "NJCAA",
+  "conference": "TCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Nebraska Central",
+  "division": "NJCAA",
+  "conference": "ICCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "New Mexico Junior",
+  "division": "NJCAA",
+  "conference": "NJCAAD1",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "North Arkansas",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "North Central Missouri",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Northeast Mississippi",
+  "division": "NJCAA",
+  "conference": "MACJC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Northern Idaho",
+  "division": "NJCAA",
+  "conference": "NWAACC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Northland Pioneer",
+  "division": "NJCAA",
+  "conference": "ACCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Northwest Shoals",
+  "division": "NJCAA",
+  "conference": "ACCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Odessa",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Oklahoma City Community",
+  "division": "NJCAA",
+  "conference": "SACC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Owens",
+  "division": "NJCAA",
+  "conference": "OHSJCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Ozarka",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Paradise Valley",
+  "division": "NJCAA",
+  "conference": "ACCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Passaic County",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Paul D. Camp",
+  "division": "NJCAA",
+  "conference": "VCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Pearl River",
+  "division": "NJCAA",
+  "conference": "MACJC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Pellissippi State",
+  "division": "NJCAA",
+  "conference": "TCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Penn State Hazleton",
+  "division": "NJCAA",
+  "conference": "PSJUCO",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Pensacola State",
+  "division": "NJCAA",
+  "conference": "FCSAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Piedmont Virginia",
+  "division": "NJCAA",
+  "conference": "VCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Pima",
+  "division": "NJCAA",
+  "conference": "ACCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Polk State",
+  "division": "NJCAA",
+  "conference": "FCSAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Reading Area",
+  "division": "NJCAA",
+  "conference": "EPAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Rend Lake",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Riverside",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Roane State",
+  "division": "NJCAA",
+  "conference": "TCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Rose State",
+  "division": "NJCAA",
+  "conference": "SACC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "San Diego Miramar",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "San Joaquin Delta",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Sandhills",
+  "division": "NJCAA",
+  "conference": "CCAC-NJCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Santa Ana",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Santa Barbara City",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Santa Monica",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Santa Rosa Junior",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Scottsdale",
+  "division": "NJCAA",
+  "conference": "ACCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Shawnee Community",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Sinclair",
+  "division": "NJCAA",
+  "conference": "OHSJCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Somerset",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "South Plains",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "South Puget Sound",
+  "division": "NJCAA",
+  "conference": "NWAACC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Southeastern Community (IA)",
+  "division": "NJCAA",
+  "conference": "ICCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "St. Louis Community-Florissant Valley",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "St. Louis Community-Forest Park",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "St. Louis Community-Meramec",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Sullivan County",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Surry",
+  "division": "NJCAA",
+  "conference": "CCAC-NJCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Tallahassee",
+  "division": "NJCAA",
+  "conference": "FCSAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Three Rivers",
+  "division": "NJCAA",
+  "conference": "MOVAL",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Tidewater",
+  "division": "NJCAA",
+  "conference": "VCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Tompkins Cortland",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Trinity Valley",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Tulsa Community",
+  "division": "NJCAA",
+  "conference": "SACC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Union County",
+  "division": "NJCAA",
+  "conference": "GNYAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Ventura",
+  "division": "NJCAA",
+  "conference": "CCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Vincennes",
+  "division": "NJCAA",
+  "conference": "OHSJCC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Virginia Highlands",
+  "division": "NJCAA",
+  "conference": "VCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Virginia Western",
+  "division": "NJCAA",
+  "conference": "VCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Volunteer State",
+  "division": "NJCAA",
+  "conference": "TCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Walters State",
+  "division": "NJCAA",
+  "conference": "TCCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Weatherford",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Western Wyoming",
+  "division": "NJCAA",
+  "conference": "RMJCAA",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "Westmoreland County",
+  "division": "NJCAA",
+  "conference": "PSJUCO",
+  "soccer_score": 0.0,
+  "national_ranking": 909
+ },
+ {
+  "name": "Wharton County Junior",
+  "division": "NJCAA",
+  "conference": "WJCAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ },
+ {
+  "name": "William Rainey Harper",
+  "division": "NJCAA",
+  "conference": "GRAC",
+  "soccer_score": 0.0,
+  "national_ranking": null
+ }
+]
