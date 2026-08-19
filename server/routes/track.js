@@ -2,6 +2,7 @@ import express from 'express';
 import db from '../db/client.js';
 import { utcNow } from '../lib/time.js';
 import { createRateLimiter } from '../lib/rateLimit.js';
+import { scheduleRollup } from '../lib/engagementRollup.js';
 import { MAX_PAYLOAD_BYTES, parseEventBody } from '../../shared/trackingEvents.js';
 
 /**
@@ -76,6 +77,7 @@ trackRouter.post('/track', rawBody, (req, res) => {
   if (!outreach) return res.status(204).end(); // unknown or revoked — no row, no hint
 
   insertEvent.run({ ...event, outreach_id: outreach.id, created_at: utcNow() });
+  scheduleRollup(outreach.id);
   return res.status(204).end();
 });
 

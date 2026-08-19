@@ -10,3 +10,14 @@ export const OUTREACH_TOKEN_LENGTH = 32;
 
 /** Public profile filename. Random, never derived from the athlete's name. */
 export const PUBLIC_SLUG_LENGTH = 10;
+
+/**
+ * Two qualified sessions closer together than this are one visit. A coach who
+ * reloads the page, or opens it again after a meeting, has not returned —
+ * returning is what the score weights most heavily, so the gate matters.
+ * Brief §9 rule 4: collapse at the rollup layer, never at write time.
+ */
+export const SESSION_COLLAPSE_MINUTES = 30;
+
+/** Quiet period before a write-triggered rollup rebuild runs. */
+export const ROLLUP_DEBOUNCE_MS = 5_000;
