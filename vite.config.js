@@ -7,6 +7,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(process.cwd(), 'src'),
+      // Modules imported by both the React app and the Express server —
+      // sport field definitions now, the event payload contract from Stage 5.
+      '@shared': path.resolve(process.cwd(), 'shared'),
     },
   },
   server: {
