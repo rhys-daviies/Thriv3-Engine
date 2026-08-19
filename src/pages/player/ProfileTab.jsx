@@ -52,14 +52,12 @@ export default function ProfileTab() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
+      {/* GPA lives in the Academics block below; keeping it here too was
+          the same number twice on one screen. */}
+      <div className="grid grid-cols-2 gap-3">
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground">Divisions</p>
           <p className="font-semibold mt-1">{(player.preferred_divisions || []).join(', ') || 'Any'}</p>
-        </Card>
-        <Card className="p-4 text-center">
-          <p className="text-xs text-muted-foreground">GPA</p>
-          <p className="font-semibold mt-1">{player.gpa ?? '—'}</p>
         </Card>
         <Card className="p-4 text-center">
           <p className="text-xs text-muted-foreground">Budget</p>

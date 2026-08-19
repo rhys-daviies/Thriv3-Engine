@@ -8,3 +8,6 @@ dist
 # data / uploaded match-recommendation files — never commit these.
 server/data/
 server/uploads/
+
+# Generated public profile pages
+build/

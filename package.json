@@ -12,7 +12,8 @@
     "coaching-import": "node server/scripts/coachingImport.js",
     "test": "vitest run",
     "test:watch": "vitest",
-    "seed:engagement": "node server/seed/seedEngagement.js"
+    "seed:engagement": "node server/seed/seedEngagement.js",
+    "export:profiles": "node server/scripts/exportProfiles.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",

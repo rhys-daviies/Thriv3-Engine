@@ -1,0 +1,328 @@
+import { describeAttributes } from '../../shared/sportProfiles.js';
+import { PROFILE_CSS } from './styles.js';
+import { TRACKER_JS } from './tracker.js';
+
+/**
+ * Renders one athlete into a self-contained public profile page.
+ *
+ * The page carries NO coach data. It reads the ?ref= token from the query
+ * string and echoes it back to the collector; coach identity is resolved on
+ * our own machine and never published. Anyone holding the link sees the page,
+ * so nothing goes on it beyond what the representation agreement covers.
+ */
+
+const REQUIRED_CORE = [
+  { key: 'full_name', label: 'name', test: (a) => present(a.full_name) },
+  { key: 'position', label: 'position', test: (a) => present(a.position) },
+  { key: 'graduation_year', label: 'class year', test: (a) => present(a.graduation_year) },
+  { key: 'video_id', label: 'video', test: (a) => present(a.video_id) },
+  { key: 'video_chapters', label: 'at least 3 film chapters', test: (a) => chaptersOf(a).length >= 3 },
+  { key: 'email', label: 'contact email', test: (a) => present(a.email) },
+];
+
+function present(value) {
+  return value !== null && value !== undefined && value !== '';
+}
+
+function chaptersOf(athlete) {
+  const raw = athlete.video_chapters;
+  const list = typeof raw === 'string' ? safeJson(raw, []) : raw || [];
+  return list
+    .filter((c) => c && Number.isFinite(Number(c.t)) && present(c.label))
+    .map((c) => ({ t: Number(c.t), label: String(c.label) }))
+    .sort((a, b) => a.t - b.t);
+}
+
+function safeJson(text, fallback) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return fallback;
+  }
+}
+
+function esc(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function timecode(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = String(Math.floor(seconds % 60)).padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+/**
+ * Returns the list of missing required-core items. Export refuses while this
+ * is non-empty — a half-populated page sent to a college coach is worse than
+ * no page at all.
+ */
+export function checkRequiredCore(athlete) {
+  return REQUIRED_CORE.filter((item) => !item.test(athlete)).map((item) => item.label);
+}
+
+// --- fragment builders. Each returns '' when it has nothing to show, so a
+// --- missing value omits its row or block entirely rather than rendering "N/A".
+
+function row(label, value, { href = null, mono = true } = {}) {
+  if (!present(value)) return '';
+  const inner = href ? `<a href="${esc(href)}">${esc(value)}</a>` : esc(value);
+  return `<div class="row"><dt>${esc(label)}</dt><dd${mono ? '' : ' style="font-family:var(--body)"'}>${inner}</dd></div>`;
+}
+
+function card(title, rows) {
+  const body = rows.filter(Boolean).join('\n          ');
+  if (!body) return '';
+  return `<div class="card">
+        <h3>${esc(title)}</h3>
+        <dl style="margin:0">
+          ${body}
+        </dl>
+      </div>`;
+}
+
+function badges(athlete) {
+  const items = [];
+  if (present(athlete.commitment_status)) {
+    items.push(`<span class="badge status">${esc(athlete.commitment_status)}</span>`);
+  }
+  items.push(`<span class="badge">Class of ${esc(athlete.graduation_year)}</span>`);
+  if (present(athlete.ncaa_eligibility_id)) items.push('<span class="badge">NCAA ID verified</span>');
+  if (present(athlete.nationality)) items.push(`<span class="badge">${esc(athlete.nationality)}</span>`);
+  return `<div class="badges">${items.join('\n      ')}</div>`;
+}
+
+function roleGrid(athlete) {
+  const items = [
+    ['Position', [athlete.position, athlete.secondary_position !== 'None' ? athlete.secondary_position : null].filter(present).join(' / ')],
+    ['Current club', athlete.club_name],
+    ['Nationality', athlete.nationality],
+    ['Available', present(athlete.graduation_year) ? `${athlete.graduation_year} entry` : null],
+  ]
+    .filter(([, value]) => present(value))
+    .map(([label, value]) => `<div class="role-item"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`);
+  return items.length ? `<dl class="role">${items.join('\n      ')}</dl>` : '';
+}
+
+function filmSection(athlete, chapters) {
+  const buttons = chapters
+    .map(
+      (c) =>
+        `<button class="chapter" data-t="${c.t}" data-label="${esc(c.label)}">`
+        + `<time>${timecode(c.t)}</time>${esc(c.label)}</button>`
+    )
+    .join('\n      ');
+
+  const meta = present(athlete.updated_date)
+    ? `Updated ${new Date(athlete.updated_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} · ${chapters.length} clips`
+    : `${chapters.length} clips`;
+
+  return `<section class="section">
+    <div class="section-head">
+      <h2>Highlight Film</h2>
+      <div class="section-meta">${esc(meta)}</div>
+    </div>
+
+    <div class="player-frame">
+      <div id="yt-player"></div>
+    </div>
+
+    <div class="chapters">
+      ${buttons}
+    </div>
+  </section>`;
+}
+
+function attributesSection(athlete) {
+  const groups = describeAttributes(athlete.sport, athlete.sport_attributes);
+  const physical = [
+    ['Height', athlete.height_cm, 'cm'],
+    ['Weight', athlete.weight_kg, 'kg'],
+  ].filter(([, value]) => present(value));
+
+  if (groups.length === 0 && physical.length === 0) return '';
+
+  const blocks = [];
+
+  if (physical.length || groups.length) {
+    const first = groups[0];
+    const stats = [
+      ...physical.map(([label, value, unit]) => statCell(label, value, unit, false)),
+      ...(first ? first.fields.map((f) => statCell(f.label, f.value, f.unit, f.emphasis)) : []),
+    ];
+    blocks.push(
+      `<div class="subhead">${esc(first ? first.label : 'Physical')}</div>`
+      + `\n    <dl class="stat-grid">${stats.join('')}</dl>`
+    );
+  }
+
+  for (const group of groups.slice(1)) {
+    const stats = group.fields.map((f) => statCell(f.label, f.value, f.unit, f.emphasis));
+    blocks.push(`<div class="subhead">${esc(group.label)}</div>\n    <dl class="stat-grid">${stats.join('')}</dl>`);
+  }
+
+  return `<section class="section">
+    <div class="section-head">
+      <h2>Player Attributes</h2>
+    </div>
+
+    ${blocks.join('\n\n    ')}
+  </section>`;
+}
+
+function statCell(label, value, unit, emphasis) {
+  const unitMarkup = unit ? `<em>${esc(unit)}</em>` : '';
+  return `<div class="stat${emphasis ? ' key' : ''}"><dt>${esc(label)}</dt><dd>${esc(value)}${unitMarkup}</dd></div>`;
+}
+
+function academicsAndContact(athlete) {
+  const academics = card('Academic record', [
+    row('GPA', athlete.gpa),
+    row('SAT', athlete.sat_score),
+    row('ACT', athlete.act_score),
+    row('NCAA Eligibility ID', athlete.ncaa_eligibility_id),
+    row('Intended major', athlete.intended_major),
+  ]);
+
+  const contact = card('Contact', [
+    row('Athlete', athlete.full_name, { href: `mailto:${athlete.email}` }),
+    row('Guardian', athlete.guardian_name, athlete.guardian_email ? { href: `mailto:${athlete.guardian_email}` } : {}),
+    row('Club coach', athlete.club_coach_name, athlete.club_coach_email ? { href: `mailto:${athlete.club_coach_email}` } : {}),
+    row('Phone', athlete.phone),
+    row('Time zone', athlete.time_zone),
+    row('Best contact window', athlete.best_contact_window),
+  ]);
+
+  if (!academics && !contact) return '';
+  return `<section class="section">
+    <div class="section-head">
+      <h2>Academics &amp; Contact</h2>
+      <div class="section-meta">Eligibility documents available on request</div>
+    </div>
+
+    <div class="split">
+      ${[academics, contact].filter(Boolean).join('\n\n      ')}
+    </div>
+  </section>`;
+}
+
+function evaluationSection(athlete) {
+  if (!present(athlete.evaluation)) return '';
+  const paragraphs = String(athlete.evaluation)
+    .split(/\n\s*\n/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => `<p>${esc(p)}</p>`)
+    .join('\n      ');
+
+  return `<section class="section">
+    <div class="section-head">
+      <h2>Evaluation</h2>
+      <div class="section-meta">Independent assessment · Thriv3 analyst</div>
+    </div>
+
+    <div class="prose">
+      ${paragraphs}
+    </div>
+  </section>`;
+}
+
+export function renderProfile(athlete, { endpoint = '/api/track', dryRun = false } = {}) {
+  const missing = checkRequiredCore(athlete);
+  if (missing.length) {
+    throw new Error(
+      `Cannot export "${athlete.full_name || athlete.id}" — missing required core: ${missing.join(', ')}`
+    );
+  }
+
+  const chapters = chaptersOf(athlete);
+  const config = {
+    videoId: athlete.video_id,
+    athleteId: athlete.id,
+    endpoint,
+    dryRun,
+    // Server-rendered prior qualified visits are not knowable in a static
+    // file. Visit numbering is authoritative at the rollup layer, which counts
+    // distinct sessions containing visit_qualified.
+    priorVisits: 0,
+  };
+
+  const title = `${athlete.full_name} — ${athlete.position} — Class of ${athlete.graduation_year} — Thriv3`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>${esc(title)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>${PROFILE_CSS}</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <nav class="topbar">
+    <div class="wordmark">Thriv<span>3</span></div>
+  </nav>
+
+  <section>
+    ${badges(athlete)}
+
+    <h1>${esc(athlete.full_name).replace(/\s+(?=\S+$)/, '<br>')}</h1>
+
+    ${roleGrid(athlete)}
+  </section>
+
+  ${filmSection(athlete, chapters)}
+
+  ${attributesSection(athlete)}
+
+  ${academicsAndContact(athlete)}
+
+  ${evaluationSection(athlete)}
+
+  <footer>
+    Shared by ${esc(athlete.full_name)} via <span class="wordmark">Thriv<span>3</span></span>. This page
+    records which film segments are viewed so the athlete knows their material reached you —
+    described in our privacy notice. Reply directly to the contacts above.
+  </footer>
+</div>
+
+<button id="debug-toggle" type="button">Show tracking</button>
+
+<div id="debug" aria-live="polite">
+  <header>
+    <span>ENGAGEMENT SIGNAL</span>
+    <button type="button" id="debug-close" aria-label="Hide tracking panel">&times;</button>
+  </header>
+  <div class="gauge">
+    <div class="gauge-row"><span>Visit</span><b id="g-visit">#1</b></div>
+    <div class="gauge-row"><span>Status</span><b id="g-qual">unverified</b></div>
+    <div class="gauge-row"><span>Coverage</span><b id="g-cov">0%</b></div>
+    <div class="gauge-row"><span>Watched</span><b id="g-sec">0s</b></div>
+    <div class="gauge-row"><span>Rewinds</span><b id="g-rew">0</b></div>
+    <div class="gauge-row"><span>Skips</span><b id="g-skip">0</b></div>
+    <div class="bar"><i id="g-bar"></i></div>
+  </div>
+  <div id="log"><div>Waiting for playback…</div></div>
+</div>
+
+<script>
+const CONFIG = Object.assign(
+  ${JSON.stringify(config, null, 2).replace(/</g, '\\u003c')},
+  { token: new URLSearchParams(location.search).get("ref") || null }
+);
+${TRACKER_JS}
+</script>
+</body>
+</html>
+`;
+}
