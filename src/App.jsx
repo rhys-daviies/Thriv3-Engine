@@ -7,7 +7,10 @@ import Sports from '@/pages/Sports';
 import NewPlayer from '@/pages/NewPlayer';
 import EditPlayer from '@/pages/EditPlayer';
 import Players from '@/pages/Players';
-import PlayerDetail from '@/pages/PlayerDetail';
+import PlayerWorkspace, { TabFallback } from '@/pages/player/PlayerWorkspace';
+import ProfileTab from '@/pages/player/ProfileTab';
+import MatchingTab from '@/pages/player/MatchingTab';
+import EngagementTab from '@/pages/player/EngagementTab';
 import Colleges from '@/pages/Colleges';
 import GraduatingDatabase from '@/pages/GraduatingDatabase';
 import CSVAgent from '@/pages/CSVAgent';
@@ -24,8 +27,14 @@ export default function App() {
             <Route path="/sports" element={<Sports />} />
             <Route path="/new-player" element={<NewPlayer />} />
             <Route path="/players" element={<Players />} />
-            <Route path="/player/:id" element={<PlayerDetail />} />
             <Route path="/player/:id/edit" element={<EditPlayer />} />
+            <Route path="/player/:id" element={<PlayerWorkspace />}>
+              <Route index element={<TabFallback />} />
+              <Route path="profile" element={<ProfileTab />} />
+              <Route path="matching" element={<MatchingTab />} />
+              <Route path="engagement" element={<EngagementTab />} />
+              <Route path="*" element={<TabFallback />} />
+            </Route>
             <Route path="/colleges" element={<Colleges />} />
             <Route path="/graduating-db" element={<GraduatingDatabase />} />
             <Route path="/csv-agent" element={<CSVAgent />} />
