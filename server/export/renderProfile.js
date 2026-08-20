@@ -1,4 +1,5 @@
 import { describeAttributes } from '../../shared/sportProfiles.js';
+import { formatTimecode } from '../../shared/timecode.js';
 import { PROFILE_CSS } from './styles.js';
 import { TRACKER_JS } from './tracker.js';
 
@@ -48,12 +49,6 @@ function esc(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-}
-
-function timecode(seconds) {
-  const m = Math.floor(seconds / 60);
-  const s = String(Math.floor(seconds % 60)).padStart(2, '0');
-  return `${m}:${s}`;
 }
 
 /**
@@ -113,7 +108,7 @@ function filmSection(athlete, chapters) {
     .map(
       (c) =>
         `<button class="chapter" data-t="${c.t}" data-label="${esc(c.label)}">`
-        + `<time>${timecode(c.t)}</time>${esc(c.label)}</button>`
+        + `<time>${formatTimecode(c.t)}</time>${esc(c.label)}</button>`
     )
     .join('\n      ');
 

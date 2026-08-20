@@ -12,7 +12,7 @@
 import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import { utcNow } from '../lib/time.js';
-import { extractVideoId } from '../lib/youtube.js';
+import { extractVideoId } from '../../shared/youtube.js';
 import { generateSlug, generateUnique } from '../lib/tokens.js';
 import { findOrCreateCoach } from '../lib/coaches.js';
 import { createOutreach } from '../lib/outreach.js';

@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import ChapterEditor from '@/components/ChapterEditor';
+import { extractVideoId } from '@shared/youtube';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
@@ -34,6 +36,7 @@ function defaultsFrom(initialData) {
     sat_score: initialData?.sat_score ?? '',
     act_score: initialData?.act_score ?? '',
     highlights_url: initialData?.highlights_url || '',
+    video_chapters: initialData?.video_chapters || [],
     preferred_conferences: initialData?.preferred_conferences || [],
     budget_range: initialData?.budget_range || '',
     additional_notes: initialData?.additional_notes || '',
@@ -90,6 +93,16 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [availableConferences]);
+
+  const allConferencesSelected = availableConferences.length > 0
+    && availableConferences.every((c) => data.preferred_conferences.includes(c));
+
+  function toggleSelectAllConferences() {
+    setData((d) => ({
+      ...d,
+      preferred_conferences: allConferencesSelected ? [] : [...availableConferences],
+    }));
+  }
 
   const set = (field) => (value) => setData((d) => ({ ...d, [field]: value }));
   const toggleArrayValue = (field, value) => {
@@ -237,6 +250,13 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             <Input value={data.highlights_url} onChange={(e) => set('highlights_url')(e.target.value)} placeholder="https://youtube.com/..." />
           </div>
 
+          <ChapterEditor
+            value={data.video_chapters}
+            onChange={set('video_chapters')}
+            highlightsUrl={data.highlights_url}
+            videoId={extractVideoId(data.highlights_url)}
+          />
+
           <div className="flex justify-end">
             <Button type="button" disabled={!step1Valid} onClick={() => goToStep(1)}>Next</Button>
           </div>
@@ -265,16 +285,25 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
                 ))}
 
                 {availableConferences.length > 0 && (
-                  <div className="flex flex-wrap gap-4">
-                    {availableConferences.map((conf) => (
-                      <label key={conf} className="flex items-center gap-2 text-sm">
-                        <Checkbox
-                          checked={data.preferred_conferences.includes(conf)}
-                          onCheckedChange={() => toggleArrayValue('preferred_conferences', conf)}
-                        />
-                        {conf}
-                      </label>
-                    ))}
+                  <div className="space-y-2">
+                    <button
+                      type="button"
+                      onClick={toggleSelectAllConferences}
+                      className="text-xs font-medium text-primary hover:underline"
+                    >
+                      {allConferencesSelected ? 'Deselect All' : 'Select All'}
+                    </button>
+                    <div className="flex flex-wrap gap-4">
+                      {availableConferences.map((conf) => (
+                        <label key={conf} className="flex items-center gap-2 text-sm">
+                          <Checkbox
+                            checked={data.preferred_conferences.includes(conf)}
+                            onCheckedChange={() => toggleArrayValue('preferred_conferences', conf)}
+                          />
+                          {conf}
+                        </label>
+                      ))}
+                    </div>
                   </div>
                 )}
               </>

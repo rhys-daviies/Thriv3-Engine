@@ -1,9 +1,6 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-
-function timecode(seconds) {
-  return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
-}
+import { formatTimecode } from '@shared/timecode';
 
 /** Which labelled clips coaches jump to, ranked — what they evaluate for. */
 export default function ChapterEngagement({ chapters }) {
@@ -29,7 +26,7 @@ export default function ChapterEngagement({ chapters }) {
           <div key={c.label} className="flex items-center gap-3">
             {c.t != null && (
               <span className="w-10 shrink-0 font-mono text-[11px] text-muted-foreground tabular-nums">
-                {timecode(c.t)}
+                {formatTimecode(c.t)}
               </span>
             )}
             <span className="flex-1 min-w-0 truncate text-sm">{c.label}</span>

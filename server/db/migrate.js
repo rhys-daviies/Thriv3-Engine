@@ -1,4 +1,4 @@
-import { extractVideoId } from '../lib/youtube.js';
+import { extractVideoId } from '../../shared/youtube.js';
 import { generateSlug, generateUnique } from '../lib/tokens.js';
 
 /**

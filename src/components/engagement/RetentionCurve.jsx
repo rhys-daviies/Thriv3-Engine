@@ -1,9 +1,6 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-
-function timecode(seconds) {
-  return `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, '0')}`;
-}
+import { formatTimecode } from '@shared/timecode';
 
 const W = 720;
 const H = 180;
@@ -64,7 +61,7 @@ export default function RetentionCurve({ retention }) {
       <div className="flex items-baseline justify-between gap-3 flex-wrap mb-1">
         <h3 className="font-heading text-sm font-semibold">Film retention</h3>
         <span className="text-xs text-muted-foreground">
-          {viewers} {viewers === 1 ? 'coach' : 'coaches'} · {timecode(durationSeconds)} reel
+          {viewers} {viewers === 1 ? 'coach' : 'coaches'} · {formatTimecode(durationSeconds)} reel
         </span>
       </div>
       <p className="text-xs text-muted-foreground mb-4">
@@ -93,7 +90,7 @@ export default function RetentionCurve({ retention }) {
                   textAnchor={x(c.t) > W - 34 ? 'end' : 'start'}
                   y="11" fill="hsl(var(--muted-foreground))" fontSize="9" fontFamily="monospace"
                 >
-                  {timecode(c.t)}
+                  {formatTimecode(c.t)}
                 </text>
               )}
             </g>
@@ -109,7 +106,7 @@ export default function RetentionCurve({ retention }) {
           <text x="2" y={H - 3} fill="hsl(var(--muted-foreground))" fontSize="9" fontFamily="monospace">0%</text>
           <text x="0" y={H + 18} fill="hsl(var(--muted-foreground))" fontSize="9" fontFamily="monospace">0:00</text>
           <text x={W - 34} y={H + 18} fill="hsl(var(--muted-foreground))" fontSize="9" fontFamily="monospace">
-            {timecode(durationSeconds)}
+            {formatTimecode(durationSeconds)}
           </text>
         </svg>
       </div>
