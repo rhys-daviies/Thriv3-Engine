@@ -1,5 +1,6 @@
 import { MAX_PAYLOAD_BYTES, parseEventBody } from '../shared/trackingEvents.js';
 import { createRateLimiter } from '../shared/rateLimit.js';
+import { renderRevokedPage } from '../shared/revokedPage.js';
 
 /**
  * Thriv3 edge event collector.
@@ -119,17 +120,34 @@ async function syncTokens(request, env) {
   if (!body || !Array.isArray(body.tokens)) return json({ error: 'expected { tokens: [] }' }, 400);
 
   const now = new Date().toISOString();
-  const statements = body.tokens
-    .filter((t) => t && typeof t.token === 'string')
-    .map((t) => env.DB
-      .prepare(`
-        INSERT INTO outreach_tokens (token, revoked, updated_at) VALUES (?, ?, ?)
-        ON CONFLICT(token) DO UPDATE SET revoked = excluded.revoked, updated_at = excluded.updated_at
-      `)
-      .bind(t.token, t.revoked ? 1 : 0, now));
+  const live = body.tokens.filter((t) => t && typeof t.token === 'string');
+
+  const statements = live.map((t) => env.DB
+    .prepare(`
+      INSERT INTO outreach_tokens (token, revoked, updated_at) VALUES (?, ?, ?)
+      ON CONFLICT(token) DO UPDATE SET revoked = excluded.revoked, updated_at = excluded.updated_at
+    `)
+    .bind(t.token, t.revoked ? 1 : 0, now));
 
   if (statements.length) await env.DB.batch(statements);
-  return json({ synced: statements.length });
+
+  // The local database is the source of truth for which links exist at all.
+  // Without this, deleting outreach locally would leave its token accepted
+  // here forever — the push would simply stop mentioning it. json_each keeps
+  // this to one statement regardless of how many tokens there are.
+  let revoked = 0;
+  if (body.reconcile) {
+    const result = await env.DB
+      .prepare(`
+        UPDATE outreach_tokens SET revoked = 1, updated_at = ?
+        WHERE revoked = 0 AND token NOT IN (SELECT value FROM json_each(?))
+      `)
+      .bind(now, JSON.stringify(live.map((t) => t.token)))
+      .run();
+    revoked = result.meta?.changes ?? 0;
+  }
+
+  return json({ synced: statements.length, revokedMissing: revoked });
 }
 
 export default {
@@ -150,6 +168,30 @@ export default {
     }
     if (url.pathname === '/api/health') {
       return json({ ok: true });
+    }
+
+    // Profile pages are gated on the link still being live, exactly as the
+    // local server gates them. A revoked link has to read as deliberate —
+    // brief §7 wants a neutral page, not a 404 and not the profile. Every
+    // refusal returns the same 200 and the same body, so responses cannot be
+    // used to work out which slugs exist.
+    if (url.pathname.startsWith('/p/')) {
+      const neutral = () => new Response(renderRevokedPage(), {
+        status: 200,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+      });
+
+      const ref = url.searchParams.get('ref');
+      if (ref !== null) {
+        const live = await env.DB
+          .prepare('SELECT 1 FROM outreach_tokens WHERE token = ? AND revoked = 0')
+          .bind(ref)
+          .first();
+        if (!live) return neutral();
+      }
+
+      const asset = await env.ASSETS.fetch(request);
+      return asset.status === 404 ? neutral() : asset;
     }
 
     // Everything else is a static asset from the Pages build — the generated

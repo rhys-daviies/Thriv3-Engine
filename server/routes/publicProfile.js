@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import db from '../db/client.js';
 import { OUTPUT_DIR } from '../export/exportProfiles.js';
-import { renderRevokedPage } from '../export/renderRevoked.js';
+import { renderRevokedPage } from '../../shared/revokedPage.js';
 
 const SLUG = /^[A-Za-z0-9]{1,32}$/;
 

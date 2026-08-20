@@ -63,14 +63,25 @@ export async function pushTokens() {
   const tokens = db.prepare('SELECT token, revoked_at FROM outreach').all()
     .map((row) => ({ token: row.token, revoked: row.revoked_at ? 1 : 0 }));
 
-  if (tokens.length === 0) return { pushed: 0 };
+  if (tokens.length === 0) {
+    // Nothing live locally means everything at the edge should be revoked.
+    const cleared = await edgeFetch('/api/tokens', {
+      method: 'POST',
+      body: JSON.stringify({ tokens: [], reconcile: true }),
+    });
+    writeState('tokens_pushed_at', utcNow());
+    return { pushed: 0, revokedMissing: cleared.revokedMissing ?? 0 };
+  }
 
+  // reconcile: anything the edge holds that we no longer have is revoked
+  // there. Deleting outreach locally has to take the link down, not merely
+  // stop mentioning it.
   const result = await edgeFetch('/api/tokens', {
     method: 'POST',
-    body: JSON.stringify({ tokens }),
+    body: JSON.stringify({ tokens, reconcile: true }),
   });
   writeState('tokens_pushed_at', utcNow());
-  return { pushed: result.synced ?? tokens.length };
+  return { pushed: result.synced ?? tokens.length, revokedMissing: result.revokedMissing ?? 0 };
 }
 
 const insertEvent = db.prepare(`
