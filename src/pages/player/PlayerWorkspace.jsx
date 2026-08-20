@@ -64,6 +64,7 @@ export default function PlayerWorkspace() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [player, setPlayer] = useState(null);
+  const [notFound, setNotFound] = useState(false);
   const [recommendations, setRecommendations] = useState(null);
   const [summary, setSummary] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
@@ -74,7 +75,15 @@ export default function PlayerWorkspace() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const p = await entities.Player.get(id);
+      let p;
+      try {
+        p = await entities.Player.get(id);
+      } catch {
+        // A deleted player, or a stale link to one — say so rather than
+        // spinning forever on a rejected fetch.
+        if (!cancelled) setNotFound(true);
+        return;
+      }
       if (cancelled) return;
       setPlayer(p);
 
@@ -107,6 +116,20 @@ export default function PlayerWorkspace() {
       setAnalyzing(false);
     }
   }, [player, id, navigate]);
+
+  if (notFound) {
+    return (
+      <div className="text-center py-20">
+        <p className="font-heading text-lg font-semibold">Player not found</p>
+        <p className="text-sm text-muted-foreground mt-2">
+          This player may have been deleted, or the link is out of date.
+        </p>
+        <Link to="/players" className="inline-block mt-4 text-sm text-primary hover:underline">
+          Back to Players
+        </Link>
+      </div>
+    );
+  }
 
   if (!player) return <div className="text-sm text-muted-foreground">Loading...</div>;
 

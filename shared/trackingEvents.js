@@ -54,6 +54,11 @@ const LIMITS = {
 /** Extra keys the client may attach; anything else is dropped, not rejected. */
 const PAYLOAD_KEYS = ['reason', 'returning', 'toSeconds', 'label', 'qualified', 'played', 'visitNumber', 'athleteId', 'ts'];
 
+/** Run-length encoded played seconds: [[from, to], ...]. Bounded on both the
+ *  number of ranges and their values, since it is the one client-supplied
+ *  field large enough to matter. */
+const MAX_COVERAGE_RANGES = 150;
+
 function clampInt(value, [min, max]) {
   if (value === null || value === undefined || value === '') return null;
   const n = Math.round(Number(value));
@@ -88,6 +93,8 @@ export function validateEvent(raw) {
   for (const key of PAYLOAD_KEYS) {
     if (raw[key] !== undefined && raw[key] !== null) payload[key] = raw[key];
   }
+  const ranges = sanitiseCoverageRanges(raw.coverageRanges);
+  if (ranges) payload.coverageRanges = ranges;
 
   return {
     ok: true,
@@ -112,6 +119,20 @@ export function validateEvent(raw) {
  * Blob and cannot send custom headers, so the collector must not insist on
  * application/json.
  */
+/** Drops anything that is not a well-formed, ordered pair of second offsets. */
+export function sanitiseCoverageRanges(input) {
+  if (!Array.isArray(input)) return null;
+  const out = [];
+  for (const range of input.slice(0, MAX_COVERAGE_RANGES)) {
+    if (!Array.isArray(range) || range.length !== 2) continue;
+    const from = clampInt(range[0], LIMITS.watchedSeconds);
+    const to = clampInt(range[1], LIMITS.watchedSeconds);
+    if (from === null || to === null || to < from) continue;
+    out.push([from, to]);
+  }
+  return out.length ? out : null;
+}
+
 export function parseEventBody(body) {
   if (body === null || body === undefined) return { ok: false, reason: 'empty_body' };
 

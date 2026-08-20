@@ -24,6 +24,8 @@ import { csvAgentChat } from './routes/csvAgent.js';
 import { coachingImportPreview } from './routes/coachingImportPreview.js';
 import { coachingImportApply } from './routes/coachingImportApply.js';
 import { trackRouter } from './routes/track.js';
+import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
+import { markResponded, clearResponded } from './lib/engagementRollup.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.resolve(__dirname, 'uploads');
@@ -168,6 +170,39 @@ app.post('/api/csv-agent/chat', async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error('[csv-agent]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ---- Coach engagement (Tab 3) ----
+//
+// Reads engagement_rollup and the qualified sessions behind it. No endpoint
+// here exposes a raw pageview.
+
+app.get('/api/engagement/athlete/:id', (req, res) => {
+  try {
+    res.json(athleteEngagement(req.params.id));
+  } catch (err) {
+    console.error('[engagement]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/engagement/outreach/:id/sessions', (req, res) => {
+  try {
+    res.json(coachSessions(req.params.id));
+  } catch (err) {
+    console.error('[engagement]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/engagement/outreach/:id/responded', (req, res) => {
+  try {
+    const responded = req.body?.responded !== false;
+    res.json(responded ? markResponded(req.params.id) : clearResponded(req.params.id));
+  } catch (err) {
+    console.error('[engagement]', err);
     res.status(500).json({ error: err.message });
   }
 });

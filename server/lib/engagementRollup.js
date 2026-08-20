@@ -148,9 +148,18 @@ export function rebuildRollup(outreachId) {
   return row;
 }
 
-/** Rebuilds every outreach row that has events. */
+/**
+ * Rebuilds every outreach row that has events, and every row that already has
+ * a rollup. The second half matters: if events are removed, the outreach no
+ * longer appears in tracking_events, and skipping it would strand a rollup
+ * still claiming engagement that the log no longer supports.
+ */
 export function rebuildAllRollups() {
-  const ids = db.prepare('SELECT DISTINCT outreach_id FROM tracking_events WHERE outreach_id IS NOT NULL').all();
+  const ids = db.prepare(`
+    SELECT outreach_id FROM tracking_events WHERE outreach_id IS NOT NULL
+    UNION
+    SELECT outreach_id FROM engagement_rollup
+  `).all();
   return ids.map((r) => rebuildRollup(r.outreach_id));
 }
 

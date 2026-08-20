@@ -51,6 +51,22 @@ const Tracker = (() => {
   const coverage = () =>
     duration ? Math.min(100, Math.round((watched.size * BUCKET / duration) * 100)) : 0;
 
+  /* Which seconds were actually played, run-length encoded. coveragePct says
+     how much was watched; this says where. Without it there is no way to tell
+     whether every coach abandons the reel at the same moment, which is the
+     most actionable thing the film data can show. Capped so a heavy scrubber
+     cannot blow the collector's payload limit. */
+  function coverageRanges() {
+    const ranges = [];
+    for (const sec of [...watched].sort((a, b) => a - b)) {
+      const last = ranges[ranges.length - 1];
+      if (last && sec === last[1] + 1) last[1] = sec;
+      else if (ranges.length < 150) ranges.push([sec, sec]);
+      else break;
+    }
+    return ranges;
+  }
+
   function send(type, extra = {}) {
     const payload = {
       token: CONFIG.token,
@@ -66,6 +82,10 @@ const Tracker = (() => {
       ts: new Date().toISOString(),
       ...extra
     };
+    if (type === "session_end" || type.slice(0, 9) === "coverage_") {
+      payload.coverageRanges = coverageRanges();
+    }
+
     UI.log(type, payload);
     if (CONFIG.dryRun) return;
 

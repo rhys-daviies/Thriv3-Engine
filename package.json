@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "seed:engagement": "node server/seed/seedEngagement.js",
     "export:profiles": "node server/scripts/exportProfiles.js",
-    "rollup": "node server/scripts/rebuildRollups.js"
+    "rollup": "node server/scripts/rebuildRollups.js",
+    "seed:activity": "node server/seed/seedEngagementActivity.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",

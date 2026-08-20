@@ -57,6 +57,21 @@ export const entities = {
   GraduatingSenior: makeEntity('graduating_seniors'),
 };
 
+export const engagement = {
+  athlete(athleteId) {
+    return request(`/api/engagement/athlete/${athleteId}`);
+  },
+  sessions(outreachId) {
+    return request(`/api/engagement/outreach/${outreachId}/sessions`);
+  },
+  setResponded(outreachId, responded) {
+    return request(`/api/engagement/outreach/${outreachId}/responded`, {
+      method: 'POST',
+      body: JSON.stringify({ responded }),
+    });
+  },
+};
+
 export const integrations = {
   Core: {
     async UploadFile(file) {
