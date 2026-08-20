@@ -39,3 +39,9 @@ export function isPubliclyReachable(baseUrl = PUBLIC_BASE_URL) {
  * is always read back and reported rather than assumed.
  */
 export const OUTLOOK_FROM_ADDRESS = process.env.THRIV3_FROM_ADDRESS || 'rhys@striv3.com';
+
+/** Where the edge collector lives. Empty means everything stays local. */
+export const EDGE_BASE_URL = (process.env.THRIV3_EDGE_URL || '').replace(/\/$/, '');
+
+/** Shared secret for the authed sync endpoints on the edge collector. */
+export const SYNC_SECRET = process.env.THRIV3_SYNC_SECRET || '';

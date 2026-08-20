@@ -65,6 +65,12 @@ export const outreach = {
 };
 
 export const engagement = {
+  syncStatus() {
+    return request('/api/engagement/sync');
+  },
+  syncNow() {
+    return request('/api/engagement/sync', { method: 'POST' });
+  },
   athlete(athleteId) {
     return request(`/api/engagement/athlete/${athleteId}`);
   },

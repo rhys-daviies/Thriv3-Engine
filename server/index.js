@@ -27,6 +27,7 @@ import { trackRouter } from './routes/track.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
 import { publicProfileHandler } from './routes/publicProfile.js';
+import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -184,6 +185,24 @@ app.post('/api/outreach/send', async (req, res) => {
   } catch (err) {
     console.error('[outreach/send]', err);
     res.status(400).json({ error: err.message });
+  }
+});
+
+// ---- Edge sync ----
+
+app.get('/api/engagement/sync', (req, res) => {
+  res.json({ configured: isEdgeConfigured(), lastSyncedAt: lastSyncedAt() });
+});
+
+app.post('/api/engagement/sync', async (req, res) => {
+  if (!isEdgeConfigured()) {
+    return res.status(400).json({ error: 'Edge collector is not configured (THRIV3_EDGE_URL / THRIV3_SYNC_SECRET)' });
+  }
+  try {
+    res.json(await syncWithEdge());
+  } catch (err) {
+    console.error('[sync]', err);
+    res.status(502).json({ error: err.message });
   }
 });
 

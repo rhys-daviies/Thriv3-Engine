@@ -163,3 +163,10 @@ CREATE TABLE IF NOT EXISTS engagement_rollup (
   responded_at TEXT,
   updated_at TEXT
 );
+
+-- Cursor and bookkeeping for the pull from the edge collector.
+CREATE TABLE IF NOT EXISTS sync_state (
+  key TEXT PRIMARY KEY,
+  value TEXT,
+  updated_at TEXT
+);

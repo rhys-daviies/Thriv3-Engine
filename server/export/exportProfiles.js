@@ -5,7 +5,12 @@ import { Player } from '../db/entities/player.js';
 import { checkRequiredCore, renderProfile } from './renderProfile.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-export const OUTPUT_DIR = path.resolve(__dirname, '../../build/public');
+
+// THRIV3_BUILD_DIR lets the test suite generate pages into a throwaway
+// directory. Without it tests write into the real publish directory, and
+// `npm run publish` would ship their fixtures to the live site.
+export const OUTPUT_DIR = process.env.THRIV3_BUILD_DIR
+  || path.resolve(__dirname, '../../build/public');
 
 /** Where the generated page posts its events. Overridden per environment. */
 export function trackingEndpoint() {

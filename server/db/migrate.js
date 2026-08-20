@@ -39,10 +39,19 @@ const PLAYER_COLUMNS = [
   ['archived_at', 'TEXT'],
 ];
 
-function addMissingColumns(db) {
-  const existing = new Set(db.prepare('PRAGMA table_info(players)').all().map((c) => c.name));
-  for (const [name, ddl] of PLAYER_COLUMNS) {
-    if (!existing.has(name)) db.exec(`ALTER TABLE players ADD COLUMN ${name} ${ddl}`);
+/**
+ * The edge collector's own row id for an event. Pulling twice must not
+ * duplicate, and matching on it is exact where matching on a timestamp would
+ * not be.
+ */
+const TRACKING_EVENT_COLUMNS = [
+  ['remote_id', 'INTEGER'],
+];
+
+function addMissingColumns(db, table, columns) {
+  const existing = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name));
+  for (const [name, ddl] of columns) {
+    if (!existing.has(name)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${name} ${ddl}`);
   }
 }
 
@@ -70,8 +79,11 @@ function backfillSlugs(db) {
 }
 
 export function migrate(db) {
-  addMissingColumns(db);
+  addMissingColumns(db, 'players', PLAYER_COLUMNS);
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_players_public_slug ON players(public_slug)');
   backfillVideoIds(db);
   backfillSlugs(db);
+
+  addMissingColumns(db, 'tracking_events', TRACKING_EVENT_COLUMNS);
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_tracking_remote_id ON tracking_events(remote_id)');
 }

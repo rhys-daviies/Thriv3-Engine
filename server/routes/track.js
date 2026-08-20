@@ -1,7 +1,7 @@
 import express from 'express';
 import db from '../db/client.js';
 import { utcNow } from '../lib/time.js';
-import { createRateLimiter } from '../lib/rateLimit.js';
+import { createRateLimiter } from '../../shared/rateLimit.js';
 import { scheduleRollup } from '../lib/engagementRollup.js';
 import { MAX_PAYLOAD_BYTES, parseEventBody } from '../../shared/trackingEvents.js';
 

@@ -11,3 +11,6 @@ server/uploads/
 
 # Generated public profile pages
 build/
+
+# esbuild output for the Pages worker
+worker/dist/

@@ -1,0 +1,19 @@
+# Cloudflare Pages project: serves the generated athlete profile pages AND the
+# event collector from one origin.
+#
+# Same-origin is the point. The tracker posts to a relative /api/track, so
+# there is no cross-origin preflight and no chance of a CORS mismatch silently
+# swallowing events — the failure the roadmap warns about most.
+name = "thriv3-profiles"
+compatibility_date = "2026-08-01"
+pages_build_output_dir = "build/public"
+
+# Events land here. The local app pulls them down and resolves each token to a
+# coach on that machine — the edge never holds coach or athlete identity.
+[[d1_databases]]
+binding = "DB"
+database_name = "thriv3-engagement"
+database_id = "29ac16ae-9e17-41bd-822a-c54d41a0bd72"
+
+# THRIV3_SYNC_SECRET is a secret, not a var:
+#   npx wrangler pages secret put THRIV3_SYNC_SECRET

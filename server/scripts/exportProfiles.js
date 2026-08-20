@@ -8,6 +8,7 @@
  * Output lands in build/public/. Serve it over http (not file://) or the
  * YouTube IFrame API will not initialise.
  */
+import 'dotenv/config';
 import { exportAll, exportAthlete, findAthlete, trackingEndpoint, writeRobotsTxt, OUTPUT_DIR } from '../export/exportProfiles.js';
 import { checkRequiredCore } from '../export/renderProfile.js';
 

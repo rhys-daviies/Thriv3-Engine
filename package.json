@@ -16,7 +16,10 @@
     "export:profiles": "node server/scripts/exportProfiles.js",
     "rollup": "node server/scripts/rebuildRollups.js",
     "seed:activity": "node server/seed/seedEngagementActivity.js",
-    "test:acceptance": "vitest run server/export/tracker.test.js server/routes/publicProfile.test.js server/routes/track.test.js server/lib/athleteLifecycle.test.js server/lib/engagementRollup.test.js"
+    "test:acceptance": "vitest run server/export/tracker.test.js server/routes/publicProfile.test.js server/routes/track.test.js server/lib/athleteLifecycle.test.js server/lib/engagementRollup.test.js",
+    "build:worker": "esbuild worker/index.js --bundle --format=esm --platform=neutral --outfile=build/public/_worker.js",
+    "publish": "npm run export:profiles && npm run build:worker && wrangler pages deploy build/public",
+    "sync": "node server/scripts/syncEngagement.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",

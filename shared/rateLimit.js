@@ -2,9 +2,13 @@
  * Fixed-window rate limiter, in memory.
  *
  * The collector is public and unauthenticated, so it needs a ceiling per IP
- * and per token. In-process state is the right scope here: the Express server
- * is a single process, and when the collector moves to a Worker this is
- * replaced by Cloudflare's own rate limiting rather than ported.
+ * and per token. Shared by the Express collector and the Worker, so it depends
+ * on nothing beyond standard JavaScript.
+ *
+ * Caveat in the Worker: state is per isolate, and Cloudflare runs many, so this
+ * bounds a single attacker's throughput rather than enforcing a global ceiling.
+ * A Durable Object or Cloudflare's own rate limiting is the stronger control if
+ * abuse ever becomes real; this is the cheap first line.
  */
 export function createRateLimiter({ limit, windowMs, maxKeys = 10_000 }) {
   const buckets = new Map();
