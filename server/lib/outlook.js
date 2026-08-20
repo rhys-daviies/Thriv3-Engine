@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { OUTLOOK_FROM_ADDRESS } from './config.js';
 
 const run = promisify(execFile);
 
@@ -12,9 +13,11 @@ const run = promisify(execFile);
  * interpolated into the script, so a quote or newline in an email body cannot
  * break out into AppleScript.
  *
- * Default behaviour creates the message and opens it for review. Sending is
- * an explicit opt-in per call: nothing leaves the machine unless the caller
- * asked for it.
+ * On the From address: `sender` is honoured by classic Outlook, but the New
+ * Outlook build ignores it and uses the default account instead — and does so
+ * silently. Sending recruiting mail from the wrong address is not a failure
+ * worth discovering later, so the script reads back which account the composed
+ * message is actually on and the caller compares it against what was asked for.
  */
 
 const SCRIPT = `on run argv
@@ -22,18 +25,35 @@ const SCRIPT = `on run argv
   set theSubject to item 2 of argv
   set theBody to item 3 of argv
   set shouldSend to (item 4 of argv is "send")
+  set fromAddress to item 5 of argv
 
   tell application "Microsoft Outlook"
-    set msg to make new outgoing message with properties {subject:theSubject, content:theBody}
-    make new to recipient at msg with properties {email address:{address:theTo}}
-    if shouldSend then
-      send msg
+    if fromAddress is "" then
+      set msg to make new outgoing message with properties {subject:theSubject, content:theBody}
     else
-      open msg
+      set msg to make new outgoing message with properties {subject:theSubject, content:theBody, sender:{address:fromAddress}}
     end if
-    -- Outlook's message id does not coerce to a plain value, and nothing here
-    -- needs it; report the outcome instead.
-    return "ok"
+    make new to recipient at msg with properties {email address:{address:theTo}}
+
+    -- Opening it is also the only way to observe which account Outlook picked:
+    -- the compose window is titled "<subject> • <account address>".
+    open msg
+    set actualFrom to ""
+    try
+      repeat with i from (count of windows) to 1 by -1
+        set windowName to name of window i
+        if windowName contains theSubject then
+          set AppleScript's text item delimiters to " • "
+          set parts to text items of windowName
+          if (count of parts) > 1 then set actualFrom to last item of parts
+          set AppleScript's text item delimiters to ""
+          exit repeat
+        end if
+      end repeat
+    end try
+
+    if shouldSend then send msg
+    return actualFrom
   end tell
 end run`;
 
@@ -41,13 +61,24 @@ export function isOutlookAvailable() {
   return process.platform === 'darwin';
 }
 
-export async function composeInOutlook({ to, subject, body, send = false }) {
+export async function composeInOutlook({ to, subject, body, send = false, from = OUTLOOK_FROM_ADDRESS }) {
   if (!isOutlookAvailable()) {
     throw new Error('Outlook automation is only available on macOS');
   }
   try {
-    await run('osascript', ['-e', SCRIPT, to, subject, body, send ? 'send' : 'draft'], { timeout: 30_000 });
-    return { ok: true, sent: send };
+    const { stdout } = await run(
+      'osascript',
+      ['-e', SCRIPT, to, subject, body, send ? 'send' : 'draft', from || ''],
+      { timeout: 30_000 }
+    );
+    const actualFrom = stdout.trim();
+    return {
+      ok: true,
+      sent: send,
+      from: actualFrom || null,
+      // Null when Outlook would not tell us; only a definite mismatch warns.
+      fromMatches: !from || !actualFrom ? null : actualFrom.toLowerCase() === from.toLowerCase(),
+    };
   } catch (err) {
     const detail = (err.stderr || err.message || '').trim();
     // -1743 is macOS refusing automation until the user grants permission in

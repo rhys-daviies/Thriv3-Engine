@@ -47,6 +47,7 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
   const [sendImmediately, setSendImmediately] = useState(false);
   const [error, setError] = useState(null);
   const [reachable, setReachable] = useState(true);
+  const [from, setFrom] = useState(null);
 
   function toggle(email) {
     setSelected((prev) => {
@@ -78,6 +79,7 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
       });
       setResults(Object.fromEntries(response.results.map((r) => [r.email, r])));
       setReachable(response.reachable);
+      setFrom(response.from);
     } catch (err) {
       setError(err.message);
     }
@@ -131,6 +133,14 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
             <Textarea rows={12} value={body} onChange={(e) => setBody(e.target.value)} className="text-sm" />
           </div>
         </div>
+
+        {from?.mismatch && (
+          <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">
+            Outlook composed these from <strong>{from.actual}</strong>, not {from.requested}. Add
+            that account in Outlook and make it the default, or switch New Outlook off so the
+            From address can be set per message.
+          </p>
+        )}
 
         {!reachable && (
           <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">

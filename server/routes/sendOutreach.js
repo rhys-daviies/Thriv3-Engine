@@ -4,7 +4,7 @@ import { Player } from '../db/entities/player.js';
 import { findOrCreateCoach } from '../lib/coaches.js';
 import { createOutreach, markOutreachSent } from '../lib/outreach.js';
 import { composeInOutlook, isOutlookAvailable } from '../lib/outlook.js';
-import { PUBLIC_BASE_URL, isPubliclyReachable } from '../lib/config.js';
+import { PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS } from '../lib/config.js';
 import { checkRequiredCore } from '../export/renderProfile.js';
 import { exportAthlete, OUTPUT_DIR } from '../export/exportProfiles.js';
 
@@ -60,6 +60,9 @@ export async function sendOutreach({
   ensureExported(athlete);
 
   const results = [];
+  let actualFrom = null;
+  let fromMismatch = false;
+
   for (const coach of coaches) {
     try {
       const record = findOrCreateCoach({
@@ -79,12 +82,14 @@ export async function sendOutreach({
         url
       );
 
-      await composeInOutlook({
+      const outcome = await composeInOutlook({
         to: coach.email,
         subject: personalise(subject, greetingName, coach.name || 'Coach'),
         body: personalisedBody,
         send,
       });
+      if (outcome.from) actualFrom = outcome.from;
+      if (outcome.fromMatches === false) fromMismatch = true;
 
       // Records that the message was handed to Outlook. Whether the user then
       // presses Send in Outlook is outside what we can observe.
@@ -99,5 +104,6 @@ export async function sendOutreach({
     results,
     baseUrl: PUBLIC_BASE_URL,
     reachable: isPubliclyReachable(),
+    from: { requested: OUTLOOK_FROM_ADDRESS, actual: actualFrom, mismatch: fromMismatch },
   };
 }

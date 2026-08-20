@@ -32,3 +32,10 @@ export const PUBLIC_BASE_URL = process.env.THRIV3_PUBLIC_BASE_URL || 'http://loc
 export function isPubliclyReachable(baseUrl = PUBLIC_BASE_URL) {
   return !/^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])/i.test(baseUrl);
 }
+
+/**
+ * The address outreach should be sent from. Classic Outlook honours this;
+ * New Outlook ignores it and silently uses the default account, so the sender
+ * is always read back and reported rather than assumed.
+ */
+export const OUTLOOK_FROM_ADDRESS = process.env.THRIV3_FROM_ADDRESS || 'rhys@striv3.com';
