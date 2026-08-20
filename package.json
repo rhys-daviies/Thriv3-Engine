@@ -15,7 +15,8 @@
     "seed:engagement": "node server/seed/seedEngagement.js",
     "export:profiles": "node server/scripts/exportProfiles.js",
     "rollup": "node server/scripts/rebuildRollups.js",
-    "seed:activity": "node server/seed/seedEngagementActivity.js"
+    "seed:activity": "node server/seed/seedEngagementActivity.js",
+    "test:acceptance": "vitest run server/export/tracker.test.js server/routes/publicProfile.test.js server/routes/track.test.js server/lib/athleteLifecycle.test.js server/lib/engagementRollup.test.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",
@@ -47,6 +48,7 @@
     "@vitejs/plugin-react": "^4.3.3",
     "autoprefixer": "^10.4.20",
     "concurrently": "^9.0.1",
+    "jsdom": "^30.0.1",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.14",
     "vite": "^5.4.9",

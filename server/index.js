@@ -26,6 +26,7 @@ import { coachingImportApply } from './routes/coachingImportApply.js';
 import { trackRouter } from './routes/track.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
+import { publicProfileHandler } from './routes/publicProfile.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -226,6 +227,10 @@ app.post('/api/engagement/outreach/:id/responded', (req, res) => {
 // file:// origin). This surface is deliberately separate from the staff app:
 // no session, no nav, nothing but the athlete's own page.
 const publicDir = path.resolve(__dirname, '../build/public');
+
+// Gated ahead of the static mount so a revoked link cannot be served straight
+// off disk.
+app.get('/p/:slug', publicProfileHandler);
 app.use(express.static(publicDir));
 
 const PORT = process.env.API_PORT || 8787;
