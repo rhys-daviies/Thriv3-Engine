@@ -57,6 +57,19 @@ export const entities = {
   GraduatingSenior: makeEntity('graduating_seniors'),
 };
 
+export const publishing = {
+  status(playerId) {
+    return request(`/api/players/${playerId}/publish`);
+  },
+  /** Rebuilds the page locally so it can be previewed without deploying. */
+  regenerate(playerId) {
+    return request(`/api/players/${playerId}/regenerate`, { method: 'POST' });
+  },
+  goLive(playerId) {
+    return request(`/api/players/${playerId}/publish`, { method: 'POST' });
+  },
+};
+
 export const outreach = {
   /** Creates outreach and hands one message per coach to Outlook. */
   send(payload) {

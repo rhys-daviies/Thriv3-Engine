@@ -22,7 +22,7 @@ const columns = [
   'sport_attributes',
 
   // Lifecycle
-  'archived_at',
+  'archived_at', 'published_at',
 ];
 
 const jsonFields = ['preferred_divisions', 'preferred_conferences', 'video_chapters', 'sport_attributes'];

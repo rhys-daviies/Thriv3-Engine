@@ -37,6 +37,7 @@ const PLAYER_COLUMNS = [
 
   // --- lifecycle: drives the deactivation cascade in brief §7 ---
   ['archived_at', 'TEXT'],
+  ['published_at', 'TEXT'],
 ];
 
 /**

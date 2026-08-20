@@ -27,6 +27,7 @@ import { trackRouter } from './routes/track.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
 import { publicProfileHandler } from './routes/publicProfile.js';
+import { publishStatus, regenerate, publish } from './routes/publish.js';
 import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
 
@@ -174,6 +175,33 @@ app.post('/api/csv-agent/chat', async (req, res) => {
   } catch (err) {
     console.error('[csv-agent]', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ---- Publishing an athlete's public page ----
+
+app.get('/api/players/:id/publish', (req, res) => {
+  try {
+    res.json(publishStatus(req.params.id, req));
+  } catch (err) {
+    res.status(404).json({ error: err.message });
+  }
+});
+
+app.post('/api/players/:id/regenerate', (req, res) => {
+  try {
+    res.json(regenerate(req.params.id, req));
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post('/api/players/:id/publish', async (req, res) => {
+  try {
+    res.json(await publish(req.params.id, req));
+  } catch (err) {
+    console.error('[publish]', err);
+    res.status(400).json({ error: err.message });
   }
 });
 

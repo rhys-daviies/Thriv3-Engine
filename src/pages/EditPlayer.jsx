@@ -19,12 +19,23 @@ export default function EditPlayer() {
         football_ability: p.football_ability ?? 5,
         academic_importance: p.academic_importance ?? 'Not Important',
         secondary_position: p.secondary_position || 'None',
+        sport_attributes: p.sport_attributes || {},
+        video_chapters: p.video_chapters || [],
       });
     });
   }, [id]);
 
   async function handleSubmit(formData) {
     const sanitized = sanitizePlayerData(formData);
+
+    // sanitizePlayerData drops empty values, which is right when creating but
+    // wrong when editing: a field the user deliberately cleared would keep its
+    // previous value. Anything the form knows about and the sanitiser removed
+    // is an intentional clear.
+    for (const key of Object.keys(formData)) {
+      if (!(key in sanitized)) sanitized[key] = null;
+    }
+
     sanitized.recommendations = null;
     sanitized.status = 'New';
     await entities.Player.update(id, sanitized);

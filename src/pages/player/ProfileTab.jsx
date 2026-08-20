@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
 import { describeAttributes } from '@shared/sportProfiles';
+import PublishCard from '@/components/PublishCard';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 
 function present(value) {
@@ -146,6 +147,8 @@ export default function ProfileTab() {
           <p className="text-sm leading-relaxed text-muted-foreground">{player.additional_notes}</p>
         </Card>
       )}
+
+      <PublishCard playerId={player.id} playerName={player.full_name} />
     </div>
   );
 }

@@ -9,6 +9,8 @@ export function sanitizePlayerData(raw) {
   out.graduation_year = out.graduation_year === '' ? undefined : Number(out.graduation_year);
   out.sat_score = out.sat_score === '' ? undefined : Number(out.sat_score);
   out.act_score = out.act_score === '' ? undefined : Number(out.act_score);
+  out.height_cm = out.height_cm === '' ? undefined : Number(out.height_cm);
+  out.weight_kg = out.weight_kg === '' ? undefined : Number(out.weight_kg);
   out.academic_importance = out.academic_importance === 'Not Important' ? 'Not Important' : String(out.academic_importance);
 
   for (const key of Object.keys(out)) {

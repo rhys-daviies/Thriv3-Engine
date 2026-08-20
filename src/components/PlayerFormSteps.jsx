@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import ChapterEditor from '@/components/ChapterEditor';
+import PublicProfileFields from '@/components/PublicProfileFields';
 import { extractVideoId } from '@shared/youtube';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,23 @@ function defaultsFrom(initialData) {
     act_score: initialData?.act_score ?? '',
     highlights_url: initialData?.highlights_url || '',
     video_chapters: initialData?.video_chapters || [],
+
+    // Coach-facing page fields. All optional — the page omits what is blank.
+    commitment_status: initialData?.commitment_status || '',
+    nationality: initialData?.nationality || '',
+    club_name: initialData?.club_name || '',
+    height_cm: initialData?.height_cm ?? '',
+    weight_kg: initialData?.weight_kg ?? '',
+    ncaa_eligibility_id: initialData?.ncaa_eligibility_id || '',
+    intended_major: initialData?.intended_major || '',
+    guardian_name: initialData?.guardian_name || '',
+    guardian_email: initialData?.guardian_email || '',
+    club_coach_name: initialData?.club_coach_name || '',
+    club_coach_email: initialData?.club_coach_email || '',
+    time_zone: initialData?.time_zone || '',
+    best_contact_window: initialData?.best_contact_window || '',
+    evaluation: initialData?.evaluation || '',
+    sport_attributes: initialData?.sport_attributes || {},
     preferred_conferences: initialData?.preferred_conferences || [],
     budget_range: initialData?.budget_range || '',
     additional_notes: initialData?.additional_notes || '',
@@ -118,10 +136,11 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
   const steps = [
     { label: 'Soccer Profile' },
     { label: 'Placement Prefs' },
+    { label: 'Public Profile' },
   ];
 
   function goToStep(idx) {
-    if (idx === 1 && !step1Valid) return;
+    if (idx > 0 && !step1Valid) return;
     setStep(idx);
   }
 
@@ -350,6 +369,25 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
 
           <div className="flex justify-between">
             <Button type="button" variant="outline" onClick={() => goToStep(0)}>Back</Button>
+            <Button type="button" onClick={() => goToStep(2)}>Next</Button>
+          </div>
+        </Card>
+      )}
+
+      {step === 2 && (
+        <Card className="p-6 space-y-6">
+          <div>
+            <h2 className="font-heading text-lg font-semibold">Public profile</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              What a college coach sees on the page you send them. Everything here is
+              optional — anything left blank is left off the page entirely.
+            </p>
+          </div>
+
+          <PublicProfileFields data={data} set={set} sport={sport} />
+
+          <div className="flex justify-between border-t border-border pt-4">
+            <Button type="button" variant="outline" onClick={() => goToStep(1)}>Back</Button>
             <Button type="submit">{submitLabel}</Button>
           </div>
         </Card>
