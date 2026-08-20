@@ -6,16 +6,15 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { fillTemplate, buildEmailContext } from '@/lib/emailTemplate';
-import { integrations } from '@/api/client';
-
-function escapeRegExp(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+import {
+  fillTemplate, buildEmailContext, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE,
+} from '@/lib/emailTemplate';
+import { outreach } from '@/api/client';
 
 // "Head Coach" / "Wicks-Street Head Men's Soccer Coach (Head Coach)" match;
-// "Associate Head Coach" / "Assistant Head Coach" do not — those are CC'd,
-// not the primary recipient.
+// "Associate Head Coach" / "Assistant Head Coach" do not. Every selected coach
+// now gets their own email, so this only decides whose name seeds the greeting
+// in the editable draft.
 function isPrimaryHeadCoach(title) {
   return /head coach/i.test(title || '') && !/assistant|associate/i.test(title || '');
 }
@@ -33,10 +32,21 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
   const [selected, setSelected] = useState(() => new Set(validCoaches.map((c) => c.email)));
   const initialGreetingName = (pickHeadCoach(validCoaches)?.name) || 'Coach';
 
-  const [subject, setSubject] = useState(() => fillTemplate(player.email_subject, buildEmailContext(player, college, initialGreetingName)));
-  const [body, setBody] = useState(() => fillTemplate(player.email_template, buildEmailContext(player, college, initialGreetingName)));
-  const [results, setResults] = useState({}); // email -> 'sent' | 'error'
+  // Fall back to the defaults rather than opening an empty compose window for
+  // an athlete who has no saved template.
+  const [subject, setSubject] = useState(() => fillTemplate(
+    player.email_subject || DEFAULT_EMAIL_SUBJECT,
+    buildEmailContext(player, college, initialGreetingName)
+  ));
+  const [body, setBody] = useState(() => fillTemplate(
+    player.email_template || DEFAULT_EMAIL_TEMPLATE,
+    buildEmailContext(player, college, initialGreetingName)
+  ));
+  const [results, setResults] = useState({}); // email -> { status, error, url }
   const [sending, setSending] = useState(false);
+  const [sendImmediately, setSendImmediately] = useState(false);
+  const [error, setError] = useState(null);
+  const [reachable, setReachable] = useState(true);
 
   function toggle(email) {
     setSelected((prev) => {
@@ -51,23 +61,25 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
     if (selectedCoaches.length === 0) return;
 
     setSending(true);
-    const headCoach = pickHeadCoach(selectedCoaches);
-    const ccCoaches = selectedCoaches.filter((c) => c.email !== headCoach.email);
-
-    const greetingRegex = new RegExp(`Dear\\s+${escapeRegExp(initialGreetingName)},`, 'i');
-    const personalizedBody = body.replace(greetingRegex, `Dear ${headCoach.name},`);
-
+    setError(null);
     try {
-      const result = await integrations.Core.SendEmail({
-        to: headCoach.email,
-        cc: ccCoaches.map((c) => c.email),
+      const response = await outreach.send({
+        athleteId: player.id,
+        coaches: selectedCoaches.map((c) => ({ name: c.name, email: c.email, title: c.title })),
         subject,
-        body: personalizedBody,
+        body,
+        greetingName: initialGreetingName,
+        collegeName: college.name,
+        division: college.division,
+        // Ties this outreach back to the Tab 2 recommendation that produced
+        // it, so Phase 5 can ask whether the matching actually works.
+        matchId: college.name,
+        send: sendImmediately,
       });
-      if (result?.mailto) window.location.href = result.mailto;
-      setResults(Object.fromEntries(selectedCoaches.map((c) => [c.email, 'sent'])));
-    } catch {
-      setResults(Object.fromEntries(selectedCoaches.map((c) => [c.email, 'error'])));
+      setResults(Object.fromEntries(response.results.map((r) => [r.email, r])));
+      setReachable(response.reachable);
+    } catch (err) {
+      setError(err.message);
     }
     setSending(false);
   }
@@ -82,14 +94,26 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
         <div className="space-y-4">
           <div>
             <Label>Recipients</Label>
-            <p className="text-xs text-muted-foreground mt-0.5">Sent as one email — head coach in To, everyone else CC'd.</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              One email per coach, each carrying that coach's own tracking link — a shared
+              link would credit everyone's viewing to a single recipient.
+            </p>
             <div className="mt-1.5 space-y-1.5">
               {validCoaches.map((c) => (
                 <label key={c.email} className="flex items-center gap-2 text-sm">
                   <Checkbox checked={selected.has(c.email)} onCheckedChange={() => toggle(c.email)} />
                   <span>{c.name} <span className="text-muted-foreground">({c.email})</span></span>
-                  {results[c.email] === 'sent' && <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
-                  {results[c.email] === 'error' && <XCircle className="h-4 w-4 text-destructive" />}
+                  {(results[c.email]?.status === 'sent' || results[c.email]?.status === 'drafted') && (
+                    <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
+                      <CheckCircle2 className="h-4 w-4" />
+                      {results[c.email].status === 'sent' ? 'sent' : 'draft open in Outlook'}
+                    </span>
+                  )}
+                  {results[c.email]?.status === 'error' && (
+                    <span className="inline-flex items-center gap-1 text-xs text-destructive" title={results[c.email].error}>
+                      <XCircle className="h-4 w-4" /> failed
+                    </span>
+                  )}
                 </label>
               ))}
               {validCoaches.length === 0 && (
@@ -108,10 +132,40 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
           </div>
         </div>
 
+        {!reachable && (
+          <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">
+            Tracking links point at localhost, which no coach can open. Set
+            THRIV3_PUBLIC_BASE_URL before real outreach.
+          </p>
+        )}
+
+        {error && (
+          <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">{error}</p>
+        )}
+
+        <label className="flex items-start gap-2.5 text-sm">
+          <Checkbox
+            className="mt-0.5 shrink-0"
+            checked={sendImmediately}
+            onCheckedChange={(v) => setSendImmediately(v === true)}
+          />
+          <span className="text-xs leading-relaxed">
+            <span className="text-sm font-medium">Send immediately</span>
+            <span className="text-muted-foreground">
+              {' '}— leave this off and each message opens in Outlook for you to read and send yourself.
+            </span>
+          </span>
+        </label>
+
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
           <Button onClick={handleSend} disabled={sending || selected.size === 0}>
-            <Send className="h-3.5 w-3.5 mr-1.5" /> {sending ? 'Sending…' : 'Send'}
+            <Send className="h-3.5 w-3.5 mr-1.5" />
+            {sending
+              ? 'Working…'
+              : sendImmediately
+                ? `Send ${selected.size} email${selected.size === 1 ? '' : 's'}`
+                : `Open ${selected.size} draft${selected.size === 1 ? '' : 's'} in Outlook`}
           </Button>
         </DialogFooter>
       </DialogContent>

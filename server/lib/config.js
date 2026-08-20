@@ -21,3 +21,14 @@ export const SESSION_COLLAPSE_MINUTES = 30;
 
 /** Quiet period before a write-triggered rollup rebuild runs. */
 export const ROLLUP_DEBOUNCE_MS = 5_000;
+
+/**
+ * Where generated profile pages are reachable from. The default is fine for
+ * local testing but is useless in a real email — a coach cannot open
+ * localhost. Set THRIV3_PUBLIC_BASE_URL before any real outreach.
+ */
+export const PUBLIC_BASE_URL = process.env.THRIV3_PUBLIC_BASE_URL || 'http://localhost:8787';
+
+export function isPubliclyReachable(baseUrl = PUBLIC_BASE_URL) {
+  return !/^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])/i.test(baseUrl);
+}

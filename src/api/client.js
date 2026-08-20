@@ -57,6 +57,13 @@ export const entities = {
   GraduatingSenior: makeEntity('graduating_seniors'),
 };
 
+export const outreach = {
+  /** Creates outreach and hands one message per coach to Outlook. */
+  send(payload) {
+    return request('/api/outreach/send', { method: 'POST', body: JSON.stringify(payload) });
+  },
+};
+
 export const engagement = {
   athlete(athleteId) {
     return request(`/api/engagement/athlete/${athleteId}`);

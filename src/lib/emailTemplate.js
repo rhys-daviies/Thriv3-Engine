@@ -16,6 +16,7 @@ export const TEMPLATE_VARIABLES = [
   { token: 'player_gpa', label: 'GPA' },
   { token: 'player_graduation_year', label: 'Graduation Year' },
   { token: 'player_highlights_url', label: 'Highlights URL' },
+  { token: 'player_profile_url', label: 'Tracked Profile Link' },
 ];
 
 export const DEFAULT_EMAIL_SUBJECT = 'Recruitment Inquiry – {{player_name}} ({{player_position}})';
@@ -36,7 +37,9 @@ excellent fit for your program:
 • Position: {{player_position}}{{player_secondary_position}}
 • GPA: {{player_gpa}}
 • Graduation Year: {{player_graduation_year}}
-{{player_highlights_url}}
+
+Profile and highlight film:
+{{player_profile_url}}
 
 We would love the opportunity to discuss {{player_name}}'s potential
 fit within your program...
@@ -81,6 +84,10 @@ export function buildEmailContext(player, college, coachName) {
     player_gpa: player.gpa != null && player.gpa !== '' ? String(player.gpa) : 'N/A',
     player_graduation_year: player.graduation_year != null ? String(player.graduation_year) : '',
     player_highlights_url: highlights,
+    // Resolved per coach on the server at send time, because the link carries
+    // that coach's own tracking token. Left as-is here so the composer preview
+    // shows where it will land.
+    player_profile_url: '{{player_profile_url}}',
   };
 }
 

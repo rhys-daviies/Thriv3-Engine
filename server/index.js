@@ -25,6 +25,7 @@ import { coachingImportPreview } from './routes/coachingImportPreview.js';
 import { coachingImportApply } from './routes/coachingImportApply.js';
 import { trackRouter } from './routes/track.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
+import { sendOutreach } from './routes/sendOutreach.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -171,6 +172,17 @@ app.post('/api/csv-agent/chat', async (req, res) => {
   } catch (err) {
     console.error('[csv-agent]', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ---- Outreach: create tokens and hand messages to Outlook ----
+
+app.post('/api/outreach/send', async (req, res) => {
+  try {
+    res.json(await sendOutreach(req.body || {}));
+  } catch (err) {
+    console.error('[outreach/send]', err);
+    res.status(400).json({ error: err.message });
   }
 });
 

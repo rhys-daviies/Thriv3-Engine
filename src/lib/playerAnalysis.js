@@ -14,9 +14,12 @@ export async function analyze(player, { onPhase, onProgress }) {
   const allColleges = await entities.College.filter({ sport: playerSport });
 
   const soccerTarget = player.football_ability != null ? player.football_ability * 10 : null;
-  const academicImportance = player.academic_importance !== 'Not Important' && player.academic_importance !== undefined
+  // parseFloat(null) is NaN, and NaN slips past a `!= null` guard further down
+  // to poison match_score. Normalise anything unparseable back to null.
+  const parsedImportance = player.academic_importance !== 'Not Important' && player.academic_importance != null
     ? parseFloat(player.academic_importance)
     : null;
+  const academicImportance = Number.isNaN(parsedImportance) ? null : parsedImportance;
 
   let filtered = allColleges;
 
