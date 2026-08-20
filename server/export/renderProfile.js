@@ -17,7 +17,6 @@ const REQUIRED_CORE = [
   { key: 'position', label: 'position', test: (a) => present(a.position) },
   { key: 'graduation_year', label: 'class year', test: (a) => present(a.graduation_year) },
   { key: 'video_id', label: 'video', test: (a) => present(a.video_id) },
-  { key: 'video_chapters', label: 'at least 3 film chapters', test: (a) => chaptersOf(a).length >= 3 },
   { key: 'email', label: 'contact email', test: (a) => present(a.email) },
 ];
 
@@ -104,31 +103,40 @@ function roleGrid(athlete) {
 }
 
 function filmSection(athlete, chapters) {
-  const buttons = chapters
-    .map(
-      (c) =>
-        `<button class="chapter" data-t="${c.t}" data-label="${esc(c.label)}">`
-        + `<time>${formatTimecode(c.t)}</time>${esc(c.label)}</button>`
-    )
-    .join('\n      ');
+  // Chapters are optional. A highlight reel is already the edit — labelled
+  // clips only earn their place on longer footage a coach needs to navigate.
+  // With none, the strip is omitted rather than rendered as an empty bordered
+  // box under the player.
+  const chapterList = chapters.length
+    ? `
 
-  const meta = present(athlete.updated_date)
-    ? `Updated ${new Date(athlete.updated_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })} · ${chapters.length} clips`
-    : `${chapters.length} clips`;
+    <div class="chapters">
+      ${chapters
+        .map(
+          (c) =>
+            `<button class="chapter" data-t="${c.t}" data-label="${esc(c.label)}">`
+            + `<time>${formatTimecode(c.t)}</time>${esc(c.label)}</button>`
+        )
+        .join('\n      ')}
+    </div>`
+    : '';
+
+  const parts = [];
+  if (present(athlete.updated_date)) {
+    parts.push(`Updated ${new Date(athlete.updated_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}`);
+  }
+  if (chapters.length) parts.push(`${chapters.length} clip${chapters.length === 1 ? '' : 's'}`);
+  const meta = parts.join(' · ');
 
   return `<section class="section">
     <div class="section-head">
       <h2>Highlight Film</h2>
-      <div class="section-meta">${esc(meta)}</div>
+      ${meta ? `<div class="section-meta">${esc(meta)}</div>` : ''}
     </div>
 
     <div class="player-frame">
       <div id="yt-player"></div>
-    </div>
-
-    <div class="chapters">
-      ${buttons}
-    </div>
+    </div>${chapterList}
   </section>`;
 }
 

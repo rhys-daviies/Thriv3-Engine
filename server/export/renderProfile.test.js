@@ -32,16 +32,9 @@ describe('required core', () => {
     expect(checkRequiredCore({ ...COMPLETE, ...override })).toContain(expected);
   });
 
-  it('requires at least three chapters', () => {
-    expect(checkRequiredCore({ ...COMPLETE, video_chapters: COMPLETE.video_chapters.slice(0, 2) }))
-      .toContain('at least 3 film chapters');
-    expect(checkRequiredCore(COMPLETE)).toEqual([]);
-  });
-
-  it('ignores malformed chapter entries when counting', () => {
-    const chapters = [{ t: 1, label: 'a' }, { t: 2 }, { label: 'c' }, { t: 4, label: 'd' }];
-    expect(checkRequiredCore({ ...COMPLETE, video_chapters: chapters }))
-      .toContain('at least 3 film chapters');
+  it('does not require chapters — a highlight reel is already the edit', () => {
+    expect(checkRequiredCore({ ...COMPLETE, video_chapters: [] })).toEqual([]);
+    expect(checkRequiredCore({ ...COMPLETE, video_chapters: undefined })).toEqual([]);
   });
 
   it('refuses to render rather than emitting a half-populated page', () => {
@@ -86,6 +79,42 @@ describe('rendered page', () => {
     const nasty = renderProfile({ ...COMPLETE, club_name: '<script>alert(1)</script>' });
     expect(nasty).not.toContain('<script>alert(1)</script>');
     expect(nasty).toContain('&lt;script&gt;');
+  });
+});
+
+describe('chapters are optional', () => {
+  it('omits the chapter strip entirely when there are none', () => {
+    const html = renderProfile({ ...COMPLETE, video_chapters: [] });
+    expect(html).not.toContain('class="chapters"');
+    expect(html).toContain('Highlight Film');
+    expect(html).toContain('id="yt-player"');
+  });
+
+  it('renders the strip as soon as there is one', () => {
+    const html = renderProfile({ ...COMPLETE, video_chapters: [{ t: 18, label: 'Only clip' }] });
+    expect(html).toContain('class="chapters"');
+    expect(html).toContain('data-label="Only clip"');
+  });
+
+  it('drops malformed chapter entries rather than rendering them', () => {
+    const html = renderProfile({
+      ...COMPLETE,
+      video_chapters: [{ t: 18, label: 'Good' }, { t: 20 }, { label: 'No time' }],
+    });
+    expect(html).toContain('data-label="Good"');
+    expect((html.match(/class="chapter"/g) || [])).toHaveLength(1);
+  });
+
+  it('counts clips in the section meta, and omits the meta when there are none', () => {
+    // Scoped to the film section — later sections carry their own meta line.
+    const meta = (html) => {
+      const section = html.slice(html.indexOf('<h2>Highlight Film</h2>'), html.indexOf('id="yt-player"'));
+      return (section.match(/<div class="section-meta">([^<]*)<\/div>/) || [])[1] ?? null;
+    };
+
+    expect(meta(renderProfile({ ...COMPLETE, video_chapters: [{ t: 18, label: 'One' }] }))).toContain('1 clip');
+    expect(meta(renderProfile(COMPLETE))).toContain('3 clips');
+    expect(meta(renderProfile({ ...COMPLETE, video_chapters: [] }))).toBeNull();
   });
 });
 

@@ -180,8 +180,14 @@ describe('refusing to send a dead link', () => {
   });
 
   it('names what is missing rather than failing vaguely', async () => {
-    const athleteId = makeAthlete({ video_chapters: JSON.stringify(CHAPTERS.slice(0, 1)) });
-    await expect(sendOutreach(baseRequest(athleteId))).rejects.toThrow(/3 film chapters/);
+    const athleteId = makeAthlete({ email: null });
+    await expect(sendOutreach(baseRequest(athleteId))).rejects.toThrow(/contact email/);
+  });
+
+  it('sends happily for an athlete with no chapters at all', async () => {
+    const athleteId = makeAthlete({ video_chapters: '[]' });
+    const { results } = await sendOutreach(baseRequest(athleteId));
+    expect(results.every((r) => r.status === 'drafted')).toBe(true);
   });
 
   it('reports one coach failing without abandoning the rest', async () => {

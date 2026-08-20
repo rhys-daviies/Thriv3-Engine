@@ -5,19 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { parseTimecode, formatTimecode } from '@shared/timecode';
 
-export const MINIMUM_CHAPTERS = 3;
-
 let nextRowId = 0;
 const makeRow = (time = '', label = '') => ({ id: ++nextRowId, time, label });
 
 /**
  * Edits the labelled clips on an athlete's highlight reel.
  *
- * These are not decoration. Each one is a button on the public page, and a
- * coach jumping to a clip is the clearest signal in the product of what they
- * are evaluating for — it is what Tab 3's chapter ranking is built from. The
- * export refuses below three, because a reel a coach cannot navigate is a reel
- * they scrub through and abandon.
+ * Optional, and usually unnecessary: a highlight reel is already the edit, so
+ * there is nothing to navigate. They earn their place on longer footage. Where
+ * they do exist, each becomes a button on the public page, and a coach jumping
+ * to one is the clearest signal in the product of what they are evaluating
+ * for — that is what Tab 3's chapter ranking is built from.
  */
 export default function ChapterEditor({ value, onChange, videoId, highlightsUrl }) {
   const [rows, setRows] = useState(() => {
@@ -61,13 +59,14 @@ export default function ChapterEditor({ value, onChange, videoId, highlightsUrl 
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between gap-3 flex-wrap">
-        <Label>Film chapters</Label>
-        <span className={`text-xs ${valid >= MINIMUM_CHAPTERS ? 'text-muted-foreground' : 'text-primary'}`}>
-          {valid} of {MINIMUM_CHAPTERS} minimum
-        </span>
+        <Label>Film chapters <span className="font-normal text-muted-foreground">(optional)</span></Label>
+        {valid > 0 && (
+          <span className="text-xs text-muted-foreground">{valid} clip{valid === 1 ? '' : 's'}</span>
+        )}
       </div>
       <p className="text-xs text-muted-foreground">
-        Labelled clips a coach can jump straight to. Times as <code>1:06</code> or seconds.
+        Only worth adding for longer footage a coach needs to navigate — a highlight reel
+        rarely needs them. Times as <code>1:06</code> or seconds.
       </p>
 
       <div className="space-y-1.5">
@@ -123,15 +122,9 @@ export default function ChapterEditor({ value, onChange, videoId, highlightsUrl 
           generated. Paste the full watch, youtu.be or embed link.
         </p>
       )}
-      {videoId && valid < MINIMUM_CHAPTERS && (
+      {videoId && (
         <p className="text-xs text-muted-foreground">
-          Video <code>{videoId}</code> detected. {MINIMUM_CHAPTERS - valid} more chapter
-          {MINIMUM_CHAPTERS - valid === 1 ? '' : 's'} needed before a profile page can be sent.
-        </p>
-      )}
-      {videoId && valid >= MINIMUM_CHAPTERS && (
-        <p className="text-xs text-muted-foreground">
-          Video <code>{videoId}</code> detected. Ready to publish.
+          Video <code>{videoId}</code> detected — a profile page can be generated.
         </p>
       )}
     </div>

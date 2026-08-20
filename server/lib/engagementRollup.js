@@ -88,6 +88,12 @@ export function tierFor(score, respondedAt = null) {
 
 /** Recomputes one outreach row from scratch. Never mutates tracking_events. */
 export function rebuildRollup(outreachId) {
+  // The outreach can disappear between an event arriving and the debounced
+  // rebuild firing. There is nothing to roll up for a row that no longer
+  // exists, and inserting one would violate the foreign key.
+  const exists = db.prepare('SELECT 1 FROM outreach WHERE id = ?').get(outreachId);
+  if (!exists) return null;
+
   const all = sessionsFor.all(outreachId);
   const qualified = all.filter((s) => s.qualified === 1);
   const visits = collapseSessions(qualified);

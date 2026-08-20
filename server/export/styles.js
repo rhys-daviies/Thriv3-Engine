@@ -95,7 +95,9 @@ export const PROFILE_CSS = `
     background: var(--border); border: 1px solid var(--border);
     grid-template-columns: 1fr;
   }
-  @media (min-width: 720px) { .role { grid-template-columns: repeat(4, 1fr); } }
+  /* auto-fit rather than a fixed four: an athlete with two facts should not
+     leave two dead cells beside them. */
+  @media (min-width: 720px) { .role { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); } }
   .role-item { background: var(--surface); padding: 15px 17px; }
   .role-item dt {
     font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em;
