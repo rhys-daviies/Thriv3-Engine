@@ -3,13 +3,17 @@ import { Card } from '@/components/ui/card';
 import { formatTimecode } from '@shared/timecode';
 
 /** Which labelled clips coaches jump to, ranked — what they evaluate for. */
-export default function ChapterEngagement({ chapters }) {
+export default function ChapterEngagement({ chapters, athleteHasChapters = true }) {
   if (!chapters || chapters.length === 0) {
     return (
       <Card className="p-5">
         <h3 className="font-heading text-sm font-semibold mb-1">Chapter engagement</h3>
         <p className="py-8 text-center text-sm text-muted-foreground">
-          No coach has jumped to a clip yet.
+          {/* "Nobody jumped to a clip" and "there are no clips" are different
+              things, and reading the second as the first looks like a fault. */}
+          {athleteHasChapters
+            ? 'No coach has jumped to a clip yet.'
+            : 'This reel has no labelled chapters, so there is nothing for a coach to jump to. Add them on the Profile tab if the film is long enough to need navigating.'}
         </p>
       </Card>
     );

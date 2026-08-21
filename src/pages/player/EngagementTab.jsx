@@ -105,7 +105,10 @@ export default function EngagementTab() {
         busyId={busyId}
       />
       <RetentionCurve retention={data.retention} />
-      <ChapterEngagement chapters={data.chapters} />
+      <ChapterEngagement
+        chapters={data.chapters}
+        athleteHasChapters={(data.retention?.chapters || []).length > 0}
+      />
     </div>
   );
 }

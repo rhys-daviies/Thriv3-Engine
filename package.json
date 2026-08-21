@@ -19,7 +19,8 @@
     "test:acceptance": "vitest run server/export/tracker.test.js server/routes/publicProfile.test.js server/routes/track.test.js server/lib/athleteLifecycle.test.js server/lib/engagementRollup.test.js",
     "build:worker": "esbuild worker/index.js --bundle --format=esm --platform=neutral --outfile=build/public/_worker.js",
     "publish": "npm run export:profiles && npm run build:worker && wrangler pages deploy build/public --project-name thriv3-profiles --branch main --commit-dirty=true",
-    "sync": "node server/scripts/syncEngagement.js"
+    "sync": "node server/scripts/syncEngagement.js",
+    "simulate": "node server/seed/simulateEngagement.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",
