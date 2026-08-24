@@ -86,7 +86,7 @@ export const COUPLINGS = [
   {
     name: 'international-raises-location',
     why: 'For an athlete coming from overseas the location criterion stops measuring preference and starts measuring feasibility: a programme with no international players has none of the machinery — visa paperwork, the eligibility clearinghouse, a recruiting network abroad — and 105 of the men\'s programmes in this database carry none at all. Weighted at its default it is outvoted by criteria that assume the athlete can get there.',
-    evidence: 'measured — the spread across programmes is real, from 105 with no internationals to 116 above 60%',
+    evidence: 'assumed — the spread is measured (105 programmes carry no internationals, 116 are above 60%), but that it predicts where an international athlete lands is reasoning. Accepted deliberately on 2026-08-25; the backtest builds domestic athletes only and cannot test it.',
     apply: ({ origin }, out) => {
       if (origin !== 'International') return;
       out.weights.geography *= 1.6;
