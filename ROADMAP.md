@@ -439,14 +439,44 @@ then 2023 and 2022. Not to be picked up here.
       Fraser twice, three inactive placeholders). Divisional means come out
       D1 6.18, D3 5.95, D2 4.03 — the D1/D3 pattern that was assumed is real,
       and D2 sits well below both.
-- [ ] **Rate NAIA and NJCAA the same way.** Out of scope for the NCAA
-      collection and now the most visible gap: 230 NAIA rows have no rating at
-      all, and the three highest academic scores in the whole product are
-      wrong-school matches left over from the old column — **Columbia College
-      Missouri carries 10.0**, which is Columbia University's score, and
-      Lewis-Clark State (ID) carries Lewis & Clark College (OR)'s 8.5. The fix
-      is cheap: Scorecard covers all 616 of these institutions, so the same
-      pipeline runs unchanged once a crosswalk is built.
+- [x] **Rated NAIA and NJCAA the same way.** 2026-08-25. 507 of 513 names
+      matched to a UNITID and 631 rows written, 227 of them a first rating.
+      Both wrong-school leftovers are gone: **Columbia College Missouri 10.0
+      -> 3.7** (it had Columbia University's score) and **Lewis-Clark State
+      8.5 -> 3.4** (it had Lewis & Clark College Oregon's). Whole-product
+      academic order now reads MIT, Duke, Stanford, Princeton, Harvard.
+
+      These rows carry no location — `colleges` has only name and conference
+      for them — so the name had to carry the join. Three things made that
+      work: **our own parenthetical is the disambiguator** ("Bethany (KS)",
+      "Concordia (MI)") and was parsed as a state filter; **exact beats
+      normalised**, since "Benedictine College" matches Atchison KS exactly
+      and Lisle IL only after normalising; and our name is often a **prefix**
+      of the legal one ("Blinn" for "Blinn College District"), which cannot
+      swap the identifying word the way a subset test can. 50 names no rule
+      resolved are an explicit hand-verified map, and 6 have no Scorecard
+      entry at all — two closed in 2023-24, one is a branch campus, one is
+      genuinely ambiguous between three Wallace colleges in the same
+      conference.
+
+      **One bug worth remembering.** The state hint was written as a
+      preference rather than a rule: when no candidate sat in the named state
+      the code fell back to the unfiltered list, which is how "Lewis & Clark
+      (ID)" reached Portland Oregon *while reporting that it had used the
+      state*. No candidate in the named state is a failure, not a licence to
+      look elsewhere. Fixing it also corrected four other rows.
+
+      **NJCAA is a substitution and is labelled as one.** Junior colleges have
+      no SAT and no admission rate — 0% of them — and their completion figure
+      is a different quantity: the share finishing an associate degree in
+      three years, not a bachelor's in six. They are scored on resources plus
+      that rate, under `academic_rating_source = 'scorecard-njcaa-v1'` rather
+      than `scorecard-v1`, so the substitution stays visible in the column.
+      Read a junior-college rating as "resources and completion on a two-year
+      basis", not as the same quantity as a university's.
+
+      Divisional means now: D1 6.18, D3 5.95, D2 4.03, NAIA 3.46, NJCAA 2.36.
+      3 rows are still unrated, all NAIA schools with no Scorecard entry.
 
 - [x] **The 9 schools outside the US News taxonomy are solved by the same
       change.** They never needed a category: Rose-Hulman scores 8.8 on SAT

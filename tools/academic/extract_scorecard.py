@@ -46,7 +46,7 @@ FIELDS = [
     ("PFTFAC", "full_time_faculty_rate"), ("ENDOWBEGIN", "endowment"),
     ("TUITFTE", "tuition_revenue_per_fte"),
     # leg 3 — outcome
-    ("C150_4", "grad_rate_6yr"), ("C150_L4", "grad_rate_4yr_inst"),
+    ("C150_4", "grad_rate_6yr"), ("C150_L4", "grad_rate_2yr"),
     ("RET_FT4", "retention_ft"),
     # kept but NOT for the academic score: earnings track major mix, not
     # academic strength (Rose-Hulman $101k vs Williams $88k is "engineering",
@@ -67,11 +67,13 @@ def main():
         writer = csv.DictWriter(out, fieldnames=[o for _, o in FIELDS])
         writer.writeheader()
         for row in reader:
-            # Bachelor's-granting and still open. Community colleges and
-            # closed institutions cannot host an NCAA soccer programme.
+            # Still open, and awarding a degree of some kind. Associate-only
+            # institutions are kept because NJCAA soccer is played at junior
+            # colleges; the two-year completion rate lands in a separate
+            # column from the four-year one, which the scoring step handles.
             if row.get("CURROPER") != "1":
                 continue
-            if row.get("HIGHDEG") not in ("3", "4"):
+            if row.get("HIGHDEG") not in ("2", "3", "4"):
                 continue
             rec = {}
             for src, dst in FIELDS:

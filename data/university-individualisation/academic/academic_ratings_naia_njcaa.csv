@@ -1,0 +1,508 @@
+School,division,unitid,institution,city,state,highest_degree,academic_rating,source,legs_used,inputs_used,sat,grad_rate_6yr,grad_rate_2yr,instructional_spend_per_fte
+Abraham Baldwin Agricultural College,NAIA,138558,Abraham Baldwin Agricultural College,Tifton,GA,3,2.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",990,0.3615,,7164
+Allan Hancock,NJCAA,108807,Allan Hancock College,Santa Maria,CA,2,1.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2629,7693
+Allegany,NJCAA,161688,Allegany College of Maryland,Cumberland,MD,2,2.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.396,9391
+Allen County Community,NJCAA,154642,Allen County Community College,Iola,KS,2,1.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3742,3527
+American River,NJCAA,109208,American River College,Sacramento,CA,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.3663,6226
+Ancilla,NJCAA,497833,Marian University-Ancilla,Plymouth,IN,3,2.5,scorecard-v1,resources,"spend,faculty_ft,endowment",,,,7655
+Andrew College,NAIA,138761,Andrew College,Cuthbert,GA,2,2.6,scorecard-njcaa-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3281,,8146
+Anne Arundel,NJCAA,161767,Anne Arundel Community College,Arnold,MD,2,2.4,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3136,11830
+Aquinas,NAIA,168786,Aquinas College,Grand Rapids,MI,4,3.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1025,0.6536,,8672
+Aquinas College (Michigan),NAIA,168786,Aquinas College,Grand Rapids,MI,4,3.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1025,0.6536,,8672
+Arizona Christian,NAIA,105899,Arizona Christian University,Glendale,AZ,4,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3987,,3977
+Arizona Christian University,NAIA,105899,Arizona Christian University,Glendale,AZ,4,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3987,,3977
+Arizona Western,NJCAA,104160,Arizona Western College,Yuma,AZ,2,1.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2023,5667
+Atlantic Cape,NJCAA,183655,Atlantic Cape Community College,Mays Landing,NJ,2,2.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3003,6664
+Ave Maria University,NAIA,446048,Ave Maria University,Ave Maria,FL,4,5.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5394,,13083
+Avila,NAIA,176628,Avila University,Kansas City,MO,4,2.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",972,0.5238,,6863
+Avila University,NAIA,176628,Avila University,Kansas City,MO,4,2.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",972,0.5238,,6863
+Baker,NAIA,154688,Baker University,Baldwin City,KS,4,3.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5779,,8182
+Baker University,NAIA,154688,Baker University,Baldwin City,KS,4,3.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5779,,8182
+Barclay,NAIA,155070,Barclay College,Haviland,KS,4,3.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3226,,7867
+Barton County,NJCAA,154697,Barton County Community College,Great Bend,KS,2,2.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3296,5470
+Bellevue University,NAIA,180814,Bellevue University,Bellevue,NE,4,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3295,,2786
+Benedictine (KS),NAIA,154712,Benedictine College,Atchison,KS,4,6.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1252,0.6158,,8346
+Benedictine College,NAIA,154712,Benedictine College,Atchison,KS,4,6.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1252,0.6158,,8346
+Bethany (KS),NAIA,154721,Bethany College,Lindsborg,KS,3,3.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3574,,6693
+Bethany College (Kansas),NAIA,154721,Bethany College,Lindsborg,KS,3,3.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3574,,6693
+Bethel (IN),NAIA,150145,Bethel University,Mishawaka,IN,4,3.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1014,0.5322,,8969
+Bethel (TN),NAIA,219718,Bethel University,McKenzie,TN,4,2.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",972,0.3505,,5542
+Bethel College (Kansas),NAIA,154749,Bethel College-North Newton,North Newton,KS,3,3.1,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4112,,8421
+Bethel University (IN),NAIA,150145,Bethel University,Mishawaka,IN,4,3.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1014,0.5322,,8969
+Bethel University (TN),NAIA,219718,Bethel University,McKenzie,TN,4,2.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",972,0.3505,,5542
+Bethesda,NAIA,110060,Bethesda University,Anaheim,CA,4,1.0,scorecard-v1,outcome+resources,"grad6,spend",,0.1111,,2293
+Blinn,NJCAA,223427,Blinn College District,Brenham,TX,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.1081,3704
+Blue Mountain,NJCAA,208275,Blue Mountain Community College,Pendleton,OR,2,1.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2983,6393
+Blue Mountain Christian University,NAIA,175430,Blue Mountain Christian University,Blue Mountain,MS,4,4.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1090,0.5476,,10172
+Bluefield University,NAIA,231554,Bluefield University,Bluefield,VA,4,3.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.1778,,8767
+Bossier Parish,NJCAA,158431,Bossier Parish Community College,Bossier City,LA,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.1522,5008
+Brenau University,NAIA,139199,Brenau University,Gainesville,GA,4,3.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1079,0.3291,,10992
+Brescia University,NAIA,156356,Brescia University,Owensboro,KY,4,3.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5371,,8749
+Brewton-Parker Christian University,NAIA,139205,Brewton-Parker Christian University,Mount Vernon,GA,4,2.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2103,,5545
+Briar Cliff University,NAIA,152992,Briar Cliff University,Sioux City,IA,4,3.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4751,,10458
+Brookdale,NJCAA,183859,Brookdale Community College,Lincroft,NJ,2,2.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2992,4800
+Broward,NJCAA,132709,Broward College,Fort Lauderdale,FL,3,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3913,,3883
+Bryan,NAIA,219790,Bryan College-Dayton,Dayton,TN,4,2.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4974,,5156
+Bryan College,NAIA,219790,Bryan College-Dayton,Dayton,TN,4,2.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4974,,5156
+Buffalo-Erie,NJCAA,191083,Erie Community College,Buffalo,NY,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2798,6703
+Bushnell University,NAIA,209409,Bushnell University,Eugene,OR,4,3.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1020,0.56,,6850
+Butler County,NJCAA,211343,Butler County Community College,Butler,PA,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3719,8045
+Calumet College,NAIA,150172,Calumet College of Saint Joseph,Whiting,IN,4,1.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2286,,7751
+Calumet College of St. Joseph,NAIA,150172,Calumet College of Saint Joseph,Whiting,IN,4,1.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2286,,7751
+Campbellsville University,NAIA,156365,Campbellsville University,Campbellsville,KY,4,2.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4201,,5539
+Cape Fear,NJCAA,198154,Cape Fear Community College,Wilmington,NC,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3446,7230
+Carl Sandburg,NJCAA,143613,Carl Sandburg College,Galesburg,IL,2,2.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.5,6947
+Carolina University,NAIA,489937,Carolina University,Winston-Salem,NC,4,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2155,,3977
+Carroll (MT),NAIA,180106,Carroll College,Helena,MT,4,6.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1200,0.6929,,10107
+Carroll College,NAIA,180106,Carroll College,Helena,MT,4,6.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1200,0.6929,,10107
+Cascadia,NJCAA,439190,Cascadia College,Bothell,WA,3,2.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.321,,6380
+Catawba Valley,NJCAA,198233,Catawba Valley Community College,Hickory,NC,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3519,8662
+Cecil,NJCAA,162104,Cecil College,North East,MD,2,2.4,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3744,10533
+Central Alabama,NJCAA,100760,Central Alabama Community College,Alexander City,AL,2,1.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3288,8630
+Central Arizona,NJCAA,104346,Central Arizona College,Coolidge,AZ,2,2.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2709,8057
+Central Baptist College,NAIA,106713,Central Baptist College,Conway,AR,3,1.7,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1046,0.3411,,4192
+Central Christian,NAIA,154855,Central Christian College of Kansas,McPherson,KS,4,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2697,,3254
+Central Christian College of Kansas,NAIA,154855,Central Christian College of Kansas,McPherson,KS,4,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2697,,3254
+Central Georgia Tech,NJCAA,483045,Central Georgia Technical College,Warner Robins,GA,2,3.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.4697,5556
+Central Lakes,NJCAA,173203,Central Lakes College-Brainerd,Brainerd,MN,2,3.1,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.532,7700
+Central Methodist,NAIA,176947,Central Methodist University-College of Liberal Arts and Sciences,Fayette,MO,3,4.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1048,0.5123,,13771
+Central Methodist University,NAIA,176947,Central Methodist University-College of Liberal Arts and Sciences,Fayette,MO,3,4.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1048,0.5123,,13771
+Central Penn,NJCAA,211477,Central Penn College,Summerdale,PA,4,2.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft",,0.5091,,8554
+Chesapeake,NJCAA,162168,Chesapeake College,Wye Mills,MD,2,2.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3503,12648
+Chipola,NJCAA,133021,Chipola College,Marianna,FL,3,2.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5313,,6990
+City Colleges Chicago-Harold Washington,NJCAA,144209,City Colleges of Chicago-Harold Washington College,Chicago,IL,2,1.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.261,7971
+City Colleges Chicago-Olive Harvey,NJCAA,144175,City Colleges of Chicago-Olive-Harvey College,Chicago,IL,2,1.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.2124,8155
+City Colleges Chicago-Richard Daley,NJCAA,144193,City Colleges of Chicago-Richard J Daley College,Chicago,IL,2,1.1,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.2736,3611
+City Colleges Chicago-Wilbur Wright,NJCAA,144218,City Colleges of Chicago-Wilbur Wright College,Chicago,IL,2,1.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.3092,4845
+Clarke,NAIA,153126,Clarke University,Dubuque,IA,4,3.7,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1054,0.5612,,10352
+Clarke University,NAIA,153126,Clarke University,Dubuque,IA,4,3.7,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1054,0.5612,,10352
+Cleary University,NAIA,169327,Cleary University,Howell,MI,4,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4146,,3298
+Coffeyville,NJCAA,154925,Coffeyville Community College,Coffeyville,KS,2,2.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3795,4621
+College of DuPage,NJCAA,144865,College of DuPage,Glen Ellyn,IL,2,1.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.252,8820
+College of Idaho,NAIA,142294,The College of Idaho,Caldwell,ID,4,5.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1180,0.6254,,10689
+College of Lake County,NJCAA,146472,College of Lake County,Grayslake,IL,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3735,7564
+College of Marin,NJCAA,118347,College of Marin,Kentfield,CA,2,2.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3929,13104
+College of Saint Mary,NAIA,181604,College of Saint Mary,Omaha,NE,4,5.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1150,0.605,,14423
+College of Southern Idaho,NJCAA,142559,College of Southern Idaho,Twin Falls,ID,3,2.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3316,,5776
+College of Southern Nevada,NJCAA,182005,College of Southern Nevada,Las Vegas,NV,3,2.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.1914,,7442
+Collin College,NJCAA,247834,Collin County Community College District,McKinney,TX,3,1.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2034,,6510
+Columbia (MO),NAIA,177065,Columbia College,Columbia,MO,4,3.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4219,,8042
+Columbia College (MO),NAIA,177065,Columbia College,Columbia,MO,4,3.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4219,,8042
+Columbia College (SC),NAIA,217934,Columbia College,Columbia,SC,4,2.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3688,,7242
+Columbia International University,NAIA,217925,Columbia International University,Columbia,SC,4,3.1,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4679,,5595
+Concordia (MI),NAIA,169363,Concordia University Ann Arbor,Ann Arbor,MI,4,4.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4764,,8791
+Concordia (NE),NAIA,180984,Concordia University-Nebraska,Seward,NE,4,5.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.6489,,5451
+Concordia University Nebraska,NAIA,180984,Concordia University-Nebraska,Seward,NE,4,5.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.6489,,5451
+Contra Costa,NJCAA,112826,Contra Costa College,San Pablo,CA,2,2.0,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.283,9325
+Copiah-Lincoln,NJCAA,175573,Copiah-Lincoln Community College,Wesson,MS,2,3.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4991,8204
+Corban University,NAIA,210331,Corban University,Salem,OR,4,3.1,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.6059,,5172
+Cornerstone,NAIA,170037,Cornerstone University,Grand Rapids,MI,4,4.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.6187,,4718
+Cornerstone University,NAIA,170037,Cornerstone University,Grand Rapids,MI,4,4.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.6187,,4718
+Cowley County,NJCAA,154952,Cowley County Community College,Arkansas City,KS,2,3.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.447,4187
+Crowder,NJCAA,177135,Crowder College,Neosho,MO,2,2.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4921,8203
+Culver-Stockton College,NAIA,177144,Culver-Stockton College,Canton,MO,4,2.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3916,,4196
+Cumberland University,NAIA,219949,Cumberland University,Lebanon,TN,4,1.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4559,,3595
+Cumberlands,NAIA,156541,University of the Cumberlands,Williamsburg,KY,4,2.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5043,,2932
+Dakota State University,NAIA,219082,Dakota State University,Madison,SD,4,4.7,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1215,0.513,,8768
+Dakota Wesleyan,NAIA,219091,Dakota Wesleyan University,Mitchell,SD,4,3.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4832,,7028
+Dakota Wesleyan University,NAIA,219091,Dakota Wesleyan University,Mitchell,SD,4,3.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4832,,7028
+Dallas Christian,NAIA,224244,Dallas Christian College,Dallas,TX,4,1.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",931,0.2857,,5907
+Dalton State College,NAIA,139463,Dalton State College,Dalton,GA,3,1.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2531,,4721
+Danville Area,NJCAA,144564,Danville Area Community College,Danville,IL,2,2.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4493,9025
+Daytona State,NJCAA,133386,Daytona State College,Daytona Beach,FL,3,1.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4323,,5646
+Defiance College,NAIA,202514,Defiance College,Defiance,OH,4,3.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3057,,11859
+Delta College (MI),NJCAA,169521,Delta College,University Center,MI,2,3.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2682,10038
+Des Moines Area,NJCAA,153214,Des Moines Area Community College,Ankeny,IA,2,2.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3917,6817
+Diablo Valley,NJCAA,113634,Diablo Valley College,Pleasant Hill,CA,2,2.4,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4906,7911
+Doane,NAIA,181020,Doane University,Crete,NE,4,5.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5714,,13589
+Doane University,NAIA,181020,Doane University,Crete,NE,4,5.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5714,,13589
+Dodge City,NJCAA,154998,Dodge City Community College,Dodge City,KS,2,2.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3509,5023
+Dordt,NAIA,153250,Dordt University,Sioux Center,IA,4,6.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1221,0.7014,,11202
+Dordt University,NAIA,153250,Dordt University,Sioux Center,IA,4,6.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1221,0.7014,,11202
+East Central (OK),NJCAA,207041,East Central University,Ada,OK,4,2.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1049,0.3442,,6556
+East Mississippi,NJCAA,175652,East Mississippi Community College,Scooba,MS,2,1.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4766,5409
+Eastern Arizona,NJCAA,104577,Eastern Arizona College,Thatcher,AZ,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4194,,6327
+Eastern Florida State,NJCAA,132693,Eastern Florida State College,Melbourne,FL,3,2.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5208,,4778
+Eastern Oregon,NAIA,208646,Eastern Oregon University,La Grande,OR,4,2.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.43,,7792
+Eastern Oregon University,NAIA,208646,Eastern Oregon University,La Grande,OR,4,2.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.43,,7792
+Eastern Wyoming,NJCAA,240596,Eastern Wyoming College,Torrington,WY,2,4.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.5181,10054
+El Camino,NJCAA,113980,El Camino Community College District,Torrance,CA,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.418,6825
+Ellsworth,NJCAA,153296,Ellsworth Community College,Iowa Falls,IA,2,3.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.375,9137
+Embry-Riddle Aeronautical University Prescott,NAIA,104586,Embry-Riddle Aeronautical University-Prescott,Prescott,AZ,4,7.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1250,0.6776,,17147
+Essex County,NJCAA,184481,Essex County College,Newark,NJ,2,2.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.199,4081
+Evangel,NAIA,177339,Evangel University,Springfield,MO,4,4.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1188,0.6503,,6332
+Evangel University,NAIA,177339,Evangel University,Springfield,MO,4,4.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1188,0.6503,,6332
+Everett,NJCAA,235149,Everett Community College,Everett,WA,3,2.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3662,,7917
+Faulkner University,NAIA,101189,Faulkner University,Montgomery,AL,4,2.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1020,0.374,,8533
+Finger Lakes Community,NJCAA,191199,Finger Lakes Community College,Canandaigua,NY,2,2.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3016,7030
+Fisher College,NAIA,165802,Fisher College,Boston,MA,4,1.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft",,0.2775,,7055
+Florida College,NAIA,133809,Florida College,Temple Terrace,FL,3,5.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1108,0.5404,,15747
+Florida Memorial,NAIA,133979,Florida Memorial University,Miami Gardens,FL,4,1.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.311,,3701
+Florida Memorial University,NAIA,133979,Florida Memorial University,Miami Gardens,FL,4,1.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.311,,3701
+Florida National University,NAIA,408844,Florida National University-Main Campus,Hialeah,FL,4,1.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft",,0.3119,,2747
+Florida State College Jacksonville,NJCAA,133702,Florida State College at Jacksonville,Jacksonville,FL,3,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3683,,4827
+Fort Scott Community,NJCAA,155098,Fort Scott Community College,Fort Scott,KS,2,2.0,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3486,7815
+Frederick,NJCAA,162557,Frederick Community College,Frederick,MD,2,2.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3738,10427
+Freed-Hardeman,NAIA,220215,Freed-Hardeman University,Henderson,TN,4,5.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1109,0.7078,,8648
+Freed-Hardeman University,NAIA,220215,Freed-Hardeman University,Henderson,TN,4,5.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1109,0.7078,,8648
+Friends,NAIA,155089,Friends University,Wichita,KS,4,2.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1080,0.4335,,5033
+Friends University,NAIA,155089,Friends University,Wichita,KS,4,2.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1080,0.4335,,5033
+Front Range,NJCAA,127200,Front Range Community College,Westminster,CO,3,2.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3545,,5925
+Gadsden State,NJCAA,101240,Gadsden State Community College,Gadsden,AL,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3824,6630
+Garden City Community,NJCAA,155104,Garden City Community College,Garden City,KS,2,3.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4988,8874
+Garrett,NJCAA,162609,Garrett College,McHenry,MD,2,4.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3396,14128
+Genesee Community,NJCAA,191339,Genesee Community College,Batavia,NY,2,1.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.309,6957
+Georgetown (KY),NAIA,156745,Georgetown College,Georgetown,KY,4,3.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1138,0.4885,,4574
+Georgetown College,NAIA,156745,Georgetown College,Georgetown,KY,4,3.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1138,0.4885,,4574
+Georgia Gwinnett College,NAIA,447689,Georgia Gwinnett College,Lawrenceville,GA,3,2.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft",,0.2147,,4730
+Georgia Highlands,NJCAA,139700,Georgia Highlands College,Rome,GA,3,1.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2066,,4686
+Georgia Military,NJCAA,485111,Georgia Military College,Milledgeville,GA,3,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3803,,3895
+Georgia Northwestern,NJCAA,139384,Georgia Northwestern Technical College,Rome,GA,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend",,,0.4344,4911
+Georgia Piedmont,NJCAA,244446,Georgia Piedmont Technical College,Clarkston,GA,2,1.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.4409,5856
+Gloucester County,NJCAA,184791,Rowan College of South Jersey-Gloucester Campus,Sewell,NJ,2,2.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3871,5376
+Goshen,NAIA,150668,Goshen College,Goshen,IN,4,4.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",950,0.65,,14298
+Goshen College,NAIA,150668,Goshen College,Goshen,IN,4,4.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",950,0.65,,14298
+Governors State University,NAIA,145336,Governors State University,University Park,IL,4,2.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2211,,13036
+Grace,NAIA,150677,Grace College and Theological Seminary,Winona Lake,IN,4,4.9,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1119,0.6877,,7409
+Grace College,NAIA,150677,Grace College and Theological Seminary,Winona Lake,IN,4,4.9,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1119,0.6877,,7409
+Graceland University,NAIA,153366,Graceland University-Lamoni,Lamoni,IA,4,4.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4195,,11650
+Grand Rapids Community,NJCAA,170055,Grand Rapids Community College,Grand Rapids,MI,2,1.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2113,8889
+Grand View,NAIA,153375,Grand View University,Des Moines,IA,4,3.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5399,,7383
+Grand View University,NAIA,153375,Grand View University,Des Moines,IA,4,3.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5399,,7383
+Hagerstown,NJCAA,162690,Hagerstown Community College,Hagerstown,MD,2,1.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3896,5300
+Hannibal-LaGrange,NAIA,177542,Hannibal-LaGrange University,Hannibal,MO,4,2.8,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1090,0.5039,,4210
+Hannibal-LaGrange University,NAIA,177542,Hannibal-LaGrange University,Hannibal,MO,4,2.8,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1090,0.5039,,4210
+Harford County,NJCAA,162706,Harford Community College,Bel Air,MD,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3926,7615
+Harper,NJCAA,149842,William Rainey Harper College,Palatine,IL,2,2.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4762,7774
+Harris-Stowe State University,NAIA,177551,Harris-Stowe State University,Saint Louis,MO,3,3.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2756,,10583
+Hastings,NAIA,181127,Hastings College,Hastings,NE,4,6.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1320,0.4885,,8984
+Hastings College,NAIA,181127,Hastings College,Hastings,NE,4,6.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1320,0.4885,,8984
+Hawkeye,NJCAA,153445,Hawkeye Community College,Waterloo,IA,2,3.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4329,11157
+Hesston College,NAIA,155177,Hesston College,Hesston,KS,3,5.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.6061,,14848
+Highland,NJCAA,155186,Highland Community College,Highland,KS,2,2.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3852,3595
+Hillsborough,NJCAA,134495,Hillsborough College,Tampa,FL,3,1.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3418,,4103
+Hocking,NJCAA,203155,Hocking College,Nelsonville,OH,2,2.1,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3716,9418
+Holmes,NJCAA,175810,Holmes Community College,Goodman,MS,2,2.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3904,6153
+Holy Cross College,NAIA,150774,Holy Cross College,Notre Dame,IN,3,4.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.7289,,7260
+Holyoke,NJCAA,166133,Holyoke Community College,Holyoke,MA,2,2.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2938,10304
+Hope International University,NAIA,120537,Hope International University,Fullerton,CA,4,2.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1020,0.4944,,5305
+Howard Community,NJCAA,162779,Howard Community College,Columbia,MD,2,2.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2402,11330
+Hudson Valley,NJCAA,191719,Hudson Valley Community College,Troy,NY,2,2.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.35,9570
+Huntington,NAIA,150941,Huntington University,Huntington,IN,4,4.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1052,0.636,,11842
+Huntington University,NAIA,150941,Huntington University,Huntington,IN,4,4.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1052,0.636,,11842
+Huston-Tillotson University,NAIA,225575,Huston-Tillotson University,Austin,TX,4,2.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1014,0.3394,,9511
+Indian Hills,NJCAA,153472,Indian Hills Community College,Ottumwa,IA,2,2.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4012,10476
+Indiana Institute of Technology,NAIA,151290,Indiana Institute of Technology,Fort Wayne,IN,4,3.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4779,,3202
+Indiana University Columbus,NAIA,151111,Indiana University-Indianapolis,Indianapolis,IN,4,5.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1139,0.5445,,23466
+Indiana University East,NAIA,151388,Indiana University-East,Richmond,IN,4,2.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1061,0.3958,,7603
+Indiana University Kokomo,NAIA,151333,Indiana University-Kokomo,Kokomo,IN,4,2.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1065,0.4561,,6947
+Indiana University Northwest,NAIA,151360,Indiana University-Northwest,Gary,IN,4,2.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1055,0.3738,,9136
+Indiana University South Bend,NAIA,151342,Indiana University-South Bend,South Bend,IN,4,2.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1081,0.4009,,7700
+Indiana Wesleyan,NAIA,151801,Indiana Wesleyan University-Marion,Marion,IN,4,5.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1082,0.6671,,15953
+Indiana Wesleyan University,NAIA,151801,Indiana Wesleyan University-Marion,Marion,IN,4,5.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1082,0.6671,,15953
+Iowa Central,NJCAA,153524,Iowa Central Community College,Fort Dodge,IA,2,3.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4158,8240
+Iowa Lakes,NJCAA,153533,Iowa Lakes Community College,Estherville,IA,2,4.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.5,9801
+Iowa Western,NJCAA,153630,Iowa Western Community College,Council Bluffs,IA,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3998,6680
+J. Sargeant Reynolds,NJCAA,232414,J Sargeant Reynolds Community College,Richmond,VA,2,1.4,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3223,6698
+Jackson College,NJCAA,170444,Jackson College,Jackson,MI,3,2.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.159,,7240
+Jarvis Christian University,NAIA,225885,Jarvis Christian University,Hawkins,TX,4,1.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.1519,,4701
+Jefferson (NY),NJCAA,192022,Jefferson Community College,Watertown,NY,2,1.4,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2784,5705
+Jefferson Davis,NJCAA,101161,Coastal Alabama Community College,Bay Minette,AL,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.3133,7693
+John Brown,NAIA,107141,John Brown University,Siloam Springs,AR,4,6.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1195,0.7179,,9542
+John Brown University,NAIA,107141,John Brown University,Siloam Springs,AR,4,6.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1195,0.7179,,9542
+Johnson County Community,NJCAA,155210,Johnson County Community College,Overland Park,KS,2,2.1,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3081,9524
+Johnson University,NAIA,220473,Johnson University,Knoxville,TN,4,4.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1078,0.5677,,10567
+Judson University,NAIA,146339,Judson University,Elgin,IL,4,2.9,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1039,0.5987,,8178
+Kalamazoo Valley,NJCAA,170541,Kalamazoo Valley Community College,Kalamazoo,MI,2,2.0,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2818,9722
+Kankakee Community,NJCAA,146348,Kankakee Community College,Kankakee,IL,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3239,8394
+Kansas Wesleyan,NAIA,155414,Kansas Wesleyan University,Salina,KS,4,3.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4863,,5144
+Kansas Wesleyan University,NAIA,155414,Kansas Wesleyan University,Salina,KS,4,3.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4863,,5144
+Keiser University,NAIA,135081,Keiser University-Ft Lauderdale,Fort Lauderdale,FL,4,3.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft",,0.6101,,5657
+Kellogg Community,NJCAA,170550,Kellogg Community College,Battle Creek,MI,2,2.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2991,13711
+Kentucky Christian,NAIA,157100,Kentucky Christian University,Grayson,KY,4,2.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1090,0.3667,,7212
+Kentucky Christian University,NAIA,157100,Kentucky Christian University,Grayson,KY,4,2.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1090,0.3667,,7212
+Kilgore,NJCAA,226019,Kilgore College,Kilgore,TX,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3924,4595
+Kirkwood,NJCAA,153737,Kirkwood Community College,Cedar Rapids,IA,2,3.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4295,8081
+LSU Alexandria,NAIA,159382,Louisiana State University at Alexandria,Alexandria,LA,3,1.8,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1022,0.3422,,5430
+LSU Shreveport,NAIA,159416,Louisiana State University-Shreveport,Shreveport,LA,4,2.8,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1090,0.3754,,8387
+La Sierra University,NAIA,117627,La Sierra University,Riverside,CA,4,5.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5973,,13162
+Labette,NJCAA,155450,Labette Community College,Parsons,KS,2,1.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2406,5019
+Lake Land,NJCAA,146506,Lake Land College,Mattoon,IL,2,3.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.5835,7317
+Lamar Institute,NJCAA,441760,Lamar Institute of Technology,Beaumont,TX,2,1.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3139,5095
+Laramie County,NJCAA,240620,Laramie County Community College,Cheyenne,WY,3,4.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.384,,12590
+Lawrence Technological University,NAIA,170675,Lawrence Technological University,Southfield,MI,4,5.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.6058,,12614
+Lewis & Clark (ID),NJCAA,142328,Lewis-Clark State College,Lewiston,ID,4,3.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4017,,9626
+Life (GA),NAIA,140252,Life University,Marietta,GA,4,1.9,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1030,0.3793,,6898
+Life Pacific University,NAIA,117104,Life Pacific University,San Dimas,CA,4,1.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.404,,6452
+Life University,NAIA,140252,Life University,Marietta,GA,4,1.9,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1030,0.3793,,6898
+Lincoln Land,NJCAA,146685,Lincoln Land Community College,Springfield,IL,2,2.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4771,6260
+Lindsey Wilson,NAIA,157216,Lindsey Wilson University,Columbia,KY,4,2.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4406,,3762
+Lindsey Wilson University,NAIA,157216,Lindsey Wilson University,Columbia,KY,4,2.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4406,,3762
+Lone Star,NJCAA,227182,Lone Star College System,The Woodlands,TX,3,2.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2114,,3998
+Lord Fairfax,NJCAA,232575,Laurel Ridge Community College,Middletown,VA,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.446,6852
+Louisiana Christian University,NAIA,159568,Louisiana Christian University,Pineville,LA,4,3.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4387,,9557
+Louisiana Delta,NJCAA,483212,Louisiana Delta Community College,Monroe,LA,2,1.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3032,4982
+Lourdes University,NAIA,203757,Lourdes University,Sylvania,OH,4,4.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3246,,12048
+Lower Columbia,NJCAA,235750,Lower Columbia College,Longview,WA,3,3.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2338,,8589
+Lurleen B. Wallace,NJCAA,101602,Lurleen B Wallace Community College,Andalusia,AL,2,2.4,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.4099,6435
+Madonna University,NAIA,170806,Madonna University,Livonia,MI,4,3.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",980,0.6,,11643
+Marian University (IN),NAIA,151786,Marian University,Indianapolis,IN,4,5.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.6722,,12128
+McLennan,NJCAA,226578,McLennan Community College,Waco,TX,2,1.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3891,7397
+McPherson College,NAIA,155511,McPherson College,McPherson,KS,4,3.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1058,0.3392,,10231
+Merced,NJCAA,118718,Merced College,Merced,CA,2,1.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3572,6012
+Meridian,NJCAA,175935,Meridian Community College,Meridian,MS,2,2.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.344,6222
+Mesa Community,NJCAA,105154,Mesa Community College,Mesa,AZ,2,3.1,scorecard-njcaa-v1,outcome+resources,"grad6,spend,faculty_ft",,0.1564,,7135
+Mid-America Christian University,NAIA,245953,Mid-America Christian University,Oklahoma City,OK,4,2.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1020,0.4423,,3229
+MidAmerica Nazarene,NAIA,155520,MidAmerica Nazarene University,Olathe,KS,4,2.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1048,0.5361,,6776
+MidAmerica Nazarene University,NAIA,155520,MidAmerica Nazarene University,Olathe,KS,4,2.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1048,0.5361,,6776
+Middlesex County,NJCAA,185536,Middlesex College,Edison,NJ,2,2.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.334,5700
+Midland,NAIA,181330,Midland University,Fremont,NE,4,3.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1086,0.4212,,7011
+Midland University,NAIA,181330,Midland University,Fremont,NE,4,3.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1086,0.4212,,7011
+Midway,NAIA,157377,Midway University,Midway,KY,4,2.8,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1122,0.4069,,5606
+Midway University,NAIA,157377,Midway University,Midway,KY,4,2.8,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1122,0.4069,,5606
+Milligan University,NAIA,486901,Milligan University,Milligan,TN,4,5.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1189,0.6343,,9458
+Mineral Area,NJCAA,178217,Mineral Area College,Park Hills,MO,2,2.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4909,6375
+Mission University,NAIA,176664,Mission University,Springfield,MO,4,1.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4444,,3499
+Mississippi Delta,NJCAA,176008,Mississippi Delta Community College,Moorhead,MS,2,2.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3118,8034
+Mississippi Gulf Coast,NJCAA,176071,Mississippi Gulf Coast Community College,Perkinston,MS,2,2.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4754,5937
+Missouri Baptist,NAIA,178244,Missouri Baptist University,Saint Louis,MO,4,2.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",910,0.4758,,4969
+Missouri Baptist University,NAIA,178244,Missouri Baptist University,Saint Louis,MO,4,2.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",910,0.4758,,4969
+Missouri State-West Plains,NJCAA,179344,Missouri State University-West Plains,West Plains,MO,2,3.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.406,5037
+Missouri Valley College,NAIA,178369,Missouri Valley College,Marshall,MO,4,1.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",974,0.2244,,4613
+Moberly Area,NJCAA,178448,Moberly Area Community College,Moberly,MO,2,1.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4421,4240
+Monroe Community,NJCAA,193326,Monroe Community College,Rochester,NY,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2669,8383
+Montgomery,NJCAA,163426,Montgomery College,Rockville,MD,2,2.1,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3244,9940
+Montreat College,NAIA,199032,Montreat College,Montreat,NC,4,2.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5031,,7421
+Morningside,NAIA,154004,Morningside University,Sioux City,IA,4,4.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5014,,8726
+Morningside University,NAIA,154004,Morningside University,Sioux City,IA,4,4.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5014,,8726
+Motlow State,NJCAA,221096,Motlow State Community College,Tullahoma,TN,2,1.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3356,5351
+Mount Marty University,NAIA,219198,Mount Marty University,Yankton,SD,4,3.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1120,0.5238,,8163
+Mount Mary University,NAIA,239390,Mount Mary University,Milwaukee,WI,4,2.7,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1020,0.4296,,10648
+Mount Mercy,NAIA,154013,Mount Mercy University,Cedar Rapids,IA,4,5.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5774,,7653
+Mount Mercy University,NAIA,154013,Mount Mercy University,Cedar Rapids,IA,4,5.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5774,,7653
+Mount San Antonio,NJCAA,119164,Mt San Antonio College,Walnut,CA,2,2.4,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.4467,8169
+Mount Vernon Nazarene,NAIA,204194,Mount Vernon Nazarene University,Mount Vernon,OH,4,5.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1131,0.6811,,7665
+Mount Vernon Nazarene University,NAIA,204194,Mount Vernon Nazarene University,Mount Vernon,OH,4,5.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1131,0.6811,,7665
+Nassau Community,NJCAA,193478,Nassau Community College,Garden City,NY,2,2.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.2335,10176
+Nebraska Central,NJCAA,180902,Central Community College,Grand Island,NE,2,3.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4809,10134
+Nelson University,NAIA,228325,Nelson University,Waxahachie,TX,4,1.9,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",980,0.4156,,8441
+New College of Florida,NAIA,262129,New College of Florida,Sarasota,FL,4,6.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1150,0.6667,,21232
+New Mexico Junior,NJCAA,187903,New Mexico Junior College,Hobbs,NM,2,5.4,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.5817,11693
+Niagara County,NJCAA,193946,Niagara County Community College,Sanborn,NY,2,3.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3184,9677
+North American University,NAIA,461795,North American University,Stafford,TX,4,1.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft",,0.3158,,6234
+North Arkansas,NJCAA,107460,North Arkansas College,Harrison,AR,2,2.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4179,8115
+North Central Missouri,NJCAA,179715,North Central Missouri College,Trenton,MO,2,4.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.576,8109
+Northeast Mississippi,NJCAA,176169,Northeast Mississippi Community College,Booneville,MS,2,2.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3362,7956
+Northeast Oklahoma A&M,NJCAA,207290,Northeastern Oklahoma A&M College,Miami,OK,2,1.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2636,4353
+Northeast Texas,NJCAA,227225,Northeast Texas Community College,Mount Pleasant,TX,2,4.0,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.559,6460
+Northern Essex,NJCAA,167376,Northern Essex Community College,Haverhill,MA,2,1.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2087,8120
+Northern Idaho,NJCAA,142443,North Idaho College,Coeur d'Alene,ID,2,2.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3752,10680
+Northland Pioneer,NJCAA,105349,Northland Pioneer College,Holbrook,AZ,3,1.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2188,,8300
+Northwest College,NJCAA,240657,Northwest College,Powell,WY,3,4.1,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4866,,7964
+Northwest Mississippi,NJCAA,176178,Northwest Mississippi Community College,Senatobia,MS,2,2.0,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4532,4341
+Northwest Shoals,NJCAA,101736,Northwest Shoals Community College,Muscle Shoals,AL,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3873,6725
+Northwest University,NAIA,236133,Northwest University,Kirkland,WA,4,5.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1150,0.7078,,15820
+Northwestern (IA),NAIA,154101,Northwestern College,Orange City,IA,4,5.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.6605,,8295
+Northwestern College (Iowa),NAIA,154101,Northwestern College,Orange City,IA,4,5.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.6605,,8295
+Oakland City University,NAIA,152099,Oakland City University,Oakland City,IN,4,4.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.6552,,8592
+Oakwood University,NAIA,101912,Oakwood University,Huntsville,AL,4,2.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4462,,9746
+Odessa,NJCAA,227304,Odessa College,Odessa,TX,3,1.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3702,,6721
+Oklahoma City Community,NJCAA,207449,Oklahoma City Community College,Oklahoma City,OK,2,2.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2655,7250
+Oklahoma City University,NAIA,207458,Oklahoma City University,Oklahoma City,OK,4,6.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1177,0.6488,,15051
+Oklahoma Panhandle State University,NAIA,207351,Oklahoma Panhandle State University,Goodwell,OK,3,2.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2094,,7665
+Oklahoma Wesleyan University,NAIA,206835,Oklahoma Wesleyan University,Bartlesville,OK,4,1.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3476,,5716
+Olivet Nazarene,NAIA,147828,Olivet Nazarene University,Bourbonnais,IL,4,4.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1117,0.6084,,8761
+Olivet Nazarene University,NAIA,147828,Olivet Nazarene University,Bourbonnais,IL,4,4.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1117,0.6084,,8761
+Onondaga Community,NJCAA,194222,Onondaga Community College,Syracuse,NY,2,1.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2739,4997
+Orange Coast,NJCAA,120342,Orange Coast College,Costa Mesa,CA,2,2.0,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.476,5757
+Oregon Institute of Technology,NAIA,209506,Oregon Institute of Technology,Klamath Falls,OR,4,4.7,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1150,0.5378,,10507
+Otero College,NJCAA,127778,Otero College,La Junta,CO,2,3.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.381,9634
+Ottawa,NAIA,155627,Ottawa University-Ottawa,Ottawa,KS,4,2.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1000,0.279,,2407
+Ottawa University,NAIA,155627,Ottawa University-Ottawa,Ottawa,KS,4,2.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1000,0.279,,2407
+Ottawa University Arizona,NAIA,464226,Ottawa University-Surprise,Surprise,AZ,4,2.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",972,0.1818,,4030
+Our Lady of the Lake University,NAIA,227331,Our Lady of the Lake University,San Antonio,TX,4,4.1,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4611,,13476
+Owens,NJCAA,204945,Owens Community College,Perrysburg,OH,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3511,7560
+Ozarka,NJCAA,107549,Ozarka College,Melbourne,AR,2,2.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4715,7866
+Ozarks (AR),NAIA,107558,University of the Ozarks,Clarksville,AR,3,5.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1105,0.5148,,15061
+Ozarks (MO),NAIA,178697,College of the Ozarks,Point Lookout,MO,3,5.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1118,0.6369,,13386
+Pacific Union College,NAIA,120865,Pacific Union College,Angwin,CA,4,6.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5828,,19380
+Panola,NJCAA,227386,Panola College,Carthage,TX,2,3.1,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4345,5714
+Paradise Valley,NJCAA,364016,Paradise Valley Community College,Phoenix,AZ,2,3.9,scorecard-njcaa-v1,outcome+resources,"grad6,spend,faculty_ft",,0.1885,,9976
+Park,NAIA,178721,Park University,Parkville,MO,4,1.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3843,,7714
+Park University,NAIA,178721,Park University,Parkville,MO,4,1.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3843,,7714
+Parkland,NJCAA,147916,Parkland College,Champaign,IL,2,2.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3177,10461
+Passaic County,NJCAA,186034,Passaic County Community College,Paterson,NJ,2,3.0,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.1925,8918
+Paul D. Camp,NJCAA,233037,Paul D Camp Community College,Franklin,VA,2,2.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3571,11994
+Paul Quinn College,NAIA,227429,Paul Quinn College,Dallas,TX,4,1.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2687,,4479
+Pearl River,NJCAA,176239,Pearl River Community College,Poplarville,MS,2,2.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3747,5159
+Pellissippi State,NJCAA,221643,Pellissippi State Community College,Knoxville,TN,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3149,8009
+Penn State Hazleton,NJCAA,214768,Pennsylvania State University-Penn State Hazleton,Hazleton,PA,3,3.8,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1200,0.2615,,4953
+Pensacola State,NJCAA,136473,Pensacola State College,Pensacola,FL,3,1.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3642,,5812
+Piedmont Virginia,NJCAA,233116,Piedmont Virginia Community College,Charlottesville,VA,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3859,6416
+Pikeville,NAIA,157535,University of Pikeville,Pikeville,KY,4,3.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4167,,11189
+Pima,NJCAA,105525,Pima Community College,Tucson,AZ,2,1.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.276,5731
+Point (GA),NAIA,138868,Point University,West Point,GA,4,2.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3407,,3040
+Point University,NAIA,138868,Point University,West Point,GA,4,2.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3407,,3040
+Polk State,NJCAA,136516,Polk State College,Winter Haven,FL,3,1.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3534,,6640
+Prairie State,NJCAA,148007,Prairie State College,Chicago Heights,IL,2,1.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2103,5930
+Pratt Community,NJCAA,155715,Pratt Community College,Pratt,KS,2,3.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4538,4401
+Providence (MT),NAIA,180258,University of Providence,Great Falls,MT,4,2.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",980,0.2794,,10820
+Queensborough,NJCAA,190673,CUNY Queensborough Community College,Bayside,NY,2,3.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2405,16182
+Ranger,NJCAA,227687,Ranger College,Ranger,TX,2,1.1,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.187,3285
+Reading Area,NJCAA,215585,Reading Area Community College,Reading,PA,2,2.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3363,7534
+Reinhardt University,NAIA,140872,Reinhardt University,Waleska,GA,4,3.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4357,,8500
+Rend Lake,NJCAA,148256,Rend Lake College,Ina,IL,2,4.0,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.6337,5095
+Richland,NJCAA,148292,Richland Community College,Decatur,IL,2,4.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.6032,13171
+Rio Grande (University of),NAIA,205203,University of Rio Grande,Rio Grande,OH,4,1.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3602,,6201
+Riverside,NJCAA,121901,Riverside City College,Riverside,CA,2,1.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3659,7438
+Roane State,NJCAA,221397,Roane State Community College,Harriman,TN,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3591,7340
+Rochester Christian University,NAIA,170967,Rochester Christian University,Rochester Hills,MI,4,3.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4412,,8275
+Rock Valley,NJCAA,148380,Rock Valley College,Rockford,IL,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3732,6924
+Rockland Community,NJCAA,195058,Rockland Community College,Suffern,NY,2,1.4,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.2913,6315
+Rocky Mountain,NAIA,180595,Rocky Mountain College,Billings,MT,4,4.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1083,0.4841,,11659
+Rocky Mountain College,NAIA,180595,Rocky Mountain College,Billings,MT,4,4.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1083,0.4841,,11659
+Rose State,NJCAA,207670,Rose State College,Midwest City,OK,2,1.5,scorecard-njcaa-v1,outcome+resources,"grad6,spend,faculty_ft",,0.2,,7072
+Saint Ambrose,NAIA,154235,Saint Ambrose University,Davenport,IA,4,5.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1093,0.6103,,11705
+Saint Ambrose University,NAIA,154235,Saint Ambrose University,Davenport,IA,4,5.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1093,0.6103,,11705
+Saint Francis (IL),NAIA,148575,Saint Francis Medical Center College of Nursing,Peoria,IL,4,6.5,scorecard-v1,resources,"spend,faculty_ft,endowment",,,,15728
+Saint Mary (KS),NAIA,155812,University of Saint Mary,Leavenworth,KS,4,2.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1029,0.4776,,8885
+Saint Mary-of-the-Woods College,NAIA,152381,Saint Mary-of-the-Woods College,Saint Mary of the Woods,IN,4,2.1,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4663,,5714
+Saint Thomas (FL),NAIA,137476,St. Thomas University,Miami Gardens,FL,4,3.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4806,,5550
+Saint Xavier University,NAIA,148627,Saint Xavier University,Chicago,IL,4,3.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5661,,7407
+Salt Lake Community,NJCAA,230746,Salt Lake Community College,Salt Lake City,UT,2,1.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2925,7695
+San Bernardino Valley,NJCAA,123527,San Bernardino Valley College,San Bernardino,CA,2,1.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.2785,3830
+San Diego Mesa,NJCAA,122375,San Diego Mesa College,San Diego,CA,3,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft",,0.3476,,4552
+San Diego Miramar,NJCAA,122384,San Diego Miramar College,San Diego,CA,2,2.1,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.4848,5601
+San Joaquin Delta,NJCAA,122658,San Joaquin Delta College,Stockton,CA,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.3452,4495
+Sandhills,NJCAA,199634,Sandhills Community College,Pinehurst,NC,2,2.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.5279,6716
+Santa Ana,NJCAA,121619,Santa Ana College,Santa Ana,CA,3,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3085,,7078
+Santa Barbara City,NJCAA,122889,Santa Barbara City College,Santa Barbara,CA,2,2.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3363,12542
+Santa Monica,NJCAA,122977,Santa Monica College,Santa Monica,CA,3,1.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3627,,8852
+Santa Rosa Junior,NJCAA,123013,Santa Rosa Junior College,Santa Rosa,CA,2,2.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3685,12095
+Savannah College of Art and Design,NAIA,140951,Savannah College of Art and Design,Savannah,GA,4,5.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1173,0.6941,,8616
+Science & Arts (OK),NAIA,207722,University of Science and Arts of Oklahoma,Chickasha,OK,3,3.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1152,0.4413,,8206
+Scottsdale,NJCAA,105747,Scottsdale Community College,Scottsdale,AZ,2,3.9,scorecard-njcaa-v1,outcome+resources,"grad6,spend,faculty_ft",,0.1732,,9950
+Seward County,NJCAA,155858,Seward County Community College,Liberal,KS,2,2.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.5018,8443
+Shawnee Community,NJCAA,148821,Shawnee Community College,Ullin,IL,2,3.1,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.5971,6074
+Shawnee State University,NAIA,205443,Shawnee State University,Portsmouth,OH,4,2.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4811,,6719
+Siena Heights,NAIA,172264,Siena Heights University,Adrian,MI,4,2.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",954,0.3862,,6331
+Siena Heights University,NAIA,172264,Siena Heights University,Adrian,MI,4,2.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",954,0.3862,,6331
+Sierra,NJCAA,123341,Sierra College,Rocklin,CA,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4203,5590
+Simpson University,NAIA,123457,Simpson University,Redding,CA,4,4.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4884,,12171
+Sinclair,NJCAA,205470,Sinclair Community College,Dayton,OH,3,1.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4111,,6687
+Skagit Valley,NJCAA,236638,Skagit Valley College,Mount Vernon,WA,3,3.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3612,,8929
+Snow,NJCAA,230597,Snow College,Ephraim,UT,3,3.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4582,,7997
+Soka University of America,NAIA,399911,Soka University of America,Aliso Viejo,CA,4,9.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1440,0.9182,,45356
+Somerset,NJCAA,157711,Somerset Community College,Somerset,KY,2,3.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.4308,5628
+South Mountain Community,NJCAA,105792,South Mountain Community College,Phoenix,AZ,2,3.0,scorecard-njcaa-v1,outcome+resources,"grad6,spend,faculty_ft",,0.1632,,6231
+South Plains,NJCAA,228158,South Plains College,Levelland,TX,2,1.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2892,6486
+South Puget Sound,NJCAA,236656,South Puget Sound Community College,Olympia,WA,2,3.8,scorecard-njcaa-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.437,,10755
+Southeastern Community (IA),NJCAA,154378,Southeastern Community College,West Burlington,IA,2,3.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4349,9551
+Southeastern University,NAIA,137564,Southeastern University,Lakeland,FL,4,2.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4255,,3698
+Southeastern University (Florida),NAIA,137564,Southeastern University,Lakeland,FL,4,2.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4255,,3698
+Southern Oregon,NAIA,210146,Southern Oregon University,Ashland,OR,4,3.1,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4253,,10493
+Southern Oregon University,NAIA,210146,Southern Oregon University,Ashland,OR,4,3.1,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4253,,10493
+Southwestern (CA),NJCAA,123800,Southwestern College,Chula Vista,CA,2,1.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.355,7280
+Southwestern (KS),NAIA,155900,Southwestern College,Winfield,KS,4,3.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3568,,6496
+Southwestern Christian University,NAIA,207856,Southwestern Christian University,Bethany,OK,4,1.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.1613,,4001
+Southwestern College (Kansas),NAIA,155900,Southwestern College,Winfield,KS,4,3.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3568,,6496
+Southwestern Illinois,NJCAA,143215,Southwestern Illinois College,Belleville,IL,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3648,8444
+Spartanburg Methodist,NJCAA,218821,Spartanburg Methodist College,Spartanburg,SC,3,2.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4292,,6270
+Spartanburg Methodist College,NAIA,218821,Spartanburg Methodist College,Spartanburg,SC,3,2.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4292,,6270
+Spring Arbor,NAIA,172334,Spring Arbor University,Spring Arbor,MI,4,4.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1170,0.6354,,5867
+Spring Arbor University,NAIA,172334,Spring Arbor University,Spring Arbor,MI,4,4.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1170,0.6354,,5867
+St. Charles Community,NJCAA,262031,St Charles Community College,Cottleville,MO,2,1.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2482,6713
+St. Louis Community-Florissant Valley,NJCAA,179308,Saint Louis Community College,Bridgeton,MO,2,2.1,scorecard-njcaa-v1,outcome+resources,"grad6,spend,faculty_ft",,0.2132,,9176
+St. Louis Community-Forest Park,NJCAA,179308,Saint Louis Community College,Bridgeton,MO,2,2.1,scorecard-njcaa-v1,outcome+resources,"grad6,spend,faculty_ft",,0.2132,,9176
+St. Louis Community-Meramec,NJCAA,179308,Saint Louis Community College,Bridgeton,MO,2,2.1,scorecard-njcaa-v1,outcome+resources,"grad6,spend,faculty_ft",,0.2132,,9176
+St. Thomas University (Florida),NAIA,137476,St. Thomas University,Miami Gardens,FL,4,3.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4806,,5550
+Stephens College,NAIA,179548,Stephens College,Columbia,MO,4,5.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4274,,17955
+Sterling,NAIA,155937,Sterling College,Sterling,KS,4,2.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4129,,6665
+Sterling College (Kansas),NAIA,155937,Sterling College,Sterling,KS,4,2.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4129,,6665
+Suffolk County,NJCAA,366395,Suffolk County Community College,Selden,NY,2,2.0,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2867,9779
+Sullivan County,NJCAA,195988,Sullivan County Community College,Loch Sheldrake,NY,2,1.4,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3318,6172
+Surry,NJCAA,199768,Surry Community College,Dobson,NC,2,1.8,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.064,7951
+Tabor,NAIA,155973,Tabor College,Hillsboro,KS,4,2.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3374,,8066
+Tabor College,NAIA,155973,Tabor College,Hillsboro,KS,4,2.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3374,,8066
+Talladega College,NAIA,102298,Talladega College,Talladega,AL,4,2.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3091,,8403
+Tallahassee,NJCAA,137759,Tallahassee State College,Tallahassee,FL,3,1.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3795,,5224
+Taylor,NAIA,152530,Taylor University,Upland,IN,4,6.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1220,0.7381,,11366
+Taylor University,NAIA,152530,Taylor University,Upland,IN,4,6.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1220,0.7381,,11366
+Tennessee Wesleyan University,NAIA,221731,Tennessee Wesleyan University,Athens,TN,4,3.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1090,0.4759,,7980
+Terra State,NJCAA,206011,Terra State Community College,Fremont,OH,2,1.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3879,4659
+Texas A&M University-San Antonio,NAIA,459949,Texas A&M University-San Antonio,San Antonio,TX,4,2.1,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",955,0.4017,,5571
+Texas A&M University-Texarkana,NAIA,224545,Texas A&M University-Texarkana,Texarkana,TX,4,3.7,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2957,,16462
+Texas A&M University-Victoria,NAIA,225502,Texas A&M University-Victoria,Victoria,TX,4,2.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2638,,10420
+Texas College,NAIA,228884,Texas College,Tyler,TX,3,2.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.1375,,3445
+Texas Wesleyan University,NAIA,229160,Texas Wesleyan University,Fort Worth,TX,4,2.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1070,0.3154,,9615
+The Evergreen State College,NAIA,235167,The Evergreen State College,Olympia,WA,4,4.7,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1216,0.4074,,11647
+The Master's University,NAIA,117751,The Master's University and Seminary,Santa Clarita,CA,4,4.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.6773,,8426
+Thomas University,NAIA,141167,Thomas University,Thomasville,GA,4,2.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1072,0.2754,,10947
+Three Rivers,NJCAA,179645,Three Rivers College,Poplar Bluff,MO,2,2.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3333,4872
+Tidewater,NJCAA,233772,Tidewater Community College,Norfolk,VA,2,1.4,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3171,5951
+Tompkins Cortland,NJCAA,196565,Tompkins Cortland Community College,Dryden,NY,2,2.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2555,4333
+Tougaloo College,NAIA,176406,Tougaloo College,Tougaloo,MS,4,3.1,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3311,,5291
+Trinity Christian,NAIA,149505,Trinity Christian College,Palos Heights,IL,4,4.8,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1157,0.5752,,12581
+Trinity Christian College,NAIA,149505,Trinity Christian College,Palos Heights,IL,4,4.8,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1157,0.5752,,12581
+Trinity Valley,NJCAA,225308,Trinity Valley Community College,Athens,TX,3,2.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2721,,6027
+Truett McConnell University,NAIA,141237,Truett McConnell University,Cleveland,GA,4,2.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3781,,4143
+Tulsa Community,NJCAA,207935,Tulsa Community College,Tulsa,OK,2,2.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2836,6429
+Tyler Junior,NJCAA,229355,Tyler Junior College,Tyler,TX,3,1.9,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2739,,4683
+Union (KY),NAIA,157863,Union Commonwealth University,Barbourville,KY,4,2.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",980,0.3213,,5205
+Union Commonwealth University,NAIA,157863,Union Commonwealth University,Barbourville,KY,4,2.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",980,0.3213,,5205
+Union County,NJCAA,187198,UCNJ Union College of Union County New Jersey,Cranford,NJ,2,2.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3542,7388
+University of Health Sciences and Pharmacy in St. Louis,NAIA,179265,University of Health Sciences and Pharmacy in St. Louis,Saint Louis,MO,4,6.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1131,0.6168,,28357
+University of Michigan-Dearborn,NAIA,171137,University of Michigan-Dearborn,Dearborn,MI,4,4.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1115,0.5798,,12893
+University of Mobile,NAIA,101693,University of Mobile,Mobile,AL,4,5.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1220,0.5685,,8091
+University of Northwestern Ohio,NAIA,204486,University of Northwestern Ohio,Lima,OH,4,4.1,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft",,0.5402,,4987
+University of Pikeville,NAIA,157535,University of Pikeville,Pikeville,KY,4,3.5,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4167,,11189
+University of Providence,NAIA,180258,University of Providence,Great Falls,MT,4,2.4,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",980,0.2794,,10820
+University of Saint Francis (IN),NAIA,152336,University of Saint Francis-Fort Wayne,Fort Wayne,IN,4,3.7,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",981,0.5497,,11311
+University of Saint Mary,NAIA,155812,University of Saint Mary,Leavenworth,KS,4,2.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1029,0.4776,,8885
+University of Science and Arts of Oklahoma,NAIA,207722,University of Science and Arts of Oklahoma,Chickasha,OK,3,3.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1152,0.4413,,8206
+University of St. Francis (IL),NAIA,148584,University of St Francis,Joliet,IL,4,5.0,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1141,0.6682,,6677
+University of Tennessee Southern,NAIA,220701,The University of Tennessee Southern,Pulaski,TN,4,2.7,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1083,0.369,,6412
+University of the Cumberlands,NAIA,156541,University of the Cumberlands,Williamsburg,KY,4,2.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.5043,,2932
+University of the Southwest,NAIA,188182,University of the Southwest,Hobbs,NM,4,3.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.1698,,4066
+University of the Southwest (New Mexico),NAIA,188182,University of the Southwest,Hobbs,NM,4,3.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.1698,,4066
+Ventura,NJCAA,125028,Ventura College,Ventura,CA,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.3846,5768
+Vernon,NJCAA,229504,Vernon College,Vernon,TX,2,1.5,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2102,5999
+Victor Valley,NJCAA,125091,Victor Valley College,Victorville,CA,2,3.1,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.6176,5254
+Vincennes,NJCAA,152637,Vincennes University,Vincennes,IN,3,2.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3892,,7366
+Virginia Highlands,NJCAA,233903,Virginia Highlands Community College,Abingdon,VA,2,1.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4006,6965
+Virginia Western,NJCAA,233949,Virginia Western Community College,Roanoke,VA,2,1.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4012,7677
+Viterbo University,NAIA,240107,Viterbo University,La Crosse,WI,4,5.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1190,0.6838,,8971
+Volunteer State,NJCAA,222053,Volunteer State Community College,Gallatin,TN,2,1.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2818,7902
+Wake Technical,NJCAA,199856,Wake Technical Community College,Raleigh,NC,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3296,6859
+Waldorf,NAIA,154518,Waldorf University,Forest City,IA,4,1.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft",,0.2114,,3138
+Waldorf University,NAIA,154518,Waldorf University,Forest City,IA,4,1.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft",,0.2114,,3138
+Walla Walla University,NAIA,236896,Walla Walla University,College Place,WA,4,6.4,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.599,,14372
+Wallace State,NJCAA,101295,George C Wallace State Community College-Hanceville,Hanceville,AL,2,2.7,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft",,,0.512,7753
+Walters State,NJCAA,222062,Walters State Community College,Morristown,TN,2,1.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3333,7937
+Warner,NAIA,138275,Warner University,Lake Wales,FL,4,1.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",932,0.4213,,5418
+Warner Pacific University,NAIA,210304,Warner Pacific University,Portland,OR,3,4.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4918,,7444
+Warner University,NAIA,138275,Warner University,Lake Wales,FL,4,1.5,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",932,0.4213,,5418
+Washington Adventist University,NAIA,162210,Washington Adventist University,Takoma Park,MD,4,2.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",980,0.2865,,18786
+Wayland Baptist,NAIA,229780,Wayland Baptist University,Plainview,TX,4,4.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.1929,,11561
+Wayland Baptist University,NAIA,229780,Wayland Baptist University,Plainview,TX,4,4.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.1929,,11561
+Weatherford,NJCAA,229799,Weatherford College,Weatherford,TX,3,2.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.3462,,7015
+Webber International,NAIA,138293,Webber International University,Babson Park,FL,4,1.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2796,,3881
+Webber International University,NAIA,138293,Webber International University,Babson Park,FL,4,1.3,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2796,,3881
+West Virginia University Institute of Technology,NAIA,237950,West Virginia University Institute of Technology,Beckley,WV,3,2.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1033,0.3296,,6243
+Westcliff University,NAIA,490133,Westcliff University,Irvine,CA,4,3.0,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft",,0.622,,2259
+Western Nebraska,NJCAA,181817,Western Nebraska Community College,Scottsbluff,NE,2,3.9,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3663,11728
+Western Wyoming,NJCAA,240693,Western Wyoming Community College,Rock Springs,WY,3,3.8,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.325,,10785
+Westmoreland County,NJCAA,216825,Westmoreland County Community College,Youngwood,PA,2,1.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3092,5269
+Wharton County Junior,NJCAA,229841,Wharton County Junior College,Wharton,TX,2,1.6,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.2727,5049
+Wiley University,NAIA,229887,Wiley University,Marshall,TX,4,1.6,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.2424,,3644
+William Carey University,NAIA,176479,William Carey University,Hattiesburg,MS,4,4.6,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1122,0.5978,,12293
+William Penn,NAIA,154590,William Penn University,Oskaloosa,IA,4,2.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",984,0.3262,,5781
+William Penn University,NAIA,154590,William Penn University,Oskaloosa,IA,4,2.2,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",984,0.3262,,5781
+William Rainey Harper,NJCAA,149842,William Rainey Harper College,Palatine,IL,2,2.3,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.4762,7774
+William Woods,NAIA,179964,William Woods University,Fulton,MO,4,2.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4681,,6000
+William Woods University,NAIA,179964,William Woods University,Fulton,MO,4,2.2,scorecard-v1,outcome+resources,"grad6,spend,faculty_ft,endowment",,0.4681,,6000
+Williams Baptist University,NAIA,107877,Williams Baptist University,Walnut Ridge,AR,4,2.3,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",980,0.2564,,4360
+Xavier (LA),NAIA,160904,Xavier University of Louisiana,New Orleans,LA,4,3.7,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1080,0.4855,,9547
+Xavier University of Louisiana,NAIA,160904,Xavier University of Louisiana,New Orleans,LA,4,3.7,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1080,0.4855,,9547
+York County,NJCAA,420440,York County Community College,Wells,ME,2,1.2,scorecard-njcaa-v1,outcome+resources,"grad2yr,spend,faculty_ft,endowment",,,0.3383,4306
+York University (Nebraska),NAIA,181853,York University,York,NE,4,2.7,scorecard-v1,intake+outcome+resources,"sat,grad6,spend,faculty_ft,endowment",1022,0.5221,,5315

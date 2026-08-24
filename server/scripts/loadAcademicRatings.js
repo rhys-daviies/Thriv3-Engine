@@ -19,8 +19,15 @@
  *   node server/scripts/loadAcademicRatings.js --apply    # write
  *
  * Backs the database up before writing. Touches only academic_rating and
- * academic_rating_source, and only on NCAA D1/D2/D3 rows — NAIA and NJCAA are
- * out of scope for this collection and keep whatever they had.
+ * academic_rating_source.
+ *
+ * Two files, because they were collected separately and mean slightly
+ * different things. The NCAA file is keyed on (School, Sports); the NAIA and
+ * NJCAA file is keyed on (School, division), since those rows carry no sport
+ * split in the source. Junior colleges arrive labelled `scorecard-njcaa-v1`
+ * rather than `scorecard-v1`: their outcome leg is a two-year completion rate
+ * standing in for a six-year one, which is a real substitution and should
+ * stay visible in the column rather than only in a commit message.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -30,23 +37,46 @@ import db from '../db/client.js';
 
 const apply = process.argv.includes('--apply');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const CSV = path.resolve(__dirname, '../../data/university-individualisation/academic/academic_ratings_final.csv');
+const DATA = path.resolve(__dirname, '../../data/university-individualisation/academic');
+const CSV = path.join(DATA, 'academic_ratings_final.csv');
+const CSV_OTHER = path.join(DATA, 'academic_ratings_naia_njcaa.csv');
 const SOURCE = 'scorecard-v1';
-const IN_SCOPE = ['NCAA D1', 'NCAA D2', 'NCAA D3'];
+const IN_SCOPE = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA'];
 
 const rows = parseCsvToObjects(fs.readFileSync(CSV, 'utf-8'));
 if (rows.length < 1000) throw new Error(`only ${rows.length} rows in ${CSV} — expected ~1,336`);
 
 // One CSV row can cover both sports at a school; the DB holds one row each.
 const wanted = new Map();
-for (const r of rows) {
-  const rating = Number(r.academic_rating);
+const check = (r, rating) => {
   if (!Number.isFinite(rating) || rating < 1 || rating > 10) {
     throw new Error(`rating out of range for ${r.School}: ${r.academic_rating}`);
   }
+};
+for (const r of rows) {
+  const rating = Number(r.academic_rating);
+  check(r, rating);
   for (const s of String(r.Sports || '').split('+')) {
     const sport = `${s.trim()}-soccer`;
-    if (s.trim()) wanted.set(`${r.School}|${sport}`, { rating, row: r, sport });
+    if (s.trim()) wanted.set(`${r.School}|${sport}`, { rating, source: SOURCE });
+  }
+}
+
+// NAIA and NJCAA: one row per school name, applied to whichever sports that
+// name is carried under.
+const other = parseCsvToObjects(fs.readFileSync(CSV_OTHER, 'utf-8'));
+if (other.length < 400) throw new Error(`only ${other.length} rows in ${CSV_OTHER} — expected ~507`);
+const sportsFor = new Map();
+for (const c of db.prepare("SELECT name, sport, division FROM colleges WHERE division IN ('NAIA','NJCAA')").all()) {
+  const k = `${c.name}|${c.division}`;
+  if (!sportsFor.has(k)) sportsFor.set(k, []);
+  sportsFor.get(k).push(c.sport);
+}
+for (const r of other) {
+  const rating = Number(r.academic_rating);
+  check(r, rating);
+  for (const sport of sportsFor.get(`${r.School}|${r.division}`) || []) {
+    wanted.set(`${r.School}|${sport}`, { rating, source: r.source || SOURCE });
   }
 }
 
@@ -64,16 +94,16 @@ for (const [key, want] of wanted) {
   const col = byKey.get(key);
   if (!col) { noDbRow.push(key); continue; }
   const before = col.academic_rating;
-  if (before !== null && Math.abs(before - want.rating) < 0.05 && col.academic_rating_source === SOURCE) {
+  if (before !== null && Math.abs(before - want.rating) < 0.05 && col.academic_rating_source === want.source) {
     unchanged.push(key);
   } else {
-    changes.push({ id: col.id, key, before, after: want.rating, wasSource: col.academic_rating_source });
+    changes.push({ id: col.id, key, before, after: want.rating, source: want.source, wasSource: col.academic_rating_source });
   }
 }
 const notCovered = existing.filter((c) => !wanted.has(`${c.name}|${c.sport}`));
 
-console.log(`${rows.length} CSV rows -> ${wanted.size} (name, sport) pairs`);
-console.log(`${existing.length} NCAA D1/D2/D3 rows in the database\n`);
+console.log(`${rows.length} NCAA + ${other.length} NAIA/NJCAA CSV rows -> ${wanted.size} (name, sport) pairs`);
+console.log(`${existing.length} rows in the database across ${IN_SCOPE.join(', ')}\n`);
 console.log(`  ${changes.length} to write`);
 console.log(`  ${unchanged.length} already correct`);
 console.log(`  ${noDbRow.length} CSV pairs with no database row`);
@@ -109,7 +139,7 @@ const update = db.prepare(
 );
 const now = new Date().toISOString();
 const run = db.transaction((list) => {
-  for (const c of list) update.run(c.after, SOURCE, now, c.id);
+  for (const c of list) update.run(c.after, c.source, now, c.id);
 });
 run(changes);
 
@@ -118,4 +148,4 @@ const after = db.prepare(
      FROM colleges WHERE division IN (${IN_SCOPE.map(() => '?').join(',')})`
 ).get(...IN_SCOPE);
 console.log(`\nwrote ${changes.length} rows (backup: ${path.basename(backup)})`);
-console.log(`NCAA rows now: ${after.n}, still unrated: ${after.unrated}`);
+console.log(`rows in scope now: ${after.n}, still unrated: ${after.unrated}`);

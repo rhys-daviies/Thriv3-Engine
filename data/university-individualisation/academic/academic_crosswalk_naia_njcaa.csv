@@ -1,0 +1,508 @@
+school,division,unitid,scorecard_name,city,state,highest_degree,match_basis
+Abraham Baldwin Agricultural College,NAIA,138558,Abraham Baldwin Agricultural College,Tifton,GA,3,exact name
+Allan Hancock,NJCAA,108807,Allan Hancock College,Santa Maria,CA,2,normalised name
+Allegany,NJCAA,161688,Allegany College of Maryland,Cumberland,MD,2,hand-verified alias
+Allen County Community,NJCAA,154642,Allen County Community College,Iola,KS,2,normalised name
+American River,NJCAA,109208,American River College,Sacramento,CA,2,normalised name
+Ancilla,NJCAA,497833,Marian University-Ancilla,Plymouth,IN,3,hand-verified alias
+Andrew College,NAIA,138761,Andrew College,Cuthbert,GA,2,exact name
+Anne Arundel,NJCAA,161767,Anne Arundel Community College,Arnold,MD,2,"normalised, suffix tolerated"
+Aquinas,NAIA,168786,Aquinas College,Grand Rapids,MI,4,normalised name
+Aquinas College (Michigan),NAIA,168786,Aquinas College,Grand Rapids,MI,4,exact name + state from our own name
+Arizona Christian,NAIA,105899,Arizona Christian University,Glendale,AZ,4,normalised name
+Arizona Christian University,NAIA,105899,Arizona Christian University,Glendale,AZ,4,exact name
+Arizona Western,NJCAA,104160,Arizona Western College,Yuma,AZ,2,normalised name
+Atlantic Cape,NJCAA,183655,Atlantic Cape Community College,Mays Landing,NJ,2,"normalised, suffix tolerated"
+Ave Maria University,NAIA,446048,Ave Maria University,Ave Maria,FL,4,exact name
+Avila,NAIA,176628,Avila University,Kansas City,MO,4,normalised name
+Avila University,NAIA,176628,Avila University,Kansas City,MO,4,exact name
+Baker,NAIA,154688,Baker University,Baldwin City,KS,4,hand-verified alias
+Baker University,NAIA,154688,Baker University,Baldwin City,KS,4,hand-verified alias
+Barclay,NAIA,155070,Barclay College,Haviland,KS,4,normalised name
+Barton County,NJCAA,154697,Barton County Community College,Great Bend,KS,2,our name is a prefix of theirs
+Bellevue University,NAIA,180814,Bellevue University,Bellevue,NE,4,exact name
+Benedictine (KS),NAIA,154712,Benedictine College,Atchison,KS,4,normalised name + state from our own name
+Benedictine College,NAIA,154712,Benedictine College,Atchison,KS,4,exact name
+Bethany (KS),NAIA,154721,Bethany College,Lindsborg,KS,3,normalised name + state from our own name
+Bethany College (Kansas),NAIA,154721,Bethany College,Lindsborg,KS,3,exact name + state from our own name
+Bethel (IN),NAIA,150145,Bethel University,Mishawaka,IN,4,normalised name + state from our own name
+Bethel (TN),NAIA,219718,Bethel University,McKenzie,TN,4,normalised name + state from our own name
+Bethel College (Kansas),NAIA,154749,Bethel College-North Newton,North Newton,KS,3,our name is a prefix of theirs + state from our own name
+Bethel University (IN),NAIA,150145,Bethel University,Mishawaka,IN,4,exact name + state from our own name
+Bethel University (TN),NAIA,219718,Bethel University,McKenzie,TN,4,exact name + state from our own name
+Bethesda,NAIA,110060,Bethesda University,Anaheim,CA,4,normalised name
+Blinn,NJCAA,223427,Blinn College District,Brenham,TX,2,hand-verified alias
+Blue Mountain,NJCAA,208275,Blue Mountain Community College,Pendleton,OR,2,"normalised, suffix tolerated"
+Blue Mountain Christian University,NAIA,175430,Blue Mountain Christian University,Blue Mountain,MS,4,exact name
+Bluefield University,NAIA,231554,Bluefield University,Bluefield,VA,4,exact name
+Bossier Parish,NJCAA,158431,Bossier Parish Community College,Bossier City,LA,2,"normalised, suffix tolerated"
+Brenau University,NAIA,139199,Brenau University,Gainesville,GA,4,exact name
+Brescia University,NAIA,156356,Brescia University,Owensboro,KY,4,exact name
+Brewton-Parker Christian University,NAIA,139205,Brewton-Parker Christian University,Mount Vernon,GA,4,exact name
+Briar Cliff University,NAIA,152992,Briar Cliff University,Sioux City,IA,4,exact name
+Brookdale,NJCAA,183859,Brookdale Community College,Lincroft,NJ,2,"normalised, suffix tolerated"
+Broward,NJCAA,132709,Broward College,Fort Lauderdale,FL,3,normalised name
+Bryan,NAIA,219790,Bryan College-Dayton,Dayton,TN,4,hand-verified alias
+Bryan College,NAIA,219790,Bryan College-Dayton,Dayton,TN,4,hand-verified alias
+Buffalo-Erie,NJCAA,191083,Erie Community College,Buffalo,NY,2,hand-verified alias
+Bushnell University,NAIA,209409,Bushnell University,Eugene,OR,4,exact name
+Butler County,NJCAA,211343,Butler County Community College,Butler,PA,2,our name is a prefix of theirs
+Calumet College,NAIA,150172,Calumet College of Saint Joseph,Whiting,IN,4,our name is a prefix of theirs
+Calumet College of St. Joseph,NAIA,150172,Calumet College of Saint Joseph,Whiting,IN,4,hand-verified alias
+Campbellsville University,NAIA,156365,Campbellsville University,Campbellsville,KY,4,exact name
+Cape Fear,NJCAA,198154,Cape Fear Community College,Wilmington,NC,2,"normalised, suffix tolerated"
+Carl Sandburg,NJCAA,143613,Carl Sandburg College,Galesburg,IL,2,normalised name
+Carolina University,NAIA,489937,Carolina University,Winston-Salem,NC,4,exact name
+Carroll (MT),NAIA,180106,Carroll College,Helena,MT,4,normalised name + state from our own name
+Carroll College,NAIA,180106,Carroll College,Helena,MT,4,exact name
+Cascadia,NJCAA,439190,Cascadia College,Bothell,WA,3,normalised name
+Catawba Valley,NJCAA,198233,Catawba Valley Community College,Hickory,NC,2,"normalised, suffix tolerated"
+Cecil,NJCAA,162104,Cecil College,North East,MD,2,normalised name
+Central Alabama,NJCAA,100760,Central Alabama Community College,Alexander City,AL,2,"normalised, suffix tolerated"
+Central Arizona,NJCAA,104346,Central Arizona College,Coolidge,AZ,2,normalised name
+Central Baptist College,NAIA,106713,Central Baptist College,Conway,AR,3,exact name
+Central Christian,NAIA,154855,Central Christian College of Kansas,McPherson,KS,4,hand-verified alias
+Central Christian College of Kansas,NAIA,154855,Central Christian College of Kansas,McPherson,KS,4,exact name
+Central Georgia Tech,NJCAA,483045,Central Georgia Technical College,Warner Robins,GA,2,hand-verified alias
+Central Lakes,NJCAA,173203,Central Lakes College-Brainerd,Brainerd,MN,2,our name is a prefix of theirs
+Central Methodist,NAIA,176947,Central Methodist University-College of Liberal Arts and Sciences,Fayette,MO,3,hand-verified alias
+Central Methodist University,NAIA,176947,Central Methodist University-College of Liberal Arts and Sciences,Fayette,MO,3,hand-verified alias
+Central Penn,NJCAA,211477,Central Penn College,Summerdale,PA,4,normalised name
+Chesapeake,NJCAA,162168,Chesapeake College,Wye Mills,MD,2,normalised name
+Chipola,NJCAA,133021,Chipola College,Marianna,FL,3,normalised name
+City Colleges Chicago-Harold Washington,NJCAA,144209,City Colleges of Chicago-Harold Washington College,Chicago,IL,2,normalised name
+City Colleges Chicago-Olive Harvey,NJCAA,144175,City Colleges of Chicago-Olive-Harvey College,Chicago,IL,2,normalised name
+City Colleges Chicago-Richard Daley,NJCAA,144193,City Colleges of Chicago-Richard J Daley College,Chicago,IL,2,hand-verified alias
+City Colleges Chicago-Wilbur Wright,NJCAA,144218,City Colleges of Chicago-Wilbur Wright College,Chicago,IL,2,normalised name
+Clarke,NAIA,153126,Clarke University,Dubuque,IA,4,normalised name
+Clarke University,NAIA,153126,Clarke University,Dubuque,IA,4,exact name
+Cleary University,NAIA,169327,Cleary University,Howell,MI,4,exact name
+Coffeyville,NJCAA,154925,Coffeyville Community College,Coffeyville,KS,2,"normalised, suffix tolerated"
+College of DuPage,NJCAA,144865,College of DuPage,Glen Ellyn,IL,2,exact name
+College of Idaho,NAIA,142294,The College of Idaho,Caldwell,ID,4,hand-verified alias
+College of Lake County,NJCAA,146472,College of Lake County,Grayslake,IL,2,exact name
+College of Marin,NJCAA,118347,College of Marin,Kentfield,CA,2,exact name
+College of Saint Mary,NAIA,181604,College of Saint Mary,Omaha,NE,4,exact name
+College of Southern Idaho,NJCAA,142559,College of Southern Idaho,Twin Falls,ID,3,exact name
+College of Southern Nevada,NJCAA,182005,College of Southern Nevada,Las Vegas,NV,3,exact name
+Collin College,NJCAA,247834,Collin County Community College District,McKinney,TX,3,hand-verified alias
+Columbia (MO),NAIA,177065,Columbia College,Columbia,MO,4,normalised name + state from our own name
+Columbia College (MO),NAIA,177065,Columbia College,Columbia,MO,4,exact name + state from our own name
+Columbia College (SC),NAIA,217934,Columbia College,Columbia,SC,4,exact name + state from our own name
+Columbia International University,NAIA,217925,Columbia International University,Columbia,SC,4,exact name
+Concordia (MI),NAIA,169363,Concordia University Ann Arbor,Ann Arbor,MI,4,our name is a prefix of theirs + state from our own name
+Concordia (NE),NAIA,180984,Concordia University-Nebraska,Seward,NE,4,our name is a prefix of theirs + state from our own name
+Concordia University Nebraska,NAIA,180984,Concordia University-Nebraska,Seward,NE,4,normalised name
+Contra Costa,NJCAA,112826,Contra Costa College,San Pablo,CA,2,normalised name
+Copiah-Lincoln,NJCAA,175573,Copiah-Lincoln Community College,Wesson,MS,2,"normalised, suffix tolerated"
+Corban University,NAIA,210331,Corban University,Salem,OR,4,exact name
+Cornerstone,NAIA,170037,Cornerstone University,Grand Rapids,MI,4,normalised name
+Cornerstone University,NAIA,170037,Cornerstone University,Grand Rapids,MI,4,exact name
+Cowley County,NJCAA,154952,Cowley County Community College,Arkansas City,KS,2,"normalised, suffix tolerated"
+Crowder,NJCAA,177135,Crowder College,Neosho,MO,2,normalised name
+Culver-Stockton College,NAIA,177144,Culver-Stockton College,Canton,MO,4,exact name
+Cumberland University,NAIA,219949,Cumberland University,Lebanon,TN,4,exact name
+Cumberlands,NAIA,156541,University of the Cumberlands,Williamsburg,KY,4,normalised name
+Dakota State University,NAIA,219082,Dakota State University,Madison,SD,4,exact name
+Dakota Wesleyan,NAIA,219091,Dakota Wesleyan University,Mitchell,SD,4,normalised name
+Dakota Wesleyan University,NAIA,219091,Dakota Wesleyan University,Mitchell,SD,4,exact name
+Dallas Christian,NAIA,224244,Dallas Christian College,Dallas,TX,4,normalised name
+Dalton State College,NAIA,139463,Dalton State College,Dalton,GA,3,exact name
+Danville Area,NJCAA,144564,Danville Area Community College,Danville,IL,2,our name is a prefix of theirs
+Daytona State,NJCAA,133386,Daytona State College,Daytona Beach,FL,3,normalised name
+Defiance College,NAIA,202514,Defiance College,Defiance,OH,4,exact name
+Delta College (MI),NJCAA,169521,Delta College,University Center,MI,2,exact name + state from our own name
+Des Moines Area,NJCAA,153214,Des Moines Area Community College,Ankeny,IA,2,"normalised, suffix tolerated"
+Diablo Valley,NJCAA,113634,Diablo Valley College,Pleasant Hill,CA,2,normalised name
+Doane,NAIA,181020,Doane University,Crete,NE,4,normalised name
+Doane University,NAIA,181020,Doane University,Crete,NE,4,exact name
+Dodge City,NJCAA,154998,Dodge City Community College,Dodge City,KS,2,"normalised, suffix tolerated"
+Dordt,NAIA,153250,Dordt University,Sioux Center,IA,4,normalised name
+Dordt University,NAIA,153250,Dordt University,Sioux Center,IA,4,exact name
+East Central (OK),NJCAA,207041,East Central University,Ada,OK,4,normalised name + state from our own name
+East Mississippi,NJCAA,175652,East Mississippi Community College,Scooba,MS,2,"normalised, suffix tolerated"
+Eastern Arizona,NJCAA,104577,Eastern Arizona College,Thatcher,AZ,2,normalised name
+Eastern Florida State,NJCAA,132693,Eastern Florida State College,Melbourne,FL,3,normalised name
+Eastern Oregon,NAIA,208646,Eastern Oregon University,La Grande,OR,4,normalised name
+Eastern Oregon University,NAIA,208646,Eastern Oregon University,La Grande,OR,4,exact name
+Eastern Wyoming,NJCAA,240596,Eastern Wyoming College,Torrington,WY,2,normalised name
+El Camino,NJCAA,113980,El Camino Community College District,Torrance,CA,2,hand-verified alias
+Ellsworth,NJCAA,153296,Ellsworth Community College,Iowa Falls,IA,2,"normalised, suffix tolerated"
+Embry-Riddle Aeronautical University Prescott,NAIA,104586,Embry-Riddle Aeronautical University-Prescott,Prescott,AZ,4,normalised name
+Essex County,NJCAA,184481,Essex County College,Newark,NJ,2,normalised name
+Evangel,NAIA,177339,Evangel University,Springfield,MO,4,normalised name
+Evangel University,NAIA,177339,Evangel University,Springfield,MO,4,exact name
+Everett,NJCAA,235149,Everett Community College,Everett,WA,3,"normalised, suffix tolerated"
+Faulkner University,NAIA,101189,Faulkner University,Montgomery,AL,4,exact name
+Finger Lakes Community,NJCAA,191199,Finger Lakes Community College,Canandaigua,NY,2,normalised name
+Fisher College,NAIA,165802,Fisher College,Boston,MA,4,exact name
+Florida College,NAIA,133809,Florida College,Temple Terrace,FL,3,exact name
+Florida Memorial,NAIA,133979,Florida Memorial University,Miami Gardens,FL,4,normalised name
+Florida Memorial University,NAIA,133979,Florida Memorial University,Miami Gardens,FL,4,exact name
+Florida National University,NAIA,408844,Florida National University-Main Campus,Hialeah,FL,4,normalised name
+Florida State College Jacksonville,NJCAA,133702,Florida State College at Jacksonville,Jacksonville,FL,3,normalised name
+Fort Scott Community,NJCAA,155098,Fort Scott Community College,Fort Scott,KS,2,normalised name
+Frederick,NJCAA,162557,Frederick Community College,Frederick,MD,2,"normalised, suffix tolerated"
+Freed-Hardeman,NAIA,220215,Freed-Hardeman University,Henderson,TN,4,normalised name
+Freed-Hardeman University,NAIA,220215,Freed-Hardeman University,Henderson,TN,4,exact name
+Friends,NAIA,155089,Friends University,Wichita,KS,4,normalised name
+Friends University,NAIA,155089,Friends University,Wichita,KS,4,exact name
+Front Range,NJCAA,127200,Front Range Community College,Westminster,CO,3,"normalised, suffix tolerated"
+Gadsden State,NJCAA,101240,Gadsden State Community College,Gadsden,AL,2,"normalised, suffix tolerated"
+Garden City Community,NJCAA,155104,Garden City Community College,Garden City,KS,2,normalised name
+Garrett,NJCAA,162609,Garrett College,McHenry,MD,2,normalised name
+Genesee Community,NJCAA,191339,Genesee Community College,Batavia,NY,2,normalised name
+Georgetown (KY),NAIA,156745,Georgetown College,Georgetown,KY,4,normalised name + state from our own name
+Georgetown College,NAIA,156745,Georgetown College,Georgetown,KY,4,exact name
+Georgia Gwinnett College,NAIA,447689,Georgia Gwinnett College,Lawrenceville,GA,3,exact name
+Georgia Highlands,NJCAA,139700,Georgia Highlands College,Rome,GA,3,normalised name
+Georgia Military,NJCAA,485111,Georgia Military College,Milledgeville,GA,3,normalised name
+Georgia Northwestern,NJCAA,139384,Georgia Northwestern Technical College,Rome,GA,2,"normalised, suffix tolerated"
+Georgia Piedmont,NJCAA,244446,Georgia Piedmont Technical College,Clarkston,GA,2,"normalised, suffix tolerated"
+Gloucester County,NJCAA,184791,Rowan College of South Jersey-Gloucester Campus,Sewell,NJ,2,hand-verified alias
+Goshen,NAIA,150668,Goshen College,Goshen,IN,4,normalised name
+Goshen College,NAIA,150668,Goshen College,Goshen,IN,4,exact name
+Governors State University,NAIA,145336,Governors State University,University Park,IL,4,exact name
+Grace,NAIA,150677,Grace College and Theological Seminary,Winona Lake,IN,4,hand-verified alias
+Grace College,NAIA,150677,Grace College and Theological Seminary,Winona Lake,IN,4,hand-verified alias
+Graceland University,NAIA,153366,Graceland University-Lamoni,Lamoni,IA,4,our name is a prefix of theirs
+Grand Rapids Community,NJCAA,170055,Grand Rapids Community College,Grand Rapids,MI,2,normalised name
+Grand View,NAIA,153375,Grand View University,Des Moines,IA,4,normalised name
+Grand View University,NAIA,153375,Grand View University,Des Moines,IA,4,exact name
+Hagerstown,NJCAA,162690,Hagerstown Community College,Hagerstown,MD,2,"normalised, suffix tolerated"
+Hannibal-LaGrange,NAIA,177542,Hannibal-LaGrange University,Hannibal,MO,4,normalised name
+Hannibal-LaGrange University,NAIA,177542,Hannibal-LaGrange University,Hannibal,MO,4,exact name
+Harford County,NJCAA,162706,Harford Community College,Bel Air,MD,2,"normalised, suffix tolerated"
+Harper,NJCAA,149842,William Rainey Harper College,Palatine,IL,2,hand-verified alias
+Harris-Stowe State University,NAIA,177551,Harris-Stowe State University,Saint Louis,MO,3,exact name
+Hastings,NAIA,181127,Hastings College,Hastings,NE,4,normalised name
+Hastings College,NAIA,181127,Hastings College,Hastings,NE,4,exact name
+Hawkeye,NJCAA,153445,Hawkeye Community College,Waterloo,IA,2,"normalised, suffix tolerated"
+Hesston College,NAIA,155177,Hesston College,Hesston,KS,3,exact name
+Highland,NJCAA,155186,Highland Community College,Highland,KS,2,hand-verified alias
+Hillsborough,NJCAA,134495,Hillsborough College,Tampa,FL,3,normalised name
+Hocking,NJCAA,203155,Hocking College,Nelsonville,OH,2,normalised name
+Holmes,NJCAA,175810,Holmes Community College,Goodman,MS,2,"normalised, suffix tolerated"
+Holy Cross College,NAIA,150774,Holy Cross College,Notre Dame,IN,3,exact name
+Holyoke,NJCAA,166133,Holyoke Community College,Holyoke,MA,2,"normalised, suffix tolerated"
+Hope International University,NAIA,120537,Hope International University,Fullerton,CA,4,exact name
+Howard Community,NJCAA,162779,Howard Community College,Columbia,MD,2,normalised name
+Hudson Valley,NJCAA,191719,Hudson Valley Community College,Troy,NY,2,"normalised, suffix tolerated"
+Huntington,NAIA,150941,Huntington University,Huntington,IN,4,normalised name
+Huntington University,NAIA,150941,Huntington University,Huntington,IN,4,exact name
+Huston-Tillotson University,NAIA,225575,Huston-Tillotson University,Austin,TX,4,exact name
+Indian Hills,NJCAA,153472,Indian Hills Community College,Ottumwa,IA,2,"normalised, suffix tolerated"
+Indiana Institute of Technology,NAIA,151290,Indiana Institute of Technology,Fort Wayne,IN,4,exact name
+Indiana University Columbus,NAIA,151111,Indiana University-Indianapolis,Indianapolis,IN,4,hand-verified alias
+Indiana University East,NAIA,151388,Indiana University-East,Richmond,IN,4,normalised name
+Indiana University Kokomo,NAIA,151333,Indiana University-Kokomo,Kokomo,IN,4,normalised name
+Indiana University Northwest,NAIA,151360,Indiana University-Northwest,Gary,IN,4,normalised name
+Indiana University South Bend,NAIA,151342,Indiana University-South Bend,South Bend,IN,4,normalised name
+Indiana Wesleyan,NAIA,151801,Indiana Wesleyan University-Marion,Marion,IN,4,hand-verified alias
+Indiana Wesleyan University,NAIA,151801,Indiana Wesleyan University-Marion,Marion,IN,4,hand-verified alias
+Iowa Central,NJCAA,153524,Iowa Central Community College,Fort Dodge,IA,2,"normalised, suffix tolerated"
+Iowa Lakes,NJCAA,153533,Iowa Lakes Community College,Estherville,IA,2,"normalised, suffix tolerated"
+Iowa Western,NJCAA,153630,Iowa Western Community College,Council Bluffs,IA,2,"normalised, suffix tolerated"
+J. Sargeant Reynolds,NJCAA,232414,J Sargeant Reynolds Community College,Richmond,VA,2,"normalised, suffix tolerated"
+Jackson College,NJCAA,170444,Jackson College,Jackson,MI,3,exact name
+Jarvis Christian University,NAIA,225885,Jarvis Christian University,Hawkins,TX,4,exact name
+Jefferson (NY),NJCAA,192022,Jefferson Community College,Watertown,NY,2,"normalised, suffix tolerated + state from our own name"
+Jefferson Davis,NJCAA,101161,Coastal Alabama Community College,Bay Minette,AL,2,hand-verified alias
+John Brown,NAIA,107141,John Brown University,Siloam Springs,AR,4,normalised name
+John Brown University,NAIA,107141,John Brown University,Siloam Springs,AR,4,exact name
+Johnson County Community,NJCAA,155210,Johnson County Community College,Overland Park,KS,2,normalised name
+Johnson University,NAIA,220473,Johnson University,Knoxville,TN,4,exact name
+Judson University,NAIA,146339,Judson University,Elgin,IL,4,exact name
+Kalamazoo Valley,NJCAA,170541,Kalamazoo Valley Community College,Kalamazoo,MI,2,"normalised, suffix tolerated"
+Kankakee Community,NJCAA,146348,Kankakee Community College,Kankakee,IL,2,normalised name
+Kansas Wesleyan,NAIA,155414,Kansas Wesleyan University,Salina,KS,4,normalised name
+Kansas Wesleyan University,NAIA,155414,Kansas Wesleyan University,Salina,KS,4,exact name
+Keiser University,NAIA,135081,Keiser University-Ft Lauderdale,Fort Lauderdale,FL,4,our name is a prefix of theirs
+Kellogg Community,NJCAA,170550,Kellogg Community College,Battle Creek,MI,2,normalised name
+Kentucky Christian,NAIA,157100,Kentucky Christian University,Grayson,KY,4,normalised name
+Kentucky Christian University,NAIA,157100,Kentucky Christian University,Grayson,KY,4,exact name
+Kilgore,NJCAA,226019,Kilgore College,Kilgore,TX,2,normalised name
+Kirkwood,NJCAA,153737,Kirkwood Community College,Cedar Rapids,IA,2,"normalised, suffix tolerated"
+LSU Alexandria,NAIA,159382,Louisiana State University at Alexandria,Alexandria,LA,3,hand-verified alias
+LSU Shreveport,NAIA,159416,Louisiana State University-Shreveport,Shreveport,LA,4,hand-verified alias
+La Sierra University,NAIA,117627,La Sierra University,Riverside,CA,4,exact name
+Labette,NJCAA,155450,Labette Community College,Parsons,KS,2,"normalised, suffix tolerated"
+Lake Land,NJCAA,146506,Lake Land College,Mattoon,IL,2,normalised name
+Lamar Institute,NJCAA,441760,Lamar Institute of Technology,Beaumont,TX,2,our name is a prefix of theirs
+Laramie County,NJCAA,240620,Laramie County Community College,Cheyenne,WY,3,"normalised, suffix tolerated"
+Lawrence Technological University,NAIA,170675,Lawrence Technological University,Southfield,MI,4,exact name
+Lewis & Clark (ID),NJCAA,142328,Lewis-Clark State College,Lewiston,ID,4,our name is a prefix of theirs + state from our own name
+Life (GA),NAIA,140252,Life University,Marietta,GA,4,normalised name + state from our own name
+Life Pacific University,NAIA,117104,Life Pacific University,San Dimas,CA,4,exact name
+Life University,NAIA,140252,Life University,Marietta,GA,4,exact name
+Lincoln Land,NJCAA,146685,Lincoln Land Community College,Springfield,IL,2,"normalised, suffix tolerated"
+Lindsey Wilson,NAIA,157216,Lindsey Wilson University,Columbia,KY,4,normalised name
+Lindsey Wilson University,NAIA,157216,Lindsey Wilson University,Columbia,KY,4,exact name
+Lone Star,NJCAA,227182,Lone Star College System,The Woodlands,TX,3,our name is a prefix of theirs
+Lord Fairfax,NJCAA,232575,Laurel Ridge Community College,Middletown,VA,2,hand-verified alias
+Louisiana Christian University,NAIA,159568,Louisiana Christian University,Pineville,LA,4,exact name
+Louisiana Delta,NJCAA,483212,Louisiana Delta Community College,Monroe,LA,2,"normalised, suffix tolerated"
+Lourdes University,NAIA,203757,Lourdes University,Sylvania,OH,4,exact name
+Lower Columbia,NJCAA,235750,Lower Columbia College,Longview,WA,3,normalised name
+Lurleen B. Wallace,NJCAA,101602,Lurleen B Wallace Community College,Andalusia,AL,2,"normalised, suffix tolerated"
+Madonna University,NAIA,170806,Madonna University,Livonia,MI,4,exact name
+Marian University (IN),NAIA,151786,Marian University,Indianapolis,IN,4,exact name + state from our own name
+McLennan,NJCAA,226578,McLennan Community College,Waco,TX,2,"normalised, suffix tolerated"
+McPherson College,NAIA,155511,McPherson College,McPherson,KS,4,exact name
+Merced,NJCAA,118718,Merced College,Merced,CA,2,normalised name
+Meridian,NJCAA,175935,Meridian Community College,Meridian,MS,2,hand-verified alias
+Mesa Community,NJCAA,105154,Mesa Community College,Mesa,AZ,2,normalised name
+Mid-America Christian University,NAIA,245953,Mid-America Christian University,Oklahoma City,OK,4,exact name
+MidAmerica Nazarene,NAIA,155520,MidAmerica Nazarene University,Olathe,KS,4,normalised name
+MidAmerica Nazarene University,NAIA,155520,MidAmerica Nazarene University,Olathe,KS,4,exact name
+Middlesex County,NJCAA,185536,Middlesex College,Edison,NJ,2,hand-verified alias
+Midland,NAIA,181330,Midland University,Fremont,NE,4,hand-verified alias
+Midland University,NAIA,181330,Midland University,Fremont,NE,4,exact name
+Midway,NAIA,157377,Midway University,Midway,KY,4,normalised name
+Midway University,NAIA,157377,Midway University,Midway,KY,4,exact name
+Milligan University,NAIA,486901,Milligan University,Milligan,TN,4,exact name
+Mineral Area,NJCAA,178217,Mineral Area College,Park Hills,MO,2,normalised name
+Mission University,NAIA,176664,Mission University,Springfield,MO,4,exact name
+Mississippi Delta,NJCAA,176008,Mississippi Delta Community College,Moorhead,MS,2,"normalised, suffix tolerated"
+Mississippi Gulf Coast,NJCAA,176071,Mississippi Gulf Coast Community College,Perkinston,MS,2,"normalised, suffix tolerated"
+Missouri Baptist,NAIA,178244,Missouri Baptist University,Saint Louis,MO,4,normalised name
+Missouri Baptist University,NAIA,178244,Missouri Baptist University,Saint Louis,MO,4,exact name
+Missouri State-West Plains,NJCAA,179344,Missouri State University-West Plains,West Plains,MO,2,normalised name
+Missouri Valley College,NAIA,178369,Missouri Valley College,Marshall,MO,4,exact name
+Moberly Area,NJCAA,178448,Moberly Area Community College,Moberly,MO,2,"normalised, suffix tolerated"
+Monroe Community,NJCAA,193326,Monroe Community College,Rochester,NY,2,normalised name
+Montgomery,NJCAA,163426,Montgomery College,Rockville,MD,2,normalised name
+Montreat College,NAIA,199032,Montreat College,Montreat,NC,4,exact name
+Morningside,NAIA,154004,Morningside University,Sioux City,IA,4,normalised name
+Morningside University,NAIA,154004,Morningside University,Sioux City,IA,4,exact name
+Motlow State,NJCAA,221096,Motlow State Community College,Tullahoma,TN,2,"normalised, suffix tolerated"
+Mount Marty University,NAIA,219198,Mount Marty University,Yankton,SD,4,exact name
+Mount Mary University,NAIA,239390,Mount Mary University,Milwaukee,WI,4,exact name
+Mount Mercy,NAIA,154013,Mount Mercy University,Cedar Rapids,IA,4,normalised name
+Mount Mercy University,NAIA,154013,Mount Mercy University,Cedar Rapids,IA,4,exact name
+Mount San Antonio,NJCAA,119164,Mt San Antonio College,Walnut,CA,2,hand-verified alias
+Mount Vernon Nazarene,NAIA,204194,Mount Vernon Nazarene University,Mount Vernon,OH,4,normalised name
+Mount Vernon Nazarene University,NAIA,204194,Mount Vernon Nazarene University,Mount Vernon,OH,4,exact name
+Nassau Community,NJCAA,193478,Nassau Community College,Garden City,NY,2,normalised name
+Nebraska Central,NJCAA,180902,Central Community College,Grand Island,NE,2,hand-verified alias
+Nelson University,NAIA,228325,Nelson University,Waxahachie,TX,4,exact name
+New College of Florida,NAIA,262129,New College of Florida,Sarasota,FL,4,exact name
+New Mexico Junior,NJCAA,187903,New Mexico Junior College,Hobbs,NM,2,normalised name
+Niagara County,NJCAA,193946,Niagara County Community College,Sanborn,NY,2,our name is a prefix of theirs
+North American University,NAIA,461795,North American University,Stafford,TX,4,exact name
+North Arkansas,NJCAA,107460,North Arkansas College,Harrison,AR,2,normalised name
+North Central Missouri,NJCAA,179715,North Central Missouri College,Trenton,MO,2,normalised name
+Northeast Mississippi,NJCAA,176169,Northeast Mississippi Community College,Booneville,MS,2,"normalised, suffix tolerated"
+Northeast Oklahoma A&M,NJCAA,207290,Northeastern Oklahoma A&M College,Miami,OK,2,hand-verified alias
+Northeast Texas,NJCAA,227225,Northeast Texas Community College,Mount Pleasant,TX,2,"normalised, suffix tolerated"
+Northern Essex,NJCAA,167376,Northern Essex Community College,Haverhill,MA,2,"normalised, suffix tolerated"
+Northern Idaho,NJCAA,142443,North Idaho College,Coeur d'Alene,ID,2,hand-verified alias
+Northland Pioneer,NJCAA,105349,Northland Pioneer College,Holbrook,AZ,3,normalised name
+Northwest College,NJCAA,240657,Northwest College,Powell,WY,3,exact name
+Northwest Mississippi,NJCAA,176178,Northwest Mississippi Community College,Senatobia,MS,2,"normalised, suffix tolerated"
+Northwest Shoals,NJCAA,101736,Northwest Shoals Community College,Muscle Shoals,AL,2,"normalised, suffix tolerated"
+Northwest University,NAIA,236133,Northwest University,Kirkland,WA,4,exact name
+Northwestern (IA),NAIA,154101,Northwestern College,Orange City,IA,4,normalised name + state from our own name
+Northwestern College (Iowa),NAIA,154101,Northwestern College,Orange City,IA,4,exact name + state from our own name
+Oakland City University,NAIA,152099,Oakland City University,Oakland City,IN,4,exact name
+Oakwood University,NAIA,101912,Oakwood University,Huntsville,AL,4,exact name
+Odessa,NJCAA,227304,Odessa College,Odessa,TX,3,normalised name
+Oklahoma City Community,NJCAA,207449,Oklahoma City Community College,Oklahoma City,OK,2,normalised name
+Oklahoma City University,NAIA,207458,Oklahoma City University,Oklahoma City,OK,4,exact name
+Oklahoma Panhandle State University,NAIA,207351,Oklahoma Panhandle State University,Goodwell,OK,3,exact name
+Oklahoma Wesleyan University,NAIA,206835,Oklahoma Wesleyan University,Bartlesville,OK,4,exact name
+Olivet Nazarene,NAIA,147828,Olivet Nazarene University,Bourbonnais,IL,4,normalised name
+Olivet Nazarene University,NAIA,147828,Olivet Nazarene University,Bourbonnais,IL,4,exact name
+Onondaga Community,NJCAA,194222,Onondaga Community College,Syracuse,NY,2,normalised name
+Orange Coast,NJCAA,120342,Orange Coast College,Costa Mesa,CA,2,normalised name
+Oregon Institute of Technology,NAIA,209506,Oregon Institute of Technology,Klamath Falls,OR,4,exact name
+Otero College,NJCAA,127778,Otero College,La Junta,CO,2,exact name
+Ottawa,NAIA,155627,Ottawa University-Ottawa,Ottawa,KS,4,hand-verified alias
+Ottawa University,NAIA,155627,Ottawa University-Ottawa,Ottawa,KS,4,hand-verified alias
+Ottawa University Arizona,NAIA,464226,Ottawa University-Surprise,Surprise,AZ,4,hand-verified alias
+Our Lady of the Lake University,NAIA,227331,Our Lady of the Lake University,San Antonio,TX,4,exact name
+Owens,NJCAA,204945,Owens Community College,Perrysburg,OH,2,"normalised, suffix tolerated"
+Ozarka,NJCAA,107549,Ozarka College,Melbourne,AR,2,normalised name
+Ozarks (AR),NAIA,107558,University of the Ozarks,Clarksville,AR,3,normalised name + state from our own name
+Ozarks (MO),NAIA,178697,College of the Ozarks,Point Lookout,MO,3,normalised name + state from our own name
+Pacific Union College,NAIA,120865,Pacific Union College,Angwin,CA,4,exact name
+Panola,NJCAA,227386,Panola College,Carthage,TX,2,normalised name
+Paradise Valley,NJCAA,364016,Paradise Valley Community College,Phoenix,AZ,2,"normalised, suffix tolerated"
+Park,NAIA,178721,Park University,Parkville,MO,4,normalised name
+Park University,NAIA,178721,Park University,Parkville,MO,4,exact name
+Parkland,NJCAA,147916,Parkland College,Champaign,IL,2,normalised name
+Passaic County,NJCAA,186034,Passaic County Community College,Paterson,NJ,2,"normalised, suffix tolerated"
+Paul D. Camp,NJCAA,233037,Paul D Camp Community College,Franklin,VA,2,"normalised, suffix tolerated"
+Paul Quinn College,NAIA,227429,Paul Quinn College,Dallas,TX,4,exact name
+Pearl River,NJCAA,176239,Pearl River Community College,Poplarville,MS,2,"normalised, suffix tolerated"
+Pellissippi State,NJCAA,221643,Pellissippi State Community College,Knoxville,TN,2,"normalised, suffix tolerated"
+Penn State Hazleton,NJCAA,214768,Pennsylvania State University-Penn State Hazleton,Hazleton,PA,3,hand-verified alias
+Pensacola State,NJCAA,136473,Pensacola State College,Pensacola,FL,3,normalised name
+Piedmont Virginia,NJCAA,233116,Piedmont Virginia Community College,Charlottesville,VA,2,"normalised, suffix tolerated"
+Pikeville,NAIA,157535,University of Pikeville,Pikeville,KY,4,normalised name
+Pima,NJCAA,105525,Pima Community College,Tucson,AZ,2,"normalised, suffix tolerated"
+Point (GA),NAIA,138868,Point University,West Point,GA,4,normalised name + state from our own name
+Point University,NAIA,138868,Point University,West Point,GA,4,exact name
+Polk State,NJCAA,136516,Polk State College,Winter Haven,FL,3,normalised name
+Prairie State,NJCAA,148007,Prairie State College,Chicago Heights,IL,2,normalised name
+Pratt Community,NJCAA,155715,Pratt Community College,Pratt,KS,2,normalised name
+Providence (MT),NAIA,180258,University of Providence,Great Falls,MT,4,normalised name + state from our own name
+Queensborough,NJCAA,190673,CUNY Queensborough Community College,Bayside,NY,2,hand-verified alias
+Ranger,NJCAA,227687,Ranger College,Ranger,TX,2,normalised name
+Reading Area,NJCAA,215585,Reading Area Community College,Reading,PA,2,"normalised, suffix tolerated"
+Reinhardt University,NAIA,140872,Reinhardt University,Waleska,GA,4,exact name
+Rend Lake,NJCAA,148256,Rend Lake College,Ina,IL,2,normalised name
+Richland,NJCAA,148292,Richland Community College,Decatur,IL,2,"normalised, suffix tolerated"
+Rio Grande (University of),NAIA,205203,University of Rio Grande,Rio Grande,OH,4,normalised name
+Riverside,NJCAA,121901,Riverside City College,Riverside,CA,2,hand-verified alias
+Roane State,NJCAA,221397,Roane State Community College,Harriman,TN,2,"normalised, suffix tolerated"
+Rochester Christian University,NAIA,170967,Rochester Christian University,Rochester Hills,MI,4,exact name
+Rock Valley,NJCAA,148380,Rock Valley College,Rockford,IL,2,normalised name
+Rockland Community,NJCAA,195058,Rockland Community College,Suffern,NY,2,normalised name
+Rocky Mountain,NAIA,180595,Rocky Mountain College,Billings,MT,4,normalised name
+Rocky Mountain College,NAIA,180595,Rocky Mountain College,Billings,MT,4,exact name
+Rose State,NJCAA,207670,Rose State College,Midwest City,OK,2,normalised name
+Saint Ambrose,NAIA,154235,Saint Ambrose University,Davenport,IA,4,normalised name
+Saint Ambrose University,NAIA,154235,Saint Ambrose University,Davenport,IA,4,exact name
+Saint Francis (IL),NAIA,148575,Saint Francis Medical Center College of Nursing,Peoria,IL,4,our name is a prefix of theirs + state from our own name
+Saint Mary (KS),NAIA,155812,University of Saint Mary,Leavenworth,KS,4,normalised name + state from our own name
+Saint Mary-of-the-Woods College,NAIA,152381,Saint Mary-of-the-Woods College,Saint Mary of the Woods,IN,4,exact name
+Saint Thomas (FL),NAIA,137476,St. Thomas University,Miami Gardens,FL,4,hand-verified alias
+Saint Xavier University,NAIA,148627,Saint Xavier University,Chicago,IL,4,exact name
+Salt Lake Community,NJCAA,230746,Salt Lake Community College,Salt Lake City,UT,2,normalised name
+San Bernardino Valley,NJCAA,123527,San Bernardino Valley College,San Bernardino,CA,2,normalised name
+San Diego Mesa,NJCAA,122375,San Diego Mesa College,San Diego,CA,3,normalised name
+San Diego Miramar,NJCAA,122384,San Diego Miramar College,San Diego,CA,2,normalised name
+San Joaquin Delta,NJCAA,122658,San Joaquin Delta College,Stockton,CA,2,normalised name
+Sandhills,NJCAA,199634,Sandhills Community College,Pinehurst,NC,2,"normalised, suffix tolerated"
+Santa Ana,NJCAA,121619,Santa Ana College,Santa Ana,CA,3,normalised name
+Santa Barbara City,NJCAA,122889,Santa Barbara City College,Santa Barbara,CA,2,normalised name
+Santa Monica,NJCAA,122977,Santa Monica College,Santa Monica,CA,3,normalised name
+Santa Rosa Junior,NJCAA,123013,Santa Rosa Junior College,Santa Rosa,CA,2,normalised name
+Savannah College of Art and Design,NAIA,140951,Savannah College of Art and Design,Savannah,GA,4,exact name
+Science & Arts (OK),NAIA,207722,University of Science and Arts of Oklahoma,Chickasha,OK,3,our name is a prefix of theirs + state from our own name
+Scottsdale,NJCAA,105747,Scottsdale Community College,Scottsdale,AZ,2,"normalised, suffix tolerated"
+Seward County,NJCAA,155858,Seward County Community College,Liberal,KS,2,"normalised, suffix tolerated"
+Shawnee Community,NJCAA,148821,Shawnee Community College,Ullin,IL,2,normalised name
+Shawnee State University,NAIA,205443,Shawnee State University,Portsmouth,OH,4,exact name
+Siena Heights,NAIA,172264,Siena Heights University,Adrian,MI,4,normalised name
+Siena Heights University,NAIA,172264,Siena Heights University,Adrian,MI,4,exact name
+Sierra,NJCAA,123341,Sierra College,Rocklin,CA,2,normalised name
+Simpson University,NAIA,123457,Simpson University,Redding,CA,4,exact name
+Sinclair,NJCAA,205470,Sinclair Community College,Dayton,OH,3,"normalised, suffix tolerated"
+Skagit Valley,NJCAA,236638,Skagit Valley College,Mount Vernon,WA,3,normalised name
+Snow,NJCAA,230597,Snow College,Ephraim,UT,3,normalised name
+Soka University of America,NAIA,399911,Soka University of America,Aliso Viejo,CA,4,exact name
+Somerset,NJCAA,157711,Somerset Community College,Somerset,KY,2,"normalised, suffix tolerated"
+South Mountain Community,NJCAA,105792,South Mountain Community College,Phoenix,AZ,2,normalised name
+South Plains,NJCAA,228158,South Plains College,Levelland,TX,2,normalised name
+South Puget Sound,NJCAA,236656,South Puget Sound Community College,Olympia,WA,2,"normalised, suffix tolerated"
+Southeastern Community (IA),NJCAA,154378,Southeastern Community College,West Burlington,IA,2,normalised name + state from our own name
+Southeastern University,NAIA,137564,Southeastern University,Lakeland,FL,4,exact name
+Southeastern University (Florida),NAIA,137564,Southeastern University,Lakeland,FL,4,exact name + state from our own name
+Southern Oregon,NAIA,210146,Southern Oregon University,Ashland,OR,4,normalised name
+Southern Oregon University,NAIA,210146,Southern Oregon University,Ashland,OR,4,exact name
+Southwestern (CA),NJCAA,123800,Southwestern College,Chula Vista,CA,2,normalised name + state from our own name
+Southwestern (KS),NAIA,155900,Southwestern College,Winfield,KS,4,normalised name + state from our own name
+Southwestern Christian University,NAIA,207856,Southwestern Christian University,Bethany,OK,4,exact name
+Southwestern College (Kansas),NAIA,155900,Southwestern College,Winfield,KS,4,exact name + state from our own name
+Southwestern Illinois,NJCAA,143215,Southwestern Illinois College,Belleville,IL,2,normalised name
+Spartanburg Methodist,NJCAA,218821,Spartanburg Methodist College,Spartanburg,SC,3,normalised name
+Spartanburg Methodist College,NAIA,218821,Spartanburg Methodist College,Spartanburg,SC,3,exact name
+Spring Arbor,NAIA,172334,Spring Arbor University,Spring Arbor,MI,4,normalised name
+Spring Arbor University,NAIA,172334,Spring Arbor University,Spring Arbor,MI,4,exact name
+St. Charles Community,NJCAA,262031,St Charles Community College,Cottleville,MO,2,normalised name
+St. Louis Community-Florissant Valley,NJCAA,179308,Saint Louis Community College,Bridgeton,MO,2,hand-verified alias
+St. Louis Community-Forest Park,NJCAA,179308,Saint Louis Community College,Bridgeton,MO,2,hand-verified alias
+St. Louis Community-Meramec,NJCAA,179308,Saint Louis Community College,Bridgeton,MO,2,hand-verified alias
+St. Thomas University (Florida),NAIA,137476,St. Thomas University,Miami Gardens,FL,4,exact name + state from our own name
+Stephens College,NAIA,179548,Stephens College,Columbia,MO,4,exact name
+Sterling,NAIA,155937,Sterling College,Sterling,KS,4,hand-verified alias
+Sterling College (Kansas),NAIA,155937,Sterling College,Sterling,KS,4,exact name + state from our own name
+Suffolk County,NJCAA,366395,Suffolk County Community College,Selden,NY,2,our name is a prefix of theirs
+Sullivan County,NJCAA,195988,Sullivan County Community College,Loch Sheldrake,NY,2,our name is a prefix of theirs
+Surry,NJCAA,199768,Surry Community College,Dobson,NC,2,"normalised, suffix tolerated"
+Tabor,NAIA,155973,Tabor College,Hillsboro,KS,4,normalised name
+Tabor College,NAIA,155973,Tabor College,Hillsboro,KS,4,exact name
+Talladega College,NAIA,102298,Talladega College,Talladega,AL,4,exact name
+Tallahassee,NJCAA,137759,Tallahassee State College,Tallahassee,FL,3,our name is a prefix of theirs
+Taylor,NAIA,152530,Taylor University,Upland,IN,4,hand-verified alias
+Taylor University,NAIA,152530,Taylor University,Upland,IN,4,exact name
+Tennessee Wesleyan University,NAIA,221731,Tennessee Wesleyan University,Athens,TN,4,exact name
+Terra State,NJCAA,206011,Terra State Community College,Fremont,OH,2,"normalised, suffix tolerated"
+Texas A&M University-San Antonio,NAIA,459949,Texas A&M University-San Antonio,San Antonio,TX,4,exact name
+Texas A&M University-Texarkana,NAIA,224545,Texas A&M University-Texarkana,Texarkana,TX,4,exact name
+Texas A&M University-Victoria,NAIA,225502,Texas A&M University-Victoria,Victoria,TX,4,exact name
+Texas College,NAIA,228884,Texas College,Tyler,TX,3,exact name
+Texas Wesleyan University,NAIA,229160,Texas Wesleyan University,Fort Worth,TX,4,exact name
+The Evergreen State College,NAIA,235167,The Evergreen State College,Olympia,WA,4,exact name
+The Master's University,NAIA,117751,The Master's University and Seminary,Santa Clarita,CA,4,our name is a prefix of theirs
+Thomas University,NAIA,141167,Thomas University,Thomasville,GA,4,exact name
+Three Rivers,NJCAA,179645,Three Rivers College,Poplar Bluff,MO,2,normalised name
+Tidewater,NJCAA,233772,Tidewater Community College,Norfolk,VA,2,"normalised, suffix tolerated"
+Tompkins Cortland,NJCAA,196565,Tompkins Cortland Community College,Dryden,NY,2,"normalised, suffix tolerated"
+Tougaloo College,NAIA,176406,Tougaloo College,Tougaloo,MS,4,exact name
+Trinity Christian,NAIA,149505,Trinity Christian College,Palos Heights,IL,4,normalised name
+Trinity Christian College,NAIA,149505,Trinity Christian College,Palos Heights,IL,4,exact name
+Trinity Valley,NJCAA,225308,Trinity Valley Community College,Athens,TX,3,"normalised, suffix tolerated"
+Truett McConnell University,NAIA,141237,Truett McConnell University,Cleveland,GA,4,exact name
+Tulsa Community,NJCAA,207935,Tulsa Community College,Tulsa,OK,2,normalised name
+Tyler Junior,NJCAA,229355,Tyler Junior College,Tyler,TX,3,normalised name
+Union (KY),NAIA,157863,Union Commonwealth University,Barbourville,KY,4,our name is a prefix of theirs + state from our own name
+Union Commonwealth University,NAIA,157863,Union Commonwealth University,Barbourville,KY,4,exact name
+Union County,NJCAA,187198,UCNJ Union College of Union County New Jersey,Cranford,NJ,2,hand-verified alias
+University of Health Sciences and Pharmacy in St. Louis,NAIA,179265,University of Health Sciences and Pharmacy in St. Louis,Saint Louis,MO,4,exact name
+University of Michigan-Dearborn,NAIA,171137,University of Michigan-Dearborn,Dearborn,MI,4,exact name
+University of Mobile,NAIA,101693,University of Mobile,Mobile,AL,4,exact name
+University of Northwestern Ohio,NAIA,204486,University of Northwestern Ohio,Lima,OH,4,exact name
+University of Pikeville,NAIA,157535,University of Pikeville,Pikeville,KY,4,exact name
+University of Providence,NAIA,180258,University of Providence,Great Falls,MT,4,exact name
+University of Saint Francis (IN),NAIA,152336,University of Saint Francis-Fort Wayne,Fort Wayne,IN,4,our name is a prefix of theirs + state from our own name
+University of Saint Mary,NAIA,155812,University of Saint Mary,Leavenworth,KS,4,exact name
+University of Science and Arts of Oklahoma,NAIA,207722,University of Science and Arts of Oklahoma,Chickasha,OK,3,exact name
+University of St. Francis (IL),NAIA,148584,University of St Francis,Joliet,IL,4,normalised name + state from our own name
+University of Tennessee Southern,NAIA,220701,The University of Tennessee Southern,Pulaski,TN,4,normalised name
+University of the Cumberlands,NAIA,156541,University of the Cumberlands,Williamsburg,KY,4,exact name
+University of the Southwest,NAIA,188182,University of the Southwest,Hobbs,NM,4,exact name
+University of the Southwest (New Mexico),NAIA,188182,University of the Southwest,Hobbs,NM,4,exact name + state from our own name
+Ventura,NJCAA,125028,Ventura College,Ventura,CA,2,normalised name
+Vernon,NJCAA,229504,Vernon College,Vernon,TX,2,normalised name
+Victor Valley,NJCAA,125091,Victor Valley College,Victorville,CA,2,normalised name
+Vincennes,NJCAA,152637,Vincennes University,Vincennes,IN,3,normalised name
+Virginia Highlands,NJCAA,233903,Virginia Highlands Community College,Abingdon,VA,2,"normalised, suffix tolerated"
+Virginia Western,NJCAA,233949,Virginia Western Community College,Roanoke,VA,2,"normalised, suffix tolerated"
+Viterbo University,NAIA,240107,Viterbo University,La Crosse,WI,4,exact name
+Volunteer State,NJCAA,222053,Volunteer State Community College,Gallatin,TN,2,"normalised, suffix tolerated"
+Wake Technical,NJCAA,199856,Wake Technical Community College,Raleigh,NC,2,"normalised, suffix tolerated"
+Waldorf,NAIA,154518,Waldorf University,Forest City,IA,4,normalised name
+Waldorf University,NAIA,154518,Waldorf University,Forest City,IA,4,exact name
+Walla Walla University,NAIA,236896,Walla Walla University,College Place,WA,4,exact name
+Wallace State,NJCAA,101295,George C Wallace State Community College-Hanceville,Hanceville,AL,2,hand-verified alias
+Walters State,NJCAA,222062,Walters State Community College,Morristown,TN,2,"normalised, suffix tolerated"
+Warner,NAIA,138275,Warner University,Lake Wales,FL,4,normalised name
+Warner Pacific University,NAIA,210304,Warner Pacific University,Portland,OR,3,exact name
+Warner University,NAIA,138275,Warner University,Lake Wales,FL,4,exact name
+Washington Adventist University,NAIA,162210,Washington Adventist University,Takoma Park,MD,4,exact name
+Wayland Baptist,NAIA,229780,Wayland Baptist University,Plainview,TX,4,normalised name
+Wayland Baptist University,NAIA,229780,Wayland Baptist University,Plainview,TX,4,exact name
+Weatherford,NJCAA,229799,Weatherford College,Weatherford,TX,3,normalised name
+Webber International,NAIA,138293,Webber International University,Babson Park,FL,4,normalised name
+Webber International University,NAIA,138293,Webber International University,Babson Park,FL,4,exact name
+West Virginia University Institute of Technology,NAIA,237950,West Virginia University Institute of Technology,Beckley,WV,3,exact name
+Westcliff University,NAIA,490133,Westcliff University,Irvine,CA,4,exact name
+Western Nebraska,NJCAA,181817,Western Nebraska Community College,Scottsbluff,NE,2,"normalised, suffix tolerated"
+Western Wyoming,NJCAA,240693,Western Wyoming Community College,Rock Springs,WY,3,"normalised, suffix tolerated"
+Westmoreland County,NJCAA,216825,Westmoreland County Community College,Youngwood,PA,2,"normalised, suffix tolerated"
+Wharton County Junior,NJCAA,229841,Wharton County Junior College,Wharton,TX,2,normalised name
+Wiley University,NAIA,229887,Wiley University,Marshall,TX,4,exact name
+William Carey University,NAIA,176479,William Carey University,Hattiesburg,MS,4,exact name
+William Penn,NAIA,154590,William Penn University,Oskaloosa,IA,4,normalised name
+William Penn University,NAIA,154590,William Penn University,Oskaloosa,IA,4,exact name
+William Rainey Harper,NJCAA,149842,William Rainey Harper College,Palatine,IL,2,normalised name
+William Woods,NAIA,179964,William Woods University,Fulton,MO,4,normalised name
+William Woods University,NAIA,179964,William Woods University,Fulton,MO,4,exact name
+Williams Baptist University,NAIA,107877,Williams Baptist University,Walnut Ridge,AR,4,exact name
+Xavier (LA),NAIA,160904,Xavier University of Louisiana,New Orleans,LA,4,our name is a prefix of theirs + state from our own name
+Xavier University of Louisiana,NAIA,160904,Xavier University of Louisiana,New Orleans,LA,4,exact name
+York County,NJCAA,420440,York County Community College,Wells,ME,2,our name is a prefix of theirs
+York University (Nebraska),NAIA,181853,York University,York,NE,4,exact name + state from our own name
