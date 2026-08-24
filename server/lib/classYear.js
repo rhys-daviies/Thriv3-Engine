@@ -37,8 +37,9 @@ const CLASS_PATTERNS = [
   [/^2(nd)?(?![a-z])/, 'SOPHOMORE'],
   [/^3(rd)?(?![a-z])/, 'JUNIOR'],
   [/^4(th)?(?![a-z])/, 'SENIOR'],
-  // A fifth or sixth year is someone on the way out, not a super-senior class.
-  [/^([56](th)?|fifth|sixth)(?![a-z])/, 'GRADUATE'],
+  // A fifth year or beyond is someone on the way out, not a super-senior
+  // class. The upper end is not hypothetical — a 2024 roster listed an "8th".
+  [/^([5-9](th)?|fifth|sixth|seventh|eighth|ninth)(?![a-z])/, 'GRADUATE'],
 ];
 
 /**

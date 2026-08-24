@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { parseCsvToObjects } from '../lib/csv.js';
 import { normalizePosition } from '../lib/positions.js';
 import { readClassYear } from '../lib/classYear.js';
+import { isPlausibleName } from '../lib/rosterName.js';
 import { RosterPlayer } from '../db/entities/rosterPlayer.js';
 
 /**
@@ -15,18 +16,36 @@ import { RosterPlayer } from '../db/entities/rosterPlayer.js';
  * decisions behind this shape.
  */
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.resolve(__dirname, '../seed/data/rosters_2025');
-const SEASON = '2025';
+
+/**
+ * Season and source directory are arguments, not constants.
+ *
+ *   npm run import-rosters                 # 2025, from server/seed/data/rosters_2025
+ *   npm run import-rosters -- --season 2024
+ *   npm run import-rosters -- --season 2024 --dir "/path/to/2024 Roster Sheets"
+ *
+ * They were hardcoded, which is how 52,417 acquired 2024 rows sat on disk
+ * doing nothing. NAIA files are imported when present and skipped when not —
+ * the 2024 acquisition was scoped to D1-D3, and a missing file is a fact
+ * about scope rather than an error.
+ */
+function arg(name, fallback) {
+  const i = process.argv.indexOf(`--${name}`);
+  return i > -1 && process.argv[i + 1] ? process.argv[i + 1] : fallback;
+}
+
+const SEASON = String(arg('season', '2025'));
+const DATA_DIR = path.resolve(arg('dir', path.resolve(__dirname, `../seed/data/rosters_${SEASON}`)));
 
 const FILES = [
-  { file: 'ncaa_d1_mens_soccer_2025_rosters.csv', sport: 'mens-soccer', division: 'NCAA D1' },
-  { file: 'ncaa_d2_mens_soccer_2025_rosters.csv', sport: 'mens-soccer', division: 'NCAA D2' },
-  { file: 'ncaa_d3_mens_soccer_2025_rosters.csv', sport: 'mens-soccer', division: 'NCAA D3' },
-  { file: 'naia_mens_soccer_2025_rosters.csv', sport: 'mens-soccer', division: 'NAIA' },
-  { file: 'ncaa_d1_womens_soccer_2025_rosters.csv', sport: 'womens-soccer', division: 'NCAA D1' },
-  { file: 'ncaa_d2_womens_soccer_2025_rosters.csv', sport: 'womens-soccer', division: 'NCAA D2' },
-  { file: 'ncaa_d3_womens_soccer_2025_rosters.csv', sport: 'womens-soccer', division: 'NCAA D3' },
-  { file: 'naia_womens_soccer_2025_rosters.csv', sport: 'womens-soccer', division: 'NAIA' },
+  { file: `ncaa_d1_mens_soccer_${SEASON}_rosters.csv`, sport: 'mens-soccer', division: 'NCAA D1' },
+  { file: `ncaa_d2_mens_soccer_${SEASON}_rosters.csv`, sport: 'mens-soccer', division: 'NCAA D2' },
+  { file: `ncaa_d3_mens_soccer_${SEASON}_rosters.csv`, sport: 'mens-soccer', division: 'NCAA D3' },
+  { file: `naia_mens_soccer_${SEASON}_rosters.csv`, sport: 'mens-soccer', division: 'NAIA' },
+  { file: `ncaa_d1_womens_soccer_${SEASON}_rosters.csv`, sport: 'womens-soccer', division: 'NCAA D1' },
+  { file: `ncaa_d2_womens_soccer_${SEASON}_rosters.csv`, sport: 'womens-soccer', division: 'NCAA D2' },
+  { file: `ncaa_d3_womens_soccer_${SEASON}_rosters.csv`, sport: 'womens-soccer', division: 'NCAA D3' },
+  { file: `naia_womens_soccer_${SEASON}_rosters.csv`, sport: 'womens-soccer', division: 'NAIA' },
 ];
 
 function normalizeConfidence(raw) {
@@ -41,15 +60,31 @@ function toIntOrNull(raw) {
 
 function importFile({ file, sport, division }) {
   const filePath = path.join(DATA_DIR, file);
+  if (!fs.existsSync(filePath)) {
+    console.log(`  ${file}: not present, skipped`);
+    return { count: 0, rejected: 0, skipped: true };
+  }
   const text = fs.readFileSync(filePath, 'utf-8');
   const rows = parseCsvToObjects(text);
   const rejected = [];
+  const unnamed = [];
 
   const records = rows
     .map((row) => {
       const college_name = (row['School'] || '').trim();
       const player_name = (row['Player Name'] || '').trim();
       if (!college_name || !player_name) return null;
+
+      // A name that is not a name. The 2024 scrape read the jersey column for
+      // four D1 women's programmes and produced 120 players called "Jersey
+      // Number 9" — which imported cleanly, because the class-year guard only
+      // ever looked at the class column. Left alone they inflate turnover
+      // enormously: Akron's women showed 60 departures from a 25-player squad,
+      // because none of the placeholders can match a real name next season.
+      if (!isPlausibleName(player_name)) {
+        unnamed.push({ college_name, player_name });
+        return null;
+      }
 
       // Refuse a class-year cell that is not a class year. Texas Tech's roster
       // has a Club column where the class belongs, so fifteen players imported
@@ -104,6 +139,16 @@ function importFile({ file, sport, division }) {
 
   // Loud on purpose. A misread column is invisible in the totals above — the
   // rows still import, they just carry a club name where a class should be.
+  if (unnamed.length) {
+    const bySchool = {};
+    for (const u of unnamed) bySchool[u.college_name] = (bySchool[u.college_name] || 0) + 1;
+    console.log(`    !! ${unnamed.length} row(s) dropped — the name column is not a name:`);
+    for (const [school, count] of Object.entries(bySchool).sort((a, b) => b[1] - a[1])) {
+      const sample = unnamed.find((u) => u.college_name === school).player_name;
+      console.log(`       ${school}: ${count} (e.g. ${JSON.stringify(sample)})`);
+    }
+    console.log('       That school has no usable roster for this season — re-scrape before trusting its turnover.');
+  }
   if (rejected.length) {
     const bySchool = {};
     for (const r of rejected) bySchool[r.college_name] = (bySchool[r.college_name] || 0) + 1;
@@ -114,19 +159,21 @@ function importFile({ file, sport, division }) {
     }
     console.log('       Likely the wrong column was scraped. Check the roster page before trusting this school.');
   }
-  return { count: records.length, rejected: rejected.length };
+  return { count: records.length, rejected: rejected.length, unnamed: unnamed.length };
 }
 
 function run() {
-  console.log('Importing 2025 roster sheets into roster_players...');
+  console.log(`Importing ${SEASON} roster sheets into roster_players from ${DATA_DIR}`);
   let total = 0;
   let rejected = 0;
+  let loaded = 0;
   for (const spec of FILES) {
     const result = importFile(spec);
     total += result.count;
     rejected += result.rejected;
+    if (!result.skipped) loaded += 1;
   }
-  console.log(`Done. ${total} total roster players imported across ${FILES.length} files.`);
+  console.log(`Done. ${total} ${SEASON} roster players imported across ${loaded} file(s).`);
   if (rejected) {
     console.log(`${rejected} class-year cell(s) were rejected — see the per-file detail above.`);
   }

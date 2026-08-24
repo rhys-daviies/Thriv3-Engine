@@ -6,7 +6,7 @@ the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
 Last audited: 2026-08-24, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 279 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 283 tests green). Coverage numbers below were
 re-run, not copied; two moved and are corrected in place.
 
 ---
@@ -96,11 +96,26 @@ two of them are a different job than the count suggests.
       (Fr.→2029, Sr.→2026), so a player scores the same in both seasons and
       the turnover diff holds. The 46 failures are concentrated in D1 (35 of
       them) and each carries a reason.
-- [ ] **Import the 2024 rosters.** `importRosterSheets.js` hardcodes
-      `SEASON = '2025'` and the `rosters_2025` directory, so the acquired data
-      is doing nothing yet. Parameterise both, import, and re-run the coverage
-      queries. This is now the cheapest work in Phase 0 — the expensive half
-      is already paid for.
+- [x] **Imported both seasons.** `importRosterSheets.js` takes `--season` and
+      `--dir`, and skips a division file that is not present rather than
+      failing — the 2024 acquisition was scoped to D1–D3, and a missing NAIA
+      file is a fact about scope, not an error.
+      **roster_players now holds 52,912 rows for 2024 and 64,436 for 2025, and
+      1,682 in-scope school-sports have both seasons — turnover is computable
+      for the first time.**
+
+      Importing exposed a defect the class-year guard could not see, because
+      it only ever inspected the class column: four D1 women's programmes had
+      their *jersey* column read as the player name, giving 120 players called
+      "Jersey Number 9". They wreck the metric they feed rather than merely
+      adding bad rows — a placeholder can never match a real name next season,
+      so Akron's women showed 60 departures from a 25-player squad. A name
+      guard now drops them loudly, `server/lib/rosterName.js` is tested, and
+      the four schools are marked failed in the 2024 worklist for re-scrape.
+      Mean turnover across in-scope programmes reads 44.7%, which is high but
+      no longer impossible; some of it will be name-spelling differences
+      between seasons rather than real departures, and that is worth measuring
+      before the metric is trusted.
 - [ ] **Women's academic ratings — 318 programs to source, 5 to reconcile.**
       Not 323: five already exist in `server/seed/data/academic_scores.json`
       filed under a different division, which is a lookup fix rather than
@@ -125,11 +140,25 @@ two of them are a different job than the count suggests.
       parenthetical qualifier.
       Tooling: `tools/soccer/discover_roster_urls.py` and
       `tools/soccer/harvest_rosters.py`.
-- [ ] **Merge the harvested 2025 rosters back in.** The 26 clean harvests are
-      CSVs under `2025 Roster Sheets/_gaps_harvested/` and have not reached
-      the database either. They need folding into the per-division sheets
-      before the next import, or they will be silently dropped by the
-      wipe-and-reinsert the importer does per (sport, division, season).
+- [x] **Merged the harvested 2025 rosters.** 208 class years written onto
+      existing rows and 606 players appended for schools that had none, via
+      `tools/soccer/merge_harvested_rosters.py`. The two gap types needed
+      opposite treatment: a school missing only its class column already had
+      minutes and games from the stats scrape, so replacing the row would have
+      traded a season of minutes for a class label. In-scope schools with a
+      2025 roster went from 1,703 to 1,725, and grad-year nulls from 1,245 to
+      1,042.
+
+      Re-validating the harvests first caught a wrong-school harvest that the
+      earlier guards had let through: Simon Fraser's men had picked up **Saint
+      Francis University** — `sfuathletics.com` is not `sfu.ca`. The merge now
+      refuses outright when none of a harvest's players appear on an existing
+      sheet, rather than reporting a quiet "filled 0". Re-validation also
+      produced two false rejections, Kentucky ("UK Athletics") and UC Santa
+      Barbara ("University of California, Santa Barbara"), so the school check
+      now falls back to corroborating the host against `known_domains.json`
+      — which still refuses Saint Francis, because its host is not among Simon
+      Fraser's known domains.
 - [x] **Guarded the class-year column before re-scraping.** There was no
       parser in this repo to fix — the bad values are in the scraped CSVs
       themselves, so the fix had to be validation at import, and it had to

@@ -52,6 +52,8 @@ describe('the hundred ways a site writes it', () => {
     expect(grad('Fifth Year')).toBe(2026);
     expect(grad('Sixth Year')).toBe(2026);
     expect(grad('6th')).toBe(2026);
+    // Not hypothetical — a 2024 roster listed an "8th".
+    expect(grad('8th')).toBe(2026);
   });
 
   it('takes an explicit year straight from the cell', () => {

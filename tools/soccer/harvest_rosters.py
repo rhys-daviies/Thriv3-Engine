@@ -27,6 +27,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 from playwright.sync_api import sync_playwright
 
@@ -139,6 +140,24 @@ def name_tokens(name):
     return [w for w in words if w not in STOPWORDS] or words
 
 
+KNOWN_PATH = Path.home() / "Documents" / "Recruitmatch" / "individualisation" / "known_domains.json"
+
+
+def load_known():
+    try:
+        raw = json.loads(KNOWN_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    out = {}
+    for name, v in raw.items():
+        hosts = v if isinstance(v, list) else [v]
+        out[name.lower().strip()] = [str(h).lower().replace("www.", "").strip() for h in hosts if h]
+    return out
+
+
+KNOWN = load_known()
+
+
 def verify_school(page, school):
     """
     Confirms the page belongs to the school we asked for.
@@ -154,9 +173,23 @@ def verify_school(page, school):
     tail = re.split(r"\s+[-|\u2013]\s+", title)[-1].strip() or title
     missing = [t for t in name_tokens(school) if t not in tail.lower().replace(" ", "")
                and t not in tail.lower()]
-    if missing:
-        return f"wrong school — wanted {school!r}, page says {tail!r} (missing {missing})"
-    return None
+    if not missing:
+        return None
+
+    # A title is not the only way a page names its school, and insisting on it
+    # rejected two correct pages: Kentucky's says "UK Athletics" and UCSB's
+    # says "University of California, Santa Barbara", neither of which contains
+    # the tokens we were looking for. So fall back to the host, checked against
+    # the same evidence file the identity checks use. This stays strict where
+    # it counts — sfuathletics.com is Saint Francis University, and it is not
+    # among Simon Fraser's known domains, so that harvest is still refused.
+    host = urlparse(page.url).netloc.lower().replace("www.", "")
+    for known in KNOWN.get(school.lower().strip(), []):
+        if host == known or host.endswith("." + known) or known.endswith("." + host):
+            return None
+
+    return (f"wrong school — wanted {school!r}, page says {tail!r} (missing {missing}); "
+            f"host {host!r} is not among its known domains either")
 
 
 def verify_season(page, season):
