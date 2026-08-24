@@ -230,12 +230,54 @@ then 2023 and 2022. Not to be picked up here.
       division as a block at the fill value — D2 keeps 97% at a threshold of
       5.0 and 28% at 5.5 — so the criterion cannot rank *within* the filled
       population, only include or exclude it wholesale.
-- [ ] **Rate the schools missing from both ranking sources.** 318 women's
-      programmes have no rating at all, and 545 more across D2/D3 hold a fill.
-      Carnegie Mellon shows the fills contain at least one outright error, so
-      the population is worth a pass rather than an assumption. Apply the same
-      70/30 US News and Niche blend, so the new values are comparable to the
-      existing ones rather than a second scale wearing the same column.
+- [x] **Audited every rating against its source, and the method is sound —
+      the join was not.** 751 of the 878 rated schools carry exactly the score
+      their name holds in `academic_scores.json`. Of the 127 without an exact
+      entry, 113 are the same university spelled differently in the other
+      sport ("Amherst" against "Amherst College"), which is fine.
+
+      **14 were fuzzy matches to a different institution, and 12 of those were
+      wrong.** All twelve are flagship women's D1 programmes — the most
+      important schools in the pilot:
+
+      | School | Held | Actually belonged to |
+      |---|---|---|
+      | Kansas / Arkansas | 4.8 | Central Arkansas |
+      | USC | 4.8 | USC Upstate |
+      | Purdue | 4.8 | Purdue Fort Wayne |
+      | Illinois | 4.3 | Eastern Illinois |
+      | Houston | 3.8 | Houston Christian |
+      | Utah | 4.5 | Utah Tech |
+      | Florida | 6.4 | Florida Atlantic |
+      | Georgia | 6.1 | Georgia State |
+      | Missouri | 5.8 | Missouri State |
+      | Oregon | 7.8 | Oregon State |
+      | Ohio | 8.9 | Ohio State |
+      | Southern | 5.5 | Georgia Southern |
+
+      Two flagged cases were legitimate and left alone: Army is West Point,
+      and Jefferson University *is* Thomas Jefferson University.
+
+      Caught by comparing each rating against its conference peers — Purdue at
+      4.8 in a Big Ten whose median is 8.7 — then checking the source. US News
+      puts Purdue at #46 and Penn State at #59, yet the data rated Penn State
+      8.7 and Purdue 4.8. All twelve are now voided rather than left wrong,
+      with the reason in `identity_notes`.
+
+      **This is the third column the same bug has corrupted**, after
+      `athletics_domain` and the identity mappings. `matchSchoolName` resolves
+      a name absent from a source file to the nearest longer one, and a
+      flagship university's short name is always a prefix of some satellite
+      campus. It is a property of the matcher, not of any one dataset.
+- [ ] **Guard `matchSchoolName` against qualifying words.** Extra tokens that
+      are generic — "College", "University" — mean the same school; extra
+      tokens like "State", "Eastern", "Fort Wayne", "Upstate" mean a different
+      one. Every consumer of that function is currently exposed.
+- [ ] **Rate the schools missing from both ranking sources.** Now 329 women's
+      programmes with no rating, including the 12 voided flagships, and 545
+      more across D2/D3 holding a divisional fill. Apply the same 70/30 US
+      News and Niche blend so new values stay comparable. The 12 flagships are
+      the priority — they are the programmes athletes ask for by name.
 - [x] **Fixed Carnegie Mellon: 6.5 → 10.** Checked rather than reasoned from
       the name — US News has it at **#20 in National Universities** and Niche
       grades its academics **A+**. Emory, already scored 10 in this data, is
