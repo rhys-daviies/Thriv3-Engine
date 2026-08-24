@@ -1,6 +1,14 @@
 export const STARTER_MINUTES_THRESHOLD = 600;
 
 /**
+ * roster_players now holds more than one season (2024 was imported
+ * separately for a cross-season retention analysis) — every read the app
+ * does against it must pin this or it silently mixes two years' rosters
+ * into one list / one match run.
+ */
+export const CURRENT_ROSTER_SEASON = '2025';
+
+/**
  * Division normalization using regex word boundaries — "Division II" must
  * never match a "Division I" check (Section 15 decision #5).
  */

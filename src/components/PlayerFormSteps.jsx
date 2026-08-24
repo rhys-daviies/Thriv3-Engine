@@ -25,6 +25,7 @@ function defaultsFrom(initialData) {
     email: initialData?.email || '',
     phone: initialData?.phone || '',
     graduation_year: initialData?.graduation_year || '',
+    recruiting_class_year: initialData?.recruiting_class_year || '',
     high_school: initialData?.high_school || '',
     city: initialData?.city || '',
     state: initialData?.state || '',
@@ -77,7 +78,9 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
     setCollegesLoading(true);
     entities.College.filter({ sport }).then((rows) => {
       if (!cancelled) {
-        setColleges(rows);
+        // Exclude inactive colleges so a preference never offers a
+        // conference/division whose only members are non-recruiting-eligible.
+        setColleges(rows.filter((c) => c.active !== 0));
         setCollegesLoading(false);
       }
     });
@@ -131,7 +134,8 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
     });
   };
 
-  const step1Valid = data.full_name.trim().length > 0 && !!data.position && data.preferred_divisions.length > 0;
+  const step1Valid = data.full_name.trim().length > 0 && !!data.position && data.preferred_divisions.length > 0
+    && !!data.recruiting_class_year;
 
   const steps = [
     { label: 'Soccer Profile' },
@@ -153,8 +157,9 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
     onSubmit(data);
   }
 
-  function insertVariable(token) {
-    setData((d) => ({ ...d, email_template: `${d.email_template}{{${token}}}` }));
+  function insertVariable(variable) {
+    const text = variable.snippet || `{{${variable.token}}}`;
+    setData((d) => ({ ...d, email_template: `${d.email_template}${text}` }));
   }
 
   function resetTemplate() {
@@ -197,6 +202,17 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             <div className="space-y-1.5">
               <Label>Graduation Year</Label>
               <Input type="number" value={data.graduation_year} onChange={(e) => set('graduation_year')(e.target.value)} placeholder="2027" />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Recruiting Class Year *</Label>
+              <Input
+                type="number"
+                value={data.recruiting_class_year}
+                onChange={(e) => set('recruiting_class_year')(e.target.value)}
+                placeholder="2027"
+                required
+              />
+              <p className="text-xs text-muted-foreground">The year you'd join a college roster — matched against schools' graduating class of that year.</p>
             </div>
             <div className="space-y-1.5">
               <Label>High School</Label>
@@ -358,10 +374,11 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
                 <button
                   type="button"
                   key={v.token}
-                  onClick={() => insertVariable(v.token)}
+                  onClick={() => insertVariable(v)}
+                  title={v.snippet ? v.label : undefined}
                   className="px-2 py-0.5 rounded-full text-xs bg-muted hover:bg-muted/70"
                 >
-                  {`{{${v.token}}}`}
+                  {v.snippet ? v.label : `{{${v.token}}}`}
                 </button>
               ))}
             </div>

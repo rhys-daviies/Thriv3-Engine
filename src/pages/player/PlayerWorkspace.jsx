@@ -149,7 +149,7 @@ export default function PlayerWorkspace() {
             <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
               <span>{player.position}</span>
               <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{player.state || '—'}</span>
-              <span className="flex items-center gap-1"><GraduationCap className="h-3.5 w-3.5" />{player.graduation_year || '—'}</span>
+              <span className="flex items-center gap-1"><GraduationCap className="h-3.5 w-3.5" />Class of {player.recruiting_class_year || player.graduation_year || '—'}</span>
             </div>
           </div>
         </div>

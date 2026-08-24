@@ -7,6 +7,7 @@ export function sanitizePlayerData(raw) {
   const out = { ...raw };
   out.gpa = out.gpa === '' || out.gpa === null || out.gpa === undefined ? undefined : parseFloat(out.gpa);
   out.graduation_year = out.graduation_year === '' ? undefined : Number(out.graduation_year);
+  out.recruiting_class_year = out.recruiting_class_year === '' ? undefined : Number(out.recruiting_class_year);
   out.sat_score = out.sat_score === '' ? undefined : Number(out.sat_score);
   out.act_score = out.act_score === '' ? undefined : Number(out.act_score);
   out.height_cm = out.height_cm === '' ? undefined : Number(out.height_cm);

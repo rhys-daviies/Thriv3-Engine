@@ -34,6 +34,7 @@ function SeniorGroup({ label, names, collegeName }) {
   );
 }
 
+
 function matchScoreVariant(score) {
   if (score >= 80) return 'green';
   if (score >= 60) return 'amber';
@@ -45,12 +46,37 @@ export default function CollegeCard({ college, onEmailCoaches }) {
   const coaches = (college.coaching_staff || []).filter((c) => c.email && c.email !== 'N/A');
 
   return (
-    <Card className="p-4 hover:border-primary/30 hover:shadow-sm transition-all">
+    <Card
+      className={cn(
+        'p-4 hover:border-primary/30 hover:shadow-sm transition-all',
+        college.primary_color && 'border-l-[3px]'
+      )}
+      style={college.primary_color ? { borderLeftColor: college.primary_color } : undefined}
+    >
       <button className="w-full text-left" onClick={() => setExpanded((e) => !e)}>
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-heading font-semibold truncate">{college.name}</p>
-            <p className="text-xs text-muted-foreground truncate">{college.location}</p>
+            <div className="flex items-center gap-2 min-w-0">
+              {college.logo_url && (
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/95 p-1">
+                  <img src={college.logo_url} alt="" className="h-full w-full object-contain" />
+                </span>
+              )}
+              <p className="font-heading font-semibold truncate">{college.name}</p>
+            </div>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <p className="text-xs text-muted-foreground truncate">
+                {college.location}
+                {college.nickname && ` · ${college.nickname}`}
+              </p>
+              {(college.primary_color || college.secondary_color) && (
+                <span className="flex shrink-0 items-center gap-0.5">
+                  {[college.primary_color, college.secondary_color].filter(Boolean).map((c) => (
+                    <span key={c} className="h-2.5 w-2.5 rounded-full border border-black/10" style={{ backgroundColor: c }} />
+                  ))}
+                </span>
+              )}
+            </div>
             <div className="mt-1.5 flex items-center gap-1.5">
               <Badge>{college.division}</Badge>
               {college.position_need && (

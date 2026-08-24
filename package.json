@@ -10,6 +10,7 @@
     "build": "vite build",
     "seed": "node server/seed/seedFromLocalData.js",
     "coaching-import": "node server/scripts/coachingImport.js",
+    "import-rosters": "node server/scripts/importRosterSheets.js",
     "test": "vitest run",
     "test:watch": "vitest",
     "seed:engagement": "node server/seed/seedEngagement.js",
