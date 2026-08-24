@@ -129,6 +129,36 @@ def season_url(url, season):
     return url.rstrip("/") + f"/{season}"
 
 
+STOPWORDS = {"university", "college", "the", "of", "at", "state", "saint", "st",
+             "school", "institute", "academy"}
+
+
+def name_tokens(name):
+    bare = re.sub(r"\([^)]*\)", " ", name)
+    words = re.findall(r"[a-z0-9]+", bare.lower())
+    return [w for w in words if w not in STOPWORDS] or words
+
+
+def verify_school(page, school):
+    """
+    Confirms the page belongs to the school we asked for.
+
+    Discovery hands over some URLs it could not check itself, because the site
+    answers a bot challenge to plain HTTP. Those candidates come from an
+    athletics_domain column where 126 of 514 rows name a different institution,
+    and from a name-normalising counterpart lookup that matched New Jersey City
+    University to The College of New Jersey. A roster harvested from the wrong
+    school would look entirely healthy downstream, so it is checked here too.
+    """
+    title = (page.title() or "")
+    tail = re.split(r"\s+[-|\u2013]\s+", title)[-1].strip() or title
+    missing = [t for t in name_tokens(school) if t not in tail.lower().replace(" ", "")
+               and t not in tail.lower()]
+    if missing:
+        return f"wrong school — wanted {school!r}, page says {tail!r} (missing {missing})"
+    return None
+
+
 def verify_season(page, season):
     """
     Confirms the page served the season that was asked for.
@@ -145,7 +175,7 @@ def verify_season(page, season):
     return None
 
 
-def harvest(page, url, season):
+def harvest(page, url, season, school=None):
     page.goto(season_url(url, season), wait_until="domcontentloaded", timeout=45_000)
     # The roster arrives after the document does; give it a beat, then settle.
     try:
@@ -159,6 +189,11 @@ def harvest(page, url, season):
     wrong = verify_season(page, season)
     if wrong:
         raise RuntimeError(f"wrong season — {wrong}")
+
+    if school:
+        wrong = verify_school(page, school)
+        if wrong:
+            raise RuntimeError(wrong)
 
     return page.evaluate(EXTRACT)
 
@@ -197,7 +232,7 @@ def main():
         for i, row in enumerate(todo, 1):
             label = f"{row['School']} [{row['Sport'].replace('-soccer','')}]"
             try:
-                result = harvest(page, row["Roster URL"], args.season)
+                result = harvest(page, row["Roster URL"], args.season, row["School"])
                 players = [p for p in result["players"] if p.get("name")]
                 with_class = [p for p in players if looks_like_class(p.get("class_year"))]
 
@@ -212,6 +247,24 @@ def main():
                     raise RuntimeError(
                         f"count implausible: {len(players)} players against {expected} "
                         f"already on record (mode={result['mode']})")
+
+                # For a school with no roster on record there is nothing to
+                # compare against, so bound it absolutely instead. A college
+                # soccer squad is roughly 15-60; 125 "players" at Goucher and
+                # 81 at Carlow were the page's whole athletics directory.
+                if not expected and not (12 <= len(players) <= 62):
+                    raise RuntimeError(
+                        f"count implausible for a soccer roster: {len(players)} players "
+                        f"(mode={result['mode']})")
+
+                # A harvest with no class years at all is either a school that
+                # publishes none — which is a real finding worth recording as
+                # such — or a selector that missed the field. Never silently
+                # the latter.
+                if not with_class:
+                    raise RuntimeError(
+                        f"{len(players)} players but not one class year (mode={result['mode']}) "
+                        f"— confirm the school publishes none before accepting")
 
                 out = OUTPUT / f"{slug(row['School'], row['Sport'])}.csv"
                 with out.open("w", newline="", encoding="utf-8") as fh:
