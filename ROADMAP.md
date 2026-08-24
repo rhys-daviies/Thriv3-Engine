@@ -179,6 +179,9 @@ without saying anything about what an athlete would be walking into. The
 spread is real — p10 53% against p90 94% — but attributing a given programme's
 place in it needs a trend.
 
+**The backfill is running in a separate session** — 2024's remaining gaps,
+then 2023 and 2022. Not to be picked up here.
+
 - [ ] **Finish the 2024 acquisition first.** 46 school-sports failed, 35 of
       them D1, plus the 4 whose jersey column was scraped as the player name.
       Extending backwards over an incomplete 2024 would compound the gap
@@ -186,7 +189,9 @@ place in it needs a trend.
 - [ ] **Then 2023, then 2022**, through the same pipeline. `--season` and
       `--dir` already take them, `_targets.csv` regenerates by swapping the
       year, and the name guards now catch six distinct defect shapes, so each
-      further season should cost less than the one before.
+      further season should cost less than the one before. Expect Wayback to
+      carry more of the load each year back — it was 298 of 1,707 for 2024,
+      and live sites drop older seasons.
 - [ ] **Report retention as a multi-year rate with its trend**, not a single
       figure. Three pairs (22→23, 23→24, 24→25) distinguish a programme that
       consistently loses players from one that had a bad year, which is the
