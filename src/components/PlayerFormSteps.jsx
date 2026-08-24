@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import { RotateCcw } from 'lucide-react';
 import AbilitySlider from '@/components/AbilitySlider';
 import PriorityTokens from '@/components/PriorityTokens';
+import ConferencePicker from '@/components/ConferencePicker';
 import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE } from '@/lib/emailTemplate';
 import { cn } from '@/lib/utils';
 import { entities } from '@/api/client';
@@ -91,6 +92,8 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
 
   const selectedDivisions = data.preferred_divisions;
 
+  // Kept only to prune the selection below; ConferencePicker derives its own
+  // groups from `colleges` so it can show which division each one belongs to.
   const availableConferences = useMemo(() => {
     if (selectedDivisions.length === 0) return [];
     const set = new Set();
@@ -116,16 +119,6 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [availableConferences]);
-
-  const allConferencesSelected = availableConferences.length > 0
-    && availableConferences.every((c) => data.preferred_conferences.includes(c));
-
-  function toggleSelectAllConferences() {
-    setData((d) => ({
-      ...d,
-      preferred_conferences: allConferencesSelected ? [] : [...availableConferences],
-    }));
-  }
 
   const set = (field) => (value) => setData((d) => ({ ...d, [field]: value }));
   const toggleArrayValue = (field, value) => {
@@ -309,11 +302,7 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
               <p className="text-xs text-muted-foreground italic">Select a division in Step 1 to see available conferences.</p>
             )}
 
-            {selectedDivisions.length > 0 && collegesLoading && (
-              <p className="text-xs text-muted-foreground italic">Loading conferences...</p>
-            )}
-
-            {selectedDivisions.length > 0 && !collegesLoading && (
+            {selectedDivisions.length > 0 && (
               <>
                 {divisionsWithNoData.map((div) => (
                   <p key={div} className="text-xs text-muted-foreground italic">
@@ -321,28 +310,13 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
                   </p>
                 ))}
 
-                {availableConferences.length > 0 && (
-                  <div className="space-y-2">
-                    <button
-                      type="button"
-                      onClick={toggleSelectAllConferences}
-                      className="text-xs font-medium text-primary hover:underline"
-                    >
-                      {allConferencesSelected ? 'Deselect All' : 'Select All'}
-                    </button>
-                    <div className="flex flex-wrap gap-4">
-                      {availableConferences.map((conf) => (
-                        <label key={conf} className="flex items-center gap-2 text-sm">
-                          <Checkbox
-                            checked={data.preferred_conferences.includes(conf)}
-                            onCheckedChange={() => toggleArrayValue('preferred_conferences', conf)}
-                          />
-                          {conf}
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <ConferencePicker
+                  divisions={selectedDivisions}
+                  colleges={colleges}
+                  value={data.preferred_conferences}
+                  onChange={set('preferred_conferences')}
+                  loading={collegesLoading}
+                />
               </>
             )}
           </div>
