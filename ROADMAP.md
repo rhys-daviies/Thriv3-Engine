@@ -305,10 +305,37 @@ then 2023 and 2022. Not to be picked up here.
 
       Southern (SWAC) is left unrated: US News places it under Regional
       Universities South, so these anchors do not apply to it.
-- [ ] **Rate the remaining gaps.** 318 women's programmes with no rating and
-      545 across D2/D3 holding a divisional fill. Anything new should either
-      reproduce the 70/30 blend properly or be labelled `rated-interpolated`
-      as above — the two must stay distinguishable.
+- [ ] **Rate the remaining 318.** Established what this actually costs rather
+      than starting and stalling:
+
+      **Nothing is recoverable internally.** Running the repaired matcher over
+      all 318 resolves 5. The 101 near-misses are every one of them a
+      different institution — Colorado to Colorado College, Alabama to Alabama
+      Huntsville, Texas to Concordia Texas, Idaho to College of Idaho. That is
+      the bug that was just fixed, and it correctly refuses all of them.
+      `academic_scores.json` was built for the men's school list and simply
+      never covered these programmes.
+
+      **Bulk extraction is closed.** US News renders ten schools a page and
+      stops serving "Load More" after rank 30; its pagination is client-side,
+      so a same-origin fetch returns page one whatever you ask for. Per-school
+      lookup works, and a web search returns one to three schools a query, so
+      this is 150+ queries — a dedicated session, not a side task.
+
+      **D2 and D3 need their own anchors before anyone starts.** The anchors
+      used for the flagships (#24 Emory 10 … #222 West Virginia 6.8) are
+      National Universities. US News ranks most D2 and D3 schools under
+      Regional Universities or Regional Colleges, where a rank number means
+      something different — #40 regional is not #40 national. Rating them off
+      the national curve would put a second incompatible scale in one column,
+      which is the failure this whole section has been unpicking.
+
+      Worklist ready at
+      `~/Documents/Thriv3/University individualisation/_unrated_academic_worklist.csv`
+      — 318 rows, division, conference, likely US News category, and columns
+      for rank, Niche grade and the resulting score. Priority is the 118 D1
+      programmes: that is where the scale genuinely discriminates, where the
+      anchors already hold, and where the names are ones athletes ask for.
 - [x] **Fixed Carnegie Mellon: 6.5 → 10.** Checked rather than reasoned from
       the name — US News has it at **#20 in National Universities** and Niche
       grades its academics **A+**. Emory, already scored 10 in this data, is
