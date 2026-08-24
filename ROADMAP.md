@@ -6,7 +6,7 @@ the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
 Last audited: 2026-08-24, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 236 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 247 tests green). Coverage numbers below were
 re-run, not copied; two moved and are corrected in place.
 
 ---
@@ -131,12 +131,19 @@ resolved. Neither was visible from the local database, which is the lesson.**
       worker too old to report the count reads as unknown, not as a mismatch.
       Deployed 2026-08-24; verified live (`pushed 18 token(s), 18 live at the
       edge`). Four tests added.
-- [ ] **Stop the edge tables being emptied silently.** The append-only
-      guarantee at the edge is a `BEFORE UPDATE` trigger only — `DELETE` is
-      unguarded on both `tracking_events` and `outreach_tokens`, which is
-      exactly how this happened. Local retention (`purgeExpiredEngagementData`)
-      only ever touches the local tables, so a `BEFORE DELETE` trigger at the
-      edge would break nothing.
+- [x] **Stopped the edge tables being emptied silently.** The append-only
+      guarantee was a `BEFORE UPDATE` trigger only; `DELETE` was unguarded on
+      both `tracking_events` and `outreach_tokens`, which is exactly how this
+      happened. A flat `ABORT` would have been wrong — edge events genuinely
+      need pruning once pulled down, and local retention already deletes its
+      own copies — so deletion is now *deliberate* rather than impossible: a
+      `BEFORE DELETE` trigger on each table aborts unless `edge_guard` holds
+      an unexpired unlock window, which closes on its own if you forget to
+      re-lock. Applied to production D1 (`npm run edge:schema`, idempotent)
+      and proved live: a locked delete failed with `SQLITE_CONSTRAINT_TRIGGER`,
+      the unlock/delete/re-lock cycle worked, and the allowlist came through
+      at 18 live tokens. Eleven tests added — the worker had no coverage at
+      all before this, so `worker/**` is now in the vitest include list.
 - [ ] Publish one real athlete profile and send one tracked link to a mailbox
       you control, from outside the local network.
 - [ ] Confirm events land in D1, sync down with a non-null `remote_id`, roll

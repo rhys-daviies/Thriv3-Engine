@@ -20,6 +20,7 @@
     "build:worker": "esbuild worker/index.js --bundle --format=esm --platform=neutral --outfile=build/public/_worker.js",
     "publish": "npm run export:profiles && npm run build:worker && wrangler pages deploy build/public --project-name thriv3-profiles --branch main --commit-dirty=true",
     "sync": "node server/scripts/syncEngagement.js",
+    "edge:schema": "wrangler d1 execute thriv3-engagement --remote --file worker/schema.sql",
     "simulate": "node server/seed/simulateEngagement.js"
   },
   "dependencies": {
