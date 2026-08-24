@@ -1,0 +1,1030 @@
+unitid,school,name,state,usnews_rank,usnews_category,academic_rating,legs_used
+166683,Massachusetts Institute of Technology,Massachusetts Institute of Technology,MA,2,National Universities,9.9,intake+outcome+resources
+198419,Duke,Duke University,NC,7,National Universities,9.8,intake+outcome+resources
+243744,Stanford,Stanford University,CA,4,National Universities,9.8,intake+outcome+resources
+217156,Brown,Brown University,RI,13,National Universities,9.7,intake+outcome+resources
+166027,Harvard,Harvard University,MA,3,National Universities,9.7,intake+outcome+resources
+186131,Princeton,Princeton University,NJ,1,National Universities,9.7,intake+outcome+resources
+227757,Rice,Rice University,TX,17,National Universities,9.7,intake+outcome+resources
+164465,Amherst,Amherst College,MA,2,National Liberal Arts Colleges,9.7,intake+outcome+resources
+211440,Carnegie Mellon,Carnegie Mellon University,PA,20,National Universities,9.7,intake+outcome+resources
+162928,Johns Hopkins,Johns Hopkins University,MD,7,National Universities,9.7,intake+outcome+resources
+121345,Pomona College,Pomona College,CA,7,National Liberal Arts Colleges,9.7,intake+outcome+resources
+144050,University of Chicago,University of Chicago,IL,6,National Universities,9.7,intake+outcome+resources
+190415,Cornell,Cornell University,NY,12,National Universities,9.6,intake+outcome+resources
+182670,Dartmouth,Dartmouth College,NH,13,National Universities,9.6,intake+outcome+resources
+147767,Northwestern,Northwestern University,IL,7,National Universities,9.6,intake+outcome+resources
+152080,Notre Dame,University of Notre Dame,IN,20,National Universities,9.6,intake+outcome+resources
+215062,Penn,University of Pennsylvania,PA,7,National Universities,9.6,intake+outcome+resources
+221999,Vanderbilt,Vanderbilt University,TN,17,National Universities,9.6,intake+outcome+resources
+161004,Bowdoin,Bowdoin College,ME,5,National Liberal Arts Colleges,9.6,intake+outcome+resources
+110404,California Institute of Technology,California Institute of Technology,CA,11,National Universities,9.6,outcome+resources
+112260,Claremont McKenna College,Claremont McKenna College,CA,7,National Liberal Arts Colleges,9.6,intake+outcome+resources
+115409,Harvey Mudd College,Harvey Mudd College,CA,10,National Liberal Arts Colleges,9.6,intake+outcome+resources
+216287,Swarthmore,Swarthmore College,PA,4,National Liberal Arts Colleges,9.6,intake+outcome+resources
+168342,Williams,Williams College,MA,1,National Liberal Arts Colleges,9.6,intake+outcome+resources
+130794,Yale,Yale University,CT,4,National Universities,9.5,intake+outcome+resources
+193900,New York University,New York University,NY,32,National Universities,9.5,intake+outcome+resources
+234207,Washington & Lee,Washington and Lee University,VA,21,National Liberal Arts Colleges,9.5,intake+outcome+resources
+130697,Wesleyan (CT),Wesleyan University,CT,13,National Liberal Arts Colleges,9.5,intake+outcome+resources
+190099,Colgate,Colgate University,NY,22,National Liberal Arts Colleges,9.4,intake+outcome+resources
+173258,Carleton,Carleton College,MN,10,National Liberal Arts Colleges,9.4,intake+outcome+resources
+139658,Emory,Emory University,GA,24,National Universities,9.4,intake+outcome+resources
+212911,Haverford,Haverford College,PA,24,National Liberal Arts Colleges,9.4,intake+outcome+resources
+230959,Middlebury,Middlebury College,VT,13,National Liberal Arts Colleges,9.4,intake+outcome+resources
+167835,Smith College,Smith College,MA,13,National Liberal Arts Colleges,9.4,intake+outcome+resources
+197133,Vassar College,Vassar College,NY,13,National Liberal Arts Colleges,9.4,intake+outcome+resources
+179867,Washington (MO),Washington University in St Louis,MO,20,National Universities,9.4,intake+outcome+resources
+168218,Wellesley College,Wellesley College,MA,7,National Liberal Arts Colleges,9.4,intake+outcome+resources
+190150,Columbia,Columbia University in the City of New York,NY,15,National Universities,9.3,intake+outcome+resources
+198385,Davidson,Davidson College,NC,13,National Liberal Arts Colleges,9.3,intake+outcome+resources
+160977,Bates,Bates College,ME,24,National Liberal Arts Colleges,9.3,intake+outcome+resources
+161086,Colby,Colby College,ME,24,National Liberal Arts Colleges,9.3,intake+outcome+resources
+153384,Grinnell,Grinnell College,IA,13,National Liberal Arts Colleges,9.3,intake+outcome+resources
+191515,Hamilton,Hamilton College,NY,13,National Liberal Arts Colleges,9.3,intake+outcome+resources
+195030,Rochester,University of Rochester,NY,46,National Universities,9.3,intake+outcome+resources
+234076,Virginia,University of Virginia-Main Campus,VA,26,National Universities,9.2,intake+outcome+resources
+201645,Case Western Reserve,Case Western Reserve University,OH,51,National Universities,9.2,intake+outcome+resources
+166939,Mount Holyoke College,Mount Holyoke College,MA,29,National Liberal Arts Colleges,9.2,intake+outcome+resources
+211291,Bucknell,Bucknell University,PA,30,National Liberal Arts Colleges,9.1,intake+outcome+resources
+213385,Lafayette,Lafayette College,PA,30,National Liberal Arts Colleges,9.1,intake+outcome+resources
+213543,Lehigh,Lehigh University,PA,46,National Universities,9.1,intake+outcome+resources
+233374,Richmond,University of Richmond,VA,22,National Liberal Arts Colleges,9.1,intake+outcome+resources
+123961,USC,University of Southern California,CA,28,National Universities,9.1,intake+outcome+resources
+199847,Wake Forest,Wake Forest University,NC,51,National Universities,9.1,intake+outcome+resources
+164580,Babson,Babson College,MA,,,9.1,intake+outcome+resources
+203535,Kenyon,Kenyon College,OH,45,National Liberal Arts Colleges,9.1,intake+outcome+resources
+173902,Macalester,Macalester College,MN,28,National Liberal Arts Colleges,9.1,intake+outcome+resources
+168148,Tufts,Tufts University,MA,36,National Universities,9.1,intake+outcome+resources
+197036,Army,United States Military Academy,NY,10,National Liberal Arts Colleges,9.0,intake+outcome+resources
+164924,Boston College,Boston College,MA,36,National Universities,9.0,intake+outcome+resources
+164988,Boston University,Boston University,MA,42,National Universities,9.0,intake+outcome+resources
+170976,Michigan,University of Michigan-Ann Arbor,MI,20,National Universities,9.0,intake+outcome+resources
+165015,Brandeis,Brandeis University,MA,69,National Universities,9.0,intake+outcome+resources
+123165,Scripps College,Scripps College,CA,37,National Liberal Arts Colleges,9.0,intake+outcome+resources
+130590,Trinity (CT),Trinity College,CT,37,National Liberal Arts Colleges,9.0,intake+outcome+resources
+197708,Yeshiva,Yeshiva University,NY,84,National Universities,9.0,intake+outcome+resources
+126678,Colorado College,Colorado College,CO,30,National Liberal Arts Colleges,8.9,intake+outcome+resources
+131496,Georgetown,Georgetown University,DC,24,National Universities,8.9,intake+outcome+resources
+166124,Holy Cross,College of the Holy Cross,MA,27,National Liberal Arts Colleges,8.9,intake+outcome+resources
+199120,North Carolina,University of North Carolina at Chapel Hill,NC,26,National Universities,8.9,intake+outcome+resources
+216597,Villanova,Villanova University,PA,57,National Universities,8.9,intake+outcome+resources
+211273,Bryn Mawr College,Bryn Mawr College,PA,30,National Liberal Arts Colleges,8.9,intake+outcome+resources
+202523,Denison,Denison University,OH,34,National Liberal Arts Colleges,8.9,intake+outcome+resources
+204501,Oberlin,Oberlin College,OH,58,National Liberal Arts Colleges,8.9,intake+outcome+resources
+120254,Occidental College,Occidental College,CA,35,National Liberal Arts Colleges,8.9,intake+outcome+resources
+229267,Trinity (TX),Trinity University,TX,37,National Liberal Arts Colleges,8.9,intake+outcome+resources
+196866,Union (NY),Union College,NY,44,National Liberal Arts Colleges,8.9,intake+outcome+resources
+130624,United States Coast Guard Academy,United States Coast Guard Academy,CT,1,Regional Colleges North,8.9,intake+outcome+resources
+237057,Whitman,Whitman College,WA,58,National Liberal Arts Colleges,8.9,intake+outcome+resources
+128328,Air Force,United States Air Force Academy,CO,5,National Liberal Arts Colleges,8.8,intake+outcome+resources
+164155,Navy,United States Naval Academy,MD,3,National Liberal Arts Colleges,8.8,intake+outcome+resources
+122931,Santa Clara,Santa Clara University,CA,59,National Universities,8.8,intake+outcome+resources
+231624,William & Mary,William & Mary,VA,51,National Universities,8.8,intake+outcome+resources
+212577,Franklin & Marshall,Franklin and Marshall College,PA,35,National Liberal Arts Colleges,8.8,intake+outcome+resources
+194824,Rensselaer,Rensselaer Polytechnic Institute,NY,64,National Universities,8.8,intake+outcome+resources
+152318,Rose-Hulman,Rose-Hulman Institute of Technology,IN,,,8.8,intake+outcome+resources
+195526,Skidmore,Skidmore College,NY,37,National Liberal Arts Colleges,8.8,intake+outcome+resources
+186867,Stevens Institute of Technology,Stevens Institute of Technology,NJ,80,National Universities,8.8,intake+outcome+resources
+134130,Florida,University of Florida,FL,30,National Universities,8.7,intake+outcome+resources
+218070,Furman,Furman University,SC,45,National Liberal Arts Colleges,8.7,intake+outcome+resources
+135726,Miami (FL),University of Miami,FL,64,National Universities,8.7,intake+outcome+resources
+167358,Northeastern,Northeastern University,MA,46,National Universities,8.7,intake+outcome+resources
+240444,Wisconsin,University of Wisconsin-Madison,WI,36,National Universities,8.7,intake+outcome+resources
+165334,Clark (MA),Clark University,MA,132,National Universities,8.7,intake+outcome+resources
+191241,Fordham,Fordham University,NY,97,National Universities,8.6,intake+outcome+resources
+215293,Pittsburgh,University of Pittsburgh-Pittsburgh Campus,PA,69,National Universities,8.6,intake+outcome+resources
+228246,SMU,Southern Methodist University,TX,88,National Universities,8.6,intake+outcome+resources
+156408,Centre,Centre College,KY,55,National Liberal Arts Colleges,8.6,intake+outcome+resources
+111948,Chapman,Chapman University,CA,110,National Universities,8.6,intake+outcome+resources
+212009,Dickinson,Dickinson College,PA,45,National Liberal Arts Colleges,8.6,intake+outcome+resources
+239017,Lawrence,Lawrence University,WI,65,National Liberal Arts Colleges,8.6,intake+outcome+resources
+121257,Pitzer College,Pitzer College,CA,37,National Liberal Arts Colleges,8.6,outcome+resources
+221351,Rhodes,Rhodes College,TN,55,National Liberal Arts Colleges,8.6,intake+outcome+resources
+174844,Saint Olaf,St Olaf College,MN,50,National Liberal Arts Colleges,8.6,intake+outcome+resources
+221519,Sewanee: The University of the South,The University of the South,TN,45,National Liberal Arts Colleges,8.6,intake+outcome+resources
+168421,Worcester Polytechnic,Worcester Polytechnic Institute,MA,84,National Universities,8.6,outcome+resources
+163286,Maryland,University of Maryland-College Park,MD,42,National Universities,8.5,intake+outcome+resources
+204796,Ohio State,Ohio State University-Main Campus,OH,41,National Universities,8.5,intake+outcome+resources
+228778,Texas,The University of Texas at Austin,TX,30,National Universities,8.5,intake+outcome+resources
+212674,Gettysburg,Gettysburg College,PA,58,National Liberal Arts Colleges,8.5,intake+outcome+resources
+195216,Saint Lawrence,St Lawrence University,NY,58,National Liberal Arts Colleges,8.5,intake+outcome+resources
+149781,Wheaton (IL),Wheaton College,IL,50,National Liberal Arts Colleges,8.5,intake+outcome+resources
+131469,George Washington,George Washington University,DC,59,National Universities,8.4,intake+outcome+resources
+199193,NC State,North Carolina State University at Raleigh,NC,64,National Universities,8.4,intake+outcome+resources
+243780,Purdue,Purdue University-Main Campus,IN,46,National Universities,8.4,intake+outcome+resources
+228875,TCU,Texas Christian University,TX,97,National Universities,8.4,intake+outcome+resources
+128902,Connecticut College,Connecticut College,CT,50,National Liberal Arts Colleges,8.4,intake+outcome+resources
+150400,DePauw,DePauw University,IN,58,National Liberal Arts Colleges,8.4,intake+outcome+resources
+191630,Hobart & William Smith,Hobart William Smith Colleges,NY,73,National Liberal Arts Colleges,8.4,intake+outcome+resources
+129242,Fairfield,Fairfield University,CT,139,National Universities,8.3,intake+outcome+resources
+174066,Minnesota,University of Minnesota-Twin Cities,MN,59,National Universities,8.3,intake+outcome+resources
+217402,Providence,Providence College,RI,2,Regional Universities North,8.3,intake+outcome+resources
+196413,Syracuse,Syracuse University,NY,75,National Universities,8.3,intake+outcome+resources
+207971,Tulsa,University of Tulsa,OK,158,National Universities,8.3,intake+outcome+resources
+110662,UCLA,University of California-Los Angeles,CA,17,National Universities,8.3,outcome+resources
+233921,Virginia Tech,Virginia Polytechnic Institute and State University,VA,51,National Universities,8.3,intake+outcome+resources
+206589,College of Wooster,The College of Wooster,OH,76,National Liberal Arts Colleges,8.3,intake+outcome+resources
+131159,American,American University,DC,88,National Universities,8.2,intake+outcome+resources
+181002,Creighton,Creighton University,NE,117,National Universities,8.2,intake+outcome+resources
+130943,Delaware,University of Delaware,DE,88,National Universities,8.2,intake+outcome+resources
+214777,Penn State,Pennsylvania State University-Main Campus,PA,59,National Universities,8.2,intake+outcome+resources
+166629,UMass,University of Massachusetts-Amherst,MA,64,National Universities,8.2,intake+outcome+resources
+164739,Bentley,Bentley University,MA,1,Regional Universities North,8.2,intake+outcome+resources
+214175,Muhlenberg,Muhlenberg College,PA,70,National Liberal Arts Colleges,8.2,intake+outcome+resources
+110635,California,University of California-Berkeley,CA,15,National Universities,8.1,outcome+resources
+217882,Clemson,Clemson University,SC,75,National Universities,8.1,intake+outcome+resources
+127060,Denver,University of Denver,CO,117,National Universities,8.1,intake+outcome+resources
+212054,Drexel,Drexel University,PA,80,National Universities,8.1,intake+outcome+resources
+139959,Georgia,University of Georgia,GA,46,National Universities,8.1,intake+outcome+resources
+145637,Illinois,University of Illinois Urbana-Champaign,IL,36,National Universities,8.1,intake+outcome+resources
+117946,Loyola Marymount,Loyola Marymount University,CA,102,National Universities,8.1,intake+outcome+resources
+179159,Saint Louis,Saint Louis University,MO,102,National Universities,8.1,intake+outcome+resources
+234085,VMI,Virginia Military Institute,VA,65,National Liberal Arts Colleges,8.1,intake+outcome+resources
+236948,Washington,University of Washington-Seattle Campus,WA,42,National Universities,8.1,outcome+resources
+126775,Colorado School of Mines,Colorado School of Mines,CO,80,National Universities,8.1,intake+outcome+resources
+189088,Bard,Bard College,NY,70,National Liberal Arts Colleges,8.1,intake+outcome+resources
+173647,Gustavus Adolphus,Gustavus Adolphus College,MN,70,National Liberal Arts Colleges,8.1,intake+outcome+resources
+203368,John Carroll,John Carroll University,OH,2,Regional Universities Midwest,8.1,intake+outcome+resources
+170532,Kalamazoo,Kalamazoo College,MI,67,National Liberal Arts Colleges,8.1,intake+outcome+resources
+209056,Lewis & Clark,Lewis & Clark College,OR,96,National Liberal Arts Colleges,8.1,outcome+resources
+230038,BYU,Brigham Young University,UT,110,National Universities,8.0,intake+outcome+resources
+235316,Gonzaga,Gonzaga University,WA,102,National Universities,8.0,intake+outcome+resources
+186380,Rutgers,Rutgers University-New Brunswick,NJ,42,National Universities,8.0,intake+outcome+resources
+228723,Texas A&M,Texas A&M University-College Station,TX,51,National Universities,8.0,intake+outcome+resources
+110680,UC San Diego,University of California-San Diego,CA,29,National Universities,8.0,outcome+resources
+218973,Wofford,Wofford College,SC,67,National Liberal Arts Colleges,8.0,intake+outcome+resources
+150163,Butler,Butler University,IN,1,Regional Universities Midwest,7.9,intake+outcome+resources
+134097,Florida State,Florida State University,FL,51,National Universities,7.9,intake+outcome+resources
+163046,Loyola (MD),Loyola University Maryland,MD,7,Regional Universities North,7.9,intake+outcome+resources
+110653,UC Irvine,University of California-Irvine,CA,32,National Universities,7.9,outcome+resources
+129020,UConn,University of Connecticut,CT,69,National Universities,7.9,intake+outcome+resources
+231174,Vermont,University of Vermont,VT,132,National Universities,7.9,intake+outcome+resources
+210669,Allegheny,Allegheny College,PA,76,National Liberal Arts Colleges,7.9,intake+outcome+resources
+212805,Grove City,Grove City College,PA,5,Regional Colleges North,7.9,intake+outcome+resources
+107080,Hendrix,Hendrix College,AR,96,National Liberal Arts Colleges,7.9,intake+outcome+resources
+191968,Ithaca,Ithaca College,NY,13,Regional Universities North,7.9,intake+outcome+resources
+146481,Lake Forest,Lake Forest College,IL,75,National Liberal Arts Colleges,7.9,intake+outcome+resources
+195003,Rochester Institute of Technology,Rochester Institute of Technology,NY,88,National Universities,7.9,intake+outcome+resources
+216524,Ursinus,Ursinus College,PA,84,National Liberal Arts Colleges,7.9,intake+outcome+resources
+216667,Washington & Jefferson,Washington & Jefferson College,PA,84,National Liberal Arts Colleges,7.9,outcome+resources
+210401,Willamette University,Willamette University,OR,76,National Liberal Arts Colleges,7.9,intake+outcome+resources
+223232,Baylor,Baylor University,TX,88,National Universities,7.8,intake+outcome+resources
+196079,Binghamton,Binghamton University,NY,73,National Universities,7.8,intake+outcome+resources
+171100,Michigan State,Michigan State University,MI,64,National Universities,7.8,intake+outcome+resources
+209825,Portland,University of Portland,OR,2,Regional Universities West,7.8,intake+outcome+resources
+236595,Seattle,Seattle University,WA,151,National Universities,7.8,intake+outcome+resources
+110644,UC Davis,University of California-Davis,CA,32,National Universities,7.8,outcome+resources
+190044,Clarkson,Clarkson University,NY,143,National Universities,7.8,intake+outcome+resources
+236328,Puget Sound,University of Puget Sound,WA,96,National Liberal Arts Colleges,7.8,intake+outcome+resources
+195304,Sarah Lawrence College,Sarah Lawrence College,NY,109,National Liberal Arts Colleges,7.8,intake+outcome+resources
+168281,Wheaton (MA),Wheaton College (Massachusetts),MA,76,National Liberal Arts Colleges,7.8,intake+outcome+resources
+196088,Buffalo,University at Buffalo,NY,75,National Universities,7.7,intake+outcome+resources
+126614,Colorado,University of Colorado Boulder,CO,97,National Universities,7.7,intake+outcome+resources
+202480,Dayton,University of Dayton,OH,143,National Universities,7.7,intake+outcome+resources
+151351,Indiana,Indiana University-Bloomington,IN,73,National Universities,7.7,intake+outcome+resources
+239105,Marquette,Marquette University,WI,88,National Universities,7.7,intake+outcome+resources
+120883,Pacific,University of the Pacific,CA,139,National Universities,7.7,intake+outcome+resources
+121150,Pepperdine,Pepperdine University,CA,84,National Universities,7.7,intake+outcome+resources
+122436,San Diego,University of San Diego,CA,110,National Universities,7.7,outcome+resources
+196097,Stony Brook,Stony Brook University,NY,59,National Universities,7.7,intake+outcome+resources
+125727,Westmont,Westmont College,CA,115,National Liberal Arts Colleges,7.7,intake+outcome+resources
+146427,Knox,Knox College,IL,76,National Liberal Arts Colleges,7.7,intake+outcome+resources
+167899,Springfield,Springfield College,MA,257,National Universities,7.7,intake+outcome+resources
+164216,Washington College,Washington College,MD,92,National Liberal Arts Colleges,7.7,intake+outcome+resources
+153269,Drake,Drake University,IA,183,National Universities,7.6,intake+outcome+resources
+204024,Miami (OH),Miami University-Oxford,OH,143,National Universities,7.6,intake+outcome+resources
+215770,Saint Joseph's,Saint Joseph's University - Philadelphia,PA,6,Regional Universities North,7.6,intake+outcome+resources
+136950,Rollins,Rollins College,FL,2,Regional Universities South,7.6,intake+outcome+resources
+138600,Agnes Scott College,Agnes Scott College,GA,67,National Liberal Arts Colleges,7.6,intake+outcome+resources
+150455,Earlham,Earlham College,IN,76,National Liberal Arts Colleges,7.6,intake+outcome+resources
+143358,Bradley,Bradley University,IL,183,National Universities,7.5,outcome+resources
+140447,Mercer,Mercer University,GA,169,National Universities,7.5,intake+outcome+resources
+174914,St. Thomas,University of St Thomas,MN,158,National Universities,7.5,intake+outcome+resources
+145646,Illinois Wesleyan,Illinois Wesleyan University,IL,2,Regional Colleges Midwest,7.5,intake+outcome+resources
+167783,Simmons,Simmons University,MA,183,National Universities,7.5,intake+outcome+resources
+228343,Southwestern (TX),Southwestern University,TX,84,National Liberal Arts Colleges,7.5,intake+outcome+resources
+212106,Duquesne,Duquesne University,PA,169,National Universities,7.4,intake+outcome+resources
+198516,Elon,Elon University,NC,117,National Universities,7.4,intake+outcome+resources
+122612,San Francisco,University of San Francisco,CA,110,National Universities,7.4,intake+outcome+resources
+186584,Seton Hall,Seton Hall University,NJ,158,National Universities,7.4,intake+outcome+resources
+216339,Temple,Temple University,PA,102,National Universities,7.4,intake+outcome+resources
+110705,UC Santa Barbara,University of California-Santa Barbara,CA,40,National Universities,7.4,outcome+resources
+121309,Point Loma Nazarene,Point Loma Nazarene University,CA,16,Regional Universities West,7.4,intake+outcome+resources
+178615,Truman State,Truman State University,MO,7,Regional Universities Midwest,7.4,intake+outcome+resources
+165662,Emerson,Emerson College,MA,19,Regional Universities North,7.4,intake+outcome+resources
+209065,Linfield,Linfield University,OR,111,National Liberal Arts Colleges,7.4,outcome+resources
+204635,Ohio Northern,Ohio Northern University,OH,1,Regional Colleges Midwest,7.4,intake+outcome+resources
+100858,Auburn,Auburn University,AL,102,National Universities,7.3,intake+outcome+resources
+198695,High Point,High Point University,NC,1,Regional Colleges South,7.3,intake+outcome+resources
+191649,Hofstra,Hofstra University,NY,183,National Universities,7.3,intake+outcome+resources
+192819,Marist,Marist University,NY,9,Regional Universities North,7.3,intake+outcome+resources
+218663,South Carolina,University of South Carolina-Columbia,SC,127,National Universities,7.3,intake+outcome+resources
+167996,Stonehill,Stonehill College,MA,82,National Liberal Arts Colleges,7.3,outcome+resources
+221759,Tennessee,The University of Tennessee-Knoxville,TN,102,National Universities,7.3,intake+outcome+resources
+238333,Beloit,Beloit College,WI,92,National Liberal Arts Colleges,7.3,intake+outcome+resources
+210492,Bryn Athyn,Bryn Athyn College of the New Church,PA,180,National Liberal Arts Colleges,7.3,outcome+resources
+169080,Calvin,Calvin University,MI,4,Regional Universities Midwest,7.3,intake+outcome+resources
+131283,Catholic,The Catholic University of America,DC,169,National Universities,7.3,intake+outcome+resources
+139393,Covenant,Covenant College,GA,126,National Liberal Arts Colleges,7.3,intake+outcome+resources
+170301,Hope,Hope College,MI,84,National Liberal Arts Colleges,7.3,intake+outcome+resources
+153834,Luther,Luther College,IA,111,National Liberal Arts Colleges,7.3,intake+outcome+resources
+215929,Scranton,University of Scranton,PA,8,Regional Universities North,7.3,intake+outcome+resources
+157818,Transylvania University,Transylvania University,KY,109,National Liberal Arts Colleges,7.3,intake+outcome+resources
+110422,Cal Poly,California Polytechnic State University-San Luis Obispo,CA,1,Regional Universities West,7.2,intake+outcome+resources
+146719,Loyola Chicago,Loyola University Chicago,IL,132,National Universities,7.2,intake+outcome+resources
+185828,NJIT,New Jersey Institute of Technology,NJ,80,National Universities,7.2,intake+outcome+resources
+102049,Samford,Samford University,AL,179,National Universities,7.2,intake+outcome+resources
+113698,Dominican (CA),Dominican University of California,CA,31,Regional Universities West,7.2,intake+outcome+resources
+231059,Saint Michael's,Saint Michael's College,VT,115,National Liberal Arts Colleges,7.2,intake+outcome+resources
+156295,Berea,Berea College,KY,45,National Liberal Arts Colleges,7.2,intake+outcome+resources
+110413,Cal Lutheran,California Lutheran University,CA,16,Regional Universities West,7.2,intake+outcome+resources
+145725,Illinois Institute of Technology,Illinois Institute of Technology,IL,117,National Universities,7.2,intake+outcome+resources
+213251,Juniata,Juniata College,PA,92,National Liberal Arts Colleges,7.2,intake+outcome+resources
+194578,Pratt Institute,Pratt Institute-Main,NY,,,7.2,intake+outcome+resources
+152390,Saint Mary's College (IN),Saint Mary's College,IN,84,National Liberal Arts Colleges,7.2,intake+outcome+resources
+121691,University of Redlands,University of Redlands,CA,11,Regional Universities West,7.2,intake+outcome+resources
+219709,Belmont,Belmont University,TN,213,National Universities,7.1,intake+outcome+resources
+150534,Evansville,University of Evansville,IN,18,Regional Universities Midwest,7.1,outcome+resources
+185572,Monmouth,Monmouth University,NJ,13,Regional Universities North,7.1,intake+outcome+resources
+207500,Oklahoma,University of Oklahoma-Norman Campus,OK,110,National Universities,7.1,intake+outcome+resources
+209551,Oregon,University of Oregon,OR,110,National Universities,7.1,intake+outcome+resources
+110097,Biola,Biola University,CA,242,National Universities,7.1,intake+outcome+resources
+133492,Eckerd,Eckerd College,FL,135,National Liberal Arts Colleges,7.1,intake+outcome+resources
+134079,Florida Southern,Florida Southern College,FL,11,Regional Universities South,7.1,intake+outcome+resources
+216366,Jefferson,Thomas Jefferson University,PA,132,National Universities,7.1,intake+outcome+resources
+178411,Missouri S&T,Missouri University of Science and Technology,MO,192,National Universities,7.1,intake+outcome+resources
+221971,Union (TN),Union University,TN,242,National Universities,7.1,intake+outcome+resources
+230807,Westminster (UT),Westminster University,UT,16,Regional Universities West,7.1,intake+outcome+resources
+139144,Berry,Berry College,GA,4,Regional Universities South,7.1,intake+outcome+resources
+184348,Drew,Drew University,NJ,84,National Liberal Arts Colleges,7.1,intake+outcome+resources
+150756,Hanover,Hanover College,IN,115,National Liberal Arts Colleges,7.1,intake+outcome+resources
+198950,Meredith College,Meredith College,NC,115,National Liberal Arts Colleges,7.1,intake+outcome+resources
+148016,Principia College,Principia College,IL,63,National Liberal Arts Colleges,7.1,intake+outcome+resources
+154350,Simpson (IA),Simpson College,IA,5,Regional Colleges Midwest,7.1,intake+outcome+resources
+216278,Susquehanna,Susquehanna University,PA,96,National Liberal Arts Colleges,7.1,intake+outcome+resources
+125763,Whittier College,Whittier College,CA,92,National Liberal Arts Colleges,7.1,outcome+resources
+237066,Whitworth,Whitworth University,WA,15,Regional Universities West,7.1,intake+outcome+resources
+192323,Le Moyne,Le Moyne College,NY,13,Regional Universities North,7.0,intake+outcome+resources
+178396,Missouri,University of Missouri-Columbia,MO,102,National Universities,7.0,intake+outcome+resources
+163268,UMBC,University of Maryland-Baltimore County,MD,127,National Universities,7.0,intake+outcome+resources
+197197,Wagner,Wagner College,NY,70,Regional Universities North,7.0,intake+outcome+resources
+228787,UT Dallas,The University of Texas at Dallas,TX,110,National Universities,7.0,intake+outcome+resources
+168546,Albion,Albion College,MI,131,National Liberal Arts Colleges,7.0,outcome+resources
+188641,Alfred University,Alfred University,NY,61,Regional Universities North,7.0,intake+outcome+resources
+222983,Austin College,Austin College,TX,84,National Liberal Arts Colleges,7.0,intake+outcome+resources
+232043,Eastern Mennonite,Eastern Mennonite University,VA,62,Regional Universities South,7.0,outcome+resources
+232308,Hollins University,Hollins University,VA,135,National Liberal Arts Colleges,7.0,intake+outcome+resources
+195720,Saint John Fisher,St. John Fisher University,NY,192,National Universities,7.0,intake+outcome+resources
+217536,Salve Regina,Salve Regina University,RI,24,Regional Universities North,7.0,intake+outcome+resources
+197027,United States Merchant Marine Academy,United States Merchant Marine Academy,NY,3,Regional Colleges North,7.0,intake+outcome+resources
+217165,Bryant,Bryant University,RI,5,Regional Universities North,6.9,intake+outcome+resources
+201885,Cincinnati,University of Cincinnati-Main Campus,OH,158,National Universities,6.9,intake+outcome+resources
+153658,Iowa,University of Iowa,IA,102,National Universities,6.9,intake+outcome+resources
+209542,Oregon State,Oregon State University,OR,143,National Universities,6.9,intake+outcome+resources
+130226,Quinnipiac,Quinnipiac University,CT,179,National Universities,6.9,intake+outcome+resources
+123554,Saint Mary's,Saint Mary's College of California,CA,7,Regional Universities West,6.9,outcome+resources
+110671,UC Riverside,University of California-Riverside,CA,75,National Universities,6.9,outcome+resources
+230764,Utah,University of Utah,UT,151,National Universities,6.9,intake+outcome+resources
+183239,Saint Anselm,Saint Anselm College,NH,96,National Liberal Arts Colleges,6.9,intake+outcome+resources
+165699,Endicott,Endicott College,MA,38,Regional Universities North,6.9,intake+outcome+resources
+232256,Hampden-Sydney,Hampden-Sydney College,VA,107,National Liberal Arts Colleges,6.9,intake+outcome+resources
+214157,Moravian,Moravian University,PA,38,Regional Universities North,6.9,intake+outcome+resources
+100663,UAB,University of Alabama at Birmingham,AL,132,National Universities,6.8,intake+outcome+resources
+164562,Assumption,Assumption University,MA,50,Regional Universities North,6.8,outcome+resources
+171128,Michigan Tech,Michigan Technological University,MI,158,National Universities,6.8,intake+outcome+resources
+166692,Massachusetts Maritime,Massachusetts Maritime Academy,MA,11,Regional Universities North,6.8,outcome+resources
+163912,St Mary's College of Maryland,St. Mary's College of Maryland,MD,96,National Liberal Arts Colleges,6.8,intake+outcome+resources
+196167,SUNY College at Geneseo,SUNY College at Geneseo,NY,17,Regional Universities North,6.8,intake+outcome+resources
+196219,SUNY Purchase College,SUNY at Purchase College,NY,131,National Liberal Arts Colleges,6.8,intake+outcome+resources
+224323,University of Dallas,University of Dallas,TX,9,Regional Universities West,6.8,intake+outcome+resources
+100751,Alabama,The University of Alabama,AL,169,National Universities,6.7,intake+outcome+resources
+195474,Siena,Siena University,NY,16,Regional Universities North,6.7,intake+outcome+resources
+240727,Wyoming,University of Wyoming,WY,222,National Universities,6.7,outcome+resources
+219000,Augustana (SD),Augustana University,SD,7,Regional Universities Midwest,6.7,intake+outcome+resources
+133553,Embry-Riddle,Embry-Riddle Aeronautical University-Daytona Beach,FL,4,Regional Universities South,6.7,intake+outcome+resources
+174747,College of Saint Benedict,College of Saint Benedict,MN,73,National Liberal Arts Colleges,6.7,intake+outcome+resources
+153162,Cornell College,Cornell College,IA,121,National Liberal Arts Colleges,6.7,intake+outcome+resources
+190983,Elmira,Elmira College,NY,6,Regional Colleges North,6.7,intake+outcome+resources
+165936,Gordon,Gordon College,MA,156,National Liberal Arts Colleges,6.7,intake+outcome+resources
+191676,Houghton,Houghton University,NY,146,National Liberal Arts Colleges,6.7,intake+outcome+resources
+239318,Milwaukee School of Engineering,Milwaukee School of Engineering,WI,2,Regional Universities Midwest,6.7,intake+outcome+resources
+186201,Ramapo College of New Jersey,Ramapo College of New Jersey,NJ,21,Regional Universities North,6.7,intake+outcome+resources
+104179,Arizona,University of Arizona,AZ,127,National Universities,6.6,intake+outcome+resources
+131520,Howard,Howard University,DC,88,National Universities,6.6,intake+outcome+resources
+153603,Iowa State,Iowa State University,IA,117,National Universities,6.6,intake+outcome+resources
+232423,James Madison,James Madison University,VA,151,National Universities,6.6,intake+outcome+resources
+155317,Kansas,University of Kansas,KS,143,National Universities,6.6,intake+outcome+resources
+157085,Kentucky,University of Kentucky,KY,143,National Universities,6.6,intake+outcome+resources
+219976,Lipscomb,Lipscomb University,TN,222,National Universities,6.6,intake+outcome+resources
+159391,LSU,Louisiana State University and Agricultural & Mechanical College,LA,169,National Universities,6.6,intake+outcome+resources
+183044,New Hampshire,University of New Hampshire-Main Campus,NH,117,National Universities,6.6,intake+outcome+resources
+217864,The Citadel,Citadel Military College of South Carolina,SC,1,Regional Universities South,6.6,intake+outcome+resources
+153144,Coe,Coe College,IA,126,National Liberal Arts Colleges,6.6,intake+outcome+resources
+162654,Goucher,Goucher College,MD,126,National Liberal Arts Colleges,6.6,intake+outcome+resources
+193584,Nazareth,Nazareth University,NY,50,Regional Universities North,6.6,intake+outcome+resources
+233426,Roanoke,Roanoke College,VA,126,National Liberal Arts Colleges,6.6,intake+outcome+resources
+104151,Arizona State,Arizona State University Campus Immersion,AZ,117,National Universities,6.5,intake+outcome+resources
+144740,DePaul,DePaul University,IL,169,National Universities,6.5,intake+outcome+resources
+192703,Manhattan,Manhattan University,NY,28,Regional Universities North,6.5,intake+outcome+resources
+137351,South Florida,University of South Florida,FL,88,National Universities,6.5,intake+outcome+resources
+145600,UIC,University of Illinois Chicago,IL,84,National Universities,6.5,intake+outcome+resources
+166513,UMass Lowell,University of Massachusetts-Lowell,MA,151,National Universities,6.5,intake+outcome+resources
+199218,UNC Wilmington,University of North Carolina Wilmington,NC,198,National Universities,6.5,intake+outcome+resources
+194310,Pace,Pace University,NY,273,National Universities,6.5,intake+outcome+resources
+211556,Chatham,Chatham University,PA,213,National Universities,6.5,intake+outcome+resources
+213011,Immaculata,Immaculata University,PA,301,National Universities,6.5,intake+outcome+resources
+239716,Saint Norbert College,Saint Norbert College,WI,111,National Liberal Arts Colleges,6.5,intake+outcome+resources
+240338,Wisconsin Lutheran College,Wisconsin Lutheran College,WI,19,Regional Colleges Midwest,6.5,intake+outcome+resources
+232186,George Mason,George Mason University,VA,117,National Universities,6.4,intake+outcome+resources
+176017,Ole Miss,University of Mississippi,MS,169,National Universities,6.4,intake+outcome+resources
+195809,St. John's,St. John's University-New York,NY,151,National Universities,6.4,intake+outcome+resources
+132903,UCF,University of Central Florida,FL,117,National Universities,6.4,intake+outcome+resources
+206622,Xavier,Xavier University,OH,208,National Universities,6.4,intake+outcome+resources
+237011,Western Washington,Western Washington University,WA,23,Regional Universities West,6.4,intake+outcome+resources
+165671,Emmanuel (MA),Emmanuel College,MA,135,National Liberal Arts Colleges,6.4,intake+outcome+resources
+213996,Messiah,Messiah University,PA,45,Regional Universities North,6.4,intake+outcome+resources
+196176,SUNY New Paltz,State University of New York at New Paltz,NY,20,Regional Universities North,6.4,intake+outcome+resources
+187134,The College of New Jersey,The College of New Jersey,NJ,4,Regional Universities North,6.4,intake+outcome+resources
+110714,UC Santa Cruz,University of California-Santa Cruz,CA,88,National Universities,6.4,outcome+resources
+232681,University of Mary Washington,University of Mary Washington,VA,131,National Liberal Arts Colleges,6.4,intake+outcome+resources
+161457,University of New England,University of New England,ME,293,National Universities,6.4,outcome+resources
+130253,Sacred Heart,Sacred Heart University,CT,242,National Universities,6.3,intake+outcome+resources
+188429,Adelphi,Adelphi University,NY,198,National Universities,6.3,intake+outcome+resources
+177214,Drury,Drury University,MO,25,Regional Universities Midwest,6.3,intake+outcome+resources
+133881,Florida Tech,Florida Institute of Technology,FL,232,National Universities,6.3,intake+outcome+resources
+212197,Elizabethtown,Elizabethtown College,PA,45,Regional Universities North,6.3,intake+outcome+resources
+213507,Lebanon Valley,Lebanon Valley College,PA,76,Regional Universities North,6.3,intake+outcome+resources
+175980,Millsaps,Millsaps College,MS,146,National Liberal Arts Colleges,6.3,intake+outcome+resources
+239628,Ripon,Ripon College,WI,143,National Liberal Arts Colleges,6.3,intake+outcome+resources
+217518,Roger Williams,Roger Williams University,RI,35,Regional Universities North,6.3,intake+outcome+resources
+163851,Salisbury,Salisbury University,MD,45,Regional Universities North,6.3,intake+outcome+resources
+233718,Sweet Briar College,Sweet Briar College,VA,164,National Liberal Arts Colleges,6.3,intake+outcome+resources
+189705,Canisius,Canisius University,NY,32,Regional Universities North,6.2,outcome+resources
+126818,Colorado State,Colorado State University-Fort Collins,CO,151,National Universities,6.2,outcome+resources
+181464,Nebraska,University of Nebraska-Lincoln,NE,158,National Universities,6.2,intake+outcome+resources
+200280,North Dakota,University of North Dakota,ND,242,National Universities,6.2,intake+outcome+resources
+152600,Valparaiso,Valparaiso University,IN,198,National Universities,6.2,intake+outcome+resources
+100706,Alabama Huntsville,University of Alabama in Huntsville,AL,242,National Universities,6.2,intake+outcome+resources
+236577,Seattle Pacific,Seattle Pacific University,WA,242,National Universities,6.2,intake+outcome+resources
+143084,Augustana (IL),Augustana College,IL,96,National Liberal Arts Colleges,6.2,intake+outcome+resources
+201195,Baldwin Wallace,Baldwin Wallace University,OH,12,Regional Universities Midwest,6.2,intake+outcome+resources
+173160,Bethel (MN),Bethel University,MN,232,National Universities,6.2,intake+outcome+resources
+238616,Concordia University-Wisconsin,Concordia University-Wisconsin,WI,329,National Universities,6.2,intake+outcome+resources
+205957,Franciscan (OH),Franciscan University of Steubenville,OH,25,Regional Universities Midwest,6.2,intake+outcome+resources
+204936,Otterbein,Otterbein University,OH,12,Regional Universities Midwest,6.2,intake+outcome+resources
+196291,SUNY Maritime College,SUNY Maritime College,NY,21,Regional Universities North,6.2,intake+outcome+resources
+196185,SUNY Oneonta,SUNY Oneonta,NY,25,Regional Universities North,6.2,intake+outcome+resources
+168227,Wentworth,Wentworth Institute of Technology,MA,28,Regional Universities North,6.2,intake+outcome+resources
+193973,Niagara,Niagara University,NY,28,Regional Universities North,6.1,intake+outcome+resources
+215743,Saint Francis (PA),Saint Francis University,PA,55,Regional Universities North,6.1,intake+outcome+resources
+137546,Stetson,Stetson University,FL,7,Regional Universities South,6.1,intake+outcome+resources
+199111,UNC Asheville,University of North Carolina Asheville,NC,135,National Liberal Arts Colleges,6.1,intake+outcome+resources
+174233,Minnesota Duluth,University of Minnesota-Duluth,MN,18,Regional Universities Midwest,6.1,intake+outcome+resources
+107512,Ouachita Baptist,Ouachita Baptist University,AR,151,National Liberal Arts Colleges,6.1,intake+outcome+resources
+219347,South Dakota Mines,South Dakota School of Mines and Technology,SD,20,Regional Universities Midwest,6.1,intake+outcome+resources
+191533,Hartwick,Hartwick College,NY,151,National Liberal Arts Colleges,6.1,intake+outcome+resources
+213668,Lycoming,Lycoming College,PA,96,National Liberal Arts Colleges,6.1,intake+outcome+resources
+184782,Rowan,Rowan University,NJ,169,National Universities,6.1,intake+outcome+resources
+186399,Rutgers University-Newark,Rutgers University-Newark,NJ,75,National Universities,6.1,outcome+resources
+195544,St. Joseph's (NY),St. Joseph's University-New York,NY,50,Regional Universities North,6.1,intake+outcome+resources
+196060,Albany,University at Albany,NY,127,National Universities,6.0,intake+outcome+resources
+199139,Charlotte,University of North Carolina at Charlotte,NC,143,National Universities,6.0,intake+outcome+resources
+169716,Detroit Mercy,University of Detroit Mercy,MI,183,National Universities,6.0,intake+outcome+resources
+225511,Houston,University of Houston,TX,132,National Universities,6.0,intake+outcome+resources
+155399,Kansas State,Kansas State University,KS,158,National Universities,6.0,intake+outcome+resources
+206084,Toledo,University of Toledo,OH,293,National Universities,6.0,intake+outcome+resources
+201654,Cedarville,Cedarville University,OH,17,Regional Universities Midwest,6.0,intake+outcome+resources
+109785,Azusa Pacific University,Azusa Pacific University,CA,283,National Universities,6.0,intake+outcome+resources
+190567,CUNY City College,CUNY City College,NY,132,National Universities,6.0,intake+outcome+resources
+167288,Massachusetts College of Liberal Arts,Massachusetts College of Liberal Arts,MA,115,National Liberal Arts Colleges,6.0,outcome+resources
+230995,Norwich,Norwich University,VT,84,Regional Universities North,6.0,intake+outcome+resources
+204909,Ohio Wesleyan,Ohio Wesleyan University,OH,121,National Liberal Arts Colleges,6.0,outcome+resources
+215798,Saint Vincent,Saint Vincent College,PA,121,National Liberal Arts Colleges,6.0,intake+outcome+resources
+174251,University of Minnesota-Morris,University of Minnesota-Morris,MN,115,National Liberal Arts Colleges,6.0,intake+outcome+resources
+199865,Warren Wilson College,Warren Wilson College,NC,183-201,National Liberal Arts Colleges,6.0,intake+outcome+resources
+197869,Appalachian State,Appalachian State University,NC,3,Regional Universities South,5.9,intake+outcome+resources
+176080,Mississippi State,Mississippi State University,MS,208,National Universities,5.9,intake+outcome+resources
+199412,Queens,Queens University of Charlotte,NC,16,Regional Universities South,5.9,intake+outcome+resources
+186283,Rider,Rider University,NJ,45,Regional Universities North,5.9,intake+outcome+resources
+236939,Washington State,Washington State University,WA,192,National Universities,5.9,outcome+resources
+183910,Caldwell,Caldwell University,NJ,84,Regional Universities North,5.9,intake+outcome+resources
+107044,Harding,Harding University,AR,301,National Universities,5.9,intake+outcome+resources
+445188,UC Merced,University of California-Merced,CA,57,National Universities,5.9,outcome+resources
+153108,Central (IA),Central College,IA,131,National Liberal Arts Colleges,5.9,intake+outcome+resources
+231712,Christopher Newport,Christopher Newport University,VA,6,Regional Universities South,5.9,intake+outcome+resources
+173300,Concordia (MN),Concordia College at Moorhead,MN,135,National Liberal Arts Colleges,5.9,intake+outcome+resources
+210739,DeSales,DeSales University,PA,283,National Universities,5.9,intake+outcome+resources
+203128,Hiram,Hiram College,OH,10,Regional Colleges Midwest,5.9,outcome+resources
+147341,Monmouth (IL),Monmouth College,IL,154,National Liberal Arts Colleges,5.9,intake+outcome+resources
+147660,North Central (IL),North Central College,IL,20,Regional Universities Midwest,5.9,intake+outcome+resources
+236230,Pacific Lutheran,Pacific Lutheran University,WA,28,Regional Universities West,5.9,intake+outcome+resources
+186371,Rutgers University-Camden,Rutgers University-Camden,NJ,97,National Universities,5.9,intake+outcome+resources
+216852,Widener,Widener University,PA,301,National Universities,5.9,intake+outcome+resources
+106397,Arkansas,University of Arkansas,AR,183,National Universities,5.8,intake+outcome+resources
+217819,Charleston,College of Charleston,SC,9,Regional Universities South,5.8,intake+outcome+resources
+163462,Mount St. Mary's,Mount St. Mary's University,MD,72,Regional Universities North,5.8,intake+outcome+resources
+204857,Ohio,Ohio University-Main Campus,OH,198,National Universities,5.8,intake+outcome+resources
+166452,Lesley,Lesley University,MA,301,National Universities,5.8,outcome+resources
+153825,Loras,Loras College,IA,8,Regional Colleges Midwest,5.8,outcome+resources
+168005,Suffolk,Suffolk University,MA,257,National Universities,5.8,intake+outcome+resources
+156286,Bellarmine,Bellarmine University,KY,301,National Universities,5.7,intake+outcome+resources
+129525,Hartford,University of Hartford,CT,301,National Universities,5.7,intake+outcome+resources
+192448,LIU,Long Island University,NY,373,National Universities,5.7,intake+outcome+resources
+195164,St. Bonaventure,St Bonaventure University,NY,25,Regional Universities North,5.7,intake+outcome+resources
+230728,Utah State,Utah State University,UT,242,National Universities,5.7,intake+outcome+resources
+217633,Anderson (SC),Anderson University,SC,31,Regional Universities South,5.7,intake+outcome+resources
+193292,Molloy,Molloy University,NY,66,Regional Universities North,5.7,intake+outcome+resources
+127918,Regis (CO),Regis University,CO,273,National Universities,5.7,intake+outcome+resources
+194958,Roberts Wesleyan,Roberts Wesleyan University,NY,84,Regional Universities North,5.7,intake+outcome+resources
+182634,Colby-Sawyer,Colby-Sawyer College,NH,12,Regional Colleges North,5.7,outcome+resources
+196158,Fredonia State,SUNY at Fredonia,NY,76,Regional Universities North,5.7,intake+outcome+resources
+208822,George Fox,George Fox University,OR,283,National Universities,5.7,intake+outcome+resources
+106342,Lyon College,Lyon College,AR,167,National Liberal Arts Colleges,5.7,outcome+resources
+204200,Mount St. Joseph,Mount St. Joseph University,OH,343,National Universities,5.7,intake+outcome+resources
+240329,University of Wisconsin-La Crosse,University of Wisconsin-La Crosse,WI,14,Regional Universities Midwest,5.7,intake+outcome+resources
+168254,Western New England,Western New England University,MA,283,National Universities,5.7,intake+outcome+resources
+216807,Westminster (PA),Westminster College,PA,121,National Liberal Arts Colleges,5.7,outcome+resources
+222178,Abilene Christian,Abilene Christian University,TX,329,National Universities,5.6,intake+outcome+resources
+198136,Campbell,Campbell University,NC,343,National Universities,5.6,intake+outcome+resources
+178402,Kansas City,University of Missouri-Kansas City,MO,232,National Universities,5.6,intake+outcome+resources
+215655,Robert Morris,Robert Morris University,PA,208,National Universities,5.6,outcome+resources
+229115,Texas Tech,Texas Tech University,TX,198,National Universities,5.6,intake+outcome+resources
+151263,Indianapolis,University of Indianapolis,IN,301,National Universities,5.6,outcome+resources
+137847,Tampa,The University of Tampa,FL,13,Regional Universities South,5.6,intake+outcome+resources
+179955,William Jewell,William Jewell College,MO,11,Regional Colleges Midwest,5.6,intake+outcome+resources
+211088,Arcadia,Arcadia University,PA,76,Regional Universities North,5.6,intake+outcome+resources
+184694,Fairleigh Dickinson University-Florham,Fairleigh Dickinson University-Florham Campus,NJ,35,Regional Universities North,5.6,outcome+resources
+161299,Maine Maritime,Maine Maritime Academy,ME,7,Regional Colleges North,5.6,intake+outcome+resources
+147679,North Park,North Park University,IL,54,Regional Universities Midwest,5.6,outcome+resources
+233295,Randolph-Macon,Randolph-Macon College,VA,96,National Liberal Arts Colleges,5.6,intake+outcome+resources
+198464,East Carolina,East Carolina University,NC,192,National Universities,5.5,intake+outcome+resources
+191931,Iona,Iona University,NY,61,Regional Universities North,5.5,intake+outcome+resources
+157289,Louisville,University of Louisville,KY,158,National Universities,5.5,intake+outcome+resources
+200332,North Dakota State,North Dakota State University-Main Campus,ND,232,National Universities,5.5,intake+outcome+resources
+217484,Rhode Island,University of Rhode Island,RI,151,National Universities,5.5,intake+outcome+resources
+234030,VCU,Virginia Commonwealth University,VA,139,National Universities,5.5,intake+outcome+resources
+232025,Emory & Henry,Emory & Henry University,VA,27,Regional Universities South,5.5,intake+outcome+resources
+238458,Carroll (WI),Carroll University,WI,32,Regional Universities Midwest,5.5,intake+outcome+resources
+213321,King's (PA),King's College,PA,112,Regional Universities North,5.5,intake+outcome+resources
+174491,Northwestern (MN),University of Northwestern-St Paul,MN,36,Regional Universities Midwest,5.5,intake+outcome+resources
+154527,Wartburg,Wartburg College,IA,156,National Liberal Arts Colleges,5.5,intake+outcome+resources
+133951,FIU,Florida International University,FL,97,National Universities,5.4,intake+outcome+resources
+182290,Nevada,University of Nevada-Reno,NV,192,National Universities,5.4,intake+outcome+resources
+207388,Oklahoma State,Oklahoma State University-Main Campus,OK,198,National Universities,5.4,intake+outcome+resources
+190716,D'Youville,D'Youville  University,NY,242,National Universities,5.4,intake+outcome+resources
+142461,Northwest Nazarene,Northwest Nazarene University,ID,56,Regional Universities West,5.4,intake+outcome+resources
+136215,Nova Southeastern,Nova Southeastern University,FL,257,National Universities,5.4,intake+outcome+resources
+206437,Walsh,Walsh University,OH,363,National Universities,5.4,intake+outcome+resources
+183974,Centenary (NJ),Centenary University,NJ,98,Regional Universities North,5.4,outcome+resources
+203845,Marietta,Marietta College,OH,15,Regional Colleges Midwest,5.4,intake+outcome+resources
+213826,Marywood,Marywood University,PA,61,Regional Universities North,5.4,intake+outcome+resources
+214069,Misericordia University,Misericordia University,PA,273,National Universities,5.4,intake+outcome+resources
+233301,Randolph College,Randolph College,VA,156,National Liberal Arts Colleges,5.4,intake+outcome+resources
+140951,SCAD,Savannah College of Art and Design,GA,8,Regional Universities South,5.4,intake+outcome+resources
+196194,SUNY Oswego,State University of New York at Oswego,NY,28,Regional Universities North,5.4,intake+outcome+resources
+240268,University of Wisconsin-Eau Claire,University of Wisconsin-Eau Claire,WI,25,Regional Universities Midwest,5.4,intake+outcome+resources
+231165,Vermont State University-Castleton,Vermont State University,VT,146,Regional Universities North,5.4,outcome+resources
+206525,Wittenberg,Wittenberg University,OH,164,National Liberal Arts Colleges,5.4,intake+outcome+resources
+151111,IU Indy,Indiana University-Indianapolis,IN,192,National Universities,5.3,intake+outcome+resources
+112075,Concordia Irvine,Concordia University-Irvine,CA,318,National Universities,5.3,outcome+resources
+217961,Converse,Converse University,SC,33,Regional Universities South,5.3,intake+outcome+resources
+212601,Gannon,Gannon University,PA,257,National Universities,5.3,intake+outcome+resources
+200217,Mary,University of Mary,ND,343,National Universities,5.3,intake+outcome+resources
+216764,West Chester,West Chester University of Pennsylvania,PA,242,National Universities,5.3,intake+outcome+resources
+140234,LaGrange,LaGrange College,GA,9,Regional Colleges South,5.3,outcome+resources
+181446,Nebraska Wesleyan University,Nebraska Wesleyan University,NE,39,Regional Universities Midwest,5.3,intake+outcome+resources
+196149,SUNY College at Cortland,State University of New York at Cortland,NY,33,Regional Universities North,5.3,outcome+resources
+227863,University of St Thomas (TX),University of St Thomas,TX,198,National Universities,5.3,intake+outcome+resources
+217059,York (PA),York College of Pennsylvania,PA,84,Regional Universities North,5.3,intake+outcome+resources
+150136,Ball State,Ball State University,IN,213,National Universities,5.2,intake+outcome+resources
+141574,Hawaii,University of Hawaii at Manoa,HI,169,National Universities,5.2,intake+outcome+resources
+136172,North Florida,University of North Florida,FL,222,National Universities,5.2,intake+outcome+resources
+232982,Old Dominion,Old Dominion University,VA,293,National Universities,5.2,intake+outcome+resources
+238032,West Virginia,West Virginia University,WV,222,National Universities,5.2,intake+outcome+resources
+215947,Seton Hill,Seton Hill University,PA,66,Regional Universities North,5.2,intake+outcome+resources
+172644,Wayne State (MI),Wayne State University,MI,179,National Universities,5.2,intake+outcome+resources
+128391,Western Colorado,Western Colorado University,CO,75,Regional Universities West,5.2,intake+outcome+resources
+167394,Elms,College of Our Lady of the Elms,MA,55,Regional Universities North,5.2,outcome+resources
+150604,Franklin,Franklin College,IN,146,National Liberal Arts Colleges,5.2,intake+outcome+resources
+162760,Hood,Hood College,MD,55,Regional Universities North,5.2,outcome+resources
+226231,LeTourneau,LeTourneau University,TX,36,Regional Universities West,5.2,intake+outcome+resources
+173452,Martin Luther,Martin Luther College,MN,,,5.2,intake+outcome+resources
+164173,Stevenson,Stevenson University,MD,70,Regional Universities North,5.2,outcome+resources
+232609,University of Lynchburg,University of Lynchburg,VA,329,National Universities,5.2,intake+outcome+resources
+232566,Longwood,Longwood University,VA,16,Regional Universities South,5.1,intake+outcome+resources
+161253,Maine,University of Maine,ME,257,National Universities,5.1,outcome+resources
+122409,San Diego State,San Diego State University,CA,117,National Universities,5.1,outcome+resources
+122755,San Jose State,San Jose State University,CA,4,Regional Universities West,5.1,intake+outcome+resources
+199148,UNC Greensboro,University of North Carolina at Greensboro,NC,198,National Universities,5.1,intake+outcome+resources
+202763,Findlay,The University of Findlay,OH,373,National Universities,5.1,outcome+resources
+182795,Franklin Pierce,Franklin Pierce University,NH,150-164,Regional Universities North,5.1,intake+outcome+resources
+102377,Tuskegee,Tuskegee University,AL,10,Regional Universities South,5.1,intake+outcome+resources
+178420,UMSL,University of Missouri-St Louis,MO,242,National Universities,5.1,intake+outcome+resources
+210571,Albright,Albright College,PA,170,National Liberal Arts Colleges,5.1,outcome+resources
+144962,Elmhurst,Elmhurst University,IL,7,Regional Universities Midwest,5.1,intake+outcome+resources
+212656,Geneva,Geneva College,PA,112,Regional Universities North,5.1,intake+outcome+resources
+192192,Keuka,Keuka College,NY,128,Regional Universities North,5.1,outcome+resources
+196246,Plattsburgh State,State University of New York at Plattsburgh,NY,50,Regional Universities North,5.1,intake+outcome+resources
+175005,St. Catherine University,St Catherine University,MN,222,National Universities,5.1,intake+outcome+resources
+166638,UMass Boston,University of Massachusetts-Boston,MA,213,National Universities,5.1,intake+outcome+resources
+167987,UMass Dartmouth,University of Massachusetts-Dartmouth,MA,242,National Universities,5.1,intake+outcome+resources
+142285,Idaho,University of Idaho,ID,183,National Universities,5.0,intake+outcome+resources
+166850,Merrimack,Merrimack College,MA,38,Regional Universities North,5.0,intake+outcome+resources
+154095,Northern Iowa,University of Northern Iowa,IA,10,Regional Universities Midwest,5.0,intake+outcome+resources
+218539,Presbyterian,Presbyterian College,SC,163,National Liberal Arts Colleges,5.0,intake+outcome+resources
+213349,Kutztown,Kutztown University of Pennsylvania,PA,112,Regional Universities North,5.0,intake+outcome+resources
+101709,Montevallo,University of Montevallo,AL,22,Regional Universities South,5.0,intake+outcome+resources
+227845,St. Edward's,Saint Edward's University,TX,5,Regional Universities West,5.0,intake+outcome+resources
+156213,Asbury,Asbury University,KY,23,Regional Universities South,5.0,intake+outcome+resources
+165024,Bridgewater State,Bridgewater State University,MA,98,Regional Universities North,5.0,intake+outcome+resources
+238476,Carthage,Carthage College,WI,46,Regional Universities Midwest,5.0,intake+outcome+resources
+158477,Centenary (LA),Centenary College of Louisiana,LA,143,National Liberal Arts Colleges,5.0,intake+outcome+resources
+173665,Hamline,Hamline University,MN,22,Regional Universities Midwest,5.0,intake+outcome+resources
+220710,Maryville (TN),Maryville College,TN,170,National Liberal Arts Colleges,5.0,outcome+resources
+164270,McDaniel,McDaniel College,MD,72,Regional Universities North,5.0,outcome+resources
+209612,Pacific University,Pacific University,OR,232,National Universities,5.0,intake+outcome+resources
+366252,Pennsylvania College of Technology,Pennsylvania College of Technology,PA,4,Regional Colleges North,5.0,outcome+resources
+179894,Webster,Webster University,MO,32,Regional Universities Midwest,5.0,intake+outcome+resources
+144005,Chicago State,Chicago State University,IL,145-160,Regional Universities Midwest,4.9,outcome+resources
+134945,Jacksonville,Jacksonville University,FL,37,Regional Universities South,4.9,intake+outcome+resources
+219471,South Dakota,University of South Dakota,SD,283,National Universities,4.9,intake+outcome+resources
+220613,Lee (TN),Lee University,TN,31,Regional Universities South,4.9,intake+outcome+resources
+198835,Lenoir-Rhyne,Lenoir-Rhyne University,NC,45,Regional Universities South,4.9,outcome+resources
+198899,Mars Hill,Mars Hill University,NC,27,Regional Colleges South,4.9,outcome+resources
+219383,Sioux Falls,University of Sioux Falls,SD,71,Regional Universities Midwest,4.9,outcome+resources
+168591,Alma,Alma College,MI,6,Regional Colleges Midwest,4.9,intake+outcome+resources
+217749,Bob Jones,Bob Jones University,SC,23,Regional Universities South,4.9,intake+outcome+resources
+487524,Husson,Husson University,ME,329,National Universities,4.9,intake+outcome+resources
+140696,Oglethorpe,Oglethorpe University,GA,156,National Liberal Arts Colleges,4.9,intake+outcome+resources
+174899,St. Scholastica,The College of Saint Scholastica,MN,283,National Universities,4.9,intake+outcome+resources
+196121,SUNY College at Brockport,SUNY Brockport,NY,64,Regional Universities North,4.9,intake+outcome+resources
+107558,University of the Ozarks,University of the Ozarks,AR,6,Regional Colleges South,4.9,intake+outcome+resources
+216931,Wilkes,Wilkes University,PA,318,National Universities,4.9,intake+outcome+resources
+232557,Liberty,Liberty University,VA,395-434,National Universities,4.8,intake+outcome+resources
+177968,Lindenwood,Lindenwood University,MO,124,Regional Universities Midwest,4.8,intake+outcome+resources
+160658,Louisiana,University of Louisiana at Lafayette,LA,373,National Universities,4.8,intake+outcome+resources
+159647,Louisiana Tech,Louisiana Tech University,LA,318,National Universities,4.8,intake+outcome+resources
+213987,Mercyhurst,Mercyhurst University,PA,66,Regional Universities North,4.8,intake+outcome+resources
+157401,Murray State,Murray State University,KY,14,Regional Universities South,4.8,intake+outcome+resources
+149222,Southern Illinois,Southern Illinois University-Carbondale,IL,301,National Universities,4.8,intake+outcome+resources
+221847,Tennessee Tech,Tennessee Technological University,TN,257,National Universities,4.8,intake+outcome+resources
+200004,Western Carolina,Western Carolina University,NC,257,National Universities,4.8,intake+outcome+resources
+200156,Jamestown,University of Jamestown,ND,124,Regional Universities Midwest,4.8,outcome+resources
+179043,Rockhurst,Rockhurst University,MO,6,Regional Universities Midwest,4.8,intake+outcome+resources
+228802,UT Tyler,The University of Texas at Tyler,TX,329,National Universities,4.8,intake+outcome+resources
+210775,Alvernia,Alvernia University,PA,352,National Universities,4.8,intake+outcome+resources
+231581,Bridgewater (VA),Bridgewater College,VA,167,National Liberal Arts Colleges,4.8,intake+outcome+resources
+211981,Delaware Valley,Delaware Valley University,PA,136,Regional Universities North,4.8,intake+outcome+resources
+129215,Eastern Connecticut,Eastern Connecticut State University,CT,66,Regional Universities North,4.8,intake+outcome+resources
+239071,Maranatha Baptist University,Maranatha Baptist University,WI,120,Regional Universities Midwest,4.8,intake+outcome+resources
+233541,Shenandoah,Shenandoah University,VA,301,National Universities,4.8,intake+outcome+resources
+196112,SUNY Polytechnic Institute,SUNY Polytechnic Institute,NY,35,Regional Universities North,4.8,intake+outcome+resources
+195128,The Sage Colleges,Russell Sage College,NY,213,National Universities,4.8,intake+outcome+resources
+179946,Westminster (MO),Westminster College,MO,164,National Liberal Arts Colleges,4.8,intake+outcome+resources
+201441,Bowling Green,Bowling Green State University-Main Campus,OH,293,National Universities,4.7,intake+outcome+resources
+219356,South Dakota State,South Dakota State University,SD,257,National Universities,4.7,intake+outcome+resources
+224226,Dallas Baptist,Dallas Baptist University,TX,384,National Universities,4.7,intake+outcome+resources
+139861,Georgia College,Georgia College & State University,GA,12,Regional Universities South,4.7,intake+outcome+resources
+215442,Point Park,Point Park University,PA,318,National Universities,4.7,outcome+resources
+228149,St. Mary's (TX),St. Mary's University,TX,13,Regional Universities West,4.7,intake+outcome+resources
+173142,Bethany Lutheran,Bethany Lutheran College,MN,154,National Liberal Arts Colleges,4.7,intake+outcome+resources
+145691,Illinois College,Illinois College,IL,111,National Liberal Arts Colleges,4.7,intake+outcome+resources
+204185,Mount Union,University of Mount Union,OH,39,Regional Universities Midwest,4.7,intake+outcome+resources
+196200,SUNY Potsdam,SUNY College at Potsdam,NY,94,Regional Universities North,4.7,outcome+resources
+130776,Western Connecticut,Western Connecticut State University,CT,98,Regional Universities North,4.7,intake+outcome+resources
+220075,East Tennessee State,East Tennessee State University,TN,301,National Universities,4.6,intake+outcome+resources
+198561,Gardner-Webb,Gardner-Webb University,NC,384,National Universities,4.6,intake+outcome+resources
+180489,Montana,The University of Montana,MT,363,National Universities,4.6,intake+outcome+resources
+129941,New Haven,University of New Haven,CT,76,Regional Universities North,4.6,intake+outcome+resources
+176372,Southern Miss,University of Southern Mississippi,MS,318,National Universities,4.6,intake+outcome+resources
+219833,Christian Brothers,Christian Brothers University,TN,37,Regional Universities South,4.6,intake+outcome+resources
+118693,Menlo,Menlo College,CA,,,4.6,outcome+resources
+211431,Carlow,Carlow University,PA,84,Regional Universities North,4.6,intake+outcome+resources
+165529,Curry,Curry College,MA,140,Regional Universities North,4.6,intake+outcome+resources
+198969,Methodist,Methodist University,NC,90,Regional Universities South,4.6,intake+outcome+resources
+193353,Mount Saint Mary College,Mount Saint Mary College,NY,72,Regional Universities North,4.6,intake+outcome+resources
+174437,North Central University,North Central University,MN,19,Regional Colleges Midwest,4.6,outcome+resources
+163578,Notre Dame of Maryland University,Notre Dame of Maryland University,MD,50,Regional Universities North,4.6,intake+outcome+resources
+214591,Penn State Behrend,Pennsylvania State University-Penn State Erie-Behrend College,PA,133,Regional Universities North,4.6,intake+outcome+resources
+228981,Texas Lutheran University,Texas Lutheran University,TX,8,Regional Colleges West,4.6,outcome+resources
+153278,University of Dubuque,University of Dubuque,IA,78,Regional Universities Midwest,4.6,intake+outcome+resources
+161226,University of Maine at Farmington,University of Maine at Farmington,ME,9,Regional Colleges North,4.6,intake+outcome+resources
+240462,University of Wisconsin-Platteville,University of Wisconsin-Platteville,WI,49,Regional Universities Midwest,4.6,intake+outcome+resources
+216694,Waynesburg,Waynesburg University,PA,121,Regional Universities North,4.6,intake+outcome+resources
+202134,Cleveland State,Cleveland State University,OH,343,National Universities,4.5,outcome+resources
+133669,Florida Atlantic,Florida Atlantic University,FL,183,National Universities,4.5,intake+outcome+resources
+213367,La Salle,La Salle University,PA,257,National Universities,4.5,intake+outcome+resources
+102094,South Alabama,University of South Alabama,AL,363,National Universities,4.5,intake+outcome+resources
+172699,Western Michigan,Western Michigan University,MI,293,National Universities,4.5,intake+outcome+resources
+218964,Winthrop,Winthrop University,SC,20,Regional Universities South,4.5,intake+outcome+resources
+155025,Emporia State,Emporia State University,KS,78,Regional Universities Midwest,4.5,intake+outcome+resources
+146612,Lewis,Lewis University,IL,29,Regional Universities Midwest,4.5,intake+outcome+resources
+181215,Nebraska at Kearney,University of Nebraska at Kearney,NE,24,Regional Universities Midwest,4.5,intake+outcome+resources
+215284,PennWest Johnstown,University of Pittsburgh-Johnstown,PA,14,Regional Colleges North,4.5,intake+outcome+resources
+206349,Ursuline,Ursuline College,OH,61,Regional Universities Midwest,4.5,intake+outcome+resources
+123651,Vanguard,Vanguard University of Southern California,CA,43,Regional Universities West,4.5,intake+outcome+resources
+165820,Fitchburg State,Fitchburg State University,MA,72,Regional Universities North,4.5,intake+outcome+resources
+213400,Lancaster Bible,Lancaster Bible College,PA,146,Regional Universities North,4.5,intake+outcome+resources
+151777,Manchester,Manchester University,IN,84,Regional Universities Midwest,4.5,outcome+resources
+192749,Manhattanville,Manhattanville University,NY,84,Regional Universities North,4.5,outcome+resources
+199607,Salem College,Salem College,NC,143,National Liberal Arts Colleges,4.5,intake+outcome+resources
+186876,Stockton,Stockton University,NJ,158,National Universities,4.5,intake+outcome+resources
+232265,Hampton,Hampton University,VA,273,National Universities,4.4,intake+outcome+resources
+142276,Idaho State,Idaho State University,ID,395-434,National Universities,4.4,outcome+resources
+220978,Middle Tennessee,Middle Tennessee State University,TN,257,National Universities,4.4,intake+outcome+resources
+105330,Northern Arizona,Northern Arizona University,AZ,242,National Universities,4.4,intake+outcome+resources
+147703,Northern Illinois,Northern Illinois University,IL,301,National Universities,4.4,outcome+resources
+149231,SIU Edwardsville,Southern Illinois University Edwardsville,IL,363,National Universities,4.4,intake+outcome+resources
+151306,Southern Indiana,University of Southern Indiana,IN,78,Regional Universities Midwest,4.4,intake+outcome+resources
+164076,Towson,Towson University,MD,11,Regional Universities North,4.4,intake+outcome+resources
+138354,West Florida,University of West Florida,FL,14,Regional Universities South,4.4,intake+outcome+resources
+201104,Ashland,Ashland University,OH,42,Regional Universities Midwest,4.4,intake+outcome+resources
+198215,Catawba,Catawba College,NC,4,Regional Colleges South,4.4,intake+outcome+resources
+218441,North Greenville,North Greenville University,SC,42,Regional Universities South,4.4,intake+outcome+resources
+136330,Palm Beach Atlantic,Palm Beach Atlantic University,FL,384,National Universities,4.4,intake+outcome+resources
+216010,Shippensburg,Shippensburg University of Pennsylvania,PA,84,Regional Universities North,4.4,intake+outcome+resources
+156082,Washburn,Washburn University,KS,74,Regional Universities Midwest,4.4,outcome+resources
+153001,Buena Vista,Buena Vista University,IA,49,Regional Universities Midwest,4.4,intake+outcome+resources
+201548,Capital,Capital University,OH,42,Regional Universities Midwest,4.4,intake+outcome+resources
+238661,Edgewood,Edgewood University,WI,301,National Universities,4.4,outcome+resources
+165866,Framingham State,Framingham State University,MA,110,Regional Universities North,4.4,intake+outcome+resources
+131450,Gallaudet,Gallaudet University,DC,198,National Universities,4.4,intake+outcome+resources
+198598,Greensboro,Greensboro College,NC,99,Regional Universities South,4.4,outcome+resources
+217235,Johnson & Wales (Providence),Johnson & Wales University-Providence,RI,84,Regional Universities North,4.4,intake+outcome+resources
+186618,Saint Elizabeth University,Saint Elizabeth University,NJ,121,Regional Universities North,4.4,outcome+resources
+141325,Wesleyan (GA),Wesleyan College,GA,5,Regional Colleges South,4.4,intake+outcome+resources
+168430,Worcester State,Worcester State University,MA,98,Regional Universities North,4.4,intake+outcome+resources
+145813,Illinois State,Illinois State University,IL,222,National Universities,4.3,intake+outcome+resources
+110583,Long Beach State,California State University-Long Beach,CA,127,National Universities,4.3,outcome+resources
+207582,Oral Roberts,Oral Roberts University,OK,72,Regional Universities West,4.3,intake+outcome+resources
+182281,UNLV,University of Nevada-Las Vegas,NV,232,National Universities,4.3,intake+outcome+resources
+110529,Cal Poly Pomona,California State Polytechnic University-Pomona,CA,3,Regional Universities West,4.3,outcome+resources
+114813,Fresno Pacific,Fresno Pacific University,CA,46,Regional Universities West,4.3,outcome+resources
+122728,Jessup,William Jessup University,CA,77,Regional Universities West,4.3,intake+outcome+resources
+155335,Newman,Newman University,KS,118,Regional Universities Midwest,4.3,outcome+resources
+216038,Slippery Rock,Slippery Rock University of Pennsylvania,PA,55,Regional Universities North,4.3,intake+outcome+resources
+217776,Southern Wesleyan,Southern Wesleyan University,SC,64,Regional Universities South,4.3,intake+outcome+resources
+190549,CUNY Brooklyn College,CUNY Brooklyn College,NY,38,Regional Universities North,4.3,intake+outcome+resources
+231651,Regent University,Regent University,VA,373,National Universities,4.3,intake+outcome+resources
+174817,Saint Mary's (MN),Saint Mary's University of Minnesota,MN,283,National Universities,4.3,outcome+resources
+240471,University of Wisconsin-River Falls,University of Wisconsin-River Falls,WI,54,Regional Universities Midwest,4.3,intake+outcome+resources
+240417,University of Wisconsin-Stout,University of Wisconsin-Stout,WI,84,Regional Universities Midwest,4.3,intake+outcome+resources
+168263,Westfield State,Westfield State University,MA,98,Regional Universities North,4.3,outcome+resources
+110361,California Baptist,California Baptist University,CA,33,Regional Universities West,4.2,outcome+resources
+157386,Morehead State,Morehead State University,KY,27,Regional Universities South,4.2,intake+outcome+resources
+171571,Oakland,Oakland University,MI,318,National Universities,4.2,intake+outcome+resources
+409698,Cal State Monterey Bay,California State University-Monterey Bay,CA,11,Regional Universities West,4.2,outcome+resources
+141486,Chaminade,Chaminade University of Honolulu,HI,38,Regional Universities West,4.2,intake+outcome+resources
+190725,Daemen,Daemen University,NY,358,National Universities,4.2,outcome+resources
+170082,Grand Valley State,Grand Valley State University,MI,242,National Universities,4.2,intake+outcome+resources
+173045,Augsburg,Augsburg University,MN,32,Regional Universities Midwest,4.2,outcome+resources
+231420,Averett,Averett University,VA,76,Regional Universities South,4.2,intake+outcome+resources
+237181,Bethany (WV),Bethany College,WV,183-201,National Liberal Arts Colleges,4.2,outcome+resources
+167260,Nichols,Nichols College,MA,121,Regional Universities North,4.2,intake+outcome+resources
+221740,Chattanooga,The University of Tennessee-Chattanooga,TN,329,National Universities,4.1,intake+outcome+resources
+218724,Coastal Carolina,Coastal Carolina University,SC,33,Regional Universities South,4.1,intake+outcome+resources
+203517,Kent State,Kent State University at Kent,OH,232,National Universities,4.1,intake+outcome+resources
+179566,Missouri State,Missouri State University-Springfield,MO,358,National Universities,4.1,intake+outcome+resources
+221768,UT Martin,The University of Tennessee-Martin,TN,20,Regional Universities South,4.1,intake+outcome+resources
+115755,Cal Poly Humboldt,California State Polytechnic University-Humboldt,CA,23,Regional Universities West,4.1,intake+outcome+resources
+184773,Georgian Court,Georgian Court University,NJ,110,Regional Universities North,4.1,outcome+resources
+220631,Lincoln Memorial,Lincoln Memorial University,TN,343,National Universities,4.1,intake+outcome+resources
+173920,Minnesota State Mankato,Minnesota State University-Mankato,MN,54,Regional Universities Midwest,4.1,intake+outcome+resources
+126580,UCCS,University of Colorado Colorado Springs,CO,395-434,National Universities,4.1,intake+outcome+resources
+175272,Winona State,Winona State University,MN,22,Regional Universities Midwest,4.1,intake+outcome+resources
+196006,Alfred State,SUNY College of Technology at Alfred,NY,16,Regional Colleges North,4.1,intake+outcome+resources
+150066,Anderson (IN),Anderson University,IN,78,Regional Universities Midwest,4.1,intake+outcome+resources
+143288,Blackburn,Blackburn College,IL,23,Regional Colleges Midwest,4.1,intake+outcome+resources
+211468,Cedar Crest College,Cedar Crest College,PA,98,Regional Universities North,4.1,intake+outcome+resources
+225247,Hardin-Simmons,Hardin-Simmons University,TX,395-434,National Universities,4.1,intake+outcome+resources
+101435,Huntingdon,Huntingdon College,AL,8,Regional Colleges South,4.1,intake+outcome+resources
+147244,Millikin,Millikin University,IL,15,Regional Colleges Midwest,4.1,intake+outcome+resources
+216357,Thiel College,Thiel College,PA,26,Regional Colleges North,4.1,outcome+resources
+117140,University of La Verne,University of La Verne,CA,213,National Universities,4.1,intake+outcome+resources
+215266,University of Pittsburgh-Bradford,University of Pittsburgh-Bradford,PA,17,Regional Colleges North,4.1,intake+outcome+resources
+187444,William Paterson University,William Paterson University of New Jersey,NJ,84,Regional Universities North,4.1,outcome+resources
+106704,Central Arkansas,University of Central Arkansas,AR,363,National Universities,4.0,intake+outcome+resources
+169248,Central Michigan,Central Michigan University,MI,283,National Universities,4.0,intake+outcome+resources
+187985,New Mexico,University of New Mexico-Main Campus,NM,242,National Universities,4.0,intake+outcome+resources
+206695,Youngstown State,Youngstown State University,OH,99,Regional Universities Midwest,4.0,intake+outcome+resources
+234827,Central Washington,Central Washington University,WA,46,Regional Universities West,4.0,outcome+resources
+110538,Chico State,California State University-Chico,CA,16,Regional Universities West,4.0,intake+outcome+resources
+214041,Millersville,Millersville University of Pennsylvania,PA,98,Regional Universities North,4.0,intake+outcome+resources
+190664,Queens (CUNY),CUNY Queens College,NY,38,Regional Universities North,4.0,intake+outcome+resources
+234173,Batten University,Virginia Wesleyan University,VA,178,National Liberal Arts Colleges,4.0,outcome+resources
+166391,Lasell,Lasell University,MA,116,Regional Universities North,4.0,intake+outcome+resources
+214713,Penn State Harrisburg,Pennsylvania State University-Penn State Harrisburg,PA,150-164,Regional Universities North,4.0,intake+outcome+resources
+161518,Saint Joseph's (ME),Saint Joseph's College of Maine,ME,94,Regional Universities North,4.0,intake+outcome+resources
+142115,Boise State,Boise State University,ID,301,National Universities,3.9,outcome+resources
+209807,Portland State,Portland State University,OR,222,National Universities,3.9,intake+outcome+resources
+230603,Southern Utah,Southern Utah University,UT,64,Regional Universities West,3.9,outcome+resources
+197911,Barton,Barton College,NC,21,Regional Colleges South,3.9,outcome+resources
+232089,Ferrum,Ferrum College,VA,60,Regional Colleges South,3.9,outcome+resources
+176053,Mississippi Christian,Mississippi Christian University,MS,358,National Universities,3.9,intake+outcome+resources
+102234,Spring Hill,Spring Hill College,AL,12,Regional Colleges South,3.9,intake+outcome+resources
+196042,Farmingdale State College,Farmingdale State College,NY,7,Regional Colleges North,3.9,intake+outcome+resources
+170000,Grace Christian,Grace Christian University,MI,53,Regional Colleges Midwest,3.9,outcome+resources
+232706,Marymount (VA),Marymount University,VA,273,National Universities,3.9,outcome+resources
+204264,Muskingum,Muskingum University,OH,46,Regional Universities Midwest,3.9,intake+outcome+resources
+140818,Piedmont University,Piedmont University,GA,62,Regional Universities South,3.9,intake+outcome+resources
+240480,University of Wisconsin-Stevens Point,University of Wisconsin-Stevens Point,WI,54,Regional Universities Midwest,3.9,intake+outcome+resources
+197045,Utica,Utica University,NY,76,Regional Universities North,3.9,intake+outcome+resources
+199272,William Peace University,William Peace University,NC,21,Regional Colleges South,3.9,intake+outcome+resources
+227216,North Texas,University of North Texas,TX,208,National Universities,3.8,intake+outcome+resources
+219806,Carson-Newman,Carson-Newman University,TN,358,National Universities,3.8,intake+outcome+resources
+498562,Commonwealth University-Bloomsburg,Commonwealth University of Pennsylvania,PA,121,Regional Universities North,3.8,intake+outcome+resources
+237358,Davis & Elkins,Davis & Elkins College,WV,27,Regional Colleges South,3.8,outcome+resources
+213020,IUP,Indiana University of Pennsylvania,PA,329,National Universities,3.8,intake+outcome+resources
+174075,Minnesota Crookston,University of Minnesota-Crookston,MN,14,Regional Colleges Midwest,3.8,outcome+resources
+179326,Southwest Baptist,Southwest Baptist University,MO,107,Regional Universities Midwest,3.8,intake+outcome+resources
+157809,Thomas More,Thomas More University,KY,85,Regional Universities South,3.8,intake+outcome+resources
+221892,Trevecca Nazarene,Trevecca Nazarene University,TN,363,National Universities,3.8,intake+outcome+resources
+215114,Cairn,Cairn University-Langhorne,PA,140,Regional Universities North,3.8,intake+outcome+resources
+212832,Gwynedd Mercy,Gwynedd Mercy University,PA,273,National Universities,3.8,intake+outcome+resources
+176035,Mississippi University for Women,Mississippi University for Women,MS,33,Regional Universities South,3.8,intake+outcome+resources
+171599,Olivet,The University of Olivet,MI,44,Regional Colleges Midwest,3.8,outcome+resources
+214689,Pennsylvania State University-Penn State Altoona,Pennsylvania State University-Penn State Altoona,PA,41,Regional Colleges North,3.8,intake+outcome+resources
+167729,Salem State University,Salem State University,MA,94,Regional Universities North,3.8,intake+outcome+resources
+196051,SUNY Morrisville,SUNY Morrisville,NY,24,Regional Colleges North,3.8,intake+outcome+resources
+152567,Trine,Trine University,IN,13,Regional Colleges Midwest,3.8,intake+outcome+resources
+156620,Eastern Kentucky,Eastern Kentucky University,KY,329,National Universities,3.7,intake+outcome+resources
+433660,FGCU,Florida Gulf Coast University,FL,318,National Universities,3.7,intake+outcome+resources
+110556,Fresno State,California State University-Fresno,CA,183,National Universities,3.7,outcome+resources
+159993,Louisiana-Monroe,University of Louisiana at Monroe,LA,358,National Universities,3.7,intake+outcome+resources
+133711,Flagler,Flagler College,FL,3,Regional Colleges South,3.7,intake+outcome+resources
+130989,Goldey-Beacom,Goldey-Beacom College,DE,128,Regional Universities North,3.7,outcome+resources
+141565,Hawaii Hilo,University of Hawaii at Hilo,HI,329,National Universities,3.7,intake+outcome+resources
+148654,Illinois Springfield,University of Illinois Springfield,IL,29,Regional Universities Midwest,3.7,intake+outcome+resources
+178059,Maryville (MO),Maryville University of Saint Louis,MO,283,National Universities,3.7,outcome+resources
+174358,Minnesota State Moorhead,Minnesota State University Moorhead,MN,49,Regional Universities Midwest,3.7,intake+outcome+resources
+187897,New Mexico Highlands,New Mexico Highlands University,NM,97,Regional Universities West,3.7,outcome+resources
+219259,Northern State,Northern State University,SD,61,Regional Universities Midwest,3.7,intake+outcome+resources
+178624,Northwest Missouri State,Northwest Missouri State University,MO,84,Regional Universities Midwest,3.7,intake+outcome+resources
+204617,Ohio Dominican,Ohio Dominican University,OH,112,Regional Universities Midwest,3.7,outcome+resources
+236452,Saint Martin's,Saint Martin's University,WA,56,Regional Universities West,3.7,intake+outcome+resources
+229179,Texas Woman's,Texas Woman's University,TX,329,National Universities,3.7,outcome+resources
+106458,Arkansas State,Arkansas State University,AR,352,National Universities,3.6,intake+outcome+resources
+184603,Fairleigh Dickinson,Fairleigh Dickinson University-Metropolitan Campus,NJ,55,Regional Universities North,3.6,outcome+resources
+181394,Omaha,University of Nebraska at Omaha,NE,301,National Universities,3.6,intake+outcome+resources
+151102,Purdue Fort Wayne,Purdue University Fort Wayne,IN,112,Regional Universities Midwest,3.6,intake+outcome+resources
+233277,Radford,Radford University,VA,329,National Universities,3.6,intake+outcome+resources
+228459,Texas State,Texas State University,TX,257,National Universities,3.6,intake+outcome+resources
+110495,Cal State Stanislaus,California State University-Stanislaus,CA,9,Regional Universities West,3.6,outcome+resources
+176965,Central Missouri,University of Central Missouri,MO,59,Regional Universities Midwest,3.6,intake+outcome+resources
+211583,Chestnut Hill,Chestnut Hill College,PA,128,Regional Universities North,3.6,outcome+resources
+190761,Dominican (NY),Dominican University New York,NY,301,National Universities,3.6,intake+outcome+resources
+162584,Frostburg State,Frostburg State University,MD,98,Regional Universities North,3.6,intake+outcome+resources
+132657,Lynn,Lynn University,FL,57,Regional Universities South,3.6,intake+outcome+resources
+498571,PennWest California,Pennsylvania Western University,PA,136,Regional Universities North,3.6,intake+outcome+resources
+206862,Southern Nazarene,Southern Nazarene University,OK,67,Regional Universities West,3.6,outcome+resources
+237969,West Virginia Wesleyan,West Virginia Wesleyan College,WV,27,Regional Colleges South,3.6,intake+outcome+resources
+199962,Wingate,Wingate University,NC,373,National Universities,3.6,intake+outcome+resources
+190600,CUNY John Jay College of Criminal Justice,CUNY John Jay College of Criminal Justice,NY,17,Regional Universities North,3.6,intake+outcome+resources
+165574,Dean,Dean College,MA,31,Regional Colleges North,3.6,outcome+resources
+225548,Howard Payne,Howard Payne University,TX,21,Regional Colleges West,3.6,intake+outcome+resources
+445708,Johnson & Wales (Charlotte),Johnson & Wales University-Charlotte,NC,33,Regional Colleges South,3.6,intake+outcome+resources
+129774,Mitchell,Mitchell College,CT,34,Regional Colleges North,3.6,outcome+resources
+214166,Mount Aloysius College,Mount Aloysius College,PA,28,Regional Colleges North,3.6,intake+outcome+resources
+214704,Pennsylvania State University-Penn State Berks,Pennsylvania State University-Penn State Berks,PA,51-56,Regional Colleges North,3.6,intake+outcome+resources
+199306,Pfeiffer University,Pfeiffer University,NC,82,Regional Universities South,3.6,outcome+resources
+183080,Plymouth State,Plymouth State University,NH,140,Regional Universities North,3.6,outcome+resources
+196033,SUNY Cobleskill,SUNY College of Agriculture and Technology at Cobleskill,NY,20,Regional Colleges North,3.6,outcome+resources
+226471,University of Mary Hardin-Baylor,University of Mary Hardin-Baylor,TX,395-434,National Universities,3.6,intake+outcome+resources
+215275,University of Pittsburgh-Greensburg,University of Pittsburgh-Greensburg,PA,183-201,National Liberal Arts Colleges,3.6,intake+outcome+resources
+237525,Marshall,Marshall University,WV,318,National Universities,3.5,intake+outcome+resources
+220862,Memphis,University of Memphis,TN,273,National Universities,3.5,intake+outcome+resources
+240453,Milwaukee,University of Wisconsin-Milwaukee,WI,301,National Universities,3.5,intake+outcome+resources
+159966,Nicholls,Nicholls State University,LA,64,Regional Universities South,3.5,intake+outcome+resources
+131399,District of Columbia,University of the District of Columbia,DC,145,Regional Universities North,3.5,outcome+resources
+127185,Fort Lewis,Fort Lewis College,CO,17,Regional Colleges West,3.5,intake+outcome+resources
+220516,King (TN),King University,TN,76,Regional Universities South,3.5,outcome+resources
+226383,Lubbock Christian,Lubbock Christian University,TX,77,Regional Universities West,3.5,intake+outcome+resources
+207324,Oklahoma Christian,Oklahoma Christian University,OK,65,Regional Universities West,3.5,intake+outcome+resources
+122597,San Francisco State,San Francisco State University,CA,208,National Universities,3.5,outcome+resources
+218645,South Carolina Aiken,University of South Carolina Aiken,SC,69,Regional Universities South,3.5,intake+outcome+resources
+210429,Western Oregon,Western Oregon University,OR,56,Regional Universities West,3.5,outcome+resources
+238193,Alverno College,Alverno College,WI,84,Regional Universities Midwest,3.5,outcome+resources
+198066,Brevard,Brevard College,NC,30,Regional Colleges South,3.5,intake+outcome+resources
+193399,College of Mount Saint Vincent,University of Mount Saint Vincent,NY,11,Regional Colleges North,3.5,intake+outcome+resources
+224004,Concordia Texas,Concordia University Texas,TX,103,Regional Universities West,3.5,outcome+resources
+198613,Guilford,Guilford College,NC,172,National Liberal Arts Colleges,3.5,intake+outcome+resources
+185129,New Jersey City,New Jersey City University,NJ,146,Regional Universities North,3.5,outcome+resources
+240426,University of Wisconsin-Superior,University of Wisconsin-Superior,WI,135,Regional Universities Midwest,3.5,intake+outcome+resources
+128771,Central Connecticut,Central Connecticut State University,CT,76,Regional Universities North,3.4,intake+outcome+resources
+106245,Little Rock,University of Arkansas at Little Rock,AR,384,National Universities,3.4,intake+outcome+resources
+188030,New Mexico State,New Mexico State University-Main Campus,NM,222,National Universities,3.4,intake+outcome+resources
+127741,Northern Colorado,University of Northern Colorado,CO,343,National Universities,3.4,intake+outcome+resources
+228431,Stephen F. Austin,Stephen F Austin State University,TX,38,Regional Universities West,3.4,intake+outcome+resources
+198303,Chowan,Chowan University,NC,67,Regional Colleges South,3.4,outcome+resources
+126669,Colorado Christian,Colorado Christian University,CO,65,Regional Universities West,3.4,outcome+resources
+193308,Monroe (NY),Monroe University,NY,76,Regional Universities North,3.4,outcome+resources
+171492,Northwood,Northwood University,MI,,,3.4,intake+outcome+resources
+237932,West Liberty,West Liberty University,WV,54,Regional Universities South,3.4,intake+outcome+resources
+141361,Young Harris,Young Harris College,GA,183-201,National Liberal Arts Colleges,3.4,outcome+resources
+183062,Keene State,Keene State College,NH,9,Regional Colleges North,3.4,intake+outcome+resources
+185590,Montclair State,Montclair State University,NJ,158,National Universities,3.4,intake+outcome+resources
+214801,Pennsylvania State University-Penn State Abington,Pennsylvania State University-Penn State Abington,PA,24,Regional Colleges North,3.4,intake+outcome+resources
+157757,Spalding University,Spalding University,KY,54,Regional Universities South,3.4,intake+outcome+resources
+131876,Trinity Washington University,Trinity Washington University,DC,140,Regional Universities North,3.4,outcome+resources
+240189,University of Wisconsin-Whitewater,University of Wisconsin-Whitewater,WI,31,Regional Universities Midwest,3.4,intake+outcome+resources
+200800,Akron,University of Akron Main Campus,OH,373,National Universities,3.3,intake+outcome+resources
+219602,Austin Peay,Austin Peay State University,TN,37,Regional Universities South,3.3,intake+outcome+resources
+240277,Green Bay,University of Wisconsin-Green Bay,WI,74,Regional Universities Midwest,3.3,intake+outcome+resources
+157447,Northern Kentucky,Northern Kentucky University,KY,384,National Universities,3.3,intake+outcome+resources
+229027,UTSA,The University of Texas at San Antonio,TX,213,National Universities,3.3,intake+outcome+resources
+149772,Western Illinois,Western Illinois University,IL,74,Regional Universities Midwest,3.3,intake+outcome+resources
+173124,Bemidji State,Bemidji State University,MN,71,Regional Universities Midwest,3.3,intake+outcome+resources
+206941,Central Oklahoma,University of Central Oklahoma,OK,62,Regional Universities West,3.3,intake+outcome+resources
+212984,Holy Family,Holy Family University,PA,98,Regional Universities North,3.3,intake+outcome+resources
+200253,Minot State,Minot State University,ND,112,Regional Universities Midwest,3.3,intake+outcome+resources
+171456,Northern Michigan,Northern Michigan University,MI,49,Regional Universities Midwest,3.3,outcome+resources
+229814,West Texas A&M,West Texas A & M University,TX,50,Regional Universities West,3.3,intake+outcome+resources
+201371,Bluffton,Bluffton University,OH,38,Regional Colleges Midwest,3.3,intake+outcome+resources
+224527,East Texas Baptist,East Texas Baptist University,TX,81,Regional Universities West,3.3,intake+outcome+resources
+213358,La Roche,La Roche University,PA,116,Regional Universities North,3.3,intake+outcome+resources
+226587,McMurry,McMurry University,TX,15,Regional Colleges West,3.3,intake+outcome+resources
+110608,Cal State Northridge,California State University-Northridge,CA,20,Regional Universities West,3.2,outcome+resources
+169798,Eastern Michigan,Eastern Michigan University,MI,373,National Universities,3.2,intake+outcome+resources
+235097,Eastern Washington,Eastern Washington University,WA,52,Regional Universities West,3.2,outcome+resources
+225627,Incarnate Word,University of the Incarnate Word,TX,293,National Universities,3.2,intake+outcome+resources
+101879,North Alabama,University of North Alabama,AL,30,Regional Universities South,3.2,intake+outcome+resources
+110617,Sacramento State,California State University-Sacramento,CA,22,Regional Universities West,3.2,outcome+resources
+230782,Weber State,Weber State University,UT,50,Regional Universities West,3.2,outcome+resources
+206604,Wright State,Wright State University-Main Campus,OH,395-434,National Universities,3.2,intake+outcome+resources
+197984,Belmont Abbey,Belmont Abbey College,NC,12,Regional Colleges South,3.2,intake+outcome+resources
+175616,Delta State,Delta State University,MS,50,Regional Universities South,3.2,intake+outcome+resources
+147013,McKendree,McKendree University,IL,101,Regional Universities Midwest,3.2,intake+outcome+resources
+207403,Oklahoma Baptist,Oklahoma Baptist University,OK,43,Regional Universities West,3.2,intake+outcome+resources
+128498,Albertus Magnus,Albertus Magnus College,CT,98,Regional Universities North,3.2,outcome+resources
+148496,Dominican (IL),Dominican University,IL,25,Regional Universities Midwest,3.2,intake+outcome+resources
+239080,Marian (WI),Marian University,WI,110,Regional Universities Midwest,3.2,outcome+resources
+217420,Rhode Island College,Rhode Island College,RI,84,Regional Universities North,3.2,intake+outcome+resources
+161554,Southern Maine,University of Southern Maine,ME,128,Regional Universities North,3.2,intake+outcome+resources
+196130,SUNY Buffalo State,SUNY Buffalo State University,NY,133,Regional Universities North,3.2,intake+outcome+resources
+196237,SUNY Old Westbury,SUNY Old Westbury,NY,98,Regional Universities North,3.2,outcome+resources
+240365,University of Wisconsin-Oshkosh,University of Wisconsin-Oshkosh,WI,352,National Universities,3.2,intake+outcome+resources
+110565,Cal State Fullerton,California State University-Fullerton,CA,139,National Universities,3.1,intake+outcome+resources
+486840,Kennesaw State,Kennesaw State University,GA,373,National Universities,3.1,intake+outcome+resources
+218742,USC Upstate,University of South Carolina-Upstate,SC,7,Regional Colleges South,3.1,intake+outcome+resources
+217998,Erskine,Erskine College,SC,50,Regional Colleges South,3.1,intake+outcome+resources
+218061,Francis Marion,Francis Marion University,SC,54,Regional Universities South,3.1,intake+outcome+resources
+198808,Lees-McRae,Lees-McRae College,NC,12,Regional Colleges South,3.1,outcome+resources
+199069,Mount Olive,University of Mount Olive,NC,76,Regional Universities South,3.1,intake+outcome+resources
+148131,Quincy,Quincy University,IL,35,Regional Colleges Midwest,3.1,intake+outcome+resources
+175421,Belhaven,Belhaven University,MS,395-434,National Universities,3.1,intake+outcome+resources
+191621,Hilbert,Hilbert College,NY,31,Regional Colleges North,3.1,outcome+resources
+232672,Mary Baldwin,Mary Baldwin University,VA,384,National Universities,3.1,outcome+resources
+161563,Thomas College,Thomas College,ME,150-164,Regional Universities North,3.1,outcome+resources
+217013,Wilson College,Wilson College,PA,150-164,Regional Universities North,3.1,intake+outcome+resources
+217688,Charleston Southern,Charleston Southern University,SC,70,Regional Universities South,3.0,intake+outcome+resources
+144892,Eastern Illinois,Eastern Illinois University,IL,54,Regional Universities Midwest,3.0,intake+outcome+resources
+139940,Georgia State,Georgia State University,GA,198,National Universities,3.0,intake+outcome+resources
+186432,Saint Peter's,Saint Peter's University,NJ,38,Regional Universities North,3.0,intake+outcome+resources
+227881,Sam Houston,Sam Houston State University,TX,257,National Universities,3.0,intake+outcome+resources
+102368,Troy,Troy University,AL,45,Regional Universities South,3.0,intake+outcome+resources
+100830,Auburn Montgomery,Auburn University at Montgomery,AL,64,Regional Universities South,3.0,intake+outcome+resources
+366711,Cal State San Marcos,California State University-San Marcos,CA,23,Regional Universities West,3.0,outcome+resources
+169479,Davenport,Davenport University,MI,124,Regional Universities Midwest,3.0,outcome+resources
+213598,Lincoln (PA),Lincoln University,PA,116,Regional Universities North,3.0,intake+outcome+resources
+226833,Midwestern State,Midwestern State University,TX,77,Regional Universities West,3.0,intake+outcome+resources
+174783,St. Cloud State,Saint Cloud State University,MN,95,Regional Universities Midwest,3.0,intake+outcome+resources
+195243,St. Thomas Aquinas,St. Thomas Aquinas College,NY,121,Regional Universities North,3.0,intake+outcome+resources
+234155,Virginia State,Virginia State University,VA,42,Regional Universities South,3.0,intake+outcome+resources
+143118,Aurora,Aurora University,IL,283,National Universities,3.0,intake+outcome+resources
+145372,Greenville,Greenville University,IL,105,Regional Universities Midwest,3.0,intake+outcome+resources
+203085,Heidelberg,Heidelberg University,OH,71,Regional Universities Midwest,3.0,intake+outcome+resources
+196024,SUNY Delhi,SUNY College of Technology at Delhi,NY,15,Regional Colleges North,3.0,intake+outcome+resources
+139931,Georgia Southern,Georgia Southern University,GA,343,National Universities,2.9,intake+outcome+resources
+175856,Jackson State,Jackson State University,MS,363,National Universities,2.9,intake+outcome+resources
+159717,McNeese,McNeese State University,LA,81,Regional Universities South,2.9,intake+outcome+resources
+224147,Texas A&M-Corpus Christi,Texas A & M University-Corpus Christi,TX,395-434,National Universities,2.9,intake+outcome+resources
+222831,Angelo State,Angelo State University,TX,56,Regional Universities West,2.9,intake+outcome+resources
+110592,Cal State LA,California State University-Los Angeles,CA,13,Regional Universities West,2.9,outcome+resources
+155061,Fort Hays State,Fort Hays State University,KS,78,Regional Universities Midwest,2.9,intake+outcome+resources
+218414,Newberry,Newberry College,SC,16,Regional Colleges South,2.9,intake+outcome+resources
+490805,Purdue Northwest,Purdue University Northwest,IN,101,Regional Universities Midwest,2.9,intake+outcome+resources
+140988,Shorter,Shorter University,GA,121-133,Regional Universities South,2.9,intake+outcome+resources
+229018,UT Permian Basin,The University of Texas Permian Basin,TX,69,Regional Universities West,2.9,intake+outcome+resources
+240374,Wisconsin-Parkside,University of Wisconsin-Parkside,WI,118,Regional Universities Midwest,2.9,intake+outcome+resources
+145619,Benedictine (IL),Benedictine University,IL,61,Regional Universities Midwest,2.9,intake+outcome+resources
+190637,CUNY Lehman College,CUNY Lehman College,NY,33,Regional Universities North,2.9,intake+outcome+resources
+183211,Rivier,Rivier University,NH,139,Regional Universities North,2.9,intake+outcome+resources
+196015,SUNY Canton,SUNY College of Technology at Canton,NY,12,Regional Colleges North,2.9,outcome+resources
+175342,Alcorn State,Alcorn State University,MS,45,Regional Universities South,2.8,intake+outcome+resources
+106412,Arkansas-Pine Bluff,University of Arkansas at Pine Bluff,AR,19,Regional Colleges South,2.8,intake+outcome+resources
+225399,Houston Christian,Houston Christian University,TX,61,Regional Universities West,2.8,intake+outcome+resources
+101480,Jacksonville State,Jacksonville State University,AL,52,Regional Universities South,2.8,intake+outcome+resources
+160612,Southeastern Louisiana,Southeastern Louisiana University,LA,74,Regional Universities South,2.8,intake+outcome+resources
+128106,Colorado State-Pueblo,Colorado State University Pueblo,CO,81,Regional Universities West,2.8,intake+outcome+resources
+169910,Ferris State,Ferris State University,MI,329,National Universities,2.8,intake+outcome+resources
+141644,Hawaii Pacific,Hawaii Pacific University,HI,86,Regional Universities West,2.8,intake+outcome+resources
+203775,Malone,Malone University,OH,101,Regional Universities Midwest,2.8,intake+outcome+resources
+193016,Mercy,Mercy University,NY,116,Regional Universities North,2.8,outcome+resources
+207263,Northeastern State,Northeastern State University,OK,69,Regional Universities West,2.8,intake+outcome+resources
+205443,Shawnee State,Shawnee State University,OH,112,Regional Universities Midwest,2.8,outcome+resources
+130493,Southern Connecticut State,Southern Connecticut State University,CT,64,Regional Universities North,2.8,intake+outcome+resources
+181783,Wayne State (NE),Wayne State College,NE,95,Regional Universities Midwest,2.8,outcome+resources
+148405,Rockford University,Rockford University,IL,130,Regional Universities Midwest,2.8,intake+outcome+resources
+151324,Indiana State,Indiana State University,IN,363,National Universities,2.7,intake+outcome+resources
+160038,Northwestern State,Northwestern State University of Louisiana,LA,59,Regional Universities South,2.7,intake+outcome+resources
+179557,Southeast Missouri State,Southeast Missouri State University,MO,68,Regional Universities Midwest,2.7,intake+outcome+resources
+227368,UT Rio Grande Valley,The University of Texas Rio Grande Valley,TX,213,National Universities,2.7,intake+outcome+resources
+157951,Western Kentucky,Western Kentucky University,KY,363,National Universities,2.7,intake+outcome+resources
+132471,Barry,Barry University,FL,395-434,National Universities,2.7,intake+outcome+resources
+237312,Charleston (WV),University of Charleston,WV,395-434,National Universities,2.7,outcome+resources
+212115,East Stroudsburg,East Stroudsburg University of Pennsylvania,PA,136,Regional Universities North,2.7,intake+outcome+resources
+237367,Fairmont State,Fairmont State University,WV,85,Regional Universities South,2.7,intake+outcome+resources
+203580,Lake Erie,Lake Erie College,OH,145-160,Regional Universities Midwest,2.7,outcome+resources
+177940,Lincoln (MO),Lincoln University,MO,51,Regional Colleges Midwest,2.7,outcome+resources
+178341,Missouri Southern,Missouri Southern State University,MO,138,Regional Universities Midwest,2.7,intake+outcome+resources
+482680,North Georgia,University of North Georgia,GA,49,Regional Universities South,2.7,intake+outcome+resources
+172051,Saginaw Valley State,Saginaw Valley State University,MI,99,Regional Universities Midwest,2.7,intake+outcome+resources
+237792,Shepherd,Shepherd University,WV,82,Regional Universities South,2.7,intake+outcome+resources
+183026,Southern New Hampshire,Southern New Hampshire University,NH,150-164,Regional Universities North,2.7,outcome+resources
+207865,Southwestern Oklahoma State,Southwestern Oklahoma State University,OK,77,Regional Universities West,2.7,intake+outcome+resources
+154493,Upper Iowa,Upper Iowa University,IA,145-160,Regional Universities Midwest,2.7,intake+outcome+resources
+144351,Concordia Chicago,Concordia University-Chicago,IL,129,Regional Universities Midwest,2.7,outcome+resources
+185262,Kean,Kean University,NJ,318,National Universities,2.7,intake+outcome+resources
+219046,Black Hills State,Black Hills State University,SD,143,Regional Universities Midwest,2.6,intake+outcome+resources
+110574,Cal State East Bay,California State University-East Bay,CA,257,National Universities,2.6,outcome+resources
+217907,Coker,Coker University,SC,99,Regional Universities South,2.6,outcome+resources
+127556,Colorado Mesa,Colorado Mesa University,CO,14,Regional Colleges West,2.6,intake+outcome+resources
+207041,East Central,East Central University,OK,100,Regional Universities West,2.6,intake+outcome+resources
+180179,Montana State Billings,Montana State University Billings,MT,95,Regional Universities West,2.6,outcome+resources
+199281,UNC Pembroke,University of North Carolina at Pembroke,NC,33,Regional Universities South,2.6,intake+outcome+resources
+168528,Adrian,Adrian College,MI,30,Regional Colleges Midwest,2.6,intake+outcome+resources
+212133,Eastern (PA),Eastern University,PA,146,Regional Universities North,2.6,outcome+resources
+214272,Neumann University,Neumann University,PA,128,Regional Universities North,2.6,intake+outcome+resources
+206507,Wilmington (OH),Wilmington College,OH,32,Regional Colleges Midwest,2.6,intake+outcome+resources
+100724,Alabama State,Alabama State University,AL,395-434,National Universities,2.5,intake+outcome+resources
+227526,Prairie View A&M,Prairie View A & M University,TX,343,National Universities,2.5,intake+outcome+resources
+228529,Tarleton State,Tarleton State University,TX,373,National Universities,2.5,intake+outcome+resources
+126182,Adams State,Adams State University,CO,102,Regional Universities West,2.5,outcome+resources
+164447,American International,American International College,MA,395-434,National Universities,2.5,outcome+resources
+133526,Edward Waters,Edward Waters University,FL,67,Regional Colleges South,2.5,outcome+resources
+157076,Kentucky Wesleyan,Kentucky Wesleyan College,KY,21,Regional Colleges South,2.5,intake+outcome+resources
+127565,Metro State Denver,Metropolitan State University of Denver,CO,86,Regional Universities West,2.5,intake+outcome+resources
+148487,Roosevelt,Roosevelt University,IL,395-434,National Universities,2.5,intake+outcome+resources
+190646,CUNY Medgar Evers College,CUNY Medgar Evers College,NY,176,National Liberal Arts Colleges,2.5,intake+outcome+resources
+216542,University of Valley Forge,University of Valley Forge,PA,26,Regional Colleges North,2.5,intake+outcome+resources
+110486,Cal State Bakersfield,California State University-Bakersfield,CA,31,Regional Universities West,2.4,intake+outcome+resources
+224554,East Texas A&M,East Texas A&M University,TX,384,National Universities,2.4,intake+outcome+resources
+226091,Lamar,Lamar University,TX,395-434,National Universities,2.4,intake+outcome+resources
+228796,UTEP,The University of Texas at El Paso,TX,257,National Universities,2.4,intake+outcome+resources
+110547,Cal State Dominguez Hills,California State University-Dominguez Hills,CA,36,Regional Universities West,2.4,outcome+resources
+110510,Cal State San Bernardino,California State University-San Bernardino,CA,179,National Universities,2.4,intake+outcome+resources
+218229,Lander,Lander University,SC,12,Regional Colleges South,2.4,intake+outcome+resources
+482158,Middle Georgia State,Middle Georgia State University,GA,112,Regional Universities South,2.4,intake+outcome+resources
+178387,Missouri Western,Missouri Western State University,MO,133,Regional Universities Midwest,2.4,outcome+resources
+190558,Staten Island,College of Staten Island CUNY,NY,98,Regional Universities North,2.4,intake+outcome+resources
+228501,Sul Ross State,Sul Ross State University,TX,100,Regional Universities West,2.4,intake+outcome+resources
+164492,Anna Maria,Anna Maria College,MA,150-164,Regional Universities North,2.4,outcome+resources
+190691,CUNY York College,CUNY York College,NY,144,Regional Universities North,2.4,intake+outcome+resources
+144971,Eureka,Eureka College,IL,43,Regional Colleges Midwest,2.4,intake+outcome+resources
+238980,Lakeland,Lakeland University,WI,112,Regional Universities Midwest,2.4,outcome+resources
+228042,Schreiner University,Schreiner University,TX,86,Regional Universities West,2.4,intake+outcome+resources
+141334,West Georgia,University of West Georgia,GA,373,National Universities,2.3,intake+outcome+resources
+237330,Concord,Concord University,WV,90,Regional Universities South,2.3,intake+outcome+resources
+199643,Shaw,Shaw University,NC,84,Regional Colleges South,2.3,outcome+resources
+175078,Southwest Minnesota State,Southwest Minnesota State University,MN,107,Regional Universities Midwest,2.3,intake+outcome+resources
+199209,North Carolina Wesleyan,North Carolina Wesleyan University,NC,33,Regional Colleges South,2.3,outcome+resources
+161341,University of Maine at Presque Isle,University of Maine at Presque Isle,ME,48,Regional Colleges North,2.3,outcome+resources
+218733,South Carolina State,South Carolina State University,SC,88,Regional Universities South,2.2,intake+outcome+resources
+184612,Felician,Felician University,NJ,121,Regional Universities North,2.2,intake+outcome+resources
+139764,Georgia Southwestern,Georgia Southwestern State University,GA,96,Regional Universities South,2.2,intake+outcome+resources
+237385,Glenville State,Glenville State University,WV,59,Regional Colleges South,2.2,outcome+resources
+207306,Northwestern Oklahoma State,Northwestern Oklahoma State University,OK,81,Regional Universities West,2.2,intake+outcome+resources
+218654,South Carolina Beaufort,University of South Carolina Beaufort,SC,38,Regional Colleges South,2.2,intake+outcome+resources
+206048,Tiffin,Tiffin University,OH,138,Regional Universities Midwest,2.2,intake+outcome+resources
+141264,Valdosta State,Valdosta State University,GA,395-434,National Universities,2.2,intake+outcome+resources
+238078,Wheeling,Wheeling University,WV,110,Regional Universities South,2.2,intake+outcome+resources
+182980,New England College,New England College,NH,150-164,Regional Universities North,2.2,outcome+resources
+128744,Bridgeport,University of Bridgeport,CT,395-434,National Universities,2.1,outcome+resources
+187648,Eastern New Mexico,Eastern New Mexico University-Main Campus,NM,93,Regional Universities West,2.1,intake+outcome+resources
+226152,Texas A&M International,Texas A & M International University,TX,38,Regional Universities West,2.1,intake+outcome+resources
+237215,Bluefield State,Bluefield State University,WV,50,Regional Colleges South,2.0,intake+outcome+resources
+139366,Columbus State,Columbus State University,GA,64,Regional Universities South,2.0,intake+outcome+resources
+173328,Concordia-St. Paul,Concordia University-Saint Paul,MN,105,Regional Universities Midwest,2.0,outcome+resources
+237899,West Virginia State,West Virginia State University,WV,107,Regional Universities South,2.0,intake+outcome+resources
+233611,Southern Virginia,Southern Virginia University,VA,183-201,National Liberal Arts Colleges,2.0,outcome+resources
+130934,Delaware State,Delaware State University,DE,121,Regional Universities North,1.9,intake+outcome+resources
+104717,Grand Canyon,Grand Canyon University,AZ,395-434,National Universities,1.9,intake+outcome+resources
+160621,Southern,Southern University and A & M College,LA,395-434,National Universities,1.9,intake+outcome+resources
+230737,Utah Valley,Utah Valley University,UT,93,Regional Universities West,1.9,outcome+resources
+139311,Clayton State,Clayton  State University,GA,80,Regional Universities South,1.9,intake+outcome+resources
+131113,Wilmington (DE),Wilmington University,DE,395-434,National Universities,1.9,outcome+resources
+159009,Grambling State,Grambling State University,LA,103,Regional Universities South,1.8,intake+outcome+resources
+229063,Texas Southern,Texas Southern University,TX,395-434,National Universities,1.8,intake+outcome+resources
+139630,Emmanuel (GA),Emmanuel University,GA,63,Regional Colleges South,1.8,outcome+resources
+137032,Saint Leo,Saint Leo University,FL,395-434,National Universities,1.8,outcome+resources
+221953,Tusculum,Tusculum University,TN,90,Regional Universities South,1.8,intake+outcome+resources
+174862,Crown (MN),Crown College,MN,135,Regional Universities Midwest,1.8,outcome+resources
+213303,Keystone,Keystone College,PA,51-56,Regional Colleges North,1.8,intake+outcome+resources
+100654,Alabama A&M,Alabama A & M University,AL,96,Regional Universities South,1.7,intake+outcome+resources
+101587,West Alabama,University of West Alabama,AL,85,Regional Universities South,1.7,intake+outcome+resources
+217624,Allen,Allen University,SC,183-201,National Liberal Arts Colleges,1.6,outcome+resources
+230171,Utah Tech,Utah Tech University,UT,34,Regional Colleges West,1.5,outcome+resources
+207661,Rogers State,Rogers State University,OK,27,Regional Colleges West,1.4,intake+outcome+resources
+237783,Salem,Salem University,WV,121-133,Regional Universities South,1.3,outcome+resources
+130183,Post,Post University,CT,150-164,Regional Universities North,1.1,outcome+resources

@@ -200,11 +200,19 @@ then 2023 and 2022. Not to be picked up here.
       absent. Copying from the men's row is not available: only 5 of the 323
       have a men's counterpart at all, because most of the gap is SEC/Big 12
       schools that sponsor women's soccer and no men's programme.
-- [x] **Established what the academic scale is: 70% US News, 30% Niche.**
-      Recorded here because nothing in the code says so — there is no
+- [x] **Established what the academic scale was: 70% US News, 30% Niche.**
+      Recorded here because nothing in the code said so — there is no
       generator for `academic_scores.json` and the code calls the ratings
-      "LLM-sourced", which is wrong. The blend is deliberate: US News for the
+      "LLM-sourced", which is wrong. The blend was deliberate: US News for the
       official view, Niche for the student-reported one.
+
+      **Superseded 2026-08-25.** Niche is dropped and the US News rank is no
+      longer the driver — see the Scorecard entry below. Niche's Academics
+      grade is largely recomputed from the same federal inputs, so it is a
+      re-weighting rather than a second opinion; the genuinely independent
+      part of Niche is its student reviews, which measure experience, not
+      academic strength. (The scraping route does work, for the record: Niche
+      403s a fetch but loads normally when a browser tab is navigated to it.)
 
       The scale is sound where populated. Harvard, Yale, Princeton, Stanford
       and Duke at 10; MIT, Amherst, Williams, Swarthmore, Haverford and
@@ -362,27 +370,70 @@ then 2023 and 2022. Not to be picked up here.
       Liberty. They are ranked; they sit in tier bands (`#395-434`), which the
       first parser only read as absent. Six such bands are now in the sheet
       and the scoring step has to handle them.
-- [ ] **Build a rank-to-score curve per US News category.** Seven categories
-      appeared in the first 60 schools alone — National Universities, National
-      Liberal Arts Colleges, and Regional Universities and Colleges across four
-      regions. **#3 Regional South is not #3 National**: Appalachian State is
-      #3 Regional South and Butler #1 Regional Midwest, against Alabama at
-      #169 National. One curve across all of them would repeat the category
-      error the old column already made.
-- [ ] **Decide how to treat the 9 schools outside the undergraduate
-      taxonomy.** Not "unranked" in the ordinary sense: US News files Babson
-      and Menlo and Northwood under Business Schools, Pratt under Arts
-      Schools, Rose-Hulman under Engineering & Technology, Martin Luther under
-      Miscellaneous — categories it publishes without a rank. Rose-Hulman in
-      particular is a strong engineering school, so a low fill would be worse
-      than no value. They need an explicit answer rather than a divisional
-      fill — which is how the old column ended up 55% one value in D2. Simon
-      Fraser needs a Canadian source instead.
+- [x] **Built the academic rating on College Scorecard, not on the rank.**
+      Decided 2026-08-25. The US News rank cannot be used directly and no
+      per-category curve can fix it: #1 Regional Colleges South is the top of
+      an 84-school pool of teaching colleges and #1 National Universities the
+      top of a 434-school pool of research universities, so ranking a school
+      against its Carnegie peers says nothing about where those peers sit.
+      The category sizes come from the tier-band ceilings themselves —
+      `#395-434` is the last band in National Universities.
 
-- [ ] **Decide how tier bands score.** Six bands are in the sheet
-      (`51-56`, `121-133`, `145-160`, `150-164`, `183-201`, `395-434`). The
-      midpoint is the obvious choice; it should be a stated choice, not an
-      accident of whatever the parser does.
+      **Freshman retention was tried first and rejected.** It tracks the rank
+      at -0.70 to -0.93 inside every category, which made it tempting, but US
+      News's own label for it is "an indicator of student satisfaction". That
+      belongs in a campus-experience measure, not an academic one. (It is
+      institution-wide, not a sports figure — the sport-specific retention is
+      the separate Pillar 4 roster metric.)
+
+      What replaced it is **College Scorecard**, the federal IPEDS release
+      that US News and Niche are both built on. It is keyed on UNITID, so the
+      wrong-school join cannot happen the way it does on a URL slug, and it
+      carries the inputs a ranking is computed FROM, so the weighting can be
+      chosen for what this product means by academic strength rather than
+      inherited from US News's view of social mobility and alumni giving.
+
+      Three legs, none of them category-normalised:
+
+      | leg | weight | inputs | coverage |
+      |---|---|---|---|
+      | intake calibre | 40% | SAT (Scorecard average, else US News range midpoint) | 82% |
+      | academic resources | 35% | instructional spend/student, full-time faculty rate, endowment/student, class size | 96-100% |
+      | outcome | 25% | six-year graduation rate | 100% |
+
+      Excluded, each for a measured reason: **acceptance rate** swings from
+      +0.76 to -0.03 against the rank depending on category, because it
+      measures who chose to apply — Cal Poly Pomona admits 74% and is #3 in
+      its category. **Earnings** track the mix of majors, not strength:
+      Rose-Hulman $101k against Williams $88k says "engineering school".
+
+      **All 1,029 institutions score, with no nulls** — which matters because
+      `academic_rating` is a hard filter in `playerAnalysis.js`, so a null
+      removes a school from matching entirely. A school missing a leg
+      re-weights the others rather than scoring zero; `legs_used` records
+      which, and the 184 schools with no SAT anywhere score *lower* on median
+      (4.1 against 5.5), so the re-weighting is not inflating them.
+
+      **The rank became the test instead of the input.** Spearman of the score
+      against the US News order, inside each category: National Universities
+      -0.87, National Liberal Arts -0.94, Regional Universities N/MW/S/W
+      -0.73/-0.74/-0.80/-0.64, Regional Colleges S/N/MW -0.60/-0.67/-0.79. It
+      reproduces US News's own ordering within every peer group and then
+      extends across them.
+
+      The old column was worse than "unsourced". Northwestern State
+      (Natchitoches LA, SAT 1088, 43% graduation) carried **9.8** — which is
+      Northwestern University's score. 271 of 1,018 ratings move by more than
+      2 points, 26 by more than 4.
+
+- [x] **The 9 schools outside the US News taxonomy are solved by the same
+      change.** They never needed a category: Rose-Hulman scores 8.8 on SAT
+      1427 and a 78% graduation rate, Babson 9.1, Pratt 7.2, Menlo 4.6. Only
+      **Simon Fraser** is still unrated — it is in Burnaby BC and Scorecard is
+      a US release, so it needs a Canadian source (Maclean's).
+
+- [x] **Tier bands stopped mattering.** They are not inputs to the score,
+      only to the validation, where the midpoint is used and stated.
 
 - [ ] **Roster scrape pass — 72 school-sports, one job not two.** The 56
       programs with no 2025 roster and the 16 whose roster imported with no
