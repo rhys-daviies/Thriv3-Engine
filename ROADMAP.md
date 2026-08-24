@@ -6,7 +6,7 @@ the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
 Last audited: 2026-08-24, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 262 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 279 tests green). Coverage numbers below were
 re-run, not copied; two moved and are corrected in place.
 
 ---
@@ -109,16 +109,41 @@ two of them are a different job than the count suggests.
       with no 2025 roster and the 15 whose roster imported with no class year
       at all (451 rows) are the same failure and the same fix; doing them in
       one pass rather than as two roadmap lines saves a full crawl.
-- [ ] **Fix the class-year parser before re-scraping.** Some schools' rosters
-      put a club name in `class_year_label` — 'Real Colorado', 'FC Dallas',
-      'DKSC', 'Portland Thorns Academy' — so a column is being read off by
-      one. Re-scraping first would just re-import the same garbage.
-- [ ] **`estimated_graduation_year` nulls — 1,250 rows, and it is a scrape,
-      not a mapping fix.** 1,218 of them have no `class_year_label` either,
-      so there is nothing to map from; only ~32 are unmapped labels
-      ('Rs.', 'Medical Redshirt', 'Sr.-5'). After the 15 whole-roster failures
-      above are re-scraped, what remains is 767 rows scattered thinly across
-      267 schools — the expensive tail, and the one worth timeboxing.
+- [x] **Guarded the class-year column before re-scraping.** There was no
+      parser in this repo to fix — the bad values are in the scraped CSVs
+      themselves, so the fix had to be validation at import, and it had to
+      land before B1 delivers six fresh files. `server/lib/classYear.js`
+      reads the label and, more to the point, refuses to read one that is not
+      there; `importRosterSheets.js` nulls a rejected cell, records the raw
+      value in `notes` so the rejection is auditable, and prints the offending
+      schools rather than burying them in a total.
+
+      Validated against every label in the database rather than invented:
+      158 distinct labels agree with the existing graduation years, **none
+      disagree**, and exactly 16 rows are rejected — 15 at Texas Tech, whose
+      Club column was scraped as Class/Year, and one at Ursinus. Fixing the
+      alternation bug found along the way (a bare `r` beating `rs` and
+      `redshirt`, so `RS-Fr.` decomposed to nonsense) recovered 158 rows that
+      would otherwise have been rejected.
+
+      The Ursinus row is **not** a scraper bug: 'Team IMPACT' is the charity
+      that drafts seriously ill children onto college teams, so that is a
+      genuine honorary roster entry. It has no class year and now correctly
+      has none. Whether honorary members belong in a turnover count at all is
+      a separate question, deliberately left open.
+- [ ] **`estimated_graduation_year` nulls — 1,245 rows, and it is a scrape,
+      not a mapping fix.** Down from 1,250: the import now derives a year from
+      the class label when the sheet carried a class but no year, which was
+      worth 6 rows, against one lost to voiding the bogus `Solar` → 2029.
+      That is the whole of what mapping can reach — 1,218 of the remainder
+      have no `class_year_label` either, so there is nothing to map from, and
+      the 11 bare redshirt markers ('Rs.', 'Medical Redshirt') genuinely carry
+      no class and are correctly null rather than guessed at.
+
+      After the 15 whole-roster failures above are re-scraped — Texas Tech is
+      one of them, its entire 30-player roster having no usable class year —
+      what remains is roughly 767 rows scattered thinly across 267 schools.
+      That is the expensive tail, and the one worth timeboxing.
 - [ ] **Nicknames — 102 programs** (36 men's, 66 women's). Cheapest and least
       urgent; personalisation quality, not a blocker, and the template falls
       back cleanly. Fill in the gaps between the jobs above.
