@@ -305,10 +305,12 @@ then 2023 and 2022. Not to be picked up here.
 
       Southern (SWAC) is left unrated: US News places it under Regional
       Universities South, so these anchors do not apply to it.
-- [ ] **Rebuilding every academic rating from scratch.** Decided 2026-08-24
-      after the audit: the column has too many demonstrated errors to patch
-      school by school, so all 1,337 in-scope schools are being recollected.
-      **146 of 1,337 collected (11%).** Worklist:
+- [x] **Rebuilt every academic rating from scratch.** Decided 2026-08-24
+      after the audit: the column had too many demonstrated errors to patch
+      school by school, so all 1,337 in-scope schools were recollected.
+      **1,337 of 1,337 collected (100%)** — 1,327 ranked, 9 that US News files
+      outside the undergraduate taxonomy, 1 that it does not cover at all.
+      Worklist:
       `~/Documents/Thriv3/University individualisation/academic_ratings_rebuild.csv`,
       D1 first, resumable, one row per distinct school name.
 
@@ -331,9 +333,35 @@ then 2023 and 2022. Not to be picked up here.
       Nashville against Belmont NC is what rejected it. Likewise Colorado
       against Colorado College, Columbia against Columbia College Missouri,
       Auburn against Auburn Montgomery, Brown against John Brown. Anything
-      unverifiable is marked `needs-manual` rather than guessed: "Buffalo"
-      resolves to SUNY Buffalo State, a different university from the
-      University at Buffalo.
+      unverifiable is marked `needs-manual` rather than guessed. Only one row
+      stayed there: **Simon Fraser**, in Burnaby BC, which US News Best
+      Colleges does not rank because it is Canadian. Every other open question
+      closed, including "Buffalo" — the D1 programme is the University at
+      Buffalo, a different university from SUNY Buffalo State.
+
+      **Every one of the 1,029 distinct profile pages was then re-fetched and
+      diffed against the recorded rank and category. Zero mismatches.** The
+      same pass compared each page's own name against its slug, which is what
+      no earlier check did, and it found two rows that had been wrong since a
+      previous session:
+
+      - **Cal State Bakersfield** carried the id 1141, which is Cal State
+        Dominguez Hills, and so carried Dominguez Hills' #36. Now `csub-7993`,
+        #31 Regional West.
+      - **Gardner-Webb** carried the id 2928, which is Fayetteville State, and
+        so carried Fayetteville State's #52 Regional South. Now
+        `gardnerwebb-university-2929`, #384 National.
+
+      Both are the same failure: **US News routes on the numeric id, not the
+      slug text**, so a URL that reads perfectly can serve another school. The
+      slug is not evidence of identity; the page's own name is. Any future
+      collection against this source has to check the returned name.
+
+      The pass also corrected five rows the earlier session had called
+      unranked — Alabama State, Chicago State, Grand Canyon, Idaho State and
+      Liberty. They are ranked; they sit in tier bands (`#395-434`), which the
+      first parser only read as absent. Six such bands are now in the sheet
+      and the scoring step has to handle them.
 - [ ] **Build a rank-to-score curve per US News category.** Seven categories
       appeared in the first 60 schools alone — National Universities, National
       Liberal Arts Colleges, and Regional Universities and Colleges across four
@@ -341,10 +369,20 @@ then 2023 and 2022. Not to be picked up here.
       #3 Regional South and Butler #1 Regional Midwest, against Alabama at
       #169 National. One curve across all of them would repeat the category
       error the old column already made.
-- [ ] **Decide how to treat unranked schools.** Alabama State and Chicago
-      State carry no US News rank at all. They need an explicit answer rather
-      than a divisional fill — which is how the old column ended up 55% one
-      value in D2.
+- [ ] **Decide how to treat the 9 schools outside the undergraduate
+      taxonomy.** Not "unranked" in the ordinary sense: US News files Babson
+      and Menlo and Northwood under Business Schools, Pratt under Arts
+      Schools, Rose-Hulman under Engineering & Technology, Martin Luther under
+      Miscellaneous — categories it publishes without a rank. Rose-Hulman in
+      particular is a strong engineering school, so a low fill would be worse
+      than no value. They need an explicit answer rather than a divisional
+      fill — which is how the old column ended up 55% one value in D2. Simon
+      Fraser needs a Canadian source instead.
+
+- [ ] **Decide how tier bands score.** Six bands are in the sheet
+      (`51-56`, `121-133`, `145-160`, `150-164`, `183-201`, `395-434`). The
+      midpoint is the obvious choice; it should be a stated choice, not an
+      accident of whatever the parser does.
 
 - [ ] **Roster scrape pass — 72 school-sports, one job not two.** The 56
       programs with no 2025 roster and the 16 whose roster imported with no
