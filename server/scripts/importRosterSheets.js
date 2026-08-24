@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { parseCsvToObjects } from '../lib/csv.js';
 import { normalizePosition } from '../lib/positions.js';
 import { readClassYear } from '../lib/classYear.js';
-import { isPlausibleName } from '../lib/rosterName.js';
+import { isPlausibleName, cleanRosterName } from '../lib/rosterName.js';
 import { RosterPlayer } from '../db/entities/rosterPlayer.js';
 
 /**
@@ -72,7 +72,7 @@ function importFile({ file, sport, division }) {
   const records = rows
     .map((row) => {
       const college_name = (row['School'] || '').trim();
-      const player_name = (row['Player Name'] || '').trim();
+      const player_name = cleanRosterName(row['Player Name']);
       if (!college_name || !player_name) return null;
 
       // A name that is not a name. The 2024 scrape read the jersey column for

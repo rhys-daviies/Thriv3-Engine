@@ -31,3 +31,44 @@ export function isPlausibleName(value) {
   if (/^jersey\s*number\b/i.test(trimmed)) return false;
   return /\p{L}{2,}/u.test(trimmed);
 }
+
+/**
+ * Removes the decorations a roster page puts on a name.
+ *
+ * Both of these were found by measuring turnover rather than by reading data:
+ * they inflate it from both ends, since a decorated 2024 name fails to match
+ * its clean 2025 twin and each counts once as a departure and once as an
+ * arrival.
+ *
+ *   captain marker   118 schools prefix their captains with a bare "C" —
+ *                    "C Nathan Lagoa" — and 67 of those have an exact 2025
+ *                    twin without it.
+ *   doubled name     101 rows at three programmes repeat the whole name,
+ *                    "Trevor Rau Trevor Rau", from a cell read twice.
+ *
+ * A genuine leading initial is spelled with a period ("C. Vicente Benitez
+ * Delgado") and is left alone, as is anything whose second word is itself a
+ * single letter, so "C J Smith" never loses its first name.
+ */
+export function cleanRosterName(value) {
+  let name = String(value ?? '').replace(/\s+/g, ' ').trim();
+  if (!name) return name;
+
+  const words = name.split(' ');
+  if (words[0] === 'C' && words.length >= 3 && words[1].replace(/\W/g, '').length >= 2) {
+    name = words.slice(1).join(' ');
+  }
+
+  name = name.replace(/\s*\((?:C|c)\)\s*$/, '').trim();
+
+  // "Trevor Rau Trevor Rau" — two identical halves, so keep one.
+  const parts = name.split(' ');
+  if (parts.length >= 4 && parts.length % 2 === 0) {
+    const half = parts.length / 2;
+    if (parts.slice(0, half).join(' ') === parts.slice(half).join(' ')) {
+      name = parts.slice(0, half).join(' ');
+    }
+  }
+
+  return name;
+}

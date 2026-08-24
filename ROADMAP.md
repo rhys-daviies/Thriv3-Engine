@@ -6,7 +6,7 @@ the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
 Last audited: 2026-08-24, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 283 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 288 tests green). Coverage numbers below were
 re-run, not copied; two moved and are corrected in place.
 
 ---
@@ -112,10 +112,35 @@ two of them are a different job than the count suggests.
       so Akron's women showed 60 departures from a 25-player squad. A name
       guard now drops them loudly, `server/lib/rosterName.js` is tested, and
       the four schools are marked failed in the 2024 worklist for re-scrape.
-      Mean turnover across in-scope programmes reads 44.7%, which is high but
-      no longer impossible; some of it will be name-spelling differences
-      between seasons rather than real departures, and that is worth measuring
-      before the metric is trusted.
+      Turnover reads 44.6%, and the name-matching error behind it has now been
+      measured rather than assumed — see below.
+- [x] **Measured the name-mismatch error in turnover: 0.2 points, at most
+      0.5.** Turnover is a diff, so a name spelled differently in the two
+      seasons counts once as a departure and once as an arrival and the error
+      does not cancel. `tools/soccer/turnover_error_rate.py` matches each
+      apparent departure against the same programme's 2025 roster through
+      progressively looser tiers, and reports the tiers separately rather than
+      as one number, because they are not equally trustworthy: a reordering
+      ("Nastuta, Catalin") is one person spelled two ways, while a shared
+      surname and initial is usually two people — "Connor Smith" against
+      "Carter Smith", "Jake Provenzano" against "Luke Provenzano".
+
+      So **44.6% turnover is essentially real**, and the metric is sound
+      enough to build on. Measuring it also turned up two more name-column
+      defects, both now cleaned at import and tested: 118 schools prefix
+      captains with a bare "C" (324 rows, 67 with an exact clean twin the
+      following season), and 101 rows at three programmes repeat the whole
+      name, "Trevor Rau Trevor Rau". Fixing those cut the edit-distance tier
+      from 83 to 20.
+- [ ] **Explain the half of turnover that should not be there.** Of 23,497
+      real departures, **11,746 — exactly half — are from classes that should
+      have returned**: freshmen, sophomores and juniors. That is not a
+      measurement error, it dwarfs anything name matching contributes, and it
+      is the thing to understand before turnover is used as a recruiting
+      signal. Transfers are the obvious candidate in the portal era, but
+      "obvious" is not measured. Until it is, a high turnover number cannot be
+      read as "this programme has openings" — it may equally mean players
+      leave.
 - [ ] **Women's academic ratings — 318 programs to source, 5 to reconcile.**
       Not 323: five already exist in `server/seed/data/academic_scores.json`
       filed under a different division, which is a lookup fix rather than
