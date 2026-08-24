@@ -176,7 +176,28 @@ export default {
       return syncTokens(request, env);
     }
     if (url.pathname === '/api/health') {
-      return json({ ok: true });
+      // Unauthed callers get liveness and nothing else — counts would leak how
+      // much outreach is in flight. Authed callers get the state the local app
+      // cannot see any other way, which is the whole reason the 2026-08-20
+      // wipe went unnoticed: there was no way to ask the edge how it was doing
+      // short of opening a link and reading the page.
+      if (!authorised(request, env)) return json({ ok: true });
+
+      const row = await env.DB.prepare(`
+        SELECT
+          (SELECT count(*) FROM outreach_tokens WHERE revoked = 0) AS liveTokens,
+          (SELECT count(*) FROM outreach_tokens WHERE revoked = 1) AS revokedTokens,
+          (SELECT count(*) FROM tracking_events)                   AS events,
+          (SELECT coalesce(max(id), 0) FROM tracking_events)       AS maxEventId,
+          (SELECT coalesce(seq, 0) FROM sqlite_sequence
+            WHERE name = 'tracking_events')                        AS eventSequence,
+          (SELECT deletes_unlocked_until FROM edge_guard WHERE id = 1) AS guardUnlockedUntil
+      `).first();
+
+      // The high-water mark, not the row count: deleted rows keep their ids,
+      // and a local cursor above this is the shape that silently swallows the
+      // first events of a run.
+      return json({ ok: true, ...row, deletesLocked: !row?.guardUnlockedUntil });
     }
 
     // Profile pages are gated on the link still being live, exactly as the

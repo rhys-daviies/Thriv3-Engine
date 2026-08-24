@@ -6,7 +6,7 @@ the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
 Last audited: 2026-08-24, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 247 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 262 tests green). Coverage numbers below were
 re-run, not copied; two moved and are corrected in place.
 
 ---
@@ -149,8 +149,21 @@ resolved. Neither was visible from the local database, which is the lesson.**
       the unlock/delete/re-lock cycle worked, and the allowlist came through
       at 18 live tokens. Eleven tests added — the worker had no coverage at
       all before this, so `worker/**` is now in the vitest include list.
+- [x] **Made the trial one command to check and one command to run.**
+      `npm run trial:preflight` verifies all thirteen preconditions —
+      configuration, athlete publishability, allowlist sync, delete guard,
+      cursor safety, and that a live token really does serve the profile while
+      an unknown one really does not — then exits non-zero if any would make
+      the trial misleading. It sends nothing and writes nothing, and the tests
+      assert both. Currently all green against production. `/api/health` now
+      reports the edge's own state to an authed caller, which is what makes
+      the last four checks possible; unauthed callers still get liveness only,
+      since counts would leak how much outreach is in flight.
 - [ ] Publish one real athlete profile and send one tracked link to a mailbox
-      you control, from outside the local network.
+      you control, from outside the local network. **Deliberately not done
+      yet** — building continues first, and the trial is revisited after.
+      When it is: run the preflight, then `sendOutreach` with `send: false`
+      to inspect the Outlook draft before anything leaves.
 - [ ] Confirm events land in D1, sync down with a non-null `remote_id`, roll
       up, and appear in Tab 3 with a correct session timeline.
 - [ ] Fix whatever that exposes.
