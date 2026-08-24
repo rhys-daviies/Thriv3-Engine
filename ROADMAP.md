@@ -308,7 +308,7 @@ then 2023 and 2022. Not to be picked up here.
 - [ ] **Rebuilding every academic rating from scratch.** Decided 2026-08-24
       after the audit: the column has too many demonstrated errors to patch
       school by school, so all 1,337 in-scope schools are being recollected.
-      **60 of 1,337 done.** Worklist:
+      **146 of 1,337 collected (11%).** Worklist:
       `~/Documents/Thriv3/University individualisation/academic_ratings_rebuild.csv`,
       D1 first, resumable, one row per distinct school name.
 
