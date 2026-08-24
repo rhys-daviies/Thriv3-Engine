@@ -200,38 +200,46 @@ then 2023 and 2022. Not to be picked up here.
       absent. Copying from the men's row is not available: only 5 of the 323
       have a men's counterpart at all, because most of the gap is SEC/Big 12
       schools that sponsor women's soccer and no men's programme.
-- [x] **Recovered what the academic scale actually is, and it is worse than a
-      missing-values problem.** There is no generator for
-      `academic_scores.json` and no recorded formula — the code calls the
-      ratings "LLM-sourced". Reverse-engineering the numbers shows the scale
-      itself is sound where it is populated (Harvard, Yale, Princeton,
-      Stanford, Duke and MIT, Amherst, Williams all at 10; Akron 5.6), but it
-      is only populated in D1.
+- [x] **Established what the academic scale is: 70% US News, 30% Niche.**
+      Recorded here because nothing in the code says so — there is no
+      generator for `academic_scores.json` and the code calls the ratings
+      "LLM-sourced", which is wrong. The blend is deliberate: US News for the
+      official view, Niche for the student-reported one.
 
-      **D2 and D3 are mostly fills.** 55% of D2 schools hold exactly 5.4 and
-      58% of D3 hold exactly 6.5 — not 111 schools independently scoring the
-      same value. D1's modal value is held by 8%, so D1 is genuinely
-      differentiated.
+      The scale is sound where populated. Harvard, Yale, Princeton, Stanford
+      and Duke at 10; MIT, Amherst, Williams, Swarthmore, Haverford and
+      Grinnell at 10; Akron 5.6. And the divisional pattern is real rather
+      than an artefact — among genuinely rated schools the median is **D3 8.2,
+      D1 6.8, D2 6.0**, which is what anyone who knows the NESCAC and the UAA
+      would expect.
+- [x] **Separated a measured rating from a fill.** 55% of D2 schools hold
+      exactly 5.4 and 58% of D3 hold exactly 6.5. A 70/30 blend of two
+      continuous rankings cannot produce 327 identical values to one decimal,
+      so those are schools that were not in either source and took a
+      divisional fill. `colleges.academic_rating_source` now records `rated`
+      against `division-modal`.
 
-      The consequence is a live defect in matching, not a cosmetic one. The
-      academic filter does not grade a D2 or D3 school, it switches the whole
-      division on and off at the fill value: **at a threshold of 5.0 the D2
-      field keeps 97%, at 5.5 it keeps 28%.** For D3 the cliff is between 6.5
-      (90%) and 7.0 (32%). An athlete who sets academic importance to 5.5
-      loses 72% of D2 not because those programmes are academically weak but
-      because nobody ever rated them.
+      **The fills are mostly landing correctly**, which an earlier version of
+      this entry got wrong by treating them as a serious defect. Of 25
+      well-known strong-academic programmes, 24 carry a real rating and only
+      **Carnegie Mellon** sits at the fill — a top-25 national university
+      scored 6.5. The rest of the fill population is genuinely mid-tier
+      regional colleges, for which 6.5 and 5.4 are defensible.
 
-      `colleges.academic_rating_source` now records this — `rated` against
-      `division-modal` — so the matcher can tell a measurement from a fill.
-      Real coverage in scope: **D1 79%, D2 39%, D3 36%.**
-- [ ] **Decide what the academic criterion is for.** Sourcing the 318 missing
-      ratings the way the existing ones were made would mostly mean assigning
-      each school its divisional fill, which adds no information and makes
-      coverage *look* complete. The options are genuinely different products:
-      treat academic prowess as a D1-only criterion and say so; or source real
-      academic data for all of D2 and D3, both sports, which is roughly 1,200
-      schools and a far larger job than the 318 this line used to describe.
-      Not a call to make silently inside a backfill.
+      What remains true is narrower than first claimed: the filter moves a
+      division as a block at the fill value — D2 keeps 97% at a threshold of
+      5.0 and 28% at 5.5 — so the criterion cannot rank *within* the filled
+      population, only include or exclude it wholesale.
+- [ ] **Rate the schools missing from both ranking sources.** 318 women's
+      programmes have no rating at all, and 545 more across D2/D3 hold a fill.
+      Carnegie Mellon shows the fills contain at least one outright error, so
+      the population is worth a pass rather than an assumption. Apply the same
+      70/30 US News and Niche blend, so the new values are comparable to the
+      existing ones rather than a second scale wearing the same column.
+- [ ] **Reconcile 9 schools rated in one sport and filled in the other**
+      (Mississippi College, Albertus Magnus, Cal Lutheran, Colby-Sawyer and
+      five more). An academic rating belongs to the university, so the two
+      rows should not disagree.
 - [ ] **Roster scrape pass — 72 school-sports, one job not two.** The 56
       programs with no 2025 roster and the 16 whose roster imported with no
       class year are the same failure and the same fix.
