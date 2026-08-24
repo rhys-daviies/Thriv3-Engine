@@ -125,6 +125,16 @@ function backfillSlugs(db) {
  * actually needs to make.
  */
 function backfillAcademicRatingSource(db) {
+  // An explicit declaration beats any inference. placeBucketB.js creates rows
+  // with academic_rating 6.0 and says so in identity_notes — 30 of them, every
+  // one of which the modal-value inference below would call `rated`, because
+  // 6.0 is nobody's divisional fill. A script that documents its own
+  // placeholder should be believed over a statistical guess about it.
+  db.prepare(`
+    UPDATE colleges SET academic_rating_source = 'placeholder'
+    WHERE academic_rating IS NOT NULL AND identity_notes LIKE '%academic_rating are placeholders%'
+  `).run();
+
   const divisions = db.prepare(
     'SELECT DISTINCT division FROM colleges WHERE academic_rating IS NOT NULL'
   ).all().map((r) => r.division);

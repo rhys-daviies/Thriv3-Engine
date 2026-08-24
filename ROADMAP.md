@@ -236,10 +236,33 @@ then 2023 and 2022. Not to be picked up here.
       the population is worth a pass rather than an assumption. Apply the same
       70/30 US News and Niche blend, so the new values are comparable to the
       existing ones rather than a second scale wearing the same column.
-- [ ] **Reconcile 9 schools rated in one sport and filled in the other**
-      (Mississippi College, Albertus Magnus, Cal Lutheran, Colby-Sawyer and
-      five more). An academic rating belongs to the university, so the two
-      rows should not disagree.
+- [x] **Fixed Carnegie Mellon: 6.5 → 10.** Checked rather than reasoned from
+      the name — US News has it at **#20 in National Universities** and Niche
+      grades its academics **A+**. Emory, already scored 10 in this data, is
+      #24. A school ranked above one scored 10, with an A+ academics grade,
+      is a 10.
+- [x] **Reconciled every school whose two sport rows disagreed** — 13 in all,
+      and they split into two opposite cases, which is why propagating the
+      "rated" side wholesale would have been wrong:
+
+      **4 were real** — one row measured, the other holding a placeholder, so
+      the measurement propagates. Claremont-Mudd-Scripps and Pomona-Pitzer had
+      their women's programmes scored **6.0 while the men's said 10**: two of
+      the strongest academic colleges in D3, described as average.
+
+      **9 were not** — both rows were fills wearing different clothes, 6.5
+      from the divisional fill against 6.0 from `placeBucketB.js`. Copying
+      either onto the other would have manufactured agreement without adding
+      information, so both were aligned to the divisional fill and left
+      labelled as unrated.
+
+      No school now disagrees with itself across sports.
+- [x] **Believe a script that documents its own placeholder.**
+      `placeBucketB.js` creates rows with `academic_rating: 6.0` and says so
+      in `identity_notes`, but 6.0 is nobody's divisional fill, so the
+      modal-value inference confidently labelled all 30 of them `rated`. The
+      explicit declaration now wins over the statistical guess — a reminder
+      that an inference about provenance is still an inference.
 - [ ] **Roster scrape pass — 72 school-sports, one job not two.** The 56
       programs with no 2025 roster and the 16 whose roster imported with no
       class year are the same failure and the same fix.
