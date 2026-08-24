@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { GraduationCap, Home, Trophy, Users, Database, BookOpen } from 'lucide-react';
+import { Home, Trophy, Users, Database, BookOpen } from 'lucide-react';
+import { Thriv3Mark, Thriv3Wordmark } from '@/components/Logo';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
@@ -19,10 +20,8 @@ export default function Layout() {
       <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <GraduationCap className="h-5 w-5" />
-            </span>
-            <span className="font-heading text-lg font-bold">RecruitMatch</span>
+            <Thriv3Mark />
+            <Thriv3Wordmark />
           </Link>
           <nav className="flex items-center gap-1">
             {NAV_ITEMS.map(({ to, label, icon: Icon }) => {

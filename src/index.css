@@ -10,47 +10,29 @@
 
   --radius: 0.75rem;
 
-  /* Section 3 tokens */
-  --primary: 152 60% 36%;
-  --primary-foreground: 0 0% 100%;
-  --accent: 220 60% 50%;
-  --accent-foreground: 0 0% 100%;
-  --background: 210 20% 98%;
-  --foreground: 220 25% 12%;
-  --card: 0 0% 100%;
-  --card-foreground: 220 25% 12%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 220 25% 12%;
-  --muted: 210 20% 94%;
-  --muted-foreground: 220 10% 45%;
-  --border: 220 15% 90%;
-  --input: 220 15% 90%;
-  --ring: 152 60% 36%;
-  --secondary: 210 20% 94%;
-  --secondary-foreground: 220 25% 12%;
-  --destructive: 0 72% 51%;
-  --destructive-foreground: 0 0% 100%;
-}
+  /* Thriv3 Palette 1 — brand tokens (see brand guide Section 5) */
+  --brand-gold: 45 96% 48%;       /* #F2B705 */
+  --brand-white: 0 0% 100%;       /* #FFFFFF */
+  --brand-charcoal: 0 0% 35%;     /* #5A5A5A */
 
-.dark {
-  --background: 220 25% 6%;
-  --foreground: 210 20% 95%;
-  --primary: 152 60% 42%;
-  --primary-foreground: 220 25% 6%;
-  --accent: 220 60% 58%;
+  --primary: var(--brand-gold);
+  --primary-foreground: 214 24% 6%;
+  --accent: 0 0% 35%;
   --accent-foreground: 0 0% 100%;
-  --card: 220 22% 10%;
-  --card-foreground: 210 20% 95%;
-  --popover: 220 22% 10%;
-  --popover-foreground: 210 20% 95%;
-  --muted: 220 18% 16%;
-  --muted-foreground: 220 10% 65%;
-  --border: 220 15% 20%;
-  --input: 220 15% 20%;
-  --ring: 152 60% 42%;
-  --secondary: 220 18% 16%;
-  --secondary-foreground: 210 20% 95%;
-  --destructive: 0 62% 50%;
+  --background: 214 24% 6%;       /* Canvas #0B0E12 */
+  --foreground: 0 0% 100%;        /* Text Primary #FFFFFF */
+  --card: 213 21% 8%;             /* Surface #11151A */
+  --card-foreground: 0 0% 100%;
+  --popover: 213 16% 11%;         /* Surface Elevated #171B20 */
+  --popover-foreground: 0 0% 100%;
+  --muted: 213 16% 11%;           /* Surface Elevated — icon containers, muted UI */
+  --muted-foreground: 217 8% 68%; /* Text Secondary #A8ADB5 */
+  --border: 213 10% 21%;          /* Border Default #30353B */
+  --input: 213 10% 21%;
+  --ring: var(--brand-gold);
+  --secondary: 213 16% 11%;
+  --secondary-foreground: 0 0% 100%;
+  --destructive: 0 72% 51%;
   --destructive-foreground: 0 0% 100%;
 }
 

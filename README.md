@@ -1,6 +1,6 @@
-# RecruitMatch (local)
+# Thriv3 (local)
 
-Fully local, self-hosted rebuild of RecruitMatch — no Base44, no auth, single user.
+Fully local, self-hosted rebuild of Thriv3 (formerly RecruitMatch) — no Base44, no auth, single user.
 
 ## Setup
 

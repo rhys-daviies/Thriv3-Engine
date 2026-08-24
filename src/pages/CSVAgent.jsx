@@ -12,7 +12,7 @@ function ToolCallCard({ call }) {
   return (
     <div className="rounded-lg border border-border bg-muted/30 text-xs">
       <button className="w-full flex items-center gap-2 px-3 py-2" onClick={() => setExpanded((e) => !e)}>
-        {call.status === 'success' ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> : <XCircle className="h-3.5 w-3.5 text-destructive" />}
+        {call.status === 'success' ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" /> : <XCircle className="h-3.5 w-3.5 text-destructive" />}
         <span className="font-mono">{call.name}</span>
         {expanded ? <ChevronUp className="h-3 w-3 ml-auto" /> : <ChevronDown className="h-3 w-3 ml-auto" />}
       </button>

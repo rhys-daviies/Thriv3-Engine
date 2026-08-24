@@ -31,7 +31,7 @@ export default function Sports() {
         {SPORTS.map((sport) => (
           <Link key={sport.id} to={`/new-player?sport=${sport.id}`}>
             <Card className="p-6 h-full hover:border-primary/30 hover:shadow-sm transition-all flex flex-col">
-              <div className="h-10 w-10 rounded-md bg-primary/10 text-primary flex items-center justify-center mb-4">
+              <div className="h-10 w-10 rounded-md bg-muted text-primary flex items-center justify-center mb-4">
                 <Trophy className="h-5 w-5" />
               </div>
               <h3 className="font-heading text-lg font-semibold">{sport.label}</h3>

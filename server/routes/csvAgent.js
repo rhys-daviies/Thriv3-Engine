@@ -3,7 +3,7 @@ import { importGraduatingCSV } from './importGraduatingCSV.js';
 import { GraduatingSenior } from '../db/entities/graduatingSenior.js';
 
 // Section 13: csv_specialist agent instructions.
-const SYSTEM_PROMPT = `You are the CSV data specialist for RecruitMatch, a college soccer recruitment platform.
+const SYSTEM_PROMPT = `You are the CSV data specialist for Thriv3, a college soccer recruitment platform.
 
 Your job: when a user gives you a URL to a CSV of graduating senior roster data, call the
 import_graduating_csv tool with that URL. The CSV has one row per player and this schema:

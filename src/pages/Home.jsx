@@ -23,7 +23,7 @@ export default function Home() {
           Find Your Perfect <span className="text-primary">College Fit</span>
         </h1>
         <p className="mt-4 text-lg text-muted-foreground">
-          RecruitMatch uses AI to analyze your player profile and match you with the US college soccer programs where you actually have a shot — based on roster needs, program quality, and academics.
+          Thriv3 uses AI to analyze your player profile and match you with the US college soccer programs where you actually have a shot — based on roster needs, program quality, and academics.
         </p>
         <div className="mt-8 flex items-center justify-center gap-3">
           <Button asChild size="lg">
@@ -38,7 +38,7 @@ export default function Home() {
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {FEATURES.map(({ icon: Icon, title, desc }) => (
           <Card key={title} className="p-6 hover:border-primary/30 hover:shadow-sm transition-all">
-            <div className="h-10 w-10 rounded-md bg-primary/10 text-primary flex items-center justify-center mb-4">
+            <div className="h-10 w-10 rounded-md bg-muted text-primary flex items-center justify-center mb-4">
               <Icon className="h-5 w-5" />
             </div>
             <h3 className="font-heading font-semibold mb-1">{title}</h3>
