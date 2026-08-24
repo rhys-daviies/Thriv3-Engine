@@ -38,6 +38,12 @@ const PLAYER_COLUMNS = [
   // --- lifecycle: drives the deactivation cascade in brief §7 ---
   ['archived_at', 'TEXT'],
   ['published_at', 'TEXT'],
+
+  // --- recruiting class year rebuild ---
+  // The year this recruit would join a roster as a freshman. Matched against
+  // roster_players.estimated_graduation_year to find programs with an
+  // opening at the recruit's position in that exact year.
+  ['recruiting_class_year', 'INTEGER'],
 ];
 
 /**
@@ -47,6 +53,32 @@ const PLAYER_COLUMNS = [
  */
 const TRACKING_EVENT_COLUMNS = [
   ['remote_id', 'INTEGER'],
+];
+
+/** Visual identity fields, backfilled by populateSchoolIdentity.js. */
+const COLLEGE_COLUMNS = [
+  // False for a program confirmed closed / not sponsoring this sport / not
+  // eligible for its listed division. The row (and any coaching contacts on
+  // it) still persists -- this only excludes it from recruiting matching.
+  ['active', 'INTEGER DEFAULT 1'],
+  ['nickname', 'TEXT'],
+  ['nickname_plural', 'INTEGER'],
+  ['mascot', 'TEXT'],
+  ['primary_color', 'TEXT'],
+  ['secondary_color', 'TEXT'],
+  ['logo_url', 'TEXT'],
+  ['identity_source', 'TEXT'],
+  ['identity_notes', 'TEXT'],
+  // Where academic_rating came from, because the number alone cannot say.
+  // More than half of D2 and D3 carry their division's modal value — 5.4 and
+  // 6.5 — which is a fill, not a measurement, and the matcher cannot tell the
+  // difference: at a threshold of 5.5 the D2 field drops from 97% to 28% in
+  // one step, entirely at that value. See backfillAcademicRatingSource.
+  ['academic_rating_source', 'TEXT'],
+  ['conference_champion_2025', 'INTEGER'],
+  ['conference_champion_name', 'TEXT'],
+  ['conference_champion_source', 'TEXT'],
+  ['conference_champion_notes', 'TEXT'],
 ];
 
 function addMissingColumns(db, table, columns) {
@@ -79,6 +111,52 @@ function backfillSlugs(db) {
   }
 }
 
+/**
+ * Labels each academic rating as measured or indistinguishable from a fill.
+ *
+ * The distinction cannot be recovered from the number, so it is inferred: a
+ * rating exactly equal to its division's modal value is marked
+ * `division-modal`, because that value is held by 55% of D2 and 58% of D3 and
+ * is plainly a default rather than 111 schools independently scoring 5.4.
+ *
+ * The inference is deliberately not called "default" — some schools genuinely
+ * do sit at the modal value, and there is no way here to tell them apart. It
+ * marks the rating as unable to bear weight, which is the decision the matcher
+ * actually needs to make.
+ */
+function backfillAcademicRatingSource(db) {
+  const divisions = db.prepare(
+    'SELECT DISTINCT division FROM colleges WHERE academic_rating IS NOT NULL'
+  ).all().map((r) => r.division);
+
+  for (const division of divisions) {
+    const modal = db.prepare(`
+      SELECT academic_rating AS value, COUNT(*) AS n FROM colleges
+      WHERE division = ? AND academic_rating IS NOT NULL
+      GROUP BY academic_rating ORDER BY n DESC LIMIT 1
+    `).get(division);
+    if (!modal) continue;
+
+    // A modal value held by only a handful of schools is a coincidence, not a
+    // fill. D1's is held by 8% and is left alone.
+    const total = db.prepare(
+      'SELECT COUNT(*) AS n FROM colleges WHERE division = ? AND academic_rating IS NOT NULL'
+    ).get(division).n;
+    const isFill = modal.n / total >= 0.25;
+
+    db.prepare(`
+      UPDATE colleges SET academic_rating_source = ?
+      WHERE division = ? AND academic_rating IS NOT NULL AND academic_rating_source IS NULL
+        AND academic_rating ${isFill ? '=' : '<>'} ?
+    `).run(isFill ? 'division-modal' : 'rated', division, modal.value);
+
+    db.prepare(`
+      UPDATE colleges SET academic_rating_source = 'rated'
+      WHERE division = ? AND academic_rating IS NOT NULL AND academic_rating_source IS NULL
+    `).run(division);
+  }
+}
+
 export function migrate(db) {
   addMissingColumns(db, 'players', PLAYER_COLUMNS);
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_players_public_slug ON players(public_slug)');
@@ -87,4 +165,7 @@ export function migrate(db) {
 
   addMissingColumns(db, 'tracking_events', TRACKING_EVENT_COLUMNS);
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_tracking_remote_id ON tracking_events(remote_id)');
+
+  addMissingColumns(db, 'colleges', COLLEGE_COLUMNS);
+  backfillAcademicRatingSource(db);
 }

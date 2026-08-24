@@ -196,17 +196,42 @@ then 2023 and 2022. Not to be picked up here.
       figure. Three pairs (22→23, 23→24, 24→25) distinguish a programme that
       consistently loses players from one that had a bad year, which is the
       difference between a recommendation and a coin toss.
-- [ ] **Women's academic ratings — 318 programs to source, 5 to reconcile.**
-      Not 323: five already exist in `server/seed/data/academic_scores.json`
-      filed under a different division, which is a lookup fix rather than
-      research. The other 318 are genuinely absent, and copying from the
-      men's row is not available — only 5 of the 323 have a men's counterpart
-      at all, because most of the gap is SEC/Big 12 schools that sponsor
-      women's soccer and no men's programme. **Recover the scoring
-      methodology before sourcing anything**: the existing 1,077 scores are a
-      0–10 scale of unrecorded derivation, and 318 scores produced a different
-      way are not comparable to them — they would quietly distort every
-      ranking that mixes the two.
+- [x] **Reconciled the 5 division-mismatched ratings**, leaving 318 genuinely
+      absent. Copying from the men's row is not available: only 5 of the 323
+      have a men's counterpart at all, because most of the gap is SEC/Big 12
+      schools that sponsor women's soccer and no men's programme.
+- [x] **Recovered what the academic scale actually is, and it is worse than a
+      missing-values problem.** There is no generator for
+      `academic_scores.json` and no recorded formula — the code calls the
+      ratings "LLM-sourced". Reverse-engineering the numbers shows the scale
+      itself is sound where it is populated (Harvard, Yale, Princeton,
+      Stanford, Duke and MIT, Amherst, Williams all at 10; Akron 5.6), but it
+      is only populated in D1.
+
+      **D2 and D3 are mostly fills.** 55% of D2 schools hold exactly 5.4 and
+      58% of D3 hold exactly 6.5 — not 111 schools independently scoring the
+      same value. D1's modal value is held by 8%, so D1 is genuinely
+      differentiated.
+
+      The consequence is a live defect in matching, not a cosmetic one. The
+      academic filter does not grade a D2 or D3 school, it switches the whole
+      division on and off at the fill value: **at a threshold of 5.0 the D2
+      field keeps 97%, at 5.5 it keeps 28%.** For D3 the cliff is between 6.5
+      (90%) and 7.0 (32%). An athlete who sets academic importance to 5.5
+      loses 72% of D2 not because those programmes are academically weak but
+      because nobody ever rated them.
+
+      `colleges.academic_rating_source` now records this — `rated` against
+      `division-modal` — so the matcher can tell a measurement from a fill.
+      Real coverage in scope: **D1 79%, D2 39%, D3 36%.**
+- [ ] **Decide what the academic criterion is for.** Sourcing the 318 missing
+      ratings the way the existing ones were made would mostly mean assigning
+      each school its divisional fill, which adds no information and makes
+      coverage *look* complete. The options are genuinely different products:
+      treat academic prowess as a D1-only criterion and say so; or source real
+      academic data for all of D2 and D3, both sports, which is roughly 1,200
+      schools and a far larger job than the 318 this line used to describe.
+      Not a call to make silently inside a backfill.
 - [ ] **Roster scrape pass — 72 school-sports, one job not two.** The 56
       programs with no 2025 roster and the 16 whose roster imported with no
       class year are the same failure and the same fix.
