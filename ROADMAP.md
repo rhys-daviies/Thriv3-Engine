@@ -5,7 +5,9 @@ deck against what is actually built. Update the checkboxes as work lands; keep
 the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
-Last audited: 2026-08-24 (branch `engagement-tracking`, 232 tests green).
+Last audited: 2026-08-24, re-verified against the DB and the live edge
+(branch `engagement-tracking`, 236 tests green). Coverage numbers below were
+re-run, not copied; two moved and are corrected in place.
 
 ---
 
@@ -26,7 +28,7 @@ Last audited: 2026-08-24 (branch `engagement-tracking`, 232 tests green).
 | With a head-coach email | 683 | 891 | 1,574 |
 | With 2025 roster data | 718 | 985 | 1,703 |
 | **Missing academic rating** | **0** | **323** | **323** |
-| Missing nickname (personalisation) | 38 | 67 | 105 |
+| Missing nickname (personalisation) | 36 | 66 | 102 |
 | Missing `estimated_graduation_year` rows | 341 | 909 | 1,250 |
 
 Adding women's soccer put two gaps back on the critical path that the men's-only
@@ -100,12 +102,51 @@ have a null `remote_id`, and the edge cursor stopped at 6. The path
 *published profile → real inbox → coach opens → D1 → sync → rollup → Tab 3*
 has never carried a genuine visit.
 
+**Two edge-state defects were found in the 2026-08-24 audit and both are now
+resolved. Neither was visible from the local database, which is the lesson.**
+
+- [x] **The edge token allowlist was empty.** `GET /p/<slug>?ref=<live token>`
+      returned the neutral "Profile unavailable" page for a token that was
+      live locally, byte-identical to the response for a bogus token — every
+      tracked link in the wild was dead, and had been since 2026-08-20.
+      Cause: D1 `29ac16ae` was never re-provisioned; its schema is intact and
+      `outreach_tokens` and `tracking_events` had simply been emptied by hand,
+      almost certainly a test-data cleanup during the build session. Nothing
+      in the repository deletes remote D1 rows, so this is not a recurring
+      automated hazard — it is an undetected manual one. Repaired by
+      `pushTokens()`: 18 live tokens at the edge, live link serves the profile
+      (22,200 bytes), bogus link still serves the neutral page (2,377 bytes).
+- [x] **The event cursor was suspected to be ahead of the edge** —
+      `edge_events_cursor` 6 against an empty event table. Resolved as a
+      non-issue: `sqlite_sequence` on the edge holds `tracking_events = 6`, so
+      `AUTOINCREMENT` resumes at 7 and `drain()`'s `id > 6` will pick up the
+      first real event. The cursor is correct and was left alone. Worth
+      knowing that the deleted rows kept their high-water mark — had the table
+      been dropped and recreated, the first six real events would have been
+      permanently invisible.
+- [x] **Made the wipe detectable.** `POST /api/tokens` now returns
+      `liveAtEdge`, and `pushTokens()` compares it against the live count it
+      sent; `npm run sync` prints the count and exits non-zero on a mismatch,
+      so whatever eventually schedules the sync has something to alert on. A
+      worker too old to report the count reads as unknown, not as a mismatch.
+      Deployed 2026-08-24; verified live (`pushed 18 token(s), 18 live at the
+      edge`). Four tests added.
+- [ ] **Stop the edge tables being emptied silently.** The append-only
+      guarantee at the edge is a `BEFORE UPDATE` trigger only — `DELETE` is
+      unguarded on both `tracking_events` and `outreach_tokens`, which is
+      exactly how this happened. Local retention (`purgeExpiredEngagementData`)
+      only ever touches the local tables, so a `BEFORE DELETE` trigger at the
+      edge would break nothing.
 - [ ] Publish one real athlete profile and send one tracked link to a mailbox
       you control, from outside the local network.
 - [ ] Confirm events land in D1, sync down with a non-null `remote_id`, roll
       up, and appear in Tab 3 with a correct session timeline.
 - [ ] Fix whatever that exposes.
-- [ ] Automate the sync (scheduled pull) instead of the manual button.
+- [ ] Automate the sync (scheduled pull) instead of the manual button. Nothing
+      schedules it today — `POST /api/engagement/sync` and `npm run sync` are
+      only ever called by hand, which is why the defects above went unnoticed
+      for four days. The alerting half now exists (mismatch → non-zero exit);
+      what is missing is something that runs it unprompted.
 
 ### 1.2 Pillar 1 weighting model
 Replaces the hardcoded constants in `src/lib/playerAnalysis.js`
@@ -200,8 +241,8 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
 ### 4.1 Data
 - [ ] 2024 roster backfill, both sports (started Phase 0) → program turnover.
 - [ ] Freshman-minute analysis — **possible from existing data today**: 4,677
-      of 7,239 men's and 5,336 of 7,000 women's `Fr.` rows carry
-      `minutes_played`.
+      of 7,239 men's and 5,812 of 7,616 women's `Fr.` rows carry
+      `minutes_played` (women's grew as roster loading finished).
 - [ ] Identify a source for university quality and lifestyle. Currently
       un-sourced; `academic_rating` is the only quality signal in the DB, and
       it is itself incomplete for women's (see Phase 0).

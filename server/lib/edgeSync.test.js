@@ -13,16 +13,19 @@ const { pushTokens, pullEvents } = await import('./edgeSync.js');
 
 let requests = [];
 let pages = [];
+let tokensReply = null;
 
 beforeEach(() => {
   db.exec('DELETE FROM sync_state; DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
   requests = [];
   pages = [];
+  tokensReply = null;
 
   vi.stubGlobal('fetch', async (url, options) => {
     requests.push({ url: String(url), options });
     if (String(url).includes('/api/tokens')) {
       const body = JSON.parse(options.body);
+      if (tokensReply) return new Response(JSON.stringify(tokensReply(body)), { status: 200 });
       return new Response(JSON.stringify({ synced: body.tokens.length }), { status: 200 });
     }
     const page = pages.shift() || { events: [], cursor: 0, more: false };
@@ -90,6 +93,48 @@ describe('pushing tokens up', () => {
     for (const entry of body.tokens) {
       expect(Object.keys(entry).sort()).toEqual(['revoked', 'token']);
     }
+  });
+
+  // The 2026-08-20 failure: the edge was emptied, every tracked link served
+  // the neutral page, and the push kept reporting success because it only
+  // ever counted what it sent.
+  it('confirms the push landed by reading the edge back', async () => {
+    makeOutreach();
+    makeOutreach();
+    tokensReply = (body) => ({ synced: body.tokens.length, liveAtEdge: 2 });
+
+    const result = await pushTokens();
+    expect(result.liveAtEdge).toBe(2);
+    expect(result.mismatch).toBe(false);
+  });
+
+  it('flags a mismatch when the edge holds fewer live tokens than we sent', async () => {
+    makeOutreach();
+    makeOutreach();
+    tokensReply = (body) => ({ synced: body.tokens.length, liveAtEdge: 0 });
+
+    const result = await pushTokens();
+    expect(result.expectedLive).toBe(2);
+    expect(result.liveAtEdge).toBe(0);
+    expect(result.mismatch).toBe(true);
+  });
+
+  it('counts only live tokens, so a revoked athlete is not read as a mismatch', async () => {
+    makeOutreach();
+    const b = makeOutreach();
+    deactivateAthlete(b.athleteId);
+    tokensReply = (body) => ({ synced: body.tokens.length, liveAtEdge: 1 });
+
+    const result = await pushTokens();
+    expect(result.expectedLive).toBe(1);
+    expect(result.mismatch).toBe(false);
+  });
+
+  it('treats a worker too old to report a count as unknown, not as a mismatch', async () => {
+    makeOutreach();
+    const result = await pushTokens();
+    expect(result.liveAtEdge).toBeNull();
+    expect(result.mismatch).toBe(false);
   });
 });
 

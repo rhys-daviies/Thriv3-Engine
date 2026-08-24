@@ -147,7 +147,16 @@ async function syncTokens(request, env) {
     revoked = result.meta?.changes ?? 0;
   }
 
-  return json({ synced: statements.length, revokedMissing: revoked });
+  // Reported back so the local app can prove the push actually landed. The
+  // edge is the one piece of state nobody looks at, and on 2026-08-20 it was
+  // emptied without anything noticing for four days: every link in the wild
+  // served the neutral page while the local database still listed 18 live
+  // tokens. A count in the response makes that failure loud on the next sync.
+  const liveAtEdge = (await env.DB
+    .prepare('SELECT count(*) AS n FROM outreach_tokens WHERE revoked = 0')
+    .first())?.n ?? 0;
+
+  return json({ synced: statements.length, revokedMissing: revoked, liveAtEdge });
 }
 
 export default {

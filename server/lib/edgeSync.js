@@ -53,6 +53,22 @@ async function edgeFetch(path, options = {}) {
 }
 
 /**
+ * Compares what the edge says it holds against what we just sent it.
+ *
+ * A reconciling push rewrites the whole allowlist, so afterwards the two
+ * counts must agree exactly. They did not on 2026-08-20: the edge had been
+ * emptied, every tracked link served the neutral "profile unavailable" page,
+ * and nothing surfaced it because the push only ever reported what it sent,
+ * never what arrived. Older deployments omit `liveAtEdge` entirely — treat
+ * that as unknown rather than as a mismatch, so a stale worker does not cry
+ * wolf.
+ */
+function checkLanded(expectedLive, reported) {
+  if (typeof reported !== 'number') return { liveAtEdge: null, mismatch: false };
+  return { liveAtEdge: reported, mismatch: reported !== expectedLive };
+}
+
+/**
  * Pushes the current token allowlist up.
  *
  * This is what makes revocation bite at the edge: a deactivated athlete's
@@ -62,6 +78,7 @@ export async function pushTokens() {
   requireEdge();
   const tokens = db.prepare('SELECT token, revoked_at FROM outreach').all()
     .map((row) => ({ token: row.token, revoked: row.revoked_at ? 1 : 0 }));
+  const expectedLive = tokens.filter((t) => !t.revoked).length;
 
   if (tokens.length === 0) {
     // Nothing live locally means everything at the edge should be revoked.
@@ -70,7 +87,11 @@ export async function pushTokens() {
       body: JSON.stringify({ tokens: [], reconcile: true }),
     });
     writeState('tokens_pushed_at', utcNow());
-    return { pushed: 0, revokedMissing: cleared.revokedMissing ?? 0 };
+    return {
+      pushed: 0,
+      revokedMissing: cleared.revokedMissing ?? 0,
+      ...checkLanded(0, cleared.liveAtEdge),
+    };
   }
 
   // reconcile: anything the edge holds that we no longer have is revoked
@@ -81,7 +102,12 @@ export async function pushTokens() {
     body: JSON.stringify({ tokens, reconcile: true }),
   });
   writeState('tokens_pushed_at', utcNow());
-  return { pushed: result.synced ?? tokens.length, revokedMissing: result.revokedMissing ?? 0 };
+  return {
+    pushed: result.synced ?? tokens.length,
+    revokedMissing: result.revokedMissing ?? 0,
+    expectedLive,
+    ...checkLanded(expectedLive, result.liveAtEdge),
+  };
 }
 
 const insertEvent = db.prepare(`
