@@ -847,186 +847,186 @@ Batch,School,Divisions,Sports,Conference,Current Rating,Current Source,US News N
 85,Geneva,NCAA D3,mens,PAC,6.5,division-modal,Geneva College,112,Regional Universities North,https://www.usnews.com/best-colleges/geneva-college-3267,,,done,
 85,Geneva College,NCAA D3,womens,Presidents' Athletic Conference,6.5,division-modal,Geneva College,112,Regional Universities North,https://www.usnews.com/best-colleges/geneva-college-3267,,,done,same school as the Geneva row
 85,George Fox,NCAA D3,mens,NWC,6.5,division-modal,George Fox University,283,National Universities,https://www.usnews.com/best-colleges/george-fox-university-3194,,,done,
-85,George Fox University,NCAA D3,womens,Northwest Conference,6.5,division-modal,,,,,,,todo,
-85,Gettysburg,NCAA D3,mens,Centennial,8.8,rated,,,,,,,todo,
-86,Gettysburg College,NCAA D3,womens,Centennial Conference,8.8,rated,,,,,,,todo,
-86,Gordon,NCAA D3,mens,CCC,6.5,division-modal,,,,,,,todo,
-86,Gordon College,NCAA D3,womens,Conference of New England,6.5,division-modal,,,,,,,todo,
-86,Goucher,NCAA D3,mens,LANDMARK,6.5,division-modal,,,,,,,todo,
-86,Goucher College,NCAA D3,womens,Landmark Conference,6.5,division-modal,,,,,,,todo,
-86,Grace Christian,NCAA D3,mens,NEAC,5.7,rated,,,,,,,todo,
-86,Greensboro,NCAA D3,mens,ODAC,6.5,division-modal,,,,,,,todo,
-86,Greensboro College,NCAA D3,womens,USA South Athletic Conference,6.5,division-modal,,,,,,,todo,
-86,Greenville,NCAA D3,mens,SLIAC,5.6,rated,,,,,,,todo,
-86,Greenville University,NCAA D3,womens,St. Louis Intercollegiate Athletic Conference,6.5,division-modal,,,,,,,todo,
-87,Grinnell,NCAA D3,mens,MWC-D3,10,rated,,,,,,,todo,
-87,Grinnell College,NCAA D3,womens,Midwest Conference,10,rated,,,,,,,todo,
-87,Grove City,NCAA D3,mens,PAC,8.8,rated,,,,,,,todo,
-87,Grove City College,NCAA D3,womens,Presidents' Athletic Conference,8.8,rated,,,,,,,todo,
-87,Guilford,NCAA D3,mens,ODAC,6.5,division-modal,,,,,,,todo,
-87,Guilford College,NCAA D3,womens,Old Dominion Athletic Conference,6.5,division-modal,,,,,,,todo,
-87,Gustavus Adolphus,NCAA D3,mens,MIAC,8,rated,,,,,,,todo,
-87,Gustavus Adolphus College,NCAA D3,womens,Minnesota Intercollegiate Athletic Conference,8,rated,,,,,,,todo,
-87,Gwynedd Mercy,NCAA D3,mens,CSAC,6.5,division-modal,,,,,,,todo,
-87,Gwynedd Mercy University,NCAA D3,womens,Atlantic East Conference,6.5,division-modal,,,,,,,todo,
-88,Hamilton,NCAA D3,mens,Liberty League,10,rated,,,,,,,todo,
-88,Hamilton College,NCAA D3,womens,New England Small College Athletic Conference,10,rated,,,,,,,todo,
-88,Hamline,NCAA D3,mens,MIAC,6.5,division-modal,,,,,,,todo,
-88,Hamline University,NCAA D3,womens,Minnesota Intercollegiate Athletic Conference,6.5,division-modal,,,,,,,todo,
-88,Hampden-Sydney,NCAA D3,mens,ODAC,6.5,division-modal,,,,,,,todo,
-88,Hanover,NCAA D3,mens,HCAC,6.5,division-modal,,,,,,,todo,
-88,Hanover College,NCAA D3,womens,Heartland Collegiate Athletic Conference,6.5,division-modal,,,,,,,todo,
-88,Hardin-Simmons,NCAA D3,mens,ASC,6.5,division-modal,,,,,,,todo,
-88,Hardin-Simmons University,NCAA D3,womens,American Southwest Conference,6.5,division-modal,,,,,,,todo,
-88,Hartwick,NCAA D3,mens,Liberty League,6.5,division-modal,,,,,,,todo,
-89,Hartwick College,NCAA D3,womens,Empire 8,6.5,division-modal,,,,,,,todo,
-89,Harvey Mudd College,NCAA D3,womens,Southern California Intercollegiate Athletic Conference,,,,,,,,,todo,
-89,Haverford,NCAA D3,mens,Centennial,10,rated,,,,,,,todo,
-89,Haverford College,NCAA D3,womens,Centennial Conference,10,rated,,,,,,,todo,
-89,Heidelberg,NCAA D3,mens,OAC,6.5,division-modal,,,,,,,todo,
-89,Heidelberg University,NCAA D3,womens,Ohio Athletic Conference,6.5,division-modal,,,,,,,todo,
-89,Hendrix,NCAA D3,mens,ASC,6.5,division-modal,,,,,,,todo,
-89,Hendrix College,NCAA D3,womens,Southern Collegiate Athletic Conference,6.5,division-modal,,,,,,,todo,
-89,Hilbert,NCAA D3,mens,AMCC,6.5,division-modal,,,,,,,todo,
-89,Hilbert College,NCAA D3,womens,Allegheny Mountain Collegiate Conference,6.5,division-modal,,,,,,,todo,
-90,Hiram,NCAA D3,mens,PAC,6.5,division-modal,,,,,,,todo,
-90,Hiram College,NCAA D3,womens,Presidents' Athletic Conference,6.5,division-modal,,,,,,,todo,
-90,Hobart & William Smith,NCAA D3,mens,Liberty League,8.8,rated,,,,,,,todo,
-90,Hobart and William Smith Colleges,NCAA D3,womens,Liberty League,10,rated,,,,,,,todo,
-90,Hollins University,NCAA D3,womens,Old Dominion Athletic Conference,,,,,,,,,todo,
-90,Hood,NCAA D3,mens,Centennial,6.5,division-modal,,,,,,,todo,
-90,Hood College,NCAA D3,womens,Middle Atlantic Conference (Commonwealth),6.5,division-modal,,,,,,,todo,
-90,Hope,NCAA D3,mens,MIAA-D3,8.5,rated,,,,,,,todo,
-90,Hope College,NCAA D3,womens,Michigan Intercollegiate Athletic Association,8.5,rated,,,,,,,todo,
-90,Houghton,NCAA D3,mens,Empire 8,6.5,division-modal,,,,,,,todo,
-91,Houghton University,NCAA D3,womens,Empire 8,6.5,division-modal,,,,,,,todo,
-91,Howard Payne,NCAA D3,mens,ASC,6.5,division-modal,,,,,,,todo,
-91,Howard Payne University,NCAA D3,womens,American Southwest Conference,6.5,division-modal,,,,,,,todo,
-91,Huntingdon,NCAA D3,mens,SAA,6.5,division-modal,,,,,,,todo,
-91,Huntingdon College,NCAA D3,womens,Collegiate Conference of the South,6.5,division-modal,,,,,,,todo,
-91,Husson,NCAA D3,mens,NAC,6.5,division-modal,,,,,,,todo,
-91,Husson University,NCAA D3,womens,North Atlantic Conference,6.5,division-modal,,,,,,,todo,
-91,Illinois College,NCAA D3,mens+womens,MWC-D3,6.6,rated,,,,,,,todo,
-91,Illinois Institute of Technology,NCAA D3,womens,Northern Athletics Collegiate Conference,,,,,,,,,todo,
-91,Illinois Tech,NCAA D3,mens,NACC,8.8,rated,,,,,,,todo,
-92,Illinois Wesleyan,NCAA D3,mens,CCIW,8.5,rated,,,,,,,todo,
-92,Illinois Wesleyan University,NCAA D3,womens,College Conference of Illinois & Wisconsin,8.5,rated,,,,,,,todo,
-92,Immaculata,NCAA D3,mens,CSAC,6.5,division-modal,,,,,,,todo,
-92,Immaculata University,NCAA D3,womens,Atlantic East Conference,6.5,division-modal,,,,,,,todo,
-92,Ithaca,NCAA D3,mens,Liberty League,8.2,rated,,,,,,,todo,
-92,Ithaca College,NCAA D3,womens,Liberty League,8.2,rated,,,,,,,todo,
-92,John Carroll,NCAA D3,mens,OAC,8,rated,,,,,,,todo,
-92,John Carroll University,NCAA D3,womens,North Coast Athletic Conference,8,rated,,,,,,,todo,
-92,Johns Hopkins,NCAA D3,mens,Centennial,10,rated,,,,,,,todo,
-92,Johns Hopkins University,NCAA D3,womens,Centennial Conference,10,rated,,,,,,,todo,
-93,Johnson & Wales (Charlotte),NCAA D3,mens,SAA,6.5,division-modal,,,,,,,todo,
-93,Johnson & Wales (Providence),NCAA D3,mens,CCC,6.5,division-modal,,,,,,,todo,
-93,Johnson & Wales University-Charlotte,NCAA D3,womens,Coast-to-Coast Athletic Conference,,,,,,,,,todo,
-93,Johnson & Wales University-Providence,NCAA D3,womens,Conference of New England,,,,,,,,,todo,
-93,Juniata,NCAA D3,mens,Landmark,8,rated,,,,,,,todo,
-93,Juniata College,NCAA D3,womens,Landmark Conference,8,rated,,,,,,,todo,
-93,Kalamazoo,NCAA D3,mens,MIAA-D3,8.2,rated,,,,,,,todo,
-93,Kalamazoo College,NCAA D3,womens,Michigan Intercollegiate Athletic Association,8.2,rated,,,,,,,todo,
-93,Kean,NCAA D3,mens,NJAC,6.5,division-modal,,,,,,,todo,
-93,Kean University,NCAA D3,womens,New Jersey Athletic Conference,6.5,division-modal,,,,,,,todo,
-94,Keene State,NCAA D3,mens,LEC,6.2,rated,,,,,,,todo,
-94,Kenyon,NCAA D3,mens,NCAC,9.5,rated,,,,,,,todo,
-94,Kenyon College,NCAA D3,womens,North Coast Athletic Conference,9.5,rated,,,,,,,todo,
-94,Keuka,NCAA D3,mens,NEAC,6.5,division-modal,,,,,,,todo,
-94,Keuka College,NCAA D3,womens,Empire 8,6.5,division-modal,,,,,,,todo,
-94,Keystone,NCAA D3,mens,NEAC,6.5,division-modal,,,,,,,todo,
-94,Keystone College,NCAA D3,womens,United East Conference,6.5,division-modal,,,,,,,todo,
-94,King's (PA),NCAA D3,mens,MAC Freedom,6.5,division-modal,,,,,,,todo,
-94,King's College,NCAA D3,womens,Middle Atlantic Conference (Freedom),,,,,,,,,todo,
-94,Knox,NCAA D3,mens,MWC-D3,7.8,rated,,,,,,,todo,
-95,Knox College,NCAA D3,womens,Midwest Conference,7.8,rated,,,,,,,todo,
-95,La Roche,NCAA D3,mens,AMCC,6.5,division-modal,,,,,,,todo,
-95,La Roche University,NCAA D3,womens,Allegheny Mountain Collegiate Conference,6.5,division-modal,,,,,,,todo,
-95,LaGrange,NCAA D3,mens,SAA,6.5,division-modal,,,,,,,todo,
-95,LaGrange College,NCAA D3,womens,Collegiate Conference of the South,6.5,division-modal,,,,,,,todo,
-95,Lake Forest,NCAA D3,mens,MWC-D3,8.2,rated,,,,,,,todo,
-95,Lake Forest College,NCAA D3,womens,Midwest Conference,8.2,rated,,,,,,,todo,
-95,Lakeland,NCAA D3,mens,NACC,6.5,division-modal,,,,,,,todo,
-95,Lakeland University,NCAA D3,womens,Northern Athletics Collegiate Conference,6.5,division-modal,,,,,,,todo,
-95,Lancaster Bible,NCAA D3,mens,CSAC,5.7,rated,,,,,,,todo,
-96,Lancaster Bible College,NCAA D3,womens,United East Conference,5.7,rated,,,,,,,todo,
-96,Lasell,NCAA D3,mens+womens,CCC,6.5,division-modal,,,,,,,todo,
-96,Lawrence,NCAA D3,mens,MWC-D3,8.8,rated,,,,,,,todo,
-96,Lawrence University,NCAA D3,womens,Midwest Conference,8.8,rated,,,,,,,todo,
-96,Lebanon Valley,NCAA D3,mens,MAC Commonwealth,6.5,division-modal,,,,,,,todo,
-96,Lebanon Valley College,NCAA D3,womens,Middle Atlantic Conference (Freedom),6.5,division-modal,,,,,,,todo,
-96,Lesley,NCAA D3,mens,NECC,6.5,division-modal,,,,,,,todo,
-96,Lesley University,NCAA D3,womens,North Atlantic Conference,6.5,division-modal,,,,,,,todo,
-96,LeTourneau,NCAA D3,mens,ASC,6.5,division-modal,,,,,,,todo,
-96,LeTourneau University,NCAA D3,womens,Southern Collegiate Athletic Conference,6.5,division-modal,,,,,,,todo,
-97,Lewis & Clark,NCAA D3,mens,NWC,8.5,rated,,,,,,,todo,
-97,Lewis & Clark College,NCAA D3,womens,Northwest Conference,8.5,rated,,,,,,,todo,
-97,Linfield,NCAA D3,mens,NWC,7.8,rated,,,,,,,todo,
-97,Linfield University,NCAA D3,womens,Northwest Conference,7.8,rated,,,,,,,todo,
-97,Loras,NCAA D3,mens,Iowa Conference,6.5,division-modal,,,,,,,todo,
-97,Loras College,NCAA D3,womens,American Rivers Conference,6.5,division-modal,,,,,,,todo,
-97,Luther,NCAA D3,mens,Iowa Conference,8,rated,,,,,,,todo,
-97,Luther College,NCAA D3,womens,American Rivers Conference,8,rated,,,,,,,todo,
-97,Lycoming,NCAA D3,mens,MAC Freedom,6.5,division-modal,,,,,,,todo,
-97,Lycoming College,NCAA D3,womens,Landmark Conference,6.5,division-modal,,,,,,,todo,
-98,Lyon College,NCAA D3,mens+womens,ASC,6.6,rated,,,,,,,todo,
-98,Macalester,NCAA D3,mens,MIAC,9.8,rated,,,,,,,todo,
-98,Macalester College,NCAA D3,womens,Minnesota Intercollegiate Athletic Conference,9.8,rated,,,,,,,todo,
-98,Maine Maritime,NCAA D3,mens,NIAC,6.5,division-modal,,,,,,,todo,
-98,Maine Maritime Academy,NCAA D3,womens,North Atlantic Conference,6.5,division-modal,,,,,,,todo,
-98,Manchester,NCAA D3,mens,HCAC,6.5,division-modal,,,,,,,todo,
-98,Manchester University,NCAA D3,womens,Heartland Collegiate Athletic Conference,6.5,division-modal,,,,,,,todo,
-98,Manhattanville,NCAA D3,mens,Skyline,6.5,division-modal,,,,,,,todo,
-98,Manhattanville University,NCAA D3,womens,Skyline Conference,6.5,division-modal,,,,,,,todo,
-98,Maranatha Baptist University,NCAA D3,womens,Independent,,,,,,,,,todo,
-99,Marian (WI),NCAA D3,mens,NACC,6.5,division-modal,,,,,,,todo,
-99,Marian University (WI),NCAA D3,womens,Northern Athletics Collegiate Conference,6.5,division-modal,,,,,,,todo,
-99,Marietta,NCAA D3,mens,OAC,6.5,division-modal,,,,,,,todo,
-99,Marietta College,NCAA D3,womens,Ohio Athletic Conference,6.5,division-modal,,,,,,,todo,
-99,Martin Luther,NCAA D3,mens,UMAC,6.5,division-modal,,,,,,,todo,
-99,Martin Luther College,NCAA D3,womens,Upper Midwest Athletic Conference,6.5,division-modal,,,,,,,todo,
-99,Mary Baldwin,NCAA D3,mens,ODAC,6.5,division-modal,,,,,,,todo,
-99,Mary Baldwin University,NCAA D3,womens,USA South Athletic Conference,6.5,division-modal,,,,,,,todo,
-99,Marymount (VA),NCAA D3,mens,CSAC,6.5,division-modal,,,,,,,todo,
-99,Marymount University,NCAA D3,womens,Atlantic East Conference,,,,,,,,,todo,
-100,Maryville (TN),NCAA D3,mens,SAA,6.5,division-modal,,,,,,,todo,
-100,Maryville College,NCAA D3,womens,Collegiate Conference of the South,,,,,,,,,todo,
-100,Marywood,NCAA D3,mens,MAC Freedom,6.5,division-modal,,,,,,,todo,
-100,Marywood University,NCAA D3,womens,Atlantic East Conference,6.5,division-modal,,,,,,,todo,
-100,Massachusetts College of Liberal Arts,NCAA D3,mens+womens,MASCAC,6.6,rated,,,,,,,todo,
-100,Massachusetts Institute of Technology,NCAA D3,womens,New England Women's and Men's Athletic Conference,,,,,,,,,todo,
-100,Massachusetts Maritime,NCAA D3,mens,MASCAC,6.5,division-modal,,,,,,,todo,
-100,Massachusetts Maritime Academy,NCAA D3,womens,Massachusetts State Collegiate Athletic Conference,6.5,division-modal,,,,,,,todo,
-100,McDaniel,NCAA D3,mens,Centennial,6.5,division-modal,,,,,,,todo,
-100,McDaniel College,NCAA D3,womens,Centennial Conference,6.5,division-modal,,,,,,,todo,
-101,McMurry,NCAA D3,mens,ASC,6.5,division-modal,,,,,,,todo,
-101,McMurry University,NCAA D3,womens,Southern Collegiate Athletic Conference,6.5,division-modal,,,,,,,todo,
-101,Meredith College,NCAA D3,womens,USA South Athletic Conference,,,,,,,,,todo,
-101,Messiah,NCAA D3,mens,MAC Commonwealth,8,rated,,,,,,,todo,
-101,Messiah University,NCAA D3,womens,Middle Atlantic Conference (Commonwealth),8,rated,,,,,,,todo,
-101,Methodist,NCAA D3,mens,USA South,6.5,division-modal,,,,,,,todo,
-101,Methodist University,NCAA D3,womens,USA South Athletic Conference,6.5,division-modal,,,,,,,todo,
-101,Middlebury,NCAA D3,mens,NESCAC,10,rated,,,,,,,todo,
-101,Middlebury College,NCAA D3,womens,New England Small College Athletic Conference,10,rated,,,,,,,todo,
-101,Millikin,NCAA D3,mens,CCIW,6.5,division-modal,,,,,,,todo,
-102,Millikin University,NCAA D3,womens,College Conference of Illinois & Wisconsin,6.5,division-modal,,,,,,,todo,
-102,Millsaps,NCAA D3,mens,SAA,8,rated,,,,,,,todo,
-102,Millsaps College,NCAA D3,womens,Southern Athletic Association,8,rated,,,,,,,todo,
-102,Milwaukee School of Engineering,NCAA D3,womens,Northern Athletics Collegiate Conference,,,,,,,,,todo,
-102,Misericordia University,NCAA D3,womens,Middle Atlantic Conference (Freedom),,,,,,,,,todo,
-102,Mississippi University for Women,NCAA D3,womens,St. Louis Intercollegiate Athletic Conference,,,,,,,,,todo,
-102,MIT,NCAA D3,mens,NEWMAC,10,rated,,,,,,,todo,
-102,Mitchell,NCAA D3,womens,,6,placeholder,,,,,,,todo,
-102,Monmouth (IL),NCAA D3,mens,MWC-D3,6,rated,,,,,,,todo,
-102,Monmouth College,NCAA D3,womens,Midwest Conference,,,,,,,,,todo,
-103,Montclair State,NCAA D3,mens,NJAC,6.2,rated,,,,,,,todo,
-103,Montclair State University,NCAA D3,womens,New Jersey Athletic Conference,6.2,rated,,,,,,,todo,
-103,Moravian,NCAA D3,mens,MAC Freedom,6.5,division-modal,,,,,,,todo,
-103,Moravian University,NCAA D3,womens,Landmark Conference,6.5,division-modal,,,,,,,todo,
-103,Mount Aloysius College,NCAA D3,womens,Allegheny Mountain Collegiate Conference,,,,,,,,,todo,
-103,Mount Holyoke College,NCAA D3,womens,New England Women's and Men's Athletic Conference,,,,,,,,,todo,
-103,Mount Saint Mary College,NCAA D3,womens,Skyline Conference,,,,,,,,,todo,
-103,Mount St. Joseph,NCAA D3,mens,OAC,6.5,division-modal,,,,,,,todo,
+85,George Fox University,NCAA D3,womens,Northwest Conference,6.5,division-modal,George Fox University,283,National Universities,https://www.usnews.com/best-colleges/george-fox-university-3194,,,done,same school as the George Fox row
+85,Gettysburg,NCAA D3,mens,Centennial,8.8,rated,Gettysburg College,58,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/gettysburg-college-3268,,,done,
+86,Gettysburg College,NCAA D3,womens,Centennial Conference,8.8,rated,Gettysburg College,58,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/gettysburg-college-3268,,,done,same school as the Gettysburg row
+86,Gordon,NCAA D3,mens,CCC,6.5,division-modal,Gordon College,156,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/gordon-college-2153,,,done,
+86,Gordon College,NCAA D3,womens,Conference of New England,6.5,division-modal,Gordon College,156,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/gordon-college-2153,,,done,same school as the Gordon row
+86,Goucher,NCAA D3,mens,LANDMARK,6.5,division-modal,Goucher College,126,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/goucher-college-2073,,,done,
+86,Goucher College,NCAA D3,womens,Landmark Conference,6.5,division-modal,Goucher College,126,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/goucher-college-2073,,,done,same school as the Goucher row
+86,Grace Christian,NCAA D3,mens,NEAC,5.7,rated,Grace Christian University,53,Regional Colleges Midwest,https://www.usnews.com/best-colleges/grace-christian-university-2265,,,done,
+86,Greensboro,NCAA D3,mens,ODAC,6.5,division-modal,Greensboro College,99,Regional Universities South,https://www.usnews.com/best-colleges/greensboro-college-2930,,,done,Greensboro College; NOT UNC Greensboro
+86,Greensboro College,NCAA D3,womens,USA South Athletic Conference,6.5,division-modal,Greensboro College,99,Regional Universities South,https://www.usnews.com/best-colleges/greensboro-college-2930,,,done,same school as the Greensboro row
+86,Greenville,NCAA D3,mens,SLIAC,5.6,rated,Greenville University,105,Regional Universities Midwest,https://www.usnews.com/best-colleges/greenville-university-1684,,,done,Greenville IL; NOT North Greenville SC
+86,Greenville University,NCAA D3,womens,St. Louis Intercollegiate Athletic Conference,6.5,division-modal,Greenville University,105,Regional Universities Midwest,https://www.usnews.com/best-colleges/greenville-university-1684,,,done,same school as the Greenville row
+87,Grinnell,NCAA D3,mens,MWC-D3,10,rated,Grinnell College,13,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/grinnell-college-1868,,,done,
+87,Grinnell College,NCAA D3,womens,Midwest Conference,10,rated,Grinnell College,13,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/grinnell-college-1868,,,done,same school as the Grinnell row
+87,Grove City,NCAA D3,mens,PAC,8.8,rated,Grove City College,5,Regional Colleges North,https://www.usnews.com/best-colleges/grove-city-college-3269,,,done,
+87,Grove City College,NCAA D3,womens,Presidents' Athletic Conference,8.8,rated,Grove City College,5,Regional Colleges North,https://www.usnews.com/best-colleges/grove-city-college-3269,,,done,same school as the Grove City row
+87,Guilford,NCAA D3,mens,ODAC,6.5,division-modal,Guilford College,172,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/guilford-college-2931,,,done,
+87,Guilford College,NCAA D3,womens,Old Dominion Athletic Conference,6.5,division-modal,Guilford College,172,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/guilford-college-2931,,,done,same school as the Guilford row
+87,Gustavus Adolphus,NCAA D3,mens,MIAC,8,rated,Gustavus Adolphus College,70,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/gustavus-college-2353,,,done,
+87,Gustavus Adolphus College,NCAA D3,womens,Minnesota Intercollegiate Athletic Conference,8,rated,Gustavus Adolphus College,70,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/gustavus-college-2353,,,done,same school as the Gustavus Adolphus row
+87,Gwynedd Mercy,NCAA D3,mens,CSAC,6.5,division-modal,Gwynedd Mercy University,273,National Universities,https://www.usnews.com/best-colleges/gwynedd-mercy-university-3270,,,done,
+87,Gwynedd Mercy University,NCAA D3,womens,Atlantic East Conference,6.5,division-modal,Gwynedd Mercy University,273,National Universities,https://www.usnews.com/best-colleges/gwynedd-mercy-university-3270,,,done,same school as the Gwynedd Mercy row
+88,Hamilton,NCAA D3,mens,Liberty League,10,rated,Hamilton College,13,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hamilton-college-2728,,,done,
+88,Hamilton College,NCAA D3,womens,New England Small College Athletic Conference,10,rated,Hamilton College,13,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hamilton-college-2728,,,done,same school as the Hamilton row
+88,Hamline,NCAA D3,mens,MIAC,6.5,division-modal,Hamline University,22,Regional Universities Midwest,https://www.usnews.com/best-colleges/hamline-university-2354,,,done,
+88,Hamline University,NCAA D3,womens,Minnesota Intercollegiate Athletic Conference,6.5,division-modal,Hamline University,22,Regional Universities Midwest,https://www.usnews.com/best-colleges/hamline-university-2354,,,done,same school as the Hamline row
+88,Hampden-Sydney,NCAA D3,mens,ODAC,6.5,division-modal,Hampden-Sydney College,107,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hampden-sydney-3713,,,done,
+88,Hanover,NCAA D3,mens,HCAC,6.5,division-modal,Hanover College,115,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hanover-college-1801,,,done,
+88,Hanover College,NCAA D3,womens,Heartland Collegiate Athletic Conference,6.5,division-modal,Hanover College,115,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hanover-college-1801,,,done,same school as the Hanover row
+88,Hardin-Simmons,NCAA D3,mens,ASC,6.5,division-modal,Hardin-Simmons University,395-434,National Universities,https://www.usnews.com/best-colleges/hardinsimmons-university-3571,,,done,"Abilene TX; NOT Simmons University Boston, Harding AR or Mary Hardin-Baylor"
+88,Hardin-Simmons University,NCAA D3,womens,American Southwest Conference,6.5,division-modal,Hardin-Simmons University,395-434,National Universities,https://www.usnews.com/best-colleges/hardinsimmons-university-3571,,,done,same school as the Hardin-Simmons row
+88,Hartwick,NCAA D3,mens,Liberty League,6.5,division-modal,Hartwick College,151,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hartwick-college-2729,,,done,
+89,Hartwick College,NCAA D3,womens,Empire 8,6.5,division-modal,Hartwick College,151,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hartwick-college-2729,,,done,same school as the Hartwick row
+89,Harvey Mudd College,NCAA D3,womens,Southern California Intercollegiate Athletic Conference,,,Harvey Mudd College,10,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/harvey-mudd-college-1171,,,done,
+89,Haverford,NCAA D3,mens,Centennial,10,rated,Haverford College,24,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/haverford-college-3274,,,done,
+89,Haverford College,NCAA D3,womens,Centennial Conference,10,rated,Haverford College,24,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/haverford-college-3274,,,done,same school as the Haverford row
+89,Heidelberg,NCAA D3,mens,OAC,6.5,division-modal,Heidelberg University,71,Regional Universities Midwest,https://www.usnews.com/best-colleges/heidelberg-university-3048,,,done,Tiffin OH; not the German university of the same name
+89,Heidelberg University,NCAA D3,womens,Ohio Athletic Conference,6.5,division-modal,Heidelberg University,71,Regional Universities Midwest,https://www.usnews.com/best-colleges/heidelberg-university-3048,,,done,same school as the Heidelberg row
+89,Hendrix,NCAA D3,mens,ASC,6.5,division-modal,Hendrix College,96,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hendrix-college-1099,,,done,
+89,Hendrix College,NCAA D3,womens,Southern Collegiate Athletic Conference,6.5,division-modal,Hendrix College,96,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hendrix-college-1099,,,done,same school as the Hendrix row
+89,Hilbert,NCAA D3,mens,AMCC,6.5,division-modal,Hilbert College,31,Regional Colleges North,https://www.usnews.com/best-colleges/hilbert-college-2735,,,done,
+89,Hilbert College,NCAA D3,womens,Allegheny Mountain Collegiate Conference,6.5,division-modal,Hilbert College,31,Regional Colleges North,https://www.usnews.com/best-colleges/hilbert-college-2735,,,done,same school as the Hilbert row
+90,Hiram,NCAA D3,mens,PAC,6.5,division-modal,Hiram College,10,Regional Colleges Midwest,https://www.usnews.com/best-colleges/hiram-college-3049,,,done,
+90,Hiram College,NCAA D3,womens,Presidents' Athletic Conference,6.5,division-modal,Hiram College,10,Regional Colleges Midwest,https://www.usnews.com/best-colleges/hiram-college-3049,,,done,same school as the Hiram row
+90,Hobart & William Smith,NCAA D3,mens,Liberty League,8.8,rated,Hobart and William Smith Colleges,73,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hobart-and-william-smith-colleges-2731,,,done,
+90,Hobart and William Smith Colleges,NCAA D3,womens,Liberty League,10,rated,Hobart and William Smith Colleges,73,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hobart-and-william-smith-colleges-2731,,,done,same school as the Hobart & William Smith row
+90,Hollins University,NCAA D3,womens,Old Dominion Athletic Conference,,,Hollins University,135,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hollins-university-3715,,,done,
+90,Hood,NCAA D3,mens,Centennial,6.5,division-modal,Hood College,55,Regional Universities North,https://www.usnews.com/best-colleges/hood-college-2076,,,done,
+90,Hood College,NCAA D3,womens,Middle Atlantic Conference (Commonwealth),6.5,division-modal,Hood College,55,Regional Universities North,https://www.usnews.com/best-colleges/hood-college-2076,,,done,same school as the Hood row
+90,Hope,NCAA D3,mens,MIAA-D3,8.5,rated,Hope College,84,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hope-college-2273,,,done,
+90,Hope College,NCAA D3,womens,Michigan Intercollegiate Athletic Association,8.5,rated,Hope College,84,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/hope-college-2273,,,done,same school as the Hope row
+90,Houghton,NCAA D3,mens,Empire 8,6.5,division-modal,Houghton University,146,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/houghton-university-2734,,,done,Houghton NY; NOT Houghton MI (Michigan Tech)
+91,Houghton University,NCAA D3,womens,Empire 8,6.5,division-modal,Houghton University,146,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/houghton-university-2734,,,done,same school as the Houghton row
+91,Howard Payne,NCAA D3,mens,ASC,6.5,division-modal,Howard Payne University,21,Regional Colleges West,https://www.usnews.com/best-colleges/howard-payne-university-3575,,,done,
+91,Howard Payne University,NCAA D3,womens,American Southwest Conference,6.5,division-modal,Howard Payne University,21,Regional Colleges West,https://www.usnews.com/best-colleges/howard-payne-university-3575,,,done,same school as the Howard Payne row
+91,Huntingdon,NCAA D3,mens,SAA,6.5,division-modal,Huntingdon College,8,Regional Colleges South,https://www.usnews.com/best-colleges/huntingdon-college-1019,,,done,
+91,Huntingdon College,NCAA D3,womens,Collegiate Conference of the South,6.5,division-modal,Huntingdon College,8,Regional Colleges South,https://www.usnews.com/best-colleges/huntingdon-college-1019,,,done,same school as the Huntingdon row
+91,Husson,NCAA D3,mens,NAC,6.5,division-modal,Husson University,329,National Universities,https://www.usnews.com/best-colleges/husson-university-2043,,,done,
+91,Husson University,NCAA D3,womens,North Atlantic Conference,6.5,division-modal,Husson University,329,National Universities,https://www.usnews.com/best-colleges/husson-university-2043,,,done,same school as the Husson row
+91,Illinois College,NCAA D3,mens+womens,MWC-D3,6.6,rated,Illinois College,111,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/illinois-college-1688,,,done,
+91,Illinois Institute of Technology,NCAA D3,womens,Northern Athletics Collegiate Conference,,,Illinois Institute of Technology,117,National Universities,https://www.usnews.com/best-colleges/illinois-institute-of-technology-1691,,,done,
+91,Illinois Tech,NCAA D3,mens,NACC,8.8,rated,Illinois Institute of Technology,117,National Universities,https://www.usnews.com/best-colleges/illinois-institute-of-technology-1691,,,done,same school as the Illinois Institute of Technology row
+92,Illinois Wesleyan,NCAA D3,mens,CCIW,8.5,rated,Illinois Wesleyan University,2,Regional Colleges Midwest,https://www.usnews.com/best-colleges/illinois-wesleyan-university-1696,,,done,
+92,Illinois Wesleyan University,NCAA D3,womens,College Conference of Illinois & Wisconsin,8.5,rated,Illinois Wesleyan University,2,Regional Colleges Midwest,https://www.usnews.com/best-colleges/illinois-wesleyan-university-1696,,,done,same school as the Illinois Wesleyan row
+92,Immaculata,NCAA D3,mens,CSAC,6.5,division-modal,Immaculata University,301,National Universities,https://www.usnews.com/best-colleges/immaculata-university-3276,,,done,
+92,Immaculata University,NCAA D3,womens,Atlantic East Conference,6.5,division-modal,Immaculata University,301,National Universities,https://www.usnews.com/best-colleges/immaculata-university-3276,,,done,same school as the Immaculata row
+92,Ithaca,NCAA D3,mens,Liberty League,8.2,rated,Ithaca College,13,Regional Universities North,https://www.usnews.com/best-colleges/ithaca-college-2739,,,done,"Ithaca College; NOT Cornell University, also in Ithaca"
+92,Ithaca College,NCAA D3,womens,Liberty League,8.2,rated,Ithaca College,13,Regional Universities North,https://www.usnews.com/best-colleges/ithaca-college-2739,,,done,same school as the Ithaca row
+92,John Carroll,NCAA D3,mens,OAC,8,rated,John Carroll University,2,Regional Universities Midwest,https://www.usnews.com/best-colleges/john-carroll-university-3050,,,done,University Heights OH; NOT Carroll University WI or Carroll College MT
+92,John Carroll University,NCAA D3,womens,North Coast Athletic Conference,8,rated,John Carroll University,2,Regional Universities Midwest,https://www.usnews.com/best-colleges/john-carroll-university-3050,,,done,same school as the John Carroll row
+92,Johns Hopkins,NCAA D3,mens,Centennial,10,rated,Johns Hopkins University,7,National Universities,https://www.usnews.com/best-colleges/jhu-2077,,,done,Baltimore MD; NOT any St. John's
+92,Johns Hopkins University,NCAA D3,womens,Centennial Conference,10,rated,Johns Hopkins University,7,National Universities,https://www.usnews.com/best-colleges/jhu-2077,,,done,same school as the Johns Hopkins row
+93,Johnson & Wales (Charlotte),NCAA D3,mens,SAA,6.5,division-modal,Johnson & Wales University--Charlotte,33,Regional Colleges South,https://www.usnews.com/best-colleges/johnson--wales-university-charlotte-108847,,,done,Charlotte NC campus; NOT Providence
+93,Johnson & Wales (Providence),NCAA D3,mens,CCC,6.5,division-modal,Johnson & Wales University--Providence,84,Regional Universities North,https://www.usnews.com/best-colleges/johnson--wales-university-providence-3404,,,done,Providence RI campus; NOT Charlotte
+93,Johnson & Wales University-Charlotte,NCAA D3,womens,Coast-to-Coast Athletic Conference,,,Johnson & Wales University--Charlotte,33,Regional Colleges South,https://www.usnews.com/best-colleges/johnson--wales-university-charlotte-108847,,,done,same school as the Johnson & Wales (Charlotte) row
+93,Johnson & Wales University-Providence,NCAA D3,womens,Conference of New England,,,Johnson & Wales University--Providence,84,Regional Universities North,https://www.usnews.com/best-colleges/johnson--wales-university-providence-3404,,,done,same school as the Johnson & Wales (Providence) row
+93,Juniata,NCAA D3,mens,Landmark,8,rated,Juniata College,92,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/juniata-college-3279,,,done,
+93,Juniata College,NCAA D3,womens,Landmark Conference,8,rated,Juniata College,92,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/juniata-college-3279,,,done,same school as the Juniata row
+93,Kalamazoo,NCAA D3,mens,MIAA-D3,8.2,rated,Kalamazoo College,67,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/kalamazoo-college-2275,,,done,
+93,Kalamazoo College,NCAA D3,womens,Michigan Intercollegiate Athletic Association,8.2,rated,Kalamazoo College,67,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/kalamazoo-college-2275,,,done,same school as the Kalamazoo row
+93,Kean,NCAA D3,mens,NJAC,6.5,division-modal,Kean University,318,National Universities,https://www.usnews.com/best-colleges/kean-university-2622,,,done,
+93,Kean University,NCAA D3,womens,New Jersey Athletic Conference,6.5,division-modal,Kean University,318,National Universities,https://www.usnews.com/best-colleges/kean-university-2622,,,done,same school as the Kean row
+94,Keene State,NCAA D3,mens,LEC,6.2,rated,Keene State College,9,Regional Colleges North,https://www.usnews.com/best-colleges/keene-state-college-2590,,,done,
+94,Kenyon,NCAA D3,mens,NCAC,9.5,rated,Kenyon College,45,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/kenyon-college-3065,,,done,
+94,Kenyon College,NCAA D3,womens,North Coast Athletic Conference,9.5,rated,Kenyon College,45,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/kenyon-college-3065,,,done,same school as the Kenyon row
+94,Keuka,NCAA D3,mens,NEAC,6.5,division-modal,Keuka College,128,Regional Universities North,https://www.usnews.com/best-colleges/keuka-college-2744,,,done,
+94,Keuka College,NCAA D3,womens,Empire 8,6.5,division-modal,Keuka College,128,Regional Universities North,https://www.usnews.com/best-colleges/keuka-college-2744,,,done,same school as the Keuka row
+94,Keystone,NCAA D3,mens,NEAC,6.5,division-modal,Keystone College,51-56,Regional Colleges North,https://www.usnews.com/best-colleges/keystone-college-3280,,,done,
+94,Keystone College,NCAA D3,womens,United East Conference,6.5,division-modal,Keystone College,51-56,Regional Colleges North,https://www.usnews.com/best-colleges/keystone-college-3280,,,done,same school as the Keystone row
+94,King's (PA),NCAA D3,mens,MAC Freedom,6.5,division-modal,King's College,112,Regional Universities North,https://www.usnews.com/best-colleges/kings-college-pennsylvania-3282,,,done,Wilkes-Barre PA; NOT King University TN
+94,King's College,NCAA D3,womens,Middle Atlantic Conference (Freedom),,,King's College,112,Regional Universities North,https://www.usnews.com/best-colleges/kings-college-pennsylvania-3282,,,done,same school as the King's (PA) row
+94,Knox,NCAA D3,mens,MWC-D3,7.8,rated,Knox College,76,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/knox-college-1704,,,done,
+95,Knox College,NCAA D3,womens,Midwest Conference,7.8,rated,Knox College,76,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/knox-college-1704,,,done,same school as the Knox row
+95,La Roche,NCAA D3,mens,AMCC,6.5,division-modal,La Roche University,116,Regional Universities North,https://www.usnews.com/best-colleges/la-roche-university-3987,,,done,
+95,La Roche University,NCAA D3,womens,Allegheny Mountain Collegiate Conference,6.5,division-modal,La Roche University,116,Regional Universities North,https://www.usnews.com/best-colleges/la-roche-university-3987,,,done,same school as the La Roche row
+95,LaGrange,NCAA D3,mens,SAA,6.5,division-modal,LaGrange College,9,Regional Colleges South,https://www.usnews.com/best-colleges/lagrange-college-1578,,,done,
+95,LaGrange College,NCAA D3,womens,Collegiate Conference of the South,6.5,division-modal,LaGrange College,9,Regional Colleges South,https://www.usnews.com/best-colleges/lagrange-college-1578,,,done,same school as the LaGrange row
+95,Lake Forest,NCAA D3,mens,MWC-D3,8.2,rated,Lake Forest College,75,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/lake-forest-college-1706,,,done,
+95,Lake Forest College,NCAA D3,womens,Midwest Conference,8.2,rated,Lake Forest College,75,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/lake-forest-college-1706,,,done,same school as the Lake Forest row
+95,Lakeland,NCAA D3,mens,NACC,6.5,division-modal,Lakeland University,112,Regional Universities Midwest,https://www.usnews.com/best-colleges/lakeland-university-3854,,,done,Plymouth WI; NOT Lakeland Community College OH
+95,Lakeland University,NCAA D3,womens,Northern Athletics Collegiate Conference,6.5,division-modal,Lakeland University,112,Regional Universities Midwest,https://www.usnews.com/best-colleges/lakeland-university-3854,,,done,same school as the Lakeland row
+95,Lancaster Bible,NCAA D3,mens,CSAC,5.7,rated,Lancaster Bible College,146,Regional Universities North,https://www.usnews.com/best-colleges/lancaster-bible-college-3285,,,done,
+96,Lancaster Bible College,NCAA D3,womens,United East Conference,5.7,rated,Lancaster Bible College,146,Regional Universities North,https://www.usnews.com/best-colleges/lancaster-bible-college-3285,,,done,same school as the Lancaster Bible row
+96,Lasell,NCAA D3,mens+womens,CCC,6.5,division-modal,Lasell University,116,Regional Universities North,https://www.usnews.com/best-colleges/lasell-university-2158,,,done,
+96,Lawrence,NCAA D3,mens,MWC-D3,8.8,rated,Lawrence University,65,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/lawrence-university-3856,,,done,Appleton WI; NOT Sarah Lawrence
+96,Lawrence University,NCAA D3,womens,Midwest Conference,8.8,rated,Lawrence University,65,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/lawrence-university-3856,,,done,same school as the Lawrence row
+96,Lebanon Valley,NCAA D3,mens,MAC Commonwealth,6.5,division-modal,Lebanon Valley College,76,Regional Universities North,https://www.usnews.com/best-colleges/lebanon-valley-college-3288,,,done,
+96,Lebanon Valley College,NCAA D3,womens,Middle Atlantic Conference (Freedom),6.5,division-modal,Lebanon Valley College,76,Regional Universities North,https://www.usnews.com/best-colleges/lebanon-valley-college-3288,,,done,same school as the Lebanon Valley row
+96,Lesley,NCAA D3,mens,NECC,6.5,division-modal,Lesley University,301,National Universities,https://www.usnews.com/best-colleges/lesley-university-2160,,,done,
+96,Lesley University,NCAA D3,womens,North Atlantic Conference,6.5,division-modal,Lesley University,301,National Universities,https://www.usnews.com/best-colleges/lesley-university-2160,,,done,same school as the Lesley row
+96,LeTourneau,NCAA D3,mens,ASC,6.5,division-modal,LeTourneau University,36,Regional Universities West,https://www.usnews.com/best-colleges/letourneau-university-3584,,,done,
+96,LeTourneau University,NCAA D3,womens,Southern Collegiate Athletic Conference,6.5,division-modal,LeTourneau University,36,Regional Universities West,https://www.usnews.com/best-colleges/letourneau-university-3584,,,done,same school as the LeTourneau row
+97,Lewis & Clark,NCAA D3,mens,NWC,8.5,rated,Lewis & Clark College,96,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/lewis--clark-college-3197,,,done,Portland OR; NOT Lewis University IL or Clark University MA
+97,Lewis & Clark College,NCAA D3,womens,Northwest Conference,8.5,rated,Lewis & Clark College,96,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/lewis--clark-college-3197,,,done,same school as the Lewis & Clark row
+97,Linfield,NCAA D3,mens,NWC,7.8,rated,Linfield University,111,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/linfield-university-3198,,,done,
+97,Linfield University,NCAA D3,womens,Northwest Conference,7.8,rated,Linfield University,111,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/linfield-university-3198,,,done,same school as the Linfield row
+97,Loras,NCAA D3,mens,Iowa Conference,6.5,division-modal,Loras College,8,Regional Colleges Midwest,https://www.usnews.com/best-colleges/loras-college-1873,,,done,
+97,Loras College,NCAA D3,womens,American Rivers Conference,6.5,division-modal,Loras College,8,Regional Colleges Midwest,https://www.usnews.com/best-colleges/loras-college-1873,,,done,same school as the Loras row
+97,Luther,NCAA D3,mens,Iowa Conference,8,rated,Luther College,111,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/luther-college-1874,,,done,
+97,Luther College,NCAA D3,womens,American Rivers Conference,8,rated,Luther College,111,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/luther-college-1874,,,done,same school as the Luther row
+97,Lycoming,NCAA D3,mens,MAC Freedom,6.5,division-modal,Lycoming College,96,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/lycoming-college-3293,,,done,
+97,Lycoming College,NCAA D3,womens,Landmark Conference,6.5,division-modal,Lycoming College,96,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/lycoming-college-3293,,,done,same school as the Lycoming row
+98,Lyon College,NCAA D3,mens+womens,ASC,6.6,rated,Lyon College,167,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/lyon-college-1088,,,done,
+98,Macalester,NCAA D3,mens,MIAC,9.8,rated,Macalester College,28,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/macalester-college-2358,,,done,
+98,Macalester College,NCAA D3,womens,Minnesota Intercollegiate Athletic Conference,9.8,rated,Macalester College,28,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/macalester-college-2358,,,done,same school as the Macalester row
+98,Maine Maritime,NCAA D3,mens,NIAC,6.5,division-modal,Maine Maritime Academy,7,Regional Colleges North,https://www.usnews.com/best-colleges/maine-maritime-academy-2044,,,done,
+98,Maine Maritime Academy,NCAA D3,womens,North Atlantic Conference,6.5,division-modal,Maine Maritime Academy,7,Regional Colleges North,https://www.usnews.com/best-colleges/maine-maritime-academy-2044,,,done,same school as the Maine Maritime row
+98,Manchester,NCAA D3,mens,HCAC,6.5,division-modal,Manchester University,84,Regional Universities Midwest,https://www.usnews.com/best-colleges/manchester-university-1820,,,done,North Manchester IN; not the UK university
+98,Manchester University,NCAA D3,womens,Heartland Collegiate Athletic Conference,6.5,division-modal,Manchester University,84,Regional Universities Midwest,https://www.usnews.com/best-colleges/manchester-university-1820,,,done,same school as the Manchester row
+98,Manhattanville,NCAA D3,mens,Skyline,6.5,division-modal,Manhattanville University,84,Regional Universities North,https://www.usnews.com/best-colleges/manhattanville-university-2760,,,done,Purchase NY; NOT Manhattan University Riverdale
+98,Manhattanville University,NCAA D3,womens,Skyline Conference,6.5,division-modal,Manhattanville University,84,Regional Universities North,https://www.usnews.com/best-colleges/manhattanville-university-2760,,,done,same school as the Manhattanville row
+98,Maranatha Baptist University,NCAA D3,womens,Independent,,,Maranatha Baptist University,120,Regional Universities Midwest,https://www.usnews.com/best-colleges/maranatha-baptist-university-23172,,,done,
+99,Marian (WI),NCAA D3,mens,NACC,6.5,division-modal,Marian University,110,Regional Universities Midwest,https://www.usnews.com/best-colleges/marian-university-3861,,,done,Fond du Lac WI; NOT Marian University Indianapolis
+99,Marian University (WI),NCAA D3,womens,Northern Athletics Collegiate Conference,6.5,division-modal,Marian University,110,Regional Universities Midwest,https://www.usnews.com/best-colleges/marian-university-3861,,,done,same school as the Marian (WI) row
+99,Marietta,NCAA D3,mens,OAC,6.5,division-modal,Marietta College,15,Regional Colleges Midwest,https://www.usnews.com/best-colleges/marietta-college-3073,,,done,
+99,Marietta College,NCAA D3,womens,Ohio Athletic Conference,6.5,division-modal,Marietta College,15,Regional Colleges Midwest,https://www.usnews.com/best-colleges/marietta-college-3073,,,done,same school as the Marietta row
+99,Martin Luther,NCAA D3,mens,UMAC,6.5,division-modal,Martin Luther College,,Miscellaneous Schools,https://www.usnews.com/best-colleges/martin-luther-college-2361,,,unranked,US News files it under Miscellaneous Schools with no rank
+99,Martin Luther College,NCAA D3,womens,Upper Midwest Athletic Conference,6.5,division-modal,Martin Luther College,,Miscellaneous Schools,https://www.usnews.com/best-colleges/martin-luther-college-2361,,,unranked,same school as the Martin Luther row
+99,Mary Baldwin,NCAA D3,mens,ODAC,6.5,division-modal,Mary Baldwin University,384,National Universities,https://www.usnews.com/best-colleges/mary-baldwin-university-3723,,,done,
+99,Mary Baldwin University,NCAA D3,womens,USA South Athletic Conference,6.5,division-modal,Mary Baldwin University,384,National Universities,https://www.usnews.com/best-colleges/mary-baldwin-university-3723,,,done,same school as the Mary Baldwin row
+99,Marymount (VA),NCAA D3,mens,CSAC,6.5,division-modal,Marymount University,273,National Universities,https://www.usnews.com/best-colleges/marymount-university-3724,,,done,Arlington VA; NOT Loyola Marymount or Marymount Manhattan
+99,Marymount University,NCAA D3,womens,Atlantic East Conference,,,Marymount University,273,National Universities,https://www.usnews.com/best-colleges/marymount-university-3724,,,done,same school as the Marymount (VA) row
+100,Maryville (TN),NCAA D3,mens,SAA,6.5,division-modal,Maryville College,170,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/maryville-college-3505,,,done,Maryville TN; NOT Maryville University of St. Louis
+100,Maryville College,NCAA D3,womens,Collegiate Conference of the South,,,Maryville College,170,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/maryville-college-3505,,,done,same school as the Maryville (TN) row
+100,Marywood,NCAA D3,mens,MAC Freedom,6.5,division-modal,Marywood University,61,Regional Universities North,https://www.usnews.com/best-colleges/marywood-university-3296,,,done,
+100,Marywood University,NCAA D3,womens,Atlantic East Conference,6.5,division-modal,Marywood University,61,Regional Universities North,https://www.usnews.com/best-colleges/marywood-university-3296,,,done,same school as the Marywood row
+100,Massachusetts College of Liberal Arts,NCAA D3,mens+womens,MASCAC,6.6,rated,Massachusetts College of Liberal Arts,115,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/mcla-2187,,,done,
+100,Massachusetts Institute of Technology,NCAA D3,womens,New England Women's and Men's Athletic Conference,,,Massachusetts Institute of Technology,2,National Universities,https://www.usnews.com/best-colleges/massachusetts-institute-of-technology-2178,,,done,
+100,Massachusetts Maritime,NCAA D3,mens,MASCAC,6.5,division-modal,Massachusetts Maritime Academy,11,Regional Universities North,https://www.usnews.com/best-colleges/massachusetts-maritime-academy-2181,,,done,
+100,Massachusetts Maritime Academy,NCAA D3,womens,Massachusetts State Collegiate Athletic Conference,6.5,division-modal,Massachusetts Maritime Academy,11,Regional Universities North,https://www.usnews.com/best-colleges/massachusetts-maritime-academy-2181,,,done,same school as the Massachusetts Maritime row
+100,McDaniel,NCAA D3,mens,Centennial,6.5,division-modal,McDaniel College,72,Regional Universities North,https://www.usnews.com/best-colleges/mcdaniel-college-2109,,,done,
+100,McDaniel College,NCAA D3,womens,Centennial Conference,6.5,division-modal,McDaniel College,72,Regional Universities North,https://www.usnews.com/best-colleges/mcdaniel-college-2109,,,done,same school as the McDaniel row
+101,McMurry,NCAA D3,mens,ASC,6.5,division-modal,McMurry University,15,Regional Colleges West,https://www.usnews.com/best-colleges/mcmurry-university-3591,,,done,
+101,McMurry University,NCAA D3,womens,Southern Collegiate Athletic Conference,6.5,division-modal,McMurry University,15,Regional Colleges West,https://www.usnews.com/best-colleges/mcmurry-university-3591,,,done,same school as the McMurry row
+101,Meredith College,NCAA D3,womens,USA South Athletic Conference,,,Meredith College,115,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/meredith-college-2945,,,done,
+101,Messiah,NCAA D3,mens,MAC Commonwealth,8,rated,Messiah University,45,Regional Universities North,https://www.usnews.com/best-colleges/messiah-university-3298,,,done,
+101,Messiah University,NCAA D3,womens,Middle Atlantic Conference (Commonwealth),8,rated,Messiah University,45,Regional Universities North,https://www.usnews.com/best-colleges/messiah-university-3298,,,done,same school as the Messiah row
+101,Methodist,NCAA D3,mens,USA South,6.5,division-modal,Methodist University,90,Regional Universities South,https://www.usnews.com/best-colleges/methodist-university-2946,,,done,Fayetteville NC; NOT Methodist College Peoria IL
+101,Methodist University,NCAA D3,womens,USA South Athletic Conference,6.5,division-modal,Methodist University,90,Regional Universities South,https://www.usnews.com/best-colleges/methodist-university-2946,,,done,same school as the Methodist row
+101,Middlebury,NCAA D3,mens,NESCAC,10,rated,Middlebury College,13,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/middlebury-college-3691,,,done,
+101,Middlebury College,NCAA D3,womens,New England Small College Athletic Conference,10,rated,Middlebury College,13,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/middlebury-college-3691,,,done,same school as the Middlebury row
+101,Millikin,NCAA D3,mens,CCIW,6.5,division-modal,Millikin University,15,Regional Colleges Midwest,https://www.usnews.com/best-colleges/millikin-university-1724,,,done,
+102,Millikin University,NCAA D3,womens,College Conference of Illinois & Wisconsin,6.5,division-modal,Millikin University,15,Regional Colleges Midwest,https://www.usnews.com/best-colleges/millikin-university-1724,,,done,same school as the Millikin row
+102,Millsaps,NCAA D3,mens,SAA,8,rated,Millsaps College,146,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/millsaps-college-2414,,,done,
+102,Millsaps College,NCAA D3,womens,Southern Athletic Association,8,rated,Millsaps College,146,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/millsaps-college-2414,,,done,same school as the Millsaps row
+102,Milwaukee School of Engineering,NCAA D3,womens,Northern Athletics Collegiate Conference,,,Milwaukee School of Engineering,2,Regional Universities Midwest,https://www.usnews.com/best-colleges/milwaukee-school-of-engineering-3868,,,done,MSOE; NOT UW-Milwaukee
+102,Misericordia University,NCAA D3,womens,Middle Atlantic Conference (Freedom),,,Misericordia University,273,National Universities,https://www.usnews.com/best-colleges/misericordia-university-3247,,,done,
+102,Mississippi University for Women,NCAA D3,womens,St. Louis Intercollegiate Athletic Conference,,,Mississippi University for Women,33,Regional Universities South,https://www.usnews.com/best-colleges/mississippi-women-2422,,,done,
+102,MIT,NCAA D3,mens,NEWMAC,10,rated,Massachusetts Institute of Technology,2,National Universities,https://www.usnews.com/best-colleges/massachusetts-institute-of-technology-2178,,,done,same school as the Massachusetts Institute of Technology row
+102,Mitchell,NCAA D3,womens,,6,placeholder,Mitchell College,34,Regional Colleges North,https://www.usnews.com/best-colleges/mitchell-college-1393,,,done,
+102,Monmouth (IL),NCAA D3,mens,MWC-D3,6,rated,Monmouth College,154,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/monmouth-college-1725,,,done,Monmouth IL; NOT Monmouth University NJ
+102,Monmouth College,NCAA D3,womens,Midwest Conference,,,Monmouth College,154,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/monmouth-college-1725,,,done,same school as the Monmouth (IL) row
+103,Montclair State,NCAA D3,mens,NJAC,6.2,rated,Montclair State University,158,National Universities,https://www.usnews.com/best-colleges/montclair-state-university-2617,,,done,
+103,Montclair State University,NCAA D3,womens,New Jersey Athletic Conference,6.2,rated,Montclair State University,158,National Universities,https://www.usnews.com/best-colleges/montclair-state-university-2617,,,done,same school as the Montclair State row
+103,Moravian,NCAA D3,mens,MAC Freedom,6.5,division-modal,Moravian University,38,Regional Universities North,https://www.usnews.com/best-colleges/moravian-university-3301,,,done,
+103,Moravian University,NCAA D3,womens,Landmark Conference,6.5,division-modal,Moravian University,38,Regional Universities North,https://www.usnews.com/best-colleges/moravian-university-3301,,,done,same school as the Moravian row
+103,Mount Aloysius College,NCAA D3,womens,Allegheny Mountain Collegiate Conference,,,Mount Aloysius College,28,Regional Colleges North,https://www.usnews.com/best-colleges/mount-aloysius-college-3302,,,done,
+103,Mount Holyoke College,NCAA D3,womens,New England Women's and Men's Athletic Conference,,,Mount Holyoke College,29,National Liberal Arts Colleges,https://www.usnews.com/best-colleges/mount-holyoke-college-2192,,,done,
+103,Mount Saint Mary College,NCAA D3,womens,Skyline Conference,,,Mount Saint Mary College,72,Regional Universities North,https://www.usnews.com/best-colleges/mount-st-mary-college-2778,,,done,"Newburgh NY, Skyline; NOT Mount Saint Mary's University LA or Mount St. Mary's Emmitsburg MD"
+103,Mount St. Joseph,NCAA D3,mens,OAC,6.5,division-modal,Mount St. Joseph University,343,National Universities,https://www.usnews.com/best-colleges/mount-st-joseph-university-3033,,,done,
 103,Mount St. Joseph University,NCAA D3,womens,Heartland Collegiate Athletic Conference,6.5,division-modal,,,,,,,todo,
 103,Mount Union,NCAA D3,mens,OAC,6.5,division-modal,,,,,,,todo,
 104,Muhlenberg,NCAA D3,mens,Centennial,8.8,rated,,,,,,,todo,
