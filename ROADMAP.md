@@ -426,6 +426,24 @@ then 2023 and 2022. Not to be picked up here.
       Northwestern University's score. 271 of 1,018 ratings move by more than
       2 points, 26 by more than 4.
 
+      **Loaded into the database 2026-08-25.** `node
+      server/scripts/loadAcademicRatings.js --apply` wrote 1,757 rows —
+      318 of them a first rating — matching exactly on `(name, sport)` and
+      nothing else, because every corruption this column has suffered came
+      from a matcher willing to guess. **All 1,762 NCAA D1/D2/D3 rows are now
+      rated**, source `scorecard-v1`; five are deliberately untouched (Simon
+      Fraser twice, three inactive placeholders). Divisional means come out
+      D1 6.18, D3 5.95, D2 4.03 — the D1/D3 pattern that was assumed is real,
+      and D2 sits well below both.
+- [ ] **Rate NAIA and NJCAA the same way.** Out of scope for the NCAA
+      collection and now the most visible gap: 230 NAIA rows have no rating at
+      all, and the three highest academic scores in the whole product are
+      wrong-school matches left over from the old column — **Columbia College
+      Missouri carries 10.0**, which is Columbia University's score, and
+      Lewis-Clark State (ID) carries Lewis & Clark College (OR)'s 8.5. The fix
+      is cheap: Scorecard covers all 616 of these institutions, so the same
+      pipeline runs unchanged once a crosswalk is built.
+
 - [x] **The 9 schools outside the US News taxonomy are solved by the same
       change.** They never needed a category: Rose-Hulman scores 8.8 on SAT
       1427 and a 78% graduation rate, Babson 9.1, Pratt 7.2, Menlo 4.6. Only
