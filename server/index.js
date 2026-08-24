@@ -10,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 import { Player } from './db/entities/player.js';
 import { College } from './db/entities/college.js';
 import { GraduatingSenior } from './db/entities/graduatingSenior.js';
+import { RosterPlayer } from './db/entities/rosterPlayer.js';
 
 import { seedD1Schools } from './routes/seedD1Schools.js';
 import { importSoccerScores } from './routes/importSoccerScores.js';
@@ -50,6 +51,7 @@ const ENTITIES = {
   players: Player,
   colleges: College,
   graduating_seniors: GraduatingSenior,
+  roster_players: RosterPlayer,
 };
 
 function parseQuery(reqQuery) {

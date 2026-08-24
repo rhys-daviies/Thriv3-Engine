@@ -48,7 +48,38 @@ CREATE TABLE IF NOT EXISTS colleges (
   soccer_score REAL,
   national_ranking INTEGER,
   website_domain TEXT,
-  sport TEXT DEFAULT 'mens-soccer'
+  sport TEXT DEFAULT 'mens-soccer',
+
+  -- False for a program confirmed closed, not sponsoring this sport, or not
+  -- yet/no-longer eligible for its listed division (see the audit trail in
+  -- Thriv3/Soccer Records/removed_inactive_2025.json). The row and any
+  -- coaching contacts on it persist regardless -- this only flags it out of
+  -- recruiting-eligible matching/scoring, it does not delete anything.
+  active INTEGER DEFAULT 1,
+
+  -- Visual identity, for individualising outreach emails (brief: "grow how
+  -- much this database can individualise emails" -- starting with the
+  -- athletic department's visual identity). Sourced from Wikipedia infobox
+  -- data; see server/scripts/populateSchoolIdentity.js.
+  nickname TEXT,
+  nickname_plural INTEGER,
+  mascot TEXT,
+  primary_color TEXT,
+  secondary_color TEXT,
+  logo_url TEXT,
+  identity_source TEXT,
+  identity_notes TEXT,
+
+  -- 2025 conference champion, for outreach emails ("congratulations on
+  -- winning the ACC last year"). conference_champion_name is stored
+  -- independently of `conference` above because that field can be stale
+  -- after realignment (e.g. Grand Canyon's 2025 automatic bid was via the
+  -- WAC even though this row's `conference` still says Mountain West) --
+  -- the champion sentence must stay correct even when that drifts.
+  conference_champion_2025 INTEGER,
+  conference_champion_name TEXT,
+  conference_champion_source TEXT,
+  conference_champion_notes TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_colleges_sport ON colleges(sport);
@@ -76,6 +107,44 @@ CREATE TABLE IF NOT EXISTS graduating_seniors (
 
 CREATE INDEX IF NOT EXISTS idx_gradsen_sport ON graduating_seniors(sport);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_gradsen_college_season_sport ON graduating_seniors(college_name, season, sport);
+
+-- Per-player roster rows — the 2025 rebuild. One row per rostered athlete
+-- (not just graduating seniors), each tagged with their own estimated
+-- graduation year, so the Graduating Database can browse
+-- sport -> estimated_graduation_year -> division -> school -> player and
+-- matching can target a recruit's actual incoming class year instead of
+-- "whoever happens to be a senior this season". Supersedes graduating_seniors
+-- for any sport it has rows for; sports without rows keep reading the old
+-- table untouched (see GraduatingDatabase.jsx).
+CREATE TABLE IF NOT EXISTS roster_players (
+  id TEXT PRIMARY KEY,
+  created_date TEXT NOT NULL,
+  updated_date TEXT NOT NULL,
+  created_by_id TEXT,
+
+  college_name TEXT NOT NULL,
+  sport TEXT NOT NULL DEFAULT 'mens-soccer',
+  division TEXT NOT NULL,
+  season TEXT NOT NULL,
+  conference TEXT,
+  player_name TEXT NOT NULL,
+  class_year_label TEXT,
+  position TEXT DEFAULT 'UNKNOWN',
+  minutes_played INTEGER DEFAULT 0,
+  games_played INTEGER,
+  games_started INTEGER,
+  estimated_graduation_year INTEGER,
+  nationality TEXT,
+  hometown TEXT,
+  country TEXT,
+  source_stats_url TEXT,
+  source_roster_url TEXT,
+  data_confidence TEXT DEFAULT 'medium',
+  notes TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_roster_sport_year_division ON roster_players(sport, estimated_graduation_year, division);
+CREATE INDEX IF NOT EXISTS idx_roster_college ON roster_players(college_name);
 
 -- ===========================================================================
 -- Coach engagement tracking (brief §7, translated to SQLite / D1)

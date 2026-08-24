@@ -55,6 +55,7 @@ export const entities = {
   Player: makeEntity('players'),
   College: makeEntity('colleges'),
   GraduatingSenior: makeEntity('graduating_seniors'),
+  RosterPlayer: makeEntity('roster_players'),
 };
 
 export const publishing = {
