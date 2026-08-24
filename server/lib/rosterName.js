@@ -82,13 +82,28 @@ export function cleanRosterName(value) {
   }
 
   // "Trevor Rau Trevor Rau" — two identical halves, so keep one.
-  const parts = name.split(' ');
+  let parts = name.split(' ');
   if (parts.length >= 4 && parts.length % 2 === 0) {
     const half = parts.length / 2;
     if (parts.slice(0, half).join(' ') === parts.slice(half).join(' ')) {
-      name = parts.slice(0, half).join(' ');
+      parts = parts.slice(0, half);
     }
   }
+
+  // "Allison Dobbins Dobbins" — the surname printed twice, which is a
+  // different shape from the whole name printed twice and slips past the
+  // check above whenever the word count is odd. It cost Luther College's
+  // women a retention score of 0%: not one of their 28 returning players
+  // matched, because every 2025 surname had been doubled.
+  //
+  // A leading duplicate is only collapsed when a trailing one is there too
+  // ("Abbigail Abbigail Johnson Johnson"). On its own it is more likely a real
+  // name — Bushnell has a Jay Jay Van Der Velde, and he keeps both his Jays.
+  const trailingDup = parts.length >= 3 && parts[parts.length - 1] === parts[parts.length - 2];
+  const leadingDup = parts.length >= 3 && parts[0] === parts[1];
+  if (trailingDup) parts = parts.slice(0, -1);
+  if (trailingDup && leadingDup) parts = parts.slice(1);
+  name = parts.join(' ');
 
   return name;
 }

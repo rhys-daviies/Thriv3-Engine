@@ -6,7 +6,7 @@ the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
 Last audited: 2026-08-24, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 292 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 296 tests green). Coverage numbers below were
 re-run, not copied; two moved and are corrected in place.
 
 ---
@@ -159,10 +159,38 @@ two of them are a different job than the count suggests.
       not a column. Needs persisting per programme-season, exposing on the
       match card, and pairing with its own denominator so "80% of 5" is never
       shown as though it were "80% of 30".
-- [ ] **Look at the one programme still reading 0% retention** (Luther College
-      women). Nine read 0% before the name cleanups and eight were name-format
-      defects; this one has not been explained, and a programme that retained
-      literally nobody is far more likely to be a tenth defect than a fact.
+- [x] **Luther College's 0% was a sixth name defect, not a result.** Their
+      2025 sheet printed the surname twice — "Allison Dobbins Dobbins" — which
+      the whole-name-doubled check missed because an odd word count never
+      splits into equal halves. All 28 returning players failed to match.
+      Fixed and tested; Luther now reads **75%**, exactly the median. **No
+      programme reads 0% any more**, and the floor is USC Upstate at 10%
+      (3 of 30), which is a plausible bad year rather than a broken join.
+
+      A leading duplicate is only collapsed when a trailing one accompanies it
+      ("Abbigail Abbigail Johnson Johnson"). Alone it is more likely a real
+      name: Bushnell's Jay Jay Van Der Velde keeps both his Jays.
+
+### Retention needs more than one year
+One season pair is a snapshot, and a snapshot cannot tell a programme players
+leave from a programme that had one bad year. A coaching change, a single
+disastrous season or a strong graduating cohort all move a one-year number
+without saying anything about what an athlete would be walking into. The
+spread is real — p10 53% against p90 94% — but attributing a given programme's
+place in it needs a trend.
+
+- [ ] **Finish the 2024 acquisition first.** 46 school-sports failed, 35 of
+      them D1, plus the 4 whose jersey column was scraped as the player name.
+      Extending backwards over an incomplete 2024 would compound the gap
+      rather than average it out.
+- [ ] **Then 2023, then 2022**, through the same pipeline. `--season` and
+      `--dir` already take them, `_targets.csv` regenerates by swapping the
+      year, and the name guards now catch six distinct defect shapes, so each
+      further season should cost less than the one before.
+- [ ] **Report retention as a multi-year rate with its trend**, not a single
+      figure. Three pairs (22→23, 23→24, 24→25) distinguish a programme that
+      consistently loses players from one that had a bad year, which is the
+      difference between a recommendation and a coin toss.
 - [ ] **Women's academic ratings — 318 programs to source, 5 to reconcile.**
       Not 323: five already exist in `server/seed/data/academic_scores.json`
       filed under a different division, which is a lookup fix rather than

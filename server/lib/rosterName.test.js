@@ -93,3 +93,27 @@ describe('undoing the two 2025 formats that broke the season join', () => {
     expect(cleanRosterName('Gabriel Martinez, Jr.')).toBe('Gabriel Martinez Jr.');
   });
 });
+
+describe('a surname printed twice', () => {
+  // Luther College's women scored 0% retention because every 2025 surname was
+  // doubled, so not one of their 28 returning players matched.
+  it('collapses a repeated surname', () => {
+    expect(cleanRosterName('Allison Dobbins Dobbins')).toBe('Allison Dobbins');
+    expect(cleanRosterName('Ava Stemler Stemler')).toBe('Ava Stemler');
+    expect(cleanRosterName('Julien Effa Effa')).toBe('Julien Effa');
+  });
+
+  it('collapses a name doubled at both ends', () => {
+    expect(cleanRosterName('Abbigail Abbigail Johnson Johnson')).toBe('Abbigail Johnson');
+    expect(cleanRosterName('Riley Riley Stanfill Stanfill')).toBe('Riley Stanfill');
+  });
+
+  // A doubled first name on its own is more likely to be a real one.
+  it('leaves a genuine double first name alone', () => {
+    expect(cleanRosterName('Jay Jay Van Der Velde')).toBe('Jay Jay Van Der Velde');
+  });
+
+  it('does not touch a name that merely repeats a sound', () => {
+    expect(cleanRosterName('Ana Anastasia Popa')).toBe('Ana Anastasia Popa');
+  });
+});
