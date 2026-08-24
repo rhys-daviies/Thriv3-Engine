@@ -14,6 +14,8 @@
  */
 
 /** Whole-cell placeholders: a bare number, a jersey number, a filler word. */
+const SUFFIX_AFTER_COMMA = /^(jr|sr|ii|iii|iv|v)$/i;
+
 const PLACEHOLDER = /^(?:jersey\s*number|no\.?|#)?\s*\d+$|^(?:tba|tbd|n\/?a|unknown|player|total|roster|staff)$/i;
 
 /**
@@ -60,6 +62,24 @@ export function cleanRosterName(value) {
   }
 
   name = name.replace(/\s*\((?:C|c)\)\s*$/, '').trim();
+
+  // "Sidney Karjian 2" — six programmes append the jersey number to the name.
+  // Roman numerals are how a real suffix is written, so digits are always the
+  // page's decoration rather than part of anybody's name.
+  name = name.replace(/\s+\d{1,2}$/, '').trim();
+
+  // "Rodgers, Sara" — 22 programmes invert the name in 2025 while 2024 spells
+  // it the usual way round, which breaks the season-to-season join entirely
+  // and reads as a programme that retained nobody. A comma before a suffix
+  // ("Gabriel Martinez, Jr.") is punctuation, not an inversion.
+  const comma = name.indexOf(',');
+  if (comma > 0) {
+    const before = name.slice(0, comma).trim();
+    const after = name.slice(comma + 1).trim();
+    const isSuffix = SUFFIX_AFTER_COMMA.test(after.replace(/\./g, ''));
+    if (after && !isSuffix) name = `${after} ${before}`;
+    else if (after) name = `${before} ${after}`;
+  }
 
   // "Trevor Rau Trevor Rau" — two identical halves, so keep one.
   const parts = name.split(' ');

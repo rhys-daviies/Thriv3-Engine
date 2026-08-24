@@ -6,7 +6,7 @@ the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
 Last audited: 2026-08-24, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 288 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 292 tests green). Coverage numbers below were
 re-run, not copied; two moved and are corrected in place.
 
 ---
@@ -132,15 +132,37 @@ two of them are a different job than the count suggests.
       following season), and 101 rows at three programmes repeat the whole
       name, "Trevor Rau Trevor Rau". Fixing those cut the edit-distance tier
       from 83 to 20.
-- [ ] **Explain the half of turnover that should not be there.** Of 23,497
-      real departures, **11,746 — exactly half — are from classes that should
-      have returned**: freshmen, sophomores and juniors. That is not a
-      measurement error, it dwarfs anything name matching contributes, and it
-      is the thing to understand before turnover is used as a recruiting
-      signal. Transfers are the obvious candidate in the portal era, but
-      "obvious" is not measured. Until it is, a high turnover number cannot be
-      read as "this programme has openings" — it may equally mean players
-      leave.
+- [x] **Turnover is two metrics, not one, and the second is the Pillar 4
+      signal.** An earlier version of this entry treated the 11,746
+      non-graduating departures as a problem to explain away. That was
+      backwards. Separated properly:
+
+      **Openings** — departures of players who were leaving anyway (Sr., Gr.,
+      5th). 11,751 of them. This is a Pillar 1 input: it says a roster spot is
+      coming free at a position, and the matcher already reads it.
+
+      **Retention** — of the players who *could* have come back, how many did.
+      This is the Pillar 4 quality signal, and it is the more interesting one:
+      a programme whose freshmen and sophomores keep leaving is a programme
+      players are choosing to leave, whatever its record says. Retention is
+      the closest thing in the data to whether an athlete would enjoy being
+      there, which is exactly what an 18-year-old picking a programme has no
+      way to find out.
+
+      Across 1,669 in-scope programmes with at least 10 players who could
+      return: median **75%**, p10 53%, p90 94%. A 40-point spread between the
+      deciles, so it genuinely discriminates rather than describing everyone
+      the same way. It also behaves as reality would predict — D3 retains at
+      79% against D1's 73% — which is evidence it is measuring something real
+      rather than reflecting scrape quality.
+- [ ] **Build the retention metric into the product.** It is a query today,
+      not a column. Needs persisting per programme-season, exposing on the
+      match card, and pairing with its own denominator so "80% of 5" is never
+      shown as though it were "80% of 30".
+- [ ] **Look at the one programme still reading 0% retention** (Luther College
+      women). Nine read 0% before the name cleanups and eight were name-format
+      defects; this one has not been explained, and a programme that retained
+      literally nobody is far more likely to be a tenth defect than a fact.
 - [ ] **Women's academic ratings — 318 programs to source, 5 to reconcile.**
       Not 323: five already exist in `server/seed/data/academic_scores.json`
       filed under a different division, which is a lookup fix rather than

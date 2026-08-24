@@ -68,3 +68,28 @@ describe('stripping what the page decorated the name with', () => {
     }
   });
 });
+
+describe('undoing the two 2025 formats that broke the season join', () => {
+  // Six programmes append the jersey number; a real suffix is roman numerals.
+  it('strips a trailing jersey number', () => {
+    expect(cleanRosterName('Sidney Karjian 2')).toBe('Sidney Karjian');
+    expect(cleanRosterName('Noah Partenza 0')).toBe('Noah Partenza');
+    expect(cleanRosterName('Morgan Burke 11')).toBe('Morgan Burke');
+  });
+
+  it('keeps a roman-numeral suffix', () => {
+    expect(cleanRosterName('John Smith III')).toBe('John Smith III');
+  });
+
+  // 22 programmes invert the name in 2025 only, which reads as a programme
+  // that retained nobody.
+  it('puts an inverted name back the right way round', () => {
+    expect(cleanRosterName('Rodgers, Sara')).toBe('Sara Rodgers');
+    expect(cleanRosterName('Nastuta, Catalin')).toBe('Catalin Nastuta');
+    expect(cleanRosterName('McDonald, Kris')).toBe('Kris McDonald');
+  });
+
+  it('treats a comma before a suffix as punctuation, not an inversion', () => {
+    expect(cleanRosterName('Gabriel Martinez, Jr.')).toBe('Gabriel Martinez Jr.');
+  });
+});
