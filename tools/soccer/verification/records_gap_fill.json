@@ -1,0 +1,231 @@
+[
+ {
+  "school": "Hartford",
+  "sport": "mens-soccer",
+  "host": "hartfordhawks.com",
+  "seasons": {
+   "2022": {
+    "year": 2022,
+    "status": "no overall record published",
+    "title": "2022 Men's Soccer Schedule - University of Hartford Athletics"
+   },
+   "2023": {
+    "year": 2023,
+    "status": "ok",
+    "record": "4-8-2",
+    "title": "2023 Men's Soccer Schedule - University of Hartford Athletics",
+    "url": "https://hartfordhawks.com/sports/mens-soccer/schedule/2023"
+   },
+   "2024": {
+    "year": 2024,
+    "status": "ok",
+    "record": "10-5-3",
+    "title": "2024 Men's Soccer Schedule - University of Hartford Athletics",
+    "url": "https://hartfordhawks.com/sports/mens-soccer/schedule/2024"
+   },
+   "2025": {
+    "year": 2025,
+    "status": "ok",
+    "record": "10-6-2",
+    "title": "2025 Men's Soccer Schedule - University of Hartford Athletics",
+    "url": "https://hartfordhawks.com/sports/mens-soccer/schedule/2025"
+   }
+  }
+ },
+ {
+  "school": "Shawnee State",
+  "sport": "womens-soccer",
+  "host": "ssubears.com",
+  "seasons": {
+   "2022": {
+    "year": 2022,
+    "status": "ok",
+    "record": "11-9-1",
+    "title": "2022 Women's Soccer Schedule - Shawnee State University",
+    "url": "https://ssubears.com/sports/womens-soccer/schedule/2022"
+   },
+   "2023": {
+    "year": 2023,
+    "status": "ok",
+    "record": "8-10-1",
+    "title": "2023 Women's Soccer Schedule - Shawnee State University",
+    "url": "https://ssubears.com/sports/womens-soccer/schedule/2023"
+   },
+   "2024": {
+    "year": 2024,
+    "status": "ok",
+    "record": "3-9-4",
+    "title": "2024 Women's Soccer Schedule - Shawnee State University",
+    "url": "https://ssubears.com/sports/womens-soccer/schedule/2024"
+   },
+   "2025": {
+    "year": 2025,
+    "status": "ok",
+    "record": "4-13-1",
+    "title": "2025 Women's Soccer Schedule - Shawnee State University",
+    "url": "https://ssubears.com/sports/womens-soccer/schedule/2025"
+   }
+  }
+ },
+ {
+  "school": "Albertus Magnus",
+  "sport": "womens-soccer",
+  "host": "www.albertusfalcons.com",
+  "seasons": {
+   "2022": {
+    "year": 2022,
+    "status": "no usable page"
+   },
+   "2023": {
+    "year": 2023,
+    "status": "no usable page"
+   },
+   "2024": {
+    "year": 2024,
+    "status": "no usable page"
+   },
+   "2025": {
+    "year": 2025,
+    "status": "no usable page"
+   }
+  }
+ },
+ {
+  "school": "Colby-Sawyer",
+  "sport": "womens-soccer",
+  "host": "www.colby-sawyerathletics.com",
+  "seasons": {
+   "2022": {
+    "year": 2022,
+    "status": "ok",
+    "record": "7-10-4",
+    "title": "2022 Women's Soccer Schedule - Colby-Sawyer College Athletics",
+    "url": "https://www.colby-sawyerathletics.com/sports/womens-soccer/schedule/2022"
+   },
+   "2023": {
+    "year": 2023,
+    "status": "ok",
+    "record": "12-7-3",
+    "title": "2023 Women's Soccer Schedule - Colby-Sawyer College Athletics",
+    "url": "https://www.colby-sawyerathletics.com/sports/womens-soccer/schedule/2023"
+   },
+   "2024": {
+    "year": 2024,
+    "status": "ok",
+    "record": "9-4-8",
+    "title": "2024 Women's Soccer Schedule - Colby-Sawyer College Athletics",
+    "url": "https://www.colby-sawyerathletics.com/sports/womens-soccer/schedule/2024"
+   },
+   "2025": {
+    "year": 2025,
+    "status": "ok",
+    "record": "6-9-5",
+    "title": "2025 Women's Soccer Schedule - Colby-Sawyer College Athletics",
+    "url": "https://www.colby-sawyerathletics.com/sports/womens-soccer/schedule/2025"
+   }
+  }
+ },
+ {
+  "school": "Dean",
+  "sport": "womens-soccer",
+  "host": "deanbulldogs.com",
+  "seasons": {
+   "2022": {
+    "year": 2022,
+    "status": "ok",
+    "record": "2-10-4",
+    "title": "2022 Women's Soccer Schedule - Dean College",
+    "url": "https://deanbulldogs.com/sports/womens-soccer/schedule/2022"
+   },
+   "2023": {
+    "year": 2023,
+    "status": "ok",
+    "record": "4-10-3",
+    "title": "2023 Women's Soccer Schedule - Dean College",
+    "url": "https://deanbulldogs.com/sports/womens-soccer/schedule/2023"
+   },
+   "2024": {
+    "year": 2024,
+    "status": "ok",
+    "record": "2-12-3",
+    "title": "2024 Women's Soccer Schedule - Dean College",
+    "url": "https://deanbulldogs.com/sports/womens-soccer/schedule/2024"
+   },
+   "2025": {
+    "year": 2025,
+    "status": "ok",
+    "record": "2-14-2",
+    "title": "2025 Women's Soccer Schedule - Dean College",
+    "url": "https://deanbulldogs.com/sports/womens-soccer/schedule/2025"
+   }
+  }
+ },
+ {
+  "school": "Eastern Connecticut",
+  "sport": "womens-soccer",
+  "host": "gowarriorathletics.com",
+  "seasons": {
+   "2022": {
+    "year": 2022,
+    "status": "ok",
+    "record": "6-6-5",
+    "title": "2022 Women's Soccer Schedule - Eastern Connecticut State University",
+    "url": "https://gowarriorathletics.com/sports/womens-soccer/schedule/2022"
+   },
+   "2023": {
+    "year": 2023,
+    "status": "ok",
+    "record": "4-7-4",
+    "title": "2023 Women's Soccer Schedule - Eastern Connecticut State University",
+    "url": "https://gowarriorathletics.com/sports/womens-soccer/schedule/2023"
+   },
+   "2024": {
+    "year": 2024,
+    "status": "ok",
+    "record": "6-10-2",
+    "title": "2024 Women's Soccer Schedule - Eastern Connecticut State University",
+    "url": "https://gowarriorathletics.com/sports/womens-soccer/schedule/2024"
+   },
+   "2025": {
+    "year": 2025,
+    "status": "ok",
+    "record": "10-5-3",
+    "title": "2025 Women's Soccer Schedule - Eastern Connecticut State University",
+    "url": "https://gowarriorathletics.com/sports/womens-soccer/schedule/2025"
+   }
+  }
+ },
+ {
+  "school": "Plymouth State",
+  "sport": "womens-soccer",
+  "host": "athletics.plymouth.edu",
+  "seasons": {
+   "2022": {
+    "year": 2022,
+    "status": "ok",
+    "record": "5-8-3",
+    "title": "2022 Women's Soccer Schedule - Plymouth State University",
+    "url": "https://athletics.plymouth.edu/sports/womens-soccer/schedule/2022"
+   },
+   "2023": {
+    "year": 2023,
+    "status": "ok",
+    "record": "5-8-4",
+    "title": "2023 Women's Soccer Schedule - Plymouth State University",
+    "url": "https://athletics.plymouth.edu/sports/womens-soccer/schedule/2023"
+   },
+   "2024": {
+    "year": 2024,
+    "status": "ok",
+    "record": "6-11-1",
+    "title": "2024 Women's Soccer Schedule - Plymouth State University",
+    "url": "https://athletics.plymouth.edu/sports/womens-soccer/schedule/2024"
+   },
+   "2025": {
+    "year": 2025,
+    "status": "no overall record published",
+    "title": "2025 Women's Soccer Schedule - Plymouth State University"
+   }
+  }
+ }
+]
