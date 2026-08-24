@@ -88,12 +88,19 @@ Ordered by lead time and blast radius, not by size. The 2026-08-24 audit
 looked into each one rather than taking the headline count at face value, and
 two of them are a different job than the count suggests.
 
-- [ ] **2024 rosters, both sports.** Start first: longest lead time in the
-      project, and the only Phase 0 item that gates an entire pillar (4's
-      turnover metric needs a season to diff against). No code needed — the
-      2025 pipeline takes eight CSVs, one per sport-division, through
-      `npm run import-rosters`; 2024 is the same shape with `SEASON` changed.
-      This is pure acquisition, so it parallelises with everything below.
+- [x] **2024 rosters, both sports — acquired.** Six CSVs in
+      `~/Documents/Thriv3/2024 Roster Sheets/`, 52,417 player rows from 1,661
+      of 1,707 school-sports (97%). Verified rather than assumed: the headers
+      match the 2025 files byte for byte, 95% of rows carry a class year, and
+      the graduation-year convention is the intended season-relative one
+      (Fr.→2029, Sr.→2026), so a player scores the same in both seasons and
+      the turnover diff holds. The 46 failures are concentrated in D1 (35 of
+      them) and each carries a reason.
+- [ ] **Import the 2024 rosters.** `importRosterSheets.js` hardcodes
+      `SEASON = '2025'` and the `rosters_2025` directory, so the acquired data
+      is doing nothing yet. Parameterise both, import, and re-run the coverage
+      queries. This is now the cheapest work in Phase 0 — the expensive half
+      is already paid for.
 - [ ] **Women's academic ratings — 318 programs to source, 5 to reconcile.**
       Not 323: five already exist in `server/seed/data/academic_scores.json`
       filed under a different division, which is a lookup fix rather than
@@ -105,10 +112,24 @@ two of them are a different job than the count suggests.
       0–10 scale of unrecorded derivation, and 318 scores produced a different
       way are not comparable to them — they would quietly distort every
       ranking that mixes the two.
-- [ ] **Roster scrape pass — 71 schools, one job not two.** The 56 programs
-      with no 2025 roster and the 15 whose roster imported with no class year
-      at all (451 rows) are the same failure and the same fix; doing them in
-      one pass rather than as two roadmap lines saves a full crawl.
+- [ ] **Roster scrape pass — 72 school-sports, one job not two.** The 56
+      programs with no 2025 roster and the 16 whose roster imported with no
+      class year are the same failure and the same fix.
+      **28 resolved, 44 outstanding.** 26 harvested clean (841 players, 837
+      with a class year, every count matching the database where one existed)
+      and 2 recorded as `no-class-data` because American International
+      genuinely publishes none. The remaining 44 each carry a specific reason:
+      13 need a real search, 8 use layouts the selectors miss, 7 had a
+      candidate correctly rejected as the wrong school, 7 serve the wrong
+      season, 6 returned an implausible count, 3 have an unconfirmed
+      parenthetical qualifier.
+      Tooling: `tools/soccer/discover_roster_urls.py` and
+      `tools/soccer/harvest_rosters.py`.
+- [ ] **Merge the harvested 2025 rosters back in.** The 26 clean harvests are
+      CSVs under `2025 Roster Sheets/_gaps_harvested/` and have not reached
+      the database either. They need folding into the per-division sheets
+      before the next import, or they will be silently dropped by the
+      wipe-and-reinsert the importer does per (sport, division, season).
 - [x] **Guarded the class-year column before re-scraping.** There was no
       parser in this repo to fix — the bad values are in the scraped CSVs
       themselves, so the fix had to be validation at import, and it had to
