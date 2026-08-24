@@ -6,9 +6,17 @@ the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
 Last audited: 2026-08-25, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 307 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 451 tests green). Coverage numbers below were
 re-run, not copied. The academic-rating gap has closed completely; roster and
 grad-year figures moved and are corrected in place.
+
+**Phase 1.2 is complete** as of 2026-08-25 — Pillar 1 now has six weighted
+criteria, a coupling layer, an operator ranking control in both the intake
+form and the matching tab, and, for the first time, a backtest that says
+whether any of it works. The one open gate in Phase 1 is **1.1: a single real
+tracked send**, which is also what would finally let the roster-opportunity
+weight be tested against actual coach replies rather than left at a
+deliberately conservative 10.
 
 ---
 
@@ -618,27 +626,50 @@ then 2023 and 2022. Not to be picked up here.
       genuine honorary roster entry. It has no class year and now correctly
       has none. Whether honorary members belong in a turnover count at all is
       a separate question, deliberately left open.
-- [ ] **`estimated_graduation_year` nulls — 3,118 rows across both seasons,
-      and it is a scrape, not a mapping fix.** Re-counted 2026-08-25: 1,042 in
-      2025 and **2,076 in 2024**. The 2024 import roughly tripled this task
-      while the headline figure still described 2025 alone. Turnover and
-      retention are diffs across the pair, so a null on either side drops that
-      player from the metric — the 2024 half matters exactly as much.
-      On the 2025 half: the import now derives a year from
-      the class label when the sheet carried a class but no year, which was
-      worth 6 rows, against one lost to voiding the bogus `Solar` → 2029.
-      That is the whole of what mapping can reach — 1,218 of the remainder
-      have no `class_year_label` either, so there is nothing to map from, and
-      the 11 bare redshirt markers ('Rs.', 'Medical Redshirt') genuinely carry
-      no class and are correctly null rather than guessed at.
+- [ ] **`estimated_graduation_year` nulls — 2,160 rows across both seasons,
+      and it is a scrape, not a mapping fix.** Re-counted 2026-08-25 after the
+      class-year fix: **1,522 in 2025 and 638 in 2024**. (The 3,118 this item
+      used to claim was stale — the 2025 sheets have been re-imported since.)
+      Turnover and retention are diffs across the pair, so a null on either
+      side drops that player from the metric; the 2024 half matters exactly as
+      much even though it is now the smaller one.
 
-      After the 15 whole-roster failures above are re-scraped — Texas Tech is
-      one of them, its entire 30-player roster having no usable class year —
-      what remains is roughly 767 rows scattered thinly across 267 schools.
-      That is the expensive tail, and the one worth timeboxing.
+      Mapping cannot reach any of it. **2,112 of the 2,160 have no
+      `class_year_label` at all**, so there is nothing to convert from, and a
+      check of the source sheets confirms no row carries a graduation year
+      without also carrying a class — the sheet's `Estimated Graduation`
+      column was always derived from the label, never scraped independently.
+      The remaining 48 have a label the reader deliberately refuses (club
+      names, bare redshirt markers). Only a re-scrape moves this number.
+
+      It splits cleanly into a cheap half and an expensive one. **32
+      school-seasons have no usable class year on any player** — Texas Tech
+      among them, its whole 30-player roster — and those 947 rows are one
+      re-scrape each. The other **1,213 are scattered across 444
+      school-seasons**, a handful of rows at a time. That tail is the one
+      worth timeboxing rather than finishing.
 - [ ] **Nicknames — 102 programs** (36 men's, 66 women's). Cheapest and least
       urgent; personalisation quality, not a blocker, and the template falls
       back cleanly. Fill in the gaps between the jobs above.
+
+### Newly discovered, and fixed 2026-08-25
+- [x] **Every roster row's `estimated_graduation_year` was a year late.**
+      `YEARS_TO_GRADUATE` counted a senior as two years from graduating, so
+      all 116,920 rows named the wrong class and every recruit was matched
+      against the wrong cohort. It is why retention could not be measured and
+      why roster opportunity, when first backtested, scored *worse than
+      knowing nothing*. Two checks caught it: 91.4% of players labelled "Sr."
+      on a 2024 roster are absent from the 2025 roster, and rosters that print
+      an explicit year spanned 2026–2029 for fall 2025 where the derived
+      values spanned 2027–2030. All 21 existing tests passed throughout —
+      they had been written against the conversion itself. Fixed in
+      `classYear.js`, 109,886 rows re-derived by `refreshGraduationYears.js`,
+      and pinned by a concordance test against the years rosters print
+      literally. `importRosterSheets.js` also stopped preferring the sheet's
+      own `Estimated Graduation` column, which held exactly the old wrong
+      values and would have restored the bug on the next import.
+      **Anything computed from turnover or retention before this date is
+      wrong and needs re-running.** Full detail in Phase 1.2.
 
 ### Newly discovered, and fixed 2026-08-24
 - [x] **`athletics_domain` named the wrong institution in 235 of 2,441 rows.**
@@ -791,7 +822,7 @@ resolved. Neither was visible from the local database, which is the lesson.**
       for four days. The alerting half now exists (mismatch → non-zero exit);
       what is missing is something that runs it unprompted.
 
-### 1.2 Pillar 1 weighting model
+### 1.2 Pillar 1 weighting model — **complete**
 Replaced the hardcoded constants in `src/lib/playerAnalysis.js`
 (ability ≤70, academic ≤15, starters ×5, position ×2) with six weighted
 criteria in `shared/matching/`, scored 0..1 each and combined by weights that
@@ -842,6 +873,8 @@ circular. It is a floor on quality, not a definition of it.
       distance from the athlete's state centroid. This turned out to be the
       single most underweighted thing in the model: **50.4% of men and 45.8%
       of women enrol in their home state**, median 145–165 miles from home.
+      The criterion has two halves — see the international item below, which
+      is the same question asked of an athlete for whom distance says nothing.
 - [x] **Handle null academic ratings explicitly.** Academic importance is now
       a *weight*, not a floor — it was being compared against
       `academic_rating` as a minimum, which is a different quantity: a real
@@ -923,6 +956,38 @@ circular. It is a floor on quality, not a definition of it.
       school. The card's dead "Tuition —" cell now carries net price, and its
       location line reads city/state instead of the `location` column that was
       empty on all 2,374 rows.
+- [x] **Ask where the athlete is from, and match internationals on who is
+      already there.** Recruited From is an explicit USA or International, and
+      the field beside it changes to suit: the fifty states and territories,
+      or one of 169 countries generated from `roster_players.country` rather
+      than hand-written — the athlete's country is matched by name against
+      that same column, and a free-text "England" would never join to the
+      roster's "United Kingdom".
+
+      For an international athlete the location criterion stops measuring
+      distance, since everywhere is far, and measures whether the program
+      already does this: whether internationals are ordinary there at all (the
+      stronger half — a coach who has never signed one has none of the visa,
+      clearinghouse or overseas-network machinery, and **105 men's programs
+      carry none while 116 are above 60%**), and whether the athlete's own
+      countrymen are there, which is the clearest evidence of a live pipeline.
+      The clusters are large: LSU Alexandria carries 18 UK players and 10
+      Spanish. Neither is a filter — a program with no overseas players floors
+      at 0.15, not zero.
+
+      It discriminates by country rather than merely by "international": the
+      same profile ranked as UK leads with LSU Alexandria, District of
+      Columbia and Florida National; as Spanish it leads with LSU Alexandria,
+      Marian and Francis Marion. A domestic athlete is untouched.
+- [x] **Conferences grouped under their division.** Selecting three divisions
+      put ninety checkboxes on the page in one undifferentiated wrap, with
+      nothing to say which division any of them belonged to — the one piece of
+      context that decides whether an athlete cares. Each division is now a
+      collapsible section with its own count and its own Select all. Five
+      conference names span two divisions each (WHAC, Mid-South, Golden State,
+      CCAC and AMC are all D2 and NAIA), and since `preferred_conferences` is
+      a flat list of names, those rows say so rather than looking broken when
+      selecting all of D2 moves NAIA's counter.
 
 #### A second defect this work uncovered
 Testing the panel against a real athlete surfaced the same inversion as
@@ -936,13 +1001,22 @@ arrival year is unknown. Two tests pin it. The `score.test.js` athlete fixture
 had been missing `classYear` too, which is why nothing caught it.
 
 #### What the backtest cannot see
-The couplings are **unvalidated by construction**. Roster rows carry no family
-budget, so no coupling fires for any backtest athlete and the band numbers
-above are identical with and without the layer. The measured half of each rule
-is its premise — the cost figures are real — but that a high-need athlete
-should therefore be steered to a weaker programme is recruiting knowledge, not
-a finding. `need-shifts-athletic-peak-upward` is marked `assumed` in the code
-for that reason and should be the first suspect if the lists look wrong.
+The couplings are **unvalidated by construction**, and so is the international
+half of the location criterion. The harness builds its athletes from roster
+hometowns, which gives them no family budget and makes every one of them
+domestic, so no coupling fires and the band numbers above are identical with
+and without the layer.
+
+The measured half of each rule is its premise — the cost figures are real, the
+spread in international share across programs is real — but that a high-need
+athlete should therefore be steered to a weaker program, or that an
+international recruit is likelier to land where compatriots already are, is
+recruiting knowledge rather than a finding. Both are marked `assumed` in
+`couplings.js` and should be the first suspects if the lists look wrong. The
+international rule was reviewed and accepted on its merits on 2026-08-25.
+
+Extending the harness to build international athletes from the `country`
+column would test that second one — the data is there. It has not been done.
 
 #### A defect this work uncovered
 `estimated_graduation_year` was **one year late on every roster row** —
