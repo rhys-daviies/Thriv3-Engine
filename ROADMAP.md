@@ -44,7 +44,7 @@ lead time, so both sit in Phase 0.
 |---|---|---|---|
 | 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | Fixed-weight scorer over strong data | Weighting model, 2 unscored criteria, explainability, null-rating handling, learning loop |
 | 2 · Networking | 3-week A/B/C sequence, 100 programs at a time | Excellent personalisation, no campaign engine, no scalable send | ESP migration, campaign engine, coach table, compliance |
-| 3 · Interactions | Tracking, coach score, session timelines | Feature-complete, fully tested, **never run on real traffic** | One real end-to-end send; automated sync; real response detection |
+| 3 · Interactions | Tracking, coach score, session timelines | Feature-complete and tested; edge repaired, guarded and covered 2026-08-24; still **never run on real traffic** | One real end-to-end send; automated sync; real response detection |
 | 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Nothing built; 2 of 3 inputs un-sourced | 2024 roster backfill (both sports), lifestyle data source, metrics, UI |
 
 ---
@@ -101,6 +101,11 @@ The pillar is validated entirely by simulator output — all 90 events in the DB
 have a null `remote_id`, and the edge cursor stopped at 6. The path
 *published profile → real inbox → coach opens → D1 → sync → rollup → Tab 3*
 has never carried a genuine visit.
+
+The plumbing either side of that path is now sound and, as of 2026-08-24,
+actually checked rather than assumed: 18 live tokens at the edge, delete
+guard locked, three triggers in place, `npm run sync` clean. What remains is
+the send itself.
 
 **Two edge-state defects were found in the 2026-08-24 audit and both are now
 resolved. Neither was visible from the local database, which is the lesson.**
