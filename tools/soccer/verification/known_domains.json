@@ -1,0 +1,7409 @@
+{
+"Akron": [
+"gozips.com",
+"uakron.edu"
+],
+"Clemson": [
+"clemson.edu",
+"clemsontigers.com",
+"wmt.games"
+],
+"Duke": [
+"duke.edu",
+"goduke.com"
+],
+"Georgetown": [
+"georgetown.edu",
+"guhoyas.com"
+],
+"Indiana": [
+"iu.edu",
+"iuhoosiers.com"
+],
+"Maryland": [
+"umd.edu",
+"umterps.com",
+"web.archive.org"
+],
+"Stanford": [
+"gostanford.com",
+"stanford.edu",
+"wmt.games"
+],
+"UCLA": [
+"athletics.ucla.edu",
+"uclabruins.com",
+"wmt.games"
+],
+"Albany": [
+"albany.edu",
+"ualbanysports.com"
+],
+"American University": [
+"american.edu",
+"aueagles.com"
+],
+"Army": [
+"goarmywestpoint.com",
+"westpoint.edu"
+],
+"Bellarmine University": [
+"athletics.bellarmine.edu",
+"bellarmine.edu"
+],
+"Belmont": [
+"belmont.edu",
+"belmontbruins.com"
+],
+"Binghamton": [
+"binghamton.edu",
+"binghamtonbearcats.com"
+],
+"Boston College": [
+"bc.edu",
+"bceagles.com"
+],
+"Boston University": [
+"bu.edu",
+"goterriers.com"
+],
+"Bowling Green": [
+"bgsu.edu",
+"bgsufalcons.com"
+],
+"Bradley": [
+"bradleybraves.com",
+"fsmail.bradley.edu"
+],
+"Brown": [
+"brown.edu",
+"brownbears.com"
+],
+"Bryant University": [
+"bryant.edu",
+"bryantbulldogs.com"
+],
+"Bucknell": [
+"bucknell.edu",
+"bucknellbison.com"
+],
+"Butler": [
+"butler.edu",
+"butlersports.com"
+],
+"Cal Poly": [
+"calpoly.edu",
+"gopoly.com"
+],
+"Cal State Bakersfield": [
+"csub.edu",
+"gorunners.com"
+],
+"Cal State Fullerton": [
+"fullerton.edu",
+"fullertontitans.com"
+],
+"Cal State Northridge": [
+"csun.edu",
+"gomatadors.com"
+],
+"California": [
+"berkeley.edu",
+"calbears.com"
+],
+"California Baptist": [
+"calbaptist.edu",
+"cbulancers.com"
+],
+"Campbell University": [
+"campbell.edu",
+"gocamels.com"
+],
+"Canisius University": [
+"canisius.edu",
+"gogriffs.com"
+],
+"Central Arkansas": [
+"uca.edu",
+"ucasports.com"
+],
+"Central Connecticut State University": [
+"ccsu.edu",
+"ccsubluedevils.com"
+],
+"Charlotte": [
+"charlotte.edu",
+"charlotte49ers.com"
+],
+"Chicago State": [
+"csu.edu",
+"gocsucougars.com",
+"www.gocsucougars.com"
+],
+"Cleveland State": [
+"csuohio.edu",
+"csuvikings.com"
+],
+"Coastal Carolina": [
+"coastal.edu",
+"goccusports.com"
+],
+"Colgate": [
+"colgate.edu",
+"colgateathletics.com"
+],
+"College of Charleston": [
+"cofc.edu",
+"cofcsports.com"
+],
+"Columbia": [
+"gmail.com",
+"gocolumbialions.com"
+],
+"Cornell": [
+"cornell.edu",
+"cornellbigred.com"
+],
+"Creighton": [
+"creighton.edu",
+"gocreighton.com"
+],
+"Dartmouth": [
+"dartmouth.edu",
+"dartmouthsports.com"
+],
+"Davidson": [
+"davidson.edu",
+"davidsonwildcats.com"
+],
+"Dayton": [
+"daytonflyers.com",
+"udayton.edu"
+],
+"DePaul": [
+"depaul.edu",
+"depaulbluedemons.com"
+],
+"Delaware": [
+"bluehens.com",
+"gmail.com",
+"udel.edu"
+],
+"Denver": [
+"denverpioneers.com",
+"du.edu"
+],
+"Detroit Mercy": [
+"detroittitans.com",
+"udmercy.edu"
+],
+"Drake": [
+"drake.edu",
+"godrakebulldogs.com",
+"web.archive.org"
+],
+"Drexel University": [
+"drexel.edu",
+"drexeldragons.com"
+],
+"Duquesne": [
+"duq.edu",
+"goduquesne.com"
+],
+"East Tennessee State University": [
+"etsu.edu",
+"etsubucs.com"
+],
+"Eastern Illinois": [
+"eiu.edu",
+"eiupanthers.com"
+],
+"Elon University": [
+"elon.edu",
+"elonphoenix.com"
+],
+"Evansville": [
+"evansville.edu",
+"gopurpleaces.com"
+],
+"Fairfield University": [
+"fairfield.edu",
+"fairfieldstags.com"
+],
+"Fairleigh Dickinson University": [
+"fdu.edu",
+"fduknights.com"
+],
+"Florida Atlantic": [
+"fau.edu",
+"fausports.com"
+],
+"Florida Gulf Coast": [
+"fgcu.edu",
+"fgcuathletics.com"
+],
+"Florida International": [
+"fiu.edu",
+"fiusports.com"
+],
+"Fordham": [
+"fordham.edu",
+"fordhamsports.com"
+],
+"Furman University": [
+"furman.edu",
+"furmanpaladins.com"
+],
+"Gardner-Webb University": [
+"gardner-webb.edu",
+"gwusports.com"
+],
+"George Mason": [
+"gmu.edu",
+"gomason.com"
+],
+"George Washington": [
+"email.gwu.edu",
+"gwsports.com",
+"gwu.edu"
+],
+"Georgia Southern": [
+"georgiasouthern.edu",
+"gseagles.com"
+],
+"Georgia State": [
+"georgiastatesports.com",
+"gsu.edu"
+],
+"Gonzaga": [
+"gonzaga.edu",
+"gozags.com"
+],
+"Grand Canyon": [
+"gcu.edu",
+"gculopes.com"
+],
+"Green Bay": [
+"greenbayphoenix.com",
+"uwgb.edu",
+"web.archive.org"
+],
+"Hartford": [
+"hartford.edu",
+"hartfordhawks.com"
+],
+"Harvard": [
+"fas.harvard.edu",
+"g.harvard.edu",
+"gocrimson.com",
+"web.archive.org"
+],
+"High Point University": [
+"highpoint.edu",
+"highpointpanthers.com"
+],
+"Hofstra": [
+"gohofstra.com",
+"hofstra.edu"
+],
+"Holy Cross": [
+"goholycross.com",
+"holycross.edu"
+],
+"Houston Christian": [
+"hc.edu",
+"hcuhuskies.com"
+],
+"Howard University": [
+"howard.edu",
+"hubison.com"
+],
+"IU Indianapolis": [
+"iu.edu",
+"iuindyjags.com"
+],
+"Incarnate Word": [
+"student.uiwtx.edu",
+"uiwcardinals.com",
+"uiwtx.edu"
+],
+"Iona University": [
+"iona.edu",
+"ionagaels.com"
+],
+"Jacksonville": [
+"ju.edu",
+"judolphins.com"
+],
+"James Madison": [
+"jmu.edu",
+"jmusports.com"
+],
+"Kansas City": [
+"kcroos.com",
+"umkc.edu"
+],
+"La Salle": [
+"goexplorers.com",
+"lasalle.edu"
+],
+"Lafayette": [
+"goleopards.com",
+"lafayette.edu"
+],
+"Le Moyne College": [
+"lemoyne.edu",
+"lemoynedolphins.com"
+],
+"Lehigh": [
+"lehigh.edu",
+"lehighsports.com"
+],
+"Liberty": [
+"liberty.edu",
+"libertyflames.com"
+],
+"Lindenwood": [
+"lindenwood.edu",
+"lindenwoodlions.com",
+"www.lindenwood.edu"
+],
+"Lipscomb": [
+"lipscomb.edu",
+"lipscombsports.com",
+"mail.lipscomb.edu"
+],
+"Long Island University": [
+"liu.edu",
+"www.liuathletics.com"
+],
+"Longwood University": [
+"live.longwood.edu",
+"longwood.edu",
+"longwoodlancers.com"
+],
+"Louisville": [
+"gocards.com"
+],
+"Loyola Chicago": [
+"loyolaramblers.com",
+"luc.edu"
+],
+"Loyola Maryland": [
+"loyola.edu",
+"loyolagreyhounds.com"
+],
+"Loyola Marymount": [
+"lmu.edu",
+"lmulions.com",
+"web.archive.org"
+],
+"Manhattan": [
+"gojaspers.com",
+"manhattan.edu"
+],
+"Marist University": [
+"goredfoxes.com",
+"marist.edu"
+],
+"Marquette": [
+"gomarquette.com",
+"marquette.edu"
+],
+"Marshall": [
+"herdzone.com",
+"marshall.edu"
+],
+"Memphis": [
+"gotigersgo.com",
+"memphis.edu",
+"web.archive.org"
+],
+"Mercer University": [
+"mercer.edu",
+"mercerbears.com"
+],
+"Mercyhurst University": [
+"hurstathletics.com",
+"mercyhurst.edu"
+],
+"Merrimack College": [
+"merrimack.edu",
+"merrimackathletics.com"
+],
+"Michigan": [
+"mgoblue.com",
+"umich.edu"
+],
+"Michigan State": [
+"ath.msu.edu",
+"msu.edu",
+"msuspartans.com"
+],
+"Milwaukee": [
+"mkepanthers.com",
+"uwm.edu",
+"uwmpanthers.com"
+],
+"Missouri State": [
+"missouristate.edu",
+"missouristatebears.com"
+],
+"Monmouth University": [
+"monmouth.edu",
+"monmouthhawks.com"
+],
+"Mount St. Mary's University": [
+"mountathletics.com",
+"msmary.edu"
+],
+"NC State": [
+"gopack.com",
+"ncsu.edu"
+],
+"NJIT": [
+"njit.edu",
+"njithighlanders.com"
+],
+"Navy": [
+"navysports.com",
+"usna.edu"
+],
+"Nebraska Omaha": [
+"omavs.com"
+],
+"New Hampshire": [
+"unh.edu",
+"unhwildcats.com"
+],
+"New Haven": [
+"newhaven.edu",
+"newhavenchargers.com"
+],
+"Niagara University": [
+"niagara.edu",
+"purpleeagles.com"
+],
+"North Carolina": [
+"email.unc.edu",
+"goheels.com",
+"live.unc.edu",
+"unc.edu",
+"uncaa.unc.edu"
+],
+"Oregon State": [
+"oregonstate.edu",
+"osubeavers.com"
+],
+"Pacific": [
+"pacific.edu",
+"pacifictigers.com",
+"www.pacific.edu"
+],
+"Penn": [
+"dria.upenn.edu",
+"pennathletics.com",
+"upenn.edu"
+],
+"Penn State": [
+"athletics.psu.edu",
+"gopsusports.com",
+"psu.edu",
+"wmt.games"
+],
+"Pittsburgh": [
+"athletics.pitt.edu",
+"pitt.edu",
+"pittsburghpanthers.com"
+],
+"Portland": [
+"portlandpilots.com",
+"up.edu"
+],
+"Presbyterian College": [
+"gobluehose.com",
+"presby.edu"
+],
+"Princeton": [
+"goprincetontigers.com",
+"princeton.edu"
+],
+"Providence College": [
+"friars.com",
+"providence.edu"
+],
+"Purdue Fort Wayne": [
+"gomastodons.com",
+"pfw.edu"
+],
+"Queens Charlotte": [
+"queens.edu",
+"queensathletics.com"
+],
+"Quinnipiac University": [
+"gobobcats.com",
+"qu.edu",
+"quinnipiac.edu"
+],
+"Radford University": [
+"radford.edu",
+"radfordathletics.com"
+],
+"Rhode Island": [
+"gorhody.com",
+"uri.edu"
+],
+"Rider University": [
+"gobroncs.com",
+"rider.edu"
+],
+"Robert Morris": [
+"rmu.edu",
+"rmucolonials.com"
+],
+"Rutgers": [
+"scarletknights.com"
+],
+"SIU Edwardsville": [
+"siue.edu",
+"siuecougars.com"
+],
+"SMU": [
+"smu.edu",
+"smumustangs.com"
+],
+"Sacramento State": [
+"csus.edu",
+"hornetsports.com"
+],
+"North Florida": [
+"unf.edu",
+"unfospreys.com"
+],
+"Northeastern University": [
+"northeastern.edu",
+"nuhuskies.com"
+],
+"Northern Illinois": [
+"niu.edu",
+"niuhuskies.com"
+],
+"Northern Kentucky": [
+"nku.edu",
+"nkunorse.com"
+],
+"Northwestern": [
+"kellogg.northwestern.edu",
+"northwestern.edu",
+"nusports.com",
+"wmt.games"
+],
+"Notre Dame": [
+"fightingirish.com",
+"nd.edu",
+"und.com"
+],
+"Oakland": [
+"goldengrizzlies.com",
+"oakland.edu"
+],
+"Ohio State": [
+"ohiostatebuckeyes.com",
+"osu.edu"
+],
+"Old Dominion": [
+"odu.edu",
+"odusports.com",
+"wmt.games"
+],
+"Oral Roberts": [
+"oru.edu",
+"oruathletics.com"
+],
+"Sacred Heart University": [
+"sacredheart.edu",
+"sacredheartpioneers.com"
+],
+"Saint Francis University": [
+"francis.edu",
+"sfuathletics.com"
+],
+"Saint Joseph's": [
+"sju.edu",
+"sjuhawks.com"
+],
+"Saint Louis": [
+"slu.edu",
+"slubillikens.com"
+],
+"Saint Mary's California": [
+"smcgaels.com",
+"stmarys-ca.edu"
+],
+"Saint Peter's": [
+"saintpeters.edu",
+"saintpeterspeacocks.com"
+],
+"San Diego": [
+"sandiego.edu",
+"usdtoreros.com"
+],
+"San Diego State": [
+"goaztecs.com",
+"sdsu.edu",
+"wmt.games"
+],
+"San Francisco": [
+"usfca.edu",
+"usfdons.com"
+],
+"San Jose State": [
+"sjsu.edu",
+"sjsuspartans.com",
+"wmt.games"
+],
+"Santa Clara": [
+"santaclarabroncos.com",
+"scu.edu"
+],
+"Seattle": [
+"goseattleu.com",
+"seattleu.edu",
+"wmt.games"
+],
+"Seton Hall": [
+"shu.edu",
+"shupirates.com",
+"student.shu.edu"
+],
+"Siena": [
+"siena.edu",
+"sienasaints.com"
+],
+"South Carolina": [
+"gamecocksonline.com",
+"mailbox.sc.edu"
+],
+"South Florida": [
+"gousfbulls.com",
+"usf.edu"
+],
+"Southern Indiana": [
+"usi.edu",
+"usiscreamingeagles.com"
+],
+"St. Bonaventure": [
+"gobonnies.com",
+"sbu.edu"
+],
+"St. John's": [
+"redstormsports.com",
+"stjohns.edu"
+],
+"St. Thomas": [
+"stthomas.edu",
+"tommiesports.com"
+],
+"Stetson": [
+"gohatters.com",
+"stetson.edu"
+],
+"Stonehill College": [
+"stonehill.edu",
+"stonehillskyhawks.com"
+],
+"Stony Brook University": [
+"stonybrook.edu",
+"stonybrookathletics.com"
+],
+"Syracuse": [
+"cuse.com",
+"syr.edu"
+],
+"Temple": [
+"owlsports.com",
+"temple.edu"
+],
+"Tulsa": [
+"tulsahurricane.com",
+"utulsa.edu"
+],
+"UAB": [
+"uab.edu",
+"uabsports.com"
+],
+"UC Davis": [
+"ucdavis.edu",
+"ucdavisaggies.com"
+],
+"UC Irvine": [
+"uci.edu",
+"ucirvinesports.com"
+],
+"UC Riverside": [
+"gohighlanders.com",
+"ucr.edu"
+],
+"UC San Diego": [
+"ucsd.edu",
+"ucsdtritons.com"
+],
+"UC Santa Barbara": [
+"athletics.ucsb.edu",
+"ucsbgauchos.com"
+],
+"UCF": [
+"athletics.ucf.edu",
+"ucfknights.com",
+"wmt.games"
+],
+"UConn": [
+"uconn.edu",
+"uconnhuskies.com"
+],
+"UIC": [
+"uic.edu",
+"uicflames.com"
+],
+"UMBC": [
+"umbc.edu",
+"umbcretrievers.com"
+],
+"UMass": [
+"umass.edu",
+"umassathletics.com"
+],
+"UMass Lowell": [
+"goriverhawks.com",
+"uml.edu"
+],
+"UNC Asheville": [
+"unca.edu",
+"uncabulldogs.com"
+],
+"UNC Greensboro": [
+"uncg.edu",
+"uncgspartans.com"
+],
+"UNCW": [
+"uncw.edu",
+"uncwsports.com"
+],
+"UNLV": [
+"unlv.edu",
+"unlvrebels.com"
+],
+"USC Upstate": [
+"email.uscupstate.edu",
+"upstatespartans.com",
+"uscupstate.edu"
+],
+"UTRGV": [
+"goutrgv.com",
+"utrgv.edu"
+],
+"Utah Tech": [
+"gmail.com",
+"utahtech.edu",
+"utahtechtrailblazers.com"
+],
+"Utah Valley": [
+"gouvu.com",
+"uvu.edu"
+],
+"VCU": [
+"vcu.edu",
+"vcuathletics.com"
+],
+"VMI": [
+"vmi.edu",
+"vmikeydets.com"
+],
+"Vermont": [
+"uvm.edu",
+"uvmathletics.com"
+],
+"Villanova": [
+"villanova.com",
+"villanova.edu"
+],
+"Virginia": [
+"virginia.edu",
+"virginiasports.com",
+"wmt.games"
+],
+"Virginia Tech": [
+"hokiesports.com",
+"vt.edu",
+"wmt.games"
+],
+"Wake Forest": [
+"godeacs.com",
+"wfu.edu"
+],
+"Washington": [
+"gohuskies.com",
+"uw.edu"
+],
+"Washington (MO)": [
+"washubears.com",
+"wustl.edu"
+],
+"West Virginia": [
+"mail.wvu.edu",
+"wvusports.com"
+],
+"Western Illinois": [
+"goleathernecks.com",
+"wiu.edu"
+],
+"Western Michigan": [
+"wmich.edu",
+"wmubroncos.com"
+],
+"William & Mary": [
+"tribeathletics.com",
+"wm.edu"
+],
+"Winthrop University": [
+"winthrop.edu",
+"winthropeagles.com"
+],
+"Wisconsin": [
+"athletics.wisc.edu",
+"uwbadgers.com",
+"wisc.edu"
+],
+"Wofford College": [
+"wofford.edu",
+"woffordterriers.com"
+],
+"Wright State": [
+"wright.edu",
+"wsuraiders.com"
+],
+"Xavier": [
+"goxavier.com",
+"xavier.edu"
+],
+"Yale": [
+"yale.edu",
+"yalebulldogs.com"
+],
+"Adams State": [
+"adams.edu",
+"asugrizzlies.com"
+],
+"Adelphi": [
+"adelphi.edu",
+"aupanthers.com",
+"gmail.com"
+],
+"Alabama Huntsville": [
+"uah.edu",
+"uahchargers.com",
+"uwaathletics.com"
+],
+"American International": [
+"aic.edu",
+"aicyellowjackets.com"
+],
+"Anderson (SC)": [
+"andersonuniversity.edu",
+"autrojans.com"
+],
+"Ashland": [
+"ashland.edu",
+"goashlandeagles.com"
+],
+"Assumption": [
+"assumption.edu",
+"assumptiongreyhounds.com"
+],
+"Auburn Montgomery": [
+"aum.edu",
+"aumathletics.com"
+],
+"Barry": [
+"barry.edu",
+"gmail.com",
+"gobarrybucs.com",
+"mymail.barry.edu"
+],
+"Barton": [
+"barton.edu",
+"bartonbulldogs.com"
+],
+"Belmont Abbey": [
+"abbeyathletics.com",
+"bac.edu"
+],
+"Bentley": [
+"bentley.edu",
+"bentleyfalcons.com"
+],
+"Biola": [
+"athletics.biola.edu",
+"biola.edu"
+],
+"Bridgeport": [
+"bridgeport.edu",
+"ubknights.com",
+"www.ubknights.com"
+],
+"Cal Poly Humboldt": [
+"humboldt.edu",
+"humboldtathletics.com"
+],
+"Cal Poly Pomona": [
+"broncoathletics.com",
+"cpp.edu"
+],
+"Cal State Dominguez Hills": [
+"csudh.edu",
+"gotoros.com"
+],
+"Cal State East Bay": [
+"csueastbay.edu",
+"eastbaypioneers.com"
+],
+"Cal State LA": [
+"calstatela.edu",
+"lagoldeneagles.com"
+],
+"Cal State Monterey Bay": [
+"csumb.edu",
+"otterathletics.com"
+],
+"Cal State San Bernardino": [
+"csusb.edu",
+"csusbathletics.com"
+],
+"Cal State San Marcos": [
+"csusm.edu",
+"csusmcougars.com"
+],
+"Cal State Stanislaus": [
+"csustan.edu",
+"warriorathletics.com"
+],
+"Caldwell": [
+"caldwell.edu",
+"caldwellathletics.com"
+],
+"Carson-Newman": [
+"cn.edu",
+"cneagles.com",
+"www.cneagles.com"
+],
+"Catawba": [
+"catawba.edu",
+"catawbaathletics.com"
+],
+"Cedarville": [
+"cedarville.edu",
+"yellowjackets.cedarville.edu"
+],
+"Chaminade": [
+"chaminade.edu",
+"goswords.com"
+],
+"Charleston (WV)": [
+"ucgoldeneagles.com",
+"ucwv.edu"
+],
+"Chestnut Hill": [
+"chc.edu",
+"griffinathletics.com"
+],
+"Chico State": [
+"chicowildcats.com",
+"csuchico.edu"
+],
+"Chowan": [
+"chowan.edu",
+"gocuhawks.com"
+],
+"Christian Brothers": [
+"cbu.edu",
+"cbubucs.com"
+],
+"Clayton State": [
+"clayton.edu",
+"claytonstatesports.com"
+],
+"Coker": [
+"catawbaathletics.com",
+"coker.edu",
+"www.cokercobras.com"
+],
+"Colorado Christian": [
+"ccu.edu",
+"ccucougars.com"
+],
+"Colorado Mesa": [
+"cmumavericks.com",
+"coloradomesa.edu"
+],
+"Colorado School of Mines": [
+"mines.edu",
+"minesathletics.com"
+],
+"Colorado State-Pueblo": [
+"csupueblo.edu",
+"gothunderwolves.com"
+],
+"Commonwealth University-Bloomsburg": [
+"bloomsburgathletics.com",
+"bloomu.edu"
+],
+"Commonwealth University-Lock Haven": [
+"lockhaven.edu",
+"lockhavenathletics.com",
+"www.lockhavenathletics.com"
+],
+"Concord": [
+"concord.edu",
+"cumountainlions.com",
+"mycu.concord.edu"
+],
+"Concordia Irvine": [
+"cui.edu",
+"cuigoldeneagles.com",
+"gomatadors.com"
+],
+"Converse": [
+"converse.edu",
+"govalkyries.com"
+],
+"D'Youville": [
+"dyu.edu",
+"dyusaints.com"
+],
+"Daemen": [
+"daemen.edu",
+"daemenwildcats.com"
+],
+"Dallas Baptist": [
+"dbu.edu",
+"dbupatriots.com"
+],
+"Davenport": [
+"davenport.edu",
+"dupanthers.com"
+],
+"Davis & Elkins": [
+"dewv.edu",
+"senatornation.com"
+],
+"Delta State": [
+"deltastate.edu",
+"gostatesmen.com"
+],
+"District of Columbia": [
+"mercyathletics.com",
+"udc.edu",
+"www.udcfirebirds.com"
+],
+"Dominican (CA)": [
+"dominican.edu",
+"dominicanathletics.com"
+],
+"Dominican College (NY)": [
+"chargerathletics.com",
+"dominicansports.com",
+"duny.edu",
+"www.chargerathletics.com"
+],
+"Drury": [
+"drury.edu",
+"drurypanthers.com"
+],
+"East Stroudsburg": [
+"esu.edu",
+"esuwarriors.com"
+],
+"Eastern New Mexico": [
+"enmu.edu",
+"goeasternathletics.com"
+],
+"Eckerd": [
+"eckerd.edu",
+"eckerdtritons.com"
+],
+"Embry-Riddle": [
+"erau.edu",
+"erauathletics.com"
+],
+"Emmanuel (GA)": [
+"ec.edu",
+"goeulions.com"
+],
+"Emory & Henry": [
+"emoryhenry.edu",
+"gowasps.com",
+"www.gowasps.com"
+],
+"Erskine": [
+"erskine.edu",
+"erskinesports.com"
+],
+"Felician": [
+"felician.edu",
+"felicianuathletics.com",
+"gmail.com"
+],
+"Findlay": [
+"findlay.edu",
+"findlayoilers.com"
+],
+"Flagler": [
+"flagler.edu",
+"flaglerathletics.com"
+],
+"Florida Southern": [
+"flsouthern.edu",
+"fscmocs.com",
+"yahoo.com"
+],
+"Florida Tech": [
+"fit.edu",
+"floridasports.com",
+"floridatechsports.com"
+],
+"Fort Hays State": [
+"fhsu.edu",
+"fhsuathletics.com",
+"mail.fhsu.edu"
+],
+"Fort Lewis": [
+"fortlewis.edu",
+"goskyhawks.com"
+],
+"Francis Marion": [
+"fmarion.edu",
+"fmupatriots.com",
+"g.fmarion.edu"
+],
+"Franklin Pierce": [
+"fpuravens.com",
+"franklinpierce.edu",
+"live.franklinpierce.edu"
+],
+"Fresno Pacific": [
+"fpusunbirds.com",
+"fresno.edu",
+"www.fpusunbirds.com"
+],
+"Frostburg State": [
+"frostburg.edu",
+"frostburgsports.com"
+],
+"Gannon": [
+"gannon.edu",
+"gannonsports.com"
+],
+"Georgia Southwestern": [
+"gsw.edu",
+"gswcanes.com",
+"www.gswcanes.com"
+],
+"Georgian Court": [
+"gculions.com",
+"georgian.edu"
+],
+"Goldey-Beacom": [
+"gbc.edu",
+"gbcathletics.com",
+"web.archive.org",
+"www.gbcathletics.com"
+],
+"Harding": [
+"harding.edu",
+"hardingsports.com",
+"icloud.com"
+],
+"Hawaii Hilo": [
+"hawaii.edu",
+"hiloathletics.com"
+],
+"Hawaii Pacific": [
+"hpu.edu",
+"hpusharks.com"
+],
+"Holy Family": [
+"athletics.holyfamily.edu",
+"holyfamily.edu",
+"web.archive.org"
+],
+"Illinois Springfield": [
+"illinoiscollegeathletics.com",
+"uis.edu",
+"uisprairiestars.com"
+],
+"Indianapolis": [
+"athletics.uindy.edu",
+"iuindyjags.com",
+"uindy.edu"
+],
+"Jamestown": [
+"jimmiepride.com",
+"uj.edu"
+],
+"Jessup": [
+"jessup.edu",
+"jessupathletics.com"
+],
+"Kentucky Wesleyan": [
+"kwc.edu",
+"kwcpanthers.com"
+],
+"King (TN)": [
+"king.edu",
+"kingtornado.com",
+"www.kingtornado.com"
+],
+"Lake Erie": [
+"lakeeriestorm.com",
+"lec.edu"
+],
+"Lander": [
+"lander.edu",
+"landerbearcats.com"
+],
+"Lee (TN)": [
+"leeuflames.com",
+"leeuniversity.edu"
+],
+"Lees-McRae": [
+"lmc.edu",
+"lmcbobcats.com"
+],
+"Lenoir-Rhyne": [
+"lr.edu",
+"lrbears.com",
+"my.lr.edu"
+],
+"Lewis": [
+"lewisflyers.com",
+"lewisu.edu"
+],
+"Lincoln (MO)": [
+"lincolnu.edu",
+"lubluetigers.com",
+"my.lincolnu.edu"
+],
+"Lincoln Memorial": [
+"lmunet.edu",
+"lmurailsplitters.com"
+],
+"Lubbock Christian": [
+"lcu.edu",
+"lcuchaps.com"
+],
+"Lynn": [
+"lynn.edu",
+"lynnfightingknights.com"
+],
+"Malone": [
+"malone.edu",
+"malonepioneers.com"
+],
+"Mars Hill": [
+"marshilllions.com",
+"mhu.edu",
+"www.marshilllions.com"
+],
+"Maryville (MO)": [
+"maryville.edu",
+"maryvillesaints.com"
+],
+"McKendree": [
+"mckbearcats.com",
+"mckendree.edu"
+],
+"Menlo": [
+"menlo.edu",
+"menloathletics.com"
+],
+"Mercy": [
+"mercy.edu",
+"mercyathletics.com"
+],
+"Metro State Denver": [
+"msudenver.edu",
+"roadrunnersathletics.com",
+"web.archive.org"
+],
+"Middle Georgia State": [
+"mga.edu",
+"mgaknights.com"
+],
+"Midwestern State": [
+"msumustangs.com",
+"msutexas.edu"
+],
+"Millersville": [
+"millersville.edu",
+"millersvilleathletics.com"
+],
+"Mississippi College": [
+"gochoctaws.com",
+"mc.edu",
+"www.gochoctaws.com"
+],
+"Missouri S&T": [
+"minerathletics.com",
+"mst.edu"
+],
+"Molloy": [
+"molloy.edu",
+"molloylions.com"
+],
+"Monroe (NY)": [
+"monroeexpress.com",
+"monroeu.edu",
+"monroeumustangs.com",
+"www.monroeumustangs.com"
+],
+"Montana State Billings": [
+"msubillings.edu",
+"msubsports.com"
+],
+"Montevallo": [
+"montevallo.edu",
+"montevallofalcons.com"
+],
+"Mount Olive": [
+"umo.edu",
+"umotrojans.com"
+],
+"Newberry": [
+"newberry.edu",
+"newberrywolves.com",
+"web.archive.org"
+],
+"Newman": [
+"newmanjets.com",
+"newmanu.edu"
+],
+"North Georgia": [
+"ung.edu",
+"ungathletics.com"
+],
+"Northeastern State": [
+"goriverhawksgo.com",
+"nsuok.edu"
+],
+"Northern Michigan": [
+"nmu.edu",
+"nmuwildcats.com"
+],
+"Northwest Nazarene": [
+"my.nnu.edu",
+"nnu.edu",
+"nnusports.com"
+],
+"Northwood": [
+"gonorthwood.com",
+"northwood.edu",
+"timberwolves.gonorthwood.com",
+"www.gonorthwood.com"
+],
+"Nova Southeastern": [
+"mynsu.nova.edu",
+"nova.edu",
+"nsusharks.com"
+],
+"Ohio Dominican": [
+"ohiodominican.edu",
+"ohiodominicanpanthers.com"
+],
+"Oklahoma Christian": [
+"eagles.oc.edu",
+"oc.edu",
+"oceagles.com"
+],
+"Ouachita Baptist": [
+"obu.edu",
+"obutigers.com"
+],
+"Pace": [
+"pace.edu",
+"paceuathletics.com"
+],
+"Palm Beach Atlantic": [
+"pba.edu",
+"pbasailfish.com"
+],
+"PennWest California": [
+"calvulcans.com",
+"pennwest.edu"
+],
+"PennWest Johnstown": [
+"pitt.edu",
+"pittjohnstownathletics.com"
+],
+"Pikeville": [
+"upike.edu",
+"upikebears.com"
+],
+"Point Loma Nazarene": [
+"plnusealions.com",
+"pointloma.edu"
+],
+"Point Park": [
+"pointpark.edu",
+"pointparksports.com"
+],
+"Post": [
+"post.edu",
+"posteagles.com",
+"web.archive.org"
+],
+"Purdue Northwest": [
+"pnw.edu",
+"pnwathletics.com"
+],
+"Queens (CUNY)": [
+"qc.cuny.edu",
+"queensathletics.com",
+"queensknights.com"
+],
+"Quincy": [
+"quhawks.com",
+"quincy.edu"
+],
+"Regis (CO)": [
+"regis.edu",
+"regisrangers.com"
+],
+"Roberts Wesleyan": [
+"roberts.edu",
+"robertsredhawks.com"
+],
+"Rockhurst": [
+"gmail.com",
+"hawks.rockhurst.edu",
+"rockhurst.edu",
+"rockhursthawks.com"
+],
+"Rogers State": [
+"rsu.edu",
+"rsuhillcats.com"
+],
+"Rollins": [
+"rollins.edu",
+"rollinssports.com"
+],
+"Roosevelt": [
+"roosevelt.edu",
+"rooseveltlakers.com"
+],
+"Saginaw Valley State": [
+"svsu.edu",
+"svsucardinals.com"
+],
+"Saint Anselm": [
+"anselm.edu",
+"saintanselmhawks.com"
+],
+"Saint Leo": [
+"email.saintleo.edu",
+"saintleo.edu",
+"saintleolions.com"
+],
+"Saint Martin's": [
+"smusaints.com",
+"stmartin.edu"
+],
+"Saint Michael's": [
+"smcathletics.com",
+"smcvt.edu"
+],
+"Salem": [
+"salemtigers.com",
+"salemu.edu"
+],
+"San Francisco State": [
+"sfstategators.com",
+"sfsu.edu"
+],
+"Seattle Pacific": [
+"spu.edu",
+"spufalcons.com"
+],
+"Seton Hill": [
+"athletics.setonhill.edu",
+"setonhill.edu"
+],
+"Shaw": [
+"shawbears.com",
+"shawu.edu"
+],
+"Shawnee State": [
+"shawnee.edu",
+"ssubears.com"
+],
+"Shepherd": [
+"rams.shepherd.edu",
+"shepherd.edu",
+"shepherdrams.com"
+],
+"Shippensburg": [
+"ship.edu",
+"shipraiders.com"
+],
+"Shorter": [
+"goshorterhawks.com",
+"shorter.edu"
+],
+"Simon Fraser": [
+"athletics.sfu.ca",
+"sfu.ca"
+],
+"Slippery Rock": [
+"rockathletics.com",
+"sru.edu"
+],
+"South Carolina Aiken": [
+"pacersports.com",
+"usca.edu"
+],
+"South Dakota Mines": [
+"gorockers.com",
+"sdsmt.edu"
+],
+"Southern Connecticut State": [
+"gmail.com",
+"scsuowls.com",
+"southernct.edu"
+],
+"Southern Nazarene": [
+"mail.snu.edu",
+"snu.edu",
+"snuathletics.com"
+],
+"Southern New Hampshire": [
+"snhu.edu",
+"snhupenmen.com"
+],
+"Southern Wesleyan": [
+"swu.edu",
+"swuathletics.com"
+],
+"Southwest Baptist": [
+"sbubearcats.com",
+"sbuniv.edu",
+"www.sbubearcats.com"
+],
+"Spring Hill": [
+"shc.edu",
+"shcbadgers.com"
+],
+"St. Cloud State": [
+"go.stcloudstate.edu",
+"scsuhuskies.com",
+"stcloudstate.edu"
+],
+"St. Mary's (TX)": [
+"gosmst.com",
+"rattlerathletics.com",
+"stmarytx.edu"
+],
+"St. Thomas Aquinas": [
+"stac.edu",
+"stacathletics.com",
+"www.stacathletics.com"
+],
+"Staten Island": [
+"csi.cuny.edu",
+"csidolphins.com"
+],
+"Sul Ross State": [
+"srlobos.com",
+"sulross.edu"
+],
+"Tampa": [
+"tampaprepathletics.org",
+"tampaspartans.com",
+"ut.edu",
+"www.tampaspartans.com"
+],
+"Texas A&M International": [
+"godustdevils.com",
+"tamiu.edu"
+],
+"Thomas Jefferson": [
+"jefferson.edu",
+"jeffersonrams.com"
+],
+"Thomas More": [
+"thomasmore.edu",
+"thomasmoresaints.com"
+],
+"Tiffin": [
+"gotiffindragons.com",
+"tiffin.edu"
+],
+"Trevecca Nazarene": [
+"tnutrojans.com",
+"trevecca.edu"
+],
+"Truman State": [
+"truman.edu",
+"trumanbulldogs.com"
+],
+"Tusculum": [
+"tusculum.edu",
+"tusculumpioneers.com",
+"www.tusculumpioneers.com"
+],
+"UC Merced": [
+"ucmerced.edu",
+"ucmercedbobcats.com"
+],
+"UCCS": [
+"gomountainlions.com",
+"uccs.edu"
+],
+"UMSL": [
+"umsl.edu",
+"umsltritons.com"
+],
+"UT Dallas": [
+"utdallas.edu",
+"utdcomets.com",
+"uttylerpatriots.com"
+],
+"UT Tyler": [
+"uttyler.edu",
+"uttylerpatriots.com"
+],
+"Union (TN)": [
+"uu.edu",
+"uuathletics.com"
+],
+"Upper Iowa": [
+"uiu.edu",
+"uiupeacocks.com",
+"upperiowaathletics.com"
+],
+"Vanguard": [
+"vanguard.edu",
+"vanguardlions.com"
+],
+"Virginia State": [
+"govsutrojans.com",
+"vsu.edu"
+],
+"Walsh": [
+"athletics.walsh.edu",
+"walsh.edu"
+],
+"West Alabama": [
+"uwa.edu",
+"uwaathletics.com"
+],
+"West Chester": [
+"wcupa.edu",
+"wcupagoldenrams.com"
+],
+"West Florida": [
+"goargos.com",
+"uwf.edu"
+],
+"West Liberty": [
+"hilltoppersports.com",
+"westliberty.edu"
+],
+"West Texas A&M": [
+"buffs.wtamu.edu",
+"gobuffsgo.com",
+"wtamu.edu"
+],
+"West Virginia Wesleyan": [
+"bobcats.wvwc.edu",
+"wesleyanbobcats.com",
+"wvwc.edu"
+],
+"Western Oregon": [
+"wou.edu",
+"wouwolves.com"
+],
+"Western Washington": [
+"wwu.edu",
+"wwuvikings.com"
+],
+"Westminster (UT)": [
+"westminstergriffins.com",
+"westminsteru.edu"
+],
+"Westmont": [
+"athletics.westmont.edu",
+"westmont.edu"
+],
+"Wheeling": [
+"cardinal.wheeling.edu",
+"wheeling.edu",
+"wucardinals.com"
+],
+"William Jewell": [
+"jewellcardinals.com",
+"william.jewell.edu"
+],
+"Wilmington (DE)": [
+"uncwsports.com",
+"wildcats.athletics.wilmu.edu",
+"wilmu.edu"
+],
+"Wingate": [
+"wingate.edu",
+"wingatebulldogs.com"
+],
+"Wisconsin-Parkside": [
+"parksiderangers.com",
+"uwp.edu"
+],
+"Young Harris": [
+"yhc.edu",
+"yhcathletics.com"
+],
+"Inter American (PR)": [
+"deportes.inter.edu",
+"inter.edu"
+],
+"Adrian": [
+"adrian.edu",
+"adrianbulldogs.com"
+],
+"Albertus Magnus": [
+"albertus.edu",
+"www.albertusfalcons.com"
+],
+"Albion": [
+"albion.edu",
+"gobrits.com"
+],
+"Albright": [
+"albright.edu",
+"albrightathletics.com",
+"gmail.com"
+],
+"Alfred State": [
+"alfredstate.edu",
+"alfredstateathletics.com"
+],
+"Alfred University": [
+"alfred.edu",
+"gosaxons.com"
+],
+"Allegheny": [
+"allegheny.edu",
+"alleghenygators.com",
+"alleghenysports.com"
+],
+"Alma": [
+"alma.edu",
+"almascots.com"
+],
+"Alvernia": [
+"alvernia.edu",
+"auwolves.com"
+],
+"Amherst": [
+"amherst.edu",
+"athletics.amherst.edu"
+],
+"Anderson (IN)": [
+"anderson.edu",
+"athletics.anderson.edu",
+"autrojans.com"
+],
+"Anna Maria": [
+"annamaria.edu",
+"goamcats.com",
+"www.goamcats.com"
+],
+"Arcadia": [
+"arcadia.edu",
+"arcadiaknights.com"
+],
+"Asbury": [
+"asbury.edu",
+"asburyeagles.com"
+],
+"Augsburg": [
+"athletics.augsburg.edu",
+"augsburg.edu"
+],
+"Augustana (IL)": [
+"athletics.augustana.edu",
+"augustana.edu"
+],
+"Aurora": [
+"athletics.aurora.edu",
+"aurora.edu"
+],
+"Austin College": [
+"acroos.com",
+"austincollege.edu",
+"www.acroos.com"
+],
+"Averett": [
+"averett.edu",
+"averettcougars.com"
+],
+"Babson": [
+"babson.edu",
+"babsonathletics.com"
+],
+"Baldwin Wallace": [
+"bw.edu",
+"bwyellowjackets.com"
+],
+"Bard": [
+"bard.edu",
+"bardathletics.com"
+],
+"Bates": [
+"bates.edu",
+"gobatesbobcats.com",
+"web.archive.org"
+],
+"Belhaven": [
+"belhaven.edu",
+"blazers.belhaven.edu"
+],
+"Beloit": [
+"beloit.edu",
+"beloitcollegeathletics.com"
+],
+"Benedictine (IL)": [
+"ben.edu",
+"benueagles.com"
+],
+"Berea": [
+"berea.edu",
+"bereaathletics.com"
+],
+"Berry": [
+"berry.edu",
+"berryvikings.com",
+"www.berryvikings.com"
+],
+"Bethany (WV)": [
+"bethanybison.com",
+"bethanywv.edu",
+"blcvikings.com"
+],
+"Bethany Lutheran": [
+"blc.edu",
+"blcvikings.com"
+],
+"Bethel (MN)": [
+"athletics.bethel.edu",
+"bethel.edu"
+],
+"Blackburn": [
+"blackburn.edu",
+"blackburnbeavers.com",
+"www.blackburnbeavers.com"
+],
+"Bluffton": [
+"bluffton.edu",
+"blufftonbeavers.com"
+],
+"Bob Jones": [
+"bju.edu",
+"bjubruins.com",
+"www.bjubruins.com"
+],
+"Bowdoin": [
+"athletics.bowdoin.edu",
+"bowdoin.edu"
+],
+"Brandeis": [
+"brandeis.edu",
+"brandeisjudges.com"
+],
+"Brevard": [
+"bctornados.com",
+"brevard.edu"
+],
+"Bridgewater (VA)": [
+"bridgewater.edu",
+"bridgewatereagles.com"
+],
+"Bridgewater State": [
+"athletics.middlebury.edu",
+"bridgew.edu",
+"gmail.com",
+"www.bsubears.com"
+],
+"Bryn Athyn": [
+"brynathyn.edu",
+"brynathynathletics.com"
+],
+"Buena Vista": [
+"bvu.edu",
+"bvuathletics.com"
+],
+"Cairn": [
+"cairn.edu",
+"cairnhighlanders.com",
+"www.cairnhighlanders.com"
+],
+"Cal Lutheran": [
+"callutheran.edu",
+"clusports.com"
+],
+"Caltech": [
+"caltech.edu",
+"gocaltech.com"
+],
+"Calvin": [
+"calvin.edu",
+"calvinknights.com"
+],
+"Capital": [
+"athletics.capital.edu",
+"capital.edu"
+],
+"Carleton": [
+"athletics.carleton.edu",
+"carleton.edu",
+"gmail.com"
+],
+"Carlow": [
+"athletics.carlow.edu",
+"carlow.edu"
+],
+"Carnegie Mellon": [
+"andrew.cmu.edu",
+"athletics.cmu.edu",
+"cmu.edu"
+],
+"Carroll (WI)": [
+"carrollu.edu",
+"gopios.com"
+],
+"Carthage": [
+"athletics.carthage.edu",
+"carthage.edu"
+],
+"Case Western Reserve": [
+"athletics.case.edu",
+"case.edu"
+],
+"Catholic": [
+"catholicathletics.com",
+"cua.edu"
+],
+"Centenary (LA)": [
+"centenary.edu",
+"gocentenary.com",
+"www.gocentenary.com"
+],
+"Centenary (NJ)": [
+"centenarycyclones.com",
+"centenaryuniversity.edu"
+],
+"Central (IA)": [
+"athletics.central.edu",
+"central.edu"
+],
+"Centre": [
+"centre.edu",
+"centrecolonels.com"
+],
+"Chapman": [
+"athletics.chapman.edu",
+"chapman.edu",
+"chapmanathletics.com"
+],
+"Chatham": [
+"chatham.edu",
+"gochathamcougars.com"
+],
+"Christopher Newport": [
+"cnu.edu",
+"www.cnusports.com"
+],
+"Claremont-Mudd-Scripps": [
+"cms.claremont.edu",
+"cmsathletics.org"
+],
+"Clark (MA)": [
+"clarkathletics.com",
+"clarku.edu"
+],
+"Clarkson": [
+"clarkson.edu",
+"clarksonathletics.com"
+],
+"Coe": [
+"coe.edu",
+"gmail.com",
+"kohawkathletics.com"
+],
+"Colby": [
+"colby.edu",
+"colbyathletics.com"
+],
+"Colby-Sawyer": [
+"colby-sawyer.edu",
+"www.colby-sawyerathletics.com"
+],
+"College of Wooster": [
+"wooster.edu",
+"woosterathletics.com",
+"www.woosterathletics.com"
+],
+"Colorado College": [
+"cctigers.com",
+"coloradocollege.edu"
+],
+"Concordia (MN)": [
+"athletics.concordia.edu",
+"cord.edu",
+"gocobbers.com"
+],
+"Concordia Chicago": [
+"cuchicago.edu",
+"cuwfalcons.com",
+"www.cucougars.com"
+],
+"Concordia Texas": [
+"athletics.concordia.edu",
+"concordia.edu",
+"ctx.edu"
+],
+"Concordia Wisconsin": [
+"cuw.edu",
+"cuwfalcons.com",
+"www.cuwfalcons.com"
+],
+"Connecticut College": [
+"camelathletics.com",
+"conncoll.edu"
+],
+"Cornell College": [
+"cornellcollege.edu",
+"cornellrams.com"
+],
+"Covenant": [
+"athletics.covenant.edu",
+"covenant.edu"
+],
+"Crown (MN)": [
+"athletics.crown.edu",
+"crown.edu"
+],
+"Curry": [
+"curry.edu",
+"curryathletics.com",
+"www.curryathletics.com"
+],
+"DePauw": [
+"depauw.edu",
+"depauwtigers.com"
+],
+"DeSales": [
+"athletics.desales.edu",
+"desales.edu"
+],
+"Delaware Valley": [
+"athletics.delval.edu",
+"delval.edu"
+],
+"Denison": [
+"bigred.denison.edu",
+"denison.edu",
+"denisonbigred.com"
+],
+"Dickinson": [
+"dickinson.edu",
+"dickinsonathletics.com"
+],
+"Dominican (IL)": [
+"dom.edu",
+"dominicanathletics.com",
+"dustars.com"
+],
+"Drew": [
+"drew.edu",
+"drewrangers.com"
+],
+"Earlham": [
+"earlham.edu",
+"goearlham.com"
+],
+"East Texas Baptist": [
+"etbu.edu",
+"goetbutigers.com"
+],
+"Eastern (PA)": [
+"eastern.edu",
+"goeasterneagles.com",
+"usueasternathletics.com"
+],
+"Eastern Connecticut": [
+"easternct.edu",
+"gowarriorathletics.com"
+],
+"Eastern Mennonite": [
+"emu.edu",
+"emuroyals.com"
+],
+"Eastern Nazarene": [
+"athletics.enc.edu",
+"colby-sawyerathletics.com",
+"enc.edu"
+],
+"Edgewood": [
+"edgewood.edu",
+"edgewoodeagles.com",
+"icloud.com"
+],
+"Elizabethtown": [
+"etown.edu",
+"etownbluejays.com"
+],
+"Elmhurst": [
+"365.elmhurst.edu",
+"elmhurst.edu",
+"elmhurstbluejays.com"
+],
+"Elmira": [
+"athletics.elmira.edu",
+"elmira.edu"
+],
+"Elms": [
+"athletics.elms.edu",
+"ecblazers.com",
+"elms.edu",
+"www.ecblazers.com"
+],
+"Emerson": [
+"emerson.edu",
+"emersonlions.com"
+],
+"Emmanuel (MA)": [
+"emmanuel.edu",
+"goecsaints.com",
+"goeulions.com"
+],
+"Emory": [
+"emory.edu",
+"emoryathletics.com"
+],
+"Endicott": [
+"ecgulls.com",
+"endicott.edu",
+"www.ecgulls.com"
+],
+"Eureka": [
+"eureka.edu",
+"eurekareddevils.com",
+"www.eurekareddevils.com"
+],
+"FDU-Florham": [
+"drewrangers.com",
+"fdu.edu",
+"fdudevils.com",
+"student.fdu.edu"
+],
+"Ferrum": [
+"ferrum.edu",
+"ferrumpanthers.com"
+],
+"Fitchburg State": [
+"fitchburgfalcons.com",
+"fitchburgstate.edu",
+"gmail.com",
+"student.fitchburgstate.edu",
+"www.fitchburgfalcons.com"
+],
+"Framingham State": [
+"bantamsports.com",
+"framingham.edu",
+"www.fsurams.com"
+],
+"Franciscan (OH)": [
+"franciscan.edu",
+"franciscanathletics.com"
+],
+"Franklin": [
+"franklincollege.edu",
+"franklingrizzlies.com"
+],
+"Franklin & Marshall": [
+"fandm.edu",
+"godiplomats.com"
+],
+"Fredonia State": [
+"fredonia.edu",
+"fredoniabluedevils.com"
+],
+"Gallaudet": [
+"gallaudet.edu",
+"gallaudetbison.com"
+],
+"Geneva": [
+"athletics.geneva.edu",
+"geneva.edu"
+],
+"George Fox": [
+"athletics.georgefox.edu",
+"georgefox.edu"
+],
+"Gettysburg": [
+"gettysburg.edu",
+"gettysburgsports.com"
+],
+"Gordon": [
+"athletics.gordon.edu",
+"gordon.edu"
+],
+"Goucher": [
+"athletics.goucher.edu",
+"goucher.edu"
+],
+"Grace Christian": [
+"gracechristian.edu",
+"gracetigers.com"
+],
+"Greensboro": [
+"greensboro.edu",
+"greensborocollegesports.com"
+],
+"Grinnell": [
+"grinnell.edu",
+"pioneers.grinnell.edu"
+],
+"Grove City": [
+"athletics.gcc.edu",
+"gcc.edu"
+],
+"Guilford": [
+"guilford.edu",
+"guilfordquakers.com"
+],
+"Gustavus Adolphus": [
+"gogusties.com",
+"gustavus.edu"
+],
+"Gwynedd Mercy": [
+"gmercyu.edu",
+"gwyneddathletics.com"
+],
+"Hamilton": [
+"athletics.hamilton.edu",
+"hamilton.edu"
+],
+"Hamline": [
+"hamline.edu",
+"hamlineathletics.com"
+],
+"Hampden-Sydney": [
+"hsc.edu",
+"hscathletics.com"
+],
+"Hanover": [
+"athletics.hanover.edu",
+"hanover.edu"
+],
+"Hardin-Simmons": [
+"hsuathletics.com",
+"hsutx.edu"
+],
+"Hartwick": [
+"hartwick.edu",
+"hartwickhawks.com",
+"www.hartwickhawks.com"
+],
+"Haverford": [
+"haverford.edu",
+"haverfordathletics.com"
+],
+"Heidelberg": [
+"bergathletics.com",
+"heidelberg.edu",
+"www.bergathletics.com"
+],
+"Hendrix": [
+"hendrix.edu",
+"hendrixwarriors.com"
+],
+"Hilbert": [
+"hilbert.edu",
+"hilberthawks.com"
+],
+"Hiram": [
+"hiram.edu",
+"hiramterriers.com"
+],
+"Hobart & William Smith": [
+"hws.edu",
+"hwsathletics.com"
+],
+"Hood": [
+"hood.edu",
+"hoodathletics.com"
+],
+"Hope": [
+"athletics.hope.edu",
+"hope.edu"
+],
+"Houghton": [
+"athletics.houghton.edu",
+"houghton.edu"
+],
+"Howard Payne": [
+"hpusports.com",
+"hputx.edu"
+],
+"Huntingdon": [
+"hawks.huntingdon.edu",
+"huntingdonhawks.com",
+"www.huntingdonhawks.com"
+],
+"Husson": [
+"husson.edu",
+"hussoneagles.com"
+],
+"Illinois College": [
+"ic.edu",
+"illinoiscollegeathletics.com"
+],
+"Illinois Tech": [
+"illinoistech.edu",
+"illinoistechathletics.com"
+],
+"Illinois Wesleyan": [
+"iwu.edu",
+"iwusports.com",
+"www.iwusports.com"
+],
+"Immaculata": [
+"gomightymacs.com",
+"immaculata.edu"
+],
+"Ithaca": [
+"athletics.ithaca.edu",
+"ithaca.edu"
+],
+"John Carroll": [
+"jcu.edu",
+"jcusports.com"
+],
+"Johns Hopkins": [
+"hopkinssports.com",
+"jhu.edu"
+],
+"Johnson & Wales (Charlotte)": [
+"charlotte.jwuathletics.com",
+"jwu.edu"
+],
+"Johnson & Wales (Providence)": [
+"jwu.edu",
+"providence.jwuathletics.com"
+],
+"Juniata": [
+"juniata.edu",
+"juniatasports.net",
+"www.juniatasports.net"
+],
+"Kalamazoo": [
+"hornets.kzoo.edu",
+"kzoo.edu"
+],
+"Kean": [
+"kean.edu",
+"keanathletics.com"
+],
+"Keene State": [
+"keene.edu",
+"keeneowls.com"
+],
+"Kenyon": [
+"athletics.kenyon.edu",
+"kenyon.edu"
+],
+"Keuka": [
+"keuka.edu",
+"keukaathletics.com"
+],
+"King's (PA)": [
+"kings.edu",
+"kingscollegeathletics.com"
+],
+"Knox": [
+"knox.edu",
+"prairiefire.knox.edu"
+],
+"La Roche": [
+"laroche.edu",
+"larochesports.com",
+"thielathletics.com",
+"www.larochesports.com"
+],
+"LaGrange": [
+"lagrange.edu",
+"lagrangepanthers.com"
+],
+"Lake Forest": [
+"goforesters.com",
+"lakeforest.edu"
+],
+"Lakeland": [
+"lakeland.edu",
+"lakelandmuskies.com"
+],
+"Lancaster Bible": [
+"gmail.com",
+"lbc.edu",
+"lbcchargers.com",
+"restoredinvestment.com"
+],
+"Lasell": [
+"lasell.edu",
+"laserpride.lasell.edu"
+],
+"Lawrence": [
+"lawrence.edu",
+"ltuathletics.com",
+"vikings.lawrence.edu"
+],
+"LeTourneau": [
+"letu.edu",
+"letuathletics.com"
+],
+"Lebanon Valley": [
+"godutchmen.com",
+"lvc.edu"
+],
+"Lesley": [
+"lesley.edu",
+"lesleyathletics.com"
+],
+"Lewis & Clark": [
+"golcathletics.com",
+"lclark.edu",
+"lcpioneers.com"
+],
+"Linfield": [
+"golinfieldwildcats.com",
+"linfield.edu"
+],
+"Loras": [
+"duhawks.com",
+"loras.edu"
+],
+"Luther": [
+"luther.edu",
+"luthernorse.com",
+"mlcknights.com"
+],
+"Lycoming": [
+"lycoming.edu",
+"lycomingathletics.com"
+],
+"Lyon College": [
+"lyon.edu",
+"lyonscots.com"
+],
+"MIT": [
+"mit.edu",
+"mitathletics.com"
+],
+"Macalester": [
+"athletics.macalester.edu",
+"macalester.edu"
+],
+"Maine Maritime": [
+"marinersports.org",
+"mma.edu"
+],
+"Manchester": [
+"manchester.edu",
+"muspartans.com"
+],
+"Manhattanville": [
+"govaliants.com",
+"mville.edu"
+],
+"Marian (WI)": [
+"marianuniversity.edu",
+"sabreathletics.com"
+],
+"Marietta": [
+"marietta.edu",
+"pioneers.marietta.edu"
+],
+"Martin Luther": [
+"mlc-wels.edu",
+"mlcknights.com"
+],
+"Mary Baldwin": [
+"marybaldwin.edu",
+"marybaldwinathletics.com"
+],
+"Marymount (VA)": [
+"lmulions.com",
+"marymount.edu",
+"marymountsaints.com"
+],
+"Maryville (TN)": [
+"maryvillecollege.edu",
+"maryvillesaints.com",
+"mcscots.com"
+],
+"Marywood": [
+"marywood.edu",
+"marywoodpacers.com"
+],
+"Massachusetts College of Liberal Arts": [
+"athletics.mcla.edu",
+"mcla.edu"
+],
+"Massachusetts Maritime": [
+"maritime.edu",
+"maritimeathletics.com",
+"www.mmabucs.com"
+],
+"McDaniel": [
+"mcdaniel.edu",
+"mcdanielathletics.com"
+],
+"McMurry": [
+"mcm.edu",
+"mcmurrysports.com"
+],
+"Messiah": [
+"gomessiah.com",
+"messiah.edu"
+],
+"Methodist": [
+"methodist.edu",
+"mumonarchs.com",
+"www.mumonarchs.com"
+],
+"Middlebury": [
+"athletics.middlebury.edu",
+"middlebury.edu"
+],
+"Millsaps": [
+"gomajors.com",
+"millsaps.edu"
+],
+"Monmouth (IL)": [
+"monmouthcollege.edu",
+"monmouthscots.com"
+],
+"Montclair State": [
+"montclair.edu",
+"montclairathletics.com",
+"njithighlanders.com"
+],
+"Moravian": [
+"moravian.edu",
+"moraviansports.com",
+"www.moraviansports.com"
+],
+"Mount St. Joseph": [
+"msj.edu",
+"msjlions.com"
+],
+"Mount Union": [
+"athletics.mountunion.edu",
+"mountunion.edu"
+],
+"Muhlenberg": [
+"muhlenberg.edu",
+"muhlenbergsports.com"
+],
+"Muskingum": [
+"fightingmuskies.com",
+"muskingum.edu",
+"www.fightingmuskies.com"
+],
+"Nazareth": [
+"naz.edu",
+"nazathletics.com"
+],
+"New England College": [
+"athletics.nec.edu",
+"nec.edu"
+],
+"New York University": [
+"gonyuathletics.com",
+"nyu.edu"
+],
+"North Carolina Wesleyan": [
+"ncwsports.com",
+"ncwu.edu"
+],
+"North Central (IL)": [
+"ncurams.com",
+"noctrl.edu",
+"northcentralcardinals.com"
+],
+"North Park": [
+"athletics.northpark.edu",
+"northpark.edu"
+],
+"Oberlin": [
+"goyeo.com",
+"oberlin.edu"
+],
+"Oglethorpe": [
+"gopetrels.com",
+"oglethorpe.edu"
+],
+"Ohio Northern": [
+"battlingbishops.com",
+"onu.edu",
+"onusports.com",
+"www.onusports.com"
+],
+"Ohio Wesleyan": [
+"battlingbishops.com",
+"owu.edu"
+],
+"Olivet": [
+"olivetcomets.com",
+"uolivet.edu"
+],
+"Otterbein": [
+"otterbein.edu",
+"otterbeincardinals.com"
+],
+"Pacific Lutheran": [
+"golutes.com",
+"plu.edu"
+],
+"Penn State Behrend": [
+"alfredstateathletics.com",
+"psblions.com",
+"psu.edu",
+"www.psblions.com"
+],
+"Penn State Harrisburg": [
+"psu.edu",
+"psuharrisburgsports.com"
+],
+"Plattsburgh State": [
+"gocardinalsports.com",
+"plattsburgh.edu"
+],
+"Plymouth State": [
+"athletics.plymouth.edu",
+"plymouth.edu"
+],
+"Pomona-Pitzer": [
+"pomona.edu",
+"sagehens.com"
+],
+"Puget Sound": [
+"loggerathletics.com",
+"pugetsound.edu"
+],
+"Randolph-Macon": [
+"rmc.edu",
+"rmcathletics.com"
+],
+"Rensselaer": [
+"rpi.edu",
+"rpiathletics.com"
+],
+"Rhode Island College": [
+"goanchormen.com",
+"ric.edu"
+],
+"Rhodes": [
+"rhodes.edu",
+"rhodeslynx.com"
+],
+"Ripon": [
+"ripon.edu",
+"riponredhawks.com"
+],
+"Roanoke": [
+"roanoke.edu",
+"roanokemaroons.com"
+],
+"Rochester": [
+"sports.rochester.edu",
+"uofrathletics.com",
+"ur.rochester.edu"
+],
+"Rochester Institute of Technology": [
+"rit.edu",
+"ritathletics.com",
+"www.rit.edu"
+],
+"Roger Williams": [
+"rwu.edu",
+"rwuhawks.com"
+],
+"Rose-Hulman": [
+"athletics.rose-hulman.edu",
+"rose-hulman.edu"
+],
+"Rowan": [
+"rowan.edu",
+"rowanathletics.com"
+],
+"Rutgers-Camden": [
+"camden.rutgers.edu",
+"rutgers.edu",
+"scarletraptors.com"
+],
+"Rutgers-Newark": [
+"newark.rutgers.edu",
+"rutgers.edu",
+"rutgersnewarkathletics.com",
+"scarletmail.rutgers.edu"
+],
+"SCAD": [
+"savannah.scadathletics.com",
+"scad.edu",
+"scadathletics.com"
+],
+"SUNY Cortland": [
+"cortland.edu",
+"cortlandreddragons.com",
+"www.cortlandreddragons.com"
+],
+"SUNY Geneseo": [
+"geneseo.edu",
+"geneseoknights.com"
+],
+"SUNY New Paltz": [
+"newpaltz.edu",
+"nphawks.com"
+],
+"SUNY Old Westbury": [
+"oldwestbury.edu",
+"oldwestburypanthers.com",
+"www.oldwestburypanthers.com"
+],
+"SUNY Oneonta": [
+"oneonta.edu",
+"oneontaathletics.com"
+],
+"SUNY Oswego": [
+"oswego.edu",
+"oswegolakers.com"
+],
+"SUNY Potsdam": [
+"potsdam.edu",
+"potsdambears.com"
+],
+"Saint Francis (PA)": [
+"francis.edu",
+"sfuathletics.com"
+],
+"Saint John Fisher": [
+"sjf.edu",
+"sjfathletics.com",
+"sjfc.edu"
+],
+"Saint Joseph's (ME)": [
+"gomonks.com",
+"providence.jwuathletics.com",
+"sjcme.edu"
+],
+"Saint Lawrence": [
+"saintsathletics.com",
+"stlawu.edu"
+],
+"Saint Mary's (MN)": [
+"saintmaryssports.com",
+"smumn.edu"
+],
+"Saint Olaf": [
+"athletics.stolaf.edu",
+"stolaf.edu"
+],
+"Salisbury": [
+"salisbury.edu",
+"suseagulls.com"
+],
+"Salve Regina": [
+"salve.edu",
+"salveathletics.com"
+],
+"Scranton": [
+"athletics.scranton.edu",
+"scranton.edu"
+],
+"Shenandoah": [
+"goshenandoah.com",
+"su.edu",
+"suhornets.com"
+],
+"Simpson (IA)": [
+"simpson.edu",
+"simpsonathletics.com",
+"www.simpsonathletics.com"
+],
+"Skidmore": [
+"skidmore.edu",
+"skidmoreathletics.com"
+],
+"Southern Maine": [
+"maine.edu",
+"southernmainehuskies.com"
+],
+"Southern Virginia": [
+"knightathletics.com",
+"svu.edu"
+],
+"Southwestern (TX)": [
+"southwestern.edu",
+"southwesternpirates.com"
+],
+"Springfield": [
+"springfieldcollege.edu",
+"springfieldcollegepride.com"
+],
+"St. Joseph's (NY)": [
+"sjliathletics.com",
+"sjny.edu"
+],
+"St. Mary's College of Maryland": [
+"smcm.edu",
+"smcmathletics.com"
+],
+"St. Norbert": [
+"athletics.snc.edu",
+"snc.edu"
+],
+"St. Scholastica": [
+"css.edu",
+"csssaints.com"
+],
+"Stevens Tech": [
+"stevens.edu",
+"stevensducks.com"
+],
+"Stevenson": [
+"gomustangsports.com",
+"stevenson.edu"
+],
+"Stockton": [
+"stockton.edu",
+"stocktonathletics.com"
+],
+"Susquehanna": [
+"suriverhawks.com",
+"susqu.edu"
+],
+"Swarthmore": [
+"swarthmore.edu",
+"swarthmoreathletics.com"
+],
+"Trine": [
+"trine.edu",
+"trinethunder.com"
+],
+"Trinity (CT)": [
+"bantamsports.com",
+"trincoll.edu",
+"trinitysports.com"
+],
+"Trinity (TX)": [
+"trinity.edu",
+"trinitytigers.com"
+],
+"Tufts": [
+"gotuftsjumbos.com",
+"tufts.edu"
+],
+"Union (NY)": [
+"union.edu",
+"unionathletics.com"
+],
+"University of Chicago": [
+"athletics.uchicago.edu",
+"uchicago.edu"
+],
+"University of New England": [
+"athletics.une.edu",
+"une.edu"
+],
+"Ursinus": [
+"ursinus.edu",
+"ursinusathletics.com"
+],
+"Utica": [
+"utica.edu",
+"uticapioneers.com"
+],
+"Virginia Wesleyan": [
+"batten.edu",
+"battenathletics.com",
+"vwu.edu",
+"vwuathletics.com"
+],
+"Wartburg": [
+"go-knights.net",
+"wartburg.edu"
+],
+"Washington & Jefferson": [
+"gopresidents.com",
+"washjeff.edu"
+],
+"Washington & Lee": [
+"generalssports.com",
+"lynchburgsports.com",
+"wlu.edu"
+],
+"Washington College (MD)": [
+"washcoll.edu",
+"washcollsports.com"
+],
+"Waynesburg": [
+"waynesburg.edu",
+"waynesburgsports.com"
+],
+"Webster": [
+"webster.edu",
+"websterathletics.com"
+],
+"Wesleyan (CT)": [
+"athletics.wesleyan.edu",
+"wesleyan.edu"
+],
+"Western Connecticut": [
+"gmail.com",
+"wcsu.edu",
+"westconnathletics.com"
+],
+"Western New England": [
+"wne.edu",
+"wnegoldenbears.com"
+],
+"Westminster (MO)": [
+"gowestminster.com",
+"wcbluejays.wcmo.edu",
+"westminster-mo.edu"
+],
+"Westminster (PA)": [
+"athletics.westminster.edu",
+"westminster.edu"
+],
+"Wheaton (IL)": [
+"athletics.wheaton.edu",
+"wheaton.edu"
+],
+"Wheaton (MA)": [
+"athletics.wheaton.edu",
+"wheatoncollege.edu",
+"wheatoncollegelyons.com"
+],
+"Whitman": [
+"athletics.whitman.edu",
+"whitman.edu",
+"whitmanblues.com"
+],
+"Whitworth": [
+"whitworth.edu",
+"whitworthpirates.com"
+],
+"Widener": [
+"widener.edu",
+"widenerpride.com"
+],
+"Williams": [
+"ephsports.williams.edu",
+"gmail.com",
+"williams.edu"
+],
+"Wilmington (OH)": [
+"uncwsports.com",
+"wilmington.edu",
+"wilmingtonquakers.com"
+],
+"Wisconsin-Eau Claire": [
+"athletics.stolaf.edu",
+"blugolds.com",
+"uwec.edu"
+],
+"Wisconsin-Oshkosh": [
+"uwosh.edu",
+"uwoshkoshtitans.com"
+],
+"Wisconsin-Platteville": [
+"athletics.carthage.edu",
+"letsgopioneers.com",
+"uwplatt.edu"
+],
+"Wisconsin-River Falls": [
+"uwrf.edu",
+"uwrfsports.com"
+],
+"Wisconsin-Stevens Point": [
+"athletics.uwsp.edu",
+"uwlathletics.com",
+"uwsp.edu"
+],
+"Wisconsin-Stout": [
+"stoutbluedevils.com",
+"uwstout.edu"
+],
+"Wisconsin-Superior": [
+"uwsuper.edu",
+"uwsyellowjackets.com"
+],
+"Wisconsin-Whitewater": [
+"uww.edu",
+"uwwsports.com"
+],
+"Worcester Polytechnic": [
+"athletics.wpi.edu",
+"wpi.edu"
+],
+"Yeshiva": [
+"yu.edu",
+"yumacs.com"
+],
+"York (PA)": [
+"ycp.edu",
+"ycpspartans.com"
+],
+"Keystone": [
+"gokcgiants.com",
+"keystone.edu",
+"www.gokcgiants.com"
+],
+"Millikin": [
+"athletics.millikin.edu",
+"millikin.edu"
+],
+"New England": [
+"athletics.nec.edu",
+"athletics.une.edu",
+"nec.edu"
+],
+"Nichols": [
+"nichols.edu",
+"nicholsathletics.com"
+],
+"Saint Vincent": [
+"athletics.stvincent.edu",
+"stvincent.edu"
+],
+"Suffolk": [
+"gosuffolkrams.com",
+"suffolk.edu",
+"www.gosuffolkrams.com"
+],
+"Wentworth": [
+"wentworthathletics.com",
+"wit.edu",
+"www.wentworthathletics.com"
+],
+"Westfield State": [
+"westfield.ma.edu",
+"westfieldstateowls.com"
+],
+"Wilkes": [
+"gowilkesu.com",
+"wilkes.edu"
+],
+"Wisconsin-La Crosse": [
+"uwlathletics.com",
+"uwlax.edu",
+"wlcsports.com"
+],
+"Wittenberg": [
+"wittenberg.edu",
+"wittenbergtigers.com"
+],
+"Worcester State": [
+"worcester.edu",
+"wsulancers.com"
+],
+"Andrew College": [
+"andrewcollege.edu",
+"andrewfightingtigers.com"
+],
+"Aquinas College (Michigan)": [
+"aqsaints.com",
+"aquinas.edu"
+],
+"Arizona Christian University": [
+"acufirestorm.com",
+"arizonachristian.edu"
+],
+"Ave Maria University": [
+"avemaria.edu",
+"avemariagyrenes.com"
+],
+"Avila University": [
+"avila.edu",
+"avilaathletics.com",
+"web.archive.org",
+"www.avila.edu"
+],
+"Baker University": [
+"bakeru.edu",
+"bakerwildcats.com",
+"stu.bakeru.edu",
+"web.archive.org",
+"www.bakerwildcats.com"
+],
+"Bellevue University": [
+"bellevue.edu",
+"bubruins.com",
+"web.archive.org",
+"www.bubruins.com"
+],
+"Benedictine College": [
+"benedictine.edu",
+"ravenathletics.com"
+],
+"Benedictine University at Mesa": [
+"ben.edu",
+"benuredhawks.com"
+],
+"Bethany College (Kansas)": [
+"bethanylb.edu",
+"bethanyswedes.com",
+"web.archive.org",
+"www.bethanyswedes.com"
+],
+"Bethel College (Kansas)": [
+"bethelks.edu",
+"bethelthreshers.com"
+],
+"Bethel University (IN)": [
+"betheluniversity.edu",
+"bupilots.com"
+],
+"Bethel University (TN)": [
+"bethelathletics.com",
+"bethelu.edu",
+"web.archive.org",
+"www.bethelathletics.com"
+],
+"Blue Mountain Christian University": [
+"bmc.edu",
+"bmcusports.com"
+],
+"Bluefield University": [
+"bluefield.edu",
+"burams.com"
+],
+"Brescia University": [
+"brescia.edu",
+"bresciabearcats.com"
+],
+"Brewton-Parker Christian University": [
+"bpc.edu",
+"bpcuathletics.com"
+],
+"Briar Cliff University": [
+"bcuchargers.com",
+"briarcliff.edu"
+],
+"Bryan College": [
+"bryan.edu",
+"bryanlions.com"
+],
+"Bushnell University": [
+"bushnell.edu",
+"bushnellbeacons.com"
+],
+"Calumet College of St. Joseph": [
+"ccsj.edu",
+"ccsjathletics.com"
+],
+"Campbellsville University": [
+"campbellsville.edu",
+"campbellsvilletigers.com"
+],
+"Carolina University": [
+"carolinau.edu",
+"cubruins.com"
+],
+"Carroll College": [
+"carroll.edu",
+"carrollathletics.com"
+],
+"Central Baptist College": [
+"cbc.edu",
+"cbcmustangs.com"
+],
+"Central Christian College of Kansas": [
+"ccctigers.com",
+"centralchristian.edu"
+],
+"Central Methodist University": [
+"centralmethodist.edu",
+"cmueagles.com"
+],
+"Clarke University": [
+"clarke.edu",
+"clarkepride.com",
+"web.archive.org"
+],
+"Cleary University": [
+"cleary.edu",
+"clearycougars.com",
+"gmail.com",
+"web.archive.org"
+],
+"College of Idaho": [
+"collegeofidaho.edu",
+"yoteathletics.com"
+],
+"Columbia College (MO)": [
+"ccis.edu",
+"columbiacougars.com",
+"cougars.ccis.edu"
+],
+"Columbia College (SC)": [
+"columbiasc.edu",
+"gmail.com",
+"gokoalas.com"
+],
+"Columbia International University": [
+"ciu.edu",
+"ciurams.com"
+],
+"Corban University": [
+"corban.edu",
+"corbanwarriors.com"
+],
+"Cornerstone University": [
+"cornerstone.edu",
+"cugoldeneagles.com"
+],
+"Culver-Stockton College": [
+"cscwildcats.com",
+"culver.edu"
+],
+"Cumberland University": [
+"cumberland.edu",
+"gocumberlandathletics.com"
+],
+"Dakota Wesleyan University": [
+"dwu.edu",
+"dwuathletics.com"
+],
+"Dalton State College": [
+"daltonstate.edu",
+"dsroadrunners.com"
+],
+"Defiance College": [
+"defiance.edu",
+"defiance.prestosports.com",
+"defianceathletics.com",
+"web.archive.org"
+],
+"Doane University": [
+"doane.edu",
+"doaneathletics.com",
+"web.doane.edu"
+],
+"Dordt University": [
+"dordt.edu",
+"godordt.com"
+],
+"Eastern Oregon University": [
+"eou.edu",
+"eousports.com"
+],
+"Embry-Riddle Aeronautical University Prescott": [
+"erau.edu",
+"eraueagles.com"
+],
+"Evangel University": [
+"evangel.edu",
+"evangelathletics.com"
+],
+"Faulkner University": [
+"faulkner.edu",
+"faulknereagles.com"
+],
+"Fisher College": [
+"fisher.edu",
+"fisher.prestosports.com",
+"fisherfalcons.com"
+],
+"Florida College": [
+"floridacollege.edu",
+"floridacollege.prestosports.com",
+"wearefc.com",
+"www.wearefc.com"
+],
+"Florida Memorial University": [
+"fmu.edu",
+"fmuathletics.com"
+],
+"Florida National University": [
+"fnu.edu",
+"fnusports.com"
+],
+"Freed-Hardeman University": [
+"fhu.edu",
+"gofhulions.com"
+],
+"Friends University": [
+"friends.edu",
+"friendsathletics.com",
+"student.friends.edu"
+],
+"Georgetown College": [
+"georgetowncollege.edu",
+"georgetowncollegeathletics.com",
+"web.archive.org"
+],
+"Georgia Gwinnett College": [
+"ggc.edu",
+"ggcathletics.com"
+],
+"Goshen College": [
+"goleafs.net",
+"goshen.edu"
+],
+"Governors State University": [
+"govst.edu",
+"gsujaguars.com"
+],
+"Grace College": [
+"gclancers.com",
+"grace.edu"
+],
+"Graceland University": [
+"graceland.edu",
+"gujackets.com",
+"web.archive.org"
+],
+"Grand View University": [
+"grandview.edu",
+"gvvikings.com"
+],
+"Hannibal-LaGrange University": [
+"hlg.edu",
+"hlgtrojans.com"
+],
+"Harris-Stowe State University": [
+"hornetsathletics.com",
+"hssu.edu"
+],
+"Hastings College": [
+"hastings.edu",
+"hastingsbroncos.com",
+"web.archive.org"
+],
+"Hesston College": [
+"hclarks.com",
+"hesston.edu"
+],
+"Holy Cross College": [
+"hcc-nd.edu",
+"hcsaints.com",
+"web.archive.org"
+],
+"Hope International University": [
+"hiu.edu",
+"hiuroyals.com"
+],
+"Huntington University": [
+"huathletics.com",
+"huntington.edu"
+],
+"Huston-Tillotson University": [
+"htramsathletics.com",
+"htu.edu"
+],
+"Indiana Institute of Technology": [
+"indianatech.edu",
+"indianatech.net",
+"indianatechwarriors.com"
+],
+"Indiana University Columbus": [
+"iu.edu",
+"iuccrimsonpride.com"
+],
+"Indiana University East": [
+"iu.edu",
+"iueredwolves.com"
+],
+"Indiana University Northwest": [
+"iu.edu",
+"iunredhawks.com"
+],
+"Indiana Wesleyan University": [
+"indwes.edu",
+"iwuwildcats.com",
+"myemail.indwes.edu"
+],
+"John Brown University": [
+"jbu.edu",
+"jbuathletics.com"
+],
+"Johnson University": [
+"johnsonroyals.com",
+"johnsonu.edu"
+],
+"Judson University": [
+"judsoneagles.com",
+"judsonu.edu"
+],
+"Kansas Wesleyan University": [
+"kwu.edu",
+"kwucoyotes.com"
+],
+"Keiser University": [
+"keiseruniversity.edu",
+"kuseahawks.com"
+],
+"Kentucky Christian University": [
+"kcu.edu",
+"kcuknights.com",
+"web.archive.org"
+],
+"La Sierra University": [
+"lasierra.edu",
+"lsugoldeneagles.com"
+],
+"Lawrence Technological University": [
+"gmail.com",
+"ltu.edu",
+"ltuathletics.com"
+],
+"Life University": [
+"life.edu",
+"liferunningeagles.com",
+"student.life.edu"
+],
+"Lindsey Wilson University": [
+"lindsey.edu",
+"lindseyathletics.com"
+],
+"Louisiana Christian University": [
+"lcuniversity.edu",
+"lcwildcats.net"
+],
+"LSU Alexandria": [
+"lsua.edu",
+"lsuagenerals.com",
+"yahoo.com"
+],
+"LSU Shreveport": [
+"lsus.edu",
+"lsusathletics.com",
+"web.archive.org"
+],
+"Madonna University": [
+"madonna.edu",
+"mucrusaders.com",
+"my.madonna.edu"
+],
+"Marian University (IN)": [
+"marian.edu",
+"muknights.com"
+],
+"McPherson College": [
+"macbulldogs.com",
+"mcpherson.edu"
+],
+"Mid-America Christian University": [
+"macu.edu",
+"macuathletics.com"
+],
+"MidAmerica Nazarene University": [
+"mnu.edu",
+"mnusports.com"
+],
+"Midland University": [
+"midlandathletics.com",
+"midlandu.edu"
+],
+"Midway University": [
+"gomidwayeagles.com",
+"midway.edu"
+],
+"Milligan University": [
+"milliganbuffs.com"
+],
+"Mission University": [
+"gopatriotathletics.com",
+"mission.edu"
+],
+"Missouri Baptist University": [
+"mbuspartans.com",
+"mobap.edu"
+],
+"Missouri Valley College": [
+"moval.edu",
+"valleywillroll.com",
+"www.valleywillroll.com"
+],
+"Montreat College": [
+"montreat.edu",
+"montreatcavaliers.com"
+],
+"Morningside University": [
+"morningside.edu",
+"msidemustangs.com",
+"web.archive.org"
+],
+"Mount Marty University": [
+"mountmarty.edu",
+"mountmartyathletics.com"
+],
+"Mount Mercy University": [
+"mountmercymustangs.com",
+"mtmercy.edu"
+],
+"Mount Vernon Nazarene University": [
+"mail.mvnu.edu",
+"mvnu.edu",
+"mvnucougars.com"
+],
+"Nelson University": [
+"my.nelson.edu",
+"nelson.edu",
+"nelsonlions.com"
+],
+"New College of Florida": [
+"gomightybanyans.com",
+"ncf.edu"
+],
+"North American University": [
+"gmail.com",
+"na.edu",
+"stallions.na.edu",
+"yahoo.com"
+],
+"Northwest University": [
+"northwestu.edu",
+"nueagles.com"
+],
+"Northwestern College (Iowa)": [
+"nwciowa.edu",
+"nwcraiders.com"
+],
+"Oakland City University": [
+"gomightyoaks.com",
+"oak.edu"
+],
+"Oakwood University": [
+"athletics.oakwood.edu",
+"oakwood.edu",
+"yahoo.com"
+],
+"Oklahoma Panhandle State University": [
+"opsu.edu",
+"opsuaggies.com",
+"web.archive.org"
+],
+"Oklahoma Wesleyan University": [
+"okwu.edu",
+"okwueagles.com",
+"web.archive.org"
+],
+"Olivet Nazarene University": [
+"olivet.edu",
+"onutigers.com",
+"web.archive.org"
+],
+"Oregon Institute of Technology": [
+"oit.edu",
+"oregontechowls.com"
+],
+"Ottawa University": [
+"ottawa.edu",
+"ottawabraves.com"
+],
+"Ottawa University Arizona": [
+"ottawa.edu",
+"ouazspirit.com"
+],
+"Our Lady of the Lake University": [
+"ollusa.edu",
+"ollusaintsathletics.com"
+],
+"Pacific Union College": [
+"pioneersathletics.com",
+"puc.edu"
+],
+"Park University": [
+"park.edu",
+"parkathletics.com"
+],
+"Park University Gilbert": [
+"gilbert.parkathletics.com",
+"park.edu"
+],
+"Paul Quinn College": [
+"paulquinnathletics.com",
+"pqc.edu"
+],
+"Point University": [
+"point.edu",
+"skyhawkathletics.com",
+"students.point.edu",
+"web.archive.org"
+],
+"Reinhardt University": [
+"reinhardt.edu",
+"reinhardteagles.com"
+],
+"Rio Grande (University of)": [
+"gmail.com",
+"rio.edu",
+"rioredstorm.com",
+"web.archive.org"
+],
+"Rochester Christian University": [
+"rcu.edu",
+"rcuwarriors.com"
+],
+"Rocky Mountain College": [
+"gobattlinbears.com",
+"rocky.edu"
+],
+"Saint Ambrose University": [
+"sau.edu",
+"saubees.com"
+],
+"Saint Mary-of-the-Woods College": [
+"smwc.edu",
+"smwcathletics.com"
+],
+"Saint Xavier University": [
+"sxu.edu",
+"sxucougars.com"
+],
+"Savannah College of Art and Design": [
+"savannah.scadathletics.com",
+"scad.edu",
+"web.archive.org"
+],
+"Shawnee State University": [
+"shawnee.edu",
+"ssubears.com"
+],
+"Simpson University": [
+"simpsonredhawks.com",
+"simpsonu.edu",
+"yahoo.com"
+],
+"Soka University of America": [
+"soka.edu",
+"sokaathletics.com"
+],
+"Southeastern University (Florida)": [
+"fire.seu.edu",
+"seu.edu"
+],
+"Southern Oregon University": [
+"sou.edu",
+"souraiders.com"
+],
+"Southwestern Christian University": [
+"gmail.com",
+"scueagles.com",
+"swcu.edu"
+],
+"Southwestern College (Kansas)": [
+"buildersports.com",
+"sckans.edu"
+],
+"Spartanburg Methodist College": [
+"gosmcpioneers.com",
+"smcsc.edu"
+],
+"Spring Arbor University": [
+"arbor.edu",
+"saucougars.com"
+],
+"St. Thomas University (Florida)": [
+"stu.edu",
+"stubobcats.com"
+],
+"Sterling College (Kansas)": [
+"scwarriors.com",
+"sterling.edu",
+"www.sterling.edu"
+],
+"Tabor College": [
+"tabor.edu",
+"taborbluejays.com"
+],
+"Talladega College": [
+"talladega.edu",
+"talladegatornadoes.com"
+],
+"Taylor University": [
+"taylor.edu",
+"taylortrojans.com",
+"www.taylortrojans.com"
+],
+"Tennessee Wesleyan University": [
+"tnwesleyan.edu",
+"twbulldogs.com",
+"www.twbulldogs.com"
+],
+"Texas A&M University-San Antonio": [
+"tamusa.edu",
+"tamusasports.com"
+],
+"Texas A&M University-Texarkana": [
+"tamut.edu",
+"tamuteagles.com",
+"www.tamut.edu"
+],
+"Texas A&M University-Victoria": [
+"tamuv.edu",
+"tamuvathletics.com",
+"web.archive.org"
+],
+"Texas College": [
+"tcsteersathletics.com",
+"texascollege.edu"
+],
+"Texas Wesleyan University": [
+"ramsports.net",
+"txwes.edu"
+],
+"The Evergreen State College": [
+"evergreen.edu",
+"gogeoducks.com"
+],
+"The Master's University": [
+"gemcorp.com",
+"gomustangs.com",
+"masters.edu"
+],
+"Thomas University": [
+"thomasu.edu",
+"tunighthawks.com"
+],
+"Tougaloo College": [
+"gmail.com",
+"tougaloo.edu",
+"tougaloobulldogs.com"
+],
+"Trinity Christian College": [
+"trnty.edu",
+"trollsathletics.com"
+],
+"Truett McConnell University": [
+"tmbears.com",
+"tmu.edu"
+],
+"Union Commonwealth University": [
+"gounionbulldogs.com",
+"unionky.edu"
+],
+"University of Health Sciences and Pharmacy in St. Louis": [
+"eutecticsports.com",
+"uhsp.edu"
+],
+"University of Michigan-Dearborn": [
+"athletics.umdearborn.edu",
+"umich.edu"
+],
+"University of Mobile": [
+"umobile.edu",
+"umobilerams.com"
+],
+"University of Northwestern Ohio": [
+"unoh.edu",
+"unohracers.com",
+"web.archive.org"
+],
+"University of Pikeville": [
+"upike.edu",
+"upikebears.com"
+],
+"University of Providence": [
+"upargos.com",
+"uprovidence.edu"
+],
+"University of Saint Francis (IN)": [
+"saintfranciscougars.com",
+"sf.edu",
+"web.archive.org"
+],
+"University of Saint Mary": [
+"gospires.com",
+"my.stmary.edu",
+"stmary.edu"
+],
+"University of Science and Arts of Oklahoma": [
+"usao.edu",
+"usaoathletics.com",
+"web.archive.org"
+],
+"University of St. Francis (IL)": [
+"gofightingsaints.com",
+"stfrancis.edu"
+],
+"University of Tennessee Southern": [
+"utsfirehawks.com",
+"utsouthern.edu"
+],
+"University of the Cumberlands": [
+"cumberlandspatriots.com",
+"ucumberlands.edu"
+],
+"University of the Southwest": [
+"usw.edu",
+"uswathletics.com"
+],
+"Waldorf University": [
+"waldorf.edu",
+"waldorfwarriors.com",
+"web.archive.org",
+"www.waldorfwarriors.com"
+],
+"Walla Walla University": [
+"uwolves.com",
+"wallawalla.edu"
+],
+"Warner Pacific University": [
+"warnerpacific.edu",
+"wpuknights.com"
+],
+"Warner University": [
+"warner.edu",
+"warnerroyals.com"
+],
+"Washington Adventist University": [
+"gmail.com",
+"wau.edu",
+"wauathletics.com"
+],
+"Wayland Baptist University": [
+"wbu.edu",
+"wbuathletics.com"
+],
+"Webber International University": [
+"webber.edu",
+"webberathletics.com"
+],
+"West Virginia University Institute of Technology": [
+"goldenbearathletics.com",
+"mail.wvu.edu",
+"wvu.edu"
+],
+"Westcliff University": [
+"westcliff.edu",
+"westcliffathletics.com"
+],
+"Wiley University": [
+"wileyathletics.com",
+"wileyc.edu",
+"www.wileyathletics.com"
+],
+"William Carey University": [
+"careyathletics.com",
+"student.wmcarey.edu",
+"wmcarey.edu"
+],
+"William Penn University": [
+"statesmenathletics.com",
+"wmpenn.edu",
+"wpenn.edu",
+"www.statesmenathletics.com"
+],
+"William Woods University": [
+"williamwoods.edu",
+"wwuowls.com"
+],
+"Williams Baptist University": [
+"wbueagles.com",
+"williamsbu.edu"
+],
+"Xavier University of Louisiana": [
+"xula.edu",
+"xulagold.com"
+],
+"York University (Nebraska)": [
+"york.edu",
+"yorkpanthers.com"
+],
+"Abilene Christian": [
+"acu.edu",
+"acusports.com"
+],
+"Air Force": [
+"afacademy.af.edu",
+"goairforcefalcons.com"
+],
+"Alabama": [
+"ia.ua.edu",
+"rolltide.com"
+],
+"Alabama A&M": [
+"aamu.edu",
+"aamusports.com"
+],
+"Alabama State": [
+"alasu.edu",
+"bamastatesports.com"
+],
+"Alcorn State": [
+"alcorn.edu",
+"alcornsports.com"
+],
+"American": [
+"american.edu",
+"aueagles.com"
+],
+"Appalachian State": [
+"appstate.edu",
+"appstatesports.com"
+],
+"Arizona": [
+"arizona.edu",
+"arizonawildcats.com"
+],
+"Arizona State": [
+"asu.edu",
+"thesundevils.com"
+],
+"Arkansas": [
+"arkansasrazorbacks.com",
+"directory.uark.edu",
+"uark.edu"
+],
+"Arkansas State": [
+"astate.edu",
+"astateredwolves.com"
+],
+"Arkansas-Pine Bluff": [
+"uapb.edu",
+"uapblionsroar.com"
+],
+"Auburn": [
+"auburn.edu",
+"auburntigers.com"
+],
+"Austin Peay": [
+"apsu.edu",
+"letsgopeay.com"
+],
+"Ball State": [
+"ballstatesports.com",
+"bsu.edu"
+],
+"Baylor": [
+"baylor.edu",
+"baylorbears.com"
+],
+"Bellarmine": [
+"athletics.bellarmine.edu",
+"bellarmine.edu"
+],
+"Boise State": [
+"boisestate.edu",
+"broncosports.com"
+],
+"Bryant": [
+"bryant.edu",
+"bryantbulldogs.com"
+],
+"Buffalo": [
+"buffalo.edu",
+"ubbulls.com"
+],
+"BYU": [
+"byu.edu",
+"byucougars.com"
+],
+"Campbell": [
+"campbell.edu",
+"gocamels.com"
+],
+"Canisius": [
+"canisius.edu",
+"gogriffs.com"
+],
+"Central Connecticut": [
+"ccsu.edu",
+"ccsubluedevils.com"
+],
+"Central Michigan": [
+"cmich.edu",
+"cmuchippewas.com"
+],
+"Charleston": [
+"cofc.edu",
+"cofcsports.com",
+"ucgoldeneagles.com",
+"ucwv.edu"
+],
+"Charleston Southern": [
+"csuniv.edu",
+"csusports.com",
+"student.csuniv.edu"
+],
+"Chattanooga": [
+"gomocs.com",
+"utc.edu",
+"web.archive.org"
+],
+"Cincinnati": [
+"gobearcats.com",
+"ucmail.uc.edu"
+],
+"Colorado": [
+"colorado.edu",
+"cubuffs.com"
+],
+"Colorado State": [
+"colostate.edu",
+"csurams.com"
+],
+"Delaware State": [
+"desu.edu",
+"dsuhornets.com"
+],
+"Drexel": [
+"drexel.edu",
+"drexeldragons.com"
+],
+"East Carolina": [
+"ecu.edu",
+"ecupirates.com"
+],
+"East Tennessee State": [
+"etsu.edu",
+"etsubucs.com"
+],
+"East Texas A&M": [
+"etamu.edu",
+"lionathletics.com"
+],
+"Eastern Kentucky": [
+"eku.edu",
+"ekusports.com"
+],
+"Eastern Michigan": [
+"emich.edu",
+"emueagles.com"
+],
+"Eastern Washington": [
+"ewu.edu",
+"goeags.com"
+],
+"Elon": [
+"elon.edu",
+"elonphoenix.com"
+],
+"Fairfield": [
+"fairfield.edu",
+"fairfieldstags.com"
+],
+"Fairleigh Dickinson": [
+"fdu.edu",
+"fduknights.com",
+"student.fdu.edu"
+],
+"FIU": [
+"fiu.edu",
+"fiusports.com"
+],
+"Florida": [
+"floridagators.com",
+"gators.ufl.edu"
+],
+"Florida State": [
+"fsu.edu",
+"seminoles.com"
+],
+"Fresno State": [
+"gobulldogs.com",
+"mail.fresnostate.edu"
+],
+"Furman": [
+"furman.edu",
+"furmanpaladins.com"
+],
+"Gardner-Webb": [
+"gardner-webb.edu",
+"gwusports.com"
+],
+"Georgia": [
+"georgiadogs.com",
+"sports.uga.edu"
+],
+"Grambling State": [
+"gram.edu",
+"gsutigers.com"
+],
+"Hampton": [
+"hamptonpirates.com",
+"hamptonu.edu"
+],
+"Hawaii": [
+"hawaii.edu",
+"hawaiiathletics.com"
+],
+"High Point": [
+"highpoint.edu",
+"highpointpanthers.com"
+],
+"Houston": [
+"central.uh.edu",
+"uhcougars.com"
+],
+"Howard": [
+"howard.edu",
+"hubison.com"
+],
+"Idaho": [
+"govandals.com",
+"uidaho.edu"
+],
+"Idaho State": [
+"isu.edu",
+"isubengals.com"
+],
+"Illinois": [
+"fightingillini.com",
+"illinois.edu"
+],
+"Illinois State": [
+"goredbirds.com",
+"ilstu.edu"
+],
+"Indiana State": [
+"gosycamores.com",
+"indstate.edu"
+],
+"Iona": [
+"icgaels.com",
+"iona.edu",
+"ionagaels.com"
+],
+"Iowa": [
+"hawkeyesports.com",
+"uiowa.edu"
+],
+"Iowa State": [
+"cyclones.com",
+"iastate.edu"
+],
+"IU Indy": [
+"iu.edu",
+"iuindyjags.com"
+],
+"Jackson State": [
+"gojsutigers.com",
+"jsums.edu"
+],
+"Jacksonville State": [
+"jaxstatesports.com",
+"jsu.edu"
+],
+"Kansas": [
+"ku.edu",
+"kuathletics.com"
+],
+"Kansas State": [
+"kstatesports.com",
+"www.kstatesports.com",
+"www.kstatesports.com:443"
+],
+"Kennesaw State": [
+"kennesaw.edu",
+"ksuowls.com"
+],
+"Kent State": [
+"kent.edu",
+"kentstatesports.com"
+],
+"Kentucky": [
+"ukathletics.com",
+"uky.edu"
+],
+"Lamar": [
+"lamar.edu",
+"lamarcardinals.com"
+],
+"Le Moyne": [
+"lemoyne.edu",
+"lemoynedolphins.com"
+],
+"Little Rock": [
+"lrtrojans.com",
+"ualr.edu"
+],
+"LIU": [
+"liu.edu",
+"liuathletics.com",
+"www.liuathletics.com"
+],
+"Long Beach State": [
+"csulb.edu",
+"longbeachstate.com"
+],
+"Longwood": [
+"longwood.edu",
+"longwoodlancers.com"
+],
+"Louisiana": [
+"louisiana.edu",
+"ragincajuns.com"
+],
+"Louisiana Tech": [
+"latech.edu",
+"latechsports.com"
+],
+"Louisiana-Monroe": [
+"ulm.edu",
+"ulmwarhawks.com",
+"warhawks.ulm.edu"
+],
+"Loyola (MD)": [
+"loyola.edu",
+"loyolagreyhounds.com"
+],
+"LSU": [
+"lsu.edu",
+"lsusports.net"
+],
+"Maine": [
+"goblackbears.com",
+"maine.edu"
+],
+"Marist": [
+"goredfoxes.com",
+"marist.edu"
+],
+"McNeese": [
+"mcneese.edu",
+"mcneesesports.com"
+],
+"Mercer": [
+"mercer.edu",
+"mercerbears.com"
+],
+"Mercyhurst": [
+"hurstathletics.com",
+"mercyhurst.edu"
+],
+"Merrimack": [
+"merrimack.edu",
+"merrimackathletics.com"
+],
+"Miami (FL)": [
+"miamihurricanes.com"
+],
+"Miami (OH)": [
+"miamioh.edu",
+"miamiredhawks.com"
+],
+"Middle Tennessee": [
+"goblueraiders.com",
+"mtmail.mtsu.edu",
+"mtsu.edu"
+],
+"Minnesota": [
+"gophersports.com",
+"umn.edu"
+],
+"Mississippi State": [
+"athletics.msstate.edu",
+"hailstate.com"
+],
+"Missouri": [
+"missouri.edu",
+"mutigers.com"
+],
+"Monmouth": [
+"monmouth.edu",
+"monmouthhawks.com"
+],
+"Montana": [
+"gogriz.com",
+"mso.umt.edu",
+"umontana.edu"
+],
+"Morehead State": [
+"moreheadstate.edu",
+"msueagles.com"
+],
+"Mount St. Mary's": [
+"mountathletics.com",
+"msmary.edu"
+],
+"Murray State": [
+"goracers.com",
+"murraystate.edu"
+],
+"Nebraska": [
+"huskers.com"
+],
+"Nevada": [
+"nevadawolfpack.com",
+"unr.edu"
+],
+"New Mexico": [
+"golobos.com",
+"unm.edu"
+],
+"New Mexico State": [
+"nmstatesports.com",
+"nmsu.edu"
+],
+"Niagara": [
+"niagara.edu",
+"purpleeagles.com"
+],
+"Nicholls": [
+"geauxcolonels.com",
+"nicholls.edu"
+],
+"North Alabama": [
+"roarlions.com",
+"una.edu"
+],
+"North Dakota": [
+"fightinghawks.com",
+"und.edu"
+],
+"North Dakota State": [
+"gobison.com",
+"ndsu.edu"
+],
+"North Texas": [
+"meangreensports.com",
+"unt.edu"
+],
+"Northeastern": [
+"northeastern.edu",
+"nuhuskies.com"
+],
+"Northern Arizona": [
+"nau.edu",
+"nauathletics.com"
+],
+"Northern Colorado": [
+"uncbears.com",
+"unco.edu"
+],
+"Northern Iowa": [
+"uni.edu",
+"unipanthers.com"
+],
+"Northwestern State": [
+"nsudemons.com",
+"nsula.edu"
+],
+"Ohio": [
+"ohio.edu",
+"ohiobobcats.com"
+],
+"Oklahoma": [
+"ou.edu",
+"soonersports.com"
+],
+"Oklahoma State": [
+"okstate.com",
+"okstate.edu"
+],
+"Ole Miss": [
+"olemiss.edu",
+"olemisssports.com"
+],
+"Omaha": [
+"omavs.com",
+"unomaha.edu"
+],
+"Oregon": [
+"goducks.com",
+"uoregon.edu"
+],
+"Pepperdine": [
+"pepperdine.edu",
+"pepperdinewaves.com"
+],
+"Portland State": [
+"goviks.com",
+"pdx.edu"
+],
+"Prairie View A&M": [
+"pvamu.edu",
+"pvpanthers.com"
+],
+"Presbyterian": [
+"gobluehose.com",
+"presby.edu"
+],
+"Providence": [
+"friars.com",
+"providence.edu"
+],
+"Purdue": [
+"purdue.edu",
+"purduesports.com"
+],
+"Queens": [
+"queens.edu",
+"queensathletics.com"
+],
+"Quinnipiac": [
+"gobobcats.com",
+"qu.edu"
+],
+"Radford": [
+"radford.edu",
+"radfordathletics.com"
+],
+"Rice": [
+"rice.edu",
+"riceowls.com"
+],
+"Richmond": [
+"richmond.edu",
+"richmondspiders.com"
+],
+"Rider": [
+"gobroncs.com",
+"rider.edu"
+],
+"Sacred Heart": [
+"sacredheart.edu",
+"sacredheartpioneers.com"
+],
+"Saint Mary's": [
+"smcgaels.com",
+"stmarys-ca.edu"
+],
+"Sam Houston": [
+"gobearkats.com",
+"shsu.edu"
+],
+"Samford": [
+"samford.edu",
+"samfordsports.com"
+],
+"South Alabama": [
+"southalabama.edu",
+"usajaguars.com"
+],
+"South Carolina State": [
+"scsu.edu",
+"www.scsuathletics.com"
+],
+"South Dakota": [
+"goyotes.com",
+"usd.edu"
+],
+"South Dakota State": [
+"gojacks.com",
+"sdstate.edu"
+],
+"Southeast Missouri State": [
+"semo.edu",
+"semoredhawks.com"
+],
+"Southeastern Louisiana": [
+"lionsports.net",
+"southeastern.edu"
+],
+"Southern": [
+"gojagsports.com",
+"sus.edu"
+],
+"Southern Illinois": [
+"siu.edu",
+"siusalukis.com"
+],
+"Southern Miss": [
+"southernmiss.com",
+"usm.edu"
+],
+"Southern Utah": [
+"suu.edu",
+"suutbirds.com"
+],
+"Stephen F. Austin": [
+"sfajacks.com",
+"sfasu.edu"
+],
+"Stonehill": [
+"stonehill.edu",
+"stonehillskyhawks.com",
+"www.stantonelks.com"
+],
+"Stony Brook": [
+"stonybrook.edu",
+"stonybrookathletics.com"
+],
+"Tarleton State": [
+"tarleton.edu",
+"tarletonsports.com"
+],
+"TCU": [
+"gofrogs.com",
+"tcu.edu"
+],
+"Tennessee": [
+"utk.edu",
+"utsports.com"
+],
+"Tennessee Tech": [
+"tntech.edu",
+"ttusports.com"
+],
+"Texas": [
+"athletics.utexas.edu",
+"texaslonghorns.com",
+"utexas.edu"
+],
+"Texas A&M": [
+"12thman.com",
+"athletics.tamu.edu"
+],
+"Texas A&M-Corpus Christi": [
+"goislanders.com",
+"tamucc.edu"
+],
+"Texas Southern": [
+"tsu.edu",
+"tsusports.com"
+],
+"Texas State": [
+"txst.com",
+"txstate.edu"
+],
+"Texas Tech": [
+"texastech.com",
+"ttu.edu"
+],
+"The Citadel": [
+"citadel.edu",
+"citadelsports.com"
+],
+"Toledo": [
+"utoledo.edu",
+"utrockets.com"
+],
+"Towson": [
+"towson.edu",
+"towsontigers.com"
+],
+"Troy": [
+"troy.edu",
+"troytrojans.com"
+],
+"UNC Wilmington": [
+"uncw.edu",
+"uncwsports.com"
+],
+"USC": [
+"usc.edu",
+"usctrojans.com",
+"web.archive.org"
+],
+"UT Martin": [
+"skyhawks.utm.edu",
+"utm.edu",
+"utmsports.com"
+],
+"UT Rio Grande Valley": [
+"goutrgv.com",
+"utrgv.edu"
+],
+"Utah": [
+"huntsman.utah.edu",
+"utah.edu",
+"utahutes.com"
+],
+"Utah State": [
+"usu.edu",
+"utahstateaggies.com"
+],
+"UTEP": [
+"utep.edu",
+"utepminers.com"
+],
+"UTSA": [
+"goutsa.com",
+"utsa.edu",
+"web.archive.org"
+],
+"Valparaiso": [
+"valpo.edu",
+"valpoathletics.com"
+],
+"Vanderbilt": [
+"vanderbilt.edu",
+"vucommodores.com"
+],
+"Wagner": [
+"wagner.edu",
+"wagnerathletics.com"
+],
+"Washington State": [
+"wsu.edu",
+"wsucougars.com"
+],
+"Weber State": [
+"weber.edu",
+"weberstatesports.com"
+],
+"West Georgia": [
+"uwgathletics.com",
+"westga.edu"
+],
+"Western Carolina": [
+"catamountsports.com",
+"email.wcu.edu",
+"wcu.edu"
+],
+"Western Kentucky": [
+"wku.edu",
+"wkusports.com"
+],
+"Winthrop": [
+"winthrop.edu",
+"winthropeagles.com"
+],
+"Wofford": [
+"wofford.edu",
+"woffordterriers.com"
+],
+"Wyoming": [
+"gowyo.com",
+"uwyo.edu"
+],
+"Youngstown State": [
+"ysu.edu",
+"ysusports.com"
+],
+"AUM": [
+"aum.edu",
+"aumathletics.com"
+],
+"Albany State": [
+"asugoldenrams.com",
+"asurams.edu"
+],
+"Anderson": [
+"andersonuniversity.edu",
+"autrojans.com"
+],
+"Angelo State": [
+"angelo.edu",
+"angelosports.com"
+],
+"Augustana": [
+"augie.edu",
+"goaugie.com"
+],
+"Azusa Pacific": [
+"apu.edu",
+"athletics.apu.edu"
+],
+"Bemidji State": [
+"bemidjistate.edu",
+"bsubeavers.com"
+],
+"Black Hills State": [
+"bhsu.edu",
+"bhsuathletics.com",
+"yellowjackets.bhsu.edu"
+],
+"Bloomsburg": [
+"bloomsburgathletics.com",
+"bloomu.edu"
+],
+"CSU Pueblo": [
+"csupueblo.edu",
+"gothunderwolves.com"
+],
+"California (Pa.)": [
+"calvulcans.com",
+"pennwest.edu"
+],
+"Central Missouri": [
+"ucmathletics.com",
+"ucmo.edu"
+],
+"Central Oklahoma": [
+"bronchosports.com",
+"uco.edu"
+],
+"Central Washington": [
+"cwu.edu",
+"wildcatsports.com"
+],
+"Clarion": [
+"clariongoldeneagles.com",
+"pennwest.edu"
+],
+"Columbus State": [
+"columbusstate.edu",
+"csucougars.com"
+],
+"Concordia (Cal.)": [
+"cui.edu",
+"cuigoldeneagles.com"
+],
+"Concordia-St. Paul": [
+"csp.edu",
+"cspbears.com"
+],
+"DBU": [
+"dbu.edu",
+"dbupatriots.com"
+],
+"Dominican (NY)": [
+"duny.edu",
+"www.chargerathletics.com"
+],
+"East Central": [
+"ecok.edu",
+"ecutigers.com",
+"email.ecok.edu"
+],
+"Edinboro": [
+"gofightingscots.com",
+"pennwest.edu"
+],
+"Emmanuel": [
+"ec.edu",
+"goeulions.com"
+],
+"Emporia State": [
+"emporia.edu",
+"esuhornets.com"
+],
+"Fairmont State": [
+"fairmontstate.edu",
+"fightingfalcons.com"
+],
+"Ferris State": [
+"ferris.edu",
+"www.ferrisstatebulldogs.com"
+],
+"Georgia College": [
+"gcsu.edu",
+"gcsubobcats.com"
+],
+"Glenville State": [
+"glenville.edu",
+"gstatepioneers.com"
+],
+"Grand Valley State": [
+"gvsu.edu",
+"gvsulakers.com"
+],
+"Hawai'i Hilo": [
+"hawaii.edu",
+"hiloathletics.com"
+],
+"Hawai'i Pacific": [
+"hpu.edu",
+"hpusharks.com"
+],
+"IUP": [
+"iup.edu",
+"iupathletics.com"
+],
+"Jefferson": [
+"jefferson.edu",
+"jeffersonrams.com"
+],
+"King": [
+"king.edu",
+"www.kingtornado.com"
+],
+"Kutztown": [
+"kubears.com",
+"kutztown.edu"
+],
+"Lee": [
+"leeuflames.com",
+"leeuniversity.edu"
+],
+"Lincoln (Mo.)": [
+"lincolnu.edu",
+"lubluetigers.com"
+],
+"Lincoln (Pa.)": [
+"lincoln.edu",
+"lulions.com"
+],
+"Lock Haven": [
+"lockhaven.edu",
+"www.lockhavenathletics.com"
+],
+"MSU Denver": [
+"gmail.com",
+"hotmail.com",
+"msudenver.edu",
+"roadrunnersathletics.com"
+],
+"MSU Moorhead": [
+"mnstate.edu",
+"www.msumdragons.com"
+],
+"Mansfield": [
+"gomounties.com",
+"mansfield.edu"
+],
+"Mary": [
+"goumary.com",
+"umary.edu"
+],
+"Maryville": [
+"gmail.com",
+"maryville.edu",
+"maryvillesaints.com"
+],
+"Michigan Tech": [
+"michigantechhuskies.com",
+"mtu.edu"
+],
+"Minnesota Crookston": [
+"goldeneaglesports.com",
+"umn.edu"
+],
+"Minnesota Duluth": [
+"d.umn.edu",
+"umdbulldogs.com"
+],
+"Minnesota State": [
+"mnsu.edu",
+"msumavericks.com"
+],
+"Minot State": [
+"minotstateu.edu",
+"msubeavers.com",
+"ndus.edu"
+],
+"Missouri Southern": [
+"mssu.edu",
+"mssulions.com"
+],
+"Missouri Western": [
+"gogriffons.com",
+"missouriwestern.edu"
+],
+"Missouri-St. Louis": [
+"umsl.edu",
+"umsltritons.com"
+],
+"Nebraska-Kearney": [
+"lopers.com",
+"unk.edu"
+],
+"New Mexico Highlands": [
+"live.nmhu.edu",
+"nmhu.edu",
+"nmhuathletics.com",
+"nmhucowboys.com"
+],
+"North Greenville": [
+"ngu.edu",
+"nguathletics.com"
+],
+"Northern State": [
+"northern.edu",
+"nsuwolves.com"
+],
+"Northwest Missouri State": [
+"bearcatsports.com",
+"nwmissouri.edu"
+],
+"Northwestern Oklahoma State": [
+"nwosu.edu",
+"riderangersride.com"
+],
+"Oklahoma Baptist": [
+"obubison.com",
+"okbu.edu"
+],
+"Parkside": [
+"parksiderangers.com",
+"uwp.edu"
+],
+"Pitt-Johnstown": [
+"pitt.edu",
+"pittjohnstownathletics.com"
+],
+"Pittsburg State": [
+"gus.pittstate.edu",
+"pittstate.edu",
+"pittstategorillas.com"
+],
+"Point Loma": [
+"plnusealions.com",
+"pointloma.edu"
+],
+"Regis": [
+"regis.edu",
+"regisrangers.com"
+],
+"Sioux Falls": [
+"usfcougars.com",
+"usiouxfalls.edu"
+],
+"Southern Connecticut": [
+"scsuowls.com",
+"southernct.edu"
+],
+"Southwest Minnesota State": [
+"my.smsu.edu",
+"smsu.edu",
+"smsumustangs.com"
+],
+"Southwestern Oklahoma State": [
+"swosu.edu",
+"swosuathletics.com"
+],
+"St. Edward's": [
+"gohilltoppers.com",
+"stedwards.edu"
+],
+"St. Mary's": [
+"rattlerathletics.com",
+"stmarytx.edu"
+],
+"Stanislaus State": [
+"csustan.edu",
+"warriorathletics.com"
+],
+"Texas Woman's": [
+"twu.edu",
+"twuathletics.com"
+],
+"Trevecca": [
+"tnutrojans.com",
+"trevecca.edu"
+],
+"Truman": [
+"truman.edu",
+"trumanbulldogs.com"
+],
+"UAH": [
+"uah.edu",
+"uahchargers.com"
+],
+"UNC Pembroke": [
+"uncp.edu",
+"uncpbraves.com"
+],
+"USC Aiken": [
+"pacersports.com",
+"usca.edu"
+],
+"USC Beaufort": [
+"uscb.edu",
+"uscbathletics.com"
+],
+"UT Permian Basin": [
+"utpb.edu",
+"utpbfalcons.com"
+],
+"Union": [
+"uu.edu",
+"uuathletics.com"
+],
+"Ursuline": [
+"ursuline.edu",
+"ursulinearrows.com",
+"web.archive.org"
+],
+"Valdosta State": [
+"valdosta.edu",
+"vstateblazers.com"
+],
+"Washburn": [
+"washburn.edu",
+"wusports.com"
+],
+"Wayne State (Neb.)": [
+"wsc.edu",
+"wscwildcats.com"
+],
+"West Virginia State": [
+"wvstateu.edu",
+"wvsuyellowjackets.com"
+],
+"Western Colorado": [
+"gomountaineers.com",
+"western.edu"
+],
+"Westminster": [
+"westminstergriffins.com",
+"westminsteru.edu"
+],
+"Wilmington": [
+"wildcats.athletics.wilmu.edu",
+"wilmu.edu"
+],
+"Winona State": [
+"winona.edu",
+"winonastatewarriors.com"
+],
+"Alfred": [
+"alfred.edu",
+"gosaxons.com"
+],
+"Anderson (Ind.)": [
+"anderson.edu",
+"athletics.anderson.edu"
+],
+"Brooklyn": [
+"brooklyn.cuny.edu",
+"www.brooklyncollegeathletics.com"
+],
+"Bryn Mawr": [
+"brynmawr.edu",
+"gobrynmawr.com"
+],
+"Buffalo State": [
+"buffalostate.edu",
+"buffalostateathletics.com"
+],
+"CCNY": [
+"ccny.cuny.edu",
+"ccnyathletics.com"
+],
+"Castleton": [
+"castletonsports.com",
+"comcast.net",
+"vermontstate.edu"
+],
+"Cedar Crest": [
+"cedarcrest.edu",
+"cedarcrestathletics.com"
+],
+"Chicago": [
+"athletics.uchicago.edu",
+"uchicago.edu"
+],
+"Clark (Mass.)": [
+"clarkathletics.com",
+"clarku.edu"
+],
+"Coast Guard": [
+"coastguardathletics.com",
+"uscga.edu"
+],
+"Concordia (Texas)": [
+"athletics.concordia.edu",
+"concordia.edu",
+"ctx.edu"
+],
+"Concordia-Moorhead": [
+"cord.edu",
+"gocobbers.com"
+],
+"Conn College": [
+"camelathletics.com",
+"conncoll.edu"
+],
+"Crown": [
+"athletics.crown.edu",
+"crown.edu"
+],
+"Dallas": [
+"udallas.edu",
+"udallasathletics.com"
+],
+"Dean": [
+"dean.edu",
+"deanbulldogs.com"
+],
+"Emmanuel (Mass.)": [
+"emmanuel.edu",
+"goecsaints.com"
+],
+"Farmingdale State": [
+"farmingdale.edu",
+"farmingdalesports.com"
+],
+"Franciscan": [
+"franciscan.edu",
+"franciscanathletics.com"
+],
+"Greenville": [
+"greenville.edu",
+"greenvillepanthers.com",
+"nguathletics.com"
+],
+"Hollins": [
+"hollins.edu",
+"hollinssports.com"
+],
+"John Jay": [
+"jjay.cuny.edu",
+"johnjayathletics.com"
+],
+"La Verne": [
+"laverne.edu",
+"leopardathletics.com"
+],
+"Lehman": [
+"lehman.cuny.edu",
+"lehmanathletics.com"
+],
+"Lynchburg": [
+"lynchburg.edu",
+"lynchburgsports.com"
+],
+"Lyon": [
+"lyon.edu",
+"lyonscots.com"
+],
+"MCLA": [
+"athletics.mcla.edu",
+"mcla.edu"
+],
+"MUW": [
+"muw.edu",
+"owlsathletics.com"
+],
+"Maritime": [
+"maritimeathletics.com",
+"sunymaritime.edu"
+],
+"Mary Hardin-Baylor": [
+"cruathletics.com",
+"umhb.edu"
+],
+"Mary Washington": [
+"umw.edu",
+"umweagles.com"
+],
+"Mass. Maritime": [
+"maritime.edu",
+"www.mmabucs.com"
+],
+"Medgar Evers": [
+"gmail.com",
+"mecathletics.com"
+],
+"Merchant Marine": [
+"usmma.edu",
+"www.usmmasports.com"
+],
+"Meredith": [
+"goavengingangels.com",
+"meredith.edu"
+],
+"Milwaukee School of Engineering": [
+"msoe.edu",
+"msoeraiders.com"
+],
+"Minnesota-Morris": [
+"morris.umn.edu",
+"morriscougars.com"
+],
+"Misericordia": [
+"athletics.misericordia.edu",
+"misericordia.edu"
+],
+"Mitchell": [
+"mitchell.edu",
+"www.mitchellathletics.com"
+],
+"Mount Aloysius": [
+"mountieathletics.com",
+"mtaloy.edu"
+],
+"Mount Holyoke": [
+"athletics.mtholyoke.edu",
+"mtholyoke.edu"
+],
+"Mount Saint Mary (NY)": [
+"msmc.edu",
+"msmcknights.com"
+],
+"Mount Saint Vincent": [
+"umsv.edu",
+"umsvathletics.com"
+],
+"N.C. Wesleyan": [
+"ncwsports.com",
+"ncwu.edu"
+],
+"NYU": [
+"gonyuathletics.com",
+"nyu.edu"
+],
+"Neumann": [
+"neumann.edu",
+"neumannathletics.com"
+],
+"New England (Maine)": [
+"athletics.une.edu",
+"une.edu"
+],
+"New Jersey City": [
+"njcu.edu",
+"njcugothicknights.com",
+"web.archive.org"
+],
+"North Central (MN)": [
+"ncurams.com",
+"northcentral.edu"
+],
+"Northwestern (MN)": [
+"nusports.com",
+"unweagles.com",
+"unwsp.edu"
+],
+"Norwich": [
+"norwich.edu",
+"norwichathletics.com"
+],
+"Notre Dame of Maryland": [
+"ndm.edu",
+"notredamegators.com"
+],
+"Occidental": [
+"oxy.edu",
+"oxyathletics.com"
+],
+"Old Westbury": [
+"oldwestbury.edu",
+"www.oldwestburypanthers.com"
+],
+"Ozarks": [
+"ozarks.edu",
+"uofoathletics.com"
+],
+"Pacific (Oregon)": [
+"goboxers.com",
+"pacificu.edu"
+],
+"Penn College": [
+"pct.edu",
+"pctwildcats.com"
+],
+"Penn State Abington": [
+"abingtonsports.com",
+"psu.edu"
+],
+"Penn State Altoona": [
+"psaltoonalions.com",
+"psu.edu"
+],
+"Penn State Berks": [
+"psu.edu",
+"psuberksathletics.com"
+],
+"Penn State Brandywine": [
+"psu.edu",
+"psubrandywineathletics.com"
+],
+"Pfeiffer": [
+"gofalconsports.com",
+"pfeiffer.edu"
+],
+"Pitt-Bradford": [
+"athletics.pittbradford.org",
+"pitt.edu"
+],
+"Pitt-Greensburg": [
+"pitt.edu",
+"pittgreensburgathletics.com"
+],
+"Pratt": [
+"goprattgo.com",
+"pratt.edu"
+],
+"Principia": [
+"principia.edu",
+"principiaathletics.com"
+],
+"Purchase": [
+"purchase.edu",
+"purchasecollegeathletics.com"
+],
+"RIT": [
+"rit.edu",
+"ritathletics.com"
+],
+"RPI": [
+"rpi.edu",
+"rpiathletics.com"
+],
+"Ramapo": [
+"ramapo.edu",
+"ramapoathletics.com"
+],
+"Randolph": [
+"randolphcollege.edu",
+"randolphwildcats.com"
+],
+"Redlands": [
+"goredlands.com",
+"redlands.edu"
+],
+"Regent": [
+"regent.edu",
+"regentroyals.com"
+],
+"Regis (Mass.)": [
+"regiscollege.edu",
+"www.goregispride.com"
+],
+"Rivier": [
+"rivier.edu",
+"rivierathletics.com"
+],
+"Rockford": [
+"rockford.edu",
+"rockfordregents.com"
+],
+"SUNY Brockport": [
+"brockport.edu",
+"gobrockport.com"
+],
+"SUNY Canton": [
+"canton.edu",
+"rooathletics.com"
+],
+"SUNY Cobleskill": [
+"cobleskill.edu",
+"fightingtigers.cobleskill.edu"
+],
+"SUNY Delhi": [
+"delhi.edu",
+"delhibroncos.com"
+],
+"SUNY Fredonia": [
+"fredonia.edu",
+"fredoniabluedevils.com"
+],
+"SUNY Morrisville": [
+"morrisville.edu",
+"morrisvillemustangs.com"
+],
+"SUNY Plattsburgh": [
+"gocardinalsports.com",
+"plattsburgh.edu"
+],
+"Saint Elizabeth": [
+"seueagles.com",
+"steu.edu"
+],
+"Saint Joseph (Conn.)": [
+"usj.edu",
+"usjbluejays.com"
+],
+"Saint Joseph's (Maine)": [
+"gomonks.com",
+"sjcme.edu"
+],
+"Salem (NC)": [
+"salem.edu",
+"salemcollegeathletics.com"
+],
+"Salem State": [
+"salemstate.edu",
+"salemstatevikings.com"
+],
+"Sarah Lawrence": [
+"gogryphons.com",
+"sarahlawrence.edu"
+],
+"Schreiner": [
+"schreiner.edu",
+"schreinermountaineers.com"
+],
+"Sewanee": [
+"sewanee.edu",
+"sewaneetigers.com"
+],
+"Simmons": [
+"athletics.simmons.edu",
+"simmons.edu"
+],
+"Smith": [
+"gosmithbears.com",
+"smith.edu"
+],
+"Southwestern": [
+"southwestern.edu",
+"southwesternpirates.com"
+],
+"Spalding": [
+"spalding.edu",
+"spaldingathletics.com"
+],
+"St. Benedict": [
+"csbsju.edu",
+"gobennies.com"
+],
+"St. Catherine": [
+"stkate.edu",
+"stkatesathletics.com"
+],
+"St. John Fisher": [
+"sjfathletics.com",
+"sjfc.edu"
+],
+"St. Joseph's (Brooklyn)": [
+"sjbkathletics.com",
+"sjny.edu"
+],
+"St. Lawrence": [
+"saintsathletics.com",
+"stlawu.edu"
+],
+"St. Mary's (Md.)": [
+"smcm.edu",
+"smcmathletics.com"
+],
+"St. Olaf": [
+"athletics.stolaf.edu",
+"stolaf.edu"
+],
+"St. Thomas (Texas)": [
+"stthom.edu",
+"ustcelts.com"
+],
+"Stevens": [
+"stevens.edu",
+"stevensducks.com"
+],
+"Sweet Briar": [
+"sbc.edu",
+"vixenathletics.com"
+],
+"TCNJ": [
+"tcnj.edu",
+"tcnjathletics.com"
+],
+"Texas Lutheran": [
+"tlu.edu",
+"tlubulldogs.com"
+],
+"Thiel": [
+"thiel.edu",
+"thielathletics.com"
+],
+"Transylvania": [
+"transy.edu",
+"transysports.com"
+],
+"Trinity (Conn.)": [
+"bantamsports.com",
+"trincoll.edu"
+],
+"UC Santa Cruz": [
+"goslugs.com",
+"ucsc.edu"
+],
+"UMass Boston": [
+"beaconsathletics.com",
+"umb.edu"
+],
+"UMass Dartmouth": [
+"corsairathletics.com",
+"umassd.edu"
+],
+"UW-Superior": [
+"uwsuper.edu",
+"uwsyellowjackets.com"
+],
+"Vassar": [
+"vassar.edu",
+"www.vassarathletics.com"
+],
+"WPI": [
+"athletics.wpi.edu",
+"wpi.edu"
+],
+"Warren Wilson": [
+"gmail.com",
+"warren-wilson.edu",
+"warrenwilsonowls.com"
+],
+"WashU": [
+"washubears.com",
+"wustl.edu"
+],
+"Washington College (Md.)": [
+"washcoll.edu",
+"washcollsports.com"
+],
+"Washington and Lee": [
+"generalssports.com",
+"wlu.edu"
+],
+"Wilson (PA)": [
+"wilsonphoenix.com"
+],
+"Wisconsin Lutheran": [
+"wlc.edu",
+"wlcsports.com"
+],
+"Wooster": [
+"wooster.edu",
+"woosterathletics.com"
+],
+"York (NY)": [
+"york.cuny.edu",
+"yorkathletics.com"
+],
+"Wellesley": [
+"wellesley.edu",
+"wellesleyblue.com"
+],
+"Wesleyan (Conn.)": [
+"athletics.wesleyan.edu",
+"wesleyan.edu"
+],
+"Wheaton (Mass.)": [
+"wheatoncollege.edu",
+"wheatoncollegelyons.com"
+],
+"Whittier": [
+"web.archive.org",
+"whittier.edu"
+],
+"Willamette": [
+"willamette.edu",
+"www.wubearcats.com"
+],
+"William Paterson": [
+"wpunj.edu",
+"www.wpupioneers.com"
+],
+"William Peace": [
+"gopeacepacers.com",
+"peace.edu"
+],
+"William Smith": [
+"hws.edu",
+"hwsathletics.com"
+],
+"Wilmington (Ohio)": [
+"wilmington.edu",
+"wilmingtonquakers.com"
+],
+"Abraham Baldwin Agricultural College": [
+"abac.edu",
+"athletics.abac.edu"
+],
+"Brenau University": [
+"brenau.edu",
+"brenautigers.com"
+],
+"College of Saint Mary": [
+"csm.edu",
+"csmflames.com"
+],
+"Concordia University Nebraska": [
+"cune.edu",
+"www.cune.edu"
+],
+"Dakota State University": [
+"dsu.edu",
+"dsuathletics.com"
+],
+"Indiana University Kokomo": [
+"iu.edu",
+"iukcougars.com"
+],
+"Indiana University South Bend": [
+"iu.edu",
+"iusbtitans.com"
+],
+"Jarvis Christian University": [
+"jarvis.edu"
+],
+"Life Pacific University": [
+"lifepacific.edu",
+"www.lpuwarriors.com"
+],
+"Lourdes University": [
+"lourdes.edu",
+"lourdesathletics.com"
+],
+"Mount Mary University": [
+"mtmary.edu",
+"mtmaryathletics.com"
+],
+"Oklahoma City University": [
+"ocusports.com",
+"okcu.edu"
+],
+"Siena Heights University": [
+"shusaints.com",
+"sienaheights.edu"
+],
+"Stanton University": [
+"stanton.edu",
+"www.stantonelks.com"
+],
+"Stephens College": [
+"stephens.edu",
+"stephensstars.com"
+],
+"Viterbo University": [
+"viterbo.edu",
+"viterbo.prestosports.com",
+"web.archive.org"
+],
+"Cazenovia": [
+"cazenoviawildcats.com"
+],
+"Clarks Summit": [
+"gocsudefenders.com"
+],
+"Dean College": [
+"deanbulldogs.com"
+],
+"Fontbonne": [
+"fontbonnegriffins.com"
+],
+"Wells": [
+"godeacs.com"
+],
+"Wesley": [
+"athletics.wesleyan.edu"
+],
+"Aquinas": [
+"aqsaints.com"
+],
+"Arizona Christian": [
+"acufirestorm.com"
+],
+"Barclay": [
+"bears.barclay.college"
+],
+"Benedictine (KS)": [
+"benueagles.com"
+],
+"Bethany (KS)": [],
+"Bethel (IN)": [
+"gobethel.com"
+],
+"Bethel (TN)": [
+"athletics.bethel.edu"
+],
+"Bethesda": [
+"bethesdalions.com"
+],
+"Bryan": [
+"bryanlions.com"
+],
+"Calumet College": [
+"ccsjathletics.com"
+],
+"Cardinal Stritch": [
+"lindenwoodlions.com"
+],
+"Carroll (MT)": [
+"carrollathletics.com"
+],
+"Columbia (MO)": [
+"gocolumbialions.com"
+],
+"Concordia (MI)": [
+"athletics.concordia.edu"
+],
+"Concordia (NE)": [
+"athletics.concordia.edu"
+],
+"Cornerstone": [
+"cugoldeneagles.com"
+],
+"Cumberlands": [
+"cumberlandspatriots.com"
+],
+"Dakota State": [
+"gojacks.com"
+],
+"Dakota Wesleyan": [
+"dwuathletics.com"
+],
+"Dallas Christian": [
+"dccsports.com"
+],
+"Dickinson State": [
+"dsubluehawks.com"
+],
+"Dordt": [
+"godordt.com"
+],
+"Eastern Oregon": [
+"eousports.com"
+],
+"Edward Waters": [
+"ewutigerpride.com"
+],
+"Evangel": [
+"evangelathletics.com"
+],
+"Florida Memorial": [
+"fmuathletics.com"
+],
+"Freed-Hardeman": [
+"gofhulions.com"
+],
+"Friends": [
+"friendsathletics.com"
+],
+"Georgetown (KY)": [
+"guhoyas.com"
+],
+"Goshen": [
+"goleafs.net"
+],
+"Grace": [
+"gclancers.com"
+],
+"Grand View": [
+"gvvikings.com"
+],
+"Hannibal-LaGrange": [
+"hlgtrojans.com"
+],
+"Hastings": [
+"hastingsbroncos.com"
+],
+"Hillsdale Baptist": [
+"newmanjets.com"
+],
+"Huntington": [
+"cornerstone.sidearmsports.com"
+],
+"Iowa Wesleyan": [
+"godrakebulldogs.com"
+],
+"Kentucky Christian": [
+"kcuknights.com"
+],
+"Kentucky State": [
+"ksuthorobreds.com"
+],
+"Langston": [
+"langstonsports.com"
+],
+"Lewis-Clark State": [
+"lcwarriors.com"
+],
+"MidAmerica Nazarene": [
+"mnusports.com"
+],
+"Midland": [
+"midlandathletics.com"
+],
+"Midway": [
+"gomidwayeagles.com"
+],
+"Montana Western": [
+"umwbulldogs.com"
+],
+"Morningside": [
+"msidemustangs.com"
+],
+"Mount Mercy": [
+"mountmercymustangs.com"
+],
+"Mount Vernon Nazarene": [],
+"Multnomah": [
+"gomulions.com"
+],
+"Northwestern (IA)": [
+"nusports.com"
+],
+"Olivet Nazarene": [
+"loyolaramblers.com"
+],
+"Ottawa": [
+"ottawabraves.com"
+],
+"Ozarks (AR)": [
+"uofoathletics.com"
+],
+"Ozarks (MO)": [
+"uofoathletics.com"
+],
+"Park": [
+"parkathletics.com"
+],
+"Peru State": [
+"pscbobcats.com"
+],
+"Point (GA)": [],
+"Providence (MT)": [],
+"Rocky Mountain": [
+"gobattlinbears.com"
+],
+"Saint Francis (IL)": [
+"sfuathletics.com"
+],
+"Siena Heights": [
+"shusaints.com"
+],
+"Southeastern (FL)": [
+"fire.seu.edu"
+],
+"Southeastern University": [
+"fire.seu.edu"
+],
+"Southern Oregon": [
+"souraiders.com"
+],
+"Southwestern (KS)": [
+"swoccathletics.com"
+],
+"Spring Arbor": [
+"saucougars.com"
+],
+"Sterling": [
+"scwarriors.com"
+],
+"Tabor": [
+"taborbluejays.com"
+],
+"Trinity Christian": [
+"trollsathletics.com"
+],
+"Trinity International": [
+"tiutrojans.com"
+],
+"Union (KY)": [
+"ukathletics.com"
+],
+"Valley City State": [
+"vcsports.com"
+],
+"Waldorf": [
+"godordt.com"
+],
+"Warner": [
+"warnerroyals.com"
+],
+"Webber International": [
+"webberathletics.com"
+],
+"William Jessup": [
+"jessupathletics.com"
+],
+"William Woods": [
+"wwuowls.com"
+],
+"Xavier (LA)": [
+"goxavier.com"
+],
+"Allan Hancock": [
+"ahcbulldogs.com"
+],
+"Allegany": [
+"acmtrojans.com"
+],
+"Allen County Community": [
+"goneosho.com"
+],
+"Anne Arundel": [
+"harfordathletics.com"
+],
+"Arizona Western": [],
+"Atlantic Cape": [
+"goeasterneagles.com"
+],
+"Barton County": [
+"goconqs.com"
+],
+"Blinn": [
+"buccaneersports.com"
+],
+"Blue Mountain": [
+"bmcusports.com"
+],
+"Brookdale": [
+"brookdaleathletics.com"
+],
+"Cape Fear": [
+"goseadevils.com"
+],
+"Catawba Valley": [
+"app.teampass.com"
+],
+"Cecil": [
+"cecilathletics.com"
+],
+"Central Georgia Tech": [
+"cgtctitans.com"
+],
+"Central Penn": [
+"centralpennknights.com"
+],
+"Chesapeake": [
+"letsgoskipjacks.com"
+],
+"Coffeyville": [
+"redravenathletics.com"
+],
+"College of DuPage": [
+"gochapsgo.com"
+],
+"College of Lake County": [
+"clclancers.com"
+],
+"College of Marin": [
+"athletics.marin.edu"
+],
+"College of Southern Idaho": [
+"athletics.csi.edu"
+],
+"College of Southern Nevada": [
+"csncoyotes.com"
+],
+"Cowley County": [
+"goconqs.com"
+],
+"Crowder": [
+"crowderathletics.com"
+],
+"Danville Area": [
+"danvillejaguars.com"
+],
+"Daytona State": [
+"dscfalcons.com"
+],
+"Delta College (MI)": [
+"deltacollegeathletics.com"
+],
+"Dodge City": [
+"goconqs.com"
+],
+"East Central (OK)": [
+"ecccathletics.com"
+],
+"East Mississippi": [
+"emccathletics.com"
+],
+"Eastern Arizona": [
+"ouazspirit.com"
+],
+"Eastern Florida State": [
+"efsctitans.com"
+],
+"Eastern Wyoming": [
+"athletics.csi.edu"
+],
+"El Camino": [
+"eccwarriors.com"
+],
+"Essex County": [
+"essexwolverines.com"
+],
+"Everett": [
+"athletics.everettcc.edu"
+],
+"Frederick": [
+"harfordathletics.com"
+],
+"Front Range": [],
+"Garden City Community": [],
+"Georgia Military": [
+"gseagles.com"
+],
+"Grand Rapids Community": [
+"grccraiders.com"
+],
+"Hagerstown": [
+"athletics.hagerstowncc.edu"
+],
+"Harper": [
+"harperhawks.net"
+],
+"Hawkeye": [
+"redtailathletics.com"
+],
+"Hillsborough": [
+"hillsborough-sports.com"
+],
+"Hocking": [],
+"Howard Community": [
+"howardccdragons.com"
+],
+"Hudson Valley": [
+"hvccathletics.com"
+],
+"Iowa Central": [
+"cccraiders.com"
+],
+"Iowa Lakes": [
+"iowalakesathletics.com"
+],
+"Iowa Western": [
+"goreivers.com"
+],
+"Jefferson (NY)": [
+"gopresidents.com"
+],
+"Kellogg Community": [
+"kelloggbruins.com"
+],
+"Laramie County": [
+"golccc.com"
+],
+"Lewis & Clark (ID)": [
+"lcpioneers.com"
+],
+"Lincoln Land": [
+"lincolnlandloggers.com"
+],
+"Lone Star": [
+"godustdevils.com"
+],
+"Lower Columbia": [
+"lccreddevils.com"
+],
+"Lurleen B. Wallace": [
+"wallacegovs.com"
+],
+"McLennan": [
+"buhuskies.com"
+],
+"Meridian": [
+"mcceagles.com"
+],
+"Mesa Community": [
+"snowbadgers.com"
+],
+"Mineral Area": [
+"athletic.mineralarea.edu"
+],
+"Mississippi Delta": [
+"gostatesmen.com"
+],
+"Mississippi Gulf Coast": [
+"mgcccbulldogs.com"
+],
+"Monroe Community": [
+"monroeumustangs.com"
+],
+"Montgomery": [
+"aumathletics.com"
+],
+"Mount San Antonio": [],
+"Nassau Community": [
+"nassaulions.com"
+],
+"Niagara County": [
+"ncccathletics.com"
+],
+"Northeast Texas": [
+"ntcceagles.com"
+],
+"Northern Essex": [
+"neccknights.com"
+],
+"Northwest College": [
+"nwctrappers.com"
+],
+"Northwest Mississippi": [
+"nwccrangers.com"
+],
+"Onondaga Community": [
+"onondagalazers.com"
+],
+"Orange Coast": [
+"occpirateathletics.com"
+],
+"Otero College": [
+"oterorattlers.com"
+],
+"Owens": [
+"owensexpress.com"
+],
+"Panola": [],
+"Paradise Valley": [
+"gopumas.com"
+],
+"Parkland": [
+"athletics.parkland.edu"
+],
+"Paul D. Camp": [
+"camphurricanes.com"
+],
+"Pearl River": [
+"prccathletics.com"
+],
+"Pellissippi State": [
+"psccpanthers.com"
+],
+"Pima": [
+"pimaaztecs.com"
+],
+"Polk State": [
+"polkeagles.com"
+],
+"Prairie State": [
+"prairiestateathletics.com"
+],
+"Pratt Community": [
+"gobeaversports.com"
+],
+"Queensborough": [
+"qcctigers.com"
+],
+"Ranger": [
+"regisrangers.com"
+],
+"Richland": [
+"rlcsports.com"
+],
+"Riverside": [
+"gohighlanders.com"
+],
+"Rock Valley": [
+"rvcsports.com"
+],
+"Rockland Community": [
+"bronxbroncos.com"
+],
+"Rose State": [
+"rscraiders.com"
+],
+"Salt Lake Community": [
+"slccbruins.com"
+],
+"San Diego Mesa": [
+"gosdmesa.com"
+],
+"San Diego Miramar": [
+"miramarjets.com"
+],
+"San Joaquin Delta": [
+"deltacollegeathletics.com"
+],
+"Santa Ana": [
+"sacdons.com"
+],
+"Santa Barbara City": [
+"sbccvaqueros.com"
+],
+"Santa Monica": [
+"smccorsairs.com"
+],
+"Santa Rosa Junior": [
+"srjcathletics.com"
+],
+"Scottsdale": [
+"gochokes.com"
+],
+"Seward County": [
+"goconqs.com"
+],
+"Sierra": [
+"lsugoldeneagles.com"
+],
+"Skagit Valley": [
+"athletics.skagit.edu"
+],
+"Snow": [
+"snowbadgers.com"
+],
+"Southeastern Community (IA)": [
+"gosoutheastern.com"
+],
+"Southwestern (CA)": [
+"southwesternpirates.com"
+],
+"Southwestern Illinois": [
+"heartlandhawks.com"
+],
+"Suffolk County": [
+"nassaulions.com"
+],
+"Tallahassee": [
+"app.teampass.com"
+],
+"Terra State": [
+"terrastatetitans.com"
+],
+"Tidewater": [
+"region10sports.com"
+],
+"Tompkins Cortland": [
+"tcpanthers.com"
+],
+"Trinity Valley": [
+"tvccsports.com"
+],
+"Tulsa Community": [],
+"Tyler Junior": [
+"athletics.lsue.edu"
+],
+"Vernon": [
+"swarthmoreathletics.com"
+],
+"Victor Valley": [
+"athletics.vvc.edu"
+],
+"Wake Technical": [
+"waketechsports.com"
+],
+"Wallace State": [
+"athletics.wallacestate.edu"
+],
+"Western Nebraska": [
+"wnccathletics.com"
+],
+"Westmoreland County": [
+"athletics.westmoreland.edu"
+],
+"York County": [
+"yorkcountyhawks.com"
+],
+"Army West Point": [
+"goarmywestpoint.com"
+],
+"CSUN": [
+"gomatadors.com"
+],
+"ETSU": [
+"etsubucs.com"
+],
+"FGCU": [
+"fgcuathletics.com"
+],
+"UIW": [
+"uiwcardinals.com"
+],
+"Queens (NC)": [
+"queensathletics.com"
+],
+"SIUE": [
+"siuecougars.com"
+],
+"Allen": [
+"auyellowjackets.com"
+],
+"Augustana (SD)": [
+"goaugie.com"
+],
+"Bluefield State": [
+"gobstate.com"
+],
+"Cal State Los Angeles": [
+"lagoldeneagles.com"
+],
+"Commonwealth University-Mansfield": [
+"gomounties.com"
+],
+"Embry\u2013Riddle Aeronautical": [
+"erauathletics.com"
+],
+"Lincoln (PA)": [
+"lulions.com"
+],
+"Minnesota State Mankato": [
+"msumavericks.com"
+],
+"Minnesota State Moorhead": [
+"www.msumdragons.com"
+],
+"Mississippi Christian": [
+"gochoctaws.com"
+],
+"Nebraska at Kearney": [
+"lopers.com"
+],
+"PennWest Clarion": [
+"clariongoldeneagles.com"
+],
+"PennWest Edinboro": [
+"gofightingscots.com"
+],
+"South Carolina Beaufort": [
+"uscbathletics.com"
+],
+"UIS": [
+"uisprairiestars.com"
+],
+"Wayne State (NE)": [
+"wscwildcats.com"
+],
+"Concordia University-Wisconsin": [
+"cuwfalcons.com"
+],
+"Aurora University": [
+"athletics.aurora.edu"
+],
+"Concordia University-Chicago": [
+"cucougars.com"
+],
+"Illinois Institute of Technology": [
+"illinoistechathletics.com"
+],
+"Dominican University": [
+"dustars.com"
+],
+"Alverno College": [
+"athletics.alverno.edu"
+],
+"Edgewood College": [
+"edgewoodeagles.com"
+],
+"Lakeland University": [
+"lakelandmuskies.com"
+],
+"Marian University (WI)": [
+"sabreathletics.com"
+],
+"Saint Norbert College": [
+"athletics.snc.edu"
+],
+"Wisconsin Lutheran College": [
+"wlcsports.com"
+],
+"Benedictine University": [
+"benueagles.com"
+],
+"Capital University": [
+"athletics.capital.edu"
+],
+"Ohio Northern University": [
+"www.onusports.com"
+],
+"Baldwin Wallace University": [
+"bwyellowjackets.com"
+],
+"Heidelberg University": [
+"bergathletics.com"
+],
+"Marietta College": [
+"pioneers.marietta.edu"
+],
+"University of Mount Union": [
+"athletics.mountunion.edu"
+],
+"Muskingum University": [
+"www.fightingmuskies.com"
+],
+"Otterbein University": [
+"otterbeincardinals.com"
+],
+"Wilmington College": [
+"wilmingtonquakers.com"
+],
+"Grinnell College": [
+"pioneers.grinnell.edu"
+],
+"Knox College": [
+"prairiefire.knox.edu"
+],
+"Lake Forest College": [
+"goforesters.com"
+],
+"Monmouth College": [
+"monmouthscots.com"
+],
+"Beloit College": [
+"beloitcollegeathletics.com"
+],
+"Lawrence University": [
+"vikings.lawrence.edu"
+],
+"Ripon College": [
+"riponredhawks.com"
+],
+"Pennsylvania State University-Penn State Berks": [
+"psuberksathletics.com"
+],
+"Notre Dame of Maryland University": [
+"notredamegators.com"
+],
+"St Mary's College of Maryland": [
+"smcmathletics.com"
+],
+"Saint Elizabeth University": [
+"seueagles.com"
+],
+"Keystone College": [
+"gokcgiants.com"
+],
+"Lancaster Bible College": [
+"lbcchargers.com"
+],
+"Pennsylvania State University-Penn State Harrisburg": [
+"psuharrisburgsports.com"
+],
+"Pennsylvania State University-Penn State Abington": [
+"abingtonsports.com"
+],
+"Cairn University": [
+"cairnhighlanders.com"
+],
+"Pennsylvania College of Technology": [
+"pctwildcats.com",
+"www.pct.edu"
+],
+"University of Valley Forge": [
+"uvfpatriots.com"
+],
+"Wilson College": [
+"wilsonphoenix.com"
+],
+"Pennsylvania State University-Penn State Brandywine": [
+"www.psubrandywineathletics.com"
+],
+"Massachusetts Institute of Technology": [
+"mitathletics.com"
+],
+"Wheaton College (MA)": [
+"wheatoncollegelyons.com"
+],
+"Emerson College": [
+"emersonlions.com"
+],
+"United States Coast Guard Academy": [
+"coastguardathletics.com"
+],
+"Babson College": [
+"babsonathletics.com"
+],
+"Clark University": [
+"clarkathletics.com"
+],
+"Mount Holyoke College": [
+"athletics.mtholyoke.edu"
+],
+"Smith College": [
+"gosmithbears.com"
+],
+"Springfield College": [
+"springfieldcollegepride.com"
+],
+"Wellesley College": [
+"wellesleyblue.com"
+],
+"Worcester Polytechnic Institute": [
+"athletics.wpi.edu"
+],
+"Salve Regina University": [
+"salveathletics.com"
+],
+"Rockford University": [
+"rockfordregents.com"
+],
+"Maranatha Baptist University": [
+"mbusabercats.com"
+],
+"Marywood University": [
+"marywoodpacers.com"
+],
+"Pratt Institute": [
+"goprattgo.com"
+],
+"Gwynedd Mercy University": [
+"gwyneddathletics.com"
+],
+"Immaculata University": [
+"gomightymacs.com"
+],
+"Neumann University": [
+"www.neumannathletics.com"
+],
+"Marymount University": [
+"marymountsaints.com"
+],
+"Centenary University": [
+"centenarycyclones.com"
+],
+"SUNY College at Brockport": [
+"gobrockport.com"
+],
+"SUNY College at Geneseo": [
+"geneseoknights.com"
+],
+"Nazareth University": [
+"nazathletics.com"
+],
+"Hartwick College": [
+"hartwickhawks.com"
+],
+"Elmira College": [
+"athletics.elmira.edu"
+],
+"Saint John Fisher University": [
+"sjfathletics.com"
+],
+"Utica University": [
+"uticapioneers.com"
+],
+"Keuka College": [
+"keukaathletics.com"
+],
+"SUNY Polytechnic Institute": [
+"wildcats.sunypoly.edu"
+],
+"Houghton University": [
+"athletics.houghton.edu"
+],
+"Arcadia University": [
+"arcadiaknights.com"
+],
+"Lebanon Valley College": [
+"godutchmen.com"
+],
+"Fairleigh Dickinson University-Florham": [
+"fdudevils.com"
+],
+"Stevens Institute of Technology": [
+"stevensducks.com"
+],
+"DeSales University": [
+"athletics.desales.edu"
+],
+"Delaware Valley University": [
+"athletics.delval.edu"
+],
+"King's College": [
+"kingscollegeathletics.com"
+],
+"Misericordia University": [
+"athletics.misericordia.edu"
+],
+"Loras College": [
+"duhawks.com"
+],
+"Wartburg College": [
+"go-knights.net"
+],
+"University of Dubuque": [
+"udspartans.com"
+],
+"Buena Vista University": [
+"bvuathletics.com"
+],
+"Central College": [
+"athletics.central.edu"
+],
+"Coe College": [
+"kohawkathletics.com"
+],
+"Luther College": [
+"luthernorse.com"
+],
+"Simpson College": [
+"www.simpsonathletics.com"
+],
+"Nebraska Wesleyan University": [
+"nwusports.com"
+],
+"Western New England University": [
+"wnegoldenbears.com"
+],
+"Johnson & Wales University-Providence": [
+"providence.jwuathletics.com"
+],
+"Curry College": [
+"curryathletics.com"
+],
+"Gordon College": [
+"athletics.gordon.edu"
+],
+"Nichols College": [
+"nicholsathletics.com"
+],
+"Suffolk University": [
+"gosuffolkrams.com"
+],
+"Wentworth Institute of Technology": [
+"www.wentworthathletics.com"
+],
+"Roger Williams University": [
+"rwuhawks.com"
+],
+"University of Hartford": [
+"hartfordhawks.com"
+],
+"Lycoming College": [
+"lycomingathletics.com"
+],
+"University of Scranton": [
+"athletics.scranton.edu"
+],
+"Juniata College": [
+"www.juniatasports.net"
+],
+"Catholic University of America": [
+"catholicathletics.com"
+],
+"Drew University": [
+"drewrangers.com"
+],
+"Elizabethtown College": [
+"etownbluejays.com"
+],
+"Moravian University": [
+"www.moraviansports.com"
+],
+"Susquehanna University": [
+"suriverhawks.com"
+],
+"Wilkes University": [
+"gowilkesu.com"
+],
+"Batten University": [
+"battenathletics.com"
+],
+"University of Lynchburg": [
+"lynchburgsports.com"
+],
+"Washington and Lee University": [
+"generalssports.com"
+],
+"Guilford College": [
+"guilfordquakers.com"
+],
+"Bridgewater College": [
+"bridgewatereagles.com"
+],
+"Hollins University": [
+"hollinssports.com"
+],
+"Randolph-Macon College": [
+"rmcathletics.com"
+],
+"Randolph College": [
+"randolphwildcats.com"
+],
+"Roanoke College": [
+"roanokemaroons.com"
+],
+"Shenandoah University": [
+"suhornets.com"
+],
+"Sweet Briar College": [
+"vixenathletics.com"
+],
+"Eastern Mennonite University": [
+"emuroyals.com"
+],
+"Averett University": [
+"averettcougars.com"
+],
+"Westminster College (PA)": [
+"athletics.westminster.edu"
+],
+"Allegheny College": [
+"alleghenygators.com"
+],
+"Hiram College": [
+"hiramterriers.com"
+],
+"Franciscan University of Steubenville": [
+"franciscanathletics.com"
+],
+"Geneva College": [
+"athletics.geneva.edu"
+],
+"Grove City College": [
+"athletics.gcc.edu"
+],
+"Saint Vincent College": [
+"athletics.stvincent.edu"
+],
+"Thiel College": [
+"thielathletics.com"
+],
+"Washington & Jefferson College": [
+"gopresidents.com"
+],
+"Waynesburg University": [
+"waynesburgsports.com"
+],
+"Bethany College (WV)": [
+"bethanybison.com"
+],
+"Chatham University": [
+"gochathamcougars.com"
+],
+"Montclair State University": [
+"montclairathletics.com"
+],
+"Rowan University": [
+"rowanathletics.com"
+],
+"Kean University": [
+"keanathletics.com"
+],
+"Ramapo College of New Jersey": [
+"ramapoathletics.com"
+],
+"Rutgers University-Camden": [
+"scarletraptors.com"
+],
+"Rutgers University-Newark": [
+"rutgersnewarkathletics.com"
+],
+"Stockton University": [
+"stocktonathletics.com"
+],
+"The College of New Jersey": [
+"tcnjathletics.com"
+],
+"William Paterson University": [
+"www.wpupioneers.com"
+],
+"Vermont State University-Castleton": [
+"castletonsports.com"
+],
+"SUNY College at Cortland": [
+"www.cortlandreddragons.com"
+],
+"SUNY Buffalo State": [
+"buffalostateathletics.com"
+],
+"Piedmont University": [
+"piedmontlions.com"
+],
+"Belhaven University": [
+"blazers.belhaven.edu"
+],
+"Asbury University": [
+"asburyeagles.com"
+],
+"Huntingdon College": [
+"www.huntingdonhawks.com"
+],
+"Agnes Scott College": [
+"ascscotties.com"
+],
+"Covenant College": [
+"athletics.covenant.edu"
+],
+"LaGrange College": [
+"lagrangepanthers.com"
+],
+"Maryville College": [
+"mcscots.com"
+],
+"Christopher Newport University": [
+"cnusports.com"
+],
+"University of California-Santa Cruz": [
+"goslugs.com"
+],
+"Salisbury University": [
+"suseagulls.com"
+],
+"University of Mary Washington": [
+"umweagles.com"
+],
+"Warren Wilson College": [
+"warrenwilsonowls.com"
+],
+"Johnson & Wales University-Charlotte": [
+"charlotte.jwuathletics.com"
+],
+"Regent University": [
+"regentroyals.com"
+],
+"Pacific Lutheran University": [
+"golutes.com"
+],
+"University of Puget Sound": [
+"loggerathletics.com"
+],
+"George Fox University": [
+"athletics.georgefox.edu"
+],
+"Lewis & Clark College": [
+"golcathletics.com"
+],
+"Pacific University": [
+"goboxers.com"
+],
+"Whitman College": [
+"whitmanblues.com"
+],
+"Whitworth University": [
+"whitworthpirates.com"
+],
+"Linfield University": [
+"golinfieldwildcats.com"
+],
+"University of Pittsburgh-Greensburg": [
+"pittgreensburgathletics.com"
+],
+"La Roche University": [
+"www.larochesports.com"
+],
+"Mount Aloysius College": [
+"mountieathletics.com"
+],
+"Pennsylvania State University-Penn State Erie (Behrend College)": [
+"www.psblions.com"
+],
+"Pennsylvania State University-Penn State Altoona": [
+"www.psaltoonalions.com"
+],
+"University of Pittsburgh-Bradford": [
+"athletics.pittbradford.org"
+],
+"Hilbert College": [
+"hilberthawks.com"
+],
+"SUNY Alfred State": [
+"alfredstateathletics.com"
+],
+"Johns Hopkins University": [
+"hopkinssports.com"
+],
+"McDaniel College": [
+"mcdanielathletics.com"
+],
+"Washington College": [
+"washcollsports.com"
+],
+"Bryn Mawr College": [
+"gobrynmawr.com"
+],
+"Dickinson College": [
+"dickinsonathletics.com"
+],
+"Franklin & Marshall College": [
+"godiplomats.com"
+],
+"Gettysburg College": [
+"gettysburgsports.com"
+],
+"Haverford College": [
+"haverfordathletics.com"
+],
+"Muhlenberg College": [
+"muhlenbergsports.com"
+],
+"Swarthmore College": [
+"swarthmoreathletics.com"
+],
+"Ursinus College": [
+"ursinusathletics.com"
+],
+"CUNY John Jay College of Criminal Justice": [
+"johnjayathletics.com"
+],
+"CUNY Brooklyn College": [
+"brooklyncollegeathletics.com"
+],
+"CUNY Lehman College": [
+"lehmanathletics.com"
+],
+"CUNY City College": [
+"ccnyathletics.com"
+],
+"CUNY Medgar Evers College": [
+"mecathletics.com"
+],
+"CUNY York College": [
+"yorkathletics.com"
+],
+"Denison University": [
+"denisonbigred.com"
+],
+"Wittenberg University": [
+"wittenbergtigers.com"
+],
+"DePauw University": [
+"depauwtigers.com"
+],
+"John Carroll University": [
+"jcusports.com"
+],
+"Kenyon College": [
+"athletics.kenyon.edu"
+],
+"Oberlin College": [
+"goyeo.com"
+],
+"Ohio Wesleyan University": [
+"battlingbishops.com"
+],
+"The College of Wooster": [
+"woosterathletics.com"
+],
+"Emory University": [
+"emoryathletics.com"
+],
+"Washington University in St Louis": [
+"washubears.com"
+],
+"Case Western Reserve University": [
+"athletics.case.edu"
+],
+"Carnegie Mellon University": [
+"athletics.cmu.edu"
+],
+"Brandeis University": [
+"brandeisjudges.com"
+],
+"University of Rochester": [
+"uofrathletics.com"
+],
+"University of Wisconsin-Superior": [
+"uwsyellowjackets.com"
+],
+"Bethany Lutheran College": [
+"blcvikings.com"
+],
+"Martin Luther College": [
+"mlcknights.com"
+],
+"University of Minnesota-Morris": [
+"morriscougars.com"
+],
+"North Central University": [],
+"University of Northwestern-St Paul": [
+"unweagles.com"
+],
+"Crown College": [
+"athletics.crown.edu"
+],
+"Greenville University": [
+"greenvillepanthers.com"
+],
+"Principia College": [
+"athletics.principiacollege.edu"
+],
+"Webster University": [
+"websterathletics.com"
+],
+"Westminster University (MO)": [
+"wcbluejays.wcmo.edu"
+],
+"Spalding University": [
+"spaldingathletics.com"
+],
+"Mississippi University for Women": [
+"owlsathletics.com"
+],
+"Calvin University": [
+"calvinknights.com"
+],
+"Adrian College": [
+"adrianbulldogs.com"
+],
+"Saint Mary's College (IN)": [
+"saintmaryssports.com"
+],
+"Trine University": [
+"trinethunder.com"
+],
+"Albion College": [
+"gobrits.com"
+],
+"Alma College": [
+"almascots.com"
+],
+"Hope College": [
+"athletics.hope.edu"
+],
+"Kalamazoo College": [
+"hornets.kzoo.edu"
+],
+"Olivet College": [
+"olivetcomets.com"
+],
+"Illinois Wesleyan University": [
+"iwusports.com"
+],
+"North Central College": [
+"northcentralcardinals.com"
+],
+"Augustana College": [
+"athletics.augustana.edu"
+],
+"Elmhurst University": [
+"elmhurstbluejays.com"
+],
+"Millikin University": [
+"athletics.millikin.edu"
+],
+"North Park University": [
+"athletics.northpark.edu"
+],
+"Wheaton College (IL)": [
+"athletics.wheaton.edu"
+],
+"Carroll University": [
+"gopios.com"
+],
+"Carthage College": [
+"athletics.carthage.edu"
+],
+"Trinity University": [
+"trinitytigers.com"
+],
+"Centre College": [
+"centrecolonels.com"
+],
+"Southwestern University": [
+"southwesternpirates.com"
+],
+"Millsaps College": [
+"gomajors.com"
+],
+"Berry College": [
+"berryvikings.com"
+],
+"Oglethorpe University": [
+"gopetrels.com"
+],
+"Sewanee: The University of the South": [
+"sewaneetigers.com"
+],
+"Rhodes College": [
+"rhodeslynx.com"
+],
+"California Lutheran University": [
+"clusports.com"
+],
+"Whittier College": [
+"wcpoets.com"
+],
+"California Institute of Technology": [
+"gocaltech.com"
+],
+"Chapman University": [
+"athletics.chapman.edu"
+],
+"Claremont McKenna College": [
+"cmsathletics.org"
+],
+"Harvey Mudd College": [
+"cmsathletics.org"
+],
+"Scripps College": [
+"cmsathletics.org"
+],
+"Occidental College": [
+"oxyathletics.com"
+],
+"Pomona College": [
+"sagehens.com"
+],
+"Pitzer College": [
+"sagehens.com"
+],
+"University of Redlands": [
+"goredlands.com"
+],
+"University of La Verne": [
+"leopardathletics.com"
+],
+"University of Mary Hardin-Baylor": [
+"cruathletics.com"
+],
+"East Texas Baptist University": [
+"goetbutigers.com"
+],
+"Hardin-Simmons University": [
+"hsuathletics.com"
+],
+"Howard Payne University": [
+"hpusports.com"
+],
+"Messiah University": [
+"gomessiah.com"
+],
+"Albright College": [
+"albrightathletics.com"
+],
+"Hood College": [
+"hoodathletics.com"
+],
+"Stevenson University": [
+"gomustangsports.com"
+],
+"Alvernia University": [
+"auwolves.com"
+],
+"Widener University": [
+"widenerpride.com"
+],
+"York College of Pennsylvania": [
+"ycpspartans.com"
+],
+"Eastern University": [
+"goeasterneagles.com"
+],
+"Methodist University": [
+"mumonarchs.com"
+],
+"North Carolina Wesleyan University": [
+"ncwsports.com"
+],
+"Pfeiffer University": [
+"gofalconsports.com"
+],
+"Salem College": [
+"salemcollegeathletics.com"
+],
+"Brevard College": [
+"bctornados.com"
+],
+"Greensboro College": [
+"greensborocollegesports.com"
+],
+"Meredith College": [
+"goavengingangels.com"
+],
+"William Peace University": [
+"gopeacepacers.com"
+],
+"Southern Virginia University": [
+"knightathletics.com"
+],
+"Mary Baldwin University": [
+"marybaldwinathletics.com"
+],
+"Cedar Crest College": [
+"cedarcrestathletics.com"
+],
+"Sarah Lawrence College": [
+"gogryphons.com"
+],
+"Yeshiva University": [
+"yumacs.com"
+],
+"St. Joseph's University (Long Island)": [
+"sjliathletics.com"
+],
+"Mount Saint Mary College": [
+"msmcknights.com"
+],
+"Farmingdale State College": [
+"farmingdalesports.com"
+],
+"SUNY Purchase College": [
+"www.purchasecollegeathletics.com"
+],
+"Manhattanville University": [
+"govaliants.com"
+],
+"College of Mount Saint Vincent": [
+"umsvathletics.com"
+],
+"SUNY Maritime College": [
+"maritimeathletics.com"
+],
+"United States Merchant Marine Academy": [
+"www.usmmasports.com"
+],
+"Thomas College": [
+"athletics.thomas.edu"
+],
+"Vermont State University-Johnson": [
+"www.nvubadgers.com"
+],
+"Vermont State University-Lyndon": [
+"vtsuhornets.com"
+],
+"Husson University": [
+"hussoneagles.com"
+],
+"University of Maine at Farmington": [
+"goumfbeavers.com"
+],
+"Maine Maritime Academy": [
+"marinersports.org"
+],
+"University of Maine at Presque Isle": [
+"owls.umpi.edu"
+],
+"Rose-Hulman Institute of Technology": [
+"athletics.rose-hulman.edu"
+],
+"Earlham College": [
+"goearlham.com"
+],
+"Franklin College": [
+"franklingrizzlies.com"
+],
+"Hanover College": [
+"athletics.hanover.edu"
+],
+"Manchester University": [
+"muspartans.com"
+],
+"Berea College": [
+"bereaathletics.com"
+],
+"Transylvania University": [
+"transysports.com"
+],
+"Mount St. Joseph University": [
+"msjlions.com"
+],
+"Anderson University (IN)": [
+"athletics.anderson.edu"
+],
+"Centenary College of Louisiana": [
+"www.gocentenary.com"
+],
+"Schreiner University": [
+"schreinermountaineers.com"
+],
+"Texas Lutheran University": [
+"tlubulldogs.com"
+],
+"University of Dallas": [
+"udallasathletics.com"
+],
+"University of St Thomas (TX)": [
+"ustcelts.com"
+],
+"Hendrix College": [
+"hendrixwarriors.com"
+],
+"University of the Ozarks": [
+"uofoathletics.com"
+],
+"Concordia University-Texas": [
+"athletics.concordia.edu"
+],
+"LeTourneau University": [
+"letuathletics.com"
+],
+"McMurry University": [
+"mcmurrysports.com"
+],
+"University of Wisconsin-La Crosse": [
+"uwlathletics.com"
+],
+"University of Wisconsin-Whitewater": [
+"uwwsports.com"
+],
+"University of Wisconsin-Eau Claire": [
+"blugolds.com"
+],
+"University of Wisconsin-Oshkosh": [
+"uwoshkoshtitans.com"
+],
+"University of Wisconsin-Stout": [
+"stoutbluedevils.com"
+],
+"University of Wisconsin-River Falls": [
+"uwrfsports.com"
+],
+"University of Wisconsin-Stevens Point": [
+"athletics.uwsp.edu"
+],
+"University of Wisconsin-Platteville": [
+"letsgopioneers.com"
+],
+"Hobart and William Smith Colleges": [
+"hwsathletics.com"
+],
+"Ithaca College": [
+"athletics.ithaca.edu"
+],
+"Rensselaer Polytechnic Institute": [
+"rpiathletics.com"
+],
+"Bard College": [
+"bardathletics.com"
+],
+"St Lawrence University": [
+"saintsathletics.com"
+],
+"Skidmore College": [
+"skidmoreathletics.com"
+],
+"Union College (NY)": [
+"unionathletics.com"
+],
+"Vassar College": [
+"www.vassarathletics.com"
+],
+"Clarkson University": [
+"clarksonathletics.com"
+],
+"Pennsylvania State University-Penn State Schuylkill": [
+"www.psuschuylkillathletics.com"
+],
+"Salem State University": [
+"salemstatevikings.com"
+],
+"Worcester State University": [
+"wsulancers.com"
+],
+"Augsburg University": [
+"athletics.augsburg.edu"
+],
+"Bethel University (MN)": [
+"athletics.bethel.edu"
+],
+"Carleton College": [
+"athletics.carleton.edu"
+],
+"Gustavus Adolphus College": [
+"gogusties.com"
+],
+"Hamline University": [
+"hamlineathletics.com"
+],
+"Macalester College": [
+"athletics.macalester.edu"
+],
+"Saint Mary's University of Minnesota": [
+"saintmaryssports.com"
+],
+"St Olaf College": [
+"athletics.stolaf.edu"
+],
+"The College of St. Scholastica": [
+"csssaints.com"
+],
+"Amherst College": [
+"athletics.amherst.edu"
+],
+"Bates College": [
+"gobatesbobcats.com"
+],
+"Bowdoin College": [
+"athletics.bowdoin.edu"
+],
+"Colby College": [
+"colbyathletics.com"
+],
+"Hamilton College": [
+"athletics.hamilton.edu"
+],
+"Middlebury College": [
+"athletics.middlebury.edu"
+],
+"Trinity College": [
+"bantamsports.com"
+],
+"Tufts University": [
+"gotuftsjumbos.com"
+],
+"Wesleyan University": [
+"athletics.wesleyan.edu"
+],
+"Williams College": [
+"ephsports.williams.edu"
+],
+"Concordia College-Moorhead": [
+"gocobbers.com"
+],
+"Massachusetts Maritime Academy": [
+"www.mmabucs.com"
+]
+}

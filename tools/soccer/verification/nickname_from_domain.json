@@ -1,0 +1,162 @@
+[
+ {
+  "name": "Eastern (PA)",
+  "nickname": "Eagles",
+  "host": "goeasterneagles.com",
+  "left": "eastern",
+  "verdict": "title-mismatch",
+  "title": "Eastern University Athletics - Official Athletics Website"
+ },
+ {
+  "name": "Bridgewater (VA)",
+  "nickname": "Eagles",
+  "host": "bridgewatereagles.com",
+  "left": "bridgewater",
+  "verdict": "title-mismatch",
+  "title": "2026 Eagle Golf Classic - Bridgewater College - Official Athletics Website"
+ },
+ {
+  "name": "Southwestern (CA)",
+  "nickname": "Pirates",
+  "host": "southwesternpirates.com",
+  "left": "southwestern",
+  "verdict": "title-mismatch",
+  "title": "Southwestern University - Official Athletics Website"
+ },
+ {
+  "name": "North Central (IL)",
+  "nickname": "Cardinals",
+  "host": "northcentralcardinals.com",
+  "left": "northcentral",
+  "verdict": "title-mismatch",
+  "title": "North Central College Athletics - Official Athletics Website"
+ },
+ {
+  "name": "Central Penn",
+  "nickname": "Knights",
+  "host": "centralpennknights.com",
+  "left": "centralpenn",
+  "verdict": "unreachable",
+  "detail": "no title"
+ },
+ {
+  "name": "Jefferson (NY)",
+  "nickname": "Presidents",
+  "host": "gopresidents.com",
+  "left": "",
+  "verdict": "title-mismatch",
+  "title": "Washington & Jefferson College Athletics - Official Athletics Website"
+ },
+ {
+  "name": "York County",
+  "nickname": "Hawks",
+  "host": "yorkcountyhawks.com",
+  "left": "yorkcounty",
+  "verdict": "unreachable",
+  "detail": "no title"
+ },
+ {
+  "name": "Kentucky Christian",
+  "nickname": "Knights",
+  "host": "kcuknights.com",
+  "left": "kcu",
+  "verdict": "unreachable",
+  "detail": "no title"
+ },
+ {
+  "name": "Mississippi Delta",
+  "nickname": "Statesmen",
+  "host": "gostatesmen.com",
+  "left": "",
+  "verdict": "title-mismatch",
+  "title": "Delta State University Athletics - Official Athletics Website"
+ },
+ {
+  "name": "Lone Star",
+  "nickname": "Dustdevils",
+  "host": "godustdevils.com",
+  "left": "",
+  "verdict": "title-mismatch",
+  "title": "Texas A&M International University Athletics - Official Athletics Website"
+ },
+ {
+  "name": "Kellogg Community",
+  "nickname": "Bruins",
+  "host": "kelloggbruins.com",
+  "left": "kellogg",
+  "verdict": "unreachable",
+  "detail": "no title"
+ },
+ {
+  "name": "Lewis & Clark (ID)",
+  "nickname": "Pioneers",
+  "host": "lcpioneers.com",
+  "left": "lc",
+  "verdict": "title-mismatch",
+  "title": "Lewis & Clark College - Official Athletics Website"
+ },
+ {
+  "name": "Paul D. Camp",
+  "nickname": "Hurricanes",
+  "host": "camphurricanes.com",
+  "left": "camp",
+  "verdict": "unreachable",
+  "detail": "no title"
+ },
+ {
+  "name": "San Diego Miramar",
+  "nickname": "Jets",
+  "host": "miramarjets.com",
+  "left": "miramar",
+  "verdict": "unreachable",
+  "detail": "no title"
+ },
+ {
+  "name": "Miami (OH)",
+  "nickname": "Redhawks",
+  "host": "miamiredhawks.com",
+  "left": "miami",
+  "verdict": "title-mismatch",
+  "title": "Miami University RedHawks - Official Athletics Website"
+ },
+ {
+  "name": "Concordia Irvine",
+  "nickname": "Matadors",
+  "host": "gomatadors.com",
+  "left": "",
+  "verdict": "title-mismatch",
+  "title": "CSUN Athletics - Official Athletics Website"
+ },
+ {
+  "name": "Kentucky Christian University",
+  "nickname": "Knights",
+  "host": "kcuknights.com",
+  "left": "kcu",
+  "verdict": "unreachable",
+  "detail": "no title"
+ },
+ {
+  "name": "Rio Grande (University of)",
+  "nickname": "Red Storm",
+  "host": "rioredstorm.com",
+  "left": "rio",
+  "verdict": "unreachable",
+  "detail": "no title"
+ },
+ {
+  "name": "LSU Alexandria",
+  "nickname": "Generals",
+  "host": "lsuagenerals.com",
+  "left": "lsua",
+  "verdict": "title-mismatch",
+  "title": "Louisiana State University at Alexandria - Official Athletics Website"
+ },
+ {
+  "name": "Columbia College (SC)",
+  "nickname": "Koalas",
+  "host": "gokoalas.com",
+  "left": "",
+  "verdict": "unreachable",
+  "detail": "no title"
+ }
+]

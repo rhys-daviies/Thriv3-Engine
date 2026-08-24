@@ -1,0 +1,2363 @@
+{
+ "results": [
+  {
+   "name": "Ave Maria University",
+   "host": "avemariagyrenes.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "4-10-0"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "2-15-1",
+     "site": "2-15-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "2-11-3",
+     "site": "2-11-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "6-10-2",
+     "site": "6-10-2"
+    }
+   }
+  },
+  {
+   "name": "Benedictine College",
+   "host": "ravenathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "5-10-3",
+     "site": "5-10-3"
+    },
+    "2023": {
+     "verdict": "DISAGREE",
+     "ours": "9-4-4",
+     "site": "10-5-4"
+    },
+    "2024": {
+     "verdict": "DISAGREE",
+     "ours": "9-5-4",
+     "site": "9-6-4"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "7-7-4",
+     "site": "7-7-4"
+    }
+   }
+  },
+  {
+   "name": "Benedictine University at Mesa",
+   "host": "benuredhawks.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "6-9-3",
+     "site": "6-9-3"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "6-8-2",
+     "site": "6-8-2"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "6-8-4",
+     "site": "6-8-4"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "10-5-5",
+     "site": "10-5-5"
+    }
+   }
+  },
+  {
+   "name": "Briar Cliff University",
+   "host": "bcuchargers.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "5-8-6",
+     "site": "5-8-6"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "14-3-3",
+     "site": "14-3-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "5-11-3",
+     "site": "5-11-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "8-8-3",
+     "site": "8-8-3"
+    }
+   }
+  },
+  {
+   "name": "Bushnell University",
+   "host": "bushnellbeacons.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "4-13-1",
+     "site": "4-13-1"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "6-9-3",
+     "site": "6-9-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "8-7-3",
+     "site": "8-7-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "10-6-4",
+     "site": "10-6-4"
+    }
+   }
+  },
+  {
+   "name": "Campbellsville University",
+   "host": "campbellsvilletigers.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "12-8-1",
+     "site": "12-8-1"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "15-6-3",
+     "site": "15-6-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "14-7-2",
+     "site": "14-7-2"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "14-7-0"
+    }
+   }
+  },
+  {
+   "name": "Carolina University",
+   "host": "cubruins.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "13-3-1",
+     "site": "13-3-1"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "15-2-3",
+     "site": "15-2-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "13-3-3",
+     "site": "13-3-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "8-6-2",
+     "site": "8-6-2"
+    }
+   }
+  },
+  {
+   "name": "Carroll College",
+   "host": "carrollathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "6-9-1",
+     "site": "6-9-1"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "8-4-4",
+     "site": "8-4-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "15-4-3",
+     "site": "15-4-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "14-4-3",
+     "site": "14-4-3"
+    }
+   }
+  },
+  {
+   "name": "Bethel College (Kansas)",
+   "host": "bethelthreshers.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "6-10-2",
+     "site": "6-10-2"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "8-6-5",
+     "site": "8-6-5"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "9-8-3",
+     "site": "9-8-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "4-11-3",
+     "site": "4-11-3"
+    }
+   }
+  },
+  {
+   "name": "Blue Mountain Christian University",
+   "host": "bmcusports.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "5-10-2",
+     "site": "5-10-2"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "4-9-3",
+     "site": "4-9-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "3-9-4",
+     "site": "3-9-4"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "4-11-2",
+     "site": "4-11-2"
+    }
+   }
+  },
+  {
+   "name": "Bluefield University",
+   "host": "burams.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "7-9-0"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "2-13-1",
+     "site": "2-13-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "3-9-4",
+     "site": "3-9-4"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "1-14-1",
+     "site": "1-14-1"
+    }
+   }
+  },
+  {
+   "name": "Brescia University",
+   "host": "bresciabearcats.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "6-11-1"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "2-14-1"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "2-12-4"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "3-10-4"
+    }
+   }
+  },
+  {
+   "name": "Cleary University",
+   "host": "clearycougars.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "3-11-4"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "5-10-3"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "7-7-2"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "12-6-0"
+    }
+   }
+  },
+  {
+   "name": "Columbia College (SC)",
+   "host": "gokoalas.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "2-12-1",
+     "site": "2-12-1"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "7-11-0"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "5-9-3",
+     "site": "5-9-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "6-7-4",
+     "site": "6-7-4"
+    }
+   }
+  },
+  {
+   "name": "Columbia International University",
+   "host": "ciurams.com",
+   "seasons": {
+    "2022": {
+     "verdict": "DISAGREE",
+     "ours": "10-3-3",
+     "site": "15-4-5"
+    },
+    "2023": {
+     "verdict": "DISAGREE",
+     "ours": "10-4-3",
+     "site": "10-6-3"
+    },
+    "2024": {
+     "verdict": "DISAGREE",
+     "ours": "8-5-3",
+     "site": "8-6-4"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "7-9-2",
+     "site": "7-9-2"
+    }
+   }
+  },
+  {
+   "name": "Corban University",
+   "host": "corbanwarriors.com",
+   "seasons": {
+    "2022": {
+     "verdict": "DISAGREE",
+     "ours": "16-2-1",
+     "site": "16-3-2"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "4-7-7",
+     "site": "4-7-7"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "5-10-3",
+     "site": "5-10-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "4-10-4",
+     "site": "4-10-4"
+    }
+   }
+  },
+  {
+   "name": "Culver-Stockton College",
+   "host": "cscwildcats.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "5-11-2",
+     "site": "5-11-2"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "2-10-5",
+     "site": "2-10-5"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "2-12-4",
+     "site": "2-12-4"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "3-10-5",
+     "site": "3-10-5"
+    }
+   }
+  },
+  {
+   "name": "Cumberland University",
+   "host": "gocumberlandathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "8-4-3",
+     "site": "8-4-3"
+    },
+    "2023": {
+     "verdict": "DISAGREE",
+     "ours": "9-4-3",
+     "site": "12-5-3"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "11-5-0"
+    },
+    "2025": {
+     "verdict": "DISAGREE",
+     "ours": "11-2-3",
+     "site": "14-4-3"
+    }
+   }
+  },
+  {
+   "name": "Dalton State College",
+   "host": "dsroadrunners.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "14-0-3"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "12-1-3"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "15-0-2"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "9-2-5"
+    }
+   }
+  },
+  {
+   "name": "Embry-Riddle Aeronautical University Prescott",
+   "host": "eraueagles.com",
+   "seasons": {
+    "2022": {
+     "verdict": "DISAGREE",
+     "ours": "14-3-1",
+     "site": "16-4-1"
+    },
+    "2023": {
+     "verdict": "DISAGREE",
+     "ours": "11-5-1",
+     "site": "12-6-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "7-6-6",
+     "site": "7-6-6"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "7-6-5",
+     "site": "7-6-5"
+    }
+   }
+  },
+  {
+   "name": "Faulkner University",
+   "host": "faulknereagles.com",
+   "seasons": {
+    "2022": {
+     "verdict": "DISAGREE",
+     "ours": "5-8-2",
+     "site": "5-9-2"
+    },
+    "2023": {
+     "verdict": "DISAGREE",
+     "ours": "11-4-1",
+     "site": "11-4-2"
+    },
+    "2024": {
+     "verdict": "DISAGREE",
+     "ours": "7-6-2",
+     "site": "7-7-2"
+    },
+    "2025": {
+     "verdict": "DISAGREE",
+     "ours": "10-3-3",
+     "site": "11-5-3"
+    }
+   }
+  },
+  {
+   "name": "Fisher College",
+   "host": "fisherfalcons.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "2-13-3",
+     "site": "2-13-3"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "12-3-3",
+     "site": "12-3-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "5-9-3",
+     "site": "5-9-3"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "10-5-1"
+    }
+   }
+  },
+  {
+   "name": "Florida College",
+   "host": "www.wearefc.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "4-8-1"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "7-8-1"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "8-6-2"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "7-8-2"
+    }
+   }
+  },
+  {
+   "name": "Florida National University",
+   "host": "fnusports.com",
+   "seasons": {
+    "2022": {
+     "verdict": "DISAGREE",
+     "ours": "9-2-1",
+     "site": "11-3-3"
+    },
+    "2023": {
+     "verdict": "DISAGREE",
+     "ours": "11-2-4",
+     "site": "11-2-6"
+    },
+    "2024": {
+     "verdict": "DISAGREE",
+     "ours": "4-7-2",
+     "site": "5-8-2"
+    },
+    "2025": {
+     "verdict": "DISAGREE",
+     "ours": "9-4-3",
+     "site": "11-3-4"
+    }
+   }
+  },
+  {
+   "name": "Georgia Gwinnett College",
+   "host": "ggcathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "14-3-2",
+     "site": "14-3-2"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "6-8-4",
+     "site": "6-8-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "11-7-2",
+     "site": "11-7-2"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "13-3-4",
+     "site": "13-3-4"
+    }
+   }
+  },
+  {
+   "name": "Governors State University",
+   "host": "gsujaguars.com",
+   "seasons": {
+    "2022": {
+     "verdict": "we_have_none"
+    },
+    "2023": {
+     "verdict": "we_have_none"
+    },
+    "2024": {
+     "verdict": "we_have_none"
+    },
+    "2025": {
+     "verdict": "DISAGREE",
+     "ours": "5-12-1",
+     "site": "5-13-1"
+    }
+   }
+  },
+  {
+   "name": "Harris-Stowe State University",
+   "host": "hornetsathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "10-6-2",
+     "site": "10-6-2"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "8-7-1",
+     "site": "8-7-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "6-7-5",
+     "site": "6-7-5"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "10-7-3",
+     "site": "10-7-3"
+    }
+   }
+  },
+  {
+   "name": "Hesston College",
+   "host": "hclarks.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "8-7-1",
+     "site": "8-7-1"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "5-12-1",
+     "site": "5-12-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "4-13-1",
+     "site": "4-13-1"
+    },
+    "2025": {
+     "verdict": "DISAGREE",
+     "ours": "11-6-1",
+     "site": "11-7-1"
+    }
+   }
+  },
+  {
+   "name": "Hope International University",
+   "host": "hiuroyals.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "11-3-4",
+     "site": "11-3-4"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "15-4-2",
+     "site": "15-4-2"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "14-4-3",
+     "site": "14-4-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "6-5-7",
+     "site": "6-5-7"
+    }
+   }
+  },
+  {
+   "name": "Huston-Tillotson University",
+   "host": "htramsathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "DISAGREE",
+     "ours": "8-7-0",
+     "site": "0-0-1"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "4-10-1",
+     "site": "4-10-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "4-9-2",
+     "site": "4-9-2"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "6-11-0"
+    }
+   }
+  },
+  {
+   "name": "Indiana University Columbus",
+   "host": "iuccrimsonpride.com",
+   "seasons": {
+    "2022": {
+     "verdict": "we_have_none"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "8-9-1",
+     "site": "8-9-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "4-11-2",
+     "site": "4-11-2"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "6-10-1",
+     "site": "6-10-1"
+    }
+   }
+  },
+  {
+   "name": "Indiana University Northwest",
+   "host": "iunredhawks.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "3-13-0"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "4-12-1",
+     "site": "4-12-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "2-13-4",
+     "site": "2-13-4"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "3-14-1",
+     "site": "3-14-1"
+    }
+   }
+  },
+  {
+   "name": "Judson University",
+   "host": "judsoneagles.com",
+   "seasons": {
+    "2022": {
+     "verdict": "we_have_none"
+    },
+    "2023": {
+     "verdict": "we_have_none"
+    },
+    "2024": {
+     "verdict": "we_have_none"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "6-7-5"
+    }
+   }
+  },
+  {
+   "name": "Keiser University",
+   "host": "kuseahawks.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "13-1-3",
+     "site": "13-1-3"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "12-4-6",
+     "site": "12-4-6"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "9-4-3",
+     "site": "9-4-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "16-1-2",
+     "site": "16-1-2"
+    }
+   }
+  },
+  {
+   "name": "LSU Alexandria",
+   "host": "lsuagenerals.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "6-7-3",
+     "site": "6-7-3"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "8-7-3",
+     "site": "8-7-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "12-5-3",
+     "site": "12-5-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "14-4-1",
+     "site": "14-4-1"
+    }
+   }
+  },
+  {
+   "name": "LSU Shreveport",
+   "host": "lsusathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "14-4-3"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "16-6-1"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "14-4-4"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "14-2-6"
+    }
+   }
+  },
+  {
+   "name": "La Sierra University",
+   "host": "lsugoldeneagles.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "9-7-1",
+     "site": "9-7-1"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "7-6-3",
+     "site": "7-6-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "8-7-1",
+     "site": "8-7-1"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "14-4-1",
+     "site": "14-4-1"
+    }
+   }
+  },
+  {
+   "name": "Lawrence Technological University",
+   "host": "ltuathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "5-8-6",
+     "site": "5-8-6"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "11-5-3",
+     "site": "11-5-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "7-8-4",
+     "site": "7-8-4"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "8-9-2",
+     "site": "8-9-2"
+    }
+   }
+  },
+  {
+   "name": "Life University",
+   "host": "liferunningeagles.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "14-3-1",
+     "site": "14-3-1"
+    },
+    "2023": {
+     "verdict": "DISAGREE",
+     "ours": "5-7-3",
+     "site": "6-6-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "10-4-3",
+     "site": "10-4-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "16-1-3",
+     "site": "16-1-3"
+    }
+   }
+  },
+  {
+   "name": "Louisiana Christian University",
+   "host": "lcwildcats.net",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "11-3-6",
+     "site": "11-3-6"
+    },
+    "2023": {
+     "verdict": "DISAGREE",
+     "ours": "14-4-3",
+     "site": "14-4-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "15-5-3",
+     "site": "15-5-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "6-8-1",
+     "site": "6-8-1"
+    }
+   }
+  },
+  {
+   "name": "Madonna University",
+   "host": "mucrusaders.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "15-0-6",
+     "site": "15-0-6"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "11-5-4",
+     "site": "11-5-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "14-3-4",
+     "site": "14-3-4"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "17-3-2",
+     "site": "17-3-2"
+    }
+   }
+  },
+  {
+   "name": "Marian University (IN)",
+   "host": "muknights.com",
+   "seasons": {
+    "2022": {
+     "verdict": "DISAGREE",
+     "ours": "5-11-2",
+     "site": "5-11-3"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "12-5-2",
+     "site": "12-5-2"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "14-5-3",
+     "site": "14-5-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "9-6-4",
+     "site": "9-6-4"
+    }
+   }
+  },
+  {
+   "name": "McPherson College",
+   "host": "macbulldogs.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "10-6-3",
+     "site": "10-6-3"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "1-12-5",
+     "site": "1-12-5"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "6-10-2",
+     "site": "6-10-2"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "7-9-3",
+     "site": "7-9-3"
+    }
+   }
+  },
+  {
+   "name": "Mid-America Christian University",
+   "host": "macuathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "19-2-2",
+     "site": "19-2-2"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "17-0-4",
+     "site": "17-0-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "14-3-4",
+     "site": "14-3-4"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "9-9-4",
+     "site": "9-9-4"
+    }
+   }
+  },
+  {
+   "name": "Milligan University",
+   "host": "milliganbuffs.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "10-3-7",
+     "site": "10-3-7"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "19-3-4",
+     "site": "19-3-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "13-1-5",
+     "site": "13-1-5"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "12-7-2",
+     "site": "12-7-2"
+    }
+   }
+  },
+  {
+   "name": "Mission University",
+   "host": "gopatriotathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "we_have_none"
+    },
+    "2023": {
+     "verdict": "we_have_none"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "1-11-0"
+    },
+    "2025": {
+     "verdict": "DISAGREE",
+     "ours": "1-11-2",
+     "site": "1-12-2"
+    }
+   }
+  },
+  {
+   "name": "Missouri Valley College",
+   "host": "valleywillroll.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "15-5-1"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "14-6-0"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "16-3-3"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "7-8-3"
+    }
+   }
+  },
+  {
+   "name": "Montreat College",
+   "host": "montreatcavaliers.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "6-10-2",
+     "site": "6-10-2"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "6-10-2",
+     "site": "6-10-2"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "3-4-1",
+     "site": "3-4-1"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "5-10-3",
+     "site": "5-10-3"
+    }
+   }
+  },
+  {
+   "name": "Mount Marty University",
+   "host": "mountmartyathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "DISAGREE",
+     "ours": "6-7-3",
+     "site": "7-7-3"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "3-9-4",
+     "site": "3-9-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "4-11-1",
+     "site": "4-11-1"
+    },
+    "2025": {
+     "verdict": "DISAGREE",
+     "ours": "3-7-5",
+     "site": "4-7-4"
+    }
+   }
+  },
+  {
+   "name": "Nelson University",
+   "host": "nelsonlions.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "2-15-0"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "10-12-0"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "6-6-7",
+     "site": "6-6-7"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "10-9-4",
+     "site": "10-9-4"
+    }
+   }
+  },
+  {
+   "name": "New College of Florida",
+   "host": "gomightybanyans.com",
+   "seasons": {
+    "2022": {
+     "verdict": "we_have_none"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "10-3-1"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "2-10-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "13-4-1",
+     "site": "13-4-1"
+    }
+   }
+  },
+  {
+   "name": "North American University",
+   "host": "stallions.na.edu",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "6-7-2"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "6-9-0"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "6-10-2"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "5-7-3"
+    }
+   }
+  },
+  {
+   "name": "Oakland City University",
+   "host": "gomightyoaks.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "9-7-5",
+     "site": "9-7-5"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "9-10-1",
+     "site": "9-10-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "9-4-5",
+     "site": "9-4-5"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "8-10-1",
+     "site": "8-10-1"
+    }
+   }
+  },
+  {
+   "name": "Oakwood University",
+   "host": "athletics.oakwood.edu",
+   "seasons": {
+    "2022": {
+     "verdict": "we_have_none"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "2-5-2"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "2-3-1",
+     "site": "2-3-1"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "2-7-0"
+    }
+   }
+  },
+  {
+   "name": "Oklahoma Panhandle State University",
+   "host": "opsuaggies.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "4-8-1"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "5-9-1"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "2-11-2"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "6-6-5"
+    }
+   }
+  },
+  {
+   "name": "Oklahoma Wesleyan University",
+   "host": "okwueagles.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "14-6-3",
+     "site": "14-6-3"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "17-2-5",
+     "site": "17-2-5"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "22-2-0"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "19-1-3",
+     "site": "19-1-3"
+    }
+   }
+  },
+  {
+   "name": "Oregon Institute of Technology",
+   "host": "oregontechowls.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "13-3-4",
+     "site": "13-3-4"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "11-5-3",
+     "site": "11-5-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "9-8-3",
+     "site": "9-8-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "7-6-5",
+     "site": "7-6-5"
+    }
+   }
+  },
+  {
+   "name": "Our Lady of the Lake University",
+   "host": "ollusaintsathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "2-11-3"
+    },
+    "2023": {
+     "verdict": "we_have_none"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "6-11-1"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "12-5-2"
+    }
+   }
+  },
+  {
+   "name": "Pacific Union College",
+   "host": "pioneersathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "4-10-2"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "5-7-4"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "0-13-0"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "3-6-3"
+    }
+   }
+  },
+  {
+   "name": "Paul Quinn College",
+   "host": "paulquinnathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "9-6-3"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "1-14-1"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "2-10-1"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "2-5-6"
+    }
+   }
+  },
+  {
+   "name": "Point University",
+   "host": "skyhawkathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "3-12-2"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "3-11-0"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "6-8-2"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "6-8-2"
+    }
+   }
+  },
+  {
+   "name": "Reinhardt University",
+   "host": "reinhardteagles.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "9-4-4"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "9-4-5"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "4-9-4"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "5-8-2"
+    }
+   }
+  },
+  {
+   "name": "Rio Grande (University of)",
+   "host": "rioredstorm.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "12-3-2"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "12-1-2"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "9-4-1"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "10-4-3"
+    }
+   }
+  },
+  {
+   "name": "Rochester Christian University",
+   "host": "rcu.edu",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "7-9-2"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "4-10-2"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "3-12-1"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "1-13-3"
+    }
+   }
+  },
+  {
+   "name": "Saint Mary-of-the-Woods College",
+   "host": "smwcathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "we_have_none"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "1-13-2",
+     "site": "1-13-2"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "5-12-0"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "7-10-2",
+     "site": "7-10-2"
+    }
+   }
+  },
+  {
+   "name": "Saint Xavier University",
+   "host": "sxucougars.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "5-10-3",
+     "site": "5-10-3"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "8-7-4",
+     "site": "8-7-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "3-11-4",
+     "site": "3-11-4"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "12-5-3",
+     "site": "12-5-3"
+    }
+   }
+  },
+  {
+   "name": "Savannah College of Art and Design",
+   "host": "savannah.scadathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "5-11-0"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "6-8-4",
+     "site": "6-8-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "11-4-3",
+     "site": "11-4-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "7-7-4",
+     "site": "7-7-4"
+    }
+   }
+  },
+  {
+   "name": "Spartanburg Methodist College",
+   "host": "gosmcpioneers.com",
+   "seasons": {
+    "2022": {
+     "verdict": "we_have_none"
+    },
+    "2023": {
+     "verdict": "we_have_none"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "5-10-2"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "4-8-4"
+    }
+   }
+  },
+  {
+   "name": "Talladega College",
+   "host": "talladegatornadoes.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "0-10-0"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "5-4-1",
+     "site": "5-4-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "4-6-4",
+     "site": "4-6-4"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "3-8-0"
+    }
+   }
+  },
+  {
+   "name": "Shawnee State University",
+   "host": "ssubears.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "11-8-0"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "6-8-4",
+     "site": "6-8-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "8-8-3",
+     "site": "8-8-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "7-5-5",
+     "site": "7-5-5"
+    }
+   }
+  },
+  {
+   "name": "Simpson University",
+   "host": "simpsonredhawks.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "7-5-5",
+     "site": "7-5-5"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "6-8-4",
+     "site": "6-8-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "3-7-1",
+     "site": "3-7-1"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "2-12-3",
+     "site": "2-12-3"
+    }
+   }
+  },
+  {
+   "name": "Soka University of America",
+   "host": "sokaathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "5-9-3"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "9-7-1"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "6-10-0"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "5-8-3"
+    }
+   }
+  },
+  {
+   "name": "Southwestern Christian University",
+   "host": "scueagles.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "9-6-5",
+     "site": "9-6-5"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "7-10-1",
+     "site": "7-10-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "8-7-6",
+     "site": "8-7-6"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "7-5-5",
+     "site": "7-5-5"
+    }
+   }
+  },
+  {
+   "name": "Texas College",
+   "host": "tcsteersathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "0-14-1"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "2-11-3"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "3-13-0"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "0-12-1"
+    }
+   }
+  },
+  {
+   "name": "Texas Wesleyan University",
+   "host": "ramsports.net",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "12-6-0"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "5-9-3",
+     "site": "5-9-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "10-6-3",
+     "site": "10-6-3"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "9-10-0"
+    }
+   }
+  },
+  {
+   "name": "The Evergreen State College",
+   "host": "gogeoducks.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "6-9-2",
+     "site": "6-9-2"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "6-8-4",
+     "site": "6-8-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "3-12-1",
+     "site": "3-12-1"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "1-12-2",
+     "site": "1-12-2"
+    }
+   }
+  },
+  {
+   "name": "The Master's University",
+   "host": "gomustangs.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "6-8-3",
+     "site": "6-8-3"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "9-6-3",
+     "site": "9-6-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "9-9-2",
+     "site": "9-9-2"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "5-10-2",
+     "site": "5-10-2"
+    }
+   }
+  },
+  {
+   "name": "Thomas University",
+   "host": "tunighthawks.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "7-6-5",
+     "site": "7-6-5"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "10-4-4",
+     "site": "10-4-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "6-9-2",
+     "site": "6-9-2"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "5-7-4",
+     "site": "5-7-4"
+    }
+   }
+  },
+  {
+   "name": "Truett McConnell University",
+   "host": "tmbears.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "9-5-4",
+     "site": "9-5-4"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "9-3-4",
+     "site": "9-3-4"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "11-5-3",
+     "site": "11-5-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "10-5-3",
+     "site": "10-5-3"
+    }
+   }
+  },
+  {
+   "name": "Union Commonwealth University",
+   "host": "gounionbulldogs.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "9-5-6"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "15-3-2"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "13-3-3"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "14-3-4"
+    }
+   }
+  },
+  {
+   "name": "University of Health Sciences and Pharmacy in St. Louis",
+   "host": "eutecticsports.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "1-12-0"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "3-11-3"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "1-15-0"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "1-15-1"
+    }
+   }
+  },
+  {
+   "name": "University of Michigan-Dearborn",
+   "host": "athletics.umdearborn.edu",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "6-10-3"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "3-8-5"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "3-11-2"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "1-11-3"
+    }
+   }
+  },
+  {
+   "name": "University of Mobile",
+   "host": "umobilerams.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "18-4-1",
+     "site": "18-4-1"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "15-2-3",
+     "site": "15-2-3"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "18-4-1",
+     "site": "18-4-1"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "5-10-1",
+     "site": "5-10-1"
+    }
+   }
+  },
+  {
+   "name": "University of Providence",
+   "host": "upargos.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "2-11-1"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "7-9-2"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "2-14-0"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "3-11-2"
+    }
+   }
+  },
+  {
+   "name": "Tennessee Wesleyan University",
+   "host": "www.twbulldogs.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "11-2-6"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "12-5-5"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "7-8-2"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "8-8-1"
+    }
+   }
+  },
+  {
+   "name": "Texas A&M University-San Antonio",
+   "host": "tamusasports.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "7-5-3"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "8-6-2"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "9-3-3"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "11-4-2"
+    }
+   }
+  },
+  {
+   "name": "Texas A&M University-Texarkana",
+   "host": "www.tamut.edu",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "6-8-3"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "9-9-1"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "7-9-3"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "7-7-5"
+    }
+   }
+  },
+  {
+   "name": "University of Tennessee Southern",
+   "host": "utsfirehawks.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "13-4-1",
+     "site": "13-4-1"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "9-6-2",
+     "site": "9-6-2"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "10-6-2",
+     "site": "10-6-2"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "8-6-3",
+     "site": "8-6-3"
+    }
+   }
+  },
+  {
+   "name": "University of the Southwest (New Mexico)",
+   "host": "uswathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "3-8-4",
+     "site": "3-8-4"
+    },
+    "2023": {
+     "verdict": "DISAGREE",
+     "ours": "1-7-1",
+     "site": "2-12-2"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "5-7-4",
+     "site": "5-7-4"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "5-6-3",
+     "site": "5-6-3"
+    }
+   }
+  },
+  {
+   "name": "Walla Walla University",
+   "host": "uwolves.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "0-14-0"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "0-14-0"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "1-12-0"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "3-9-0"
+    }
+   }
+  },
+  {
+   "name": "Washington Adventist University",
+   "host": "wauathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "6-8-2"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "10-4-2"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "4-4-5"
+    },
+    "2025": {
+     "verdict": "we_have_none"
+    }
+   }
+  },
+  {
+   "name": "West Virginia University Institute of Technology",
+   "host": "goldenbearathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "DISAGREE",
+     "ours": "13-2-3",
+     "site": "14-3-3"
+    },
+    "2023": {
+     "verdict": "DISAGREE",
+     "ours": "13-5-1",
+     "site": "14-5-2"
+    },
+    "2024": {
+     "verdict": "DISAGREE",
+     "ours": "8-7-2",
+     "site": "10-8-2"
+    },
+    "2025": {
+     "verdict": "DISAGREE",
+     "ours": "15-0-2",
+     "site": "20-1-2"
+    }
+   }
+  },
+  {
+   "name": "Westcliff University",
+   "host": "westcliffathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "11-6-2"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "18-2-0"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "12-2-2"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "12-5-2"
+    }
+   }
+  },
+  {
+   "name": "Wiley University",
+   "host": "www.wileyathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "we_have_none"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "0-5-0"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "3-8-0"
+    },
+    "2025": {
+     "verdict": "we_have_none"
+    }
+   }
+  },
+  {
+   "name": "William Carey University",
+   "host": "careyathletics.com",
+   "seasons": {
+    "2022": {
+     "verdict": "agree",
+     "ours": "13-3-3",
+     "site": "13-3-3"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "16-5-1",
+     "site": "16-5-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "15-5-3",
+     "site": "15-5-3"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "14-4-3",
+     "site": "14-4-3"
+    }
+   }
+  },
+  {
+   "name": "Williams Baptist University",
+   "host": "wbueagles.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "15-2-3"
+    },
+    "2023": {
+     "verdict": "no_data",
+     "ours": "11-4-2"
+    },
+    "2024": {
+     "verdict": "no_data",
+     "ours": "12-3-6"
+    },
+    "2025": {
+     "verdict": "no_data",
+     "ours": "7-8-2"
+    }
+   }
+  },
+  {
+   "name": "York University (Nebraska)",
+   "host": "yorkpanthers.com",
+   "seasons": {
+    "2022": {
+     "verdict": "no_data",
+     "ours": "6-6-7"
+    },
+    "2023": {
+     "verdict": "agree",
+     "ours": "4-13-1",
+     "site": "4-13-1"
+    },
+    "2024": {
+     "verdict": "agree",
+     "ours": "6-8-5",
+     "site": "6-8-5"
+    },
+    "2025": {
+     "verdict": "agree",
+     "ours": "12-5-3",
+     "site": "12-5-3"
+    }
+   }
+  }
+ ],
+ "no_host": [
+  "Bellevue University",
+  "Central Baptist College",
+  "Defiance College",
+  "Georgetown College",
+  "Holy Cross College",
+  "Texas A&M University-Victoria",
+  "Tougaloo College",
+  "University of Northwestern Ohio",
+  "University of Saint Francis (IN)",
+  "University of St. Francis (Illinois)"
+ ]
+}

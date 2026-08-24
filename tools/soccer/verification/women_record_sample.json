@@ -1,0 +1,1532 @@
+[
+ {
+  "name": "Austin Peay",
+  "division": "D1",
+  "host": "letsgopeay.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "3-9-6",
+    "site": "3-9-6"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "5-11-5",
+    "site": "5-11-5"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "7-6-6",
+    "site": "7-6-6"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "0-11-7",
+    "site": "0-11-7"
+   }
+  }
+ },
+ {
+  "name": "Troy",
+  "division": "D1",
+  "host": "troytrojans.com",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "3-9-4"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "6-10-2"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "5-9-3"
+   },
+   "2025": {
+    "verdict": "no_data",
+    "ours": "5-9-3"
+   }
+  }
+ },
+ {
+  "name": "Washington",
+  "division": "D1",
+  "host": "gohuskies.com",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "10-6-3"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "9-5-5"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "10-7-4"
+   },
+   "2025": {
+    "verdict": "no_data",
+    "ours": "15-3-7"
+   }
+  }
+ },
+ {
+  "name": "Louisiana",
+  "division": "D1",
+  "host": "ragincajuns.com",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "3-9-5"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "7-9-2"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "7-5-8"
+   },
+   "2025": {
+    "verdict": "no_data",
+    "ours": "7-6-5"
+   }
+  }
+ },
+ {
+  "name": "Dartmouth",
+  "division": "D1",
+  "host": "dartmouthsports.com",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "8-7-2"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "7-3-5"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "7-6-3"
+   },
+   "2025": {
+    "verdict": "no_data",
+    "ours": "11-4-4"
+   }
+  }
+ },
+ {
+  "name": "UC Irvine",
+  "division": "D1",
+  "host": "ucirvinesports.com",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "11-6-7"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "10-8-6"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "6-7-6"
+   },
+   "2025": {
+    "verdict": "no_data",
+    "ours": "8-5-7"
+   }
+  }
+ },
+ {
+  "name": "UNC Greensboro",
+  "division": "D1",
+  "host": "uncgspartans.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "10-7-4",
+    "site": "10-7-4"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "7-9-3",
+    "site": "7-9-3"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "5-9-5",
+    "site": "5-9-5"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "4-12-3",
+    "site": "4-12-3"
+   }
+  }
+ },
+ {
+  "name": "Western Carolina",
+  "division": "D1",
+  "host": "catamountsports.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "5-8-5",
+    "site": "5-8-5"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "13-5-3",
+    "site": "13-5-3"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "15-3-3",
+    "site": "15-3-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "10-6-4",
+    "site": "10-6-4"
+   }
+  }
+ },
+ {
+  "name": "Toledo",
+  "division": "D1",
+  "host": "utrockets.com",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "2-10-6"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "7-9-2"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "6-7-5"
+   },
+   "2025": {
+    "verdict": "no_data",
+    "ours": "4-8-6"
+   }
+  }
+ },
+ {
+  "name": "Loyola Chicago",
+  "division": "D1",
+  "host": "loyolaramblers.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "8-8-3",
+    "site": "8-8-3"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "7-7-4",
+    "site": "7-7-4"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "9-5-5",
+    "site": "9-5-5"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "9-4-6",
+    "site": "9-4-6"
+   }
+  }
+ },
+ {
+  "name": "Wright State",
+  "division": "D1",
+  "host": "wsuraiders.com",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "8-7-3"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "6-7-5"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "5-10-2"
+   },
+   "2025": {
+    "verdict": "no_data",
+    "ours": "7-7-5"
+   }
+  }
+ },
+ {
+  "name": "Rutgers",
+  "division": "D1",
+  "host": "scarletknights.com",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "13-5-2"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "9-7-4"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "11-5-5"
+   },
+   "2025": {
+    "verdict": "no_data",
+    "ours": "4-7-5"
+   }
+  }
+ },
+ {
+  "name": "Southern Utah",
+  "division": "D1",
+  "host": "suutbirds.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "9-6-2",
+    "site": "9-6-2"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "3-11-5",
+    "site": "3-11-5"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "2-10-5",
+    "site": "2-10-5"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "3-12-3",
+    "site": "3-12-3"
+   }
+  }
+ },
+ {
+  "name": "South Carolina State",
+  "division": "D1",
+  "host": "www.scsuathletics.com",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "2-18-0"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "0-13-1",
+    "site": "0-13-1"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "1-14-0"
+   },
+   "2025": {
+    "verdict": "no_data",
+    "ours": "2-14-0"
+   }
+  }
+ },
+ {
+  "name": "Canisius",
+  "division": "D1",
+  "host": "gogriffs.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "5-5-10",
+    "site": "5-5-10"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "9-4-5",
+    "site": "9-4-5"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "12-4-3",
+    "site": "12-4-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "8-8-3",
+    "site": "8-8-3"
+   }
+  }
+ },
+ {
+  "name": "Wheeling",
+  "division": "D2",
+  "host": "wucardinals.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "6-11-1",
+    "site": "6-11-1"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "5-11-2",
+    "site": "5-11-2"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "5-13-1",
+    "site": "5-13-1"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "3-11-4",
+    "site": "3-11-4"
+   }
+  }
+ },
+ {
+  "name": "Emmanuel (GA)",
+  "division": "D2",
+  "host": "goeulions.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "9-8-2",
+    "site": "9-8-2"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "5-10-1",
+    "site": "5-10-1"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "5-10-2",
+    "site": "5-10-2"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "6-7-4",
+    "site": "6-7-4"
+   }
+  }
+ },
+ {
+  "name": "Cal Poly Pomona",
+  "division": "D2",
+  "host": "broncoathletics.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "6-9-3",
+    "site": "6-9-3"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "11-5-3",
+    "site": "11-5-3"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "22-1-2",
+    "site": "22-1-2"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "18-3-3",
+    "site": "18-3-3"
+   }
+  }
+ },
+ {
+  "name": "Northwest Nazarene",
+  "division": "D2",
+  "host": "nnusports.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "12-4-4",
+    "site": "12-4-4"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "6-5-7",
+    "site": "6-5-7"
+   },
+   "2024": {
+    "verdict": "we_have_none"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "5-11-2",
+    "site": "5-11-2"
+   }
+  }
+ },
+ {
+  "name": "Northwest Missouri State",
+  "division": "D2",
+  "host": "bearcatsports.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "13-5-3",
+    "site": "13-5-3"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "8-5-6",
+    "site": "8-5-6"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "7-6-6",
+    "site": "7-6-6"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "10-6-2",
+    "site": "10-6-2"
+   }
+  }
+ },
+ {
+  "name": "Charleston (WV)",
+  "division": "D2",
+  "host": "cofcsports.com",
+  "seasons": {
+   "2022": {
+    "verdict": "we_have_none"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "18-1-3"
+   },
+   "2024": {
+    "verdict": "we_have_none"
+   },
+   "2025": {
+    "verdict": "no_data",
+    "ours": "10-8-3"
+   }
+  }
+ },
+ {
+  "name": "Converse",
+  "division": "D2",
+  "host": "govalkyries.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "4-12-1",
+    "site": "4-12-1"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "5-7-4",
+    "site": "5-7-4"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "9-7-3",
+    "site": "9-7-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "7-10-3",
+    "site": "7-10-3"
+   }
+  }
+ },
+ {
+  "name": "West Alabama",
+  "division": "D2",
+  "host": "uwaathletics.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "10-5-3",
+    "site": "10-5-3"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "7-10-2",
+    "site": "7-10-2"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "3-9-3",
+    "site": "3-9-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "11-4-3",
+    "site": "11-4-3"
+   }
+  }
+ },
+ {
+  "name": "Jefferson",
+  "division": "D2",
+  "host": "jeffersonrams.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "11-7-1",
+    "site": "11-7-1"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "13-4-3",
+    "site": "13-4-3"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "19-1-3",
+    "site": "19-1-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "17-3-1",
+    "site": "17-3-1"
+   }
+  }
+ },
+ {
+  "name": "Clayton State",
+  "division": "D2",
+  "host": "claytonstatesports.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "3-10-2",
+    "site": "3-10-2"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "7-7-3",
+    "site": "7-7-3"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "8-3-6",
+    "site": "8-3-6"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "4-11-2",
+    "site": "4-11-2"
+   }
+  }
+ },
+ {
+  "name": "Northern Michigan",
+  "division": "D2",
+  "host": "nmuwildcats.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "13-4-5",
+    "site": "13-4-5"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "16-2-4",
+    "site": "16-2-4"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "14-4-4",
+    "site": "14-4-4"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "7-8-5",
+    "site": "7-8-5"
+   }
+  }
+ },
+ {
+  "name": "Montevallo",
+  "division": "D2",
+  "host": "montevallofalcons.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "12-3-3",
+    "site": "12-3-3"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "12-5-3",
+    "site": "12-5-3"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "14-6-3",
+    "site": "14-6-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "13-7-2",
+    "site": "13-7-2"
+   }
+  }
+ },
+ {
+  "name": "Colorado State-Pueblo",
+  "division": "D2",
+  "host": "csurams.com",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "5-12-2"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "7-5-6"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "4-10-4"
+   },
+   "2025": {
+    "verdict": "no_data",
+    "ours": "4-9-6"
+   }
+  }
+ },
+ {
+  "name": "Cal State San Bernardino",
+  "division": "D2",
+  "host": "csusbathletics.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "7-6-4",
+    "site": "7-6-4"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "8-6-4",
+    "site": "8-6-4"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "5-6-6",
+    "site": "5-6-6"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "8-6-5",
+    "site": "8-6-5"
+   }
+  }
+ },
+ {
+  "name": "Fresno Pacific",
+  "division": "D2",
+  "host": "www.fpusunbirds.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "8-7-2",
+    "site": "8-7-2"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "2-13-2",
+    "site": "2-13-2"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "4-8-4",
+    "site": "4-8-4"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "4-8-5",
+    "site": "4-8-5"
+   }
+  }
+ },
+ {
+  "name": "University of Mount Union",
+  "division": "D3",
+  "host": "athletics.mountunion.edu",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "7-6-4",
+    "site": "7-6-4"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "5-10-1",
+    "site": "5-10-1"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "5-11-2",
+    "site": "5-11-2"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "7-6-4",
+    "site": "7-6-4"
+   }
+  }
+ },
+ {
+  "name": "Colby College",
+  "division": "D3",
+  "host": "colbyathletics.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "5-9-1",
+    "site": "5-9-1"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "5-6-4",
+    "site": "5-6-4"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "13-5-3",
+    "site": "13-5-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "11-5-3",
+    "site": "11-5-3"
+   }
+  }
+ },
+ {
+  "name": "Wilkes University",
+  "division": "D3",
+  "host": "gowilkesu.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "4-11-3",
+    "site": "4-11-3"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "3-6-7",
+    "site": "3-6-7"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "5-10-3",
+    "site": "5-10-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "6-7-5",
+    "site": "6-7-5"
+   }
+  }
+ },
+ {
+  "name": "CUNY Medgar Evers College",
+  "division": "D3",
+  "host": "mecathletics.com",
+  "seasons": {
+   "2022": {
+    "verdict": "we_have_none"
+   },
+   "2023": {
+    "verdict": "we_have_none"
+   },
+   "2024": {
+    "verdict": "we_have_none"
+   },
+   "2025": {
+    "verdict": "we_have_none"
+   }
+  }
+ },
+ {
+  "name": "Allegheny College",
+  "division": "D3",
+  "host": "alleghenygators.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "4-9-4",
+    "site": "4-9-4"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "6-10-1",
+    "site": "6-10-1"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "12-7-1",
+    "site": "12-7-1"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "6-9-5",
+    "site": "6-9-5"
+   }
+  }
+ },
+ {
+  "name": "Yeshiva University",
+  "division": "D3",
+  "host": "yumacs.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "1-14-1",
+    "site": "1-14-1"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "2-12-0"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "1-14-0"
+   },
+   "2025": {
+    "verdict": "we_have_none"
+   }
+  }
+ },
+ {
+  "name": "Curry College",
+  "division": "D3",
+  "host": "www.curryathletics.com",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "10-6-3"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "4-7-7"
+   },
+   "2024": {
+    "verdict": "we_have_none"
+   },
+   "2025": {
+    "verdict": "we_have_none"
+   }
+  }
+ },
+ {
+  "name": "Hanover College",
+  "division": "D3",
+  "host": "athletics.hanover.edu",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "12-3-3",
+    "site": "12-3-3"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "14-2-4",
+    "site": "14-2-4"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "12-6-0"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "8-7-5",
+    "site": "8-7-5"
+   }
+  }
+ },
+ {
+  "name": "Hamilton College",
+  "division": "D3",
+  "host": "athletics.hamilton.edu",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "7-4-4",
+    "site": "7-4-4"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "8-4-4",
+    "site": "8-4-4"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "6-7-3",
+    "site": "6-7-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "8-5-3",
+    "site": "8-5-3"
+   }
+  }
+ },
+ {
+  "name": "Moravian University",
+  "division": "D3",
+  "host": "www.moraviansports.com",
+  "seasons": {
+   "2022": {
+    "verdict": "we_have_none"
+   },
+   "2023": {
+    "verdict": "we_have_none"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "9-5-6"
+   },
+   "2025": {
+    "verdict": "we_have_none"
+   }
+  }
+ },
+ {
+  "name": "Hobart and William Smith Colleges",
+  "division": "D3",
+  "host": "hwsathletics.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "14-2-6",
+    "site": "14-2-6"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "14-1-4",
+    "site": "14-1-4"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "17-4-4",
+    "site": "17-4-4"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "11-3-3",
+    "site": "11-3-3"
+   }
+  }
+ },
+ {
+  "name": "Berry College",
+  "division": "D3",
+  "host": "berryvikings.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "10-5-2",
+    "site": "10-5-2"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "5-10-1",
+    "site": "5-10-1"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "6-7-4",
+    "site": "6-7-4"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "7-4-5",
+    "site": "7-4-5"
+   }
+  }
+ },
+ {
+  "name": "Ithaca College",
+  "division": "D3",
+  "host": "athletics.ithaca.edu",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "13-4-4",
+    "site": "13-4-4"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "10-3-4",
+    "site": "10-3-4"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "14-3-4",
+    "site": "14-3-4"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "8-6-4",
+    "site": "8-6-4"
+   }
+  }
+ },
+ {
+  "name": "Houghton University",
+  "division": "D3",
+  "host": "athletics.houghton.edu",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "6-7-4",
+    "site": "6-7-4"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "7-9-1",
+    "site": "7-9-1"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "7-10-2",
+    "site": "7-10-2"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "12-6-4",
+    "site": "12-6-4"
+   }
+  }
+ },
+ {
+  "name": "Oberlin College",
+  "division": "D3",
+  "host": "goyeo.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "7-6-2",
+    "site": "7-6-2"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "7-8-2",
+    "site": "7-8-2"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "7-7-2",
+    "site": "7-7-2"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "3-10-4",
+    "site": "3-10-4"
+   }
+  }
+ },
+ {
+  "name": "Saint Xavier University",
+  "division": "NAIA",
+  "host": "sxucougars.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "6-9-4",
+    "site": "6-9-4"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "8-4-5",
+    "site": "8-4-5"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "7-5-5",
+    "site": "7-5-5"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "10-5-4",
+    "site": "10-5-4"
+   }
+  }
+ },
+ {
+  "name": "Indiana Institute of Technology",
+  "division": "NAIA",
+  "host": "indianatechwarriors.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "4-10-3",
+    "site": "4-10-3"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "5-11-2",
+    "site": "5-11-2"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "6-10-3",
+    "site": "6-10-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "3-11-1",
+    "site": "3-11-1"
+   }
+  }
+ },
+ {
+  "name": "Cornerstone University",
+  "division": "NAIA",
+  "host": "cugoldeneagles.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "5-10-3",
+    "site": "5-10-3"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "6-8-2",
+    "site": "6-8-2"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "8-7-3",
+    "site": "8-7-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "6-10-2",
+    "site": "6-10-2"
+   }
+  }
+ },
+ {
+  "name": "Louisiana Christian University",
+  "division": "NAIA",
+  "host": "lcwildcats.net",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "8-5-2",
+    "site": "8-5-2"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "10-5-2",
+    "site": "10-5-2"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "13-5-2",
+    "site": "13-5-2"
+   },
+   "2025": {
+    "verdict": "we_have_none"
+   }
+  }
+ },
+ {
+  "name": "University of Mobile",
+  "division": "NAIA",
+  "host": "umobilerams.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "8-7-2",
+    "site": "8-7-2"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "7-7-4",
+    "site": "7-7-4"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "9-6-3",
+    "site": "9-6-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "11-6-1",
+    "site": "11-6-1"
+   }
+  }
+ },
+ {
+  "name": "Texas College",
+  "division": "NAIA",
+  "host": "tcsteersathletics.com",
+  "seasons": {
+   "2022": {
+    "verdict": "we_have_none"
+   },
+   "2023": {
+    "verdict": "we_have_none"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "0-13-1",
+    "site": "0-13-1"
+   },
+   "2025": {
+    "verdict": "we_have_none"
+   }
+  }
+ },
+ {
+  "name": "Warner University",
+  "division": "NAIA",
+  "host": "warnerroyals.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "4-8-5",
+    "site": "4-8-5"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "4-10-4",
+    "site": "4-10-4"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "4-13-2",
+    "site": "4-13-2"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "6-11-3",
+    "site": "6-11-3"
+   }
+  }
+ },
+ {
+  "name": "Texas Wesleyan University",
+  "division": "NAIA",
+  "host": "ramsports.net",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "6-11-0"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "7-9-1",
+    "site": "7-9-1"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "4-11-3",
+    "site": "4-11-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "3-11-2",
+    "site": "3-11-2"
+   }
+  }
+ },
+ {
+  "name": "John Brown University",
+  "division": "NAIA",
+  "host": "jbuathletics.com",
+  "seasons": {
+   "2022": {
+    "verdict": "we_have_none"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "18-3-1",
+    "site": "18-3-1"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "16-6-1",
+    "site": "16-6-1"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "15-3-4",
+    "site": "15-3-4"
+   }
+  }
+ },
+ {
+  "name": "Faulkner University",
+  "division": "NAIA",
+  "host": "faulknereagles.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "10-6-2",
+    "site": "10-6-2"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "4-8-4",
+    "site": "4-8-4"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "5-10-3",
+    "site": "5-10-3"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "7-10-1",
+    "site": "7-10-1"
+   }
+  }
+ },
+ {
+  "name": "Hope International University",
+  "division": "NAIA",
+  "host": "hiuroyals.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "9-7-2",
+    "site": "9-7-2"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "17-4-2",
+    "site": "17-4-2"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "14-4-2",
+    "site": "14-4-2"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "10-7-2",
+    "site": "10-7-2"
+   }
+  }
+ },
+ {
+  "name": "Harris-Stowe State University",
+  "division": "NAIA",
+  "host": "hornetsathletics.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "13-5-1",
+    "site": "13-5-1"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "13-5-1",
+    "site": "13-5-1"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "8-6-2",
+    "site": "8-6-2"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "7-7-5",
+    "site": "7-7-5"
+   }
+  }
+ },
+ {
+  "name": "Texas A&M University-San Antonio",
+  "division": "NAIA",
+  "host": "tamusasports.com",
+  "seasons": {
+   "2022": {
+    "verdict": "DISAGREE",
+    "ours": "9-4-3",
+    "site": "8-3-4"
+   },
+   "2023": {
+    "verdict": "we_have_none"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "6-8-1",
+    "site": "6-8-1"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "5-10-2",
+    "site": "5-10-2"
+   }
+  }
+ },
+ {
+  "name": "Doane University",
+  "division": "NAIA",
+  "host": "web.doane.edu",
+  "seasons": {
+   "2022": {
+    "verdict": "no_data",
+    "ours": "8-9-2"
+   },
+   "2023": {
+    "verdict": "no_data",
+    "ours": "4-8-4"
+   },
+   "2024": {
+    "verdict": "no_data",
+    "ours": "7-8-4"
+   },
+   "2025": {
+    "verdict": "no_data",
+    "ours": "8-9-2"
+   }
+  }
+ },
+ {
+  "name": "Ottawa University",
+  "division": "NAIA",
+  "host": "ottawabraves.com",
+  "seasons": {
+   "2022": {
+    "verdict": "agree",
+    "ours": "5-7-6",
+    "site": "5-7-6"
+   },
+   "2023": {
+    "verdict": "agree",
+    "ours": "7-6-7",
+    "site": "7-6-7"
+   },
+   "2024": {
+    "verdict": "agree",
+    "ours": "3-9-5",
+    "site": "3-9-5"
+   },
+   "2025": {
+    "verdict": "agree",
+    "ours": "5-8-5",
+    "site": "5-8-5"
+   }
+  }
+ }
+]

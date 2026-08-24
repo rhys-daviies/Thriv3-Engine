@@ -1,0 +1,41 @@
+[
+ {
+  "school": "Central Arkansas",
+  "article": "Central Arkansas Bears and Sugar Bears",
+  "mens": "Bears",
+  "womens": "Sugar Bears",
+  "verdict": "confirmed",
+  "lead_pair": [
+   "Bears",
+   "Sugar Bears"
+  ],
+  "note": "title convention: men's first, women's second"
+ },
+ {
+  "school": "Kentucky State",
+  "article": "Kentucky State Thorobreds and Thorobrettes",
+  "mens": "Thorobreds",
+  "womens": "Thorobrettes",
+  "verdict": "title-only",
+  "lead_pair": null,
+  "note": "title convention: men's first, women's second"
+ },
+ {
+  "school": "Xavier (LA)",
+  "article": "Xavier Gold Rush and Gold Nuggets",
+  "mens": "Gold Rush",
+  "womens": "Gold Nuggets",
+  "verdict": "title-only",
+  "lead_pair": null,
+  "note": "title convention: men's first, women's second"
+ },
+ {
+  "school": "Xavier University of Louisiana",
+  "article": "Xavier Gold Rush and Gold Nuggets",
+  "mens": "Gold Rush",
+  "womens": "Gold Nuggets",
+  "verdict": "title-only",
+  "lead_pair": null,
+  "note": "title convention: men's first, women's second"
+ }
+]

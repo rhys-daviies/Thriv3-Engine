@@ -1,0 +1,152 @@
+{
+ "filled": [],
+ "conflicts": [
+  {
+   "survivor": "Bethany (KS)",
+   "dropped": "Bethany College (Kansas)",
+   "cell": "2023_W",
+   "kept": "13",
+   "dropped_value": "0"
+  },
+  {
+   "survivor": "Bethany (KS)",
+   "dropped": "Bethany College (Kansas)",
+   "cell": "2023_L",
+   "kept": "7",
+   "dropped_value": "17"
+  },
+  {
+   "survivor": "Bethany (KS)",
+   "dropped": "Bethany College (Kansas)",
+   "cell": "2023_D",
+   "kept": "2",
+   "dropped_value": "0"
+  },
+  {
+   "survivor": "Bethany (KS)",
+   "dropped": "Bethany College (Kansas)",
+   "cell": "2024_W",
+   "kept": "12",
+   "dropped_value": "0"
+  },
+  {
+   "survivor": "Bethany (KS)",
+   "dropped": "Bethany College (Kansas)",
+   "cell": "2024_L",
+   "kept": "7",
+   "dropped_value": "17"
+  },
+  {
+   "survivor": "Bethany (KS)",
+   "dropped": "Bethany College (Kansas)",
+   "cell": "2024_D",
+   "kept": "3",
+   "dropped_value": "0"
+  },
+  {
+   "survivor": "Saint Mary (KS)",
+   "dropped": "University of Saint Mary (Kansas)",
+   "cell": "2023_W",
+   "kept": "5",
+   "dropped_value": "4"
+  },
+  {
+   "survivor": "Saint Mary (KS)",
+   "dropped": "University of Saint Mary (Kansas)",
+   "cell": "2023_L",
+   "kept": "8",
+   "dropped_value": "5"
+  },
+  {
+   "survivor": "Saint Mary (KS)",
+   "dropped": "University of Saint Mary (Kansas)",
+   "cell": "2023_D",
+   "kept": "6",
+   "dropped_value": "5"
+  },
+  {
+   "survivor": "Southwestern (KS)",
+   "dropped": "Southwestern College (Kansas)",
+   "cell": "2022_W",
+   "kept": "9",
+   "dropped_value": "5"
+  },
+  {
+   "survivor": "Southwestern (KS)",
+   "dropped": "Southwestern College (Kansas)",
+   "cell": "2022_L",
+   "kept": "3",
+   "dropped_value": "7"
+  },
+  {
+   "survivor": "Southwestern (KS)",
+   "dropped": "Southwestern College (Kansas)",
+   "cell": "2022_D",
+   "kept": "2",
+   "dropped_value": "5"
+  },
+  {
+   "survivor": "Southwestern (KS)",
+   "dropped": "Southwestern College (Kansas)",
+   "cell": "2023_W",
+   "kept": "0",
+   "dropped_value": "7"
+  },
+  {
+   "survivor": "Southwestern (KS)",
+   "dropped": "Southwestern College (Kansas)",
+   "cell": "2023_L",
+   "kept": "13",
+   "dropped_value": "10"
+  },
+  {
+   "survivor": "Southwestern (KS)",
+   "dropped": "Southwestern College (Kansas)",
+   "cell": "2023_D",
+   "kept": "3",
+   "dropped_value": "0"
+  },
+  {
+   "survivor": "Southwestern (KS)",
+   "dropped": "Southwestern College (Kansas)",
+   "cell": "2024_W",
+   "kept": "3",
+   "dropped_value": "6"
+  },
+  {
+   "survivor": "Southwestern (KS)",
+   "dropped": "Southwestern College (Kansas)",
+   "cell": "2024_L",
+   "kept": "13",
+   "dropped_value": "9"
+  },
+  {
+   "survivor": "Southwestern (KS)",
+   "dropped": "Southwestern College (Kansas)",
+   "cell": "2024_D",
+   "kept": "3",
+   "dropped_value": "2"
+  },
+  {
+   "survivor": "Southwestern (KS)",
+   "dropped": "Southwestern College (Kansas)",
+   "cell": "2025_W",
+   "kept": "6",
+   "dropped_value": "10"
+  },
+  {
+   "survivor": "Southwestern (KS)",
+   "dropped": "Southwestern College (Kansas)",
+   "cell": "2025_L",
+   "kept": "6",
+   "dropped_value": "9"
+  },
+  {
+   "survivor": "Southwestern (KS)",
+   "dropped": "Southwestern College (Kansas)",
+   "cell": "2025_D",
+   "kept": "1",
+   "dropped_value": "0"
+  }
+ ]
+}
