@@ -159,27 +159,52 @@ two of them are a different job than the count suggests.
       one and published Belmont Abbey's domain for Belmont, Northern
       Michigan's for Michigan, NC Wesleyan's for North Carolina.
 
-      This mattered more than a wrong string usually would.
-      `verify_db_identity.js` reads this column as independent evidence that a
-      school identity is *correct*, so the errors were not merely misleading —
-      they were certifying bad matches, and the check that exists to catch
-      wrong-school identity was itself consulting the wrong school.
+      **Correction, same day.** An earlier version of this entry said the
+      identity checks were consulting the wrong school because of this. That
+      was wrong. `verify_db_identity.js` and `verify_mappings.py` both read
+      `known_domains.json`, not this column, and that file already held the
+      correct domains. The bad column fed outreach personalisation and the B3
+      roster-URL discovery, not identity verification.
 
-      No rule over names could have prevented it: "Adrian" plus "College" is
-      the same school and "Cornell" plus "College" is a different one. So the
-      column is now built from evidence — the host of a URL a roster was
-      actually loaded from, matched on exact school and sport — with a new
-      `athletics_domain_source` column recording provenance. Domains verified
-      against a real roster went from 738 to 2,056; 149 rows that cannot be
-      evidenced keep their value but are labelled `unverified-name-match`, and
-      236 stay empty, because blank beats wrong for a column used as proof.
-      `build.py` no longer subset-matches this field at all, so a rebuild
-      cannot reintroduce it.
-- [ ] **Re-run the identity checks that consumed the bad domains.**
-      `verify_db_identity.js` and `verify_mappings.py` both read
-      `athletics_domain`. Their past verdicts were reached against wrong
-      evidence for roughly a fifth of the schools they could check, so those
-      passes need repeating before their results are trusted again.
+      No rule over names could have prevented the original fault: "Adrian"
+      plus "College" is the same school and "Cornell" plus "College" is a
+      different one. But taking the roster URL as authoritative instead was
+      also wrong, and the first repair proved it by writing **53
+      regressions** — Mississippi College to `hugedomains.com`, Dickinson to
+      Fairleigh Dickinson's, Franklin and Franklin & Marshall swapped, New
+      Jersey City to The College of New Jersey. `source_roster_url` was built
+      by name matching too, so it carries the same wrong-school matches.
+      Trading one unverified source for another is not a repair.
+
+      The rule that works is **agreement between two independent sources**,
+      the roster URL and `known_domains.json`, recorded in a new
+      `athletics_domain_source` column. 1,952 rows agree and are trusted; 66
+      disagree and are written down as conflicts rather than resolved by
+      preferring whichever source the script likes; 299 rest on a single
+      source and say so; 104 stay empty. Checked against the pre-repair file:
+      zero regressions, zero parking domains. `build.py` no longer
+      subset-matches this field, so a rebuild cannot reintroduce it.
+- [x] **Re-ran both identity checks.** Not for the reason first given — they
+      never read the broken column — but because their stored verdicts
+      predated the current `known_domains.json` by a day.
+
+      **No identity errors in pilot scope.** `verify_db_identity.js`: MISMATCH
+      fell 31 → 22 overall and `unknown_school` 500 → 127. All five mismatches
+      inside soccer D1–D3 are false positives, where the article gives the
+      institutional domain (`augie.edu`, `suffolk.edu`) and our evidence holds
+      only the athletics host (`goaugie.com`, `gosuffolkrams.com`) — same
+      institution, different host. `verify_mappings.py`'s 7 mismatches are the
+      identical pattern, and its 11 uncorroborated titles, including the
+      notorious Amherst → UMass Amherst, refer to the older mappings file: the
+      database already carries `wikipedia:Amherst College`, and each of those
+      rows has either no nickname or a correct one.
+- [ ] **Find a second corroborating source for identity.** The re-run also
+      showed how little these checks cover: 1,609 of the 1,667 in-scope rows
+      come back `unknown_article` because the Wikipedia infobox has no website
+      to compare against, so only 27 rows are positively confirmed. The
+      identity data is sound as far as it is checked, and 96% of it is not
+      checked by this route. Treat a clean run as absence of evidence, not
+      evidence of absence.
 
 ### Hedge, so the data work is not on the critical path
 - [ ] **Handle null academic ratings in `playerAnalysis.js` now** rather than
