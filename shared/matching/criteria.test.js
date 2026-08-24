@@ -305,3 +305,55 @@ describe('rosterOpportunity without an arrival year', () => {
     expect(scraped.score).toBe(unscraped.score);
   });
 });
+
+describe('geography for an international athlete', () => {
+  const school = { origin: 'International', athleteCountry: 'United Kingdom', rosterRows: 28 };
+
+  it('ignores distance entirely — everywhere is far from home', () => {
+    const near = geography({ ...school, internationalRows: 8, sameCountryRows: 2, distanceMiles: 50 });
+    const far = geography({ ...school, internationalRows: 8, sameCountryRows: 2, distanceMiles: 4000 });
+    expect(near.score).toBe(far.score);
+  });
+
+  it('prefers a program that already carries international players', () => {
+    const none = geography({ ...school, internationalRows: 0, sameCountryRows: 0 });
+    const many = geography({ ...school, internationalRows: 14, sameCountryRows: 0 });
+    expect(many.score).toBeGreaterThan(none.score);
+    expect(none.label).toBe('no internationals');
+  });
+
+  it('adds a bonus for players from the athlete\'s own country', () => {
+    const strangers = geography({ ...school, internationalRows: 8, sameCountryRows: 0 });
+    const compatriots = geography({ ...school, internationalRows: 8, sameCountryRows: 4 });
+    expect(compatriots.score).toBeGreaterThan(strangers.score);
+    expect(compatriots.label).toBe('countrymen on roster');
+    expect(compatriots.detail.playersFromCountry).toBe(4);
+  });
+
+  it('weights the community signal above the country bonus', () => {
+    // Compatriots alone cannot outrank a program that routinely signs abroad.
+    const oneCompatriotElsewhere = geography({ ...school, internationalRows: 1, sameCountryRows: 1 });
+    const manyInternationalsNoCompatriots = geography({ ...school, internationalRows: 17, sameCountryRows: 0 });
+    expect(manyInternationalsNoCompatriots.score).toBeGreaterThan(oneCompatriotElsewhere.score);
+  });
+
+  it('never writes off a program with no internationals', () => {
+    expect(geography({ ...school, internationalRows: 0, sameCountryRows: 0 }).score).toBeGreaterThan(0);
+  });
+
+  it('scores on community alone when no country was given', () => {
+    const r = geography({ origin: 'International', rosterRows: 28, internationalRows: 8, sameCountryRows: 0 });
+    expect(r.confidence).toBe('partial');
+    // Not diluted by a certain-zero country half.
+    expect(r.score).toBeGreaterThan(geography({ ...school, internationalRows: 8, sameCountryRows: 0 }).score);
+  });
+
+  it('falls back to the prior for a program we have no roster for', () => {
+    expect(geography({ ...school, rosterRows: 0 })).toMatchObject({ confidence: 'assumed' });
+  });
+
+  it('still measures distance for a domestic athlete', () => {
+    const r = geography({ origin: 'USA', athleteState: 'OH', schoolState: 'OH', distanceMiles: 40 });
+    expect(r.label).toBe('in state');
+  });
+});

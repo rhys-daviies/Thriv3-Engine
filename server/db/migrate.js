@@ -59,6 +59,12 @@ const PLAYER_COLUMNS = [
   // ranking rather than pre-translated into numbers — the mapping to weights
   // is a tuning decision that will change, and a stored ranking survives it.
   ['criterion_ranking', 'TEXT'],
+
+  // 'USA' or 'International'. Decides which half of the location criterion
+  // applies: distance from a home state for a domestic athlete, and for an
+  // overseas one whether the program recruits internationally at all. The
+  // country itself lives in `nationality`, which already existed.
+  ['origin', 'TEXT'],
 ];
 
 /**

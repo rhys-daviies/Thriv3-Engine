@@ -30,6 +30,11 @@ import {
   MAX_ATHLETIC_AID_FRACTION,
   STANDOUT_DELTA,
   AFFORDABILITY_FLOOR,
+  INTERNATIONAL_SHARE_SCALE,
+  SAME_COUNTRY_FULL,
+  INTERNATIONAL_COMMUNITY_WEIGHT,
+  SAME_COUNTRY_WEIGHT,
+  INTERNATIONAL_FLOOR,
   NO_ATHLETIC_AID_CONFERENCES,
   BUDGET_CEILINGS,
   NEUTRAL_PRIOR,
@@ -473,7 +478,17 @@ export const DISTANCE_FLOOR = 0.25;
  * average and false for plenty of individuals. Until the form asks the
  * question directly, the operator weight is the escape hatch.
  */
-export function geography({ athleteState, schoolState, distanceMiles }) {
+export function geography({
+  athleteState, schoolState, distanceMiles,
+  origin, athleteCountry, rosterRows, internationalRows, sameCountryRows,
+}) {
+  // An international recruit is a long way from home wherever they go, so
+  // mileage says nothing. What decides it is whether the programme already
+  // does this — see internationalFit.
+  if (origin === 'International') {
+    return internationalFit({ athleteCountry, rosterRows, internationalRows, sameCountryRows });
+  }
+
   const d = num(distanceMiles);
   const sameState = athleteState && schoolState && String(athleteState).toUpperCase() === String(schoolState).toUpperCase();
 
@@ -492,6 +507,59 @@ export function geography({ athleteState, schoolState, distanceMiles }) {
     label: sameState ? 'in state' : d <= 300 ? 'nearby' : d <= 800 ? 'regional' : 'far from home',
     detail: { distanceMiles: Math.round(d), sameState: Boolean(sameState) },
   };
+}
+
+/**
+ * How well a programme suits an athlete coming from overseas.
+ *
+ * Two things, and the first matters more. Whether internationals are ordinary
+ * here at all — a coach who has never signed one has none of the machinery,
+ * and the spread is wide enough to be a real signal: 105 men's programmes
+ * carry no internationals while 116 are over 60%. And then whether the
+ * athlete's own countrymen are already there, which is both the strongest
+ * evidence of a live recruiting pipeline into that country and the difference
+ * between arriving alone and arriving into a group.
+ *
+ * Neither is a filter. A programme with no overseas players scores low, never
+ * zero — somebody signs a first international every year.
+ */
+export function internationalFit({ athleteCountry, rosterRows, internationalRows, sameCountryRows }) {
+  const total = num(rosterRows);
+  if (!total) return assumed({ reason: 'no roster data for this school and season' });
+
+  const share = clamp01((num(internationalRows) ?? 0) / total);
+  const community = 1 - Math.exp(-share / INTERNATIONAL_SHARE_SCALE);
+
+  const compatriots = num(sameCountryRows) ?? 0;
+  const countryFit = athleteCountry ? clamp01(compatriots / SAME_COUNTRY_FULL) : 0;
+
+  // With no country stated there is no pipeline to look for, so the community
+  // half carries the whole score rather than being diluted by a certain zero.
+  const raw = athleteCountry
+    ? INTERNATIONAL_COMMUNITY_WEIGHT * community + SAME_COUNTRY_WEIGHT * countryFit
+    : community;
+
+  const score = clamp01(INTERNATIONAL_FLOOR + (1 - INTERNATIONAL_FLOOR) * raw);
+  return {
+    score,
+    confidence: athleteCountry ? 'measured' : 'partial',
+    label: internationalLabel({ compatriots, share }),
+    detail: {
+      internationalShare: round2(share),
+      internationalPlayers: num(internationalRows) ?? 0,
+      rosterSize: total,
+      country: athleteCountry || null,
+      playersFromCountry: compatriots,
+    },
+  };
+}
+
+function internationalLabel({ compatriots, share }) {
+  if (compatriots >= SAME_COUNTRY_FULL) return 'countrymen on roster';
+  if (compatriots > 0) return 'a compatriot here';
+  if (share >= 0.3) return 'many internationals';
+  if (share > 0) return 'some internationals';
+  return 'no internationals';
 }
 
 const round1 = (n) => Math.round(n * 10) / 10;

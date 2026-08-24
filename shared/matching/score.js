@@ -73,6 +73,11 @@ export function scoreMatch({ athlete, college, weights, shapes }) {
       athleteState: athlete.state,
       schoolState: college.state,
       distanceMiles: college.distanceMiles,
+      origin: athlete.origin,
+      athleteCountry: athlete.country,
+      rosterRows: college.rosterRows,
+      internationalRows: college.internationalRows,
+      sameCountryRows: college.sameCountryRows,
     }),
   };
 

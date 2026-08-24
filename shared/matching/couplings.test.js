@@ -207,3 +207,21 @@ describe('rankMatches with a high-need athlete', () => {
     expect(couplingsFired).toEqual([]);
   });
 });
+
+describe('international athletes', () => {
+  it('weights location up, since it now measures feasibility not preference', () => {
+    const r = resolveCouplings({ origin: 'International', country: 'Spain' });
+    expect(r.weights.geography).toBeGreaterThan(1);
+    expect(r.fired).toContain('international-raises-location');
+  });
+
+  it('does not fire the in-state coupling — there is no home state to stay in', () => {
+    const r = resolveCouplings({ origin: 'International', country: 'Spain', budgetRange: 'Need Full Scholarship' });
+    expect(r.fired).not.toContain('need-favours-staying-in-state');
+    expect(r.fired).toContain('need-raises-affordability');
+  });
+
+  it('leaves a domestic athlete alone', () => {
+    expect(resolveCouplings({ origin: 'USA' }).fired).toEqual([]);
+  });
+});

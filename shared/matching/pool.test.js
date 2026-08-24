@@ -188,3 +188,47 @@ describe('normaliseAthlete', () => {
     expect(a.classYear).toBeNull();
   });
 });
+
+describe('buildRosterIndex international counts', () => {
+  const rows = [
+    { college_name: 'A', player_name: 'p1', position: 'MIDFIELD', minutes_played: 0, estimated_graduation_year: 2027, country: 'United Kingdom' },
+    { college_name: 'A', player_name: 'p2', position: 'DEFENSE', minutes_played: 0, estimated_graduation_year: 2027, country: 'United Kingdom' },
+    { college_name: 'A', player_name: 'p3', position: 'FORWARD', minutes_played: 0, estimated_graduation_year: 2027, country: 'Spain' },
+    { college_name: 'A', player_name: 'p4', position: 'FORWARD', minutes_played: 0, estimated_graduation_year: 2027, country: '' },
+    { college_name: 'A', player_name: 'p5', position: 'FORWARD', minutes_played: 0, estimated_graduation_year: 2027, country: 'USA' },
+  ];
+  const idx = buildRosterIndex(rows);
+
+  it('counts internationals off the country column', () => {
+    expect(idx.get('A').international).toBe(3);
+  });
+
+  it('does not count a blank or a USA row as international', () => {
+    expect(idx.get('A').rows).toBe(5);
+    expect(idx.get('A').international).toBe(3);
+  });
+
+  it('breaks them down by country', () => {
+    expect(idx.get('A').byCountry.get('United Kingdom')).toBe(2);
+    expect(idx.get('A').byCountry.get('Spain')).toBe(1);
+    expect(idx.get('A').byCountry.get('USA')).toBeUndefined();
+  });
+});
+
+describe('normaliseAthlete origin', () => {
+  it('reads a stored origin', () => {
+    expect(normaliseAthlete({ origin: 'International', nationality: 'Spain' })).toMatchObject({ origin: 'International', country: 'Spain' });
+  });
+
+  it('infers international from a non-USA nationality on older records', () => {
+    expect(normaliseAthlete({ nationality: 'Brazil' })).toMatchObject({ origin: 'International', country: 'Brazil' });
+  });
+
+  it('treats a record with no nationality as domestic', () => {
+    expect(normaliseAthlete({ state: 'OH' })).toMatchObject({ origin: 'USA', country: null });
+  });
+
+  it('does not treat USA as a country to match on', () => {
+    expect(normaliseAthlete({ nationality: 'USA' })).toMatchObject({ origin: 'USA', country: null });
+  });
+});

@@ -120,5 +120,39 @@ export const BUDGET_CEILINGS = {
   'Need Full Scholarship': 0,
 };
 
+/**
+ * Where the international-community curve saturates.
+ *
+ * A programme's international share, at which an overseas recruit is plainly
+ * routine there rather than an exception. Men's college soccer averages 30%
+ * international and women's 9.6%, but the spread across programmes is what
+ * matters: 105 men's programmes carry none at all, 116 carry over 60%. A coach
+ * who has never signed an international is a materially harder sell — the visa
+ * paperwork, the eligibility clearinghouse and the recruiting network are all
+ * things a programme either does or does not already do.
+ */
+export const INTERNATIONAL_SHARE_SCALE = 0.2;
+
+/**
+ * How many compatriots make a contingent rather than a coincidence.
+ *
+ * Country clusters in this data are real and large — Union Commonwealth
+ * carries 23 UK players, LSU Alexandria 18 — and they are the clearest
+ * evidence a programme recruits a particular pipeline.
+ */
+export const SAME_COUNTRY_FULL = 3;
+
+/** Split between "internationals are normal here" and "your countrymen are here". */
+export const INTERNATIONAL_COMMUNITY_WEIGHT = 0.65;
+export const SAME_COUNTRY_WEIGHT = 0.35;
+
+/**
+ * Floor for an international athlete's location score.
+ *
+ * A programme with no overseas players is a longer shot, not an impossibility,
+ * and some coach signs a first international every year.
+ */
+export const INTERNATIONAL_FLOOR = 0.15;
+
 /** Neutral prior used wherever an input is missing, never zero. */
 export const NEUTRAL_PRIOR = 0.5;

@@ -13,6 +13,7 @@ import { RotateCcw } from 'lucide-react';
 import AbilitySlider from '@/components/AbilitySlider';
 import PriorityTokens from '@/components/PriorityTokens';
 import ConferencePicker from '@/components/ConferencePicker';
+import { US_STATES, COUNTRIES, ORIGINS } from '@/lib/locations';
 import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE } from '@/lib/emailTemplate';
 import { cn } from '@/lib/utils';
 import { entities } from '@/api/client';
@@ -45,6 +46,7 @@ function defaultsFrom(initialData) {
     // Coach-facing page fields. All optional — the page omits what is blank.
     commitment_status: initialData?.commitment_status || '',
     nationality: initialData?.nationality || '',
+    origin: initialData?.origin || (initialData?.nationality && initialData.nationality !== 'USA' ? 'International' : 'USA'),
     club_name: initialData?.club_name || '',
     height_cm: initialData?.height_cm ?? '',
     weight_kg: initialData?.weight_kg ?? '',
@@ -121,6 +123,15 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
   }, [availableConferences]);
 
   const set = (field) => (value) => setData((d) => ({ ...d, [field]: value }));
+
+  // Clear the half that no longer applies. Leaving a stale state on an
+  // international athlete would have matching measure their distance from a
+  // place they are not from.
+  const setOrigin = (origin) => setData((d) => (
+    origin === 'International'
+      ? { ...d, origin, state: '' }
+      : { ...d, origin, nationality: '' }
+  ));
   const toggleArrayValue = (field, value) => {
     setData((d) => {
       const arr = d[field] || [];
@@ -218,10 +229,47 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
               <Input value={data.city} onChange={(e) => set('city')(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label>State</Label>
-              <Input value={data.state} onChange={(e) => set('state')(e.target.value)} />
+              <Label>Recruited From</Label>
+              <Select value={data.origin} onValueChange={setOrigin}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {ORIGINS.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
+
+            {/* One slot, two pickers. A home state means nothing for an
+                overseas athlete, and a country means nothing for a domestic
+                one — matching reads whichever applies. */}
+            {data.origin === 'International' ? (
+              <div className="space-y-1.5">
+                <Label>Country</Label>
+                <Select value={data.nationality} onValueChange={set('nationality')}>
+                  <SelectTrigger><SelectValue placeholder="Select country" /></SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    {COUNTRIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                <Label>State</Label>
+                <Select value={data.state} onValueChange={set('state')}>
+                  <SelectTrigger><SelectValue placeholder="Select state" /></SelectTrigger>
+                  <SelectContent className="max-h-72">
+                    {US_STATES.map(([code, name]) => <SelectItem key={code} value={code}>{name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
+
+          {data.origin === 'International' && (
+            <p className="text-xs text-muted-foreground -mt-2">
+              Matching will favour programs that already carry international players, and those with players from{' '}
+              {data.nationality || 'their country'} in particular.
+            </p>
+          )}
 
           <div className="grid sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">

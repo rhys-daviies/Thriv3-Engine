@@ -51,8 +51,11 @@ export const COUPLINGS = [
     name: 'need-favours-staying-in-state',
     why: 'Out-of-state study at a public institution costs $5,245 more a year at NJCAA and $17,871 more at NCAA D1. For a family at the "Under $15k" band that premium alone exceeds the whole budget, so proximity stops being a preference and becomes a cost constraint.',
     evidence: 'measured',
-    apply: ({ need }, out) => {
+    apply: ({ need, origin }, out) => {
       if (need === null || need < 0.4) return;
+      // There is no in-state rate for someone with no home state. The
+      // international coupling below covers that case on its own terms.
+      if (origin === 'International') return;
       out.weights.geography *= 1 + 0.8 * need;
       out.notes.push(`Location weighted up: in-state study is materially cheaper and this athlete needs it to be.`);
     },
@@ -78,6 +81,16 @@ export const COUPLINGS = [
       if (need === null || need < 0.4) return;
       out.shapes.athletic.peakOffset = BASE_PEAK_OFFSET + (MAX_NEED_PEAK_OFFSET - BASE_PEAK_OFFSET) * need;
       out.notes.push('Steered toward programmes where this athlete would be a standout, which is where scholarship money goes.');
+    },
+  },
+  {
+    name: 'international-raises-location',
+    why: 'For an athlete coming from overseas the location criterion stops measuring preference and starts measuring feasibility: a programme with no international players has none of the machinery — visa paperwork, the eligibility clearinghouse, a recruiting network abroad — and 105 of the men\'s programmes in this database carry none at all. Weighted at its default it is outvoted by criteria that assume the athlete can get there.',
+    evidence: 'measured — the spread across programmes is real, from 105 with no internationals to 116 above 60%',
+    apply: ({ origin }, out) => {
+      if (origin !== 'International') return;
+      out.weights.geography *= 1.6;
+      out.notes.push('Location weighted up: it now measures whether this program recruits internationally at all, not how far from home it is.');
     },
   },
   {
@@ -111,6 +124,7 @@ export function resolveCouplings(athlete) {
     need: scholarshipNeed(athlete?.budgetRange),
     academicImportance: athlete?.academicImportance,
     state: athlete?.state,
+    origin: athlete?.origin,
   };
   for (const rule of COUPLINGS) {
     const before = out.notes.length;

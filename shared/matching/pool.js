@@ -23,8 +23,18 @@ export function buildRosterIndex(rosterRows) {
   const index = new Map();
   for (const r of rosterRows) {
     let e = index.get(r.college_name);
-    if (!e) { e = { rows: 0, missingGradYear: 0, cohorts: new Map() }; index.set(r.college_name, e); }
+    if (!e) { e = { rows: 0, missingGradYear: 0, international: 0, byCountry: new Map(), cohorts: new Map() }; index.set(r.college_name, e); }
     e.rows++;
+
+    // `country` is populated exactly when nationality reads International, so
+    // its presence is the international flag rather than a separate field to
+    // keep in step.
+    const country = (r.country || '').trim();
+    if (country && country !== 'USA') {
+      e.international++;
+      e.byCountry.set(country, (e.byCountry.get(country) || 0) + 1);
+    }
+
     if (r.estimated_graduation_year === null || r.estimated_graduation_year === undefined) { e.missingGradYear++; continue; }
     const key = `${r.estimated_graduation_year}|${String(r.position || '').toUpperCase()}`;
     let c = e.cohorts.get(key);
@@ -125,6 +135,10 @@ export function rankMatches({ athlete, colleges, rosterIndex, weights, limit }) 
       tuitionOut: c.tuition_out_state,
       state: c.state,
       distanceMiles: distanceFromState(athlete.state, c.latitude, c.longitude),
+      origin: athlete.origin,
+      athleteCountry: athlete.country,
+      internationalRows: roster?.international || 0,
+      sameCountryRows: athlete.country ? (roster?.byCountry.get(athlete.country) || 0) : 0,
       qualityPercentile: percentiles.get(c.id),
       recentWinPct: c.recent_win_pct,
       priorWinPct: c.prior_win_pct,
@@ -149,6 +163,8 @@ export function rankMatches({ athlete, colleges, rosterIndex, weights, limit }) 
       graduating_at_position: (cohort?.starters || 0) + (cohort?.squad || 0),
       graduating_starters_at_position: cohort?.starters || 0,
       graduating_names_at_position: cohort?.names || [],
+      international_players: roster?.international || 0,
+      players_from_country: athlete.country ? (roster?.byCountry.get(athlete.country) || 0) : 0,
       match_score: scored.score,
       breakdown: scored.breakdown,
       confidence: scored.confidence,
@@ -194,6 +210,11 @@ export function normaliseAthlete(player) {
     act: toNum(player.act_score),
     budgetRange: player.budget_range || null,
     state: player.state || null,
+    // `origin` decides which half of the location criterion applies. Older
+    // records predate the field, so infer it: a stated nationality that is not
+    // the USA is an international athlete however the row was created.
+    origin: player.origin || (player.nationality && player.nationality !== 'USA' ? 'International' : 'USA'),
+    country: player.nationality && player.nationality !== 'USA' ? player.nationality : null,
     divisions: parseList(player.preferred_divisions),
     conferences: parseList(player.preferred_conferences),
     weightOverrides: player.match_weights ? parseObject(player.match_weights) : null,
