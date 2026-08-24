@@ -269,15 +269,46 @@ then 2023 and 2022. Not to be picked up here.
       a name absent from a source file to the nearest longer one, and a
       flagship university's short name is always a prefix of some satellite
       campus. It is a property of the matcher, not of any one dataset.
-- [ ] **Guard `matchSchoolName` against qualifying words.** Extra tokens that
-      are generic — "College", "University" — mean the same school; extra
-      tokens like "State", "Eastern", "Fort Wayne", "Upstate" mean a different
-      one. Every consumer of that function is currently exposed.
-- [ ] **Rate the schools missing from both ranking sources.** Now 329 women's
-      programmes with no rating, including the 12 voided flagships, and 545
-      more across D2/D3 holding a divisional fill. Apply the same 70/30 US
-      News and Niche blend so new values stay comparable. The 12 flagships are
-      the priority — they are the programmes athletes ask for by name.
+- [x] **Fixed `matchSchoolName`.** Two rules were at fault and both looked
+      reasonable. `"state"` was a strip word, so "Georgia" and "Georgia State"
+      normalised to one string — as did Ohio/Ohio State, Missouri/Missouri
+      State, Oregon/Oregon State. And the last resort was a bare substring
+      test, which is fatal because a flagship's short name is a prefix of some
+      satellite campus almost by construction.
+
+      Now an extra word is only ignorable when it carries no institutional
+      identity, and the function returns null rather than guessing. Against
+      real data it resolves 957 school names and **refuses 380** that it
+      previously answered confidently. 11 tests, including every historical
+      failure — Belmont/Belmont Abbey, Amherst/UMass Amherst, USC/USC Upstate.
+
+      One case stays undecidable and is documented rather than papered over:
+      "Adrian" plus "College" is one school and "Cornell" plus "College" is
+      two. What protects against it is the exact-match stage, which is why
+      Cornell (9.8, Ivy) and Cornell College (6.6, D3) are both correct today.
+- [x] **Rated 11 of the 12 flagships from checked US News ranks.** USC #29 →
+      9.7, Florida #30 → 9.7, Illinois #36 → 9.4, Georgia and Purdue #46 →
+      9.1, Missouri #102 → 8.2, Oregon #110 → 8.1, Houston #132 → 8.0,
+      Kansas #143 → 7.9, Utah #151 → 7.8, Arkansas #183 → 7.4, Ohio #198 →
+      7.1. The Big Ten women's table now reads in the same range as the men's,
+      which it did not before.
+
+      **These are interpolated, not reproduced, and are labelled
+      `rated-interpolated` to say so.** The original 70/30 computation exists
+      nowhere on disk — no script, no source data — so the scores are placed
+      against anchors whose rank *and* existing score were both verified
+      (#24 Emory 10, #59 Penn State 8.7, #158 Louisville 7.8, #222 West
+      Virginia 6.8), interpolated on log(rank) because the top of the scale is
+      compressive. They are consistent with the existing scale by
+      construction; they are not guaranteed identical to what the original
+      method would have produced, and the ranking vintage may differ.
+
+      Southern (SWAC) is left unrated: US News places it under Regional
+      Universities South, so these anchors do not apply to it.
+- [ ] **Rate the remaining gaps.** 318 women's programmes with no rating and
+      545 across D2/D3 holding a divisional fill. Anything new should either
+      reproduce the 70/30 blend properly or be labelled `rated-interpolated`
+      as above — the two must stay distinguishable.
 - [x] **Fixed Carnegie Mellon: 6.5 → 10.** Checked rather than reasoned from
       the name — US News has it at **#20 in National Universities** and Niche
       grades its academics **A+**. Emory, already scored 10 in this data, is
