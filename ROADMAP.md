@@ -5,9 +5,10 @@ deck against what is actually built. Update the checkboxes as work lands; keep
 the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
-Last audited: 2026-08-24, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 296 tests green). Coverage numbers below were
-re-run, not copied; two moved and are corrected in place.
+Last audited: 2026-08-25, re-verified against the DB and the live edge
+(branch `engagement-tracking`, 307 tests green). Coverage numbers below were
+re-run, not copied. The academic-rating gap has closed completely; roster and
+grad-year figures moved and are corrected in place.
 
 ---
 
@@ -26,15 +27,18 @@ re-run, not copied; two moved and are corrected in place.
 | Active programs | 734 | 1,025 | 1,759 |
 | With a coach email | 703 | 918 | 1,621 |
 | With a head-coach email | 683 | 891 | 1,574 |
-| With 2025 roster data | 718 | 985 | 1,703 |
-| **Missing academic rating** | **0** | **323** | **323** |
+| With 2025 roster data | 725 | 996 | 1,721 |
+| Missing academic rating | 0 | 0 | **0** |
 | Missing nickname (personalisation) | 36 | 66 | 102 |
-| Missing `estimated_graduation_year` rows | 341 | 909 | 1,250 |
+| Missing `estimated_graduation_year` rows (2025) | — | — | 1,042 |
+| Missing `estimated_graduation_year` rows (2024) | — | — | 2,076 |
 
 Adding women's soccer put two gaps back on the critical path that the men's-only
-scope had retired: **academic rating** (0 men's, 323 women's — 31% of women's
-programs) and **roster data** (16 men's, 40 women's). Both are data jobs with
-lead time, so both sit in Phase 0.
+scope had retired. **The academic-rating gap is now closed** — every in-scope
+programme is rated, 1,757 of 1,759 on `scorecard-v1` — so it is no longer a
+blocker on anything. **Roster data** remains: 38 in-scope programmes still have
+no 2025 roster, and the 2024 season it now sits alongside carries 2,076
+grad-year nulls of its own, which the single 2025 figure used to hide.
 
 ---
 
@@ -42,7 +46,7 @@ lead time, so both sit in Phase 0.
 
 | Pillar | Deck promise | Verified state | Remaining |
 |---|---|---|---|
-| 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | Fixed-weight scorer over strong data | Weighting model, 2 unscored criteria, explainability, null-rating handling, learning loop |
+| 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | Fixed-weight scorer over data that is now complete on academics | Weighting model, 2 unscored criteria, explainability, learning loop |
 | 2 · Networking | 3-week A/B/C sequence, 100 programs at a time | Excellent personalisation, no campaign engine, no scalable send | ESP migration, campaign engine, coach table, compliance |
 | 3 · Interactions | Tracking, coach score, session timelines | Feature-complete and tested; edge repaired, guarded and covered 2026-08-24; still **never run on real traffic** | One real end-to-end send; automated sync; real response detection |
 | 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Nothing built; 2 of 3 inputs un-sourced | 2024 roster backfill (both sports), lifestyle data source, metrics, UI |
@@ -507,8 +511,13 @@ then 2023 and 2022. Not to be picked up here.
       genuine honorary roster entry. It has no class year and now correctly
       has none. Whether honorary members belong in a turnover count at all is
       a separate question, deliberately left open.
-- [ ] **`estimated_graduation_year` nulls — 1,245 rows, and it is a scrape,
-      not a mapping fix.** Down from 1,250: the import now derives a year from
+- [ ] **`estimated_graduation_year` nulls — 3,118 rows across both seasons,
+      and it is a scrape, not a mapping fix.** Re-counted 2026-08-25: 1,042 in
+      2025 and **2,076 in 2024**. The 2024 import roughly tripled this task
+      while the headline figure still described 2025 alone. Turnover and
+      retention are diffs across the pair, so a null on either side drops that
+      player from the metric — the 2024 half matters exactly as much.
+      On the 2025 half: the import now derives a year from
       the class label when the sheet carried a class but no year, which was
       worth 6 rows, against one lost to voiding the bogus `Solar` → 2029.
       That is the whole of what mapping can reach — 1,218 of the remainder
@@ -586,9 +595,11 @@ then 2023 and 2022. Not to be picked up here.
 - [ ] **Handle null academic ratings in `playerAnalysis.js` now** rather than
       waiting for the backfill. The filter at `playerAnalysis.js:51` drops
       every null-rated school silently, so a third of women's programmes are
-      invisible whenever an athlete sets academic importance. This is a
-      Phase 1.2 line item, but doing it early converts the 318-school backfill
-      from a blocker into an improvement — worth the reordering.
+      invisible whenever an athlete sets academic importance. **The backfill
+      has since landed and there are zero null ratings in scope**, so this is
+      no longer urgent — but it stays open, because the filter is still one
+      unrated school away from silently hiding a programme, and nothing warns
+      when it does. Now a robustness fix rather than a hedge.
 
 ---
 
@@ -769,8 +780,10 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
       of 7,239 men's and 5,812 of 7,616 women's `Fr.` rows carry
       `minutes_played` (women's grew as roster loading finished).
 - [ ] Identify a source for university quality and lifestyle. Currently
-      un-sourced; `academic_rating` is the only quality signal in the DB, and
-      it is itself incomplete for women's (see Phase 0).
+      un-sourced. `academic_rating` is now complete in scope, but it measures
+      academic strength, not what living and playing somewhere is like —
+      the retention metric is the closest proxy the data holds, and it is
+      still a query rather than a column.
 
 ### 4.2 Product
 - [ ] Athlete-program match rating combining the above with Pillar 1's score.
