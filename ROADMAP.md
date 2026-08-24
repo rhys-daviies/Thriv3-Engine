@@ -148,6 +148,39 @@ two of them are a different job than the count suggests.
       urgent; personalisation quality, not a blocker, and the template falls
       back cleanly. Fill in the gaps between the jobs above.
 
+### Newly discovered, and fixed 2026-08-24
+- [x] **`athletics_domain` named the wrong institution in 235 of 2,441 rows.**
+      Found while looking for roster URLs for job B3, not by looking for it.
+      `athletics_domains.json` holds 727 entries and simply lacks the short
+      names — no "Belmont", no "Cornell", no "Michigan" — and `build.py`
+      resolved it with the bidirectional-subset matcher it uses for the coach
+      files. There the two spellings are the same school; here the other rows
+      are *other schools*, so a missing short name reached the nearest longer
+      one and published Belmont Abbey's domain for Belmont, Northern
+      Michigan's for Michigan, NC Wesleyan's for North Carolina.
+
+      This mattered more than a wrong string usually would.
+      `verify_db_identity.js` reads this column as independent evidence that a
+      school identity is *correct*, so the errors were not merely misleading —
+      they were certifying bad matches, and the check that exists to catch
+      wrong-school identity was itself consulting the wrong school.
+
+      No rule over names could have prevented it: "Adrian" plus "College" is
+      the same school and "Cornell" plus "College" is a different one. So the
+      column is now built from evidence — the host of a URL a roster was
+      actually loaded from, matched on exact school and sport — with a new
+      `athletics_domain_source` column recording provenance. Domains verified
+      against a real roster went from 738 to 2,056; 149 rows that cannot be
+      evidenced keep their value but are labelled `unverified-name-match`, and
+      236 stay empty, because blank beats wrong for a column used as proof.
+      `build.py` no longer subset-matches this field at all, so a rebuild
+      cannot reintroduce it.
+- [ ] **Re-run the identity checks that consumed the bad domains.**
+      `verify_db_identity.js` and `verify_mappings.py` both read
+      `athletics_domain`. Their past verdicts were reached against wrong
+      evidence for roughly a fifth of the schools they could check, so those
+      passes need repeating before their results are trusted again.
+
 ### Hedge, so the data work is not on the critical path
 - [ ] **Handle null academic ratings in `playerAnalysis.js` now** rather than
       waiting for the backfill. The filter at `playerAnalysis.js:51` drops

@@ -35,7 +35,7 @@ outreach email is worse than a blank field.
 Boston College onto Boston University and Colorado College onto Colorado. Parenthesised
 state qualifiers are kept as tokens too, so Marian (IN) cannot take Marian (WI).
 """
-import csv, json, re, sqlite3, collections, os
+import csv, json, re, sqlite3, collections, os, urllib.parse
 
 BASE   = "/Users/rhysdavies/Documents/Recruitmatch"
 OUTDIR = "/Users/rhysdavies/Documents/Thriv3/University individualisation"
@@ -223,7 +223,7 @@ COLS = (
     ["school_id", "school", "sport", "division", "conference", "conf_tier"]
     # --- visual identity, straight into the email template ------------------
     + ["nickname", "nickname_plural", "mascot", "primary_color", "secondary_color",
-       "logo_url", "athletics_domain"]
+       "logo_url", "athletics_domain", "athletics_domain_source"]
     # --- achievement --------------------------------------------------------
     + ["conference_champion_2025", "conference_champion_name"]
     # --- program strength ---------------------------------------------------
@@ -423,8 +423,36 @@ def build(sex):
             srcs.append("v6")
             stats["score"] += 1
 
-        dm = domi.get(name)
-        row["athletics_domain"] = (dm or {}).get("domain") or (d or {}).get("website_domain") or ""
+        # ATHLETICS DOMAIN. Evidence first, and no subset matching at all.
+        #
+        # The Index's bidirectional subset is right for the coach files, where
+        # the same school is spelled differently ("Adrian" / "Adrian College").
+        # It is wrong here, because the other rows of athletics_domains.json are
+        # OTHER SCHOOLS. That file holds 727 entries and has no "Belmont", no
+        # "Cornell", no "Michigan" — so the subset rule reached for the nearest
+        # longer name and published Belmont Abbey's domain for Belmont, Cornell
+        # College's for Cornell, and Northern Michigan's for Michigan. 210 of
+        # the rows this script writes named the wrong institution.
+        #
+        # Note that no rule over names could have saved it: "Adrian" + "College"
+        # is the same school and "Cornell" + "College" is a different one. So the
+        # domain is taken from a URL we actually loaded a roster from, and the
+        # name-keyed file is consulted only on an EXACT match. Blank beats wrong:
+        # verify_db_identity.js treats this column as evidence that an identity
+        # is correct, so a bad value does not merely mislead, it certifies.
+        g = gradi.get(name)
+        roster_url = (g or {}).get("official_roster_url") or ""
+        row["athletics_domain"] = ""
+        row["athletics_domain_source"] = ""
+        if roster_url:
+            host = urllib.parse.urlparse(roster_url).netloc.replace("www.", "")
+            if host and "web.archive.org" not in host:
+                row["athletics_domain"], row["athletics_domain_source"] = host, "roster-url"
+        if not row["athletics_domain"]:
+            exact = domi.exact.get(key(name)) or []
+            if len(exact) == 1 and exact[0].get("domain"):
+                row["athletics_domain"] = exact[0]["domain"]
+                row["athletics_domain_source"] = "exact-name-match"
         if row["athletics_domain"]:
             stats["domain"] += 1
 
@@ -442,7 +470,6 @@ def build(sex):
             if row["head_coach_email"]:
                 stats["coach_email"] += 1
 
-        g = gradi.get(name)
         if g:
             row["roster_url_2025"] = g.get("official_roster_url") or ""
             v = g.get("total_graduating_seniors")
