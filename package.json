@@ -23,7 +23,9 @@
     "sync": "node server/scripts/syncEngagement.js",
     "edge:schema": "wrangler d1 execute thriv3-engagement --remote --file worker/schema.sql",
     "trial:preflight": "node server/scripts/trialPreflight.js",
-    "simulate": "node server/seed/simulateEngagement.js"
+    "simulate": "node server/seed/simulateEngagement.js",
+    "backtest": "node server/scripts/backtestMatching.js",
+    "tune:weights": "node server/scripts/tuneMatchingWeights.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",

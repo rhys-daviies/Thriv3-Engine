@@ -17,6 +17,11 @@ export function sanitizePlayerData(raw) {
   for (const key of Object.keys(out)) {
     if (out[key] === undefined || out[key] === '' || out[key] === null) delete out[key];
   }
+
+  // A ranking reset to null must reach the server as an explicit empty array,
+  // not be dropped by the loop above — dropping it leaves the previous ranking
+  // in place, so "Reset to defaults" would appear to do nothing on save.
+  if (raw.criterion_ranking === null || raw.criterion_ranking === undefined) out.criterion_ranking = [];
   return out;
 }
 

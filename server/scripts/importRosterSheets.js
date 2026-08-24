@@ -67,6 +67,9 @@ function importFile({ file, sport, division }) {
   const text = fs.readFileSync(filePath, 'utf-8');
   const rows = parseCsvToObjects(text);
   const rejected = [];
+  // The sheet's precomputed graduation year against ours. Silence here is the
+  // signal that the two agree; a large count means one of them has drifted.
+  const gradYearDisagreements = [];
   const unnamed = [];
 
   const records = rows
@@ -96,6 +99,9 @@ function importFile({ file, sport, division }) {
       if (!read.recognised) rejected.push({ college_name, player_name, rawClass });
 
       const csvGradYear = toIntOrNull(row['Estimated Graduation']);
+      if (read.recognised && read.graduationYear != null && csvGradYear != null && csvGradYear !== read.graduationYear) {
+        gradYearDisagreements.push({ college_name, player_name, rawClass, sheet: csvGradYear, derived: read.graduationYear });
+      }
       const noteParts = [(row['Notes'] || '').trim()];
       if (!read.recognised) noteParts.push(`class-year cell rejected: ${JSON.stringify(rawClass)}`);
 
@@ -111,10 +117,14 @@ function importFile({ file, sport, division }) {
         minutes_played: toIntOrNull(row['Total Minutes Played']) ?? 0,
         games_played: toIntOrNull(row['Games Played']),
         games_started: toIntOrNull(row['Games Started']),
-        // The sheet wins where it has an answer — it saw the page. Deriving
-        // is the fallback for a roster that carried a class but no year, and
-        // a rejected cell yields neither.
-        estimated_graduation_year: read.recognised ? (csvGradYear ?? read.graduationYear) : null,
+        // Derived wins over the sheet's own "Estimated Graduation" column.
+        // That column was not read off the page — it was computed by the same
+        // helper during the scrape, back when YEARS_TO_GRADUATE was one year
+        // too high, so it carries no independent information and re-importing
+        // from it would silently restore a bug that took 109,886 rows to undo.
+        // The sheet is still the fallback for a row whose class cell we could
+        // not read; a rejected cell yields neither.
+        estimated_graduation_year: read.recognised ? (read.graduationYear ?? csvGradYear) : null,
         nationality: (row['Nationality'] || '').trim() || undefined,
         hometown: (row['Hometown'] || '').trim() || undefined,
         country: (row['Country'] || '').trim() || undefined,
@@ -159,7 +169,19 @@ function importFile({ file, sport, division }) {
     }
     console.log('       Likely the wrong column was scraped. Check the roster page before trusting this school.');
   }
-  return { count: records.length, rejected: rejected.length, unnamed: unnamed.length };
+  if (gradYearDisagreements.length) {
+    const share = Math.round((100 * gradYearDisagreements.length) / (records.length || 1));
+    console.log(`    !! ${gradYearDisagreements.length} row(s) (${share}%) where the sheet's Estimated Graduation`);
+    console.log(`       disagrees with the class label. The derived year was used.`);
+    for (const d of gradYearDisagreements.slice(0, 5)) {
+      console.log(`       ${d.college_name} / ${d.player_name}: ${JSON.stringify(d.rawClass)} -> derived ${d.derived}, sheet says ${d.sheet}`);
+    }
+    // Near-total disagreement means the two are on different conventions, not
+    // that individual rows are odd — which is exactly what happened when
+    // YEARS_TO_GRADUATE was off by one. A handful is ordinary scrape noise.
+    if (share > 20) console.log('       That is most of the file: check classYear.js against a roster that prints an explicit year.');
+  }
+  return { count: records.length, rejected: rejected.length, unnamed: unnamed.length, gradYearDisagreements: gradYearDisagreements.length };
 }
 
 function run() {

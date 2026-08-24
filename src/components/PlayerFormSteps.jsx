@@ -11,6 +11,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Card } from '@/components/ui/card';
 import { RotateCcw } from 'lucide-react';
 import AbilitySlider from '@/components/AbilitySlider';
+import PriorityTokens from '@/components/PriorityTokens';
 import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE } from '@/lib/emailTemplate';
 import { cn } from '@/lib/utils';
 import { entities } from '@/api/client';
@@ -58,6 +59,7 @@ function defaultsFrom(initialData) {
     sport_attributes: initialData?.sport_attributes || {},
     preferred_conferences: initialData?.preferred_conferences || [],
     budget_range: initialData?.budget_range || '',
+    criterion_ranking: initialData?.criterion_ranking ?? null,
     additional_notes: initialData?.additional_notes || '',
     email_subject: initialData?.email_subject || DEFAULT_EMAIL_SUBJECT,
     email_template: initialData?.email_template || DEFAULT_EMAIL_TEMPLATE,
@@ -353,6 +355,23 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
                 {BUDGETS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Sits under budget deliberately: a tight budget shifts several of
+              these weights on its own, and the note under the tokens explains
+              which — that only makes sense once the budget is on screen. */}
+          <div className="space-y-2">
+            <Label>Priority Ranking</Label>
+            <p className="text-xs text-muted-foreground -mt-1">
+              What matters most, in order. This sets how much each criterion counts when matching.
+            </p>
+            <PriorityTokens
+              value={data.criterion_ranking}
+              onChange={set('criterion_ranking')}
+              academicImportance={data.academic_importance}
+              budgetRange={data.budget_range}
+              state={data.state}
+            />
           </div>
 
           <div className="space-y-1.5">

@@ -35,6 +35,62 @@ function SeniorGroup({ label, names, collegeName }) {
 }
 
 
+const CONFIDENCE_NOTE = {
+  measured: 'Scored from data we hold for this program.',
+  partial: 'Scored from a weaker proxy, or from data with known gaps.',
+  assumed: 'No data — scored neutrally rather than guessed or hidden.',
+};
+
+function money(n) {
+  return n == null ? null : `$${Math.round(n).toLocaleString()}`;
+}
+
+/**
+ * Why this school sits where it does.
+ *
+ * Not optional once weights are adjustable: an operator who has just re-ranked
+ * an athlete's priorities needs to see the ranking move for a reason they can
+ * repeat back to a family. Each row is weight x sub-score = the points this
+ * criterion contributed to the total above.
+ */
+function ScoreBreakdown({ breakdown }) {
+  if (!breakdown || !breakdown.length) return null;
+  return (
+    <div>
+      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+        Why this score
+      </p>
+      <div className="space-y-1.5">
+        {breakdown.map((b) => (
+          <div key={b.key} className="flex items-center gap-2 text-xs" title={CONFIDENCE_NOTE[b.confidence]}>
+            <span className="w-28 shrink-0 truncate">{b.label}</span>
+            <span className="w-10 shrink-0 text-right tabular-nums text-muted-foreground">
+              {Math.round(b.weight * 100)}%
+            </span>
+            <span className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
+              <span
+                className={cn('block h-full rounded-full', b.confidence === 'assumed' ? 'bg-muted-foreground/40' : 'bg-primary')}
+                style={{ width: `${Math.round(b.score * 100)}%` }}
+              />
+            </span>
+            {b.status && <Badge variant="muted" className="shrink-0">{b.status}</Badge>}
+            <span className="w-10 shrink-0 text-right tabular-nums font-medium">
+              +{b.contribution.toFixed(1)}
+            </span>
+          </div>
+        ))}
+      </div>
+      {/* A criterion at its neutral prior is a gap in our data, not a verdict
+          on the school, and the card should not let the two look alike. */}
+      {breakdown.some((b) => b.confidence === 'assumed' && b.weight > 0) && (
+        <p className="text-xs text-muted-foreground mt-2 italic">
+          Greyed bars are criteria we have no data for — scored neutrally, not counted against the school.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function matchScoreVariant(score) {
   if (score >= 80) return 'green';
   if (score >= 60) return 'amber';
@@ -44,6 +100,7 @@ function matchScoreVariant(score) {
 export default function CollegeCard({ college, onEmailCoaches }) {
   const [expanded, setExpanded] = useState(false);
   const coaches = (college.coaching_staff || []).filter((c) => c.email && c.email !== 'N/A');
+  const affordability = (college.breakdown || []).find((b) => b.key === 'affordability');
 
   return (
     <Card
@@ -66,7 +123,7 @@ export default function CollegeCard({ college, onEmailCoaches }) {
             </div>
             <div className="flex items-center gap-1.5 mt-0.5">
               <p className="text-xs text-muted-foreground truncate">
-                {college.location}
+                {[college.city, college.state].filter(Boolean).join(', ') || college.location}
                 {college.nickname && ` · ${college.nickname}`}
               </p>
               {(college.primary_color || college.secondary_color) && (
@@ -111,10 +168,16 @@ export default function CollegeCard({ college, onEmailCoaches }) {
               <p className="font-semibold truncate">{college.conference || '—'}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Tuition</p>
-              <p className="font-semibold">—</p>
+              <p className="text-xs text-muted-foreground">Net price</p>
+              <p className="font-semibold">{money(college.net_price) || '—'}</p>
             </div>
           </div>
+
+          <ScoreBreakdown breakdown={college.breakdown} />
+
+          {affordability?.detail?.caveat && (
+            <p className="text-xs text-amber-400/90">{affordability.detail.caveat}</p>
+          )}
 
           <div className="space-y-3">
             <SeniorGroup label="Total Graduating" names={college.all_graduating_senior_names} collegeName={college.name} />

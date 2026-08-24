@@ -95,14 +95,21 @@ export default function PlayerWorkspace() {
     return () => { cancelled = true; };
   }, [id]);
 
-  const handleAnalyze = useCallback(async () => {
-    if (!player) return;
+  /**
+   * `override` lets a caller run against a player it has just changed, rather
+   * than against this component's copy. Saving a new criterion ranking and
+   * immediately re-analysing would otherwise race the state update and rank
+   * against the priorities the operator just replaced.
+   */
+  const handleAnalyze = useCallback(async (override) => {
+    const subject = override && override.id ? override : player;
+    if (!subject) return;
     navigate(`/player/${id}/matching`);
     setAnalyzing(true);
     setPhase(0);
     setPage(1);
     try {
-      const result = await analyze(player, { onPhase: setPhase, onProgress: setProgress });
+      const result = await analyze(subject, { onPhase: setPhase, onProgress: setProgress });
       setRecommendations(result.recommendations);
       setSummary(result.summary);
 

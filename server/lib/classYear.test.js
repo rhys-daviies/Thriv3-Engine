@@ -6,44 +6,81 @@ const klass = (label) => readClassYear(label).klass;
 
 describe('the plain labels', () => {
   it('reads the four classes and graduate', () => {
-    expect(grad('Fr.')).toBe(2030);
-    expect(grad('So.')).toBe(2029);
-    expect(grad('Jr.')).toBe(2028);
-    expect(grad('Sr.')).toBe(2027);
+    expect(grad('Fr.')).toBe(2029);
+    expect(grad('So.')).toBe(2028);
+    expect(grad('Jr.')).toBe(2027);
+    expect(grad('Sr.')).toBe(2026);
     expect(grad('Gr.')).toBe(2026);
   });
 
-  // The convention is one year "late" versus the intuitive reading, and it is
-  // deliberate: it keeps a player's graduation year stable across seasons,
-  // which is what the turnover diff depends on.
+  // The property that matters is that a player's graduation year does not move
+  // when they move up a class, which is what the turnover diff depends on.
+  // That needs the offsets to be one apart, not to be any particular value —
+  // and until 2026-08-25 every one of them was one too high while satisfying
+  // this test perfectly. Hence the concordance test below, which pins the
+  // absolute value to something outside the model's own convention.
   it('offsets from the season, so the same player scores the same in both seasons', () => {
-    expect(grad('Jr.', 2024)).toBe(2027);
-    expect(grad('Sr.', 2025)).toBe(2027);
+    expect(grad('Jr.', 2024)).toBe(2026);
+    expect(grad('Sr.', 2025)).toBe(2026);
+  });
+});
+
+/**
+ * The arbiter for the absolute offset.
+ *
+ * Some rosters print "Sr." and some print "2026" for the very same player, and
+ * the printed year is literal fact while the class label has to be converted.
+ * So the two must agree, and if they ever stop agreeing it is the conversion
+ * that is wrong. They disagreed by a year until 2026-08-25 and nothing noticed,
+ * because every other test was written against the conversion itself.
+ */
+describe('class labels agree with the years rosters print literally', () => {
+  it('puts a fall-2025 roster into the 2026-2029 classes, as printed rosters do', () => {
+    expect(grad('Sr.', 2025)).toBe(2026);
+    expect(grad('Jr.', 2025)).toBe(2027);
+    expect(grad('So.', 2025)).toBe(2028);
+    expect(grad('Fr.', 2025)).toBe(2029);
+  });
+
+  it('agrees with an explicit year for the same player', () => {
+    // A senior in the fall 2025 season finishes in spring 2026, whichever way
+    // their school chose to write it.
+    expect(grad('Sr.', 2025)).toBe(grad('2026', 2025));
+    expect(grad('Fr.', 2025)).toBe(grad('2029', 2025));
+  });
+
+  it('leaves a player on the same graduation year as they move up a class', () => {
+    expect(grad('So.', 2023)).toBe(grad('Jr.', 2024));
+    expect(grad('Jr.', 2024)).toBe(grad('Sr.', 2025));
+  });
+
+  it('has seniors and graduate students both leaving after this season', () => {
+    expect(grad('Sr.', 2025)).toBe(grad('Gr.', 2025));
   });
 });
 
 describe('the hundred ways a site writes it', () => {
   it('strips the field label some sites leave in the cell', () => {
-    expect(grad('Cl.: Jr')).toBe(2028);
-    expect(grad('Yr.: Sr')).toBe(2027);
-    expect(grad('Class: Freshman')).toBe(2030);
-    expect(grad('Year: So')).toBe(2029);
+    expect(grad('Cl.: Jr')).toBe(2027);
+    expect(grad('Yr.: Sr')).toBe(2026);
+    expect(grad('Class: Freshman')).toBe(2029);
+    expect(grad('Year: So')).toBe(2028);
   });
 
   it('reads words, abbreviations and misspellings alike', () => {
-    expect(grad('Sophomore')).toBe(2029);
-    expect(grad('Sophmore')).toBe(2029);
-    expect(grad('Soph.')).toBe(2029);
-    expect(grad('First-Year')).toBe(2030);
-    expect(grad('F.Y.')).toBe(2030);
+    expect(grad('Sophomore')).toBe(2028);
+    expect(grad('Sophmore')).toBe(2028);
+    expect(grad('Soph.')).toBe(2028);
+    expect(grad('First-Year')).toBe(2029);
+    expect(grad('F.Y.')).toBe(2029);
     expect(grad('Graduate Student')).toBe(2026);
     expect(grad('GS')).toBe(2026);
   });
 
   it('reads years of study as well as class names', () => {
-    expect(grad('1st')).toBe(2030);
-    expect(grad('3rd year')).toBe(2028);
-    expect(grad('Fourth Year')).toBe(2027);
+    expect(grad('1st')).toBe(2029);
+    expect(grad('3rd year')).toBe(2027);
+    expect(grad('Fourth Year')).toBe(2026);
   });
 
   // A fifth or sixth year is on the way out, whatever the site calls them.
@@ -62,14 +99,14 @@ describe('the hundred ways a site writes it', () => {
   });
 
   it('takes the left side of a dual label', () => {
-    expect(grad('Jr./So.')).toBe(2028);
-    expect(grad('So./Fr.')).toBe(2029);
+    expect(grad('Jr./So.')).toBe(2027);
+    expect(grad('So./Fr.')).toBe(2028);
   });
 
   it('ignores letter-winner and transfer suffixes', () => {
-    expect(grad('Jr.-2L')).toBe(2028);
-    expect(grad('Sr.-TR')).toBe(2027);
-    expect(grad('Sr. (4th)')).toBe(2027);
+    expect(grad('Jr.-2L')).toBe(2027);
+    expect(grad('Sr.-TR')).toBe(2026);
+    expect(grad('Sr. (4th)')).toBe(2026);
   });
 });
 
@@ -78,11 +115,11 @@ describe('redshirts', () => {
   // decomposing "RS-Fr." into the nonsense "s-fr" and losing 158 rows.
   it('reads every redshirt spelling without eating the class', () => {
     for (const label of ['RS-Fr.', 'RS Fr.', 'R-Fr.', 'RFr.', 'R.Fr.', 'Rf.', 'Redshirt Freshman', 'r-Fr']) {
-      expect(grad(label), label).toBe(2030);
+      expect(grad(label), label).toBe(2029);
     }
-    expect(grad('RS-So.')).toBe(2029);
-    expect(grad('Redshirt Junior')).toBe(2028);
-    expect(grad('RS-Sr.')).toBe(2027);
+    expect(grad('RS-So.')).toBe(2028);
+    expect(grad('Redshirt Junior')).toBe(2027);
+    expect(grad('RS-Sr.')).toBe(2026);
     expect(grad('Red 5th')).toBe(2026);
   });
 

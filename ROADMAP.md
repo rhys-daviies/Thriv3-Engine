@@ -93,20 +93,39 @@ looked into each one rather than taking the headline count at face value, and
 two of them are a different job than the count suggests.
 
 - [x] **2024 rosters, both sports — acquired.** Six CSVs in
-      `~/Documents/Thriv3/2024 Roster Sheets/`, 52,417 player rows from 1,661
-      of 1,707 school-sports (97%). Verified rather than assumed: the headers
-      match the 2025 files byte for byte, 95% of rows carry a class year, and
-      the graduation-year convention is the intended season-relative one
-      (Fr.→2029, Sr.→2026), so a player scores the same in both seasons and
-      the turnover diff holds. The 46 failures are concentrated in D1 (35 of
-      them) and each carries a reason.
+      `~/Documents/Thriv3/2024 Roster Sheets/`, **52,539 player rows from 1,717
+      of 1,722 school-sports (99.7%)** as of 2026-08-25. Verified rather than
+      assumed: the headers match the 2025 files byte for byte, 99% of rows carry
+      a class year, and the graduation-year convention is the intended
+      season-relative one (Fr.→2029, Sr.→2026), so a player scores the same in
+      both seasons and the turnover diff holds. Each of the 5 remaining failures
+      carries a reason: Alcorn State W, Virginia W, Wyoming W, Alverno College W,
+      Notre Dame of Maryland W — all sites that no longer serve a 2024 roster and
+      have no snapshot of one.
+
+      The denominator moved because **the worklist was itself incomplete**: 18
+      school-sports existed in the 2025 files but had never been listed in
+      `_targets.csv`, so nothing was even trying to acquire them. All 18 were
+      picked up from their live 2024 season pages. Three of those 18 then turned
+      out to be the *same* programmes under the other sport's spelling and were
+      removed, which is why 1,725 became 1,722.
 - [x] **Imported both seasons.** `importRosterSheets.js` takes `--season` and
       `--dir`, and skips a division file that is not present rather than
       failing — the 2024 acquisition was scoped to D1–D3, and a missing NAIA
       file is a fact about scope, not an error.
-      **roster_players now holds 52,912 rows for 2024 and 64,436 for 2025, and
-      1,682 in-scope school-sports have both seasons — turnover is computable
-      for the first time.**
+      **roster_players now holds 52,539 rows for 2024 and 64,381 for 2025
+      (re-imported 2026-08-25 from the corrected files), and 1,717 in-scope
+      school-sports have both seasons — turnover is computable for the first
+      time.** The 2025 figure includes NAIA, which is out of scope for 2024;
+      the NCAA-only counts are 52,539 and 52,232.
+
+      Reading `roster_players` now requires filtering by season. Every query
+      was written when only 2025 existed and filtered by sport alone, so each
+      one silently mixed both years the moment 2024 landed — a spot-check of
+      North Central College returned 65 rows for a 35-player squad. Pinned via
+      `CURRENT_ROSTER_SEASON` in `src/pages/GraduatingDatabase.jsx` and
+      `src/lib/playerAnalysis.js`. Anything new built on the table needs the
+      same filter; single-season is no longer a safe assumption.
 
       Importing exposed a defect the class-year guard could not see, because
       it only ever inspected the class column: four D1 women's programmes had
@@ -114,9 +133,13 @@ two of them are a different job than the count suggests.
       "Jersey Number 9". They wreck the metric they feed rather than merely
       adding bad rows — a placeholder can never match a real name next season,
       so Akron's women showed 60 departures from a 25-player squad. A name
-      guard now drops them loudly, `server/lib/rosterName.js` is tested, and
-      the four schools are marked failed in the 2024 worklist for re-scrape.
-      Turnover reads 44.6%, and the name-matching error behind it has now been
+      guard now drops them loudly and `server/lib/rosterName.js` is tested.
+      **All four are now fixed at source rather than marked failed** — the cause
+      was a card parser reading the jersey badge when a page rendered no name
+      element, and the same rewrite recovered Akron (33), Cincinnati (32),
+      Penn State (33) and San Jose State (31) as real rosters. No row in either
+      season now contains a jersey placeholder.
+      Turnover reads 42.8%, and the name-matching error behind it has now been
       measured rather than assumed — see below.
 - [x] **Measured the name-mismatch error in turnover: 0.2 points, at most
       0.5.** Turnover is a diff, so a name spelled differently in the two
@@ -129,13 +152,36 @@ two of them are a different job than the count suggests.
       surname and initial is usually two people — "Connor Smith" against
       "Carter Smith", "Jake Provenzano" against "Luke Provenzano".
 
-      So **44.6% turnover is essentially real**, and the metric is sound
+      So **42.8% turnover is essentially real**, and the metric is sound
       enough to build on. Measuring it also turned up two more name-column
       defects, both now cleaned at import and tested: 118 schools prefix
       captains with a bare "C" (324 rows, 67 with an exact clean twin the
       following season), and 101 rows at three programmes repeat the whole
       name, "Trevor Rau Trevor Rau". Fixing those cut the edit-distance tier
       from 83 to 20.
+
+      **All six defect shapes are now also fixed in the source CSVs**, so the
+      import guards are a safety net rather than the only defence — a second
+      consumer of these files would otherwise have to rediscover every one.
+      Both seasons now read zero for jersey placeholders, captain prefixes,
+      whole-name doubling and trailing-surname doubling. Two shapes needed a
+      tighter rule than the guards use:
+
+      A doubled name is only collapsed when the repeated unit is two tokens or
+      more. **A two-token repeat is usually a real name**, and collapsing it
+      leaves a single word — Drake's Deng Deng, Liberty's Gora Gora and
+      Geneva's Ojha Ojha are all real players, and Ojha carries 228 minutes
+      across 12 games in 2025 and appears in 2024 from the same town. An
+      earlier pass here deleted three of them as placeholders on name shape
+      alone and had to restore them; the only genuine placeholder in either
+      season was Ferrum's "Team Team", which had no class, position, hometown
+      or playing time either. Shape was the weaker signal.
+
+      Surname-first storage is the mirror of the captain prefix and cost more:
+      Idaho held 130 names as "Rodgers, Sara" while 2024 and every other school
+      use "Sara Rodgers", so Idaho read as 100% turnover. A comma is not
+      reliably an inversion, though — Emory & Henry's "Cesar Tobar Monge, Jr."
+      is a suffix, and is left alone.
 - [x] **Turnover is two metrics, not one, and the second is the Pillar 4
       signal.** An earlier version of this entry treated the 11,746
       non-graduating departures as a problem to explain away. That was
@@ -153,12 +199,21 @@ two of them are a different job than the count suggests.
       there, which is exactly what an 18-year-old picking a programme has no
       way to find out.
 
-      Across 1,669 in-scope programmes with at least 10 players who could
-      return: median **75%**, p10 53%, p90 94%. A 40-point spread between the
+      Across **1,712** in-scope programmes with at least 10 players who could
+      return: median **75%**, p10 53%, p90 93%. A 40-point spread between the
       deciles, so it genuinely discriminates rather than describing everyone
       the same way. It also behaves as reality would predict — D3 retains at
       79% against D1's 73% — which is evidence it is measuring something real
       rather than reflecting scrape quality.
+
+      Recomputed 2026-08-25 after the source-level name and roster fixes, and
+      **the centre did not move**: same 75% median, same 53% p10, same D3-over-D1
+      ordering, across 43 more programmes. That is the useful result. Repairing
+      six truncated rosters, 475 mismatched names and three duplicated school
+      rows changed the population the metric is measured over without changing
+      what it says, which is the behaviour you want from a signal you are about
+      to build a product on — the earlier number was not an artefact of the
+      defects.
 - [ ] **Build the retention metric into the product.** It is a query today,
       not a column. Needs persisting per programme-season, exposing on the
       match card, and pairing with its own denominator so "80% of 5" is never
@@ -180,22 +235,44 @@ One season pair is a snapshot, and a snapshot cannot tell a programme players
 leave from a programme that had one bad year. A coaching change, a single
 disastrous season or a strong graduating cohort all move a one-year number
 without saying anything about what an athlete would be walking into. The
-spread is real — p10 53% against p90 94% — but attributing a given programme's
+spread is real — p10 53% against p90 93% — but attributing a given programme's
 place in it needs a trend.
 
 **The backfill is running in a separate session** — 2024's remaining gaps,
 then 2023 and 2022. Not to be picked up here.
 
-- [ ] **Finish the 2024 acquisition first.** 46 school-sports failed, 35 of
-      them D1, plus the 4 whose jersey column was scraped as the player name.
-      Extending backwards over an incomplete 2024 would compound the gap
-      rather than average it out.
+- [x] **Finished the 2024 acquisition.** 2026-08-25. 46 failures down to **5**,
+      and the 4 jersey-column programmes fixed at source rather than re-scraped.
+      Extending backwards over an incomplete 2024 would have compounded the gap
+      rather than averaging it out, so this was the gate — it is now clear.
+
+      The five that remain are not retryable by the same pipeline: Alcorn State
+      W, Virginia W, Wyoming W, Alverno College W and Notre Dame of Maryland W
+      each serve only the current season and have no archived 2024 page. Alcorn
+      State is the instructive one — snapshots exist inside the 2024 window and
+      all of them still show the 2023 roster, so the programme never published a
+      2024 one. Worth expecting a few of these per season going back, rather
+      than treating a gap as a scraper failure.
 - [ ] **Then 2023, then 2022**, through the same pipeline. `--season` and
       `--dir` already take them, `_targets.csv` regenerates by swapping the
       year, and the name guards now catch six distinct defect shapes, so each
       further season should cost less than the one before. Expect Wayback to
-      carry more of the load each year back — it was 298 of 1,707 for 2024,
-      and live sites drop older seasons.
+      carry more of the load each year back, as live sites drop older seasons.
+
+      Two things from 2024 worth carrying forward. **Wayback was needed far
+      less than predicted** — the worklist marked 298 school-sports as
+      archive-only and in the end only **34** were, because a live season path
+      almost always existed once you stopped trusting the recorded URL: the
+      sport slug is often not the one on file (LSU serves soccer under
+      `/sports/sc`, Auburn and Purdue under `/sports/soccer`), and appending
+      `?view=table` renders a parseable table on most client-side rosters. Final
+      sourcing was 1,273 direct year-swaps, 307 other live URL forms, 53
+      browser-rendered, 34 Wayback, 28 discovered from scratch, and a handful
+      via season selectors and player bio links.
+
+      And **regenerate the worklist from the roster files, not from the
+      previous worklist** — the 2024 one was missing 18 school-sports that
+      existed in the 2025 files, which no amount of retrying would have found.
 - [ ] **Report retention as a multi-year rate with its trend**, not a single
       figure. Three pairs (22→23, 23→24, 24→25) distinguish a programme that
       consistently loses players from one that had a bad year, which is the
@@ -715,23 +792,170 @@ resolved. Neither was visible from the local database, which is the lesson.**
       what is missing is something that runs it unprompted.
 
 ### 1.2 Pillar 1 weighting model
-Replaces the hardcoded constants in `src/lib/playerAnalysis.js`
-(ability ≤70, academic ≤15, starters ×5, position ×2).
+Replaced the hardcoded constants in `src/lib/playerAnalysis.js`
+(ability ≤70, academic ≤15, starters ×5, position ×2) with six weighted
+criteria in `shared/matching/`, scored 0..1 each and combined by weights that
+sum to 1. The scoring is shared code, not client code, because
+`server/lib/matchingBacktest.js` has to run the *same* functions over real
+outcomes — a harness that scored differently would measure nothing.
 
-- [ ] Persist per-athlete criterion weights on the player record.
-- [ ] Operator UI to rank/weight the six deck criteria: player ability,
-      academic prowess, scholarship needs, division/conference/state,
-      players graduating, program quality.
-- [ ] Score **scholarship needs** — `budget_range` is collected and never used.
-- [ ] Score **state/geography** — `city`/`state` collected and never used.
-- [ ] **Handle null academic ratings explicitly** rather than filtering them
-      out silently. Even after the Phase 0 backfill, treat "unrated" as a
-      visible state on the card, not an invisible exclusion.
-- [ ] Per-criterion score breakdown on each match card. Required the moment
-      weights are adjustable: "why is this school 7th?" must be answerable.
-- [ ] Re-run matching on weight change (the deck's "re-weights as priorities
-      change"). This is the *deterministic* half of slide 3 panel 2 — the
-      learning half is Phase 5.
+**The model is now measured rather than asserted.** `npm run backtest` ranks
+600 real 2025 arrivals per sport (an athlete on a 2025 roster who was not on
+that school's 2024 roster) using only 2024 data, and reports where their
+actual school landed. Within a ±5 ability band:
+
+| | median %ile | recall@25 | MRR |
+|---|---|---|---|
+| old model, men's | 59.3% | 23.5% | 0.047 |
+| **new model, men's** | **91.9%** | **64.2%** | **0.185** |
+| chance, men's | 45.4% | 17.2% | 0.035 |
+| old model, women's | 53.6% | 16.7% | 0.041 |
+| **new model, women's** | **89.8%** | **55.3%** | **0.143** |
+| chance, women's | 49.1% | 12.7% | 0.035 |
+
+Read the header comment in `server/lib/matchingBacktest.js` before quoting
+those: two criteria cannot be tested by this method at all and one is
+circular. It is a floor on quality, not a definition of it.
+
+- [x] Persist per-athlete criterion weights on the player record —
+      `players.match_weights`, JSON, null meaning "use the defaults".
+- [x] Score **scholarship needs** — `budget_range` was collected and never
+      read. Scored against Scorecard *net price* (not sticker tuition, which
+      at a well-endowed private school is routinely double what anyone pays).
+      **Budget is a guideline, not a gate**, and the benchmark is not the
+      average: this product exists to find awards well above average, so
+      affordability prices what a *priority signing* could command rather than
+      the squad mean, scaled by how far above a programme's level the athlete
+      sits. The same D1 school scores 0.33 for a marginal recruit and 0.60 for
+      one 25 points above its level, because the expected award moves from 33%
+      to 75%. The sub-score never reaches zero — a school beyond the stated
+      budget is exactly the school a scholarship exists to make reachable — so
+      cost tilts the ranking and removes nothing.
+      Concretely, for an athlete needing a full scholarship this took NJCAA
+      from 0 to 9 of the top 20 with no change to their stated priorities,
+      and moved a $40,007 D3 option from 3rd to 7th with its affordability at
+      the floor and an explicit "no athletic scholarships" caveat attached.
+- [x] Score **state/geography** — `city`/`state` were collected and never
+      read, and `colleges.location` was empty on all 2,374 rows so there was
+      nothing to compare them against. Backfilled city/state/lat/lon from
+      Scorecard on UNITID (99% coverage, `loadMatchingInputs.js`), scored as
+      distance from the athlete's state centroid. This turned out to be the
+      single most underweighted thing in the model: **50.4% of men and 45.8%
+      of women enrol in their home state**, median 145–165 miles from home.
+- [x] **Handle null academic ratings explicitly.** Academic importance is now
+      a *weight*, not a floor — it was being compared against
+      `academic_rating` as a minimum, which is a different quantity: a real
+      athlete with the slider at 9 was shown 40 of 1,154 programmes, the
+      academic floor alone deleting 734 → 55. Unrated schools are scored at a
+      neutral prior and marked, never excluded.
+- [x] Per-criterion score breakdown on each match result — weight, sub-score,
+      contribution, confidence and a label per criterion, so "why is this
+      school 7th?" is answerable from the data the scorer already returns.
+- [x] Weights set from evidence, not feel. Two moved: geography 10 → 25, and
+      roster opportunity 25 → 10. Held at 25 the roster term actively hurt —
+      departures at a position correlate with arrivals across programmes
+      (r=0.375), but the school an athlete actually chose scores no higher on
+      opportunity (0.445) than one drawn at random (0.447). It is kept at 10
+      rather than 0 deliberately: the backtest measures where athletes *ended
+      up*, while opportunity is a claim about which coach *replies*, and
+      nothing can test that until 1.1 lands. **Revisit this weight first when
+      it does.**
+- [x] **Criteria couple to one another** (`shared/matching/couplings.js`). A
+      flat weighted sum gets this wrong: an athlete who needs a scholarship
+      does not simply "care about cost more". Staying in state saves them
+      $5,245 (NJCAA) to $17,871 (D1) a year, junior college costs a third of
+      everything else, D3 is both the most expensive division and forbidden
+      from offering athletic money, and being clearly the best player in a
+      squad is worth real money where the pool is split by hand. So a stated
+      priority now produces two things — weight multipliers on *other*
+      criteria, and shape overrides on their curves. Each rule is named,
+      carries its reasoning, declares whether it is `measured` or `assumed`,
+      and explains itself in one sentence on the card.
+- [x] **Affordability is residency-aware.** `net_price` is a single average
+      across the student body, so an out-of-state athlete and a local one were
+      quoted the same figure for the same school — blind to the largest cost
+      lever in US college sport. The out-of-state premium is now added at
+      public institutions: same D1 school, $9,380 in-state against $21,354
+      out-of-state after athletic aid.
+- [x] **A ranking is a first-class input** — `weightsFromRanking()`, persisted
+      on `players.criterion_ranking` as a ranking rather than pre-translated
+      into numbers, since the mapping to weights is a tuning decision that
+      will move and a stored ranking survives it.
+- [x] **Operator UI to rank the six criteria, in both places it is needed.**
+      `src/components/PriorityTokens.jsx` sits under Placement Prefs in the
+      intake form as moveable tokens — a quick pass while a player file is
+      being built, placed directly under Budget Range because a tight budget
+      shifts several of these weights on its own and the note underneath
+      explains which. Reordering works three ways on purpose: drag for the
+      mouse, arrow keys for the keyboard, and tap-to-select-then-tap-to-place
+      for touch, where HTML5 drag never fires. Ordering, labels and the weight
+      arithmetic live in `src/lib/criteriaRanking.js`, shared with the panel
+      below so the two presentations cannot drift.
+
+      A coupling can weight a criterion above the rank it was given — correct,
+      but an ordered list whose percentages disagree with its numbering reads
+      as a bug, so boosted entries carry an amber arrow and a one-line legend.
+
+      `src/components/CriteriaRanking.jsx`, on the Analysis & Matching tab. A
+      ranking rather than six number boxes, because that is how a family talks
+      about it ("cost first, then near home") and because the rank-to-weight
+      mapping is a tuning decision that will keep moving — what is stored is
+      the ranking, the numbers are derived. Drag or arrow keys, so it is
+      usable by keyboard and on touch. The panel opens showing the weights
+      **currently in force** and only switches to a preview once something is
+      moved: rendering the preview permanently reads as "these are your
+      current weights", and for an athlete with no stored ranking they are not.
+      Any couplings that fired are shown in the athlete's own words, since
+      they move the percentages behind the operator's back otherwise.
+      `criterion_ranking` is a `jsonField` on the player entity, so it is sent
+      and stored as an array; an empty array is how "not set" is recorded, and
+      the sanitiser writes one explicitly rather than dropping the key, or
+      Reset to defaults would appear to do nothing on save.
+- [x] **Re-run matching on weight change** — applying persists the ranking and
+      re-ranks against the *saved* player rather than component state, which
+      would otherwise race the update and rank against the priorities the
+      operator just replaced. This is the deterministic half of slide 3 panel
+      2; the learning half is Phase 5.
+- [x] **Breakdown on the match card** — "Why this score", one row per
+      criterion: weight, sub-score bar, status label, and the points it
+      contributed to the total. Criteria at their neutral prior are greyed and
+      captioned, so a gap in our data cannot be mistaken for a verdict on the
+      school. The card's dead "Tuition —" cell now carries net price, and its
+      location line reads city/state instead of the `location` column that was
+      empty on all 2,374 rows.
+
+#### A second defect this work uncovered
+Testing the panel against a real athlete surfaced the same inversion as
+before, reached by a different route: **an athlete with no
+`recruiting_class_year` had no cohort to look up**, so every school we hold a
+roster for scored a *measured* zero on opportunity while unscraped ones kept
+the neutral prior — ranking the programmes we know least about highest. Simon
+Fraser, which has no Scorecard row and no roster, came first. `rosterOpportunity`
+now takes `classYearKnown` and falls back to the prior for everyone when the
+arrival year is unknown. Two tests pin it. The `score.test.js` athlete fixture
+had been missing `classYear` too, which is why nothing caught it.
+
+#### What the backtest cannot see
+The couplings are **unvalidated by construction**. Roster rows carry no family
+budget, so no coupling fires for any backtest athlete and the band numbers
+above are identical with and without the layer. The measured half of each rule
+is its premise — the cost figures are real — but that a high-need athlete
+should therefore be steered to a weaker programme is recruiting knowledge, not
+a finding. `need-shifts-athletic-peak-upward` is marked `assumed` in the code
+for that reason and should be the first suspect if the lists look wrong.
+
+#### A defect this work uncovered
+`estimated_graduation_year` was **one year late on every roster row** —
+`YEARS_TO_GRADUATE` counted a senior as two years from graduating. 91.4% of
+players labelled "Sr." on a 2024 roster were gone before the 2025 season, and
+rosters that print an explicit year spanned 2026–2029 for fall 2025 where the
+derived values spanned 2027–2030. Every recruit was being matched against the
+wrong cohort, and it is why roster opportunity first measured as *worse than
+knowing nothing*. Fixed in `server/lib/classYear.js`, 109,886 rows re-derived
+by `refreshGraduationYears.js`, and pinned by a concordance test that checks
+derived years against the ones rosters print literally — the existing tests
+all passed throughout, because they were written against the conversion
+itself.
 
 ---
 
@@ -805,7 +1029,26 @@ warmed to cohort-1 volume.
 Two tracks. The data track has the long lead time and starts in Phase 0.
 
 ### 4.1 Data
-- [ ] 2024 roster backfill, both sports (started Phase 0) → program turnover.
+- [x] **2024 roster backfill, both sports — done, and the 2025 season was
+      repaired against it.** 2026-08-25. 1,717 of 1,722 in-scope school-sports
+      carry both seasons, so turnover is computable for all but five. Detail in
+      Phase 0; what matters here is that the turnover signal Pillar 4 depends on
+      is now built on two seasons normalised by one set of rules rather than two.
+
+      Comparing the seasons was what found the defects, in both directions. The
+      2024 acquisition was clean on its own terms and still disagreed with 2025
+      on formatting: 340 captain-prefixed names in 2024 that 2025 did not have,
+      and 130 names in 2025 stored surname-first that 2024 did not. Each scored
+      a player as a departure *and* an arrival. Going the other way, 2025 held
+      six truncated rosters — Purdue had 10 of 24 players and no goalkeeper at
+      all, which is the tell — plus 495 unnormalised positions and three school
+      rows duplicated under the other sport's spelling.
+
+      **Turnover now reads 42.8%, down from 44.6%**, and the improvement is
+      almost entirely formatting rather than data. Retention is unmoved at a
+      median of 75% and covers 1,712 programmes rather than 1,669, which is the
+      reassuring outcome: the metric was already measuring something real, and
+      the fixes widened its base without shifting its centre.
 - [ ] Freshman-minute analysis — **possible from existing data today**: 4,677
       of 7,239 men's and 5,812 of 7,616 women's `Fr.` rows carry
       `minutes_played` (women's grew as roster loading finished).

@@ -44,6 +44,21 @@ const PLAYER_COLUMNS = [
   // roster_players.estimated_graduation_year to find programs with an
   // opening at the recruit's position in that exact year.
   ['recruiting_class_year', 'INTEGER'],
+
+  // --- Pillar 1 weighting model ---
+  // Per-athlete overrides for the six matching criteria, as JSON on the same
+  // arbitrary scale as DEFAULT_WEIGHTS ({"geography": 40, "roster": 0}).
+  // Null means "use the defaults", which is not the same as an empty object:
+  // an operator who has deliberately zeroed something must not be silently
+  // reset by a later change to the defaults.
+  ['match_weights', 'TEXT'],
+
+  // The athlete's own ranking of the six criteria, best first, as a JSON
+  // array of criterion keys (["geography","affordability",...]). Ranking is
+  // how the deck says an athlete expresses priorities, so it is stored as a
+  // ranking rather than pre-translated into numbers — the mapping to weights
+  // is a tuning decision that will change, and a stored ranking survives it.
+  ['criterion_ranking', 'TEXT'],
 ];
 
 /**
@@ -75,6 +90,33 @@ const COLLEGE_COLUMNS = [
   // difference: at a threshold of 5.5 the D2 field drops from 97% to 28% in
   // one step, entirely at that value. See backfillAcademicRatingSource.
   ['academic_rating_source', 'TEXT'],
+  // --- matching model inputs (Phase 1.2) ---
+  // Joined from College Scorecard on UNITID via the two academic crosswalks.
+  // `location` was in the original schema and is empty on all 2,374 rows, so
+  // geography could not be scored at all; city/state/lat/lon replace it.
+  ['unitid', 'INTEGER'],
+  ['city', 'TEXT'],
+  ['state', 'TEXT'],
+  ['latitude', 'REAL'],
+  ['longitude', 'REAL'],
+  ['control', 'INTEGER'],              // 1 public, 2 private non-profit, 3 private for-profit
+  // Net price, not sticker tuition: what students actually paid after all
+  // grant aid. Sticker price at a well-endowed private school is routinely
+  // double what anyone pays, so scoring a family's budget against it would
+  // rank by endowment rather than by affordability.
+  ['net_price', 'REAL'],
+  ['tuition_in_state', 'REAL'],
+  ['tuition_out_state', 'REAL'],
+  // Admissions, for the admissibility half of academic fit. Collected on the
+  // athlete since the form was built and never compared against anything.
+  ['sat_avg', 'INTEGER'],
+  ['admit_rate', 'REAL'],
+  // Programme trajectory from soccer_records.csv: win rate over the two most
+  // recent seasons against the two before them. Separates "how good is this
+  // programme" from "which way is it heading", which soccer_score alone cannot.
+  ['recent_win_pct', 'REAL'],
+  ['prior_win_pct', 'REAL'],
+  ['matching_data_source', 'TEXT'],
   ['conference_champion_2025', 'INTEGER'],
   ['conference_champion_name', 'TEXT'],
   ['conference_champion_source', 'TEXT'],

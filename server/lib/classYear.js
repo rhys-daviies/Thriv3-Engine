@@ -15,12 +15,29 @@
  * recruiting-class matching and nobody ever asks.
  */
 
-/** Years from the season to graduation, matching the 2025 convention. */
+/**
+ * Years from the season to graduation.
+ *
+ * A season is the calendar year the campaign kicks off in, so a senior on the
+ * fall 2025 roster finishes in spring 2026 — one year, not two.
+ *
+ * These were each one too high until 2026-08-25, which put every athlete in
+ * the wrong recruiting cohort and made the Pillar 4 opportunity signal read a
+ * class that had not left yet. Two independent checks caught it and both are
+ * now tests: 91.4% of players labelled "Sr." on a 2024 roster are absent from
+ * the 2025 roster, and rosters that print an explicit graduation year instead
+ * of a class label spanned 2026-2029 for the fall 2025 season while the
+ * derived values spanned 2027-2030. The explicit years are literal, so they
+ * are the arbiter — see the concordance test in classYear.test.js.
+ *
+ * SENIOR and GRADUATE are both 1 on purpose: whatever they are called, both
+ * leave after this season.
+ */
 const YEARS_TO_GRADUATE = {
-  FRESHMAN: 5,
-  SOPHOMORE: 4,
-  JUNIOR: 3,
-  SENIOR: 2,
+  FRESHMAN: 4,
+  SOPHOMORE: 3,
+  JUNIOR: 2,
+  SENIOR: 1,
   GRADUATE: 1,
 };
 

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
-import { Sparkles, Search, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Search, CheckCircle2, SlidersHorizontal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import CollegeCard from '@/components/CollegeCard';
+import CriteriaRanking from '@/components/CriteriaRanking';
 import EmailComposer from '@/components/EmailComposer';
+import { entities } from '@/api/client';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 
 const PAGE_SIZE = 20;
@@ -24,8 +26,24 @@ function PhaseStep({ icon: Icon, title, description, active, done }) {
 }
 
 export default function MatchingTab() {
-  const { player, recommendations, summary, analyzing, phase, progress, page, setPage } = usePlayerWorkspace();
+  const { player, setPlayer, recommendations, summary, analyzing, phase, progress, page, setPage, onAnalyze } = usePlayerWorkspace();
   const [emailTarget, setEmailTarget] = useState(null);
+  const [showPriorities, setShowPriorities] = useState(false);
+
+  /**
+   * Persist the ranking, then re-rank against the saved player rather than the
+   * one in state — the update has not propagated yet, and ranking against the
+   * priorities the operator just replaced is the obvious way to get this wrong.
+   */
+  async function applyRanking(ranking) {
+    // Sent as an array, not a JSON string: criterion_ranking is a jsonField on
+    // the player entity, so the server serialises it. Passing a string here
+    // stores a JSON-encoded JSON string, which reads back as nonsense.
+    await entities.Player.update(player.id, { criterion_ranking: ranking });
+    const updated = { ...player, criterion_ranking: ranking };
+    setPlayer(updated);
+    await onAnalyze(updated);
+  }
 
   const totalPages = recommendations ? Math.ceil(recommendations.length / PAGE_SIZE) : 0;
   const pageItems = recommendations ? recommendations.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : [];
@@ -33,6 +51,17 @@ export default function MatchingTab() {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <Button size="sm" variant={showPriorities ? 'default' : 'outline'} onClick={() => setShowPriorities((v) => !v)}>
+          <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
+          {showPriorities ? 'Hide priorities' : 'Match priorities'}
+        </Button>
+      </div>
+
+      {showPriorities && (
+        <CriteriaRanking player={player} onApply={applyRanking} busy={analyzing} />
+      )}
+
       {analyzing && (
         <Card className="p-6 space-y-4">
           <PhaseStep icon={Search} title="Scouting" description={`Loading eligible programs for ${player.sport || 'mens-soccer'}...`} active={phase === 1} done={phase > 1} />
