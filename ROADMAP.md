@@ -75,20 +75,53 @@ these start late.
       §2.3.
 
 ### Data backfills
-- [ ] **Women's academic ratings — 323 programs** (119 D1, 61 D2, 143 D3).
-      Blocking: the academic-importance filter in `playerAnalysis.js` drops
-      every null-rated school without telling anyone, so a third of women's
-      programs are currently invisible to matching whenever an athlete sets
-      academic importance.
-- [ ] **2024 rosters, both sports** → program turnover rate for Pillar 4.
-      Only 2025 is loaded and turnover needs a season to diff against. Longest
-      lead time in the project.
-- [ ] **Roster gaps — 56 programs** (16 men's, 40 women's: 7 D2, 33 D3).
-- [ ] **Nicknames — 105 programs** (38 men's, 67 women's). Personalisation
-      quality, not a blocker; the template falls back cleanly.
-- [ ] **`estimated_graduation_year` nulls — 1,250 rows**, concentrated in
-      women's D1 (529). These rows can never match a recruiting class year, so
-      they silently understate a program's openings.
+
+Ordered by lead time and blast radius, not by size. The 2026-08-24 audit
+looked into each one rather than taking the headline count at face value, and
+two of them are a different job than the count suggests.
+
+- [ ] **2024 rosters, both sports.** Start first: longest lead time in the
+      project, and the only Phase 0 item that gates an entire pillar (4's
+      turnover metric needs a season to diff against). No code needed — the
+      2025 pipeline takes eight CSVs, one per sport-division, through
+      `npm run import-rosters`; 2024 is the same shape with `SEASON` changed.
+      This is pure acquisition, so it parallelises with everything below.
+- [ ] **Women's academic ratings — 318 programs to source, 5 to reconcile.**
+      Not 323: five already exist in `server/seed/data/academic_scores.json`
+      filed under a different division, which is a lookup fix rather than
+      research. The other 318 are genuinely absent, and copying from the
+      men's row is not available — only 5 of the 323 have a men's counterpart
+      at all, because most of the gap is SEC/Big 12 schools that sponsor
+      women's soccer and no men's programme. **Recover the scoring
+      methodology before sourcing anything**: the existing 1,077 scores are a
+      0–10 scale of unrecorded derivation, and 318 scores produced a different
+      way are not comparable to them — they would quietly distort every
+      ranking that mixes the two.
+- [ ] **Roster scrape pass — 71 schools, one job not two.** The 56 programs
+      with no 2025 roster and the 15 whose roster imported with no class year
+      at all (451 rows) are the same failure and the same fix; doing them in
+      one pass rather than as two roadmap lines saves a full crawl.
+- [ ] **Fix the class-year parser before re-scraping.** Some schools' rosters
+      put a club name in `class_year_label` — 'Real Colorado', 'FC Dallas',
+      'DKSC', 'Portland Thorns Academy' — so a column is being read off by
+      one. Re-scraping first would just re-import the same garbage.
+- [ ] **`estimated_graduation_year` nulls — 1,250 rows, and it is a scrape,
+      not a mapping fix.** 1,218 of them have no `class_year_label` either,
+      so there is nothing to map from; only ~32 are unmapped labels
+      ('Rs.', 'Medical Redshirt', 'Sr.-5'). After the 15 whole-roster failures
+      above are re-scraped, what remains is 767 rows scattered thinly across
+      267 schools — the expensive tail, and the one worth timeboxing.
+- [ ] **Nicknames — 102 programs** (36 men's, 66 women's). Cheapest and least
+      urgent; personalisation quality, not a blocker, and the template falls
+      back cleanly. Fill in the gaps between the jobs above.
+
+### Hedge, so the data work is not on the critical path
+- [ ] **Handle null academic ratings in `playerAnalysis.js` now** rather than
+      waiting for the backfill. The filter at `playerAnalysis.js:51` drops
+      every null-rated school silently, so a third of women's programmes are
+      invisible whenever an athlete sets academic importance. This is a
+      Phase 1.2 line item, but doing it early converts the 318-school backfill
+      from a blocker into an improvement — worth the reordering.
 
 ---
 
