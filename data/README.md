@@ -22,6 +22,38 @@ between generating a rankings file and comparing against it (which manufactured 
 "stale score" reports). Treat a copy in `data/` as a point-in-time snapshot, and check the
 date before trusting it against the live file.
 
+## Where new data goes (decided 2026-08-24)
+
+Since the rebrand, **every new or updated data deliverable lives under
+`~/Documents/Thriv3/`**, never under `Recruitmatch/`. The repo and the Python
+tooling stay where they are — that was a deliberate scoping decision, not an
+oversight — so `Recruitmatch/` survives as a tools directory and nothing else.
+
+    ~/Documents/Thriv3/Soccer Records/              records, per sport
+    ~/Documents/Thriv3/University individualisation/ identity + outreach fields
+    ~/Documents/Thriv3/2025 Roster Sheets/          full rosters, 2025
+    ~/Documents/Thriv3/2024 Roster Sheets/          full rosters, 2024 (in progress)
+    ~/Documents/Thriv3/2025 Coaches Emails/         coaching contacts
+
+### Which copy is canonical, and it is not always the same one
+
+`Thriv3/` is canonical. But on 2026-08-24 the roster sheets were found drifting
+the *other* way: three of the seven files in `Thriv3/2025 Roster Sheets` had
+been stale since 19 August, while the repo copies had moved on through the
+dedup and inactive-school cleanups on 23–24 August, and
+`naia_womens_soccer_2025_rosters.csv` existed only in the repo. The repo copies
+were the ones the database was actually built from, so they were the correct
+ones — the mirror had quietly become the original.
+
+That has been reconciled: all eight files now match, and the superseded Thriv3
+versions are kept at `2025 Roster Sheets/_superseded-20260824/`.
+
+The lesson is the direction is not automatic. `importRosterSheets.js` reads
+from `server/seed/data/rosters_2025/`, so the repo copy is what reaches the
+database and will keep attracting edits. **Check dates and line counts before
+copying either way** — a blind sync in the wrong direction would have silently
+reverted two cleanups.
+
 ## Refreshing
 
     cp ~/Documents/Thriv3/"Soccer Records"/soccer_records{,_women}.csv data/soccer-records/
