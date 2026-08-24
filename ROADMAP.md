@@ -305,64 +305,47 @@ then 2023 and 2022. Not to be picked up here.
 
       Southern (SWAC) is left unrated: US News places it under Regional
       Universities South, so these anchors do not apply to it.
-- [ ] **Rate the remaining 318.** Established what this actually costs rather
-      than starting and stalling:
+- [ ] **Rebuilding every academic rating from scratch.** Decided 2026-08-24
+      after the audit: the column has too many demonstrated errors to patch
+      school by school, so all 1,337 in-scope schools are being recollected.
+      **60 of 1,337 done.** Worklist:
+      `~/Documents/Thriv3/University individualisation/academic_ratings_rebuild.csv`,
+      D1 first, resumable, one row per distinct school name.
 
-      **Nothing is recoverable internally.** Running the repaired matcher over
-      all 318 resolves 5. The 101 near-misses are every one of them a
-      different institution — Colorado to Colorado College, Alabama to Alabama
-      Huntsville, Texas to Concordia Texas, Idaho to College of Idaho. That is
-      the bug that was just fixed, and it correctly refuses all of them.
-      `academic_scores.json` was built for the men's school list and simply
-      never covered these programmes.
+      **Raw data is collected separately from the score.** The sheet records
+      the US News rank, its exact category and the Niche grade — not a
+      computed rating. The formula has already changed once this session, and
+      recollecting 1,337 schools because a weighting moved would be
+      unforgivable. The raw numbers outlive any weighting.
 
-      **Bulk extraction is closed.** US News renders ten schools a page and
-      stops serving "Load More" after rank 30; its pagination is client-side,
-      so a same-origin fetch returns page one whatever you ask for. Per-school
-      lookup works, and a web search returns one to three schools a query, so
-      this is 150+ queries — a dedicated session, not a side task.
+      The extraction route took several dead ends to find, so it is written
+      down. US News publishes `/best-colleges/sitemap.xml`, which yields
+      **1,787 school slugs with their profile ids**; with a page open on the
+      domain, profile pages fetch same-origin in bulk at roughly 25 schools a
+      call, each returning rank, category and city. The rankings list is gated
+      past rank 30 and paginates client-side, and Niche returns 403 to any
+      programmatic fetch, so its grades need another route.
 
-      **D2 and D3 need their own anchors before anyone starts.** The anchors
-      used for the flagships (#24 Emory 10 … #222 West Virginia 6.8) are
-      National Universities. US News ranks most D2 and D3 schools under
-      Regional Universities or Regional Colleges, where a rank number means
-      something different — #40 regional is not #40 national. Rating them off
-      the national curve would put a second incompatible scale in one column,
-      which is the failure this whole section has been unpicking.
+      **Every match is verified by location, not by name** — the lesson of the
+      whole audit. The first candidate for "Belmont" was Belmont Abbey, and
+      Nashville against Belmont NC is what rejected it. Likewise Colorado
+      against Colorado College, Columbia against Columbia College Missouri,
+      Auburn against Auburn Montgomery, Brown against John Brown. Anything
+      unverifiable is marked `needs-manual` rather than guessed: "Buffalo"
+      resolves to SUNY Buffalo State, a different university from the
+      University at Buffalo.
+- [ ] **Build a rank-to-score curve per US News category.** Seven categories
+      appeared in the first 60 schools alone — National Universities, National
+      Liberal Arts Colleges, and Regional Universities and Colleges across four
+      regions. **#3 Regional South is not #3 National**: Appalachian State is
+      #3 Regional South and Butler #1 Regional Midwest, against Alabama at
+      #169 National. One curve across all of them would repeat the category
+      error the old column already made.
+- [ ] **Decide how to treat unranked schools.** Alabama State and Chicago
+      State carry no US News rank at all. They need an explicit answer rather
+      than a divisional fill — which is how the old column ended up 55% one
+      value in D2.
 
-      Worklist ready at
-      `~/Documents/Thriv3/University individualisation/_unrated_academic_worklist.csv`
-      — 318 rows, division, conference, likely US News category, and columns
-      for rank, Niche grade and the resulting score. Priority is the 118 D1
-      programmes: that is where the scale genuinely discriminates, where the
-      anchors already hold, and where the names are ones athletes ask for.
-- [x] **Fixed Carnegie Mellon: 6.5 → 10.** Checked rather than reasoned from
-      the name — US News has it at **#20 in National Universities** and Niche
-      grades its academics **A+**. Emory, already scored 10 in this data, is
-      #24. A school ranked above one scored 10, with an A+ academics grade,
-      is a 10.
-- [x] **Reconciled every school whose two sport rows disagreed** — 13 in all,
-      and they split into two opposite cases, which is why propagating the
-      "rated" side wholesale would have been wrong:
-
-      **4 were real** — one row measured, the other holding a placeholder, so
-      the measurement propagates. Claremont-Mudd-Scripps and Pomona-Pitzer had
-      their women's programmes scored **6.0 while the men's said 10**: two of
-      the strongest academic colleges in D3, described as average.
-
-      **9 were not** — both rows were fills wearing different clothes, 6.5
-      from the divisional fill against 6.0 from `placeBucketB.js`. Copying
-      either onto the other would have manufactured agreement without adding
-      information, so both were aligned to the divisional fill and left
-      labelled as unrated.
-
-      No school now disagrees with itself across sports.
-- [x] **Believe a script that documents its own placeholder.**
-      `placeBucketB.js` creates rows with `academic_rating: 6.0` and says so
-      in `identity_notes`, but 6.0 is nobody's divisional fill, so the
-      modal-value inference confidently labelled all 30 of them `rated`. The
-      explicit declaration now wins over the statistical guess — a reminder
-      that an inference about provenance is still an inference.
 - [ ] **Roster scrape pass — 72 school-sports, one job not two.** The 56
       programs with no 2025 roster and the 16 whose roster imported with no
       class year are the same failure and the same fix.
