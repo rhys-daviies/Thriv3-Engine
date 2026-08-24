@@ -18,7 +18,10 @@ export default function Colleges() {
   const [sortDir, setSortDir] = useState(null); // 'asc' | 'desc' | null
 
   useEffect(() => {
-    entities.College.filter({ sport }).then(setColleges);
+    // Exclude colleges flagged inactive -- confirmed not valid recruiting
+    // targets (closed, doesn't field the sport, or ineligible for its listed
+    // division). `active` defaults to 1, so null/undefined pass.
+    entities.College.filter({ sport }).then((rows) => setColleges(rows.filter((c) => c.active !== 0)));
   }, [sport]);
 
   function toggleSort(col) {
