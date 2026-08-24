@@ -15,7 +15,7 @@ re-run, not copied; two moved and are corrected in place.
 
 | Decision | Answer | Consequence |
 |---|---|---|
-| Send architecture | **ESP on a warmed sending domain** | Outlook/AppleScript becomes a dev-only path. Domain warming is a calendar dependency — start it before any code. |
+| Send architecture | **Outlook drafting now, ESP before go live** (revised 2026-08-24) | Sequencing is proved against Outlook drafts first, so Phase 2 is not blocked on a provider choice. Domain warming stays a calendar dependency, but it moves to just before the pilot rather than the front of the project. |
 | Product shape at go live | **Single user** (Rhys operates the engine on athletes' behalf) | No auth, no accounts, no athlete-facing UI. Pillar 1's weighting UI is an operator tool, not self-serve. |
 | Pilot scope | **Men's and women's soccer, NCAA D1–D3** | 1,759 active programs, 1,621 with a coach email. NAIA/NJCAA and the four non-soccer sports are out of scope until after go live. |
 
@@ -54,7 +54,14 @@ lead time, so both sit in Phase 0.
 Calendar lead times, not engineering ones. Nothing downstream compresses if
 these start late.
 
-### Sending domain
+### Sending domain — deferred 2026-08-24
+
+Held deliberately, not forgotten. Sequencing will be proved end to end against
+Outlook drafts, which the code already does, and the ESP is chosen once that
+works. The trade is accepted with eyes open: **the warming ramp becomes the
+long pole immediately before the pilot instead of running underneath the build**,
+so budget three to four weeks between "sequencing works" and "cohort 1 sends".
+Nothing below has changed except when it starts.
 - [ ] Register and begin warming a sending **subdomain** (e.g.
       `send.striv3.com`), not the root — a reputation problem must not be able
       to poison `striv3.com` mail.
@@ -67,7 +74,8 @@ these start late.
       sends first, women's cohort starts 2–3 weeks later. Halves peak daily
       volume and gives cohort 1's deliverability data before cohort 2 sends a
       single email.
-- [ ] **Choose the ESP, checking cold-outreach policy first.** Several
+- [ ] **Choose the ESP, checking cold-outreach policy first** (deferred — see
+      above). Several
       transactional providers prohibit unsolicited outreach on their streams
       outright; confirm terms before building against an API. Evaluate
       build-vs-buy — a purpose-built sequencing platform supplies warmup,
