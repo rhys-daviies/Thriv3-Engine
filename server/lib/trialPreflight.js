@@ -1,13 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import db from '../db/client.js';
+import { suppressedSet } from './suppressions.js';
 import { Player } from '../db/entities/player.js';
 import { checkRequiredCore } from '../export/renderProfile.js';
 import { OUTPUT_DIR } from '../export/exportProfiles.js';
 import { isOutlookAvailable } from './outlook.js';
 import {
-  EDGE_BASE_URL, SYNC_SECRET, PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS,
-} from './config.js';
+  EDGE_BASE_URL, SYNC_SECRET, PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS, complianceGaps, SENDER_POSTAL_ADDRESS } from './config.js';
 
 /**
  * Everything that has to be true before ROADMAP §1.1 — the first real tracked
@@ -72,6 +72,22 @@ function localChecks(athlete, published) {
   out.push(isOutlookAvailable()
     ? check(PASS, 'Outlook automation available', `sending as ${OUTLOOK_FROM_ADDRESS}`)
     : check(FAIL, 'Outlook automation available', `${process.platform} — sendOutreach requires macOS`));
+
+  // Blocking, not advisory. Every commercial email needs a sender identity, a
+  // real postal address and a working opt-out, and discovering that halfway
+  // through a run means the first half already broke the law.
+  const gaps = complianceGaps();
+  out.push(gaps.length
+    ? check(FAIL, 'Compliance footer configured', `missing ${gaps.join(', ')}`)
+    : check(PASS, 'Compliance footer configured', SENDER_POSTAL_ADDRESS));
+
+  // Not blocking: an empty list is the normal state before a first send. It is
+  // here so the number is in front of you when you read the results, because
+  // a suppressed coach who looks "cold" is a different thing from a cold one.
+  const suppressed = suppressedSet().size;
+  out.push(check(PASS, 'Opt-out list', suppressed === 0
+    ? 'no suppressions yet'
+    : `${suppressed} address(es) will be skipped`));
 
   if (!athlete) {
     out.push(check(FAIL, 'Trial athlete', published.length === 0

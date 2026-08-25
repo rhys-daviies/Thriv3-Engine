@@ -295,7 +295,7 @@ export function renderProfile(athlete, { endpoint = '/api/track', dryRun = false
   <footer>
     Shared by ${esc(athlete.full_name)} via <span class="wordmark">Thriv<span>3</span></span>. This page
     records which film segments are viewed so the athlete knows their material reached you —
-    described in our privacy notice. Reply directly to the contacts above.
+    see the <a href="/privacy">privacy notice</a>. Reply directly to the contacts above.
   </footer>
 </div>
 

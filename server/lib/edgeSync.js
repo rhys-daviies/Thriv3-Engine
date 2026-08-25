@@ -1,4 +1,5 @@
 import db from '../db/client.js';
+import { suppress } from './suppressions.js';
 import { utcNow } from './time.js';
 import { EDGE_BASE_URL, SYNC_SECRET } from './config.js';
 import { scheduleRollup, rebuildRollup } from './engagementRollup.js';
@@ -185,10 +186,49 @@ export async function pullEvents({ maxBatches = 20 } = {}) {
 }
 
 /** Both directions, in the order that matters: tokens up, then events down. */
+/**
+ * Pulls opt-outs down and resolves them to addresses.
+ *
+ * The edge records a token, because it does not know any coach's email and
+ * must not learn one. Resolving token -> outreach -> coach happens here, on
+ * the machine that already holds both. A token whose outreach has since been
+ * deleted is skipped rather than guessed at, and reported so it is not
+ * silently lost — an opt-out we cannot attribute is still an opt-out somebody
+ * made.
+ */
+export async function pullSuppressions() {
+  const res = await edgeFetch('/api/suppressions');
+  const rows = res?.suppressions || [];
+  let added = 0;
+  let already = 0;
+  const unresolved = [];
+
+  for (const row of rows) {
+    const link = db
+      .prepare('SELECT o.token, c.email FROM outreach o JOIN coaches c ON c.id = o.coach_id WHERE o.token = ?')
+      .get(row.token);
+    if (!link?.email) { unresolved.push(row.token); continue; }
+    const result = suppress({
+      email: link.email,
+      reason: 'unsubscribed',
+      source: 'edge',
+      outreachToken: row.token,
+      // The edge's timestamp, not now: when they asked is the fact that
+      // matters if anybody ever checks how quickly it was honoured.
+      note: `opted out at ${row.created_at}`,
+    });
+    if (result.alreadySuppressed) already++; else added++;
+  }
+  return { pulled: rows.length, added, already, unresolved };
+}
+
 export async function syncWithEdge() {
   const tokens = await pushTokens();
   const events = await pullEvents();
-  return { tokens, events, syncedAt: utcNow() };
+  // After the token push, so an address suppressed on this run has its link
+  // revoked locally too rather than waiting a further cycle.
+  const suppressions = await pullSuppressions();
+  return { tokens, events, suppressions, syncedAt: utcNow() };
 }
 
 export function lastSyncedAt() {

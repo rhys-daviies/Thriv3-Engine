@@ -89,3 +89,19 @@ WHEN NOT EXISTS (
 BEGIN
   SELECT RAISE(ABORT, 'outreach_tokens deletes are locked — unlock edge_guard first');
 END;
+
+-- ===========================================================================
+-- Opt-outs, recorded as tokens.
+--
+-- The Worker does not know any coach's email address and must not learn one:
+-- it stores opaque tokens and attribution happens on the local machine. So an
+-- unsubscribe is recorded here as "this token asked to stop", and the local
+-- sync resolves token -> outreach -> coach -> address when it pulls them down.
+-- A suppression that never syncs is still honoured, because the token is
+-- revoked here at the same moment.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS suppressions (
+  token TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL,
+  synced INTEGER NOT NULL DEFAULT 0
+);

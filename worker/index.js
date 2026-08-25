@@ -1,6 +1,10 @@
 import { MAX_PAYLOAD_BYTES, parseEventBody } from '../shared/trackingEvents.js';
 import { createRateLimiter } from '../shared/rateLimit.js';
 import { renderRevokedPage } from '../shared/revokedPage.js';
+import {
+  renderUnsubscribeConfirm, renderUnsubscribeDone,
+  renderUnsubscribeUnknown, renderPrivacyNotice,
+} from '../shared/compliancePages.js';
 
 /**
  * Thriv3 edge event collector.
@@ -159,6 +163,46 @@ async function syncTokens(request, env) {
   return json({ synced: statements.length, revokedMissing: revoked, liveAtEdge });
 }
 
+const html = (body, status = 200) =>
+  new Response(body, { status, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+
+/**
+ * Records an opt-out and revokes the link in the same statement batch.
+ *
+ * Revoking here matters: the local sync might not run for days, and until it
+ * does this is the only place that knows. A coach who unsubscribes and then
+ * finds their link still works has been told one thing and shown another.
+ */
+async function unsubscribe(request, env, token) {
+  const known = await env.DB.prepare('SELECT token FROM outreach_tokens WHERE token = ?').bind(token).first();
+  if (!known) return html(renderUnsubscribeUnknown(), 200);
+
+  // GET only ever shows the confirmation. Mail security gateways follow links
+  // in messages to scan them, and a GET that opted people out would
+  // unsubscribe every recipient behind such a gateway without them ever
+  // seeing the page.
+  if (request.method !== 'POST') {
+    return html(renderUnsubscribeConfirm({ actionPath: `/u/${encodeURIComponent(token)}` }));
+  }
+
+  await env.DB.batch([
+    env.DB.prepare('INSERT OR IGNORE INTO suppressions (token, created_at) VALUES (?, ?)')
+      .bind(token, new Date().toISOString()),
+    env.DB.prepare('UPDATE outreach_tokens SET revoked = 1, updated_at = ? WHERE token = ?')
+      .bind(new Date().toISOString(), token),
+  ]);
+  return html(renderUnsubscribeDone());
+}
+
+/** Authed drain of opt-outs, so the local machine can resolve them to addresses. */
+async function drainSuppressions(request, env) {
+  if (!authorised(request, env)) return json({ error: 'unauthorised' }, 401);
+  const { results } = await env.DB.prepare(
+    'SELECT token, created_at FROM suppressions ORDER BY created_at'
+  ).all();
+  return json({ suppressions: results || [] });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -174,6 +218,24 @@ export default {
     }
     if (request.method === 'POST' && url.pathname === '/api/tokens') {
       return syncTokens(request, env);
+    }
+    // Opt-out. GET shows a confirmation; only POST records anything.
+    if (url.pathname.startsWith('/u/')) {
+      const token = decodeURIComponent(url.pathname.slice(3));
+      if (!token) return html(renderUnsubscribeUnknown(), 200);
+      return unsubscribe(request, env, token);
+    }
+    if (request.method === 'GET' && url.pathname === '/api/suppressions') {
+      return drainSuppressions(request, env);
+    }
+    // Public, unauthed, and linked from both the profile footer and every
+    // email — a notice nobody can reach is not a notice.
+    if (url.pathname === '/privacy') {
+      return html(renderPrivacyNotice({
+        senderIdentity: env.THRIV3_SENDER_IDENTITY,
+        postalAddress: env.THRIV3_POSTAL_ADDRESS,
+        contactEmail: env.THRIV3_CONTACT_EMAIL,
+      }));
     }
     if (url.pathname === '/api/health') {
       // Unauthed callers get liveness and nothing else — counts would leak how

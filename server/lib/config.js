@@ -45,3 +45,33 @@ export const EDGE_BASE_URL = (process.env.THRIV3_EDGE_URL || '').replace(/\/$/, 
 
 /** Shared secret for the authed sync endpoints on the edge collector. */
 export const SYNC_SECRET = process.env.THRIV3_SYNC_SECRET || '';
+
+/**
+ * Who is sending, and from where. CAN-SPAM §7704(a)(5) requires both in every
+ * commercial message, and recruiting outreach to a coach's work address is
+ * commercial mail whether it goes through an ESP or through Outlook.
+ *
+ * Deliberately without a default. A placeholder postal address is worse than
+ * none: it satisfies a code path while failing the law, and nothing downstream
+ * can tell the difference. `sendOutreach` refuses to send while these are
+ * unset, and the trial preflight says so before you get that far.
+ */
+export const SENDER_IDENTITY = process.env.THRIV3_SENDER_IDENTITY || '';
+export const SENDER_POSTAL_ADDRESS = process.env.THRIV3_POSTAL_ADDRESS || '';
+
+/** Where an unsubscribe link and the privacy notice are served from. */
+export const UNSUBSCRIBE_BASE_URL = (process.env.THRIV3_UNSUBSCRIBE_BASE_URL || PUBLIC_BASE_URL).replace(/\/$/, '');
+
+/**
+ * Everything a compliant footer needs, or a list of what is missing.
+ *
+ * Returned together rather than checked at three call sites, so a message
+ * cannot be assembled with two of the three present.
+ */
+export function complianceGaps() {
+  const gaps = [];
+  if (!SENDER_IDENTITY.trim()) gaps.push('THRIV3_SENDER_IDENTITY (who the mail is from)');
+  if (!SENDER_POSTAL_ADDRESS.trim()) gaps.push('THRIV3_POSTAL_ADDRESS (a valid physical postal address)');
+  if (!isPubliclyReachable(UNSUBSCRIBE_BASE_URL)) gaps.push('THRIV3_UNSUBSCRIBE_BASE_URL (must be reachable by the recipient)');
+  return gaps;
+}

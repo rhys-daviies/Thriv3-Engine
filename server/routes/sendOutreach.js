@@ -2,9 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { Player } from '../db/entities/player.js';
 import { findOrCreateCoach } from '../lib/coaches.js';
+import { isSuppressed } from '../lib/suppressions.js';
 import { createOutreach, markOutreachSent } from '../lib/outreach.js';
 import { composeInOutlook, isOutlookAvailable } from '../lib/outlook.js';
-import { PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS } from '../lib/config.js';
+import { PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS, complianceGaps, SENDER_IDENTITY, SENDER_POSTAL_ADDRESS, UNSUBSCRIBE_BASE_URL } from '../lib/config.js';
 import { checkRequiredCore } from '../export/renderProfile.js';
 import { exportAthlete, OUTPUT_DIR } from '../export/exportProfiles.js';
 
@@ -36,6 +37,31 @@ function ensureProfileLink(body, url) {
   return `${filled.trimEnd()}\n\nProfile and highlight film:\n${url}\n`;
 }
 
+/**
+ * The compliance footer, appended at send time rather than offered as a
+ * template variable.
+ *
+ * CAN-SPAM §7704(a)(5) wants three things in every commercial message: who it
+ * is from, a valid physical postal address, and a working way to opt out.
+ * Recruiting outreach to a coach's work address is commercial mail whether it
+ * leaves through an ESP or through Outlook, so none of it is optional here.
+ *
+ * Not a `{{token}}` on purpose. An operator editing a template can delete a
+ * token without noticing what it was for, and the resulting message is
+ * unlawful rather than merely worse. This is concatenated after whatever they
+ * wrote, every time, and `sendOutreach` refuses to run at all when the pieces
+ * are unset.
+ */
+function complianceFooter({ athleteName, unsubscribeUrl }) {
+  return [
+    '',
+    '—',
+    `Sent by ${SENDER_IDENTITY} on behalf of ${athleteName}.`,
+    SENDER_POSTAL_ADDRESS,
+    `Prefer not to receive these? Opt out here and we will not contact you again for any athlete: ${unsubscribeUrl}`,
+  ].join('\n');
+}
+
 /** The page has to exist before the link is worth sending. */
 function ensureExported(athlete) {
   const file = path.join(OUTPUT_DIR, 'p', `${athlete.public_slug}.html`);
@@ -49,6 +75,17 @@ export async function sendOutreach({
   const athlete = Player.get(athleteId);
   if (!athlete) throw new Error('Unknown athlete');
   if (!isOutlookAvailable()) throw new Error('Outlook automation is only available on macOS');
+
+  // Checked before anything is composed, not per coach: a run that mails half
+  // a list and then discovers it has no postal address has already broken the
+  // law nineteen times.
+  const gaps = complianceGaps();
+  if (gaps.length) {
+    throw new Error(
+      `Cannot send: the compliance footer is not configured — missing ${gaps.join(', ')}. `
+      + 'Every commercial email needs a sender identity, a physical postal address and a working opt-out link.'
+    );
+  }
 
   const missing = checkRequiredCore(athlete);
   if (missing.length) {
@@ -65,6 +102,14 @@ export async function sendOutreach({
 
   for (const coach of coaches) {
     try {
+      // The one check that must not be skippable. Enforced here rather than
+      // where the list is built, because every path to a send goes through
+      // this loop and only some of them go through a list builder.
+      if (isSuppressed(coach.email)) {
+        results.push({ email: coach.email, name: coach.name, status: 'suppressed' });
+        continue;
+      }
+
       const record = findOrCreateCoach({
         full_name: coach.name,
         email: coach.email,
@@ -80,7 +125,12 @@ export async function sendOutreach({
       const personalisedBody = ensureProfileLink(
         personalise(body, greetingName, coach.name || 'Coach'),
         url
-      );
+      ) + complianceFooter({
+        athleteName: athlete.full_name,
+        // The outreach token identifies the coach, so the link needs nothing
+        // else and carries no address in the URL.
+        unsubscribeUrl: `${UNSUBSCRIBE_BASE_URL}/u/${outreach.token}`,
+      });
 
       const outcome = await composeInOutlook({
         to: coach.email,

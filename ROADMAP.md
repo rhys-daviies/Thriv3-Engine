@@ -1105,9 +1105,44 @@ The largest remaining build. Everything here is gated on the ESP decision.
       several athletes hitting the same coach will burn the domain.
 
 ### 2.4 Compliance
-- [ ] Unsubscribe/opt-out honoured across every athlete's campaigns.
-- [ ] Physical address and identification in the footer (CAN-SPAM).
-- [ ] Privacy line covering coach tracking on the public profile page.
+- [x] **Unsubscribe honoured across every athlete's campaigns.** A
+      `suppressions` table keyed on the **address alone** — a coach opting out
+      is opting out of Thriv3, not of one athlete, and keying it on (athlete,
+      coach) would quietly mean the opposite. `sendOutreach` checks it inside
+      the send loop rather than where a list is built, because every path to a
+      send goes through the loop and only some go through a list builder. A
+      suppressed address returns `status: 'suppressed'` and gets no outreach
+      row, so nothing counts it as contacted.
+
+      The link itself is `/u/<token>` at the edge. **GET only ever shows a
+      confirmation; only POST records anything** — mail security gateways
+      follow links to scan them, and a GET that opted people out would
+      unsubscribe every recipient behind such a gateway without them seeing
+      the page. The edge records the *token*, never an address: it does not
+      know any coach's email and must not learn one, so `pullSuppressions()`
+      resolves token → outreach → coach locally at sync time. The token is
+      revoked at the edge in the same batch, so the opt-out holds even if the
+      sync does not run for days.
+
+      Replies that arrive as prose rather than through the link:
+      `npm run suppress -- coach@example.edu`, and `-- --list` to review.
+- [x] **Physical address and identification in the footer (CAN-SPAM).**
+      Appended by `sendOutreach` at send time, deliberately **not** offered as
+      a `{{token}}`: an operator editing a template can delete a token without
+      noticing what it was for, and the resulting message is unlawful rather
+      than merely worse. `THRIV3_SENDER_IDENTITY` and `THRIV3_POSTAL_ADDRESS`
+      have no defaults — a placeholder address satisfies a code path while
+      failing the law, and nothing downstream can tell the difference — so
+      sending refuses outright while they are unset and the trial preflight
+      fails on them by name.
+- [x] **Privacy notice covering coach tracking.** The profile footer already
+      said "described in our privacy notice" and there was no notice and no
+      link — a dangling reference claims a disclosure has been made when it
+      has not. There is now a real page at `/privacy`, linked from the footer:
+      what is recorded, what is not (no name, no email, no third party, no
+      cookies), why, and how to opt out or ask for deletion. Plain HTML with
+      no scripts and no external requests, because these load inside corporate
+      mail gateways that strip both.
 
 ---
 

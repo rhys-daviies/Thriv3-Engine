@@ -15,6 +15,7 @@ vi.mock('../lib/outlook.js', () => ({
 const db = (await import('../db/client.js')).default;
 const { utcNow } = await import('../lib/time.js');
 const { sendOutreach } = await import('./sendOutreach.js');
+const { suppress } = await import('../lib/suppressions.js');
 
 const CHAPTERS = [
   { t: 10, label: 'Opening' },
@@ -65,7 +66,7 @@ const baseRequest = (athleteId, overrides = {}) => ({
 
 beforeEach(() => {
   composed.length = 0;
-  db.exec('DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
+  db.exec('DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches; DELETE FROM suppressions;');
 });
 
 describe('one email per coach', () => {
@@ -206,5 +207,92 @@ describe('refusing to send a dead link', () => {
     const { reachable, baseUrl } = await sendOutreach(baseRequest(athleteId));
     expect(baseUrl).toMatch(/localhost/);
     expect(reachable).toBe(false);
+  });
+});
+
+
+describe('compliance', () => {
+  it('puts the sender, a postal address and an opt-out link in every message', async () => {
+    const id = makeAthlete();
+    await sendOutreach(baseRequest(id));
+    expect(composed).toHaveLength(2);
+    for (const message of composed) {
+      expect(message.body).toContain('Thriv3 (test)');
+      expect(message.body).toContain('1 Test Street, Testville, TS 00000');
+      expect(message.body).toMatch(/https:\/\/example\.test\/u\/[A-Za-z0-9]+/);
+    }
+  });
+
+  // The footer is concatenated at send time rather than offered as a token,
+  // so an operator cannot delete it out of a template without noticing.
+  it('appends the footer even to a template that never mentioned it', async () => {
+    const id = makeAthlete();
+    await sendOutreach(baseRequest(id, { body: 'Hi.' }));
+    expect(composed[0].body).toContain('Prefer not to receive these?');
+  });
+
+  it('gives each coach their own opt-out link', async () => {
+    const id = makeAthlete();
+    await sendOutreach(baseRequest(id));
+    const links = composed.map((m) => m.body.match(/\/u\/([A-Za-z0-9]+)/)[1]);
+    expect(new Set(links).size).toBe(2);
+  });
+
+  it('never mails a suppressed address, whatever the caller passes', async () => {
+    const id = makeAthlete();
+    suppress({ email: 'awhitfield@example.edu', reason: 'unsubscribed', source: 'edge' });
+    const { results } = await sendOutreach(baseRequest(id));
+
+    expect(composed).toHaveLength(1);
+    expect(composed[0].to).toBe('jmarsden@example.edu');
+    expect(results.find((r) => r.email === 'awhitfield@example.edu').status).toBe('suppressed');
+    // And no outreach row, so nothing counts it as contacted.
+    expect(db.prepare('SELECT COUNT(*) n FROM outreach').get().n).toBe(1);
+  });
+
+  it('matches a suppressed address regardless of casing', async () => {
+    const id = makeAthlete();
+    suppress({ email: 'AWhitfield@Example.EDU' });
+    const { results } = await sendOutreach(baseRequest(id));
+    expect(results.find((r) => r.email === 'awhitfield@example.edu').status).toBe('suppressed');
+  });
+
+  /**
+   * The gap check itself, on a fresh copy of config with the value cleared.
+   * Re-importing sendOutreach would give it a fresh in-memory database too,
+   * so the athlete would vanish before the compliance guard ever ran and the
+   * test would pass for the wrong reason.
+   *
+   * That the send path consults this is proved by every other test in the
+   * file: they all failed the moment the guard was added and before the suite
+   * was given a valid configuration.
+   */
+  it('reports each missing piece by name', async () => {
+    const saved = {
+      identity: process.env.THRIV3_SENDER_IDENTITY,
+      postal: process.env.THRIV3_POSTAL_ADDRESS,
+      unsub: process.env.THRIV3_UNSUBSCRIBE_BASE_URL,
+    };
+    try {
+      process.env.THRIV3_SENDER_IDENTITY = '';
+      process.env.THRIV3_POSTAL_ADDRESS = '';
+      process.env.THRIV3_UNSUBSCRIBE_BASE_URL = 'http://localhost:8787';
+      const fresh = await import('../lib/config.js?unconfigured');
+      const gaps = fresh.complianceGaps().join(' ');
+      expect(gaps).toMatch(/THRIV3_SENDER_IDENTITY/);
+      expect(gaps).toMatch(/THRIV3_POSTAL_ADDRESS/);
+      // A localhost opt-out link is unreachable by a recipient, which is the
+      // same failure as having none.
+      expect(gaps).toMatch(/THRIV3_UNSUBSCRIBE_BASE_URL/);
+    } finally {
+      process.env.THRIV3_SENDER_IDENTITY = saved.identity;
+      process.env.THRIV3_POSTAL_ADDRESS = saved.postal;
+      process.env.THRIV3_UNSUBSCRIBE_BASE_URL = saved.unsub;
+    }
+  });
+
+  it('is satisfied by the configuration this suite runs under', async () => {
+    const { complianceGaps } = await import('../lib/config.js');
+    expect(complianceGaps()).toEqual([]);
   });
 });

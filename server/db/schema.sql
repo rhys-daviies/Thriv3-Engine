@@ -239,3 +239,23 @@ CREATE TABLE IF NOT EXISTS sync_state (
   value TEXT,
   updated_at TEXT
 );
+
+-- ===========================================================================
+-- Opt-outs. APPEND-ONLY in spirit: a suppression is never deleted by the app,
+-- because "they asked once and we forgot" is the failure this table exists to
+-- prevent. CAN-SPAM gives ten business days to honour a request and no
+-- expiry at all afterwards.
+--
+-- Keyed on the address alone, not on (athlete, coach): a coach who opts out
+-- is opting out of Thriv3, not out of one athlete. The roadmap wording is
+-- "honoured across every athlete's campaigns", and keying it any other way
+-- would quietly mean the opposite.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS suppressions (
+  email TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL,
+  reason TEXT,                -- unsubscribed | bounced | complained | manual
+  source TEXT,                -- where it came from: edge | manual | sync
+  outreach_token TEXT,        -- the link they clicked, when there was one
+  note TEXT
+);

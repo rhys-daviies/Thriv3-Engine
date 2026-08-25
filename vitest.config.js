@@ -13,6 +13,12 @@ export default defineConfig({
       RECRUITMATCH_DB: ':memory:',
       // Generated pages go to a scratch directory, never the publish directory.
       THRIV3_BUILD_DIR: path.resolve(process.cwd(), 'node_modules/.tmp/thriv3-test-build'),
+      // Sending refuses to run without these, which is the point of them. Set
+      // here so every suite exercises the normal path; the suite that checks
+      // the refusal clears them for itself.
+      THRIV3_SENDER_IDENTITY: 'Thriv3 (test)',
+      THRIV3_POSTAL_ADDRESS: '1 Test Street, Testville, TS 00000',
+      THRIV3_UNSUBSCRIBE_BASE_URL: 'https://example.test',
     },
   },
 });
