@@ -195,14 +195,20 @@ export function academicFit({ academicRating, schoolSatAvg, schoolAdmitRate, ath
   const quality = clamp01(rating / 10);
   const adm = admissibility({ schoolSatAvg, schoolAdmitRate, athleteSat, athleteAct, athleteGpa, academicRating: rating });
 
-  // With no GPA and no test score there is no academic *fit* to measure, only
-  // a school attribute. Returning quality here would rank an athlete toward
-  // stronger academics on no evidence that they can get in or that they care,
-  // and every other criterion in this model returns the prior when it has no
-  // input rather than substituting the nearest available number. Measured
-  // against 600 real placements per sport, asserting quality here cost 3.2
-  // points of median percentile and 9 of recall@25 — it was actively wrong,
-  // not merely unearned. Entering a GPA or a test score turns it back on.
+  // No GPA and no test score on the athlete means there is no academic *fit*
+  // to measure — only a school attribute. Returning quality there would rank
+  // an athlete toward stronger academics on no evidence they can get in or
+  // that they care, and it measured 3.2 points of median percentile worse
+  // across 600 real placements. Every other criterion returns the prior when
+  // it has no input rather than substituting the nearest available number.
+  //
+  // The school lacking a SAT average is a different case entirely, and
+  // treating it the same was a bug: `academic_rating` is complete for every
+  // programme in scope, so quality is known even when admissibility is not.
+  // Falling back to the prior let a school rated 1.4/10 score 0.5 — better
+  // than it deserves and better than a weak school with full data — so
+  // missing data protected bad schools. Same inversion as an unscraped roster
+  // outranking a scraped one.
   if (adm.basis === 'none') {
     return assumed({ reason: 'athlete has no GPA or test score', academicRating: rating, quality: round2(quality) });
   }
@@ -242,8 +248,21 @@ function admissibility({ schoolSatAvg, schoolAdmitRate, athleteSat, athleteAct, 
     return { value: clamp01(value), confidence: 'partial', label: gpa >= expected ? 'likely' : 'stretch', basis: 'gpa' };
   }
 
-  // No academic profile on the athlete at all — do not penalise them for it.
   const admit = num(schoolAdmitRate);
+
+  // The athlete told us something; the school has nothing to compare it
+  // against. Admissibility is unknown, so it neither helps nor hurts — but
+  // the school's academic rating is still known and still counts.
+  if (sat !== null || num(athleteGpa) !== null) {
+    return {
+      value: 1,
+      confidence: 'partial',
+      label: admit !== null && admit < 0.2 ? 'highly selective' : null,
+      basis: 'school-unknown',
+    };
+  }
+
+  // Nothing on either side. No fit to measure.
   return { value: 1, confidence: 'assumed', label: admit !== null && admit < 0.2 ? 'highly selective' : null, basis: 'none' };
 }
 

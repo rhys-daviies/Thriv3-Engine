@@ -374,3 +374,36 @@ describe('geography for an international athlete', () => {
     expect(r.label).toBe('in state');
   });
 });
+
+describe('academicFit when only the school side is missing', () => {
+  // The inversion this closes: a school rated 1.4/10 with no SAT average of
+  // its own fell back to the prior and scored 0.5 — better than it deserves,
+  // and better than a weak school with complete data. Missing data was
+  // protecting bad schools, exactly as an unscraped roster once outranked a
+  // scraped one.
+  it('still uses the school rating when the school has no SAT average', () => {
+    const weak = academicFit({ academicRating: 1.4, athleteSat: 1440 });
+    const strong = academicFit({ academicRating: 9.5, athleteSat: 1440 });
+    expect(weak.score).toBeLessThan(0.25);
+    expect(strong.score).toBeGreaterThan(weak.score);
+    expect(weak.confidence).toBe('partial');
+    expect(weak.detail.basis).toBe('school-unknown');
+  });
+
+  it('does not let a missing school average score above a measured weak one', () => {
+    const noSchoolData = academicFit({ academicRating: 1.4, athleteSat: 1440 });
+    const measured = academicFit({ academicRating: 1.4, schoolSatAvg: 900, athleteSat: 1440 });
+    expect(noSchoolData.score).toBeLessThanOrEqual(measured.score + 0.2);
+    expect(noSchoolData.score).toBeLessThan(NEUTRAL_PRIOR);
+  });
+
+  it('leaves admissibility neutral rather than guessing it', () => {
+    expect(academicFit({ academicRating: 7, athleteSat: 1440 }).detail.admissibility).toBe(1);
+  });
+
+  // Still distinct from knowing nothing at all, which stays at the prior.
+  it('is not the same as an athlete with no profile', () => {
+    expect(academicFit({ academicRating: 1.4 }).score).toBe(NEUTRAL_PRIOR);
+    expect(academicFit({ academicRating: 1.4, athleteSat: 1440 }).score).toBeLessThan(NEUTRAL_PRIOR);
+  });
+});
