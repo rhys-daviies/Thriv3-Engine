@@ -24,6 +24,8 @@
  * should be the first suspects when results look wrong.
  */
 
+import { budgetCeiling, NO_NEED_BUDGET } from './constants.js';
+
 /**
  * How badly the athlete needs money, 0..1.
  *
@@ -31,14 +33,14 @@
  * asks what a family can pay and that is the same question from the other end.
  */
 export function scholarshipNeed(budgetRange) {
-  switch (budgetRange) {
-    case 'Need Full Scholarship': return 1;
-    case 'Under $15k/yr': return 0.8;
-    case '$15k-$30k/yr': return 0.5;
-    case '$30k-$50k/yr': return 0.2;
-    case '$50k+/yr': return 0;
-    default: return null; // not stated — no coupling fires
-  }
+  const ceiling = budgetCeiling(budgetRange);
+  if (ceiling === undefined) return null;        // not stated — no coupling fires
+  if (!Number.isFinite(ceiling)) return 0;       // the open-ended top band
+  // Derived from the ceiling rather than a table keyed on the labels, so
+  // adding or resplitting a band never means editing two places and never
+  // silently leaves a new band with no need at all.
+  const need = 1 - ceiling / NO_NEED_BUDGET;
+  return need < 0 ? 0 : need > 1 ? 1 : need;
 }
 
 /**

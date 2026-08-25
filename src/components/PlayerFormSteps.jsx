@@ -14,13 +14,16 @@ import AbilitySlider from '@/components/AbilitySlider';
 import PriorityTokens from '@/components/PriorityTokens';
 import ConferencePicker from '@/components/ConferencePicker';
 import { US_STATES, COUNTRIES, ORIGINS } from '@/lib/locations';
+// The bands and their ceilings live together, so the picker cannot offer a
+// band the model has no ceiling for.
+import { BUDGET_BANDS } from '@shared/matching/constants.js';
 import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE } from '@/lib/emailTemplate';
 import { cn } from '@/lib/utils';
 import { entities } from '@/api/client';
 
 const POSITIONS = ['Goalkeeper', 'Defense', 'Midfield', 'Forward'];
 const DIVISIONS = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA'];
-const BUDGETS = ['Under $15k/yr', '$15k-$30k/yr', '$30k-$50k/yr', '$50k+/yr', 'Need Full Scholarship'];
+
 
 function defaultsFrom(initialData) {
   return {
@@ -390,8 +393,8 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             <Label>Budget Range</Label>
             <Select value={data.budget_range} onValueChange={set('budget_range')}>
               <SelectTrigger><SelectValue placeholder="Select budget" /></SelectTrigger>
-              <SelectContent>
-                {BUDGETS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+              <SelectContent className="max-h-72">
+                {BUDGET_BANDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>

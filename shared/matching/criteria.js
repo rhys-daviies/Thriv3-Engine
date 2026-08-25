@@ -36,7 +36,7 @@ import {
   SAME_COUNTRY_WEIGHT,
   INTERNATIONAL_FLOOR,
   NO_ATHLETIC_AID_CONFERENCES,
-  BUDGET_CEILINGS,
+  budgetCeiling,
   NEUTRAL_PRIOR,
 } from './constants.js';
 
@@ -304,7 +304,10 @@ export function affordability({
   budgetRange, netPrice, control, tuitionIn, tuitionOut, athleteState, schoolState,
   division, sport, conference, athleteLevel, programLevel,
 }) {
-  const ceiling = BUDGET_CEILINGS[budgetRange];
+  // Via budgetCeiling, not the map directly: an athlete recorded under the
+  // pre-2026-08-25 bands would otherwise read as having stated no budget, and
+  // affordability would silently drop to its neutral prior rather than erroring.
+  const ceiling = budgetCeiling(budgetRange);
   if (ceiling === undefined) return assumed({ reason: 'no budget stated' });
 
   const award = expectedAward({ division, sport, conference, athleteLevel, programLevel });

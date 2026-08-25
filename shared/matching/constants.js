@@ -107,18 +107,66 @@ export const AFFORDABILITY_FLOOR = 0.2;
 export const NO_ATHLETIC_AID_CONFERENCES = new Set(['Ivy League', 'Ivy']);
 
 /**
- * Budget bands from the intake form, as an annual ceiling the family will pay
- * after all aid. `Need Full Scholarship` is a ceiling of zero and is handled
- * separately, because in an equivalency sport it is close to unachievable and
- * the model should say so rather than silently rank D3 schools against it.
+ * Budget bands, as an annual ceiling the family will pay after all aid.
+ *
+ * The order here is the order the picker shows, so the list and the ceilings
+ * cannot drift apart — they used to live in two files, one of them a form
+ * component.
+ *
+ * `Need Full Scholarship` is a ceiling of zero and is handled separately,
+ * because in an equivalency sport it is close to unachievable and the model
+ * should say so rather than silently rank D3 schools against it.
  */
 export const BUDGET_CEILINGS = {
+  'Need Full Scholarship': 0,
+  '$0-$5k/yr': 5000,
+  '$5k-$10k/yr': 10000,
+  '$10k-$15k/yr': 15000,
+  '$15k-$20k/yr': 20000,
+  '$20k-$25k/yr': 25000,
+  '$25k-$30k/yr': 30000,
+  '$30k-$35k/yr': 35000,
+  '$35k-$40k/yr': 40000,
+  '$40k+/yr': Infinity,
+};
+
+/** What the picker offers, in order. */
+export const BUDGET_BANDS = Object.keys(BUDGET_CEILINGS);
+
+/**
+ * Bands used before 2026-08-25, mapped to their old ceilings.
+ *
+ * Kept so an athlete recorded under the coarse bands still reads as having
+ * stated a budget. Without these an unrecognised label falls through to "no
+ * budget stated" and affordability drops to its neutral prior — the setting
+ * would not error, it would just stop counting.
+ */
+export const LEGACY_BUDGET_CEILINGS = {
   'Under $15k/yr': 15000,
   '$15k-$30k/yr': 30000,
   '$30k-$50k/yr': 50000,
   '$50k+/yr': Infinity,
-  'Need Full Scholarship': 0,
 };
+
+/** The ceiling for a band, current or legacy, or undefined if not a band at all. */
+export function budgetCeiling(band) {
+  if (band in BUDGET_CEILINGS) return BUDGET_CEILINGS[band];
+  return LEGACY_BUDGET_CEILINGS[band];
+}
+
+/**
+ * Budget above which a family is treated as having no scholarship need.
+ *
+ * Anchored on what these programmes actually cost rather than picked out of
+ * the air: mean net price across the divisions an athlete typically considers
+ * is around $22k, so a family able to fund $40k is comfortably clear of it.
+ * Need falls linearly from 1 at zero to 0 here.
+ *
+ * Set just above the top banded ceiling rather than exactly on it, so the
+ * $35k-$40k band and the open-ended $40k+ band do not both come out at zero —
+ * a family with a cap still has marginally more need than one without.
+ */
+export const NO_NEED_BUDGET = 45000;
 
 /**
  * Where the international-community curve saturates.

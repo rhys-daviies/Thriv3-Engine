@@ -407,3 +407,23 @@ describe('academicFit when only the school side is missing', () => {
     expect(academicFit({ academicRating: 1.4, athleteSat: 1440 }).score).toBeLessThan(NEUTRAL_PRIOR);
   });
 });
+
+describe('affordability across the finer budget bands', () => {
+  const base = { netPrice: 18000, division: 'NCAA D3', sport: 'mens-soccer' };
+
+  it('is harder to satisfy as the band tightens', () => {
+    const scores = ['$0-$5k/yr', '$10k-$15k/yr', '$20k-$25k/yr', '$40k+/yr']
+      .map((budgetRange) => affordability({ ...base, budgetRange }).score);
+    for (let i = 1; i < scores.length; i++) expect(scores[i]).toBeGreaterThanOrEqual(scores[i - 1]);
+  });
+
+  it('still reads a band recorded before the split', () => {
+    const legacy = affordability({ ...base, budgetRange: '$15k-$30k/yr' });
+    expect(legacy.confidence).toBe('measured');
+    expect(legacy.detail.budgetCeiling).toBe(30000);
+  });
+
+  it('treats an unrecognised band as no budget stated, not as zero', () => {
+    expect(affordability({ ...base, budgetRange: 'a fiver' }).confidence).toBe('assumed');
+  });
+});

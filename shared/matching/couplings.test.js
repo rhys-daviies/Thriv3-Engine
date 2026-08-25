@@ -1,13 +1,32 @@
 import { describe, it, expect } from 'vitest';
 import { scholarshipNeed, resolveCouplings, weightsFromRanking, COUPLINGS, BASE_PEAK_OFFSET, MAX_NEED_PEAK_OFFSET } from './couplings.js';
 import { resolveWeights, DEFAULT_WEIGHTS, CRITERION_KEYS } from './weights.js';
+import { BUDGET_BANDS } from './constants.js';
 import { rankMatches, buildRosterIndex } from './pool.js';
 import { affordability, residency, athleticFit } from './criteria.js';
 
 describe('scholarshipNeed', () => {
   it('reads need off the budget band, high to low', () => {
     expect(scholarshipNeed('Need Full Scholarship')).toBe(1);
-    expect(scholarshipNeed('Under $15k/yr')).toBeGreaterThan(scholarshipNeed('$15k-$30k/yr'));
+    expect(scholarshipNeed('$0-$5k/yr')).toBeGreaterThan(scholarshipNeed('$20k-$25k/yr'));
+    expect(scholarshipNeed('$40k+/yr')).toBe(0);
+  });
+
+  // Derived from the ceiling, so a new or resplit band can never be added
+  // with no need attached to it.
+  it('falls monotonically across every band the picker offers', () => {
+    const needs = BUDGET_BANDS.map(scholarshipNeed);
+    for (let i = 1; i < needs.length; i++) expect(needs[i]).toBeLessThan(needs[i - 1]);
+    expect(needs[0]).toBe(1);
+    expect(needs[needs.length - 1]).toBe(0);
+  });
+
+  // An athlete recorded under the coarse pre-2026-08-25 bands still reads as
+  // having stated a budget, rather than silently reverting to no opinion.
+  it('still understands the bands used before the split', () => {
+    for (const legacy of ['Under $15k/yr', '$15k-$30k/yr', '$30k-$50k/yr', '$50k+/yr']) {
+      expect(scholarshipNeed(legacy), legacy).not.toBeNull();
+    }
     expect(scholarshipNeed('$50k+/yr')).toBe(0);
   });
 
@@ -30,7 +49,7 @@ describe('resolveCouplings', () => {
   });
 
   it('weights location and affordability up as need rises', () => {
-    const mild = resolveCouplings({ budgetRange: '$15k-$30k/yr' });
+    const mild = resolveCouplings({ budgetRange: '$20k-$25k/yr' });
     const acute = resolveCouplings({ budgetRange: 'Need Full Scholarship' });
     expect(acute.weights.geography).toBeGreaterThan(mild.weights.geography);
     expect(acute.weights.affordability).toBeGreaterThan(mild.weights.affordability);
