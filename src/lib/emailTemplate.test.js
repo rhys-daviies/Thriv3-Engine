@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildEmailContext, fillTemplate, unresolvedTokens, TEMPLATE_VARIABLES } from './emailTemplate.js';
+import { buildEmailContext, fillTemplate, unresolvedTokens, TEMPLATE_VARIABLES, DEFAULT_EMAIL_TEMPLATE } from './emailTemplate.js';
 
 const player = {
   full_name: 'Test Athlete', position: 'DEFENSE', secondary_position: 'None',
@@ -93,5 +93,50 @@ describe('the token picker', () => {
 describe('fillTemplate', () => {
   it('leaves an unknown token alone rather than blanking it', () => {
     expect(fillTemplate('a {{nope}} b', buildEmailContext(player, college, 'Coach'))).toBe('a {{nope}} b');
+  });
+});
+
+describe('position grammar in the email', () => {
+  const ctx = (position, graduating) => buildEmailContext(
+    { ...player, position },
+    { ...college, graduating_seniors_at_position: graduating, graduating_senior_names_at_position: [] },
+    'Coach',
+  );
+
+  // "a talented Defense who is exploring" went to coaches. Every position now
+  // reads as the person, in the same form, whatever the stored key says.
+  it.each([
+    ['Goalkeeper', 'Goalkeeper', 'goalkeepers'],
+    ['Defense', 'Defender', 'defenders'],
+    ['Midfield', 'Midfielder', 'midfielders'],
+    ['Forward', 'Forward', 'forwards'],
+  ])('%s renders as %s / %s', (stored, label, plural) => {
+    const c = ctx(stored, 4);
+    expect(c.player_position).toBe(label);
+    expect(c.player_position_plural).toBe(plural);
+  });
+
+  it('agrees the position word with the graduating count', () => {
+    expect(ctx('Defense', 1).graduating_seniors_position).toBe('defender');
+    expect(ctx('Defense', 4).graduating_seniors_position).toBe('defenders');
+    // Zero takes the plural, which is correct English.
+    expect(ctx('Defense', 0).graduating_seniors_position).toBe('defenders');
+  });
+
+  it('never renders the raw stored key in the default template', () => {
+    for (const stored of ['Goalkeeper', 'Defense', 'Midfield', 'Forward']) {
+      const out = fillTemplate(DEFAULT_EMAIL_TEMPLATE, ctx(stored, 2));
+      expect(out).not.toMatch(/\bDefense\b|\bMidfield\b/);
+      expect(out).not.toMatch(/\(s\)/);
+    }
+  });
+
+  it('gives the secondary position the same treatment', () => {
+    const c = buildEmailContext({ ...player, secondary_position: 'Midfield' }, college, 'Coach');
+    expect(c.player_secondary_position).toBe(' / Midfielder');
+  });
+
+  it('omits the secondary position entirely when there is none', () => {
+    expect(buildEmailContext({ ...player, secondary_position: 'None' }, college, 'Coach').player_secondary_position).toBe('');
   });
 });

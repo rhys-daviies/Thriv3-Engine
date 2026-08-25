@@ -21,7 +21,10 @@ import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE } fro
 import { cn } from '@/lib/utils';
 import { entities } from '@/api/client';
 
-const POSITIONS = ['Goalkeeper', 'Defense', 'Midfield', 'Forward'];
+// The person who plays there, so the word reads the same way in the form, on
+// the profile and in the email. Stored as written and canonicalised on read
+// (shared/positions.js), so rows saved as 'Defense' keep matching.
+const POSITIONS = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
 const DIVISIONS = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA'];
 
 

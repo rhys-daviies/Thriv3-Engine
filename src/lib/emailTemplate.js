@@ -3,6 +3,7 @@
 // cannot resolve a Vite alias. When this was an alias `npm run draft` died on
 // ERR_MODULE_NOT_FOUND while the app carried on working, so nothing noticed.
 import { classYearOf } from '../../shared/athlete.js';
+import { positionLabel, positionNoun, positionPlural } from '../../shared/positions.js';
 
 // Section 11: The Email Template System — ported exactly.
 
@@ -34,10 +35,12 @@ export const TEMPLATE_VARIABLES = [
   },
   { token: 'graduating_seniors_count', label: 'Graduating Seniors Count' },
   { token: 'graduating_seniors_names', label: 'Graduating Seniors Names' },
+  { token: 'graduating_seniors_position', label: 'Position word agreeing with that count (defender / defenders)' },
   { token: 'graduating_starters_count', label: 'Graduating Starters Count' },
   { token: 'graduating_starters_names', label: 'Graduating Starters Names' },
   { token: 'player_name', label: 'Player Name' },
   { token: 'player_position', label: 'Player Position' },
+  { token: 'player_position_plural', label: 'Position, plural (defenders)' },
   { token: 'player_secondary_position', label: 'Secondary Position' },
   { token: 'player_gpa', label: 'GPA' },
   { token: 'player_sat_score', label: 'SAT Score' },
@@ -53,13 +56,13 @@ export const DEFAULT_EMAIL_SUBJECT = 'Recruitment Inquiry – {{player_name}} ({
 export const DEFAULT_EMAIL_TEMPLATE = `Dear {{coach_name}},
 
 I hope this message finds you well. I am reaching out on behalf of
-{{player_name}}, a talented {{player_position}} who is exploring
+{{player_name}}, a talented {{player_position|lowercase}} who is exploring
 collegiate opportunities for the {{player_class_year}} season.
 
 I noticed that {{college_name}} has {{graduating_seniors_count}}
-graduating {{player_position|lowercase}}(s) this season
+graduating {{graduating_seniors_position}} this season
 {{graduating_seniors_names}} — which may create a roster opportunity
-for the {{college_nickname}} at the {{player_position}} position.
+for the {{college_nickname}} at {{player_position|lowercase}}.
 
 {{player_name}} brings strong qualities that could make them an
 excellent fit for your program:
@@ -91,7 +94,7 @@ function formatNameList(names) {
  */
 export function buildEmailContext(player, college, coachName) {
   const secondary = player.secondary_position && player.secondary_position !== 'None'
-    ? ` / ${player.secondary_position}`
+    ? ` / ${positionLabel(player.secondary_position)}`
     : '';
   const highlights = player.highlights_url
     ? `• Highlights: ${player.highlights_url}`
@@ -138,11 +141,23 @@ export function buildEmailContext(player, college, coachName) {
     conference_champion_name: college.conference_champion_name || '',
     is_conference_champion: college.conference_champion_2025 ? 'true' : '',
     graduating_seniors_count: String(college.graduating_seniors_at_position ?? 0),
+    // Agrees with the count beside it. "{{graduating_seniors_count}}
+    // {{player_position_plural}}" reads "1 defenders" at the 14 schools in a
+    // typical top 100 that are losing exactly one, and a coach reading his own
+    // roster back at him ungrammatically is the wrong first impression. Zero
+    // takes the plural, which is correct: "0 defenders".
+    graduating_seniors_position: (college.graduating_seniors_at_position ?? 0) === 1
+      ? positionNoun(player.position)
+      : positionPlural(player.position),
     graduating_seniors_names: formatNameList(college.graduating_senior_names_at_position),
     graduating_starters_count: String(college.graduating_starters_at_position ?? 0),
     graduating_starters_names: formatNameList(college.graduating_starter_names_at_position),
     player_name: player.full_name || '',
-    player_position: player.position || '',
+    // The person, not the stored key. These read as prose in every template
+    // that uses them — "a talented Defense who is exploring" was going out
+    // to coaches, and "graduating defense(s) this season" under it.
+    player_position: positionLabel(player.position),
+    player_position_plural: positionPlural(player.position),
     player_secondary_position: secondary,
     player_gpa: player.gpa != null && player.gpa !== '' ? String(player.gpa) : 'N/A',
     // Saved templates were already writing {{player_sat_score}} and

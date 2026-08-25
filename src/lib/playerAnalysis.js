@@ -1,6 +1,7 @@
 import { entities } from '@/api/client';
 import { CURRENT_ROSTER_SEASON } from '@/lib/divisions';
 import { buildRosterIndex, rankMatches, normaliseAthlete } from '@shared/matching/pool.js';
+import { positionNoun } from '@shared/positions.js';
 
 /**
  * The Pillar 1 matching run — three phases, client-side.
@@ -107,7 +108,7 @@ export async function analyze(player, { onPhase, onProgress }) {
     excluded.unratedKept
       ? `${excluded.unratedKept} unrated program(s) kept rather than dropped, since a minimum cannot judge them.`
       : null,
-    `${withOpportunity} of the top ${top100.length} have a graduating starter at ${player.position}.`,
+    `${withOpportunity} of the top ${top100.length} have a starting ${positionNoun(player.position)} graduating.`,
     unrated ? `${unrated} are shown without an academic rating rather than hidden.` : null,
   ].filter(Boolean).join(' ');
 

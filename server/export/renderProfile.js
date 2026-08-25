@@ -1,4 +1,5 @@
 import { describeAttributes } from '../../shared/sportProfiles.js';
+import { positionLabel } from '../../shared/positions.js';
 import { formatTimecode } from '../../shared/timecode.js';
 import { PROFILE_CSS } from './styles.js';
 import { TRACKER_JS } from './tracker.js';
@@ -266,7 +267,7 @@ export function renderProfile(athlete, { endpoint = '/api/track', dryRun = false
     priorVisits: 0,
   };
 
-  const title = `${athlete.full_name} — ${athlete.position} — Class of ${classYearOf(athlete)} — Thriv3`;
+  const title = `${athlete.full_name} — ${positionLabel(athlete.position)} — Class of ${classYearOf(athlete)} — Thriv3`;
 
   return `<!DOCTYPE html>
 <html lang="en">

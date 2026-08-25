@@ -11,6 +11,7 @@ import { scoreMatch } from './score.js';
 import { resolveWeights } from './weights.js';
 import { resolveCouplings } from './couplings.js';
 import { distanceFromState } from './geo.js';
+import { canonicalPosition } from '../positions.js';
 
 /**
  * Index roster rows by school so opportunity is a lookup rather than a scan.
@@ -284,7 +285,12 @@ export function normaliseAthlete(player) {
   return {
     sport: player.sport || 'mens-soccer',
     level: ability === null ? null : ability * 10,
-    position: String(player.position || '').toUpperCase(),
+    // Canonicalised, not upper-cased. The cohort index and
+    // EXPECTED_ANNUAL_NEED are keyed on GOALKEEPER/DEFENSE/MIDFIELD/FORWARD,
+    // so a profile saying "Defender" would have upper-cased to DEFENDER,
+    // matched no cohort, and silently scored every school as though we had no
+    // roster data — while looking entirely reasonable on screen.
+    position: canonicalPosition(player.position),
     classYear: toNum(player.recruiting_class_year),
     gpa: toNum(player.gpa),
     sat: toNum(player.sat_score),

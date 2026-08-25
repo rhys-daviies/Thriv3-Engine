@@ -1,25 +1,23 @@
-export const STARTER_MINUTES_THRESHOLD = 600;
+import { canonicalPosition } from '../../shared/positions.js';
 
-const GK_LABELS = new Set(['GK', 'G', 'GOALKEEPER', 'GOALIE']);
-const DEF_LABELS = new Set(['D', 'DEF', 'DEFENSE', 'DEFENDER', 'CB', 'RB', 'LB', 'FB', 'WB', 'RWB', 'LWB', 'SW']);
-const MID_LABELS = new Set(['M', 'MID', 'MIDFIELD', 'MIDFIELDER', 'CM', 'DM', 'AM', 'CDM', 'CAM', 'RM', 'LM']);
-const FWD_LABELS = new Set(['F', 'FWD', 'FORWARD', 'ST', 'STRIKER', 'W', 'WING', 'WINGER', 'RW', 'LW', 'CF']);
+/**
+ * What counts as a starter *in the Graduating Database view*.
+ *
+ * Deliberately not `STARTER_MINUTES` from shared/matching/pool.js, which is
+ * 900 and decides roster opportunity. Two different questions — "did this
+ * player feature" versus "is this a place in the XI opening up" — so two
+ * numbers, but they are easy to mistake for each other and have been.
+ */
+export const STARTER_MINUTES_THRESHOLD = 600;
 
 /**
  * Classifies a raw roster position label into GOALKEEPER/DEFENSE/MIDFIELD/FORWARD/UNKNOWN.
  * For dual labels ("M/F", "D/M"), uses the LEFT side per Section 9 step 3.
+ *
+ * The label sets moved to shared/positions.js so the roster import and the
+ * matcher cannot drift apart on what a position is called.
  */
-export function normalizePosition(rawLabel) {
-  if (!rawLabel) return 'UNKNOWN';
-  const first = String(rawLabel).split(/[/,]/)[0].trim().toUpperCase();
-
-  if (['GOALKEEPER', 'DEFENSE', 'MIDFIELD', 'FORWARD'].includes(first)) return first;
-  if (GK_LABELS.has(first)) return 'GOALKEEPER';
-  if (DEF_LABELS.has(first)) return 'DEFENSE';
-  if (MID_LABELS.has(first)) return 'MIDFIELD';
-  if (FWD_LABELS.has(first)) return 'FORWARD';
-  return 'UNKNOWN';
-}
+export const normalizePosition = canonicalPosition;
 
 /**
  * Groups a flat players[] array ({name, position, minutes_played}) into the
