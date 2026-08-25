@@ -76,6 +76,9 @@ export async function runOnce({ log = console } = {}) {
     if (result.tokens?.liveAtEdge != null && result.tokens.liveAtEdge !== result.tokens.pushed) {
       log.warn?.(`[sync] MISMATCH: pushed ${result.tokens.pushed}, edge reports ${result.tokens.liveAtEdge} live`);
     }
+    if (result.suppressions?.endpointMissing) {
+      log.warn?.('[sync] the edge has no /api/suppressions route — opt-outs are NOT being collected. Deploy the worker.');
+    }
     if (result.suppressions?.unresolved?.length) {
       log.warn?.(`[sync] ${result.suppressions.unresolved.length} opt-out(s) could not be matched to a coach`);
     }

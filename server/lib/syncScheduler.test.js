@@ -85,3 +85,18 @@ describe('startSyncScheduler', () => {
     expect(syncStatus().lastSuccessAt).toBeNull();
   });
 });
+
+describe('an edge deployed before opt-outs existed', () => {
+  it('warns loudly rather than failing the whole run', async () => {
+    const warn = vi.fn();
+    syncWithEdge.mockResolvedValue({
+      ...okResult,
+      suppressions: { pulled: 0, added: 0, already: 0, unresolved: [], endpointMissing: true },
+    });
+    await runOnce({ log: { ...quiet, warn } });
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/NOT being collected/));
+    // Tokens and events still synced, so the run counts as a success.
+    expect(syncStatus().lastSuccessAt).toBeTruthy();
+    expect(syncStatus().lastError).toBeNull();
+  });
+});

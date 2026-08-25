@@ -197,7 +197,21 @@ export async function pullEvents({ maxBatches = 20 } = {}) {
  * made.
  */
 export async function pullSuppressions() {
-  const res = await edgeFetch('/api/suppressions');
+  let res;
+  try {
+    res = await edgeFetch('/api/suppressions');
+  } catch (err) {
+    // A worker deployed before opt-outs existed has no such route. Treat that
+    // as "nothing to pull yet" rather than failing the run: tokens and events
+    // have already synced by this point, and throwing here would discard a
+    // successful push because of a version skew the operator is mid-way
+    // through resolving. Reported, never silent — a sync that quietly stops
+    // pulling opt-outs is the whole hazard this feature exists to remove.
+    if (/responded 404/.test(err.message)) {
+      return { pulled: 0, added: 0, already: 0, unresolved: [], endpointMissing: true };
+    }
+    throw err;
+  }
   const rows = res?.suppressions || [];
   let added = 0;
   let already = 0;

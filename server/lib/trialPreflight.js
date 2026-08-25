@@ -2,13 +2,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import db from '../db/client.js';
 import { suppressedSet } from './suppressions.js';
-import { syncStatus } from './syncScheduler.js';
+
 import { Player } from '../db/entities/player.js';
 import { checkRequiredCore } from '../export/renderProfile.js';
 import { OUTPUT_DIR } from '../export/exportProfiles.js';
 import { isOutlookAvailable } from './outlook.js';
 import {
-  EDGE_BASE_URL, SYNC_SECRET, PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS, complianceGaps, SENDER_POSTAL_ADDRESS } from './config.js';
+  EDGE_BASE_URL, SYNC_SECRET, PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS, complianceGaps, SENDER_POSTAL_ADDRESS, SYNC_INTERVAL_MINUTES } from './config.js';
 
 /**
  * Everything that has to be true before ROADMAP §1.1 — the first real tracked
@@ -93,10 +93,12 @@ function localChecks(athlete, published) {
   // Not blocking a first send — you can sync by hand — but a trial whose
   // results only arrive when somebody remembers to pull them is how the
   // August allowlist failure stayed invisible for four days.
-  const sync = syncStatus();
-  out.push(check(sync.running ? PASS : WARN, 'Engagement sync scheduled',
-    sync.running
-      ? `every ${sync.intervalMinutes} minute(s)`
+  // Reports the configuration, not this process's timer. The preflight runs
+  // as a CLI, and the scheduler only ever starts inside the server — asking
+  // syncStatus() here would answer "not running" however the server is set up.
+  out.push(check(SYNC_INTERVAL_MINUTES > 0 ? PASS : WARN, 'Engagement sync scheduled',
+    SYNC_INTERVAL_MINUTES > 0
+      ? `every ${SYNC_INTERVAL_MINUTES} minute(s) while the server is running`
       : 'not scheduled — set THRIV3_SYNC_INTERVAL_MINUTES, or run npm run sync yourself after the trial'));
 
   if (!athlete) {
