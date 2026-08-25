@@ -26,7 +26,8 @@
     "simulate": "node server/seed/simulateEngagement.js",
     "backtest": "node server/scripts/backtestMatching.js",
     "tune:weights": "node server/scripts/tuneMatchingWeights.js",
-    "suppress": "node server/scripts/suppress.js"
+    "suppress": "node server/scripts/suppress.js",
+    "draft": "node server/scripts/draftOutreach.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",

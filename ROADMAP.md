@@ -1085,6 +1085,22 @@ The largest remaining build. Everything here is gated on the ESP decision.
       **78% verified, 22% inferred**. Roughly one first-touch email in five
       goes to an address nobody has ever seen work, which is worth knowing
       before rather than after.
+- [ ] **191 of 1,986 school-sports have contacts on unrelated email domains** —
+      9.6%, and several are plainly a same-named institution mixed in.
+      "Saint Mary's" (women's) carries staff from four of them (smumn.edu,
+      stmarys-ca.edu, stmarytx.edu, smcm.edu); "Trinity (TX)" mixes Trinity
+      University in Texas with Trinity College in Connecticut; "Texas"
+      (women's) has Concordia Texas addresses in it. The same
+      ambiguous-short-name failure as [[duplicate-school-rows]] and the
+      `matchSchoolName` defects, arriving this time through the coaching
+      import.
+
+      Nothing can adjudicate it yet: `colleges.website_domain` is empty on all
+      2,374 rows, so there is no known-good domain to check against. Until
+      there is, `draftOutreach.js` flags any programme whose contacts span
+      unrelated domains and says to check before sending — it cannot say which
+      domain is right, only that they disagree, which is enough to stop a
+      coach at the wrong school being written to.
 - [ ] **NJCAA has no coaching contacts at all** — 0 of 229 men's programmes,
       against 211/214 at D1 and 199/203 at D2. Does not block a D1–D3 pilot,
       but the affordability work made junior college a prominent
@@ -1108,6 +1124,24 @@ The largest remaining build. Everything here is gated on the ESP decision.
 - [ ] Reply detection → auto-flip the `responded` tier, a manual toggle today.
 
 ### 2.3 Sequencing
+- [x] **Bulk drafting for a manual pilot** — `npm run draft -- --athlete "…"`.
+      The UI composes per school, so a top-20 list is twenty trips through the
+      same dialog and three athletes is sixty. This ranks, picks the staff
+      worth writing to, fills the athlete's own template and hands each message
+      to Outlook **as a draft** — `send: false` always, since the operator
+      presses send. Dry run by default, and the dry run is the useful half: it
+      names every contact, every skip and why, before anything opens.
+
+      Staff selection is a role classifier (`server/lib/coachRoles.js`) rather
+      than a title match, because titles are free text off a hundred staff
+      pages. Volunteers, graduate assistants and team inboxes are never
+      written to however much "assistant" is in the title; a combined title
+      like "Assistant Coach/Equipment Manager" is read as the coach they are
+      rather than the second job; and a goalkeeper coach is contacted only for
+      a goalkeeper, to whom they are the most relevant person on the staff.
+      What it deliberately does *not* do is exclude a title naming the other
+      sport — those turn out to be either mislabelled team addresses or people
+      who genuinely coach both.
 - [ ] Campaign model: campaign → step → recipient, with per-athlete state.
 - [ ] A/B/C variants, each differentiated, as promised on slide 4.
 - [ ] Three-week schedule with batches of 100 programs.
