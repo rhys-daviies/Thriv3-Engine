@@ -1,14 +1,12 @@
 import { canonicalPosition } from '../../shared/positions.js';
 
 /**
- * What counts as a starter *in the Graduating Database view*.
- *
- * Deliberately not `STARTER_MINUTES` from shared/matching/pool.js, which is
- * 900 and decides roster opportunity. Two different questions — "did this
- * player feature" versus "is this a place in the XI opening up" — so two
- * numbers, but they are easy to mistake for each other and have been.
+ * What counts as a starter. One number for the whole product now — the
+ * matcher used to hold 900 here while this view held 600, so the same player
+ * was a starter on one screen and not on another.
  */
-export const STARTER_MINUTES_THRESHOLD = 600;
+export { STARTER_MINUTES as STARTER_MINUTES_THRESHOLD } from '../../shared/matching/constants.js';
+import { STARTER_MINUTES as STARTER_MINUTES_THRESHOLD } from '../../shared/matching/constants.js';
 
 /**
  * Classifies a raw roster position label into GOALKEEPER/DEFENSE/MIDFIELD/FORWARD/UNKNOWN.

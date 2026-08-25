@@ -17,6 +17,7 @@ import { US_STATES, COUNTRIES, ORIGINS } from '@/lib/locations';
 // The bands and their ceilings live together, so the picker cannot offer a
 // band the model has no ceiling for.
 import { BUDGET_BANDS } from '@shared/matching/constants.js';
+import { positionLabel } from '@shared/positions.js';
 import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE } from '@/lib/emailTemplate';
 import { cn } from '@/lib/utils';
 import { entities } from '@/api/client';
@@ -28,6 +29,21 @@ const POSITIONS = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
 const DIVISIONS = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA'];
 
 
+/**
+ * Snaps a stored position onto the option the picker actually offers.
+ *
+ * The options are person-nouns now, so a row saved as 'Defense' or 'Midfield'
+ * matches no SelectItem and the trigger renders blank — not even the
+ * placeholder. The value is still in form state, so saving preserves it, but
+ * it reads as an unset required field and invites the operator to "fix" a
+ * profile that was never broken. 'None' is the secondary-position sentinel
+ * and is left alone.
+ */
+function positionOption(stored) {
+  if (!stored || stored === 'None') return stored || '';
+  return positionLabel(stored);
+}
+
 function defaultsFrom(initialData) {
   return {
     full_name: initialData?.full_name || '',
@@ -37,8 +53,8 @@ function defaultsFrom(initialData) {
     high_school: initialData?.high_school || '',
     city: initialData?.city || '',
     state: initialData?.state || '',
-    position: initialData?.position || '',
-    secondary_position: initialData?.secondary_position || 'None',
+    position: positionOption(initialData?.position || ''),
+    secondary_position: positionOption(initialData?.secondary_position || 'None'),
     preferred_divisions: initialData?.preferred_divisions || [],
     football_ability: initialData?.football_ability ?? 5,
     gpa: initialData?.gpa ?? '',

@@ -37,6 +37,7 @@ import {
   INTERNATIONAL_FLOOR,
   NO_ATHLETIC_AID_CONFERENCES,
   budgetCeiling,
+  UNDECLARED_BUDGET,
   NEUTRAL_PRIOR,
 } from './constants.js';
 
@@ -308,7 +309,16 @@ export function affordability({
   // pre-2026-08-25 bands would otherwise read as having stated no budget, and
   // affordability would silently drop to its neutral prior rather than erroring.
   const ceiling = budgetCeiling(budgetRange);
-  if (ceiling === undefined) return assumed({ reason: 'no budget stated' });
+  if (ceiling === undefined) {
+    // Said differently for the deliberate answer than for a blank field: one
+    // is a decision the family made and the card should not nag about it, the
+    // other is a gap somebody could go and fill.
+    return assumed({
+      reason: budgetRange === UNDECLARED_BUDGET
+        ? 'budget deliberately undeclared — scored neutrally for every school'
+        : 'no budget stated',
+    });
+  }
 
   const award = expectedAward({ division, sport, conference, athleteLevel, programLevel });
   const resident = residency({ netPrice, control, tuitionIn, tuitionOut, athleteState, schoolState });

@@ -30,7 +30,7 @@ describe('buildRosterIndex', () => {
     const c = idx.get('A').cohorts.get('2027|MIDFIELD');
     expect(c.starters).toBe(1);
     expect(c.squad).toBe(1);
-    expect(STARTER_MINUTES).toBe(900);
+    expect(STARTER_MINUTES).toBe(600);
   });
 
   it('keys cohorts by year and position together', () => {

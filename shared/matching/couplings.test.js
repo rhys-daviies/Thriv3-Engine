@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { scholarshipNeed, resolveCouplings, weightsFromRanking, COUPLINGS, BASE_PEAK_OFFSET, MAX_NEED_PEAK_OFFSET } from './couplings.js';
 import { resolveWeights, DEFAULT_WEIGHTS, CRITERION_KEYS } from './weights.js';
-import { BUDGET_BANDS } from './constants.js';
+import { BUDGET_BANDS, BUDGET_CEILINGS, UNDECLARED_BUDGET } from './constants.js';
 import { rankMatches, buildRosterIndex } from './pool.js';
 import { affordability, residency, athleticFit } from './criteria.js';
 
@@ -13,12 +13,29 @@ describe('scholarshipNeed', () => {
   });
 
   // Derived from the ceiling, so a new or resplit band can never be added
-  // with no need attached to it.
-  it('falls monotonically across every band the picker offers', () => {
-    const needs = BUDGET_BANDS.map(scholarshipNeed);
+  // with no need attached to it. Undeclared is excluded deliberately — it is
+  // not a point on this ladder, it is the absence of one.
+  it('falls monotonically across every band that carries a ceiling', () => {
+    const needs = Object.keys(BUDGET_CEILINGS).map(scholarshipNeed);
     for (let i = 1; i < needs.length; i++) expect(needs[i]).toBeLessThan(needs[i - 1]);
     expect(needs[0]).toBe(1);
     expect(needs[needs.length - 1]).toBe(0);
+  });
+
+  // The mechanism behind "does not influence the algorithm": with no need
+  // there is nothing for the three need-driven couplings to act on.
+  it('has no opinion at all when the budget is undeclared', () => {
+    expect(scholarshipNeed(UNDECLARED_BUDGET)).toBeNull();
+  });
+
+  it('offers undeclared in the picker, and nowhere else', () => {
+    expect(BUDGET_BANDS).toContain(UNDECLARED_BUDGET);
+    expect(Object.keys(BUDGET_CEILINGS)).not.toContain(UNDECLARED_BUDGET);
+    // Every other band the picker offers must still resolve to a ceiling, or
+    // it would silently behave as undeclared without saying so.
+    for (const band of BUDGET_BANDS.filter((b) => b !== UNDECLARED_BUDGET)) {
+      expect(scholarshipNeed(band), band).not.toBeNull();
+    }
   });
 
   // An athlete recorded under the coarse pre-2026-08-25 bands still reads as

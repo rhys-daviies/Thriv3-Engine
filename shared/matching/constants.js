@@ -117,6 +117,22 @@ export const NO_ATHLETIC_AID_CONFERENCES = new Set(['Ivy League', 'Ivy']);
  * because in an equivalency sport it is close to unachievable and the model
  * should say so rather than silently rank D3 schools against it.
  */
+/**
+ * Minutes above which a roster player counts as a starter rather than squad.
+ *
+ * One number, in one place. There were three declarations and two values —
+ * 900 in the matcher, 600 in the Graduating Database view and again in
+ * src/lib/divisions.js — so the same player was a starter on one screen and
+ * not on another, and the match card's label had drifted to the wrong one.
+ * Held at 600: a player with ten full games is a starter leaving a hole,
+ * whatever the stricter number said.
+ *
+ * It moves roster opportunity. 6,797 of the 64,381 rows with minutes in the
+ * 2025 season sit between 600 and 900, so 11% of the squad reclassifies, and
+ * departures are weighted starters x1 + squad x0.4.
+ */
+export const STARTER_MINUTES = 600;
+
 export const BUDGET_CEILINGS = {
   'Need Full Scholarship': 0,
   '$0-$5k/yr': 5000,
@@ -130,8 +146,28 @@ export const BUDGET_CEILINGS = {
   '$40k+/yr': Infinity,
 };
 
-/** What the picker offers, in order. */
-export const BUDGET_BANDS = Object.keys(BUDGET_CEILINGS);
+/**
+ * "I would rather not say", as a deliberate answer rather than a blank field.
+ *
+ * Kept out of BUDGET_CEILINGS on purpose, which is the whole mechanism:
+ * `budgetCeiling` returns undefined, `affordability` returns its neutral
+ * prior with 'assumed' confidence, and `scholarshipNeed` returns null so the
+ * three couplings that key off need — in-state preference, the affordability
+ * weight lift, and the shifted athletic peak — never fire.
+ *
+ * A neutral prior is scored, not skipped, and that is what makes it harmless:
+ * every school gets the same 0.5, so affordability contributes an identical
+ * amount to all of them and cannot reorder anything. Dropping the criterion
+ * instead would redistribute its weight onto the others and quietly change
+ * the ranking, which is the opposite of not influencing it.
+ */
+export const UNDECLARED_BUDGET = 'Undeclared';
+
+/**
+ * What the picker offers, in order. Undeclared leads, because it is the
+ * honest answer before anyone has asked the family the question.
+ */
+export const BUDGET_BANDS = [UNDECLARED_BUDGET, ...Object.keys(BUDGET_CEILINGS)];
 
 /**
  * Bands used before 2026-08-25, mapped to their old ceilings.
@@ -148,7 +184,12 @@ export const LEGACY_BUDGET_CEILINGS = {
   '$50k+/yr': Infinity,
 };
 
-/** The ceiling for a band, current or legacy, or undefined if not a band at all. */
+/**
+ * The ceiling for a band, current or legacy, or undefined if not a band at
+ * all — which includes the deliberate Undeclared answer. Callers must treat
+ * undefined as "no number to work with", never as zero: zero is the full-
+ * scholarship request and means the opposite.
+ */
 export function budgetCeiling(band) {
   if (band in BUDGET_CEILINGS) return BUDGET_CEILINGS[band];
   return LEGACY_BUDGET_CEILINGS[band];

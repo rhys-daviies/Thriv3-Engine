@@ -1,4 +1,6 @@
-export const STARTER_MINUTES_THRESHOLD = 600;
+// Re-exported from the matcher's constants so this view and the match card
+// can never again disagree about what a starter is.
+export { STARTER_MINUTES as STARTER_MINUTES_THRESHOLD } from '@shared/matching/constants.js';
 
 /**
  * roster_players now holds more than one season (2024 was imported

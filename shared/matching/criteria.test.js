@@ -9,7 +9,7 @@ import {
   geography,
   GRAD_YEAR_NULL_TOLERANCE,
 } from './criteria.js';
-import { NEUTRAL_PRIOR, AFFORDABILITY_FLOOR } from './constants.js';
+import { NEUTRAL_PRIOR, AFFORDABILITY_FLOOR, UNDECLARED_BUDGET } from './constants.js';
 
 const inRange = (r) => r.score >= 0 && r.score <= 1 && Number.isFinite(r.score);
 
@@ -425,5 +425,48 @@ describe('affordability across the finer budget bands', () => {
 
   it('treats an unrecognised band as no budget stated, not as zero', () => {
     expect(affordability({ ...base, budgetRange: 'a fiver' }).confidence).toBe('assumed');
+  });
+});
+
+describe('affordability with an undeclared budget', () => {
+  const school = {
+    netPrice: 24000, control: 'Private', tuitionIn: 50000, tuitionOut: 50000,
+    athleteState: 'OH', schoolState: 'OH', division: 'NCAA D2', sport: 'mens-soccer',
+    conference: 'GLIAC', athleteLevel: 55, programLevel: 55,
+  };
+
+  it('scores the neutral prior, and says why', () => {
+    const r = affordability({ ...school, budgetRange: UNDECLARED_BUDGET });
+    expect(r.score).toBe(0.5);
+    expect(r.confidence).toBe('assumed');
+    expect(r.detail.reason).toMatch(/undeclared/i);
+  });
+
+  // The point of the band: identical on every school, so it contributes the
+  // same amount everywhere and cannot change the ordering. Scored rather than
+  // skipped — skipping would redistribute its weight and move the ranking,
+  // which is the opposite of not influencing it.
+  it('scores identically however expensive the school is', () => {
+    const cheap = affordability({ ...school, netPrice: 4000, budgetRange: UNDECLARED_BUDGET });
+    const dear = affordability({ ...school, netPrice: 70000, budgetRange: UNDECLARED_BUDGET });
+    expect(cheap.score).toBe(dear.score);
+    expect(cheap.score).toBe(0.5);
+  });
+
+  it('behaves exactly as a blank field does, but reads differently', () => {
+    const undeclared = affordability({ ...school, budgetRange: UNDECLARED_BUDGET });
+    const blank = affordability({ ...school, budgetRange: null });
+    expect(undeclared.score).toBe(blank.score);
+    expect(undeclared.confidence).toBe(blank.confidence);
+    expect(undeclared.detail.reason).not.toBe(blank.detail.reason);
+  });
+
+  // Undeclared must not be mistaken for the full-scholarship request, whose
+  // ceiling is 0 — the two are opposites and both are falsy.
+  it('is not read as a request for a full scholarship', () => {
+    const undeclared = affordability({ ...school, budgetRange: UNDECLARED_BUDGET });
+    const full = affordability({ ...school, budgetRange: 'Need Full Scholarship' });
+    expect(undeclared.score).not.toBe(full.score);
+    expect(full.confidence).not.toBe('assumed');
   });
 });

@@ -12,6 +12,7 @@ import { resolveWeights } from './weights.js';
 import { resolveCouplings } from './couplings.js';
 import { distanceFromState } from './geo.js';
 import { canonicalPosition } from '../positions.js';
+import { STARTER_MINUTES } from './constants.js';
 
 /**
  * Index roster rows by school so opportunity is a lookup rather than a scan.
@@ -51,8 +52,12 @@ export function buildRosterIndex(rosterRows) {
   return index;
 }
 
-/** Minutes above which a roster player counts as a starter, not a squad player. */
-export const STARTER_MINUTES = 900;
+/**
+ * Re-exported so existing importers keep working; the number itself lives in
+ * constants.js with the other sport facts, because three modules used to
+ * declare it and two of them disagreed.
+ */
+export { STARTER_MINUTES };
 
 /**
  * Percentile of each programme's soccer_score *within the pool the athlete is
