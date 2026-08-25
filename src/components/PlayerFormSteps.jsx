@@ -308,10 +308,36 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             </div>
           </div>
 
-          <div className="space-y-1.5 max-w-[160px]">
-            <Label>GPA</Label>
-            <Input type="number" step="0.01" min="0" max="4" value={data.gpa} onChange={(e) => set('gpa')(e.target.value)} />
+          {/* All three already reach the public profile and the match card —
+              only GPA had a way in, so SAT and ACT rendered as empty rows on
+              every athlete's page and admissibility fell back to GPA alone. */}
+          <div className="grid grid-cols-3 gap-4 max-w-md">
+            <div className="space-y-1.5">
+              <Label>GPA</Label>
+              <Input
+                type="number" step="0.01" min="0" max="4" placeholder="3.60"
+                value={data.gpa} onChange={(e) => set('gpa')(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>SAT</Label>
+              <Input
+                type="number" step="10" min="400" max="1600" placeholder="1250"
+                value={data.sat_score} onChange={(e) => set('sat_score')(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>ACT</Label>
+              <Input
+                type="number" step="1" min="1" max="36" placeholder="27"
+                value={data.act_score} onChange={(e) => set('act_score')(e.target.value)}
+              />
+            </div>
           </div>
+          <p className="text-xs text-muted-foreground -mt-3">
+            Either test is enough — an ACT score is converted to its SAT equivalent when
+            matching works out which programmes an athlete would be admitted to.
+          </p>
 
           <div className="space-y-2">
             <Label>Footballing Ability</Label>

@@ -151,3 +151,36 @@ describe('missing values omit their block entirely', () => {
     expect(html).toContain('<div class="stat key"><dt>Goals</dt>');
   });
 });
+
+describe('academic record', () => {
+  const base = {
+    full_name: 'Test Athlete', position: 'Midfield', graduation_year: 2027,
+    email: 'a@b.com', video_id: 'aqz-KE-bpKQ', video_chapters: '[]',
+    public_slug: 'testslug', sport: 'mens-soccer',
+  };
+  const has = (html, label) => html.includes(`<dt>${label}</dt>`);
+
+  // These three rendered here long before the form had any way to fill them,
+  // so every athlete's page carried an academic record that could only ever
+  // show GPA.
+  it('shows GPA, SAT and ACT when they are set', () => {
+    const html = renderProfile({ ...base, gpa: 3.6, sat_score: 1250, act_score: 27 }, { dryRun: true });
+    expect(has(html, 'GPA')).toBe(true);
+    expect(has(html, 'SAT')).toBe(true);
+    expect(has(html, 'ACT')).toBe(true);
+    expect(html).toContain('1250');
+  });
+
+  it('omits each row entirely when unset, rather than printing an empty one', () => {
+    const html = renderProfile(base, { dryRun: true });
+    expect(has(html, 'GPA')).toBe(false);
+    expect(has(html, 'SAT')).toBe(false);
+    expect(has(html, 'ACT')).toBe(false);
+  });
+
+  it('shows one test score without requiring the other', () => {
+    const html = renderProfile({ ...base, sat_score: 1250 }, { dryRun: true });
+    expect(has(html, 'SAT')).toBe(true);
+    expect(has(html, 'ACT')).toBe(false);
+  });
+});
