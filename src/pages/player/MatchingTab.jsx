@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Sparkles, Search, CheckCircle2, SlidersHorizontal } from 'lucide-react';
+import { Sparkles, Search, CheckCircle2, SlidersHorizontal, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import CollegeCard from '@/components/CollegeCard';
 import CriteriaRanking from '@/components/CriteriaRanking';
 import EmailComposer from '@/components/EmailComposer';
+import BulkEmailComposer from '@/components/BulkEmailComposer';
+import { pickHeadCoach } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 
@@ -28,6 +30,7 @@ function PhaseStep({ icon: Icon, title, description, active, done }) {
 export default function MatchingTab() {
   const { player, setPlayer, recommendations, summary, analyzing, phase, progress, page, setPage, onAnalyze } = usePlayerWorkspace();
   const [emailTarget, setEmailTarget] = useState(null);
+  const [showBulk, setShowBulk] = useState(false);
   const [showPriorities, setShowPriorities] = useState(false);
 
   /**
@@ -49,9 +52,21 @@ export default function MatchingTab() {
   const pageItems = recommendations ? recommendations.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : [];
   const pageButtons = Array.from({ length: Math.min(totalPages, MAX_PAGE_BUTTONS) }, (_, i) => i + 1);
 
+  // Counted here as well as inside the dialog so the button says how many
+  // programmes on this page actually have a head coach to write to, rather
+  // than promising twenty and opening a list of twelve.
+  const headCoachCount = pageItems.filter((c) => pickHeadCoach(c.coaching_staff)).length;
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between gap-2">
+        {recommendations && !analyzing ? (
+          <Button size="sm" onClick={() => setShowBulk(true)} disabled={headCoachCount === 0}>
+            <Mail className="h-3.5 w-3.5 mr-1.5" />
+            Message all head coaches
+            <span className="ml-1.5 opacity-70">({headCoachCount})</span>
+          </Button>
+        ) : <span />}
         <Button size="sm" variant={showPriorities ? 'default' : 'outline'} onClick={() => setShowPriorities((v) => !v)}>
           <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
           {showPriorities ? 'Hide priorities' : 'Match priorities'}
@@ -104,6 +119,15 @@ export default function MatchingTab() {
             </div>
           )}
         </>
+      )}
+
+      {showBulk && (
+        <BulkEmailComposer
+          player={player}
+          colleges={pageItems}
+          open={showBulk}
+          onOpenChange={setShowBulk}
+        />
       )}
 
       {emailTarget && (

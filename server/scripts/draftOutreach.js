@@ -21,7 +21,7 @@ import db from '../db/client.js';
 import { Player } from '../db/entities/player.js';
 import { sendOutreach } from '../routes/sendOutreach.js';
 import { buildRosterIndex, rankMatches, normaliseAthlete } from '../../shared/matching/pool.js';
-import { shouldContact, bySeniority, classifyRole } from '../lib/coachRoles.js';
+import { shouldContact, bySeniority, classifyRole } from '../../shared/coachRoles.js';
 import { isSuppressed } from '../lib/suppressions.js';
 import { recentSendCount } from '../lib/sendCap.js';
 import { complianceGaps, PER_COACH_MAX_SENDS } from '../lib/config.js';

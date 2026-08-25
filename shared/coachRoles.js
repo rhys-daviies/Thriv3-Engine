@@ -96,3 +96,43 @@ export function bySeniority(a, b) {
   };
   return rank(a) - rank(b) || (a.full_name || '').localeCompare(b.full_name || '');
 }
+
+/**
+ * The title field, wherever it lives.
+ *
+ * Staff reach this module from two places with two different column names:
+ * `coaches.position_title` in the database, and `title` on the
+ * `coaching_staff` JSON the matching tab renders. Reading both here is what
+ * lets one classifier serve the scripts and the UI instead of the UI growing
+ * its own — which it had, and which missed 35% of head coaches because
+ * /head coach/i does not match "Head Men's Soccer Coach".
+ */
+export function titleOf(coach) {
+  return coach?.position_title ?? coach?.title ?? '';
+}
+
+/** An address we could actually write to. Imports leave 'N/A' for unknown. */
+export function hasUsableEmail(coach) {
+  const email = (coach?.email || '').trim();
+  return Boolean(email) && email.toUpperCase() !== 'N/A';
+}
+
+/**
+ * The one person on a staff a recruit writes to first.
+ *
+ * Falls back to the associate head coach when no head is on file — 15 of the
+ * 1,986 school-sports are in exactly that state, and writing to the associate
+ * is plainly better than skipping the programme. The role that was actually
+ * matched comes back with the coach so the caller can show it rather than
+ * quietly passing an associate off as the head.
+ *
+ * Returns null when the staff has neither (47 school-sports).
+ */
+export function pickHeadCoach(staff = []) {
+  const usable = staff.filter(hasUsableEmail);
+  for (const role of ['head', 'associate-head']) {
+    const found = usable.find((c) => classifyRole(titleOf(c)) === role);
+    if (found) return { ...found, role };
+  }
+  return null;
+}

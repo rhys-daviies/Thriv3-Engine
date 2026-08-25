@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { classifyRole, shouldContact, bySeniority } from './coachRoles.js';
+import { classifyRole, shouldContact, bySeniority, pickHeadCoach, titleOf, hasUsableEmail } from './coachRoles.js';
 
 describe('classifyRole', () => {
   it('reads the plain titles', () => {
@@ -85,5 +85,80 @@ describe('bySeniority', () => {
       { position_title: 'Associate Head Coach', full_name: 'B' },
     ];
     expect([...staff].sort(bySeniority).map((s) => s.full_name)).toEqual(['A', 'B', 'C', 'D']);
+  });
+});
+
+describe('titleOf', () => {
+  // The database column and the coaching_staff JSON key differ. A picker that
+  // read only one of them would return nothing at all on the other source.
+  it('reads either column name', () => {
+    expect(titleOf({ position_title: 'Head Coach' })).toBe('Head Coach');
+    expect(titleOf({ title: 'Head Coach' })).toBe('Head Coach');
+    expect(titleOf({})).toBe('');
+    expect(titleOf(null)).toBe('');
+  });
+});
+
+describe('hasUsableEmail', () => {
+  it('rejects the placeholders the imports leave behind', () => {
+    expect(hasUsableEmail({ email: 'a@x.edu' })).toBe(true);
+    expect(hasUsableEmail({ email: 'N/A' })).toBe(false);
+    expect(hasUsableEmail({ email: '  ' })).toBe(false);
+    expect(hasUsableEmail({})).toBe(false);
+  });
+});
+
+describe('pickHeadCoach', () => {
+  it('picks the head coach over more senior-sounding noise', () => {
+    const staff = [
+      { name: 'A', title: 'Assistant Coach', email: 'a@x.edu' },
+      { name: 'B', title: 'Head Coach', email: 'b@x.edu' },
+    ];
+    expect(pickHeadCoach(staff)).toMatchObject({ name: 'B', role: 'head' });
+  });
+
+  // The regression this whole picker exists for: the tab used to test
+  // /head coach/i, which matches "Head Coach" and misses the 35% of real
+  // titles that name the sport in between the two words.
+  it('finds a head coach whose title names the sport', () => {
+    for (const title of ["Head Men's Soccer Coach", "Head Women's Soccer Coach", 'Director of Soccer']) {
+      expect(pickHeadCoach([{ name: 'A', title, email: 'a@x.edu' }])).toMatchObject({ role: 'head' });
+    }
+  });
+
+  it('falls back to the associate head, and says so', () => {
+    const staff = [
+      { name: 'A', title: 'Assistant Coach', email: 'a@x.edu' },
+      { name: 'B', title: 'Associate Head Coach', email: 'b@x.edu' },
+    ];
+    expect(pickHeadCoach(staff)).toMatchObject({ name: 'B', role: 'associate-head' });
+  });
+
+  it('prefers a real head coach to an associate', () => {
+    const staff = [
+      { name: 'B', title: 'Associate Head Coach', email: 'b@x.edu' },
+      { name: 'A', title: 'Head Coach', email: 'a@x.edu' },
+    ];
+    expect(pickHeadCoach(staff)).toMatchObject({ name: 'A', role: 'head' });
+  });
+
+  it('will not return a coach with no address to write to', () => {
+    expect(pickHeadCoach([{ name: 'A', title: 'Head Coach', email: 'N/A' }])).toBeNull();
+    expect(pickHeadCoach([{ name: 'A', title: 'Head Coach' }])).toBeNull();
+  });
+
+  it('returns null for a staff of assistants, rather than an assistant', () => {
+    expect(pickHeadCoach([{ name: 'A', title: 'Assistant Coach', email: 'a@x.edu' }])).toBeNull();
+  });
+
+  // A team inbox is hard-excluded by classifyRole, so it can never be picked
+  // even when it is the only address on file.
+  it('never picks a team inbox', () => {
+    expect(pickHeadCoach([{ name: 'Soccer', title: 'Team Email', email: 'soccer@x.edu' }])).toBeNull();
+  });
+
+  it('survives an empty or missing staff', () => {
+    expect(pickHeadCoach([])).toBeNull();
+    expect(pickHeadCoach()).toBeNull();
   });
 });

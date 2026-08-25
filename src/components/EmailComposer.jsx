@@ -6,22 +6,23 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { pickHeadCoach } from '@shared/coachRoles.js';
 import {
   fillTemplate, buildEmailContext, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE,
 } from '@/lib/emailTemplate';
 import { outreach } from '@/api/client';
 
-// "Head Coach" / "Wicks-Street Head Men's Soccer Coach (Head Coach)" match;
-// "Associate Head Coach" / "Assistant Head Coach" do not. Every selected coach
-// now gets their own email, so this only decides whose name seeds the greeting
-// in the editable draft.
-function isPrimaryHeadCoach(title) {
-  return /head coach/i.test(title || '') && !/assistant|associate/i.test(title || '');
-}
-
-/** Picks the primary head coach from a list, falling back to the first entry. */
-function pickHeadCoach(coaches) {
-  return coaches.find((c) => isPrimaryHeadCoach(c.title)) || coaches[0];
+/**
+ * Whose name seeds the greeting in the editable draft. Every selected coach
+ * gets their own email either way — the server re-personalises the greeting
+ * per recipient — so this only decides what you read first.
+ *
+ * Uses the shared classifier rather than a local /head coach/i test, which
+ * matched "Head Coach" and missed "Head Men's Soccer Coach": 35% of the head
+ * coaches on file, every one of whom was being greeted by an assistant's name.
+ */
+function greetingSeed(coaches) {
+  return pickHeadCoach(coaches) || coaches[0];
 }
 
 export default function EmailComposer({ player, college, open, onOpenChange }) {
@@ -30,7 +31,7 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
     [college]
   );
   const [selected, setSelected] = useState(() => new Set(validCoaches.map((c) => c.email)));
-  const initialGreetingName = (pickHeadCoach(validCoaches)?.name) || 'Coach';
+  const initialGreetingName = greetingSeed(validCoaches)?.name || 'Coach';
 
   // Fall back to the defaults rather than opening an empty compose window for
   // an athlete who has no saved template.
