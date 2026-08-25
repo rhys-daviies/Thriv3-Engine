@@ -818,11 +818,22 @@ resolved. Neither was visible from the local database, which is the lesson.**
 - [ ] Confirm events land in D1, sync down with a non-null `remote_id`, roll
       up, and appear in Tab 3 with a correct session timeline.
 - [ ] Fix whatever that exposes.
-- [ ] Automate the sync (scheduled pull) instead of the manual button. Nothing
-      schedules it today — `POST /api/engagement/sync` and `npm run sync` are
-      only ever called by hand, which is why the defects above went unnoticed
-      for four days. The alerting half now exists (mismatch → non-zero exit);
-      what is missing is something that runs it unprompted.
+- [x] **Automated the sync** — `server/lib/syncScheduler.js`, started at boot,
+      cadence from `THRIV3_SYNC_INTERVAL_MINUTES`. A timer inside the server
+      rather than launchd or cron: it runs whenever the app runs, needs no
+      install, and cannot drift out of step with the code. The trade is stated
+      rather than assumed — **nothing syncs while the server is stopped** — so
+      `/api/engagement/sync/status` reports `minutesSinceSuccess`, where null
+      means *never* rather than *a while ago*.
+
+      Runs never overlap (a sync slower than the interval would stack up runs
+      fighting over one cursor), failures are held and re-thrown rather than
+      swallowed, and three in a row back the interval off to a cap of 8×. Both
+      conditions that hid the August failure are logged loudly: a token count
+      the edge disagrees with, and an opt-out that cannot be matched to a
+      coach. **The server says at boot whether it is scheduled**, because
+      silence about it is what let "nothing schedules the sync" stay true for
+      four days.
 
 ### 1.2 Pillar 1 weighting model — **complete**
 Replaced the hardcoded constants in `src/lib/playerAnalysis.js`
