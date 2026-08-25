@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { renderProfile, checkRequiredCore } from './renderProfile.js';
+import { renderProfile, checkRequiredCore, REQUIRED_CORE_LABELS } from './renderProfile.js';
 
 const COMPLETE = {
   id: 'ath-1',
@@ -25,7 +25,7 @@ describe('required core', () => {
   it.each([
     ['name', { full_name: '' }, 'name'],
     ['position', { position: null }, 'position'],
-    ['class year', { graduation_year: null }, 'class year'],
+    ['class year', { graduation_year: null, recruiting_class_year: null }, 'recruiting class year'],
     ['video', { video_id: null }, 'video'],
     ['contact email', { email: null }, 'contact email'],
   ])('reports a missing %s', (_label, override, expected) => {
@@ -202,7 +202,7 @@ describe('class year, after the two fields merged', () => {
   // export demanded graduation_year, so an athlete could be created, matched
   // and drafted, then fail to publish on a field nothing had asked for.
   it('no longer demands a graduation year the form does not ask for', () => {
-    expect(checkRequiredCore({ ...base, recruiting_class_year: 2027 })).not.toContain('class year');
+    expect(checkRequiredCore({ ...base, recruiting_class_year: 2027 })).not.toContain('recruiting class year');
   });
 
   it('still publishes a record made before the field existed', () => {
@@ -217,6 +217,20 @@ describe('class year, after the two fields merged', () => {
   });
 
   it('blocks when neither is set', () => {
-    expect(checkRequiredCore(base)).toContain('class year');
+    expect(checkRequiredCore(base)).toContain('recruiting class year');
+  });
+});
+
+describe('the required-field list', () => {
+  // It is printed to the operator by the publish card, the send path, the
+  // export and the preflight. Anything restating it from memory drifts, which
+  // is what the preflight had already done.
+  it('names the field the form actually asks for', () => {
+    expect(REQUIRED_CORE_LABELS).toContain('recruiting class year');
+    expect(REQUIRED_CORE_LABELS).not.toContain('class year');
+  });
+
+  it('is exactly what checkRequiredCore reports for an empty record', () => {
+    expect(checkRequiredCore({}).sort()).toEqual([...REQUIRED_CORE_LABELS].sort());
   });
 });

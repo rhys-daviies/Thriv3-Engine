@@ -4,7 +4,7 @@ import db from '../db/client.js';
 import { suppressedSet } from './suppressions.js';
 
 import { Player } from '../db/entities/player.js';
-import { checkRequiredCore } from '../export/renderProfile.js';
+import { checkRequiredCore, REQUIRED_CORE_LABELS } from '../export/renderProfile.js';
 import { OUTPUT_DIR } from '../export/exportProfiles.js';
 import { isOutlookAvailable } from './outlook.js';
 import {
@@ -112,7 +112,9 @@ function localChecks(athlete, published) {
 
   const missing = checkRequiredCore(athlete);
   out.push(missing.length === 0
-    ? check(PASS, 'Profile has every required field', 'name, position, class year, video, contact email')
+    // Derived, not restated: this list was hardcoded and had already drifted
+    // from what the export actually checks.
+    ? check(PASS, 'Profile has every required field', REQUIRED_CORE_LABELS.join(', '))
     : check(FAIL, 'Profile has every required field', `missing ${missing.join(', ')}`));
 
   const file = path.join(OUTPUT_DIR, 'p', `${athlete.public_slug}.html`);

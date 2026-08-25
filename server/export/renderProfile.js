@@ -20,7 +20,11 @@ const REQUIRED_CORE = [
   // year and this used to demand graduation_year, so an athlete could be
   // created, matched and drafted and then fail to publish on a field nothing
   // had asked them for.
-  { key: 'recruiting_class_year', label: 'class year', test: (a) => present(classYearOf(a)) },
+  // Named for the field the form actually asks for. "class year" was
+  // ambiguous while there were two of them, and the publish card prints this
+  // string straight to the operator — "needs class year" sent you looking for
+  // a field that no longer exists.
+  { key: 'recruiting_class_year', label: 'recruiting class year', test: (a) => present(classYearOf(a)) },
   { key: 'video_id', label: 'video', test: (a) => present(a.video_id) },
   { key: 'email', label: 'contact email', test: (a) => present(a.email) },
 ];
@@ -60,6 +64,9 @@ function esc(value) {
  * is non-empty — a half-populated page sent to a college coach is worse than
  * no page at all.
  */
+/** What a profile needs before it can be generated, for anything that lists them. */
+export const REQUIRED_CORE_LABELS = REQUIRED_CORE.map((item) => item.label);
+
 export function checkRequiredCore(athlete) {
   return REQUIRED_CORE.filter((item) => !item.test(athlete)).map((item) => item.label);
 }
