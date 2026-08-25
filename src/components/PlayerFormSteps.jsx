@@ -61,6 +61,7 @@ function defaultsFrom(initialData) {
     preferred_conferences: initialData?.preferred_conferences || [],
     budget_range: initialData?.budget_range || '',
     criterion_ranking: initialData?.criterion_ranking ?? null,
+    academic_minimum: initialData?.academic_minimum ?? 'Not Important',
     additional_notes: initialData?.additional_notes || '',
     email_subject: initialData?.email_subject || DEFAULT_EMAIL_SUBJECT,
     email_template: initialData?.email_template || DEFAULT_EMAIL_TEMPLATE,
@@ -393,6 +394,25 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
                 {BUDGETS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}
               </SelectContent>
             </Select>
+          </div>
+
+          {/* A constraint, not a preference — how much academics *matter* is the
+              priority ranking below. Default is no minimum, and whatever it
+              removes is reported rather than silently vanishing, which is
+              what the old importance-as-threshold did. */}
+          <div className="space-y-2 max-w-md">
+            <Label>Minimum Academic Rating</Label>
+            <p className="text-xs text-muted-foreground -mt-1">
+              Hides programs rated below this. Leave as N/A to consider every program.
+            </p>
+            <AbilitySlider
+              value={data.academic_minimum}
+              onChange={set('academic_minimum')}
+              lowLabel="Any program"
+              highLabel="Elite academics only"
+              notImportantOption
+              notImportantLabel="No minimum"
+            />
           </div>
 
           {/* Sits under budget deliberately: a tight budget shifts several of

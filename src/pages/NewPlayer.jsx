@@ -12,7 +12,12 @@ export function sanitizePlayerData(raw) {
   out.act_score = out.act_score === '' ? undefined : Number(out.act_score);
   out.height_cm = out.height_cm === '' ? undefined : Number(out.height_cm);
   out.weight_kg = out.weight_kg === '' ? undefined : Number(out.weight_kg);
-  out.academic_importance = out.academic_importance === 'Not Important' ? 'Not Important' : String(out.academic_importance);
+  // 'Not Important' is the slider's N/A sentinel. It has to reach the database
+  // as a real null, or "no minimum" would be stored as a string and read as a
+  // floor of NaN.
+  out.academic_minimum = out.academic_minimum === 'Not Important' || out.academic_minimum === '' || out.academic_minimum == null
+    ? null
+    : Number(out.academic_minimum);
 
   for (const key of Object.keys(out)) {
     if (out[key] === undefined || out[key] === '' || out[key] === null) delete out[key];
@@ -22,6 +27,10 @@ export function sanitizePlayerData(raw) {
   // not be dropped by the loop above — dropping it leaves the previous ranking
   // in place, so "Reset to defaults" would appear to do nothing on save.
   if (raw.criterion_ranking === null || raw.criterion_ranking === undefined) out.criterion_ranking = [];
+
+  // Same reason: clearing a minimum has to be sent, not dropped by the loop
+  // above, or "back to N/A" would silently keep the old floor.
+  if (out.academic_minimum === undefined) out.academic_minimum = null;
   return out;
 }
 

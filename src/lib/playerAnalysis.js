@@ -86,6 +86,15 @@ export async function analyze(player, { onPhase, onProgress }) {
   const summary = [
     `Ranked ${poolSize} eligible programs on six weighted criteria.`,
     removed ? `${removed} excluded by your division and conference filters.` : null,
+    // Said out loud on purpose. The previous model applied an academic
+    // threshold nobody had asked for and never mentioned it, which is how an
+    // athlete came to be shown 40 programs out of 1,154 without knowing.
+    excluded.academicMinimum
+      ? `${excluded.academicMinimum} excluded by your minimum academic rating of ${player.academic_minimum}.`
+      : null,
+    excluded.unratedKept
+      ? `${excluded.unratedKept} unrated program(s) kept rather than dropped, since a minimum cannot judge them.`
+      : null,
     `${withOpportunity} of the top ${top100.length} have a graduating starter at ${player.position}.`,
     unrated ? `${unrated} are shown without an academic rating rather than hidden.` : null,
   ].filter(Boolean).join(' ');

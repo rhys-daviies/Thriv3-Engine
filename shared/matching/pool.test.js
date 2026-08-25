@@ -232,3 +232,54 @@ describe('normaliseAthlete origin', () => {
     expect(normaliseAthlete({ nationality: 'USA' })).toMatchObject({ origin: 'USA', country: null });
   });
 });
+
+describe('the academic minimum', () => {
+  const pool = [
+    college({ id: 'weak', name: 'Weak', academic_rating: 2.1 }),
+    college({ id: 'mid', name: 'Mid', academic_rating: 5.5 }),
+    college({ id: 'strong', name: 'Strong', academic_rating: 9.1 }),
+    college({ id: 'unrated', name: 'Unrated', academic_rating: null }),
+  ];
+
+  it('does nothing when no minimum is set', () => {
+    const { kept, excluded } = applyEligibility(pool, {});
+    expect(kept).toHaveLength(4);
+    expect(excluded.academicMinimum).toBe(0);
+  });
+
+  it('drops programmes below the floor and counts them', () => {
+    const { kept, excluded } = applyEligibility(pool, { academicMinimum: 5 });
+    expect(kept.map((c) => c.name).sort()).toEqual(['Mid', 'Strong', 'Unrated']);
+    expect(excluded.academicMinimum).toBe(1);
+  });
+
+  it('keeps the floor itself in scope, not just above it', () => {
+    expect(applyEligibility(pool, { academicMinimum: 5.5 }).kept.map((c) => c.name)).toContain('Mid');
+  });
+
+  // The original defect: an academic threshold nobody set deliberately made a
+  // third of women's programmes invisible. An unrated school cannot be judged
+  // against a floor, so it survives and is counted rather than vanishing.
+  it('never drops an unrated programme, and says it kept it', () => {
+    const { kept, excluded } = applyEligibility(pool, { academicMinimum: 9 });
+    expect(kept.map((c) => c.name)).toContain('Unrated');
+    expect(excluded.unratedKept).toBe(1);
+  });
+
+  it('reports what it removed rather than filtering silently', () => {
+    const { excluded } = applyEligibility(pool, { academicMinimum: 6 });
+    expect(excluded.academicMinimum).toBe(2);
+  });
+});
+
+describe('normaliseAthlete academic minimum', () => {
+  it('reads a numeric floor', () => {
+    expect(normaliseAthlete({ academic_minimum: 6.5 }).academicMinimum).toBe(6.5);
+  });
+
+  it('treats an absent or unparseable minimum as none, never as zero', () => {
+    expect(normaliseAthlete({}).academicMinimum).toBeNull();
+    expect(normaliseAthlete({ academic_minimum: null }).academicMinimum).toBeNull();
+    expect(normaliseAthlete({ academic_minimum: 'Not Important' }).academicMinimum).toBeNull();
+  });
+});

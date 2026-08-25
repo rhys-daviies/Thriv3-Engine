@@ -83,12 +83,28 @@ export function qualityPercentiles(colleges) {
  * so out loud.
  */
 export function applyEligibility(colleges, athlete) {
-  const excluded = { inactive: 0, division: 0, conference: 0 };
+  const excluded = { inactive: 0, division: 0, conference: 0, academicMinimum: 0, unratedKept: 0 };
+  const floor = athlete.academicMinimum;
   const kept = [];
   for (const c of colleges) {
     if (c.active === 0) { excluded.inactive++; continue; }
     if (athlete.divisions?.length && !athlete.divisions.includes(c.division)) { excluded.division++; continue; }
     if (athlete.conferences?.length && !athlete.conferences.includes(c.conference)) { excluded.conference++; continue; }
+
+    // A floor the athlete set deliberately, unlike the old model's — which
+    // took an *importance* value as a threshold and silently removed two
+    // thirds of the pool. This one defaults to none, and what it drops is
+    // counted so the UI can say so.
+    if (floor != null && c.academic_rating != null && c.academic_rating < floor) {
+      excluded.academicMinimum++;
+      continue;
+    }
+    // An unrated school cannot be judged against a floor. Dropping it would
+    // repeat the original defect, where a third of women's programmes went
+    // invisible the moment anybody set a minimum — so it survives and is
+    // counted, and the card already shows it as unrated.
+    if (floor != null && c.academic_rating == null) excluded.unratedKept++;
+
     kept.push(c);
   }
   return { kept, excluded };
@@ -209,6 +225,7 @@ export function normaliseAthlete(player) {
     act: toNum(player.act_score),
     budgetRange: player.budget_range || null,
     state: player.state || null,
+    academicMinimum: toNum(player.academic_minimum),
     // `origin` decides which half of the location criterion applies. Older
     // records predate the field, so infer it: a stated nationality that is not
     // the USA is an international athlete however the row was created.

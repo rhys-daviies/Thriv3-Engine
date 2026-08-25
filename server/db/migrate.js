@@ -65,6 +65,14 @@ const PLAYER_COLUMNS = [
   // overseas one whether the program recruits internationally at all. The
   // country itself lives in `nationality`, which already existed.
   ['origin', 'TEXT'],
+
+  // A floor on colleges.academic_rating, or null for no floor. Distinct from
+  // the retired importance slider, which was a *preference* the old model
+  // silently reinterpreted as a threshold and used to delete two thirds of an
+  // athlete's options. This is the athlete stating a constraint, it defaults
+  // to none, and what it removes is counted and reported rather than
+  // disappearing.
+  ['academic_minimum', 'REAL'],
 ];
 
 /**

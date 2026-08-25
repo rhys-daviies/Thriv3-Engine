@@ -4,7 +4,7 @@ import { extractVideoId } from '../../../shared/youtube.js';
 import { generateSlug, generateUnique } from '../../lib/tokens.js';
 
 const columns = [
-  'full_name', 'email', 'phone', 'graduation_year', 'recruiting_class_year', 'match_weights', 'criterion_ranking', 'origin', 'high_school', 'city', 'state',
+  'full_name', 'email', 'phone', 'graduation_year', 'recruiting_class_year', 'match_weights', 'criterion_ranking', 'origin', 'academic_minimum', 'high_school', 'city', 'state',
   'position', 'secondary_position', 'preferred_divisions', 'football_ability',
   'academic_importance', 'gpa', 'sat_score', 'act_score', 'height_inches', 'weight_lbs',
   'forty_yard_dash', 'preferred_conferences', 'budget_range', 'highlights_url',

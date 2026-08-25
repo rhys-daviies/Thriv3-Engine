@@ -13,6 +13,11 @@ function colorForValue(v) {
  * A 1–10, step 0.5 ability slider with a dynamic color gradient track.
  * When `notImportantOption` is set, an "N/A" button toggles the value
  * between a numeric score and the sentinel string "Not Important".
+ *
+ * `notImportantLabel` is what the readout says while that sentinel is set.
+ * The default reads correctly for a preference; a control that sets a *floor*
+ * needs to say "No minimum", because "Not Important" describes the wrong kind
+ * of thing entirely.
  */
 export default function AbilitySlider({
   value,
@@ -20,6 +25,7 @@ export default function AbilitySlider({
   lowLabel = 'Developmental',
   highLabel = 'Elite',
   notImportantOption = false,
+  notImportantLabel = 'Not Important',
 }) {
   const isNotImportant = value === 'Not Important';
   const numericValue = isNotImportant ? 5 : Number(value) || 5;
@@ -55,7 +61,7 @@ export default function AbilitySlider({
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>{lowLabel}</span>
         <span className="font-semibold text-foreground">
-          {isNotImportant ? 'Not Important' : `${numericValue.toFixed(1)} / 10`}
+          {isNotImportant ? notImportantLabel : `${numericValue.toFixed(1)} / 10`}
         </span>
         <span>{highLabel}</span>
       </div>
