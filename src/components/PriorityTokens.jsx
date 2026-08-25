@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { GripVertical, RotateCcw, ArrowUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
-  CRITERION_SHORT, CRITERION_BLURB, CRITERION_KEYS,
+  CRITERION_KEYS, criterionCopy,
   defaultRanking, moveItem, readRanking, resolveWeights, boostedCriteria,
 } from '@/lib/criteriaRanking';
 import { resolveCouplings } from '@shared/matching/couplings.js';
@@ -19,7 +19,10 @@ import { resolveCouplings } from '@shared/matching/couplings.js';
  * keys for the keyboard, and tap-to-select-then-tap-to-place for touch, where
  * HTML5 drag does not fire at all.
  */
-export default function PriorityTokens({ value, onChange, academicImportance, budgetRange, state }) {
+export default function PriorityTokens({ value, onChange, academicImportance, budgetRange, state, origin }) {
+  // Location means a different thing for an overseas athlete, so it is named
+  // for what it actually scores rather than for the domestic case.
+  const { short: CRITERION_SHORT, blurb: CRITERION_BLURB } = criterionCopy(origin);
   const fallback = useMemo(() => defaultRanking(academicImportance), [academicImportance]);
   const ranking = readRanking(value) || fallback;
   const explicit = readRanking(value) !== null;
@@ -30,8 +33,8 @@ export default function PriorityTokens({ value, onChange, academicImportance, bu
   // Couplings are part of the weighting the operator is looking at, so the
   // percentages have to include them or the tokens lie about the outcome.
   const coupled = useMemo(
-    () => resolveCouplings({ budgetRange, academicImportance, state }),
-    [budgetRange, academicImportance, state]
+    () => resolveCouplings({ budgetRange, academicImportance, state, origin }),
+    [budgetRange, academicImportance, state, origin]
   );
   const weights = useMemo(
     () => resolveWeights({ academicImportance, ranking: explicit ? ranking : null, couplings: coupled.weights }),

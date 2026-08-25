@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import {
-  CRITERION_LABEL as LABEL, CRITERION_BLURB as BLURB,
-  defaultRanking, moveItem as move, readRanking, resolveWeights, boostedCriteria,
+  criterionCopy, defaultRanking, moveItem as move, readRanking, resolveWeights, boostedCriteria,
 } from '@/lib/criteriaRanking';
 import { resolveCouplings } from '@shared/matching/couplings.js';
 import { normaliseAthlete } from '@shared/matching/pool.js';
@@ -35,6 +34,7 @@ export default function CriteriaRanking({ player, onApply, busy }) {
   const dirty = ranking.join('|') !== baseline.join('|');
 
   const athlete = useMemo(() => normaliseAthlete(player), [player]);
+  const { label: LABEL, blurb: BLURB } = criterionCopy(athlete.origin);
   const coupled = useMemo(() => resolveCouplings(athlete), [athlete]);
 
   // Show the weights that are actually in force until the operator changes

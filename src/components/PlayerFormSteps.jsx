@@ -419,6 +419,7 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
               academicImportance={data.academic_importance}
               budgetRange={data.budget_range}
               state={data.state}
+              origin={data.origin}
             />
           </div>
 

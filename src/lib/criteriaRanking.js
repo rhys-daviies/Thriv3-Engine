@@ -33,6 +33,29 @@ export const CRITERION_SHORT = {
 export const CRITERION_LABEL = Object.fromEntries(CRITERIA.map((c) => [c.key, c.label]));
 
 /**
+ * The location criterion means two different things, so it cannot have one
+ * label.
+ *
+ * For a domestic athlete it is distance from home and in-state tuition. For an
+ * international one distance is meaningless — everywhere is far — and it
+ * measures instead whether the programme recruits internationally at all and
+ * whether their countrymen are already there. Showing "Near home" to an
+ * overseas athlete describes something the model is not doing, and an operator
+ * ranking it would be ranking the wrong thing.
+ */
+export function criterionCopy(origin) {
+  if (origin !== 'International') return { short: CRITERION_SHORT, blurb: CRITERION_BLURB, label: CRITERION_LABEL };
+  return {
+    short: { ...CRITERION_SHORT, geography: 'International fit' },
+    blurb: {
+      ...CRITERION_BLURB,
+      geography: 'Whether the program already recruits overseas, and whether players from their country are there.',
+    },
+    label: { ...CRITERION_LABEL, geography: 'International fit' },
+  };
+}
+
+/**
  * A stored ranking, or null.
  *
  * Accepts the array the entity layer returns and the JSON string it is stored
