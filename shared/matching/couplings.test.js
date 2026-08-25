@@ -133,10 +133,31 @@ describe('weightsFromRanking', () => {
     expect(w.affordability).toBeGreaterThan(w.programQuality);
   });
 
-  it('keeps a gentle spread — a ranking says "more", not "only"', () => {
-    const w = weightsFromRanking(['geography', 'affordability', 'athletic', 'roster', 'academic', 'programQuality'], { ...DEFAULT_WEIGHTS, academic: 10 });
-    expect(w.geography / w.programQuality).toBeLessThan(5);
-    expect(w.programQuality).toBeGreaterThan(0);
+  // Geometric, not linear. Linear meant first place carried only 26.7% of the
+  // total, so a programme merely good on the other five could outrank a strong
+  // one on the criterion the operator had named as most important — and
+  // steepening a linear ramp barely moves it, since lowering the tail lowers
+  // the denominator too.
+  it('makes first place decisive', () => {
+    const ranked = ['academic', 'athletic', 'geography', 'affordability', 'roster', 'programQuality'];
+    const w = resolveWeights({ ranking: ranked });
+    expect(w.academic).toBeGreaterThan(0.35);
+    expect(w.academic).toBeGreaterThan(1.4 * w.athletic);
+  });
+
+  it('still leaves the tail carrying something — a ranking is not an off switch', () => {
+    const ranked = ['academic', 'athletic', 'geography', 'affordability', 'roster', 'programQuality'];
+    const w = resolveWeights({ ranking: ranked });
+    expect(w.programQuality).toBeGreaterThan(0.03);
+    // Zeroing is a separate, deliberate statement.
+    expect(resolveWeights({ ranking: ranked, overrides: { programQuality: 0 } }).programQuality).toBe(0);
+  });
+
+  it('decays monotonically down the order', () => {
+    const ranked = ['academic', 'athletic', 'geography', 'affordability', 'roster', 'programQuality'];
+    const w = resolveWeights({ ranking: ranked });
+    const shares = ranked.map((k) => w[k]);
+    for (let i = 1; i < shares.length; i++) expect(shares[i]).toBeLessThan(shares[i - 1]);
   });
 
   it('leaves the defaults alone when nothing was ranked', () => {

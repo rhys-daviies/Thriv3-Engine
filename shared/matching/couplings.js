@@ -156,21 +156,30 @@ export function resolveCouplings(athlete, { academicWeight = null } = {}) {
  * list re-orders accordingly, so a ranking has to be a first-class input
  * rather than something the operator translates into numbers by hand.
  *
- * Ranks are 1-best. The spread is deliberately gentle — top rank is four
- * times bottom rank, not forty — because six criteria all matter and a
- * ranking says which matter *more*, not which to switch off. Anything the
- * operator leaves unranked keeps its default weight; anything they explicitly
- * exclude should be set to zero through the weight override, which is a
- * different statement from ranking it last.
+ * Ranks are 1-best, and the decay is geometric rather than linear.
+ *
+ * It was linear — top rank four times bottom — and first place came out at
+ * 26.7% of the total, which did not mean what an operator ranking academics
+ * first expected it to mean: a programme merely good on the other five could
+ * still outrank a strong one on the criterion they had named as most
+ * important. Steepening a linear ramp barely helps, because lowering the tail
+ * lowers the denominator too — going from 4x to 8x moves first place from
+ * 26.7% only as far as 29.6%. Geometric decay concentrates the weight where a
+ * ranking says it should be: first place is now ~38%.
+ *
+ * Not so steep that the tail disappears. Sixth place still carries ~4.4%,
+ * because a ranking says which criteria matter *more*, not which to switch
+ * off — anything the operator wants genuinely excluded should be set to zero
+ * through the weight override, which is a different and deliberate statement.
  */
+export const RANKING_DECAY = 0.65;
+
 export function weightsFromRanking(ranking, base) {
   if (!Array.isArray(ranking) || !ranking.length) return { ...base };
   const out = { ...base };
-  const n = ranking.length;
   ranking.forEach((key, i) => {
     if (!(key in out)) return;
-    // Linear from 1.0 at the top to 0.25 at the bottom.
-    out[key] = 40 * (1 - 0.75 * (n === 1 ? 0 : i / (n - 1)));
+    out[key] = 40 * RANKING_DECAY ** i;
   });
   return out;
 }
