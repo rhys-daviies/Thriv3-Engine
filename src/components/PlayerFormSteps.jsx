@@ -27,7 +27,6 @@ function defaultsFrom(initialData) {
     full_name: initialData?.full_name || '',
     email: initialData?.email || '',
     phone: initialData?.phone || '',
-    graduation_year: initialData?.graduation_year || '',
     recruiting_class_year: initialData?.recruiting_class_year || '',
     high_school: initialData?.high_school || '',
     city: initialData?.city || '',
@@ -204,10 +203,6 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             <div className="space-y-1.5">
               <Label>Phone</Label>
               <Input value={data.phone} onChange={(e) => set('phone')(e.target.value)} />
-            </div>
-            <div className="space-y-1.5">
-              <Label>Graduation Year</Label>
-              <Input type="number" value={data.graduation_year} onChange={(e) => set('graduation_year')(e.target.value)} placeholder="2027" />
             </div>
             <div className="space-y-1.5">
               <Label>Recruiting Class Year *</Label>

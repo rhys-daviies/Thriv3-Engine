@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { describeAttributes } from '@shared/sportProfiles';
 import PublishCard from '@/components/PublishCard';
 import { usePlayerWorkspace } from './PlayerWorkspace';
+import { classYearOf } from '@shared/athlete.js';
 
 function present(value) {
   return value !== null && value !== undefined && value !== '';
@@ -70,8 +71,7 @@ export default function ProfileTab() {
         <Block title="Identity">
           <Row label="Position" value={player.position} />
           <Row label="Secondary position" value={player.secondary_position !== 'None' ? player.secondary_position : null} />
-          <Row label="Class year" value={player.graduation_year} />
-          <Row label="Recruiting class year" value={player.recruiting_class_year} />
+          <Row label="Class year" value={classYearOf(player)} />
           <Row label="Status" value={player.commitment_status} />
           <Row label="Nationality" value={player.nationality} />
           <Row label="Current club" value={player.club_name} />

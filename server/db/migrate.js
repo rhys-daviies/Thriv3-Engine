@@ -158,6 +158,26 @@ function addMissingColumns(db, table, columns) {
   }
 }
 
+/**
+ * Carries an old `graduation_year` across to `recruiting_class_year`.
+ *
+ * The two held the same fact and gated different things — publishing wanted
+ * one, the form and matching the other — so an athlete could pass the form and
+ * then fail to publish on a field nothing had asked for. They are one field
+ * now, and this moves records created before it existed rather than leaving
+ * them to rely on the fallback for ever.
+ *
+ * Only fills a blank. Where an athlete has both and they differ, the
+ * recruiting class year is the deliberate one — a post-grad year is exactly
+ * that case — so it is never overwritten.
+ */
+function backfillRecruitingClassYear(db) {
+  db.prepare(`
+    UPDATE players SET recruiting_class_year = graduation_year
+    WHERE recruiting_class_year IS NULL AND graduation_year IS NOT NULL
+  `).run();
+}
+
 /** Derives video_id for any athlete whose highlights_url we can parse. */
 function backfillVideoIds(db) {
   const rows = db
@@ -248,5 +268,6 @@ export function migrate(db) {
 
   addMissingColumns(db, 'colleges', COLLEGE_COLUMNS);
   addMissingColumns(db, 'coaches', COACH_COLUMNS);
+  backfillRecruitingClassYear(db);
   backfillAcademicRatingSource(db);
 }

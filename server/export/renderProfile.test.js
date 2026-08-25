@@ -184,3 +184,39 @@ describe('academic record', () => {
     expect(has(html, 'ACT')).toBe(false);
   });
 });
+
+describe('class year, after the two fields merged', () => {
+  const base = {
+    full_name: 'Test Athlete', position: 'Midfield', email: 'a@b.com',
+    video_id: 'aqz-KE-bpKQ', video_chapters: '[]', public_slug: 'x', sport: 'mens-soccer',
+  };
+
+  it('publishes on the recruiting class year alone', () => {
+    expect(checkRequiredCore({ ...base, recruiting_class_year: 2027 })).toEqual([]);
+    const html = renderProfile({ ...base, recruiting_class_year: 2027 }, { dryRun: true });
+    expect(html).toContain('Class of 2027');
+    expect(html).toContain('2027 entry');
+  });
+
+  // The trap this closes: the form asked for recruiting class year and the
+  // export demanded graduation_year, so an athlete could be created, matched
+  // and drafted, then fail to publish on a field nothing had asked for.
+  it('no longer demands a graduation year the form does not ask for', () => {
+    expect(checkRequiredCore({ ...base, recruiting_class_year: 2027 })).not.toContain('class year');
+  });
+
+  it('still publishes a record made before the field existed', () => {
+    expect(checkRequiredCore({ ...base, graduation_year: 2026 })).toEqual([]);
+    expect(renderProfile({ ...base, graduation_year: 2026 }, { dryRun: true })).toContain('Class of 2026');
+  });
+
+  it('prints the arrival year for a post-grad athlete, not the school one', () => {
+    const html = renderProfile({ ...base, graduation_year: 2026, recruiting_class_year: 2027 }, { dryRun: true });
+    expect(html).toContain('Class of 2027');
+    expect(html).not.toContain('Class of 2026');
+  });
+
+  it('blocks when neither is set', () => {
+    expect(checkRequiredCore(base)).toContain('class year');
+  });
+});

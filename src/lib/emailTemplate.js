@@ -1,3 +1,5 @@
+import { classYearOf } from '@shared/athlete.js';
+
 // Section 11: The Email Template System — ported exactly.
 
 export const TEMPLATE_VARIABLES = [
@@ -34,7 +36,7 @@ export const TEMPLATE_VARIABLES = [
   { token: 'player_position', label: 'Player Position' },
   { token: 'player_secondary_position', label: 'Secondary Position' },
   { token: 'player_gpa', label: 'GPA' },
-  { token: 'player_graduation_year', label: 'Graduation Year' },
+  { token: 'player_class_year', label: 'Class Year (arrival)' },
   { token: 'player_highlights_url', label: 'Highlights URL' },
   { token: 'player_profile_url', label: 'Tracked Profile Link' },
 ];
@@ -45,7 +47,7 @@ export const DEFAULT_EMAIL_TEMPLATE = `Dear {{coach_name}},
 
 I hope this message finds you well. I am reaching out on behalf of
 {{player_name}}, a talented {{player_position}} who is exploring
-collegiate opportunities for the {{player_graduation_year}} season.
+collegiate opportunities for the {{player_class_year}} season.
 
 I noticed that {{college_name}} has {{graduating_seniors_count}}
 graduating {{player_position|lowercase}}(s) this season
@@ -56,7 +58,7 @@ for the {{college_nickname}} at the {{player_position}} position.
 excellent fit for your program:
 • Position: {{player_position}}{{player_secondary_position}}
 • GPA: {{player_gpa}}
-• Graduation Year: {{player_graduation_year}}
+• Class of: {{player_class_year}}
 
 Profile and highlight film:
 {{player_profile_url}}
@@ -126,7 +128,11 @@ export function buildEmailContext(player, college, coachName) {
     player_position: player.position || '',
     player_secondary_position: secondary,
     player_gpa: player.gpa != null && player.gpa !== '' ? String(player.gpa) : 'N/A',
-    player_graduation_year: player.graduation_year != null ? String(player.graduation_year) : '',
+    // Both names resolve to the same value. `player_graduation_year` is kept
+    // because saved templates in the database still use it, and renaming a
+    // token does not error — it silently renders nothing.
+    player_class_year: classYearOf(player) != null ? String(classYearOf(player)) : '',
+    player_graduation_year: classYearOf(player) != null ? String(classYearOf(player)) : '',
     player_highlights_url: highlights,
     // Resolved per coach on the server at send time, because the link carries
     // that coach's own tracking token. Left as-is here so the composer preview

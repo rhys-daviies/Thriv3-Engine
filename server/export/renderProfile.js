@@ -2,6 +2,7 @@ import { describeAttributes } from '../../shared/sportProfiles.js';
 import { formatTimecode } from '../../shared/timecode.js';
 import { PROFILE_CSS } from './styles.js';
 import { TRACKER_JS } from './tracker.js';
+import { classYearOf } from '../../shared/athlete.js';
 
 /**
  * Renders one athlete into a self-contained public profile page.
@@ -15,7 +16,11 @@ import { TRACKER_JS } from './tracker.js';
 const REQUIRED_CORE = [
   { key: 'full_name', label: 'name', test: (a) => present(a.full_name) },
   { key: 'position', label: 'position', test: (a) => present(a.position) },
-  { key: 'graduation_year', label: 'class year', test: (a) => present(a.graduation_year) },
+  // Reads the resolver, not the column: the form asks for recruiting class
+  // year and this used to demand graduation_year, so an athlete could be
+  // created, matched and drafted and then fail to publish on a field nothing
+  // had asked them for.
+  { key: 'recruiting_class_year', label: 'class year', test: (a) => present(classYearOf(a)) },
   { key: 'video_id', label: 'video', test: (a) => present(a.video_id) },
   { key: 'email', label: 'contact email', test: (a) => present(a.email) },
 ];
@@ -84,7 +89,7 @@ function badges(athlete) {
   if (present(athlete.commitment_status)) {
     items.push(`<span class="badge status">${esc(athlete.commitment_status)}</span>`);
   }
-  items.push(`<span class="badge">Class of ${esc(athlete.graduation_year)}</span>`);
+  items.push(`<span class="badge">Class of ${esc(classYearOf(athlete))}</span>`);
   if (present(athlete.ncaa_eligibility_id)) items.push('<span class="badge">NCAA ID verified</span>');
   if (present(athlete.nationality)) items.push(`<span class="badge">${esc(athlete.nationality)}</span>`);
   return `<div class="badges">${items.join('\n      ')}</div>`;
@@ -95,7 +100,7 @@ function roleGrid(athlete) {
     ['Position', [athlete.position, athlete.secondary_position !== 'None' ? athlete.secondary_position : null].filter(present).join(' / ')],
     ['Current club', athlete.club_name],
     ['Nationality', athlete.nationality],
-    ['Available', present(athlete.graduation_year) ? `${athlete.graduation_year} entry` : null],
+    ['Available', present(classYearOf(athlete)) ? `${classYearOf(athlete)} entry` : null],
   ]
     .filter(([, value]) => present(value))
     .map(([label, value]) => `<div class="role-item"><dt>${esc(label)}</dt><dd>${esc(value)}</dd></div>`);
@@ -254,7 +259,7 @@ export function renderProfile(athlete, { endpoint = '/api/track', dryRun = false
     priorVisits: 0,
   };
 
-  const title = `${athlete.full_name} — ${athlete.position} — Class of ${athlete.graduation_year} — Thriv3`;
+  const title = `${athlete.full_name} — ${athlete.position} — Class of ${classYearOf(athlete)} — Thriv3`;
 
   return `<!DOCTYPE html>
 <html lang="en">
