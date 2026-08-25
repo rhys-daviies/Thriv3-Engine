@@ -1447,9 +1447,32 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
       median of 75% and covers 1,712 programmes rather than 1,669, which is the
       reassuring outcome: the metric was already measuring something real, and
       the fixes widened its base without shifting its centre.
-- [ ] Freshman-minute analysis — **possible from existing data today**: 4,677
-      of 7,239 men's and 5,812 of 7,616 women's `Fr.` rows carry
-      `minutes_played` (women's grew as roster loading finished).
+- [ ] Freshman-minute analysis — **the data is now two seasons deep, so the
+      "over the years" version is possible for the first time.** 2024 minutes
+      were back-filled 2026-08-25; the season previously carried none at all,
+      because minutes were explicitly optional for that acquisition.
+
+      | | Fr. rows | with a minutes figure | who actually played | median (of those) |
+      |---|---:|---:|---:|---:|
+      | 2024 men's | 6,606 | 5,744 (87%) | 3,975 | 343 |
+      | 2024 women's | 7,878 | 6,954 (88%) | 5,599 | 371 |
+      | 2025 men's | 6,809 | 6,313 (93%) | 4,502 | 333 |
+      | 2025 women's | 7,843 | 7,372 (94%) | 5,861 | 404 |
+
+      Still a query rather than a column, and still needs the same denominator
+      discipline as retention — "0 minutes" is only meaningful against how many
+      freshmen a programme carried.
+
+      **One trap before anyone computes a median.** A blank means the stats page
+      could not be read; a 0 means it was read and the player did not appear.
+      Those are different facts and the 2024 back-fill keeps them apart. The
+      2025 files do not: **79 school-sports there record 0 minutes for every
+      player** (2,216 rows), which reads as "nobody played" but means "no data".
+      They are mostly PrestoSports programmes whose team tables carry
+      `gp, sh, g, a` and no minutes column at all, which is also why the same
+      programmes have no 2024 figure. Treat an all-zero programme as missing, or
+      it will drag every average it touches. Real 2025 coverage is nearer 89%
+      than the headline 93%.
 - [ ] Identify a source for university quality and lifestyle. Currently
       un-sourced. `academic_rating` is now complete in scope, but it measures
       academic strength, not what living and playing somewhere is like —
