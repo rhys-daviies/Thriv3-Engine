@@ -5,10 +5,18 @@ deck against what is actually built. Update the checkboxes as work lands; keep
 the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
-Last audited: 2026-08-25, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 578 tests green). Coverage numbers below were
+Last audited: 2026-08-26, re-verified against the DB and the live edge
+(branch `engagement-tracking`, 663 tests green). Coverage numbers below were
 re-run, not copied. The academic-rating gap has closed completely; roster and
 grad-year figures moved and are corrected in place.
+
+The backtest figures in §1.2 were re-measured on 2026-08-26 after the 2024
+minutes were finally imported, and they moved: the harness had been ranking
+with the starter half of roster opportunity switched off, because every 2024
+row held `minutes_played = 0`. Recall@10 rose from 28.9% to 34.1% for the men
+and 25.3% to 27.2% for the women. **The old table quoted a different sample
+and band and is not comparable to the new one** — the parameters are now
+stated alongside the numbers so the next run can be.
 
 **Phase 1.2 is complete** as of 2026-08-25 — Pillar 1 now has six weighted
 criteria, a coupling layer, an operator ranking control in both the intake
@@ -66,7 +74,7 @@ headline: 46 of the 47 open boxes are behind the pilot, and the three in Phase
 
 | Pillar | Deck promise | Verified state | Remaining |
 |---|---|---|---|
-| 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested at 91.9th percentile (men) / 89.6th (women) against 600 real arrivals each | Nothing before go live. The learning loop is Phase 5 and needs real replies |
+| 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested at the 95.8th percentile (men) / 95.2nd (women) against 1,500 real arrivals each | Nothing before go live. The learning loop is Phase 5 and needs real replies |
 | 2 · Networking | 3-week A/B/C sequence, 100 programs at a time | Excellent personalisation; coach table, compliance, per-inbox cap and bulk drafting all done. No campaign engine, and no automated send by design | Campaign model, A/B/C variants, sequencing. **Not** an ESP — see locked decisions |
 | 3 · Interactions | Tracking, coach score, session timelines | Feature-complete and tested; edge repaired, guarded and covered 2026-08-24; still **never run on real traffic** | One real end-to-end send; automated sync; real response detection |
 | 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Nothing built; 2 of 3 inputs un-sourced | 2024 roster backfill (both sports), lifestyle data source, metrics, UI |
@@ -880,22 +888,72 @@ sum to 1. The scoring is shared code, not client code, because
 outcomes — a harness that scored differently would measure nothing.
 
 **The model is now measured rather than asserted.** `npm run backtest` ranks
-600 real 2025 arrivals per sport (an athlete on a 2025 roster who was not on
-that school's 2024 roster) using only 2024 data, and reports where their
-actual school landed. Within a ±5 ability band:
+real 2025 arrivals per sport (an athlete on a 2025 roster who was not on that
+school's 2024 roster) using only 2024 data, and reports where their actual
+school landed.
 
-| | median %ile | recall@25 | MRR |
-|---|---|---|---|
-| old model, men's | 59.3% | 23.5% | 0.047 |
-| **new model, men's** | **91.9%** | **64.2%** | **0.185** |
-| chance, men's | 45.4% | 17.2% | 0.035 |
-| old model, women's | 53.6% | 16.7% | 0.041 |
-| **new model, women's** | **89.8%** | **55.3%** | **0.143** |
-| chance, women's | 49.1% | 12.7% | 0.035 |
+Re-measured 2026-08-26, at the parameters the script now ships with —
+`--sample 1500 --band 20 --seed 20260825`, reported from section B, where
+athletic fit is near-constant so the ordering is decided by roster
+opportunity and geography. **The previous table on this line quoted 600
+arrivals in a ±5 band and is not comparable**; the numbers below are what a
+plain `npm run backtest` reproduces today.
+
+| | median %ile | recall@10 | recall@25 | MRR |
+|---|---|---|---|---|
+| chance, men's | 50.2% | 2.1% | 4.7% | 0.0141 |
+| old model, men's | 88.8% | 10.4% | 23.4% | 0.0489 |
+| **new model, men's** | **95.8%** | **34.1%** | **49.9%** | **0.1663** |
+| chance, women's | 48.0% | 1.0% | 3.3% | 0.0088 |
+| old model, women's | 88.1% | 8.3% | 19.2% | 0.0379 |
+| **new model, women's** | **95.2%** | **27.2%** | **44.1%** | **0.1332** |
 
 Read the header comment in `server/lib/matchingBacktest.js` before quoting
 those: two criteria cannot be tested by this method at all and one is
 circular. It is a floor on quality, not a definition of it.
+
+#### The harness was measuring roster opportunity with half of it switched off
+
+Found 2026-08-26 while consolidating the starter threshold. The backtest
+reads the **2024** season, and every one of its 52,539 rows held
+`minutes_played = 0` — not null, zero, maximum zero, with `games_played` and
+`games_started` null throughout. So every 2024 player classified as squad,
+never as a starter, and `rosterOpportunity` only ever applied its ×0.4 squad
+weight. Changing the starter threshold from 900 to 600 produced *byte-
+identical* backtest output, which is what exposed it.
+
+The cause was not code. The 2024 CSVs in `~/Documents/Thriv3/2024 Roster
+Sheets/` carry `Total Minutes Played`, the importer maps that column
+correctly, and the two seasons' headers are identical — but the import ran
+2026-08-24 20:09 and the minutes were written to those files 2026-08-25
+17:19, twenty-one hours later. Nothing re-imported. The same shape as the
+defect recorded in `importRosterSheets.js`'s own header, one step further
+down the pipeline.
+
+Re-imported 2026-08-26 after a `VACUUM INTO` backup
+(`recruitmatch.sqlite.bak-pre-2024-minutes-reimport`). 52,539 rows in, same
+count out; 38,976 now carry minutes and 49,052 carry games. Verified that
+nothing else moved — row counts, school counts, unknown positions and null
+grad years all identical, and a row-level comparison of all 52,539 grad years
+found zero changes.
+
+What it bought, section B, before → after:
+
+| | men's | women's |
+|---|---|---|
+| recall@10 | 28.9% → **34.1%** | 25.3% → **27.2%** |
+| MRR | 0.1341 → **0.1663** | 0.1199 → **0.1332** |
+| recall@25 | 48.7% → 49.9% | 43.9% → 44.1% |
+| median %ile | 96.1% → 95.8% | 95.4% → 95.2% |
+| recall@100 | 80.1% → 79.3% | 75.5% → 72.7% |
+
+A real trade, consistent across both sports: with genuine minutes the model
+is markedly better at the **top** of the list — a 24% MRR gain and five
+points of recall@10 for the men — and slightly worse in the tail. The top is
+what a top-20 outreach list draws from, so this is the half worth having.
+
+No product effect: the app ranks on the 2025 season, and 2024 is read by the
+harness alone. Both athletes' live rankings are byte-identical.
 
 - [x] Persist per-athlete criterion weights on the player record —
       `players.match_weights`, JSON, null meaning "use the defaults".
@@ -1385,7 +1443,7 @@ What pilot 1 actually needs, all verified 2026-08-25:
 
 | | |
 |---|---|
-| Match lists | ✅ backtested, 91.9th percentile (men) / 89.6th (women) |
+| Match lists | ✅ backtested, 95.8th percentile (men) / 95.2nd (women); recall@10 34.1% / 27.2% |
 | Coach contacts | ✅ 6,346, with provenance shown at the point of sending |
 | Compliance | ✅ opt-out, identity, postal address, privacy notice — all live |
 | Drafting | ✅ per school, whole page, or `npm run draft` per athlete |
@@ -1447,32 +1505,48 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
       median of 75% and covers 1,712 programmes rather than 1,669, which is the
       reassuring outcome: the metric was already measuring something real, and
       the fixes widened its base without shifting its centre.
-- [ ] Freshman-minute analysis — **the data is now two seasons deep, so the
-      "over the years" version is possible for the first time.** 2024 minutes
-      were back-filled 2026-08-25; the season previously carried none at all,
-      because minutes were explicitly optional for that acquisition.
+- [ ] Freshman-minute analysis — **the data is two seasons deep in the
+      database for the first time.** The 2024 minutes reached the CSVs on
+      2026-08-25 but were not imported until 2026-08-26; see §1.2 for what
+      that gap was doing to the backtest. Figures below are queried from the
+      database as it stands, not from the sheets.
 
-      | | Fr. rows | with a minutes figure | who actually played | median (of those) |
-      |---|---:|---:|---:|---:|
-      | 2024 men's | 6,606 | 5,744 (87%) | 3,975 | 343 |
-      | 2024 women's | 7,878 | 6,954 (88%) | 5,599 | 371 |
-      | 2025 men's | 6,809 | 6,313 (93%) | 4,502 | 333 |
-      | 2025 women's | 7,843 | 7,372 (94%) | 5,861 | 404 |
+      | | Fr. rows | who played | median minutes (of those) |
+      |---|---:|---:|---:|
+      | 2024 men's | 5,699 | 3,487 | 352 |
+      | 2024 women's | 6,811 | 5,005 | 377 |
+      | 2025 men's | 7,346 | 4,703 | 335 |
+      | 2025 women's | 7,704 | 5,848 | 412 |
 
       Still a query rather than a column, and still needs the same denominator
       discipline as retention — "0 minutes" is only meaningful against how many
       freshmen a programme carried.
 
-      **One trap before anyone computes a median.** A blank means the stats page
-      could not be read; a 0 means it was read and the player did not appear.
-      Those are different facts and the 2024 back-fill keeps them apart. The
-      2025 files do not: **79 school-sports there record 0 minutes for every
-      player** (2,216 rows), which reads as "nobody played" but means "no data".
-      They are mostly PrestoSports programmes whose team tables carry
-      `gp, sh, g, a` and no minutes column at all, which is also why the same
-      programmes have no 2024 figure. Treat an all-zero programme as missing, or
-      it will drag every average it touches. Real 2025 coverage is nearer 89%
-      than the headline 93%.
+      **The trap, and the column that gets you out of it.** A blank cell means
+      the stats page could not be read; a 0 means it was read and the player
+      did not appear. `minutes_played` cannot tell you which, because the
+      importer coerces a blank to 0 on the way in
+      (`toIntOrNull(...) ?? 0`) — Central Connecticut's Michel Pinoncely is
+      blank in the sheet and Akron's Lincoln McCarty is a literal 0, and both
+      are 0 in the database.
+
+      **`games_played` keeps the distinction**, because it is stored as
+      `toIntOrNull` with no fallback. Read the pair, not the minutes alone:
+
+      | | meaning | 2024 | 2025 |
+      |---|---|---:|---:|
+      | `minutes > 0` | played, minutes known | 38,976 | 46,769 |
+      | `minutes = 0`, `games > 0` | played, **minutes not recorded** | 2,939 | 5,859 |
+      | `minutes = 0`, `games = 0` | on the roster, did not appear | 7,137 | 8,316 |
+      | `minutes = 0`, `games IS NULL` | nothing recorded at all | 3,487 | 3,437 |
+
+      The second row is the one that will silently drag every average: mostly
+      PrestoSports programmes whose team tables carry `gp, sh, g, a` and no
+      minutes column. Rows two and four are missing data and must be excluded
+      from any mean or median, not counted as zeros. 221 school-sports in 2024
+      and 246 in 2025 record 0 minutes for every player on the roster; treat a
+      programme like that as absent rather than as a squad nobody played.
+
 - [ ] Identify a source for university quality and lifestyle. Currently
       un-sourced. `academic_rating` is now complete in scope, but it measures
       academic strength, not what living and playing somewhere is like —
