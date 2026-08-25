@@ -10,7 +10,7 @@ import { pickHeadCoach } from '@shared/coachRoles.js';
 import EmailRiskBadge from '@/components/EmailRiskBadge';
 import { useCoachEmailStatus, statusOf } from '@/lib/useCoachEmailStatus';
 import {
-  fillTemplate, buildEmailContext, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE,
+  fillTemplate, buildEmailContext, unresolvedTokens, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE,
 } from '@/lib/emailTemplate';
 import { outreach } from '@/api/client';
 
@@ -55,6 +55,13 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
   const [error, setError] = useState(null);
   const [reachable, setReachable] = useState(true);
   const [from, setFrom] = useState(null);
+
+  // Subject and body are already filled here, so anything still in {{braces}}
+  // is a token nothing resolved — and it would be sent exactly like that.
+  const unresolved = useMemo(() => {
+    const context = buildEmailContext(player, college, initialGreetingName);
+    return [...new Set([...unresolvedTokens(subject, context), ...unresolvedTokens(body, context)])];
+  }, [player, college, initialGreetingName, subject, body]);
 
   function toggle(email) {
     setSelected((prev) => {
@@ -141,6 +148,13 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
             <Textarea rows={12} value={body} onChange={(e) => setBody(e.target.value)} className="text-sm" />
           </div>
         </div>
+
+        {unresolved.length > 0 && (
+          <p className="rounded-md border border-amber-500/40 bg-amber-500/10 p-2.5 text-xs">
+            Nothing resolves {unresolved.map((t) => `{{${t}}}`).join(', ')} — {unresolved.length === 1 ? 'it' : 'they'} will
+            reach the coach exactly like that.
+          </p>
+        )}
 
         {from?.mismatch && (
           <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">

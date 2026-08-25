@@ -395,3 +395,35 @@ describe('rankMatches graduating figures', () => {
     expect(withRoster.breakdown.find((b) => b.key === 'roster').confidence).toBe('measured');
   });
 });
+
+describe('rankMatches carries the presentation columns', () => {
+  // The result object is built field by field, never spread from the row, so
+  // a column not named in it is silently dropped. Eight were: the database
+  // knew SMU are the Mustangs, mascot Peruna, ACC champions, and every one of
+  // those email tokens resolved to nothing while the app looked fine.
+  const DECORATED = [
+    'nickname', 'nickname_plural', 'mascot',
+    'conference_champion_2025', 'conference_champion_name',
+    'logo_url', 'primary_color', 'secondary_color',
+  ];
+
+  it('passes every personalisation and branding column through', () => {
+    const row = college({
+      nickname: 'Mustangs', nickname_plural: 1, mascot: 'Peruna',
+      conference_champion_2025: 1, conference_champion_name: 'ACC',
+      logo_url: 'https://example.test/l.png', primary_color: '#C8102E', secondary_color: '#0033A0',
+    });
+    const { results } = rankMatches({ athlete: athlete(), colleges: [row], rosterIndex: buildRosterIndex([]) });
+    for (const key of DECORATED) {
+      expect(results[0], `${key} was dropped by rankMatches`).toHaveProperty(key, row[key]);
+    }
+  });
+
+  // The conditionals in the email template gate on presence, so undefined and
+  // null must not become '' or 0 on the way through — that would make a
+  // school with no nickname indistinguishable from one we simply dropped.
+  it('passes an absent column through as absent, not as a blank', () => {
+    const { results } = rankMatches({ athlete: athlete(), colleges: [college()], rosterIndex: buildRosterIndex([]) });
+    for (const key of DECORATED) expect(results[0][key]).toBeUndefined();
+  });
+});

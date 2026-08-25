@@ -1,4 +1,8 @@
-import { classYearOf } from '@shared/athlete.js';
+// Relative, not the `@shared` alias: this module is the one file under src/
+// that a Node CLI loads (server/scripts/draftOutreach.js imports it), and Node
+// cannot resolve a Vite alias. When this was an alias `npm run draft` died on
+// ERR_MODULE_NOT_FOUND while the app carried on working, so nothing noticed.
+import { classYearOf } from '../../shared/athlete.js';
 
 // Section 11: The Email Template System — ported exactly.
 
@@ -36,6 +40,9 @@ export const TEMPLATE_VARIABLES = [
   { token: 'player_position', label: 'Player Position' },
   { token: 'player_secondary_position', label: 'Secondary Position' },
   { token: 'player_gpa', label: 'GPA' },
+  { token: 'player_sat_score', label: 'SAT Score' },
+  { token: 'player_act_score', label: 'ACT Score' },
+  { token: 'player_yearly_budget', label: 'Annual Budget' },
   { token: 'player_class_year', label: 'Class Year (arrival)' },
   { token: 'player_highlights_url', label: 'Highlights URL' },
   { token: 'player_profile_url', label: 'Tracked Profile Link' },
@@ -95,7 +102,11 @@ export function buildEmailContext(player, college, coachName) {
     college_name: college.name || '',
     college_division: college.division || '',
     college_conference: college.conference || '',
-    college_location: college.location || '',
+    // Derived from city and state, which are populated, rather than read from
+    // colleges.location, which is empty on all 2,374 rows — so this token
+    // rendered as nothing for every school. The card already prefers
+    // city + state for the same reason.
+    college_location: [college.city, college.state].filter(Boolean).join(', ') || college.location || '',
     // Falls back to the plain school name so a template referencing the
     // nickname never reads broken for a school we haven't backfilled yet.
     college_nickname: college.nickname || college.name || '',
@@ -106,8 +117,14 @@ export function buildEmailContext(player, college, coachName) {
     // plural ("Blue Devils") or singular ("Cardinal"). Defaults to singular
     // when we don't know (nickname missing, or not yet classified) since
     // that's what agrees with the college_name fallback above.
-    college_nickname_have: college.nickname_plural ? 'have' : 'has',
-    college_nickname_are: college.nickname_plural ? 'are' : 'is',
+    // Gated on the nickname as well as the flag, which is what the note above
+    // always claimed and the code did not do: with no nickname the display
+    // value falls back to the singular school name, so agreeing with a stale
+    // plural flag would read "the SMU have real depth". No row is in that
+    // state today — the two columns are always written together — but
+    // clearing a wrong nickname without clearing the flag would create one.
+    college_nickname_have: college.nickname && college.nickname_plural ? 'have' : 'has',
+    college_nickname_are: college.nickname && college.nickname_plural ? 'are' : 'is',
     // college_nickname above always resolves (it falls back to the plain
     // school name), so it can't be used to gate a {{#if}} block on whether
     // we actually HAVE a real nickname -- these two exist for exactly that,
@@ -128,6 +145,15 @@ export function buildEmailContext(player, college, coachName) {
     player_position: player.position || '',
     player_secondary_position: secondary,
     player_gpa: player.gpa != null && player.gpa !== '' ? String(player.gpa) : 'N/A',
+    // Saved templates were already writing {{player_sat_score}} and
+    // {{player_yearly_budget}} before either existed here. An unknown token is
+    // left alone by fillTemplate rather than erroring, so those rendered
+    // literally into the email body — the trial athlete's draft said
+    // "SAT: {{player_sat_score}}" while his profile held 1210. Named to match
+    // what the templates already say rather than renaming and breaking them.
+    player_sat_score: player.sat_score != null && player.sat_score !== '' ? String(player.sat_score) : 'N/A',
+    player_act_score: player.act_score != null && player.act_score !== '' ? String(player.act_score) : 'N/A',
+    player_yearly_budget: player.budget_range || 'N/A',
     // Both names resolve to the same value. `player_graduation_year` is kept
     // because saved templates in the database still use it, and renaming a
     // token does not error — it silently renders nothing.
@@ -139,6 +165,29 @@ export function buildEmailContext(player, college, coachName) {
     // shows where it will land.
     player_profile_url: '{{player_profile_url}}',
   };
+}
+
+/**
+ * Tokens in a template that nothing will resolve.
+ *
+ * `fillTemplate` leaves an unknown token exactly as written rather than
+ * erroring, which is right — a half-substituted template is worse than an
+ * obvious one — but it means a typo reaches a coach intact. The trial
+ * athlete's subject line was
+ * "{{player_name}} | {{position}} | {{graduation_year}} | ..." where the real
+ * tokens are `player_position` and `player_class_year`, and nothing said so.
+ *
+ * `{{#if}}` and `{{else}}` are template syntax, not tokens, and a filter
+ * (`{{player_position|lowercase}}`) is stripped before the name is checked.
+ */
+export function unresolvedTokens(template, context) {
+  const found = new Set();
+  for (const match of String(template || '').matchAll(/\{\{\s*(?:#if\s+)?([a-zA-Z0-9_]+)\s*(?:\|[^}]*)?\}\}/g)) {
+    const key = match[1];
+    if (key === 'else' || key === 'if') continue;
+    if (!Object.prototype.hasOwnProperty.call(context, key)) found.add(key);
+  }
+  return [...found];
 }
 
 function applyFilter(value, filter) {

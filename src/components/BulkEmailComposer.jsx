@@ -11,7 +11,7 @@ import { riskCounts, emailRisk } from '@shared/emailRisk.js';
 import EmailRiskBadge from '@/components/EmailRiskBadge';
 import { useCoachEmailStatus, statusOf } from '@/lib/useCoachEmailStatus';
 import {
-  fillTemplate, buildEmailContext, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE,
+  fillTemplate, buildEmailContext, unresolvedTokens, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE,
 } from '@/lib/emailTemplate';
 import { outreach } from '@/api/client';
 
@@ -65,6 +65,18 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
   const [from, setFrom] = useState(null);
 
   const previewTarget = targets.find((t) => t.college.name === previewName) || targets[0] || null;
+
+  // A token nothing resolves is left exactly as written, so a typo reaches
+  // the coach intact. Checked against a real context rather than by looking
+  // for braces, because a template legitimately still holds its tokens here.
+  const unresolved = useMemo(() => {
+    if (!previewTarget) return [];
+    const context = buildEmailContext(player, previewTarget.college, 'Coach');
+    return [...new Set([
+      ...unresolvedTokens(subject, context),
+      ...unresolvedTokens(body, context),
+    ])];
+  }, [previewTarget, player, subject, body]);
   const preview = useMemo(() => {
     if (!previewTarget) return null;
     const context = buildEmailContext(player, previewTarget.college, previewTarget.coach.name || 'Coach');
@@ -273,6 +285,16 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
             </p>
             <Textarea rows={10} value={body} onChange={(e) => setBody(e.target.value)} className="text-sm" disabled={busy} />
           </div>
+
+          {unresolved.length > 0 && (
+            <p className="flex items-start gap-1.5 rounded-md border border-amber-500/40 bg-amber-500/10 p-2.5 text-xs">
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
+              <span>
+                Nothing resolves {unresolved.map((t) => `{{${t}}}`).join(', ')} — {unresolved.length === 1 ? 'it' : 'they'} will
+                reach the coach exactly like that. Fix or delete {unresolved.length === 1 ? 'it' : 'them'} above.
+              </span>
+            </p>
+          )}
 
           {preview && (
             <div className="space-y-1.5">

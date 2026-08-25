@@ -3,10 +3,16 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   resolve: {
-    alias: { '@shared': path.resolve(process.cwd(), 'shared') },
+    alias: {
+      '@shared': path.resolve(process.cwd(), 'shared'),
+      '@': path.resolve(process.cwd(), 'src'),
+    },
   },
   test: {
-    include: ['server/**/*.test.js', 'shared/**/*.test.js', 'worker/**/*.test.js'],
+    // src/ included so the email template — the one module under src/ that a
+    // Node CLI also loads — is covered where it lives rather than only through
+    // whatever happens to import it.
+    include: ['server/**/*.test.js', 'shared/**/*.test.js', 'worker/**/*.test.js', 'src/**/*.test.js'],
     // Every test file gets its own worker, and therefore its own throwaway
     // in-memory database — never the working one in server/data.
     env: {

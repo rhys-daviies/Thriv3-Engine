@@ -55,9 +55,13 @@ export async function analyze(player, { onPhase, onProgress }) {
   // supplies the roster data, so the Email Coaches button needs this lookup
   // regardless of where the opportunity numbers came from.
   const coachingStaffMap = {};
+  // `official_roster_url` lives on GraduatingSenior, not on colleges — the
+  // card read it off the college and so never rendered the link at all.
+  const rosterUrlMap = {};
   const gradRecords = await entities.GraduatingSenior.filter({ sport: playerSport });
   for (const r of gradRecords) {
     if (r.coaching_staff && r.coaching_staff.length) coachingStaffMap[r.college_name] = r.coaching_staff;
+    if (r.official_roster_url) rosterUrlMap[r.college_name] = r.official_roster_url;
   }
 
   onProgress({ current: allColleges.length, total: allColleges.length, school: '', phase: 'researching' });
@@ -72,6 +76,7 @@ export async function analyze(player, { onPhase, onProgress }) {
     ...r,
     program_quality_rating: r.soccer_score != null ? r.soccer_score / 10 : null,
     coaching_staff: coachingStaffMap[r.name] || [],
+    official_roster_url: rosterUrlMap[r.name] || null,
     // The two pairs below are different numbers and must not be aliased to
     // each other. They were: both "total" fields were assigned the
     // at-position values, so the card's "Total Graduating" and "At Your

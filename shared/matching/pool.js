@@ -221,6 +221,21 @@ export function rankMatches({ athlete, colleges, rosterIndex, weights, limit }) 
       academic_rating: c.academic_rating,
       academic_rating_source: c.academic_rating_source,
       net_price: c.net_price,
+      // Presentation and personalisation columns. Carried explicitly because
+      // this object is built field by field rather than spread from the row,
+      // so anything not named here is silently dropped — which is what had
+      // happened: the database knew SMU are the Mustangs, mascot Peruna, ACC
+      // champions, and every one of those tokens resolved to nothing. The
+      // email read "for the SMU." and each {{#if}} block vanished, because
+      // the conditionals gate on exactly these fields.
+      nickname: c.nickname,
+      nickname_plural: c.nickname_plural,
+      mascot: c.mascot,
+      conference_champion_2025: c.conference_champion_2025,
+      conference_champion_name: c.conference_champion_name,
+      logo_url: c.logo_url,
+      primary_color: c.primary_color,
+      secondary_color: c.secondary_color,
       graduating_at_position: (cohort?.starters || 0) + (cohort?.squad || 0),
       graduating_starters_at_position: cohort?.starters || 0,
       graduating_names_at_position: cohort?.names || [],
