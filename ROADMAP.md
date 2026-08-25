@@ -6,7 +6,7 @@ the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
 Last audited: 2026-08-25, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 451 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 554 tests green). Coverage numbers below were
 re-run, not copied. The academic-rating gap has closed completely; roster and
 grad-year figures moved and are corrected in place.
 
@@ -1001,6 +1001,64 @@ circular. It is a floor on quality, not a definition of it.
       CCAC and AMC are all D2 and NAIA), and since `preferred_conferences` is
       a flat list of names, those rows say so rather than looking broken when
       selecting all of D2 moves NAIA's counter.
+
+- [x] **The intake form asks what the model needs, and only that.** Four
+      changes, each closing a gap the model could not work around:
+      **SAT and ACT** now have inputs — the columns, the profile row and the
+      public page's academic record all existed, but nothing could fill them,
+      so admissibility fell back to GPA or gave up.
+      **Graduation year and recruiting class year merged** into the latter.
+      They held one fact and gated different things — publishing wanted one,
+      the form and matching the other — so an athlete could be created,
+      matched and drafted and then fail to publish on a field nobody had asked
+      for. `classYearOf()` is the single reader.
+      **The academic importance slider is gone.** Once criteria could be
+      ranked, a 0-10 slider said the same thing worse, and whenever a ranking
+      existed it was already being discarded. Academics is an ordinary default
+      weight of 15 now. SAT did not make it redundant — SAT says whether they
+      can get in, the slider said whether they cared; it is the *ranking* that
+      replaced it.
+      **Budget split into $5k bands** from a top band of "$50k+" against a
+      mean net price near $22k. Need is derived from the ceiling rather than
+      a table, so a resplit can never leave a band with no need attached.
+- [x] **Ranking first place means something.** The rank-to-weight curve was
+      linear, giving first place 26.7% — so a programme merely good on the
+      other five could outrank a strong one on the criterion the operator had
+      just named as most important. Steepening a linear ramp barely helps,
+      because lowering the tail lowers the denominator with it. Geometric
+      decay puts first at **37.9%** and still leaves sixth carrying 4.4%,
+      because a ranking says which matter *more*, not which to switch off.
+- [x] **An academic minimum, as a constraint rather than a reinterpreted
+      preference.** The retired slider was a preference the old model silently
+      used as a threshold. This is the athlete stating a floor: it defaults to
+      none, what it removes is counted and printed, it sets no weight, and an
+      unrated programme is never dropped — that last case is what once made a
+      third of the women's field vanish.
+- [x] **Location is named for what it scores.** For an international athlete
+      the criterion measures whether the programme recruits overseas and
+      whether their countrymen are there, not distance — but the token still
+      read "Near home", so an operator ranking it was ranking a belief about
+      what it did. It now reads "International fit" for them.
+
+#### Two more inversions of the same shape
+Both found by running the model against a real athlete rather than by reading
+it, and both the same failure as the roster one: **missing data scoring better
+than measured-bad data**.
+
+An athlete with **no GPA and no test score** had academic fit returning school
+quality with admissibility assumed — a school *attribute* presented as a
+*fit*, ranking them toward stronger academics on no evidence they could get in
+or that they cared. Measured against 600 real placements it cost 3.2 points of
+median percentile. It returns the prior now, like every other criterion with
+no input.
+
+A school with **no SAT average of its own** was falling back to that same
+prior and scoring 0.5 — better than it deserved, and better than an equally
+weak school with complete data. `academic_rating` is complete for every
+programme in scope, so quality is known even when admissibility is not. A
+1.4/10 programme went from 0.5 to 0.14; for a 1440-SAT athlete ranking
+academics first it fell from 3rd to 167th, and with the steeper ranking curve,
+to well outside his list.
 
 #### A second defect this work uncovered
 Testing the panel against a real athlete surfaced the same inversion as
