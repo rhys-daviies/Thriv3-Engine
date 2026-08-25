@@ -730,14 +730,16 @@ then 2023 and 2022. Not to be picked up here.
       evidence of absence.
 
 ### Hedge, so the data work is not on the critical path
-- [ ] **Handle null academic ratings in `playerAnalysis.js` now** rather than
-      waiting for the backfill. The filter at `playerAnalysis.js:51` drops
-      every null-rated school silently, so a third of women's programmes are
-      invisible whenever an athlete sets academic importance. **The backfill
-      has since landed and there are zero null ratings in scope**, so this is
-      no longer urgent — but it stays open, because the filter is still one
-      unrated school away from silently hiding a programme, and nothing warns
-      when it does. Now a robustness fix rather than a hedge.
+- [x] **Handle null academic ratings in `playerAnalysis.js`** rather than
+      waiting for the backfill. The filter at `playerAnalysis.js:51` dropped
+      every null-rated school silently, so a third of women's programmes went
+      invisible whenever an athlete set academic importance. Closed by the
+      Phase 1.2 rebuild rather than by patching the filter: academic
+      importance became a *weight*, so nothing filters on `academic_rating`
+      at all now, and an unrated school scores at the neutral prior with
+      `confidence: 'assumed'` and a greyed bar on the card. The failure mode
+      this item was guarding against — one unrated school silently vanishing —
+      is no longer expressible.
 
 ---
 
