@@ -129,6 +129,28 @@ const COLLEGE_COLUMNS = [
   ['conference_champion_notes', 'TEXT'],
 ];
 
+/**
+ * Where a coach's address came from, and how much to trust it.
+ *
+ * The source CSVs carried this and the import dropped it, so every address
+ * looked equally good. It is not: of 6,360 contacts, 5,001 were read off a
+ * staff page, 1,188 were *inferred* from the institution's address pattern
+ * and have never been seen anywhere, and 171 are shared inboxes. The inferred
+ * fifth is what bounces, and a bounce on a cold campaign costs sender
+ * reputation rather than just a lost email.
+ *
+ * `email_confirmed_at` stays null until something actually proves the address
+ * — a send that does not bounce, or a reply. It is deliberately not the same
+ * field as `email_status`: one records where we got it, the other whether it
+ * has since been shown to work.
+ */
+const COACH_COLUMNS = [
+  ['email_status', "TEXT DEFAULT 'unknown'"],   // verified | inferred | generic | unknown
+  ['email_source_url', 'TEXT'],
+  ['email_confirmed_at', 'TEXT'],
+  ['source', 'TEXT'],                            // which import produced the row
+];
+
 function addMissingColumns(db, table, columns) {
   const existing = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name));
   for (const [name, ddl] of columns) {
@@ -225,5 +247,6 @@ export function migrate(db) {
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_tracking_remote_id ON tracking_events(remote_id)');
 
   addMissingColumns(db, 'colleges', COLLEGE_COLUMNS);
+  addMissingColumns(db, 'coaches', COACH_COLUMNS);
   backfillAcademicRatingSource(db);
 }
