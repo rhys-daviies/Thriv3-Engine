@@ -128,10 +128,27 @@ describe('academicFit', () => {
     expect(r.confidence).toBe('partial');
   });
 
-  it('does not penalise an athlete who supplied no academic profile', () => {
+  // Not "assume they get in and rank by school quality" — that ranks an
+  // athlete toward stronger academics on no evidence they can get in or that
+  // they care, and it measured 3.2 points of median percentile worse across
+  // 600 real placements. No input, so the prior, like every other criterion.
+  it('scores at the prior when the athlete supplied no academic profile', () => {
     const r = academicFit({ academicRating: 8, schoolSatAvg: 1300 });
-    expect(r.detail.admissibility).toBe(1);
+    expect(r.score).toBe(NEUTRAL_PRIOR);
     expect(r.confidence).toBe('assumed');
+  });
+
+  it('does not let school quality discriminate without an athlete profile', () => {
+    const strong = academicFit({ academicRating: 9.8, schoolSatAvg: 1500 });
+    const weak = academicFit({ academicRating: 2.1, schoolSatAvg: 900 });
+    expect(strong.score).toBe(weak.score);
+  });
+
+  it('turns back on as soon as a GPA or a test score is entered', () => {
+    const strong = academicFit({ academicRating: 9.8, schoolSatAvg: 1200, athleteSat: 1400 });
+    const weak = academicFit({ academicRating: 2.1, schoolSatAvg: 900, athleteSat: 1400 });
+    expect(strong.score).toBeGreaterThan(weak.score);
+    expect(academicFit({ academicRating: 8, athleteGpa: 3.9 }).confidence).toBe('partial');
   });
 
   it('falls back to the prior when the school is unrated', () => {

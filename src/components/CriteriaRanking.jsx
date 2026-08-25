@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 import { GripVertical, ChevronUp, ChevronDown, RotateCcw, Sparkles, Info, ArrowUp } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import {
   criterionCopy, defaultRanking, moveItem as move, readRanking, resolveWeights, boostedCriteria,
@@ -25,8 +24,8 @@ export default function CriteriaRanking({ player, onApply, busy }) {
   // Opening the panel shows where things already stand, so the first drag is
   // a change to something visible rather than to an arbitrary starting order.
   const baseline = useMemo(
-    () => stored || defaultRanking(player.academic_importance),
-    [stored, player.academic_importance]
+    () => stored || defaultRanking(),
+    [stored]
   );
 
   const [ranking, setRanking] = useState(baseline);
@@ -35,7 +34,10 @@ export default function CriteriaRanking({ player, onApply, busy }) {
 
   const athlete = useMemo(() => normaliseAthlete(player), [player]);
   const { label: LABEL, blurb: BLURB } = criterionCopy(athlete.origin);
-  const coupled = useMemo(() => resolveCouplings(athlete), [athlete]);
+  const coupled = useMemo(
+    () => resolveCouplings(athlete, { academicWeight: resolveWeights({ ranking: previewing ? ranking : null, overrides: athlete.weightOverrides }).academic }),
+    [athlete, ranking, previewing]
+  );
 
   // Show the weights that are actually in force until the operator changes
   // something, then switch to a preview of what applying would do. Rendering
@@ -43,29 +45,18 @@ export default function CriteriaRanking({ player, onApply, busy }) {
   // for an athlete with no saved ranking they are not — applying a ranking
   // replaces the intake-derived weighting wholesale.
   const previewing = dirty || Boolean(stored);
+  const activeRanking = previewing ? ranking : null;
   const weights = useMemo(
-    () => resolveWeights({
-      academicImportance: player.academic_importance,
-      ranking: previewing ? ranking : null,
-      couplings: coupled.weights,
-      overrides: athlete.weightOverrides,
-    }),
-    [player.academic_importance, ranking, previewing, coupled, athlete]
+    () => resolveWeights({ ranking: activeRanking, couplings: coupled.weights, overrides: athlete.weightOverrides }),
+    [activeRanking, coupled, athlete]
   );
   // A coupling can put a lower-ranked criterion above a higher-ranked one.
   // Correct, but an ordered list whose numbers disagree with its order reads
   // as a bug unless the boosted rows say so.
   const boosted = useMemo(
-    () => boostedCriteria({
-      academicImportance: player.academic_importance,
-      ranking: previewing ? ranking : null,
-      couplings: coupled.weights,
-    }),
-    [player.academic_importance, ranking, previewing, coupled]
+    () => boostedCriteria({ ranking: activeRanking, couplings: coupled.weights }),
+    [activeRanking, coupled]
   );
-
-  const academicRanked = ranking.includes('academic');
-  const academicSlider = player.academic_importance;
 
   return (
     <Card className="p-5 space-y-4">
@@ -181,13 +172,6 @@ export default function CriteriaRanking({ player, onApply, busy }) {
             <p key={note} className="text-xs text-muted-foreground">{note}</p>
           ))}
         </div>
-      )}
-
-      {academicRanked && academicSlider != null && academicSlider !== 'Not Important' && (
-        <p className="text-xs text-muted-foreground">
-          Academics was set to <Badge variant="muted">{academicSlider}/10</Badge> on the intake form. This ranking
-          overrides that.
-        </p>
       )}
 
       {dirty && (

@@ -41,6 +41,16 @@ export function scholarshipNeed(budgetRange) {
   }
 }
 
+/**
+ * Normalised academic weight at which academics counts as a stated priority.
+ *
+ * 0.16 is roughly where the retired importance slider used to trip at 7/10,
+ * so behaviour is unchanged for an athlete who had set it there — it is just
+ * now derived from what academics actually carries rather than from a second
+ * control that a ranking had already overruled.
+ */
+export const ACADEMIC_PRIORITY_THRESHOLD = 0.16;
+
 /** Where athleticFit peaks for an athlete with no particular money pressure. */
 export const BASE_PEAK_OFFSET = 4;
 /** Where it peaks for an athlete who needs a full scholarship. */
@@ -97,9 +107,14 @@ export const COUPLINGS = [
     name: 'academic-priority-needs-admissibility',
     why: 'An athlete who ranks academics highly is being shown selective institutions, and a selective institution they cannot get into is not a match. Weighting academics up without also caring whether they are admissible produces a list of impossible schools.',
     evidence: 'measured',
-    apply: ({ academicImportance }, out) => {
-      const n = Number(academicImportance);
-      if (!Number.isFinite(n) || n < 7) return;
+    // Reads the weight academics actually carries, not the retired 0-10
+    // slider. While it read the slider the two could contradict each other:
+    // academics ranked first with the slider at "Not Important" got a 26.7%
+    // weight and no tightening, and academics ranked last with the slider at 9
+    // got 7% and the strictest test. Safe to read the pre-coupling weight
+    // because no coupling multiplies academic's own weight.
+    apply: ({ academicWeight }, out) => {
+      if (!Number.isFinite(academicWeight) || academicWeight < ACADEMIC_PRIORITY_THRESHOLD) return;
       out.shapes.academic.admissibilityFloor = 0.25;
       out.notes.push('Academic reaches discounted harder, since academics are a stated priority.');
     },
@@ -113,7 +128,7 @@ export const COUPLINGS = [
  * one sentence, so a card can say *why* it was ranked the way it was rather
  * than presenting a number the athlete has to take on faith.
  */
-export function resolveCouplings(athlete) {
+export function resolveCouplings(athlete, { academicWeight = null } = {}) {
   const out = {
     weights: { athletic: 1, roster: 1, academic: 1, affordability: 1, programQuality: 1, geography: 1 },
     shapes: { athletic: {}, academic: {}, affordability: {}, geography: {}, roster: {}, programQuality: {} },
@@ -122,7 +137,7 @@ export function resolveCouplings(athlete) {
   };
   const context = {
     need: scholarshipNeed(athlete?.budgetRange),
-    academicImportance: athlete?.academicImportance,
+    academicWeight,
     state: athlete?.state,
     origin: athlete?.origin,
   };

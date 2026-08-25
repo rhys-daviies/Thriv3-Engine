@@ -25,8 +25,8 @@ export function scoreMatch({ athlete, college, weights, shapes }) {
   // Resolving couplings per call is wasteful inside a ranking loop, which is
   // why pool.js does it once and passes both down; this fallback exists so a
   // single scoreMatch() call is still correct on its own.
-  const coupled = weights && shapes ? null : resolveCouplings(athlete);
-  const w = weights || resolveWeights({ academicImportance: athlete.academicImportance, couplings: coupled?.weights });
+  const coupled = weights && shapes ? null : resolveCouplings(athlete, { academicWeight: resolveWeights().academic });
+  const w = weights || resolveWeights({ couplings: coupled?.weights });
   const sh = shapes || coupled?.shapes || {};
 
   const parts = {

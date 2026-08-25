@@ -35,7 +35,6 @@ function defaultsFrom(initialData) {
     secondary_position: initialData?.secondary_position || 'None',
     preferred_divisions: initialData?.preferred_divisions || [],
     football_ability: initialData?.football_ability ?? 5,
-    academic_importance: initialData?.academic_importance ?? 'Not Important',
     gpa: initialData?.gpa ?? '',
     sat_score: initialData?.sat_score ?? '',
     act_score: initialData?.act_score ?? '',
@@ -339,10 +338,6 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             <AbilitySlider value={data.football_ability} onChange={set('football_ability')} lowLabel="Developmental" highLabel="Elite" />
           </div>
 
-          <div className="space-y-2">
-            <Label>Academic Importance</Label>
-            <AbilitySlider value={data.academic_importance} onChange={set('academic_importance')} lowLabel="Doesn't matter" highLabel="Elite academics" notImportantOption />
-          </div>
 
           <div className="space-y-1.5">
             <Label>Highlights URL</Label>
@@ -411,7 +406,6 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             <PriorityTokens
               value={data.criterion_ranking}
               onChange={set('criterion_ranking')}
-              academicImportance={data.academic_importance}
               budgetRange={data.budget_range}
               state={data.state}
               origin={data.origin}

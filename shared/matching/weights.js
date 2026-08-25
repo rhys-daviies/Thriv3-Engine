@@ -63,38 +63,31 @@ importance slider. See academicWeight().
  */
 export const DEFAULT_WEIGHTS = {
   athletic: 30,
-  roster: 10,
-  affordability: 15,
-  programQuality: 10,
   geography: 25,
+  academic: 15,
+  affordability: 15,
+  roster: 10,
+  programQuality: 10,
 };
 
 /**
- * The academic_importance slider, converted into a weight.
- *
- * This is the correction at the heart of the rebuild. The slider is an
- * importance, so it belongs on this axis; the old model used it as a minimum
- * academic_rating and filtered the pool with it, which is a different
- * quantity entirely and cost the athlete roughly half their options.
- *
- * 10/10 maps to 25, which sits just below athletic fit at 30 — an athlete who
- * cares maximally about academics still cannot outrank being able to play.
- */
-export function academicWeight(academicImportance) {
-  if (academicImportance === 'Not Important' || academicImportance === null || academicImportance === undefined || academicImportance === '') return 0;
-  const n = typeof academicImportance === 'number' ? academicImportance : parseFloat(academicImportance);
-  if (!Number.isFinite(n)) return 0;
-  return Math.max(0, Math.min(10, n)) * 2.5;
-}
-
-/**
- * Merge defaults, the athlete's academic importance, and any operator
+ * Merge defaults, the athlete's ranking, any couplings and any operator
  * override into a single weight per criterion, normalised to sum to 1.
  *
  * An override of 0 is honoured — an operator who zeroes location means it.
+ *
+ * Academics used to come from a 0-10 importance slider on the intake form
+ * rather than from the defaults. That slider was retired on 2026-08-25: once
+ * criteria could be ranked, a ranking said the same thing better — "academics
+ * matter more than cost, less than playing level" is a question a family can
+ * answer, where "academics are 7/10 important" in a vacuum is not — and
+ * whenever a ranking existed the slider was already being ignored. Two
+ * controls on adjacent form steps expressing one preference is worse than
+ * one. Intensity beyond what a ranking can express lives in `overrides`,
+ * persisted as players.match_weights.
  */
-export function resolveWeights({ academicImportance, overrides, ranking, couplings } = {}) {
-  let raw = { ...DEFAULT_WEIGHTS, academic: academicWeight(academicImportance) };
+export function resolveWeights({ overrides, ranking, couplings } = {}) {
+  let raw = { ...DEFAULT_WEIGHTS };
 
   // An explicit ranking replaces the defaults outright — the athlete has said
   // what matters to them, and a default is only a stand-in for that.

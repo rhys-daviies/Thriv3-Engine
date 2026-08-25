@@ -42,9 +42,18 @@ describe('resolveCouplings', () => {
     expect(resolveCouplings({ budgetRange: '$50k+/yr' }).shapes.athletic.peakOffset).toBeUndefined();
   });
 
-  it('discounts academic reaches harder when academics are a stated priority', () => {
-    expect(resolveCouplings({ academicImportance: 9 }).shapes.academic.admissibilityFloor).toBe(0.25);
-    expect(resolveCouplings({ academicImportance: 4 }).shapes.academic.admissibilityFloor).toBeUndefined();
+  // Reads the weight academics actually carries, not the retired 0-10 slider.
+  // While it read the slider the two could contradict: academics ranked first
+  // with the slider at "Not Important" got a heavy weight and no tightening.
+  it('discounts academic reaches harder when academics carries real weight', () => {
+    const heavy = resolveCouplings({}, { academicWeight: 0.27 });
+    const light = resolveCouplings({}, { academicWeight: 0.07 });
+    expect(heavy.shapes.academic.admissibilityFloor).toBe(0.25);
+    expect(light.shapes.academic.admissibilityFloor).toBeUndefined();
+  });
+
+  it('does not fire when no academic weight is supplied', () => {
+    expect(resolveCouplings({}).shapes.academic.admissibilityFloor).toBeUndefined();
   });
 
   it('explains every coupling it fires', () => {

@@ -19,11 +19,11 @@ import { resolveCouplings } from '@shared/matching/couplings.js';
  * keys for the keyboard, and tap-to-select-then-tap-to-place for touch, where
  * HTML5 drag does not fire at all.
  */
-export default function PriorityTokens({ value, onChange, academicImportance, budgetRange, state, origin }) {
+export default function PriorityTokens({ value, onChange, budgetRange, state, origin }) {
   // Location means a different thing for an overseas athlete, so it is named
   // for what it actually scores rather than for the domestic case.
   const { short: CRITERION_SHORT, blurb: CRITERION_BLURB } = criterionCopy(origin);
-  const fallback = useMemo(() => defaultRanking(academicImportance), [academicImportance]);
+  const fallback = useMemo(() => defaultRanking(), []);
   const ranking = readRanking(value) || fallback;
   const explicit = readRanking(value) !== null;
 
@@ -32,17 +32,23 @@ export default function PriorityTokens({ value, onChange, academicImportance, bu
 
   // Couplings are part of the weighting the operator is looking at, so the
   // percentages have to include them or the tokens lie about the outcome.
+  const activeRanking = explicit ? ranking : null;
+  // Same two passes as the ranker: academics' own weight decides whether the
+  // admissibility coupling fires, so it has to be resolved before couplings.
   const coupled = useMemo(
-    () => resolveCouplings({ budgetRange, academicImportance, state, origin }),
-    [budgetRange, academicImportance, state, origin]
+    () => resolveCouplings(
+      { budgetRange, state, origin },
+      { academicWeight: resolveWeights({ ranking: activeRanking }).academic }
+    ),
+    [budgetRange, state, origin, activeRanking]
   );
   const weights = useMemo(
-    () => resolveWeights({ academicImportance, ranking: explicit ? ranking : null, couplings: coupled.weights }),
-    [academicImportance, ranking, explicit, coupled]
+    () => resolveWeights({ ranking: activeRanking, couplings: coupled.weights }),
+    [activeRanking, coupled]
   );
   const boosted = useMemo(
-    () => boostedCriteria({ academicImportance, ranking: explicit ? ranking : null, couplings: coupled.weights }),
-    [academicImportance, ranking, explicit, coupled]
+    () => boostedCriteria({ ranking: activeRanking, couplings: coupled.weights }),
+    [activeRanking, coupled]
   );
 
   function commit(next) {

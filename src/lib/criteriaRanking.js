@@ -80,8 +80,8 @@ export function rankingFromWeights(weights) {
 }
 
 /** Where an athlete's priorities sit before anybody ranks them explicitly. */
-export function defaultRanking(academicImportance) {
-  return rankingFromWeights(resolveWeights({ academicImportance }));
+export function defaultRanking() {
+  return rankingFromWeights(resolveWeights());
 }
 
 /** Reorder, returning the original list unchanged for an out-of-range move. */
@@ -103,9 +103,9 @@ export function moveItem(list, from, to) {
  * ordered list whose numbers disagree with its percentages reads as a bug
  * unless the boosted rows say so themselves.
  */
-export function boostedCriteria({ academicImportance, ranking, couplings }) {
-  const withCouplings = resolveWeights({ academicImportance, ranking, couplings });
-  const without = resolveWeights({ academicImportance, ranking });
+export function boostedCriteria({ ranking, couplings }) {
+  const withCouplings = resolveWeights({ ranking, couplings });
+  const without = resolveWeights({ ranking });
   // A shared normaliser means raising one weight lowers every other share, so
   // compare against a tolerance rather than testing for any increase at all.
   return new Set(CRITERION_KEYS.filter((k) => withCouplings[k] > without[k] + 0.005));

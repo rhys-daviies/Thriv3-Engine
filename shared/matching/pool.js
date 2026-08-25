@@ -104,15 +104,15 @@ export function applyEligibility(colleges, athlete) {
  * @param {number}  [args.limit]       how many to return; all of them if absent
  */
 export function rankMatches({ athlete, colleges, rosterIndex, weights, limit }) {
-  // One stated priority changes how the others score, so this resolves before
-  // anything is ranked and applies to every programme identically.
-  const coupled = resolveCouplings(athlete);
-  const w = weights || resolveWeights({
-    academicImportance: athlete.academicImportance,
-    ranking: athlete.criterionRanking,
-    couplings: coupled.weights,
-    overrides: athlete.weightOverrides,
-  });
+  // Two passes, because one coupling depends on a weight. The first resolves
+  // what each criterion carries before any coupling; that tells the academic
+  // rule whether academics is a stated priority. Safe from circularity
+  // because no coupling multiplies academic's own weight — the academic rule
+  // only sets a curve shape.
+  const base = { ranking: athlete.criterionRanking, overrides: athlete.weightOverrides };
+  const preWeights = resolveWeights(base);
+  const coupled = resolveCouplings(athlete, { academicWeight: preWeights.academic });
+  const w = weights || resolveWeights({ ...base, couplings: coupled.weights });
   const { kept, excluded } = applyEligibility(colleges, athlete);
   const percentiles = qualityPercentiles(kept);
 
@@ -204,7 +204,6 @@ export function normaliseAthlete(player) {
     level: ability === null ? null : ability * 10,
     position: String(player.position || '').toUpperCase(),
     classYear: toNum(player.recruiting_class_year),
-    academicImportance: player.academic_importance,
     gpa: toNum(player.gpa),
     sat: toNum(player.sat_score),
     act: toNum(player.act_score),

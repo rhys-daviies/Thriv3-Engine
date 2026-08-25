@@ -194,6 +194,19 @@ export function academicFit({ academicRating, schoolSatAvg, schoolAdmitRate, ath
   const floor = num(admissibilityFloor) ?? ADMISSIBILITY_FLOOR;
   const quality = clamp01(rating / 10);
   const adm = admissibility({ schoolSatAvg, schoolAdmitRate, athleteSat, athleteAct, athleteGpa, academicRating: rating });
+
+  // With no GPA and no test score there is no academic *fit* to measure, only
+  // a school attribute. Returning quality here would rank an athlete toward
+  // stronger academics on no evidence that they can get in or that they care,
+  // and every other criterion in this model returns the prior when it has no
+  // input rather than substituting the nearest available number. Measured
+  // against 600 real placements per sport, asserting quality here cost 3.2
+  // points of median percentile and 9 of recall@25 — it was actively wrong,
+  // not merely unearned. Entering a GPA or a test score turns it back on.
+  if (adm.basis === 'none') {
+    return assumed({ reason: 'athlete has no GPA or test score', academicRating: rating, quality: round2(quality) });
+  }
+
   const score = clamp01(quality * (floor + (1 - floor) * adm.value));
 
   return {

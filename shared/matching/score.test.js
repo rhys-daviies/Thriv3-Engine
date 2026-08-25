@@ -1,13 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { scoreMatch } from './score.js';
-import { resolveWeights, academicWeight, normalise, CRITERION_KEYS, DEFAULT_WEIGHTS } from './weights.js';
+import { resolveWeights, normalise, CRITERION_KEYS, DEFAULT_WEIGHTS } from './weights.js';
 
 const athlete = {
   level: 60,
   position: 'MIDFIELD',
   classYear: 2027,
   sport: 'mens-soccer',
-  academicImportance: 5,
   gpa: 3.4,
   sat: 1200,
   budgetRange: '$15k-$30k/yr',
@@ -33,48 +32,47 @@ const college = {
   distanceMiles: 90,
 };
 
-describe('academicWeight', () => {
-  it('maps the importance slider onto a weight, not a threshold', () => {
-    expect(academicWeight('Not Important')).toBe(0);
-    expect(academicWeight(0)).toBe(0);
-    expect(academicWeight(5)).toBe(12.5);
-    expect(academicWeight(10)).toBe(25);
+describe('the academic weight', () => {
+  // It came from a 0-10 importance slider until 2026-08-25. A ranking says the
+  // same thing better and had already been overruling it, so the slider went
+  // and academics became an ordinary default.
+  it('is a real default rather than something an athlete has to switch on', () => {
+    expect(DEFAULT_WEIGHTS.academic).toBeGreaterThan(0);
+    expect(resolveWeights().academic).toBeGreaterThan(0);
   });
 
-  it('never lets academics outweigh athletic fit', () => {
-    expect(academicWeight(10)).toBeLessThan(DEFAULT_WEIGHTS.athletic);
+  it('never outweighs athletic fit by default', () => {
+    expect(DEFAULT_WEIGHTS.academic).toBeLessThan(DEFAULT_WEIGHTS.athletic);
   });
 
-  it('treats unparseable input as zero rather than NaN', () => {
-    expect(academicWeight('abc')).toBe(0);
-    expect(academicWeight(null)).toBe(0);
-    expect(academicWeight(undefined)).toBe(0);
+  it('ignores a legacy importance value left on an old record', () => {
+    expect(resolveWeights({ academicImportance: 10 })).toEqual(resolveWeights());
+    expect(resolveWeights({ academicImportance: 'Not Important' })).toEqual(resolveWeights());
   });
 
-  it('clamps out-of-range sliders', () => {
-    expect(academicWeight(50)).toBe(25);
-    expect(academicWeight(-3)).toBe(0);
+  it('can still be switched off, but only deliberately', () => {
+    expect(resolveWeights({ overrides: { academic: 0 } }).academic).toBe(0);
   });
 });
 
 describe('resolveWeights', () => {
   it('always sums to 1', () => {
-    for (const imp of ['Not Important', 0, 1, 5, 10, null]) {
-      const w = resolveWeights({ academicImportance: imp });
+    for (const overrides of [null, {}, { academic: 0 }, { geography: 0, academic: 0 }, { athletic: 40 }]) {
+      const w = resolveWeights({ overrides });
       const total = CRITERION_KEYS.reduce((s, k) => s + w[k], 0);
       expect(total).toBeCloseTo(1, 10);
     }
   });
 
   it('honours an operator override, including an explicit zero', () => {
-    const w = resolveWeights({ academicImportance: 5, overrides: { geography: 0 } });
+    const w = resolveWeights({ overrides: { geography: 0 } });
     expect(w.geography).toBe(0);
     expect(CRITERION_KEYS.reduce((s, k) => s + w[k], 0)).toBeCloseTo(1, 10);
   });
 
   it('ignores a negative or unparseable override rather than corrupting the map', () => {
-    const w = resolveWeights({ academicImportance: 5, overrides: { athletic: -10, roster: 'abc' } });
-    const base = resolveWeights({ academicImportance: 5 });
+    const w = resolveWeights({ overrides: { athletic: -10, roster: 'abc' } });
+    const base = resolveWeights();
     expect(w).toEqual(base);
   });
 
@@ -139,15 +137,15 @@ describe('scoreMatch', () => {
     expect(unscraped.score).toBeLessThan(scraped.score);
   });
 
-  it('drops academics out of the score entirely when the athlete says it does not matter', () => {
-    const w = resolveWeights({ academicImportance: 'Not Important' });
+  it('drops academics out of the score entirely when it is zeroed', () => {
+    const w = resolveWeights({ overrides: { academic: 0 } });
     const good = scoreMatch({ athlete, college: { ...college, academicRating: 9.5 }, weights: w });
     const poor = scoreMatch({ athlete, college: { ...college, academicRating: 1.5 }, weights: w });
     expect(good.score).toBe(poor.score);
   });
 
   it('reports overall confidence from the criteria that actually carry weight', () => {
-    const w = resolveWeights({ academicImportance: 'Not Important' });
+    const w = resolveWeights({ overrides: { academic: 0 } });
     // Academic is fully unknown but weighted to zero, so it cannot drag the card down.
     const r = scoreMatch({ athlete, college: { ...college, academicRating: null }, weights: w });
     expect(r.confidence).toBe('measured');
