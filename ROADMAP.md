@@ -1040,11 +1040,44 @@ itself.
 The largest remaining build. Everything here is gated on the ESP decision.
 
 ### 2.1 Coach data consolidation
-- [ ] Promote `graduating_seniors.coaching_staff` into a first-class `coaches`
-      table for the pilot scope (currently 18 rows, populated lazily on send).
-- [ ] Normalise `division` — the table holds both `NCAA D1` and
-      `NCAA Division I` today.
-- [ ] Add a verified-email flag and last-verified date.
+- [x] **Promoted `coaching_staff` into a first-class `coaches` table** — 22
+      rows to **6,346**, via `server/scripts/promoteCoaches.js` (dry run by
+      default, backs up before writing, idempotent on `(email, school,
+      sport)`). Lazy population is fine for a demo and wrong for a pilot: you
+      cannot review, dedupe or suppress a list that does not exist until you
+      mail it. All of it rather than pilot scope — 6,346 rows is small, and a
+      partial table would keep the lazy path alive to drift again.
+- [x] **Normalised `division`** — it held both `NCAA D1` (8 rows) and
+      `NCAA Division I` (14). `normalizeDivision` moved to
+      `shared/divisions.js` rather than being written a second time
+      server-side; the ordering in it is a rule, not a preference, since the
+      D3 test must precede D2 and D2 precede D1 or "Division II" satisfies the
+      "Division I" check. **`findOrCreateCoach` normalises on write too** —
+      the table drifted because the lazy writer never did, so repairing rows
+      without fixing the writer would only reset the clock.
+- [x] **Email provenance recorded, rather than a flag asserting verification.**
+      The source sheets carried a `status` and a `source_url` per address and
+      the original import dropped both, so every contact looked equally good.
+      They are not: **4,993 verified** (read off a staff page), **1,159
+      inferred** (guessed from the institution's address pattern, never
+      observed anywhere), **169 generic** (shared inboxes), 25 unknown. That
+      inferred fifth is what bounces, and on cold outreach a bounce costs
+      sender reputation rather than just a lost email.
+
+      `email_confirmed_at` is a separate column and stays null until something
+      proves an address — a send that does not bounce, or a reply. Where we
+      got an address and whether it works are different questions, and one
+      field answering both would end up asserting the wrong one.
+
+      For a pilot: a representative men's D1–D3 athlete's top 30 matches yield
+      **95 addresses across 29 programmes** (one has no contact at all) —
+      **78% verified, 22% inferred**. Roughly one first-touch email in five
+      goes to an address nobody has ever seen work, which is worth knowing
+      before rather than after.
+- [ ] **NJCAA has no coaching contacts at all** — 0 of 229 men's programmes,
+      against 211/214 at D1 and 199/203 at D2. Does not block a D1–D3 pilot,
+      but the affordability work made junior college a prominent
+      recommendation for high-need athletes, and there is nobody to write to.
 - [ ] **Decide coaches-per-program.** Sending per-coach is deliberate —
       attribution is per (athlete, coach) pair, and a shared link would credit
       one coach's viewing to whoever was in the To field. But it multiplies
