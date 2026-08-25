@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { CheckCircle2, XCircle, Mail, AlertTriangle, Loader2 } from 'lucide-react';
+import { CheckCircle2, XCircle, Mail, AlertTriangle, ShieldCheck, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -7,6 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { pickHeadCoach } from '@shared/coachRoles.js';
+import { riskCounts, emailRisk } from '@shared/emailRisk.js';
+import EmailRiskBadge from '@/components/EmailRiskBadge';
+import { useCoachEmailStatus, statusOf } from '@/lib/useCoachEmailStatus';
 import {
   fillTemplate, buildEmailContext, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE,
 } from '@/lib/emailTemplate';
@@ -41,6 +44,13 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
     return { targets: found, missing: none };
   }, [colleges]);
 
+  // Fetched rather than read off the recommendation: coaching_staff is the
+  // pre-promotion source and carries no provenance, so without this the
+  // dialog can show a coach without being able to say the address has never
+  // been seen to work.
+  const { statuses, failed: statusFailed } = useCoachEmailStatus(player.sport || 'mens-soccer');
+  const statusLoaded = statuses !== null;
+
   const [selected, setSelected] = useState(() => new Set(targets.map((t) => t.college.name)));
   // Left unfilled on purpose — these are templates, and each programme
   // resolves them differently at draft time.
@@ -72,6 +82,23 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
   const allSelected = targets.length > 0 && selected.size === targets.length;
   function toggleAll() {
     setSelected(allSelected ? new Set() : new Set(targets.map((t) => t.college.name)));
+  }
+
+  // Counted over what is actually selected, not over the whole page, so
+  // unticking the inferred ones visibly clears the warning.
+  const selectedTargets = targets.filter((t) => selected.has(t.college.name));
+  const risk = statusLoaded
+    ? riskCounts(selectedTargets.map((t) => statusOf(statuses, t.coach.email)))
+    : null;
+
+  /** Unticks every address that has never been observed to work. */
+  function clearInferred() {
+    setSelected(new Set(
+      targets
+        .filter((t) => emailRisk(statusOf(statuses, t.coach.email))?.status !== 'inferred')
+        .filter((t) => selected.has(t.college.name))
+        .map((t) => t.college.name)
+    ));
   }
 
   /**
@@ -166,6 +193,7 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
                       )}
                     </span>
                     <span className="shrink-0 text-xs text-muted-foreground">{coach.email}</span>
+                    <EmailRiskBadge status={statusOf(statuses, coach.email)} loaded={statusLoaded} />
                     {result?.status === 'drafted' && <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />}
                     {result?.status === 'suppressed' && (
                       <span className="shrink-0 text-xs text-muted-foreground" title="This coach opted out">opted out</span>
@@ -182,6 +210,44 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
                 </p>
               )}
             </div>
+
+            {statusFailed && (
+              <p className="mt-1.5 flex items-start gap-1.5 text-xs text-muted-foreground">
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
+                <span>Could not check where these addresses came from. Nothing here says they work.</span>
+              </p>
+            )}
+
+            {!statusLoaded && !statusFailed && (
+              <p className="mt-1.5 text-xs text-muted-foreground">Checking where these addresses came from…</p>
+            )}
+
+            {risk && risk.risky === 0 && selectedTargets.length > 0 && (
+              <p className="mt-1.5 flex items-start gap-1.5 text-xs text-muted-foreground">
+                <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
+                <span>All {selectedTargets.length} addresses were read off a programme's own staff page.</span>
+              </p>
+            )}
+
+            {risk && risk.risky > 0 && (
+              <p className="mt-1.5 flex flex-wrap items-start gap-1.5 text-xs">
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
+                <span className="text-muted-foreground">
+                  {risk.risky} of {selectedTargets.length} selected {risk.risky === 1 ? 'address carries' : 'addresses carry'} a warning:{' '}
+                  {[
+                    risk.inferred && `${risk.inferred} inferred`,
+                    risk.generic && `${risk.generic} shared ${risk.generic === 1 ? 'inbox' : 'inboxes'}`,
+                    risk.unknown && `${risk.unknown} with no recorded provenance`,
+                  ].filter(Boolean).join(', ')}.
+                  {risk.inferred > 0 && ` Inferred addresses were guessed from the institution's address pattern and have never been observed to work — expect ${risk.inferred === 1 ? 'it' : 'them'} to bounce, and a bounce on cold outreach costs sender reputation rather than just the email.`}
+                </span>
+                {risk.inferred > 0 && (
+                  <Button size="sm" variant="outline" className="h-6 shrink-0 px-2 text-[11px]" onClick={clearInferred} disabled={busy}>
+                    Untick the {risk.inferred} inferred
+                  </Button>
+                )}
+              </p>
+            )}
 
             {missing.length > 0 && (
               <p className="mt-1.5 flex items-start gap-1.5 text-xs text-muted-foreground">

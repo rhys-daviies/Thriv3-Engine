@@ -71,6 +71,19 @@ export const publishing = {
   },
 };
 
+export const coaches = {
+  /**
+   * Address provenance for a sport, as { email: status }. Fetched rather than
+   * baked into the stored analysis: recommendations are a persisted blob, so
+   * an athlete analysed before a contact was re-verified would keep showing
+   * the old status forever.
+   */
+  emailStatus(sport) {
+    const qs = sport ? `?sport=${encodeURIComponent(sport)}` : '';
+    return request(`/api/coaches/email-status${qs}`);
+  },
+};
+
 export const outreach = {
   /** Creates outreach and hands one message per coach to Outlook. */
   send(payload) {

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import db from '../db/client.js';
-import { findOrCreateCoach, getCoach } from './coaches.js';
+import { findOrCreateCoach, getCoach, emailStatusMap } from './coaches.js';
 
 beforeEach(() => { db.prepare('DELETE FROM coaches').run(); });
 
@@ -53,5 +53,51 @@ describe('findOrCreateCoach', () => {
     expect(stored.source).toBe('send');
     // Never presented as confirmed by anything.
     expect(stored.email_confirmed_at).toBeNull();
+  });
+});
+
+describe('emailStatusMap', () => {
+  const insert = (email, status, sport = 'mens-soccer') => {
+    findOrCreateCoach({ ...base, email, sport, school: `School ${email}` });
+    db.prepare('UPDATE coaches SET email_status = ? WHERE email = ?').run(status, email.toLowerCase());
+  };
+
+  it('maps every address for the sport to its status', () => {
+    insert('head@a.edu', 'verified');
+    insert('guess@b.edu', 'inferred');
+    expect(emailStatusMap('mens-soccer')).toEqual({
+      'head@a.edu': 'verified',
+      'guess@b.edu': 'inferred',
+    });
+  });
+
+  it('scopes to the sport asked for', () => {
+    insert('mens@a.edu', 'verified', 'mens-soccer');
+    insert('womens@a.edu', 'inferred', 'womens-soccer');
+    expect(emailStatusMap('mens-soccer')).toEqual({ 'mens@a.edu': 'verified' });
+    expect(emailStatusMap('womens-soccer')).toEqual({ 'womens@a.edu': 'inferred' });
+  });
+
+  it('returns every sport when asked for none', () => {
+    insert('mens@a.edu', 'verified', 'mens-soccer');
+    insert('womens@a.edu', 'inferred', 'womens-soccer');
+    expect(Object.keys(emailStatusMap(null))).toHaveLength(2);
+  });
+
+  // The lookup on the other side lower-cases too. An address that fails to
+  // match reads as unverified, which is alarming and wrong.
+  it('keys on the lower-cased address', () => {
+    findOrCreateCoach({ ...base, email: 'Coach.Name@A.EDU' });
+    expect(emailStatusMap('mens-soccer')).toHaveProperty('coach.name@a.edu');
+  });
+
+  // A row created by a send rather than promoted from the contact sheets.
+  it('reports a coach with no recorded provenance as unknown', () => {
+    findOrCreateCoach({ ...base, email: 'new@a.edu' });
+    expect(emailStatusMap('mens-soccer')['new@a.edu']).toBe('unknown');
+  });
+
+  it('is empty when nothing is on file', () => {
+    expect(emailStatusMap('mens-soccer')).toEqual({});
   });
 });

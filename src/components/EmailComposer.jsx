@@ -7,6 +7,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { pickHeadCoach } from '@shared/coachRoles.js';
+import EmailRiskBadge from '@/components/EmailRiskBadge';
+import { useCoachEmailStatus, statusOf } from '@/lib/useCoachEmailStatus';
 import {
   fillTemplate, buildEmailContext, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE,
 } from '@/lib/emailTemplate';
@@ -30,6 +32,10 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
     () => (college?.coaching_staff || []).filter((c) => c.email && c.email !== 'N/A'),
     [college]
   );
+  // coaching_staff carries no provenance, so the address beside a coach's
+  // name said nothing about whether it had ever been seen to work.
+  const { statuses } = useCoachEmailStatus(player.sport || 'mens-soccer');
+
   const [selected, setSelected] = useState(() => new Set(validCoaches.map((c) => c.email)));
   const initialGreetingName = greetingSeed(validCoaches)?.name || 'Coach';
 
@@ -106,6 +112,7 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
                 <label key={c.email} className="flex items-center gap-2 text-sm">
                   <Checkbox checked={selected.has(c.email)} onCheckedChange={() => toggle(c.email)} />
                   <span>{c.name} <span className="text-muted-foreground">({c.email})</span></span>
+                  <EmailRiskBadge status={statusOf(statuses, c.email)} loaded={statuses !== null} />
                   {(results[c.email]?.status === 'sent' || results[c.email]?.status === 'drafted') && (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
                       <CheckCircle2 className="h-4 w-4" />

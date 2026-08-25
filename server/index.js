@@ -27,6 +27,7 @@ import { coachingImportApply } from './routes/coachingImportApply.js';
 import { trackRouter } from './routes/track.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
+import { emailStatusMap } from './lib/coaches.js';
 import { publicProfileHandler } from './routes/publicProfile.js';
 import { publishStatus, regenerate, publish } from './routes/publish.js';
 import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js';
@@ -205,6 +206,19 @@ app.post('/api/players/:id/publish', async (req, res) => {
   } catch (err) {
     console.error('[publish]', err);
     res.status(400).json({ error: err.message });
+  }
+});
+
+// ---- Coach contacts ----
+
+// Provenance for every address we hold, so the composer can warn before a
+// send rather than after a bounce. Keyed on the address; see emailStatusMap.
+app.get('/api/coaches/email-status', (req, res) => {
+  try {
+    res.json(emailStatusMap(req.query.sport || null));
+  } catch (err) {
+    console.error('[coaches/email-status]', err);
+    res.status(500).json({ error: err.message });
   }
 });
 
