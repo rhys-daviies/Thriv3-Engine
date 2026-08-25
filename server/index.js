@@ -30,6 +30,7 @@ import { sendOutreach } from './routes/sendOutreach.js';
 import { publicProfileHandler } from './routes/publicProfile.js';
 import { publishStatus, regenerate, publish } from './routes/publish.js';
 import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js';
+import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -282,7 +283,18 @@ const publicDir = path.resolve(__dirname, '../build/public');
 app.get('/p/:slug', publicProfileHandler);
 app.use(express.static(publicDir));
 
+// Read by the app so staleness is visible where the data is, rather than
+// only in a terminal nobody is looking at.
+app.get('/api/engagement/sync/status', (req, res) => res.json(syncStatus()));
+
 const PORT = process.env.API_PORT || 8787;
 app.listen(PORT, () => {
   console.log(`Thriv3 API listening on http://localhost:${PORT}`);
+
+  // Said out loud either way. "Nothing schedules the sync" was true for four
+  // days without anybody knowing, and silence at boot is what allowed that.
+  const scheduler = startSyncScheduler();
+  console.log(scheduler.started
+    ? `Engagement sync scheduled every ${scheduler.intervalMinutes} minute(s).`
+    : `Engagement sync NOT scheduled — ${scheduler.reason}.`);
 });

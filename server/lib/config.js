@@ -75,3 +75,26 @@ export function complianceGaps() {
   if (!isPubliclyReachable(UNSUBSCRIBE_BASE_URL)) gaps.push('THRIV3_UNSUBSCRIBE_BASE_URL (must be reachable by the recipient)');
   return gaps;
 }
+
+/**
+ * How many messages one inbox may receive from Thriv3, and over what window.
+ *
+ * Three in thirty days is one full A/B/C sequence. A second athlete wanting
+ * the same coach inside that window waits rather than doubling up: the coach
+ * experiences volume per inbox, not per athlete, and so does the spam filter.
+ *
+ * Set PER_COACH_MAX_SENDS to 0 to disable the cap, which should only ever be
+ * a deliberate act during testing.
+ */
+export const PER_COACH_WINDOW_DAYS = Number(process.env.THRIV3_COACH_WINDOW_DAYS || 30);
+export const PER_COACH_MAX_SENDS = Number(process.env.THRIV3_COACH_MAX_SENDS ?? 3);
+
+/**
+ * How often the edge sync runs by itself. Unset or 0 means never, and the
+ * server says so at boot rather than leaving it to be assumed.
+ *
+ * Fifteen minutes is a reasonable pilot cadence: engagement data is read in
+ * sessions rather than watched live, and a coach's visit being visible within
+ * a quarter of an hour is well inside how fast anybody acts on it.
+ */
+export const SYNC_INTERVAL_MINUTES = Number(process.env.THRIV3_SYNC_INTERVAL_MINUTES || 0);

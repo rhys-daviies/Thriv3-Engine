@@ -3,6 +3,7 @@ import path from 'node:path';
 import { Player } from '../db/entities/player.js';
 import { findOrCreateCoach } from '../lib/coaches.js';
 import { isSuppressed } from '../lib/suppressions.js';
+import { isSendCapped, recentSendCount } from '../lib/sendCap.js';
 import { createOutreach, markOutreachSent } from '../lib/outreach.js';
 import { composeInOutlook, isOutlookAvailable } from '../lib/outlook.js';
 import { PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS, complianceGaps, SENDER_IDENTITY, SENDER_POSTAL_ADDRESS, UNSUBSCRIBE_BASE_URL } from '../lib/config.js';
@@ -107,6 +108,17 @@ export async function sendOutreach({
       // this loop and only some of them go through a list builder.
       if (isSuppressed(coach.email)) {
         results.push({ email: coach.email, name: coach.name, status: 'suppressed' });
+        continue;
+      }
+
+      // Volume is experienced per inbox, not per athlete, and so is the spam
+      // filter's view of it. Checked here for the same reason as suppression:
+      // this loop is the only thing every send passes through.
+      if (send && isSendCapped(coach.email)) {
+        results.push({
+          email: coach.email, name: coach.name, status: 'rate-capped',
+          recentSends: recentSendCount(coach.email),
+        });
         continue;
       }
 
