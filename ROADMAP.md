@@ -6,17 +6,22 @@ the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
 Last audited: 2026-08-25, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 554 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 578 tests green). Coverage numbers below were
 re-run, not copied. The academic-rating gap has closed completely; roster and
 grad-year figures moved and are corrected in place.
 
 **Phase 1.2 is complete** as of 2026-08-25 — Pillar 1 now has six weighted
 criteria, a coupling layer, an operator ranking control in both the intake
 form and the matching tab, and, for the first time, a backtest that says
-whether any of it works. The one open gate in Phase 1 is **1.1: a single real
-tracked send**, which is also what would finally let the roster-opportunity
-weight be tested against actual coach replies rather than left at a
-deliberately conservative 10.
+whether any of it works.
+
+**Everything else now waits on one action.** `npm run trial:preflight` is
+16/16 green, Rhys Davies is published and serving 22kB of profile behind a
+live tracked link, and 22 tokens are in the edge allowlist. What has never
+happened is a coach opening one. All 90 events in the database carry a null
+`remote_id` — every one a local simulator write. Phase 1.1's three open boxes
+are the whole of the remaining gate, and they are an afternoon's work rather
+than a build.
 
 ---
 
@@ -24,8 +29,9 @@ deliberately conservative 10.
 
 | Decision | Answer | Consequence |
 |---|---|---|
-| Send architecture | **Outlook drafting now, ESP before go live** (revised 2026-08-24) | Sequencing is proved against Outlook drafts first, so Phase 2 is not blocked on a provider choice. Domain warming stays a calendar dependency, but it moves to just before the pilot rather than the front of the project. |
-| Product shape at go live | **Single user** (Rhys operates the engine on athletes' behalf) | No auth, no accounts, no athlete-facing UI. Pillar 1's weighting UI is an operator tool, not self-serve. |
+| Send architecture | **Outlook drafting. The ESP is off the plan** (revised 2026-08-25) | An ESP sending for many clients pools every client's list reputation into one domain, so one bad list poisons the rest — and a recruiting-service From address is pattern-matched and binned by coaches who have been trained for a decade to ignore exactly that. Both problems are avoided by the client sending from their own mailbox. §2.2 is on hold, not scheduled. |
+| Client portal | **Deferred until pilot 1 has run** (decided 2026-08-25) | The likely shape of pilot 2 is a portal where the client reads their own matches and engagement and sends from their own mailbox at their own pace. Deliberately not started: pilot 1 needs no portal, and its results decide whether the portal is worth building. Recorded here so the decision is not re-litigated, not as scheduled work. |
+| Product shape at go live | **Single user** (Rhys operates the engine on athletes' behalf) | No auth, no accounts, no athlete-facing UI. Pillar 1's weighting UI is an operator tool, not self-serve. A portal would reverse this — see above — which is most of why it waits for evidence. |
 | Pilot scope | **Men's and women's soccer, NCAA D1–D3** | 1,759 active programs, 1,621 with a coach email. NAIA/NJCAA and the four non-soccer sports are out of scope until after go live. |
 
 ### Verified coverage in scope
@@ -50,12 +56,18 @@ grad-year nulls of its own, which the single 2025 figure used to hide.
 
 ---
 
+**Where the boxes stand: 57 of 104 ticked (55%).** Five of the 47 open boxes
+are struck through — retired with the sending domain and the ESP — so against
+work that is still live it is 57 of 99, 58%. The count is deliberately not the
+headline: 46 of the 47 open boxes are behind the pilot, and the three in Phase
+1.1 are in front of it.
+
 ## Pillar status at a glance
 
 | Pillar | Deck promise | Verified state | Remaining |
 |---|---|---|---|
-| 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | Fixed-weight scorer over data that is now complete on academics | Weighting model, 2 unscored criteria, explainability, learning loop |
-| 2 · Networking | 3-week A/B/C sequence, 100 programs at a time | Excellent personalisation, no campaign engine, no scalable send | ESP migration, campaign engine, coach table, compliance |
+| 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested at 91.9th percentile (men) / 89.6th (women) against 600 real arrivals each | Nothing before go live. The learning loop is Phase 5 and needs real replies |
+| 2 · Networking | 3-week A/B/C sequence, 100 programs at a time | Excellent personalisation; coach table, compliance, per-inbox cap and bulk drafting all done. No campaign engine, and no automated send by design | Campaign model, A/B/C variants, sequencing. **Not** an ESP — see locked decisions |
 | 3 · Interactions | Tracking, coach score, session timelines | Feature-complete and tested; edge repaired, guarded and covered 2026-08-24; still **never run on real traffic** | One real end-to-end send; automated sync; real response detection |
 | 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Nothing built; 2 of 3 inputs un-sourced | 2024 roster backfill (both sports), lifestyle data source, metrics, UI |
 
@@ -66,28 +78,37 @@ grad-year nulls of its own, which the single 2025 figure used to hide.
 Calendar lead times, not engineering ones. Nothing downstream compresses if
 these start late.
 
-### Sending domain — deferred 2026-08-24
+### Sending domain — **retired 2026-08-25**
 
-Held deliberately, not forgotten. Sequencing will be proved end to end against
-Outlook drafts, which the code already does, and the ESP is chosen once that
-works. The trade is accepted with eyes open: **the warming ramp becomes the
-long pole immediately before the pilot instead of running underneath the build**,
-so budget three to four weeks between "sequencing works" and "cohort 1 sends".
-Nothing below has changed except when it starts.
-- [ ] Register and begin warming a sending **subdomain** (e.g.
+Deferred on 2026-08-24, and now off the plan entirely. This section existed to
+serve an ESP sending from a Thriv3-owned domain; with the client sending from
+their own mailbox there is no shared domain to warm, and **the one calendar
+dependency in the whole project — three to four weeks of ramp that could not
+be compressed or bought — disappears with it.** That is the single largest
+schedule effect of the send-architecture decision.
+
+Kept, struck through, rather than deleted: if the portal is ever built with a
+Thriv3 send path behind it, this is the checklist that comes back, and the
+ramp arithmetic below is the part worth not re-deriving.
+
+One piece survives in reduced form: a portal needs to send password resets and
+notifications. That is low-volume transactional mail on a separate subdomain,
+a different risk profile, and it is not a blocker on anything today.
+- [ ] ~~Register and begin warming a sending **subdomain**~~ (e.g.
       `send.striv3.com`), not the root — a reputation problem must not be able
       to poison `striv3.com` mail.
-- [ ] Configure SPF, DKIM, DMARC before the first send.
-- [ ] **Ramp target.** Two sports doubles the pilot: 6–10 athletes × 100
+- [ ] ~~Configure SPF, DKIM, DMARC before the first send.~~
+- [ ] ~~**Ramp target.**~~ Retained for the arithmetic: two sports doubles the pilot: 6–10 athletes × 100
       programs × 3 emails ≈ 3,000 sends over three weeks — roughly 140/day at
       one coach per program, ~285/day at two. That is beyond a comfortable
       3–4 week ramp.
-- [ ] **Stagger the cohorts** rather than stretching the ramp: men's cohort
+- [ ] **Stagger the cohorts** — still worth doing, for deliverability evidence rather than for the ramp: men's cohort
       sends first, women's cohort starts 2–3 weeks later. Halves peak daily
       volume and gives cohort 1's deliverability data before cohort 2 sends a
       single email.
-- [ ] **Choose the ESP, checking cold-outreach policy first** (deferred — see
-      above). Several
+- [ ] ~~**Choose the ESP, checking cold-outreach policy first.**~~ Dropped;
+      see locked decisions. The reason it was flagged still stands and is why
+      the decision was not close: several
       transactional providers prohibit unsolicited outreach on their streams
       outright; confirm terms before building against an API. Evaluate
       build-vs-buy — a purpose-built sequencing platform supplies warmup,
@@ -748,15 +769,29 @@ then 2023 and 2022. Not to be picked up here.
 Cheapest high-information work. Do not start Phase 2 before task 1.1 passes.
 
 ### 1.1 Prove the tracking loop end to end
+**This is the only thing standing between here and pilot 1.**
+
 The pillar is validated entirely by simulator output — all 90 events in the DB
 have a null `remote_id`, and the edge cursor stopped at 6. The path
 *published profile → real inbox → coach opens → D1 → sync → rollup → Tab 3*
 has never carried a genuine visit.
 
-The plumbing either side of that path is now sound and, as of 2026-08-24,
-actually checked rather than assumed: 18 live tokens at the edge, delete
-guard locked, three triggers in place, `npm run sync` clean. What remains is
-the send itself.
+Everything either side of that path is now green, re-verified 2026-08-25:
+
+| | |
+|---|---|
+| `npm run trial:preflight` | **16 of 16 pass** — "Ready. Nothing blocking the trial send." |
+| Trial athlete | Rhys Davies, published 2026-08-20, `/p/YMUlxdzGBw` |
+| Tracked link | resolves live, 22,191 bytes of profile |
+| Unknown token | refused with the neutral page, as designed |
+| Token allowlist | 22 live at the edge, in sync |
+| Delete guard | locked, no unlock window open |
+| Event cursor | 6, edge sequence 6 — behind, so nothing is skipped |
+| Sync | scheduled every 15 minutes while the server runs |
+| Compliance footer | identity and postal address set; refuses to send without them |
+
+So the remaining work is not plumbing. It is pressing send once and watching
+what arrives.
 
 **Two edge-state defects were found in the 2026-08-24 audit and both are now
 resolved. Neither was visible from the local database, which is the lesson.**
@@ -810,11 +845,12 @@ resolved. Neither was visible from the local database, which is the lesson.**
       reports the edge's own state to an authed caller, which is what makes
       the last four checks possible; unauthed callers still get liveness only,
       since counts would leak how much outreach is in flight.
-- [ ] Publish one real athlete profile and send one tracked link to a mailbox
-      you control, from outside the local network. **Deliberately not done
-      yet** — building continues first, and the trial is revisited after.
-      When it is: run the preflight, then `sendOutreach` with `send: false`
-      to inspect the Outlook draft before anything leaves.
+- [ ] Send one tracked link to a mailbox you control, from outside the local
+      network. **The profile half of this is already done** — Rhys Davies is
+      published and the link serves. What is left is the send. Run
+      `npm run trial:preflight`, then draft with `send: false` and inspect the
+      Outlook draft before anything leaves. Deferred until now because
+      building continued first; that reason has expired.
 - [ ] Confirm events land in D1, sync down with a non-null `remote_id`, roll
       up, and appear in Tab 3 with a correct session timeline.
 - [ ] Fix whatever that exposes.
@@ -1138,11 +1174,50 @@ The largest remaining build. Everything here is gated on the ESP decision.
       got an address and whether it works are different questions, and one
       field answering both would end up asserting the wrong one.
 
-      For a pilot: a representative men's D1–D3 athlete's top 30 matches yield
-      **95 addresses across 29 programmes** (one has no contact at all) —
-      **78% verified, 22% inferred**. Roughly one first-touch email in five
-      goes to an address nobody has ever seen work, which is worth knowing
-      before rather than after.
+      **Re-measured 2026-08-25, and the old figure no longer reproduces.**
+      This used to read "95 addresses across 29 programmes, 22% inferred".
+      That was measured before the six-criterion model, so the top 30 is a
+      different set of schools now. Current, for the two real athletes on
+      file, top 30:
+
+      | | addresses | inferred |
+      |---|---|---|
+      | Rhys Davies, head + assistants | 84 | 7 (8%) |
+      | Ryan Billings, head + assistants | 100 | 12 (12%) |
+      | Rhys Davies, head coaches only | 23 | 2 (9%) |
+      | Ryan Billings, head coaches only | 30 | 1 (3%) |
+
+      Neither has a programme with no contact at all any more. The important
+      part is the split: **head-coach addresses are markedly cleaner than the
+      staff behind them.** Across the whole pool, 1,829 of 1,939 head-coach
+      addresses are verified (94%) against 78 inferred (4%) — a head coach is
+      named on a staff page, an assistant is often the one whose address had
+      to be guessed. A head-coach-only pilot therefore carries roughly a
+      twentieth of its list as likely bounces, not a fifth.
+- [x] **Provenance shown where the sending decision is made.** Recording
+      `email_status` was only half the job: both composers read contacts from
+      `graduating_seniors.coaching_staff`, which is the pre-promotion source
+      and carries no provenance, so the tab showed a name and an address with
+      nothing to say the address had never been observed to work. The only way
+      to see it was `npm run draft` in a terminal — a check nobody performs
+      while looking at the thing they are about to send.
+
+      Joined on the address at read time rather than merged into the stored
+      analysis: `recommendations` is a persisted blob, so an athlete analysed
+      before a contact was re-verified would keep showing the old status
+      forever. `email_status` is a property of the address and no address in
+      the table carries two of them, so the address alone is a sound key.
+
+      **Missing data warns rather than reassures** — an address the map has
+      never heard of reads as *unverified*, and a failed lookup says so rather
+      than rendering an empty map as a clean bill of health. The reassuring
+      default is how you mail twenty addresses nothing has ever checked and
+      call it a clean list. Red is reserved for `inferred`, which actually
+      bounces; a shared inbox delivers perfectly well and merely has nobody's
+      name on it, and colouring them alike would train the operator to ignore
+      both. The bulk dialog counts the risk over the selected rows and offers
+      to untick the inferred ones, so the warning can be acted on rather than
+      only read.
 - [ ] **191 of 1,986 school-sports have contacts on unrelated email domains** —
       9.6%, and several are plainly a same-named institution mixed in.
       "Saint Mary's" (women's) carries staff from four of them (smumn.edu,
@@ -1173,13 +1248,34 @@ The largest remaining build. Everything here is gated on the ESP decision.
       campaigns. The per-coach cap in §2.3 must be keyed on the person, not
       the (school, sport) pair.
 
-### 2.2 ESP migration
-- [ ] Replace the Outlook/AppleScript path with the ESP API; keep Outlook as a
-      dev-only fallback.
+### 2.2 ESP migration — **on hold, 2026-08-25**
+
+Not deferred for capacity: **decided against.** An ESP sending on behalf of
+many clients pools all of their list reputation into one domain, so a single
+bad list damages every client at once — and the From address that results is
+exactly the recruiting-service pattern coaches have learned to bin. Both
+problems disappear when the client sends from their own mailbox.
+
+The four items below are kept rather than deleted because three of them are
+real gaps whatever sends the mail, and something will have to close them:
+
+- [ ] ~~Replace the Outlook/AppleScript path with the ESP API~~ — dropped.
 - [ ] Per-send delivery status recorded against the outreach row. Today "sent"
-      means "handed to Outlook" and nothing observes the outcome.
-- [ ] Bounce and complaint webhooks → suppression list.
-- [ ] Reply detection → auto-flip the `responded` tier, a manual toggle today.
+      means "handed to Outlook" and nothing observes the outcome. **Still
+      true, and it gets worse under client sending** — if the client presses
+      send in their own Outlook, we have no send event at all unless the act
+      of drafting records one. `outreach.sent_at` already exists and is
+      written when a draft is created, which is the right hook.
+- [ ] Bounce and complaint webhooks → suppression list. Without an ESP there
+      is no webhook; bounces land in the sender's own inbox. The provenance
+      badges are the cheap substitute — they say which addresses will bounce
+      *before* the send rather than reporting it after.
+- [ ] **Reply detection.** A reply is the single most valuable event in the
+      system and nothing detects one; `engagement_rollup.responded_at` is a
+      manual toggle. Under client sending the reply goes to the client's inbox
+      and we never see it at all, which makes a coach-engagement screen a
+      click tracker. Mailbox OAuth (Microsoft Graph, read scope) is the real
+      answer and belongs to the portal decision, not here.
 
 ### 2.3 Sequencing
 - [x] **Bulk drafting for a manual pilot** — `npm run draft -- --athlete "…"`.
@@ -1190,7 +1286,7 @@ The largest remaining build. Everything here is gated on the ESP decision.
       presses send. Dry run by default, and the dry run is the useful half: it
       names every contact, every skip and why, before anything opens.
 
-      Staff selection is a role classifier (`server/lib/coachRoles.js`) rather
+      Staff selection is a role classifier (`shared/coachRoles.js`) rather
       than a title match, because titles are free text off a hundred staff
       pages. Volunteers, graduate assistants and team inboxes are never
       written to however much "assistant" is in the title; a combined title
@@ -1200,6 +1296,31 @@ The largest remaining build. Everything here is gated on the ESP decision.
       What it deliberately does *not* do is exclude a title naming the other
       sport — those turn out to be either mislabelled team addresses or people
       who genuinely coach both.
+- [x] **Whole-page head-coach drafting, in the app.** `npm run draft` covered
+      the terminal; the tab still composed one school at a time, so a top-20
+      list was twenty trips through the same dialog. **Message all head
+      coaches** above the results drafts the head coach at every programme on
+      the page in one pass, sequentially, with a per-row tick as each lands.
+
+      What you edit is the *template*, not a rendered message: `{{college_name}}`,
+      the nickname and the graduating-senior counts resolve differently for
+      all twenty, so one filled body would be a lie about nineteen of them.
+      A preview underneath renders one chosen programme, with a dropdown to
+      read any of the others. **Drafts only — there is no send-immediately
+      option here**, deliberately, because twenty messages leaving one inbox
+      in a burst is the thing most likely to get the address filtered.
+
+      Picking the head coach moved `coachRoles.js` into `shared/` rather than
+      growing a second classifier in the UI — because the UI already had one
+      and it was wrong. `/head coach/i` matches "Head Coach" and misses
+      "Head Men's Soccer Coach": **707 of the 2,036 head coaches on file, 35%**.
+      `EmailComposer` had been seeding its greeting with an assistant's name
+      for every one of them. Both paths now go through `classifyRole`.
+
+      Where a programme has no head coach the associate head is used and
+      labelled as such (15 school-sports); where it has neither, the programme
+      is named in a warning rather than silently dropped (47). Head-coach
+      coverage is 98% in both sports.
 - [ ] Campaign model: campaign → step → recipient, with per-athlete state.
 - [ ] A/B/C variants, each differentiated, as promised on slide 4.
 - [ ] Three-week schedule with batches of 100 programs.
@@ -1251,11 +1372,41 @@ The largest remaining build. Everything here is gated on the ESP decision.
 
 ## Phase 3 — Pilot
 
-Runs in parallel with Phase 4. Entry criteria: Phases 1 and 2 complete, domain
-warmed to cohort-1 volume.
+Runs in parallel with Phase 4.
 
-- [ ] **Cohort 1 — men's soccer**, 3–5 athletes, D1–D3. One full three-week
-      A/B/C cycle.
+**Entry criteria revised 2026-08-25.** They used to read "Phases 1 and 2
+complete, domain warmed to cohort-1 volume". Both halves are now wrong:
+domain warming went away with the ESP, and Phase 2's remaining items are the
+*campaign engine* — a three-week automated sequence — which a first pilot
+sent by hand does not need. The real entry criteria are Phase 1.1's three
+boxes and nothing else.
+
+What pilot 1 actually needs, all verified 2026-08-25:
+
+| | |
+|---|---|
+| Match lists | ✅ backtested, 91.9th percentile (men) / 89.6th (women) |
+| Coach contacts | ✅ 6,346, with provenance shown at the point of sending |
+| Compliance | ✅ opt-out, identity, postal address, privacy notice — all live |
+| Drafting | ✅ per school, whole page, or `npm run draft` per athlete |
+| Per-inbox cap | ✅ `THRIV3_COACH_MAX_SENDS=3` over 30 days |
+| Sync | ✅ every 15 minutes |
+| Preflight | ✅ 16/16 |
+| **Tracking proven** | ⬜ **never carried a real visit** |
+| Athletes published | ◐ Rhys Davies live; Ryan Billings publishable, not published |
+
+- [ ] **Cohort 1 — men's soccer**, 3–5 athletes, D1–D3. **Sent by hand from
+      Outlook**, not as an automated three-week cycle — the sequencing engine
+      in §2.3 is not built and pilot 1 does not wait for it. Head coaches
+      only for the first pass: it is a fifth of the volume of head +
+      assistants and roughly a twentieth of the bounce exposure (4% inferred
+      against 12%), which is the right trade on a mailbox with no sending
+      history.
+- [ ] **Watch the bounce rate before anything else.** It is the number that
+      decides whether pilot 2 is worth running, and the provenance badges
+      predict it — if the measured rate is far off the predicted 3–4%, the
+      `email_status` data is wrong and that matters more than any engagement
+      score.
 - [ ] Deliverability review at each step: delivered, opened, bounced,
       complained — **before** reading any engagement score. A spam-foldered
       email produces zero events and reads as a "cold" coach; the two must
