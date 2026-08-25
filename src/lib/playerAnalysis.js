@@ -72,10 +72,17 @@ export async function analyze(player, { onPhase, onProgress }) {
     ...r,
     program_quality_rating: r.soccer_score != null ? r.soccer_score / 10 : null,
     coaching_staff: coachingStaffMap[r.name] || [],
-    all_graduating_senior_names: r.graduating_names_at_position,
-    total_graduating_seniors: r.graduating_at_position,
+    // The two pairs below are different numbers and must not be aliased to
+    // each other. They were: both "total" fields were assigned the
+    // at-position values, so the card's "Total Graduating" and "At Your
+    // Position" rendered the same list on every school. Only 1% of
+    // programmes genuinely lose their whole graduating cohort from one
+    // position, so this was wrong essentially everywhere it was shown.
+    all_graduating_senior_names: r.graduating_names_total,
+    total_graduating_seniors: r.graduating_total,
     graduating_seniors_at_position: r.graduating_at_position,
     graduating_senior_names_at_position: r.graduating_names_at_position,
+    graduating_starter_names_at_position: r.graduating_starter_names_at_position,
     position_need: r.labels.roster === 'high' ? 'High' : r.labels.roster === 'medium' ? 'Medium' : 'Low',
   }));
 

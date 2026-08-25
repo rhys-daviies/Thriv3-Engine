@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildRosterIndex, qualityPercentiles, applyEligibility, rankMatches, normaliseAthlete, STARTER_MINUTES } from './pool.js';
+import { buildRosterIndex, qualityPercentiles, applyEligibility, rankMatches, normaliseAthlete, departures, STARTER_MINUTES } from './pool.js';
 import { CRITERION_KEYS } from './weights.js';
 
 const college = (over = {}) => ({
@@ -281,5 +281,117 @@ describe('normaliseAthlete academic minimum', () => {
     expect(normaliseAthlete({}).academicMinimum).toBeNull();
     expect(normaliseAthlete({ academic_minimum: null }).academicMinimum).toBeNull();
     expect(normaliseAthlete({ academic_minimum: 'Not Important' }).academicMinimum).toBeNull();
+  });
+});
+
+describe('departures', () => {
+  const roster = buildRosterIndex([
+    { college_name: 'A', player_name: 'mid-starter', position: 'MIDFIELD', minutes_played: 1200, estimated_graduation_year: 2027 },
+    { college_name: 'A', player_name: 'mid-sub', position: 'MIDFIELD', minutes_played: 100, estimated_graduation_year: 2027 },
+    { college_name: 'A', player_name: 'def-starter', position: 'DEFENSE', minutes_played: 1500, estimated_graduation_year: 2027 },
+    { college_name: 'A', player_name: 'keeper', position: 'GOALKEEPER', minutes_played: 1800, estimated_graduation_year: 2027 },
+    { college_name: 'A', player_name: 'next-year', position: 'MIDFIELD', minutes_played: 1000, estimated_graduation_year: 2028 },
+    { college_name: 'A', player_name: 'unlabelled', position: 'MIDFIELD', minutes_played: 1000, estimated_graduation_year: null },
+  ]).get('A');
+
+  // The defect this function exists for. Both were the same number, so the
+  // card showed one list twice.
+  it('counts the whole squad, not just the athlete position', () => {
+    const d = departures(roster, 2027, 'MIDFIELD');
+    expect(d.atPosition.starters + d.atPosition.squad).toBe(2);
+    expect(d.total).toBe(4);
+    expect(d.total).toBeGreaterThan(d.atPosition.starters + d.atPosition.squad);
+  });
+
+  it('names everyone leaving that year, across positions', () => {
+    expect(departures(roster, 2027, 'MIDFIELD').names.sort())
+      .toEqual(['def-starter', 'keeper', 'mid-starter', 'mid-sub']);
+  });
+
+  it('counts squad-wide starters separately from squad-wide bodies', () => {
+    expect(departures(roster, 2027, 'MIDFIELD').totalStarters).toBe(3);
+  });
+
+  // Read by the match card and the email template, produced by nothing until
+  // 2026-08-25 — so the card printed a starter count and then said the names
+  // could not be verified.
+  it('names the starters at the position, not just counts them', () => {
+    const d = departures(roster, 2027, 'MIDFIELD');
+    expect(d.atPosition.starterNames).toEqual(['mid-starter']);
+    expect(d.atPosition.names).toEqual(['mid-starter', 'mid-sub']);
+  });
+
+  it('ignores other arrival years', () => {
+    expect(departures(roster, 2028, 'MIDFIELD').total).toBe(1);
+    expect(departures(roster, 2029, 'MIDFIELD').total).toBe(0);
+  });
+
+  // A row with no estimated_graduation_year is never filed into a cohort, so
+  // this is a lower bound. rowsMissingGradYear is what reports the doubt.
+  it('cannot see rows with no graduation year', () => {
+    expect(departures(roster, 2027, 'MIDFIELD').total).toBe(4);
+    expect(roster.missingGradYear).toBe(1);
+  });
+
+  it('still totals the squad when nobody leaves at the athlete position', () => {
+    const d = departures(roster, 2027, 'FORWARD');
+    expect(d.atPosition).toBeNull();
+    expect(d.total).toBe(4);
+  });
+
+  // The cohort key is built by template literal, so a numeric class year and
+  // a string one must both match it.
+  it('matches a class year given as a number or a string', () => {
+    expect(departures(roster, 2027, 'MIDFIELD').total).toBe(4);
+    expect(departures(roster, '2027', 'MIDFIELD').total).toBe(4);
+  });
+
+  it('is case-insensitive about the position', () => {
+    expect(departures(roster, 2027, 'midfield').atPosition.starters).toBe(1);
+  });
+
+  it('returns empty rather than throwing with no roster or no class year', () => {
+    const empty = { atPosition: null, total: 0, totalStarters: 0, names: [] };
+    expect(departures(null, 2027, 'MIDFIELD')).toEqual(empty);
+    expect(departures(roster, null, 'MIDFIELD')).toEqual(empty);
+    expect(departures(undefined, undefined, undefined)).toEqual(empty);
+  });
+});
+
+describe('rankMatches graduating figures', () => {
+  const rosterIndex = buildRosterIndex([
+    { college_name: 'Test U', player_name: 'mid', position: 'MIDFIELD', minutes_played: 1200, estimated_graduation_year: 2027 },
+    { college_name: 'Test U', player_name: 'def', position: 'DEFENSE', minutes_played: 1500, estimated_graduation_year: 2027 },
+    { college_name: 'Test U', player_name: 'fwd', position: 'FORWARD', minutes_played: 200, estimated_graduation_year: 2027 },
+  ]);
+
+  it('exposes the position and squad-wide figures as different numbers', () => {
+    const { results } = rankMatches({ athlete: athlete(), colleges: [college()], rosterIndex });
+    const r = results[0];
+    expect(r.graduating_at_position).toBe(1);
+    expect(r.graduating_names_at_position).toEqual(['mid']);
+    expect(r.graduating_total).toBe(3);
+    expect(r.graduating_names_total.sort()).toEqual(['def', 'fwd', 'mid']);
+    expect(r.graduating_starters_total).toBe(2);
+    expect(r.graduating_starter_names_at_position).toEqual(['mid']);
+  });
+
+  it('gives every name field an array, never undefined', () => {
+    const { results } = rankMatches({ athlete: athlete({ classYear: 2099 }), colleges: [college()], rosterIndex });
+    for (const key of ['graduating_names_at_position', 'graduating_names_total', 'graduating_starter_names_at_position']) {
+      expect(Array.isArray(results[0][key])).toBe(true);
+      expect(results[0][key]).toHaveLength(0);
+    }
+  });
+
+  // Adding the squad-wide figures must not touch what the scorer reads.
+  it('does not change the score', () => {
+    const a = athlete();
+    const withRoster = rankMatches({ athlete: a, colleges: [college()], rosterIndex }).results[0];
+    const bare = rankMatches({ athlete: a, colleges: [college()], rosterIndex: buildRosterIndex([]) }).results[0];
+    expect(withRoster.graduating_total).toBe(3);
+    expect(bare.graduating_total).toBe(0);
+    expect(typeof withRoster.match_score).toBe('number');
+    expect(withRoster.breakdown.find((b) => b.key === 'roster').confidence).toBe('measured');
   });
 });

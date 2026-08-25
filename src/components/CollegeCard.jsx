@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { STARTER_MINUTES } from '@shared/matching/pool.js';
 
 function SeniorGroup({ label, names, collegeName }) {
   const list = (names || []).filter(Boolean);
@@ -182,7 +183,7 @@ export default function CollegeCard({ college, onEmailCoaches }) {
           <div className="space-y-3">
             <SeniorGroup label="Total Graduating" names={college.all_graduating_senior_names} collegeName={college.name} />
             <SeniorGroup label="At Your Position" names={college.graduating_senior_names_at_position} collegeName={college.name} />
-            <SeniorGroup label="Graduating Starters (600+ min)" names={college.graduating_starter_names_at_position} collegeName={college.name} />
+            <SeniorGroup label={`Graduating Starters (${STARTER_MINUTES}+ min)`} names={college.graduating_starter_names_at_position} collegeName={college.name} />
           </div>
 
           {college.reason && (

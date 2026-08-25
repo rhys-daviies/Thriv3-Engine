@@ -38,8 +38,13 @@ export function buildRosterIndex(rosterRows) {
     if (r.estimated_graduation_year === null || r.estimated_graduation_year === undefined) { e.missingGradYear++; continue; }
     const key = `${r.estimated_graduation_year}|${String(r.position || '').toUpperCase()}`;
     let c = e.cohorts.get(key);
-    if (!c) { c = { starters: 0, squad: 0, names: [] }; e.cohorts.set(key, c); }
-    if ((r.minutes_played || 0) >= STARTER_MINUTES) c.starters++; else c.squad++;
+    if (!c) { c = { starters: 0, squad: 0, names: [], starterNames: [] }; e.cohorts.set(key, c); }
+    // Starter names kept separately, not derivable afterwards from a flat
+    // list: `graduating_starter_names_at_position` was read by the match card
+    // and the email template and produced by nothing, so the card showed
+    // "names could not be verified from official sources" under a count it
+    // had just printed correctly.
+    if ((r.minutes_played || 0) >= STARTER_MINUTES) { c.starters++; c.starterNames.push(r.player_name); } else c.squad++;
     c.names.push(r.player_name);
   }
   return index;
@@ -111,6 +116,47 @@ export function applyEligibility(colleges, athlete) {
 }
 
 /**
+ * Who leaves this programme in the athlete's arrival year — at their position,
+ * and across the whole squad.
+ *
+ * Both numbers come from one walk of the cohorts because the card shows them
+ * side by side. Until 2026-08-25 only the position figure was ever computed
+ * and the squad-wide one was aliased to it downstream, so "Total Graduating"
+ * and "At Your Position" rendered the same list on every card — which is
+ * plainly wrong: only 1% of programmes genuinely lose their whole graduating
+ * cohort from one position.
+ *
+ * Compared as strings against the cohort key, exactly as the key is built, so
+ * a numeric and a string class year cannot silently miss each other.
+ *
+ * A lower bound, not a census: `buildRosterIndex` never files a row with no
+ * `estimated_graduation_year` into a cohort, so a squad with unlabelled rows
+ * reports fewer departures than it has. `rowsMissingGradYear` is what says how
+ * much is unknown, and the scorer already reads it.
+ */
+export function departures(roster, classYear, position) {
+  const empty = { atPosition: null, total: 0, totalStarters: 0, names: [] };
+  if (!roster || classYear == null) return empty;
+
+  const wantYear = String(classYear);
+  const wantPosition = String(position || '').toUpperCase();
+  let atPosition = null;
+  let total = 0;
+  let totalStarters = 0;
+  const names = [];
+
+  for (const [key, cohort] of roster.cohorts) {
+    const sep = key.indexOf('|');
+    if (key.slice(0, sep) !== wantYear) continue;
+    total += cohort.starters + cohort.squad;
+    totalStarters += cohort.starters;
+    names.push(...cohort.names);
+    if (key.slice(sep + 1) === wantPosition) atPosition = cohort;
+  }
+  return { atPosition, total, totalStarters, names };
+}
+
+/**
  * Score and rank every eligible programme.
  *
  * @param {object}   args.athlete      normalised athlete (see normaliseAthlete)
@@ -134,9 +180,8 @@ export function rankMatches({ athlete, colleges, rosterIndex, weights, limit }) 
 
   const results = kept.map((c) => {
     const roster = rosterIndex?.get(c.name);
-    const cohort = roster && athlete.classYear != null
-      ? roster.cohorts.get(`${athlete.classYear}|${String(athlete.position || '').toUpperCase()}`)
-      : null;
+    const departing = departures(roster, athlete.classYear, athlete.position);
+    const cohort = departing.atPosition;
 
     const college = {
       soccerScore: c.soccer_score,
@@ -179,6 +224,12 @@ export function rankMatches({ athlete, colleges, rosterIndex, weights, limit }) 
       graduating_at_position: (cohort?.starters || 0) + (cohort?.squad || 0),
       graduating_starters_at_position: cohort?.starters || 0,
       graduating_names_at_position: cohort?.names || [],
+      graduating_starter_names_at_position: cohort?.starterNames || [],
+      // Squad-wide, same arrival year, every position — a different number
+      // from the three above and not a synonym for them.
+      graduating_total: departing.total,
+      graduating_starters_total: departing.totalStarters,
+      graduating_names_total: departing.names,
       international_players: roster?.international || 0,
       players_from_country: athlete.country ? (roster?.byCountry.get(athlete.country) || 0) : 0,
       match_score: scored.score,
