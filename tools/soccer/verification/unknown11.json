@@ -1,0 +1,190 @@
+[
+ {
+  "school": "Inter American (PR)",
+  "hosts": [
+   "deportes.inter.edu"
+  ],
+  "host_used": "deportes.inter.edu",
+  "nav": {
+   "mens_link": false,
+   "womens_link": false,
+   "n_links": 63
+  },
+  "mens_section": false,
+  "mens_path": null,
+  "mens_title": null,
+  "womens_section": false,
+  "womens_path": null,
+  "verdict": "neither resolves \u2014 URL pattern wrong, NO verdict"
+ },
+ {
+  "school": "Cascade",
+  "hosts": [
+   "cascadeconference.org"
+  ],
+  "host_used": "cascadeconference.org",
+  "nav": {
+   "mens_link": false,
+   "womens_link": false,
+   "n_links": 20
+  },
+  "mens_section": true,
+  "mens_path": "/sports/mens-soccer",
+  "mens_title": "Cascade Collegiate Conference",
+  "womens_section": true,
+  "womens_path": "/sports/womens-soccer",
+  "verdict": "HAS MEN'S SOCCER"
+ },
+ {
+  "school": "Lewis-Clark State",
+  "hosts": [
+   "lcwarriors.com"
+  ],
+  "host_used": "lcwarriors.com",
+  "nav": {
+   "mens_link": false,
+   "womens_link": false,
+   "n_links": 22
+  },
+  "mens_section": true,
+  "mens_path": "/sports/mens-soccer",
+  "mens_title": "General - Lewis-Clark State College Athletics",
+  "womens_section": true,
+  "womens_path": "/sports/womens-soccer",
+  "verdict": "HAS MEN'S SOCCER"
+ },
+ {
+  "school": "Montana State Northern",
+  "hosts": [
+   "msunlights.com",
+   "gomsunlights.com"
+  ],
+  "dead": [
+   "msunlights.com",
+   "gomsunlights.com"
+  ],
+  "verdict": "unreachable \u2014 no verdict"
+ },
+ {
+  "school": "Montana Western",
+  "hosts": [
+   "umwbulldogs.com"
+  ],
+  "host_used": "umwbulldogs.com",
+  "nav": {
+   "mens_link": false,
+   "womens_link": false,
+   "n_links": 118
+  },
+  "mens_section": true,
+  "mens_path": "/sports/mens-soccer/roster",
+  "mens_title": "2022-23 General Roster - Montana Western, University of",
+  "womens_section": true,
+  "womens_path": "/sports/womens-soccer/roster",
+  "verdict": "HAS MEN'S SOCCER"
+ },
+ {
+  "school": "Multnomah",
+  "hosts": [
+   "gomulions.com",
+   "multnomahlions.com"
+  ],
+  "dead": [
+   "gomulions.com",
+   "multnomahlions.com"
+  ],
+  "verdict": "unreachable \u2014 no verdict"
+ },
+ {
+  "school": "Peru State",
+  "hosts": [
+   "pscbobcats.com"
+  ],
+  "host_used": "pscbobcats.com",
+  "nav": {
+   "mens_link": false,
+   "womens_link": false,
+   "n_links": 143
+  },
+  "mens_section": true,
+  "mens_path": "/sports/mens-soccer",
+  "mens_title": "General - Peru State College Athletics",
+  "womens_section": true,
+  "womens_path": "/sports/womens-soccer",
+  "verdict": "HAS MEN'S SOCCER"
+ },
+ {
+  "school": "Trinity International",
+  "hosts": [
+   "tiutrojans.com"
+  ],
+  "host_used": "tiutrojans.com",
+  "nav": {
+   "mens_link": true,
+   "womens_link": true,
+   "n_links": 78
+  },
+  "mens_section": true,
+  "mens_path": "/sports/mens-soccer/roster",
+  "mens_title": "2022 Men's Soccer Roster - Trinity International University Athletics",
+  "womens_section": true,
+  "womens_path": "/sports/womens-soccer/roster",
+  "verdict": "HAS MEN'S SOCCER"
+ },
+ {
+  "school": "Kentucky State",
+  "hosts": [
+   "ksuthorobreds.com"
+  ],
+  "host_used": "ksuthorobreds.com",
+  "nav": {
+   "mens_link": false,
+   "womens_link": false,
+   "n_links": 117
+  },
+  "mens_section": true,
+  "mens_path": "/sports/mens-soccer",
+  "mens_title": "General - Kentucky State University Athletics",
+  "womens_section": true,
+  "womens_path": "/sports/womens-soccer",
+  "verdict": "HAS MEN'S SOCCER"
+ },
+ {
+  "school": "Langston",
+  "hosts": [
+   "langstonsports.com",
+   "golangston.com"
+  ],
+  "host_used": "langstonsports.com",
+  "nav": {
+   "mens_link": false,
+   "womens_link": false,
+   "n_links": 82
+  },
+  "mens_section": true,
+  "mens_path": "/sports/mens-soccer",
+  "mens_title": "General - Langston University",
+  "womens_section": true,
+  "womens_path": "/sports/womens-soccer",
+  "verdict": "HAS MEN'S SOCCER"
+ },
+ {
+  "school": "Valley City State",
+  "hosts": [
+   "vcsuvikings.com",
+   "govcsu.com"
+  ],
+  "host_used": "vcsuvikings.com",
+  "nav": {
+   "mens_link": false,
+   "womens_link": false,
+   "n_links": 150
+  },
+  "mens_section": true,
+  "mens_path": "/sports/mens-soccer",
+  "mens_title": "General - Valley City State University",
+  "womens_section": true,
+  "womens_path": "/sports/womens-soccer",
+  "verdict": "HAS MEN'S SOCCER"
+ }
+]
