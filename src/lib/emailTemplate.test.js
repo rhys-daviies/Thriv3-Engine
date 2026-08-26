@@ -168,3 +168,80 @@ describe('the highlights link is gone from emails', () => {
     expect(fillTemplate(DEFAULT_EMAIL_TEMPLATE, c)).not.toMatch(/youtube|highlights_url/i);
   });
 });
+
+describe('nested conditionals', () => {
+  const ctx = (over) => buildEmailContext({ ...player, ...over.player }, { ...college, ...over.college }, 'Coach');
+
+  // Until 2026-08-26 the non-greedy body matched to the FIRST {{/if}}, so an
+  // outer block closed early and the inner tags survived into the message —
+  // a coach would have read "graduating this year{{#if has_graduating_names}}".
+  it('resolves an inner block inside an outer one', () => {
+    const t = '{{#if has_gpa}}gpa {{player_gpa}}{{#if has_sat_score}} sat {{player_sat_score}}{{/if}} end{{/if}}';
+    expect(fillTemplate(t, ctx({}))).toBe('gpa 3.6 sat 1210 end');
+  });
+
+  it('drops the whole outer block, inner one included, when the outer is false', () => {
+    const t = 'a{{#if has_act_score}}act{{#if has_sat_score}} and sat{{/if}}{{/if}}b';
+    expect(fillTemplate(t, ctx({ player: { act_score: null } }))).toBe('ab');
+  });
+
+  it('keeps the outer and drops only the inner', () => {
+    const t = '{{#if has_gpa}}gpa{{#if has_act_score}} act{{/if}}{{/if}}';
+    expect(fillTemplate(t, ctx({ player: { act_score: null } }))).toBe('gpa');
+  });
+
+  it('leaves a template with an unclosed block alone rather than hanging', () => {
+    const t = 'a {{#if has_gpa}} b';
+    expect(fillTemplate(t, ctx({}))).toBe('a {{#if has_gpa}} b');
+  });
+});
+
+describe('the pilot template degrades with the data', () => {
+  const render = (over) => fillTemplate(
+    DEFAULT_EMAIL_TEMPLATE,
+    buildEmailContext({ ...player, ...over.player }, { ...college, ...over.college }, 'Coach Smith'),
+  );
+
+  // The two sentences that would embarrass a send: a programme losing nobody
+  // at the position, and one whose departing names we could not read.
+  it('drops the roster hook rather than saying "0 defenders graduating"', () => {
+    const out = render({ college: { graduating_seniors_at_position: 0, graduating_senior_names_at_position: [] } });
+    expect(out).not.toMatch(/\b0 defenders?\b/);
+    expect(out).not.toMatch(/Part of why/);
+  });
+
+  it('never tells a coach his own roster could not be verified', () => {
+    const out = render({ college: { graduating_seniors_at_position: 2, graduating_senior_names_at_position: [] } });
+    expect(out).toContain('2 defenders graduating this year,');
+    expect(out).not.toMatch(/could not be verified/i);
+  });
+
+  it('omits an academic line rather than sending "N/A"', () => {
+    const out = render({ player: { gpa: null, act_score: null } });
+    expect(out).not.toContain('N/A');
+    expect(out).not.toMatch(/GPA/);
+    expect(out).toContain('• SAT 1210');
+  });
+
+  it('leaves no blank line where a skipped line was', () => {
+    expect(render({ player: { gpa: null, act_score: null } })).not.toMatch(/\n\n•/);
+  });
+
+  // A negotiating position, not a selling point.
+  it('never states the athlete budget', () => {
+    const out = render({ player: { budget_range: '$15k-$20k/yr' } });
+    expect(out).not.toMatch(/budget/i);
+    expect(out).not.toContain('$15k');
+  });
+
+  it('carries exactly one link, the tracked profile', () => {
+    const out = render({});
+    expect(out.match(/\{\{player_profile_url\}\}/g)).toHaveLength(1);
+    expect(out).not.toMatch(/youtube/i);
+  });
+
+  it('resolves completely for a school with nothing but a name', () => {
+    const ctx = buildEmailContext(player, { name: 'Some College' }, 'Coach');
+    expect(unresolvedTokens(DEFAULT_EMAIL_TEMPLATE, ctx)).toEqual([]);
+  });
+});

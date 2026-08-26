@@ -36,6 +36,16 @@ export const TEMPLATE_VARIABLES = [
   { token: 'graduating_seniors_count', label: 'Graduating Seniors Count' },
   { token: 'graduating_seniors_names', label: 'Graduating Seniors Names' },
   { token: 'graduating_seniors_position', label: 'Position word agreeing with that count (defender / defenders)' },
+  {
+    token: 'has_graduating_seniors',
+    label: 'If anyone is graduating at the position… (conditional sentence)',
+    snippet: '{{#if has_graduating_seniors}}{{graduating_seniors_count}} {{graduating_seniors_position}} graduating.{{/if}}',
+  },
+  {
+    token: 'has_graduating_names',
+    label: 'If those names were verified… (conditional sentence)',
+    snippet: '{{#if has_graduating_names}} {{graduating_seniors_names}}{{/if}}',
+  },
   { token: 'graduating_starters_count', label: 'Graduating Starters Count' },
   { token: 'graduating_starters_names', label: 'Graduating Starters Names' },
   { token: 'player_name', label: 'Player Name' },
@@ -43,6 +53,9 @@ export const TEMPLATE_VARIABLES = [
   { token: 'player_position_plural', label: 'Position, plural (defenders)' },
   { token: 'player_secondary_position', label: 'Secondary Position' },
   { token: 'player_gpa', label: 'GPA' },
+  { token: 'has_gpa', label: 'If a GPA is on file… (conditional line)' },
+  { token: 'has_sat_score', label: 'If an SAT is on file… (conditional line)' },
+  { token: 'has_act_score', label: 'If an ACT is on file… (conditional line)' },
   { token: 'player_sat_score', label: 'SAT Score' },
   { token: 'player_act_score', label: 'ACT Score' },
   { token: 'player_yearly_budget', label: 'Annual Budget' },
@@ -50,34 +63,50 @@ export const TEMPLATE_VARIABLES = [
   { token: 'player_profile_url', label: 'Tracked Profile Link' },
 ];
 
-export const DEFAULT_EMAIL_SUBJECT = 'Recruitment Inquiry – {{player_name}} ({{player_position}})';
+/**
+ * Scannable rather than clever. A coach triaging an inbox filters on class
+ * year and position before anything else, so both are in front of the name.
+ */
+export const DEFAULT_EMAIL_SUBJECT = '{{player_class_year}} {{player_position|lowercase}} — {{player_name}}';
 
-export const DEFAULT_EMAIL_TEMPLATE = `Dear {{coach_name}},
+/**
+ * The pilot template.
+ *
+ * Short on purpose. A cold email to a college coach gets a few seconds, so it
+ * carries one reason it was sent to *them*, one link, and one ask.
+ *
+ * Every conditional here exists because the data is uneven across a top-20:
+ * the roster hook is skipped entirely at a programme losing nobody at the
+ * position rather than announcing "0 defenders graduating", the names are
+ * added only where they were actually verified, and an academic line appears
+ * only where there is a number for it. Each `{{#if}}` opens *before* its own
+ * newline so a skipped line leaves no blank behind.
+ *
+ * Deliberately absent: the athlete's budget. It was on the previous template
+ * and it is a negotiating position, not a selling point — a coach who knows
+ * the family can find $20k has no reason to offer $25k. It stays on the
+ * profile for the operator and out of the first email.
+ */
+export const DEFAULT_EMAIL_TEMPLATE = `Hi {{coach_name}},
 
-I hope this message finds you well. I am reaching out on behalf of
-{{player_name}}, a talented {{player_position|lowercase}} who is exploring
-collegiate opportunities for the {{player_class_year}} season.
+I'm writing on behalf of {{player_name}}, a {{player_class_year}} {{player_position|lowercase}} who has {{college_name}} on their shortlist.{{#if is_conference_champion}} Congratulations on winning the {{conference_champion_name}} last season.{{/if}}
+{{#if has_graduating_seniors}}
+Part of why: you have {{graduating_seniors_count}} {{graduating_seniors_position}} graduating this year{{#if has_graduating_names}} {{graduating_seniors_names}}{{/if}}, so there may be a real opening at {{player_position|lowercase}} for {{player_class_year}}.
+{{/if}}
+{{player_name}} in brief:
+• {{player_position}}{{player_secondary_position}}, class of {{player_class_year}}{{#if has_gpa}}
+• GPA {{player_gpa}}{{/if}}{{#if has_sat_score}}
+• SAT {{player_sat_score}}{{/if}}{{#if has_act_score}}
+• ACT {{player_act_score}}{{/if}}
 
-I noticed that {{college_name}} has {{graduating_seniors_count}}
-graduating {{graduating_seniors_position}} this season
-{{graduating_seniors_names}} — which may create a roster opportunity
-for the {{college_nickname}} at {{player_position|lowercase}}.
-
-{{player_name}} brings strong qualities that could make them an
-excellent fit for your program:
-• Position: {{player_position}}{{player_secondary_position}}
-• GPA: {{player_gpa}}
-• Class of: {{player_class_year}}
-
-Profile and highlight film:
+Full profile and highlight film — one page, nothing to sign up for:
 {{player_profile_url}}
 
-We would love the opportunity to discuss {{player_name}}'s potential
-fit within your program...
+If that looks like a fit, I'd welcome a short conversation about where you stand for {{player_class_year}}.{{#if has_real_nickname}} Go {{college_nickname}}!{{/if}}
 
 Best regards,
-[Your Name]
-[Your Contact Information]`;
+[Your name]
+Striv3 Elite Sports Management`;
 
 function formatNameList(names) {
   const list = (names || []).filter(Boolean);
@@ -136,6 +165,13 @@ export function buildEmailContext(player, college, coachName) {
     // even when that drifts from our stored conference field.
     conference_champion_name: college.conference_champion_name || '',
     is_conference_champion: college.conference_champion_2025 ? 'true' : '',
+    // Gates for the two ways this sentence goes wrong on a thin school: no
+    // graduating players at the position ("0 defenders graduating"), and a
+    // programme whose names we could not read, where the name list renders as
+    // "names could not be verified from official sources" — true, and not
+    // something to say to a coach about his own roster.
+    has_graduating_seniors: (college.graduating_seniors_at_position ?? 0) > 0 ? 'true' : '',
+    has_graduating_names: (college.graduating_senior_names_at_position || []).filter(Boolean).length > 0 ? 'true' : '',
     graduating_seniors_count: String(college.graduating_seniors_at_position ?? 0),
     // Agrees with the count beside it. "{{graduating_seniors_count}}
     // {{player_position_plural}}" reads "1 defenders" at the 14 schools in a
@@ -156,6 +192,11 @@ export function buildEmailContext(player, college, coachName) {
     player_position_plural: positionPlural(player.position),
     player_secondary_position: secondary,
     player_gpa: player.gpa != null && player.gpa !== '' ? String(player.gpa) : 'N/A',
+    // So a template can omit the line entirely rather than send "GPA: N/A",
+    // which reads worse than saying nothing.
+    has_gpa: player.gpa != null && player.gpa !== '' ? 'true' : '',
+    has_sat_score: player.sat_score != null && player.sat_score !== '' ? 'true' : '',
+    has_act_score: player.act_score != null && player.act_score !== '' ? 'true' : '',
     // Saved templates were already writing {{player_sat_score}} and
     // {{player_yearly_budget}} before either existed here. An unknown token is
     // left alone by fillTemplate rather than erroring, so those rendered
@@ -224,14 +265,29 @@ function resolveToken(key, context) {
  * plain token substitution runs -- so a sentence built around optional data
  * (mascot, a real nickname) can be dropped or swapped entirely instead of
  * just leaving a blank where the missing value would have gone. An unknown
- * or empty-string token counts as false. Blocks don't nest.
+ * or empty-string token counts as false.
+ *
+ * Blocks nest. They did not until 2026-08-26, and the failure was silent
+ * rather than loud: the non-greedy body matched to the *first* {{/if}}, so an
+ * outer block closed early and the inner tags were left in the text — which
+ * then went to a coach reading "graduating this year{{#if has_graduating_names}}".
  */
+// Matches only a block whose body contains no further {{#if}} — the innermost
+// one. Resolving those first and looping outwards is what makes nesting work.
+const INNERMOST_IF = /\{\{#if\s+([a-zA-Z0-9_]+)\}\}((?:(?!\{\{#if\s)[\s\S])*?)\{\{\/if\}\}/;
+
 function resolveConditionals(template, context) {
-  return template.replace(/\{\{#if\s+([a-zA-Z0-9_]+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (match, key, inner) => {
-    const resolved = resolveToken(key, context);
-    const [truthyPart, falsyPart = ''] = inner.split(/\{\{else\}\}/);
-    return resolved ? truthyPart : falsyPart;
-  });
+  let out = String(template);
+  // Bounded so a malformed template — an {{#if}} with no {{/if}} — cannot spin
+  // here. It falls through with the tags intact, which unresolvedTokens then
+  // reports, rather than hanging the composer.
+  for (let pass = 0; pass < 100 && INNERMOST_IF.test(out); pass += 1) {
+    out = out.replace(INNERMOST_IF, (match, key, inner) => {
+      const [truthyPart, falsyPart = ''] = inner.split(/\{\{else\}\}/);
+      return resolveToken(key, context) ? truthyPart : falsyPart;
+    });
+  }
+  return out;
 }
 
 /**
