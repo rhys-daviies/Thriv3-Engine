@@ -1,6 +1,7 @@
 // Re-exported from the matcher's constants so this view and the match card
 // can never again disagree about what a starter is.
 export { STARTER_MINUTES as STARTER_MINUTES_THRESHOLD } from '@shared/matching/constants.js';
+export { PROJECTED_STARTER_MINUTES } from '@shared/matching/constants.js';
 
 /**
  * roster_players holds five seasons (2022-2026) — every read the app does

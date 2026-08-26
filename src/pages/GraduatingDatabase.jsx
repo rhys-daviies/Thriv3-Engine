@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { SPORTS } from '@/lib/sports';
-import { normalizeDivision, STARTER_MINUTES_THRESHOLD, POSITION_PILL_VARIANT, CURRENT_ROSTER_SEASON, ROSTER_SEASON_IN_PROGRESS } from '@/lib/divisions';
+import { normalizeDivision, STARTER_MINUTES_THRESHOLD, PROJECTED_STARTER_MINUTES, POSITION_PILL_VARIANT, CURRENT_ROSTER_SEASON, ROSTER_SEASON_IN_PROGRESS } from '@/lib/divisions';
 import { entities, functions } from '@/api/client';
 
 const DIVISION_ORDER = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA', 'Other'];
@@ -23,7 +23,11 @@ function RosterSchoolRow({ collegeName, players, rank }) {
   const [expanded, setExpanded] = useState(false);
   const counts = { GOALKEEPER: 0, DEFENSE: 0, MIDFIELD: 0, FORWARD: 0 };
   for (const p of players) if (counts[p.position] !== undefined) counts[p.position]++;
-  const sortedPlayers = [...players].sort((a, b) => (b.minutes_played || 0) - (a.minutes_played || 0));
+  // Sort on whichever figure exists, so a projection still orders the list.
+  // Sorting on minutes_played alone left every 2026 row tied at zero.
+  const sortedPlayers = [...players].sort(
+    (a, b) => (b.minutes_played ?? b.projected_minutes ?? -1) - (a.minutes_played ?? a.projected_minutes ?? -1)
+  );
   const confidence = majorityConfidence(players);
 
   return (
@@ -47,7 +51,7 @@ function RosterSchoolRow({ collegeName, players, rank }) {
               <Badge variant={POSITION_PILL_VARIANT[p.position] || 'muted'}>{(p.position || 'UNK').slice(0, 3)}</Badge>
               <span className="flex-1">{p.player_name}</span>
               {p.class_year_label && <span className="text-muted-foreground">{p.class_year_label}</span>}
-              <MinutesCell minutes={p.minutes_played} />
+              <MinutesCell minutes={p.minutes_played} projected={p.projected_minutes} projectedSeason={p.projected_minutes_season} />
             </div>
           ))}
         </div>
@@ -95,7 +99,7 @@ function LegacySchoolRow({ college, record, rank }) {
             <div key={p.name} className="flex items-center gap-2 text-xs">
               <Badge variant={POSITION_PILL_VARIANT[p.position] || 'muted'}>{(p.position || 'UNK').slice(0, 3)}</Badge>
               <span className="flex-1">{p.name}</span>
-              <MinutesCell minutes={p.minutes_played} />
+              <MinutesCell minutes={p.minutes_played} projected={p.projected_minutes} projectedSeason={p.projected_minutes_season} />
             </div>
           ))}
         </div>
@@ -105,31 +109,51 @@ function LegacySchoolRow({ college, record, rank }) {
 }
 
 /**
- * Playing time, with "not played yet" kept distinct from "played none".
+ * Playing time in three states, because they mean different things and the view
+ * used to show all of them as a grey "0 min".
  *
- * These were the same thing until 2026-08-27: the importer collapsed an empty
- * minutes cell to 0, so a season in progress rendered every player as "0 min"
- * in non-starter grey. That is a claim the data does not make -- 46,028 of the
- * 2026 rows have no minutes because no games have been played, and 6,000-9,000
- * rows in each earlier season were simply never published.
+ *   played      a real figure from this season      emerald when it clears 600
+ *   projected   LAST season's figure, carried       amber, italic, "~" prefixed
+ *   unknown     neither                             dimmed dash
+ *
+ * The projection is never dressed up as current data. It gets its own colour,
+ * a tilde, and a tooltip naming the season it came from, because the operator
+ * emailing a coach needs to know which numbers are evidence and which are an
+ * inference — a coach's roster has visibly changed since last season.
  */
-function MinutesCell({ minutes }) {
-  if (minutes == null) {
+function MinutesCell({ minutes, projected, projectedSeason }) {
+  if (minutes != null) {
+    const starter = minutes >= STARTER_MINUTES_THRESHOLD;
     return (
       <span
-        className="text-muted-foreground/60 italic w-20 text-right"
-        title={ROSTER_SEASON_IN_PROGRESS
-          ? `The ${CURRENT_ROSTER_SEASON} season is still being played — minutes are not available yet, so starter status is unknown.`
-          : 'This roster page published no minutes for this player.'}
+        className={starter ? 'text-emerald-400 font-medium w-24 text-right' : 'text-muted-foreground w-24 text-right'}
+        title={`${minutes} minutes played in the ${CURRENT_ROSTER_SEASON} season.`}
       >
-        — min
+        {minutes} min
       </span>
     );
   }
-  const starter = minutes >= STARTER_MINUTES_THRESHOLD;
+  if (projected != null) {
+    const starter = projected >= PROJECTED_STARTER_MINUTES;
+    return (
+      <span
+        className={starter ? 'text-amber-400/90 font-medium italic w-24 text-right' : 'text-muted-foreground/70 italic w-24 text-right'}
+        title={`Not ${CURRENT_ROSTER_SEASON} data. This is ${projected} minutes from the ${projectedSeason} season, `
+          + `carried forward because ${CURRENT_ROSTER_SEASON} has not been played yet. `
+          + `${starter ? `Projected starter (${PROJECTED_STARTER_MINUTES}+ last season predicts a 600+ season with about 80% precision).` : 'Not projected as a starter.'}`}
+      >
+        ~{projected} min
+      </span>
+    );
+  }
   return (
-    <span className={starter ? 'text-emerald-400 font-medium w-20 text-right' : 'text-muted-foreground w-20 text-right'}>
-      {minutes} min
+    <span
+      className="text-muted-foreground/50 italic w-24 text-right"
+      title={ROSTER_SEASON_IN_PROGRESS
+        ? `No ${CURRENT_ROSTER_SEASON} minutes yet and no earlier season to carry forward — a newcomer, so starter status is unknown.`
+        : 'This roster page published no minutes for this player.'}
+    >
+      — min
     </span>
   );
 }
@@ -262,6 +286,16 @@ export default function GraduatingDatabase() {
         <div>
           <h1 className="font-heading text-2xl font-bold">Graduating Database</h1>
           <p className="text-sm text-muted-foreground">Roster intelligence — every rostered player, by graduation year and position.</p>
+          {ROSTER_SEASON_IN_PROGRESS && (
+            // Stated up front rather than left to a tooltip: an operator about
+            // to email a coach should not have to hover to find out that the
+            // playing time on screen is last season's.
+            <p className="text-xs text-amber-400/90 mt-1.5">
+              {CURRENT_ROSTER_SEASON} season in progress — no minutes played yet.
+              Figures marked <span className="italic">~like this</span> are carried forward from the previous
+              season as a projection, not {CURRENT_ROSTER_SEASON} data. A dash means a newcomer with no prior season.
+            </p>
+          )}
         </div>
         {!hasRosterData && sport === 'mens-soccer' && (
           <Button variant="outline" onClick={handleExport}>

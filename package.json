@@ -27,7 +27,8 @@
     "backtest": "node server/scripts/backtestMatching.js",
     "tune:weights": "node server/scripts/tuneMatchingWeights.js",
     "suppress": "node server/scripts/suppress.js",
-    "draft": "node server/scripts/draftOutreach.js"
+    "draft": "node server/scripts/draftOutreach.js",
+    "project-minutes": "node server/scripts/projectRosterMinutes.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",

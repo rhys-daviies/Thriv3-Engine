@@ -133,6 +133,31 @@ export const NO_ATHLETIC_AID_CONFERENCES = new Set(['Ivy League', 'Ivy']);
  */
 export const STARTER_MINUTES = 600;
 
+/**
+ * The same judgement made from the PREVIOUS season's minutes, for a season not
+ * yet played.
+ *
+ * Lower than STARTER_MINUTES on purpose, and the number is measured rather than
+ * chosen. Tested on 2024 -> 2025 (25,653 players on both rosters with minutes
+ * in each), using last season's total to predict a 600+ season:
+ *
+ *   cutoff   precision   recall
+ *      600       80.6%     65.9%   <- misses 4,690 players who stepped up
+ *      500       78.2%     70.6%
+ *      450       76.9%     73.1%
+ *      400       75.4%     75.2%
+ *
+ * Restricted to the graduating cohort, which is the group this is actually used
+ * for, 450 gives 80.0% precision and 80.3% recall — the balanced point. A
+ * departing senior who played 450 minutes last year is overwhelmingly a starter
+ * this year; the strict 600 cutoff drops a fifth of them.
+ *
+ * This is a PROJECTION and must never be presented as the current season. It
+ * lives in its own column (roster_players.projected_minutes) beside its source
+ * season, so nothing can mistake it for minutes that were actually played.
+ */
+export const PROJECTED_STARTER_MINUTES = 450;
+
 export const BUDGET_CEILINGS = {
   'Need Full Scholarship': 0,
   '$0-$5k/yr': 5000,

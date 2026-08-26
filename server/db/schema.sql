@@ -135,6 +135,8 @@ CREATE TABLE IF NOT EXISTS roster_players (
   games_started INTEGER,
   estimated_graduation_year INTEGER,
   eligibility_end_year INTEGER,
+  projected_minutes INTEGER,
+  projected_minutes_season TEXT,
   nationality TEXT,
   hometown TEXT,
   country TEXT,

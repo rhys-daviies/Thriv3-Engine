@@ -159,6 +159,13 @@ const COLLEGE_COLUMNS = [
 // so nothing that reads the academic year silently shifts by a year.
 const ROSTER_PLAYER_COLUMNS = [
   ['eligibility_end_year', 'INTEGER'],
+  // Minutes carried forward from an earlier season, for a season not yet
+  // played. Deliberately NOT written into minutes_played: that column means
+  // "minutes this player actually played this season", and a projection in it
+  // would be indistinguishable from the real thing. The source season travels
+  // with the value so every consumer can say where it came from.
+  ['projected_minutes', 'INTEGER'],
+  ['projected_minutes_season', 'TEXT'],
 ];
 
 const COACH_COLUMNS = [
