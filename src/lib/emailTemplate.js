@@ -143,7 +143,7 @@ function formatNameList(names) {
  * Builds the token-resolution context from the player profile, a matched
  * college/CollegeCard result object, and the specific coach being addressed.
  */
-export function buildEmailContext(player, college, coachName) {
+export function buildEmailContext(player, college, coachName, { profileUrl = null } = {}) {
   const secondary = player.secondary_position && player.secondary_position !== 'None'
     ? ` / ${positionLabel(player.secondary_position)}`
     : '';
@@ -248,10 +248,13 @@ export function buildEmailContext(player, college, coachName) {
     // unrecorded and the engagement screen read cold. The film is on the
     // profile page anyway, which is what this link opens.
     //
-    // Resolved per coach on the server at send time, because the link carries
-    // that coach's own tracking token. Left as-is here so the composer preview
-    // shows where it will land.
-    player_profile_url: '{{player_profile_url}}',
+    // Left as the token by default, because the real link carries the coach's
+    // own tracking id and only the server knows it — `sendOutreach` swaps it
+    // in per recipient. A caller that wants to *show* the operator what the
+    // coach will receive passes `profileUrl`; the composer previews do, since
+    // a preview displaying "{{player_profile_url}}" looks like the link failed
+    // to resolve rather than like it resolves later.
+    player_profile_url: profileUrl || '{{player_profile_url}}',
   };
 }
 

@@ -10,6 +10,7 @@ import { pickHeadCoach } from '@shared/coachRoles.js';
 import { riskCounts, emailRisk } from '@shared/emailRisk.js';
 import EmailRiskBadge from '@/components/EmailRiskBadge';
 import { useCoachEmailStatus, statusOf } from '@/lib/useCoachEmailStatus';
+import { useProfileUrl } from '@/lib/useProfileUrl';
 import {
   fillTemplate, buildEmailContext, unresolvedTokens, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE,
 } from '@/lib/emailTemplate';
@@ -49,6 +50,10 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
   // dialog can show a coach without being able to say the address has never
   // been seen to work.
   const { statuses, failed: statusFailed } = useCoachEmailStatus(player.sport || 'mens-soccer');
+  // Preview only. The link that actually ships is built per coach on the
+  // server; this is the same address with a stand-in where the token goes,
+  // so the preview does not read as though the link failed to resolve.
+  const previewProfileUrl = useProfileUrl(player.id);
   const statusLoaded = statuses !== null;
 
   const [selected, setSelected] = useState(() => new Set(targets.map((t) => t.college.name)));
@@ -79,9 +84,11 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
   }, [previewTarget, player, subject, body]);
   const preview = useMemo(() => {
     if (!previewTarget) return null;
-    const context = buildEmailContext(player, previewTarget.college, previewTarget.coach.name || 'Coach');
+    const context = buildEmailContext(player, previewTarget.college, previewTarget.coach.name || 'Coach', {
+      profileUrl: previewProfileUrl,
+    });
     return { subject: fillTemplate(subject, context), body: fillTemplate(body, context) };
-  }, [previewTarget, player, subject, body]);
+  }, [previewTarget, player, subject, body, previewProfileUrl]);
 
   function toggle(name) {
     setSelected((prev) => {
