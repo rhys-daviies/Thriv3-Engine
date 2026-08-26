@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { SPORTS } from '@/lib/sports';
-import { normalizeDivision, STARTER_MINUTES_THRESHOLD, POSITION_PILL_VARIANT, CURRENT_ROSTER_SEASON } from '@/lib/divisions';
+import { normalizeDivision, STARTER_MINUTES_THRESHOLD, POSITION_PILL_VARIANT, CURRENT_ROSTER_SEASON, ROSTER_SEASON_IN_PROGRESS } from '@/lib/divisions';
 import { entities, functions } from '@/api/client';
 
 const DIVISION_ORDER = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA', 'Other'];
@@ -47,9 +47,7 @@ function RosterSchoolRow({ collegeName, players, rank }) {
               <Badge variant={POSITION_PILL_VARIANT[p.position] || 'muted'}>{(p.position || 'UNK').slice(0, 3)}</Badge>
               <span className="flex-1">{p.player_name}</span>
               {p.class_year_label && <span className="text-muted-foreground">{p.class_year_label}</span>}
-              <span className={(p.minutes_played || 0) >= STARTER_MINUTES_THRESHOLD ? 'text-emerald-400 font-medium w-20 text-right' : 'text-muted-foreground w-20 text-right'}>
-                {p.minutes_played ?? 0} min
-              </span>
+              <MinutesCell minutes={p.minutes_played} />
             </div>
           ))}
         </div>
@@ -97,14 +95,42 @@ function LegacySchoolRow({ college, record, rank }) {
             <div key={p.name} className="flex items-center gap-2 text-xs">
               <Badge variant={POSITION_PILL_VARIANT[p.position] || 'muted'}>{(p.position || 'UNK').slice(0, 3)}</Badge>
               <span className="flex-1">{p.name}</span>
-              <span className={(p.minutes_played || 0) >= STARTER_MINUTES_THRESHOLD ? 'text-emerald-400 font-medium' : 'text-muted-foreground'}>
-                {p.minutes_played ?? 0} min
-              </span>
+              <MinutesCell minutes={p.minutes_played} />
             </div>
           ))}
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * Playing time, with "not played yet" kept distinct from "played none".
+ *
+ * These were the same thing until 2026-08-27: the importer collapsed an empty
+ * minutes cell to 0, so a season in progress rendered every player as "0 min"
+ * in non-starter grey. That is a claim the data does not make -- 46,028 of the
+ * 2026 rows have no minutes because no games have been played, and 6,000-9,000
+ * rows in each earlier season were simply never published.
+ */
+function MinutesCell({ minutes }) {
+  if (minutes == null) {
+    return (
+      <span
+        className="text-muted-foreground/60 italic w-20 text-right"
+        title={ROSTER_SEASON_IN_PROGRESS
+          ? `The ${CURRENT_ROSTER_SEASON} season is still being played — minutes are not available yet, so starter status is unknown.`
+          : 'This roster page published no minutes for this player.'}
+      >
+        — min
+      </span>
+    );
+  }
+  const starter = minutes >= STARTER_MINUTES_THRESHOLD;
+  return (
+    <span className={starter ? 'text-emerald-400 font-medium w-20 text-right' : 'text-muted-foreground w-20 text-right'}>
+      {minutes} min
+    </span>
   );
 }
 
@@ -140,7 +166,12 @@ export default function GraduatingDatabase() {
     return [...years].sort((a, b) => a - b);
   }, [rosterRows]);
 
-  const activeYear = year ?? availableYears[0] ?? null;
+  // Default to the cohort leaving after the pinned season, not the earliest
+  // year on record. availableYears[0] put the operator on a near-empty bucket
+  // of stragglers -- the whole point of the view is who to email about the
+  // players about to leave.
+  const defaultYear = Number(CURRENT_ROSTER_SEASON) + 1;
+  const activeYear = year ?? (availableYears.includes(defaultYear) ? defaultYear : availableYears[0]) ?? null;
 
   const rowsForYear = useMemo(
     () => rosterRows.filter((r) => r.estimated_graduation_year === activeYear),

@@ -71,6 +71,7 @@ function importFile({ file, sport, division }) {
   // signal that the two agree; a large count means one of them has drifted.
   const gradYearDisagreements = [];
   const unnamed = [];
+  const impossibleGrad = [];
 
   const records = rows
     .map((row) => {
@@ -98,7 +99,26 @@ function importFile({ file, sport, division }) {
       const read = readClassYear(rawClass, { season: SEASON });
       if (!read.recognised) rejected.push({ college_name, player_name, rawClass });
 
+      // A player on this season's roster has not graduated yet, so a
+      // graduation year at or before the season is impossible whatever the
+      // sheet says. 66 rows carried one -- 63 from a cross-season inference
+      // that propagated an old value onto a player still enrolled, 3 printed
+      // by the site itself. Rejected here rather than trusted, because the
+      // Graduating Database groups by this column and an impossible year
+      // creates a phantom cohort ("2 schools graduating in 2024").
       const csvGradYear = toIntOrNull(row['Estimated Graduation']);
+      const seasonInt = parseInt(SEASON, 10);
+      // Applied to whichever value wins below, not just to the sheet's: the
+      // class column itself can print an impossible year. Massachusetts College
+      // of Liberal Arts prints the season year there ("2022" on the 2022
+      // roster), which the explicit-year path reads through untouched.
+      const rejectIfGraduated = (yr) => {
+        if (yr != null && yr <= seasonInt) {
+          impossibleGrad.push({ college_name, player_name, year: yr });
+          return null;
+        }
+        return yr;
+      };
       if (read.recognised && read.graduationYear != null && csvGradYear != null && csvGradYear !== read.graduationYear) {
         gradYearDisagreements.push({ college_name, player_name, rawClass, sheet: csvGradYear, derived: read.graduationYear });
       }
@@ -114,7 +134,12 @@ function importFile({ file, sport, division }) {
         player_name,
         class_year_label: (read.recognised ? rawClass : '') || undefined,
         position: normalizePosition(row['Position']),
-        minutes_played: toIntOrNull(row['Total Minutes Played']) ?? 0,
+        // NULL, not 0, when the cell is empty. A season in progress has no
+        // minutes yet, and collapsing that to zero makes every player read as a
+        // non-starter rather than as unknown -- which is exactly the wrong
+        // signal for the roster-opportunity half of matching. 46,028 of the 2026
+        // rows and 3,429 of the 2025 rows are absent, not zero.
+        minutes_played: toIntOrNull(row['Total Minutes Played']),
         games_played: toIntOrNull(row['Games Played']),
         games_started: toIntOrNull(row['Games Started']),
         // Derived wins over the sheet's own "Estimated Graduation" column.
@@ -124,7 +149,7 @@ function importFile({ file, sport, division }) {
         // from it would silently restore a bug that took 109,886 rows to undo.
         // The sheet is still the fallback for a row whose class cell we could
         // not read; a rejected cell yields neither.
-        estimated_graduation_year: read.recognised ? (read.graduationYear ?? csvGradYear) : null,
+        estimated_graduation_year: read.recognised ? rejectIfGraduated(read.graduationYear ?? csvGradYear) : null,
         // Only ever derived. The sheet has no column for it, and it must not be
         // guessed from the academic year: without a class label there is no way
         // to tell a senior (one more year of eligibility) from a graduate (none).
@@ -172,6 +197,11 @@ function importFile({ file, sport, division }) {
       console.log(`       ${school}: ${count} (e.g. ${JSON.stringify(sample)})`);
     }
     console.log('       Likely the wrong column was scraped. Check the roster page before trusting this school.');
+  }
+  if (impossibleGrad.length) {
+    console.log(`    !! ${impossibleGrad.length} row(s) dropped a graduation year at or before the ${SEASON} season`);
+    console.log(`       (a rostered player has not graduated yet) e.g. ${impossibleGrad.slice(0, 3)
+      .map((r) => `${r.college_name}/${r.player_name} -> ${r.year}`).join(', ')}`);
   }
   if (gradYearDisagreements.length) {
     const share = Math.round((100 * gradYearDisagreements.length) / (records.length || 1));
