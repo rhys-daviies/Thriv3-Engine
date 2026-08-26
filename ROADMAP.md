@@ -6,7 +6,7 @@ the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
 Last audited: 2026-08-26, re-verified against the DB and the live edge
-(branch `engagement-tracking`, 663 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 695 tests green). Coverage numbers below were
 re-run, not copied. The academic-rating gap has closed completely; roster and
 grad-year figures moved and are corrected in place.
 
@@ -23,13 +23,17 @@ criteria, a coupling layer, an operator ranking control in both the intake
 form and the matching tab, and, for the first time, a backtest that says
 whether any of it works.
 
-**Everything else now waits on one action.** `npm run trial:preflight` is
-16/16 green, Rhys Davies is published and serving 22kB of profile behind a
-live tracked link, and 22 tokens are in the edge allowlist. What has never
-happened is a coach opening one. All 90 events in the database carry a null
-`remote_id` — every one a local simulator write. Phase 1.1's three open boxes
-are the whole of the remaining gate, and they are an afternoon's work rather
-than a build.
+**The trial send has happened, and the loop closed.** At 00:29 on 2026-08-26 a
+tracked link was opened from a real inbox and the whole path ran unattended:
+two sessions collected at the edge, 13 events synced down with non-null
+`remote_id`s, the cursor advanced 6 → 19, and a rollup landed at 5/100, tier
+`cold` — correct for a 13% skim. **Pillar 3 is no longer unproven.** The
+second session collapsing into the first rather than counting twice is the
+30-minute rule working as designed, on real data, for the first time.
+
+What that leaves is a controlled test, not a coach: the recipient was a
+mailbox we own. Nothing in the path is unproven any more, but nothing has yet
+been read by someone deciding whether to recruit.
 
 ---
 
@@ -64,11 +68,36 @@ grad-year nulls of its own, which the single 2025 figure used to hide.
 
 ---
 
-**Where the boxes stand: 57 of 104 ticked (55%).** Five of the 47 open boxes
-are struck through — retired with the sending domain and the ESP — so against
-work that is still live it is 57 of 99, 58%. The count is deliberately not the
-headline: 46 of the 47 open boxes are behind the pilot, and the three in Phase
-1.1 are in front of it.
+## Progress
+
+**60 of 104 boxes ticked. Five of the 44 open are struck through** — retired
+with the sending domain and the ESP — so against live work it is 60 of 99,
+**61%**.
+
+The count is deliberately not the headline. Nothing is now in front of the
+pilot: Phase 1.1 closed on 2026-08-26, and every remaining box is either the
+pilot itself or work that only makes sense once it has run.
+
+### Pillar by pillar
+
+| Pillar | Progress | State |
+|---|---|---|
+| **1 · Matchmaking** | ✅✅✅✅✅✅✅✅✅✅ | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested against 1,500 real arrivals per sport |
+| **2 · Networking** | ✅✅✅✅⬜⬜⬜⬜⬜⬜ | Personalisation, coach table, compliance and bulk drafting done. Campaign engine and A/B/C sequencing not started |
+| **3 · Interactions** | ✅✅✅✅✅✅✅✅✅⬜ | **Proven on real traffic 2026-08-26.** Only automated reply detection remains |
+| **4 · Recommendation** | ✅✅⬜⬜⬜⬜⬜⬜⬜⬜ | Data half moving — both seasons imported, retention measured at median 75%. Nothing built in the product |
+
+### Phase by phase
+
+| Phase | Progress | Boxes |
+|---|---|---|
+| **0 · Data & lead times** | ✅✅✅✅✅✅✅✅⬜⬜ | 23 done, 8 open |
+| **1 · Prove Pillar 3, finish Pillar 1** | ✅✅✅✅✅✅✅✅✅✅ | 27 done, 0 open — **closed** |
+| **2 · Campaign engine** | ✅✅✅⬜⬜⬜⬜⬜⬜⬜ | 9 done, 12 open (1 struck) |
+| **3 · Pilot** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 0 done, 7 open — **next** |
+| **4 · Recommendation** | ✅⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 1 done, 6 open |
+| **5 · Learning loop** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 0 done, 3 open — needs pilot data |
+| **Cross-cutting** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 0 done, 3 open |
 
 ## Pillar status at a glance
 
@@ -76,7 +105,7 @@ headline: 46 of the 47 open boxes are behind the pilot, and the three in Phase
 |---|---|---|---|
 | 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested at the 95.8th percentile (men) / 95.2nd (women) against 1,500 real arrivals each | Nothing before go live. The learning loop is Phase 5 and needs real replies |
 | 2 · Networking | 3-week A/B/C sequence, 100 programs at a time | Excellent personalisation; coach table, compliance, per-inbox cap and bulk drafting all done. No campaign engine, and no automated send by design | Campaign model, A/B/C variants, sequencing. **Not** an ESP — see locked decisions |
-| 3 · Interactions | Tracking, coach score, session timelines | Feature-complete and tested; edge repaired, guarded and covered 2026-08-24; still **never run on real traffic** | One real end-to-end send; automated sync; real response detection |
+| 3 · Interactions | Tracking, coach score, session timelines | **Proven end to end 2026-08-26** — 13 edge-sourced events, cursor 6 → 19, rollup and tiering correct on real data. Sync automated | Real response detection. Everything else waits on a coach, not on code |
 | 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Nothing built; 2 of 3 inputs un-sourced | 2024 roster backfill (both sports), lifestyle data source, metrics, UI |
 
 ---
@@ -776,15 +805,18 @@ then 2023 and 2022. Not to be picked up here.
 
 Cheapest high-information work. Do not start Phase 2 before task 1.1 passes.
 
-### 1.1 Prove the tracking loop end to end
-**This is the only thing standing between here and pilot 1.**
+### 1.1 Prove the tracking loop end to end — **closed 2026-08-26**
+The path *published profile → real inbox → open → D1 → sync → rollup → Tab 3*
+has now carried a genuine visit. Of 103 events in the database, **13 carry a
+non-null `remote_id`** and came back from the edge rather than from the
+simulator.
 
-The pillar is validated entirely by simulator output — all 90 events in the DB
-have a null `remote_id`, and the edge cursor stopped at 6. The path
-*published profile → real inbox → coach opens → D1 → sync → rollup → Tab 3*
-has never carried a genuine visit.
+Superseded framing, kept for the record: this section previously read "the
+pillar is validated entirely by simulator output" and called itself the only
+thing standing between here and pilot 1. Both were true until 2026-08-26.
 
-Everything either side of that path is now green, re-verified 2026-08-25:
+The state either side of the path, re-verified 2026-08-25 and unchanged
+except where noted:
 
 | | |
 |---|---|
@@ -794,12 +826,11 @@ Everything either side of that path is now green, re-verified 2026-08-25:
 | Unknown token | refused with the neutral page, as designed |
 | Token allowlist | 22 live at the edge, in sync |
 | Delete guard | locked, no unlock window open |
-| Event cursor | 6, edge sequence 6 — behind, so nothing is skipped |
+| Event cursor | **19** — advanced by the trial, in step with the edge |
 | Sync | scheduled every 15 minutes while the server runs |
 | Compliance footer | identity and postal address set; refuses to send without them |
 
-So the remaining work is not plumbing. It is pressing send once and watching
-what arrives.
+Send was pressed, and what arrived is recorded below.
 
 **Two edge-state defects were found in the 2026-08-24 audit and both are now
 resolved. Neither was visible from the local database, which is the lesson.**
@@ -853,15 +884,27 @@ resolved. Neither was visible from the local database, which is the lesson.**
       reports the edge's own state to an authed caller, which is what makes
       the last four checks possible; unauthed callers still get liveness only,
       since counts would leak how much outreach is in flight.
-- [ ] Send one tracked link to a mailbox you control, from outside the local
-      network. **The profile half of this is already done** — Rhys Davies is
-      published and the link serves. What is left is the send. Run
-      `npm run trial:preflight`, then draft with `send: false` and inspect the
-      Outlook draft before anything leaves. Deferred until now because
-      building continued first; that reason has expired.
-- [ ] Confirm events land in D1, sync down with a non-null `remote_id`, roll
-      up, and appear in Tab 3 with a correct session timeline.
-- [ ] Fix whatever that exposes.
+- [x] **Sent one tracked link to a mailbox we control.** Outreach
+      `01fa00f2`, athlete Ryan Billings, recipient a controlled test contact
+      at an external domain, sent 2026-08-26T00:26:11Z.
+- [x] **Confirmed the whole path.** Opened three minutes later. Two sessions,
+      13 events — `visit_start`, `visit_qualified`, `play_start`,
+      `coverage_10`, four `pause`, `session_end` — all synced down carrying
+      edge `remote_id`s 7–19, and the cursor moved 6 → 19. The rollup reads
+      1 qualified visit, best coverage 13%, 52 watched seconds, score 5,
+      tier `cold`.
+
+      **Two behaviours were verified rather than assumed.** The score being
+      low is correct: a 13% skim *should* read cold, and a system that
+      flattered it would be worse than useless. And the two sessions
+      collapsing to one qualified visit is the 30-minute rule working on real
+      data — they were 59 seconds apart, so they are one visit, not a return.
+      Returning is what the score weights most heavily, so that gate mattering
+      in production is the single most important thing this trial proved.
+- [x] **Nothing needed fixing.** The trial exposed no defect — which is the
+      expected outcome of the four repairs above having landed first, not
+      evidence that the path was fine all along. It was not: on 2026-08-24
+      this same send would have returned the neutral page.
 - [x] **Automated the sync** — `server/lib/syncScheduler.js`, started at boot,
       cadence from `THRIV3_SYNC_INTERVAL_MINUTES`. A timer inside the server
       rather than launchd or cron: it runs whenever the app runs, needs no
