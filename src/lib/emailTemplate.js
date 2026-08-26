@@ -47,7 +47,6 @@ export const TEMPLATE_VARIABLES = [
   { token: 'player_act_score', label: 'ACT Score' },
   { token: 'player_yearly_budget', label: 'Annual Budget' },
   { token: 'player_class_year', label: 'Class Year (arrival)' },
-  { token: 'player_highlights_url', label: 'Highlights URL' },
   { token: 'player_profile_url', label: 'Tracked Profile Link' },
 ];
 
@@ -95,9 +94,6 @@ function formatNameList(names) {
 export function buildEmailContext(player, college, coachName) {
   const secondary = player.secondary_position && player.secondary_position !== 'None'
     ? ` / ${positionLabel(player.secondary_position)}`
-    : '';
-  const highlights = player.highlights_url
-    ? `• Highlights: ${player.highlights_url}`
     : '';
 
   return {
@@ -174,7 +170,12 @@ export function buildEmailContext(player, college, coachName) {
     // token does not error — it silently renders nothing.
     player_class_year: classYearOf(player) != null ? String(classYearOf(player)) : '',
     player_graduation_year: classYearOf(player) != null ? String(classYearOf(player)) : '',
-    player_highlights_url: highlights,
+    // The only link an email carries. `player_highlights_url` was removed
+    // 2026-08-26: a raw YouTube URL beside a tracked one gave the coach a way
+    // to watch the film without ever touching the profile, so the visit went
+    // unrecorded and the engagement screen read cold. The film is on the
+    // profile page anyway, which is what this link opens.
+    //
     // Resolved per coach on the server at send time, because the link carries
     // that coach's own tracking token. Left as-is here so the composer preview
     // shows where it will land.

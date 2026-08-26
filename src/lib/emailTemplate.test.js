@@ -140,3 +140,31 @@ describe('position grammar in the email', () => {
     expect(buildEmailContext({ ...player, secondary_position: 'None' }, college, 'Coach').player_secondary_position).toBe('');
   });
 });
+
+describe('the highlights link is gone from emails', () => {
+  // Removed 2026-08-26. A raw YouTube URL beside the tracked one let a coach
+  // watch the film without touching the profile, so the visit went unrecorded
+  // and Tab 3 read cold. The film is on the profile page the tracked link
+  // opens, so nothing is lost by dropping it.
+  it('no longer resolves player_highlights_url', () => {
+    const c = buildEmailContext({ ...player, highlights_url: 'https://youtube.test/watch?v=abc' }, college, 'Coach');
+    expect(c).not.toHaveProperty('player_highlights_url');
+  });
+
+  it('does not offer it in the picker', () => {
+    expect(TEMPLATE_VARIABLES.map((v) => v.token)).not.toContain('player_highlights_url');
+  });
+
+  // A template still carrying it is now reported rather than silently
+  // emitting braces to a coach.
+  it('reports it as unresolved if a saved template still uses it', () => {
+    const c = buildEmailContext(player, college, 'Coach');
+    expect(unresolvedTokens('film: {{player_highlights_url}}', c)).toEqual(['player_highlights_url']);
+  });
+
+  it('leaves the tracked profile link as the only link a template carries', () => {
+    const c = buildEmailContext(player, college, 'Coach');
+    expect(c.player_profile_url).toBe('{{player_profile_url}}');
+    expect(fillTemplate(DEFAULT_EMAIL_TEMPLATE, c)).not.toMatch(/youtube|highlights_url/i);
+  });
+});

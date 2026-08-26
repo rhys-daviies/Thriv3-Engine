@@ -1,6 +1,7 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { OUTLOOK_FROM_ADDRESS } from './config.js';
+import { textToHtml } from '../../shared/emailHtml.js';
 
 const run = promisify(execFile);
 
@@ -12,6 +13,17 @@ const run = promisify(execFile);
  * user is already signed into. Values are passed as argv rather than
  * interpolated into the script, so a quote or newline in an email body cannot
  * break out into AppleScript.
+ *
+ * The body is converted to HTML before it gets here, because `content` is the
+ * message's *HTML* part: setting it to "a<br>b" yields a text/html part of
+ * "a<br>b" and a text/plain part of "ab". Handing it plain text therefore
+ * published every newline as HTML whitespace and a spaced template arrived as
+ * one unbroken block.
+ *
+ * `plain text content` is deliberately NOT set alongside it. Setting both does
+ * not produce a two-part message — Outlook takes the plain text as the source
+ * of truth, regenerates the HTML from it and discards the markup, which is the
+ * original bug with extra steps.
  *
  * On the From address: `sender` is honoured by classic Outlook, but the New
  * Outlook build ignores it and uses the default account instead — and does so
@@ -68,7 +80,7 @@ export async function composeInOutlook({ to, subject, body, send = false, from =
   try {
     const { stdout } = await run(
       'osascript',
-      ['-e', SCRIPT, to, subject, body, send ? 'send' : 'draft', from || ''],
+      ['-e', SCRIPT, to, subject, textToHtml(body), send ? 'send' : 'draft', from || ''],
       { timeout: 30_000 }
     );
     const actualFrom = stdout.trim();

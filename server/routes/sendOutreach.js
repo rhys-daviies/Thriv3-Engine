@@ -35,7 +35,7 @@ function ensureProfileLink(body, url) {
   if (body.includes(url)) return body;
   const filled = body.replace(/\{\{\s*player_profile_url\s*\}\}/g, url);
   if (filled.includes(url)) return filled;
-  return `${filled.trimEnd()}\n\nProfile and highlight film:\n${url}\n`;
+  return `${filled.trimEnd()}\n\nProfile and highlight film:\n${url}\n`;   // blank line above: its own paragraph
 }
 
 /**
@@ -54,7 +54,11 @@ function ensureProfileLink(body, url) {
  * are unset.
  */
 function complianceFooter({ athleteName, unsubscribeUrl }) {
+  // Two blank lines, not one. The body is rendered as HTML at compose time,
+  // where a blank line starts a new paragraph and a single newline is only a
+  // line break — with one, the footer ran straight on from the sign-off.
   return [
+    '',
     '',
     '—',
     `Sent by ${SENDER_IDENTITY} on behalf of ${athleteName}.`,
