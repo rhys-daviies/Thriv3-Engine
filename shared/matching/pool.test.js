@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildRosterIndex, qualityPercentiles, applyEligibility, rankMatches, normaliseAthlete, departures, STARTER_MINUTES } from './pool.js';
+import { buildRosterIndex, qualityPercentiles, applyEligibility, rankMatches, normaliseAthlete, departures, STARTER_MINUTES, PROJECTED_STARTER_MINUTES } from './pool.js';
 import { CRITERION_KEYS } from './weights.js';
 
 const college = (over = {}) => ({
@@ -425,5 +425,50 @@ describe('rankMatches carries the presentation columns', () => {
   it('passes an absent column through as absent, not as a blank', () => {
     const { results } = rankMatches({ athlete: athlete(), colleges: [college()], rosterIndex: buildRosterIndex([]) });
     for (const key of DECORATED) expect(results[0][key]).toBeUndefined();
+  });
+});
+
+describe('starter classification when the season is not yet played', () => {
+  const row = (over) => ({
+    college_name: 'A', player_name: 'p', position: 'MIDFIELD',
+    estimated_graduation_year: 2027, ...over,
+  });
+  const cohort = (rows) => buildRosterIndex(rows).get('A').cohorts.get('2027|MIDFIELD');
+
+  it('uses real minutes when they exist, at the 600 threshold', () => {
+    expect(cohort([row({ minutes_played: 600 })])).toMatchObject({ starters: 1, squad: 0 });
+    expect(cohort([row({ minutes_played: 599 })])).toMatchObject({ starters: 0, squad: 1 });
+  });
+
+  it('falls back to a projection at the lower 450 threshold', () => {
+    // 450 is the measured balance point for last season predicting this one;
+    // holding the projection to 600 would drop a fifth of real starters.
+    expect(cohort([row({ minutes_played: null, projected_minutes: 450 })]))
+      .toMatchObject({ starters: 1, squad: 0 });
+    expect(cohort([row({ minutes_played: null, projected_minutes: 449 })]))
+      .toMatchObject({ starters: 0, squad: 1 });
+  });
+
+  it('prefers a real figure over a projection, even a low one', () => {
+    // A player who is on the roster and has actually played 10 minutes is not a
+    // starter, whatever they did last year.
+    expect(cohort([row({ minutes_played: 10, projected_minutes: 1500 })]))
+      .toMatchObject({ starters: 0, squad: 1 });
+  });
+
+  it('treats a real zero as played-none, not as unknown', () => {
+    expect(cohort([row({ minutes_played: 0, projected_minutes: 1500 })]))
+      .toMatchObject({ starters: 0, squad: 1 });
+  });
+
+  it('counts a newcomer with neither figure as squad, never a starter', () => {
+    expect(cohort([row({ minutes_played: null, projected_minutes: null })]))
+      .toMatchObject({ starters: 0, squad: 1 });
+    expect(cohort([row({})])).toMatchObject({ starters: 0, squad: 1 });
+  });
+
+  it('exports the projected threshold below the real one', () => {
+    expect(PROJECTED_STARTER_MINUTES).toBe(450);
+    expect(PROJECTED_STARTER_MINUTES).toBeLessThan(STARTER_MINUTES);
   });
 });

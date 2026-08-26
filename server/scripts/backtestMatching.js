@@ -39,7 +39,8 @@
  *   node server/scripts/backtestMatching.js --ablate
  */
 import db from '../db/client.js';
-import { buildRosterIndex, rankMatches, qualityPercentiles, applyEligibility } from '../../shared/matching/pool.js';
+import { buildRosterIndex, rankMatches, qualityPercentiles, applyEligibility, STARTER_MINUTES } from '../../shared/matching/pool.js';
+import { PROJECTED_STARTER_MINUTES } from '../../shared/matching/constants.js';
 import { resolveWeights, CRITERIA, CRITERION_KEYS } from '../../shared/matching/weights.js';
 import { normaliseState } from '../../shared/matching/geo.js';
 
@@ -51,6 +52,29 @@ const SPORT = arg('sport', 'mens-soccer');
 const SAMPLE = Number(arg('sample', 1500));
 const SEED = Number(arg('seed', 20260825));
 const ABLATE = process.argv.includes('--ablate');
+
+/**
+ * How the opportunity half gets its minutes — the question a season in
+ * progress forces.
+ *
+ *   real       2024 minutes as scraped. The ceiling: what the model does when
+ *              the prior season has actually been played.
+ *   hidden     every minute discarded, so every departure counts as squad.
+ *              This is exactly what the live matcher now does for 2026, where
+ *              minutes_played is NULL for all 46,028 rows.
+ *   projected  2024 minutes replaced by each player's 2023 total, classified at
+ *              PROJECTED_STARTER_MINUTES. This is the carry-forward proposal,
+ *              simulated one season earlier where the answer is checkable.
+ *
+ * Comparing the three answers whether the projection is worth wiring into
+ * pool.js or whether the starter/squad split should simply be switched off for
+ * an unplayed season. 2024 -> 2025 is the right place to ask, because both
+ * seasons have real minutes and so "real" is a measurable ceiling.
+ */
+const MINUTES_MODE = arg('minutes', 'real');
+if (!['real', 'hidden', 'projected'].includes(MINUTES_MODE)) {
+  throw new Error(`--minutes must be real | hidden | projected (got ${MINUTES_MODE})`);
+}
 
 /** Deterministic PRNG — a backtest that samples differently each run cannot be compared to itself. */
 function mulberry32(a) {
@@ -132,11 +156,49 @@ function legacyRank({ athlete, colleges, cohortFor }) {
 
 // ---------------------------------------------------------------------------
 
+/** Same normalisation the carry-forward script uses, so the two agree on a match. */
+const normName = (n) => String(n || '').toLowerCase().replace(/[^a-z]/g, '');
+
+/**
+ * Rewrites the 2024 roster's minutes to simulate a season not yet played.
+ *
+ * pool.js uses minutes for exactly one thing — the starter/squad test at
+ * STARTER_MINUTES — so a projection judged at a different cutoff is reproduced
+ * faithfully by mapping the verdict onto that test rather than by scaling the
+ * number. Nothing else reads the value.
+ */
+function applyMinutesMode(rows, mode) {
+  if (mode === 'real') return rows;
+  if (mode === 'hidden') return rows.map((r) => ({ ...r, minutes_played: null }));
+
+  const prior = db.prepare(
+    "SELECT college_name, player_name, minutes_played FROM roster_players "
+    + "WHERE sport = ? AND season = '2023' AND minutes_played IS NOT NULL"
+  ).all(SPORT);
+  const byPlayer = new Map();
+  for (const p of prior) {
+    const k = `${p.college_name}|${normName(p.player_name)}`;
+    byPlayer.set(k, Math.max(byPlayer.get(k) ?? 0, p.minutes_played));
+  }
+  let carried = 0;
+  const out = rows.map((r) => {
+    const got = byPlayer.get(`${r.college_name}|${normName(r.player_name)}`);
+    if (got == null) return { ...r, minutes_played: null };
+    carried += 1;
+    // Set the projection field the model now reads, rather than smuggling the
+    // verdict into minutes_played — the flag has to exercise the real path.
+    return { ...r, minutes_played: null, projected_minutes: got };
+  });
+  console.log(`  projected: ${carried} of ${rows.length} 2024 rows carry a 2023 figure `
+    + `(${(100 * carried / rows.length).toFixed(1)}%); the rest are unknown and count as squad`);
+  return out;
+}
+
 function loadData() {
   const colleges = db.prepare('SELECT * FROM colleges WHERE sport = ? AND active = 1').all(SPORT);
-  const roster2024 = db.prepare("SELECT college_name, player_name, position, minutes_played, estimated_graduation_year FROM roster_players WHERE sport = ? AND season = '2024'").all(SPORT);
+  const roster2024raw = db.prepare("SELECT college_name, player_name, position, minutes_played, estimated_graduation_year FROM roster_players WHERE sport = ? AND season = '2024'").all(SPORT);
   const roster2025 = db.prepare("SELECT college_name, player_name, position, hometown FROM roster_players WHERE sport = ? AND season = '2025'").all(SPORT);
-  return { colleges, roster2024, roster2025 };
+  return { colleges, roster2024: applyMinutesMode(roster2024raw, MINUTES_MODE), roster2025 };
 }
 
 function buildTestSet({ colleges, roster2024, roster2025, rng }) {
@@ -239,6 +301,14 @@ function main() {
   console.log(`pool: ${colleges.length} active programmes`);
   console.log(`test set: ${testSet.length} real 2025 arrivals (sampled, seed ${SEED})`);
   console.log(`opportunity computed from the ${roster2024.length} row 2024 roster only`);
+  console.log(`minutes mode: ${MINUTES_MODE}`);
+  {
+    const idx = [...rosterIndex.values()];
+    let st = 0, sq = 0;
+    for (const v of idx) for (const c of v.cohorts.values()) { st += c.starters; sq += c.squad; }
+    console.log(`  starter/squad split across all cohorts: ${st} starters, ${sq} squad`
+      + ` (${st + sq ? (100 * st / (st + sq)).toFixed(1) : '0.0'}% starters)`);
+  }
 
   const cohortFor = (athlete) => (name) => rosterIndex.get(name)?.cohorts.get(`${athlete.classYear}|${athlete.position}`) || null;
 

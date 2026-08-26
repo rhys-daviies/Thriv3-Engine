@@ -12,7 +12,7 @@ import { resolveWeights } from './weights.js';
 import { resolveCouplings } from './couplings.js';
 import { distanceFromState } from './geo.js';
 import { canonicalPosition } from '../positions.js';
-import { STARTER_MINUTES } from './constants.js';
+import { STARTER_MINUTES, PROJECTED_STARTER_MINUTES } from './constants.js';
 
 /**
  * Index roster rows by school so opportunity is a lookup rather than a scan.
@@ -46,10 +46,43 @@ export function buildRosterIndex(rosterRows) {
     // and the email template and produced by nothing, so the card showed
     // "names could not be verified from official sources" under a count it
     // had just printed correctly.
-    if ((r.minutes_played || 0) >= STARTER_MINUTES) { c.starters++; c.starterNames.push(r.player_name); } else c.squad++;
+    if (isStarter(r)) { c.starters++; c.starterNames.push(r.player_name); } else c.squad++;
     c.names.push(r.player_name);
   }
   return index;
+}
+
+/**
+ * Starter or squad, from whatever evidence the row has.
+ *
+ * The old test was `(r.minutes_played || 0) >= STARTER_MINUTES`, which reads an
+ * ABSENT figure as zero. That was harmless while every season on file had been
+ * played, and wrong the moment the pinned roster season was one in progress:
+ * every departure became squad, so a programme losing five starters and two
+ * squad scored 2.8 where it used to score 5.8, while a programme losing seven
+ * squad players scored 2.8 either way. The signal stopped weighting departures
+ * by quality and started counting them.
+ *
+ * Falling back to last season's minutes restores it. Measured with the
+ * backtest's --minutes flag on 2024 -> 2025, where the prior season's real
+ * figures make "real" a measurable ceiling, across two sports and two seeds:
+ *
+ *   mode        r@10            MRR
+ *   real        34.1 / 28.8     0.1660 / 0.1392   <- ceiling (men's / women's)
+ *   projected   32.4 / 27.9     0.1597 / 0.1367   <- recovers 60-90% of the gap
+ *   hidden      29.1 / 26.5     0.1337 / 0.1277   <- worst in all four runs
+ *
+ * The gap shows up in r@10 and MRR rather than in the median percentile,
+ * because the starter split decides the top of the list — which is the part an
+ * operator actually reads.
+ *
+ * A row with neither figure is a newcomer: counted as squad, because that is
+ * the conservative reading, but never as a starter on no evidence.
+ */
+function isStarter(r) {
+  if (r.minutes_played != null) return r.minutes_played >= STARTER_MINUTES;
+  if (r.projected_minutes != null) return r.projected_minutes >= PROJECTED_STARTER_MINUTES;
+  return false;
 }
 
 /**
@@ -57,7 +90,7 @@ export function buildRosterIndex(rosterRows) {
  * constants.js with the other sport facts, because three modules used to
  * declare it and two of them disagreed.
  */
-export { STARTER_MINUTES };
+export { STARTER_MINUTES, PROJECTED_STARTER_MINUTES };
 
 /**
  * Percentile of each programme's soccer_score *within the pool the athlete is
