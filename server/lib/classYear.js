@@ -16,56 +16,65 @@
  */
 
 /**
- * Years from the season to graduation.
+ * Years from the season to the graduation year we store.
  *
- * A season is the calendar year the campaign kicks off in, so a senior on the
- * fall 2025 roster finishes in spring 2026 — one year, not two.
+ * The column is a MATCH KEY, not a biography. `players.recruiting_class_year`
+ * is "the year this recruit would join a roster as a freshman", and pool.js
+ * matches it against this on exact equality — so what this has to name is the
+ * year the incumbent's spot OPENS, i.e. the year after their last season.
+ * A junior in 2026 plays 2026, 2027, 2028 under five-year eligibility, so their
+ * spot opens for the 2029 intake.
  *
- * These were each one too high until 2026-08-25, which put every athlete in
- * the wrong recruiting cohort and made the Pillar 4 opportunity signal read a
- * class that had not left yet. Two independent checks caught it and both are
- * now tests: 91.4% of players labelled "Sr." on a 2024 roster are absent from
- * the 2025 roster, and rosters that print an explicit graduation year instead
- * of a class label spanned 2026-2029 for the fall 2025 season while the
- * derived values spanned 2027-2030. The explicit years are literal, so they
- * are the arbiter — see the concordance test in classYear.test.js.
+ * These offsets ran one lower until 2026-08-27, on a four-season assumption.
+ * The evidence for that is real and worth keeping, because it is what any
+ * historical check will keep reproducing:
  *
- * SENIOR and GRADUATE are both 1 on purpose: whatever they are called, both
- * leave after this season.
+ *   - Following the 2022 classes through five seasons, the four-season model
+ *     predicted the year a spot actually opened for 55-79% of sophomores,
+ *     juniors and seniors; the five-season model for 4-20%.
+ *   - Only 7.9% of 2025 seniors appeared on a 2026 roster.
+ *   - The 316 rows where a roster prints a graduation year outright span
+ *     season+1 to season+4, never season+5.
+ *
+ * All of it describes a regime in which a senior was NOT PERMITTED to return —
+ * only a redshirt senior was. So the 7.9% is a supply constraint, not a
+ * preference, and none of it predicts behaviour now that the fifth year is
+ * generally available. That is the deliberate call recorded here: the offsets
+ * model the eligibility rule as it now stands rather than the behaviour of
+ * players who never had the choice. Expect historical backtests to prefer the
+ * old offsets, for exactly that reason.
+ *
+ * SENIOR is 2 and GRADUATE is 1 because a graduate student, a fifth year and a
+ * redshirt senior are already IN their final season, while a senior still has
+ * one to come.
  */
 const YEARS_TO_GRADUATE = {
-  FRESHMAN: 4,
-  SOPHOMORE: 3,
-  JUNIOR: 2,
-  SENIOR: 1,
-  GRADUATE: 1,
-};
-
-/**
- * Years from the season until eligibility is exhausted — a different fact from
- * the one above, and both are needed.
- *
- * `YEARS_TO_GRADUATE` is the ACADEMIC year, and it is not a convention: rosters
- * that print a graduation year outright spread cleanly across season+1 to
- * season+4 (316 such rows on the 2025 sheets, 72/77/77/90 across the four
- * offsets, none at +5), and 92% of players labelled "Sr." are gone the next
- * season. That is what a coach's own roster page says.
- *
- * Under five-year eligibility an athlete may still have a year in hand after
- * that, so eligibility runs one further for every class that is not already in
- * its last year. A GRADUATE — and a redshirt senior, which decomposes to one —
- * is leaving regardless, so the two coincide there.
- *
- * They answer different questions. Academic year matches what the roster page
- * shows and what an athlete calls their class. Eligibility year is when the
- * spot actually frees up, which is the Pillar 1 opening signal.
- */
-const YEARS_TO_ELIGIBILITY_END = {
   FRESHMAN: 5,
   SOPHOMORE: 4,
   JUNIOR: 3,
   SENIOR: 2,
   GRADUATE: 1,
+};
+
+/**
+ * The LAST SEASON this player can play — the other half of the same fact.
+ *
+ * Held separately because it is the quantity a human states ("a current junior
+ * is eligible to 2028") while the stored graduation year is the one the matcher
+ * needs ("so their spot opens for 2029"). It is always one less, and keeping
+ * both means a reader never has to work out which end of the range a column
+ * means.
+ *
+ * It is NOT redundant for every row: a roster that prints an explicit
+ * graduation year tells us when a player finishes without saying which class
+ * they are in, so the graduation year is known and the last season is not.
+ */
+const YEARS_TO_ELIGIBILITY_END = {
+  FRESHMAN: 4,
+  SOPHOMORE: 3,
+  JUNIOR: 2,
+  SENIOR: 1,
+  GRADUATE: 0,
 };
 
 // Longest first, because these are tested in order: "first-year" must be
@@ -151,14 +160,18 @@ export function readClassYear(rawLabel, { season } = {}) {
   for (const [pattern, klass] of CLASS_PATTERNS) {
     if (pattern.test(text)) {
       const seasonYear = Number(season);
-      // A redshirt senior is in a final year whatever the label says, so it
-      // does not get the extra eligibility year that "Sr." would.
-      const eligKlass = redshirt && klass === 'SENIOR' ? 'GRADUATE' : klass;
+      // A redshirt senior has already used the fifth year, so they are in their
+      // final season and leave with the graduates. This must drive BOTH years:
+      // while SENIOR and GRADUATE shared an offset it made no difference, but
+      // now that a senior has a season still to come, reading one year from
+      // SENIOR and the other from GRADUATE put R-Sr. at "last season 2026,
+      // graduating 2028" — a two-year gap that cannot be right.
+      const effective = redshirt && klass === 'SENIOR' ? 'GRADUATE' : klass;
       return {
         klass,
-        graduationYear: Number.isFinite(seasonYear) ? seasonYear + YEARS_TO_GRADUATE[klass] : null,
+        graduationYear: Number.isFinite(seasonYear) ? seasonYear + YEARS_TO_GRADUATE[effective] : null,
         eligibilityEndYear: Number.isFinite(seasonYear)
-          ? seasonYear + YEARS_TO_ELIGIBILITY_END[eligKlass] : null,
+          ? seasonYear + YEARS_TO_ELIGIBILITY_END[effective] : null,
         redshirt,
         recognised: true,
       };
