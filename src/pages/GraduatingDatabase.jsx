@@ -185,6 +185,12 @@ export default function GraduatingDatabase() {
   // ---- New model (Sport -> Estimated Graduation Year -> Division -> School -> Players) ----
   const hasRosterData = rosterRows.length > 0;
 
+  // Derived from the data, not from ROSTER_SEASON_IN_PROGRESS. That constant is
+  // a hardcoded true and someone would have to remember to flip it the day real
+  // minutes land — at which point the banner would keep announcing "no minutes
+  // played yet" over a screen full of them. The rows themselves know.
+  const awaitingMinutes = hasRosterData && !rosterRows.some((r) => r.minutes_played != null);
+
   const availableYears = useMemo(() => {
     const years = new Set(rosterRows.map((r) => r.estimated_graduation_year).filter(Boolean));
     return [...years].sort((a, b) => a - b);
@@ -286,7 +292,7 @@ export default function GraduatingDatabase() {
         <div>
           <h1 className="font-heading text-2xl font-bold">Graduating Database</h1>
           <p className="text-sm text-muted-foreground">Roster intelligence — every rostered player, by graduation year and position.</p>
-          {ROSTER_SEASON_IN_PROGRESS && (
+          {awaitingMinutes && (
             // Stated up front rather than left to a tooltip: an operator about
             // to email a coach should not have to hover to find out that the
             // playing time on screen is last season's.
