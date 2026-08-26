@@ -26,9 +26,22 @@ export function escapeAttribute(text) {
   return escapeHtml(text).replace(/"/g, '&quot;');
 }
 
-// Trailing punctuation is excluded so a link at the end of a sentence does not
-// swallow the full stop. Parentheses are excluded for the same reason.
-const URL_PATTERN = /(https?:\/\/[^\s<>()"']+[^\s<>()"'.,;:!?])/g;
+/**
+ * A markdown link, or a bare URL.
+ *
+ * The scheme list is the allowlist — http, https, tel and mailto and nothing
+ * else, so a template cannot smuggle `javascript:` into an anchor. `tel:` is
+ * here because a coach reading on a phone should be able to tap the number.
+ *
+ * Trailing punctuation is excluded from a bare URL so a link at the end of a
+ * sentence does not swallow the full stop. The label excludes brackets of its
+ * own, so `[[number](tel:...)]` links the number and leaves the outer pair as
+ * the decoration it is, rather than pulling "[" inside the anchor.
+ */
+const INLINE_PATTERN = new RegExp([
+  '(\\[([^\\[\\]\\n]+)\\]\\((https?://[^\\s)]+|tel:[^\\s)]+|mailto:[^\\s)]+)\\))',
+  '(https?://[^\\s<>()"\']+[^\\s<>()"\'.,;:!?])',
+].join('|'), 'g');
 
 /**
  * Escapes one line and turns any URL in it into an anchor.
@@ -40,12 +53,22 @@ const URL_PATTERN = /(https?:\/\/[^\s<>()"']+[^\s<>()"'.,;:!?])/g;
  * markup and clickable.
  */
 function renderLine(line) {
-  const parts = String(line).split(URL_PATTERN);
-  return parts
-    .map((part, i) => (i % 2 === 1
-      ? `<a href="${escapeAttribute(part)}">${escapeHtml(part)}</a>`
-      : escapeHtml(part)))
-    .join('');
+  const text = String(line);
+  let out = '';
+  let cursor = 0;
+
+  for (const match of text.matchAll(INLINE_PATTERN)) {
+    out += escapeHtml(text.slice(cursor, match.index));
+    if (match[1]) {
+      // [label](url) — the label is text, the url an attribute, escaped apart.
+      out += `<a href="${escapeAttribute(match[3])}">${escapeHtml(match[2])}</a>`;
+    } else {
+      out += `<a href="${escapeAttribute(match[0])}">${escapeHtml(match[0])}</a>`;
+    }
+    cursor = match.index + match[0].length;
+  }
+
+  return out + escapeHtml(text.slice(cursor));
 }
 
 /**

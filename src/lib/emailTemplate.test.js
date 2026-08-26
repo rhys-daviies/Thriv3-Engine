@@ -202,36 +202,58 @@ describe('the pilot template degrades with the data', () => {
     buildEmailContext({ ...player, ...over.player }, { ...college, ...over.college }, 'Coach Smith'),
   );
 
-  // The two sentences that would embarrass a send: a programme losing nobody
-  // at the position, and one whose departing names we could not read.
-  it('drops the roster hook rather than saying "0 defenders graduating"', () => {
+  it('drops the roster sentence rather than saying "0 defenders graduating"', () => {
     const out = render({ college: { graduating_seniors_at_position: 0, graduating_senior_names_at_position: [] } });
     expect(out).not.toMatch(/\b0 defenders?\b/);
-    expect(out).not.toMatch(/Part of why/);
+    expect(out).not.toMatch(/could be an interesting fit/);
   });
 
   it('never tells a coach his own roster could not be verified', () => {
     const out = render({ college: { graduating_seniors_at_position: 2, graduating_senior_names_at_position: [] } });
-    expect(out).toContain('2 defenders graduating this year,');
+    expect(out).toContain('2 defenders graduating this season.');
     expect(out).not.toMatch(/could not be verified/i);
   });
 
-  it('omits an academic line rather than sending "N/A"', () => {
-    const out = render({ player: { gpa: null, act_score: null } });
+  it('agrees the position word with the count', () => {
+    expect(render({ college: { graduating_seniors_at_position: 1, graduating_senior_names_at_position: [] } }))
+      .toContain('1 defender graduating');
+  });
+
+  // Sent as "GPA: N/A" and "Annual Budget: Undeclared" before these were gated.
+  it('omits an optional profile line rather than sending a placeholder', () => {
+    const out = render({ player: { gpa: null, budget_range: 'Undeclared' } });
     expect(out).not.toContain('N/A');
+    expect(out).not.toContain('Undeclared');
     expect(out).not.toMatch(/GPA/);
-    expect(out).toContain('• SAT 1210');
+    expect(out).toContain('• SAT: 1210');
+  });
+
+  it('keeps a line that does have something to say', () => {
+    const out = render({ player: { budget_range: '$15k-$20k/yr' } });
+    expect(out).toContain('• Annual Budget: $15k-$20k/yr');
   });
 
   it('leaves no blank line where a skipped line was', () => {
-    expect(render({ player: { gpa: null, act_score: null } })).not.toMatch(/\n\n•/);
+    expect(render({ player: { gpa: null } })).not.toMatch(/\n\n•/);
   });
 
-  // A negotiating position, not a selling point.
-  it('never states the athlete budget', () => {
-    const out = render({ player: { budget_range: '$15k-$20k/yr' } });
-    expect(out).not.toMatch(/budget/i);
-    expect(out).not.toContain('$15k');
+  // The token emits its own " / ", so a slash beside it rendered "Defender / ".
+  it('does not double the secondary-position separator', () => {
+    expect(render({ player: { secondary_position: 'None' } })).toContain('• Position: Defender\n');
+    expect(render({ player: { secondary_position: 'Midfield' } })).toContain('• Position: Defender / Midfielder');
+  });
+
+  it('names the nationality from the athlete rather than hard-coding it', () => {
+    expect(render({ player: { nationality: 'New Zealand' } })).toContain('a defender from New Zealand');
+    expect(render({ player: { nationality: 'Japan' } })).toContain('a defender from Japan');
+  });
+
+  // A US athlete has no nationality on file, and the sentence has to read
+  // properly without one rather than trailing "from ".
+  it('reads correctly for an athlete with no nationality', () => {
+    const out = render({ player: { nationality: null } });
+    expect(out).toContain('a defender who is exploring');
+    expect(out).not.toMatch(/from\s+who/);
   });
 
   it('carries exactly one link, the tracked profile', () => {

@@ -4,6 +4,7 @@
 // ERR_MODULE_NOT_FOUND while the app carried on working, so nothing noticed.
 import { classYearOf } from '../../shared/athlete.js';
 import { positionLabel, positionNoun, positionPlural } from '../../shared/positions.js';
+import { UNDECLARED_BUDGET } from '../../shared/matching/constants.js';
 
 // Section 11: The Email Template System — ported exactly.
 
@@ -52,6 +53,8 @@ export const TEMPLATE_VARIABLES = [
   { token: 'player_position', label: 'Player Position' },
   { token: 'player_position_plural', label: 'Position, plural (defenders)' },
   { token: 'player_secondary_position', label: 'Secondary Position' },
+  { token: 'player_nationality', label: 'Nationality (New Zealand)' },
+  { token: 'has_nationality', label: 'If a nationality is on file… (conditional)' },
   { token: 'player_gpa', label: 'GPA' },
   { token: 'has_gpa', label: 'If a GPA is on file… (conditional line)' },
   { token: 'has_sat_score', label: 'If an SAT is on file… (conditional line)' },
@@ -59,6 +62,7 @@ export const TEMPLATE_VARIABLES = [
   { token: 'player_sat_score', label: 'SAT Score' },
   { token: 'player_act_score', label: 'ACT Score' },
   { token: 'player_yearly_budget', label: 'Annual Budget' },
+  { token: 'has_yearly_budget', label: 'If a budget band is set… (conditional line)' },
   { token: 'player_class_year', label: 'Class Year (arrival)' },
   { token: 'player_profile_url', label: 'Tracked Profile Link' },
 ];
@@ -67,45 +71,64 @@ export const TEMPLATE_VARIABLES = [
  * Scannable rather than clever. A coach triaging an inbox filters on class
  * year and position before anything else, so both are in front of the name.
  */
-export const DEFAULT_EMAIL_SUBJECT = '{{player_class_year}} {{player_position|lowercase}} — {{player_name}}';
+export const DEFAULT_EMAIL_SUBJECT = '{{player_name}} | {{player_position}} | {{player_class_year}} | Striv3 Recruitment';
 
 /**
- * The pilot template.
+ * The pilot template, in the operator's own shape.
  *
- * Short on purpose. A cold email to a college coach gets a few seconds, so it
- * carries one reason it was sent to *them*, one link, and one ask.
+ * Four things differ from the version it was written from, and each is a
+ * token that did not resolve or a sentence that broke on real data:
  *
- * Every conditional here exists because the data is uneven across a top-20:
- * the roster hook is skipped entirely at a programme losing nobody at the
- * position rather than announcing "0 defenders graduating", the names are
- * added only where they were actually verified, and an academic line appears
- * only where there is a number for it. Each `{{#if}}` opens *before* its own
- * newline so a skipped line leaves no blank behind.
+ *   {{position}} and {{graduation_year}} do not exist — the real names are
+ *   {{player_position}} and {{player_class_year}}. Unknown tokens are left
+ *   as written rather than blanked, so both reached coaches in braces.
  *
- * Deliberately absent: the athlete's budget. It was on the previous template
- * and it is a negotiating position, not a selling point — a coach who knows
- * the family can find $20k has no reason to offer $25k. It stays on the
- * profile for the operator and out of the first email.
+ *   "{{player_position}} / {{player_secondary_position}}" doubles the
+ *   separator: the token already emits " / Midfielder", so a slash beside it
+ *   rendered "Defender / " with nothing after it for an athlete with no
+ *   secondary position.
+ *
+ *   "{{graduating_seniors_count}} {{player_position|lowercase}}" reads
+ *   "4 defender". {{graduating_seniors_position}} agrees with the count.
+ *
+ *   That whole sentence is now inside a conditional. At a programme losing
+ *   nobody at the position it read "0 defenders graduating this season, names
+ *   could not be verified from official sources" — true, and not something to
+ *   say to a coach about his own roster.
+ *
+ * The GPA, SAT and budget lines are each gated on having something to say.
+ * Unggated they sent "GPA: N/A" and "Annual Budget: Undeclared" — Undeclared
+ * being the absence of a budget rather than one. A line that is simply absent
+ * reads better than a placeholder admitting we do not know.
+ *
+ * Blank lines are deliberate. The body is rendered as HTML at compose time,
+ * where a blank line is a paragraph and a single newline a line break; without
+ * them the message arrives as one block, which is how it used to look.
  */
 export const DEFAULT_EMAIL_TEMPLATE = `Hi {{coach_name}},
 
-I'm writing on behalf of {{player_name}}, a {{player_class_year}} {{player_position|lowercase}} who has {{college_name}} on their shortlist.{{#if is_conference_champion}} Congratulations on winning the {{conference_champion_name}} last season.{{/if}}
-{{#if has_graduating_seniors}}
-Part of why: you have {{graduating_seniors_count}} {{graduating_seniors_position}} graduating this year{{#if has_graduating_names}} {{graduating_seniors_names}}{{/if}}, so there may be a real opening at {{player_position|lowercase}} for {{player_class_year}}.
-{{/if}}
-{{player_name}} in brief:
-• {{player_position}}{{player_secondary_position}}, class of {{player_class_year}}{{#if has_gpa}}
-• GPA {{player_gpa}}{{/if}}{{#if has_sat_score}}
-• SAT {{player_sat_score}}{{/if}}{{#if has_act_score}}
-• ACT {{player_act_score}}{{/if}}
+I'm reaching out regarding {{player_name}}, a {{player_position|lowercase}}{{#if has_nationality}} from {{player_nationality}}{{/if}} who is exploring opportunities for the {{player_class_year}} recruiting class.
 
-Full profile and highlight film — one page, nothing to sign up for:
+{{player_name}} — {{player_position}}
+
+Recruiting Profile
+• Position: {{player_position}}{{player_secondary_position}}
+• Graduation: {{player_class_year}}{{#if has_gpa}}
+• GPA: {{player_gpa}}{{/if}}{{#if has_sat_score}}
+• SAT: {{player_sat_score}}{{/if}}{{#if has_yearly_budget}}
+• Annual Budget: {{player_yearly_budget}}{{/if}}
+
+Profile and highlight film:
 {{player_profile_url}}
+{{#if has_graduating_seniors}}
+We believe {{player_name}} could be an interesting fit for {{college_name}}, particularly with {{graduating_seniors_count}} {{graduating_seniors_position}} graduating this season{{#if has_graduating_names}} {{graduating_seniors_names}}{{/if}}.
+{{/if}}
+Given your current roster and {{college_name}}'s needs, we'd love to hear your thoughts on whether {{player_name}} could be a potential fit for your programme.
 
-If that looks like a fit, I'd welcome a short conversation about where you stand for {{player_class_year}}.{{#if has_real_nickname}} Go {{college_nickname}}!{{/if}}
+Would you be open to taking a look at the profile and highlight film? If there's interest you can contact me directly via WhatsApp [[+64 21 920 775](tel:+6421920775)] to chat more.
 
 Best regards,
-[Your name]
+Rhys Davies
 Striv3 Elite Sports Management`;
 
 function formatNameList(names) {
@@ -191,6 +214,11 @@ export function buildEmailContext(player, college, coachName) {
     player_position: positionLabel(player.position),
     player_position_plural: positionPlural(player.position),
     player_secondary_position: secondary,
+    // So "from New Zealand" is a fact about the athlete rather than a phrase
+    // baked into the template, which would be wrong the moment a US athlete
+    // is added.
+    player_nationality: player.nationality || '',
+    has_nationality: player.nationality ? 'true' : '',
     player_gpa: player.gpa != null && player.gpa !== '' ? String(player.gpa) : 'N/A',
     // So a template can omit the line entirely rather than send "GPA: N/A",
     // which reads worse than saying nothing.
@@ -206,6 +234,9 @@ export function buildEmailContext(player, college, coachName) {
     player_sat_score: player.sat_score != null && player.sat_score !== '' ? String(player.sat_score) : 'N/A',
     player_act_score: player.act_score != null && player.act_score !== '' ? String(player.act_score) : 'N/A',
     player_yearly_budget: player.budget_range || 'N/A',
+    // Undeclared is the absence of a budget, so it gates the line off rather
+    // than sending a coach "Annual Budget: Undeclared".
+    has_yearly_budget: player.budget_range && player.budget_range !== UNDECLARED_BUDGET ? 'true' : '',
     // Both names resolve to the same value. `player_graduation_year` is kept
     // because saved templates in the database still use it, and renaming a
     // token does not error — it silently renders nothing.
