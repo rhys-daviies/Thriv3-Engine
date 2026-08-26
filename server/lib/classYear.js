@@ -77,6 +77,23 @@ const YEARS_TO_ELIGIBILITY_END = {
   GRADUATE: 0,
 };
 
+/**
+ * Where a redshirt lands: one class up.
+ *
+ * The redshirt year is one of the five, so it is spent whether or not the
+ * player competed in it. Stripping the prefix and reading the class underneath
+ * — which is what this did until 2026-08-27 — counted that year twice over,
+ * putting a redshirt junior on a junior's remaining eligibility when they have
+ * a senior's.
+ */
+const ADVANCE_ONE_CLASS = {
+  FRESHMAN: 'SOPHOMORE',
+  SOPHOMORE: 'JUNIOR',
+  JUNIOR: 'SENIOR',
+  SENIOR: 'GRADUATE',
+  GRADUATE: 'GRADUATE',
+};
+
 // Longest first, because these are tested in order: "first-year" must be
 // tried before "first", "sophomore" before "so", "graduate" before "gr".
 const CLASS_PATTERNS = [
@@ -160,13 +177,15 @@ export function readClassYear(rawLabel, { season } = {}) {
   for (const [pattern, klass] of CLASS_PATTERNS) {
     if (pattern.test(text)) {
       const seasonYear = Number(season);
-      // A redshirt senior has already used the fifth year, so they are in their
-      // final season and leave with the graduates. This must drive BOTH years:
-      // while SENIOR and GRADUATE shared an offset it made no difference, but
-      // now that a senior has a season still to come, reading one year from
-      // SENIOR and the other from GRADUATE put R-Sr. at "last season 2026,
-      // graduating 2028" — a two-year gap that cannot be right.
-      const effective = redshirt && klass === 'SENIOR' ? 'GRADUATE' : klass;
+      // A redshirt has already spent one of the five years, so they sit with
+      // the class above: a redshirt freshman has the same seasons left as a
+      // sophomore, a redshirt junior the same as a senior. Under five-year
+      // eligibility the count is years TOTAL, and whether one of them was a
+      // redshirt makes no difference to when the spot opens.
+      //
+      // This subsumes the old R-Sr. special case rather than sitting beside it.
+      // GRADUATE has nowhere further to advance to — already a final season.
+      const effective = redshirt ? ADVANCE_ONE_CLASS[klass] : klass;
       return {
         klass,
         graduationYear: Number.isFinite(seasonYear) ? seasonYear + YEARS_TO_GRADUATE[effective] : null,

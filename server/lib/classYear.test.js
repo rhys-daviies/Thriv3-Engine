@@ -136,13 +136,31 @@ describe('redshirts', () => {
   // Leftmost-first alternation meant a bare "r" beat "rs" and "redshirt",
   // decomposing "RS-Fr." into the nonsense "s-fr" and losing 158 rows.
   it('reads every redshirt spelling without eating the class', () => {
+    // Default season 2025. A redshirt freshman has a sophomore's eligibility
+    // left, so their spot opens in 2029, not 2030.
     for (const label of ['RS-Fr.', 'RS Fr.', 'R-Fr.', 'RFr.', 'R.Fr.', 'Rf.', 'Redshirt Freshman', 'r-Fr']) {
-      expect(grad(label), label).toBe(2030);
+      expect(grad(label), label).toBe(2029);
     }
-    expect(grad('RS-So.')).toBe(2029);
-    expect(grad('Redshirt Junior')).toBe(2028);
+    expect(grad('RS-So.')).toBe(2028);
+    expect(grad('Redshirt Junior')).toBe(2027);
     expect(grad('RS-Sr.')).toBe(2026);
     expect(grad('Red 5th')).toBe(2026);
+  });
+
+  // Years TOTAL, not years competed: the redshirt season is one of the five
+  // whether or not it was played, so a redshirt sits with the class above.
+  it('puts each redshirt class on the eligibility of the class above it', () => {
+    for (const [rs, plain] of [['R-Fr.', 'So.'], ['R-So.', 'Jr.'], ['R-Jr.', 'Sr.'], ['R-Sr.', 'Gr.']]) {
+      expect([rs, grad(rs, 2026)]).toEqual([rs, grad(plain, 2026)]);
+      expect(readClassYear(rs, { season: 2026 }).eligibilityEndYear)
+        .toBe(readClassYear(plain, { season: 2026 }).eligibilityEndYear);
+    }
+  });
+
+  it('does not advance a graduate, who has no further class to reach', () => {
+    for (const label of ['Red 5th', 'RS-Gr.', 'Redshirt Graduate']) {
+      expect([label, grad(label, 2026)]).toEqual([label, 2027]);
+    }
   });
 
   it('marks the redshirt without changing the class', () => {
