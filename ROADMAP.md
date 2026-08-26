@@ -280,10 +280,18 @@ two of them are a different job than the count suggests.
       what it says, which is the behaviour you want from a signal you are about
       to build a product on — the earlier number was not an artefact of the
       defects.
-- [ ] **Build the retention metric into the product.** It is a query today,
-      not a column. Needs persisting per programme-season, exposing on the
-      match card, and pairing with its own denominator so "80% of 5" is never
-      shown as though it were "80% of 30".
+- [ ] **Persist retention per programme-season as a modelling input.**
+      Decided 2026-08-26: retention is a **feature for the Pillar 4 regression
+      models and derived calculations, not a figure to display**. It does not
+      need a place on the match card, and earlier versions of this entry
+      framing "still a query, not a column" as a product gap were reading it
+      wrong — do not re-raise it as one.
+
+      What it does need is to be computable and stable: persisted per
+      programme-season so a model trains on a fixed input rather than
+      whatever the query returns that day, carrying its own denominator so a
+      regression can weight "75% of 8" below "75% of 30" rather than treating
+      them alike, and versioned alongside the name-guard fixes that move it.
 - [x] **Luther College's 0% was a sixth name defect, not a result.** Their
       2025 sheet printed the surname twice — "Allison Dobbins Dobbins" — which
       the whole-name-doubled check missed because an odd word count never
@@ -1592,9 +1600,10 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
 
 - [ ] Identify a source for university quality and lifestyle. Currently
       un-sourced. `academic_rating` is now complete in scope, but it measures
-      academic strength, not what living and playing somewhere is like —
-      the retention metric is the closest proxy the data holds, and it is
-      still a query rather than a column.
+      academic strength, not what living and playing somewhere is like.
+      Retention is the closest signal the data already holds, and it feeds the
+      models rather than the page — see Phase 0. What is missing is a source
+      for the campus-experience side that retention only proxies.
 
 ### 4.2 Product
 - [ ] Athlete-program match rating combining the above with Pillar 1's score.
