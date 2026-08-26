@@ -125,6 +125,10 @@ function importFile({ file, sport, division }) {
         // The sheet is still the fallback for a row whose class cell we could
         // not read; a rejected cell yields neither.
         estimated_graduation_year: read.recognised ? (read.graduationYear ?? csvGradYear) : null,
+        // Only ever derived. The sheet has no column for it, and it must not be
+        // guessed from the academic year: without a class label there is no way
+        // to tell a senior (one more year of eligibility) from a graduate (none).
+        eligibility_end_year: read.recognised ? (read.eligibilityEndYear ?? null) : null,
         nationality: (row['Nationality'] || '').trim() || undefined,
         hometown: (row['Hometown'] || '').trim() || undefined,
         country: (row['Country'] || '').trim() || undefined,

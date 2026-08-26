@@ -41,6 +41,33 @@ const YEARS_TO_GRADUATE = {
   GRADUATE: 1,
 };
 
+/**
+ * Years from the season until eligibility is exhausted — a different fact from
+ * the one above, and both are needed.
+ *
+ * `YEARS_TO_GRADUATE` is the ACADEMIC year, and it is not a convention: rosters
+ * that print a graduation year outright spread cleanly across season+1 to
+ * season+4 (316 such rows on the 2025 sheets, 72/77/77/90 across the four
+ * offsets, none at +5), and 92% of players labelled "Sr." are gone the next
+ * season. That is what a coach's own roster page says.
+ *
+ * Under five-year eligibility an athlete may still have a year in hand after
+ * that, so eligibility runs one further for every class that is not already in
+ * its last year. A GRADUATE — and a redshirt senior, which decomposes to one —
+ * is leaving regardless, so the two coincide there.
+ *
+ * They answer different questions. Academic year matches what the roster page
+ * shows and what an athlete calls their class. Eligibility year is when the
+ * spot actually frees up, which is the Pillar 1 opening signal.
+ */
+const YEARS_TO_ELIGIBILITY_END = {
+  FRESHMAN: 5,
+  SOPHOMORE: 4,
+  JUNIOR: 3,
+  SENIOR: 2,
+  GRADUATE: 1,
+};
+
 // Longest first, because these are tested in order: "first-year" must be
 // tried before "first", "sophomore" before "so", "graduate" before "gr".
 const CLASS_PATTERNS = [
@@ -89,7 +116,9 @@ function explicitYear(text) {
 /**
  * Classifies a raw label.
  *
- * Returns { klass, graduationYear, redshirt, recognised }. `recognised` is
+ * Returns { klass, graduationYear, eligibilityEndYear, redshirt, recognised }.
+ * The two years differ deliberately: graduationYear is the academic year the
+ * roster page implies, eligibilityEndYear is when eligibility runs out. `recognised` is
  * false for anything that is not a class year at all — a club name, a squad
  * number, a hometown — which is the signal the importer acts on. An empty
  * label is simply absent, not suspicious, so it reads as recognised with
@@ -97,14 +126,17 @@ function explicitYear(text) {
  */
 export function readClassYear(rawLabel, { season } = {}) {
   const raw = (rawLabel ?? '').toString().trim();
-  const absent = { klass: null, graduationYear: null, redshirt: false, recognised: true };
+  const absent = { klass: null, graduationYear: null, eligibilityEndYear: null, redshirt: false, recognised: true };
   if (!raw) return absent;
 
   let text = raw.toLowerCase().replace(FIELD_LABEL, '').trim();
 
   // Before punctuation goes — an explicit year is written "2027" or "'27".
   const year = explicitYear(text);
-  if (year) return { klass: null, graduationYear: year, redshirt: false, recognised: true };
+  // An explicit printed year is the academic year. Eligibility cannot be
+  // derived from it -- the label says nothing about which class the athlete is
+  // in -- so it stays null rather than being guessed at year+1.
+  if (year) return { klass: null, graduationYear: year, eligibilityEndYear: null, redshirt: false, recognised: true };
 
   // Periods are decoration everywhere else: "F.Y." is "fy", "RS-Fr." is "rs-fr".
   text = text.replace(/\./g, ' ').replace(/\s+/g, ' ').trim();
@@ -119,9 +151,14 @@ export function readClassYear(rawLabel, { season } = {}) {
   for (const [pattern, klass] of CLASS_PATTERNS) {
     if (pattern.test(text)) {
       const seasonYear = Number(season);
+      // A redshirt senior is in a final year whatever the label says, so it
+      // does not get the extra eligibility year that "Sr." would.
+      const eligKlass = redshirt && klass === 'SENIOR' ? 'GRADUATE' : klass;
       return {
         klass,
         graduationYear: Number.isFinite(seasonYear) ? seasonYear + YEARS_TO_GRADUATE[klass] : null,
+        eligibilityEndYear: Number.isFinite(seasonYear)
+          ? seasonYear + YEARS_TO_ELIGIBILITY_END[eligKlass] : null,
         redshirt,
         recognised: true,
       };
@@ -130,9 +167,9 @@ export function readClassYear(rawLabel, { season } = {}) {
 
   // A bare redshirt marker ("Rs.", "RS", "Medical Redshirt") is a real label
   // that happens to carry no class. Absent, not wrong.
-  if (redshirt && !text) return { klass: null, graduationYear: null, redshirt: true, recognised: true };
+  if (redshirt && !text) return { klass: null, graduationYear: null, eligibilityEndYear: null, redshirt: true, recognised: true };
 
-  return { klass: null, graduationYear: null, redshirt, recognised: false };
+  return { klass: null, graduationYear: null, eligibilityEndYear: null, redshirt, recognised: false };
 }
 
 /** Convenience predicate for callers that only care whether to trust the cell. */

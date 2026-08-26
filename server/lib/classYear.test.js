@@ -181,3 +181,46 @@ describe('without a season', () => {
     expect(readClassYear('Jr.').graduationYear).toBeNull();
   });
 });
+
+describe('eligibilityEndYear', () => {
+  // The academic year is what a roster page implies; eligibility runs one
+  // further for any class not already in its final year. Both are stored
+  // because Pillar 1 wants to know when a spot frees up, while an athlete's
+  // own class matches the academic year.
+  it('runs one year past graduation for classes with a year still in hand', () => {
+    for (const [label, grad, elig] of [
+      ['Fr.', 2030, 2031],
+      ['So.', 2029, 2030],
+      ['Jr.', 2028, 2029],
+      ['Sr.', 2027, 2028],
+    ]) {
+      const r = readClassYear(label, { season: 2026 });
+      expect([label, r.graduationYear, r.eligibilityEndYear]).toEqual([label, grad, elig]);
+    }
+  });
+
+  it('coincides with graduation for anyone already in their last year', () => {
+    // A graduate student is leaving regardless, and a redshirt senior
+    // decomposes to one -- neither gets an extra year.
+    for (const label of ['Gr.', 'Graduate Student', '5th', 'R-Sr.', 'RS-Sr.', 'Redshirt Senior']) {
+      const r = readClassYear(label, { season: 2026 });
+      expect([label, r.eligibilityEndYear]).toEqual([label, r.graduationYear]);
+      expect(r.eligibilityEndYear).toBe(2027);
+    }
+  });
+
+  it('is null when the class is unknown, rather than guessed from the academic year', () => {
+    // An explicitly printed year says nothing about which class the athlete is
+    // in, so a senior (one year left) cannot be told from a graduate (none).
+    expect(readClassYear('2029', { season: 2026 })).toMatchObject({
+      graduationYear: 2029, eligibilityEndYear: null,
+    });
+    for (const label of ['', 'Rs.', 'FC Dallas']) {
+      expect(readClassYear(label, { season: 2026 }).eligibilityEndYear).toBeNull();
+    }
+  });
+
+  it('is null when no season is supplied, like graduationYear', () => {
+    expect(readClassYear('Fr.')).toMatchObject({ graduationYear: null, eligibilityEndYear: null });
+  });
+});

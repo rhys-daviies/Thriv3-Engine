@@ -152,6 +152,15 @@ const COLLEGE_COLUMNS = [
  * field as `email_status`: one records where we got it, the other whether it
  * has since been shown to work.
  */
+// The year an athlete's eligibility runs out, which is one further than the
+// academic graduation year for every class not already in its last year. Both
+// are stored because they answer different questions -- see
+// server/lib/classYear.js. Added rather than replacing estimated_graduation_year,
+// so nothing that reads the academic year silently shifts by a year.
+const ROSTER_PLAYER_COLUMNS = [
+  ['eligibility_end_year', 'INTEGER'],
+];
+
 const COACH_COLUMNS = [
   ['email_status', "TEXT DEFAULT 'unknown'"],   // verified | inferred | generic | unknown
   ['email_source_url', 'TEXT'],
@@ -274,6 +283,7 @@ export function migrate(db) {
   addMissingColumns(db, 'tracking_events', TRACKING_EVENT_COLUMNS);
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_tracking_remote_id ON tracking_events(remote_id)');
 
+  addMissingColumns(db, 'roster_players', ROSTER_PLAYER_COLUMNS);
   addMissingColumns(db, 'colleges', COLLEGE_COLUMNS);
   addMissingColumns(db, 'coaches', COACH_COLUMNS);
   backfillRecruitingClassYear(db);
