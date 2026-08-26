@@ -6,6 +6,7 @@ the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
 Last audited: 2026-08-26, re-verified against the DB and the live edge
+(rosters updated 2026-08-26: 2023, 2022 and the live 2026 season acquired)
 (branch `engagement-tracking`, 695 tests green). Coverage numbers below were
 re-run, not copied. The academic-rating gap has closed completely; roster and
 grad-year figures moved and are corrected in place.
@@ -85,13 +86,13 @@ pilot itself or work that only makes sense once it has run.
 | **1 · Matchmaking** | ✅✅✅✅✅✅✅✅✅✅ | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested against 1,500 real arrivals per sport |
 | **2 · Networking** | ✅✅✅✅⬜⬜⬜⬜⬜⬜ | Personalisation, coach table, compliance and bulk drafting done. Campaign engine and A/B/C sequencing not started |
 | **3 · Interactions** | ✅✅✅✅✅✅✅✅✅⬜ | **Proven on real traffic 2026-08-26.** Only automated reply detection remains |
-| **4 · Recommendation** | ✅✅⬜⬜⬜⬜⬜⬜⬜⬜ | Data half moving — both seasons imported, retention measured at median 75%. Nothing built in the product |
+| **4 · Recommendation** | ✅✅✅⬜⬜⬜⬜⬜⬜⬜ | Data half largely done — **five seasons acquired (2022–2026)**, three retention pairs measured, trend available for 1,284 programmes. Only **2024 and 2025 are in `roster_players`** (verified 2026-08-26); 2022, 2023 and 2026 are acquired but not imported. Nothing built in the product |
 
 ### Phase by phase
 
 | Phase | Progress | Boxes |
 |---|---|---|
-| **0 · Data & lead times** | ✅✅✅✅✅✅✅✅⬜⬜ | 23 done, 8 open |
+| **0 · Data & lead times** | ✅✅✅✅✅✅✅✅⬜⬜ | 26 done, 13 open |
 | **1 · Prove Pillar 3, finish Pillar 1** | ✅✅✅✅✅✅✅✅✅✅ | 27 done, 0 open — **closed** |
 | **2 · Campaign engine** | ✅✅✅⬜⬜⬜⬜⬜⬜⬜ | 9 done, 12 open (1 struck) |
 | **3 · Pilot** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 0 done, 7 open — **next** |
@@ -106,7 +107,7 @@ pilot itself or work that only makes sense once it has run.
 | 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested at the 95.8th percentile (men) / 95.2nd (women) against 1,500 real arrivals each | Nothing before go live. The learning loop is Phase 5 and needs real replies |
 | 2 · Networking | 3-week A/B/C sequence, 100 programs at a time | Excellent personalisation; coach table, compliance, per-inbox cap and bulk drafting all done. No campaign engine, and no automated send by design | Campaign model, A/B/C variants, sequencing. **Not** an ESP — see locked decisions |
 | 3 · Interactions | Tracking, coach score, session timelines | **Proven end to end 2026-08-26** — 13 edge-sourced events, cursor 6 → 19, rollup and tiering correct on real data. Sync automated | Real response detection. Everything else waits on a coach, not on code |
-| 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Nothing built; 2 of 3 inputs un-sourced | 2024 roster backfill (both sports), lifestyle data source, metrics, UI |
+| 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Rosters sourced 2022–2026; retention trend measured. Nothing built in the product | Import 2026 after the September re-run, lifestyle data source, persist retention as a model input, UI |
 
 ---
 
@@ -312,8 +313,13 @@ without saying anything about what an athlete would be walking into. The
 spread is real — p10 53% against p90 93% — but attributing a given programme's
 place in it needs a trend.
 
-**The backfill is running in a separate session** — 2024's remaining gaps,
-then 2023 and 2022. Not to be picked up here.
+**Done — four seasons (2022–2025) plus the live 2026 are held.** The pipeline
+now lives at `~/Documents/Thriv3/_roster_pipeline/` with a README, state under
+`<season> Roster Sheets/_state/` and its page cache in `~/Library/Caches/`. It
+used to live in a session scratchpad, which was deleted mid-run on 2026-08-26
+and took an 11,000-page cache and 1,475 resolved programmes with it; the code
+survived only because every file had been written by a shell heredoc the
+transcript recorded. Nothing load-bearing goes in a scratchpad.
 
 - [x] **Finished the 2024 acquisition.** 2026-08-25. 46 failures down to **5**,
       and the 4 jersey-column programmes fixed at source rather than re-scraped.
@@ -327,11 +333,24 @@ then 2023 and 2022. Not to be picked up here.
       all of them still show the 2023 roster, so the programme never published a
       2024 one. Worth expecting a few of these per season going back, rather
       than treating a gap as a scraper failure.
-- [ ] **Then 2023, then 2022**, through the same pipeline. `--season` and
-      `--dir` already take them, `_targets.csv` regenerates by swapping the
-      year, and the name guards now catch six distinct defect shapes, so each
-      further season should cost less than the one before. Expect Wayback to
-      carry more of the load each year back, as live sites drop older seasons.
+- [x] **2023 and 2022 acquired — four seasons now held.** 2026-08-25.
+      **2023: 51,104 rows. 2022: 50,560 rows from 1,710 of 1,722 school-sports
+      (99.3%).** Both pass the full validation battery.
+
+      **The Wayback prediction was wrong, and instructively so.** The archive
+      contributed *nothing* to either season — 0 of 1,722 twice. What actually
+      degrades going back is anything that relies on a live site to *expose* its
+      own history: live URL variants fell to 46%, and the season-selector
+      dropdown returned **0 of 81** because the menus do not reach back four
+      years. The plain year-swap held at **99.8%**, because it reuses a URL
+      verified days earlier rather than one recorded a year ago. The browser
+      picked up the rest: those pages exist, they just do not advertise
+      themselves. Sourcing strategy should follow that — freshness of the URL
+      matters more than age of the season.
+
+      Four independent scrapes landing within 10 minutes of each other on median
+      playing time (625 / 621 / 615 / 615) is the strongest evidence yet that the
+      pipeline measures reality rather than its own artefacts.
 
       Two things from 2024 worth carrying forward. **Wayback was needed far
       less than predicted** — the worklist marked 298 school-sports as
@@ -347,10 +366,63 @@ then 2023 and 2022. Not to be picked up here.
       And **regenerate the worklist from the roster files, not from the
       previous worklist** — the 2024 one was missing 18 school-sports that
       existed in the 2025 files, which no amount of retrying would have found.
-- [ ] **Report retention as a multi-year rate with its trend**, not a single
-      figure. Three pairs (22→23, 23→24, 24→25) distinguish a programme that
-      consistently loses players from one that had a bad year, which is the
-      difference between a recommendation and a coin toss.
+- [x] **Three retention pairs measured; the trend is now available.**
+      2026-08-25. 22→23 overall 61.2% (eligible median 74%), 23→24 62.3% (76%),
+      24→25 57.2% (74%). **1,284 programmes have all three pairs measurable**,
+      which does the thing one pair cannot: **37 sit below 60% in all three
+      years** — a characteristic, not a bad season — and **100 stay above 85%**
+      throughout. The widest single-programme swing is Hardin-Simmons at 96
+      points, exactly the case a single pair would have misread as a verdict.
+- [ ] **Report the trend on the match card / in the model.** The three pairs
+      exist; nothing consumes them yet. Per the entry above, retention is a
+      modelling input rather than a displayed figure, so this is the persistence
+      and weighting work, not a UI task.
+- [x] **2026 rosters acquired mid-season — the current season is now readable.**
+      2026-08-26. **1,529 of 1,722 school-sports, 46,028 players**, in
+      `~/Documents/Thriv3/2026 Roster Sheets/`, all checks passing. Rosters,
+      positions, nationality and hometown only: the season is unplayed, so the
+      playing-time columns are empty *and the validator asserts they are empty*
+      rather than merely not filling them. Minutes are a post-season job.
+
+      **A live season cannot be verified the way a backfill is.** A backfill can
+      demand the page name its season, because it is asking for an archived view
+      the site labels. The live page usually carries no year at all — it is the
+      only roster there is. So the season is proved from the data instead: the
+      squad must have turned over. Calibrated on the three pairs above, a genuine
+      new roster repeats **under 85%** of last season's names at p99, while a
+      stale page scores ~100%. The 2026 field lands at p50 0.59, p90 0.74, p99
+      0.82 — indistinguishable from the known-good pairs.
+
+      Three findings worth keeping. **A page's own season label is not evidence**:
+      40 stale rosters passed because the title said 2026 while the content was
+      2025 — sites flip the label and URL before swapping the roster. **A gate
+      must measure the rows it ships**: computing turnover on the raw parse
+      included coaching staff, who never appear in the reference *player* list
+      and so always counted as new names, running 20% of programmes low by up to
+      33 points. And **the player filter must exist once** — it was written in
+      both `build()` and `overlap()`, the copies drifted, and five more slipped
+      through after the first two fixes. `run._players()` is now the single
+      source of truth.
+
+      The distinction that matters most for Pillar 4: among rosters repeating
+      ~100% of last season, **8 were stale pages but 38 were real 2026 pages
+      listing only returners**, intake not yet posted. Shipped, those would have
+      recorded 100% retention with zero recruitment — corrupting the exact metric
+      this data feeds. Both are excluded and carry their reason.
+
+      **182 of the 193 gaps are a calendar problem, not a technique one** (159 in
+      D3, which posts in September); genuine technique residue is 8 rows, 0.5%.
+      Re-run in September for the rest. Notes in
+      `2026 Roster Sheets/_2026_run_notes.md`.
+- [ ] **Import 2022 and 2023 into `roster_players`.** Verified 2026-08-26: the
+      table holds only 2024 (52,539) and 2025 (64,381). The CSVs for both earlier
+      seasons are validated and waiting, and the three retention pairs above were
+      computed from the files rather than the DB — so nothing in the product can
+      read the trend until they land.
+- [ ] **Import 2026** once the September re-run closes the D3 gap. Deliberately not imported yet: a partial current season would let
+      any query that does not pin the season read an incomplete squad as a real
+      one, which is the failure mode the `CURRENT_ROSTER_SEASON` pin above
+      exists to prevent.
 - [x] **Reconciled the 5 division-mismatched ratings**, leaving 318 genuinely
       absent. Copying from the men's row is not available: only 5 of the 323
       have a men's counterpart at all, because most of the gap is SEC/Big 12
