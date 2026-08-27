@@ -118,21 +118,61 @@ export function hasUsableEmail(coach) {
 }
 
 /**
+ * Who to write to at a programme, best first.
+ *
+ * Ends at the shared team inbox on purpose. `classifyRole` hard-excludes that
+ * address from a normal staff sweep — a team inbox is not a person and should
+ * never receive one of several messages to the same programme — but as the
+ * *only* contact on file it is the difference between reaching a programme and
+ * skipping it. It is last, and it is labelled.
+ *
+ * Volunteers and graduate assistants stay excluded at every level. They are
+ * not who decides, and a recruit writing to one has spent their single
+ * approach on the wrong person.
+ */
+export const CONTACT_LADDER = ['head', 'associate-head', 'assistant', 'goalkeeper', 'team-email'];
+
+/**
+ * Which assistant, when a programme lists several.
+ *
+ * A recruiting coordinator is not merely senior, they are the person whose job
+ * this email is — 53 of them are on file, usually titled "Assistant
+ * Coach/Recruiting Coordinator". After that the explicit seniority markers,
+ * then whoever the staff page listed first, which is the only ordering the
+ * data actually carries.
+ */
+const ASSISTANT_PRIORITY = [
+  [/recruit/i, 0],
+  [/\bfirst\b|\bsenior\b|associate/i, 1],
+];
+
+function assistantRank(title) {
+  for (const [pattern, rank] of ASSISTANT_PRIORITY) if (pattern.test(title || '')) return rank;
+  return 2;
+}
+
+/**
  * The one person on a staff a recruit writes to first.
  *
- * Falls back to the associate head coach when no head is on file — 15 of the
- * 1,986 school-sports are in exactly that state, and writing to the associate
- * is plainly better than skipping the programme. The role that was actually
- * matched comes back with the coach so the caller can show it rather than
- * quietly passing an associate off as the head.
+ * Walks CONTACT_LADDER and takes the best available. 1,924 of the 1,986
+ * school-sports have a head coach; the ladder is what reaches the other 60 —
+ * 15 with only an associate head, 21 with only assistants and 24 with only a
+ * shared inbox, all of which were previously dropped entirely.
  *
- * Returns null when the staff has neither (47 school-sports).
+ * The role that actually matched comes back with the coach, so a caller can
+ * say who this is rather than quietly passing an assistant off as the head.
+ * Returns null only when a programme has no usable address at all (2).
  */
-export function pickHeadCoach(staff = []) {
+export function pickBestContact(staff = []) {
   const usable = staff.filter(hasUsableEmail);
-  for (const role of ['head', 'associate-head']) {
-    const found = usable.find((c) => classifyRole(titleOf(c)) === role);
-    if (found) return { ...found, role };
+
+  for (const role of CONTACT_LADDER) {
+    const matches = usable.filter((c) => classifyRole(titleOf(c)) === role);
+    if (!matches.length) continue;
+    if (role === 'assistant') {
+      matches.sort((a, b) => assistantRank(titleOf(a)) - assistantRank(titleOf(b)));
+    }
+    return { ...matches[0], role };
   }
   return null;
 }

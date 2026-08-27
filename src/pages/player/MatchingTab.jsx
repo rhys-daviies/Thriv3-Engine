@@ -6,7 +6,7 @@ import CollegeCard from '@/components/CollegeCard';
 import CriteriaRanking from '@/components/CriteriaRanking';
 import EmailComposer from '@/components/EmailComposer';
 import BulkEmailComposer from '@/components/BulkEmailComposer';
-import { pickHeadCoach } from '@shared/coachRoles.js';
+import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 
@@ -55,7 +55,7 @@ export default function MatchingTab() {
   // Counted here as well as inside the dialog so the button says how many
   // programmes on this page actually have a head coach to write to, rather
   // than promising twenty and opening a list of twelve.
-  const headCoachCount = pageItems.filter((c) => pickHeadCoach(c.coaching_staff)).length;
+  const headCoachCount = pageItems.filter((c) => pickBestContact(c.coaching_staff)).length;
 
   return (
     <div className="space-y-6">

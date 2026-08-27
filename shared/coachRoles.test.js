@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { classifyRole, shouldContact, bySeniority, pickHeadCoach, titleOf, hasUsableEmail } from './coachRoles.js';
+import { classifyRole, shouldContact, bySeniority, pickBestContact, titleOf, hasUsableEmail } from './coachRoles.js';
 
 describe('classifyRole', () => {
   it('reads the plain titles', () => {
@@ -108,13 +108,13 @@ describe('hasUsableEmail', () => {
   });
 });
 
-describe('pickHeadCoach', () => {
+describe('pickBestContact', () => {
   it('picks the head coach over more senior-sounding noise', () => {
     const staff = [
       { name: 'A', title: 'Assistant Coach', email: 'a@x.edu' },
       { name: 'B', title: 'Head Coach', email: 'b@x.edu' },
     ];
-    expect(pickHeadCoach(staff)).toMatchObject({ name: 'B', role: 'head' });
+    expect(pickBestContact(staff)).toMatchObject({ name: 'B', role: 'head' });
   });
 
   // The regression this whole picker exists for: the tab used to test
@@ -122,7 +122,7 @@ describe('pickHeadCoach', () => {
   // titles that name the sport in between the two words.
   it('finds a head coach whose title names the sport', () => {
     for (const title of ["Head Men's Soccer Coach", "Head Women's Soccer Coach", 'Director of Soccer']) {
-      expect(pickHeadCoach([{ name: 'A', title, email: 'a@x.edu' }])).toMatchObject({ role: 'head' });
+      expect(pickBestContact([{ name: 'A', title, email: 'a@x.edu' }])).toMatchObject({ role: 'head' });
     }
   });
 
@@ -131,7 +131,7 @@ describe('pickHeadCoach', () => {
       { name: 'A', title: 'Assistant Coach', email: 'a@x.edu' },
       { name: 'B', title: 'Associate Head Coach', email: 'b@x.edu' },
     ];
-    expect(pickHeadCoach(staff)).toMatchObject({ name: 'B', role: 'associate-head' });
+    expect(pickBestContact(staff)).toMatchObject({ name: 'B', role: 'associate-head' });
   });
 
   it('prefers a real head coach to an associate', () => {
@@ -139,26 +139,69 @@ describe('pickHeadCoach', () => {
       { name: 'B', title: 'Associate Head Coach', email: 'b@x.edu' },
       { name: 'A', title: 'Head Coach', email: 'a@x.edu' },
     ];
-    expect(pickHeadCoach(staff)).toMatchObject({ name: 'A', role: 'head' });
+    expect(pickBestContact(staff)).toMatchObject({ name: 'A', role: 'head' });
   });
 
   it('will not return a coach with no address to write to', () => {
-    expect(pickHeadCoach([{ name: 'A', title: 'Head Coach', email: 'N/A' }])).toBeNull();
-    expect(pickHeadCoach([{ name: 'A', title: 'Head Coach' }])).toBeNull();
+    expect(pickBestContact([{ name: 'A', title: 'Head Coach', email: 'N/A' }])).toBeNull();
+    expect(pickBestContact([{ name: 'A', title: 'Head Coach' }])).toBeNull();
   });
 
-  it('returns null for a staff of assistants, rather than an assistant', () => {
-    expect(pickHeadCoach([{ name: 'A', title: 'Assistant Coach', email: 'a@x.edu' }])).toBeNull();
+  // 21 school-sports list assistants and no head. Dropping them cost the
+  // programme entirely; an assistant can forward.
+  it('falls through to an assistant when there is no head or associate', () => {
+    expect(pickBestContact([{ name: 'A', title: 'Assistant Coach', email: 'a@x.edu' }]))
+      .toMatchObject({ name: 'A', role: 'assistant' });
   });
 
-  // A team inbox is hard-excluded by classifyRole, so it can never be picked
-  // even when it is the only address on file.
-  it('never picks a team inbox', () => {
-    expect(pickHeadCoach([{ name: 'Soccer', title: 'Team Email', email: 'soccer@x.edu' }])).toBeNull();
+  // Not merely the most senior assistant — the one whose job this email is.
+  it('prefers a recruiting coordinator among assistants', () => {
+    const staff = [
+      { name: 'A', title: 'Assistant Coach', email: 'a@x.edu' },
+      { name: 'B', title: 'Assistant Coach/Recruiting Coordinator', email: 'b@x.edu' },
+    ];
+    expect(pickBestContact(staff)).toMatchObject({ name: 'B', role: 'assistant' });
+  });
+
+  it('prefers an explicit first or senior assistant over a plain one', () => {
+    const staff = [
+      { name: 'A', title: 'Assistant Coach', email: 'a@x.edu' },
+      { name: 'B', title: 'First Assistant Coach', email: 'b@x.edu' },
+    ];
+    expect(pickBestContact(staff)).toMatchObject({ name: 'B' });
+  });
+
+  it('keeps the staff-page order among equally ranked assistants', () => {
+    const staff = [
+      { name: 'A', title: 'Assistant Coach', email: 'a@x.edu' },
+      { name: 'B', title: 'Assistant Coach', email: 'b@x.edu' },
+    ];
+    expect(pickBestContact(staff)).toMatchObject({ name: 'A' });
+  });
+
+  // 24 school-sports have nothing else. Last on the ladder, never before a
+  // person, and labelled so the operator knows what they are writing to.
+  it('takes a shared team inbox only when nothing else is on file', () => {
+    expect(pickBestContact([{ name: null, title: 'Team Email', email: 'soccer@x.edu' }]))
+      .toMatchObject({ role: 'team-email', email: 'soccer@x.edu' });
+  });
+
+  it('prefers any named coach to the shared inbox', () => {
+    const staff = [
+      { name: null, title: 'Team Email', email: 'soccer@x.edu' },
+      { name: 'A', title: 'Assistant Coach', email: 'a@x.edu' },
+    ];
+    expect(pickBestContact(staff)).toMatchObject({ name: 'A', role: 'assistant' });
+  });
+
+  // Never, at any rung. Not who decides, and a recruit gets one approach.
+  it('never picks a volunteer or a graduate assistant', () => {
+    expect(pickBestContact([{ name: 'A', title: 'Volunteer Assistant Coach', email: 'a@x.edu' }])).toBeNull();
+    expect(pickBestContact([{ name: 'B', title: 'Graduate Assistant Coach', email: 'b@x.edu' }])).toBeNull();
   });
 
   it('survives an empty or missing staff', () => {
-    expect(pickHeadCoach([])).toBeNull();
-    expect(pickHeadCoach()).toBeNull();
+    expect(pickBestContact([])).toBeNull();
+    expect(pickBestContact()).toBeNull();
   });
 });

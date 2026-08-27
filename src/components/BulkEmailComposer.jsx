@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { pickHeadCoach } from '@shared/coachRoles.js';
+import { pickBestContact } from '@shared/coachRoles.js';
 import { riskCounts, emailRisk } from '@shared/emailRisk.js';
 import EmailRiskBadge from '@/components/EmailRiskBadge';
 import { useCoachEmailStatus, statusOf } from '@/lib/useCoachEmailStatus';
@@ -30,6 +30,17 @@ import { outreach } from '@/api/client';
  * the thing most likely to get the address filtered, and reading them in
  * Outlook before pressing send is the whole point of drafting.
  */
+/**
+ * Said plainly on the row, because "who am I actually writing to" is the one
+ * thing the operator cannot get from a name and an address alone.
+ */
+const ROLE_NOTE = {
+  'associate-head': 'associate head — no head coach listed',
+  assistant: 'assistant — no head coach listed',
+  goalkeeper: 'goalkeeper coach — no other staff listed',
+  'team-email': 'shared team inbox — no named coach listed',
+};
+
 export default function BulkEmailComposer({ player, colleges, open, onOpenChange }) {
   // Worked out with the shared classifier rather than a local regex on the
   // title: /head coach/i misses "Head Men's Soccer Coach", which is 35% of
@@ -38,7 +49,7 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
     const found = [];
     const none = [];
     for (const college of colleges || []) {
-      const coach = pickHeadCoach(college.coaching_staff);
+      const coach = pickBestContact(college.coaching_staff);
       if (coach) found.push({ college, coach });
       else none.push(college);
     }
@@ -185,8 +196,9 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              The head coach at each programme on this page. One email each, carrying that
-              coach's own tracking link.
+              The head coach at each programme on this page — or, where none is listed, the
+              most senior contact there is. One email each, carrying that coach's own
+              tracking link. Anyone who is not the head coach is labelled.
             </p>
 
             <div className="mt-2 max-h-60 overflow-y-auto rounded-md border border-border divide-y divide-border">
@@ -205,9 +217,9 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
                     <span className="min-w-0 flex-1 truncate">
                       <span className="font-medium">{college.name}</span>
                       <span className="text-muted-foreground"> — {coach.name || 'Coach'}</span>
-                      {coach.role === 'associate-head' && (
+                      {coach.role !== 'head' && (
                         <span className="ml-1.5 rounded bg-amber-500/15 px-1 py-0.5 text-[10px] text-amber-500">
-                          associate head — no head coach on file
+                          {ROLE_NOTE[coach.role] || coach.role}
                         </span>
                       )}
                     </span>

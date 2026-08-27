@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { pickHeadCoach } from '@shared/coachRoles.js';
+import { pickBestContact } from '@shared/coachRoles.js';
 import EmailRiskBadge from '@/components/EmailRiskBadge';
 import { useCoachEmailStatus, statusOf } from '@/lib/useCoachEmailStatus';
 import {
@@ -24,7 +24,7 @@ import { outreach } from '@/api/client';
  * coaches on file, every one of whom was being greeted by an assistant's name.
  */
 function greetingSeed(coaches) {
-  return pickHeadCoach(coaches) || coaches[0];
+  return pickBestContact(coaches) || coaches[0];
 }
 
 export default function EmailComposer({ player, college, open, onOpenChange }) {
