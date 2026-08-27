@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Resolve the head coach at every in-scope school-sport, 2022-2025.
+"""Resolve the head coach at every in-scope school-sport, 2022-2026.
 
   python3 coaches_run.py            # resume, then write the CSV
   python3 coaches_run.py --write    # write the CSV from state, fetch nothing
@@ -24,7 +24,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import coaches_lib as C
 
-SEASONS = (2022, 2023, 2024, 2025)
+SEASONS = (2022, 2023, 2024, 2025, 2026)
 OUTDIR = os.path.expanduser('~/Documents/Thriv3/Coach Tenure')
 STATEDIR = os.path.join(OUTDIR, '_state')
 STATE = os.path.join(STATEDIR, 'coaches.json')
@@ -86,7 +86,7 @@ def save_state(st):
 
 
 def resolve(key, info):
-    """One school-sport, all four seasons. Never raises."""
+    """One school-sport, every season in the window. Never raises."""
     school, sport = key
     out = {}
     for season in SEASONS:
