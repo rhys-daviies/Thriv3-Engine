@@ -5,8 +5,20 @@
 import { classYearOf } from '../../shared/athlete.js';
 import { positionLabel, positionNoun, positionPlural } from '../../shared/positions.js';
 import { UNDECLARED_BUDGET } from '../../shared/matching/constants.js';
+import { majorLabelFor } from '../../shared/academicMajors.js';
 
 // Section 11: The Email Template System — ported exactly.
+
+/** Soccer's own postseason round names -- see postseason_round_label below. */
+const POSTSEASON_ROUND_LABELS = {
+  appearance: 'made the postseason',
+  r32: 'reached the Round of 32',
+  r16: 'reached the Round of 16',
+  quarter: 'reached the quarterfinals',
+  semi: 'reached the semifinals',
+  final: 'reached the championship game',
+  champion: 'won the national championship',
+};
 
 export const TEMPLATE_VARIABLES = [
   { token: 'coach_name', label: 'Coach Name' },
@@ -34,6 +46,12 @@ export const TEMPLATE_VARIABLES = [
     label: 'If 2025 conference champs… (conditional sentence)',
     snippet: '{{#if is_conference_champion}}Congratulations on winning the {{conference_champion_name}} last year!{{/if}}',
   },
+  { token: 'postseason_round_label', label: '2025 Postseason Result (e.g. "reached the semifinals")' },
+  {
+    token: 'has_postseason_result',
+    label: 'If the program reached the postseason in 2025… (conditional sentence)',
+    snippet: '{{#if has_postseason_result}}Congratulations, you {{postseason_round_label}} this past season.{{/if}}',
+  },
   { token: 'graduating_seniors_count', label: 'Graduating Seniors Count' },
   { token: 'graduating_seniors_names', label: 'Graduating Seniors Names' },
   { token: 'graduating_seniors_position', label: 'Position word agreeing with that count (defender / defenders)' },
@@ -49,6 +67,18 @@ export const TEMPLATE_VARIABLES = [
   },
   { token: 'graduating_starters_count', label: 'Graduating Starters Count' },
   { token: 'graduating_starters_names', label: 'Graduating Starters Names' },
+  { token: 'international_players_count', label: 'International Players on Roster' },
+  {
+    token: 'has_international_players',
+    label: 'If the roster has any international players… (conditional sentence)',
+    snippet: '{{#if has_international_players}}We currently have {{international_players_count}} international players on the roster.{{/if}}',
+  },
+  { token: 'players_from_country_count', label: "Players From the Recruit's Own Country" },
+  {
+    token: 'has_players_from_country',
+    label: "If a teammate already shares the recruit's country… (conditional sentence)",
+    snippet: '{{#if has_players_from_country}}We currently have players from {{player_nationality}} on the roster.{{/if}}',
+  },
   { token: 'player_name', label: 'Player Name' },
   { token: 'player_position', label: 'Player Position' },
   { token: 'player_position_plural', label: 'Position, plural (defenders)' },
@@ -65,6 +95,12 @@ export const TEMPLATE_VARIABLES = [
   { token: 'has_yearly_budget', label: 'If a budget band is set… (conditional line)' },
   { token: 'player_class_year', label: 'Class Year (arrival)' },
   { token: 'player_profile_url', label: 'Tracked Profile Link' },
+  { token: 'intended_major_label', label: "Recruit's Intended Major, Matched to a Notable Program" },
+  {
+    token: 'offers_intended_major',
+    label: "If the school notably offers the recruit's intended major… (conditional sentence)",
+    snippet: '{{#if offers_intended_major}}We also have a strong {{intended_major_label}} program.{{/if}}',
+  },
 ];
 
 /**
@@ -148,6 +184,13 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     ? ` / ${positionLabel(player.secondary_position)}`
     : '';
 
+  // Matches the recruit's own free-text intended_major against this school's
+  // notable_majors (see shared/academicMajors.js) -- gated on an actual match
+  // rather than firing for every recruit with any major typed in, so the
+  // sentence is never sent to a school that does not meaningfully offer it.
+  const majorLabel = majorLabelFor(player.intended_major);
+  const intendedMajorLabel = majorLabel && (college.notable_majors || []).includes(majorLabel) ? majorLabel : '';
+
   return {
     coach_name: coachName || 'Coach',
     college_name: college.name || '',
@@ -188,6 +231,13 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     // even when that drifts from our stored conference field.
     conference_champion_name: college.conference_champion_name || '',
     is_conference_champion: college.conference_champion_2025 ? 'true' : '',
+    // Soccer's own round names, not basketball's -- there is no "Sweet 16" in
+    // an NCAA soccer bracket, and borrowing one would read as a mistake to
+    // anyone who follows the sport. "Appearance" means qualified and lost the
+    // first game, so it reads as having made the postseason at all rather
+    // than claiming a specific round.
+    postseason_round_label: POSTSEASON_ROUND_LABELS[college.postseason_2025_round] || '',
+    has_postseason_result: college.postseason_2025_round ? 'true' : '',
     // Gates for the two ways this sentence goes wrong on a thin school: no
     // graduating players at the position ("0 defenders graduating"), and a
     // programme whose names we could not read, where the name list renders as
@@ -207,6 +257,15 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     graduating_seniors_names: formatNameList(college.graduating_senior_names_at_position),
     graduating_starters_count: String(college.graduating_starters_at_position ?? 0),
     graduating_starters_names: formatNameList(college.graduating_starter_names_at_position),
+    // Sourced from shared/matching/pool.js's roster aggregation (international
+    // count + same-country count), already computed for the international-fit
+    // scoring criterion -- these just expose the same two numbers as tokens.
+    international_players_count: String(college.international_players ?? 0),
+    has_international_players: (college.international_players ?? 0) > 0 ? 'true' : '',
+    players_from_country_count: String(college.players_from_country ?? 0),
+    // Gated on the recruit having a stated country too -- a domestic athlete
+    // has no "own country" for the sentence to be about.
+    has_players_from_country: player.nationality && (college.players_from_country ?? 0) > 0 ? 'true' : '',
     player_name: player.full_name || '',
     // The person, not the stored key. These read as prose in every template
     // that uses them — "a talented Defense who is exploring" was going out
@@ -255,6 +314,8 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     // a preview displaying "{{player_profile_url}}" looks like the link failed
     // to resolve rather than like it resolves later.
     player_profile_url: profileUrl || '{{player_profile_url}}',
+    intended_major_label: intendedMajorLabel,
+    offers_intended_major: intendedMajorLabel ? 'true' : '',
   };
 }
 

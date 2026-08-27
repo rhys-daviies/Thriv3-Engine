@@ -6,6 +6,7 @@ const columns = [
   'nickname', 'nickname_plural', 'mascot', 'primary_color', 'secondary_color', 'logo_url',
   'identity_source', 'identity_notes',
   'conference_champion_2025', 'conference_champion_name', 'conference_champion_source', 'conference_champion_notes',
+  'postseason_2025_round', 'notable_majors',
   // Matching model inputs, backfilled by loadMatchingInputs.js. Without these
   // on the wire the client scores geography and affordability at their neutral
   // prior for every programme, which looks like the criteria working.
@@ -15,4 +16,4 @@ const columns = [
   'academic_rating_source', 'matching_data_source',
 ];
 
-export const College = createEntity('colleges', columns, []);
+export const College = createEntity('colleges', columns, ['notable_majors']);

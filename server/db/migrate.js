@@ -135,6 +135,8 @@ const COLLEGE_COLUMNS = [
   ['conference_champion_name', 'TEXT'],
   ['conference_champion_source', 'TEXT'],
   ['conference_champion_notes', 'TEXT'],
+  ['postseason_2025_round', 'TEXT'],
+  ['notable_majors', "TEXT DEFAULT '[]'"],
 ];
 
 /**

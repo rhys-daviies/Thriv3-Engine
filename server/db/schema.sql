@@ -79,7 +79,21 @@ CREATE TABLE IF NOT EXISTS colleges (
   conference_champion_2025 INTEGER,
   conference_champion_name TEXT,
   conference_champion_source TEXT,
-  conference_champion_notes TEXT
+  conference_champion_notes TEXT,
+
+  -- 2025 postseason round reached, for outreach emails ("made the Sweet 16
+  -- this past season"). One of: appearance, r32, r16, quarter, semi, final,
+  -- champion. Sourced from the {year}_ps column already collected in
+  -- Thriv3/Soccer Records/soccer_records[_women].csv -- most programs never
+  -- reach the postseason, so a low fill rate here is expected, not a gap.
+  postseason_2025_round TEXT,
+
+  -- JSON array of notable-major labels (see shared/academicMajors.js) this
+  -- school meaningfully offers, so an email can say "we have a strong
+  -- Business program" when it matches the recruit's own intended_major.
+  -- Computed from College Scorecard's per-institution PCIP fields; see
+  -- server/scripts/importNotableMajors.js.
+  notable_majors TEXT DEFAULT '[]'
 );
 
 CREATE INDEX IF NOT EXISTS idx_colleges_sport ON colleges(sport);

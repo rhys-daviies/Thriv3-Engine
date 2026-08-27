@@ -272,6 +272,8 @@ export function rankMatches({ athlete, colleges, rosterIndex, weights, limit }) 
       mascot: c.mascot,
       conference_champion_2025: c.conference_champion_2025,
       conference_champion_name: c.conference_champion_name,
+      postseason_2025_round: c.postseason_2025_round,
+      notable_majors: c.notable_majors,
       logo_url: c.logo_url,
       primary_color: c.primary_color,
       secondary_color: c.secondary_color,

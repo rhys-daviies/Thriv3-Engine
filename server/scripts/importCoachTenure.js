@@ -44,6 +44,25 @@ function backup() {
   return dest;
 }
 
+/**
+ * Staff pages carry their titles HTML-escaped, and the scraper writes what it
+ * read: 199 rows landed as "Head Women&#39;s Soccer Coach". Decoded here
+ * rather than in the parser because the CSV already holds the escaped form,
+ * and a title is a string a person reads.
+ */
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+function decodeEntities(text) {
+  return String(text ?? '').replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (whole, body) => {
+    if (body[0] === '#') {
+      const code = body[1] === 'x' || body[1] === 'X'
+        ? parseInt(body.slice(2), 16) : parseInt(body.slice(1), 10);
+      return Number.isFinite(code) && code > 0 && code < 0x110000
+        ? String.fromCodePoint(code) : whole;
+    }
+    return ENTITIES[body.toLowerCase()] ?? whole;
+  });
+}
+
 function main() {
   if (!fs.existsSync(FILE)) {
     console.error(`\nNo CSV at ${FILE}\nRun coaches_run.py first.\n`);
@@ -77,7 +96,7 @@ function main() {
     const matched = matchSchoolName(r.school, known[sport] || []) || null;
     if (!matched) { unmatched += 1; continue; }
 
-    const name = (r.coach_name || '').trim();
+    const name = decodeEntities(r.coach_name || '').trim();
     bySeason[season] = bySeason[season] || { total: 0, named: 0 };
     bySeason[season].total += 1;
     if (name) bySeason[season].named += 1;
@@ -91,7 +110,7 @@ function main() {
       school: matched, sport, season,
       division: (r.division || '').trim() || null,
       coach_name: name || null,
-      coach_title: (r.coach_title || '').trim() || null,
+      coach_title: decodeEntities(r.coach_title || '').trim() || null,
       method: (r.method || '').trim() || null,
       confidence: (r.confidence || '').trim() || null,
       source_url: (r.source_url || '').trim() || null,
