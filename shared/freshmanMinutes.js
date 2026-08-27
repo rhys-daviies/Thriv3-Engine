@@ -383,6 +383,38 @@ export function classifyProgramme(profile, tenure) {
       note: `no permanent head coach on file for ${vacantEarly.join(', ')} — only the seasons since ${since} describe the programme as it is now` };
   }
 
+  // Two changes or more, and the pattern held across all of them.
+  //
+  // This is the strongest evidence the module can produce and it was
+  // invisible until now, because every other branch compares either side of
+  // the LATEST change only. Bellarmine women's ran 23%, 30%, 26%, 20% with
+  // four starter-level freshmen every season under Babba, then McKinney, then
+  // Bornhoffer — three coaches in four years. Compared around Bornhoffer
+  // alone it read `change-too-recent`, one season and no guide. Compared
+  // across all three spells it is the opposite: a programme that plays its
+  // freshmen whoever is in charge, which is a property of the institution and
+  // survives the next hire too.
+  if (tenure.changes.length >= 2 && shares.length >= 3) {
+    const perSegment = tenure.segments
+      .map((seg) => shares.filter((s) => s.season >= seg.from && s.season <= seg.to).map((s) => s.pct))
+      .filter((pcts) => pcts.length)
+      .map(mean);
+    if (perSegment.length >= 3) {
+      const swing = Math.max(...perSegment) - Math.min(...perSegment);
+      // Stable, not merely averaging out. Cal State Dominguez Hills ran
+      // 23%, 26%, 4%, 30% — three coaches whose segment means sit 9 points
+      // apart, which passes the swing test on the strength of a 4 and a 30
+      // cancelling inside one spell. A pattern that survived a change has to
+      // have been a pattern first.
+      if (swing < STEP_POINTS && spread < SPREAD_POINTS) {
+        return { ...base, verdict: 'structural-through-changes', since, weightFrom: null,
+          coaches: tenure.segments.map((s) => s.coach), swing,
+          note: `the pattern held across ${tenure.changes.length} coaching changes — it belongs to the `
+            + 'programme rather than to any one coach, so every season counts' };
+      }
+    }
+  }
+
   if (changed) {
     const before = shares.filter((s) => s.season < since).map((s) => s.pct);
     // The new coach's first season is excluded from their side: it is played

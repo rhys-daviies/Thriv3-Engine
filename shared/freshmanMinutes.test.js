@@ -314,6 +314,64 @@ describe('classifyProgramme', () => {
     expect(v.unknownSeasons).toEqual([2024, 2025]);
   });
 
+  // Bellarmine women's: 23%, 30%, 26%, 20% with four starter-level freshmen
+  // every season, under Babba, then McKinney, then Bornhoffer. Compared
+  // around the newest change alone it read `change-too-recent` — one season
+  // and no guide. Across all three spells it is the strongest reading there
+  // is: the programme plays its freshmen whoever is in charge.
+  it('finds a pattern that held across more than one coaching change', () => {
+    const tenure = tenureFor([
+      { season: 2022, coach_name: 'Paul Babba' },
+      { season: 2023, coach_name: 'Paul Babba' },
+      { season: 2024, coach_name: 'Callie McKinney' },
+      { season: 2025, coach_name: 'Steve Bornhoffer' },
+      { season: 2026, coach_name: 'Steve Bornhoffer' },
+    ]);
+    const v = classifyProgramme(prof([23, 30, 26, 20]), tenure);
+    expect(v.verdict).toBe('structural-through-changes');
+    expect(v.coaches).toEqual(['Paul Babba', 'Callie McKinney', 'Steve Bornhoffer']);
+    expect(v.swing).toBeLessThan(STEP_POINTS);
+    // Every season counts — that is the whole point of the verdict.
+    expect(v.weightFrom).toBeNull();
+  });
+
+  // Three coaches and a pattern that moved with them is not structural, and
+  // calling it so would be the more expensive error of the two.
+  it('does not call it structural when the pattern moved with the coaches', () => {
+    const tenure = tenureFor([
+      { season: 2022, coach_name: 'A Coach' },
+      { season: 2023, coach_name: 'B Coach' },
+      { season: 2024, coach_name: 'C Coach' },
+      { season: 2025, coach_name: 'C Coach' },
+    ]);
+    expect(classifyProgramme(prof([4, 20, 40, 44]), tenure).verdict)
+      .not.toBe('structural-through-changes');
+  });
+
+  // Cal State Dominguez Hills ran 23%, 26%, 4%, 30% under three coaches. The
+  // segment means sit 9 points apart only because a 4 and a 30 cancel inside
+  // one spell — a pattern that survived a change has to have been a pattern
+  // first.
+  it('does not call an unstable programme structural because the means cancel', () => {
+    const tenure = tenureFor([
+      { season: 2022, coach_name: 'Marine Cano' },
+      { season: 2023, coach_name: 'Danielle Jones' },
+      { season: 2024, coach_name: 'Adriana Valdez Lopez' },
+      { season: 2025, coach_name: 'Adriana Valdez Lopez' },
+    ]);
+    const v = classifyProgramme(prof([23, 26, 4, 30]), tenure);
+    expect(v.verdict).not.toBe('structural-through-changes');
+    expect(v.spread).toBeGreaterThanOrEqual(SPREAD_POINTS);
+  });
+
+  // One change is the existing reading and stays it: two spells are a
+  // comparison, three are a property.
+  it('keeps a single change as continuity-through-change', () => {
+    const v = classifyProgramme(prof([25, 24, 26, 25]),
+      ten('Old Coach', 'New Coach', 'New Coach', 'New Coach'));
+    expect(v.verdict).toBe('continuity-through-change');
+  });
+
   // North Florida men's took Marlon Montanella for 2026; Marinatos and Davies
   // coached every season on file. There is no projection to make and saying
   // so is the answer.
