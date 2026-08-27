@@ -263,3 +263,34 @@ CREATE TABLE IF NOT EXISTS suppressions (
   outreach_token TEXT,        -- the link they clicked, when there was one
   note TEXT
 );
+
+-- ===========================================================================
+-- Who was in charge of a programme, season by season.
+--
+-- A third of programmes change their freshman usage sharply mid-window, and
+-- the roster tables cannot say whether that was a new coach, the same coach
+-- changing approach, or a vacancy. Without this, a recruit is shown four
+-- seasons of a programme that may no longer exist.
+--
+-- One row per (school, sport, season) INCLUDING the ones that did not
+-- resolve: `reason` carries why, because a missing row reads as coverage
+-- while a row with a reason reads as a gap. `confidence` is High for a live
+-- year-addressed page and Medium for a Wayback snapshot.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS coach_seasons (
+  school TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  season INTEGER NOT NULL,
+  division TEXT,
+  coach_name TEXT,            -- null when unresolved or the post was vacant
+  coach_title TEXT,
+  method TEXT,                -- roster-live | wayback:<ts> | none
+  confidence TEXT,            -- High | Medium
+  source_url TEXT,
+  reason TEXT,                -- why there is no name, when there is none
+  imported_at TEXT NOT NULL,
+
+  PRIMARY KEY (school, sport, season)
+);
+
+CREATE INDEX IF NOT EXISTS idx_coach_seasons_prog ON coach_seasons(school, sport);
