@@ -51,7 +51,8 @@ function RosterSchoolRow({ collegeName, players, rank }) {
               <Badge variant={POSITION_PILL_VARIANT[p.position] || 'muted'}>{(p.position || 'UNK').slice(0, 3)}</Badge>
               <span className="flex-1">{p.player_name}</span>
               {p.class_year_label && <span className="text-muted-foreground">{p.class_year_label}</span>}
-              <MinutesCell minutes={p.minutes_played} projected={p.projected_minutes} projectedSeason={p.projected_minutes_season} />
+              <MinutesCell minutes={p.minutes_played} projected={p.projected_minutes} projectedSeason={p.projected_minutes_season}
+                            priorProgramme={p.prior_programme} school={p.college_name} />
             </div>
           ))}
         </div>
@@ -99,7 +100,8 @@ function LegacySchoolRow({ college, record, rank }) {
             <div key={p.name} className="flex items-center gap-2 text-xs">
               <Badge variant={POSITION_PILL_VARIANT[p.position] || 'muted'}>{(p.position || 'UNK').slice(0, 3)}</Badge>
               <span className="flex-1">{p.name}</span>
-              <MinutesCell minutes={p.minutes_played} projected={p.projected_minutes} projectedSeason={p.projected_minutes_season} />
+              <MinutesCell minutes={p.minutes_played} projected={p.projected_minutes} projectedSeason={p.projected_minutes_season}
+                            priorProgramme={p.prior_programme} school={p.college_name} />
             </div>
           ))}
         </div>
@@ -121,7 +123,7 @@ function LegacySchoolRow({ college, record, rank }) {
  * emailing a coach needs to know which numbers are evidence and which are an
  * inference — a coach's roster has visibly changed since last season.
  */
-function MinutesCell({ minutes, projected, projectedSeason }) {
+function MinutesCell({ minutes, projected, projectedSeason, priorProgramme, school }) {
   if (minutes != null) {
     const starter = minutes >= STARTER_MINUTES_THRESHOLD;
     return (
@@ -146,14 +148,24 @@ function MinutesCell({ minutes, projected, projectedSeason }) {
       </span>
     );
   }
+  // A dash has three quite different causes, and which one it is matters to
+  // whoever is about to write to the coach. Saying "transferred in from
+  // Florida Atlantic" beats an unexplained blank, and beats inventing a figure:
+  // minutes earned at another programme predict a starting place here only
+  // 54.9% of the time, against 77.4% for a player who stayed, so they are
+  // recorded as provenance and never carried forward.
+  const transferred = priorProgramme && priorProgramme !== school;
+  const title = transferred
+    ? `Transferred in from ${priorProgramme}. Their ${priorProgramme} minutes are not carried forward — `
+      + 'a figure earned at another programme is a much weaker guide to starting here (about 55% reliable, '
+      + 'against 77% for a player who stayed), so starter status is unknown.'
+    : priorProgramme
+      ? `On this roster last season too, but that page published no minutes, so starter status is unknown.`
+      : `Not on any ${Number(CURRENT_ROSTER_SEASON) - 1} roster — new to college soccer, or their previous programme `
+        + 'was not captured. Starter status is unknown.';
   return (
-    <span
-      className="text-muted-foreground/50 italic w-24 text-right"
-      title={ROSTER_SEASON_IN_PROGRESS
-        ? `No ${CURRENT_ROSTER_SEASON} minutes yet and no earlier season to carry forward — a newcomer, so starter status is unknown.`
-        : 'This roster page published no minutes for this player.'}
-    >
-      — min
+    <span className="text-muted-foreground/50 italic w-24 text-right" title={title}>
+      {transferred ? 'transfer' : '— min'}
     </span>
   );
 }
@@ -299,7 +311,9 @@ export default function GraduatingDatabase() {
             <p className="text-xs text-amber-400/90 mt-1.5">
               {CURRENT_ROSTER_SEASON} season in progress — no minutes played yet.
               Figures marked <span className="italic">~like this</span> are carried forward from the previous
-              season as a projection, not {CURRENT_ROSTER_SEASON} data. A dash means a newcomer with no prior season.
+              season as a projection, not {CURRENT_ROSTER_SEASON} data.
+              <span className="italic"> transfer</span> and <span className="italic">— min</span> mean starter status
+              is unknown; hover either for the reason.
             </p>
           )}
         </div>

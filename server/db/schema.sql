@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS roster_players (
   eligibility_end_year INTEGER,
   projected_minutes INTEGER,
   projected_minutes_season TEXT,
+  prior_programme TEXT,
   nationality TEXT,
   hometown TEXT,
   country TEXT,

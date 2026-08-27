@@ -166,6 +166,13 @@ const ROSTER_PLAYER_COLUMNS = [
   // with the value so every consumer can say where it came from.
   ['projected_minutes', 'INTEGER'],
   ['projected_minutes_season', 'TEXT'],
+  // Where this player was the season before, if we can identify them
+  // unambiguously. Explains an absent figure instead of leaving a bare dash:
+  // a transfer's prior minutes are deliberately NOT carried forward (they
+  // predict a starting place at the new programme only 54.9% of the time,
+  // against 77.4% for a player who stayed) but knowing they arrived from
+  // somewhere is worth more to an operator than knowing nothing.
+  ['prior_programme', 'TEXT'],
 ];
 
 const COACH_COLUMNS = [

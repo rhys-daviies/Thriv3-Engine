@@ -50,8 +50,8 @@ export function projectMinutes(db, { season, from }) {
     console.log('        Only rows still missing them are projected — real data always wins.');
   }
 
-  db.prepare('UPDATE roster_players SET projected_minutes = NULL, projected_minutes_season = NULL WHERE season = ?')
-    .run(season);
+  db.prepare('UPDATE roster_players SET projected_minutes = NULL, projected_minutes_season = NULL, '
+    + 'prior_programme = NULL WHERE season = ?').run(season);
 
   const info = db.prepare(`
     UPDATE roster_players AS t
@@ -70,6 +70,36 @@ export function projectMinutes(db, { season, from }) {
                 AND p.minutes_played IS NOT NULL)
   `).run({ season, source });
 
+  // ---- where each player was the season before -------------------------
+  // Recorded for every row we can identify, not just the ones we project from.
+  // A blank minutes cell has three quite different causes -- transferred in,
+  // new to college soccer, or on the same roster with no minutes published --
+  // and the UI can only say which if the data does.
+  //
+  // Skipped where the name is not unique to one programme in the prior season
+  // (1,007 of 54,174 names), because "transferred from X" has to be right.
+  const priorRows = db.prepare(
+    'SELECT college_name, sport, player_name FROM roster_players WHERE season = ?'
+  ).all(source);
+  const norm = (n) => String(n || '').toLowerCase().replace(/[^a-z]/g, '');
+  const seen = new Map();
+  for (const r of priorRows) {
+    const k = `${r.sport}|${norm(r.player_name)}`;
+    if (!k.endsWith('|')) seen.set(k, seen.has(k) && seen.get(k) !== r.college_name ? null : r.college_name);
+  }
+  const setPrior = db.prepare('UPDATE roster_players SET prior_programme = ? WHERE id = ?');
+  const targets = db.prepare('SELECT id, college_name, sport, player_name FROM roster_players WHERE season = ?').all(season);
+  let located = 0, movedIn = 0;
+  db.transaction(() => {
+    for (const t of targets) {
+      const was = seen.get(`${t.sport}|${norm(t.player_name)}`);
+      if (!was) continue;
+      setPrior.run(was, t.id);
+      located += 1;
+      if (was !== t.college_name) movedIn += 1;
+    }
+  })();
+
   const tot = db.prepare('SELECT COUNT(*) n FROM roster_players WHERE season = ?').get(season).n;
   const grad = db.prepare(`
     SELECT COUNT(*) n, SUM(projected_minutes IS NOT NULL) proj
@@ -80,6 +110,8 @@ export function projectMinutes(db, { season, from }) {
   console.log(`    ${info.changes} of ${tot} rows carry a projection (${(100 * info.changes / tot).toFixed(1)}%)`);
   console.log(`    graduating cohort (${Number(season) + 1}): ${grad.proj} of ${grad.n} (${(100 * grad.proj / grad.n).toFixed(1)}%)`);
   console.log(`    the remainder are newcomers with no prior season — unknown, NOT zero`);
+  console.log(`    ${located} rows located on a ${source} roster, of which ${movedIn} at a different programme`);
+  console.log(`    (a transfer's minutes are recorded as provenance, never carried forward)`);
   return { changes: info.changes, source };
 }
 
