@@ -518,7 +518,7 @@ export function freshmanProfile(rows, {
   const thinOf = (list) => {
     const players = list.reduce((sum, s) => sum + s.intake, 0);
     return (players < MIN_COHORT_PLAYERS || list.length < MIN_COHORT_SEASONS)
-      ? `${players} in ${list.length} season(s)`
+      ? `${players} in ${list.length} season${list.length === 1 ? '' : 's'}`
       : null;
   };
 

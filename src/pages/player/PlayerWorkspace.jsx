@@ -10,6 +10,7 @@ const TABS = [
   { segment: 'profile', label: 'Profile' },
   { segment: 'matching', label: 'Analysis & Matching' },
   { segment: 'engagement', label: 'Coach Engagement' },
+  { segment: 'philosophy', label: 'Program Philosophy' },
 ];
 
 /**

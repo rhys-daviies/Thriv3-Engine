@@ -91,6 +91,44 @@ export const outreach = {
   },
 };
 
+/**
+ * A response we want as bytes.
+ *
+ * Separate from `request()` on purpose: a function whose return type depends
+ * on a response header is a trap for every caller that already exists. On a
+ * failure the server answers with JSON, so the message is read out and thrown
+ * the same way `request()` does rather than discarded.
+ */
+async function requestBlob(path, options = {}) {
+  const res = await fetch(path, options);
+  if (!res.ok) {
+    const text = await res.text();
+    let message = text;
+    try { message = JSON.parse(text).error || text; } catch { /* not JSON */ }
+    throw new Error(message || `Request failed (${res.status})`);
+  }
+  return res.blob();
+}
+
+export const philosophy = {
+  /** One compact row per school for the Program Philosophy tab. */
+  summaries(playerId, collegeIds) {
+    return request(`/api/players/${playerId}/philosophy/summaries`, {
+      method: 'POST',
+      body: JSON.stringify({ collegeIds }),
+    });
+  },
+  poolStatus() {
+    return request('/api/philosophy/pool');
+  },
+  programmePdf(collegeId) {
+    return requestBlob(`/api/philosophy/${collegeId}/programme.pdf`);
+  },
+  playerPdf(playerId, collegeId) {
+    return requestBlob(`/api/players/${playerId}/philosophy/${collegeId}/player.pdf`);
+  },
+};
+
 export const engagement = {
   syncStatus() {
     return request('/api/engagement/sync');
@@ -145,13 +183,11 @@ export const functions = {
   cleanInactiveSchools: (body) => callFunction('cleanInactiveSchools', body),
   importGraduatingCSV: (body) => callFunction('importGraduatingCSV', body),
   csvAgentChat: (body) => request('/api/csv-agent/chat', { method: 'POST', body: JSON.stringify(body) }),
-  async exportGraduatingDatabase(body) {
-    const res = await fetch('/api/functions/exportGraduatingDatabase', {
+  exportGraduatingDatabase(body) {
+    return requestBlob('/api/functions/exportGraduatingDatabase', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body || {}),
     });
-    if (!res.ok) throw new Error('Export failed');
-    return res.blob();
   },
 };

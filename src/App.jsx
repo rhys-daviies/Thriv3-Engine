@@ -11,6 +11,7 @@ import PlayerWorkspace, { TabFallback } from '@/pages/player/PlayerWorkspace';
 import ProfileTab from '@/pages/player/ProfileTab';
 import MatchingTab from '@/pages/player/MatchingTab';
 import EngagementTab from '@/pages/player/EngagementTab';
+import PhilosophyTab from '@/pages/player/PhilosophyTab';
 import Colleges from '@/pages/Colleges';
 import GraduatingDatabase from '@/pages/GraduatingDatabase';
 import CSVAgent from '@/pages/CSVAgent';
@@ -33,6 +34,7 @@ export default function App() {
               <Route path="profile" element={<ProfileTab />} />
               <Route path="matching" element={<MatchingTab />} />
               <Route path="engagement" element={<EngagementTab />} />
+              <Route path="philosophy" element={<PhilosophyTab />} />
               <Route path="*" element={<TabFallback />} />
             </Route>
             <Route path="/colleges" element={<Colleges />} />

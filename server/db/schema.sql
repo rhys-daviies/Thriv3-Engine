@@ -163,6 +163,13 @@ CREATE TABLE IF NOT EXISTS roster_players (
 
 CREATE INDEX IF NOT EXISTS idx_roster_sport_year_division ON roster_players(sport, estimated_graduation_year, division);
 CREATE INDEX IF NOT EXISTS idx_roster_college ON roster_players(college_name);
+-- Declared here because it already existed in the working database and in no
+-- file: somebody added it by hand in a session. The pool-wide philosophy pass
+-- runs 1.2s with it and 1.8s without, so every fresh clone and every in-memory
+-- test database was on the slow side of a line nobody could see.
+CREATE INDEX IF NOT EXISTS idx_rp_season_sport ON roster_players(season, sport);
+-- Covers the per-programme read the reports do, which filters all three.
+CREATE INDEX IF NOT EXISTS idx_roster_prog_season ON roster_players(college_name, sport, season);
 
 -- ===========================================================================
 -- Coach engagement tracking (brief §7, translated to SQLite / D1)

@@ -33,6 +33,9 @@ import { publishStatus, regenerate, publish } from './routes/publish.js';
 import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js';
 import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
+import { philosophySummaries, programmeModel, playerProgrammeModel } from './routes/philosophy.js';
+import { renderProgrammePdf, renderPlayerProgrammePdf } from './lib/philosophyPdf.js';
+import { poolStatus, invalidatePoolBenchmarks, poolBenchmarks } from './lib/philosophyQueries.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const uploadsDir = path.resolve(__dirname, 'uploads');
@@ -105,6 +108,85 @@ app.post('/api/functions/exportGraduatingDatabase', (req, res) => {
     res.send(csv);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ---- Programme philosophy ----
+//
+// The PDF routes are registered here rather than in the FUNCTIONS registry
+// because that dispatcher calls res.json() unconditionally, and a Buffer
+// through res.json() serialises as {"type":"Buffer","data":[37,80,...]} —
+// roughly triple the size, saved with a .pdf name, and only discovered when
+// somebody tries to open the file.
+
+/** A filename a header can carry: these school names include quotes and parens. */
+function safeFilename(text) {
+  return String(text).replace(/[^A-Za-z0-9 .()'-]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function sendPdf(res, buffer, filename) {
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${safeFilename(filename)}"`);
+  res.setHeader('Content-Length', buffer.length);
+  res.send(buffer);
+}
+
+app.get('/api/philosophy/pool', (req, res) => {
+  try {
+    res.json(poolStatus());
+  } catch (err) {
+    console.error('[philosophy/pool]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/philosophy/pool/rebuild', (req, res) => {
+  try {
+    const cleared = invalidatePoolBenchmarks();
+    const sport = (req.body || {}).sport || 'mens-soccer';
+    poolBenchmarks(sport);
+    res.json({ cleared, rebuilt: sport, ...poolStatus() });
+  } catch (err) {
+    console.error('[philosophy/pool/rebuild]', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/players/:playerId/philosophy/summaries', (req, res) => {
+  try {
+    res.json(philosophySummaries({
+      playerId: req.params.playerId,
+      collegeIds: (req.body || {}).collegeIds,
+    }));
+  } catch (err) {
+    console.error('[philosophy/summaries]', err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.get('/api/philosophy/:collegeId/programme.pdf', async (req, res) => {
+  try {
+    const model = programmeModel({ collegeId: req.params.collegeId });
+    sendPdf(res, await renderProgrammePdf(model),
+      `${model.college.name} programme philosophy.pdf`);
+  } catch (err) {
+    console.error('[philosophy/programme.pdf]', err);
+    res.status(/^Unknown college/.test(err.message) ? 404 : 500).json({ error: err.message });
+  }
+});
+
+app.get('/api/players/:playerId/philosophy/:collegeId/player.pdf', async (req, res) => {
+  try {
+    const model = playerProgrammeModel({
+      playerId: req.params.playerId, collegeId: req.params.collegeId,
+    });
+    sendPdf(res, await renderPlayerProgrammePdf(model),
+      `${model.athlete.name} at ${model.college.name}.pdf`);
+  } catch (err) {
+    console.error('[philosophy/player.pdf]', err);
+    const status = /^Unknown (college|player)/.test(err.message) ? 404
+      : / plays /.test(err.message) ? 400 : 500;
+    res.status(status).json({ error: err.message });
   }
 });
 
