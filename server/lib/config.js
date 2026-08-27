@@ -72,7 +72,16 @@ export function complianceGaps() {
   const gaps = [];
   if (!SENDER_IDENTITY.trim()) gaps.push('THRIV3_SENDER_IDENTITY (who the mail is from)');
   if (!SENDER_POSTAL_ADDRESS.trim()) gaps.push('THRIV3_POSTAL_ADDRESS (a valid physical postal address)');
-  if (!isPubliclyReachable(UNSUBSCRIBE_BASE_URL)) gaps.push('THRIV3_UNSUBSCRIBE_BASE_URL (must be reachable by the recipient)');
+  // No unsubscribe-URL check any more: the opt-out is a reply, so the
+  // mechanism is the From address, and OUTLOOK_FROM_ADDRESS has a hard-coded
+  // fallback and can never be empty. Asserting it would be a guard that
+  // cannot fail, which reads as safety without being any. What the reply
+  // opt-out actually needs is a person actioning it — see the trial
+  // preflight, which says so out loud, and `npm run suppress`.
+  //
+  // The `/u/<token>` endpoint stays live regardless: emails already sent
+  // carry those links, and an opt-out that stops working is worse than one
+  // never offered.
   return gaps;
 }
 

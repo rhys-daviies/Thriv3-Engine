@@ -90,6 +90,14 @@ function localChecks(athlete, published) {
     ? 'no suppressions yet'
     : `${suppressed} address(es) will be skipped`));
 
+  // The opt-out is a reply, not a link, so nothing records it automatically.
+  // That obligation is a person's, and CAN-SPAM gives that person ten
+  // business days. Stated on every run rather than checked, because there is
+  // nothing here a machine can verify — which is exactly why it is the part
+  // most likely to be forgotten.
+  out.push(check(WARN, 'Opt-outs arrive by reply',
+    `watch ${OUTLOOK_FROM_ADDRESS} and run \`npm run suppress -- <address>\` within 10 business days`));
+
   // Not blocking a first send — you can sync by hand — but a trial whose
   // results only arrive when somebody remembers to pull them is how the
   // August allowlist failure stayed invisible for four days.

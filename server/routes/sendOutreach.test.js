@@ -212,14 +212,14 @@ describe('refusing to send a dead link', () => {
 
 
 describe('compliance', () => {
-  it('puts the sender, a postal address and an opt-out link in every message', async () => {
+  it('puts the sender, a postal address and an opt-out in every message', async () => {
     const id = makeAthlete();
     await sendOutreach(baseRequest(id));
     expect(composed).toHaveLength(2);
     for (const message of composed) {
       expect(message.body).toContain('Thriv3 (test)');
       expect(message.body).toContain('1 Test Street, Testville, TS 00000');
-      expect(message.body).toMatch(/https:\/\/example\.test\/u\/[A-Za-z0-9]+/);
+      expect(message.body).toMatch(/reply and we'll take you off our list/);
     }
   });
 
@@ -228,14 +228,28 @@ describe('compliance', () => {
   it('appends the footer even to a template that never mentioned it', async () => {
     const id = makeAthlete();
     await sendOutreach(baseRequest(id, { body: 'Hi.' }));
-    expect(composed[0].body).toContain('Prefer not to receive these?');
+    expect(composed[0].body).toContain("If you'd rather not hear from us");
+    expect(composed[0].body).toContain('1 Test Street, Testville, TS 00000');
   });
 
-  it('gives each coach their own opt-out link', async () => {
+  // The opt-out moved from a per-coach link to a reply, so the long
+  // unsubscribe URL — the clearest "this is bulk mail" signal in the message
+  // — must be gone from what actually ships.
+  it('no longer puts an unsubscribe URL in the body', async () => {
     const id = makeAthlete();
     await sendOutreach(baseRequest(id));
-    const links = composed.map((m) => m.body.match(/\/u\/([A-Za-z0-9]+)/)[1]);
-    expect(new Set(links).size).toBe(2);
+    for (const message of composed) {
+      expect(message.body).not.toMatch(/\/u\/[A-Za-z0-9]{8,}/);
+    }
+  });
+
+  // Nothing records a replied opt-out, so the tracked link must still be the
+  // only per-coach thing in the message: attribution depends on it.
+  it('still gives each coach their own tracked profile link', async () => {
+    const id = makeAthlete();
+    await sendOutreach(baseRequest(id));
+    const refs = composed.map((m) => m.body.match(/[?&]ref=([A-Za-z0-9]+)/)[1]);
+    expect(new Set(refs).size).toBe(2);
   });
 
   it('never mails a suppressed address, whatever the caller passes', async () => {
@@ -281,9 +295,12 @@ describe('compliance', () => {
       const gaps = fresh.complianceGaps().join(' ');
       expect(gaps).toMatch(/THRIV3_SENDER_IDENTITY/);
       expect(gaps).toMatch(/THRIV3_POSTAL_ADDRESS/);
-      // A localhost opt-out link is unreachable by a recipient, which is the
-      // same failure as having none.
-      expect(gaps).toMatch(/THRIV3_UNSUBSCRIBE_BASE_URL/);
+      // No longer a gap. The opt-out is a reply, so the unsubscribe URL is not
+      // the mechanism any more and gating a send on it would assert something
+      // nothing points at. What a reply opt-out needs is a person actioning
+      // it, which no config check can verify — the trial preflight says so on
+      // every run instead.
+      expect(gaps).not.toMatch(/THRIV3_UNSUBSCRIBE_BASE_URL/);
     } finally {
       process.env.THRIV3_SENDER_IDENTITY = saved.identity;
       process.env.THRIV3_POSTAL_ADDRESS = saved.postal;

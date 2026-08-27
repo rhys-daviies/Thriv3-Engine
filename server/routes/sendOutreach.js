@@ -6,7 +6,7 @@ import { isSuppressed } from '../lib/suppressions.js';
 import { isSendCapped, recentSendCount } from '../lib/sendCap.js';
 import { createOutreach, markOutreachSent } from '../lib/outreach.js';
 import { composeInOutlook, isOutlookAvailable } from '../lib/outlook.js';
-import { PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS, complianceGaps, SENDER_IDENTITY, SENDER_POSTAL_ADDRESS, UNSUBSCRIBE_BASE_URL } from '../lib/config.js';
+import { PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS, complianceGaps, SENDER_IDENTITY, SENDER_POSTAL_ADDRESS } from '../lib/config.js';
 import { checkRequiredCore } from '../export/renderProfile.js';
 import { exportAthlete, OUTPUT_DIR } from '../export/exportProfiles.js';
 
@@ -53,7 +53,27 @@ function ensureProfileLink(body, url) {
  * wrote, every time, and `sendOutreach` refuses to run at all when the pieces
  * are unset.
  */
-function complianceFooter({ athleteName, unsubscribeUrl }) {
+/**
+ * The opt-out, as a reply rather than a link.
+ *
+ * A long unsubscribe URL is the clearest "this is bulk mail" signal in the
+ * message, which is the one thing a first-touch email to a coach cannot
+ * afford to look like. A reply-to address is an accepted unsubscribe facility
+ * under both CAN-SPAM §7704(a)(3) and the NZ Unsolicited Electronic Messages
+ * Act, so this stays compliant and reads like a person wrote it.
+ *
+ * The obligation moves rather than disappearing: opt-outs now arrive as email
+ * and someone has to action them, within ten business days under CAN-SPAM.
+ * `npm run suppress -- coach@example.edu` is that action, and the suppression
+ * it writes is what stops every future athlete reaching them.
+ *
+ * The `/u/<token>` endpoint stays live. Emails already sent carry those links
+ * and they must keep working — an opt-out that stops working is worse than
+ * one that was never offered.
+ */
+const OPT_OUT_SENTENCE = "If you'd rather not hear from us, just reply and we'll take you off our list.";
+
+function complianceFooter({ athleteName }) {
   // Two blank lines, not one. The body is rendered as HTML at compose time,
   // where a blank line starts a new paragraph and a single newline is only a
   // line break — with one, the footer ran straight on from the sign-off.
@@ -63,7 +83,7 @@ function complianceFooter({ athleteName, unsubscribeUrl }) {
     '—',
     `Sent by ${SENDER_IDENTITY} on behalf of ${athleteName}.`,
     SENDER_POSTAL_ADDRESS,
-    `Prefer not to receive these? Opt out here and we will not contact you again for any athlete: ${unsubscribeUrl}`,
+    OPT_OUT_SENTENCE,
   ].join('\n');
 }
 
@@ -141,12 +161,7 @@ export async function sendOutreach({
       const personalisedBody = ensureProfileLink(
         personalise(body, greetingName, coach.name || 'Coach'),
         url
-      ) + complianceFooter({
-        athleteName: athlete.full_name,
-        // The outreach token identifies the coach, so the link needs nothing
-        // else and carries no address in the URL.
-        unsubscribeUrl: `${UNSUBSCRIBE_BASE_URL}/u/${outreach.token}`,
-      });
+      ) + complianceFooter({ athleteName: athlete.full_name });
 
       const outcome = await composeInOutlook({
         to: coach.email,
