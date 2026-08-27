@@ -277,7 +277,9 @@ function whoRunsIt(k, model) {
     [`Head coach, ${model.recruitSeason}`, model.coachForRecruitSeason || 'not on file'],
     ['What we can say', VERDICT_LABEL[model.verdict?.verdict] ?? 'Not enough on file'],
   ]);
-  if (model.verdict?.note) k.body(model.verdict.note);
+  // The notes are written to sit mid-sentence in a terminal; here they open a
+  // paragraph.
+  if (model.verdict?.note) k.body(model.verdict.note.replace(/^./, (c) => c.toUpperCase()) + '.');
 
   if (model.verdict?.verdict === 'new-coach-no-record') {
     k.box(`${model.coachForRecruitSeason} has not yet coached a season we can measure. `

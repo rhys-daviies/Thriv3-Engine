@@ -468,7 +468,7 @@ export function classifyProgramme(profile, tenure) {
       note: 'one coach throughout, and the freshman policy swings season to season — treat any single year with caution' };
   }
   return { ...base, verdict: 'steady', weightFrom: null,
-    note: 'one coach, a consistent pattern — every season counts and the projection is as firm as this gets' };
+    note: 'one coach, a consistent pattern — every season counts and the record is as firm as this gets' };
 }
 
 /**
