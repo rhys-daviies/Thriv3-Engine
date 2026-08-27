@@ -1864,9 +1864,31 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
 
 ### 4.2 Product
 - [ ] Athlete-program match rating combining the above with Pillar 1's score.
-- [ ] Program-specific reporting.
+- [x] **Program-specific reporting** — two PDFs per school, generated from the
+      live roster: a programme report and one read for the athlete's position
+      and origin. `server/lib/philosophyPdf.js`, models in
+      `server/routes/philosophy.js`.
 - [ ] University quality and lifestyle report per school.
-- [ ] Recommendations tab (`/player/:id/recommendations`).
+- [x] **Recommendations tab** — shipped as `/player/:id/philosophy`, "Program
+      Philosophy". Lists every match Analysis & Matching produces, paged the
+      same way, each row opening to the freshman ladder, the coach window and
+      the fill mix.
+
+Three defects surfaced while building it, each the same shape as the ones
+already recorded above — a blank read as a zero:
+
+1. **The fill mix did not partition.** 322 rows across the pool are labelled a
+   first-year in two consecutive seasons, and counting them as both returning
+   and incoming put one programme's three shares 14 points over 100. A
+   first-year who was already here did not arrive.
+2. **154 programmes reported a best freshman of 0 minutes.** MIT's 2024 intake
+   is nine freshmen with a minutes figure for none of them; the ladder ranked
+   whichever rows were legible and said "did not play". `freshmanProfile` now
+   drops a season whose freshmen are mostly unrecorded, the same threshold
+   `freshmanShare` already used one level up. 269 programmes correctly leave
+   the pool as unreadable — 2,084 evaluated becomes 1,815.
+3. **`nameKey` turned an apostrophe into a space**, so "Aidan O'Sullivan" and
+   "Aidan OSullivan" were two people and one of them read as a departure.
 
 ---
 

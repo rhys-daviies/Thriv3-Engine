@@ -506,6 +506,16 @@ export function freshmanProfile(rows, {
   const wantPosition = position ?? asked.position;
   const wantOrigin = origin ?? asked.origin;
 
+  // A season whose freshmen are mostly unrecorded is not a season we can rank.
+  //
+  // MIT's 2024 intake is nine players with a minutes figure for none of them;
+  // one earlier season has a figure for one. The ladder built from whichever
+  // rows happen to be legible reported "best freshman: 0 minutes, did not
+  // play" — which is the opposite of what the data says, and it said it about
+  // 154 programmes. The same threshold already guards freshmanShare one level
+  // up; it belongs here too.
+  const readable = (s) => s.intake > 0 && s.measured / s.intake >= MIN_MEASURED_SHARE;
+
   const build = (p, o) => seasons
     .map((season) => ({
       ...freshmanSeason(rows, { season, position: p, origin: o }),
@@ -513,7 +523,12 @@ export function freshmanProfile(rows, {
       // narrowed, the numerator is a subset and the denominator is not.
       shareOfSquadMinutes: (p || o) ? null : freshmanShare(rows, { season }),
     }))
-    .filter((s) => s.intake > 0);
+    .filter(readable);
+
+  const unreadableSeasons = seasons
+    .map((season) => freshmanSeason(rows, { season, position: wantPosition, origin: wantOrigin }))
+    .filter((s) => s.intake > 0 && !readable(s))
+    .map((s) => s.season);
 
   const thinOf = (list) => {
     const players = list.reduce((sum, s) => sum + s.intake, 0);
@@ -533,11 +548,14 @@ export function freshmanProfile(rows, {
   if (!athlete && (position || origin)) {
     const built = build(wantPosition, wantOrigin);
     if (!built.length) return null;
-    const profile = shape(built, {
+    return shape(built, {
       position: wantPosition, origin: wantOrigin, applied: true,
       refused: null, relaxed: null, thin: thinOf(built),
+      unreadableSeasons: seasons
+        .map((season) => freshmanSeason(rows, { season, position: wantPosition, origin: wantOrigin }))
+        .filter((s) => s.intake > 0 && !(s.measured / s.intake >= MIN_MEASURED_SHARE))
+        .map((s) => s.season),
     }, maxRank);
-    return profile;
   }
 
   // Relax one dimension at a time, never straight to the whole intake.
@@ -578,7 +596,7 @@ export function freshmanProfile(rows, {
   }
 
   if (!perSeason || !perSeason.length) return null;
-  return shape(perSeason, cohort, maxRank);
+  return shape(perSeason, { ...cohort, unreadableSeasons }, maxRank);
 }
 
 /** The profile object, from a list of seasons and the cohort they describe. */
@@ -592,6 +610,8 @@ function shape(perSeason, cohort, maxRank) {
     // and refused or relaxed — what happened instead.
     cohort,
     seasonsObserved: perSeason.length,
+    // Named, not just dropped, so a report can say what it could not read.
+    unreadableSeasons: cohort.unreadableSeasons ?? [],
     // How reliably this programme gives a freshman a starter's season.
     seasonsWithAnImpactFreshman: impactCounts.filter((n) => n > 0).length,
     medianImpactPerSeason: median(impactCounts),

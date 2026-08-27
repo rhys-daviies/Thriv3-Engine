@@ -47,11 +47,16 @@ export function philosophySummaries({ playerId, collegeIds } = {}) {
       summaries[id] = { unavailable: 'no college on file for that id' };
       continue;
     }
-    const { college: col, philosophy: ph } = found;
+    const { college: col, philosophy: ph, rows } = found;
     if (!ph.freshman) {
+      // Two different absences. MIT has four seasons of freshmen and a minutes
+      // figure for almost none of them; saying "no roster seasons on file"
+      // there would be as wrong as the zero it replaces.
       summaries[id] = {
         school: col.name, sport: col.sport, division: col.division,
-        unavailable: 'no roster seasons on file for this programme',
+        unavailable: rows.length
+          ? 'this programme’s rosters carry too few recorded minutes to read'
+          : 'no roster seasons on file for this programme',
       };
       continue;
     }

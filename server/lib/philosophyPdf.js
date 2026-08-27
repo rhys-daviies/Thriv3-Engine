@@ -294,7 +294,8 @@ function whoRunsIt(k, model) {
 function ladderSection(k, model) {
   k.heading('What a first year has looked like');
   if (!model.ladder.length) {
-    k.body('No season on file carries enough recorded minutes to describe a first year here.',
+    k.body('No season on file carries enough recorded minutes to describe a first year here — '
+      + 'this programme’s rosters do not publish them consistently enough to rank.',
       { color: MUTED });
     return;
   }

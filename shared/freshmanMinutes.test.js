@@ -460,6 +460,47 @@ describe('ladderByRank weighting', () => {
   });
 });
 
+describe('a season whose freshmen are mostly unrecorded', () => {
+  // MIT's 2024 intake is nine freshmen with a minutes figure for none of them.
+  // Ranking whichever rows happened to be legible reported "best freshman: 0
+  // minutes, did not play" — the opposite of what the data says — and it said
+  // it about 154 programmes.
+  it('is dropped, not ranked from the two rows that happened to be legible', () => {
+    const rows = ['2024', '2025'].flatMap((season) => ([
+      // one legible row reading zero...
+      p({ season, player_name: `Legible ${season}`, minutes_played: 0, games_played: 0 }),
+      // ...and eight whose minutes were never recorded
+      ...Array.from({ length: 8 }, (_, i) => p({
+        season, player_name: `Unrecorded ${i} ${season}`, minutes_played: 0, games_played: null,
+      })),
+    ]));
+    expect(freshmanProfile(rows, { seasons: ['2024', '2025'] })).toBeNull();
+  });
+
+  it('keeps a season most of whose freshmen are recorded', () => {
+    const rows = ['2024', '2025'].flatMap((season) => ([
+      p({ season, player_name: `Played ${season}`, minutes_played: 900, games_played: 17 }),
+      p({ season, player_name: `Sat ${season}`, minutes_played: 0, games_played: 0 }),
+      p({ season, player_name: `Missing ${season}`, minutes_played: 0, games_played: null }),
+    ]));
+    const prof = freshmanProfile(rows, { seasons: ['2024', '2025'] });
+    expect(prof.seasonsObserved).toBe(2);
+    expect(prof.byRank[0].median).toBe(900);
+  });
+
+  it('names the seasons it could not read rather than silently dropping them', () => {
+    const rows = [
+      p({ season: '2024', player_name: 'Played', minutes_played: 900, games_played: 17 }),
+      p({ season: '2025', player_name: 'A', minutes_played: 0, games_played: null }),
+      p({ season: '2025', player_name: 'B', minutes_played: 0, games_played: null }),
+      p({ season: '2025', player_name: 'C', minutes_played: 0, games_played: 4 }),
+    ];
+    const prof = freshmanProfile(rows, { seasons: ['2024', '2025'] });
+    expect(prof.seasonsObserved).toBe(1);
+    expect(prof.unreadableSeasons).toEqual(['2025']);
+  });
+});
+
 describe('reading the ladder for the recruit in front of you', () => {
   // McKendree men's, compressed: at this programme the freshmen who play are
   // the international ones, and the whole-intake ladder therefore describes a

@@ -66,7 +66,14 @@ export function PhilosophyRow({ college, summary, player }) {
   const [busy, setBusy] = useState(null);      // null | 'generic' | 'player'
   const [error, setError] = useState(null);
   const alive = useRef(true);
-  useEffect(() => () => { alive.current = false; }, []);
+  // Set on the way IN as well as cleared on the way out. StrictMode runs
+  // effects mount → unmount → remount in development, so a cleanup-only
+  // version latches false on the first mount and every download then hangs on
+  // "Generating…" for ever, having actually succeeded.
+  useEffect(() => {
+    alive.current = true;
+    return () => { alive.current = false; };
+  }, []);
 
   const loading = summary === undefined;
   const verdict = summary?.verdict ? verdictLabel(summary.verdict.verdict) : null;
