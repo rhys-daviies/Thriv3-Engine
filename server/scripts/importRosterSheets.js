@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseCsvToObjects } from '../lib/csv.js';
 import { normalizePosition } from '../lib/positions.js';
-import { readClassYear } from '../lib/classYear.js';
+import { readClassYear } from '../../shared/classYear.js';
 import { isPlausibleName, cleanRosterName } from '../lib/rosterName.js';
 import { RosterPlayer } from '../db/entities/rosterPlayer.js';
 

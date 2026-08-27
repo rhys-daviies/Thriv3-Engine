@@ -20,7 +20,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import db from '../db/client.js';
-import { readClassYear } from '../lib/classYear.js';
+import { readClassYear } from '../../shared/classYear.js';
 
 const APPLY = process.argv.includes('--apply');
 
