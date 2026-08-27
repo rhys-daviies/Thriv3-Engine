@@ -20,6 +20,7 @@ false negatives (see coaches_reparse.py).
   python3 coaches_2026.py --write    # rewrite the CSV from state, fetch nothing
 """
 import os
+import re
 import sys
 import threading
 import time
@@ -33,12 +34,45 @@ SEASON = 2026
 WORKERS = int(os.environ.get('CR_WORKERS', '8'))
 _lock = threading.Lock()
 
+WB = re.compile(r'^https?://web\.archive\.org/web/\d{8,14}(?:id_|if_|im_)?/(https?://.+)$', re.I)
+
+
+def candidate_url(info):
+    """The 2026 roster page, derived from an earlier season where the 2026
+    sheet has no url of its own.
+
+    193 school-sports carry no `Source Roster URL` for 2026 -- including 11 of
+    the 19 programmes in the live pilot, which is how a coverage figure of 83%
+    became 42% on the list that actually mattered. The address is not missing,
+    it is just not in that column: these pages are year-addressed, so the 2025
+    url with the year swapped IS the 2026 page. Any archive wrapper comes off
+    first, because a snapshot url with 2026 pasted into it addresses nothing.
+    """
+    direct = info['urls'].get(str(SEASON), '')
+    if direct:
+        return direct, 'sheet'
+    for season in (2025, 2024, 2023, 2022):
+        u = info['urls'].get(str(season), '')
+        if not u:
+            continue
+        m = WB.match(u)
+        if m:
+            u = m.group(1)
+        swapped = re.sub(rf'/{season}(/?$)', rf'/{SEASON}\1', u)
+        if swapped != u:
+            return swapped, f'derived-from-{season}'
+        # An undated url (".../roster") is the current season's page already;
+        # appending the year makes it the one we want.
+        if re.match(r'^https?://[^?#]*?/roster/?$', u, re.I):
+            return f"{u.rstrip('/')}/{SEASON}", f'derived-from-{season}'
+    return '', ''
+
 
 def resolve_2026(key, info):
     """One school-sport's 2026 head coach. Never raises, never leaves a blank
     reason -- a blank reads as coverage."""
     school, sport = key
-    url = info['urls'].get(str(SEASON), '')
+    url, how = candidate_url(info)
     rec = {'coach_name': '', 'coach_title': '', 'method': 'roster-live',
            'confidence': '', 'source_url': url, 'reason': ''}
     if not url:
