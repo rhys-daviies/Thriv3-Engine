@@ -60,6 +60,13 @@ export const MIN_COHORT_PLAYERS = 6;
 export const MIN_COHORT_SEASONS = 2;
 
 /**
+ * How far the best season may sit above the median before the median stops
+ * being a description of the seasons and becomes an average of two different
+ * programmes.
+ */
+export const AGREEMENT_RATIO = 3;
+
+/**
  * The cohort an athlete belongs to, so the ladder can be cut to the people
  * they will actually be competing with rather than the whole intake.
  */
@@ -246,6 +253,19 @@ export function ladderByRank(seasons, { maxRank = 8, weights = null } = {}) {
   for (let i = 0; i < out.length; i += 1) {
     if (i > 0 && out[i].median > out[i - 1].median) comparable = false;
     out[i].comparable = comparable;
+    // A median the seasons do not agree on is a number to show as a range.
+    // Gustavus Adolphus's international freshmen ran 42, 1001 and 14 minutes
+    // in three seasons; the median is 42 and quoting it alone would say
+    // "they do not play internationals" when one of the three played a full
+    // season. Two bands apart, or a high several times the median, is a
+    // disagreement rather than a measurement.
+    // The high has to reach real minutes for the gap to mean anything:
+    // Bentley's freshman defenders read 0 with a high of 44, which is two
+    // bands but one fact — none of them played.
+    const highBand = bandFor(out[i].high);
+    out[i].agreement = (out[i].high >= AGREEMENT_RATIO * Math.max(out[i].median, 1)
+      && highBand !== bandFor(out[i].median)
+      && (highBand === 'impact' || highBand === 'rotation')) ? 'wide' : 'tight';
   }
   return out;
 }

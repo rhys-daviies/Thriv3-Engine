@@ -576,6 +576,42 @@ describe('a ladder that rises as you go down it', () => {
     expect(byRank[1].comparable).toBe(false);
   });
 
+  // Gustavus Adolphus's international freshmen ran 42, 1001 and 14 minutes in
+  // three seasons. The median is 42, and quoting it alone says "they do not
+  // play internationals" when one of the three played a full season.
+  it('marks a rank the seasons disagree about as wide', () => {
+    const seasons = [
+      { ladder: [{ rank: 1, minutes: 42 }] },
+      { ladder: [{ rank: 1, minutes: 1001 }] },
+      { ladder: [{ rank: 1, minutes: 14 }] },
+    ];
+    const r = ladderByRank(seasons)[0];
+    expect(r.median).toBe(42);
+    expect(r.agreement).toBe('wide');
+  });
+
+  // Bentley's freshman defenders read a median of 0 with a high of 44 — two
+  // bands, but one fact: none of them played.
+  it('does not call a gap between nothing and almost nothing a disagreement', () => {
+    const seasons = [
+      { ladder: [{ rank: 1, minutes: 0 }] },
+      { ladder: [{ rank: 1, minutes: 0 }] },
+      { ladder: [{ rank: 1, minutes: 44 }] },
+    ];
+    const r = ladderByRank(seasons)[0];
+    expect(r.median).toBe(0);
+    expect(r.agreement).toBe('tight');
+  });
+
+  it('leaves a rank the seasons agree on tight', () => {
+    const seasons = [
+      { ladder: [{ rank: 1, minutes: 1100 }] },
+      { ladder: [{ rank: 1, minutes: 1250 }] },
+      { ladder: [{ rank: 1, minutes: 980 }] },
+    ];
+    expect(ladderByRank(seasons)[0].agreement).toBe('tight');
+  });
+
   it('leaves a well-behaved ladder comparable throughout', () => {
     const seasons = [
       { ladder: [{ rank: 1, minutes: 1000 }, { rank: 2, minutes: 400 }, { rank: 3, minutes: 50 }] },
