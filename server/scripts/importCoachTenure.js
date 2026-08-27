@@ -85,7 +85,7 @@ function main() {
 
     const key = `${matched}||${sport}`;
     if (!byProgramme.has(key)) byProgramme.set(key, []);
-    byProgramme.get(key).push({ season, coach_name: name });
+    byProgramme.get(key).push({ season, coach_name: name, reason: (r.reason || '').trim() });
 
     prepared.push({
       school: matched, sport, season,
@@ -110,18 +110,22 @@ function main() {
     console.log(`  ${season}  ${String(named).padStart(4)}/${total}  ${Math.round(100 * named / total)}%`);
   }
 
-  const verdicts = { continuous: 0, changed: 0, vacantSomewhere: 0, tooThin: 0 };
+  const verdicts = { continuous: 0, changed: 0, vacant: 0, unknown: 0, tooThin: 0 };
   for (const rowsFor of byProgramme.values()) {
     const t = tenureFor(rowsFor);
     if (!t || !t.current) { verdicts.tooThin += 1; continue; }
-    if (t.gaps.length) verdicts.vacantSomewhere += 1;
+    // Split, because "the page said nobody" and "we could not read the page"
+    // are opposite claims and only the first is a finding.
+    if (t.vacantSeasons.length) verdicts.vacant += 1;
+    if (t.unknownSeasons.length) verdicts.unknown += 1;
     if (t.changes.length) verdicts.changed += 1;
     else if (t.continuous) verdicts.continuous += 1;
   }
   console.log(`\n${byProgramme.size} programmes`);
   console.log(`  one coach throughout        ${verdicts.continuous}`);
   console.log(`  changed coach in the window ${verdicts.changed}`);
-  console.log(`  a season with no coach      ${verdicts.vacantSomewhere}`);
+  console.log(`  a season the page called vacant ${verdicts.vacant}`);
+  console.log(`  a season we could not read      ${verdicts.unknown}`);
   console.log(`  too thin to read            ${verdicts.tooThin}`);
 
   if (Object.keys(reasons).length) {
