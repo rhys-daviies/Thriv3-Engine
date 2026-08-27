@@ -8,7 +8,7 @@ trusting this file.
 Last audited: 2026-08-27, re-verified against the DB and the live edge
 (rosters: five seasons 2022-2026 acquired and imported, 264,614 rows; the
 graduation-year model now assumes five-year eligibility)
-(branch `engagement-tracking`, 695 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 709 tests green). Coverage numbers below were
 re-run, not copied. The academic-rating gap has closed completely; roster and
 grad-year figures moved and are corrected in place.
 
@@ -72,13 +72,16 @@ grad-year nulls of its own, which the single 2025 figure used to hide.
 
 ## Progress
 
-**60 of 104 boxes ticked. Five of the 44 open are struck through** — retired
-with the sending domain and the ESP — so against live work it is 60 of 99,
-**61%**.
+**71 of 115 boxes ticked. Five of the 44 open are struck through** — retired
+with the sending domain and the ESP — so against live work it is 71 of 110,
+**65%**.
 
-The count is deliberately not the headline. Nothing is now in front of the
-pilot: Phase 1.1 closed on 2026-08-26, and every remaining box is either the
-pilot itself or work that only makes sense once it has run.
+The count is deliberately not the headline. Nothing is in front of the pilot:
+Phase 1.1 closed on 2026-08-26, and every remaining box is either the pilot
+itself or work that only makes sense once it has run. The 11 boxes ticked
+since are all Phase 0 data — five seasons of rosters, the eligibility model
+and the minutes projection — which deepens Pillar 4's inputs without moving
+the pilot any closer or further away.
 
 ### Pillar by pillar
 
@@ -93,11 +96,11 @@ pilot itself or work that only makes sense once it has run.
 
 | Phase | Progress | Boxes |
 |---|---|---|
-| **0 · Data & lead times** | ✅✅✅✅✅✅✅✅⬜⬜ | 34 done, 12 open |
+| **0 · Data & lead times** | ✅✅✅✅✅✅✅✅⬜⬜ | 34 done, 8 open (4 struck) |
 | **1 · Prove Pillar 3, finish Pillar 1** | ✅✅✅✅✅✅✅✅✅✅ | 27 done, 0 open — **closed** |
-| **2 · Campaign engine** | ✅✅✅⬜⬜⬜⬜⬜⬜⬜ | 9 done, 12 open (1 struck) |
+| **2 · Campaign engine** | ✅✅✅✅⬜⬜⬜⬜⬜⬜ | 9 done, 12 open (1 struck) |
 | **3 · Pilot** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 0 done, 7 open — **next** |
-| **4 · Recommendation** | ✅⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 1 done, 6 open |
+| **4 · Recommendation** | ✅⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 1 done, 6 open — the *product* half; its data lives in Phase 0 |
 | **5 · Learning loop** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 0 done, 3 open — needs pilot data |
 | **Cross-cutting** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 0 done, 3 open |
 
