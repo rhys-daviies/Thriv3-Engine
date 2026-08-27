@@ -71,6 +71,7 @@ export default function PlayerWorkspace() {
   const [phase, setPhase] = useState(0);
   const [progress, setProgress] = useState({ current: 0, total: 0, school: '' });
   const [page, setPage] = useState(1);
+  const [saveError, setSaveError] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -113,12 +114,29 @@ export default function PlayerWorkspace() {
       setRecommendations(result.recommendations);
       setSummary(result.summary);
 
+      // Ranking and persisting are separate failures and only one of them was
+      // ever visible. The results are already on screen by this point, so an
+      // upload or a write that fails leaves the tab showing a full match list
+      // that no longer exists anywhere — reload, and the athlete is back to
+      // "Find Matches" with no clue why. Seen exactly once and not
+      // reproduced, which is reason enough to make it announce itself.
       const blob = new Blob([JSON.stringify(result)], { type: 'application/json' });
       const file = new File([blob], `recommendations-${id}.json`, { type: 'application/json' });
       const { file_url } = await integrations.Core.UploadFile(file);
       analysisCache.set(file_url, { recommendations: result.recommendations, summary: result.summary });
       await entities.Player.update(id, { recommendations: file_url, status: 'Analyzed' });
+
+      // Read back rather than trusting the write. The update is a partial one
+      // and silently drops any column the entity does not declare, so a
+      // successful request is not the same as a stored value.
+      const saved = await entities.Player.get(id);
+      if (saved?.recommendations !== file_url) {
+        throw new Error('the analysis ran but did not save — re-run before sending anything from it');
+      }
+      setSaveError(null);
       setPlayer((prev) => ({ ...prev, recommendations: file_url, status: 'Analyzed' }));
+    } catch (err) {
+      setSaveError(err.message || String(err));
     } finally {
       setAnalyzing(false);
     }
@@ -190,6 +208,12 @@ export default function PlayerWorkspace() {
           ))}
         </nav>
       </div>
+
+      {saveError && (
+        <p className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm">
+          <strong>This analysis was not saved.</strong> {saveError}
+        </p>
+      )}
 
       <Outlet context={{
         player, setPlayer,
