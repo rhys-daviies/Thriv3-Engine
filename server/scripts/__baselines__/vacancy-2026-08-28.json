@@ -1,0 +1,964 @@
+{
+ "n": 15481,
+ "readable": 15275,
+ "dropped": 206,
+ "droppedProgrammes": 37,
+ "correlation": {
+  "vacatedShare_vs_freshShare": 0.27,
+  "vacatedStarterShare_vs_freshShare": 0.235,
+  "departedStarters_vs_freshStarters": 0.23,
+  "vacatedStarterShare_vs_bestFresh": 0.13
+ },
+ "bins": [
+  {
+   "band": "0–10%",
+   "n": 4172,
+   "meanFreshShare": 12.3,
+   "pctWithAFreshStarter": 30.2,
+   "medianBestFresh": 149
+  },
+  {
+   "band": "10–20%",
+   "n": 1455,
+   "meanFreshShare": 14.9,
+   "pctWithAFreshStarter": 48.8,
+   "medianBestFresh": 580
+  },
+  {
+   "band": "20–30%",
+   "n": 2249,
+   "meanFreshShare": 17.1,
+   "pctWithAFreshStarter": 49.7,
+   "medianBestFresh": 591
+  },
+  {
+   "band": "30–40%",
+   "n": 1992,
+   "meanFreshShare": 19.1,
+   "pctWithAFreshStarter": 54.7,
+   "medianBestFresh": 683
+  },
+  {
+   "band": "40–50%",
+   "n": 1732,
+   "meanFreshShare": 20.4,
+   "pctWithAFreshStarter": 53.7,
+   "medianBestFresh": 686
+  },
+  {
+   "band": "50–70%",
+   "n": 2084,
+   "meanFreshShare": 23.7,
+   "pctWithAFreshStarter": 55.3,
+   "medianBestFresh": 715
+  },
+  {
+   "band": "70–101%",
+   "n": 1591,
+   "meanFreshShare": 26.5,
+   "pctWithAFreshStarter": 41.9,
+   "medianBestFresh": 293
+  }
+ ],
+ "plainQuestion": {
+  "starterDeparted": {
+   "n": 11194,
+   "pctWithAFreshStarter": 51,
+   "meanFreshShare": 20.2
+  },
+  "noStarterDeparted": {
+   "n": 4081,
+   "pctWithAFreshStarter": 29.7,
+   "meanFreshShare": 12.4
+  },
+  "twoOrMoreDeparted": {
+   "n": 5771,
+   "pctWithAFreshStarter": 57.9,
+   "meanFreshShare": 21.6
+  }
+ },
+ "byPosition": [
+  {
+   "pos": "GOALKEEPER",
+   "n": 2852,
+   "r": 0.27,
+   "pctFreshStarter_gone": 23.7,
+   "pctFreshStarter_stay": 7.1
+  },
+  {
+   "pos": "DEFENSE",
+   "n": 4261,
+   "r": 0.239,
+   "pctFreshStarter_gone": 56.2,
+   "pctFreshStarter_stay": 47.6
+  },
+  {
+   "pos": "MIDFIELD",
+   "n": 4259,
+   "r": 0.231,
+   "pctFreshStarter_gone": 58.1,
+   "pctFreshStarter_stay": 48.5
+  },
+  {
+   "pos": "FORWARD",
+   "n": 3903,
+   "r": 0.227,
+   "pctFreshStarter_gone": 47.6,
+   "pctFreshStarter_stay": 39.9
+  }
+ ],
+ "byDivision": [
+  {
+   "division": "NCAA D1",
+   "n": 5469,
+   "r": 0.202,
+   "pctFreshStarter_gone": 47.8,
+   "pctFreshStarter_stay": 27.3
+  },
+  {
+   "division": "NCAA D2",
+   "n": 4161,
+   "r": 0.26,
+   "pctFreshStarter_gone": 47.6,
+   "pctFreshStarter_stay": 26.7
+  },
+  {
+   "division": "NCAA D3",
+   "n": 5634,
+   "r": 0.275,
+   "pctFreshStarter_gone": 57,
+   "pctFreshStarter_stay": 33.8
+  }
+ ],
+ "mix": [
+  {
+   "band": "0–10%",
+   "n": 4172,
+   "returning": 81.3,
+   "freshman": 12.3,
+   "newcomer": 6.3
+  },
+  {
+   "band": "10–20%",
+   "n": 1455,
+   "returning": 78.1,
+   "freshman": 14.9,
+   "newcomer": 7
+  },
+  {
+   "band": "20–30%",
+   "n": 2249,
+   "returning": 73,
+   "freshman": 17.1,
+   "newcomer": 9.9
+  },
+  {
+   "band": "30–40%",
+   "n": 1992,
+   "returning": 69.4,
+   "freshman": 19.1,
+   "newcomer": 11.5
+  },
+  {
+   "band": "40–50%",
+   "n": 1732,
+   "returning": 66.2,
+   "freshman": 20.4,
+   "newcomer": 13.4
+  },
+  {
+   "band": "50–70%",
+   "n": 2084,
+   "returning": 58.5,
+   "freshman": 23.7,
+   "newcomer": 17.7
+  },
+  {
+   "band": "70–101%",
+   "n": 1591,
+   "returning": 46.5,
+   "freshman": 26.5,
+   "newcomer": 27
+  }
+ ],
+ "coach": {
+  "coachesWithFourPlus": 1386,
+  "meanFill": 43.2,
+  "splitHalf": {
+   "n": 1126,
+   "r": 0.241
+  },
+  "top": [
+   {
+    "coach": "Nick Spell",
+    "school": "Heidelberg",
+    "sport": "mens-soccer",
+    "n": 4,
+    "fill": 100
+   },
+   {
+    "coach": "Kaitlyn Barbour",
+    "school": "Sweet Briar College",
+    "sport": "womens-soccer",
+    "n": 7,
+    "fill": 99
+   },
+   {
+    "coach": "Zachary Grady",
+    "school": "Colby-Sawyer",
+    "sport": "mens-soccer",
+    "n": 6,
+    "fill": 93
+   },
+   {
+    "coach": "Becks Young",
+    "school": "Lake Erie",
+    "sport": "womens-soccer",
+    "n": 4,
+    "fill": 92
+   },
+   {
+    "coach": "Josué Fernández",
+    "school": "Southern Wesleyan",
+    "sport": "mens-soccer",
+    "n": 5,
+    "fill": 92
+   },
+   {
+    "coach": "Joey Petrich",
+    "school": "East Texas Baptist University",
+    "sport": "womens-soccer",
+    "n": 6,
+    "fill": 89
+   },
+   {
+    "coach": "Chris Whalley",
+    "school": "Chowan",
+    "sport": "mens-soccer",
+    "n": 4,
+    "fill": 89
+   },
+   {
+    "coach": "Ian Hatleli",
+    "school": "Monmouth (IL)",
+    "sport": "mens-soccer",
+    "n": 7,
+    "fill": 88
+   },
+   {
+    "coach": "Mark Foster",
+    "school": "UT Rio Grande Valley",
+    "sport": "womens-soccer",
+    "n": 6,
+    "fill": 88
+   },
+   {
+    "coach": "Justin Carey",
+    "school": "Eastern Mennonite",
+    "sport": "mens-soccer",
+    "n": 8,
+    "fill": 88
+   }
+  ],
+  "bottom": [
+   {
+    "coach": "Pat Kibler",
+    "school": "Belmont Abbey",
+    "sport": "mens-soccer",
+    "n": 4,
+    "fill": 1
+   },
+   {
+    "coach": "Liis Abbott",
+    "school": "Mount St. Mary's",
+    "sport": "womens-soccer",
+    "n": 4,
+    "fill": 1
+   },
+   {
+    "coach": "Stephanie Gordon-Mackey",
+    "school": "American International",
+    "sport": "womens-soccer",
+    "n": 4,
+    "fill": 2
+   },
+   {
+    "coach": "Marc Hubbard",
+    "school": "New Hampshire",
+    "sport": "mens-soccer",
+    "n": 4,
+    "fill": 2
+   },
+   {
+    "coach": "Ruben Resendes",
+    "school": "Bryant",
+    "sport": "mens-soccer",
+    "n": 10,
+    "fill": 2
+   },
+   {
+    "coach": "Kat Mertz",
+    "school": "UC Davis",
+    "sport": "womens-soccer",
+    "n": 4,
+    "fill": 3
+   },
+   {
+    "coach": "Carlo Acquista",
+    "school": "Fordham",
+    "sport": "mens-soccer",
+    "n": 10,
+    "fill": 4
+   },
+   {
+    "coach": "Marc Reeves",
+    "school": "Elon",
+    "sport": "mens-soccer",
+    "n": 10,
+    "fill": 4
+   },
+   {
+    "coach": "Brian Gill",
+    "school": "Penn",
+    "sport": "mens-soccer",
+    "n": 7,
+    "fill": 4
+   },
+   {
+    "coach": "Jaime Ramirez",
+    "school": "Fresno Pacific",
+    "sport": "mens-soccer",
+    "n": 5,
+    "fill": 4
+   }
+  ]
+ },
+ "nullModel": {
+  "n": 15254,
+  "r": 0.035
+ },
+ "traits": {
+  "freshmanFill": {
+   "n": 1126,
+   "r": 0.241,
+   "full": 0.388
+  },
+  "freshmanShare": {
+   "n": 1126,
+   "r": 0.281,
+   "full": 0.439
+  },
+  "newcomerShare": {
+   "n": 1126,
+   "r": 0.541,
+   "full": 0.702
+  },
+  "returningShare": {
+   "n": 1126,
+   "r": 0.35,
+   "full": 0.518
+  },
+  "freshVsNewcomer": -0.359,
+  "fillSpread": {
+   "p10": 21,
+   "median": 43,
+   "p90": 65
+  }
+ },
+ "traitsOverTime": {
+  "freshmanShare": {
+   "n": 862,
+   "r": 0.104
+  },
+  "newcomerShare": {
+   "n": 862,
+   "r": 0.475
+  },
+  "returningShare": {
+   "n": 862,
+   "r": 0.197
+  }
+ },
+ "doesTheLabelWork": {
+  "steadyish": {
+   "n": 500,
+   "r": 0.307
+  },
+  "erraticOrShifted": {
+   "n": 458,
+   "r": 0.026
+  },
+  "everything": {
+   "n": 1368,
+   "r": 0.111
+  }
+ },
+ "dials": {
+  "portalHeavy": [
+   {
+    "coach": "Luis Rincon",
+    "school": "Francis Marion",
+    "sport": "mens-soccer",
+    "n": 12,
+    "fresh": 5,
+    "newcomer": 62.9,
+    "returning": 32.1
+   },
+   {
+    "coach": "Nick Blackwell",
+    "school": "Colorado State-Pueblo",
+    "sport": "mens-soccer",
+    "n": 4,
+    "fresh": 15.8,
+    "newcomer": 62.8,
+    "returning": 21.3
+   },
+   {
+    "coach": "Corey Smith",
+    "school": "Jacksonville State",
+    "sport": "womens-soccer",
+    "n": 4,
+    "fresh": 9.2,
+    "newcomer": 62.7,
+    "returning": 28.1
+   },
+   {
+    "coach": "Ruben Resendes",
+    "school": "Bryant",
+    "sport": "mens-soccer",
+    "n": 10,
+    "fresh": 1.1,
+    "newcomer": 59.8,
+    "returning": 39.1
+   },
+   {
+    "coach": "Tracy Joyner",
+    "school": "Oregon",
+    "sport": "womens-soccer",
+    "n": 4,
+    "fresh": 13.8,
+    "newcomer": 59.1,
+    "returning": 27.2
+   },
+   {
+    "coach": "Marc Hubbard",
+    "school": "New Hampshire",
+    "sport": "mens-soccer",
+    "n": 4,
+    "fresh": 1.7,
+    "newcomer": 58.2,
+    "returning": 40.1
+   },
+   {
+    "coach": "Victor Domingues",
+    "school": "Newman",
+    "sport": "mens-soccer",
+    "n": 10,
+    "fresh": 7.4,
+    "newcomer": 53,
+    "returning": 39.6
+   },
+   {
+    "coach": "Tom Mattera",
+    "school": "New Haven",
+    "sport": "mens-soccer",
+    "n": 7,
+    "fresh": 9.3,
+    "newcomer": 51.7,
+    "returning": 39
+   }
+  ],
+  "freshmanHeavy": [
+   {
+    "coach": "Nick Spell",
+    "school": "Heidelberg",
+    "sport": "mens-soccer",
+    "n": 4,
+    "fresh": 71.3,
+    "newcomer": 0,
+    "returning": 28.7
+   },
+   {
+    "coach": "Becks Young",
+    "school": "Lake Erie",
+    "sport": "womens-soccer",
+    "n": 4,
+    "fresh": 64.4,
+    "newcomer": 0,
+    "returning": 35.6
+   },
+   {
+    "coach": "Jose Hernandez",
+    "school": "Monroe (NY)",
+    "sport": "mens-soccer",
+    "n": 6,
+    "fresh": 63.8,
+    "newcomer": 13.8,
+    "returning": 22.4
+   },
+   {
+    "coach": "John Haworth",
+    "school": "SCAD",
+    "sport": "mens-soccer",
+    "n": 8,
+    "fresh": 56.2,
+    "newcomer": 9,
+    "returning": 34.8
+   },
+   {
+    "coach": "Nick Becker",
+    "school": "Jamestown",
+    "sport": "womens-soccer",
+    "n": 6,
+    "fresh": 51,
+    "newcomer": 14.2,
+    "returning": 34.7
+   },
+   {
+    "coach": "Chris Whalley",
+    "school": "Chowan",
+    "sport": "mens-soccer",
+    "n": 4,
+    "fresh": 50.7,
+    "newcomer": 7.8,
+    "returning": 41.5
+   },
+   {
+    "coach": "Scott Henderson",
+    "school": "Middle Georgia State",
+    "sport": "mens-soccer",
+    "n": 7,
+    "fresh": 49.9,
+    "newcomer": 9.4,
+    "returning": 40.7
+   },
+   {
+    "coach": "Abiye Jack",
+    "school": "Montana State Billings",
+    "sport": "womens-soccer",
+    "n": 4,
+    "fresh": 49.9,
+    "newcomer": 4.6,
+    "returning": 45.6
+   }
+  ],
+  "continuity": [
+   {
+    "coach": "Brian Gill",
+    "school": "Penn",
+    "sport": "mens-soccer",
+    "n": 7,
+    "fresh": 1.8,
+    "newcomer": 4.5,
+    "returning": 93.7
+   },
+   {
+    "coach": "Rob Ferguson",
+    "school": "Cornell",
+    "sport": "womens-soccer",
+    "n": 9,
+    "fresh": 6.9,
+    "newcomer": 0,
+    "returning": 93.1
+   },
+   {
+    "coach": "Brandon Barkus",
+    "school": "Augustana (SD)",
+    "sport": "womens-soccer",
+    "n": 10,
+    "fresh": 7.5,
+    "newcomer": 0,
+    "returning": 92.5
+   },
+   {
+    "coach": "Mary Ybarguen",
+    "school": "Northwest Nazarene",
+    "sport": "womens-soccer",
+    "n": 5,
+    "fresh": 6.9,
+    "newcomer": 0.8,
+    "returning": 92.4
+   },
+   {
+    "coach": "Sport Oversight",
+    "school": "Maryland",
+    "sport": "womens-soccer",
+    "n": 4,
+    "fresh": 1.9,
+    "newcomer": 6.2,
+    "returning": 91.8
+   },
+   {
+    "coach": "Robert Cummings",
+    "school": "Missouri S&T",
+    "sport": "mens-soccer",
+    "n": 8,
+    "fresh": 6.2,
+    "newcomer": 2.1,
+    "returning": 91.7
+   },
+   {
+    "coach": "Jen Hughes",
+    "school": "Amherst College",
+    "sport": "womens-soccer",
+    "n": 6,
+    "fresh": 8.5,
+    "newcomer": 0,
+    "returning": 91.5
+   },
+   {
+    "coach": "Seth Spidahl",
+    "school": "Pacific Lutheran University",
+    "sport": "womens-soccer",
+    "n": 10,
+    "fresh": 5.5,
+    "newcomer": 3,
+    "returning": 91.5
+   }
+  ]
+ },
+ "ryan": [
+  {
+   "school": "Stonehill",
+   "n": 10,
+   "coach2026": "Jim Reddish",
+   "observationsUnderThatCoach": 10,
+   "coachesInWindow": [
+    "Jim Reddish"
+   ],
+   "fresh": 20.8,
+   "newcomer": 5.8,
+   "returning": 73.5,
+   "defTransitions": 3,
+   "defStartersDeparted": 3,
+   "defFreshStarterAfter": 2,
+   "defNewcomerStarterAfter": 0,
+   "defFreshShare": 32.3,
+   "defNewcomerShare": 0
+  },
+  {
+   "school": "DePauw",
+   "n": 12,
+   "coach2026": "Steven McCarthy",
+   "observationsUnderThatCoach": 12,
+   "coachesInWindow": [
+    "Steven McCarthy"
+   ],
+   "fresh": 19.5,
+   "newcomer": 2.9,
+   "returning": 77.6,
+   "defTransitions": 3,
+   "defStartersDeparted": 1,
+   "defFreshStarterAfter": 1,
+   "defNewcomerStarterAfter": 0,
+   "defFreshShare": 24.7,
+   "defNewcomerShare": 4.6
+  },
+  {
+   "school": "Caltech",
+   "n": 10,
+   "coach2026": "Duncan Gillis",
+   "observationsUnderThatCoach": 10,
+   "coachesInWindow": [
+    "Duncan Gillis"
+   ],
+   "fresh": 12.8,
+   "newcomer": 1.3,
+   "returning": 86,
+   "defTransitions": 3,
+   "defStartersDeparted": 5,
+   "defFreshStarterAfter": 1,
+   "defNewcomerStarterAfter": 0,
+   "defFreshShare": 23.4,
+   "defNewcomerShare": 0
+  },
+  {
+   "school": "Springfield",
+   "n": 9,
+   "coach2026": "Tommy Crabill",
+   "observationsUnderThatCoach": 9,
+   "coachesInWindow": [
+    "Tommy Crabill"
+   ],
+   "fresh": 21.4,
+   "newcomer": 4.8,
+   "returning": 73.7,
+   "defTransitions": 3,
+   "defStartersDeparted": 7,
+   "defFreshStarterAfter": 2,
+   "defNewcomerStarterAfter": 1,
+   "defFreshShare": 18.7,
+   "defNewcomerShare": 12.9
+  },
+  {
+   "school": "Vermont",
+   "n": 12,
+   "coach2026": "Adrian Dubois",
+   "observationsUnderThatCoach": 4,
+   "coachesInWindow": [
+    "Rob Dow",
+    "Adrian Dubois"
+   ],
+   "fresh": 15.5,
+   "newcomer": 27.6,
+   "returning": 56.9,
+   "defTransitions": 3,
+   "defStartersDeparted": 7,
+   "defFreshStarterAfter": 2,
+   "defNewcomerStarterAfter": 3,
+   "defFreshShare": 18.1,
+   "defNewcomerShare": 25.4
+  },
+  {
+   "school": "Salve Regina",
+   "n": 7,
+   "coach2026": "Bill Lawler",
+   "observationsUnderThatCoach": 7,
+   "coachesInWindow": [
+    "Bill Lawler"
+   ],
+   "fresh": 19.6,
+   "newcomer": 2.3,
+   "returning": 78.1,
+   "defTransitions": 2,
+   "defStartersDeparted": 2,
+   "defFreshStarterAfter": 1,
+   "defNewcomerStarterAfter": 0,
+   "defFreshShare": 17.6,
+   "defNewcomerShare": 0
+  },
+  {
+   "school": "Point Loma Nazarene",
+   "n": 12,
+   "coach2026": "Phil Wolf",
+   "observationsUnderThatCoach": 12,
+   "coachesInWindow": [
+    "Phil Wolf"
+   ],
+   "fresh": 12.4,
+   "newcomer": 28.1,
+   "returning": 59.5,
+   "defTransitions": 3,
+   "defStartersDeparted": 5,
+   "defFreshStarterAfter": 2,
+   "defNewcomerStarterAfter": 2,
+   "defFreshShare": 13.2,
+   "defNewcomerShare": 24.5
+  },
+  {
+   "school": "Butler",
+   "n": 10,
+   "coach2026": "Ian Sarachan",
+   "observationsUnderThatCoach": 0,
+   "coachesInWindow": [
+    "Paul Snape"
+   ],
+   "fresh": 16.9,
+   "newcomer": 23.8,
+   "returning": 59.3,
+   "defTransitions": 3,
+   "defStartersDeparted": 6,
+   "defFreshStarterAfter": 2,
+   "defNewcomerStarterAfter": 2,
+   "defFreshShare": 12.3,
+   "defNewcomerShare": 18
+  },
+  {
+   "school": "Calvin",
+   "n": 12,
+   "coach2026": "Ryan Souders",
+   "observationsUnderThatCoach": 12,
+   "coachesInWindow": [
+    "Ryan Souders"
+   ],
+   "fresh": 21.3,
+   "newcomer": 11.5,
+   "returning": 67.1,
+   "defTransitions": 3,
+   "defStartersDeparted": 6,
+   "defFreshStarterAfter": 2,
+   "defNewcomerStarterAfter": 1,
+   "defFreshShare": 11.8,
+   "defNewcomerShare": 11.9
+  },
+  {
+   "school": "Trinity (TX)",
+   "n": 8,
+   "coach2026": null,
+   "observationsUnderThatCoach": 0,
+   "coachesInWindow": [],
+   "fresh": 11.3,
+   "newcomer": 28.6,
+   "returning": 60.1,
+   "defTransitions": 3,
+   "defStartersDeparted": 8,
+   "defFreshStarterAfter": 1,
+   "defNewcomerStarterAfter": 2,
+   "defFreshShare": 11.8,
+   "defNewcomerShare": 6.8
+  },
+  {
+   "school": "Wheaton (MA)",
+   "n": 10,
+   "coach2026": "Bryan Waggoner",
+   "observationsUnderThatCoach": 10,
+   "coachesInWindow": [
+    "Bryan Waggoner"
+   ],
+   "fresh": 13.7,
+   "newcomer": 2.3,
+   "returning": 84,
+   "defTransitions": 3,
+   "defStartersDeparted": 4,
+   "defFreshStarterAfter": 1,
+   "defNewcomerStarterAfter": 0,
+   "defFreshShare": 9,
+   "defNewcomerShare": 0
+  },
+  {
+   "school": "Babson",
+   "n": 10,
+   "coach2026": "EJ Reutemann",
+   "observationsUnderThatCoach": 10,
+   "coachesInWindow": [
+    "EJ Reutemann"
+   ],
+   "fresh": 10.5,
+   "newcomer": 14,
+   "returning": 75.6,
+   "defTransitions": 3,
+   "defStartersDeparted": 10,
+   "defFreshStarterAfter": 2,
+   "defNewcomerStarterAfter": 3,
+   "defFreshShare": 8.7,
+   "defNewcomerShare": 31.2
+  },
+  {
+   "school": "Duquesne",
+   "n": 11,
+   "coach2026": "Chase Brooks",
+   "observationsUnderThatCoach": 11,
+   "coachesInWindow": [
+    "Chase Brooks"
+   ],
+   "fresh": 9.2,
+   "newcomer": 23.4,
+   "returning": 67.3,
+   "defTransitions": 3,
+   "defStartersDeparted": 7,
+   "defFreshStarterAfter": 1,
+   "defNewcomerStarterAfter": 2,
+   "defFreshShare": 8.6,
+   "defNewcomerShare": 23.3
+  },
+  {
+   "school": "Biola",
+   "n": 12,
+   "coach2026": "Malik Shaheed",
+   "observationsUnderThatCoach": 0,
+   "coachesInWindow": [
+    "Joey O'Keefe"
+   ],
+   "fresh": 12,
+   "newcomer": 36.8,
+   "returning": 51.2,
+   "defTransitions": 3,
+   "defStartersDeparted": 7,
+   "defFreshStarterAfter": 0,
+   "defNewcomerStarterAfter": 2,
+   "defFreshShare": 8,
+   "defNewcomerShare": 45.5
+  },
+  {
+   "school": "Gustavus Adolphus",
+   "n": 12,
+   "coach2026": "Tyler Oliver",
+   "observationsUnderThatCoach": 4,
+   "coachesInWindow": [
+    "Tudor Flintham",
+    "Tyler Oliver"
+   ],
+   "fresh": 17.6,
+   "newcomer": 9.5,
+   "returning": 72.9,
+   "defTransitions": 3,
+   "defStartersDeparted": 5,
+   "defFreshStarterAfter": 0,
+   "defNewcomerStarterAfter": 2,
+   "defFreshShare": 5.3,
+   "defNewcomerShare": 17.3
+  },
+  {
+   "school": "Lake Forest",
+   "n": 12,
+   "coach2026": "Dan Andrews",
+   "observationsUnderThatCoach": 8,
+   "coachesInWindow": [
+    "Tim Dean",
+    "Dan Andrews"
+   ],
+   "fresh": 30.2,
+   "newcomer": 4.8,
+   "returning": 65,
+   "defTransitions": 3,
+   "defStartersDeparted": 4,
+   "defFreshStarterAfter": 0,
+   "defNewcomerStarterAfter": 0,
+   "defFreshShare": 5,
+   "defNewcomerShare": 0
+  },
+  {
+   "school": "Florida Southern",
+   "n": 9,
+   "coach2026": "Antony Moore",
+   "observationsUnderThatCoach": 6,
+   "coachesInWindow": [
+    "Dan Kirk",
+    "Antony Moore"
+   ],
+   "fresh": 13.1,
+   "newcomer": 30.2,
+   "returning": 56.6,
+   "defTransitions": 3,
+   "defStartersDeparted": 6,
+   "defFreshStarterAfter": 0,
+   "defNewcomerStarterAfter": 2,
+   "defFreshShare": 2,
+   "defNewcomerShare": 35.1
+  },
+  {
+   "school": "Bentley",
+   "n": 10,
+   "coach2026": "Gary Crompton",
+   "observationsUnderThatCoach": 10,
+   "coachesInWindow": [
+    "Gary Crompton"
+   ],
+   "fresh": 9.4,
+   "newcomer": 15.4,
+   "returning": 75.2,
+   "defTransitions": 3,
+   "defStartersDeparted": 7,
+   "defFreshStarterAfter": 0,
+   "defNewcomerStarterAfter": 2,
+   "defFreshShare": 0.4,
+   "defNewcomerShare": 25.7
+  },
+  {
+   "school": "Bradley",
+   "n": 0,
+   "coach2026": null,
+   "observationsUnderThatCoach": 0,
+   "coachesInWindow": [],
+   "fresh": null,
+   "newcomer": null,
+   "returning": null,
+   "defTransitions": 0,
+   "defStartersDeparted": 0,
+   "defFreshStarterAfter": 0,
+   "defNewcomerStarterAfter": 0,
+   "defFreshShare": null,
+   "defNewcomerShare": null
+  }
+ ]
+}

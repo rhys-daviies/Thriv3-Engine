@@ -9,37 +9,33 @@
  *   node server/scripts/vacancyResearch.js --json
  */
 import db from '../db/client.js';
-import { isTrueFreshman, minutesAreMissing, freshmanProfile, classifyProgramme } from '../../shared/freshmanMinutes.js';
-import { canonicalPosition } from '../../shared/positions.js';
+import { freshmanProfile, classifyProgramme } from '../../shared/freshmanMinutes.js';
 import { tenureFor } from '../../shared/coachTenure.js';
-const STARTER = 600;
-const TRANSITIONS = [['2022', '2023'], ['2023', '2024'], ['2024', '2025']];
-const POSITIONS = ['GOALKEEPER', 'DEFENSE', 'MIDFIELD', 'FORWARD'];
-// A position group has to carry a real season's load before its shares mean
-// anything: 1,500 minutes is roughly one player's season and a bit.
-const MIN_POSITION_MINUTES = 1500;
+import { vacancyObservations } from '../../shared/philosophy.js';
+import { POSITIONS } from '../../shared/positions.js';
 
 // Normalised for the season join. The raw name join reports 25% of
 // underclassmen "leaving", which is above real attrition — punctuation,
 // accents and middle initials differ between one season's page and the next,
-// and each difference invents a departure.
-const norm = (s) => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '')
-  .toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
+// and each difference invents a departure. Both the join and the whole
+// observation builder now live in shared/philosophy.js, so the reports the app
+// serves and this research are computed by one implementation.
 
-const rows = db.prepare(`SELECT college_name c, sport sp, season s, player_name n, position p,
-  minutes_played m, games_played g, class_year_label k
+const rows = db.prepare(`SELECT college_name, sport, season, player_name, position,
+  minutes_played, games_played, class_year_label
   FROM roster_players WHERE season IN ('2022','2023','2024','2025')`).all()
-  .map((r) => ({ ...r, s: String(r.s), pos: canonicalPosition(r.p), nk: norm(r.n),
-    min: Number(r.m) || 0,
-    // isTrueFreshman and minutesAreMissing read the column names, not mine.
-    fresh: isTrueFreshman({ class_year_label: r.k, season: String(r.s) }),
-    missing: minutesAreMissing({ minutes_played: r.m, games_played: r.g }) }));
+  .map((r) => ({ ...r, season: String(r.season) }));
 
-const byProgSeason = new Map();
+// Insertion order is the SELECT's scan order, and it is load-bearing: the
+// odd/even split-half in `out.traits` slices each coach's observations by
+// index, so re-keying or sorting here would move those figures while leaving
+// n, the correlations, the bins and the time-split untouched — five of the six
+// things anyone would spot-check.
+const byProg = new Map();
 for (const r of rows) {
-  const k = `${r.c}||${r.sp}||${r.s}`;
-  if (!byProgSeason.has(k)) byProgSeason.set(k, []);
-  byProgSeason.get(k).push(r);
+  const k = `${r.college_name}||${r.sport}`;
+  if (!byProg.has(k)) byProg.set(k, []);
+  byProg.get(k).push(r);
 }
 
 const coaches = new Map();
@@ -53,69 +49,18 @@ for (const c of db.prepare('SELECT name, sport, division FROM colleges WHERE act
 
 // ---- build the observation table ----
 const obs = [];
-const progKeys = new Set(rows.map((r) => `${r.c}||${r.sp}`));
-for (const pk of progKeys) {
+for (const [pk, progRows] of byProg) {
   const [school, sport] = pk.split('||');
-  for (const [a, b] of TRANSITIONS) {
-    const prev = byProgSeason.get(`${pk}||${a}`);
-    const next = byProgSeason.get(`${pk}||${b}`);
-    if (!prev || !next) continue;
-    // Two different sets, and using one for both jobs is how "returning" came
-    // back as 100%: `returned` answers "did last season's player come back",
-    // `wasHere` answers "was this season's player here before".
-    const returned = new Set(next.map((r) => r.nk));
-    const wasHere = new Set(prev.map((r) => r.nk));
-
-    for (const pos of POSITIONS) {
-      const prevP = prev.filter((r) => r.pos === pos && !r.missing);
-      const nextP = next.filter((r) => r.pos === pos && !r.missing);
-      const prevLoad = prevP.reduce((s, r) => s + r.min, 0);
-      const nextLoad = nextP.reduce((s, r) => s + r.min, 0);
-      if (prevLoad < MIN_POSITION_MINUTES || nextLoad < MIN_POSITION_MINUTES) continue;
-
-      const left = prevP.filter((r) => !returned.has(r.nk));
-      const leftStarters = left.filter((r) => r.min >= STARTER);
-      const vacated = left.reduce((s, r) => s + r.min, 0);
-      const vacatedStarter = leftStarters.reduce((s, r) => s + r.min, 0);
-
-      const fresh = nextP.filter((r) => r.fresh);
-      const freshMin = fresh.reduce((s, r) => s + r.min, 0);
-      const freshStarters = fresh.filter((r) => r.min >= STARTER).length;
-      const bestFresh = fresh.length ? Math.max(...fresh.map((r) => r.min)) : 0;
-
-      // Where did next season's minutes at this position come from?
-      //   returning  — on last season's roster
-      //   freshman   — new, and labelled a first-year
-      //   newcomer   — new, and NOT a first-year: a transfer, a JUCO arrival,
-      //                or an older recruit. This is the third option the
-      //                freshman-versus-promotion framing leaves out, and at a
-      //                position that empties completely it is the answer.
-      const returningMin = nextP.filter((r) => wasHere.has(r.nk)).reduce((s, r) => s + r.min, 0);
-      const newcomerMin = nextP.filter((r) => !wasHere.has(r.nk) && !r.fresh).reduce((s, r) => s + r.min, 0);
-      const newcomerStarters = nextP.filter((r) => !wasHere.has(r.nk) && !r.fresh && r.min >= STARTER).length;
-
-      obs.push({
-        school, sport, division: colleges.get(pk) ?? null, pos, from: a, to: b,
-        coach: coaches.get(`${school}||${sport}||${b}`) ?? null,
-        coachPrev: coaches.get(`${school}||${sport}||${a}`) ?? null,
-        prevLoad, nextLoad,
-        departed: left.length, departedStarters: leftStarters.length,
-        vacated, vacatedStarter,
-        vacatedShare: vacated / prevLoad,
-        vacatedStarterShare: vacatedStarter / prevLoad,
-        freshCount: fresh.length, freshMin, freshStarters, bestFresh,
-        freshShare: freshMin / nextLoad,
-        returningMin, newcomerMin, newcomerStarters,
-        returningShare: returningMin / nextLoad,
-        newcomerShare: newcomerMin / nextLoad,
-        // Whether this squad's class labels can be read at all. Bates,
-        // Hamilton and Elmira print a graduation year or nothing where the
-        // class belongs, so every player reads as "not a freshman" and the
-        // programme reads as one that never plays them. Six of the ten
-        // lowest-scoring coaches in the first run were this defect.
-        squadFreshmenReadable: next.some((r) => r.fresh),
-      });
-    }
+  for (const o of vacancyObservations(progRows)) {
+    obs.push({
+      ...o,
+      school, sport, division: colleges.get(pk) ?? null,
+      coach: coaches.get(`${school}||${sport}||${o.to}`) ?? null,
+      coachPrev: coaches.get(`${school}||${sport}||${o.from}`) ?? null,
+      // The research reads this name; the shared module calls it
+      // freshmenReadable, which is the better name and the one that stays.
+      squadFreshmenReadable: o.freshmenReadable,
+    });
   }
 }
 
@@ -341,13 +286,10 @@ out.coach.bottom = coachRows.slice(-10).reverse().map((c) => ({ coach: c.coach, 
 // where it does. `steady` is that claim, so it has to be tested against the
 // same measurement rather than asserted.
 const SEASONS = ['2022', '2023', '2024', '2025'];
-const rosterByProg = new Map();
-for (const r of rows) {
-  const k = `${r.c}||${r.sp}`;
-  if (!rosterByProg.has(k)) rosterByProg.set(k, []);
-  rosterByProg.get(k).push({ college_name: r.c, sport: r.sp, season: r.s, player_name: r.n,
-    position: r.p, minutes_played: r.m, games_played: r.g, class_year_label: r.k });
-}
+// `byProg` already holds exactly these rows, under their real column names —
+// the un-aliasing this used to do existed only because the query aliased every
+// column to a single letter.
+const rosterByProg = byProg;
 const coachRowsFor = new Map();
 for (const r of db.prepare('SELECT school, sport, season, coach_name, reason FROM coach_seasons').all()) {
   const k = `${r.school}||${r.sport}`;
