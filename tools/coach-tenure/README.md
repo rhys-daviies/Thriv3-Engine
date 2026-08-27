@@ -58,3 +58,18 @@ row.
 (school, sport, season) **including unresolved ones** — a missing row reads as
 coverage, a row with a `reason` reads as a gap. Imported by
 `server/scripts/importCoachTenure.js`.
+
+
+## Recovery
+
+`coaches_reparse.py` — re-parses, from cache only, the seasons rejected on
+identity. It touches the network for nothing and recovered 189 of 232 such
+seasons, lifting coverage from 85/87/87/77 to 89/90/90/79.
+
+`coaches_recover.py` — the wider ladder (the /coaches page live, then archived,
+then a second capture of the roster page). **Do not run it while Wayback is
+throttling.** A CDX query for a URL known to hold four snapshots returned zero
+after 25 seconds, and because an empty body is indistinguishable from "no
+snapshot", the run spent eleven hours writing false negatives before it was
+stopped and the state restored from backup. `wayback2.py` has the backoff this
+needs; wire it in before the next attempt.

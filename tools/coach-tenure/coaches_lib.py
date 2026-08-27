@@ -85,20 +85,30 @@ def _flat(markup, limit=40000):
     return re.sub(r'\s+', ' ', _html.unescape(text)).lower()
 
 
-def identity_ok(html, school, sport):
+def identity_ok(html, school, sport, url='', school_verified=False):
     """Does this page belong to this school AND this sport?
 
-    Mandatory, not defensive. athletics_domains.json maps distinct schools onto
-    a single athletics domain, and a rebuild that trusted it once wrote one
-    school's record onto every colliding row -- caught only because 117 of 118
-    cells came back byte-identical.
+    The URL is part of the evidence, not just the text. Austin College serves
+    its women at /sports/wsoc/ under a page that says only "Soccer", so a
+    check reading the rendered text alone rejects the very page it wanted --
+    34 programmes failed that way.
+
+    `school_verified` says the URL came from the season's own roster CSV,
+    where the roster pipeline already proved the page names this school and
+    this season. Re-deriving that from the text is not a second opinion, it is
+    a worse one: Kentucky's page calls itself the Wildcats, Pittsburgh's the
+    Panthers, and Augustana (SD) does not print "(SD)" anywhere. The
+    athletics_domains warning that motivated this check applies to a URL we
+    GUESSED; it does not apply to one already verified upstream.
 
     Returns (ok, reason).
     """
-    hay = _flat(html)
+    hay = _flat(html) + ' ' + (url or '').lower()
 
     if not any(re.search(p, hay) for p in SPORT_WORDS[sport]):
         return False, 'sport-not-on-page'
+    if school_verified:
+        return True, ''
 
     words, quals = school_tokens(school)
     if words and not any(w in hay for w in words):
@@ -286,7 +296,7 @@ def fetch_season_page(roster_url, season, school, sport):
     if roster_url and season_addressed(roster_url, season):
         st, h = lib.fetch(roster_url, tries=2, timeout=30)
         if st == 200 and h:
-            ok, why = identity_ok(h, school, sport)
+            ok, why = identity_ok(h, school, sport, url=roster_url, school_verified=True)
             if ok:
                 return h, 'roster-live', 'High', ''
             return None, 'roster-live', '', why
@@ -298,7 +308,10 @@ def fetch_season_page(roster_url, season, school, sport):
         for ts in lib.cdx(base, frm=frm, to=to, limit=6):
             st, h = lib.fetch(lib.wb_url(ts, base), tries=2, timeout=45)
             if st == 200 and h:
-                ok, why = identity_ok(h, school, sport)
+                # A derived /coaches URL was never verified upstream, so the
+                # school check still applies to it.
+                ok, why = identity_ok(h, school, sport, url=base,
+                                      school_verified=(base == roster_url))
                 if ok:
                     return h, f'wayback:{ts}', 'Medium', ''
     return None, 'none', '', 'no-usable-page'

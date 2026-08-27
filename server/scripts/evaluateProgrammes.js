@@ -95,7 +95,11 @@ function main() {
   if (show.length) console.log('\n── programmes ──');
   for (const r of show) {
     const seq = (r.tenure?.segments || []).map((s) => `${s.coach} ${s.from}-${s.to}`).join(' → ') || 'no coach on file';
-    const shares = r.profile.seasons.map((s) => `${Math.round((s.shareOfSquadMinutes ?? 0) * 100)}%`).join(' ');
+    // An unmeasurable season prints as a dash, not 0% — the two mean opposite
+    // things and printing them alike is how the artifacts read as findings.
+    const shares = r.profile.seasons
+      .map((s) => (s.shareOfSquadMinutes == null ? '—' : `${Math.round(s.shareOfSquadMinutes * 100)}%`))
+      .join(' ');
     console.log(`\n  ${r.school} — ${r.sport.replace('-soccer', '')}`);
     console.log(`    freshman share  ${shares}`);
     console.log(`    coaches         ${seq}`);

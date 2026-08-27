@@ -106,11 +106,28 @@ export function freshmanSeason(rows, { season, position = null } = {}) {
 }
 
 /** The share of a squad's whole season that went to its freshmen. */
-export function freshmanShare(rows, { season }) {
-  const inSeason = rows.filter((r) => r.season === season && !minutesAreMissing(r));
-  const total = inSeason.reduce((sum, r) => sum + minutesOf(r), 0);
+/**
+ * How thin a season's minutes may be before its share means nothing.
+ *
+ * Marywood's 2023 squad had 39 players and a minutes figure for 3. A share
+ * computed from those 3 is not a measurement of the squad, it is a
+ * measurement of the three rows that happened to be readable.
+ */
+export const MIN_SQUAD = 10;
+export const MIN_MEASURED_SHARE = 0.5;
+
+export function freshmanShare(rows, { season, minSquad = MIN_SQUAD,
+  minMeasuredShare = MIN_MEASURED_SHARE } = {}) {
+  const squad = rows.filter((r) => r.season === season);
+  if (squad.length < minSquad) return null;
+  const measured = squad.filter((r) => !minutesAreMissing(r));
+  // Null, never zero. "We could not read this squad's minutes" and "this
+  // squad's freshmen played none" are opposite claims, and collapsing them
+  // reads a data gap as a coaching decision.
+  if (measured.length / squad.length < minMeasuredShare) return null;
+  const total = measured.reduce((sum, r) => sum + minutesOf(r), 0);
   if (!total) return null;
-  const fresh = inSeason.filter(isTrueFreshman).reduce((sum, r) => sum + minutesOf(r), 0);
+  const fresh = measured.filter(isTrueFreshman).reduce((sum, r) => sum + minutesOf(r), 0);
   return fresh / total;
 }
 
@@ -212,8 +229,13 @@ const stdev = (a) => (a.length < 2 ? 0 : Math.sqrt(mean(a.map((v) => (v - mean(a
 export function classifyProgramme(profile, tenure) {
   if (!profile || !profile.seasons?.length) return null;
 
+  // A season whose share could not be measured is dropped, not read as zero.
+  // Coercing null to 0 turned Marywood — three seasons with no minutes on
+  // file at all — into "0%, 0%, 0%, 74%" and then into one of the largest
+  // regime changes in the pool, on the strength of a missing column.
   const shares = profile.seasons
-    .map((s) => ({ season: Number(s.season), pct: (s.shareOfSquadMinutes ?? 0) * 100 }))
+    .filter((s) => s.shareOfSquadMinutes !== null && s.shareOfSquadMinutes !== undefined)
+    .map((s) => ({ season: Number(s.season), pct: s.shareOfSquadMinutes * 100 }))
     .filter((s) => Number.isFinite(s.season))
     .sort((a, b) => a.season - b.season);
   if (shares.length < 2) {

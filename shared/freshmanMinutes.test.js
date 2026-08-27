@@ -130,11 +130,28 @@ describe('freshmanShare', () => {
       p({ player_name: 'F1', minutes_played: 300, games_played: 9 }),
       p({ player_name: 'S1', class_year_label: 'Sr.', minutes_played: 700, games_played: 17 }),
     ];
-    expect(freshmanShare(rows, { season: '2025' })).toBeCloseTo(0.3, 5);
+    expect(freshmanShare(rows, { season: '2025', minSquad: 2 })).toBeCloseTo(0.3, 5);
   });
 
   it('is null rather than zero when the squad has no minutes at all', () => {
-    expect(freshmanShare([p({ minutes_played: 0, games_played: null })], { season: '2025' })).toBeNull();
+    expect(freshmanShare([p({ minutes_played: 0, games_played: null })], { season: '2025', minSquad: 1 })).toBeNull();
+  });
+
+  // Marywood's 2023 squad had 39 players and a minutes figure for three. A
+  // share computed from those three measures the readable rows, not the squad.
+  it('refuses a squad whose minutes are mostly unrecorded', () => {
+    const rows = [
+      p({ player_name: 'A', minutes_played: 900, games_played: 17 }),
+      ...Array.from({ length: 9 }, (_, i) =>
+        p({ player_name: `M${i}`, minutes_played: 0, games_played: null })),
+    ];
+    expect(freshmanShare(rows, { season: '2025' })).toBeNull();
+  });
+
+  it('refuses a squad too small to be a squad', () => {
+    const rows = Array.from({ length: 4 }, (_, i) =>
+      p({ player_name: `S${i}`, minutes_played: 500, games_played: 12 }));
+    expect(freshmanShare(rows, { season: '2025' })).toBeNull();
   });
 });
 
@@ -279,6 +296,23 @@ describe('classifyProgramme', () => {
 
   it('will not describe a pattern from one season', () => {
     expect(classifyProgramme(prof([10]), GILLIS).verdict).toBe('too-few-seasons');
+  });
+
+  // Marywood had no minutes on file for 2022-2024 at all. Coercing those
+  // nulls to 0 produced "0%, 0%, 0%, 74%" and made it one of the largest
+  // regime changes in the pool — on the strength of a missing column.
+  it('drops an unmeasurable season instead of reading it as nobody playing', () => {
+    const withNulls = {
+      seasons: [null, null, null, 74].map((v, i) => ({
+        season: String(2022 + i),
+        shareOfSquadMinutes: v === null ? null : v / 100,
+        ladder: [], bands: {},
+      })),
+    };
+    const v = classifyProgramme(withNulls,
+      ten('Matt Guinto', 'Matt Guinto', 'Brian Osborne', 'Brian Osborne'));
+    expect(v.verdict).toBe('too-few-seasons');
+    expect(v.verdict).not.toBe('regime-change');
   });
 
   it('is null for a programme with nothing on file', () => {
