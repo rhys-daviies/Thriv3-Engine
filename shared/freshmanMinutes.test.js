@@ -3,6 +3,7 @@ import {
   bandFor, isTrueFreshman, isRedshirtFreshman, minutesAreMissing,
   freshmanSeason, freshmanShare, ladderByRank, freshmanProfile, MINUTE_BANDS,
   classifyProgramme, weightedMedian, weightsFromVerdict, STEP_POINTS, SPREAD_POINTS,
+  originOf, cohortFor, MIN_COHORT_PLAYERS,
 } from './freshmanMinutes.js';
 import { tenureFor } from './coachTenure.js';
 
@@ -284,10 +285,52 @@ describe('classifyProgramme', () => {
   // becomes a policy shift; it is really a programme being held together.
   it('reports a vacancy rather than crediting it to the coach who followed', () => {
     const v = classifyProgramme(prof([69, 41, 19, 2]),
-      ten('TBA', 'TBA', 'Andrew Richardson', ''));
+      ten('TBA', 'TBA', 'Andrew Richardson', 'Andrew Richardson'));
     expect(v.verdict).toBe('vacancy-in-window');
     expect(v.vacantSeasons).toEqual([2022, 2023]);
     expect(v.weightFrom).toBe(2024);
+  });
+
+  // The page said TBA; we never read the page. Those are opposite claims and
+  // only the first is a finding — so an unresolved season outranks everything
+  // else, including a real vacancy earlier in the window.
+  it('will not assume the coach stayed through a season it could not read', () => {
+    const v = classifyProgramme(prof([69, 41, 19, 2]),
+      ten('TBA', 'TBA', 'Andrew Richardson', ''));
+    expect(v.verdict).toBe('coach-unknown-recent');
+    expect(v.unknownSeasons).toEqual([2025]);
+    expect(v.knownThrough).toBe(2024);
+    // Nothing is weighted toward a coach we cannot confirm is still there.
+    expect(v.weightFrom).toBeNull();
+  });
+
+  // Bellarmine women's: four starter-level freshmen every season, and the
+  // engine called it "one coach, a consistent pattern" purely because 2024
+  // and 2025 came back blank. It was Babba, then McKinney, then Bornhoffer.
+  it('does not call a programme steady when a season is unread', () => {
+    const v = classifyProgramme(prof([23, 30, 26, 20]),
+      ten('Paul Babba', 'Paul Babba', '', ''));
+    expect(v.verdict).toBe('coach-unknown-recent');
+    expect(v.unknownSeasons).toEqual([2024, 2025]);
+  });
+
+  // North Florida men's took Marlon Montanella for 2026; Marinatos and Davies
+  // coached every season on file. There is no projection to make and saying
+  // so is the answer.
+  it('says a new coach has no record rather than projecting the old one', () => {
+    const tenure = tenureFor([
+      { season: 2022, coach_name: 'Derek Marinatos' },
+      { season: 2023, coach_name: 'Derek Marinatos' },
+      { season: 2024, coach_name: 'Jamie Davies' },
+      { season: 2025, coach_name: 'Jamie Davies' },
+      { season: 2026, coach_name: 'Marlon Montanella' },
+    ]);
+    const v = classifyProgramme(prof([21, 3, 17, 1]), tenure);
+    expect(v.verdict).toBe('new-coach-no-record');
+    expect(v.since).toBe(2026);
+    expect(v.weightFrom).toBeNull();
+    // The seasons it describes are stated, so nobody can read it as a forecast.
+    expect(v.describes).toEqual([2022, 2023, 2024, 2025]);
   });
 
   it('says so when there is no coach on file at all', () => {
@@ -356,5 +399,122 @@ describe('ladderByRank weighting', () => {
     // The full range is still reported, so the disagreement stays visible.
     expect(r.low).toBe(100);
     expect(r.high).toBe(950);
+  });
+});
+
+describe('reading the ladder for the recruit in front of you', () => {
+  // McKendree men's, compressed: at this programme the freshmen who play are
+  // the international ones, and the whole-intake ladder therefore describes a
+  // competition a US high-school recruit is not in.
+  const MCK = [];
+  for (const season of ['2022', '2023', '2024', '2025']) {
+    // three internationals who play, three Americans who mostly do not
+    MCK.push(p({ season, player_name: `i1-${season}`, nationality: 'International', country: 'Sweden', minutes_played: 1850, games_played: 20 }));
+    MCK.push(p({ season, player_name: `i2-${season}`, nationality: 'International', country: 'Denmark', minutes_played: 1092, games_played: 18 }));
+    MCK.push(p({ season, player_name: `i3-${season}`, nationality: 'International', country: 'Spain', minutes_played: 950, games_played: 16 }));
+    MCK.push(p({ season, player_name: `u1-${season}`, nationality: 'USA', minutes_played: 999, games_played: 14 }));
+    MCK.push(p({ season, player_name: `u2-${season}`, nationality: 'USA', minutes_played: 54, games_played: 4 }));
+    MCK.push(p({ season, player_name: `u3-${season}`, nationality: 'USA', minutes_played: 17, games_played: 2 }));
+  }
+  const SEASONS = ['2022', '2023', '2024', '2025'];
+
+  it('reads origin from either column, and refuses to guess without one', () => {
+    expect(originOf({ nationality: 'USA' })).toBe('domestic');
+    expect(originOf({ nationality: 'International', country: 'Sweden' })).toBe('international');
+    expect(originOf({ nationality: 'New Zealand' })).toBe('international');
+    // 1,834 roster rows carry neither. Bucketing those as domestic by default
+    // is the same error as reading a blank minutes cell as a zero.
+    expect(originOf({})).toBeNull();
+  });
+
+  it('derives the cohort from the athlete', () => {
+    expect(cohortFor({ position: 'Defender', nationality: 'New Zealand' }))
+      .toEqual({ position: 'DEFENSE', origin: 'international' });
+    // An unrecognised position narrows nothing rather than narrowing wrongly.
+    expect(cohortFor({ position: 'Sweeper', nationality: 'USA' }))
+      .toEqual({ position: null, origin: 'domestic' });
+  });
+
+  it('gives a domestic recruit the ladder they are actually on', () => {
+    const whole = freshmanProfile(MCK, { seasons: SEASONS, maxRank: 3 });
+    const us = freshmanProfile(MCK, { seasons: SEASONS, origin: 'domestic', maxRank: 3 });
+    expect(whole.byRank.map((r) => r.median)).toEqual([1850, 1092, 999]);
+    expect(us.byRank.map((r) => r.median)).toEqual([999, 54, 17]);
+    expect(us.cohort).toMatchObject({ origin: 'domestic', applied: true, refused: null });
+  });
+
+  it('narrows to the athlete when one is given', () => {
+    // Ryan Billings is a New Zealander, so the international ladder is his.
+    const forRyan = freshmanProfile(MCK, {
+      seasons: SEASONS, athlete: { position: 'Defender', nationality: 'New Zealand' }, maxRank: 3,
+    });
+    // Every row here is a DEFENSE, so position narrows nothing and origin does.
+    expect(forRyan.cohort.origin).toBe('international');
+    expect(forRyan.byRank[0].median).toBe(1850);
+  });
+
+  // A median over three players and one season describes the sample, not the
+  // programme, and printing it would be worse than declining.
+  it('refuses to narrow to a cohort too thin to read, and says so', () => {
+    const thin = MCK.concat([p({ season: '2025', player_name: 'lone-gk', position: 'GOALKEEPER', nationality: 'USA', minutes_played: 1900, games_played: 20 })]);
+    const prof = freshmanProfile(thin, { seasons: SEASONS, position: 'GOALKEEPER', maxRank: 3 });
+    expect(prof.cohort.position).toBeNull();
+    expect(prof.cohort.refused).toMatch(/too few/);
+    // Fell back to the whole intake rather than quoting the one keeper.
+    expect(prof.seasonsObserved).toBe(4);
+  });
+
+  // The important half of the refusal. A US defender here is 5 players over
+  // 2 seasons; falling all the way back to the whole intake would hand him
+  // the international numbers, which is the most misleading answer available.
+  it('relaxes one dimension rather than falling back to the whole intake', () => {
+    const few = MCK.filter((r) => !(r.nationality === 'USA' && ['2022', '2023'].includes(r.season)));
+    const prof = freshmanProfile(few, {
+      seasons: SEASONS, athlete: { position: 'Goalkeeper', nationality: 'USA' }, maxRank: 3,
+    });
+    // No US keepers at all, so position is dropped and origin survives.
+    expect(prof.cohort).toMatchObject({ position: null, origin: 'domestic' });
+    expect(prof.cohort.relaxed).toBe('domestic');
+    expect(prof.cohort.refused).toMatch(/GOALKEEPER \/ domestic/);
+    expect(prof.byRank[0].median).toBe(999);   // the US ladder, not the whole intake's 1850
+  });
+
+  it('does not report a squad share for a narrowed ladder', () => {
+    const us = freshmanProfile(MCK, { seasons: SEASONS, origin: 'domestic' });
+    for (const s of us.seasons) expect(s.shareOfSquadMinutes).toBeNull();
+  });
+
+  // The roster stores DEFENSE and the intake form stores "Defender".
+  // Comparing them raw matched nobody, which read as a programme that had
+  // never recruited the position.
+  it('matches a form spelling of a position to the roster spelling', () => {
+    const s = freshmanSeason(MCK, { season: '2025', position: 'Defender' });
+    expect(s.intake).toBe(6);
+    expect(MIN_COHORT_PLAYERS).toBeGreaterThan(0);
+  });
+});
+
+describe('a ladder that rises as you go down it', () => {
+  // Within one season the ladder falls by construction, so a rise across the
+  // medians is the ranks being taken over different sets of seasons — North
+  // Florida men's read 209, 346, 529 for a US defender across 4, 2 and 2.
+  it('marks everything from the first rise incomparable', () => {
+    const seasons = [
+      { ladder: [{ rank: 1, minutes: 200 }, { rank: 2, minutes: 100 }] },
+      { ladder: [{ rank: 1, minutes: 220 }] },
+      { ladder: [{ rank: 1, minutes: 180 }, { rank: 2, minutes: 600 }] },
+    ];
+    const byRank = ladderByRank(seasons);
+    expect(byRank[0].comparable).toBe(true);
+    expect(byRank[1].median).toBeGreaterThan(byRank[0].median);
+    expect(byRank[1].comparable).toBe(false);
+  });
+
+  it('leaves a well-behaved ladder comparable throughout', () => {
+    const seasons = [
+      { ladder: [{ rank: 1, minutes: 1000 }, { rank: 2, minutes: 400 }, { rank: 3, minutes: 50 }] },
+      { ladder: [{ rank: 1, minutes: 900 }, { rank: 2, minutes: 350 }, { rank: 3, minutes: 40 }] },
+    ];
+    expect(ladderByRank(seasons).every((r) => r.comparable)).toBe(true);
   });
 });

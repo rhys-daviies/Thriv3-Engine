@@ -27,6 +27,20 @@ export const FIRST_SEASON_IS_INHERITED = true;
 /** Placeholders a staff page prints when there is nobody in the job. */
 const VACANT = /^(tba|tbd|tbn|n\/?a|vacant|vacancy|staff|open|pending|interim|to be (announced|named|determined|hired))$/i;
 
+/**
+ * The reasons that mean "the page said there is nobody", as opposed to the
+ * far commoner "we could not read the page".
+ *
+ * These are opposite claims and the difference decides what a recruit is
+ * told. A programme that printed TBA for two straight seasons is telling them
+ * something real; a programme whose staff page 404'd is telling them nothing,
+ * and reporting the second as the first invents a vacancy. The scraper
+ * already separates them — `vacant-or-tba` is written only where a name was
+ * found and rejected as a placeholder — so the distinction is carried through
+ * rather than re-derived here.
+ */
+export const VACANCY_REASONS = new Set(['vacant-or-tba']);
+
 export function isVacancy(name) {
   const n = String(name ?? '').trim().replace(/\.$/, '');
   if (!n) return true;
@@ -83,27 +97,46 @@ export function sameCoach(a, b) {
 /**
  * The coaching history of one programme across the seasons observed.
  *
- * `rows` is [{ season, coach_name }] in any order; unresolved seasons may be
- * omitted or carry a blank name, and are reported as gaps rather than silently
- * closed over — a gap between two spells of the same name is not proof the
- * same person held the job throughout.
+ * `rows` is [{ season, coach_name, reason }] in any order; unresolved seasons
+ * may be omitted or carry a blank name, and are reported as gaps rather than
+ * silently closed over — a gap between two spells of the same name is not
+ * proof the same person held the job throughout.
+ *
+ * A gap is reported as one of two things, never merged. `vacantSeasons` is
+ * "the page said nobody"; `unknownSeasons` is "we could not read the page".
+ * `gaps` remains their union for callers that only need to know a season is
+ * missing.
  */
 export function tenureFor(rows = []) {
   const seen = new Map();
+  const why = new Map();
   for (const r of rows) {
     const season = Number(r?.season);
     if (!Number.isFinite(season)) continue;
     const name = String(r?.coach_name ?? '').trim();
-    seen.set(season, isVacancy(name) ? null : name);
+    const vacant = isVacancy(name);
+    seen.set(season, vacant ? null : name);
+    if (vacant) {
+      // An explicit placeholder on the page is a vacancy whatever the reason
+      // column says; a blank name is a vacancy only where the scraper said so.
+      const stated = String(r?.reason ?? '').trim();
+      why.set(season, (name || VACANCY_REASONS.has(stated)) ? 'vacant' : 'unknown');
+    }
   }
   const seasons = [...seen.keys()].sort((a, b) => a - b);
   if (!seasons.length) return null;
 
   const segments = [];
   const gaps = [];
+  const vacantSeasons = [];
+  const unknownSeasons = [];
   for (const season of seasons) {
     const name = seen.get(season);
-    if (!name) { gaps.push(season); continue; }
+    if (!name) {
+      gaps.push(season);
+      (why.get(season) === 'vacant' ? vacantSeasons : unknownSeasons).push(season);
+      continue;
+    }
     const last = segments[segments.length - 1];
     // Contiguity matters: the same name either side of an unresolved season
     // is two observations, not one continuous spell.
@@ -129,6 +162,11 @@ export function tenureFor(rows = []) {
     seasons,
     resolvedSeasons: resolved,
     gaps,
+    vacantSeasons,
+    unknownSeasons,
+    // The last season we can actually name a coach for. Everything after it
+    // is a season we have no business describing.
+    knownThrough: resolved.length ? resolved[resolved.length - 1] : null,
     segments,
     changes,
     current: current
@@ -139,6 +177,25 @@ export function tenureFor(rows = []) {
     continuous: segments.length === 1 && resolved.length >= 2 && gaps.length === 0,
     vacant: gaps.length > 0 && resolved.length === 0,
   };
+}
+
+/**
+ * Is the coach who ran the seasons we measured still the coach a recruit
+ * would join?
+ *
+ * Three answers, and the third is the point of the function. `true` and
+ * `false` are both usable; `null` means the season was never resolved, and
+ * the caller must not fill that in. Bellarmine women's ran four seasons with
+ * four starter-level freshmen in each and read as "one coach throughout"
+ * purely because 2024 and 2025 came back blank — it was three coaches.
+ */
+export function stillInPost(tenure, season) {
+  const target = Number(season);
+  if (!tenure?.current || !Number.isFinite(target)) return null;
+  if ((tenure.unknownSeasons ?? []).includes(target)) return null;
+  if (!tenure.seasons.includes(target)) return null;
+  if ((tenure.vacantSeasons ?? []).includes(target)) return false;
+  return target >= tenure.current.since;
 }
 
 /**

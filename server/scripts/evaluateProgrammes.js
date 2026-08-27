@@ -36,10 +36,13 @@ function load() {
   }
 
   const coaches = new Map();
-  for (const r of db.prepare('SELECT school, sport, season, coach_name FROM coach_seasons').all()) {
+  // `reason` comes too: a season the scraper could not read and a season the
+  // page said was vacant are opposite claims, and tenureFor needs the reason
+  // to keep them apart.
+  for (const r of db.prepare('SELECT school, sport, season, coach_name, reason FROM coach_seasons').all()) {
     const k = `${r.school}||${r.sport}`;
     if (!coaches.has(k)) coaches.set(k, []);
-    coaches.get(k).push({ season: r.season, coach_name: r.coach_name || '' });
+    coaches.get(k).push({ season: r.season, coach_name: r.coach_name || '', reason: r.reason || '' });
   }
   return { byProg, coaches };
 }

@@ -11,9 +11,66 @@
  * by minutes — because a recruit can place themselves on it ("am I their best
  * incoming forward, or their fourth?") in a way they cannot place themselves
  * against an average.
+ *
+ * NOTHING HERE IS A FORECAST. The season a recruit is joining has not been
+ * played, so it holds no minutes; every figure describes seasons that already
+ * happened, and every verdict names which ones. Two consequences run through
+ * the module. A season we could not attribute is reported as unattributed
+ * rather than assumed continuous, and a programme whose current coach has not
+ * yet coached a measurable season is told exactly that instead of being handed
+ * the previous staff's record as if it were its own.
  */
 
 import { readClassYear } from './classYear.js';
+import { canonicalPosition } from './positions.js';
+
+/**
+ * Where a player came from, because at some programmes it decides the ladder.
+ *
+ * McKendree men's is the case that forced this: 65% of its freshmen are
+ * international, and 17 of the 20 who played a starter's season were. Read
+ * whole, its ladder says the top five freshmen all start — 1850, 1092, 1027,
+ * 926, 622. Read for a US high-school recruit it says 999, 54, 17. One seat,
+ * not five. Bellarmine men's runs the other way, its domestic ladder better
+ * than its international one, so this is not a correction that can be applied
+ * as a rule of thumb — it has to be measured per programme.
+ *
+ * Null, never a bucket, where the roster records neither: 1,834 rows carry no
+ * nationality and no country, and sorting those into "domestic" by default
+ * would be the same error as reading a blank minutes cell as a zero.
+ */
+export function originOf(row) {
+  const nationality = String(row?.nationality ?? '').trim();
+  const country = String(row?.country ?? '').trim();
+  if (/^(usa|united states|u\.?s\.?a?\.?)$/i.test(nationality)) return 'domestic';
+  if (country || /^international$/i.test(nationality)) return 'international';
+  if (nationality) return 'international';
+  return null;
+}
+
+/**
+ * How thin a cohort may be before narrowing to it says more about the sample
+ * than the programme.
+ *
+ * Below these, the unfiltered ladder is returned with the refusal stated, so
+ * a caller can say "not enough of them to tell you" rather than quoting a
+ * median of three players and one season.
+ */
+export const MIN_COHORT_PLAYERS = 6;
+export const MIN_COHORT_SEASONS = 2;
+
+/**
+ * The cohort an athlete belongs to, so the ladder can be cut to the people
+ * they will actually be competing with rather than the whole intake.
+ */
+export function cohortFor(athlete) {
+  if (!athlete) return { position: null, origin: null };
+  const key = canonicalPosition(athlete.position);
+  return {
+    position: key === 'UNKNOWN' ? null : key,
+    origin: originOf(athlete),
+  };
+}
 
 /**
  * Bands, not a continuum, because the difference between 850 and 950 minutes
@@ -67,10 +124,15 @@ export function minutesAreMissing(row) {
  * than dropped or read as zeros: a programme whose stats page carries no
  * minutes column would otherwise look like one that plays no freshmen.
  */
-export function freshmanSeason(rows, { season, position = null } = {}) {
+export function freshmanSeason(rows, { season, position = null, origin = null } = {}) {
+  // Canonicalised on both sides: the roster stores DEFENSE and the intake form
+  // stores "Defender", and comparing them raw silently matches nobody — which
+  // reads as a programme that has never recruited the position.
+  const wanted = position ? canonicalPosition(position) : null;
   const cohort = rows
     .filter((r) => r.season === season && isTrueFreshman(r))
-    .filter((r) => !position || String(r.position || '').toUpperCase() === String(position).toUpperCase());
+    .filter((r) => !wanted || canonicalPosition(r.position) === wanted)
+    .filter((r) => !origin || originOf(r) === origin);
 
   const measured = cohort.filter((r) => !minutesAreMissing(r));
   const unknown = cohort.length - measured.length;
@@ -139,13 +201,13 @@ const median = (values) => {
 };
 
 /**
- * What the Nth-best freshman gets here, across every season on file.
+ * What the Nth-best freshman GOT here, across every season on file.
  *
- * The one projection a recruit can actually act on. An average says what
- * happened to a group they will not be a member of; this says what happened
- * to the position they might occupy. A player told they are a programme's top
- * incoming defender can read rank 1; one who suspects they are third can read
- * rank 3, and decide accordingly.
+ * The one figure a recruit can actually act on, and a historical one: what
+ * happened to the position they might occupy, not what will. An average says
+ * what happened to a group they will not be a member of. A player told they
+ * are a programme's top incoming defender can read rank 1; one who suspects
+ * they are third can read rank 3, and decide accordingly.
  */
 export function ladderByRank(seasons, { maxRank = 8, weights = null } = {}) {
   const out = [];
@@ -172,6 +234,18 @@ export function ladderByRank(seasons, { maxRank = 8, weights = null } = {}) {
       // programme the number actually describes.
       weighted: Boolean(w),
     });
+  }
+
+  // Within any one season the ladder falls by construction, so a median that
+  // rises as you go down it is not a finding — it is the ranks being taken
+  // over different sets of seasons. North Florida men's read
+  // 209, 346, 529 for a US defender across 4, 2 and 2 seasons. Everything
+  // from the first rise is marked incomparable so a caller can stop there
+  // rather than print a ladder that gets better the further down you look.
+  let comparable = true;
+  for (let i = 0; i < out.length; i += 1) {
+    if (i > 0 && out[i].median > out[i - 1].median) comparable = false;
+    out[i].comparable = comparable;
   }
   return out;
 }
@@ -250,7 +324,18 @@ export function classifyProgramme(profile, tenure) {
   const step = mean(late) - mean(early);
   const stepped = Math.abs(step) >= STEP_POINTS;
 
-  const base = { spread, step, coach: tenure?.current?.coach ?? null };
+  const measuredSeasons = shares.map((s) => s.season);
+  const base = {
+    spread,
+    step,
+    coach: tenure?.current?.coach ?? null,
+    // Every verdict states which seasons it is describing and which it could
+    // not read. A recruit is being advised on history, not given a forecast,
+    // so the history has to name its own boundaries.
+    describes: measuredSeasons,
+    unknownSeasons: tenure?.unknownSeasons ?? [],
+    knownThrough: tenure?.knownThrough ?? null,
+  };
 
   if (!tenure || !tenure.current) {
     return { ...base, verdict: 'coach-unknown', weightFrom: null,
@@ -260,6 +345,30 @@ export function classifyProgramme(profile, tenure) {
   const changed = tenure.changes.length > 0;
   const since = tenure.current.since;
 
+  // A season we could not read is not a season in which nothing changed.
+  // Bellarmine women's ran 23%, 30%, 26%, 20% with four starter-level freshmen
+  // every year and was filed "one coach, a consistent pattern" — because 2024
+  // and 2025 came back blank. It was three coaches: Babba, McKinney,
+  // Bornhoffer. The pattern surviving two changes is a better thing to tell a
+  // recruit than the false claim it was one man's doing, and neither is
+  // reachable while a blank counts as continuity.
+  const unknownRecent = (tenure.unknownSeasons ?? []).filter((u) => u >= since);
+  if (unknownRecent.length) {
+    return { ...base, verdict: 'coach-unknown-recent', since, weightFrom: null,
+      note: `no coach on file for ${unknownRecent.join(', ')} — the seasons through `
+        + `${tenure.knownThrough} were ${tenure.current.coach}'s, and we are not assuming he stayed` };
+  }
+
+  // The person in the job has not yet coached a season anyone can measure.
+  // There is no projection to make here and saying so is the whole answer:
+  // North Florida men's took Marlon Montanella for 2026, and every season on
+  // file was run by Marinatos or Davies.
+  if (!measuredSeasons.some((s) => s >= since)) {
+    return { ...base, verdict: 'new-coach-no-record', since, weightFrom: null,
+      note: `${tenure.current.coach} took over for ${since} and has not yet coached a season `
+        + 'we can measure — the figures below are the previous staff\'s' };
+  }
+
   // A programme that had nobody in the job is not a programme with a
   // consistent philosophy. South Carolina State printed TBA as head coach for
   // 2022 and 2023 and its freshman share ran 69% and 41% — the highest in the
@@ -267,7 +376,7 @@ export function classifyProgramme(profile, tenure) {
   // coach throughout" that becomes a policy shift; read correctly it is a
   // programme that was being held together, which is the thing a recruit
   // actually needs to know.
-  const vacantEarly = tenure.gaps.filter((g) => g < since);
+  const vacantEarly = (tenure.vacantSeasons ?? tenure.gaps).filter((g) => g < since);
   if (vacantEarly.length) {
     return { ...base, verdict: 'vacancy-in-window', since, weightFrom: since,
       vacantSeasons: vacantEarly,
@@ -335,20 +444,79 @@ export function weightsFromVerdict(verdict, seasons) {
  * that started two freshmen every season is telling a recruit something a
  * programme that did it once, in a season with an injury crisis, is not.
  */
-export function freshmanProfile(rows, { seasons, position = null, maxRank = 8 } = {}) {
-  const perSeason = seasons
+export function freshmanProfile(rows, {
+  seasons, position = null, origin = null, athlete = null, maxRank = 8,
+} = {}) {
+  // An athlete narrows the ladder to the people they would be competing with.
+  // Explicit position/origin still win, so a caller can ask a question the
+  // athlete does not imply.
+  const asked = athlete ? cohortFor(athlete) : { position: null, origin: null };
+  const wantPosition = position ?? asked.position;
+  const wantOrigin = origin ?? asked.origin;
+
+  const build = (p, o) => seasons
     .map((season) => ({
-      ...freshmanSeason(rows, { season, position }),
-      shareOfSquadMinutes: position ? null : freshmanShare(rows, { season }),
+      ...freshmanSeason(rows, { season, position: p, origin: o }),
+      // A share of squad minutes is only meaningful for the whole intake:
+      // narrowed, the numerator is a subset and the denominator is not.
+      shareOfSquadMinutes: (p || o) ? null : freshmanShare(rows, { season }),
     }))
     .filter((s) => s.intake > 0);
 
-  if (!perSeason.length) return null;
+  // Relax one dimension at a time, never straight to the whole intake.
+  //
+  // A US defender at McKendree is 5 players over 2 seasons — too thin to read
+  // on its own. Falling all the way back to the whole intake would hand him
+  // 1850, 1092, 1027, which are the international numbers and the single most
+  // misleading answer available. Dropping only the position leaves the US
+  // ladder, which is the dimension that decides whether he is in the
+  // competition at all; position decides which ladder inside it.
+  const chain = [
+    [wantPosition, wantOrigin],
+    [null, wantOrigin],
+    [wantPosition, null],
+    [null, null],
+  ].filter(([p, o], i, all) =>
+    // Skip a step identical to one already tried.
+    all.findIndex(([p2, o2]) => p2 === p && o2 === o) === i);
+
+  const thin = (list) => {
+    const players = list.reduce((sum, s) => sum + s.intake, 0);
+    return (players < MIN_COHORT_PLAYERS || list.length < MIN_COHORT_SEASONS)
+      ? `${players} in ${list.length} season(s)`
+      : null;
+  };
+
+  let perSeason = null;
+  const cohort = { position: null, origin: null, applied: false, refused: null, relaxed: null };
+  for (const [pos, org] of chain) {
+    const built = build(pos, org);
+    const why = (pos || org) ? thin(built) : null;
+    if (why) {
+      // Record only the first refusal — it is the one the caller asked for.
+      if (!cohort.refused) {
+        cohort.refused = `${[pos, org].filter(Boolean).join(' / ')}: only ${why} — too few to read separately`;
+      }
+      continue;
+    }
+    perSeason = built;
+    cohort.position = pos;
+    cohort.origin = org;
+    cohort.applied = Boolean(pos || org);
+    if (cohort.refused) cohort.relaxed = [pos, org].filter(Boolean).join(' / ') || 'whole intake';
+    break;
+  }
+
+  if (!perSeason || !perSeason.length) return null;
 
   const impactCounts = perSeason.map((s) => s.bands.impact);
   return {
     seasons: perSeason,
-    position,
+    position: cohort.position,
+    origin: cohort.origin,
+    // Which cohort this ladder describes, and — where narrowing was asked for
+    // and refused — why it does not.
+    cohort,
     seasonsObserved: perSeason.length,
     // How reliably this programme gives a freshman a starter's season.
     seasonsWithAnImpactFreshman: impactCounts.filter((n) => n > 0).length,

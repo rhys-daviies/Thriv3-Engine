@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  tenureFor, sameCoach, normaliseCoach, isVacancy,
+  tenureFor, sameCoach, normaliseCoach, isVacancy, stillInPost,
   seasonWeights, isInheritedSeason, WEIGHT_CURRENT, WEIGHT_PREVIOUS,
 } from './coachTenure.js';
 
@@ -125,6 +125,64 @@ describe('tenureFor', () => {
     const t = tenureFor(seq('TBA', 'TBA', '', ''));
     expect(t.vacant).toBe(true);
     expect(t.current).toBeNull();
+  });
+});
+
+describe('a gap we could not read vs a job nobody held', () => {
+  // These are opposite claims. The scraper writes `vacant-or-tba` only where
+  // it found a name and rejected it as a placeholder; everything else is a
+  // page it could not read, and reporting the second as the first invents a
+  // vacancy out of a 404.
+  it('separates a stated vacancy from an unread season', () => {
+    const t = tenureFor([
+      { season: 2022, coach_name: '', reason: 'vacant-or-tba' },
+      { season: 2023, coach_name: 'A Coach' },
+      { season: 2024, coach_name: '', reason: 'no-usable-page' },
+    ]);
+    expect(t.vacantSeasons).toEqual([2022]);
+    expect(t.unknownSeasons).toEqual([2024]);
+    expect(t.gaps).toEqual([2022, 2024]);      // the union, for callers that only need "missing"
+    expect(t.knownThrough).toBe(2023);
+  });
+
+  it('reads a placeholder printed on the page as a vacancy whatever the reason says', () => {
+    const t = tenureFor([{ season: 2022, coach_name: 'TBA' }, { season: 2023, coach_name: 'A Coach' }]);
+    expect(t.vacantSeasons).toEqual([2022]);
+    expect(t.unknownSeasons).toEqual([]);
+  });
+
+  it('treats a blank with no stated reason as unread, not as a vacancy', () => {
+    const t = tenureFor([{ season: 2022, coach_name: 'A Coach' }, { season: 2023, coach_name: '' }]);
+    expect(t.unknownSeasons).toEqual([2023]);
+    expect(t.vacantSeasons).toEqual([]);
+  });
+});
+
+describe('stillInPost', () => {
+  const NF = tenureFor([
+    { season: 2024, coach_name: 'Jamie Davies' },
+    { season: 2025, coach_name: 'Jamie Davies' },
+    { season: 2026, coach_name: 'Marlon Montanella' },
+  ]);
+
+  it('answers for a season it actually read', () => {
+    expect(stillInPost(NF, 2026)).toBe(true);    // Montanella is current
+    expect(stillInPost(NF, 2025)).toBe(false);   // Davies is not
+  });
+
+  // The third answer is the point: a season we never resolved must not be
+  // filled in from the seasons around it.
+  it('returns null for a season it could not read, rather than guessing', () => {
+    const t = tenureFor([
+      { season: 2024, coach_name: 'A Coach' },
+      { season: 2025, coach_name: '', reason: 'no-usable-page' },
+    ]);
+    expect(stillInPost(t, 2025)).toBeNull();
+  });
+
+  it('returns null for a season outside the window entirely', () => {
+    expect(stillInPost(NF, 2030)).toBeNull();
+    expect(stillInPost(null, 2026)).toBeNull();
   });
 });
 
