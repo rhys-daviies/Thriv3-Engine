@@ -8,7 +8,7 @@ trusting this file.
 Last audited: 2026-08-27, re-verified against the DB and the live edge
 (rosters: five seasons 2022-2026 acquired and imported, 264,614 rows; the
 graduation-year model now assumes five-year eligibility)
-(branch `engagement-tracking`, 709 tests green). Coverage numbers below were
+(branch `engagement-tracking`, 775 tests green). Coverage numbers below were
 re-run, not copied. The academic-rating gap has closed completely; roster and
 grad-year figures moved and are corrected in place.
 
@@ -72,25 +72,29 @@ grad-year nulls of its own, which the single 2025 figure used to hide.
 
 ## Progress
 
-**71 of 115 boxes ticked. Five of the 44 open are struck through** — retired
-with the sending domain and the ESP — so against live work it is 71 of 110,
-**65%**.
+**75 of 119 boxes ticked. Five of the 44 open are struck through** — retired
+with the sending domain and the ESP — so against live work it is 75 of 114,
+**66%**.
 
 The count is deliberately not the headline. Nothing is in front of the pilot:
 Phase 1.1 closed on 2026-08-26, and every remaining box is either the pilot
-itself or work that only makes sense once it has run. The 11 boxes ticked
-since are all Phase 0 data — five seasons of rosters, the eligibility model
-and the minutes projection — which deepens Pillar 4's inputs without moving
-the pilot any closer or further away.
+itself or work that only makes sense once it has run.
+
+**Pillar 4 stopped being a data pile and became analysis on 2026-08-27** — the
+freshman-minutes ladder and coach tenure both landed, and between them they
+answer "will I play here, and does the last four years still describe this
+programme". Both are modelling inputs, not pages. Two Pillar 2 gaps closed the
+same day: 45 more programmes are now reachable, and the opt-out moved off a
+bulk-mail-looking link.
 
 ### Pillar by pillar
 
 | Pillar | Progress | State |
 |---|---|---|
 | **1 · Matchmaking** | ✅✅✅✅✅✅✅✅✅✅ | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested against 1,500 real arrivals per sport |
-| **2 · Networking** | ✅✅✅✅⬜⬜⬜⬜⬜⬜ | Personalisation, coach table, compliance and bulk drafting done. Campaign engine and A/B/C sequencing not started |
+| **2 · Networking** | ✅✅✅✅✅⬜⬜⬜⬜⬜ | Personalisation, coach table, compliance, bulk drafting and best-contact fallback done — 1,984 of 1,986 programmes reachable. Campaign engine and A/B/C sequencing not started |
 | **3 · Interactions** | ✅✅✅✅✅✅✅✅✅⬜ | **Proven on real traffic 2026-08-26.** Only automated reply detection remains |
-| **4 · Recommendation** | ✅✅✅✅⬜⬜⬜⬜⬜⬜ | Data half done — **five seasons acquired and imported (2022–2026, 264,614 rows)**, three retention pairs measured, opportunity now reads the live 2026 squad. Nothing built in the product beyond the Graduating DB |
+| **4 · Recommendation** | ✅✅✅✅✅✅⬜⬜⬜⬜ | Five seasons imported (2022–2026, 264,614 rows); retention, **freshman-minutes ladder** and **coach tenure** all built. Lifestyle source and the whole product half outstanding |
 
 ### Phase by phase
 
@@ -98,9 +102,9 @@ the pilot any closer or further away.
 |---|---|---|
 | **0 · Data & lead times** | ✅✅✅✅✅✅✅✅⬜⬜ | 34 done, 8 open (4 struck) |
 | **1 · Prove Pillar 3, finish Pillar 1** | ✅✅✅✅✅✅✅✅✅✅ | 27 done, 0 open — **closed** |
-| **2 · Campaign engine** | ✅✅✅✅⬜⬜⬜⬜⬜⬜ | 9 done, 12 open (1 struck) |
+| **2 · Campaign engine** | ✅✅✅✅✅⬜⬜⬜⬜⬜ | 11 done, 12 open (1 struck) |
 | **3 · Pilot** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 0 done, 7 open — **next** |
-| **4 · Recommendation** | ✅⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 1 done, 6 open — the *product* half; its data lives in Phase 0 |
+| **4 · Recommendation** | ✅✅✅⬜⬜⬜⬜⬜⬜⬜ | 3 done, 6 open — analysis built, product not started |
 | **5 · Learning loop** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 0 done, 3 open — needs pilot data |
 | **Cross-cutting** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 0 done, 3 open |
 
@@ -111,7 +115,7 @@ the pilot any closer or further away.
 | 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested at the 95.8th percentile (men) / 95.2nd (women) against 1,500 real arrivals each | Nothing before go live. The learning loop is Phase 5 and needs real replies |
 | 2 · Networking | 3-week A/B/C sequence, 100 programs at a time | Excellent personalisation; coach table, compliance, per-inbox cap and bulk drafting all done. No campaign engine, and no automated send by design | Campaign model, A/B/C variants, sequencing. **Not** an ESP — see locked decisions |
 | 3 · Interactions | Tracking, coach score, session timelines | **Proven end to end 2026-08-26** — 13 edge-sourced events, cursor 6 → 19, rollup and tiering correct on real data. Sync automated | Real response detection. Everything else waits on a coach, not on code |
-| 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Rosters sourced and imported 2022–2026; retention trend measured; Graduating DB live on 2026 | September re-run for the 193 unpublished rosters, real mid-season minutes, lifestyle data source, persist retention as a model input, UI |
+| 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Rosters 2022–2026; retention trend, freshman-minutes ladder and coach tenure (6,876 coach-seasons, 84% named) all built | September re-run for the 193 unpublished rosters, real mid-season minutes, lifestyle data source, persist the metrics as model inputs, UI |
 
 ---
 
@@ -1417,6 +1421,25 @@ itself.
 The largest remaining build. Everything here is gated on the ESP decision.
 
 ### 2.1 Coach data consolidation
+- [x] **Fall through to the best contact a programme actually has.**
+      2026-08-27. `pickHeadCoach` stopped at the associate head and returned
+      nothing below it, so a programme listing only assistants — or only a
+      shared inbox — was skipped entirely. Now `pickBestContact`, walking
+      head → associate head → assistant → goalkeeper coach → team inbox.
+
+      **45 more programmes reached**: 21 with assistants and no head, 24 with
+      nothing but a shared address. Coverage goes 1,939 → **1,984 of 1,986**
+      school-sports. Two have no usable address at all.
+
+      Which assistant matters is **not seniority**: a recruiting coordinator is
+      the person whose job this email is, and 53 are on file, so they rank
+      above the explicit first/senior markers, which rank above whoever the
+      staff page happened to list first. Volunteers and graduate assistants
+      stay excluded at every rung — they are not who decides, and a recruit
+      spends one approach per programme. The shared inbox is last and reached
+      only when there is no person. Every non-head row now carries a badge
+      saying what it is; Clemson shows both at once, an associate head at a
+      generic address, which is exactly the pair worth seeing before sending.
 - [x] **Promoted `coaching_staff` into a first-class `coaches` table** — 22
       rows to **6,346**, via `server/scripts/promoteCoaches.js` (dry run by
       default, backs up before writing, idempotent on `(email, school,
@@ -1601,6 +1624,25 @@ real gaps whatever sends the mail, and something will have to close them:
       several athletes hitting the same coach will burn the domain.
 
 ### 2.4 Compliance
+- [x] **Moved the opt-out from a link to a reply.** 2026-08-27. A long
+      unsubscribe URL is the clearest "this is bulk mail" signal in the
+      message, which is the one thing a first-touch email to a coach cannot
+      afford to look like. The footer says so in a sentence instead.
+
+      **Still compliant, and that mattered**: an opt-out is required by
+      CAN-SPAM for the US recipients and independently by the NZ Unsolicited
+      Electronic Messages Act, because the mail leaves from New Zealand. A
+      reply-to address is an accepted facility under both, so the mechanism
+      changes, not whether one exists.
+
+      **The obligation moves from a machine to a person.** Opt-outs now arrive
+      as email and someone must action them within ten business days;
+      `npm run suppress -- <address>` is that action. The trial preflight
+      states this on every run as a warning it *cannot verify*, because there
+      is nothing here a machine can check — which is exactly why it is the
+      part most likely to be forgotten. `/u/<token>` stays live, since emails
+      already sent carry those links and an opt-out that stops working is
+      worse than one never offered.
 - [x] **Unsubscribe honoured across every athlete's campaigns.** A
       `suppressions` table keyed on the **address alone** — a coach opting out
       is opting out of Thriv3, not of one athlete, and keying it on (athlete,
@@ -1719,8 +1761,59 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
       median of 75% and covers 1,712 programmes rather than 1,669, which is the
       reassuring outcome: the metric was already measuring something real, and
       the fixes widened its base without shifting its centre.
-- [ ] Freshman-minute analysis — **the data is two seasons deep in the
-      database for the first time.** The 2024 minutes reached the CSVs on
+- [x] **Freshman-minute analysis — built, and it reports no mean.**
+      `shared/freshmanMinutes.js`, 2026-08-27. Freshman playing time is
+      bimodal nearly everywhere, so an average describes nobody: Bentley 2025
+      had three freshmen over a thousand minutes and five on none, and the
+      mean of 340 fits neither group.
+
+      The unit is **the ladder** — freshmen ranked by minutes — because a
+      recruit can place themselves on it and cannot place themselves against
+      an average. `ladderByRank` asks what the Nth-best freshman got in each
+      season on file, which is the projection a recruit can act on: told they
+      are the top incoming defender, they read rank 1.
+
+      Four seasons rather than one, because **consistency is the finding**.
+      Caltech started a freshman in 4 of 4 and its second-best played
+      1,010–1,166 minutes every year. Bentley managed it in 2 of 4 and its
+      freshman share went 4%, 2%, 26%, 32% — a regime change that a single
+      season reads as either a promise or a warning depending which year you
+      ask. Redshirt freshmen are counted separately, being in their second
+      year on campus; that a programme redshirts at all is itself a first-year
+      outcome. The blank-versus-zero trap below is handled by reading
+      `games_played` alongside the minutes.
+- [x] **Coach tenure, so a change of regime is not read as a trend.**
+      `shared/coachTenure.js` and the `coach_seasons` table, 2026-08-27.
+      Freshman usage moves sharply mid-window at a third of programmes and the
+      roster data cannot say why — Bentley 4/2/26/32%, Hofstra 2/0/8/18%,
+      Caltech flat. Those mean three different things to a recruit.
+
+      **6,876 rows, 5,780 named (84%), 2022–2025**, one row per
+      (school, sport, season) *including* the unresolved ones, because a
+      missing row reads as coverage while a row carrying a reason reads as a
+      gap. The 1,096 gaps each say why: 387 no head coach found, 366 no usable
+      page, 135 sport not on page, 111 vacant or TBA. `confidence` records how
+      it was learned — a year-addressed roster page rates High, a Wayback
+      snapshot Medium.
+
+      Tenure is **derived from the observed sequence, not scraped from "in his
+      12th season" prose** — that sentence appears on 1 of 12 sampled pages,
+      and deriving it is the more honest result anyway: a coach present in
+      every season on file is "4+ seasons", not "since 2007", because 2021 was
+      never observed. It refuses to merge two coaches sharing a surname, and
+      refuses to bridge a gap, since both would assert exactly what the data
+      cannot know.
+
+      Three of `classifyProgramme`'s five verdicts were **forced by real data
+      rather than designed**: Hofstra's spread filed as steady while its step
+      was 12 (a coach changing his own mind is neither a hire nor noise);
+      South Carolina State printed TBA for two seasons while running the
+      highest freshman share in the pool, then collapsed (a programme being
+      held together, not a policy shift); and a new coach's first season is
+      excluded from their side of the comparison, because it is played with
+      their predecessor's recruits.
+- [ ] Freshman-minute analysis, raw-data notes — **the data is two seasons
+      deep in the database for the first time.** The 2024 minutes reached the CSVs on
       2026-08-25 but were not imported until 2026-08-26; see §1.2 for what
       that gap was doing to the backtest. Figures below are queried from the
       database as it stands, not from the sheets.
@@ -1732,9 +1825,10 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
       | 2025 men's | 7,346 | 4,703 | 335 |
       | 2025 women's | 7,704 | 5,848 | 412 |
 
-      Still a query rather than a column, and still needs the same denominator
-      discipline as retention — "0 minutes" is only meaningful against how many
-      freshmen a programme carried.
+      Now consumed by `shared/freshmanMinutes.js` above rather than queried ad
+      hoc. Like retention it is a **modelling input, not a product surface**;
+      the denominator discipline still applies — "0 minutes" is only meaningful
+      against how many freshmen a programme carried.
 
       **The trap, and the column that gets you out of it.** A blank cell means
       the stats page could not be read; a 0 means it was read and the player
