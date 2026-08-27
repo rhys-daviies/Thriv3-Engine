@@ -495,6 +495,31 @@ export function freshmanProfile(rows, {
     }))
     .filter((s) => s.intake > 0);
 
+  const thinOf = (list) => {
+    const players = list.reduce((sum, s) => sum + s.intake, 0);
+    return (players < MIN_COHORT_PLAYERS || list.length < MIN_COHORT_SEASONS)
+      ? `${players} in ${list.length} season(s)`
+      : null;
+  };
+
+  // A caller who names a cohort gets that cohort, thin or not.
+  //
+  // Relaxing under an explicit request is a footgun and it went off: an
+  // aggregate that asked 1,922 programmes for their goalkeeper ladder got the
+  // whole intake back wherever the keepers were too few, and reported 46,826
+  // freshman goalkeepers — more than every outfield position combined. The
+  // thinness is reported so a caller can drop the row; it is not papered over
+  // with somebody else's numbers.
+  if (!athlete && (position || origin)) {
+    const built = build(wantPosition, wantOrigin);
+    if (!built.length) return null;
+    const profile = shape(built, {
+      position: wantPosition, origin: wantOrigin, applied: true,
+      refused: null, relaxed: null, thin: thinOf(built),
+    }, maxRank);
+    return profile;
+  }
+
   // Relax one dimension at a time, never straight to the whole intake.
   //
   // A US defender at McKendree is 5 players over 2 seasons — too thin to read
@@ -512,18 +537,11 @@ export function freshmanProfile(rows, {
     // Skip a step identical to one already tried.
     all.findIndex(([p2, o2]) => p2 === p && o2 === o) === i);
 
-  const thin = (list) => {
-    const players = list.reduce((sum, s) => sum + s.intake, 0);
-    return (players < MIN_COHORT_PLAYERS || list.length < MIN_COHORT_SEASONS)
-      ? `${players} in ${list.length} season(s)`
-      : null;
-  };
-
   let perSeason = null;
-  const cohort = { position: null, origin: null, applied: false, refused: null, relaxed: null };
+  const cohort = { position: null, origin: null, applied: false, refused: null, relaxed: null, thin: null };
   for (const [pos, org] of chain) {
     const built = build(pos, org);
-    const why = (pos || org) ? thin(built) : null;
+    const why = (pos || org) ? thinOf(built) : null;
     if (why) {
       // Record only the first refusal — it is the one the caller asked for.
       if (!cohort.refused) {
@@ -540,14 +558,18 @@ export function freshmanProfile(rows, {
   }
 
   if (!perSeason || !perSeason.length) return null;
+  return shape(perSeason, cohort, maxRank);
+}
 
+/** The profile object, from a list of seasons and the cohort they describe. */
+function shape(perSeason, cohort, maxRank) {
   const impactCounts = perSeason.map((s) => s.bands.impact);
   return {
     seasons: perSeason,
     position: cohort.position,
     origin: cohort.origin,
     // Which cohort this ladder describes, and — where narrowing was asked for
-    // and refused — why it does not.
+    // and refused or relaxed — what happened instead.
     cohort,
     seasonsObserved: perSeason.length,
     // How reliably this programme gives a freshman a starter's season.

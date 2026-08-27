@@ -511,15 +511,23 @@ describe('reading the ladder for the recruit in front of you', () => {
     expect(forRyan.byRank[0].median).toBe(1850);
   });
 
-  // A median over three players and one season describes the sample, not the
-  // programme, and printing it would be worse than declining.
-  it('refuses to narrow to a cohort too thin to read, and says so', () => {
+  // A caller who names a cohort gets that cohort, thin or not. Relaxing under
+  // an explicit request went off once already: an aggregate that asked 1,922
+  // programmes for their goalkeeper ladder got the whole intake back wherever
+  // the keepers were too few, and reported 46,826 freshman goalkeepers — more
+  // than every outfield position combined.
+  it('gives an explicit cohort exactly what was asked for, and flags it thin', () => {
     const thin = MCK.concat([p({ season: '2025', player_name: 'lone-gk', position: 'GOALKEEPER', nationality: 'USA', minutes_played: 1900, games_played: 20 })]);
     const prof = freshmanProfile(thin, { seasons: SEASONS, position: 'GOALKEEPER', maxRank: 3 });
-    expect(prof.cohort.position).toBeNull();
-    expect(prof.cohort.refused).toMatch(/too few/);
-    // Fell back to the whole intake rather than quoting the one keeper.
-    expect(prof.seasonsObserved).toBe(4);
+    expect(prof.cohort.position).toBe('GOALKEEPER');
+    expect(prof.cohort.thin).toMatch(/1 in 1 season/);
+    expect(prof.seasonsObserved).toBe(1);           // the one keeper's season, nobody else's
+    expect(prof.byRank[0].median).toBe(1900);
+  });
+
+  it('leaves thin null for an explicit cohort with enough in it', () => {
+    const prof = freshmanProfile(MCK, { seasons: SEASONS, origin: 'domestic' });
+    expect(prof.cohort.thin).toBeNull();
   });
 
   // The important half of the refusal. A US defender here is 5 players over
