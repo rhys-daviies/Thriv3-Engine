@@ -2,7 +2,9 @@ import { describe, it, expect } from 'vitest';
 import {
   bandFor, isTrueFreshman, isRedshirtFreshman, minutesAreMissing,
   freshmanSeason, freshmanShare, ladderByRank, freshmanProfile, MINUTE_BANDS,
+  classifyProgramme, weightedMedian, weightsFromVerdict, STEP_POINTS, SPREAD_POINTS,
 } from './freshmanMinutes.js';
+import { tenureFor } from './coachTenure.js';
 
 const p = (over) => ({
   season: '2025', class_year_label: 'Fr.', player_name: 'A', position: 'DEFENSE',
@@ -186,5 +188,139 @@ describe('freshmanProfile', () => {
 
   it('returns null when the programme has no freshmen on file at all', () => {
     expect(freshmanProfile([], { seasons: ['2025'] })).toBeNull();
+  });
+});
+
+// Shares are the real four-season figures for each programme, and the coach
+// sequences are what the scrape actually returned for them.
+const prof = (pcts) => ({
+  seasons: pcts.map((v, i) => ({
+    season: String(2022 + i), shareOfSquadMinutes: v / 100, ladder: [], bands: {},
+  })),
+});
+const ten = (...names) => tenureFor(names.map((coach_name, i) => ({ season: 2022 + i, coach_name })));
+const GILLIS = ten('Duncan Gillis', 'Duncan Gillis', 'Duncan Gillis', 'Duncan Gillis');
+
+describe('weightedMedian', () => {
+  it('matches the plain median when every weight is equal', () => {
+    expect(weightedMedian([100, 200, 300], [1, 1, 1])).toBe(200);
+  });
+
+  // Weighting rather than filtering: a programme whose coach changed last year
+  // would otherwise be left with one season and a confidence it has not earned.
+  it('pulls toward the heavier seasons without discarding the lighter ones', () => {
+    expect(weightedMedian([100, 900, 950], [0.35, 1, 1])).toBe(900);
+    expect(weightedMedian([100, 200, 900], [1, 0.35, 0.35])).toBe(100);
+  });
+
+  it('falls back to the plain median when no weight survives', () => {
+    expect(weightedMedian([10, 20, 30], [0, 0, 0])).toBe(20);
+  });
+});
+
+describe('classifyProgramme', () => {
+  it('calls one coach and a flat pattern steady', () => {
+    // Caltech men's: 30, 22, 17, 18 under Duncan Gillis for four years.
+    const v = classifyProgramme(prof([30, 22, 17, 18]), GILLIS);
+    expect(v.verdict).toBe('steady');
+    expect(v.weightFrom).toBeNull();
+  });
+
+  // Bentley women's: Lukis then Dacey, and the share went 4, 2, 26, 32.
+  it('finds a regime change and dates the weighting to the new coach', () => {
+    const v = classifyProgramme(prof([4, 2, 26, 32]),
+      ten('Lauren Lukis', 'Sarah Dacey', 'Sarah Dacey', 'Sarah Dacey'));
+    expect(v.verdict).toBe('regime-change');
+    expect(v.weightFrom).toBe(2023);
+    expect(v.step).toBeGreaterThan(STEP_POINTS);
+  });
+
+  // The case that exposed the gap: Hofstra ran 2, 0, 8, 18 under Richard
+  // Nuttall for all four years. Its spread is 7.0 — under the volatility
+  // threshold — so checking spread alone files it as steady, which is the
+  // opposite of what a recruit needs.
+  it('catches a coach who changed their own policy', () => {
+    const v = classifyProgramme(prof([2, 0, 8, 18]),
+      ten('Richard Nuttall', 'Richard Nuttall', 'Richard Nuttall', 'Richard Nuttall'));
+    expect(v.verdict).toBe('policy-shift-same-coach');
+    expect(v.spread).toBeLessThan(SPREAD_POINTS);
+    expect(v.weightFrom).toBe(2024);
+  });
+
+  it('calls one coach with a swinging pattern erratic', () => {
+    const v = classifyProgramme(prof([46, 21, 45, 22]), GILLIS);
+    expect(v.verdict).toBe('erratic-same-coach');
+    expect(v.spread).toBeGreaterThanOrEqual(SPREAD_POINTS);
+    // Nothing to weight toward — the swing is the finding.
+    expect(v.weightFrom).toBeNull();
+  });
+
+  it('keeps every season when the pattern survived the change', () => {
+    const v = classifyProgramme(prof([25, 24, 26, 25]),
+      ten('Old Coach', 'New Coach', 'New Coach', 'New Coach'));
+    expect(v.verdict).toBe('continuity-through-change');
+    expect(v.weightFrom).toBeNull();
+  });
+
+  // South Carolina State printed TBA for two seasons while running the
+  // highest freshman share in the pool. Read as one continuous coach that
+  // becomes a policy shift; it is really a programme being held together.
+  it('reports a vacancy rather than crediting it to the coach who followed', () => {
+    const v = classifyProgramme(prof([69, 41, 19, 2]),
+      ten('TBA', 'TBA', 'Andrew Richardson', ''));
+    expect(v.verdict).toBe('vacancy-in-window');
+    expect(v.vacantSeasons).toEqual([2022, 2023]);
+    expect(v.weightFrom).toBe(2024);
+  });
+
+  it('says so when there is no coach on file at all', () => {
+    expect(classifyProgramme(prof([10, 12, 11, 13]), null).verdict).toBe('coach-unknown');
+  });
+
+  it('will not describe a pattern from one season', () => {
+    expect(classifyProgramme(prof([10]), GILLIS).verdict).toBe('too-few-seasons');
+  });
+
+  it('is null for a programme with nothing on file', () => {
+    expect(classifyProgramme(null, GILLIS)).toBeNull();
+  });
+});
+
+describe('weightsFromVerdict', () => {
+  const seasons = [{ season: '2022' }, { season: '2023' }, { season: '2024' }, { season: '2025' }];
+
+  it('weights from the season the verdict names', () => {
+    const v = classifyProgramme(prof([4, 2, 26, 32]),
+      ten('Lauren Lukis', 'Sarah Dacey', 'Sarah Dacey', 'Sarah Dacey'));
+    expect(weightsFromVerdict(v, seasons)).toEqual({ 2022: 0.35, 2023: 1, 2024: 1, 2025: 1 });
+  });
+
+  it('is null where every season counts equally', () => {
+    expect(weightsFromVerdict(classifyProgramme(prof([30, 22, 17, 18]), GILLIS), seasons)).toBeNull();
+  });
+});
+
+describe('ladderByRank weighting', () => {
+  const seasons = [
+    { season: '2022', ladder: [{ rank: 1, minutes: 100 }] },
+    { season: '2023', ladder: [{ rank: 1, minutes: 900 }] },
+    { season: '2024', ladder: [{ rank: 1, minutes: 950 }] },
+  ];
+
+  it('reports the plain median when unweighted', () => {
+    const r = ladderByRank(seasons)[0];
+    expect(r.median).toBe(900);
+    expect(r.weighted).toBe(false);
+  });
+
+  // The projection has to describe the programme a recruit would join, not
+  // the one the previous coach ran.
+  it('moves the median toward the seasons that still describe the programme', () => {
+    const r = ladderByRank(seasons, { weights: { 2022: 0.35, 2023: 1, 2024: 1 } })[0];
+    expect(r.median).toBe(900);
+    expect(r.weighted).toBe(true);
+    // The full range is still reported, so the disagreement stays visible.
+    expect(r.low).toBe(100);
+    expect(r.high).toBe(950);
   });
 });
