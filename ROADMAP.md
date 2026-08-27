@@ -5,8 +5,9 @@ deck against what is actually built. Update the checkboxes as work lands; keep
 the "verified state" numbers honest by re-running the queries rather than
 trusting this file.
 
-Last audited: 2026-08-26, re-verified against the DB and the live edge
-(rosters updated 2026-08-26: 2023, 2022 and the live 2026 season acquired)
+Last audited: 2026-08-27, re-verified against the DB and the live edge
+(rosters: five seasons 2022-2026 acquired and imported, 264,614 rows; the
+graduation-year model now assumes five-year eligibility)
 (branch `engagement-tracking`, 695 tests green). Coverage numbers below were
 re-run, not copied. The academic-rating gap has closed completely; roster and
 grad-year figures moved and are corrected in place.
@@ -86,13 +87,13 @@ pilot itself or work that only makes sense once it has run.
 | **1 · Matchmaking** | ✅✅✅✅✅✅✅✅✅✅ | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested against 1,500 real arrivals per sport |
 | **2 · Networking** | ✅✅✅✅⬜⬜⬜⬜⬜⬜ | Personalisation, coach table, compliance and bulk drafting done. Campaign engine and A/B/C sequencing not started |
 | **3 · Interactions** | ✅✅✅✅✅✅✅✅✅⬜ | **Proven on real traffic 2026-08-26.** Only automated reply detection remains |
-| **4 · Recommendation** | ✅✅✅⬜⬜⬜⬜⬜⬜⬜ | Data half largely done — **five seasons acquired (2022–2026)**, three retention pairs measured, trend available for 1,284 programmes. Only **2024 and 2025 are in `roster_players`** (verified 2026-08-26); 2022, 2023 and 2026 are acquired but not imported. Nothing built in the product |
+| **4 · Recommendation** | ✅✅✅✅⬜⬜⬜⬜⬜⬜ | Data half done — **five seasons acquired and imported (2022–2026, 264,614 rows)**, three retention pairs measured, opportunity now reads the live 2026 squad. Nothing built in the product beyond the Graduating DB |
 
 ### Phase by phase
 
 | Phase | Progress | Boxes |
 |---|---|---|
-| **0 · Data & lead times** | ✅✅✅✅✅✅✅✅⬜⬜ | 26 done, 13 open |
+| **0 · Data & lead times** | ✅✅✅✅✅✅✅✅⬜⬜ | 34 done, 12 open |
 | **1 · Prove Pillar 3, finish Pillar 1** | ✅✅✅✅✅✅✅✅✅✅ | 27 done, 0 open — **closed** |
 | **2 · Campaign engine** | ✅✅✅⬜⬜⬜⬜⬜⬜⬜ | 9 done, 12 open (1 struck) |
 | **3 · Pilot** | ⬜⬜⬜⬜⬜⬜⬜⬜⬜⬜ | 0 done, 7 open — **next** |
@@ -107,7 +108,7 @@ pilot itself or work that only makes sense once it has run.
 | 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested at the 95.8th percentile (men) / 95.2nd (women) against 1,500 real arrivals each | Nothing before go live. The learning loop is Phase 5 and needs real replies |
 | 2 · Networking | 3-week A/B/C sequence, 100 programs at a time | Excellent personalisation; coach table, compliance, per-inbox cap and bulk drafting all done. No campaign engine, and no automated send by design | Campaign model, A/B/C variants, sequencing. **Not** an ESP — see locked decisions |
 | 3 · Interactions | Tracking, coach score, session timelines | **Proven end to end 2026-08-26** — 13 edge-sourced events, cursor 6 → 19, rollup and tiering correct on real data. Sync automated | Real response detection. Everything else waits on a coach, not on code |
-| 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Rosters sourced 2022–2026; retention trend measured. Nothing built in the product | Import 2026 after the September re-run, lifestyle data source, persist retention as a model input, UI |
+| 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Rosters sourced and imported 2022–2026; retention trend measured; Graduating DB live on 2026 | September re-run for the 193 unpublished rosters, real mid-season minutes, lifestyle data source, persist retention as a model input, UI |
 
 ---
 
@@ -414,15 +415,102 @@ transcript recorded. Nothing load-bearing goes in a scratchpad.
       D3, which posts in September); genuine technique residue is 8 rows, 0.5%.
       Re-run in September for the rest. Notes in
       `2026 Roster Sheets/_2026_run_notes.md`.
-- [ ] **Import 2022 and 2023 into `roster_players`.** Verified 2026-08-26: the
-      table holds only 2024 (52,539) and 2025 (64,381). The CSVs for both earlier
-      seasons are validated and waiting, and the three retention pairs above were
-      computed from the files rather than the DB — so nothing in the product can
-      read the trend until they land.
-- [ ] **Import 2026** once the September re-run closes the D3 gap. Deliberately not imported yet: a partial current season would let
-      any query that does not pin the season read an incomplete squad as a real
-      one, which is the failure mode the `CURRENT_ROSTER_SEASON` pin above
-      exists to prevent.
+- [x] **All five seasons are in `roster_players` — 264,614 rows.** 2026-08-27.
+      2022 (50,559), 2023 (51,104), 2024 (52,539), 2025 (64,384), 2026 (46,028).
+      The trend is now computable inside the product rather than only from the
+      files.
+- [x] **Unknown minutes are stored as NULL, not 0.** The importer collapsed an
+      empty cell to zero, so a season not yet played read as every player on
+      zero — a non-starter rather than an unknown. That is the wrong signal for
+      the half of matching that reads playing time, and it also recovered
+      6,000-9,000 rows in *each* earlier season that were never published and
+      were being counted as "played none".
+- [x] **An impossible graduation year is rejected at import.** A rostered player
+      has not graduated yet, so a year at or before the season cannot be right.
+      66 rows carried one — 63 from a cross-season inference that propagated an
+      old value onto a still-enrolled player, 3 printed by the site itself — and
+      they created a phantom cohort in the Graduating DB ("2024, 2 schools
+      graduating"). The guard covers the derived value too, since the
+      explicit-year path reads straight through.
+- [x] **The Graduating Database runs on 2026.** 2026-08-27. Defaults to the
+      cohort leaving after the pinned season rather than the earliest year on
+      record, which had been landing the operator on a near-empty bucket of
+      stragglers. The 193 school-sports with no 2026 roster are absent rather
+      than back-filled from 2025: a 2025 row belongs to a different graduating
+      cohort and would land in the wrong year bucket.
+- [x] **`estimated_graduation_year` models five-year eligibility.** 2026-08-27.
+      The column is a MATCH KEY, not a biography: `recruiting_class_year` is
+      "the year this recruit would join as a freshman" and `pool.js` matches it
+      on exact equality, so what the column has to name is the year the
+      incumbent's spot OPENS — the year after their last season.
+
+      | class | last season | spot opens |
+      |---|---|---|
+      | Fr. / Fy. / R-Fr.† | season+4 | **season+5** |
+      | So. / R-So.† | season+3 | **season+4** |
+      | Jr. / R-Jr.† | season+2 | **season+3** |
+      | Sr. | season+1 | **season+2** |
+      | Gr. / 5th / R-Sr. | season+0 | **season+1** |
+
+      † A redshirt advances one class, because the redshirt year is one of
+      the five whether or not it was played. R-Fr. therefore sits with So.,
+      R-So. with Jr., R-Jr. with Sr. Stripping the prefix and reading the class
+      underneath counted that year twice. This also subsumed a hand-written
+      R-Sr. exception that had been reading one year from SENIOR and the other
+      from GRADUATE, putting it at "last season 2026, graduating 2028".
+
+      **The historical evidence points the other way and is kept in the code**,
+      because any backtest will keep reproducing it: the four-season offsets
+      predicted the year a spot actually opened for 55-79% of sophomores,
+      juniors and seniors against 4-20% for these; only 7.9% of 2025 seniors
+      appeared on a 2026 roster; and no roster printing a graduation year
+      outright prints season+5. All of it describes a regime in which a senior
+      was **not permitted** to return and only a redshirt senior was — a supply
+      constraint, not a preference — so none of it predicts behaviour now the
+      fifth year is generally available. Deliberate call, recorded so it is not
+      re-litigated as a defect. `eligibility_end_year` holds the last season, and
+      a test asserts the two stay exactly one apart.
+- [x] **Minutes are carried forward as a labelled projection until the season is
+      played.** 2026-08-27. 2026 has no minutes, so nothing can say who clears
+      the 600-minute starter threshold. `projected_minutes` carries the prior
+      season's figure at a **450** cutoff — measured, not chosen: on 2024→2025
+      across 25,653 players, 600 is 80.6% precise but recalls only 65.9%, while
+      450 on the graduating cohort gives 80.0%/80.3%. Coverage is 80.5% of the
+      graduating cohort against 54.7% of the whole roster, because departing
+      players have history and newcomers do not.
+
+      It is never dressed up as current data: its own column beside its source
+      season, amber italic with a `~` against emerald for a real figure, and a
+      banner on the page so nobody has to hover to learn the number is last
+      year's. Real minutes always win, so a mid-season scrape supersedes it per
+      player with no cleanup step.
+- [x] **The matcher reads the projection too, and the backtest decided that.**
+      `(minutes_played || 0) >= STARTER_MINUTES` read an ABSENT figure as zero,
+      so every 2026 departure became squad and the opportunity signal stopped
+      weighting departures by quality and started counting them — a reordering
+      that favoured programmes with many low-minute departures. Settled with a
+      new `--minutes real|hidden|projected` flag on the backtest, which
+      simulates an unplayed season on 2024→2025 where "real" is a measurable
+      ceiling. Across two sports and two seeds the projection recovers 60-90% of
+      the r@10 gap and 78-110% of the MRR gap, and `hidden` was worst in all
+      four runs. The effect is invisible in the median percentile — the starter
+      split decides the top of the list, which is the part an operator reads.
+- [x] **A blank minutes cell says why it is blank.** `prior_programme` records
+      where each player was the season before — 29,143 of the 46,028 2026 rows
+      located, 3,524 of them at a different programme — so the view distinguishes
+      a transfer from a newcomer from a roster that published no minutes. Their
+      minutes are provenance only and deliberately not carried forward: prior
+      minutes predict a 600+ season at 77.4% precision for a player who stayed
+      but **54.9%** for one who moved, so filling those cells would have made
+      the screen look more complete and be less trustworthy. Names not unique to
+      one prior programme are skipped, because "transferred from X" has to be
+      right.
+- [ ] **Re-run the 2026 acquisition in September**, then import. 182 of the 193
+      gaps are a calendar problem — schools, overwhelmingly D3, that had not
+      posted a roster in August. The genuine technique residue is 8 rows, 0.5%.
+      Nothing needs unwinding first: projections only fill rows where
+      `minutes_played IS NULL`, so real data supersedes them per player, and the
+      in-progress banner is derived from the rows rather than a flag.
 - [x] **Reconciled the 5 division-mismatched ratings**, leaving 318 genuinely
       absent. Copying from the men's row is not available: only 5 of the 323
       have a men's counterpart at all, because most of the gap is SEC/Big 12
