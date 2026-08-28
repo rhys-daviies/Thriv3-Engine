@@ -23,6 +23,13 @@
  *
  * Run `loadMatchingInputs.js --apply` afterwards to fill unitid, city, state,
  * latitude, cost, admissions and the win rates from their own sources.
+ *
+ *   --division USCAA   seed EVERY programme in that division that has roster
+ *                      rows, a v6 score and no registry row, instead of the
+ *                      hand-listed SEED above. Written for the USCAA build,
+ *                      where 18 programmes arrived at once and listing them by
+ *                      hand would have been transcription with no check on it.
+ *                      The per-row guards are identical either way.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -42,12 +49,12 @@ const RANKINGS = '/Users/rhysdavies/Documents/Recruitmatch/scoring';
  * where soccer_records.csv writes "Calumet College". Stating the join here
  * beats a fuzzy match that could attach another school's record.
  *
- * Penn State Schuylkill is deliberately ABSENT. Our roster and records files
- * both file it under NCAA D3, but it plays in the PSUAC and its 2025
- * postseason was the USCAA Division II National Championship — it is not an
- * NCAA programme at all. Seeding it as D3 would offer an athlete a division
- * the school does not compete in. The misclassification is upstream, and
- * Penn State Brandywine already sits in the registry with the same defect.
+ * Penn State Schuylkill was deliberately absent from this list when it was
+ * written: our files filed it under NCAA D3, but it plays the PSUAC and
+ * contested the 2025 USCAA Division II national championship, so seeding it as
+ * D3 would have offered an athlete a division the school does not compete in.
+ * That was fixed upstream instead — USCAA is a division now, and Schuylkill
+ * arrives through `--division USCAA` under the right one.
  */
 const SEED = [
   { name: 'Shawnee State', sport: 'womens-soccer', division: 'NCAA D2',
@@ -78,8 +85,21 @@ const rankings = (sport) => {
 /** The same institution's row in the other sport, if it has one. */
 const otherSport = (s) => (s === 'mens-soccer' ? 'womens-soccer' : 'mens-soccer');
 
+/** Every programme in a division with rosters and no registry row. */
+function orphansOf(division) {
+  return db.prepare(`
+    SELECT DISTINCT r.college_name AS name, r.sport, r.division, r.conference
+    FROM roster_players r
+    WHERE r.division = ?
+      AND NOT EXISTS (SELECT 1 FROM colleges c WHERE c.name = r.college_name AND c.sport = r.sport)
+    ORDER BY r.sport, r.college_name`).all(division)
+    .map((r) => ({ name: r.name, sport: r.sport, division: r.division, conference: r.conference }));
+}
+
 function main() {
   const ranks = { 'mens-soccer': rankings('mens-soccer'), 'womens-soccer': rankings('womens-soccer') };
+  const divIdx = process.argv.indexOf('--division');
+  const seedList = divIdx > -1 ? orphansOf(process.argv[divIdx + 1]) : SEED;
   const existing = db.prepare('SELECT id FROM colleges WHERE name = ? AND sport = ?');
   const counterpart = db.prepare('SELECT * FROM colleges WHERE name = ? AND sport = ?');
   const rosterRows = db.prepare(
@@ -88,7 +108,7 @@ function main() {
 
   const planned = [];
   const refused = [];
-  for (const s of SEED) {
+  for (const s of seedList) {
     if (existing.get(s.name, s.sport)) { refused.push(`${s.name}: already has a row`); continue; }
     const rows = rosterRows.get(s.name, s.sport).n;
     // A row nothing points at is worse than no row: it would appear in match
