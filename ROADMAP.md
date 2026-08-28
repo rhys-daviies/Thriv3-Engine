@@ -1864,10 +1864,20 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
 
 ### 4.2 Product
 - [ ] Athlete-program match rating combining the above with Pillar 1's score.
-- [x] **Program-specific reporting** — two PDFs per school, generated from the
-      live roster: a programme report and one read for the athlete's position
-      and origin. `server/lib/philosophyPdf.js`, models in
-      `server/routes/philosophy.js`.
+- [x] **Program-specific reporting** — ONE "Program Report" per school, eight
+      pages for a full record and six for a thin one, in three parts: the
+      freshman intake, the transfer intake, and the athlete read one facet at a
+      time. Every freshman and every transfer of the last four seasons is drawn
+      individually rather than averaged. `server/lib/philosophyReport.js`
+      composes it; `philosophyPdf.js` holds the kit and the charts.
+
+      Three of its analyses come from columns nothing had read: the eligibility
+      cliff (`eligibility_end_year`, 98% populated in every season), named 2026
+      arrivals with their origin school (`prior_programme`), and the depth chart
+      at a position (`projected_minutes`). All three live only on the 2026
+      roster, which **1,529 of 2,103 programmes have** — so those pages are
+      absent for a quarter of the pool and for 11 of Ryan's 19. Backfilling the
+      missing 2026 rosters is the single highest-value follow-up.
 - [ ] University quality and lifestyle report per school.
 - [x] **Recommendations tab** — shipped as `/player/:id/philosophy`, "Program
       Philosophy". Lists every match Analysis & Matching produces, paged the
