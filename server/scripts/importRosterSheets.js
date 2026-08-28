@@ -48,6 +48,12 @@ const FILES = [
   { file: `ncaa_d2_womens_soccer_${SEASON}_rosters.csv`, sport: 'womens-soccer', division: 'NCAA D2' },
   { file: `ncaa_d3_womens_soccer_${SEASON}_rosters.csv`, sport: 'womens-soccer', division: 'NCAA D3' },
   { file: `naia_womens_soccer_${SEASON}_rosters.csv`, sport: 'womens-soccer', division: 'NAIA' },
+  // USCAA. The roster CSVs carry no division column — a row's division is the
+  // file it sits in — so a school filed under ncaa_d3_* is asserted to be NCAA
+  // D3 by its location alone. Penn State Schuylkill is not: it plays the PSUAC
+  // and contested the 2025 USCAA Division II national championship.
+  { file: `uscaa_mens_soccer_${SEASON}_rosters.csv`, sport: 'mens-soccer', division: 'USCAA' },
+  { file: `uscaa_womens_soccer_${SEASON}_rosters.csv`, sport: 'womens-soccer', division: 'USCAA' },
 ];
 
 function normalizeConfidence(raw) {

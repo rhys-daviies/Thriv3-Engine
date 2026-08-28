@@ -14,6 +14,7 @@ import AbilitySlider from '@/components/AbilitySlider';
 import PriorityTokens from '@/components/PriorityTokens';
 import ConferencePicker from '@/components/ConferencePicker';
 import { US_STATES, COUNTRIES, ORIGINS } from '@/lib/locations';
+import { DIVISIONS } from '@shared/divisions.js';
 // The bands and their ceilings live together, so the picker cannot offer a
 // band the model has no ceiling for.
 import { BUDGET_BANDS } from '@shared/matching/constants.js';
@@ -26,7 +27,9 @@ import { entities } from '@/api/client';
 // the profile and in the email. Stored as written and canonicalised on read
 // (shared/positions.js), so rows saved as 'Defense' keep matching.
 const POSITIONS = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
-const DIVISIONS = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA'];
+// Imported, not restated. This list was a third copy of the division
+// vocabulary and would have gone on offering five options after USCAA was
+// added, so an athlete could never have said they were open to it.
 
 
 /**
