@@ -1543,6 +1543,83 @@ The largest remaining build. Everything here is gated on the ESP decision.
       campaigns. The per-coach cap in §2.3 must be keyed on the person, not
       the (school, sport) pair.
 
+### 2.1b Program Intelligence → Email Evidence engine — **built 2026-08-28**
+
+Connects intelligence the product already held to the email path, and makes
+which personalisation angle was used a recorded fact rather than a guess.
+Nothing new was scraped; `shared/philosophy.js`, `shared/freshmanMinutes.js`
+and `shared/coachTenure.js` already computed most of it and reached only the
+Philosophy tab and its PDF.
+
+- [x] **`shared/evidence/`** — pure, alongside `shared/matching` and changing
+      nothing in it. `kinds.js` is the registry and the single place the
+      FACT/SIGNAL boundary is set; `generate.js` holds one generator per kind;
+      `select.js` filters, dedupes and ranks; `render.js` holds all copy;
+      `structures.js` holds six email shapes with eligibility predicates.
+      The backtest is byte-identical before and after (96.2% median, MRR
+      0.0886), which is the evidence that matching was not touched.
+- [x] **FACT vs SIGNAL enforced by the type, not by the copywriter.** A
+      generator cannot set its own tier — `defineEvidence` reads it from the
+      registry and freezes the object — and `renderFact` throws on anything
+      that is not a FACT. So a projection cannot acquire a plain declarative
+      sentence by any route. The case that matters: a graduating *count* is a
+      FACT, and which of them were *starters* is a SIGNAL, because every 2026
+      roster row carries null `minutes_played` and starter status is carried
+      forward from an earlier season.
+- [x] **Historical same-country and same-region evidence.** The largest free
+      win in the audit: for a New Zealand athlete, current-roster-only reaches
+      57 of 1,151 men's programmes, five seasons of history reaches 159, and
+      adding Australia reaches 301. Region is deliberately just NZ+Australia
+      and excludes the athlete's own country, so the two never restate one set.
+- [x] **Fixed a live defect in the drafting CLI.** `pool.js` emits
+      `graduating_at_position`; `buildEmailContext` read
+      `graduating_seniors_at_position`, bridged only inside
+      `playerAnalysis.js`. `draftOutreach.js` passes rankMatches rows straight
+      through, so **every drafted email silently lost its roster sentence** —
+      Evansville has four defenders graduating and the draft said nothing.
+      Both names are now read, permanently: `players.recommendations` holds
+      stored blobs under the legacy names.
+- [x] **Two correctness bugs found by running it on real data**, not by
+      reasoning:
+      - Bellarmine's rosters carry a *Rhys Davies* from Waipu, New Zealand,
+        and the athlete being drafted for is a New Zealand defender of that
+        name. Same person or namesake, "you've had one New Zealander come
+        through (Rhys Davies)" is wrong. The athlete is now excluded from
+        their own pipeline evidence.
+      - Notre Dame's 2022 and 2023 staff pages are `no-usable-page`, so
+        `tenureFor` starts Chad Riley's segment at 2024 and the evidence read
+        "two seasons into the job" about a man who has had it since 2018. An
+        unknown season *before* a segment now bounds the claim, exactly as
+        `coachTenure.js` intends.
+- [x] **`outreach_evidence`** — one row per outreach, written at send time,
+      carrying primary/secondary kind, tier, strength, structure, and the full
+      selection as JSON including what was suppressed and rejected. Outcomes
+      are joined from `engagement_rollup` rather than copied. `npm run
+      evidence -- --performance` asks the question the whole build exists for:
+      does HISTORICAL_SAME_COUNTRY out-reply POSITION_GRADUATION.
+- [x] **`npm run evidence`** — the operator-facing report: every piece of
+      evidence available for an athlete × programme, what was selected, what
+      was suppressed as redundant, the structure chosen, and the sentence the
+      email would carry.
+- [ ] **Wire the browser composer.** The engine is server-side today because
+      historical country evidence needs five seasons of roster rows, which the
+      client cannot load. `buildEmailContext` takes evidence as an optional
+      argument and behaves exactly as before without it, so the composer is
+      unchanged until a route is added. That route is the next step.
+- [ ] **Decide whether `--skip-inferred` becomes the default.** 1,159 of 6,347
+      addresses were inferred from an institutional pattern and never observed
+      to work. The flag exists and is off; making it the default loses the 45
+      programmes that have no better contact. A deliverability call, not a
+      code one.
+- [ ] **`intended_major` is empty on both pilot athletes**, so the academic
+      angle cannot fire at any of 1,151 programmes. The column, the form input
+      and the matching against `notable_majors` all work — this is data entry,
+      and it is the cheapest personalisation angle currently switched off.
+- [ ] **`draftOutreach.js` ranks on the 2025 roster while the app ranks on
+      2026.** Pre-existing and deliberately left alone here: changing it moves
+      which programmes reach the top 20, which is a matching change. Worth
+      settling separately.
+
 ### 2.2 ESP migration — **on hold, 2026-08-25**
 
 Not deferred for capacity: **decided against.** An ESP sending on behalf of
@@ -1951,9 +2028,47 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
       NAIA men's), Bay Path and Penn State Schuylkill (D3 women's). Only
       Calumet has a v6 soccer score, so the rest need records research first;
       inventing half-populated rows would feed blanks into matching. Separately
-      **Shawnee State** holds an NAIA row and a D2 row for the same programme
-      mid-transition, and the men's `Saint Francis (IL)` row says Peoria where
-      the school is in Joliet.
+      the men's `Saint Francis (IL)` row says Peoria where the school is in
+      Joliet.
+- [x] **Seeded the seven programmes that had rosters and no registry row.**
+      2026-08-28. 390 roster rows became visible. Six had no W-L-D anywhere, so
+      it was researched season by season and added to `soccer_records.csv` /
+      `_women.csv`, then v6 re-scored: **Graceland 47.81, Indiana University
+      East 44.00, Johnson University 41.13, Brewton-Parker 33.77, Penn State
+      Schuylkill 41.23, Bay Path 25.58.** Re-scoring moved every existing men's
+      row by at most 0.06 points and four rank places.
+
+      **A season page's URL is not its season.** johnsonroyals.com serves its
+      2024-25 season at the 2023-24 path — the page's own title says 2024-25 —
+      and psuschuylkillathletics.com did the same until `?view=all` was
+      appended. Reading the URL would have written 2024's record into 2023 for
+      both. Johnson's 2023 came from the Appalachian Athletic Conference
+      instead, validated by a control: the AAC's 2024-25 standings report
+      Johnson 6-7-4, exactly what the school's own page says, so the
+      conference's season labelling is sound. Search-result summaries were
+      wrong twice more (Graceland 2025 is 4-11-2, not the 3-11-3 a summary
+      claimed) — every figure here was read off the page's own "Overall" line.
+
+      **Bay Path's 2022 is blank, not 0-0-0**: its 2022-23 page lists no games
+      and its roster starts in 2023, so the programme did not exist. A zero
+      would have scored as a winless season.
+
+      Institutional facts (academic rating, and everything `loadMatchingInputs`
+      joins on UNITID) were copied from the same university's row in the other
+      sport; `soccer_score`, `national_ranking` and the win rates were NOT —
+      those describe a programme, not a university. Calumet's win rates came
+      back null at first because `soccer_records.csv` called it "Calumet
+      College" where the registry says "Calumet College of St. Joseph" — the
+      same two-spellings defect one layer up, fixed by aligning the records file.
+
+      **Penn State Schuylkill was deliberately NOT seeded.** Our roster and
+      records files both file it under NCAA D3, but it plays in the PSUAC and
+      its 2025 postseason was the USCAA Division II National Championship. It
+      is not an NCAA programme, and seeding it as D3 would offer an athlete a
+      division the school does not compete in. Penn State Brandywine already
+      sits in the registry with the same defect, so this is a class of two to
+      fix upstream, not a one-off to compound. 86 roster rows stay invisible
+      until then.
 - [ ] University quality and lifestyle report per school.
 - [x] **Recommendations tab** — shipped as `/player/:id/philosophy`, "Program
       Philosophy". Lists every match Analysis & Matching produces, paged the
