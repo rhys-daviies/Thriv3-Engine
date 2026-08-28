@@ -1875,9 +1875,45 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
       cliff (`eligibility_end_year`, 98% populated in every season), named 2026
       arrivals with their origin school (`prior_programme`), and the depth chart
       at a position (`projected_minutes`). All three live only on the 2026
-      roster, which **1,529 of 2,103 programmes have** — so those pages are
-      absent for a quarter of the pool and for 11 of Ryan's 19. Backfilling the
-      missing 2026 rosters is the single highest-value follow-up.
+      roster. **Backfilled 2026-08-28: 1,529 → 1,837 programmes**, and 19 of
+      Ryan's top 20 now carry all three (Amherst is the one that does not).
+- [x] **2026 roster backfill — 1,529 → 1,910 school-sports, 57,807 players.**
+      2026-08-28. NAIA had never been *on the worklist*: `build_targets.py`
+      globbed `ncaa_*_rosters.csv`, so 386 programmes read as "missing 2026"
+      when they had never been asked for. Four files hard-coded the six-NCAA
+      universe; all four now derive it, and the validator counts one file per
+      stem held in the reference season rather than a literal six — which would
+      have passed while validating none of the new data.
+
+      **Three defects, one shape: a cache that outlived the code that filled
+      it.** Each was invisible in the totals and each would have shipped.
+      (1) `absorb` merges every `done` entry in a stage file and trusts it, so
+      **14 rosters the previous run had refused came back** — eight at exactly
+      100% overlap with 2025, Virginia and Iowa among them, each carrying a
+      note reading "2025 name overlap 100%" written by code that no longer
+      exists. `verify_gate.py` now re-measures every done roster against the
+      gate in force *now* and purges demotions from the stage files; the runner
+      calls it before writing. Provenance is a story; the overlap is a number.
+      (2) **1,239 rows carried a redshirt's graduation a year late** — the
+      five-season revision landed one day after the first acquisition, so they
+      were correct when written and never re-fetched. Recomputed from the
+      stored class label rather than re-scraped. (3) **The validator's own
+      offset table was stale**, reporting those 1,239 correct rows as wrong and
+      hiding the 313 that genuinely were.
+
+      Also: rebuilding the worklist used to **discard every hand-repaired URL**
+      — including Notre Dame's, whose site serves a soft 404 with HTTP 200 at
+      the year-swapped path, so the reverted URL fails by parsing an empty
+      roster rather than by erroring.
+
+      Still missing: 194 — 143 in D3, which posts through September. Re-run
+      then. Two gaps are structural rather than calendar: **69 NAIA men's 2026
+      rosters are on disk and invisible to the app** because the roster files
+      spell the school long ("Avila University") and the men's registry short
+      ("Avila") — 54 of 79 resolve to exactly one registry row by normalised
+      name, 25 do not; and **41 NCAA programmes hold a registry row and appear
+      in no roster file of any season** (Pace, Anna Maria, UC Santa Cruz), which
+      no retry can find because the worklist is built from the roster files.
 - [ ] University quality and lifestyle report per school.
 - [x] **Recommendations tab** — shipped as `/player/:id/philosophy`, "Program
       Philosophy". Lists every match Analysis & Matching produces, paged the
