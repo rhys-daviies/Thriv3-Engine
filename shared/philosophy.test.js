@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   nameKey, vacancyObservations, dials, positionHistory,
   programmePhilosophy, playerFit, MIN_POSITION_MINUTES,
+  freshmanPoints, newcomerPoints, arrivalWindow, secondYearProgression,
+  intakeBySeason, positionSeasonGrid, eligibilityCliff, namedArrivals, depthChartAt,
 } from './philosophy.js';
 
 /**
@@ -302,5 +304,143 @@ describe('playerFit', () => {
     const fit = playerFit(philosophy, { position: 'Sweeper', nationality: null }, rows);
     expect(fit.asked).toEqual({ position: null, origin: null });
     expect(fit.position.transitions).toBe(0);
+  });
+});
+
+describe('the points a chart draws', () => {
+  // Names must differ ALPHABETICALLY between seasons: nameKey strips digits,
+  // so "Fresh 2022" and "Fresh 2023" are one person to the season join.
+  const NAMES = { 2022: ['Alan Ash', 'Vic Vale'], 2023: ['Ben Blue', 'Wes Ward'],
+    2024: ['Cal Cole', 'Xan Xu'], 2025: ['Dan Dole', 'Yan York'] };
+  const squad = (season, over = []) => ([
+    p({ season, player_name: NAMES[season][0], class_year_label: 'Fr.', minutes_played: 900, games_played: 17, games_started: 15 }),
+    p({ season, player_name: NAMES[season][1], class_year_label: 'Sr.', minutes_played: 1400, games_played: 18 }),
+    ...over,
+  ]);
+
+  it('carries origin and band onto every point', () => {
+    const pts = freshmanPoints(squad('2022'), { seasons: ['2022'] });
+    expect(pts).toHaveLength(1);
+    expect(pts[0]).toMatchObject({ band: 'impact', position: 'DEFENSE', gamesStarted: 15 });
+  });
+
+  // vacancyObservations excludes the 322 rows labelled Fr. in two consecutive
+  // seasons. A scatter that kept them would not add up to the dials printed on
+  // the facing page.
+  it('agrees with the fill mix about who is a freshman', () => {
+    const rows = [
+      ...squad('2022', [p({ season: '2022', player_name: 'Repeat', class_year_label: 'Fr.', minutes_played: 500, games_played: 12 })]),
+      ...squad('2023', [p({ season: '2023', player_name: 'Repeat', class_year_label: 'Fr.', minutes_played: 500, games_played: 12 })]),
+    ];
+    const names = freshmanPoints(rows, { seasons: ['2022', '2023'] })
+      .filter((x) => x.season === '2023').map((x) => x.name);
+    expect(names).toContain('Ben Blue');
+    expect(names).not.toContain('Repeat');   // already here, so not an arrival
+  });
+
+  // A quarter of men's programmes genuinely sign nobody. An empty array cannot
+  // be allowed to mean both that and "we have no previous season to compare".
+  it('says which seasons an arrival could even be detected in', () => {
+    const rows = [...squad('2022'), ...squad('2023')];
+    expect(arrivalWindow(rows, { seasons: ['2022', '2023'] }))
+      .toEqual({ measurable: ['2023'], unmeasurable: ['2022'] });
+  });
+
+  it('separates a transfer from a first-year', () => {
+    const rows = [
+      ...squad('2022'),
+      ...squad('2023', [p({ season: '2023', player_name: 'Portal', class_year_label: 'Jr.', minutes_played: 800, games_played: 15 })]),
+    ];
+    const nc = newcomerPoints(rows, { seasons: ['2022', '2023'] });
+    expect(nc.map((x) => x.name).sort()).toEqual(['Portal', 'Wes Ward']);
+  });
+
+  // The slope chart exists to show the ones who left. Collapsing "gone" into
+  // "unrecorded" erases exactly the finding.
+  it('tells apart a freshman who left, one who stayed, and one whose minutes were not recorded', () => {
+    const rows = [
+      p({ season: '2022', player_name: 'Stayed', class_year_label: 'Fr.', minutes_played: 300, games_played: 10 }),
+      p({ season: '2022', player_name: 'Left', class_year_label: 'Fr.', minutes_played: 400, games_played: 11 }),
+      p({ season: '2022', player_name: 'Blank', class_year_label: 'Fr.', minutes_played: 500, games_played: 12 }),
+      p({ season: '2023', player_name: 'Stayed', class_year_label: 'So.', minutes_played: 900, games_played: 17 }),
+      p({ season: '2023', player_name: 'Blank', class_year_label: 'So.', minutes_played: 0, games_played: null }),
+    ];
+    const byName = Object.fromEntries(
+      secondYearProgression(rows, { seasons: ['2022'] }).map((x) => [x.name, x]));
+    expect(byName.Stayed).toMatchObject({ year2State: 'measured', year2: 900 });
+    expect(byName.Left).toMatchObject({ year2State: 'gone', year2: null });
+    expect(byName.Blank).toMatchObject({ year2State: 'unrecorded', year2: null });
+  });
+
+  // A missing column reads as a season that did not happen.
+  it('keeps a season whose minutes were never recorded, with a null load', () => {
+    const rows = [
+      ...squad('2022'),
+      ...Array.from({ length: 6 }, (_, i) => p({
+        season: '2023', player_name: `Ghost ${i}`, minutes_played: 0, games_played: null,
+      })),
+    ];
+    const seasons = intakeBySeason(rows, { seasons: ['2022', '2023'] });
+    expect(seasons.map((s) => s.season)).toEqual(['2022', '2023']);
+    expect(seasons[1]).toMatchObject({ readable: false, load: null, freshmanShare: null });
+  });
+
+  it('gives a position cell null rather than zero when its rows are unreadable', () => {
+    const rows = [
+      p({ season: '2022', player_name: 'One', minutes_played: 900, games_played: 17 }),
+      ...Array.from({ length: 5 }, (_, i) => p({
+        season: '2022', player_name: `Blank ${i}`, minutes_played: 0, games_played: null,
+      })),
+    ];
+    const grid = positionSeasonGrid(rows, { seasons: ['2022'] });
+    const def = grid.find((g) => g.position === 'DEFENSE').cells[0];
+    expect(def).toMatchObject({ players: 6, measured: 1, load: null, share: null });
+  });
+});
+
+describe('the squad a recruit would join', () => {
+  const squadRow = (over) => ({
+    college_name: 'Test College', sport: 'mens-soccer', season: '2026',
+    player_name: 'A', position: 'DEFENSE', class_year_label: 'Sr.',
+    eligibility_end_year: 2027, projected_minutes: 900, prior_programme: 'Test College', ...over,
+  });
+
+  it('adds up the minutes due to leave, by the year they end', () => {
+    const cliff = eligibilityCliff([
+      squadRow({ player_name: 'A', eligibility_end_year: 2026, projected_minutes: 1000 }),
+      squadRow({ player_name: 'B', eligibility_end_year: 2026, projected_minutes: 500 }),
+      squadRow({ player_name: 'C', eligibility_end_year: 2028, projected_minutes: 700 }),
+    ]);
+    expect(cliff.map((y) => [y.year, y.total])).toEqual([[2026, 1500], [2028, 700]]);
+  });
+
+  // A quarter of programmes have no 2026 roster at all, so this is the common
+  // path, not the edge.
+  it('returns nothing rather than zeros when there is no squad on file', () => {
+    expect(eligibilityCliff([])).toBeNull();
+    expect(depthChartAt([], 'Defender')).toBeNull();
+    expect(namedArrivals([], { school: 'Test College' })).toEqual([]);
+  });
+
+  // Most prior_programme values are the programme's own name — those are
+  // returners, and counting them as arrivals would treat the whole squad as
+  // transfers.
+  it('counts only players who came from somewhere else', () => {
+    const arrivals = namedArrivals([
+      squadRow({ player_name: 'Returner', prior_programme: 'Test College' }),
+      squadRow({ player_name: 'Signing', prior_programme: 'Another School', projected_minutes: null }),
+    ], { school: 'Test College' });
+    expect(arrivals.map((a) => a.name)).toEqual(['Signing']);
+    expect(arrivals[0].from).toBe('Another School');
+  });
+
+  it('orders the depth chart by who is expected to play most', () => {
+    const depth = depthChartAt([
+      squadRow({ player_name: 'Backup', projected_minutes: 100 }),
+      squadRow({ player_name: 'Starter', projected_minutes: 1400, eligibility_end_year: 2026 }),
+      squadRow({ player_name: 'Keeper', position: 'GOALKEEPER', projected_minutes: 1800 }),
+    ], 'Defender');
+    expect(depth.map((d) => d.name)).toEqual(['Starter', 'Backup']);
+    expect(depth[0].eligibleTo).toBe(2026);
   });
 });

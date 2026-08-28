@@ -152,9 +152,19 @@ export function playerProgrammeModel({ playerId, collegeId } = {}) {
   }
   const base = programmeModel({ collegeId });
   const found = fitFor(collegeId, athlete);
+  // The season THIS athlete would arrive in, which is not necessarily the one
+  // the squad data describes. Ryan Billings is a 2027 entrant, and a report
+  // built on RECRUIT_SEASON told him "the 2026 season has not been played" —
+  // true, and a year adrift of the question he is asking.
+  const entrySeason = Number(athlete.recruiting_class_year) || RECRUIT_SEASON;
   return {
     ...base,
     kind: 'player',
+    entrySeason,
+    // Stated rather than backfilled: coach_seasons stops at 2026, so for a
+    // later entrant there is no row and we must not reuse the 2026 name.
+    coachForEntrySeason: entrySeason === RECRUIT_SEASON ? base.coachForRecruitSeason : null,
+    entrySeasonKnown: entrySeason === RECRUIT_SEASON,
     athlete: {
       id: athlete.id,
       name: athlete.full_name,

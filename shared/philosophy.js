@@ -25,7 +25,8 @@
 
 import {
   freshmanProfile, classifyProgramme, weightsFromVerdict, ladderByRank,
-  isTrueFreshman, minutesAreMissing, cohortFor,
+  isTrueFreshman, minutesAreMissing, cohortFor, originOf, bandFor,
+  MIN_MEASURED_SHARE,
 } from './freshmanMinutes.js';
 import { tenureFor, stillInPost } from './coachTenure.js';
 import { canonicalPosition, POSITIONS } from './positions.js';
@@ -34,6 +35,18 @@ export const SEASONS = ['2022', '2023', '2024', '2025'];
 export const RECRUIT_SEASON = 2026;
 export const TRANSITIONS = [['2022', '2023'], ['2023', '2024'], ['2024', '2025']];
 export const STARTER_MINUTES = 600;
+
+/**
+ * The squad that is on campus now.
+ *
+ * Deliberately NOT added to SEASONS. All 46,028 of its rows carry null minutes
+ * and null games — every one is unmeasured by construction — and SEASONS feeds
+ * the ladder, the squad share, the position grid and the vacancy transitions.
+ * Pushing it through four calculations that all have to refuse it would make
+ * those refusals load-bearing and invisible. It is loaded on its own, by the
+ * analyses that want a roster rather than a record.
+ */
+export const SQUAD_SEASON = '2026';
 
 /**
  * How much of a season a position group has to have played before its shares
@@ -272,4 +285,235 @@ export function playerFit(philosophy, athlete, rows, { seasons = SEASONS } = {})
     // 17 of one pilot athlete's 19 programmes.
     wholeIntakeLadder: philosophy.ladder,
   };
+}
+
+// ---------------------------------------------------------------------------
+// The raw material for a report that shows the data rather than summarising it
+// ---------------------------------------------------------------------------
+
+const bySeasonMap = (rows) => {
+  const m = new Map();
+  for (const r of rows) {
+    const s = String(r.season);
+    if (!m.has(s)) m.set(s, []);
+    m.get(s).push({ ...r, season: s, nk: nameKey(r.player_name) });
+  }
+  return m;
+};
+
+/**
+ * Which seasons we can say anything about arrivals in.
+ *
+ * "Did not arrive last summer" is only a fact where last season is on file.
+ * Without this the transfer section cannot tell a programme that signs nobody
+ * from one whose previous roster we never read — and since a quarter of
+ * programmes genuinely sign nobody, that is the difference between a finding
+ * and a hole.
+ */
+export function arrivalWindow(rows, { seasons = SEASONS } = {}) {
+  const by = bySeasonMap(rows);
+  const measurable = [];
+  const unmeasurable = [];
+  for (const season of seasons) {
+    if (!by.has(season)) continue;
+    (by.has(String(Number(season) - 1)) ? measurable : unmeasurable).push(season);
+  }
+  return { measurable, unmeasurable };
+}
+
+/** Every arrival, as a point, so a chart can show players instead of averages. */
+function pointsOf(rows, seasons, kind) {
+  const by = bySeasonMap(rows);
+  const out = [];
+  for (const season of seasons) {
+    const here = by.get(season) ?? [];
+    const prevSeason = String(Number(season) - 1);
+    const knownBefore = by.has(prevSeason);
+    const before = new Set((by.get(prevSeason) ?? []).map((r) => r.nk));
+    for (const r of here) {
+      if (minutesAreMissing(r)) continue;
+      const fresh = isTrueFreshman(r);
+      const arrived = knownBefore ? !before.has(r.nk) : null;
+      // A first-year who was already here did not arrive. vacancyObservations
+      // excludes those 322 rows from its freshman count, and a scatter that
+      // included them would not add up to the dials on the facing page.
+      if (kind === 'freshman' && (!fresh || arrived === false)) continue;
+      if (kind === 'newcomer' && (fresh || arrived !== true)) continue;
+      out.push({
+        season, name: r.player_name,
+        position: canonicalPosition(r.position),
+        classLabel: r.class_year_label ?? null,
+        minutes: minutesOf(r),
+        gamesPlayed: Number(r.games_played) || 0,
+        gamesStarted: Number(r.games_started) || 0,
+        origin: originOf(r),
+        priorProgramme: r.prior_programme ?? null,
+        arrived,
+        band: bandFor(minutesOf(r)),
+      });
+    }
+  }
+  return out.sort((a, b) => b.minutes - a.minutes);
+}
+
+export function freshmanPoints(rows, { seasons = SEASONS } = {}) {
+  return pointsOf(rows, seasons, 'freshman');
+}
+
+/**
+ * Arrivals who are not first-years: the transfer intake. Pair it with
+ * `arrivalWindow` — an empty array means nothing on its own.
+ */
+export function newcomerPoints(rows, { seasons = SEASONS } = {}) {
+  return pointsOf(rows, seasons, 'newcomer');
+}
+
+/**
+ * What happened to each freshman in their SECOND season.
+ *
+ * The ladder says whether a programme plays freshmen. This says whether the
+ * ones who did not play in year one are still not playing in year two — the
+ * question a recruit who expects to wait is actually asking.
+ *
+ * Three states, not two. "Not on the next roster" and "on it with unrecorded
+ * minutes" are different facts and the first is the whole point of the chart.
+ */
+export function secondYearProgression(rows, { seasons = SEASONS } = {}) {
+  const by = bySeasonMap(rows);
+  const out = [];
+  for (const season of seasons) {
+    const next = by.get(String(Number(season) + 1));
+    if (!next) continue;
+    const index = new Map(next.map((r) => [r.nk, r]));
+    for (const r of (by.get(season) ?? [])) {
+      if (!isTrueFreshman(r) || minutesAreMissing(r)) continue;
+      const then = index.get(r.nk);
+      const state = !then ? 'gone' : minutesAreMissing(then) ? 'unrecorded' : 'measured';
+      out.push({
+        season, name: r.player_name, position: canonicalPosition(r.position),
+        year1: minutesOf(r),
+        year2: state === 'measured' ? minutesOf(then) : null,
+        year2State: state,
+      });
+    }
+  }
+  return out;
+}
+
+/**
+ * Who the minutes went to each season, by where the player came from.
+ *
+ * A season whose minutes were never recorded KEEPS ITS ROW with `load: null`.
+ * Dropping it makes a column vanish from a chart, and a missing column reads
+ * as a season that did not happen.
+ */
+export function intakeBySeason(rows, { seasons = SEASONS } = {}) {
+  const fresh = freshmanPoints(rows, { seasons });
+  const newcomers = newcomerPoints(rows, { seasons });
+  const window = arrivalWindow(rows, { seasons });
+  const by = bySeasonMap(rows);
+  return seasons.filter((s) => by.has(s)).map((season) => {
+    const all = by.get(season) ?? [];
+    const squad = all.filter((r) => !minutesAreMissing(r));
+    const readable = all.length && squad.length / all.length >= MIN_MEASURED_SHARE;
+    const load = squad.reduce((s, r) => s + minutesOf(r), 0);
+    const f = fresh.filter((p) => p.season === season);
+    const n = newcomers.filter((p) => p.season === season);
+    const sum = (list) => list.reduce((s, p) => s + p.minutes, 0);
+    return {
+      season, rostered: all.length, measured: squad.length,
+      readable, load: readable ? load : null,
+      freshmen: f.length, freshmanMinutes: readable ? sum(f) : null,
+      freshmanStarters: f.filter((p) => p.minutes >= STARTER_MINUTES).length,
+      newcomers: n.length, newcomerMinutes: readable ? sum(n) : null,
+      newcomerStarters: n.filter((p) => p.minutes >= STARTER_MINUTES).length,
+      arrivalsMeasurable: window.measurable.includes(season),
+      freshmanShare: readable && load ? sum(f) / load : null,
+      newcomerShare: readable && load ? sum(n) / load : null,
+    };
+  });
+}
+
+/** Freshman minutes as a share of each position's load, season by season. */
+export function positionSeasonGrid(rows, { seasons = SEASONS } = {}) {
+  return POSITIONS.map((pos) => ({
+    position: pos,
+    cells: seasons.map((season) => {
+      const at = rows.filter((r) => String(r.season) === season
+        && canonicalPosition(r.position) === pos);
+      const shown = at.filter((r) => !minutesAreMissing(r));
+      // The same guard the seasons get: a cell built from two legible rows out
+      // of nine is a measurement of the two rows.
+      const readable = at.length > 0 && shown.length / at.length >= MIN_MEASURED_SHARE;
+      const load = shown.reduce((s, r) => s + minutesOf(r), 0);
+      const f = shown.filter(isTrueFreshman).reduce((s, r) => s + minutesOf(r), 0);
+      return {
+        season, players: at.length, measured: shown.length, load: readable ? load : null,
+        share: readable && load ? f / load : null,
+      };
+    }),
+  }));
+}
+
+/**
+ * How many minutes are due to walk out of each position, and when.
+ *
+ * `eligibility_end_year` is 98% populated in every season and nothing in the
+ * product reads it. Paired with the current squad's projected minutes it is the
+ * closest the data comes to answering "when does a place actually open here".
+ */
+export function eligibilityCliff(squadRows, { positions = POSITIONS } = {}) {
+  const rows = squadRows.filter((r) => r.eligibility_end_year != null);
+  if (!rows.length) return null;
+  const years = [...new Set(rows.map((r) => Number(r.eligibility_end_year)))].sort();
+  return years.map((year) => ({
+    year,
+    total: rows.filter((r) => Number(r.eligibility_end_year) === year)
+      .reduce((s, r) => s + (Number(r.projected_minutes) || 0), 0),
+    byPosition: positions.map((pos) => ({
+      position: pos,
+      minutes: rows.filter((r) => Number(r.eligibility_end_year) === year
+        && canonicalPosition(r.position) === pos)
+        .reduce((s, r) => s + (Number(r.projected_minutes) || 0), 0),
+      players: rows.filter((r) => Number(r.eligibility_end_year) === year
+        && canonicalPosition(r.position) === pos).length,
+    })),
+  }));
+}
+
+/**
+ * Arrivals the roster names outright, rather than ones inferred from absence.
+ *
+ * `prior_programme` is populated for 63% of squad-season rows and holds the
+ * school a player came from. Most values are the programme's own name — those
+ * are returners, not arrivals — so the filter is the whole function.
+ */
+export function namedArrivals(squadRows, { school } = {}) {
+  return squadRows
+    .filter((r) => r.prior_programme && nameKey(r.prior_programme) !== nameKey(school))
+    .map((r) => ({
+      name: r.player_name,
+      position: canonicalPosition(r.position),
+      classLabel: r.class_year_label ?? null,
+      from: r.prior_programme,
+      projectedMinutes: r.projected_minutes ?? null,
+    }))
+    .sort((a, b) => (b.projectedMinutes ?? 0) - (a.projectedMinutes ?? 0));
+}
+
+/** Who is already at this position, and the year each one's eligibility ends. */
+export function depthChartAt(squadRows, position) {
+  const key = canonicalPosition(position);
+  if (key === 'UNKNOWN') return null;
+  const at = squadRows.filter((r) => canonicalPosition(r.position) === key);
+  if (!at.length) return null;
+  return at
+    .map((r) => ({
+      name: r.player_name,
+      classLabel: r.class_year_label ?? null,
+      projectedMinutes: r.projected_minutes ?? null,
+      eligibleTo: r.eligibility_end_year ?? null,
+      arrivedFrom: r.prior_programme ?? null,
+    }))
+    .sort((a, b) => (b.projectedMinutes ?? -1) - (a.projectedMinutes ?? -1));
 }
