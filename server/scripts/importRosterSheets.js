@@ -5,6 +5,8 @@ import { parseCsvToObjects } from '../lib/csv.js';
 import { normalizePosition } from '../lib/positions.js';
 import { readClassYear } from '../../shared/classYear.js';
 import { isPlausibleName, cleanRosterName } from '../lib/rosterName.js';
+import { registrySchoolName } from '../lib/rosterSchoolAliases.js';
+import db from '../db/client.js';
 import { RosterPlayer } from '../db/entities/rosterPlayer.js';
 
 /**
@@ -58,6 +60,25 @@ function toIntOrNull(raw) {
   return Number.isNaN(n) ? null : n;
 }
 
+/**
+ * Imported schools with no row in `colleges` for that sport.
+ *
+ * Returns nothing when the registry is empty — a test database importing
+ * rosters before any college exists is not reporting 1,900 orphans.
+ */
+function orphanSchools(records, sport) {
+  const known = new Set(
+    db.prepare('SELECT name FROM colleges WHERE sport = ?').all(sport).map((r) => r.name),
+  );
+  if (!known.size) return [];
+  const counts = new Map();
+  for (const r of records) {
+    if (known.has(r.college_name)) continue;
+    counts.set(r.college_name, (counts.get(r.college_name) || 0) + 1);
+  }
+  return [...counts].map(([name, rows]) => ({ name, rows })).sort((a, b) => b.rows - a.rows);
+}
+
 function importFile({ file, sport, division }) {
   const filePath = path.join(DATA_DIR, file);
   if (!fs.existsSync(filePath)) {
@@ -73,9 +94,18 @@ function importFile({ file, sport, division }) {
   const unnamed = [];
   const impossibleGrad = [];
 
+  const renamed = new Map();
   const records = rows
     .map((row) => {
-      const college_name = (row['School'] || '').trim();
+      // The roster sources write a school's full official name and the men's
+      // registry writes a terse one, so a school can be spelled two ways and
+      // therefore be invisible to every join in the product. Resolved to the
+      // registry's spelling HERE rather than in each consumer: the join is
+      // `college_name = colleges.name` in matching, philosophy and engagement
+      // alike, and an alias applied in one of them is a bug in the other two.
+      const rawSchool = (row['School'] || '').trim();
+      const college_name = registrySchoolName(rawSchool, { sport, division });
+      if (college_name !== rawSchool) renamed.set(rawSchool, college_name);
       const player_name = cleanRosterName(row['Player Name']);
       if (!college_name || !player_name) return null;
 
@@ -175,6 +205,21 @@ function importFile({ file, sport, division }) {
   console.log(
     `  ${file}: ${records.length} players (${withPosition} with position, ${withGradYear} with estimated graduation)`
   );
+  if (renamed.size) {
+    console.log(`    ${renamed.size} school name(s) resolved to the registry's spelling, e.g. ${
+      [...renamed].slice(0, 3).map(([f, t]) => `${JSON.stringify(f)} -> ${JSON.stringify(t)}`).join(', ')}`);
+  }
+  // A school the registry does not hold is a school no feature can read, and
+  // it is silent: the rows import, the totals look right, and the programme
+  // simply never appears. Say so on every import rather than discovering it
+  // later from a coverage count.
+  const orphans = orphanSchools(records, sport);
+  if (orphans.length) {
+    console.log(`    !! ${orphans.length} school(s) have no colleges row, so ${
+      orphans.reduce((n, o) => n + o.rows, 0)} row(s) are invisible to every join:`);
+    for (const o of orphans.slice(0, 8)) console.log(`       ${o.name} (${o.rows} players)`);
+    if (orphans.length > 8) console.log(`       ...and ${orphans.length - 8} more`);
+  }
 
   // Loud on purpose. A misread column is invisible in the totals above — the
   // rows still import, they just carry a club name where a class should be.
