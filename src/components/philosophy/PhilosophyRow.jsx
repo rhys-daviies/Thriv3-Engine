@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Download, Loader2, FileText, UserRound } from 'lucide-react';
+import { Download, Loader2, FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Disclosure } from '@/components/ui/Disclosure';
@@ -63,7 +63,7 @@ function LadderRow({ rung }) {
  */
 export function PhilosophyRow({ college, summary, player }) {
   const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(null);      // null | 'generic' | 'player'
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const alive = useRef(true);
   // Set on the way IN as well as cleared on the way out. StrictMode runs
@@ -79,21 +79,17 @@ export function PhilosophyRow({ college, summary, player }) {
   const verdict = summary?.verdict ? verdictLabel(summary.verdict.verdict) : null;
   const top = ladderTopText(summary?.ladderTop);
 
-  async function download(kind) {
-    setBusy(kind);
+  async function download() {
+    setBusy(true);
     setError(null);
     try {
-      const blob = kind === 'generic'
-        ? await philosophy.programmePdf(college.id)
-        : await philosophy.playerPdf(player.id, college.id);
-      const name = kind === 'generic'
-        ? `programme-philosophy-${slug(college.name)}.pdf`
-        : `${slug(player.full_name)}-at-${slug(college.name)}.pdf`;
-      downloadBlob(blob, name);
+      const blob = await philosophy.report(college.id, player?.id ?? null);
+      downloadBlob(blob, `program-report-${slug(college.name)}`
+        + `${player ? `-for-${slug(player.full_name)}` : ''}.pdf`);
     } catch (err) {
       if (alive.current) setError(err.message);
     } finally {
-      if (alive.current) setBusy(null);
+      if (alive.current) setBusy(false);
     }
   }
 
@@ -171,26 +167,21 @@ export function PhilosophyRow({ college, summary, player }) {
         ) : null}
 
         <div className="flex flex-wrap items-center gap-2 pt-1">
-          <Button size="sm" variant="outline" disabled={busy !== null || !summary?.reports?.generic}
-            onClick={() => download('generic')}>
-            {busy === 'generic'
+          <Button size="sm" variant="outline" disabled={busy || !summary?.reports?.available}
+            onClick={download}>
+            {busy
               ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
               : <FileText className="h-3.5 w-3.5 mr-1.5" />}
-            {busy === 'generic' ? 'Generating…' : 'Programme report'}
-          </Button>
-          <Button size="sm" variant="outline" disabled={busy !== null || !summary?.reports?.player}
-            onClick={() => download('player')}>
-            {busy === 'player'
-              ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-              : <UserRound className="h-3.5 w-3.5 mr-1.5" />}
-            {busy === 'player' ? 'Generating…' : `For ${player.full_name.split(' ')[0]}`}
+            {busy ? 'Generating…' : 'Program report'}
           </Button>
           <Download className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
           <span className="text-xs text-muted-foreground">PDF</span>
           {/* Stated as text, not a title attribute — a tooltip is invisible on
               touch and to most screen readers. */}
           {summary?.reports?.playerReason && (
-            <span className="text-xs text-muted-foreground">— {summary.reports.playerReason}</span>
+            <span className="text-xs text-muted-foreground">
+              — the section for {player.full_name.split(' ')[0]} will say why it could not be read
+            </span>
           )}
         </div>
 

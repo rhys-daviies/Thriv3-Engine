@@ -50,7 +50,7 @@ const BAND_LABEL = {
   fringe: 'fringe minutes', none: 'did not play',
 };
 
-function kit(doc) {
+export function kit(doc) {
   const api = {
     doc,
     y() { return doc.y; },
@@ -178,6 +178,28 @@ function kit(doc) {
       return api.gap(6);
     },
 
+    /**
+     * Reserve a box for a chart and advance past it.
+     *
+     * Charts draw with absolute coordinates inside the box rather than off the
+     * flow cursor, because pdfkit will auto-paginate out from under a
+     * half-drawn axis the moment a `text` call runs past the page bottom.
+     */
+    slot(height) {
+      api.room(height + 6);
+      const box = { x: M, y: doc.y, w: W, h: height };
+      doc.y = box.y + height;
+      api.gap(8);
+      return box;
+    },
+
+    /** Graphics-state guard: opacity leaks into everything drawn after it. */
+    dim(alpha, fn) {
+      doc.save().fillOpacity(alpha).strokeOpacity(alpha);
+      try { fn(); } finally { doc.restore(); }
+      return api;
+    },
+
     /** A two-column fact list. */
     facts(rows) {
       for (const [k, v] of rows) {
@@ -205,7 +227,7 @@ function kit(doc) {
 }
 
 /** Turns the stored cohort keys in a refusal string into words. */
-function humanCohort(text) {
+export function humanCohort(text) {
   return String(text ?? '')
     .replace(/GOALKEEPER/g, 'goalkeepers').replace(/DEFENSE/g, 'defenders')
     .replace(/MIDFIELD/g, 'midfielders').replace(/FORWARD/g, 'forwards')
@@ -214,21 +236,31 @@ function humanCohort(text) {
     .replace(/ \/ /g, ' who are ');
 }
 
-const minutes = (v) => (v == null ? null : `${Math.round(v).toLocaleString('en-US')} min`);
+export const minutes = (v) => (v == null ? null : `${Math.round(v).toLocaleString('en-US')} min`);
 
-function footer(doc, line) {
+export function footer(doc, line) {
+  // The footer sits INSIDE the bottom margin, and pdfkit adds a page for any
+  // text written below it — while this loop is walking the pages. One report
+  // grew sixteen blank pages that way, each carrying nothing but the footer
+  // that created it. Dropping the margin for the duration is the fix; the
+  // range is read once, before anything is written, so it cannot grow.
   const range = doc.bufferedPageRange();
-  for (let i = range.start; i < range.start + range.count; i += 1) {
+  const total = range.count;
+  for (let i = range.start; i < range.start + total; i += 1) {
     doc.switchToPage(i);
+    const keep = doc.page.margins.bottom;
+    doc.page.margins.bottom = 0;
+    const y = doc.page.height - M + 6;
     doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
-      .text(line, M, doc.page.height - M + 6, { width: W - 40, lineBreak: false });
+      .text(line, M, y, { width: W - 40, lineBreak: false });
     doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
-      .text(`${i - range.start + 1}/${range.count}`, M + W - 40, doc.page.height - M + 6,
+      .text(`${i - range.start + 1}/${total}`, M + W - 40, y,
         { width: 40, align: 'right', lineBreak: false });
+    doc.page.margins.bottom = keep;
   }
 }
 
-function render(build) {
+export function render(build) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: M, bufferPages: true,
       info: { Producer: 'Thriv3', Creator: 'Thriv3' } });
@@ -249,7 +281,7 @@ function render(build) {
 // Shared sections
 // ---------------------------------------------------------------------------
 
-function masthead(k, model, title, subtitle) {
+export function masthead(k, model, title, subtitle) {
   const { doc } = k;
   doc.font('Helvetica-Bold').fontSize(8.5).fillColor(CLARET)
     .text('THRIV3', M, M - 18, { width: W, characterSpacing: 1.4 });
@@ -259,7 +291,7 @@ function masthead(k, model, title, subtitle) {
 }
 
 /** The claim the whole document has to make on page one, at full size. */
-function whatThisIs(k, model) {
+export function whatThisIs(k, model) {
   const seasons = model.describes.length
     ? `${model.describes[0]}–${model.describes[model.describes.length - 1]}`
     : 'no seasons on file';
@@ -268,7 +300,7 @@ function whatThisIs(k, model) {
     + 'it is a track record to weigh, and the pages that follow say where it is thin.');
 }
 
-function whoRunsIt(k, model) {
+export function whoRunsIt(k, model) {
   k.heading('Who has been in charge');
   const segments = (model.tenure?.segments ?? [])
     .map((s) => `${s.coach} (${s.from}${s.to === s.from ? '' : `–${s.to}`})`);
@@ -291,7 +323,7 @@ function whoRunsIt(k, model) {
   }
 }
 
-function ladderSection(k, model) {
+export function ladderSection(k, model) {
   k.heading('What a first year has looked like');
   if (!model.ladder.length) {
     k.body('No season on file carries enough recorded minutes to describe a first year here — '
@@ -327,7 +359,7 @@ function ladderSection(k, model) {
     + 'played a starter’s season.');
 }
 
-function benchmarkSection(k, model) {
+export function benchmarkSection(k, model) {
   k.heading('Against every other programme');
   if (!model.benchmarks) {
     k.body(`We could not place this programme against the pool: ${model.benchmarksReason}.`,
@@ -345,7 +377,7 @@ function benchmarkSection(k, model) {
   k.bar({ label: 'Top quarter of them', value: rank1?.p75 ?? null, max, marker: STARTER_MINUTES, color: PALE });
 }
 
-function fillMixSection(k, model) {
+export function fillMixSection(k, model) {
   k.heading('When a place comes free, who takes it');
   k.body('Every season, at every position, some players leave. This is where the minutes they '
     + 'were playing went the following season.', { color: MUTED });
@@ -361,7 +393,7 @@ function fillMixSection(k, model) {
     + 'of it goes to transfers rather than to freshmen.');
 }
 
-function positionSection(k, model) {
+export function positionSection(k, model) {
   k.heading('Position by position');
   const rows = model.byPosition.filter((p) => p.transitions > 0);
   if (!rows.length) {
@@ -380,7 +412,7 @@ function positionSection(k, model) {
     + 'reads far more confidently than it deserves to.');
 }
 
-function limits(k, model, extra = []) {
+export function limits(k, model, extra = []) {
   k.heading('What this cannot tell you');
   k.bullets([
     `Nothing here is a forecast. The ${model.recruitSeason} season has not been played.`,
@@ -498,4 +530,274 @@ export function renderPlayerProgrammePdf(model) {
     ]);
     footer(k.doc, `Thriv3 · ${a.name} at ${c.name} · prepared ${new Date().toISOString().slice(0, 10)}`);
   });
+}
+
+// ---------------------------------------------------------------------------
+// Charts
+//
+// One rule, enforced in `frame`: a chart handed no data and no reason THROWS.
+// It does not draw an empty frame. `render()` buffers the document before any
+// header is written, so the throw becomes a 500 with a message rather than a
+// PDF that opens on a confident empty axis — which is the defect this project
+// has shipped, found and fixed more times than any other.
+// ---------------------------------------------------------------------------
+
+const AXIS = '#C3CBD4';
+export const THEME = { INK, MUTED, LINE, CLARET, NAVY, MID, PALE, GREEN, M, W, AXIS,
+  VERDICT_LABEL, BAND_LABEL };
+
+function frame(k, box, { title, subtitle, unavailable, empty }) {
+  const { doc } = k;
+  let top = box.y;
+  if (title) {
+    doc.font('Helvetica-Bold').fontSize(9.5).fillColor(INK)
+      .text(title, box.x, top, { width: box.w, lineBreak: false });
+    top += 13;
+  }
+  if (subtitle) {
+    doc.font('Helvetica').fontSize(8).fillColor(MUTED)
+      .text(subtitle, box.x, top, { width: box.w, lineBreak: false });
+    top += 11;
+  }
+  const plot = { x: box.x, y: top, w: box.w, h: box.h - (top - box.y) };
+  if (unavailable) {
+    // No axes. An axis with nothing on it reads as "measured, all zero".
+    doc.save().roundedRect(plot.x, plot.y, plot.w, Math.max(24, plot.h), 3)
+      .lineWidth(0.75).strokeColor(LINE).stroke().restore();
+    doc.font('Helvetica-Oblique').fontSize(8.5).fillColor(MUTED)
+      .text(unavailable, plot.x + 12, plot.y + Math.max(24, plot.h) / 2 - 5,
+        { width: plot.w - 24, align: 'center', lineBreak: false, ellipsis: true });
+    return null;
+  }
+  if (empty) {
+    throw new Error(`chart "${title}" has no data and no stated reason`);
+  }
+  return plot;
+}
+
+const nice = (v) => Math.round(v).toLocaleString('en-US');
+
+export const charts = {
+  /**
+   * Every player as a dot: minutes across the x-axis, one lane per season.
+   *
+   * Sized by games PLAYED, not games started — a start is roughly ninety
+   * minutes, so sizing by starts on a minutes axis encodes the axis twice and
+   * adds ink rather than information. Whether they started is the fill.
+   */
+  scatter(k, { box, title, subtitle, lanes, points, xMax, marker, markerLabel, unavailable }) {
+    const plot = frame(k, box, { title, subtitle, unavailable, empty: !points?.length });
+    if (!plot) return;
+    const { doc } = k;
+    const left = plot.x + 34;
+    const w = plot.w - 34;
+    const laneH = Math.min(26, (plot.h - 14) / lanes.length);
+
+    if (marker != null && marker <= xMax) {
+      const mx = left + (marker / xMax) * w;
+      doc.save().dash(2, { space: 2 }).moveTo(mx, plot.y).lineTo(mx, plot.y + lanes.length * laneH)
+        .lineWidth(0.75).strokeColor(CLARET).stroke().undash().restore();
+      if (markerLabel) {
+        doc.font('Helvetica').fontSize(6.5).fillColor(CLARET)
+          .text(markerLabel, mx + 3, plot.y + lanes.length * laneH + 2, { width: 90, lineBreak: false });
+      }
+    }
+
+    lanes.forEach((lane, i) => {
+      const cy = plot.y + i * laneH + laneH / 2;
+      doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
+        .text(lane, plot.x, cy - 4, { width: 30, lineBreak: false });
+      doc.save().moveTo(left, cy).lineTo(left + w, cy).lineWidth(0.4).strokeColor(LINE).stroke().restore();
+      for (const pt of points.filter((p) => p.lane === lane)) {
+        const cx = left + Math.min(1, pt.value / xMax) * w;
+        const r = 2 + Math.sqrt(Math.max(0, pt.size ?? 0) / (pt.sizeMax || 20)) * 3.6;
+        doc.save().fillOpacity(pt.solid ? 0.85 : 0.32)
+          .circle(cx, cy, r).fill(pt.color ?? NAVY).restore();
+      }
+    });
+
+    // Anyone whose minutes were never recorded sits in a gutter, not at zero.
+    const ghosts = points.filter((p) => p.value == null).length;
+    doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+      .text(`0${' '.repeat(0)}`, left - 3, plot.y + lanes.length * laneH + 2, { width: 20, lineBreak: false });
+    doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+      .text(nice(xMax), left + w - 24, plot.y + lanes.length * laneH + 2, { width: 30, align: 'right', lineBreak: false });
+    if (ghosts) {
+      doc.font('Helvetica-Oblique').fontSize(6.5).fillColor(MUTED)
+        .text(`${ghosts} with no minutes recorded, not shown`, plot.x, plot.y + lanes.length * laneH + 11,
+          { width: plot.w, lineBreak: false });
+    }
+  },
+
+  /** Year one on the left, year two on the right, one line per player. */
+  slope(k, { box, title, subtitle, pairs, max, leftLabel, rightLabel, unavailable }) {
+    const plot = frame(k, box, { title, subtitle, unavailable, empty: !pairs?.length });
+    if (!plot) return;
+    const { doc } = k;
+    const h = plot.h - 16;
+    const lx = plot.x + 40;
+    const rx = plot.x + plot.w - 96;
+    const gx = plot.x + plot.w - 74;          // the gutter for those who left
+    const yOf = (v) => plot.y + h - Math.min(1, v / max) * h;
+
+    for (const axis of [lx, rx]) {
+      doc.save().moveTo(axis, plot.y).lineTo(axis, plot.y + h).lineWidth(0.5).strokeColor(AXIS).stroke().restore();
+    }
+    for (const pr of pairs) {
+      const y1 = yOf(pr.from);
+      if (pr.toState === 'measured') {
+        doc.save().moveTo(lx, y1).lineTo(rx, yOf(pr.to)).lineWidth(0.6)
+          .strokeOpacity(0.5).strokeColor(pr.to >= pr.from ? NAVY : CLARET).stroke().restore();
+        doc.save().circle(rx, yOf(pr.to), 1.6).fillOpacity(0.6).fill(NAVY).restore();
+      } else {
+        doc.save().dash(1.5, { space: 2 }).moveTo(lx, y1).lineTo(gx, y1).lineWidth(0.5)
+          .strokeOpacity(0.45).strokeColor(MUTED).stroke().undash().restore();
+        doc.save().circle(gx, y1, 1.8).lineWidth(0.5).strokeColor(MUTED).stroke().restore();
+      }
+      doc.save().circle(lx, y1, 1.6).fillOpacity(0.6).fill(MUTED).restore();
+    }
+    doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+      .text(leftLabel, plot.x, plot.y + h + 3, { width: 80, lineBreak: false })
+      .text(rightLabel, rx - 40, plot.y + h + 3, { width: 80, align: 'center', lineBreak: false });
+    const gone = pairs.filter((p) => p.toState !== 'measured').length;
+    if (gone) {
+      doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+        .text(`${gone} not on the next roster`, gx - 46, plot.y + h + 12, { width: 120, align: 'center', lineBreak: false });
+    }
+  },
+
+  /** Grouped or stacked columns, one group per season. */
+  columns(k, { box, title, subtitle, groups, yMax, unit = '', stacked = false, unavailable }) {
+    const plot = frame(k, box, { title, subtitle, unavailable, empty: !groups?.length });
+    if (!plot) return;
+    const { doc } = k;
+    // 22pt reserved below the axis for the season label and its value, so a
+    // column's own caption cannot land on the sentence after the chart.
+    const h = plot.h - 24;
+    const gw = plot.w / groups.length;
+    doc.save().moveTo(plot.x, plot.y + h).lineTo(plot.x + plot.w, plot.y + h)
+      .lineWidth(0.5).strokeColor(AXIS).stroke().restore();
+
+    groups.forEach((g, gi) => {
+      const gx = plot.x + gi * gw;
+      const bars = g.bars.filter((b) => b.value != null);
+      if (!bars.length) {
+        // A season we could not read keeps its slot, hatched — a missing
+        // column reads as a season that did not happen.
+        doc.save().dash(1, { space: 2 }).rect(gx + gw * 0.18, plot.y + 4, gw * 0.64, h - 4)
+          .lineWidth(0.5).strokeColor(LINE).stroke().undash().restore();
+        doc.font('Helvetica-Oblique').fontSize(6).fillColor(MUTED)
+          .text('not recorded', gx, plot.y + h / 2, { width: gw, align: 'center', lineBreak: false });
+      } else if (stacked) {
+        let acc = 0;
+        for (const b of bars) {
+          const bh = (b.value / yMax) * h;
+          doc.save().rect(gx + gw * 0.2, plot.y + h - acc - bh, gw * 0.6, Math.max(0.5, bh - 1))
+            .fill(b.color).restore();
+          acc += bh;
+        }
+      } else {
+        const bw = (gw * 0.62) / bars.length;
+        bars.forEach((b, bi) => {
+          const bh = (b.value / yMax) * h;
+          doc.save().rect(gx + gw * 0.19 + bi * bw, plot.y + h - bh, bw - 1.5, Math.max(0.5, bh))
+            .fill(b.color).restore();
+        });
+      }
+      doc.font('Helvetica').fontSize(7).fillColor(MUTED)
+        .text(g.label, gx, plot.y + h + 3, { width: gw, align: 'center', lineBreak: false });
+      if (g.note) {
+        doc.font('Helvetica-Bold').fontSize(7).fillColor(INK)
+          .text(g.note, gx, plot.y + h + 11, { width: gw, align: 'center', lineBreak: false });
+      }
+    });
+    doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+      .text(`${nice(yMax)}${unit}`, plot.x, plot.y - 1, { width: plot.w, align: 'right', lineBreak: false });
+  },
+
+  /** Position down the side, season across the top, share in the cell. */
+  heatGrid(k, { box, title, subtitle, rows, cols, unavailable }) {
+    const plot = frame(k, box, { title, subtitle, unavailable, empty: !rows?.length });
+    if (!plot) return;
+    const { doc } = k;
+    const labelW = 78;
+    const cw = (plot.w - labelW) / cols.length;
+    const rh = Math.min(22, (plot.h - 12) / rows.length);
+
+    cols.forEach((c, ci) => {
+      doc.font('Helvetica').fontSize(7).fillColor(MUTED)
+        .text(c, plot.x + labelW + ci * cw, plot.y, { width: cw, align: 'center', lineBreak: false });
+    });
+    rows.forEach((row, ri) => {
+      const y = plot.y + 11 + ri * rh;
+      doc.font('Helvetica').fontSize(7.5).fillColor(INK)
+        .text(row.label, plot.x, y + rh / 2 - 4, { width: labelW - 6, lineBreak: false });
+      row.cells.forEach((cell, ci) => {
+        const x = plot.x + labelW + ci * cw;
+        if (cell.value == null) {
+          doc.save().dash(1, { space: 1.5 }).rect(x + 1, y + 1, cw - 3, rh - 3)
+            .lineWidth(0.5).strokeColor(LINE).stroke().undash().restore();
+          doc.font('Helvetica').fontSize(7).fillColor(MUTED)
+            .text('—', x, y + rh / 2 - 4, { width: cw, align: 'center', lineBreak: false });
+          return;
+        }
+        // A flat interpolation between two palette steps: no gradients, which
+        // band in several viewers and print badly.
+        const t = Math.max(0, Math.min(1, cell.value));
+        const FROM = [237, 239, 243];
+        const TO = [15, 42, 67];
+        const fill = `#${FROM.map((c, i) => Math.round(c + (TO[i] - c) * t)
+          .toString(16).padStart(2, '0')).join('')}`;
+        doc.save().rect(x + 1, y + 1, cw - 3, rh - 3).fill(fill).restore();
+        doc.font('Helvetica-Bold').fontSize(7).fillColor(t > 0.45 ? '#FFFFFF' : INK)
+          .text(`${Math.round(cell.value * 100)}%`, x, y + rh / 2 - 6, { width: cw, align: 'center', lineBreak: false });
+        // n in every cell: a 100% built on one player must look like one player.
+        doc.font('Helvetica').fontSize(5.5).fillColor(t > 0.45 ? '#FFFFFF' : MUTED)
+          .text(`n=${cell.n}`, x, y + rh / 2 + 2, { width: cw, align: 'center', lineBreak: false });
+      });
+    });
+  },
+
+  /** Two bars per row, for here-versus-the-pool comparisons. */
+  paired(k, { box, title, subtitle, rows, aLabel, bLabel, max, unit = '', unavailable }) {
+    const plot = frame(k, box, { title, subtitle, unavailable, empty: !rows?.length });
+    if (!plot) return;
+    const { doc } = k;
+    const labelW = 118;
+    const trackW = plot.w - labelW - 64;
+    const rh = Math.min(26, plot.h / rows.length);
+    rows.forEach((row, i) => {
+      const y = plot.y + i * rh;
+      doc.font('Helvetica').fontSize(8).fillColor(INK)
+        .text(row.label, plot.x, y + 4, { width: labelW - 6, lineBreak: false });
+      [[row.a, NAVY, 0], [row.b, PALE, 7]].forEach(([v, colour, dy]) => {
+        if (v == null) return;
+        doc.save().rect(plot.x + labelW, y + 3 + dy, Math.max(1, (v / max) * trackW), 5.5)
+          .fill(colour).restore();
+      });
+      const txt = [row.a == null ? null : nice(row.a), row.b == null ? null : nice(row.b)]
+        .filter(Boolean).join('  ·  ');
+      doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
+        .text(`${txt}${unit}`, plot.x + labelW + trackW + 6, y + 4, { width: 58, lineBreak: false });
+    });
+    const legend = [aLabel, bLabel].filter(Boolean).join('  ·  ');
+    if (legend) {
+      doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+        .text(legend, plot.x, plot.y + rows.length * rh + 1, { width: plot.w, lineBreak: false });
+    }
+  },
+};
+
+// Every `doc.text` inside a chart moves the flow cursor, so a chart that draws
+// its axis labels leaves `doc.y` wherever the last label landed rather than
+// below the box it was given. The next `room()` then sees a cursor near the
+// page bottom and adds a page — which is how one report grew fourteen blank
+// pages carrying nothing but a footer. Charts draw in absolute coordinates;
+// the cursor is restored for them, once, here.
+for (const [name, fn] of Object.entries(charts)) {
+  charts[name] = (k, opts) => {
+    const out = fn(k, opts);
+    if (opts?.box) k.doc.y = opts.box.y + opts.box.h;
+    return out;
+  };
 }

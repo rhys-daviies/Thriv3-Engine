@@ -33,8 +33,8 @@ import { publishStatus, regenerate, publish } from './routes/publish.js';
 import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js';
 import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
-import { philosophySummaries, programmeModel, playerProgrammeModel } from './routes/philosophy.js';
-import { renderProgrammePdf, renderPlayerProgrammePdf } from './lib/philosophyPdf.js';
+import { philosophySummaries, programReportModel } from './routes/philosophy.js';
+import { renderProgramReport } from './lib/philosophyReport.js';
 import { poolStatus, invalidatePoolBenchmarks, poolBenchmarks } from './lib/philosophyQueries.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -164,26 +164,25 @@ app.post('/api/players/:playerId/philosophy/summaries', (req, res) => {
   }
 });
 
-app.get('/api/philosophy/:collegeId/programme.pdf', async (req, res) => {
+app.get('/api/philosophy/:collegeId/report.pdf', async (req, res) => {
   try {
-    const model = programmeModel({ collegeId: req.params.collegeId });
-    sendPdf(res, await renderProgrammePdf(model),
-      `${model.college.name} programme philosophy.pdf`);
+    const model = programReportModel({ collegeId: req.params.collegeId });
+    sendPdf(res, await renderProgramReport(model), `${model.college.name} program report.pdf`);
   } catch (err) {
-    console.error('[philosophy/programme.pdf]', err);
+    console.error('[philosophy/report.pdf]', err);
     res.status(/^Unknown college/.test(err.message) ? 404 : 500).json({ error: err.message });
   }
 });
 
-app.get('/api/players/:playerId/philosophy/:collegeId/player.pdf', async (req, res) => {
+app.get('/api/players/:playerId/philosophy/:collegeId/report.pdf', async (req, res) => {
   try {
-    const model = playerProgrammeModel({
-      playerId: req.params.playerId, collegeId: req.params.collegeId,
+    const model = programReportModel({
+      collegeId: req.params.collegeId, playerId: req.params.playerId,
     });
-    sendPdf(res, await renderPlayerProgrammePdf(model),
-      `${model.athlete.name} at ${model.college.name}.pdf`);
+    sendPdf(res, await renderProgramReport(model),
+      `${model.college.name} program report for ${model.athlete.name}.pdf`);
   } catch (err) {
-    console.error('[philosophy/player.pdf]', err);
+    console.error('[philosophy/report.pdf]', err);
     const status = /^Unknown (college|player)/.test(err.message) ? 404
       : / plays /.test(err.message) ? 400 : 500;
     res.status(status).json({ error: err.message });

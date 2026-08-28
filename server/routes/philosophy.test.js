@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeAll, beforeEach } from 'vitest';
 import express from 'express';
 import db from '../db/client.js';
-import { philosophySummaries, programmeModel, playerProgrammeModel } from './philosophy.js';
-import { renderProgrammePdf, renderPlayerProgrammePdf } from '../lib/philosophyPdf.js';
+import { philosophySummaries, programReportModel } from './philosophy.js';
+import { renderProgramReport } from '../lib/philosophyReport.js';
 import { invalidatePoolBenchmarks } from '../lib/philosophyQueries.js';
 
 let baseUrl;
@@ -21,18 +21,18 @@ function mount(app) {
       res.json(philosophySummaries({ playerId: req.params.playerId, collegeIds: (req.body || {}).collegeIds }));
     } catch (err) { res.status(400).json({ error: err.message }); }
   });
-  app.get('/api/philosophy/:collegeId/programme.pdf', async (req, res) => {
+  app.get('/api/philosophy/:collegeId/report.pdf', async (req, res) => {
     try {
-      const model = programmeModel({ collegeId: req.params.collegeId });
-      send(res, await renderProgrammePdf(model), `${model.college.name} programme philosophy.pdf`);
+      const model = programReportModel({ collegeId: req.params.collegeId });
+      send(res, await renderProgramReport(model), `${model.college.name} program report.pdf`);
     } catch (err) {
       res.status(/^Unknown college/.test(err.message) ? 404 : 500).json({ error: err.message });
     }
   });
-  app.get('/api/players/:playerId/philosophy/:collegeId/player.pdf', async (req, res) => {
+  app.get('/api/players/:playerId/philosophy/:collegeId/report.pdf', async (req, res) => {
     try {
-      const model = playerProgrammeModel({ playerId: req.params.playerId, collegeId: req.params.collegeId });
-      send(res, await renderPlayerProgrammePdf(model), `${model.athlete.name} at ${model.college.name}.pdf`);
+      const model = programReportModel({ playerId: req.params.playerId, collegeId: req.params.collegeId });
+      send(res, await renderProgramReport(model), `${model.college.name} program report.pdf`);
     } catch (err) {
       const status = /^Unknown (college|player)/.test(err.message) ? 404
         : / plays /.test(err.message) ? 400 : 500;
@@ -107,7 +107,7 @@ describe('summaries', () => {
     const { summaries } = await res.json();
     expect(summaries.c1.school).toBe('Test College');
     expect(summaries.c1.verdict.verdict).toBeTruthy();
-    expect(summaries.c1.reports.generic).toBe(true);
+    expect(summaries.c1.reports.available).toBe(true);
     // The heavy per-position detail is not in the tab payload.
     expect(summaries.c1.observations).toBeUndefined();
     expect(summaries.c1.byPosition).toBeUndefined();
@@ -142,7 +142,7 @@ describe('the PDFs', () => {
   it('serves a real PDF as an attachment', async () => {
     addCollege('c1', 'Test College');
     addRoster('Test College');
-    const res = await get('/api/philosophy/c1/programme.pdf');
+    const res = await get('/api/philosophy/c1/report.pdf');
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toBe('application/pdf');
     expect(res.headers.get('content-disposition')).toMatch(/^attachment; filename=/);
@@ -151,11 +151,11 @@ describe('the PDFs', () => {
     expect(Number(res.headers.get('content-length'))).toBe(body.length);
   });
 
-  it('serves the player report', async () => {
+  it('serves the report with the athlete section', async () => {
     addCollege('c1', 'Test College');
     addRoster('Test College');
     addPlayer('p1');
-    const res = await get('/api/players/p1/philosophy/c1/player.pdf');
+    const res = await get('/api/players/p1/philosophy/c1/report.pdf');
     expect(res.status).toBe(200);
     expect(Buffer.from(await res.arrayBuffer()).subarray(0, 5).toString()).toBe('%PDF-');
   });
@@ -165,7 +165,7 @@ describe('the PDFs', () => {
   it('does not let a school name break the header', async () => {
     addCollege('c1', 'Saint Mary\'s (CA) "Gaels"\nX');
     addRoster('Saint Mary\'s (CA) "Gaels"\nX');
-    const res = await get('/api/philosophy/c1/programme.pdf');
+    const res = await get('/api/philosophy/c1/report.pdf');
     const cd = res.headers.get('content-disposition');
     expect(cd).toMatch(/^attachment; filename="[^"]*"$/);
     expect(cd).toContain("Saint Mary's (CA)");
@@ -174,7 +174,7 @@ describe('the PDFs', () => {
   // A zero-byte PDF with a 200 is the failure a family would discover by
   // opening a blank file, so an unknown id has to be a status, not a document.
   it('answers an unknown school with a status, not an empty document', async () => {
-    const res = await get('/api/philosophy/missing/programme.pdf');
+    const res = await get('/api/philosophy/missing/report.pdf');
     expect(res.status).toBe(404);
     expect((await res.json()).error).toMatch(/Unknown college/);
   });
@@ -183,9 +183,41 @@ describe('the PDFs', () => {
     addCollege('c1', 'Women Only', 'womens-soccer');
     addRoster('Women Only', 'womens-soccer');
     addPlayer('p1', { sport: 'mens-soccer' });
-    const res = await get('/api/players/p1/philosophy/c1/player.pdf');
+    const res = await get('/api/players/p1/philosophy/c1/report.pdf');
     expect(res.status).toBe(400);
     expect((await res.json()).error).toMatch(/plays mens-soccer/);
+  });
+});
+
+describe('the document itself', () => {
+  // The only assertion that closes the loop between a model we can test and a
+  // drawing we cannot: a chart that silently overflowed shows up as pages the
+  // report never planned.
+  it('adds the athlete section rather than replacing anything', async () => {
+    addCollege('c1', 'Test College');
+    addRoster('Test College');
+    addPlayer('p1');
+    const plain = Buffer.from(await (await get('/api/philosophy/c1/report.pdf')).arrayBuffer());
+    const withAthlete = Buffer.from(
+      await (await get('/api/players/p1/philosophy/c1/report.pdf')).arrayBuffer());
+    const pages = (b) => (b.toString('latin1').match(/\/Type\s*\/Page[^s]/g) || []).length;
+    expect(pages(plain)).toBeGreaterThan(0);
+    expect(pages(withAthlete)).toBeGreaterThan(pages(plain));
+  });
+
+  // Every chart is handed either data or a stated reason; a chart given
+  // neither throws rather than drawing an empty axis. A programme with almost
+  // nothing on file is the case that proves it.
+  it('renders a programme with nothing to say without throwing', async () => {
+    addCollege('c1', 'Sparse College');
+    db.prepare(`INSERT INTO roster_players
+      (id, created_date, updated_date, college_name, sport, division, season, player_name,
+       class_year_label, position, minutes_played, games_played)
+      VALUES ('x1',?,?,'Sparse College','mens-soccer','NCAA D3','2025','Solo','Fr.','DEFENSE',0,0)`)
+      .run(now, now);
+    const res = await get('/api/philosophy/c1/report.pdf');
+    expect(res.status).toBe(200);
+    expect(Buffer.from(await res.arrayBuffer()).subarray(0, 5).toString()).toBe('%PDF-');
   });
 });
 
@@ -195,14 +227,14 @@ describe('the pool it compares against', () => {
   it('says the pool is unreadable rather than reporting zeros', async () => {
     addCollege('c1', 'Only College');
     addRoster('Only College');
-    const model = programmeModel({ collegeId: 'c1' });
+    const model = programReportModel({ collegeId: 'c1' });
     if (!model.benchmarks) {
       expect(model.benchmarksReason).toBeTruthy();
     } else {
       // One programme is a readable pool of one; the figures must still exist.
       expect(model.benchmarks.programmes).toBe(1);
     }
-    const res = await get('/api/philosophy/c1/programme.pdf');
+    const res = await get('/api/philosophy/c1/report.pdf');
     expect(res.status).toBe(200);
   });
 });

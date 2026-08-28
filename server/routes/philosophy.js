@@ -10,11 +10,15 @@ import db from '../db/client.js';
 import {
   philosophyFor, fitFor, college, poolBenchmarks, percentileOfLadderTop, poolMixForBand,
 } from '../lib/philosophyQueries.js';
-import { RECRUIT_SEASON } from '../../shared/philosophy.js';
+import {
+  RECRUIT_SEASON, SQUAD_SEASON, SEASONS,
+  freshmanPoints, newcomerPoints, arrivalWindow, secondYearProgression,
+  intakeBySeason, positionSeasonGrid, eligibilityCliff, namedArrivals, depthChartAt,
+} from '../../shared/philosophy.js';
 import { positionLabel } from '../../shared/positions.js';
 
 const selectPlayer = db.prepare(
-  'SELECT id, full_name, position, nationality, recruiting_class_year, graduation_year, sport FROM players WHERE id = ?',
+  'SELECT id, full_name, position, nationality, recruiting_class_year, graduation_year, sport, football_ability FROM players WHERE id = ?',
 );
 
 export function loadAthlete(playerId) {
@@ -30,7 +34,7 @@ export function loadAthlete(playerId) {
  * that only a report reads, and shipping them would multiply a twenty-school
  * response by an order of magnitude.
  *
- * `reports.player` is decided HERE rather than on the client, because
+ * `reports.playerSectionsIncluded` is decided HERE rather than on the client, because
  * `playerFit` can refuse a cohort where `programmePhilosophy` succeeds — the
  * client must not be left guessing which of the two buttons will fail.
  */
@@ -84,8 +88,11 @@ export function philosophySummaries({ playerId, collegeIds } = {}) {
       cohortLadderTop: fit?.ladder?.[0]
         ? { median: fit.ladder[0].median, cohort: fit.cohort } : null,
       reports: {
-        generic: true,
-        player: Boolean(fit),
+        // Renamed, not repurposed. If `player` survived with inverted meaning,
+        // an un-updated client would grey out the only remaining button and
+        // the feature would look broken with no error anywhere.
+        available: true,
+        playerSectionsIncluded: Boolean(fit),
         playerReason: sportMatches
           ? (fit ? null : 'not enough of this athlete\'s cohort on file')
           : `this athlete plays ${athlete.sport}, the programme is ${col.sport}`,
@@ -174,5 +181,88 @@ export function playerProgrammeModel({ playerId, collegeId } = {}) {
       classYear: athlete.recruiting_class_year ?? athlete.graduation_year ?? null,
     },
     fit: found?.fit ?? null,
+  };
+}
+
+
+/**
+ * Everything one Program Report needs, as plain JSON.
+ *
+ * One model rather than two: the athlete half is additive — it appends facets
+ * and swaps the masthead — so the split that used to exist earned nothing but
+ * a duplicated programme half.
+ */
+export function programReportModel({ collegeId, playerId = null } = {}) {
+  const found = philosophyFor(collegeId);
+  if (!found) throw new Error(`Unknown college: ${collegeId}`);
+  const { college: col, philosophy: ph, rows, squad } = found;
+
+  let athlete = null;
+  if (playerId) {
+    athlete = loadAthlete(playerId);
+    if (athlete.sport !== col.sport) {
+      throw new Error(`${athlete.full_name} plays ${athlete.sport}; ${col.name} is ${col.sport}`);
+    }
+  }
+
+  const base = programmeModel({ collegeId });
+  const window = arrivalWindow(rows, { seasons: SEASONS });
+  const transferPoints = newcomerPoints(rows, { seasons: SEASONS });
+  const progression = secondYearProgression(rows, { seasons: SEASONS });
+  const stayed = progression.filter((x) => x.year2State !== 'gone').length;
+
+  const entrySeason = athlete
+    ? Number(athlete.recruiting_class_year) || RECRUIT_SEASON
+    : RECRUIT_SEASON;
+  const fit = athlete ? fitFor(collegeId, athlete)?.fit ?? null : null;
+
+  return {
+    ...base,
+    kind: athlete ? 'report+player' : 'report',
+    squadSeason: SQUAD_SEASON,
+    entrySeason,
+    entrySeasonKnown: entrySeason === RECRUIT_SEASON,
+    coachForEntrySeason: entrySeason === RECRUIT_SEASON ? base.coachForRecruitSeason : null,
+
+    freshman: {
+      points: freshmanPoints(rows, { seasons: SEASONS }),
+      intake: intakeBySeason(rows, { seasons: SEASONS }),
+      progression,
+      // Stated as a fraction, never a rate, because it conflates four
+      // different ways of leaving a roster.
+      retention: progression.length ? { stayed, of: progression.length } : null,
+      grid: positionSeasonGrid(rows, { seasons: SEASONS }),
+    },
+
+    transfer: {
+      points: transferPoints,
+      window,
+      // An empty array means nothing on its own: a quarter of programmes sign
+      // nobody, and a season with no prior season on file cannot be judged.
+      measurable: window.measurable.length > 0,
+      density: transferPoints.length === 0 ? 'none'
+        : transferPoints.length <= 5 ? 'few' : 'many',
+    },
+
+    squad: {
+      season: SQUAD_SEASON,
+      rostered: squad.length,
+      cliff: eligibilityCliff(squad),
+      arrivals: namedArrivals(squad, { school: col.name }),
+      depth: athlete ? depthChartAt(squad, athlete.position) : null,
+    },
+
+    athlete: athlete ? {
+      id: athlete.id,
+      name: athlete.full_name,
+      position: athlete.position,
+      positionLabel: positionLabel(athlete.position),
+      nationality: athlete.nationality,
+      origin: athlete.nationality && !/^(usa|united states)$/i.test(athlete.nationality)
+        ? 'international' : 'domestic',
+      classYear: athlete.recruiting_class_year ?? athlete.graduation_year ?? null,
+      level: athlete.football_ability ?? null,
+    } : null,
+    fit,
   };
 }

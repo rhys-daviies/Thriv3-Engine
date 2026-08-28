@@ -121,11 +121,11 @@ export const philosophy = {
   poolStatus() {
     return request('/api/philosophy/pool');
   },
-  programmePdf(collegeId) {
-    return requestBlob(`/api/philosophy/${collegeId}/programme.pdf`);
-  },
-  playerPdf(playerId, collegeId) {
-    return requestBlob(`/api/players/${playerId}/philosophy/${collegeId}/player.pdf`);
+  /** One document. Without a player it omits the athlete-specific part. */
+  report(collegeId, playerId = null) {
+    return requestBlob(playerId
+      ? `/api/players/${playerId}/philosophy/${collegeId}/report.pdf`
+      : `/api/philosophy/${collegeId}/report.pdf`);
   },
 };
 

@@ -12,14 +12,15 @@
  * That is the argument for caching it and for never computing it per request.
  */
 import db from '../db/client.js';
-import { programmePhilosophy, playerFit, SEASONS, vacancyObservations } from '../../shared/philosophy.js';
+import { programmePhilosophy, playerFit, SEASONS, SQUAD_SEASON, vacancyObservations } from '../../shared/philosophy.js';
 import { ladderByRank } from '../../shared/freshmanMinutes.js';
 import { POSITIONS } from '../../shared/positions.js';
 
 const SEASON_LIST = SEASONS.map(() => '?').join(',');
 
 const ROSTER_COLUMNS = `college_name, sport, season, player_name, position, minutes_played,
-  games_played, games_started, class_year_label, nationality, country`;
+  games_played, games_started, class_year_label, nationality, country, hometown,
+  estimated_graduation_year, eligibility_end_year, projected_minutes, prior_programme`;
 
 const selectRoster = db.prepare(
   `SELECT ${ROSTER_COLUMNS} FROM roster_players
@@ -41,6 +42,24 @@ const selectCollegeByName = db.prepare(
 /** Season is TEXT on the roster and INTEGER on coach_seasons; normalise here. */
 export function programmeRows(school, sport) {
   return selectRoster.all(school, sport, ...SEASONS)
+    .map((r) => ({ ...r, season: String(r.season) }));
+}
+
+/**
+ * The squad on campus for the season being recruited into.
+ *
+ * Loaded separately from the measured window: it carries no minutes at all, so
+ * anything that ranks or averages must never see it. What it does carry, and
+ * nothing else does, is eligibility_end_year, projected_minutes and
+ * prior_programme.
+ */
+const selectSquad = db.prepare(
+  `SELECT ${ROSTER_COLUMNS} FROM roster_players
+   WHERE college_name = ? AND sport = ? AND season = ?`,
+);
+
+export function squadRows(school, sport) {
+  return selectSquad.all(school, sport, SQUAD_SEASON)
     .map((r) => ({ ...r, season: String(r.season) }));
 }
 
@@ -68,7 +87,8 @@ export function philosophyFor(collegeId) {
   if (!col) return null;
   const rows = programmeRows(col.name, col.sport);
   const coachRows = programmeCoachRows(col.name, col.sport);
-  return { college: col, philosophy: programmePhilosophy({ rows, coachRows }), rows };
+  const squad = squadRows(col.name, col.sport);
+  return { college: col, philosophy: programmePhilosophy({ rows, coachRows }), rows, squad };
 }
 
 /** The same programme, read for one athlete. */

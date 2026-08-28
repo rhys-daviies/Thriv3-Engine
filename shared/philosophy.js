@@ -424,6 +424,7 @@ export function intakeBySeason(rows, { seasons = SEASONS } = {}) {
       season, rostered: all.length, measured: squad.length,
       readable, load: readable ? load : null,
       freshmen: f.length, freshmanMinutes: readable ? sum(f) : null,
+      freshmanPlayed: f.filter((p) => p.minutes > 0).length,
       freshmanStarters: f.filter((p) => p.minutes >= STARTER_MINUTES).length,
       newcomers: n.length, newcomerMinutes: readable ? sum(n) : null,
       newcomerStarters: n.filter((p) => p.minutes >= STARTER_MINUTES).length,
