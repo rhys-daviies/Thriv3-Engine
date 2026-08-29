@@ -277,6 +277,24 @@ export function rankMatches({ athlete, colleges, rosterIndex, weights, limit }) 
       logo_url: c.logo_url,
       primary_color: c.primary_color,
       secondary_color: c.secondary_color,
+      // Read by the scorer above and, until 2026-08-28, dropped here — this
+      // object is built field by field, so anything not named is silently
+      // lost. The evidence engine needs the win rates to read programme
+      // momentum and the admissions/cost columns to reason about fit, and was
+      // getting undefined for all of them while the criteria scored happily.
+      //
+      // Carrying a column is NOT a decision to put it in an email. Net price
+      // and admit rate are matching inputs that have no place in a first
+      // approach to a coach; shared/evidence/kinds.js decides what is
+      // email-eligible, and nothing here should be read as overriding it.
+      recent_win_pct: c.recent_win_pct,
+      prior_win_pct: c.prior_win_pct,
+      sat_avg: c.sat_avg,
+      admit_rate: c.admit_rate,
+      control: c.control,
+      tuition_in_state: c.tuition_in_state,
+      tuition_out_state: c.tuition_out_state,
+      national_ranking: c.national_ranking,
       graduating_at_position: (cohort?.starters || 0) + (cohort?.squad || 0),
       graduating_starters_at_position: cohort?.starters || 0,
       graduating_names_at_position: cohort?.names || [],

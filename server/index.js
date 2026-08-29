@@ -20,7 +20,6 @@ import { importGraduatingCSV } from './routes/importGraduatingCSV.js';
 import { exportGraduatingDatabaseCsv } from './routes/exportGraduatingDatabase.js';
 import { listSchoolsByDivision } from './routes/listSchoolsByDivision.js';
 import { cleanInactiveSchools } from './routes/cleanInactiveSchools.js';
-import { sendEmailStub } from './routes/sendEmail.js';
 import { csvAgentChat } from './routes/csvAgent.js';
 import { coachingImportPreview } from './routes/coachingImportPreview.js';
 import { coachingImportApply } from './routes/coachingImportApply.js';
@@ -34,6 +33,7 @@ import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js'
 import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
 import { philosophySummaries, programReportModel } from './routes/philosophy.js';
+import { evidenceSummaries } from './routes/evidence.js';
 import { renderProgramReport } from './lib/philosophyReport.js';
 import { poolStatus, invalidatePoolBenchmarks, poolBenchmarks } from './lib/philosophyQueries.js';
 
@@ -164,6 +164,32 @@ app.post('/api/players/:playerId/philosophy/summaries', (req, res) => {
   }
 });
 
+// ---- Email evidence ----
+//
+// Server-side because the strongest evidence spans five seasons of roster
+// rows, which the browser does not load. It never accepts facts from the
+// client: the departure numbers are recomputed here with the matching
+// engine's own functions, so an email and a match card cannot disagree.
+
+app.post('/api/players/:playerId/evidence', (req, res) => {
+  try {
+    res.json(evidenceSummaries({
+      playerId: req.params.playerId,
+      collegeNames: (req.body || {}).collegeNames,
+      // { "<college>": ["KIND", ...] } — an operator's chosen angles. Kinds
+      // only; the engine validates each against what it generated.
+      prefer: (req.body || {}).prefer || null,
+      // { "<college>": "STRUCTURE_KEY" } — an operator's chosen shape. Also
+      // validated: `resolveStructure` refuses one the selected evidence does
+      // not support rather than silently using it.
+      preferStructure: (req.body || {}).preferStructure || null,
+    }));
+  } catch (err) {
+    console.error('[evidence/summaries]', err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
 app.get('/api/philosophy/:collegeId/report.pdf', async (req, res) => {
   try {
     const model = programReportModel({ collegeId: req.params.collegeId });
@@ -242,13 +268,6 @@ app.post('/api/uploads', upload.single('file'), (req, res) => {
   const filename = `${randomUUID()}-${req.file.originalname}`;
   fs.writeFileSync(path.join(uploadsDir, filename), req.file.buffer);
   res.json({ file_url: `/uploads/${filename}` });
-});
-
-// ---- SendEmail integration replacement (stub) ----
-
-app.post('/api/send-email', async (req, res) => {
-  const result = await sendEmailStub(req.body || {});
-  res.json(result);
 });
 
 // ---- CSV specialist chat agent ----

@@ -204,6 +204,21 @@ CREATE TABLE IF NOT EXISTS outreach (
   coach_id TEXT NOT NULL REFERENCES coaches(id),
   token TEXT NOT NULL UNIQUE,
   match_id TEXT,          -- links back to the Tab 2 recommendation; Phase 5 reads it
+
+  -- THREE TIMESTAMPS, THREE DIFFERENT EVENTS. They were two, and the middle
+  -- one was missing, so `sent_at` carried both meanings and the weaker one won.
+  --
+  --   created_at  the outreach record was created (a token now exists)
+  --   drafted_at  a message was successfully handed to Outlook as a draft
+  --   sent_at     we have explicit confirmation the coach was written to
+  --
+  -- `sent_at` used to be stamped the moment a draft window opened, so drafting
+  -- twenty and sending fifteen recorded twenty sends. Every denominator in the
+  -- system keys on `sent_at IS NOT NULL` — evidence performance, reply rates,
+  -- the per-inbox send cap — so that overstated all three. It is now written
+  -- ONLY by an explicit confirmation: either the AppleScript itself issued
+  -- Send, or a human confirmed the batch afterwards. Nothing infers it.
+  drafted_at TEXT,
   sent_at TEXT,
   revoked_at TEXT,
   created_at TEXT NOT NULL,
@@ -213,6 +228,9 @@ CREATE TABLE IF NOT EXISTS outreach (
 
 CREATE INDEX IF NOT EXISTS idx_outreach_athlete ON outreach(athlete_id);
 CREATE INDEX IF NOT EXISTS idx_outreach_token ON outreach(token);
+-- The pending-confirmation lookup: drafted but not yet confirmed sent.
+-- The index on drafted_at lives in migrate.js, which is where the column is
+-- added to databases that already have this table.
 
 -- APPEND-ONLY. Visit history is reconstructed from this table; overwriting
 -- destroys it irrecoverably. The trigger below makes that a hard guarantee
@@ -257,6 +275,121 @@ CREATE TABLE IF NOT EXISTS engagement_rollup (
   responded_at TEXT,
   updated_at TEXT
 );
+
+-- ===========================================================================
+-- Which personalisation evidence each email actually carried.
+--
+-- The question this table exists to answer is the one nothing in the product
+-- could answer before it: does HISTORICAL_SAME_COUNTRY earn more replies than
+-- POSITION_GRADUATION? Every ranking number in shared/evidence/select.js is
+-- currently a guess, and it stays a guess until sends can be grouped by what
+-- they said.
+--
+-- One row per outreach, written at send time. NOT a log of what was true about
+-- the programme — that changes as rosters are re-scraped — but of what we
+-- believed and chose at the moment we wrote, which is the only version that
+-- can be correlated with a reply.
+--
+-- Engagement outcomes are deliberately absent: they live in engagement_rollup
+-- keyed on the same outreach_id, and copying them here would give two answers
+-- to one question the first time a rollup was rebuilt.
+--
+-- `payload` carries the whole selection including the evidence that was
+-- suppressed or rejected, because "this was available and lost to something
+-- stronger" is what makes a later comparison causal rather than merely
+-- descriptive.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS outreach_evidence (
+  outreach_id TEXT PRIMARY KEY REFERENCES outreach(id),
+  athlete_id TEXT NOT NULL REFERENCES players(id),
+  college_name TEXT,
+  sport TEXT,
+
+  -- Canonical only: GOALKEEPER / DEFENSE / MIDFIELD / FORWARD / UNKNOWN.
+  athlete_position TEXT,
+  class_year INTEGER,
+
+  primary_kind TEXT,
+  primary_tier TEXT,              -- FACT | SIGNAL
+  primary_strength INTEGER,
+  secondary_kind TEXT,
+  secondary_tier TEXT,
+  secondary_strength INTEGER,
+
+  structure TEXT,                 -- which email shape was used
+  -- ENGINE or OPERATOR. A structure a human chose is a different treatment
+  -- from one the engine reached on its own, and mixing the two would make the
+  -- first reply-rate comparison meaningless in a way nobody could see after.
+  structure_source TEXT,
+  evidence_count INTEGER NOT NULL DEFAULT 0,
+
+  -- The ordered selected set as one groupable value, comma-joined, e.g.
+  -- 'HISTORICAL_SAME_COUNTRY,POSITION_GRADUATION,ACADEMIC_FIT'. Order is part
+  -- of the identity: leading with the country and supporting with the roster
+  -- is a different email from the reverse. primary_kind / secondary_kind above
+  -- remain as convenience columns for the two questions asked most often.
+  selected_kinds TEXT,
+  -- How many of those actually survived the operator's editing into the body.
+  -- NULL when nobody checked (a dry run has no body), which is a third state
+  -- and not the same as zero.
+  rendered_count INTEGER,
+  -- STRUCTURED (assembled from the structure's blocks) or TEMPLATE (the
+  -- athlete's own saved template). Separate from template_variant below, which
+  -- describes what their saved template IS rather than whether it was used.
+  body_source TEXT,
+
+  -- Separates "we had a roster and found nothing to say" from "we had no
+  -- roster". Around 325 men's programmes are in the second case, and grouping
+  -- them with the first would make no-evidence sends look twice as common as
+  -- they are.
+  had_roster INTEGER,
+  had_history INTEGER,
+
+  -- Confidence alongside strength, normalised rather than left in the JSON:
+  -- "did HIGH-confidence evidence out-reply MEDIUM" is a first-order question
+  -- and should not need a JSON extract to group by.
+  primary_confidence TEXT,
+  secondary_confidence TEXT,
+
+  -- Which template shape produced the email, kept SEPARATE from `structure`
+  -- above so an A/B can tell an argument order apart from an evidence angle.
+  -- See shared/evidence/templateVariant.js for the ids.
+  template_variant TEXT,
+
+  -- The exact sentence(s) claimed, as sent. The payload carries the evidence
+  -- that produced them; this carries the prose, so an audit can ask "what did
+  -- we actually tell this coach" without re-rendering from data that may since
+  -- have been re-scraped.
+  rendered_paragraph TEXT,
+
+  -- 1 when a human overrode the engine's ranking in the composer. An override
+  -- is a different treatment and must be separable from the engine's own
+  -- choice when reply rates are compared.
+  operator_selected INTEGER NOT NULL DEFAULT 0,
+
+  -- Whether the evidence sentence actually reached the coach. The composer
+  -- hands the operator an editable body, and deleting the programme sentence
+  -- is a reasonable edit; attributing a reply to a claim that was cut would be
+  -- the exact measurement error this table exists to prevent. NULL means there
+  -- was no sentence to look for.
+  evidence_rendered INTEGER,
+
+  -- How old the roster behind any present-tense claim was AT SEND TIME. A
+  -- roster re-scraped next month cannot answer that, and it is the question an
+  -- integrity audit asks first.
+  roster_freshness TEXT,          -- CURRENT | ACCEPTABLE | STALE | UNKNOWN
+  roster_age_days INTEGER,
+
+  payload TEXT,                   -- JSON: full selection, suppressed, rejected
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_outreach_evidence_primary ON outreach_evidence(primary_kind);
+CREATE INDEX IF NOT EXISTS idx_outreach_evidence_athlete ON outreach_evidence(athlete_id);
+CREATE INDEX IF NOT EXISTS idx_outreach_evidence_structure ON outreach_evidence(structure);
+-- The index on selected_kinds lives in migrate.js, not here. schema.sql runs
+-- BEFORE the migration that adds the column, so indexing it here fails on
+-- every database that already has the table — which is every real one.
 
 -- Cursor and bookkeeping for the pull from the edge collector.
 CREATE TABLE IF NOT EXISTS sync_state (

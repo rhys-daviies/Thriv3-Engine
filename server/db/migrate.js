@@ -177,6 +177,38 @@ const ROSTER_PLAYER_COLUMNS = [
   ['prior_programme', 'TEXT'],
 ];
 
+/**
+ * Added after `outreach_evidence` was already in the field. schema.sql creates
+ * the table but cannot add a column to an existing one.
+ */
+const OUTREACH_EVIDENCE_COLUMNS = [
+  ['evidence_rendered', 'INTEGER'],
+  ['primary_confidence', 'TEXT'],
+  ['secondary_confidence', 'TEXT'],
+  ['template_variant', 'TEXT'],
+  ['rendered_paragraph', 'TEXT'],
+  ['operator_selected', 'INTEGER NOT NULL DEFAULT 0'],
+  ['roster_freshness', 'TEXT'],
+  ['roster_age_days', 'INTEGER'],
+  // The multi-evidence columns. Added 2026-08-28 with the structure library;
+  // rows written before it carry NULL, which reads correctly — they had no
+  // ordered set beyond primary/secondary and no structure that changed a word.
+  ['structure_source', 'TEXT'],
+  ['selected_kinds', 'TEXT'],
+  ['rendered_count', 'INTEGER'],
+  ['body_source', 'TEXT'],
+];
+
+/**
+ * `drafted_at` — the event `sent_at` used to stand in for.
+ *
+ * See the schema comment on `outreach`. Added 2026-08-28 with the send
+ * confirmation workflow.
+ */
+const OUTREACH_COLUMNS = [
+  ['drafted_at', 'TEXT'],
+];
+
 const COACH_COLUMNS = [
   ['email_status', "TEXT DEFAULT 'unknown'"],   // verified | inferred | generic | unknown
   ['email_source_url', 'TEXT'],
@@ -204,6 +236,30 @@ function addMissingColumns(db, table, columns) {
  * recruiting class year is the deliberate one — a post-grad year is exactly
  * that case — so it is never overwritten.
  */
+/**
+ * Dates the draft for rows that predate the column.
+ *
+ * Every outreach row in existence when this shipped had been composed
+ * successfully: `sendOutreach` creates the row, hands the message to Outlook,
+ * and only then stamps a timestamp — so a row that reached a timestamp was
+ * drafted, and the 49 whose `sent_at` was cleared as never-sent were drafted
+ * at the second they were created.
+ *
+ * Bounded by date rather than left open. Without the bound, a row written by
+ * the CURRENT code whose compose failed would have a null `drafted_at` and
+ * would be "backfilled" on the next startup into claiming a draft that never
+ * opened — quietly reintroducing the exact overstatement this column exists to
+ * remove.
+ */
+const DRAFTED_AT_BACKFILL_BEFORE = '2026-08-29';
+
+function backfillDraftedAt(db) {
+  db.prepare(`
+    UPDATE outreach SET drafted_at = COALESCE(sent_at, created_at)
+    WHERE drafted_at IS NULL AND created_at < ?
+  `).run(DRAFTED_AT_BACKFILL_BEFORE);
+}
+
 function backfillRecruitingClassYear(db) {
   db.prepare(`
     UPDATE players SET recruiting_class_year = graduation_year
@@ -302,6 +358,13 @@ export function migrate(db) {
   addMissingColumns(db, 'roster_players', ROSTER_PLAYER_COLUMNS);
   addMissingColumns(db, 'colleges', COLLEGE_COLUMNS);
   addMissingColumns(db, 'coaches', COACH_COLUMNS);
+  addMissingColumns(db, 'outreach', OUTREACH_COLUMNS);
+  backfillDraftedAt(db);
+  db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_drafted ON outreach(drafted_at)');
+  addMissingColumns(db, 'outreach_evidence', OUTREACH_EVIDENCE_COLUMNS);
+  // After the column exists, never before: schema.sql runs first and cannot
+  // index a column this function is about to add.
+  db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_evidence_selected ON outreach_evidence(selected_kinds)');
   backfillRecruitingClassYear(db);
   backfillAcademicRatingSource(db);
 }

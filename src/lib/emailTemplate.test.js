@@ -96,6 +96,72 @@ describe('fillTemplate', () => {
   });
 });
 
+describe('graduating cohort, under either field name', () => {
+  // The names rankMatches actually emits. draftOutreach.js passes its rows
+  // straight to buildEmailContext without the rename playerAnalysis.js does,
+  // so before 2026-08-28 every drafted email silently lost this sentence —
+  // the count read undefined, the {{#if}} gated it off, and nothing said so.
+  const canonical = {
+    ...college,
+    graduating_at_position: 4,
+    graduating_names_at_position: ['A Smith', 'B Jones'],
+    graduating_starters_at_position: 2,
+    graduating_starter_names_at_position: ['A Smith'],
+  };
+
+  it('reads the canonical rankMatches names', () => {
+    const c = buildEmailContext(player, canonical, 'Coach');
+    expect(c.has_graduating_seniors).toBe('true');
+    expect(c.graduating_seniors_count).toBe('4');
+    expect(c.graduating_seniors_names).toBe('(A Smith and B Jones)');
+    expect(c.graduating_starters_count).toBe('2');
+  });
+
+  it('still reads the legacy names stored in older recommendation blobs', () => {
+    const legacy = {
+      ...college,
+      graduating_seniors_at_position: 3,
+      graduating_senior_names_at_position: ['C Brown'],
+    };
+    const c = buildEmailContext(player, legacy, 'Coach');
+    expect(c.graduating_seniors_count).toBe('3');
+    expect(c.graduating_seniors_names).toBe('(C Brown)');
+  });
+
+  it('puts the sentence into a rendered draft rather than dropping it', () => {
+    const out = fillTemplate(DEFAULT_EMAIL_TEMPLATE, buildEmailContext(player, canonical, 'Coach'));
+    expect(out).toContain('4 defenders graduating');
+    expect(out).toContain('A Smith and B Jones');
+  });
+
+  it('exposes the squad-wide total separately from the position one', () => {
+    const c = buildEmailContext(player, { ...canonical, graduating_total: 9 }, 'Coach');
+    expect(c.graduating_total_count).toBe('9');
+    expect(c.graduating_seniors_count).toBe('4');
+  });
+});
+
+describe('evidence tokens', () => {
+  it('resolve to nothing when no evidence is supplied, leaving old behaviour intact', () => {
+    const c = buildEmailContext(player, college, 'Coach');
+    expect(c.evidence_paragraph).toBe('');
+    expect(c.has_evidence).toBe('');
+    expect(fillTemplate('{{#if has_evidence}}X{{/if}}', c)).toBe('');
+  });
+
+  it('render the paragraph the engine composed', () => {
+    const evidence = {
+      selected: [],
+      sentences: [{ kind: 'CONFERENCE_TITLE', tier: 'FACT', text: 'congratulations on winning the ACC last year' }],
+      structure: { key: 'PROGRAM_SUCCESS' },
+    };
+    const c = buildEmailContext(player, college, 'Coach', { evidence });
+    expect(c.evidence_primary).toBe('Congratulations on winning the ACC last year.');
+    expect(c.has_evidence_primary).toBe('true');
+    expect(c.evidence_structure).toBe('PROGRAM_SUCCESS');
+  });
+});
+
 describe('position grammar in the email', () => {
   const ctx = (position, graduating) => buildEmailContext(
     { ...player, position },

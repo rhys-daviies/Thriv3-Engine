@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { CheckCircle2, XCircle, Send } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -10,9 +10,12 @@ import { pickBestContact } from '@shared/coachRoles.js';
 import EmailRiskBadge from '@/components/EmailRiskBadge';
 import { useCoachEmailStatus, statusOf } from '@/lib/useCoachEmailStatus';
 import {
-  fillTemplate, buildEmailContext, unresolvedTokens, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE,
+  fillTemplate, buildEmailContext, unresolvedTokens, emailBodyFor, canComposeStructured,
+  DEFAULT_EMAIL_SUBJECT,
 } from '@/lib/emailTemplate';
 import { outreach } from '@/api/client';
+import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
+import EvidencePanel from '@/components/EvidencePanel';
 
 /**
  * Whose name seeds the greeting in the editable draft. Every selected coach
@@ -39,16 +42,103 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
   const [selected, setSelected] = useState(() => new Set(validCoaches.map((c) => c.email)));
   const initialGreetingName = greetingSeed(validCoaches)?.name || 'Coach';
 
+  // What the programme's own data supports saying. Fetched rather than
+  // computed here: the strongest evidence spans five seasons of roster rows
+  // the browser never loads. Absent until it arrives, and absent for good if
+  // the request fails — buildEmailContext then renders exactly the email it
+  // rendered before this existed.
+  const collegeNames = useMemo(() => (college?.name ? [college.name] : []), [college?.name]);
+
+  /**
+   * The operator's own choice of angle and shape.
+   *
+   * Both are lists of KEYS — evidence kinds, and a structure key. Null until
+   * they touch a control, which is what lets the panel show the engine's own
+   * decision as the default rather than as a choice somebody made.
+   *
+   * They are sent BACK TO THE SERVER rather than applied here, and that is the
+   * whole safety argument: the server regenerates the evidence, drops any kind
+   * it did not produce, refuses a structure the surviving evidence does not
+   * support, re-renders each sentence through the renderer its tier demands
+   * and recomposes the body. The browser holds prose and keys, and has no
+   * renderer to misuse.
+   */
+  const [selection, setSelection] = useState(null);
+  const [structureChoice, setStructureChoice] = useState(null);
+  useEffect(() => { setSelection(null); setStructureChoice(null); }, [college?.name]);
+
+  const overrides = useMemo(() => {
+    if (!college?.name) return null;
+    if (!selection && !structureChoice) return null;
+    return {
+      prefer: selection ? { [college.name]: selection } : null,
+      preferStructure: structureChoice ? { [college.name]: structureChoice } : null,
+    };
+  }, [college?.name, selection, structureChoice]);
+
+  const { evidence: evidenceMap, loading: evidenceLoading, failed: evidenceFailed } =
+    useEvidence(player.id, collegeNames, overrides);
+  const evidence = evidenceForCollege(evidenceMap, college?.name);
+
+  /**
+   * Whether this athlete's email is assembled from the structure at all.
+   *
+   * Only when their saved template is the shipped default. A customised
+   * template is their own voice and is rendered as it always was — see
+   * canComposeStructured — which means an operator who has edited their
+   * template gets no structural variety until they reset it, and needs to be
+   * told that rather than left to notice.
+   */
+  const structuredAvailable = canComposeStructured(player);
+
   // Fall back to the defaults rather than opening an empty compose window for
   // an athlete who has no saved template.
   const [subject, setSubject] = useState(() => fillTemplate(
     player.email_subject || DEFAULT_EMAIL_SUBJECT,
     buildEmailContext(player, college, initialGreetingName)
   ));
-  const [body, setBody] = useState(() => fillTemplate(
-    player.email_template || DEFAULT_EMAIL_TEMPLATE,
-    buildEmailContext(player, college, initialGreetingName)
-  ));
+  const [body, setBody] = useState(() => emailBodyFor(
+    player, college, initialGreetingName
+  ).body);
+  // Which route produced the body now on screen. Logged with the send so a
+  // later analysis can separate an assembled email from a templated one.
+  const [bodySource, setBodySource] = useState(null);
+
+  /**
+   * Re-fills the draft once evidence arrives — but only if nobody has typed.
+   *
+   * The dialog opens before the request returns, so the first body is rendered
+   * without evidence and has to be replaced. Overwriting unconditionally would
+   * silently discard an operator's edits a second after they made them, which
+   * is the worse failure of the two: a lost evidence sentence is visible in the
+   * panel below, and lost typing is not.
+   *
+   * "Has anyone typed" is an EXPLICIT flag rather than a comparison against
+   * the last auto-generated text, and that is a bug fix rather than a
+   * preference. The comparison version kept a ref of what it had last written
+   * and updated it immediately, while `setBody`'s updater had not yet run —
+   * and React re-invokes both the effect and the updater in development, so
+   * the second pass saw a ref that already held the new text and a `current`
+   * that still held the old, concluded the operator must have typed, and kept
+   * the old. The visible symptom was every draft coming out as the plain
+   * template while the panel above it described a structure.
+   */
+  const [bodyEdited, setBodyEdited] = useState(false);
+  const [subjectEdited, setSubjectEdited] = useState(false);
+  useEffect(() => { setBodyEdited(false); setSubjectEdited(false); }, [college?.name]);
+
+  useEffect(() => {
+    if (!evidence) return;
+    // The whole body, not just the evidence paragraph: with a structure the
+    // evidence is placed THROUGH the email, so there is no one paragraph to
+    // swap and re-rendering from the structure is the only correct answer.
+    const composed = emailBodyFor(player, college, initialGreetingName, { evidence });
+    setBodySource(composed.source);
+    if (!bodyEdited) setBody(composed.body);
+    if (!subjectEdited) {
+      setSubject(fillTemplate(player.email_subject || DEFAULT_EMAIL_SUBJECT, composed.context));
+    }
+  }, [evidence, player, college, initialGreetingName, bodyEdited, subjectEdited]);
   const [results, setResults] = useState({}); // email -> { status, error, url }
   const [sending, setSending] = useState(false);
   const [sendImmediately, setSendImmediately] = useState(false);
@@ -59,9 +149,9 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
   // Subject and body are already filled here, so anything still in {{braces}}
   // is a token nothing resolved — and it would be sent exactly like that.
   const unresolved = useMemo(() => {
-    const context = buildEmailContext(player, college, initialGreetingName);
+    const context = buildEmailContext(player, college, initialGreetingName, { evidence });
     return [...new Set([...unresolvedTokens(subject, context), ...unresolvedTokens(body, context)])];
-  }, [player, college, initialGreetingName, subject, body]);
+  }, [player, college, initialGreetingName, subject, body, evidence]);
 
   function toggle(email) {
     setSelected((prev) => {
@@ -90,6 +180,14 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
         // it, so Phase 5 can ask whether the matching actually works.
         matchId: college.name,
         send: sendImmediately,
+        // Kinds and a structure key — never sentences, never facts. The server
+        // validates each against the evidence it generated for this pairing,
+        // refuses a structure that evidence does not support, and re-renders
+        // from its own objects, so what is logged is what the engine actually
+        // supports rather than what this tab was holding.
+        evidenceSelection: selection,
+        evidenceStructure: structureChoice,
+        bodySource,
       });
       setResults(Object.fromEntries(response.results.map((r) => [r.email, r])));
       setReachable(response.reachable);
@@ -139,13 +237,45 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
             </div>
           </div>
 
+          <EvidencePanel
+            evidence={evidence}
+            loading={evidenceLoading}
+            failed={evidenceFailed}
+            body={body}
+            selection={selection}
+            onSelectionChange={setSelection}
+            onStructureChange={structuredAvailable ? setStructureChoice : null}
+          />
+
+          {/* Said rather than left to be inferred. An operator whose template
+              is customised would otherwise see a shape named in the panel and
+              an email that ignores it, with nothing on screen explaining why. */}
+          {!structuredAvailable && (
+            <p className="rounded-md border border-dashed p-2.5 text-xs text-muted-foreground">
+              This athlete has a customised email template, so the email is rendered from it
+              and the structure above is advisory only. Evidence still goes in wherever the
+              template puts <span className="font-mono">{'{{evidence_paragraph}}'}</span>. Reset
+              the template to the default under{' '}
+              <span className="text-foreground">Edit Profile → Placement preferences</span> to
+              use the structures.
+            </p>
+          )}
+
           <div className="space-y-1.5">
             <Label>Subject</Label>
-            <Input value={subject} onChange={(e) => setSubject(e.target.value)} />
+            <Input
+              value={subject}
+              onChange={(e) => { setSubjectEdited(true); setSubject(e.target.value); }}
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Body</Label>
-            <Textarea rows={12} value={body} onChange={(e) => setBody(e.target.value)} className="text-sm" />
+            <Textarea
+              rows={12}
+              value={body}
+              onChange={(e) => { setBodyEdited(true); setBody(e.target.value); }}
+              className="text-sm"
+            />
           </div>
         </div>
 

@@ -1601,11 +1601,135 @@ Philosophy tab and its PDF.
       evidence available for an athlete × programme, what was selected, what
       was suppressed as redundant, the structure chosen, and the sentence the
       email would carry.
-- [ ] **Wire the browser composer.** The engine is server-side today because
-      historical country evidence needs five seasons of roster rows, which the
-      client cannot load. `buildEmailContext` takes evidence as an optional
-      argument and behaves exactly as before without it, so the composer is
-      unchanged until a route is added. That route is the next step.
+- [x] **Browser composer wired, 2026-08-28.** `POST /api/players/:id/evidence`
+      returns evidence keyed by college name, batched (40 max) so the
+      whole-page composer makes one request rather than twenty.
+
+      **It never accepts facts from the client.** The composer holds the
+      departure numbers from its own matching run and deliberately does not
+      send them: `departureFields` recomputes them server-side using
+      `buildRosterIndex` and `departures` — the matching engine's own
+      functions — so an email and a match card cannot disagree, and a
+      long-open tab cannot put stale claims in front of a coach. Verified
+      against the CLI: both produce "one defender in the 2027 graduating group
+      (Nathan Montini)" for UNC Asheville.
+
+      **What crosses the wire is rendered prose plus flat metadata, never
+      evidence objects.** The client therefore has no renderer and no `data`
+      field to compose from, which is what stops it ever stating a SIGNAL as a
+      fact. A test asserts the absence.
+
+      `sendOutreach` derives evidence itself when the caller supplied none, so
+      UI drafts are logged exactly like CLI ones, and records
+      `evidence_rendered` — whether the sentence actually survived the
+      operator's edits. Attributing a reply to a claim that was deleted before
+      sending is the measurement error the whole table exists to prevent.
+
+      `EvidencePanel` shows the operator which evidence was selected, its tier,
+      and what was dropped as redundant — the argument for an evidence engine
+      over a mail merge is worth nothing if it cannot be checked before send.
+- [x] **The default template now uses the engine.** It was rendering the
+      evidence panel while sending the old hardcoded graduating sentence, so
+      the Australia connection at Sacred Heart was computed, displayed, and
+      never sent. `{{evidence_paragraph}}` leads, with the old sentence kept as
+      the `{{else}}` branch so a caller with no evidence — the browser before
+      the lookup returns, or after it fails — still sends the email it always
+      sent. Both pilot athletes have SAVED templates that predate this, so the
+      panel warns when a draft has no `{{evidence_paragraph}}` in it rather
+      than promising a sentence the coach never receives.
+- [x] **Saved templates migrated, 2026-08-28.** `npm run migrate:templates`
+      (dry run; `--apply` to write, `--verify` to check). One transformation
+      only: the existing `{{#if has_graduating_seniors}}` block becomes the
+      `{{else}}` branch of a new `{{#if has_evidence}}` block, so an operator's
+      own wording is preserved verbatim and still renders when there is no
+      evidence. Idempotent, backs up the database first, and REFUSES a template
+      with no block to anchor to rather than guessing a paragraph boundary.
+      Both pilot athletes were byte-identical to the old default and now land
+      exactly on the current one.
+- [x] **Evidence log completed while the schema is young.** Added
+      `primary_confidence`, `secondary_confidence`, `template_variant`,
+      `rendered_paragraph` and `operator_selected`. Coach, sent-at and reply
+      outcome are deliberately NOT duplicated — they are one join away through
+      `outreach` and `engagement_rollup`.
+- [x] **Operator can choose the angle.** The composer posts evidence KINDS,
+      never sentences; the engine validates each against what it generated, so
+      an override can change which true thing is said and cannot introduce an
+      untrue one, promote a SIGNAL, or reach internal-only intelligence.
+- [x] **Evidence tab** (`/player/:id/evidence`) reads the same route the
+      composer does and renders the same panel — a second view with its own
+      idea of the evidence would eventually disagree with the one that sends.
+- [x] **Four defects found by running against real programmes**, none by
+      reasoning:
+      - Adelphi's only New Zealander is on the 2026 roster and no earlier one,
+        and HISTORICAL_SAME_COUNTRY wrote "come through the programme since
+        2026" — a past-tense claim about an unplayed season. History now
+        requires a season before the current squad.
+      - Air Force returns all eleven of its defenders through 2027, and
+        RETURNING_POSITION_DEPTH offered a coach "around eleven of that group
+        are still eligible" as a reason to sign a twelfth — our own email
+        arguing against our own athlete. It now fires only when the group is
+        genuinely thin, the same asymmetry momentum already had.
+      - POSITION_GROUP_SIZE led an email with a bare count of a well-stocked
+        group. Now internal-only; scarcity says the useful version.
+      - "one player **are** in that graduating group" reached a rendered
+        paragraph. Verb agreement fixed, and both that sentence and returning
+        depth now name the year/position rather than pointing at a group the
+        coach was never told about.
+- [ ] **`structure` is advisory and does not yet drive rendering.** The email
+      is rendered from the athlete's template, so the structure key changes no
+      words today. It is logged from now on so earlier sends stay comparable
+      when a real structure library exists — and until then any A/B on it is
+      measuring a constant. `template_variant` is the variable that actually
+      differs.
+### 2.1c Integrity close-out — **2026-08-28**
+
+- [x] **Both outreach bypasses removed.** `/api/send-email` and its client stub
+      deleted (live route, zero callers); the raw `mailto:` beside every coach
+      address on the match card replaced by `CoachEmail.jsx`, a copy control.
+      One click there used to open the operator's own mail client, bypassing
+      suppression, the send cap, tracking, evidence derivation and evidence
+      logging at once. `outreachBypass.test.js` scans the whole repository and
+      fails if a second coach-contact path reappears — including an allowlist
+      that forces somebody to write down WHY a new match is legitimate.
+- [x] **Roster freshness, from `roster_players.updated_date`.** No new column:
+      the scrape stamp was already on every row and nothing read it.
+      Thresholds are set by the transfer calendar rather than by round numbers
+      — 60 days fresh, 120 acceptable, beyond that a window has plausibly
+      intervened. A season pinned behind the calendar is stale whatever the
+      date says.
+- [x] **Freshness is applied by TEMPORALITY, declared per kind.** A stale
+      roster SUPPRESSES a present-tense claim outright — there is no wording
+      that makes naming a possibly-departed player safe — DOWNGRADES a
+      projected one, and leaves historical and static evidence alone, because
+      "since 2022" names its own window and an old source is the point of it.
+      Applied inside `defineEvidence` so no generator can forget it.
+- [x] **Temporal language enforced, not reviewed.** The same `temporality`
+      field drives a test asserting CURRENT kinds never borrow the language of
+      history, HISTORICAL kinds never claim the present, and PROJECTED kinds
+      are always hedged and always SIGNAL. The "since 2026" bug is now a rule.
+- [x] **Performance report** (`npm run evidence -- --performance`) by primary
+      kind, secondary kind, tier, template variant, roster freshness and
+      structure. Rates are computed over RENDERED sends, not all sends: a
+      draft whose paragraph the operator deleted says nothing about that angle.
+      `MIN_SAMPLE = 30` is centralised, gates only the word "better", and every
+      row below it is bracketed and marked INSUFFICIENT_SAMPLE. Structure is
+      labelled NOT COMPARABLE while it changes no wording.
+- [x] **Bulk batch verified** — 15 tests covering per-row evidence, per-body
+      `evidence_rendered`, unique tokens, no override leakage, a failed send
+      taking no other row's attribution, and suppression still applying inside
+      a batch.
+- [x] **Two more real defects found by testing.** A squad reading as zero
+      players at a position fired "your squad looks light at defender" — that
+      is our parser failing, not a thin group, since every real squad carries
+      defenders. And the bulk fixture caught a suppression written by one test
+      silently muting a programme in every later one.
+- [x] **`intended_major` verified end to end** — UI → API → DB → player object
+      → evidence all work; the field was simply never filled in. Added helper
+      copy naming what it unlocks, and a notice on the Evidence tab when it is
+      blank, since the failure was discoverability rather than plumbing.
+- [ ] **The 41 historical sends carry no evidence row and never will.**
+      Backfilling would attribute angles to emails that never contained them.
+      They are counted as `unattributedSends` so nobody reads "0 sent" as a bug.
 - [ ] **Decide whether `--skip-inferred` becomes the default.** 1,159 of 6,347
       addresses were inferred from an institutional pattern and never observed
       to work. The flag exists and is off; making it the default loses the 45
@@ -1619,6 +1743,311 @@ Philosophy tab and its PDF.
       2026.** Pre-existing and deliberately left alone here: changing it moves
       which programmes reach the top 20, which is a matching change. Worth
       settling separately.
+
+### 2.1d Multi-evidence and the structure library — **2026-08-28**
+
+Structures existed as a logged key that changed no wording, because the body
+rendered from `players.email_template`. That was the architectural conflict
+this phase had to resolve: a structure cannot change an email while a saved
+template decides its shape. It is resolved by composing the body from BLOCKS —
+the default template decomposed into greeting, introduction, credentials,
+evidence slots, fit, CTA and sign-off — which structures then ORDER. A
+customised template is still rendered as it always was.
+
+- [x] **Up to four pieces of evidence, chosen rather than filled.** `selectFrom`
+      fills slots under a rising priority floor `[0, 50, 60, 70]` and a cap of
+      two per family. On the current top-20 for both pilot athletes that yields
+      1–4 items and most often 2–3; nothing is padded to reach four. A weak
+      coach-tenure SIGNAL (priority 45) can lead an email when it is all we
+      have and can never be its third sentence.
+- [x] **No `baseStrength` or category prior was touched.** Deliberate, and
+      load-bearing for the experiment: an email with three items contains the
+      same first two the two-item version would have carried, so rows logged
+      either side of today stay comparable. Tested, not asserted.
+- [x] **Redundancy in two layers.** `dedupeGroup` is a hard collapse for
+      restatements of one observation (four readings of one country
+      relationship); `category` is a soft cap of two per family, so three
+      roster observations cannot crowd out an academic one. Every drop carries
+      a reason in the operator's words.
+- [x] **Five structures that genuinely differ** — INTERNATIONAL_CONNECTION,
+      ACADEMIC_FIT, ROSTER_OPPORTUNITY, EVIDENCE_FIRST, PLAYER_FIRST. Each
+      declares requirements evaluated against WHAT SURVIVED SELECTION, so a
+      structure cannot reach evidence that was suppressed for staleness or
+      failed a confidence floor. The old PROGRAM_SUCCESS and SHORT are folded
+      into EVIDENCE_FIRST and PLAYER_FIRST, whose block orders they shared;
+      `LEGACY_STRUCTURE_KEYS` keeps the logged rows readable.
+- [x] **Evidence is placed through the email, not piled in one paragraph.**
+      A structure declares evidence blocks with named slots (LEAD, SUPPORT,
+      CLOSING) rather than `evidence_paragraph_1/_2/_3`, and an unfilled block
+      is dropped from the template rather than rendered empty. Every structure
+      degrades to a whole email at one item and at none.
+- [x] **Operator control is server-authoritative.** Remove, swap and reorder
+      emit KINDS; the structure picker emits a KEY. Both go back to the server,
+      which regenerates, revalidates, re-renders through the tier-appropriate
+      renderer and recomposes. The client has prose and keys and no renderer.
+      An ineligible structure is REFUSED and reported, never silently swapped.
+- [x] **Per-item render status.** `renderedKinds` records which claims actually
+      survived the operator's editing into the body handed to Outlook. An
+      operator who keeps the opening sentence and deletes the supporting
+      paragraph has delivered one claim of three, and logging three would
+      inflate every angle by exactly what they cut.
+- [x] **Report extended** by evidence count, selected set, body source and
+      claim delivery. `byStructure` stays NOT COMPARABLE for a NEW reason:
+      structure now changes wording but is CHOSEN BY the evidence, so the two
+      are confounded by design. Separating them needs randomised assignment
+      within an eligible set, which is deliberately not built.
+- [x] **Four real defects found by reading real drafts**, not by reasoning:
+      a congratulation conjoined to a roster fact ("Congratulations on winning
+      the CAA last year, and you have one defender…"); the composition missing
+      from the wire, so every browser draft silently fell back to the plain
+      template while the panel named a structure; a body-refresh guard that
+      compared against a ref React updates before the state lands, discarding
+      the composed body; and `structure` arriving as an object from the engine
+      and a string from the wire.
+- [ ] **Structure is confounded with evidence and must stay uninterpreted.**
+      Do not retune evidence priorities from a structure result or the reverse.
+      The report says so in print; this is the note for whoever reads it later.
+- [ ] **A customised `email_template` switches structures off** for that
+      athlete. Both pilot athletes are on the default so both get structures;
+      the composer says so on screen when they are not. Whether an edited
+      template should instead be decomposed into blocks is an open question.
+
+### 2.1e Clean denominator before the first measured batch — **2026-08-28**
+
+- [x] **49 phantom sends cleared.** A `--apply` run at 07:42 on 28 Aug opened 49
+      Outlook drafts for Rhys Davies that were never sent. They carried
+      `sent_at`, so the report was printing **49 sends / 0 replies / 0% /
+      READABLE** — above `MIN_SAMPLE`, from mail nobody received. Proof they
+      were never sent: 0 tracking events, 0 rollup rows, 0 visits across 49
+      tokens over a week, against 104 events and 13 visits from the 41 genuine
+      sends. `sent_at` set to NULL and the 49 obsolete two-evidence log rows
+      deleted, in one transaction, scoped to a captured ID list. Rows, tokens,
+      coach links, `match_id` and `created_at` all preserved.
+- [x] **Academic evidence no longer opens an email.** `canLead: false` on
+      ACADEMIC_FIT. Not a weight change — priority stays 88 and it is selected
+      exactly as often — it is skipped only when filling the OPENING slot, and
+      only while something else can fill it. Where it is the sole piece of
+      evidence it still leads. The opener is `selected[0]` and four of five
+      structures lead on it, so this had to be an ordering rule in selection;
+      retiring or re-gating the ACADEMIC_FIT structure would have left every
+      other structure opening on the same sentence, which was measured before
+      the change was made.
+- [x] **ACADEMIC_FIT structure redefined rather than deleted.** It now requires
+      academic evidence to be SELECTED rather than primary, leads on the
+      strongest non-academic item, and stays distinct through its introduction
+      variant — the subject is named in the sentence that already introduces
+      the athlete. Five structures retained.
+- [x] **`sent_at` now means a send.** It meant "handed to Outlook", so drafting
+      twenty and sending fifteen recorded twenty sends — and every denominator
+      keys on it. `outreach.drafted_at` added for the event it was standing in
+      for. `sendOutreach` stamps `drafted_at` always and `sent_at` only when
+      the AppleScript itself issued Send. Drafts are confirmed afterwards by
+      the person who sent them: `npm run confirm-sends`. Nothing infers a send.
+- [x] **An unconfirmed draft costs nothing.** It is absent from send totals,
+      evidence performance, reply-rate denominators and the per-inbox send cap
+      — all of which already keyed on `sent_at IS NOT NULL`, so no query
+      changed. Tokens and evidence rows are still written at draft time, so a
+      confirmation admits existing data to the denominator rather than
+      creating any.
+- [ ] **Drafting repeatedly without confirming does not consume the send cap.**
+      A direct consequence of the above and the right trade for a measured
+      experiment, but it means the cap protects inboxes only against CONFIRMED
+      volume. Worth revisiting if drafts are ever left unconfirmed at scale.
+- [ ] **The browser composer has no confirmation surface.** Drafts made from
+      the app are confirmed through the CLI like any other. The Coach
+      Engagement query now carries `drafted_at` beside `sent_at` so a screen
+      can show "drafted, unconfirmed", but no screen does yet.
+
+### 2.1f Conversational copy — **2026-08-28**
+
+- [x] **All 16 email-eligible kinds rewritten**, each with two variants:
+      `lead` (observation + why it made us write) and `support` (a bare clause
+      gathered with others). `renderEvidence(ev, ctx)` takes the athlete's
+      first name and the slot; the tier wall is untouched and `renderFact`
+      still throws on a SIGNAL.
+- [x] **The interpretation rule, asserted mechanically.** A clause may say why
+      WE are writing; it may never say what the COACH needs. `render.test.js`
+      scans both variants of every kind against twelve forbidden constructions
+      ("you'll need", "your needs", "gap in your", "you're looking for") and a
+      corporate-phrase list. 131 tests.
+- [x] **One lead-in per paragraph.** Only the first piece of evidence in an
+      email gets the full "I saw X, so I thought Y"; the rest are gathered as
+      "I also noticed A, and B". Three sentences each opening "I noticed" is
+      what the obvious implementation produces and it reads worse than the
+      database prose it replaced.
+- [x] **Non-evidence blocks rewritten to match.** Removed "We believe",
+      "we'd love to hear", "potential fit", "interesting fit", and — the one
+      that mattered — "given your current roster and X's needs", a claim about
+      the coach's squad that sat in the closing line of every email the system
+      had ever sent. Full name four times per email is now once.
+- [x] **No pronoun for the athlete, anywhere.** `players` stores no gender or
+      pronoun field, and inferring one from the sport would be a guess about a
+      real person. The first name is used instead; two tests enforce it across
+      the copy and the block library.
+- [x] **ROSTER_OPPORTUNITY reordered** so its closing evidence sits before the
+      profile link. The programme-specific reasoning is complete before the
+      coach is asked to click anything.
+- [x] **Conference display formatter** (`shared/conference.js`). Two rows carry
+      a division suffix that is our own disambiguation — "MWC-D3", "MIAA-D3" —
+      and it reached the congratulation. Stripped for display only; the stored
+      value is what the champion lookup joins on. Checked against all 124
+      champion names and 251 conference names: nothing else matched, and
+      "Atlantic 10", "Northeast-10", "Empire 8", "C2C" are left alone.
+- [x] **Two ordering defects found by reading whole emails**, not sentences:
+      a congratulation chosen as the PRIMARY evidence was pushed to the back of
+      its own paragraph by type-grouping; and a congratulation sitting between
+      two gathered clauses produced two "I also noticed" in one paragraph.
+- [x] **The FIT block is gone** (2026-08-29). It sat directly above a CTA that
+      asked the same question better, in three of the five structures.
+- [x] **The credentials heading is gone.** It carried "{{player_name}} —
+      {{player_position}}" and then "A bit about {{player_first_name}}:"; the
+      athlete is named in the paragraph above and the first bullet is the
+      position, so a heading announced what the reader could already see.
+- [x] **Large international counts go qualitative** at ten and above —
+      "quite a few players from overseas" rather than "19 internationals".
+      Still a FACT and still checkable; below ten the number is informative and
+      is kept.
+- [x] **A paragraph carries at most two gathered clauses.** Overflow spills to
+      a later evidence slot if the structure has one and is otherwise NOT
+      DISPLAYED — selected, logged, shown to the operator, and left out of the
+      email. `displayed: false` is carried through placement, the wire and
+      `selectedDetail`, so nothing implies a coach read a claim that was held
+      back. The congratulations and the opener do not count against the cap:
+      each is its own sentence wherever it lands.
+- [x] **PLAYER_FIRST reordered too.** It had the same profile-link → fresh
+      observation → ask sequence that ROSTER_OPPORTUNITY was fixed for. A test
+      now asserts every structure places its evidence before the profile link.
+- [x] **The CTA conditions on nothing** (2026-08-29). "If you're looking at
+      defenders for 2027" was the same mistake as "given your current roster
+      and X's needs" in a politer register — a recruiting intention we have no
+      evidence for, which either flatters a guess or excuses the coach from
+      answering. One CTA now, for every structure: "Would be great to hear your
+      thoughts on {{player_first_name}} for your {{player_class_year}} group."
+      A test scans the whole block library for that shape of assumption.
+- [x] **COPY FROZEN 2026-08-29.** No further changes to evidence wording, block
+      copy, structure order or composition rules until real outreach data
+      exists.
+- [ ] **The block library and DEFAULT_EMAIL_TEMPLATE have deliberately
+      diverged.** The template is frozen because `templateVariant` compares
+      saved templates against it byte for byte; editing it would reclassify
+      both pilot athletes' templates as customised and silently switch
+      structured composition off. The old drift guard is replaced by a test
+      asserting the freeze and the divergence.
+
+### 2.1g Presentation separated from selection — **2026-08-29**
+
+The defect: "strong evidence" and "good opening sentence" were being treated
+as one judgement, so a roster count opened emails with "I noticed you've got
+three defenders graduating, so I thought Ryan could be worth putting on your
+radar" — to a coach who did not yet know who Ryan was.
+
+- [x] **`leadSuitability` on every kind** — NATURAL_LEAD / CONTEXTUAL /
+      SUPPORT_ONLY. A presentation property, separate from strength,
+      confidence, tier and priority. Only the three country-relationship kinds
+      can open an email cold; a useful tell was that several kinds NAME THE
+      ATHLETE in their reasoning, which is only coherent after the
+      introduction.
+- [x] **`canLead` removed.** It existed for one kind and worked by reordering
+      SELECTION, which is what made the two concerns hard to separate.
+- [x] **Five structures collapsed to two flows.** RELATIONSHIP_FIRST when a
+      NATURAL_LEAD was selected, PLAYER_FIRST otherwise. Three of the five were
+      distinguished only by which evidence opened the email, and once most
+      kinds could not open one they became the same shape. 28/32 across the 60
+      current pairings — a real split, not a fig leaf.
+- [x] **INTRO → RELEVANCE → CREDENTIALS in both flows.** The introduction and
+      the relevance reasoning are one continuous thought; the bullets
+      interrupted it.
+- [x] **`recognition: true`** as composition metadata for CONFERENCE_TITLE and
+      POSTSEASON_RESULT. Their own sentence, placed after the reasoning and
+      before the profile link, never gathered into another clause and never a
+      cold-email hook. Capped at one — selection already prevents both through
+      the shared dedupe group.
+- [x] **`{ clause, reason }` replaces `{ lead, support }`.** The framing —
+      "I saw …", "I was having a look through your program and noticed …" —
+      moved out of the copy and into composition, because the same observation
+      is framed differently depending on where it lands. It also removed the
+      duplication where every clause was written twice per kind, which had
+      already drifted once.
+- [x] **Selection order and displayed order are both recorded and neither is
+      rewritten.** Ryan × Sacred Heart selects POSITION_GRADUATION first and
+      displays HISTORICAL_SAME_REGION first; `primary_kind` stays the former.
+      17 of 60 emails reorder their opener this way.
+- [x] **Three copy defects found by reading composed output.** A reason that
+      restated its own framing ("noticed … so it caught my eye"); a clause
+      opening with its own adverbial that broke the framing ("I saw going off
+      last season's minutes"); and a SUPPORT_ONLY kind carrying the opening
+      reasoning at Elon, where the academic match outranked the graduating
+      defender and opened on the university rather than the squad.
+- [ ] **`structure` now has two values, not five.** Better for sample size,
+      and no history to break — the 49 phantom rows were cleared. Old keys stay
+      readable through LEGACY_STRUCTURE_KEYS.
+
+### 2.1z FROZEN BASELINE — first live outreach experiment
+
+**Frozen 2026-08-29**, branch `engagement-tracking`, tagged
+`outreach-baseline-2026-08-29`.
+
+A tag rather than a hash written into this file: stamping a commit with its own
+hash cannot be done in that commit, and the amend that tries changes the hash
+it just wrote. `git show outreach-baseline-2026-08-29` is the baseline.
+Everything below is the state the first measured batch will be sent from. Nothing in evidence generation, selection, priorities,
+thresholds, freshness, copy, composition, matching or scraping changes until
+that batch has been sent, confirmed and read.
+
+The point of writing this down is that the first result will be tempting to
+act on, and acting on it requires knowing exactly what produced it.
+
+#### What is frozen
+
+| Layer | State |
+|---|---|
+| Evidence kinds | 18 registered, 16 email-eligible |
+| Selection | up to 4 items; slot floors `[0, 50, 60, 70]`; max 2 per family |
+| Presentation | `leadSuitability` — 3 NATURAL_LEAD, 6 CONTEXTUAL, 7 SUPPORT_ONLY |
+| Flows | 2 — RELATIONSHIP_FIRST, PLAYER_FIRST |
+| Recognition | CONFERENCE_TITLE, POSTSEASON_RESULT — own sentence, late, max 1 |
+| Display cap | 2 gathered clauses per paragraph, opener and recognition exempt |
+| Send semantics | `drafted_at` on compose; `sent_at` only on explicit confirmation |
+| Send cap | 3 distinct athletes per inbox per 30 days |
+| Min sample | 30 rendered sends before any rate is called readable |
+
+#### Verification at the freeze
+
+- **1,344 tests across 53 files, all passing.**
+- **Backtest (seed 20260825), unchanged by every change in this phase:**
+  - Full pool: median 96.1%, mean 92.3%, r@10 17.3%, r@25 32.9%, r@100 73.3%, MRR 0.0870
+  - ±20 ability band: median 93.8%, mean 87.5%, r@10 18.6%, MRR 0.0938
+  - Re-measure against a FIXED database file. The metric moves with data, not
+    just code: it read 17.5% before 18 college rows were added mid-session,
+    and today's code reproduces 17.5% exactly on the pre-cleanup snapshot.
+- **Flow distribution over 60 current pairings (3 athletes × top 20):**
+  28 RELATIONSHIP_FIRST, 32 PLAYER_FIRST. Evidence displayed per email:
+  6×1, 28×2, 25×3, 1×4. 17 emails reorder their opener for presentation.
+- **Denominator is empty.** 0 confirmed sends carrying evidence; the 41
+  genuine pre-log sends are reported as `unattributedSends` and never
+  backfilled.
+
+#### What must NOT be inferred from the first batch
+
+- `structure` has two values and is CHOSEN BY the evidence. A difference
+  between the flows is a difference between the programmes each fits at least
+  as much as an effect of the shape. Separating them needs randomised
+  assignment within an eligible set, which is deliberately not built.
+- Evidence count, selected set and flow all vary together. Nothing here is a
+  controlled experiment; every rate is observational.
+- Under `MIN_SAMPLE = 30` no group is readable. A 20-programme batch produces
+  no readable group at all, by design.
+
+#### Known-open, accepted as non-blocking
+
+- The customised `{{evidence_paragraph}}` path has no flow or placement —
+  reachable only by an athlete who has edited their template; neither pilot
+  has.
+- Flow B's opening sentence runs long when the graduating clause carries three
+  names.
+- All 32 PLAYER_FIRST emails share the phrase "I was having a look through
+  your program". Deliberate: a variant introduced only to vary it would be the
+  synonym-swapping this system exists to avoid.
 
 ### 2.2 ESP migration — **on hold, 2026-08-25**
 

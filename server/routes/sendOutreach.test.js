@@ -66,7 +66,9 @@ const baseRequest = (athleteId, overrides = {}) => ({
 
 beforeEach(() => {
   composed.length = 0;
-  db.exec('DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches; DELETE FROM suppressions;');
+  // outreach_evidence references outreach, so it goes first — sendOutreach
+  // now writes a row per message describing the personalisation it used.
+  db.exec('DELETE FROM outreach_evidence; DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches; DELETE FROM suppressions;');
 });
 
 describe('one email per coach', () => {
@@ -136,20 +138,68 @@ describe('the link always gets in', () => {
   });
 });
 
+describe('evidence logging', () => {
+  // The browser composer posts no evidence — it receives rendered prose from
+  // /api/players/:id/evidence and has no objects to send back — so the send
+  // path derives it here. Without this every email drafted from the UI would
+  // be unattributable, which is the one thing the log exists to prevent.
+  it('derives and logs evidence when the caller supplied none', async () => {
+    const athleteId = makeAthlete();
+    await sendOutreach(baseRequest(athleteId));
+
+    const rows = db.prepare(`
+      SELECT e.* FROM outreach_evidence e
+      JOIN outreach o ON o.id = e.outreach_id WHERE o.athlete_id = ?
+    `).all(athleteId);
+
+    expect(rows).toHaveLength(2);            // one per coach
+    expect(rows[0].college_name).toBe('Butler University');
+    expect(rows[0].structure).toBeTruthy();
+    // No roster rows in this fixture, so the honest answer is "no roster" —
+    // not a graduating count of zero.
+    expect(rows[0].had_roster).toBe(0);
+  });
+
+  it('records whether the evidence sentence survived into the body', async () => {
+    const athleteId = makeAthlete();
+    await sendOutreach(baseRequest(athleteId, { body: 'Nothing about the programme here.' }));
+
+    const row = db.prepare(`
+      SELECT e.evidence_rendered FROM outreach_evidence e
+      JOIN outreach o ON o.id = e.outreach_id WHERE o.athlete_id = ? LIMIT 1
+    `).get(athleteId);
+
+    // Null rather than 0: this fixture produces no sentence to look for, so
+    // "was it carried" has no answer. A false here would read as the operator
+    // having deleted something.
+    expect(row.evidence_rendered).toBeNull();
+  });
+
+  it('does not fail a send when evidence cannot be worked out', async () => {
+    const athleteId = makeAthlete();
+    const { results } = await sendOutreach(baseRequest(athleteId, { collegeName: null }));
+    expect(results.every((r) => r.status === 'drafted')).toBe(true);
+  });
+});
+
 describe('persistence', () => {
   it('creates coach and outreach records carrying the match id', async () => {
     const athleteId = makeAthlete();
     await sendOutreach(baseRequest(athleteId));
 
     const rows = db.prepare(`
-      SELECT c.full_name, c.school, c.position_title, o.match_id, o.sent_at
+      SELECT c.full_name, c.school, c.position_title, o.match_id, o.drafted_at, o.sent_at
       FROM outreach o JOIN coaches c ON c.id = o.coach_id WHERE o.athlete_id = ?
     `).all(athleteId);
 
     expect(rows).toHaveLength(2);
     expect(rows[0].school).toBe('Butler University');
     expect(rows[0].match_id).toBe('Butler University');
-    expect(rows[0].sent_at).toMatch(/Z$/);
+    // Drafted, and NOT claimed as sent. `baseRequest` does not pass
+    // `send: true`, so the message went to Outlook as a draft and nothing
+    // observed whether it was then sent — see server/lib/confirmSends.js.
+    expect(rows[0].drafted_at).toMatch(/Z$/);
+    expect(rows[0].sent_at).toBeNull();
   });
 
   it('reuses the same token when the same coach is contacted again', async () => {

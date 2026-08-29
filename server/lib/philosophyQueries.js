@@ -18,9 +18,15 @@ import { POSITIONS } from '../../shared/positions.js';
 
 const SEASON_LIST = SEASONS.map(() => '?').join(',');
 
+// `updated_date` is the scrape stamp. Every row carries it and nothing read it
+// until the evidence engine needed to know how old a present-tense claim's
+// source was — see shared/evidence/freshness.js. Selected here rather than in a
+// second query so the philosophy reports and the email evidence describe the
+// same rows, stamps included.
 const ROSTER_COLUMNS = `college_name, sport, season, player_name, position, minutes_played,
   games_played, games_started, class_year_label, nationality, country, hometown,
-  estimated_graduation_year, eligibility_end_year, projected_minutes, prior_programme`;
+  estimated_graduation_year, eligibility_end_year, projected_minutes, prior_programme,
+  updated_date`;
 
 const selectRoster = db.prepare(
   `SELECT ${ROSTER_COLUMNS} FROM roster_players

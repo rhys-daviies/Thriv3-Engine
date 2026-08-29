@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, ExternalLink, Mail } from 'lucide-react';
+import CoachEmail from '@/components/CoachEmail';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -208,7 +209,7 @@ export default function CollegeCard({ college, onEmailCoaches }) {
                 {coaches.map((c) => (
                   <div key={c.email} className="text-xs flex items-center justify-between">
                     <span>{c.name} <span className="text-muted-foreground">— {c.title}</span></span>
-                    <a href={`mailto:${c.email}`} className="text-accent hover:underline">{c.email}</a>
+                    <CoachEmail email={c.email} className="text-xs" />
                   </div>
                 ))}
               </div>

@@ -26,13 +26,14 @@ export function createOutreach({ athleteId, coachId, matchId = null }) {
     coach_id: coachId,
     token: generateUnique(generateToken, tokenTaken),
     match_id: matchId,
+    drafted_at: null,
     sent_at: null,
     revoked_at: null,
     created_at: utcNow(),
   };
   db.prepare(`
-    INSERT INTO outreach (id, athlete_id, coach_id, token, match_id, sent_at, revoked_at, created_at)
-    VALUES (@id, @athlete_id, @coach_id, @token, @match_id, @sent_at, @revoked_at, @created_at)
+    INSERT INTO outreach (id, athlete_id, coach_id, token, match_id, drafted_at, sent_at, revoked_at, created_at)
+    VALUES (@id, @athlete_id, @coach_id, @token, @match_id, @drafted_at, @sent_at, @revoked_at, @created_at)
   `).run(row);
   return row;
 }
@@ -54,6 +55,36 @@ export function resolveToken(token) {
   return row || null;
 }
 
+/**
+ * A message was handed to Outlook as a draft.
+ *
+ * This is what `markOutreachSent` used to be called for, and calling it "sent"
+ * is what let a draft nobody sent into every reply-rate denominator in the
+ * system. Drafting is a real event worth recording — it is when the tracking
+ * token went into a body — it is simply not a send.
+ */
+export function markOutreachDrafted(id, at = utcNow()) {
+  // Overwrites, unlike `markOutreachSent` below, and the asymmetry is
+  // deliberate. `sent_at` dates a delivery and must not move out of an
+  // engagement window. `drafted_at` dates the message CURRENTLY sitting in
+  // Outlook, and `outreach` carries one row per athlete-coach pair — so a
+  // programme re-drafted today would otherwise keep last week's timestamp and
+  // be grouped into last week's batch by `confirmSends.js`, where confirming
+  // this week's run would silently skip it.
+  db.prepare('UPDATE outreach SET drafted_at = ? WHERE id = ?').run(at, id);
+}
+
+/**
+ * The coach was written to, and we have explicit confirmation of it.
+ *
+ * TWO callers, and no third may be added without a decision: the send path
+ * when the AppleScript itself issued Send, and `confirmSends.js` when a human
+ * confirms a batch they sent by hand. Opening a draft must never reach here —
+ * see the schema comment on `outreach`.
+ *
+ * `AND sent_at IS NULL` keeps the FIRST confirmation, so re-confirming a batch
+ * cannot move a send forward in time and out of an engagement window.
+ */
 export function markOutreachSent(id, at = utcNow()) {
   db.prepare('UPDATE outreach SET sent_at = ? WHERE id = ? AND sent_at IS NULL').run(at, id);
 }

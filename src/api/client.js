@@ -110,6 +110,33 @@ async function requestBlob(path, options = {}) {
   return res.blob();
 }
 
+export const evidence = {
+  /**
+   * What the server can genuinely say about this athlete at these programmes,
+   * keyed by college name.
+   *
+   * The composer sends names and nothing else. It holds the departure numbers
+   * from its own matching run and deliberately does not send them: the server
+   * recomputes them, so the sentences in a coach's inbox come from the
+   * database rather than from whatever a long-open tab was holding.
+   */
+  /**
+   * @param {object} [opts.prefer]          { "<college>": ["KIND", ...] }
+   * @param {object} [opts.preferStructure] { "<college>": "STRUCTURE_KEY" }
+   *
+   * Both are REQUESTS, not instructions. The server validates each kind
+   * against the evidence it generated and each structure against what that
+   * evidence supports, and refuses rather than honours anything else — which
+   * is why the client is allowed to ask at all.
+   */
+  summaries(playerId, collegeNames, { prefer = null, preferStructure = null } = {}) {
+    return request(`/api/players/${playerId}/evidence`, {
+      method: 'POST',
+      body: JSON.stringify({ collegeNames, prefer, preferStructure }),
+    });
+  },
+};
+
 export const philosophy = {
   /** One compact row per school for the Program Philosophy tab. */
   summaries(playerId, collegeIds) {
@@ -158,14 +185,6 @@ export const integrations = {
       const res = await fetch('/api/uploads', { method: 'POST', body: form });
       if (!res.ok) throw new Error('Upload failed');
       return res.json(); // { file_url }
-    },
-    async SendEmail({ to, cc, subject, body }) {
-      // Stubbed per local-app scope: logs server-side and returns a mailto: link
-      // instead of sending real mail. See server/routes/sendEmail.js.
-      return request('/api/send-email', {
-        method: 'POST',
-        body: JSON.stringify({ to, cc, subject, body }),
-      });
     },
   },
 };

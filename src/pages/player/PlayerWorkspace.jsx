@@ -11,6 +11,7 @@ const TABS = [
   { segment: 'matching', label: 'Analysis & Matching' },
   { segment: 'engagement', label: 'Coach Engagement' },
   { segment: 'philosophy', label: 'Program Philosophy' },
+  { segment: 'evidence', label: 'Evidence' },
 ];
 
 /**

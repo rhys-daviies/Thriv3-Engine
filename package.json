@@ -28,6 +28,9 @@
     "tune:weights": "node server/scripts/tuneMatchingWeights.js",
     "suppress": "node server/scripts/suppress.js",
     "draft": "node server/scripts/draftOutreach.js",
+    "confirm-sends": "node server/scripts/confirmSends.js",
+    "evidence": "node server/scripts/evidenceReport.js",
+    "migrate:templates": "node server/scripts/migrateEmailTemplates.js",
     "project-minutes": "node server/scripts/projectRosterMinutes.js"
   },
   "dependencies": {
