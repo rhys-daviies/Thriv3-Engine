@@ -380,6 +380,22 @@ export function arrivalWindowPage(k, model) {
   const years = [...new Set(players.map((p) => p.eligibleTo).filter((y) => y != null))]
     .map(Number).sort((x, y) => x - y);
 
+  // Nothing on this roster can be placed against a year. The three bands would
+  // all read zero for a reason that has nothing to do with the squad, which is
+  // the null-is-not-zero defect this whole report exists downstream of.
+  if (!years.length) {
+    k.body(`No eligibility year is recorded for any of the ${plural(players.length, 'current', 'current')} `
+      + `${nouns(a)} on the ${model.squadSeason} roster.`, { bold: true });
+    k.body('So this page cannot say which of them are in a final season when you arrive, which have '
+      + 'already finished, and which are eligible beyond it. That is a gap in what this programme '
+      + 'publishes, not a squad with nobody in it — the players are listed in full on the previous '
+      + 'page and on the squad page.', { color: MUTED });
+    k.box('Future recruits, experienced arrivals, injuries, redshirts and eligibility changes are '
+      + 'not known either. This page describes the squad as it stands today, and today it cannot '
+      + 'be read against a year.', { color: CLARET, title: 'The primary limitation' });
+    return;
+  }
+
   if (years.length) {
     charts.eligibilityTimeline(k, {
       box: k.slot(80),

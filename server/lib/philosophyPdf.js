@@ -156,6 +156,25 @@ function installTextRules(doc) {
   };
 }
 
+/**
+ * The largest size at or below `size` that fits `text` on one line.
+ *
+ * A title is a fixed slot in a layout: "West Virginia University Institute of
+ * Technology" either shrinks or it takes a second line, and a second line
+ * pushes the cards on a glance page down by a line height they were not sized
+ * for. Shrinking to a floor keeps every page the same shape, and below the
+ * floor the caller decides.
+ */
+export function fitHeadline(doc, text, width, size, floor = 13) {
+  const str = String(text ?? '');
+  for (let s = size; s >= floor; s -= 0.5) {
+    doc.fontSize(s);
+    if (doc.widthOfString(str) <= width) return s;
+  }
+  doc.fontSize(floor);
+  return floor;
+}
+
 export function kit(doc) {
   const api = {
     doc,
@@ -169,8 +188,12 @@ export function kit(doc) {
 
     title(text) {
       api.room(40);
-      doc.font(TYPE.title.font).fontSize(TYPE.title.size).fillColor(TYPE.title.color)
-        .text(text, M, doc.y, { width: W });
+      doc.font(TYPE.title.font);
+      // Shrunk to fit rather than wrapped: a second line here would push the
+      // cards on a glance page down by a line height they were not sized for.
+      const size = fitHeadline(doc, text, W, TYPE.title.size, 13);
+      doc.fontSize(size).fillColor(TYPE.title.color)
+        .text(text, M, doc.y, { width: W, lineBreak: size > 13, ellipsis: size <= 13 });
       return api.gap(SPACE.afterTitle);
     },
     /** The question a page answers, under its title. */
@@ -375,8 +398,13 @@ export function kit(doc) {
         api.room(17);
         const top = doc.y;
         doc.font('Helvetica').fontSize(8.8).fillColor(MUTED).text(k, M, top, { width: 168 });
+        // The LABEL is the one that wraps — "…of those, in their final eligible
+        // season in 2027" takes two lines in 168 points. Advancing on the
+        // value's height alone put the next row's label 4 points into this
+        // one's second line.
+        const afterLabel = doc.y;
         doc.font('Helvetica').fontSize(8.8).fillColor(INK).text(v, M + 176, top, { width: W - 176 });
-        doc.y = Math.max(doc.y, top + 14);
+        doc.y = Math.max(afterLabel, doc.y, top + 14) + 1;
       }
       return api.gap(9);
     },
@@ -1238,18 +1266,24 @@ export const charts = {
       // Labelled in ascending order with alternating rows, and a label is
       // dropped where it would land on the one before it — two seasons a few
       // minutes apart printed "2223" the first time this was drawn.
+      // Two rows of labels, each tracking its OWN last position. Tracking one
+      // shared position and alternating tiers still let two labels on the same
+      // tier land two points apart — the guard caught "’25" printed across
+      // "’23" three times on one page.
       const sorted = [...(r.contributions ?? [])].sort((x, y2) => x.minutes - y2.minutes);
-      let lastLabelX = -Infinity;
-      let tier = 0;
+      const lastAt = [-Infinity, -Infinity];
+      const LABEL_W = 11;
       sorted.forEach((c) => {
         const x = xOf(c.minutes);
         doc.save().circle(x, cy, 2.6).fillOpacity(0.55).fill(NAVY).restore();
-        if (x - lastLabelX < 8) { tier = (tier + 1) % 2; } else { tier = 0; }
-        if (x - lastLabelX < 4 && tier === 0) return;
+        // Whichever row has more room, and if neither has enough the label is
+        // dropped rather than stacked on top of another one.
+        const tier = (x - lastAt[0] >= x - lastAt[1]) ? 0 : 1;
+        if (x - lastAt[tier] < LABEL_W) return;
         doc.font('Helvetica').fontSize(5.2).fillColor(MUTED)
           .text(`’${String(c.season).slice(-2)}`, x - 7, cy + 5 + tier * 6,
             { width: 14, align: 'center', lineBreak: false });
-        lastLabelX = x;
+        lastAt[tier] = x;
       });
       if (r.median != null) {
         doc.save().moveTo(xOf(r.median), cy - 7).lineTo(xOf(r.median), cy + 7)

@@ -16,7 +16,7 @@
  * and a red chip would say something the arithmetic does not. And nothing is
  * scored — there is no composite number anywhere on these pages.
  */
-import { THEME, TYPE, pageHead, minutes, fitText } from './philosophyPdf.js';
+import { THEME, TYPE, pageHead, fitHeadline, minutes, fitText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 
@@ -347,9 +347,18 @@ export function contentsPage(doc, model, plan, pages) {
     .text('PROGRAM INTELLIGENCE REPORT', M, y, { width: W, characterSpacing: 1.6, lineBreak: false });
   y += 20;
 
-  doc.font('Helvetica-Bold').fontSize(26).fillColor(INK)
-    .text(c.name, M, y, { width: W, lineBreak: false, ellipsis: true });
-  y += 33;
+  // The cover is the one place the programme's full name must appear whole, so
+  // it shrinks to fit rather than clipping. "West Virginia University
+  // Institute of Technology" was arriving as "West Virginia University
+  // Institute of T…" on the front of its own report.
+  doc.font('Helvetica-Bold');
+  const nameSize = fitHeadline(doc, c.name, W, 26, 15);
+  // Below the floor it WRAPS rather than clipping. Everywhere else in the
+  // report a title that will not fit is cut, because a title is a fixed slot
+  // in a layout; here it is the name on the front of the document, and the
+  // block beneath simply starts lower.
+  doc.fontSize(nameSize).fillColor(INK).text(c.name, M, y, { width: W });
+  y = doc.y + 5;
 
   // The programme identity rule. Short, under the name, and the only place a
   // college colour appears anywhere in the document.
@@ -696,6 +705,33 @@ function squadOutlookCard(doc, box, s) {
   const meaningful = expiring.find((yy) => yy.share != null && yy.share >= 0.1);
   const nextYear = meaningful ?? expiring.find((yy) => yy.minutes > 0) ?? null;
 
+  // With no eligibility years at all there is no timeline to draw, so the card
+  // is one statement across its full width and the coverage beneath it. The
+  // three-column layout used to survive, and the refusal — sized for two
+  // columns and drawn from column one — printed straight through the
+  // "ELIGIBILITY ENDS" heading.
+  if (!expiring.length) {
+    doc.font('Helvetica-Bold').fontSize(9).fillColor(INK)
+      .text(s.rostered
+        ? `No eligibility end year is recorded for any of the ${s.rostered} players on this roster.`
+        : 'No current roster is on file for this programme.', p.x, y, { width: p.w });
+    y = doc.y + 6;
+    doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
+      .text(s.rostered
+        ? 'So this report cannot say when the playing-time load on this squad reaches the end of '
+          + 'its eligibility. That is a gap in what this programme publishes, not a squad whose '
+          + 'eligibility never ends.'
+        : 'The squad pages read only players on the roster now, and there are none on file.',
+      p.x, y, { width: p.w });
+    y = doc.y + 10;
+    factLine(doc, p.x, y, colW, 'On the roster', s.rostered ?? 0);
+    factLine(doc, p.x + colW + 12, y, colW, 'Projections held',
+      proj?.projectable ? `${proj.playersWithProjection} of ${proj.projectable}` : '—');
+    factLine(doc, p.x + (colW + 12) * 2, y, colW, 'Returning-squad minutes',
+      proj?.total == null ? 'not readable' : nf(proj.total));
+    return;
+  }
+
   // Column one: the next year anything meaningful comes off the roster.
   if (nextYear) {
     bigMetric(doc, p.x, y, nf(nextYear.minutes), { unit: 'min' });
@@ -704,8 +740,7 @@ function squadOutlookCard(doc, box, s) {
         p.x, y + 27, { width: colW });
   } else {
     doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-      .text(s.rostered ? 'No eligibility end years recorded for this squad.' : 'No current roster on file.',
-        p.x, y, { width: colW * 2 });
+      .text('No year on this roster carries projected minutes.', p.x, y, { width: colW });
   }
 
   // Column two: the expirations, year by year.
@@ -852,6 +887,27 @@ function arrivalWindowCard(doc, box, a, model) {
     return;
   }
 
+  // Not one player at this position carries an eligibility year. Every one of
+  // the three groups is then empty for a reason that has nothing to do with
+  // the squad, and drawing "0 · 0 · 0" beside "in their final eligible season"
+  // is the exact null-is-not-zero defect this report exists downstream of —
+  // stated here in the largest type on the most important card of the page.
+  const placeable = a.currentPositionPlayers.length - unknown.length;
+  if (!placeable) {
+    doc.font('Helvetica-Bold').fontSize(9).fillColor(INK)
+      .text(`No eligibility year is recorded for any of the ${a.currentPositionPlayers.length} `
+        + `${positionPlural(a.position)} on this roster.`, p.x, y, { width: p.w });
+    y = doc.y + 8;
+    doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
+      .text('So we cannot say which of them are in a final season when you arrive, which have '
+        + 'already finished, and which are eligible beyond it. That is a gap in what this '
+        + 'programme publishes, not a squad with nobody in it.', p.x, y, { width: p.w });
+    y = doc.y + 10;
+    calloutPrimary(doc, p.x, y, p.w,
+      'Future recruits, experienced arrivals, injuries and eligibility changes are not known either.');
+    return;
+  }
+
   y = bigMetric(doc, p.x, y, finalSeason.length, {
     caption: `in their final eligible season in ${a.entrySeason}`,
   });
@@ -860,11 +916,16 @@ function arrivalWindowCard(doc, box, a, model) {
       ? 'None of them carries a projected-minutes figure.'
       : `${nf(finalMinutes.currentProjectedMinutes)} projected minutes are currently attached to those players.`,
     p.x, y, { width: p.w });
-  y += finalMinutes?.playersWithoutProjection ? 11 : 18;
-  if (finalMinutes?.playersWithoutProjection) {
+  // Advanced by what the sentence actually took, not by a guess. Once the
+  // minutes reached four digits it wrapped to two lines and the note beneath
+  // was drawn straight through the second one.
+  y = doc.y + 4;
+  const without = finalMinutes?.playersWithoutProjection ?? 0;
+  if (without) {
     doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
-      .text(`${finalMinutes.playersWithoutProjection} of them has no projection on file.`, p.x, y, { width: p.w });
-    y += 14;
+      .text(`${without} of them ${without === 1 ? 'has' : 'have'} no projection on file.`,
+        p.x, y, { width: p.w });
+    y = doc.y + 4;
   }
 
   // The three groups, with the entry season the loudest of them.
@@ -909,8 +970,9 @@ function arrivalWindowCard(doc, box, a, model) {
     'Future recruits, experienced arrivals, injuries and eligibility changes are not known.');
   if (unknown.length) {
     y = calloutSecondary(doc, p.x, y, p.w,
-      `${unknown.length} of the current ${positionPlural(a.position)} record no eligibility year, `
-      + 'and are counted in none of the three groups above.');
+      `${unknown.length} of the ${a.currentPositionPlayers.length} current `
+      + `${positionPlural(a.position)} record no eligibility year, and are counted in none of the `
+      + 'three groups above.');
   }
 }
 

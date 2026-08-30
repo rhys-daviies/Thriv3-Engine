@@ -55,7 +55,7 @@ const clip = (s) => {
  * and nothing about the production call path changes shape.
  */
 export function createAudit() {
-  return { violations: [], clipped: [], unencodable: [], drawn: 0, pages: 0 };
+  return { violations: [], clipped: [], unencodable: [], collisions: [], drawn: 0, pages: 0 };
 }
 
 /**
@@ -125,6 +125,7 @@ export function attachAudit(doc, audit) {
   };
 
   const origAddPage = doc.addPage.bind(doc);
+  // ink is kept for the whole document; entries carry their page.
   doc.addPage = (...args) => {
     const out = origAddPage(...args);
     index = pages.length;
@@ -138,6 +139,41 @@ export function attachAudit(doc, audit) {
     const out = origSwitch(n);
     if (typeof n === 'number') index = n;
     return out;
+  };
+
+  /**
+   * Text drawn on top of other text.
+   *
+   * The third distinct defect class this phase, after overflow and clipping,
+   * and the one neither of the others can see: a refusal sized for two columns
+   * and drawn from column one printed straight through the heading beside it,
+   * entirely inside the content box and entirely inside its own declared
+   * width.
+   *
+   * Compared as INK rather than as boxes. A `doc.text` with a generous `width`
+   * and three words in it occupies three words' worth of page, and treating
+   * its whole box as occupied would flag most of the report. Small overlaps
+   * are ignored too: rounded glyph edges and a half-point of leading are not
+   * a collision.
+   */
+  const ink = [];
+  const OVERLAP = 2;
+
+  const collide = (box, text) => {
+    for (const prior of ink) {
+      if (prior.page !== index) continue;
+      const w = Math.min(prior.right, box.right) - Math.max(prior.left, box.left);
+      const h = Math.min(prior.bottom, box.bottom) - Math.max(prior.top, box.top);
+      if (w > OVERLAP && h > OVERLAP) {
+        audit.collisions.push({
+          page: index + 1,
+          text,
+          over: prior.text,
+          overlap: { w: Math.round(w * 10) / 10, h: Math.round(h * 10) / 10 },
+        });
+        return;
+      }
+    }
   };
 
   const origText = doc.text.bind(doc);
@@ -173,7 +209,25 @@ export function attachAudit(doc, audit) {
         height = doc.heightOfString(str, { width, ...opts });
         if (opts.height != null) height = Math.min(height, opts.height);
       }
-      record('text', { left, right, top: startY, bottom: startY + height }, { text: clip(str) });
+      const box = { left, right, top: startY, bottom: startY + height };
+      record('text', box, { text: clip(str) });
+      // Measured to the ink, not to the declared width, and inset so that
+      // touching baselines are not a collision.
+      const inkW = opts.lineBreak === false
+        ? right - left
+        : Math.min(right - left, doc.widthOfString(str, opts));
+      const glyph = {
+        page: index,
+        text: clip(str),
+        left: left + 1,
+        right: left + Math.max(0, inkW - 1),
+        top: startY + 1,
+        bottom: startY + Math.max(0, height - 1),
+      };
+      if (glyph.right > glyph.left) {
+        collide(glyph, clip(str));
+        ink.push(glyph);
+      }
       // What is drawn, not what was handed in: the composing layer sits above
       // this one, so a decomposed name has already been made whole by now.
       const out = [...str].filter((ch) => !encodable(ch));

@@ -95,6 +95,12 @@ const clean = (audit) => {
     throw new Error(`characters Helvetica cannot draw:\n${audit.unencodable
       .map((x) => `p${x.page} ${JSON.stringify(x.characters)} in "${x.text}"`).join('\n')}`);
   }
+  // Text on top of text: inside the page, inside its own declared width, and
+  // invisible to both of the checks above.
+  if (audit.collisions.length) {
+    throw new Error(`text drawn over text:\n${audit.collisions
+      .map((x) => `p${x.page} "${x.text}" over "${x.over}"`).join('\n')}`);
+  }
   return true;
 };
 
@@ -166,6 +172,32 @@ describe('the layout guard', () => {
       doc.font('Helvetica-Bold').fontSize(8.5).text('THRIV3', M, M - 18, { width: W, lineBreak: false });
     });
     expect(audit.violations).toEqual([]);
+  });
+
+  it('catches text drawn on top of other text', async () => {
+    const audit = await probe((doc) => {
+      doc.font('Helvetica').fontSize(9).text('the first line here', M, 200, { width: 300 });
+      doc.font('Helvetica').fontSize(9).text('and this one over it', M + 20, 202, { width: 300 });
+    });
+    expect(audit.collisions).toHaveLength(1);
+    expect(audit.collisions[0].over).toBe('the first line here');
+  });
+
+  // A generous `width` with three words in it occupies three words of page.
+  it('does not call two short strings in wide boxes a collision', async () => {
+    const audit = await probe((doc) => {
+      doc.font('Helvetica').fontSize(9).text('left', M, 200, { width: 250 });
+      doc.font('Helvetica').fontSize(9).text('right', M + 250, 200, { width: 250 });
+    });
+    expect(audit.collisions).toEqual([]);
+  });
+
+  it('does not call two stacked lines a collision', async () => {
+    const audit = await probe((doc) => {
+      doc.font('Helvetica').fontSize(9).text('the first line', M, 200, { width: 300 });
+      doc.font('Helvetica').fontSize(9).text('the second line', M, 213, { width: 300 });
+    });
+    expect(audit.collisions).toEqual([]);
   });
 
   it('allows drawing that declares itself reserved', async () => {
