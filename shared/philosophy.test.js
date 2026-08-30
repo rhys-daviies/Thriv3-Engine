@@ -701,3 +701,18 @@ describe('the cliff carries its own coverage', () => {
     expect(fwd).toMatchObject({ players: 2, minutes: 900, playersWithoutProjection: 1 });
   });
 });
+
+describe('nameKey and digits', () => {
+  // Digits are stripped, so a roster that distinguishes players only by a
+  // number gives them all the same key. Real rosters do not do this, but test
+  // fixtures do, and a fixture numbered that way silently reads as one player
+  // returning for four years — which is how it was found.
+  it('collapses names that differ only by a number', () => {
+    expect(nameKey('Player 1')).toBe(nameKey('Player 2'));
+    expect(nameKey('Fresh A 2022')).toBe(nameKey('Fresh A 2025'));
+  });
+
+  it('keeps names that differ by a letter apart', () => {
+    expect(nameKey('Player Ab')).not.toBe(nameKey('Player Ac'));
+  });
+});

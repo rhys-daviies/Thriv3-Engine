@@ -26,7 +26,7 @@
 import {
   freshmanProfile, classifyProgramme, weightsFromVerdict, ladderByRank,
   isTrueFreshman, minutesAreMissing, cohortFor, originOf, bandFor,
-  MIN_MEASURED_SHARE,
+  MIN_MEASURED_SHARE, MIN_COHORT_PLAYERS, MIN_COHORT_SEASONS,
 } from './freshmanMinutes.js';
 import { tenureFor, stillInPost } from './coachTenure.js';
 import { canonicalPosition, POSITIONS } from './positions.js';
@@ -590,6 +590,78 @@ export function expiringShare(cliff, denominator, { before = null } = {}) {
     // because dropping those players would understate what is leaving.
     playersWithoutProjection: missing,
     reason: null,
+  };
+}
+
+/**
+ * Freshman outcomes for one origin group.
+ *
+ * Fed from `freshmanPoints`, so the definition of a first-year here is
+ * literally the same code the programme half uses: a true freshman, not a
+ * redshirt, not somebody already on the previous roster, and with minutes that
+ * were actually published. Anything else would make the pool comparison a
+ * comparison of two different populations.
+ *
+ * Shares are null below the established cohort minimums rather than computed
+ * from four players. `withoutPublishedMinutes` travels alongside so a reader
+ * can see how much of the group was never visible — those rows are counted,
+ * never read as zero minutes.
+ */
+export function originGroupStats(points, { unmeasuredRows = 0 } = {}) {
+  const players = points.length;
+  const seasons = [...new Set(points.map((p) => p.season))].sort();
+  const programmes = new Set(points.map((p) => p.programme).filter(Boolean)).size;
+  const impact = points.filter((p) => p.minutes >= STARTER_MINUTES).length;
+  const played = points.filter((p) => p.minutes > 0).length;
+  const sufficient = players >= MIN_COHORT_PLAYERS && seasons.length >= MIN_COHORT_SEASONS;
+  const mins = points.map((p) => p.minutes).sort((a, b) => a - b);
+  const med = mins.length
+    ? (mins.length % 2 ? mins[(mins.length - 1) / 2]
+      : Math.round((mins[mins.length / 2 - 1] + mins[mins.length / 2]) / 2))
+    : null;
+  return {
+    players,
+    programmes: programmes || null,
+    seasons: seasons.length,
+    seasonsRepresented: seasons,
+    withoutPublishedMinutes: unmeasuredRows,
+    impact,
+    played,
+    impactShare: sufficient && players ? impact / players : null,
+    playedShare: sufficient && players ? played / players : null,
+    medianMinutes: sufficient ? med : null,
+    sufficient,
+  };
+}
+
+/**
+ * Domestic against international, for a set of freshman points.
+ *
+ * Three groups, and the third is not decoration: `originOf` returns null for
+ * rows carrying neither a nationality nor a country, and sorting those into
+ * "domestic" by default would be the same error as reading a blank minutes
+ * cell as a zero. They are counted on their own and excluded from the
+ * comparison.
+ *
+ * No difference, ratio or effect size is computed. Both shares are reported
+ * with their sample sizes and the reader compares them; a single number like
+ * "40% more likely" invites a causal reading the data cannot support, and this
+ * is a description of who played, not of why.
+ */
+export function originBenchmark(points, { unmeasured = {} } = {}) {
+  const of = (origin) => originGroupStats(
+    points.filter((p) => (p.origin ?? null) === origin),
+    { unmeasuredRows: unmeasured[origin ?? 'unknown'] ?? 0 },
+  );
+  const domestic = of('domestic');
+  const international = of('international');
+  return {
+    domestic,
+    international,
+    originUnrecorded: of(null),
+    // A difference stated against a group too thin to read is not a
+    // difference, so the two have to stand on their own first.
+    comparable: domestic.sufficient && international.sufficient,
   };
 }
 

@@ -1,19 +1,30 @@
 /**
  * The database half of the programme-philosophy reports.
  *
- * Two very different costs live here. One programme is ~15 ms end to end, so
- * the per-school half is computed on demand and never cached. The pool-wide
- * benchmarks a programme is *compared against* need every roster row for four
- * seasons — 218,586 of them, about 1.7 s — so they are built once per process
- * and rechecked against a cheap fingerprint rather than rebuilt.
+ * Two very different costs live here, and they are orders of magnitude apart.
+ * A single-programme read is inexpensive — a few indexed lookups over one
+ * school's rows — so the per-school half is computed on demand and never
+ * cached. The pool-wide benchmarks a programme is *compared against* need
+ * every roster row for four seasons, north of 200,000 of them, and take a
+ * second or two; those are built once per process and rechecked against a
+ * cheap fingerprint rather than rebuilt.
  *
- * better-sqlite3 is synchronous, so that 1.7 s blocks the whole server
+ * Deliberately no exact figures: the ratio is the load-bearing fact and it
+ * holds on any machine, while a millisecond count measured on one laptop goes
+ * stale silently. The header claimed ~15 ms per programme for a read that is
+ * an order of magnitude cheaper than that, and nobody noticed because nothing
+ * re-measured it.
+ *
+ * better-sqlite3 is synchronous, so that pool build blocks the whole server
  * including the tracking collector mounted at `/api` ahead of `express.json`.
  * That is the argument for caching it and for never computing it per request.
  */
 import db from '../db/client.js';
-import { programmePhilosophy, playerFit, SEASONS, SQUAD_SEASON, vacancyObservations } from '../../shared/philosophy.js';
-import { ladderByRank } from '../../shared/freshmanMinutes.js';
+import {
+  programmePhilosophy, playerFit, SEASONS, SQUAD_SEASON, vacancyObservations,
+  freshmanPoints, originBenchmark,
+} from '../../shared/philosophy.js';
+import { ladderByRank, isTrueFreshman, minutesAreMissing, originOf } from '../../shared/freshmanMinutes.js';
 import { POSITIONS } from '../../shared/positions.js';
 
 const SEASON_LIST = SEASONS.map(() => '?').join(',');
@@ -144,14 +155,18 @@ function quantile(sorted, q) {
  */
 export function buildPoolBenchmarks(sport) {
   const started = Date.now();
+  // `division` is selected here and nowhere else: the origin benchmark is the
+  // only consumer, and widening ROSTER_COLUMNS would change the shape every
+  // other caller sees for no gain.
   const roster = db.prepare(
-    `SELECT ${ROSTER_COLUMNS} FROM roster_players WHERE sport = ? AND season IN (${SEASON_LIST})`,
+    `SELECT ${ROSTER_COLUMNS}, division FROM roster_players WHERE sport = ? AND season IN (${SEASON_LIST})`,
   ).all(sport, ...SEASONS).map((r) => ({ ...r, season: String(r.season) }));
 
   const empty = {
     sufficient: false, sport, seasons: SEASONS, programmes: 0, observations: 0,
     reason: 'no roster seasons on file for this sport',
-    ladderByRank: null, dials: null, programmeDials: null, fillMix: null, vacancy: null, byPosition: null,
+    ladderByRank: null, dials: null, programmeDials: null, fillMix: null, vacancy: null,
+    byOrigin: null, byPosition: null,
     builtAt: new Date().toISOString(), buildMs: Date.now() - started,
     fingerprint: fingerprint(),
   };
@@ -171,7 +186,31 @@ export function buildPoolBenchmarks(sport) {
   // position-season, so placing one against the distribution of the other
   // pushed half the pool into the middle band and left 6% below it.
   const progDials = { freshman: [], newcomer: [], returning: [] };
-  for (const rows of byProg.values()) {
+  // Freshman points per programme, tagged with the programme and its division,
+  // collected inside the pass that is already reading every row. A second
+  // full-roster query for the origin benchmark would double the 1.5 s build.
+  const originPoints = [];
+  const unmeasuredByOrigin = { domestic: 0, international: 0, unknown: 0 };
+  const unmeasuredByDivision = new Map();
+
+  for (const [programme, rows] of byProg.entries()) {
+    const division = rows.find((r) => r.division)?.division ?? 'unknown';
+    for (const pt of freshmanPoints(rows, { seasons: SEASONS })) {
+      originPoints.push({ ...pt, programme, division });
+    }
+    // Freshmen whose minutes were never published are excluded from the points
+    // by construction. Counting them here keeps the absence visible instead of
+    // letting a group look smaller than the roster it came from.
+    for (const r of rows) {
+      if (!isTrueFreshman(r) || !minutesAreMissing(r)) continue;
+      const key = originOf(r) ?? 'unknown';
+      unmeasuredByOrigin[key] += 1;
+      if (!unmeasuredByDivision.has(division)) {
+        unmeasuredByDivision.set(division, { domestic: 0, international: 0, unknown: 0 });
+      }
+      unmeasuredByDivision.get(division)[key] += 1;
+    }
+
     const ph = programmePhilosophy({ rows, coachRows: [] });
     if (ph.freshman) {
       for (const r of ph.ladder) {
@@ -242,6 +281,24 @@ export function buildPoolBenchmarks(sport) {
     vacancy: {
       starterDeparted: { n: gone.length, pctWithAFreshStarter: withFreshStarter(gone) },
       noStarterDeparted: { n: stayed.length, pctWithAFreshStarter: withFreshStarter(stayed) },
+    },
+    // Domestic against international, overall and within each division.
+    //
+    // Divisions are reported separately and never ranked against one another:
+    // the prior finding this replaces is that the origin effect is real across
+    // the game and disappears entirely at Division III, which is a statement
+    // about each division on its own terms.
+    byOrigin: {
+      overall: originBenchmark(originPoints, { unmeasured: unmeasuredByOrigin }),
+      byDivision: Object.fromEntries(
+        [...new Set(originPoints.map((p) => p.division))].sort().map((division) => [
+          division,
+          originBenchmark(
+            originPoints.filter((p) => p.division === division),
+            { unmeasured: unmeasuredByDivision.get(division) ?? {} },
+          ),
+        ]),
+      ),
     },
     byPosition: POSITIONS.map((pos) => {
       const at = readable.filter((o) => o.pos === pos);
