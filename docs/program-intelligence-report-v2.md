@@ -1082,3 +1082,43 @@ A test walks the entire model and fails on any field name matching `available|li
 ### 9.6 A `nameKey` property worth knowing
 
 `nameKey` strips digits, so `Player 1` and `Player 2` share a key. Real rosters do not name people that way, but fixtures do — and a numbered fixture reads as one first-year returning for four years rather than four separate intakes, which silently weakened two test files before it was caught. Pinned by a regression test.
+
+---
+
+## 10. Phase 3 — the front decision layer, as built
+
+Pages 1–3 are rendered; pages 4+ remain the v1 evidence pages, unchanged.
+
+### 10.1 Page numbering
+
+One render pass. Each section calls `at(id)` as it begins, recording `doc.bufferedPageRange().count` — the number of pages that exist, which while writing forward is also the 1-based index of the page being written. Page one is reserved with an immediate `addPage()` and drawn last via `switchToPage(0)`, the mechanism `footer()` already relies on. `footer()` then runs over the finished range.
+
+The contents page draws in **absolute coordinates only**. Anything consulting the flow cursor — `k.room()` in particular — would call `addPage()` while writing to page one and append a blank page to a finished document.
+
+Rows are listed in **ascending page order**, not registry order. The two diverge the moment a v1 section renders outside registry order (`eligibility-outlook` renders inside Part One but is declared after Part Two's sections), and a contents page whose numbers do not ascend is worse than none. Sections with no recorded page are not listed at all, so the contents never advertises a section that has not been built yet.
+
+### 10.2 The five Page 2 modules
+
+| Module | Headline | Badge |
+|---|---|---|
+| Freshman opportunity | ladder rank-1 median, bar with pool median as marker | classification |
+| Experienced arrival reliance | newcomer dial %, bar with programme-pool median as marker | classification |
+| Replacement behaviour | dominant route, three-way stacked minutes split | route, not a rank |
+| Coach context | current coach, verdict note | relevance, not quality |
+| **Current squad outlook** | next meaningful expiry year + minutes attached | **none** |
+
+Classification chips are drawn identically regardless of value. A colour scale would rank programmes by hue, which is exactly what the benchmark vocabulary exists to avoid; only `unclear` and `unavailable` are muted.
+
+The squad-outlook headline is the earliest year carrying **at least 10%** of the readable projected load, not merely the earliest non-zero year — one programme's next year held 50 minutes of 4,894, which is true and a headline about nothing.
+
+### 10.3 Page 3 and the eligibility groups
+
+Leads with `currentPlayersInFinalSeasonAtEntry`. The three-band timeline shows **before you arrive** / **your entry season** / **beyond entry**, with players carrying no eligibility year counted in none of the three and stated separately. Every group name begins `current`; the note about unknowable future recruits is unconditional.
+
+No new model field was required — `currentProjectedMinutesOfPlayersInFinalSeasonAtEntry` was added during the §9.4 refinement.
+
+### 10.4 Known issue in the v1 evidence pages
+
+`facetOrigin` still prints the prose Phase 2 disproved: *"an international first-year is about 40% more likely to play a starter's season than a domestic one — 37% against 27%"*. The measured pool gives **36.2% against 21.3%**, and the claim that the effect "disappears entirely at Division III" holds for the men's game but **reverses** in the women's. The model now carries the measured figures; the v1 page does not read them. This is the first thing Phase 4 should fix.
+
+The Phase 3 wording tests are therefore split: the minutes rules apply to the whole document, the prediction rules to pages 1–3 only, with the reason recorded in the test.
