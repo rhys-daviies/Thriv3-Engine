@@ -19,6 +19,12 @@ import {
 import { STARTER_MINUTES, arrivedFromElsewhere } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 import { contentsPage, programmeAtAGlance, athleteAtAGlance } from './reportFront.js';
+import {
+  freshmanIntakePage, freshmanLadderPage, freshmanDevelopmentPage,
+  experiencedArrivalIntakePage, experiencedArrivalProfilePage,
+  replacingMinutesPage, replacementByPositionPage,
+  currentSquadOutlookPage, currentDepthPage,
+} from './reportEvidence.js';
 
 const { INK, MUTED, CLARET, NAVY, MID, PALE, GREEN } = THEME;
 
@@ -301,13 +307,13 @@ function facetPosition(k, model) {
     ['Starters who left', String(ph.startersDeparted)],
     ['Seasons that opened a place', `${ph.openings} of ${ph.transitions}`],
     ['…where a first-year then started', `${ph.freshmanTookIt} of ${ph.openings}`],
-    ['…where someone else brought in did', `${ph.newcomerTookIt} of ${ph.openings}`],
+    ['…where an experienced arrival did', `${ph.newcomerTookIt} of ${ph.openings}`],
   ]);
   for (const s of ph.seasons) {
     const names = s.departedNames.map((d) => `${d.name} (${minutes(d.minutes)})`).join(', ');
     k.body(`${s.season}: ${s.startersDeparted ? `${names} left` : 'no starter left'}`
       + ` — ${plural(s.freshStarters, 'first-year started', 'first-years started')}`
-      + `${s.newcomerStarters ? `, and ${plural(s.newcomerStarters, 'other arrival', 'other arrivals')}` : ''}.`);
+      + `${s.newcomerStarters ? `, and ${plural(s.newcomerStarters, 'experienced arrival', 'experienced arrivals')}` : ''}.`);
   }
   if (ph.openings > 0 && ph.openings < 3) {
     k.box(`Only ${plural(ph.openings, 'place has', 'places have')} come free at this position in `
@@ -316,34 +322,66 @@ function facetPosition(k, model) {
   }
 }
 
+/**
+ * Whether where the athlete is arriving from changes what the record says.
+ *
+ * The pool figures are READ FROM THE MODEL. This section used to carry a
+ * sentence claiming an international first-year is "about 40% more likely to
+ * play a starter's season — 37% against 27% — but the effect disappears
+ * entirely at Division III". It sat beside computed numbers and looked like
+ * one. Measured against the pool it described: 36.2% against 21.3%, six points
+ * out on the domestic half, and at Division III in the women's game the
+ * relationship reverses rather than disappearing. No percentage is written
+ * into this file any more.
+ */
 function facetOrigin(k, model) {
   const a = model.athlete;
+  const o = model.summary?.athlete?.originContext ?? null;
   k.heading(a.origin === 'international'
     ? 'If you are arriving from outside the United States'
     : 'If you are arriving from within the United States');
-  const pts = model.freshman.points.filter((p) => p.origin);
-  const mine = pts.filter((p) => p.origin === a.origin);
-  const theirs = pts.filter((p) => p.origin !== a.origin);
-  const rate = (list) => (list.length
-    ? Math.round(100 * list.filter((p) => p.minutes >= STARTER_MINUTES).length / list.length) : null);
+
+  if (!o?.requestedOrigin) {
+    k.body('No origin is recorded for this athlete, so we cannot read the record by background.',
+      { color: MUTED });
+    return;
+  }
+
+  const here = o.programme;
+  const pct = (v) => (v == null ? null : Math.round(v * 100));
   charts.paired(k, {
     box: k.slot(72),
-    title: 'First-years who played a starter’s season',
+    title: 'First-years here who played a starter’s season',
+    subtitle: `${here.sameOrigin.players} and ${here.otherOrigin.players} players respectively.`,
     rows: [
-      { label: a.origin === 'international' ? 'International' : 'From the US', a: rate(mine), b: null },
-      { label: a.origin === 'international' ? 'From the US' : 'International', a: rate(theirs), b: null },
+      { label: a.origin === 'international' ? 'International' : 'From the US', a: pct(here.sameOrigin.share), b: null },
+      { label: a.origin === 'international' ? 'From the US' : 'International', a: pct(here.otherOrigin.share), b: null },
     ],
     aLabel: '', bLabel: '', max: 100, unit: '%',
-    unavailable: pts.length >= 6 ? null
+    unavailable: here.sameOrigin.share != null || here.otherOrigin.share != null ? null
       : 'too few first-years here record where they came from to split them',
   });
-  k.body(`${mine.length} of this programme’s ${pts.length} measured first-years came from `
-    + `${a.origin === 'international' ? 'outside the United States' : 'within the United States'}.`);
-  k.note('Across the game an international first-year is about 40% more likely to play a '
-    + 'starter’s season than a domestic one — 37% against 27% — but the effect disappears '
-    + 'entirely at Division III, and at some programmes it runs the other way. We can tell a US '
-    + 'recruit from an international one, but not one country from another: there are never '
-    + 'enough players from a single country at one programme to measure.');
+  k.body(`${here.sameOrigin.players} of this programme’s ${here.withRecordedOrigin} first-years with `
+    + `an origin on file came from ${a.origin === 'international' ? 'outside' : 'within'} the United `
+    + `States${here.withoutRecordedOrigin ? `, and ${here.withoutRecordedOrigin} record none` : ''}.`);
+
+  if (o.pool?.sameOrigin?.impactShare != null) {
+    const scopeLabel = o.pool.scope === 'division' ? o.pool.division : 'the whole pool';
+    k.facts([
+      [`Same background, across ${scopeLabel}`,
+        `${pct(o.pool.sameOrigin.impactShare)}% of ${o.pool.sameOrigin.players.toLocaleString('en-US')}`],
+      [`The other group, across ${scopeLabel}`,
+        `${pct(o.pool.otherOrigin.impactShare)}% of ${o.pool.otherOrigin.players.toLocaleString('en-US')}`],
+    ]);
+    k.note('Measured across this division rather than the game as a whole, because the relationship '
+      + 'is not one thing: it runs one way at Division I and Division II and reverses at Division '
+      + 'III in the women\'s game. It describes who has played, not why — where a player comes from '
+      + 'is not the cause of the difference. We can tell a US recruit from an international one, '
+      + 'but not one country from another: there are never enough players from a single country at '
+      + 'one programme to measure.');
+  } else if (o.poolReason) {
+    k.note(`No benchmark comparison is shown: ${o.poolReason}.`);
+  }
 }
 
 function facetEntry(k, model) {
@@ -405,13 +443,28 @@ export function renderProgramReport(model) {
      * Where each section actually started.
      *
      * `bufferedPageRange().count` is the number of pages that exist, so while
-     * the document is being written forward it is also the 1-based index of
-     * the page being written. Recorded as each section begins rather than
-     * derived from content height, which is the only way the number can be
-     * right.
+     * the document is written forward it is also the 1-based index of the page
+     * being written. `atNext` records the page a section is ABOUT to open,
+     * which is what the evidence pages need: each one begins by adding a page
+     * of its own.
      */
     const pages = new Map();
     const at = (id) => { pages.set(id, k.doc.bufferedPageRange().count); };
+    const atNext = (id) => { pages.set(id, k.doc.bufferedPageRange().count + 1); };
+
+    /**
+     * Render a section only where the registry says it has something to say.
+     *
+     * The plan decides, not the page: a section that discovers its own
+     * emptiness has already opened a page by the time it finds out, and an
+     * empty page is exactly what the dynamic-page rule exists to prevent.
+     */
+    const planned = new Set(plan.map((x) => x.id));
+    const section = (id, draw) => {
+      if (!planned.has(id)) return;
+      atNext(id);
+      draw();
+    };
 
     // Page one is reserved for the contents and drawn last, once the section
     // starts are known. Nothing is written to it here.
@@ -426,36 +479,19 @@ export function renderProgramReport(model) {
       athleteAtAGlance(k, model);
     }
 
-    // ---- the v1 evidence pages, unchanged, with their starts recorded ----
+    // ---- the programme evidence layer ----
 
-    part(k, 'ONE', 'The freshman intake',
-      'What has happened to first-years here across the four seasons on file — every one of '
-      + 'them, not an average.');
-    at('freshman-intake');
-    everyFreshman(k, model);
-    intakeColumns(k, model);
-    at('freshman-ladder');
-    ladderSection(k, model);
-    benchmarkSection(k, model);
-    at('freshman-development');
-    developmentSection(k, model);
-    heatSection(k, model);
-    at('eligibility-outlook');
-    cliffSection(k, model);
+    section('freshman-intake', () => freshmanIntakePage(k, model));
+    section('freshman-ladder', () => freshmanLadderPage(k, model));
+    section('freshman-development', () => freshmanDevelopmentPage(k, model));
+    section('experienced-arrival-intake', () => experiencedArrivalIntakePage(k, model));
+    section('current-arrivals', () => experiencedArrivalProfilePage(k, model));
+    section('replacing-minutes', () => replacingMinutesPage(k, model));
+    section('replacement-by-position', () => replacementByPositionPage(k, model));
+    section('eligibility-outlook', () => currentSquadOutlookPage(k, model));
+    section('current-depth', () => currentDepthPage(k, model));
 
-    part(k, 'TWO', 'The transfer intake',
-      'Whether this programme fills places from its own recruiting class or from elsewhere. '
-      + 'Across the game this is the more predictable of the two habits.');
-    at('experienced-arrival-intake');
-    transferHeadline(k, model);
-    everyTransfer(k, model);
-    freshmanVsTransfer(k, model);
-    at('replacing-minutes');
-    fillMixSection(k, model);
-    at('current-arrivals');
-    namedArrivalsSection(k, model);
-    at('replacement-by-position');
-    positionSection(k, model);
+    // ---- the athlete facets, still the v1 implementation (Phase 5) ----
 
     if (a) {
       part(k, 'THREE', `For ${a.name}`,
@@ -466,17 +502,21 @@ export function renderProgramReport(model) {
       facetOrigin(k, model);
       at('athlete-current-competition');
       facetEntry(k, model);
+      // Marked for Phase 5: this compares a results-derived programme rating
+      // against a self-entered level, and says so, but it belongs with the
+      // athlete redesign rather than here.
       facetLevel(k, model);
     }
 
     k.doc.addPage();
     at('methodology');
     limits(k, model, [
-      'Retention counts a name leaving a roster, which can mean a transfer, an injury, a player '
-        + 'who stopped, or a spelling we could not match.',
-      'A transfer count of zero can mean a programme that does not use the portal, or one whose '
+      'Retention counts a name leaving a roster, which can mean a move to another programme, an '
+        + 'injury, a player who stopped, or a spelling we could not match.',
+      'An experienced-arrival count of zero can mean a programme that adds nobody, or one whose '
         + 'previous season we could not read. The report says which.',
       'A group of three players is a description of three players, however it is drawn.',
+      'Minutes a current player is projected to play are not minutes available to anyone else.',
     ]);
 
     // The contents, now that every page exists. Drawn in absolute coordinates

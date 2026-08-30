@@ -16,7 +16,7 @@
  * and a red chip would say something the arithmetic does not. And nothing is
  * scored — there is no composite number anywhere on these pages.
  */
-import { THEME, minutes } from './philosophyPdf.js';
+import { THEME, minutes, fitText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 
@@ -29,25 +29,7 @@ const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const pctOf = (v, digits = 0) => (v == null ? '—' : `${(100 * v).toFixed(digits)}%`);
 
-/**
- * Shorten a string until it actually fits, measured in the font now set.
- *
- * pdfkit's own `ellipsis` did not hold here: with `lineBreak: false` it still
- * wrapped, so a card label ran onto a second line and over the row beneath it.
- * Measuring and cutting is deterministic and cannot surprise a layout that has
- * no room to grow.
- */
-export function fitText(doc, text, width) {
-  const str = String(text ?? '');
-  if (doc.widthOfString(str) <= width) return str;
-  let lo = 0;
-  let hi = str.length;
-  while (lo < hi) {
-    const mid = Math.ceil((lo + hi) / 2);
-    if (doc.widthOfString(`${str.slice(0, mid)}…`) <= width) lo = mid; else hi = mid - 1;
-  }
-  return lo > 0 ? `${str.slice(0, lo)}…` : '';
-}
+export { fitText };
 
 /** One line of text, guaranteed to stay on one line and inside `width`. */
 function line(doc, text, x, y, width, { font = 'Helvetica', size = 7.5, color = INK, align = 'left' } = {}) {

@@ -104,20 +104,22 @@ export const SECTIONS = [
   {
     id: 'freshman-ladder',
     title: 'The first-year ladder',
-    description: 'What the best, second-best and third-best first-year actually got, season by season.',
+    description: 'How deep into a recruiting class real playing time has gone here.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: false,
     applies: ({ model }) => has(model.ladder),
-    scopeOf: ({ model }) => [
-      `${model.ladder.length} ranks`,
-      model.weightedLadder ? 'weighted and unweighted' : null,
+    scopeOf: ({ model, summary }) => [
+      // The page draws the top five rungs, so the contents says five.
+      `${Math.min(5, model.ladder.length)} ranks shown`,
+      summary.programme.freshmanOpportunity.weightedAgrees === false
+        ? 'coach-weighted view differs' : null,
     ].filter(Boolean),
   },
   {
     id: 'freshman-development',
-    title: 'From the first year to the second',
-    description: 'Whether first-years who did not play went on to play.',
+    title: 'After the first season',
+    description: 'What happens to a first-year here in their second year.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: false,
@@ -127,7 +129,7 @@ export const SECTIONS = [
   {
     id: 'experienced-arrival-intake',
     title: 'Experienced arrivals',
-    description: 'Players brought in who were not first-years, and what they played.',
+    description: 'How often this programme adds players who are not first-years, and what they played.',
     layer: 'programme-evidence',
     scope: 'programme',
     // The absence matters here. A quarter of programmes sign nobody, and that
@@ -142,21 +144,23 @@ export const SECTIONS = [
   },
   {
     id: 'current-arrivals',
-    title: 'Named arrivals for the current season',
-    description: 'Players the current roster records as arriving from another programme.',
+    title: 'Who the arrivals are',
+    description: 'The kind of player this programme brings in, and who has arrived for the current season.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: false,
-    applies: ({ model }) => (model.squad?.rostered ?? 0) > 0,
+    // The historical half stands on its own, so this page survives a
+    // programme with no current roster on file.
+    applies: ({ model }) => has(model.transfer?.points) || (model.squad?.rostered ?? 0) > 0,
     scopeOf: ({ model }) => [
-      `${count(model.squad?.arrivals)} named`,
-      `${model.squad?.rostered ?? 0} on the roster`,
-    ],
+      count(model.transfer?.points) ? `${count(model.transfer.points)} measured` : null,
+      model.squad?.rostered ? `${count(model.squad?.arrivals)} named for the current season` : null,
+    ].filter(Boolean),
   },
   {
     id: 'replacing-minutes',
-    title: 'When a place comes free, who takes it',
-    description: 'Where a position’s minutes went the season after players left it.',
+    title: 'Replacing minutes',
+    description: 'Where a position’s minutes went the season after established players left it.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: true,
@@ -172,7 +176,7 @@ export const SECTIONS = [
   {
     id: 'replacement-by-position',
     title: 'Position by position',
-    description: 'How often a place opened at each position, and who started afterwards.',
+    description: 'Whether what happens when a place comes free depends on the position.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: false,
@@ -184,9 +188,8 @@ export const SECTIONS = [
   },
   {
     id: 'eligibility-outlook',
-    title: 'When places come free',
-    description: 'Eligibility running out across the current squad, and the projected minutes '
-      + 'attached to those players.',
+    title: 'Current squad outlook',
+    description: 'When the playing-time load on the current roster reaches the end of its eligibility.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: false,
@@ -202,8 +205,8 @@ export const SECTIONS = [
   },
   {
     id: 'current-depth',
-    title: 'The current squad',
-    description: 'Who is on the roster now, with class, projected minutes and eligibility.',
+    title: 'The current squad in full',
+    description: 'Every player on the roster now, with class, projected minutes and eligibility.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: false,

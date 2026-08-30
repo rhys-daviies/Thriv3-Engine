@@ -50,6 +50,25 @@ const BAND_LABEL = {
   fringe: 'fringe minutes', none: 'did not play',
 };
 
+/**
+ * Shorten a string until it actually fits, measured in the font now set.
+ *
+ * pdfkit's own `ellipsis` does not hold with `lineBreak: false` — the text
+ * still wraps, and in a table that means a long programme name running down
+ * into the row beneath it. Measuring and cutting is deterministic.
+ */
+export function fitText(doc, text, width) {
+  const str = String(text ?? '');
+  if (doc.widthOfString(str) <= width) return str;
+  let lo = 0;
+  let hi = str.length;
+  while (lo < hi) {
+    const mid = Math.ceil((lo + hi) / 2);
+    if (doc.widthOfString(`${str.slice(0, mid)}…`) <= width) lo = mid; else hi = mid - 1;
+  }
+  return lo > 0 ? `${str.slice(0, lo)}…` : '';
+}
+
 export function kit(doc) {
   const api = {
     doc,
@@ -153,10 +172,13 @@ export function kit(doc) {
         doc.y = barTop + 14;
         return api.gap(4);
       }
+      // "Experienced arrival", not "transfer": the roster cannot tell a
+      // transfer from a junior-college arrival or an older recruit, and
+      // naming one of the three asserts something it does not record.
       const parts = [
-        { v: returning, c: PALE, t: 'stayed' },
-        { v: freshman, c: NAVY, t: 'freshmen' },
-        { v: newcomer, c: GREEN, t: 'transfers' },
+        { v: returning, c: PALE, t: 'returning' },
+        { v: freshman, c: NAVY, t: 'first-years' },
+        { v: newcomer, c: GREEN, t: 'experienced arrivals' },
       ];
       const total = parts.reduce((s, p) => s + p.v, 0) || 100;
       let x = M;
@@ -210,6 +232,93 @@ export function kit(doc) {
         doc.y = Math.max(doc.y, top + 13);
       }
       return api.gap(8);
+    },
+
+    /**
+     * A table that flows down the page and continues onto the next.
+     *
+     * Every other primitive here draws inside a fixed `slot()` box in absolute
+     * coordinates. A table cannot: it is as long as its data, so it is built
+     * on the flow model `facts` and `bullets` use — `room()` before each row,
+     * the cursor advanced per row — and the header is redrawn whenever a row
+     * lands on a new page.
+     *
+     * A row is never split across a page boundary, and a null cell prints an
+     * em dash rather than a blank or a zero.
+     *
+     * `columns` are `{ key, label, width, align, format }` where `width` is a
+     * fraction of the content width and the fractions sum to 1.
+     */
+    table({ columns, rows, caption = null, note = null, rowHeight = 13, highlight = null }) {
+      const widths = columns.map((c) => c.width * W);
+      const xOf = (i) => M + widths.slice(0, i).reduce((a, b) => a + b, 0);
+
+      const header = () => {
+        api.room(rowHeight + 8);
+        const top = doc.y;
+        columns.forEach((c, i) => {
+          doc.font('Helvetica-Bold').fontSize(6.5).fillColor(MUTED);
+          doc.text(fitText(doc, String(c.label).toUpperCase(), widths[i] - 6), xOf(i), top, {
+            width: widths[i] - 6, align: c.align || 'left', lineBreak: false,
+          });
+        });
+        doc.moveTo(M, top + 10).lineTo(M + W, top + 10).lineWidth(0.75).strokeColor(INK).stroke();
+        doc.y = top + 14;
+      };
+
+      if (caption) {
+        api.room(16);
+        doc.font('Helvetica').fontSize(8).fillColor(MUTED).text(caption, M, doc.y, { width: W });
+        api.gap(4);
+      }
+      header();
+
+      let striped = 0;
+      for (const row of rows) {
+        // A group heading keeps its rows with it: reserving two rows' worth
+        // stops a heading stranding itself at the foot of a page.
+        if (row.group) {
+          const before = doc.bufferedPageRange().count;
+          api.room(rowHeight * 2 + 10);
+          if (doc.bufferedPageRange().count > before) header();
+          doc.y += 4;
+          doc.font('Helvetica-Bold').fontSize(6.5).fillColor(CLARET)
+            .text(String(row.group).toUpperCase(), M, doc.y, { width: W, characterSpacing: 0.9, lineBreak: false });
+          doc.y += 11;
+          striped = 0;
+          continue;
+        }
+
+        const before = doc.bufferedPageRange().count;
+        api.room(rowHeight);
+        if (doc.bufferedPageRange().count > before) { header(); striped = 0; }
+
+        const top = doc.y;
+        if (striped % 2 === 1) {
+          doc.save().rect(M, top - 2, W, rowHeight).fillOpacity(0.03).fill(INK).restore();
+        }
+        if (highlight && highlight(row)) {
+          doc.save().rect(M - 4, top - 2, 2, rowHeight).fill(CLARET).restore();
+        }
+        columns.forEach((c, i) => {
+          const raw = c.format ? c.format(row[c.key], row) : row[c.key];
+          const text = raw === null || raw === undefined || raw === '' ? '—' : String(raw);
+          const missing = text === '—';
+          doc.font(c.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(8)
+            .fillColor(missing ? MUTED : (c.color ? c.color(row) : INK));
+          doc.text(fitText(doc, text, widths[i] - 6), xOf(i), top, {
+            width: widths[i] - 6, align: c.align || 'left', lineBreak: false,
+          });
+        });
+        doc.y = top + rowHeight;
+        striped += 1;
+      }
+
+      if (note) {
+        api.gap(4);
+        api.note(note);
+      }
+      return api.gap(6);
     },
 
     bullets(items) {
@@ -388,9 +497,10 @@ export function fillMixSection(k, model) {
     k.stacked({ label: 'A typical programme losing about as much', ...model.benchmarks.poolMix });
   }
   k.gap(2);
-  k.note('"Transfers" counts anyone arriving who is not a first-year — a transfer, a junior-college '
-    + 'arrival, or an older recruit. Across the game, the bigger the hole at a position the more '
-    + 'of it goes to transfers rather than to freshmen.');
+  k.note('"Experienced arrival" counts anyone arriving who is not a first-year — a transfer, a '
+    + 'junior-college arrival, or an older recruit. The roster cannot tell them apart. Across the '
+    + 'game, the bigger the hole at a position the more of it goes to experienced arrivals rather '
+    + 'than to first-years.');
 }
 
 export function positionSection(k, model) {
@@ -405,7 +515,7 @@ export function positionSection(k, model) {
     const line = opened === 0
       ? 'no starter left this position in the seasons on file'
       : `${opened} time${opened === 1 ? '' : 's'} a starter left; a freshman took the place `
-        + `${p.freshmanTookIt}, a transfer ${p.newcomerTookIt}`;
+        + `${p.freshmanTookIt}, an experienced arrival ${p.newcomerTookIt}`;
     k.facts([[positionPlural(p.position).replace(/^./, (c) => c.toUpperCase()), line]]);
   }
   k.note('Counts, not percentages: with at most three seasons to look at, a percentage of three '
@@ -756,6 +866,164 @@ export const charts = {
           .text(`n=${cell.n}`, x, y + rh / 2 + 2, { width: cw, align: 'center', lineBreak: false });
       });
     });
+  },
+
+  /**
+   * The freshman ladder as it is actually made: the seasons behind each rung.
+   *
+   * A rung is two to four observations, and a median of 846 drawn from 710,
+   * 890, 801 and 1,020 is a different object from one drawn from 40, 42 and
+   * 1,600. Showing the contributing seasons as dots on the same axis as the
+   * median is the whole point of the chart — the reader can see the spread
+   * rather than being told about it.
+   *
+   * Seasons with nobody at a rank are simply absent. Nothing is drawn at zero.
+   */
+  dotLadder(k, { box, title, subtitle, rows, xMax, marker, poolLabel, unavailable }) {
+    const plot = frame(k, box, { title, subtitle, unavailable, empty: !rows?.length });
+    if (!plot) return;
+    const { doc } = k;
+    const labelW = 74;
+    const valueW = 62;
+    const left = plot.x + labelW;
+    const w = plot.w - labelW - valueW;
+    const rowH = Math.min(30, (plot.h - 14) / rows.length);
+    const xOf = (v) => left + Math.min(1, Math.max(0, v) / xMax) * w;
+
+    if (marker != null && marker <= xMax) {
+      const mx = xOf(marker);
+      doc.save().dash(2, { space: 2 }).moveTo(mx, plot.y).lineTo(mx, plot.y + rows.length * rowH)
+        .lineWidth(0.75).strokeColor(CLARET).stroke().undash().restore();
+      doc.font('Helvetica').fontSize(6).fillColor(CLARET)
+        .text(`${marker} — a starter's season`, mx + 3, plot.y + rows.length * rowH + 2,
+          { width: 110, lineBreak: false });
+    }
+
+    rows.forEach((r, i) => {
+      const cy = plot.y + i * rowH + rowH / 2 - 2;
+      doc.font('Helvetica').fontSize(7.5).fillColor(INK)
+        .text(r.label, plot.x, cy - 3, { width: labelW - 6, lineBreak: false, ellipsis: true });
+
+      // The pool's middle half, behind everything, as context rather than a
+      // target. Drawn first so the programme's own dots sit on top of it.
+      if (r.poolP25 != null && r.poolP75 != null) {
+        doc.save().rect(xOf(r.poolP25), cy - 5, Math.max(1, xOf(r.poolP75) - xOf(r.poolP25)), 10)
+          .fillOpacity(0.10).fill(MID).restore();
+      }
+      doc.save().moveTo(left, cy).lineTo(left + w, cy).lineWidth(0.4).strokeColor(LINE).stroke().restore();
+
+      if (!r.comparable) {
+        doc.font('Helvetica-Oblique').fontSize(7).fillColor(MUTED)
+          .text('the seasons are not comparable this far down', left + 4, cy - 3,
+            { width: w - 8, lineBreak: false, ellipsis: true });
+        return;
+      }
+
+      // The range the seasons actually spanned.
+      if (r.low != null && r.high != null && r.high > r.low) {
+        doc.save().moveTo(xOf(r.low), cy).lineTo(xOf(r.high), cy)
+          .lineWidth(0.8).strokeColor(PALE).stroke().restore();
+      }
+      // Labelled in ascending order with alternating rows, and a label is
+      // dropped where it would land on the one before it — two seasons a few
+      // minutes apart printed "2223" the first time this was drawn.
+      const sorted = [...(r.contributions ?? [])].sort((x, y2) => x.minutes - y2.minutes);
+      let lastLabelX = -Infinity;
+      let tier = 0;
+      sorted.forEach((c) => {
+        const x = xOf(c.minutes);
+        doc.save().circle(x, cy, 2.6).fillOpacity(0.55).fill(NAVY).restore();
+        if (x - lastLabelX < 8) { tier = (tier + 1) % 2; } else { tier = 0; }
+        if (x - lastLabelX < 4 && tier === 0) return;
+        doc.font('Helvetica').fontSize(5.2).fillColor(MUTED)
+          .text(`’${String(c.season).slice(-2)}`, x - 7, cy + 5 + tier * 6,
+            { width: 14, align: 'center', lineBreak: false });
+        lastLabelX = x;
+      });
+      if (r.median != null) {
+        doc.save().moveTo(xOf(r.median), cy - 7).lineTo(xOf(r.median), cy + 7)
+          .lineWidth(1.6).strokeColor(INK).stroke().restore();
+      }
+      if (r.poolMedian != null) {
+        doc.save().moveTo(xOf(r.poolMedian), cy - 7).lineTo(xOf(r.poolMedian), cy + 7)
+          .lineWidth(1).strokeColor(MID).stroke().restore();
+      }
+
+      doc.font('Helvetica-Bold').fontSize(8).fillColor(INK)
+        .text(nice(r.median ?? 0), left + w + 6, cy - 6, { width: valueW - 8, lineBreak: false });
+      doc.font('Helvetica').fontSize(6).fillColor(MUTED)
+        .text(r.agreement === 'wide' ? `${nice(r.low)}–${nice(r.high)}` : `${r.n} season${r.n === 1 ? '' : 's'}`,
+          left + w + 6, cy + 2, { width: valueW - 8, lineBreak: false, ellipsis: true });
+    });
+
+    const footY = plot.y + rows.length * rowH + 2;
+    doc.font('Helvetica').fontSize(6).fillColor(MUTED)
+      .text('0', left - 3, footY, { width: 16, lineBreak: false })
+      .text(nice(xMax), left + w - 30, footY, { width: 30, align: 'right', lineBreak: false });
+    const key = [`dots are seasons · bar is this programme's median`,
+      poolLabel ? `pale band and light bar are ${poolLabel}` : null].filter(Boolean).join('   ·   ');
+    doc.font('Helvetica').fontSize(6).fillColor(MUTED)
+      .text(key, plot.x, footY + 8, { width: plot.w, lineBreak: false, ellipsis: true });
+  },
+
+  /**
+   * When eligibility runs out across the squad now on campus.
+   *
+   * One lane per position, one dot per player at the year their eligibility
+   * ends, sized by the minutes they are projected to play. Players with no
+   * eligibility year cannot be placed and are counted beneath rather than
+   * dropped — an absence that vanishes is an absence nobody accounts for.
+   */
+  eligibilityTimeline(k, { box, title, subtitle, lanes, years, marker, unplaceable, unavailable }) {
+    const plot = frame(k, box, { title, subtitle, unavailable, empty: !lanes?.length || !years?.length });
+    if (!plot) return;
+    const { doc } = k;
+    const labelW = 74;
+    const left = plot.x + labelW;
+    const w = plot.w - labelW - 8;
+    const top = plot.y + 6;
+    const laneH = Math.min(26, (plot.h - 32) / lanes.length);
+    const step = years.length > 1 ? w / (years.length - 1) : 0;
+    const xOf = (year) => left + years.indexOf(year) * step;
+    const maxMin = Math.max(1, ...lanes.flatMap((l) => l.players.map((p) => p.projectedMinutes ?? 0)));
+
+    years.forEach((y) => {
+      doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+        .text(String(y), xOf(y) - 12, top, { width: 24, align: 'center', lineBreak: false });
+      doc.save().moveTo(xOf(y), top + 10).lineTo(xOf(y), top + 10 + lanes.length * laneH)
+        .lineWidth(0.4).strokeColor(LINE).stroke().restore();
+    });
+    if (marker != null && years.includes(marker)) {
+      doc.save().dash(2, { space: 2 }).moveTo(xOf(marker), top + 8)
+        .lineTo(xOf(marker), top + 12 + lanes.length * laneH)
+        .lineWidth(1).strokeColor(CLARET).stroke().undash().restore();
+    }
+
+    lanes.forEach((lane, i) => {
+      const cy = top + 10 + i * laneH + laneH / 2;
+      doc.font('Helvetica').fontSize(7).fillColor(INK)
+        .text(lane.label, plot.x, cy - 3, { width: labelW - 6, lineBreak: false, ellipsis: true });
+      // Jittered within the lane so two players leaving the same year do not
+      // land on top of one another.
+      const byYear = new Map();
+      for (const p of lane.players) {
+        if (p.eligibleTo == null || !years.includes(p.eligibleTo)) continue;
+        const seen = byYear.get(p.eligibleTo) ?? 0;
+        byYear.set(p.eligibleTo, seen + 1);
+        const off = ((seen % 3) - 1) * 4.5;
+        const r = 2 + Math.sqrt(Math.max(0, p.projectedMinutes ?? 0) / maxMin) * 4;
+        doc.save().fillOpacity(p.projectedMinutes == null ? 0.18 : 0.6)
+          .circle(xOf(p.eligibleTo), cy + off, p.projectedMinutes == null ? 2 : r)
+          .fill(p.projectedMinutes == null ? MUTED : NAVY).restore();
+      }
+    });
+
+    const footY = top + 12 + lanes.length * laneH;
+    const key = ['dot size is projected minutes', 'hollow dots carry no projection',
+      unplaceable ? `${unplaceable} with no eligibility year, not placed` : null]
+      .filter(Boolean).join('   ·   ');
+    doc.font('Helvetica').fontSize(6).fillColor(MUTED)
+      .text(key, plot.x, footY, { width: plot.w, lineBreak: false, ellipsis: true });
   },
 
   /** Two bars per row, for here-versus-the-pool comparisons. */

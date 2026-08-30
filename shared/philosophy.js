@@ -704,6 +704,26 @@ export function namedArrivals(squadRows, { school } = {}) {
     .sort((a, b) => (b.projectedMinutes ?? 0) - (a.projectedMinutes ?? 0));
 }
 
+/**
+ * The whole current squad, in the shape the depth chart uses.
+ *
+ * `depthChartAt` answers the same question for one position and returns null
+ * for UNKNOWN; a report that lists the roster needs every row, including the
+ * ones whose position could not be read. Those keep their own group rather
+ * than being dropped — a player missing from a squad list is a player the
+ * reader will assume is not there.
+ */
+export function squadDepth(squadRows = []) {
+  return squadRows.map((r) => ({
+    name: r.player_name,
+    position: canonicalPosition(r.position),
+    classLabel: r.class_year_label ?? null,
+    projectedMinutes: r.projected_minutes ?? null,
+    eligibleTo: r.eligibility_end_year ?? null,
+    arrivedFrom: arrivedFromElsewhere(r.prior_programme, r.college_name) ? r.prior_programme : null,
+  }));
+}
+
 /** Who is already at this position, and the year each one's eligibility ends. */
 export function depthChartAt(squadRows, position) {
   const key = canonicalPosition(position);

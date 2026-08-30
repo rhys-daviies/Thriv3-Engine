@@ -25,7 +25,7 @@
  * could not be measured is null with a reason beside it.
  */
 
-import { STARTER_MINUTES, squadProjectedMinutes, expiringShare } from '../philosophy.js';
+import { STARTER_MINUTES, squadProjectedMinutes, expiringShare, squadDepth } from '../philosophy.js';
 import { canonicalPosition } from '../positions.js';
 import { STEP_POINTS, MIN_COHORT_PLAYERS } from '../freshmanMinutes.js';
 import {
@@ -413,6 +413,9 @@ export function squadTurnoverSummary({ model, squadRows = [], entrySeason }) {
   const before = entrySeason ?? null;
 
   return {
+    // The whole roster, so the squad pages do not have to reach past the
+    // summary for rows the summary already holds.
+    squad: squadDepth(squadRows),
     classification: 'unclear',
     classificationReason: 'pool-distribution-not-defensible',
     // Measured rather than assumed. Across the 1,910 programmes with a current
