@@ -467,19 +467,130 @@ export function eligibilityCliff(squadRows, { positions = POSITIONS } = {}) {
   const rows = squadRows.filter((r) => r.eligibility_end_year != null);
   if (!rows.length) return null;
   const years = [...new Set(rows.map((r) => Number(r.eligibility_end_year)))].sort();
-  return years.map((year) => ({
-    year,
-    total: rows.filter((r) => Number(r.eligibility_end_year) === year)
-      .reduce((s, r) => s + (Number(r.projected_minutes) || 0), 0),
-    byPosition: positions.map((pos) => ({
-      position: pos,
-      minutes: rows.filter((r) => Number(r.eligibility_end_year) === year
-        && canonicalPosition(r.position) === pos)
-        .reduce((s, r) => s + (Number(r.projected_minutes) || 0), 0),
-      players: rows.filter((r) => Number(r.eligibility_end_year) === year
-        && canonicalPosition(r.position) === pos).length,
-    })),
-  }));
+  return years.map((year) => {
+    const at = rows.filter((r) => Number(r.eligibility_end_year) === year);
+    const projected = at.filter(hasProjectedMinutes);
+    return {
+      year,
+      total: at.reduce((s, r) => s + (Number(r.projected_minutes) || 0), 0),
+      // How much of that total is a measurement. A player with an eligibility
+      // year and no projected minutes contributes nothing to `total`, which is
+      // indistinguishable from one projected to play nothing — so the counts
+      // travel with the sum rather than a caller having to assume.
+      players: at.length,
+      playersWithProjection: projected.length,
+      playersWithoutProjection: at.length - projected.length,
+      byPosition: positions.map((pos) => {
+        const atPos = at.filter((r) => canonicalPosition(r.position) === pos);
+        return {
+          position: pos,
+          minutes: atPos.reduce((s, r) => s + (Number(r.projected_minutes) || 0), 0),
+          players: atPos.length,
+          playersWithoutProjection: atPos.length - atPos.filter(hasProjectedMinutes).length,
+        };
+      }),
+    };
+  });
+}
+
+/** A projected-minutes figure that was actually recorded, as opposed to absent. */
+function hasProjectedMinutes(row) {
+  const v = row?.projected_minutes;
+  return v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v));
+}
+
+/**
+ * The denominator turnover has to be read against.
+ *
+ * Minutes expiring means nothing on its own: four thousand minutes leaving a
+ * squad projected to play six thousand is a rebuild, and the same four
+ * thousand leaving a squad projected to play twenty-four is ordinary. Nothing
+ * summed the second number, so nothing could tell those apart.
+ *
+ * FIRST-YEARS ARE NOT PART OF THE DENOMINATOR, and that is a property of the
+ * data rather than a choice made here. Projected minutes are carried forward
+ * from a player's prior season, so a true first-year cannot have one: across
+ * the 2026 rosters they are populated for 0.7% of players labelled Fr. and
+ * for 65-81% of every returning class. Two consequences, both of which bit
+ * the first draft of this function:
+ *
+ *   - Coverage measured against the WHOLE roster reads about 50% everywhere,
+ *     no programme in the pool reaches full coverage, and a third of them get
+ *     refused for a gap that is by design. Measured against the players who
+ *     could have a projection it is 70% on average, and 193 programmes are
+ *     complete.
+ *   - The total is therefore the projected load of the RETURNING squad, not of
+ *     the squad. It must never be labelled "the squad's minutes": a share
+ *     taken against it is a share of what returning players are projected to
+ *     play, and calling it anything else overstates turnover by however much
+ *     the incoming class would have played.
+ *
+ * `total` is null rather than a partial sum when too few of those players
+ * carry a projection — the same MIN_MEASURED_SHARE gate the freshman share
+ * and the position grid already use, for the same reason.
+ */
+export function squadProjectedMinutes(squadRows, { minMeasuredShare = MIN_MEASURED_SHARE } = {}) {
+  const rostered = squadRows.length;
+  const projectable = squadRows.filter((r) => !isTrueFreshman(r));
+  const recorded = squadRows.filter(hasProjectedMinutes);
+  const projectableRecorded = projectable.filter(hasProjectedMinutes);
+  const coverage = projectable.length ? projectableRecorded.length / projectable.length : null;
+  const readable = projectable.length > 0 && coverage >= minMeasuredShare;
+  return {
+    rostered,
+    firstYears: rostered - projectable.length,
+    // The players a projection can exist for, which is the honest denominator
+    // for a coverage figure.
+    projectable: projectable.length,
+    playersWithProjection: recorded.length,
+    playersWithoutProjection: projectable.length - projectableRecorded.length,
+    coverage,
+    // Kept alongside so a caller reporting completeness can be transparent
+    // about the two different denominators rather than picking one silently.
+    coverageOfRoster: rostered ? recorded.length / rostered : null,
+    readable,
+    total: readable ? recorded.reduce((s, r) => s + Number(r.projected_minutes), 0) : null,
+    // Carried so no renderer has to remember what the total is of.
+    describes: 'players with a prior season on file',
+  };
+}
+
+/**
+ * Minutes expiring by a given season, as a share of the projected load — or
+ * null where either half is not measurable.
+ *
+ * Returns the reason alongside, because "this squad turns over very little"
+ * and "we cannot tell how much this squad turns over" are opposite claims and
+ * a bare null lets a caller collapse them.
+ *
+ * The share is of the RETURNING squad's projected minutes; see
+ * `squadProjectedMinutes`. `ofDescribes` travels with it so the phrase cannot
+ * be lost between here and the page.
+ */
+export function expiringShare(cliff, denominator, { before = null } = {}) {
+  if (!cliff?.length) {
+    return { share: null, minutes: null, of: null, ofDescribes: null, reason: 'no-eligibility-years-on-file' };
+  }
+  if (!denominator?.readable) {
+    return {
+      share: null, minutes: null, of: null, ofDescribes: null,
+      reason: 'projected-minutes-coverage-too-thin',
+    };
+  }
+  const years = before == null ? cliff : cliff.filter((y) => y.year < before);
+  const minutes = years.reduce((s, y) => s + y.total, 0);
+  const missing = years.reduce((s, y) => s + y.playersWithoutProjection, 0);
+  return {
+    share: denominator.total ? minutes / denominator.total : null,
+    minutes,
+    of: denominator.total,
+    ofDescribes: denominator.describes,
+    // Named so a caller can refuse to classify: the numerator has the same
+    // hole the denominator is guarded against, and it is not guarded here
+    // because dropping those players would understate what is leaving.
+    playersWithoutProjection: missing,
+    reason: null,
+  };
 }
 
 /**

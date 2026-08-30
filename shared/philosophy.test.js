@@ -4,7 +4,7 @@ import {
   programmePhilosophy, playerFit, MIN_POSITION_MINUTES,
   freshmanPoints, newcomerPoints, arrivalWindow, secondYearProgression,
   intakeBySeason, positionSeasonGrid, eligibilityCliff, namedArrivals, depthChartAt,
-  arrivedFromElsewhere,
+  arrivedFromElsewhere, squadProjectedMinutes, expiringShare,
 } from './philosophy.js';
 
 /**
@@ -496,5 +496,208 @@ describe('arrivedFromElsewhere', () => {
       row({ player_name: 'Signing', prior_programme: 'Another School' }),
     ], { school: 'St Johns University' });
     expect(arrivals.map((a) => a.name)).toEqual(['Signing']);
+  });
+});
+
+/**
+ * Minutes expiring means nothing without the squad they are expiring from.
+ * These tests are mostly about refusing to answer: a denominator built from
+ * half a roster would overstate turnover by however much is missing.
+ */
+describe('the squad turnover denominator', () => {
+  const row = (over = {}) => ({
+    college_name: 'Test College', sport: 'mens-soccer', season: '2026',
+    player_name: 'A', position: 'DEFENSE', minutes_played: null, games_played: null,
+    projected_minutes: 900, eligibility_end_year: 2028, ...over,
+  });
+
+  it('sums the projections and reports full coverage', () => {
+    const d = squadProjectedMinutes([row(), row({ projected_minutes: 100 })]);
+    expect(d).toMatchObject({
+      rostered: 2, playersWithProjection: 2, playersWithoutProjection: 0,
+      coverage: 1, readable: true, total: 1000,
+    });
+  });
+
+  // Null, never a partial sum. The same gate freshmanShare and the position
+  // grid already use, for the same reason.
+  it('refuses a total where too little of the squad carries a projection', () => {
+    const squad = [row(), row({ projected_minutes: null }), row({ projected_minutes: null })];
+    const d = squadProjectedMinutes(squad);
+    expect(d.readable).toBe(false);
+    expect(d.total).toBeNull();
+    expect(d.playersWithoutProjection).toBe(2);
+    expect(d.coverage).toBeCloseTo(1 / 3);
+  });
+
+  it('reads a squad exactly at the halfway gate', () => {
+    const d = squadProjectedMinutes([row(), row({ projected_minutes: null })]);
+    expect(d.coverage).toBe(0.5);
+    expect(d.readable).toBe(true);
+    expect(d.total).toBe(900);
+  });
+
+  // A blank string is what a spreadsheet import leaves behind, and Number('')
+  // is 0 — the exact coercion that turns an absent projection into a claim
+  // that the player will not play.
+  it('treats a blank or non-numeric projection as absent, not as zero', () => {
+    const d = squadProjectedMinutes([row({ projected_minutes: '' }), row({ projected_minutes: 'n/a' }), row(), row()]);
+    expect(d.playersWithoutProjection).toBe(2);
+    expect(d.total).toBe(1800);
+  });
+
+  it('handles an empty squad without dividing by nothing', () => {
+    const d = squadProjectedMinutes([]);
+    expect(d).toMatchObject({ rostered: 0, coverage: null, readable: false, total: null });
+  });
+
+  // Projections are carried forward from a prior season, so a true first-year
+  // cannot have one. Counting them against coverage reads about 50% at every
+  // programme in the pool and refuses a third of them for a gap that is by
+  // design — the whole reason coverage is measured against `projectable`.
+  it('does not count first-years against coverage', () => {
+    const squad = [
+      row({ class_year_label: 'Sr.', projected_minutes: 1200 }),
+      row({ class_year_label: 'Jr.', projected_minutes: 800 }),
+      row({ class_year_label: 'Fr.', projected_minutes: null }),
+      row({ class_year_label: 'Fr.', projected_minutes: null }),
+      row({ class_year_label: 'Fr.', projected_minutes: null }),
+    ];
+    const d = squadProjectedMinutes(squad);
+    expect(d.rostered).toBe(5);
+    expect(d.firstYears).toBe(3);
+    expect(d.projectable).toBe(2);
+    expect(d.coverage).toBe(1);
+    expect(d.readable).toBe(true);
+    expect(d.total).toBe(2000);
+    // The roster-wide figure is kept alongside so completeness can be reported
+    // against either denominator without one being chosen silently.
+    expect(d.coverageOfRoster).toBeCloseTo(2 / 5);
+    expect(d.playersWithoutProjection).toBe(0);
+  });
+
+  // The total is the returning squad's projected load, and saying so is the
+  // point: a share taken against it is not a share of the squad's minutes.
+  it('names what the total describes', () => {
+    expect(squadProjectedMinutes([row()]).describes).toBe('players with a prior season on file');
+  });
+
+  it('still refuses where the returning squad itself is mostly unprojected', () => {
+    const squad = [
+      row({ class_year_label: 'Sr.', projected_minutes: 1200 }),
+      row({ class_year_label: 'Jr.', projected_minutes: null }),
+      row({ class_year_label: 'So.', projected_minutes: null }),
+      row({ class_year_label: 'Fr.', projected_minutes: null }),
+    ];
+    const d = squadProjectedMinutes(squad);
+    expect(d.coverage).toBeCloseTo(1 / 3);
+    expect(d.readable).toBe(false);
+    expect(d.total).toBeNull();
+  });
+
+  // A squad of nothing but first-years has no projectable players at all, and
+  // that is a refusal rather than a division by zero.
+  it('refuses a squad with nobody who could carry a projection', () => {
+    const d = squadProjectedMinutes([row({ class_year_label: 'Fr.', projected_minutes: null })]);
+    expect(d.projectable).toBe(0);
+    expect(d.coverage).toBeNull();
+    expect(d.readable).toBe(false);
+    expect(d.total).toBeNull();
+  });
+
+  // 0.7% of first-years do carry one. It counts toward the total, because the
+  // total is the sum of what was recorded, but it cannot lift coverage above
+  // the players coverage is measured over.
+  it('counts a first-year who does carry a projection into the total', () => {
+    const squad = [
+      row({ class_year_label: 'Sr.', projected_minutes: 1000 }),
+      row({ class_year_label: 'Fr.', projected_minutes: 200 }),
+    ];
+    const d = squadProjectedMinutes(squad);
+    expect(d.total).toBe(1200);
+    expect(d.projectable).toBe(1);
+    expect(d.coverage).toBe(1);
+    expect(d.playersWithoutProjection).toBe(0);
+  });
+});
+
+describe('expiring share', () => {
+  const row = (over = {}) => ({
+    college_name: 'Test College', sport: 'mens-soccer', season: '2026',
+    player_name: 'A', position: 'DEFENSE', minutes_played: null, games_played: null,
+    projected_minutes: 1000, eligibility_end_year: 2026, ...over,
+  });
+
+  it('states the share, its numerator and its denominator', () => {
+    const squad = [
+      row({ player_name: 'Leaving', eligibility_end_year: 2026, projected_minutes: 1000 }),
+      row({ player_name: 'Staying', eligibility_end_year: 2028, projected_minutes: 3000 }),
+    ];
+    const got = expiringShare(eligibilityCliff(squad), squadProjectedMinutes(squad), { before: 2027 });
+    expect(got.minutes).toBe(1000);
+    expect(got.of).toBe(4000);
+    expect(got.share).toBeCloseTo(0.25);
+    expect(got.reason).toBeNull();
+  });
+
+  // "Turns over very little" and "we cannot tell" are opposite claims, and a
+  // bare null would let a caller print the first when it meant the second.
+  it('names why it cannot answer rather than returning a bare null', () => {
+    const thin = [row({ projected_minutes: null }), row({ projected_minutes: null }), row()];
+    const got = expiringShare(eligibilityCliff(thin), squadProjectedMinutes(thin));
+    expect(got.share).toBeNull();
+    expect(got.reason).toBe('projected-minutes-coverage-too-thin');
+
+    const noYears = [row({ eligibility_end_year: null })];
+    const none = expiringShare(eligibilityCliff(noYears), squadProjectedMinutes(noYears));
+    expect(none.reason).toBe('no-eligibility-years-on-file');
+  });
+
+  // The numerator carries the same hole the denominator is guarded against,
+  // and it is reported rather than closed: dropping those players would
+  // understate what is leaving.
+  it('reports players inside the window with no projection of their own', () => {
+    const squad = [
+      row({ player_name: 'Leaving, unknown', eligibility_end_year: 2026, projected_minutes: null }),
+      row({ player_name: 'Leaving', eligibility_end_year: 2026, projected_minutes: 500 }),
+      row({ player_name: 'Staying', eligibility_end_year: 2029, projected_minutes: 2000 }),
+      row({ player_name: 'Staying too', eligibility_end_year: 2029, projected_minutes: 2000 }),
+    ];
+    const got = expiringShare(eligibilityCliff(squad), squadProjectedMinutes(squad), { before: 2027 });
+    expect(got.minutes).toBe(500);
+    expect(got.playersWithoutProjection).toBe(1);
+  });
+
+  it('counts every year on file when no cutoff is given', () => {
+    const squad = [
+      row({ eligibility_end_year: 2026, projected_minutes: 400 }),
+      row({ eligibility_end_year: 2028, projected_minutes: 600 }),
+    ];
+    const got = expiringShare(eligibilityCliff(squad), squadProjectedMinutes(squad));
+    expect(got.minutes).toBe(1000);
+    expect(got.share).toBe(1);
+  });
+});
+
+describe('the cliff carries its own coverage', () => {
+  const row = (over = {}) => ({
+    college_name: 'Test College', sport: 'mens-soccer', season: '2026',
+    player_name: 'A', position: 'DEFENSE', minutes_played: null, games_played: null,
+    projected_minutes: 900, eligibility_end_year: 2027, ...over,
+  });
+
+  it('says how many players behind a year had no projection', () => {
+    const cliff = eligibilityCliff([row(), row({ projected_minutes: null })]);
+    expect(cliff[0]).toMatchObject({
+      year: 2027, total: 900, players: 2, playersWithProjection: 1, playersWithoutProjection: 1,
+    });
+  });
+
+  it('carries the same count down to each position', () => {
+    const cliff = eligibilityCliff([
+      row({ position: 'FORWARD' }), row({ position: 'FORWARD', projected_minutes: null }),
+    ]);
+    const fwd = cliff[0].byPosition.find((b) => b.position === 'FORWARD');
+    expect(fwd).toMatchObject({ players: 2, minutes: 900, playersWithoutProjection: 1 });
   });
 });
