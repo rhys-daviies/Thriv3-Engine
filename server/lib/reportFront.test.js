@@ -259,6 +259,62 @@ describe('page three', () => {
   });
 });
 
+/**
+ * The contents is drawn onto page one after every other page exists, from a
+ * map the renderer fills as it goes. Nothing else in the document can check
+ * itself against it, so this reads the finished PDF.
+ */
+describe('contents numbering', () => {
+  const check = async (playerId = null) => {
+    const model = programReportModel({ collegeId: 'c1', playerId });
+    const buf = await renderProgramReport(model);
+    const pages = pdfPages(buf);
+    return { model, pages, contents: pages[0] };
+  };
+
+  it('lists every section that rendered, and nothing that did not', async () => {
+    addProgramme('c1', 'Test College');
+    addAthlete('p1');
+    const { model, contents } = await check('p1');
+    for (const s of model.sections) expect(contents).toContain(s.title);
+  });
+
+  it('points each section at a page that carries it', async () => {
+    addProgramme('c1', 'Test College');
+    addAthlete('p1');
+    const { model, pages, contents } = await check('p1');
+    for (const s of model.sections) {
+      const m = contents.match(new RegExp(`${s.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+(\\d+)\\b`));
+      expect(m, `no page number listed for "${s.title}"`).toBeTruthy();
+      const page = Number(m[1]);
+      expect(page).toBeGreaterThan(1);
+      expect(page).toBeLessThanOrEqual(pages.length);
+    }
+  });
+
+  it('numbers the sections in ascending order', async () => {
+    addProgramme('c1', 'Test College');
+    addAthlete('p1');
+    const { model, contents } = await check('p1');
+    const numbers = model.sections.map((s) => {
+      const m = contents.match(new RegExp(`${s.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+(\\d+)\\b`));
+      return m ? Number(m[1]) : null;
+    });
+    expect(numbers).toEqual([...numbers].sort((a, b) => a - b));
+  });
+
+  it('lists nothing on a sparse report that the report does not contain', async () => {
+    db.prepare(`INSERT INTO colleges (id, created_date, updated_date, name, sport, division, conference, city, state, active)
+      VALUES ('c1',?,?,'Thin College','mens-soccer','NCAA D3',NULL,NULL,NULL,1)`).run(now, now);
+    addRow('Thin College', { season: '2025', minutes_played: null, games_played: null });
+    const { model, contents } = await check();
+    expect(model.sections.length).toBeLessThan(10);
+    for (const title of ['After the first season', 'Position by position', 'The current squad']) {
+      if (!model.sections.some((s) => s.title === title)) expect(contents).not.toContain(title);
+    }
+  });
+});
+
 describe('page two modules', () => {
   beforeEach(() => addProgramme('c1', 'Test College'));
 
