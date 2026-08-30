@@ -10,9 +10,11 @@ import db from '../db/client.js';
 import {
   philosophyFor, fitFrom, poolBenchmarks, percentileOfLadderTop, poolMixForBand,
 } from '../lib/philosophyQueries.js';
+import { lifecyclePool, lifecycleRows } from '../lib/lifecycleQueries.js';
+import { buildLifecycleSummary } from '../../shared/report/lifecycleSummary.js';
 import {
   RECRUIT_SEASON, SQUAD_SEASON, SEASONS,
-  freshmanPoints, newcomerPoints, arrivalWindow, secondYearProgression,
+  freshmanPoints, newcomerPoints, arrivalWindow,
   intakeBySeason, positionSeasonGrid, eligibilityCliff, namedArrivals, depthChartAt,
 } from '../../shared/philosophy.js';
 import { positionLabel } from '../../shared/positions.js';
@@ -234,8 +236,6 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
   const base = buildProgrammeModel(found, poolBenchmarks(col.sport));
   const window = arrivalWindow(rows, { seasons: SEASONS });
   const transferPoints = newcomerPoints(rows, { seasons: SEASONS });
-  const progression = secondYearProgression(rows, { seasons: SEASONS });
-  const stayed = progression.filter((x) => x.year2State !== 'gone').length;
 
   const entrySeason = athlete
     ? Number(athlete.recruiting_class_year) || RECRUIT_SEASON
@@ -253,11 +253,11 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     freshman: {
       points: freshmanPoints(rows, { seasons: SEASONS }),
       intake: intakeBySeason(rows, { seasons: SEASONS }),
-      progression,
-      // Stated as a fraction, never a rate, because it conflates four
-      // different ways of leaving a roster.
-      retention: progression.length ? { stayed, of: progression.length } : null,
       grid: positionSeasonGrid(rows, { seasons: SEASONS }),
+      // `progression` and `retention` used to live here: a year-one-to-year-two
+      // comparison and a fraction of first-years still on the next roster. Both
+      // are answered properly and with their denominators by the lifecycle
+      // layer below, and two development models in one payload is one too many.
     },
 
     transfer: {
@@ -296,12 +296,22 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
   // PDF, the tab, the tests — sees exactly what it saw before, and the v2
   // pages have somewhere to read from that is not the renderer.
   const summary = buildReportSummary({ model, philosophy: ph, squadRows: squad });
+  // The lifecycle layer. Also additive: the pool half is cached per sport and
+  // per process, and the programme half is a few indexed lookups.
+  const lifecycle = buildLifecycleSummary({
+    rows: lifecycleRows(col.name, col.sport),
+    pool: lifecyclePool(col.sport),
+    division: col.division,
+    programme: col.name,
+    athlete: model.athlete,
+  });
   return {
     ...model,
     summary,
+    lifecycle,
     // The document's shape, decided from the data rather than by whichever
     // section throws first. No page numbers: those are not knowable until the
     // pages exist, and the renderer fills them in afterwards.
-    sections: planSections({ model, summary, philosophy: ph }),
+    sections: planSections({ model: { ...model, lifecycle }, summary, philosophy: ph }),
   };
 }

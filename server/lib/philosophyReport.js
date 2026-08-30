@@ -20,7 +20,7 @@
 import { render, footer } from './philosophyPdf.js';
 import { contentsPage, programmeAtAGlance, athleteAtAGlance } from './reportFront.js';
 import {
-  freshmanIntakePage, freshmanLadderPage, freshmanDevelopmentPage,
+  freshmanIntakePage, freshmanLadderPage,
   experiencedArrivalIntakePage, experiencedArrivalProfilePage,
   replacingMinutesPage, replacementByPositionPage,
   currentSquadOutlookPage, currentDepthPage,
@@ -30,7 +30,12 @@ import {
   arrivalWindowPage, originPage,
 } from './reportAthlete.js';
 import {
-  freshmanRecordPage, arrivalRecordPage, vacancyRecordPage, methodologyPage,
+  playerDevelopmentPage, rosterContinuityPage, observedDestinationsPage,
+  athletePositionMovementPage,
+} from './reportLifecycle.js';
+import {
+  freshmanRecordPage, arrivalRecordPage, vacancyRecordPage, destinationRecordPage,
+  methodologyPage,
 } from './reportAppendix.js';
 
 // ---------------------------------------------------------------------------
@@ -53,8 +58,17 @@ export function renderProgramReport(model, opts = {}) {
      * of its own.
      */
     const pages = new Map();
-    const at = (id) => { pages.set(id, k.doc.bufferedPageRange().count); };
-    const atNext = (id) => { pages.set(id, k.doc.bufferedPageRange().count + 1); };
+    // Written back onto the plan as well as into the map. `planSections` states
+    // `page: null` as "the renderer fills this in once the section has been
+    // laid out", and until now nothing did — so the field was permanently null
+    // and the only place the real numbers existed was inside this closure.
+    const record = (id, n) => {
+      pages.set(id, n);
+      const entry = plan.find((x) => x.id === id);
+      if (entry) entry.page = n;
+    };
+    const at = (id) => record(id, k.doc.bufferedPageRange().count);
+    const atNext = (id) => record(id, k.doc.bufferedPageRange().count + 1);
 
     /**
      * Render a section only where the registry says it has something to say.
@@ -87,13 +101,22 @@ export function renderProgramReport(model, opts = {}) {
 
     section('freshman-intake', () => freshmanIntakePage(k, model));
     section('freshman-ladder', () => freshmanLadderPage(k, model));
-    section('freshman-development', () => freshmanDevelopmentPage(k, model));
+    // Replaces "After the first season", which compared year one with year
+    // two and stopped there. Same slot in the running order, four years of
+    // denominators instead of one comparison.
+    section('player-development', () => playerDevelopmentPage(k, model));
     section('experienced-arrival-intake', () => experiencedArrivalIntakePage(k, model));
     section('current-arrivals', () => experiencedArrivalProfilePage(k, model));
     section('replacing-minutes', () => replacingMinutesPage(k, model));
     section('replacement-by-position', () => replacementByPositionPage(k, model));
     section('eligibility-outlook', () => currentSquadOutlookPage(k, model));
     section('current-depth', () => currentDepthPage(k, model));
+
+    // Continuity carries its own departure composition, so the two are one
+    // page rather than two: the second would have had to restate the first's
+    // denominators before it could say anything.
+    section('roster-continuity', () => rosterContinuityPage(k, model));
+    section('observed-destinations', () => observedDestinationsPage(k, model));
 
     // ---- the athlete evidence layer ----
     //
@@ -107,12 +130,14 @@ export function renderProgramReport(model, opts = {}) {
     section('athlete-current-position', () => currentPositionPage(k, model));
     section('athlete-entry-window', () => arrivalWindowPage(k, model));
     section('athlete-origin', () => originPage(k, model));
+    section('athlete-position-movement', () => athletePositionMovementPage(k, model));
 
     // ---- the supporting record ----
 
     section('table-freshmen', () => freshmanRecordPage(k, model));
     section('table-experienced-arrivals', () => arrivalRecordPage(k, model));
     section('table-vacancies', () => vacancyRecordPage(k, model));
+    section('table-destinations', () => destinationRecordPage(k, model));
 
     atNext('methodology');
     methodologyPage(k, model);

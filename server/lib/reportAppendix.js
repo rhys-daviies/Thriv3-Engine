@@ -18,6 +18,7 @@ import {
   MIN_COHORT_PLAYERS, MIN_COHORT_SEASONS, MIN_MEASURED_SHARE, MIN_SQUAD,
 } from '../../shared/freshmanMinutes.js';
 import { positionPlural } from '../../shared/positions.js';
+import { MOVEMENT_COLUMNS, movementRows } from './reportLifecycle.js';
 
 const { INK, MUTED, CLARET, W, M } = THEME;
 
@@ -132,6 +133,46 @@ export function vacancyRecordPage(k, model) {
     note: 'The last three columns are not alternatives. A first-year and an experienced arrival can '
       + 'both have started after the same opening, and returning players can hold most of the '
       + 'minutes while both did — which is why the report never names a single replacement.',
+  });
+}
+
+// ---------------------------------------------------------------------------
+// The traced-movement record
+// ---------------------------------------------------------------------------
+
+/**
+ * Every departure whose next programme could be identified, named.
+ *
+ * These rows are the whole of what the destination page is drawn from, and
+ * they are here rather than there for the reason every other appendix exists:
+ * the analysis page has to lead with how little of the movement is visible,
+ * and a coverage statement that has to share a page with twenty rows of names
+ * stops being the first thing read.
+ *
+ * Uncapped. The table runs onto a second page rather than printing "and 9
+ * others", because a truncated list is one a reader cannot check the charts
+ * against.
+ */
+export function destinationRecordPage(k, model) {
+  const d = model.lifecycle.departures;
+  record(k, 'Every traced move',
+    'The departures whose next programme could be identified, and what they played there.');
+
+  k.table({
+    continued: 'Every traced move',
+    caption: `${plural(d.named.length, 'move', 'moves')} of ${d.departures.total} departures. The `
+      + `other ${d.departures.total - d.named.length} could not be traced to another roster at all, `
+      + 'and nothing about them is implied by their absence from this table.',
+    columns: MOVEMENT_COLUMNS,
+    rows: movementRows(d.named),
+    note: ({ dropped }) => ['Football and academic ratings are the destination read against this '
+      + 'programme, on the two ratings this database carries; “similar” is the middle half of all '
+      + 'traced moves on that measure.',
+    dropped.includes('post') ? null
+      : 'A dash under minutes there is a season not yet played or never published — never a player '
+          + 'who did not play.',
+    'No move here is called successful or unsuccessful, and nothing records why anybody moved.']
+      .filter(Boolean).join(' '),
   });
 }
 
@@ -335,6 +376,49 @@ export function methodologyPage(k, model) {
       + 'playing, or two spellings of one name that the join could not match.',
       'It is the one kind of departure that cannot mean graduation, which is why it is worth '
       + 'showing — but no reason is inferred from it.'],
+
+    // --- the lifecycle layer ------------------------------------------------
+    //
+    // Deliberately terse. These definitions are not the only place coverage is
+    // stated: every destination figure in the report carries its own coverage
+    // beside it, at full size, because a limit that lives only in an appendix
+    // is a limit most readers never meet. Written at the length the first
+    // draft used, they pushed this page onto a third.
+    ['Player development and roster continuity',
+      'Development is what a player who arrived here as a first-year went on to play, season by '
+      + 'season. Each year is computed only over players who have been here long enough to have '
+      + 'had that year in a season with published minutes, so a recent arrival is in no later-year '
+      + 'denominator. Nothing in it says the programme caused the change.',
+      'Continuity is the share of player-seasons that could return and did — readable only where '
+      + 'the following roster is on file too. It is a count of names on two rosters, not a '
+      + 'satisfaction measure.'],
+
+    ['Expected exit and early departure',
+      'An expected exit is a player whose class label on their last season here said senior or '
+      + 'graduate. An early departure is one labelled first-year, sophomore or junior, so the label '
+      + 'said seasons remained.',
+      'The class label is the only evidence used. Eligibility end year is a fixed arithmetic step '
+      + 'from that label in every row on file, so treating it as a second signal would classify '
+      + 'every ordinary graduation as an early departure.'],
+
+    ['Observed, ambiguous and unresolved',
+      'An observed destination is a departure whose name appears at another programme the next '
+      + 'season with enough agreeing detail — hometown, position, class progression, graduation '
+      + 'year — to be confident it is the same person. Ambiguous means the name appears elsewhere '
+      + 'but the evidence does not settle it; those players are never named as a destination. '
+      + 'Unresolved means the name appears on no other roster we hold, and is the largest group '
+      + 'everywhere.',
+      'An observed destination is not a confirmed transfer history: it records that a player was '
+      + 'next seen somewhere, not that they transferred, and not why. Nationality is deliberately '
+      + 'not used — it takes two values, so two strangers agree on it most of the time.'],
+
+    ['Destination match coverage',
+      'The share of a programme’s departures whose destination could be observed. It describes the '
+      + 'roster data, not the programme, and nothing in this report divides departures by anything '
+      + 'to produce a transfer rate.',
+      'Coverage varies about six-fold by division, so destination analysis is withheld entirely at '
+      + 'Division III — roughly one departure in thirty can be traced there — and wherever a '
+      + 'programme has fewer than eight traced moves.'],
   ]);
 
   k.doc.font('Helvetica').fontSize(7).fillColor(MUTED)

@@ -1475,12 +1475,182 @@ export const charts = {
       y += barH + 12;
     }
 
+    // The legend wraps. It used to lay out in one row and walk off the right
+    // edge as soon as a label carried its own count — "not traceable (12)" was
+    // the one the layout guard caught, 38 points into the margin.
     let lx = plot.x + labelW;
+    let ly = y + 1;
+    const right = plot.x + plot.w;
+    doc.font('Helvetica').fontSize(7.5);
     for (const kk of keys) {
-      doc.save().rect(lx, y + 1, 8, 8).fill(kk.color).restore();
+      const wNeeded = 14 + doc.widthOfString(kk.label) + 16;
+      if (lx > plot.x + labelW && lx + wNeeded > right) {
+        lx = plot.x + labelW;
+        ly += 11;
+      }
+      doc.save().rect(lx, ly, 8, 8).fill(kk.color).restore();
       doc.font('Helvetica').fontSize(7.5).fillColor(INK)
-        .text(kk.label, lx + 12, y + 1.5, { width: 130, lineBreak: false });
-      lx += 14 + doc.widthOfString(kk.label) + 20;
+        .text(kk.label, lx + 12, ly + 0.5, { width: right - lx - 12, lineBreak: false, ellipsis: true });
+      lx += wNeeded;
+    }
+  },
+
+  /**
+   * One column per year, each carrying its own denominator.
+   *
+   * The whole point of this chart is that the denominators SHRINK to the
+   * right: a programme's year-three figure is drawn from the players who have
+   * had a year three at all, and that cohort is a fraction of the year-one
+   * one. Printing four percentages in a row without their counts invites a
+   * comparison between a rate over 42 players and a rate over 12.
+   *
+   * A year whose share could not be made prints the reason where the
+   * percentage would be. Never a zero — a 0% here would say "nobody develops",
+   * and it has meant "this programme publishes no minutes" often enough that
+   * the guard is worth the space.
+   */
+  yearSteps(k, { box, title, subtitle, years, poolLabel, unavailable }) {
+    const plot = frame(k, box, { title, subtitle, unavailable, empty: !years?.length });
+    if (!plot) return;
+    const { doc } = k;
+    const cw = plot.w / years.length;
+
+    years.forEach((yr, i) => {
+      const x = plot.x + i * cw;
+      const inner = cw - 12;
+      doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(MUTED)
+        .text(yr.label.toUpperCase(), x, plot.y,
+          { width: inner, characterSpacing: TYPE.label.spacing, lineBreak: false, ellipsis: true });
+
+      if (yr.share == null) {
+        doc.font('Helvetica-Oblique').fontSize(8).fillColor(MUTED)
+          .text(yr.unavailable || 'not enough on file', x, plot.y + 14, { width: inner });
+      } else {
+        doc.font('Helvetica-Bold').fontSize(26).fillColor(INK)
+          .text(`${Math.round(yr.share * 100)}%`, x, plot.y + 12, { width: inner, lineBreak: false });
+        doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
+          .text(yr.caption || '', x, plot.y + 42, { width: inner });
+      }
+
+      // The denominator, always, whether or not a share could be quoted.
+      doc.font('Helvetica').fontSize(8).fillColor(INK)
+        .text(yr.count ?? '—', x, plot.y + 58, { width: inner, lineBreak: false, ellipsis: true });
+
+      // The pool, as a track under the column rather than a second number
+      // competing with the first.
+      const trackY = plot.y + 74;
+      const trackW = inner;
+      doc.save().rect(x, trackY, trackW, 6).fill('#EDEFF3').restore();
+      if (yr.share != null) {
+        doc.save().rect(x, trackY, Math.max(1.5, Math.min(1, yr.share) * trackW), 6)
+          .fill(NAVY).restore();
+      }
+      if (yr.pool != null) {
+        const px = x + Math.min(1, yr.pool) * trackW;
+        doc.save().moveTo(px, trackY - 2).lineTo(px, trackY + 8)
+          .lineWidth(1).strokeColor(MID).stroke().restore();
+        doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+          .text(`pool ${Math.round(yr.pool * 100)}%`, x, trackY + 10,
+            { width: inner, lineBreak: false, ellipsis: true });
+      } else {
+        doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+          .text('no pool figure', x, trackY + 10, { width: inner, lineBreak: false, ellipsis: true });
+      }
+    });
+
+    if (poolLabel) {
+      // Inside the box. Drawn eight points lower it landed on the sentence
+      // after the chart, which the collision guard reported as ink over ink.
+      doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+        .text(poolLabel, plot.x, plot.y + 92, { width: plot.w, lineBreak: false, ellipsis: true });
+    }
+  },
+
+  /**
+   * A handful of individual careers, one line each.
+   *
+   * Deliberately capped by the caller. Thirty lines on one axis is a texture,
+   * not a chart, and the reader cannot follow any single player through it —
+   * so the model picks a manageable cohort by a stated rule and this draws
+   * exactly those, labelled, with the starter line behind them.
+   *
+   * Only seasons with published minutes are plotted. A gap year leaves a gap.
+   */
+  trajectories(k, { box, title, subtitle, lines, max, marker, years, unavailable }) {
+    const plot = frame(k, box, { title, subtitle, unavailable, empty: !lines?.length });
+    if (!plot) return;
+    const { doc } = k;
+    const labelW = 92;
+    const axisW = 30;
+    const left = plot.x + axisW;
+    const w = plot.w - axisW - labelW;
+    const h = plot.h - 20;
+    const step = years > 1 ? w / (years - 1) : 0;
+    const xOf = (year) => left + (year - 1) * step;
+    const yOf = (v) => plot.y + h - Math.min(1, v / max) * h;
+
+    for (const t of [0, max / 2, max]) {
+      doc.save().moveTo(left, yOf(t)).lineTo(left + w, yOf(t))
+        .lineWidth(0.3).strokeColor('#EDEFF3').stroke().restore();
+      doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+        .text(nice(t), plot.x, yOf(t) - 3.5, { width: axisW - 4, align: 'right', lineBreak: false });
+    }
+    if (marker != null && marker <= max) {
+      doc.save().dash(2, { space: 2 }).moveTo(left, yOf(marker)).lineTo(left + w, yOf(marker))
+        .lineWidth(0.75).strokeColor(CLARET).stroke().undash().restore();
+      doc.font('Helvetica').fontSize(6).fillColor(CLARET)
+        .text(`${nice(marker)} — a starter’s season`, left + 3, yOf(marker) - 8,
+          { width: 130, lineBreak: false });
+    }
+    for (let yr = 1; yr <= years; yr += 1) {
+      doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+        .text(`year ${yr}`, xOf(yr) - 16, plot.y + h + 5, { width: 32, align: 'center', lineBreak: false });
+    }
+
+    // Two passes. The lines first, then the names — because the names have to
+    // be spread apart to be legible and a name nudged down one at a time can
+    // walk out of the bottom of the chart. The first version did exactly that
+    // and printed a player's name through the sentence under the chart.
+    const ends = [];
+    for (const line of lines) {
+      const pts = line.points.filter((p) => p.minutes != null && p.year <= years);
+      if (!pts.length) continue;
+      for (let i = 1; i < pts.length; i += 1) {
+        doc.save().moveTo(xOf(pts[i - 1].year), yOf(pts[i - 1].minutes))
+          .lineTo(xOf(pts[i].year), yOf(pts[i].minutes))
+          .lineWidth(1).strokeOpacity(0.6).strokeColor(NAVY).stroke().restore();
+      }
+      for (const p of pts) {
+        doc.save().circle(xOf(p.year), yOf(p.minutes), 1.9).fillOpacity(0.7).fill(NAVY).restore();
+      }
+      ends.push({ name: line.name, y: yOf(pts[pts.length - 1].minutes) - 3.5 });
+    }
+
+    // Placed top-down with a minimum gap, then corrected bottom-up.
+    //
+    // The downward pass alone is not enough: several players finishing on
+    // similar minutes push the stack past the foot of the chart, where a naive
+    // clamp lands three names on one line. The second pass lifts anything that
+    // reached the floor back up through the stack, which is why it runs in
+    // reverse and compares against the row below it.
+    const GAP = Math.min(9.5, ends.length > 1 ? (h - 9.5) / (ends.length - 1) : 9.5);
+    const top = plot.y;
+    const bottom = plot.y + h - 9.5;
+    ends.sort((a, b) => a.y - b.y);
+    let floor = top;
+    for (const e of ends) {
+      e.ly = Math.max(e.y, floor);
+      floor = e.ly + GAP;
+    }
+    let ceiling = bottom;
+    for (let i = ends.length - 1; i >= 0; i -= 1) {
+      ends[i].ly = Math.max(top, Math.min(ends[i].ly, ceiling));
+      ceiling = ends[i].ly - GAP;
+    }
+    for (const e of ends) {
+      doc.font('Helvetica').fontSize(6.5).fillColor(INK)
+        .text(fitText(doc, e.name, labelW - 8), left + w + 5, e.ly,
+          { width: labelW - 5, lineBreak: false });
     }
   },
 

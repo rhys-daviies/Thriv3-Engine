@@ -118,14 +118,25 @@ export const SECTIONS = [
     ].filter(Boolean),
   },
   {
-    id: 'freshman-development',
-    title: 'After the first season',
-    description: 'What happens to a first-year here in their second year.',
+    id: 'player-development',
+    title: 'How players develop after they arrive',
+    description: 'What a first-year here goes on to play, year by year, against comparable programmes.',
     layer: 'programme-evidence',
     scope: 'programme',
-    unavailableWhenEmpty: false,
-    applies: ({ model }) => has(model.freshman?.progression),
-    scopeOf: ({ model }) => [`${model.freshman.progression.length} players followed a season on`],
+    // The absence is worth a page of its own: "we followed 42 first-years and
+    // could read the minutes for three of them" is a fact about this
+    // programme's published record that a reader should see stated.
+    unavailableWhenEmpty: true,
+    applies: ({ model }) => (model.lifecycle?.development?.players ?? 0) > 0,
+    scopeOf: ({ model }) => {
+      const d = model.lifecycle.development;
+      return [
+        `${d.players} first-years followed`,
+        d.minutesCoverage.readable
+          ? `${d.everStarter.reached} of ${d.everStarter.denominator} reached a starter's season`
+          : 'minutes not published widely enough to quote a share',
+      ];
+    },
   },
   {
     id: 'experienced-arrival-intake',
@@ -213,6 +224,48 @@ export const SECTIONS = [
     unavailableWhenEmpty: false,
     applies: ({ model }) => (model.squad?.rostered ?? 0) > 0,
     scopeOf: ({ model }) => [`${model.squad.rostered} players`],
+  },
+
+  {
+    id: 'roster-continuity',
+    title: 'Roster continuity',
+    description: 'How often players who could return appear on the next roster, and what the '
+      + 'departures are made of.',
+    layer: 'programme-evidence',
+    scope: 'programme',
+    unavailableWhenEmpty: false,
+    // A transition is only readable where BOTH rosters are on file, so a
+    // programme with one season and nothing to compare it against gets no page
+    // rather than a page reporting a mass exodus that is a gap in the data.
+    applies: ({ model }) => (model.lifecycle?.continuity?.returnable ?? 0) > 0,
+    scopeOf: ({ model }) => {
+      const c = model.lifecycle.continuity;
+      return [
+        `${c.returnable} player-seasons that could return`,
+        c.retention == null ? 'too few to quote a rate'
+          : `${c.returned} came back`,
+      ];
+    },
+  },
+  {
+    id: 'observed-destinations',
+    title: 'Where we can trace players next',
+    description: 'The departures whose next programme can be identified from roster data, and how '
+      + 'few of them that is.',
+    layer: 'programme-evidence',
+    scope: 'programme',
+    unavailableWhenEmpty: false,
+    // Gated in the model, not here: `destinationGate` names which of the three
+    // conditions closed the page, and a test can assert on the reason rather
+    // than on the absence.
+    applies: ({ model }) => Boolean(model.lifecycle?.departures?.gate?.allowed),
+    scopeOf: ({ model }) => {
+      const d = model.lifecycle.departures;
+      return [
+        `${d.tracing.observed} of ${d.departures.total} departures traced`,
+        `${Math.round(100 * d.tracing.coverage)}% coverage`,
+      ];
+    },
   },
 
   // -- Layer 4: athlete evidence -------------------------------------------
@@ -304,6 +357,25 @@ export const SECTIONS = [
     },
   },
 
+  {
+    id: 'athlete-position-movement',
+    title: 'Players at your position we could trace',
+    description: 'Where players at the athlete’s position were seen next, when they could be seen '
+      + 'at all.',
+    layer: 'athlete-evidence',
+    scope: 'athlete',
+    unavailableWhenEmpty: false,
+    applies: ({ model }) => (model.lifecycle?.athletePosition?.rows?.length ?? 0) > 0,
+    scopeOf: ({ model }) => {
+      const p = model.lifecycle.athletePosition;
+      return [
+        p.group === 'position'
+          ? `${p.atPositionObserved} traced at this position`
+          : `too few at this position — ${p.programmeObserved} traced programme-wide`,
+      ];
+    },
+  },
+
   // -- Layer 5: supporting --------------------------------------------------
   {
     id: 'table-freshmen',
@@ -340,6 +412,21 @@ export const SECTIONS = [
     scopeOf: ({ summary }) => [
       `${count(summary.programme.replacementBehaviour.record)} openings`,
     ],
+  },
+  {
+    id: 'table-destinations',
+    title: 'Every traced move',
+    description: 'The departures whose next programme could be identified — the rows behind the '
+      + 'destination analysis.',
+    layer: 'supporting',
+    scope: 'programme',
+    unavailableWhenEmpty: false,
+    // Tied to the same gate as the analysis page. A list of names with no page
+    // explaining what a traced move is, and how few there are, would be the
+    // one part of this analysis a reader could over-read.
+    applies: ({ model }) => Boolean(model.lifecycle?.departures?.gate?.allowed)
+      && count(model.lifecycle?.departures?.named) > 0,
+    scopeOf: ({ model }) => [`${count(model.lifecycle.departures.named)} rows`],
   },
   {
     id: 'methodology',
