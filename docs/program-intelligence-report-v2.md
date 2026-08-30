@@ -1457,3 +1457,204 @@ and a closer read of the edge cases found more:
   three tables it was.
 - **"only 0 in 0 seasons"** for an empty cohort — accurate, and reads as a
   broken template.
+
+
+---
+
+## 14. Phase 3 — the lifecycle layer
+
+Three additions, on a branch off this one: multi-year player development in
+place of the year-one-to-year-two page, roster continuity with its own
+departure composition, and observed destinations behind a gate. Nothing else
+about the report's methodology or architecture changed.
+
+### 14.1 What came across, and what did not
+
+Eight files from `research/player-lifecycle-transfer-intelligence` (`e95013b`),
+copied verbatim — the point of validating them there was that they arrive here
+unchanged:
+
+```
+shared/lifecycle/lifecycle.js       Track A, a player's observed history
+shared/lifecycle/development.js     Track B, trajectories with denominators
+shared/lifecycle/continuity.js      Track C, returned / not observed / unreadable
+shared/lifecycle/movement.js        Tracks D–G, matching, comparison, outcome
+shared/lifecycle/hometown.js        the explicit location table
++ lifecycle.test.js, development.test.js, movement.test.js  (71 tests)
+```
+
+The research scripts, their 43 output files and the audit stayed on the
+research branch. Nothing that reads a snapshot database belongs on an
+integration branch.
+
+Built here on top of them:
+
+```
+shared/lifecycle/readable.js        one definition of a readable minute
+shared/lifecycle/pool.js            the cross-programme pass, built once per sport
+shared/report/lifecycleSummary.js   the model three pages are drawn from
+server/lib/lifecycleQueries.js      the database half, cached per sport
+server/lib/reportLifecycle.js       the pages
+```
+
+`recruiting_arrivals` was recovered separately, onto `recover/recruiting-
+arrivals` off `main`, and is not on this branch. Its builder existed only
+inside the untracked half of `stash@{0}`; four files were read out of the
+stash's commit object without restoring anything, and dropping the table from
+a snapshot and re-running `npm run build:recruiting` reproduces it exactly —
+43,162 men's and 44,287 women's rows, with a checksum over every
+classification column identical to the original's. Its
+`prior_confidence: NAME_MATCH` is a name match and nothing in the report may
+present it as a confirmed history.
+
+### 14.2 A minute that could not be read
+
+The lifecycle primitives call a season measured when `minutes_played` is not
+null. That is the right rule for MATCHING — a stored zero is still a row that
+identifies a person — and the wrong rule for REPORTING.
+
+Read that way, two Division III programmes whose rosters publish appearances
+and a zero in the minutes column produced **"0% of first-years here reach a
+starter's season"**, and the pool those programmes are compared against was
+depressed by roughly a hundred more of them. `shared/lifecycle/readable.js`
+applies the rule the freshman pages have always used — a zero is only a zero
+when the same row says zero games — at the boundary between the two layers.
+
+The pool moved, and the size of the move is the size of the defect:
+
+| Reaching 600 minutes | p10 before | p10 after | median before | median after |
+|---|---:|---:|---:|---:|
+| by year 1 | 0% | 10% | 22% | 24% |
+| by year 2 | 3% | 19% | 33% | 36% |
+| by year 3 | 1% | 23% | 38% | 40% |
+| ever | 16% | 22% | 36% | 38% |
+
+The rule is applied inside `programmeDevelopment` and `programmeContinuity`
+rather than at their call sites, and once over the whole pool before any
+matching runs. It cannot change a match: identity is hometown, position, class
+progression and graduation year, and minutes are not among them.
+
+### 14.3 The gate
+
+Destination movement renders only where all three hold. Each names itself, so
+a test asserts on the reason rather than on an absence.
+
+1. The division is not on `DESTINATION_SUPPRESSED_DIVISIONS` — NCAA D3, USCAA,
+   NJCAA.
+2. The division's pool-wide destination coverage clears 5%.
+3. The programme itself has eight or more traced moves.
+
+Measured rather than assumed, on this data:
+
+| Division | Departures | Traced | Coverage |
+|---|---:|---:|---:|
+| NCAA D1 | 11,318 | 2,335 | **20.6%** |
+| NCAA D2 | 13,103 | 1,252 | 9.6% |
+| NAIA | 3,340 | 257 | 7.7% |
+| NCAA D3 | 15,462 | 531 | 3.4% |
+| USCAA | 54 | 0 | 0% |
+
+Both gate 1 and gate 2 exist because they answer different questions: the
+floor asks whether the data supports the page, the list asks whether we have
+decided to publish it. On today's data the floor alone would exclude all three
+named divisions.
+
+### 14.4 Length
+
+| Report | Before | After |
+|---|---:|---:|
+| Akron, generic (D1, traced) | 16 | 19 |
+| Saint Mary's, generic (D1, most traced) | 16 | 19 |
+| Anderson (IN), generic (D3) | 12 | 14 |
+| Albertus Magnus, generic (sparse D3) | 10 | 12 |
+| Cedarville, generic (D2, gate closed) | 16 | 17 |
+| Akron / Shaan Anad, athlete | 23 | 27 |
+
+**A Division I generic report is one page over the ±2 target**, and the reason
+is a real tension in the brief rather than an oversight. The destinations page
+has to lead with how little of the movement is visible; the named rows cannot
+share that page without pushing the coverage statement down it. They are in the
+supporting record instead, where every other "rows behind the charts" table
+lives — which is the right home for them and costs the page. Dropping
+`table-destinations` from the registry would bring every report to +2 and lose
+the only place the traced moves are named.
+
+### 14.5 What the pages do
+
+**How players develop after they arrive** replaces "After the first season".
+Four columns, one per year, each over the cohort that could have reached it —
+the denominators shrink to the right and are printed. Then the individual
+careers, capped at eight and chosen by a stated rule (longest observable
+history first, ties by name; nothing selected for how it looks). Then time to
+600 minutes, over first-years who arrived early enough to have had three
+seasons with published minutes. The last row of that table is "not within their
+first three seasons" and the page says outright that it is not a failure.
+
+**Roster continuity** leads with retention against the pool, breaks it down by
+what the player played the season before, and then carries the departure
+composition: expected exits and early departures from the class label alone,
+with the traced / unsettled / untraceable split indented beneath the early
+group it divides. Eligibility years are not used, and the page says why.
+
+**Where we can trace players next** puts coverage first at full size, states
+what the page is a sample of in a callout, and only then shows the three
+measures — football rating, academic rating, division — as three separate bars
+that are never summed. The prior-role breakdown follows. The names are in the
+supporting record.
+
+**Players at your position we could trace** shows the athlete's own position
+where the sample carries it. Where it does not, the page says so in a callout
+and shows the position's own traced moves anyway, however few, rather than
+reprinting the programme's list from a page the reader has already passed.
+
+### 14.6 The words these pages may not use
+
+"Transfer" does not appear on any lifecycle page. The rosters cannot tell a
+transfer from a graduate move, a year abroad, a player who stopped, or a
+spelling the join missed; what they show is a name at another programme the
+following season, and that is what the pages say. There is no rate over
+departures anywhere, and no code path that divides one by the other.
+Satisfaction, culture and any reason for leaving are absent, as are successful
+and failed. Existing tests enforce the first of these; new ones enforce the
+rest.
+
+### 14.7 What the rasterised reports showed
+
+Eight reports were rendered, rasterised and read. The layout guard reports ink
+outside a box and ink over ink; it cannot see a number that is inside its box
+and means the wrong thing.
+
+- **"0 of 42"** printed under "minutes not published here" — the same confident
+  zero the percentage had just been refused for, restated as a fraction. The
+  column now states the cohort alone.
+- **Post-move minutes could be an unpublished zero.** `attachRoleAndOutcome`
+  read raw destination rows, so "0 min" was printed beside a named player who
+  may well have played. The readability rule now runs before it.
+- **Three scope lines** ran past the one line `k.scope` draws and lost their
+  last fact to an ellipsis.
+- **Retention was drawn with `charts.paired`**, which prints two unlabelled
+  figures as "50 · 56%".
+- **Two columns headed "CAME BACK"**, and a header that wrapped onto the first
+  row of data.
+- **Every dimension chart printed its name twice**, a line apart.
+- **The athlete module repeated the programme's bars and rows** when it
+  broadened.
+
+The guard was extended once, for the class of defect that let one of these
+through: a chart title or subtitle is drawn with `lineBreak: false`, so
+shortening one loses authored prose. `frame` now reports it. Table headings
+were the only thing watched before.
+
+### 14.8 Cost
+
+| | Before | After |
+|---|---:|---:|
+| Model build, warm, per programme | 2 ms (median) | 3 ms |
+| PDF render, per report | 26 ms | 32 ms |
+| Cold start, both sports | 2.3 s | 5.6 s |
+
+The lifecycle pool is built once per sport per process — 1.7 s men's, 1.6 s
+women's — and rechecked against the same cheap fingerprint the philosophy
+benchmarks use. It drops its 277,000 roster rows on the way out and keeps
+87,000 compact movement records; holding the rows instead would be the
+difference between tens of megabytes and hundreds.
