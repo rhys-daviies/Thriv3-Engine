@@ -19,7 +19,7 @@ import { charts, THEME, pageHead, minutes as minutesOf } from './philosophyPdf.j
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { POSITIONS, positionPlural, canonicalPosition } from '../../shared/positions.js';
 
-const { INK, MUTED, CLARET, NAVY, MID, PALE, GREEN, W } = THEME;
+const { MUTED, CLARET, NAVY, MID, PALE, GREEN } = THEME;
 
 const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const cap = (s) => String(s ?? '').replace(/^./, (c) => c.toUpperCase());

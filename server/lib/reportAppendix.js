@@ -19,7 +19,7 @@ import {
 } from '../../shared/freshmanMinutes.js';
 import { positionPlural } from '../../shared/positions.js';
 
-const { INK, MUTED, CLARET, NAVY, PALE, W, M } = THEME;
+const { INK, MUTED, CLARET, W, M } = THEME;
 
 const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const cap = (s) => String(s ?? '').replace(/^./, (c) => c.toUpperCase());

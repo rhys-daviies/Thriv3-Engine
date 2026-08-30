@@ -16,7 +16,7 @@ import { charts, THEME, TYPE, pageHead, humanCohort, fitText } from './philosoph
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 
-const { INK, MUTED, LINE, CLARET, NAVY, MID, PALE, GREEN, W } = THEME;
+const { INK, MUTED, LINE, CLARET, NAVY, PALE, GREEN, W } = THEME;
 
 const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const cap = (s) => String(s ?? '').replace(/^./, (c) => c.toUpperCase());

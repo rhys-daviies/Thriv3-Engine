@@ -16,7 +16,7 @@
  * and a red chip would say something the arithmetic does not. And nothing is
  * scored — there is no composite number anywhere on these pages.
  */
-import { THEME, TYPE, SPACE, pageHead, minutes, fitText } from './philosophyPdf.js';
+import { THEME, TYPE, pageHead, minutes, fitText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 
