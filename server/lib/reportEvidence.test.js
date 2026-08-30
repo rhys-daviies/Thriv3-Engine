@@ -151,6 +151,73 @@ describe('the table primitive', () => {
     expect(text).toMatch(/…/);
   });
 
+  // Gating an empty column: opt-in, emptiness only, never a column of zeros.
+  describe('empty-column gating', () => {
+    const gated = [
+      { key: 'name', label: 'Player', width: 0.5 },
+      { key: 'value', label: 'Projected minutes', width: 0.25, align: 'right' },
+      { key: 'from', label: 'Previous programme', width: 0.25, dropWhenEmpty: true },
+    ];
+    const drawGated = (rows, opts = {}) => render((k) => {
+      k.table({ columns: gated, rows, ...opts });
+    });
+
+    it('omits a droppable column where every row is null for it', async () => {
+      const text = pdfText(await drawGated([
+        { name: 'Alpha', value: 900, from: null },
+        { name: 'Bravo', value: 800, from: null },
+      ]));
+      expect(text).not.toContain('PREVIOUS PROGRAMME');
+      expect(text).toContain('PLAYER');
+      expect(text).toContain('PROJECTED MINUTES');
+    });
+
+    it('keeps the column where a single row records a value', async () => {
+      const text = pdfText(await drawGated([
+        { name: 'Alpha', value: 900, from: null },
+        { name: 'Bravo', value: 800, from: 'Elsewhere' },
+      ]));
+      expect(text).toContain('PREVIOUS PROGRAMME');
+      expect(text).toContain('Elsewhere');
+      // The null row still shows a dash rather than a blank.
+      expect(text).toMatch(/Alpha 900 —/);
+    });
+
+    it('does not drop a column that is entirely zero', async () => {
+      const text = pdfText(await drawGated([{ name: 'Alpha', value: 0, from: 0 }]));
+      expect(text).toContain('PREVIOUS PROGRAMME');
+    });
+
+    it('leaves a column without the flag alone when it is empty', async () => {
+      const text = pdfText(await draw([{ name: 'Alpha', value: null, from: null }]));
+      expect(text).toContain('PREVIOUS PROGRAMME');
+    });
+
+    it('shares the freed width among the surviving columns', async () => {
+      // A name that fits only once the dropped column's width is reallocated.
+      const name = 'A Player Name Of Some Considerable Length Indeed Yes';
+      const kept = pdfText(await drawGated([{ name, value: 900, from: null }]));
+      const lost = pdfText(await drawGated([{ name, value: 900, from: 'Elsewhere' }]));
+      expect(kept.length).toBeGreaterThan(lost.length - name.length);
+      expect(kept).toContain('A Player Name Of Some Considerable');
+    });
+
+    it('tells the note which columns were dropped', async () => {
+      const text = pdfText(await drawGated([{ name: 'Alpha', value: 1, from: null }], {
+        note: ({ dropped }) => (dropped.includes('from') ? 'column omitted' : 'column shown'),
+      }));
+      expect(text).toContain('column omitted');
+    });
+
+    it('ignores group heading rows when deciding emptiness', async () => {
+      const text = pdfText(await drawGated([
+        { group: 'Defenders' },
+        { name: 'Alpha', value: 1, from: null },
+      ]));
+      expect(text).not.toContain('PREVIOUS PROGRAMME');
+    });
+  });
+
   it('keeps a group heading with its rows', async () => {
     const text = pdfText(await draw([
       { group: 'Defenders' },
@@ -496,6 +563,25 @@ describe('the supporting record', () => {
   it('never infers a source for an arrival', async () => {
     const { text } = await build();
     expect(text).toMatch(/No source is inferred/);
+  });
+
+  // A whole column of dashes is a field this source does not carry, not a
+  // fact about any of the players in it.
+  it('omits the previous-programme column where no arrival records one', async () => {
+    const { text } = await build();
+    expect(text).toMatch(/Every experienced arrival measured/);
+    expect(text).toMatch(/that column is not shown/);
+    expect(text).not.toMatch(/STARTS PREVIOUS PROGRAMME/);
+  });
+
+  it('keeps the previous-programme column where one arrival records one', async () => {
+    addRow('Test College', {
+      season: '2025', player_name: 'Known Source', class_year_label: 'Jr.',
+      minutes_played: 800, prior_programme: 'A Named Programme',
+    });
+    const { text } = await build();
+    expect(text).toContain('A Named Programme');
+    expect(text).toMatch(/A dash under Previous programme means the roster did not record one/);
   });
 
   it('keeps one row per opening rather than one per departing player', async () => {

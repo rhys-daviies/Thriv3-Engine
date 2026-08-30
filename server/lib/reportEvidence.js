@@ -756,7 +756,7 @@ export function currentDepthPage(k, model) {
       { key: 'classLabel', label: 'Class', width: 0.11 },
       { key: 'projectedMinutes', label: 'Projected mins', width: 0.15, align: 'right', format: (v) => (v == null ? null : nf(v)) },
       { key: 'eligibleTo', label: 'Eligible to', width: 0.11, align: 'right' },
-      { key: 'arrivedFrom', label: 'Previous programme', width: 0.25 },
+      { key: 'arrivedFrom', label: 'Previous programme', width: 0.25, dropWhenEmpty: true },
     ],
     rows: tableRows,
     highlight: athletePos ? (row) => row.position === athletePos : null,

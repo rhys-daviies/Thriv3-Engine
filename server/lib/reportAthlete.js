@@ -280,7 +280,7 @@ export function currentPositionPage(k, model) {
       { key: 'projectedMinutes', label: 'Projected minutes', width: 0.16, align: 'right', format: (v) => (v == null ? null : nf(v)) },
       { key: 'eligibleTo', label: 'Eligible through', width: 0.14, align: 'right' },
       { key: 'status', label: `At entry, ${a.entrySeason}`, width: 0.18 },
-      { key: 'arrivedFrom', label: 'Previous programme', width: 0.18 },
+      { key: 'arrivedFrom', label: 'Previous programme', width: 0.18, dropWhenEmpty: true },
     ],
     rows: [...players]
       .sort((x, y) => (y.projectedMinutes ?? -1) - (x.projectedMinutes ?? -1))

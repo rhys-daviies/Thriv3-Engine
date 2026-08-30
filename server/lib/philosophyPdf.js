@@ -276,15 +276,39 @@ export function kit(doc) {
      *
      * `columns` are `{ key, label, width, align, format }` where `width` is a
      * fraction of the content width and the fractions sum to 1.
+     *
+     * A column marked `dropWhenEmpty` is omitted where EVERY rendered row is
+     * null for it, and its width is shared out among the rest. That is opt-in
+     * per column and deliberately not automatic: a column of dashes is
+     * sometimes the finding — an origin column with nothing in it says the
+     * rosters record no nationality at all — whereas "previous programme" is
+     * only ever recorded for some arrivals, so a whole column of dashes there
+     * is a field this source does not carry rather than a fact about anybody.
+     * Emptiness, never zero: a column of zeros is a measurement.
+     *
+     * `note` may be a function of `{ dropped }` so the sentence explaining a
+     * dash is not printed for a column nobody can see.
      */
     table({ columns, rows, caption = null, note = null, rowHeight = 13, highlight = null }) {
-      const widths = columns.map((c) => c.width * W);
+      const dropped = [];
+      const shown = columns.filter((c) => {
+        if (!c.dropWhenEmpty) return true;
+        const any = rows.some((r) => {
+          if (r.group) return false;
+          const raw = c.format ? c.format(r[c.key], r) : r[c.key];
+          return raw !== null && raw !== undefined && raw !== '';
+        });
+        if (!any) dropped.push(c.key);
+        return any;
+      });
+      const total = shown.reduce((a, c) => a + c.width, 0) || 1;
+      const widths = shown.map((c) => (c.width / total) * W);
       const xOf = (i) => M + widths.slice(0, i).reduce((a, b) => a + b, 0);
 
       const header = () => {
         api.room(rowHeight + 8);
         const top = doc.y;
-        columns.forEach((c, i) => {
+        shown.forEach((c, i) => {
           doc.font('Helvetica-Bold').fontSize(6.5).fillColor(MUTED);
           doc.text(fitText(doc, String(c.label).toUpperCase(), widths[i] - 6), xOf(i), top, {
             width: widths[i] - 6, align: c.align || 'left', lineBreak: false,
@@ -328,7 +352,7 @@ export function kit(doc) {
         if (highlight && highlight(row)) {
           doc.save().rect(M - 4, top - 2, 2, rowHeight).fill(CLARET).restore();
         }
-        columns.forEach((c, i) => {
+        shown.forEach((c, i) => {
           const raw = c.format ? c.format(row[c.key], row) : row[c.key];
           const text = raw === null || raw === undefined || raw === '' ? '—' : String(raw);
           const missing = text === '—';
@@ -342,9 +366,10 @@ export function kit(doc) {
         striped += 1;
       }
 
-      if (note) {
+      const text = typeof note === 'function' ? note({ dropped }) : note;
+      if (text) {
         api.gap(4);
-        api.note(note);
+        api.note(text);
       }
       return api.gap(6);
     },

@@ -84,17 +84,23 @@ export function arrivalRecordPage(k, model) {
       { key: 'name', label: 'Player', width: 0.22, bold: true },
       { key: 'position', label: 'Position', width: 0.12, format: (v) => cap(positionPlural(v)).replace(/s$/, '') },
       { key: 'classLabel', label: 'Class', width: 0.08 },
-      { key: 'priorProgramme', label: 'Previous programme', width: 0.2 },
+      { key: 'priorProgramme', label: 'Previous programme', width: 0.2, dropWhenEmpty: true },
       { key: 'minutes', label: 'Minutes', width: 0.1, align: 'right', format: (v) => nf(v) },
       { key: 'gamesPlayed', label: 'Games', width: 0.09, align: 'right' },
       { key: 'gamesStarted', label: 'Starts', width: 0.1, align: 'right' },
     ],
     rows: [...pts].sort((a, b) => Number(b.season) - Number(a.season) || b.minutes - a.minutes),
     // Never inferred. A blank previous programme means the roster did not
-    // record one, not that the player came from nowhere.
-    note: 'A dash under Previous programme means the roster did not record one. No source is '
-      + 'inferred: an arrival is identified by not having been on the previous roster, which says '
-      + 'nothing about where they came from.',
+    // record one, not that the player came from nowhere — and where NO row
+    // records one the column is dropped rather than printed as dashes, so the
+    // sentence explaining the dash goes with it.
+    note: ({ dropped }) => (dropped.includes('priorProgramme')
+      ? 'No row here records a previous programme, so that column is not shown rather than '
+        + 'printed as a column of dashes. No source is inferred: an arrival is identified by not '
+        + 'having been on the previous roster, which says nothing about where they came from.'
+      : 'A dash under Previous programme means the roster did not record one. No source is '
+        + 'inferred: an arrival is identified by not having been on the previous roster, which says '
+        + 'nothing about where they came from.'),
   });
 }
 
