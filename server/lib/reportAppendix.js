@@ -390,8 +390,8 @@ export function methodologyPage(k, model) {
       + 'had that year in a season with published minutes, so a recent arrival is in no later-year '
       + 'denominator. Nothing in it says the programme caused the change.',
       'Continuity is the share of player-seasons that could return and did — readable only where '
-      + 'the following roster is on file too. It is a count of names on two rosters, not a '
-      + 'satisfaction measure.'],
+      + 'the following roster is on file too. It is a count of names on two rosters, and says '
+      + 'nothing about why anybody left.'],
 
     ['Expected exit and early departure',
       'An expected exit is a player whose class label on their last season here said senior or '
@@ -408,14 +408,16 @@ export function methodologyPage(k, model) {
       + 'but the evidence does not settle it; those players are never named as a destination. '
       + 'Unresolved means the name appears on no other roster we hold, and is the largest group '
       + 'everywhere.',
-      'An observed destination is not a confirmed transfer history: it records that a player was '
-      + 'next seen somewhere, not that they transferred, and not why. Nationality is deliberately '
-      + 'not used — it takes two values, so two strangers agree on it most of the time.'],
+      'An observed destination is not a complete history of where a programme’s players went. It '
+      + 'records that one player was next seen somewhere, not why they left, and not whether they '
+      + 'stayed. Nationality is deliberately not used as evidence — it takes two values, so two '
+      + 'strangers agree on it most of the time.'],
 
     ['Destination match coverage',
       'The share of a programme’s departures whose destination could be observed. It describes the '
-      + 'roster data, not the programme, and nothing in this report divides departures by anything '
-      + 'to produce a transfer rate.',
+      + 'roster data, not the programme. Nothing in this report divides departures by anything to '
+      + 'produce a rate of players leaving: with most departures untraceable, and traceability '
+      + 'varying by division, such a rate would measure how completely rosters were published.',
       'Coverage varies about six-fold by division, so destination analysis is withheld entirely at '
       + 'Division III — roughly one departure in thirty can be traced there — and wherever a '
       + 'programme has fewer than eight traced moves.'],

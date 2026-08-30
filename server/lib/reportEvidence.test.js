@@ -11,6 +11,7 @@ import db from '../db/client.js';
 import { programReportModel } from '../routes/philosophy.js';
 import { renderProgramReport } from './philosophyReport.js';
 import { invalidatePoolBenchmarks } from './philosophyQueries.js';
+import { invalidateLifecyclePool } from './lifecycleQueries.js';
 import { kit, render, fitText } from './philosophyPdf.js';
 
 const WINANSI = { 0x85: '…', 0x91: '‘', 0x92: '’', 0x93: '“', 0x94: '”', 0x96: '–', 0x97: '—', 0xb7: '·' };
@@ -92,6 +93,9 @@ const addAthlete = (id, over = {}) => db.prepare(
 beforeEach(() => {
   db.exec('DELETE FROM roster_players; DELETE FROM coach_seasons; DELETE FROM colleges; DELETE FROM players;');
   invalidatePoolBenchmarks();
+  // The lifecycle pool is cached per sport per process too, and these suites
+  // rebuild the database between tests.
+  invalidateLifecyclePool();
   n = 0;
 });
 
@@ -312,11 +316,21 @@ describe('the evidence pages', () => {
 
   it('renders each programme evidence page once', async () => {
     const { text } = await build();
-    for (const title of ['The first-year intake', 'The first-year ladder', 'After the first season',
+    for (const title of ['The first-year intake', 'The first-year ladder',
+      'How players develop after they arrive',
       'Experienced arrivals', 'Who the arrivals are', 'Replacing minutes', 'Position by position',
       'Current squad outlook', 'The current squad']) {
       expect(text).toContain(title);
     }
+  });
+
+  it('no longer carries the year-one-to-year-two page it replaced', async () => {
+    const { text } = await build();
+    // "After the first season" answered a narrower question than the page that
+    // replaced it, and the two side by side would have been two development
+    // models disagreeing about their own denominators.
+    expect(text).not.toContain('After the first season');
+    expect(text).not.toMatch(/second year\b/i);
   });
 
   it('shows the seasons behind each ladder rung', async () => {

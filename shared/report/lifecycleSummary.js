@@ -144,8 +144,12 @@ export function representativeTrajectories(trajectories, {
   };
 }
 
-export function programmeDevelopment(rows, pool, { lastSeason = LAST_SEASON,
+export function programmeDevelopment(rawRows, pool, { lastSeason = LAST_SEASON,
   lastMeasuredSeason = LAST_MEASURED_SEASON } = {}) {
+  // Applied here rather than trusted from the caller. It is idempotent, and a
+  // rule that only holds when somebody remembers to apply it upstream is the
+  // rule that produced "0% of first-years here reach a starter's season".
+  const rows = readableRows(rawRows);
   const cohort = firstYearCohort(buildLifecycles(rows));
   const dev = developmentSummary(cohort, { lastSeason, lastMeasuredSeason });
   // Measured over the cohort's own seasons in the window that HAS minutes. The
@@ -204,7 +208,8 @@ export function programmeDevelopment(rows, pool, { lastSeason = LAST_SEASON,
 // Continuity and departure composition
 // ---------------------------------------------------------------------------
 
-export function programmeContinuity(rows, pool) {
+export function programmeContinuity(rawRows, pool) {
+  const rows = readableRows(rawRows);
   const obs = continuityObservations(rows);
   const c = continuitySummary(obs);
   const bench = pool?.benchmarks ?? null;
@@ -417,10 +422,9 @@ export function buildLifecycleSummary({ rows, pool, division, athlete = null, pr
     return { available: false, reason: 'no roster seasons on file for this programme' };
   }
   const scoped = { ...pool, division };
-  const readable = readableRows(rows);
   const movements = pool?.movementByProgramme?.get(programme) ?? [];
-  const continuity = programmeContinuity(readable, scoped);
-  const development = programmeDevelopment(readable, scoped);
+  const continuity = programmeContinuity(rows, scoped);
+  const development = programmeDevelopment(rows, scoped);
   const departures = programmeDepartures(movements, continuity, pool, division);
 
   return {

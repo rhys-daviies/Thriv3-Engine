@@ -133,7 +133,7 @@ export const SECTIONS = [
       return [
         `${d.players} first-years followed`,
         d.minutesCoverage.readable
-          ? `${d.everStarter.reached} of ${d.everStarter.denominator} reached a starter's season`
+          ? `${d.everStarter.reached} of ${d.everStarter.denominator} reached a starter’s season`
           : 'minutes not published widely enough to quote a share',
       ];
     },

@@ -12,6 +12,7 @@ import db from '../db/client.js';
 import { programReportModel } from '../routes/philosophy.js';
 import { renderProgramReport } from './philosophyReport.js';
 import { invalidatePoolBenchmarks } from './philosophyQueries.js';
+import { invalidateLifecyclePool } from './lifecycleQueries.js';
 import { render, THEME } from './philosophyPdf.js';
 import { createAudit, describeViolations, reserved } from './reportAudit.js';
 
@@ -70,6 +71,9 @@ const addAthlete = (id, over = {}) => db.prepare(
 beforeEach(() => {
   db.exec('DELETE FROM roster_players; DELETE FROM coach_seasons; DELETE FROM colleges; DELETE FROM players;');
   invalidatePoolBenchmarks();
+  // The lifecycle pool is cached per sport per process too, and these suites
+  // rebuild the database between tests.
+  invalidateLifecyclePool();
   n = 0;
 });
 

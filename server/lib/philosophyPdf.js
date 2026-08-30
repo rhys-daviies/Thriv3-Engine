@@ -997,12 +997,24 @@ export const THEME = { INK, MUTED, LINE, CLARET, NAVY, MID, PALE, GREEN, M, W, A
 function frame(k, box, { title, subtitle, unavailable, empty }) {
   const { doc } = k;
   let top = box.y;
+  // A chart's title and subtitle are authored prose on one line, so shortening
+  // one is always a defect rather than a long name being handled. The guard
+  // used to watch table headings only, and a subtitle carrying "these three
+  // measures are never combined into one" shipped as "…never combi…" until a
+  // test that reads the finished page found it.
+  const watch = (label, text, font, size) => {
+    doc.font(font).fontSize(size);
+    const fitted = fitText(doc, text, box.w);
+    if (fitted !== text) doc.__audit?.clip(`chart ${label}: ${String(text).slice(0, 30)}`, fitted, box.w);
+  };
   if (title) {
+    watch('title', title, TYPE.module.font, TYPE.module.size);
     doc.font(TYPE.module.font).fontSize(TYPE.module.size).fillColor(TYPE.module.color)
       .text(title, box.x, top, { width: box.w, lineBreak: false, ellipsis: true });
     top += 14;
   }
   if (subtitle) {
+    watch('subtitle', subtitle, TYPE.caption.font, TYPE.caption.size);
     doc.font(TYPE.caption.font).fontSize(TYPE.caption.size).fillColor(TYPE.caption.color)
       .text(subtitle, box.x, top, { width: box.w, lineBreak: false, ellipsis: true });
     top += 12;

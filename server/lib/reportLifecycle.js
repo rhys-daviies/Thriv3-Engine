@@ -291,8 +291,9 @@ export function rosterContinuityPage(k, model) {
   });
   k.note('“Traced” means the same name appears at another programme the next season with enough '
     + 'agreeing detail — hometown, position, class progression — to be confident it is the same '
-    + 'person. It is not a record of transfers: most departures cannot be traced at all, and how '
-    + 'many can depends on how completely rosters in that division were published.');
+    + 'person. It is not a record of where this programme’s players went: most departures cannot '
+    + 'be traced at all, and how many can depends on how completely rosters in that division were '
+    + 'published.');
 }
 
 // ---------------------------------------------------------------------------
@@ -339,15 +340,15 @@ function dimensionRows(dims) {
   ];
 }
 
-function dimensionCharts(k, dims, { compact = false, lead = null } = {}) {
-  dimensionRows(dims).forEach((row, i) => {
+function dimensionCharts(k, dims, { compact = false } = {}) {
+  dimensionRows(dims).forEach((row) => {
     charts.stackedRows(k, {
       // Title 14, bar, the 12 the chart puts under it, and 10 for the legend.
       // At 46 the legend cleared the box by six points and printed through the
       // table header on the athlete page — the collision guard caught it.
-      box: k.slot((compact ? 56 : 60) + (i === 0 && lead ? 12 : 0)),
+      box: k.slot(compact ? 56 : 60),
       title: row.label,
-      subtitle: i === 0 ? lead : null,
+      subtitle: null,
       rows: [{ label: row.label, note: row.note, values: row.values,
         unavailable: 'neither programme carries this rating' }],
       keys: row.keys,
@@ -433,14 +434,17 @@ export function observedDestinationsPage(k, model) {
       : ` Across this division, ${pc(d.tracing.divisionCoverage)} of departures can be traced.`),
   { title: 'What this page is a sample of' });
 
-  // Three measures, three bars, never one number. The sentence that used to
-  // introduce them is in the first chart's subtitle instead: a heading and a
-  // paragraph to say "these are separate" cost half the space the charts
-  // themselves needed to stay on one page with the rows they describe.
+  // Three measures, three bars, never one number.
+  //
+  // This sentence spent a draft inside the first chart's subtitle, where it
+  // saved forty points of page. `frame` draws a subtitle with `lineBreak:
+  // false`, so what it actually did was print the first half of the sentence
+  // and an ellipsis — the test that reads the finished page caught it.
   k.heading('The traced moves, on three separate measures');
-  dimensionCharts(k, d.dimensions, { compact: true, lead: 'A move can be to a lower-rated '
-    + 'programme, in a stronger academic one, in the same division. These are three facts about '
-    + 'the same move and they are never combined into one.' });
+  k.body('A move can be to a lower-rated programme, in a stronger academic one, in the same '
+    + 'division. These are three facts about the same move and they are never combined into one.',
+  { color: MUTED });
+  dimensionCharts(k, d.dimensions, { compact: true });
 
   // Prior role against where they went, where the sample carries it.
   const roleRows = d.byPriorRole.filter((r) => r.observed > 0);
