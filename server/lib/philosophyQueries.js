@@ -91,11 +91,22 @@ export function philosophyFor(collegeId) {
   return { college: col, philosophy: programmePhilosophy({ rows, coachRows }), rows, squad };
 }
 
-/** The same programme, read for one athlete. */
-export function fitFor(collegeId, athlete) {
-  const found = philosophyFor(collegeId);
+/**
+ * The same programme, read for one athlete, from rows already in hand.
+ *
+ * The loading half is separated from the reading half because a caller that
+ * already holds `found` must not pay for it twice: one report used to run
+ * philosophyFor three times over — three roster queries, three squad queries
+ * and three full runs of programmePhilosophy — for one document.
+ */
+export function fitFrom(found, athlete) {
   if (!found) return null;
   return { ...found, fit: playerFit(found.philosophy, athlete, found.rows) };
+}
+
+/** The same programme, read for one athlete. */
+export function fitFor(collegeId, athlete) {
+  return fitFrom(philosophyFor(collegeId), athlete);
 }
 
 // ---------------------------------------------------------------------------

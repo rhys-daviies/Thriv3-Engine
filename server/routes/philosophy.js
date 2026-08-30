@@ -8,7 +8,7 @@
  */
 import db from '../db/client.js';
 import {
-  philosophyFor, fitFor, college, poolBenchmarks, percentileOfLadderTop, poolMixForBand,
+  philosophyFor, fitFrom, poolBenchmarks, percentileOfLadderTop, poolMixForBand,
 } from '../lib/philosophyQueries.js';
 import {
   RECRUIT_SEASON, SQUAD_SEASON, SEASONS,
@@ -67,7 +67,10 @@ export function philosophySummaries({ playerId, collegeIds } = {}) {
     // A sport mismatch is a real bug signal, not something to paper over by
     // quietly reporting the other sport's roster.
     const sportMatches = !athlete || athlete.sport === col.sport;
-    const fit = sportMatches && athlete ? fitFor(id, athlete)?.fit : null;
+    // Read from the programme already loaded above. Reloading it here cost a
+    // second roster, coach and squad query per school — up to eighty for one
+    // twenty-school tab.
+    const fit = sportMatches && athlete ? fitFrom(found, athlete)?.fit : null;
 
     const top = ph.ladder[0] ?? null;
     summaries[id] = {
@@ -111,8 +114,23 @@ export function philosophySummaries({ playerId, collegeIds } = {}) {
 export function programmeModel({ collegeId } = {}) {
   const found = philosophyFor(collegeId);
   if (!found) throw new Error(`Unknown college: ${collegeId}`);
+  return buildProgrammeModel(found, poolBenchmarks(found.college.sport));
+}
+
+/**
+ * The same model, from a programme already loaded.
+ *
+ * Separated from the entry point above so one request loads one programme.
+ * `programReportModel` needs `found` for its own sections and used to call
+ * `programmeModel` — and then `fitFor` — each of which loaded the whole
+ * programme again: three roster queries, three squad queries and three runs
+ * of `programmePhilosophy` to build one document.
+ *
+ * Takes `benchmarks` rather than fetching them so the pool cache is consulted
+ * once per request too, and so this stays free of query code.
+ */
+export function buildProgrammeModel(found, benchmarks) {
   const { college: col, philosophy: ph } = found;
-  const benchmarks = poolBenchmarks(col.sport);
   const top = ph.ladder[0] ?? null;
   const meanVacated = ph.observations.length
     ? ph.observations.reduce((s, o) => s + o.vacatedStarterShare, 0) / ph.observations.length
@@ -152,13 +170,17 @@ export function programmeModel({ collegeId } = {}) {
 /** The same programme, read for one athlete. */
 export function playerProgrammeModel({ playerId, collegeId } = {}) {
   const athlete = loadAthlete(playerId);
-  const col = college(collegeId);
-  if (!col) throw new Error(`Unknown college: ${collegeId}`);
+  // Loaded once and read twice. The athlete is resolved first so an unknown
+  // player still throws before an unknown college, which is what the route's
+  // 404/400 split reads.
+  const loaded = philosophyFor(collegeId);
+  if (!loaded) throw new Error(`Unknown college: ${collegeId}`);
+  const col = loaded.college;
   if (athlete.sport !== col.sport) {
     throw new Error(`${athlete.full_name} plays ${athlete.sport}; ${col.name} is ${col.sport}`);
   }
-  const base = programmeModel({ collegeId });
-  const found = fitFor(collegeId, athlete);
+  const base = buildProgrammeModel(loaded, poolBenchmarks(col.sport));
+  const found = fitFrom(loaded, athlete);
   // The season THIS athlete would arrive in, which is not necessarily the one
   // the squad data describes. Ryan Billings is a 2027 entrant, and a report
   // built on RECRUIT_SEASON told him "the 2026 season has not been played" —
@@ -205,7 +227,7 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     }
   }
 
-  const base = programmeModel({ collegeId });
+  const base = buildProgrammeModel(found, poolBenchmarks(col.sport));
   const window = arrivalWindow(rows, { seasons: SEASONS });
   const transferPoints = newcomerPoints(rows, { seasons: SEASONS });
   const progression = secondYearProgression(rows, { seasons: SEASONS });
@@ -214,7 +236,7 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
   const entrySeason = athlete
     ? Number(athlete.recruiting_class_year) || RECRUIT_SEASON
     : RECRUIT_SEASON;
-  const fit = athlete ? fitFor(collegeId, athlete)?.fit ?? null : null;
+  const fit = athlete ? fitFrom(found, athlete)?.fit ?? null : null;
 
   return {
     ...base,
