@@ -16,6 +16,8 @@ import {
   intakeBySeason, positionSeasonGrid, eligibilityCliff, namedArrivals, depthChartAt,
 } from '../../shared/philosophy.js';
 import { positionLabel } from '../../shared/positions.js';
+import { buildReportSummary } from '../../shared/report/summary.js';
+import { planSections } from '../../shared/report/sections.js';
 
 const selectPlayer = db.prepare(
   'SELECT id, full_name, position, nationality, recruiting_class_year, graduation_year, sport, football_ability FROM players WHERE id = ?',
@@ -157,6 +159,7 @@ export function buildProgrammeModel(found, benchmarks) {
     benchmarks: benchmarks?.sufficient ? {
       ladderByRank: benchmarks.ladderByRank,
       dials: benchmarks.dials,
+      programmeDials: benchmarks.programmeDials,
       vacancy: benchmarks.vacancy,
       byPosition: benchmarks.byPosition,
       poolMix: poolMixForBand(benchmarks, meanVacated),
@@ -238,7 +241,7 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     : RECRUIT_SEASON;
   const fit = athlete ? fitFrom(found, athlete)?.fit ?? null : null;
 
-  return {
+  const model = {
     ...base,
     kind: athlete ? 'report+player' : 'report',
     squadSeason: SQUAD_SEASON,
@@ -286,5 +289,18 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
       level: athlete.football_ability ?? null,
     } : null,
     fit,
+  };
+
+  // Additive. Nothing above changes shape, so every existing reader — the
+  // PDF, the tab, the tests — sees exactly what it saw before, and the v2
+  // pages have somewhere to read from that is not the renderer.
+  const summary = buildReportSummary({ model, philosophy: ph, squadRows: squad });
+  return {
+    ...model,
+    summary,
+    // The document's shape, decided from the data rather than by whichever
+    // section throws first. No page numbers: those are not knowable until the
+    // pages exist, and the renderer fills them in afterwards.
+    sections: planSections({ model, summary, philosophy: ph }),
   };
 }

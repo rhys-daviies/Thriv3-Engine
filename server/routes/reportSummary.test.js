@@ -1,0 +1,261 @@
+/**
+ * The v2 summary and section plan, through the real model path.
+ *
+ * These are the cases the unit tests cannot reach convincingly: an athlete
+ * arriving after the rosters on file, a squad missing the columns the entry
+ * pages are built from, and a position too thin to describe.
+ */
+import { describe, it, expect, beforeEach } from 'vitest';
+import db from '../db/client.js';
+import { programReportModel } from './philosophy.js';
+import { invalidatePoolBenchmarks } from '../lib/philosophyQueries.js';
+
+const now = new Date().toISOString();
+
+function addCollege(id, name, sport = 'mens-soccer') {
+  db.prepare(`INSERT INTO colleges (id, created_date, updated_date, name, sport, division, conference, city, state, active)
+    VALUES (?,?,?,?,?,'NCAA D2','Test Conference','Testville','TS',1)`).run(id, now, now, name, sport);
+}
+
+function addPlayer(id, over = {}) {
+  db.prepare(`INSERT INTO players (id, created_date, updated_date, full_name, position, nationality, sport, recruiting_class_year)
+    VALUES (?,?,?,?,?,?,?,?)`)
+    .run(id, now, now, over.full_name ?? 'Test Athlete', over.position ?? 'Defender',
+      over.nationality ?? 'USA', over.sport ?? 'mens-soccer', over.recruiting_class_year ?? 2026);
+}
+
+const insertRow = db.prepare(`INSERT INTO roster_players
+  (id, created_date, updated_date, college_name, sport, division, season, player_name,
+   class_year_label, position, minutes_played, games_played, games_started, nationality,
+   eligibility_end_year, projected_minutes, prior_programme)
+  VALUES (?,?,?,?,?,'NCAA D2',?,?,?,?,?,?,?,?,?,?,?)`);
+
+let rowId = 0;
+function addRow(school, over = {}) {
+  insertRow.run(`rr${rowId += 1}`, now, now, school, over.sport ?? 'mens-soccer',
+    over.season ?? '2025', over.player_name ?? `P${rowId}`, over.class_year_label ?? 'So.',
+    over.position ?? 'DEFENSE', over.minutes_played ?? 600, over.games_played ?? 15,
+    over.games_started ?? 10, over.nationality ?? 'USA',
+    over.eligibility_end_year ?? null, over.projected_minutes ?? null, over.prior_programme ?? null);
+}
+
+/** Four measured seasons deep enough for the guards to read. */
+function addHistory(school) {
+  for (const season of ['2022', '2023', '2024', '2025']) {
+    addRow(school, { season, player_name: `Senior ${season}`, class_year_label: 'Sr.', minutes_played: 1400 });
+    addRow(school, { season, player_name: `Fresh A ${season}`, class_year_label: 'Fr.', minutes_played: 900 });
+    addRow(school, { season, player_name: `Fresh B ${season}`, class_year_label: 'Fr.', minutes_played: 100 });
+    for (let i = 0; i < 10; i += 1) {
+      addRow(school, { season, player_name: `Mid ${i} ${season}`, class_year_label: 'So.', position: 'MIDFIELD', minutes_played: 300 });
+    }
+  }
+  for (const s of [2022, 2023, 2024, 2025, 2026]) {
+    db.prepare(`INSERT INTO coach_seasons (school, sport, season, coach_name, imported_at)
+      VALUES (?,'mens-soccer',?,'A Coach',?)`).run(school, s, now);
+  }
+}
+
+/** A current squad, with the columns the entry pages are built from. */
+function addSquad(school, rows) {
+  for (const r of rows) addRow(school, { season: '2026', minutes_played: null, games_played: null, ...r });
+}
+
+beforeEach(() => {
+  db.exec('DELETE FROM roster_players; DELETE FROM coach_seasons; DELETE FROM colleges; DELETE FROM players;');
+  invalidatePoolBenchmarks();
+});
+
+describe('a report with no athlete', () => {
+  beforeEach(() => {
+    addCollege('c1', 'Test College');
+    addHistory('Test College');
+  });
+
+  it('builds the programme summary and omits the athlete half', () => {
+    const m = programReportModel({ collegeId: 'c1' });
+    expect(m.summary.programme.freshmanOpportunity).toBeTruthy();
+    expect(m.summary.athlete).toBeNull();
+  });
+
+  it('plans no athlete sections at all', () => {
+    const m = programReportModel({ collegeId: 'c1' });
+    expect(m.sections.some((s) => s.scope === 'athlete')).toBe(false);
+  });
+
+  // The v1 fields every existing reader depends on must be untouched.
+  it('leaves the existing model shape in place', () => {
+    const m = programReportModel({ collegeId: 'c1' });
+    for (const key of ['college', 'ladder', 'dials', 'byPosition', 'freshman', 'transfer', 'squad', 'verdict', 'tenure']) {
+      expect(m).toHaveProperty(key);
+    }
+    expect(m.kind).toBe('report');
+  });
+});
+
+describe('an athlete arriving after the rosters on file', () => {
+  beforeEach(() => {
+    addCollege('c1', 'Test College');
+    addHistory('Test College');
+    addSquad('Test College', [
+      { player_name: 'Leaves 2026', class_year_label: 'Sr.', eligibility_end_year: 2026, projected_minutes: 1200 },
+      { player_name: 'Leaves 2026 too', class_year_label: 'Sr.', eligibility_end_year: 2026, projected_minutes: 800 },
+      { player_name: 'Stays to 2028', class_year_label: 'So.', eligibility_end_year: 2028, projected_minutes: 900 },
+      { player_name: 'Stays to 2029', class_year_label: 'Fr.', eligibility_end_year: 2029, projected_minutes: null },
+    ]);
+    addPlayer('p2027', { recruiting_class_year: 2027 });
+  });
+
+  it('reads the squad against the athlete’s own entry season, not the recruit season', () => {
+    const m = programReportModel({ collegeId: 'c1', playerId: 'p2027' });
+    const a = m.summary.athlete;
+    expect(m.entrySeason).toBe(2027);
+    expect(m.entrySeasonKnown).toBe(false);
+    expect(a.knownExpirationsBeforeEntry.map((x) => x.name).sort())
+      .toEqual(['Leaves 2026', 'Leaves 2026 too']);
+    expect(a.knownPlayersStillEligibleAtEntry.map((x) => x.name).sort())
+      .toEqual(['Stays to 2028', 'Stays to 2029']);
+  });
+
+  it('attaches projected minutes to the expiring players without calling them available', () => {
+    const a = programReportModel({ collegeId: 'c1', playerId: 'p2027' }).summary.athlete;
+    expect(a.projectedMinutesAssociatedWithExpiringPlayers.currentProjectedMinutes).toBe(2000);
+    expect(a.projectedMinutesAssociatedWithPlayersStillEligible.currentProjectedMinutes).toBe(900);
+    expect(a.projectedMinutesAssociatedWithPlayersStillEligible.playersWithoutProjection).toBe(1);
+  });
+
+  // The wording rule, made mechanical. These phrases assert something the data
+  // cannot support — that minutes attached to a departing player transfer to a
+  // recruit — and a remembered rule would not survive two commits.
+  it('names no field in the whole model after minutes being available', () => {
+    const json = JSON.stringify(programReportModel({ collegeId: 'c1', playerId: 'p2027' }));
+    for (const banned of [/available[ _]?minutes/i, /open[ _]?minutes/i, /expected[ _]?minutes/i, /minutes[ _]?up[ _]?for/i]) {
+      expect(json).not.toMatch(banned);
+    }
+  });
+
+  it('refuses to name a coach for a season the coaching record does not reach', () => {
+    const m = programReportModel({ collegeId: 'c1', playerId: 'p2027' });
+    expect(m.summary.programme.coachContext.coachForEntrySeason).toBeNull();
+    expect(m.summary.programme.coachContext.coachForRecruitSeason).toBe('A Coach');
+  });
+
+  it('still measures turnover before entry separately from across the window', () => {
+    const t = programReportModel({ collegeId: 'c1', playerId: 'p2027' }).summary.programme.squadTurnover;
+    expect(t.expiringBeforeEntry.minutes).toBe(2000);
+    expect(t.expiringAcrossWindow.minutes).toBe(2900);
+    expect(t.expiringBeforeEntry.ofDescribes).toBe('players with a prior season on file');
+  });
+});
+
+describe('a squad missing the columns the entry pages need', () => {
+  beforeEach(() => {
+    addCollege('c1', 'Test College');
+    addHistory('Test College');
+    addPlayer('p1');
+  });
+
+  it('reports no eligibility cliff rather than an empty one', () => {
+    addSquad('Test College', [
+      { player_name: 'A', class_year_label: 'Sr.', eligibility_end_year: null, projected_minutes: 900 },
+      { player_name: 'B', class_year_label: 'Jr.', eligibility_end_year: null, projected_minutes: 900 },
+    ]);
+    const m = programReportModel({ collegeId: 'c1', playerId: 'p1' });
+    expect(m.squad.cliff).toBeNull();
+    expect(m.summary.programme.squadTurnover.expiringAcrossWindow.reason).toBe('no-eligibility-years-on-file');
+    expect(m.sections.some((s) => s.id === 'eligibility-outlook')).toBe(false);
+  });
+
+  // Missing must not become zero: a squad with no projections is not a squad
+  // projected to play nothing.
+  it('refuses the denominator where projections are too thin, and says so', () => {
+    addSquad('Test College', [
+      { player_name: 'A', class_year_label: 'Sr.', eligibility_end_year: 2026, projected_minutes: 900 },
+      { player_name: 'B', class_year_label: 'Jr.', eligibility_end_year: 2028, projected_minutes: null },
+      { player_name: 'C', class_year_label: 'So.', eligibility_end_year: 2029, projected_minutes: null },
+    ]);
+    const t = programReportModel({ collegeId: 'c1', playerId: 'p1' }).summary.programme.squadTurnover;
+    expect(t.projectedMinutes.readable).toBe(false);
+    expect(t.projectedMinutes.total).toBeNull();
+    expect(t.expiringAcrossWindow.share).toBeNull();
+    expect(t.expiringAcrossWindow.reason).toBe('projected-minutes-coverage-too-thin');
+    expect(t.classification).toBe('unclear');
+  });
+
+  it('keeps a player with no eligibility year out of both entry buckets', () => {
+    addSquad('Test College', [
+      { player_name: 'Known', class_year_label: 'Sr.', eligibility_end_year: 2026, projected_minutes: 900 },
+      { player_name: 'Unknown', class_year_label: 'Jr.', eligibility_end_year: null, projected_minutes: 900 },
+    ]);
+    const a = programReportModel({ collegeId: 'c1', playerId: 'p1' }).summary.athlete;
+    expect(a.eligibilityUnknownAtEntry.map((x) => x.name)).toEqual(['Unknown']);
+    expect(a.knownExpirationsBeforeEntry.map((x) => x.name)).toEqual([]);
+    expect(a.knownPlayersStillEligibleAtEntry.map((x) => x.name)).toEqual(['Known']);
+  });
+
+  it('drops the depth sections entirely when no squad is on file', () => {
+    const m = programReportModel({ collegeId: 'c1', playerId: 'p1' });
+    expect(m.squad.rostered).toBe(0);
+    const ids = m.sections.map((s) => s.id);
+    expect(ids).not.toContain('current-depth');
+    expect(ids).not.toContain('current-arrivals');
+    expect(ids).not.toContain('athlete-current-competition');
+  });
+});
+
+describe('thin samples', () => {
+  it('refuses a position with too little recorded to read', () => {
+    addCollege('c1', 'Test College');
+    addHistory('Test College');
+    // A goalkeeper appears once and never again: no transition can be built.
+    addRow('Test College', { season: '2025', player_name: 'Keeper', position: 'GOALKEEPER', class_year_label: 'Fr.', minutes_played: 1600 });
+    addPlayer('gk', { position: 'Goalkeeper' });
+    const a = programReportModel({ collegeId: 'c1', playerId: 'gk' }).summary.athlete;
+    expect(a.position).toBe('GOALKEEPER');
+    expect(a.positionVacancyHistory.transitions).toBe(0);
+    expect(a.positionReplacementBehaviour.evidence.sufficient).toBe(false);
+  });
+
+  it('withholds an origin share for a cohort below the established minimum', () => {
+    addCollege('c1', 'Test College');
+    addHistory('Test College');
+    addRow('Test College', { season: '2025', player_name: 'Solo Intl', class_year_label: 'Fr.', nationality: 'Brazil', minutes_played: 1200 });
+    addPlayer('intl', { nationality: 'Brazil' });
+    const o = programReportModel({ collegeId: 'c1', playerId: 'intl' }).summary.athlete.originContext;
+    expect(o.requestedOrigin).toBe('international');
+    expect(o.programme.sameOrigin.players).toBeLessThan(6);
+    expect(o.programme.sameOrigin.share).toBeNull();
+    expect(o.evidence.sufficient).toBe(false);
+    expect(o.pool).toBeNull();
+  });
+
+  it('classifies nothing on a programme with almost nothing on file', () => {
+    addCollege('c2', 'Sparse College');
+    addRow('Sparse College', { season: '2025', player_name: 'Solo', class_year_label: 'Fr.', minutes_played: 0, games_played: 0 });
+    const p = programReportModel({ collegeId: 'c2' }).summary.programme;
+    expect(['unclear', 'unavailable']).toContain(p.freshmanOpportunity.classification);
+    expect(['unclear', 'unavailable']).toContain(p.experiencedArrivalReliance.classification);
+    expect(p.replacementBehaviour.dominantRoute).toBeNull();
+  });
+});
+
+describe('the section plan on a real model', () => {
+  it('lists fewer sections for a sparse programme than a full one', () => {
+    addCollege('c1', 'Test College');
+    addHistory('Test College');
+    addCollege('c2', 'Sparse College');
+    addRow('Sparse College', { season: '2025', player_name: 'Solo', class_year_label: 'Fr.', minutes_played: 0, games_played: 0 });
+    const full = programReportModel({ collegeId: 'c1' }).sections.length;
+    const sparse = programReportModel({ collegeId: 'c2' }).sections.length;
+    expect(sparse).toBeLessThan(full);
+  });
+
+  it('adds sections rather than replacing them when an athlete is present', () => {
+    addCollege('c1', 'Test College');
+    addHistory('Test College');
+    addPlayer('p1');
+    const plain = programReportModel({ collegeId: 'c1' }).sections.map((s) => s.id);
+    const withAthlete = programReportModel({ collegeId: 'c1', playerId: 'p1' }).sections.map((s) => s.id);
+    for (const id of plain) expect(withAthlete).toContain(id);
+    expect(withAthlete.length).toBeGreaterThan(plain.length);
+  });
+});
