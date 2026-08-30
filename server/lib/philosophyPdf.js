@@ -14,6 +14,7 @@
  * message, which is the contract every other route in this server keeps.
  */
 import PDFDocument from 'pdfkit';
+import { attachAudit, reserved } from './reportAudit.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 
@@ -57,16 +58,43 @@ const BAND_LABEL = {
  * still wraps, and in a table that means a long programme name running down
  * into the row beneath it. Measuring and cutting is deterministic.
  */
-export function fitText(doc, text, width) {
+export function fitText(doc, text, width, opts = undefined) {
   const str = String(text ?? '');
-  if (doc.widthOfString(str) <= width) return str;
+  if (doc.widthOfString(str, opts) <= width) return str;
   let lo = 0;
   let hi = str.length;
   while (lo < hi) {
     const mid = Math.ceil((lo + hi) / 2);
-    if (doc.widthOfString(`${str.slice(0, mid)}…`) <= width) lo = mid; else hi = mid - 1;
+    if (doc.widthOfString(`${str.slice(0, mid)}…`, opts) <= width) lo = mid; else hi = mid - 1;
   }
   return lo > 0 ? `${str.slice(0, lo)}…` : '';
+}
+
+/**
+ * Make `ellipsis` mean something when it is paired with `lineBreak: false`.
+ *
+ * pdfkit ignores the pairing. Thirty-nine call sites in this report ask for
+ * it — a heading, a chip, a table cell, a roster name — and every one of them
+ * was silently getting the wrap it explicitly asked not to have. The layout
+ * guard found it on a programme name long enough to run four hundred points
+ * off the side of an A4 page.
+ *
+ * Installed on the document rather than fixed at each call site: the intent is
+ * already declared everywhere it is wanted, and a rule that has to be
+ * remembered thirty-nine times is a rule that will be missed on the fortieth.
+ */
+function installEllipsis(doc) {
+  const prev = doc.text.bind(doc);
+  doc.text = (text, x, y, options) => {
+    let opts = options;
+    let ox = x;
+    if (typeof x === 'object' && x !== null) { opts = x; ox = undefined; }
+    if (opts && opts.lineBreak === false && opts.ellipsis && opts.width) {
+      const fitted = fitText(doc, text, opts.width, opts);
+      return typeof ox === 'number' ? prev(fitted, x, y, options) : prev(fitted, options);
+    }
+    return prev(text, x, y, options);
+  };
 }
 
 export function kit(doc) {
@@ -355,24 +383,39 @@ export function footer(doc, line) {
   // range is read once, before anything is written, so it cannot grow.
   const range = doc.bufferedPageRange();
   const total = range.count;
-  for (let i = range.start; i < range.start + total; i += 1) {
-    doc.switchToPage(i);
-    const keep = doc.page.margins.bottom;
-    doc.page.margins.bottom = 0;
-    const y = doc.page.height - M + 6;
-    doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
-      .text(line, M, y, { width: W - 40, lineBreak: false });
-    doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
-      .text(`${i - range.start + 1}/${total}`, M + W - 40, y,
-        { width: 40, align: 'right', lineBreak: false });
-    doc.page.margins.bottom = keep;
-  }
+  // Declared reserved rather than inferred: the overflow guard treats the band
+  // below the content box as a failure everywhere else, and the footer is the
+  // one thing entitled to be there.
+  reserved(doc, () => {
+    for (let i = range.start; i < range.start + total; i += 1) {
+      doc.switchToPage(i);
+      const keep = doc.page.margins.bottom;
+      doc.page.margins.bottom = 0;
+      const y = doc.page.height - M + 6;
+      doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
+        .text(line, M, y, { width: W - 40, lineBreak: false });
+      doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
+        .text(`${i - range.start + 1}/${total}`, M + W - 40, y,
+          { width: 40, align: 'right', lineBreak: false });
+      doc.page.margins.bottom = keep;
+    }
+  });
 }
 
-export function render(build) {
+/**
+ * `audit` is an optional collector from `reportAudit.createAudit()`. It is
+ * filled in place, so the return value stays a Buffer and the production call
+ * path is unchanged whether or not anything is watching.
+ */
+export function render(build, { audit = null } = {}) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: M, bufferPages: true,
       info: { Producer: 'Thriv3', Creator: 'Thriv3' } });
+    // Order matters: the audit patches `text` first so that the fitting layer
+    // sits on top of it, and the guard therefore measures the string that is
+    // actually drawn rather than the one that was handed in.
+    if (audit) attachAudit(doc, audit);
+    installEllipsis(doc);
     const chunks = [];
     doc.on('data', (c) => chunks.push(c));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
@@ -700,7 +743,10 @@ export const charts = {
     if (!plot) return;
     const { doc } = k;
     const left = plot.x + 34;
-    const w = plot.w - 34;
+    // The axis stops short of the content edge by the widest dot's radius. A
+    // player at xMax is drawn centred ON the axis end, so a full-width axis
+    // put half of the best player in the report off the side of the page.
+    const w = plot.w - 34 - 8;
     const laneH = Math.min(26, (plot.h - 14) / lanes.length);
 
     if (marker != null && marker <= xMax) {
@@ -731,7 +777,7 @@ export const charts = {
     doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
       .text(`0${' '.repeat(0)}`, left - 3, plot.y + lanes.length * laneH + 2, { width: 20, lineBreak: false });
     doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
-      .text(nice(xMax), left + w - 24, plot.y + lanes.length * laneH + 2, { width: 30, align: 'right', lineBreak: false });
+      .text(nice(xMax), left + w - 30, plot.y + lanes.length * laneH + 2, { width: 30, align: 'right', lineBreak: false });
     if (ghosts) {
       doc.font('Helvetica-Oblique').fontSize(6.5).fillColor(MUTED)
         .text(`${ghosts} with no minutes recorded, not shown`, plot.x, plot.y + lanes.length * laneH + 11,

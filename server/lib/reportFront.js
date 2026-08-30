@@ -756,9 +756,12 @@ function arrivalWindowCard(doc, box, a, model) {
     y += 10;
   }
 
+  // Allowed to wrap. It is the one sentence on this card that must survive
+  // intact, and it was being clipped to "…are not kno" the moment the
+  // ellipsis fix made the overflow visible.
   doc.font('Helvetica-Oblique').fontSize(6.8).fillColor(MUTED)
     .text('Future recruits, transfers, injuries and eligibility changes are not known.',
-      p.x, Math.min(y + 2, p.bottom - 10), { width: p.w, lineBreak: false, ellipsis: true });
+      p.x, Math.min(y + 2, p.bottom - 18), { width: p.w });
 }
 
 function positionOpensCard(doc, box, a) {

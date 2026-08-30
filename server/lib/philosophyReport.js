@@ -440,7 +440,7 @@ function facetLevel(k, model) {
 // The document
 // ---------------------------------------------------------------------------
 
-export function renderProgramReport(model) {
+export function renderProgramReport(model, opts = {}) {
   return render((k) => {
     const c = model.college;
     const a = model.athlete;
@@ -527,5 +527,5 @@ export function renderProgramReport(model) {
     contentsPage(k.doc, model, plan, pages);
 
     footer(k.doc, `Thriv3 · ${c.name}${a ? ` · for ${a.name}` : ''} · prepared ${new Date().toISOString().slice(0, 10)}`);
-  });
+  }, opts);
 }
