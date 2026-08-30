@@ -1430,3 +1430,30 @@ whole in `philosophyPdf.js`, still used by `renderProgrammePdf` and `renderPlaye
   Both are now labelled with their scope, on the card and on the page.
 - Three evidence pages still use roughly two-thirds of their height on a sparse programme. That is
   the dynamic-page rule preferring air to filler, not an oversight.
+
+
+### 13.12 A second and third sweep
+
+The guard's collision check was added after the first raster pass, and both it
+and a closer read of the edge cases found more:
+
+- **A previous programme they never left.** American International's roster
+  records the player's own programme in the prior-programme field, so the
+  position table printed "American International" as six of its own players'
+  previous programme. `depthChartAt` now applies the `arrivedFromElsewhere`
+  guard `squadDepth` has always applied.
+- **Unknowable counts printed as zero.** The same page listed three eligibility
+  counts as 0 beside "18 with no eligibility year recorded". `k.facts` now
+  renders a null value as the grey em dash a null table cell has always used,
+  and the page says the counts are unknown rather than zero.
+- **The report repeating itself.** The stacked bar printed its three
+  percentages inside its segments and the same three underneath, word for word.
+- **The eligibility timeline** was drawn 26 points tall on a page with four
+  hundred spare, and its per-year clusters were offset from a running counter
+  rather than about the lane's centre, so a year holding one player sat at the
+  top of its lane and a year holding five across the middle.
+- **A continuation page with no identity.** Page fourteen of Lake Erie's report
+  opened straight into SEASON / PLAYER / POSITION with nothing to say which of
+  three tables it was.
+- **"only 0 in 0 seasons"** for an empty cohort — accurate, and reads as a
+  broken template.
