@@ -196,7 +196,7 @@ export const SECTIONS = [
       return [
         `${model.squad.cliff.length} eligibility years`,
         p.coverage == null ? 'no projected minutes on file'
-          : `projections for ${p.playersWithProjection} of ${p.projectable} returning players`,
+          : `projections for ${p.playersWithProjection} of ${p.projectable} returning`,
       ];
     },
   },

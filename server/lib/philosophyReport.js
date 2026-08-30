@@ -18,6 +18,7 @@ import {
 } from './philosophyPdf.js';
 import { STARTER_MINUTES, arrivedFromElsewhere } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
+import { contentsPage, programmeAtAGlance, athleteAtAGlance } from './reportFront.js';
 
 const { INK, MUTED, CLARET, NAVY, MID, PALE, GREEN } = THEME;
 
@@ -398,45 +399,78 @@ export function renderProgramReport(model) {
   return render((k) => {
     const c = model.college;
     const a = model.athlete;
+    const plan = model.sections ?? [];
 
-    masthead(k, model, `${c.name} — program report`,
-      [c.division, c.conference, [c.city, c.state].filter(Boolean).join(', ')]
-        .filter(Boolean).join('  ·  ')
-      + (a ? `\nPrepared for ${a.name} — ${a.positionLabel}, ${a.nationality}, entering ${model.entrySeason}` : ''));
-    whatThisIs(k, model);
-    whoRunsIt(k, model);
+    /**
+     * Where each section actually started.
+     *
+     * `bufferedPageRange().count` is the number of pages that exist, so while
+     * the document is being written forward it is also the 1-based index of
+     * the page being written. Recorded as each section begins rather than
+     * derived from content height, which is the only way the number can be
+     * right.
+     */
+    const pages = new Map();
+    const at = (id) => { pages.set(id, k.doc.bufferedPageRange().count); };
+
+    // Page one is reserved for the contents and drawn last, once the section
+    // starts are known. Nothing is written to it here.
+    k.doc.addPage();
+
+    at('programme-at-a-glance');
+    programmeAtAGlance(k, model);
+
+    if (a) {
+      k.doc.addPage();
+      at('athlete-at-a-glance');
+      athleteAtAGlance(k, model);
+    }
+
+    // ---- the v1 evidence pages, unchanged, with their starts recorded ----
 
     part(k, 'ONE', 'The freshman intake',
       'What has happened to first-years here across the four seasons on file — every one of '
       + 'them, not an average.');
+    at('freshman-intake');
     everyFreshman(k, model);
     intakeColumns(k, model);
+    at('freshman-ladder');
     ladderSection(k, model);
     benchmarkSection(k, model);
+    at('freshman-development');
     developmentSection(k, model);
     heatSection(k, model);
+    at('eligibility-outlook');
     cliffSection(k, model);
 
     part(k, 'TWO', 'The transfer intake',
       'Whether this programme fills places from its own recruiting class or from elsewhere. '
       + 'Across the game this is the more predictable of the two habits.');
+    at('experienced-arrival-intake');
     transferHeadline(k, model);
     everyTransfer(k, model);
     freshmanVsTransfer(k, model);
+    at('replacing-minutes');
     fillMixSection(k, model);
+    at('current-arrivals');
     namedArrivalsSection(k, model);
+    at('replacement-by-position');
     positionSection(k, model);
 
     if (a) {
       part(k, 'THREE', `For ${a.name}`,
         'The same programme, read one part of your profile at a time.');
+      at('athlete-position-history');
       facetPosition(k, model);
+      at('athlete-origin');
       facetOrigin(k, model);
+      at('athlete-current-competition');
       facetEntry(k, model);
       facetLevel(k, model);
     }
 
     k.doc.addPage();
+    at('methodology');
     limits(k, model, [
       'Retention counts a name leaving a roster, which can mean a transfer, an injury, a player '
         + 'who stopped, or a spelling we could not match.',
@@ -444,6 +478,13 @@ export function renderProgramReport(model) {
         + 'previous season we could not read. The report says which.',
       'A group of three players is a description of three players, however it is drawn.',
     ]);
+
+    // The contents, now that every page exists. Drawn in absolute coordinates
+    // on the reserved first page: anything consulting the flow cursor could
+    // call addPage() here and append a blank page to a finished document.
+    k.doc.switchToPage(0);
+    contentsPage(k.doc, model, plan, pages);
+
     footer(k.doc, `Thriv3 · ${c.name}${a ? ` · for ${a.name}` : ''} · prepared ${new Date().toISOString().slice(0, 10)}`);
   });
 }
