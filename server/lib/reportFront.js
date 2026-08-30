@@ -911,10 +911,15 @@ function arrivalWindowCard(doc, box, a, model) {
   y = bigMetric(doc, p.x, y, finalSeason.length, {
     caption: `in their final eligible season in ${a.entrySeason}`,
   });
+  // "None of them carries a projection" describes an empty set when the group
+  // itself is empty, which reads as a data gap rather than as the finding.
   doc.font('Helvetica').fontSize(7.8).fillColor(INK)
-    .text(finalMinutes?.currentProjectedMinutes == null
-      ? 'None of them carries a projected-minutes figure.'
-      : `${nf(finalMinutes.currentProjectedMinutes)} projected minutes are currently attached to those players.`,
+    .text(finalSeason.length === 0
+      ? `No current ${positionPlural(a.position).replace(/s$/, '')} is in a final eligible season `
+        + `in ${a.entrySeason}.`
+      : finalMinutes?.currentProjectedMinutes == null
+        ? 'None of them carries a projected-minutes figure.'
+        : `${nf(finalMinutes.currentProjectedMinutes)} projected minutes are currently attached to those players.`,
     p.x, y, { width: p.w });
   // Advanced by what the sentence actually took, not by a guess. Once the
   // minutes reached four digits it wrapped to two lines and the note beneath
@@ -1054,12 +1059,18 @@ function originCard(doc, box, a) {
   if (!o.evidence?.sufficient || same.share == null) {
     doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
       .text('Not enough programme-specific history to compare by origin: '
-        + `${same.players} ${originWord.toLowerCase()} first-year${same.players === 1 ? '' : 's'} on file here.`,
+        + `${same.players} ${originWord.toLowerCase()} first-year${same.players === 1 ? '' : 's'} `
+        + 'on file here, across every position.',
       p.x, y, { width: p.w });
     y += 26;
   } else {
-    doc.font('Helvetica-Bold').fontSize(6.5).fillColor(MUTED)
-      .text('THIS PROGRAMME', p.x, y, { width: p.w, characterSpacing: 0.8, lineBreak: false });
+    // Across every position, unlike the count above it. The card opens with
+    // "0 of 9 first-year goalkeepers" and then reports a figure built from all
+    // 77 of the programme's first-years; without the scope on the label those
+    // read as the same population.
+    doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+      .text('THIS PROGRAMME · ALL POSITIONS', p.x, y,
+        { width: p.w, characterSpacing: TYPE.label.spacing, lineBreak: false });
     y += 10;
     y = factLine(doc, p.x, y, p.w, `${originWord} first-years starting`,
       `${pctOf(same.share)}  (${same.starters} of ${same.players})`);
@@ -1067,9 +1078,10 @@ function originCard(doc, box, a) {
   }
 
   if (o.pool?.sameOrigin?.impactShare != null) {
-    doc.font('Helvetica-Bold').fontSize(6.5).fillColor(MUTED)
-      .text(o.pool.scope === 'division' ? `${o.pool.division} BENCHMARK` : 'ALL-DIVISION BENCHMARK',
-        p.x, y, { width: p.w, characterSpacing: 0.8, lineBreak: false });
+    doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+      .text(o.pool.scope === 'division'
+        ? `${o.pool.division} BENCHMARK · ALL POSITIONS` : 'ALL DIVISIONS · ALL POSITIONS',
+      p.x, y, { width: p.w, characterSpacing: TYPE.label.spacing, lineBreak: false });
     y += 10;
     y = factLine(doc, p.x, y, p.w, `${originWord} first-years starting`,
       `${pctOf(o.pool.sameOrigin.impactShare)}  (n=${nf(o.pool.sameOrigin.players)})`);

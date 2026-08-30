@@ -1216,3 +1216,217 @@ Fifteen sections in two columns, opening with three callouts — **history is no
 ### 12.6 A glyph class-of-bug, now guarded
 
 Helvetica is encoded as WinAnsi, so a character outside that set prints as stray punctuation rather than failing. Three reached pages across the phases: `→` in the eligibility column (Phase 3), `→` in vacancy transitions and `≠` in the methodology callouts (Phase 5). A test now decodes every character the report draws and fails on anything outside the set.
+
+---
+
+## 13. Phase 6 — visual polish and production hardening
+
+The methodology and the information architecture were frozen before this phase. Nothing here
+introduces an analytical concept, a classification or a section. Everything is layout, wording,
+or a correctness defect that layout work exposed.
+
+### 13.1 The layout guard
+
+Every visual defect found by hand in phases three to five was the same shape: something drawn
+wider or lower than the box it was given. `server/lib/reportAudit.js` instruments the drawing
+calls this report makes — `text`, `rect`, `roundedRect`, `circle` — and records four classes:
+
+| Class | What it catches |
+|---|---|
+| `violations` | content outside the page's content box, on any of the four edges |
+| `clipped` | a column HEADING that did not fit its column |
+| `unencodable` | a character Helvetica's WinAnsi encoding cannot draw |
+| `collisions` | text drawn on top of text already on that page |
+
+Two accommodations, both declared rather than inferred. Page bounds are snapshotted when a page
+is **created**, because `footer()` drops the bottom margin for its own write and reading it live
+would move the floor out from under the check exactly where the check matters. Drawing that
+belongs outside the box calls `reserved()`; "it is near the footer so it is probably the footer"
+is precisely the reasoning that would let a real overflow through.
+
+Collisions are compared as **ink**, not as boxes: a `doc.text` with a generous `width` and three
+words in it occupies three words of page, and treating its whole box as occupied would flag most
+of the report.
+
+**Nine defects found by the guard, none of which four rounds of raster review had caught:**
+
+1. A player at the maximum of the scatter's x-axis was drawn centred on the axis end, so half of
+   the best first-year in the report hung off the side of the page.
+2. The scatter's x-max label ran six points past the content edge.
+3. pdfkit ignores `ellipsis` when it is paired with `lineBreak: false`. Thirty-nine call sites
+   asked for that pairing and every one was silently getting the wrap it had explicitly asked
+   not to have; a long programme name ran four hundred points off an A4 page.
+4. With that made visible, the arrival window's "future recruits, transfers, injuries and
+   eligibility changes are not known" was clipping to "are not kno".
+5. Ten column headings were clipping — "MINUTES VACATED" to "MINUTES V…", "RETURNING SHARE" to
+   "RETURNING…".
+6. A wrapped heading's **first** line was never fitted. "FIRST-YEAR" in a 48-point column stayed
+   whole and, being right-aligned, printed leftwards on top of the column beside it — inside the
+   page, and therefore invisible to a bounds check.
+7. `k.facts` advanced on the value's height, so a label that wrapped to two lines had the next
+   row's label drawn four points into its second line.
+8. `dotLadder` tracked one shared x-position and alternated tiers, which still let two labels on
+   the same tier land two points apart. "’25" printed across "’23" three times on one page.
+9. The arrival window advanced a fixed eleven points past a sentence that wrapped once the
+   minutes reached four digits.
+
+### 13.2 The typographic scale
+
+The same level of the document was set at three different sizes depending on which module drew
+it — a page title was 20pt on an evidence page, 19pt on a glance page and 13pt on the methodology
+continuation — so a size change told the reader nothing.
+
+| Level | Set as | Used for |
+|---|---|---|
+| 1 kicker | 8pt bold claret, tracked | which part of the report this page belongs to |
+| 2 title | 19pt bold ink | what this page is |
+| 3 question | 10pt grey | what it answers; the scope strip beneath is 7.5pt |
+| 4 section | 9pt bold claret small caps, ruled | a titled region: a card, or a block within a page |
+| 4 module | 9.5pt bold ink | a chart's own title |
+| 5 body / caption / note / label | 9.5 / 8 / 8 / 6.5pt | prose, chart subtitles, footnotes, field labels |
+
+Claret small capitals mean "a titled region begins here" wherever they appear — a card and a
+section are the same level of the document, so cards are now set the same way. Ink at module size
+means "this is a chart". Nothing else may use either.
+
+`pageHead()` replaces four near-identical page openings. One of them advanced the cursor by a
+fixed 24 points on top of the advance pdfkit had already made, which is where the forty-point
+hole between every glance-page title and its subtitle came from.
+
+### 13.3 College branding — measured, then decided
+
+| Asset | Coverage | Decision |
+|---|---|---|
+| `primary_color` | 1,438 of 2,401 active programmes (60%) | one accent rule on the cover, gated at 2:1 against the page |
+| `secondary_color` | 46% | unused |
+| `nickname` | 86% | printed on the cover beside division and conference |
+| `logo_url` | 69% | **not used** |
+| `mascot` | 64% | unused |
+
+Fifty of the recorded colours are a near-white, a literal white or a school yellow that prints as
+a smudge — Indiana's is `#EDEBEB`. Below 2:1 the accent falls back to Thriv3 navy, so the layout
+is identical whether a programme records a colour or not. Colour never touches a chart, a
+classification or a number: a colour that carries meaning somewhere cannot be decoration here.
+
+**No logo.** The stored URLs are remote Wikimedia SVGs. Fetching and rasterising one inside PDF
+generation buys a network dependency and an SVG renderer for an image nobody is reading the
+report for.
+
+### 13.4 Empty-column gating
+
+`dropWhenEmpty` on a column omits it where every rendered row is null for it and shares the freed
+width among the rest. Opt-in per column, never automatic, and **emptiness only** — a column of
+zeros is a measurement. The three previous-programme columns carry the flag; `prior_programme` is
+recorded on current-roster rows and almost never on historical ones, so the experienced-arrival
+appendix was spending a fifth of its width on dashes at every programme sampled. `note` may be a
+function of the dropped keys, so the sentence explaining what a dash means there is not printed
+beside a column the reader cannot see.
+
+Class, eligibility and origin columns deliberately keep their dashes: a column with nothing in it
+there is itself the finding, and the scope strip states the coverage.
+
+### 13.5 Never a zero where the answer is "we cannot tell"
+
+American International records no eligibility year for any of its 53 players. "Your arrival
+window" therefore printed a 40pt **0** over "in their final eligible season in 2027", then BEFORE
+ENTRY 0, FINAL SEASON AT ENTRY 0 and BEYOND ENTRY 0, with the reason in 6.8pt grey underneath —
+the exact null-is-not-zero defect this report exists downstream of, on its most important card.
+The programme-at-a-glance outlook did the same, and its refusal was sized for two columns and
+drawn from column one, so it printed straight through "ELIGIBILITY ENDS".
+
+All three places now refuse at the size the zeros were.
+
+### 13.6 Vocabulary, checked against what is drawn
+
+The model's own fields are `freshman` and `transfer`, correctly — which is exactly why a
+source-level check would not have caught this. A test reads the PDF and asserts: never "freshman"
+or "freshmen" to the reader; "experienced arrival" throughout, with "transfer" permitted only
+inside the two sentences that exist to say the roster cannot tell one from any other route in;
+one apostrophe in "a starter’s season"; the three temporal groups named identically wherever they
+appear; "programme", never "program", outside the report's own name.
+
+### 13.7 Names and the font
+
+Of 132,590 distinct roster names, 876 carry a non-ASCII character and **four** carry one Helvetica
+cannot encode — 0.003%. Three of those four are decomposed forms, "João" written as J-o-a-tilde-o,
+where WinAnsi has the composed letter and no combining mark at all, so the tilde was dropped and
+the player's name was silently misspelled. Every string is now composed to NFC before it is drawn.
+That is the same string written the other way, not a transliteration: nothing is stripped and no
+letter becomes a different letter.
+
+The fourth is a Cyrillic homoglyph in one name. It is reported by the audit rather than
+transliterated or substituted. **Unicode names are not a production risk at this font**; the
+residual is a data defect that is now visible instead of silent.
+
+### 13.8 Performance
+
+Measured on a copy of the working database, medians of twelve.
+
+| Scenario | Model | Render | Total | Size |
+|---|---:|---:|---:|---:|
+| Cold — pool benchmarks not yet built | 1,935 ms | 73 ms | **2,008 ms** | 54 kB |
+| Typical programme | 2.1 ms | 28.5 ms | **30.6 ms** | 54 kB |
+| Typical athlete report | 2.4 ms | 34.9 ms | **37.3 ms** | 71 kB |
+| Sparse programme | 1.4 ms | 14.5 ms | **15.8 ms** | 26 kB |
+| Largest roster (81 players) | 3.2 ms | 29.3 ms | **32.5 ms** | 54 kB |
+| Largest athlete report | 3.2 ms | 42.2 ms | **45.4 ms** | 78 kB |
+| Most vacancy events | 3.8 ms | 37.0 ms | **40.8 ms** | 68 kB |
+
+The cold figure is the pool-benchmark build, once per process, cached by fingerprint thereafter —
+unchanged by this phase. Warm, rendering is 92% of the work at 15–45 ms for 10 to 24 pages. No
+hotspot worth attacking; nothing was optimised.
+
+### 13.9 QA matrix
+
+Twenty reports: the six representative programmes, three athlete reports, and eleven edge cases
+chosen from the data rather than for looking good — the longest programme name, the largest
+first-year intake, the largest roster, the most players at one position, the most recorded
+previous programmes, zero projected-minute coverage, no eligibility years at all, the largest
+vacancy history, a goalkeeper, an international athlete, and an entrant beyond the roster horizon.
+
+| Report | Kind | Pages | Sections | Omitted | Overflow / collision | Glyph / heading | Contents | Visual |
+|---|---|---:|---:|---|---|---|---|---|
+| Anderson (SC) | generic | 16 | 14 | — | pass | pass | pass | pass |
+| Akron | generic | 16 | 14 | — | pass | pass | pass | pass |
+| Air Force | generic | 15 | 13 | arrival record | pass | pass | pass | pass |
+| Allegheny | generic | 15 | 13 | arrival record | pass | pass | pass | pass |
+| Adams State | generic | 16 | 14 | — | pass | pass | pass | pass |
+| Albertus Magnus | generic | 10 | 8 | development, by position, outlook, squad, arrival record, vacancy record | pass | pass | pass | pass |
+| Adams State + Rhys Davies | athlete | 22 | 20 | — | pass | pass | pass | pass |
+| Akron + Rhys Davies | athlete | 23 | 20 | — | pass | pass | pass | pass |
+| American + Shaan Anad | athlete | 22 | 19 | arrival record | pass | pass | pass | pass |
+| West Virginia University Institute of Technology | generic | 13 | 10 | development, by position, arrival record, vacancy record | pass | pass | pass | pass |
+| Concord | generic | 16 | 12 | by position, vacancy record | pass | pass | pass | pass |
+| Mount Mercy | generic | 11 | 8 | ladder, development, by position, first-year record, arrival record, vacancy record | pass | pass | pass | pass |
+| Union (KY) + Rhys Davies | athlete | 13 | 9 | ladder, development, by position, athlete glance, position history, openings, position now, arrival window, first-year record, arrival record, vacancy record | pass | pass | pass | pass |
+| Baker | generic | 11 | 8 | ladder, development, by position, first-year record, arrival record, vacancy record | pass | pass | pass | pass |
+| American International + Rhys Davies | athlete | 24 | 19 | outlook | pass | pass | pass | pass |
+| Lake Erie | generic | 19 | 14 | — | pass | pass | pass | pass |
+| Concord + QA Keeper | athlete | 21 | 17 | by position, openings, vacancy record | pass | pass | pass | pass |
+| Adams State + QA Late Entrant | athlete | 23 | 20 | — | pass | pass | pass | pass |
+| Akron + QA International | athlete | 23 | 20 | — | pass | pass | pass | pass |
+| American International + Rhys Davies | athlete | 24 | 19 | outlook | pass | pass | pass | pass |
+
+Omitted sections are the dynamic-page rule working: Albertus Magnus drops six, Union (KY) drops
+every athlete page because nobody on its roster is recorded at the athlete's position, and Baker
+and Mount Mercy drop the ladder and development pages for want of readable minutes.
+
+### 13.10 Cleanup
+
+`philosophyReport.js` still carried four hundred lines of the previous report's own sections,
+unreachable since the evidence layer replaced them page for page and none of them exported. The
+file's only export is `renderProgramReport`; it is now 128 lines. The v1 renderers themselves stay
+whole in `philosophyPdf.js`, still used by `renderProgrammePdf` and `renderPlayerProgrammePdf`.
+
+### 13.11 What is still worth knowing
+
+- **A stored zero is treated as a measurement.** 25.6% of first-year rows carry
+  `minutes_played = 0` rather than `NULL`, and at some programmes — Lake Erie, 86 of 110 —
+  most of the intake does. The report reads those as "measured, did not play", which is right if
+  the roster published a zero and wrong if a parser turned a blank into one. That is a data
+  question upstream of this report and the analytics are frozen, so it is flagged rather than
+  changed. It does not move the headline metric, which is the best first-year of a season.
+- The origin comparison is across every position while the card above it is position-filtered.
+  Both are now labelled with their scope, on the card and on the page.
+- Three evidence pages still use roughly two-thirds of their height on a sparse programme. That is
+  the dynamic-page rule preferring air to filler, not an oversight.

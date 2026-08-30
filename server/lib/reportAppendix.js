@@ -42,6 +42,7 @@ export function freshmanRecordPage(k, model) {
   record(k, 'Every first-year measured', 'The rows behind the first-year charts.');
 
   k.table({
+    continued: 'Every first-year measured',
     caption: `${plural(pts.length, 'first-year', 'first-years')} across `
       + `${plural(model.describes.length, 'season', 'seasons')}. Only players whose class label could `
       + 'be read as a true first year, and whose minutes were published, appear here — the rest are '
@@ -72,6 +73,7 @@ export function arrivalRecordPage(k, model) {
     'The rows behind the experienced-arrival charts.');
 
   k.table({
+    continued: 'Every experienced arrival measured',
     caption: `${plural(pts.length, 'arrival', 'arrivals')} across `
       + `${plural(model.transfer.window.measurable.length, 'measurable season', 'measurable seasons')}. `
       + 'These are minutes they went on to play — historical, not projected.',
@@ -110,6 +112,7 @@ export function vacancyRecordPage(k, model) {
     'Each position-season in which a starter left, and what followed.');
 
   k.table({
+    continued: 'Every opening observed',
     caption: `${plural(rows.length, 'position-season', 'position-seasons')} in which at least one `
       + `player of ${STARTER_MINUTES}+ minutes did not return. One row per transition — several `
       + 'departures at one position in one season are one opening, not several, because they share '

@@ -756,6 +756,7 @@ export function currentDepthPage(k, model) {
   }
 
   k.table({
+    continued: `The ${model.squadSeason} squad`,
     columns: [
       { key: 'name', label: 'Player', width: 0.26, bold: true },
       { key: 'position', label: 'Position', width: 0.12, format: (v) => cap(positionPlural(v)).replace(/s$/, '') },

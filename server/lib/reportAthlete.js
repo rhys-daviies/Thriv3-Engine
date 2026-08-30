@@ -335,6 +335,7 @@ export function currentPositionPage(k, model) {
 
   k.gap(4);
   k.table({
+    continued: `${cap(nouns(a))} on the ${model.squadSeason} roster`,
     columns: [
       { key: 'name', label: 'Player', width: 0.24, bold: true },
       { key: 'classLabel', label: 'Class', width: 0.1 },
@@ -491,6 +492,11 @@ export function originPage(k, model) {
 
   page(k, 'For this athlete', 'Where you are arriving from',
     'Does this programme’s record show anything useful for first-years from your background?');
+  // Stated once, at the top, and never implied away: the origin split is
+  // across the whole intake. The previous pages narrow to a position, and a
+  // reader arriving here from them would otherwise carry that narrowing over.
+  k.scope(['every position, not only yours',
+    'origin is grouped only as within or outside the United States']);
 
   if (!o.requestedOrigin) {
     k.body('No origin is recorded for this athlete, so the record cannot be read by background.',
@@ -501,7 +507,7 @@ export function originPage(k, model) {
   const same = o.programme.sameOrigin;
   const other = o.programme.otherOrigin;
 
-  k.heading('At this programme');
+  k.heading('At this programme, across every position');
   if (!o.evidence.sufficient || same.share == null) {
     k.body(`Not enough programme-specific history to compare by origin: `
       + `${plural(same.players, `${originWord} first-year`, `${originWord} first-years`)} on file here`
@@ -511,7 +517,7 @@ export function originPage(k, model) {
       + 'a substitute for evidence this programme has not produced.');
   } else {
     k.facts([
-      [`${cap(originWord)} first-years measured here`, String(same.players)],
+      [`${cap(originWord)} first-years measured here, all positions`, String(same.players)],
       [`…who reached ${STARTER_MINUTES} minutes`, `${same.starters} of ${same.players}`],
       ['Seasons represented', String(o.evidence.sample.seasons ?? '—')],
     ]);

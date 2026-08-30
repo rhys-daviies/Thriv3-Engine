@@ -229,6 +229,15 @@ describe('page three', () => {
   // The lead group is the one the eligibility model can actually populate. For
   // a 2027 entrant "ends before entry" is graduate students only, so leading
   // with it would tell most athletes nobody is leaving.
+  // The card opens with a position-filtered count and then reports an origin
+  // figure built from the whole intake. Without the scope on the label those
+  // read as the same population.
+  it('says the origin comparison is across every position', async () => {
+    addAthlete('p1');
+    const text = pdfText((await build('p1')).buf);
+    expect(text).toMatch(/THIS PROGRAMME · ALL POSITIONS|on file here, across every position/);
+  });
+
   it('leads the arrival window with the final-season group', async () => {
     addAthlete('p1', { year: 2027 });
     const { buf, model } = await build('p1');

@@ -436,7 +436,8 @@ export function kit(doc) {
      * `note` may be a function of `{ dropped }` so the sentence explaining a
      * dash is not printed for a column nobody can see.
      */
-    table({ columns, rows, caption = null, note = null, rowHeight = 13, highlight = null }) {
+    table({ columns, rows, caption = null, note = null, rowHeight = 13, highlight = null,
+      continued = null }) {
       const dropped = [];
       const shown = columns.filter((c) => {
         if (!c.dropWhenEmpty) return true;
@@ -510,6 +511,27 @@ export function kit(doc) {
         doc.y = top + headH + 5;
       };
 
+      /**
+       * A table that flows onto another page takes its title with it.
+       *
+       * A repeated column header is not an identity: a reader landing on the
+       * second page of a fifty-row appendix saw SEASON / PLAYER / POSITION and
+       * nothing at all to say which table it was. The methodology page already
+       * carries a continuation heading for exactly this reason.
+       */
+      const carry = () => {
+        if (!continued) return;
+        doc.font(TYPE.kicker.font).fontSize(TYPE.kicker.size).fillColor(MUTED)
+          .text('CONTINUED', M, M - 18,
+            { width: W, characterSpacing: TYPE.kicker.spacing, lineBreak: false });
+        doc.y = M;
+        doc.font(TYPE.title.font).fontSize(14).fillColor(INK)
+          .text(continued, M, doc.y, { width: W, lineBreak: false, ellipsis: true });
+        doc.y += 2;
+        doc.moveTo(M, doc.y).lineTo(M + W, doc.y).lineWidth(0.75).strokeColor(LINE).stroke();
+        doc.y += 12;
+      };
+
       if (caption) {
         api.room(16);
         doc.font(TYPE.caption.font).fontSize(TYPE.caption.size).fillColor(TYPE.caption.color)
@@ -525,7 +547,7 @@ export function kit(doc) {
         if (row.group) {
           const before = doc.bufferedPageRange().count;
           api.room(rowHeight * 2 + 10);
-          if (doc.bufferedPageRange().count > before) header();
+          if (doc.bufferedPageRange().count > before) { carry(); header(); }
           doc.y += 4;
           doc.font(TYPE.label.font).fontSize(7).fillColor(CLARET)
             .text(String(row.group).toUpperCase(), M, doc.y, { width: W, characterSpacing: 1, lineBreak: false });
@@ -536,7 +558,7 @@ export function kit(doc) {
 
         const before = doc.bufferedPageRange().count;
         api.room(rowHeight);
-        if (doc.bufferedPageRange().count > before) { header(); striped = 0; }
+        if (doc.bufferedPageRange().count > before) { carry(); header(); striped = 0; }
 
         const top = doc.y;
         if (striped % 2 === 1) {

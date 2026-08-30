@@ -137,6 +137,22 @@ describe('the table primitive', () => {
     expect(text).toContain(`Row ${letters(89)}`);
   });
 
+  // A repeated column header is not an identity.
+  it('carries its title onto a continuation page', async () => {
+    const rows = Array.from({ length: 90 }, (_, i) => ({ name: `Row ${letters(i)}`, value: i, from: 'X' }));
+    const buf = await draw(rows, { continued: 'The supporting table' });
+    const text = pdfText(buf);
+    expect(pageCount(buf)).toBeGreaterThan(1);
+    expect((text.match(/The supporting table/g) || []).length).toBe(pageCount(buf) - 1);
+    expect(text).toContain('CONTINUED');
+  });
+
+  it('does not put a continuation heading on a table that fits', async () => {
+    const text = pdfText(await draw([{ name: 'Alpha', value: 1, from: 'X' }],
+      { continued: 'The supporting table' }));
+    expect(text).not.toContain('CONTINUED');
+  });
+
   it('never splits a row across a page boundary', async () => {
     const rows = Array.from({ length: 90 }, (_, i) => ({ name: `Row ${letters(i)}`, value: i, from: 'X' }));
     const text = pdfText(await draw(rows));
