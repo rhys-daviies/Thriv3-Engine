@@ -115,29 +115,44 @@ export function fitText(doc, text, width, opts = undefined) {
 }
 
 /**
- * Make `ellipsis` mean something when it is paired with `lineBreak: false`.
+ * Two rules applied to every string this document draws.
  *
- * pdfkit ignores the pairing. Thirty-nine call sites in this report ask for
- * it — a heading, a chip, a table cell, a roster name — and every one of them
- * was silently getting the wrap it explicitly asked not to have. The layout
+ * ELLIPSIS. pdfkit ignores `ellipsis` when it is paired with
+ * `lineBreak: false`. Thirty-nine call sites in this report ask for that
+ * pairing — a heading, a chip, a table cell, a roster name — and every one was
+ * silently getting the wrap it had explicitly asked not to have. The layout
  * guard found it on a programme name long enough to run four hundred points
  * off the side of an A4 page.
+ *
+ * COMPOSITION. A name can arrive decomposed: "João" as J, o, a, a combining
+ * tilde, o. Helvetica's WinAnsi encoding has "ã" and has no combining mark at
+ * all, so the tilde is dropped and the player's name is silently misspelled on
+ * the page. Composing to NFC is the same string written the other way, not a
+ * transliteration — nothing is stripped and no letter is replaced by a
+ * different letter. Three of the four unencodable names in 132,590 roster rows
+ * are exactly this, and composing fixes all three.
  *
  * Installed on the document rather than fixed at each call site: the intent is
  * already declared everywhere it is wanted, and a rule that has to be
  * remembered thirty-nine times is a rule that will be missed on the fortieth.
  */
-function installEllipsis(doc) {
+const COMBINING = /[\u0300-\u036F]/;
+
+function installTextRules(doc) {
   const prev = doc.text.bind(doc);
   doc.text = (text, x, y, options) => {
     let opts = options;
     let ox = x;
     if (typeof x === 'object' && x !== null) { opts = x; ox = undefined; }
+
+    let str = text;
+    if (typeof str === 'string' && COMBINING.test(str)) str = str.normalize('NFC');
+
     if (opts && opts.lineBreak === false && opts.ellipsis && opts.width) {
-      const fitted = fitText(doc, text, opts.width, opts);
-      return typeof ox === 'number' ? prev(fitted, x, y, options) : prev(fitted, options);
+      str = fitText(doc, str, opts.width, opts);
     }
-    return prev(text, x, y, options);
+    if (str === text) return prev(text, x, y, options);
+    return typeof ox === 'number' ? prev(str, x, y, options) : prev(str, options);
   };
 }
 
@@ -434,17 +449,21 @@ export function kit(doc) {
           first = next;
           n += 1;
         }
+        // BOTH lines have to be fitted. The first can be a single word wider
+        // than the column — "FIRST-YEAR" in a 48pt column — and under
+        // `align: 'right'` it then overflows to the LEFT, printing on top of
+        // the column beside it. That is invisible to a page-bounds check,
+        // because it never leaves the page.
         const rest = words.slice(n).join(' ');
+        const head = fitText(doc, first, w, opt);
+        const clipped = head !== first;
         if (!rest) {
-          // One unbreakable word wider than its column. Nothing to do here but
-          // report it: the fix is the column, not the label.
-          const cut = fitText(doc, first, w, opt);
-          if (cut !== first) doc.__audit?.clip(label, cut, w);
-          return [cut];
+          if (clipped) doc.__audit?.clip(label, head, w);
+          return [head];
         }
         const cut = fitText(doc, rest, w, opt);
-        if (cut !== rest) doc.__audit?.clip(label, `${first} ${cut}`, w);
-        return [first, cut];
+        if (clipped || cut !== rest) doc.__audit?.clip(label, `${head} ${cut}`, w);
+        return [head, cut];
       });
       const headH = headLines.some((l) => l.length > 1) ? 20 : 11;
 
@@ -583,11 +602,11 @@ export function render(build, { audit = null } = {}) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: M, bufferPages: true,
       info: { Producer: 'Thriv3', Creator: 'Thriv3' } });
-    // Order matters: the audit patches `text` first so that the fitting layer
-    // sits on top of it, and the guard therefore measures the string that is
-    // actually drawn rather than the one that was handed in.
+    // Order matters: the audit patches `text` first so that the fitting and
+    // composing layer sits on top of it, and the guard therefore measures the
+    // string that is actually drawn rather than the one handed in.
     if (audit) attachAudit(doc, audit);
-    installEllipsis(doc);
+    installTextRules(doc);
     const chunks = [];
     doc.on('data', (c) => chunks.push(c));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
@@ -615,17 +634,33 @@ export function render(build, { audit = null } = {}) {
  *
  * `newPage` is false only for a page the caller has already opened.
  */
-export function pageHead(k, { kicker, title, question = null, scope = null, newPage = true }) {
+export function pageHead(k, { kicker, title, question = null, scope = null, newPage = true,
+  quiet = false }) {
   const { doc } = k;
   if (newPage) doc.addPage();
   if (kicker) {
-    doc.font(TYPE.kicker.font).fontSize(TYPE.kicker.size).fillColor(TYPE.kicker.color)
+    doc.font(TYPE.kicker.font).fontSize(TYPE.kicker.size)
+      .fillColor(quiet ? MUTED : TYPE.kicker.color)
       .text(String(kicker).toUpperCase(), M, M - 18,
         { width: W, characterSpacing: TYPE.kicker.spacing, lineBreak: false, ellipsis: true });
   }
   doc.y = M;
-  k.title(title);
-  if (question) k.question(question);
+  if (quiet) {
+    // The supporting record is the rows behind the analysis, not another
+    // headline. It says so by being set smaller and greyer than the pages it
+    // supports, with a rule under it rather than a 19pt title.
+    doc.font(TYPE.title.font).fontSize(14).fillColor(INK).text(title, M, doc.y, { width: W });
+    doc.y += 2;
+    doc.moveTo(M, doc.y).lineTo(M + W, doc.y).lineWidth(0.75).strokeColor(LINE).stroke();
+    doc.y += 10;
+    if (question) {
+      doc.font(TYPE.note.font).fontSize(8.5).fillColor(MUTED).text(question, M, doc.y, { width: W });
+      doc.y += 8;
+    }
+  } else {
+    k.title(title);
+    if (question) k.question(question);
+  }
   if (scope) k.scope(scope);
   return k;
 }
@@ -1019,7 +1054,7 @@ export const charts = {
       doc.save().dash(2, { space: 2 }).moveTo(lx, my).lineTo(gx + 6, my)
         .lineWidth(0.75).strokeColor(CLARET).stroke().undash().restore();
       doc.font('Helvetica').fontSize(6.5).fillColor(CLARET)
-        .text(`${nice(marker)} — a starter's season`, lx + 4, my - 9,
+        .text(`${nice(marker)} — a starter’s season`, lx + 4, my - 9,
           { width: 140, lineBreak: false });
     }
 
@@ -1171,7 +1206,7 @@ export const charts = {
       doc.save().dash(2, { space: 2 }).moveTo(mx, plot.y).lineTo(mx, plot.y + rows.length * rowH)
         .lineWidth(0.75).strokeColor(CLARET).stroke().undash().restore();
       doc.font('Helvetica').fontSize(6).fillColor(CLARET)
-        .text(`${marker} — a starter's season`, mx + 3, plot.y + rows.length * rowH + 2,
+        .text(`${marker} — a starter’s season`, mx + 3, plot.y + rows.length * rowH + 2,
           { width: 110, lineBreak: false });
     }
 

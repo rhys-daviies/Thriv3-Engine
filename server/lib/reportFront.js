@@ -92,7 +92,7 @@ export const CLASSIFICATION_LABEL = {
 /** The route a position's minutes have historically taken. */
 export const ROUTE_LABEL = {
   returning: 'RETURNING PLAYERS',
-  freshman: 'FRESHMEN',
+  freshman: 'FIRST-YEARS',
   newcomer: 'EXPERIENCED ARRIVALS',
   mixed: 'MIXED',
 };
@@ -906,7 +906,7 @@ function arrivalWindowCard(doc, box, a, model) {
   // Two notes of different weight, so they read as different things: the
   // limitation the reader must not miss, then the coverage detail.
   y = calloutPrimary(doc, p.x, y, p.w,
-    'Future recruits, transfers, injuries and eligibility changes are not known.');
+    'Future recruits, experienced arrivals, injuries and eligibility changes are not known.');
   if (unknown.length) {
     y = calloutSecondary(doc, p.x, y, p.w,
       `${unknown.length} of the current ${positionPlural(a.position)} record no eligibility year, `

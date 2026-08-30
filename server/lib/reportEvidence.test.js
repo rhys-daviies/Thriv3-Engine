@@ -533,6 +533,65 @@ describe('the athlete evidence layer', () => {
   });
 });
 
+/**
+ * The vocabulary, checked against what is actually drawn.
+ *
+ * Every one of these was inconsistent somewhere before this pass, and the
+ * inconsistency is invisible in the source because the model's own field names
+ * are `freshman` and `transfer` — which is correct, and exactly why a check on
+ * the source would not catch it. This one reads the PDF.
+ */
+describe('reader-facing wording', () => {
+  const both = async () => {
+    addProgramme();
+    addAthlete('p1');
+    const generic = (await build()).text;
+    const athlete = (await build('p1')).text;
+    return [generic, athlete];
+  };
+
+  it('never says freshman or freshmen to the reader', async () => {
+    for (const text of await both()) {
+      expect(text).not.toMatch(/freshm[ae]n/i);
+      expect(text).toMatch(/first-year/i);
+    }
+  });
+
+  it('says experienced arrival, and names a transfer only where it disclaims it', async () => {
+    for (const text of await both()) {
+      expect(text).toMatch(/experienced arrival/i);
+      // The only permitted uses are the two sentences that exist to say the
+      // roster cannot tell a transfer from any other route in.
+      for (const hit of text.match(/.{0,40}\btransfers?\b.{0,40}/gi) ?? []) {
+        expect(hit).toMatch(/cannot (tell|reliably separate)/i);
+      }
+    }
+  });
+
+  it('uses the same apostrophe in a starter’s season everywhere', async () => {
+    for (const text of await both()) {
+      expect(text).toMatch(/starter’s season/);
+      expect(text).not.toMatch(/starter's season/);
+    }
+  });
+
+  it('names the three temporal groups identically wherever they appear', async () => {
+    const [, athlete] = await both();
+    for (const label of ['BEFORE ENTRY', 'FINAL SEASON AT ENTRY', 'BEYOND ENTRY']) {
+      expect(athlete).toContain(label);
+    }
+  });
+
+  it('says programme, not program, outside the report’s own name', async () => {
+    for (const text of await both()) {
+      const stray = (text.match(/\bprogram\b/gi) ?? [])
+        .filter((_, i) => !text.includes('PROGRAM INTELLIGENCE REPORT') || i > 0);
+      expect(stray).toEqual([]);
+      expect(text).toMatch(/programme/i);
+    }
+  });
+});
+
 describe('the supporting record', () => {
   beforeEach(() => addProgramme());
 

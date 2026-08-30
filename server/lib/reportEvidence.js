@@ -61,7 +61,7 @@ export function freshmanIntakePage(k, model) {
     lanes: seasons,
     xMax,
     marker: STARTER_MINUTES,
-    markerLabel: `${STARTER_MINUTES} — a starter's season`,
+    markerLabel: `${STARTER_MINUTES} — a starter’s season`,
     points: pts.map((p) => ({
       lane: p.season, value: p.minutes, size: p.gamesPlayed, sizeMax: maxGames,
       solid: p.gamesStarted >= p.gamesPlayed / 2 && p.gamesPlayed > 0,
@@ -339,7 +339,7 @@ export function experiencedArrivalIntakePage(k, model) {
     lanes,
     xMax,
     marker: STARTER_MINUTES,
-    markerLabel: `${STARTER_MINUTES} — a starter's season`,
+    markerLabel: `${STARTER_MINUTES} — a starter’s season`,
     points: t.points.map((p) => ({
       lane: p.season, value: p.minutes, size: p.gamesPlayed, sizeMax: maxGames,
       solid: p.gamesStarted >= p.gamesPlayed / 2 && p.gamesPlayed > 0, color: GREEN,

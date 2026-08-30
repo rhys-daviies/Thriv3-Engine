@@ -89,6 +89,12 @@ const clean = (audit) => {
     throw new Error(`clipped column headings:\n${audit.clipped
       .map((x) => `p${x.page} "${x.label}" -> "${x.fitted}" in ${x.width}pt`).join('\n')}`);
   }
+  // A character Helvetica cannot encode is not drawn as itself. Three phases
+  // of this report shipped one before the guard existed.
+  if (audit.unencodable.length) {
+    throw new Error(`characters Helvetica cannot draw:\n${audit.unencodable
+      .map((x) => `p${x.page} ${JSON.stringify(x.characters)} in "${x.text}"`).join('\n')}`);
+  }
   return true;
 };
 
@@ -241,6 +247,47 @@ describe('table headings', () => {
   });
 });
 
+describe('names and the font', () => {
+  const drawn = async (name) => {
+    const audit = createAudit();
+    await render((k) => {
+      k.doc.font('Helvetica').fontSize(9).text(name, M, M, { width: W });
+    }, { audit });
+    return audit;
+  };
+
+  it('draws accented, apostrophed and hyphenated names as themselves', async () => {
+    for (const name of ['José Muñoz', 'Søren Ødegård', 'Ana-Lucía O’Connell',
+      'François Lefèvre', 'Þór Bjarnason', 'Åsa Nyström']) {
+      const audit = await drawn(name);
+      expect(audit.unencodable).toEqual([]);
+    }
+  });
+
+  // A name can arrive decomposed. WinAnsi has "ã" and no combining tilde at
+  // all, so without composing, the tilde is dropped and the name is silently
+  // misspelled on the page.
+  it('composes a decomposed name rather than losing its accents', async () => {
+    const decomposed = 'Joa\u0303o Sa\u0301';
+    expect(decomposed).not.toBe(decomposed.normalize('NFC'));
+    const audit = await drawn(decomposed);
+    expect(audit.unencodable).toEqual([]);
+  });
+
+  it('reports a character it genuinely cannot draw, rather than substituting silently', async () => {
+    // A Cyrillic homoglyph — the one shape in 132,590 roster names that
+    // Helvetica has no glyph for. Reported, never transliterated.
+    const audit = await drawn('Zo\u0451 May');
+    expect(audit.unencodable).toHaveLength(1);
+    expect(audit.unencodable[0].characters).toEqual(['\u0451']);
+  });
+
+  it('reports a glyph outside the set drawn anywhere in a report', async () => {
+    const audit = await drawn('a \u2192 b, x \u2260 y');
+    expect(audit.unencodable[0].characters.sort()).toEqual(['\u2192', '\u2260']);
+  });
+});
+
 // ---------------------------------------------------------------------------
 // Whole reports
 // ---------------------------------------------------------------------------
@@ -299,13 +346,15 @@ describe('the report stays inside the page', () => {
 
   it('holds where names are long and awkward', async () => {
     addProgramme();
-    for (const season of ['2022', '2023', '2024', '2025']) {
+    const awkward = ['Maximilian Fitzgerald-Wentworth O’Shaughnessy III',
+      'José Muñoz-Ødegård', 'Joa\u0303o Sa\u0301 Pereira', 'François Lefèvre-Ångström'];
+    awkward.forEach((name, i) => {
       addRow('Test College', {
-        season, class_year_label: 'Fr.', minutes_played: 1500,
-        player_name: 'Maximilian Fitzgerald-Wentworth O’Shaughnessy III',
+        season: ['2022', '2023', '2024', '2025'][i], class_year_label: 'Fr.', minutes_played: 1500,
+        player_name: name,
         prior_programme: 'The Community College of Somewhere Very Long Indeed',
       });
-    }
+    });
     addRow('Test College', {
       season: '2026', player_name: 'Bartholomew Vanderhoeven-Castellanos', class_year_label: 'Jr.',
       minutes_played: null, games_played: null, eligibility_end_year: 2029, projected_minutes: 800,

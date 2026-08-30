@@ -127,7 +127,7 @@ export function positionHistoryPage(k, model) {
       lanes: ea.measurableSeasons,
       xMax,
       marker: STARTER_MINUTES,
-      markerLabel: `${STARTER_MINUTES} — a starter's season`,
+      markerLabel: `${STARTER_MINUTES} — a starter’s season`,
       points: ea.players.map((p) => ({
         lane: p.season, value: p.minutes, size: p.gamesPlayed, sizeMax: Math.max(1, ...ea.players.map((x) => x.gamesPlayed)),
         solid: p.gamesStarted >= p.gamesPlayed / 2 && p.gamesPlayed > 0, color: GREEN,

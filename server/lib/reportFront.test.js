@@ -246,7 +246,7 @@ describe('page three', () => {
   it('always states what cannot be known about the entry season', async () => {
     addAthlete('p1');
     const { buf } = await build('p1');
-    expect(frontText(buf)).toMatch(/Future recruits, transfers, injuries and eligibility changes are not known/);
+    expect(frontText(buf)).toMatch(/Future recruits, experienced arrivals, injuries and eligibility changes are not known/);
   });
 });
 

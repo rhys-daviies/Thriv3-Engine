@@ -27,6 +27,10 @@ const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 const page = (k, kicker, title, question) => pageHead(k, { kicker, title, question });
 
+/** The appendices, set one level quieter than the pages they support. */
+const record = (k, title, question) => pageHead(k,
+  { kicker: 'Supporting record', title, question, quiet: true });
+
 const BAND_WORD = { impact: 'Starter season', rotation: 'Rotation', fringe: 'Fringe', none: 'Did not play' };
 
 // ---------------------------------------------------------------------------
@@ -35,8 +39,7 @@ const BAND_WORD = { impact: 'Starter season', rotation: 'Rotation', fringe: 'Fri
 
 export function freshmanRecordPage(k, model) {
   const pts = model.freshman.points;
-  page(k, 'Supporting record', 'Every first-year measured',
-    'The rows behind the first-year charts.');
+  record(k, 'Every first-year measured', 'The rows behind the first-year charts.');
 
   k.table({
     caption: `${plural(pts.length, 'first-year', 'first-years')} across `
@@ -65,7 +68,7 @@ export function freshmanRecordPage(k, model) {
 
 export function arrivalRecordPage(k, model) {
   const pts = model.transfer.points;
-  page(k, 'Supporting record', 'Every experienced arrival measured',
+  record(k, 'Every experienced arrival measured',
     'The rows behind the experienced-arrival charts.');
 
   k.table({
@@ -103,7 +106,7 @@ export function arrivalRecordPage(k, model) {
 
 export function vacancyRecordPage(k, model) {
   const rows = model.summary.programme.replacementBehaviour.record ?? [];
-  page(k, 'Supporting record', 'Every opening observed',
+  record(k, 'Every opening observed',
     'Each position-season in which a starter left, and what followed.');
 
   k.table({
@@ -116,10 +119,10 @@ export function vacancyRecordPage(k, model) {
       { key: 'position', label: 'Position', width: 0.1, format: (v) => cap(positionPlural(v)).replace(/s$/, '') },
       // The widest column by some way. These are the names the whole analysis
       // rests on, and this is the one page that prints them.
-      { key: 'departed', label: 'Starters who left', width: 0.36, format: (v) => (v?.length ? v.map((d) => `${d.name} (${nf(d.minutes)})`).join(', ') : null) },
-      { key: 'vacatedStarterMinutes', label: 'Minutes vacated', width: 0.1, align: 'right', format: (v) => nf(v) },
-      { key: 'freshStarters', label: 'First-year started', width: 0.1, align: 'right', format: (v) => (v ? `yes (${v})` : 'no') },
-      { key: 'newcomerStarters', label: 'Arrival started', width: 0.1, align: 'right', format: (v) => (v ? `yes (${v})` : 'no') },
+      { key: 'departed', label: 'Starters who left', width: 0.3, format: (v) => (v?.length ? v.map((d) => `${d.name} (${nf(d.minutes)})`).join(', ') : null) },
+      { key: 'vacatedStarterMinutes', label: 'Minutes vacated', width: 0.11, align: 'right', format: (v) => nf(v) },
+      { key: 'freshStarters', label: 'First-year started', width: 0.13, align: 'right', format: (v) => (v ? `yes (${v})` : 'no') },
+      { key: 'newcomerStarters', label: 'Arrival started', width: 0.12, align: 'right', format: (v) => (v ? `yes (${v})` : 'no') },
       { key: 'returningShare', label: 'Returning share', width: 0.12, align: 'right', format: (v) => (v == null ? null : `${Math.round(v)}%`) },
     ],
     rows,
@@ -143,7 +146,7 @@ function twoColumn(k, sections) {
 
   for (const [heading, ...paras] of sections) {
     const height = 13 + paras.reduce((s, t) => s
-      + k.doc.font('Helvetica').fontSize(8).heightOfString(t, { width: colW }) + 5, 0) + 8;
+      + k.doc.font('Helvetica').fontSize(8.5).heightOfString(t, { width: colW }) + 5, 0) + 8;
     // Move to the second column, then to a new page, rather than letting a
     // block run off the bottom.
     if (y + height > bottom) {
@@ -157,21 +160,22 @@ function twoColumn(k, sections) {
         k.doc.font('Helvetica-Bold').fontSize(8).fillColor(CLARET)
           .text('HOW TO READ THIS REPORT', M, M - 18,
             { width: W, characterSpacing: 1.2, lineBreak: false });
-        k.doc.font('Helvetica-Bold').fontSize(13).fillColor(INK)
-          .text('Methodology and limitations, continued', M, M, { width: W, lineBreak: false });
+        k.doc.font(TYPE.title.font).fontSize(TYPE.title.size).fillColor(INK)
+          .text('Methodology and limitations, continued', M, M, { width: W, lineBreak: false, ellipsis: true });
         x = M;
-        y = M + 24;
+        y = M + 34;
         top = y;
       }
     }
-    k.doc.font('Helvetica-Bold').fontSize(8).fillColor(CLARET)
-      .text(heading.toUpperCase(), x, y, { width: colW, characterSpacing: 0.8, lineBreak: false });
-    y += 12;
+    k.doc.font(TYPE.section.font).fontSize(8.5).fillColor(TYPE.section.color)
+      .text(heading.toUpperCase(), x, y, { width: colW, characterSpacing: TYPE.section.spacing,
+        lineBreak: false, ellipsis: true });
+    y += 13;
     for (const t of paras) {
-      k.doc.font('Helvetica').fontSize(8).fillColor(INK).text(t, x, y, { width: colW });
+      k.doc.font('Helvetica').fontSize(8.5).fillColor(INK).text(t, x, y, { width: colW });
       y = k.doc.y + 5;
     }
-    y += 6;
+    y += 8;
   }
   k.doc.y = bottom;
 }
@@ -182,21 +186,25 @@ export function methodologyPage(k, model) {
 
   // The three rules, as a callout, because everything else is an application
   // of one of them.
-  const cardW = (W - 16) / 3;
+  const cardW = (W - 20) / 3;
   const top = k.doc.y;
-  [['HISTORY IS NOT FORECAST', 'Everything measured here has already happened.'],
-    ['MISSING IS NOT ZERO', 'A figure we could not read is never counted as none.'],
-    ['SAMPLE SIZE MATTERS', 'Small samples are shown as counts, not rates.'],
+  const cardH = 68;
+  [['HISTORY IS NOT FORECAST', 'Everything measured here has already happened. Nothing in this '
+      + 'report predicts a season that has not been played.'],
+    ['MISSING IS NOT ZERO', 'A figure that could not be read is never counted as none. It is left '
+      + 'out, and the gap is stated.'],
+    ['SAMPLE SIZE MATTERS', 'Small samples are shown as counts rather than rates. A share of three '
+      + 'reads more confidently than it deserves to.'],
   ].forEach(([title, sub], i) => {
-    const x = M + i * (cardW + 8);
-    k.doc.save().rect(x, top, cardW, 44).fillOpacity(0.05).fill(NAVY).restore();
-    k.doc.save().rect(x, top, 3, 44).fill(CLARET).restore();
-    k.doc.font('Helvetica-Bold').fontSize(8).fillColor(INK)
-      .text(title, x + 10, top + 9, { width: cardW - 16, characterSpacing: 0.5, lineBreak: false });
-    k.doc.font('Helvetica').fontSize(7).fillColor(MUTED)
-      .text(sub, x + 10, top + 21, { width: cardW - 18 });
+    const x = M + i * (cardW + 10);
+    k.doc.save().rect(x, top, cardW, cardH).fillOpacity(0.06).fill(CLARET).restore();
+    k.doc.save().rect(x, top, 4, cardH).fill(CLARET).restore();
+    k.doc.font('Helvetica-Bold').fontSize(9).fillColor(CLARET)
+      .text(title, x + 12, top + 11, { width: cardW - 20, characterSpacing: 0.4 });
+    k.doc.font('Helvetica').fontSize(7.5).fillColor(INK)
+      .text(sub, x + 12, top + 32, { width: cardW - 22 });
   });
-  k.doc.y = top + 56;
+  k.doc.y = top + cardH + 18;
 
   twoColumn(k, [
     ['History, not forecast',
@@ -216,7 +224,7 @@ export function methodologyPage(k, model) {
       + 'is reported as unreadable rather than counted as a season with no first-years.'],
 
     [`Why ${STARTER_MINUTES} minutes`,
-      `${STARTER_MINUTES} minutes across a season is the threshold this report calls a starter's `
+      `${STARTER_MINUTES} minutes across a season is the threshold this report calls a starter\u2019s `
       + 'season. It is a consistent measure applied identically to every programme, not a claim '
       + 'that a player started every match — a regular starter and a heavily used substitute can '
       + 'both clear it, and a player who started ten matches and was injured may not.'],
@@ -259,7 +267,7 @@ export function methodologyPage(k, model) {
       + 'return, which of them had played a starter’s season, and then divides the following '
       + 'season’s minutes at that position three ways: players who were already here, first-years, '
       + 'and experienced arrivals. Those three shares add to everything played.',
-      '"A first-year then started" and "an experienced arrival then started" are separate counts '
+      '\u201CA first-year then started\u201D and \u201Can experienced arrival then started\u201D are separate counts '
       + 'of the same openings and can both be true of one season. They are never subtracted from '
       + 'each other or from the total, and returning behaviour is shown as a share of minutes '
       + 'rather than as a count of openings anybody won.'],
