@@ -36,16 +36,47 @@ import {
 /**
  * The classification vocabulary, shared by every module that has one.
  *
+ * Deliberately NOT high/moderate/low. Those words carry a judgement the
+ * calculation does not make: nothing here measures whether a programme is good
+ * at developing first-years, only where it sits among the other programmes in
+ * its sport. A page that says "Freshman opportunity — High" is claiming
+ * something; one that says "Above programme benchmark" is reporting one.
+ *
+ * The three bands are the quartiles of the pool, and the words mean exactly
+ * what the arithmetic does:
+ *
+ *   above-benchmark   in the top quarter of programmes
+ *   typical           inside the middle half — the interquartile range
+ *   below-benchmark   in the bottom quarter
+ *
+ * 'mixed' is not a position in that distribution. It means the seasons behind
+ * the figure disagree too much for any single position to describe them, which
+ * is a property of the programme rather than a gap in the sample.
+ *
  * 'unclear' means the data cannot support a call. 'unavailable' means there is
- * no data to make one from. Keeping them apart is the whole point: one says
- * we looked and could not tell, the other says there was nothing to look at.
+ * no data to make one from. Keeping them apart is the whole point: one says we
+ * looked and could not tell, the other says there was nothing to look at.
+ *
+ * These strings are the machine-readable contract. A renderer maps them to
+ * whatever words its surface uses, the way VERDICT_LABEL already does for
+ * classifyProgramme's verdicts; they must not be reworded at the source.
  */
-export const CLASSIFICATIONS = ['high', 'moderate', 'low', 'mixed', 'unclear', 'unavailable'];
+export const CLASSIFICATIONS = [
+  'above-benchmark', 'typical', 'below-benchmark', 'mixed', 'unclear', 'unavailable',
+];
+
+/** The three that describe a position in the pool, ordered high to low. */
+export const BENCHMARK_BANDS = ['above-benchmark', 'typical', 'below-benchmark'];
 
 const sum = (list, f) => list.reduce((s, x) => s + (f(x) ?? 0), 0);
 
 /**
  * Where a value sits against a pool's quartiles.
+ *
+ * Split on p25 and p75, so 'typical' genuinely names the middle half of the
+ * pool. The earlier draft split on the median and p75 and left p25 unused,
+ * which put half the pool in the bottom band and made 'typical' mean "third
+ * quartile" — a word doing the opposite of its job.
  *
  * Null in, null out, and null when the pool itself is not readable — never a
  * midpoint. `percentileOfLadderTop` already refuses to invent 50 for exactly
@@ -55,9 +86,9 @@ export function bandAgainstPool(value, quartiles) {
   if (value == null || !quartiles) return null;
   const { p25, median, p75 } = quartiles;
   if (p25 == null || median == null || p75 == null) return null;
-  if (value > p75) return 'high';
-  if (value >= median) return 'moderate';
-  return 'low';
+  if (value > p75) return 'above-benchmark';
+  if (value >= p25) return 'typical';
+  return 'below-benchmark';
 }
 
 // ---------------------------------------------------------------------------
@@ -383,7 +414,24 @@ export function squadTurnoverSummary({ model, squadRows = [], entrySeason }) {
 
   return {
     classification: 'unclear',
-    classificationReason: 'no-pool-distribution-for-turnover',
+    classificationReason: 'pool-distribution-not-defensible',
+    // Measured rather than assumed. Across the 1,910 programmes with a current
+    // squad, the expiring share moves systematically with how complete the
+    // projections are — mean 0.456 where coverage is 50-70% against 0.388
+    // where it is above 95%, r = -0.15. A percentile over those would rank
+    // programmes partly by their data completeness. The 18% with no readable
+    // denominator are missing for the same reason, so the pool would be built
+    // from a biased subset of the very thing it is meant to describe.
+    classificationEvidence: {
+      code: 'projection-coverage-biases-the-share',
+      programmesWithReadableDenominator: 0.82,
+      shareByCoverageBand: [
+        { coverage: '0.50-0.70', meanShare: 0.456 },
+        { coverage: '0.70-0.85', meanShare: 0.431 },
+        { coverage: '0.85-0.95', meanShare: 0.402 },
+        { coverage: '0.95-1.00', meanShare: 0.388 },
+      ],
+    },
     season: model.squadSeason ?? null,
     rostered: model.squad?.rostered ?? 0,
     projectedMinutes: projected,
@@ -408,31 +456,41 @@ export function squadTurnoverSummary({ model, squadRows = [], entrySeason }) {
 // ---------------------------------------------------------------------------
 
 /**
- * The current squad at one position, split by whether eligibility currently
- * reaches the season the athlete would arrive in.
+ * The current squad at one position, read against the season the athlete would
+ * arrive in.
  *
- * THIS IS NOT A PREDICTED DEPTH CHART. It is the roster as it stands today,
- * read against a date. Who is actually on the squad in the entry season
- * depends on recruits, arrivals, transfers out and fifth years, none of which
- * are knowable from this data.
+ * THIS IS NOT A PREDICTED DEPTH CHART, and the field names say so. It is the
+ * roster as it stands today, filtered by a date. Who is actually on the squad
+ * in the entry season depends on recruits, arrivals, transfers out and fifth
+ * years, none of which are knowable from this data.
  *
- * Three buckets, never two. A player with no eligibility end recorded is
- * neither staying nor leaving as far as the record goes, and folding them into
- * either bucket would manufacture a fact.
+ * FOUR groups, not two. A player with no eligibility end recorded is neither
+ * staying nor leaving as far as the record goes, and folding them into either
+ * side would manufacture a fact. And a player whose eligibility ends IN the
+ * entry season is a distinct case worth naming: they overlap the athlete for
+ * one season and then go.
+ *
+ * That last group is not a nicety. Under the five-year eligibility model in
+ * classYear.js, a 2026 senior is eligible through 2027 — so for a 2027
+ * entrant, "eligibility ends before entry" catches only graduate students,
+ * 1,103 rows of 57,807 across the 2026 rosters. Reporting only that group
+ * would tell most athletes that nobody is leaving, when in fact a quarter of
+ * the squad is in its final season alongside them.
  */
 export function splitDepthByEntry(depth, entrySeason) {
   const rows = depth ?? [];
-  const known = (d) => d.eligibleTo != null;
-  const stillEligible = rows.filter((d) => known(d) && Number(d.eligibleTo) >= entrySeason);
-  const expiring = rows.filter((d) => known(d) && Number(d.eligibleTo) < entrySeason);
-  const unknown = rows.filter((d) => !known(d));
+  const known = (x) => x.eligibleTo != null;
+  const eligibleAtEntry = rows.filter((x) => known(x) && Number(x.eligibleTo) >= entrySeason);
+  const endsBeforeEntry = rows.filter((x) => known(x) && Number(x.eligibleTo) < entrySeason);
+  const finalSeasonAtEntry = rows.filter((x) => known(x) && Number(x.eligibleTo) === entrySeason);
+  const unknown = rows.filter((x) => !known(x));
   const minutesOf = (list) => {
-    const withProjection = list.filter((d) => d.projectedMinutes != null);
+    const withProjection = list.filter((x) => x.projectedMinutes != null);
     return {
-      // Named at length on purpose. These are minutes attached to players, not
-      // minutes that become available to anybody — see the wording rule.
+      // Named at length on purpose. These are minutes attached to players who
+      // are on the roster now — not minutes that become available to anybody.
       currentProjectedMinutes: withProjection.length
-        ? sum(withProjection, (d) => Number(d.projectedMinutes)) : null,
+        ? sum(withProjection, (x) => Number(x.projectedMinutes)) : null,
       players: list.length,
       playersWithProjection: withProjection.length,
       playersWithoutProjection: list.length - withProjection.length,
@@ -440,13 +498,17 @@ export function splitDepthByEntry(depth, entrySeason) {
   };
   return {
     entrySeason,
-    all: rows,
-    stillEligibleAtEntry: stillEligible,
-    expiringBeforeEntry: expiring,
-    eligibilityUnknown: unknown,
-    stillEligibleMinutes: minutesOf(stillEligible),
-    expiringMinutes: minutesOf(expiring),
-    unknownMinutes: minutesOf(unknown),
+    currentPositionPlayers: rows,
+    currentPlayersEligibleAtEntry: eligibleAtEntry,
+    currentPlayersEligibilityEndsBeforeEntry: endsBeforeEntry,
+    // A subset of currentPlayersEligibleAtEntry: eligible for the entry season
+    // and no further.
+    currentPlayersInFinalSeasonAtEntry: finalSeasonAtEntry,
+    currentPlayersEligibilityUnknown: unknown,
+    projectedMinutesEligibleAtEntry: minutesOf(eligibleAtEntry),
+    projectedMinutesEndingBeforeEntry: minutesOf(endsBeforeEntry),
+    projectedMinutesInFinalSeasonAtEntry: minutesOf(finalSeasonAtEntry),
+    projectedMinutesEligibilityUnknown: minutesOf(unknown),
   };
 }
 
@@ -478,18 +540,25 @@ export function athleteSummary({ model, philosophy, entrySeason }) {
     entrySeason,
     entrySeasonKnown: model.entrySeasonKnown ?? null,
 
-    // The current squad at this position, read against the entry season.
-    positionDepthNow: depth.all,
-    positionDepthAtEntry: depth.stillEligibleAtEntry,
-    knownExpirationsBeforeEntry: depth.expiringBeforeEntry,
-    knownPlayersStillEligibleAtEntry: depth.stillEligibleAtEntry,
-    eligibilityUnknownAtEntry: depth.eligibilityUnknown,
-    projectedMinutesAssociatedWithExpiringPlayers: depth.expiringMinutes,
-    projectedMinutesAssociatedWithPlayersStillEligible: depth.stillEligibleMinutes,
-    projectedMinutesAssociatedWithUnknownEligibility: depth.unknownMinutes,
+    // The CURRENT squad at this position, read against the entry season. Every
+    // name here starts with "current" because every one of them describes the
+    // roster as it stands, not the roster the athlete would find.
+    currentPositionPlayers: depth.currentPositionPlayers,
+    currentPlayersEligibleAtEntry: depth.currentPlayersEligibleAtEntry,
+    currentPlayersEligibilityEndsBeforeEntry: depth.currentPlayersEligibilityEndsBeforeEntry,
+    currentPlayersInFinalSeasonAtEntry: depth.currentPlayersInFinalSeasonAtEntry,
+    currentPlayersEligibilityUnknown: depth.currentPlayersEligibilityUnknown,
+    // "associated with" rather than "available": the minutes belong to the
+    // player, and nothing in this data says they transfer to a recruit.
+    currentProjectedMinutesOfPlayersEligibleAtEntry: depth.projectedMinutesEligibleAtEntry,
+    currentProjectedMinutesOfPlayersEndingBeforeEntry: depth.projectedMinutesEndingBeforeEntry,
+    currentProjectedMinutesOfPlayersInFinalSeasonAtEntry: depth.projectedMinutesInFinalSeasonAtEntry,
+    currentProjectedMinutesOfPlayersWithUnknownEligibility: depth.projectedMinutesEligibilityUnknown,
 
     positionVacancyHistory: positionHistory,
-    positionReplacementBehaviour: positionHistory ? {
+    // Historical outcomes at this position, never a projection of the next
+    // one. "Took it" is a past-tense count of what followed a departure.
+    positionOpeningOutcomes: positionHistory ? {
       openings: positionHistory.openings,
       transitions: positionHistory.transitions,
       startersDeparted: positionHistory.startersDeparted,
@@ -538,6 +607,19 @@ export function athleteSummary({ model, philosophy, entrySeason }) {
  * this codebase keeps documenting: a number that looks measured and is not.
  */
 export function originContextSummary({ model, athlete }) {
+  const division = model.college?.division ?? null;
+  const poolAll = model.benchmarks?.byOrigin ?? null;
+  // The programme's OWN division, never the pool as a whole where the division
+  // is readable. The effect this contextualises differs by division — it runs
+  // one way at D1 and D2 and reverses at D3 in the women's game — so a
+  // pool-wide figure beside a D3 programme would mislead in the one place the
+  // reader is most likely to act on it.
+  const poolDivision = division ? poolAll?.byDivision?.[division] ?? null : null;
+  const usable = poolDivision?.comparable ? poolDivision
+    : poolAll?.overall?.comparable ? poolAll.overall : null;
+  const poolScope = poolDivision?.comparable ? 'division'
+    : poolAll?.overall?.comparable ? 'all-divisions' : null;
+
   const requested = athlete?.origin === 'international' ? 'international'
     : athlete?.origin === 'domestic' ? 'domestic' : null;
   const points = (model.freshman?.points ?? []).filter((p) => p.origin);
@@ -578,8 +660,24 @@ export function originContextSummary({ model, athlete }) {
       withRecordedOrigin: points.length,
       withoutRecordedOrigin: (model.freshman?.points ?? []).length - points.length,
     },
-    pool: null,
-    poolReason: 'the benchmark pool carries no origin split',
+    // Measured, not quoted. The figure this replaces was prose carried in the
+    // renderer — "about 40% more likely, 37% against 27%" — which looked
+    // measured beside computed numbers and was six points out on the domestic
+    // half by the time it was checked against the pool it described.
+    pool: usable ? {
+      scope: poolScope,
+      division: poolScope === 'division' ? division : null,
+      sameOrigin: requested ? usable[requested] ?? null : null,
+      otherOrigin: requested
+        ? usable[requested === 'international' ? 'domestic' : 'international'] ?? null : null,
+      domestic: usable.domestic,
+      international: usable.international,
+      // Counted and kept out of the comparison rather than defaulted into it.
+      originUnrecorded: usable.originUnrecorded,
+    } : null,
+    poolReason: usable ? null
+      : poolAll ? 'neither origin group in the pool is large enough to read'
+        : 'the benchmark pool could not be read',
     unavailableReason: requested ? null : 'no origin recorded for this athlete',
     evidence,
   };

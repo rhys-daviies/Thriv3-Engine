@@ -160,6 +160,7 @@ export function buildProgrammeModel(found, benchmarks) {
       ladderByRank: benchmarks.ladderByRank,
       dials: benchmarks.dials,
       programmeDials: benchmarks.programmeDials,
+      byOrigin: benchmarks.byOrigin,
       vacancy: benchmarks.vacancy,
       byPosition: benchmarks.byPosition,
       poolMix: poolMixForBand(benchmarks, meanVacated),

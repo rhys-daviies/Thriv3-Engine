@@ -13,11 +13,21 @@ const d = (over = {}) => ({
 describe('bandAgainstPool', () => {
   const q = { p25: 100, median: 300, p75: 700 };
 
-  it('bands above the top quartile, at or above the median, and below it', () => {
-    expect(bandAgainstPool(900, q)).toBe('high');
-    expect(bandAgainstPool(700, q)).toBe('moderate');
-    expect(bandAgainstPool(300, q)).toBe('moderate');
-    expect(bandAgainstPool(299, q)).toBe('low');
+  // The words describe a position in the pool and nothing else. "High" would
+  // claim the programme is good at something; "above-benchmark" reports where
+  // it sits, which is all the arithmetic establishes.
+  it('splits on the quartiles, so typical names the middle half', () => {
+    expect(bandAgainstPool(900, q)).toBe('above-benchmark');
+    expect(bandAgainstPool(700, q)).toBe('typical');
+    expect(bandAgainstPool(300, q)).toBe('typical');
+    expect(bandAgainstPool(100, q)).toBe('typical');
+    expect(bandAgainstPool(99, q)).toBe('below-benchmark');
+  });
+
+  it('uses no judgemental vocabulary at all', () => {
+    for (const v of [50, 100, 300, 700, 900]) {
+      expect(['high', 'moderate', 'low']).not.toContain(bandAgainstPool(v, q));
+    }
   });
 
   // A midpoint invented where the pool cannot be read looks exactly like a
@@ -32,50 +42,74 @@ describe('bandAgainstPool', () => {
 describe('splitDepthByEntry', () => {
   const depth = [
     d({ name: 'Stays', eligibleTo: 2028, projectedMinutes: 1200 }),
-    d({ name: 'Stays too', eligibleTo: 2027, projectedMinutes: 300 }),
+    d({ name: 'Final season', eligibleTo: 2027, projectedMinutes: 300 }),
     d({ name: 'Goes', eligibleTo: 2026, projectedMinutes: 800 }),
     d({ name: 'Unknown', eligibleTo: null, projectedMinutes: 500 }),
   ];
 
   it('splits on whether eligibility currently reaches the entry season', () => {
     const s = splitDepthByEntry(depth, 2027);
-    expect(s.stillEligibleAtEntry.map((x) => x.name)).toEqual(['Stays', 'Stays too']);
-    expect(s.expiringBeforeEntry.map((x) => x.name)).toEqual(['Goes']);
-    expect(s.eligibilityUnknown.map((x) => x.name)).toEqual(['Unknown']);
+    expect(s.currentPlayersEligibleAtEntry.map((x) => x.name)).toEqual(['Stays', 'Final season']);
+    expect(s.currentPlayersEligibilityEndsBeforeEntry.map((x) => x.name)).toEqual(['Goes']);
+    expect(s.currentPlayersEligibilityUnknown.map((x) => x.name)).toEqual(['Unknown']);
   });
 
-  // Three buckets, never two. A player with no eligibility year recorded is
-  // neither staying nor leaving as far as the record goes, and putting them in
-  // either bucket manufactures a fact.
+  // Under the five-year eligibility model a 2026 senior is eligible through
+  // 2027, so for a 2027 entrant "ends before entry" catches only graduate
+  // students. Without this group most athletes would be told nobody is
+  // leaving while a quarter of the squad plays its last season beside them.
+  it('names the players whose last eligible season IS the entry season', () => {
+    const s = splitDepthByEntry(depth, 2027);
+    expect(s.currentPlayersInFinalSeasonAtEntry.map((x) => x.name)).toEqual(['Final season']);
+    // A subset of those eligible at entry, not a fourth disjoint bucket.
+    expect(s.currentPlayersEligibleAtEntry).toEqual(
+      expect.arrayContaining(s.currentPlayersInFinalSeasonAtEntry));
+  });
+
+  // A player with no eligibility year recorded is neither staying nor leaving
+  // as far as the record goes, and putting them in either bucket manufactures
+  // a fact.
   it('never folds an unrecorded eligibility year into either side', () => {
     const s = splitDepthByEntry(depth, 2027);
-    const placed = s.stillEligibleAtEntry.length + s.expiringBeforeEntry.length;
-    expect(placed).toBe(depth.length - s.eligibilityUnknown.length);
-    expect(s.eligibilityUnknown).toHaveLength(1);
+    const placed = s.currentPlayersEligibleAtEntry.length
+      + s.currentPlayersEligibilityEndsBeforeEntry.length;
+    expect(placed).toBe(depth.length - s.currentPlayersEligibilityUnknown.length);
+    expect(s.currentPlayersEligibilityUnknown).toHaveLength(1);
   });
 
-  it('sums the projected minutes attached to each bucket', () => {
+  it('sums the projected minutes attached to each group', () => {
     const s = splitDepthByEntry(depth, 2027);
-    expect(s.expiringMinutes.currentProjectedMinutes).toBe(800);
-    expect(s.stillEligibleMinutes.currentProjectedMinutes).toBe(1500);
-    expect(s.unknownMinutes.currentProjectedMinutes).toBe(500);
+    expect(s.projectedMinutesEndingBeforeEntry.currentProjectedMinutes).toBe(800);
+    expect(s.projectedMinutesEligibleAtEntry.currentProjectedMinutes).toBe(1500);
+    expect(s.projectedMinutesInFinalSeasonAtEntry.currentProjectedMinutes).toBe(300);
+    expect(s.projectedMinutesEligibilityUnknown.currentProjectedMinutes).toBe(500);
   });
 
-  it('reports minutes as null, not zero, where nobody in a bucket has a projection', () => {
+  it('reports minutes as null, not zero, where nobody in a group has a projection', () => {
     const s = splitDepthByEntry([d({ eligibleTo: 2026, projectedMinutes: null })], 2027);
-    expect(s.expiringMinutes.currentProjectedMinutes).toBeNull();
-    expect(s.expiringMinutes.players).toBe(1);
-    expect(s.expiringMinutes.playersWithoutProjection).toBe(1);
+    expect(s.projectedMinutesEndingBeforeEntry.currentProjectedMinutes).toBeNull();
+    expect(s.projectedMinutesEndingBeforeEntry.players).toBe(1);
+    expect(s.projectedMinutesEndingBeforeEntry.playersWithoutProjection).toBe(1);
   });
 
-  it('moves players between buckets as the entry season moves', () => {
-    expect(splitDepthByEntry(depth, 2029).expiringBeforeEntry).toHaveLength(3);
-    expect(splitDepthByEntry(depth, 2026).expiringBeforeEntry).toHaveLength(0);
+  it('moves players between groups as the entry season moves', () => {
+    expect(splitDepthByEntry(depth, 2029).currentPlayersEligibilityEndsBeforeEntry).toHaveLength(3);
+    expect(splitDepthByEntry(depth, 2026).currentPlayersEligibilityEndsBeforeEntry).toHaveLength(0);
   });
 
   it('handles an empty or missing depth chart', () => {
-    expect(splitDepthByEntry([], 2027).all).toEqual([]);
-    expect(splitDepthByEntry(null, 2027).stillEligibleAtEntry).toEqual([]);
+    expect(splitDepthByEntry([], 2027).currentPositionPlayers).toEqual([]);
+    expect(splitDepthByEntry(null, 2027).currentPlayersEligibleAtEntry).toEqual([]);
+  });
+
+  // Nothing here predicts a roster. Every name says "current", because every
+  // one of them describes the squad as it stands today.
+  it('names every group after the current roster, not a future one', () => {
+    const s = splitDepthByEntry(depth, 2027);
+    for (const key of Object.keys(s)) {
+      if (key === 'entrySeason') continue;
+      expect(key).toMatch(/^(current|projectedMinutes)/);
+    }
   });
 });
 
@@ -135,7 +169,7 @@ const philosophyFor = (over = {}) => ({
 describe('freshman opportunity classification', () => {
   it('bands against the pool and says that is what it did', () => {
     const s = freshmanOpportunitySummary({ model: modelFor(), philosophy: philosophyFor() });
-    expect(s.classification).toBe('high');
+    expect(s.classification).toBe('above-benchmark');
     expect(s.classificationBasis).toBe('pool-relative');
     expect(CLASSIFICATIONS).toContain(s.classification);
   });
@@ -207,7 +241,7 @@ describe('experienced arrival reliance', () => {
       philosophy: philosophyFor(),
     });
     // 29 is above the programme p75 of 28 but below the observation p75 of 30.
-    expect(s.classification).toBe('high');
+    expect(s.classification).toBe('above-benchmark');
     expect(s.pool.newcomer.p75).toBe(28);
     expect(s.pool.perObservation.p75).toBe(30);
   });
@@ -319,7 +353,11 @@ describe('squad turnover', () => {
       entrySeason: 2027,
     });
     expect(s.classification).toBe('unclear');
-    expect(s.classificationReason).toBe('no-pool-distribution-for-turnover');
+    expect(s.classificationReason).toBe('pool-distribution-not-defensible');
+    // The refusal carries its evidence, so it cannot be quietly reversed
+    // later without someone confronting the measurement behind it.
+    expect(s.classificationEvidence.code).toBe('projection-coverage-biases-the-share');
+    expect(s.classificationEvidence.shareByCoverageBand.length).toBeGreaterThan(2);
   });
 
   it('reports the denominator and its coverage rather than a bare total', () => {
@@ -386,7 +424,67 @@ describe('origin context', () => {
   it('refuses a pool comparison the benchmarks do not contain', () => {
     const s = originContextSummary({ model: modelFor(), athlete: { origin: 'domestic' } });
     expect(s.pool).toBeNull();
-    expect(s.poolReason).toMatch(/no origin split/);
+    expect(s.poolReason).toMatch(/could not be read/);
+  });
+
+  const poolOrigin = (over = {}) => ({
+    domestic: { players: 4000, programmes: 300, seasons: 4, impact: 800, impactShare: 0.2, playedShare: 0.6, medianMinutes: 90, sufficient: true, withoutPublishedMinutes: 200 },
+    international: { players: 1500, programmes: 200, seasons: 4, impact: 600, impactShare: 0.4, playedShare: 0.8, medianMinutes: 380, sufficient: true, withoutPublishedMinutes: 90 },
+    originUnrecorded: { players: 100, programmes: 40, seasons: 4, impact: 15, impactShare: null, playedShare: null, medianMinutes: null, sufficient: false, withoutPublishedMinutes: 50 },
+    comparable: true, ...over,
+  });
+
+  const withPool = (division, byDivision) => modelFor({
+    college: { division },
+    athlete: { origin: 'international' },
+    freshman: { points: points(8, 'international', 4), intake: [], progression: [], grid: [] },
+    benchmarks: poolFor({ byOrigin: { overall: poolOrigin(), byDivision } }),
+  });
+
+  // The effect runs one way at D1 and D2 and reverses at D3 in the women's
+  // game, so a pool-wide figure printed beside a D3 programme would mislead in
+  // the one place a reader is most likely to act on it.
+  it('prefers the programme’s own division over the pool as a whole', () => {
+    const s = originContextSummary({
+      model: withPool('NCAA D3', { 'NCAA D3': poolOrigin({ international: { ...poolOrigin().international, impactShare: 0.26 } }) }),
+      athlete: { origin: 'international' },
+    });
+    expect(s.pool.scope).toBe('division');
+    expect(s.pool.division).toBe('NCAA D3');
+    expect(s.pool.sameOrigin.impactShare).toBeCloseTo(0.26);
+    expect(s.pool.otherOrigin.impactShare).toBeCloseTo(0.2);
+  });
+
+  it('falls back to the whole pool where the division cannot be read', () => {
+    const s = originContextSummary({
+      model: withPool('NAIA', { NAIA: poolOrigin({ comparable: false }) }),
+      athlete: { origin: 'international' },
+    });
+    expect(s.pool.scope).toBe('all-divisions');
+    expect(s.pool.division).toBeNull();
+  });
+
+  it('refuses entirely where neither group in the pool is large enough', () => {
+    const s = originContextSummary({
+      model: modelFor({
+        college: { division: 'USCAA' },
+        athlete: { origin: 'international' },
+        freshman: { points: points(8, 'international', 4), intake: [], progression: [], grid: [] },
+        benchmarks: poolFor({ byOrigin: { overall: poolOrigin({ comparable: false }), byDivision: {} } }),
+      }),
+      athlete: { origin: 'international' },
+    });
+    expect(s.pool).toBeNull();
+    expect(s.poolReason).toMatch(/neither origin group/);
+  });
+
+  it('carries the unrecorded-origin group without folding it into either side', () => {
+    const s = originContextSummary({
+      model: withPool('NCAA D1', { 'NCAA D1': poolOrigin() }),
+      athlete: { origin: 'international' },
+    });
+    expect(s.pool.originUnrecorded.players).toBe(100);
+    expect(s.pool.originUnrecorded.impactShare).toBeNull();
   });
 
   it('says when the athlete has no origin recorded', () => {

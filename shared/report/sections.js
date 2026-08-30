@@ -76,11 +76,11 @@ export const SECTIONS = [
     scope: 'athlete',
     unavailableWhenEmpty: false,
     applies: ({ summary }) => Boolean(summary?.athlete)
-      && (has(summary.athlete.positionDepthNow)
+      && (has(summary.athlete.currentPositionPlayers)
         || (summary.athlete.positionVacancyHistory?.transitions ?? 0) > 0),
     scopeOf: ({ summary }) => [
-      count(summary.athlete?.positionDepthNow)
-        ? `${count(summary.athlete.positionDepthNow)} currently at the position` : null,
+      count(summary.athlete?.currentPositionPlayers)
+        ? `${count(summary.athlete.currentPositionPlayers)} currently at the position` : null,
       summary.athlete?.positionVacancyHistory?.transitions
         ? `${summary.athlete.positionVacancyHistory.transitions} position-seasons` : null,
     ].filter(Boolean),
@@ -244,14 +244,14 @@ export const SECTIONS = [
     layer: 'athlete-evidence',
     scope: 'athlete',
     unavailableWhenEmpty: false,
-    applies: ({ summary }) => has(summary?.athlete?.positionDepthNow),
+    applies: ({ summary }) => has(summary?.athlete?.currentPositionPlayers),
     scopeOf: ({ summary }) => {
       const a = summary.athlete;
       return [
-        `${count(a.positionDepthNow)} at the position`,
-        `${count(a.knownPlayersStillEligibleAtEntry)} eligible into ${a.entrySeason}`,
-        count(a.eligibilityUnknownAtEntry)
-          ? `${count(a.eligibilityUnknownAtEntry)} with no eligibility year recorded` : null,
+        `${count(a.currentPositionPlayers)} at the position`,
+        `${count(a.currentPlayersEligibleAtEntry)} eligible into ${a.entrySeason}`,
+        count(a.currentPlayersEligibilityUnknown)
+          ? `${count(a.currentPlayersEligibilityUnknown)} with no eligibility year recorded` : null,
       ].filter(Boolean);
     },
   },
