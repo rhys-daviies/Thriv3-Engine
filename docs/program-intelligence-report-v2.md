@@ -1172,3 +1172,47 @@ Drawn only where `weightingApplied && weightedAgrees === false`. It appears as a
 ### 11.6 Model gap closed
 
 `squadDepth(squadRows)` was added to `shared/philosophy.js` and exposed as `summary.programme.squadTurnover.squad`. `depthChartAt` only ever answered for one position and returned `null` for `UNKNOWN`; pages 11 and 12 need every row, and a player missing from a squad list is one the reader assumes is not there.
+
+---
+
+## 12. Phase 5 — the report, complete
+
+### 12.1 Final structure
+
+| Layer | Pages (programme / athlete) |
+|---|---|
+| Navigation | 1 |
+| Interpretation | 2, and 3 for an athlete |
+| Programme evidence | 3–11 / 4–12 |
+| Athlete evidence | — / 13–17 |
+| Supporting record | dynamic |
+| Methodology | final, one or two pages |
+
+Athlete pages: **your position historically**, **when a place opens**, **who is at your position now**, **your arrival window**, **where you are arriving from**. There is no sixth summary page — page 3 already answers "what should I notice", and a recap after five evidence pages would be a second copy of it.
+
+### 12.2 Measured page counts
+
+| Report | Pages | Sections |
+|---|---|---|
+| Anderson (SC), Akron, Adams State | 16 | 14 |
+| Air Force, Allegheny | 15 | 13 |
+| Albertus Magnus (sparse) | **10** | 8 |
+| Athlete reports | 21–22 | 19–20 |
+
+### 12.3 Appendices, and the one deliberately absent
+
+Built: the first-year record, the experienced-arrival record, the vacancy record. Gated — the first two need at least six rows to earn a page, since a handful of players are already individually visible as dots; the vacancy record renders wherever openings exist, because those events appear nowhere else in full.
+
+**No current-squad appendix.** Page 12 already lists every player with position, class, projected minutes, eligibility and previous programme. The registry entry was removed rather than left to render a duplicate.
+
+### 12.4 Methodology
+
+Fifteen sections in two columns, opening with three callouts — **history is not forecast**, **missing is not zero**, **sample size matters**. Continuation pages carry their own heading. Thresholds are printed from the constants rather than transcribed, so the page cannot drift from the code. No percentage is hardcoded.
+
+### 12.5 What was removed
+
+`facetLevel` no longer renders. It placed `soccer_score` out of 100 beside a self-entered `football_ability` out of 10 and then disclaimed the comparison it had invited. The function and both fields remain.
+
+### 12.6 A glyph class-of-bug, now guarded
+
+Helvetica is encoded as WinAnsi, so a character outside that set prints as stray punctuation rather than failing. Three reached pages across the phases: `→` in the eligibility column (Phase 3), `→` in vacancy transitions and `≠` in the methodology callouts (Phase 5). A test now decodes every character the report draws and fails on anything outside the set.
