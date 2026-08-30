@@ -1,0 +1,922 @@
+# Program Intelligence Report v2 — Specification
+
+**Status:** specification only. No production code changes accompany this document.
+**Branch:** `feature/program-intelligence-report-v2`
+**Base:** `1ac5eaa` (`origin/main`)
+**Worktree:** `/Users/rhysdavies/Documents/Recruitmatch/app-report-v2` (isolated; the shared `app/` worktree is untouched)
+
+---
+
+## 0. Scope and standing rules
+
+### 0.1 What v2 is
+
+v1 (`renderProgramReport` in `server/lib/philosophyReport.js`) is a single linear document of twelve sections. It is correct, and its safeguards are the most valuable thing in the module. What it is not is *navigable*, and it leaves a large amount of already-computed analysis undrawn.
+
+v2 keeps every safeguard and restructures the document into five layers:
+
+| Layer | Pages | Purpose |
+|---|---|---|
+| 1 | 1 | Navigation — what is in the report, how deep it goes |
+| 2 | 2–3 | Interpretation — the answers a reader needs in ninety seconds |
+| 3 | 4–12 | Programme evidence |
+| 4 | 13–16 | Athlete evidence |
+| 5 | 17+ | Supporting data tables and methodology |
+
+### 0.2 The ten rules, restated as testable constraints
+
+These are the report philosophy given in the brief, written so a test can assert them.
+
+1. **No reduction for brevity.** A section is dropped only when it has no information, never because the report is long.
+2. **Conclusions first.** Pages 2–3 carry classification and interpretation; pages 4+ carry the evidence those classifications were drawn from.
+3. **Full evidence behind.** Every classification on pages 2–3 names the page its evidence lives on.
+4. **Programme interpretation precedes programme evidence.** Page 2 before pages 4–12.
+5. **Athlete interpretation precedes athlete evidence.** Page 3 before pages 13–16.
+6. **Experienced-arrival analysis is core.** It is Layer 3's centre of gravity (pages 7–10), not an appendix. The repo's own research supports this: transfer usage repeats across a coach's tenure at r=0.475, freshman usage at r=0.104 (`shared/philosophy.js` header).
+7. **Never a forecast.** `whatThisIs()` already states this at full size on page one; v2 repeats the constraint on every page that touches the entry season.
+8. **Missing ≠ zero.** `null` propagates; `frame()` throws on a chart with data absent and no stated reason; `bar`/`stacked`/`columns`/`heatGrid` each render a reason instead of a zero-length mark.
+9. **Thin samples are not classified confidently.** Every module on pages 2–3 carries an evidence-strength state, and `insufficient` suppresses the classification rather than softening it.
+10. **Existing safeguards preserved.** Enumerated in §0.3; any change to them must be argued in this document, not made silently.
+
+### 0.3 Safeguards that must survive v2 unchanged
+
+Each of these exists because it caught a real defect. They are listed with the constant or function that enforces them so a reviewer can grep for regressions.
+
+| Safeguard | Enforced by | Defect it prevents |
+|---|---|---|
+| Unreadable season ≠ zero freshmen | `MIN_MEASURED_SHARE = 0.5`, `freshmanProfile.readable()` | 154 programmes reported "best freshman: 0 minutes" |
+| Blank minutes ≠ benching | `minutesAreMissing()` (reads `games_played`, not `minutes_played`) | A published-zero read as a coaching decision |
+| Thin squad ≠ measurable share | `MIN_SQUAD = 10`, `freshmanShare()` | Marywood: a squad share computed from 3 of 39 rows |
+| Thin position-season ≠ measurable mix | `MIN_POSITION_MINUTES = 1500`, `vacancyObservations()` | A "mix" that describes two legible rows |
+| Unreadable class labels ≠ no freshmen | `freshmenReadable` on every observation | Bates/Hamilton/Elmira filed as freshman-averse |
+| Cohort too thin → refuse, don't relax silently | `MIN_COHORT_PLAYERS = 6`, `MIN_COHORT_SEASONS = 2`, `cohort.refused` / `.relaxed` | 46,826 phantom freshman goalkeepers |
+| Relax one dimension at a time | the `chain` in `freshmanProfile()` | A US defender handed McKendree's international ladder |
+| Ladder ranks stop being comparable | `comparable` flag in `ladderByRank()` | A ladder that improves as you read down it |
+| A median the seasons disagree on | `AGREEMENT_RATIO = 3` → `agreement: 'wide'` | Quoting 42 for a cohort that ran 42, 1001, 14 |
+| Coaching gap ≠ continuity | `unknownSeasons` vs `vacantSeasons` in `tenureFor()` | Bellarmine's three coaches read as one |
+| New coach ≠ owns predecessor's record | `new-coach-no-record`, `FIRST_SEASON_IS_INHERITED` | North Florida's record attributed to a coach who never coached it |
+| Unresolved entry-season coach | `stillInPost()` returning `null` | Assuming the 2026 coach is still there |
+| Empty chart | `frame()` throws on `empty && !unavailable` | A confident empty axis |
+| Truncated PDF | `render()` buffers to a `Buffer`; never pipes | A 200 carrying a blank file |
+| Chart cursor drift | the wrapper loop at `philosophyPdf.js:797` | Fourteen blank pages carrying only a footer |
+| Two programmes merged | the `programmes.size > 1` throw in `vacancyObservations()` | A findings table about a team that does not exist |
+| Pool percentile invented | `percentileOfLadderTop()` returns `null`, never 50 | A made-up midpoint that looks measured |
+
+### 0.4 Terminology rulings
+
+**"Experienced arrival"** is the default historical term for a non-freshman arrival, replacing v1's mixed use of "transfer" and "newcomer". The roster cannot separate a transfer from a JUCO arrival from an older recruit, and `vacancyObservations` deliberately groups them (`newcomerMin`, `newcomerShare`). The model field names stay `newcomer*` — renaming them touches the analytics core for no analytical gain — but **no rendered string may say "transfer"** where the underlying data is a `newcomer*` field. The one exception is page 8, where `prior_programme` names an actual origin programme, and "arrived from X" is a fact rather than an inference.
+
+**"Current projected minutes associated with players whose eligibility ends before entry."** Never "available minutes", never "minutes up for grabs", never "opportunity". `projected_minutes` is a property of the current squad, not a quantity that transfers to a recruit. This wording rule applies to pages 3, 11, 12, 14 and 15, and is asserted in tests as a forbidden-substring check.
+
+**"Opening"** means `departedStarters > 0` at a position across one season transition. It does not mean a place is available now.
+
+---
+
+## 1. Architecture and data flow (as built)
+
+```
+colleges ─────────┐
+roster_players ───┼─→ philosophyQueries.philosophyFor(collegeId)
+coach_seasons ────┘         │  { college, philosophy, rows, squad }
+                            │
+                  shared/philosophy.programmePhilosophy({rows, coachRows})
+                            │  ← shared/freshmanMinutes.*  (ladder, verdicts, guards)
+                            │  ← shared/coachTenure.*      (segments, gaps, stillInPost)
+                            │
+           routes/philosophy.programReportModel({collegeId, playerId?})
+                            │  one plain-JSON model, no rendering
+                            │
+              lib/philosophyReport.renderProgramReport(model)
+                            │  ← lib/philosophyPdf.{kit, charts, sections, THEME}
+                            │
+                     index.js sendPdf()   Buffer → Content-Disposition
+```
+
+Two cost regimes, and v2 does not change them: one programme is ~15 ms and is computed per request; the pool benchmarks read 218,586 rows (~1.7 s) and are process-cached behind a `COUNT(*)|MAX(updated_date)` fingerprint rechecked every `THRIV3_PHILOSOPHY_RECHECK_MINUTES` (default 15).
+
+### 1.1 Model field inventory
+
+The single source v2 renders from is `programReportModel()`. Its shape, with provenance:
+
+| Path | Produced by | v1 use |
+|---|---|---|
+| `college` | `philosophyQueries.college()` | masthead |
+| `recruitSeason` / `squadSeason` / `entrySeason` / `entrySeasonKnown` | constants + `players.recruiting_class_year` | masthead, cliff, facet |
+| `describes` | `profile.seasons[].season` | `whatThisIs` |
+| `verdict` | `classifyProgramme()` | `whoRunsIt` |
+| `tenure` | `tenureFor()` | `whoRunsIt` (segments only) |
+| `coach`, `coachForRecruitSeason`, `coachStillInPost`, `coachForEntrySeason` | `programmePhilosophy` | `whoRunsIt` |
+| `seasons[]` `{season, intake, played, starters, share}` | `profile.seasons` | `ladderSection` (starters count only) |
+| `ladder[]` | `profile.byRank` (maxRank 6) | `ladderSection` (top 5) |
+| `weightedLadder[]` | `ladderByRank(..., {weights})` | **never rendered** |
+| `dials` `{n, freshman, newcomer, returning}` | `dials(observations)` | `fillMixSection` |
+| `byPosition[]` | `positionHistory()` × 4 | `positionSection` (counts line only) |
+| `benchmarks` | `buildPoolBenchmarks()` | `benchmarkSection` (`ladderByRank` only), `fillMixSection` (`poolMix` only) |
+| `benchmarksReason` | ditto | `benchmarkSection` |
+| `freshman.points[]` | `freshmanPoints()` | scatter, origin facet |
+| `freshman.intake[]` | `intakeBySeason()` | columns × 2 |
+| `freshman.progression[]` | `secondYearProgression()` | slope |
+| `freshman.retention` | derived count | one sentence |
+| `freshman.grid[]` | `positionSeasonGrid()` | heatGrid |
+| `transfer.points[]` | `newcomerPoints()` | scatter / fact list |
+| `transfer.window` | `arrivalWindow()` | headline, scatter lanes |
+| `transfer.measurable`, `.density` | derived | headline branching |
+| `squad.rostered`, `.cliff`, `.arrivals`, `.depth` | `eligibilityCliff()`, `namedArrivals()`, `depthChartAt()` | cliff columns, fact lists |
+| `athlete` | `players` row | masthead, facets |
+| `fit` | `playerFit()` | position facet |
+
+---
+
+## 2. Page specifications
+
+Each page documents the ten required items. **Scope** is one of programme-only, athlete-only, both.
+
+---
+
+### PAGE 1 — Contents / Report Map
+
+**1. Reader question.** *What is in this report, how deep does it go, and where do I find the part I care about?*
+
+**2. Existing data/functions available.** Nothing. This page is entirely new. Its inputs are counts derivable from the model: `describes.length`, `freshman.points.length`, `transfer.points.length`, `dials.n`, `squad.rostered`, `fit.position.transitions`.
+
+**3. Existing data currently underused.** `profile.unreadableSeasons`, `profile.unknownRows`, `benchmarks.programmes`, `benchmarks.observations` — all present, none surfaced. They belong here as scope figures.
+
+**4. New calculations required.**
+- A **section registry**: an ordered array of `{ id, title, layer, scope, applies(model) → boolean, scope Line(model) → string|null }`. Every section on every page is registered; `renderProgramReport` iterates the registry rather than calling twelve functions by hand. This is the mechanism that makes the dynamic-page rule enforceable rather than a convention.
+- A **page-index recorder**: as each section renders, record `doc.bufferedPageRange().count` so the contents can print real page numbers.
+- **Scope counts**, computed once:
+
+| Label | Expression |
+|---|---|
+| Seasons analysed | `describes.length` and the range `describes[0]–describes.at(-1)` |
+| Freshmen measured | `sum(freshman.intake[].freshmen)` — note this counts *measured* freshmen only |
+| Freshmen on roster, minutes unpublished | `sum(seasons[].intake) − sum(freshman.intake[].freshmen)` |
+| Experienced arrivals measured | `transfer.points.length` across `transfer.window.measurable` |
+| Vacancy observations | `dials.n` (readable) and `observations.length` (total) |
+| Current squad players | `squad.rostered` |
+| Athlete-position observations | `fit.position.transitions` and `fit.position.openings` |
+| Benchmark pool | `benchmarks.programmes` programmes, `benchmarks.readable` observations |
+
+**5. Cannot currently be produced.** Nothing.
+
+**6. Recommended chart/visual.** No chart. A two-column contents list: section title and page number on the left, a muted scope line on the right (`"4 seasons · 61 freshmen measured · 9 unpublished"`). Layer dividers as small caps rules, reusing `k.heading`'s rule style at reduced weight.
+
+**7. Interpretation style.** None. This page states, it does not interpret. The only sentence is a one-line frame: *"This report is a record of what has happened at this programme. It contains no predictions."*
+
+**8. Missing-data fallback.** A section that does not apply is **absent from the contents list**, not greyed. Where an entire layer is absent (no athlete), its divider is absent too. Where a section renders only an explicit unavailable state, its scope line reads the reason (`"not enough on file — see page 9"`).
+
+**9. Evidence-strength inputs.** None displayed. The page may optionally carry a single overall data-coverage line — `"4 of 4 seasons readable"` — derived from `describes.length` vs `SEASONS.length` and `profile.unreadableSeasons`.
+
+**10. Scope.** Both. Athlete rows appear only when `model.athlete` is present.
+
+> **Implementation note — the two-pass problem.** Page numbers are not known until the document is finished. Do **not** render twice. `PDFDocument` is already constructed with `bufferPages: true`, and `footer()` already demonstrates the pattern: finish the document, then `doc.switchToPage(0)` and draw. v2 should reserve page 1 with `doc.addPage()` at the start, render every section while recording page indices, then switch back to page 0 and draw the contents. This is the same mechanism as the footer and inherits its one hazard — writing below the bottom margin adds pages mid-walk — so the contents must fit page 1 or paginate deliberately.
+
+---
+
+### PAGE 2 — Programme at a Glance
+
+**1. Reader question.** *In one page: how willing is this programme to play freshmen, how much does it rely on experienced arrivals, who gets minutes when they open, how stable is the coaching behind that evidence, and what is turning over now?*
+
+**2. Existing data/functions available.** All five modules are computable today.
+
+| Module | Dominant metric | Source |
+|---|---|---|
+| 1 Freshman Opportunity | `ladder[0].median` (+ `band`, `agreement`) | `ladderByRank()` |
+| 2 Experienced Arrival Reliance | `dials.newcomer` | `dials(observations)` |
+| 3 Replacement Behaviour | `dials` three-way split | `dials(observations)` |
+| 4 Coach Context | `verdict.verdict` | `classifyProgramme()` |
+| 5 Squad Turnover | minutes expiring at `entrySeason − 1` and `entrySeason` | `eligibilityCliff()` |
+
+Supporting metrics available now: `seasons[].starters`, `profile.seasonsWithAnImpactFreshman`, `profile.medianIntake`, `profile.medianPlayed`, `benchmarks.ladderTopPercentile`, `benchmarks.dials`, `benchmarks.vacancy`, `tenure.segments`, `squad.rostered`, `squad.arrivals.length`.
+
+**3. Existing data currently underused.** This is where the largest v1 gap sits. `benchmarks.dials` (pool p25/median/p75 for all three dials), `benchmarks.vacancy` (`pctWithAFreshStarter` when a starter departed vs did not — the headline finding of the whole module: 51% vs 30%), and `benchmarks.ladderTopPercentile` are all computed, carried into the model, and never drawn. `profile.medianIntake`, `medianPlayed`, `medianImpactPerSeason` and `seasonsWithAnImpactFreshman` likewise.
+
+**4. New calculations required.**
+- **Descriptive classification per module.** Bands, not scores. Proposed thresholds, each anchored to an existing constant or to the pool rather than invented:
+
+| Module | Classification | Rule |
+|---|---|---|
+| Freshman Opportunity | `regular starters` / `selective` / `rare` / `not readable` | `ladder[0].band === 'impact'` and `seasonsWithAnImpactFreshman ≥ ⌈seasonsObserved/2⌉` → regular; `ladder[0].band ∈ {rotation, fringe}` → selective; `band === 'none'` → rare |
+| Experienced Arrival Reliance | `heavy` / `moderate` / `light` / `none observed` | `dials.newcomer` against `benchmarks.dials.newcomer.{p25,median,p75}` — above p75 heavy, below p25 light |
+| Replacement Behaviour | `promotes from within` / `recruits into the gap` / `buys experience` / `mixed` | whichever of `returning` / `freshman` / `newcomer` leads by ≥10 points (`STEP_POINTS`), else mixed |
+| Coach Context | reuse `VERDICT_LABEL` verbatim | no new logic |
+| Squad Turnover | `heavy` / `moderate` / `light` | expiring projected minutes as a share of total squad projected minutes |
+- **Evidence strength** — see §3.
+- **A generic pool-percentile helper.** `percentileOfLadderTop()` is hardcoded to rank 1 and returns a coarse 25/50/75/90. Module 2 needs the same treatment for `dials.newcomer`. Requires either a generalised `percentileIn(quantiles, value)` or richer quantiles in the pool build (see §5.2).
+
+**5. Cannot currently be produced.** Any figure requiring the 2026 season to have been played. Any statement about *why* a coach uses freshmen. Any overall programme score — explicitly excluded by the brief and by the repo's own convention that colour tracks confidence, not quality (`src/lib/philosophyLabels.js`).
+
+**6. Recommended chart/visual.** Five module cards in a 2-2-1 grid. Each card: classification chip, dominant metric at display size, one to three supporting metrics as small `facts`, a compact visual, an evidence-strength chip, and one interpretive sentence. Compact visuals per module:
+1. A four-segment sparkline of `seasons[].starters` — reuse `charts.columns` at ~40pt.
+2. A single `k.bar` of `dials.newcomer` against the pool median as `marker`.
+3. `k.stacked` at reduced height — the existing primitive is already exactly right.
+4. A tenure strip: one block per season, coloured by segment, hatched for `unknownSeasons`, outlined for `vacantSeasons`. **New primitive.**
+5. A two-bar `charts.paired`: minutes expiring before entry vs total squad projected minutes.
+
+**7. Interpretation style.** One sentence per module, past tense, subject = the programme, no second person, no causal verbs. *"Across the four seasons on file, a first-year here has typically played a starter's season."* Not *"this coach likes freshmen"*, not *"you would likely play"*.
+
+**8. Missing-data fallback.** A module with `insufficient` strength prints its classification slot as *"not enough on file to classify"* plus the specific reason, and suppresses the dominant metric entirely. It keeps its card — the absence of a classification is itself information at a glance. This is the one place where an unavailable state is preferred over omission.
+
+**9. Evidence-strength inputs.** Module 1: `seasonsObserved`, `unreadableSeasons.length`, `ladder[0].agreement`, `ladder[0].comparable`. Module 2: `dials.n`, `transfer.window.measurable.length`. Module 3: `dials.n`, `observations.length − dials.n` (unreadable observations). Module 4: `verdict.verdict`, `tenure.unknownSeasons.length`, `tenure.vacantSeasons.length`. Module 5: `squad.rostered`, count of squad rows with non-null `eligibility_end_year`.
+
+**10. Scope.** Programme-only. Renders identically with and without an athlete.
+
+---
+
+### PAGE 3 — Athlete Opportunity at a Glance
+
+**1. Reader question.** *Given this athlete's position and entry year: who is already there, who is still eligible when they arrive, who is not, and what has historically happened at this position when a place opened?*
+
+**2. Existing data/functions available.** `athlete.position` / `positionLabel` / `origin` / `classYear` / `level`; `entrySeason`, `entrySeasonKnown`; `squad.depth` (`depthChartAt`) with `projectedMinutes`, `eligibleTo`, `arrivedFrom`; `fit.position` (`positionHistory`) with `transitions`, `openings`, `freshmanTookIt`, `newcomerTookIt`, `startersDeparted`, per-season detail; `fit.ladder` / `fit.cohort`; `freshman.grid` filtered to the athlete's position.
+
+**3. Existing data currently underused.** `fit.wholeIntakeLadder` (present, used only in the retired player PDF), `fit.seasonsObserved`, `fit.cohort.thin` / `.refused` / `.relaxed`, `fit.position.dials` (a per-position three-way mix — never drawn anywhere), `benchmarks.byPosition` (`pctFreshStarter_gone` / `_stay` per position — computed, never drawn). `depthChartAt` output is truncated to ten rows by the renderer.
+
+**4. New calculations required.**
+- **Positional eligibility split** relative to `entrySeason`:
+  - `remainEligible = depth.filter(d => d.eligibleTo != null && d.eligibleTo >= entrySeason)`
+  - `expireBeforeEntry = depth.filter(d => d.eligibleTo != null && d.eligibleTo < entrySeason)`
+  - `eligibilityUnknown = depth.filter(d => d.eligibleTo == null)` — **must be shown**, never folded into either bucket.
+- **Projected minutes attached to expiring positional players**: `sum(expireBeforeEntry.map(d => d.projectedMinutes ?? 0))`, reported alongside the count of those rows with a null `projectedMinutes`.
+- **Athlete-position experienced arrivals**: `transfer.points.filter(p => p.position === canonicalPosition(athlete.position))`. Trivial, but not currently exposed.
+
+**5. Cannot currently be produced.** Who else is arriving in the athlete's class. Whether the programme will sign an experienced arrival at this position. The entry-season coach for any entrant after 2026 (`coach_seasons` stops at 2026; `coachForEntrySeason` is correctly `null` beyond it). Any probability of playing.
+
+**6. Recommended chart/visual.** A **positional eligibility timeline**: one row per current player at the athlete's position, a horizontal bar running from now to `eligibleTo`, a vertical entry-season marker, bar width proportional to `projectedMinutes`, and a distinct hatched treatment for `eligibilityUnknown`. Beneath it, a compact three-figure `facts` block for the vacancy history. **New primitive** (see §5.3).
+
+**7. Interpretation style.** Conditional and past-referring. *"Of the six defenders on the 2026 roster, two are out of eligibility before 2027. Across the seasons on file, a place opened at this position twice; a first-year took it once and an experienced arrival once."* Then, mandatorily: *"Who is on the roster in 2027 is not something this report can know."*
+
+**8. Missing-data fallback.** No `squad.depth` (position absent from the roster, or no 2026 roster) → state which, and keep the historical vacancy half of the page. No `fit.position.transitions` → state that the position does not carry enough recorded minutes, and keep the current-squad half. Both absent → the page is omitted and does not appear in the contents.
+
+**9. Evidence-strength inputs.** `fit.position.transitions`, `fit.position.openings`, `fit.cohort.thin/refused/relaxed`, `depth.length`, count of null `eligibleTo`, count of null `projectedMinutes`, `entrySeasonKnown`.
+
+**10. Scope.** Athlete-only.
+
+> **Wording rule, enforced.** This page is the highest-risk location for the "available minutes" error. Every figure derived from `expireBeforeEntry` must be labelled *"current projected minutes associated with players whose eligibility ends before entry"*. A test should assert the report text contains none of `available minutes`, `minutes up for grabs`, `open minutes`, `minutes available`.
+
+---
+
+### PAGE 4 — Freshman Intake
+
+**1. Reader question.** *How many first-years arrive here each year, how many get on the pitch, and how many play a real season?*
+
+**2. Existing data/functions available.** `freshman.points` (`freshmanPoints`), `freshman.intake` (`intakeBySeason`) with `rostered`, `measured`, `readable`, `load`, `freshmen`, `freshmanMinutes`, `freshmanPlayed`, `freshmanStarters`, `freshmanShare`. v1 renders `charts.scatter` and one `charts.columns` from these.
+
+**3. Existing data currently underused.** `intake[].freshmanShare` — the share of squad minutes going to freshmen, per season, computed and never charted. `intake[].rostered` and `.measured` — the readability denominators. `freshman.points[].band` and `.priorProgramme`. `profile.seasons[].redshirted` — redshirt freshmen are counted by `freshmanSeason()` and surfaced nowhere; they are a genuinely distinct answer to "will I play in year one".
+
+**4. New calculations required.**
+- A **share-of-squad-minutes series** chart from `intake[].freshmanShare` (v1 has the number, no visual).
+- A **coverage line** per season: `rostered − measured` unpublished rows, so the reader can see the denominator the guards are operating on.
+- **Redshirt count** per season, promoted from `profile.seasons[].redshirted`.
+
+**5. Cannot currently be produced.** Why a given freshman did not play. Whether a redshirt was medical or strategic.
+
+**6. Recommended chart/visual.** Keep `charts.scatter` (one dot per player, x = minutes, size = games played, fill = started ≥ half) — it is the best thing in v1. Keep the intake/played/started `charts.columns`. Add a small share-of-squad-minutes line or column strip beneath, on the same season axis.
+
+**7. Interpretation style.** Counting sentences, no adjectives. *"Nineteen first-years arrived across the four seasons; fourteen had minutes published; four played a starter's season."*
+
+**8. Missing-data fallback.** Already correct in v1 and must be preserved: a season with `readable === false` keeps its column slot, hatched, labelled *"not recorded"* (`charts.columns` handles this). Players with unpublished minutes are excluded from the scatter and counted in its footer (`"n with no minutes recorded, not shown"`), never plotted at zero.
+
+**9. Evidence-strength inputs.** `seasonsObserved` vs `SEASONS.length`, `unreadableSeasons`, `unknownRows`, per-season `measured / rostered`.
+
+**10. Scope.** Both. In an athlete report, the athlete's position is highlighted in the scatter (ring, not a colour change — colour already encodes origin).
+
+---
+
+### PAGE 5 — Freshman Ladder
+
+**1. Reader question.** *If I am their best incoming freshman — or their third — what did that player actually get?*
+
+**2. Existing data/functions available.** `ladder[]` from `ladderByRank(profile.seasons, {maxRank: 6})`: `rank`, `median`, `low`, `high`, `band`, `agreement`, `comparable`, `seasonsWithThisMany`. `weightedLadder[]` from the same function with `weightsFromVerdict()`. `benchmarks.ladderByRank[]` (`p25`/`median`/`p75` per rank across the pool) and `benchmarks.ladderTopPercentile`.
+
+**3. Existing data currently underused.** **`weightedLadder` is computed on every request and never drawn.** `benchmarks.ladderByRank` is used only for rank 1 — ranks 2–6 are available and unrendered. `ladderTopPercentile` is computed and unrendered. `ladder[5]` (rank 6) is computed and cut by `slice(0, 5)`.
+
+**4. New calculations required.**
+- **Per-rank contributing observations.** The brief asks for "seasonal observations contributing to each rank". `ladderByRank()` currently discards them: it builds `atRank = [{minutes, season}]` internally and returns only `seasonsWithThisMany` (a count). **This requires a change to `shared/freshmanMinutes.js`** to also return `contributions: [{season, minutes}]`. It is additive, does not alter any existing field, and is the single most valuable small change in this spec — it turns each ladder rung from a number into a visible sample. Test impact: `shared/freshmanMinutes.test.js`.
+- **Weighted vs unweighted presentation** — see the ruling below.
+
+**5. Cannot currently be produced.** A ladder position for the athlete themselves. Confidence intervals — the sample is 2–4 seasons and an interval would be theatre.
+
+**6. Recommended chart/visual.** One row per rank. Median as a `k.bar` with the `STARTER_MINUTES` marker (as v1), plus a low–high whisker drawn behind it for every rank, not only `agreement === 'wide'`, plus the individual contributing seasons as small dots on the same axis. Pool `p25`–`p75` as a pale band behind each row. Ranks 1–6.
+
+**7. Interpretation style.** Second person is permitted here and only here, because the ladder exists to be self-placed against — but only in the framing, never the finding. *"If you would be their best incoming forward, the players who held that rank got:"* followed by the historical figures.
+
+**8. Missing-data fallback.** `comparable === false` → render the reason (*"the seasons are not comparable this far down"*) instead of a bar, as v1 does. `agreement === 'wide'` → the range replaces the band label. No `ladder` at all → the page is omitted; the classification on page 2 already carries `not readable`.
+
+**9. Evidence-strength inputs.** `seasonsWithThisMany` per rank, `agreement`, `comparable`, `seasonsObserved`, `benchmarks.sufficient`.
+
+**10. Scope.** Both. Athlete reports add the cohort ladder (`fit.ladder`) beside the whole-intake ladder on page 13, not here.
+
+> #### Ruling: weighted vs unweighted ladder
+>
+> The brief asks this to be analysed explicitly rather than resolved silently. **Both are shown, labelled, and neither replaces the other.**
+>
+> - The **unweighted ladder** is *programme history*. It answers "what has happened here", weights every observed season equally, and is the correct number when the reader is assessing the institution.
+> - The **weighted ladder** is *current-regime-relevant history*. `weightsFromVerdict()` returns `null` unless the verdict carries a `weightFrom` — which happens only for `regime-change`, `policy-shift-same-coach`, `vacancy-in-window` and `change-too-recent`. Where it is non-null, seasons from `weightFrom` count 1 and earlier seasons count 0.35. It answers "what has happened under the current approach".
+>
+> Consequences for rendering:
+> 1. Where `weightedLadder` is `null` — the common case, including every `steady`, `continuity-through-change` and `structural-through-changes` programme — show the unweighted ladder alone and state that no reweighting applied *because the seasons all describe the same approach*. Do not show an empty second ladder.
+> 2. Where it is non-null, show both, with the verdict's own `note` as the caption explaining why they differ. If they do not differ (the weighting did not move any median), say so — that is a finding.
+> 3. The `weighted: true` flag already returned per rank by `ladderByRank()` must drive the label, so a reader is never left guessing which number they are reading.
+> 4. Page 2's Freshman Opportunity module uses the **unweighted** ladder as its dominant metric, for stability, and notes when the weighted view disagrees.
+
+---
+
+### PAGE 6 — Freshman Development
+
+**1. Reader question.** *If a first-year does not play here, do they play in year two — or do they disappear?*
+
+**2. Existing data/functions available.** `freshman.progression` (`secondYearProgression`): `season`, `name`, `position`, `year1`, `year2`, `year2State ∈ {measured, unrecorded, gone}`. `freshman.retention` `{stayed, of}`.
+
+**3. Existing data currently underused.** `progression[].position` — present on every row, never used to group or filter. In an athlete report this is exactly the split the reader wants.
+
+**4. New calculations required.**
+- **Grouping by year-one band.** Bucket each pair by `bandFor(year1)` (`impact` / `rotation` / `fringe` / `none`) and report, per bucket: n, median year-two minutes among `measured`, and counts of `unrecorded` and `gone`. This is the "do the ones who did not play in year one play in year two" question stated precisely. Safe to derive; requires a minimum-n guard before any bucket is characterised — propose n ≥ 4 to state a bucket median, otherwise show the individual pairs and no summary.
+- **Positional filter** for athlete reports.
+
+**5. Cannot currently be produced.** **Why anyone left.** The roster records absence, not cause. A name off the next roster may be a transfer out, an injury, a player who stopped, a graduate, or a spelling the join could not match — and `nameKey()`'s own validation puts the residual false-split rate at 3–5%. No page may attribute a departure to a cause, and the three `year2State` values must never be collapsed to two.
+
+**6. Recommended chart/visual.** Keep `charts.slope` — year one left, year two right, one line per player, and the existing gutter with an open circle for `gone`. Add small-multiple slopes, one per year-one band, when every band clears the n ≥ 4 guard; otherwise the single combined slope.
+
+**7. Interpretation style.** Strictly enumerative. *"Of the eleven first-years with published minutes and a following season on file, seven were on the next roster with minutes published, one was on it with none published, and three were not on it."* v1's existing note about the four meanings of a departure is well-judged and should be kept verbatim.
+
+**8. Missing-data fallback.** No pair has a following season (the 2025 cohort has none within `SEASONS`) → state that rather than draw. `year2State === 'unrecorded'` keeps its line, drawn to the gutter, never to zero.
+
+**9. Evidence-strength inputs.** `progression.length`, count by `year2State`, number of seasons contributing pairs.
+
+**10. Scope.** Both. Athlete reports add the position-filtered view.
+
+---
+
+### PAGE 7 — Experienced Arrival Intake
+
+**1. Reader question.** *Does this programme bring in players who are not first-years, how many, and do they play?*
+
+**2. Existing data/functions available.** `transfer.points` (`newcomerPoints`), `transfer.window` (`arrivalWindow`) with `measurable` / `unmeasurable`, `transfer.measurable`, `transfer.density ∈ {none, few, many}`, `freshman.intake[].newcomers` / `.newcomerMinutes` / `.newcomerStarters` / `.arrivalsMeasurable`.
+
+**3. Existing data currently underused.** `transfer.points[].priorProgramme` (present on historical points, not only current squad rows), `.band`, `.classLabel`. `intake[].newcomerShare`.
+
+**4. New calculations required.**
+- **Arrivals per measurable season** as an explicit series — currently only inferable by grouping `points` by season.
+- **Minutes earned by arrivals as a share of squad load** per season, from `intake[].newcomerShare`.
+- A **share of arrivals reaching `STARTER_MINUTES`**, guarded: report as `"4 of 9"`, not 44%, whenever n < 10.
+
+**5. Cannot currently be produced.** Transfer vs JUCO vs older recruit. Where an arrival came from when `prior_programme` is null (37% of squad rows; higher historically). Whether an arrival was recruited to start.
+
+**6. Recommended chart/visual.** `charts.scatter`, drawn identically to page 4's freshman scatter — same axis, same marker, same sizing — so the two pages can be laid side by side. This is already v1's stated intent and should be preserved. Add a per-season count strip above the lanes.
+
+**7. Interpretation style.** v1's three-way branch on `density` is correct and should be kept: *not measurable* → say the comparison cannot be made; *none* → say the programme added nobody, and that about a quarter of programmes are the same, so zero is a finding rather than a hole; *few* → list them and refuse to call it a policy; *many* → chart them.
+
+**8. Missing-data fallback.** Seasons in `window.unmeasurable` are **excluded from the lanes** and named in a note — an empty lane reads as "nobody came" when it means "we could not look". This is already correct in v1 and is a hard requirement.
+
+**9. Evidence-strength inputs.** `window.measurable.length`, `points.length`, `density`, per-season `arrivalsMeasurable`.
+
+**10. Scope.** Both.
+
+---
+
+### PAGE 8 — Experienced Arrival Profile / Current Arrivals
+
+**1. Reader question.** *Who has actually arrived for the current season, from where, and what are they expected to do?*
+
+**2. Existing data/functions available.** `squad.arrivals` (`namedArrivals`): `name`, `position`, `classLabel`, `from`, `projectedMinutes`. `squad.rostered`.
+
+**3. Existing data currently underused.** `arrivals[].projectedMinutes` — the list is *sorted* by it and the value is never printed.
+
+**4. New calculations required.**
+- **Athlete-position arrivals**: `squad.arrivals.filter(a => a.position === canonicalPosition(athlete.position))`.
+- A **historical-vs-current separation** in the layout, because these are different quantities: page 7's minutes are *played*, page 8's are *projected*.
+
+**5. Cannot currently be produced.** Arrivals not yet on the published roster. Anything about players whose `prior_programme` is null — they are indistinguishable from returners by this route and must not be inferred into the list.
+
+**6. Recommended chart/visual.** A table (see §5.4), not a chart: name, position, class, prior programme, projected minutes. Grouped by position, athlete's position first in athlete reports.
+
+**7. Interpretation style.** Naming, not characterising. *"Four players on the 2026 roster are recorded as arriving from another programme."* Then the count of squad rows with a null `prior_programme`, so the reader knows the list's coverage.
+
+**8. Missing-data fallback.** No 2026 roster → say so (v1 already distinguishes this from an empty arrivals list). Roster present, no arrivals → say that nobody is *recorded* as arriving, and give the null-`prior_programme` count in the same breath.
+
+**9. Evidence-strength inputs.** `squad.rostered`, count of non-null `prior_programme`, count of non-null `projected_minutes`.
+
+**10. Scope.** Both. Athlete-position subsection is athlete-only.
+
+> **Defect to fix while here.** `philosophyReport.js:365` filters a depth-chart row's `arrivedFrom` with a raw string comparison `d.arrivedFrom !== model.college.name`, while `namedArrivals()` uses `nameKey(r.prior_programme) !== nameKey(school)`. The raw comparison will show a returner as an arrival whenever the roster spells the school differently from `colleges.name` — which is precisely the class of defect the `school-spelled-two-ways` work existed to eliminate. Pages 8, 12 and 14 must all route through `nameKey`.
+
+---
+
+### PAGE 9 — Replacing Minutes *(marquee section)*
+
+**1. Reader question.** *When established players leave, where do the following season's positional minutes actually go?*
+
+**2. Existing data/functions available.** This is the best-supported page in the report. `vacancyObservations()` yields, per position-season transition: `departed`, `departedStarters`, `departedStarterNames`, `vacated`, `vacatedStarter`, `vacatedShare`, `vacatedStarterShare`, `freshMin`, `newcomerMin`, `returningMin`, `freshShare`, `newcomerShare`, `returningShare`, `freshStarters`, `newcomerStarters`, `bestFresh`, `freshmenReadable`, `prevLoad`, `nextLoad`. `dials()` aggregates them. `benchmarks.fillMix` bands the pool by `vacatedStarterShare` across `BINS = [0, .1, .2, .3, .4, .5, .7, 1.01]`, and `poolMixForBand()` selects the band matching this programme.
+
+**3. Existing data currently underused.** `benchmarks.vacancy` — `{starterDeparted: {n, pctWithAFreshStarter}, noStarterDeparted: {n, pctWithAFreshStarter}}`. This is the module's headline pool finding (a departing starter moves the odds of a freshman starting from ~30% to ~51%) and it is computed, carried in the model, and never rendered anywhere. It belongs on this page. Also unrendered: `vacatedShare` vs `vacatedStarterShare` as distinct quantities, the raw `freshMin`/`newcomerMin`/`returningMin` minutes, `observations.length` vs `dials.n`.
+
+**4. New calculations required.**
+- **Programme-level vacancy rate**: `mean(observations.map(o => o.vacatedStarterShare))` — computed already inside `programmeModel()` as `meanVacated` purely to select the pool band, then discarded. Surface it.
+- **The pool contrast pair**, rendered from `benchmarks.vacancy`.
+- **Observation counts** shown beside every share: `dials.n` readable of `observations.length` total.
+
+**5. Cannot currently be produced.** Causation. The data supports *"the minutes went to X"*, never *"the coach chose X"* or *"because Y left, X played"*. A position group's minutes may move for reasons wholly outside the roster.
+
+**6. Recommended chart/visual.** `k.stacked` for this programme and `k.stacked` for the comparable pool band, one above the other — v1 already does this and the primitive is well suited, since the three shares partition the minutes exactly. Add beneath: a two-row `charts.paired` of `pctWithAFreshStarter` when a starter departed vs when none did, programme value against pool value.
+
+**7. Interpretation style.** Descriptive and comparative, never causal. *"Across 23 readable position-seasons, 61% of the following season's minutes went to returning players, 22% to first-years and 17% to arrivals from elsewhere. Among programmes losing a comparable share of starter minutes, the pool split 58 / 19 / 23."* No "therefore", no "so", no "because".
+
+**8. Missing-data fallback.** `dials.n === 0` → the existing *"no position-seasons here carry enough recorded minutes"* string, with the `MIN_POSITION_MINUTES` threshold named. `benchmarks.poolMix === null` → show the programme bar alone and state the pool could not be banded.
+
+**9. Evidence-strength inputs.** `dials.n`, `observations.length − dials.n`, number of distinct positions contributing, number of distinct transitions contributing, `benchmarks.sufficient`, `benchmarks.readable`.
+
+**10. Scope.** Both.
+
+---
+
+### PAGE 10 — Replacement Behaviour by Position
+
+**1. Reader question.** *At each position, how often has a place actually opened, and who took it?*
+
+**2. Existing data/functions available.** `byPosition[]` from `positionHistory(observations, pos)` for each of `POSITIONS`: `transitions`, `startersDeparted`, `openings`, `freshmanTookIt`, `newcomerTookIt`, `dials`, and `seasons[{season, startersDeparted, departedNames, freshStarters, newcomerStarters, bestFresh}]`.
+
+**3. Existing data currently underused.** `byPosition[].dials` — a full three-way mix per position, computed and never drawn. `byPosition[].seasons[].bestFresh`. `benchmarks.byPosition` — `pctFreshStarter_gone` / `pctFreshStarter_stay` per position across the pool, computed and never drawn. v1 renders a single sentence per position and discards the rest.
+
+**4. New calculations required.**
+- **Returning-player outcome.** The brief asks for this "if safely derivable". It is *partially* derivable: `positionHistory` does not carry a `returningTookIt` counterpart, but `dials.returning` per position gives the share of minutes retained, and `openings − freshmanTookIt − newcomerTookIt` is **not** a valid count of "a returner took it" because the three are not mutually exclusive — an opening can see both a freshman and an arrival start, or neither. Recommendation: **do not synthesise a returning-took-it count.** Report `dials.returning` as a minutes share instead, labelled as such, and state that openings can be filled by more than one route. Adding a genuine `returningStarters` to `vacancyObservations` is possible (`returning.filter(r => minutesOf(r) >= STARTER_MINUTES).length`) and is proposed as an optional Status-C item.
+- **Pool comparison per position**, from `benchmarks.byPosition`.
+
+**5. Cannot currently be produced.** Sub-position detail — a left back and a centre back are both `DEFENSE` (`shared/positions.js`), and the report must say so. Whether a freshman starting was a promotion or a signing.
+
+**6. Recommended chart/visual.** A four-row table, one per canonical position: transitions, starters departed, openings, "a first-year then started", "an experienced arrival then started", and a compact `k.stacked` of that position's dials. Counts as `"2 of 5"` throughout, per the brief and per v1's existing note. Athlete's position highlighted with a rule and a claret label, never a different chart.
+
+**7. Interpretation style.** Counts, never rates, below n = 10. v1's note is exactly right and should be retained: *"Counts, not percentages: with at most three seasons to look at, a percentage of three reads far more confidently than it deserves to."*
+
+**8. Missing-data fallback.** `transitions === 0` for a position → the row stays, with *"not enough recorded minutes at this position"* — a position dropped from the table reads as a position that never turns over. Goalkeepers frequently land here and the methodology page explains why.
+
+**9. Evidence-strength inputs.** Per position: `transitions`, `openings`, `dials.n`, and whether `benchmarks.byPosition[pos].n` is non-zero.
+
+**10. Scope.** Both. Highlighting is athlete-only.
+
+---
+
+### PAGE 11 — Current Squad / Eligibility Outlook
+
+**1. Reader question.** *On the roster as it stands, when does eligibility run out, and how many projected minutes sit with those players?*
+
+**2. Existing data/functions available.** `squad.cliff` (`eligibilityCliff`): `[{year, total, byPosition: [{position, minutes, players}]}]`. `squad.rostered`.
+
+**3. Existing data currently underused.** **`cliff[].byPosition` is computed in full and only `total` is rendered.** The brief asks for a position breakdown and it already exists.
+
+**4. New calculations required.**
+- **Coverage**: `eligibilityCliff()` filters to rows with a non-null `eligibility_end_year` and returns `null` if none. The count of squad rows *excluded* by that filter is not reported and must be — otherwise a cliff built from 60% of the squad reads as the whole squad.
+- **Null-`projected_minutes` count** per year, for the same reason.
+
+**5. Cannot currently be produced.** Fifth-year returns, transfers out, medical redshirts — every one of which moves the cliff. v1's note says this and should be kept. Actual minutes for 2026: all 46,028 squad-season rows carry null minutes by construction (`SQUAD_SEASON` is deliberately excluded from `SEASONS`), so only `projected_minutes` exists.
+
+**6. Recommended chart/visual.** A **timeline grouped by position**, as the brief recommends: years across the x-axis, one band per canonical position, segment height proportional to expiring projected minutes, with the entry season marked. This is a stacked-column chart with a marker — `charts.columns` already supports `stacked: true` (a code path that is **currently never exercised anywhere in the codebase**) and needs only a vertical marker to serve. Prefer extending it over writing a new primitive.
+
+**7. Interpretation style.** Present-tense description of a current roster, future-tense only about eligibility rules, never about people. *"Of the 27 players on the 2026 roster, 8 have eligibility ending in 2026 and are associated with about 4,900 projected minutes."*
+
+**8. Missing-data fallback.** `cliff === null` → state that no squad row carries an eligibility end year, and give `squad.rostered` so the reader knows a roster exists. No 2026 roster → v1's existing wording.
+
+**9. Evidence-strength inputs.** `squad.rostered`, non-null `eligibility_end_year` count, non-null `projected_minutes` count.
+
+**10. Scope.** Both. Entry-season marker only in athlete reports; programme reports mark `RECRUIT_SEASON`.
+
+---
+
+### PAGE 12 — Current Depth
+
+**1. Reader question.** *Who is on the roster right now, and what is each of them expected to do?*
+
+**2. Existing data/functions available.** `squad` rows carry `player_name`, `position`, `class_year_label`, `projected_minutes`, `eligibility_end_year`, `prior_programme`. `depthChartAt(squad, position)` exposes exactly these for one position.
+
+**3. Existing data currently underused.** There is **no whole-squad depth accessor** — `depthChartAt` takes a position and returns `null` for `UNKNOWN`. The full squad table is a straightforward derivation that does not exist. `philosophyReport.js:360` also truncates the positional depth chart at ten rows.
+
+**4. New calculations required.**
+- `squadDepth(squadRows)` — the whole roster, grouped by `canonicalPosition`, sorted within group by `projectedMinutes` descending, with `UNKNOWN` kept as its own group rather than dropped.
+- Removal of the `slice(0, 10)` truncation; rule 1 forbids it.
+- `nameKey`-based comparison for `prior_programme` (see the page 8 note).
+
+**5. Cannot currently be produced.** Depth chart position in the coach's sense — this is roster order by projected minutes, not a selection.
+
+**6. Recommended chart/visual.** A table (§5.4): player, position, class, projected minutes, eligibility through, prior programme. Grouped by position with subtotals.
+
+**7. Interpretation style.** None beyond a caption. This page is evidence.
+
+**8. Missing-data fallback.** Empty cells render as `—`, never 0. A position group with no players is shown as an empty group, because an absent group reads as an omission.
+
+**9. Evidence-strength inputs.** Field-level coverage counts, printed as a caption: *"class known for 27 of 27, projected minutes for 24, eligibility end for 25, prior programme for 17."*
+
+**10. Scope.** Both. Athlete's position group ordered first and ruled in athlete reports.
+
+---
+
+### PAGE 13 — Athlete Position History
+
+**1. Reader question.** *Everything the record says about this one position — nothing about the others.*
+
+**2. Existing data/functions available.** `fit.position` (`positionHistory` at the athlete's position), `fit.ladder` (cohort ladder), `fit.cohort`, `fit.wholeIntakeLadder`, `freshman.grid` row for the position, `freshman.points` filtered by position, `transfer.points` filtered by position.
+
+**3. Existing data currently underused.** `fit.position.dials`, `fit.seasonsObserved`, `fit.wholeIntakeLadder` (drawn only in the retired player PDF), `fit.cohort.thin`.
+
+**4. New calculations required.** Positional filters over `freshman.points` and `transfer.points` (trivial, currently absent). Positional freshman-minute share is already `freshman.grid[pos].cells[].share`.
+
+**5. Cannot currently be produced.** Sub-position specialisation. Anything about the athlete's own quality relative to those players.
+
+**6. Recommended chart/visual.** Three stacked blocks on one page: (a) the cohort ladder beside the whole-intake ladder as paired bars — the difference between them is itself the finding, and `playerFit`'s own comment records that narrowing moved the ladder top downward at 17 of 19 programmes for a pilot athlete; (b) the position's freshman-share row from the heat grid; (c) the position's vacancy seasons as a small table.
+
+**7. Interpretation style.** Comparative between cohort and whole intake, explicitly. *"Read across the whole intake, the best first-year here played 1,850 minutes. Read for US recruits at this position, it is 999."* Then the refusal state if one applies.
+
+**8. Missing-data fallback.** `fit.cohort.refused` set → print `humanCohort(refused)` — the existing helper turns stored keys (`DEFENSE`, `domestic`) into words, and must be used, because the raw keys are map keys and not words anybody says. `relaxed` set → state which wider group is being shown instead. No positional data at all → omit the page.
+
+**9. Evidence-strength inputs.** `fit.seasonsObserved`, `fit.cohort.thin/refused/relaxed`, `fit.position.transitions`, `fit.position.openings`.
+
+**10. Scope.** Athlete-only.
+
+---
+
+### PAGE 14 — Current Competition
+
+**1. Reader question.** *Who exactly would I be competing with, and how long is each of them there for?*
+
+**2. Existing data/functions available.** `squad.depth` (`depthChartAt`) — full field set.
+
+**3. Existing data currently underused.** The whole list beyond ten rows; `arrivedFrom` on every row.
+
+**4. New calculations required.** The three-way eligibility split from page 3 (`remainEligible`, `expireBeforeEntry`, `eligibilityUnknown`), rendered here in full rather than summarised.
+
+**5. Cannot currently be produced.** Players arriving at this position in the athlete's own class or between now and entry.
+
+**6. Recommended chart/visual.** Table (§5.4), sectioned into the three eligibility buckets with a heading each, sorted by projected minutes within bucket.
+
+**7. Interpretation style.** Enumerative, with the wording rule applied: *"three of the six are eligible into 2027; two are not; one has no eligibility end recorded."*
+
+**8. Missing-data fallback.** `depth === null` (no such position on the roster, or position `UNKNOWN`) → state which, and note that the historical positional evidence on page 13 stands regardless.
+
+**9. Evidence-strength inputs.** `depth.length`, null counts for `eligibleTo` and `projectedMinutes`.
+
+**10. Scope.** Athlete-only.
+
+---
+
+### PAGE 15 — Entry-Year Context / Pathway
+
+**1. Reader question.** *What is known, today, about the position in the year I would arrive — and what is unknowable?*
+
+**2. Existing data/functions available.** `entrySeason`, `entrySeasonKnown`, `coachForEntrySeason`, `squad.depth`, `fit.position`, `squad.cliff` filtered to the athlete's position via `cliff[].byPosition`.
+
+**3. Existing data currently underused.** `cliff[].byPosition` at the athlete's position specifically. `coachForEntrySeason` is correctly `null` beyond 2026 and that null is currently rendered only as a box on the entry facet.
+
+**4. New calculations required.** Positional expirations before `entrySeason` with their associated projected minutes (shared with page 3 — compute once in the model, render twice).
+
+**5. Cannot currently be produced.** **This is the page defined by what it cannot produce.** Future recruits. Future experienced arrivals. Transfers out. Fifth-year decisions. The coaching staff beyond 2026. Any probability, expectation or likelihood of playing time.
+
+**6. Recommended chart/visual.** The same positional eligibility timeline as page 3, at full size, with the entry-season marker emphasised and everything to the right of it visibly shaded as unknown territory. The shading *is* the argument.
+
+**7. Interpretation style.** Two paragraphs, in this order: what is known (positional expirations, historical vacancy behaviour, coach if within 2026), then a full-width `k.box` of what is not. The unknowable half must be at least as visually prominent as the known half.
+
+**8. Missing-data fallback.** `entrySeasonKnown === false` → v1's existing box, kept verbatim: *"We hold rosters and coaching records through 2026. You would arrive in 2027, so who is in charge and who is on the squad by then is not something this report can tell you."*
+
+**9. Evidence-strength inputs.** `entrySeasonKnown`, `entrySeason − Number(SQUAD_SEASON)` (the horizon gap), `fit.position.openings`, `depth` null counts.
+
+**10. Scope.** Athlete-only.
+
+> **Hard constraint.** This page must never be framed as a playing-time forecast. Test assertion: the page's text contains no instance of `likely`, `expect to play`, `should play`, `chance of`, `projected to start`, or `opportunity for you`.
+
+---
+
+### PAGE 16 — Athlete Cohort / Origin Context
+
+**1. Reader question.** *Does where I am coming from change what the record says about this programme?*
+
+**2. Existing data/functions available.** `athlete.origin` (derived in `programReportModel`), `originOf()` on every roster row, `freshman.points[].origin`, `fit.cohort.origin`, `fit.ladder` when the cohort applied on origin.
+
+**3. Existing data currently underused.** The pool has no origin split at all — `buildPoolBenchmarks()` does not compute one. v1's origin facet quotes a pool-wide figure (37% vs 27%, and no effect at D-III) as **prose from prior research**, not as a computed value. That is honest but brittle: the sentence will drift from the data.
+
+**4. New calculations required.**
+- Programme-level: starter-season rate by origin among measured freshmen, with counts (`4 of 11`), never a percentage below n = 10.
+- Pool-level (optional, Status C): add `byOrigin: {domestic: {n, pctImpact}, international: {...}}` to `buildPoolBenchmarks`, ideally split by division since the research says the effect vanishes at D-III. This converts a hardcoded prose claim into a measured one. It adds one pass over an already-loaded row set, so the marginal cost on the 1.7 s build is small.
+
+**5. Cannot currently be produced.** Country-level effects. `originOf()` returns `null` for 1,834 rows with neither nationality nor country, and those rows must stay `null` rather than defaulting to domestic. Any origin claim at a programme with fewer than `MIN_COHORT_PLAYERS` measured freshmen of the athlete's origin.
+
+**6. Recommended chart/visual.** `charts.paired` — this programme's rate by origin, against the pool's rate by origin at the same division — with counts printed beside every bar.
+
+**7. Interpretation style.** Programme-specific first, pool second, and the pool framed as context rather than expectation. The existing v1 note is a good model and should be retained in substance: the effect is real across the game, disappears at D-III, and runs the other way at some programmes, so it must be measured per programme.
+
+**8. Missing-data fallback.** Fewer than six measured freshmen recording an origin → refuse the split outright, state the count, and show the unsplit figure. This mirrors `MIN_COHORT_PLAYERS` and should reuse the constant rather than introduce a second threshold.
+
+**9. Evidence-strength inputs.** Count of measured freshmen with non-null origin, count in the athlete's origin group, `fit.cohort.refused/relaxed` when origin was the refused dimension, `benchmarks.sufficient`.
+
+**10. Scope.** Athlete-only.
+
+---
+
+### PAGES 17+ — Supporting Historical Detail
+
+**1. Reader question.** *Show me the rows.*
+
+**2. Existing data/functions available.** Every table is a projection of an existing array: `freshman.points`, `transfer.points`, `observations`, `squad`.
+
+**3. Existing data currently underused.** `observations` is never rendered at row level anywhere. It is the richest structure in the module (18 fields per position-season transition) and the reader currently sees only its aggregates.
+
+**4. New calculations required.** Flattening and sorting only. The vacancy table needs one derivation: joining `departedStarterNames` (an array per observation) into rows, one per departed starter, carrying the observation's following-season outcome.
+
+Proposed tables:
+
+| Table | Columns | Source |
+|---|---|---|
+| Freshmen | season, name, position, minutes, games, starts, origin | `freshman.points` |
+| Experienced arrivals | season, name, position, prior programme, minutes, games, starts | `transfer.points` |
+| Vacancies | transition, position, departed starter, vacated minutes, following-season outcome | `observations` + `departedStarterNames` |
+| Current squad | player, position, class, projected minutes, eligibility end, prior programme | `squad` |
+
+**5. Cannot currently be produced.** Rows for players whose minutes were never published — they are excluded from `points` by construction. Their **count** must appear as a table caption so the omission is visible.
+
+**6. Recommended chart/visual.** Tables (§5.4). Sorted by season descending then minutes descending. Zebra striping at 3% claret. Repeated header on continuation pages.
+
+**7. Interpretation style.** Captions only. No interpretation on these pages by design — they exist so a sceptical reader can check the charts.
+
+**8. Missing-data fallback.** An empty table is omitted, since the charts above already stated the absence and its reason. Null cells render `—`.
+
+**9. Evidence-strength inputs.** Row counts and excluded-row counts in each caption.
+
+**10. Scope.** Both; the vacancy table is filtered to the athlete's position in athlete reports *in addition to* the full table, never instead of it.
+
+---
+
+### FINAL PAGE — Methodology / Limitations
+
+**1. Reader question.** *How was any of this worked out, and where does it stop being reliable?*
+
+**2. Existing data/functions available.** `limits()` in `philosophyPdf.js` already carries five bullets and accepts an `extra` array. v2 expands it into a structured page.
+
+**3. Existing data currently underused.** Every threshold constant is documented in source comments and none reaches the reader: `STARTER_MINUTES`, `MIN_POSITION_MINUTES`, `MIN_SQUAD`, `MIN_MEASURED_SHARE`, `MIN_COHORT_PLAYERS`, `MIN_COHORT_SEASONS`, `AGREEMENT_RATIO`, `STEP_POINTS`, `SPREAD_POINTS`, `BINS`.
+
+**4. New calculations required.** None. This page renders constants and prose.
+
+**5. Cannot currently be produced.** Nothing.
+
+**6. Recommended chart/visual.** None. Headed prose, one short block per topic:
+
+| Topic | Substance |
+|---|---|
+| Historical evidence vs forecast | The recruited season has not been played; every figure describes seasons that have |
+| True freshman | `readClassYear()`: first year on campus, redshirt freshmen excluded and counted separately; the Texas Tech club-column failure is why the reader is told the label can be unreadable |
+| 600-minute starter season | `STARTER_MINUTES`; the same threshold the rest of the product uses |
+| Ladder, not average | Freshman minutes are bimodal; Bentley 2025 — three freshmen over 1,000 minutes, five at none, mean 340 describing nobody |
+| Missing minutes | `minutesAreMissing()` reads `games_played`, because the importer coerces a blank minutes cell to 0; `MIN_MEASURED_SHARE = 0.5` per season and per position-season |
+| Experienced-arrival terminology | The roster cannot separate transfer, JUCO and older recruit; they are grouped and named accordingly |
+| Vacancy methodology | Position-season transitions; `MIN_POSITION_MINUTES = 1500` either side; name matching via `nameKey`, validated at a 3–5% residual false-split rate; the three shares partition the minutes exactly |
+| Projected minutes | A property of the current roster, not minutes available to a recruit; stated in those words |
+| Eligibility | `eligibility_end_year` is the last season a player may play; `classYear.js` offsets model five-year eligibility, and graduation year is exactly one year later |
+| Future recruiting | Unknown and unknowable from this data |
+| Coaching change | `tenureFor()` measures inside the observed window only; a gap is `unknown` or `vacant`, never continuity; a new coach's first season is inherited |
+| Broad position groups | Four canonical groups; a left back and a centre back are counted together |
+| Goalkeeper caveat | One keeper plays nearly every minute and the rest play none, so a typical figure describes nobody |
+| Benchmark pool | `buildPoolBenchmarks()`: all programmes in the sport across `SEASONS`, `sufficient: false` rather than zeros when unreadable, percentiles null rather than 50 |
+| Evidence strength | §3 of this document, stated in plain words: it measures how much data stands behind a statement, not how good the programme is |
+
+**7. Interpretation style.** Plain, second person permitted, no hedging about the hedges.
+
+**8. Missing-data fallback.** N/A — always renders.
+
+**9. Evidence-strength inputs.** N/A.
+
+**10. Scope.** Both; entries for athlete-only methods appear only in athlete reports.
+
+---
+
+## 3. Evidence strength
+
+A four-state label attached to every classification on pages 2–3 and to each evidence page's header.
+
+```
+'strong' | 'moderate' | 'thin' | 'insufficient'
+```
+
+**It measures confidence in the statement, not quality of the programme.** This mirrors the existing convention in `src/lib/philosophyLabels.js`, where badge colour tracks predictability rather than merit, and must be stated on the methodology page.
+
+Proposed home: a new pure module `shared/evidenceStrength.js`, with one function per module rather than a universal scorer, because the units differ — position-seasons, players, seasons and roster rows are not interchangeable.
+
+Inputs, all already available:
+
+| Dimension | Fields |
+|---|---|
+| Sample size | `dials.n`, `positionHistory.transitions`, `positionHistory.openings`, `points.length`, `depth.length`, `seasonsObserved` |
+| Coverage loss | `profile.unreadableSeasons.length`, `profile.unknownRows`, `intake[].readable === false` count, `observations.length − dials.n` |
+| Internal agreement | `ladder[].agreement`, `ladder[].comparable`, `verdict.spread` |
+| Cohort integrity | `cohort.thin`, `cohort.refused`, `cohort.relaxed` |
+| Attribution | `verdict.verdict ∈ {coach-unknown, coach-unknown-recent, new-coach-no-record, too-few-seasons}`, `tenure.unknownSeasons.length`, `tenure.vacantSeasons.length` |
+| Pool availability | `benchmarks.sufficient` |
+
+Rule shape: begin from a sample-size band, demote one level for any coverage loss or attribution gap, and floor at `insufficient` when below the module's stated minimum. `insufficient` **suppresses** the classification rather than softening it — rule 9.
+
+The thresholds must be recorded here once agreed, and reuse existing constants (`MIN_COHORT_PLAYERS`, `MIN_COHORT_SEASONS`, `MIN_MEASURED_SHARE`) wherever the quantity is the same, rather than introducing a parallel set.
+
+---
+
+## 4. Implementation-gap matrix
+
+**A** — available and currently rendered · **B** — available but underused or unrendered · **C** — derivable, needs new calculation · **D** — cannot be produced safely
+
+### Status A — keep as is
+
+| Component | Function / field | Page |
+|---|---|---|
+| Freshman scatter | `freshmanPoints()` → `charts.scatter` | 4 |
+| Intake / played / started columns | `intakeBySeason()` → `charts.columns` | 4 |
+| Ladder bars, top 5 | `ladderByRank()` → `k.bar` | 5 |
+| Pool rank-1 comparison | `benchmarks.ladderByRank[0]` | 5 |
+| Year 1 → year 2 slope | `secondYearProgression()` → `charts.slope` | 6 |
+| Position × season heat grid | `positionSeasonGrid()` → `charts.heatGrid` | 4 / 13 |
+| Experienced-arrival scatter, density branching | `newcomerPoints()`, `arrivalWindow()` | 7 |
+| Named current arrivals | `namedArrivals()` | 8 |
+| Three-way fill mix + pool band | `dials()`, `poolMixForBand()` → `k.stacked` | 9 |
+| Position counts line | `positionHistory()` | 10 |
+| Eligibility cliff totals | `eligibilityCliff()` → `charts.columns` | 11 |
+| Positional depth (first 10) | `depthChartAt()` | 12 / 14 |
+| Coach segments + verdict note | `tenureFor()`, `classifyProgramme()` | 2 |
+| Origin facet | `originOf()` → `charts.paired` | 16 |
+| Limits bullets | `limits()` | final |
+
+### Status B — available, unrendered or underused
+
+| Component | Function / field | Target page |
+|---|---|---|
+| **Weighted ladder** | `model.weightedLadder` — computed every request, never drawn | 5 |
+| **Pool dial percentiles** | `benchmarks.dials.{freshman,newcomer,returning}.{p25,median,p75}` | 2, 9 |
+| **Pool vacancy contrast** | `benchmarks.vacancy.{starterDeparted,noStarterDeparted}.pctWithAFreshStarter` — the module's headline finding | 9 |
+| **Pool per-position rates** | `benchmarks.byPosition[].pctFreshStarter_{gone,stay}` | 10 |
+| **Ladder-top percentile** | `benchmarks.ladderTopPercentile` | 2, 5 |
+| Ladder rank 6 | `ladder[5]`, cut by `slice(0, 5)` | 5 |
+| Per-position dials | `byPosition[].dials` | 10 |
+| Cliff by position | `cliff[].byPosition` | 3, 11, 15 |
+| Freshman share series | `intake[].freshmanShare`, `.newcomerShare` | 4, 7 |
+| Squad-minutes share per season | `seasons[].share` (`shareOfSquadMinutes`) | 4 |
+| Redshirt freshmen | `profile.seasons[].redshirted` | 4 |
+| Readability denominators | `intake[].rostered`, `.measured`, `profile.unknownRows`, `profile.unreadableSeasons` | 1, 4, all captions |
+| Profile medians | `medianIntake`, `medianPlayed`, `medianImpactPerSeason`, `seasonsWithAnImpactFreshman` | 2 |
+| Whole-intake vs cohort ladder | `fit.wholeIntakeLadder` — drawn only in the retired player PDF | 13 |
+| Cohort refusal state | `fit.cohort.thin/refused/relaxed` + `humanCohort()` | 13, 16 |
+| Arrival projected minutes | `arrivals[].projectedMinutes` — sorted by, never printed | 8 |
+| Historical prior programme | `points[].priorProgramme` on `newcomerPoints` | 7, 17+ |
+| Progression position | `progression[].position` | 6, 13 |
+| Verdict internals | `verdict.spread`, `.step`, `.describes`, `.unknownSeasons`, `.knownThrough`, `.coaches`, `.swing` | 2 |
+| Tenure gaps | `tenure.unknownSeasons`, `.vacantSeasons`, `.changes`, `.continuous` | 2 |
+| Full observation rows | `observations[]` — 18 fields, never rendered at row level | 17+ |
+| Stacked column mode | `charts.columns({stacked: true})` — implemented, never called | 11 |
+| Brand fields | `colleges.logo_url`, `.primary_color` — selected, unused | masthead |
+
+### Status C — derivable, needs new calculation
+
+| Component | Derivation | Touches |
+|---|---|---|
+| **Section registry + page-index recorder** | New; drives contents and the dynamic-page rule | `philosophyReport.js` |
+| **Contents page scope counts** | Aggregations over existing model arrays | new module |
+| **Evidence strength** | §3 | new `shared/evidenceStrength.js` |
+| **Per-rank contributing seasons** | `ladderByRank()` already builds `atRank`; return it as `contributions` | `shared/freshmanMinutes.js` + test |
+| **Module classifications ×5** | Banding rules in §Page 2 | new module |
+| Generic pool percentile | Generalise `percentileOfLadderTop()`; needs richer quantiles | `philosophyQueries.js` |
+| Pool dial quantiles retained | `buildPoolBenchmarks()` computes `dialSeries` and discards it — keep deciles | `philosophyQueries.js` |
+| Pool origin split (optional) | One extra pass over already-loaded rows, split by division | `philosophyQueries.js` |
+| Positional eligibility split | `depth` partitioned on `eligibleTo` vs `entrySeason`, with an explicit unknown bucket | model |
+| Projected minutes on expiring positional players | Sum over that partition, plus null count | model |
+| Whole-squad depth | `squadDepth(squadRows)` grouped by position, `UNKNOWN` retained | `shared/philosophy.js` |
+| Progression by year-one band | Bucket on `bandFor(year1)`, n ≥ 4 guard | model |
+| Athlete-position arrival filters | Filters over `transfer.points`, `squad.arrivals` | model |
+| Programme mean vacated share | `meanVacated` — computed in `programmeModel()` then discarded | model |
+| Vacancy evidence rows | Flatten `observations` × `departedStarterNames` | model |
+| `returningStarters` (optional) | Add to `vacancyObservations`; see the page 10 caution | `shared/philosophy.js` |
+| Field-coverage captions | Null counts per rendered field | model |
+| `nameKey` for depth `arrivedFrom` | Replace the raw string compare at `philosophyReport.js:365` | `philosophyReport.js` |
+| Remove `slice(0, 10)` on depth | Rule 1 | `philosophyReport.js` |
+
+### Status D — cannot be produced safely
+
+| Wanted | Why not |
+|---|---|
+| Why a player left a roster | The roster records absence, not cause; four causes are indistinguishable and `nameKey` carries a 3–5% residual false-split rate |
+| Playing-time forecast / probability | The season has not been played; rule 7 |
+| Future recruits or arrivals in the entry class | Not in any table |
+| Coach for an entry season after 2026 | `coach_seasons` stops at 2026; `coachForEntrySeason` is correctly `null` |
+| Actual 2026 minutes | All squad-season rows carry null minutes by construction; only `projected_minutes` exists |
+| Transfer vs JUCO vs older recruit | Not distinguishable; the terminology ruling exists because of this |
+| Country-level origin effects | Never enough players from one country at one programme |
+| Sub-position detail (CB vs LB) | Four canonical groups only |
+| Overall programme score | Excluded by the brief; colour and labels track confidence, not merit |
+| Athlete ability vs programme level | `soccer_score` is built from results, `football_ability` is self-entered; v1's caveat box is the correct treatment and must stay |
+| Injuries, admissions, scholarships | Not in the data |
+| Fifth-year returns / transfers out | Move the cliff and are unknowable |
+
+---
+
+## 5. Rendering primitives
+
+### 5.1 Existing primitives v2 reuses unchanged
+
+`kit()`: `title`, `heading`, `body`, `note`, `box`, `facts`, `bullets`, `bar`, `stacked`, `slot`, `room`, `gap`, `dim`.
+`charts`: `scatter`, `slope`, `columns` (including its unused `stacked` mode), `heatGrid`, `paired`.
+Sections: `masthead`, `whatThisIs`, `whoRunsIt`, `limits`, `footer`.
+Helpers: `minutes()`, `humanCohort()`, `render()`, `THEME`.
+
+**Every new chart must be registered on the `charts` object**, so it inherits the cursor-restoring wrapper at `philosophyPdf.js:797`. A chart added outside that object will reintroduce the blank-page defect.
+
+### 5.2 Primitives to extend
+
+| Primitive | Change |
+|---|---|
+| `charts.columns` | Add an optional vertical marker (entry season) and exercise the existing `stacked` path |
+| `charts.paired` | Currently `row.b` is drawn but the two series share one label pair; give it real per-series legends for programme-vs-pool |
+| `percentileOfLadderTop` | Generalise to any series; keep the null-not-50 rule |
+| `limits` | Grow into the structured methodology page |
+
+### 5.3 New primitives required
+
+| Primitive | Used by | Notes |
+|---|---|---|
+| `kit.contents` | 1 | Two-column list with layer dividers; drawn last via `switchToPage(0)` |
+| `kit.moduleCard` | 2 | Classification chip, dominant metric, supporting facts, compact visual slot, strength chip, one sentence |
+| `kit.strengthChip` | 2, 3, evidence headers | Four states; muted palette, never red/green — it is confidence, not merit |
+| `charts.tenureStrip` | 2 | One block per season, coloured by segment, hatched for unknown, outlined for vacant |
+| `charts.eligibilityTimeline` | 3, 11, 15 | One row per player or position; bar to `eligibleTo`; entry marker; hatched unknown; shaded unknowable region right of entry |
+| `charts.ladderRow` | 5 | Median bar + low–high whisker + contributing-season dots + pool p25–p75 band |
+| `kit.table` | 8, 10, 12, 14, 17+ | **The hardest one — see below** |
+
+### 5.4 The table primitive
+
+Every other primitive draws inside a fixed `k.slot()` box in absolute coordinates. A table cannot: it must span pages. It therefore has to be built on the **flow** model that `k.facts` and `k.bullets` use — `k.room()` before each row, `doc.y` advanced per row — not on `slot()`.
+
+Requirements:
+- Column spec `{key, label, width, align, format}` with widths summing to `THEME.W`.
+- `k.room(rowHeight)` per row; on a page break, **repeat the header** and append " (continued)" to the caption.
+- Null cells render `—`, never `0` or blank.
+- Numeric columns right-aligned, formatted through `minutes()` or `toLocaleString('en-US')`.
+- Zebra at ~3% fill; header rule in `THEME.LINE`.
+- Group headings with subtotals.
+- A caption line carrying row count and excluded-row count.
+
+This primitive is the largest single piece of new drawing work in v2 and should be built and unit-tested against a synthetic 200-row model **before** any page consumes it.
+
+---
+
+## 6. Dynamic page rule
+
+The report has no fixed length. Implemented through the section registry:
+
+```
+{ id, title, layer, scope, applies(model), render(k, model) }
+```
+
+- `applies(model) === false` → the section does not render **and does not appear in the contents**.
+- A section renders an explicit unavailable state only when **the absence itself is informative** — the page-2 module cards, the page-10 position rows, the page-7 unmeasurable-season note, the page-4 unreadable-season columns.
+- No section may render a heading followed by nothing.
+- `frame()` throws on a chart with no data and no reason, so `applies()` must be decided **before** the chart call, never by letting the chart decide.
+
+Because `applies()` runs before rendering, the contents page can be assembled from the same registry pass that produced the page indices — one traversal, no second render.
+
+---
+
+## 7. Closing analysis
+
+### 7.1 Biggest implementation risks
+
+1. **The contents page's page numbers.** Ranked first because getting it wrong is expensive and the wrong fix — rendering the document twice — is the obvious one. Use the `bufferPages` / `switchToPage(0)` route that `footer()` already proves. Its known hazard is that writing below the bottom margin adds pages while walking, which is what produced sixteen blank pages once already; `footer()` solves it by zeroing `page.margins.bottom` for the duration, and the contents must do the same or fit comfortably.
+2. **The table primitive's page breaks.** It is the only primitive that does not fit the `slot()` model, and every table page depends on it. Build it first, in isolation, against a synthetic long model.
+3. **`programReportModel` computes the programme three times.** `philosophyFor()` is called at `routes/philosophy.js:197`, again inside `programmeModel()` at `:112`, and a third time inside `fitFor()` at `:217`. Each call re-runs the roster query, the coach query, the squad query and the whole of `programmePhilosophy()`. At ~15 ms that is tolerable today; v2 adds pages that want more derived quantities, and the temptation will be to add a fourth call. Refactor to compute once and pass down **before** adding derivations, not after.
+4. **Scope-count semantics on page 1.** "Freshmen measured" and "freshmen on the roster" are different numbers — `freshmanPoints()` excludes rows failing `minutesAreMissing()`, while `profile.seasons[].intake` counts them. Publishing the wrong one on the contents page would understate coverage on the most prominent page in the report, and it is precisely the class of error the whole module exists to prevent.
+5. **Two guards that look alike and are not.** `positionSeasonGrid()` guards cells with `MIN_MEASURED_SHARE` (a *readability* test); `vacancyObservations()` guards with `MIN_POSITION_MINUTES` (a *volume* test). Pages 4, 10 and 13 draw from both. Conflating them in a caption would misstate why a cell is empty.
+6. **Terminology drift.** The model fields are `newcomer*` and the rendered word must be "experienced arrival". Without a forbidden-substring test this will regress within two commits.
+7. **Cross-session collision.** This worktree is isolated, but `shared/` files are shared with `feature/eligibility-based-matching`, which is actively changing `shared/matching/pool.js` and has already committed an `eligibility_end_year` semantics change. Any v2 change to `shared/freshmanMinutes.js` or `shared/philosophy.js` will need a rebase against that branch.
+
+### 7.2 Calculations needed before any PDF work
+
+In dependency order:
+
+1. `shared/evidenceStrength.js` — pure, testable, no rendering. Everything on pages 2–3 depends on it.
+2. `ladderByRank()` returning `contributions: [{season, minutes}]` — additive, one function, one test file.
+3. The section registry and its `applies()` predicates — this is what makes the dynamic-page rule and the contents page possible at all.
+4. Model derivations, computed once in `programReportModel`: positional eligibility split, projected minutes on expiring positional players, whole-squad depth, progression-by-band, athlete-position filters, mean vacated share, flattened vacancy rows, field-coverage counts.
+5. `buildPoolBenchmarks` retaining dial quantiles (and, optionally, the origin split), plus a generalised percentile helper.
+6. The five module classifiers.
+7. The `programReportModel` single-computation refactor — before 4, if it is going to happen at all.
+
+None of these touch drawing code, and all are unit-testable without rendering a PDF. That separation is already the module's design (`programmeModel` is deliberately split from the drawing "so the numbers can be asserted without rendering a PDF"), and v2 should hold it.
+
+### 7.3 Chart primitives to add
+
+Priority order: `kit.table` (blocks five pages) → `kit.moduleCard` + `kit.strengthChip` (block page 2) → `charts.eligibilityTimeline` (blocks three pages) → `charts.ladderRow` → `kit.contents` → `charts.tenureStrip`.
+
+Extensions: a marker on `charts.columns`, real legends on `charts.paired`, exercise `charts.columns({stacked: true})`.
+
+### 7.4 Changes I recommend to the proposed structure
+
+1. **Merge pages 13 and 14, or reorder them.** As specified, page 13 (athlete position history) and page 14 (current competition) split evidence about one position across two pages, while page 3 already summarises both. Recommend page 13 = historical positional evidence, page 14 = current positional squad, which is the natural historical/current seam — but that is what the brief says, so the real recommendation is narrower: **compute the eligibility split once** and render it on 3, 14 and 15 from a single derivation, rather than three times.
+
+2. **Pages 9 and 10 should be adjacent and share one preamble.** They answer the same question at two resolutions. One methodology note covering `MIN_POSITION_MINUTES`, the three-way partition and the counts-not-rates rule should sit at the top of page 9 and not be repeated on page 10.
+
+3. **Page 16's pool comparison needs the pool to actually compute it.** v1 states the 37%/27% origin finding as prose from prior research. Either compute it in `buildPoolBenchmarks` (Status C, cheap) or mark it in the report as prior research with its date. Leaving a hardcoded statistic beside computed ones is the failure mode this codebase has documented repeatedly — a figure that looks measured and is not.
+
+4. **Do not add a "returning took the opening" count** (page 10). The three outcomes are not mutually exclusive, so the arithmetic `openings − freshmanTookIt − newcomerTookIt` is invalid. Report the returning *minutes share* from `positionHistory().dials` instead, and say plainly that one opening can be filled by more than one route. If a genuine count is wanted, add `returningStarters` to `vacancyObservations` — but that is a change to the analytics core and should be its own commit with its own test.
+
+5. **Page 2's Squad Turnover module needs a denominator that does not currently exist.** "Heavy/moderate/light" turnover requires expiring projected minutes as a share of *total* squad projected minutes, and nothing sums the latter. Trivial to add, but it must be added — classifying on an absolute minute count would make large squads look like high-turnover ones.
+
+6. **Retire the two dead renderers in the same series of commits.** `renderProgrammePdf` and `renderPlayerProgrammePdf` (`philosophyPdf.js:434`, `:450`) and `playerProgrammeModel` (`routes/philosophy.js:153`) have no callers. Leaving them means v2 changes to the shared sections silently alter dead code paths, and any test touching them tests nothing. Remove them in a separate commit from the v2 work so the diff stays readable.
+
+7. **Add the forbidden-phrase test before writing any prose.** Rules 7 and the "available minutes" wording ruling are both enforceable as a substring assertion over the rendered text. Writing that test first makes the two most important constraints in this document mechanical rather than remembered.
