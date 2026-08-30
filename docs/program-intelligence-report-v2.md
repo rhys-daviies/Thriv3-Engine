@@ -1122,3 +1122,53 @@ No new model field was required — `currentProjectedMinutesOfPlayersInFinalSeas
 `facetOrigin` still prints the prose Phase 2 disproved: *"an international first-year is about 40% more likely to play a starter's season than a domestic one — 37% against 27%"*. The measured pool gives **36.2% against 21.3%**, and the claim that the effect "disappears entirely at Division III" holds for the men's game but **reverses** in the women's. The model now carries the measured figures; the v1 page does not read them. This is the first thing Phase 4 should fix.
 
 The Phase 3 wording tests are therefore split: the minutes rules apply to the whole document, the prediction rules to pages 1–3 only, with the reason recorded in the test.
+
+---
+
+## 11. Phase 4 — the programme evidence layer, as built
+
+### 11.1 Page structure
+
+| Page (programme / athlete report) | Section | Question |
+|---|---|---|
+| 1 | Contents | — |
+| 2 | Programme at a glance | interpretation |
+| — / 3 | Athlete opportunity at a glance | interpretation |
+| 3 / 4 | The first-year intake | How many arrive, how many play? |
+| 4 / 5 | The first-year ladder | How deep into a class does real playing time go? |
+| 5 / 6 | After the first season | What happens in year two? |
+| 6 / 7 | Experienced arrivals | How often are non-first-years added, and how much do they play? |
+| 7 / 8 | Who the arrivals are | What kind of player, and who has arrived now? |
+| 8 / 9 | Replacing minutes | Where do the following season's minutes go? |
+| 9 / 10 | Position by position | Does that depend on the position? |
+| 10 / 11 | Current squad outlook | When does the load reach the end of its eligibility? |
+| 11 / 12 | The current squad in full | Who is on the roster, and how established? |
+| — / 13–14 | Athlete facets (still v1) | Phase 5 |
+| 12 / 15 | Methodology | Phase 5 redesign |
+
+Programme reports run **12 pages**, athlete reports **15**, and a sparse programme collapses to **8**. Pages are gated on the section registry, so a page is never opened before its emptiness is discovered.
+
+### 11.2 The origin fix
+
+`facetOrigin` no longer contains a percentage. It reads `summary.athlete.originContext`, prefers the programme's own division, and states the reason when no comparison can be made. The replaced sentence was wrong in two ways: 37%/27% against a measured 36.2%/21.3%, and "disappears entirely at Division III" holds only for the men's game.
+
+### 11.3 Terminology
+
+Every reader-facing "transfer" describing a historical arrival is now "experienced arrival", including `k.stacked`'s legend, which had read *stayed / freshmen / transfers* since v1. The word survives only where it names one of several things a roster absence could mean, and where `prior_programme` records an actual origin. Internal `newcomer*` fields are unchanged — renaming them would be API churn for no analytical gain.
+
+### 11.4 New primitives
+
+| Primitive | Where | Notes |
+|---|---|---|
+| `kit.table` | `philosophyPdf.js` | Flow-based, repeats its header after a break, never splits a row, group headings kept with their rows, nulls render `—` |
+| `charts.dotLadder` | `philosophyPdf.js` | Seasonal dots + median bar + pool interquartile band; labels stagger and drop on collision |
+| `charts.eligibilityTimeline` | `philosophyPdf.js` | Position lanes × eligibility years, dot size = projected minutes, hollow where none |
+| `fitText` | `philosophyPdf.js` | Moved from `reportFront.js`; one implementation for both layers |
+
+### 11.5 Weighted ladder
+
+Drawn only where `weightingApplied && weightedAgrees === false`. It appears as a compact **Current-coach relevance** block naming both figures and quoting the verdict's own note, never as a second ladder chart. Where weighting does not apply or changes nothing, the page says nothing about it.
+
+### 11.6 Model gap closed
+
+`squadDepth(squadRows)` was added to `shared/philosophy.js` and exposed as `summary.programme.squadTurnover.squad`. `depthChartAt` only ever answered for one position and returned `null` for `UNKNOWN`; pages 11 and 12 need every row, and a player missing from a squad list is one the reader assumes is not there.
