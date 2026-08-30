@@ -161,7 +161,7 @@ export function freshmanLadderPage(k, model) {
   const xMax = Math.max(1600, ...rows.flatMap((r) => [r.high ?? 0, r.poolP75 ?? 0]));
 
   charts.dotLadder(k, {
-    box: k.slot(rows.length * 30 + 44),
+    box: k.slot(rows.length * 30 + 60),
     title: 'What the best, second-best and third-best first-year actually got',
     subtitle: 'One dot per season, placed at the minutes that rank played. The heavy bar is this '
       + 'programme’s median across those seasons.',

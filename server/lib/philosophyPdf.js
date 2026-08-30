@@ -352,21 +352,29 @@ export function kit(doc) {
       ];
       const total = parts.reduce((s, p) => s + p.v, 0) || 100;
       let x = M;
+      const unlabelled = [];
       for (const part of parts) {
         const w = (part.v / total) * W;
-        doc.save().rect(x, barTop, Math.max(0, w - 2), 15).fill(part.c).restore();
+        doc.save().rect(x, barTop, Math.max(0, w - 2), 18).fill(part.c).restore();
         if (w > 46) {
           doc.font('Helvetica-Bold').fontSize(7.5).fillColor(part.c === PALE ? INK : '#FFFFFF')
-            .text(`${Math.round(part.v)}% ${part.t}`, x + 4, barTop + 4.5, { width: w - 8, ellipsis: true });
+            .text(`${Math.round(part.v)}% ${part.t}`, x + 4, barTop + 6, {
+              width: w - 8, lineBreak: false, ellipsis: true,
+            });
+        } else {
+          unlabelled.push(part);
         }
         x += w;
       }
-      doc.y = barTop + 15;
-      api.gap(3);
-      // A segment under about 46pt has no room for its own label, so the key
-      // has to exist somewhere.
-      const legend = parts.map((part) => `${Math.round(part.v)}% ${part.t}`).join('   ·   ');
-      doc.font('Helvetica').fontSize(7.5).fillColor(MUTED).text(legend, M, doc.y, { width: W });
+      doc.y = barTop + 18;
+      // Only the segments too narrow to carry their own label. Printing all
+      // three underneath repeated the bar word for word.
+      if (unlabelled.length) {
+        api.gap(3);
+        const legend = unlabelled.map((part) => `${Math.round(part.v)}% ${part.t}`).join('   ·   ');
+        doc.font(TYPE.note.font).fontSize(TYPE.note.size).fillColor(MUTED)
+          .text(legend, M, doc.y, { width: W });
+      }
       return api.gap(6);
     },
 
@@ -1328,7 +1336,9 @@ export const charts = {
           left + w + 6, cy + 2, { width: valueW - 8, lineBreak: false, ellipsis: true });
     });
 
-    const footY = plot.y + rows.length * rowH + 2;
+    // Clear of the second tier of season labels on the bottom rung, which
+    // reaches rowH/2 + 11 below that row's centre line.
+    const footY = plot.y + rows.length * rowH + 8;
     doc.font('Helvetica').fontSize(6).fillColor(MUTED)
       .text('0', left - 3, footY, { width: 16, lineBreak: false })
       .text(nice(xMax), left + w - 30, footY, { width: 30, align: 'right', lineBreak: false });

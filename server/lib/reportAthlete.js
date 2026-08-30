@@ -84,7 +84,7 @@ export function positionHistoryPage(k, model) {
       poolP75: null,
     }));
     charts.dotLadder(k, {
-      box: k.slot(rows.length * 28 + 42),
+      box: k.slot(rows.length * 28 + 58),
       title: cohort?.applied
         ? `The ladder for ${humanCohort([cohort.position, cohort.origin].filter(Boolean).join(' / ')) || 'this group'}`
         : 'The ladder, read across the whole intake',

@@ -554,9 +554,11 @@ export function freshmanProfile(rows, {
 
   const thinOf = (list) => {
     const players = list.reduce((sum, s) => sum + s.intake, 0);
-    return (players < MIN_COHORT_PLAYERS || list.length < MIN_COHORT_SEASONS)
-      ? `${players} in ${list.length} season${list.length === 1 ? '' : 's'}`
-      : null;
+    if (players >= MIN_COHORT_PLAYERS && list.length >= MIN_COHORT_SEASONS) return null;
+    // "0 in 0 seasons" is accurate and reads as a broken template. An empty
+    // group is an empty group.
+    if (!players) return 'nobody on file';
+    return `${players} in ${list.length} season${list.length === 1 ? '' : 's'}`;
   };
 
   // A caller who names a cohort gets that cohort, thin or not.
@@ -605,7 +607,10 @@ export function freshmanProfile(rows, {
     if (why) {
       // Record only the first refusal — it is the one the caller asked for.
       if (!cohort.refused) {
-        cohort.refused = `${[pos, org].filter(Boolean).join(' / ')}: only ${why} — too few to read separately`;
+        const named = [pos, org].filter(Boolean).join(' / ');
+        cohort.refused = why === 'nobody on file'
+          ? `${named}: nobody on file`
+          : `${named}: only ${why} — too few to read separately`;
       }
       continue;
     }
