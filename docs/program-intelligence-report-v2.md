@@ -438,7 +438,26 @@ Supporting metrics available now: `seasons[].starters`, `profile.seasonsWithAnIm
 **3. Existing data currently underused.** `byPosition[].dials` — a full three-way mix per position, computed and never drawn. `byPosition[].seasons[].bestFresh`. `benchmarks.byPosition` — `pctFreshStarter_gone` / `pctFreshStarter_stay` per position across the pool, computed and never drawn. v1 renders a single sentence per position and discards the rest.
 
 **4. New calculations required.**
-- **Returning-player outcome.** The brief asks for this "if safely derivable". It is *partially* derivable: `positionHistory` does not carry a `returningTookIt` counterpart, but `dials.returning` per position gives the share of minutes retained, and `openings − freshmanTookIt − newcomerTookIt` is **not** a valid count of "a returner took it" because the three are not mutually exclusive — an opening can see both a freshman and an arrival start, or neither. Recommendation: **do not synthesise a returning-took-it count.** Report `dials.returning` as a minutes share instead, labelled as such, and state that openings can be filled by more than one route. Adding a genuine `returningStarters` to `vacancyObservations` is possible (`returning.filter(r => minutesOf(r) >= STARTER_MINUTES).length`) and is proposed as an optional Status-C item.
+
+> #### Ruling: there is no `returningTookOpening`, and it must not be computed
+>
+> **Do not calculate `returningTookOpening = openings − freshmanTookIt − newcomerTookIt`.** The subtraction is invalid, and the reason is structural rather than a matter of sample size.
+>
+> `positionHistory` counts an opening as a season transition where `departedStarters > 0`. It then counts `freshmanTookIt` as those openings where `freshStarters > 0`, and `newcomerTookIt` as those where `newcomerStarters > 0`. **These two sets overlap and neither is exhaustive.** One opening can see a first-year and an experienced arrival both reach `STARTER_MINUTES` — in which case it is counted in both — and an opening can equally see neither, with the minutes absorbed by players already on the roster. The three outcomes are not a partition, so subtracting two of them from the total does not yield the third. On a programme where every opening produced both a freshman and an arrival starter, the expression returns a negative number.
+>
+> **Represent returning behaviour through the minutes share instead.** `positionHistory().dials` already returns `{n, freshman, newcomer, returning}` for that position, computed from `returningShare` — the fraction of the following season's positional minutes taken by players who were on the previous roster. Those three shares *do* partition the minutes exactly, by construction in `vacancyObservations`, which is precisely what makes them safe to present together and the opening counts unsafe to subtract.
+>
+> The page therefore carries two different kinds of quantity, and must label them as such:
+>
+> | Quantity | Unit | Source | Safe operation |
+> |---|---|---|---|
+> | `openings`, `freshmanTookIt`, `newcomerTookIt` | counts of season transitions | `positionHistory` | report as `"2 of 5"`; never subtract |
+> | `dials.returning` / `.freshman` / `.newcomer` | shares of positional minutes | `positionHistory().dials` | present together; they sum to 100% |
+>
+> The accompanying sentence must make the non-exclusivity explicit, e.g. *"A place opened five times. A first-year started in two of them and an experienced arrival in three; these can be the same season, because one opening can be filled by more than one player."*
+>
+> If a genuine count is wanted later, `returningStarters` can be added to `vacancyObservations` as `returning.filter(r => minutesOf(r) >= STARTER_MINUTES).length`. That is a change to the analytics core, belongs in its own commit with its own tests, and still would not make the three counts a partition — it would add a fourth overlapping set.
+
 - **Pool comparison per position**, from `benchmarks.byPosition`.
 
 **5. Cannot currently be produced.** Sub-position detail — a left back and a centre back are both `DEFENSE` (`shared/positions.js`), and the report must say so. Whether a freshman starting was a promotion or a signing.
@@ -664,6 +683,7 @@ Proposed tables:
 | Missing minutes | `minutesAreMissing()` reads `games_played`, because the importer coerces a blank minutes cell to 0; `MIN_MEASURED_SHARE = 0.5` per season and per position-season |
 | Experienced-arrival terminology | The roster cannot separate transfer, JUCO and older recruit; they are grouped and named accordingly |
 | Vacancy methodology | Position-season transitions; `MIN_POSITION_MINUTES = 1500` either side; name matching via `nameKey`, validated at a 3–5% residual false-split rate; the three shares partition the minutes exactly |
+| Counts vs shares | An opening can be filled by more than one player, so "a first-year started" and "an experienced arrival started" are overlapping counts and neither excludes a returning player keeping the minutes. Counts are never subtracted from one another; where a three-way split is shown it is a split of MINUTES, which does partition exactly |
 | Projected minutes | A property of the current roster, not minutes available to a recruit; stated in those words |
 | Eligibility | `eligibility_end_year` is the last season a player may play; `classYear.js` offsets model five-year eligibility, and graduation year is exactly one year later |
 | Future recruiting | Unknown and unknowable from this data |
@@ -920,3 +940,51 @@ Extensions: a marker on `charts.columns`, real legends on `charts.paired`, exerc
 6. **Retire the two dead renderers in the same series of commits.** `renderProgrammePdf` and `renderPlayerProgrammePdf` (`philosophyPdf.js:434`, `:450`) and `playerProgrammeModel` (`routes/philosophy.js:153`) have no callers. Leaving them means v2 changes to the shared sections silently alter dead code paths, and any test touching them tests nothing. Remove them in a separate commit from the v2 work so the diff stays readable.
 
 7. **Add the forbidden-phrase test before writing any prose.** Rules 7 and the "available minutes" wording ruling are both enforceable as a substring assertion over the rendered text. Writing that test first makes the two most important constraints in this document mechanical rather than remembered.
+
+---
+
+## 8. Phase 2 amendments
+
+Recorded as the analytics layer was built. Each entry changes something stated earlier in this document; the original text is left in place so the reasoning is traceable.
+
+### 8.1 Projected minutes do not exist for first-years, and the denominator had to change
+
+**Affects:** pages 2 (Squad Turnover), 3, 11, 15, and every use of `projected_minutes`.
+
+`projected_minutes` is carried forward from a player's prior season, so a true first-year cannot have one. On the 2026 rosters it is populated for **0.7%** of players labelled `Fr.` and for **65–81%** of every returning class.
+
+Two consequences, both of which broke the first implementation of the turnover denominator:
+
+| Coverage measured against | Mean | Programmes clearing `MIN_MEASURED_SHARE` | Programmes at full coverage |
+|---|---|---|---|
+| The whole roster | 50.6% | 1,237 of 1,910 (64.8%) | 0 |
+| Players who could carry a projection | 70.4% | 1,558 of 1,888 (82.5%) | 193 |
+
+1. Measuring coverage against the whole roster refuses roughly a third of the pool for a gap that is by design, and no programme anywhere reaches full coverage — a distribution that should itself have been the tell.
+2. More seriously, a whole-roster denominator silently omits every first-year's projected contribution, so any share taken against it **overstates turnover** by whatever the incoming class would have played.
+
+`squadProjectedMinutes()` therefore measures coverage against `projectable` rows (non-first-years) and reports `coverageOfRoster` alongside for transparency. Its `total` is the **returning squad's** projected load, and it carries `describes: 'players with a prior season on file'` so the phrasing cannot be lost on the way to a page.
+
+**Wording rule extended.** The existing ban on "available minutes" now also covers calling this denominator "the squad's minutes". `expiringShare()` returns `ofDescribes` for the renderer to use.
+
+### 8.2 No turnover thresholds yet
+
+Page 2's Squad Turnover module returns `classification: 'unclear'` for now. A defensible threshold needs the pool distribution of `expiringShare`, which is not computed — `buildPoolBenchmarks` has no turnover pass. Classifying on an absolute minute count would make large squads look like high-turnover ones, and classifying on an un-benchmarked share would be an invented threshold. The raw measure and its coverage are exposed; the banding waits for a pool pass.
+
+### 8.3 The 15 ms figure in `philosophyQueries.js` is wrong by an order of magnitude
+
+The module header states "One programme is ~15 ms end to end". Measured against a copy of the working database across the twelve largest men's programmes, `philosophyFor()` is **1.3 ms** and a complete `programReportModel()` is **2.6 ms**. The pool build is accurate at ~1.55 s.
+
+This matters for v2 planning: the per-request budget is far larger than the comment implies, so derivations may be computed eagerly in the model rather than deferred. The comment should be corrected when that file is next touched.
+
+### 8.4 Ladder contributions are additive, and verified as such
+
+`ladderByRank()` now returns `contributions: [{season, minutes, name, weight}]`. Verified against the working database over 1,138 programmes and 13,558 rungs, weighted and unweighted: no change to any `median`, `low`, `high`, `band`, `agreement`, `comparable`, `weighted` or `seasonsWithThisMany`.
+
+`weight` is `null` on an unweighted ladder rather than `1`, because "not weighted" and "weighted at full" are different facts and a renderer given `1` for both could not tell which ladder it held.
+
+### 8.5 Evidence strength returns three levels plus a sufficiency flag
+
+The Phase 1 draft proposed four levels including `insufficient`. The implementation uses three — `strong` / `moderate` / `limited` — with a separate `sufficient: boolean`, because the two axes are genuinely independent: a programme can have a complete four-season record that describes the *previous* coach, which is `limited` in relevance while being entirely sufficient in volume. Collapsing those into one scale would have lost the distinction that `new-coach-no-record` exists to make.
+
+`reasons` carries stable slug codes with their numbers, never sentences. Wording belongs to the surface rendering it — the PDF and the tab say different things about the same finding.
