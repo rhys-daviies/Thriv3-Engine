@@ -184,6 +184,129 @@ describe('ladderByRank', () => {
   });
 });
 
+/**
+ * Provenance, not methodology. Every assertion here about median, low, high,
+ * band, agreement and comparability restates a number the ladder already
+ * produced before contributions existed — if one of these moves, the change
+ * was not additive.
+ */
+describe('ladderByRank contributions', () => {
+  const seasons = [
+    { season: '2022', ladder: [{ rank: 1, minutes: 1000, name: 'Ana' }, { rank: 2, minutes: 400, name: 'Bea' }] },
+    { season: '2023', ladder: [{ rank: 1, minutes: 1200, name: 'Cal' }, { rank: 2, minutes: 200, name: 'Dee' }] },
+    { season: '2024', ladder: [{ rank: 1, minutes: 800, name: 'Eve' }] },
+  ];
+
+  it('leaves every existing figure exactly as it was', () => {
+    const byRank = ladderByRank(seasons);
+    expect(byRank[0]).toMatchObject({
+      rank: 1, median: 1000, low: 800, high: 1200, seasonsWithThisMany: 3,
+      band: 'impact', agreement: 'tight', comparable: true, weighted: false,
+    });
+    expect(byRank[1]).toMatchObject({
+      rank: 2, median: 300, low: 200, high: 400, seasonsWithThisMany: 2,
+      band: 'rotation', agreement: 'tight', comparable: true, weighted: false,
+    });
+  });
+
+  it('names the seasons, players and minutes each rung is made of', () => {
+    const byRank = ladderByRank(seasons);
+    expect(byRank[0].contributions).toEqual([
+      { season: '2022', minutes: 1000, name: 'Ana', weight: null },
+      { season: '2023', minutes: 1200, name: 'Cal', weight: null },
+      { season: '2024', minutes: 800, name: 'Eve', weight: null },
+    ]);
+  });
+
+  // The count and the list have to agree, or one of them is lying about the
+  // sample.
+  it('always carries exactly seasonsWithThisMany contributions', () => {
+    for (const r of ladderByRank(seasons)) {
+      expect(r.contributions).toHaveLength(r.seasonsWithThisMany);
+    }
+  });
+
+  // The defect this guards: a season with no player at this rank must be
+  // ABSENT, never present at zero. A manufactured zero would drag the median
+  // down and read as a coaching decision rather than a smaller intake.
+  it('omits a season that had nobody at this rank rather than scoring it zero', () => {
+    const rank2 = ladderByRank(seasons)[1];
+    expect(rank2.contributions.map((c) => c.season)).toEqual(['2022', '2023']);
+    expect(rank2.contributions.some((c) => c.minutes === 0)).toBe(false);
+  });
+
+  it('reconstructs low and high from the contributions themselves', () => {
+    for (const r of ladderByRank(seasons)) {
+      const mins = r.contributions.map((c) => c.minutes);
+      expect(Math.min(...mins)).toBe(r.low);
+      expect(Math.max(...mins)).toBe(r.high);
+    }
+  });
+
+  it('tolerates a season whose ladder carries no names', () => {
+    const nameless = [{ season: '2025', ladder: [{ rank: 1, minutes: 500 }] }];
+    expect(ladderByRank(nameless)[0].contributions).toEqual([
+      { season: '2025', minutes: 500, name: null, weight: null },
+    ]);
+  });
+
+  // A wide rung is the case where the contributions earn their place: the
+  // median alone asserts the opposite of what one of the seasons says.
+  it('exposes the disagreement behind a wide rung', () => {
+    const wide = [
+      { season: '2022', ladder: [{ rank: 1, minutes: 42, name: 'A' }] },
+      { season: '2023', ladder: [{ rank: 1, minutes: 1001, name: 'B' }] },
+      { season: '2024', ladder: [{ rank: 1, minutes: 14, name: 'C' }] },
+    ];
+    const r = ladderByRank(wide)[0];
+    expect(r.median).toBe(42);
+    expect(r.agreement).toBe('wide');
+    expect(r.contributions.map((c) => c.minutes)).toEqual([42, 1001, 14]);
+  });
+});
+
+describe('weighted ladder provenance', () => {
+  const seasons = [
+    { season: '2022', ladder: [{ rank: 1, minutes: 100, name: 'Old' }] },
+    { season: '2023', ladder: [{ rank: 1, minutes: 900, name: 'Mid' }] },
+    { season: '2024', ladder: [{ rank: 1, minutes: 950, name: 'New' }] },
+  ];
+
+  // The renderer has to be able to say WHY a weighted median differs, without
+  // re-deriving weightsFromVerdict for itself.
+  it('carries the weight each season was counted at', () => {
+    const r = ladderByRank(seasons, { weights: { 2022: 0.35, 2023: 1, 2024: 1 } })[0];
+    expect(r.weighted).toBe(true);
+    expect(r.contributions).toEqual([
+      { season: '2022', minutes: 100, name: 'Old', weight: 0.35 },
+      { season: '2023', minutes: 900, name: 'Mid', weight: 1 },
+      { season: '2024', minutes: 950, name: 'New', weight: 1 },
+    ]);
+  });
+
+  // Null, not 1. "Not weighted" and "weighted at full" are different facts and
+  // a renderer that saw 1 either way could not tell which ladder it held.
+  it('leaves the weight null on an unweighted ladder', () => {
+    const r = ladderByRank(seasons)[0];
+    expect(r.weighted).toBe(false);
+    expect(r.contributions.every((c) => c.weight === null)).toBe(true);
+  });
+
+  it('defaults an unlisted season to full weight and says so', () => {
+    const r = ladderByRank(seasons, { weights: { 2022: 0.35 } })[0];
+    expect(r.contributions.map((c) => c.weight)).toEqual([0.35, 1, 1]);
+  });
+
+  it('does not change the unweighted median, low or high', () => {
+    const plain = ladderByRank(seasons)[0];
+    const weighted = ladderByRank(seasons, { weights: { 2022: 0.35, 2023: 1, 2024: 1 } })[0];
+    expect(plain.median).toBe(900);
+    expect(weighted.median).toBe(900);
+    expect(weighted.low).toBe(100);
+    expect(weighted.high).toBe(950);
+  });
+});
+
 describe('freshmanProfile', () => {
   const rows = [];
   for (const season of ['2024', '2025']) {

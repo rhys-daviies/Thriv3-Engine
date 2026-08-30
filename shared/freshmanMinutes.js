@@ -222,7 +222,7 @@ export function ladderByRank(seasons, { maxRank = 8, weights = null } = {}) {
     const atRank = seasons
       .map((s) => {
         const p = s.ladder.find((x) => x.rank === rank);
-        return p ? { minutes: p.minutes, season: s.season } : null;
+        return p ? { minutes: p.minutes, season: s.season, name: p.name ?? null } : null;
       })
       .filter(Boolean);
     if (!atRank.length) break;
@@ -240,6 +240,28 @@ export function ladderByRank(seasons, { maxRank = 8, weights = null } = {}) {
       // Stated rather than implied, so a caller can say which coach's
       // programme the number actually describes.
       weighted: Boolean(w),
+      // The seasons this rung is actually made of, in the order they were
+      // handed in. A rung is two to four observations and a reader deserves
+      // to see them: a median of 42 drawn from 42, 1001 and 14 is a different
+      // object from a median of 42 drawn from 40, 42 and 44, and only the
+      // second is a description of the programme.
+      //
+      // Only seasons that HAVE a player at this rank appear. A season whose
+      // intake was smaller, or whose minutes were never published, is absent
+      // rather than present at zero — a manufactured zero would drag the
+      // median down and read as a coaching decision.
+      //
+      // `weight` carries the per-season weighting the median was actually
+      // computed with, so a weighted rung can be explained without the
+      // renderer reconstructing weightsFromVerdict for itself. It is null on
+      // an unweighted ladder, never 1, because "not weighted" and "weighted
+      // at full" are different facts.
+      contributions: atRank.map((p, i) => ({
+        season: p.season,
+        minutes: p.minutes,
+        name: p.name ?? null,
+        weight: w ? w[i] : null,
+      })),
     });
   }
 
