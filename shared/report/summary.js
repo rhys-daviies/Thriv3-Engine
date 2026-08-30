@@ -436,10 +436,27 @@ export function squadTurnoverSummary({ model, squadRows = [], entrySeason }) {
     rostered: model.squad?.rostered ?? 0,
     projectedMinutes: projected,
     cliff,
-    // Everything leaving before the athlete would arrive, and everything
-    // leaving at all, kept apart because they answer different questions.
+    // Bounded horizons only.
+    //
+    // There is deliberately no "expiring across the whole window" figure. Every
+    // player's eligibility ends in some year, so summing every year in the
+    // cliff returns the denominator back — it read 100% at every programme in
+    // the pool, which is true and says nothing.
+    expiringByYear: (cliff ?? []).map((y) => ({
+      year: y.year,
+      minutes: y.total,
+      share: projected.readable && projected.total ? y.total / projected.total : null,
+      players: y.players,
+      playersWithoutProjection: y.playersWithoutProjection,
+    })),
+    // Gone before the athlete arrives. Under the five-year eligibility model
+    // this is a narrow group — for a 2027 entrant, only current graduate
+    // students — so it is reported beside the wider horizon below rather than
+    // on its own.
     expiringBeforeEntry: before ? expiringShare(cliff, projected, { before }) : null,
-    expiringAcrossWindow: expiringShare(cliff, projected),
+    // Gone by the end of the athlete's first season: the same group plus
+    // everyone whose final eligible season IS the entry year.
+    expiringThroughEntrySeason: before ? expiringShare(cliff, projected, { before: before + 1 }) : null,
     byPosition: (cliff ?? []).map((y) => ({
       year: y.year,
       total: y.total,

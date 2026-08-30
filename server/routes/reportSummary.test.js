@@ -159,11 +159,19 @@ describe('an athlete arriving after the rosters on file', () => {
     expect(m.summary.programme.coachContext.coachForRecruitSeason).toBe('A Coach');
   });
 
-  it('still measures turnover before entry separately from across the window', () => {
+  // Every player's eligibility ends in some year, so a share taken across the
+  // whole cliff returns the denominator back — it read 100% at every programme
+  // in the pool. Only bounded horizons are reported.
+  it('measures turnover against bounded horizons, never the whole cliff', () => {
     const t = programReportModel({ collegeId: 'c1', playerId: 'p2027' }).summary.programme.squadTurnover;
+    expect(t).not.toHaveProperty('expiringAcrossWindow');
     expect(t.expiringBeforeEntry.minutes).toBe(2000);
-    expect(t.expiringAcrossWindow.minutes).toBe(2900);
     expect(t.expiringBeforeEntry.ofDescribes).toBe('players with a prior season on file');
+    // Through the entry season picks up anyone whose last eligible year is
+    // 2027 as well; this fixture has none, so the two agree.
+    expect(t.expiringThroughEntrySeason.minutes).toBe(2000);
+    expect(t.expiringByYear.map((y) => y.year)).toEqual([2026, 2028, 2029]);
+    expect(t.expiringByYear.find((y) => y.year === 2026).minutes).toBe(2000);
   });
 });
 
@@ -181,7 +189,8 @@ describe('a squad missing the columns the entry pages need', () => {
     ]);
     const m = programReportModel({ collegeId: 'c1', playerId: 'p1' });
     expect(m.squad.cliff).toBeNull();
-    expect(m.summary.programme.squadTurnover.expiringAcrossWindow.reason).toBe('no-eligibility-years-on-file');
+    expect(m.summary.programme.squadTurnover.expiringThroughEntrySeason.reason).toBe('no-eligibility-years-on-file');
+    expect(m.summary.programme.squadTurnover.expiringByYear).toEqual([]);
     expect(m.sections.some((s) => s.id === 'eligibility-outlook')).toBe(false);
   });
 
@@ -196,8 +205,11 @@ describe('a squad missing the columns the entry pages need', () => {
     const t = programReportModel({ collegeId: 'c1', playerId: 'p1' }).summary.programme.squadTurnover;
     expect(t.projectedMinutes.readable).toBe(false);
     expect(t.projectedMinutes.total).toBeNull();
-    expect(t.expiringAcrossWindow.share).toBeNull();
-    expect(t.expiringAcrossWindow.reason).toBe('projected-minutes-coverage-too-thin');
+    expect(t.expiringThroughEntrySeason.share).toBeNull();
+    expect(t.expiringThroughEntrySeason.reason).toBe('projected-minutes-coverage-too-thin');
+    // A per-year share is null for the same reason rather than computed from a
+    // denominator that was refused.
+    expect(t.expiringByYear.every((y) => y.share === null)).toBe(true);
     expect(t.classification).toBe('unclear');
   });
 

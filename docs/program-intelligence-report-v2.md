@@ -988,3 +988,97 @@ This matters for v2 planning: the per-request budget is far larger than the comm
 The Phase 1 draft proposed four levels including `insufficient`. The implementation uses three — `strong` / `moderate` / `limited` — with a separate `sufficient: boolean`, because the two axes are genuinely independent: a programme can have a complete four-season record that describes the *previous* coach, which is `limited` in relevance while being entirely sufficient in volume. Collapsing those into one scale would have lost the distinction that `new-coach-no-record` exists to make.
 
 `reasons` carries stable slug codes with their numbers, never sentences. Wording belongs to the surface rendering it — the PDF and the tab say different things about the same finding.
+
+---
+
+## 9. Phase 2 refinement pass
+
+### 9.1 Classification vocabulary is benchmark-relative, not judgemental
+
+**Replaces:** the `high` / `moderate` / `low` bands proposed for page 2.
+
+The calculation establishes where a programme sits among the other programmes in its sport. It does not establish whether the programme is good at anything, so the words no longer say that:
+
+| Value | Means |
+|---|---|
+| `above-benchmark` | above the pool's 75th percentile |
+| `typical` | inside the interquartile range |
+| `below-benchmark` | below the pool's 25th percentile |
+| `mixed` | the seasons behind the figure disagree too much for any single position to describe them |
+| `unclear` | we looked and the data cannot support a call |
+| `unavailable` | there was nothing to look at |
+
+The band boundaries moved with the words. The first implementation split on the median and p75 and never used p25, which put half the pool in the bottom band and made `typical` mean "third quartile" — a word doing the opposite of its job. It is now a genuine interquartile split.
+
+A page can now say *"Freshman opportunity — above programme benchmark"*, which is a report, where *"Freshman opportunity — High"* was a claim. These strings are the machine-readable contract; a renderer maps them to its own wording exactly as `VERDICT_LABEL` already does for `classifyProgramme`.
+
+### 9.2 The origin benchmark is measured
+
+**Replaces:** §Page 16's dependency on v1's prose, and the "optional Status-C" framing in §4.
+
+`buildPoolBenchmarks` now derives `byOrigin: { overall, byDivision }` inside the pass that was already reading every row. The build grows by roughly a sixth and remains once per process. Definitions come from `freshmanPoints` itself, so the pool and the programme halves cannot diverge: same true-freshman rule, same exclusion of a first-year already on the previous roster, same refusal of a row whose minutes were never published.
+
+Measured shares of first-years playing a starter's season:
+
+| | Men's domestic | Men's international | Women's domestic | Women's international |
+|---|---|---|---|---|
+| **Overall** | 21.3% (n=18,532) | 36.2% (n=5,417) | 30.5% (n=26,263) | 39.8% (n=2,169) |
+| **NCAA D1** | 20.3% | 39.9% | 28.4% | 38.2% |
+| **NCAA D2** | 15.0% | 35.5% | 27.7% | 42.6% |
+| **NCAA D3** | 25.0% | 28.6% | 33.7% | **25.8%** |
+| **NAIA** | refused — one season inside the window | | refused | |
+
+The v1 prose said "37% against 27%, and the effect disappears entirely at Division III". The international figure holds (36.2%); the domestic one was six points out. "Disappears at D-III" holds for the men's game (25.0 against 28.6) and is wrong for the women's, where it **reverses**: domestic first-years reach a starter's season more often than international ones.
+
+Consequences for page 16: the comparison uses the programme's **own division** wherever that division is readable, falling back to the pool as a whole and refusing entirely when neither group clears `MIN_COHORT_PLAYERS` / `MIN_COHORT_SEASONS`. Divisions are never ranked against one another. No difference, ratio or effect size is computed — two shares beside their sample sizes describe who played; "40% more likely" invites a reading of why.
+
+### 9.3 A squad-turnover pool distribution is not defensible
+
+**Confirms:** §8.2, with the measurement behind it.
+
+| Denominator coverage | Programmes | Mean expiring share |
+|---|---|---|
+| 0.50–0.70 | 328 | 0.456 |
+| 0.70–0.85 | 454 | 0.431 |
+| 0.85–0.95 | 399 | 0.402 |
+| 0.95–1.00 | 313 | 0.388 |
+
+Three reasons, any one of which is disqualifying:
+
+1. **The share moves with data completeness.** r = −0.147 across the window and −0.215 before entry. A percentile over these would rank programmes partly by how complete their projections are.
+2. **The missing programmes are not missing at random.** 18% have no readable denominator, and they are exactly the thin-coverage programmes whose shares would be most inflated — so the pool would be built from a biased subset of the thing it is meant to describe.
+3. **The before-entry measure is degenerate for later entrants.** Under the five-year model a 2026 senior is eligible through 2027, so for a 2027 entrant only graduate students qualify: the median share across the pool is exactly 0.
+
+`squadTurnover.classification` stays `'unclear'` with `classificationReason: 'pool-distribution-not-defensible'`, and carries `classificationEvidence` so the refusal cannot be quietly reversed later without confronting the measurement.
+
+### 9.4 Eligibility has a third meaningful group
+
+**Amends:** pages 3, 14 and 15.
+
+Because a 2026 senior is eligible through 2027, "eligibility ends before entry" catches only graduate students for a 2027 entrant — 1,103 rows of 57,807. Reporting only that would tell most athletes nobody is leaving while a quarter of the squad plays its final season beside them.
+
+`currentPlayersInFinalSeasonAtEntry` names the group whose last eligible season *is* the entry season. It is a subset of those eligible at entry, not a fourth disjoint bucket. Pages 3 and 15 should lead with it.
+
+Turnover is likewise reported only against **bounded** horizons. An "across the whole window" share returns the denominator back — it read 100% at every programme in the pool — so it has been removed in favour of `expiringByYear`, `expiringBeforeEntry` and `expiringThroughEntrySeason`.
+
+### 9.5 Field names renamed for accuracy
+
+Renamed before any renderer depends on them:
+
+| Was | Now | Why |
+|---|---|---|
+| `positionDepthNow` | `currentPositionPlayers` | "depth" reads as a coach's depth chart |
+| `positionDepthAtEntry` | `currentPlayersEligibleAtEntry` | read as a predicted roster |
+| `knownExpirationsBeforeEntry` | `currentPlayersEligibilityEndsBeforeEntry` | says what the record shows |
+| `knownPlayersStillEligibleAtEntry` | *(removed — duplicated the above)* | two names for one array |
+| `eligibilityUnknownAtEntry` | `currentPlayersEligibilityUnknown` | consistency |
+| `projectedMinutesAssociatedWithExpiringPlayers` | `currentProjectedMinutesOfPlayersEndingBeforeEntry` | leads with "current" |
+| `projectedMinutesAssociatedWithPlayersStillEligible` | `currentProjectedMinutesOfPlayersEligibleAtEntry` | ditto |
+| `positionReplacementBehaviour` | `positionOpeningOutcomes` | past-tense outcomes, not a projection |
+| `expiringAcrossWindow` | `expiringByYear` + `expiringThroughEntrySeason` | the old measure was definitionally ~100% |
+
+A test walks the entire model and fails on any field name matching `available|likely|will|predicted|forecast|chance|odds`, on any minute figure named as open/expected/available, and on any athlete roster group not prefixed `current`. `openings` is explicitly allowed: it is a past-tense count of places that actually came free.
+
+### 9.6 A `nameKey` property worth knowing
+
+`nameKey` strips digits, so `Player 1` and `Player 2` share a key. Real rosters do not name people that way, but fixtures do — and a numbered fixture reads as one first-year returning for four years rather than four separate intakes, which silently weakened two test files before it was caught. Pinned by a regression test.
