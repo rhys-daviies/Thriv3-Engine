@@ -483,6 +483,25 @@ export function eligibilityCliff(squadRows, { positions = POSITIONS } = {}) {
 }
 
 /**
+ * Does this player's `prior_programme` name a DIFFERENT programme?
+ *
+ * Compared through `nameKey`, never raw. The roster and `colleges.name` spell
+ * the same school differently often enough that a raw comparison reports a
+ * returner as an arrival — the same class of defect that made 79 programmes
+ * invisible to every join before the school names were aligned. One predicate
+ * so the two callers cannot drift apart again.
+ */
+export function arrivedFromElsewhere(priorProgramme, school) {
+  if (!priorProgramme) return false;
+  const from = nameKey(priorProgramme);
+  if (!from) return false;
+  // An unknown school name cannot rule an arrival out: with nothing to compare
+  // against, "came from somewhere named" is the more honest reading.
+  const here = nameKey(school);
+  return !here || from !== here;
+}
+
+/**
  * Arrivals the roster names outright, rather than ones inferred from absence.
  *
  * `prior_programme` is populated for 63% of squad-season rows and holds the
@@ -491,7 +510,7 @@ export function eligibilityCliff(squadRows, { positions = POSITIONS } = {}) {
  */
 export function namedArrivals(squadRows, { school } = {}) {
   return squadRows
-    .filter((r) => r.prior_programme && nameKey(r.prior_programme) !== nameKey(school))
+    .filter((r) => arrivedFromElsewhere(r.prior_programme, school))
     .map((r) => ({
       name: r.player_name,
       position: canonicalPosition(r.position),

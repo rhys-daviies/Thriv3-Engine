@@ -4,6 +4,7 @@ import {
   programmePhilosophy, playerFit, MIN_POSITION_MINUTES,
   freshmanPoints, newcomerPoints, arrivalWindow, secondYearProgression,
   intakeBySeason, positionSeasonGrid, eligibilityCliff, namedArrivals, depthChartAt,
+  arrivedFromElsewhere,
 } from './philosophy.js';
 
 /**
@@ -442,5 +443,58 @@ describe('the squad a recruit would join', () => {
     ], 'Defender');
     expect(depth.map((d) => d.name)).toEqual(['Starter', 'Backup']);
     expect(depth[0].eligibleTo).toBe(2026);
+  });
+});
+
+/**
+ * The predicate behind both the named-arrivals list and the depth chart's
+ * "from X" line. It exists because those two were comparing school names
+ * differently — one through nameKey, one raw — and a raw comparison turns a
+ * returner into an arrival wherever the roster and `colleges.name` disagree
+ * about spelling.
+ */
+describe('arrivedFromElsewhere', () => {
+  const variants = [
+    ['surrounding whitespace', '  Test College  ', 'Test College'],
+    ['an apostrophe', "St. John's University", 'St Johns University'],
+    ['a curly apostrophe against a straight one', 'St. John\u2019s', "St. John's"],
+    ['a full stop', 'St. Thomas', 'St Thomas'],
+    ['case', 'TEST COLLEGE', 'test college'],
+    ['an accent', 'Universidad Andrés Bello', 'Universidad Andres Bello'],
+    ['doubled spacing', 'Test  College', 'Test College'],
+    ['a hyphen against a space', 'Wilkes-Barre College', 'Wilkes Barre College'],
+  ];
+  for (const [what, onRoster, onCollegeRow] of variants) {
+    it(`treats a prior programme differing only by ${what} as the same school`, () => {
+      expect(arrivedFromElsewhere(onRoster, onCollegeRow)).toBe(false);
+    });
+  }
+
+  it('still recognises a genuinely different programme', () => {
+    expect(arrivedFromElsewhere('Another School', 'Test College')).toBe(true);
+  });
+
+  // Absence is not an arrival: 37% of squad rows carry no prior programme at
+  // all, and reading those as signings would invent an intake.
+  it('is false where no prior programme is recorded', () => {
+    expect(arrivedFromElsewhere(null, 'Test College')).toBe(false);
+    expect(arrivedFromElsewhere('', 'Test College')).toBe(false);
+    expect(arrivedFromElsewhere('   ', 'Test College')).toBe(false);
+  });
+
+  it('keeps a named origin when the school itself is unknown', () => {
+    expect(arrivedFromElsewhere('Another School', null)).toBe(true);
+  });
+
+  it('filters a spelling variant out of namedArrivals', () => {
+    const row = (over) => ({
+      college_name: 'St Johns University', sport: 'mens-soccer', season: '2026',
+      position: 'DEFENSE', minutes_played: null, games_played: null, ...over,
+    });
+    const arrivals = namedArrivals([
+      row({ player_name: 'Returner', prior_programme: "St. John's University" }),
+      row({ player_name: 'Signing', prior_programme: 'Another School' }),
+    ], { school: 'St Johns University' });
+    expect(arrivals.map((a) => a.name)).toEqual(['Signing']);
   });
 });

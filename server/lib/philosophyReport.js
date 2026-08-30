@@ -16,7 +16,7 @@ import {
   benchmarkSection, fillMixSection, positionSection, limits, footer, humanCohort,
   minutes,
 } from './philosophyPdf.js';
-import { STARTER_MINUTES } from '../../shared/philosophy.js';
+import { STARTER_MINUTES, arrivedFromElsewhere } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 
 const { INK, MUTED, CLARET, NAVY, MID, PALE, GREEN } = THEME;
@@ -362,7 +362,7 @@ function facetEntry(k, model) {
     `${d.classLabel ?? 'class not stated'}`
     + `${d.projectedMinutes != null ? ` · about ${minutes(d.projectedMinutes)} expected` : ''}`
     + `${d.eligibleTo != null ? ` · eligible through ${d.eligibleTo}` : ''}`
-    + `${d.arrivedFrom && d.arrivedFrom !== model.college.name ? ` · from ${d.arrivedFrom}` : ''}`,
+    + `${arrivedFromElsewhere(d.arrivedFrom, model.college.name) ? ` · from ${d.arrivedFrom}` : ''}`,
   ]));
   const goneBy = depth.filter((d) => d.eligibleTo != null && d.eligibleTo < model.entrySeason).length;
   if (goneBy) {
