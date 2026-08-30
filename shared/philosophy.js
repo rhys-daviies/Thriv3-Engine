@@ -780,7 +780,11 @@ export function depthChartAt(squadRows, position) {
       classLabel: r.class_year_label ?? null,
       projectedMinutes: r.projected_minutes ?? null,
       eligibleTo: r.eligibility_end_year ?? null,
-      arrivedFrom: r.prior_programme ?? null,
+      // Some rosters record a player's OWN programme in the prior-programme
+      // field, so this column printed "American International" against six
+      // American International players — a previous programme they never left.
+      // The same guard squadDepth already applies.
+      arrivedFrom: arrivedFromElsewhere(r.prior_programme, r.college_name) ? r.prior_programme : null,
     }))
     .sort((a, b) => (b.projectedMinutes ?? -1) - (a.projectedMinutes ?? -1));
 }

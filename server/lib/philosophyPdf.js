@@ -403,7 +403,12 @@ export function kit(doc) {
         // value's height alone put the next row's label 4 points into this
         // one's second line.
         const afterLabel = doc.y;
-        doc.font('Helvetica').fontSize(8.8).fillColor(INK).text(v, M + 176, top, { width: W - 176 });
+        // A null value is a figure that could not be made, and prints as a dash
+        // in the same grey a missing table cell does — never as a blank, and
+        // never as a zero.
+        const missing = v === null || v === undefined || v === '';
+        doc.font('Helvetica').fontSize(8.8).fillColor(missing ? MUTED : INK)
+          .text(missing ? '—' : v, M + 176, top, { width: W - 176 });
         doc.y = Math.max(afterLabel, doc.y, top + 14) + 1;
       }
       return api.gap(9);
@@ -1347,9 +1352,16 @@ export const charts = {
     const { doc } = k;
     const labelW = 74;
     const left = plot.x + labelW;
-    const w = plot.w - labelW - 8;
+    // The axis stops a dot's radius short of the edge. The same defect the
+    // scatter had: a player at the last year is drawn centred ON the axis end,
+    // so half of them hung off the page as soon as the dots grew.
+    const w = plot.w - labelW - 14;
     const top = plot.y + 6;
-    const laneH = Math.min(26, (plot.h - 32) / lanes.length);
+    // The cap scales with how many lanes there are. A single-lane timeline —
+    // one position, on an athlete page — was drawn 26 points tall on a page
+    // with four hundred points spare, which made a chart of eleven players
+    // look like a footnote.
+    const laneH = Math.min(lanes.length === 1 ? 84 : 30, (plot.h - 32) / lanes.length);
     const step = years.length > 1 ? w / (years.length - 1) : 0;
     const xOf = (year) => left + years.indexOf(year) * step;
     const maxMin = Math.max(1, ...lanes.flatMap((l) => l.players.map((p) => p.projectedMinutes ?? 0)));
@@ -1370,18 +1382,26 @@ export const charts = {
       const cy = top + 10 + i * laneH + laneH / 2;
       doc.font('Helvetica').fontSize(7).fillColor(INK)
         .text(lane.label, plot.x, cy - 3, { width: labelW - 6, lineBreak: false, ellipsis: true });
-      // Jittered within the lane so two players leaving the same year do not
-      // land on top of one another.
+      // Grouped by year first, then spread symmetrically about the lane's
+      // centre line. Offsetting from a running counter placed a year holding
+      // one player at the top of its lane and a year holding five across the
+      // middle of it, so the clusters did not share a baseline.
       const byYear = new Map();
       for (const p of lane.players) {
         if (p.eligibleTo == null || !years.includes(p.eligibleTo)) continue;
-        const seen = byYear.get(p.eligibleTo) ?? 0;
-        byYear.set(p.eligibleTo, seen + 1);
-        const off = ((seen % 3) - 1) * 4.5;
-        const r = 2 + Math.sqrt(Math.max(0, p.projectedMinutes ?? 0) / maxMin) * 4;
-        doc.save().fillOpacity(p.projectedMinutes == null ? 0.18 : 0.6)
-          .circle(xOf(p.eligibleTo), cy + off, p.projectedMinutes == null ? 2 : r)
-          .fill(p.projectedMinutes == null ? MUTED : NAVY).restore();
+        if (!byYear.has(p.eligibleTo)) byYear.set(p.eligibleTo, []);
+        byYear.get(p.eligibleTo).push(p);
+      }
+      const spread = Math.min(11, laneH / 6);
+      for (const [year, group] of byYear) {
+        group.forEach((p, i) => {
+          const off = (i - (group.length - 1) / 2) * spread;
+          const r = 2 + Math.sqrt(Math.max(0, p.projectedMinutes ?? 0) / maxMin)
+            * (laneH > 40 ? 7 : 4);
+          doc.save().fillOpacity(p.projectedMinutes == null ? 0.18 : 0.6)
+            .circle(xOf(year), cy + off, p.projectedMinutes == null ? 2 : r)
+            .fill(p.projectedMinutes == null ? MUTED : NAVY).restore();
+        });
       }
     });
 

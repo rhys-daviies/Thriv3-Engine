@@ -191,13 +191,20 @@ export function methodologyPage(k, model) {
   // of one of them.
   const cardW = (W - 20) / 3;
   const top = k.doc.y;
-  const cardH = 68;
-  [['HISTORY IS NOT FORECAST', 'Everything measured here has already happened. Nothing in this '
-      + 'report predicts a season that has not been played.'],
-    ['MISSING IS NOT ZERO', 'A figure that could not be read is never counted as none. It is left '
-      + 'out, and the gap is stated.'],
-    ['SAMPLE SIZE MATTERS', 'Small samples are shown as counts rather than rates. A share of three '
-      + 'reads more confidently than it deserves to.'],
+  // Sized to the tallest of the three, measured. The longest ran its final
+  // line onto the boundary of its own tinted ground.
+  const lines = [
+    'Everything measured here has already happened. Nothing in this report predicts a season that '
+    + 'has not been played.',
+    'A figure that could not be read is never counted as none. It is left out, and the gap is stated.',
+    'Small samples are shown as counts rather than rates. A share of three reads more confidently '
+    + 'than it deserves to.',
+  ];
+  const cardH = 32 + Math.max(...lines.map((t) => k.doc.font('Helvetica').fontSize(7.5)
+    .heightOfString(t, { width: cardW - 22 }))) + 10;
+  [['HISTORY IS NOT FORECAST', lines[0]],
+    ['MISSING IS NOT ZERO', lines[1]],
+    ['SAMPLE SIZE MATTERS', lines[2]],
   ].forEach(([title, sub], i) => {
     const x = M + i * (cardW + 10);
     k.doc.save().rect(x, top, cardW, cardH).fillOpacity(0.06).fill(CLARET).restore();

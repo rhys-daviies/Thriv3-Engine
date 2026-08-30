@@ -315,16 +315,25 @@ export function currentPositionPage(k, model) {
   const endsBefore = a.currentPlayersEligibilityEndsBeforeEntry ?? [];
   const unknown = a.currentPlayersEligibilityUnknown ?? [];
 
+  // Where NOBODY carries an eligibility year the three derived counts are not
+  // zero, they are unknown, and printing three zeros beside "18 with no
+  // eligibility year recorded" invites exactly the reading the report exists
+  // to prevent.
+  const placeable = players.length - unknown.length;
+  const count = (list) => (placeable ? String(list.length) : null);
   k.facts([
     [`Current known ${nouns(a)}`, String(players.length)],
-    [`Current players eligible in ${a.entrySeason}`, String(eligible.length)],
-    [`…of those, in their final eligible season in ${a.entrySeason}`, String(finalSeason.length)],
-    [`Current players whose eligibility ends before ${a.entrySeason}`, String(endsBefore.length)],
+    [`Current players eligible in ${a.entrySeason}`, count(eligible)],
+    [`…of those, in their final eligible season in ${a.entrySeason}`, count(finalSeason)],
+    [`Current players whose eligibility ends before ${a.entrySeason}`, count(endsBefore)],
     ['Current players with no eligibility year recorded', String(unknown.length)],
   ]);
-  k.note('Counts of the roster as it stands today, read against your entry year. Who is actually on '
-    + 'the squad by then depends on recruiting, arrivals, departures and eligibility decisions that '
-    + 'have not happened yet.');
+  k.note(placeable
+    ? 'Counts of the roster as it stands today, read against your entry year. Who is actually on '
+      + 'the squad by then depends on recruiting, arrivals, departures and eligibility decisions '
+      + 'that have not happened yet.'
+    : 'No player at this position carries an eligibility year, so the three counts above cannot be '
+      + 'made — they are unknown rather than zero. The rows themselves are below.');
 
   const bucket = (p) => {
     if (p.eligibleTo == null) return 'not recorded';
@@ -399,7 +408,7 @@ export function arrivalWindowPage(k, model) {
 
   if (years.length) {
     charts.eligibilityTimeline(k, {
-      box: k.slot(80),
+      box: k.slot(168),
       title: `Every current ${noun(a)}, at the year their eligibility ends`,
       subtitle: 'Dot size is the minutes they are projected to play. The dashed line is your entry year.',
       lanes: [{ label: cap(nouns(a)), players }],

@@ -397,6 +397,27 @@ describe('the report stays inside the page', () => {
     expect(clean(audit)).toBe(true);
   });
 
+  // Every derived figure on a squad with no eligibility years is unknown, not
+  // zero — the defect this whole report exists downstream of.
+  it('refuses rather than printing zeros when no eligibility year exists', async () => {
+    addProgramme('c1', 'Test College', { squad: false });
+    for (let i = 0; i < 12; i += 1) {
+      addRow('Test College', {
+        season: '2026', player_name: `Unknown ${letters(i)}`, class_year_label: 'So.',
+        minutes_played: null, games_played: null, eligibility_end_year: null,
+        projected_minutes: 400, prior_programme: 'Test College',
+      });
+    }
+    addAthlete('p1');
+    const { model, audit } = await audited('p1');
+    expect(clean(audit)).toBe(true);
+    const a = model.summary.athlete;
+    expect(a.currentPositionPlayers.length).toBe(12);
+    expect(a.currentPlayersEligibilityUnknown.length).toBe(12);
+    // A prior programme equal to the programme itself is not a previous one.
+    expect(a.currentPositionPlayers.every((p) => p.arrivedFrom == null)).toBe(true);
+  });
+
   it('holds where eligibility years and projections are mostly missing', async () => {
     addProgramme('c1', 'Test College', { squad: false });
     for (let i = 0; i < 16; i += 1) {
