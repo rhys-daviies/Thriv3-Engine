@@ -83,6 +83,12 @@ async function audited(playerId = null) {
 
 const clean = (audit) => {
   if (audit.violations.length) throw new Error(`layout overflow:\n${describeViolations(audit.violations)}`);
+  // A data cell may clip — a name is as long as it is. A column HEADING may
+  // not: "RETURNING S…" leaves the reader guessing what the column measures.
+  if (audit.clipped.length) {
+    throw new Error(`clipped column headings:\n${audit.clipped
+      .map((x) => `p${x.page} "${x.label}" -> "${x.fitted}" in ${x.width}pt`).join('\n')}`);
+  }
   return true;
 };
 
@@ -192,6 +198,46 @@ describe('the layout guard', () => {
     // Only the creation date differs between two renders, and pdfkit stamps
     // none by default here, so the bytes are directly comparable.
     expect(watched.length).toBe(plain.length);
+  });
+});
+
+describe('table headings', () => {
+  const head = async (columns, rows = [{ a: 1, b: 2, c: 3 }]) => {
+    const audit = createAudit();
+    const buf = await render((k) => k.table({ columns, rows }), { audit });
+    return { audit, buf };
+  };
+
+  it('breaks a long heading onto a second line rather than clipping it', async () => {
+    const { audit, buf } = await head([
+      { key: 'a', label: 'Projected minutes', width: 0.2 },
+      { key: 'b', label: 'Previous programme', width: 0.2 },
+      { key: 'c', label: 'X', width: 0.6 },
+    ]);
+    expect(audit.clipped).toEqual([]);
+    // Both words survive, on two lines, so the meaning is intact.
+    const text = buf.toString('latin1');
+    expect(text.length).toBeGreaterThan(0);
+    expect(audit.violations).toEqual([]);
+  });
+
+  it('reports a heading that cannot fit even on two lines', async () => {
+    const { audit } = await head([
+      { key: 'a', label: 'Extraordinarilylongunbreakableheading', width: 0.1 },
+      { key: 'b', label: 'B', width: 0.45 },
+      { key: 'c', label: 'C', width: 0.45 },
+    ]);
+    expect(audit.clipped).toHaveLength(1);
+    expect(audit.clipped[0].label).toBe('EXTRAORDINARILYLONGUNBREAKABLEHEADING');
+  });
+
+  it('leaves a heading that fits on one line alone', async () => {
+    const { audit } = await head([
+      { key: 'a', label: 'Player', width: 0.4 },
+      { key: 'b', label: 'Minutes', width: 0.3 },
+      { key: 'c', label: 'Games', width: 0.3 },
+    ]);
+    expect(audit.clipped).toEqual([]);
   });
 });
 

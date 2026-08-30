@@ -12,11 +12,11 @@
  * thing this report could print. And nothing describes a future roster: every
  * count is of the squad as it stands today, read against a date.
  */
-import { charts, THEME, pageHead, humanCohort, fitText } from './philosophyPdf.js';
+import { charts, THEME, TYPE, pageHead, humanCohort, fitText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 
-const { INK, MUTED, CLARET, NAVY, MID, PALE, GREEN, W } = THEME;
+const { INK, MUTED, LINE, CLARET, NAVY, MID, PALE, GREEN, W } = THEME;
 
 const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const cap = (s) => String(s ?? '').replace(/^./, (c) => c.toUpperCase());
@@ -199,22 +199,97 @@ export function positionOpeningsPage(k, model) {
 
   k.gap(4);
   k.heading('The openings themselves');
+
+  // One card per opening, with the four facts an opening consists of kept
+  // visibly apart: the transition, who left, how many minutes went with them,
+  // and what the following season did about it. They were three run-on lines
+  // that clipped the departing players' names on any position with more than
+  // two departures, on a page that then ended in 400 points of nothing.
   for (const e of events) {
-    k.room(46);
+    const left = e.departed ?? [];
+    // The card is as tall as its TALLER column. Sizing it off the departures
+    // alone put the minute split and its key outside the card and on top of
+    // the next one.
+    const leftH = 12 + Math.max(1, left.length) * 13;
+    const rightH = 12 + 26 + (e.returningShare != null ? 22 : 12);
+    const bodyH = Math.max(leftH, rightH);
+    const cardH = 28 + bodyH + 8;
+    k.room(cardH + 12);
     const top = k.doc.y;
-    k.doc.save().rect(THEME.M, top, 2.5, 34).fill(CLARET).restore();
-    k.doc.font('Helvetica-Bold').fontSize(9).fillColor(INK)
-      .text(e.transition, THEME.M + 9, top, { width: W - 9, lineBreak: false });
-    k.doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
-      .text(`Left: ${e.departed.map((d) => `${d.name} (${nf(d.minutes)} min)`).join(', ')}`
-        + `${e.vacatedStarterMinutes ? ` — ${nf(e.vacatedStarterMinutes)} starter minutes vacated` : ''}`,
-      THEME.M + 9, top + 12, { width: W - 9, lineBreak: false, ellipsis: true });
-    k.doc.font('Helvetica').fontSize(7.8).fillColor(INK)
-      .text(`Next season: ${e.freshStarters ? `${plural(e.freshStarters, 'first-year', 'first-years')} started` : 'no first-year started'}`
-        + ` · ${e.newcomerStarters ? `${plural(e.newcomerStarters, 'experienced arrival', 'experienced arrivals')} started` : 'no experienced arrival started'}`
-        + ` · ${e.returningShare == null ? 'returning share not readable' : `${Math.round(e.returningShare)}% of the minutes went to returning players`}`,
-      THEME.M + 9, top + 23, { width: W - 9, lineBreak: false, ellipsis: true });
-    k.doc.y = top + 40;
+    const half = (W - 26) / 2;
+    const rightX = THEME.M + 14 + half + 12;
+
+    k.doc.save().roundedRect(THEME.M, top, W, cardH, 3)
+      .lineWidth(0.75).strokeColor(LINE).stroke().restore();
+    k.doc.save().rect(THEME.M, top, 3, cardH).fill(CLARET).restore();
+
+    // The transition, and the size of the hole it left.
+    k.doc.font('Helvetica-Bold').fontSize(10).fillColor(INK)
+      .text(e.transition, THEME.M + 14, top + 9, { width: half, lineBreak: false });
+    k.doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
+      .text(e.vacatedStarterMinutes == null
+        ? 'starter minutes vacated not readable'
+        : `${nf(e.vacatedStarterMinutes)} starter minutes vacated`,
+      THEME.M + W - 14 - 180, top + 11, { width: 180, align: 'right', lineBreak: false, ellipsis: true });
+    k.doc.save().moveTo(THEME.M + 14, top + 24).lineTo(THEME.M + W - 14, top + 24)
+      .lineWidth(0.5).strokeColor(LINE).stroke().restore();
+
+    // Left: every departing starter by name, one per line, never truncated
+    // into "and others".
+    let ly = top + 32;
+    k.doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+      .text('WHO LEFT', THEME.M + 14, ly, { width: half, characterSpacing: TYPE.label.spacing, lineBreak: false });
+    ly += 10;
+    for (const d of left) {
+      k.doc.font('Helvetica').fontSize(7.8).fillColor(INK)
+        .text(fitText(k.doc, d.name ?? '—', half - 60), THEME.M + 14, ly, { width: half - 60, lineBreak: false });
+      k.doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
+        .text(`${nf(d.minutes)} min`, THEME.M + 14 + half - 58, ly, { width: 58, align: 'right', lineBreak: false });
+      ly += 13;
+    }
+    if (!left.length) {
+      k.doc.font('Helvetica-Oblique').fontSize(7.5).fillColor(MUTED)
+        .text('no departing starter named', THEME.M + 14, ly, { width: half, lineBreak: false });
+    }
+
+    // Right: what the following season did about it.
+    let ry = top + 32;
+    k.doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+      .text('WHAT HAPPENED NEXT', rightX, ry, { width: half, characterSpacing: TYPE.label.spacing, lineBreak: false });
+    ry += 10;
+    for (const [label, n] of [['First-years who started', e.freshStarters],
+      ['Experienced arrivals who started', e.newcomerStarters]]) {
+      k.doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
+        .text(fitText(k.doc, label, half - 30), rightX, ry, { width: half - 30, lineBreak: false });
+      k.doc.font('Helvetica-Bold').fontSize(7.8).fillColor(INK)
+        .text(n ? String(n) : 'none', rightX + half - 28, ry, { width: 28, align: 'right', lineBreak: false });
+      ry += 13;
+    }
+    // The minute split for this one transition, on the same three colours the
+    // rest of the report uses for it.
+    if (e.returningShare != null) {
+      const parts = [
+        { v: e.returningShare, c: PALE }, { v: e.freshmanShare, c: NAVY }, { v: e.newcomerShare, c: GREEN },
+      ].filter((x) => x.v != null);
+      const total = parts.reduce((sum, x) => sum + x.v, 0) || 100;
+      let cx = rightX;
+      for (const part of parts) {
+        const segW = (part.v / total) * (half - 4);
+        k.doc.save().rect(cx, ry + 3, Math.max(0, segW - 1), 8).fill(part.c).restore();
+        cx += segW;
+      }
+      ry += 13;
+      k.doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+        .text(`${Math.round(e.returningShare)}% returning · ${Math.round(e.freshmanShare ?? 0)}% first-years`
+          + ` · ${Math.round(e.newcomerShare ?? 0)}% experienced arrivals`,
+        rightX, ry, { width: half, lineBreak: false, ellipsis: true });
+    } else {
+      k.doc.font('Helvetica-Oblique').fontSize(7).fillColor(MUTED)
+        .text('the minute split for this transition is not readable', rightX, ry,
+          { width: half, lineBreak: false, ellipsis: true });
+    }
+
+    k.doc.y = top + cardH + 10;
   }
 }
 

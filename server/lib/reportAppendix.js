@@ -113,11 +113,13 @@ export function vacancyRecordPage(k, model) {
       + 'the following season that answers them.',
     columns: [
       { key: 'transition', label: 'Transition', width: 0.12 },
-      { key: 'position', label: 'Position', width: 0.12, format: (v) => cap(positionPlural(v)).replace(/s$/, '') },
-      { key: 'departed', label: 'Starters who left', width: 0.3, format: (v) => (v?.length ? v.map((d) => `${d.name} (${nf(d.minutes)})`).join(', ') : null) },
-      { key: 'vacatedStarterMinutes', label: 'Minutes vacated', width: 0.12, align: 'right', format: (v) => nf(v) },
-      { key: 'freshStarters', label: 'First-year started', width: 0.11, align: 'right', format: (v) => (v ? `yes (${v})` : 'no') },
-      { key: 'newcomerStarters', label: 'Arrival started', width: 0.11, align: 'right', format: (v) => (v ? `yes (${v})` : 'no') },
+      { key: 'position', label: 'Position', width: 0.1, format: (v) => cap(positionPlural(v)).replace(/s$/, '') },
+      // The widest column by some way. These are the names the whole analysis
+      // rests on, and this is the one page that prints them.
+      { key: 'departed', label: 'Starters who left', width: 0.36, format: (v) => (v?.length ? v.map((d) => `${d.name} (${nf(d.minutes)})`).join(', ') : null) },
+      { key: 'vacatedStarterMinutes', label: 'Minutes vacated', width: 0.1, align: 'right', format: (v) => nf(v) },
+      { key: 'freshStarters', label: 'First-year started', width: 0.1, align: 'right', format: (v) => (v ? `yes (${v})` : 'no') },
+      { key: 'newcomerStarters', label: 'Arrival started', width: 0.1, align: 'right', format: (v) => (v ? `yes (${v})` : 'no') },
       { key: 'returningShare', label: 'Returning share', width: 0.12, align: 'right', format: (v) => (v == null ? null : `${Math.round(v)}%`) },
     ],
     rows,

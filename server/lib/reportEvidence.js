@@ -220,13 +220,17 @@ export function freshmanDevelopmentPage(k, model) {
   ]);
 
   const max = Math.max(1600, ...pairs.flatMap((p) => [p.year1, p.year2 ?? 0]));
+  // The page's principal visual, given the room it needs. This chart is the
+  // whole answer to the page's question and was drawn at a third of the height
+  // of a page that then ended in 300 points of nothing.
   charts.slope(k, {
-    box: k.slot(210),
+    box: k.slot(330),
     title: 'First year to second year, one line per player',
     subtitle: 'Rising means more minutes in year two. A dashed line to the gutter is a player who '
       + 'was not on the next roster.',
     pairs: pairs.map((p) => ({ from: p.year1, to: p.year2 ?? 0, toState: p.year2State })),
     max,
+    marker: STARTER_MINUTES,
     leftLabel: 'first year',
     rightLabel: 'second year',
     unavailable: pairs.length ? null
@@ -264,12 +268,12 @@ export function freshmanDevelopmentPage(k, model) {
       caption: 'Grouped by what they played in year one. Counts, not rates: these groups are small '
         + 'and a percentage of four reads far more confidently than it deserves to.',
       columns: [
-        { key: 'label', label: 'In year one', width: 0.3 },
-        { key: 'n', label: 'Players', width: 0.11, align: 'right' },
+        { key: 'label', label: 'In year one', width: 0.26 },
+        { key: 'n', label: 'Players', width: 0.1, align: 'right' },
         { key: 'more', label: 'More in year 2', width: 0.15, align: 'right' },
         { key: 'less', label: 'Same or less', width: 0.15, align: 'right' },
-        { key: 'unrecorded', label: 'On roster, no mins', width: 0.16, align: 'right' },
-        { key: 'gone', label: 'Not on roster', width: 0.13, align: 'right' },
+        { key: 'unrecorded', label: 'On roster, no mins', width: 0.19, align: 'right' },
+        { key: 'gone', label: 'Not on roster', width: 0.15, align: 'right' },
       ],
       rows,
     });
@@ -472,22 +476,40 @@ export function replacingMinutesPage(k, model) {
   ]);
 
   k.body('Every season, at every position, some players leave. This is where the minutes they were '
-    + 'playing went the following season. The three shares divide those minutes exactly, which is '
-    + 'what makes them safe to read together.');
+    + 'playing went the following season.');
   k.gap(4);
 
-  k.stacked({
-    label: 'At this programme',
-    ...r.shares,
-    unavailable: r.observations ? null
-      : 'no position-season here carries enough recorded minutes to read the mix',
+  // One axis, one legend, the two mixes stacked on top of each other. The
+  // comparison is the page.
+  const KEYS = [
+    { key: 'returning', label: 'returning players', color: PALE, dark: true },
+    { key: 'freshman', label: 'first-years', color: NAVY },
+    { key: 'newcomer', label: 'experienced arrivals', color: GREEN },
+  ];
+  charts.stackedRows(k, {
+    box: k.slot(r.poolMix ? 132 : 96),
+    title: 'Where the minutes went',
+    subtitle: 'The three shares divide the position’s minutes exactly, which is what makes them '
+      + 'safe to read against each other.',
+    keys: KEYS,
+    rows: [
+      {
+        label: 'This programme',
+        note: `${r.observations} position-seasons`,
+        values: r.observations ? r.shares : null,
+        unavailable: 'no position-season here carries enough recorded minutes to read the mix',
+      },
+      ...(r.poolMix ? [{
+        label: 'Comparable programmes',
+        note: `${nf(r.poolMix.n)} position-seasons`,
+        values: r.poolMix,
+      }] : []),
+    ],
+    unavailable: null,
   });
-
   if (r.poolMix) {
-    k.stacked({ label: 'Programmes losing a comparable share of their starter minutes', ...r.poolMix });
-    k.note(`The comparison band is programmes whose vacated starter minutes sat in the same range as `
-      + `this one's, so like is read against like rather than against the sport as a whole. `
-      + `${nf(r.poolMix.n)} position-seasons are in it.`);
+    k.note('The comparison band is programmes whose vacated starter minutes sat in the same range '
+      + 'as this one’s, so like is read against like rather than against the sport as a whole.');
   } else if (r.poolReason) {
     k.note(`No comparable-programme mix could be built: ${r.poolReason}.`);
   }
@@ -498,7 +520,7 @@ export function replacingMinutesPage(k, model) {
     k.gap(6);
     k.heading('Across the pool, when a starter leaves');
     charts.paired(k, {
-      box: k.slot(64),
+      box: k.slot(88),
       title: 'Position-seasons in which a first-year went on to play a starter’s season',
       subtitle: 'Every programme in this sport, split by whether a starter had departed that position.',
       rows: [

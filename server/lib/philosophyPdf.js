@@ -409,20 +409,58 @@ export function kit(doc) {
       const widths = shown.map((c) => (c.width / total) * W);
       const xOf = (i) => M + widths.slice(0, i).reduce((a, b) => a + b, 0);
 
+      /**
+       * A heading breaks onto a second line rather than losing its meaning.
+       *
+       * Ten headings across the report were clipping — "MINUTES VACATED" to
+       * "MINUTES V…", "RETURNING SHARE" to "RETURNING…" — which leaves the
+       * reader guessing what a column measures. A data cell may clip, because
+       * a name is as long as it is; a heading may not.
+       */
+      doc.font(TYPE.label.font).fontSize(TYPE.label.size);
+      const headOpt = (c, i) => ({ width: widths[i] - 6, align: c.align || 'left',
+        lineBreak: false, characterSpacing: TYPE.label.spacing });
+      const headLines = shown.map((c, i) => {
+        const opt = headOpt(c, i);
+        const label = String(c.label).toUpperCase();
+        const w = widths[i] - 6;
+        if (doc.widthOfString(label, opt) <= w) return [label];
+        const words = label.split(' ');
+        let first = '';
+        let n = 0;
+        while (n < words.length) {
+          const next = first ? `${first} ${words[n]}` : words[n];
+          if (first && doc.widthOfString(next, opt) > w) break;
+          first = next;
+          n += 1;
+        }
+        const rest = words.slice(n).join(' ');
+        if (!rest) {
+          // One unbreakable word wider than its column. Nothing to do here but
+          // report it: the fix is the column, not the label.
+          const cut = fitText(doc, first, w, opt);
+          if (cut !== first) doc.__audit?.clip(label, cut, w);
+          return [cut];
+        }
+        const cut = fitText(doc, rest, w, opt);
+        if (cut !== rest) doc.__audit?.clip(label, `${first} ${cut}`, w);
+        return [first, cut];
+      });
+      const headH = headLines.some((l) => l.length > 1) ? 20 : 11;
+
       const header = () => {
-        api.room(rowHeight + 8);
+        api.room(rowHeight + headH + 6);
         const top = doc.y;
         shown.forEach((c, i) => {
-          // The letter-spacing has to be part of the measurement, not applied
-          // after it: fitting the label without it and drawing it with it is
-          // how a header that measured as fitting ran off the page.
-          const opt = { width: widths[i] - 6, align: c.align || 'left', lineBreak: false,
-            characterSpacing: TYPE.label.spacing };
           doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color);
-          doc.text(fitText(doc, String(c.label).toUpperCase(), widths[i] - 6, opt), xOf(i), top, opt);
+          const opt = headOpt(c, i);
+          // Bottom-aligned, so one-line and two-line headings share a baseline
+          // and the rule under them is straight.
+          const startY = top + headH - 8 - (headLines[i].length - 1) * 8;
+          headLines[i].forEach((ln, j) => doc.text(ln, xOf(i), startY + j * 8, opt));
         });
-        doc.moveTo(M, top + 11).lineTo(M + W, top + 11).lineWidth(0.75).strokeColor(INK).stroke();
-        doc.y = top + 16;
+        doc.moveTo(M, top + headH).lineTo(M + W, top + headH).lineWidth(0.75).strokeColor(INK).stroke();
+        doc.y = top + headH + 5;
       };
 
       if (caption) {
@@ -944,16 +982,46 @@ export const charts = {
     }
   },
 
-  /** Year one on the left, year two on the right, one line per player. */
-  slope(k, { box, title, subtitle, pairs, max, leftLabel, rightLabel, unavailable }) {
+  /**
+   * Year one on the left, year two on the right, one line per player.
+   *
+   * The chart carried no vertical scale at all for three phases: a reader
+   * could see that a line rose, and had no way to learn whether it rose from
+   * fringe minutes to a starter's season or from 40 to 90. A minutes axis and
+   * the starter line are the difference between a shape and evidence.
+   *
+   * Rising and falling are two tones of the same blue. They were navy and
+   * claret, which reads as good and bad — fewer minutes in a second year is
+   * not a verdict, and claret means "the reader's own year" everywhere else in
+   * this document.
+   */
+  slope(k, { box, title, subtitle, pairs, max, leftLabel, rightLabel, marker, unavailable }) {
     const plot = frame(k, box, { title, subtitle, unavailable, empty: !pairs?.length });
     if (!plot) return;
     const { doc } = k;
-    const h = plot.h - 16;
-    const lx = plot.x + 40;
-    const rx = plot.x + plot.w - 96;
-    const gx = plot.x + plot.w - 74;          // the gutter for those who left
+    const h = plot.h - 20;
+    const axisW = 34;                          // the minutes scale down the side
+    const lx = plot.x + axisW + 8;
+    const rx = plot.x + plot.w - 104;
+    const gx = plot.x + plot.w - 76;           // the gutter for those who left
     const yOf = (v) => plot.y + h - Math.min(1, v / max) * h;
+
+    // The scale, so a rise can be read in minutes rather than in slope.
+    const ticks = [0, max / 4, max / 2, (max * 3) / 4, max];
+    for (const t of ticks) {
+      const ty = yOf(t);
+      doc.save().moveTo(lx, ty).lineTo(rx, ty).lineWidth(0.3).strokeColor('#EDEFF3').stroke().restore();
+      doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+        .text(nice(t), plot.x, ty - 3.5, { width: axisW, align: 'right', lineBreak: false });
+    }
+    if (marker != null && marker <= max) {
+      const my = yOf(marker);
+      doc.save().dash(2, { space: 2 }).moveTo(lx, my).lineTo(gx + 6, my)
+        .lineWidth(0.75).strokeColor(CLARET).stroke().undash().restore();
+      doc.font('Helvetica').fontSize(6.5).fillColor(CLARET)
+        .text(`${nice(marker)} — a starter's season`, lx + 4, my - 9,
+          { width: 140, lineBreak: false });
+    }
 
     for (const axis of [lx, rx]) {
       doc.save().moveTo(axis, plot.y).lineTo(axis, plot.y + h).lineWidth(0.5).strokeColor(AXIS).stroke().restore();
@@ -961,23 +1029,26 @@ export const charts = {
     for (const pr of pairs) {
       const y1 = yOf(pr.from);
       if (pr.toState === 'measured') {
-        doc.save().moveTo(lx, y1).lineTo(rx, yOf(pr.to)).lineWidth(0.6)
-          .strokeOpacity(0.5).strokeColor(pr.to >= pr.from ? NAVY : CLARET).stroke().restore();
-        doc.save().circle(rx, yOf(pr.to), 1.6).fillOpacity(0.6).fill(NAVY).restore();
+        doc.save().moveTo(lx, y1).lineTo(rx, yOf(pr.to)).lineWidth(0.9)
+          .strokeOpacity(0.55).strokeColor(pr.to >= pr.from ? NAVY : MID).stroke().restore();
+        doc.save().circle(rx, yOf(pr.to), 2.4).fillOpacity(0.7).fill(NAVY).restore();
       } else {
-        doc.save().dash(1.5, { space: 2 }).moveTo(lx, y1).lineTo(gx, y1).lineWidth(0.5)
-          .strokeOpacity(0.45).strokeColor(MUTED).stroke().undash().restore();
-        doc.save().circle(gx, y1, 1.8).lineWidth(0.5).strokeColor(MUTED).stroke().restore();
+        doc.save().dash(1.5, { space: 2 }).moveTo(lx, y1).lineTo(gx, y1).lineWidth(0.7)
+          .strokeOpacity(0.5).strokeColor(MUTED).stroke().undash().restore();
+        doc.save().circle(gx, y1, 2.4).lineWidth(0.6).strokeColor(MUTED).stroke().restore();
       }
-      doc.save().circle(lx, y1, 1.6).fillOpacity(0.6).fill(MUTED).restore();
+      doc.save().circle(lx, y1, 2.4).fillOpacity(0.55).fill(MUTED).restore();
     }
-    doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
-      .text(leftLabel, plot.x, plot.y + h + 3, { width: 80, lineBreak: false })
-      .text(rightLabel, rx - 40, plot.y + h + 3, { width: 80, align: 'center', lineBreak: false });
+    doc.font('Helvetica-Bold').fontSize(7).fillColor(MUTED)
+      .text(leftLabel.toUpperCase(), lx - 24, plot.y + h + 5, { width: 90, lineBreak: false })
+      .text(rightLabel.toUpperCase(), rx - 45, plot.y + h + 5, { width: 90, align: 'center', lineBreak: false });
+    // On its own line: the two labels sit 28 points apart, so side by side the
+    // gutter's caption printed straight through "SECOND YEAR".
     const gone = pairs.filter((p) => p.toState !== 'measured').length;
     if (gone) {
       doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
-        .text(`${gone} not on the next roster`, gx - 46, plot.y + h + 12, { width: 120, align: 'center', lineBreak: false });
+        .text(`${gone} not on the next roster`, plot.x, plot.y + h + 15,
+          { width: plot.w, align: 'right', lineBreak: false });
     }
   },
 
@@ -1231,27 +1302,92 @@ export const charts = {
       .text(key, plot.x, footY, { width: plot.w, lineBreak: false, ellipsis: true });
   },
 
+  /**
+   * Several stacked bars sharing one axis, one legend and one label gutter.
+   *
+   * Built for the comparison the replacing-minutes page exists to make. Two
+   * `k.stacked` calls put the programme and the pool a paragraph apart, each
+   * with its own repeated legend, and the segments did not line up — so the
+   * one question the page asks, "how does this mix differ from a comparable
+   * programme's", took real work to answer. Stacked on a shared axis the
+   * difference is the first thing visible.
+   *
+   * The bars are thick enough to carry their percentages inside them, and a
+   * segment too narrow for its own label simply goes unlabelled: the legend
+   * beneath names the parts once, in order, so nothing is lost.
+   */
+  stackedRows(k, { box, title, subtitle, rows, keys, labelW = 150, barH = 30, unavailable }) {
+    const plot = frame(k, box, { title, subtitle, unavailable, empty: !rows?.length });
+    if (!plot) return;
+    const { doc } = k;
+    const trackW = plot.w - labelW;
+    let y = plot.y + 2;
+
+    for (const row of rows) {
+      doc.font('Helvetica-Bold').fontSize(8).fillColor(INK)
+        .text(fitText(doc, row.label, labelW - 12), plot.x, y + barH / 2 - 8,
+          { width: labelW - 12, lineBreak: false });
+      if (row.note) {
+        doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+          .text(fitText(doc, row.note, labelW - 12), plot.x, y + barH / 2 + 2,
+            { width: labelW - 12, lineBreak: false });
+      }
+      if (row.values == null) {
+        doc.font('Helvetica-Oblique').fontSize(7.5).fillColor(MUTED)
+          .text(row.unavailable || 'not enough on file', plot.x + labelW, y + barH / 2 - 4,
+            { width: trackW, lineBreak: false, ellipsis: true });
+        y += barH + 12;
+        continue;
+      }
+      const total = keys.reduce((sum, kk) => sum + (row.values[kk.key] ?? 0), 0) || 100;
+      let cx = plot.x + labelW;
+      for (const kk of keys) {
+        const v = row.values[kk.key] ?? 0;
+        const segW = (v / total) * trackW;
+        doc.save().rect(cx, y, Math.max(0, segW - 1.5), barH).fill(kk.color).restore();
+        if (segW > 34) {
+          doc.font('Helvetica-Bold').fontSize(9).fillColor(kk.dark ? INK : '#FFFFFF')
+            .text(`${Math.round(v)}%`, cx + 6, y + barH / 2 - 5, { width: segW - 10, lineBreak: false });
+        }
+        cx += segW;
+      }
+      y += barH + 12;
+    }
+
+    let lx = plot.x + labelW;
+    for (const kk of keys) {
+      doc.save().rect(lx, y + 1, 8, 8).fill(kk.color).restore();
+      doc.font('Helvetica').fontSize(7.5).fillColor(INK)
+        .text(kk.label, lx + 12, y + 1.5, { width: 130, lineBreak: false });
+      lx += 14 + doc.widthOfString(kk.label) + 20;
+    }
+  },
+
   /** Two bars per row, for here-versus-the-pool comparisons. */
   paired(k, { box, title, subtitle, rows, aLabel, bLabel, max, unit = '', unavailable }) {
     const plot = frame(k, box, { title, subtitle, unavailable, empty: !rows?.length });
     if (!plot) return;
     const { doc } = k;
-    const labelW = 118;
+    const labelW = 148;
     const trackW = plot.w - labelW - 64;
-    const rh = Math.min(26, plot.h / rows.length);
+    const rh = Math.min(38, plot.h / rows.length);
+    const paired = rows.some((r) => r.b != null);
+    const barH = paired ? 8 : 14;
     rows.forEach((row, i) => {
       const y = plot.y + i * rh;
-      doc.font('Helvetica').fontSize(8).fillColor(INK)
-        .text(row.label, plot.x, y + 4, { width: labelW - 6, lineBreak: false });
-      [[row.a, NAVY, 0], [row.b, PALE, 7]].forEach(([v, colour, dy]) => {
+      doc.font('Helvetica-Bold').fontSize(8.5).fillColor(INK)
+        .text(fitText(doc, row.label, labelW - 8), plot.x, y + barH / 2 - 1,
+          { width: labelW - 8, lineBreak: false });
+      [[row.a, NAVY, 0], [row.b, PALE, barH + 2]].forEach(([v, colour, dy]) => {
         if (v == null) return;
-        doc.save().rect(plot.x + labelW, y + 3 + dy, Math.max(1, (v / max) * trackW), 5.5)
+        doc.save().rect(plot.x + labelW, y + 2 + dy, Math.max(1, (v / max) * trackW), barH)
           .fill(colour).restore();
       });
       const txt = [row.a == null ? null : nice(row.a), row.b == null ? null : nice(row.b)]
         .filter(Boolean).join('  ·  ');
-      doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
-        .text(`${txt}${unit}`, plot.x + labelW + trackW + 6, y + 4, { width: 58, lineBreak: false });
+      doc.font('Helvetica-Bold').fontSize(10).fillColor(INK)
+        .text(`${txt}${unit}`, plot.x + labelW + trackW + 8, y + barH / 2 - 3,
+          { width: 56, lineBreak: false });
     });
     const legend = [aLabel, bLabel].filter(Boolean).join('  ·  ');
     if (legend) {

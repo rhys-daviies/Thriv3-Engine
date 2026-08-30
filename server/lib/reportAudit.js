@@ -55,7 +55,7 @@ const clip = (s) => {
  * and nothing about the production call path changes shape.
  */
 export function createAudit() {
-  return { violations: [], drawn: 0, pages: 0 };
+  return { violations: [], clipped: [], drawn: 0, pages: 0 };
 }
 
 function snapshot(page) {
@@ -181,6 +181,17 @@ export function attachAudit(doc, audit) {
     reserved(fn) {
       suspended += 1;
       try { return fn(); } finally { suspended -= 1; }
+    },
+    /**
+     * A column heading that did not fit its column.
+     *
+     * A truncated data cell is expected — names are as long as they are. A
+     * truncated HEADING is always a layout fault: the reader is left guessing
+     * what "RETURNING S…" measures, and the fix is column width or a shorter
+     * label, never an ellipsis.
+     */
+    clip(label, fitted, width) {
+      if (!suspended) audit.clipped.push({ page: index + 1, label, fitted, width: Math.round(width) });
     },
   };
 
