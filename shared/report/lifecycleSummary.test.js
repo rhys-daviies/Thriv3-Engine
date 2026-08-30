@@ -395,8 +395,13 @@ describe('position-specific movement', () => {
     expect(p.programmeObserved).toBe(13);
     expect(p.rows.length).toBe(12);          // the athlete module caps its list
     expect(p.omitted).toBe(1);
-    expect(p.groupNote).toMatch(/every traced departure from the programme/i);
+    // The note has to say which group is on the page, and the page shows the
+    // position's own thin sample rather than the programme's list.
+    expect(p.groupNote).toMatch(/too few forward departures/i);
+    expect(p.groupNote).toMatch(/programme-wide record is at the back/i);
     expect(p.atPositionObserved).toBe(MIN_POSITION_DESTINATIONS - 1);
+    expect(p.positionRows).toHaveLength(MIN_POSITION_DESTINATIONS - 1);
+    expect(p.positionRows.every((r) => r.canonicalPosition === 'FORWARD')).toBe(true);
   });
 
   it('does not treat an unreadable position as a position', () => {

@@ -384,8 +384,8 @@ export function positionMovement(movements, position, { minPosition = MIN_POSITI
   const atPosition = observed.filter((m) => m.canonicalPosition === pos);
   const usePosition = pos !== 'UNKNOWN' && atPosition.length >= minPosition;
   const records = usePosition ? atPosition : observed;
-  const sorted = [...records].sort((a, b) => (b.priorRole.minutes ?? -1) - (a.priorRole.minutes ?? -1)
-    || String(a.name).localeCompare(String(b.name)));
+  const byMinutes = (a, b) => (b.priorRole.minutes ?? -1) - (a.priorRole.minutes ?? -1)
+    || String(a.name).localeCompare(String(b.name));
 
   return {
     group: usePosition ? 'position' : 'programme',
@@ -393,15 +393,25 @@ export function positionMovement(movements, position, { minPosition = MIN_POSITI
     atPositionObserved: atPosition.length,
     atPositionDepartures: movements.filter((m) => m.canonicalPosition === pos).length,
     programmeObserved: observed.length,
+    // The position's own traced moves, however few, kept separate from `rows`.
+    // Where the position is too thin to describe on its own, the page shows
+    // THESE rather than the programme's — which are already listed in full in
+    // the supporting record, and printing them twice is not context.
+    positionRows: [...atPosition].sort(byMinutes),
     // The sentence the page must print. Written here so the model, not the
     // renderer, owns the claim about which group is on the page.
+    // The sentence the page must print, written here so the model owns the
+    // claim about which group is on the page. It said "so this is every traced
+    // departure from the programme" while the page beneath it showed one
+    // forward; the page changed and this had to change with it.
     groupNote: usePosition
       ? `Players recorded at ${pos.toLowerCase()} who left and could be traced.`
       : `Too few ${pos === 'UNKNOWN' ? 'position-matched' : pos.toLowerCase()} departures can be `
-        + 'traced to describe this position on its own, so this is every traced departure from the '
-        + 'programme, at any position.',
-    rows: sorted.slice(0, MAX_DESTINATION_ROWS),
-    omitted: Math.max(0, sorted.length - MAX_DESTINATION_ROWS),
+        + 'traced to describe this position on its own. What follows is every one of them, which '
+        + 'is too small a group to read a pattern into; the programme-wide record is at the back '
+        + 'of this report.',
+    rows: [...records].sort(byMinutes).slice(0, MAX_DESTINATION_ROWS),
+    omitted: Math.max(0, records.length - MAX_DESTINATION_ROWS),
     dimensions: {
       football: tallyDimension(records, (r) => r.comparison?.soccerScore?.band ?? null,
         DIMENSION_KEYS.football),

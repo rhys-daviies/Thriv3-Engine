@@ -103,7 +103,7 @@ function compactMovement(m, collegeOf) {
  * too little on file — the same contract `buildPoolBenchmarks` keeps, and for
  * the same reason: a zero here would be drawn as a measurement.
  */
-export function buildLifecyclePool(rows, colleges, { sport = null } = {}) {
+export function buildLifecyclePool(rawRows, colleges, { sport = null } = {}) {
   const started = Date.now();
   const byName = new Map();
   for (const c of colleges) byName.set(c.name, c);
@@ -116,8 +116,16 @@ export function buildLifecyclePool(rows, colleges, { sport = null } = {}) {
     benchmarks: null, destinationCoverage: null,
     buildMs: Date.now() - started,
   };
-  if (!rows.length) return empty;
+  if (!rawRows.length) return empty;
 
+  // The readability rule, applied once, before anything reads a minute.
+  //
+  // It cannot change a single match: identity here is hometown, position,
+  // class progression and graduation year, and minutes are not among them.
+  // What it does change is what a matched move REPORTS — a destination row
+  // carrying a zero beside sixteen games played was being printed as "0 min"
+  // next to a named player, which is a false statement about that person.
+  const rows = readableRows(rawRows);
   const index = buildRosterIndex(rows);
 
   // ---- movement, the only cross-programme pass ----------------------------
@@ -152,12 +160,7 @@ export function buildLifecyclePool(rows, colleges, { sport = null } = {}) {
   const byDivision = new Map();
   const divisionOf = (name) => collegeOf(name)?.division ?? null;
 
-  for (const [programme, rawRows] of rowsByProgramme) {
-    // The same readability rule the report applies, applied to the pool the
-    // report is compared against. Without it the benchmark is depressed by
-    // every programme whose rosters publish appearances and no minutes: those
-    // contribute a 0% starter rate that is a fact about a stats page.
-    const progRows = readableRows(rawRows);
+  for (const [programme, progRows] of rowsByProgramme) {
     const cont = continuitySummary(continuityObservations(progRows));
     if (cont.returnable < MIN_RETURNABLE_FOR_POOL) continue;
     const cohort = buildLifecycles(progRows).filter((l) => l.entryType === 'FIRST_YEAR');

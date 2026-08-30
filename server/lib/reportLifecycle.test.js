@@ -120,14 +120,17 @@ function addProgramme({
     for (let i = 0; i < leaversPerSeason; i += 1) {
       const who = person(squadSize + leaver);
       const town = TOWNS[leaver % TOWNS.length];
+      // Positions cycle so a thin-but-nonempty position sample exists, which is
+      // the case the broadened athlete module has to handle.
+      const leaverPosition = ['FORWARD', 'FORWARD', 'FORWARD', 'MIDFIELD', 'GOALKEEPER'][leaver % 5];
       addRow(name, division, {
-        season, name: who, class: si === 3 ? 'Sr.' : 'Jr.', position: 'FORWARD',
+        season, name: who, class: si === 3 ? 'Sr.' : 'Jr.', position: leaverPosition,
         minutes: 800, hometown: town,
       });
       if (leaver < traceable && si < SEASONS.length - 1 && destinations.length) {
         const [dName, dDivision] = destinations[leaver % destinations.length];
         addRow(dName, dDivision, {
-          season: SEASONS[si + 1], name: who, class: 'Sr.', position: 'FORWARD',
+          season: SEASONS[si + 1], name: who, class: 'Sr.', position: leaverPosition,
           minutes: 500, hometown: town,
         });
       }
@@ -361,9 +364,15 @@ describe('the athlete module', () => {
     db.exec("DELETE FROM players");
     addAthlete('p2', { name: 'Keeper Athlete', position: 'Goalkeeper' });
     const { text, model } = await build('p2');
-    expect(model.lifecycle.athletePosition.group).toBe('programme');
+    const p = model.lifecycle.athletePosition;
+    expect(p.group).toBe('programme');
     expect(text).toContain('THIS IS NOT THE POSITION ON ITS OWN');
-    expect(text).toMatch(/every traced departure from the programme, at any position/);
+    expect(text).toMatch(/the programme-wide record is at the back/);
+    // And it shows the goalkeepers it could trace rather than reprinting the
+    // programme's list, which is already in the supporting record in full.
+    expect(p.positionRows.length).toBeGreaterThan(0);
+    for (const m of p.positionRows) expect(text).toContain(m.name);
+    expect(text).toMatch(/traced moves? at this position/);
   });
 });
 

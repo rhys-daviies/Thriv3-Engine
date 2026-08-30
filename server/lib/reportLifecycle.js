@@ -67,10 +67,13 @@ export function playerDevelopmentPage(k, model) {
 
   page(k, 'How players develop after they arrive',
     'Do players who arrive here tend to grow into meaningful roles?');
+  // Short enough to fit. `k.scope` draws one line and truncates rather than
+  // wrapping, so a scope that runs long loses its last fact silently — this
+  // one used to end "compared against 212 comparable p…".
   k.scope([
-    `${plural(d.players, 'first-year', 'first-years')} followed from their first season here`,
-    `${cov.measured} of ${cov.playerSeasons} of their seasons carry published minutes`,
-    `compared against ${poolScope(l)}`,
+    `${plural(d.players, 'first-year', 'first-years')} followed`,
+    `${cov.measured} of ${cov.playerSeasons} seasons carry minutes`,
+    `vs ${poolScope(l)}`,
   ]);
 
   // Trajectory first, as four columns whose denominators shrink to the right.
@@ -84,7 +87,12 @@ export function playerDevelopmentPage(k, model) {
       share: y.share,
       pool: y.pool?.median ?? null,
       caption: `reached ${STARTER_MINUTES}+ by then`,
-      count: `${y.reached} of ${y.denominator}`,
+      // "0 of 42" under "minutes not published here" is the same confident zero
+      // the percentage was refused for, written as a fraction. Where the
+      // minutes cannot be read, only the cohort is stated.
+      count: cov.readable
+        ? `${y.reached} of ${y.denominator}`
+        : `${y.denominator} followed`,
       unavailable: !cov.readable ? 'minutes not published here'
         : y.denominator === 0 ? 'no player has been here this long'
           : 'cohort too small to quote a share',
@@ -184,36 +192,45 @@ export function rosterContinuityPage(k, model) {
   page(k, 'Roster continuity',
     'How often do players who could return appear on the next roster?');
   k.scope([
-    `${c.returnable} player-seasons where the next roster is on file`,
-    c.unreadable ? `${c.unreadable} where it is not, and absence proves nothing` : null,
-    `compared against ${poolScope(l)}`,
+    `${c.returnable} player-seasons with a next roster on file`,
+    c.unreadable ? `${c.unreadable} without one` : null,
+    `vs ${poolScope(l)}`,
   ]);
 
-  // Retention first.
-  charts.paired(k, {
-    // 38 points a row plus the legend beneath it, plus the chart's own title
-    // and subtitle. `paired` draws its legend at the foot of its plot, so a
-    // box sized to the bars alone puts that legend on the facts below.
-    box: k.slot(26 + (c.starterRetention.suppressed ? 1 : 2) * 38 + 16),
-    title: 'Players who could return, and did',
-    subtitle: 'Every player on a roster whose programme has the following season on file too.',
-    rows: [
-      { label: 'All players', a: c.retention == null ? null : c.retention * 100,
-        b: c.pool?.median == null ? null : c.pool.median * 100 },
-      ...(c.starterRetention.suppressed ? [] : [{
-        label: `Played ${STARTER_MINUTES}+ minutes`,
-        a: c.starterRetention.retention == null ? null : c.starterRetention.retention * 100,
-        b: c.starterRetention.pool?.median == null ? null : c.starterRetention.pool.median * 100,
-      }]),
-    ],
-    aLabel: 'this programme (navy)',
-    bLabel: `median of ${poolScope(l)} (pale)`,
+  // Retention first, and as a bar with the pool as a mark on it rather than
+  // two bars and a pair of numbers. `paired` printed "50 · 56%", which asks
+  // the reader to remember which of two unlabelled figures is theirs.
+  k.heading('Players who could return, and did');
+  k.body('Every player on a roster whose programme has the following season on file too. The claret '
+    + `line is the median of ${poolScope(l)}.`, { color: MUTED });
+  k.bar({
+    label: 'All players',
+    value: c.retention == null ? null : c.retention * 100,
     max: 100,
     unit: '%',
-    unavailable: c.retention == null && c.starterRetention.suppressed
-      ? `${c.returnable} readable player-seasons is too few to quote a rate over`
-      : null,
+    marker: c.pool?.median == null ? null : c.pool.median * 100,
+    unavailable: c.retention == null
+      ? `${c.returnable} readable player-seasons — too few to quote a rate` : null,
   });
+  if (!c.starterRetention.suppressed || c.starterRetention.returnable > 0) {
+    k.bar({
+      label: `Played ${STARTER_MINUTES}+ minutes`,
+      value: c.starterRetention.retention == null ? null : c.starterRetention.retention * 100,
+      max: 100,
+      unit: '%',
+      marker: c.starterRetention.pool?.median == null ? null : c.starterRetention.pool.median * 100,
+      unavailable: c.starterRetention.retention == null
+        ? `${c.starterRetention.returnable} player-seasons — too few to quote a rate` : null,
+    });
+  }
+  // `k.bar` draws its value and its note on one line in the same 88 points, so
+  // a note beside the figure printed straight through it. The pool medians go
+  // underneath instead, where there is room to name which is which.
+  k.gap(2);
+  k.note([c.pool?.median == null ? null : `Pool median, all players: ${pc(c.pool.median)}.`,
+    c.starterRetention.pool?.median == null ? null
+      : `Pool median for players on ${STARTER_MINUTES}+ minutes: ${pc(c.starterRetention.pool.median)}.`,
+  ].filter(Boolean).join('  ') || 'No pool figure is available for this division.');
 
   k.body(`${nf(c.returned)} of ${nf(c.returnable)} player-seasons that could return did`
     + `${c.retention == null ? '' : ` — ${pc(c.retention)}, ${BAND_WORD[c.band]}`}.`
@@ -231,11 +248,11 @@ export function rosterContinuityPage(k, model) {
     k.heading('By what they played the season before');
     k.table({
       columns: [
-        { key: 'label', label: 'The season before', width: 0.32 },
+        { key: 'label', label: 'The season before', width: 0.34 },
         { key: 'returnable', label: 'Could return', width: 0.17, align: 'right' },
-        { key: 'returned', label: 'Came back', width: 0.17, align: 'right' },
-        { key: 'notObserved', label: 'Not on next roster', width: 0.19, align: 'right' },
-        { key: 'rate', label: 'Came back', width: 0.15, align: 'right' },
+        { key: 'returned', label: 'Came back', width: 0.16, align: 'right' },
+        { key: 'notObserved', label: 'Did not', width: 0.16, align: 'right' },
+        { key: 'rate', label: 'Share', width: 0.17, align: 'right' },
       ],
       rows: roleRows.map((r) => ({
         label: ROLE_LABEL[r.key] ?? r.key,
@@ -244,9 +261,11 @@ export function rosterContinuityPage(k, model) {
         notObserved: r.notObserved,
         rate: r.suppressed ? null : pc(r.retention),
       })),
-      note: 'A dash in the last column is a group too small to quote a rate over; the counts beside '
-        + 'it are the whole of what we know. Players whose minutes were never published appear in '
-        + 'none of these rows — they cannot be placed in a band.',
+      note: [roleRows.some((r) => r.suppressed)
+        ? 'A dash under Share is a group too small to quote a rate over; the counts beside it are '
+          + 'the whole of what we know.' : null,
+      'Players whose minutes were never published appear in none of these rows — they cannot be '
+        + 'placed in a band.'].filter(Boolean).join(' '),
     });
   }
 
@@ -263,26 +282,26 @@ export function rosterContinuityPage(k, model) {
     + 'is the only thing that says whether a return was expected at all.');
   k.table({
     columns: [
-      { key: 'label', label: 'Group', width: 0.42 },
-      { key: 'n', label: 'Player-seasons', width: 0.18, align: 'right' },
-      { key: 'what', label: 'What this group is', width: 0.4 },
+      { key: 'label', label: 'Group', width: 0.44 },
+      { key: 'n', label: 'Player-seasons', width: 0.17, align: 'right' },
+      { key: 'what', label: 'What this group is', width: 0.39 },
     ],
     rows: [
       { label: 'Expected exits', n: dep.departures.expectedExits,
-        what: 'senior or graduate — the last season they were listed for' },
+        what: 'senior or graduate on their last season' },
       { label: 'Early departures', n: dep.departures.earlyDepartures,
-        what: 'first-year, sophomore or junior — seasons remained' },
+        what: 'first-year, sophomore or junior' },
       ...(e.departures ? [
         { label: '   of those, traced to another roster', n: e.observed,
-          what: 'the same name elsewhere, with agreeing detail' },
+          what: 'the same name, with agreeing detail' },
         { label: '   of those, a name we could not settle', n: e.ambiguous,
-          what: 'the name appears elsewhere; the evidence does not decide it' },
+          what: 'a name elsewhere, evidence unsettled' },
         { label: '   of those, no trace at all', n: e.unresolved,
-          what: 'the name appears on no other roster we hold' },
+          what: 'on no other roster we hold' },
       ] : []),
       ...(dep.departures.unknownClass ? [{
         label: 'Class not readable', n: dep.departures.unknownClass,
-        what: 'no class label we could rank, so neither can be claimed' }] : []),
+        what: 'no class label we could rank' }] : []),
     ],
     note: 'The three indented rows divide the early departures and nothing else; they do not add to '
       + 'the total above them. Eligibility years are not used here — they are a fixed arithmetic '
@@ -346,8 +365,10 @@ function dimensionCharts(k, dims, { compact = false } = {}) {
       // Title 14, bar, the 12 the chart puts under it, and 10 for the legend.
       // At 46 the legend cleared the box by six points and printed through the
       // table header on the athlete page — the collision guard caught it.
-      box: k.slot(compact ? 56 : 60),
-      title: row.label,
+      box: k.slot(compact ? 44 : 48),
+      // No chart title: the row's own label is the dimension's name, and both
+      // printed "Football rating" one line apart.
+      title: null,
       subtitle: null,
       rows: [{ label: row.label, note: row.note, values: row.values,
         unavailable: 'neither programme carries this rating' }],
@@ -452,12 +473,15 @@ export function observedDestinationsPage(k, model) {
     k.heading('By what they played the season before they left');
     k.table({
       columns: [
-        { key: 'label', label: 'Last season here', width: 0.26 },
-        { key: 'departures', label: 'Departures', width: 0.14, align: 'right' },
-        { key: 'observed', label: 'Traced', width: 0.12, align: 'right' },
-        { key: 'stronger', label: 'To a stronger rating', width: 0.16, align: 'right' },
-        { key: 'similar', label: 'To a similar one', width: 0.16, align: 'right' },
-        { key: 'lower', label: 'To a lower rating', width: 0.16, align: 'right' },
+        { key: 'label', label: 'Last season here', width: 0.28 },
+        { key: 'departures', label: 'Departures', width: 0.15, align: 'right' },
+        { key: 'observed', label: 'Traced', width: 0.13, align: 'right' },
+        // Short, because the section heading and the note below say what these
+        // three measure. Spelled out they wrapped, and the second line of "TO A
+        // SIMILAR ONE" landed a point above the first row of data.
+        { key: 'stronger', label: 'Stronger', width: 0.14, align: 'right' },
+        { key: 'similar', label: 'Similar', width: 0.14, align: 'right' },
+        { key: 'lower', label: 'Lower', width: 0.16, align: 'right' },
       ],
       rows: roleRows.map((r) => ({
         label: ROLE_LABEL[r.band] ?? r.band,
@@ -467,8 +491,10 @@ export function observedDestinationsPage(k, model) {
         similar: r.football.SIMILAR_FOOTBALL_RATING,
         lower: r.football.LOWER_FOOTBALL_RATING,
       })),
-      note: 'Counts, not rates: the traced share differs by band, so a percentage would compare '
-        + 'samples of different completeness. Nothing here says why anybody moved.',
+      note: 'Stronger, similar and lower are the football rating of the programme each player was '
+        + 'traced to, read against this one. Counts, not rates: the traced share differs by band, '
+        + 'so a percentage would compare samples of different completeness. Nothing here says why '
+        + 'anybody moved.',
     });
   }
 
@@ -509,16 +535,35 @@ export function athletePositionMovementPage(k, model) {
     color: p.group === 'position' ? NAVY : CLARET,
   });
 
-  dimensionCharts(k, p.dimensions, { compact: true });
-
-  if (p.rows.length) {
+  // The three measures only where this is genuinely the athlete's position.
+  // Broadened to the programme they are the same three bars the destinations
+  // page drew a few pages earlier, and a report should not say a thing twice
+  // in order to fill a module.
+  if (p.group === 'position') {
+    dimensionCharts(k, p.dimensions, { compact: true });
     k.table({
       columns: MOVEMENT_COLUMNS,
       rows: movementRows(p.rows),
       continued: 'The traced moves, named (continued)',
-      note: p.omitted ? `${p.omitted} further traced moves are not listed.` : null,
+      note: p.omitted ? `${p.omitted} further traced moves at this position are not listed; every `
+        + 'one of them is in the supporting record at the back of this report.' : null,
     });
+  } else if (p.positionRows.length) {
+    // The position's own traced moves, however few. The programme-wide list is
+    // in the supporting record and is not reprinted here.
+    k.body(`${plural(p.positionRows.length, 'traced move', 'traced moves')} at this position, and `
+      + `${p.positionRows.length === 1 ? 'it is' : 'they are'} shown because `
+      + `${p.positionRows.length === 1 ? 'it is' : 'they are'} what there is:`);
+    k.table({ columns: MOVEMENT_COLUMNS, rows: movementRows(p.positionRows) });
+    k.note('Every traced move from this programme, at any position, is listed in the supporting '
+      + 'record at the back of this report, and the three measures across all of them are on the '
+      + 'destinations page earlier.');
+  } else {
+    k.body('No departure at this position could be traced to another roster at all.', { bold: true });
+    k.note(`Every traced move from this programme — ${p.programmeObserved} of them, at other `
+      + 'positions — is listed in the supporting record at the back of this report.');
   }
+
   k.note('These are the departures we could trace, which are a minority of the departures. Nothing '
     + 'here is a prediction, and nothing here says why any of these players moved.');
 }

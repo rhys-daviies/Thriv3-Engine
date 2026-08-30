@@ -365,13 +365,20 @@ export const SECTIONS = [
     layer: 'athlete-evidence',
     scope: 'athlete',
     unavailableWhenEmpty: false,
-    applies: ({ model }) => (model.lifecycle?.athletePosition?.rows?.length ?? 0) > 0,
+    // Only where there is something at the athlete's OWN position to show.
+    // Broadened to the programme with nothing of their own, the page would be
+    // three sentences pointing at two other pages, which is filler.
+    applies: ({ model }) => {
+      const p = model.lifecycle?.athletePosition;
+      if (!p) return false;
+      return p.group === 'position' ? p.rows.length > 0 : p.positionRows.length > 0;
+    },
     scopeOf: ({ model }) => {
       const p = model.lifecycle.athletePosition;
       return [
         p.group === 'position'
           ? `${p.atPositionObserved} traced at this position`
-          : `too few at this position — ${p.programmeObserved} traced programme-wide`,
+          : `${p.atPositionObserved} of ${p.atPositionDepartures} traced at this position`,
       ];
     },
   },
