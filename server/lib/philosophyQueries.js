@@ -151,7 +151,7 @@ export function buildPoolBenchmarks(sport) {
   const empty = {
     sufficient: false, sport, seasons: SEASONS, programmes: 0, observations: 0,
     reason: 'no roster seasons on file for this sport',
-    ladderByRank: null, dials: null, fillMix: null, vacancy: null, byPosition: null,
+    ladderByRank: null, dials: null, programmeDials: null, fillMix: null, vacancy: null, byPosition: null,
     builtAt: new Date().toISOString(), buildMs: Date.now() - started,
     fingerprint: fingerprint(),
   };
@@ -165,12 +165,23 @@ export function buildPoolBenchmarks(sport) {
 
   const ladders = new Map();   // rank -> medians across programmes
   const obs = [];
+  // Per-PROGRAMME dial values, which are a different population from the
+  // per-observation ones below and the only fair comparison for a programme's
+  // own dial. A programme mean has far less spread than a single
+  // position-season, so placing one against the distribution of the other
+  // pushed half the pool into the middle band and left 6% below it.
+  const progDials = { freshman: [], newcomer: [], returning: [] };
   for (const rows of byProg.values()) {
     const ph = programmePhilosophy({ rows, coachRows: [] });
     if (ph.freshman) {
       for (const r of ph.ladder) {
         if (!ladders.has(r.rank)) ladders.set(r.rank, []);
         ladders.get(r.rank).push(r.median);
+      }
+    }
+    if (ph.dials?.n) {
+      for (const k of ['freshman', 'newcomer', 'returning']) {
+        if (ph.dials[k] != null) progDials[k].push(ph.dials[k]);
       }
     }
     obs.push(...vacancyObservations(rows));
@@ -203,9 +214,20 @@ export function buildPoolBenchmarks(sport) {
         const s = values.sort((a, b) => a - b);
         return { rank, n: s.length, p25: quantile(s, 0.25), median: quantile(s, 0.5), p75: quantile(s, 0.75) };
       }),
+    // Two populations, kept apart and named. `dials` describes a typical
+    // POSITION-SEASON and is the right context for the fill-mix comparison;
+    // `programmeDials` describes a typical PROGRAMME and is the only one a
+    // single programme's dial may be ranked against.
     dials: Object.fromEntries(Object.entries(dialSeries).map(([k, s]) => [k, {
       p25: pct(quantile(s, 0.25)), median: pct(quantile(s, 0.5)), p75: pct(quantile(s, 0.75)),
     }])),
+    programmeDials: Object.fromEntries(Object.entries(progDials).map(([k, values]) => {
+      const sorted = [...values].sort((a, b) => a - b);
+      return [k, sorted.length ? {
+        n: sorted.length,
+        p25: quantile(sorted, 0.25), median: quantile(sorted, 0.5), p75: quantile(sorted, 0.75),
+      } : null];
+    })),
     fillMix: BINS.slice(0, -1).map((_, i) => {
       const sub = band(i);
       if (!sub.length) return null;
