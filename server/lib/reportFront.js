@@ -306,7 +306,8 @@ export function contentsPage(doc, model, plan, pages) {
   // from a sentence that claims four seasons whatever the data says.
   const seasons = model.describes ?? [];
   const span = seasons.length
-    ? `${seasons.length} season${seasons.length === 1 ? '' : 's'} of roster behaviour (${seasons[0]}–${seasons[seasons.length - 1]})`
+    ? `${seasons.length} season${seasons.length === 1 ? '' : 's'} of roster behaviour `
+      + `(${seasons.length === 1 ? seasons[0] : `${seasons[0]}–${seasons[seasons.length - 1]}`})`
     : 'the roster seasons on file';
   doc.save().rect(M, y, W, 34).fillOpacity(0.05).fill(NAVY).restore();
   doc.font('Helvetica').fontSize(8.5).fillColor(INK)

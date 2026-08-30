@@ -267,13 +267,15 @@ describe('page two modules', () => {
     expect(text).not.toMatch(/CURRENT SQUAD OUTLOOK[^]{0,40}UNCLEAR/);
   });
 
+  // Scoped to the pages this file owns. The methodology page legitimately
+  // uses the words to say what evidence strength is NOT.
   it('states the evidence behind each module without calling it confidence', async () => {
     const { buf } = await build();
-    const text = pdfText(buf);
-    expect(text).toMatch(/EVIDENCE — (STRONG|MODERATE|LIMITED)/);
-    expect(text).not.toMatch(/confidence/i);
-    expect(text).not.toMatch(/probabilit/i);
-    expect(text).not.toMatch(/certainty/i);
+    const front = frontText(buf);
+    expect(front).toMatch(/EVIDENCE — (STRONG|MODERATE|LIMITED)/);
+    expect(front).not.toMatch(/confidence/i);
+    expect(front).not.toMatch(/probabilit/i);
+    expect(front).not.toMatch(/certainty/i);
   });
 
   it('says a programme is above the benchmark rather than high', async () => {

@@ -37,6 +37,7 @@ export const LAYERS = [
 
 const count = (x) => (Array.isArray(x) ? x.length : 0);
 const has = (x) => count(x) > 0;
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 /**
  * Every section the report can contain.
@@ -63,8 +64,8 @@ export const SECTIONS = [
     unavailableWhenEmpty: true,
     applies: () => true,
     scopeOf: ({ model }) => [
-      model.seasons?.length ? `${model.seasons.length} seasons analysed` : null,
-      model.dials?.n ? `${model.dials.n} vacancy observations` : null,
+      model.seasons?.length ? `${plural(model.seasons.length, 'season')} analysed` : null,
+      model.dials?.n ? plural(model.dials.n, 'vacancy observation') : null,
     ].filter(Boolean),
   },
   {
@@ -217,80 +218,89 @@ export const SECTIONS = [
   // -- Layer 4: athlete evidence -------------------------------------------
   {
     id: 'athlete-position-history',
-    title: 'This position, historically',
-    description: 'First-years, experienced arrivals and vacancies at the athlete’s position only.',
+    title: 'Your position, historically',
+    description: 'First-years, experienced arrivals and minute shares at the athlete’s position only.',
     layer: 'athlete-evidence',
     scope: 'athlete',
     unavailableWhenEmpty: false,
     applies: ({ summary }) => {
       const a = summary?.athlete;
       if (!a) return false;
-      return (a.positionVacancyHistory?.transitions ?? 0) > 0
-        || a.positionFreshmanHistory.measured > 0
-        || a.experiencedArrivalsAtPosition.measured > 0;
+      return a.positionFreshmanHistory.measured > 0
+        || a.experiencedArrivalsAtPosition.measured > 0
+        || (a.positionOpeningOutcomes?.dials?.n ?? 0) > 0;
     },
     scopeOf: ({ summary }) => {
       const a = summary.athlete;
       return [
         `${a.positionFreshmanHistory.measured} first-years`,
         `${a.experiencedArrivalsAtPosition.measured} experienced arrivals`,
-        a.positionVacancyHistory?.openings
-          ? `${a.positionVacancyHistory.openings} openings` : null,
-      ].filter(Boolean);
+      ];
     },
   },
   {
-    id: 'athlete-current-competition',
-    title: 'Who is there now',
-    description: 'Every current player at the position, and whether their eligibility reaches the '
-      + 'entry season.',
+    id: 'athlete-position-openings',
+    title: 'When your position opens',
+    description: 'Every season a starter left the athlete’s position, and what followed it.',
+    layer: 'athlete-evidence',
+    scope: 'athlete',
+    // The absence is the finding: "no starter has left this position" is a
+    // complete answer, and a reader should not have to notice a missing page.
+    unavailableWhenEmpty: true,
+    applies: ({ summary }) => (summary?.athlete?.positionVacancyHistory?.transitions ?? 0) > 0,
+    scopeOf: ({ summary }) => {
+      const v = summary.athlete.positionVacancyHistory;
+      return [`${v.openings} of ${v.transitions} transitions opened a place`];
+    },
+  },
+  {
+    id: 'athlete-current-position',
+    title: 'Who is at your position now',
+    description: 'The current roster at the athlete’s position, read against their entry year.',
     layer: 'athlete-evidence',
     scope: 'athlete',
     unavailableWhenEmpty: false,
-    applies: ({ summary }) => has(summary?.athlete?.currentPositionPlayers),
+    applies: ({ summary }) => count(summary?.athlete?.currentPositionPlayers) > 0,
     scopeOf: ({ summary }) => {
       const a = summary.athlete;
       return [
-        `${count(a.currentPositionPlayers)} at the position`,
-        `${count(a.currentPlayersEligibleAtEntry)} eligible into ${a.entrySeason}`,
-        count(a.currentPlayersEligibilityUnknown)
-          ? `${count(a.currentPlayersEligibilityUnknown)} with no eligibility year recorded` : null,
-      ].filter(Boolean);
+        `${count(a.currentPositionPlayers)} on the roster`,
+        `${count(a.currentPlayersEligibleAtEntry)} eligible in ${a.entrySeason}`,
+      ];
     },
   },
   {
-    id: 'athlete-entry-context',
-    title: 'The entry season, and what cannot be known about it',
-    description: 'What the current record says about the entry year, and the limits of saying it.',
+    id: 'athlete-entry-window',
+    title: 'Your arrival window',
+    description: 'The current playing-time load around the athlete’s entry season.',
     layer: 'athlete-evidence',
     scope: 'athlete',
-    // Always renders for an athlete. Its second half is the limitation, and
-    // the limitation does not depend on there being data for the first half.
-    unavailableWhenEmpty: true,
-    applies: ({ summary }) => Boolean(summary?.athlete),
-    scopeOf: ({ summary }) => [
-      `entry ${summary.athlete.entrySeason}`,
-      summary.athlete.entrySeasonKnown ? null : 'beyond the rosters on file',
-    ].filter(Boolean),
+    unavailableWhenEmpty: false,
+    applies: ({ summary }) => count(summary?.athlete?.currentPositionPlayers) > 0,
+    scopeOf: ({ summary }) => {
+      const a = summary.athlete;
+      return [
+        `${count(a.currentPlayersInFinalSeasonAtEntry)} in a final season in ${a.entrySeason}`,
+      ];
+    },
   },
   {
     id: 'athlete-origin',
-    title: 'Where the athlete is arriving from',
+    title: 'Where you are arriving from',
     description: 'Whether first-years from the same background have played here.',
     layer: 'athlete-evidence',
     scope: 'athlete',
     unavailableWhenEmpty: false,
     applies: ({ summary }) => {
       const o = summary?.athlete?.originContext;
-      return Boolean(o?.requestedOrigin) && o.programme.withRecordedOrigin > 0;
+      return Boolean(o?.requestedOrigin)
+        && (o.programme.withRecordedOrigin > 0 || Boolean(o.pool));
     },
     scopeOf: ({ summary }) => {
       const o = summary.athlete.originContext;
       return [
         `${o.programme.sameOrigin.players} of ${o.programme.withRecordedOrigin} share this background`,
-        o.programme.withoutRecordedOrigin
-          ? `${o.programme.withoutRecordedOrigin} with no origin recorded` : null,
-      ].filter(Boolean);
+      ];
     },
   },
 
@@ -302,46 +312,39 @@ export const SECTIONS = [
     layer: 'supporting',
     scope: 'programme',
     unavailableWhenEmpty: false,
-    applies: ({ model }) => has(model.freshman?.points),
+    // Only worth a page where the table carries names the charts do not. A
+    // handful of players are already individually visible as dots.
+    applies: ({ model }) => count(model.freshman?.points) >= 6,
     scopeOf: ({ model }) => [`${model.freshman.points.length} rows`],
   },
   {
     id: 'table-experienced-arrivals',
     title: 'Every experienced arrival measured',
-    description: 'The rows behind the arrivals charts.',
+    description: 'The rows behind the experienced-arrival charts, with previous programmes where recorded.',
     layer: 'supporting',
     scope: 'programme',
     unavailableWhenEmpty: false,
-    applies: ({ model }) => has(model.transfer?.points),
+    applies: ({ model }) => count(model.transfer?.points) >= 6,
     scopeOf: ({ model }) => [`${model.transfer.points.length} rows`],
   },
   {
     id: 'table-vacancies',
-    title: 'Every vacancy observed',
-    description: 'Each position-season where a starter left, and what followed.',
+    title: 'Every opening observed',
+    description: 'Each position-season a starter left, and what followed — the evidence behind the replacement analysis.',
     layer: 'supporting',
     scope: 'programme',
+    // Always worth including where openings exist: these events appear nowhere
+    // else in full, and they are what the replacement pages are built on.
     unavailableWhenEmpty: false,
-    applies: ({ philosophy }) => (philosophy?.observations ?? []).some((o) => o.departedStarters > 0),
-    scopeOf: ({ philosophy }) => {
-      const openings = (philosophy?.observations ?? []).filter((o) => o.departedStarters > 0);
-      return [`${openings.length} position-seasons with a departure`];
-    },
-  },
-  {
-    id: 'table-current-squad',
-    title: 'The current squad in full',
-    description: 'Every player on the current roster.',
-    layer: 'supporting',
-    scope: 'programme',
-    unavailableWhenEmpty: false,
-    applies: ({ model }) => (model.squad?.rostered ?? 0) > 0,
-    scopeOf: ({ model }) => [`${model.squad.rostered} players`],
+    applies: ({ summary }) => count(summary?.programme?.replacementBehaviour?.record) > 0,
+    scopeOf: ({ summary }) => [
+      `${count(summary.programme.replacementBehaviour.record)} openings`,
+    ],
   },
   {
     id: 'methodology',
-    title: 'How this was worked out, and what it cannot tell you',
-    description: 'Definitions, thresholds and limits.',
+    title: 'Methodology and limitations',
+    description: 'How every figure in this report was worked out, and where it stops being reliable.',
     layer: 'supporting',
     scope: 'programme',
     unavailableWhenEmpty: true,

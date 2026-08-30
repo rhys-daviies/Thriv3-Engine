@@ -214,11 +214,19 @@ export function positionHistory(observations, position) {
     dials: dials(at),
     seasons: at.map((o) => ({
       season: o.to,
+      from: o.from,
       startersDeparted: o.departedStarters,
       departedNames: o.departedStarterNames,
+      vacatedStarterMinutes: o.vacatedStarter,
       freshStarters: o.freshStarters,
       newcomerStarters: o.newcomerStarters,
       bestFresh: o.bestFresh,
+      // The three-way split for THIS transition. Reported per event because a
+      // reader looking at one departure wants what followed that departure,
+      // not the position's average across every season.
+      returningShare: round1(o.returningShare),
+      freshmanShare: round1(o.freshShare),
+      newcomerShare: round1(o.newcomerShare),
     })),
   };
 }
@@ -717,11 +725,47 @@ export function squadDepth(squadRows = []) {
   return squadRows.map((r) => ({
     name: r.player_name,
     position: canonicalPosition(r.position),
+    // The label the roster actually printed, kept beside the canonical group.
+    // "CB" and "RB" both become DEFENSE, and a squad list that only ever shows
+    // the group throws away something the roster was willing to tell us.
+    rawPosition: r.position ?? null,
     classLabel: r.class_year_label ?? null,
     projectedMinutes: r.projected_minutes ?? null,
     eligibleTo: r.eligibility_end_year ?? null,
     arrivedFrom: arrivedFromElsewhere(r.prior_programme, r.college_name) ? r.prior_programme : null,
   }));
+}
+
+/**
+ * Every position-season transition in which a starter left, as flat rows.
+ *
+ * The appendix that exposes the replacement analysis needs the events, not the
+ * aggregates. One row per transition, with the departed starters named inside
+ * it — splitting a transition into one row per departing player would count
+ * the same following-season outcome twice.
+ */
+export function vacancyRecord(observations = []) {
+  return observations
+    .filter((o) => o.departedStarters > 0)
+    .map((o) => ({
+      transition: `${o.from}\u2013${o.to}`,
+      from: o.from,
+      to: o.to,
+      position: o.pos,
+      departed: o.departedStarterNames,
+      departedStarters: o.departedStarters,
+      vacatedStarterMinutes: o.vacatedStarter,
+      freshmanStarted: o.freshStarters > 0,
+      freshStarters: o.freshStarters,
+      newcomerStarted: o.newcomerStarters > 0,
+      newcomerStarters: o.newcomerStarters,
+      returningShare: round1(o.returningShare),
+      freshmanShare: round1(o.freshShare),
+      newcomerShare: round1(o.newcomerShare),
+      readable: o.freshmenReadable,
+    }))
+    .sort((a, b) => Number(b.to) - Number(a.to)
+      || String(a.position ?? '').localeCompare(String(b.position ?? '')));
 }
 
 /** Who is already at this position, and the year each one's eligibility ends. */

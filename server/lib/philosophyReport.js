@@ -25,6 +25,13 @@ import {
   replacingMinutesPage, replacementByPositionPage,
   currentSquadOutlookPage, currentDepthPage,
 } from './reportEvidence.js';
+import {
+  positionHistoryPage, positionOpeningsPage, currentPositionPage,
+  arrivalWindowPage, originPage,
+} from './reportAthlete.js';
+import {
+  freshmanRecordPage, arrivalRecordPage, vacancyRecordPage, methodologyPage,
+} from './reportAppendix.js';
 
 const { INK, MUTED, CLARET, NAVY, MID, PALE, GREEN } = THEME;
 
@@ -491,33 +498,27 @@ export function renderProgramReport(model) {
     section('eligibility-outlook', () => currentSquadOutlookPage(k, model));
     section('current-depth', () => currentDepthPage(k, model));
 
-    // ---- the athlete facets, still the v1 implementation (Phase 5) ----
+    // ---- the athlete evidence layer ----
+    //
+    // facetLevel is deliberately absent. It printed a results-derived
+    // programme rating out of 100 beside a self-entered athlete level out of
+    // 10, then disclaimed the comparison it had just invited. The honest
+    // version is not to print them together.
 
-    if (a) {
-      part(k, 'THREE', `For ${a.name}`,
-        'The same programme, read one part of your profile at a time.');
-      at('athlete-position-history');
-      facetPosition(k, model);
-      at('athlete-origin');
-      facetOrigin(k, model);
-      at('athlete-current-competition');
-      facetEntry(k, model);
-      // Marked for Phase 5: this compares a results-derived programme rating
-      // against a self-entered level, and says so, but it belongs with the
-      // athlete redesign rather than here.
-      facetLevel(k, model);
-    }
+    section('athlete-position-history', () => positionHistoryPage(k, model));
+    section('athlete-position-openings', () => positionOpeningsPage(k, model));
+    section('athlete-current-position', () => currentPositionPage(k, model));
+    section('athlete-entry-window', () => arrivalWindowPage(k, model));
+    section('athlete-origin', () => originPage(k, model));
 
-    k.doc.addPage();
-    at('methodology');
-    limits(k, model, [
-      'Retention counts a name leaving a roster, which can mean a move to another programme, an '
-        + 'injury, a player who stopped, or a spelling we could not match.',
-      'An experienced-arrival count of zero can mean a programme that adds nobody, or one whose '
-        + 'previous season we could not read. The report says which.',
-      'A group of three players is a description of three players, however it is drawn.',
-      'Minutes a current player is projected to play are not minutes available to anyone else.',
-    ]);
+    // ---- the supporting record ----
+
+    section('table-freshmen', () => freshmanRecordPage(k, model));
+    section('table-experienced-arrivals', () => arrivalRecordPage(k, model));
+    section('table-vacancies', () => vacancyRecordPage(k, model));
+
+    atNext('methodology');
+    methodologyPage(k, model);
 
     // The contents, now that every page exists. Drawn in absolute coordinates
     // on the reserved first page: anything consulting the flow cursor could

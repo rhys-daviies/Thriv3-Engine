@@ -308,10 +308,16 @@ describe('the contents still tracks the real pages', () => {
 
   it('lists no section the document does not contain', async () => {
     addProgramme();
-    const { text } = await build();
-    // The supporting tables are not built yet, so they must not be advertised.
-    expect(text).not.toContain('Every first-year measured');
-    expect(text).not.toContain('Every vacancy observed');
+    const { text, model } = await build();
+    // The appendices exist now, so the rule is the general one: every title
+    // the contents lists must also appear as a page in the document.
+    for (const s of model.sections) {
+      if (s.page == null) continue;
+      expect(text).toContain(s.title);
+    }
+    // The current-squad appendix is deliberately not registered: page twelve
+    // already carries the complete roster with the same fields.
+    expect(model.sections.some((s) => s.id === 'table-current-squad')).toBe(false);
   });
 
   it('shrinks for a programme with almost nothing on file', async () => {
@@ -349,5 +355,179 @@ describe('wording the evidence pages must not use', () => {
       expect(text).not.toMatch(/because a starter (left|departed)/i);
       expect(text).not.toMatch(/leads to (freshmen|first-years) starting/i);
     }
+  });
+});
+
+/**
+ * Helvetica is a standard font here, so pdfkit encodes text as WinAnsi. A
+ * character outside that set does not fail — it prints as stray punctuation,
+ * which is how an arrow in the eligibility column became "!'" and a
+ * not-equals sign in the methodology callout became a quotation mark.
+ */
+describe('every character the report draws can be drawn', () => {
+  it('uses no glyph outside WinAnsi', async () => {
+    addProgramme();
+    addAthlete('p1');
+    const { text } = await build('p1');
+    const unsupported = [...new Set([...text].filter((ch) => {
+      const c = ch.codePointAt(0);
+      if (c < 0x100) return false;
+      // The punctuation WinAnsi does carry, which the extractor maps back.
+      return !'…‘’“”–—·€™š›œžŸƒ†‡ˆ‰Š‹Œ•'.includes(ch);
+    }))];
+    expect(unsupported).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 5 — athlete evidence, appendices, methodology
+// ---------------------------------------------------------------------------
+
+describe('the athlete evidence layer', () => {
+  beforeEach(() => addProgramme());
+
+  it('is absent entirely from a programme report', async () => {
+    const { text, model } = await build();
+    expect(model.sections.some((s) => s.scope === 'athlete')).toBe(false);
+    for (const title of ['Your arrival window', 'When a place opens at', 'Where you are arriving from']) {
+      expect(text).not.toContain(title);
+    }
+  });
+
+  it('renders each athlete page once for an athlete report', async () => {
+    addAthlete('p1');
+    const { text } = await build('p1');
+    expect(text).toMatch(/Defenders at this programme/);
+    expect(text).toMatch(/When a place opens at defender/i);
+    expect(text).toMatch(/Defenders on the 2026 roster/);
+    expect(text).toMatch(/Your arrival window, 2027/);
+    expect(text).toMatch(/Where you are arriving from/);
+  });
+
+  // The comparison it replaced put a results-derived rating out of 100 beside
+  // a self-entered level out of 10 and then disclaimed itself.
+  it('no longer prints the level comparison', async () => {
+    addAthlete('p1');
+    const { text } = await build('p1');
+    expect(text).not.toMatch(/Your stated level/i);
+    expect(text).not.toMatch(/of 10\b/);
+    expect(text).not.toMatch(/These two are not the same measurement/i);
+  });
+
+  it('names the cohort it actually used when narrowing was widened', async () => {
+    addAthlete('p1');
+    const { text, model } = await build('p1');
+    const cohort = model.fit?.cohort;
+    if (cohort?.refused) {
+      expect(text).toMatch(/We could not read your exact group here/);
+    } else if (cohort && !cohort.applied) {
+      expect(text).toMatch(/too few first-years in your own group/);
+    }
+  });
+
+  it('states opening outcomes as overlapping counts', async () => {
+    addAthlete('p1');
+    const { text } = await build('p1');
+    expect(text).toMatch(/These two counts can describe the same season/);
+    expect(text).not.toMatch(/replacement winner|who won the place/i);
+  });
+
+  it('accounts for players with no eligibility year rather than dropping them', async () => {
+    addAthlete('p1');
+    const { text, model } = await build('p1');
+    const a = model.summary.athlete;
+    expect(text).toMatch(/Current players with no eligibility year recorded/);
+    const placed = a.currentPlayersEligibleAtEntry.length
+      + a.currentPlayersEligibilityEndsBeforeEntry.length
+      + a.currentPlayersEligibilityUnknown.length;
+    expect(placed).toBe(a.currentPositionPlayers.length);
+  });
+
+  it('exposes the beyond-entry group as its own aggregate', async () => {
+    addAthlete('p1');
+    const { model } = await build('p1');
+    const a = model.summary.athlete;
+    expect(a.currentPlayersBeyondEntry).toBeTruthy();
+    expect(a.currentProjectedMinutesOfPlayersBeyondEntry).toBeTruthy();
+    // The final-season group and the beyond-entry group partition those
+    // eligible at entry.
+    expect(a.currentPlayersInFinalSeasonAtEntry.length + a.currentPlayersBeyondEntry.length)
+      .toBe(a.currentPlayersEligibleAtEntry.length);
+  });
+
+  it('refuses an origin comparison the programme cannot support, without borrowing the pool', async () => {
+    addAthlete('p1');
+    const { text, model } = await build('p1');
+    const o = model.summary.athlete.originContext;
+    if (!o.evidence.sufficient) {
+      expect(text).toMatch(/Not enough programme-specific history to compare by origin/);
+      expect(text).toMatch(/context, not a substitute/);
+    }
+  });
+});
+
+describe('the supporting record', () => {
+  beforeEach(() => addProgramme());
+
+  it('builds the appendices that carry names the charts do not', async () => {
+    const { text, model } = await build();
+    const ids = model.sections.map((s) => s.id);
+    expect(ids).toContain('table-freshmen');
+    expect(ids).toContain('table-vacancies');
+    expect(text).toContain('Every first-year measured');
+    expect(text).toContain('Every opening observed');
+  });
+
+  // Page twelve already lists every player with every field the appendix
+  // would, so a second copy would pad the document rather than open it up.
+  it('does not repeat the current squad as an appendix', async () => {
+    const { text, model } = await build();
+    expect(model.sections.some((s) => s.id === 'table-current-squad')).toBe(false);
+    expect((text.match(/The current squad in full/g) || []).length).toBeLessThanOrEqual(2);
+  });
+
+  it('omits an appendix too small to add anything', async () => {
+    db.exec("DELETE FROM roster_players WHERE class_year_label = 'Jr.' AND season != '2026'");
+    const { model } = await build();
+    const ids = model.sections.map((s) => s.id);
+    if (model.transfer.points.length < 6) expect(ids).not.toContain('table-experienced-arrivals');
+  });
+
+  it('never infers a source for an arrival', async () => {
+    const { text } = await build();
+    expect(text).toMatch(/No source is inferred/);
+  });
+
+  it('keeps one row per opening rather than one per departing player', async () => {
+    const { model } = await build();
+    const rows = model.summary.programme.replacementBehaviour.record;
+    const keys = rows.map((r) => `${r.transition}|${r.position}`);
+    expect(new Set(keys).size).toBe(keys.length);
+  });
+});
+
+describe('the methodology page', () => {
+  beforeEach(() => addProgramme());
+
+  it('carries the three principles and no hardcoded origin figure', async () => {
+    const { text } = await build();
+    expect(text).toContain('HISTORY IS NOT FORECAST');
+    expect(text).toContain('MISSING IS NOT ZERO');
+    expect(text).toContain('SAMPLE SIZE MATTERS');
+    expect(text).not.toMatch(/37%|27%|40% more likely/);
+  });
+
+  it('explains missing data, benchmarks and evidence strength', async () => {
+    const { text } = await build();
+    expect(text).toMatch(/A blank is not a zero/);
+    expect(text).toMatch(/They do not mean good, average or bad/);
+    expect(text).toMatch(/not a probability, a confidence interval or a quality score/);
+    expect(text).toMatch(/never subtracted from each other/);
+  });
+
+  it('replaces the legacy limits page', async () => {
+    const { text } = await build();
+    expect(text).not.toContain('WHAT THIS CANNOT TELL YOU');
+    expect(text).toContain('Methodology and limitations');
   });
 });

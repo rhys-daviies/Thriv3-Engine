@@ -414,7 +414,7 @@ export function whoRunsIt(k, model) {
   const segments = (model.tenure?.segments ?? [])
     .map((s) => `${s.coach} (${s.from}${s.to === s.from ? '' : `–${s.to}`})`);
   k.facts([
-    ['Coaches on file', segments.length ? segments.join('  →  ') : 'none on file'],
+    ['Coaches on file', segments.length ? segments.join('  \u2013  ') : 'none on file'],
     [`Head coach, ${model.recruitSeason}`, model.coachForRecruitSeason || 'not on file'],
     ['What we can say', VERDICT_LABEL[model.verdict?.verdict] ?? 'Not enough on file'],
   ]);

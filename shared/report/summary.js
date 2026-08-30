@@ -25,7 +25,9 @@
  * could not be measured is null with a reason beside it.
  */
 
-import { STARTER_MINUTES, squadProjectedMinutes, expiringShare, squadDepth } from '../philosophy.js';
+import {
+  STARTER_MINUTES, squadProjectedMinutes, expiringShare, squadDepth, vacancyRecord,
+} from '../philosophy.js';
 import { canonicalPosition } from '../positions.js';
 import { STEP_POINTS, MIN_COHORT_PLAYERS } from '../freshmanMinutes.js';
 import {
@@ -332,6 +334,9 @@ export function replacementBehaviourSummary({ model, philosophy }) {
     // rendered: a departing starter moves the odds of a first-year starting.
     poolVacancy: model.benchmarks?.vacancy ?? null,
     poolReason: model.benchmarks ? null : model.benchmarksReason,
+    // The events behind the aggregates above, for the appendix that exposes
+    // them. Aggregates are what a reader is told; these are what they can check.
+    record: vacancyRecord(observations),
     byPosition: (model.byPosition ?? []).map((p) => ({
       position: p.position,
       transitions: p.transitions,
@@ -503,6 +508,9 @@ export function splitDepthByEntry(depth, entrySeason) {
   const eligibleAtEntry = rows.filter((x) => known(x) && Number(x.eligibleTo) >= entrySeason);
   const endsBeforeEntry = rows.filter((x) => known(x) && Number(x.eligibleTo) < entrySeason);
   const finalSeasonAtEntry = rows.filter((x) => known(x) && Number(x.eligibleTo) === entrySeason);
+  // Eligible for the entry season AND beyond it — the players who would still
+  // be there the year after the athlete arrives.
+  const beyondEntry = rows.filter((x) => known(x) && Number(x.eligibleTo) > entrySeason);
   const unknown = rows.filter((x) => !known(x));
   const minutesOf = (list) => {
     const withProjection = list.filter((x) => x.projectedMinutes != null);
@@ -524,10 +532,12 @@ export function splitDepthByEntry(depth, entrySeason) {
     // A subset of currentPlayersEligibleAtEntry: eligible for the entry season
     // and no further.
     currentPlayersInFinalSeasonAtEntry: finalSeasonAtEntry,
+    currentPlayersBeyondEntry: beyondEntry,
     currentPlayersEligibilityUnknown: unknown,
     projectedMinutesEligibleAtEntry: minutesOf(eligibleAtEntry),
     projectedMinutesEndingBeforeEntry: minutesOf(endsBeforeEntry),
     projectedMinutesInFinalSeasonAtEntry: minutesOf(finalSeasonAtEntry),
+    projectedMinutesBeyondEntry: minutesOf(beyondEntry),
     projectedMinutesEligibilityUnknown: minutesOf(unknown),
   };
 }
@@ -567,12 +577,14 @@ export function athleteSummary({ model, philosophy, entrySeason }) {
     currentPlayersEligibleAtEntry: depth.currentPlayersEligibleAtEntry,
     currentPlayersEligibilityEndsBeforeEntry: depth.currentPlayersEligibilityEndsBeforeEntry,
     currentPlayersInFinalSeasonAtEntry: depth.currentPlayersInFinalSeasonAtEntry,
+    currentPlayersBeyondEntry: depth.currentPlayersBeyondEntry,
     currentPlayersEligibilityUnknown: depth.currentPlayersEligibilityUnknown,
     // "associated with" rather than "available": the minutes belong to the
     // player, and nothing in this data says they transfer to a recruit.
     currentProjectedMinutesOfPlayersEligibleAtEntry: depth.projectedMinutesEligibleAtEntry,
     currentProjectedMinutesOfPlayersEndingBeforeEntry: depth.projectedMinutesEndingBeforeEntry,
     currentProjectedMinutesOfPlayersInFinalSeasonAtEntry: depth.projectedMinutesInFinalSeasonAtEntry,
+    currentProjectedMinutesOfPlayersBeyondEntry: depth.projectedMinutesBeyondEntry,
     currentProjectedMinutesOfPlayersWithUnknownEligibility: depth.projectedMinutesEligibilityUnknown,
 
     positionVacancyHistory: positionHistory,
@@ -610,9 +622,34 @@ export function athleteSummary({ model, philosophy, entrySeason }) {
       players: arrivalsHere,
       measured: arrivalsHere.length,
       starters: arrivalsHere.filter((p) => p.minutes >= STARTER_MINUTES).length,
+      seasonsRepresented: [...new Set(arrivalsHere.map((p) => p.season))].sort(),
       measurableSeasons: model.transfer?.window?.measurable ?? [],
       currentNamedArrivals: (model.squad?.arrivals ?? []).filter((a) => a.position === position),
+      evidence: positionEvidence({
+        transitions: positionHistory?.transitions ?? 0,
+        openings: positionHistory?.openings ?? 0,
+        seasons: new Set(arrivalsHere.map((p) => p.season)).size,
+        players: arrivalsHere.length,
+      }),
     },
+
+    // Every position-season transition at this position in which a starter
+    // left, as events rather than counts.
+    positionVacancyRecord: (philosophy?.observations ?? [])
+      .filter((o) => o.pos === position && o.departedStarters > 0)
+      .map((o) => ({
+        transition: `${o.from}\u2013${o.to}`,
+        from: o.from,
+        to: o.to,
+        departed: o.departedStarterNames,
+        vacatedStarterMinutes: o.vacatedStarter,
+        freshStarters: o.freshStarters,
+        newcomerStarters: o.newcomerStarters,
+        returningShare: o.returningShare == null ? null : Math.round(o.returningShare * 1000) / 10,
+        freshmanShare: o.freshShare == null ? null : Math.round(o.freshShare * 1000) / 10,
+        newcomerShare: o.newcomerShare == null ? null : Math.round(o.newcomerShare * 1000) / 10,
+      }))
+      .sort((a, b) => Number(a.to) - Number(b.to)),
 
     originContext: originContextSummary({ model, philosophy, athlete }),
   };
