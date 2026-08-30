@@ -44,10 +44,10 @@ const selectCoachSeasons = db.prepare(
   'SELECT season, coach_name, coach_title, reason FROM coach_seasons WHERE school = ? AND sport = ? ORDER BY season',
 );
 const selectCollege = db.prepare(
-  'SELECT id, name, sport, division, conference, city, state, soccer_score, logo_url, primary_color FROM colleges WHERE id = ?',
+  'SELECT id, name, sport, division, conference, city, state, soccer_score, logo_url, primary_color, nickname FROM colleges WHERE id = ?',
 );
 const selectCollegeByName = db.prepare(
-  'SELECT id, name, sport, division, conference, city, state, soccer_score, logo_url, primary_color FROM colleges WHERE name = ? AND sport = ?',
+  'SELECT id, name, sport, division, conference, city, state, soccer_score, logo_url, primary_color, nickname FROM colleges WHERE name = ? AND sport = ?',
 );
 
 /** Season is TEXT on the roster and INTEGER on coach_seasons; normalise here. */

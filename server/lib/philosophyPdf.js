@@ -30,6 +30,50 @@ const GREEN = '#2C6350';
 const M = 54;                       // page margin
 const W = 595.28 - M * 2;           // A4 content width
 
+/**
+ * The typographic scale. Five levels, one definition each.
+ *
+ * Before this existed the same level was set at three different sizes
+ * depending on which module drew it — a page title was 20pt on an evidence
+ * page, 19pt on a glance page and 13pt on the methodology continuation, and
+ * the reader had no way to tell whether a size change meant a level change.
+ *
+ *   1  kicker    which part of the report this page belongs to
+ *   2  title     what this page is
+ *   3  question  what it answers, and the scope strip under it
+ *   4  section   a titled region: a card, or a block within a page
+ *      module    a chart's own title
+ *   5  body / caption / note / label
+ *
+ * Claret small capitals mean "a titled region begins here" wherever they
+ * appear. Ink at module size means "this is a chart". Nothing else may use
+ * either, which is what makes them legible as levels rather than decoration.
+ */
+export const TYPE = {
+  kicker: { font: 'Helvetica-Bold', size: 8, color: CLARET, spacing: 1.2 },
+  title: { font: 'Helvetica-Bold', size: 19, color: INK },
+  question: { font: 'Helvetica', size: 10, color: MUTED },
+  scope: { font: 'Helvetica', size: 7.5, color: MUTED },
+  section: { font: 'Helvetica-Bold', size: 9, color: CLARET, spacing: 1 },
+  module: { font: 'Helvetica-Bold', size: 9.5, color: INK },
+  caption: { font: 'Helvetica', size: 8, color: MUTED },
+  body: { font: 'Helvetica', size: 9.5, color: INK },
+  note: { font: 'Helvetica', size: 8, color: MUTED },
+  label: { font: 'Helvetica-Bold', size: 6.5, color: MUTED, spacing: 0.8 },
+};
+
+/** Vertical rhythm, so spacing is a decision made once rather than per page. */
+export const SPACE = {
+  afterTitle: 8,
+  afterQuestion: 12,
+  afterScope: 14,
+  beforeSection: 15,
+  afterSection: 11,
+  afterBody: 7,
+  afterNote: 7,
+  afterChart: 10,
+};
+
 /** Plain-English names for the verdicts, so nothing renders as a slug. */
 const VERDICT_LABEL = {
   steady: 'Consistent, one coach',
@@ -110,36 +154,96 @@ export function kit(doc) {
 
     title(text) {
       api.room(40);
-      doc.font('Helvetica-Bold').fontSize(20).fillColor(INK).text(text, M, doc.y, { width: W });
-      return api.gap(6);
+      doc.font(TYPE.title.font).fontSize(TYPE.title.size).fillColor(TYPE.title.color)
+        .text(text, M, doc.y, { width: W });
+      return api.gap(SPACE.afterTitle);
+    },
+    /** The question a page answers, under its title. */
+    question(text) {
+      api.room(26);
+      doc.font(TYPE.question.font).fontSize(TYPE.question.size).fillColor(TYPE.question.color)
+        .text(text, M, doc.y, { width: W });
+      return api.gap(SPACE.afterQuestion);
+    },
+    /** What the figures on this page were built from, in one line. */
+    scope(parts) {
+      const text = (Array.isArray(parts) ? parts : [parts]).filter(Boolean).join('   ·   ');
+      if (!text) return api;
+      api.room(20);
+      doc.font(TYPE.scope.font).fontSize(TYPE.scope.size).fillColor(TYPE.scope.color)
+        .text(text, M, doc.y, { width: W, lineBreak: false, ellipsis: true });
+      doc.y += 9;
+      return api.gap(SPACE.afterScope - 9);
     },
     heading(text) {
-      api.room(46);
-      doc.font('Helvetica-Bold').fontSize(11.5).fillColor(CLARET)
-        .text(text.toUpperCase(), M, doc.y, { width: W, characterSpacing: 0.8 });
+      // Space above, so a section reads as a break rather than as the next
+      // paragraph. Suppressed at the top of a page, where the title provides it.
+      if (doc.y > M + 30) doc.y += SPACE.beforeSection;
+      api.room(40);
+      doc.font(TYPE.section.font).fontSize(TYPE.section.size).fillColor(TYPE.section.color)
+        .text(text.toUpperCase(), M, doc.y, { width: W, characterSpacing: TYPE.section.spacing });
       doc.moveTo(M, doc.y + 3).lineTo(M + W, doc.y + 3).lineWidth(0.75).strokeColor(LINE).stroke();
-      return api.gap(12);
+      return api.gap(SPACE.afterSection);
     },
     body(text, opts = {}) {
       api.room(24);
-      doc.font(opts.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(10.5)
-        .fillColor(opts.color || INK).text(text, M, doc.y, { width: opts.width || W, ...opts });
-      return api.gap(6);
+      doc.font(opts.bold ? 'Helvetica-Bold' : TYPE.body.font).fontSize(TYPE.body.size)
+        .fillColor(opts.color || TYPE.body.color)
+        .text(text, M, doc.y, { width: opts.width || W, ...opts });
+      return api.gap(SPACE.afterBody);
     },
     note(text) {
       api.room(20);
-      doc.font('Helvetica').fontSize(8.8).fillColor(MUTED).text(text, M, doc.y, { width: W });
-      return api.gap(6);
+      doc.font(TYPE.note.font).fontSize(TYPE.note.size).fillColor(TYPE.note.color)
+        .text(text, M, doc.y, { width: W });
+      return api.gap(SPACE.afterNote);
     },
 
     /** A framed statement — used for the one caveat that must not be missed. */
-    box(text, { color = CLARET } = {}) {
-      const h = doc.font('Helvetica').fontSize(9.5).heightOfString(text, { width: W - 24 }) + 20;
+    box(text, { color = CLARET, title = null } = {}) {
+      const inner = W - 28;
+      const titleH = title ? 12 : 0;
+      const h = doc.font(TYPE.body.font).fontSize(TYPE.body.size)
+        .heightOfString(text, { width: inner }) + 20 + titleH;
       api.room(h + 8);
       const top = doc.y;
       doc.save().rect(M, top, W, h).fillOpacity(0.05).fill(color).restore();
       doc.save().rect(M, top, 3, h).fill(color).restore();
-      doc.font('Helvetica').fontSize(9.5).fillColor(INK).text(text, M + 14, top + 10, { width: W - 24 });
+      if (title) {
+        doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(color)
+          .text(String(title).toUpperCase(), M + 14, top + 10,
+            { width: inner, characterSpacing: TYPE.label.spacing, lineBreak: false });
+      }
+      doc.font(TYPE.body.font).fontSize(TYPE.body.size).fillColor(INK)
+        .text(text, M + 14, top + 10 + titleH, { width: inner });
+      doc.y = top + h;
+      return api.gap(12);
+    },
+
+    /**
+     * A quieter block than `box`, for a coverage detail rather than a limit.
+     *
+     * The report had one callout style doing both jobs: the limitation a
+     * reader must not miss and the footnote about which rows were legible were
+     * drawn as identical claret boxes, so neither was louder than the other.
+     * This one is grey, unruled and labelled, and never carries the primary
+     * caveat.
+     */
+    aside(text, { title = null } = {}) {
+      const inner = W - 28;
+      const titleH = title ? 11 : 0;
+      const h = doc.font(TYPE.note.font).fontSize(TYPE.note.size)
+        .heightOfString(text, { width: inner }) + 18 + titleH;
+      api.room(h + 8);
+      const top = doc.y;
+      doc.save().rect(M, top, W, h).fillOpacity(0.04).fill(INK).restore();
+      if (title) {
+        doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+          .text(String(title).toUpperCase(), M + 14, top + 9,
+            { width: inner, characterSpacing: TYPE.label.spacing, lineBreak: false, ellipsis: true });
+      }
+      doc.font(TYPE.note.font).fontSize(TYPE.note.size).fillColor(MUTED)
+        .text(text, M + 14, top + 9 + titleH, { width: inner });
       doc.y = top + h;
       return api.gap(12);
     },
@@ -253,13 +357,13 @@ export function kit(doc) {
     /** A two-column fact list. */
     facts(rows) {
       for (const [k, v] of rows) {
-        api.room(16);
+        api.room(17);
         const top = doc.y;
-        doc.font('Helvetica').fontSize(9).fillColor(MUTED).text(k, M, top, { width: 150 });
-        doc.font('Helvetica').fontSize(9).fillColor(INK).text(v, M + 158, top, { width: W - 158 });
-        doc.y = Math.max(doc.y, top + 13);
+        doc.font('Helvetica').fontSize(8.8).fillColor(MUTED).text(k, M, top, { width: 168 });
+        doc.font('Helvetica').fontSize(8.8).fillColor(INK).text(v, M + 176, top, { width: W - 176 });
+        doc.y = Math.max(doc.y, top + 14);
       }
-      return api.gap(8);
+      return api.gap(9);
     },
 
     /**
@@ -309,19 +413,23 @@ export function kit(doc) {
         api.room(rowHeight + 8);
         const top = doc.y;
         shown.forEach((c, i) => {
-          doc.font('Helvetica-Bold').fontSize(6.5).fillColor(MUTED);
-          doc.text(fitText(doc, String(c.label).toUpperCase(), widths[i] - 6), xOf(i), top, {
-            width: widths[i] - 6, align: c.align || 'left', lineBreak: false,
-          });
+          // The letter-spacing has to be part of the measurement, not applied
+          // after it: fitting the label without it and drawing it with it is
+          // how a header that measured as fitting ran off the page.
+          const opt = { width: widths[i] - 6, align: c.align || 'left', lineBreak: false,
+            characterSpacing: TYPE.label.spacing };
+          doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color);
+          doc.text(fitText(doc, String(c.label).toUpperCase(), widths[i] - 6, opt), xOf(i), top, opt);
         });
-        doc.moveTo(M, top + 10).lineTo(M + W, top + 10).lineWidth(0.75).strokeColor(INK).stroke();
-        doc.y = top + 14;
+        doc.moveTo(M, top + 11).lineTo(M + W, top + 11).lineWidth(0.75).strokeColor(INK).stroke();
+        doc.y = top + 16;
       };
 
       if (caption) {
         api.room(16);
-        doc.font('Helvetica').fontSize(8).fillColor(MUTED).text(caption, M, doc.y, { width: W });
-        api.gap(4);
+        doc.font(TYPE.caption.font).fontSize(TYPE.caption.size).fillColor(TYPE.caption.color)
+          .text(caption, M, doc.y, { width: W });
+        api.gap(6);
       }
       header();
 
@@ -334,9 +442,9 @@ export function kit(doc) {
           api.room(rowHeight * 2 + 10);
           if (doc.bufferedPageRange().count > before) header();
           doc.y += 4;
-          doc.font('Helvetica-Bold').fontSize(6.5).fillColor(CLARET)
-            .text(String(row.group).toUpperCase(), M, doc.y, { width: W, characterSpacing: 0.9, lineBreak: false });
-          doc.y += 11;
+          doc.font(TYPE.label.font).fontSize(7).fillColor(CLARET)
+            .text(String(row.group).toUpperCase(), M, doc.y, { width: W, characterSpacing: 1, lineBreak: false });
+          doc.y += 12;
           striped = 0;
           continue;
         }
@@ -378,11 +486,12 @@ export function kit(doc) {
       for (const item of items) {
         api.room(22);
         const top = doc.y;
-        doc.font('Helvetica').fontSize(9).fillColor(MUTED).text('•', M, top, { width: 10 });
-        doc.font('Helvetica').fontSize(9).fillColor(INK).text(item, M + 12, top, { width: W - 12 });
-        doc.y += 4;
+        doc.font(TYPE.body.font).fontSize(TYPE.body.size).fillColor(MUTED).text('•', M, top, { width: 10 });
+        doc.font(TYPE.body.font).fontSize(TYPE.body.size).fillColor(INK)
+          .text(item, M + 14, top, { width: W - 14 });
+        doc.y += 5;
       }
-      return api.gap(6);
+      return api.gap(SPACE.afterBody);
     },
   };
   return api;
@@ -457,6 +566,31 @@ export function render(build, { audit = null } = {}) {
 // ---------------------------------------------------------------------------
 // Shared sections
 // ---------------------------------------------------------------------------
+
+/**
+ * The top of a page: kicker, title, question, scope strip.
+ *
+ * One implementation. There were four near-identical ones — the evidence
+ * pages, the athlete pages, the appendices and the glance pages each had their
+ * own — which is why the page title was three different sizes depending on
+ * which layer you happened to be reading.
+ *
+ * `newPage` is false only for a page the caller has already opened.
+ */
+export function pageHead(k, { kicker, title, question = null, scope = null, newPage = true }) {
+  const { doc } = k;
+  if (newPage) doc.addPage();
+  if (kicker) {
+    doc.font(TYPE.kicker.font).fontSize(TYPE.kicker.size).fillColor(TYPE.kicker.color)
+      .text(String(kicker).toUpperCase(), M, M - 18,
+        { width: W, characterSpacing: TYPE.kicker.spacing, lineBreak: false, ellipsis: true });
+  }
+  doc.y = M;
+  k.title(title);
+  if (question) k.question(question);
+  if (scope) k.scope(scope);
+  return k;
+}
 
 export function masthead(k, model, title, subtitle) {
   const { doc } = k;
@@ -728,14 +862,14 @@ function frame(k, box, { title, subtitle, unavailable, empty }) {
   const { doc } = k;
   let top = box.y;
   if (title) {
-    doc.font('Helvetica-Bold').fontSize(9.5).fillColor(INK)
-      .text(title, box.x, top, { width: box.w, lineBreak: false });
-    top += 13;
+    doc.font(TYPE.module.font).fontSize(TYPE.module.size).fillColor(TYPE.module.color)
+      .text(title, box.x, top, { width: box.w, lineBreak: false, ellipsis: true });
+    top += 14;
   }
   if (subtitle) {
-    doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-      .text(subtitle, box.x, top, { width: box.w, lineBreak: false });
-    top += 11;
+    doc.font(TYPE.caption.font).fontSize(TYPE.caption.size).fillColor(TYPE.caption.color)
+      .text(subtitle, box.x, top, { width: box.w, lineBreak: false, ellipsis: true });
+    top += 12;
   }
   const plot = { x: box.x, y: top, w: box.w, h: box.h - (top - box.y) };
   if (unavailable) {

@@ -12,7 +12,7 @@
  * enough that a reader can hold the numbers to them: history is not forecast,
  * missing is not zero, and sample size matters.
  */
-import { THEME } from './philosophyPdf.js';
+import { THEME, TYPE, pageHead } from './philosophyPdf.js';
 import { STARTER_MINUTES, MIN_POSITION_MINUTES } from '../../shared/philosophy.js';
 import {
   MIN_COHORT_PLAYERS, MIN_COHORT_SEASONS, MIN_MEASURED_SHARE, MIN_SQUAD,
@@ -25,14 +25,7 @@ const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const cap = (s) => String(s ?? '').replace(/^./, (c) => c.toUpperCase());
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
-function page(k, kicker, title, question) {
-  k.doc.addPage();
-  k.doc.font('Helvetica-Bold').fontSize(8).fillColor(CLARET)
-    .text(kicker.toUpperCase(), M, M - 18, { width: W, characterSpacing: 1.2, lineBreak: false });
-  k.title(title);
-  if (question) k.body(question, { color: MUTED });
-  k.gap(2);
-}
+const page = (k, kicker, title, question) => pageHead(k, { kicker, title, question });
 
 const BAND_WORD = { impact: 'Starter season', rotation: 'Rotation', fringe: 'Fringe', none: 'Did not play' };
 

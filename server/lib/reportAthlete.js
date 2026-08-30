@@ -12,7 +12,7 @@
  * thing this report could print. And nothing describes a future roster: every
  * count is of the squad as it stands today, read against a date.
  */
-import { charts, THEME, humanCohort, fitText } from './philosophyPdf.js';
+import { charts, THEME, pageHead, humanCohort, fitText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 
@@ -22,22 +22,8 @@ const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const cap = (s) => String(s ?? '').replace(/^./, (c) => c.toUpperCase());
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
-function page(k, kicker, title, question) {
-  k.doc.addPage();
-  k.doc.font('Helvetica-Bold').fontSize(8).fillColor(CLARET)
-    .text(kicker.toUpperCase(), THEME.M, THEME.M - 18, { width: W, characterSpacing: 1.2, lineBreak: false });
-  k.title(title);
-  if (question) k.body(question, { color: MUTED });
-  k.gap(2);
-}
-
-function scope(k, parts) {
-  const line = parts.filter(Boolean).join('   ·   ');
-  if (!line) return;
-  k.doc.font('Helvetica').fontSize(7).fillColor(MUTED)
-    .text(line, THEME.M, k.doc.y, { width: W, lineBreak: false, ellipsis: true });
-  k.doc.y += 12;
-}
+const page = (k, kicker, title, question) => pageHead(k, { kicker, title, question });
+const scope = (k, parts) => k.scope(parts);
 
 /** The noun for the athlete's position group, singular and plural. */
 const noun = (a) => positionPlural(a.position).replace(/s$/, '');
@@ -334,11 +320,11 @@ export function arrivalWindowPage(k, model) {
 
   // Three bands, with the final-season group as the visual focus.
   const bands = [
-    { key: 'before', label: `BEFORE ${a.entrySeason}`, sub: 'eligibility ends before you arrive',
+    { key: 'before', label: 'BEFORE ENTRY', sub: `eligibility ends before ${a.entrySeason}`,
       group: a.currentPlayersEligibilityEndsBeforeEntry, minutes: before, color: MUTED },
-    { key: 'final', label: `FINAL SEASON IN ${a.entrySeason}`, sub: 'eligible for your entry year and no further',
+    { key: 'final', label: 'FINAL SEASON AT ENTRY', sub: `last eligible season is ${a.entrySeason}, the year you arrive`,
       group: a.currentPlayersInFinalSeasonAtEntry, minutes: final, color: CLARET, focus: true },
-    { key: 'beyond', label: `ELIGIBLE BEYOND ${a.entrySeason}`, sub: 'eligible past your entry year',
+    { key: 'beyond', label: 'BEYOND ENTRY', sub: `eligible past ${a.entrySeason}`,
       group: a.currentPlayersBeyondEntry, minutes: beyond, color: NAVY },
   ];
 
@@ -385,16 +371,21 @@ export function arrivalWindowPage(k, model) {
       + `bands${unknown?.currentProjectedMinutes == null ? '' : `, holding ${nf(unknown.currentProjectedMinutes)} projected minutes between them`}.`);
   }
 
+  // Two caveats of different weight, drawn differently. They were previously
+  // two identical claret boxes stacked on each other, which made the ceiling
+  // on the whole page and a note about how far the rosters run look like the
+  // same kind of statement.
   k.gap(4);
   k.box('Future recruits, experienced arrivals, injuries, redshirts and eligibility changes are not '
     + 'known. This page describes the squad as it stands today, read against your entry year — it '
-    + 'does not describe the squad you would find.', { color: CLARET });
+    + 'does not describe the squad you would find.',
+  { color: CLARET, title: 'The primary limitation' });
 
   if (!a.entrySeasonKnown) {
-    k.box(`We hold rosters and coaching records through ${model.squadSeason}. You would arrive in `
+    k.aside(`Rosters and coaching records are held through ${model.squadSeason}. You would arrive in `
       + `${a.entrySeason}, which is beyond that horizon: who is in charge and who is on the squad by `
       + 'then is further outside what this data can show than the bands above already are.',
-    { color: CLARET });
+    { title: 'A note on coverage' });
   }
 }
 

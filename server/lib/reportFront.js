@@ -16,7 +16,7 @@
  * and a red chip would say something the arithmetic does not. And nothing is
  * scored — there is no composite number anywhere on these pages.
  */
-import { THEME, minutes, fitText } from './philosophyPdf.js';
+import { THEME, TYPE, SPACE, pageHead, minutes, fitText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 
@@ -30,6 +30,42 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 const pctOf = (v, digits = 0) => (v == null ? '—' : `${(100 * v).toFixed(digits)}%`);
 
 export { fitText };
+
+/**
+ * The one place a programme's own colour appears.
+ *
+ * Restrained on purpose, and measured before it was decided. Of 2,401 active
+ * programmes across both sports, 1,438 record a primary colour at all — 60% —
+ * so anything structural built on it would look like a different product for
+ * the other 40%. Of the ones that do, 50 are effectively invisible on paper:
+ * Indiana's #EDEBEB, three literal whites, and a run of school yellows.
+ *
+ * So: a single accent rule on the cover, falling back to Thriv3 navy so the
+ * layout is identical either way. It never colours a chart, a classification
+ * or a number, because a colour that carries meaning somewhere cannot be
+ * decoration here. Logos are deliberately absent — the stored URLs are remote
+ * Wikimedia SVGs, and fetching and rasterising one inside PDF generation buys
+ * a fragile network dependency for an image nobody is reading the report for.
+ */
+export function identityColour(college) {
+  const raw = String(college?.primary_color ?? '').trim();
+  const m = /^#?([0-9a-fA-F]{6})$/.exec(raw);
+  if (!m) return { colour: NAVY, fromCollege: false };
+  const v = parseInt(m[1], 16);
+  const channel = (c) => {
+    const x = c / 255;
+    return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+  };
+  const lum = 0.2126 * channel((v >> 16) & 255) + 0.7152 * channel((v >> 8) & 255)
+    + 0.0722 * channel(v & 255);
+  // 2:1 against the page, not the 3:1 a piece of text would need — this is a
+  // solid mark carrying no information, so the only question is whether it
+  // reads as deliberate. Below it (1,388 of 1,438 colours pass) the house
+  // colour is used instead: 50 programmes' primaries are a near-white, a
+  // literal white or a school yellow that prints as a smudge.
+  if (1.05 / (lum + 0.05) < 2) return { colour: NAVY, fromCollege: false };
+  return { colour: `#${m[1].toUpperCase()}`, fromCollege: true };
+}
 
 /** One line of text, guaranteed to stay on one line and inside `width`. */
 function line(doc, text, x, y, width, { font = 'Helvetica', size = 7.5, color = INK, align = 'left' } = {}) {
@@ -99,12 +135,19 @@ const EVIDENCE_LABEL = { strong: 'STRONG', moderate: 'MODERATE', limited: 'LIMIT
 export function panel(doc, box, title) {
   doc.save().roundedRect(box.x, box.y, box.w, box.h, 4)
     .lineWidth(0.75).strokeColor(LINE).stroke().restore();
-  const pad = 13;
+  const pad = 14;
   let y = box.y + pad;
   if (title) {
-    doc.font('Helvetica-Bold').fontSize(7.5).fillColor(CLARET)
-      .text(title.toUpperCase(), box.x + pad, y, { width: box.w - pad * 2, characterSpacing: 0.9, lineBreak: false });
-    y += 14;
+    // The same claret small capitals with a rule under them that opens a
+    // section on a flowing page. A card and a section are the same level of
+    // the document, so they are set the same way.
+    doc.font(TYPE.section.font).fontSize(TYPE.section.size).fillColor(TYPE.section.color)
+      .text(title.toUpperCase(), box.x + pad, y,
+        { width: box.w - pad * 2, characterSpacing: TYPE.section.spacing, lineBreak: false, ellipsis: true });
+    y += 13;
+    doc.save().moveTo(box.x + pad, y).lineTo(box.x + box.w - pad, y)
+      .lineWidth(0.5).strokeColor(LINE).stroke().restore();
+    y += 11;
   }
   return { x: box.x + pad, y, w: box.w - pad * 2, bottom: box.y + box.h - pad };
 }
@@ -208,6 +251,29 @@ export function miniStacked(doc, x, y, w, parts, { unavailable = null } = {}) {
   return ly;
 }
 
+/**
+ * The limitation a reader must not miss, and the coverage detail beneath it.
+ *
+ * They were drawn identically — same size, same colour, same italic — while
+ * carrying different weight. The primary is bordered and set in ink; the
+ * secondary is muted and unbordered. Neither is coloured for good or bad.
+ */
+export function calloutPrimary(doc, x, y, w, text) {
+  const inner = w - 14;
+  const h = doc.font('Helvetica').fontSize(7.2).heightOfString(text, { width: inner }) + 12;
+  doc.save().rect(x, y, w, h).fillOpacity(0.04).fill(INK).restore();
+  doc.save().rect(x, y, 2, h).fill(INK).restore();
+  doc.font(TYPE.label.font).fontSize(6).fillColor(MUTED)
+    .text('WHAT THIS CANNOT SEE', x + 8, y + 5, { width: inner, characterSpacing: 0.8, lineBreak: false });
+  doc.font('Helvetica').fontSize(7.2).fillColor(INK).text(text, x + 8, y + 14, { width: inner });
+  return y + h + 10;
+}
+
+export function calloutSecondary(doc, x, y, w, text) {
+  doc.font('Helvetica').fontSize(6.8).fillColor(MUTED).text(text, x, y, { width: w });
+  return doc.y + 6;
+}
+
 /** A key/value line, tight enough to stack several inside a card. */
 export function factLine(doc, x, y, w, key, value) {
   doc.font('Helvetica-Bold').fontSize(7.5);
@@ -271,35 +337,41 @@ export function contentsPage(doc, model, plan, pages) {
   // ascend is worse than no contents page.
   const listed = plan.filter((s) => pages.has(s.id))
     .sort((x, y2) => pages.get(x.id) - pages.get(y2.id) || x.order - y2.order);
+  const identity = identityColour(c);
 
-  doc.font('Helvetica-Bold').fontSize(8.5).fillColor(CLARET)
-    .text('THRIV3', M, M - 18, { width: W, characterSpacing: 1.4, lineBreak: false });
+  doc.font(TYPE.kicker.font).fontSize(TYPE.kicker.size).fillColor(TYPE.kicker.color)
+    .text('THRIV3', M, M - 18, { width: W, characterSpacing: TYPE.kicker.spacing, lineBreak: false });
 
-  let y = M + 6;
-  doc.font('Helvetica-Bold').fontSize(9).fillColor(NAVY)
+  let y = M + 4;
+  doc.font('Helvetica-Bold').fontSize(8.5).fillColor(NAVY)
     .text('PROGRAM INTELLIGENCE REPORT', M, y, { width: W, characterSpacing: 1.6, lineBreak: false });
   y += 20;
 
-  doc.font('Helvetica-Bold').fontSize(23).fillColor(INK)
+  doc.font('Helvetica-Bold').fontSize(26).fillColor(INK)
     .text(c.name, M, y, { width: W, lineBreak: false, ellipsis: true });
-  y += 28;
+  y += 33;
 
-  const place = [c.division, c.conference, [c.city, c.state].filter(Boolean).join(', ')]
+  // The programme identity rule. Short, under the name, and the only place a
+  // college colour appears anywhere in the document.
+  doc.save().rect(M, y, 46, 3).fill(identity.colour).restore();
+  y += 12;
+
+  const place = [c.nickname, c.division, c.conference, [c.city, c.state].filter(Boolean).join(', ')]
     .filter(Boolean).join('  ·  ');
-  doc.font('Helvetica').fontSize(9).fillColor(MUTED)
+  doc.font('Helvetica').fontSize(9.5).fillColor(MUTED)
     .text(place, M, y, { width: W, lineBreak: false, ellipsis: true });
-  y += 16;
+  y += 20;
 
   if (a) {
     doc.save().moveTo(M, y).lineTo(M + W, y).lineWidth(0.75).strokeColor(LINE).stroke().restore();
-    y += 9;
-    doc.font('Helvetica-Bold').fontSize(10).fillColor(INK)
+    y += 11;
+    doc.font('Helvetica-Bold').fontSize(11).fillColor(INK)
       .text(`Prepared for ${a.name}`, M, y, { width: W, lineBreak: false, ellipsis: true });
-    y += 13;
-    doc.font('Helvetica').fontSize(8.5).fillColor(MUTED)
+    y += 15;
+    doc.font('Helvetica').fontSize(9).fillColor(MUTED)
       .text([a.positionLabel, a.nationality, `entering ${model.entrySeason}`].filter(Boolean).join('  ·  '),
         M, y, { width: W, lineBreak: false, ellipsis: true });
-    y += 16;
+    y += 20;
   }
 
   // The value statement, built from what the model actually holds rather than
@@ -309,50 +381,59 @@ export function contentsPage(doc, model, plan, pages) {
     ? `${seasons.length} season${seasons.length === 1 ? '' : 's'} of roster behaviour `
       + `(${seasons.length === 1 ? seasons[0] : `${seasons[0]}–${seasons[seasons.length - 1]}`})`
     : 'the roster seasons on file';
-  doc.save().rect(M, y, W, 34).fillOpacity(0.05).fill(NAVY).restore();
+  const scopeText = `${span}, recruiting patterns, playing-time evidence and current squad context — `
+    + `applied to this programme${a ? ' and to your pathway' : ''}. Nothing here is a forecast: the `
+    + `${model.recruitSeason} season has not been played.`;
+  const scopeH = doc.font('Helvetica').fontSize(8.5).heightOfString(scopeText, { width: W - 28 }) + 20;
+  doc.save().rect(M, y, W, scopeH).fillOpacity(0.05).fill(NAVY).restore();
   doc.font('Helvetica').fontSize(8.5).fillColor(INK)
-    .text(`${span}, recruiting patterns, playing-time evidence and current squad context — applied to `
-      + `this programme${a ? ' and to your pathway' : ''}. Nothing here is a forecast: the `
-      + `${model.recruitSeason} season has not been played.`,
-    M + 12, y + 9, { width: W - 24 });
-  y += 46;
+    .text(scopeText, M + 14, y + 10, { width: W - 28 });
+  y += scopeH + 26;
 
-  doc.font('Helvetica-Bold').fontSize(7.5).fillColor(MUTED)
+  doc.font(TYPE.label.font).fontSize(7.5).fillColor(MUTED)
     .text('CONTENTS', M, y, { width: W * 0.6, characterSpacing: 1, lineBreak: false });
-  doc.font('Helvetica-Bold').fontSize(7.5).fillColor(MUTED)
+  doc.font(TYPE.label.font).fontSize(7.5).fillColor(MUTED)
     .text('PAGE', M + W - 40, y, { width: 40, align: 'right', characterSpacing: 1, lineBreak: false });
-  y += 11;
+  y += 12;
   doc.save().moveTo(M, y).lineTo(M + W, y).lineWidth(0.75).strokeColor(INK).stroke().restore();
-  y += 8;
+  y += 12;
 
-  // Row height flexes so a long registry still lands on one page. Below the
-  // floor the description is dropped rather than the row, because a listed
-  // section with no page number would be worse than a terse one.
-  const available = doc.page.height - M - 24 - y;
+  // The list is spaced to fill the page rather than run out two-thirds of the
+  // way down. The rows still have a floor and a ceiling: below the floor the
+  // description is dropped rather than the row, because a listed section with
+  // no page number would be worse than a terse one, and above the ceiling the
+  // rows stop being a list and start being a menu.
+  const available = doc.page.height - M - 30 - y;
   const layers = [...new Set(listed.map((s) => s.layer))];
-  const rowsH = available - layers.length * 13;
-  const rowH = Math.max(15, Math.min(27, rowsH / Math.max(1, listed.length)));
+  const rowsH = available - layers.length * 20;
+  const rowH = Math.max(15, Math.min(34, rowsH / Math.max(1, listed.length)));
   const showDescriptions = rowH >= 21;
 
   let lastLayer = null;
   for (const s of listed) {
     if (s.layer !== lastLayer) {
+      if (lastLayer !== null) y += 7;
       lastLayer = s.layer;
-      doc.font('Helvetica-Bold').fontSize(6.5).fillColor(CLARET)
-        .text(layerTitle(s.layer).toUpperCase(), M, y + 2, { width: W, characterSpacing: 1, lineBreak: false });
+      doc.font(TYPE.section.font).fontSize(7).fillColor(CLARET)
+        .text(layerTitle(s.layer).toUpperCase(), M, y, { width: W, characterSpacing: 1.1, lineBreak: false });
       y += 13;
     }
-    line(doc, s.title, M + 8, y, W * 0.52, { font: 'Helvetica-Bold', size: 9 });
-    doc.font('Helvetica-Bold').fontSize(9).fillColor(INK)
+    line(doc, s.title, M + 10, y, W * 0.5, { font: 'Helvetica-Bold', size: 10 });
+    doc.font('Helvetica-Bold').fontSize(10).fillColor(INK)
       .text(String(pages.get(s.id)), M + W - 40, y, { width: 40, align: 'right', lineBreak: false });
 
     // One scope indicator, not every number the section could report.
     const scope = (s.scopeNotes ?? []).slice(0, 2).join(' · ');
     if (scope) {
-      line(doc, scope, M + W * 0.58, y + 1, W * 0.42 - 44, { size: 7, color: MUTED, align: 'right' });
+      line(doc, scope, M + W * 0.54, y + 2, W * 0.46 - 46, { size: 7, color: MUTED, align: 'right' });
     }
     if (showDescriptions && s.description) {
-      line(doc, s.description, M + 8, y + 11, W * 0.74, { size: 7.2, color: MUTED });
+      // Where the rows are generous enough, a description gets a second line
+      // rather than being cut off mid-word. `height` with `ellipsis` is the
+      // combination pdfkit actually honours.
+      doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
+        .text(s.description, M + 10, y + 12,
+          { width: W * 0.86, height: rowH >= 30 ? 19 : 10, ellipsis: true });
     }
     y += rowH;
   }
@@ -371,20 +452,19 @@ function layerTitle(id) {
 // PAGE 2 — programme at a glance
 // ---------------------------------------------------------------------------
 
+/**
+ * The glance pages open exactly as every other page does.
+ *
+ * They used to set their own title at 19pt and then advance the cursor by a
+ * fixed 24 on top of the advance `doc.text` had already made, which is where
+ * the forty-point hole between the title and its subtitle came from.
+ */
 function pageHeading(k, title, subtitle) {
-  const { doc } = k;
-  doc.font('Helvetica-Bold').fontSize(8).fillColor(CLARET)
-    .text('AT A GLANCE', M, M - 18, { width: W, characterSpacing: 1.2, lineBreak: false });
-  doc.font('Helvetica-Bold').fontSize(19).fillColor(INK)
-    .text(title, M, doc.y, { width: W, lineBreak: false, ellipsis: true });
-  doc.y += 24;
-  doc.font('Helvetica').fontSize(9).fillColor(MUTED)
-    .text(subtitle, M, doc.y, { width: W, lineBreak: false, ellipsis: true });
-  doc.y += 18;
+  pageHead(k, { kicker: 'At a glance', title, question: subtitle, newPage: false });
 }
 
 function freshmanCard(doc, box, s) {
-  const p = panel(doc, box, 'Freshman opportunity');
+  const p = panel(doc, box, 'First-year opportunity');
   let y = p.y;
   const unresolved = s.classification === 'unclear' || s.classification === 'unavailable';
   chip(doc, p.x, y, CLASSIFICATION_LABEL[s.classification] ?? 'UNCLEAR', { muted: unresolved });
@@ -421,9 +501,13 @@ function freshmanCard(doc, box, s) {
   // Shown only where reweighting actually moved the answer. A note saying the
   // two agree would be clutter; substituting one for the other would be a lie.
   if (s.weightingApplied && s.weightedAgrees === false && s.weightedLadderTop?.median != null) {
-    doc.font('Helvetica-Oblique').fontSize(7).fillColor(CLARET)
-      .text(`Current-coach-weighted history differs: ${nf(s.weightedLadderTop.median)} min`,
-        p.x, y + 1, { width: p.w, lineBreak: false, ellipsis: true });
+    y += 3;
+    doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+      .text('WEIGHTED TOWARDS THE CURRENT COACH', p.x, y,
+        { width: p.w, characterSpacing: TYPE.label.spacing, lineBreak: false });
+    y += 9;
+    line(doc, `${nf(s.weightedLadderTop.median)} min — both views are shown, neither replaces the other`,
+      p.x, y, p.w, { size: 7, color: INK });
     y += 12;
   }
 
@@ -506,34 +590,83 @@ function replacementCard(doc, box, s) {
   evidenceChip(doc, p.x, p.bottom - 20, s.evidence, sample, p.w);
 }
 
+/**
+ * Who the seasons behind this report belong to.
+ *
+ * The dead space in this card used to be the point: a chip, a name, four fact
+ * lines and then a third of a card of nothing. The seasons and the coaches
+ * were both already here as counts — drawn as a strip they answer the actual
+ * question, which is whether the record on the other four cards is this
+ * coach's record or somebody else's. It is the same data, not more of it.
+ */
+function tenureStrip(doc, x, y, w, s) {
+  const seasons = (s.describesSeasons ?? []).map(Number).filter(Number.isFinite).sort();
+  if (!seasons.length) return y;
+  const first = seasons[0];
+  const last = Math.max(seasons[seasons.length - 1], Number(s.knownThrough) || 0);
+  const span = Math.max(1, last - first + 1);
+  const cellW = w / span;
+  const unknown = new Set((s.unknownSeasons ?? []).map(Number));
+  const vacant = new Set((s.vacantSeasons ?? []).map(Number));
+  const segments = s.segments ?? [];
+  // Distinct coaches get distinct tones from the one palette. Nothing here is
+  // better or worse than anything else, so the tones never form a scale.
+  const tone = [NAVY, MID, PALE, GREEN];
+  const indexOfCoach = new Map(segments.map((seg, i) => [seg.coach, i]));
+
+  doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+    .text('WHOSE SEASONS THESE ARE', x, y, { width: w, characterSpacing: TYPE.label.spacing, lineBreak: false });
+  y += 11;
+
+  for (let i = 0; i < span; i += 1) {
+    const year = first + i;
+    const seg = segments.find((g) => Number(g.from) <= year && year <= Number(g.to));
+    const cx = x + i * cellW;
+    let fill = LINE;
+    if (vacant.has(year)) fill = '#EDEFF3';
+    else if (!unknown.has(year) && seg) fill = tone[(indexOfCoach.get(seg.coach) ?? 0) % tone.length];
+    doc.save().rect(cx, y, Math.max(1, cellW - 2), 11).fill(fill).restore();
+    doc.font('Helvetica').fontSize(6).fillColor(MUTED)
+      .text(`’${String(year).slice(-2)}`, cx, y + 13, { width: Math.max(1, cellW - 2), align: 'center', lineBreak: false });
+  }
+  y += 24;
+
+  const key = segments.map((seg, i) => `${seg.coach} ${seg.from}${seg.to === seg.from ? '' : `–${seg.to}`}`);
+  if (unknown.size) key.push(`${unknown.size} unattributed`);
+  if (vacant.size) key.push(`${vacant.size} vacant`);
+  doc.font('Helvetica').fontSize(6.6).fillColor(MUTED)
+    .text(key.join('  ·  '), x, y, { width: w });
+  return doc.y + 4;
+}
+
 function coachCard(doc, box, s) {
   const p = panel(doc, box, 'Coach context');
   let y = p.y;
   const rel = s.evidenceRelevance ?? 'unknown';
   chip(doc, p.x, y, COACH_HEADLINE[rel] ?? 'COACHING RECORD INCOMPLETE', { muted: rel !== 'describes-current' });
-  y += 20;
-  doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
-    .text(COACH_SUBLINE[rel] ?? '', p.x, y, { width: p.w, lineBreak: false, ellipsis: true });
-  y += 16;
+  y += 21;
 
-  doc.font('Helvetica-Bold').fontSize(12).fillColor(INK)
-    .text(s.currentCoach ?? 'Not on file', p.x, y, { width: p.w, lineBreak: false, ellipsis: true });
-  y += 17;
+  // The name is what the card is about, so it is the card's big metric —
+  // sized like the number on every other card rather than like a fact line.
+  doc.font('Helvetica-Bold').fontSize(17).fillColor(INK)
+    .text(fitText(doc, s.currentCoach ?? 'Not on file', p.w), p.x, y, { width: p.w, lineBreak: false });
+  y += 21;
+  line(doc, COACH_SUBLINE[rel] ?? '', p.x, y, p.w, { size: 7.8, color: MUTED });
+  y += 14;
 
   y = factLine(doc, p.x, y, p.w, `Head coach, ${s.coachForRecruitSeason ? 'named for' : 'for'} entry`,
     s.coachForRecruitSeason ?? 'not on file');
   y = factLine(doc, p.x, y, p.w, 'Seasons analysed', s.seasonsAnalysed ?? 0);
-  y = factLine(doc, p.x, y, p.w, 'Coaches on file', s.segments?.length ?? 0);
-  if (s.unknownSeasons?.length) {
-    y = factLine(doc, p.x, y, p.w, 'Seasons unattributed', s.unknownSeasons.join(', '));
-  }
+  y += 8;
+
+  y = tenureStrip(doc, p.x, y, p.w, s);
 
   // The verdict's own sentence, which classifyProgramme wrote and which is a
   // stable explanation rather than report prose.
-  if (s.verdictNote) {
+  if (s.verdictNote && y < p.bottom - 12) {
     doc.font('Helvetica').fontSize(7).fillColor(MUTED)
       .text(s.verdictNote.replace(/^./, (ch) => ch.toUpperCase()), p.x, y + 2,
-        { width: p.w, height: p.bottom - y - 6, ellipsis: true });
+        { width: p.w, height: p.bottom - y - 4, ellipsis: true });
   }
 }
 
@@ -594,7 +727,7 @@ function squadOutlookCard(doc, box, s) {
       .fill(yy.minutes ? NAVY : LINE).restore();
     doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
       .text(`${nf(yy.minutes)}`, cx + colW - 44, cy, { width: 44, align: 'right', lineBreak: false });
-    cy += 10;
+    cy += 11.5;
   }
 
   // Column three: how complete the picture is. Stated, never implied.
@@ -641,15 +774,18 @@ export function programmeAtAGlance(k, model) {
   const s = model.summary.programme;
   pageHeading(k, 'Programme at a glance', 'How this programme has built and used its squad.');
 
-  cardRow(k, 202, (row) => {
+  // Sized to fill the page rather than to fit the content: the five modules
+  // are fixed, so the spare 250 points the page used to end with belong
+  // inside the cards as room to breathe.
+  cardRow(k, 230, (row) => {
     freshmanCard(doc, { ...row, w: HALF }, s.freshmanOpportunity);
     arrivalCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, s.experiencedArrivalReliance);
   });
-  cardRow(k, 202, (row) => {
+  cardRow(k, 230, (row) => {
     replacementCard(doc, { ...row, w: HALF }, s.replacementBehaviour);
     coachCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, s.coachContext);
   });
-  cardRow(k, 146, (row) => squadOutlookCard(doc, row, s.squadTurnover));
+  cardRow(k, 152, (row) => squadOutlookCard(doc, row, s.squadTurnover));
 }
 
 // ---------------------------------------------------------------------------
@@ -731,37 +867,51 @@ function arrivalWindowCard(doc, box, a, model) {
     y += 14;
   }
 
-  // The timeline, drawn only where the three groups are actually separable.
-  const bands = [
-    { label: 'BEFORE YOU ARRIVE', n: endsBefore.length, note: `eligibility ends before ${a.entrySeason}`, color: MUTED },
-    { label: 'YOUR ENTRY SEASON', n: finalSeason.length, note: `final eligible season is ${a.entrySeason}`, color: CLARET },
-    { label: 'BEYOND ENTRY', n: eligible.length - finalSeason.length, note: `eligible past ${a.entrySeason}`, color: NAVY },
-  ];
+  // The three groups, with the entry season the loudest of them.
+  //
+  // Loudest, not best: an athlete arriving the year a group of players plays
+  // its last season is the fact this card exists to surface, and it was being
+  // set at exactly the weight of the two groups either side of it. The
+  // emphasis is scale and rule weight — no colour means good or bad here, and
+  // the entry band is claret because claret marks the reader's own year
+  // everywhere else in this report, not because more is better.
   doc.save().moveTo(p.x, y).lineTo(p.x + p.w, y).lineWidth(0.5).strokeColor(LINE).stroke().restore();
-  y += 6;
+  y += 8;
+  const bands = [
+    { label: 'BEFORE ENTRY', n: endsBefore.length, note: `eligibility ends before ${a.entrySeason}`,
+      color: MUTED, lead: false },
+    { label: 'FINAL SEASON AT ENTRY', n: finalSeason.length,
+      note: `their last eligible season is ${a.entrySeason}`,
+      color: CLARET, lead: true },
+    { label: 'BEYOND ENTRY', n: eligible.length - finalSeason.length,
+      note: `eligible past ${a.entrySeason}`, color: NAVY, lead: false },
+  ];
   for (const b of bands) {
-    doc.save().rect(p.x, y + 1, 3, 18).fill(b.color).restore();
-    doc.font('Helvetica-Bold').fontSize(7).fillColor(INK)
-      .text(b.label, p.x + 8, y, { width: p.w * 0.55, characterSpacing: 0.5, lineBreak: false });
-    doc.font('Helvetica-Bold').fontSize(10).fillColor(INK)
-      .text(String(Math.max(0, b.n)), p.x + p.w - 30, y - 1, { width: 30, align: 'right', lineBreak: false });
+    const h = b.lead ? 30 : 21;
+    if (b.lead) {
+      doc.save().rect(p.x, y - 2, p.w, h + 2).fillOpacity(0.05).fill(CLARET).restore();
+    }
+    doc.save().rect(p.x, y, b.lead ? 4 : 2.5, h - 4).fill(b.color).restore();
+    doc.font('Helvetica-Bold').fontSize(b.lead ? 8 : 7).fillColor(INK)
+      .text(b.label, p.x + 10, y, { width: p.w * 0.62, characterSpacing: 0.5, lineBreak: false, ellipsis: true });
+    doc.font('Helvetica-Bold').fontSize(b.lead ? 15 : 10).fillColor(INK)
+      .text(String(Math.max(0, b.n)), p.x + p.w - 36, y - (b.lead ? 4 : 1),
+        { width: 32, align: 'right', lineBreak: false });
     doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
-      .text(b.note, p.x + 8, y + 9, { width: p.w - 44, lineBreak: false, ellipsis: true });
-    y += 21;
+      .text(b.note, p.x + 10, y + (b.lead ? 12 : 9), { width: p.w - 50, lineBreak: false, ellipsis: true });
+    y += h + 3;
   }
-  if (unknown.length) {
-    doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
-      .text(`${unknown.length} with no eligibility year recorded, counted in none of the three.`,
-        p.x, y, { width: p.w, lineBreak: false, ellipsis: true });
-    y += 10;
-  }
+  y += 4;
 
-  // Allowed to wrap. It is the one sentence on this card that must survive
-  // intact, and it was being clipped to "…are not kno" the moment the
-  // ellipsis fix made the overflow visible.
-  doc.font('Helvetica-Oblique').fontSize(6.8).fillColor(MUTED)
-    .text('Future recruits, transfers, injuries and eligibility changes are not known.',
-      p.x, Math.min(y + 2, p.bottom - 18), { width: p.w });
+  // Two notes of different weight, so they read as different things: the
+  // limitation the reader must not miss, then the coverage detail.
+  y = calloutPrimary(doc, p.x, y, p.w,
+    'Future recruits, transfers, injuries and eligibility changes are not known.');
+  if (unknown.length) {
+    y = calloutSecondary(doc, p.x, y, p.w,
+      `${unknown.length} of the current ${positionPlural(a.position)} record no eligibility year, `
+      + 'and are counted in none of the three groups above.');
+  }
 }
 
 function positionOpensCard(doc, box, a) {
@@ -879,24 +1029,21 @@ export function athleteAtAGlance(k, model) {
   const a = model.summary.athlete;
   const athlete = model.athlete;
 
-  doc.font('Helvetica-Bold').fontSize(8).fillColor(CLARET)
-    .text('AT A GLANCE', M, M - 18, { width: W, characterSpacing: 1.2, lineBreak: false });
-  doc.font('Helvetica-Bold').fontSize(19).fillColor(INK)
-    .text(`Your opportunity at ${model.college.name}`, M, doc.y, { width: W, lineBreak: false, ellipsis: true });
-  doc.y += 24;
-  doc.font('Helvetica').fontSize(9).fillColor(MUTED)
-    .text([athlete.positionLabel, `entering ${model.entrySeason}`].filter(Boolean).join('  ·  '),
-      M, doc.y, { width: W, lineBreak: false });
-  doc.y += 8;
+  pageHead(k, {
+    kicker: 'At a glance',
+    title: `Your opportunity at ${model.college.name}`,
+    question: [athlete.positionLabel, `entering ${model.entrySeason}`].filter(Boolean).join('  ·  '),
+    newPage: false,
+  });
   k.box('What the programme’s history and its currently known roster mean for someone entering at this '
     + 'position. This page does not say how many minutes you would play — that season has not been played, '
     + 'and who is on the squad by then is not knowable from this data.');
 
-  cardRow(k, 232, (row) => {
+  cardRow(k, 280, (row) => {
     positionNowCard(doc, { ...row, w: HALF }, a);
     arrivalWindowCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, a, model);
   });
-  cardRow(k, 226, (row) => {
+  cardRow(k, 228, (row) => {
     positionOpensCard(doc, { ...row, w: HALF }, a);
     originCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, a);
   });

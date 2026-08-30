@@ -15,7 +15,7 @@
  * arrays; where a figure is missing the answer is to add it to the model, not
  * to derive it beside a drawing call.
  */
-import { charts, THEME, minutes as minutesOf } from './philosophyPdf.js';
+import { charts, THEME, pageHead, minutes as minutesOf } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { POSITIONS, positionPlural, canonicalPosition } from '../../shared/positions.js';
 
@@ -25,24 +25,8 @@ const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const cap = (s) => String(s ?? '').replace(/^./, (c) => c.toUpperCase());
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
-/** A page heading that states the question the page answers. */
-function page(k, kicker, title, question) {
-  k.doc.addPage();
-  k.doc.font('Helvetica-Bold').fontSize(8).fillColor(CLARET)
-    .text(kicker.toUpperCase(), THEME.M, THEME.M - 18, { width: W, characterSpacing: 1.2, lineBreak: false });
-  k.title(title);
-  if (question) k.body(question, { color: MUTED });
-  k.gap(2);
-}
-
-/** A one-line scope strip: what the page's figures were built from. */
-function scope(k, parts) {
-  const line = parts.filter(Boolean).join('   ·   ');
-  if (!line) return;
-  k.doc.font('Helvetica').fontSize(7).fillColor(MUTED)
-    .text(line, THEME.M, k.doc.y, { width: W, lineBreak: false, ellipsis: true });
-  k.doc.y += 12;
-}
+const page = (k, kicker, title, question) => pageHead(k, { kicker, title, question });
+const scope = (k, parts) => k.scope(parts);
 
 // ---------------------------------------------------------------------------
 // PAGE 4 — the first-year intake

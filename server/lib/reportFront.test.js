@@ -237,9 +237,10 @@ describe('page three', () => {
     expect(a.currentPlayersEligibilityEndsBeforeEntry.map((x) => x.name)).toEqual(['Leaving Soon']);
     const text = pdfText(buf);
     expect(text).toMatch(/in their final eligible season in 2027/);
-    // Both groups appear; the lead one is the headline.
-    expect(text).toMatch(/YOUR ENTRY SEASON/);
-    expect(text).toMatch(/BEFORE YOU ARRIVE/);
+    // All three temporal groups appear, named the same way on every report.
+    expect(text).toMatch(/FINAL SEASON AT ENTRY/);
+    expect(text).toMatch(/BEFORE ENTRY/);
+    expect(text).toMatch(/BEYOND ENTRY/);
   });
 
   it('always states what cannot be known about the entry season', async () => {
@@ -255,7 +256,7 @@ describe('page two modules', () => {
   it('renders all five, and the fifth carries no classification badge', async () => {
     const { buf, model } = await build();
     const text = pdfText(buf);
-    for (const title of ['FRESHMAN OPPORTUNITY', 'EXPERIENCED ARRIVAL RELIANCE',
+    for (const title of ['FIRST-YEAR OPPORTUNITY', 'EXPERIENCED ARRIVAL RELIANCE',
       'REPLACEMENT BEHAVIOUR', 'COACH CONTEXT', 'CURRENT SQUAD OUTLOOK']) {
       expect(text).toContain(title);
     }
@@ -326,7 +327,7 @@ describe('wording the data cannot support', () => {
     const text = pdfText((await build('p1')).buf);
     // The evidence chip legitimately uses MODERATE; the classification chips
     // must not, so check the chip vocabulary specifically.
-    expect(text).not.toMatch(/FRESHMAN OPPORTUNITY[^]{0,30}\bHIGH\b/);
+    expect(text).not.toMatch(/FIRST-YEAR OPPORTUNITY[^]{0,30}\bHIGH\b/);
     expect(text).not.toMatch(/EXPERIENCED ARRIVAL RELIANCE[^]{0,40}\bLOW\b/);
   });
 });
