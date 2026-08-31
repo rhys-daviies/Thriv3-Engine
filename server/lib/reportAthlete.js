@@ -15,6 +15,7 @@
 import { charts, THEME, TYPE, pageHead, humanCohort, fitText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
+import { originIsProgrammeSpecific } from '../../shared/report/sections.js';
 
 const { INK, MUTED, LINE, CLARET, NAVY, PALE, GREEN, W } = THEME;
 
@@ -499,13 +500,29 @@ export function originPage(k, model) {
   const o = a.originContext;
   const originWord = o.requestedOrigin === 'international' ? 'international' : 'US-based';
 
-  page(k, 'Understanding your pathway', 'Where you are arriving from',
-    'Does this programme’s record show anything useful for first-years from your background?');
+  // The kicker follows the act this page was FILED under, which depends on
+  // whether this programme produced its own record by origin: a page that is
+  // mostly division context is drawn with the supporting evidence rather than
+  // in the pathway sequence, and announcing "understanding your pathway" over
+  // it there would contradict the divider it sits under.
+  const ownRecord = originIsProgrammeSpecific(o);
+  pageHead(k, {
+    kicker: ownRecord ? 'Understanding your pathway' : 'The evidence behind it',
+    title: 'Where you are arriving from',
+    question: 'Does this programme’s record show anything useful for first-years from your '
+      + 'background?',
+    // Relocated, it is drawn at the weight of the act it now sits in. A
+    // mostly-context page announcing itself at 19pt under a divider that reads
+    // "the evidence itself" claims more than it has.
+    quiet: !ownRecord,
+  });
   // Stated once, at the top, and never implied away: the origin split is
   // across the whole intake. The previous pages narrow to a position, and a
   // reader arriving here from them would otherwise carry that narrowing over.
+  // The scope strip draws on ONE line, so the third item is short.
   k.scope(['every position, not only yours',
-    'origin is grouped only as within or outside the United States']);
+    'origin is grouped only as within or outside the United States',
+    ownRecord ? null : 'mostly division context'].filter(Boolean));
 
   if (!o.requestedOrigin) {
     k.body('No origin is recorded for this athlete, so the record cannot be read by background.',

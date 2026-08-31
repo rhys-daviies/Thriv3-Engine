@@ -86,6 +86,35 @@ export const actTitle = (id, { hasAthlete }) => actsFor({ hasAthlete })
 
 import { pathwayNarrative } from './narrative.js';
 
+/**
+ * Does the origin page have anything of this programme's OWN to say?
+ *
+ * The same two conditions the page itself branches on, in one place, because
+ * the registry decides where the page sits and the running order decides where
+ * it is drawn — and those two answers disagreeing is how a section ends up
+ * listed in one act and printed in another.
+ */
+export function originIsProgrammeSpecific(originContext) {
+  const o = originContext;
+  return Boolean(o?.evidence?.sufficient) && o.programme?.sameOrigin?.share != null;
+}
+
+/**
+ * Is the experienced-arrivals section a single finding rather than a page?
+ *
+ * Two of its three branches are one box: no season can be compared with the
+ * one before it, or nothing but first-years arrived across every season that
+ * could be. Both are valid findings and neither is deleted — but a title, a
+ * scope line and one box is not a page, and at a sparse programme it was
+ * taking one. The third branch draws a scatter of every arrival and a
+ * two-population column chart, and never qualifies.
+ */
+export function arrivalsAreOneFinding(model) {
+  const e = model?.summary?.programme?.experiencedArrivalReliance;
+  if (!e) return false;
+  return !e.measurable || e.density === 'none';
+}
+
 const count = (x) => (Array.isArray(x) ? x.length : 0);
 const has = (x) => count(x) > 0;
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
@@ -272,11 +301,28 @@ export const SECTIONS = [
       return Boolean(o?.requestedOrigin)
         && (o.programme.withRecordedOrigin > 0 || Boolean(o.pool));
     },
+    /**
+     * Act I where this programme has its own record by origin; the supporting
+     * evidence where the page is mostly division context.
+     *
+     * The page is never removed and never loses a caveat — what changes is
+     * where it sits in the reading order. At Albertus it carries no
+     * programme-specific international first-year at all and draws a D3 pool
+     * comparison, and a pool comparison is not a pathway finding: it was
+     * occupying prime sequence between the position pages and the squad,
+     * ahead of pages that ARE about this programme. Where the programme's own
+     * origin sample clears the cohort gate, nothing moves.
+     */
+    layerOf: ({ summary }) => {
+      const o = summary?.athlete?.originContext;
+      return originIsProgrammeSpecific(o) ? 'athlete-evidence' : 'supporting';
+    },
     scopeOf: ({ summary }) => {
       const o = summary.athlete.originContext;
       return [
         `${o.programme.sameOrigin.players} of ${o.programme.withRecordedOrigin} share this background`,
-      ];
+        originIsProgrammeSpecific(o) ? null : 'pool context only',
+      ].filter(Boolean);
     },
   },
 

@@ -202,6 +202,16 @@ export function kit(doc) {
       return api;
     },
 
+    /**
+     * How much drawable height is left on the page being written.
+     *
+     * `room` decides for itself and adds a page; the running order sometimes
+     * needs to ask BEFORE committing — a short section may flow beneath the
+     * one above it, but only where it fits without cramping what is already
+     * there. Same floor as `room`, so the two never disagree.
+     */
+    remaining() { return doc.page.height - M - 24 - doc.y; },
+
     title(text) {
       api.room(40);
       doc.font(TYPE.title.font);
@@ -758,10 +768,30 @@ export function render(build, { audit = null } = {}) {
  * which layer you happened to be reading.
  *
  * `newPage` is false only for a page the caller has already opened.
+ *
+ * `continued` is a section flowing BENEATH another on the same page: no page
+ * is added, no kicker is drawn over the one already at the top, and the flow
+ * cursor is left where the section above it finished rather than reset to the
+ * margin. It is drawn at the supporting weight — a claret rule, a 14pt title —
+ * because that is what it is: a second block on somebody else's page, not a
+ * page of its own pretending otherwise.
  */
 export function pageHead(k, { kicker, title, question = null, scope = null, newPage = true,
-  quiet = false }) {
+  quiet = false, continued = false }) {
   const { doc } = k;
+  if (continued) {
+    k.gap(14);
+    doc.save().rect(M, doc.y, W, 2.5).fill(CLARET).restore();
+    doc.y += 11;
+    doc.font(TYPE.title.font).fontSize(14).fillColor(INK).text(title, M, doc.y, { width: W });
+    doc.y += 3;
+    if (question) {
+      doc.font(TYPE.note.font).fontSize(8.5).fillColor(MUTED).text(question, M, doc.y, { width: W });
+      doc.y += 6;
+    }
+    if (scope) k.scope(scope);
+    return k;
+  }
   if (newPage) doc.addPage();
   // An act divider, where one is pending. Drawn at the top of the first page
   // of a new act, in place of that page's kicker: the reader is told what the
@@ -904,7 +934,8 @@ export function ladderSection(k, model) {
   }
   const starterSeasons = model.seasons.filter((s) => s.starters > 0).length;
   k.gap(4);
-  k.body(`In ${starterSeasons} of ${model.seasons.length} seasons on file, at least one freshman `
+  k.body(`In ${starterSeasons} of ${model.seasons.length} `
+    + `season${model.seasons.length === 1 ? '' : 's'} on file, at least one freshman `
     + 'played a starter’s season.');
 }
 
@@ -1837,6 +1868,62 @@ export const charts = {
     if (legend) {
       doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
         .text(legend, plot.x, plot.y + rows.length * rh + 1, { width: plot.w, lineBreak: false });
+    }
+  },
+
+  /**
+   * Grouped bars, each carrying its own written caption.
+   *
+   * `paired` needs a legend to say which of its two bars is which, and it
+   * prints the two values together as "42 · 11%" — which is the least legible
+   * thing this file draws when the two numbers measure DIFFERENT quantities.
+   * Here every bar names itself on the row it is drawn on, so the reader never
+   * has to look away from the row to know what they are reading.
+   *
+   * A bar is drawn only where the caller passes a value. A group whose second
+   * quantity could not be measured is passed with one bar and draws one bar:
+   * a zero-length bar for an unmeasured share is the false-zero defect this
+   * codebase keeps finding, and it is worse here than anywhere because the bar
+   * beside it is real.
+   */
+  splitBars(k, { box, title, subtitle, groups, max, unit = '', unavailable }) {
+    const plot = frame(k, box, { title, subtitle, unavailable, empty: !groups?.length });
+    if (!plot) return;
+    const { doc } = k;
+    // Sized to the widest label actually passed, within bounds. A fixed column
+    // ellipsised "Graduate or fifth year" to "Graduate or fifth …", and this
+    // primitive's labels are the whole point of it — a clipped one is not a
+    // long name being handled gracefully, it is the caption failing to do the
+    // job the legend used to do badly.
+    doc.font('Helvetica-Bold').fontSize(8.5);
+    const labelW = Math.min(150, Math.max(88,
+      ...groups.map((g) => doc.widthOfString(String(g.label)) + 8)));
+    const captionW = 44;
+    const valueW = 40;
+    const trackW = Math.max(40, plot.w - labelW - captionW - valueW - 10);
+    const rowH = 13;
+    const barH = 8;
+    const scale = Math.max(1, max);
+    let y = plot.y;
+    for (const g of groups) {
+      const bars = (g.bars ?? []).filter((b) => b.value != null);
+      if (!bars.length) continue;
+      const blockH = bars.length * rowH;
+      doc.font('Helvetica-Bold').fontSize(8.5).fillColor(INK)
+        .text(fitText(doc, g.label, labelW - 6), plot.x, y + blockH / 2 - 5,
+          { width: labelW - 6, lineBreak: false });
+      bars.forEach((b, i) => {
+        const ry = y + i * rowH;
+        doc.font('Helvetica').fontSize(7).fillColor(MUTED)
+          .text(b.caption.toUpperCase(), plot.x + labelW, ry + 1.5,
+            { width: captionW - 4, characterSpacing: 0.3, lineBreak: false });
+        doc.save().rect(plot.x + labelW + captionW, ry, Math.max(1, (b.value / scale) * trackW), barH)
+          .fill(b.color ?? NAVY).restore();
+        doc.font('Helvetica-Bold').fontSize(8.5).fillColor(INK)
+          .text(`${nice(b.value)}${unit}`, plot.x + labelW + captionW + trackW + 6, ry - 0.5,
+            { width: valueW, lineBreak: false });
+      });
+      y += blockH + 6;
     }
   },
 };

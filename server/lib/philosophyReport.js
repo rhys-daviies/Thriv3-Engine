@@ -19,7 +19,9 @@
  */
 import { render, footer } from './philosophyPdf.js';
 import { contentsPage, programmeAtAGlance, athletePathwayPage } from './reportFront.js';
-import { actsFor } from '../../shared/report/sections.js';
+import {
+  actsFor, originIsProgrammeSpecific, arrivalsAreOneFinding,
+} from '../../shared/report/sections.js';
 import {
   freshmanIntakePage, freshmanLadderPage,
   experiencedArrivalIntakePage, experiencedArrivalProfilePage,
@@ -83,7 +85,14 @@ export function renderProgramReport(model, opts = {}) {
      * empty page is exactly what the dynamic-page rule exists to prevent.
      */
     const planned = new Set(plan.map((x) => x.id));
-    const section = (id, draw) => {
+    /**
+     * @param flow - draw beneath the section above rather than on a page of
+     * its own. The section still records a page and still appears in the
+     * contents; it records the page it is CONTINUING on rather than the next
+     * one, which is the only difference the rest of this function needs to
+     * know about.
+     */
+    const section = (id, draw, { flow = false } = {}) => {
       if (!planned.has(id)) return;
       // The act divider, where this is the first section of a new act. Set on
       // the kit and consumed by the page's own `pageHead`, because the divider
@@ -98,13 +107,14 @@ export function renderProgramReport(model, opts = {}) {
         if (act && drawnAny) k.pendingAct = act;
       }
       drawnAny = true;
-      atNext(id);
+      if (flow) at(id); else atNext(id);
       draw();
     };
 
     const acts = actsFor({ hasAthlete: Boolean(a) });
     let currentAct = null;
     let drawnAny = false;
+    const originInPathway = originIsProgrammeSpecific(model.summary?.athlete?.originContext);
 
     // Page one is reserved for the contents and drawn last, once the section
     // starts are known. Nothing is written to it here.
@@ -137,7 +147,12 @@ export function renderProgramReport(model, opts = {}) {
     section('athlete-position-openings', () => positionOpeningsPage(k, model));
     section('athlete-position-record', () => positionRecordPage(k, model));
     section('athlete-position-history', () => positionHistoryPage(k, model));
-    section('athlete-origin', () => originPage(k, model));
+    // Act I only where this programme has its own record by origin. Where the
+    // page is mostly division context it is drawn with the supporting
+    // evidence, below — `layerOf` in the registry decides, and both places ask
+    // the same question of it so the contents and the document cannot
+    // disagree.
+    if (originInPathway) section('athlete-origin', () => originPage(k, model));
     // Only where the position carries a real sample. A handful of players is
     // filed with the supporting record instead, below.
     if (athletePositionIsStrong(model)) {
@@ -150,7 +165,26 @@ export function renderProgramReport(model, opts = {}) {
     section('freshman-ladder', () => freshmanLadderPage(k, model));
     section('player-development', () => playerDevelopmentPage(k, model));
     section('squad-usage', () => squadUsagePage(k, model));
-    section('experienced-arrival-intake', () => experiencedArrivalIntakePage(k, model));
+    /**
+     * Experienced arrivals, beneath the squad page where it is one sentence.
+     *
+     * At a programme where no arrival could be detected, or where no season
+     * can be compared with the one before it, this section is a title, a scope
+     * line and a single box — a valid finding that was consuming a whole page
+     * at Albertus. It is not deleted and it is not demoted into a footnote: it
+     * keeps its heading, its scope line and its box, and flows under a page
+     * whose own blocks are already drawn.
+     *
+     * Guarded on measured room, not on a hunch. A programme with the full
+     * scatter and the two-population column chart never qualifies, and neither
+     * does a squad page that has already used its height.
+     */
+    const arrivalsFlow = arrivalsAreOneFinding(model)
+      && pages.get('squad-usage') != null
+      && k.remaining() >= 190;
+    section('experienced-arrival-intake',
+      () => experiencedArrivalIntakePage(k, model, { newPage: !arrivalsFlow }),
+      { flow: arrivalsFlow });
     section('current-arrivals', () => experiencedArrivalProfilePage(k, model));
     section('replacing-minutes', () => replacingMinutesPage(k, model));
     section('replacement-by-position', () => replacementByPositionPage(k, model));
@@ -166,6 +200,10 @@ export function renderProgramReport(model, opts = {}) {
     section('table-experienced-arrivals', () => arrivalRecordPage(k, model));
     section('table-vacancies', () => vacancyRecordPage(k, model));
     section('table-destinations', () => destinationRecordPage(k, model));
+    // The origin page, where it turned out to be mostly division context.
+    // Every caveat it carries in Act I it carries here; only its priority
+    // changed.
+    if (!originInPathway) section('athlete-origin', () => originPage(k, model));
     // Last of the record, and only where the position's sample was too thin to
     // lead with. Opening the evidence act with a one-row table under a divider
     // announcing "named players, actual seasons, actual minutes" set it at a

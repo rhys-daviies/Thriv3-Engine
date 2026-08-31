@@ -20,10 +20,10 @@
  * between its own seasons than the pool's middle half is wide, so this page
  * prints the seasons, the programme's median and the pool's middle half.
  */
-import { charts, THEME, pageHead, spanText } from './philosophyPdf.js';
+import { charts, THEME, pageHead } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 
-const { MUTED, NAVY, MID, PALE, CLARET } = THEME;
+const { NAVY, MID, PALE } = THEME;
 const pc = (v) => (v == null ? '—' : `${Math.round(v * 100)}%`);
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
@@ -97,6 +97,17 @@ function concentrationBlock(k, u) {
  * Paired bars rather than two charts, because the CONTRAST is the finding and a
  * reader should not have to hold one page against another to see it: Akron's
  * first-years are 42% of the roster and 11% of the minutes.
+ *
+ * EVERY BAR NAMES ITSELF. This was drawn with `charts.paired`, which prints its
+ * two values together — "42 · 11%" — and relies on a legend below the box to
+ * say which is which. Two quantities that measure different things do not
+ * belong in one number, and a reader should not have to look away from the row
+ * to learn what they are reading. `splitBars` writes ROSTER and MINUTES on the
+ * rows themselves.
+ *
+ * WHERE THE MINUTES CANNOT BE READ the group is passed one bar and draws one
+ * bar. An unmeasured share drawn at zero length beside a real one is the
+ * false-zero defect this codebase keeps finding, and it is at its worst here.
  */
 function experienceBlock(k, e) {
   k.heading('Which years of study carried the minutes');
@@ -119,51 +130,46 @@ function experienceBlock(k, e) {
   const unknown = source.groups.find((g) => g.group === 'UNKNOWN');
   const withUnknown = unknown && (unknown.rosterShare ?? 0) >= 0.03 ? [...groups, unknown] : groups;
 
-  charts.paired(k, {
-    box: k.slot(Math.min(150, withUnknown.length * 30 + 14)),
+  charts.splitBars(k, {
+    // Two written rows per group where the minutes read, one where they do
+    // not. Sized from what will actually be drawn rather than from the group
+    // count, so the roster-only case does not reserve half a box of air.
+    box: k.slot(withUnknown.length * ((source.loadAvailable ? 2 : 1) * 13 + 7) + 16),
     title: null,
     subtitle: source.loadAvailable
       ? 'The share of the roster each year of study made up, against the share of the published '
         + 'minutes they took.'
       : 'The share of the roster each year of study made up. The minutes could not be read.',
-    // The rows carry PERCENTAGES, so the scale has to be one too — handed a
+    // The bars carry PERCENTAGES, so the scale has to be one too — handed a
     // fraction here the bars ran forty thousand points off the page.
     max: Math.max(50, ...withUnknown.flatMap((g) => [
       Math.round((g.rosterShare ?? 0) * 100), Math.round((g.minuteShare ?? 0) * 100)])),
-    rows: withUnknown.map((g) => ({
+    groups: withUnknown.map((g) => ({
       label: g.label[0].toUpperCase() + g.label.slice(1),
-      a: g.rosterShare == null ? null : Math.round(g.rosterShare * 100),
-      b: g.minuteShare == null ? null : Math.round(g.minuteShare * 100),
+      bars: [
+        { caption: 'Roster', value: g.rosterShare == null ? null : Math.round(g.rosterShare * 100),
+          color: NAVY },
+        { caption: 'Minutes', value: g.minuteShare == null ? null : Math.round(g.minuteShare * 100),
+          color: MID },
+      ],
     })),
-    aLabel: 'navy: share of the roster',
-    bLabel: source.loadAvailable ? 'pale: share of the minutes' : null,
     unit: '%',
     unavailable: withUnknown.length ? null : 'no season on file can be read by year of study',
   });
 
-  // `charts.paired` draws its legend just below the box, and the flow cursor
-  // is restored to the box's bottom edge — so anything written next lands on
-  // it without this.
-  k.gap(12);
+  k.gap(4);
   if (one) return;
   if (!e.loadAvailable) {
     k.note(`${e.loadReason[0].toUpperCase()}${e.loadReason.slice(1)}. The roster itself reads `
       + 'clearly, so who was here is on file even where what they played is not.');
     return;
   }
-  const gaps = [...(e.groups ?? [])]
-    .filter((g) => g.group !== 'UNKNOWN' && g.rosterShare != null && g.minuteShare != null)
-    .map((g) => ({ ...g, gap: g.minuteShare - g.rosterShare }))
-    .sort((x, y) => x.gap - y.gap);
-  const lowest = gaps[0];
-  const highest = gaps[gaps.length - 1];
-  if (lowest && highest && lowest.group !== highest.group) {
-    k.note(`${lowest.label[0].toUpperCase()}${lowest.label.slice(1)} players made up `
-      + `${pc(lowest.rosterShare)} of the roster and took ${pc(lowest.minuteShare)} of the minutes; `
-      + `${highest.label} players ${pc(highest.rosterShare)} and ${pc(highest.minuteShare)}. `
-      + 'A year of study holding more of the minutes than of the roster is the whole of what this '
-      + 'chart shows.');
-  }
+  // How to read the chart, once. The four figures that used to be repeated
+  // here are on the rows above and again in the synthesis below, which is the
+  // same fact explained three times on one page.
+  k.note('A year of study holding more of the minutes than of the roster took more of the playing '
+    + 'time than its share of the squad, and one holding less took less. That relationship is the '
+    + 'whole of what this chart shows; it does not say why.');
 }
 
 /** The page. */
@@ -200,12 +206,15 @@ export function squadUsageReading(model) {
   const out = [];
   if (u?.available && u.pool?.top11MinuteShare) {
     const p = u.pool.top11MinuteShare;
-    const wider = u.medianTop11Share < p.middleHalf.low;
-    const tighter = u.medianTop11Share > p.middleHalf.high;
+    // The programme's figure and the pool's middle half, and nothing after
+    // them. A clause naming which side of the band the figure fell on was a
+    // direction label in prose — the reader can see 80% against 73% to 79%
+    // without being told which way that points, and the phrasing invited
+    // exactly the "broad"/"narrow" vocabulary every model behind this page
+    // refuses.
     out.push(`The eleven most-used players took ${pc(u.medianTop11Share)} of the minutes in a `
-      + `typical season, against a comparable middle half of ${pc(p.middleHalf.low)} to `
-      + `${pc(p.middleHalf.high)}`
-      + (wider ? ' — outside it on the wider side.' : tighter ? ' — outside it on the tighter side.' : '.'));
+      + `typical season, compared with a middle half of ${pc(p.middleHalf.low)} to `
+      + `${pc(p.middleHalf.high)}.`);
   }
   if (e?.loadAvailable) {
     const y1 = e.groups.find((g) => g.group === 'YEAR_1');

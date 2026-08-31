@@ -1225,11 +1225,107 @@ export function athletePathwayPage(k, model) {
   k.scope([athlete.positionLabel, `entering ${model.entrySeason}`,
     `${(a.currentPositionPlayers ?? []).length} at this position on the current roster`]);
 
-  pathwayBlock(k, pathwayNarrative(model));
+  const sentences = pathwayNarrative(model);
+  pathwayBlock(k, sentences);
 
   k.aside('Nothing on this page says how many minutes an arriving player would get. That season '
     + 'has not been played, who is on the squad by then is not knowable from this data, and no '
     + 'figure here is a forecast.', { title: 'What this page is not' });
 
   headlineBand(k, athleteHeadlines(model), { title: 'Where the evidence for this sits' });
+
+  /**
+   * Only on a page whose synthesis is thin, and only where there is room.
+   *
+   * Both conditions, because either alone gets it wrong. Room alone drew it on
+   * Akron's women's report, where it was six page titles and their numbers
+   * under a band that already carries page pointers — the contents page for a
+   * second time. A thin synthesis alone would draw it on a page that has no
+   * space for it.
+   *
+   * A one-sentence pathway page is the case this exists for: three-quarters
+   * empty under a single finding, which reads as a report that gave up rather
+   * than one whose subject published less.
+   */
+  if (sentences.length <= 2 && k.remaining() >= 250) evidenceStatus(k, model);
 }
+
+/**
+ * What this programme's record can be read for, and what it cannot — titles.
+ *
+ * NOT a second Evidence Runs Out page. That page states, for each refusal,
+ * what was attempted, the threshold it missed, why, and what the absence does
+ * not mean; it is four paragraphs per item and it stays exactly as it is. This
+ * is the two lists, one line each, so a family reading the front of a sparse
+ * report can see the shape of what follows instead of a blank half-page — and
+ * it says where the long version is.
+ *
+ * It fabricates nothing. Every line on the left is a page that exists in this
+ * document; every line on the right is a refusal the model already made.
+ */
+function evidenceStatus(k, model) {
+  const { doc } = k;
+  const plan = (model.sections ?? []).filter((x) => x.act === 'pathway'
+    || x.act === 'programme-evidence');
+  // Refused by id rather than by the registry's `unavailableWhenEmpty` flag.
+  // That flag marks a section whose absence is worth stating, which is not the
+  // same question: this programme's development page carries real cohort
+  // counts and only its percentages were withheld, so it belongs on the left
+  // and the withheld shares belong on the right.
+  const refused = new Set((model.evidenceLimits ?? []).map((x) => x.id));
+  const can = plan
+    .filter((x) => x.id !== 'athlete-at-a-glance' && x.id !== 'programme-at-a-glance'
+      && x.id !== 'evidence-limits' && !refused.has(x.id))
+    .slice(0, 6);
+  const cannot = (model.evidenceLimits ?? []).slice(0, 6);
+  if (!can.length && !cannot.length) return;
+
+  const colW = (W - 24) / 2;
+  const top = doc.y;
+  const heads = [['What this record can be read for', can.map((x) => ({ text: x.title, id: x.id }))],
+    ['What it cannot yet be read for', cannot.map((x) => ({ text: x.title, id: null }))]];
+  let deepest = top;
+  heads.forEach(([title, items], col) => {
+    const x = M + col * (colW + 24);
+    let y = top;
+    doc.font(TYPE.section.font).fontSize(TYPE.section.size).fillColor(col ? MUTED : CLARET)
+      .text(title.toUpperCase(), x, y, { width: colW, characterSpacing: TYPE.section.spacing });
+    y = doc.y + 3;
+    doc.moveTo(x, y).lineTo(x + colW, y).lineWidth(0.75)
+      .strokeColor(col ? LINE : INK).stroke();
+    y += 8;
+    if (!items.length) {
+      doc.font('Helvetica-Oblique').fontSize(8.5).fillColor(MUTED)
+        .text(col ? 'Nothing was refused for this programme.' : 'No page of this report could be built.',
+          x, y, { width: colW });
+      y = doc.y + 4;
+    }
+    for (const item of items) {
+      doc.save().circle(x + 2.5, y + 4.5, 1.6).fill(col ? MUTED : CLARET).restore();
+      const h = doc.font('Helvetica').fontSize(9).fillColor(col ? MUTED : INK)
+        .heightOfString(item.text, { width: colW - 34 });
+      doc.text(item.text, x + 10, y, { width: colW - 34 });
+      if (item.id) {
+        const at = y;
+        const id = item.id;
+        k.defer(({ pageOf, doc: d }) => {
+          const n = pageOf(id);
+          if (n == null) return;
+          d.font('Helvetica-Bold').fontSize(8).fillColor(MID)
+            .text(`p.${n}`, x + colW - 22, at + 0.5, { width: 22, align: 'right', lineBreak: false });
+        });
+      }
+      y = at2(y, h);
+      deepest = Math.max(deepest, y);
+    }
+    deepest = Math.max(deepest, y);
+  });
+  doc.y = deepest + 4;
+  if (cannot.length) {
+    k.note('Each of those is set out in full — what was attempted, the threshold it missed, and '
+      + 'what its absence does not mean — on the page titled “Where the evidence runs out”.');
+  }
+}
+
+/** Advance past a list row: the text height, with a floor for the bullet. */
+const at2 = (y, h) => y + Math.max(h, 11) + 5;

@@ -189,7 +189,15 @@ function twoColumn(k, sections) {
   let y = top;
 
   for (const [heading, ...paras] of sections) {
-    const height = 13 + paras.reduce((s, t) => s
+    // Measured, and allowed a second line. Drawn with `lineBreak: false` the
+    // longest of these headings shipped as "PLAYER DEVELOPMENT AND ROSTER
+    // CONTI…" — the layout guard watches chart titles and table headings, and
+    // this one is neither.
+    const label = heading.toUpperCase();
+    k.doc.font(TYPE.section.font).fontSize(8.5);
+    const headH = Math.max(13, k.doc.heightOfString(label,
+      { width: colW, characterSpacing: TYPE.section.spacing }) + 3);
+    const height = headH + paras.reduce((s, t) => s
       + k.doc.font('Helvetica').fontSize(8.5).heightOfString(t, { width: colW }) + 5, 0) + 8;
     // Move to the second column, then to a new page, rather than letting a
     // block run off the bottom.
@@ -212,9 +220,8 @@ function twoColumn(k, sections) {
       }
     }
     k.doc.font(TYPE.section.font).fontSize(8.5).fillColor(TYPE.section.color)
-      .text(heading.toUpperCase(), x, y, { width: colW, characterSpacing: TYPE.section.spacing,
-        lineBreak: false, ellipsis: true });
-    y += 13;
+      .text(label, x, y, { width: colW, characterSpacing: TYPE.section.spacing });
+    y += headH;
     for (const t of paras) {
       k.doc.font('Helvetica').fontSize(8.5).fillColor(INK).text(t, x, y, { width: colW });
       y = k.doc.y + 5;

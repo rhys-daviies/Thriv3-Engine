@@ -26,11 +26,10 @@
  * distribution to describe. The page says so in one line and moves on; it does
  * not leave a blank panel and it never says the evidence was thin.
  */
-import { charts, THEME, TYPE, pageHead, spanText, fitText } from './philosophyPdf.js';
+import { charts, THEME, pageHead, spanText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 
-const { MUTED, CLARET, NAVY, MID, PALE, INK } = THEME;
-const pc = (v) => (v == null ? '—' : `${Math.round(v * 100)}%`);
+const { NAVY, PALE } = THEME;
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
 /** "four seasons on file" / "the two seasons with enough position-level minutes". */
@@ -72,7 +71,7 @@ function intakeBlock(k, intake, { plural: posPlural }) {
   const yMax = Math.max(2, ...intake.cycles.map((c) => c.totalIncoming ?? 0));
 
   charts.columns(k, {
-    box: k.slot(112),
+    box: k.slot(134),
     title: null,
     // A chart subtitle draws on ONE line and is truncated past it, so the
     // legend lives here and the explanation lives in the note below.
@@ -125,7 +124,7 @@ function intakeBlock(k, intake, { plural: posPlural }) {
  * women's defence used five defenders in two of its seasons and all five
  * reached a starter's season, which is a small squad rather than a wide one.
  */
-function minutesBlock(k, util, { plural: posPlural, division }) {
+function minutesBlock(k, util, { plural: posPlural }) {
   k.heading('How far the minutes at this position have reached');
   if (!util.supported) {
     k.note('Position-level minute distribution is not reported for goalkeepers: the position '
@@ -161,6 +160,7 @@ function minutesBlock(k, util, { plural: posPlural, division }) {
     {
       label: `${STARTER_MINUTES}+ minutes`,
       longLabel: `Players reaching ${STARTER_MINUTES} minutes`,
+      denominator: true,
       value: util.medianPlayersWith600Plus,
       range: util.rangePlayersWith600Plus,
       pool: util.pool?.playersWith600Plus ?? null,
@@ -181,7 +181,7 @@ function minutesBlock(k, util, { plural: posPlural, division }) {
 
   const seasonList = util.seasons.filter((s) => s.readable).map((s) => s.season);
   charts.dotLadder(k, {
-    box: k.slot(92),
+    box: k.slot(96),
     title: null,
     subtitle: 'A dot per season; the heavy bar is this programme’s median across them.',
     xMax,
@@ -191,9 +191,13 @@ function minutesBlock(k, util, { plural: posPlural, division }) {
       n: r.seasons.length,
       low: r.range?.low ?? null,
       high: r.range?.high ?? null,
-      // A degenerate range prints the season count instead of "4–4": the
-      // renderer only shows a span where `agreement` says the seasons differ.
-      agreement: (r.range && r.range.low !== r.range.high) ? 'wide' : 'tight',
+      // Always the season count, never the span. The renderer prints a span
+      // for `wide` and a count for `tight`, and a page that showed "2–3" on
+      // one rung and "2 seasons" on the next was reporting two different
+      // things in the same column because one range happened to have width.
+      // The span is in the note below and the dots show it; the count is the
+      // thing a reader needs beside the median.
+      agreement: 'tight',
       contributions: r.seasons.map((v, i) => ({ season: seasonList[i], minutes: v })),
       median: r.value,
       poolMedian: r.pool?.median ?? null,
@@ -209,19 +213,36 @@ function minutesBlock(k, util, { plural: posPlural, division }) {
   k.gap(18);
   for (const r of rows) {
     const span = spanText(r.range);
-    k.note(`${r.longLabel}: a median of ${r.value}${span && span !== String(r.value) ? `, ranging ${span} across the seasons read` : ' in every season read'}`
-      + `${r.pool ? `, against a comparable median of ${r.pool.median} and a middle half of ${spanText(r.pool.middleHalf)}` : ''}.`);
+    // The denominator rides ON the starter row rather than in a sentence of
+    // its own below it. Four of eight and four of five are different findings,
+    // and a reader who stops at the end of the first sentence should already
+    // have both numbers: Akron women's defence used five defenders and all
+    // five reached a starter's season.
+    const denom = r.denominator
+      ? ` out of ${util.medianPlayersWithMinutes} ${posPlural} used in a typical season` : '';
+    // The range only where it HAS width. "a median of 5 out of 5 defenders
+    // used in a typical season in every season" was two clauses saying the
+    // same thing badly; the ladder beside it already prints the season count.
+    const varies = span && span !== String(r.value);
+    k.note(`${r.longLabel}: a median of ${r.value}${denom}`
+      + (varies ? `, ranging ${span} across the seasons` : '')
+      + `${r.pool ? `, compared with a comparable median of ${r.pool.median} and a middle half of `
+        + `${spanText(r.pool.middleHalf)}` : ''}.`);
   }
-  k.note(`Out of ${util.medianPlayersWithMinutes} ${posPlural} used in a typical season on this `
-    + 'roster. A count is only as wide as the squad it came from.');
+  // The thin-history fact, once, beside the comparison it qualifies — it is
+  // also in the scope line at the top of the page and in the synthesis, and
+  // three places was already one too many.
+  if (util.readableSeasons < util.seasons.length) {
+    k.note(`Both medians are drawn from ${basisText(util.readableSeasons, util.seasons.length)}.`);
+  }
+  k.note('A count of players is only ever as wide as the squad it was counted in.');
 }
 
 /**
- * The page. One position, two histories, and a sentence that only restates
- * what is printed above it.
+ * The page. One position, two histories, and a closing block that reads them
+ * against each other rather than repeating either.
  */
 export function positionRecordPage(k, model) {
-  const a = model.summary?.athlete;
   const intake = model.pressure?.athletePosition ?? null;
   const util = model.positionUtilisation?.athletePosition ?? null;
   const posPlural = util?.plural ?? intake?.plural ?? 'players';
@@ -244,47 +265,61 @@ export function positionRecordPage(k, model) {
 
   if (intake) intakeBlock(k, intake, { plural: posPlural });
   k.gap(6);
-  if (util) minutesBlock(k, util, { plural: posPlural, division: model.college?.division });
+  if (util) minutesBlock(k, util, { plural: posPlural });
 
   const sentences = positionRecordReading(model);
   if (sentences.length) k.reading(sentences);
 }
 
 /**
- * What the two halves say when read together.
+ * What the two halves say when read TOGETHER, and only that.
  *
- * Restates printed figures and does nothing else. No sentence here may exist
- * unless both of its numbers are on the page above it.
+ * This block used to restate four figures already printed a few centimetres
+ * above it: the intake median and its pool band, the coming season's known
+ * intake, the starter count with its denominator, and the three-quarters
+ * count. A synthesis that reprints the evidence beside it is not a synthesis —
+ * it is the same page twice, and it was the largest block of duplicate prose
+ * in the report.
+ *
+ * What it adds instead is the RELATIONSHIP, which neither half states and
+ * which no other page in the report can state: how often this programme adds
+ * players here, set against how far the minutes here have reached, and the
+ * warning that the two do not predict each other. Phase 8B measured them at
+ * r = 0.05 to 0.13, so a reader who assumes a busy intake means shallow
+ * minutes has assumed something the data does not support.
+ *
+ * It computes nothing. Every number is printed above it.
  */
 export function positionRecordReading(model) {
   const intake = model.pressure?.athletePosition ?? null;
   const util = model.positionUtilisation?.athletePosition ?? null;
   const posPlural = util?.plural ?? intake?.plural ?? 'players';
-  const out = [];
   const h = intake?.historical;
+  const intakeReads = Boolean(h && !h.suppressed);
+  const minutesRead = Boolean(util?.available);
+  const out = [];
 
-  if (h && !h.suppressed) {
-    const poolBit = h.pool
-      ? ` The comparable middle half is ${spanText(h.pool.middleHalf)} a cycle.` : '';
-    out.push(`Across ${plural(h.cyclesWithReadableRosterPresence, 'recruiting cycle', 'recruiting cycles')} `
-      + `this programme added ${h.totalIncomingPerCycle.join(', ')} ${posPlural}, a median of `
-      + `${h.medianTotalIncoming}.${poolBit}`);
+  if (intakeReads && minutesRead) {
+    out.push(`This programme has added a median of ${h.medianTotalIncoming} ${posPlural} a `
+      + `recruiting cycle, and a median of ${util.medianPlayersWith600Plus} reached `
+      + `${STARTER_MINUTES} minutes out of ${util.medianPlayersWithMinutes} used in a season.`);
+    out.push('Those are two separate records of the same position, and neither one predicts the '
+      + 'other: across the programmes we measure, how often a position is added to and how far its '
+      + 'minutes reach are barely related.');
+  } else if (intakeReads && util && !util.supported) {
+    out.push(`The intake at this position reads across `
+      + `${plural(h.cyclesWithReadableRosterPresence, 'recruiting cycle', 'recruiting cycles')}. `
+      + 'How far the minutes reach is not reported for goalkeepers, so this page is one record '
+      + 'rather than two.');
+  } else if (intakeReads) {
+    out.push(`The intake at this position reads across `
+      + `${plural(h.cyclesWithReadableRosterPresence, 'recruiting cycle', 'recruiting cycles')}; `
+      + 'the minutes at it do not, for the reasons above. Who arrived here is on file even where '
+      + 'what they played is not.');
+  } else if (minutesRead) {
+    out.push(`The minutes at this position read across `
+      + `${basisText(util.readableSeasons, util.seasons.length)}; how often the position has been `
+      + 'added to does not, for the reasons above.');
   }
-  if (intake?.current?.readable && intake.current.totalIncoming != null) {
-    const c = intake.current;
-    out.push(c.totalIncoming === 0
-      ? `The roster published for ${c.season} carries no new ${posPlural} so far.`
-      : `The roster published for ${c.season} carries ${plural(c.totalIncoming, `new ${util?.noun ?? 'player'}`, `new ${posPlural}`)} so far`
-        + `${c.experiencedArrivals ? `, ${c.experiencedArrivals} of them with college seasons behind them` : ''}.`);
-  }
-  if (util?.available) {
-    const p = util.pool?.playersWith600Plus ?? null;
-    out.push(`In ${basisText(util.readableSeasons, util.seasons.length)}, a median of `
-      + `${util.medianPlayersWith600Plus} ${posPlural} reached ${STARTER_MINUTES} minutes, out of `
-      + `${util.medianPlayersWithMinutes} used`
-      + `${p ? `, against a comparable median of ${p.median}` : ''}.`);
-    out.push(`Three-quarters of the minutes at this position went to a median of `
-      + `${util.medianPlayersFor75} ${posPlural}.`);
-  }
-  return out.slice(0, 4);
+  return out.slice(0, 2);
 }

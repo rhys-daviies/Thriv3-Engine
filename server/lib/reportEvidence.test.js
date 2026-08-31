@@ -12,7 +12,7 @@ import { programReportModel } from '../routes/philosophy.js';
 import { renderProgramReport } from './philosophyReport.js';
 import { invalidatePoolBenchmarks } from './philosophyQueries.js';
 import { invalidateLifecyclePool } from './lifecycleQueries.js';
-import { kit, render, fitText } from './philosophyPdf.js';
+import { kit, render, fitText, charts } from './philosophyPdf.js';
 
 const WINANSI = { 0x85: '…', 0x91: '‘', 0x92: '’', 0x93: '“', 0x94: '”', 0x96: '–', 0x97: '—', 0xb7: '·' };
 
@@ -972,6 +972,226 @@ describe('the athlete position record page', () => {
       'likely to play', 'aggressive']) {
       expect(text.toLowerCase(), word).not.toContain(word);
     }
+  });
+});
+
+/**
+ * PHASE 9C — the polish pass. Every test here is about what the page SAYS or
+ * how it is laid out; none of them touches a model value.
+ */
+describe('the paired roster and minutes bars', () => {
+  const drawBars = (groups) => render((k) => {
+    k.doc.addPage();
+    charts.splitBars(k, {
+      box: k.slot(140), title: null, subtitle: null, groups, max: 50, unit: '%', unavailable: null,
+    });
+  });
+
+  it('writes what each bar measures on the row it is drawn on', async () => {
+    const text = pdfText(await drawBars([
+      { label: 'First year', bars: [{ caption: 'Roster', value: 42 }, { caption: 'Minutes', value: 11 }] },
+      { label: 'Fourth year', bars: [{ caption: 'Roster', value: 17 }, { caption: 'Minutes', value: 33 }] },
+    ]));
+    expect(text).toContain('ROSTER');
+    expect(text).toContain('MINUTES');
+    expect(text).toContain('42%');
+    expect(text).toContain('11%');
+    // And never the two quantities collapsed into one value, which is what
+    // this replaced: "42 · 11%" required a legend to be read at all.
+    expect(text).not.toMatch(/\d+\s*·\s*\d+%/);
+  });
+
+  it('draws no bar and no zero where a quantity could not be measured', async () => {
+    const text = pdfText(await drawBars([
+      { label: 'First year', bars: [{ caption: 'Roster', value: 34 }, { caption: 'Minutes', value: null }] },
+      { label: 'Graduate or fifth year', bars: [{ caption: 'Roster', value: 7 }, { caption: 'Minutes', value: null }] },
+    ]));
+    expect(text).toContain('ROSTER');
+    expect(text).toContain('34%');
+    expect(text).not.toContain('MINUTES');
+    expect(text).not.toContain('0%');
+  });
+
+  it('fits the longest label it is given rather than clipping it', async () => {
+    const text = pdfText(await drawBars([
+      { label: 'Graduate or fifth year', bars: [{ caption: 'Roster', value: 7 }] },
+    ]));
+    expect(text).toContain('Graduate or fifth year');
+    expect(text).not.toContain('…');
+  });
+});
+
+describe('the squad page states the comparison without naming a direction', () => {
+  it('prints the programme figure and the pool band and stops', async () => {
+    addProgramme();
+    const { text, model } = await build();
+    const u = model.squadProfile.utilisation;
+    expect(u.available).toBe(true);
+    expect(text).toContain(`${Math.round(u.medianTop11Share * 100)}% of the minutes in a typical `
+      + 'season, compared with a middle half of');
+    for (const banned of [/tighter/i, /wider side/i, /on the (wider|tighter) side/i,
+      /more (broadly|narrowly) than/i, /concentrated/i, /widely distributed/i]) {
+      expect(text, String(banned)).not.toMatch(banned);
+    }
+  });
+
+  it('explains how to read the years of study once, not four times', async () => {
+    addProgramme();
+    const { text } = await build();
+    const occurrences = text.split('whole of what this chart shows').length - 1;
+    expect(occurrences).toBe(1);
+  });
+});
+
+describe('the position page keeps its denominator and its season basis', () => {
+  /** Five forwards, all of whom reached a starter's season: 5 out of 5. */
+  const addFiveForwards = (seasons) => {
+    for (const season of seasons) {
+      for (let i = 0; i < 5; i += 1) {
+        addRow('Test College', {
+          season, player_name: `Fwd ${letters(i)} ${word(season)}`, class_year_label: 'Jr.',
+          position: 'FORWARD', minutes_played: 900,
+        });
+      }
+    }
+  };
+
+  it('says five reached 600 minutes out of five used, on the same line', async () => {
+    addProgramme();
+    addFiveForwards(['2022', '2023', '2024', '2025']);
+    addAthlete('p1', { position: 'Forward' });
+    const { text, model } = await build('p1');
+    const util = model.positionUtilisation.athletePosition;
+    expect(util.available).toBe(true);
+    expect(util.medianPlayersWith600Plus).toBe(5);
+    expect(util.medianPlayersWithMinutes).toBe(5);
+    expect(text).toContain('a median of 5 out of 5 forwards used in a typical season');
+  });
+
+  it('keeps the season basis where fewer seasons were readable than are on file', async () => {
+    addProgramme();
+    addFiveForwards(['2024', '2025']);
+    addAthlete('p1', { position: 'Forward' });
+    const { text, model } = await build('p1');
+    const util = model.positionUtilisation.athletePosition;
+    expect(util.available).toBe(true);
+    expect(util.readableSeasons).toBeLessThan(util.seasons.length);
+    // In the scope line at the top, and once beside the comparison itself.
+    expect(text).toContain(`the two seasons of ${util.seasons.length} on file with enough `
+      + 'position-level minutes to read');
+    expect(text).toContain('Both medians are drawn from the two seasons');
+  });
+
+  it('reads the two halves against each other instead of restating them', async () => {
+    addProgramme();
+    addFiveForwards(['2022', '2023', '2024', '2025']);
+    addAthlete('p1', { position: 'Forward' });
+    const { text } = await build('p1');
+    expect(text).toContain('neither one predicts the other');
+    // The figures the block used to reprint are on the page ONCE, in the notes
+    // beside the charts, rather than twice.
+    expect(text.split('a median of 5 out of 5 forwards used').length - 1).toBe(1);
+  });
+});
+
+describe('a short valid finding shares a page rather than taking one', () => {
+  it('flows experienced arrivals under the squad page and lists both', async () => {
+    addFabricatedProgramme();
+    const { text, model, buf } = await build();
+    const at = (id) => model.sections.find((x) => x.id === id)?.page ?? null;
+    expect(model.summary.programme.experiencedArrivalReliance.density).toBe('none');
+    expect(at('squad-usage')).not.toBeNull();
+    expect(at('experienced-arrival-intake')).toBe(at('squad-usage'));
+    // Nothing was dropped to get there: the heading, the scope line and the
+    // finding itself are all on the page.
+    expect(text).toMatch(/how this programme uses its squad/i);
+    expect(text).toContain('Experienced arrivals');
+    expect(text).toContain('did not add a single player who was not a first-year');
+    // And the contents still describes the document.
+    const total = pageCount(buf);
+    for (const sec of model.sections) {
+      if (sec.page == null) continue;
+      expect(sec.page).toBeLessThanOrEqual(total);
+    }
+    expect(model.sections.map((x) => x.page).filter((x) => x != null))
+      .toEqual([...model.sections.map((x) => x.page).filter((x) => x != null)]
+        .sort((x, y) => x - y));
+  });
+
+  it('leaves a programme with a full arrivals record on its own page', async () => {
+    addProgramme();
+    const { model } = await build();
+    const at = (id) => model.sections.find((x) => x.id === id)?.page ?? null;
+    expect(model.summary.programme.experiencedArrivalReliance.density).not.toBe('none');
+    expect(at('experienced-arrival-intake')).toBe(at('squad-usage') + 1);
+  });
+});
+
+describe('the origin page is placed on the evidence it has', () => {
+  it('files it with the supporting record where it is mostly pool context', async () => {
+    // Origin IS recorded here, for every first-year — just never for anyone
+    // arriving from where this athlete is arriving from. The page has a pool
+    // comparison and no record of its own, which is the Albertus shape.
+    addProgramme();
+    addAthlete('p1', { position: 'Defender', nationality: 'Ghana' });
+    const { model, text, buf } = await build('p1');
+    const origin = model.sections.find((x) => x.id === 'athlete-origin');
+    expect(origin).toBeTruthy();
+    expect(model.summary.athlete.originContext.evidence.sufficient).toBe(false);
+    expect(origin.layer).toBe('supporting');
+    expect(origin.act).toBe('supporting');
+    // Kept whole, caveats and all — only its priority changed.
+    expect(text).toContain('Where you are arriving from');
+    expect(text).toContain('Not enough programme-specific history to compare by origin');
+    expect(text).toContain('context, not a substitute for evidence this programme has not produced');
+    // Drawn where the plan says it is, after the programme evidence.
+    const dev = model.sections.find((x) => x.id === 'player-development');
+    expect(origin.page).toBeGreaterThan(dev.page);
+    expect(origin.page).toBeLessThanOrEqual(pageCount(buf));
+  });
+
+  it('keeps it in the pathway where the programme has its own record', async () => {
+    addProgramme();
+    for (const season of ['2022', '2023', '2024', '2025']) {
+      for (let i = 0; i < 4; i += 1) {
+        addRow('Test College', {
+          season, player_name: `Intl ${letters(i)} ${word(season)}`, class_year_label: 'Fr.',
+          position: 'MIDFIELD', minutes_played: 800, nationality: 'Ghana', country: 'Ghana',
+        });
+      }
+    }
+    addAthlete('p1', { position: 'Midfield', nationality: 'Ghana' });
+    const { model } = await build('p1');
+    const origin = model.sections.find((x) => x.id === 'athlete-origin');
+    expect(model.summary.athlete.originContext.evidence.sufficient).toBe(true);
+    expect(origin.layer).toBe('athlete-evidence');
+    expect(origin.act).toBe('pathway');
+    const intake = model.sections.find((x) => x.id === 'freshman-intake');
+    expect(origin.page).toBeLessThan(intake.page);
+  });
+});
+
+describe('the pathway page on a sparse report', () => {
+  it('shows what the record can and cannot be read for', async () => {
+    addFabricatedProgramme();
+    addAthlete('p1', { position: 'Defender' });
+    const { text, model } = await build('p1');
+    expect(model.evidenceLimits.length).toBeGreaterThan(0);
+    expect(text).toMatch(/what this record can be read for/i);
+    expect(text).toMatch(/what it cannot yet be read for/i);
+    // Titles only. The full account of each refusal stays on its own page and
+    // is pointed at rather than repeated.
+    expect(text).toContain('set out in full');
+    for (const limit of model.evidenceLimits.slice(0, 6)) {
+      expect(text, limit.id).toContain(limit.title);
+    }
+  });
+
+  it('leaves a full pathway page alone', async () => {
+    addProgramme();
+    addAthlete('p1', { position: 'Midfield' });
+    const { text } = await build('p1');
+    expect(text).not.toMatch(/what this record can be read for/i);
   });
 });
 

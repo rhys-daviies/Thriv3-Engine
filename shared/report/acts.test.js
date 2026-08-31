@@ -9,7 +9,9 @@
  * stops describing the document the renderer draws.
  */
 import { describe, it, expect } from 'vitest';
-import { planSections, planByAct, actsFor, actTitle, SECTIONS } from './sections.js';
+import {
+  planSections, planByAct, actsFor, actTitle, SECTIONS, arrivalsAreOneFinding,
+} from './sections.js';
 
 /** A model rich enough that every gate opens. */
 const rich = (over = {}) => ({
@@ -63,7 +65,16 @@ const richSummary = () => ({
     positionFreshmanHistory: { measured: 6, starters: 0 },
     experiencedArrivalsAtPosition: { measured: 3 },
     positionOpeningOutcomes: { dials: { n: 3 } },
-    originContext: { requestedOrigin: 'international', programme: { withRecordedOrigin: 8, sameOrigin: { players: 2 } }, pool: {} },
+    // A programme with its own readable record by origin: `share` present and
+    // the cohort gate open. That is what keeps this page in the pathway act —
+    // where either is missing the page is mostly division context and is filed
+    // with the supporting evidence instead.
+    originContext: {
+      requestedOrigin: 'international',
+      programme: { withRecordedOrigin: 8, sameOrigin: { players: 6, starters: 2, share: 0.33 } },
+      pool: {},
+      evidence: { sufficient: true },
+    },
   },
 });
 
@@ -319,5 +330,68 @@ describe('the sections Phase 9B added', () => {
         experience: { compositionAvailable: false, singleSeasonObservation: null },
       },
     }), richSummary())).not.toContain('squad-usage');
+  });
+});
+
+/**
+ * PHASE 9C — the origin page's act depends on the evidence it turned out to
+ * have. It is never removed and never loses a caveat; what moves is where it
+ * sits in the reading order.
+ */
+describe('where the origin page is filed', () => {
+  const thin = () => {
+    const summary = richSummary();
+    // Recorded origin, a pool to compare against, and nothing of this
+    // programme's own: the cohort gate is shut and no share can be quoted.
+    summary.athlete.originContext = {
+      requestedOrigin: 'international',
+      programme: { withRecordedOrigin: 8, sameOrigin: { players: 0, starters: 0, share: null } },
+      pool: {},
+      evidence: { sufficient: false },
+    };
+    return summary;
+  };
+
+  it('keeps it in the pathway where the programme has its own record', () => {
+    const s = plan(rich(), richSummary()).find((x) => x.id === 'athlete-origin');
+    expect(s.layer).toBe('athlete-evidence');
+    expect(s.act).toBe('pathway');
+    expect(s.scopeNotes).not.toContain('pool context only');
+  });
+
+  it('moves it to the supporting evidence where the page is pool context', () => {
+    const s = plan(rich(), thin()).find((x) => x.id === 'athlete-origin');
+    expect(s).toBeTruthy();
+    expect(s.layer).toBe('supporting');
+    expect(s.act).toBe('supporting');
+    // Still listed, and the contents says why it sits there.
+    expect(s.scopeNotes).toContain('pool context only');
+  });
+
+  it('moves it after the programme evidence, not out of the report', () => {
+    const built = plan(rich(), thin());
+    const ids = built.map((x) => x.id);
+    expect(ids).toContain('athlete-origin');
+    expect(ids.indexOf('athlete-origin')).toBeGreaterThan(ids.indexOf('player-development'));
+    expect(ids.indexOf('athlete-origin')).toBeGreaterThan(ids.indexOf('squad-usage'));
+  });
+
+  it('answers the same question in both places', () => {
+    const a = SECTIONS.find((x) => x.id === 'athlete-origin');
+    expect(a.title).toBe('Where you are arriving from');
+    expect(a.layer).toBe('athlete-evidence');
+    expect(typeof a.layerOf).toBe('function');
+  });
+});
+
+describe('a short arrivals finding', () => {
+  it('is one finding where nothing arrived and a page where something did', () => {
+    const none = { summary: { programme: { experiencedArrivalReliance: { measurable: true, density: 'none' } } } };
+    const some = { summary: { programme: { experiencedArrivalReliance: { measurable: true, density: 'some', arrivals: 9 } } } };
+    const unmeasurable = { summary: { programme: { experiencedArrivalReliance: { measurable: false } } } };
+    expect(arrivalsAreOneFinding(none)).toBe(true);
+    expect(arrivalsAreOneFinding(unmeasurable)).toBe(true);
+    expect(arrivalsAreOneFinding(some)).toBe(false);
+    expect(arrivalsAreOneFinding({})).toBe(false);
   });
 });

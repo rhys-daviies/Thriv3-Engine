@@ -47,7 +47,7 @@ export function freshmanIntakePage(k, model) {
   scope(k, [
     `${plural(seasons.length, 'season', 'seasons')} on file`,
     `${s.measuredFreshmen} first-years with minutes published`,
-    s.rowsWithoutMinutes ? `${s.rowsWithoutMinutes} rows with none` : null,
+    s.rowsWithoutMinutes ? `${plural(s.rowsWithoutMinutes, 'row', 'rows')} with none` : null,
     s.unreadableSeasons.length ? `${s.unreadableSeasons.join(', ')} not readable` : null,
   ]);
 
@@ -184,7 +184,7 @@ export function freshmanLadderPage(k, model) {
       + 'ranks above; those rungs are stated rather than drawn.');
   }
   k.gap(2);
-  k.body(`In ${s.seasonsWithAnImpactFreshman} of ${s.seasonsObserved} seasons on file, at least one `
+  k.body(`In ${s.seasonsWithAnImpactFreshman} of ${plural(s.seasonsObserved, 'season', 'seasons')} on file, at least one `
     + `first-year played a ${STARTER_MINUTES}-minute season.`);
 
   // Only where reweighting exists AND changes the answer. A second full ladder
@@ -211,12 +211,25 @@ export function freshmanLadderPage(k, model) {
 // PAGE 7 — the experienced arrival intake
 // ---------------------------------------------------------------------------
 
-export function experiencedArrivalIntakePage(k, model) {
+/**
+ * @param newPage - false where this section is flowing beneath the squad page.
+ * It does that only where its whole finding is one box — no arrival could be
+ * detected, or no season can be compared with the one before it — and the
+ * running order has measured the room. Nothing is dropped in that case; the
+ * section keeps its title, its scope line and its box.
+ */
+export function experiencedArrivalIntakePage(k, model, { newPage = true } = {}) {
   const e = model.summary.programme.experiencedArrivalReliance;
   const t = model.transfer;
 
-  page(k, 'Programme evidence', 'Experienced arrivals',
-    'How often does this programme add players who are not first-years, and how much do they play?');
+  pageHead(k, {
+    kicker: 'Programme evidence',
+    title: 'Experienced arrivals',
+    question: 'How often does this programme add players who are not first-years, and how much do '
+      + 'they play?',
+    newPage,
+    continued: !newPage,
+  });
   scope(k, [
     e.measurable ? `${plural(e.measurableSeasons.length, 'season', 'seasons')} an arrival could be detected` : null,
     `${plural(e.arrivals, 'arrival', 'arrivals')} measured`,

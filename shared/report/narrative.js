@@ -330,8 +330,9 @@ export function athleteHeadlines(model) {
     const played = (h.players ?? []).filter((x) => (x.minutes ?? 0) >= STARTER_MINUTES).length;
     out.push({
       label: 'First-years here',
-      text: `${h.measured} first-years at this position have minutes on file, `
-        + `${played} of them a ${STARTER_MINUTES}-minute season.`,
+      text: `${plural(h.measured, 'first-year', 'first-years')} at this position `
+        + `${h.measured === 1 ? 'has' : 'have'} minutes on file, ${played} of them a `
+        + `${STARTER_MINUTES}-minute season.`,
       section: 'athlete-position-history',
     });
   }
@@ -387,9 +388,13 @@ export function pathwayNarrative(model) {
   const v = a.positionOpeningOutcomes;
   if (h?.measured > 0) {
     const openings = v?.openings ?? 0;
+    // "none of them reached" over one player read as a sentence about a group
+    // that happened to have one member in it.
+    const reached = h.starters === 0
+      ? (h.measured === 1 ? 'did not reach' : 'none of them reached')
+      : `${h.starters} of them reached`;
     out.push(`${h.measured} first-year ${h.measured === 1 ? position : `${position}s`} here `
-      + `${h.measured === 1 ? 'has' : 'have'} minutes on file and `
-      + `${h.starters === 0 ? 'none of them' : `${h.starters} of them`} reached a `
+      + `${h.measured === 1 ? 'has' : 'have'} minutes on file and ${reached} a `
       + `${STARTER_MINUTES}-minute season.`
       + (openings > 0
         ? ` Across the ${plural(openings, 'occasion', 'occasions')} a starter left this position, a `
