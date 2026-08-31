@@ -29,7 +29,9 @@
     "suppress": "node server/scripts/suppress.js",
     "draft": "node server/scripts/draftOutreach.js",
     "project-minutes": "node server/scripts/projectRosterMinutes.js",
-    "audit:performance": "node server/scripts/auditPerformanceSource.js"
+    "audit:performance": "node server/scripts/auditPerformanceSource.js",
+    "snapshot:pi": "node server/scripts/snapshotProgrammeIntelligence.js",
+    "verify:baseline": "node server/scripts/verifyBaselineInvariants.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",

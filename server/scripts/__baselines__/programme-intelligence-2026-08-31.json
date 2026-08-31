@@ -1,0 +1,1566 @@
+{
+ "programmes": {
+  "Akron (mens-soccer)": {
+   "college": {
+    "name": "Akron",
+    "division": "NCAA D1",
+    "sport": "mens-soccer"
+   },
+   "seasonsOnFile": [
+    "2022",
+    "2023",
+    "2024",
+    "2025"
+   ],
+   "recruitSeason": 2026,
+   "squadSeason": "2026",
+   "verdict": "steady",
+   "freshman": {
+    "classification": "below-benchmark",
+    "measuredFreshmen": 38,
+    "rowsWithoutMinutes": 0,
+    "unreadableSeasons": [],
+    "ladderTopMedian": 487,
+    "ladder": [
+     {
+      "rank": 1,
+      "median": 487
+     },
+     {
+      "rank": 2,
+      "median": 239
+     },
+     {
+      "rank": 3,
+      "median": 176
+     },
+     {
+      "rank": 4,
+      "median": 75
+     },
+     {
+      "rank": 5,
+      "median": 28
+     },
+     {
+      "rank": 6,
+      "median": 12
+     }
+    ]
+   },
+   "arrivals": {
+    "measurable": true,
+    "density": "many",
+    "arrivals": 13,
+    "shareOfMeasuredLoad": 0.2007,
+    "classification": "typical"
+   },
+   "replacement": {
+    "observations": 12,
+    "totalObservations": 12,
+    "route": null
+   },
+   "development": {
+    "players": 54,
+    "minutesReadable": true,
+    "measured": 70,
+    "playerSeasons": 70,
+    "everStarter": {
+     "reached": 10,
+     "denominator": 42,
+     "share": 0.2381,
+     "band": "below-benchmark"
+    },
+    "byYear": [
+     0.0476,
+     0.2424,
+     0.2857,
+     0.25
+    ]
+   },
+   "continuity": {
+    "returnable": 119,
+    "returned": 59,
+    "retention": 0.4958,
+    "band": "typical"
+   },
+   "departures": {
+    "gateAllowed": true,
+    "gateReason": null,
+    "total": 60,
+    "observed": 19,
+    "coverage": 0.3167
+   },
+   "utilisation": {
+    "available": true,
+    "reason": null,
+    "seasonsObserved": 4,
+    "medianTop11Share": 0.7979,
+    "medianTop14Share": 0.8911,
+    "medianTop18Share": 0.9627,
+    "medianPlayersWith600Plus": 13,
+    "medianRosterPlayers": 30,
+    "poolScope": "NCAA D1",
+    "poolTop11": {
+     "programmes": 193,
+     "median": 0.7557,
+     "p25": 0.7299,
+     "p75": 0.7852
+    }
+   },
+   "experience": {
+    "compositionAvailable": true,
+    "loadAvailable": true,
+    "loadReason": null,
+    "groups": [
+     {
+      "group": "YEAR_1",
+      "rosterShare": 0.4202,
+      "minuteShare": 0.1058
+     },
+     {
+      "group": "YEAR_2",
+      "rosterShare": 0.2269,
+      "minuteShare": 0.2642
+     },
+     {
+      "group": "YEAR_3",
+      "rosterShare": 0.1849,
+      "minuteShare": 0.3005
+     },
+     {
+      "group": "YEAR_4",
+      "rosterShare": 0.1681,
+      "minuteShare": 0.3294
+     },
+     {
+      "group": "GRADUATE",
+      "rosterShare": 0,
+      "minuteShare": 0
+     },
+     {
+      "group": "UNKNOWN",
+      "rosterShare": 0,
+      "minuteShare": 0
+     }
+    ],
+    "yearFourPlus": {
+     "rosterShare": 0.1681,
+     "minuteShare": 0.3294,
+     "playersWith600Plus": 17
+    }
+   },
+   "positionIntake": [
+    {
+     "position": "GOALKEEPER",
+     "suppressed": false,
+     "perCycle": [
+      0,
+      3,
+      1
+     ],
+     "median": 1,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 0,
+     "poolMiddleHalf": [
+      1,
+      2
+     ],
+     "current": {
+      "season": "2026",
+      "readable": true,
+      "totalIncoming": 2,
+      "firstYears": 1,
+      "experiencedArrivals": 1
+     }
+    },
+    {
+     "position": "DEFENSE",
+     "suppressed": false,
+     "perCycle": [
+      3,
+      2,
+      6
+     ],
+     "median": 3,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 2,
+     "poolMiddleHalf": [
+      3,
+      4
+     ],
+     "current": {
+      "season": "2026",
+      "readable": true,
+      "totalIncoming": 7,
+      "firstYears": 6,
+      "experiencedArrivals": 1
+     }
+    },
+    {
+     "position": "MIDFIELD",
+     "suppressed": false,
+     "perCycle": [
+      7,
+      9,
+      4
+     ],
+     "median": 7,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 3,
+     "poolMiddleHalf": [
+      3,
+      5
+     ],
+     "current": {
+      "season": "2026",
+      "readable": true,
+      "totalIncoming": 5,
+      "firstYears": 4,
+      "experiencedArrivals": 1
+     }
+    },
+    {
+     "position": "FORWARD",
+     "suppressed": false,
+     "perCycle": [
+      2,
+      2,
+      4
+     ],
+     "median": 2,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 2,
+     "poolMiddleHalf": [
+      2,
+      4
+     ],
+     "current": {
+      "season": "2026",
+      "readable": true,
+      "totalIncoming": 2,
+      "firstYears": 1,
+      "experiencedArrivals": 1
+     }
+    }
+   ],
+   "positionMinutes": [
+    {
+     "position": "DEFENSE",
+     "supported": true,
+     "available": true,
+     "reason": null,
+     "seasons": 4,
+     "readableSeasons": 4,
+     "with600": 3,
+     "for75": 3,
+     "used": 6.5,
+     "range600": [
+      2,
+      5
+     ],
+     "pool600": {
+      "programmes": 202,
+      "median": 4.5,
+      "p25": 4,
+      "p75": 5
+     },
+     "poolFor75": {
+      "programmes": 202,
+      "median": 4,
+      "p25": 3.5,
+      "p75": 4.5
+     }
+    },
+    {
+     "position": "MIDFIELD",
+     "supported": true,
+     "available": true,
+     "reason": null,
+     "seasons": 4,
+     "readableSeasons": 4,
+     "with600": 6,
+     "for75": 6,
+     "used": 12,
+     "range600": [
+      6,
+      7
+     ],
+     "pool600": {
+      "programmes": 203,
+      "median": 5,
+      "p25": 4,
+      "p75": 5.5
+     },
+     "poolFor75": {
+      "programmes": 203,
+      "median": 4.5,
+      "p25": 4,
+      "p75": 5.5
+     }
+    },
+    {
+     "position": "FORWARD",
+     "supported": true,
+     "available": true,
+     "reason": null,
+     "seasons": 4,
+     "readableSeasons": 2,
+     "with600": 2.5,
+     "for75": 3,
+     "used": 6,
+     "range600": [
+      2,
+      3
+     ],
+     "pool600": {
+      "programmes": 171,
+      "median": 3,
+      "p25": 2.5,
+      "p75": 3.5
+     },
+     "poolFor75": {
+      "programmes": 171,
+      "median": 3.5,
+      "p25": 3,
+      "p75": 4
+     }
+    }
+   ],
+   "sections": [
+    "programme-at-a-glance:interpretation:interpretation",
+    "freshman-intake:programme-evidence:programme-evidence",
+    "freshman-ladder:programme-evidence:programme-evidence",
+    "player-development:programme-evidence:programme-evidence",
+    "squad-usage:programme-evidence:programme-evidence",
+    "experienced-arrival-intake:programme-evidence:programme-evidence",
+    "current-arrivals:programme-evidence:programme-evidence",
+    "replacing-minutes:programme-evidence:programme-evidence",
+    "replacement-by-position:programme-evidence:programme-evidence",
+    "eligibility-outlook:programme-evidence:programme-evidence",
+    "current-depth:programme-evidence:programme-evidence",
+    "roster-continuity:programme-evidence:programme-evidence",
+    "observed-destinations:programme-evidence:programme-evidence",
+    "table-freshmen:supporting:supporting",
+    "table-experienced-arrivals:supporting:supporting",
+    "table-vacancies:supporting:supporting",
+    "table-destinations:supporting:supporting",
+    "methodology:supporting:supporting"
+   ],
+   "evidenceLimits": []
+  },
+  "Missouri State (mens-soccer)": {
+   "college": {
+    "name": "Missouri State",
+    "division": "NCAA D1",
+    "sport": "mens-soccer"
+   },
+   "seasonsOnFile": [
+    "2022",
+    "2023",
+    "2024",
+    "2025"
+   ],
+   "recruitSeason": 2026,
+   "squadSeason": "2026",
+   "verdict": "steady",
+   "freshman": {
+    "classification": "typical",
+    "measuredFreshmen": 20,
+    "rowsWithoutMinutes": 0,
+    "unreadableSeasons": [],
+    "ladderTopMedian": 1084,
+    "ladder": [
+     {
+      "rank": 1,
+      "median": 1084
+     },
+     {
+      "rank": 2,
+      "median": 642
+     },
+     {
+      "rank": 3,
+      "median": 158
+     },
+     {
+      "rank": 4,
+      "median": 59
+     },
+     {
+      "rank": 5,
+      "median": 0
+     },
+     {
+      "rank": 6,
+      "median": 0
+     }
+    ]
+   },
+   "arrivals": {
+    "measurable": true,
+    "density": "many",
+    "arrivals": 27,
+    "shareOfMeasuredLoad": 0.2062,
+    "classification": "typical"
+   },
+   "replacement": {
+    "observations": 11,
+    "totalObservations": 11,
+    "route": null
+   },
+   "development": {
+    "players": 24,
+    "minutesReadable": true,
+    "measured": 38,
+    "playerSeasons": 38,
+    "everStarter": {
+     "reached": 10,
+     "denominator": 20,
+     "share": 0.5,
+     "band": "above-benchmark"
+    },
+    "byYear": [
+     0.3,
+     0.4286,
+     0.4545,
+     0.5
+    ]
+   },
+   "continuity": {
+    "returnable": 107,
+    "returned": 54,
+    "retention": 0.5047,
+    "band": "typical"
+   },
+   "departures": {
+    "gateAllowed": true,
+    "gateReason": null,
+    "total": 53,
+    "observed": 12,
+    "coverage": 0.2264
+   },
+   "utilisation": {
+    "available": true,
+    "reason": null,
+    "seasonsObserved": 4,
+    "medianTop11Share": 0.7222,
+    "medianTop14Share": 0.8404,
+    "medianTop18Share": 0.95,
+    "medianPlayersWith600Plus": 14,
+    "medianRosterPlayers": 26.5,
+    "poolScope": "NCAA D1",
+    "poolTop11": {
+     "programmes": 193,
+     "median": 0.7557,
+     "p25": 0.7299,
+     "p75": 0.7852
+    }
+   },
+   "experience": {
+    "compositionAvailable": true,
+    "loadAvailable": true,
+    "loadReason": null,
+    "groups": [
+     {
+      "group": "YEAR_1",
+      "rosterShare": 0.1869,
+      "minuteShare": 0.1079
+     },
+     {
+      "group": "YEAR_2",
+      "rosterShare": 0.1682,
+      "minuteShare": 0.1577
+     },
+     {
+      "group": "YEAR_3",
+      "rosterShare": 0.1963,
+      "minuteShare": 0.236
+     },
+     {
+      "group": "YEAR_4",
+      "rosterShare": 0.4486,
+      "minuteShare": 0.4985
+     },
+     {
+      "group": "GRADUATE",
+      "rosterShare": 0,
+      "minuteShare": 0
+     },
+     {
+      "group": "UNKNOWN",
+      "rosterShare": 0,
+      "minuteShare": 0
+     }
+    ],
+    "yearFourPlus": {
+     "rosterShare": 0.4486,
+     "minuteShare": 0.4985,
+     "playersWith600Plus": 27
+    }
+   },
+   "positionIntake": [
+    {
+     "position": "GOALKEEPER",
+     "suppressed": false,
+     "perCycle": [
+      2,
+      0,
+      1
+     ],
+     "median": 1,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 1,
+     "poolMiddleHalf": [
+      1,
+      2
+     ],
+     "current": {
+      "season": "2026",
+      "readable": true,
+      "totalIncoming": 1,
+      "firstYears": 0,
+      "experiencedArrivals": 1
+     }
+    },
+    {
+     "position": "DEFENSE",
+     "suppressed": false,
+     "perCycle": [
+      4,
+      3,
+      5
+     ],
+     "median": 4,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 3,
+     "poolMiddleHalf": [
+      3,
+      4
+     ],
+     "current": {
+      "season": "2026",
+      "readable": true,
+      "totalIncoming": 3,
+      "firstYears": 0,
+      "experiencedArrivals": 3
+     }
+    },
+    {
+     "position": "MIDFIELD",
+     "suppressed": false,
+     "perCycle": [
+      4,
+      4,
+      4
+     ],
+     "median": 4,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 3,
+     "poolMiddleHalf": [
+      3,
+      5
+     ],
+     "current": {
+      "season": "2026",
+      "readable": true,
+      "totalIncoming": 8,
+      "firstYears": 4,
+      "experiencedArrivals": 4
+     }
+    },
+    {
+     "position": "FORWARD",
+     "suppressed": false,
+     "perCycle": [
+      2,
+      5,
+      4
+     ],
+     "median": 4,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 3,
+     "poolMiddleHalf": [
+      2,
+      4
+     ],
+     "current": {
+      "season": "2026",
+      "readable": true,
+      "totalIncoming": 3,
+      "firstYears": 0,
+      "experiencedArrivals": 3
+     }
+    }
+   ],
+   "positionMinutes": [
+    {
+     "position": "DEFENSE",
+     "supported": true,
+     "available": true,
+     "reason": null,
+     "seasons": 4,
+     "readableSeasons": 4,
+     "with600": 4,
+     "for75": 4,
+     "used": 7.5,
+     "range600": [
+      4,
+      6
+     ],
+     "pool600": {
+      "programmes": 202,
+      "median": 4.5,
+      "p25": 4,
+      "p75": 5
+     },
+     "poolFor75": {
+      "programmes": 202,
+      "median": 4,
+      "p25": 3.5,
+      "p75": 4.5
+     }
+    },
+    {
+     "position": "MIDFIELD",
+     "supported": true,
+     "available": true,
+     "reason": null,
+     "seasons": 4,
+     "readableSeasons": 4,
+     "with600": 4,
+     "for75": 4,
+     "used": 7.5,
+     "range600": [
+      2,
+      5
+     ],
+     "pool600": {
+      "programmes": 203,
+      "median": 5,
+      "p25": 4,
+      "p75": 5.5
+     },
+     "poolFor75": {
+      "programmes": 203,
+      "median": 4.5,
+      "p25": 4,
+      "p75": 5.5
+     }
+    },
+    {
+     "position": "FORWARD",
+     "supported": true,
+     "available": true,
+     "reason": null,
+     "seasons": 4,
+     "readableSeasons": 4,
+     "with600": 4.5,
+     "for75": 4,
+     "used": 7,
+     "range600": [
+      4,
+      5
+     ],
+     "pool600": {
+      "programmes": 171,
+      "median": 3,
+      "p25": 2.5,
+      "p75": 3.5
+     },
+     "poolFor75": {
+      "programmes": 171,
+      "median": 3.5,
+      "p25": 3,
+      "p75": 4
+     }
+    }
+   ],
+   "sections": [
+    "programme-at-a-glance:interpretation:interpretation",
+    "freshman-intake:programme-evidence:programme-evidence",
+    "freshman-ladder:programme-evidence:programme-evidence",
+    "player-development:programme-evidence:programme-evidence",
+    "squad-usage:programme-evidence:programme-evidence",
+    "experienced-arrival-intake:programme-evidence:programme-evidence",
+    "current-arrivals:programme-evidence:programme-evidence",
+    "replacing-minutes:programme-evidence:programme-evidence",
+    "replacement-by-position:programme-evidence:programme-evidence",
+    "eligibility-outlook:programme-evidence:programme-evidence",
+    "current-depth:programme-evidence:programme-evidence",
+    "roster-continuity:programme-evidence:programme-evidence",
+    "observed-destinations:programme-evidence:programme-evidence",
+    "table-freshmen:supporting:supporting",
+    "table-experienced-arrivals:supporting:supporting",
+    "table-vacancies:supporting:supporting",
+    "table-destinations:supporting:supporting",
+    "methodology:supporting:supporting"
+   ],
+   "evidenceLimits": []
+  },
+  "Albertus Magnus (mens-soccer)": {
+   "college": {
+    "name": "Albertus Magnus",
+    "division": "NCAA D3",
+    "sport": "mens-soccer"
+   },
+   "seasonsOnFile": [],
+   "recruitSeason": 2026,
+   "squadSeason": "2026",
+   "verdict": null,
+   "freshman": {
+    "classification": "unavailable",
+    "measuredFreshmen": 0,
+    "rowsWithoutMinutes": null,
+    "unreadableSeasons": [],
+    "ladderTopMedian": null,
+    "ladder": []
+   },
+   "arrivals": {
+    "measurable": true,
+    "density": "none",
+    "arrivals": 0,
+    "shareOfMeasuredLoad": null,
+    "classification": "unclear"
+   },
+   "replacement": {
+    "observations": 0,
+    "totalObservations": 0,
+    "route": null
+   },
+   "development": {
+    "players": 42,
+    "minutesReadable": false,
+    "measured": 0,
+    "playerSeasons": 66,
+    "everStarter": {
+     "reached": 0,
+     "denominator": 0,
+     "share": null,
+     "band": "unavailable"
+    },
+    "byYear": [
+     null,
+     null,
+     null,
+     null
+    ]
+   },
+   "continuity": {
+    "returnable": 90,
+    "returned": 51,
+    "retention": 0.5667,
+    "band": "typical"
+   },
+   "departures": {
+    "gateAllowed": false,
+    "gateReason": "division-suppressed",
+    "total": 39,
+    "observed": 0,
+    "coverage": 0
+   },
+   "utilisation": {
+    "available": false,
+    "reason": "only 0 of 4 seasons on file carry enough published minutes to read a distribution",
+    "seasonsObserved": 0,
+    "medianTop11Share": null,
+    "medianTop14Share": null,
+    "medianTop18Share": null,
+    "medianPlayersWith600Plus": null,
+    "medianRosterPlayers": null,
+    "poolScope": "NCAA D3",
+    "poolTop11": {
+     "programmes": 241,
+     "median": 0.7168,
+     "p25": 0.6904,
+     "p75": 0.7417
+    }
+   },
+   "experience": {
+    "compositionAvailable": true,
+    "loadAvailable": false,
+    "loadReason": "only 0 of 4 seasons carry enough published minutes to say who played them",
+    "groups": [
+     {
+      "group": "YEAR_1",
+      "rosterShare": 0.3387,
+      "minuteShare": null
+     },
+     {
+      "group": "YEAR_2",
+      "rosterShare": 0.2258,
+      "minuteShare": null
+     },
+     {
+      "group": "YEAR_3",
+      "rosterShare": 0.1855,
+      "minuteShare": null
+     },
+     {
+      "group": "YEAR_4",
+      "rosterShare": 0.1774,
+      "minuteShare": null
+     },
+     {
+      "group": "GRADUATE",
+      "rosterShare": 0.0726,
+      "minuteShare": null
+     },
+     {
+      "group": "UNKNOWN",
+      "rosterShare": 0,
+      "minuteShare": null
+     }
+    ],
+    "yearFourPlus": {
+     "rosterShare": 0.25,
+     "minuteShare": null,
+     "playersWith600Plus": null
+    }
+   },
+   "positionIntake": [
+    {
+     "position": "GOALKEEPER",
+     "suppressed": false,
+     "perCycle": [
+      0,
+      1,
+      3
+     ],
+     "median": 1,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 0,
+     "poolMiddleHalf": [
+      1,
+      2
+     ],
+     "current": {
+      "season": "2026",
+      "readable": false,
+      "totalIncoming": null,
+      "firstYears": null,
+      "experiencedArrivals": null
+     }
+    },
+    {
+     "position": "DEFENSE",
+     "suppressed": false,
+     "perCycle": [
+      2,
+      2,
+      7
+     ],
+     "median": 2,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 3,
+     "poolMiddleHalf": [
+      3,
+      4
+     ],
+     "current": {
+      "season": "2026",
+      "readable": false,
+      "totalIncoming": null,
+      "firstYears": null,
+      "experiencedArrivals": null
+     }
+    },
+    {
+     "position": "MIDFIELD",
+     "suppressed": false,
+     "perCycle": [
+      5,
+      5,
+      6
+     ],
+     "median": 5,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 2,
+     "poolMiddleHalf": [
+      3,
+      5
+     ],
+     "current": {
+      "season": "2026",
+      "readable": false,
+      "totalIncoming": null,
+      "firstYears": null,
+      "experiencedArrivals": null
+     }
+    },
+    {
+     "position": "FORWARD",
+     "suppressed": false,
+     "perCycle": [
+      5,
+      6,
+      3
+     ],
+     "median": 5,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 2,
+     "poolMiddleHalf": [
+      2,
+      4
+     ],
+     "current": {
+      "season": "2026",
+      "readable": false,
+      "totalIncoming": null,
+      "firstYears": null,
+      "experiencedArrivals": null
+     }
+    }
+   ],
+   "positionMinutes": [
+    {
+     "position": "DEFENSE",
+     "supported": true,
+     "available": false,
+     "reason": "only 0 of 4 seasons carry a readable distribution of minutes at this position",
+     "seasons": 4,
+     "readableSeasons": 0,
+     "with600": null,
+     "for75": null,
+     "used": null,
+     "range600": null,
+     "pool600": {
+      "programmes": 243,
+      "median": 4.5,
+      "p25": 4,
+      "p75": 5
+     },
+     "poolFor75": {
+      "programmes": 243,
+      "median": 4,
+      "p25": 4,
+      "p75": 4.5
+     }
+    },
+    {
+     "position": "MIDFIELD",
+     "supported": true,
+     "available": false,
+     "reason": "only 0 of 4 seasons carry a readable distribution of minutes at this position",
+     "seasons": 4,
+     "readableSeasons": 0,
+     "with600": null,
+     "for75": null,
+     "used": null,
+     "range600": null,
+     "pool600": {
+      "programmes": 242,
+      "median": 5,
+      "p25": 4,
+      "p75": 6
+     },
+     "poolFor75": {
+      "programmes": 242,
+      "median": 5,
+      "p25": 4.5,
+      "p75": 5.5
+     }
+    },
+    {
+     "position": "FORWARD",
+     "supported": true,
+     "available": false,
+     "reason": "only 0 of 4 seasons carry a readable distribution of minutes at this position",
+     "seasons": 4,
+     "readableSeasons": 0,
+     "with600": null,
+     "for75": null,
+     "used": null,
+     "range600": null,
+     "pool600": {
+      "programmes": 211,
+      "median": 3,
+      "p25": 2.5,
+      "p75": 3.5
+     },
+     "poolFor75": {
+      "programmes": 211,
+      "median": 3.5,
+      "p25": 3,
+      "p75": 4
+     }
+    }
+   ],
+   "sections": [
+    "programme-at-a-glance:interpretation:interpretation",
+    "freshman-intake:programme-evidence:programme-evidence",
+    "player-development:programme-evidence:programme-evidence",
+    "squad-usage:programme-evidence:programme-evidence",
+    "experienced-arrival-intake:programme-evidence:programme-evidence",
+    "roster-continuity:programme-evidence:programme-evidence",
+    "evidence-limits:programme-evidence:programme-evidence",
+    "methodology:supporting:supporting"
+   ],
+   "evidenceLimits": [
+    "replacing-minutes",
+    "player-development-shares",
+    "observed-destinations",
+    "current-depth"
+   ]
+  },
+  "Akron (womens-soccer)": {
+   "college": {
+    "name": "Akron",
+    "division": "NCAA D1",
+    "sport": "womens-soccer"
+   },
+   "seasonsOnFile": [
+    "2022",
+    "2023",
+    "2024",
+    "2025"
+   ],
+   "recruitSeason": 2026,
+   "squadSeason": "2026",
+   "verdict": "change-too-recent",
+   "freshman": {
+    "classification": "above-benchmark",
+    "measuredFreshmen": 30,
+    "rowsWithoutMinutes": 0,
+    "unreadableSeasons": [],
+    "ladderTopMedian": 1424,
+    "ladder": [
+     {
+      "rank": 1,
+      "median": 1424
+     },
+     {
+      "rank": 2,
+      "median": 1050
+     },
+     {
+      "rank": 3,
+      "median": 486
+     },
+     {
+      "rank": 4,
+      "median": 437
+     },
+     {
+      "rank": 5,
+      "median": 223
+     },
+     {
+      "rank": 6,
+      "median": 88
+     }
+    ]
+   },
+   "arrivals": {
+    "measurable": true,
+    "density": "many",
+    "arrivals": 9,
+    "shareOfMeasuredLoad": 0.0807,
+    "classification": "typical"
+   },
+   "replacement": {
+    "observations": 11,
+    "totalObservations": 11,
+    "route": null
+   },
+   "development": {
+    "players": 41,
+    "minutesReadable": true,
+    "measured": 63,
+    "playerSeasons": 63,
+    "everStarter": {
+     "reached": 17,
+     "denominator": 35,
+     "share": 0.4857,
+     "band": "typical"
+    },
+    "byYear": [
+     0.3429,
+     0.5556,
+     0.5263,
+     0.375
+    ]
+   },
+   "continuity": {
+    "returnable": 109,
+    "returned": 69,
+    "retention": 0.633,
+    "band": "typical"
+   },
+   "departures": {
+    "gateAllowed": false,
+    "gateReason": "too-few-observed",
+    "total": 40,
+    "observed": 4,
+    "coverage": 0.1
+   },
+   "utilisation": {
+    "available": true,
+    "reason": null,
+    "seasonsObserved": 4,
+    "medianTop11Share": 0.7383,
+    "medianTop14Share": 0.8498,
+    "medianTop18Share": 0.9518,
+    "medianPlayersWith600Plus": 13.5,
+    "medianRosterPlayers": 27,
+    "poolScope": "NCAA D1",
+    "poolTop11": {
+     "programmes": 309,
+     "median": 0.7603,
+     "p25": 0.7376,
+     "p75": 0.7862
+    }
+   },
+   "experience": {
+    "compositionAvailable": true,
+    "loadAvailable": true,
+    "loadReason": null,
+    "groups": [
+     {
+      "group": "YEAR_1",
+      "rosterShare": 0.3303,
+      "minuteShare": 0.2722
+     },
+     {
+      "group": "YEAR_2",
+      "rosterShare": 0.3303,
+      "minuteShare": 0.3748
+     },
+     {
+      "group": "YEAR_3",
+      "rosterShare": 0.1835,
+      "minuteShare": 0.1551
+     },
+     {
+      "group": "YEAR_4",
+      "rosterShare": 0.156,
+      "minuteShare": 0.198
+     },
+     {
+      "group": "GRADUATE",
+      "rosterShare": 0,
+      "minuteShare": 0
+     },
+     {
+      "group": "UNKNOWN",
+      "rosterShare": 0,
+      "minuteShare": 0
+     }
+    ],
+    "yearFourPlus": {
+     "rosterShare": 0.156,
+     "minuteShare": 0.198,
+     "playersWith600Plus": 11
+    }
+   },
+   "positionIntake": [
+    {
+     "position": "GOALKEEPER",
+     "suppressed": false,
+     "perCycle": [
+      1,
+      1,
+      1
+     ],
+     "median": 1,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 0,
+     "poolMiddleHalf": [
+      1,
+      2
+     ],
+     "current": {
+      "season": "2026",
+      "readable": true,
+      "totalIncoming": 0,
+      "firstYears": 0,
+      "experiencedArrivals": 0
+     }
+    },
+    {
+     "position": "DEFENSE",
+     "suppressed": false,
+     "perCycle": [
+      3,
+      5,
+      3
+     ],
+     "median": 3,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 2,
+     "poolMiddleHalf": [
+      2,
+      4
+     ],
+     "current": {
+      "season": "2026",
+      "readable": true,
+      "totalIncoming": 5,
+      "firstYears": 1,
+      "experiencedArrivals": 4
+     }
+    },
+    {
+     "position": "MIDFIELD",
+     "suppressed": false,
+     "perCycle": [
+      4,
+      4,
+      4
+     ],
+     "median": 4,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 2,
+     "poolMiddleHalf": [
+      2,
+      4
+     ],
+     "current": {
+      "season": "2026",
+      "readable": true,
+      "totalIncoming": 3,
+      "firstYears": 2,
+      "experiencedArrivals": 1
+     }
+    },
+    {
+     "position": "FORWARD",
+     "suppressed": false,
+     "perCycle": [
+      5,
+      1,
+      3
+     ],
+     "median": 3,
+     "cyclesRead": 3,
+     "cyclesWithExperienced": 2,
+     "poolMiddleHalf": [
+      2,
+      4
+     ],
+     "current": {
+      "season": "2026",
+      "readable": true,
+      "totalIncoming": 3,
+      "firstYears": 3,
+      "experiencedArrivals": 0
+     }
+    }
+   ],
+   "positionMinutes": [
+    {
+     "position": "DEFENSE",
+     "supported": true,
+     "available": true,
+     "reason": null,
+     "seasons": 4,
+     "readableSeasons": 3,
+     "with600": 5,
+     "for75": 4,
+     "used": 5,
+     "range600": [
+      5,
+      5
+     ],
+     "pool600": {
+      "programmes": 324,
+      "median": 4.5,
+      "p25": 4,
+      "p75": 5
+     },
+     "poolFor75": {
+      "programmes": 324,
+      "median": 4,
+      "p25": 3.5,
+      "p75": 4
+     }
+    },
+    {
+     "position": "MIDFIELD",
+     "supported": true,
+     "available": true,
+     "reason": null,
+     "seasons": 4,
+     "readableSeasons": 4,
+     "with600": 4,
+     "for75": 4.5,
+     "used": 9,
+     "range600": [
+      4,
+      6
+     ],
+     "pool600": {
+      "programmes": 322,
+      "median": 4.5,
+      "p25": 4,
+      "p75": 5
+     },
+     "poolFor75": {
+      "programmes": 322,
+      "median": 4,
+      "p25": 4,
+      "p75": 5
+     }
+    },
+    {
+     "position": "FORWARD",
+     "supported": true,
+     "available": true,
+     "reason": null,
+     "seasons": 4,
+     "readableSeasons": 4,
+     "with600": 3,
+     "for75": 4,
+     "used": 7.5,
+     "range600": [
+      2,
+      4
+     ],
+     "pool600": {
+      "programmes": 308,
+      "median": 3.5,
+      "p25": 3,
+      "p75": 4
+     },
+     "poolFor75": {
+      "programmes": 308,
+      "median": 4,
+      "p25": 3.5,
+      "p75": 4
+     }
+    }
+   ],
+   "sections": [
+    "programme-at-a-glance:interpretation:interpretation",
+    "freshman-intake:programme-evidence:programme-evidence",
+    "freshman-ladder:programme-evidence:programme-evidence",
+    "player-development:programme-evidence:programme-evidence",
+    "squad-usage:programme-evidence:programme-evidence",
+    "experienced-arrival-intake:programme-evidence:programme-evidence",
+    "current-arrivals:programme-evidence:programme-evidence",
+    "replacing-minutes:programme-evidence:programme-evidence",
+    "replacement-by-position:programme-evidence:programme-evidence",
+    "eligibility-outlook:programme-evidence:programme-evidence",
+    "current-depth:programme-evidence:programme-evidence",
+    "roster-continuity:programme-evidence:programme-evidence",
+    "table-freshmen:supporting:supporting",
+    "table-experienced-arrivals:supporting:supporting",
+    "table-vacancies:supporting:supporting",
+    "methodology:supporting:supporting"
+   ],
+   "evidenceLimits": [
+    "observed-destinations"
+   ]
+  }
+ },
+ "athletePositions": {
+  "Akron (mens-soccer) FORWARD": {
+   "intake": {
+    "position": "FORWARD",
+    "suppressed": false,
+    "perCycle": [
+     2,
+     2,
+     4
+    ],
+    "median": 2,
+    "cyclesRead": 3,
+    "cyclesWithExperienced": 2,
+    "poolMiddleHalf": [
+     2,
+     4
+    ],
+    "current": {
+     "season": "2026",
+     "readable": true,
+     "totalIncoming": 2,
+     "firstYears": 1,
+     "experiencedArrivals": 1
+    }
+   },
+   "minutes": {
+    "position": "FORWARD",
+    "supported": true,
+    "available": true,
+    "reason": null,
+    "seasons": 4,
+    "readableSeasons": 2,
+    "with600": 2.5,
+    "for75": 3,
+    "used": 6,
+    "range600": [
+     2,
+     3
+    ],
+    "pool600": {
+     "programmes": 171,
+     "median": 3,
+     "p25": 2.5,
+     "p75": 3.5
+    },
+    "poolFor75": {
+     "programmes": 171,
+     "median": 3.5,
+     "p25": 3,
+     "p75": 4
+    }
+   }
+  },
+  "Akron (mens-soccer) MIDFIELD": {
+   "intake": {
+    "position": "MIDFIELD",
+    "suppressed": false,
+    "perCycle": [
+     7,
+     9,
+     4
+    ],
+    "median": 7,
+    "cyclesRead": 3,
+    "cyclesWithExperienced": 3,
+    "poolMiddleHalf": [
+     3,
+     5
+    ],
+    "current": {
+     "season": "2026",
+     "readable": true,
+     "totalIncoming": 5,
+     "firstYears": 4,
+     "experiencedArrivals": 1
+    }
+   },
+   "minutes": {
+    "position": "MIDFIELD",
+    "supported": true,
+    "available": true,
+    "reason": null,
+    "seasons": 4,
+    "readableSeasons": 4,
+    "with600": 6,
+    "for75": 6,
+    "used": 12,
+    "range600": [
+     6,
+     7
+    ],
+    "pool600": {
+     "programmes": 203,
+     "median": 5,
+     "p25": 4,
+     "p75": 5.5
+    },
+    "poolFor75": {
+     "programmes": 203,
+     "median": 4.5,
+     "p25": 4,
+     "p75": 5.5
+    }
+   }
+  },
+  "Missouri State (mens-soccer) DEFENSE": {
+   "intake": {
+    "position": "DEFENSE",
+    "suppressed": false,
+    "perCycle": [
+     4,
+     3,
+     5
+    ],
+    "median": 4,
+    "cyclesRead": 3,
+    "cyclesWithExperienced": 3,
+    "poolMiddleHalf": [
+     3,
+     4
+    ],
+    "current": {
+     "season": "2026",
+     "readable": true,
+     "totalIncoming": 3,
+     "firstYears": 0,
+     "experiencedArrivals": 3
+    }
+   },
+   "minutes": {
+    "position": "DEFENSE",
+    "supported": true,
+    "available": true,
+    "reason": null,
+    "seasons": 4,
+    "readableSeasons": 4,
+    "with600": 4,
+    "for75": 4,
+    "used": 7.5,
+    "range600": [
+     4,
+     6
+    ],
+    "pool600": {
+     "programmes": 202,
+     "median": 4.5,
+     "p25": 4,
+     "p75": 5
+    },
+    "poolFor75": {
+     "programmes": 202,
+     "median": 4,
+     "p25": 3.5,
+     "p75": 4.5
+    }
+   }
+  },
+  "Akron (womens-soccer) DEFENSE": {
+   "intake": {
+    "position": "DEFENSE",
+    "suppressed": false,
+    "perCycle": [
+     3,
+     5,
+     3
+    ],
+    "median": 3,
+    "cyclesRead": 3,
+    "cyclesWithExperienced": 2,
+    "poolMiddleHalf": [
+     2,
+     4
+    ],
+    "current": {
+     "season": "2026",
+     "readable": true,
+     "totalIncoming": 5,
+     "firstYears": 1,
+     "experiencedArrivals": 4
+    }
+   },
+   "minutes": {
+    "position": "DEFENSE",
+    "supported": true,
+    "available": true,
+    "reason": null,
+    "seasons": 4,
+    "readableSeasons": 3,
+    "with600": 5,
+    "for75": 4,
+    "used": 5,
+    "range600": [
+     5,
+     5
+    ],
+    "pool600": {
+     "programmes": 324,
+     "median": 4.5,
+     "p25": 4,
+     "p75": 5
+    },
+    "poolFor75": {
+     "programmes": 324,
+     "median": 4,
+     "p25": 3.5,
+     "p75": 4
+    }
+   }
+  }
+ }
+}

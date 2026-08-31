@@ -1035,6 +1035,22 @@ describe('the squad page states the comparison without naming a direction', () =
     }
   });
 
+  /**
+   * The last client-facing gate that nothing held above season level: a season
+   * whose published minutes do not reconcile with the matches it contained is
+   * kept, summarised and NAMED. Gating on it would delete seasons whose
+   * relative distribution is sound, which Phase 6A decided against.
+   */
+  it('names a season whose published minutes do not reconcile', async () => {
+    addProgramme();
+    const { text, model } = await build();
+    const u = model.squadProfile.utilisation;
+    expect(u.implausibleSeasons.length).toBeGreaterThan(0);
+    expect(u.available).toBe(true);
+    for (const s of u.implausibleSeasons) expect(text).toContain(s.season);
+    expect(text).toMatch(/do not add up to the matches those seasons contained/);
+  });
+
   it('explains how to read the years of study once, not four times', async () => {
     addProgramme();
     const { text } = await build();
@@ -1202,32 +1218,6 @@ describe('a programme whose stats page was never read', () => {
    * importer assumed a zero for every player on the roster.
    */
   const addFabricated = addFabricatedProgramme;
-  const unusedAddFabricated = (name = 'Test College') => {
-    db.prepare(`INSERT INTO colleges (id, created_date, updated_date, name, sport, division, conference, city, state, active)
-      VALUES ('c1',?,?,?,'mens-soccer','NCAA D2','Test Conference','Testville','TS',1)`).run(now, now, name);
-    // Inserted directly: `addRow` fills a missing minute with 600, and these
-    // seasons published none at all.
-    const unpublished = db.prepare(`INSERT INTO roster_players
-      (id, created_date, updated_date, college_name, sport, division, season, player_name,
-       class_year_label, position, minutes_played, games_played, games_started)
-      VALUES (?,?,?,?,'mens-soccer','NCAA D2',?,?,?,'DEFENSE',NULL,NULL,NULL)`);
-    for (const season of ['2022', '2023', '2024']) {
-      for (let i = 0; i < 30; i += 1) {
-        unpublished.run(`u${season}${i}`, now, now, name, season,
-          `Unpublished ${letters(i)} ${word(season)}`, i < 8 ? 'Fr.' : 'Jr.');
-      }
-    }
-    for (let i = 0; i < 32; i += 1) {
-      addRow(name, {
-        season: '2025', player_name: `Assumed ${letters(i)}`,
-        class_year_label: i < 12 ? 'Fr.' : 'Sr.', minutes_played: 0, games_played: 0, games_started: 0,
-      });
-    }
-    for (const s of [2022, 2023, 2024, 2025, 2026]) {
-      db.prepare(`INSERT INTO coach_seasons (school, sport, season, coach_name, imported_at)
-        VALUES (?,'mens-soccer',?,'A Coach',?)`).run(name, s, now);
-    }
-  };
 
   // What this replaces: a ladder reading 0 at every rank, over an intake of
   // twelve the report described as fully measured.

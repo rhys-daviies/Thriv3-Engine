@@ -168,6 +168,48 @@ describe('one programme', () => {
     expect(MIN_SEASONS_TO_QUOTE).toBe(2);
   });
 
+  /**
+   * The one client-facing gate above season level that nothing held.
+   *
+   * A season whose published minutes do not reconcile with the matches it
+   * contained is READABLE — its relative distribution is sound and gating on
+   * the ratio would delete it, which Phase 6A explicitly decided against — so
+   * the programme keeps it, summarises it, and names it. 68 men's and 95
+   * women's programme-seasons reach this branch, and the squad page prints a
+   * sentence from it.
+   *
+   * `narrow()` above cannot be used here: eleven players on a thousand minutes
+   * is two thirds of what eighteen matches contain, so every one of its
+   * seasons is implausible. These fixtures reconcile on purpose.
+   */
+  const reconciling = (season) => squad(
+    [...Array(11).fill(18 * 90), ...Array(9).fill(0)], season,
+  ).map((r) => ({ ...r, games_played: r.minutes_played > 0 ? 18 : 0 }));
+
+  it('keeps a season whose minutes do not reconcile, and names it', () => {
+    // A third of the minutes eighteen matches contain: readable by coverage,
+    // and nowhere near 990 x matches.
+    const thin = squad([...Array(11).fill(600), ...Array(9).fill(0)], '2023')
+      .map((r) => ({ ...r, games_played: r.minutes_played > 0 ? 18 : 0 }));
+    const u = programmeUtilisation([
+      ...reconciling('2022'), ...thin, ...reconciling('2024'), ...reconciling('2025'),
+    ]);
+    expect(u.seasons.find((x) => x.season === '2023').readable).toBe(true);
+    expect(u.seasons.find((x) => x.season === '2023').teamMinutesPlausible).toBe(false);
+    expect(u.implausibleSeasons.map((x) => x.season)).toEqual(['2023']);
+    expect(u.implausibleSeasons[0].ratio).toBeLessThan(0.85);
+    // Named, not dropped: it is still one of the four seasons behind the median.
+    expect(u.seasonsObserved).toBe(4);
+    expect(u.suppressed).toBe(false);
+    expect(u.medianTop11Share).not.toBeNull();
+  });
+
+  it('names no season where every season reconciles', () => {
+    const u = programmeUtilisation(['2022', '2023', '2024', '2025'].flatMap(reconciling));
+    expect(u.seasons.every((x) => x.teamMinutesPlausible === true)).toBe(true);
+    expect(u.implausibleSeasons).toEqual([]);
+  });
+
   it('names an unreadable season and why', () => {
     const u = programmeUtilisation([...narrow('2024'), ...narrow('2025'),
       ...squad(Array(6).fill(900), '2023')]);

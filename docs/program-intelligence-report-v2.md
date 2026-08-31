@@ -1,5 +1,13 @@
 # Program Intelligence Report v2 — Specification
 
+> **Where this file sits.** This is the page-by-page build history: what each
+> page shows, why, and what was discovered while building it. For what the
+> system *is* — the module map, the thresholds, the claims it may not make and
+> the known limitations — read
+> [`programme-intelligence-baseline.md`](programme-intelligence-baseline.md),
+> which is the current baseline document. Phases 6A through 9C are recorded in
+> the branch history and in that file rather than here.
+
 **Status:** specification only. No production code changes accompany this document.
 **Branch:** `feature/program-intelligence-report-v2`
 **Base:** `1ac5eaa` (`origin/main`)
