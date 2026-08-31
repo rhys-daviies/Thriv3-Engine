@@ -24,6 +24,7 @@ import {
 } from '../../shared/philosophy.js';
 import { positionLabel } from '../../shared/positions.js';
 import { buildReportSummary } from '../../shared/report/summary.js';
+import { coachAttribution } from '../../shared/coachAttribution.js';
 import { planSections } from '../../shared/report/sections.js';
 
 const selectPlayer = db.prepare(
@@ -359,10 +360,34 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     division: col.division,
     athlete: model.athlete,
   });
+  /**
+   * Whose measured seasons these are.
+   *
+   * ADDITIVE AND NOT ANALYTICAL. It recomputes nothing, reads no roster row,
+   * and adds no gate — it takes the coach rows already loaded for this
+   * programme and the seasons this report already says it describes, and
+   * answers how many of those seasons the coach on file for 2026 was in
+   * charge for.
+   *
+   * `ph.describes` IS the denominator, deliberately. It is what the cover
+   * states as the report's window, what the coach card states as "seasons
+   * analysed", and what the tenure strip on that card already draws — so a
+   * count built from anything else would contradict the page it appears on.
+   * Ohio State men's is the case: its window is three seasons, not four,
+   * because the freshman gate drops 2023, and "2 of 3" is the honest figure
+   * beside a card that says three.
+   */
+  const coachAttributionModel = coachAttribution({
+    coachRows: found.coachRows ?? [],
+    measuredSeasons: ph.describes ?? [],
+  });
   // Which analyses were attempted and refused. Additive, and computed from
   // the model rather than from any new query: `evidenceLimitsFor` reads the
   // same fields the pages it replaces would have read.
-  const withLifecycle = { ...model, summary, lifecycle, pressure, squadProfile, positionUtilisation };
+  const withLifecycle = {
+    ...model, summary, lifecycle, pressure, squadProfile, positionUtilisation,
+    coachAttribution: coachAttributionModel,
+  };
   const evidenceLimits = evidenceLimitsFor(withLifecycle);
   return {
     ...model,
@@ -373,6 +398,7 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     // profile of how its minutes were distributed and who took them.
     squadProfile,
     positionUtilisation,
+    coachAttribution: coachAttributionModel,
     evidenceLimits,
     // The document's shape, decided from the data rather than by whichever
     // section throws first. No page numbers: those are not knowable until the

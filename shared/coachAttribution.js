@@ -62,24 +62,6 @@ export const CURRENT_SEASON = 2026;
 const NOT_A_NAME = /^(phone number|business management|emergency management|full name|email address|national championships|head coaching history|prospective athletes|head coaches|all news)$/i;
 
 /**
- * Does this title name a head coach OF THIS TEAM?
- *
- * Segment-based rather than one pattern, because a staff title is often two
- * jobs and a pipe is what separates them: "Head Men's Soccer Coach | Assistant
- * Strength & Conditioning Coach" is the head coach who also lifts weights with
- * them, and reading the whole string at once cannot tell that from "Head
- * Strength and Conditioning Coach - Women's Soccer Assistant Coach", which is
- * the strength coach who also helps out.
- *
- * A segment names this team's head coach when it says head AND coach in some
- * form, and does not belong to another rank or another function. Validated by
- * enumerating every one of the 221 distinct titles in the table and reading
- * the 24 it rejects; that pass is what found the endowed chairs at Brown
- * ("Friends of Brown Men's Soccer Head Coaching Chair" is Chase Wileman, the
- * head coach), the interim written in the middle ("Head Interim Women's Soccer
- * Coach"), and the coach of two sports ("Head Women's Lacrosse/Soccer Coach").
- */
-/**
  * A head-coaching phrase, bounded so it cannot span two jobs.
  *
  * Lazy to the first "coach", and stopping at a pipe or semicolon, so

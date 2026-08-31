@@ -1,8 +1,9 @@
 # Coach attribution — the production contract
 
-**Phase 11B.** `shared/coachAttribution.js`, frozen.
-Research findings behind it: [`coach-intelligence-feasibility.md`](coach-intelligence-feasibility.md).
-Nothing in the report reads this module yet.
+**Phase 11B** froze the truth layer, `shared/coachAttribution.js`.
+**Phase 11C** attached it to the report as an interpretation layer,
+`shared/report/coachContext.js` — see §17 onward.
+Research findings behind both: [`coach-intelligence-feasibility.md`](coach-intelligence-feasibility.md).
 
 ---
 
@@ -320,3 +321,166 @@ because the model is arithmetic over at most five rows.
 | 7 | No tenure length, no appointment date | the window is five seasons and cannot see either end |
 | 8 | A first season is attributed to the coach who ran it | `coachTenure.FIRST_SEASON_IS_INHERITED` says a first season is played with the previous coach's recruits. Attribution is about who was in charge, not whose recruits played, so it does not apply that adjustment — a consumer that needs it has the season list |
 | 9 | Endowed-chair and dual titles rely on phrase matching | validated against all 221 titles present; a new title shape could need the rule extended |
+
+---
+
+# Phase 11C — the report treatment
+
+## 17. Where it is attached
+
+`programReportModel` calls `coachAttribution` once, with the coach rows
+`philosophyFor` already loaded and **`ph.describes` as the measured seasons**.
+
+`describes` is the denominator deliberately: it is what the cover states as the
+report's window, what the coach card states as "seasons analysed", and what the
+season strip on that card draws. A count built from anything else would
+contradict the page it appears on. Ohio State men's is the case — its window is
+three seasons, not four, because the freshman gate drops 2023 — so the report
+says **2 of 3**, which is the honest figure beside a card that says three.
+
+The attachment is additive. `npm run snapshot:pi -- --check` reports 0
+differences and `npm run verify:baseline` 57 of 57 after it.
+
+## 18. Where it appears
+
+**Page two, and nowhere else.** No new page, no new section, no contents entry;
+the 20 required reports and the 90-report sweep are identical to the Phase 10
+baseline, page for page.
+
+| Placement | What it carries |
+|---|---|
+| **The page-two subtitle** | the one-line finding, for prominent cases only |
+| **The coach card** | the chip, the count under the coach's name, the season strip |
+
+**Why the subtitle rather than a row in the summary band.** Page two sizes five
+cards out of whatever the band above them leaves, with floors below which a
+card is squashed rather than short. A sixth band row fits at only **231 of the
+357** programmes whose context is prominent; at the other 126 it pushed the
+squad-outlook card onto a page of its own. The subtitle costs nothing, sits
+directly under the page title, and is always there. What it replaces is a
+description of the page — and on a report whose history is largely somebody
+else's, that fact is the better subtitle.
+
+Athlete reports get it on the same page two, which is before the pathway page
+and eight pages before the programme evidence.
+
+## 19. Treatment by case
+
+| Attribution | Prominence | Subtitle | Card chip | Card line under the name |
+|---|---|---|---|---|
+| all measured seasons | QUIET | unchanged | `CURRENT COACH HISTORY` | "all 4 measured seasons in this report" |
+| some but not all | VISIBLE | unchanged | `COACHING CHANGE IN WINDOW` | "2 of the 4 measured seasons in this report" |
+| exactly one | PROMINENT | "Only 1 of the 4 measured seasons in this report was under X." | `ONE MEASURED SEASON` | "1 of the 4 measured seasons in this report" |
+| none | PROMINENT | "None of the 4 measured seasons in this report were under X." | `NO MEASURED SEASON` | "none of the 4 measured seasons in this report" |
+| interim | PROMINENT | "The 2026 coach record identifies X as interim head coach." | `INTERIM HEAD COACH` | the count |
+| could not establish | REFUSAL | unchanged | `COACH RECORD UNRESOLVED` | "the 2026 coach record could not be read" |
+| no record at this level | ABSENT | unchanged | `NOT ON FILE` | "no coaching record is held at this level" |
+
+Hierarchy is typography and placement only. No colour scale, and none of
+HIGH / MEDIUM / LOW / GOOD / BAD / STABLE / REPRESENTATIVE exists as a coach
+label anywhere — a test asserts it.
+
+Where the earlier measured seasons all carry one name, the prominent sentence
+may add it: *"Richard Nuttall is the named coach on file for all 4 measured
+seasons."* Where they do not, it says nothing. Michigan men's has four
+unresolved seasons and names nobody.
+
+## 20. The season strip
+
+The card's existing strip is now drawn **from the attribution** rather than from
+`tenureFor`. That is a correction, not a redesign: `tenureFor` does not read the
+title column, so at Marist men's it reported one unbroken spell of "Aaron Suma
+2022–2026" — the strength coach — and the strip drew five solid cells under a
+card that said the current coach could not be established.
+
+It is suppressed where it would add nothing: one name across every season
+(Duke), or no name at all (Marist). It ends on 2026, uses surnames rather than
+CURRENT/PREVIOUS, marks a recorded vacancy apart from an unreadable season, and
+never fills a gap — Ohio State men's reads `'22 Maisonneuve · '24 unresolved ·
+'25 Maisonneuve · '26 Maisonneuve`.
+
+## 21. Two corrections the attachment forced
+
+**The entry-coach line.** "Head coach, named for entry" read `coachForRecruitSeason`
+— the raw 2026 `coach_name`, unfiltered — and printed **"Aaron Suma"** at Marist
+directly beneath a headline reading "Could not establish". It now reads the
+attribution and says "not on file" where the row was refused.
+
+**The verdict note.** `classifyProgramme` writes its note from `tenureFor`, so at
+Marist it produced *"One coach throughout"* on the same card. The card now
+withholds a note **only where the attribution refused the current coach and the
+note asserts a coach** — 8 programmes: Stanford, Marist, Tiffin, Wake Forest,
+Virginia Tech, Cal State Los Angeles, Ursuline, Shenandoah, all of them cases
+where the 2026 row is an associate head, a strength coach or an operations
+director. Of the 99 programmes where a note meets a refusal, the other 91 keep
+theirs, because notes like *"no coach on file, so these seasons cannot be
+attributed to anyone"* agree with the refusal rather than contradicting it.
+
+**The verdict logic itself is untouched**, as Phase 11C requires.
+
+## 22. Where the verdict is still misleading
+
+**15 programmes** carry a verdict note saying *"one coach throughout"* while the
+attribution splits the window — Alvernia, Centre, Immaculata and Martin Luther
+at 1 of 4; Jamestown, McDaniel and Marietta at 2 of 4; Shawnee State, Adrian and
+Alabama A&M at 3 of 4, among others. Both statements are true of different
+things: the verdict means no second coach was ever *observed*, and the
+attribution means several seasons have no usable coach on file.
+
+The context is now visible on the same card in every one of these — the count
+sits three lines above the note, and at 1 of 4 the page subtitle says it too.
+**Documented and not changed**, per the phase's instruction to stop before
+touching verdict logic. If it is to be resolved, the fix belongs in
+`classifyProgramme`, which should read the title column.
+
+## 23. FIRST_SEASON_IS_INHERITED
+
+**Not applied to attribution, deliberately.** `coachTenure` holds that a coach's
+first season is played with the previous coach's recruits, which is the right
+adjustment for reading a *recruiting* record. Attribution answers a different
+question — who was the coach on file during this season — and applying an
+inheritance rule to it would mean saying a season was not under the coach who
+coached it.
+
+A future recruiting analysis that needs inherited-roster semantics should build
+that on top: the season list and the attributions are both on the model, so the
+adjustment can be made by a consumer without this layer taking a position on it.
+
+## 24. Sparse and absent coach data
+
+NAIA, NJCAA and USCAA have no coach table at all — 403 report-universe
+programmes. Their coach card shows a small unavailable state (`NOT ON FILE` /
+"no coaching record is held at this level") and **nothing else anywhere**: no
+subtitle change, no refusal, no extra page. The absent record is ours rather
+than theirs, and a report for a sparse programme should not be made more
+refusal-heavy by it.
+
+An NCAA programme with rows but no usable current coach is different: a record
+was expected and could not be read, so the card states the refusal plainly.
+Albertus Magnus is that case, and its report stays at 10 pages.
+
+## 25. Phase 11C QA
+
+| Check | Result |
+|---|---|
+| `npm test` | **1,620 passing**, 68 files, 0 failing, 0 skipped |
+| `npm run verify:baseline` | 57 passed, 0 failed |
+| `npm run snapshot:pi -- --check` | 0 differences |
+| 20 required reports | 0 defects, **0 page-count differences vs Phase 10**, 0 section differences |
+| 90-report sweep | 0 errors, 0 layout defects, page distribution identical to Phase 10 |
+| Attribution cost | 0.0076 ms per report |
+| Context + timeline cost | 0.0010 ms per report |
+| Against | a 3.6 ms warm model build and a 41 ms render |
+
+## 26. A pre-existing defect found
+
+At Akron women's and Grand Valley State women's, the first-year card's
+"EVIDENCE — MODERATE" strip is drawn **outside its panel** and over the
+Replacement Behaviour panel below it. The weighted-ladder block pushes the card
+past its 176-point floor, and the layout guard does not catch it because the
+strip is drawn in absolute coordinates rather than through the flow.
+
+**It is present identically in the Phase 10 baseline** — rasterised and compared
+— so it is reported here rather than fixed: it belongs to the glance-page
+layout, not to coach context, and fixing it means revisiting the card floors
+that Phase 9C tuned.

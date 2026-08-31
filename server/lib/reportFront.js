@@ -23,6 +23,7 @@ import {
   programmeHeadlines, athleteHeadlines, pathwayNarrative,
 } from '../../shared/report/narrative.js';
 import { actTitle } from '../../shared/report/sections.js';
+import { coachContextFor, coachTimelineFor, PROMINENCE } from '../../shared/report/coachContext.js';
 
 const { INK, MUTED, LINE, CLARET, NAVY, MID, PALE, GREEN, M, W } = THEME;
 
@@ -108,21 +109,37 @@ export const ROUTE_LABEL = {
  * are not better and worse, they are more and less applicable to the seasons
  * the rest of the report describes.
  */
+/**
+ * The fallback chip and subline, for a card with no attribution to read.
+ *
+ * Both used to be the card's only source, and both said things the coach
+ * record cannot support. "NEW COACH" asserts a recent appointment the
+ * five-season window cannot see, and "stable across the seasons measured"
+ * appeared over Mercyhurst men's, where one of four measured seasons was the
+ * named coach's. `coachContextFor` supplies both now, counted from the
+ * attribution; these remain for the case where it supplies nothing.
+ */
 export const COACH_HEADLINE = {
   'describes-current': 'CURRENT COACH HISTORY',
-  'partly-describes-current': 'COACHING CHANGE',
-  'describes-previous': 'NEW COACH',
-  unknown: 'COACHING RECORD INCOMPLETE',
+  'partly-describes-current': 'COACHING CHANGE IN WINDOW',
+  'describes-previous': 'NO MEASURED SEASON',
+  unknown: 'COACH RECORD UNRESOLVED',
 };
 
 export const COACH_SUBLINE = {
-  'describes-current': 'stable across the seasons measured',
-  'partly-describes-current': 'older seasons less representative',
-  'describes-previous': 'no measurable record yet',
-  unknown: 'seasons could not be attributed',
+  'describes-current': 'the coach on file for 2026',
+  'partly-describes-current': 'the measured seasons are not all this coach’s',
+  'describes-previous': 'no measured season can be attributed to this coach',
+  unknown: 'the measured seasons could not be attributed',
 };
 
 const EVIDENCE_LABEL = { strong: 'STRONG', moderate: 'MODERATE', limited: 'LIMITED' };
+
+/**
+ * A verdict note that names or asserts a coach, rather than describing the
+ * absence of one. Only these can contradict a card that refused the record.
+ */
+const ASSERTS_A_COACH = /one coach throughout|the same coach/i;
 
 // ---------------------------------------------------------------------------
 // Small reusable pieces
@@ -610,74 +627,141 @@ function replacementCard(doc, box, s) {
  * question, which is whether the record on the other four cards is this
  * coach's record or somebody else's. It is the same data, not more of it.
  */
-function tenureStrip(doc, x, y, w, s) {
-  const seasons = (s.describesSeasons ?? []).map(Number).filter(Number.isFinite).sort();
-  if (!seasons.length) return y;
-  const first = seasons[0];
-  const last = Math.max(seasons[seasons.length - 1], Number(s.knownThrough) || 0);
-  const span = Math.max(1, last - first + 1);
-  const cellW = w / span;
-  const unknown = new Set((s.unknownSeasons ?? []).map(Number));
-  const vacant = new Set((s.vacantSeasons ?? []).map(Number));
-  const segments = s.segments ?? [];
+/**
+ * Whose seasons these are, one cell per season.
+ *
+ * DRAWN FROM THE ATTRIBUTION where there is one. `tenureFor` does not read the
+ * title column, so at Marist men's it reported one unbroken spell of "Aaron
+ * Suma 2022-2026" — the strength coach — and this strip drew five solid cells
+ * under a card that said the current coach could not be established. Same
+ * table, two answers, on one card.
+ *
+ * `timeline` is null where the strip would add nothing: one name across every
+ * season, or no name at all. In both cases the line above the strip says it
+ * better than a row of identical cells can.
+ */
+function tenureStrip(doc, x, y, w, timeline) {
+  if (!timeline?.cells?.length) return y;
+  const cells = timeline.cells;
+  const cellW = w / cells.length;
   // Distinct coaches get distinct tones from the one palette. Nothing here is
   // better or worse than anything else, so the tones never form a scale.
   const tone = [NAVY, MID, PALE, GREEN];
-  const indexOfCoach = new Map(segments.map((seg, i) => [seg.coach, i]));
 
   doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
     .text('WHOSE SEASONS THESE ARE', x, y, { width: w, characterSpacing: TYPE.label.spacing, lineBreak: false });
   y += 11;
 
-  for (let i = 0; i < span; i += 1) {
-    const year = first + i;
-    const seg = segments.find((g) => Number(g.from) <= year && year <= Number(g.to));
+  cells.forEach((c, i) => {
     const cx = x + i * cellW;
-    let fill = LINE;
-    if (vacant.has(year)) fill = '#EDEFF3';
-    else if (!unknown.has(year) && seg) fill = tone[(indexOfCoach.get(seg.coach) ?? 0) % tone.length];
+    const fill = c.name ? tone[c.tone % tone.length] : (c.vacant ? '#EDEFF3' : LINE);
     doc.save().rect(cx, y, Math.max(1, cellW - 2), 11).fill(fill).restore();
     doc.font('Helvetica').fontSize(6).fillColor(MUTED)
-      .text(`’${String(year).slice(-2)}`, cx, y + 13, { width: Math.max(1, cellW - 2), align: 'center', lineBreak: false });
-  }
+      .text(`’${String(c.season).slice(-2)}`, cx, y + 13,
+        { width: Math.max(1, cellW - 2), align: 'center', lineBreak: false });
+  });
   y += 24;
 
-  const key = segments.map((seg, i) => `${seg.coach} ${seg.from}${seg.to === seg.from ? '' : `–${seg.to}`}`);
-  if (unknown.size) key.push(`${unknown.size} unattributed`);
-  if (vacant.size) key.push(`${vacant.size} vacant`);
-  doc.font('Helvetica').fontSize(6.6).fillColor(MUTED)
-    .text(key.join('  ·  '), x, y, { width: w });
+  doc.font('Helvetica').fontSize(6.6).fillColor(MUTED).text(timeline.caption, x, y, { width: w });
   return doc.y + 4;
 }
 
-function coachCard(doc, box, s) {
+/**
+ * The card the coach context lives on, upgraded rather than replaced.
+ *
+ * It already showed the name, a status chip and the season strip. What it
+ * never showed was the COUNT, and the count is the whole finding: this card
+ * read "CURRENT COACH HISTORY / stable across the seasons measured" at
+ * Mercyhurst men's, one of whose four measured seasons was the named coach's,
+ * while the strip immediately below it listed two other names. The chip and
+ * the line under the name now come from the attribution, so the card and its
+ * own chart cannot disagree.
+ *
+ * `ctx` is `coachContextFor(model.coachAttribution)`, or null on a model built
+ * before attribution existed — in which case the card falls back to exactly
+ * what it drew before.
+ */
+function coachCard(doc, box, s, ctx = null, timeline = null) {
   const p = panel(doc, box, 'Coach context');
   let y = p.y;
   const rel = s.evidenceRelevance ?? 'unknown';
-  chip(doc, p.x, y, COACH_HEADLINE[rel] ?? 'COACHING RECORD INCOMPLETE', { muted: rel !== 'describes-current' });
+  // `ctx.chip` is present for every case including ABSENT, which carries a
+  // small unavailable state rather than a refusal. `attributed` is the subset
+  // that has counts to show.
+  const shown = ctx?.chip ? ctx : null;
+  const attributed = ctx?.available ? ctx : null;
+  // Muted where the record does not describe the coach a recruit would join:
+  // the pill is quiet for a qualified answer and solid for a whole window.
+  const solid = attributed
+    ? attributed.prominence === PROMINENCE.QUIET && !attributed.interim
+    : shown ? false : rel === 'describes-current';
+  chip(doc, p.x, y, shown?.chip ?? COACH_HEADLINE[rel] ?? 'COACH RECORD UNRESOLVED',
+    { muted: !solid, max: p.w });
   y += 21;
 
   // The name is what the card is about, so it is the card's big metric —
   // sized like the number on every other card rather than like a fact line.
+  const name = shown?.headline ?? s.currentCoach ?? 'Not on file';
   doc.font('Helvetica-Bold').fontSize(17).fillColor(INK)
-    .text(fitText(doc, s.currentCoach ?? 'Not on file', p.w), p.x, y, { width: p.w, lineBreak: false });
+    .text(fitText(doc, name, p.w), p.x, y, { width: p.w, lineBreak: false });
   y += 21;
-  line(doc, COACH_SUBLINE[rel] ?? '', p.x, y, p.w, { size: 7.8, color: MUTED });
+  line(doc, shown?.subline ?? COACH_SUBLINE[rel] ?? '', p.x, y, p.w, { size: 7.8, color: MUTED });
   y += 14;
 
-  y = factLine(doc, p.x, y, p.w, `Head coach, ${s.coachForRecruitSeason ? 'named for' : 'for'} entry`,
-    s.coachForRecruitSeason ?? 'not on file');
+  /**
+   * The coach named for the entry season — from the attribution where there is
+   * one, and never from the raw row.
+   *
+   * This line printed "Aaron Suma" at Marist men's, directly beneath a
+   * headline reading "Could not establish": `coachForRecruitSeason` is the
+   * 2026 coach_name with no title filtering, so it named the strength coach as
+   * the head coach for entry. Where the attribution refused that row, this
+   * line has nothing to show and says so.
+   */
+  const entryCoach = shown ? (shown.coach?.name ?? null) : (s.coachForRecruitSeason ?? null);
+  y = factLine(doc, p.x, y, p.w, `Head coach, ${entryCoach ? 'named for' : 'for'} entry`,
+    entryCoach ?? 'not on file');
   y = factLine(doc, p.x, y, p.w, 'Seasons analysed', s.seasonsAnalysed ?? 0);
   y += 8;
 
-  y = tenureStrip(doc, p.x, y, p.w, s);
+  y = tenureStrip(doc, p.x, y, p.w, timeline);
 
-  // The verdict's own sentence, which classifyProgramme wrote and which is a
-  // stable explanation rather than report prose.
-  if (s.verdictNote && y < p.bottom - 12) {
+  /**
+   * The bottom of the card, in priority order and only what fits.
+   *
+   * A co-head arrangement outranks the verdict note: a card showing one name
+   * over two coaches is showing half the answer, and the reader needs to know
+   * the record cannot hold the other half. The verdict note is
+   * `classifyProgramme`'s own stable explanation and keeps the space
+   * otherwise.
+   */
+  /**
+   * The verdict note is withheld where the attribution could not establish the
+   * current coach, and this is a presentation guard rather than a change to
+   * the verdict.
+   *
+   * `classifyProgramme` writes that note from `tenureFor`, which does not read
+   * the title column. At Marist men's it produced "One coach throughout" —
+   * meaning the strength coach the attribution had just refused — and printed
+   * it directly beneath a headline reading "Could not establish". Two claims
+   * about the same table on the same card. The verdict logic is left exactly
+   * as it is; the card stops repeating a sentence built from a coach sequence
+   * this card has already rejected.
+   *
+   * NARROW ON PURPOSE. Only a note that ASSERTS a coach is withheld. Most
+   * notes on a refused card are perfectly compatible with the refusal — "no
+   * coach on file, so these seasons cannot be attributed to anyone" says the
+   * same thing the card does — and suppressing those would lose information to
+   * tidy up a contradiction they are not part of. Of the 99 programmes where a
+   * note meets a refusal, this catches the 8 that contradict it.
+   */
+  const verdictNote = ctx && ctx.prominence === PROMINENCE.REFUSAL
+    && ASSERTS_A_COACH.test(s.verdictNote ?? '') ? null : s.verdictNote;
+  const note = attributed?.coHeadNote
+    ?? (verdictNote ? verdictNote.replace(/^./, (ch) => ch.toUpperCase()) : null);
+  if (note && y < p.bottom - 12) {
     doc.font('Helvetica').fontSize(7).fillColor(MUTED)
-      .text(s.verdictNote.replace(/^./, (ch) => ch.toUpperCase()), p.x, y + 2,
-        { width: p.w, height: p.bottom - y - 4, ellipsis: true });
+      .text(note, p.x, y + 2, { width: p.w, height: p.bottom - y - 4, ellipsis: true });
   }
 }
 
@@ -861,8 +945,26 @@ export function headlineBand(k, lines, { title = 'What Thriv3 sees' } = {}) {
 export function programmeAtAGlance(k, model) {
   const { doc } = k;
   const s = model.summary.programme;
-  pageHeading(k, 'Programme at a glance',
-    'What this programme’s record shows, and where the evidence for it sits.');
+  const coach = coachContextFor(model.coachAttribution, { division: model.college?.division });
+  const coachTimeline = coachTimelineFor(coach, { recruitSeason: model.recruitSeason });
+  /**
+   * The subtitle carries the coach context where it is prominent.
+   *
+   * NOT A BAND ROW, and the reason is measured. This page is tight by design —
+   * five cards sized out of whatever the band above them leaves, with floors
+   * below which a card is squashed rather than short — and a sixth band row
+   * fits at only 231 of the 357 programmes whose coach context is prominent.
+   * At the other 126 it pushed the squad-outlook card onto a page of its own.
+   *
+   * The subtitle costs nothing, is the first line under the page title, and is
+   * always there. What it replaces is a description of the page; on a report
+   * whose history is largely somebody else's, that fact is the better subtitle.
+   * The coach card two thirds down the page carries the same count either way.
+   */
+  const subtitle = coach.prominence === PROMINENCE.PROMINENT && coach.banner
+    ? coach.banner
+    : 'What this programme’s record shows, and where the evidence for it sits.';
+  pageHeading(k, 'Programme at a glance', subtitle);
 
   headlineBand(k, programmeHeadlines(model));
 
@@ -886,7 +988,7 @@ export function programmeAtAGlance(k, model) {
   });
   cardRow(k, pair, (row) => {
     replacementCard(doc, { ...row, w: HALF }, s.replacementBehaviour);
-    coachCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, s.coachContext);
+    coachCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, s.coachContext, coach, coachTimeline);
   });
   cardRow(k, third, (row) => squadOutlookCard(doc, row, s.squadTurnover));
 }

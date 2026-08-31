@@ -133,6 +133,21 @@ const addAthlete = (id, over = {}) => db.prepare(
    VALUES (?,?,?,?,?,?,'mens-soccer',?)`).run(id, now, now, over.name ?? 'Test Athlete',
   over.position ?? 'Defender', over.nationality ?? 'USA', over.year ?? 2027);
 
+/**
+ * Replace a fixture's coach rows. `addProgramme` writes one name across all
+ * five seasons; these are the other shapes.
+ */
+const setCoachSeasons = (school, seasons) => {
+  db.prepare('DELETE FROM coach_seasons WHERE school = ?').run(school);
+  const ins = db.prepare(`INSERT INTO coach_seasons
+    (school, sport, season, coach_name, coach_title, reason, imported_at)
+    VALUES (?,'mens-soccer',?,?,?,?,?)`);
+  for (const [season, v] of Object.entries(seasons)) {
+    const [name, title = 'Head Coach', reason = null] = Array.isArray(v) ? v : [v, 'Head Coach', null];
+    ins.run(school, Number(season), name, name ? title : null, reason, now);
+  }
+};
+
 beforeEach(() => {
   db.exec('DELETE FROM roster_players; DELETE FROM coach_seasons; DELETE FROM colleges; DELETE FROM players;');
   invalidatePoolBenchmarks();
@@ -479,5 +494,227 @@ describe('the footer survives the deferred contents page', () => {
     // The last section recorded must still be inside the document.
     const last = Math.max(...model.sections.map((s) => s.page ?? 0), 0);
     expect(last).toBeLessThanOrEqual(pageCount(buf));
+  });
+});
+
+/**
+ * PHASE 11C — whose measured seasons these are, on the page a family reads
+ * first. The counts come from `coachAttribution`; what is asserted here is
+ * where they appear and how loudly.
+ */
+describe('current coach context on page two', () => {
+  const front = async () => frontText((await build()).buf);
+
+  it('leaves the page subtitle alone where the context is quiet', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: 'Jane Kerr', 2023: 'Jane Kerr', 2024: 'Jane Kerr', 2025: 'Jane Kerr', 2026: 'Jane Kerr',
+    });
+    const text = await front();
+    expect(text).toContain('CURRENT COACH HISTORY');
+    expect(text).toContain('all 4 measured seasons in this report');
+    // Quiet means the page keeps its own subtitle.
+    expect(text).toContain('What this programme’s record shows');
+    expect(text).not.toMatch(/Programme at a glance All 4 measured/);
+    // ...and no strip, because one name across every season draws nothing.
+    expect(text).not.toContain('WHOSE SEASONS THESE ARE');
+  });
+
+  it('is visible on the card where some but not all seasons are the coach’s', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: 'Greg Dalby', 2023: 'Greg Dalby', 2024: 'Jane Brookins', 2025: 'Jane Brookins', 2026: 'Jane Brookins',
+    });
+    const text = await front();
+    expect(text).toContain('COACHING CHANGE IN WINDOW');
+    expect(text).toContain('2 of the 4 measured seasons in this report');
+    expect(text).toContain('WHOSE SEASONS THESE ARE');
+    expect(text).toContain('Greg Dalby 2022–2023');
+    expect(text).toContain('Jane Brookins 2024–2026');
+  });
+
+  // Mercyhurst men's shape: the card used to read "CURRENT COACH HISTORY /
+  // stable across the seasons measured" over exactly this.
+  /**
+   * The prominent placement is the page subtitle, not a band row. Page two
+   * sizes five cards out of whatever the band leaves, and a sixth row fits at
+   * only 231 of the 357 programmes whose context is prominent; the subtitle
+   * costs nothing and is always there.
+   */
+  it('is prominent at one measured season, in the subtitle and on the card', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: 'Ryan Osborne', 2023: [null, null, 'no-usable-page'], 2024: [null, null, 'no-usable-page'],
+      2025: 'Austin Solomon', 2026: 'Austin Solomon',
+    });
+    const text = await front();
+    // The subtitle, directly under "Programme at a glance".
+    expect(text).toMatch(/Programme at a glance Only 1 of the 4 measured seasons in this report was under Austin Solomon\./);
+    expect(text).not.toContain('What this programme’s record shows');
+    // ...and the card, which carries it whatever the subtitle does.
+    expect(text).toContain('ONE MEASURED SEASON');
+    expect(text).toContain('1 of the 4 measured seasons in this report');
+    expect(text).toContain('2 unresolved');
+    expect(text).not.toContain('stable across the seasons measured');
+  });
+
+  it('is prominent at none, and names the coach on file for the earlier seasons', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: 'Richard Nuttall', 2023: 'Richard Nuttall', 2024: 'Richard Nuttall',
+      2025: 'Richard Nuttall', 2026: 'Stephen Roche',
+    });
+    const text = await front();
+    expect(text).toContain('None of the 4 measured seasons in this report were under Stephen Roche.');
+    expect(text).toContain('NO MEASURED SEASON');
+    expect(text).toContain('Richard Nuttall 2022–2025');
+    expect(text).not.toContain('NEW COACH');
+  });
+
+  // Michigan men's: no earlier coach may be invented.
+  it('invents no earlier coach where the earlier seasons are unresolved', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: [null, null, 'no-usable-page'], 2023: [null, null, 'no-usable-page'],
+      2024: [null, null, 'no-usable-page'], 2025: [null, null, 'no-usable-page'], 2026: 'Chaka Daley',
+    });
+    const text = await front();
+    expect(text).toContain('None of the 4 measured seasons in this report were under Chaka Daley.');
+    expect(text).toContain('4 unresolved');
+    expect(text).not.toMatch(/named coach on file/);
+  });
+
+  // Ohio State men's: the gap is never closed.
+  it('shows an unresolved season between two spells of one name', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: 'Brian Maisonneuve', 2023: 'Brian Maisonneuve', 2024: [null, null, 'no-head-coach-found'],
+      2025: 'Brian Maisonneuve', 2026: 'Brian Maisonneuve',
+    });
+    const { model, buf } = await build();
+    const text = frontText(buf);
+    const a = model.coachAttribution;
+    expect(a.currentCoachMeasuredSeasons).toBe(3);
+    expect(a.historicalMeasuredSeasons).toBe(4);
+    expect(text).toContain('3 of the 4 measured seasons in this report');
+    expect(text).toContain('1 unresolved');
+    // The 2024 cell is not filled in from either side.
+    expect(a.measuredSeasons.find((x) => x.season === '2024').coachName).toBeNull();
+  });
+
+  // Marist men's: the strength coach must not be promoted anywhere.
+  it('refuses the record rather than naming a coach of something else', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+      2023: ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+      2024: ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+      2025: ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+      2026: ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+    });
+    const text = await front();
+    expect(text).toContain('COACH RECORD UNRESOLVED');
+    expect(text).toContain('Could not establish');
+    expect(text).not.toContain('Aaron Suma');
+    // The verdict note is withheld only where it asserts the refused coach.
+    expect(text).not.toContain('One coach throughout');
+  });
+
+  it('qualifies an interim without describing a regime', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: 'Bob Thompson', 2023: 'Bob Thompson', 2024: 'Bob Thompson', 2025: 'Bob Thompson',
+      2026: ['Frank Agostino', 'Interim Head Coach'],
+    });
+    const text = await front();
+    expect(text).toContain('INTERIM HEAD COACH');
+    expect(text).toContain('The 2026 coach record identifies Frank Agostino as interim head coach.');
+    expect(text).not.toMatch(/stable|new coach/i);
+  });
+
+  it('states the co-head limitation', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: ['Tari Johnson', 'Co-Head Coach'], 2023: ['Tari Johnson', 'Co-Head Coach'],
+      2024: ['Tari Johnson', 'Co-Head Coach'], 2025: ['Tari Johnson', 'Co-Head Coach'],
+      2026: ['Tari Johnson', 'Co-Head Coach'],
+    });
+    const text = await front();
+    expect(text).toMatch(/one coach for each programme-season/);
+  });
+
+  it('says nothing at all where no coach record is held at this level', async () => {
+    addProgramme('c1', 'Test College');
+    db.prepare('DELETE FROM coach_seasons WHERE school = ?').run('Test College');
+    db.prepare("UPDATE colleges SET division = 'NAIA' WHERE id = 'c1'").run();
+    const { model, buf } = await build();
+    const text = frontText(buf);
+    expect(model.coachAttribution.currentCoach).toBeNull();
+    // A small unavailable state, not a refusal: there is nothing for an NAIA
+    // programme to resolve, and the missing record is ours rather than theirs.
+    expect(text).toContain('NOT ON FILE');
+    expect(text).toContain('no coaching record is held at this level');
+    expect(text).not.toContain('COACH RECORD UNRESOLVED');
+    expect(text).not.toContain('measured seasons in this report');
+    // ...and nothing in the summary band, which is where the loud cases go.
+    expect(text).not.toContain('Only 1 of');
+    expect(text).not.toContain('None of the');
+  });
+
+  it('adds no page, no section and no contents entry', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: 'Richard Nuttall', 2023: 'Richard Nuttall', 2024: 'Richard Nuttall',
+      2025: 'Richard Nuttall', 2026: 'Stephen Roche',
+    });
+    const { model, buf } = await build();
+    expect(model.sections.map((x) => x.id).join(',')).not.toMatch(/coach/i);
+    expect(pageCount(buf)).toBe(model.sections[model.sections.length - 1].page + 1);
+  });
+
+  /**
+   * The roster analytics do not move when the coach record does.
+   *
+   * Two things legitimately move and both predate this phase: the verdict, which
+   * `classifyProgramme` has always derived from the coach tenure, and the
+   * `evidence` leg of each summary, which has always counted coach continuity
+   * as part of how strong a history is. Everything measured from the rosters is
+   * compared here with `evidence` stripped. The guarantee that no real
+   * programme's figures drifted at all is the snapshot check.
+   */
+  const withoutEvidence = (o) => JSON.stringify({ ...o, evidence: undefined });
+  it('leaves the roster analytics untouched when the coach record changes', async () => {
+    addProgramme('c1', 'Test College');
+    const before = await build();
+    setCoachSeasons('Test College', {
+      2022: 'Richard Nuttall', 2023: 'Richard Nuttall', 2024: 'Richard Nuttall',
+      2025: 'Richard Nuttall', 2026: 'Stephen Roche',
+    });
+    const after = await build();
+    for (const key of ['ladder', 'dials', 'byPosition', 'seasons', 'freshman', 'transfer']) {
+      expect(JSON.stringify(after.model[key]), key).toBe(JSON.stringify(before.model[key]));
+    }
+    for (const key of ['replacementBehaviour', 'squadTurnover', 'experiencedArrivalReliance',
+      'freshmanOpportunity']) {
+      expect(withoutEvidence(after.model.summary.programme[key]), key)
+        .toBe(withoutEvidence(before.model.summary.programme[key]));
+    }
+    expect(JSON.stringify(after.model.squadProfile)).toBe(JSON.stringify(before.model.squadProfile));
+    expect(JSON.stringify(after.model.positionUtilisation))
+      .toBe(JSON.stringify(before.model.positionUtilisation));
+  });
+
+  it('says nothing the coach record cannot support', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: 'Ryan Osborne', 2023: [null, null, 'no-usable-page'], 2024: [null, null, 'no-usable-page'],
+      2025: 'Austin Solomon', 2026: 'Austin Solomon',
+    });
+    const text = (await front()).toLowerCase();
+    for (const banned of ['hired', 'appointed', 'replaced', 'succeeded', 'took over',
+      'stepped down', 'new coach', 'former coach', 'predecessor', 'coach prefers',
+      'coach develops', 'this history belongs to']) {
+      expect(text, banned).not.toContain(banned);
+    }
   });
 });

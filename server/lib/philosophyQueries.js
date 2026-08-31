@@ -118,7 +118,10 @@ export function philosophyFor(collegeId) {
   const rows = programmeRows(col.name, col.sport);
   const coachRows = programmeCoachRows(col.name, col.sport);
   const squad = squadRows(col.name, col.sport);
-  return { college: col, philosophy: programmePhilosophy({ rows, coachRows }), rows, squad };
+  // `coachRows` travels with the rest: coach attribution needs the raw rows,
+  // and re-querying them would undo the one-programme-one-load rule this
+  // function exists to keep.
+  return { college: col, philosophy: programmePhilosophy({ rows, coachRows }), rows, coachRows, squad };
 }
 
 /**
