@@ -14,6 +14,7 @@ import { lifecyclePool, lifecycleRows } from '../lib/lifecycleQueries.js';
 import { buildLifecycleSummary } from '../../shared/report/lifecycleSummary.js';
 import { buildPressureSummary } from '../../shared/report/pressure.js';
 import { buildSquadSummary } from '../../shared/report/squad.js';
+import { buildPositionUtilisationSummary } from '../../shared/report/positionUtilisation.js';
 import { readableRows } from '../../shared/lifecycle/readable.js';
 import { evidenceLimitsFor } from '../lib/reportLimits.js';
 import {
@@ -342,10 +343,26 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     pool: lifePool,
     division: col.division,
   });
+  /**
+   * Minute distribution within a position. Attached and NOT rendered, on the
+   * same terms as `pressure` and `squadProfile`.
+   *
+   * Both shapes are handed over rather than one being chosen here: the athlete
+   * half reads the athlete's own canonical position, and the programme half is
+   * a lookup across the three supported positions, so Phase 9B can decide what
+   * a generic report does with it. A goalkeeper gets an athlete entry that says
+   * the analysis is not reported at that position.
+   */
+  const positionUtilisation = buildPositionUtilisationSummary({
+    rows: readableRows(lifeRows),
+    pool: lifePool,
+    division: col.division,
+    athlete: model.athlete,
+  });
   // Which analyses were attempted and refused. Additive, and computed from
   // the model rather than from any new query: `evidenceLimitsFor` reads the
   // same fields the pages it replaces would have read.
-  const withLifecycle = { ...model, summary, lifecycle, pressure, squadProfile };
+  const withLifecycle = { ...model, summary, lifecycle, pressure, squadProfile, positionUtilisation };
   const evidenceLimits = evidenceLimitsFor(withLifecycle);
   return {
     ...model,
@@ -355,6 +372,7 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     // `squad` is already the 2026 roster on this model; this is the historical
     // profile of how its minutes were distributed and who took them.
     squadProfile,
+    positionUtilisation,
     evidenceLimits,
     // The document's shape, decided from the data rather than by whichever
     // section throws first. No page numbers: those are not knowable until the

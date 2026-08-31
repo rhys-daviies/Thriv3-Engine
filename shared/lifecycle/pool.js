@@ -30,6 +30,7 @@ import { readableRows, minutesCoverage } from './readable.js';
 import { positionPressure, MIN_CYCLES_FOR_POOL, MIN_INCOMING_FOR_MIX } from './pressure.js';
 import { programmeUtilisation, MIN_SEASONS_FOR_POOL } from './utilisation.js';
 import { programmeExperience, EXPERIENCE_GROUPS } from './experience.js';
+import { allPositionUtilisation, SUPPORTED_POSITIONS } from './positionUtilisation.js';
 
 export const LIFECYCLE_SEASONS = Object.freeze(['2022', '2023', '2024', '2025', '2026']);
 /** The last season that carries minutes. 2026 is a named roster and nothing more. */
@@ -117,7 +118,7 @@ export function buildLifecyclePool(rawRows, colleges, { sport = null } = {}) {
     seasons: LIFECYCLE_SEASONS, programmes: 0,
     movementByProgramme: new Map(), arrivalsByProgramme: new Map(),
     benchmarks: null, positionIntake: null, utilisation: null, experience: null,
-    destinationCoverage: null,
+    positionUtilisation: null, destinationCoverage: null,
     buildMs: Date.now() - started,
   };
   if (!rawRows.length) return empty;
@@ -250,6 +251,40 @@ export function buildLifecyclePool(rawRows, colleges, { sport = null } = {}) {
       }
     }
   }
+  // ---- the same, cut by position ------------------------------------------
+  //
+  // Keyed `division -> position` with an `ALL` division, like the others.
+  // Phase 8B measured the two dimensions and found position differences large
+  // (a defender median of 4.5 players over 600 against a forward median of 3)
+  // and division differences absent — 4.5, 5.0 and 3.0 reproduce in D1, D2 and
+  // D3 alike. The division key is kept for consistency with every other pool
+  // and because the fallback to ALL costs nothing; the position key is the one
+  // doing the work, and positions must never be combined for sample size.
+  const posUtilCells = new Map();
+  for (const [programme, progRows] of rowsByProgramme) {
+    const div = divisionOf(programme);
+    for (const pu of allPositionUtilisation(progRows)) {
+      if (!pu.available) continue;
+      for (const key of [`ALL|${pu.position}`, ...(div ? [`${div}|${pu.position}`] : [])]) {
+        if (!posUtilCells.has(key)) posUtilCells.set(key, { programmes: 0, starters: [], forSeventyFive: [] });
+        const cell = posUtilCells.get(key);
+        cell.programmes += 1;
+        cell.starters.push(pu.medianPlayersWith600Plus);
+        cell.forSeventyFive.push(pu.medianPlayersFor75);
+      }
+    }
+  }
+  const positionUtilisation = {};
+  for (const [key, c] of posUtilCells) {
+    const [division, position] = key.split('|');
+    if (!positionUtilisation[division]) positionUtilisation[division] = {};
+    positionUtilisation[division][position] = {
+      programmes: c.programmes,
+      playersWith600Plus: spread(c.starters),
+      playersFor75: spread(c.forSeventyFive),
+    };
+  }
+
   const utilisation = Object.fromEntries([...utilCells.entries()].map(([key, c]) => [key, {
     programmes: c.programmes,
     top11MinuteShare: spread(c.top11),
@@ -354,6 +389,11 @@ export function buildLifecyclePool(rawRows, colleges, { sport = null } = {}) {
     utilisation,
     /** Minute and roster share by year of study, same keying. */
     experience,
+    /**
+     * Minute distribution within one position, keyed `division -> position`.
+     * Goalkeepers are absent by design, not by coverage.
+     */
+    positionUtilisation,
     destinationCoverage: Object.fromEntries([...coverage.entries()].map(([d, c]) => [d, {
       ...c, coverage: c.departures ? c.observed / c.departures : null,
     }])),
@@ -362,4 +402,4 @@ export function buildLifecyclePool(rawRows, colleges, { sport = null } = {}) {
 }
 
 export { TRANSITIONS, MATCH_STATUS, EXIT_KIND };
-export { POSITIONS };
+export { POSITIONS, SUPPORTED_POSITIONS };

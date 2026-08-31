@@ -811,6 +811,73 @@ describe('minute concentration and years of study, attached and not rendered', (
   });
 });
 
+describe('position utilisation, attached and not yet rendered', () => {
+  it('is on the model for all three supported positions', async () => {
+    addProgramme();
+    const { model } = await build();
+    const pu = model.positionUtilisation;
+    expect(pu.byPosition.map((p) => p.position)).toEqual(['DEFENSE', 'MIDFIELD', 'FORWARD']);
+    expect(pu.athletePosition).toBeNull();
+    expect(pu.banding.available).toBe(false);
+    for (const p of pu.byPosition) {
+      expect(p.seasons.map((s) => s.season)).toEqual(['2022', '2023', '2024', '2025']);
+      expect(p.seasons.map((s) => s.season)).not.toContain('2026');
+    }
+  });
+
+  it('uses the athlete’s own position on an athlete report', async () => {
+    addProgramme();
+    addAthlete('p1', { position: 'Defender' });
+    const { model } = await build('p1');
+    expect(model.positionUtilisation.athletePosition.position).toBe('DEFENSE');
+  });
+
+  // A methodological exclusion, not a missing-data refusal.
+  it('tells a goalkeeper the analysis is not reported at their position', async () => {
+    addProgramme();
+    addAthlete('p1', { position: 'Goalkeeper' });
+    const { model } = await build('p1');
+    const gk = model.positionUtilisation.athletePosition;
+    expect(gk.position).toBe('GOALKEEPER');
+    expect(gk.supported).toBe(false);
+    expect(gk.reason).toMatch(/not reported for goalkeepers/);
+    expect(gk.reason).not.toMatch(/too few|insufficient/i);
+    // …and the recruiting pressure at that position is untouched.
+    expect(model.pressure.athletePosition.position).toBe('GOALKEEPER');
+    expect(model.pressure.athletePosition.historical).toBeTruthy();
+  });
+
+  it('adds no section and no page', async () => {
+    addProgramme();
+    const { model, buf } = await build();
+    expect(model.sections.map((s) => s.id).join(','))
+      .not.toMatch(/position-utilisation|players-for-75|starter-level-players/);
+    expect(pageCount(buf)).toBe(model.sections[model.sections.length - 1].page + 1);
+  });
+
+  it('prints nothing about it in the document', async () => {
+    addProgramme();
+    const { text } = await build();
+    expect(text).not.toMatch(/three-quarters of the minutes/i);
+    expect(text).not.toMatch(/reach a starter-level season/i);
+    expect(text).not.toMatch(/players for 75/i);
+  });
+
+  // The sparse case: the squad's minutes were never read, so every position
+  // refuses — while Phase 7's intake at the same positions still answers.
+  it('refuses every position where the squad’s minutes are unreadable', async () => {
+    addFabricatedProgramme();
+    const { model } = await build();
+    for (const p of model.positionUtilisation.byPosition) {
+      expect(p.supported, p.position).toBe(true);
+      expect(p.available, p.position).toBe(false);
+      expect(p.seasons.every((s) => !s.readable), p.position).toBe(true);
+      expect(p.seasons[0].reason).toMatch(/minutes were published/);
+    }
+    expect(model.pressure.available).toBe(true);
+  });
+});
+
 describe('a programme whose stats page was never read', () => {
   /**
    * The Albertus Magnus shape, built here rather than read from the working
