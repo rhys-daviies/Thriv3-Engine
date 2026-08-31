@@ -142,6 +142,14 @@ export function renderProgramReport(model, opts = {}) {
     atNext('methodology');
     methodologyPage(k, model);
 
+    // Anything registered with `k.defer` — a cross-reference to a page that did
+    // not exist when its own page was written. Run before the contents so a
+    // deferred draw cannot be the thing that changes a page count.
+    for (const { page, fn } of k.later) {
+      k.doc.switchToPage(page);
+      fn({ pageOf: (id) => pages.get(id) ?? null, doc: k.doc });
+    }
+
     // The contents, now that every page exists. Drawn in absolute coordinates
     // on the reserved first page: anything consulting the flow cursor could
     // call addPage() here and append a blank page to a finished document.

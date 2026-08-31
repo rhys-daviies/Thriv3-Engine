@@ -19,6 +19,7 @@
 import { THEME, TYPE, pageHead, fitHeadline, minutes, fitText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
+import { programmeHeadlines, athleteHeadlines } from '../../shared/report/narrative.js';
 
 const { INK, MUTED, LINE, CLARET, NAVY, MID, PALE, GREEN, M, W } = THEME;
 
@@ -342,107 +343,102 @@ export function contentsPage(doc, model, plan, pages) {
   doc.font(TYPE.kicker.font).fontSize(TYPE.kicker.size).fillColor(TYPE.kicker.color)
     .text('THRIV3', M, M - 18, { width: W, characterSpacing: TYPE.kicker.spacing, lineBreak: false });
 
-  let y = M + 4;
-  doc.font('Helvetica-Bold').fontSize(8.5).fillColor(NAVY)
-    .text('PROGRAM INTELLIGENCE REPORT', M, y, { width: W, characterSpacing: 1.6, lineBreak: false });
-  y += 20;
-
-  // The cover is the one place the programme's full name must appear whole, so
-  // it shrinks to fit rather than clipping. "West Virginia University
-  // Institute of Technology" was arriving as "West Virginia University
-  // Institute of T…" on the front of its own report.
+  // ---- the cover ---------------------------------------------------------
+  //
+  // The name leads. This page used to open with PROGRAM INTELLIGENCE REPORT
+  // set above a smaller name and then hand two-thirds of itself to a contents
+  // list with descriptions and scope notes on every row, which is what made
+  // the front of the document read as a directory rather than as a
+  // deliverable. The contents is still here, and it is now a list.
+  let y = M + 10;
+  const hero = a ? `${a.name} × ${c.name}` : c.name;
   doc.font('Helvetica-Bold');
-  const nameSize = fitHeadline(doc, c.name, W, 26, 15);
+  const heroSize = fitHeadline(doc, hero, W, a ? 30 : 34, 16);
   // Below the floor it WRAPS rather than clipping. Everywhere else in the
   // report a title that will not fit is cut, because a title is a fixed slot
-  // in a layout; here it is the name on the front of the document, and the
-  // block beneath simply starts lower.
-  doc.fontSize(nameSize).fillColor(INK).text(c.name, M, y, { width: W });
-  y = doc.y + 5;
+  // in a layout; here it is the name on the front of the document.
+  doc.fontSize(heroSize).fillColor(INK).text(hero, M, y, { width: W });
+  y = doc.y + 8;
 
-  // The programme identity rule. Short, under the name, and the only place a
+  // The programme identity rule: short, under the name, and the only place a
   // college colour appears anywhere in the document.
-  doc.save().rect(M, y, 46, 3).fill(identity.colour).restore();
-  y += 12;
+  doc.save().rect(M, y, 54, 3).fill(identity.colour).restore();
+  y += 14;
 
-  const place = [c.nickname, c.division, c.conference, [c.city, c.state].filter(Boolean).join(', ')]
-    .filter(Boolean).join('  ·  ');
-  doc.font('Helvetica').fontSize(9.5).fillColor(MUTED)
-    .text(place, M, y, { width: W, lineBreak: false, ellipsis: true });
+  doc.font('Helvetica-Bold').fontSize(9).fillColor(NAVY)
+    .text('PROGRAMME INTELLIGENCE', M, y, { width: W, characterSpacing: 1.8, lineBreak: false });
   y += 20;
 
-  if (a) {
-    doc.save().moveTo(M, y).lineTo(M + W, y).lineWidth(0.75).strokeColor(LINE).stroke().restore();
-    y += 11;
-    doc.font('Helvetica-Bold').fontSize(11).fillColor(INK)
-      .text(`Prepared for ${a.name}`, M, y, { width: W, lineBreak: false, ellipsis: true });
-    y += 15;
-    doc.font('Helvetica').fontSize(9).fillColor(MUTED)
-      .text([a.positionLabel, a.nationality, `entering ${model.entrySeason}`].filter(Boolean).join('  ·  '),
-        M, y, { width: W, lineBreak: false, ellipsis: true });
-    y += 20;
-  }
-
-  // The value statement, built from what the model actually holds rather than
-  // from a sentence that claims four seasons whatever the data says.
   const seasons = model.describes ?? [];
-  const span = seasons.length
-    ? `${seasons.length} season${seasons.length === 1 ? '' : 's'} of roster behaviour `
-      + `(${seasons.length === 1 ? seasons[0] : `${seasons[0]}–${seasons[seasons.length - 1]}`})`
+  const window = seasons.length
+    ? `${seasons.length} season${seasons.length === 1 ? '' : 's'} of roster behaviour, `
+      + `${seasons.length === 1 ? seasons[0] : `${seasons[0]}–${seasons[seasons.length - 1]}`}`
     : 'the roster seasons on file';
-  const scopeText = `${span}, recruiting patterns, playing-time evidence and current squad context — `
-    + `applied to this programme${a ? ' and to your pathway' : ''}. Nothing here is a forecast: the `
-    + `${model.recruitSeason} season has not been played.`;
-  const scopeH = doc.font('Helvetica').fontSize(8.5).heightOfString(scopeText, { width: W - 28 }) + 20;
-  doc.save().rect(M, y, W, scopeH).fillOpacity(0.05).fill(NAVY).restore();
-  doc.font('Helvetica').fontSize(8.5).fillColor(INK)
-    .text(scopeText, M + 14, y + 10, { width: W - 28 });
-  y += scopeH + 26;
 
-  doc.font(TYPE.label.font).fontSize(7.5).fillColor(MUTED)
+  const facts = a
+    ? [a.positionLabel, `entering ${model.entrySeason}`,
+      [c.name, c.division].filter(Boolean).join(' · ')]
+    // Division, conference, location — the three facts that place a programme.
+    // The nickname led this line for a while and answered nothing a reader was
+    // asking on the cover.
+    : [c.division, c.conference, [c.city, c.state].filter(Boolean).join(', ')];
+  doc.font('Helvetica').fontSize(10).fillColor(MUTED)
+    .text(facts.filter(Boolean).join('  ·  '), M, y, { width: W, lineBreak: false, ellipsis: true });
+  y += 15;
+  doc.font('Helvetica').fontSize(9).fillColor(MUTED)
+    .text(`${window}  ·  prepared ${new Date().toISOString().slice(0, 10)}`, M, y,
+      { width: W, lineBreak: false, ellipsis: true });
+  y += 24;
+
+  doc.font('Helvetica').fontSize(11.5).fillColor(INK)
+    .text(a
+      ? 'A historical view of how players enter, develop and move through this programme.'
+      : 'How this programme recruits, develops, retains and replaces players.',
+    M, y, { width: W * 0.86 });
+  y = doc.y + 16;
+
+  // The one claim the document has to make on page one, and it stays at full
+  // reading size rather than becoming a footnote under a nicer cover.
+  const caveat = `Nothing here is a forecast. Every figure describes a season that has been `
+    + `played; the ${model.recruitSeason} season has not.`;
+  const caveatH = doc.font('Helvetica').fontSize(9).heightOfString(caveat, { width: W - 26 }) + 18;
+  doc.save().rect(M, y, 3, caveatH).fill(CLARET).restore();
+  doc.font('Helvetica').fontSize(9).fillColor(MUTED)
+    .text(caveat, M + 14, y + 9, { width: W - 26 });
+  y += caveatH + 26;
+
+  // ---- the contents, as a list -------------------------------------------
+  doc.font(TYPE.label.font).fontSize(7).fillColor(MUTED)
     .text('CONTENTS', M, y, { width: W * 0.6, characterSpacing: 1, lineBreak: false });
-  doc.font(TYPE.label.font).fontSize(7.5).fillColor(MUTED)
+  doc.font(TYPE.label.font).fontSize(7).fillColor(MUTED)
     .text('PAGE', M + W - 40, y, { width: 40, align: 'right', characterSpacing: 1, lineBreak: false });
-  y += 12;
-  doc.save().moveTo(M, y).lineTo(M + W, y).lineWidth(0.75).strokeColor(INK).stroke().restore();
-  y += 12;
+  y += 10;
+  doc.save().moveTo(M, y).lineTo(M + W, y).lineWidth(0.75).strokeColor(LINE).stroke().restore();
+  y += 10;
 
-  // The list is spaced to fill the page rather than run out two-thirds of the
-  // way down. The rows still have a floor and a ceiling: below the floor the
-  // description is dropped rather than the row, because a listed section with
-  // no page number would be worse than a terse one, and above the ceiling the
-  // rows stop being a list and start being a menu.
-  const available = doc.page.height - M - 30 - y;
+  // One line per section. The scope note survives because it is the only thing
+  // on the row that says how much is behind a section; the description does
+  // not, because the section's own page opens with the same sentence.
+  const available = doc.page.height - M - 26 - y;
   const layers = [...new Set(listed.map((s) => s.layer))];
-  const rowsH = available - layers.length * 20;
-  const rowH = Math.max(15, Math.min(34, rowsH / Math.max(1, listed.length)));
-  const showDescriptions = rowH >= 21;
+  const rowH = Math.max(13, Math.min(18,
+    (available - layers.length * 17) / Math.max(1, listed.length)));
 
   let lastLayer = null;
   for (const s of listed) {
     if (s.layer !== lastLayer) {
-      if (lastLayer !== null) y += 7;
+      if (lastLayer !== null) y += 5;
       lastLayer = s.layer;
-      doc.font(TYPE.section.font).fontSize(7).fillColor(CLARET)
+      doc.font(TYPE.section.font).fontSize(6.5).fillColor(CLARET)
         .text(layerTitle(s.layer).toUpperCase(), M, y, { width: W, characterSpacing: 1.1, lineBreak: false });
-      y += 13;
+      y += 12;
     }
-    line(doc, s.title, M + 10, y, W * 0.5, { font: 'Helvetica-Bold', size: 10 });
-    doc.font('Helvetica-Bold').fontSize(10).fillColor(INK)
+    line(doc, s.title, M + 10, y, W * 0.46, { font: 'Helvetica-Bold', size: 9.5 });
+    doc.font('Helvetica-Bold').fontSize(9.5).fillColor(INK)
       .text(String(pages.get(s.id)), M + W - 40, y, { width: 40, align: 'right', lineBreak: false });
-
-    // One scope indicator, not every number the section could report.
     const scope = (s.scopeNotes ?? []).slice(0, 2).join(' · ');
     if (scope) {
-      line(doc, scope, M + W * 0.54, y + 2, W * 0.46 - 46, { size: 7, color: MUTED, align: 'right' });
-    }
-    if (showDescriptions && s.description) {
-      // Where the rows are generous enough, a description gets a second line
-      // rather than being cut off mid-word. `height` with `ellipsis` is the
-      // combination pdfkit actually honours.
-      doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
-        .text(s.description, M + 10, y + 12,
-          { width: W * 0.86, height: rowH >= 30 ? 19 : 10, ellipsis: true });
+      line(doc, scope, M + W * 0.5, y + 1, W * 0.5 - 46, { size: 7, color: MUTED, align: 'right' });
     }
     y += rowH;
   }
@@ -524,7 +520,7 @@ function freshmanCard(doc, box, s) {
     s.seasonsObserved ? plural(s.seasonsObserved, 'season') : null,
     s.measuredFreshmen ? `${plural(s.measuredFreshmen, 'measured first-year')}` : null,
   ].filter(Boolean).join(' · ');
-  evidenceChip(doc, p.x, p.bottom - 20, s.evidence, sample, p.w);
+  evidenceChip(doc, p.x, Math.max(y + 10, p.bottom - 20), s.evidence, sample, p.w);
 }
 
 function arrivalCard(doc, box, s) {
@@ -566,7 +562,7 @@ function arrivalCard(doc, box, s) {
     s.measurableSeasons.length ? `${plural(s.measurableSeasons.length, 'measurable season')}` : null,
     s.evidence?.sample?.observations ? plural(s.evidence.sample.observations, 'position-season') : null,
   ].filter(Boolean).join(' · ');
-  evidenceChip(doc, p.x, p.bottom - 20, s.evidence, sample, p.w);
+  evidenceChip(doc, p.x, Math.max(y + 10, p.bottom - 20), s.evidence, sample, p.w);
 }
 
 function replacementCard(doc, box, s) {
@@ -596,7 +592,7 @@ function replacementCard(doc, box, s) {
 
   const sample = s.seasonsRepresented?.length
     ? `${plural(s.observations, 'position-season')} · ${plural(s.seasonsRepresented.length, 'transition')}` : null;
-  evidenceChip(doc, p.x, p.bottom - 20, s.evidence, sample, p.w);
+  evidenceChip(doc, p.x, Math.max(y + 10, p.bottom - 20), s.evidence, sample, p.w);
 }
 
 /**
@@ -777,8 +773,11 @@ function squadOutlookCard(doc, box, s) {
   ry = factLine(doc, rx, ry, colW, 'Returning-squad minutes', proj?.total == null ? 'not readable' : nf(proj.total));
   if (proj?.firstYears) {
     doc.font('Helvetica').fontSize(6.6).fillColor(MUTED)
-      .text(`${proj.firstYears} first-years carry no projection: minutes are carried forward from a prior season, `
-        + 'so a true first-year cannot have one.', rx, ry + 2, { width: colW });
+      // The why lives in the methodology and on the squad-outlook page, both
+      // of which say it in full. Three lines of it here pushed the card's own
+      // border and repeated a sentence the reader meets twice more.
+      .text(`${proj.firstYears} of them are first-years, who cannot carry one.`,
+        rx, ry + 2, { width: colW });
   }
 }
 
@@ -804,23 +803,86 @@ function cardRow(k, height, draw) {
   return box;
 }
 
+/**
+ * The findings, in sentences, above the cards that evidence them.
+ *
+ * The reason this exists: a reader who stopped after page two used to have two
+ * of the six questions answered — first-years and experienced arrivals — while
+ * development, roster stability and traceable movement waited on pages five,
+ * twelve and thirteen. Every line here restates a figure printed later and
+ * carries the page it is printed on, so the band is a way in rather than a
+ * summary that stands alone.
+ *
+ * The page numbers are drawn last: page two cannot know what page twelve is.
+ */
+export function headlineBand(k, lines, { title = 'What Thriv3 sees' } = {}) {
+  const { doc } = k;
+  if (!lines.length) return;
+  const LABEL_W = 96;
+  const PAGE_W = 34;
+  const textW = W - LABEL_W - PAGE_W - 18;
+
+  doc.font(TYPE.section.font).fontSize(TYPE.section.size).fillColor(CLARET)
+    .text(title.toUpperCase(), M, doc.y, { width: W, characterSpacing: TYPE.section.spacing });
+  doc.y += 4;
+  doc.moveTo(M, doc.y).lineTo(M + W, doc.y).lineWidth(0.75).strokeColor(INK).stroke();
+  doc.y += 9;
+
+  for (const item of lines) {
+    const top = doc.y;
+    const h = doc.font('Helvetica').fontSize(9).heightOfString(item.text, { width: textW });
+    doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(MUTED)
+      .text(String(item.label).toUpperCase(), M, top + 1.5,
+        { width: LABEL_W - 10, characterSpacing: TYPE.label.spacing });
+    doc.font('Helvetica').fontSize(9).fillColor(INK)
+      .text(item.text, M + LABEL_W, top, { width: textW });
+    if (item.section) {
+      // Filled in once the document is complete. Recorded, not guessed.
+      const y = top;
+      const id = item.section;
+      k.defer(({ pageOf, doc: d }) => {
+        const n = id ? pageOf(id) : null;
+        if (n == null) return;
+        d.font('Helvetica-Bold').fontSize(8.5).fillColor(MID)
+          .text(`p.${n}`, M + W - PAGE_W, y + 1, { width: PAGE_W, align: 'right', lineBreak: false });
+      });
+    }
+    doc.y = top + Math.max(h, 12) + 5;
+  }
+  doc.y += 4;
+}
+
 export function programmeAtAGlance(k, model) {
   const { doc } = k;
   const s = model.summary.programme;
-  pageHeading(k, 'Programme at a glance', 'How this programme has built and used its squad.');
+  pageHeading(k, 'Programme at a glance',
+    'What this programme’s record shows, and where the evidence for it sits.');
 
-  // Sized to fill the page rather than to fit the content: the five modules
-  // are fixed, so the spare 250 points the page used to end with belong
-  // inside the cards as room to breathe.
-  cardRow(k, 230, (row) => {
+  headlineBand(k, programmeHeadlines(model));
+
+  // The cards take the room the band leaves, rather than a height chosen once
+  // and hoped for. The band is as long as the findings are — five lines for a
+  // Division I programme, two for one whose minutes cannot be read — and a
+  // fixed 230 under a variable band is how this page grew a second page twice
+  // while it was being written.
+  //
+  // Floors, because a squashed card is worse than a slightly full page: the
+  // evidence strip is no longer pinned to the card's floor, so a card that
+  // runs past its box pushes the strip out of it rather than over its own
+  // last fact, and the layout guard sees that.
+  const room = doc.page.height - M - 26 - doc.y - 3 * 8;
+  const third = Math.max(112, Math.min(136, room * 0.22));
+  const pair = Math.max(176, (room - third) / 2);
+
+  cardRow(k, pair, (row) => {
     freshmanCard(doc, { ...row, w: HALF }, s.freshmanOpportunity);
     arrivalCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, s.experiencedArrivalReliance);
   });
-  cardRow(k, 230, (row) => {
+  cardRow(k, pair, (row) => {
     replacementCard(doc, { ...row, w: HALF }, s.replacementBehaviour);
     coachCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, s.coachContext);
   });
-  cardRow(k, 152, (row) => squadOutlookCard(doc, row, s.squadTurnover));
+  cardRow(k, third, (row) => squadOutlookCard(doc, row, s.squadTurnover));
 }
 
 // ---------------------------------------------------------------------------
@@ -1023,7 +1085,7 @@ function positionOpensCard(doc, box, a) {
     ]);
   }
 
-  evidenceChip(doc, p.x, p.bottom - 20, o.evidence,
+  evidenceChip(doc, p.x, Math.max(y + 10, p.bottom - 20), o.evidence,
     `${plural(v.transitions, 'transition')} · ${plural(v.openings, 'opening')}`, p.w);
 }
 

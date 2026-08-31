@@ -194,11 +194,14 @@ describe('the document', () => {
     expect(pageCount(athlete.buf)).toBeGreaterThan(pageCount(plain.buf));
   });
 
-  it('puts the contents on page one and the glance page on page two', async () => {
+  it('puts the cover on page one and the glance page on page two', async () => {
     const { model } = await build();
     expect(model.sections.find((s) => s.id === 'programme-at-a-glance')).toBeTruthy();
     const { buf } = await build();
-    expect(pdfText(buf)).toMatch(/PROGRAM INTELLIGENCE REPORT/);
+    const text = pdfText(buf);
+    // The cover leads with the programme's name; the label sits under it.
+    expect(text).toMatch(/THRIV3 Test College PROGRAMME INTELLIGENCE/);
+    expect(text).toMatch(/How this programme recruits, develops, retains and replaces players/);
   });
 
   it('carries no blank pages', async () => {
@@ -423,13 +426,16 @@ describe('the contents page', () => {
     const { buf } = await build();
     const text = pdfText(buf);
     expect(text).not.toMatch(/FOR THIS ATHLETE/);
-    expect(text).not.toMatch(/Prepared for/);
+    // The athlete cover form, and the athlete-scoped cover sentence.
+    expect(text).not.toMatch(/ × Test College/);
+    expect(text).not.toMatch(/A historical view of how players enter/);
   });
 
-  it('names the athlete on an athlete report', async () => {
+  it('names the athlete and the programme together on an athlete report', async () => {
     addAthlete('p1', { name: 'Sample Athlete' });
     const text = pdfText((await build('p1')).buf);
-    expect(text).toMatch(/Prepared for Sample Athlete/);
+    expect(text).toMatch(/Sample Athlete × Test College/);
+    expect(text).toMatch(/A historical view of how players enter, develop and move through/);
     expect(text).toMatch(/FOR THIS ATHLETE/);
   });
 

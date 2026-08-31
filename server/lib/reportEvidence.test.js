@@ -614,9 +614,10 @@ describe('reader-facing wording', () => {
 
   it('says programme, not program, outside the report’s own name', async () => {
     for (const text of await both()) {
-      const stray = (text.match(/\bprogram\b/gi) ?? [])
-        .filter((_, i) => !text.includes('PROGRAM INTELLIGENCE REPORT') || i > 0);
-      expect(stray).toEqual([]);
+      // Nothing is exempt any more: the cover used to say PROGRAM INTELLIGENCE
+      // REPORT and now says PROGRAMME INTELLIGENCE, so the whole document
+      // spells it the same way.
+      expect(text.match(/\bprogram\b/gi) ?? []).toEqual([]);
       expect(text).toMatch(/programme/i);
     }
   });

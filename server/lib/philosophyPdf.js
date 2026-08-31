@@ -178,6 +178,20 @@ export function fitHeadline(doc, text, width, size, floor = 13) {
 export function kit(doc) {
   const api = {
     doc,
+    /**
+     * Draw something once every page exists.
+     *
+     * A page-two summary that cites "Roster continuity, page 12" cannot know
+     * that 12 while page two is being written — the same problem the contents
+     * page has, and the same solution. The callback is handed the page it was
+     * registered on and is run after the document is complete, with the
+     * document switched back to that page.
+     */
+    later: [],
+    defer(fn) {
+      api.later.push({ page: doc.bufferedPageRange().count - 1, fn });
+      return api;
+    },
     y() { return doc.y; },
     gap(n = 10) { doc.y += n; return api; },
 
