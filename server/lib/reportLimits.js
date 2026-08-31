@@ -41,7 +41,9 @@ export function evidenceLimitsPage(k, model) {
     k.heading(item.title);
     k.facts([
       ['What we set out to measure', item.attempted],
-      ['Why it could not be measured', item.why],
+      // The gate's own note is written to be appended to a sentence, so it
+      // arrives lowercase; here it starts one.
+      ['Why it could not be measured', String(item.why).replace(/^./, (c) => c.toUpperCase())],
       ['The threshold it fell short of', item.threshold],
     ]);
     k.note(`What this does not mean: ${item.notMeant}`);

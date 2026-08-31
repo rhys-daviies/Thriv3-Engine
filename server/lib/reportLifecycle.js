@@ -563,23 +563,22 @@ export function athletePositionMovementPage(k, model) {
   const l = model.lifecycle;
   const p = l.athletePosition;
   const a = model.athlete;
-  const label = positionPlural(p.position) ?? 'players';
+  const label = positionPlural(p.position) || 'players';
+  // "When a defense has left" — the canonical position is a group name, not a
+  // noun for one player. The plural the page's own title uses, singularised.
+  const one = label.replace(/s$/, '');
 
   // Set quiet where the position's own sample is a handful of players. A
   // 19pt title over one traced move claims more than one traced move can
   // carry; the supporting record is set this way for the same reason.
   const thin = p.positionRows.length < MIN_POSITION_DESTINATIONS;
   pageHead(k, {
-    kicker: thin ? 'Supporting detail' : 'For this athlete',
+    kicker: thin ? 'The evidence behind it' : 'Understanding your pathway',
     quiet: thin,
     title: p.group === 'position'
       ? `${label.replace(/^./, (c) => c.toUpperCase())} here we could trace`
       : `${label.replace(/^./, (c) => c.toUpperCase())} we could trace`,
-    question: p.group === 'position'
-      ? `When a ${String(p.position).toLowerCase()} has left this programme, where have we been `
-        + 'able to see them next?'
-      : `When a ${String(p.position).toLowerCase()} has left this programme, where have we been `
-        + 'able to see them next?',
+    question: `When a ${one} has left this programme, where have we been able to see them next?`,
   });
   k.scope([
     `${a.positionLabel} — the position ${a.name} plays`,

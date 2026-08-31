@@ -121,7 +121,10 @@ export function renderProgramReport(model, opts = {}) {
     // has been built. A programme report has none of these sections and falls
     // straight through to the programme evidence.
 
-    if (a) {
+    // Through `section`, like every other page: drawn unconditionally it
+    // produced a page the contents did not list, on a programme whose
+    // synthesis had nothing to say.
+    if (a && planned.has('athlete-at-a-glance')) {
       k.doc.addPage();
       at('athlete-at-a-glance');
       athletePathwayPage(k, model);

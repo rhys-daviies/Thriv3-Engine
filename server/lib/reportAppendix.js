@@ -30,7 +30,7 @@ const page = (k, kicker, title, question) => pageHead(k, { kicker, title, questi
 
 /** The appendices, set one level quieter than the pages they support. */
 const record = (k, title, question) => pageHead(k,
-  { kicker: 'Supporting record', title, question, quiet: true });
+  { kicker: 'The evidence behind it', title, question, quiet: true });
 
 const BAND_WORD = { impact: 'Starter season', rotation: 'Rotation', fringe: 'Fringe', none: 'Did not play' };
 

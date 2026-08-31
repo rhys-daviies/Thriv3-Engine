@@ -299,12 +299,20 @@ export function athleteHeadlines(model) {
   const out = [];
 
   const here = a.currentPositionPlayers ?? [];
-  out.push({
+  // A zero here is an absent roster, not an empty position group, and the row
+  // pointed at a page that does not render — it read "0 players … 0 of them"
+  // and led nowhere.
+  out.push(here.length ? {
     label: 'Who is there now',
     text: `${plural(here.length, 'player', 'players')} on the current roster are recorded at this `
       + `position, ${(a.currentPlayersEligibleAtEntry ?? []).length} of them still eligible in `
       + `${a.entrySeason}.`,
     section: 'athlete-current-position',
+  } : {
+    label: 'Who is there now',
+    text: 'No current roster is on file for this programme, so who is at this position now cannot '
+      + 'be read.',
+    section: null,
   });
 
   const v = a.positionVacancyHistory;

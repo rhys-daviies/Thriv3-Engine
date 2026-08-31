@@ -84,6 +84,8 @@ export const actsFor = ({ hasAthlete }) => (hasAthlete ? ACTS.athlete : ACTS.pro
 export const actTitle = (id, { hasAthlete }) => actsFor({ hasAthlete })
   .find((a) => a.id === id)?.title ?? id;
 
+import { pathwayNarrative } from './narrative.js';
+
 const count = (x) => (Array.isArray(x) ? x.length : 0);
 const has = (x) => count(x) > 0;
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
@@ -125,10 +127,17 @@ export const SECTIONS = [
       + 'roster intersect.',
     layer: 'interpretation',
     scope: 'athlete',
+    // The spine of an athlete report: it renders wherever the synthesis has a
+    // sentence to say. The old rule asked whether the four cards this page
+    // used to carry had data, and those cards are pages of their own now — a
+    // sparse programme was losing the one page that reads its analyses
+    // together while keeping the pages it reads FROM.
     unavailableWhenEmpty: false,
-    applies: ({ summary }) => Boolean(summary?.athlete)
-      && (has(summary.athlete.currentPositionPlayers)
-        || (summary.athlete.positionVacancyHistory?.transitions ?? 0) > 0),
+    // The summary is a sibling of the model in this context and a field on it
+    // in the route's payload. Joined here so the predicate does not depend on
+    // which of the two a caller happens to hand it.
+    applies: (ctx) => Boolean(ctx.summary?.athlete)
+      && pathwayNarrative({ ...ctx.model, summary: ctx.summary }).length > 0,
     scopeOf: ({ summary }) => [
       count(summary.athlete?.currentPositionPlayers)
         ? `${count(summary.athlete.currentPositionPlayers)} currently at the position` : null,

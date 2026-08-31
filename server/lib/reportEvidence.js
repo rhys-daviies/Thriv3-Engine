@@ -531,7 +531,8 @@ export function replacementByPositionPage(k, model) {
   }
   if (athletePos) {
     k.note(`${cap(positionPlural(athletePos))} is the position this report is prepared for and is `
-      + 'marked in the table; what it means for this athlete is on the pages that follow.');
+      + 'marked in the table; how this history intersects with one position and one entry year is '
+      + 'on the pathway pages.');
   }
 }
 

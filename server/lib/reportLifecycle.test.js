@@ -375,7 +375,7 @@ describe('the athlete module', () => {
     const p = model.lifecycle.athletePosition;
     expect(p.group).toBe('position');
     expect(text).toContain('Forwards here we could trace');
-    expect(text).toMatch(/Players recorded at forward who left and could be traced/);
+    expect(text).toMatch(/Players recorded here at forward who left, and could be traced/);
   });
 
   it('says so outright when it is showing the programme instead', async () => {

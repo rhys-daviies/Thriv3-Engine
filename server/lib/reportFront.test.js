@@ -440,7 +440,7 @@ describe('the contents page', () => {
   it('drops the athlete layer entirely from a programme report', async () => {
     const { buf } = await build();
     const text = pdfText(buf);
-    expect(text).not.toMatch(/FOR THIS ATHLETE/);
+    expect(text).not.toMatch(/UNDERSTANDING YOUR PATHWAY/);
     // The athlete cover form, and the athlete-scoped cover sentence.
     expect(text).not.toMatch(/ × Test College/);
     expect(text).not.toMatch(/A historical view of how players enter/);
@@ -451,7 +451,8 @@ describe('the contents page', () => {
     const text = pdfText((await build('p1')).buf);
     expect(text).toMatch(/Sample Athlete × Test College/);
     expect(text).toMatch(/A historical view of how players enter, develop and move through/);
-    expect(text).toMatch(/FOR THIS ATHLETE/);
+    // The athlete's own pages are an act now, and the contents names it.
+    expect(text).toMatch(/UNDERSTANDING YOUR PATHWAY/);
   });
 
   // The value statement is built from the seasons the model actually holds.

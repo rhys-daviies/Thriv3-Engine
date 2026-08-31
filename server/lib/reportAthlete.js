@@ -40,7 +40,7 @@ export function positionHistoryPage(k, model) {
   const ea = a.experiencedArrivalsAtPosition;
   const v = a.positionVacancyHistory;
 
-  page(k, 'For this athlete', `${cap(nouns(a))} at this programme`,
+  page(k, 'Understanding your pathway', `${cap(nouns(a))} at this programme`,
     `How has this programme historically treated players at your position?`);
   scope(k, [
     v?.transitions ? `${plural(v.transitions, 'season transition', 'season transitions')} readable` : null,
@@ -158,7 +158,7 @@ export function positionOpeningsPage(k, model) {
   const o = a.positionOpeningOutcomes;
   const events = a.positionVacancyRecord ?? [];
 
-  page(k, 'For this athlete', `When a place opens at ${noun(a)}`,
+  page(k, 'Understanding your pathway', `When a place opens at ${noun(a)}`,
     'When a meaningful place has opened at your position, what actually happened next?');
 
   if (!v?.transitions) {
@@ -301,7 +301,7 @@ export function currentPositionPage(k, model) {
   const a = model.summary.athlete;
   const players = a.currentPositionPlayers ?? [];
 
-  page(k, 'For this athlete', `${cap(nouns(a))} on the ${model.squadSeason} roster`,
+  page(k, 'Understanding your pathway', `${cap(nouns(a))} on the ${model.squadSeason} roster`,
     'Who is currently at your position?');
 
   if (!players.length) {
@@ -373,7 +373,7 @@ export function arrivalWindowPage(k, model) {
   const a = model.summary.athlete;
   const players = a.currentPositionPlayers ?? [];
 
-  page(k, 'For this athlete', `Your arrival window, ${a.entrySeason}`,
+  page(k, 'Understanding your pathway', `Your arrival window, ${a.entrySeason}`,
     'What current playing-time load sits around the season you would arrive in?');
 
   if (!players.length) {
@@ -499,7 +499,7 @@ export function originPage(k, model) {
   const o = a.originContext;
   const originWord = o.requestedOrigin === 'international' ? 'international' : 'US-based';
 
-  page(k, 'For this athlete', 'Where you are arriving from',
+  page(k, 'Understanding your pathway', 'Where you are arriving from',
     'Does this programme’s record show anything useful for first-years from your background?');
   // Stated once, at the top, and never implied away: the origin split is
   // across the whole intake. The previous pages narrow to a position, and a

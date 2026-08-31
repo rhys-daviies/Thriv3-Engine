@@ -413,7 +413,7 @@ export function positionMovement(movements, position, { minPosition = MIN_POSITI
     // departure from the programme" while the page beneath it showed one
     // forward; the page changed and this had to change with it.
     groupNote: usePosition
-      ? `Players recorded at ${pos.toLowerCase()} who left and could be traced.`
+      ? `Players recorded here at ${pos.toLowerCase()} who left, and could be traced.`
       : `Too few ${pos === 'UNKNOWN' ? 'position-matched' : pos.toLowerCase()} departures can be `
         + 'traced to describe this position on its own. What follows is every one of them, which '
         + 'is too small a group to read a pattern into; the programme-wide record is at the back '
