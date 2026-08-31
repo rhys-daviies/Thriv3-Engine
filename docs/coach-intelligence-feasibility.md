@@ -577,6 +577,13 @@ vocabulary because attribution is easier to imply than measurement:
 
 ---
 
+> **Phase 11B is built.** The attribution model recommended below now exists as
+> `shared/coachAttribution.js`, with its production contract in
+> [`coach-attribution.md`](coach-attribution.md). The distributions in §4 and §5
+> of this document are reproduced there from the production model, with every
+> difference accounted for by role and name filtering this research pass did not
+> apply. Nothing in the report reads it yet.
+
 ## 16. Recommendation for Phase 11B
 
 **Build the two attribution modules and nothing else.**
