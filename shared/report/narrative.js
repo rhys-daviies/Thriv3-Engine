@@ -208,13 +208,24 @@ export function programmeHeadlines(model) {
   const out = [];
 
   const f = s?.freshmanOpportunity;
-  if (f?.ladderTop?.median != null) {
+  // The same refusal the card makes. A programme whose minutes cannot be read
+  // has a ladder top of zero, and this line printed "has typically played 0
+  // minutes" beside a card that was refusing to state exactly that figure.
+  const freshmanUnclear = !f || f.classification === 'unclear' || f.classification === 'unavailable';
+  if (f?.ladderTop?.median != null && !freshmanUnclear) {
     const clause = againstPool(f.classification);
     out.push({
       label: 'First-years',
       text: 'The best first-year of a season here has typically played '
         + `${Math.round(f.ladderTop.median).toLocaleString('en-US')} minutes`
         + `${clause ? ` — ${clause}` : ''}.`,
+      section: 'freshman-ladder',
+    });
+  } else if (f) {
+    out.push({
+      label: 'First-years',
+      text: 'There is not enough published first-year minutes here to say what a first-year has '
+        + 'typically played.',
       section: 'freshman-ladder',
     });
   }

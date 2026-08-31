@@ -461,6 +461,19 @@ describe('the contents still names the right pages', () => {
   });
 });
 
+describe('the headline band never states a figure the card refuses', () => {
+  it('does not print a ladder top of zero as a typical first-year season', async () => {
+    addProgramme({ minutesPublished: false });
+    const { text, model, pages } = await build();
+    const f = model.summary.programme.freshmanOpportunity;
+    expect(['unclear', 'unavailable']).toContain(f.classification);
+    // The card refuses this figure; the band beside it used to print it.
+    expect(pages[1]).not.toMatch(/typically played 0 minutes/);
+    expect(text).not.toMatch(/typically played 0 minutes/);
+    expect(pages[1]).toContain('There is not enough published first-year minutes here');
+  });
+});
+
 describe('sparse programmes', () => {
   it('says why there are no percentages where minutes were never published — once', async () => {
     addProgramme({ minutesPublished: false });

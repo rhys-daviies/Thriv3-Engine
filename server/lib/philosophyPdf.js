@@ -1549,10 +1549,11 @@ export const charts = {
     // The legend wraps. It used to lay out in one row and walk off the right
     // edge as soon as a label carried its own count — "not traceable (12)" was
     // the one the layout guard caught, 38 points into the margin.
-    // The legend starts under the last row's own span, and WRAPS back to that
-    // start rather than to the track's origin — an indented row's second
-    // legend line was returning to the full-width left edge.
-    const legendX = plot.x + labelW + (rows[rows.length - 1]?.trackFrom ?? 0) * trackW;
+    // The legend runs the full width of the track, even under a row that only
+    // occupies part of it. Started under the row's own span it had 13% of the
+    // track to fit three keys into and printed "traced t…", "evidenc…", "no
+    // trac…". The BAR carries the nesting; the legend is a key.
+    const legendX = plot.x + labelW;
     let lx = legendX;
     let ly = y + 1;
     const right = plot.x + plot.w;
