@@ -58,8 +58,16 @@ export const MIN_OBSERVED_DESTINATIONS = 8;
  * place the names are printed would make the analysis uncheckable.
  */
 export const MAX_DESTINATION_ROWS = 12;
-/** Individual trajectories drawn; beyond this the chart stops being readable. */
-export const MAX_TRAJECTORIES = 8;
+/**
+ * Individual trajectories drawn; beyond this the chart stops being readable.
+ *
+ * Eight lines crossing one axis is a texture rather than a chart — the reader
+ * cannot follow any single player through it, and the page's own headline gets
+ * less space than the eight lines under it. Six is followable. The selection
+ * rule is unchanged and still stated on the page, and the count not drawn is
+ * printed beside it.
+ */
+export const MAX_TRAJECTORIES = 6;
 /** A player needs this many measured seasons before their line means anything. */
 export const MIN_TRAJECTORY_SEASONS = 3;
 /** A position needs this many observed destinations before it is shown alone. */

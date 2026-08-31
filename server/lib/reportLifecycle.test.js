@@ -246,20 +246,33 @@ describe('roster continuity on the page', () => {
     expect(text).toContain('Roster continuity');
     expect(text).toMatch(/How often do players who could return appear on the next roster\?/);
     const c = model.lifecycle.continuity;
-    expect(text).toContain(`${c.returned} of ${c.returnable}`);
+    // The reading block states it first, in a sentence, with its denominator.
+    expect(text).toContain('WHAT THRIV3 SEES');
+    expect(text).toContain(`${c.returned} of the ${c.returnable} players who could return did`);
   });
 
   it('shows expected exits and early departures as separate groups', async () => {
-    const { text } = await build();
-    expect(text).toContain('Expected exits');
-    expect(text).toContain('Early departures');
-    expect(text).toMatch(/senior or graduate/);
-    expect(text).toMatch(/first-year, sophomore or junior/);
+    const { text, model } = await build();
+    const d = model.lifecycle.departures.departures;
+    // Two named segments of one bar, each carrying its own count.
+    expect(text).toContain(`senior or graduate (${d.expectedExits})`);
+    expect(text).toContain(`seasons still to run (${d.earlyDepartures})`);
   });
 
-  it('says that eligibility years are not used as separate evidence', async () => {
+  it('divides only the early departures when it divides the traced group', async () => {
+    const { text, model } = await build();
+    const e = model.lifecycle.departures.earlyTracing;
+    expect(text).toContain(`traced to another roster (${e.observed})`);
+    expect(text).toContain(`no trace at all (${e.unresolved})`);
+    // The claim the page must not let a reader make.
+    expect(text).toMatch(/second bar divides the first bar’s navy segment and nothing else/);
+  });
+
+  it('keeps the eligibility-year rule, in the methodology where it belongs', async () => {
     const { text } = await build();
-    expect(text).toMatch(/Eligibility years are not used here/);
+    expect(text).toMatch(/Eligibility end year is a fixed arithmetic step from that label/);
+    // And not as a paragraph competing with the finding on the page itself.
+    expect(text).not.toMatch(/Eligibility years are not used here/);
   });
 });
 
@@ -283,7 +296,7 @@ describe('the destination gate, in the document', () => {
     // Everything that does not depend on tracing still renders.
     expect(ids).toContain('roster-continuity');
     expect(ids).toContain('player-development');
-    expect(text).toContain('Early departures');
+    expect(text).toMatch(/seasons still to run \(\d+\)/);
   });
 
   it('renders the destination pages for a Division I programme with coverage', async () => {
@@ -324,8 +337,12 @@ describe('the destination page itself', () => {
   it('names the unresolved group and does not bury it', async () => {
     const { pages, model } = await build();
     const page = pageOf(pages, model, 'observed-destinations');
+    const t = model.lifecycle.departures.tracing;
     expect(page).toMatch(/not traceable \(\d+\)/);
-    expect(page).toContain(`${model.lifecycle.departures.tracing.unresolved} more left and appear on no roster`);
+    // The untraceable group is named in the coverage headline, in the same
+    // sentence that says what the rest of the page is a sample of.
+    expect(page).toContain(`the other ${t.ambiguous + t.unresolved} appear on no roster we can see`);
+    expect(page).toContain('OF DEPARTURES TRACED');
   });
 
   it('shows football, academic and division as three separate bars', async () => {

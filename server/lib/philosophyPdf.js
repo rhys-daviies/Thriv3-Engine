@@ -273,6 +273,37 @@ export function kit(doc) {
     },
 
     /**
+     * What Thriv3 sees: the page's own reading of the evidence below it.
+     *
+     * Set as the first thing under the page's question and above the charts,
+     * because it is the primary tier — a reader who takes one thing from a
+     * page should take this. Left rule in claret, body at reading size, and
+     * deliberately NOT a tinted panel: `box` is the limitation a reader must
+     * not miss and `aside` is a coverage footnote, and a third tinted block
+     * competing with both would flatten all three.
+     */
+    reading(sentences, { title = 'What Thriv3 sees' } = {}) {
+      const list = (Array.isArray(sentences) ? sentences : [sentences]).filter(Boolean);
+      if (!list.length) return api;
+      const inner = W - 22;
+      const h = list.reduce((sum, t) => sum + doc.font('Helvetica').fontSize(9.5)
+        .heightOfString(t, { width: inner }) + 4, 0) + 16;
+      api.room(h + 10);
+      const top = doc.y;
+      doc.save().rect(M, top, 2.5, h).fill(CLARET).restore();
+      doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(CLARET)
+        .text(String(title).toUpperCase(), M + 14, top,
+          { width: inner, characterSpacing: TYPE.label.spacing, lineBreak: false });
+      let y = top + 12;
+      for (const t of list) {
+        doc.font('Helvetica').fontSize(9.5).fillColor(INK).text(t, M + 14, y, { width: inner });
+        y = doc.y + 4;
+      }
+      doc.y = top + h;
+      return api.gap(12);
+    },
+
+    /**
      * A quieter block than `box`, for a coverage detail rather than a limit.
      *
      * The report had one callout style doing both jobs: the limitation a
@@ -1487,10 +1518,24 @@ export const charts = {
         continue;
       }
       const total = keys.reduce((sum, kk) => sum + (row.values[kk.key] ?? 0), 0) || 100;
-      let cx = plot.x + labelW;
+      // A row may occupy a SPAN of the track rather than all of it, so a bar
+      // that divides one segment of the bar above it can be drawn under that
+      // segment and nowhere else. Without this the second bar ran the full
+      // width and read as another division of the whole population — which is
+      // the one misreading the departure pages exist to prevent.
+      const from = row.trackFrom ?? 0;
+      const to = row.trackTo ?? 1;
+      const span = Math.max(0, to - from) * trackW;
+      let cx = plot.x + labelW + from * trackW;
+      if (from > 0) {
+        // A hairline from the parent segment's edge down to this bar, so the
+        // relationship is drawn rather than only described underneath.
+        doc.save().moveTo(plot.x + labelW + from * trackW, y - 6)
+          .lineTo(cx, y).lineWidth(0.5).strokeColor(LINE).stroke().restore();
+      }
       for (const kk of keys) {
         const v = row.values[kk.key] ?? 0;
-        const segW = (v / total) * trackW;
+        const segW = (v / total) * span;
         doc.save().rect(cx, y, Math.max(0, segW - 1.5), barH).fill(kk.color).restore();
         if (segW > 34) {
           doc.font('Helvetica-Bold').fontSize(9).fillColor(kk.dark ? INK : '#FFFFFF')
@@ -1504,14 +1549,18 @@ export const charts = {
     // The legend wraps. It used to lay out in one row and walk off the right
     // edge as soon as a label carried its own count — "not traceable (12)" was
     // the one the layout guard caught, 38 points into the margin.
-    let lx = plot.x + labelW;
+    // The legend starts under the last row's own span, and WRAPS back to that
+    // start rather than to the track's origin — an indented row's second
+    // legend line was returning to the full-width left edge.
+    const legendX = plot.x + labelW + (rows[rows.length - 1]?.trackFrom ?? 0) * trackW;
+    let lx = legendX;
     let ly = y + 1;
     const right = plot.x + plot.w;
     doc.font('Helvetica').fontSize(7.5);
     for (const kk of keys) {
       const wNeeded = 14 + doc.widthOfString(kk.label) + 16;
-      if (lx > plot.x + labelW && lx + wNeeded > right) {
-        lx = plot.x + labelW;
+      if (lx > legendX && lx + wNeeded > right) {
+        lx = legendX;
         ly += 11;
       }
       doc.save().rect(lx, ly, 8, 8).fill(kk.color).restore();

@@ -169,10 +169,10 @@ const DIVISION_LABELS = {
 export function destinationNarrative(model) {
   const d = model.lifecycle?.departures;
   if (!d?.gate?.allowed) return [];
-  const t = d.tracing;
-  const out = [`${t.observed} of the ${d.departures.total} departures on file can be traced to `
-    + `another roster — ${pc(t.coverage)}. The other ${t.ambiguous + t.unresolved} cannot, and `
-    + 'nothing about where they went is implied by that.'];
+  // The counts are the page's own headline figure and its scope line. What
+  // this block adds is the pattern in the traced sample, which no figure on the
+  // page states in words.
+  const out = [];
 
   // Each dimension on its own, and the sentence says so.
   const parts = [];
@@ -184,8 +184,8 @@ export function destinationNarrative(model) {
     if (top && top.share >= 0.4) parts.push(`${HOW_MANY(top.share)} ${top.label}`);
   }
   if (parts.length) {
-    out.push(`Among the ones we can trace, ${parts.join(', ')}. Those are three separate readings `
-      + 'of the same moves, not one.');
+    out.push(`Among the departures we can trace, ${parts.join(', ')}. Those are three separate `
+      + 'readings of the same moves, not one, and a single player can be all three.');
   }
   return out;
 }

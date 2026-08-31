@@ -26,11 +26,15 @@
  * Successful or failed. A player's minutes at their next programme are their
  * minutes at their next programme.
  */
-import { charts, THEME, pageHead, fitText } from './philosophyPdf.js';
+import { charts, THEME, TYPE, pageHead, fitText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
+import {
+  developmentNarrative, continuityNarrative, destinationNarrative,
+} from '../../shared/report/narrative.js';
 
 const { MUTED, CLARET, NAVY, MID, PALE, GREEN, INK, W, M } = THEME;
+const THEME_LABEL = TYPE.label;
 
 const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const pc = (v) => (v == null ? '—' : `${Math.round(v * 100)}%`);
@@ -76,6 +80,8 @@ export function playerDevelopmentPage(k, model) {
     `vs ${poolScope(l)}`,
   ]);
 
+  k.reading(developmentNarrative(model));
+
   // Trajectory first, as four columns whose denominators shrink to the right.
   charts.yearSteps(k, {
     box: k.slot(136),
@@ -106,10 +112,6 @@ export function playerDevelopmentPage(k, model) {
       + 'minutes figure, so no share is quoted above. The counts are real; the percentages would '
       + 'not be, and a zero drawn from unpublished minutes reads exactly like a programme whose '
       + 'first-years never play.', { title: 'Why there are no percentages here' });
-  } else {
-    k.body(`${d.everStarter.reached} of ${d.everStarter.denominator} first-years with published `
-      + `minutes have reached a ${STARTER_MINUTES}-minute season here at some point — `
-      + `${BAND_WORD[d.everStarter.band]}.`, { bold: true });
   }
 
   // Individual lines, only for a cohort small enough to follow.
@@ -118,7 +120,7 @@ export function playerDevelopmentPage(k, model) {
     const max = Math.max(1600, ...tr.shown.flatMap((t) => t.points.map((p) => p.minutes)));
     const years = Math.max(2, ...tr.shown.flatMap((t) => t.points.map((p) => p.year)));
     charts.trajectories(k, {
-      box: k.slot(190),
+      box: k.slot(150),
       title: 'Individual careers here, season by season',
       subtitle: tr.rule.replace(/^./, (c) => c.toUpperCase())
         + `. ${tr.omitted ? `${tr.omitted} more are not drawn.` : 'All of them are drawn.'}`,
@@ -129,8 +131,7 @@ export function playerDevelopmentPage(k, model) {
       unavailable: null,
     });
     k.note('A season with no published minutes leaves a gap rather than a point at zero. These are '
-      + 'the longest careers on file here, not the best ones — the selection rule is stated above '
-      + 'so nothing has been chosen for how it looks.');
+      + 'the longest careers on file here, not the best ones.');
   } else {
     k.aside('No first-year here has three or more seasons of published minutes, so there is no '
       + 'career long enough to draw. That is a limit of what these rosters record, not a statement '
@@ -197,6 +198,8 @@ export function rosterContinuityPage(k, model) {
     `vs ${poolScope(l)}`,
   ]);
 
+  k.reading(continuityNarrative(model));
+
   // Retention first, and as a bar with the pool as a mark on it rather than
   // two bars and a pair of numbers. `paired` printed "50 · 56%", which asks
   // the reader to remember which of two unlabelled figures is theirs.
@@ -232,15 +235,13 @@ export function rosterContinuityPage(k, model) {
       : `Pool median for players on ${STARTER_MINUTES}+ minutes: ${pc(c.starterRetention.pool.median)}.`,
   ].filter(Boolean).join('  ') || 'No pool figure is available for this division.');
 
-  k.body(`${nf(c.returned)} of ${nf(c.returnable)} player-seasons that could return did`
-    + `${c.retention == null ? '' : ` — ${pc(c.retention)}, ${BAND_WORD[c.band]}`}.`
-    + `${c.unreadable ? ` A further ${nf(c.unreadable)} cannot be read either way: the following `
-      + 'season’s roster is not on file, and absence proves nothing without one.' : ''}`,
-  { bold: true });
+  if (c.unreadable) {
+    k.note(`A further ${nf(c.unreadable)} players cannot be read either way: their programme’s next `
+      + 'roster is not on file, and an absence proves nothing without one.');
+  }
   k.note('This is a count of names on two rosters and nothing more. A player who is not on the next '
     + 'roster may have graduated, moved, been injured, stopped playing, or be sitting behind a '
-    + 'spelling we could not match. A programme whose players return less often than the pool is a '
-    + 'programme whose players return less often than the pool, and nothing else.');
+    + 'spelling we could not match.');
 
   // By prior role, where the sample allows it.
   const roleRows = c.byRole.filter((r) => r.returnable > 0);
@@ -271,48 +272,84 @@ export function rosterContinuityPage(k, model) {
 
   // ---- departure composition ----
   //
-  // One table, with the traceable/untraceable split indented under the group it
-  // belongs to. Drawn as two separate blocks it read as two independent
-  // findings that happened to sit on the same page, and a reader had to do the
-  // arithmetic to see that the second was a subdivision of a line in the first.
+  // Two bars, nested by reading order: the first divides every departure, the
+  // second divides the early half of it. This was a table with three indented
+  // rows, which stated the hierarchy and did not show it — and the one thing
+  // this page must never let a reader do is read the traced group as the whole
+  // departure population.
+  //
+  // The definitions that used to sit in a third column are in the methodology,
+  // which already carried them word for word.
   const e = dep.earlyTracing;
+  const total = dep.departures.total;
   k.heading('What the departures are made of');
-  k.body(`${plural(dep.departures.total, 'player-season', 'player-seasons')} ended without the `
+  if (!total) {
+    // Every player who could return did. There is no population to divide, and
+    // a bar drawn over a denominator of zero is not a picture of that.
+    k.body('Every player who could return appeared on the next roster, so there are no departures '
+      + 'to describe.', { bold: true });
+    return;
+  }
+  k.body(`${plural(total, 'player-season', 'player-seasons')} ended without the `
     + 'player appearing on this programme’s next roster. The class label on their last season here '
     + 'is the only thing that says whether a return was expected at all.');
-  k.table({
-    columns: [
-      { key: 'label', label: 'Group', width: 0.44 },
-      { key: 'n', label: 'Player-seasons', width: 0.17, align: 'right' },
-      { key: 'what', label: 'What this group is', width: 0.39 },
+
+  charts.stackedRows(k, {
+    box: k.slot(56),
+    title: null,
+    subtitle: null,
+    rows: [{
+      label: 'All departures',
+      note: `${dep.departures.total} player-seasons`,
+      values: {
+        expected: (100 * dep.departures.expectedExits) / total,
+        early: (100 * dep.departures.earlyDepartures) / total,
+        unknown: (100 * dep.departures.unknownClass) / total,
+      },
+    }],
+    keys: [
+      { key: 'expected', label: `senior or graduate (${dep.departures.expectedExits})`, color: PALE, dark: true },
+      { key: 'early', label: `seasons still to run (${dep.departures.earlyDepartures})`, color: NAVY },
+      ...(dep.departures.unknownClass
+        ? [{ key: 'unknown', label: `class not readable (${dep.departures.unknownClass})`, color: MID }] : []),
     ],
-    rows: [
-      { label: 'Expected exits', n: dep.departures.expectedExits,
-        what: 'senior or graduate on their last season' },
-      { label: 'Early departures', n: dep.departures.earlyDepartures,
-        what: 'first-year, sophomore or junior' },
-      ...(e.departures ? [
-        { label: '   of those, traced to another roster', n: e.observed,
-          what: 'the same name, with agreeing detail' },
-        { label: '   of those, a name we could not settle', n: e.ambiguous,
-          what: 'a name elsewhere, evidence unsettled' },
-        { label: '   of those, no trace at all', n: e.unresolved,
-          what: 'on no other roster we hold' },
-      ] : []),
-      ...(dep.departures.unknownClass ? [{
-        label: 'Class not readable', n: dep.departures.unknownClass,
-        what: 'no class label we could rank' }] : []),
-    ],
-    note: 'The three indented rows divide the early departures and nothing else; they do not add to '
-      + 'the total above them. Eligibility years are not used here — they are a fixed arithmetic '
-      + 'step from the class label in every row on file, so reading them as separate evidence would '
-      + 'classify every graduation as an early departure.',
+    labelW: 130,
+    barH: 20,
+    unavailable: null,
   });
-  k.note('“Traced” means the same name appears at another programme the next season with enough '
-    + 'agreeing detail — hometown, position, class progression — to be confident it is the same '
-    + 'person. It is not a record of where this programme’s players went: most departures cannot '
-    + 'be traced at all, and how many can depends on how completely rosters in that division were '
-    + 'published.');
+
+  if (e.departures > 0) {
+    charts.stackedRows(k, {
+      // Room for a legend on two lines: this row's is squeezed into the span
+      // of its parent's segment, so it wraps where a full-width one would not.
+      box: k.slot(68),
+      title: null,
+      subtitle: null,
+      rows: [{
+        label: 'Of those, early',
+        note: `${e.departures} of them`,
+        // Drawn under the navy segment of the bar above and nowhere else.
+        trackFrom: dep.departures.expectedExits / total,
+        trackTo: (dep.departures.expectedExits + dep.departures.earlyDepartures) / total,
+        values: {
+          observed: (100 * e.observed) / e.departures,
+          ambiguous: (100 * e.ambiguous) / e.departures,
+          unresolved: (100 * e.unresolved) / e.departures,
+        },
+      }],
+      keys: [
+        { key: 'observed', label: `traced to another roster (${e.observed})`, color: NAVY },
+        { key: 'ambiguous', label: `evidence unsettled (${e.ambiguous})`, color: MID },
+        { key: 'unresolved', label: `no trace at all (${e.unresolved})`, color: PALE, dark: true },
+      ],
+      labelW: 130,
+      barH: 20,
+      unavailable: null,
+    });
+    k.note('The second bar divides the first bar’s navy segment and nothing else. “Traced” means '
+      + 'the same name appears at another programme the next season with enough agreeing detail to '
+      + 'be confident it is the same person — most departures cannot be traced at all.');
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -422,10 +459,35 @@ export function observedDestinationsPage(k, model) {
     `${pc(d.tracing.coverage)} of departures`,
   ]);
 
-  // Coverage first, and at full size. It is the finding that qualifies every
-  // other figure on the page, and a footnote would not carry it.
+  k.reading(destinationNarrative(model));
+
+  // Coverage, as the largest thing on the page.
+  //
+  // It was a paragraph in a tinted box, which said the right thing at the same
+  // weight as everything else and repeated the reading block above it. The
+  // figure that qualifies every other number here now reads from across a
+  // desk, and the sentence beside it says what the page is a sample of.
+  {
+    const box = k.slot(80);
+    const { doc } = k;
+    doc.font('Helvetica-Bold').fontSize(30).fillColor(CLARET)
+      .text(pc(d.tracing.coverage), box.x, box.y, { width: 96, lineBreak: false });
+    doc.font(THEME_LABEL.font).fontSize(THEME_LABEL.size).fillColor(MUTED)
+      .text('OF DEPARTURES TRACED', box.x, box.y + 32,
+        { width: 110, characterSpacing: THEME_LABEL.spacing });
+    doc.font('Helvetica').fontSize(9.5).fillColor(INK)
+      .text(`${d.tracing.observed} of ${d.departures.total} departures could be traced to another `
+        + `roster. Everything below describes those ${d.tracing.observed}: the other `
+        + `${d.tracing.ambiguous + d.tracing.unresolved} appear on no roster we can see, may have `
+        + 'moved anywhere or stopped playing, and are not a group this sample stands in for.'
+        + (d.tracing.divisionCoverage == null ? ''
+          : ` Across ${model.college.division} as a whole, ${pc(d.tracing.divisionCoverage)} of `
+            + 'departures can be traced.'),
+      box.x + 124, box.y, { width: box.w - 124 });
+  }
+
   charts.stackedRows(k, {
-    box: k.slot(84),
+    box: k.slot(72),
     title: 'How much of this programme’s movement can be seen at all',
     subtitle: 'The three groups are exclusive and add to every departure on file.',
     rows: [{
@@ -445,22 +507,6 @@ export function observedDestinationsPage(k, model) {
     unavailable: null,
   });
 
-  // The counts are in the bar above and its legend. Repeating them as a fact
-  // list said the same five numbers twice and cost a third of the page; what
-  // has to be said in prose is what the sample IS, which the bar cannot say.
-  k.box(`Everything below describes the ${d.tracing.observed} departures we could trace. `
-    + `${d.tracing.unresolved} more left and appear on no roster we can see; they may have moved `
-    + 'anywhere, or stopped playing. The traced group is not a random sample of the rest.'
-    + (d.tracing.divisionCoverage == null ? ''
-      : ` Across this division, ${pc(d.tracing.divisionCoverage)} of departures can be traced.`),
-  { title: 'What this page is a sample of' });
-
-  // Three measures, three bars, never one number.
-  //
-  // This sentence spent a draft inside the first chart's subtitle, where it
-  // saved forty points of page. `frame` draws a subtitle with `lineBreak:
-  // false`, so what it actually did was print the first half of the sentence
-  // and an ellipsis — the test that reads the finished page caught it.
   k.heading('The traced moves, on three separate measures');
   k.body('A move can be to a lower-rated programme, in a stronger academic one, in the same '
     + 'division. These are three facts about the same move and they are never combined into one.',
@@ -492,9 +538,8 @@ export function observedDestinationsPage(k, model) {
         lower: r.football.LOWER_FOOTBALL_RATING,
       })),
       note: 'Stronger, similar and lower are the football rating of the programme each player was '
-        + 'traced to, read against this one. Counts, not rates: the traced share differs by band, '
-        + 'so a percentage would compare samples of different completeness. Nothing here says why '
-        + 'anybody moved.',
+        + 'traced to, read against this one. Counts rather than rates: the traced share differs by '
+        + 'band, so a percentage would compare samples of different completeness.',
     });
   }
 
