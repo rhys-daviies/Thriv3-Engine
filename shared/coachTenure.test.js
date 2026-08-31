@@ -224,3 +224,86 @@ describe('isInheritedSeason', () => {
     expect(isInheritedSeason(t, 2022)).toBe(false);
   });
 });
+
+/**
+ * PHASE 11D — the title column, which this module did not read.
+ *
+ * `tenureFor` resolved a season from any name in the row, so a strength coach
+ * or an associate head became the programme's head coach for that season and
+ * four such seasons became "one coach throughout". The head-coach reader was
+ * written in Phase 11B and used only by the attribution model; it now sits in
+ * this module and both read the table through it.
+ */
+describe('tenureFor reads the title column', () => {
+  const titled = (...pairs) => pairs.map(([coach_name, coach_title], i) => (
+    { season: 2022 + i, coach_name, coach_title }));
+
+  it('does not resolve a season from an associate head coach', () => {
+    // Delaware women's: Mary Hearin was the associate head in 2022, and the
+    // report called 2023 a coaching change and read the pattern across it.
+    const t = tenureFor(titled(
+      ['Mary Hearin', 'Associate Head Coach'],
+      ['Kelly Lawrence', "Head Women's Soccer Coach"],
+      ['Kelly Lawrence', "Head Women's Soccer Coach"],
+    ));
+    expect(t.unknownSeasons).toEqual([2022]);
+    expect(t.resolvedSeasons).toEqual([2023, 2024]);
+    expect(t.changes).toEqual([]);
+  });
+
+  it('does not resolve a season from a strength coach', () => {
+    // Marist men's: every row on file names Aaron Suma, the strength coach,
+    // and the report attributed four seasons to him.
+    const t = tenureFor(titled(
+      ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+      ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+      ['Aaron Suma', 'Head Coach, Strength & Conditioning'],
+    ));
+    expect(t.resolvedSeasons).toEqual([]);
+    expect(t.current).toBeNull();
+    expect(t.continuous).toBe(false);
+  });
+
+  it('does not resolve a season from an operations or performance role', () => {
+    // Tiffin women's 2026 is a Director of Soccer Operations, and Allegheny's
+    // is a Head Peak Performance Coach. Both were reported as the new head
+    // coach who "took over" for the season a recruit would join.
+    const t = tenureFor(titled(
+      ['Michael Cracas', 'Head Coach'],
+      ['Rudy Brownell', 'Director of Soccer Operations'],
+      ['Toby Cline', 'Head Peak Performance Coach'],
+    ));
+    expect(t.resolvedSeasons).toEqual([2022]);
+    expect(t.unknownSeasons).toEqual([2023, 2024]);
+  });
+
+  // The distinction this module exists to keep. A title naming somebody else's
+  // job says the post was filled — by a person the row does not name — which
+  // is the opposite claim to "the page said there is nobody".
+  it('files a non-head title as unread, never as a vacancy', () => {
+    const t = tenureFor([
+      { season: 2022, coach_name: 'A Coach', coach_title: 'Associate Head Coach' },
+      { season: 2023, coach_name: '', reason: 'vacant-or-tba' },
+    ]);
+    expect(t.unknownSeasons).toEqual([2022]);
+    expect(t.vacantSeasons).toEqual([2023]);
+  });
+
+  it('still resolves the head coach however the title is written', () => {
+    const t = tenureFor(titled(
+      ['A Coach', "Head Men's & Women's Soccer Coach"],
+      ['A Coach', 'Head Coach/Assistant Athletic Director'],
+      ['A Coach', 'Head Interim Women’s Soccer Coach'],
+      ['A Coach', "Friends of Brown Men's Soccer Head Coaching Chair"],
+    ));
+    expect(t.resolvedSeasons).toEqual([2022, 2023, 2024, 2025]);
+    expect(t.continuous).toBe(true);
+  });
+
+  // 840 rows carry no name and no title; none carries a name and no title. The
+  // face-value branch is insurance, and the fixtures above every other suite
+  // depend on it.
+  it('takes a row with a name and no title at face value', () => {
+    expect(tenureFor(seq('A Coach', 'A Coach')).continuous).toBe(true);
+  });
+});

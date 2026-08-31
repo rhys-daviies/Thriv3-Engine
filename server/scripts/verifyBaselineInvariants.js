@@ -38,6 +38,8 @@ import {
 } from '../../shared/performanceSource.js';
 import { MIN_MEASURED_SHARE } from '../../shared/freshmanMinutes.js';
 import { readableRows } from '../../shared/lifecycle/readable.js';
+import { tenureFor, sameCoach } from '../../shared/coachTenure.js';
+import { programmePhilosophy } from '../../shared/philosophy.js';
 
 // ---------------------------------------------------------------------------
 
@@ -55,6 +57,8 @@ const modelFor = (name, sport) => {
   if (!col) throw new Error(`no programme ${name}/${sport}`);
   return programReportModel({ collegeId: col.id, playerId: null });
 };
+/** The renderer's thousands separator, so an assertion can match the ink. */
+const nfInt = (v) => Number(v).toLocaleString('en-US');
 const rowsFor = (name, sport) => db.prepare(
   'SELECT * FROM roster_players WHERE college_name = ? AND sport = ?').all(name, sport);
 
@@ -301,6 +305,82 @@ group('WOMEN’S GAME — its own pool, same contract');
   check('a count is never wider than the squad it came from',
     def.medianPlayersWith600Plus <= def.medianPlayersWithMinutes,
     `${def.medianPlayersWith600Plus} of ${def.medianPlayersWithMinutes} used`);
+}
+
+/**
+ * CONTINUITY IS A CLAIM ABOUT OBSERVATIONS.
+ *
+ * Swept across every programme in the database rather than sampled, because
+ * the defect this catches was invisible on the four snapshot programmes and
+ * present on 82 others. Three verdicts say one coach ran the whole window —
+ * `steady`, `erratic-same-coach`, `policy-shift-same-coach` — and each of them
+ * must be able to name that coach in every season it describes.
+ *
+ * Before Phase 11D, `tenureFor` read the coach table with no title column and
+ * `classifyProgramme` inferred continuity from the ABSENCE of an observed
+ * change, so an unread season, a missing row, an associate head and a strength
+ * coach all counted as "nobody changed". Marist men's reported one coach
+ * throughout four seasons whose only name on file is the strength coach's.
+ */
+group('COACH — one coach throughout needs an observation for every season');
+{
+  const programmes = db.prepare('SELECT DISTINCT college_name AS name, sport FROM roster_players').all();
+  const CONTINUITY = new Set(['steady', 'erratic-same-coach', 'policy-shift-same-coach']);
+  const coachRowsFor = db.prepare('SELECT * FROM coach_seasons WHERE school = ? AND sport = ?');
+  let claims = 0;
+  const unsupported = [];
+  for (const c of programmes) {
+    const coachRows = coachRowsFor.all(c.name, c.sport);
+    const rows = rowsFor(c.name, c.sport);
+    if (!rows.length) continue;
+    let ph;
+    try { ph = programmePhilosophy({ rows, coachRows }); } catch { continue; }
+    if (!ph.verdict || !CONTINUITY.has(ph.verdict.verdict)) continue;
+    claims += 1;
+    const tenure = tenureFor(coachRows);
+    const nameIn = (s) => tenure?.segments
+      .find((g) => s >= g.from && s <= g.to)?.coach ?? null;
+    const names = ph.verdict.describes.map(nameIn);
+    if (names.some((n) => !n) || !names.every((n) => sameCoach(n, names[0]))) {
+      unsupported.push(`${c.name}/${c.sport}`);
+    }
+  }
+  check('no programme claims one coach across a season with no usable head-coach observation',
+    unsupported.length === 0,
+    `${claims} continuity claims, ${unsupported.length} unsupported${unsupported.length ? `: ${unsupported.slice(0, 5).join(', ')}` : ''}`);
+
+  // The other half of the same claim: the row that resolves a season has to be
+  // a head coach of THIS team. Marist men's is the case — every row on file
+  // names the strength coach — and it must reach the report as a refusal.
+  const marist = modelFor('Marist', 'mens-soccer');
+  check('a strength coach never resolves a season',
+    marist.verdict.verdict === 'coach-unknown'
+      && !/Suma/.test(JSON.stringify(marist.verdict))
+      && marist.coach === null,
+    marist.verdict.verdict);
+}
+
+/**
+ * LAYOUT — the evidence strip belongs to the card that owns it.
+ *
+ * `panel({ evidence: true })` reserves the strip, so it cannot be pushed out
+ * of the box by a long card. The risk that creates is the opposite one: a card
+ * that quietly drops a finding for want of room. These are the two programmes
+ * whose first-year card overflowed — the weighted figure is what pushed the
+ * strip over the panel beneath — so both the card and the evidence page must
+ * still carry it.
+ */
+group('LAYOUT — the card keeps what it had');
+for (const [name, sport] of [['Akron', 'womens-soccer'], ['Grand Valley State', 'womens-soccer']]) {
+  const m = modelFor(name, sport);
+  const s = m.summary.programme.freshmanOpportunity;
+  const text = pdfText(await renderProgramReport(m));
+  check(`${name} women’s still draws the weighted figure on the card`,
+    s.weightingApplied === true && s.weightedAgrees === false
+      && new RegExp(`Weighted towards the current coach.{0,24}${nfInt(s.weightedLadderTop.median)}`).test(text),
+    `${nfInt(s.weightedLadderTop.median)} min`);
+  check(`${name} women’s still states it in full on the evidence page`,
+    /current-coach relevance/i.test(text) && /Neither replaces the other/i.test(text));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

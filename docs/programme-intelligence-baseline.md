@@ -389,6 +389,13 @@ subtitle silently truncated to one line, a range printed as "4 to 4", a bar
 drawn at zero length for a figure that was never measured. Both are required;
 neither is sufficient.
 
+**Its floor is the PAGE box, not the card box.** Content drawn below a card but
+still inside the page passes, and that is exactly how the glance page's evidence
+strip came to be drawn over the panel beneath it at 22 of 90 sampled reports
+while the guard reported clean (Phase 11D, `docs/coach-attribution.md` §29).
+Card containment is held by the geometry instead: `panel({ evidence: true })`
+reserves the strip inside the box, so it cannot be placed outside one.
+
 ---
 
 ## 9. Deliberately deferred

@@ -24,6 +24,7 @@
 import { readClassYear } from './classYear.js';
 import { canonicalPosition } from './positions.js';
 import { withReadablePerformance } from './performanceSource.js';
+import { sameCoach } from './coachTenure.js';
 
 /**
  * Where a player came from, because at some programmes it decides the ladder.
@@ -476,22 +477,71 @@ export function classifyProgramme(profile, tenure) {
           note: 'the coach changed but the pattern did not — this looks structural, so every season counts' };
   }
 
+  // ONE COACH THROUGHOUT — AND WHAT IT TAKES TO SAY SO.
+  //
+  // Everything below this line describes a single coach across the whole
+  // window, so a usable head-coach observation is required for every season
+  // being described. Nothing may stand in for one: not an unread page, not a
+  // season with no row, not a vacancy, and not a title naming somebody else's
+  // job. `tenureFor` reads rows through `readCoachRow`, so an associate head
+  // or a strength coach arrives here as an unresolved season rather than as a
+  // name, and this gate is what stops the absence being read as continuity.
+  //
+  // The branches above are untouched. Only this fall-through claimed
+  // continuity, and it claimed it from the ABSENCE of an observed change —
+  // `tenure.changes` counts a transition only between two adjacent resolved
+  // seasons, so a change either side of an unread season counted as none.
+  // Mercyhurst men's is the worked case: 2022 Brian Osborne, 2023 and 2024
+  // unread, 2025 Austin Solomon. Two names, no adjacent pair, and the report
+  // said "one coach, a consistent pattern — the record is as firm as this
+  // gets" over a window with two coaches in it and half of it unread.
+  const nameIn = (season) => tenure.segments
+    .find((g) => season >= g.from && season <= g.to)?.coach ?? null;
+  const observedNames = [...new Set(measuredSeasons.map(nameIn).filter(Boolean))];
+  const unobserved = measuredSeasons.filter((s) => !nameIn(s));
+
+  if (unobserved.length) {
+    const named = observedNames.length === 1 ? observedNames[0] : null;
+    return { ...base, verdict: 'coach-unknown-recent', since, weightFrom: null,
+      note: `no head coach on file for ${unobserved.join(', ')}`
+        + (named ? ` — the rest of the window was ${named}'s` : '')
+        + ', and a season we could not read is not a season in which nobody changed' };
+  }
+  // Two names inside the window with no adjacent pair between them: the change
+  // is real and the season it happened in is one the figures could not measure.
+  // Saying which two coaches is the whole of what we know.
+  if (observedNames.length > 1) {
+    return { ...base, verdict: 'coach-unknown-recent', since, weightFrom: null,
+      note: `${observedNames.join(' and ')} are both on file across these seasons, and the `
+        + 'season the change happened in is not one we could measure' };
+  }
+
   // One coach throughout. A step here is not a hire, it is the same person
   // changing their mind — Hofstra ran 2%, 0%, 8%, 18% under Richard Nuttall
   // for all four years. Its spread of 7.0 sits under the volatility
   // threshold, so without checking the step it would have been filed as
   // steady, which is the opposite of what a recruit needs to hear.
+  //
+  // Each note names its own window. Unscoped, "one coach throughout" reads as
+  // a claim about the season a recruit would join, and at Ursuline the post is
+  // recorded vacant for exactly that season — four seasons of Jason Kubbins
+  // and nobody in the job now. Both facts are true and the report shows them
+  // on one card; only the sentence that failed to say which seasons it meant
+  // made them look like a contradiction.
   if (stepped) {
     return { ...base, verdict: 'policy-shift-same-coach',
       weightFrom: shares[shares.length - half].season,
-      note: 'the same coach, but the recent seasons look different from the early ones — weight the recent ones' };
+      note: 'the same coach across every season measured, but the recent seasons look '
+        + 'different from the early ones — weight the recent ones' };
   }
   if (spread >= SPREAD_POINTS) {
     return { ...base, verdict: 'erratic-same-coach', weightFrom: null,
-      note: 'one coach throughout, and the freshman policy swings season to season — treat any single year with caution' };
+      note: 'one coach across every season measured, and the freshman policy swings season '
+        + 'to season — treat any single year with caution' };
   }
   return { ...base, verdict: 'steady', weightFrom: null,
-    note: 'one coach, a consistent pattern — every season counts and the record is as firm as this gets' };
+    note: 'one coach across every season measured, a consistent pattern — every season '
+      + 'counts and the record is as firm as this gets' };
 }
 
 /**

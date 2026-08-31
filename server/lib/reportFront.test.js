@@ -13,8 +13,9 @@ import { programReportModel } from '../routes/philosophy.js';
 import { renderProgramReport } from './philosophyReport.js';
 import { invalidatePoolBenchmarks } from './philosophyQueries.js';
 import { invalidateLifecyclePool } from './lifecycleQueries.js';
+import PDFDocument from 'pdfkit';
 import {
-  CLASSIFICATION_LABEL, ROUTE_LABEL, COACH_HEADLINE, COACH_SUBLINE, fitText,
+  CLASSIFICATION_LABEL, ROUTE_LABEL, COACH_HEADLINE, COACH_SUBLINE, fitText, panel,
 } from './reportFront.js';
 import { CLASSIFICATIONS } from '../../shared/report/summary.js';
 
@@ -716,5 +717,121 @@ describe('current coach context on page two', () => {
       'coach develops', 'this history belongs to']) {
       expect(text, banned).not.toContain(banned);
     }
+  });
+});
+
+/**
+ * PHASE 11D — the coach verdict and the coach card, reading one table.
+ *
+ * 11C hid the verdict note on eight cards where it contradicted the
+ * attribution. That left the verdict itself wrong. These assert the fix: the
+ * note now comes from a coach sequence that has been through the same
+ * head-coach reader the card uses, so there is nothing left to hide.
+ */
+describe('the coach verdict agrees with the coach card', () => {
+  const front = async () => frontText((await build()).buf);
+
+  it('does not call four seasons one coach when one has no coach on file', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: 'Nick Kirchhof', 2023: [null, null, 'no-usable-page'],
+      2024: 'Nick Kirchhof', 2025: 'Nick Kirchhof', 2026: 'Nick Kirchhof',
+    });
+    const { model, buf } = await build();
+    expect(model.verdict.verdict).toBe('coach-unknown-recent');
+    expect(model.verdict.note).toMatch(/no head coach on file for 2023/);
+    const text = frontText(buf);
+    expect(text).not.toMatch(/one coach throughout|the same coach,|one coach, a consistent/i);
+    // The card says the same thing in its own words, and its strip counts it.
+    expect(text).toContain('3 of the 4 measured seasons');
+    expect(text).toMatch(/1 unresolved/);
+  });
+
+  // Marist men's, in the shape that made it wrong: every row on file names the
+  // strength coach. The card refused him in 11C and the verdict still called
+  // him the one coach throughout.
+  it('never lets a strength coach become the programme’s head coach', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+      2023: ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+      2024: ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+      2025: ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+      2026: ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+    });
+    const text = await front();
+    expect(text).not.toContain('Aaron Suma');
+    expect(text).toContain('COACH RECORD UNRESOLVED');
+    expect(text).toContain('not on file');
+    expect(text).toMatch(/cannot be attributed to anyone/);
+    expect(text).not.toMatch(/one coach throughout|WHOSE SEASONS THESE ARE/);
+  });
+
+  it('never lets an associate head become the programme’s head coach', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: ['Mary Hearin', 'Associate Head Coach'],
+      2023: 'Kelly Lawrence', 2024: 'Kelly Lawrence',
+      2025: 'Kelly Lawrence', 2026: 'Kelly Lawrence',
+    });
+    const { model, buf } = await build();
+    expect(model.verdict.verdict).toBe('coach-unknown-recent');
+    expect(model.verdict.note).toMatch(/no head coach on file for 2022/);
+    expect(model.coach.coach).toBe('Kelly Lawrence');
+    const text = frontText(buf);
+    expect(text).not.toContain('Mary Hearin');
+    expect(text).toContain('3 of the 4 measured seasons');
+  });
+
+  // The claim survives where the evidence is there, and it says which seasons.
+  it('still says one coach where every measured season names them', async () => {
+    addProgramme('c1', 'Test College');
+    setCoachSeasons('Test College', {
+      2022: 'Jane Kerr', 2023: 'Jane Kerr', 2024: 'Jane Kerr', 2025: 'Jane Kerr', 2026: 'Jane Kerr',
+    });
+    const text = await front();
+    expect(text).toMatch(/[Oo]ne coach across every season measured/);
+  });
+});
+
+/**
+ * PHASE 11D — the evidence strip belongs to the card that owns it.
+ *
+ * It was placed at `Math.max(y + 10, p.bottom - 20)`, which put it below the
+ * card whenever the content ran long: at 22 of 90 sampled reports the
+ * first-year card's strip drew over the top border of the panel beneath it.
+ * `panel({ evidence: true })` now reserves it, so the geometry is the contract
+ * and there is nothing left for a card to get wrong.
+ */
+describe('the evidence strip stays inside its card', () => {
+  const box = { x: 54, y: 100, w: 260, h: 180 };
+  const doc = new PDFDocument({ autoFirstPage: false });
+  doc.addPage();
+
+  it('reserves the strip inside the box, ink and margin', () => {
+    const p = panel(doc, box, 'First-year opportunity', { evidence: true });
+    // 17 points of ink — a 6.5pt label and a 6.5pt sample line nine points
+    // under it — and it must finish above the border, not on it.
+    expect(p.evidenceY + 17).toBeLessThan(box.y + box.h);
+    expect(p.evidenceY).toBeGreaterThan(p.y);
+  });
+
+  it('makes the strip the floor for everything else on the card', () => {
+    const p = panel(doc, box, 'First-year opportunity', { evidence: true });
+    expect(p.bottom).toBe(p.evidenceY);
+  });
+
+  it('leaves a card without a strip exactly as it was', () => {
+    const p = panel(doc, box, 'Coach context');
+    expect(p.evidenceY).toBeNull();
+    expect(p.bottom).toBe(box.y + box.h - 14);
+  });
+
+  // The strip's position cannot depend on how much the card drew, which is the
+  // whole of the defect: the old placement moved with the content.
+  it('puts the strip in the same place whatever the box contains', () => {
+    const a = panel(doc, box, 'First-year opportunity', { evidence: true });
+    const b = panel(doc, { ...box, y: 400 }, 'Replacement behaviour', { evidence: true });
+    expect(a.evidenceY - box.y).toBe(b.evidenceY - 400);
   });
 });

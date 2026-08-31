@@ -31,6 +31,24 @@ describe('prominence', () => {
     const c = ctxFor({ 2022: 'Greg Dalby', 2023: 'Greg Dalby', 2024: 'Jarred Brookins', 2025: 'Jarred Brookins', 2026: 'Jarred Brookins' });
     expect(c.prominence).toBe(PROMINENCE.VISIBLE);
     expect(c.subline).toBe('2 of the 4 measured seasons in this report');
+    // Two names either side of an observed boundary: a change, and it says so.
+    expect(c.chip).toBe('COACHING CHANGE IN WINDOW');
+  });
+
+  /**
+   * PHASE 11D — an unread season is not a coaching change.
+   *
+   * Metro State Denver's window is Nick Kirchhof, a season nobody could read,
+   * and Nick Kirchhof. The card said COACHING CHANGE IN WINDOW over a strip
+   * whose only other cell is blank — the same claim-without-evidence the
+   * verdict was making, in the opposite direction.
+   */
+  it('calls a short record incomplete rather than a change', () => {
+    const c = ctxFor({ 2022: 'Nick Kirchhof', 2023: null, 2024: 'Nick Kirchhof', 2025: 'Nick Kirchhof', 2026: 'Nick Kirchhof' });
+    expect(c.prominence).toBe(PROMINENCE.VISIBLE);
+    expect(c.chip).toBe('COACH RECORD INCOMPLETE');
+    expect(c.previous).toBe(0);
+    expect(c.unresolved).toBe(1);
   });
 
   // Mercyhurst men's.

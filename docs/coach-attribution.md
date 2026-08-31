@@ -418,20 +418,16 @@ attributed to anyone"* agree with the refusal rather than contradicting it.
 
 **The verdict logic itself is untouched**, as Phase 11C requires.
 
-## 22. Where the verdict is still misleading
+## 22. Where the verdict was misleading — FIXED IN PHASE 11D
 
-**15 programmes** carry a verdict note saying *"one coach throughout"* while the
-attribution splits the window — Alvernia, Centre, Immaculata and Martin Luther
-at 1 of 4; Jamestown, McDaniel and Marietta at 2 of 4; Shawnee State, Adrian and
-Alabama A&M at 3 of 4, among others. Both statements are true of different
-things: the verdict means no second coach was ever *observed*, and the
-attribution means several seasons have no usable coach on file.
+Phase 11C documented 15 programmes whose verdict note said *"one coach
+throughout"* over a window the attribution splits, and stopped there because
+the phase forbade touching verdict logic. Phase 11D fixed it. **The real count
+was 82**, not 15: 11C's figure came from the narrower test the report's own
+presentation guard used, which matched only two of the three notes and only on
+cards the attribution had already refused.
 
-The context is now visible on the same card in every one of these — the count
-sits three lines above the note, and at 1 of 4 the page subtitle says it too.
-**Documented and not changed**, per the phase's instruction to stop before
-touching verdict logic. If it is to be resolved, the fix belongs in
-`classifyProgramme`, which should read the title column.
+See §27 for the fix and §28 for the full list.
 
 ## 23. FIRST_SEASON_IS_INHERITED
 
@@ -484,3 +480,197 @@ strip is drawn in absolute coordinates rather than through the flow.
 — so it is reported here rather than fixed: it belongs to the glance-page
 layout, not to coach context, and fixing it means revisiting the card floors
 that Phase 9C tuned.
+
+
+---
+
+# PHASE 11D — pre-merge correctness
+
+Two defects found during Phase 11C, fixed before merge. Neither is a feature.
+
+## 27. The coach verdict, and why it was wrong
+
+**Two root causes, and both are input correctness.**
+
+**One — `tenureFor` did not read the title column.** It resolved a season from
+any name in the row, so an associate head, a strength coach, a Director of
+Soccer Operations or a Head Peak Performance Coach became the programme's head
+coach for that season. `readCoachRow` — the reader written in Phase 11B, and
+validated against all 221 distinct titles in the table — was used only by the
+attribution model, so the same table gave two answers on one card. Marist men's
+is the worked case: every row on file names Aaron Suma, the strength coach, and
+the verdict called him the one coach across four seasons while the card two
+inches above refused him.
+
+**Two — `classifyProgramme` inferred continuity from the absence of a change.**
+`tenure.changes` counts a transition only between two ADJACENT RESOLVED
+seasons, which is the right conservative rule for counting changes and the
+wrong test for claiming continuity. A change either side of an unread season
+counted as none. Mercyhurst men's — Brian Osborne, two unread seasons, Austin
+Solomon — reached the same-coach fall-through with two names in the window and
+was filed *"one coach, a consistent pattern — every season counts and the
+record is as firm as this gets."*
+
+### The fix
+
+**One reader.** `readCoachRow` and its title tests moved from
+`coachAttribution.js` into `coachTenure.js`, where `tenureFor` reads every row
+through it; `coachAttribution.js` re-exports it, so nothing that imported it
+moved. There is one answer to "is this a usable head-coach observation", and no
+`coachRoleFilterV2` was created. A row whose title names somebody else's job
+leaves the season **unresolved, never vacant** — a filled post this row does not
+name is the opposite claim to "the page said there is nobody".
+
+**One gate.** Immediately before the same-coach fall-through,
+`classifyProgramme` now requires a usable head-coach observation for every
+season it is about to describe, all naming one coach. Where the record is short
+it returns `coach-unknown-recent` naming the seasons; where two names sit inside
+the window with nothing observed to date the change between them, it names both.
+Every branch above the gate is untouched.
+
+**Notes name their window.** The three continuity notes say *"one coach across
+every season measured"* rather than *"one coach throughout"*. Unscoped, the
+sentence reads as a claim about the season a recruit would join, and at Ursuline
+women's the post is recorded vacant for exactly that season — four seasons of
+Jason Kubbins and nobody in the job now. Both facts are true; only the sentence
+that failed to say which seasons it meant made them look like a contradiction.
+
+**And the presentation guard is gone.** 11C withheld the verdict note on 8
+cards where it contradicted the attribution, which left the verdict itself
+wrong. With the input fixed there is nothing to hide, so `ASSERTS_A_COACH` and
+its suppression were deleted.
+
+### The rule, stated
+
+> A report may say one coach ran the window only where every season it describes
+> carries a usable head-coach observation, and they all name the same person.
+>
+> Nothing stands in for one: not an unread page, not a season with no row, not a
+> recorded vacancy, not an associate head, not a strength coach, not an
+> operations or performance role. An unresolved season is an incomplete record,
+> never continuity, and it is never interpolated.
+
+Enforced mechanically in `npm run verify:baseline`, swept across every programme
+in the database rather than sampled — the defect was invisible on all four
+snapshot programmes and present on 82 others.
+
+**A change is a change only where one was observed.** The same rule in the other
+direction: the coach card's chip read `COACHING CHANGE IN WINDOW` whenever the
+current coach held fewer than all the measured seasons, including at the 96
+programmes where the shortfall is an unread season and no second coach is named
+anywhere. Those now read `COACH RECORD INCOMPLETE`, from the
+`facts.previous > 0` the attribution has always carried.
+
+## 28. Every verdict that changed
+
+**94 programmes, and every one moved toward refusal. None became more
+confident, and no weighted ladder was gained** — 37 were withdrawn, because
+`coach-unknown-recent` carries no `weightFrom` and a step across a season with
+no coach on file cannot be attributed to a coach changing their approach.
+
+| Before | After | n |
+|---|---|--:|
+| `steady` | `coach-unknown-recent` | 31 |
+| `policy-shift-same-coach` | `coach-unknown-recent` | 26 |
+| `erratic-same-coach` | `coach-unknown-recent` | 16 |
+| `new-coach-no-record` | `coach-unknown-recent` | 4 |
+| `regime-change` | `coach-unknown-recent` | 4 |
+| `change-too-recent` | `coach-unknown-recent` | 2 |
+| `erratic-same-coach` | `coach-unknown` | 2 |
+| `policy-shift-same-coach` | `coach-unknown` | 2 |
+| `steady` · `regime-change` · `vacancy-in-window` · `continuity-through-change` · `new-coach-no-record` | `coach-unknown` | 5 |
+| `change-too-recent` | `new-coach-no-record` | 1 |
+| `continuity-through-change` | `coach-unknown-recent` | 1 |
+
+The full before/after list — verdict, note, coach and `weightFrom` on each side,
+with the coach rows that produced them — is
+`server/scripts/__baselines__/coach-verdict-corrections-11d.json`. Nine that
+show what the defect actually was:
+
+| Programme | Was | Now | Because |
+|---|---|---|---|
+| Marist (m) | `erratic-same-coach` | `coach-unknown` | every row names the strength coach |
+| Mercyhurst (m) | `steady` | `coach-unknown-recent` | Osborne, two unread seasons, Solomon |
+| Metro State Denver (m) | `steady` | `coach-unknown-recent` | one unread season inside the window |
+| Tiffin (w) | `new-coach-no-record` | `coach-unknown-recent` | the 2026 row is a Director of Soccer Operations |
+| Allegheny (m) | `new-coach-no-record` | `coach-unknown-recent` | the 2026 row is a Head Peak Performance Coach |
+| Binghamton (m) | `change-too-recent` | `new-coach-no-record` | 2025's Tommy Moon was the associate head |
+| RIT (m) | `regime-change` | `coach-unknown-recent` | 2022's name is the associate head |
+| Delaware (w) | `continuity-through-change` | `coach-unknown-recent` | 2022's name is the associate head |
+| Lake Forest (w) | `vacancy-in-window` | `coach-unknown` | Bill Lund is the strength coach |
+
+**Marist stays fixed and is asserted twice** — once in the unit suite on the
+shape, once in `verify:baseline` on the real programme: Aaron Suma is not the
+current head coach, appears in no timeline, and the entry line reads "not on
+file".
+
+## 29. The evidence strip, and the card that owns it
+
+The first-year card's `EVIDENCE — MODERATE` strip was placed at
+`Math.max(y + 10, p.bottom - 20)`. The `Math.max` is the defect: **the strip
+moved with the content**, so a card that ran long pushed it below its own
+border. At Akron women's and Grand Valley State women's it drew clean over the
+top border of the Replacement Behaviour panel beneath.
+
+Measured across the 90-report sweep before the fix:
+
+| Card | Content past the strip's intended line | Strip drawn outside the card |
+|---|--:|--:|
+| First-year opportunity | 23 of 90 (worst **+23.5pt**) | **22 of 90** |
+| Experienced arrival reliance | 62 of 90 (worst +10.5pt) | 0 — absorbed by the padding |
+| Replacement behaviour | 52 of 90 (worst +4.5pt) | 0 — absorbed by the padding |
+
+So it was systemic rather than two programmes, and the 14 points of bottom
+padding were hiding most of it.
+
+**The measurement contract, fixed.** `panel(doc, box, title, { evidence: true })`
+now reserves the strip: `evidenceY` is a fixed line inside the box, and
+`bottom` — the floor for everything else on the card — is that same line. The
+strip is drawn at `evidenceY` with no `Math.max`, so **it cannot leave the card
+by construction**. The reserved footer is 17 points of ink (a 6.5pt label and a
+6.5pt sample line nine points under it) on a 6-point margin rather than 20 on
+14, which is where the 11 points the arrival and replacement cards needed come
+from.
+
+**And the one variable-height thing on the card measures the room it has.** The
+weighted-ladder block is drawn full where 24 points remain, as a fact line where
+11 do, and not at all below that. Across the sweep: **1 full, 22 compact, 0
+omitted** — no card lost the finding, and the evidence page carries it in full
+with both figures and the reason neither replaces the other whatever the card
+does. `verify:baseline` asserts that for Akron women's and GVSU women's by name.
+
+**No page grew.** Page height, page count, font sizes, card floors and the row
+layout are all untouched; the fix is entirely inside the card's own chrome.
+Measured after: **270 strip draws across the sweep, 0 overprints, tightest
+remaining gap 0.5pt** at the arrival card on the shortest box.
+
+## 30. Phase 11D QA
+
+| Check | Result |
+|---|---|
+| `npm test` | **1,643 passing**, 68 files, 0 failing, 0 skipped (+23) |
+| `npm run verify:baseline` | **63 passed, 0 failed** (57 + 6) |
+| `npm run snapshot:pi -- --check` | **0 differences** |
+| 20 required reports | 0 defects, **0 page-count differences vs Phase 11C**, 0 section differences |
+| 16 coach-context regressions | 0 defects |
+| 90-report sweep | 0 errors, 0 layout defects, page distribution identical to Phase 10 |
+| `tenureFor` | 0.0027 → **0.0045 ms** per programme |
+| `programmePhilosophy` | 0.766 → **0.783 ms** |
+| Warm model build | 3.87 → **3.94 ms**; render 37.6 → **39.0 ms** |
+
+## 31. What Phase 11D did not fix
+
+1. **The tightest card gap is 0.5pt** — the arrival card at the smallest box
+   height. The strip can no longer escape, so the failure mode is now a visible
+   overprint rather than a silent escape, but page two remains over-subscribed
+   and the card floors need revisiting before anything is added to it.
+2. **`room` on the glance page reserves three 8-point gaps for two.** Worth 2
+   points and left alone, because changing it moves every card on the page and
+   the fix did not need it.
+3. **A vacant entry season still shows `COACH RECORD UNRESOLVED`.** At Ursuline
+   the subline says "marked vacant or to be announced" and the chip says the
+   record could not be read. The record was read; it says nobody. 11C wording,
+   not a 11D regression.
+4. **The `observedNames.length > 1` branch is rare.** It needs every measured
+   season resolved, two names, and the season between them both unresolved and
+   unmeasured. Covered by a unit test; not observed in the current database.

@@ -145,10 +145,23 @@ export function coachContextFor(attribution, { division = null } = {}) {
     prominence,
     available: true,
     coach: currentCoach,
+    /**
+     * A CHANGE IS A CHANGE ONLY WHERE ONE WAS OBSERVED.
+     *
+     * `facts.previous` is the count of measured seasons carrying a DIFFERENT
+     * named coach. Where it is zero the shortfall is an unread record, not a
+     * change: Metro State Denver's window is Nick Kirchhof, a season nobody
+     * could read, and Nick Kirchhof, and the card said COACHING CHANGE IN
+     * WINDOW over a strip whose only other cell is blank. The attribution has
+     * always separated the two — `TIMELINE.COACH_RECORD_INCOMPLETE` is exactly
+     * this state — and Phase 11D stopped the verdict making the same mistake
+     * in the other direction.
+     */
     chip: facts.interim ? 'INTERIM HEAD COACH'
       : all ? 'CURRENT COACH HISTORY'
         : none ? 'NO MEASURED SEASON'
-          : one ? 'ONE MEASURED SEASON' : 'COACHING CHANGE IN WINDOW',
+          : one ? 'ONE MEASURED SEASON'
+            : facts.previous > 0 ? 'COACHING CHANGE IN WINDOW' : 'COACH RECORD INCOMPLETE',
     headline: currentCoach.name,
     // Under the name on the card. Short, because the card gives it one line.
     subline: `${count} in this report`,

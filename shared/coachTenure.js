@@ -94,6 +94,152 @@ export function sameCoach(a, b) {
   return xs[0][0] === ys[0][0];
 }
 
+// ---------------------------------------------------------------------------
+// Is this row a usable observation of the head coach of THIS team?
+//
+// ONE ANSWER, and it lives here because two modules need it and they must not
+// disagree. `tenureFor` below reads a programme's seasons through it, and
+// `coachAttribution.js` re-exports it for the report. It used to live only in
+// the attribution model, and the cost of that was measured: `tenureFor` had no
+// title column at all, so at Marist men's it reported one unbroken spell of
+// "Aaron Suma 2022-2026" — the strength coach — while the attribution refused
+// the same rows. Same table, two answers, on one card.
+//
+// WHY NOT `classifyRole` FROM coachRoles.js. That function answers "who at
+// this programme should receive recruiting mail", and for that purpose a
+// Director of Soccer is a fine recipient and reading "Head Strength and
+// Conditioning Coach" as a head coach costs nothing. Here both are wrong:
+// attributing a programme's four seasons to its strength coach is a false
+// statement about a named person. Same table, different question.
+// ---------------------------------------------------------------------------
+
+/**
+ * Values found in `coach_name` that are page furniture rather than a person.
+ *
+ * Measured, not guessed: enumerating all 221 distinct titles and all named
+ * rows found four families and nothing else. "Phone Number" and "Business
+ * Management" are field labels a parser took for a name; "National
+ * Championships" is the heading of a records table; "Prospective Athletes" and
+ * "All News" are navigation links a parser reached instead of a person.
+ */
+const NOT_A_NAME = /^(phone number|business management|emergency management|full name|email address|national championships|head coaching history|prospective athletes|head coaches|all news)$/i;
+
+/**
+ * A head-coaching phrase, bounded so it cannot span two jobs.
+ *
+ * Lazy to the first "coach", and stopping at a pipe or semicolon, so
+ * "Assistant Women's Soccer Coach / Head Development Team Coach" yields "Head
+ * Development Team Coach" and not something that reaches back to the
+ * assistant.
+ */
+const HEAD_PHRASE = /\bhead\b[^;|]{0,45}?\b(?:coach|coaches|coaching)\b/gi;
+/** A rank junior to the head, where it qualifies the phrase that follows. */
+const JUNIOR_RANK = /\b(?:associate|assistant)\s*$/i;
+/** Another function entirely, however the word "head" is used beside it. */
+const OTHER_FUNCTION = /strength|conditioning|peak performance|coaching history/i;
+/** Another team: a development side or a junior varsity is not this team. */
+const OTHER_TEAM = /\bdevelopment\s+team\b|\bjunior\s+varsity\b|\bjv\b/i;
+/**
+ * "Head Coach, Strength & Conditioning" — the phrase itself is clean and the
+ * qualifier immediately after it is what gives the job away.
+ */
+const HEAD_OF_SOMETHING_ELSE = /\bhead\s+coach\s*[,/;–—-]\s*(?:strength|conditioning|peak)/i;
+
+/**
+ * Does this title name a head coach OF THIS TEAM?
+ *
+ * Phrase by phrase rather than one pattern over the whole string, because a
+ * staff title is usually several jobs: "Head Coach/Assistant Athletic
+ * Director" is the head coach who also runs part of the department, and
+ * "Assistant Athletic Director / Head Men's Soccer Coach" is the same person
+ * written the other way round. Reading the whole string at once cannot tell
+ * either from "Head Strength and Conditioning Coach - Women's Soccer Assistant
+ * Coach", which is the strength coach who also helps out.
+ *
+ * So: find every head-coaching phrase, and accept the title if any one of them
+ * is this team's — not preceded by a junior rank, and not naming another
+ * function or another team.
+ *
+ * Validated by enumerating all 221 distinct titles in the table and reading
+ * every rejection. That pass is what found the endowed chairs at Brown
+ * ("Friends of Brown Men's Soccer Head Coaching Chair" is the head coach), the
+ * interim written in the middle ("Head Interim Women's Soccer Coach"), the
+ * coach of two sports ("Head Women's Lacrosse/Soccer Coach"), and three rows
+ * whose title is a news headline and whose name is "All News".
+ */
+function namesTeamHeadCoach(title) {
+  const t = String(title);
+  if (HEAD_OF_SOMETHING_ELSE.test(t)) return false;
+  for (const m of t.matchAll(HEAD_PHRASE)) {
+    if (JUNIOR_RANK.test(t.slice(Math.max(0, m.index - 12), m.index))) continue;
+    if (OTHER_FUNCTION.test(m[0])) continue;
+    if (OTHER_TEAM.test(m[0])) continue;
+    return true;
+  }
+  return false;
+}
+
+/** An associate head coach, in a title that names no head coach of this team. */
+const ASSOCIATE_HEAD = /\bassociate\s+head\b/i;
+const INTERIM = /\binterim\b/i;
+const CO_HEAD = /\bco[-\s]?head\b/i;
+
+/** Why a row could not be used, in the order the tests are applied. */
+export const UNUSABLE = Object.freeze({
+  NO_ROW: 'no coach row on file for this season',
+  NO_NAME: 'no coach name could be read for this season',
+  VACANT: 'the post was recorded as vacant or to be announced',
+  NOT_A_NAME: 'the value recorded in the coach column is not a person’s name',
+  NOT_A_HEAD_COACH: 'the title on file names a role other than head coach of this team',
+  ASSOCIATE_HEAD: 'the title on file names an associate head coach, not the head coach',
+});
+
+/**
+ * Is this row a usable observation of the head coach of this team?
+ *
+ * Returns the coach where it is, and the reason where it is not. Exported
+ * because the reason is the useful half: a programme with no current coach
+ * should be able to say which of six things went wrong.
+ */
+export function readCoachRow(row) {
+  if (!row) return { usable: false, reason: UNUSABLE.NO_ROW };
+  const name = String(row.coach_name ?? '').trim();
+  const title = String(row.coach_title ?? '').trim();
+  // Blank splits two ways, and `tenureFor` documents why the difference
+  // matters: "the page said there is nobody" and "we could not read the page"
+  // are opposite claims, and reporting the second as the first invents a
+  // vacancy. The scraper already separates them in `reason`.
+  if (!name) {
+    const stated = String(row.reason ?? '').trim();
+    return { usable: false, reason: VACANCY_REASONS.has(stated) ? UNUSABLE.VACANT : UNUSABLE.NO_NAME };
+  }
+  // A placeholder printed ON the page — "TBA", "Vacant" — is a vacancy
+  // whatever the reason column says.
+  if (isVacancy(name)) return { usable: false, reason: UNUSABLE.VACANT };
+  if (NOT_A_NAME.test(name)) return { usable: false, reason: UNUSABLE.NOT_A_NAME };
+  // Structural insurance, and it currently fires on nothing: no name in the
+  // table is a single token or carries a digit. It is here so a future import
+  // that breaks that cannot quietly attribute four seasons to "2024 Roster".
+  if (/[0-9@]|https?:|\.com|\.edu/i.test(name)) return { usable: false, reason: UNUSABLE.NOT_A_NAME };
+  if (name.split(/\s+/).filter(Boolean).length < 2) return { usable: false, reason: UNUSABLE.NOT_A_NAME };
+
+  const flags = {
+    interim: INTERIM.test(title),
+    coHead: CO_HEAD.test(title),
+  };
+  // A row with no title at all is taken at face value. 840 rows have no name
+  // and no title; none has a name and no title, so this branch is insurance.
+  if (!title) {
+    return { usable: true, reason: null, name, title: null, ...flags, titled: false };
+  }
+  if (NOT_A_NAME.test(title)) return { usable: false, reason: UNUSABLE.NOT_A_NAME };
+  if (namesTeamHeadCoach(title)) return { usable: true, reason: null, name, title, ...flags, titled: true };
+  // Which of the two refusals, so a page can say why. Associate head is the
+  // commoner and the more specific.
+  if (ASSOCIATE_HEAD.test(title)) return { usable: false, reason: UNUSABLE.ASSOCIATE_HEAD };
+  return { usable: false, reason: UNUSABLE.NOT_A_HEAD_COACH };
+}
+
 /**
  * The coaching history of one programme across the seasons observed.
  *
@@ -113,14 +259,19 @@ export function tenureFor(rows = []) {
   for (const r of rows) {
     const season = Number(r?.season);
     if (!Number.isFinite(season)) continue;
-    const name = String(r?.coach_name ?? '').trim();
-    const vacant = isVacancy(name);
-    seen.set(season, vacant ? null : name);
-    if (vacant) {
-      // An explicit placeholder on the page is a vacancy whatever the reason
-      // column says; a blank name is a vacancy only where the scraper said so.
-      const stated = String(r?.reason ?? '').trim();
-      why.set(season, (name || VACANCY_REASONS.has(stated)) ? 'vacant' : 'unknown');
+    // Through `readCoachRow`, so a season resolves only where the row is a
+    // usable observation of THIS team's head coach. An associate head, a
+    // strength coach or a page label leaves the season unresolved rather than
+    // filling it with a name, which is what the whole module then refuses to
+    // read as continuity.
+    const read = readCoachRow(r);
+    seen.set(season, read.usable ? read.name : null);
+    if (!read.usable) {
+      // "The page said there is nobody" and "we could not read a head coach"
+      // are opposite claims, and only the first is a vacancy. A title naming
+      // somebody else's job is the second: the post was filled, by a person
+      // this row does not name.
+      why.set(season, read.reason === UNUSABLE.VACANT ? 'vacant' : 'unknown');
     }
   }
   const seasons = [...seen.keys()].sort((a, b) => a - b);

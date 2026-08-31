@@ -543,6 +543,139 @@ describe('classifyProgramme', () => {
   it('is null for a programme with nothing on file', () => {
     expect(classifyProgramme(null, GILLIS)).toBeNull();
   });
+
+  /**
+   * PHASE 11D — continuity is a claim about observations.
+   *
+   * Every branch above this one is reached by naming a coaching change. The
+   * fall-through claimed one coach throughout from the ABSENCE of an observed
+   * change, and `tenure.changes` counts a transition only between two adjacent
+   * RESOLVED seasons — so an unread season, a missing row and a title naming
+   * somebody else's job all read as "nobody changed". 82 programmes said one
+   * coach throughout a window the coach table cannot support.
+   */
+  describe('one coach throughout, and what it takes to say so', () => {
+    const titled = (...pairs) => tenureFor(pairs.map(([coach_name, coach_title], i) => (
+      { season: 2022 + i, coach_name, coach_title })));
+
+    it('refuses continuity across a measured season with no coach on file', () => {
+      // Metro State Denver: Kirchhof 2022, nothing for 2023, Kirchhof after.
+      // Read as steady — "every season counts and the record is as firm as
+      // this gets" — over a season with no coach on file at all.
+      const v = classifyProgramme(prof([30, 22, 17, 18]),
+        ten('Nick Kirchhof', '', 'Nick Kirchhof', 'Nick Kirchhof'));
+      expect(v.verdict).toBe('coach-unknown-recent');
+      expect(v.note).toContain('2023');
+      expect(v.note).toContain('Nick Kirchhof');
+      expect(v.weightFrom).toBeNull();
+    });
+
+    it('refuses continuity where an associate head fills the season', () => {
+      const v = classifyProgramme(prof([30, 22, 17, 18]), titled(
+        ['Mary Hearin', 'Associate Head Coach'],
+        ['Kelly Lawrence', 'Head Coach'],
+        ['Kelly Lawrence', 'Head Coach'],
+        ['Kelly Lawrence', 'Head Coach'],
+      ));
+      expect(v.verdict).toBe('coach-unknown-recent');
+    });
+
+    it('refuses continuity where a strength coach fills every season', () => {
+      const v = classifyProgramme(prof([30, 22, 17, 18]), titled(
+        ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+        ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+        ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+        ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+      ));
+      expect(v.verdict).toBe('coach-unknown');
+      expect(v.coach).toBeNull();
+    });
+
+    it('refuses continuity where an operations role fills a season', () => {
+      const v = classifyProgramme(prof([30, 22, 17, 18]), titled(
+        ['Michael Cracas', 'Head Coach'],
+        ['Michael Cracas', 'Head Coach'],
+        ['Michael Cracas', 'Head Coach'],
+        ['Rudy Brownell', 'Director of Soccer Operations'],
+      ));
+      expect(v.verdict).toBe('coach-unknown-recent');
+      expect(v.note).toContain('2025');
+    });
+
+    // Mercyhurst men's: Osborne, two unread seasons, then Solomon. Two coaches,
+    // no adjacent pair between them, and the report said one coach throughout.
+    it('does not read one name either side of a gap as one spell', () => {
+      const v = classifyProgramme(prof([30, 22, 17, 18]),
+        ten('Brian Osborne', '', '', 'Austin Solomon'));
+      expect(v.verdict).toBe('coach-unknown-recent');
+      expect(v.note).toContain('2023, 2024');
+    });
+
+    /**
+     * The other shape, and the reason it is not a change verdict.
+     *
+     * Every MEASURED season is resolved and they carry two names, but the
+     * season between them is resolved by nobody and was never measured — so
+     * there is no observed pair anywhere that dates the change. A change
+     * verdict would have to say when; this says who, and that the season it
+     * happened in is not one we read. (Where the intervening season IS
+     * resolved, the transition is observed and `regime-change` keeps it, even
+     * if the minutes for that season were unreadable.)
+     */
+    it('names both coaches where nothing observed dates the change', () => {
+      const seasons = [30, null, 17].map((v, i) => ({
+        season: String(2022 + i),
+        shareOfSquadMinutes: v === null ? null : v / 100, ladder: [], bands: {},
+      }));
+      const v = classifyProgramme({ seasons }, ten('Old Coach', '', 'New Coach'));
+      expect(v.verdict).toBe('coach-unknown-recent');
+      expect(v.note).toContain('Old Coach');
+      expect(v.note).toContain('New Coach');
+    });
+
+    // Contrast: the coach table resolved every season, so the transition IS
+    // observed and keeps its own verdict even though 2023's minutes were not
+    // measurable.
+    it('keeps a change verdict where the coach table dates the change', () => {
+      const seasons = [30, null, 17, 18].map((v, i) => ({
+        season: String(2022 + i),
+        shareOfSquadMinutes: v === null ? null : v / 100, ladder: [], bands: {},
+      }));
+      expect(classifyProgramme({ seasons },
+        ten('Old Coach', 'Old Coach', 'New Coach', 'New Coach')).verdict)
+        .toBe('regime-change');
+    });
+
+    // The claim still survives where the evidence is actually there.
+    it('still calls a fully observed window one coach throughout', () => {
+      expect(classifyProgramme(prof([30, 22, 17, 18]), GILLIS).verdict).toBe('steady');
+      expect(classifyProgramme(prof([2, 0, 8, 18]),
+        ten('Richard Nuttall', 'Richard Nuttall', 'Richard Nuttall', 'Richard Nuttall'))
+        .verdict).toBe('policy-shift-same-coach');
+      expect(classifyProgramme(prof([46, 21, 45, 22]), GILLIS).verdict).toBe('erratic-same-coach');
+    });
+
+    /**
+     * Each note names its own window.
+     *
+     * Unscoped, "one coach throughout" reads as a claim about the season a
+     * recruit would join, and at Ursuline the post is recorded vacant for
+     * exactly that season — four seasons of Jason Kubbins and nobody in the
+     * job now. Both facts are true; only the sentence that failed to say which
+     * seasons it meant made them look like a contradiction.
+     */
+    it('scopes every continuity note to the seasons measured', () => {
+      for (const v of [
+        classifyProgramme(prof([30, 22, 17, 18]), GILLIS),
+        classifyProgramme(prof([46, 21, 45, 22]), GILLIS),
+        classifyProgramme(prof([2, 0, 8, 18]),
+          ten('Richard Nuttall', 'Richard Nuttall', 'Richard Nuttall', 'Richard Nuttall')),
+      ]) {
+        expect(v.note, v.verdict).toMatch(/every season measured/);
+        expect(v.note, v.verdict).not.toMatch(/one coach throughout|the same coach,/);
+      }
+    });
+  });
 });
 
 describe('weightsFromVerdict', () => {

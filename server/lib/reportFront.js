@@ -135,15 +135,21 @@ export const COACH_SUBLINE = {
 
 const EVIDENCE_LABEL = { strong: 'STRONG', moderate: 'MODERATE', limited: 'LIMITED' };
 
-/**
- * A verdict note that names or asserts a coach, rather than describing the
- * absence of one. Only these can contradict a card that refused the record.
- */
-const ASSERTS_A_COACH = /one coach throughout|the same coach/i;
-
 // ---------------------------------------------------------------------------
 // Small reusable pieces
 // ---------------------------------------------------------------------------
+
+/**
+ * The evidence strip's own space, reserved by the card that owns it.
+ *
+ * 17 is the strip's ink: a 6.5pt label, and a 6.5pt sample line nine points
+ * under it. 6 is the white beneath that — less than the 14 the body sits on,
+ * because a caption set that small does not need a body margin to read as
+ * inside the border, and those eight points are what these cards had been
+ * silently borrowing.
+ */
+const EVIDENCE_INK = 17;
+const EVIDENCE_MARGIN = 6;
 
 /**
  * A bordered panel with a small-caps title. Returns the inner content box.
@@ -152,8 +158,22 @@ const ASSERTS_A_COACH = /one coach throughout|the same coach/i;
  * `k.slot()`, the same contract the charts keep — the flow cursor is never
  * consulted, so nothing here can auto-paginate out from under a half-drawn
  * card.
+ *
+ * `evidence: true` for a card that ends with an evidence strip. The strip is
+ * part of the card, so the card reserves it: `evidenceY` is a fixed position
+ * inside the box, and `bottom` — the floor for everything else — is that same
+ * line. It used to be neither. The strip was placed at
+ * `Math.max(y + 10, p.bottom - 20)`, which put it below the card whenever the
+ * content ran long, and at 22 of 90 sampled reports it drew clean over the top
+ * border of the panel beneath: at Akron women's the first-year card's
+ * "EVIDENCE — MODERATE / 4 seasons · 30 measured first-years" sat inside the
+ * REPLACEMENT BEHAVIOUR panel. The 14 points of bottom padding hid the same
+ * overrun on the other two cards, which were over by up to 10.5.
+ *
+ * So the strip can no longer leave the card by construction, and the cards
+ * that could overrun it now measure the room they have first.
  */
-export function panel(doc, box, title) {
+export function panel(doc, box, title, { evidence = false } = {}) {
   doc.save().roundedRect(box.x, box.y, box.w, box.h, 4)
     .lineWidth(0.75).strokeColor(LINE).stroke().restore();
   const pad = 14;
@@ -170,7 +190,14 @@ export function panel(doc, box, title) {
       .lineWidth(0.5).strokeColor(LINE).stroke().restore();
     y += 11;
   }
-  return { x: box.x + pad, y, w: box.w - pad * 2, bottom: box.y + box.h - pad };
+  const evidenceY = evidence ? box.y + box.h - EVIDENCE_MARGIN - EVIDENCE_INK : null;
+  return {
+    x: box.x + pad,
+    y,
+    w: box.w - pad * 2,
+    bottom: evidenceY ?? box.y + box.h - pad,
+    evidenceY,
+  };
 }
 
 /**
@@ -492,7 +519,7 @@ function pageHeading(k, title, subtitle) {
 }
 
 function freshmanCard(doc, box, s) {
-  const p = panel(doc, box, 'First-year opportunity');
+  const p = panel(doc, box, 'First-year opportunity', { evidence: true });
   let y = p.y;
   const unresolved = s.classification === 'unclear' || s.classification === 'unavailable';
   chip(doc, p.x, y, CLASSIFICATION_LABEL[s.classification] ?? 'UNCLEAR', { muted: unresolved });
@@ -528,26 +555,40 @@ function freshmanCard(doc, box, s) {
 
   // Shown only where reweighting actually moved the answer. A note saying the
   // two agree would be clutter; substituting one for the other would be a lie.
+  //
+  // IN THE FORM THE CARD HAS ROOM FOR, and measured rather than assumed. This
+  // block is the only variable-height thing on the card, and it is what pushed
+  // the evidence strip out of the box: 23 of 90 sampled reports draw it, and
+  // all 23 overran. Where the full block does not fit it falls back to a fact
+  // line, and where even that does not fit the card says nothing — the
+  // evidence page carries the finding in full, with both figures, the verdict
+  // note and the reason neither replaces the other.
   if (s.weightingApplied && s.weightedAgrees === false && s.weightedLadderTop?.median != null) {
-    y += 3;
-    doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
-      .text('WEIGHTED TOWARDS THE CURRENT COACH', p.x, y,
-        { width: p.w, characterSpacing: TYPE.label.spacing, lineBreak: false });
-    y += 9;
-    line(doc, `${nf(s.weightedLadderTop.median)} min — both views are shown, neither replaces the other`,
-      p.x, y, p.w, { size: 7, color: INK });
-    y += 12;
+    const room = p.bottom - y;
+    if (room >= 24) {
+      y += 3;
+      doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+        .text('WEIGHTED TOWARDS THE CURRENT COACH', p.x, y,
+          { width: p.w, characterSpacing: TYPE.label.spacing, lineBreak: false });
+      y += 9;
+      line(doc, `${nf(s.weightedLadderTop.median)} min — both views are shown, neither replaces the other`,
+        p.x, y, p.w, { size: 7, color: INK });
+      y += 12;
+    } else if (room >= 11) {
+      y = factLine(doc, p.x, y, p.w, 'Weighted towards the current coach',
+        `${nf(s.weightedLadderTop.median)} min`);
+    }
   }
 
   const sample = [
     s.seasonsObserved ? plural(s.seasonsObserved, 'season') : null,
     s.measuredFreshmen ? `${plural(s.measuredFreshmen, 'measured first-year')}` : null,
   ].filter(Boolean).join(' · ');
-  evidenceChip(doc, p.x, Math.max(y + 10, p.bottom - 20), s.evidence, sample, p.w);
+  evidenceChip(doc, p.x, p.evidenceY, s.evidence, sample, p.w);
 }
 
 function arrivalCard(doc, box, s) {
-  const p = panel(doc, box, 'Experienced arrival reliance');
+  const p = panel(doc, box, 'Experienced arrival reliance', { evidence: true });
   let y = p.y;
   const unresolved = s.classification === 'unclear' || s.classification === 'unavailable';
   chip(doc, p.x, y, CLASSIFICATION_LABEL[s.classification] ?? 'UNCLEAR', { muted: unresolved });
@@ -585,11 +626,11 @@ function arrivalCard(doc, box, s) {
     s.measurableSeasons.length ? `${plural(s.measurableSeasons.length, 'measurable season')}` : null,
     s.evidence?.sample?.observations ? plural(s.evidence.sample.observations, 'position-season') : null,
   ].filter(Boolean).join(' · ');
-  evidenceChip(doc, p.x, Math.max(y + 10, p.bottom - 20), s.evidence, sample, p.w);
+  evidenceChip(doc, p.x, p.evidenceY, s.evidence, sample, p.w);
 }
 
 function replacementCard(doc, box, s) {
-  const p = panel(doc, box, 'Replacement behaviour');
+  const p = panel(doc, box, 'Replacement behaviour', { evidence: true });
   let y = p.y;
   const route = s.dominantRoute ? ROUTE_LABEL[s.dominantRoute] : 'INSUFFICIENT HISTORY';
   chip(doc, p.x, y, route, { muted: !s.dominantRoute });
@@ -615,7 +656,7 @@ function replacementCard(doc, box, s) {
 
   const sample = s.seasonsRepresented?.length
     ? `${plural(s.observations, 'position-season')} · ${plural(s.seasonsRepresented.length, 'transition')}` : null;
-  evidenceChip(doc, p.x, Math.max(y + 10, p.bottom - 20), s.evidence, sample, p.w);
+  evidenceChip(doc, p.x, p.evidenceY, s.evidence, sample, p.w);
 }
 
 /**
@@ -736,29 +777,26 @@ function coachCard(doc, box, s, ctx = null, timeline = null) {
    * otherwise.
    */
   /**
-   * The verdict note is withheld where the attribution could not establish the
-   * current coach, and this is a presentation guard rather than a change to
-   * the verdict.
+   * The verdict note is shown as written, and in Phase 11D that stopped being
+   * a risk.
    *
-   * `classifyProgramme` writes that note from `tenureFor`, which does not read
-   * the title column. At Marist men's it produced "One coach throughout" —
-   * meaning the strength coach the attribution had just refused — and printed
-   * it directly beneath a headline reading "Could not establish". Two claims
-   * about the same table on the same card. The verdict logic is left exactly
-   * as it is; the card stops repeating a sentence built from a coach sequence
-   * this card has already rejected.
+   * 11C withheld it on 8 cards, because `classifyProgramme` read the coach
+   * table through `tenureFor`, which had no title column: at Marist men's it
+   * produced "One coach throughout" — meaning the strength coach the
+   * attribution had just refused — under a headline reading "Could not
+   * establish". Hiding the sentence left the verdict itself wrong. 11D fixed
+   * the input instead: `tenureFor` now reads rows through `readCoachRow`, and
+   * a continuity claim needs a usable head-coach observation for every season
+   * it describes. Marist's verdict is `coach-unknown`, and its note now agrees
+   * with the card.
    *
-   * NARROW ON PURPOSE. Only a note that ASSERTS a coach is withheld. Most
-   * notes on a refused card are perfectly compatible with the refusal — "no
-   * coach on file, so these seasons cannot be attributed to anyone" says the
-   * same thing the card does — and suppressing those would lose information to
-   * tidy up a contradiction they are not part of. Of the 99 programmes where a
-   * note meets a refusal, this catches the 8 that contradict it.
+   * One card still shows a refusal beside a continuity note, and it is not a
+   * contradiction: Ursuline women's ran four measured seasons under Jason
+   * Kubbins and has nobody on file for the season a recruit would join. Both
+   * sentences are true, and the note says which seasons it means.
    */
-  const verdictNote = ctx && ctx.prominence === PROMINENCE.REFUSAL
-    && ASSERTS_A_COACH.test(s.verdictNote ?? '') ? null : s.verdictNote;
   const note = attributed?.coHeadNote
-    ?? (verdictNote ? verdictNote.replace(/^./, (ch) => ch.toUpperCase()) : null);
+    ?? (s.verdictNote ? s.verdictNote.replace(/^./, (ch) => ch.toUpperCase()) : null);
   if (note && y < p.bottom - 12) {
     doc.font('Helvetica').fontSize(7).fillColor(MUTED)
       .text(note, p.x, y + 2, { width: p.w, height: p.bottom - y - 4, ellipsis: true });
@@ -1193,12 +1231,12 @@ function positionOpensCard(doc, box, a) {
     ]);
   }
 
-  evidenceChip(doc, p.x, Math.max(y + 10, p.bottom - 20), o.evidence,
+  evidenceChip(doc, p.x, p.evidenceY, o.evidence,
     `${plural(v.transitions, 'transition')} · ${plural(v.openings, 'opening')}`, p.w);
 }
 
 function originCard(doc, box, a) {
-  const p = panel(doc, box, 'First-years like you');
+  const p = panel(doc, box, 'First-years like you', { evidence: true });
   let y = p.y;
   const fh = a.positionFreshmanHistory;
   const o = a.originContext;
