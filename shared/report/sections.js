@@ -37,6 +37,53 @@ export const LAYERS = [
   { id: 'supporting', title: 'Supporting detail' },
 ];
 
+/**
+ * The acts, and the order they run in.
+ *
+ * An athlete report is three acts: what this history shows around the
+ * athlete's own position and entry year, then how the programme has built and
+ * used its squad, then the named records underneath both. A programme report
+ * has no pathway to open with, so it keeps the order it has always had.
+ *
+ * The blurb is the answer to "why are you now showing me all of this", and it
+ * is drawn once, at the top of the first page of the act.
+ */
+export const ACTS = Object.freeze({
+  athlete: [
+    { id: 'navigation', title: 'Contents' },
+    { id: 'pathway',
+      title: 'Understanding your pathway',
+      blurb: 'What this programme’s record shows around this position, this entry year and the '
+        + 'squad currently on the roster.' },
+    { id: 'programme-evidence',
+      title: 'Understanding the programme',
+      blurb: 'Your position sits inside a wider squad-building strategy. These pages show how this '
+        + 'programme has historically recruited, developed, retained and replaced players across '
+        + 'the whole roster.' },
+    { id: 'supporting',
+      title: 'The evidence behind it',
+      blurb: 'The pages before this told you what the evidence says. These show you the evidence '
+        + 'itself — named players, actual seasons, actual minutes, observed openings and observed '
+        + 'destinations.' },
+  ],
+  programme: [
+    { id: 'navigation', title: 'Contents' },
+    { id: 'interpretation', title: 'At a glance' },
+    { id: 'programme-evidence',
+      title: 'The programme',
+      blurb: null },
+    { id: 'supporting',
+      title: 'The evidence behind it',
+      blurb: 'The pages before this told you what the evidence says. These show you the evidence '
+        + 'itself — named players, actual seasons, actual minutes and observed openings.' },
+  ],
+});
+
+/** The acts this report has, in order. */
+export const actsFor = ({ hasAthlete }) => (hasAthlete ? ACTS.athlete : ACTS.programme);
+export const actTitle = (id, { hasAthlete }) => actsFor({ hasAthlete })
+  .find((a) => a.id === id)?.title ?? id;
+
 const count = (x) => (Array.isArray(x) ? x.length : 0);
 const has = (x) => count(x) > 0;
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
@@ -52,7 +99,7 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
  * blank page does not.
  */
 export const SECTIONS = [
-  // -- Layer 2: interpretation ---------------------------------------------
+  // -- Act I: the summary this report opens with -----------------------------
   {
     id: 'programme-at-a-glance',
     title: 'Programme at a glance',
@@ -72,9 +119,10 @@ export const SECTIONS = [
   },
   {
     id: 'athlete-at-a-glance',
-    title: 'Athlete opportunity at a glance',
-    description: 'The position entered, who is currently there, and what has happened when a place '
-      + 'opened at it.',
+    title: 'Your pathway at this programme',
+    titleOf: ({ model }) => `Your pathway at ${model.college?.name ?? 'this programme'}`,
+    description: 'How this programme’s history, this position, the entry year and the current '
+      + 'roster intersect.',
     layer: 'interpretation',
     scope: 'athlete',
     unavailableWhenEmpty: false,
@@ -89,7 +137,107 @@ export const SECTIONS = [
     ].filter(Boolean),
   },
 
-  // -- Layer 3: programme evidence -----------------------------------------
+  // -- Act I, continued: the athlete's own pathway --------------------------
+  //
+  // Declared before the programme evidence because an athlete report runs in
+  // that order: what this history shows around one position and one entry
+  // year, and only then how the squad as a whole has been built. A programme
+  // report filters every one of these out and is left with exactly the order
+  // it has always had.
+  //
+  // Declared in the order the document draws them, because `planSections`
+  // hands the model a `sections` array and a reader of that array should not
+  // have to sort it to learn what comes first.
+  {
+    id: 'athlete-current-position',
+    title: 'Who is at your position now',
+    description: 'The current roster at the athlete’s position, read against their entry year.',
+    layer: 'athlete-evidence',
+    scope: 'athlete',
+    unavailableWhenEmpty: false,
+    applies: ({ summary }) => count(summary?.athlete?.currentPositionPlayers) > 0,
+    scopeOf: ({ summary }) => {
+      const a = summary.athlete;
+      return [
+        `${count(a.currentPositionPlayers)} on the roster`,
+        `${count(a.currentPlayersEligibleAtEntry)} eligible in ${a.entrySeason}`,
+      ];
+    },
+  },
+  {
+    id: 'athlete-entry-window',
+    title: 'Your arrival window',
+    description: 'The current playing-time load around the athlete’s entry season.',
+    layer: 'athlete-evidence',
+    scope: 'athlete',
+    unavailableWhenEmpty: false,
+    applies: ({ summary }) => count(summary?.athlete?.currentPositionPlayers) > 0,
+    scopeOf: ({ summary }) => {
+      const a = summary.athlete;
+      return [
+        `${count(a.currentPlayersInFinalSeasonAtEntry)} in a final season in ${a.entrySeason}`,
+      ];
+    },
+  },
+  {
+    id: 'athlete-position-openings',
+    title: 'When your position opens',
+    description: 'Every season a starter left the athlete’s position, and what followed it.',
+    layer: 'athlete-evidence',
+    scope: 'athlete',
+    // The absence is the finding: "no starter has left this position" is a
+    // complete answer, and a reader should not have to notice a missing page.
+    unavailableWhenEmpty: true,
+    applies: ({ summary }) => (summary?.athlete?.positionVacancyHistory?.transitions ?? 0) > 0,
+    scopeOf: ({ summary }) => {
+      const v = summary.athlete.positionVacancyHistory;
+      return [`${v.openings} of ${v.transitions} transitions opened a place`];
+    },
+  },
+  {
+    id: 'athlete-position-history',
+    title: 'Your position, historically',
+    description: 'First-years, experienced arrivals and minute shares at the athlete’s position only.',
+    layer: 'athlete-evidence',
+    scope: 'athlete',
+    unavailableWhenEmpty: false,
+    applies: ({ summary }) => {
+      const a = summary?.athlete;
+      if (!a) return false;
+      return a.positionFreshmanHistory.measured > 0
+        || a.experiencedArrivalsAtPosition.measured > 0
+        || (a.positionOpeningOutcomes?.dials?.n ?? 0) > 0;
+    },
+    scopeOf: ({ summary }) => {
+      const a = summary.athlete;
+      return [
+        `${a.positionFreshmanHistory.measured} first-years`,
+        `${a.experiencedArrivalsAtPosition.measured} experienced arrivals`,
+      ];
+    },
+  },
+  {
+    id: 'athlete-origin',
+    title: 'Where you are arriving from',
+    description: 'Whether first-years from the same background have played here.',
+    layer: 'athlete-evidence',
+    scope: 'athlete',
+    unavailableWhenEmpty: false,
+    applies: ({ summary }) => {
+      const o = summary?.athlete?.originContext;
+      return Boolean(o?.requestedOrigin)
+        && (o.programme.withRecordedOrigin > 0 || Boolean(o.pool));
+    },
+    scopeOf: ({ summary }) => {
+      const o = summary.athlete.originContext;
+      return [
+        `${o.programme.sameOrigin.players} of ${o.programme.withRecordedOrigin} share this background`,
+      ];
+    },
+  },
+
+
+  // -- Act II: the programme's own record ------------------------------------
   {
     id: 'freshman-intake',
     title: 'The first-year intake',
@@ -143,6 +291,8 @@ export const SECTIONS = [
   },
   {
     id: 'experienced-arrival-intake',
+    // Folded into `evidence-limits` when it is one of two or more refusals.
+    absorbedWhenRefused: true,
     title: 'Experienced arrivals',
     description: 'How often this programme adds players who are not first-years, and what they played.',
     layer: 'programme-evidence',
@@ -174,6 +324,7 @@ export const SECTIONS = [
   },
   {
     id: 'replacing-minutes',
+    absorbedWhenRefused: true,
     title: 'Replacing minutes',
     description: 'Where a position’s minutes went the season after established players left it.',
     layer: 'programme-evidence',
@@ -271,134 +422,22 @@ export const SECTIONS = [
     },
   },
 
-  // -- Layer 4: athlete evidence -------------------------------------------
-  //
-  // Declared in the order the document draws them, because `planSections`
-  // hands the model a `sections` array and a reader of that array should not
-  // have to sort it to learn what comes first.
   {
-    id: 'athlete-current-position',
-    title: 'Who is at your position now',
-    description: 'The current roster at the athlete’s position, read against their entry year.',
-    layer: 'athlete-evidence',
-    scope: 'athlete',
+    id: 'evidence-limits',
+    title: 'Where the evidence runs out',
+    description: 'The analyses attempted here that the published record could not support, and '
+      + 'what none of them should be read to mean.',
+    layer: 'programme-evidence',
+    scope: 'programme',
     unavailableWhenEmpty: false,
-    applies: ({ summary }) => count(summary?.athlete?.currentPositionPlayers) > 0,
-    scopeOf: ({ summary }) => {
-      const a = summary.athlete;
-      return [
-        `${count(a.currentPositionPlayers)} on the roster`,
-        `${count(a.currentPlayersEligibleAtEntry)} eligible in ${a.entrySeason}`,
-      ];
-    },
-  },
-  {
-    id: 'athlete-entry-window',
-    title: 'Your arrival window',
-    description: 'The current playing-time load around the athlete’s entry season.',
-    layer: 'athlete-evidence',
-    scope: 'athlete',
-    unavailableWhenEmpty: false,
-    applies: ({ summary }) => count(summary?.athlete?.currentPositionPlayers) > 0,
-    scopeOf: ({ summary }) => {
-      const a = summary.athlete;
-      return [
-        `${count(a.currentPlayersInFinalSeasonAtEntry)} in a final season in ${a.entrySeason}`,
-      ];
-    },
-  },
-  {
-    id: 'athlete-position-openings',
-    title: 'When your position opens',
-    description: 'Every season a starter left the athlete’s position, and what followed it.',
-    layer: 'athlete-evidence',
-    scope: 'athlete',
-    // The absence is the finding: "no starter has left this position" is a
-    // complete answer, and a reader should not have to notice a missing page.
-    unavailableWhenEmpty: true,
-    applies: ({ summary }) => (summary?.athlete?.positionVacancyHistory?.transitions ?? 0) > 0,
-    scopeOf: ({ summary }) => {
-      const v = summary.athlete.positionVacancyHistory;
-      return [`${v.openings} of ${v.transitions} transitions opened a place`];
-    },
-  },
-  {
-    id: 'athlete-position-history',
-    title: 'Your position, historically',
-    description: 'First-years, experienced arrivals and minute shares at the athlete’s position only.',
-    layer: 'athlete-evidence',
-    scope: 'athlete',
-    unavailableWhenEmpty: false,
-    applies: ({ summary }) => {
-      const a = summary?.athlete;
-      if (!a) return false;
-      return a.positionFreshmanHistory.measured > 0
-        || a.experiencedArrivalsAtPosition.measured > 0
-        || (a.positionOpeningOutcomes?.dials?.n ?? 0) > 0;
-    },
-    scopeOf: ({ summary }) => {
-      const a = summary.athlete;
-      return [
-        `${a.positionFreshmanHistory.measured} first-years`,
-        `${a.experiencedArrivalsAtPosition.measured} experienced arrivals`,
-      ];
-    },
-  },
-  {
-    id: 'athlete-origin',
-    title: 'Where you are arriving from',
-    description: 'Whether first-years from the same background have played here.',
-    layer: 'athlete-evidence',
-    scope: 'athlete',
-    unavailableWhenEmpty: false,
-    applies: ({ summary }) => {
-      const o = summary?.athlete?.originContext;
-      return Boolean(o?.requestedOrigin)
-        && (o.programme.withRecordedOrigin > 0 || Boolean(o.pool));
-    },
-    scopeOf: ({ summary }) => {
-      const o = summary.athlete.originContext;
-      return [
-        `${o.programme.sameOrigin.players} of ${o.programme.withRecordedOrigin} share this background`,
-      ];
-    },
+    // Two or more. A single refusal is better said on the page that made it,
+    // where the reader is already asking that question; it is the pile of them
+    // that turns a thorough assessment into a list of things we cannot do.
+    applies: ({ model }) => count(model.evidenceLimits) >= 2,
+    scopeOf: ({ model }) => [`${count(model.evidenceLimits)} analyses refused`],
   },
 
-  {
-    id: 'athlete-position-movement',
-    title: 'Players at your position we could trace',
-    description: 'Where players at the athlete’s position were seen next, when they could be seen '
-      + 'at all.',
-    layer: 'athlete-evidence',
-    // Demoted to the supporting record where the position's own sample is a
-    // handful of players. The page sets itself quiet for the same reason, and
-    // the contents must not then file it under a heading the page disowns.
-    layerOf: ({ model }) => {
-      const p = model.lifecycle?.athletePosition;
-      return (p?.positionRows?.length ?? 0) < MIN_POSITION_DESTINATIONS
-        ? 'supporting' : 'athlete-evidence';
-    },
-    scope: 'athlete',
-    unavailableWhenEmpty: false,
-    // Only where there is something at the athlete's OWN position to show.
-    // Broadened to the programme with nothing of their own, the page would be
-    // three sentences pointing at two other pages, which is filler.
-    applies: ({ model }) => {
-      const p = model.lifecycle?.athletePosition;
-      if (!p) return false;
-      return p.group === 'position' ? p.rows.length > 0 : p.positionRows.length > 0;
-    },
-    scopeOf: ({ model }) => {
-      const p = model.lifecycle.athletePosition;
-      return [
-        p.group === 'position'
-          ? `${p.atPositionObserved} traced at this position`
-          : `${p.atPositionObserved} of ${p.atPositionDepartures} traced at this position`,
-      ];
-    },
-  },
-
-  // -- Layer 5: supporting --------------------------------------------------
+  // -- Act III: the record underneath both ------------------------------------
   {
     id: 'table-freshmen',
     title: 'Every first-year measured',
@@ -451,6 +490,39 @@ export const SECTIONS = [
     scopeOf: ({ model }) => [`${count(model.lifecycle.departures.named)} traced moves`],
   },
   {
+    id: 'athlete-position-movement',
+    title: 'Players at your position we could trace',
+    description: 'Where players at the athlete’s position were seen next, when they could be seen '
+      + 'at all.',
+    layer: 'athlete-evidence',
+    // Demoted to the supporting record where the position's own sample is a
+    // handful of players. The page sets itself quiet for the same reason, and
+    // the contents must not then file it under a heading the page disowns.
+    layerOf: ({ model }) => {
+      const p = model.lifecycle?.athletePosition;
+      return (p?.positionRows?.length ?? 0) < MIN_POSITION_DESTINATIONS
+        ? 'supporting' : 'athlete-evidence';
+    },
+    scope: 'athlete',
+    unavailableWhenEmpty: false,
+    // Only where there is something at the athlete's OWN position to show.
+    // Broadened to the programme with nothing of their own, the page would be
+    // three sentences pointing at two other pages, which is filler.
+    applies: ({ model }) => {
+      const p = model.lifecycle?.athletePosition;
+      if (!p) return false;
+      return p.group === 'position' ? p.rows.length > 0 : p.positionRows.length > 0;
+    },
+    scopeOf: ({ model }) => {
+      const p = model.lifecycle.athletePosition;
+      return [
+        p.group === 'position'
+          ? `${p.atPositionObserved} traced at this position`
+          : `${p.atPositionObserved} of ${p.atPositionDepartures} traced at this position`,
+      ];
+    },
+  },
+  {
     id: 'methodology',
     title: 'Methodology and limitations',
     description: 'How every figure in this report was worked out, and where it stops being reliable.',
@@ -475,8 +547,17 @@ export const SECTIONS = [
 export function planSections({ model, summary, philosophy }) {
   const ctx = { model, summary, philosophy };
   const hasAthlete = Boolean(model?.athlete);
+  // Sections whose own page would say nothing but "we could not measure this",
+  // where the consolidated page is being drawn and is saying it for them. The
+  // gate that refused them is untouched; only where the refusal is printed
+  // changes, and the consolidated page states each one in more detail than the
+  // page it replaces did.
+  const consolidating = count(model?.evidenceLimits) >= 2;
+  const absorbed = new Set(consolidating
+    ? (model.evidenceLimits ?? []).map((x) => x.id) : []);
 
-  return SECTIONS
+  const planned = SECTIONS
+    .filter((s) => !(s.absorbedWhenRefused && absorbed.has(s.id)))
     .filter((s) => (s.scope === 'athlete' ? hasAthlete : true))
     .filter((s) => {
       try {
@@ -495,12 +576,25 @@ export function planSections({ model, summary, philosophy }) {
       return {
         order: i + 1,
         id: s.id,
-        title: s.title,
+        title: (() => {
+          try { return s.titleOf?.(ctx) ?? s.title; } catch { return s.title; }
+        })(),
         description: s.description,
         // A section may move layer on the evidence it turns out to have: the
         // athlete's position movement is athlete evidence when the position
         // carries a sample and supporting detail when it is one player.
         layer: (() => { try { return s.layerOf?.(ctx) ?? s.layer; } catch { return s.layer; } })(),
+        // The act it is filed under, which is a different question: on an
+        // athlete report the glance page and every athlete page are one act,
+        // and on a programme report the glance page is its own.
+        act: (() => {
+          const layer = (() => {
+            try { return s.layerOf?.(ctx) ?? s.layer; } catch { return s.layer; }
+          })();
+          if (layer === 'supporting') return 'supporting';
+          if (layer === 'programme-evidence') return 'programme-evidence';
+          return hasAthlete ? 'pathway' : 'interpretation';
+        })(),
         scope: s.scope,
         // The renderer fills this in once the section has been laid out; the
         // plan states the field so the shape is stable either way.
@@ -509,6 +603,8 @@ export function planSections({ model, summary, philosophy }) {
         showsUnavailableState: Boolean(s.unavailableWhenEmpty),
       };
     });
+
+  return inActOrder(planned, hasAthlete);
 }
 
 /**
@@ -516,8 +612,33 @@ export function planSections({ model, summary, philosophy }) {
  *
  * A layer heading over nothing reads as a section that failed to render.
  */
+/**
+ * The plan in the order the document draws it.
+ *
+ * A section's ACT can be decided by its evidence — the athlete's position
+ * movement is filed with the pathway when the position carries a sample and
+ * with the supporting record when it is one player — so the registry's
+ * declaration order is not always the running order. Sorting by act here is
+ * what keeps `model.sections` a description of the document rather than of the
+ * file it was declared in.
+ */
+function inActOrder(plan, hasAthlete) {
+  const rank = new Map(actsFor({ hasAthlete }).map((a, i) => [a.id, i]));
+  return [...plan]
+    .map((s, i) => ({ s, i }))
+    .sort((x, y) => (rank.get(x.s.act) ?? 99) - (rank.get(y.s.act) ?? 99) || x.i - y.i)
+    .map(({ s }, i) => ({ ...s, order: i + 1 }));
+}
+
 export function planByLayer(plan) {
   return LAYERS
     .map((layer) => ({ ...layer, sections: plan.filter((s) => s.layer === layer.id) }))
     .filter((layer) => layer.sections.length > 0);
+}
+
+/** The same plan, grouped into the acts the document actually runs in. */
+export function planByAct(plan, { hasAthlete }) {
+  return actsFor({ hasAthlete })
+    .map((act) => ({ ...act, sections: plan.filter((s) => s.act === act.id) }))
+    .filter((act) => act.sections.length > 0);
 }

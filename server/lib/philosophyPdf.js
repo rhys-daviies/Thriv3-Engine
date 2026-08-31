@@ -178,6 +178,8 @@ export function fitHeadline(doc, text, width, size, floor = 13) {
 export function kit(doc) {
   const api = {
     doc,
+    /** Set by the running order; consumed by the next `pageHead`. */
+    pendingAct: null,
     /**
      * Draw something once every page exists.
      *
@@ -746,6 +748,46 @@ export function pageHead(k, { kicker, title, question = null, scope = null, newP
   quiet = false }) {
   const { doc } = k;
   if (newPage) doc.addPage();
+  // An act divider, where one is pending. Drawn at the top of the first page
+  // of a new act, in place of that page's kicker: the reader is told what the
+  // next group of pages is FOR before being shown the first of them, which is
+  // the whole reason the three acts exist rather than a running order.
+  if (k.pendingAct) {
+    const act = k.pendingAct;
+    k.pendingAct = null;
+    let y = M - 22;
+    doc.save().rect(M, y, W, 2.5).fill(CLARET).restore();
+    y += 9;
+    doc.font(TYPE.kicker.font).fontSize(9.5).fillColor(CLARET)
+      .text(String(act.title).toUpperCase(), M, y,
+        { width: W, characterSpacing: 1.6, lineBreak: false, ellipsis: true });
+    y += 14;
+    if (act.blurb) {
+      doc.font('Helvetica').fontSize(8.5).fillColor(MUTED)
+        .text(act.blurb, M, y, { width: W * 0.86 });
+      y = doc.y;
+    }
+    doc.y = y + 16;
+    // The page's own weight still applies. A supporting page opening an act is
+    // still a supporting page, and drawing its title at 19pt because a divider
+    // happened to precede it was how a one-row table came to open the evidence
+    // act at full volume.
+    if (quiet) {
+      doc.font(TYPE.title.font).fontSize(14).fillColor(INK).text(title, M, doc.y, { width: W });
+      doc.y += 2;
+      doc.moveTo(M, doc.y).lineTo(M + W, doc.y).lineWidth(0.75).strokeColor(LINE).stroke();
+      doc.y += 10;
+      if (question) {
+        doc.font(TYPE.note.font).fontSize(8.5).fillColor(MUTED).text(question, M, doc.y, { width: W });
+        doc.y += 8;
+      }
+    } else if (title) {
+      k.title(title);
+      if (question) k.question(question);
+    }
+    if (scope) k.scope(scope);
+    return k;
+  }
   if (kicker) {
     doc.font(TYPE.kicker.font).fontSize(TYPE.kicker.size)
       .fillColor(quiet ? MUTED : TYPE.kicker.color)

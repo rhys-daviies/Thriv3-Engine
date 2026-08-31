@@ -12,6 +12,7 @@ import {
 } from '../lib/philosophyQueries.js';
 import { lifecyclePool, lifecycleRows } from '../lib/lifecycleQueries.js';
 import { buildLifecycleSummary } from '../../shared/report/lifecycleSummary.js';
+import { evidenceLimitsFor } from '../lib/reportLimits.js';
 import {
   RECRUIT_SEASON, SQUAD_SEASON, SEASONS,
   freshmanPoints, newcomerPoints, arrivalWindow,
@@ -305,13 +306,21 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     programme: col.name,
     athlete: model.athlete,
   });
+  // Which analyses were attempted and refused. Additive, and computed from
+  // the model rather than from any new query: `evidenceLimitsFor` reads the
+  // same fields the pages it replaces would have read.
+  const withLifecycle = { ...model, summary, lifecycle };
+  const evidenceLimits = evidenceLimitsFor(withLifecycle);
   return {
     ...model,
     summary,
     lifecycle,
+    evidenceLimits,
     // The document's shape, decided from the data rather than by whichever
     // section throws first. No page numbers: those are not knowable until the
     // pages exist, and the renderer fills them in afterwards.
-    sections: planSections({ model: { ...model, lifecycle }, summary, philosophy: ph }),
+    sections: planSections({
+      model: { ...withLifecycle, evidenceLimits }, summary, philosophy: ph,
+    }),
   };
 }

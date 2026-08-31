@@ -342,3 +342,104 @@ export function athleteHeadlines(model) {
   }
   return out;
 }
+
+// ---------------------------------------------------------------------------
+// The pathway: several analyses, read together
+// ---------------------------------------------------------------------------
+
+/**
+ * THE PATHWAY THRIV3 SEES — the one place this report joins its analyses up.
+ *
+ * The difference from every other block in this module is the scope of the
+ * claim, and it is the reason the two are named differently on the page.
+ * `developmentNarrative` and its siblings restate ONE page: they may say what
+ * that page's figures show and nothing more. This reads across the first-year
+ * record at a position, the programme's multi-year development, what happened
+ * when that position last opened, and who is on the roster now — and states
+ * what those four say when they are put in one paragraph.
+ *
+ * It computes nothing. Every number below is printed on a page of this report,
+ * and every sentence names the denominator it came from, because a synthesis
+ * that drops its denominators is where a report stops being checkable.
+ *
+ * WHAT IT MAY NOT DO, beyond the module-wide rules: it may not resolve the
+ * analyses into a verdict. Four findings that point different ways are
+ * reported as four findings that point different ways. There is no sentence
+ * here that adds up.
+ */
+export function pathwayNarrative(model) {
+  const a = model.summary?.athlete;
+  const l = model.lifecycle;
+  if (!a) return [];
+  const position = String(a.positionLabel ?? 'this position').toLowerCase();
+  const out = [];
+
+  // 1. First-years at this position, and what happened when it last opened.
+  const h = a.positionFreshmanHistory;
+  const v = a.positionOpeningOutcomes;
+  if (h?.measured > 0) {
+    const openings = v?.openings ?? 0;
+    out.push(`${h.measured} first-year ${position}s here have minutes on file and `
+      + `${h.starters === 0 ? 'none of them' : `${h.starters} of them`} reached a `
+      + `${STARTER_MINUTES}-minute season.`
+      + (openings > 0
+        ? ` Across the ${plural(openings, 'occasion', 'occasions')} a starter left this position, a `
+          + `first-year went on to start after ${v.freshmanTookIt === 0 ? 'none of them'
+            : `${v.freshmanTookIt} of them`}.`
+        : ''));
+  } else if (v?.openings > 0) {
+    out.push(`No first-year ${position} here has minutes on file, so the position's first-year `
+      + `record cannot be read. A starter left this position on ${plural(v.openings, 'occasion', 'occasions')}.`);
+  }
+
+  // 2. Whether the programme's players have grown into roles later. Programme-
+  //    wide, and said to be programme-wide: the multi-year model is not cut by
+  //    position, and pretending otherwise would be a figure nobody printed.
+  const d = l?.development;
+  if (d?.minutesCoverage?.readable && d.everStarter?.share != null) {
+    const y1 = d.byYear[0]?.share;
+    const later = d.byYear[2]?.share ?? d.byYear[1]?.share;
+    const grew = y1 != null && later != null && later > y1;
+    out.push(`Across the whole squad rather than this position alone, `
+      + `${d.everStarter.reached} of ${d.everStarter.denominator} measurable first-years have `
+      + `reached a ${STARTER_MINUTES}-minute season here at some point`
+      + (grew
+        ? `, and the share doing so rises from ${pc(y1)} in a first season to ${pc(later)} by a `
+          + 'third — the pathway has not been closed to players who begin with limited minutes.'
+        : '.'));
+  }
+
+  // 3. The roster as it stands, against the entry year.
+  const here = a.currentPositionPlayers ?? [];
+  if (here.length) {
+    const eligible = (a.currentPlayersEligibleAtEntry ?? []).length;
+    const finalSeason = (a.currentPlayersInFinalSeasonAtEntry ?? []).length;
+    const proj = a.currentProjectedMinutesOfPlayersEligibleAtEntry;
+    const above = here.filter((x) => Number(x.projectedMinutes) >= STARTER_MINUTES).length;
+    out.push(`The current roster carries ${plural(here.length, `${position}`, `${position}s`)}, `
+      + `${eligible} of them still eligible in ${a.entrySeason}`
+      + (proj?.playersWithProjection
+        ? `, ${above} of whom ${above === 1 ? 'is' : 'are'} projected above ${STARTER_MINUTES} `
+          + `minutes for the coming season (of ${proj.playersWithProjection} carrying a projection)`
+        : '')
+      + `${finalSeason ? `, and ${finalSeason} in a final eligible season in ${a.entrySeason}` : ''}.`);
+  }
+
+  // 4. Where the minutes went when the position opened.
+  if (v?.dials?.n) {
+    const parts = [['returning players', v.dials.returning], ['first-years', v.dials.freshman],
+      ['experienced arrivals', v.dials.newcomer]]
+      .filter(([, share]) => share != null)
+      .sort((x, y) => y[1] - x[1]);
+    if (parts.length) {
+      out.push(`When minutes opened at this position, ${parts[0][0]} took most of them — `
+        + `${parts.map(([label, share]) => `${Math.round(share)}% ${label}`).join(', ')} `
+        + `across ${plural(v.dials.n, 'position-season', 'position-seasons')}.`);
+    }
+  }
+
+  // Five sentences is the ceiling. Where a programme supports more than that,
+  // the last is dropped rather than the paragraph being allowed to grow into
+  // a page of its own.
+  return out.slice(0, 5);
+}

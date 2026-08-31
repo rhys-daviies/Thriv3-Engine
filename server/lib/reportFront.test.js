@@ -214,21 +214,26 @@ describe('the document', () => {
   });
 });
 
-describe('page three', () => {
+describe('the pathway page', () => {
   beforeEach(() => addProgramme('c1', 'Test College'));
 
   it('is absent without an athlete', async () => {
     const { buf, model } = await build();
     expect(model.summary.athlete).toBeNull();
-    expect(pdfText(buf)).not.toMatch(/Your opportunity at/);
-    expect(pdfText(buf)).not.toMatch(/YOUR ARRIVAL WINDOW/i);
+    const text = pdfText(buf);
+    expect(text).not.toMatch(/Your pathway at/);
+    expect(text).not.toMatch(/THE PATHWAY THRIV3 SEES/);
+    expect(text).not.toMatch(/UNDERSTANDING YOUR PATHWAY/);
   });
 
-  it('is present with one', async () => {
+  it('opens the athlete report with the synthesis, not with the cards', async () => {
     addAthlete('p1');
     const { buf } = await build('p1');
     const text = pdfText(buf);
-    expect(text).toMatch(/Your opportunity at/);
+    expect(text).toMatch(/Your pathway at Test College/);
+    expect(text).toMatch(/THE PATHWAY THRIV3 SEES/);
+    // The four cards this page used to carry are each a page of their own now,
+    // immediately after it, so the synthesis does not reprint its own evidence.
     expect(text).toMatch(/YOUR ARRIVAL WINDOW/i);
     expect(text).toMatch(/YOUR POSITION NOW/i);
   });
@@ -239,10 +244,14 @@ describe('page three', () => {
   // The card opens with a position-filtered count and then reports an origin
   // figure built from the whole intake. Without the scope on the label those
   // read as the same population.
+  // The origin comparison is built from the whole intake, not from this
+  // athlete's position. It used to be a card whose label said so; it is now a
+  // page of its own, and the page has to say so just as plainly.
   it('says the origin comparison is across every position', async () => {
     addAthlete('p1');
-    const text = pdfText((await build('p1')).buf);
-    expect(text).toMatch(/THIS PROGRAMME · ALL POSITIONS|on file here, across every position/);
+    const { buf, model } = await build('p1');
+    expect(model.sections.find((x) => x.id === 'athlete-origin')).toBeTruthy();
+    expect(pdfText(buf)).toMatch(/At this programme, across every position/i);
   });
 
   it('leads the arrival window with the final-season group', async () => {
@@ -259,10 +268,16 @@ describe('page three', () => {
     expect(text).toMatch(/BEYOND ENTRY/);
   });
 
+  // The caveat moved with the content it qualifies. It was a grey aside inside
+  // the arrival-window CARD; it is now the primary claret limitation on the
+  // arrival-window PAGE, and it names redshirts too.
   it('always states what cannot be known about the entry season', async () => {
     addAthlete('p1');
-    const { buf } = await build('p1');
-    expect(frontText(buf)).toMatch(/Future recruits, experienced arrivals, injuries and eligibility changes are not known/);
+    const { buf, model } = await build('p1');
+    expect(model.sections.find((x) => x.id === 'athlete-entry-window')).toBeTruthy();
+    const text = pdfText(buf);
+    expect(text).toMatch(/Future recruits, experienced arrivals, injuries, redshirts and eligibility changes are not known/);
+    expect(text).toMatch(/it does not describe the squad you would find/);
   });
 });
 

@@ -18,7 +18,8 @@
  * drawing an empty axis, because an empty axis reads as a confident zero.
  */
 import { render, footer } from './philosophyPdf.js';
-import { contentsPage, programmeAtAGlance, athleteAtAGlance } from './reportFront.js';
+import { contentsPage, programmeAtAGlance, athletePathwayPage } from './reportFront.js';
+import { actsFor } from '../../shared/report/sections.js';
 import {
   freshmanIntakePage, freshmanLadderPage,
   experiencedArrivalIntakePage, experiencedArrivalProfilePage,
@@ -37,6 +38,8 @@ import {
   freshmanRecordPage, arrivalRecordPage, vacancyRecordPage, destinationRecordPage,
   methodologyPage,
 } from './reportAppendix.js';
+import { evidenceLimitsPage } from './reportLimits.js';
+import { athletePositionIsStrong } from '../../shared/report/lifecycleSummary.js';
 
 // ---------------------------------------------------------------------------
 // The document
@@ -80,30 +83,65 @@ export function renderProgramReport(model, opts = {}) {
     const planned = new Set(plan.map((x) => x.id));
     const section = (id, draw) => {
       if (!planned.has(id)) return;
+      // The act divider, where this is the first section of a new act. Set on
+      // the kit and consumed by the page's own `pageHead`, because the divider
+      // has to be drawn after the page exists and before its title — and no
+      // page function should have to know which act it opens.
+      const entry = plan.find((x) => x.id === id);
+      if (entry && entry.act !== currentAct) {
+        currentAct = entry.act;
+        const act = acts.find((x) => x.id === currentAct);
+        // Not on the first act: the cover and the summary page open the report
+        // and do not need to be told what they are.
+        if (act && drawnAny) k.pendingAct = act;
+      }
+      drawnAny = true;
       atNext(id);
       draw();
     };
+
+    const acts = actsFor({ hasAthlete: Boolean(a) });
+    let currentAct = null;
+    let drawnAny = false;
 
     // Page one is reserved for the contents and drawn last, once the section
     // starts are known. Nothing is written to it here.
     k.doc.addPage();
 
     at('programme-at-a-glance');
+    currentAct = plan.find((x) => x.id === 'programme-at-a-glance')?.act ?? null;
+    drawnAny = true;
     programmeAtAGlance(k, model);
+
+    // ---- Act I, continued: the athlete's own pathway ----
+    //
+    // An athlete report answers the questions a family asks first — who is at
+    // this position now, what the entry year looks like, what has happened
+    // when the position opened — and only then shows how the squad as a whole
+    // has been built. A programme report has none of these sections and falls
+    // straight through to the programme evidence.
 
     if (a) {
       k.doc.addPage();
       at('athlete-at-a-glance');
-      athleteAtAGlance(k, model);
+      athletePathwayPage(k, model);
     }
 
-    // ---- the programme evidence layer ----
+    section('athlete-current-position', () => currentPositionPage(k, model));
+    section('athlete-entry-window', () => arrivalWindowPage(k, model));
+    section('athlete-position-openings', () => positionOpeningsPage(k, model));
+    section('athlete-position-history', () => positionHistoryPage(k, model));
+    section('athlete-origin', () => originPage(k, model));
+    // Only where the position carries a real sample. A handful of players is
+    // filed with the supporting record instead, below.
+    if (athletePositionIsStrong(model)) {
+      section('athlete-position-movement', () => athletePositionMovementPage(k, model));
+    }
+
+    // ---- Act II: how this programme has built and used its squad ----
 
     section('freshman-intake', () => freshmanIntakePage(k, model));
     section('freshman-ladder', () => freshmanLadderPage(k, model));
-    // Replaces "After the first season", which compared year one with year
-    // two and stopped there. Same slot in the running order, four years of
-    // denominators instead of one comparison.
     section('player-development', () => playerDevelopmentPage(k, model));
     section('experienced-arrival-intake', () => experiencedArrivalIntakePage(k, model));
     section('current-arrivals', () => experiencedArrivalProfilePage(k, model));
@@ -111,39 +149,30 @@ export function renderProgramReport(model, opts = {}) {
     section('replacement-by-position', () => replacementByPositionPage(k, model));
     section('eligibility-outlook', () => currentSquadOutlookPage(k, model));
     section('current-depth', () => currentDepthPage(k, model));
-
-    // Continuity carries its own departure composition, so the two are one
-    // page rather than two: the second would have had to restate the first's
-    // denominators before it could say anything.
     section('roster-continuity', () => rosterContinuityPage(k, model));
     section('observed-destinations', () => observedDestinationsPage(k, model));
+    section('evidence-limits', () => evidenceLimitsPage(k, model));
 
-    // ---- the athlete evidence layer ----
-    //
-    // facetLevel is deliberately absent. It printed a results-derived
-    // programme rating out of 100 beside a self-entered athlete level out of
-    // 10, then disclaimed the comparison it had just invited. The honest
-    // version is not to print them together.
-
-    // Ordered by what a family asks first. It used to open with four seasons
-    // of history and reach "who is at your position now" on the third page of
-    // the layer; the present squad and the entry season are the questions the
-    // history is context FOR.
-    section('athlete-current-position', () => currentPositionPage(k, model));
-    section('athlete-entry-window', () => arrivalWindowPage(k, model));
-    section('athlete-position-openings', () => positionOpeningsPage(k, model));
-    section('athlete-position-history', () => positionHistoryPage(k, model));
-    section('athlete-origin', () => originPage(k, model));
-    section('athlete-position-movement', () => athletePositionMovementPage(k, model));
-
-    // ---- the supporting record ----
+    // ---- Act III: the record underneath both ----
 
     section('table-freshmen', () => freshmanRecordPage(k, model));
     section('table-experienced-arrivals', () => arrivalRecordPage(k, model));
     section('table-vacancies', () => vacancyRecordPage(k, model));
     section('table-destinations', () => destinationRecordPage(k, model));
+    // Last of the record, and only where the position's sample was too thin to
+    // lead with. Opening the evidence act with a one-row table under a divider
+    // announcing "named players, actual seasons, actual minutes" set it at a
+    // volume one row cannot carry.
+    if (!athletePositionIsStrong(model)) {
+      section('athlete-position-movement', () => athletePositionMovementPage(k, model));
+    }
 
     atNext('methodology');
+    if (plan.find((x) => x.id === 'methodology')?.act !== currentAct) {
+      currentAct = plan.find((x) => x.id === 'methodology')?.act ?? currentAct;
+      const act = acts.find((x) => x.id === currentAct);
+      if (act && drawnAny) k.pendingAct = act;
+    }
     methodologyPage(k, model);
 
     // Anything registered with `k.defer` — a cross-reference to a page that did

@@ -9,7 +9,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   programmeHeadlines, athleteHeadlines, developmentNarrative, continuityNarrative,
-  destinationNarrative, againstPool,
+  destinationNarrative, againstPool, pathwayNarrative,
 } from './narrative.js';
 
 /**
@@ -74,6 +74,7 @@ const everything = (m) => [
   ...programmeHeadlines(m).map((x) => x.text),
   ...athleteHeadlines(m).map((x) => x.text),
   ...developmentNarrative(m), ...continuityNarrative(m), ...destinationNarrative(m),
+  ...pathwayNarrative(m),
 ];
 
 describe('the vocabulary', () => {
@@ -153,5 +154,70 @@ describe('what it says', () => {
       'Where players go', 'Who is there now', 'Traced at this position']) {
       expect(labels).toContain(l);
     }
+  });
+});
+
+describe('the pathway synthesis', () => {
+  const withPosition = (over = {}) => {
+    const m = model();
+    m.summary.athlete = {
+      ...m.summary.athlete,
+      positionLabel: 'Forward',
+      positionFreshmanHistory: { measured: 6, starters: 0, players: [] },
+      positionOpeningOutcomes: { openings: 3, freshmanTookIt: 0, newcomerTookIt: 1,
+        dials: { n: 3, returning: 69.6, newcomer: 25.9, freshman: 4.5 } },
+      currentPositionPlayers: [{ projectedMinutes: 1009 }, { projectedMinutes: 284 }, { projectedMinutes: null }],
+      currentPlayersEligibleAtEntry: [{}, {}, {}],
+      currentPlayersInFinalSeasonAtEntry: [{}],
+      currentProjectedMinutesOfPlayersEligibleAtEntry: { playersWithProjection: 2 },
+      ...over,
+    };
+    return m;
+  };
+
+  it('crosses four analyses and stops at five sentences', () => {
+    const out = pathwayNarrative(withPosition());
+    expect(out.length).toBeGreaterThanOrEqual(3);
+    expect(out.length).toBeLessThanOrEqual(5);
+    const all = out.join(' ');
+    expect(all).toMatch(/6 first-year forwards/);              // position first-year record
+    expect(all).toMatch(/Across the whole squad rather than this position alone/); // development
+    expect(all).toMatch(/current roster carries/);             // the squad now
+    expect(all).toMatch(/When minutes opened at this position/); // replacement behaviour
+  });
+
+  it('says which figures are programme-wide rather than this position', () => {
+    const all = pathwayNarrative(withPosition()).join(' ');
+    // The multi-year model is not cut by position, and the sentence that uses
+    // it has to say so or it reads as a figure about forwards.
+    expect(all).toMatch(/whole squad rather than this position alone/);
+  });
+
+  it('carries the denominator of every figure it states', () => {
+    for (const sentence of pathwayNarrative(withPosition())) {
+      if (/%/.test(sentence)) expect(sentence).toMatch(/of \d|across \d|\d+ of \d+|position-seasons/);
+    }
+  });
+
+  it('says nothing forbidden, and never resolves into a verdict', () => {
+    for (const sentence of pathwayNarrative(withPosition())) {
+      for (const banned of BANNED) expect(sentence, sentence).not.toMatch(banned);
+      expect(sentence).not.toMatch(/overall|on balance|in summary|therefore|suggests that/i);
+    }
+  });
+
+  it('degrades to what a sparse programme can support', () => {
+    const m = withPosition({ positionOpeningOutcomes: { openings: 0, dials: { n: 0 } },
+      currentPositionPlayers: [] });
+    m.lifecycle.development.minutesCoverage = { readable: false, measured: 3, playerSeasons: 61 };
+    const out = pathwayNarrative(m);
+    expect(out).toHaveLength(1);
+    expect(out[0]).toMatch(/6 first-year forwards here have minutes on file/);
+  });
+
+  it('is empty without an athlete', () => {
+    const m = model();
+    m.summary.athlete = null;
+    expect(pathwayNarrative(m)).toEqual([]);
   });
 });

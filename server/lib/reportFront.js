@@ -19,7 +19,10 @@
 import { THEME, TYPE, pageHead, fitHeadline, minutes, fitText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
-import { programmeHeadlines, athleteHeadlines } from '../../shared/report/narrative.js';
+import {
+  programmeHeadlines, athleteHeadlines, pathwayNarrative,
+} from '../../shared/report/narrative.js';
+import { actTitle } from '../../shared/report/sections.js';
 
 const { INK, MUTED, LINE, CLARET, NAVY, MID, PALE, GREEN, M, W } = THEME;
 
@@ -420,17 +423,18 @@ export function contentsPage(doc, model, plan, pages) {
   // on the row that says how much is behind a section; the description does
   // not, because the section's own page opens with the same sentence.
   const available = doc.page.height - M - 26 - y;
-  const layers = [...new Set(listed.map((s) => s.layer))];
+  const acts = [...new Set(listed.map((s) => s.act))];
   const rowH = Math.max(13, Math.min(18,
-    (available - layers.length * 17) / Math.max(1, listed.length)));
+    (available - acts.length * 17) / Math.max(1, listed.length)));
 
-  let lastLayer = null;
+  let lastAct = null;
   for (const s of listed) {
-    if (s.layer !== lastLayer) {
-      if (lastLayer !== null) y += 5;
-      lastLayer = s.layer;
+    if (s.act !== lastAct) {
+      if (lastAct !== null) y += 5;
+      lastAct = s.act;
       doc.font(TYPE.section.font).fontSize(6.5).fillColor(CLARET)
-        .text(layerTitle(s.layer).toUpperCase(), M, y, { width: W, characterSpacing: 1.1, lineBreak: false });
+        .text(actHeading(s.act, Boolean(a)).toUpperCase(), M, y,
+          { width: W, characterSpacing: 1.1, lineBreak: false });
       y += 12;
     }
     line(doc, s.title, M + 10, y, W * 0.46, { font: 'Helvetica-Bold', size: 9.5 });
@@ -444,13 +448,15 @@ export function contentsPage(doc, model, plan, pages) {
   }
 }
 
-function layerTitle(id) {
-  return {
-    interpretation: 'At a glance',
-    'programme-evidence': 'The programme',
-    'athlete-evidence': 'For this athlete',
-    supporting: 'Supporting detail',
-  }[id] ?? id;
+/**
+ * The act headings the contents groups under.
+ *
+ * An athlete report and a programme report name their acts differently — one
+ * opens with a pathway and the other with a summary — so this asks the acts
+ * rather than mapping a fixed set of layer ids.
+ */
+function actHeading(id, hasAthlete) {
+  return actTitle(id, { hasAthlete });
 }
 
 // ---------------------------------------------------------------------------
@@ -1160,36 +1166,70 @@ function originCard(doc, box, a) {
   }
 }
 
-export function athleteAtAGlance(k, model) {
+/**
+ * THE PATHWAY THRIV3 SEES — the synthesis, set apart from every page-level one.
+ *
+ * Deliberately a different object from `headlineBand` and from `k.reading`,
+ * because it makes a different kind of claim and the difference has to be
+ * visible. A page-level reading restates the page it sits on. This one reads
+ * the first-year record at a position, the programme's multi-year development,
+ * what happened when the position last opened and who is on the roster now,
+ * and says what those four say together.
+ *
+ * It is the only block in this report that crosses analyses, so it is the only
+ * one on a tinted ground with a rule down its full height.
+ */
+function pathwayBlock(k, sentences) {
   const { doc } = k;
+  const list = (sentences ?? []).filter(Boolean);
+  if (!list.length) return;
+  const inner = W - 36;
+  const h = list.reduce((sum, t) => sum + doc.font('Helvetica').fontSize(10)
+    .heightOfString(t, { width: inner }) + 7, 0) + 24;
+  k.room(h + 10);
+  const top = doc.y;
+  doc.save().rect(M, top, W, h).fillOpacity(0.05).fill(CLARET).restore();
+  doc.save().rect(M, top, 3.5, h).fill(CLARET).restore();
+  doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(CLARET)
+    .text('THE PATHWAY THRIV3 SEES', M + 18, top + 12,
+      { width: inner, characterSpacing: TYPE.label.spacing, lineBreak: false });
+  let y = top + 27;
+  for (const t of list) {
+    doc.font('Helvetica').fontSize(10).fillColor(INK).text(t, M + 18, y, { width: inner });
+    y = doc.y + 7;
+  }
+  doc.y = top + h;
+  k.gap(12);
+}
+
+/**
+ * The hinge of an athlete report: four analyses read together, and nothing else.
+ *
+ * This page carried four cards — who is at the position now, the arrival
+ * window, when the position opens, first-years like you. Every one of them is
+ * now a page of its own immediately after this, so the cards were the same
+ * evidence twice. A synthesis that reprints its own evidence is not a
+ * synthesis; the band says where each part of it is set out, and stops.
+ */
+export function athletePathwayPage(k, model) {
   const a = model.summary.athlete;
   const athlete = model.athlete;
 
   pageHead(k, {
-    kicker: 'At a glance',
-    title: `Your opportunity at ${model.college.name}`,
-    question: [athlete.positionLabel, `entering ${model.entrySeason}`].filter(Boolean).join('  ·  '),
+    kicker: 'Understanding your pathway',
+    title: `Your pathway at ${model.college.name}`,
+    question: 'How this programme’s history, this position, the entry year and the current roster '
+      + 'intersect.',
     newPage: false,
   });
-  k.box('What the programme’s history and its currently known roster mean for someone entering at this '
-    + 'position. This page does not say how many minutes you would play — that season has not been played, '
-    + 'and who is on the squad by then is not knowable from this data.');
+  k.scope([athlete.positionLabel, `entering ${model.entrySeason}`,
+    `${(a.currentPositionPlayers ?? []).length} at this position on the current roster`]);
 
-  // The same band the programme glance carries, narrowed to this position.
-  // The four cards below answer it in evidence; without this the page left the
-  // reader to assemble the answer from four separate metrics, and said nothing
-  // at all about where players at this position were traced to next.
-  headlineBand(k, athleteHeadlines(model));
+  pathwayBlock(k, pathwayNarrative(model));
 
-  // Sized to the room the band leaves, for the reason the programme page is.
-  const room = doc.page.height - M - 26 - doc.y - 2 * 8;
-  const top = Math.max(232, room * 0.55);
-  cardRow(k, top, (row) => {
-    positionNowCard(doc, { ...row, w: HALF }, a);
-    arrivalWindowCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, a, model);
-  });
-  cardRow(k, Math.max(196, room - top), (row) => {
-    positionOpensCard(doc, { ...row, w: HALF }, a);
-    originCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, a);
-  });
+  k.aside('Nothing on this page says how many minutes an arriving player would get. That season '
+    + 'has not been played, who is on the squad by then is not knowable from this data, and no '
+    + 'figure here is a forecast.', { title: 'What this page is not' });
+
+  headlineBand(k, athleteHeadlines(model), { title: 'Where the evidence for this sits' });
 }

@@ -435,6 +435,20 @@ export function positionMovement(movements, position, { minPosition = MIN_POSITI
 // The whole lifecycle model for one report
 // ---------------------------------------------------------------------------
 
+/**
+ * Whether the athlete's own position carries a sample worth leading with.
+ *
+ * One predicate, used in three places that must agree: the page decides how
+ * loudly to set itself, the registry decides which act to file it under, and
+ * the running order decides where to draw it. When those three disagreed the
+ * contents filed a page under a heading the page itself disowned.
+ */
+export function athletePositionIsStrong(model) {
+  const p = model?.lifecycle?.athletePosition;
+  return Boolean(p) && p.group === 'position'
+    && (p.positionRows?.length ?? 0) >= MIN_POSITION_DESTINATIONS;
+}
+
 export function buildLifecycleSummary({ rows, pool, division, athlete = null, programme }) {
   if (!rows?.length) {
     return { available: false, reason: 'no roster seasons on file for this programme' };
