@@ -327,7 +327,8 @@ describe('the destination page itself', () => {
     const page = pageOf(pages, model, 'observed-destinations');
     const d = model.lifecycle.departures;
     expect(page).toContain('Observed destinations only');
-    expect(page).toContain(`${d.tracing.observed} traced to another roster`);
+    expect(page).toContain(`${d.tracing.observed} we could trace`);
+    expect(page).toContain(`${d.tracing.observed} of ${d.departures.total} departures could be traced`);
     expect(page).toContain('How much of this programme’s movement can be seen at all');
     // Coverage is stated before the first of the three measures.
     expect(page.indexOf('traced to another roster'))
@@ -457,12 +458,22 @@ describe('the contents still names the right pages', () => {
 });
 
 describe('sparse programmes', () => {
-  it('says why there are no percentages where minutes were never published', async () => {
+  it('says why there are no percentages where minutes were never published — once', async () => {
     addProgramme({ minutesPublished: false });
     const { text, model } = await build();
-    expect(model.lifecycle.development.minutesCoverage.readable).toBe(false);
-    expect(text).toContain('WHY THERE ARE NO PERCENTAGES HERE');
+    const cov = model.lifecycle.development.minutesCoverage;
+    expect(cov.readable).toBe(false);
+    // Stated in the reading block, with the counts that make it checkable.
+    expect(text).toContain(`Minutes are published for only ${cov.measured} of `
+      + `${cov.playerSeasons} first-year seasons here`);
     expect(text).not.toMatch(/0% reached/);
+    // And not restated three more times in asides and a refused section, which
+    // is what made a sparse report feel like a list of things we cannot do.
+    expect(text).not.toContain('WHY THERE ARE NO PERCENTAGES HERE');
+    expect(text).not.toContain('NO INDIVIDUAL CAREERS TO DRAW');
+    expect(text).not.toContain('TIME TO 600 MINUTES');
+    // The cohort counts survive: they are the honest part of the page.
+    expect(text).toMatch(/\d+ followed/);
   });
 
   it('draws no individual careers, and says so, where none is long enough', async () => {

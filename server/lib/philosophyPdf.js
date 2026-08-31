@@ -1598,12 +1598,11 @@ export const charts = {
           { width: inner, characterSpacing: TYPE.label.spacing, lineBreak: false, ellipsis: true });
 
       if (yr.share == null) {
-        // Sat directly under the label at first, which left forty points of
-        // white where the percentage would have been and read as a chart that
-        // had failed to draw. The column keeps its grid; the reason moves down
-        // to meet the count it belongs with.
+        // Under the label, and close to it. Forty points lower it read as a
+        // chart that had failed to draw; directly beneath the label it reads
+        // as the column's answer, which is what it is.
         doc.font('Helvetica-Oblique').fontSize(8).fillColor(MUTED)
-          .text(yr.unavailable || 'not enough on file', x, plot.y + 40, { width: inner });
+          .text(yr.unavailable || 'not enough on file', x, plot.y + 16, { width: inner });
       } else {
         doc.font('Helvetica-Bold').fontSize(26).fillColor(INK)
           .text(`${Math.round(yr.share * 100)}%`, x, plot.y + 12, { width: inner, lineBreak: false });

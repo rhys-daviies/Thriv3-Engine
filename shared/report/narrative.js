@@ -124,15 +124,15 @@ export function continuityNarrative(model) {
     out.push(`${c.returned} of the ${c.returnable} players who could return did — ${pc(c.retention)}`
       + `${clause ? `, ${clause}` : ''}.`);
   } else {
-    out.push(`${c.returned} of ${c.returnable} players who could return did. That is too small a `
-      + 'group to read against comparable programmes.');
+    out.push(`${c.returned} of the ${c.returnable} players who could return did. That is too small `
+      + 'a group to read against comparable programmes.');
   }
 
   if (d) {
     const e = d.earlyTracing;
     out.push(`${d.departures.expectedExits} of the ${d.departures.total} who did not return were `
-      + `seniors or graduate students, and ${d.departures.earlyDepartures} still had seasons left `
-      + 'by their class label.');
+      + `seniors or graduate students; ${d.departures.earlyDepartures} still had seasons left by `
+      + 'their class label.');
     if (e.departures > 0) {
       out.push(e.observed > 0
         ? `Of those ${e.departures}, ${e.observed} appear on another programme’s roster the next `

@@ -241,7 +241,7 @@ export const SECTIONS = [
     scopeOf: ({ model }) => {
       const c = model.lifecycle.continuity;
       return [
-        `${c.returnable} player-seasons that could return`,
+        `${c.returnable} chances to return`,
         c.retention == null ? 'too few to quote a rate'
           : `${c.returned} came back`,
       ];
@@ -433,7 +433,7 @@ export const SECTIONS = [
     // one part of this analysis a reader could over-read.
     applies: ({ model }) => Boolean(model.lifecycle?.departures?.gate?.allowed)
       && count(model.lifecycle?.departures?.named) > 0,
-    scopeOf: ({ model }) => [`${count(model.lifecycle.departures.named)} rows`],
+    scopeOf: ({ model }) => [`${count(model.lifecycle.departures.named)} traced moves`],
   },
   {
     id: 'methodology',

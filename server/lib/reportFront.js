@@ -1175,11 +1175,20 @@ export function athleteAtAGlance(k, model) {
     + 'position. This page does not say how many minutes you would play — that season has not been played, '
     + 'and who is on the squad by then is not knowable from this data.');
 
-  cardRow(k, 280, (row) => {
+  // The same band the programme glance carries, narrowed to this position.
+  // The four cards below answer it in evidence; without this the page left the
+  // reader to assemble the answer from four separate metrics, and said nothing
+  // at all about where players at this position were traced to next.
+  headlineBand(k, athleteHeadlines(model));
+
+  // Sized to the room the band leaves, for the reason the programme page is.
+  const room = doc.page.height - M - 26 - doc.y - 2 * 8;
+  const top = Math.max(232, room * 0.55);
+  cardRow(k, top, (row) => {
     positionNowCard(doc, { ...row, w: HALF }, a);
     arrivalWindowCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, a, model);
   });
-  cardRow(k, 228, (row) => {
+  cardRow(k, Math.max(196, room - top), (row) => {
     positionOpensCard(doc, { ...row, w: HALF }, a);
     originCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, a);
   });

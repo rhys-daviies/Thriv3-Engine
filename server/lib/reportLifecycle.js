@@ -76,7 +76,7 @@ export function playerDevelopmentPage(k, model) {
   // one used to end "compared against 212 comparable p…".
   k.scope([
     `${plural(d.players, 'first-year', 'first-years')} followed`,
-    `${cov.measured} of ${cov.playerSeasons} seasons carry minutes`,
+    `${cov.measured} of their ${cov.playerSeasons} seasons carry minutes`,
     `vs ${poolScope(l)}`,
   ]);
 
@@ -107,12 +107,12 @@ export function playerDevelopmentPage(k, model) {
     unavailable: d.players ? null : 'no first-year here has a season on file',
   });
 
-  if (!cov.readable) {
-    k.aside(`Only ${cov.measured} of ${cov.playerSeasons} first-year seasons here carry a published `
-      + 'minutes figure, so no share is quoted above. The counts are real; the percentages would '
-      + 'not be, and a zero drawn from unpublished minutes reads exactly like a programme whose '
-      + 'first-years never play.', { title: 'Why there are no percentages here' });
-  }
+  // Deliberately nothing here when the minutes cannot be read. The reading
+  // block above has already said so once, and this page used to say it five
+  // times over — in the block, in four refused columns, in an aside repeating
+  // the block, in a second aside about the careers, and in a refused
+  // time-to-600 section. Saying it once and showing the cohorts is the whole
+  // of what a sparse programme can honestly be given.
 
   // Individual lines, only for a cohort small enough to follow.
   const tr = d.trajectories;
@@ -132,7 +132,9 @@ export function playerDevelopmentPage(k, model) {
     });
     k.note('A season with no published minutes leaves a gap rather than a point at zero. These are '
       + 'the longest careers on file here, not the best ones.');
-  } else {
+  } else if (cov.readable) {
+    // Only where the minutes ARE readable is this its own finding: the
+    // programme publishes minutes and nobody has been here long enough.
     k.aside('No first-year here has three or more seasons of published minutes, so there is no '
       + 'career long enough to draw. That is a limit of what these rosters record, not a statement '
       + 'about how long players stay.', { title: 'No individual careers to draw' });
@@ -140,13 +142,18 @@ export function playerDevelopmentPage(k, model) {
 
   // The compact secondary module.
   const t = d.timeToStarter;
-  k.heading('Time to 600 minutes');
   if (t.suppressed || t.denominator === 0) {
-    k.note(`Not shown. It can only be asked of players who arrived by ${t.entrySeasonsUpTo} — early `
-      + 'enough to have had three seasons with published minutes here — and '
-      + `${t.denominator === 0 ? 'no first-year' : `only ${plural(t.denominator, 'first-year', 'first-years')}`}`
-      + ' here qualifies.');
+    // Where the minutes cannot be read at all, this section is the same
+    // sentence a third time and is simply not opened.
+    if (cov.readable) {
+      k.heading('Time to 600 minutes');
+      k.note(`Not shown. It can only be asked of players who arrived by ${t.entrySeasonsUpTo} — `
+        + 'early enough to have had three seasons with published minutes here — and '
+        + `${t.denominator === 0 ? 'no first-year' : `only ${plural(t.denominator, 'first-year', 'first-years')}`}`
+        + ' here qualifies.');
+    }
   } else {
+    k.heading('Time to 600 minutes');
     k.body(`Of the ${t.denominator} first-years who arrived by ${t.entrySeasonsUpTo} and have three `
       + 'seasons of published minutes here:', { color: MUTED });
     k.table({
@@ -193,8 +200,8 @@ export function rosterContinuityPage(k, model) {
   page(k, 'Roster continuity',
     'How often do players who could return appear on the next roster?');
   k.scope([
-    `${c.returnable} player-seasons with a next roster on file`,
-    c.unreadable ? `${c.unreadable} without one` : null,
+    `${c.returnable} times a player could have returned`,
+    c.unreadable ? `${c.unreadable} more we cannot read` : null,
     `vs ${poolScope(l)}`,
   ]);
 
@@ -213,7 +220,7 @@ export function rosterContinuityPage(k, model) {
     unit: '%',
     marker: c.pool?.median == null ? null : c.pool.median * 100,
     unavailable: c.retention == null
-      ? `${c.returnable} readable player-seasons — too few to quote a rate` : null,
+      ? `only ${c.returnable} we can read — too few to quote a rate` : null,
   });
   if (!c.starterRetention.suppressed || c.starterRetention.returnable > 0) {
     k.bar({
@@ -223,7 +230,7 @@ export function rosterContinuityPage(k, model) {
       unit: '%',
       marker: c.starterRetention.pool?.median == null ? null : c.starterRetention.pool.median * 100,
       unavailable: c.starterRetention.retention == null
-        ? `${c.starterRetention.returnable} player-seasons — too few to quote a rate` : null,
+        ? `only ${c.starterRetention.returnable} of them — too few to quote a rate` : null,
     });
   }
   // `k.bar` draws its value and its note on one line in the same 88 points, so
@@ -290,9 +297,9 @@ export function rosterContinuityPage(k, model) {
       + 'to describe.', { bold: true });
     return;
   }
-  k.body(`${plural(total, 'player-season', 'player-seasons')} ended without the `
-    + 'player appearing on this programme’s next roster. The class label on their last season here '
-    + 'is the only thing that says whether a return was expected at all.');
+  k.body(`On ${plural(total, 'occasion', 'occasions')} a player did not appear on this `
+    + 'programme’s next roster. The class label on their last season here is the only thing that '
+    + 'says whether a return was expected at all.');
 
   charts.stackedRows(k, {
     box: k.slot(56),
@@ -300,7 +307,7 @@ export function rosterContinuityPage(k, model) {
     subtitle: null,
     rows: [{
       label: 'All departures',
-      note: `${dep.departures.total} player-seasons`,
+      note: `${dep.departures.total} in total`,
       values: {
         expected: (100 * dep.departures.expectedExits) / total,
         early: (100 * dep.departures.earlyDepartures) / total,
@@ -455,8 +462,7 @@ export function observedDestinationsPage(k, model) {
     'Observed destinations only — many departures cannot be traced from the available roster data.');
   k.scope([
     `${d.departures.total} departures across the seasons on file`,
-    `${d.tracing.observed} traced to another roster`,
-    `${pc(d.tracing.coverage)} of departures`,
+    `${d.tracing.observed} we could trace`,
   ]);
 
   k.reading(destinationNarrative(model));
@@ -492,7 +498,7 @@ export function observedDestinationsPage(k, model) {
     subtitle: 'The three groups are exclusive and add to every departure on file.',
     rows: [{
       label: 'All departures',
-      note: `${d.departures.total} player-seasons`,
+      note: `${d.departures.total} in total`,
       values: {
         observed: (100 * d.tracing.observed) / d.departures.total,
         ambiguous: (100 * d.tracing.ambiguous) / d.departures.total,
