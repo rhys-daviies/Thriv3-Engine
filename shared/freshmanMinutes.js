@@ -23,6 +23,7 @@
 
 import { readClassYear } from './classYear.js';
 import { canonicalPosition } from './positions.js';
+import { withReadablePerformance } from './performanceSource.js';
 
 /**
  * Where a player came from, because at some programmes it decides the ladder.
@@ -518,9 +519,40 @@ export function weightsFromVerdict(verdict, seasons) {
  * that started two freshmen every season is telling a recruit something a
  * programme that did it once, in a season with an injury crisis, is not.
  */
-export function freshmanProfile(rows, {
+/**
+ * A ranked ladder every rung of which is zero is not an opportunity finding.
+ *
+ * It is the shape a programme takes when its stats page was never read, and
+ * `readable` cannot catch it: that gate asks what SHARE of an intake carried a
+ * minutes figure, and a season where the importer assumed a zero for everybody
+ * answers "all of it". 84 programmes printed a ladder reading 0 at every rank
+ * — "best freshman: 0 minutes" — which is the same sentence commit 296492e
+ * removed from 154 others, arriving by a different route.
+ *
+ * The refusal is deliberately not "no freshman played much". `high` is the
+ * best single freshman at that rung in any season on file, so one minute
+ * anywhere clears it. Nothing survives this that a programme actually
+ * published.
+ *
+ * If a programme has genuinely never given a freshman a minute in four
+ * seasons, that belongs in a sentence saying so, not in a table of zeros a
+ * reader will take for a measurement.
+ */
+function ladderIsEntirelyZero(byRank) {
+  return byRank.length > 0 && byRank.every((r) => r.high === 0);
+}
+
+export function freshmanProfile(rawRows, {
   seasons, position = null, origin = null, athlete = null, maxRank = 8,
 } = {}) {
+  // A programme-season whose stats page was never read carries a fabricated
+  // zero for every player on it, and every gate below asks how much was
+  // measured — to which a fabricated season answers "all of it". Blanking it
+  // here, once, is what stops it counting as measured freshmen, as
+  // zero-minute freshmen, as ladder rungs, and as a season in which the
+  // programme gave its intake nothing.
+  const rows = withReadablePerformance(rawRows ?? []);
+
   // An athlete narrows the ladder to the people they would be competing with.
   // Explicit position/origin still win, so a caller can ask a question the
   // athlete does not imply.
@@ -572,6 +604,7 @@ export function freshmanProfile(rows, {
   if (!athlete && (position || origin)) {
     const built = build(wantPosition, wantOrigin);
     if (!built.length) return null;
+    if (ladderIsEntirelyZero(ladderByRank(built, { maxRank }))) return null;
     return shape(built, {
       position: wantPosition, origin: wantOrigin, applied: true,
       refused: null, relaxed: null, thin: thinOf(built),
@@ -623,6 +656,11 @@ export function freshmanProfile(rows, {
   }
 
   if (!perSeason || !perSeason.length) return null;
+  if (ladderIsEntirelyZero(ladderByRank(perSeason, { maxRank }))) {
+    // Named rather than dropped, so a report says it could not read these
+    // seasons instead of saying nothing about them.
+    return null;
+  }
   return shape(perSeason, { ...cohort, unreadableSeasons }, maxRank);
 }
 

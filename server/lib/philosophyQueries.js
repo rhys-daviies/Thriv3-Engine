@@ -26,6 +26,7 @@ import {
 } from '../../shared/philosophy.js';
 import { ladderByRank, isTrueFreshman, minutesAreMissing, originOf } from '../../shared/freshmanMinutes.js';
 import { POSITIONS } from '../../shared/positions.js';
+import { withReadablePerformance } from '../../shared/performanceSource.js';
 
 const SEASON_LIST = SEASONS.map(() => '?').join(',');
 
@@ -50,10 +51,28 @@ const selectCollegeByName = db.prepare(
   'SELECT id, name, sport, division, conference, city, state, soccer_score, logo_url, primary_color, nickname FROM colleges WHERE name = ? AND sport = ?',
 );
 
-/** Season is TEXT on the roster and INTEGER on coach_seasons; normalise here. */
+/**
+ * One programme's measured window, with any season whose stats page was never
+ * read blanked back to unknown.
+ *
+ * This is the same boundary `lifecycleQueries` crosses through `readableRows`,
+ * and it is here rather than inside each analysis because there are seven of
+ * them — the freshman ladder, the intake table, the position grid, the
+ * freshman and newcomer scatters, second-year progression, the vacancy
+ * record — and every one of them gates on how much of a season was measured.
+ * A programme-season where the importer assumed a zero for all 34 players
+ * answers that gate with "all of it", and then reports a squad that played no
+ * minutes as a squad that was measured and played none.
+ *
+ * The whole programme's rows go in, which is what the rule needs: it decides
+ * per programme-season, and a season judged on part of its roster is judged
+ * on the wrong denominator.
+ */
 export function programmeRows(school, sport) {
-  return selectRoster.all(school, sport, ...SEASONS)
-    .map((r) => ({ ...r, season: String(r.season) }));
+  return withReadablePerformance(
+    selectRoster.all(school, sport, ...SEASONS)
+      .map((r) => ({ ...r, season: String(r.season) })),
+  );
 }
 
 /**

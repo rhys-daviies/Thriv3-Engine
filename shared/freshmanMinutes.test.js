@@ -6,6 +6,7 @@ import {
   originOf, cohortFor, MIN_COHORT_PLAYERS,
 } from './freshmanMinutes.js';
 import { tenureFor } from './coachTenure.js';
+import { withReadablePerformance, performanceUnreadableSeasons } from './performanceSource.js';
 
 const p = (over) => ({
   season: '2025', class_year_label: 'Fr.', player_name: 'A', position: 'DEFENSE',
@@ -782,5 +783,91 @@ describe('a ladder that rises as you go down it', () => {
       { ladder: [{ rank: 1, minutes: 900 }, { rank: 2, minutes: 350 }, { rank: 3, minutes: 40 }] },
     ];
     expect(ladderByRank(seasons).every((r) => r.comparable)).toBe(true);
+  });
+});
+
+describe('a season whose stats page was never read', () => {
+  const SEASONS4 = ['2022', '2023', '2024', '2025'];
+  /** A squad of `n`, `f` of them first-years, at `minutes` each. */
+  const roster = (season, n, { fresh = 6, minutes = 0, games = 0 } = {}) =>
+    Array.from({ length: n }, (_, i) => p({
+      season,
+      player_name: `${season}-${i}`,
+      class_year_label: i < fresh ? 'Fr.' : 'Jr.',
+      minutes_played: minutes ? minutes + i : 0,
+      games_played: minutes ? games : games,
+    }));
+
+  // Albertus Magnus, in miniature. 2022-24 published nothing; 2025 assumed a
+  // zero for all 34 players. Read as it stands, that programme's only
+  // "measured" season says seventeen first-years played nothing at all.
+  const fabricated = [
+    ...roster('2024', 31, { minutes: 0, games: 0 }).map((r) => ({ ...r, minutes_played: null, games_played: null })),
+    ...roster('2025', 34, { fresh: 17 }),
+  ];
+
+  it('does not count a fabricated intake as measured freshmen', () => {
+    const before = freshmanSeason(fabricated, { season: '2025' });
+    expect(before.measured).toBe(17);          // what the raw rows claim
+    const after = freshmanSeason(withReadablePerformance(fabricated), { season: '2025' });
+    expect(after.intake).toBe(17);
+    expect(after.measured).toBe(0);
+    expect(after.unknown).toBe(17);
+    expect(after.ladder).toEqual([]);
+  });
+
+  it('refuses the whole profile rather than reporting a squad that played none', () => {
+    expect(freshmanProfile(fabricated, { seasons: SEASONS4 })).toBeNull();
+  });
+
+  // The independent guard, which does not depend on the source rule firing.
+  // Gettysburg and Hendrix reach it: exactly half their intake carries a
+  // figure, every figure is zero, and the season clears the coverage gate.
+  it('never returns a ladder that is zero at every rank', () => {
+    const half = [
+      ...Array.from({ length: 6 }, (_, i) => p({ season: '2025', player_name: `m${i}`, minutes_played: 0, games_played: 0 })),
+      ...Array.from({ length: 6 }, (_, i) => p({ season: '2025', player_name: `u${i}`, minutes_played: 0, games_played: 4 })),
+      ...Array.from({ length: 20 }, (_, i) => p({ season: '2025', player_name: `s${i}`, class_year_label: 'Sr.', minutes_played: 800, games_played: 18 })),
+    ];
+    const season = freshmanSeason(half, { season: '2025' });
+    expect(season.measured / season.intake).toBe(0.5);      // clears MIN_MEASURED_SHARE
+    expect(ladderByRank([season]).every((r) => r.high === 0)).toBe(true);
+    expect(freshmanProfile(half, { seasons: ['2025'] })).toBeNull();
+  });
+
+  it('keeps a ladder where a single freshman played a single minute', () => {
+    const rows = [
+      ...Array.from({ length: 12 }, (_, i) => p({ season: '2025', player_name: `f${i}`, minutes_played: i === 0 ? 1 : 0, games_played: i === 0 ? 1 : 0 })),
+      ...Array.from({ length: 20 }, (_, i) => p({ season: '2025', player_name: `s${i}`, class_year_label: 'Sr.', minutes_played: 800, games_played: 18 })),
+    ];
+    const prof = freshmanProfile(rows, { seasons: ['2025'] });
+    expect(prof).not.toBeNull();
+    expect(prof.byRank[0].high).toBe(1);
+  });
+
+  // Lake Erie: 62 named men, 28 with minutes. The roster is inflated and the
+  // minutes are real, and nothing here may take the first for the second.
+  it('leaves an inflated roster with real minutes completely alone', () => {
+    const lakeErie = [
+      ...Array.from({ length: 28 }, (_, i) => p({ season: '2024', player_name: `plays${i}`, class_year_label: i < 8 ? 'Fr.' : 'Jr.', minutes_played: 1600 - i * 40, games_played: 18 })),
+      ...Array.from({ length: 34 }, (_, i) => p({ season: '2024', player_name: `reserve${i}`, class_year_label: i < 10 ? 'Fr.' : 'So.', minutes_played: 0, games_played: 0 })),
+    ];
+    const readable = withReadablePerformance(lakeErie);
+    expect(readable.filter((r) => r.minutes_played === 0)).toHaveLength(34);
+    const season = freshmanSeason(readable, { season: '2024' });
+    expect(season.intake).toBe(18);
+    expect(season.measured).toBe(18);
+    expect(season.ladder[0].minutes).toBe(1600);
+    expect(freshmanProfile(lakeErie, { seasons: ['2024'] })).not.toBeNull();
+  });
+
+  // The forward roster carries names and no minutes anywhere, which is not a
+  // source failure and must not be reported as one.
+  it('treats the 2026 roster as unmeasured rather than unreadable', () => {
+    const squad2026 = Array.from({ length: 30 }, (_, i) => p({
+      season: '2026', player_name: `n${i}`, minutes_played: null, games_played: null,
+    }));
+    expect(performanceUnreadableSeasons(squad2026).size).toBe(0);
+    expect(freshmanSeason(squad2026, { season: '2026' }).measured).toBe(0);
   });
 });

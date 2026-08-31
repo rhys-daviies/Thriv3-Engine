@@ -19,10 +19,29 @@
  * figure means on the pages beside it.
  */
 import { minutesAreMissing, MIN_MEASURED_SHARE } from '../freshmanMinutes.js';
+import { withReadablePerformance } from '../performanceSource.js';
 
-/** The same rows, with an unpublished zero restored to the null it is. */
+/**
+ * The same rows, with an unpublished zero restored to the null it is.
+ *
+ * TWO RULES, applied in this order, because the second needs the first to have
+ * run. `minutesAreMissing` works a row at a time and asks whether THIS zero
+ * can be believed. `withReadablePerformance` works a programme-season at a
+ * time and asks whether the SOURCE was read at all — a question no single row
+ * can answer, and the one the fabricated 2025 seasons fail. A season that
+ * survives the row rule with nothing above zero left in it did not have its
+ * stats page read, and the row rule cannot see that because a fabricated row
+ * claims zero games as confidently as zero minutes.
+ *
+ * Callers must hand in a COMPLETE set of rows for the programme-seasons they
+ * care about — every caller does, since each reads a whole programme or a
+ * whole sport — because a season judged on half its roster is a season judged
+ * on the wrong denominator.
+ */
 export function readableRows(rows) {
-  return rows.map((r) => (minutesAreMissing(r) ? { ...r, minutes_played: null } : r));
+  return withReadablePerformance(
+    rows.map((r) => (minutesAreMissing(r) ? { ...r, minutes_played: null } : r)),
+  );
 }
 
 /**
@@ -42,3 +61,7 @@ export function minutesCoverage(rows) {
 }
 
 export { MIN_MEASURED_SHARE };
+export {
+  performanceUnreadableSeasons, blankUnreadableSeasons, withReadablePerformance,
+  programmeSeasonKey, MIN_SOURCE_ROSTER,
+} from '../performanceSource.js';

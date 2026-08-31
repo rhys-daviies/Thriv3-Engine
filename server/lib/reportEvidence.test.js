@@ -707,3 +707,86 @@ describe('the methodology page', () => {
     expect(text).toContain('Methodology and limitations');
   });
 });
+
+describe('a programme whose stats page was never read', () => {
+  /**
+   * The Albertus Magnus shape, built here rather than read from the working
+   * database: three seasons that published no minutes, and one where the
+   * importer assumed a zero for every player on the roster.
+   */
+  const addFabricated = (name = 'Test College') => {
+    db.prepare(`INSERT INTO colleges (id, created_date, updated_date, name, sport, division, conference, city, state, active)
+      VALUES ('c1',?,?,?,'mens-soccer','NCAA D2','Test Conference','Testville','TS',1)`).run(now, now, name);
+    // Inserted directly: `addRow` fills a missing minute with 600, and these
+    // seasons published none at all.
+    const unpublished = db.prepare(`INSERT INTO roster_players
+      (id, created_date, updated_date, college_name, sport, division, season, player_name,
+       class_year_label, position, minutes_played, games_played, games_started)
+      VALUES (?,?,?,?,'mens-soccer','NCAA D2',?,?,?,'DEFENSE',NULL,NULL,NULL)`);
+    for (const season of ['2022', '2023', '2024']) {
+      for (let i = 0; i < 30; i += 1) {
+        unpublished.run(`u${season}${i}`, now, now, name, season,
+          `Unpublished ${letters(i)} ${word(season)}`, i < 8 ? 'Fr.' : 'Jr.');
+      }
+    }
+    for (let i = 0; i < 32; i += 1) {
+      addRow(name, {
+        season: '2025', player_name: `Assumed ${letters(i)}`,
+        class_year_label: i < 12 ? 'Fr.' : 'Sr.', minutes_played: 0, games_played: 0, games_started: 0,
+      });
+    }
+    for (const s of [2022, 2023, 2024, 2025, 2026]) {
+      db.prepare(`INSERT INTO coach_seasons (school, sport, season, coach_name, imported_at)
+        VALUES (?,'mens-soccer',?,'A Coach',?)`).run(name, s, now);
+    }
+  };
+
+  // What this replaces: a ladder reading 0 at every rank, over an intake of
+  // twelve the report described as fully measured.
+  it('prints no first-year ladder rather than a ladder of zeros', async () => {
+    addFabricated();
+    const { model, text } = await build();
+    expect(model.sections.map((s) => s.id)).not.toContain('freshman-ladder');
+    expect(model.ladder).toEqual([]);
+    expect(text).not.toMatch(/first-year ladder/i);
+    expect(text).toContain('no season on file carries enough recorded minutes to place a first-year');
+  });
+
+  it('says nothing about how many first-years were measured, because none were', async () => {
+    addFabricated();
+    const { model, text } = await build();
+    expect(model.summary.programme.freshmanOpportunity.measuredFreshmen).toBe(0);
+    expect(text).toContain('0 first-years with minutes published');
+  });
+
+  it('refuses the development shares instead of reporting a zero', async () => {
+    addFabricated();
+    const { model } = await build();
+    expect(model.lifecycle.development.everStarter.suppressed).toBe(true);
+    expect(model.lifecycle.development.everStarter.denominator).toBe(0);
+    expect((model.evidenceLimits ?? []).map((e) => e.id)).toContain('player-development-shares');
+  });
+
+  // A chart with nothing drawn was printing its own axis maximum, which floors
+  // at 1 — a bare "1" where a count of first-years belongs.
+  it('prints no axis scale on a chart with nothing plotted', async () => {
+    addFabricated();
+    const { text } = await build();
+    expect(text).toMatch(/Arrived, played, and played a starter’s season/);
+    expect(text).not.toMatch(/starter’s season\.? 1 /);
+  });
+
+  // The same rows with one real minute in them: the season was read, the
+  // zeros beside it are facts about players who did not appear, and every
+  // page comes back.
+  it('keeps everything when a single published minute proves the page was read', async () => {
+    addFabricated();
+    addRow('Test College', {
+      season: '2025', player_name: 'Played A Bit', class_year_label: 'Fr.',
+      minutes_played: 900, games_played: 18, games_started: 12,
+    });
+    const { model } = await build();
+    expect(model.sections.map((s) => s.id)).toContain('freshman-ladder');
+    expect(model.summary.programme.freshmanOpportunity.measuredFreshmen).toBeGreaterThan(0);
+  });
+});

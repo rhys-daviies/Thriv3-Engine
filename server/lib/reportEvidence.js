@@ -54,7 +54,10 @@ export function freshmanIntakePage(k, model) {
   const xMax = Math.max(1600, ...pts.map((p) => p.minutes));
   const maxGames = Math.max(1, ...pts.map((p) => p.gamesPlayed));
   charts.scatter(k, {
-    box: k.slot(seasons.length * 28 + 40),
+    // One lane per readable season, and a floor: with no readable season the
+    // box collapsed to 40pt, and the sentence below it was drawn through the
+    // refusal printed inside it.
+    box: k.slot(seasons.length ? seasons.length * 28 + 40 : 96),
     title: 'Every first-year, one dot per player',
     subtitle: 'Further right is more minutes; bigger is more games played. A filled dot started at '
       + 'least half of them.',

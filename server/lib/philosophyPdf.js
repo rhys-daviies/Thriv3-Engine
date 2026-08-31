@@ -1254,6 +1254,11 @@ export const charts = {
     const plot = frame(k, box, { title, subtitle, unavailable, empty: !groups?.length });
     if (!plot) return;
     const { doc } = k;
+    // Whether anything is actually drawn. Every season hatched is a real
+    // answer — "we have the roster and could not read it" — but the scale
+    // printed beside it is not: `yMax` floors at 1 so a chart with no bars was
+    // labelling its axis "1", which reads as a count of one.
+    const anyBars = groups.some((g) => g.bars.some((b) => b.value != null));
     // 22pt reserved below the axis for the season label and its value, so a
     // column's own caption cannot land on the sentence after the chart.
     const h = plot.h - 24;
@@ -1294,8 +1299,10 @@ export const charts = {
           .text(g.note, gx, plot.y + h + 11, { width: gw, align: 'center', lineBreak: false });
       }
     });
-    doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
-      .text(`${nice(yMax)}${unit}`, plot.x, plot.y - 1, { width: plot.w, align: 'right', lineBreak: false });
+    if (anyBars) {
+      doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+        .text(`${nice(yMax)}${unit}`, plot.x, plot.y - 1, { width: plot.w, align: 'right', lineBreak: false });
+    }
   },
 
   /** Position down the side, season across the top, share in the cell. */
