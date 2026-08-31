@@ -237,3 +237,87 @@ describe('the registry declares what it draws', () => {
     }
   });
 });
+
+describe('the sections Phase 9B added', () => {
+  const NEW = {
+    pressure: { athletePosition: {
+      historical: { suppressed: false, cyclesWithReadableRosterPresence: 3 },
+      current: { readable: true, totalIncoming: 2 },
+    } },
+    positionUtilisation: { athletePosition: {
+      supported: true, available: true, readableSeasons: 4, singleSeasonObservation: null,
+    } },
+    squadProfile: {
+      utilisation: { available: true, seasonsObserved: 4, singleSeasonObservation: null },
+      experience: { compositionAvailable: true, loadAvailable: true, singleSeasonObservation: null },
+    },
+  };
+  const withNew = (over = {}) => rich({ ...NEW, ...over });
+  const ids = (m, s2) => plan(m, s2).map((x) => x.id);
+
+  it('puts the position record inside Act I, after the openings page', () => {
+    const p2 = plan(withNew(), richSummary());
+    const order = p2.map((x) => x.id);
+    expect(order).toContain('athlete-position-record');
+    expect(p2.find((x) => x.id === 'athlete-position-record').act).toBe('pathway');
+    expect(order.indexOf('athlete-position-record'))
+      .toBeGreaterThan(order.indexOf('athlete-position-openings'));
+    expect(order.indexOf('athlete-position-record'))
+      .toBeLessThan(order.indexOf('athlete-position-history'));
+    expect(order.indexOf('athlete-position-record'))
+      .toBeLessThan(order.indexOf('freshman-intake'));
+  });
+
+  it('puts squad usage in Act II of both reports', () => {
+    for (const [m, s2] of [[withNew(), richSummary()],
+      [withNew({ athlete: null }), { programme: richSummary().programme }]]) {
+      const entry = plan(m, s2).find((x) => x.id === 'squad-usage');
+      expect(entry).toBeTruthy();
+      expect(entry.act).toBe('programme-evidence');
+    }
+  });
+
+  // A programme report has no position to be about.
+  it('keeps the position record out of a report with no athlete', () => {
+    expect(ids(withNew({ athlete: null }), { programme: richSummary().programme }))
+      .not.toContain('athlete-position-record');
+  });
+
+  it('keeps the position record where one half refuses and the other does not', () => {
+    // Sparse: the intake reads, the minutes do not.
+    expect(ids(withNew({
+      positionUtilisation: { athletePosition: { supported: true, available: false, singleSeasonObservation: null } },
+    }), richSummary())).toContain('athlete-position-record');
+    // Goalkeeper: the intake reads, the distribution is not reported for them.
+    expect(ids(withNew({
+      positionUtilisation: { athletePosition: { supported: false, available: false, singleSeasonObservation: null } },
+    }), richSummary())).toContain('athlete-position-record');
+    // One season on file and no completed cycle: NAIA.
+    expect(ids(withNew({
+      pressure: { athletePosition: { historical: { suppressed: true }, current: { readable: true, totalIncoming: 7 } } },
+      positionUtilisation: { athletePosition: { supported: true, available: false, singleSeasonObservation: { season: '2025' } } },
+    }), richSummary())).toContain('athlete-position-record');
+  });
+
+  it('drops the position record only where both halves have nothing', () => {
+    expect(ids(withNew({
+      pressure: { athletePosition: { historical: { suppressed: true }, current: { readable: false, totalIncoming: null } } },
+      positionUtilisation: { athletePosition: { supported: true, available: false, singleSeasonObservation: null } },
+    }), richSummary())).not.toContain('athlete-position-record');
+  });
+
+  it('keeps squad usage on one readable season, and drops it on none', () => {
+    expect(ids(withNew({
+      squadProfile: {
+        utilisation: { available: false, singleSeasonObservation: { season: '2025' } },
+        experience: { compositionAvailable: false, singleSeasonObservation: null },
+      },
+    }), richSummary())).toContain('squad-usage');
+    expect(ids(withNew({
+      squadProfile: {
+        utilisation: { available: false, singleSeasonObservation: null },
+        experience: { compositionAvailable: false, singleSeasonObservation: null },
+      },
+    }), richSummary())).not.toContain('squad-usage');
+  });
+});

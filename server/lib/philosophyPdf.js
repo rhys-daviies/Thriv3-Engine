@@ -676,6 +676,21 @@ export function humanCohort(text) {
 
 export const minutes = (v) => (v == null ? null : `${Math.round(v).toLocaleString('en-US')} min`);
 
+/**
+ * A range, or the single value when the range has no width.
+ *
+ * "4 to 4" is what a degenerate range prints if nobody stops it, and it reads
+ * as a fault in the document rather than as a programme that did the same
+ * thing every season. Counts here are often half-integers — a median over four
+ * seasons — so the equality test has to tolerate that rather than assume
+ * integers.
+ */
+export function spanText(range, { join = ' to ' } = {}) {
+  if (!range || range.low == null || range.high == null) return null;
+  const one = (v) => (Number.isInteger(v) ? String(v) : String(Math.round(v * 10) / 10));
+  return range.low === range.high ? one(range.low) : `${one(range.low)}${join}${one(range.high)}`;
+}
+
 export function footer(doc, line) {
   // The footer sits INSIDE the bottom margin, and pdfkit adds a page for any
   // text written below it — while this loop is walking the pages. One report
@@ -1122,7 +1137,17 @@ function frame(k, box, { title, subtitle, unavailable, empty }) {
   return plot;
 }
 
-const nice = (v) => Math.round(v).toLocaleString('en-US');
+/**
+ * A number as a chart prints it.
+ *
+ * Minutes are whole numbers and always were, so this rounded. Counts of
+ * players are not: a median over four seasons is a half-integer, and rounding
+ * 2.5 to 3 printed a figure the note beside it contradicted. One decimal where
+ * there is one, none where there is not.
+ */
+const nice = (v) => (Number.isInteger(v)
+  ? v.toLocaleString('en-US')
+  : (Math.round(v * 10) / 10).toLocaleString('en-US'));
 
 export const charts = {
   /**

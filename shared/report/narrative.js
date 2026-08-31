@@ -387,7 +387,8 @@ export function pathwayNarrative(model) {
   const v = a.positionOpeningOutcomes;
   if (h?.measured > 0) {
     const openings = v?.openings ?? 0;
-    out.push(`${h.measured} first-year ${position}s here have minutes on file and `
+    out.push(`${h.measured} first-year ${h.measured === 1 ? position : `${position}s`} here `
+      + `${h.measured === 1 ? 'has' : 'have'} minutes on file and `
       + `${h.starters === 0 ? 'none of them' : `${h.starters} of them`} reached a `
       + `${STARTER_MINUTES}-minute season.`
       + (openings > 0
@@ -400,21 +401,50 @@ export function pathwayNarrative(model) {
       + `record cannot be read. A starter left this position on ${plural(v.openings, 'occasion', 'occasions')}.`);
   }
 
-  // 2. Whether the programme's players have grown into roles later. Programme-
-  //    wide, and said to be programme-wide: the multi-year model is not cut by
-  //    position, and pretending otherwise would be a figure nobody printed.
-  const d = l?.development;
-  if (d?.minutesCoverage?.readable && d.everStarter?.share != null) {
-    const y1 = d.byYear[0]?.share;
-    const later = d.byYear[2]?.share ?? d.byYear[1]?.share;
-    const grew = y1 != null && later != null && later > y1;
-    out.push(`Across the whole squad rather than this position alone, `
-      + `${d.everStarter.reached} of ${d.everStarter.denominator} measurable first-years have `
-      + `reached a ${STARTER_MINUTES}-minute season here at some point`
-      + (grew
-        ? `, and the share doing so rises from ${pc(y1)} in a first season to ${pc(later)} by a `
-          + 'third — the pathway has not been closed to players who begin with limited minutes.'
-        : '.'));
+  /**
+   * 2. How often the position is added to, against how far its minutes reach.
+   *
+   * The one place in this report where two independent histories are put in
+   * one sentence, and the reason they may be: Phase 8B measured them at
+   * r = 0.05 to 0.13, so a programme can add many players at a position AND
+   * spread its minutes widely, or add few and concentrate them. Reporting
+   * either alone is what invites the wrong reading. They are placed next to
+   * each other and NOT combined — there is no arithmetic between them here.
+   */
+  const intake = model.pressure?.athletePosition?.historical ?? null;
+  const util = model.positionUtilisation?.athletePosition ?? null;
+  if (intake && !intake.suppressed) {
+    const wide = util?.available && util.pool?.playersWith600Plus
+      ? (util.medianPlayersWith600Plus > util.pool.playersWith600Plus.middleHalf.high ? 'wider'
+        : util.medianPlayersWith600Plus < util.pool.playersWith600Plus.middleHalf.low ? 'narrower'
+          : 'inside')
+      : null;
+    const busy = intake.pool
+      ? (intake.medianTotalIncoming > intake.pool.middleHalf.high ? 'more'
+        : intake.medianTotalIncoming < intake.pool.middleHalf.low ? 'fewer' : 'about as many')
+      : null;
+    let sentence = `This programme added ${intake.totalIncomingPerCycle.join(', ')} ${position}s `
+      + `across ${plural(intake.cyclesWithReadableRosterPresence, 'recruiting cycle', 'recruiting cycles')}`
+      + (busy && busy !== 'about as many'
+        ? ` — ${busy} than the comparable middle half of ${intake.pool.middleHalf.low} to ${intake.pool.middleHalf.high} a cycle`
+        : busy ? ` — about as many as comparable programmes` : '');
+    if (wide) {
+      const seasons = util.readableSeasons;
+      const basis = seasons < util.seasons.length
+        ? `the ${seasons === 1 ? 'single season' : `${seasons} seasons`} of ${util.seasons.length} with enough position-level minutes to read`
+        : `all ${seasons} seasons`;
+      sentence += `. In ${basis}, ${util.medianPlayersWith600Plus} ${position}s reached a `
+        + `${STARTER_MINUTES}-minute season in a typical year out of ${util.medianPlayersWithMinutes} used`
+        + (wide === 'inside'
+          ? ', inside the comparable middle half.'
+          : `, ${wide === 'wider' ? 'more' : 'fewer'} than the comparable middle half of `
+            + `${util.pool.playersWith600Plus.middleHalf.low} to ${util.pool.playersWith600Plus.middleHalf.high}.`);
+    } else if (util && !util.supported) {
+      sentence += '. How far the minutes at this position reach is not reported for goalkeepers.';
+    } else {
+      sentence += '.';
+    }
+    out.push(sentence);
   }
 
   // 3. The roster as it stands, against the entry year.
@@ -446,8 +476,30 @@ export function pathwayNarrative(model) {
     }
   }
 
-  // Five sentences is the ceiling. Where a programme supports more than that,
-  // the last is dropped rather than the paragraph being allowed to grow into
-  // a page of its own.
-  return out.slice(0, 5);
+  /**
+   * Last, and therefore the first thing dropped: the programme's multi-year
+   * development, which is the only block here that is NOT about this position.
+   *
+   * It was second until Phase 9B gave the position two histories of its own.
+   * When six sentences is not enough room, a programme-wide figure is what a
+   * reader can most afford to lose from a paragraph about one position — and
+   * it is still on its own page either way.
+   */
+  const d = l?.development;
+  if (d?.minutesCoverage?.readable && d.everStarter?.share != null) {
+    const y1 = d.byYear[0]?.share;
+    const later = d.byYear[2]?.share ?? d.byYear[1]?.share;
+    const grew = y1 != null && later != null && later > y1;
+    out.push(`Across the whole squad rather than this position alone, `
+      + `${d.everStarter.reached} of ${d.everStarter.denominator} measurable first-years have `
+      + `reached a ${STARTER_MINUTES}-minute season here at some point`
+      + (grew
+        ? `, and the share doing so rises from ${pc(y1)} in a first season to ${pc(later)} by a `
+          + 'third — the pathway has not been closed to players who begin with limited minutes.'
+        : '.'));
+  }
+
+  // Six sentences is the ceiling. Where a programme supports more, the last is
+  // dropped rather than the paragraph being allowed to grow into a page.
+  return out.slice(0, 6);
 }

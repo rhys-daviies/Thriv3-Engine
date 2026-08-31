@@ -204,6 +204,41 @@ export const SECTIONS = [
     },
   },
   {
+    id: 'athlete-position-record',
+    title: 'What this position has looked like here',
+    description: 'How often this programme has added players at the athlete’s position, and how '
+      + 'far the minutes at it have reached.',
+    layer: 'athlete-evidence',
+    scope: 'athlete',
+    // Two independent histories on one page. It renders where EITHER half has
+    // something to say, which is what keeps a goalkeeper's page whole (the
+    // intake reads, the minute distribution is not reported for them) and what
+    // keeps a sparse programme's page whole (the intake reads, the minutes do
+    // not).
+    unavailableWhenEmpty: false,
+    applies: ({ model }) => {
+      const intake = model.pressure?.athletePosition ?? null;
+      const util = model.positionUtilisation?.athletePosition ?? null;
+      return Boolean(intake && !intake.historical.suppressed)
+        || Boolean(util?.available)
+        // One season on file, or a current intake and no history: NAIA, where
+        // the acquisition reaches a single season. Worth a page that says so.
+        || Boolean(util?.singleSeasonObservation)
+        || Boolean(intake?.current?.readable && intake.current.totalIncoming != null);
+    },
+    scopeOf: ({ model }) => {
+      const intake = model.pressure?.athletePosition ?? null;
+      const util = model.positionUtilisation?.athletePosition ?? null;
+      return [
+        intake && !intake.historical.suppressed
+          ? plural(intake.historical.cyclesWithReadableRosterPresence, 'recruiting cycle')
+          : (intake?.current?.readable ? 'the coming season only' : null),
+        util?.available ? `${plural(util.readableSeasons, 'season')} of position minutes`
+          : (util?.singleSeasonObservation ? 'one season of position minutes' : null),
+      ].filter(Boolean);
+    },
+  },
+  {
     id: 'athlete-position-history',
     title: 'Your position, historically',
     description: 'First-years, experienced arrivals and minute shares at the athlete’s position only.',
@@ -296,6 +331,38 @@ export const SECTIONS = [
           // Short enough for the contents line, which draws on one line.
           : `minutes for ${d.minutesCoverage.measured} of ${d.minutesCoverage.playerSeasons} seasons`,
       ];
+    },
+  },
+  {
+    id: 'squad-usage',
+    title: 'How this programme uses its squad',
+    description: 'How widely meaningful minutes have been spread across the roster, and which '
+      + 'years of study carried them.',
+    layer: 'programme-evidence',
+    scope: 'programme',
+    // Two independent models on one page, because either alone reads wrongly:
+    // a narrow distribution carried by fourth years and one carried by second
+    // years are different programmes. It renders where either half can be
+    // read, which is what keeps the page at a programme whose minutes are
+    // unreadable but whose roster is not.
+    unavailableWhenEmpty: false,
+    applies: ({ model }) => {
+      const s2 = model.squadProfile;
+      return Boolean(s2?.utilisation?.available)
+        || Boolean(s2?.utilisation?.singleSeasonObservation)
+        || Boolean(s2?.experience?.compositionAvailable)
+        || Boolean(s2?.experience?.singleSeasonObservation);
+    },
+    scopeOf: ({ model }) => {
+      const u = model.squadProfile?.utilisation;
+      const e = model.squadProfile?.experience;
+      return [
+        u?.available ? plural(u.seasonsObserved, 'season')
+          : (u?.singleSeasonObservation ? 'one season on file' : null),
+        e?.loadAvailable ? 'minutes by year of study'
+          : (e?.compositionAvailable || e?.singleSeasonObservation
+            ? 'roster by year of study' : null),
+      ].filter(Boolean);
     },
   },
   {

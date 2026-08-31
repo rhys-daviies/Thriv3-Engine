@@ -39,6 +39,8 @@ import {
   methodologyPage,
 } from './reportAppendix.js';
 import { evidenceLimitsPage } from './reportLimits.js';
+import { positionRecordPage } from './reportPosition.js';
+import { squadUsagePage } from './reportSquadUsage.js';
 import { athletePositionIsStrong } from '../../shared/report/lifecycleSummary.js';
 
 // ---------------------------------------------------------------------------
@@ -133,6 +135,7 @@ export function renderProgramReport(model, opts = {}) {
     section('athlete-current-position', () => currentPositionPage(k, model));
     section('athlete-entry-window', () => arrivalWindowPage(k, model));
     section('athlete-position-openings', () => positionOpeningsPage(k, model));
+    section('athlete-position-record', () => positionRecordPage(k, model));
     section('athlete-position-history', () => positionHistoryPage(k, model));
     section('athlete-origin', () => originPage(k, model));
     // Only where the position carries a real sample. A handful of players is
@@ -146,6 +149,7 @@ export function renderProgramReport(model, opts = {}) {
     section('freshman-intake', () => freshmanIntakePage(k, model));
     section('freshman-ladder', () => freshmanLadderPage(k, model));
     section('player-development', () => playerDevelopmentPage(k, model));
+    section('squad-usage', () => squadUsagePage(k, model));
     section('experienced-arrival-intake', () => experiencedArrivalIntakePage(k, model));
     section('current-arrivals', () => experiencedArrivalProfilePage(k, model));
     section('replacing-minutes', () => replacingMinutesPage(k, model));

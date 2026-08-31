@@ -354,12 +354,15 @@ describe('the evidence pages', () => {
   });
 
   it('no longer carries the year-one-to-year-two page it replaced', async () => {
-    const { text } = await build();
+    const { text, model } = await build();
     // "After the first season" answered a narrower question than the page that
     // replaced it, and the two side by side would have been two development
     // models disagreeing about their own denominators.
     expect(text).not.toContain('After the first season');
-    expect(text).not.toMatch(/second year\b/i);
+    // Narrowed in Phase 9B: the squad-usage page labels a row "Second year",
+    // and the thing this test guards is the retired PAGE, not the phrase.
+    expect(text).not.toMatch(/what happened in their second year/i);
+    expect(model.sections.map((s2) => s2.id)).not.toContain('freshman-progression');
   });
 
   it('shows the seasons behind each ladder rung', async () => {
@@ -737,7 +740,7 @@ describe('the methodology page', () => {
   });
 });
 
-describe('position intake, attached and not yet rendered', () => {
+describe('position intake', () => {
   // Phase 7 productionises the model without designing a page for it. This is
   // the guard on that: the report model carries it, and no section, page or
   // page count moves because of it.
@@ -760,15 +763,19 @@ describe('position intake, attached and not yet rendered', () => {
     expect(pageCount(buf)).toBe(model.sections[model.sections.length - 1].page + 1);
   });
 
-  it('prints nothing about it in the document', async () => {
+  // Phase 9B renders position intake on an ATHLETE report only. A programme
+  // report has no position to be about, and printing all four would be another
+  // large table rather than programme-level intelligence.
+  it('stays out of a report with no athlete', async () => {
     addProgramme();
-    const { text } = await build();
+    const { text, model } = await build();
+    expect(model.sections.map((s) => s.id)).not.toContain('athlete-position-record');
     expect(text).not.toMatch(/recruiting cycle/i);
     expect(text).not.toMatch(/added .* at this position/i);
   });
 });
 
-describe('minute concentration and years of study, attached and not rendered', () => {
+describe('minute concentration and years of study', () => {
   it('is on the model with its seasons, its medians and 2026 absent', async () => {
     addProgramme();
     const { model } = await build();
@@ -794,10 +801,21 @@ describe('minute concentration and years of study, attached and not rendered', (
     expect(pageCount(buf)).toBe(model.sections[model.sections.length - 1].page + 1);
   });
 
-  it('prints nothing about it in the document', async () => {
+  // Phase 9B renders it. The guard that asserted silence has done its job and
+  // is replaced by one that asserts the page says what the model holds.
+  it('renders the squad-usage page from the model’s own figures', async () => {
     addProgramme();
-    const { text } = await build();
-    expect(text).not.toMatch(/top 11|top-11|concentration|year of study|years of study/i);
+    const { text, model } = await build();
+    const u = model.squadProfile.utilisation;
+    const e = model.squadProfile.experience;
+    expect(model.sections.map((s) => s.id)).toContain('squad-usage');
+    expect(text).toMatch(/how this programme uses its squad/i);
+    expect(text).toMatch(/eleven, fourteen and eighteen most-used players/);
+    expect(text).toContain(`${Math.round(u.medianTop11Share * 100)}% of the minutes`);
+    const y1 = e.groups.find((g) => g.group === 'YEAR_1');
+    expect(text).toContain(`${Math.round(y1.rosterShare * 100)}% of the roster`);
+    // …and none of the measures Phase 8 rejected as client-facing.
+    expect(text).not.toMatch(/share of the roster that appeared|200 minutes|top five/i);
   });
 
   // The sparse case, end to end: the minutes refuse and the roster does not.
@@ -811,7 +829,7 @@ describe('minute concentration and years of study, attached and not rendered', (
   });
 });
 
-describe('position utilisation, attached and not yet rendered', () => {
+describe('position utilisation', () => {
   it('is on the model for all three supported positions', async () => {
     addProgramme();
     const { model } = await build();
@@ -847,20 +865,13 @@ describe('position utilisation, attached and not yet rendered', () => {
     expect(model.pressure.athletePosition.historical).toBeTruthy();
   });
 
-  it('adds no section and no page', async () => {
+  // Same rule: the minute distribution within a position is about the
+  // athlete's position, so a programme report does not carry it.
+  it('stays out of a report with no athlete', async () => {
     addProgramme();
-    const { model, buf } = await build();
-    expect(model.sections.map((s) => s.id).join(','))
-      .not.toMatch(/position-utilisation|players-for-75|starter-level-players/);
-    expect(pageCount(buf)).toBe(model.sections[model.sections.length - 1].page + 1);
-  });
-
-  it('prints nothing about it in the document', async () => {
-    addProgramme();
-    const { text } = await build();
+    const { text, model } = await build();
+    expect(model.sections.map((s) => s.id)).not.toContain('athlete-position-record');
     expect(text).not.toMatch(/three-quarters of the minutes/i);
-    expect(text).not.toMatch(/reach a starter-level season/i);
-    expect(text).not.toMatch(/players for 75/i);
   });
 
   // The sparse case: the squad's minutes were never read, so every position
@@ -875,6 +886,92 @@ describe('position utilisation, attached and not yet rendered', () => {
       expect(p.seasons[0].reason).toMatch(/minutes were published/);
     }
     expect(model.pressure.available).toBe(true);
+  });
+});
+
+describe('the athlete position record page', () => {
+  it('renders both halves from the model’s own figures', async () => {
+    addProgramme();
+    addAthlete('p1', { position: 'Defender' });
+    const { text, model } = await build('p1');
+    const intake = model.pressure.athletePosition.historical;
+    const util = model.positionUtilisation.athletePosition;
+    expect(model.sections.map((s) => s.id)).toContain('athlete-position-record');
+    expect(text).toContain('What this position has looked like here');
+    expect(text).toMatch(/how often this position has been added to/i);
+    expect(text).toContain(`added ${intake.totalIncomingPerCycle.join(', ')} defenders`);
+    if (util.available) {
+      expect(text).toMatch(/how far the minutes at this position have reached/i);
+      expect(text).toContain(`${util.medianPlayersWith600Plus} defenders reached 600 minutes`);
+      // The context measure, which is the whole point of carrying it.
+      expect(text).toMatch(new RegExp(`out of ${util.medianPlayersWithMinutes} used`));
+    }
+  });
+
+  // A methodological exclusion has to read as one. The page keeps its intake
+  // half and says in one line why the other half is absent.
+  it('gives a goalkeeper the intake half and a quiet reason for the rest', async () => {
+    addProgramme();
+    addAthlete('p1', { position: 'Goalkeeper' });
+    const { text, model } = await build('p1');
+    expect(model.sections.map((s) => s.id)).toContain('athlete-position-record');
+    expect(text).toMatch(/how often this position has been added to/i);
+    expect(text).toMatch(/not reported for goalkeepers/);
+    expect(text).not.toMatch(/insufficient|too little data|no data/i);
+    // …and no empty panel where the other half would have been.
+    expect(text).not.toMatch(/not enough on file[\s\S]{0,40}three-quarters/);
+  });
+
+  // Every statement about the minutes has to disclose how many seasons it came
+  // from. Akron's forwards are two of four.
+  it('states the season basis wherever it is short of the seasons on file', async () => {
+    addProgramme();
+    // One season with a readable position and one without.
+    for (let i = 0; i < 6; i += 1) {
+      addRow('Test College', {
+        season: '2025', player_name: `Thin D ${letters(i)}`, class_year_label: 'Jr.',
+        position: 'FORWARD', minutes_played: 900,
+      });
+    }
+    addAthlete('p1', { position: 'Forward' });
+    const { text, model } = await build('p1');
+    const util = model.positionUtilisation.athletePosition;
+    if (util.available && util.readableSeasons < util.seasons.length) {
+      expect(text).toMatch(new RegExp(`${util.readableSeasons === 1 ? 'the single season'
+        : `the ${util.readableSeasons === 2 ? 'two' : util.readableSeasons} seasons`} of `
+        + `${util.seasons.length} on file`));
+    }
+  });
+
+  // A range with no width prints the single value.
+  it('never prints a range of one value against itself', async () => {
+    addProgramme();
+    addAthlete('p1', { position: 'Defender' });
+    const { text } = await build('p1');
+    expect(text).not.toMatch(/\b(\d+(?:\.\d)?) to \1\b/);
+    expect(text).not.toMatch(/\b(\d+(?:\.\d)?)–\1\b/);
+  });
+
+  // The sparse case, end to end: the intake renders and the minutes refuse.
+  it('keeps the intake half where the squad’s minutes are unreadable', async () => {
+    addFabricatedProgramme();
+    addAthlete('p1', { position: 'Defender' });
+    const { text, model } = await build('p1');
+    expect(model.positionUtilisation.athletePosition.available).toBe(false);
+    expect(model.sections.map((s) => s.id)).toContain('athlete-position-record');
+    expect(text).toMatch(/how often this position has been added to/i);
+    expect(text).toMatch(/minutes were published to read a distribution/);
+  });
+
+  it('says nothing that reads as a forecast or a verdict', async () => {
+    addProgramme();
+    addAthlete('p1', { position: 'Defender' });
+    const { text } = await build('p1');
+    for (const word of ['open pathway', 'crowded', 'good opportunity', 'high competition',
+      'recruited over', 'risk', 'safe pathway', 'strong fit', 'weak fit', 'will play',
+      'likely to play', 'aggressive']) {
+      expect(text.toLowerCase(), word).not.toContain(word);
+    }
   });
 });
 

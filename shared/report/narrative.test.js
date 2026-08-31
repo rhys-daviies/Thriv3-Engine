@@ -221,3 +221,85 @@ describe('the pathway synthesis', () => {
     expect(pathwayNarrative(m)).toEqual([]);
   });
 });
+
+describe('the pathway synthesis after Phase 9B', () => {
+  const base = () => ({
+    college: { name: 'Somewhere', division: 'NCAA D1' },
+    summary: { athlete: {
+      positionLabel: 'Defender', entrySeason: 2027,
+      positionFreshmanHistory: { measured: 6, starters: 1 },
+      positionOpeningOutcomes: { openings: 2, freshmanTookIt: 1, dials: null },
+      currentPositionPlayers: [], currentPlayersEligibleAtEntry: [],
+      currentPlayersInFinalSeasonAtEntry: [],
+    } },
+    lifecycle: null,
+    pressure: { athletePosition: { historical: {
+      suppressed: false, totalIncomingPerCycle: [4, 3, 5], medianTotalIncoming: 4,
+      cyclesWithReadableRosterPresence: 3,
+      pool: { median: 4, middleHalf: { low: 3, high: 4 } },
+    } } },
+    positionUtilisation: { athletePosition: {
+      supported: true, available: true, readableSeasons: 4,
+      seasons: [{}, {}, {}, {}],
+      medianPlayersWith600Plus: 6, medianPlayersWithMinutes: 9,
+      pool: { playersWith600Plus: { median: 4.5, middleHalf: { low: 4, high: 5 } } },
+    } },
+  });
+
+  // The one sentence in the report that puts two independent histories side by
+  // side. It may place them together and may not combine them.
+  it('places intake beside the minute distribution without combining them', () => {
+    const out = pathwayNarrative(base());
+    const line = out.find((x) => x.includes('4, 3, 5'));
+    expect(line).toBeTruthy();
+    expect(line).toMatch(/added 4, 3, 5 defenders across 3 recruiting cycles/);
+    expect(line).toMatch(/6 defenders reached a 600-minute season in a typical year out of 9 used/);
+    expect(line).toMatch(/more than the comparable middle half of 4 to 5/);
+    // No arithmetic between the two, and no verdict about the pair.
+    for (const word of ['score', 'per', 'ratio', 'opportunity', 'competition', 'crowded']) {
+      expect(line.toLowerCase(), word).not.toContain(word);
+    }
+  });
+
+  it('discloses the season basis where it is short of the seasons on file', () => {
+    const m = base();
+    m.positionUtilisation.athletePosition.readableSeasons = 2;
+    const line = pathwayNarrative(m).find((x) => x.includes('4, 3, 5'));
+    expect(line).toMatch(/In the 2 seasons of 4 with enough position-level minutes to read/);
+  });
+
+  it('says the minute distribution is not reported for a goalkeeper', () => {
+    const m = base();
+    m.summary.athlete.positionLabel = 'Goalkeeper';
+    m.positionUtilisation.athletePosition = { supported: false, available: false };
+    const line = pathwayNarrative(m).find((x) => x.includes('4, 3, 5'));
+    expect(line).toMatch(/not reported for goalkeepers/);
+    expect(line).not.toMatch(/insufficient|too few/i);
+  });
+
+  it('drops the programme-wide development sentence before a position one', () => {
+    const m = base();
+    m.lifecycle = { development: {
+      minutesCoverage: { readable: true },
+      everStarter: { share: 0.3, reached: 12, denominator: 40 },
+      byYear: [{ share: 0.1 }, { share: 0.2 }, { share: 0.3 }],
+    } };
+    m.summary.athlete.currentPositionPlayers = [{ projectedMinutes: 900 }];
+    m.summary.athlete.currentPlayersEligibleAtEntry = [{}];
+    m.summary.athlete.positionOpeningOutcomes.dials = { n: 3, returning: 70, freshman: 5, newcomer: 25 };
+    const out = pathwayNarrative(m);
+    expect(out.length).toBeLessThanOrEqual(6);
+    const positionLine = out.findIndex((x) => x.includes('4, 3, 5'));
+    const programmeLine = out.findIndex((x) => x.includes('whole squad rather than this position'));
+    expect(positionLine).toBeGreaterThanOrEqual(0);
+    if (programmeLine >= 0) expect(programmeLine).toBeGreaterThan(positionLine);
+  });
+
+  it('never says anything predictive or evaluative', () => {
+    const joined = pathwayNarrative(base()).join(' ').toLowerCase();
+    for (const word of ['will ', 'likely', 'expect', 'should', 'risk', 'safe', 'good fit',
+      'strong fit', 'open pathway', 'recruited over']) {
+      expect(joined, word).not.toContain(word);
+    }
+  });
+});
