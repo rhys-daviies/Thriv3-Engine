@@ -19,6 +19,7 @@
  * people.
  */
 import { nameKey } from '../philosophy.js';
+import { readClassYear } from '../classYear.js';
 import { canonicalPosition } from '../positions.js';
 import { cleanRosterName } from '../../server/lib/rosterName.js';
 
@@ -39,23 +40,40 @@ export function roleBand(minutes) {
 /** The identity key for a roster row. */
 export const playerKeyOf = (name) => nameKey(cleanRosterName(name));
 
+/** The rank each class the label reader recognises corresponds to. */
+const RANK_OF_CLASS = Object.freeze({
+  FRESHMAN: 1, SOPHOMORE: 2, JUNIOR: 3, SENIOR: 4, GRADUATE: 5,
+});
+
 /**
  * Class labels ranked so progression can be tested.
  *
- * Returns `null` for anything unreadable rather than guessing. 4.5% of men's
- * rows carry a label this cannot rank, and a wrong rank is worse than none:
- * class progression is a matching signal, and a fabricated one is a
- * fabricated match.
+ * Returns `null` for anything unreadable rather than guessing, because a wrong
+ * rank is worse than none: class progression is a matching signal, and a
+ * fabricated one is a fabricated match.
+ *
+ * This USED TO carry its own regexes, and they were narrower than the reader
+ * the freshman layer has always used. They could not read `Fy.`, `FY`,
+ * `F.Y.`, `Rf.`, or any ordinal — `1st`, `2nd`, `1st Year`, `Second Year` —
+ * which is 8,192 roster rows across 330 programmes, `Fy.` alone accounting for
+ * 4,982 of them at 115 programmes. The consequence was invisible from the
+ * freshman pages, which resolve the same column through `readClassYear` and
+ * were always right: 161 programmes had first-years that `buildLifecycles`
+ * placed in NO cohort, and 121 of them — Harvard, Yale, Columbia, Dartmouth,
+ * Lehigh, Colgate, Quinnipiac, Sacred Heart, East Carolina among them — could
+ * not print a multi-year development figure at all, because their roster page
+ * spells first year "Fy." rather than "Fr.".
+ *
+ * So there is one reader now. The two never disagreed on a row they both
+ * read — measured across 276,745 rows, zero conflicts — one was simply blind,
+ * and a second parser of the same column is a second thing to keep in step.
+ *
+ * `klass` is the class the label NAMES, so a redshirt sophomore ranks 2 here
+ * exactly as it did before: `readClassYear` advances a redshirt only when
+ * computing the years they have left, which is a different question.
  */
 export function classRank(label) {
-  const s = String(label ?? '').toLowerCase();
-  if (!s) return null;
-  if (/\b(gr|grad|graduate|5th|fifth)\b/.test(s) || /^gr/.test(s)) return 5;
-  if (/\b(sr|sen|senior)\b/.test(s) || /^r?-?sr/.test(s)) return 4;
-  if (/\b(jr|jun|junior)\b/.test(s) || /^r?-?jr/.test(s)) return 3;
-  if (/\b(so|soph|sophomore)\b/.test(s) || /^r?-?so/.test(s)) return 2;
-  if (/\b(fr|fresh|freshman|first)\b/.test(s) || /^r?-?fr/.test(s)) return 1;
-  return null;
+  return RANK_OF_CLASS[readClassYear(label).klass] ?? null;
 }
 
 export const CLASS_NAMES = Object.freeze({

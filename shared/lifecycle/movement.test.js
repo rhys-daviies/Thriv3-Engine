@@ -151,6 +151,48 @@ describe('movement matching', () => {
     expect(m.signalCount).toBe(3);
   });
 
+  // The 21 departures the class-year unification promoted, in one case. A
+  // roster that spells first year "Fy." carried no readable class at all
+  // until Phase 6A, so class progression could never fire and a departure
+  // with position and graduation year agreeing sat one signal short. All 21
+  // were AMBIGUOUS -> MATCH_B; none was MATCH_A, and none went from having no
+  // destination to having one.
+  it('reads class progression across a label the lifecycle parser used to miss', () => {
+    const fy = [
+      row({ season: 2024, player_name: 'M Two', college_name: 'Alpha', class_year_label: 'Fy.' }),
+      row({
+        season: 2025, player_name: 'M Two', college_name: 'Beta', class_year_label: 'So.',
+        hometown: 'Denver, CO',
+      }),
+      ...filler('Alpha', '2024'), ...filler('Alpha', '2025'),
+      ...filler('Beta', '2024'), ...filler('Beta', '2025'),
+    ];
+    const [m] = movementObservations(fy).filter((x) => x.name === 'M Two');
+    expect(m.signals.classProgression).toBe(true);
+    expect(m.signals.hometown).toBe(false);
+    expect(m.signalCount).toBe(3);
+    expect(m.status).toBe(MATCH_STATUS.MATCH_B);
+  });
+
+  // What the promotion may NOT do. A common name is still a common name, and
+  // a third readable signal does not buy past the guard.
+  it('still refuses a common name however well the class progresses', () => {
+    const common = [
+      row({ season: 2024, player_name: 'M Three', college_name: 'Alpha', class_year_label: 'Fy.' }),
+      row({ season: 2025, player_name: 'M Three', college_name: 'Beta', class_year_label: 'So.', hometown: 'Denver, CO' }),
+      row({ season: 2024, player_name: 'M Three', college_name: 'Gamma', class_year_label: 'Fy.' }),
+      row({ season: 2025, player_name: 'M Three', college_name: 'Delta', class_year_label: 'So.' }),
+      ...filler('Alpha', '2024'), ...filler('Alpha', '2025'),
+      ...filler('Beta', '2024'), ...filler('Beta', '2025'),
+      ...filler('Gamma', '2024'), ...filler('Gamma', '2025'),
+      ...filler('Delta', '2024'), ...filler('Delta', '2025'),
+    ];
+    for (const m of movementObservations(common).filter((x) => x.name === 'M Three')) {
+      expect(m.commonName).toBe(true);
+      expect(isObserved(m)).toBe(false);
+    }
+  });
+
   it('AMBIGUOUS when fewer than three signals agree and no hometown', () => {
     const [m] = movementObservations(pair({
       hometown: 'Denver, CO', position: 'Forward', estimated_graduation_year: 2030,

@@ -10,6 +10,7 @@ import {
   buildLifecycles, seasonObservation, roleBand, classRank, originOf,
   isTerminalClass, playerKeyOf, firstYearCohort, experiencedCohort, lifecyclesAt,
 } from './lifecycle.js';
+import { readClassYear } from '../classYear.js';
 import { canonicalHometown, sameHometown } from './hometown.js';
 
 const row = (o = {}) => ({
@@ -81,11 +82,62 @@ describe('class labels', () => {
     expect(classRank('Graduate')).toBe(5);
   });
 
+  // Every one of these was on a roster and unreadable to the parser this
+  // function used to carry. Between them they are 8,192 rows at 330
+  // programmes, and the programmes that spell it "Fy." lost their whole
+  // first-year cohort.
+  it('ranks the labels the lifecycle parser used to be blind to', () => {
+    for (const label of ['Fy.', 'FY', 'Fy', 'FY.', 'F.Y.', '1st', '1st Year',
+      'First Year', 'Rf.', 'Rs.-Fr.']) {
+      expect(classRank(label), label).toBe(1);
+    }
+    for (const label of ['2nd', '2nd Year', 'Second Year']) {
+      expect(classRank(label), label).toBe(2);
+    }
+    for (const label of ['3rd', '3rd Year', '3rd Yr.', 'Third Year']) {
+      expect(classRank(label), label).toBe(3);
+    }
+    for (const label of ['4th', '4th Year', 'Fourth Year']) {
+      expect(classRank(label), label).toBe(4);
+    }
+    for (const label of ['5th', '6th', 'Fifth Year', 'Graduate Student']) {
+      expect(classRank(label), label).toBe(5);
+    }
+  });
+
+  // The narrow parser and the shared reader are now one function, so this is
+  // the assertion that keeps them from drifting apart again.
+  it('agrees with the reader the freshman layer uses, on every label', () => {
+    const rank = { FRESHMAN: 1, SOPHOMORE: 2, JUNIOR: 3, SENIOR: 4, GRADUATE: 5 };
+    for (const label of ['Fr.', 'Fy.', 'So.', 'R-So.', 'Jr.', 'Sr.', 'Gr.', '1st',
+      '4th', 'Cl.: Jr', 'Year: So', 'Redshirt Freshman', '2027', "'29", 'Solar',
+      'FC Dallas', 'Real Colorado', '', null]) {
+      expect(classRank(label), label)
+        .toBe(rank[readClassYear(label).klass] ?? null);
+    }
+  });
+
+  // The two readers answer different questions about a redshirt: this one
+  // names the class on the page, readClassYear's year fields count the
+  // seasons already spent. Ranking a redshirt sophomore as a junior here
+  // would break class progression as an identity signal.
+  it('ranks a redshirt by the class the label names, not the one it implies', () => {
+    expect(classRank('R-So.')).toBe(2);
+    expect(classRank('Redshirt Junior')).toBe(3);
+    expect(readClassYear('R-So.', { season: '2024' }).eligibilityEndYear).toBe(2026);
+  });
+
   it('returns null rather than guessing at an unreadable label', () => {
     expect(classRank(null)).toBeNull();
     expect(classRank('')).toBeNull();
     expect(classRank('2027')).toBeNull();
     expect(classRank('Manchester United Academy')).toBeNull();
+    // The Texas Tech club column, which is the reason the shared reader
+    // reports `recognised` at all.
+    expect(classRank('FC Dallas')).toBeNull();
+    expect(classRank('Real Colorado')).toBeNull();
+    expect(classRank('Solar')).toBeNull();
+    expect(classRank("'29")).toBeNull();
   });
 
   it('knows which classes could be a last season', () => {
