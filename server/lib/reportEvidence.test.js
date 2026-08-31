@@ -90,6 +90,35 @@ const addAthlete = (id, over = {}) => db.prepare(
    VALUES (?,?,?,?,?,?,'mens-soccer',?)`).run(id, now, now, over.name ?? 'Test Athlete',
   over.position ?? 'Defender', over.nationality ?? 'USA', over.year ?? 2027);
 
+/**
+ * The Albertus Magnus shape: three seasons that published no minutes, and one
+ * where the importer assumed a zero for every player on the roster.
+ */
+function addFabricatedProgramme(name = 'Test College') {
+  db.prepare(`INSERT INTO colleges (id, created_date, updated_date, name, sport, division, conference, city, state, active)
+    VALUES ('c1',?,?,?,'mens-soccer','NCAA D2','Test Conference','Testville','TS',1)`).run(now, now, name);
+  const unpublished = db.prepare(`INSERT INTO roster_players
+    (id, created_date, updated_date, college_name, sport, division, season, player_name,
+     class_year_label, position, minutes_played, games_played, games_started)
+    VALUES (?,?,?,?,'mens-soccer','NCAA D2',?,?,?,'DEFENSE',NULL,NULL,NULL)`);
+  for (const season of ['2022', '2023', '2024']) {
+    for (let i = 0; i < 30; i += 1) {
+      unpublished.run(`u${season}${i}`, now, now, name, season,
+        `Unpublished ${letters(i)} ${word(season)}`, i < 8 ? 'Fr.' : 'Jr.');
+    }
+  }
+  for (let i = 0; i < 32; i += 1) {
+    addRow(name, {
+      season: '2025', player_name: `Assumed ${letters(i)}`,
+      class_year_label: i < 12 ? 'Fr.' : 'Sr.', minutes_played: 0, games_played: 0, games_started: 0,
+    });
+  }
+  for (const s of [2022, 2023, 2024, 2025, 2026]) {
+    db.prepare(`INSERT INTO coach_seasons (school, sport, season, coach_name, imported_at)
+      VALUES (?,'mens-soccer',?,'A Coach',?)`).run(name, s, now);
+  }
+}
+
 beforeEach(() => {
   db.exec('DELETE FROM roster_players; DELETE FROM coach_seasons; DELETE FROM colleges; DELETE FROM players;');
   invalidatePoolBenchmarks();
@@ -739,13 +768,57 @@ describe('position intake, attached and not yet rendered', () => {
   });
 });
 
+describe('minute concentration and years of study, attached and not rendered', () => {
+  it('is on the model with its seasons, its medians and 2026 absent', async () => {
+    addProgramme();
+    const { model } = await build();
+    const u = model.squadProfile.utilisation;
+    expect(u.available).toBe(true);
+    expect(u.seasons.map((s) => s.season)).toEqual(['2022', '2023', '2024', '2025']);
+    expect(u.medianTop11Share).toBeGreaterThan(0);
+    expect(u.medianTop11Share).toBeLessThanOrEqual(1);
+    const e = model.squadProfile.experience;
+    expect(e.compositionAvailable).toBe(true);
+    expect(e.loadSeasons).not.toContain('2026');
+    expect(e.groups.map((g) => g.group))
+      .toEqual(['YEAR_1', 'YEAR_2', 'YEAR_3', 'YEAR_4', 'GRADUATE', 'UNKNOWN']);
+  });
+
+  it('adds no section and no page', async () => {
+    addProgramme();
+    const { model, buf } = await build();
+    // Narrow on purpose: `experienced-arrival-intake` is an existing section
+    // and is not what this is guarding against.
+    expect(model.sections.map((s) => s.id).join(','))
+      .not.toMatch(/utilisation|concentration|minute-share|experience-profile|years-of-study/);
+    expect(pageCount(buf)).toBe(model.sections[model.sections.length - 1].page + 1);
+  });
+
+  it('prints nothing about it in the document', async () => {
+    addProgramme();
+    const { text } = await build();
+    expect(text).not.toMatch(/top 11|top-11|concentration|year of study|years of study/i);
+  });
+
+  // The sparse case, end to end: the minutes refuse and the roster does not.
+  it('keeps the roster readable by year of study where the minutes are not', async () => {
+    addFabricatedProgramme();
+    const { model } = await build();
+    expect(model.squadProfile.utilisation.available).toBe(false);
+    expect(model.squadProfile.experience.compositionAvailable).toBe(true);
+    expect(model.squadProfile.experience.loadAvailable).toBe(false);
+    expect(model.squadProfile.loadVersusRoster).toBeNull();
+  });
+});
+
 describe('a programme whose stats page was never read', () => {
   /**
    * The Albertus Magnus shape, built here rather than read from the working
    * database: three seasons that published no minutes, and one where the
    * importer assumed a zero for every player on the roster.
    */
-  const addFabricated = (name = 'Test College') => {
+  const addFabricated = addFabricatedProgramme;
+  const unusedAddFabricated = (name = 'Test College') => {
     db.prepare(`INSERT INTO colleges (id, created_date, updated_date, name, sport, division, conference, city, state, active)
       VALUES ('c1',?,?,?,'mens-soccer','NCAA D2','Test Conference','Testville','TS',1)`).run(now, now, name);
     // Inserted directly: `addRow` fills a missing minute with 600, and these

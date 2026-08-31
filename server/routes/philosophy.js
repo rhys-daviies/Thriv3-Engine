@@ -13,6 +13,8 @@ import {
 import { lifecyclePool, lifecycleRows } from '../lib/lifecycleQueries.js';
 import { buildLifecycleSummary } from '../../shared/report/lifecycleSummary.js';
 import { buildPressureSummary } from '../../shared/report/pressure.js';
+import { buildSquadSummary } from '../../shared/report/squad.js';
+import { readableRows } from '../../shared/lifecycle/readable.js';
 import { evidenceLimitsFor } from '../lib/reportLimits.js';
 import {
   RECRUIT_SEASON, SQUAD_SEASON, SEASONS,
@@ -326,16 +328,33 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     division: col.division,
     athlete: model.athlete,
   });
+  /**
+   * Minute concentration and years of study. Attached and NOT rendered, on the
+   * same terms as `pressure`: no section reads it, nothing in `planSections`
+   * mentions it, and every existing page and page count is unchanged.
+   *
+   * These read the readable rows rather than the raw ones — unlike intake,
+   * both halves of this are questions about minutes, and the experience half
+   * keeps its roster composition answerable even where the minutes are not.
+   */
+  const squadProfile = buildSquadSummary({
+    rows: readableRows(lifeRows),
+    pool: lifePool,
+    division: col.division,
+  });
   // Which analyses were attempted and refused. Additive, and computed from
   // the model rather than from any new query: `evidenceLimitsFor` reads the
   // same fields the pages it replaces would have read.
-  const withLifecycle = { ...model, summary, lifecycle, pressure };
+  const withLifecycle = { ...model, summary, lifecycle, pressure, squadProfile };
   const evidenceLimits = evidenceLimitsFor(withLifecycle);
   return {
     ...model,
     summary,
     lifecycle,
     pressure,
+    // `squad` is already the 2026 roster on this model; this is the historical
+    // profile of how its minutes were distributed and who took them.
+    squadProfile,
     evidenceLimits,
     // The document's shape, decided from the data rather than by whichever
     // section throws first. No page numbers: those are not knowable until the

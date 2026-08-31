@@ -28,6 +28,8 @@ import { developmentSummary } from './development.js';
 import { canonicalPosition, POSITIONS } from '../positions.js';
 import { readableRows, minutesCoverage } from './readable.js';
 import { positionPressure, MIN_CYCLES_FOR_POOL, MIN_INCOMING_FOR_MIX } from './pressure.js';
+import { programmeUtilisation, MIN_SEASONS_FOR_POOL } from './utilisation.js';
+import { programmeExperience, EXPERIENCE_GROUPS } from './experience.js';
 
 export const LIFECYCLE_SEASONS = Object.freeze(['2022', '2023', '2024', '2025', '2026']);
 /** The last season that carries minutes. 2026 is a named roster and nothing more. */
@@ -114,7 +116,8 @@ export function buildLifecyclePool(rawRows, colleges, { sport = null } = {}) {
     sufficient: false, sport, reason: 'no roster seasons on file for this sport',
     seasons: LIFECYCLE_SEASONS, programmes: 0,
     movementByProgramme: new Map(), arrivalsByProgramme: new Map(),
-    benchmarks: null, positionIntake: null, destinationCoverage: null,
+    benchmarks: null, positionIntake: null, utilisation: null, experience: null,
+    destinationCoverage: null,
     buildMs: Date.now() - started,
   };
   if (!rawRows.length) return empty;
@@ -198,6 +201,70 @@ export function buildLifecyclePool(rawRows, colleges, { sport = null } = {}) {
     starterByYear: s.starterByYear.map(spread),
     retentionAfter: s.retentionAfter.map(spread),
   });
+
+  // ---- squad utilisation and experience, over programme medians -----------
+  //
+  // Programme medians rather than pooled seasons, so a programme with four
+  // readable seasons cannot outvote one with three. Both read the SAME rows
+  // every other benchmark reads — `readableRows` has already applied the row
+  // rule and the source rule — so a season whose stats page was never read is
+  // absent here rather than contributing a distribution of zeros.
+  const utilCells = new Map();
+  const expCells = new Map();
+  for (const [programme, progRows] of rowsByProgramme) {
+    const div = divisionOf(programme);
+    const keys = ['ALL', ...(div ? [div] : [])];
+    const util = programmeUtilisation(progRows);
+    if (util.seasonsObserved >= MIN_SEASONS_FOR_POOL) {
+      for (const key of keys) {
+        if (!utilCells.has(key)) {
+          utilCells.set(key, {
+            programmes: 0, top11: [], top14: [], top18: [], rotation: [], starters: [],
+          });
+        }
+        const cell = utilCells.get(key);
+        cell.programmes += 1;
+        cell.top11.push(util.medianTop11Share);
+        cell.top14.push(util.medianTop14Share);
+        cell.top18.push(util.medianTop18Share);
+        cell.rotation.push(util.medianPlayersWith200Plus);
+        cell.starters.push(util.medianPlayersWith600Plus);
+      }
+    }
+    const exp = programmeExperience(progRows);
+    if (exp.loadSeasons.length >= MIN_SEASONS_FOR_POOL) {
+      for (const key of keys) {
+        if (!expCells.has(key)) {
+          expCells.set(key, { programmes: 0, minuteShare: new Map(), rosterShare: new Map() });
+        }
+        const cell = expCells.get(key);
+        cell.programmes += 1;
+        for (const g of exp.groups) {
+          if (!cell.minuteShare.has(g.group)) {
+            cell.minuteShare.set(g.group, []);
+            cell.rosterShare.set(g.group, []);
+          }
+          if (g.minuteShare != null) cell.minuteShare.get(g.group).push(g.minuteShare);
+          if (g.rosterShare != null) cell.rosterShare.get(g.group).push(g.rosterShare);
+        }
+      }
+    }
+  }
+  const utilisation = Object.fromEntries([...utilCells.entries()].map(([key, c]) => [key, {
+    programmes: c.programmes,
+    top11MinuteShare: spread(c.top11),
+    top14MinuteShare: spread(c.top14),
+    top18MinuteShare: spread(c.top18),
+    playersWith200Plus: spread(c.rotation),
+    playersWith600Plus: spread(c.starters),
+  }]));
+  const experience = Object.fromEntries([...expCells.entries()].map(([key, c]) => [key, {
+    programmes: c.programmes,
+    groups: Object.fromEntries(EXPERIENCE_GROUPS.map((g) => [g, {
+      minuteShare: spread(c.minuteShare.get(g) ?? []),
+      rosterShare: spread(c.rosterShare.get(g) ?? []),
+    }])),
+  }]));
 
   // ---- position intake, the one benchmark that needs no minutes -----------
   //
@@ -283,6 +350,10 @@ export function buildLifecyclePool(rawRows, colleges, { sport = null } = {}) {
      * whose own division is too thin to compare against.
      */
     positionIntake,
+    /** Minute concentration by division, and across every division. */
+    utilisation,
+    /** Minute and roster share by year of study, same keying. */
+    experience,
     destinationCoverage: Object.fromEntries([...coverage.entries()].map(([d, c]) => [d, {
       ...c, coverage: c.departures ? c.observed / c.departures : null,
     }])),
