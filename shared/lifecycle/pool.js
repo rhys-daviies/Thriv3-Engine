@@ -25,8 +25,9 @@ import {
   movementObservations, compareProgrammes, attachRoleAndOutcome, isObserved, MATCH_STATUS,
 } from './movement.js';
 import { developmentSummary } from './development.js';
-import { canonicalPosition } from '../positions.js';
+import { canonicalPosition, POSITIONS } from '../positions.js';
 import { readableRows, minutesCoverage } from './readable.js';
+import { positionPressure, MIN_CYCLES_FOR_POOL, MIN_INCOMING_FOR_MIX } from './pressure.js';
 
 export const LIFECYCLE_SEASONS = Object.freeze(['2022', '2023', '2024', '2025', '2026']);
 /** The last season that carries minutes. 2026 is a named roster and nothing more. */
@@ -113,7 +114,7 @@ export function buildLifecyclePool(rawRows, colleges, { sport = null } = {}) {
     sufficient: false, sport, reason: 'no roster seasons on file for this sport',
     seasons: LIFECYCLE_SEASONS, programmes: 0,
     movementByProgramme: new Map(), arrivalsByProgramme: new Map(),
-    benchmarks: null, destinationCoverage: null,
+    benchmarks: null, positionIntake: null, destinationCoverage: null,
     buildMs: Date.now() - started,
   };
   if (!rawRows.length) return empty;
@@ -198,6 +199,53 @@ export function buildLifecyclePool(rawRows, colleges, { sport = null } = {}) {
     retentionAfter: s.retentionAfter.map(spread),
   });
 
+  // ---- position intake, the one benchmark that needs no minutes -----------
+  //
+  // Invariant to both readability rules, and that is the point of it: intake
+  // is a question about names and class labels, so a programme whose minutes
+  // were never published contributes here exactly as any other, and the
+  // rows it reads could be the raw ones or the readable ones without changing
+  // a single count. It is quantiled over PROGRAMMES rather than over cycles,
+  // because what a report compares is one programme's usual intake against
+  // other programmes' usual intake, and pooling cycles would let a programme
+  // with four readable cycles outvote one with two.
+  const pressureCells = new Map();
+  for (const [programme, progRows] of rowsByProgramme) {
+    const div = divisionOf(programme);
+    // No returnable-seasons gate: that one exists because retention needs a
+    // measured squad, and this needs a roster.
+    const pressure = positionPressure(progRows);
+    for (const pos of pressure.positions) {
+      // Both gates: enough cycles, and rosters that say what position these
+      // players were. A programme whose pages carry no position column has a
+      // suppressed median, and pushing that null would count it as an
+      // observation of zero.
+      if (pos.historical.cyclesWithReadableRosterPresence < MIN_CYCLES_FOR_POOL) continue;
+      if (pos.historical.suppressed || pos.historical.medianTotalIncoming == null) continue;
+      for (const key of [`ALL|${pos.position}`, ...(div ? [`${div}|${pos.position}`] : [])]) {
+        if (!pressureCells.has(key)) pressureCells.set(key, { totals: [], experienced: [], programmes: 0 });
+        const cell = pressureCells.get(key);
+        cell.programmes += 1;
+        cell.totals.push(pos.historical.medianTotalIncoming);
+        if (!pos.historical.mix.suppressed) cell.experienced.push(pos.historical.mix.experiencedShare);
+      }
+    }
+  }
+  const positionIntake = {};
+  for (const [key, cell] of pressureCells) {
+    const [division, position] = key.split('|');
+    if (!positionIntake[division]) positionIntake[division] = {};
+    positionIntake[division][position] = {
+      programmes: cell.programmes,
+      totalIncoming: spread(cell.totals),
+      // Reported with its own denominator: a programme too thin for a mix
+      // contributes an intake figure and no share, so the two n's differ.
+      experiencedShare: cell.experienced.length >= MIN_INCOMING_FOR_MIX
+        ? spread(cell.experienced) : null,
+      experiencedShareProgrammes: cell.experienced.length,
+    };
+  }
+
   // ---- how much movement each division can be seen at all -----------------
   //
   // This is what the destination pages are gated on, and it is measured rather
@@ -228,6 +276,13 @@ export function buildLifecyclePool(rawRows, colleges, { sport = null } = {}) {
       overall: summarise(overall),
       byDivision: Object.fromEntries([...byDivision.entries()].map(([d, s]) => [d, summarise(s)])),
     },
+    /**
+     * Position intake by division, and across every division as a fallback.
+     *
+     * Keyed `division -> position`, with an `ALL` division for a programme
+     * whose own division is too thin to compare against.
+     */
+    positionIntake,
     destinationCoverage: Object.fromEntries([...coverage.entries()].map(([d, c]) => [d, {
       ...c, coverage: c.departures ? c.observed / c.departures : null,
     }])),
@@ -236,3 +291,4 @@ export function buildLifecyclePool(rawRows, colleges, { sport = null } = {}) {
 }
 
 export { TRANSITIONS, MATCH_STATUS, EXIT_KIND };
+export { POSITIONS };

@@ -708,6 +708,37 @@ describe('the methodology page', () => {
   });
 });
 
+describe('position intake, attached and not yet rendered', () => {
+  // Phase 7 productionises the model without designing a page for it. This is
+  // the guard on that: the report model carries it, and no section, page or
+  // page count moves because of it.
+  it('is on the model with its cycles, its history and 2026 apart', async () => {
+    addProgramme();
+    const { model } = await build();
+    expect(model.pressure.available).toBe(true);
+    expect(model.pressure.historicalCycles).toEqual(['2023', '2024', '2025']);
+    expect(model.pressure.currentCycle).toBe('2026');
+    const def = model.pressure.positions.find((p) => p.position === 'DEFENSE');
+    expect(def.historical.seasons).toEqual(['2023', '2024', '2025']);
+    expect(def.historical.seasons).not.toContain('2026');
+    expect(def.current.season).toBe('2026');
+  });
+
+  it('adds no section and no page', async () => {
+    addProgramme();
+    const { model, buf } = await build();
+    expect(model.sections.map((s) => s.id).join(',')).not.toMatch(/pressure|intake-per-cycle/);
+    expect(pageCount(buf)).toBe(model.sections[model.sections.length - 1].page + 1);
+  });
+
+  it('prints nothing about it in the document', async () => {
+    addProgramme();
+    const { text } = await build();
+    expect(text).not.toMatch(/recruiting cycle/i);
+    expect(text).not.toMatch(/added .* at this position/i);
+  });
+});
+
 describe('a programme whose stats page was never read', () => {
   /**
    * The Albertus Magnus shape, built here rather than read from the working

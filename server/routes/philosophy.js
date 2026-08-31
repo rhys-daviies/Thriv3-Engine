@@ -12,6 +12,7 @@ import {
 } from '../lib/philosophyQueries.js';
 import { lifecyclePool, lifecycleRows } from '../lib/lifecycleQueries.js';
 import { buildLifecycleSummary } from '../../shared/report/lifecycleSummary.js';
+import { buildPressureSummary } from '../../shared/report/pressure.js';
 import { evidenceLimitsFor } from '../lib/reportLimits.js';
 import {
   RECRUIT_SEASON, SQUAD_SEASON, SEASONS,
@@ -299,22 +300,42 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
   const summary = buildReportSummary({ model, philosophy: ph, squadRows: squad });
   // The lifecycle layer. Also additive: the pool half is cached per sport and
   // per process, and the programme half is a few indexed lookups.
+  const lifeRows = lifecycleRows(col.name, col.sport);
+  const lifePool = lifecyclePool(col.sport);
   const lifecycle = buildLifecycleSummary({
-    rows: lifecycleRows(col.name, col.sport),
-    pool: lifecyclePool(col.sport),
+    rows: lifeRows,
+    pool: lifePool,
     division: col.division,
     programme: col.name,
+    athlete: model.athlete,
+  });
+  /**
+   * Position intake. Attached and NOT rendered: no section reads it yet, and
+   * nothing in `planSections` mentions it, so every existing page and page
+   * count is unchanged. It is here so the intelligence can be inspected
+   * against real programmes before a page is designed for it.
+   *
+   * It reads the same five-season window the lifecycle layer does, because it
+   * needs 2026 — that roster is the current known intake — and it reads no
+   * minutes at all, which is why it survives at programmes where the
+   * performance analyses do not.
+   */
+  const pressure = buildPressureSummary({
+    rows: lifeRows,
+    pool: lifePool,
+    division: col.division,
     athlete: model.athlete,
   });
   // Which analyses were attempted and refused. Additive, and computed from
   // the model rather than from any new query: `evidenceLimitsFor` reads the
   // same fields the pages it replaces would have read.
-  const withLifecycle = { ...model, summary, lifecycle };
+  const withLifecycle = { ...model, summary, lifecycle, pressure };
   const evidenceLimits = evidenceLimitsFor(withLifecycle);
   return {
     ...model,
     summary,
     lifecycle,
+    pressure,
     evidenceLimits,
     // The document's shape, decided from the data rather than by whichever
     // section throws first. No page numbers: those are not knowable until the
