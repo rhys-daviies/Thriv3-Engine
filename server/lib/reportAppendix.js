@@ -165,12 +165,12 @@ export function destinationRecordPage(k, model) {
       + 'and nothing about them is implied by their absence from this table.',
     columns: MOVEMENT_COLUMNS,
     rows: movementRows(d.named),
-    note: ({ dropped }) => ['Football and academic ratings are the destination read against this '
-      + 'programme, on the two ratings this database carries; “similar” is the middle half of all '
-      + 'traced moves on that measure.',
-    dropped.includes('post') ? null
+    // Two sentences, not four. What the ratings mean and how "similar" is
+    // derived are in the methodology; this page is the evidence behind the
+    // page before it and does not need to re-teach the vocabulary.
+    note: ({ dropped }) => [dropped.includes('post') ? null
       : 'A dash under minutes there is a season not yet played or never published — never a player '
-          + 'who did not play.',
+        + 'who did not play.',
     'No move here is called successful or unsuccessful, and nothing records why anybody moved.']
       .filter(Boolean).join(' '),
   });
@@ -404,7 +404,9 @@ export function methodologyPage(k, model) {
     ['Observed, ambiguous and unresolved',
       'An observed destination is a departure whose name appears at another programme the next '
       + 'season with enough agreeing detail — hometown, position, class progression, graduation '
-      + 'year — to be confident it is the same person. Ambiguous means the name appears elsewhere '
+      + 'year — to be confident it is the same person. Where such a move is described as going to '
+      + 'a stronger, similar or lower-rated programme, “similar” is the middle half of all traced '
+      + 'moves on that measure. Ambiguous means the name appears elsewhere '
       + 'but the evidence does not settle it; those players are never named as a destination. '
       + 'Unresolved means the name appears on no other roster we hold, and is the largest group '
       + 'everywhere.',

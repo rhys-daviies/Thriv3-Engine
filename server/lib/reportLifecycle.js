@@ -475,7 +475,7 @@ export function observedDestinationsPage(k, model) {
   // figure that qualifies every other number here now reads from across a
   // desk, and the sentence beside it says what the page is a sample of.
   {
-    const box = k.slot(80);
+    const box = k.slot(88);
     const { doc } = k;
     doc.font('Helvetica-Bold').fontSize(30).fillColor(CLARET)
       .text(pc(d.tracing.coverage), box.x, box.y, { width: 96, lineBreak: false });
