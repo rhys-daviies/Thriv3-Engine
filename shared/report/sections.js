@@ -22,6 +22,8 @@
  * module exists so that pass has something deterministic to iterate.
  */
 
+import { MIN_POSITION_DESTINATIONS } from './lifecycleSummary.js';
+
 /**
  * The layers of the document, outermost structure first.
  *
@@ -269,43 +271,10 @@ export const SECTIONS = [
   },
 
   // -- Layer 4: athlete evidence -------------------------------------------
-  {
-    id: 'athlete-position-history',
-    title: 'Your position, historically',
-    description: 'First-years, experienced arrivals and minute shares at the athlete’s position only.',
-    layer: 'athlete-evidence',
-    scope: 'athlete',
-    unavailableWhenEmpty: false,
-    applies: ({ summary }) => {
-      const a = summary?.athlete;
-      if (!a) return false;
-      return a.positionFreshmanHistory.measured > 0
-        || a.experiencedArrivalsAtPosition.measured > 0
-        || (a.positionOpeningOutcomes?.dials?.n ?? 0) > 0;
-    },
-    scopeOf: ({ summary }) => {
-      const a = summary.athlete;
-      return [
-        `${a.positionFreshmanHistory.measured} first-years`,
-        `${a.experiencedArrivalsAtPosition.measured} experienced arrivals`,
-      ];
-    },
-  },
-  {
-    id: 'athlete-position-openings',
-    title: 'When your position opens',
-    description: 'Every season a starter left the athlete’s position, and what followed it.',
-    layer: 'athlete-evidence',
-    scope: 'athlete',
-    // The absence is the finding: "no starter has left this position" is a
-    // complete answer, and a reader should not have to notice a missing page.
-    unavailableWhenEmpty: true,
-    applies: ({ summary }) => (summary?.athlete?.positionVacancyHistory?.transitions ?? 0) > 0,
-    scopeOf: ({ summary }) => {
-      const v = summary.athlete.positionVacancyHistory;
-      return [`${v.openings} of ${v.transitions} transitions opened a place`];
-    },
-  },
+  //
+  // Declared in the order the document draws them, because `planSections`
+  // hands the model a `sections` array and a reader of that array should not
+  // have to sort it to learn what comes first.
   {
     id: 'athlete-current-position',
     title: 'Who is at your position now',
@@ -338,6 +307,43 @@ export const SECTIONS = [
     },
   },
   {
+    id: 'athlete-position-openings',
+    title: 'When your position opens',
+    description: 'Every season a starter left the athlete’s position, and what followed it.',
+    layer: 'athlete-evidence',
+    scope: 'athlete',
+    // The absence is the finding: "no starter has left this position" is a
+    // complete answer, and a reader should not have to notice a missing page.
+    unavailableWhenEmpty: true,
+    applies: ({ summary }) => (summary?.athlete?.positionVacancyHistory?.transitions ?? 0) > 0,
+    scopeOf: ({ summary }) => {
+      const v = summary.athlete.positionVacancyHistory;
+      return [`${v.openings} of ${v.transitions} transitions opened a place`];
+    },
+  },
+  {
+    id: 'athlete-position-history',
+    title: 'Your position, historically',
+    description: 'First-years, experienced arrivals and minute shares at the athlete’s position only.',
+    layer: 'athlete-evidence',
+    scope: 'athlete',
+    unavailableWhenEmpty: false,
+    applies: ({ summary }) => {
+      const a = summary?.athlete;
+      if (!a) return false;
+      return a.positionFreshmanHistory.measured > 0
+        || a.experiencedArrivalsAtPosition.measured > 0
+        || (a.positionOpeningOutcomes?.dials?.n ?? 0) > 0;
+    },
+    scopeOf: ({ summary }) => {
+      const a = summary.athlete;
+      return [
+        `${a.positionFreshmanHistory.measured} first-years`,
+        `${a.experiencedArrivalsAtPosition.measured} experienced arrivals`,
+      ];
+    },
+  },
+  {
     id: 'athlete-origin',
     title: 'Where you are arriving from',
     description: 'Whether first-years from the same background have played here.',
@@ -363,6 +369,14 @@ export const SECTIONS = [
     description: 'Where players at the athlete’s position were seen next, when they could be seen '
       + 'at all.',
     layer: 'athlete-evidence',
+    // Demoted to the supporting record where the position's own sample is a
+    // handful of players. The page sets itself quiet for the same reason, and
+    // the contents must not then file it under a heading the page disowns.
+    layerOf: ({ model }) => {
+      const p = model.lifecycle?.athletePosition;
+      return (p?.positionRows?.length ?? 0) < MIN_POSITION_DESTINATIONS
+        ? 'supporting' : 'athlete-evidence';
+    },
     scope: 'athlete',
     unavailableWhenEmpty: false,
     // Only where there is something at the athlete's OWN position to show.
@@ -482,7 +496,10 @@ export function planSections({ model, summary, philosophy }) {
         id: s.id,
         title: s.title,
         description: s.description,
-        layer: s.layer,
+        // A section may move layer on the evidence it turns out to have: the
+        // athlete's position movement is athlete evidence when the position
+        // carries a sample and supporting detail when it is one player.
+        layer: (() => { try { return s.layerOf?.(ctx) ?? s.layer; } catch { return s.layer; } })(),
         scope: s.scope,
         // The renderer fills this in once the section has been laid out; the
         // plan states the field so the shape is stable either way.

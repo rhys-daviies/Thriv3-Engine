@@ -125,10 +125,14 @@ export function renderProgramReport(model, opts = {}) {
     // 10, then disclaimed the comparison it had just invited. The honest
     // version is not to print them together.
 
-    section('athlete-position-history', () => positionHistoryPage(k, model));
-    section('athlete-position-openings', () => positionOpeningsPage(k, model));
+    // Ordered by what a family asks first. It used to open with four seasons
+    // of history and reach "who is at your position now" on the third page of
+    // the layer; the present squad and the entry season are the questions the
+    // history is context FOR.
     section('athlete-current-position', () => currentPositionPage(k, model));
     section('athlete-entry-window', () => arrivalWindowPage(k, model));
+    section('athlete-position-openings', () => positionOpeningsPage(k, model));
+    section('athlete-position-history', () => positionHistoryPage(k, model));
     section('athlete-origin', () => originPage(k, model));
     section('athlete-position-movement', () => athletePositionMovementPage(k, model));
 

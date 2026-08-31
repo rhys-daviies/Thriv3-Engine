@@ -32,6 +32,7 @@ import { positionPlural } from '../../shared/positions.js';
 import {
   developmentNarrative, continuityNarrative, destinationNarrative,
 } from '../../shared/report/narrative.js';
+import { MIN_POSITION_DESTINATIONS } from '../../shared/report/lifecycleSummary.js';
 
 const { MUTED, CLARET, NAVY, MID, PALE, GREEN, INK, W, M } = THEME;
 const THEME_LABEL = TYPE.label;
@@ -564,15 +565,21 @@ export function athletePositionMovementPage(k, model) {
   const a = model.athlete;
   const label = positionPlural(p.position) ?? 'players';
 
+  // Set quiet where the position's own sample is a handful of players. A
+  // 19pt title over one traced move claims more than one traced move can
+  // carry; the supporting record is set this way for the same reason.
+  const thin = p.positionRows.length < MIN_POSITION_DESTINATIONS;
   pageHead(k, {
-    kicker: 'For this athlete',
+    kicker: thin ? 'Supporting detail' : 'For this athlete',
+    quiet: thin,
     title: p.group === 'position'
       ? `${label.replace(/^./, (c) => c.toUpperCase())} here we could trace`
-      : 'Players here we could trace',
+      : `${label.replace(/^./, (c) => c.toUpperCase())} we could trace`,
     question: p.group === 'position'
       ? `When a ${String(p.position).toLowerCase()} has left this programme, where have we been `
         + 'able to see them next?'
-      : 'When a player has left this programme, where have we been able to see them next?',
+      : `When a ${String(p.position).toLowerCase()} has left this programme, where have we been `
+        + 'able to see them next?',
   });
   k.scope([
     `${a.positionLabel} — the position ${a.name} plays`,
@@ -581,10 +588,15 @@ export function athletePositionMovementPage(k, model) {
   ]);
 
   // Which group is on the page, said outright rather than left to be inferred.
-  k.box(p.groupNote, {
-    title: p.group === 'position' ? 'What this page shows' : 'This is not the position on its own',
-    color: p.group === 'position' ? NAVY : CLARET,
-  });
+  // A thin sample gets the quiet grey treatment rather than a claret callout:
+  // the limitation is real and it is not the loudest thing in the report.
+  if (thin) k.aside(p.groupNote, { title: 'How little this is' });
+  else {
+    k.box(p.groupNote, {
+      title: p.group === 'position' ? 'What this page shows' : 'This is not the position on its own',
+      color: p.group === 'position' ? NAVY : CLARET,
+    });
+  }
 
   // The three measures only where this is genuinely the athlete's position.
   // Broadened to the programme they are the same three bars the destinations
@@ -607,12 +619,15 @@ export function athletePositionMovementPage(k, model) {
       + `${p.positionRows.length === 1 ? 'it is' : 'they are'} what there is:`);
     k.table({ columns: MOVEMENT_COLUMNS, rows: movementRows(p.positionRows) });
     k.note('Every traced move from this programme, at any position, is listed in the supporting '
-      + 'record at the back of this report, and the three measures across all of them are on the '
-      + 'destinations page earlier.');
+      + 'record at the back of this report; the three measures across all of them are on the '
+      + 'destinations page earlier. Nothing here is a prediction, and nothing here says why any of '
+      + 'these players moved.');
+    return;
   } else {
     k.body('No departure at this position could be traced to another roster at all.', { bold: true });
     k.note(`Every traced move from this programme — ${p.programmeObserved} of them, at other `
       + 'positions — is listed in the supporting record at the back of this report.');
+    return;
   }
 
   k.note('These are the departures we could trace, which are a minority of the departures. Nothing '

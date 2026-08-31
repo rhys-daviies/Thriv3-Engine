@@ -384,7 +384,11 @@ describe('the athlete module', () => {
     const { text, model } = await build('p2');
     const p = model.lifecycle.athletePosition;
     expect(p.group).toBe('programme');
-    expect(text).toContain('THIS IS NOT THE POSITION ON ITS OWN');
+    // A handful of players is set quiet and filed as supporting detail: the
+    // grey aside, not the claret callout.
+    expect(text).toContain('HOW LITTLE THIS IS');
+    expect(model.sections.find((x) => x.id === 'athlete-position-movement').layer)
+      .toBe('supporting');
     expect(text).toMatch(/the programme-wide record is at the back/);
     // And it shows the goalkeepers it could trace rather than reprinting the
     // programme's list, which is already in the supporting record in full.
