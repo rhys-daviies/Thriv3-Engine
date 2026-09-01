@@ -58,7 +58,23 @@ function gathered(list, leadIn) {
  */
 export function evidenceSlots(flow, selected = [], ctx = {}) {
   const plan = planPlacement(selected, flow.key);
-  const partsOf = (ev) => evidenceParts(ev, ctx);
+  /**
+   * One rendering pass, one record of who has been talked about.
+   *
+   * The set is created here rather than by the caller so that two passes over
+   * the same evidence — a preview and the send — cannot inherit each other's
+   * state, and so `paragraphFor` below starts clean as well.
+   *
+   * `partsOf` memoises because it is called twice per item (once for the token,
+   * once to record the sentence) and the person guard is order-sensitive: a
+   * second render would filter out the names the first one had just printed.
+   */
+  const pass = { ...ctx, namesUsed: new Set() };
+  const rendered = new Map();
+  const partsOf = (ev) => {
+    if (!rendered.has(ev)) rendered.set(ev, evidenceParts(ev, pass));
+    return rendered.get(ev);
+  };
 
   const tokens = {};
   const placement = [];
@@ -186,7 +202,10 @@ export function paragraphFor(items = [], ctx = {}) {
   const list = items.filter(Boolean);
   if (!list.length) return '';
 
-  const parts = list.map((ev) => (ev.kind ? evidenceParts(ev, ctx) : ev));
+  // Its own pass, for the same reason: a paragraph rendered after a structured
+  // body must not think the structured body's names have already been said.
+  const pass = { ...ctx, namesUsed: new Set() };
+  const parts = list.map((ev) => (ev.kind ? evidenceParts(ev, pass) : ev));
   const recognition = parts.filter((p) => p.recognition);
   const observations = parts.filter((p) => !p.recognition);
 

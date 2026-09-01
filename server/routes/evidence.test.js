@@ -285,7 +285,7 @@ describe('wire shape', () => {
   it('carries the composed template the browser renders', () => {
     const athlete = db.prepare('SELECT * FROM players WHERE id = ?').get(athleteId);
     const wire = toWire(evidenceFor(athlete, SCHOOL, { sport: 'mens-soccer' }));
-    expect(wire.composition.template).toContain('{{coach_name}}');
+    expect(wire.composition.template).toContain('{{coach_first_name}}');
     // Case-insensitively: a slot capitalises the clause that opens it, which
     // is why the composer joins server-rendered clauses rather than the
     // client assembling sentences of its own.

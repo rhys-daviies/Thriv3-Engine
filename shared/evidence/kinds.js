@@ -153,6 +153,85 @@ export const EVIDENCE_KINDS = Object.freeze({
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
   },
+  /**
+   * --- recruiting history -------------------------------------------------
+   *
+   * These three say something the roster-derived kinds above cannot. A roster
+   * shows that a New Zealander was HERE; an arrival shows that a New Zealander
+   * CAME here, in a named intake, between two rosters we both hold. The second
+   * is the checkable version of the first, and it is the one a coach recognises
+   * as a decision somebody made rather than a fact about a list.
+   *
+   * They share `international-connection` with everything above, so exactly one
+   * survives dedupe. The strength bands are deliberately non-overlapping with
+   * the existing kinds' dynamic ranges — HISTORICAL_SAME_COUNTRY reaches 94 and
+   * HISTORICAL_SAME_REGION reaches 76 — so the ordering is a property of the
+   * numbers rather than of the order the generators happen to run in:
+   *
+   *   COACH_ARRIVAL_SAME_COUNTRY      99-100
+   *   ARRIVAL_SAME_COUNTRY_POSITION   95-98
+   *   HISTORICAL_SAME_COUNTRY         88-94   (unchanged)
+   *   CURRENT_SAME_COUNTRY            82      (unchanged)
+   *   ARRIVAL_SAME_REGION_POSITION    78-80
+   *   HISTORICAL_SAME_REGION          70-76   (unchanged)
+   *   INTERNATIONAL_ROSTER            52      (unchanged)
+   *   INTERNATIONAL_SHARE             44      (unchanged)
+   *
+   * Men's soccer only at launch. The generators refuse any other sport
+   * outright: 9.7% of women's arrivals carry a nationality flag against 29.1%
+   * of men's, and roster data cannot separate under-recording from a smaller
+   * international share.
+   */
+
+  /**
+   * The current coach's own observed recruiting from this country.
+   *
+   * The strongest thing in the group because it is the only one addressed to
+   * the person reading it. Requires three attributable transitions, which is a
+   * separate floor from the programme's — a coach appointed last summer has a
+   * programme history behind them and no record of their own.
+   */
+  COACH_ARRIVAL_SAME_COUNTRY: {
+    leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
+    tier: TIERS.FACT,
+    temporality: TEMPORALITY.HISTORICAL,
+    category: 'international',
+    dedupeGroup: 'international-connection',
+    baseStrength: 99,
+    emailEligible: true,
+    minConfidence: CONFIDENCE.MEDIUM,
+  },
+
+  /** An arrival from the athlete's country, at the athlete's position. */
+  ARRIVAL_SAME_COUNTRY_POSITION: {
+    leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
+    tier: TIERS.FACT,
+    temporality: TEMPORALITY.HISTORICAL,
+    category: 'international',
+    dedupeGroup: 'international-connection',
+    baseStrength: 95,
+    emailEligible: true,
+    minConfidence: CONFIDENCE.MEDIUM,
+  },
+
+  /**
+   * An arrival from the athlete's part of the world, at their position.
+   *
+   * Above HISTORICAL_SAME_REGION because it is an intake rather than a roster
+   * line, and below every same-country kind because a shared region is a weaker
+   * claim on a coach's attention than a compatriot.
+   */
+  ARRIVAL_SAME_REGION_POSITION: {
+    leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
+    tier: TIERS.FACT,
+    temporality: TEMPORALITY.HISTORICAL,
+    category: 'international',
+    dedupeGroup: 'international-connection',
+    baseStrength: 78,
+    emailEligible: true,
+    minConfidence: CONFIDENCE.MEDIUM,
+  },
+
   // A share, not a count: it depends on the denominator being a complete
   // roster, which is a judgement about our own scrape rather than a fact about
   // the programme.
@@ -312,6 +391,35 @@ export const EVIDENCE_KINDS = Object.freeze({
   },
 
   // --- internal only -------------------------------------------------------
+  /**
+   * How many arrived at this position, per intake. SHADOW MODE.
+   *
+   * `emailEligible: false`, deliberately and for a reason that is about the
+   * sentence rather than about the data. "You've added a defender in each of
+   * the last four intakes" is a true and checkable observation that sits one
+   * short step from "so you'll need another" — a claim about a coach's future
+   * intentions that no roster row supports, and the exact overstatement the CTA
+   * was corrected for. It is generated, ranked, logged and visible in the
+   * operator panel so that real examples can be read before anything is
+   * licensed; it cannot reach an email, because selection separates
+   * email-ineligible evidence before composition ever sees it.
+   *
+   * `leadSuitability` is inert while that flag is false — structures.js only
+   * ever reads it for SELECTED evidence — and is set to the most conservative
+   * value so that promoting the kind later is a deliberate decision rather than
+   * an accident of what was already written here.
+   */
+  POSITION_INTAKE_HISTORY: {
+    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
+    tier: TIERS.FACT,
+    temporality: TEMPORALITY.HISTORICAL,
+    category: 'internal',
+    dedupeGroup: 'position-intake',
+    baseStrength: 60,
+    emailEligible: false,
+    minConfidence: CONFIDENCE.MEDIUM,
+  },
+
   // Generated, ranked and logged like everything else so that it is available
   // the day we can measure it, but never rendered into an email.
   TRANSFER_BEHAVIOUR: {
@@ -355,6 +463,10 @@ export const KIND_LABELS = Object.freeze({
   COACH_CONTEXT: 'Coach tenure',
   ACADEMIC_FIT: 'Intended major offered',
   TRANSFER_BEHAVIOUR: 'Transfer recruiting behaviour',
+  COACH_ARRIVAL_SAME_COUNTRY: 'Same-country arrival under this coach',
+  ARRIVAL_SAME_COUNTRY_POSITION: 'Same-country arrival at this position',
+  ARRIVAL_SAME_REGION_POSITION: 'Same-region arrival at this position',
+  POSITION_INTAKE_HISTORY: 'Intake history at this position',
 });
 
 /** Kinds whose truth depends on the roster still being the current one. */

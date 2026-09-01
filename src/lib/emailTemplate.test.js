@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildEmailContext, fillTemplate, unresolvedTokens, TEMPLATE_VARIABLES, DEFAULT_EMAIL_TEMPLATE } from './emailTemplate.js';
+import { buildEmailContext, fillTemplate, unresolvedTokens, TEMPLATE_VARIABLES, DEFAULT_EMAIL_TEMPLATE, coachFirstName } from './emailTemplate.js';
 
 const player = {
   full_name: 'Test Athlete', position: 'DEFENSE', secondary_position: 'None',
@@ -331,5 +331,112 @@ describe('the pilot template degrades with the data', () => {
   it('resolves completely for a school with nothing but a name', () => {
     const ctx = buildEmailContext(player, { name: 'Some College' }, 'Coach');
     expect(unresolvedTokens(DEFAULT_EMAIL_TEMPLATE, ctx)).toEqual([]);
+  });
+});
+
+/**
+ * Greeting a coach by their first name.
+ *
+ * "Hi Ali Simmons," opened all fifteen emails in the QA sample, and a full-name
+ * greeting is the line that most reliably marks a message as generated.
+ */
+describe('coachFirstName', () => {
+  it('takes the first name from an ordinary name', () => {
+    expect(coachFirstName('Ali Simmons')).toBe('Ali');
+    expect(coachFirstName('Stephen Gorton')).toBe('Stephen');
+    expect(coachFirstName('Krystian Witkowski')).toBe('Krystian');
+    expect(coachFirstName('Cale Wassermann')).toBe('Cale');
+  });
+
+  /**
+   * Accents, hyphens and apostrophes are part of a person's name. Stripping
+   * them "to be safe" misspells the one word the reader is guaranteed to read.
+   */
+  it('leaves accents, hyphens and apostrophes exactly as written', () => {
+    expect(coachFirstName('Jean-Pierre Dubois')).toBe('Jean-Pierre');
+    expect(coachFirstName('José Núñez')).toBe('José');
+    expect(coachFirstName("Se'an O'Brien")).toBe("Se'an");
+    expect(coachFirstName('Tønnes Daland')).toBe('Tønnes');
+  });
+
+  it('flips a surname-first listing', () => {
+    expect(coachFirstName('Simmons, Ali')).toBe('Ali');
+    expect(coachFirstName('Mauzy-Fleming, Meghan')).toBe('Meghan');
+  });
+
+  it('does not read a suffix as a first name', () => {
+    expect(coachFirstName('Smith, Jr.')).toBe('');
+    expect(coachFirstName('Ryan Hopkins Jr.')).toBe('Ryan');
+  });
+
+  it('strips a title before taking the name', () => {
+    expect(coachFirstName('Coach Danny Frid')).toBe('Danny');
+    expect(coachFirstName('Dr. Marc Reeves')).toBe('Marc');
+  });
+
+  /**
+   * Every refusal below falls back to the full name at the call site, so the
+   * greeting is never empty and never a leftover token.
+   */
+  it('refuses when it cannot tell a first name from a surname', () => {
+    expect(coachFirstName('Coach Smith')).toBe('');   // one token once the title is gone
+    expect(coachFirstName('Simmons')).toBe('');
+    expect(coachFirstName('J. Smith')).toBe('');      // an initial is not a first name
+    expect(coachFirstName('A Smith')).toBe('');
+    expect(coachFirstName('')).toBe('');
+    expect(coachFirstName(null)).toBe('');
+  });
+
+  it('falls back to the full name in the email context', () => {
+    const ctx = buildEmailContext(
+      { full_name: 'Rhys Davies', position: 'Defender' },
+      { name: 'Example University' },
+      'Coach Smith',
+    );
+    expect(ctx.coach_first_name).toBe('Coach Smith');
+    expect(ctx.coach_name).toBe('Coach Smith');
+  });
+
+  it('keeps the full name beside the first name', () => {
+    const ctx = buildEmailContext(
+      { full_name: 'Rhys Davies', position: 'Defender' },
+      { name: 'Example University' },
+      'Ali Simmons',
+    );
+    expect(ctx.coach_first_name).toBe('Ali');
+    expect(ctx.coach_name).toBe('Ali Simmons');
+  });
+});
+
+/**
+ * The athlete's words and the college's, kept apart.
+ *
+ * Rhys typed "exercise science"; Jacksonville publishes "Kinesiology". The
+ * introduction was printing the college's label as the athlete's plan.
+ */
+describe('intended major attribution', () => {
+  const player = { full_name: 'Rhys Davies', position: 'Defender', intended_major: 'exercise science' };
+  const college = { name: 'Example University', notable_majors: ['Kinesiology'] };
+
+  it('carries the athlete\'s own words, title-cased', () => {
+    const ctx = buildEmailContext(player, college, 'Ali Simmons');
+    expect(ctx.intended_major_stated).toBe('Exercise Science');
+  });
+
+  it('carries the college\'s matched programme separately', () => {
+    const ctx = buildEmailContext(player, college, 'Ali Simmons');
+    expect(ctx.intended_major_label).toBe('Kinesiology');
+    expect(ctx.offers_intended_major).toBe('true');
+  });
+
+  it('falls back to the matched label when the athlete left it blank', () => {
+    const ctx = buildEmailContext({ ...player, intended_major: '' }, college, 'Ali Simmons');
+    expect(ctx.intended_major_stated).toBe('');
+  });
+
+  it('claims nothing where the college does not offer the field', () => {
+    const ctx = buildEmailContext(player, { name: 'Other', notable_majors: ['Business'] }, 'Ali Simmons');
+    expect(ctx.intended_major_label).toBe('');
+    expect(ctx.offers_intended_major).toBe('');
   });
 });

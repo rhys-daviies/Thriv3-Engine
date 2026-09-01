@@ -391,6 +391,84 @@ CREATE INDEX IF NOT EXISTS idx_outreach_evidence_structure ON outreach_evidence(
 -- BEFORE the migration that adds the column, so indexing it here fails on
 -- every database that already has the table — which is every real one.
 
+-- ===========================================================================
+-- DERIVED, DISPOSABLE, REBUILDABLE. Not a source of truth.
+--
+-- One row per player who appeared on a programme's roster in a season and was
+-- not on that programme's previous roster. `roster_players` remains the only
+-- source; this table is a materialised read of it and can be dropped and
+-- rebuilt at any time by `npm run build:recruiting`. Nothing writes to it by
+-- hand, and nothing else in the application writes to it at all.
+--
+-- It exists because the derivation is a cross-season, cross-programme join
+-- that is far too slow to run per request, and because the confidences below
+-- are decisions we want recorded once rather than recomputed differently in
+-- three places.
+--
+-- THE GATE: a row only exists here when BOTH adjacent rosters are on file.
+-- 195 men's programmes have a 2025 roster and no 2024 one, and reading absence
+-- as arrival would invent a recruiting class for every one of them. Those rows
+-- are counted in the build report and deliberately not stored as arrivals.
+CREATE TABLE IF NOT EXISTS recruiting_arrivals (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+  programme TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  arrival_season TEXT NOT NULL,
+
+  -- Provenance: which comparison produced this row. With `prior_season` a
+  -- reader can go back to the two roster snapshots and see for themselves.
+  prior_season TEXT NOT NULL,
+  source_transition TEXT NOT NULL,
+  roster_row_id TEXT,
+
+  player_name TEXT NOT NULL,
+  name_key TEXT NOT NULL,
+
+  -- DIRECT only. UNKNOWN is never stored — it is the absence of a row, and
+  -- storing it would invite somebody to count it.
+  arrival_confidence TEXT NOT NULL,
+  -- EXACT | RECONCILED. Which name rule matched, so a reconciliation can be
+  -- audited rather than trusted.
+  identity_method TEXT NOT NULL,
+  -- Spellings this row absorbed when one roster printed the same player twice,
+  -- as a JSON array of the discarded names. Empty for an EXACT identity. Named
+  -- email prose is gated on it being empty; aggregate counts are not.
+  reconciled_from TEXT,
+
+  -- GOALKEEPER | DEFENSE | MIDFIELD | FORWARD | UNKNOWN. Never a sub-position.
+  canonical_position TEXT NOT NULL,
+
+  nationality_flag TEXT,          -- USA | International | null
+  country TEXT,                   -- populated for internationals only
+  region TEXT,                    -- international regions only; null otherwise
+  is_international INTEGER NOT NULL DEFAULT 0,
+
+  class_label_raw TEXT,
+  entry_type TEXT NOT NULL,       -- FRESHMAN | EXPERIENCED | UNKNOWN
+
+  -- Kept entirely separate from arrival_confidence. A player can be a DIRECT
+  -- arrival whose origin is AMBIGUOUS: we are certain they are new here and
+  -- cannot say where they came from.
+  prior_programme TEXT,
+  prior_confidence TEXT NOT NULL, -- OBSERVED | NAME_MATCH | AMBIGUOUS | NONE
+  prior_candidates TEXT,          -- JSON array, kept for debugging
+
+  coach TEXT,
+  -- ATTRIBUTED | INHERITED | UNKNOWN. A coach's first roster is the previous
+  -- regime's recruiting and must never be credited to them.
+  coach_attribution TEXT NOT NULL,
+
+  built_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_recruiting_programme
+  ON recruiting_arrivals(programme, sport, arrival_season);
+CREATE INDEX IF NOT EXISTS idx_recruiting_country
+  ON recruiting_arrivals(sport, country, canonical_position);
+CREATE INDEX IF NOT EXISTS idx_recruiting_name
+  ON recruiting_arrivals(sport, name_key);
+
 -- Cursor and bookkeeping for the pull from the edge collector.
 CREATE TABLE IF NOT EXISTS sync_state (
   key TEXT PRIMARY KEY,

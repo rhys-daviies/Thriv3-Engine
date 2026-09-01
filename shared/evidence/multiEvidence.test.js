@@ -124,7 +124,7 @@ describe('how much evidence an email carries', () => {
     expect(result.paragraph).toBe('');
     // The composed template must still be a whole email, not a shell with a
     // hole where the evidence was meant to be.
-    expect(result.composition.template).toContain('{{coach_name}}');
+    expect(result.composition.template).toContain('{{coach_first_name}}');
     expect(result.composition.template).not.toContain('{{evidence_');
   });
 
@@ -674,6 +674,11 @@ describe('lead suitability decides what may open an email', () => {
     const openers = Object.keys(EVIDENCE_KINDS)
       .filter((k) => canOpenCold({ kind: k }));
     expect(openers.sort()).toEqual([
+      // The three recruiting-history kinds join the roster-derived ones: an
+      // arrival from the athlete's country is the same KIND of reason to be
+      // writing to this coach, observed one level more specifically.
+      'ARRIVAL_SAME_COUNTRY_POSITION', 'ARRIVAL_SAME_REGION_POSITION',
+      'COACH_ARRIVAL_SAME_COUNTRY',
       'CURRENT_SAME_COUNTRY', 'HISTORICAL_SAME_COUNTRY', 'HISTORICAL_SAME_REGION',
     ]);
   });

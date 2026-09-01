@@ -205,3 +205,63 @@ describe('pickBestContact', () => {
     expect(pickBestContact()).toBeNull();
   });
 });
+
+/**
+ * Operational and administrative titles that were reading as coaching ones.
+ *
+ * Utah Valley's draft greeted Abby Williams, Director of Soccer Operations,
+ * ahead of head coach Michael Chesler — who was on the same email. The head
+ * pattern is not anchored, so it matched the second job in a combined title
+ * and the word "Operations" after "Director of Soccer".
+ */
+describe('operations and assistant titles never outrank a head coach', () => {
+  it('reads a soccer-operations director as operations, not as the head', () => {
+    expect(classifyRole('Director of Soccer Operations')).toBe('operations');
+    expect(classifyRole('Director, Soccer Operations')).toBe('operations');
+    expect(classifyRole('Soccer Operations')).toBe('operations');
+    expect(classifyRole('Coordinator of Operations')).toBe('operations');
+    expect(classifyRole('Director of Operations')).toBe('operations');
+    expect(classifyRole('Operations Coordinator')).toBe('operations');
+  });
+
+  /**
+   * "Director of Soccer" on its own is genuinely the senior coaching job at
+   * some programmes, and combined titles still name a real head coach. The
+   * narrow fix must not take those with it.
+   */
+  it('leaves the titles that really are the head coach alone', () => {
+    expect(classifyRole('Head Coach')).toBe('head');
+    expect(classifyRole("Head Men's Soccer Coach")).toBe('head');
+    expect(classifyRole('Director of Soccer')).toBe('head');
+    expect(classifyRole('Director of Soccer Operations/Head Coach')).toBe('head');
+    expect(classifyRole("Head Men's & Women's Soccer Coach / Director of Soccer Operations")).toBe('head');
+    expect(classifyRole('Head Coach / Coordinator of Soccer Operations')).toBe('head');
+    expect(classifyRole('Assistant Athletic Director / Head Soccer Coach')).toBe('head');
+  });
+
+  /** An assistant who also heads a reserve side is an assistant. */
+  it('reads an assistant title as an assistant however it continues', () => {
+    expect(classifyRole('Assistant Head Coach')).toBe('assistant');
+    expect(classifyRole('Assistant Coach / Head EDS Coach')).toBe('assistant');
+    expect(classifyRole('Assistant Coach/Head Reserves Coach')).toBe('assistant');
+    expect(classifyRole('Senior Assistant Coach/Recruitment Coordinator')).toBe('assistant');
+    expect(classifyRole('Assistant Coach')).toBe('assistant');
+    expect(classifyRole('Associate Head Coach')).toBe('associate-head');
+  });
+
+  it('still refuses to write to a volunteer or a graduate assistant', () => {
+    expect(classifyRole('Volunteer Assistant Coach')).toBe('volunteer');
+    expect(classifyRole("Graduate Assistant Men's Soccer Coach/Recruiting Coordinator"))
+      .toBe('graduate-assistant');
+  });
+
+  /** The routing consequence, which is what the defect actually was. */
+  it('sorts a real head coach ahead of a soccer-operations director', () => {
+    const staff = [
+      { full_name: 'Abby Williams', position_title: 'Director of Soccer Operations' },
+      { full_name: 'Michael Chesler', position_title: 'Head Coach' },
+    ].sort(bySeniority);
+    expect(staff[0].full_name).toBe('Michael Chesler');
+    expect(shouldContact(staff[1], { athletePosition: 'Defender' })).toBe(false);
+  });
+});

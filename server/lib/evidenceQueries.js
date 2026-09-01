@@ -14,6 +14,7 @@
 
 import db from '../db/client.js';
 import { squadRows, programmeRows, programmeCoachRows } from './philosophyQueries.js';
+import { loadProgrammePatterns } from './recruitingPatterns.js';
 import { SQUAD_SEASON } from '../../shared/philosophy.js';
 import { selectEvidence, MAX_EMAIL_EVIDENCE } from '../../shared/evidence/index.js';
 import { buildRosterIndex, departures } from '../../shared/matching/pool.js';
@@ -101,6 +102,16 @@ export function programmeInputs(collegeName, sport, { match = null, now = Date.n
     match,
     history: programmeRows(collegeName, sport),
     coachRows: programmeCoachRows(collegeName, sport),
+    /**
+     * The recruiting-history patterns behind the arrival evidence.
+     *
+     * Derived from `recruiting_arrivals`, which is itself derived from the same
+     * `roster_players` rows `history` above reads — so an email cannot say a
+     * defender arrived from a season the roster evidence has never seen. Null
+     * for a programme with no build behind it, which removes the arrival
+     * evidence rather than weakening it.
+     */
+    recruiting: loadProgrammePatterns(sport, collegeName),
     sport,
   };
 }

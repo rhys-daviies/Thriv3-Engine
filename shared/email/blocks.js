@@ -52,8 +52,17 @@ export const SLOT_TOKENS = Object.freeze(EVIDENCE_BLOCKS.map(slotToken));
  * worse failure than a slightly less tailored one.
  */
 export const BLOCK_COPY = Object.freeze({
+  /**
+   * First name only.
+   *
+   * "Hi Ali Simmons," opened every email in the QA sample, and it is the line
+   * that most reliably marks a message as generated — nobody greets a
+   * colleague by their full name. `coach_first_name` falls back to the full
+   * name when the first name cannot be read confidently, so this can never
+   * render empty or leave a token behind.
+   */
   [BLOCKS.GREETING]: {
-    default: 'Hi {{coach_name}},',
+    default: 'Hi {{coach_first_name}},',
   },
 
   [BLOCKS.ATHLETE_INTRO]: {
@@ -69,6 +78,12 @@ export const BLOCK_COPY = Object.freeze({
      * Kinesiology. Rhys is planning to study Kinesiology." is what the obvious
      * version produces.
      *
+     * The athlete's OWN words, not the college's. `intended_major_stated` is
+     * what the recruit typed ("exercise science"); `intended_major_label` is
+     * the catalogue programme the college publishes ("Kinesiology"), and that
+     * one belongs to the ACADEMIC_FIT clause. Printing the label here put the
+     * college's word in the athlete's mouth and made the two sentences echo.
+     *
      * Gated on `offers_intended_major`, which is only true when the athlete's
      * own stated major matched this school's notable majors. With no match the
      * clause disappears and the sentence is the default one.
@@ -76,7 +91,7 @@ export const BLOCK_COPY = Object.freeze({
     academic: "I'm reaching out about {{player_name}}, a {{player_position|lowercase}}"
       + '{{#if has_nationality}} from {{player_nationality}}{{/if}}'
       + ' looking at options for the {{player_class_year}} class'
-      + '{{#if offers_intended_major}}, and planning to study {{intended_major_label}}{{/if}}.',
+      + '{{#if offers_intended_major}}, and planning to study {{intended_major_stated}}{{/if}}.',
   },
 
   /**
@@ -88,13 +103,29 @@ export const BLOCK_COPY = Object.freeze({
    * heading announces what the reader can already see — which is what made it
    * read as a form rather than as a note from a person.
    */
+  /**
+   * NO BUDGET LINE.
+   *
+   * `player_yearly_budget` is still populated, still on the athlete's record,
+   * and still read by matching and affordability — it is simply not something
+   * a first approach tells a coach. A band in the opening email invites the
+   * reader to price the athlete before they have watched a minute of film, and
+   * it answers a question nobody asked.
+   *
+   * The token and its conditional stay registered so an operator's own
+   * template can still use them; what changed is that the structured body no
+   * longer does.
+   *
+   * Each conditional OPENS at the end of the preceding line, so a missing GPA
+   * or SAT removes its whole line including the newline in front of it, rather
+   * than leaving a bullet with an empty label.
+   */
   [BLOCKS.CREDENTIALS]: {
     default: [
       '• Position: {{player_position}}{{player_secondary_position}}',
       '• Graduation: {{player_class_year}}{{#if has_gpa}}',
       '• GPA: {{player_gpa}}{{/if}}{{#if has_sat_score}}',
-      '• SAT: {{player_sat_score}}{{/if}}{{#if has_yearly_budget}}',
-      '• Annual budget: {{player_yearly_budget}}{{/if}}',
+      '• SAT: {{player_sat_score}}{{/if}}',
     ].join('\n'),
   },
 

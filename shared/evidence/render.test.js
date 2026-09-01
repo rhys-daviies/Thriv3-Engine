@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   renderEvidence, evidenceParts, factParts, signalParts, RENDERABLE_KINDS,
-  isRecognition, EvidenceRenderError,
+  isRecognition, EvidenceRenderError, yearPhrase, BACK_IN_DISTANCE,
 } from './render.js';
 import { EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, TIERS } from './kinds.js';
 import { conferenceLabel } from '../conference.js';
@@ -47,6 +47,19 @@ const SAMPLE = {
   priorWinPct: 0.5,
   basis: 'projected',
   arrivals: 4,
+  // Recruiting-history fields. A shared fixture rather than per-kind ones, on
+  // the same argument as the rest of this object: every renderer must survive
+  // being handed the union of what any of them reads.
+  seasons: ['2024', '2025'],
+  nameSeason: '2025',
+  observedTransitions: 4,
+  transitionsWithArrival: 2,
+  coachOwned: false,
+  coachAttributed: 2,
+  attributableTransitions: 3,
+  earliestSupportedSeason: '2024',
+  latestSupportedSeason: '2026',
+  coach: 'Pat Coach',
 };
 
 const sample = (kind) => ({
@@ -266,5 +279,177 @@ describe('names are used where they help and dropped where they do not', () => {
     }, CTX);
     expect(text).toContain('Hayden Aish');
     expect(text).toContain('another Kiwi');
+  });
+});
+
+/**
+ * The recent-year rule.
+ *
+ * "Back in 2026" was being written about the season that has not been played
+ * yet, and "back in 2025" about a player who arrived a year ago. Both read as
+ * though nobody had looked at a calendar, and a coach reading about their own
+ * intake is the person most likely to notice.
+ */
+describe('year wording is measured from the pinned squad season', () => {
+  it('writes the current and previous season as "in {year}"', () => {
+    expect(yearPhrase('2026', { squadSeason: '2026' })).toBe('in 2026');
+    expect(yearPhrase('2025', { squadSeason: '2026' })).toBe('in 2025');
+  });
+
+  it('writes two seasons back and older as "back in {year}"', () => {
+    expect(yearPhrase('2024', { squadSeason: '2026' })).toBe('back in 2024');
+    expect(yearPhrase('2019', { squadSeason: '2026' })).toBe('back in 2019');
+    expect(BACK_IN_DISTANCE).toBe(2);
+  });
+
+  /** The boundary itself, from both sides. */
+  it('turns over exactly at the two-season boundary', () => {
+    expect(yearPhrase(2024, { squadSeason: 2026 })).toBe('back in 2024');
+    expect(yearPhrase(2025, { squadSeason: 2026 })).toBe('in 2025');
+  });
+
+  /**
+   * The rule moves with the season rather than being pinned to 2026, so next
+   * year's squad re-dates every clause without anyone editing copy.
+   */
+  it('moves with the squad season instead of hardcoding a year', () => {
+    expect(yearPhrase('2026', { squadSeason: '2028' })).toBe('back in 2026');
+    expect(yearPhrase('2027', { squadSeason: '2028' })).toBe('in 2027');
+  });
+
+  it('never prints a phrase for a year it cannot read', () => {
+    expect(yearPhrase(null)).toBe('');
+    expect(yearPhrase(undefined)).toBe('');
+    expect(yearPhrase('')).toBe('');
+  });
+
+  /** A future season is not "back in" anything. */
+  it('does not reach backwards for a season ahead of the squad', () => {
+    expect(yearPhrase('2027', { squadSeason: '2026' })).toBe('in 2027');
+  });
+
+  it('reaches the real clauses, not just the helper', () => {
+    const recent = renderEvidence({
+      kind: 'COACH_ARRIVAL_SAME_COUNTRY',
+      tier: TIERS.FACT,
+      season: '2026',
+      data: { country: 'New Zealand', count: 1, seasons: ['2026'], name: 'Joby Reid', nameSeason: '2026' },
+    });
+    expect(recent).toContain('in 2026');
+    expect(recent).not.toContain('back in 2026');
+
+    const old = renderEvidence({
+      kind: 'COACH_ARRIVAL_SAME_COUNTRY',
+      tier: TIERS.FACT,
+      season: '2023',
+      data: { country: 'New Zealand', count: 1, seasons: ['2023'], name: 'Max Collingwood', nameSeason: '2023' },
+    });
+    expect(old).toContain('back in 2023');
+  });
+});
+
+/**
+ * One person, said once.
+ *
+ * SIUE's hook rested on two Australian defenders who arrived in 2024 and 2025;
+ * the graduating clause two sentences later named one of the same two. Both
+ * true, and together they read as a database joining itself in front of the
+ * reader.
+ */
+describe('a person is not talked about twice in one email', () => {
+  const arrival = () => ({
+    kind: 'ARRIVAL_SAME_REGION_POSITION',
+    tier: TIERS.FACT,
+    season: '2024-2025',
+    data: {
+      position: 'DEFENSE', countries: ['Australia'], count: 2, seasons: ['2024', '2025'],
+      name: null,
+      provenance: {
+        supporting: [
+          { playerName: 'Elliott Forestier', identityMethod: 'EXACT' },
+          { playerName: 'Murray Peart', identityMethod: 'EXACT' },
+        ],
+      },
+    },
+  });
+  const graduating = (names) => ({
+    kind: 'POSITION_GRADUATION',
+    tier: TIERS.FACT,
+    season: '2026',
+    data: { position: 'DEFENSE', count: names.length, names, classYear: 2027 },
+  });
+
+  const pass = () => ({ firstName: 'Rhys', namesUsed: new Set() });
+
+  it('names everybody when nothing has been said yet', () => {
+    const ctx = pass();
+    const out = evidenceParts(graduating(['Elliott Forestier', 'Colin Bastianoni']), ctx);
+    expect(out.clause).toContain('(Elliott Forestier and Colin Bastianoni)');
+  });
+
+  /**
+   * The hook does not PRINT Elliott — it rests on him silently — and the later
+   * clause still must not name him. That asymmetry is the whole guard.
+   */
+  it('drops a name the hook already rested on, and says the list is partial', () => {
+    const ctx = pass();
+    evidenceParts(arrival(), ctx);
+    const out = evidenceParts(graduating(['Elliott Forestier', 'Colin Bastianoni']), ctx);
+    expect(out.clause).not.toContain('Elliott Forestier');
+    expect(out.clause).toContain('two defenders graduating');
+    expect(out.clause).toContain('(including Colin Bastianoni)');
+  });
+
+  /**
+   * Printing two of three without saying so would read as the whole group,
+   * which is the one way this guard could make a true claim misleading.
+   */
+  it('marks a trimmed list rather than presenting it as complete', () => {
+    const ctx = pass();
+    evidenceParts(arrival(), ctx);
+    const out = evidenceParts(graduating(['Elliott Forestier', 'Colin Bastianoni', 'Sam Reid']), ctx);
+    expect(out.clause).toContain('three defenders graduating');
+    expect(out.clause).toContain('(including Colin Bastianoni and Sam Reid)');
+  });
+
+  it('falls back to the count alone when nobody is left to name', () => {
+    const ctx = pass();
+    evidenceParts(arrival(), ctx);
+    const out = evidenceParts(graduating(['Elliott Forestier']), ctx);
+    expect(out.clause).toBe('you\'ve got one defender graduating in 2027');
+    expect(out.clause).not.toContain('Elliott');
+  });
+
+  it('matches a person however their name is cased or spaced', () => {
+    const ctx = pass();
+    evidenceParts(arrival(), ctx);
+    const out = evidenceParts(graduating(['elliott  forestier', 'Colin Bastianoni']), ctx);
+    expect(out.clause).not.toMatch(/forestier/i);
+  });
+
+  /** A named arrival is not repeated either — it falls back to the count. */
+  it('stops a later arrival clause repeating a name', () => {
+    const ctx = pass();
+    evidenceParts(graduating(['Hayden Aish', 'Colin Bastianoni']), ctx);
+    const out = evidenceParts({
+      kind: 'ARRIVAL_SAME_COUNTRY_POSITION',
+      tier: TIERS.FACT,
+      season: '2025',
+      data: {
+        country: 'New Zealand', position: 'DEFENSE', count: 1, seasons: ['2025'],
+        name: 'Hayden Aish', nameSeason: '2025', coachOwned: true,
+      },
+    }, ctx);
+    expect(out.clause).not.toContain('Hayden Aish');
+    expect(out.clause).toContain('a defender from New Zealand');
+  });
+
+  /**
+   * Without a pass set — a caller rendering one clause in isolation, which the
+   * operator panel does — nothing is filtered and today's behaviour stands.
+   */
+  it('changes nothing for a caller that renders one clause on its own', () => {
+    const out = evidenceParts(graduating(['Elliott Forestier', 'Colin Bastianoni']), { firstName: 'Rhys' });
+    expect(out.clause).toContain('(Elliott Forestier and Colin Bastianoni)');
   });
 });

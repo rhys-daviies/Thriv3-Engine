@@ -25,6 +25,7 @@ const POSTSEASON_ROUND_LABELS = {
 
 export const TEMPLATE_VARIABLES = [
   { token: 'coach_name', label: 'Coach Name' },
+  { token: 'coach_first_name', label: 'Coach First Name (falls back to the full name)' },
   { token: 'college_name', label: 'College Name' },
   { token: 'college_division', label: 'Division' },
   { token: 'college_conference', label: 'Conference' },
@@ -126,6 +127,7 @@ export const TEMPLATE_VARIABLES = [
   { token: 'player_class_year', label: 'Class Year (arrival)' },
   { token: 'player_profile_url', label: 'Tracked Profile Link' },
   { token: 'intended_major_label', label: "Recruit's Intended Major, Matched to a Notable Program" },
+  { token: 'intended_major_stated', label: "Recruit's Intended Field, In Their Own Words" },
   {
     token: 'offers_intended_major',
     label: "If the school notably offers the recruit's intended major… (conditional sentence)",
@@ -258,6 +260,81 @@ function graduatingAtPosition(college) {
  *   composer — which cannot load five seasons of roster history — working
  *   unchanged.
  */
+/**
+ * Titles a staff page prints in front of a name. Stripped before the first
+ * name is taken, so "Coach Danny Frid" greets Danny rather than Coach.
+ */
+const NAME_TITLES = /^(coach|dr|mr|mrs|ms|mx|prof|professor|rev|sir)\.?$/i;
+
+/** Suffixes that are not a surname, so "Smith, Jr." is not read as a flip. */
+const NAME_SUFFIXES = /\b(jr|sr|ii|iii|iv|ph\.?d|m\.?s|m\.?ed|ed\.?d)\b/i;
+
+/**
+ * The name to greet a coach by, or '' when we cannot tell confidently.
+ *
+ * "Hi Ali Simmons," was the first line of every email in the QA sample, and
+ * nobody writes to a colleague that way. This takes the first name, and is
+ * deliberately conservative about when it refuses:
+ *
+ *   - an initial ("J. Smith") is not a first name, and "Hi J," is worse than
+ *     the full name;
+ *   - a bare title ("Coach", "Dr.") is stripped, not greeted;
+ *   - "Simmons, Ali" is flipped, unless the second part is a suffix.
+ *
+ * Nothing is normalised away. Accents, hyphens and apostrophes are part of a
+ * person's name — "Jean-Pierre", "Nuñez", "O'Brien" — and stripping them to be
+ * safe would misspell the one thing the reader is guaranteed to notice.
+ *
+ * Returns '' rather than a guess, and the caller falls back to the full name,
+ * so the greeting is never empty and never an unresolved token.
+ */
+export function coachFirstName(name) {
+  const raw = String(name ?? '').trim().replace(/\s+/g, ' ');
+  if (!raw) return '';
+
+  // "Simmons, Ali" -> "Ali Simmons". The same flip `normaliseCoach` does, for
+  // the same reason: staff pages print both orders.
+  const comma = raw.match(/^([^,]+),\s*([^,]+)$/);
+  // "Smith, Jr." is a surname and a suffix and no first name at all. Declining
+  // the flip is not enough — what is left would be read as "Smith".
+  if (comma && NAME_SUFFIXES.test(comma[2])) return '';
+  const text = comma ? `${comma[2]} ${comma[1]}` : raw;
+
+  const parts = text.split(' ').filter(Boolean);
+  while (parts.length > 1 && NAME_TITLES.test(parts[0])) parts.shift();
+
+  /**
+   * A first name is only recognisable BESIDE a surname.
+   *
+   * "Coach Smith" reduces to one token once the title is stripped, and that
+   * token is a surname — greeting somebody as "Hi Smith," is worse than using
+   * the full name we already had. One token, whatever it is, is a refusal.
+   */
+  if (parts.length < 2) return '';
+
+  const first = (parts[0] ?? '').replace(/[.,;:]+$/, '');
+  // Two letters is the floor. It rejects "J." and "A" while keeping genuine
+  // short names — Bo, Al, Ty — that a coach would actually be called.
+  const letters = first.replace(/[^\p{L}]/gu, '');
+  if (letters.length < 2) return '';
+  return first;
+}
+
+/**
+ * "exercise science" -> "Exercise Science".
+ *
+ * The athlete types their intended field in free text and it is almost always
+ * lower case, which reads as a typo in the middle of a sentence. Only the
+ * first letter of each word is touched: the rest is left exactly as written,
+ * so an acronym or a deliberate capital survives.
+ */
+export function titleCaseField(text) {
+  return String(text ?? '').trim().replace(/\s+/g, ' ')
+    .split(' ')
+    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+    .join(' ');
+}
+
 export function buildEmailContext(player, college, coachName, { profileUrl = null, evidence = null } = {}) {
   const secondary = player.secondary_position && player.secondary_position !== 'None'
     ? ` / ${positionLabel(player.secondary_position)}`
@@ -288,6 +365,9 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
 
   return {
     coach_name: coachName || 'Coach',
+    // The full name is kept beside it, unchanged: templates that want it still
+    // have it, and the log records the contact by full name either way.
+    coach_first_name: coachFirstName(coachName) || coachName || 'Coach',
     college_name: college.name || '',
     college_division: college.division || '',
     college_conference: conferenceLabel(college.conference),
@@ -442,6 +522,21 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     // to resolve rather than like it resolves later.
     player_profile_url: profileUrl || '{{player_profile_url}}',
     intended_major_label: intendedMajorLabel,
+    /**
+     * What the ATHLETE said, in their own words, as distinct from the
+     * programme name the college publishes.
+     *
+     * Rhys typed "exercise science"; `majorLabelFor` maps that onto the
+     * catalogue label "Kinesiology", which is what Jacksonville's
+     * `notable_majors` actually lists. The introduction was printing the
+     * college's word as the athlete's plan — "planning to study Kinesiology" —
+     * and the evidence clause then repeated it a sentence later. Keeping both
+     * values fixes the attribution and removes the echo in one change.
+     *
+     * Falls back to the matched label when the athlete left it blank, so the
+     * sentence never reads "planning to study .".
+     */
+    intended_major_stated: titleCaseField(player.intended_major) || intendedMajorLabel,
     offers_intended_major: intendedMajorLabel ? 'true' : '',
   };
 }

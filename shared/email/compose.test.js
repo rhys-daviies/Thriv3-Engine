@@ -7,6 +7,7 @@ import { BLOCKS, FLOWS, FLOW_KEYS, MAX_GATHERED } from '../evidence/structures.j
 import {
   DEFAULT_EMAIL_TEMPLATE, fillTemplate, buildEmailContext, emailBodyFor,
   canComposeStructured, BODY_SOURCE, unresolvedTokens, structureKeyOf,
+  TEMPLATE_VARIABLES,
 } from '../../src/lib/emailTemplate.js';
 
 const flow = (key, over = {}) => ({ key, ...FLOWS[key], ...over });
@@ -283,13 +284,17 @@ describe('which route composes the body', () => {
     const out = emailBodyFor(player, college, 'Coach', { evidence });
     expect(out.source).toBe(BODY_SOURCE.STRUCTURED);
     expect(out.structure).toBe('PLAYER_FIRST');
-    // The academic intro variant carries the subject into the introduction
-    // rather than restating it as a second sentence.
-    expect(out.body).toContain('planning to study Kinesiology');
-    // The support clause drops its explanation inside this structure — the
-    // introduction has already said what Rhys wants to study.
+    /**
+     * Two different things, said once each.
+     *
+     * The athlete typed "exercise science"; the college publishes
+     * "Kinesiology". The introduction must carry the ATHLETE's words and the
+     * evidence clause the COLLEGE's, which is both the honest attribution and
+     * the reason the two sentences no longer echo.
+     */
+    expect(out.body).toContain('planning to study Exercise Science');
     expect(out.body).toContain('you offer Kinesiology');
-    expect(out.body).not.toMatch(/Kinesiology[\s\S]*Kinesiology[\s\S]*Kinesiology/);
+    expect(out.body).not.toMatch(/Kinesiology[\s\S]*Kinesiology/);
   });
 });
 
@@ -582,5 +587,73 @@ describe('the composed email explains itself exactly once', () => {
     const { tokens } = composeStructured(flow('PLAYER_FIRST'), [starters], ctx);
     expect(tokens.evidence_relevance).toMatch(/^Going off last season's minutes/);
     expect(tokens.evidence_relevance).not.toMatch(/noticed going off/);
+  });
+});
+
+/**
+ * The player snapshot in a first approach.
+ *
+ * Budget is real, useful and internal. It drives matching and affordability
+ * and it stays on the athlete's record; what it must not do is appear in the
+ * opening email, where a band invites a coach to price the athlete before they
+ * have watched a minute of film.
+ */
+describe('the credentials block', () => {
+  const bodyFor = (p) => emailBodyFor(p, college, 'Ali Simmons', {
+    evidence: {
+      selected: [ACAD()],
+      structure: flow('PLAYER_FIRST'),
+      composition: composeStructured(flow('PLAYER_FIRST'), [ACAD()], { firstName: 'Rhys' }),
+    },
+  }).body;
+
+  const withBudget = { ...player, sat_score: 1210, budget_range: '$5k-$10k/yr' };
+
+  it('never renders a budget, even when one is set', () => {
+    const body = bodyFor(withBudget);
+    expect(body).not.toMatch(/budget/i);
+    expect(body).not.toContain('$5k-$10k/yr');
+  });
+
+  it('renders exactly the four lines the pilot approved', () => {
+    const bullets = bodyFor(withBudget).split('\n').filter((l) => l.startsWith('•'));
+    expect(bullets).toEqual([
+      '• Position: Defender',
+      '• Graduation: 2027',
+      '• GPA: 3.6',
+      '• SAT: 1210',
+    ]);
+  });
+
+  /**
+   * The omission behaviour the block already had, re-asserted because the
+   * conditionals were re-chained when the budget line came out: each one opens
+   * at the END of the preceding line, so a missing value takes its own newline
+   * with it rather than leaving "• SAT:" with nothing after it.
+   */
+  it('omits a missing SAT cleanly, leaving no empty label', () => {
+    const bullets = bodyFor({ ...player, budget_range: '$5k-$10k/yr' })
+      .split('\n').filter((l) => l.startsWith('•'));
+    expect(bullets).toEqual(['• Position: Defender', '• Graduation: 2027', '• GPA: 3.6']);
+  });
+
+  it('omits a missing GPA cleanly and keeps the SAT', () => {
+    const bullets = bodyFor({ ...player, gpa: null, sat_score: 1210 })
+      .split('\n').filter((l) => l.startsWith('•'));
+    expect(bullets).toEqual(['• Position: Defender', '• Graduation: 2027', '• SAT: 1210']);
+  });
+
+  it('falls back to position and graduation alone when neither is on file', () => {
+    const bullets = bodyFor({ ...player, gpa: null })
+      .split('\n').filter((l) => l.startsWith('•'));
+    expect(bullets).toEqual(['• Position: Defender', '• Graduation: 2027']);
+  });
+
+  /** Budget stays available to anything that is not the outreach body. */
+  it('keeps the budget token registered for matching and for saved templates', () => {
+    expect(TEMPLATE_VARIABLES.map((t) => t.token)).toContain('player_yearly_budget');
+    const ctx = buildEmailContext(withBudget, college, 'Ali Simmons');
+    expect(ctx.player_yearly_budget).toBe('$5k-$10k/yr');
+    expect(ctx.has_yearly_budget).toBe('true');
   });
 });

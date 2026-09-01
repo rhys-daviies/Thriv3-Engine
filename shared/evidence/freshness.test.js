@@ -172,7 +172,18 @@ describe('temporal language matches declared temporality', () => {
   // specific — a CURRENT kind borrowing the language of history — so that is
   // what is asserted.
   const HISTORY_LANGUAGE = /\b(come through|have included|used to|previously)\b|\b(since|back in) \d{4}\b/i;
-  const SPAN = /\b(have included|come through)\b|\b(since|back in) \d{4}\b/i;
+  /**
+   * A historical claim must be anchored to a stated season, never left to
+   * sound like the present.
+   *
+   * `in 2025` counts alongside `back in 2023`: the recent-year rule now writes
+   * "in {year}" for anything within two seasons of SQUAD_SEASON, because "back
+   * in 2026" was being said about the season that has not been played. Both
+   * forms name an absolute year, which is what this rule is protecting; a
+   * relative phrase like "this year" still fails it, and so does the present
+   * tense.
+   */
+  const SPAN = /\b(have included|come through)\b|\b(since|back in|in) \d{4}\b/i;
   const HEDGE = /\b(looks? like|looked like|going off|based on|could|around|by \d{4}|as many as|a few)\b/i;
   const FUTURE = /\bwill\b|\bgoing to\b/i;
 

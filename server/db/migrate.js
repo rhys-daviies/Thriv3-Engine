@@ -45,6 +45,21 @@ const PLAYER_COLUMNS = [
   // opening at the recruit's position in that exact year.
   ['recruiting_class_year', 'INTEGER'],
 
+  /**
+   * The athlete's saved template, set aside rather than deleted.
+   *
+   * Clearing `email_template` is how an athlete is moved onto the structured
+   * composer — `canComposeStructured` returns false for anything customised —
+   * and a clear that destroys the original is not a decision anybody can walk
+   * back. The archive is a column rather than a file so that the old template
+   * travels with the row it belongs to, and restoring is one UPDATE.
+   *
+   * Nothing reads this but `server/scripts/archiveEmailTemplate.js`. It is not
+   * a fallback: an archived template is not used to send anything.
+   */
+  ['email_template_archived', 'TEXT'],
+  ['email_template_archived_at', 'TEXT'],
+
   // --- Pillar 1 weighting model ---
   // Per-athlete overrides for the six matching criteria, as JSON on the same
   // arbitrary scale as DEFAULT_WEIGHTS ({"geography": 40, "roster": 0}).
@@ -216,6 +231,17 @@ const COACH_COLUMNS = [
   ['source', 'TEXT'],                            // which import produced the row
 ];
 
+/**
+ * `reconciled_from` — which duplicate spellings a stored arrival absorbed.
+ *
+ * Added with the same-season identity cleanup. `recruiting_arrivals` is derived
+ * and disposable, so this only matters for a database that already holds a
+ * build; the next `npm run build:recruiting` fills it.
+ */
+const RECRUITING_ARRIVAL_COLUMNS = [
+  ['reconciled_from', 'TEXT'],
+];
+
 function addMissingColumns(db, table, columns) {
   const existing = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name));
   for (const [name, ddl] of columns) {
@@ -365,6 +391,7 @@ export function migrate(db) {
   // After the column exists, never before: schema.sql runs first and cannot
   // index a column this function is about to add.
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_evidence_selected ON outreach_evidence(selected_kinds)');
+  addMissingColumns(db, 'recruiting_arrivals', RECRUITING_ARRIVAL_COLUMNS);
   backfillRecruitingClassYear(db);
   backfillAcademicRatingSource(db);
 }
