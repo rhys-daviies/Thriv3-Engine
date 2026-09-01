@@ -24,10 +24,27 @@ import { winPercentage } from '../../shared/competitiveHistory.js';
 
 const RECHECK_MINUTES = 10;
 
+/**
+ * The record and the division it was played in, joined rather than duplicated
+ * (Phase 12D / O). `programme_conference_seasons` owns historical division;
+ * `programme_seasons` owns the record. The join is on both tables' primary key.
+ *
+ * A season is only allowed to carry a division if the conference table it came
+ * from named its own season — `season_confirmed` — because a standings page
+ * that quietly serves the current season is the one failure here that produces
+ * a confident wrong answer rather than a gap.
+ */
 const selectHistory = db.prepare(
-  `SELECT season, wins, draws, losses, matches_played, confidence, source, source_record_name,
-          historical_division
-     FROM programme_seasons WHERE college_id = ? ORDER BY season`,
+  `SELECT p.season, p.wins, p.draws, p.losses, p.matches_played, p.confidence,
+          p.source, p.source_record_name,
+          CASE WHEN x.season_confirmed = 1 THEN x.historical_division END historical_division,
+          x.conference_id, x.conference_raw, x.division_provenance,
+          x.conference_wins, x.conference_draws, x.conference_losses,
+          x.conference_matches, x.conference_size
+     FROM programme_seasons p
+     LEFT JOIN programme_conference_seasons x
+       ON x.college_id = p.college_id AND x.season = p.season
+    WHERE p.college_id = ? ORDER BY p.season`,
 );
 /**
  * `division` is selected for the LABEL on the returned college row and for
@@ -38,10 +55,14 @@ const selectHistory = db.prepare(
 const selectCollege = db.prepare('SELECT id, name, sport, division FROM colleges WHERE id = ?');
 
 /** Cheap and total: the loader replaces the table, so a count and a stamp settle it. */
-const fingerprintStmt = db.prepare('SELECT COUNT(*) rows, MAX(imported_at) at FROM programme_seasons');
+const fingerprintStmt = db.prepare(
+  `SELECT (SELECT COUNT(*) FROM programme_seasons) rows,
+          (SELECT MAX(imported_at) FROM programme_seasons) at,
+          (SELECT COUNT(*) FROM programme_conference_seasons) crows,
+          (SELECT MAX(imported_at) FROM programme_conference_seasons) cat`);
 const fingerprint = () => {
   const f = fingerprintStmt.get();
-  return `${f.rows}|${f.at ?? ''}`;
+  return `${f.rows}|${f.at ?? ''}|${f.crows}|${f.cat ?? ''}`;
 };
 
 let cache = null;
@@ -71,9 +92,13 @@ let cache = null;
 export function buildCompetitivePools() {
   const started = Date.now();
   const rows = db.prepare(
-    `SELECT sport, historical_division, season, wins, draws, matches_played
-       FROM programme_seasons
-      WHERE confidence != 'ROSTER_CONTRADICTED' AND historical_division IS NOT NULL`).all();
+    `SELECT p.sport, x.historical_division, p.season, p.wins, p.draws, p.matches_played
+       FROM programme_seasons p
+       JOIN programme_conference_seasons x
+         ON x.college_id = p.college_id AND x.season = p.season
+      WHERE p.confidence != 'ROSTER_CONTRADICTED'
+        AND x.historical_division IS NOT NULL
+        AND x.season_confirmed = 1`).all();
   const bySeason = new Map();
   for (const r of rows) {
     if (!bySeason.has(r.season)) bySeason.set(r.season, {});
@@ -104,12 +129,15 @@ export function buildCompetitivePools() {
     byKey,
     seasons: SEASONS,
     minPool: MIN_POOL,
-    // Seasons that could be placed in a division at all. Zero until 12C.
+    // Seasons that could be placed in a division at all.
     observations: rows.length,
     placeableSeasons: rows.length,
     unplaceableSeasons: db.prepare(
-      `SELECT COUNT(*) n FROM programme_seasons
-        WHERE confidence != 'ROSTER_CONTRADICTED' AND historical_division IS NULL`).get().n,
+      `SELECT COUNT(*) n FROM programme_seasons p
+         LEFT JOIN programme_conference_seasons x
+           ON x.college_id = p.college_id AND x.season = p.season
+        WHERE p.confidence != 'ROSTER_CONTRADICTED'
+          AND (x.historical_division IS NULL OR x.season_confirmed = 0)`).get().n,
     groups: byKey.size,
     builtAt: new Date().toISOString(),
     buildMs: Date.now() - started,

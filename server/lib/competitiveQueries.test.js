@@ -50,12 +50,22 @@ describe('the soccer_score firewall', () => {
     for (const w of FORBIDDEN_WORDS) expect(code.match(w)?.[0] ?? null, `${file} matches ${w}`).toBeNull();
   });
 
-  it('reads only programme_seasons and colleges', () => {
+  /**
+   * Three tables, and the third arrived in 12D. `programme_conference_seasons`
+   * owns the division a season was played in — it is not duplicated onto
+   * `programme_seasons`, because that table is rebuilt with a DELETE and a full
+   * re-insert and would empty the column on every records refresh.
+   */
+  it('reads only programme_seasons, programme_conference_seasons and colleges', () => {
     const code = SOURCE('competitiveQueries.js');
-    const tables = [...code.matchAll(/FROM\s+(\w+)/g)].map((m) => m[1]);
-    expect([...new Set(tables)].sort()).toEqual(['colleges', 'programme_seasons']);
+    const tables = [...code.matchAll(/(?:FROM|JOIN)\s+(\w+)/g)].map((m) => m[1]);
+    expect([...new Set(tables)].sort()).toEqual(['colleges', 'programme_conference_seasons', 'programme_seasons']);
     const cols = [...code.matchAll(/SELECT([\s\S]*?)FROM/g)].join(' ');
-    expect(cols).not.toMatch(/score|rank|rating|conference|postseason/i);
+    expect(cols).not.toMatch(/score|rank|rating|postseason/i);
+    // `conference` may be selected only from the structural table, never from
+    // `colleges`, whose conference string is a current snapshot and is stale
+    // for every programme that has moved.
+    expect(code).not.toMatch(/colleges[\s\S]{0,80}conference/i);
   });
 
   /**
@@ -90,8 +100,10 @@ describe('the postseason firewall', () => {
    */
   it('the table has no column that could carry one', () => {
     const cols = db.prepare('PRAGMA table_info(programme_seasons)').all().map((c) => c.name);
+    // `historical_division` left this table in 12D; see the ownership note in
+    // schema.sql. Everything here is the record and its provenance.
     expect(cols.sort()).toEqual([
-      'college_id', 'confidence', 'draws', 'historical_division', 'imported_at',
+      'college_id', 'confidence', 'draws', 'imported_at',
       'losses', 'matches_played', 'season', 'source', 'source_record_name', 'sport', 'wins',
     ]);
     for (const banned of ['postseason', 'conference', 'goals', 'rating', 'rank', 'champion', 'standing']) {
@@ -197,13 +209,22 @@ describe('reading a programme', () => {
 
   it('benchmarks once a season carries its own division', () => {
     const ins = db.prepare(`INSERT INTO programme_seasons
-      (college_id, sport, season, wins, draws, losses, matches_played, source, source_record_name, confidence, historical_division, imported_at)
-      VALUES (?,'mens-soccer',2022,?,?,?,?,'test','P',?, 'NCAA D2', 'x')`);
-    db.prepare('UPDATE programme_seasons SET historical_division = ? WHERE college_id = ?').run('NCAA D2', 'c1');
+      (college_id, sport, season, wins, draws, losses, matches_played, source, source_record_name, confidence, imported_at)
+      VALUES (?,'mens-soccer',2022,?,?,?,?,'test','P',?, 'x')`);
+    // The division comes from the structural table now, joined on the key.
+    const div = db.prepare(`INSERT INTO programme_conference_seasons
+      (college_id, sport, season, conference_id, conference_raw, historical_division, division_provenance,
+       member_raw, identity_method, identity_evidence, source_url, source_platform, provenance,
+       confidence, season_confirmed, imported_at)
+      VALUES (?, 'mens-soccer', 2022, 'psac', 'PSAC', 'NCAA D2', 'DERIVED_FROM_OFFICIAL_MEMBERSHIP',
+              'x', 'PROGRAMME_NAME_EXACT', 'CONFERENCE_MEMBERSHIP_CORROBORATION',
+              'https://example.test', 'SIDEARM_STANDINGS', 'p', 'CERTAIN', 1, 'x')`);
+    div.run('c1');
     for (let i = 0; i < MIN_POOL + 5; i += 1) {
       db.prepare(`INSERT INTO colleges (id, created_date, updated_date, name, sport, division)
         VALUES (?, 'x','x', ?, 'mens-soccer', 'NCAA D1')`).run(`p${i}`, `Peer ${i}`);
       ins.run(`p${i}`, 2, 1, 15, 18, 'ROSTER_CONSISTENT');
+      div.run(`p${i}`);
     }
     invalidateCompetitivePools();
     const h = competitiveHistoryFor('c1');

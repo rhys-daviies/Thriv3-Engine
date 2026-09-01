@@ -336,9 +336,11 @@ CREATE INDEX IF NOT EXISTS idx_coach_seasons_prog ON coach_seasons(school, sport
 -- WHAT IS DELIBERATELY NOT HERE: goals, conference, conference standing,
 -- postseason round, and any rating. Phase 12A found the source's postseason
 -- column wrong in two of the three D1 values it could check against the
--- schools' own schedules, and no historical conference or division membership
--- exists anywhere. None of it enters production until external collection
--- validates it. See docs/competitive-history.md.
+-- schools' own schedules; goals and postseason still have no validated source.
+-- Conference membership and the division a season was played in DO exist now —
+-- in `programme_conference_seasons`, collected from the conferences' own
+-- standings tables in Phase 12D, and joined rather than copied here. See
+-- docs/competitive-history.md and docs/competitive-identity.md.
 --
 -- `matches_played` is stored rather than derived so the pool query can sum it
 -- without arithmetic, and the CHECK is what makes that safe.
@@ -365,21 +367,17 @@ CREATE TABLE IF NOT EXISTS programme_seasons (
   source_record_name TEXT NOT NULL,
   confidence TEXT NOT NULL,
 
-  -- THE DIVISION THIS PROGRAMME PLAYED IN *THIS SEASON*, or NULL.
+  -- HISTORICAL DIVISION IS NOT HERE, AND THAT IS A DECISION (Phase 12D / O).
   --
-  -- Null everywhere today, and that is the honest state rather than an
-  -- oversight. No internal source carries it: `roster_players.division` and
-  -- `coach_seasons.division` are constant across every season of every
-  -- programme — 0 of 2,122 and 0 of 1,719 vary — because both are stamped with
-  -- the current division at import. Mercyhurst men's played 2022 in D2 and all
-  -- three internal columns call that season D1.
-  --
-  -- The benchmark reads THIS column and nothing else, so while it is null every
-  -- percentile refuses with a stated reason. Substituting `colleges.division`
-  -- would rank a D2 season against D1 programmes, and a disclosure does not
-  -- make a wrong denominator right. Phase 12C fills it from the schedules and
-  -- standings it will already be collecting.
-  historical_division TEXT,
+  -- It lived here, always null, from 12B.1 until 12D could establish it. It is
+  -- owned by `programme_conference_seasons` now and joined on
+  -- (college_id, season), for one measured reason: `importProgrammeSeasons.js`
+  -- rebuilds this table with `DELETE FROM programme_seasons` followed by a full
+  -- re-insert, so any column that importer does not write is silently emptied
+  -- every time the win/draw/loss layer is refreshed from its CSVs. A duplicated
+  -- division would have been wiped by a routine records refresh, and the
+  -- benchmark would have gone quiet with no error raised anywhere. One owner,
+  -- one writer, one rebuild path.
 
   imported_at TEXT NOT NULL,
 
@@ -390,4 +388,240 @@ CREATE TABLE IF NOT EXISTS programme_seasons (
   CHECK (confidence IN ('ROSTER_CONSISTENT', 'ROSTER_CONTRADICTED', 'UNCHECKED'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_programme_seasons_pool ON programme_seasons(sport, season, historical_division);
+CREATE INDEX IF NOT EXISTS idx_programme_seasons_pool ON programme_seasons(sport, season);
+
+-- ===========================================================================
+-- institution_aliases — every spelling that names one institution
+--
+-- THE CANONICAL INSTITUTION IS AN IPEDS UNITID, not a name. Names are the
+-- problem this table exists to solve: `colleges.name` spells the same school
+-- two ways across the two sports for 378 of the 896 institutions that field
+-- both, and "Columbia", "Bethel", "Maryville", "Miami" and "Concordia" each
+-- name several different colleges. UNITID is assigned by the U.S. Department
+-- of Education, one per institution, and is already on 2,145 of the 2,155 rows
+-- in the report universe.
+--
+-- ONE ALIAS, ONE INSTITUTION, ENFORCED BY THE PRIMARY KEY. `alias_key` is the
+-- normalised spelling and it is the key: two institutions cannot both claim
+-- it. The importer reports a collision and refuses the row rather than letting
+-- the second write win, because the second write winning is how a spelling
+-- silently changes meaning between two runs.
+--
+-- PROVENANCE IS NOT OPTIONAL. `source` says where the spelling was read and
+-- `alias_type` says what kind of name it is — a rename, a merger, an official
+-- abbreviation. A row with no source could not be re-checked, and this table
+-- decides which institution a fetched page belongs to.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS institution_aliases (
+  alias_key TEXT PRIMARY KEY,     -- normaliseInstitution(alias_raw)
+  alias_raw TEXT NOT NULL,
+  unitid INTEGER NOT NULL,
+
+  alias_type TEXT NOT NULL,
+  source TEXT NOT NULL,           -- 'colleges.name', a URL, or a curated note
+  confidence TEXT NOT NULL,
+  notes TEXT,
+  imported_at TEXT NOT NULL,
+
+  CHECK (alias_type IN ('CURRENT_NAME', 'HISTORICAL_NAME', 'OFFICIAL_ABBREVIATION',
+                        'ATHLETICS_NAME', 'MERGER_NAME', 'RENAMED_INSTITUTION',
+                        'CONFERENCE_DISPLAY_NAME')),
+  CHECK (confidence IN ('CERTAIN', 'CORROBORATED', 'CURATED'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_institution_aliases_unitid ON institution_aliases(unitid);
+
+-- ===========================================================================
+-- athletics_domains — which institution a host actually belongs to
+--
+-- Phase 12C fetched four seasons of well-formed athletics data from
+-- `gocolumbialions.com` and filed it under Columbia College, Missouri. The
+-- host is Columbia University, New York. Nothing about the fetch was broken.
+-- The mapping was wrong, and an HTTP 200 cannot tell you that.
+--
+-- So this table records what each HOST SAYS IT IS — its <title>, its
+-- og:site_name — and compares that against who claimed it in
+-- `tools/soccer/verification/known_domains.json`. `status` is the verdict on
+-- the host; `wrong_mappings` names the claims the host contradicts.
+--
+-- REFUTING TAKES MORE EVIDENCE THAN CONFIRMING. A claim is refuted only when
+-- an ATHLETICS site's og:site_name or whole title names a whole written-down
+-- institution name. A university homepage titled with a system brand
+-- ("Purdue University" on pnw.edu) cannot refute a campus's mapping, and a
+-- match reached through a shared bare base ("Queens College") cannot either.
+-- Confirming is safe on weaker evidence, because the claimant's own name is
+-- what generated the spelling being matched.
+--
+-- NOTHING HERE REWRITES known_domains.json. A WRONG_INSTITUTION verdict makes
+-- a mapping unusable; proving the replacement is separate work.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS athletics_domains (
+  domain TEXT PRIMARY KEY,
+  unitid INTEGER,                 -- who the HOST says it is; null when unestablished
+  status TEXT NOT NULL,
+  role TEXT,                      -- ATHLETICS_SITE | INSTITUTION_SITE | UNKNOWN
+
+  claimed_keys TEXT NOT NULL,     -- JSON — the names that claimed it in the mapping file
+  claimed_unitids TEXT NOT NULL,  -- JSON — those names, resolved
+  wrong_mappings TEXT,            -- JSON — claims this host contradicts
+
+  evidence_kind TEXT,             -- OG_SITE_NAME | PAGE_TITLE | TITLE_SEGMENT
+  evidence_text TEXT,
+  identity_method TEXT,
+  identity_strength TEXT,         -- WHOLE_NAME | BASE_ONLY
+  platform TEXT,
+  http_status INTEGER,
+  final_url TEXT,
+
+  verification_method TEXT NOT NULL,
+  confidence TEXT NOT NULL,
+  notes TEXT,
+  checked_at TEXT NOT NULL,
+
+  CHECK (status IN ('VERIFIED', 'VERIFIED_ALIAS', 'AMBIGUOUS', 'WRONG_INSTITUTION',
+                    'UNREACHABLE', 'INSUFFICIENT_EVIDENCE'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_athletics_domains_unitid ON athletics_domains(unitid);
+CREATE INDEX IF NOT EXISTS idx_athletics_domains_status ON athletics_domains(status);
+
+-- ===========================================================================
+-- conference_seasons — one conference's own table, for one sport, one season
+--
+-- The cheapest coverage in this design. One fetch of a conference's standings
+-- page returns every member of that conference for that season, with each
+-- member's conference record and the size of the conference — which is where
+-- both historical conference and historical division come from. Phase 12C
+-- reached historical conference for 19.8% of programme-seasons from the
+-- programme side after 1,088 requests; this reaches the whole universe in
+-- about 1,300.
+--
+-- `division` IS THE CONFERENCE'S DIVISION IN THAT SEASON, and where it is null
+-- no member of that conference gets a benchmark. `season_confirmed` records
+-- that the fetched table's own title named the season we asked for: a
+-- standings URL that quietly serves the current season is the single most
+-- dangerous failure available here, and `themw.com` does exactly that.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS conference_seasons (
+  conference_id TEXT NOT NULL,
+  conference_name TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  season INTEGER NOT NULL,
+
+  division TEXT,
+  division_provenance TEXT NOT NULL,
+
+  member_count INTEGER,           -- rows in the conference's own table
+  resolved_member_count INTEGER,  -- of those, ones matched to a programme
+  groups TEXT,                    -- JSON — "East"/"West" pods, why row order is not finish
+
+  source_url TEXT,
+  source_platform TEXT,
+  season_confirmed INTEGER NOT NULL,
+  sport_confirmed INTEGER NOT NULL,
+  status TEXT NOT NULL,
+  imported_at TEXT NOT NULL,
+
+  PRIMARY KEY (conference_id, sport, season),
+  CHECK (division IS NULL OR division IN ('NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA')),
+  CHECK (division_provenance IN ('EXPLICIT_OFFICIAL', 'DERIVED_FROM_OFFICIAL_MEMBERSHIP',
+                                 'CONFLICTING', 'UNKNOWN')),
+  CHECK (season_confirmed IN (0, 1)),
+  CHECK (sport_confirmed IN (0, 1))
+);
+
+-- ===========================================================================
+-- programme_conference_seasons — which conference and division a programme
+-- actually played in, season by season
+--
+-- The production output of Phase 12D, and the sole owner of historical
+-- division. `programme_seasons` says what a programme recorded; this says who
+-- it was recording it against, and in which division — which is the
+-- denominator the benchmark needs and the one thing 12B.1 had to withhold.
+--
+-- HISTORICAL DIVISION IS NEVER THE CURRENT DIVISION. `colleges.division` is a
+-- snapshot: Mercyhurst men's played 2022 in Division II and every internal
+-- column calls that season Division I. Null here means not established, the
+-- benchmark refuses, and a stated refusal is the correct output. There is no
+-- fallback, and no disclosure that would make one acceptable.
+--
+-- CONFERENCE FINISH IS NOT HERE. `conference_table_row` is the row's position
+-- as PRINTED and is explicitly not a finish: the PSAC prints East then West,
+-- so Mercyhurst, first in the West, is eighth by row. `seed` is stored only
+-- where the conference printed one in its own notation.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS programme_conference_seasons (
+  college_id TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  season INTEGER NOT NULL,
+  unitid INTEGER,
+
+  conference_id TEXT NOT NULL,
+  conference_raw TEXT NOT NULL,   -- exactly as the source printed the member's conference
+
+  historical_division TEXT,
+  division_provenance TEXT NOT NULL,
+
+  conference_wins INTEGER,
+  conference_draws INTEGER,
+  conference_losses INTEGER,
+  conference_matches INTEGER,
+
+  conference_size INTEGER,
+  conference_table_row INTEGER,   -- as printed. NOT a finish.
+  conference_group TEXT,          -- the pod heading the row sat under, where there was one
+  seed INTEGER,                   -- only where the conference printed one
+  champion_marker INTEGER,
+
+  member_raw TEXT NOT NULL,       -- exactly as the conference printed the institution
+  identity_method TEXT NOT NULL,
+  identity_evidence TEXT NOT NULL,
+
+  source_url TEXT NOT NULL,
+  source_platform TEXT NOT NULL,
+  provenance TEXT NOT NULL,
+  confidence TEXT NOT NULL,
+  season_confirmed INTEGER NOT NULL,
+  imported_at TEXT NOT NULL,
+
+  PRIMARY KEY (college_id, season),
+  CHECK (historical_division IS NULL OR historical_division IN ('NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA')),
+  CHECK (division_provenance IN ('EXPLICIT_OFFICIAL', 'DERIVED_FROM_OFFICIAL_MEMBERSHIP',
+                                 'CONFLICTING', 'UNKNOWN')),
+  CHECK (conference_matches IS NULL
+         OR conference_matches = conference_wins + conference_draws + conference_losses),
+  CHECK (conference_wins IS NULL OR conference_wins >= 0),
+  CHECK (conference_draws IS NULL OR conference_draws >= 0),
+  CHECK (conference_losses IS NULL OR conference_losses >= 0),
+  CHECK (season_confirmed IN (0, 1))
+);
+
+CREATE INDEX IF NOT EXISTS idx_pcs_pool ON programme_conference_seasons(sport, season, historical_division);
+CREATE INDEX IF NOT EXISTS idx_pcs_conf ON programme_conference_seasons(conference_id, sport, season);
+
+-- ===========================================================================
+-- conference_membership_quarantine — the rows collection could not place
+--
+-- A member of a conference's own table that no programme in `colleges` claims.
+-- Kept rather than dropped, because the reasons are evidence: Limestone's
+-- programme was discontinued inside the window and its 2022 and 2023 rows are
+-- real history; PennWest Edinboro and PennWest Clarion share one UNITID with
+-- PennWest California and are separate programmes; and a name we simply cannot
+-- resolve is a gap in `institution_aliases` that this table makes visible.
+-- Silently discarding them would make the conference look smaller than it was
+-- and would hide every alias we still owe.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS conference_membership_quarantine (
+  conference_id TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  season INTEGER NOT NULL,
+  member_raw TEXT NOT NULL,
+
+  reason TEXT NOT NULL,
+  candidates TEXT,                -- JSON — where a name resolved to more than one
+  conference_record TEXT,
+  source_url TEXT NOT NULL,
+  imported_at TEXT NOT NULL,
+
+  PRIMARY KEY (conference_id, sport, season, member_raw)
+);

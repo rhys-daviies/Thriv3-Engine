@@ -252,3 +252,19 @@ into itself. `competitiveQueries.js` is asserted to read only
 **Postseason firewall.** No module may name a postseason, champion, tournament
 or bracket column, and the table has no column that could carry one — asserted
 against `PRAGMA table_info` so a future migration adding one fails the test.
+
+---
+
+## Update — Phase 12D
+
+The division a season was played in is no longer null. It is established from
+the conferences' own published standings tables and lives in
+`programme_conference_seasons`, joined to this layer on `(college_id, season)`.
+68.6% of readable programme-seasons carry one, all 32 sport-division-season
+benchmark pools are populated, and Mercyhurst's 2022 Division II season is
+ranked against 138 Division II programmes rather than against the Division I
+universe it plays in today.
+
+What has not changed: no goals, no fixtures, no schedule strength, no
+opponent-level results, no conference finish and no postseason depth. See
+`docs/competitive-identity.md`.

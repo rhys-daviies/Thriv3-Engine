@@ -185,14 +185,27 @@ const COACH_COLUMNS = [
 ];
 
 /**
- * The season's own division, added after `programme_seasons` first shipped.
+ * Retires `programme_seasons.historical_division`, which 12B.1 added and 12D
+ * moved (Phase 12D / O).
  *
- * Null until Phase 12C can establish it; see the column comment in schema.sql
- * for why no internal source can.
+ * It was always null. It is owned by `programme_conference_seasons` now, and
+ * the reason it could not stay is mechanical rather than aesthetic:
+ * `importProgrammeSeasons.js` rebuilds its table with `DELETE FROM
+ * programme_seasons` and a full re-insert, so a column that importer does not
+ * write is emptied by every routine records refresh. The benchmark would have
+ * stopped producing percentiles with nothing raised anywhere.
+ *
+ * The index has to go first — SQLite refuses to drop an indexed column — and
+ * is recreated on the narrower key. Any value in the column is discarded, and
+ * on every database that has one that value is null.
  */
-const PROGRAMME_SEASON_COLUMNS = [
-  ['historical_division', 'TEXT'],
-];
+function retireProgrammeSeasonDivision(db) {
+  const cols = db.prepare('PRAGMA table_info(programme_seasons)').all().map((c) => c.name);
+  if (!cols.includes('historical_division')) return;
+  db.exec('DROP INDEX IF EXISTS idx_programme_seasons_pool');
+  db.exec('ALTER TABLE programme_seasons DROP COLUMN historical_division');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_programme_seasons_pool ON programme_seasons(sport, season)');
+}
 
 function addMissingColumns(db, table, columns) {
   const existing = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name));
@@ -312,7 +325,7 @@ export function migrate(db) {
   addMissingColumns(db, 'roster_players', ROSTER_PLAYER_COLUMNS);
   addMissingColumns(db, 'colleges', COLLEGE_COLUMNS);
   addMissingColumns(db, 'coaches', COACH_COLUMNS);
-  addMissingColumns(db, 'programme_seasons', PROGRAMME_SEASON_COLUMNS);
+  retireProgrammeSeasonDivision(db);
   backfillRecruitingClassYear(db);
   backfillAcademicRatingSource(db);
 }

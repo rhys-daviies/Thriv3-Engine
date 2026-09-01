@@ -40,6 +40,10 @@ import { MIN_MEASURED_SHARE } from '../../shared/freshmanMinutes.js';
 import { readableRows } from '../../shared/lifecycle/readable.js';
 import { tenureFor, sameCoach } from '../../shared/coachTenure.js';
 import { programmePhilosophy } from '../../shared/philosophy.js';
+import { competitiveHistoryFor, competitivePools } from '../lib/competitiveQueries.js';
+import { MIN_POOL } from '../../shared/competitiveHistory.js';
+import { DIVISIONS } from '../../shared/conferenceHistory.js';
+import { buildResolvers } from '../lib/institutionQueries.js';
 
 // ---------------------------------------------------------------------------
 
@@ -381,6 +385,162 @@ for (const [name, sport] of [['Akron', 'womens-soccer'], ['Grand Valley State', 
     `${nfInt(s.weightedLadderTop.median)} min`);
   check(`${name} women’s still states it in full on the evidence page`,
     /current-coach relevance/i.test(text) && /Neither replaces the other/i.test(text));
+}
+
+/**
+ * STRUCTURAL HISTORY — the denominator the benchmark uses.
+ *
+ * Phase 12B.1 withheld every percentile because the only division on file was
+ * the CURRENT one, and comparing Mercyhurst's 2022 Division II season against
+ * 213 Division I programmes is a wrong denominator that no disclosure fixes.
+ * 12D established the season's own division from the conferences' own standings
+ * tables. These are the claims that would have to hold before any of it is
+ * printed.
+ */
+group('STRUCTURAL HISTORY — the season’s own division, or none');
+{
+  const idOf = (name, sport) => db.prepare('SELECT id FROM colleges WHERE name = ? AND sport = ?').get(name, sport)?.id ?? null;
+  const seasonsOf = (name, sport) => {
+    const id = idOf(name, sport);
+    return id ? competitiveHistoryFor(id).seasons : [];
+  };
+
+  // The mandatory case. Both its Division II seasons and both its Division I
+  // seasons, in one programme, inside the measured window.
+  for (const sport of ['mens-soccer', 'womens-soccer']) {
+    const rows = seasonsOf('Mercyhurst', sport);
+    const by = Object.fromEntries(rows.map((r) => [r.season, r]));
+    check(`Mercyhurst ${sport === 'mens-soccer' ? 'men’s' : 'women’s'} 2022 and 2023 are read as Division II`,
+      by[2022]?.historicalDivision === 'NCAA D2' && by[2023]?.historicalDivision === 'NCAA D2',
+      `${by[2022]?.historicalDivision} / ${by[2023]?.historicalDivision}`);
+    check(`Mercyhurst ${sport === 'mens-soccer' ? 'men’s' : 'women’s'} 2024 and 2025 are read as Division I`,
+      by[2024]?.historicalDivision === 'NCAA D1' && by[2025]?.historicalDivision === 'NCAA D1');
+    check(`Mercyhurst ${sport === 'mens-soccer' ? 'men’s' : 'women’s'} D2 seasons reach a D2 pool`,
+      by[2022]?.benchmark?.available === true && /NCAA D2/.test(by[2022].benchmark.scope ?? ''),
+      `${by[2022]?.benchmark?.scope} n=${by[2022]?.benchmark?.n}`);
+    check(`Mercyhurst ${sport === 'mens-soccer' ? 'men’s' : 'women’s'} D1 seasons reach a D1 pool`,
+      by[2024]?.benchmark?.available === true && /NCAA D1/.test(by[2024].benchmark.scope ?? ''),
+      `${by[2024]?.benchmark?.scope} n=${by[2024]?.benchmark?.n}`);
+    // The current division is D1. If it were the fallback, 2022 would rank
+    // against D1 — and it must not, even though the answer would look fine.
+    check(`Mercyhurst ${sport === 'mens-soccer' ? 'men’s' : 'women’s'} 2022 is not ranked against its CURRENT division`,
+      !/NCAA D1/.test(by[2022]?.benchmark?.scope ?? ''));
+  }
+
+  // Hartford men's moved out of Division I inside the window and its earliest
+  // season is not on file at all — a structural case and a gap in one.
+  const hartford = seasonsOf('Hartford', 'mens-soccer');
+  check('Hartford men’s carries only the seasons a conference table established',
+    hartford.every((r) => r.historicalDivision === null || DIVISIONS.includes(r.historicalDivision)),
+    hartford.map((r) => `${r.season}:${r.historicalDivision ?? '—'}`).join(' '));
+
+  for (const [name, sport, division] of [['Ohio State', 'womens-soccer', 'NCAA D1'],
+    ['Grand Valley State', 'womens-soccer', 'NCAA D2'], ['Messiah', 'mens-soccer', 'NCAA D3'],
+    ['Cumberlands', 'mens-soccer', 'NAIA']]) {
+    const rows = seasonsOf(name, sport).filter((r) => r.historicalDivision);
+    check(`${name} ${sport === 'mens-soccer' ? 'men’s' : 'women’s'} reads ${division} in every season established`,
+      rows.length > 0 && rows.every((r) => r.historicalDivision === division),
+      `${rows.length} seasons`);
+  }
+
+  // The refusal, which is the other half of the contract.
+  const unplaced = db.prepare(
+    `SELECT p.college_id, p.season FROM programme_seasons p
+       LEFT JOIN programme_conference_seasons x ON x.college_id = p.college_id AND x.season = p.season
+      WHERE x.historical_division IS NULL LIMIT 1`).get();
+  if (unplaced) {
+    const row = competitiveHistoryFor(unplaced.college_id).seasons.find((r) => r.season === unplaced.season);
+    check('a season with no established division is refused a percentile, with a reason',
+      row?.benchmark?.available === false && /division/i.test(row.benchmark.reason ?? ''),
+      row?.benchmark?.reason);
+  }
+
+  const pools = competitivePools();
+  const sizes = [];
+  for (const sport of ['mens-soccer', 'womens-soccer']) {
+    for (const season of [2022, 2023, 2024, 2025]) {
+      for (const [d, v] of Object.entries(pools.byKey.get(sport)?.[season] ?? {})) sizes.push([sport, season, d, v.rates.length]);
+    }
+  }
+  check('every sport-division-season pool is populated', sizes.length === 32, `${sizes.length} pools`);
+  check('every pool clears the minimum this product will quote from',
+    sizes.every(([, , , n]) => n >= MIN_POOL), `smallest ${Math.min(...sizes.map((x) => x[3]))}`);
+}
+
+/**
+ * STRUCTURAL HISTORY — what the table may and may not contain.
+ */
+group('STRUCTURAL HISTORY — the table’s own rules');
+{
+  const bad = (sql) => db.prepare(sql).get().n;
+  check('no season carries a division without a provenance that establishes it',
+    bad(`SELECT COUNT(*) n FROM programme_conference_seasons
+          WHERE historical_division IS NOT NULL
+            AND division_provenance NOT IN ('EXPLICIT_OFFICIAL', 'DERIVED_FROM_OFFICIAL_MEMBERSHIP')`) === 0);
+  check('no season carries a division outside the four this product reports',
+    bad(`SELECT COUNT(*) n FROM programme_conference_seasons
+          WHERE historical_division IS NOT NULL AND historical_division NOT IN ('NCAA D1','NCAA D2','NCAA D3','NAIA')`) === 0);
+  check('a conflicting division is stored as null, never as the majority',
+    bad(`SELECT COUNT(*) n FROM programme_conference_seasons
+          WHERE division_provenance = 'CONFLICTING' AND historical_division IS NOT NULL`) === 0);
+  check('no conference record contradicts its own matches played',
+    bad(`SELECT COUNT(*) n FROM programme_conference_seasons
+          WHERE conference_matches IS NOT NULL
+            AND conference_matches <> conference_wins + conference_draws + conference_losses`) === 0);
+  check('the benchmark reads no season whose source did not name its own season',
+    db.prepare(`SELECT COUNT(*) n FROM programme_conference_seasons WHERE season_confirmed = 0`).get().n >= 0
+      && db.prepare(`SELECT COUNT(*) n FROM programme_seasons p JOIN programme_conference_seasons x
+            ON x.college_id = p.college_id AND x.season = p.season
+           WHERE x.season_confirmed = 0 AND x.historical_division IS NOT NULL`).get().n >= 0
+      && competitivePools().observations
+        === db.prepare(`SELECT COUNT(*) n FROM programme_seasons p JOIN programme_conference_seasons x
+             ON x.college_id = p.college_id AND x.season = p.season
+            WHERE p.confidence <> 'ROSTER_CONTRADICTED' AND x.historical_division IS NOT NULL
+              AND x.season_confirmed = 1`).get().n);
+  check('`programme_seasons` no longer carries a division of its own',
+    !db.prepare('PRAGMA table_info(programme_seasons)').all().some((c) => c.name === 'historical_division'));
+}
+
+/**
+ * IDENTITY — a domain is not evidence.
+ */
+group('IDENTITY — the wrong-institution regressions');
+{
+  const resolvers = buildResolvers();
+  const named = [
+    ['Columbia (MO)', 'Columbia', 'mens-soccer'],
+    ['Maryville (TN)', 'Maryville University', null],
+  ];
+  for (const [a, b] of named) {
+    const ra = resolvers.resolve(a);
+    const rb = resolvers.resolve(b);
+    check(`"${a}" and "${b}" never resolve to the same institution`,
+      ra.unitid == null || rb.unitid == null || ra.unitid !== rb.unitid,
+      `${ra.unitid} vs ${rb.unitid}`);
+  }
+  // The two hosts 12C collected four seasons from under the wrong name. Neither
+  // may resolve to the institution it was filed under. The mapping to the
+  // institution it DOES belong to is correct and is left alone: this table
+  // makes a wrong mapping unusable, it does not rewrite known_domains.json.
+  for (const [domain, wrongFor, alsoClaimedBy] of [
+    ['gocolumbialions.com', 'Columbia (MO)', 'Columbia'],
+    ['maryvillesaints.com', 'Maryville (TN)', 'Maryville University'],
+  ]) {
+    const row = db.prepare('SELECT unitid, status, wrong_mappings FROM athletics_domains WHERE domain = ?').get(domain);
+    const wrongUnitid = resolvers.resolve(wrongFor).unitid;
+    check(`${domain} does not resolve to ${wrongFor}`,
+      !!row && row.unitid !== wrongUnitid,
+      `host is ${row?.unitid ?? 'unestablished'}, ${wrongFor} is ${wrongUnitid}`);
+    const wrongMappings = JSON.parse(row?.wrong_mappings ?? '[]');
+    check(`${domain} carries the refusal of the ${wrongFor} claim, or establishes nothing at all`,
+      row?.unitid == null || wrongMappings.some((m) => m.claimantUnitid === wrongUnitid),
+      `status ${row?.status}, also claimed by ${alsoClaimedBy}`);
+  }
+  check('every alias in the table names exactly one institution',
+    db.prepare('SELECT COUNT(*) n FROM (SELECT alias_key FROM institution_aliases GROUP BY alias_key HAVING COUNT(DISTINCT unitid) > 1)').get().n === 0);
+  check('no programme is filed under two conferences in one season',
+    db.prepare(`SELECT COUNT(*) n FROM (SELECT college_id, season FROM programme_conference_seasons
+                 GROUP BY college_id, season HAVING COUNT(*) > 1)`).get().n === 0);
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);
