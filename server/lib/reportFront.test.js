@@ -14,10 +14,10 @@ import { renderProgramReport } from './philosophyReport.js';
 import { invalidatePoolBenchmarks } from './philosophyQueries.js';
 import { invalidateLifecyclePool } from './lifecycleQueries.js';
 import PDFDocument from 'pdfkit';
-import {
-  CLASSIFICATION_LABEL, ROUTE_LABEL, COACH_HEADLINE, COACH_SUBLINE, fitText, panel,
-} from './reportFront.js';
-import { CLASSIFICATIONS } from '../../shared/report/summary.js';
+import { fitText, panel } from './reportFront.js';
+import { decisionFindings } from '../../shared/report/decisionLayer.js';
+import { againstPool } from '../../shared/report/narrative.js';
+import { BENCHMARK_BANDS } from '../../shared/report/summary.js';
 
 /**
  * Every text string the document draws.
@@ -163,24 +163,28 @@ const build = async (playerId = null) => {
   return { model, buf: await renderProgramReport(model) };
 };
 
-describe('label maps', () => {
-  it('covers every classification the model can emit', () => {
-    for (const c of CLASSIFICATIONS) expect(CLASSIFICATION_LABEL[c]).toBeTruthy();
+/**
+ * The classification vocabulary, which moved out of this file in Phase 13C.
+ *
+ * The five module cards carried four label maps so a chip could read ABOVE
+ * PROGRAMME BENCHMARK rather than HIGH. The cards are gone and the same
+ * refusal is now `againstPool`, one clause appended to a sentence — so the
+ * rule is asserted where it now lives rather than on maps nobody reads.
+ */
+describe('the benchmark vocabulary', () => {
+  it('has a phrase for every band the model can place', () => {
+    for (const b of BENCHMARK_BANDS) expect(againstPool(b)).toBeTruthy();
   });
 
   // High/Moderate/Low would claim something the arithmetic never establishes.
   it('uses no judgement words', () => {
-    const all = Object.values(CLASSIFICATION_LABEL).join(' ');
-    expect(all).not.toMatch(/\b(HIGH|MODERATE|LOW|GOOD|BAD|POOR|STRONG PROGRAMME)\b/);
-    expect(CLASSIFICATION_LABEL['above-benchmark']).toBe('ABOVE PROGRAMME BENCHMARK');
+    const all = BENCHMARK_BANDS.map(againstPool).join(' ');
+    expect(all).not.toMatch(/\b(high|moderate|low|good|bad|poor|strong)\b/i);
+    expect(againstPool('above-benchmark')).toBe('above the comparable pool');
   });
 
-  it('covers every route and every coaching relevance', () => {
-    for (const r of ['returning', 'freshman', 'newcomer', 'mixed']) expect(ROUTE_LABEL[r]).toBeTruthy();
-    for (const r of ['describes-current', 'partly-describes-current', 'describes-previous', 'unknown']) {
-      expect(COACH_HEADLINE[r]).toBeTruthy();
-      expect(COACH_SUBLINE[r]).toBeTruthy();
-    }
+  it('has no phrase at all for a band it could not place', () => {
+    for (const b of ['unclear', 'unavailable', 'mixed']) expect(againstPool(b)).toBeNull();
   });
 });
 
@@ -359,16 +363,20 @@ describe('page two modules', () => {
   it('renders all five, and the fifth carries no classification badge', async () => {
     const { buf, model } = await build();
     const text = pdfText(buf);
-    for (const title of ['FIRST-YEAR OPPORTUNITY', 'EXPERIENCED ARRIVAL RELIANCE',
-      'REPLACEMENT BEHAVIOUR', 'COACH CONTEXT', 'CURRENT SQUAD OUTLOOK']) {
-      expect(text).toContain(title);
-    }
+    const front = frontText(buf);
+    // Phase 13C: findings, not a dashboard. Every rendered finding's label is
+    // on the page, and nothing else claims to be one.
+    const { findings } = decisionFindings(model);
+    expect(findings.length).toBeGreaterThan(0);
+    expect(findings.length).toBeLessThanOrEqual(6);
+    for (const f of findings) expect(front).toContain(f.label.toUpperCase());
+    expect(front).toContain('PROGRAMME SNAPSHOT');
     // The turnover classification is always 'unclear' and is deliberately not
     // drawn: a badge that never says anything would take the most valuable
     // space on the page to say it.
     expect(model.summary.programme.squadTurnover.classification).toBe('unclear');
     expect(text).not.toMatch(/SQUAD TURNOVER/i);
-    expect(text).not.toMatch(/CURRENT SQUAD OUTLOOK[^]{0,40}UNCLEAR/);
+    expect(text).not.toMatch(/\bUNCLEAR\b/);
   });
 
   // Scoped to the pages this file owns. The methodology page legitimately
@@ -382,11 +390,18 @@ describe('page two modules', () => {
     expect(front).not.toMatch(/certainty/i);
   });
 
-  it('says a programme is above the benchmark rather than high', async () => {
+  it('says a programme is above the pool rather than high', async () => {
     const { buf, model } = await build();
-    const text = pdfText(buf);
-    const c = model.summary.programme.freshmanOpportunity.classification;
-    expect(text).toContain(CLASSIFICATION_LABEL[c]);
+    const front = frontText(buf);
+    const { findings } = decisionFindings(model);
+    const banded = findings.filter((f) => /^band:/.test(f.reason ?? ''));
+    expect(banded.length).toBeGreaterThan(0);
+    for (const f of banded) {
+      const phrase = againstPool(f.reason.slice('band:'.length));
+      expect(front).toContain(phrase);
+    }
+    // And never the words the arithmetic does not establish.
+    expect(front).not.toMatch(/\b(HIGH|LOW|GOOD|BAD|POOR) (opportunity|reliance|retention)\b/i);
   });
 });
 
@@ -424,6 +439,8 @@ describe('wording the data cannot support', () => {
   it('attributes projected minutes to the players who hold them', async () => {
     const text = pdfText((await build('p1')).buf);
     expect(text).toMatch(/currently attached to those players|belong to the players listed/);
+    // And the same non-claim, on the page that now owns the subject.
+    expect(text).toMatch(/nothing here says they become available to anyone/);
   });
 
   it('never labels a classification high, moderate or low', async () => {
@@ -512,26 +529,30 @@ describe('current coach context on page two', () => {
       2022: 'Jane Kerr', 2023: 'Jane Kerr', 2024: 'Jane Kerr', 2025: 'Jane Kerr', 2026: 'Jane Kerr',
     });
     const text = await front();
-    expect(text).toContain('CURRENT COACH HISTORY');
+    // Quiet is a snapshot line: the name, and the count under it. It is not a
+    // finding, because a record that is entirely the current coach's changes
+    // the reading of nothing.
+    expect(text).toContain('HEAD COACH');
+    expect(text).toContain('Jane Kerr');
     expect(text).toContain('all 4 measured seasons in this report');
-    // Quiet means the page keeps its own subtitle.
-    expect(text).toContain('What this programme’s record shows');
-    expect(text).not.toMatch(/Programme at a glance All 4 measured/);
+    expect(text).not.toMatch(/WHOSE RECORD THIS IS/);
     // ...and no strip, because one name across every season draws nothing.
     expect(text).not.toContain('WHOSE SEASONS THESE ARE');
   });
 
-  it('is visible on the card where some but not all seasons are the coach’s', async () => {
+  it('is visible in the snapshot where some but not all seasons are the coach’s', async () => {
     addProgramme('c1', 'Test College');
     setCoachSeasons('Test College', {
       2022: 'Greg Dalby', 2023: 'Greg Dalby', 2024: 'Jane Brookins', 2025: 'Jane Brookins', 2026: 'Jane Brookins',
     });
     const text = await front();
-    expect(text).toContain('COACHING CHANGE IN WINDOW');
     expect(text).toContain('2 of the 4 measured seasons in this report');
     expect(text).toContain('WHOSE SEASONS THESE ARE');
     expect(text).toContain('Greg Dalby 2022–2023');
     expect(text).toContain('Jane Brookins 2024–2026');
+    // Still not a finding: a coaching change inside the window qualifies the
+    // record without changing how any of it must be read.
+    expect(text).not.toMatch(/WHOSE RECORD THIS IS/);
   });
 
   // Mercyhurst men's shape: the card used to read "CURRENT COACH HISTORY /
@@ -542,19 +563,23 @@ describe('current coach context on page two', () => {
    * only 231 of the 357 programmes whose context is prominent; the subtitle
    * costs nothing and is always there.
    */
-  it('is prominent at one measured season, in the subtitle and on the card', async () => {
+  it('is a finding at one measured season, ahead of every measured share', async () => {
     addProgramme('c1', 'Test College');
     setCoachSeasons('Test College', {
       2022: 'Ryan Osborne', 2023: [null, null, 'no-usable-page'], 2024: [null, null, 'no-usable-page'],
       2025: 'Austin Solomon', 2026: 'Austin Solomon',
     });
-    const text = await front();
-    // The subtitle, directly under "Programme at a glance".
-    expect(text).toMatch(/Programme at a glance Only 1 of the 4 measured seasons in this report was under Austin Solomon\./);
-    expect(text).not.toContain('What this programme’s record shows');
-    // ...and the card, which carries it whatever the subtitle does.
-    expect(text).toContain('ONE MEASURED SEASON');
-    expect(text).toContain('1 of the 4 measured seasons in this report');
+    const { buf, model } = await build();
+    const text = frontText(buf);
+    // A finding, and the class that says the whole window has to be read
+    // through it.
+    const { findings } = decisionFindings(model);
+    const coach = findings.find((f) => f.category === 'coach-context');
+    expect(coach).toBeTruthy();
+    expect(coach.priority).toBe('A');
+    expect(text).toContain('WHOSE RECORD THIS IS');
+    expect(text).toContain('Only 1 of the 4 measured seasons in this report was under Austin Solomon.');
+    // The strip is still under it, and still names the unresolved seasons.
     expect(text).toContain('2 unresolved');
     expect(text).not.toContain('stable across the seasons measured');
   });
@@ -567,8 +592,9 @@ describe('current coach context on page two', () => {
     });
     const text = await front();
     expect(text).toContain('None of the 4 measured seasons in this report were under Stephen Roche.');
-    expect(text).toContain('NO MEASURED SEASON');
+    expect(text).toContain('WHOSE RECORD THIS IS');
     expect(text).toContain('Richard Nuttall 2022–2025');
+    expect(text).toContain('Richard Nuttall is the named coach on file');
     expect(text).not.toContain('NEW COACH');
   });
 
@@ -614,11 +640,15 @@ describe('current coach context on page two', () => {
       2026: ['Aaron Suma', 'Head Strength and Conditioning Coach'],
     });
     const text = await front();
-    expect(text).toContain('COACH RECORD UNRESOLVED');
-    expect(text).toContain('Could not establish');
+    // 13C: one grey line in the snapshot, not a quarter of the page. The
+    // refusal itself is unchanged — the strength coach is named nowhere.
+    expect(text).toContain('Not established');
+    expect(text).toContain('the 2026 coach record could not be read');
+    expect(text).toContain('cannot say how much of the record below');
     expect(text).not.toContain('Aaron Suma');
-    // The verdict note is withheld only where it asserts the refused coach.
     expect(text).not.toContain('One coach throughout');
+    // And an absence never becomes a finding.
+    expect(text).not.toMatch(/WHOSE RECORD THIS IS/);
   });
 
   it('qualifies an interim without describing a regime', async () => {
@@ -628,8 +658,8 @@ describe('current coach context on page two', () => {
       2026: ['Frank Agostino', 'Interim Head Coach'],
     });
     const text = await front();
-    expect(text).toContain('INTERIM HEAD COACH');
     expect(text).toContain('The 2026 coach record identifies Frank Agostino as interim head coach.');
+    expect(text).toContain('WHOSE RECORD THIS IS');
     expect(text).not.toMatch(/stable|new coach/i);
   });
 
@@ -653,9 +683,10 @@ describe('current coach context on page two', () => {
     expect(model.coachAttribution.currentCoach).toBeNull();
     // A small unavailable state, not a refusal: there is nothing for an NAIA
     // programme to resolve, and the missing record is ours rather than theirs.
-    expect(text).toContain('NOT ON FILE');
+    expect(text).toContain('Not on file');
     expect(text).toContain('no coaching record is held at this level');
-    expect(text).not.toContain('COACH RECORD UNRESOLVED');
+    expect(text).not.toContain('Not established');
+    expect(text).not.toMatch(/WHOSE RECORD THIS IS/);
     expect(text).not.toContain('measured seasons in this report');
     // ...and nothing in the summary band, which is where the loud cases go.
     expect(text).not.toContain('Only 1 of');
@@ -761,9 +792,8 @@ describe('the coach verdict agrees with the coach card', () => {
     });
     const text = await front();
     expect(text).not.toContain('Aaron Suma');
-    expect(text).toContain('COACH RECORD UNRESOLVED');
-    expect(text).toContain('not on file');
-    expect(text).toMatch(/cannot be attributed to anyone/);
+    expect(text).toContain('Not established');
+    expect(text).toContain('the 2026 coach record could not be read');
     expect(text).not.toMatch(/one coach throughout|WHOSE SEASONS THESE ARE/);
   });
 
@@ -790,7 +820,10 @@ describe('the coach verdict agrees with the coach card', () => {
       2022: 'Jane Kerr', 2023: 'Jane Kerr', 2024: 'Jane Kerr', 2025: 'Jane Kerr', 2026: 'Jane Kerr',
     });
     const text = await front();
-    expect(text).toMatch(/[Oo]ne coach across every season measured/);
+    // The claim is now the snapshot's count rather than the verdict note the
+    // card printed, and it still names the coach and the seasons it means.
+    expect(text).toContain('Jane Kerr');
+    expect(text).toContain('all 4 measured seasons in this report');
   });
 });
 

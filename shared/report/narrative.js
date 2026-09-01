@@ -191,143 +191,19 @@ export function destinationNarrative(model) {
 }
 
 // ---------------------------------------------------------------------------
-// The programme, in four lines, for the front of the report
+// The programme headlines moved, in Phase 13C
+//
+// They used to live here: five fixed lines in a fixed order, one per module,
+// printed whether or not the module had anything worth leading a report with.
+// That job is now `decisionFindings` in decisionLayer.js, which asks the same
+// question of ten categories instead of five, ranks the answers against
+// evidence the model already holds, and renders between three and six of them.
+//
+// Nothing about the sentences changed in the move. The rules at the top of
+// this file still bind them, `againstPool` still supplies the only clause that
+// speaks about a pool, and one vocabulary test covers both files — which is
+// why the ranking sits beside these sentences rather than inside a renderer.
 // ---------------------------------------------------------------------------
-
-/**
- * The headline findings, one line each, with the page carrying the evidence.
- *
- * This is the whole reason the front of the report works: a reader who stops
- * after page two has the six questions answered and knows where to go for any
- * of them. Every line is a restatement of a figure printed later, never a
- * figure that appears only here.
- */
-export function programmeHeadlines(model) {
-  const s = model.summary?.programme;
-  const l = model.lifecycle;
-  const out = [];
-
-  const f = s?.freshmanOpportunity;
-  // The same refusal the card makes. A programme whose minutes cannot be read
-  // has a ladder top of zero, and this line printed "has typically played 0
-  // minutes" beside a card that was refusing to state exactly that figure.
-  const freshmanUnclear = !f || f.classification === 'unclear' || f.classification === 'unavailable';
-  if (f?.ladderTop?.median != null && !freshmanUnclear) {
-    const clause = againstPool(f.classification);
-    out.push({
-      label: 'First-years',
-      text: 'The best first-year of a season here has typically played '
-        + `${Math.round(f.ladderTop.median).toLocaleString('en-US')} minutes`
-        + `${clause ? ` — ${clause}` : ''}.`,
-      section: 'freshman-opportunity',
-    });
-  } else if (f) {
-    out.push({
-      label: 'First-years',
-      text: 'There is not enough published first-year minutes here to say what a first-year has '
-        + 'typically played.',
-      section: 'freshman-opportunity',
-    });
-  }
-
-  /**
-   * ONE ARRIVAL FIGURE ON THE DECISION LAYER — 13A / 13B §P.
-   *
-   * This line used to quote `shareOfMeasuredLoad`, the share of the whole
-   * squad's readable minutes, while the card two inches below it quoted
-   * `dials.newcomer`, the share of a VACATED POSITION's minutes. At Mercyhurst
-   * men's that put 28% and 30.9% on one page with nothing to say why they
-   * differed, which a reader can only read as an error.
-   *
-   * The card's figure wins, for a reason rather than by preference: it is the
-   * one with a pool behind it, so it is the only one of the two that can carry
-   * the "above the comparable pool" clause this line exists to deliver. The
-   * squad-wide share is not discarded — it answers a different question and is
-   * stated, with its denominator named, on the arrivals page itself.
-   *
-   * Neither figure is recalculated. This chooses which of two existing fields
-   * the decision layer speaks with.
-   */
-  const e = s?.experiencedArrivalReliance;
-  if (e?.measurable && e.primaryMetric?.value != null) {
-    const clause = againstPool(e.classification);
-    out.push({
-      label: 'Experienced arrivals',
-      // The card's own rendering of the same field, not a rounded one: 31%
-      // beside a card reading 30.9% is a reader checking whether they are the
-      // same number, which is the whole problem this reconciliation exists for.
-      text: `${e.primaryMetric.value}% of the minutes that came free at a position have gone to `
-        + `players who did not arrive as first-years${clause ? ` — ${clause}` : ''}.`,
-      section: 'experienced-arrivals',
-    });
-  } else if (e?.measurable && e.shareOfMeasuredLoad != null) {
-    /**
-     * The squad-wide share, where the positional one could not be read.
-     *
-     * Not a second figure competing with the first: this branch runs only where
-     * no position-season carries enough minutes to read the mix, which is
-     * exactly the case in which the card on this page states that it cannot
-     * give a figure. The denominator is named, and there is no pool clause
-     * because the squad-wide share has no pool behind it.
-     */
-    out.push({
-      label: 'Experienced arrivals',
-      text: `${pc(e.shareOfMeasuredLoad)} of every minute the squad played went to a player who did `
-        + 'not arrive as a first-year. No position here turns over consistently enough to compare '
-        + 'that with other programmes.',
-      section: 'experienced-arrivals',
-    });
-  }
-
-  const dev = l?.development;
-  if (dev?.everStarter?.share != null) {
-    const clause = againstPool(dev.everStarter.band);
-    out.push({
-      label: 'Development',
-      text: `${dev.everStarter.reached} of ${dev.everStarter.denominator} measurable first-years `
-        + `have reached a ${STARTER_MINUTES}-minute season here`
-        + `${clause ? ` — ${clause}` : ''}.`,
-      section: 'player-development',
-    });
-  } else if (dev) {
-    out.push({
-      label: 'Development',
-      text: 'Too few first-year seasons here carry published minutes to describe how players have '
-        + 'developed.',
-      section: 'player-development',
-    });
-  }
-
-  const c = l?.continuity;
-  if (c?.retention != null) {
-    const clause = againstPool(c.band);
-    out.push({
-      label: 'Roster stability',
-      text: `${pc(c.retention)} of the players who could return did`
-        + `${clause ? ` — ${clause}` : ''}.`,
-      section: 'roster-continuity',
-    });
-  }
-
-  const d = l?.departures;
-  if (d?.gate?.allowed) {
-    out.push({
-      label: 'Where players go',
-      text: `${d.tracing.observed} of ${d.departures.total} departures can be traced to another `
-        + `roster — ${pc(d.tracing.coverage)} of them.`,
-      section: 'roster-continuity',
-    });
-  } else if (d && d.departures.total > 0) {
-    out.push({
-      label: 'Where players go',
-      text: 'Too few departures at this level can be traced to another roster for us to describe '
-        + 'where players went.',
-      section: null,
-    });
-  }
-
-  return out;
-}
 
 /** The same, narrowed to the athlete's position. */
 export function athleteHeadlines(model) {

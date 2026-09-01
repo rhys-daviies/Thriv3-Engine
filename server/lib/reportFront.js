@@ -19,11 +19,10 @@
 import { THEME, TYPE, pageHead, fitHeadline, minutes, fitText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
-import {
-  programmeHeadlines, athleteHeadlines, pathwayNarrative,
-} from '../../shared/report/narrative.js';
+import { athleteHeadlines, pathwayNarrative } from '../../shared/report/narrative.js';
+import { decisionFindings, programmeSnapshot } from '../../shared/report/decisionLayer.js';
 import { actTitle, groupTitle } from '../../shared/report/sections.js';
-import { coachContextFor, coachTimelineFor, PROMINENCE } from '../../shared/report/coachContext.js';
+import { coachContextFor, coachTimelineFor } from '../../shared/report/coachContext.js';
 
 const { INK, MUTED, LINE, CLARET, NAVY, MID, PALE, GREEN, M, W } = THEME;
 
@@ -79,60 +78,15 @@ function line(doc, text, x, y, width, { font = 'Helvetica', size = 7.5, color = 
 }
 
 /**
- * Reader-facing words for the machine-readable classifications.
+ * THE CLASSIFICATION AND COACH CHIP VOCABULARIES WENT WITH THE CARDS.
  *
- * Kept here rather than in the model for the same reason VERDICT_LABEL is: the
- * PDF and the tab say different things about the same finding, and the
- * analytics layer should not be choosing between them.
+ * `CLASSIFICATION_LABEL`, `ROUTE_LABEL`, `COACH_HEADLINE` and `COACH_SUBLINE`
+ * existed so five module cards could say ABOVE PROGRAMME BENCHMARK rather than
+ * HIGH. Phase 13C replaced those cards with ranked sentences, and the same
+ * refusal now lives in `againstPool` — "above the comparable pool", with its
+ * own test — so keeping four unread maps here would leave two vocabularies for
+ * one rule and no way to tell which one a reader had seen.
  */
-export const CLASSIFICATION_LABEL = {
-  'above-benchmark': 'ABOVE PROGRAMME BENCHMARK',
-  typical: 'TYPICAL',
-  'below-benchmark': 'BELOW PROGRAMME BENCHMARK',
-  mixed: 'MIXED HISTORY',
-  unclear: 'UNCLEAR',
-  unavailable: 'UNAVAILABLE',
-};
-
-/** The route a position's minutes have historically taken. */
-export const ROUTE_LABEL = {
-  returning: 'RETURNING PLAYERS',
-  freshman: 'FIRST-YEARS',
-  newcomer: 'EXPERIENCED ARRIVALS',
-  mixed: 'MIXED',
-};
-
-/**
- * What the coaching record means for everything else on the page.
- *
- * Phrased as relevance rather than quality: a stable record and a new coach
- * are not better and worse, they are more and less applicable to the seasons
- * the rest of the report describes.
- */
-/**
- * The fallback chip and subline, for a card with no attribution to read.
- *
- * Both used to be the card's only source, and both said things the coach
- * record cannot support. "NEW COACH" asserts a recent appointment the
- * five-season window cannot see, and "stable across the seasons measured"
- * appeared over Mercyhurst men's, where one of four measured seasons was the
- * named coach's. `coachContextFor` supplies both now, counted from the
- * attribution; these remain for the case where it supplies nothing.
- */
-export const COACH_HEADLINE = {
-  'describes-current': 'CURRENT COACH HISTORY',
-  'partly-describes-current': 'COACHING CHANGE IN WINDOW',
-  'describes-previous': 'NO MEASURED SEASON',
-  unknown: 'COACH RECORD UNRESOLVED',
-};
-
-export const COACH_SUBLINE = {
-  'describes-current': 'the coach on file for 2026',
-  'partly-describes-current': 'the measured seasons are not all this coach’s',
-  'describes-previous': 'no measured season can be attributed to this coach',
-  unknown: 'the measured seasons could not be attributed',
-};
-
 const EVIDENCE_LABEL = { strong: 'STRONG', moderate: 'MODERATE', limited: 'LIMITED' };
 
 // ---------------------------------------------------------------------------
@@ -198,28 +152,6 @@ export function panel(doc, box, title, { evidence = false } = {}) {
     bottom: evidenceY ?? box.y + box.h - pad,
     evidenceY,
   };
-}
-
-/**
- * A classification pill.
- *
- * Every classification is drawn identically. A colour scale here would rank
- * programmes by hue, and the whole point of the benchmark vocabulary is that
- * it reports a position rather than a verdict. Only the two absences are
- * muted, because "we could not tell" should not read as loudly as a finding.
- */
-export function chip(doc, x, y, text, { muted = false, max = 200 } = {}) {
-  doc.font('Helvetica-Bold').fontSize(7);
-  // Measured and cut before the pill is sized, so the pill can never be
-  // narrower than its own label — which is what split TYPICAL across two
-  // lines the first time this page was drawn.
-  const label = fitText(doc, String(text ?? ''), max - 16);
-  const w = doc.widthOfString(label) + 16;
-  doc.save().roundedRect(x, y, w, 14, 7).fillOpacity(muted ? 0.06 : 0.1)
-    .fill(muted ? MUTED : NAVY).restore();
-  doc.font('Helvetica-Bold').fontSize(7).fillColor(muted ? MUTED : NAVY)
-    .text(label, x + 8, y + 4.2, { lineBreak: false });
-  return w;
 }
 
 /** The one number a module is about, at a size that finds the eye first. */
@@ -545,160 +477,11 @@ function pageHeading(k, title, subtitle) {
   pageHead(k, { kicker: 'At a glance', title, question: subtitle, newPage: false });
 }
 
-function freshmanCard(doc, box, s) {
-  const p = panel(doc, box, 'First-year opportunity', { evidence: true });
-  let y = p.y;
-  const unresolved = s.classification === 'unclear' || s.classification === 'unavailable';
-  chip(doc, p.x, y, CLASSIFICATION_LABEL[s.classification] ?? 'UNCLEAR', { muted: unresolved });
-  y += 22;
 
-  // The dominant metric is suppressed where the classification could not be
-  // made: a "0 min" beside "UNCLEAR" reads as a measurement of nothing.
-  if (unresolved || !s.primaryMetric) {
-    doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-      .text(s.evidence?.sufficient === false
-        ? 'Not enough on file to place this programme against the pool.'
-        : 'No season on file carries enough recorded minutes to rank a first year.',
-      p.x, y, { width: p.w });
-    y += 30;
-  } else {
-    y = bigMetric(doc, p.x, y, nf(s.primaryMetric.value), {
-      unit: 'min', caption: 'median minutes, best first-year of a season', width: p.w,
-    });
-    const poolMedian = s.pool?.rank1?.median ?? null;
-    const max = Math.max(s.primaryMetric.value, s.pool?.rank1?.p75 ?? 0, 1);
-    y = miniBar(doc, p.x, y, p.w, { value: s.primaryMetric.value, max, marker: poolMedian });
-    doc.font('Helvetica').fontSize(7).fillColor(MUTED)
-      .text(poolMedian != null ? `line marks the pool median, ${nf(poolMedian)} min` : 'no pool comparison available',
-        p.x, y, { width: p.w, lineBreak: false, ellipsis: true });
-    y += 12;
-  }
+// ---------------------------------------------------------------------------
+// PAGE 2 — the decision layer
+// ---------------------------------------------------------------------------
 
-  y = factLine(doc, p.x, y, p.w, 'Seasons contributing', s.primaryMetric?.seasons ?? s.seasonsObserved ?? 0);
-  if (s.seasonsWithAnImpactFreshman != null) {
-    y = factLine(doc, p.x, y, p.w, 'Seasons with a starter-level first-year',
-      `${s.seasonsWithAnImpactFreshman} of ${s.seasonsObserved}`);
-  }
-
-  // Shown only where reweighting actually moved the answer. A note saying the
-  // two agree would be clutter; substituting one for the other would be a lie.
-  //
-  // IN THE FORM THE CARD HAS ROOM FOR, and measured rather than assumed. This
-  // block is the only variable-height thing on the card, and it is what pushed
-  // the evidence strip out of the box: 23 of 90 sampled reports draw it, and
-  // all 23 overran. Where the full block does not fit it falls back to a fact
-  // line, and where even that does not fit the card says nothing — the
-  // evidence page carries the finding in full, with both figures, the verdict
-  // note and the reason neither replaces the other.
-  if (s.weightingApplied && s.weightedAgrees === false && s.weightedLadderTop?.median != null) {
-    const room = p.bottom - y;
-    if (room >= 24) {
-      y += 3;
-      doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
-        .text('WEIGHTED TOWARDS THE CURRENT COACH', p.x, y,
-          { width: p.w, characterSpacing: TYPE.label.spacing, lineBreak: false });
-      y += 9;
-      line(doc, `${nf(s.weightedLadderTop.median)} min — both views are shown, neither replaces the other`,
-        p.x, y, p.w, { size: 7, color: INK });
-      y += 12;
-    } else if (room >= 11) {
-      y = factLine(doc, p.x, y, p.w, 'Weighted towards the current coach',
-        `${nf(s.weightedLadderTop.median)} min`);
-    }
-  }
-
-  const sample = [
-    s.seasonsObserved ? plural(s.seasonsObserved, 'season') : null,
-    s.measuredFreshmen ? `${plural(s.measuredFreshmen, 'measured first-year')}` : null,
-  ].filter(Boolean).join(' · ');
-  evidenceChip(doc, p.x, p.evidenceY, s.evidence, sample, p.w);
-}
-
-function arrivalCard(doc, box, s) {
-  const p = panel(doc, box, 'Experienced arrival reliance', { evidence: true });
-  let y = p.y;
-  const unresolved = s.classification === 'unclear' || s.classification === 'unavailable';
-  chip(doc, p.x, y, CLASSIFICATION_LABEL[s.classification] ?? 'UNCLEAR', { muted: unresolved });
-  y += 22;
-
-  if (!s.measurable) {
-    doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-      .text('No season on file has the season before it on file, so an arrival cannot be told from a returning player.',
-        p.x, y, { width: p.w });
-    y += 34;
-  } else if (s.primaryMetric == null) {
-    doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-      .text('No position-season here carries enough recorded minutes to read the mix.', p.x, y, { width: p.w });
-    y += 30;
-  } else {
-    // The DENOMINATOR, named. This figure is the share of a vacated position's
-    // minutes, not of the squad's — and the squad-wide share is a different
-    // number, which is what made the two arrival figures on this page read as a
-    // contradiction until 13B named them apart.
-    y = bigMetric(doc, p.x, y, `${s.primaryMetric.value}`, {
-      unit: '%', caption: 'of minutes that came free at a position', width: p.w,
-    });
-    const pool = s.pool?.newcomer ?? null;
-    const max = Math.max(s.primaryMetric.value, pool?.p75 ?? 0, 1) * 1.15;
-    y = miniBar(doc, p.x, y, p.w, { value: s.primaryMetric.value, max, marker: pool?.median ?? null, color: GREEN });
-    doc.font('Helvetica').fontSize(7).fillColor(MUTED)
-      .text(pool ? `line marks the typical programme, ${pool.median}%` : 'no pool comparison available',
-        p.x, y, { width: p.w, lineBreak: false, ellipsis: true });
-    y += 12;
-  }
-
-  y = factLine(doc, p.x, y, p.w, 'Experienced arrivals measured', s.arrivals);
-  y = factLine(doc, p.x, y, p.w, 'Seasons an arrival was detectable', s.measurableSeasons.length);
-  if (s.starters != null && s.arrivals) {
-    y = factLine(doc, p.x, y, p.w, 'Played a starter’s season', `${s.starters} of ${s.arrivals}`);
-  }
-
-  const sample = [
-    s.measurableSeasons.length ? `${plural(s.measurableSeasons.length, 'measurable season')}` : null,
-    s.evidence?.sample?.observations ? plural(s.evidence.sample.observations, 'position-season') : null,
-  ].filter(Boolean).join(' · ');
-  evidenceChip(doc, p.x, p.evidenceY, s.evidence, sample, p.w);
-}
-
-function replacementCard(doc, box, s) {
-  const p = panel(doc, box, 'Replacement behaviour', { evidence: true });
-  let y = p.y;
-  const route = s.dominantRoute ? ROUTE_LABEL[s.dominantRoute] : 'INSUFFICIENT HISTORY';
-  chip(doc, p.x, y, route, { muted: !s.dominantRoute });
-  y += 20;
-
-  doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
-    .text('Where a position’s minutes went the season after players left it.', p.x, y, { width: p.w });
-  y += 20;
-
-  y = miniStacked(doc, p.x, y, p.w, [
-    { value: s.shares.returning, label: 'returning', color: PALE },
-    { value: s.shares.freshman, label: 'first-years', color: NAVY },
-    { value: s.shares.newcomer, label: 'experienced arrivals', color: GREEN },
-  ], { unavailable: 'no position-seasons carry enough recorded minutes' });
-
-  y += 4;
-  y = factLine(doc, p.x, y, p.w, 'Position-seasons readable',
-    `${s.observations} of ${s.totalObservations}`);
-  if (s.poolMix) {
-    y = factLine(doc, p.x, y, p.w, 'Comparable programmes',
-      `${Math.round(s.poolMix.returning)} / ${Math.round(s.poolMix.freshman)} / ${Math.round(s.poolMix.newcomer)}`);
-  }
-
-  const sample = s.seasonsRepresented?.length
-    ? `${plural(s.observations, 'position-season')} · ${plural(s.seasonsRepresented.length, 'transition')}` : null;
-  evidenceChip(doc, p.x, p.evidenceY, s.evidence, sample, p.w);
-}
-
-/**
- * Who the seasons behind this report belong to.
- *
- * The dead space in this card used to be the point: a chip, a name, four fact
- * lines and then a third of a card of nothing. The seasons and the coaches
- * were both already here as counts — drawn as a strip they answer the actual
- * question, which is whether the record on the other four cards is this
- * coach's record or somebody else's. It is the same data, not more of it.
- */
 /**
  * Whose seasons these are, one cell per season.
  *
@@ -738,229 +521,7 @@ function tenureStrip(doc, x, y, w, timeline) {
   return doc.y + 4;
 }
 
-/**
- * The card the coach context lives on, upgraded rather than replaced.
- *
- * It already showed the name, a status chip and the season strip. What it
- * never showed was the COUNT, and the count is the whole finding: this card
- * read "CURRENT COACH HISTORY / stable across the seasons measured" at
- * Mercyhurst men's, one of whose four measured seasons was the named coach's,
- * while the strip immediately below it listed two other names. The chip and
- * the line under the name now come from the attribution, so the card and its
- * own chart cannot disagree.
- *
- * `ctx` is `coachContextFor(model.coachAttribution)`, or null on a model built
- * before attribution existed — in which case the card falls back to exactly
- * what it drew before.
- */
-function coachCard(doc, box, s, ctx = null, timeline = null) {
-  const p = panel(doc, box, 'Coach context');
-  let y = p.y;
-  const rel = s.evidenceRelevance ?? 'unknown';
-  // `ctx.chip` is present for every case including ABSENT, which carries a
-  // small unavailable state rather than a refusal. `attributed` is the subset
-  // that has counts to show.
-  const shown = ctx?.chip ? ctx : null;
-  const attributed = ctx?.available ? ctx : null;
-  // Muted where the record does not describe the coach a recruit would join:
-  // the pill is quiet for a qualified answer and solid for a whole window.
-  const solid = attributed
-    ? attributed.prominence === PROMINENCE.QUIET && !attributed.interim
-    : shown ? false : rel === 'describes-current';
-  chip(doc, p.x, y, shown?.chip ?? COACH_HEADLINE[rel] ?? 'COACH RECORD UNRESOLVED',
-    { muted: !solid, max: p.w });
-  y += 21;
 
-  // The name is what the card is about, so it is the card's big metric —
-  // sized like the number on every other card rather than like a fact line.
-  const name = shown?.headline ?? s.currentCoach ?? 'Not on file';
-  doc.font('Helvetica-Bold').fontSize(17).fillColor(INK)
-    .text(fitText(doc, name, p.w), p.x, y, { width: p.w, lineBreak: false });
-  y += 21;
-  line(doc, shown?.subline ?? COACH_SUBLINE[rel] ?? '', p.x, y, p.w, { size: 7.8, color: MUTED });
-  y += 14;
-
-  /**
-   * The coach named for the entry season — from the attribution where there is
-   * one, and never from the raw row.
-   *
-   * This line printed "Aaron Suma" at Marist men's, directly beneath a
-   * headline reading "Could not establish": `coachForRecruitSeason` is the
-   * 2026 coach_name with no title filtering, so it named the strength coach as
-   * the head coach for entry. Where the attribution refused that row, this
-   * line has nothing to show and says so.
-   */
-  const entryCoach = shown ? (shown.coach?.name ?? null) : (s.coachForRecruitSeason ?? null);
-  y = factLine(doc, p.x, y, p.w, `Head coach, ${entryCoach ? 'named for' : 'for'} entry`,
-    entryCoach ?? 'not on file');
-  y = factLine(doc, p.x, y, p.w, 'Seasons analysed', s.seasonsAnalysed ?? 0);
-  y += 8;
-
-  y = tenureStrip(doc, p.x, y, p.w, timeline);
-
-  /**
-   * The bottom of the card, in priority order and only what fits.
-   *
-   * A co-head arrangement outranks the verdict note: a card showing one name
-   * over two coaches is showing half the answer, and the reader needs to know
-   * the record cannot hold the other half. The verdict note is
-   * `classifyProgramme`'s own stable explanation and keeps the space
-   * otherwise.
-   */
-  /**
-   * The verdict note is shown as written, and in Phase 11D that stopped being
-   * a risk.
-   *
-   * 11C withheld it on 8 cards, because `classifyProgramme` read the coach
-   * table through `tenureFor`, which had no title column: at Marist men's it
-   * produced "One coach throughout" — meaning the strength coach the
-   * attribution had just refused — under a headline reading "Could not
-   * establish". Hiding the sentence left the verdict itself wrong. 11D fixed
-   * the input instead: `tenureFor` now reads rows through `readCoachRow`, and
-   * a continuity claim needs a usable head-coach observation for every season
-   * it describes. Marist's verdict is `coach-unknown`, and its note now agrees
-   * with the card.
-   *
-   * One card still shows a refusal beside a continuity note, and it is not a
-   * contradiction: Ursuline women's ran four measured seasons under Jason
-   * Kubbins and has nobody on file for the season a recruit would join. Both
-   * sentences are true, and the note says which seasons it means.
-   */
-  const note = attributed?.coHeadNote
-    ?? (s.verdictNote ? s.verdictNote.replace(/^./, (ch) => ch.toUpperCase()) : null);
-  if (note && y < p.bottom - 12) {
-    doc.font('Helvetica').fontSize(7).fillColor(MUTED)
-      .text(note, p.x, y + 2, { width: p.w, height: p.bottom - y - 4, ellipsis: true });
-  }
-}
-
-/**
- * The fifth module is factual and carries no classification.
- *
- * Deliberately not "Squad Turnover — Unclear". The pool distribution behind a
- * turnover band is not defensible — the expiring share moves with how complete
- * a programme's projections are — so a badge that always reads unclear would
- * occupy the most valuable space on the page to say nothing.
- */
-function squadOutlookCard(doc, box, s) {
-  const p = panel(doc, box, 'Current squad outlook');
-  const colW = (p.w - 24) / 3;
-  let y = p.y;
-
-  doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
-    .text(`The ${s.season ?? ''} roster as it stands. These minutes belong to the players listed; `
-      + 'nothing here says they become available to anyone.', p.x, y, { width: p.w });
-  y += 20;
-
-  const proj = s.projectedMinutes;
-  // The earliest year that carries a real share of the squad's projected load,
-  // not merely the earliest year with a non-zero number. One programme's next
-  // year held 50 minutes of 4,894 — true, and a headline about nothing.
-  const expiring = s.expiringByYear ?? [];
-  const meaningful = expiring.find((yy) => yy.share != null && yy.share >= 0.1);
-  const nextYear = meaningful ?? expiring.find((yy) => yy.minutes > 0) ?? null;
-
-  // With no eligibility years at all there is no timeline to draw, so the card
-  // is one statement across its full width and the coverage beneath it. The
-  // three-column layout used to survive, and the refusal — sized for two
-  // columns and drawn from column one — printed straight through the
-  // "ELIGIBILITY ENDS" heading.
-  if (!expiring.length) {
-    doc.font('Helvetica-Bold').fontSize(9).fillColor(INK)
-      .text(s.rostered
-        ? `No eligibility end year is recorded for any of the ${s.rostered} players on this roster.`
-        : 'No current roster is on file for this programme.', p.x, y, { width: p.w });
-    y = doc.y + 6;
-    doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
-      .text(s.rostered
-        ? 'So this report cannot say when the playing-time load on this squad reaches the end of '
-          + 'its eligibility. That is a gap in what this programme publishes, not a squad whose '
-          + 'eligibility never ends.'
-        : 'The squad pages read only players on the roster now, and there are none on file.',
-      p.x, y, { width: p.w });
-    y = doc.y + 10;
-    factLine(doc, p.x, y, colW, 'On the roster', s.rostered ?? 0);
-    factLine(doc, p.x + colW + 12, y, colW, 'Projections held',
-      proj?.projectable ? `${proj.playersWithProjection} of ${proj.projectable}` : '—');
-    factLine(doc, p.x + (colW + 12) * 2, y, colW, 'Returning-squad minutes',
-      proj?.total == null ? 'not readable' : nf(proj.total));
-    return;
-  }
-
-  // Column one: the next year anything meaningful comes off the roster.
-  if (nextYear) {
-    bigMetric(doc, p.x, y, nf(nextYear.minutes), { unit: 'min' });
-    doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
-      .text(`currently attached to players whose eligibility ends after ${nextYear.year}`,
-        p.x, y + 27, { width: colW });
-  } else {
-    doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-      .text('No year on this roster carries projected minutes.', p.x, y, { width: colW });
-  }
-
-  // Column two: the expirations, year by year.
-  let cy = y;
-  const cx = p.x + colW + 12;
-  doc.font('Helvetica-Bold').fontSize(6.5).fillColor(MUTED)
-    .text('ELIGIBILITY ENDS', cx, cy, { width: colW, characterSpacing: 0.8, lineBreak: false });
-  cy += 10;
-  const years = (s.expiringByYear ?? []).slice(0, 5);
-  if (!years.length) {
-    doc.font('Helvetica-Oblique').fontSize(7).fillColor(MUTED)
-      .text('none recorded', cx, cy, { width: colW, lineBreak: false });
-  }
-  const maxY = Math.max(1, ...years.map((yy) => yy.minutes));
-  for (const yy of years) {
-    doc.font('Helvetica').fontSize(7).fillColor(INK)
-      .text(String(yy.year), cx, cy, { width: 24, lineBreak: false });
-    doc.save().rect(cx + 26, cy + 1.5, Math.max(1, (yy.minutes / maxY) * (colW - 74)), 6)
-      .fill(yy.minutes ? NAVY : LINE).restore();
-    doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
-      .text(`${nf(yy.minutes)}`, cx + colW - 44, cy, { width: 44, align: 'right', lineBreak: false });
-    cy += 11.5;
-  }
-
-  // Column three: how complete the picture is. Stated, never implied.
-  let ry = y;
-  const rx = p.x + (colW + 12) * 2;
-  doc.font('Helvetica-Bold').fontSize(6.5).fillColor(MUTED)
-    .text('COVERAGE', rx, ry, { width: colW, characterSpacing: 0.8, lineBreak: false });
-  ry += 10;
-  ry = factLine(doc, rx, ry, colW, 'On the roster', s.rostered ?? 0);
-  ry = factLine(doc, rx, ry, colW, 'Projections held',
-    proj?.projectable ? `${proj.playersWithProjection} of ${proj.projectable}` : '—');
-  ry = factLine(doc, rx, ry, colW, 'Returning-squad minutes', proj?.total == null ? 'not readable' : nf(proj.total));
-  if (proj?.firstYears) {
-    doc.font('Helvetica').fontSize(6.6).fillColor(MUTED)
-      // The why lives in the methodology and on the squad-outlook page, both
-      // of which say it in full. Three lines of it here pushed the card's own
-      // border and repeated a sentence the reader meets twice more.
-      .text(`${proj.firstYears} of them are first-years, who cannot carry one.`,
-        rx, ry + 2, { width: colW });
-  }
-}
-
-/**
- * Reserve a row for cards and put the flow cursor back afterwards.
- *
- * Cards draw in absolute coordinates, but every `doc.text` inside one still
- * moves `doc.y`. Without restoring it the NEXT `slot()` starts from wherever
- * the last label happened to land rather than below the row — which is how the
- * squad-outlook card ended up drawn on top of the replacement-behaviour card.
- *
- * `charts` in philosophyPdf.js wraps every chart for exactly this reason; this
- * is the same contract, kept here so the cards cannot drift out of it.
- */
-function cardRow(k, height, draw) {
-  const box = k.slot(height);
-  const after = k.doc.y;
-  try {
-    draw(box);
-  } finally {
-    k.doc.y = after;
-  }
-  return box;
-}
 
 /**
  * The findings, in sentences, above the cards that evidence them.
@@ -1011,55 +572,232 @@ export function headlineBand(k, lines, { title = 'What Thriv3 sees' } = {}) {
   doc.y += 4;
 }
 
-export function programmeAtAGlance(k, model) {
+
+
+// ---------------------------------------------------------------------------
+// The decision layer: the findings, then the context they sit in
+// ---------------------------------------------------------------------------
+
+/**
+ * The gutter the headline metric occupies, and the column the page reference
+ * sits in. Measured rather than chosen: the widest metric the ten categories
+ * produce is a four-season aggregate record ("41-25-9", 46pt at 13pt bold) and
+ * a two-season structural move ("2023 → 2024", 71pt), so the gutter is sized
+ * for the second and the type steps down where a metric still will not fit.
+ */
+const FINDING_GUTTER = 84;
+const PAGE_COL = 30;
+
+/**
+ * ONE FINDING, in three tiers, and the tiers are the whole point.
+ *
+ * The page this replaced was five equal cards and five one-line bullets: every
+ * module was the same size, so nothing was more important than anything else
+ * and a reader had to do the ranking themselves. Here the FINDING is the
+ * largest thing on the row, the metric anchors it in the gutter, and the
+ * sample it rests on is a grey line underneath. Nothing is coloured, nothing
+ * is scored, and the priority class that decided the order is never printed —
+ * it is an ordering over findings, not a rating of a programme.
+ */
+function findingRow(k, f, { last = false } = {}) {
   const { doc } = k;
-  const s = model.summary.programme;
-  const coach = coachContextFor(model.coachAttribution, { division: model.college?.division });
-  const coachTimeline = coachTimelineFor(coach, { recruitSeason: model.recruitSeason });
+  const textX = M + FINDING_GUTTER;
+  const textW = W - FINDING_GUTTER - PAGE_COL - 10;
+
+  const sentH = doc.font('Helvetica').fontSize(10.5).heightOfString(f.text, { width: textW });
+  const noteH = f.evidenceNote
+    ? doc.font('Helvetica').fontSize(7).heightOfString(f.evidenceNote, { width: textW }) + 3 : 0;
+  k.room(11 + sentH + noteH + 16);
+  const top = doc.y;
+
+  doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(CLARET)
+    .text(String(f.label).toUpperCase(), textX, top,
+      { width: textW, characterSpacing: TYPE.label.spacing, lineBreak: false });
+
+  doc.font('Helvetica').fontSize(10.5).fillColor(INK)
+    .text(f.text, textX, top + 11, { width: textW });
+  let y = doc.y;
+  if (f.evidenceNote) {
+    doc.font('Helvetica').fontSize(7).fillColor(MUTED)
+      .text(f.evidenceNote, textX, y + 3, { width: textW });
+    y = doc.y;
+  }
+
+  // The metric, in the gutter, stepped down rather than clipped. A metric that
+  // does not fit at all is dropped: the sentence beside it already carries the
+  // figure, and a truncated number is worse than no number.
+  if (f.metric) {
+    const fits = (size) => {
+      doc.font('Helvetica-Bold').fontSize(size);
+      return doc.widthOfString(String(f.metric)) <= FINDING_GUTTER - 10;
+    };
+    const size = fits(13) ? 13 : fits(10.5) ? 10.5 : fits(8.5) ? 8.5 : null;
+    if (size) {
+      doc.font('Helvetica-Bold').fontSize(size).fillColor(INK)
+        .text(String(f.metric), M, top + 12 + (13 - size) * 0.6,
+          { width: FINDING_GUTTER - 10, lineBreak: false });
+    }
+  }
+
   /**
-   * The subtitle carries the coach context where it is prominent.
-   *
-   * NOT A BAND ROW, and the reason is measured. This page is tight by design —
-   * five cards sized out of whatever the band above them leaves, with floors
-   * below which a card is squashed rather than short — and a sixth band row
-   * fits at only 231 of the 357 programmes whose coach context is prominent.
-   * At the other 126 it pushed the squad-outlook card onto a page of its own.
-   *
-   * The subtitle costs nothing, is the first line under the page title, and is
-   * always there. What it replaces is a description of the page; on a report
-   * whose history is largely somebody else's, that fact is the better subtitle.
-   * The coach card two thirds down the page carries the same count either way.
+   * Where to go for the evidence. Deferred, because page two cannot know what
+   * page twelve is — the renderer records where each section started and fills
+   * these in once the document is complete.
    */
-  const subtitle = coach.prominence === PROMINENCE.PROMINENT && coach.banner
-    ? coach.banner
-    : 'What this programme’s record shows, and where the evidence for it sits.';
-  pageHeading(k, 'Programme at a glance', subtitle);
+  if (f.section) {
+    const id = f.section;
+    const at = top;
+    k.defer(({ pageOf, doc: d }) => {
+      const n = pageOf(id);
+      if (n == null) return;
+      d.font('Helvetica-Bold').fontSize(9).fillColor(MID)
+        .text(`p.${n}`, M + W - PAGE_COL, at, { width: PAGE_COL, align: 'right', lineBreak: false });
+    });
+  }
 
-  headlineBand(k, programmeHeadlines(model));
+  doc.y = y;
+  if (!last) {
+    doc.y += 9;
+    doc.save().moveTo(M, doc.y).lineTo(M + W, doc.y).lineWidth(0.4).strokeColor(LINE).stroke()
+      .restore();
+    doc.y += 10;
+  }
+}
 
-  // The cards take the room the band leaves, rather than a height chosen once
-  // and hoped for. The band is as long as the findings are — five lines for a
-  // Division I programme, two for one whose minutes cannot be read — and a
-  // fixed 230 under a variable band is how this page grew a second page twice
-  // while it was being written.
-  //
-  // Floors, because a squashed card is worse than a slightly full page: the
-  // evidence strip is no longer pinned to the card's floor, so a card that
-  // runs past its box pushes the strip out of it rather than over its own
-  // last fact, and the layout guard sees that.
-  const room = doc.page.height - M - 26 - doc.y - 3 * 8;
-  const third = Math.max(112, Math.min(136, room * 0.22));
-  const pair = Math.max(176, (room - third) / 2);
+/**
+ * PAGE 2 — the findings, ranked.
+ *
+ * The order is `decisionFindings`', which is deterministic and explained in
+ * docs/decision-layer.md. Nothing on this page decides anything: it draws what
+ * the ranking selected, in the order the ranking selected it.
+ */
+export function programmeAtAGlance(k, model) {
+  const coach = coachContextFor(model.coachAttribution, { division: model.college?.division });
+  const { findings } = decisionFindings({ ...model, coachContext: coach });
 
-  cardRow(k, pair, (row) => {
-    freshmanCard(doc, { ...row, w: HALF }, s.freshmanOpportunity);
-    arrivalCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, s.experiencedArrivalReliance);
+  pageHeading(k, 'What Thriv3 sees',
+    'The findings this report rests on, most consequential first, each with the page that carries '
+    + 'its evidence.');
+
+  if (!findings.length) {
+    // Never a blank page and never a padded one. A programme with nothing
+    // eligible has that stated, and the pages behind it still render.
+    k.note('No finding on this programme clears the evidence needed to lead a report. The pages '
+      + 'that follow show what could be measured and what could not, season by season.');
+    return;
+  }
+
+  findings.forEach((f, i) => findingRow(k, f, { last: i === findings.length - 1 }));
+}
+
+/**
+ * A compact two-column orientation grid.
+ *
+ * `k.facts` gives its label 168 points and its value the rest of the page,
+ * which is right for a page of fact lines and wrong for seven of them: the
+ * snapshot must not read like an eighth analytical page, so it takes two
+ * columns and half the height.
+ */
+/**
+ * Reserve a box, draw absolutely inside it, and put the flow cursor back.
+ *
+ * `slot` advances `doc.y` past the box, but every `doc.text` drawn inside one
+ * moves it again — and a block whose last line lands ABOVE the bottom of its
+ * box leaves the cursor there, so the next block starts nine points too high.
+ * That is exactly how the snapshot's coach label came to sit on the last row of
+ * the grid above it. `charts` in philosophyPdf.js wraps every chart for the
+ * same reason; this is the same contract.
+ */
+function absolute(k, height, draw) {
+  const box = k.slot(height);
+  const after = k.doc.y;
+  try {
+    draw(box);
+  } finally {
+    k.doc.y = after;
+  }
+  return box;
+}
+
+function snapshotGrid(k, facts) {
+  const rows = Math.ceil(facts.length / 2);
+  absolute(k, rows * 13 + 4, (box) => {
+    facts.forEach(([label, value], i) => {
+      factLine(k.doc, box.x + (i % 2) * (HALF + GAP), box.y + Math.floor(i / 2) * 13, HALF,
+        label, value ?? '—');
+    });
   });
-  cardRow(k, pair, (row) => {
-    replacementCard(doc, { ...row, w: HALF }, s.replacementBehaviour);
-    coachCard(doc, { ...row, x: row.x + HALF + GAP, w: HALF }, s.coachContext, coach, coachTimeline);
+}
+
+/**
+ * PROGRAMME SNAPSHOT — the orientation the findings sit in.
+ *
+ * Not a second findings page. Every line here is a count, a name or a coverage
+ * figure; nothing carries a band, a comparison or a conclusion, and the page
+ * that owns each subject states it in full later. It exists so the findings
+ * page can be findings, which is the whole of §B.
+ *
+ * `newPage: false` draws it as a block under the findings, where the findings
+ * left room for it. Hierarchy is the requirement; two pages are not.
+ */
+export function programmeSnapshotPage(k, model, { newPage = true } = {}) {
+  const coach = coachContextFor(model.coachAttribution, { division: model.college?.division });
+  const snap = programmeSnapshot(model, { coach });
+
+  if (newPage) {
+    pageHead(k, {
+      kicker: 'At a glance',
+      title: 'Programme snapshot',
+      question: 'What was measured, over how many seasons, and how complete the record is.',
+    });
+  } else {
+    k.heading('Programme snapshot');
+  }
+
+  snapshotGrid(k, snap.facts);
+
+  /**
+   * The coach context, at the volume the record supports (§R).
+   *
+   * Five cases and five different heights, deliberately. A full history is a
+   * name; an unresolved 2026 row is one grey sentence. The case that reframes
+   * the whole report — none or one measured season under the current coach — is
+   * not here at all: it is a finding on the page above, which is the only
+   * placement proportional to what it changes.
+   */
+  const { doc } = k;
+  const c = snap.coach;
+  const strip = c.strip
+    ? coachTimelineFor(coach, { recruitSeason: model.recruitSeason }) : null;
+  const noteH = c.note
+    ? doc.font('Helvetica').fontSize(7.5).heightOfString(c.note, { width: HALF }) : 0;
+  absolute(k, Math.max(28, 26 + noteH, strip ? 60 : 0), (box) => {
+    doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+      .text(String(c.label).toUpperCase(), box.x, box.y,
+        { width: HALF, characterSpacing: TYPE.label.spacing, lineBreak: false });
+    doc.font('Helvetica-Bold').fontSize(11).fillColor(INK)
+      .text(fitText(doc, c.value ?? 'Not on file', HALF), box.x, box.y + 10,
+        { width: HALF, lineBreak: false });
+    if (c.note) {
+      doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
+        .text(c.note, box.x, box.y + 25, { width: HALF });
+    }
+    if (strip) tenureStrip(doc, box.x + HALF + GAP, box.y, HALF, strip);
   });
-  cardRow(k, third, (row) => squadOutlookCard(doc, row, s.squadTurnover));
+
+  /**
+   * How the page above was ordered, said once, in the reader's terms.
+   *
+   * Not a methodology note and not a disclaimer: a reader who can see that the
+   * order means something is a reader who can trust it, and one who cannot will
+   * read five ranked findings as five arbitrary ones.
+   */
+  // Not printed where there is nothing to have ordered.
+  if (!snap.findings) return;
+  k.note('The findings above are ordered by how much each one changes the reading of this '
+    + 'programme’s record: a change to the level it competes at first, then a measured difference '
+    + 'from comparable programmes, then a pattern inside the normal range. The pages themselves '
+    + 'run in the same order for every programme, so a finding may point forward or back.');
 }
 
 // ---------------------------------------------------------------------------

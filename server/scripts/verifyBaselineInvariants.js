@@ -48,6 +48,7 @@ import { MIN_POOL } from '../../shared/competitiveHistory.js';
 import { DIVISIONS } from '../../shared/conferenceHistory.js';
 import { buildResolvers } from '../lib/institutionQueries.js';
 import { competitivePackageFor } from '../lib/conferenceQueries.js';
+import { decisionFindings, MAX_FINDINGS } from '../../shared/report/decisionLayer.js';
 import {
   readerSentences, FORBIDDEN_READER_LANGUAGE, V1_FIELDS, COACH_INTEGRATION,
 } from '../../shared/report/competitivePackage.js';
@@ -393,14 +394,21 @@ group('COACH — one coach throughout needs an observation for every season');
  * strip over the panel beneath — so both the card and the evidence page must
  * still carry it.
  */
-group('LAYOUT — the card keeps what it had');
+group('LAYOUT — the front of the report keeps what the card had');
 for (const [name, sport] of [['Akron', 'womens-soccer'], ['Grand Valley State', 'womens-soccer']]) {
   const m = modelFor(name, sport);
   const s = m.summary.programme.freshmanOpportunity;
   const text = pdfText(await renderProgramReport(m));
-  check(`${name} women’s still draws the weighted figure on the card`,
+  /**
+   * Phase 13C moved this from the card's variable-height block to the
+   * first-year finding's evidence line, which wraps and cannot be squeezed out
+   * — so the risk this invariant was written against is gone and the fact it
+   * protects still has to be here.
+   */
+  check(`${name} women’s still states the weighted figure on the decision layer`,
     s.weightingApplied === true && s.weightedAgrees === false
-      && new RegExp(`Weighted towards the current coach.{0,24}${nfInt(s.weightedLadderTop.median)}`).test(text),
+      && new RegExp(`weighted towards the current coach reads ${nfInt(s.weightedLadderTop.median)} min`)
+        .test(text),
     `${nfInt(s.weightedLadderTop.median)} min`);
   check(`${name} women’s still states it in full on the evidence page`,
     /current-coach relevance/i.test(text) && /Neither replaces the other/i.test(text));
@@ -884,6 +892,73 @@ group('COMPETITIVE V1 — the data is in this database');
   const share = universe.length ? available / universe.length : 0;
   check('a Competitive package is available across the report universe', share >= 0.9,
     `${available} of ${universe.length} (${(share * 100).toFixed(1)}%, floor 90%, verified at release 98.7%)`);
+}
+
+/**
+ * THE DECISION LAYER — the ranking, checked against the whole universe.
+ *
+ * These are the claims that cannot be made from a fixture. A ranking is only
+ * defensible if the SAME rules produce sane pages at 2,401 programmes, and the
+ * failure modes worth guarding are the ones a good fixture hides: a finding
+ * that points at a page this programme does not have, an absence that talks
+ * its way onto the front, a coverage statistic outranking a measured share,
+ * and a page that quietly grew past what it was laid out for.
+ */
+group('DECISION LAYER — the ranking holds across the universe');
+{
+  const all = db.prepare('SELECT id, name, sport FROM colleges WHERE active = 1').all();
+  let dangling = 0; let over = 0; let duplicated = 0; let unresolvedCoach = 0;
+  let destinationHigh = 0; let missedDivisionChange = 0; let divisionChanges = 0;
+  let withFindings = 0; let allSameClass = 0;
+  const firstExample = {};
+  for (const c of all) {
+    let model;
+    try { model = programReportModel({ collegeId: c.id, playerId: null }); } catch { continue; }
+    const { findings } = decisionFindings(model);
+    // The model already carries its own plan; `planSections` is not re-run,
+    // because a second plan built from a different context is not the document
+    // the reader is holding.
+    const ids = new Set((model.sections ?? []).map((x) => x.id));
+    if (findings.length) withFindings += 1;
+    if (findings.length > MAX_FINDINGS) { over += 1; firstExample.over ??= c.name; }
+    if (new Set(findings.map((f) => f.category)).size !== findings.length) {
+      duplicated += 1; firstExample.duplicated ??= c.name;
+    }
+    if (findings.length > 1 && new Set(findings.map((f) => f.priority)).size === 1
+      && findings[0].priority !== 'C') { allSameClass += 1; }
+    for (const f of findings) {
+      if (f.section && !ids.has(f.section)) { dangling += 1; firstExample.dangling ??= `${c.name}/${f.category}`; }
+      if (f.category === 'player-destinations' && f.priority !== 'D') {
+        destinationHigh += 1; firstExample.destinationHigh ??= c.name;
+      }
+      if (f.category === 'coach-context' && /could not be read|vacant or to be announced/.test(f.text)) {
+        unresolvedCoach += 1; firstExample.unresolvedCoach ??= c.name;
+      }
+    }
+    // The competitive slot must fire wherever the structural record holds a
+    // division move: that is the one fact this layer exists to surface.
+    if ((model.competitive?.structuralFacts ?? []).some((f) => f.kind === 'DIVISION_CHANGE')) {
+      divisionChanges += 1;
+      const f = findings.find((x) => x.category === 'competitive-environment');
+      if (!f || f.priority !== 'A') { missedDivisionChange += 1; firstExample.missed ??= c.name; }
+    }
+  }
+  check('no finding points at a page its report does not contain',
+    dangling === 0, `${dangling} dangling references${firstExample.dangling ? ` (${firstExample.dangling})` : ''}`);
+  check('no report renders more findings than the page is laid out for',
+    over === 0, `${over} over ${MAX_FINDINGS}${firstExample.over ? ` (${firstExample.over})` : ''}`);
+  check('no concept is stated twice on one decision page',
+    duplicated === 0, `${duplicated} duplicated${firstExample.duplicated ? ` (${firstExample.duplicated})` : ''}`);
+  check('an unresolved coach record never becomes a finding',
+    unresolvedCoach === 0, `${unresolvedCoach} promoted${firstExample.unresolvedCoach ? ` (${firstExample.unresolvedCoach})` : ''}`);
+  check('a traced-destination sample never outranks measured evidence',
+    destinationHigh === 0, `${destinationHigh} above class D`);
+  check('a division change inside the window always leads the decision layer',
+    missedDivisionChange === 0,
+    `${divisionChanges} programmes moved division, ${missedDivisionChange} missed${firstExample.missed ? ` (${firstExample.missed})` : ''}`);
+  check('the decision layer speaks at the great majority of programmes',
+    withFindings / all.length >= 0.85,
+    `${withFindings} of ${all.length} (${(100 * withFindings / all.length).toFixed(1)}%, floor 85%)`);
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

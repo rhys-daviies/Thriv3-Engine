@@ -501,6 +501,17 @@ export function currentSquadOutlookPage(k, model) {
     proj.firstYears ? `${proj.firstYears} first-years, who cannot` : null,
   ]);
 
+  /**
+   * THE NON-CLAIM, moved here in 13C from the glance card that carried it.
+   *
+   * That card is gone and this page is now the only surface that shows a
+   * roster's projected minutes by eligibility year — so the sentence that stops
+   * them being read as a recruit's opportunity has to be here, on the page that
+   * owns the subject, rather than nowhere.
+   */
+  k.note(`The ${model.squadSeason} roster as it stands. These minutes belong to the players `
+    + 'listed; nothing here says they become available to anyone.');
+
   if (!squad.cliff?.length) {
     k.body(squad.rostered
       ? 'No player on the current roster carries an eligibility end year, so we cannot say when '

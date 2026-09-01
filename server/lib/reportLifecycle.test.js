@@ -9,6 +9,7 @@
  */
 import zlib from 'node:zlib';
 import { describe, it, expect, beforeEach } from 'vitest';
+import { decisionFindings } from '../../shared/report/decisionLayer.js';
 import db from '../db/client.js';
 import { programReportModel } from '../routes/philosophy.js';
 import { renderProgramReport } from './philosophyReport.js';
@@ -467,16 +468,24 @@ describe('the contents still names the right pages', () => {
   });
 });
 
-describe('the headline band never states a figure the card refuses', () => {
+describe('the decision layer never states a figure the analysis refuses', () => {
   it('does not print a ladder top of zero as a typical first-year season', async () => {
     addProgramme({ minutesPublished: false });
     const { text, model, pages } = await build();
     const f = model.summary.programme.freshmanOpportunity;
     expect(['unclear', 'unavailable']).toContain(f.classification);
-    // The card refuses this figure; the band beside it used to print it.
     expect(pages[1]).not.toMatch(/typically played 0 minutes/);
     expect(text).not.toMatch(/typically played 0 minutes/);
-    expect(pages[1]).toContain('There is not enough published first-year minutes here');
+    /**
+     * 13C: the refusal is the ABSENCE of a finding, not a sentence about one.
+     * A programme whose first-year minutes cannot be placed has nothing there
+     * to lead a report with, so the decision layer says nothing about
+     * first-years at all — and the page that carries the counts says why, in
+     * full, where a reader is looking for it.
+     */
+    const { findings } = decisionFindings(model);
+    expect(findings.some((x) => x.category === 'freshman-opportunity')).toBe(false);
+    expect(pages[1]).not.toMatch(/best first-year of a season/i);
   });
 });
 

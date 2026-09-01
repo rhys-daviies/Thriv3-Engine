@@ -8,9 +8,13 @@
  */
 import { describe, it, expect } from 'vitest';
 import {
-  programmeHeadlines, athleteHeadlines, developmentNarrative, continuityNarrative,
+  athleteHeadlines, developmentNarrative, continuityNarrative,
   destinationNarrative, againstPool, pathwayNarrative,
 } from './narrative.js';
+import { decisionFindings } from './decisionLayer.js';
+
+/** The candidate for one category, eligible or not. */
+const cand = (m, id) => decisionFindings(m).considered.find((x) => x.category === id);
 
 /**
  * The words a client-facing reading may not contain.
@@ -33,8 +37,22 @@ const model = (over = {}) => ({
   sections: [],
   summary: {
     programme: {
-      freshmanOpportunity: { classification: 'above-benchmark', ladderTop: { median: 900 } },
-      experiencedArrivalReliance: { classification: 'typical', measurable: true, shareOfMeasuredLoad: 0.2 },
+      freshmanOpportunity: {
+        classification: 'above-benchmark',
+        ladderTop: { median: 900 },
+        primaryMetric: { value: 900, seasons: 4 },
+        seasonsObserved: 4,
+        measuredFreshmen: 20,
+        evidence: { level: 'strong', sufficient: true },
+      },
+      experiencedArrivalReliance: {
+        classification: 'typical',
+        measurable: true,
+        shareOfMeasuredLoad: 0.2,
+        primaryMetric: { value: 28.4, observations: 10 },
+        measurableSeasons: [2023, 2024, 2025],
+        evidence: { level: 'moderate', sufficient: true },
+      },
     },
     athlete: {
       entrySeason: '2027',
@@ -53,7 +71,10 @@ const model = (over = {}) => ({
       ],
       timeToStarter: { suppressed: false, denominator: 21, year1: 1, year2: 4, year3: 1 },
     },
-    continuity: { returned: 59, returnable: 119, retention: 0.5, band: 'typical' },
+    continuity: {
+      returned: 59, returnable: 119, retention: 0.5, band: 'typical',
+      observations: 119, unreadable: 0,
+    },
     departures: {
       gate: { allowed: true },
       departures: { total: 60, expectedExits: 19, earlyDepartures: 41, unknownClass: 0 },
@@ -71,7 +92,8 @@ const model = (over = {}) => ({
 });
 
 const everything = (m) => [
-  ...programmeHeadlines(m).map((x) => x.text),
+  ...decisionFindings(m).findings.map((x) => x.text),
+  ...decisionFindings(m).findings.map((x) => x.evidenceNote).filter(Boolean),
   ...athleteHeadlines(m).map((x) => x.text),
   ...developmentNarrative(m), ...continuityNarrative(m), ...destinationNarrative(m),
   ...pathwayNarrative(m),
@@ -103,17 +125,25 @@ describe('what it refuses', () => {
   it('never quotes a ladder top the classification could not place', () => {
     const thin = model();
     thin.summary.programme.freshmanOpportunity = { classification: 'unclear', ladderTop: { median: 0 } };
-    const line = programmeHeadlines(thin).find((x) => x.label === 'First-years');
-    expect(line.text).not.toMatch(/0 minutes/);
-    expect(line.text).toMatch(/not enough published first-year minutes/);
+    // 13C: the refusal is the ABSENCE of a finding rather than a sentence
+    // about one. A programme whose first-year minutes cannot be placed has
+    // nothing to lead a report with there, and the page that carries the
+    // counts says so in full.
+    const c = cand(thin, 'freshman-opportunity');
+    expect(c.eligible).toBe(false);
+    expect(c.reason).toBe('no-classification:unclear');
+    for (const f of decisionFindings(thin).findings) expect(f.text).not.toMatch(/0 minutes/);
   });
 
   it('states the coverage limit rather than a pattern where nothing is traced', () => {
     const none = model();
     none.lifecycle.departures.gate = { allowed: false };
     expect(destinationNarrative(none)).toEqual([]);
-    const line = programmeHeadlines(none).find((x) => x.label === 'Where players go');
-    expect(line.text).toMatch(/Too few departures at this level can be traced/);
+    const c = cand(none, 'player-destinations');
+    expect(c.eligible).toBe(false);
+    expect(c.reason).toMatch(/^gate-closed:/);
+    // And no other finding fills the hole by talking about tracing anyway.
+    for (const f of decisionFindings(none).findings) expect(f.text).not.toMatch(/traced/i);
   });
 
   it('says a development figure cannot be quoted rather than quoting a zero', () => {
@@ -141,20 +171,20 @@ describe('what it says', () => {
     expect(destinationNarrative(m)[0]).toMatch(/three separate readings of the same moves, not one/);
   });
 
-  it('points each headline at the section holding its evidence', () => {
-    const sections = programmeHeadlines(model()).map((x) => x.section).filter(Boolean);
-    // Every headline points at a section that exists in the plan. Destinations
-    // no longer has its own page — it is a block on the continuity page since
-    // 13B — so the "where players go" line points there.
-    expect(sections).toEqual(['freshman-opportunity', 'experienced-arrivals',
-      'player-development', 'roster-continuity', 'roster-continuity']);
+  it('points every finding at the section holding its evidence', () => {
+    const { findings } = decisionFindings(model());
+    expect(findings.length).toBeGreaterThan(0);
+    // Destinations no longer has its own page — it is a block on the
+    // continuity page since 13B — so a destination finding points there.
+    const allowed = new Set(['competitive-environment', 'competitive-history',
+      'freshman-opportunity', 'player-development', 'experienced-arrivals',
+      'replacing-minutes', 'roster-continuity', 'eligibility-outlook']);
+    for (const f of findings) expect(allowed.has(f.section)).toBe(true);
   });
 
-  it('answers all six client questions between the two bands', () => {
-    const labels = [...programmeHeadlines(model()), ...athleteHeadlines(model())]
-      .map((x) => x.label);
-    for (const l of ['First-years', 'Experienced arrivals', 'Development', 'Roster stability',
-      'Where players go', 'Who is there now', 'Traced at this position']) {
+  it('still answers the athlete questions from its own band', () => {
+    const labels = athleteHeadlines(model()).map((x) => x.label);
+    for (const l of ['Who is there now', 'Traced at this position']) {
       expect(labels).toContain(l);
     }
   });

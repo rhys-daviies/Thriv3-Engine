@@ -80,6 +80,17 @@ The count is deliberately not the headline. Nothing is in front of the pilot:
 Phase 1.1 closed on 2026-08-26, and every remaining box is either the pilot
 itself or work that only makes sense once it has run.
 
+**The report acquired a decision layer on 2026-09-02.** *Programme at a glance*
+was five equal cards and five fixed bullets — every module the same size, so a
+reader had to do the ranking themselves. It is now *What Thriv3 sees*: three to
+six ranked findings drawn from a controlled set of ten categories, each with the
+page that carries its evidence, followed by a compact *Programme snapshot*. The
+ranking is deterministic — structural change, then a measured departure from the
+comparable pool, then a pattern inside the normal range, with evidence as a gate
+and a ceiling and never an addition — and the page order is unchanged at every
+programme. Nothing is scored: there is still no overall number, no fit number
+and no recommendation. See `docs/decision-layer.md`.
+
 **Pillar 4's product half opened on 2026-08-31.** The Programme Intelligence
 report — the thing a family actually reads — is built, validated and frozen as
 an internal-data baseline: three acts, 9 to 30 pages, every figure computed

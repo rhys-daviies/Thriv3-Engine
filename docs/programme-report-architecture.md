@@ -7,12 +7,18 @@ the evidence boundary sits, and what was consolidated to get there.*
 
 | Layer | Reader question | Where |
 |---|---|---|
-| **Decision** | What are the most important things Thriv3 has learned about this programme? | the cover and *Programme at a glance* |
+| **Decision** | What are the most important things Thriv3 has learned about this programme? | the cover, *What Thriv3 sees* and *Programme snapshot* |
 | **Programme intelligence** | how players get on the pitch · how the squad is built · where openings come from · what the programme recorded | the middle act, grouped into five questions |
 | **The evidence behind it** | Show me how Thriv3 knows. | the supporting record and the methodology |
 
 A reader may stop at the end of the programme act and understand the programme.
 Everything after the boundary substantiates what came before.
+
+The decision layer became two surfaces in Phase 13C — ranked findings, then the
+factual context they sit in. See [decision-layer.md](decision-layer.md) for the
+materiality rule, the priority classes, and what they produce across the
+universe. Nothing in sections 3 to 12 below changed: the page order is frozen
+and only the emphasis is programme-specific.
 
 ## 2. Vocabulary: two things were called evidence
 

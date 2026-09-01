@@ -18,7 +18,9 @@
  * drawing an empty axis, because an empty axis reads as a confident zero.
  */
 import { render, footer } from './philosophyPdf.js';
-import { contentsPage, programmeAtAGlance, athletePathwayPage } from './reportFront.js';
+import {
+  contentsPage, programmeAtAGlance, programmeSnapshotPage, athletePathwayPage,
+} from './reportFront.js';
 import {
   actsFor, originIsProgrammeSpecific, arrivalsAreOneFinding,
 } from '../../shared/report/sections.js';
@@ -124,6 +126,21 @@ export function renderProgramReport(model, opts = {}) {
     currentAct = plan.find((x) => x.id === 'programme-at-a-glance')?.act ?? null;
     drawnAny = true;
     programmeAtAGlance(k, model);
+
+    /**
+     * The snapshot, under the findings where the findings leave room for it.
+     *
+     * 215, measured: the block is 186 points at Mercyhurst men's — a four-row
+     * grid, the coach line with its tenure strip, and the note on how the page
+     * above was ordered — and the gate carries the slot gaps on top of it. Two
+     * pages are not hard-coded; a compact programme whose findings end high on
+     * the page keeps its snapshot on the same sheet, and one with six findings
+     * gets a page for it.
+     */
+    const snapFlow = k.remaining() >= 215;
+    section('programme-snapshot',
+      () => programmeSnapshotPage(k, model, { newPage: !snapFlow }),
+      { flow: snapFlow });
 
     // ---- Act I, continued: the athlete's own pathway ----
     //

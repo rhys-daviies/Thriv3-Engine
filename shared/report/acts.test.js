@@ -125,10 +125,12 @@ describe('athlete ordering', () => {
     expect(firstProgramme).toBeGreaterThan(lastPathway);
   });
 
-  it('opens with the summary and then the synthesis', () => {
+  it('opens with the decision layer and then the synthesis', () => {
     const ids = built().map((s) => s.id);
-    expect(ids[0]).toBe('programme-at-a-glance');
-    expect(ids[1]).toBe('athlete-at-a-glance');
+    // Findings, then the context they sit in, then the athlete's own reading.
+    expect(ids.slice(0, 3)).toEqual([
+      'programme-at-a-glance', 'programme-snapshot', 'athlete-at-a-glance',
+    ]);
   });
 
   it('runs the pathway in a family’s order of questions', () => {
@@ -176,11 +178,13 @@ describe('programme ordering', () => {
 
   it('keeps the summary, evidence, record order it has always had', () => {
     const ids = built().map((s) => s.id);
-    expect(ids[0]).toBe('programme-at-a-glance');
+    // The decision layer is two sections since 13C: the findings, then the
+    // snapshot that orients them.
+    expect(ids.slice(0, 2)).toEqual(['programme-at-a-glance', 'programme-snapshot']);
     expect(ids.filter((x) => x.startsWith('athlete-'))).toEqual([]);
     // The competitive frame opens the programme act since 13B; the first-year
     // story is the question after it.
-    expect(ids.indexOf('freshman-opportunity')).toBe(1);
+    expect(ids.indexOf('freshman-opportunity')).toBe(2);
     expect(ids.indexOf('methodology')).toBe(ids.length - 1);
   });
 

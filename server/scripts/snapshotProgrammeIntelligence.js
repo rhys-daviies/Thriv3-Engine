@@ -216,8 +216,15 @@ if (!differences.length) {
   process.exit(0);
 }
 console.error(`analytical baseline DRIFTED: ${differences.length} field(s)`);
-for (const d of differences.slice(0, 40)) {
+/**
+ * 400 rather than 40 since Phase 13C. A structural change to the section
+ * registry drifts one line per section per programme — 60 lines for one
+ * inserted page — and truncating at 40 hid whether the tail was section
+ * ordering or an analytical value, which is the only question this check
+ * exists to answer.
+ */
+for (const d of differences.slice(0, 400)) {
   console.error(`  ${d.at}: ${JSON.stringify(d.baseline)} -> ${JSON.stringify(d.now)}`);
 }
-if (differences.length > 40) console.error(`  … and ${differences.length - 40} more`);
+if (differences.length > 400) console.error(`  … and ${differences.length - 400} more`);
 process.exit(1);

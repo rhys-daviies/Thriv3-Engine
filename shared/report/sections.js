@@ -23,6 +23,7 @@
  */
 
 import { MIN_POSITION_DESTINATIONS } from './lifecycleSummary.js';
+import { decisionFindings } from './decisionLayer.js';
 
 /**
  * The layers of the document, outermost structure first.
@@ -155,6 +156,8 @@ export function arrivalsAreOneFinding(model) {
 }
 
 const count = (x) => (Array.isArray(x) ? x.length : 0);
+const model_seasons = (m) => (m?.seasons?.length
+  ? `${plural(m.seasons.length, 'season')} analysed` : null);
 const has = (x) => count(x) > 0;
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
@@ -172,19 +175,50 @@ export const SECTIONS = [
   // -- Act I: the summary this report opens with -----------------------------
   {
     id: 'programme-at-a-glance',
-    title: 'Programme at a glance',
-    description: 'How this programme has used first-years and experienced arrivals, who takes the '
-      + 'minutes when they open, and whose record this is.',
+    /**
+     * THE DECISION LAYER, and the title says what it is rather than how much
+     * of it there is. "Programme at a glance" described a dashboard; this page
+     * is the report's own ranked reading of its evidence, and a reader who
+     * takes one page should take this one.
+     */
+    title: 'What Thriv3 sees',
+    description: 'The findings this report rests on, most consequential first, each pointing at '
+      + 'the page that carries its evidence.',
     layer: 'interpretation',
     scope: 'programme',
-    // Always renders. Each of its five modules states its own unavailability,
-    // and a reader learning that four of five could not be measured has
-    // learned something real about the programme's record.
+    // Always renders. A programme with no finding that clears the evidence
+    // needed to lead a report has that stated, which is itself a real thing to
+    // have learned about the record.
+    unavailableWhenEmpty: true,
+    applies: () => true,
+    /**
+     * How many findings the ranking selected, and out of how many candidates
+     * it considered. Deliberately the counts rather than the categories: the
+     * contents page is a map, and a reader who wants to know WHICH findings
+     * turns to the page itself.
+     */
+    scopeOf: (ctx) => {
+      const { findings } = decisionFindings({ ...ctx.model, summary: ctx.summary });
+      return [
+        findings.length ? plural(findings.length, 'finding') : 'no finding clears the evidence',
+        model_seasons(ctx.model),
+      ].filter(Boolean);
+    },
+  },
+  {
+    id: 'programme-snapshot',
+    title: 'Programme snapshot',
+    description: 'What was measured, over how many seasons, and how complete the record behind '
+      + 'the findings is.',
+    layer: 'interpretation',
+    scope: 'programme',
+    // Orientation is never unavailable: a programme with nothing on file has a
+    // snapshot of dashes, and a dash there is the finding.
     unavailableWhenEmpty: true,
     applies: () => true,
     scopeOf: ({ model }) => [
-      model.seasons?.length ? `${plural(model.seasons.length, 'season')} analysed` : null,
-      model.dials?.n ? plural(model.dials.n, 'vacancy observation') : null,
+      model_seasons(model),
+      model.squad?.rostered ? `${plural(model.squad.rostered, 'player')} on the current roster` : null,
     ].filter(Boolean),
   },
   {
