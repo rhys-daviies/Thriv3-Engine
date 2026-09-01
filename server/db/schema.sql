@@ -315,3 +315,62 @@ CREATE TABLE IF NOT EXISTS coach_seasons (
 );
 
 CREATE INDEX IF NOT EXISTS idx_coach_seasons_prog ON coach_seasons(school, sport);
+
+-- ===========================================================================
+-- programme_seasons — what each programme actually recorded, season by season
+--
+-- The competitive truth layer. One row per (college_id, season), and only for
+-- a season whose win/draw/loss triple was read in full: a partly-read season
+-- is absent rather than stored with a hole, because a hole in this table would
+-- be summed as a zero somewhere downstream.
+--
+-- KEYED ON college_id, WHICH IS THE POINT. Every other table here keys a
+-- programme by its name, and that has cost this codebase real coverage —
+-- 79 NAIA men's programmes were once invisible to every join because the
+-- records file and `colleges` spelled the school differently. `colleges.id`
+-- already encodes the sport (a school has one row per sport), so the pair
+-- cannot drift apart. `sport` is carried alongside anyway, because the
+-- division-and-season benchmark pool reads it on every build and should not
+-- need a join to do it.
+--
+-- WHAT IS DELIBERATELY NOT HERE: goals, conference, conference standing,
+-- postseason round, and any rating. Phase 12A found the source's postseason
+-- column wrong in two of the three D1 values it could check against the
+-- schools' own schedules, and no historical conference or division membership
+-- exists anywhere. None of it enters production until external collection
+-- validates it. See docs/competitive-history.md.
+--
+-- `matches_played` is stored rather than derived so the pool query can sum it
+-- without arithmetic, and the CHECK is what makes that safe.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS programme_seasons (
+  college_id TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  season INTEGER NOT NULL,
+
+  wins INTEGER NOT NULL,
+  draws INTEGER NOT NULL,
+  losses INTEGER NOT NULL,
+  matches_played INTEGER NOT NULL,
+
+  -- Where the row came from, and how far it has been corroborated.
+  --   ROSTER_CONSISTENT   — this season's roster rows agree the team played
+  --                         at least this many matches
+  --   ROSTER_CONTRADICTED — a player on that roster logged MORE appearances
+  --                         than the record says the team played. Two internal
+  --                         sources disagree; neither is assumed right, and the
+  --                         model refuses the season rather than pick one.
+  --   UNCHECKED           — no roster appearances on file to check against
+  source TEXT NOT NULL,
+  source_record_name TEXT NOT NULL,
+  confidence TEXT NOT NULL,
+  imported_at TEXT NOT NULL,
+
+  PRIMARY KEY (college_id, season),
+  CHECK (wins >= 0 AND draws >= 0 AND losses >= 0),
+  CHECK (matches_played = wins + draws + losses),
+  CHECK (matches_played > 0),
+  CHECK (confidence IN ('ROSTER_CONSISTENT', 'ROSTER_CONTRADICTED', 'UNCHECKED'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_programme_seasons_pool ON programme_seasons(sport, season);
