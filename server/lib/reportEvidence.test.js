@@ -345,10 +345,10 @@ describe('the evidence pages', () => {
 
   it('renders each programme evidence page once', async () => {
     const { text } = await build();
-    for (const title of ['The first-year intake', 'The first-year ladder',
+    for (const title of ['How much first-years actually play',
       'How players develop after they arrive',
-      'Experienced arrivals', 'Who the arrivals are', 'Replacing minutes', 'Position by position',
-      'Current squad outlook', 'The current squad']) {
+      'Players brought in ready to play', 'Replacing minutes', 'Position by position',
+      'The squad you would be joining', 'The current squad in full']) {
       expect(text).toContain(title);
     }
   });
@@ -386,10 +386,16 @@ describe('the evidence pages', () => {
     expect(text).not.toMatch(/returning took the opening/i);
   });
 
+  // The two populations are now on two different pages — historical arrivals in
+  // the squad-construction story, the current arrivals with the current squad —
+  // so the distinction is made by placement as well as by wording. Both
+  // statements still have to be in the document.
   it('separates minutes played from minutes projected', async () => {
     const { text } = await build();
-    expect(text).toMatch(/MINUTES ACTUALLY PLAYED/i);
-    expect(text).toMatch(/MINUTES PROJECTED, NOT PLAYED/i);
+    expect(text).toMatch(/Minutes they went on to play here — historical, not projected/i);
+    // And the current side names its own scale, on the squad page.
+    expect(text).toMatch(/PROJECTED MINUTES/i);
+    expect(text).toMatch(/ARRIVED FOR 2026/i);
   });
 
   it('names an unmeasurable arrival season rather than drawing it empty', async () => {
@@ -403,11 +409,15 @@ describe('the evidence pages', () => {
 describe('missing data on the squad pages', () => {
   beforeEach(() => addProgramme());
 
+  // The column chart that used to carry a hatched bar for these years is gone —
+  // the table below it said the same thing with more in it — so the claim is now
+  // made by the table's own no-projection column and the note under it.
   it('reports a year whose players carry no projection as such, not as zero', async () => {
     const { text, model } = await build();
     const empty = model.squad.cliff.find((y) => y.playersWithProjection === 0);
     expect(empty).toBeTruthy();
-    expect(text).toMatch(new RegExp(`${empty.players} players, no projection`));
+    expect(text).toMatch(/A year with no projected minutes is a year whose players hold none/);
+    expect(text).toMatch(/first-year, whose minutes would have to be carried forward/);
   });
 
   it('states projected-minute coverage on the outlook page', async () => {
@@ -420,7 +430,7 @@ describe('missing data on the squad pages', () => {
     db.exec("DELETE FROM roster_players WHERE season = '2026'");
     const { text, model } = await build();
     expect(model.squad.rostered).toBe(0);
-    expect(text).not.toContain('Current squad outlook');
+    expect(text).not.toContain('The squad you would be joining');
     expect(text).not.toMatch(/Who is on the 2026 roster/);
   });
 });
@@ -1117,11 +1127,11 @@ describe('a short valid finding shares a page rather than taking one', () => {
     const at = (id) => model.sections.find((x) => x.id === id)?.page ?? null;
     expect(model.summary.programme.experiencedArrivalReliance.density).toBe('none');
     expect(at('squad-usage')).not.toBeNull();
-    expect(at('experienced-arrival-intake')).toBe(at('squad-usage'));
+    expect(at('experienced-arrivals')).toBe(at('squad-usage'));
     // Nothing was dropped to get there: the heading, the scope line and the
     // finding itself are all on the page.
     expect(text).toMatch(/how this programme uses its squad/i);
-    expect(text).toContain('Experienced arrivals');
+    expect(text).toContain('Players brought in ready to play');
     expect(text).toContain('did not add a single player who was not a first-year');
     // And the contents still describes the document.
     const total = pageCount(buf);
@@ -1139,7 +1149,7 @@ describe('a short valid finding shares a page rather than taking one', () => {
     const { model } = await build();
     const at = (id) => model.sections.find((x) => x.id === id)?.page ?? null;
     expect(model.summary.programme.experiencedArrivalReliance.density).not.toBe('none');
-    expect(at('experienced-arrival-intake')).toBe(at('squad-usage') + 1);
+    expect(at('experienced-arrivals')).toBe(at('squad-usage') + 1);
   });
 });
 
@@ -1182,7 +1192,7 @@ describe('the origin page is placed on the evidence it has', () => {
     expect(model.summary.athlete.originContext.evidence.sufficient).toBe(true);
     expect(origin.layer).toBe('athlete-evidence');
     expect(origin.act).toBe('pathway');
-    const intake = model.sections.find((x) => x.id === 'freshman-intake');
+    const intake = model.sections.find((x) => x.id === 'freshman-opportunity');
     expect(origin.page).toBeLessThan(intake.page);
   });
 });
@@ -1224,10 +1234,13 @@ describe('a programme whose stats page was never read', () => {
   it('prints no first-year ladder rather than a ladder of zeros', async () => {
     addFabricated();
     const { model, text } = await build();
-    expect(model.sections.map((s) => s.id)).not.toContain('freshman-ladder');
+    // The SECTION survives the merge — the per-season intake counts are still
+    // worth a page, and they are on it — but the ladder itself is refused in
+    // words rather than drawn as five rows of nothing.
+    expect(model.sections.map((s) => s.id)).toContain('freshman-opportunity');
     expect(model.ladder).toEqual([]);
-    expect(text).not.toMatch(/first-year ladder/i);
-    expect(text).toContain('no season on file carries enough recorded minutes to place a first-year');
+    expect(text).toContain('No season on file carries enough recorded minutes to rank a first year');
+    expect(text).not.toContain('What the best, second-best and third-best first-year actually got');
   });
 
   it('says nothing about how many first-years were measured, because none were', async () => {
@@ -1247,11 +1260,14 @@ describe('a programme whose stats page was never read', () => {
 
   // A chart with nothing drawn was printing its own axis maximum, which floors
   // at 1 — a bare "1" where a count of first-years belongs.
-  it('prints no axis scale on a chart with nothing plotted', async () => {
+  // The two intake column charts are a table since 13B, so the guard moves with
+  // them: a season whose minutes were never published carries a dash in the
+  // played and starter columns, and never a zero.
+  it('prints a dash rather than a zero for a season that was never read', async () => {
     addFabricated();
     const { text } = await build();
-    expect(text).toMatch(/Arrived, played, and played a starter’s season/);
-    expect(text).not.toMatch(/starter’s season\.? 1 /);
+    expect(text).toMatch(/who arrived, and how much they played/i);
+    expect(text).toMatch(/A dash is a season whose minutes were never published widely enough/);
   });
 
   // The same rows with one real minute in them: the season was read, the
@@ -1264,7 +1280,7 @@ describe('a programme whose stats page was never read', () => {
       minutes_played: 900, games_played: 18, games_started: 12,
     });
     const { model } = await build();
-    expect(model.sections.map((s) => s.id)).toContain('freshman-ladder');
+    expect(model.sections.map((s) => s.id)).toContain('freshman-opportunity');
     expect(model.summary.programme.freshmanOpportunity.measuredFreshmen).toBeGreaterThan(0);
   });
 });

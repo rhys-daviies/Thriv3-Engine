@@ -116,8 +116,11 @@ describe('athlete ordering', () => {
     const lastPathway = Math.max(...['athlete-at-a-glance', 'athlete-current-position',
       'athlete-entry-window', 'athlete-position-openings', 'athlete-position-history',
       'athlete-origin'].map((id) => ids.indexOf(id)));
-    const firstProgramme = Math.min(...['freshman-intake', 'freshman-ladder', 'player-development']
-      .map((id) => ids.indexOf(id)));
+    // Whichever of the programme sections this fixture actually plans: the
+    // competitive frame opens the act where the package is on the model, and
+    // the first-year story opens it where it is not.
+    const firstProgramme = Math.min(...['competitive-environment', 'freshman-opportunity',
+      'player-development'].map((id) => ids.indexOf(id)).filter((i) => i > -1));
     expect(lastPathway).toBeGreaterThan(-1);
     expect(firstProgramme).toBeGreaterThan(lastPathway);
   });
@@ -175,7 +178,9 @@ describe('programme ordering', () => {
     const ids = built().map((s) => s.id);
     expect(ids[0]).toBe('programme-at-a-glance');
     expect(ids.filter((x) => x.startsWith('athlete-'))).toEqual([]);
-    expect(ids.indexOf('freshman-intake')).toBe(1);
+    // The competitive frame opens the programme act since 13B; the first-year
+    // story is the question after it.
+    expect(ids.indexOf('freshman-opportunity')).toBe(1);
     expect(ids.indexOf('methodology')).toBe(ids.length - 1);
   });
 
@@ -229,7 +234,7 @@ describe('consolidated refusals', () => {
     expect(ids).toContain('evidence-limits');
     expect(ids).not.toContain('replacing-minutes');
     // Not absorbed: a thin answer is still an answer and keeps its own page.
-    expect(ids).toContain('experienced-arrival-intake');
+    expect(ids).toContain('experienced-arrivals');
   });
 
   it('keeps every supporting record whatever is refused', () => {
@@ -276,7 +281,7 @@ describe('the sections Phase 9B added', () => {
     expect(order.indexOf('athlete-position-record'))
       .toBeLessThan(order.indexOf('athlete-position-history'));
     expect(order.indexOf('athlete-position-record'))
-      .toBeLessThan(order.indexOf('freshman-intake'));
+      .toBeLessThan(order.indexOf('freshman-opportunity'));
   });
 
   it('puts squad usage in Act II of both reports', () => {

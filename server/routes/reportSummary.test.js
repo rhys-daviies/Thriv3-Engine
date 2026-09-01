@@ -232,13 +232,14 @@ describe('a squad missing the columns the entry pages need', () => {
     expect(ids).not.toContain('athlete-current-competition');
   });
 
-  // The arrivals page carries a historical half that does not depend on a
-  // current roster, so it survives where the purely current pages do not.
-  it('keeps the arrivals page while there is history behind it', () => {
+  // The arrivals section is purely historical since 13B — the current-season
+  // half moved to the squad page — so it survives a missing current roster
+  // outright rather than surviving on one of its two halves.
+  it('keeps the arrivals section while there is history behind it', () => {
     const m = programReportModel({ collegeId: 'c1', playerId: 'p1' });
     const ids = m.sections.map((s) => s.id);
     expect(m.transfer.points.length).toBeGreaterThan(0);
-    expect(ids).toContain('current-arrivals');
+    expect(ids).toContain('experienced-arrivals');
   });
 });
 

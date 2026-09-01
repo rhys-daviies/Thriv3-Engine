@@ -70,7 +70,7 @@ export const ACTS = Object.freeze({
     { id: 'navigation', title: 'Contents' },
     { id: 'interpretation', title: 'At a glance' },
     { id: 'programme-evidence',
-      title: 'The programme',
+      title: 'Programme intelligence',
       blurb: null },
     { id: 'supporting',
       title: 'The evidence behind it',
@@ -78,6 +78,29 @@ export const ACTS = Object.freeze({
         + 'itself — named players, actual seasons, actual minutes and observed openings.' },
   ],
 });
+
+/**
+ * The reader-facing groups the programme act is read in.
+ *
+ * NOT A FOURTH ACT, and not a layer. The acts are the document's structure and
+ * they are drawn as dividers; these are the narrative groups the contents page
+ * lists a section under, so that sixteen modules read as five questions. A
+ * section names its group; a group with no section in it never appears.
+ *
+ * Ordering here IS the order the programme act is drawn in. `planSections`
+ * sorts by act and then by group, so moving a group moves the pages.
+ */
+export const NARRATIVE_GROUPS = Object.freeze([
+  { id: 'frame', title: 'Where you would be competing' },
+  { id: 'pathway', title: 'Getting on the pitch' },
+  { id: 'construction', title: 'How the squad is built' },
+  { id: 'opportunity', title: 'Where openings come from' },
+  { id: 'record', title: 'What the programme has recorded' },
+  { id: 'limits', title: 'Where the evidence runs out' },
+]);
+
+const GROUP_RANK = new Map(NARRATIVE_GROUPS.map((g, i) => [g.id, i]));
+export const groupTitle = (id) => NARRATIVE_GROUPS.find((g) => g.id === id)?.title ?? null;
 
 /** The acts this report has, in order. */
 export const actsFor = ({ hasAthlete }) => (hasAthlete ? ACTS.athlete : ACTS.programme);
@@ -343,38 +366,79 @@ export const SECTIONS = [
   },
 
 
-  // -- Act II: the programme's own record ------------------------------------
+  // -- Act II: programme intelligence, in narrative order --------------------
+  //
+  // The order below IS the reading order, and it is grouped rather than listed:
+  // where you would be competing, then how players get on the pitch, then how
+  // the squad is built, then where openings come from, then what the programme
+  // recorded. 13A found the previous order was a build log — each module
+  // appended where it was finished — with the competitive frame arriving last,
+  // after four pages of division-scoped benchmarks had already been read.
+
+  // ---- Where you would be competing ----------------------------------------
   {
-    id: 'freshman-intake',
-    title: 'The first-year intake',
-    description: 'Every first-year of the seasons on file, how many arrived and how many played.',
+    id: 'competitive-environment',
+    group: 'frame',
+    title: 'The competition these seasons were played in',
+    description: 'The division and the conference each measured season was played in, and the '
+      + 'seasons in which either changed.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: false,
-    applies: ({ model }) => has(model.freshman?.points) || has(model.freshman?.intake),
-    scopeOf: ({ model, summary }) => [
-      `${summary.programme.freshmanOpportunity.measuredFreshmen} first-years measured`,
-      summary.programme.freshmanOpportunity.rowsWithoutMinutes
-        ? `${summary.programme.freshmanOpportunity.rowsWithoutMinutes} with no minutes published` : null,
-    ].filter(Boolean),
+    /**
+     * FIRST IN THE ACT, because it is the denominator for the act.
+     *
+     * Every pool comparison on the pages that follow is scoped to a division,
+     * and at 32 programmes the division changes inside the measured window.
+     * Mercyhurst men's played 2022–2023 in NCAA D2 and 2024–2025 in D1; read
+     * last, as it was, a reader had already interpreted a four-season pattern
+     * without knowing it spanned two competitions.
+     */
+    applies: ({ model }) => competitiveEnvironmentIsWorthAPage(model.competitive),
+    scopeOf: ({ model }) => {
+      const c = model.competitive.coverage;
+      return [
+        `conference on file for ${c.membershipKnown} of ${c.readableSeasons}`,
+        `division on file for ${c.divisionKnown}`,
+      ];
+    },
   },
+
+  // ---- Getting on the pitch ------------------------------------------------
   {
-    id: 'freshman-ladder',
-    title: 'The first-year ladder',
-    description: 'How deep into a recruiting class real playing time has gone here.',
+    id: 'freshman-opportunity',
+    group: 'pathway',
+    title: 'How much first-years actually play',
+    description: 'How deep into a recruiting class real playing time has gone here, and how many '
+      + 'first-years arrived and played in each season.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: false,
-    applies: ({ model }) => has(model.ladder),
-    scopeOf: ({ model, summary }) => [
-      // The page draws the top five rungs, so the contents says five.
-      `${Math.min(5, model.ladder.length)} ranks shown`,
-      summary.programme.freshmanOpportunity.weightedAgrees === false
-        ? 'coach-weighted view differs' : null,
-    ].filter(Boolean),
+    /**
+     * The intake page and the ladder page, merged.
+     *
+     * They plotted the same first-years on the same 0–1,600-minute axis with
+     * the same 600-minute marker on consecutive pages, and both closed with the
+     * same "at least one first-year played a starter's season in N of M
+     * seasons". The ladder is the stronger view and leads; the intake survives
+     * as the per-season counts, which is the context the ladder cannot carry.
+     * The per-player scatter is not redrawn — every one of its dots is a named
+     * row in the evidence act, with its origin.
+     */
+    applies: ({ model }) => has(model.ladder)
+      || has(model.freshman?.points) || has(model.freshman?.intake),
+    scopeOf: ({ model, summary }) => {
+      const f = summary.programme.freshmanOpportunity;
+      return [
+        `${f.measuredFreshmen} first-years measured`,
+        f.weightedAgrees === false ? 'coach-weighted view differs'
+          : (model.ladder?.length ? `${Math.min(5, model.ladder.length)} ranks shown` : null),
+      ].filter(Boolean);
+    },
   },
   {
     id: 'player-development',
+    group: 'pathway',
     title: 'How players develop after they arrive',
     description: 'What a first-year here goes on to play, year by year, against comparable programmes.',
     layer: 'programme-evidence',
@@ -390,23 +454,20 @@ export const SECTIONS = [
         `${d.players} first-years followed`,
         d.minutesCoverage.readable
           ? `${d.everStarter.reached} of ${d.everStarter.denominator} reached a starter’s season`
-          // Short enough for the contents line, which draws on one line.
           : `minutes for ${d.minutesCoverage.measured} of ${d.minutesCoverage.playerSeasons} seasons`,
       ];
     },
   },
+
+  // ---- How the squad is built ----------------------------------------------
   {
     id: 'squad-usage',
+    group: 'construction',
     title: 'How this programme uses its squad',
     description: 'How widely meaningful minutes have been spread across the roster, and which '
       + 'years of study carried them.',
     layer: 'programme-evidence',
     scope: 'programme',
-    // Two independent models on one page, because either alone reads wrongly:
-    // a narrow distribution carried by fourth years and one carried by second
-    // years are different programmes. It renders where either half can be
-    // read, which is what keeps the page at a programme whose minutes are
-    // unreadable but whose roster is not.
     unavailableWhenEmpty: false,
     applies: ({ model }) => {
       const s2 = model.squadProfile;
@@ -428,15 +489,21 @@ export const SECTIONS = [
     },
   },
   {
-    id: 'experienced-arrival-intake',
+    id: 'experienced-arrivals',
+    group: 'construction',
     // Folded into `evidence-limits` when it is one of two or more refusals.
     absorbedWhenRefused: true,
-    title: 'Experienced arrivals',
-    description: 'How often this programme adds players who are not first-years, and what they played.',
+    title: 'Players brought in ready to play',
+    description: 'How often this programme adds players who are not first-years, what they played, '
+      + 'and at which positions.',
     layer: 'programme-evidence',
     scope: 'programme',
-    // The absence matters here. A quarter of programmes sign nobody, and that
-    // is a finding — but only where the seasons could be compared at all.
+    /**
+     * The arrivals page and the "who the arrivals are" page, merged — minus the
+     * current-season half, which describes the roster on campus now rather than
+     * historical behaviour and has moved to the current-squad page where the
+     * projected-versus-played warning can do its work.
+     */
     unavailableWhenEmpty: true,
     applies: () => true,
     scopeOf: ({ summary }) => {
@@ -446,22 +513,39 @@ export const SECTIONS = [
     },
   },
   {
-    id: 'current-arrivals',
-    title: 'Who the arrivals are',
-    description: 'The kind of player this programme brings in, and who has arrived for the current season.',
+    id: 'roster-continuity',
+    group: 'construction',
+    title: 'Who stays, and who we can follow',
+    description: 'How often players who could return appear on the next roster, what the '
+      + 'departures are made of, and where the traceable few went.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: false,
-    // The historical half stands on its own, so this page survives a
-    // programme with no current roster on file.
-    applies: ({ model }) => has(model.transfer?.points) || (model.squad?.rostered ?? 0) > 0,
-    scopeOf: ({ model }) => [
-      count(model.transfer?.points) ? `${count(model.transfer.points)} measured` : null,
-      model.squad?.rostered ? `${count(model.squad?.arrivals)} named for the current season` : null,
-    ].filter(Boolean),
+    /**
+     * Continuity and observed destinations, merged.
+     *
+     * Both described the same departure population and both printed the same
+     * three-way split of it — traced, unsettled, no trace — on consecutive
+     * pages. Continuity leads because it is the reliable half; destinations
+     * follow as a block sized to their traceability, which at two of three
+     * sampled programmes is a closed gate and no block at all.
+     */
+    applies: ({ model }) => (model.lifecycle?.continuity?.returnable ?? 0) > 0,
+    scopeOf: ({ model }) => {
+      const c = model.lifecycle.continuity;
+      const d = model.lifecycle.departures;
+      return [
+        `${c.returnable} chances to return`,
+        c.retention == null ? 'too few to quote a rate' : `${c.returned} came back`,
+        d?.gate?.allowed ? `${d.tracing.observed} of ${d.departures.total} departures traced` : null,
+      ].filter(Boolean);
+    },
   },
+
+  // ---- Where openings come from --------------------------------------------
   {
     id: 'replacing-minutes',
+    group: 'opportunity',
     absorbedWhenRefused: true,
     title: 'Replacing minutes',
     description: 'Where a position’s minutes went the season after established players left it.',
@@ -479,11 +563,21 @@ export const SECTIONS = [
   },
   {
     id: 'replacement-by-position',
+    group: 'opportunity',
     title: 'Position by position',
     description: 'Whether what happens when a place comes free depends on the position.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: false,
+    /**
+     * KEPT as its own section and drawn as the second half of the replacement
+     * story where there is room for it — 13A / §M. It answers a materially
+     * distinct question (what happens at MY position, and which positions have
+     * turned over at all) and the reader arrives at it having just been given
+     * the whole-programme mix, so it reads as the breakdown of a figure rather
+     * than as the figure again. It no longer restates the openings season by
+     * season; the evidence act tabulates those properly.
+     */
     applies: ({ model }) => (model.byPosition ?? []).some((p) => p.transitions > 0),
     scopeOf: ({ model }) => {
       const live = (model.byPosition ?? []).filter((p) => p.transitions > 0);
@@ -492,8 +586,10 @@ export const SECTIONS = [
   },
   {
     id: 'eligibility-outlook',
-    title: 'Current squad outlook',
-    description: 'When the playing-time load on the current roster reaches the end of its eligibility.',
+    group: 'opportunity',
+    title: 'The squad you would be joining',
+    description: 'When the playing-time load on the current roster reaches the end of its '
+      + 'eligibility, and who has arrived for the coming season.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: false,
@@ -507,68 +603,11 @@ export const SECTIONS = [
       ];
     },
   },
-  {
-    id: 'current-depth',
-    title: 'The current squad in full',
-    description: 'Every player on the roster now, with class, projected minutes and eligibility.',
-    layer: 'programme-evidence',
-    scope: 'programme',
-    unavailableWhenEmpty: false,
-    applies: ({ model }) => (model.squad?.rostered ?? 0) > 0,
-    scopeOf: ({ model }) => [`${model.squad.rostered} players`],
-  },
 
-  {
-    id: 'roster-continuity',
-    title: 'Roster continuity',
-    description: 'How often players who could return appear on the next roster, and what the '
-      + 'departures are made of.',
-    layer: 'programme-evidence',
-    scope: 'programme',
-    unavailableWhenEmpty: false,
-    // A transition is only readable where BOTH rosters are on file, so a
-    // programme with one season and nothing to compare it against gets no page
-    // rather than a page reporting a mass exodus that is a gap in the data.
-    applies: ({ model }) => (model.lifecycle?.continuity?.returnable ?? 0) > 0,
-    scopeOf: ({ model }) => {
-      const c = model.lifecycle.continuity;
-      return [
-        `${c.returnable} chances to return`,
-        c.retention == null ? 'too few to quote a rate'
-          : `${c.returned} came back`,
-      ];
-    },
-  },
-  {
-    id: 'observed-destinations',
-    title: 'Where we can trace players next',
-    description: 'The departures whose next programme can be identified from roster data, and how '
-      + 'few of them that is.',
-    layer: 'programme-evidence',
-    scope: 'programme',
-    unavailableWhenEmpty: false,
-    // Gated in the model, not here: `destinationGate` names which of the three
-    // conditions closed the page, and a test can assert on the reason rather
-    // than on the absence.
-    applies: ({ model }) => Boolean(model.lifecycle?.departures?.gate?.allowed),
-    scopeOf: ({ model }) => {
-      const d = model.lifecycle.departures;
-      return [
-        `${d.tracing.observed} of ${d.departures.total} departures traced`,
-        `${Math.round(100 * d.tracing.coverage)}% coverage`,
-      ];
-    },
-  },
-
-  /**
-   * Competitive Intelligence. Two pages and two questions, and they are not one
-   * page: a record and the competition it was recorded in are different facts.
-   * Filed in the programme-evidence act after the roster-opportunity material
-   * and before the named record, because a family reads how a programme has
-   * built its squad and then asks what that squad produced.
-   */
+  // ---- What the programme has recorded -------------------------------------
   {
     id: 'competitive-history',
+    group: 'record',
     title: 'How this programme has competed',
     description: 'The win/draw/loss record for each season that can be read, the winning '
       + 'percentage it produced, and where that rate sat among the programmes measured in the '
@@ -578,7 +617,7 @@ export const SECTIONS = [
     unavailableWhenEmpty: false,
     // A programme with no readable season gets no page. 27 programmes are in
     // that state and a page carrying four refusals and nothing else is not a
-    // page — the same rule `arrivalsAreOneFinding` applies one act earlier.
+    // page.
     applies: ({ model }) => Boolean(model.competitive?.available),
     scopeOf: ({ model }) => {
       const c = model.competitive.coverage;
@@ -590,41 +629,41 @@ export const SECTIONS = [
       ];
     },
   },
-  {
-    id: 'competitive-environment',
-    title: 'Where those seasons were played',
-    description: 'The division and the conference each of those seasons was played in, the '
-      + 'seasons in which either changed, and the record inside the conference where the '
-      + 'conference published one.',
-    layer: 'programme-evidence',
-    scope: 'programme',
-    unavailableWhenEmpty: false,
-    applies: ({ model }) => competitiveEnvironmentIsWorthAPage(model.competitive),
-    scopeOf: ({ model }) => {
-      const c = model.competitive.coverage;
-      return [
-        `conference on file for ${c.membershipKnown} of ${c.readableSeasons}`,
-        `division on file for ${c.divisionKnown}`,
-      ];
-    },
-  },
 
+  // ---- Where the evidence runs out -----------------------------------------
   {
     id: 'evidence-limits',
+    group: 'limits',
     title: 'Where the evidence runs out',
     description: 'The analyses attempted here that the published record could not support, and '
       + 'what none of them should be read to mean.',
     layer: 'programme-evidence',
     scope: 'programme',
     unavailableWhenEmpty: false,
-    // Two or more. A single refusal is better said on the page that made it,
-    // where the reader is already asking that question; it is the pile of them
-    // that turns a thorough assessment into a list of things we cannot do.
     applies: ({ model }) => count(model.evidenceLimits) >= 2,
     scopeOf: ({ model }) => [`${count(model.evidenceLimits)} analyses refused`],
   },
 
   // -- Act III: the record underneath both ------------------------------------
+  {
+    id: 'current-depth',
+    title: 'The current squad in full',
+    description: 'Every player on the roster now, with class, projected minutes and eligibility.',
+    layer: 'supporting',
+    scope: 'programme',
+    unavailableWhenEmpty: false,
+    /**
+     * MOVED OUT OF THE NARRATIVE — 13A / §J.
+     *
+     * 59 rows over two pages, printed between the current-squad outlook and the
+     * continuity story: the two densest pages in the report interrupting the
+     * argument they support. It is the page a family returns to and the page
+     * that proves the outlook is not invented, and both of those jobs are done
+     * from the evidence act. The outlook page points at it.
+     */
+    applies: ({ model }) => (model.squad?.rostered ?? 0) > 0,
+    scopeOf: ({ model }) => [`${model.squad.rostered} players`],
+  },
   {
     id: 'table-freshmen',
     title: 'Every first-year measured',
@@ -763,6 +802,10 @@ export function planSections({ model, summary, philosophy }) {
       return {
         order: i + 1,
         id: s.id,
+        // The narrative group the contents lists this section under. Null for
+        // the acts that are not grouped — navigation, the glance, the athlete
+        // pathway and the supporting record all read as one run each.
+        group: s.group ?? null,
         title: (() => {
           try { return s.titleOf?.(ctx) ?? s.title; } catch { return s.title; }
         })(),
@@ -811,9 +854,14 @@ export function planSections({ model, summary, philosophy }) {
  */
 function inActOrder(plan, hasAthlete) {
   const rank = new Map(actsFor({ hasAthlete }).map((a, i) => [a.id, i]));
+  // Act, then narrative group, then declaration order. The group rank is what
+  // makes the programme act read as five questions rather than as the order the
+  // modules were built in; an ungrouped section keeps its declared place.
+  const groupRank = (s) => (s.group != null ? GROUP_RANK.get(s.group) ?? 98 : 98);
   return [...plan]
     .map((s, i) => ({ s, i }))
-    .sort((x, y) => (rank.get(x.s.act) ?? 99) - (rank.get(y.s.act) ?? 99) || x.i - y.i)
+    .sort((x, y) => (rank.get(x.s.act) ?? 99) - (rank.get(y.s.act) ?? 99)
+      || groupRank(x.s) - groupRank(y.s) || x.i - y.i)
     .map(({ s }, i) => ({ ...s, order: i + 1 }));
 }
 

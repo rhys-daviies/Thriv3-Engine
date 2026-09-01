@@ -15,7 +15,7 @@
  * arrays; where a figure is missing the answer is to add it to the model, not
  * to derive it beside a drawing call.
  */
-import { charts, THEME, pageHead, minutes as minutesOf } from './philosophyPdf.js';
+import { charts, THEME, pageHead } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { POSITIONS, positionPlural, canonicalPosition } from '../../shared/positions.js';
 
@@ -24,209 +24,186 @@ const { MUTED, CLARET, NAVY, MID, PALE, GREEN } = THEME;
 const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const cap = (s) => String(s ?? '').replace(/^./, (c) => c.toUpperCase());
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+const pcInt = (v) => (v == null ? '—' : `${Math.round(v * 100)}%`);
 
 const page = (k, kicker, title, question) => pageHead(k, { kicker, title, question });
 const scope = (k, parts) => k.scope(parts);
 
 // ---------------------------------------------------------------------------
-// PAGE 4 — the first-year intake
+// How much first-years actually play
 // ---------------------------------------------------------------------------
 
-export function freshmanIntakePage(k, model) {
+/**
+ * How much first-years actually play — the intake page and the ladder, merged.
+ *
+ * THEY WERE THE SAME PLAYERS ON THE SAME AXIS, TWICE. 13A found the intake
+ * scatter and the ladder plotting the same 57 first-years on the same
+ * 0–1,600-minute axis with the same 600-minute marker on consecutive pages, and
+ * both closing with the same "at least one first-year played a starter's season
+ * in N of M seasons".
+ *
+ * WHAT LEADS. The ladder, because it answers the question a recruit actually
+ * has: not what a first-year averaged — first-year minutes are far too uneven
+ * for an average to describe anybody — but how deep into the class real playing
+ * time went. The intake survives as the per-season counts underneath it, which
+ * is the context the ladder cannot carry: how many arrived, how many were given
+ * a minute, how many reached a starter's season, and what share of the squad's
+ * minutes they took.
+ *
+ * WHAT IS NOT REDRAWN. The per-player scatter. Every dot in it is a named row
+ * in the evidence act, with its position, minutes, games, starts, band and
+ * origin — so nothing it showed is unavailable, and the page it was on is no
+ * longer needed to show it.
+ */
+export function freshmanOpportunityPage(k, model) {
   const s = model.summary.programme.freshmanOpportunity;
   const intake = model.freshman.intake;
-  const pts = model.freshman.points;
-  // Only seasons whose minutes were published widely enough to read. An empty
-  // lane for a season we could not read would say "no first-year played" when
-  // it means "we could not look" — the same rule the arrivals scatter keeps.
-  const seasons = intake.filter((x) => x.readable).map((x) => x.season);
-  const unreadable = intake.filter((x) => !x.readable).map((x) => x.season);
-
-  page(k, 'Programme evidence', 'The first-year intake',
-    'How many first-years arrive here, and how many of them actually play?');
-  scope(k, [
-    `${plural(seasons.length, 'season', 'seasons')} on file`,
-    `${s.measuredFreshmen} first-years with minutes published`,
-    s.rowsWithoutMinutes ? `${plural(s.rowsWithoutMinutes, 'row', 'rows')} with none` : null,
-    s.unreadableSeasons.length ? `${s.unreadableSeasons.join(', ')} not readable` : null,
-  ]);
-
-  const xMax = Math.max(1600, ...pts.map((p) => p.minutes));
-  const maxGames = Math.max(1, ...pts.map((p) => p.gamesPlayed));
-  charts.scatter(k, {
-    // One lane per readable season, and a floor: with no readable season the
-    // box collapsed to 40pt, and the sentence below it was drawn through the
-    // refusal printed inside it.
-    box: k.slot(seasons.length ? seasons.length * 28 + 40 : 96),
-    title: 'Every first-year, one dot per player',
-    subtitle: 'Further right is more minutes; bigger is more games played. A filled dot started at '
-      + 'least half of them.',
-    lanes: seasons,
-    xMax,
-    marker: STARTER_MINUTES,
-    markerLabel: `${STARTER_MINUTES} — a starter’s season`,
-    points: pts.map((p) => ({
-      lane: p.season, value: p.minutes, size: p.gamesPlayed, sizeMax: maxGames,
-      solid: p.gamesStarted >= p.gamesPlayed / 2 && p.gamesPlayed > 0,
-      color: p.origin === 'international' ? GREEN : NAVY,
-    })),
-    unavailable: seasons.length && pts.length ? null
-      : 'no season on file carries enough recorded minutes to place a first-year',
-  });
-  k.note('Navy is a recruit from within the United States, green one from outside it. A player '
-    + 'whose minutes were never published is left out rather than drawn at zero.'
-    + (unreadable.length
-      ? ` ${unreadable.join(', ')} ${unreadable.length === 1 ? 'has' : 'have'} no lane at all: too `
-        + 'few of those rosters carry minutes to place anybody.'
-      : ''));
-
-  const yMax = Math.max(1, ...intake.map((x) => x.freshmen));
-  charts.columns(k, {
-    box: k.slot(132),
-    title: 'Arrived, played, and played a starter’s season',
-    subtitle: 'Every first-year on the roster, then those given a minute, then those who reached '
-      + `${STARTER_MINUTES} minutes.`,
-    yMax,
-    groups: intake.map((x) => ({
-      label: x.season,
-      note: x.readable ? `${x.freshmen} in` : null,
-      bars: x.readable ? [
-        { key: 'in', value: x.freshmen, color: PALE },
-        { key: 'played', value: x.freshmanPlayed, color: MID },
-        { key: 'started', value: x.freshmanStarters, color: NAVY },
-      ] : [{ key: 'in', value: null }],
-    })),
-    unavailable: intake.length ? null : 'no seasons on file',
-  });
-
-  // The share is only meaningful where the season was readable, so an
-  // unreadable season keeps its slot hatched rather than dropping to zero.
-  const shareRows = intake.filter((x) => x.freshmanShare != null);
-  charts.columns(k, {
-    box: k.slot(118),
-    title: 'Share of the squad’s minutes that went to first-years',
-    subtitle: 'Out of every minute the whole squad played that season.',
-    yMax: Math.max(0.05, ...shareRows.map((x) => x.freshmanShare)),
-    unit: '',
-    groups: intake.map((x) => ({
-      label: x.season,
-      note: x.freshmanShare == null ? null : `${Math.round(x.freshmanShare * 100)}%`,
-      bars: x.freshmanShare == null
-        ? [{ key: 'share', value: null }]
-        : [{ key: 'share', value: x.freshmanShare, color: NAVY }],
-    })),
-    unavailable: shareRows.length ? null
-      : 'no season on file carries enough recorded minutes for a share to mean anything',
-  });
-  k.note('A season with a hatched column is one whose minutes were never published widely enough '
-    + 'to read — not a season in which first-years played nothing.');
-}
-
-// ---------------------------------------------------------------------------
-// PAGE 5 — the first-year ladder
-// ---------------------------------------------------------------------------
-
-export function freshmanLadderPage(k, model) {
-  const s = model.summary.programme.freshmanOpportunity;
   const ladder = (model.ladder ?? []).slice(0, 5);
   const pool = model.benchmarks?.ladderByRank ?? [];
 
-  page(k, 'Programme evidence', 'The first-year ladder',
-    'When this programme plays first-years, how deep into the class does real playing time go?');
+  page(k, 'Programme intelligence', 'How much first-years actually play',
+    'How much opportunity do first-years actually get here?');
   scope(k, [
     `${plural(s.seasonsObserved, 'season', 'seasons')} contributing`,
+    `${s.measuredFreshmen} first-years with minutes published`,
     s.pool ? `compared against ${nf(s.pool.programmes)} programmes` : 'no pool comparison available',
+    s.unreadableSeasons.length ? `${s.unreadableSeasons.join(', ')} not readable` : null,
   ]);
 
+  // ---- the ladder, which is the finding -----------------------------------
   if (!ladder.length) {
     k.body('No season on file carries enough recorded minutes to rank a first year here. This '
       + 'programme’s rosters do not publish them consistently enough to build a ladder.',
     { color: MUTED });
-    return;
+  } else {
+    const rows = ladder.map((r) => {
+      const pr = pool.find((x) => x.rank === r.rank) ?? null;
+      return {
+        label: r.rank === 1 ? 'Best first-year' : `${r.rank}${['', 'st', 'nd', 'rd'][r.rank] || 'th'} best`,
+        contributions: r.contributions ?? [],
+        median: r.median,
+        low: r.low,
+        high: r.high,
+        n: r.seasonsWithThisMany,
+        agreement: r.agreement,
+        comparable: r.comparable,
+        poolMedian: pr?.median ?? null,
+        poolP25: pr?.p25 ?? null,
+        poolP75: pr?.p75 ?? null,
+      };
+    });
+    const xMax = Math.max(1600, ...rows.flatMap((r) => [r.high ?? 0, r.poolP75 ?? 0]));
+
+    charts.dotLadder(k, {
+      box: k.slot(rows.length * 30 + 60),
+      title: 'What the best, second-best and third-best first-year actually got',
+      subtitle: 'One dot per season, placed at the minutes that rank played. The heavy bar is this '
+        + 'programme’s median across those seasons.',
+      rows,
+      xMax,
+      marker: STARTER_MINUTES,
+      poolLabel: 'the middle half of programmes at the same rank',
+      unavailable: null,
+    });
+
+    if (rows.some((r) => r.agreement === 'wide')) {
+      k.note('Where a range is shown instead of a season count, the seasons disagree too much for '
+        + 'one number to describe them — read the dots, not the bar.');
+    }
+    if (rows.some((r) => !r.comparable)) {
+      k.note('A rank stops being comparable once the seasons contributing to it differ from the '
+        + 'ranks above; those rungs are stated rather than drawn.');
+    }
+    k.gap(2);
+    k.body(`In ${s.seasonsWithAnImpactFreshman} of ${plural(s.seasonsObserved, 'season', 'seasons')} on file, at least one `
+      + `first-year played a ${STARTER_MINUTES}-minute season.`);
   }
 
-  const rows = ladder.map((r) => {
-    const p = pool.find((x) => x.rank === r.rank) ?? null;
-    return {
-      label: r.rank === 1 ? 'Best first-year' : `${r.rank}${['', 'st', 'nd', 'rd'][r.rank] || 'th'} best`,
-      contributions: r.contributions ?? [],
-      median: r.median,
-      low: r.low,
-      high: r.high,
-      n: r.seasonsWithThisMany,
-      agreement: r.agreement,
-      comparable: r.comparable,
-      poolMedian: p?.median ?? null,
-      poolP25: p?.p25 ?? null,
-      poolP75: p?.p75 ?? null,
-    };
+  // ---- the intake, season by season ---------------------------------------
+  //
+  // A table rather than the two column charts it replaces. The charts drew four
+  // bars and four percentages over 250 points of page; the same four seasons
+  // read as figures in a third of that, and the trend a reader wants from them
+  // — first-years taking a growing or shrinking share of the squad's minutes —
+  // is a column of percentages either way.
+  k.heading('Who arrived, and how much they played');
+  k.table({
+    columns: [
+      { key: 'season', label: 'Season', width: 0.16, bold: true },
+      { key: 'freshmen', label: 'First-years', width: 0.17, align: 'right' },
+      { key: 'played', label: 'Given a minute', width: 0.2, align: 'right' },
+      { key: 'starters', label: `Reached ${STARTER_MINUTES} min`, width: 0.23, align: 'right' },
+      { key: 'share', label: 'Share of squad minutes', width: 0.24, align: 'right' },
+    ],
+    rows: intake.map((x) => ({
+      season: x.season,
+      freshmen: x.freshmen,
+      // A season whose minutes were not published widely enough to read carries
+      // a dash, never a zero: the roster is on file, the minutes are not.
+      played: x.readable ? x.freshmanPlayed : null,
+      starters: x.readable ? x.freshmanStarters : null,
+      share: x.freshmanShare == null ? null : `${Math.round(x.freshmanShare * 100)}%`,
+    })),
+    note: intake.some((x) => !x.readable)
+      ? 'A dash is a season whose minutes were never published widely enough to read — not a '
+        + 'season in which first-years played nothing. Every first-year is named in the '
+        + 'supporting record at the back, with the minutes, games and starts behind these counts.'
+      : 'Every first-year is named in the supporting record at the back, with the minutes, games '
+        + 'and starts behind these counts.',
   });
-  const xMax = Math.max(1600, ...rows.flatMap((r) => [r.high ?? 0, r.poolP75 ?? 0]));
 
-  charts.dotLadder(k, {
-    box: k.slot(rows.length * 30 + 60),
-    title: 'What the best, second-best and third-best first-year actually got',
-    subtitle: 'One dot per season, placed at the minutes that rank played. The heavy bar is this '
-      + 'programme’s median across those seasons.',
-    rows,
-    xMax,
-    marker: STARTER_MINUTES,
-    poolLabel: 'the middle half of programmes at the same rank',
-    unavailable: null,
-  });
-
-  if (rows.some((r) => r.agreement === 'wide')) {
-    k.note('Where a range is shown instead of a season count, the seasons disagree too much for '
-      + 'one number to describe them — read the dots, not the bar.');
-  }
-  if (rows.some((r) => !r.comparable)) {
-    k.note('A rank stops being comparable once the seasons contributing to it differ from the '
-      + 'ranks above; those rungs are stated rather than drawn.');
-  }
-  k.gap(2);
-  k.body(`In ${s.seasonsWithAnImpactFreshman} of ${plural(s.seasonsObserved, 'season', 'seasons')} on file, at least one `
-    + `first-year played a ${STARTER_MINUTES}-minute season.`);
-
-  // Only where reweighting exists AND changes the answer. A second full ladder
-  // for a programme whose seasons all describe the same approach would be a
-  // chart of nothing.
+  // ---- the coach-weighted view, only where it changes the answer ----------
+  //
+  // Rochester women's is the case: one coach across every measured season, and
+  // the recent seasons still describing something different from the early
+  // ones. Two ladders would not fit here and two ladders were never the point;
+  // the difference between the two tops is the whole of what the weighting says.
   if (s.weightingApplied && s.weightedAgrees === false && s.weightedLadderTop?.median != null) {
-    k.gap(4);
     k.heading('Current-coach relevance');
     k.facts([
       ['Programme history, all seasons', `${nf(s.ladderTop?.median)} min`],
       [`Weighted from ${s.weightFrom}`, `${nf(s.weightedLadderTop.median)} min`],
     ]);
-    k.body(model.verdict?.note
-      ? cap(model.verdict.note) + '.'
-      : 'The seasons before the change count less because they describe a different approach.',
-    { color: MUTED });
-    k.note('Both are shown because they answer different questions: the first is what has happened '
-      + 'here, the second is what has happened under the approach now in place. Neither replaces '
-      + 'the other.');
+    k.note(`${model.verdict?.note ? `${cap(model.verdict.note)}. ` : ''}Both are shown because they `
+      + 'answer different questions: the first is what has happened here, the second is what has '
+      + 'happened under the approach now in place. Neither replaces the other, and the ladder '
+      + 'above is the first.');
   }
 }
 
 // ---------------------------------------------------------------------------
-// PAGE 7 — the experienced arrival intake
+// Players brought in ready to play
 // ---------------------------------------------------------------------------
 
 /**
+ * The arrivals page and "who the arrivals are", merged — historical half only.
+ *
+ * WHAT MOVED OUT. The current-season arrivals table. It describes the roster on
+ * campus now and its minutes are PROJECTED, not played, which is why the page
+ * that carried both halves had to warn that its own two tables were not
+ * comparable. It now sits on the current-squad page, beside the other projected
+ * figures, where that warning is the page's subject rather than an apology.
+ *
+ * WHAT LEADS. Frequency, then the share of the squad's minutes these players
+ * took, then the distribution of what they went on to play, then the positions
+ * they arrived at and how many reached a starter's season. Named arrivals are in
+ * the evidence act.
+ *
  * @param newPage - false where this section is flowing beneath the squad page.
  * It does that only where its whole finding is one box — no arrival could be
  * detected, or no season can be compared with the one before it — and the
  * running order has measured the room. Nothing is dropped in that case; the
  * section keeps its title, its scope line and its box.
  */
-export function experiencedArrivalIntakePage(k, model, { newPage = true } = {}) {
+export function experiencedArrivalsPage(k, model, { newPage = true } = {}) {
   const e = model.summary.programme.experiencedArrivalReliance;
   const t = model.transfer;
+  const athletePos = model.athlete ? canonicalPosition(model.athlete.position) : null;
 
   pageHead(k, {
-    kicker: 'Programme evidence',
-    title: 'Experienced arrivals',
-    question: 'How often does this programme add players who are not first-years, and how much do '
-      + 'they play?',
+    kicker: 'Programme intelligence',
+    title: 'Players brought in ready to play',
+    question: 'How does this programme use players who arrive with college experience?',
     newPage,
     continued: !newPage,
   });
@@ -255,6 +232,23 @@ export function experiencedArrivalIntakePage(k, model, { newPage = true } = {}) 
     + 'The roster cannot tell a transfer from a junior-college arrival or an older recruit, so they '
     + 'are counted together as experienced arrivals — for a recruit they mean the same thing, '
     + 'somebody brought in ready to play.');
+
+  /**
+   * The squad-wide share, which is a different question from the one the glance
+   * page's card answers.
+   *
+   * The card states the share of a VACATED POSITION'S minutes that went to
+   * arrivals, which is the figure with a pool behind it. This is the share of
+   * the whole squad's readable minutes. Both were on page two, unlabelled, as
+   * 28% and 30.9% — 13A / §P. One belongs on the decision layer and the other
+   * belongs here, where there is room to say which is which.
+   */
+  if (e.shareOfMeasuredLoad != null) {
+    k.note(`Across the seasons whose minutes can be read, ${pcInt(e.shareOfMeasuredLoad)} of every `
+      + 'minute the squad played went to a player who did not arrive as a first-year. That is a '
+      + 'share of the whole squad’s minutes; the figure on the summary page is a share of the '
+      + 'minutes that came free at a position, which is a narrower and differently measured thing.');
+  }
   k.gap(2);
 
   // Only the seasons an arrival could be detected in. A lane for a season with
@@ -266,8 +260,8 @@ export function experiencedArrivalIntakePage(k, model, { newPage = true } = {}) 
   charts.scatter(k, {
     box: k.slot(lanes.length * 28 + 40),
     title: 'Every experienced arrival, one dot per player',
-    subtitle: 'Drawn exactly as the first-years are, so the two populations can be read against '
-      + 'each other.',
+    subtitle: 'Drawn exactly as the first-year ladder is scaled, so the two populations can be '
+      + 'read against each other.',
     lanes,
     xMax,
     marker: STARTER_MINUTES,
@@ -284,46 +278,9 @@ export function experiencedArrivalIntakePage(k, model, { newPage = true } = {}) 
       + 'player who was already here.');
   }
 
-  const rows = model.freshman.intake;
-  charts.columns(k, {
-    box: k.slot(136),
-    title: 'Minutes played by first-years against minutes played by experienced arrivals',
-    subtitle: 'Actual minutes played in each season, not projections.',
-    yMax: Math.max(1, ...rows.flatMap((x) => [x.freshmanMinutes ?? 0, x.newcomerMinutes ?? 0])),
-    unit: ' min',
-    groups: rows.map((x) => ({
-      label: x.season,
-      note: x.arrivalsMeasurable ? `${x.newcomers} in` : 'not measurable',
-      bars: x.readable ? [
-        { key: 'fresh', value: x.freshmanMinutes, color: NAVY },
-        { key: 'new', value: x.arrivalsMeasurable ? x.newcomerMinutes : null, color: GREEN },
-      ] : [{ key: 'fresh', value: null }],
-    })),
-    unavailable: rows.some((x) => x.readable) ? null
-      : 'no season on file carries enough recorded minutes',
-  });
-  k.note('Navy is first-years, green experienced arrivals. A season marked “not measurable” has no '
-    + 'green bar because arrivals could not be identified in it, not because none arrived.');
-}
-
-// ---------------------------------------------------------------------------
-// PAGE 8 — who the arrivals are
-// ---------------------------------------------------------------------------
-
-export function experiencedArrivalProfilePage(k, model) {
-  const t = model.transfer;
-  const e = model.summary.programme.experiencedArrivalReliance;
-  const arrivals = model.squad.arrivals ?? [];
-  const athletePos = model.athlete ? canonicalPosition(model.athlete.position) : null;
-
-  page(k, 'Programme evidence', 'Who the arrivals are',
-    'What kind of player does this programme bring in, and who has arrived for the current season?');
-
-  // --- the historical half: actual minutes played ---
-  k.heading('Historically — minutes actually played');
-  if (!t.points.length) {
-    k.body('No experienced arrival in the measurable seasons has minutes on file.', { color: MUTED });
-  } else {
+  // Position distribution and starter-level usage — the half of "who the
+  // arrivals are" that is a finding rather than a list.
+  if (t.points.length) {
     const byPos = POSITIONS.map((pos) => {
       const at = t.points.filter((p) => p.position === pos);
       return {
@@ -331,15 +288,14 @@ export function experiencedArrivalProfilePage(k, model) {
         players: at.length,
         starters: at.filter((p) => p.minutes >= STARTER_MINUTES).length,
         median: at.length
-          ? nf([...at.map((p) => p.minutes)].sort((a, b) => a - b)[Math.floor(at.length / 2)]) : null,
+          ? nf([...at.map((p) => p.minutes)].sort((x, y) => x - y)[Math.floor(at.length / 2)]) : null,
         total: at.length ? nf(at.reduce((sum, p) => sum + p.minutes, 0)) : null,
       };
     }).filter((x) => x.players > 0);
 
+    k.heading('Which positions they arrived at');
     k.table({
-      caption: `${plural(t.points.length, 'arrival', 'arrivals')} across `
-        + `${plural(e.measurableSeasons.length, 'measurable season', 'measurable seasons')}. `
-        + 'These are minutes they went on to play.',
+      caption: 'Minutes they went on to play here — historical, not projected.',
       columns: [
         { key: 'position', label: 'Position', width: 0.3 },
         { key: 'players', label: 'Arrivals', width: 0.15, align: 'right' },
@@ -349,44 +305,9 @@ export function experiencedArrivalProfilePage(k, model) {
       ],
       rows: byPos,
       highlight: athletePos ? (row) => row.position === cap(positionPlural(athletePos)) : null,
-    });
-  }
-
-  // --- the current half: projected minutes, on a different scale entirely ---
-  k.gap(4);
-  k.heading(`Arriving for ${model.squadSeason} — minutes projected, not played`);
-  if (!model.squad.rostered) {
-    k.body(`No ${model.squadSeason} roster is on file for this programme, so we cannot name who has `
-      + 'arrived.', { color: MUTED });
-  } else if (!arrivals.length) {
-    k.body(`Nobody on the ${model.squadSeason} roster is recorded as arriving from another `
-      + 'programme. The roster records a previous programme for some players and not others, so '
-      + 'this is what is named rather than everyone who arrived.', { color: MUTED });
-  } else {
-    k.table({
-      caption: `${plural(arrivals.length, 'player', 'players')} on the ${model.squadSeason} roster `
-        + `${arrivals.length === 1 ? 'is' : 'are'} recorded as arriving from another programme. The `
-        + 'minutes below are PROJECTED for the coming season — they are not comparable with the '
-        + 'minutes actually played above.',
-      columns: [
-        { key: 'name', label: 'Player', width: 0.28, bold: true },
-        { key: 'position', label: 'Position', width: 0.16, format: (v) => cap(positionPlural(v)).replace(/s$/, '') },
-        { key: 'classLabel', label: 'Class', width: 0.12 },
-        { key: 'from', label: 'Arrived from', width: 0.28 },
-        { key: 'projectedMinutes', label: 'Projected minutes', width: 0.16, align: 'right', format: (v) => (v == null ? null : nf(v)) },
-      ],
-      rows: arrivals,
-      highlight: athletePos ? (row) => row.position === athletePos : null,
-      note: [
-        arrivals.every((x) => x.projectedMinutes == null)
-          ? 'None of them carries a projected-minutes figure: a projection is carried forward from '
-            + 'a player’s previous season and is not always held for someone who has just moved.'
-          : null,
-        athletePos
-          ? `${arrivals.filter((x) => x.position === athletePos).length} of them play the position `
-            + 'this report is prepared for; what that means is on the athlete pages.'
-          : null,
-      ].filter(Boolean).join(' ') || null,
+      note: 'Every arrival is named in the supporting record at the back. Who has arrived for '
+        + `${model.squadSeason} is with the current squad, because those minutes are projected `
+        + 'rather than played.',
     });
   }
 }
@@ -398,7 +319,7 @@ export function experiencedArrivalProfilePage(k, model) {
 export function replacingMinutesPage(k, model) {
   const r = model.summary.programme.replacementBehaviour;
 
-  page(k, 'Programme evidence', 'Replacing minutes',
+  page(k, 'Programme intelligence', 'Replacing minutes',
     'When established players leave a position, where do the following season’s minutes go?');
   scope(k, [
     `${r.observations} readable of ${r.totalObservations} position-seasons`,
@@ -481,13 +402,23 @@ export function replacingMinutesPage(k, model) {
 // PAGE 10 — the same question, position by position
 // ---------------------------------------------------------------------------
 
-export function replacementByPositionPage(k, model) {
+/**
+ * @param newPage - false where this reads as the second half of the replacement
+ * story and the running order has measured the room for it. It keeps its title,
+ * its question and its table either way; only the page break is conditional.
+ */
+export function replacementByPositionPage(k, model, { newPage = true } = {}) {
   const r = model.summary.programme.replacementBehaviour;
   const athletePos = model.athlete ? canonicalPosition(model.athlete.position) : null;
   const live = r.byPosition.filter((p) => p.transitions > 0);
 
-  page(k, 'Programme evidence', 'Position by position',
-    'Does what happens when a place comes free depend on the position?');
+  pageHead(k, {
+    kicker: 'Programme intelligence',
+    title: 'Position by position',
+    question: 'Does what happens when a place comes free depend on the position?',
+    newPage,
+    continued: !newPage,
+  });
 
   if (!live.length) {
     k.body('No position group here carries enough recorded minutes to read separately.', { color: MUTED });
@@ -496,10 +427,9 @@ export function replacementByPositionPage(k, model) {
 
   k.table({
     caption: 'An opening is a season transition in which a starter left that position. The two '
-      + '“started” columns count the openings a first-year, or an experienced arrival, then started '
-      + 'in — they can describe the same season, because one opening can be filled by more than one '
-      + 'player, so they are never subtracted from the total. The minutes split is returning / '
-      + 'first-year / experienced arrival.',
+      + '“started” columns count the openings a first-year, or an experienced arrival, then '
+      + 'started in; one opening can be filled by more than one player, so they are never '
+      + 'subtracted from the total. The split is returning / first-year / experienced arrival.',
     columns: [
       { key: 'position', label: 'Position', width: 0.2, bold: true, format: (v) => cap(positionPlural(v)) },
       { key: 'transitions', label: 'Transitions', width: 0.12, align: 'right' },
@@ -530,20 +460,20 @@ export function replacementByPositionPage(k, model) {
     + 'nearly every minute and the rest play none, so a position-season rarely carries the spread '
     + 'the guard requires.');
 
-  // Season detail only where it explains the row rather than repeating it.
-  const withOpenings = model.byPosition.filter((p) => p.openings > 0);
-  if (withOpenings.length) {
-    k.gap(4);
-    k.heading('The seasons behind those openings');
-    for (const p of withOpenings) {
-      for (const season of p.seasons.filter((x) => x.startersDeparted > 0)) {
-        const names = season.departedNames.map((d) => `${d.name} (${minutesOf(d.minutes)})`).join(', ');
-        k.body(`${cap(positionPlural(p.position)).replace(/s$/, '')}, ${season.season}: ${names} left — `
-          + `${plural(season.freshStarters, 'first-year started', 'first-years started')}`
-          + `${season.newcomerStarters ? `, and ${plural(season.newcomerStarters, 'experienced arrival', 'experienced arrivals')}` : ''}.`,
-        { color: MUTED });
-      }
-    }
+  /**
+   * The season-by-season openings are NOT restated here.
+   *
+   * They were nine lines of named departures under this table, and the evidence
+   * act tabulates the same nine openings properly — one row per transition, with
+   * the minutes vacated, whether a first-year then started and the returning
+   * share. 13A found the two saying the same thing; this is the one that keeps
+   * the pointer and drops the paraphrase.
+   */
+  const openings = model.byPosition.reduce((n, p) => n + p.openings, 0);
+  if (openings) {
+    k.note(`Each of the ${plural(openings, 'opening', 'openings')} above is listed in the `
+      + 'supporting record at the back, with the players who left, the minutes they had been '
+      + 'playing and who started the following season.');
   }
   if (athletePos) {
     k.note(`${cap(positionPlural(athletePos))} is the position this report is prepared for and is `
@@ -561,7 +491,7 @@ export function currentSquadOutlookPage(k, model) {
   const squad = model.squad;
   const proj = t.projectedMinutes;
 
-  page(k, 'Programme evidence', 'Current squad outlook',
+  page(k, 'Programme intelligence', 'The squad you would be joining',
     `When does the playing-time load on the ${model.squadSeason} roster reach the end of its eligibility?`);
   scope(k, [
     `${plural(t.rostered, 'player', 'players')} on the ${model.squadSeason} roster`,
@@ -598,30 +528,18 @@ export function currentSquadOutlookPage(k, model) {
     unavailable: lanes.length ? null : 'no current roster on file',
   });
 
-  charts.columns(k, {
-    box: k.slot(132),
-    title: 'Projected minutes currently attached to players whose eligibility ends in each year',
-    subtitle: 'From the squad on campus now. A fifth year, a move away or an injury all move it.',
-    yMax: Math.max(1, ...squad.cliff.map((y) => y.total)),
-    unit: ' min',
-    groups: squad.cliff.map((y) => ({
-      label: String(y.year),
-      // A year whose players carry no projection at all has no total — a
-      // zero-height bar there would read as "these players are projected to
-      // play nothing" when it means "we hold no projection for them".
-      note: y.playersWithProjection ? nf(y.total) : `${y.players} players, no projection`,
-      bars: y.playersWithProjection
-        ? [{ key: 'min', value: y.total, color: y.year === model.entrySeason ? CLARET : NAVY }]
-        : [{ key: 'min', value: null }],
-    })),
-    unavailable: null,
-  });
-  k.note(`The claret column is ${model.entrySeason}, the season this report is prepared for. A `
-    + 'hatched column is a year whose players hold no projection — every one of them a first-year, '
-    + 'whose minutes are carried forward from a season they have not played.');
-
+  /**
+   * The projected-minutes column chart is not drawn here since 13B.
+   *
+   * It plotted one column per eligibility year — the same five years, the same
+   * five totals — directly above a table that carries those totals AND the
+   * player counts, the no-projection counts and the positions the minutes sit
+   * in. One of the two was a strict subset of the other on the same page, and
+   * the room it took is what the arrivals table now uses.
+   */
   k.table({
-    caption: 'The same figures by position, with the players behind them.',
+    caption: `Every eligibility year on the ${model.squadSeason} roster, with the players behind it. `
+      + `${model.entrySeason} is the season this report is prepared for.`,
     columns: [
       { key: 'year', label: 'Eligibility ends', width: 0.16, bold: true },
       { key: 'players', label: 'Players', width: 0.12, align: 'right' },
@@ -640,11 +558,66 @@ export function currentSquadOutlookPage(k, model) {
       positions: y.byPosition.filter((b) => b.minutes > 0).map(
         (b) => `${cap(positionPlural(b.position)).slice(0, 3)} ${nf(b.minutes)}`).join('   ') || null,
     })),
-    note: proj.readable
-      ? `Against ${nf(proj.total)} projected minutes across the players who carry a projection.`
+    note: (proj.readable
+      ? `Against ${nf(proj.total)} projected minutes across the players who carry a projection. `
       : 'Too few of the returning squad carry a projection for these totals to be read as a share '
-        + 'of anything.',
+        + 'of anything. ')
+      + 'A year with no projected minutes is a year whose players hold none — every one of them a '
+      + 'first-year, whose minutes would have to be carried forward from a season they have not '
+      + 'played.',
   });
+
+  /**
+   * Who has arrived for the coming season — moved here from the historical
+   * arrivals story, 13A / §H.
+   *
+   * It belongs with the current squad because that is what it describes: the
+   * roster on campus now. Its minutes are PROJECTED, and the page it used to
+   * share was a page of minutes actually played, which is why that page had to
+   * warn a reader that its own two tables could not be read against each other.
+   * Here every figure on the page is a current-roster figure and the warning is
+   * the page's subject rather than an exception to it.
+   */
+  const arrivals = squad.arrivals ?? [];
+  const athletePos = model.athlete ? canonicalPosition(model.athlete.position) : null;
+  k.heading(arrivals.length
+    ? `Arrived for ${model.squadSeason} — ${plural(arrivals.length, 'player', 'players')}`
+    : `Arrived for ${model.squadSeason}`);
+  if (!arrivals.length) {
+    k.note(`Nobody on the ${model.squadSeason} roster is recorded as arriving from another `
+      + 'programme. The roster records a previous programme for some players and not others, so '
+      + `this is what is named rather than everyone who arrived. All `
+      + `${plural(squad.rostered, 'player', 'players')} on this roster are listed individually in `
+      + 'the supporting record at the back.');
+  } else {
+    k.table({
+      columns: [
+        { key: 'name', label: 'Player', width: 0.28, bold: true },
+        { key: 'position', label: 'Position', width: 0.16, format: (v) => cap(positionPlural(v)).replace(/s$/, '') },
+        { key: 'classLabel', label: 'Class', width: 0.12 },
+        { key: 'from', label: 'Arrived from', width: 0.28 },
+        { key: 'projectedMinutes', label: 'Projected minutes', width: 0.16, align: 'right', format: (v) => (v == null ? null : nf(v)) },
+      ],
+      rows: arrivals,
+      highlight: athletePos ? (row) => row.position === athletePos : null,
+      note: [
+        arrivals.every((x) => x.projectedMinutes == null)
+          ? 'None of them carries a projected-minutes figure: a projection is carried forward from '
+            + 'a player’s previous season and is not always held for someone who has just moved.'
+          : null,
+        athletePos
+          ? `${arrivals.filter((x) => x.position === athletePos).length} of them play the position `
+            + 'this report is prepared for; what that means is on the athlete pages.'
+          : null,
+        // What the programme has historically done with arrivals is its own
+        // section, and that section already points here. One direction is
+        // enough; two is the cross-reference reading as an apology.
+        `Recorded as arriving from another programme; the roster names a previous programme for `
+          + `some players and not others. All ${plural(squad.rostered, 'player', 'players')} on `
+          + 'this roster are listed individually in the supporting record at the back.',
+      ].filter(Boolean).join(' ') || null,
+    });
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -655,8 +628,14 @@ export function currentDepthPage(k, model) {
   const rows = model.summary.programme.squadTurnover.squad ?? [];
   const athletePos = model.athlete ? canonicalPosition(model.athlete.position) : null;
 
-  page(k, 'Programme evidence', 'The current squad',
-    `Who is on the ${model.squadSeason} roster, and how established are they?`);
+  // In the evidence act since 13B, and set one level quieter to say so: this is
+  // the roster behind the outlook page, not a second analysis of it.
+  pageHead(k, {
+    kicker: 'The evidence behind it',
+    title: 'The current squad in full',
+    question: `Who is on the ${model.squadSeason} roster, and how established are they?`,
+    quiet: true,
+  });
 
   if (!rows.length) {
     k.body(`No ${model.squadSeason} roster is on file for this programme.`, { color: MUTED });

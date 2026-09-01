@@ -243,8 +243,8 @@ describe('roster continuity on the page', () => {
 
   it('leads with retention and states the pool it is read against', async () => {
     const { text, model } = await build();
-    expect(text).toContain('Roster continuity');
-    expect(text).toMatch(/How often do players who could return appear on the next roster\?/);
+    expect(text).toContain('Who stays, and who we can follow');
+    expect(text).toMatch(/What happens to players from one season to the next\?/);
     const c = model.lifecycle.continuity;
     // The reading block states it first, in a sentence, with its denominator.
     expect(text).toContain('WHAT THRIV3 SEES');
@@ -289,9 +289,10 @@ describe('the destination gate, in the document', () => {
     // Rows exist. The page still does not, which is the point.
     expect(model.lifecycle.departures.tracing.observed).toBeGreaterThan(0);
     const ids = model.sections.map((s) => s.id);
-    expect(ids).not.toContain('observed-destinations');
+    // Destinations is a block on the continuity page since 13B, so a closed
+    // gate means the block is absent — not that a section disappeared.
     expect(ids).not.toContain('table-destinations');
-    expect(text).not.toContain('Where we can trace players next');
+    expect(text).not.toContain('Where the traceable few went');
     expect(text).not.toContain('Every traced move');
     // Everything that does not depend on tracing still renders.
     expect(ids).toContain('roster-continuity');
@@ -299,11 +300,11 @@ describe('the destination gate, in the document', () => {
     expect(text).toMatch(/seasons still to run \(\d+\)/);
   });
 
-  it('renders the destination pages for a Division I programme with coverage', async () => {
+  it('renders the destination block and its record where the gate is open', async () => {
     tracedWorld();
     const { text, model } = await build();
     expect(model.lifecycle.departures.gate.allowed).toBe(true);
-    expect(text).toContain('Where we can trace players next');
+    expect(text).toContain('WHERE THE TRACEABLE FEW WENT');
     expect(text).toContain('Every traced move');
   });
 
@@ -315,40 +316,46 @@ describe('the destination gate, in the document', () => {
     });
     const { model, text } = await build();
     expect(model.lifecycle.departures.gate.reason).toBe('too-few-observed');
-    expect(text).not.toContain('Where we can trace players next');
+    expect(text).not.toContain('Where the traceable few went');
   });
 });
 
-describe('the destination page itself', () => {
+describe('the destination block, on the continuity page', () => {
   beforeEach(tracedWorld);
 
-  it('puts coverage first, at full size, above any destination pattern', async () => {
+  /**
+   * The block is the tail of the continuity section, and at a full-data
+   * programme the section runs to two pages — so "on the continuity page" means
+   * the section's pages, not only the first of them.
+   */
+  const sectionText = (pages, model) => {
+    const start = model.sections.find((s) => s.id === 'roster-continuity').page;
+    return pages.slice(start - 1, start + 1).join(' ');
+  };
+
+  it('states its coverage before any destination pattern', async () => {
     const { pages, model } = await build();
-    const page = pageOf(pages, model, 'observed-destinations');
+    const page = sectionText(pages, model);
     const d = model.lifecycle.departures;
-    expect(page).toContain('Observed destinations only');
-    expect(page).toContain(`${d.tracing.observed} we could trace`);
-    expect(page).toContain(`${d.tracing.observed} of ${d.departures.total} departures could be traced`);
-    expect(page).toContain('How much of this programme’s movement can be seen at all');
-    // Coverage is stated before the first of the three measures.
-    expect(page.indexOf('traced to another roster'))
+    expect(page).toContain(`${d.tracing.observed} of ${d.departures.total} departures`);
+    // Coverage is stated before the first of the three measures, which is the
+    // whole reason the block reads honestly at 15%.
+    expect(page.indexOf('appear on another programme’s roster'))
       .toBeLessThan(page.indexOf('Football rating'));
   });
 
   it('names the unresolved group and does not bury it', async () => {
     const { pages, model } = await build();
-    const page = pageOf(pages, model, 'observed-destinations');
+    const page = sectionText(pages, model);
     const t = model.lifecycle.departures.tracing;
-    expect(page).toMatch(/not traceable \(\d+\)/);
-    // The untraceable group is named in the coverage headline, in the same
-    // sentence that says what the rest of the page is a sample of.
-    expect(page).toContain(`the other ${t.ambiguous + t.unresolved} appear on no roster we can see`);
-    expect(page).toContain('OF DEPARTURES TRACED');
+    expect(page).toContain(`The other ${t.ambiguous + t.unresolved} appear on no roster we can see`);
+    // And the departure bar above it still names the untraceable group.
+    expect(page).toMatch(/no trace at all \(\d+\)/);
   });
 
   it('shows football, academic and division as three separate bars', async () => {
     const { pages, model } = await build();
-    const page = pageOf(pages, model, 'observed-destinations');
+    const page = sectionText(pages, model);
     for (const label of ['Football rating', 'Academic rating', 'Division']) {
       expect(page).toContain(label);
     }
@@ -446,8 +453,7 @@ describe('the contents still names the right pages', () => {
     const { model, pages } = await build();
     const wanted = {
       'player-development': 'How players develop after they arrive',
-      'roster-continuity': 'Roster continuity',
-      'observed-destinations': 'Where we can trace players next',
+      'roster-continuity': 'Who stays, and who we can follow',
       'table-destinations': 'Every traced move',
     };
     for (const [id, title] of Object.entries(wanted)) {

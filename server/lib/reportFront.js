@@ -22,7 +22,7 @@ import { positionPlural } from '../../shared/positions.js';
 import {
   programmeHeadlines, athleteHeadlines, pathwayNarrative,
 } from '../../shared/report/narrative.js';
-import { actTitle } from '../../shared/report/sections.js';
+import { actTitle, groupTitle } from '../../shared/report/sections.js';
 import { coachContextFor, coachTimelineFor, PROMINENCE } from '../../shared/report/coachContext.js';
 
 const { INK, MUTED, LINE, CLARET, NAVY, MID, PALE, GREEN, M, W } = THEME;
@@ -468,20 +468,47 @@ export function contentsPage(doc, model, plan, pages) {
   // not, because the section's own page opens with the same sentence.
   const available = doc.page.height - M - 26 - y;
   const acts = [...new Set(listed.map((s) => s.act))];
-  const rowH = Math.max(13, Math.min(18,
-    (available - acts.length * 17) / Math.max(1, listed.length)));
+  // The group headings take ten points each and there is one per group that has
+  // a section in it, so they are reserved here rather than discovered when the
+  // last row of the contents lands under the footer.
+  const groups = [...new Set(listed.map((s) => s.group).filter(Boolean))];
+  const rowH = Math.max(12, Math.min(18,
+    (available - acts.length * 17 - groups.length * 10) / Math.max(1, listed.length)));
 
+  /**
+   * Acts, and inside the programme act the narrative groups.
+   *
+   * 13A: the contents listed sixteen modules at equal weight, so a parent could
+   * not see the journey — nine of the titles were reader questions and seven
+   * were analytical names, all in one flat run. The act headings are unchanged;
+   * the group headings are what turn the middle act into five questions.
+   *
+   * A group heading is drawn only where the group has a section in it, so a
+   * sparse programme never shows a heading over nothing.
+   */
   let lastAct = null;
+  let lastGroup = null;
   for (const s of listed) {
     if (s.act !== lastAct) {
       if (lastAct !== null) y += 5;
       lastAct = s.act;
+      lastGroup = null;
       doc.font(TYPE.section.font).fontSize(6.5).fillColor(CLARET)
         .text(actHeading(s.act, Boolean(a)).toUpperCase(), M, y,
           { width: W, characterSpacing: 1.1, lineBreak: false });
       y += 12;
     }
-    line(doc, s.title, M + 10, y, W * 0.46, { font: 'Helvetica-Bold', size: 9.5 });
+    if (s.group && s.group !== lastGroup) {
+      lastGroup = s.group;
+      const heading = groupTitle(s.group);
+      if (heading) {
+        doc.font('Helvetica').fontSize(7.2).fillColor(MUTED)
+          .text(heading, M + 10, y, { width: W * 0.6, lineBreak: false, ellipsis: true });
+        y += 10;
+      }
+    }
+    line(doc, s.title, M + (s.group ? 20 : 10), y, W * 0.46 - (s.group ? 10 : 0),
+      { font: 'Helvetica-Bold', size: 9.5 });
     doc.font('Helvetica-Bold').fontSize(9.5).fillColor(INK)
       .text(String(pages.get(s.id)), M + W - 40, y, { width: 40, align: 'right', lineBreak: false });
     const scope = (s.scopeNotes ?? []).slice(0, 2).join(' · ');
@@ -604,8 +631,12 @@ function arrivalCard(doc, box, s) {
       .text('No position-season here carries enough recorded minutes to read the mix.', p.x, y, { width: p.w });
     y += 30;
   } else {
+    // The DENOMINATOR, named. This figure is the share of a vacated position's
+    // minutes, not of the squad's — and the squad-wide share is a different
+    // number, which is what made the two arrival figures on this page read as a
+    // contradiction until 13B named them apart.
     y = bigMetric(doc, p.x, y, `${s.primaryMetric.value}`, {
-      unit: '%', caption: 'to arrivals who were not first-years', width: p.w,
+      unit: '%', caption: 'of minutes that came free at a position', width: p.w,
     });
     const pool = s.pool?.newcomer ?? null;
     const max = Math.max(s.primaryMetric.value, pool?.p75 ?? 0, 1) * 1.15;

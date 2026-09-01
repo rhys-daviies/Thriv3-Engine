@@ -143,8 +143,11 @@ describe('what it says', () => {
 
   it('points each headline at the section holding its evidence', () => {
     const sections = programmeHeadlines(model()).map((x) => x.section).filter(Boolean);
-    expect(sections).toEqual(['freshman-ladder', 'experienced-arrival-intake',
-      'player-development', 'roster-continuity', 'observed-destinations']);
+    // Every headline points at a section that exists in the plan. Destinations
+    // no longer has its own page — it is a block on the continuity page since
+    // 13B — so the "where players go" line points there.
+    expect(sections).toEqual(['freshman-opportunity', 'experienced-arrivals',
+      'player-development', 'roster-continuity', 'roster-continuity']);
   });
 
   it('answers all six client questions between the two bands', () => {

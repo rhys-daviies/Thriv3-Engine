@@ -27,7 +27,7 @@ const { MUTED, INK } = THEME;
 export function evidenceLimitsPage(k, model) {
   const limits = model.evidenceLimits ?? [];
   pageHead(k, {
-    kicker: 'Programme evidence',
+    kicker: 'Programme intelligence',
     title: 'Where the evidence runs out',
     question: 'What we set out to measure here, and what stopped us.',
   });
@@ -70,7 +70,7 @@ export function evidenceLimitsFor(model) {
   const e = s?.experiencedArrivalReliance;
   if (e && !e.measurable) {
     out.push({
-      id: 'experienced-arrival-intake',
+      id: 'experienced-arrivals',
       title: 'Experienced arrivals',
       attempted: 'How often this programme adds players who are not first-years, and how much '
         + 'they go on to play.',

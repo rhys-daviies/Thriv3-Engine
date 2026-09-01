@@ -219,25 +219,63 @@ export function programmeHeadlines(model) {
       text: 'The best first-year of a season here has typically played '
         + `${Math.round(f.ladderTop.median).toLocaleString('en-US')} minutes`
         + `${clause ? ` — ${clause}` : ''}.`,
-      section: 'freshman-ladder',
+      section: 'freshman-opportunity',
     });
   } else if (f) {
     out.push({
       label: 'First-years',
       text: 'There is not enough published first-year minutes here to say what a first-year has '
         + 'typically played.',
-      section: 'freshman-ladder',
+      section: 'freshman-opportunity',
     });
   }
 
+  /**
+   * ONE ARRIVAL FIGURE ON THE DECISION LAYER — 13A / 13B §P.
+   *
+   * This line used to quote `shareOfMeasuredLoad`, the share of the whole
+   * squad's readable minutes, while the card two inches below it quoted
+   * `dials.newcomer`, the share of a VACATED POSITION's minutes. At Mercyhurst
+   * men's that put 28% and 30.9% on one page with nothing to say why they
+   * differed, which a reader can only read as an error.
+   *
+   * The card's figure wins, for a reason rather than by preference: it is the
+   * one with a pool behind it, so it is the only one of the two that can carry
+   * the "above the comparable pool" clause this line exists to deliver. The
+   * squad-wide share is not discarded — it answers a different question and is
+   * stated, with its denominator named, on the arrivals page itself.
+   *
+   * Neither figure is recalculated. This chooses which of two existing fields
+   * the decision layer speaks with.
+   */
   const e = s?.experiencedArrivalReliance;
-  if (e?.measurable && e.shareOfMeasuredLoad != null) {
+  if (e?.measurable && e.primaryMetric?.value != null) {
     const clause = againstPool(e.classification);
     out.push({
       label: 'Experienced arrivals',
-      text: `${pc(e.shareOfMeasuredLoad)} of readable minutes have gone to players who did not `
-        + `arrive as first-years${clause ? ` — ${clause}` : ''}.`,
-      section: 'experienced-arrival-intake',
+      // The card's own rendering of the same field, not a rounded one: 31%
+      // beside a card reading 30.9% is a reader checking whether they are the
+      // same number, which is the whole problem this reconciliation exists for.
+      text: `${e.primaryMetric.value}% of the minutes that came free at a position have gone to `
+        + `players who did not arrive as first-years${clause ? ` — ${clause}` : ''}.`,
+      section: 'experienced-arrivals',
+    });
+  } else if (e?.measurable && e.shareOfMeasuredLoad != null) {
+    /**
+     * The squad-wide share, where the positional one could not be read.
+     *
+     * Not a second figure competing with the first: this branch runs only where
+     * no position-season carries enough minutes to read the mix, which is
+     * exactly the case in which the card on this page states that it cannot
+     * give a figure. The denominator is named, and there is no pool clause
+     * because the squad-wide share has no pool behind it.
+     */
+    out.push({
+      label: 'Experienced arrivals',
+      text: `${pc(e.shareOfMeasuredLoad)} of every minute the squad played went to a player who did `
+        + 'not arrive as a first-year. No position here turns over consistently enough to compare '
+        + 'that with other programmes.',
+      section: 'experienced-arrivals',
     });
   }
 
@@ -277,7 +315,7 @@ export function programmeHeadlines(model) {
       label: 'Where players go',
       text: `${d.tracing.observed} of ${d.departures.total} departures can be traced to another `
         + `roster — ${pc(d.tracing.coverage)} of them.`,
-      section: 'observed-destinations',
+      section: 'roster-continuity',
     });
   } else if (d && d.departures.total > 0) {
     out.push({

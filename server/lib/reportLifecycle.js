@@ -26,22 +26,21 @@
  * Successful or failed. A player's minutes at their next programme are their
  * minutes at their next programme.
  */
-import { charts, THEME, TYPE, pageHead, fitText } from './philosophyPdf.js';
+import { charts, THEME, pageHead } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 import {
-  developmentNarrative, continuityNarrative, destinationNarrative,
+  developmentNarrative, continuityNarrative,
 } from '../../shared/report/narrative.js';
 import { MIN_POSITION_DESTINATIONS } from '../../shared/report/lifecycleSummary.js';
 
 const { MUTED, CLARET, NAVY, MID, PALE, GREEN, INK, W, M } = THEME;
-const THEME_LABEL = TYPE.label;
 
 const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const pc = (v) => (v == null ? '—' : `${Math.round(v * 100)}%`);
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
-const page = (k, title, question) => pageHead(k, { kicker: 'Programme evidence', title, question });
+const page = (k, title, question) => pageHead(k, { kicker: 'Programme intelligence', title, question });
 
 /** The pool a figure was compared against, in the words the page uses. */
 const poolScope = (l) => (l.poolProgrammes
@@ -198,11 +197,12 @@ export function rosterContinuityPage(k, model) {
   const c = l.continuity;
   const dep = l.departures;
 
-  page(k, 'Roster continuity',
-    'How often do players who could return appear on the next roster?');
+  page(k, 'Who stays, and who we can follow',
+    'What happens to players from one season to the next?');
   k.scope([
     `${c.returnable} times a player could have returned`,
     c.unreadable ? `${c.unreadable} more we cannot read` : null,
+    dep?.gate?.allowed ? `${dep.tracing.observed} of ${dep.departures.total} departures traced` : null,
     `vs ${poolScope(l)}`,
   ]);
 
@@ -358,6 +358,70 @@ export function rosterContinuityPage(k, model) {
       + 'the same name appears at another programme the next season with enough agreeing detail to '
       + 'be confident it is the same person — most departures cannot be traced at all.');
   }
+
+  destinationBlock(k, model);
+}
+
+/**
+ * Where the traceable few went — sized to how few they are.
+ *
+ * IT USED TO BE A PAGE. 13A found it giving a full page to fifteen traced moves
+ * out of a hundred departures: a 30-point coverage figure, a stacked bar that
+ * repeated the traced/unsettled/no-trace split the continuity page above it had
+ * already drawn, three dimension charts and a by-prior-role table. The page was
+ * scrupulously honest about its own sample, and that honesty is exactly why it
+ * did not need the room — at two of three programmes sampled the gate is closed
+ * and there was no page at all.
+ *
+ * WHAT SURVIVES HERE. The three dimensions, which are the finding, with the
+ * coverage in the same sentence rather than in a display figure. The names are
+ * in the evidence act, and so is the by-prior-role breakdown.
+ *
+ * NO SUCCESS JUDGEMENT. A move to a lower-rated programme is not a failure and a
+ * move up is not a vindication; the three rows are three facts about the same
+ * moves and they are never combined.
+ */
+function destinationBlock(k, model) {
+  const d = model.lifecycle?.departures;
+  if (!d?.gate?.allowed || !d.tracing?.observed) return;
+
+  /**
+   * A continued header where the block will not fit under the departures.
+   *
+   * Without it the block landed at the top of a fresh page as a bare section
+   * heading — a page with no title, which reads as a page that lost its own
+   * head rather than as the second half of the section above it. Measured room
+   * rather than a guess: the block is about 240 points with three dimension
+   * charts and its coverage sentence.
+   */
+  if (k.remaining() < 250) {
+    // The break is taken here rather than left to the first `room()` call
+    // inside the block: `pageHead`'s continued branch draws where the cursor
+    // is and never adds a page, so leaving it to chance drew the continuation
+    // header into the footer of the page it was continuing from.
+    k.doc.addPage();
+    pageHead(k, {
+      title: 'Who stays, and who we can follow',
+      question: 'And where did the departures we can trace actually go?',
+      continued: true,
+    });
+  }
+
+  k.heading('Where the traceable few went');
+  k.body(`${d.tracing.observed} of ${d.departures.total} departures — ${pc(d.tracing.coverage)} — `
+    + 'appear on another programme’s roster the following season, and everything below describes '
+    + `only those ${d.tracing.observed}. The other ${d.tracing.ambiguous + d.tracing.unresolved} `
+    + 'appear on no roster we can see, may have moved anywhere or stopped playing, and are not a '
+    + 'group this sample stands in for.'
+    + (d.tracing.divisionCoverage == null ? ''
+      : ` Across ${model.college.division} as a whole, ${pc(d.tracing.divisionCoverage)} of `
+        + 'departures can be traced.'), { color: MUTED });
+
+  dimensionCharts(k, d.dimensions, { compact: true });
+  k.note('A move can be to a lower-rated programme, in a stronger academic one, in the same '
+    + 'division. These are three facts about the same moves and they are never combined into one. '
+    + 'The traced moves are named in the supporting record at the back, with what each player went '
+    + 'on to play.');
 }
 
 // ---------------------------------------------------------------------------
@@ -455,105 +519,6 @@ export function movementRows(records) {
   }));
 }
 
-export function observedDestinationsPage(k, model) {
-  const l = model.lifecycle;
-  const d = l.departures;
-
-  page(k, 'Where we can trace players next',
-    'Observed destinations only — many departures cannot be traced from the available roster data.');
-  k.scope([
-    `${d.departures.total} departures across the seasons on file`,
-    `${d.tracing.observed} we could trace`,
-  ]);
-
-  k.reading(destinationNarrative(model));
-
-  // Coverage, as the largest thing on the page.
-  //
-  // It was a paragraph in a tinted box, which said the right thing at the same
-  // weight as everything else and repeated the reading block above it. The
-  // figure that qualifies every other number here now reads from across a
-  // desk, and the sentence beside it says what the page is a sample of.
-  {
-    const box = k.slot(88);
-    const { doc } = k;
-    doc.font('Helvetica-Bold').fontSize(30).fillColor(CLARET)
-      .text(pc(d.tracing.coverage), box.x, box.y, { width: 96, lineBreak: false });
-    doc.font(THEME_LABEL.font).fontSize(THEME_LABEL.size).fillColor(MUTED)
-      .text('OF DEPARTURES TRACED', box.x, box.y + 32,
-        { width: 110, characterSpacing: THEME_LABEL.spacing });
-    doc.font('Helvetica').fontSize(9.5).fillColor(INK)
-      .text(`${d.tracing.observed} of ${d.departures.total} departures could be traced to another `
-        + `roster. Everything below describes those ${d.tracing.observed}: the other `
-        + `${d.tracing.ambiguous + d.tracing.unresolved} appear on no roster we can see, may have `
-        + 'moved anywhere or stopped playing, and are not a group this sample stands in for.'
-        + (d.tracing.divisionCoverage == null ? ''
-          : ` Across ${model.college.division} as a whole, ${pc(d.tracing.divisionCoverage)} of `
-            + 'departures can be traced.'),
-      box.x + 124, box.y, { width: box.w - 124 });
-  }
-
-  charts.stackedRows(k, {
-    box: k.slot(72),
-    title: 'How much of this programme’s movement can be seen at all',
-    subtitle: 'The three groups are exclusive and add to every departure on file.',
-    rows: [{
-      label: 'All departures',
-      note: `${d.departures.total} in total`,
-      values: {
-        observed: (100 * d.tracing.observed) / d.departures.total,
-        ambiguous: (100 * d.tracing.ambiguous) / d.departures.total,
-        unresolved: (100 * d.tracing.unresolved) / d.departures.total,
-      },
-    }],
-    keys: [
-      { key: 'observed', label: `traced (${d.tracing.observed})`, color: NAVY },
-      { key: 'ambiguous', label: `evidence unsettled (${d.tracing.ambiguous})`, color: MID },
-      { key: 'unresolved', label: `not traceable (${d.tracing.unresolved})`, color: PALE, dark: true },
-    ],
-    unavailable: null,
-  });
-
-  k.heading('The traced moves, on three separate measures');
-  k.body('A move can be to a lower-rated programme, in a stronger academic one, in the same '
-    + 'division. These are three facts about the same move and they are never combined into one.',
-  { color: MUTED });
-  dimensionCharts(k, d.dimensions, { compact: true });
-
-  // Prior role against where they went, where the sample carries it.
-  const roleRows = d.byPriorRole.filter((r) => r.observed > 0);
-  if (roleRows.length) {
-    k.heading('By what they played the season before they left');
-    k.table({
-      columns: [
-        { key: 'label', label: 'Last season here', width: 0.28 },
-        { key: 'departures', label: 'Departures', width: 0.15, align: 'right' },
-        { key: 'observed', label: 'Traced', width: 0.13, align: 'right' },
-        // Short, because the section heading and the note below say what these
-        // three measure. Spelled out they wrapped, and the second line of "TO A
-        // SIMILAR ONE" landed a point above the first row of data.
-        { key: 'stronger', label: 'Stronger', width: 0.14, align: 'right' },
-        { key: 'similar', label: 'Similar', width: 0.14, align: 'right' },
-        { key: 'lower', label: 'Lower', width: 0.16, align: 'right' },
-      ],
-      rows: roleRows.map((r) => ({
-        label: ROLE_LABEL[r.band] ?? r.band,
-        departures: r.departures,
-        observed: r.observed,
-        stronger: r.football.STRONGER_FOOTBALL_RATING,
-        similar: r.football.SIMILAR_FOOTBALL_RATING,
-        lower: r.football.LOWER_FOOTBALL_RATING,
-      })),
-      note: 'Stronger, similar and lower are the football rating of the programme each player was '
-        + 'traced to, read against this one. Counts rather than rates: the traced share differs by '
-        + 'band, so a percentage would compare samples of different completeness.',
-    });
-  }
-
-  k.note(`The ${d.tracing.observed} traced moves are listed by name, with the minutes each player `
-    + 'went on to play where that season has been played, in the supporting record at the back of '
-    + 'this report.');
-}
 
 // ---------------------------------------------------------------------------
 // The athlete's own position

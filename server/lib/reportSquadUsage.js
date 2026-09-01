@@ -178,7 +178,7 @@ export function squadUsagePage(k, model) {
   const u = s?.utilisation;
   const e = s?.experience;
   pageHead(k, {
-    kicker: 'Programme evidence',
+    kicker: 'Programme intelligence',
     title: 'How this programme uses its squad',
     question: 'How widely are meaningful minutes distributed across the roster, and which stages '
       + 'of college experience carry them?',

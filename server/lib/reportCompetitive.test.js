@@ -463,22 +463,32 @@ describe('the sparse states', () => {
 });
 
 describe('the running order', () => {
-  it('files both pages in the programme-evidence act, after the roster material', () => {
+  /**
+   * SINCE 13B THE ENVIRONMENT OPENS THE ACT AND THE HISTORY CLOSES IT.
+   *
+   * The environment page is the frame: every pool comparison in the roster
+   * pages between them is scoped to a division, and at 32 programmes the
+   * division changes inside the measured window. The history page is read
+   * afterwards, inside the environment the reader has already been given.
+   */
+  it('opens the programme act with the environment and closes it with the history', () => {
     const model = { ...FULL(), lifecycle: null, squad: { rostered: 0 }, athlete: null };
     const plan = planSections({ model, summary: null, philosophy: null });
     const ids = plan.map((s) => s.id);
     const history = ids.indexOf('competitive-history');
     const environment = ids.indexOf('competitive-environment');
-    expect(history).toBeGreaterThan(-1);
-    expect(environment).toBe(history + 1);
+    expect(environment).toBeGreaterThan(-1);
+    expect(history).toBeGreaterThan(environment);
+    const act = plan.filter((x) => x.act === 'programme-evidence');
+    expect(act[0].id).toBe('competitive-environment');
     for (const s of plan.filter((x) => x.id.startsWith('competitive-'))) {
       expect(s.layer).toBe('programme-evidence');
       expect(s.act).toBe('programme-evidence');
       expect(s.scope).toBe('programme');
     }
-    // Before the supporting record, whichever of those sections this model has.
+    // Both before the supporting record.
     const supporting = plan.findIndex((s) => s.layer === 'supporting');
-    if (supporting > -1) expect(environment).toBeLessThan(supporting);
+    if (supporting > -1) expect(history).toBeLessThan(supporting);
   });
 
   it('describes its own scope for the contents page', () => {
@@ -495,10 +505,13 @@ describe('the two pages answer two questions', () => {
     const history = await drawn(competitiveHistoryPage, FULL());
     const environment = await drawn(competitiveEnvironmentPage, FULL());
     expect(history).toContain('How has this programme competed across the seasons we can measure?');
-    expect(environment).toContain('Where were these results produced?');
+    // The environment page opens the act since 13B, so it asks what competition
+    // the measured seasons were played in rather than where results the reader
+    // has not seen yet were produced.
+    expect(environment).toContain('What level and which conference has this programme been playing in?');
     // Neither question appears on the other's page.
     expect(environment.some((l) => /across the seasons we can measure/.test(l))).toBe(false);
-    expect(history.some((l) => /Where were these results produced/.test(l))).toBe(false);
+    expect(history.some((l) => /which conference has this programme been playing in/.test(l))).toBe(false);
   });
 
   it('keeps the benchmark on the record page and the membership on the other', async () => {

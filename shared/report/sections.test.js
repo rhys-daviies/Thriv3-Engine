@@ -98,8 +98,7 @@ describe('sections with nothing to say', () => {
   it('drops data-driven sections on an empty programme', () => {
     const plan = planFor(emptyModel());
     const ids = plan.map((s) => s.id);
-    expect(ids).not.toContain('freshman-intake');
-    expect(ids).not.toContain('freshman-ladder');
+    expect(ids).not.toContain('freshman-opportunity');
     expect(ids).not.toContain('current-depth');
     expect(ids).not.toContain('eligibility-outlook');
     expect(ids).not.toContain('table-freshmen');
@@ -111,19 +110,19 @@ describe('sections with nothing to say', () => {
   it('keeps the sections whose absence is itself informative', () => {
     const ids = planFor(emptyModel()).map((s) => s.id);
     expect(ids).toContain('programme-at-a-glance');
-    expect(ids).toContain('experienced-arrival-intake');
+    expect(ids).toContain('experienced-arrivals');
     expect(ids).toContain('replacing-minutes');
     expect(ids).toContain('methodology');
   });
 
   it('marks which sections will show an explicit unavailable state', () => {
     const plan = planFor(emptyModel());
-    expect(plan.find((s) => s.id === 'experienced-arrival-intake').showsUnavailableState).toBe(true);
-    expect(planFor(fullModel()).find((s) => s.id === 'freshman-ladder').showsUnavailableState).toBe(false);
+    expect(plan.find((s) => s.id === 'experienced-arrivals').showsUnavailableState).toBe(true);
+    expect(planFor(fullModel()).find((s) => s.id === 'freshman-opportunity').showsUnavailableState).toBe(false);
   });
 
   it('says why arrivals cannot be measured rather than reporting none', () => {
-    const scope = planFor(emptyModel()).find((s) => s.id === 'experienced-arrival-intake').scopeNotes;
+    const scope = planFor(emptyModel()).find((s) => s.id === 'experienced-arrivals').scopeNotes;
     expect(scope.join(' ')).toMatch(/no season can be compared/);
   });
 });
@@ -131,7 +130,7 @@ describe('sections with nothing to say', () => {
 describe('scope notes', () => {
   it('describes what each section is built from', () => {
     const plan = planFor(fullModel());
-    expect(plan.find((s) => s.id === 'freshman-intake').scopeNotes.join(' ')).toMatch(/12 first-years measured/);
+    expect(plan.find((s) => s.id === 'freshman-opportunity').scopeNotes.join(' ')).toMatch(/12 first-years measured/);
     expect(plan.find((s) => s.id === 'current-depth').scopeNotes.join(' ')).toMatch(/4 players/);
   });
 

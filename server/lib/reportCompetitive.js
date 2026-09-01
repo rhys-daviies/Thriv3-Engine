@@ -474,7 +474,7 @@ export function competitiveHistoryPage(k, model) {
   const cov = pkg.coverage;
   const scopes = [...new Set(pkg.seasons.map((s) => s.benchmark?.scope).filter(Boolean))];
   pageHead(k, {
-    kicker: 'Programme evidence',
+    kicker: 'Programme intelligence',
     title: 'How this programme has competed',
     question: 'How has this programme competed across the seasons we can measure?',
     scope: [
@@ -599,10 +599,20 @@ export function competitiveHistoryReading(model) {
 export function competitiveEnvironmentPage(k, model) {
   const pkg = model.competitive;
   const cov = pkg.coverage;
+  /**
+   * THE FRAME, and it opens the programme act since 13B.
+   *
+   * Read last, as it was, a family had already interpreted four seasons of
+   * roster behaviour against division-scoped pools without knowing that at 32
+   * programmes the division changes inside that window. So the title and the
+   * question are no longer relative to results the reader has not seen yet:
+   * this page now asks what competition the measured seasons were played in, and
+   * the results page that follows is read inside the answer.
+   */
   pageHead(k, {
-    kicker: 'Programme evidence',
-    title: 'Where those seasons were played',
-    question: 'Where were these results produced?',
+    kicker: 'Programme intelligence',
+    title: 'The competition these seasons were played in',
+    question: 'What level and which conference has this programme been playing in?',
     scope: [
       cov.membershipKnown
         ? `conference on file for ${cov.membershipKnown} of ${cov.readableSeasons} seasons read`
@@ -621,7 +631,7 @@ export function competitiveEnvironmentPage(k, model) {
   // more than one season to span or move between.
   k.note(pkg.seasons.length === 1
     ? 'The division and the conference that season was played in.'
-    : 'Each of those seasons’ division and conference. A block carries the seasons it spans; a '
+    : 'Each measured season’s division and conference. A block carries the seasons it spans; a '
       + 'claret rule marks a season played in a different one.');
   figure(k, 112, (box) => structuralTimeline(k, box, pkg.seasons));
 
@@ -715,20 +725,23 @@ export function competitiveEnvironmentReading(model) {
 
   if (cov.readableSeasons === 1) {
     // One season compares with nothing, so "the same set of programmes" is a
-    // claim about comparisons this page does not have. It states the season.
+    // claim there is nothing to make. It states the season.
     const one = pkg.seasons[0];
     out.push(`The one season read (${one.season}) was played `
       + `${one.historicalDivision ? `in ${one.historicalDivision}` : 'in a division that could not be established'}`
       + `${one.historicalConference ? `, in the ${one.historicalConference}` : ''}.`);
   } else if (divisions.length === 1 && cov.divisionKnown === cov.readableSeasons) {
-    out.push(`Every season read was played in ${divisions[0]}, so each season’s comparison on `
-      + 'the previous page is against the same set of programmes.');
+    // No "previous page" / "next page": this page moved once and would have to
+    // be reworded every time the running order changes again. The claim is
+    // about what a season is compared against, which is true wherever it sits.
+    out.push(`Every season read was played in ${divisions[0]}, so every season’s record is `
+      + 'compared against the same set of programmes.');
   } else if (divisions.length > 1) {
     // "These seasons" leaves the reader to infer which set is being quantified.
     // The set is the seasons read, and the sentence now says so — the same rule
     // the structural wording was corrected under.
     out.push(`The seasons read were not all played in the same division (${list(divisions)}), so `
-      + 'each season’s comparison on the previous page is against a different set of programmes.');
+      + 'each season’s record is compared against a different set of programmes.');
   }
   if (conferences.length > 1) {
     out.push(`The seasons read cover ${plural(conferences.length, 'conference', 'conferences')} `

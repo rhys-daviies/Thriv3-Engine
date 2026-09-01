@@ -23,8 +23,7 @@ import {
   actsFor, originIsProgrammeSpecific, arrivalsAreOneFinding,
 } from '../../shared/report/sections.js';
 import {
-  freshmanIntakePage, freshmanLadderPage,
-  experiencedArrivalIntakePage, experiencedArrivalProfilePage,
+  freshmanOpportunityPage, experiencedArrivalsPage,
   replacingMinutesPage, replacementByPositionPage,
   currentSquadOutlookPage, currentDepthPage,
 } from './reportEvidence.js';
@@ -33,7 +32,7 @@ import {
   arrivalWindowPage, originPage,
 } from './reportAthlete.js';
 import {
-  playerDevelopmentPage, rosterContinuityPage, observedDestinationsPage,
+  playerDevelopmentPage, rosterContinuityPage,
   athletePositionMovementPage,
 } from './reportLifecycle.js';
 import {
@@ -160,11 +159,22 @@ export function renderProgramReport(model, opts = {}) {
       section('athlete-position-movement', () => athletePositionMovementPage(k, model));
     }
 
-    // ---- Act II: how this programme has built and used its squad ----
+    // ---- Act II: programme intelligence, in narrative order ----
+    //
+    // Five questions rather than sixteen modules. The order is owned by
+    // `NARRATIVE_GROUPS` in the section registry, and this run follows it:
+    // where you would be competing, then how players get on the pitch, then
+    // how the squad is built, then where openings come from, then what the
+    // programme recorded.
 
-    section('freshman-intake', () => freshmanIntakePage(k, model));
-    section('freshman-ladder', () => freshmanLadderPage(k, model));
+    // The frame. Every pool comparison below it is scoped to a division, and
+    // at 32 programmes the division changes inside the measured window — so a
+    // reader needs the denominator before the ratios.
+    section('competitive-environment', () => competitiveEnvironmentPage(k, model));
+
+    section('freshman-opportunity', () => freshmanOpportunityPage(k, model));
     section('player-development', () => playerDevelopmentPage(k, model));
+
     section('squad-usage', () => squadUsagePage(k, model));
     /**
      * Experienced arrivals, beneath the squad page where it is one sentence.
@@ -177,32 +187,53 @@ export function renderProgramReport(model, opts = {}) {
      * whose own blocks are already drawn.
      *
      * Guarded on measured room, not on a hunch. A programme with the full
-     * scatter and the two-population column chart never qualifies, and neither
-     * does a squad page that has already used its height.
+     * scatter and the by-position table never qualifies, and neither does a
+     * squad page that has already used its height.
      */
     const arrivalsFlow = arrivalsAreOneFinding(model)
       && pages.get('squad-usage') != null
       && k.remaining() >= 190;
-    section('experienced-arrival-intake',
-      () => experiencedArrivalIntakePage(k, model, { newPage: !arrivalsFlow }),
+    section('experienced-arrivals',
+      () => experiencedArrivalsPage(k, model, { newPage: !arrivalsFlow }),
       { flow: arrivalsFlow });
-    section('current-arrivals', () => experiencedArrivalProfilePage(k, model));
-    section('replacing-minutes', () => replacingMinutesPage(k, model));
-    section('replacement-by-position', () => replacementByPositionPage(k, model));
-    section('eligibility-outlook', () => currentSquadOutlookPage(k, model));
-    section('current-depth', () => currentDepthPage(k, model));
     section('roster-continuity', () => rosterContinuityPage(k, model));
-    section('observed-destinations', () => observedDestinationsPage(k, model));
-    // Competitive Intelligence closes the programme act. It sits after the
-    // roster material and before the named record because it answers the
-    // question that material provokes — what did the squad this programme
-    // builds actually produce — and because it is read, not looked up.
+
+    section('replacing-minutes', () => replacingMinutesPage(k, model));
+    /**
+     * Position by position, as the second half of the replacement story.
+     *
+     * 13A asked whether this still earns a page of its own. It earns the
+     * SECTION — what happens at one position is a materially different
+     * question from what happens across the programme, and it is the half a
+     * recruit reads first — but once the season-by-season openings moved to
+     * the evidence act, what is left is a four-row table that read as a thin
+     * page. It flows under the replacement page where the room is measured,
+     * and takes its own page where it is not, which is the same rule the
+     * arrivals section already runs on.
+     */
+    // 235, measured: the block is 222 points at Mercyhurst men's — a four-row,
+    // seven-column table with the definition a reader needs to not subtract its
+    // two "started" columns from each other — and the replacement page above it
+    // leaves 219. So at a full-data programme it keeps its own page, which is
+    // the §M answer: it needs the room. Where the replacement page is shorter
+    // it flows, and reads as the second half of one opportunity story.
+    const positionFlow = pages.get('replacing-minutes') != null && k.remaining() >= 235;
+    section('replacement-by-position',
+      () => replacementByPositionPage(k, model, { newPage: !positionFlow }),
+      { flow: positionFlow });
+
+    section('eligibility-outlook', () => currentSquadOutlookPage(k, model));
+
+    // What the programme recorded, read inside the environment established at
+    // the top of the act.
     section('competitive-history', () => competitiveHistoryPage(k, model));
-    section('competitive-environment', () => competitiveEnvironmentPage(k, model));
     section('evidence-limits', () => evidenceLimitsPage(k, model));
 
     // ---- Act III: the record underneath both ----
 
+    // The roster first: it is the table a family returns to, and the one the
+    // squad-outlook page points at.
+    section('current-depth', () => currentDepthPage(k, model));
     section('table-freshmen', () => freshmanRecordPage(k, model));
     section('table-experienced-arrivals', () => arrivalRecordPage(k, model));
     section('table-vacancies', () => vacancyRecordPage(k, model));
