@@ -122,7 +122,37 @@ bulk-mail-looking link.
 | 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested at the 95.8th percentile (men) / 95.2nd (women) against 1,500 real arrivals each | Nothing before go live. The learning loop is Phase 5 and needs real replies |
 | 2 · Networking | 3-week A/B/C sequence, 100 programs at a time | Excellent personalisation; coach table, compliance, per-inbox cap and bulk drafting all done. No campaign engine, and no automated send by design | Campaign model, A/B/C variants, sequencing. **Not** an ESP — see locked decisions |
 | 3 · Interactions | Tracking, coach score, session timelines | **Proven end to end 2026-08-26** — 13 edge-sourced events, cursor 6 → 19, rollup and tiering correct on real data. Sync automated | Real response detection. Everything else waits on a coach, not on code |
-| 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Rosters 2022–2026; retention trend, freshman-minutes ladder and coach tenure (8,595 coach-seasons) all built, and the **Programme Intelligence report is a frozen internal-data baseline** — three acts, 9–30 pages, eleven analytical modules, 1,535 tests | September re-run for the unpublished rosters, real mid-season minutes, lifestyle data source, match rating, UI. External-data phases (coach intelligence, competitive trajectory, academics, professional pathway) are deliberately deferred — see the baseline doc |
+| 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Rosters 2022–2026; retention trend, freshman-minutes ladder and coach tenure all built. **Competitive Intelligence V1 is released** — see below. The **Programme Intelligence report** now runs to 6–24 pages over thirteen analytical modules, 1,976 tests and 139 baseline invariants | September re-run for the unpublished rosters, real mid-season minutes, lifestyle data source, match rating, UI. The remaining external-data phases (coach intelligence, academics, professional pathway) are still deliberately deferred — see the baseline doc |
+
+### Competitive Intelligence V1 — **released 2026-09-01**
+
+What a family now reads, on two pages of every Program Intelligence report that
+can carry them: what the programme recorded in each season we can read, and the
+division and conference each of those seasons was played in.
+
+| | |
+|---|---|
+| merged | `2a8521c` — nine commits, 12A to 12G, history preserved |
+| production data | 7 tables, 24,216 rows, loaded by the supported importers from the approved artefacts |
+| historical division coverage | 83.7% of readable programme-seasons (6,857 of 8,191) |
+| benchmark | 32 sport-division-season pools, smallest 125, `MIN_POOL` 30 |
+| structural movement | 133 conference movers, 32 division movers |
+| reports carrying the pages | 2,125 of 2,152 programmes (98.7%) |
+| verification | 1,976 tests · 139 baseline invariants · 0 snapshot differences · 542 reports rendered with 0 layout defects |
+
+Refused rather than deferred by accident: schedule strength, opponent strength,
+conference finish, postseason depth, goals for and against. The field contract in
+`shared/report/competitivePackage.js` says which of what V1 knows may reach a
+reader, and under what gate.
+
+Docs: [competitive-v1-freeze.md](docs/competitive-v1-freeze.md) (data),
+[competitive-report.md](docs/competitive-report.md) (presentation),
+[releases/competitive-v1.md](docs/releases/competitive-v1.md) (this release).
+
+Two things this release did **not** do, both recorded in the release note: the
+coaching-layer data refresh the branch also enables, and a determinism defect in
+the `institution_aliases` ↔ `athletics_domains` bootstrap that does not reach any
+published row.
 
 ---
 

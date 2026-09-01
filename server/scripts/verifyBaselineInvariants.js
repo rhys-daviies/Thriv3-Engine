@@ -827,5 +827,64 @@ group('COMPETITIVE V1 — the two pages, laid out');
     `tightest ${Math.round(worstClearance)}pt at ${worstName}`);
 }
 
+/**
+ * THE RELEASE CHECK: is the Competitive data actually in this database?
+ *
+ * A DEPLOYMENT CAN LOSE THIS LAYER WITHOUT ANY ERROR. `competitivePackageFor`
+ * returns `available: false` when the tables are empty, `planSections` then
+ * plans neither Competitive page, and the report builds and renders perfectly —
+ * two pages shorter. Measured on a copy of the pre-release database with the
+ * schema created and no rows in it: 0 of 300 programmes had a package, both
+ * sections were absent from the plan, and nothing anywhere threw.
+ *
+ * SYSTEM-WIDE, NOT PER-PROGRAMME. 27 programmes have no readable competitive
+ * season and that is a correct answer for them; a report must never fail because
+ * one programme is sparse. What must fail is the whole layer being absent, so
+ * every assertion here is a floor over the universe.
+ *
+ * The floors are deliberately well below the verified counts. They are not a
+ * second freeze of the numbers — `docs/competitive-v1-freeze.md` holds those —
+ * they are the line under which the layer has stopped existing.
+ */
+group('COMPETITIVE V1 — the data is in this database');
+{
+  const count = (t) => db.prepare(`SELECT COUNT(*) n FROM ${t}`).get().n;
+  const exists = (t) => db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE type = 'table' AND name = ?").get(t).n > 0;
+  const FLOORS = [
+    ['programme_seasons', 7000, 8685],
+    ['institution_aliases', 2000, 2337],
+    ['athletics_domains', 2400, 2717],
+    ['conference_seasons', 800, 960],
+    ['programme_conference_seasons', 6500, 7219],
+    ['conference_members_official', 800, 968],
+  ];
+  for (const [table, floor, verified] of FLOORS) {
+    if (!exists(table)) { check(`${table} exists`, false, 'the migration has not run'); continue; }
+    const n = count(table);
+    check(`${table} carries its layer`, n >= floor, `${n} rows (floor ${floor}, verified at release ${verified})`);
+  }
+  // A byproduct rather than a payload: it can legitimately shrink as identity
+  // improves, so only its existence is asserted.
+  check('conference_membership_quarantine exists', exists('conference_membership_quarantine'),
+    exists('conference_membership_quarantine') ? `${count('conference_membership_quarantine')} rows` : 'missing');
+
+  const confirmed = db.prepare('SELECT COUNT(*) n FROM programme_conference_seasons WHERE season_confirmed = 1').get().n;
+  check('membership is confirmed for the bulk of the layer', confirmed >= 6000,
+    `${confirmed} confirmed programme-seasons`);
+
+  /**
+   * The end-to-end one, and the only one that would have caught the silent
+   * disappearance on its own: the package the two report pages read is
+   * available for the great majority of the universe.
+   */
+  const universe = db.prepare(`SELECT id FROM colleges
+    WHERE division IN ('NCAA D1','NCAA D2','NCAA D3','NAIA') AND active = 1`).all();
+  let available = 0;
+  for (const c of universe) if (competitivePackageFor(c.id)?.available) available += 1;
+  const share = universe.length ? available / universe.length : 0;
+  check('a Competitive package is available across the report universe', share >= 0.9,
+    `${available} of ${universe.length} (${(share * 100).toFixed(1)}%, floor 90%, verified at release 98.7%)`);
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed);
