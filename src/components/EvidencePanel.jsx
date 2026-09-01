@@ -37,6 +37,63 @@ import { kindLabel } from '@shared/evidence/index.js';
 /** Falls back to the old ceiling if an older server did not send one. */
 const DEFAULT_MAX = 4;
 
+/**
+ * The three groups, derived once and shared by both presentations.
+ *
+ * Extracted when the match card gained an evidence section. The card and the
+ * composer show the same evidence in very different shapes — one is a
+ * half-width read-only summary, the other a working surface with reordering
+ * controls — but they must never disagree about WHICH group a finding is in.
+ * Two copies of the non-overlap rule below would eventually drift, and the
+ * drift would read as the card and the composer describing different
+ * programmes.
+ *
+ * This is grouping, not evidence logic: every decision it reflects — what was
+ * selected, what was suppressed and why, what may not be emailed — was made on
+ * the server and arrives already made. Nothing here ranks, re-renders or
+ * re-classifies anything.
+ */
+export function groupEvidence(wire, chosenKinds = null) {
+  const {
+    selected = [], available = [], internal = [], otherKnown = [],
+  } = wire ?? {};
+
+  const chosen = chosenKinds ?? selected.map((e) => e.kind);
+  const chosenSet = new Set(chosen);
+
+  /**
+   * The two lists must not overlap.
+   *
+   * An item that lost to the slot floor is in BOTH `available` (it survived
+   * dedupe, so it is in the ranking) and `otherKnown` (it is below threshold).
+   * Listing it in both places showed the same evidence twice on screen — once
+   * as a strong option and once as too weak to use — which is exactly the kind
+   * of self-contradiction that makes an operator stop trusting the panel.
+   * `available` is therefore narrowed to what genuinely cleared every gate.
+   */
+  const droppedKinds = new Set(otherKnown.map((e) => e.kind));
+  const others = available.filter((e) => !chosenSet.has(e.kind) && !droppedKinds.has(e.kind));
+  const dropped = otherKnown.filter((e) => !chosenSet.has(e.kind));
+
+  return {
+    chosen,
+    chosenSet,
+    others,
+    dropped,
+    internal,
+    // Everything the engine knows and did not lead with, closest-to-selected
+    // first: an item that cleared dedupe and lost only to the slot floor is a
+    // nearer miss than one suppressed as redundant.
+    otherAvailable: [...others, ...dropped],
+    byKind: new Map([
+      ...available.map((e) => [e.kind, e]),
+      ...otherKnown.filter((e) => e.text).map((e) => [e.kind, e]),
+      ...selected.map((e) => [e.kind, e]),
+    ]),
+    hasEmailable: selected.length > 0 || available.length > 0 || dropped.length > 0,
+  };
+}
+
 function TierBadge({ tier }) {
   return <Badge variant={tier === 'FACT' ? 'green' : 'amber'}>{tier}</Badge>;
 }
@@ -177,27 +234,10 @@ export default function EvidencePanel({
 
   // The operator's working order when they have one, the server's otherwise.
   // Both are lists of kinds; the SERVER decides what those kinds mean.
-  const chosen = selection ?? selected.map((e) => e.kind);
-  const chosenSet = new Set(chosen);
-  const byKind = new Map([
-    ...available.map((e) => [e.kind, e]),
-    ...otherKnown.filter((e) => e.text).map((e) => [e.kind, e]),
-    ...selected.map((e) => [e.kind, e]),
-  ]);
+  const {
+    chosen, byKind, others, dropped,
+  } = groupEvidence(evidence, selection ?? null);
   const slotByKind = new Map(selected.map((e) => [e.kind, e.slot]));
-  /**
-   * The two lists must not overlap.
-   *
-   * An item that lost to the slot floor is in BOTH `available` (it survived
-   * dedupe, so it is in the ranking) and `otherKnown` (it is below threshold).
-   * Listing it in both places showed the same evidence twice on screen — once
-   * as a strong option and once as too weak to use — which is exactly the kind
-   * of self-contradiction that makes an operator stop trusting the panel.
-   * `available` is therefore narrowed to what genuinely cleared every gate.
-   */
-  const droppedKinds = new Set(otherKnown.map((e) => e.kind));
-  const others = available.filter((e) => !chosenSet.has(e.kind) && !droppedKinds.has(e.kind));
-  const dropped = otherKnown.filter((e) => !chosenSet.has(e.kind));
   const atLimit = chosen.length >= maxEvidence;
   const editable = typeof onSelectionChange === 'function';
 
@@ -432,6 +472,258 @@ export default function EvidencePanel({
               ))}
             </div>
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
+/* The match card's read-only view                                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * How many findings the "other available" group shows before folding.
+ *
+ * Three. A half-width card that lists nine suppressed findings is a report
+ * inside an accordion, and the operator opened the card to read a match.
+ */
+const OTHER_PREVIEW = 3;
+
+/**
+ * The card's subsection heading, deliberately quieter than the card's own.
+ *
+ * CollegeCard's `SectionHeading` prints the three things an operator reads the
+ * card for — key info, why this score, outreach evidence. These sit one level
+ * below that. Sharing its exact type made five headings look like five peers,
+ * so "Outreach evidence" stopped reading as the parent of "Recommended" and
+ * "Other available". Smaller, lighter and dimmer, so the level is visible
+ * without introducing a second heading idiom.
+ */
+function CardSection({ title, children }) {
+  return (
+    <div>
+      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground/70 mb-1.5">
+        {title}
+      </p>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Relevance, as a bar rather than a number.
+ *
+ * `strength` is an internal 0-100 priority, and printing it would invite an
+ * operator to read it as a percentage of something. A bar beside the claim says
+ * "more than that one, less than this one", which is all it means and all it
+ * can support. It also matches ScoreBreakdown two sections above.
+ *
+ * The track has to be visible for any of that to work. `bg-muted` on the dark
+ * card is rgb(24,28,33) against rgb(16,20,25) — eight levels per channel, which
+ * reads as no track at all, leaving the fill hanging in space as a stray dash.
+ * ScoreBreakdown's own track is what this is supposed to echo, so it borrows the
+ * same trick of a bordered rail, and widens to w-12: at w-8 the whole realistic
+ * strength range spanned six pixels, so every bar looked identical anyway.
+ */
+function RelevanceBar({ strength }) {
+  if (typeof strength !== 'number') return null;
+  return (
+    <span
+      className="ml-auto h-1.5 w-12 shrink-0 self-center rounded-full bg-foreground/10 overflow-hidden"
+      title={`Relevance ${strength} of 100`}
+    >
+      <span className="block h-full rounded-full bg-primary/70" style={{ width: `${strength}%` }} />
+    </span>
+  );
+}
+
+/**
+ * One finding, compactly.
+ *
+ * The label is `kindLabel`, never the registry key: HISTORICAL_SAME_COUNTRY is
+ * a grouping constant for a database, and an operator should not have to decode
+ * it to learn that we have recruited from this athlete's country before.
+ *
+ * `text` is the SERVER-RENDERED sentence and is printed verbatim. The card has
+ * no renderer, so a SIGNAL arrives hedged and stays hedged.
+ */
+function CardFinding({ ev, muted = false, reason = null, note = null }) {
+  return (
+    <div className="py-1">
+      <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+        <span className={muted ? 'text-xs text-muted-foreground' : 'text-xs font-medium'}>
+          {kindLabel(ev.kind)}
+        </span>
+        {ev.tier && <TierBadge tier={ev.tier} />}
+        {!muted && <RelevanceBar strength={ev.strength} />}
+      </div>
+      {ev.text && (
+        <p className={`mt-0.5 text-xs ${muted ? 'text-muted-foreground/80' : 'text-muted-foreground'}`}>
+          {ev.text}
+        </p>
+      )}
+      {note && <p className="mt-0.5 text-[11px] text-amber-700 dark:text-amber-500">{note}</p>}
+      {reason && <p className="mt-0.5 text-[11px] text-muted-foreground">{reason}</p>}
+    </div>
+  );
+}
+
+/**
+ * What Thriv3 knows that could help us approach this programme.
+ *
+ * READ-ONLY, deliberately and completely. The composer is where an angle gets
+ * chosen; this answers a different question — "is there anything here worth
+ * writing about" — while the operator is still deciding which programmes to
+ * approach at all. Selection controls here would be a second place to change
+ * an email, and the one that could not show the result.
+ *
+ * Same wire model, same server, same grouping helper as the composer panel.
+ * Nothing is ranked, re-rendered or re-classified in the browser.
+ */
+export function CardEvidence({ evidence, loading = false, failed = false }) {
+  const [showOther, setShowOther] = useState(false);
+  const [showInternal, setShowInternal] = useState(false);
+
+  // Loading wins over an absent lookup. Paging to the next twenty leaves the
+  // previous page's response in state until the new one lands, and every name
+  // on the new page misses it — which without this would read as "nothing to
+  // say about this programme" for as long as the request is in flight.
+  if (loading) {
+    return <p className="text-xs text-muted-foreground">Loading outreach evidence…</p>;
+  }
+
+  // A failed request and a programme with nothing to say produce the same empty
+  // screen, and conflating them would let a server problem read as a fact about
+  // the school.
+  if (failed) {
+    return (
+      <p className="text-xs text-amber-700 dark:text-amber-500">
+        Outreach evidence could not be loaded.
+      </p>
+    );
+  }
+
+  if (!evidence) {
+    return (
+      <p className="text-xs text-muted-foreground">
+        No strong outreach evidence identified for this programme.
+      </p>
+    );
+  }
+
+  const { selected = [] } = evidence;
+  const { otherAvailable, internal, hasEmailable } = groupEvidence(evidence);
+
+  // Nothing emailable, but we do hold internal intelligence. Two different
+  // states, said as two different things: "we have nothing" and "we have
+  // something we may not put in an email" are not the same message.
+  if (!hasEmailable) {
+    return (
+      <div className="space-y-2">
+        <p className="text-xs text-muted-foreground">
+          No strong outreach evidence identified for this programme.
+        </p>
+        {internal.length > 0 && <AdditionalIntelligence
+          internal={internal}
+          open={showInternal}
+          onToggle={() => setShowInternal((v) => !v)}
+        />}
+      </div>
+    );
+  }
+
+  const preview = showOther ? otherAvailable : otherAvailable.slice(0, OTHER_PREVIEW);
+  const hidden = otherAvailable.length - preview.length;
+
+  return (
+    <div className="space-y-3">
+      <CardSection title="Recommended outreach evidence">
+        {selected.length === 0 ? (
+          <p className="text-xs text-muted-foreground">
+            Nothing strong enough to lead with — an approach would introduce the athlete first.
+          </p>
+        ) : (
+          <div className="divide-y divide-border/60">
+            {selected.map((ev) => (
+              <CardFinding
+                key={ev.kind}
+                ev={ev}
+                /* Selected and deliberately not carried: the composer caps a
+                   paragraph at two gathered clauses, so an item can be chosen,
+                   logged and shown here without reaching a coach. Said out loud
+                   rather than left to imply guaranteed email copy. */
+                note={ev.displayed === false ? 'Recorded, but a default approach would not carry it' : null}
+              />
+            ))}
+          </div>
+        )}
+      </CardSection>
+
+      {otherAvailable.length > 0 && (
+        <CardSection title="Other available evidence">
+          <div className="divide-y divide-border/40 border-l-2 border-border/60 pl-2">
+            {preview.map((ev) => (
+              <CardFinding key={ev.kind} ev={ev} muted reason={ev.reason ?? null} />
+            ))}
+          </div>
+          {(hidden > 0 || showOther) && (
+            <button
+              type="button"
+              onClick={() => setShowOther((v) => !v)}
+              className="mt-1 text-[11px] text-muted-foreground underline underline-offset-2"
+            >
+              {showOther
+                ? 'Show fewer'
+                : `Show ${hidden} more finding${hidden === 1 ? '' : 's'}`}
+            </button>
+          )}
+        </CardSection>
+      )}
+
+      {internal.length > 0 && (
+        <AdditionalIntelligence
+          internal={internal}
+          open={showInternal}
+          onToggle={() => setShowInternal((v) => !v)}
+        />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Intelligence that helped ranking and is not permitted in an email.
+ *
+ * Collapsed, unlabelled as evidence, and rendered without a sentence — there is
+ * none, by construction: these kinds are `emailEligible: false` in the registry
+ * and no copy is ever generated for them. Naming the section "Additional
+ * intelligence" rather than "evidence" is the point. An operator who reads
+ * "you've added 23 defenders across four intakes" and types it into an email by
+ * hand has made a claim the engine deliberately refused to make.
+ */
+function AdditionalIntelligence({ internal, open, onToggle }) {
+  return (
+    <div className="border-t border-dashed pt-2">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="text-[11px] text-muted-foreground underline underline-offset-2"
+      >
+        {open ? 'Hide' : 'Show'} {internal.length} additional intelligence finding
+        {internal.length === 1 ? '' : 's'}
+      </button>
+      {open && (
+        <div className="mt-1 space-y-0.5">
+          <p className="text-[11px] text-muted-foreground/80">
+            Used for ranking only — not approved for outreach.
+          </p>
+          {internal.map((ev) => (
+            <p key={ev.kind} className="text-[11px] text-muted-foreground">
+              {kindLabel(ev.kind)}
+              {ev.confidence ? ` · ${ev.confidence.toLowerCase()} confidence` : ''}
+            </p>
+          ))}
         </div>
       )}
     </div>

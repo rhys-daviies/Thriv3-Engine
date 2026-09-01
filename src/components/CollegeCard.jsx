@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { CardEvidence } from '@/components/EvidencePanel';
 import { STARTER_MINUTES } from '@shared/matching/pool.js';
 
 function SeniorGroup({ label, names, collegeName }) {
@@ -99,7 +100,31 @@ function matchScoreVariant(score) {
   return 'muted';
 }
 
-export default function CollegeCard({ college, onEmailCoaches }) {
+/**
+ * A heading for the sections the expanded card is now organised into.
+ *
+ * Matches ScoreBreakdown's own heading style rather than introducing a second
+ * one — that component prints "Why this score" in exactly these classes, and it
+ * is left untouched, so this is what the neighbouring sections have to look
+ * like.
+ */
+function SectionHeading({ children }) {
+  return (
+    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+      {children}
+    </p>
+  );
+}
+
+/**
+ * @param {object|null} evidence  one programme's server-rendered evidence, from
+ *   `evidenceForCollege`. Null means the request has not resolved for this
+ *   name, which `evidenceLoading` distinguishes from "nothing to say".
+ */
+export default function CollegeCard({
+  college, onEmailCoaches,
+  evidence = null, evidenceLoading = false, evidenceFailed = false,
+}) {
   const [expanded, setExpanded] = useState(false);
   const coaches = (college.coaching_staff || []).filter((c) => c.email && c.email !== 'N/A');
   const affordability = (college.breakdown || []).find((b) => b.key === 'affordability');
@@ -156,6 +181,12 @@ export default function CollegeCard({ college, onEmailCoaches }) {
 
       {expanded && (
         <div className="mt-4 pt-4 border-t border-border space-y-4">
+          {/* 1. KEY INFO — what do we know about the match?
+              The ratings, the affordability caveat that qualifies one of them,
+              and the graduating groups. Values and calculations are untouched;
+              what changed is that they now sit under a heading instead of
+              running into the score breakdown. */}
+          <SectionHeading>Key info</SectionHeading>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
             <div>
               <p className="text-xs text-muted-foreground">Program Rating</p>
@@ -175,8 +206,6 @@ export default function CollegeCard({ college, onEmailCoaches }) {
             </div>
           </div>
 
-          <ScoreBreakdown breakdown={college.breakdown} />
-
           {affordability?.detail?.caveat && (
             <p className="text-xs text-amber-400/90">{affordability.detail.caveat}</p>
           )}
@@ -185,6 +214,28 @@ export default function CollegeCard({ college, onEmailCoaches }) {
             <SeniorGroup label="Total Graduating" names={college.all_graduating_senior_names} collegeName={college.name} />
             <SeniorGroup label="At Your Position" names={college.graduating_senior_names_at_position} collegeName={college.name} />
             <SeniorGroup label={`Graduating Starters (${STARTER_MINUTES}+ min)`} names={college.graduating_starter_names_at_position} collegeName={college.name} />
+          </div>
+
+          {/* 2. WHY THIS SCORE — why did Thriv3 rank this programme here?
+              Unchanged: it prints its own heading in the style above, and the
+              six criteria behind it are the matching engine's, not this
+              component's. */}
+          <ScoreBreakdown breakdown={college.breakdown} />
+
+          {/* 3. OUTREACH EVIDENCE — what do we know that could help us
+              approach this programme?
+              A different question from the two above, from a different engine:
+              the score is six weighted criteria computed in the browser, this
+              is roster and recruiting history computed on the server. They are
+              kept apart deliberately — evidence never explains the score, and
+              the score never licenses a claim to a coach. */}
+          <div>
+            <SectionHeading>Outreach evidence</SectionHeading>
+            <CardEvidence
+              evidence={evidence}
+              loading={evidenceLoading}
+              failed={evidenceFailed}
+            />
           </div>
 
           {college.reason && (

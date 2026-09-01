@@ -8,6 +8,7 @@ import EmailComposer from '@/components/EmailComposer';
 import BulkEmailComposer from '@/components/BulkEmailComposer';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
+import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 
 const PAGE_SIZE = 20;
@@ -51,6 +52,25 @@ export default function MatchingTab() {
   const totalPages = recommendations ? Math.ceil(recommendations.length / PAGE_SIZE) : 0;
   const pageItems = recommendations ? recommendations.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : [];
   const pageButtons = Array.from({ length: Math.min(totalPages, MAX_PAGE_BUTTONS) }, (_, i) => i + 1);
+
+  /**
+   * Outreach evidence for the twenty programmes on THIS page, in one request.
+   *
+   * The page rather than the whole stored analysis: a hundred programmes is
+   * five times the work for a screen showing twenty, and the operator pages
+   * through them. `useEvidence` keys its effect on the joined names, so
+   * changing page refetches; every lookup below is BY NAME, so the previous
+   * page's response can never be read as this page's — a name that is not in
+   * it simply misses, and `loading` covers the gap while the new one is in
+   * flight.
+   *
+   * The composer and the Evidence tab call the same hook against the same
+   * route. A second path to evidence would eventually disagree with the one
+   * that sends the email.
+   */
+  const { evidence, loading: evidenceLoading, failed: evidenceFailed } = useEvidence(
+    player?.id, pageItems.map((c) => c.name),
+  );
 
   // Counted here as well as inside the dialog so the button says how many
   // programmes on this page actually have a head coach to write to, rather
@@ -105,7 +125,14 @@ export default function MatchingTab() {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {pageItems.map((college) => (
-              <CollegeCard key={college.name} college={college} onEmailCoaches={setEmailTarget} />
+              <CollegeCard
+                key={college.name}
+                college={college}
+                onEmailCoaches={setEmailTarget}
+                evidence={evidenceForCollege(evidence, college.name)}
+                evidenceLoading={evidenceLoading}
+                evidenceFailed={evidenceFailed}
+              />
             ))}
           </div>
 
