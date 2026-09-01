@@ -228,13 +228,16 @@ export function renderProgramReport(model, opts = {}) {
      * and takes its own page where it is not, which is the same rule the
      * arrivals section already runs on.
      */
-    // 235, measured: the block is 222 points at Mercyhurst men's — a four-row,
-    // seven-column table with the definition a reader needs to not subtract its
-    // two "started" columns from each other — and the replacement page above it
-    // leaves 219. So at a full-data programme it keeps its own page, which is
-    // the §M answer: it needs the room. Where the replacement page is shorter
-    // it flows, and reads as the second half of one opportunity story.
-    const positionFlow = pages.get('replacing-minutes') != null && k.remaining() >= 235;
+    /**
+     * 430, re-measured in 13D. The seven-column table became four rows with a
+     * stacked minute bar each — the same figures, on a band a reader can
+     * compare — and the block is now 396 points at a four-position programme.
+     * The replacement page above it leaves 219 there, so at a full-data
+     * programme it keeps its own page, which is the §M answer: it needs the
+     * room. Where the replacement page is shorter it still flows, and reads as
+     * the second half of one opportunity story.
+     */
+    const positionFlow = pages.get('replacing-minutes') != null && k.remaining() >= 430;
     section('replacement-by-position',
       () => replacementByPositionPage(k, model, { newPage: !positionFlow }),
       { flow: positionFlow });

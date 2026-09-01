@@ -84,7 +84,7 @@ export function playerDevelopmentPage(k, model) {
 
   // Trajectory first, as four columns whose denominators shrink to the right.
   charts.yearSteps(k, {
-    box: k.slot(136),
+    box: k.slot(134),
     title: `Reaching ${STARTER_MINUTES} minutes in a season — a starter’s season`,
     subtitle: 'Each column counts only the players who have been here long enough to have had that '
       + 'year in a season with published minutes.',
@@ -290,6 +290,32 @@ export function rosterContinuityPage(k, model) {
   // which already carried them word for word.
   const e = dep.earlyTracing;
   const total = dep.departures.total;
+
+  /**
+   * WHERE THE PAGE BREAKS, and why it moved in 13D / §K.
+   *
+   * The break used to fall between the departures composition and their
+   * destinations: the first page ran to its floor and the second held 350
+   * points of ink on a 760-point sheet — a continuation page that read as
+   * unfinished rather than intentional, giving fifteen traced moves out of a
+   * hundred the most white space in the report.
+   *
+   * Measured: the departures composition is 240 points and the destination
+   * block 330. Where both are coming and neither will fit, the break is taken
+   * before the pair, so the continuation page carries the whole departure
+   * story — what the departures are made of, and where the traceable few of
+   * them went — and both pages are composed rather than one being a remainder.
+   */
+  const destinationsFollow = Boolean(dep.gate?.allowed && dep.tracing?.observed);
+  if (total && destinationsFollow && k.remaining() < 570) {
+    k.doc.addPage();
+    pageHead(k, {
+      title: 'Who stays, and who we can follow',
+      question: 'Who left, and where did the ones we can trace actually go?',
+      continued: true,
+    });
+  }
+
   k.heading('What the departures are made of');
   if (!total) {
     // Every player who could return did. There is no population to divide, and
@@ -394,11 +420,17 @@ function destinationBlock(k, model) {
    * rather than a guess: the block is about 240 points with three dimension
    * charts and its coverage sentence.
    */
+  /**
+   * A last-resort break. The running order above now takes the break before
+   * the departures composition wherever this block is coming and the pair will
+   * not fit, so this fires only where the pair DID fit and this block still
+   * does not — a programme with no departures composition to precede it, for
+   * instance. The break is taken here rather than left to the first `room()`
+   * call inside the block: `pageHead`'s continued branch draws where the cursor
+   * is and never adds a page, so leaving it to chance drew the continuation
+   * header into the footer of the page it was continuing from.
+   */
   if (k.remaining() < 250) {
-    // The break is taken here rather than left to the first `room()` call
-    // inside the block: `pageHead`'s continued branch draws where the cursor
-    // is and never adds a page, so leaving it to chance drew the continuation
-    // header into the footer of the page it was continuing from.
     k.doc.addPage();
     pageHead(k, {
       title: 'Who stays, and who we can follow',
@@ -417,7 +449,7 @@ function destinationBlock(k, model) {
       : ` Across ${model.college.division} as a whole, ${pc(d.tracing.divisionCoverage)} of `
         + 'departures can be traced.'), { color: MUTED });
 
-  dimensionCharts(k, d.dimensions, { compact: true });
+  dimensionCharts(k, d.dimensions, { compact: true, quiet: true });
   k.note('A move can be to a lower-rated programme, in a stronger academic one, in the same '
     + 'division. These are three facts about the same moves and they are never combined into one. '
     + 'The traced moves are named in the supporting record at the back, with what each player went '
@@ -468,13 +500,20 @@ function dimensionRows(dims) {
   ];
 }
 
-function dimensionCharts(k, dims, { compact = false } = {}) {
+/**
+ * @param quiet - the traced-destination reading, drawn smaller than the
+ * departure composition above it. Phase 13D / §K: a sample of fifteen moves out
+ * of a hundred departures should not carry the same weight of ink as the
+ * hundred, and the honest way to say so is with the size of the object rather
+ * than with another sentence about coverage.
+ */
+function dimensionCharts(k, dims, { compact = false, quiet = false } = {}) {
   dimensionRows(dims).forEach((row) => {
     charts.stackedRows(k, {
       // Title 14, bar, the 12 the chart puts under it, and 10 for the legend.
       // At 46 the legend cleared the box by six points and printed through the
       // table header on the athlete page — the collision guard caught it.
-      box: k.slot(compact ? 44 : 48),
+      box: k.slot(quiet ? 38 : compact ? 44 : 48),
       // No chart title: the row's own label is the dimension's name, and both
       // printed "Football rating" one line apart.
       title: null,
@@ -483,7 +522,7 @@ function dimensionCharts(k, dims, { compact = false } = {}) {
         unavailable: 'neither programme carries this rating' }],
       keys: row.keys,
       labelW: 118,
-      barH: compact ? 18 : 22,
+      barH: quiet ? 13 : compact ? 18 : 22,
       unavailable: null,
     });
   });

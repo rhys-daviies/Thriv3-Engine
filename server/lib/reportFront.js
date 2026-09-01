@@ -439,9 +439,21 @@ export function contentsPage(doc, model, plan, pages) {
         y += 10;
       }
     }
+    /**
+     * THE EVIDENCE ROWS ARE QUIETER — 13D / §Q.
+     *
+     * Every row was bold ink at one size, and the supporting rows were the ones
+     * with no group heading above them and therefore the least indented — so
+     * the appendix read as the most prominent run on the contents page while
+     * the intelligence it supports read as sub-items. Same size, regular
+     * weight, one step greyer: the map now shows the hierarchy the document
+     * has. Grey rather than the metric gutter's blue — a colour doing two jobs
+     * makes a quieter row read as a different kind of row.
+     */
+    const quiet = s.act === 'supporting';
     line(doc, s.title, M + (s.group ? 20 : 10), y, W * 0.46 - (s.group ? 10 : 0),
-      { font: 'Helvetica-Bold', size: 9.5 });
-    doc.font('Helvetica-Bold').fontSize(9.5).fillColor(INK)
+      { font: quiet ? 'Helvetica' : 'Helvetica-Bold', size: 9.5, color: quiet ? MUTED : INK });
+    doc.font(quiet ? 'Helvetica' : 'Helvetica-Bold').fontSize(9.5).fillColor(quiet ? MUTED : INK)
       .text(String(pages.get(s.id)), M + W - 40, y, { width: 40, align: 'right', lineBreak: false });
     const scope = (s.scopeNotes ?? []).slice(0, 2).join(' · ');
     if (scope) {
@@ -579,13 +591,42 @@ export function headlineBand(k, lines, { title = 'What Thriv3 sees' } = {}) {
 // ---------------------------------------------------------------------------
 
 /**
+ * ONE SIZE FOR EVERY METRIC ON A PAGE.
+ *
+ * Sized per metric, the gutter stepped between 12.5 and 8.5 point within one
+ * page — "14%" large, "1 of 4 seasons" small — and a column of numbers set at
+ * three sizes reads as three kinds of number. So the page picks the largest of
+ * the three steps that fits ALL of its metrics, and the gutter becomes a
+ * column. Null where even the smallest step does not fit, in which case the
+ * metric is dropped: the sentence beside it already carries the figure, and a
+ * truncated number is worse than no number.
+ */
+function metricSizeFor(doc, findings) {
+  const metrics = findings.map((f) => f.metric).filter(Boolean).map(String);
+  if (!metrics.length) return null;
+  for (const size of [12.5, 10.5, 8.5]) {
+    doc.font('Helvetica-Bold').fontSize(size);
+    if (metrics.every((m) => doc.widthOfString(m) <= METRIC_W)) return size;
+  }
+  return null;
+}
+
+/**
  * The gutter the headline metric occupies, and the column the page reference
  * sits in. Measured rather than chosen: the widest metric the ten categories
  * produce is a four-season aggregate record ("41-25-9", 46pt at 13pt bold) and
- * a two-season structural move ("2023 → 2024", 71pt), so the gutter is sized
- * for the second and the type steps down where a metric still will not fit.
+ * a two-season structural move ("2023–2024", 66pt), so the gutter is sized for
+ * the second and the type steps down where a metric still will not fit.
+ *
+ * THE METRICS ARE RIGHT-ALIGNED IN IT — 13D / §D. Left-aligned, six metrics of
+ * six different widths ("14%", "1 of 4 seasons", "2023–2024", "30.9%") made a
+ * ragged column against the one clean vertical the page has, and the ragged
+ * edge was the first thing the eye found. Flush right, the gutter is a seam:
+ * the numbers hang off the sentences they belong to instead of competing with
+ * the label above them.
  */
 const FINDING_GUTTER = 84;
+const METRIC_W = FINDING_GUTTER - 14;
 const PAGE_COL = 30;
 
 /**
@@ -599,7 +640,7 @@ const PAGE_COL = 30;
  * is scored, and the priority class that decided the order is never printed —
  * it is an ordering over findings, not a rating of a programme.
  */
-function findingRow(k, f, { last = false } = {}) {
+function findingRow(k, f, { last = false, metricSize = 12.5 } = {}) {
   const { doc } = k;
   const textX = M + FINDING_GUTTER;
   const textW = W - FINDING_GUTTER - PAGE_COL - 10;
@@ -607,7 +648,7 @@ function findingRow(k, f, { last = false } = {}) {
   const sentH = doc.font('Helvetica').fontSize(10.5).heightOfString(f.text, { width: textW });
   const noteH = f.evidenceNote
     ? doc.font('Helvetica').fontSize(7).heightOfString(f.evidenceNote, { width: textW }) + 3 : 0;
-  k.room(11 + sentH + noteH + 16);
+  k.room(11 + sentH + noteH + 18);
   const top = doc.y;
 
   doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(CLARET)
@@ -626,17 +667,18 @@ function findingRow(k, f, { last = false } = {}) {
   // The metric, in the gutter, stepped down rather than clipped. A metric that
   // does not fit at all is dropped: the sentence beside it already carries the
   // figure, and a truncated number is worse than no number.
-  if (f.metric) {
-    const fits = (size) => {
-      doc.font('Helvetica-Bold').fontSize(size);
-      return doc.widthOfString(String(f.metric)) <= FINDING_GUTTER - 10;
-    };
-    const size = fits(13) ? 13 : fits(10.5) ? 10.5 : fits(8.5) ? 8.5 : null;
-    if (size) {
-      doc.font('Helvetica-Bold').fontSize(size).fillColor(INK)
-        .text(String(f.metric), M, top + 12 + (13 - size) * 0.6,
-          { width: FINDING_GUTTER - 10, lineBreak: false });
-    }
+  /**
+   * The metric, flush right in the gutter and a step quieter than the finding.
+   *
+   * It was 13pt bold ink beside a 10.5pt sentence, which made it the loudest
+   * thing on its row — a second headline for a finding that already had one.
+   * Same size band, MID rather than INK: present enough to anchor the row,
+   * quiet enough that the sentence is what gets read first.
+   */
+  if (f.metric && metricSize) {
+    doc.font('Helvetica-Bold').fontSize(metricSize).fillColor(MID)
+      .text(String(f.metric), M, top + 11 + (12.5 - metricSize) * 0.6,
+        { width: METRIC_W, align: 'right', lineBreak: false });
   }
 
   /**
@@ -650,17 +692,26 @@ function findingRow(k, f, { last = false } = {}) {
     k.defer(({ pageOf, doc: d }) => {
       const n = pageOf(id);
       if (n == null) return;
-      d.font('Helvetica-Bold').fontSize(9).fillColor(MID)
-        .text(`p.${n}`, M + W - PAGE_COL, at, { width: PAGE_COL, align: 'right', lineBreak: false });
+      // Navigation, not content: set at label size in the label's own grey so
+      // it sits on the same tier as the finding's name rather than competing
+      // with the sentence beneath it.
+      d.font('Helvetica-Bold').fontSize(7.5).fillColor(MUTED)
+        .text(`p.${n}`, M + W - PAGE_COL, at + 1, { width: PAGE_COL, align: 'right', lineBreak: false });
     });
   }
 
   doc.y = y;
   if (!last) {
-    doc.y += 9;
-    doc.save().moveTo(M, doc.y).lineTo(M + W, doc.y).lineWidth(0.4).strokeColor(LINE).stroke()
-      .restore();
+    /**
+     * A separator, not a table rule. It starts at the text column rather than
+     * at the margin, so the metric gutter reads as a column of numbers hanging
+     * beside a list and the page has one continuous left edge instead of six
+     * horizontal rules crossing it.
+     */
     doc.y += 10;
+    doc.save().moveTo(textX, doc.y).lineTo(M + W, doc.y).lineWidth(0.4).strokeColor(LINE).stroke()
+      .restore();
+    doc.y += 11;
   }
 }
 
@@ -672,6 +723,7 @@ function findingRow(k, f, { last = false } = {}) {
  * the ranking selected, in the order the ranking selected it.
  */
 export function programmeAtAGlance(k, model) {
+  const { doc } = k;
   const coach = coachContextFor(model.coachAttribution, { division: model.college?.division });
   const { findings } = decisionFindings({ ...model, coachContext: coach });
 
@@ -687,7 +739,9 @@ export function programmeAtAGlance(k, model) {
     return;
   }
 
-  findings.forEach((f, i) => findingRow(k, f, { last: i === findings.length - 1 }));
+  const metricSize = metricSizeFor(doc, findings);
+  findings.forEach((f, i) => findingRow(k, f,
+    { last: i === findings.length - 1, metricSize }));
 }
 
 /**
@@ -719,11 +773,28 @@ function absolute(k, height, draw) {
   return box;
 }
 
+/**
+ * One snapshot line: label left, value right, both at one weight.
+ *
+ * `factLine` sets its value in bold, which is right on a card where the figure
+ * is the point. Here it is not: seven bold values under six findings made the
+ * orientation block the second-loudest thing on the report's most important
+ * page. Same geometry, one weight, and the hierarchy does what §E asks.
+ */
+function snapshotLine(doc, x, y, w, key, value) {
+  doc.font('Helvetica').fontSize(7.5);
+  const valueW = Math.min(w * 0.56, doc.widthOfString(String(value)) + 2);
+  line(doc, key, x, y, w - valueW - 6, { size: 7.5, color: MUTED });
+  line(doc, value, x + w - valueW, y, valueW,
+    { size: 7.5, color: value === '—' ? MUTED : INK, align: 'right' });
+  return y + 11;
+}
+
 function snapshotGrid(k, facts) {
   const rows = Math.ceil(facts.length / 2);
   absolute(k, rows * 13 + 4, (box) => {
     facts.forEach(([label, value], i) => {
-      factLine(k.doc, box.x + (i % 2) * (HALF + GAP), box.y + Math.floor(i / 2) * 13, HALF,
+      snapshotLine(k.doc, box.x + (i % 2) * (HALF + GAP), box.y + Math.floor(i / 2) * 13, HALF,
         label, value ?? '—');
     });
   });

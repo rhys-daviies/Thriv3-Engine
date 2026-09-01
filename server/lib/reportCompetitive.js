@@ -360,9 +360,11 @@ function structuralTimeline(k, box, seasons) {
    */
   const colW = Math.min(gridW / years.length, 150);
 
-  doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color);
+  // The years, at a size a reader takes in first. This is the axis of the
+  // page's hero and it was set two points smaller than the caption under it.
+  doc.font('Helvetica-Bold').fontSize(8).fillColor(MID);
   years.forEach((y, i) => doc.text(String(y), gridX + i * colW, box.y, {
-    width: colW - 4, characterSpacing: TYPE.label.spacing, lineBreak: false,
+    width: colW - 4, characterSpacing: 1, lineBreak: false,
   }));
 
   const lanes = [
@@ -372,23 +374,34 @@ function structuralTimeline(k, box, seasons) {
       cells: years.map((y) => ({ value: bySeason.has(y) ? bySeason.get(y).historicalConference : NO_SEASON })) },
   ];
 
-  const BLOCK_H = 40;
+  const BLOCK_H = 46;
   lanes.forEach((lane, li) => {
     const y = box.y + 14 + li * (BLOCK_H + 10);
     doc.font(TYPE.label.font).fontSize(6.2).fillColor(MUTED)
       .text(lane.label, box.x, y + 15, { width: laneW - 8, characterSpacing: 0.8, lineBreak: false });
+    doc.save().moveTo(gridX, y + BLOCK_H + 1.5).lineTo(gridX + years.length * colW - 4, y + BLOCK_H + 1.5)
+      .lineWidth(0.5).strokeColor(LINE).stroke().restore();
     for (const span of spans(lane.cells)) {
       const x = gridX + span.from * colW;
       const w = (span.to - span.from + 1) * colW - 4;
       const absent = span.value === NO_SEASON;
       const known = span.value != null && !absent;
+      /**
+       * A LANE, NOT A CARD — 13D / §S.
+       *
+       * These were rounded, stroked, tinted boxes, which is the report's card
+       * language, and a card says "here is a module". A block here is a span of
+       * seasons in a lane: flat tint, no stroke, no radius, and a hairline
+       * baseline under the whole lane so the spans read along it. The unknown
+       * span keeps its dashed outline, because there the absence of ink IS the
+       * statement and it needs an edge to be visible at all.
+       */
       if (known) {
-        doc.save().roundedRect(x, y, w, BLOCK_H, 3).fillOpacity(0.07).fill(NAVY).restore();
-        doc.save().roundedRect(x, y, w, BLOCK_H, 3).lineWidth(0.6).strokeColor(LINE).stroke().restore();
+        doc.save().rect(x, y, w, BLOCK_H).fillOpacity(0.09).fill(NAVY).restore();
       } else {
         // Outlined and labelled, never blank. A blank block in a lane of filled
         // ones reads as a season that did not happen.
-        doc.save().dash(2, { space: 2 }).roundedRect(x, y, w, BLOCK_H, 3)
+        doc.save().dash(2, { space: 2 }).rect(x, y, w, BLOCK_H)
           .lineWidth(0.6).strokeColor(LINE).stroke().undash().restore();
       }
       /**
@@ -403,12 +416,16 @@ function structuralTimeline(k, box, seasons) {
        */
       const label = absent ? 'no season read' : (span.value ?? 'not established');
       const inner = w - 12;
-      doc.font(known ? 'Helvetica-Bold' : 'Helvetica-Oblique').fontSize(7.5);
+      // The value at reading size where it fits, which at a division always
+      // does: "NCAA D1" is the single most consequential string on the page and
+      // it was set at 7.5 point.
+      doc.font(known ? 'Helvetica-Bold' : 'Helvetica-Oblique').fontSize(10);
+      if (doc.widthOfString(label) > inner) doc.fontSize(7.5);
       if (doc.widthOfString(label) > inner) doc.fontSize(6.2);
-      const textH = Math.min(24, doc.heightOfString(label, { width: inner }));
+      const textH = Math.min(28, doc.heightOfString(label, { width: inner }));
       doc.fillColor(known ? INK : MUTED)
         .text(label, x + 6, y + Math.max(5, (BLOCK_H - 12 - textH) / 2),
-          { width: inner, height: 24, ellipsis: true });
+          { width: inner, height: 28, ellipsis: true });
       const range = span.from === span.to ? String(years[span.from])
         : `${years[span.from]}–${years[span.to]}`;
       doc.font('Helvetica').fontSize(5.8).fillColor(MUTED)
@@ -417,7 +434,7 @@ function structuralTimeline(k, box, seasons) {
       // out of an unknown season is not a change we observed.
       const before = lane.cells[span.from - 1]?.value;
       if (span.from > 0 && known && before != null && before !== NO_SEASON) {
-        doc.save().moveTo(x - 2, y - 2).lineTo(x - 2, y + BLOCK_H + 2)
+        doc.save().moveTo(x - 2, y - 3).lineTo(x - 2, y + BLOCK_H + 3)
           .lineWidth(1.6).strokeColor(CLARET).stroke().restore();
       }
     }
@@ -498,28 +515,35 @@ export function competitiveHistoryPage(k, model) {
     + 'that year, and against nothing else.');
   figure(k, pkg.seasons.length * 30 + 42, (box) => seasonSequence(k, box, pkg.seasons));
 
+  /**
+   * THE EXTREMES, AND NOTHING THAT IS ALREADY ON THIS PAGE — 13D / §O.
+   *
+   * This block used to carry five rows, and three of them were already printed
+   * above it on the same sheet: "seasons read, 4 of 4" is the scope strip's
+   * first line, and the aggregate record and its rate are the reading block's
+   * first sentence, word for word. A reader met each of them twice in a page
+   * and had to work out whether the second was a different measurement.
+   *
+   * The highest and lowest survive because the chart above shows every rate
+   * without saying which is which end of the window. Nothing is recomputed and
+   * no wording changes; three repeated rows stop being drawn.
+   */
   const s = pkg.summary;
-  if (s) {
-    k.heading('Across the seasons read');
-    // The highest and the lowest are the SAME season where only one was read,
-    // and two rows saying ".579 in 2023" read as a fault in the document. The
-    // model already refuses a range at one season; this reads that refusal.
-    const extremes = s.winPercentageRange ? [
+  // The highest and the lowest are the SAME season where only one was read,
+  // and two rows saying ".579 in 2023" read as a fault in the document. The
+  // model already refuses a range at one season; this reads that refusal.
+  if (s?.winPercentageRange) {
+    k.heading('The ends of the window');
+    k.facts([
       ['Highest of the seasons read',
         `${rate(s.highestObservedSeason.winPercentage)} in ${s.highestObservedSeason.season} (${s.highestObservedSeason.record})`],
       ['Lowest of the seasons read',
         `${rate(s.lowestObservedSeason.winPercentage)} in ${s.lowestObservedSeason.season} (${s.lowestObservedSeason.record})`],
-    ] : [];
-    k.facts([
-      [`Seasons read (${seasonList(pkg.describes)})`, `${cov.readableSeasons} of ${cov.expectedSeasons}`],
-      ['Record across those seasons', `${s.aggregateRecord} from ${plural(s.totalMatches, 'match', 'matches')}`],
-      ['Winning percentage across those seasons', rate(s.aggregateWinPercentage)],
-      ...extremes,
     ]);
-    if (cov.readableSeasons === 1) {
-      k.note('One season is one season. There is nothing here to compare it with, and it is not a '
-        + 'programme record.');
-    }
+  }
+  if (s && cov.readableSeasons === 1) {
+    k.note('One season is one season. There is nothing here to compare it with, and it is not a '
+      + 'programme record.');
   }
 
   coachEra(k, pkg);
@@ -623,9 +647,15 @@ export function competitiveEnvironmentPage(k, model) {
     ],
   });
 
-  const sentences = competitiveEnvironmentReading(model);
-  if (sentences.length) k.reading(sentences);
-
+  /**
+   * THE TIMELINE FIRST — 13D / §F.
+   *
+   * The reading block used to open this page, which put two sentences about
+   * what the lanes mean above the lanes. On a page whose whole job is to say
+   * "D2, D2, D1, D1" before anything else in the report is read, the lanes are
+   * the hero and the sentences are what follows from them. Nothing changed but
+   * the order the two blocks are drawn in.
+   */
   k.heading('Division and conference, season by season');
   // The sentence that explains a span and a seam is only true where there is
   // more than one season to span or move between.
@@ -633,7 +663,10 @@ export function competitiveEnvironmentPage(k, model) {
     ? 'The division and the conference that season was played in.'
     : 'Each measured season’s division and conference. A block carries the seasons it spans; a '
       + 'claret rule marks a season played in a different one.');
-  figure(k, 112, (box) => structuralTimeline(k, box, pkg.seasons));
+  figure(k, 124, (box) => structuralTimeline(k, box, pkg.seasons));
+
+  const sentences = competitiveEnvironmentReading(model);
+  if (sentences.length) k.reading(sentences);
 
   // The frozen sentences, in sequence. Membership and division only: the
   // window and coverage facts are absences and are said in the aside, where

@@ -138,6 +138,45 @@ export function fitText(doc, text, width, opts = undefined) {
  */
 const COMBINING = /[\u0300-\u036F]/;
 
+/**
+ * Cyrillic and Greek letters that are drawn identically to a Latin one.
+ *
+ * PHASE 13D / §AB — a font-safe correction, not a fix for one player. The
+ * report's fonts are the fourteen standard PDF faces and their encoding is
+ * WinAnsi, so a code point outside it has no glyph: at UTSA women's, "Zoё May"
+ * carries U+0451 CYRILLIC SMALL LETTER IO, which Helvetica cannot draw. The
+ * name is spelled with a look-alike rather than with anything the roster meant
+ * to be Cyrillic — the rest of it is Latin — and the general answer to a
+ * look-alike is to fold it onto the letter it looks like.
+ *
+ * Only exact homoglyphs are listed. A letter with no Latin twin is left alone
+ * and the audit still reports it, because guessing at a transliteration would
+ * be inventing a spelling rather than rendering one.
+ *
+ * NOTHING IS WRITTEN BACK. This is the drawing layer; the roster row, the
+ * model and every table still hold what the source published.
+ */
+const HOMOGLYPHS = new Map(Object.entries({
+  // Cyrillic
+  А: 'A', В: 'B', Е: 'E', К: 'K', М: 'M', Н: 'H', О: 'O', Р: 'P', С: 'C', Т: 'T',
+  У: 'Y', Х: 'X', Ј: 'J', Ѕ: 'S', І: 'I', Ї: 'Ï', Ё: 'Ë',
+  а: 'a', е: 'e', о: 'o', р: 'p', с: 'c', у: 'y', х: 'x', ј: 'j', і: 'i', ї: 'ï', ё: 'ë',
+  // Greek
+  Α: 'A', Β: 'B', Ε: 'E', Ζ: 'Z', Η: 'H', Ι: 'I', Κ: 'K', Μ: 'M', Ν: 'N', Ο: 'O',
+  Ρ: 'P', Τ: 'T', Υ: 'Y', Χ: 'X', ο: 'o', ν: 'v',
+}));
+const NON_LATIN = /[\u0370-\u04FF]/;
+
+export function foldHomoglyphs(str) {
+  if (typeof str !== 'string' || !NON_LATIN.test(str)) return str;
+  // Decomposed first, so a precomposed letter is folded through its base and
+  // keeps its accent: U+0451 becomes Cyrillic е plus a diaeresis, the base
+  // folds to Latin e, and NFC recomposes it as ë — which WinAnsi holds.
+  return str.normalize('NFD')
+    .replace(/[\u0370-\u04FF]/g, (ch) => HOMOGLYPHS.get(ch) ?? ch)
+    .normalize('NFC');
+}
+
 function installTextRules(doc) {
   const prev = doc.text.bind(doc);
   doc.text = (text, x, y, options) => {
@@ -146,6 +185,7 @@ function installTextRules(doc) {
     if (typeof x === 'object' && x !== null) { opts = x; ox = undefined; }
 
     let str = text;
+    if (typeof str === 'string') str = foldHomoglyphs(str);
     if (typeof str === 'string' && COMBINING.test(str)) str = str.normalize('NFC');
 
     if (opts && opts.lineBreak === false && opts.ellipsis && opts.width) {
@@ -1415,7 +1455,7 @@ export const charts = {
    *
    * Seasons with nobody at a rank are simply absent. Nothing is drawn at zero.
    */
-  dotLadder(k, { box, title, subtitle, rows, xMax, marker, poolLabel, unavailable }) {
+  dotLadder(k, { box, title, subtitle, rows, xMax, marker, poolLabel, unavailable, rowPitch = 30 }) {
     const plot = frame(k, box, { title, subtitle, unavailable, empty: !rows?.length });
     if (!plot) return;
     const { doc } = k;
@@ -1423,7 +1463,17 @@ export const charts = {
     const valueW = 62;
     const left = plot.x + labelW;
     const w = plot.w - labelW - valueW;
-    const rowH = Math.min(30, (plot.h - 14) / rows.length);
+    /**
+     * `rowPitch` is opt-in, and 30 unless a caller asks — Phase 13D / §G.
+     *
+     * The programme's first-year ladder is the strongest visual in the report
+     * and 30 held it to a 150-point band on a page with 600 points spare, so
+     * that page asks for 40. Raising the cap for everybody instead grew the
+     * ladder on the athlete's position page past the box its caller had sized,
+     * and the key line printed over the heading beneath it — which the layout
+     * guard caught.
+     */
+    const rowH = Math.min(rowPitch, (plot.h - 14) / rows.length);
     const xOf = (v) => left + Math.min(1, Math.max(0, v) / xMax) * w;
 
     if (marker != null && marker <= xMax) {
@@ -1710,19 +1760,28 @@ export const charts = {
         doc.font('Helvetica-Oblique').fontSize(8).fillColor(MUTED)
           .text(yr.unavailable || 'not enough on file', x, plot.y + 16, { width: inner });
       } else {
-        doc.font('Helvetica-Bold').fontSize(26).fillColor(INK)
-          .text(`${Math.round(yr.share * 100)}%`, x, plot.y + 12, { width: inner, lineBreak: false });
+        /**
+         * 19 point, not 26 — Phase 13D / §R.
+         *
+         * Four columns of 26-point numerals were the loudest ink in the report:
+         * 37% larger than the page title above them, so a reader met the
+         * progression before the conclusion the page had just stated. 19 is the
+         * title's own size, which makes it the largest a figure inside a chart
+         * may be and leaves the title as the page's first voice.
+         */
+        doc.font('Helvetica-Bold').fontSize(19).fillColor(INK)
+          .text(`${Math.round(yr.share * 100)}%`, x, plot.y + 13, { width: inner, lineBreak: false });
         doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
-          .text(yr.caption || '', x, plot.y + 42, { width: inner });
+          .text(yr.caption || '', x, plot.y + 36, { width: inner });
       }
 
       // The denominator, always, whether or not a share could be quoted.
       doc.font('Helvetica').fontSize(8).fillColor(INK)
-        .text(yr.count ?? '—', x, plot.y + 58, { width: inner, lineBreak: false, ellipsis: true });
+        .text(yr.count ?? '—', x, plot.y + 52, { width: inner, lineBreak: false, ellipsis: true });
 
       // The pool, as a track under the column rather than a second number
       // competing with the first.
-      const trackY = plot.y + 74;
+      const trackY = plot.y + 68;
       const trackW = inner;
       doc.save().rect(x, trackY, trackW, 6).fill('#EDEFF3').restore();
       if (yr.share != null) {
@@ -1746,7 +1805,7 @@ export const charts = {
       // Inside the box. Drawn eight points lower it landed on the sentence
       // after the chart, which the collision guard reported as ink over ink.
       doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
-        .text(poolLabel, plot.x, plot.y + 92, { width: plot.w, lineBreak: false, ellipsis: true });
+        .text(poolLabel, plot.x, plot.y + 90, { width: plot.w, lineBreak: false, ellipsis: true });
     }
   },
 

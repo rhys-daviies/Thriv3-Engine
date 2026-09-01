@@ -13,6 +13,7 @@ import { programReportModel } from '../routes/philosophy.js';
 import { renderProgramReport } from './philosophyReport.js';
 import { invalidatePoolBenchmarks } from './philosophyQueries.js';
 import { invalidateLifecyclePool } from './lifecycleQueries.js';
+import { foldHomoglyphs } from './philosophyPdf.js';
 import { render, THEME } from './philosophyPdf.js';
 import { createAudit, describeViolations, reserved } from './reportAudit.js';
 
@@ -310,12 +311,34 @@ describe('names and the font', () => {
     expect(audit.unencodable).toEqual([]);
   });
 
-  it('reports a character it genuinely cannot draw, rather than substituting silently', async () => {
-    // A Cyrillic homoglyph — the one shape in 132,590 roster names that
-    // Helvetica has no glyph for. Reported, never transliterated.
+  /**
+   * PHASE 13D / §AB. A Cyrillic letter drawn identically to a Latin one is
+   * folded onto that letter at draw time — U+0451 is Latin ë as far as any
+   * reader is concerned, and Helvetica holds ë. That is a rendering
+   * correction, not a transliteration: the model, the roster row and every
+   * table still hold what the source published.
+   */
+  it('draws a letter identical to a Latin one as that letter', async () => {
     const audit = await drawn('Zo\u0451 May');
-    expect(audit.unencodable).toHaveLength(1);
-    expect(audit.unencodable[0].characters).toEqual(['\u0451']);
+    expect(audit.unencodable).toEqual([]);
+    expect(foldHomoglyphs('Zo\u0451 May')).toBe('Zo\u00EB May');
+  });
+
+  it('never guesses a transliteration for a letter with no Latin twin', async () => {
+    // Ж, ш and π look like nothing in the Latin alphabet. Folding them would be
+    // inventing a spelling, so they are left alone and still reported.
+    for (const ch of ['\u0416', '\u0448', '\u03C0']) {
+      expect(foldHomoglyphs(`Ivan ${ch}ova`)).toBe(`Ivan ${ch}ova`);
+      const audit = await drawn(`Ivan ${ch}ova`);
+      expect(audit.unencodable).toHaveLength(1);
+      expect(audit.unencodable[0].characters).toEqual([ch]);
+    }
+  });
+
+  it('leaves a name that is already Latin exactly as it is', () => {
+    for (const name of ['Jos\u00E9 Ram\u00EDrez', 'Zoe May', 'O\u2019Connell']) {
+      expect(foldHomoglyphs(name)).toBe(name);
+    }
   });
 
   it('reports a glyph outside the set drawn anywhere in a report', async () => {

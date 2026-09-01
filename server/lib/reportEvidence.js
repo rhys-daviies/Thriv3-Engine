@@ -15,11 +15,11 @@
  * arrays; where a figure is missing the answer is to add it to the model, not
  * to derive it beside a drawing call.
  */
-import { charts, THEME, pageHead } from './philosophyPdf.js';
+import { charts, THEME, TYPE, pageHead } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { POSITIONS, positionPlural, canonicalPosition } from '../../shared/positions.js';
 
-const { MUTED, CLARET, NAVY, MID, PALE, GREEN } = THEME;
+const { MUTED, CLARET, NAVY, MID, PALE, GREEN, M, W } = THEME;
 
 const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
 const cap = (s) => String(s ?? '').replace(/^./, (c) => c.toUpperCase());
@@ -94,8 +94,19 @@ export function freshmanOpportunityPage(k, model) {
     });
     const xMax = Math.max(1600, ...rows.flatMap((r) => [r.high ?? 0, r.poolP75 ?? 0]));
 
+    /**
+     * 44 points a rung, not 30 — 13D / §G.
+     *
+     * The ladder is the strongest visual in the report and it was drawn in a
+     * 210-point band on a page with 600 points to spare, which left it reading
+     * as one chart among several on a page that had nothing else on it. The
+     * dots that share a rung also stop colliding: at 30 points a rung, four
+     * seasons within a hundred minutes of each other overlapped their own
+     * labels.
+     */
     charts.dotLadder(k, {
-      box: k.slot(rows.length * 30 + 60),
+      box: k.slot(rows.length * 40 + 78),
+      rowPitch: 40,
       title: 'What the best, second-best and third-best first-year actually got',
       subtitle: 'One dot per season, placed at the minutes that rank played. The heavy bar is this '
         + 'programme’s median across those seasons.',
@@ -228,7 +239,15 @@ export function experiencedArrivalsPage(k, model, { newPage = true } = {}) {
     return;
   }
 
-  k.body(`${plural(t.points.length, 'player', 'players')} arrived here who were not first-years. `
+  /**
+   * A DEFINITION IS NOT A FINDING — 13D / §J.
+   *
+   * This paragraph was the loudest thing above the chart: body size, ink, three
+   * lines, defining the word "arrival" — while the page's actual finding sat
+   * under it in muted note type. Both are context for the chart that follows
+   * and both are now set as notes, so the hero is what the eye finds first.
+   */
+  k.note(`${plural(t.points.length, 'player', 'players')} arrived here who were not first-years. `
     + 'The roster cannot tell a transfer from a junior-college arrival or an older recruit, so they '
     + 'are counted together as experienced arrivals — for a recruit they mean the same thing, '
     + 'somebody brought in ready to play.');
@@ -249,17 +268,19 @@ export function experiencedArrivalsPage(k, model, { newPage = true } = {}) {
       + 'share of the whole squad’s minutes; the figure on the summary page is a share of the '
       + 'minutes that came free at a position, which is a narrower and differently measured thing.');
   }
-  k.gap(2);
-
   // Only the seasons an arrival could be detected in. A lane for a season with
   // no prior roster would be drawn empty, and an empty lane reads as "nobody
   // came" when it means "we could not look".
   const lanes = e.measurableSeasons;
   const xMax = Math.max(1600, ...t.points.map((p) => p.minutes));
   const maxGames = Math.max(1, ...t.points.map((p) => p.gamesPlayed));
+  // The page's primary block is a titled region like the one below it. Drawn
+  // under a module title while the positions table below carried a claret
+  // section heading, the hero was the quieter of the two.
+  k.heading('Every experienced arrival, one dot per player');
   charts.scatter(k, {
-    box: k.slot(lanes.length * 28 + 40),
-    title: 'Every experienced arrival, one dot per player',
+    box: k.slot(lanes.length * 28 + 34),
+    title: null,
     subtitle: 'Drawn exactly as the first-year ladder is scaled, so the two populations can be '
       + 'read against each other.',
     lanes,
@@ -321,16 +342,28 @@ export function replacingMinutesPage(k, model) {
 
   page(k, 'Programme intelligence', 'Replacing minutes',
     'When established players leave a position, where do the following season’s minutes go?');
+  /**
+   * The three facts that used to trail the page are in its scope strip.
+   *
+   * They were a bare `facts` list at the foot of the page under no heading —
+   * "Position-seasons readable / 10 of 10", which the scope strip's first line
+   * already said, and "Evidence / moderate", which is a scope fact wearing the
+   * clothes of a finding. Every page in the report states its sample in the
+   * strip under the question; this one now does too, and the page ends on its
+   * last chart instead of on an orphan list.
+   */
   scope(k, [
     `${r.observations} readable of ${r.totalObservations} position-seasons`,
-    r.seasonsRepresented.length ? `${plural(r.seasonsRepresented.length, 'transition', 'transitions')}` : null,
+    r.seasonsRepresented.length
+      ? `${plural(r.seasonsRepresented.length, 'transition', 'transitions')} — ${r.seasonsRepresented.join(', ')}`
+      : null,
     r.meanVacatedStarterShare != null
       ? `typically ${Math.round(r.meanVacatedStarterShare * 100)}% of starter minutes vacated` : null,
+    `${r.evidence.level} evidence`,
   ]);
 
-  k.body('Every season, at every position, some players leave. This is where the minutes they were '
+  k.note('Every season, at every position, some players leave. This is where the minutes they were '
     + 'playing went the following season.');
-  k.gap(4);
 
   // One axis, one legend, the two mixes stacked on top of each other. The
   // comparison is the page.
@@ -339,11 +372,22 @@ export function replacingMinutesPage(k, model) {
     { key: 'freshman', label: 'first-years', color: NAVY },
     { key: 'newcomer', label: 'experienced arrivals', color: GREEN },
   ];
+  /**
+   * THE COMPARISON IS THE PAGE, so it is drawn like the page's subject — 13D.
+   *
+   * Two stacked bars under a module title, with the pool comparison beneath a
+   * claret section heading further down, made the page's own finding the
+   * quieter of the two blocks on it. The title is now the section, the bars are
+   * taller, and the block below it stays a section: two peers rather than an
+   * inversion.
+   */
+  k.heading('Where the minutes went');
   charts.stackedRows(k, {
-    box: k.slot(r.poolMix ? 132 : 96),
-    title: 'Where the minutes went',
+    box: k.slot(r.poolMix ? 144 : 112),
+    title: null,
     subtitle: 'The three shares divide the position’s minutes exactly, which is what makes them '
       + 'safe to read against each other.',
+    barH: 26,
     keys: KEYS,
     rows: [
       {
@@ -390,12 +434,6 @@ export function replacingMinutesPage(k, model) {
       + 'a position losing a starter differs from one that did not in more ways than this measures.');
   }
 
-  k.gap(4);
-  k.facts([
-    ['Position-seasons readable', `${r.observations} of ${r.totalObservations}`],
-    ['Seasons represented', r.seasonsRepresented.join(', ') || '—'],
-    ['Evidence', r.evidence.level],
-  ]);
 }
 
 // ---------------------------------------------------------------------------
@@ -419,41 +457,133 @@ export function replacementByPositionPage(k, model, { newPage = true } = {}) {
     newPage,
     continued: !newPage,
   });
+  scope(k, [
+    `${plural(live.length, 'position', 'positions')} of ${r.byPosition.length} readable`,
+    `${plural(r.byPosition.reduce((n, p) => n + p.openings, 0), 'opening', 'openings')} observed`,
+    athletePos ? `${cap(positionPlural(athletePos))} is this athlete’s position` : null,
+  ]);
 
   if (!live.length) {
     k.body('No position group here carries enough recorded minutes to read separately.', { color: MUTED });
     return;
   }
 
-  k.table({
-    caption: 'An opening is a season transition in which a starter left that position. The two '
-      + '“started” columns count the openings a first-year, or an experienced arrival, then '
-      + 'started in; one opening can be filled by more than one player, so they are never '
-      + 'subtracted from the total. The split is returning / first-year / experienced arrival.',
-    columns: [
-      { key: 'position', label: 'Position', width: 0.2, bold: true, format: (v) => cap(positionPlural(v)) },
-      { key: 'transitions', label: 'Transitions', width: 0.12, align: 'right' },
-      { key: 'openings', label: 'Openings', width: 0.11, align: 'right' },
-      { key: 'freshman', label: 'First-year', width: 0.14, align: 'right' },
-      { key: 'newcomer', label: 'Arrival', width: 0.14, align: 'right' },
-      { key: 'mix', label: 'Minutes split', width: 0.18, align: 'right' },
-      { key: 'evidence', label: 'Evidence', width: 0.11, align: 'right' },
-    ],
-    rows: r.byPosition.map((p) => ({
-      position: p.position,
-      transitions: p.transitions || null,
-      openings: p.transitions ? p.openings : null,
-      // "2 of 5" rather than 40%: with at most three transitions a percentage
-      // reads far more confidently than it deserves to.
-      freshman: p.openings ? `${p.freshmanTookIt} of ${p.openings}` : null,
-      newcomer: p.openings ? `${p.newcomerTookIt} of ${p.openings}` : null,
-      mix: p.dials?.n
-        ? `${Math.round(p.dials.returning)} / ${Math.round(p.dials.freshman)} / ${Math.round(p.dials.newcomer)}`
-        : null,
-      evidence: p.transitions ? p.evidence.level : null,
-    })),
-    highlight: athletePos ? (row) => row.position === athletePos : null,
-  });
+  /**
+   * FOUR ROWS, NOT A SEVEN-COLUMN TABLE — Phase 13D / §M.
+   *
+   * The table this replaces put the whole page in a 26-point strip: seven
+   * columns, four rows, a header that wrapped "TRANSITIONS" onto the first
+   * row of data, and a "Minutes split" column reading "69 / 4 / 27" whose key
+   * was a clause in the caption above it. Everything on the page was the same
+   * size, so nothing on it was findable.
+   *
+   * The three numbers in that column already partition the position's minutes
+   * exactly — that is enforced in `vacancyObservations` and it is what makes
+   * them safe to draw as one bar. So they are drawn as one bar, in the same
+   * three colours the replacement page uses for the same three routes, and the
+   * page becomes four things a reader can compare rather than a grid to parse.
+   *
+   * NO NEW ANALYTICS. Every figure below is the same field the table printed.
+   */
+  const NAME_W = W * 0.26;
+  const BAR_X = M + W * 0.30;
+  const BAR_W = W * 0.44;
+  const STARTED_X = M + W * 0.76;
+  const STARTED_W = W * 0.24;
+  const ROW_H = 72;
+
+  k.heading('What happened at each position');
+  k.note('An opening is a season transition in which a starter left that position. One opening can '
+    + 'be filled by more than one player, so the two “started” counts are never subtracted from '
+    + 'the total.');
+
+  const box = k.slot(r.byPosition.length * ROW_H + 30);
+  const after = k.doc.y;
+  const { doc } = k;
+  try {
+    // The legend once, above the rows, rather than a key inside every bar.
+    let lx = BAR_X;
+    for (const [label, colour] of [['returning players', PALE], ['first-years', NAVY],
+      ['experienced arrivals', GREEN]]) {
+      doc.save().rect(lx, box.y + 2, 7, 7).fill(colour).restore();
+      doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
+        .text(label, lx + 10, box.y + 2, { width: 100, lineBreak: false });
+      lx += 12 + doc.widthOfString(label) + 12;
+    }
+    doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+      .text('STARTED THE OPENING', STARTED_X, box.y + 2,
+        { width: STARTED_W, align: 'right', characterSpacing: TYPE.label.spacing, lineBreak: false });
+
+    r.byPosition.forEach((p, i) => {
+      const y = box.y + 26 + i * ROW_H;
+      const mine = athletePos && p.position === athletePos;
+      // The athlete's own position is marked by a claret rule in the margin,
+      // never by a fill: a highlighted row on a page of four rows reads as the
+      // best one.
+      // Inside the content box: at M - 8 the rule sat two points past the left
+      // edge the layout guard enforces, and the guard said so.
+      if (mine) doc.save().rect(M - 5, y - 4, 2, ROW_H - 20).fill(CLARET).restore();
+
+      doc.font('Helvetica-Bold').fontSize(13).fillColor(THEME.INK)
+        .text(cap(positionPlural(p.position)), M, y, { width: NAME_W, lineBreak: false });
+      doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
+        .text(p.transitions
+          ? `${plural(p.transitions, 'transition', 'transitions')} · ${plural(p.openings, 'opening', 'openings')}`
+          : 'no transition on file', M, y + 19, { width: NAME_W, lineBreak: false });
+      if (p.transitions) {
+        doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+          .text(`${String(p.evidence.level).toUpperCase()} EVIDENCE`, M, y + 33,
+            { width: NAME_W, characterSpacing: TYPE.label.spacing, lineBreak: false });
+      }
+
+      // The minute mix, as one bar. A position whose minutes could not be read
+      // draws the REASON, never an empty track: an empty track reads as a
+      // measured zero, which is exactly what this page must not say.
+      if (p.dials?.n) {
+        const parts = [['returning', p.dials.returning, PALE], ['freshman', p.dials.freshman, NAVY],
+          ['newcomer', p.dials.newcomer, GREEN]];
+        let x = BAR_X;
+        for (const [, share, colour] of parts) {
+          const w = Math.max(0, (share / 100) * BAR_W);
+          if (w > 0.5) doc.save().rect(x, y + 2, w, 22).fill(colour).restore();
+          if (w >= 22) {
+            doc.font('Helvetica-Bold').fontSize(7.5).fillColor(colour === PALE ? THEME.INK : '#FFFFFF')
+              .text(`${Math.round(share)}%`, x + 5, y + 9.5, { width: w - 7, lineBreak: false });
+          }
+          x += w;
+        }
+        doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
+          .text(`${plural(p.dials.n, 'position-season', 'position-seasons')} readable`,
+            BAR_X, y + 29, { width: BAR_W, lineBreak: false });
+      } else {
+        doc.font('Helvetica-Oblique').fontSize(7.5).fillColor(MUTED)
+          .text(p.transitions
+            ? 'minutes never recorded consistently enough to read the mix'
+            : 'no season transition on file at this position',
+          BAR_X, y + 8, { width: BAR_W });
+      }
+
+      // Who started, as two counts rather than two columns of "n of m".
+      if (p.openings) {
+        doc.font('Helvetica').fontSize(7.8).fillColor(THEME.INK)
+          .text(`first-year  ${p.freshmanTookIt} of ${p.openings}`, STARTED_X, y + 5,
+            { width: STARTED_W, align: 'right', lineBreak: false });
+        doc.font('Helvetica').fontSize(7.8).fillColor(THEME.INK)
+          .text(`arrival  ${p.newcomerTookIt} of ${p.openings}`, STARTED_X, y + 19,
+            { width: STARTED_W, align: 'right', lineBreak: false });
+      } else {
+        doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
+          .text('—', STARTED_X, y + 5, { width: STARTED_W, align: 'right', lineBreak: false });
+      }
+
+      if (i < r.byPosition.length - 1) {
+        doc.save().moveTo(M, y + ROW_H - 20).lineTo(M + W, y + ROW_H - 20)
+          .lineWidth(0.4).strokeColor(THEME.LINE).stroke().restore();
+      }
+    });
+  } finally {
+    doc.y = after;
+  }
 
   k.note('A position with no numbers is one whose minutes were never recorded consistently enough '
     + 'to read — not one that never turns over. Goalkeepers land there often: one keeper plays '
@@ -477,8 +607,8 @@ export function replacementByPositionPage(k, model, { newPage = true } = {}) {
   }
   if (athletePos) {
     k.note(`${cap(positionPlural(athletePos))} is the position this report is prepared for and is `
-      + 'marked in the table; how this history intersects with one position and one entry year is '
-      + 'on the pathway pages.');
+      + 'marked in the margin above; how this history intersects with one position and one entry '
+      + 'year is on the pathway pages.');
   }
 }
 
@@ -528,9 +658,12 @@ export function currentSquadOutlookPage(k, model) {
   })).filter((l) => l.players.length);
   const unplaceable = depthRows.filter((p) => p.eligibleTo == null).length;
 
+  // The page's primary block is a titled region, like the arrivals block below
+  // it. Under a module title it was the quieter of the two.
+  k.heading('Every current player, at the year their eligibility ends');
   charts.eligibilityTimeline(k, {
-    box: k.slot(lanes.length * 26 + 52),
-    title: 'Every current player, at the year their eligibility ends',
+    box: k.slot(lanes.length * 26 + 44),
+    title: null,
     subtitle: 'One dot per player, sized by the minutes they are projected to play.',
     lanes,
     years,

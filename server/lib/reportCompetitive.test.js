@@ -334,7 +334,10 @@ describe('the historical-movement invariant', () => {
     // One fill, one opacity, one stroke for a known block, whichever division
     // it names. A palette keyed on the division would rank the divisions.
     expect(CODE).not.toMatch(/NCAA D1['"]?\s*[:?]/);
-    expect(CODE.match(/fillOpacity\(0\.07\)\.fill\(NAVY\)/g) ?? []).toHaveLength(1);
+    // 0.09 since 13D, when the blocks lost their radius and their stroke and
+    // needed a touch more tint to read as lanes. One opacity, one fill, still.
+    expect(CODE.match(/fillOpacity\(0\.09\)\.fill\(NAVY\)/g) ?? []).toHaveLength(1);
+    expect(CODE).not.toMatch(/fillOpacity\(0\.07\)\.fill\(NAVY\)/);
   });
 });
 
@@ -429,7 +432,16 @@ describe('the sparse states', () => {
     for (const n of [4, 3, 2, 1]) {
       const model = fixture(spec.slice(0, n));
       const lines = await bothPages(model);
-      expect(lines.some((l) => l === `${n} of 4`), `${n}: denominator`).toBe(true);
+      /**
+       * The denominator, wherever the page states it. It used to be a `facts`
+       * row of its own — "Seasons read (2022, 2023, 2024 and 2025) / 4 of 4" —
+       * which 13D stopped drawing because the scope strip under the question
+       * already said "4 of 4 seasons read" on the same sheet. The claim this
+       * test protects is that the page never quotes a count without the
+       * denominator, not which block carries it.
+       */
+      const denominator = new RegExp(`\\b${n} of 4\\b`);
+      expect(lines.some((l) => denominator.test(l)), `${n}: denominator`).toBe(true);
       // No season the fixture does not have.
       for (const s of spec.slice(n)) {
         expect(lines.some((l) => l === s.conferenceRecord), `${n}: ${s.season}`).toBe(false);

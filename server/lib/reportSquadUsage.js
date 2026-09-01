@@ -189,11 +189,25 @@ export function squadUsagePage(k, model) {
       'not a forecast',
     ].filter(Boolean),
   });
-  if (u) concentrationBlock(k, u);
-  k.gap(6);
-  if (e) experienceBlock(k, e);
+  /**
+   * THE READING LEADS — 13D / §B.
+   *
+   * It was drawn last, so this was the one primary page in the report whose own
+   * conclusion sat at the bottom of the sheet, under two charts and eight lines
+   * of annotation, while every other page put it directly under the question.
+   * A reader who takes one block from a page should take the same block on
+   * every page, and on this one they had to reach the floor to find it.
+   *
+   * §I is the other half of the same move: the two questions this page asks —
+   * how concentrated the minutes are, and which years of study carry them —
+   * now sit under one statement of what they add up to, which is what makes
+   * them read as two parts of one answer rather than two charts.
+   */
   const sentences = squadUsageReading(model);
   if (sentences.length) k.reading(sentences);
+  if (u) concentrationBlock(k, u);
+  k.gap(10);
+  if (e) experienceBlock(k, e);
 }
 
 /**
