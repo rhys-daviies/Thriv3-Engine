@@ -259,6 +259,16 @@ describe('missing is not zero', () => {
     expect(lines.some((l) => /A dash is a record the conference did not publish/.test(l))).toBe(true);
   });
 
+  it('does not print a key for ink the figure does not carry', async () => {
+    // Kansas State women's has four seasons and no established division, so no
+    // row has a band. A legend describing one is a legend for nothing.
+    const none = await drawn(competitiveHistoryPage, RECORD_ONLY());
+    expect(none.some((l) => /^dark mark is this programme’s rate$/.test(l))).toBe(true);
+    expect(none.some((l) => /pale band/.test(l))).toBe(false);
+    const some = await drawn(competitiveHistoryPage, FULL());
+    expect(some.some((l) => /pale band and light mark are the middle half/.test(l))).toBe(true);
+  });
+
   it('never turns a refused figure into a midpoint', async () => {
     for (const model of Object.values(ALL())) {
       for (const line of await bothPages(model)) {
@@ -338,6 +348,20 @@ describe('conference records are never compared across conferences', () => {
   it('says so in words where the seasons span two conferences', async () => {
     const said = competitiveEnvironmentReading(FULL());
     expect(said.some((s) => /cannot be compared with each other/.test(s))).toBe(true);
+  });
+
+  it('names the set of seasons it quantifies', () => {
+    // "These seasons were not all played in the same division" left the reader
+    // to infer which seasons. A real-data invariant sweeps every sentence for
+    // this; the shape is pinned here.
+    const said = competitiveEnvironmentReading(FULL());
+    expect(said.some((x) => /^The seasons read were not all played in the same division/.test(x)))
+      .toBe(true);
+    for (const line of said) {
+      if (/\b(?:every|each|all)\s+(?:\d+\s+)?seasons?\b/i.test(line)) {
+        expect(line, line).toMatch(/with an established|with a division on file|whose conference is on file|seasons? read|that could be (?:read|compared)|of the four seasons|on file for/i);
+      }
+    }
   });
 
   it('says the opposite where they do not', async () => {

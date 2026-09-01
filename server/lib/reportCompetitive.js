@@ -273,12 +273,20 @@ function seasonSequence(k, box, seasons) {
     .text('.000', axisX - 6, footY, { width: 24, lineBreak: false })
     .text('.500', xOf(0.5) - 12, footY, { width: 24, align: 'center', lineBreak: false })
     .text('1.000', xOf(1) - 20, footY, { width: 24, align: 'right', lineBreak: false });
-  // Drawn from the left edge of the figure rather than from the axis: at the
-  // axis it had 385 points for a 175-character key and shipped as
-  // "…in that season'…", which is a sentence the reader has to guess at.
+  /**
+   * The key names the ink that is on the figure, and no other.
+   *
+   * Drawn from the left edge rather than from the axis: at the axis it had 385
+   * points for a 175-character key and shipped as "…in that season'…", which is
+   * a sentence the reader has to guess at. And the band half is dropped where no
+   * row has a band — at Kansas State women's, whose four seasons carry no
+   * established division, a key describing a pale band on a figure that has none
+   * is a legend for ink that was never drawn.
+   */
+  const anyBand = seasons.some((s) => s.benchmark?.available);
   doc.font('Helvetica').fontSize(6).fillColor(MUTED)
-    .text('dark mark is this programme’s rate  ·  pale band and light mark are the middle half '
-      + 'and median of that season’s division',
+    .text(`dark mark is this programme’s rate${anyBand
+      ? '  ·  pale band and light mark are the middle half and median of that season’s division' : ''}`,
     box.x, footY + 10, { width: box.w, lineBreak: false, ellipsis: true });
 }
 
@@ -342,7 +350,15 @@ function structuralTimeline(k, box, seasons) {
   const years = [];
   for (let y = first; y <= last; y += 1) years.push(y);
   const bySeason = new Map(seasons.map((x) => [x.season, x]));
-  const colW = gridW / years.length;
+  /**
+   * A COLUMN IS A SEASON, NOT A SHARE OF THE PAGE.
+   *
+   * Anderson (IN) men's has one readable season, and dividing the grid by one
+   * gave a 427-point block carrying the words "NCAA D3" — a full-width band that
+   * reads as a rendering fault rather than as a single season. Capped, a short
+   * window occupies a short axis, which is what it is.
+   */
+  const colW = Math.min(gridW / years.length, 150);
 
   doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color);
   years.forEach((y, i) => doc.text(String(y), gridX + i * colW, box.y, {
@@ -544,8 +560,14 @@ export function competitiveHistoryReading(model) {
       [tally(BENCHMARK_LABEL.LOWER), 'the lower quarter'],
     ].filter(([n]) => n > 0)
       .map(([n, where], i) => `${n} ${i === 0 ? 'sat in' : 'in'} ${where}`);
-    out.push(`Of the ${nSeasons(banded.length)} that could be compared, `
-      + `${list(parts)} of the programmes measured in that season’s own division.`);
+    // "Of the 4 seasons that could be compared, 4 sat in the upper quarter" is
+    // one band doing the work of a distribution. Where every season landed in
+    // the same quarter, the sentence says so once.
+    out.push(parts.length === 1
+      ? `All ${nSeasons(banded.length)} that could be compared ${parts[0].replace(/^\d+ sat in/, 'sat in')} `
+        + 'of the programmes measured in that season’s own division.'
+      : `Of the ${nSeasons(banded.length)} that could be compared, `
+        + `${list(parts)} of the programmes measured in that season’s own division.`);
   } else if (banded.length === 1) {
     const one = banded[0];
     out.push(`The ${one.season} rate of ${rate(one.winPercentage)} sat `
@@ -595,8 +617,12 @@ export function competitiveEnvironmentPage(k, model) {
   if (sentences.length) k.reading(sentences);
 
   k.heading('Division and conference, season by season');
-  k.note('Each of those seasons’ division and conference. A block carries the seasons it spans; a '
-    + 'claret rule marks a season played in a different one.');
+  // The sentence that explains a span and a seam is only true where there is
+  // more than one season to span or move between.
+  k.note(pkg.seasons.length === 1
+    ? 'The division and the conference that season was played in.'
+    : 'Each of those seasons’ division and conference. A block carries the seasons it spans; a '
+      + 'claret rule marks a season played in a different one.');
   figure(k, 112, (box) => structuralTimeline(k, box, pkg.seasons));
 
   // The frozen sentences, in sequence. Membership and division only: the
@@ -687,12 +713,22 @@ export function competitiveEnvironmentReading(model) {
   const divisions = [...new Set(pkg.seasons.map((s) => s.historicalDivision).filter(Boolean))];
   const conferences = [...new Set(pkg.seasons.map((s) => s.historicalConference).filter(Boolean))];
 
-  if (divisions.length === 1 && cov.divisionKnown === cov.readableSeasons) {
+  if (cov.readableSeasons === 1) {
+    // One season compares with nothing, so "the same set of programmes" is a
+    // claim about comparisons this page does not have. It states the season.
+    const one = pkg.seasons[0];
+    out.push(`The one season read (${one.season}) was played `
+      + `${one.historicalDivision ? `in ${one.historicalDivision}` : 'in a division that could not be established'}`
+      + `${one.historicalConference ? `, in the ${one.historicalConference}` : ''}.`);
+  } else if (divisions.length === 1 && cov.divisionKnown === cov.readableSeasons) {
     out.push(`Every season read was played in ${divisions[0]}, so each season’s comparison on `
       + 'the previous page is against the same set of programmes.');
   } else if (divisions.length > 1) {
-    out.push(`These seasons were not all played in the same division (${list(divisions)}), so each `
-      + 'season’s comparison on the previous page is against a different set of programmes.');
+    // "These seasons" leaves the reader to infer which set is being quantified.
+    // The set is the seasons read, and the sentence now says so — the same rule
+    // the structural wording was corrected under.
+    out.push(`The seasons read were not all played in the same division (${list(divisions)}), so `
+      + 'each season’s comparison on the previous page is against a different set of programmes.');
   }
   if (conferences.length > 1) {
     out.push(`The seasons read cover ${plural(conferences.length, 'conference', 'conferences')} `

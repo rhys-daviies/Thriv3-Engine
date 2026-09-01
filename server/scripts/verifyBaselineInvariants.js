@@ -695,6 +695,26 @@ group('COMPETITIVE V1 — on the page');
   let sentences = 0;
   let offending = null;
   let structural = null;
+  /**
+   * DENOMINATOR AMBIGUITY, AS A MACHINE CHECK.
+   *
+   * "Every season on file was played in NCAA Division III" was true of the
+   * seasons with an established division and read, beside a four-season table,
+   * as a claim about all four. The rule is not "avoid the phrase" — a sweeping
+   * quantifier is often the clearest sentence available — it is that a sentence
+   * which quantifies a set of seasons must also say WHICH set, in the same
+   * sentence, where a reader can see it.
+   */
+  const QUANTIFIER = /\b(?:every|each|all)\s+(?:\d+\s+)?seasons?\b/i;
+  // "that could be compared" and "that could be read" name their set as
+  // precisely as "whose conference is on file" does — the set is the seasons the
+  // model could compare, or read, and the sentence says which.
+  const NAMES_ITS_SET = /(?:with an established|with a division on file|whose conference is on file|seasons? read|that could be (?:read|compared)|of the four seasons|on file for)/i;
+  // Phrases that assert the whole window and cannot carry a denominator at all.
+  const WHOLE_WINDOW = /\b(?:throughout|across all|entire window|the whole window|all four seasons)\b/i;
+  let quantified = 0;
+  let ambiguous = null;
+  let whole = null;
   let labelOutside = null;
   let planMismatch = null;
   let percentilePrinted = null;
@@ -708,6 +728,11 @@ group('COMPETITIVE V1 — on the page');
       sentences += 1;
       if (!offending && FORBIDDEN_READER_LANGUAGE.test(line)) offending = `${c.name} ${c.sport}: ${line}`;
       if (!structural && FORBIDDEN_STRUCTURAL.test(line)) structural = `${c.name} ${c.sport}: ${line}`;
+      if (QUANTIFIER.test(line)) {
+        quantified += 1;
+        if (!ambiguous && !NAMES_ITS_SET.test(line)) ambiguous = `${c.name} ${c.sport}: ${line}`;
+      }
+      if (!whole && WHOLE_WINDOW.test(line)) whole = `${c.name} ${c.sport}: ${line}`;
       // A percentile is a precision this pool cannot carry, and the three-word
       // vocabulary exists so that it is never printed.
       if (!percentilePrinted && /\bpercentile\b/i.test(line)) percentilePrinted = `${c.name}: ${line}`;
@@ -725,6 +750,10 @@ group('COMPETITIVE V1 — on the page');
   }
   check('no forbidden reader language in any sentence the two pages author',
     offending === null, `${sentences} sentences over ${ids.length} programmes${offending ? ` — ${offending}` : ''}`);
+  check('every sweeping quantifier names the set it counted',
+    ambiguous === null, ambiguous ?? `${quantified} sentences quantify a set of seasons`);
+  check('no sentence claims the whole window without a denominator',
+    whole === null, whole ?? 'no "throughout", "across all" or "entire window" anywhere');
   check('no structural sentence on either page implies a direction',
     structural === null, structural ?? 'across the same universe');
   check('every available benchmark draws one of the three labels and no other',

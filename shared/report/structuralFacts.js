@@ -1,10 +1,15 @@
 /**
  * Sentences a programme's structural history can support, and nothing beyond.
  *
- * NOT RENDERED. Phase 12D builds the model and stops; no page consumes this and
- * a baseline invariant checks that the report bytes did not move. It is here so
- * that when a page does consume it, the wording is already settled and already
- * tested, rather than being written under layout pressure.
+ * RENDERED, since Phase 12F. `reportCompetitive.js` prints these sentences as
+ * the bullets on the Competitive environment page, verbatim — which is what 12D
+ * was for: the wording was settled and tested before there was a page to write
+ * it under layout pressure.
+ *
+ * EVERY SENTENCE NAMES THE SET IT COUNTED. Three sets of seasons meet on that
+ * page — the seasons with a record, the seasons with a conference, the seasons
+ * with a division — and they are not always the same set. 12G corrected the
+ * wording that said "on file" without saying on file for what.
  *
  * A MOVE IS A FACT AND NOT A DIRECTION. "The programme moved from NCAA D2 to
  * NCAA D1 in 2024" is a restatement of two rows a reader could check. "The
@@ -71,7 +76,19 @@ export function structuralFacts(structural) {
   const facts = [];
   const seasons = structural.seasons;
   const known = structural.knownSeasons;
-  const denominator = known.length === 1 ? `in ${known[0]}` : `across ${known.length} seasons on file (${list(known.map(String))})`;
+  /**
+   * WHICH SEASONS "ON FILE" MEANT, said outright.
+   *
+   * Three different sets of seasons meet on a Competitive page: the seasons with
+   * a readable win/draw/loss record, the seasons with a conference, and the
+   * seasons with a division. They are often the same set and they are not always
+   * the same set — University of Rochester women's has four records, three
+   * conferences and three divisions. "Across 3 seasons on file" beside a table
+   * of four seasons reads as a claim that only three seasons exist, which is
+   * false. Each sentence below names the set it is actually counting.
+   */
+  const denominator = known.length === 1 ? `in ${known[0]}`
+    : `across the ${known.length} seasons whose conference is on file (${list(known.map(String))})`;
 
   const conferenceChanges = structural.changes.filter((c) => c.kind === 'CONFERENCE');
   const divisionChanges = structural.changes.filter((c) => c.kind === 'DIVISION');
@@ -97,7 +114,16 @@ export function structuralFacts(structural) {
     facts.push({
       kind: 'DIVISION_STABLE',
       seasons: structural.divisionKnownSeasons,
-      text: `Every season on file was played in ${divisionName(structural.stableDivision)}.`,
+      // The seasons with an ESTABLISHED DIVISION, which is narrower than the
+      // seasons with a conference and narrower again than the seasons with a
+      // record. The condition that produces this fact is unchanged; only the
+      // sentence now says what it counted.
+      // The COUNT rather than the list: the conference sentence directly above
+      // this one already prints the seasons, and the two sets are usually the
+      // same set — "(2022, 2024 and 2025)" twice in adjacent bullets is the
+      // repetition, not the clarity.
+      text: `${structural.divisionKnownSeasons.length === 2 ? 'Both' : `All ${structural.divisionKnownSeasons.length}`} `
+        + `seasons with an established division were played in ${divisionName(structural.stableDivision)}.`,
     });
   }
   for (const c of divisionChanges) {
@@ -127,7 +153,9 @@ export function structuralFacts(structural) {
     facts.push({
       kind: 'DIVISION_UNKNOWN',
       seasons: seasons.filter((s) => !s.division).map((s) => s.season),
-      text: `The division played in is not established for ${seasons.length - withDivision} of the ${seasons.length} seasons on file.`,
+      text: `The division played in is not established for ${seasons.length - withDivision === seasons.length
+        ? 'any' : `${seasons.length - withDivision}`} of the ${seasons.length} seasons whose `
+        + 'conference is on file.',
     });
   }
   return facts;

@@ -84,6 +84,40 @@ describe('a fact needs both of its sides', () => {
       .toContain('not established for 1 of the 2 seasons');
   });
 
+  /**
+   * Three sets of seasons meet on the Competitive environment page and they are
+   * not always the same set. University of Rochester women's has four readable
+   * records, three seasons with a conference and three with a division — and
+   * "Every season on file was played in NCAA Division III" printed beside a
+   * four-season table was read as a claim about all four.
+   */
+  it('names the set each sentence counted, not "on file" on its own', () => {
+    const rochester = structuralHistory([2022, 2024, 2025].map((season) => ({
+      season, conferenceId: 'uaa', conferenceName: 'University Athletic Association',
+      historicalDivision: 'NCAA D3',
+    })));
+    const facts = structuralFacts(rochester);
+    const conference = facts.find((f) => f.kind === 'CONFERENCE_STABLE');
+    const division = facts.find((f) => f.kind === 'DIVISION_STABLE');
+    expect(conference.text).toContain('across the 3 seasons whose conference is on file');
+    expect(division.text).toBe('All 3 seasons with an established division were played in NCAA Division III.');
+    for (const f of facts) expect(f.text).not.toMatch(/every season on file/i);
+  });
+
+  it('counts two as both, and none as none', () => {
+    const two = structuralHistory([2024, 2025].map((season) => ({
+      season, conferenceId: 'whac', conferenceName: 'Wolverine-Hoosier Athletic Conference',
+      historicalDivision: 'NAIA',
+    })));
+    expect(structuralFacts(two).find((f) => f.kind === 'DIVISION_STABLE').text)
+      .toBe('Both seasons with an established division were played in the NAIA.');
+    const none = structuralHistory([2022, 2023, 2024, 2025].map((season) => ({
+      season, conferenceId: 'big-12', conferenceName: 'Big 12 Conference', historicalDivision: null,
+    })));
+    expect(structuralFacts(none).find((f) => f.kind === 'DIVISION_UNKNOWN').text)
+      .toBe('The division played in is not established for any of the 4 seasons whose conference is on file.');
+  });
+
   it('returns nothing at all for a programme with nothing collected', () => {
     expect(structuralFacts(null)).toEqual([]);
     expect(structuralFacts(structuralHistory([]))).toEqual([]);
