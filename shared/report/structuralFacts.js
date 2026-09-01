@@ -84,10 +84,13 @@ export function structuralFacts(structural) {
     });
   }
   for (const c of conferenceChanges) {
+    const from = c.fromSeason ?? c.season - 1;
     facts.push({
       kind: 'CONFERENCE_CHANGE',
-      seasons: [c.season - 1, c.season],
-      text: `The programme competed in the ${c.from} in ${c.season - 1} and the ${c.to} in ${c.season}.`,
+      seasons: [from, c.season],
+      // The two seasons named are both on file. Where the window has a gap, the
+      // earlier one is the previous season ESTABLISHED, not the year before.
+      text: `The programme competed in the ${c.from} in ${from} and the ${c.to} in ${c.season}.`,
     });
   }
   if (structural.stableDivision && structural.divisionKnownSeasons.length >= 2) {
@@ -98,11 +101,16 @@ export function structuralFacts(structural) {
     });
   }
   for (const c of divisionChanges) {
+    const from = c.fromSeason ?? c.season - 1;
     facts.push({
       kind: 'DIVISION_CHANGE',
-      seasons: [c.season - 1, c.season],
-      // "moved from X to Y" and no more. Not up, not down, and not why.
-      text: `The programme moved from ${divisionName(c.from)} to ${divisionName(c.to)} in ${c.season}.`,
+      seasons: [from, c.season],
+      // "moved from X to Y" and no more. Not up, not down, and not why. Where
+      // the two seasons are not consecutive the sentence says so, because a
+      // move "in 2025" from a 2022 season is a different fact.
+      text: from === c.season - 1
+        ? `The programme moved from ${divisionName(c.from)} to ${divisionName(c.to)} in ${c.season}.`
+        : `The programme played ${divisionName(c.from)} in ${from} and ${divisionName(c.to)} in ${c.season}; the seasons between them are not established.`,
     });
   }
   if (known.length && known.length < 4) {

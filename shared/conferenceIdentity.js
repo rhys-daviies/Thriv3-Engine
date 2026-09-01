@@ -109,8 +109,8 @@ export const CONFERENCES = Object.freeze([
   { id: 'caa', name: 'Coastal Athletic Association', aliases: ['CAA', 'Colonial Athletic Association'], renamedFrom: [{ name: 'Colonial Athletic Association', until: 2023 }] },
   { id: 'cusa', name: 'Conference USA', aliases: ['CUSA', 'C-USA'] },
   { id: 'horizon', name: 'Horizon League', aliases: ['Horizon'] },
-  { id: 'ivy', name: 'Ivy League', aliases: ['Ivy'] },
-  { id: 'maac', name: 'Metro Atlantic Athletic Conference', aliases: ['MAAC', 'Metro'] },
+  { id: 'ivy', name: 'Ivy League', aliases: ['Ivy', 'The Ivy League'] },
+  { id: 'maac', name: 'Metro Atlantic Athletic Conference', aliases: ['MAAC', 'Metro', 'Metro Conference'] },
   { id: 'mac', name: 'Mid-American Conference', aliases: ['Mid-American Conference', 'Mid American Conference'], scopedAliases: [{ alias: 'MAC', division: 'NCAA D1' }] },
   { id: 'mvc', name: 'Missouri Valley Conference', aliases: ['Missouri Valley', 'MVC'] },
   { id: 'mountain-west', name: 'Mountain West Conference', aliases: ['Mountain West', 'MW'] },
@@ -123,7 +123,8 @@ export const CONFERENCES = Object.freeze([
   { id: 'southland', name: 'Southland Conference', aliases: ['Southland'] },
   { id: 'summit', name: 'Summit League', aliases: ['Summit', 'The Summit League'] },
   { id: 'sun-belt', name: 'Sun Belt Conference', aliases: ['Sun Belt'] },
-  { id: 'swac', name: 'Southwestern Athletic Conference', aliases: ['SWAC'] },
+  { id: 'swac', name: 'Southwestern Athletic Conference', aliases: ['SWAC', 'Southwestern Athletic Conf.'] },
+  { id: 'meac', name: 'Mid-Eastern Athletic Conference', aliases: ['MEAC', 'Mid-Eastern Athletic Conf.'] },
   { id: 'wcc', name: 'West Coast Conference', aliases: ['West Coast', 'WCC'] },
   { id: 'uac', name: 'United Athletic Conference', aliases: ['UAC'], formed: 2023 },
 
@@ -151,6 +152,9 @@ export const CONFERENCES = Object.freeze([
   { id: 'rmac', name: 'Rocky Mountain Athletic Conference', aliases: ['RMAC'] },
   { id: 'sac', name: 'South Atlantic Conference', aliases: ['SAC'] },
   { id: 'sunshine-state', name: 'Sunshine State Conference', aliases: ['Sunshine State', 'SSC'] },
+  // Absent from the 12D inventory because `colleges.conference` never names it.
+  // The NCAA's own directory does. Both sponsor soccer.
+  { id: 'siac', name: 'Southern Intercollegiate Athletic Conference', aliases: ['SIAC', 'Southern Intercol. Ath. Conf.'] },
 
   // ── NCAA Division III ─────────────────────────────────────────────────────
   { id: 'amcc', name: 'Allegheny Mountain Collegiate Conference', aliases: ['AMCC'] },
@@ -164,7 +168,7 @@ export const CONFERENCES = Object.freeze([
   { id: 'ccc', name: 'Commonwealth Coast Conference', aliases: [], scopedAliases: [{ alias: 'CCC', division: 'NCAA D3' }], mergedInto: { id: 'cne', season: 2023 } },
   { id: 'necc', name: 'New England Collegiate Conference', aliases: ['NECC'], mergedInto: { id: 'cne', season: 2023 } },
   { id: 'capital', name: 'Capital Athletic Conference', scopedAliases: [{ alias: 'CAC', division: 'NCAA D3' }], dissolved: 2020 },
-  { id: 'csac', name: 'Colonial States Athletic Conference', aliases: ['CSAC'] },
+  { id: 'csac', name: 'Colonial States Athletic Conference', aliases: ['CSAC'], dissolved: 2023 },
   { id: 'ctc', name: 'Coast-to-Coast Athletic Conference', aliases: ['C2C', 'Coast to Coast Athletic Conference'] },
   { id: 'cunyac', name: 'City University of New York Athletic Conference', aliases: ['CUNYAC'] },
   { id: 'empire-8', name: 'Empire 8', aliases: ['Empire 8', 'E8'] },
@@ -185,7 +189,7 @@ export const CONFERENCES = Object.freeze([
   // divisions are what our own `colleges.conference` records. Both are kept:
   // a member row collected from that table is a MAC member, and which of the
   // two divisions it sat in is not something the table says.
-  { id: 'mac-d3', name: 'Middle Atlantic Conference', aliases: ['MAC-D3'], pods: ['mac-commonwealth', 'mac-freedom'] },
+  { id: 'mac-d3', name: 'Middle Atlantic Conference', aliases: ['MAC-D3', 'Middle Atlantic Conferences'], pods: ['mac-commonwealth', 'mac-freedom'] },
   { id: 'mac-commonwealth', name: 'Middle Atlantic Conference (Commonwealth)', aliases: ['MAC Commonwealth', 'MAC Commonwealth Conference'], podOf: 'mac-d3' },
   { id: 'mac-freedom', name: 'Middle Atlantic Conference (Freedom)', aliases: ['MAC Freedom', 'MAC Freedom Conference'], podOf: 'mac-d3' },
   { id: 'mascac', name: 'Massachusetts State Collegiate Athletic Conference', aliases: ['MASCAC'] },
@@ -200,11 +204,11 @@ export const CONFERENCES = Object.freeze([
   { id: 'njac', name: 'New Jersey Athletic Conference', aliases: ['NJAC'] },
   { id: 'nwc', name: 'Northwest Conference', aliases: ['NWC'] },
   { id: 'oac', name: 'Ohio Athletic Conference', aliases: ['OAC'] },
-  { id: 'odac', name: 'Old Dominion Athletic Conference', aliases: ['ODAC'] },
+  { id: 'odac', name: 'Old Dominion Athletic Conference', aliases: ['ODAC', 'Old Dominion Athletic Conf.'] },
   { id: 'pac-d3', name: "Presidents' Athletic Conference", aliases: ['PAC'] },
   { id: 'saa', name: 'Southern Athletic Association', aliases: ['SAA'] },
   { id: 'scac', name: 'Southern Collegiate Athletic Conference', aliases: ['SCAC'] },
-  { id: 'sciac', name: 'Southern California Intercollegiate Athletic Conference', aliases: ['SCIAC'] },
+  { id: 'sciac', name: 'Southern California Intercollegiate Athletic Conference', aliases: ['SCIAC', 'Southern California Intercollegiate Athletic Conf.'] },
   { id: 'skyline', name: 'Skyline Conference', aliases: ['Skyline'] },
   { id: 'sliac', name: 'St. Louis Intercollegiate Athletic Conference', aliases: ['SLIAC'] },
   { id: 'sunyac', name: 'State University of New York Athletic Conference', aliases: ['SUNYAC'] },

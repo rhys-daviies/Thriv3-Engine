@@ -4,7 +4,9 @@
 import { describe, it, expect } from 'vitest';
 import {
   deriveConferenceDivision, parseConferenceRecord, structuralHistory,
-  conferenceRecordRow, DIVISION_PROVENANCE, COLLECTION_STATUS,
+  conferenceRecordRow, reconcileMembership, coverageClass,
+  DIVISION_PROVENANCE, COLLECTION_STATUS, MEMBERSHIP_PROVENANCE, MEMBERSHIP_PRIORITY,
+  COVERAGE_CLASS,
 } from './conferenceHistory.js';
 
 describe('a conference’s division', () => {
@@ -109,8 +111,8 @@ describe('the sequence', () => {
   it('records a structural break rather than smoothing it', () => {
     const h = structuralHistory(rows);
     expect(h.changes).toEqual([
-      { kind: 'CONFERENCE', season: 2024, from: 'PSAC', to: 'NEC' },
-      { kind: 'DIVISION', season: 2024, from: 'NCAA D2', to: 'NCAA D1' },
+      { kind: 'CONFERENCE', season: 2024, fromSeason: 2023, from: 'PSAC', to: 'NEC' },
+      { kind: 'DIVISION', season: 2024, fromSeason: 2023, from: 'NCAA D2', to: 'NCAA D1' },
     ]);
     expect(h.stableConference).toBeNull();
     expect(h.stableDivision).toBeNull();
@@ -125,9 +127,12 @@ describe('the sequence', () => {
 
   it('never invents a change across a gap it cannot see', () => {
     const h = structuralHistory([rows[0], rows[3]]);
-    // 2022 PSAC then 2025 NEC is two changes' worth of ground with one season
-    // between them missing; it is reported as the one transition observed.
-    expect(h.changes.filter((c) => c.kind === 'DIVISION')).toHaveLength(1);
+    // 2022 PSAC then 2025 NEC is two changes' worth of ground with two seasons
+    // between them missing; it is reported as the one transition observed, and
+    // `fromSeason` names the season it was observed FROM rather than 2024.
+    const div = h.changes.filter((c) => c.kind === 'DIVISION');
+    expect(div).toHaveLength(1);
+    expect(div[0]).toMatchObject({ season: 2025, fromSeason: 2022 });
     expect(h.divisionKnownSeasons).toEqual([2022, 2025]);
   });
 
@@ -145,5 +150,74 @@ describe('refusal semantics', () => {
       'CONFERENCE_UNKNOWN', 'DIVISION_UNKNOWN', 'CONFERENCE_DIVISION_CONFLICT']) {
       expect(COLLECTION_STATUS[k]).toBe(k);
     }
+  });
+});
+
+describe('the membership provenance hierarchy', () => {
+  it('ranks the five accepted sources by how specific they are to the season', () => {
+    expect(MEMBERSHIP_PRIORITY[0]).toBe(MEMBERSHIP_PROVENANCE.OFFICIAL_CONFERENCE_STANDINGS);
+    expect(MEMBERSHIP_PRIORITY[1]).toBe(MEMBERSHIP_PROVENANCE.OFFICIAL_PROGRAMME_SOURCE);
+    expect(MEMBERSHIP_PRIORITY).toHaveLength(5);
+    // Research evidence is not in the set at all.
+    expect(Object.values(MEMBERSHIP_PROVENANCE).join(' ')).not.toMatch(/wiki/i);
+  });
+
+  it('takes the most specific source where several agree, and counts the rest', () => {
+    const r = reconcileMembership([
+      { conferenceId: 'psac', membershipProvenance: MEMBERSHIP_PROVENANCE.OFFICIAL_NCAA_MEMBERSHIP },
+      { conferenceId: 'psac', membershipProvenance: MEMBERSHIP_PROVENANCE.OFFICIAL_CONFERENCE_STANDINGS },
+    ]);
+    expect(r.conferenceId).toBe('psac');
+    expect(r.chosen.membershipProvenance).toBe(MEMBERSHIP_PROVENANCE.OFFICIAL_CONFERENCE_STANDINGS);
+    expect(r.corroborations).toBe(1);
+  });
+});
+
+describe('when accepted official sources disagree', () => {
+  it('refuses by default and keeps both records', () => {
+    const r = reconcileMembership([
+      { conferenceId: 'wcc', membershipProvenance: MEMBERSHIP_PROVENANCE.OFFICIAL_CONFERENCE_STANDINGS },
+      { conferenceId: 'pac-12', membershipProvenance: MEMBERSHIP_PROVENANCE.OFFICIAL_NCAA_MEMBERSHIP },
+    ]);
+    expect(r.conferenceId).toBeNull();
+    expect(r.status).toBe(COLLECTION_STATUS.CONFLICTING_OFFICIAL_SOURCES);
+    expect(r.claims).toHaveLength(2);
+    expect(r.reason).toMatch(/wcc/);
+    expect(r.reason).toMatch(/pac-12/);
+  });
+
+  it('lets the programme’s own page settle a dispute between two conference tables', () => {
+    // Two conferences printed the same short name for two institutions; the
+    // programme itself says which competition it played in.
+    const r = reconcileMembership([
+      { conferenceId: 'big-east', membershipProvenance: MEMBERSHIP_PROVENANCE.OFFICIAL_CONFERENCE_STANDINGS },
+      { conferenceId: 'rrac', membershipProvenance: MEMBERSHIP_PROVENANCE.OFFICIAL_CONFERENCE_STANDINGS },
+      { conferenceId: 'big-east', membershipProvenance: MEMBERSHIP_PROVENANCE.OFFICIAL_PROGRAMME_SOURCE },
+    ]);
+    expect(r.conferenceId).toBe('big-east');
+    expect(r.resolvedBy).toBe('OFFICIAL_PROGRAMME_SOURCE_AGREEMENT');
+  });
+
+  it('does not let a newer or more general source resolve anything', () => {
+    // A 2026 directory is not a better witness to 2022 than a 2022 table.
+    const r = reconcileMembership([
+      { conferenceId: 'psac', membershipProvenance: MEMBERSHIP_PROVENANCE.OFFICIAL_CONFERENCE_STANDINGS },
+      { conferenceId: 'nec', membershipProvenance: MEMBERSHIP_PROVENANCE.OFFICIAL_NCAA_MEMBERSHIP },
+    ]);
+    expect(r.status).toBe(COLLECTION_STATUS.CONFLICTING_OFFICIAL_SOURCES);
+  });
+});
+
+describe('membership truth and conference-record truth are separate', () => {
+  it('classifies a season by what is known about each', () => {
+    expect(coverageClass({ conferenceId: 'psac', seasonConfirmed: true, conferenceWins: 10 }))
+      .toBe(COVERAGE_CLASS.MEMBERSHIP_KNOWN_RECORD_KNOWN);
+    expect(coverageClass({ conferenceId: 'psac', seasonConfirmed: true, conferenceWins: null }))
+      .toBe(COVERAGE_CLASS.MEMBERSHIP_KNOWN_RECORD_UNKNOWN);
+    expect(coverageClass({ conferenceId: null, seasonConfirmed: true, conferenceWins: 10 }))
+      .toBe(COVERAGE_CLASS.MEMBERSHIP_UNKNOWN);
+    // A season whose source did not name its own season is not membership.
+    expect(coverageClass({ conferenceId: 'psac', seasonConfirmed: false, conferenceWins: 10 }))
+      .toBe(COVERAGE_CLASS.MEMBERSHIP_UNKNOWN);
   });
 });

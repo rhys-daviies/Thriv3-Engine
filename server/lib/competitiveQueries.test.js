@@ -214,10 +214,11 @@ describe('reading a programme', () => {
     // The division comes from the structural table now, joined on the key.
     const div = db.prepare(`INSERT INTO programme_conference_seasons
       (college_id, sport, season, conference_id, conference_raw, historical_division, division_provenance,
-       member_raw, identity_method, identity_evidence, source_url, source_platform, provenance,
-       confidence, season_confirmed, imported_at)
+       member_raw, identity_method, identity_evidence, membership_provenance, record_status,
+       source_url, source_platform, provenance, confidence, season_confirmed, imported_at)
       VALUES (?, 'mens-soccer', 2022, 'psac', 'PSAC', 'NCAA D2', 'DERIVED_FROM_OFFICIAL_MEMBERSHIP',
               'x', 'PROGRAMME_NAME_EXACT', 'CONFERENCE_MEMBERSHIP_CORROBORATION',
+              'OFFICIAL_CONFERENCE_STANDINGS', 'RECORD_UNAVAILABLE',
               'https://example.test', 'SIDEARM_STANDINGS', 'p', 'CERTAIN', 1, 'x')`);
     div.run('c1');
     for (let i = 0; i < MIN_POOL + 5; i += 1) {

@@ -17,7 +17,9 @@
  */
 import { ALIAS_TYPE } from './institutionIdentity.js';
 
-const { HISTORICAL_NAME, MERGER_NAME, CURRENT_NAME, OFFICIAL_ABBREVIATION } = ALIAS_TYPE;
+const {
+  HISTORICAL_NAME, MERGER_NAME, CURRENT_NAME, OFFICIAL_ABBREVIATION, CONFERENCE_DISPLAY_NAME,
+} = ALIAS_TYPE;
 
 export const CURATED_INSTITUTION_ALIASES = Object.freeze([
   // ── Pennsylvania's two university mergers, 2022 ───────────────────────────
@@ -58,6 +60,56 @@ export const CURATED_INSTITUTION_ALIASES = Object.freeze([
   { alias: 'Queens College', unitid: 190664, aliasType: CURRENT_NAME, confidence: 'CORROBORATED', source: 'https://qc.cuny.edu og:site_name' },
   { alias: 'Queens College, CUNY', unitid: 190664, aliasType: CURRENT_NAME, confidence: 'CORROBORATED', source: 'https://qc.cuny.edu <title>' },
   { alias: 'CUNY Queens', unitid: 190664, aliasType: OFFICIAL_ABBREVIATION, confidence: 'CURATED', source: 'CUNYAC standings' },
+
+  // ── the names conferences print, established by set difference ────────────
+  //
+  // Phase 12E / K, N. A conference's own standings table published a name; the
+  // NCAA's own member directory says which of that conference's members the
+  // table had not otherwise accounted for. Where exactly one candidate remains
+  // and the printed name is a prefix, an initialism, or a token-for-token match
+  // of the official one, the pairing is forced by evidence rather than measured
+  // by similarity.
+  //
+  // A BARE NAME SEVERAL INSTITUTIONS SHARE IS NOT HERE. "Carroll", "Union",
+  // "Emmanuel", "Eastern", "Thomas", "Dallas", "North Central", "York",
+  // "Trinity" and "St. Mary's (Md.)" were all forced this way and all refused:
+  // writing one of them down would defeat the ambiguity refusal that protects
+  // it. Those resolve at read time, from the conference that published them.
+  { alias: 'Canton', unitid: 196015, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the sunyac in 3 collected seasons; the NCAA member directory accounts for it as "State University of New York at Canton"' },
+  { alias: 'Chris. Newport', unitid: 231712, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the ctc in 4 collected seasons; the NCAA member directory accounts for it as "Christopher Newport University"' },
+  { alias: 'Coast Guard', unitid: 130624, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the newmac in 4 collected seasons; the NCAA member directory accounts for it as "U.S. Coast Guard Academy"' },
+  { alias: 'DBU', unitid: 224226, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the lsc in 4 collected seasons; the NCAA member directory accounts for it as "Dallas Baptist University"' },
+  { alias: 'E. Stroudsburg', unitid: 212115, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the psac in 6 collected seasons; the NCAA member directory accounts for it as "East Stroudsburg University of Pennsylvania"' },
+  { alias: 'EMU', unitid: 232043, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the odac in 4 collected seasons; the NCAA member directory accounts for it as "Eastern Mennonite University"' },
+  { alias: 'Geneseo', unitid: 196167, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the empire-8 in 2 collected seasons; the NCAA member directory accounts for it as "State University of New York at Geneseo"' },
+  { alias: 'Hawai\'i Hilo', unitid: 141565, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the pacwest in 4 collected seasons; the NCAA member directory accounts for it as "University of Hawaii at Hilo"' },
+  { alias: 'Hawai\'i Pacific', unitid: 141644, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the pacwest in 4 collected seasons; the NCAA member directory accounts for it as "Hawaii Pacific University"' },
+  { alias: 'HCU', unitid: 225399, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the southland in 4 collected seasons; the NCAA member directory accounts for it as "Houston Christian University"' },
+  { alias: 'Hobart', unitid: 191630, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the liberty-league in 4 collected seasons; the NCAA member directory accounts for it as "Hobart and William Smith Colleges"' },
+  { alias: 'LMU', unitid: 117946, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the wcc in 1 collected season; the NCAA member directory accounts for it as "Loyola Marymount University"' },
+  { alias: 'Merchant Marine', unitid: 197027, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the skyline in 4 collected seasons; the NCAA member directory accounts for it as "U.S. Merchant Marine Academy"' },
+  { alias: 'Morrisville', unitid: 196051, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the sunyac in 3 collected seasons; the NCAA member directory accounts for it as "State University of New York at Morrisville"' },
+  { alias: 'MTSU', unitid: 220978, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the cusa in 4 collected seasons; the NCAA member directory accounts for it as "Middle Tennessee State University"' },
+  { alias: 'Nebraska Kearney', unitid: 181215, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the miaa-d2 in 4 collected seasons; the NCAA member directory accounts for it as "University of Nebraska at Kearney"' },
+  { alias: 'Old Westbury', unitid: 196237, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the skyline in 4 collected seasons; the NCAA member directory accounts for it as "State University of New York at Old Westbury"' },
+  { alias: 'Oneonta', unitid: 196185, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the sunyac in 7 collected seasons; the NCAA member directory accounts for it as "State University of New York at Oneonta"' },
+  { alias: 'Parkside', unitid: 240374, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the gliac in 5 collected seasons; the NCAA member directory accounts for it as "University of Wisconsin-Parkside"' },
+  { alias: 'Pitt', unitid: 215293, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the acc in 4 collected seasons; the NCAA member directory accounts for it as "University of Pittsburgh"' },
+  { alias: 'Pitt.-Bradford', unitid: 215266, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the amcc in 4 collected seasons; the NCAA member directory accounts for it as "University of Pittsburgh, Bradford"' },
+  { alias: 'Pitt.-Greensburg', unitid: 215275, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the amcc in 4 collected seasons; the NCAA member directory accounts for it as "University of Pittsburgh, Greensburg"' },
+  { alias: 'Poly', unitid: 196112, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the empire-8 in 2 collected seasons; the NCAA member directory accounts for it as "State University of New York Polytechnic Institute"' },
+  { alias: 'Potsdam', unitid: 196200, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the sunyac in 5 collected seasons; the NCAA member directory accounts for it as "State University of New York at Potsdam"' },
+  { alias: 'Ramapo', unitid: 186201, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the njac in 4 collected seasons; the NCAA member directory accounts for it as "Ramapo College"' },
+  { alias: 'RIT', unitid: 195003, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the liberty-league in 3 collected seasons; the NCAA member directory accounts for it as "Rochester Institute of Technology"' },
+  { alias: 'RPI', unitid: 194824, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the liberty-league in 4 collected seasons; the NCAA member directory accounts for it as "Rensselaer Polytechnic Institute"' },
+  { alias: 'SFA', unitid: 228431, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the southland in 2 collected seasons; the NCAA member directory accounts for it as "Stephen F. Austin State University"' },
+  { alias: 'St. Joseph\'s-Brooklyn', unitid: 195544, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the skyline in 4 collected seasons; the NCAA member directory accounts for it as "St. Joseph\'s University NY (Brooklyn)"' },
+  { alias: 'UNI', unitid: 154095, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the mvc in 4 collected seasons; the NCAA member directory accounts for it as "University of Northern Iowa"' },
+  { alias: 'USC Beaufort', unitid: 218654, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the peach-belt in 4 collected seasons; the NCAA member directory accounts for it as "University of South Carolina Beaufort"' },
+  { alias: 'Washington St. Louis', unitid: 179867, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the uaa in 4 collected seasons; the NCAA member directory accounts for it as "Washington University in St. Louis"' },
+  { alias: 'William Smith', unitid: 191630, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the liberty-league in 4 collected seasons; the NCAA member directory accounts for it as "Hobart and William Smith Colleges"' },
+  { alias: 'WKU', unitid: 157951, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the cusa in 4 collected seasons; the NCAA member directory accounts for it as "Western Kentucky University"' },
+  { alias: 'WPI', unitid: 168421, aliasType: CONFERENCE_DISPLAY_NAME, confidence: 'CORROBORATED', source: 'printed by the newmac in 4 collected seasons; the NCAA member directory accounts for it as "Worcester Polytechnic Institute"' },
 ]);
 
 /**
@@ -74,3 +126,118 @@ export const COMBINED_PROGRAMME_DOMAINS = Object.freeze({
   'cmsathletics.org': { programme: 'Claremont-Mudd-Scripps', unitids: [112260, 115409, 123165] },
   'sagehens.com': { programme: 'Pomona-Pitzer', unitids: [121345, 121257] },
 });
+
+/**
+ * ATHLETICS DOMAINS PROVED WRONG, WITH THE REPLACEMENT PROVED TOO.
+ *
+ * Phase 12D's audit produced 60 wrong-institution mappings and said the list was
+ * a review queue rather than a licence to rewrite anything. Phase 12E worked it
+ * against the NCAA's own member directory, which publishes the athletics website
+ * each institution says is theirs, and then fetched each proposed replacement
+ * and read what that host itself says.
+ *
+ * ONLY WHAT SURVIVED BOTH CHECKS IS HERE. 21 mappings were confirmed wrong with
+ * a candidate replacement; 15 of those replacements were confirmed by the
+ * replacement host's own page and are below. The other six stay in the queue —
+ * two hosts refused the connection, and four name themselves in a way our
+ * resolver cannot confirm ("LaRoche", an untruncated "Concordia", a university
+ * homepage rather than an athletics one). A correction nobody can check is not a
+ * correction.
+ *
+ * `known_domains.json` IS NOT EDITED. It is a scrape artefact from an earlier
+ * phase and rewriting it would put the proof somewhere no test reads. These rows
+ * are applied by `verifyAthleticsDomains.js`, which records both the wrong
+ * mapping and the proven one.
+ */
+export const ATHLETICS_DOMAIN_CORRECTIONS = Object.freeze([
+  {
+    unitid: 232706, institution: 'Marymount (VA)',
+    wrongDomain: 'lmulions.com', wrongDomainBelongsTo: 'Loyola Marymount',
+    correctDomain: 'marymountsaints.com',
+    provenance: 'the NCAA member directory publishes marymountsaints.com as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "Marymount University"',
+  },
+  {
+    unitid: 217907, institution: 'Coker',
+    wrongDomain: 'catawbaathletics.com', wrongDomainBelongsTo: 'Catawba',
+    correctDomain: 'cokercobras.com',
+    provenance: 'the NCAA member directory publishes cokercobras.com as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "Coker University"',
+  },
+  {
+    unitid: 165671, institution: 'Emmanuel (MA)',
+    wrongDomain: 'goeulions.com', wrongDomainBelongsTo: 'Emmanuel (GA)',
+    correctDomain: 'goecsaints.com',
+    provenance: 'the NCAA member directory publishes goecsaints.com as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "Emmanuel College (Ma.)"',
+  },
+  {
+    unitid: 148654, institution: 'Illinois Springfield',
+    wrongDomain: 'illinoiscollegeathletics.com', wrongDomainBelongsTo: 'Illinois College',
+    correctDomain: 'uisprairiestars.com',
+    provenance: 'the NCAA member directory publishes uisprairiestars.com as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "UIS Athletics"',
+  },
+  {
+    unitid: 165024, institution: 'Bridgewater State',
+    wrongDomain: 'athletics.middlebury.edu', wrongDomainBelongsTo: 'Middlebury',
+    correctDomain: 'bsubears.com',
+    provenance: 'the NCAA member directory publishes bsubears.com as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "Bridgewater St."',
+  },
+  {
+    unitid: 240462, institution: 'Wisconsin-Platteville',
+    wrongDomain: 'athletics.carthage.edu', wrongDomainBelongsTo: 'Carthage',
+    correctDomain: 'letsgopioneers.com',
+    provenance: 'the NCAA member directory publishes letsgopioneers.com as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "University of Wisconsin Platteville"',
+  },
+  {
+    unitid: 144351, institution: 'Concordia Chicago',
+    wrongDomain: 'cuwfalcons.com', wrongDomainBelongsTo: 'Concordia Wisconsin',
+    correctDomain: 'cucougars.com',
+    provenance: 'the NCAA member directory publishes cucougars.com as this institution\'s athletics site, and that host\'s own TITLE_SEGMENT reads "Concordia University Chicago"',
+  },
+  {
+    unitid: 165866, institution: 'Framingham State',
+    wrongDomain: 'bantamsports.com', wrongDomainBelongsTo: 'Trinity (CT)',
+    correctDomain: 'fsurams.com',
+    provenance: 'the NCAA member directory publishes fsurams.com as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "Framingham State University"',
+  },
+  {
+    unitid: 239017, institution: 'Lawrence',
+    wrongDomain: 'ltuathletics.com', wrongDomainBelongsTo: 'Lawrence Technological University',
+    correctDomain: 'vikings.lawrence.edu',
+    provenance: 'the NCAA member directory publishes vikings.lawrence.edu as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "Lawrence University"',
+  },
+  {
+    unitid: 147660, institution: 'North Central (IL)',
+    wrongDomain: 'ncurams.com', wrongDomainBelongsTo: 'North Central University',
+    correctDomain: 'northcentralcardinals.com',
+    provenance: 'the NCAA member directory publishes northcentralcardinals.com as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "North Central College Athletics"',
+  },
+  {
+    unitid: 204635, institution: 'Ohio Northern',
+    wrongDomain: 'battlingbishops.com', wrongDomainBelongsTo: 'Ohio Wesleyan',
+    correctDomain: 'onusports.com',
+    provenance: 'the NCAA member directory publishes onusports.com as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "Ohio Northern University"',
+  },
+  {
+    unitid: 240268, institution: 'Wisconsin-Eau Claire',
+    wrongDomain: 'athletics.stolaf.edu', wrongDomainBelongsTo: 'Saint Olaf',
+    correctDomain: 'blugolds.com',
+    provenance: 'the NCAA member directory publishes blugolds.com as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "University of Wisconsin, Eau Claire"',
+  },
+  {
+    unitid: 234207, institution: 'Washington & Lee',
+    wrongDomain: 'lynchburgsports.com', wrongDomainBelongsTo: 'University of Lynchburg',
+    correctDomain: 'generalssports.com',
+    provenance: 'the NCAA member directory publishes generalssports.com as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "Washington and Lee University"',
+  },
+  {
+    unitid: 240480, institution: 'Wisconsin-Stevens Point',
+    wrongDomain: 'uwlathletics.com', wrongDomainBelongsTo: 'Wisconsin-La Crosse',
+    correctDomain: 'athletics.uwsp.edu',
+    provenance: 'the NCAA member directory publishes athletics.uwsp.edu as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "University of Wisconsin - Stevens Point Athletics"',
+  },
+  {
+    unitid: 240329, institution: 'Wisconsin-La Crosse',
+    wrongDomain: 'wlcsports.com', wrongDomainBelongsTo: 'Wisconsin Lutheran College',
+    correctDomain: 'uwlathletics.com',
+    provenance: 'the NCAA member directory publishes uwlathletics.com as this institution\'s athletics site, and that host\'s own OG_SITE_NAME reads "University of Wisconsin La Crosse Athletics"',
+  },
+]);

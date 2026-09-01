@@ -18,6 +18,9 @@
  * Exit code is the number of failed invariants, so it can gate a merge.
  */
 import zlib from 'node:zlib';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import db from '../db/client.js';
 import { programReportModel } from '../routes/philosophy.js';
 import { renderProgramReport } from '../lib/philosophyReport.js';
@@ -44,8 +47,16 @@ import { competitiveHistoryFor, competitivePools } from '../lib/competitiveQueri
 import { MIN_POOL } from '../../shared/competitiveHistory.js';
 import { DIVISIONS } from '../../shared/conferenceHistory.js';
 import { buildResolvers } from '../lib/institutionQueries.js';
+import { competitivePackageFor } from '../lib/conferenceQueries.js';
+import {
+  readerSentences, FORBIDDEN_READER_LANGUAGE, V1_FIELDS, COACH_INTEGRATION,
+} from '../../shared/report/competitivePackage.js';
 
 // ---------------------------------------------------------------------------
+
+/** Source-level assertions read the module text, the same way the suites do. */
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const SOURCE = (f) => fs.readFileSync(path.join(HERE, f), 'utf8');
 
 let failed = 0;
 let passed = 0;
@@ -541,6 +552,106 @@ group('IDENTITY — the wrong-institution regressions');
   check('no programme is filed under two conferences in one season',
     db.prepare(`SELECT COUNT(*) n FROM (SELECT college_id, season FROM programme_conference_seasons
                  GROUP BY college_id, season HAVING COUNT(*) > 1)`).get().n === 0);
+}
+
+/**
+ * COMPETITIVE V1 — the whole-universe claims, checked over every row.
+ *
+ * Phase 12E froze the layer. These are the statements that have to hold across
+ * the entire table rather than on a fixture, and every one of them is a way the
+ * product would be wrong to print something.
+ */
+group('COMPETITIVE V1 — the whole universe');
+{
+  const zero = (sql) => db.prepare(sql).get().n;
+  check('no historical division without an accepted provenance',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons
+           WHERE historical_division IS NOT NULL
+             AND division_provenance NOT IN ('EXPLICIT_OFFICIAL', 'DERIVED_FROM_OFFICIAL_MEMBERSHIP')`) === 0);
+  check('no membership row from a source outside the accepted set',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons
+           WHERE membership_provenance NOT IN ('OFFICIAL_CONFERENCE_STANDINGS', 'OFFICIAL_PROGRAMME_SOURCE',
+             'OFFICIAL_CONFERENCE_MEMBERSHIP', 'OFFICIAL_NCAA_MEMBERSHIP', 'OFFICIAL_NAIA_MEMBERSHIP')`) === 0);
+  // The current-division firewall, over every row rather than one programme.
+  const fallback = db.prepare(
+    `SELECT COUNT(*) n FROM programme_conference_seasons x JOIN colleges c ON c.id = x.college_id
+      WHERE x.historical_division IS NOT NULL AND x.historical_division <> c.division`).get().n;
+  check('historical division is not a copy of the current division', fallback > 0,
+    `${fallback} rows differ from colleges.division`);
+  check('no season carries a division the conference itself was not established in',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons x
+           LEFT JOIN conference_seasons s
+             ON s.conference_id = x.conference_id AND s.sport = x.sport AND s.season = x.season
+          WHERE x.historical_division IS NOT NULL
+            AND x.membership_provenance = 'OFFICIAL_CONFERENCE_STANDINGS'
+            AND (s.division IS NULL OR s.division <> x.historical_division)`) === 0);
+  check('no unresolved institution identity is published',
+    zero('SELECT COUNT(*) n FROM programme_conference_seasons WHERE college_id IS NULL OR TRIM(college_id) = \'\'') === 0);
+  check('no ambiguous membership is published',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons
+           WHERE identity_method NOT IN ('PROGRAMME_NAME_EXACT', 'PROGRAMME_NAME_VARIANT',
+             'PROGRAMME_VIA_UNITID', 'PROGRAMME_VIA_UNITID_NAME',
+             'PROGRAMME_VIA_CONFERENCE_AGREEMENT', 'PROGRAMME_VIA_OFFICIAL_MEMBERSHIP')`) === 0);
+  check('no programme is filed under two conferences in one season',
+    zero(`SELECT COUNT(*) n FROM (SELECT college_id, season FROM programme_conference_seasons
+           GROUP BY college_id, season HAVING COUNT(*) > 1)`) === 0);
+  check('a conference record is never the overall record',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons x
+           JOIN programme_seasons p ON p.college_id = x.college_id AND p.season = x.season
+          WHERE x.conference_wins IS NOT NULL
+            AND x.conference_wins = p.wins AND x.conference_losses = p.losses
+            AND x.conference_draws = p.draws AND p.matches_played > 12`) === 0);
+  check('a missing conference record is null and not zero',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons
+           WHERE record_status = 'RECORD_UNAVAILABLE'
+             AND (conference_wins IS NOT NULL OR conference_draws IS NOT NULL OR conference_losses IS NOT NULL)`) === 0);
+  check('every conference record adds up to the matches its source printed',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons
+           WHERE conference_matches IS NOT NULL
+             AND conference_matches <> conference_wins + conference_draws + conference_losses`) === 0);
+  const codeOf = (f) => SOURCE(f).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  check('a conference table row never reaches a sentence',
+    !/conferenceTableRow/.test(codeOf('../../shared/report/structuralFacts.js')));
+  check('the field contract keeps the table row, the seed and the size internal',
+    ['conferenceTableRow', 'seed', 'conferenceSize'].every((f) => V1_FIELDS[f]?.verdict === 'INTERNAL_ONLY'));
+}
+
+group('COMPETITIVE V1 — the reader contract');
+{
+  const ids = db.prepare(
+    `SELECT c.id, c.name, c.sport FROM colleges c
+       JOIN programme_seasons p ON p.college_id = c.id
+      WHERE c.division IN ('NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA')
+      GROUP BY c.id ORDER BY c.id`).all();
+  let sentences = 0; let offending = null; let movements = 0; let unsupported = null; let coachSentences = 0;
+  for (const c of ids) {
+    const pkg = competitivePackageFor(c.id);
+    if (!pkg) continue;
+    for (const s of readerSentences(pkg)) {
+      sentences += 1;
+      if (!offending && FORBIDDEN_READER_LANGUAGE.test(s)) offending = `${c.name} ${c.sport}: ${s}`;
+      if (/\bcoach/i.test(s)) coachSentences += 1;
+    }
+    // A structural movement must be backed by two seasons that are both on file.
+    for (const f of pkg.structuralFacts) {
+      if (f.kind !== 'CONFERENCE_CHANGE' && f.kind !== 'DIVISION_CHANGE') continue;
+      movements += 1;
+      const known = new Set(pkg.seasons.filter((x) => x.historicalConference).map((x) => x.season));
+      if (!unsupported && !f.seasons.every((y) => known.has(y))) unsupported = `${c.name} ${c.sport} ${f.text}`;
+    }
+  }
+  check('no forbidden reader language in any sentence the universe can produce',
+    offending === null, `${sentences} sentences over ${ids.length} programmes${offending ? ` — ${offending}` : ''}`);
+  check('no structural movement is claimed from a season not on file',
+    unsupported === null, `${movements} movements${unsupported ? ` — ${unsupported}` : ''}`);
+  // The coach contract, behaviourally: no sentence the universe produces mentions
+  // a coach at all in V1, and the contract names the framings it refuses.
+  check('no sentence the universe produces makes a causal coach claim',
+    coachSentences === 0, `${coachSentences} sentences mention a coach`);
+  check('the coach contract names the before/after framing it refuses',
+    COACH_INTEGRATION.refused.some((r) => /before\/after/.test(r))
+      && COACH_INTEGRATION.refused.some((r) => /improved/.test(r))
+      && COACH_INTEGRATION.allowed.some((a) => /denominator/.test(a)));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

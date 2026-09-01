@@ -577,6 +577,14 @@ CREATE TABLE IF NOT EXISTS programme_conference_seasons (
   identity_method TEXT NOT NULL,
   identity_evidence TEXT NOT NULL,
 
+  -- WHICH OFFICIAL SOURCE ESTABLISHED THE MEMBERSHIP, and whether that source
+  -- also carried the record made inside the conference. The two are separate
+  -- facts from separate parts of a page: "Big East, NCAA Division I" is complete
+  -- and checkable without "5-2-1 in conference", and requiring the second before
+  -- believing the first would throw the first away.
+  membership_provenance TEXT NOT NULL DEFAULT 'OFFICIAL_CONFERENCE_STANDINGS',
+  record_status TEXT NOT NULL DEFAULT 'RECORD_KNOWN',
+
   source_url TEXT NOT NULL,
   source_platform TEXT NOT NULL,
   provenance TEXT NOT NULL,
@@ -593,7 +601,13 @@ CREATE TABLE IF NOT EXISTS programme_conference_seasons (
   CHECK (conference_wins IS NULL OR conference_wins >= 0),
   CHECK (conference_draws IS NULL OR conference_draws >= 0),
   CHECK (conference_losses IS NULL OR conference_losses >= 0),
-  CHECK (season_confirmed IN (0, 1))
+  CHECK (season_confirmed IN (0, 1)),
+  CHECK (membership_provenance IN ('OFFICIAL_CONFERENCE_STANDINGS', 'OFFICIAL_PROGRAMME_SOURCE',
+                                   'OFFICIAL_CONFERENCE_MEMBERSHIP', 'OFFICIAL_NCAA_MEMBERSHIP',
+                                   'OFFICIAL_NAIA_MEMBERSHIP')),
+  CHECK (record_status IN ('RECORD_KNOWN', 'RECORD_UNAVAILABLE')),
+  -- Membership without a record is allowed; a record without its own status is not.
+  CHECK ((record_status = 'RECORD_KNOWN') = (conference_wins IS NOT NULL))
 );
 
 CREATE INDEX IF NOT EXISTS idx_pcs_pool ON programme_conference_seasons(sport, season, historical_division);
@@ -625,3 +639,50 @@ CREATE TABLE IF NOT EXISTS conference_membership_quarantine (
 
   PRIMARY KEY (conference_id, sport, season, member_raw)
 );
+
+-- ===========================================================================
+-- conference_members_official — the associations' own membership record
+--
+-- Phase 12E. The NCAA publishes a member directory: every institution, its
+-- division, its conference, and its official athletics website. It is the
+-- authoritative answer to "which conferences exist and who belongs to them",
+-- and it removed the circularity in 12D's inventory, which had been seeded from
+-- the conference strings already in `colleges` — so a conference our own data
+-- never named was never looked for, and a conference our data named for one
+-- sport was only looked for in that sport.
+--
+-- IT IS A CURRENT SNAPSHOT AND AN ALL-SPORTS CONFERENCE, and both limits are
+-- load-bearing. The directory's `academicYear` parameter is accepted and
+-- silently ignored — it returns 2027 whatever you ask for — and a school's
+-- listed conference is its primary one, which for soccer is sometimes a
+-- different conference entirely: Akron men's soccer played the Mid-American
+-- while the directory lists Akron in the Mid-American for everything else and
+-- our own row says Big East.
+--
+-- SO IT IS NEVER HISTORICAL MEMBERSHIP. It is used for exactly two things:
+-- deciding which conferences to collect, and breaking a tie between
+-- institutions that share a spelling — "Westminster" is three colleges, and one
+-- of them being in the conference that published the table is evidence about
+-- identity, not about the season.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS conference_members_official (
+  -- Nullable, and deliberately: an institution the directory lists that our own
+  -- table does not hold still belongs in its conference's roster. The Centennial
+  -- Conference's Washington College is not a programme we track, and its absence
+  -- from the roster is what let "Washington College #1 seed" reduce to the
+  -- University of Washington and take a Division III season with it.
+  unitid INTEGER,
+  conference_id TEXT NOT NULL,
+  conference_raw TEXT NOT NULL,
+  division TEXT,
+  name_official TEXT NOT NULL,
+  athletics_host TEXT,
+  state TEXT,
+  identity_method TEXT,
+  source TEXT NOT NULL,
+  imported_at TEXT NOT NULL,
+
+  PRIMARY KEY (conference_id, name_official)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cmo_conf ON conference_members_official(conference_id);

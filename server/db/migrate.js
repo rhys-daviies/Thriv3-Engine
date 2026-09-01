@@ -199,6 +199,17 @@ const COACH_COLUMNS = [
  * is recreated on the narrower key. Any value in the column is discarded, and
  * on every database that has one that value is null.
  */
+/**
+ * Phase 12E added membership provenance and a record status to
+ * `programme_conference_seasons`. Both have defaults that describe every row
+ * 12D wrote — every one of them came from a conference's own standings table
+ * and carried a record — so an existing table upgrades without a rebuild.
+ */
+const PCS_COLUMNS = [
+  ['membership_provenance', "TEXT NOT NULL DEFAULT 'OFFICIAL_CONFERENCE_STANDINGS'"],
+  ['record_status', "TEXT NOT NULL DEFAULT 'RECORD_KNOWN'"],
+];
+
 function retireProgrammeSeasonDivision(db) {
   const cols = db.prepare('PRAGMA table_info(programme_seasons)').all().map((c) => c.name);
   if (!cols.includes('historical_division')) return;
@@ -326,6 +337,9 @@ export function migrate(db) {
   addMissingColumns(db, 'colleges', COLLEGE_COLUMNS);
   addMissingColumns(db, 'coaches', COACH_COLUMNS);
   retireProgrammeSeasonDivision(db);
+  if (db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'programme_conference_seasons'").get().n) {
+    addMissingColumns(db, 'programme_conference_seasons', PCS_COLUMNS);
+  }
   backfillRecruitingClassYear(db);
   backfillAcademicRatingSource(db);
 }

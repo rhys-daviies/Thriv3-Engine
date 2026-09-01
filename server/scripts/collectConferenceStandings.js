@@ -114,6 +114,8 @@ const CONF_REC = /^(\d+)-(\d+)(?:-(\d+))?$/;
  * A single-cell row inside the table is a pod heading ("East", "West"). It is
  * captured, because it is the reason row order is not a finish.
  */
+const stripName = (raw) => String(raw).replace(/\s*[&^*#!$]+\s*\d*\s*$/, '').replace(/\s*\^\s*\d+\s*/g, ' ').trim();
+
 export function parseStandingsTable(html) {
   const trs = html.match(/<tr[\s\S]*?<\/tr>/g) ?? [];
   const header = trs
@@ -128,15 +130,25 @@ export function parseStandingsTable(html) {
   let group = null;
   for (const tr of trs) {
     const cells = (tr.match(/<t[dh][\s\S]*?<\/t[dh]>/g) ?? []).map(strip);
-    const ne = cells.filter(Boolean);
+    // CONSECUTIVE DUPLICATES ARE ONE CELL RENDERED TWICE. The Mountain East
+    // prints every value in a logo cell and again in a text cell, which made the
+    // first two record tokens identical and put the overall record into the
+    // conference column for 28 programme-seasons.
+    const ne = cells.filter(Boolean).filter((c, i, a) => i === 0 || c !== a[i - 1]);
     if (ne.length === 1 && ne[0].length < 40 && !CONF_REC.test(ne[0])) { group = ne[0]; continue; }
     if (ne.length < 4 || /^(school|team)$/i.test(ne[0])) continue;
     const raw = ne[0];
-    const school = raw.replace(/\s*[&^*#!$]+\s*\d*\s*$/, '').replace(/\s*\^\s*\d+\s*/g, ' ').trim();
+    const school = stripName(raw);
     const recs = ne.filter((c) => CONF_REC.test(c));
     if (!school || !recs.length || /^\d/.test(school) || /^(conference|overall|pct|gp|pts)$/i.test(school)) continue;
+    // A row can carry three or more record-shaped columns — conference, overall,
+    // and a home or streak record beside them. The first two are the two the
+    // header names; which of THOSE is the conference record is settled by the
+    // header order and, where that is silent, by eliminating the programme's own
+    // overall record in the importer.
     const confRecord = overallFirst && recs.length > 1 ? recs[1] : recs[0];
-    const i = ne.indexOf(confRecord);
+    const i = confRecord ? ne.indexOf(confRecord) : -1;
+    const recordColumnCount = recs.length;
     const before = i > 0 ? ne[i - 1] : null;
     rows.push({
       school, raw, group,
@@ -145,6 +157,7 @@ export function parseStandingsTable(html) {
       confRecord,
       overallRecord: overallFirst ? recs[0] : (recs[1] ?? null),
       recordColumnOrder: overallFirst ? 'OVERALL_FIRST' : 'CONFERENCE_FIRST',
+      recordColumnCount,
       // Matches played sits immediately BEFORE the record. The header cannot be
       // indexed against the data row: empty cells are dropped from both at
       // different rates, and "the second integer in the row" is the points column.
@@ -152,6 +165,51 @@ export function parseStandingsTable(html) {
       cells: ne.slice(0, 12),
     });
   }
+  // ── the third table shape: W, L and TIES in their own columns ────────────
+  //
+  // Several NAIA conferences — the Heart of America and the Wolverine-Hoosier
+  // among them — publish "Team | GP | W | L | TIES | PCT | PTS | GP | W | L |
+  // TIES | PCT" with no hyphenated record anywhere, so a parser looking for a
+  // record token finds none and calls the page unreadable. The header names the
+  // columns, and a data row carries them in that order after the school, which
+  // is enough to read positionally without indexing across the two rows.
+  if (!rows.length) {
+    const labels = trs.map((tr) => (tr.match(/<t[dh][\s\S]*?<\/t[dh]>/g) ?? []).map(strip).filter(Boolean))
+      .find((cs) => /^(team|school)$/i.test(cs[0] ?? '') && cs.some((c) => /^ties?$/i.test(c)));
+    if (labels) {
+      const cols = labels.slice(1);
+      const wi = cols.findIndex((c) => /^w$/i.test(c));
+      const li = cols.findIndex((c) => /^l$/i.test(c));
+      const ti = cols.findIndex((c) => /^ties?$/i.test(c));
+      const gi = cols.findIndex((c) => /^gp$/i.test(c));
+      const oi = cols.findIndex((c, i) => i > ti && /^w$/i.test(c));
+      if (wi >= 0 && li >= 0 && ti >= 0) {
+        for (const tr of trs) {
+          const ne = (tr.match(/<t[dh][\s\S]*?<\/t[dh]>/g) ?? []).map(strip).filter(Boolean);
+          if (ne.length < cols.length) continue;
+          const school = stripName(ne[0]);
+          if (!school || /^(team|school)$/i.test(school) || /^\d/.test(school)) continue;
+          const v = ne.slice(1);
+          const num = (i) => (i >= 0 && /^\d{1,3}$/.test(v[i] ?? '') ? Number(v[i]) : null);
+          const w = num(wi); const l = num(li); const t = num(ti);
+          if (w == null || l == null || t == null) continue;
+          const ow = oi >= 0 ? num(oi) : null;
+          const ol = oi >= 0 ? num(oi + 1) : null;
+          const ot = oi >= 0 ? num(oi + 2) : null;
+          rows.push({
+            school, raw: ne[0], group: null,
+            seed: null, champion: /[&*]/.test(ne[0]),
+            confRecord: `${w}-${l}-${t}`,
+            overallRecord: ow != null && ol != null && ot != null ? `${ow}-${ol}-${ot}` : null,
+            recordColumnOrder: 'SEPARATE_COLUMNS',
+            conferenceMatches: num(gi),
+            cells: ne.slice(0, 14),
+          });
+        }
+      }
+    }
+  }
+
   // These tables print the school twice per row — a logo cell, then the name.
   const seen = new Set();
   return rows.filter((r) => { const k = r.school.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
@@ -250,7 +308,13 @@ export async function collect(conf, sport) {
     const title = titleOf(page.body);
     if (/not found/i.test(title ?? '')) { rec.seasons[y] = season(COLLECTION_STATUS.SEASON_NOT_AVAILABLE, { url, title }); continue; }
     const teams = parseStandingsTable(page.body);
-    const confirms = !!title && new RegExp(`\\b${y}\\b`).test(title);
+    // The URL names the season as an academic year — 2023-24 — and some of these
+    // sites title the page by the year it ENDS: the Heart of America's 2023-24
+    // men's standings are headed "2024 Men's Soccer Standings". Either year
+    // confirms it, because the season is in the URL and the page echoed one end
+    // of it; a site that ignores the URL and serves the current table (themw.com
+    // does) is caught by the same check, since it titles every season 2026.
+    const confirms = !!title && (new RegExp(`\\b${y}\\b`).test(title) || new RegExp(`\\b${Number(y) + 1}\\b`).test(title));
     rec.seasons[y] = teams.length && confirms ? {
       status: 'OK', url, platform: 'PRESTO_STANDINGS', title,
       seasonConfirmed: true, sportConfirmed: !!title && SPORT_WORDS[sport].test(title),

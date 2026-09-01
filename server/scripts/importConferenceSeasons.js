@@ -36,8 +36,8 @@ import db from '../db/client.js';
 import { utcNow } from '../lib/time.js';
 import { buildResolvers, PROGRAMME_UNRESOLVED } from '../lib/institutionQueries.js';
 import {
-  DIVISIONS, DIVISION_PROVENANCE, COLLECTION_STATUS,
-  deriveConferenceDivision, parseConferenceRecord,
+  DIVISIONS, DIVISION_PROVENANCE, COLLECTION_STATUS, MEMBERSHIP_PROVENANCE, RECORD_STATUS,
+  deriveConferenceDivision, parseConferenceRecord, reconcileMembership,
 } from '../../shared/conferenceHistory.js';
 import { conferenceById, resolveConference } from '../../shared/conferenceIdentity.js';
 
@@ -47,9 +47,28 @@ const arg = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 &
 const DIR = arg('dir', path.join(os.homedir(), 'Documents/Thriv3/Competitive Collection'));
 
 export const ARTEFACT = 'conference-standings.json';
+export const PROGRAMME_ARTEFACT = 'programme-season-conference.json';
 export const SEASONS = [2022, 2023, 2024, 2025];
 
 /** Fails closed. An absent or empty artefact looks exactly like a universe with no conferences. */
+/**
+ * The programme-side conference evidence, where it exists.
+ *
+ * OPTIONAL AND LOWER PRIORITY, and it is neither of those because of who
+ * collected it. The Pac-12's own site no longer publishes its pre-collapse
+ * standings, and `calbears.com` does publish California's 2022 season and the
+ * conference it played in; that is an official statement by the institution
+ * about its own season. It is consulted only where the conference side is
+ * silent, and a disagreement between the two is a refusal, not a ranking.
+ */
+export function readProgrammeArtefact(dir = DIR) {
+  const f = path.join(dir, PROGRAMME_ARTEFACT);
+  if (!fs.existsSync(f)) return { seasons: [] };
+  const j = JSON.parse(fs.readFileSync(f, 'utf8'));
+  if (!Array.isArray(j.seasons)) throw new Error(`malformed programme-season conference artefact: ${f}`);
+  return j;
+}
+
 export function readArtefact(dir = DIR) {
   const f = path.join(dir, ARTEFACT);
   if (!fs.existsSync(f)) throw new Error(`conference standings artefact not found: ${f}`);
@@ -64,6 +83,7 @@ export function readArtefact(dir = DIR) {
 export const QUARANTINE = Object.freeze({
   IDENTITY_UNRESOLVED: 'IDENTITY_UNRESOLVED',
   STATE_CONFLICT: 'STATE_CONFLICT',
+  OFFICIAL_ROSTER_CONTRADICTS: 'OFFICIAL_ROSTER_CONTRADICTS',
   MEMBERSHIP_AMBIGUOUS: 'MEMBERSHIP_AMBIGUOUS',
   NO_PROGRAMME_IN_SPORT: 'NO_PROGRAMME_IN_SPORT',
   RECORD_UNREADABLE: 'RECORD_UNREADABLE',
@@ -97,7 +117,7 @@ export const QUARANTINE = Object.freeze({
  * conference record. Where neither matches or both do, the site's header order
  * is used, and where that is silent the first record is taken.
  */
-export function pickConferenceRecord({ confRecord, overallRecord, recordColumnOrder }, overall) {
+export function pickConferenceRecord({ confRecord, overallRecord, recordColumnOrder, matchesPlayed = null }, overall) {
   const same = (a) => {
     if (!a || !overall) return false;
     const p = String(a).split('-').map(Number);
@@ -108,10 +128,19 @@ export function pickConferenceRecord({ confRecord, overallRecord, recordColumnOr
     if (same(confRecord) && !same(overallRecord)) return { record: overallRecord, method: 'OVERALL_RECORD_IDENTIFIED' };
     if (same(overallRecord) && !same(confRecord)) return { record: confRecord, method: 'OVERALL_RECORD_IDENTIFIED' };
   }
+  // THE CHOSEN RECORD IS THE OVERALL ONE. The Mountain East publishes the
+  // overall record where the conference record belongs, so elimination has
+  // nothing to eliminate against and the number was being stored as a
+  // conference record for 28 programme-seasons. A triple that equals the
+  // programme's own overall record is that record appearing twice: no college
+  // soccer programme plays a schedule with no non-conference match in it.
+  if (overall && confRecord && same(confRecord)) {
+    return { record: null, method: 'SOURCE_PUBLISHED_OVERALL_ONLY' };
+  }
   return { record: confRecord, method: recordColumnOrder ?? 'FIRST_RECORD_COLUMN' };
 }
 
-export function build({ artefact, resolvers, collegeDivision, overallRecords = {}, now = utcNow() }) {
+export function build({ artefact, programmeArtefact = null, resolvers, collegeDivision, overallRecords = {}, now = utcNow() }) {
   const resolvedByConf = new Map();   // conf|sport|season -> [{member, hit}]
   const conferenceRows = [];
   const quarantine = [];
@@ -150,14 +179,15 @@ export function build({ artefact, resolvers, collegeDivision, overallRecords = {
       urlOwner.set(urlKey, conferenceId);
       const hits = [];
       for (const m of s.members ?? []) {
-        const hit = resolvers.resolveProgramme(m.raw, c.sport);
+        const hit = resolvers.resolveProgramme(m.raw, c.sport, { conferenceId });
         if (!hit.collegeId) {
           quarantine.push({
             conference_id: conferenceId, sport: c.sport, season, member_raw: m.raw,
             reason: hit.reason === PROGRAMME_UNRESOLVED.AMBIGUOUS ? QUARANTINE.MEMBERSHIP_AMBIGUOUS
               : hit.reason === PROGRAMME_UNRESOLVED.NO_PROGRAMME_IN_SPORT ? QUARANTINE.NO_PROGRAMME_IN_SPORT
                 : hit.reason === PROGRAMME_UNRESOLVED.STATE_CONFLICT ? QUARANTINE.STATE_CONFLICT
-                  : QUARANTINE.IDENTITY_UNRESOLVED,
+                  : hit.reason === PROGRAMME_UNRESOLVED.OFFICIAL_ROSTER_CONTRADICTS ? QUARANTINE.OFFICIAL_ROSTER_CONTRADICTS
+                    : QUARANTINE.IDENTITY_UNRESOLVED,
             candidates: hit.candidates ? JSON.stringify(hit.candidates) : null,
             conference_record: m.conferenceRecord ?? null,
             source_url: s.url, imported_at: now,
@@ -181,6 +211,15 @@ export function build({ artefact, resolvers, collegeDivision, overallRecords = {
     divisionOf.set(key, deriveConferenceDivision({ statements: conference.divisionStatements ?? [], memberDivisions }));
   }
 
+  // Divisions by conference-season, so a source other than that conference's own
+  // table can still place a member in the division the conference was in.
+  const divisionForConference = new Map();
+  for (const [key, div] of divisionOf) {
+    const [id, , season] = key.split('|');
+    divisionForConference.set(`${id}|${season}`, div);
+    if (!divisionForConference.has(`${id}|any`)) divisionForConference.set(`${id}|any`, div);
+  }
+
   // ── pass 3: one row per programme-season, refusing every double claim ─────
   const claims = new Map();   // collegeId|season -> [candidate]
   for (const [key, { conference, conferenceId, conferenceRaw, season: s, hits }] of resolvedByConf) {
@@ -189,7 +228,10 @@ export function build({ artefact, resolvers, collegeDivision, overallRecords = {
     const div = divisionOf.get(key);
     for (const { member, hit } of hits) {
       const chosen = pickConferenceRecord(
-        { confRecord: member.conferenceRecord, overallRecord: member.overallRecord, recordColumnOrder: member.recordColumnOrder },
+        {
+          confRecord: member.conferenceRecord, overallRecord: member.overallRecord,
+          recordColumnOrder: member.recordColumnOrder, matchesPlayed: member.conferenceMatches,
+        },
         overallRecords[`${hit.collegeId}|${season}`] ?? null,
       );
       const rec = parseConferenceRecord(chosen.record, { matchesPlayed: member.conferenceMatches });
@@ -226,6 +268,8 @@ export function build({ artefact, resolvers, collegeDivision, overallRecords = {
         member_raw: member.printed ?? member.raw,
         identity_method: hit.method,
         identity_evidence: 'CONFERENCE_MEMBERSHIP_CORROBORATION',
+        membership_provenance: MEMBERSHIP_PROVENANCE.OFFICIAL_CONFERENCE_STANDINGS,
+        record_status: rec.ok ? RECORD_STATUS.RECORD_KNOWN : RECORD_STATUS.RECORD_UNAVAILABLE,
         source_url: s.url,
         source_platform: s.platform,
         provenance: `${s.platform}:${s.seasonConfirmed ? 'SEASON_CONFIRMED' : 'SEASON_UNCONFIRMED'}:${chosen.method}`,
@@ -234,6 +278,68 @@ export function build({ artefact, resolvers, collegeDivision, overallRecords = {
         imported_at: now,
       });
     }
+  }
+
+  // ── the programme side, consulted only where the conference side is silent ──
+  const programmeClaims = [];
+  for (const p of (programmeArtefact?.seasons ?? [])) {
+    const season = Number(p.season);
+    if (!SEASONS.includes(season)) continue;
+    const hit = resolvers.resolveProgramme(p.collegeName, p.sport);
+    if (!hit.collegeId) continue;
+    const conf = resolveConference(p.conferenceRaw, { sport: p.sport });
+    if (!conf.id) continue;
+    programmeClaims.push({ collegeId: hit.collegeId, hit, season, conferenceId: conf.id, raw: p });
+  }
+  const conflicts = [];
+  for (const pc of programmeClaims) {
+    const k = `${pc.collegeId}|${pc.season}`;
+    const existing = claims.get(k) ?? [];
+    // Where the conference side already carries this programme-season, the two
+    // are reconciled: agreement raises confidence, disagreement refuses both.
+    if (existing.length) {
+      const verdict = reconcileMembership([
+        ...existing.map((e) => ({ conferenceId: e.conference_id, membershipProvenance: e.membership_provenance })),
+        { conferenceId: pc.conferenceId, membershipProvenance: MEMBERSHIP_PROVENANCE.OFFICIAL_PROGRAMME_SOURCE },
+      ]);
+      if (verdict.status === COLLECTION_STATUS.CONFLICTING_OFFICIAL_SOURCES) {
+        conflicts.push({
+          collegeId: pc.collegeId, season: pc.season, reason: verdict.reason,
+          claims: verdict.claims, programmeSource: pc.raw.sourceUrl,
+        });
+        claims.delete(k);
+        continue;
+      }
+      // The programme's own page settled a dispute between two conference
+      // tables: keep only the claim it agrees with.
+      if (verdict.resolvedBy === 'OFFICIAL_PROGRAMME_SOURCE_AGREEMENT' && existing.length > 1) {
+        claims.set(k, existing.filter((e) => e.conference_id === verdict.conferenceId)
+          .map((e) => ({ ...e, provenance: `${e.provenance}:CORROBORATED_BY_PROGRAMME_SOURCE` })));
+      }
+      continue;
+    }
+    const rec = parseConferenceRecord(pc.raw.officialConferenceRecord);
+    const div = divisionForConference.get(`${pc.conferenceId}|${pc.season}`)
+      ?? divisionForConference.get(`${pc.conferenceId}|any`) ?? null;
+    claims.set(k, [{
+      college_id: pc.collegeId, sport: pc.raw.sport, season: pc.season, unitid: pc.hit.unitid ?? null,
+      conference_id: pc.conferenceId, conference_raw: pc.raw.conferenceRaw,
+      historical_division: div?.division ?? null,
+      division_provenance: div?.provenance ?? DIVISION_PROVENANCE.UNKNOWN,
+      conference_wins: rec.ok ? rec.wins : null,
+      conference_draws: rec.ok ? rec.draws : null,
+      conference_losses: rec.ok ? rec.losses : null,
+      conference_matches: rec.ok ? rec.matches : null,
+      conference_size: null, conference_table_row: null, conference_group: null,
+      seed: null, champion_marker: 0,
+      member_raw: pc.raw.collegeName, identity_method: pc.hit.method,
+      identity_evidence: 'EXPLICIT_PAGE_INSTITUTION',
+      membership_provenance: MEMBERSHIP_PROVENANCE.OFFICIAL_PROGRAMME_SOURCE,
+      record_status: rec.ok ? RECORD_STATUS.RECORD_KNOWN : RECORD_STATUS.RECORD_UNAVAILABLE,
+      source_url: pc.raw.sourceUrl, source_platform: pc.raw.sourcePlatform,
+      provenance: `${pc.raw.sourcePlatform}:${pc.raw.conferenceProvenance ?? 'EXPLICIT_OFFICIAL'}`,
+      confidence: 'CERTAIN', season_confirmed: 1, imported_at: now,
+    }]);
   }
 
   const programmeRows = [];
@@ -250,8 +356,21 @@ export function build({ artefact, resolvers, collegeDivision, overallRecords = {
     // is spelled the way our own table spells it. Where nothing separates them,
     // both are still refused.
     const pool = confirmed.length ? confirmed : candidates;
-    const exact = pool.filter((c) => c.identity_method === 'PROGRAMME_NAME_EXACT');
-    if (exact.length === 1) { programmeRows.push(exact[0]); continue; }
+    // A LADDER, NOT A SINGLE TEST. Two conferences printing a name that resolves
+    // to one programme means at least one of them was resolved by something
+    // weaker than its own spelling: the Big Ten's "Northwestern" is exact and
+    // the UMAC's is a conference tie-break, and the exact one is the claim to
+    // keep. Where the strongest rung holds two claims, both are still refused.
+    const RANK = ['PROGRAMME_NAME_EXACT', 'PROGRAMME_NAME_VARIANT',
+      'PROGRAMME_VIA_OFFICIAL_MEMBERSHIP', 'PROGRAMME_VIA_CONFERENCE_AGREEMENT',
+      'PROGRAMME_VIA_UNITID_NAME', 'PROGRAMME_VIA_UNITID'];
+    let picked = null;
+    for (const rung of RANK) {
+      const at = pool.filter((c) => c.identity_method === rung);
+      if (at.length === 1) { picked = at[0]; break; }
+      if (at.length > 1) break;
+    }
+    if (picked) { programmeRows.push(picked); continue; }
     for (const c of candidates) {
       quarantine.push({
         conference_id: c.conference_id, sport: c.sport, season: c.season, member_raw: c.member_raw,
@@ -302,7 +421,7 @@ export function build({ artefact, resolvers, collegeDivision, overallRecords = {
     }
   }
 
-  return { conferenceRows, programmeRows, quarantine, divisionOf, duplicateSources };
+  return { conferenceRows, programmeRows, quarantine, divisionOf, duplicateSources, conflicts };
 }
 
 export function run({ apply = false, dir = DIR, log = console.log } = {}) {
@@ -311,7 +430,8 @@ export function run({ apply = false, dir = DIR, log = console.log } = {}) {
   const collegeDivision = Object.fromEntries(db.prepare('SELECT id, division FROM colleges').all().map((c) => [c.id, c.division]));
   const overallRecords = Object.fromEntries(db.prepare('SELECT college_id, season, wins, losses, draws FROM programme_seasons').all()
     .map((r) => [`${r.college_id}|${r.season}`, { wins: r.wins, losses: r.losses, draws: r.draws }]));
-  const { conferenceRows, programmeRows, quarantine, duplicateSources } = build({ artefact, resolvers, collegeDivision, overallRecords });
+  const programmeArtefact = readProgrammeArtefact(dir);
+  const { conferenceRows, programmeRows, quarantine, duplicateSources, conflicts } = build({ artefact, programmeArtefact, resolvers, collegeDivision, overallRecords });
 
   const okConf = conferenceRows.filter((r) => r.status === COLLECTION_STATUS.OK);
   const withDivision = programmeRows.filter((r) => r.historical_division).length;
@@ -321,6 +441,10 @@ export function run({ apply = false, dir = DIR, log = console.log } = {}) {
   log(`  division conflicting  : ${okConf.filter((r) => r.division_provenance === DIVISION_PROVENANCE.CONFLICTING).length}`);
   log(`programme-seasons       : ${programmeRows.length}  with a division ${withDivision}`);
   log(`duplicate source tables : ${duplicateSources.length}`);
+  log(`programme-side seasons  : ${programmeArtefact.seasons.length} offered`);
+  log(`  from the programme side only: ${programmeRows.filter((r) => r.membership_provenance === MEMBERSHIP_PROVENANCE.OFFICIAL_PROGRAMME_SOURCE).length}`);
+  log(`  refused as CONFLICTING_OFFICIAL_SOURCES: ${conflicts.length}`);
+  for (const c of conflicts.slice(0, 8)) log(`    ${c.collegeId} ${c.season}: ${c.reason}`);
   log(`quarantined member rows : ${quarantine.length}`);
   const byReason = {}; quarantine.forEach((q) => { byReason[q.reason] = (byReason[q.reason] ?? 0) + 1; });
   for (const [k, v] of Object.entries(byReason).sort((a, b) => b[1] - a[1])) log(`  ${k.padEnd(30)}${String(v).padStart(5)}`);

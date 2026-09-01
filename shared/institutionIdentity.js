@@ -128,14 +128,68 @@ const STATE_BY_TOKEN = new Map(Object.entries({
   sd: 'SD', tenn: 'TN', texas: 'TX', utah: 'UT', vt: 'VT', va: 'VA', wash: 'WA', wva: 'WV',
   wis: 'WI', wyo: 'WY', dc: 'DC', pr: 'PR',
   // Longer spellings the same sources also use.
-  cal: 'CA', tex: 'TX', penn: 'PA', wisc: 'WI', mich: 'MI', colo: 'CO',
-  florida: 'FL', georgia: 'GA', virginia: 'VA', kentucky: 'KY',
+  cal: 'CA', tex: 'TX', penn: 'PA', wisc: 'WI', colo: 'CO',
+  // The state spelled out in full, which is how the NCAA's own directory
+  // qualifies a name: "Washington College (Maryland)", "Trinity University
+  // (Texas)". Without these the qualifier is not a qualifier and the name is
+  // not separable from a different institution's.
+  alabama: 'AL', arizona: 'AZ', arkansas: 'AR', california: 'CA', colorado: 'CO',
+  connecticut: 'CT', delaware: 'DE', florida: 'FL', georgia: 'GA', illinois: 'IL',
+  indiana: 'IN', kansas: 'KS', kentucky: 'KY', louisiana: 'LA', maryland: 'MD',
+  massachusetts: 'MA', michigan: 'MI', minnesota: 'MN', mississippi: 'MS',
+  missouri: 'MO', montana: 'MT', nebraska: 'NE', nevada: 'NV', 'new hampshire': 'NH',
+  'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY', 'north carolina': 'NC',
+  'north dakota': 'ND', oklahoma: 'OK', oregon: 'OR', pennsylvania: 'PA',
+  'rhode island': 'RI', 'south carolina': 'SC', 'south dakota': 'SD', tennessee: 'TN',
+  texas: 'TX', vermont: 'VT', virginia: 'VA', washington: 'WA',
+  'west virginia': 'WV', wisconsin: 'WI', wyoming: 'WY',
   // Postal codes, which our own `colleges.name` qualifiers use.
   al: 'AL', ak: 'AK', az: 'AZ', ar: 'AR', ca: 'CA', co: 'CO', ct: 'CT', de: 'DE', fl: 'FL',
   hi: 'HI', id: 'ID', il: 'IL', in: 'IN', ia: 'IA', ks: 'KS', me: 'ME', ma: 'MA', mi: 'MI',
   mn: 'MN', ms: 'MS', mt: 'MT', ne: 'NE', nv: 'NV', oh: 'OH', ok: 'OK', or: 'OR',
   tn: 'TN', tx: 'TX', ut: 'UT', wa: 'WA', wv: 'WV', wi: 'WI', wy: 'WY',
 }));
+
+/**
+ * THE NOTATION CONFERENCE TABLES APPEND TO A SCHOOL'S OWN NAME, removed.
+ *
+ * Conferences decorate the name column, and every conference decorates it
+ * differently: `Bloomsburg * (4)`, `Loras No. 23 | C | (1)`,
+ * `Cal Poly Pomona - y, z, $, ^`, `Grand Valley State 2x`, `Keene State 6`,
+ * `High Point (2.00)`, `Nebraska Kearney -x`, `Hanover #2 Seed`. Rankings,
+ * seeds, qualification letters, champion markers, receiving-votes counts.
+ * Together they made roughly 400 member rows unresolvable, and writing an alias
+ * for each decorated spelling would have put 150 rows in the alias table that
+ * are not names.
+ *
+ * The rule is a TAIL GRAMMAR, not a list of patterns: trailing tokens are
+ * dropped while they are made only of notation — punctuation, digits, `No.`,
+ * a bracketed number, or one of the single letters conferences use as markers.
+ * A token containing a real word stops it, which is why `St. Mary's (Md.)`
+ * keeps its state and `Texas A&M` keeps its name.
+ */
+const MARKER_LETTERS = /^[xyzetcns]$/i;
+const NOTATION_TOKEN = new RegExp([
+  '^(?:',
+  '[-\u2013\u2014*^%$#&|,.!~+/\\\\]+',        // a run of pure punctuation
+  '|[-\u2013\u2014#]?\\(?\\d+(?:[./]\\d+)*\\)?',    // 4, (4), #2, 2.00, 15/10
+  '|no\\.?\\d*(?:[./]\\d+)*',                  // No., No. 2, No.17/19
+  '|seed|conf|champ',
+  '|[-\u2013\u2014]?\\d*[xyz]{1,3}',              // x, -x, 2x, xy
+  ')[,.;]?$',
+].join(''), 'i');
+export function stripTableNotation(raw) {
+  const parts = String(raw ?? '').trim().split(/\s+/);
+  while (parts.length > 1) {
+    const t = parts[parts.length - 1].replace(/[,;]+$/, '');
+    if (!t) { parts.pop(); continue; }
+    // A bracketed group with letters in it is a qualifier, not notation.
+    if (/^\(.*[a-z].*\)$/i.test(t)) break;
+    if (NOTATION_TOKEN.test(t) || MARKER_LETTERS.test(t)) { parts.pop(); continue; }
+    break;
+  }
+  return parts.join(' ').replace(/\s*[-–—|,]+\s*$/, '').trim();
+}
 
 /**
  * A raw name split into the part that identifies the school and the part that
@@ -148,11 +202,16 @@ export function parseInstitutionName(raw) {
   // A trailing "(1)" is a national ranking, printed beside the school by the
   // conference. "Messiah (1)" and "Messiah" are the same programme, and the
   // marker made 16 rows unresolvable.
-  let base = s.replace(/\s*\(\s*\d{1,2}\s*\)\s*$/, '').trim();
+  // Two markers conference tables append to a school's own name: a national
+  // ranking in brackets, and the NCAA qualification letters. "Messiah (1)" and
+  // "UMBC -x" are the same programmes as "Messiah" and "UMBC", and between them
+  // the two markers made 60 rows unresolvable.
+  let base = stripTableNotation(s);
   let state = null;
   const paren = /\s*\(([^)]{1,24})\)\s*$/.exec(base);
   if (paren) {
-    const st = STATE_BY_TOKEN.get(normaliseInstitution(paren[1]).replace(/\s/g, ''));
+    const norm = normaliseInstitution(paren[1]);
+    const st = STATE_BY_TOKEN.get(norm.replace(/\s/g, '')) ?? STATE_BY_TOKEN.get(norm);
     if (st) { state = st; base = base.slice(0, paren.index).trim(); }
   }
   if (!state) {
@@ -214,14 +273,36 @@ const ABBREVIATIONS = [
   [/\bInt'?l\.?\b/i, 'International'],
 ];
 
-export function institutionVariants(raw) {
+/**
+ * THE LEGAL-NAME REWRITINGS, AND WHY THEY ARE OPT-IN.
+ *
+ * The NCAA's directory publishes "University at Albany" and "Bowling Green
+ * State University" where every athletics source, and our own table, say
+ * "Albany" and "Bowling Green". Rewriting those raises the directory's
+ * resolution rate by twelve points.
+ *
+ * Applied to a CONFERENCE TABLE'S member name they are wrong, and measurably:
+ * the Pac-12 prints "Washington State University" and the Centennial prints
+ * "Washington College", and stripping the institution type from either leaves
+ * "Washington" — which is a whole written-down name belonging to a third
+ * university. Both were filed under the Huskies, one of them with a Division III
+ * season. So they are reached only through `{ official: true }`, which the
+ * directory resolution passes and collection does not.
+ */
+const OFFICIAL_ABBREVIATIONS = [
+  [/^University\s+at\s+/i, ''],
+  [/\bState\s+University\s*$/i, ''],
+];
+
+export function institutionVariants(raw, { official = false } = {}) {
   const { base } = parseInstitutionName(raw);
   const seeds = new Set();
   const add = (v) => { const n = String(v ?? '').trim(); if (n) seeds.add(n); };
   add(base);
   add(base.replace(ATHLETICS_SUFFIX, ''));
+  const rules = official ? [...ABBREVIATIONS, ...OFFICIAL_ABBREVIATIONS] : ABBREVIATIONS;
   for (const v of [...seeds]) {
-    for (const [re, to] of ABBREVIATIONS) if (re.test(v)) add(v.replace(re, to));
+    for (const [re, to] of rules) if (re.test(v)) add(v.replace(re, to));
   }
   for (const v of [...seeds]) {
     add(v.replace(LEADING_THE, ''));
@@ -229,6 +310,16 @@ export function institutionVariants(raw) {
     add(v.replace(/\s+(?:university|college)\s+of\s+/i, ' '));
     const uOf = /^university\s+of\s+(.+)$/i.exec(v) ?? /^college\s+of\s+(.+)$/i.exec(v);
     if (uOf) add(uOf[1]);
+    // "University of Arkansas at Little Rock" and "University of California,
+    // Davis" — the campus written the way the directory writes it and the way
+    // athletics writes it. THE BARE CAMPUS TOKEN IS NOT GENERATED: it is often a
+    // city, and "University of Missouri, Columbia" reduced that way resolved to
+    // Columbia College, Missouri — a different institution in the same city,
+    // which the state qualifier then confirmed instead of vetoing.
+    if (official) {
+      const campus = /^university\s+of\s+([^,]+?)\s*(?:,|\s+at\s+)\s*(.+)$/i.exec(v);
+      if (campus) { add(`${campus[1]}-${campus[2]}`); add(`${campus[1]} ${campus[2]}`); }
+    }
     add(v.replace(/\s+(?:state\s+university|state\s+college)\s*$/i, ' State'));
     add(v.replace(/\s+(?:univ\.?|coll\.?)\s*$/i, ''));
     add(v.replace(/\s*[-–—]\s*/g, ' '));
@@ -366,7 +457,7 @@ export function buildInstitutionResolver(aliases = [], states = {}) {
    * used when auditing a domain, where the question is not "who is this" in the
    * abstract but "is this one of the institutions that claimed this domain".
    */
-  function resolve(raw, { restrictTo = null } = {}) {
+  function resolve(raw, { restrictTo = null, official = false } = {}) {
     const { base, state } = parseInstitutionName(raw);
     if (!base) return { unitid: null, raw: raw ?? null, reason: IDENTITY_UNRESOLVED.EMPTY };
     const limit = restrictTo ? new Set(restrictTo.map(Number)) : null;
@@ -383,7 +474,7 @@ export function buildInstitutionResolver(aliases = [], states = {}) {
       // The raw spelling in full comes first, qualifier and all: "Columbia
       // (MO)" is a written-down name, and reaching for its base before trying
       // it hands the query to the Columbia that only the base names.
-      for (const v of [normaliseInstitution(raw), normaliseInstitution(base), ...institutionVariants(raw)]) {
+      for (const v of [normaliseInstitution(raw), normaliseInstitution(base), ...institutionVariants(raw, { official })]) {
         const set = map.get(v);
         if (!set) continue;
         const n = narrow(set);

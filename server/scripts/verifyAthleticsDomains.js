@@ -48,7 +48,7 @@ import {
   institutionFromPage, institutionVariants, normaliseInstitution,
   DOMAIN_STATUS, IDENTITY_UNRESOLVED, IDENTITY_METHOD,
 } from '../../shared/institutionIdentity.js';
-import { COMBINED_PROGRAMME_DOMAINS } from '../../shared/institutionAliasData.js';
+import { COMBINED_PROGRAMME_DOMAINS, ATHLETICS_DOMAIN_CORRECTIONS } from '../../shared/institutionAliasData.js';
 
 const argv = process.argv.slice(2);
 const APPLY = argv.includes('--apply');
@@ -123,6 +123,17 @@ export function classifyMapping(claim, host, evidence) {
   };
 }
 
+/**
+ * The corrections, keyed by the mapping they replace.
+ *
+ * A correction does two things and no more: it marks the wrong mapping
+ * CONFIRMED_WRONG with its proof, and it records the proven domain as this
+ * institution's athletics site. `known_domains.json` is left exactly as it is.
+ */
+const CORRECTION_BY_MAPPING = new Map(
+  ATHLETICS_DOMAIN_CORRECTIONS.map((c) => [`${c.unitid}|${c.wrongDomain}`, c]),
+);
+
 export function audit({ evidence, mapping, resolvers, now = utcNow() }) {
   const claims = new Map();
   const keyResolution = {};
@@ -160,6 +171,12 @@ export function audit({ evidence, mapping, resolvers, now = utcNow() }) {
     for (const key of keys) {
       const claim = { key, ...keyResolution[key] };
       const verdict = classifyMapping(claim, host, ev);
+      const correction = CORRECTION_BY_MAPPING.get(`${claim.unitid}|${domain}`);
+      if (correction) {
+        verdict.status = DOMAIN_STATUS.WRONG_INSTITUTION;
+        verdict.notes = `CONFIRMED_WRONG — ${correction.provenance}`;
+        verdict.correctDomain = correction.correctDomain;
+      }
       const m = {
         key, domain, claimantUnitid: claim.unitid ?? null, claimantReason: claim.reason ?? null,
         hostUnitid: host.unitid ?? null, evidenceKind: host.matchedOn ?? null,
@@ -194,6 +211,32 @@ export function audit({ evidence, mapping, resolvers, now = utcNow() }) {
       verification_method: reachable ? 'PAGE_SELF_IDENTIFICATION' : 'HEAD_FETCH',
       confidence: host.strength === 'WHOLE_NAME' ? 'CERTAIN' : host.unitid ? 'CORROBORATED' : 'NONE',
       notes: ev.note,
+      checked_at: now,
+    });
+  }
+  // Every proven replacement gets a row of its own, whether or not the mapping
+  // file ever knew about it.
+  const known = new Set(rows.map((r) => r.domain));
+  for (const c of ATHLETICS_DOMAIN_CORRECTIONS) {
+    if (known.has(c.correctDomain)) continue;
+    rows.push({
+      domain: c.correctDomain,
+      unitid: c.unitid,
+      status: DOMAIN_STATUS.VERIFIED,
+      role: 'ATHLETICS_SITE',
+      claimed_keys: JSON.stringify([]),
+      claimed_unitids: JSON.stringify([c.unitid]),
+      wrong_mappings: null,
+      evidence_kind: 'CURATED_CORRECTION',
+      evidence_text: c.institution,
+      identity_method: IDENTITY_METHOD.EXACT,
+      identity_strength: 'WHOLE_NAME',
+      platform: null,
+      http_status: null,
+      final_url: null,
+      verification_method: 'OFFICIAL_DIRECTORY_AND_PAGE_SELF_IDENTIFICATION',
+      confidence: 'CORROBORATED',
+      notes: c.provenance,
       checked_at: now,
     });
   }

@@ -22,13 +22,15 @@
 import db from '../db/client.js';
 import { structuralHistory, conferenceRecordRow } from '../../shared/conferenceHistory.js';
 import { conferenceById } from '../../shared/conferenceIdentity.js';
+import { competitivePackage } from '../../shared/report/competitivePackage.js';
+import { competitiveHistoryFor } from './competitiveQueries.js';
 
 const selectRows = db.prepare(
   `SELECT season, conference_id, conference_raw, historical_division, division_provenance,
           conference_wins, conference_draws, conference_losses, conference_matches,
           conference_size, conference_table_row, conference_group, seed, champion_marker,
-          member_raw, identity_method, identity_evidence, source_url, source_platform,
-          provenance, confidence, season_confirmed
+          member_raw, identity_method, identity_evidence, membership_provenance, record_status,
+          source_url, source_platform, provenance, confidence, season_confirmed
      FROM programme_conference_seasons
     WHERE college_id = ? AND season_confirmed = 1
     ORDER BY season`,
@@ -59,6 +61,8 @@ export function structuralHistoryFor(collegeId) {
     conferenceGroup: r.conference_group,
     seed: r.seed,
     championMarker: !!r.champion_marker,
+    membershipProvenance: r.membership_provenance,
+    recordStatus: r.record_status,
     source: { url: r.source_url, platform: r.source_platform, provenance: r.provenance, confidence: r.confidence },
   }));
   const conferenceRecords = rows.map((r) => conferenceRecordRow({
@@ -118,4 +122,47 @@ export function structuralMovements() {
     });
   }
   return out;
+}
+
+/**
+ * THE PHASE 12F DATA PACKAGE for one programme, and the only thing 12F consumes.
+ *
+ * It is assembled here because this is where both halves live: the record and
+ * its benchmark from `competitiveQueries`, the conference and division from this
+ * module. Nothing about presentation is decided — the package carries the field
+ * contract with it, so a page can be checked against what it is allowed to draw
+ * rather than against what happens to be in the object.
+ */
+export function competitivePackageFor(collegeId, { coachAttribution = null } = {}) {
+  const history = competitiveHistoryFor(collegeId, { coachAttribution });
+  if (!history) return null;
+  const structural = structuralHistoryFor(collegeId);
+  return {
+    college: history.college,
+    ...competitivePackage({ history, structural, coach: coachAttribution }),
+  };
+}
+
+/** Coverage of membership and of the conference record, kept apart (12E / T). */
+export function conferenceRecordCoverage() {
+  return db.prepare(
+    `SELECT c.sport, c.division,
+            COUNT(*) readable_seasons,
+            SUM(CASE WHEN x.college_id IS NOT NULL AND x.season_confirmed = 1 THEN 1 ELSE 0 END) membership_known,
+            SUM(CASE WHEN x.season_confirmed = 1 AND x.record_status = 'RECORD_KNOWN' THEN 1 ELSE 0 END) record_known,
+            SUM(CASE WHEN x.season_confirmed = 1 AND x.record_status = 'RECORD_UNAVAILABLE' THEN 1 ELSE 0 END) record_unavailable
+       FROM programme_seasons p
+       JOIN colleges c ON c.id = p.college_id
+       LEFT JOIN programme_conference_seasons x
+         ON x.college_id = p.college_id AND x.season = p.season
+      WHERE c.division IN ('NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA')
+      GROUP BY 1, 2 ORDER BY 1, 2`).all();
+}
+
+/** Which official source established each membership row (12E / G). */
+export function membershipProvenanceCounts() {
+  return db.prepare(
+    `SELECT membership_provenance, record_status, COUNT(*) n
+       FROM programme_conference_seasons WHERE season_confirmed = 1
+      GROUP BY 1, 2 ORDER BY 3 DESC`).all();
 }

@@ -74,3 +74,40 @@ describe('the rewriting ladder reaches our longer names', () => {
     expect(r.resolveProgramme('Limestone', 'mens-soccer').collegeId).toBeNull();
   });
 });
+
+describe('the conference’s own membership beats a rewriting', () => {
+  beforeEach(() => {
+    db.exec('DELETE FROM conference_members_official;');
+    db.prepare(`INSERT INTO conference_members_official
+      (unitid, conference_id, conference_raw, division, name_official, source, imported_at)
+      VALUES (NULL, 'centennial', 'Centennial Conference', 'NCAA D3', 'Washington College (Maryland)', 'test', 'x')`).run();
+    db.prepare(`INSERT INTO conference_members_official
+      (unitid, conference_id, conference_raw, division, name_official, source, imported_at)
+      VALUES (213987, 'psac', 'PSAC', 'NCAA D2', 'Mercyhurst University', 'test', 'x')`).run();
+  });
+
+  it('refuses a rewriting the conference’s roster contradicts', () => {
+    college('wash-m', 'Washington', 'mens-soccer', 'NCAA D1', 236948, 'WA');
+    const r = buildResolvers();
+    // "Washington College #1 seed" strips to "Washington College", which the
+    // College-stripping rule reduces to "Washington" — a different university.
+    const hit = r.resolveProgramme('Washington College #1 seed', 'mens-soccer', { conferenceId: 'centennial' });
+    expect(hit.collegeId).toBeNull();
+    expect(hit.reason).toBe(PROGRAMME_UNRESOLVED.OFFICIAL_ROSTER_CONTRADICTS);
+    expect(hit.officialMember).toBe('Washington College (Maryland)');
+  });
+
+  it('never questions an exact name, so a genuine mover survives', () => {
+    const r = buildResolvers();
+    // Mercyhurst is Division I today and the PSAC's 2022 table is where its
+    // Division II seasons come from.
+    expect(r.resolveProgramme('Mercyhurst', 'mens-soccer', { conferenceId: 'psac' }).collegeId).toBe('mercy-m');
+  });
+
+  it('is inert where the association publishes no roster for that conference', () => {
+    college('rmac-m', 'Some Programme', 'mens-soccer', 'NCAA D2', 900001, 'CO');
+    const r = buildResolvers();
+    // An NAIA conference has no NCAA roster; silence is not contradiction.
+    expect(r.resolveProgramme('Some Programme', 'mens-soccer', { conferenceId: 'haac' }).collegeId).toBe('rmac-m');
+  });
+});

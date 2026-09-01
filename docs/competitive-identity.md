@@ -403,3 +403,21 @@ No manual database edit is required or permitted at any point.
    described in §2.
 8. **Conference finish and postseason depth remain research-only**, unchanged
    from 12C.
+
+---
+
+## Update — Phase 12E
+
+The conference inventory no longer comes from our own vocabulary. It comes from
+the NCAA member directory and the NAIA's own conference school listing, both
+sports are attempted for every conference, and sponsorship is discovered rather
+than assumed. Historical-division coverage went from 68.6% to **83.8%**, and the
+two conferences 12D could not see — the Great Northeast Athletic Conference and
+the Mid-American's men's soccer league — are both collected.
+
+Also new: a membership provenance hierarchy of five official sources, a
+cross-source conflict contract that refuses by default, the separation of
+membership truth from conference-record truth, and 15 domain corrections proved
+against both the NCAA's own record and the replacement host's own page.
+
+The layer is frozen. See `docs/competitive-v1-freeze.md`.

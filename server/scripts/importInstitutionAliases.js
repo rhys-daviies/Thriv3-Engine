@@ -40,7 +40,40 @@ const APPLY = argv.includes('--apply');
  * force the collision through a PRIMARY KEY that has no way to represent
  * "either of these two, depending on what the source said".
  */
-export function aliasRows({ colleges, curated = CURATED_INSTITUTION_ALIASES, now = utcNow() }) {
+/**
+ * What an athletics department calls itself, from its own verified site.
+ *
+ * The ACC's standings table prints "Pitt" and the West Coast Conference's
+ * prints "LMU". Neither is in `colleges`, and both are on the front of the
+ * institution's own athletics site: `pittsburghpanthers.com` publishes
+ * og:site_name "Pitt Athletics". That is the same evidence the domain audit
+ * already accepted to establish who the host is, reused to establish what the
+ * host calls itself — `ATHLETICS_NAME`, with the domain as its source.
+ *
+ * ONLY FROM A DOMAIN NOTHING CONTRADICTS. A host with any refuted claim against
+ * it contributes no alias: the audit has already said its identity is disputed,
+ * and a disputed identity must not become a name.
+ */
+export function athleticsNameAliases(rows) {
+  const BOILERPLATE = /\s*[-–—|:]?\s*(?:official\s+)?(?:athletics?|athletic\s+department|sports)\b.*$/i;
+  const out = [];
+  for (const r of rows) {
+    if (r.unitid == null) continue;
+    if (r.status !== 'VERIFIED' && r.status !== 'VERIFIED_ALIAS') continue;
+    if (r.role !== 'ATHLETICS_SITE') continue;
+    if (r.wrong_mappings) continue;
+    const raw = String(r.evidence_text ?? '').replace(BOILERPLATE, '').trim();
+    if (!raw || raw.length < 3 || raw.length > 70) continue;
+    out.push({
+      alias: raw, unitid: r.unitid, aliasType: ALIAS_TYPE.ATHLETICS_NAME,
+      source: `https://${r.domain} (${r.evidence_kind})`, confidence: 'CORROBORATED',
+      notes: null,
+    });
+  }
+  return out;
+}
+
+export function aliasRows({ colleges, curated = CURATED_INSTITUTION_ALIASES, athletics = [], now = utcNow() }) {
   const rows = new Map();      // alias_key -> row
   const collisions = [];
   const skippedNoUnitid = [];
@@ -68,6 +101,11 @@ export function aliasRows({ colleges, curated = CURATED_INSTITUTION_ALIASES, now
     if (c.unitid == null) { skippedNoUnitid.push({ name: c.name, sport: c.sport }); continue; }
     add(c.name, c.unitid, ALIAS_TYPE.CURRENT_NAME, 'colleges.name', 'CERTAIN');
   }
+  // Athletics names before curated ones, so a hand-written decision always wins
+  // over a harvested one; both lose to a collision, as everything does.
+  for (const a of athletics) {
+    add(a.alias, a.unitid, a.aliasType, a.source, a.confidence, a.notes ?? null);
+  }
   for (const a of curated) {
     add(a.alias, a.unitid, a.aliasType, a.source, a.confidence, a.notes ?? null);
   }
@@ -78,12 +116,17 @@ export function aliasRows({ colleges, curated = CURATED_INSTITUTION_ALIASES, now
 
 export function run({ apply = false, log = console.log } = {}) {
   const colleges = db.prepare('SELECT name, sport, unitid FROM colleges').all();
-  const { rows, collisions, skippedNoUnitid } = aliasRows({ colleges });
+  const domains = db.prepare(
+    `SELECT domain, unitid, status, role, wrong_mappings, evidence_text, evidence_kind
+       FROM athletics_domains`).all();
+  const athletics = athleticsNameAliases(domains);
+  const { rows, collisions, skippedNoUnitid } = aliasRows({ colleges, athletics });
 
   log(`colleges rows          : ${colleges.length}`);
   log(`institutions (unitid)  : ${new Set(colleges.map((c) => c.unitid).filter((u) => u != null)).size}`);
   log(`rows with no unitid    : ${skippedNoUnitid.length}`);
   log(`curated aliases        : ${CURATED_INSTITUTION_ALIASES.length}`);
+  log(`athletics-name aliases : ${athletics.length} offered from ${domains.length} audited domains`);
   log(`aliases to write       : ${rows.length}`);
   log(`collisions refused     : ${collisions.length}`);
   for (const c of collisions) log(`  REFUSED  "${c.alias}" claimed by ${c.unitids.join(' and ')}`);
