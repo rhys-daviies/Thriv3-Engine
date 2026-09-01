@@ -88,6 +88,13 @@ export const recordString = (wins, losses, draws) => `${wins}-${losses}-${draws}
 /** A pool this small cannot support a quartile, let alone a percentile. */
 export const MIN_POOL = 30;
 
+/** Why a season carries no percentile. */
+export const NO_BENCHMARK = Object.freeze({
+  DIVISION_UNKNOWN: 'the division this programme played in that season is not on file',
+  POOL_TOO_SMALL: 'too few programmes measured in that division and season',
+  NO_POOL: 'no comparison pool was built for that division and season',
+});
+
 const round3 = (v) => (v == null ? null : Number(v.toFixed(3)));
 const quantile = (sorted, q) => (sorted.length
   ? sorted[Math.min(sorted.length - 1, Math.floor(q * sorted.length))] : null);
@@ -106,6 +113,10 @@ export function seasonRow(row) {
   return {
     season: Number(row.season),
     wins, draws, losses, matchesPlayed: matches,
+    // The division PLAYED THAT SEASON. `undefined` means the caller did not
+    // offer one; `null` means it was looked for and is not on file. The
+    // benchmark treats those differently on purpose.
+    historicalDivision: row.historicalDivision ?? row.historical_division ?? null,
     record: recordString(wins, losses, draws),
     winPercentage: round3(winPercentage(wins, draws, matches)),
     pointsRate: round3(pointsRate(wins, draws, matches)),
@@ -179,11 +190,21 @@ function extremeSeasons(seasons) {
  * is "the 2025 rate sat in the upper quarter", about a number, and never "the
  * programme was in the upper quarter", about a programme.
  */
-export function seasonBenchmark(rate, pool) {
-  if (rate == null || !pool?.rates?.length) return null;
+export function seasonBenchmark(rate, pool, { division = undefined } = {}) {
+  if (rate == null) return null;
+  // THE DENOMINATOR IS THE SEASON'S OWN DIVISION, and there is no fallback.
+  // `colleges.division` is the CURRENT division; using it would have compared
+  // Mercyhurst's 2022 D2 season against 213 D1 programmes. The refusal is
+  // returned rather than a null so a caller can say why there is no number.
+  if (division === null) {
+    return { available: false, reason: NO_BENCHMARK.DIVISION_UNKNOWN, n: null };
+  }
+  if (!pool?.rates?.length) {
+    return division === undefined ? null : { available: false, reason: NO_BENCHMARK.NO_POOL, n: 0 };
+  }
   const rates = [...pool.rates].sort((a, b) => a - b);
   if (rates.length < MIN_POOL) {
-    return { available: false, reason: `only ${rates.length} programmes measured in this division and season`, n: rates.length };
+    return { available: false, reason: `${NO_BENCHMARK.POOL_TOO_SMALL} — only ${rates.length} on file`, n: rates.length };
   }
   const below = rates.filter((v) => v < rate).length;
   const equal = rates.filter((v) => v === rate).length;
@@ -231,7 +252,10 @@ export function competitiveHistory({ rows = [], pools = null, coachAttribution =
 
   const seasons = usable.map((s) => ({
     ...s,
-    benchmark: pools ? seasonBenchmark(s.winPercentage, pools[s.season] ?? null) : null,
+    benchmark: pools
+      ? seasonBenchmark(s.winPercentage, pools[s.season]?.[s.historicalDivision] ?? null,
+        { division: s.historicalDivision })
+      : null,
   }));
 
   const totals = usable.reduce((a, s) => ({

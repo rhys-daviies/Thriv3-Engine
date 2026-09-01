@@ -15,7 +15,7 @@ import {
   competitiveHistoryFor, programmeSeasonRows, buildCompetitivePools,
   competitivePools, invalidateCompetitivePools, competitivePoolStatus,
 } from './competitiveQueries.js';
-import { MIN_POOL } from '../../shared/competitiveHistory.js';
+import { MIN_POOL, NO_BENCHMARK } from '../../shared/competitiveHistory.js';
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const SOURCE = (f) => fs.readFileSync(path.join(dir, f), 'utf8');
@@ -50,12 +50,28 @@ describe('the soccer_score firewall', () => {
     for (const w of FORBIDDEN_WORDS) expect(code.match(w)?.[0] ?? null, `${file} matches ${w}`).toBeNull();
   });
 
-  it('reads only programme_seasons and the division on colleges', () => {
+  it('reads only programme_seasons and colleges', () => {
     const code = SOURCE('competitiveQueries.js');
     const tables = [...code.matchAll(/FROM\s+(\w+)/g)].map((m) => m[1]);
     expect([...new Set(tables)].sort()).toEqual(['colleges', 'programme_seasons']);
     const cols = [...code.matchAll(/SELECT([\s\S]*?)FROM/g)].join(' ');
     expect(cols).not.toMatch(/score|rank|rating|conference|postseason/i);
+  });
+
+  /**
+   * PHASE 12B.1 — the current-division firewall.
+   *
+   * `colleges.division` is the CURRENT division. It may label the returned
+   * college row and nothing else: the pool build must not join `colleges` at
+   * all, because keying the pool on it ranked Mercyhurst's D2 seasons against
+   * D1 programmes.
+   */
+  it('builds the pool without touching colleges at all', () => {
+    const code = SOURCE('competitiveQueries.js');
+    const build = code.slice(code.indexOf('export function buildCompetitivePools'),
+      code.indexOf('export function competitivePools'));
+    expect(build).not.toMatch(/colleges/);
+    expect(build).toMatch(/historical_division/);
   });
 });
 
@@ -75,8 +91,8 @@ describe('the postseason firewall', () => {
   it('the table has no column that could carry one', () => {
     const cols = db.prepare('PRAGMA table_info(programme_seasons)').all().map((c) => c.name);
     expect(cols.sort()).toEqual([
-      'college_id', 'confidence', 'draws', 'imported_at', 'losses', 'matches_played',
-      'season', 'source', 'source_record_name', 'sport', 'wins',
+      'college_id', 'confidence', 'draws', 'historical_division', 'imported_at',
+      'losses', 'matches_played', 'season', 'source', 'source_record_name', 'sport', 'wins',
     ]);
     for (const banned of ['postseason', 'conference', 'goals', 'rating', 'rank', 'champion', 'standing']) {
       expect(cols.some((c) => c.includes(banned)), banned).toBe(false);
@@ -153,18 +169,51 @@ describe('reading a programme', () => {
   it('leaves a roster-contradicted season out of the history and out of the pool', () => {
     const h = competitiveHistoryFor('c1');
     expect(h.unreadableSeasons.map((u) => u.season)).toEqual([2024]);
+    // Nothing from this programme reaches a pool: 2024 is contradicted, and the
+    // other seasons carry no division to be placed in.
     const pools = buildCompetitivePools();
-    expect(pools.byKey.get('mens-soccer|NCAA D1')[2024]).toBeUndefined();
+    expect(pools.byKey.get('mens-soccer')[2024]).toBeUndefined();
+    expect(pools.unplaceableSeasons).toBeGreaterThan(0);
   });
 
   it('is null for a college that does not exist', () => {
     expect(competitiveHistoryFor('nope')).toBeNull();
   });
 
-  it('refuses to benchmark against a pool of one', () => {
+  /**
+   * The behavioural half of the current-division firewall. This college is
+   * NCAA D1 and its seasons carry no historical division, so there must be no
+   * percentile at all — not one computed from a D1 pool of one.
+   */
+  it('refuses every benchmark where the season’s own division is unknown', () => {
     const h = competitiveHistoryFor('c1');
-    expect(h.seasons[0].benchmark.available).toBe(false);
-    expect(h.seasons[0].benchmark.n).toBeLessThan(MIN_POOL);
+    for (const s of h.seasons) {
+      expect(s.historicalDivision).toBeNull();
+      expect(s.benchmark.available).toBe(false);
+      expect(s.benchmark.reason).toBe(NO_BENCHMARK.DIVISION_UNKNOWN);
+      expect(s.benchmark.percentile).toBeUndefined();
+    }
+  });
+
+  it('benchmarks once a season carries its own division', () => {
+    const ins = db.prepare(`INSERT INTO programme_seasons
+      (college_id, sport, season, wins, draws, losses, matches_played, source, source_record_name, confidence, historical_division, imported_at)
+      VALUES (?,'mens-soccer',2022,?,?,?,?,'test','P',?, 'NCAA D2', 'x')`);
+    db.prepare('UPDATE programme_seasons SET historical_division = ? WHERE college_id = ?').run('NCAA D2', 'c1');
+    for (let i = 0; i < MIN_POOL + 5; i += 1) {
+      db.prepare(`INSERT INTO colleges (id, created_date, updated_date, name, sport, division)
+        VALUES (?, 'x','x', ?, 'mens-soccer', 'NCAA D1')`).run(`p${i}`, `Peer ${i}`);
+      ins.run(`p${i}`, 2, 1, 15, 18, 'ROSTER_CONSISTENT');
+    }
+    invalidateCompetitivePools();
+    const h = competitiveHistoryFor('c1');
+    const s2022 = h.seasons.find((x) => x.season === 2022);
+    expect(s2022.benchmark.available).toBe(true);
+    expect(s2022.benchmark.n).toBe(MIN_POOL + 5 + 1);
+    expect(s2022.benchmark.scope).toBe('NCAA D2 men’s');
+    // The peers are all NCAA D1 on `colleges` and NCAA D2 on their season rows;
+    // the pool followed the season row, which is the whole point.
+    expect(h.college.division).toBe('NCAA D1');
   });
 });
 
@@ -181,8 +230,20 @@ describe('the pool cache', () => {
     expect(competitivePools()).toBe(competitivePools());
   });
 
-  it('groups by sport and division, and by season inside that', () => {
+  it('groups by sport, then season, then that season’s own division', () => {
     const p = buildCompetitivePools();
-    for (const key of p.byKey.keys()) expect(key).toMatch(/^(mens|womens)-soccer\|/);
+    expect([...p.byKey.keys()].sort()).toEqual(['mens-soccer', 'womens-soccer']);
+    for (const perSeason of p.byKey.values()) {
+      for (const [season, divisions] of Object.entries(perSeason)) {
+        expect(Number(season)).toBeGreaterThan(2021);
+        for (const d of Object.keys(divisions)) expect(d).toMatch(/^(NCAA|NAIA|USCAA|NJCAA)/);
+      }
+    }
+  });
+
+  it('counts what it could and could not place', () => {
+    const p = buildCompetitivePools();
+    expect(p.placeableSeasons + p.unplaceableSeasons)
+      .toBe(db.prepare("SELECT COUNT(*) n FROM programme_seasons WHERE confidence != 'ROSTER_CONTRADICTED'").get().n);
   });
 });

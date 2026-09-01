@@ -8,11 +8,11 @@
 import { describe, it, expect } from 'vitest';
 import {
   competitiveHistory, seasonRow, seasonBenchmark, winPercentage, pointsRate,
-  SEASONS, WINDOW, UNREADABLE, MIN_POOL,
+  SEASONS, WINDOW, UNREADABLE, MIN_POOL, NO_BENCHMARK,
 } from './competitiveHistory.js';
 
-const S = (season, wins, losses, draws, confidence = 'ROSTER_CONSISTENT') =>
-  ({ season, wins, losses, draws, confidence });
+const S = (season, wins, losses, draws, confidence = 'ROSTER_CONSISTENT', historicalDivision = 'NCAA D1') =>
+  ({ season, wins, losses, draws, confidence, historicalDivision });
 const rich = [S(2022, 8, 7, 3), S(2023, 10, 5, 3), S(2024, 12, 4, 2), S(2025, 14, 3, 2)];
 
 describe('the record string', () => {
@@ -192,17 +192,21 @@ describe('highest and lowest observed seasons', () => {
 });
 
 describe('the division-and-season benchmark', () => {
-  const pool = (n, value = 0.5) => ({ rates: Array.from({ length: n }, (_, i) => value + i / (n * 100)), scope: 'NCAA D1 men’s' });
+  const pool = (n, value = 0.5) => ({
+    rates: Array.from({ length: n }, (_, i) => value + i / (n * 100)),
+    scope: 'NCAA D1 men’s',
+  });
+  const d1 = (n, v) => ({ 'NCAA D1': pool(n, v) });
 
   it('refuses a pool below the evidence floor and says how small it was', () => {
-    const b = seasonBenchmark(0.6, pool(MIN_POOL - 1));
+    const b = seasonBenchmark(0.6, pool(MIN_POOL - 1), { division: 'NCAA D1' });
     expect(b.available).toBe(false);
     expect(b.n).toBe(MIN_POOL - 1);
-    expect(b.reason).toMatch(/only 29 programmes/);
+    expect(b.reason).toMatch(/only 29 on file/);
   });
 
   it('reports a percentile, the median and the middle half', () => {
-    const b = seasonBenchmark(0.6, pool(200, 0.4));
+    const b = seasonBenchmark(0.6, pool(200, 0.4), { division: 'NCAA D1' });
     expect(b.available).toBe(true);
     expect(b.n).toBe(200);
     expect(b.percentile).toBeGreaterThan(0);
@@ -214,17 +218,17 @@ describe('the division-and-season benchmark', () => {
   // A programme sitting exactly on a very common value must not be credited
   // with beating everybody who matched it.
   it('puts a tied value at the midpoint of its own band', () => {
-    const b = seasonBenchmark(0.5, { rates: Array(100).fill(0.5), scope: 'x' });
+    const b = seasonBenchmark(0.5, { rates: Array(100).fill(0.5), scope: 'x' }, { division: 'NCAA D1' });
     expect(b.percentile).toBe(0.5);
   });
 
   it('is null rather than a midpoint when there is no pool at all', () => {
     expect(seasonBenchmark(0.6, null)).toBeNull();
-    expect(seasonBenchmark(null, pool(200))).toBeNull();
+    expect(seasonBenchmark(null, pool(200), { division: 'NCAA D1' })).toBeNull();
   });
 
   it('benchmarks each season against its own season only', () => {
-    const pools = { 2022: pool(100, 0.9), 2023: pool(100, 0.1) };
+    const pools = { 2022: d1(100, 0.9), 2023: d1(100, 0.1) };
     const h = competitiveHistory({ rows: [S(2022, 10, 5, 3), S(2023, 10, 5, 3)], pools });
     expect(h.seasons[0].benchmark.percentile).toBeLessThan(h.seasons[1].benchmark.percentile);
   });
@@ -232,6 +236,63 @@ describe('the division-and-season benchmark', () => {
   it('leaves the benchmark null where no pool was supplied', () => {
     const h = competitiveHistory({ rows: rich });
     expect(h.seasons.every((s) => s.benchmark === null)).toBe(true);
+  });
+
+  /**
+   * PHASE 12B.1 — the denominator is the season's OWN division.
+   *
+   * 12B keyed the pool on `colleges.division`, which is the CURRENT division,
+   * and Mercyhurst men's played 2022 and 2023 in D2 before moving to D1. Every
+   * internal source stamps those two seasons D1, so the report compared a D2
+   * season against 213 D1 programmes. A disclosure does not make a wrong
+   * denominator right; the refusal does.
+   */
+  it('refuses outright where the season’s division is not on file', () => {
+    const b = seasonBenchmark(0.9, pool(200), { division: null });
+    expect(b.available).toBe(false);
+    expect(b.reason).toBe(NO_BENCHMARK.DIVISION_UNKNOWN);
+    expect(b.percentile).toBeUndefined();
+  });
+
+  it('never falls back to another division’s pool', () => {
+    // Mercyhurst's shape: a D2 season, and only a D1 pool on offer.
+    const rows = [S(2022, 19, 1, 1, 'ROSTER_CONSISTENT', null)];
+    const h = competitiveHistory({ rows, pools: { 2022: d1(213, 0.3) } });
+    expect(h.seasons[0].benchmark.available).toBe(false);
+    expect(h.seasons[0].benchmark.reason).toBe(NO_BENCHMARK.DIVISION_UNKNOWN);
+  });
+
+  it('compares a D2 season only with the D2 pool, never the D1 one', () => {
+    const pools = { 2022: { 'NCAA D1': pool(213, 0.9), 'NCAA D2': pool(196, 0.1) } };
+    const rows = [S(2022, 19, 1, 1, 'ROSTER_CONSISTENT', 'NCAA D2')];
+    const h = competitiveHistory({ rows, pools });
+    expect(h.seasons[0].benchmark.available).toBe(true);
+    expect(h.seasons[0].benchmark.n).toBe(196);
+    expect(h.seasons[0].benchmark.scope).toBe('NCAA D1 men’s'); // the fixture's own label
+    // Against the D1 pool it would have landed mid-table; against its own it is top.
+    expect(h.seasons[0].benchmark.percentile).toBe(1);
+  });
+
+  // The route Phase 12C opens: one programme, two divisions, two pools.
+  it('benchmarks a programme that changed division against each season’s own pool', () => {
+    // Its strong D2 season tops a weak D2 pool; its poor D1 season sits at the
+    // bottom of a strong D1 pool. Neither is measured against the other's.
+    const pools = {
+      2022: { 'NCAA D2': pool(196, 0.10) },
+      2025: { 'NCAA D1': pool(213, 0.55) },
+    };
+    const rows = [S(2022, 19, 1, 1, 'ROSTER_CONSISTENT', 'NCAA D2'),
+      S(2025, 3, 10, 4, 'ROSTER_CONSISTENT', 'NCAA D1')];
+    const h = competitiveHistory({ rows, pools });
+    expect(h.seasons.map((s) => s.benchmark.n)).toEqual([196, 213]);
+    expect(h.seasons[0].benchmark.percentile).toBeGreaterThan(h.seasons[1].benchmark.percentile);
+  });
+
+  it('reports the season’s division on every season row', () => {
+    const h = competitiveHistory({ rows: rich });
+    expect(h.seasons.map((s) => s.historicalDivision)).toEqual(Array(4).fill('NCAA D1'));
+    expect(competitiveHistory({ rows: [{ season: 2022, wins: 1, draws: 1, losses: 1 }] })
+      .seasons[0].historicalDivision).toBeNull();
   });
 });
 

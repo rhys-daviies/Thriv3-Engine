@@ -10,12 +10,12 @@ import { describe, it, expect } from 'vitest';
 import { competitiveHistory } from '../competitiveHistory.js';
 import { competitiveFacts, benchmarkFact, coachFact, FORBIDDEN } from './competitiveFacts.js';
 
-const S = (season, wins, losses, draws, confidence = 'ROSTER_CONSISTENT') =>
-  ({ season, wins, losses, draws, confidence });
+const S = (season, wins, losses, draws, confidence = 'ROSTER_CONSISTENT', historicalDivision = 'NCAA D1') =>
+  ({ season, wins, losses, draws, confidence, historicalDivision });
 const rising = [S(2022, 8, 7, 3), S(2023, 10, 5, 3), S(2024, 12, 4, 2), S(2025, 14, 3, 2)];
 const falling = [S(2022, 19, 1, 1), S(2023, 14, 3, 1), S(2024, 8, 7, 2), S(2025, 3, 10, 4)];
 const flat = [S(2022, 10, 5, 3), S(2023, 10, 5, 3), S(2024, 10, 5, 3), S(2025, 10, 5, 3)];
-const pool = { rates: Array.from({ length: 200 }, (_, i) => i / 400), scope: 'NCAA D1 men’s' };
+const pool = { 'NCAA D1': { rates: Array.from({ length: 200 }, (_, i) => i / 400), scope: 'NCAA D1 men’s' } };
 
 const allText = (rows, extra = {}) => {
   const h = competitiveHistory({ rows, ...extra });
@@ -38,9 +38,27 @@ describe('what the facts may not say', () => {
       for (const t of texts) expect(t, t).not.toMatch(FORBIDDEN);
     });
 
+  /**
+   * PHASE 12B.1 — the contract regex must not fire on a person.
+   *
+   * Written as one alternation of bare prefixes it flagged Brandon Badgeley,
+   * Goodwin, Goodman, Badger, Poore and Weakley, because `bad` and `good` had
+   * no closing boundary. A contract test that fires on a surname is one nobody
+   * will keep. All 2,259 distinct coach names in the table now pass.
+   */
+  it('fires on no real coach name', () => {
+    for (const n of ['Brandon Badgeley', 'Chris Goodwin', 'Sarah Goodman', 'Tom Badger',
+      'Jim Poore', 'Ann Weakley', 'Ivan Trendafilov', 'Marco Improta', 'Declan Murphy',
+      'Paul Surgent', 'Nick Bettermann', 'Ed Strongman']) {
+      expect(FORBIDDEN.test(n), n).toBe(false);
+    }
+  });
+
   it('catches the words it is meant to catch', () => {
     for (const bad of ['The programme is improving.', 'Results are declining.', 'A rising programme.',
-      'Trending up.', 'strong momentum', 'their best season', 'a weak year']) {
+      'Trending up.', 'the trend', 'strong momentum', 'their best season', 'their worst season',
+      'a weak year', 'clear upward movement', 'a slump', 'surging form', 'regression to the mean',
+      'a turnaround', 'showed improvement', 'the weakest season', 'a poor return']) {
       expect(FORBIDDEN.test(bad), bad).toBe(true);
     }
   });
@@ -111,8 +129,21 @@ describe('the benchmark sentence', () => {
   });
 
   it('is null where the pool was refused', () => {
-    const small = competitiveHistory({ rows: rising, pools: { 2025: { rates: [0.4, 0.5, 0.6], scope: 'x' } } });
+    const small = competitiveHistory({ rows: rising,
+      pools: { 2025: { 'NCAA D1': { rates: [0.4, 0.5, 0.6], scope: 'x' } } } });
     expect(benchmarkFact(small.seasons.find((s) => s.season === 2025))).toBeNull();
+  });
+
+  /**
+   * PHASE 12B.1 — no sentence at all where the season's own division is
+   * unknown, which is every season until Phase 12C fills it.
+   */
+  it('says nothing where the season’s division is not on file', () => {
+    const noDiv = competitiveHistory({
+      rows: [S(2025, 14, 3, 2, 'ROSTER_CONSISTENT', null)],
+      pools: { 2025: pool },
+    });
+    expect(benchmarkFact(noDiv.seasons[0])).toBeNull();
   });
 });
 
@@ -127,7 +158,8 @@ describe('the coach sentence', () => {
     const one = att([['2022', 'PREVIOUS_COACH'], ['2023', 'PREVIOUS_COACH'], ['2024', 'PREVIOUS_COACH'],
       ['2025', 'CURRENT_COACH']].map(([season, attribution]) => ({ season, attribution })));
     const t = coachFact(competitiveHistory({ rows: rising, coachAttribution: one })).text;
-    expect(t).toBe('1 of the 4 measured competitive season was under Jane Kerr; '
+    // The noun belongs to the denominator, the verb to the numerator.
+    expect(t).toBe('1 of the 4 measured competitive seasons was under Jane Kerr; '
       + 'across that season the programme recorded 14-3-2.');
   });
 
@@ -135,6 +167,10 @@ describe('the coach sentence', () => {
     const t = coachFact(competitiveHistory({ rows: rising, coachAttribution: two })).text;
     expect(t).toBe('2 of the 4 measured competitive seasons were under Jane Kerr; '
       + 'across those seasons the programme recorded 26-7-4.');
+    // …and a one-season window keeps the singular noun.
+    const one = competitiveHistory({ rows: rising.slice(3), coachAttribution: att([
+      { season: '2025', attribution: 'PREVIOUS_COACH' }]) });
+    expect(coachFact(one).text).toMatch(/^None of the 1 measured competitive season /);
     expect(t).not.toMatch(FORBIDDEN);
     expect(t).not.toMatch(/took|led|built|turned|under (her|his) /i);
   });

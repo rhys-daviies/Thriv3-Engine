@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   tenureFor, sameCoach, normaliseCoach, isVacancy, stillInPost,
   seasonWeights, isInheritedSeason, WEIGHT_CURRENT, WEIGHT_PREVIOUS,
+  nonPersonWitness, NON_PERSON, readCoachRow, UNUSABLE,
 } from './coachTenure.js';
 
 const seq = (...names) => names.map((coach_name, i) => ({ season: 2022 + i, coach_name }));
@@ -305,5 +306,87 @@ describe('tenureFor reads the title column', () => {
   // depend on it.
   it('takes a row with a name and no title at face value', () => {
     expect(tenureFor(seq('A Coach', 'A Coach')).continuous).toBe(true);
+  });
+});
+
+/**
+ * PHASE 12B.1 — the value in the coach column is sometimes the cell beside it.
+ *
+ * Concordia College-Moorhead's 2026 head coach was on file as "Detroit Lakes",
+ * a Minnesota town, and its 2025 coach as "East Grand Forks". Both are the
+ * roster's HOMETOWN column, read one cell too far: on 34 programmes' pages the
+ * staff label ends in a colon and is followed by the roster grid.
+ *
+ * The witnesses are evidence, not resemblance. That distinction is the whole
+ * design — coaches are called Preston, Houston and Austin, and the object is to
+ * reject only where something other than the spelling says the value came from
+ * another column.
+ */
+describe('nonPersonWitness', () => {
+  it('names a high school, whatever precedes it', () => {
+    for (const n of ['Glen Allen HS', 'Alcoa HS', 'Southwest Guilford HS', 'The Forman School',
+      'Gray Collegiate Academy', 'Blue Hills Regional Tech.', "Martha's Vineyard Regional",
+      'Thetford Academy', 'Winchendon School']) {
+      expect(nonPersonWitness(n), n).toBe(NON_PERSON.INSTITUTION);
+    }
+  });
+
+  it('names a field of study', () => {
+    for (const n of ['Business Management', 'Emergency Management', 'Sports Management',
+      'Criminal Justice', 'Computer Science', 'Health Sciences', 'Communications Media',
+      'Elementary Education', 'Marine Engineering', 'Biological Sciences', 'Construction Management']) {
+      expect(nonPersonWitness(n), n).toBe(NON_PERSON.MAJOR);
+    }
+  });
+
+  /**
+   * The half that matters more. A geographic blacklist would have taken these
+   * with it; all 2,259 distinct coach names in the table pass.
+   */
+  it('leaves every real coach alone', () => {
+    for (const n of ['Rebecca Quimby', 'Austin Solomon', 'Preston Goldfarb', 'Houston Baker',
+      'Brandon Badgeley', 'Chris Goodwin', 'Sarah Goodman', 'Tom Badger', 'Ellie McDougall',
+      'Breena Proctor', 'Vanessa Fyffe', 'Kevin Cumberbatch', 'Jared Embick', 'Detroit Jones',
+      'Dallas Turner', 'Brooklyn Fisher', 'Chelsea Adams']) {
+      expect(nonPersonWitness(n), n).toBeNull();
+    }
+  });
+
+  it('is null for nothing at all', () => {
+    expect(nonPersonWitness('')).toBeNull();
+    expect(nonPersonWitness(null)).toBeNull();
+    expect(nonPersonWitness(undefined)).toBeNull();
+  });
+
+  // The canonical reader carries it, so a raw row surviving a re-import is still
+  // refused. There is one definition, and this is it.
+  it('makes the canonical reader refuse the row', () => {
+    for (const n of ['Business Management', 'Glen Allen HS']) {
+      const r = readCoachRow({ coach_name: n, coach_title: 'Head Coach:' });
+      expect(r.usable, n).toBe(false);
+      expect(r.reason, n).toBe(UNUSABLE.NOT_A_NAME);
+    }
+    expect(readCoachRow({ coach_name: 'Rebecca Quimby', coach_title: 'Head Coach:' }).usable).toBe(true);
+  });
+
+  /**
+   * A colon-terminated title is the parse path, not the verdict. 60 rows on it
+   * carry real coaches — Brendan Adams, Chris Matejka, Breena Proctor — and
+   * refusing the path would have thrown them away with the contamination.
+   */
+  it('does not refuse a row merely for having a label-shaped title', () => {
+    const r = readCoachRow({ coach_name: 'Chris Matejka', coach_title: 'Head Coach:' });
+    expect(r.usable).toBe(true);
+    expect(r.name).toBe('Chris Matejka');
+  });
+
+  it('leaves a season unresolved rather than vacant when the value is refused', () => {
+    const t = tenureFor([
+      { season: 2024, coach_name: 'Rebecca Quimby', coach_title: 'Head Coach' },
+      { season: 2025, coach_name: 'Business Management', coach_title: 'Head Coach:' },
+    ]);
+    expect(t.resolvedSeasons).toEqual([2024]);
+    expect(t.unknownSeasons).toEqual([2025]);
+    expect(t.vacantSeasons).toEqual([]);
   });
 });

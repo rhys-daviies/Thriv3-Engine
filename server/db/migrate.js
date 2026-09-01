@@ -184,6 +184,16 @@ const COACH_COLUMNS = [
   ['source', 'TEXT'],                            // which import produced the row
 ];
 
+/**
+ * The season's own division, added after `programme_seasons` first shipped.
+ *
+ * Null until Phase 12C can establish it; see the column comment in schema.sql
+ * for why no internal source can.
+ */
+const PROGRAMME_SEASON_COLUMNS = [
+  ['historical_division', 'TEXT'],
+];
+
 function addMissingColumns(db, table, columns) {
   const existing = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name));
   for (const [name, ddl] of columns) {
@@ -302,6 +312,7 @@ export function migrate(db) {
   addMissingColumns(db, 'roster_players', ROSTER_PLAYER_COLUMNS);
   addMissingColumns(db, 'colleges', COLLEGE_COLUMNS);
   addMissingColumns(db, 'coaches', COACH_COLUMNS);
+  addMissingColumns(db, 'programme_seasons', PROGRAMME_SEASON_COLUMNS);
   backfillRecruitingClassYear(db);
   backfillAcademicRatingSource(db);
 }

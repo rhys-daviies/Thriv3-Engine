@@ -138,26 +138,56 @@ claim about the sport.
 
 ## 8. The benchmark
 
-Percentile of a season's rate within **sport × division × season**. Season- and
-division-specific, both as refusals: comparing a 2022 rate against a 2025 pool
-ranks a programme against a year it did not play, and comparing across divisions
-is what the existing rating's editorial band does and this module will not.
+Percentile of a season's rate within **sport × the division that season was
+played in × season**.
 
-Pool sizes run 165–379 for every NCAA and NAIA sport-division-season. **The floor
-is 30**, which refuses USCAA — its pools hold 6 to 11 programmes and their middle
-half is twice as wide as everyone else's. The floor sits in a genuine gap in the
-data: the next pool above 11 holds 104, so any threshold in that range gives the
-same answer.
+**It is withheld everywhere today, and that is the correction Phase 12B.1
+made.** 12B keyed the pool on `colleges.division`, which is the CURRENT
+division. Mercyhurst men's played 2022 and 2023 in D2 before moving to D1, so
+the report compared a 19-1-1 D2 season against 213 D1 programmes. A disclosure
+does not make a wrong denominator right.
 
-A refused pool returns `available: false` with the count and a reason, never a
-midpoint.
+**No internal source carries the historical division.** All three per-season
+columns are stamped with the current division at import, and the proof is that
+none of them ever varies: **0 of 2,122** programme-sports in `roster_players`
+and **0 of 1,719** in `coach_seasons` have more than one distinct division
+across their seasons. Every one of the 20 archived snapshots of the source CSV,
+spanning one week of August 2025, calls Mercyhurst's 2022 season D1.
+`graduating_seniors.confirmed_division` covers a single season. Repository
+history holds nothing per-season.
+
+So `programme_seasons.historical_division` exists, is **null for all 8,685
+rows**, and the benchmark reads it and nothing else:
+
+| condition | result |
+|---|---|
+| season's own division not on file | `available: false`, reason **the division this programme played in that season is not on file** |
+| pool below 30 | `available: false`, with the count |
+| no pool for that division-season | `available: false` |
+| otherwise | percentile, median, middle half, `n`, scope |
+
+There is **no current-division fallback, no cross-division comparison and no
+`soccer_score` fallback**. A test asserts the pool build does not mention
+`colleges` at all; `colleges.division` may label the returned college row and
+may not reach a figure.
+
+The machinery is tested against the case it exists for: a D2 season offered
+both a D1 and a D2 pool takes the D2 one, and a programme with two divisions
+across its window is measured against a different pool in each season. Phase
+12C fills the column from the schedules and standings it will already be
+collecting; the pools then build themselves.
+
+**Pool sizes, when the column is filled**, from the 12B measurement: 165–379 for
+every NCAA and NAIA sport-division-season, with the floor at **30**, which
+refuses USCAA (pools of 6–11, middle half twice as wide as anyone else's). The
+floor sits in a gap in the data — the next pool above 11 holds 104.
 
 **The phrasing is about the rate, never the programme.** "The 2025 results rate
-sat in the upper quarter" is a claim about where one number fell in a list of
-numbers. "The programme was in the upper quarter" is a claim about standing
-among peers, and a season's rate is partly a property of who was scheduled. The
-pool is also close to self-referential — every match inside a division has a
-winner and a loser, so the median sits at almost exactly .500 in all 40 pools.
+sat in the upper quarter" is a claim about where one number fell in a list.
+"The programme was in the upper quarter" is a claim about standing among peers,
+and a season's rate is partly a property of who was scheduled. All 40 pools
+measured in 12B have a median within .03 of .500, because the pool is close to
+self-referential.
 
 ## 9. Coach attribution
 
@@ -177,12 +207,19 @@ the programme.
 
 ## 10. Structural change
 
-**No historical conference or division membership exists anywhere**, and this
-phase does not invent any. `programme_seasons` stores neither. A programme that
-changed division inside the window — Mercyhurst moved D2 to D1 — is benchmarked
-in all four seasons against its **current** division, which is a known limitation
-and is stated here rather than hidden behind a gate. Raw W-L-D history is not
-withheld for it: the record is the record whoever it was played against.
+**No historical conference or division membership exists anywhere**, and none is
+invented. Since 12B.1 the consequence is a refusal rather than a disclosure: a
+season whose own division is unknown gets no percentile (§8). Raw W-L-D history
+is still shown for it — the record is the record whoever it was played against.
+
+**Division change cannot be detected internally either.** The only available
+signal is disagreement between two current snapshots taken at different times,
+and it finds **2 programmes** in the report universe — Hartford men's
+(`roster_players` D1 vs `colleges` D3, a real D1→D3 reclassification) and
+Shawnee State women's (a duplicate-row artefact). It **misses Mercyhurst**,
+whose move predates every snapshot we hold. A detector with unquantifiable
+recall is worse than none, because using it would imply the undetected
+programmes are safe, so it gates nothing. It is reported and not relied on.
 
 ## 11. Non-claims
 

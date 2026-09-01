@@ -23,7 +23,7 @@ import db from '../db/client.js';
 import { parseCsvToObjects } from '../lib/csv.js';
 import { utcNow } from '../lib/time.js';
 import { matchSchoolName } from '../lib/schoolMatch.js';
-import { tenureFor } from '../../shared/coachTenure.js';
+import { tenureFor, nonPersonWitness, NON_PERSON } from '../../shared/coachTenure.js';
 
 const argv = process.argv.slice(2);
 const APPLY = argv.includes('--apply');
@@ -88,6 +88,38 @@ function main() {
   let unmatched = 0;
   const prepared = [];
 
+  /**
+   * The third non-person witness, and the only one that needs the database.
+   *
+   * A value that appears as a HOMETOWN on this programme's own roster came from
+   * the roster's hometown column, not from the staff block: Concordia
+   * College-Moorhead's 2026 coach was on file as "Detroit Lakes" and its 2025
+   * coach as "East Grand Forks", both towns a Cobbers player is from. The
+   * hometown is stored as "Bemidji, Minn.", so the city alone is indexed too,
+   * which is the form a mis-parse captures.
+   *
+   * Scoped to the SAME programme deliberately. A coach called Houston or
+   * Preston must not be refused because somebody, somewhere, is from there.
+   */
+  const hometowns = new Map();
+  for (const r of db.prepare(`SELECT college_name, sport, hometown FROM roster_players
+      WHERE hometown IS NOT NULL AND TRIM(hometown) <> ''`).all()) {
+    const key = `${r.sport}|${r.college_name}`;
+    if (!hometowns.has(key)) hometowns.set(key, new Set());
+    const set = hometowns.get(key);
+    const norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+    set.add(norm(r.hometown));
+    set.add(norm(String(r.hometown).split(',')[0]));
+  }
+  const rosterWitness = (school, sport, name) => {
+    const norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+    return (hometowns.get(`${sport}|${school}`) ?? new Set()).has(norm(name))
+      ? NON_PERSON.HOMETOWN : null;
+  };
+  const contaminated = [];
+
   for (const r of rows) {
     const sport = (r.sport || '').trim();
     const season = Number(r.season);
@@ -96,7 +128,18 @@ function main() {
     const matched = matchSchoolName(r.school, known[sport] || []) || null;
     if (!matched) { unmatched += 1; continue; }
 
-    const name = decodeEntities(r.coach_name || '').trim();
+    const raw = decodeEntities(r.coach_name || '').trim();
+    /**
+     * A confirmed non-person is written as an ABSENT name with a reason, which
+     * is what `coach_seasons` already models. Nothing downstream changes shape:
+     * `readCoachRow` sees a blank name, `tenureFor` files the season as
+     * unresolved, and no report can name a Minnesota town as a head coach.
+     * Corrected here rather than in the database so a re-import cannot undo it.
+     */
+    const witness = raw ? (nonPersonWitness(raw) ?? rosterWitness(matched, sport, raw)) : null;
+    if (witness) contaminated.push({ school: matched, sport, season, was: raw, witness,
+      title: decodeEntities(r.coach_title || '').trim() });
+    const name = witness ? '' : raw;
     bySeason[season] = bySeason[season] || { total: 0, named: 0 };
     bySeason[season].total += 1;
     if (name) bySeason[season].named += 1;
@@ -114,12 +157,24 @@ function main() {
       method: (r.method || '').trim() || null,
       confidence: (r.confidence || '').trim() || null,
       source_url: (r.source_url || '').trim() || null,
-      reason: (r.reason || '').trim() || null,
+      reason: witness ? `not-a-coach:${witness}` : ((r.reason || '').trim() || null),
     });
   }
 
   // ---- report ----
   console.log(`\n${FILE}`);
+  if (contaminated.length) {
+    const byWitness = {};
+    contaminated.forEach((c) => { byWitness[c.witness] = (byWitness[c.witness] ?? 0) + 1; });
+    console.log(`\n${contaminated.length} values refused as not a person `
+      + `(${Object.entries(byWitness).map(([k, v]) => `${k} ${v}`).join(', ')}) `
+      + `across ${new Set(contaminated.map((c) => `${c.school}|${c.sport}`)).size} programmes:`);
+    for (const c of (process.env.ALL_CONTAM ? contaminated : contaminated.slice(0, 12))) {
+      console.log(`    ${c.school.slice(0, 30).padEnd(32)}${c.sport.replace('-soccer', '').padEnd(7)}${c.season}  `
+        + `${JSON.stringify(c.was).padEnd(32)} title=${JSON.stringify(c.title)}  ${c.witness}`);
+    }
+    if (contaminated.length > 12) console.log(`    … +${contaminated.length - 12}`);
+  }
   console.log(`${rows.length} rows read, ${prepared.length} matched to a known programme`
     + (unmatched ? `, ${unmatched} unmatched school-sport rows skipped` : ''));
 

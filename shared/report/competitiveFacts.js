@@ -26,7 +26,24 @@ import { WINDOW, recordString } from '../competitiveHistory.js';
  * pressure to write one of them arrives every time somebody looks at four
  * seasons that happen to point the same way.
  */
-export const FORBIDDEN = /\b(improv|declin|rising|falling|trend|momentum|upward|downward|better|worse|best season|worst season|strong|weak|elite|poor|good|bad|surge|slump|turnaround|regress)/i;
+/**
+ * Two classes, and they need different boundaries. Written as one alternation
+ * of bare prefixes it flagged real coaches: Goodwin, Goodman, Badger, Poore,
+ * Weakley and Brandon Badgeley all matched, because `bad` and `good` were
+ * prefixes with no closing boundary. A contract test that fires on a person's
+ * surname is a contract test nobody will keep.
+ *
+ * `FAMILIES` spell out their own inflections — improve / improving /
+ * improvement — rather than matching any word that merely starts that way,
+ * because `\btrend` also matches Trendafilov. `WHOLE` are complete words.
+ */
+const FAMILIES = ['improv(?:e|es|ed|ing|ement|ements)', 'declin(?:e|es|ed|ing)',
+  'trend(?:s|ed|ing)?', 'regress(?:es|ed|ing|ion)?'];
+const WHOLE = ['rising', 'risen', 'falling', 'fallen', 'momentum', 'upward', 'downward', 'turnaround',
+  'better', 'worse', 'strong', 'stronger', 'strongest', 'weak', 'weaker', 'weakest',
+  'elite', 'poor', 'good', 'bad', 'surge', 'surging', 'slump', 'slumping'];
+export const FORBIDDEN = new RegExp(
+  `\\b(?:${FAMILIES.join('|')})\\b|\\b(?:${WHOLE.join('|')})\\b|\\b(?:best|worst) season\\b`, 'i');
 
 const pct = (v) => (v == null ? null : v.toFixed(3).replace(/^0/, ''));
 const s = (n, one, many) => `${n} ${n === 1 ? one : many}`;
@@ -138,9 +155,13 @@ export function coachFact(history) {
       + `in this report were under ${c.currentCoach}.` };
   }
   const r = c.currentCoachRecord;
-  const seasonWord = n === 1 ? 'season was' : 'seasons were';
+  // The NOUN agrees with the denominator and the VERB with the numerator:
+  // "1 of the 4 measured competitive seasons was under X". Tying both to the
+  // numerator produced "1 of the 4 ... season was" at 196 programmes.
+  const noun = total === 1 ? 'season' : 'seasons';
+  const verb = n === 1 ? 'was' : 'were';
   return { id: 'coach',
-    text: `${n} of the ${total} measured competitive ${seasonWord} under ${c.currentCoach}`
+    text: `${n} of the ${total} measured competitive ${noun} ${verb} under ${c.currentCoach}`
       + (r ? `; across ${n === 1 ? 'that season' : 'those seasons'} the programme recorded `
         + `${recordString(r.wins, r.losses, r.draws)}.` : '.') };
 }

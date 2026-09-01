@@ -364,6 +364,23 @@ CREATE TABLE IF NOT EXISTS programme_seasons (
   source TEXT NOT NULL,
   source_record_name TEXT NOT NULL,
   confidence TEXT NOT NULL,
+
+  -- THE DIVISION THIS PROGRAMME PLAYED IN *THIS SEASON*, or NULL.
+  --
+  -- Null everywhere today, and that is the honest state rather than an
+  -- oversight. No internal source carries it: `roster_players.division` and
+  -- `coach_seasons.division` are constant across every season of every
+  -- programme — 0 of 2,122 and 0 of 1,719 vary — because both are stamped with
+  -- the current division at import. Mercyhurst men's played 2022 in D2 and all
+  -- three internal columns call that season D1.
+  --
+  -- The benchmark reads THIS column and nothing else, so while it is null every
+  -- percentile refuses with a stated reason. Substituting `colleges.division`
+  -- would rank a D2 season against D1 programmes, and a disclosure does not
+  -- make a wrong denominator right. Phase 12C fills it from the schedules and
+  -- standings it will already be collecting.
+  historical_division TEXT,
+
   imported_at TEXT NOT NULL,
 
   PRIMARY KEY (college_id, season),
@@ -373,4 +390,4 @@ CREATE TABLE IF NOT EXISTS programme_seasons (
   CHECK (confidence IN ('ROSTER_CONSISTENT', 'ROSTER_CONTRADICTED', 'UNCHECKED'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_programme_seasons_pool ON programme_seasons(sport, season);
+CREATE INDEX IF NOT EXISTS idx_programme_seasons_pool ON programme_seasons(sport, season, historical_division);
