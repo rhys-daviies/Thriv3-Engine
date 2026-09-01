@@ -179,7 +179,9 @@ export function build({ artefact, programmeArtefact = null, resolvers, collegeDi
       urlOwner.set(urlKey, conferenceId);
       const hits = [];
       for (const m of s.members ?? []) {
-        const hit = resolvers.resolveProgramme(m.raw, c.sport, { conferenceId });
+        // `membersOnly`: a standings table is a membership table, and only NCAA
+        // and NAIA institutions can be in one.
+        const hit = resolvers.resolveProgramme(m.raw, c.sport, { conferenceId, membersOnly: true });
         if (!hit.collegeId) {
           quarantine.push({
             conference_id: conferenceId, sport: c.sport, season, member_raw: m.raw,
@@ -285,7 +287,7 @@ export function build({ artefact, programmeArtefact = null, resolvers, collegeDi
   for (const p of (programmeArtefact?.seasons ?? [])) {
     const season = Number(p.season);
     if (!SEASONS.includes(season)) continue;
-    const hit = resolvers.resolveProgramme(p.collegeName, p.sport);
+    const hit = resolvers.resolveProgramme(p.collegeName, p.sport, { membersOnly: true });
     if (!hit.collegeId) continue;
     const conf = resolveConference(p.conferenceRaw, { sport: p.sport });
     if (!conf.id) continue;
@@ -361,7 +363,10 @@ export function build({ artefact, programmeArtefact = null, resolvers, collegeDi
     // weaker than its own spelling: the Big Ten's "Northwestern" is exact and
     // the UMAC's is a conference tie-break, and the exact one is the claim to
     // keep. Where the strongest rung holds two claims, both are still refused.
-    const RANK = ['PROGRAMME_NAME_EXACT', 'PROGRAMME_NAME_VARIANT',
+    // A CONFERENCE-SCOPED ALIAS SITS AT THE TOP because it is the conference
+    // itself saying who it means, which no rewriting of its spelling can beat.
+    const RANK = ['PROGRAMME_VIA_CONFERENCE_SCOPED_ALIAS',
+      'PROGRAMME_NAME_EXACT', 'PROGRAMME_NAME_VARIANT',
       'PROGRAMME_VIA_OFFICIAL_MEMBERSHIP', 'PROGRAMME_VIA_CONFERENCE_AGREEMENT',
       'PROGRAMME_VIA_UNITID_NAME', 'PROGRAMME_VIA_UNITID'];
     let picked = null;

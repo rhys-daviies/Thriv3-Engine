@@ -113,6 +113,40 @@ export const CURATED_INSTITUTION_ALIASES = Object.freeze([
 ]);
 
 /**
+ * ONE CONFERENCE'S OWN SPELLING FOR ONE OF ITS MEMBERS.
+ *
+ * A bare name can mean two institutions in two conferences in the same season,
+ * and a global alias cannot represent that. The Wolverine-Hoosier Athletic
+ * Conference prints "Rochester" in its 2022 and 2023 tables and "Rochester
+ * Christian (Mich.)" in its 2024 and 2025 tables: the institution renamed
+ * (Rochester College, then Rochester University, then Rochester Christian
+ * University) and the conference's own table followed. The University Athletic
+ * Association prints the same bare "Rochester" for the University of Rochester,
+ * in Division III, across the same four seasons.
+ *
+ * THE CONFERENCE'S OWN LATER TABLE IS THE SOURCE. This is not an inference from
+ * geography or from similarity — it is the same conference naming the same
+ * member two ways, with the explicit spelling in the later seasons.
+ *
+ * A GLOBAL ALIAS HERE WOULD BE A DEFECT, and it was: for want of this scope, the
+ * WHAC's 2023 women's row published a 2023 NAIA season for the University of
+ * Rochester, a Division III programme 400 miles away, and the only reason the
+ * other three seasons did not do the same is that the UAA's own tables claimed
+ * them first and both claims were refused as double-claimed.
+ */
+export const CONFERENCE_SCOPED_ALIASES = Object.freeze([
+  {
+    conferenceScope: 'whac',
+    alias: 'Rochester',
+    unitid: 170967,
+    aliasType: ALIAS_TYPE.HISTORICAL_NAME,
+    confidence: 'CORROBORATED',
+    source: 'the Wolverine-Hoosier Athletic Conference publishes "Rochester" in its 2022 and 2023 soccer standings and "Rochester Christian (Mich.)" in its 2024 and 2025 standings; the institution renamed to Rochester Christian University',
+    notes: 'scoped: the University Athletic Association prints the same bare name for the University of Rochester',
+  },
+]);
+
+/**
  * Domains whose athletics programme is genuinely shared by several
  * institutions, and are therefore NOT wrong mappings.
  *

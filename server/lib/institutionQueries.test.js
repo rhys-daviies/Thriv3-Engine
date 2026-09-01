@@ -111,3 +111,67 @@ describe('the conference’s own membership beats a rewriting', () => {
     expect(r.resolveProgramme('Some Programme', 'mens-soccer', { conferenceId: 'haac' }).collegeId).toBe('rmac-m');
   });
 });
+
+describe('a conference’s own spelling for its own member', () => {
+  beforeEach(() => {
+    db.exec('DELETE FROM institution_aliases;');
+    db.prepare(`INSERT INTO institution_aliases
+      (alias_key, alias_raw, unitid, conference_scope, alias_type, source, confidence, imported_at)
+      VALUES ('rochester', 'Rochester', 170967, 'whac', 'HISTORICAL_NAME', 'test', 'CORROBORATED', 'x')`).run();
+  });
+
+  it('resolves the scoped spelling inside that conference only', () => {
+    college('rc-w', 'Rochester Christian University', 'womens-soccer', 'NAIA', 170967, 'MI');
+    college('ur-w', 'University of Rochester', 'womens-soccer', 'NCAA D3', 195030, 'NY');
+    const r = buildResolvers();
+    // The Wolverine-Hoosier prints "Rochester" and means Rochester Christian…
+    expect(r.resolveProgramme('Rochester', 'womens-soccer', { conferenceId: 'whac' }))
+      .toMatchObject({ collegeId: 'rc-w', method: PROGRAMME_METHOD.CONFERENCE_SCOPED_ALIAS });
+    // …and the University Athletic Association prints it and means the other one.
+    expect(r.resolveProgramme('Rochester', 'womens-soccer', { conferenceId: 'uaa' }).collegeId).toBe('ur-w');
+    // With no conference in hand, the scope cannot apply.
+    expect(r.resolveProgramme('Rochester', 'womens-soccer').collegeId).toBe('ur-w');
+  });
+
+  it('says NO_PROGRAMME_IN_SPORT where the named institution has no team here', () => {
+    college('ur-w', 'University of Rochester', 'womens-soccer', 'NCAA D3', 195030, 'NY');
+    const r = buildResolvers();
+    // The conference has told us who it means; we simply do not model them.
+    const hit = r.resolveProgramme('Rochester', 'womens-soccer', { conferenceId: 'whac' });
+    expect(hit.collegeId).toBeNull();
+    expect(hit.reason).toBe(PROGRAMME_UNRESOLVED.NO_PROGRAMME_IN_SPORT);
+    expect(hit.unitid).toBe(170967);
+  });
+});
+
+describe('a standings table is a membership table', () => {
+  it('never lets a two-year college take a four-year college’s row', () => {
+    college('okcc-m', 'Oklahoma City Community', 'mens-soccer', 'NJCAA', 207449, 'OK');
+    const r = buildResolvers();
+    // The Sooner Athletic Conference is NAIA; a junior college cannot be in it.
+    const hit = r.resolveProgramme('Oklahoma City', 'mens-soccer', { conferenceId: 'sooner', membersOnly: true });
+    expect(hit.collegeId).toBeNull();
+    expect(hit.reason).toBe(PROGRAMME_UNRESOLVED.NO_PROGRAMME_IN_SPORT);
+    expect(hit.note).toMatch(/NJCAA/);
+    // Without the flag the same call resolves, so this is a caller's constraint
+    // and not a change to what the name means.
+    expect(r.resolveProgramme('Oklahoma City', 'mens-soccer', { conferenceId: 'sooner' }).collegeId).toBe('okcc-m');
+  });
+
+  it('prefers the report-universe programme where both match', () => {
+    college('okcc-m', 'Oklahoma City Community', 'mens-soccer', 'NJCAA', 207449, 'OK');
+    college('okcu-m', 'Oklahoma City', 'mens-soccer', 'NAIA', 207458, 'OK');
+    const r = buildResolvers();
+    expect(r.resolveProgramme('Oklahoma City', 'mens-soccer', { conferenceId: 'sooner', membersOnly: true }).collegeId)
+      .toBe('okcu-m');
+  });
+
+  it('does not reject a programme that crossed an association boundary', () => {
+    // The rule is about which association can be a MEMBER, never about whether a
+    // programme's current division matches the season's.
+    college('pp-m', 'Point Park', 'mens-soccer', 'NCAA D2', 211440, 'PA');
+    const r = buildResolvers();
+    expect(r.resolveProgramme('Point Park University', 'mens-soccer', { conferenceId: 'rsc', membersOnly: true }).collegeId)
+      .toBe('pp-m');
+  });
+});

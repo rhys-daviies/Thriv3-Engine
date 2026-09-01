@@ -10,12 +10,12 @@ no later phase may quietly change.*
 | | 12C | 12D | **12E** |
 | --- | --: | --: | --: |
 | readable programme-seasons with a historical division | 19.5% | 68.6% | **83.7%** |
-| programmes with all four seasons | — | 59.2% | **77.4%** |
+| programmes with all four seasons | — | 59.2% | **77.5%** |
 | programmes with at least one season | — | 74.9% | **86.7%** |
 | benchmark pools populated | 0 of 32 | 32 of 32 | **32 of 32** |
 | smallest pool | — | 86 | **126** |
 
-**6,852 of 8,191** readable programme-seasons carry a historical division. The
+**6,857 of 8,191** readable programme-seasons carry a historical division. The
 target for this phase was 85% and the evidence supports 83.7%; the shortfall is
 reported rather than closed, because closing it would mean accepting a source
 that cannot be checked.
@@ -275,7 +275,72 @@ Any later change to these is an analytical change, not a refactor.
 3. **Twenty-nine conference-sports yielded nothing.** Twelve are genuine losses; the rest are conferences that do not sponsor the sport, or that dissolved before the window.
 4. **Six proven-wrong domains have no confirmable replacement.**
 5. **674 member rows print a name no programme claims**; 116 print a name two claim, 23 name a state that contradicts the match, and 21 are contradicted by their conference's own roster.
-6. **One identity error survives and its cause is a spine gap.** The Wolverine-Hoosier's "Rochester" is Rochester Christian University, which we do not hold, so it resolves to the University of Rochester and shows a 2023 NAIA season. The roster guard is inert here because the NAIA publishes no member directory for the guard to read.
+6. **Fixed in 12E.1.** The Wolverine-Hoosier's "Rochester" now resolves to Rochester Christian University through a conference-scoped alias, and no two-year college can take a four-year college's row. See §11.
 7. **The Middle Atlantic Conference publishes one table for both its divisions.**
 8. **Conference finish, postseason depth, goals, schedule strength and opponent strength remain deferred**, unchanged since 12A and 12C.
 9. **Two official-source conflicts remain unresolved** (Gonzaga men's 2023 and 2025).
+
+---
+
+## 11. Update — Phase 12E.1: the last identity errors
+
+**Five false published identities, one shape, two rules.**
+
+The Wolverine-Hoosier Athletic Conference prints **"Rochester"** in its 2022 and
+2023 tables and **"Rochester Christian (Mich.)"** in its 2024 and 2025 tables:
+the institution renamed mid-window and the conference's own table followed.
+"Rochester" was resolving to the **University of Rochester** — a Division III
+programme 400 miles away — and published a 2023 NAIA season for it. The other
+three seasons escaped only because the University Athletic Association's own
+tables claimed them first and both claims were refused as double-claimed; the one
+season the UAA's women's table was missing is the one that reached production.
+
+Four more of the same shape were found by an audit built for it: the Sooner
+Athletic Conference's "Oklahoma City" filed under Oklahoma City **Community**
+College, the Coast-to-Coast's "Pratt" under Pratt **Community** College, the
+UMAC's "Northland" under Northland **Pioneer** College and the American Midwest's
+"Lincoln (Ill.)" under Lincoln **Land** Community College.
+
+### Rule 1 — a conference-scoped alias
+
+`institution_aliases` gained `conference_scope`. A spelling can now mean one
+institution inside one conference's tables and another everywhere else, which is
+what the facts require: the UAA prints the same bare "Rochester" for the
+University of Rochester in the same four seasons. **A global alias here would
+have been a second defect.** The source is the conference's own later table, not
+geography and not similarity.
+
+### Rule 2 — a standings table is a membership table
+
+Every conference in the inventory came from the NCAA's or the NAIA's own
+directory, so a two-year college cannot be a member of any of them. Candidates
+outside the four report divisions are no longer eligible for a member row. Where
+a report-universe programme also matches it is chosen; where none does the row is
+refused, which costs nothing because a programme outside the report universe can
+never be rendered.
+
+**It is not a current-division test.** Mercyhurst, Point Park, Roosevelt, Thomas
+More, Carlow, Defiance, Mount Mary, UC Merced, Westmont, Vanguard, Jessup, Menlo,
+Shawnee State, Middle Georgia State, Le Moyne, New Haven, Ferrum and Jamestown
+all cross an association or division boundary legitimately, and all 32 division
+movements still stand.
+
+### What it cost and what it bought
+
+Net **+6 correct rows and −5 false ones**: Rochester Christian gained 2022 and
+2023 in both sports, and the D3 men's Rochester regained the UAA seasons the
+double-claim had been eating. Coverage is unchanged at 83.7%.
+
+**Whole-universe sweep: 0 wrong institutions, 0 unresolved identities published,
+0 ambiguous identities published, 0 state conflicts, 0 programmes in two
+conferences. V1 package sweep over all 2,125 programmes: 0 impossible divisions,
+0 movements without evidence, 0 benchmarks without a division, 0 records without
+a membership.**
+
+### The baseline-invariant count
+
+12E's report said "111 passed (12D: 111 → same count, 16 new)". The parenthetical
+was wrong: the current number had been copied into the historical slot. Measured
+by checking out each commit's own file and running it, the counts are **main 61,
+12D 95, 12E 111, 12E.1 113**. No test was changed to fit the narrative; the
+sentence was wrong and the numbers were always right.

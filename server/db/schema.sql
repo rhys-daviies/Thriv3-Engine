@@ -413,9 +413,21 @@ CREATE INDEX IF NOT EXISTS idx_programme_seasons_pool ON programme_seasons(sport
 -- decides which institution a fetched page belongs to.
 -- ===========================================================================
 CREATE TABLE IF NOT EXISTS institution_aliases (
-  alias_key TEXT PRIMARY KEY,     -- normaliseInstitution(alias_raw)
+  alias_key TEXT NOT NULL,        -- normaliseInstitution(alias_raw)
   alias_raw TEXT NOT NULL,
   unitid INTEGER NOT NULL,
+
+  -- ONE CONFERENCE'S OWN SPELLING, where the bare name means something else
+  -- everywhere else. '*' is global; a conference id scopes the alias to the
+  -- tables that conference publishes.
+  --
+  -- The Wolverine-Hoosier prints "Rochester" in 2022 and 2023 and "Rochester
+  -- Christian (Mich.)" in 2024 and 2025 — the institution renamed mid-window and
+  -- the conference's own table followed. A GLOBAL "Rochester" alias would be
+  -- wrong: the University Athletic Association prints the same bare name for the
+  -- University of Rochester, in Division III, in the same seasons. Scoping it is
+  -- what lets both be right.
+  conference_scope TEXT NOT NULL DEFAULT '*',
 
   alias_type TEXT NOT NULL,
   source TEXT NOT NULL,           -- 'colleges.name', a URL, or a curated note
@@ -426,10 +438,13 @@ CREATE TABLE IF NOT EXISTS institution_aliases (
   CHECK (alias_type IN ('CURRENT_NAME', 'HISTORICAL_NAME', 'OFFICIAL_ABBREVIATION',
                         'ATHLETICS_NAME', 'MERGER_NAME', 'RENAMED_INSTITUTION',
                         'CONFERENCE_DISPLAY_NAME')),
-  CHECK (confidence IN ('CERTAIN', 'CORROBORATED', 'CURATED'))
+  CHECK (confidence IN ('CERTAIN', 'CORROBORATED', 'CURATED')),
+
+  PRIMARY KEY (alias_key, conference_scope)
 );
 
 CREATE INDEX IF NOT EXISTS idx_institution_aliases_unitid ON institution_aliases(unitid);
+CREATE INDEX IF NOT EXISTS idx_institution_aliases_scope ON institution_aliases(conference_scope);
 
 -- ===========================================================================
 -- athletics_domains — which institution a host actually belongs to

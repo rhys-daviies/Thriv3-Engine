@@ -547,8 +547,20 @@ group('IDENTITY — the wrong-institution regressions');
       row?.unitid == null || wrongMappings.some((m) => m.claimantUnitid === wrongUnitid),
       `status ${row?.status}, also claimed by ${alsoClaimedBy}`);
   }
-  check('every alias in the table names exactly one institution',
-    db.prepare('SELECT COUNT(*) n FROM (SELECT alias_key FROM institution_aliases GROUP BY alias_key HAVING COUNT(DISTINCT unitid) > 1)').get().n === 0);
+  // WITHIN A SCOPE. The same spelling deliberately names two institutions in two
+  // conferences: the Wolverine-Hoosier's "Rochester" is Rochester Christian and
+  // the University Athletic Association's is the University of Rochester, in the
+  // same seasons. That is what the scope is for, and an unscoped version of this
+  // check would forbid the fix.
+  check('every alias names exactly one institution within its scope',
+    db.prepare(`SELECT COUNT(*) n FROM (SELECT alias_key, conference_scope FROM institution_aliases
+                 GROUP BY alias_key, conference_scope HAVING COUNT(DISTINCT unitid) > 1)`).get().n === 0);
+  check('a conference-scoped alias is only ever read with its conference',
+    /scoped\.get\(`\$\{normaliseInstitution/.test(SOURCE('../lib/institutionQueries.js'))
+      && /if \(conferenceId\) \{\n\s+const unitid = scoped\.get/.test(SOURCE('../lib/institutionQueries.js')));
+  check('a two-year college is never published as a conference member',
+    db.prepare(`SELECT COUNT(*) n FROM programme_conference_seasons x JOIN colleges c ON c.id = x.college_id
+                 WHERE c.division NOT IN ('NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA')`).get().n === 0);
   check('no programme is filed under two conferences in one season',
     db.prepare(`SELECT COUNT(*) n FROM (SELECT college_id, season FROM programme_conference_seasons
                  GROUP BY college_id, season HAVING COUNT(*) > 1)`).get().n === 0);
@@ -591,7 +603,8 @@ group('COMPETITIVE V1 — the whole universe');
     zero(`SELECT COUNT(*) n FROM programme_conference_seasons
            WHERE identity_method NOT IN ('PROGRAMME_NAME_EXACT', 'PROGRAMME_NAME_VARIANT',
              'PROGRAMME_VIA_UNITID', 'PROGRAMME_VIA_UNITID_NAME',
-             'PROGRAMME_VIA_CONFERENCE_AGREEMENT', 'PROGRAMME_VIA_OFFICIAL_MEMBERSHIP')`) === 0);
+             'PROGRAMME_VIA_CONFERENCE_AGREEMENT', 'PROGRAMME_VIA_OFFICIAL_MEMBERSHIP',
+             'PROGRAMME_VIA_CONFERENCE_SCOPED_ALIAS')`) === 0);
   check('no programme is filed under two conferences in one season',
     zero(`SELECT COUNT(*) n FROM (SELECT college_id, season FROM programme_conference_seasons
            GROUP BY college_id, season HAVING COUNT(*) > 1)`) === 0);

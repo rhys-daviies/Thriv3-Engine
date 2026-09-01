@@ -187,3 +187,35 @@ describe('missing is never zero', () => {
     expect(p.seasons[0].conferenceMatches).toBeNull();
   });
 });
+
+describe('a false identity would show up as an impossible package', () => {
+  it('never carries a division outside the four this product reports', () => {
+    // The shape the Rochester defect took: a Division III programme with an
+    // NAIA season, from a conference table that printed a bare shared name.
+    const p = competitivePackage({
+      history: competitiveHistory({ rows: FOUR.map((y) => season(y, 10, 4, 5, 'NCAA D3')), pools: pools('NCAA D3') }),
+      structural: structuralOf(FOUR.map((y) => ({ season: y, conferenceId: 'uaa', conferenceName: 'University Athletic Association', historicalDivision: 'NCAA D3' }))),
+    });
+    for (const s of p.seasons) expect(['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA']).toContain(s.historicalDivision);
+    expect(p.structuralFacts.some((f) => f.kind === 'DIVISION_CHANGE')).toBe(false);
+  });
+
+  it('produces no division-change fact from a single contaminated season', () => {
+    // One NAIA season among three Division III ones is exactly what a false
+    // identity looks like; if it ever happens again the fact must name both
+    // seasons it comes from, and both must be on file.
+    const rows = [
+      { season: 2023, conferenceId: 'whac', conferenceName: 'Wolverine-Hoosier Athletic Conference', historicalDivision: 'NAIA' },
+      { season: 2024, conferenceId: 'uaa', conferenceName: 'University Athletic Association', historicalDivision: 'NCAA D3' },
+      { season: 2025, conferenceId: 'uaa', conferenceName: 'University Athletic Association', historicalDivision: 'NCAA D3' },
+    ];
+    const p = competitivePackage({
+      history: competitiveHistory({ rows: [2023, 2024, 2025].map((y) => season(y, 10, 4, 5, y === 2023 ? 'NAIA' : 'NCAA D3')), pools: pools('NCAA D3') }),
+      structural: structuralOf(rows),
+    });
+    const change = p.structuralFacts.find((f) => f.kind === 'DIVISION_CHANGE');
+    expect(change.seasons).toEqual([2023, 2024]);
+    const shown = new Set(p.seasons.map((s) => s.season));
+    for (const y of change.seasons) expect(shown.has(y)).toBe(true);
+  });
+});

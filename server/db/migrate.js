@@ -205,6 +205,33 @@ const COACH_COLUMNS = [
  * 12D wrote — every one of them came from a conference's own standings table
  * and carried a record — so an existing table upgrades without a rebuild.
  */
+/**
+ * Phase 12E.1 added a conference scope to `institution_aliases`. Every row 12E
+ * wrote is global, which is what the default says, so an existing table upgrades
+ * without a rebuild — but the primary key changes with it, so the table is
+ * rebuilt where the old single-column key is still in place.
+ */
+function scopeInstitutionAliases(db) {
+  if (!db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'institution_aliases'").get().n) return;
+  const cols = db.prepare('PRAGMA table_info(institution_aliases)').all();
+  if (cols.some((c) => c.name === 'conference_scope')) return;
+  const names = cols.map((c) => c.name).join(', ');
+  db.exec(`
+    ALTER TABLE institution_aliases RENAME TO institution_aliases_pre_12e1;
+    CREATE TABLE institution_aliases (
+      alias_key TEXT NOT NULL, alias_raw TEXT NOT NULL, unitid INTEGER NOT NULL,
+      conference_scope TEXT NOT NULL DEFAULT '*',
+      alias_type TEXT NOT NULL, source TEXT NOT NULL, confidence TEXT NOT NULL,
+      notes TEXT, imported_at TEXT NOT NULL,
+      PRIMARY KEY (alias_key, conference_scope)
+    );
+    INSERT INTO institution_aliases (${names}) SELECT ${names} FROM institution_aliases_pre_12e1;
+    DROP TABLE institution_aliases_pre_12e1;
+    CREATE INDEX IF NOT EXISTS idx_institution_aliases_unitid ON institution_aliases(unitid);
+    CREATE INDEX IF NOT EXISTS idx_institution_aliases_scope ON institution_aliases(conference_scope);
+  `);
+}
+
 const PCS_COLUMNS = [
   ['membership_provenance', "TEXT NOT NULL DEFAULT 'OFFICIAL_CONFERENCE_STANDINGS'"],
   ['record_status', "TEXT NOT NULL DEFAULT 'RECORD_KNOWN'"],
@@ -337,6 +364,7 @@ export function migrate(db) {
   addMissingColumns(db, 'colleges', COLLEGE_COLUMNS);
   addMissingColumns(db, 'coaches', COACH_COLUMNS);
   retireProgrammeSeasonDivision(db);
+  scopeInstitutionAliases(db);
   if (db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'programme_conference_seasons'").get().n) {
     addMissingColumns(db, 'programme_conference_seasons', PCS_COLUMNS);
   }

@@ -26,7 +26,7 @@
 import db from '../db/client.js';
 import { utcNow } from '../lib/time.js';
 import { normaliseInstitution, ALIAS_TYPE, parseInstitutionName } from '../../shared/institutionIdentity.js';
-import { CURATED_INSTITUTION_ALIASES } from '../../shared/institutionAliasData.js';
+import { CURATED_INSTITUTION_ALIASES, CONFERENCE_SCOPED_ALIASES } from '../../shared/institutionAliasData.js';
 
 const argv = process.argv.slice(2);
 const APPLY = argv.includes('--apply');
@@ -73,26 +73,30 @@ export function athleticsNameAliases(rows) {
   return out;
 }
 
-export function aliasRows({ colleges, curated = CURATED_INSTITUTION_ALIASES, athletics = [], now = utcNow() }) {
+export function aliasRows({
+  colleges, curated = CURATED_INSTITUTION_ALIASES, athletics = [],
+  scoped = CONFERENCE_SCOPED_ALIASES, now = utcNow(),
+} = {}) {
   const rows = new Map();      // alias_key -> row
   const collisions = [];
   const skippedNoUnitid = [];
 
-  const add = (raw, unitid, aliasType, source, confidence, notes = null) => {
-    const key = normaliseInstitution(raw);
-    if (!key) return;
+  const add = (raw, unitid, aliasType, source, confidence, notes = null, scope = '*') => {
+    const key = `${normaliseInstitution(raw)}|${scope}`;
+    if (!normaliseInstitution(raw)) return;
     const prev = rows.get(key);
     if (prev) {
       if (prev.unitid !== unitid) {
         collisions.push({ alias: raw, key, unitids: [prev.unitid, unitid], sources: [prev.source, source] });
         rows.delete(key);
         // Remember the refusal so a third claimant cannot quietly re-create it.
-        rows.set(key, { refused: true, alias_key: key });
+        rows.set(key, { refused: true, alias_key: normaliseInstitution(raw), conference_scope: scope });
       }
       return;
     }
     rows.set(key, {
-      alias_key: key, alias_raw: raw, unitid, alias_type: aliasType,
+      alias_key: normaliseInstitution(raw), alias_raw: raw, unitid,
+      conference_scope: scope, alias_type: aliasType,
       source, confidence, notes, imported_at: now,
     });
   };
@@ -108,6 +112,11 @@ export function aliasRows({ colleges, curated = CURATED_INSTITUTION_ALIASES, ath
   }
   for (const a of curated) {
     add(a.alias, a.unitid, a.aliasType, a.source, a.confidence, a.notes ?? null);
+  }
+  // Conference-scoped last, so a scope can never be shadowed by a global entry
+  // — they live under a different key and are consulted first at read time.
+  for (const a of scoped) {
+    add(a.alias, a.unitid, a.aliasType, a.source, a.confidence, a.notes ?? null, a.conferenceScope);
   }
 
   const usable = [...rows.values()].filter((r) => !r.refused);
@@ -127,6 +136,7 @@ export function run({ apply = false, log = console.log } = {}) {
   log(`rows with no unitid    : ${skippedNoUnitid.length}`);
   log(`curated aliases        : ${CURATED_INSTITUTION_ALIASES.length}`);
   log(`athletics-name aliases : ${athletics.length} offered from ${domains.length} audited domains`);
+  log(`conference-scoped aliases: ${CONFERENCE_SCOPED_ALIASES.length}`);
   log(`aliases to write       : ${rows.length}`);
   log(`collisions refused     : ${collisions.length}`);
   for (const c of collisions) log(`  REFUSED  "${c.alias}" claimed by ${c.unitids.join(' and ')}`);
@@ -135,8 +145,8 @@ export function run({ apply = false, log = console.log } = {}) {
   if (!apply) { log('\ndry run — pass --apply to write'); return { rows, collisions, skippedNoUnitid, written: 0 }; }
 
   const ins = db.prepare(`INSERT INTO institution_aliases
-    (alias_key, alias_raw, unitid, alias_type, source, confidence, notes, imported_at)
-    VALUES (@alias_key, @alias_raw, @unitid, @alias_type, @source, @confidence, @notes, @imported_at)`);
+    (alias_key, alias_raw, unitid, conference_scope, alias_type, source, confidence, notes, imported_at)
+    VALUES (@alias_key, @alias_raw, @unitid, @conference_scope, @alias_type, @source, @confidence, @notes, @imported_at)`);
   const write = db.transaction((all) => {
     db.prepare('DELETE FROM institution_aliases').run();
     for (const r of all) ins.run(r);

@@ -19,6 +19,7 @@ export const PROGRAMME_METHOD = Object.freeze({
   NAME_VARIANT: 'PROGRAMME_NAME_VARIANT',       // a closed rewriting of it is
   CONFERENCE_AGREEMENT: 'PROGRAMME_VIA_CONFERENCE_AGREEMENT', // two sources name the same conference
   OFFICIAL_MEMBERSHIP: 'PROGRAMME_VIA_OFFICIAL_MEMBERSHIP',   // the association's own record names it
+  CONFERENCE_SCOPED_ALIAS: 'PROGRAMME_VIA_CONFERENCE_SCOPED_ALIAS', // this conference's own spelling for its own member
   UNITID: 'PROGRAMME_VIA_UNITID',               // the institution resolved and fields one team
   UNITID_THEN_NAME: 'PROGRAMME_VIA_UNITID_NAME', // it fields several, and the name chose
 });
@@ -32,8 +33,17 @@ export const PROGRAMME_UNRESOLVED = Object.freeze({
 });
 
 function loadAliases() {
-  const rows = db.prepare('SELECT alias_raw, unitid, alias_type FROM institution_aliases').all();
+  const rows = db.prepare(
+    "SELECT alias_raw, unitid, alias_type FROM institution_aliases WHERE conference_scope = '*'").all();
   return rows.map((r) => ({ alias: r.alias_raw, unitid: r.unitid, aliasType: r.alias_type }));
+}
+
+/** Aliases that hold only inside one conference's own tables. */
+function loadScopedAliases() {
+  try {
+    return db.prepare(
+      "SELECT alias_key, alias_raw, unitid, conference_scope FROM institution_aliases WHERE conference_scope <> '*'").all();
+  } catch { return []; }
 }
 
 function loadColleges() {
@@ -51,7 +61,7 @@ function loadColleges() {
  * several programmes in one sport — the three PennWest campuses share a UNITID
  * — the name decides between them or nothing does.
  */
-export function buildResolvers({ aliases = null, colleges = null } = {}) {
+export function buildResolvers({ aliases = null, colleges = null, scopedAliases = null } = {}) {
   const collegeRows = colleges ?? loadColleges();
   const states = {};
   for (const c of collegeRows) if (c.unitid != null && c.state) states[c.unitid] = c.state;
@@ -130,6 +140,19 @@ export function buildResolvers({ aliases = null, colleges = null } = {}) {
    * snapshot is simply absent from it — silence rather than contradiction — so
    * genuine movers are unaffected, and an exact name is never questioned by it.
    */
+  /**
+   * THE CONFERENCE'S OWN SPELLING, CONSULTED BEFORE ANY REWRITING.
+   *
+   * A conference-scoped alias is the conference telling us who it means, so it
+   * outranks every generated variant — including one derived from a whole
+   * written-down name. It is the only place in this module where a curated row
+   * beats the ladder, and it is scoped to the tables that conference publishes.
+   */
+  const scoped = new Map();
+  for (const a of (scopedAliases ?? loadScopedAliases())) {
+    scoped.set(`${a.alias_key}|${a.conference_scope}`, Number(a.unitid));
+  }
+
   const contradictedByOfficialRoster = (raw, matchedUnitid, conferenceId) => {
     const roster = officialRoster.get(conferenceId);
     if (!roster) return null;
@@ -153,9 +176,37 @@ export function buildResolvers({ aliases = null, colleges = null } = {}) {
    *   overrides an unambiguous match and never invents one: where two
    *   candidates or none belong to that conference, the row stays refused.
    */
-  function resolveProgramme(raw, sport, { divisions = null, conferenceId = null } = {}) {
+  /**
+   * A CONFERENCE STANDINGS TABLE IS A MEMBERSHIP TABLE, and only NCAA and NAIA
+   * institutions can be in one.
+   *
+   * Every conference in the inventory came from the NCAA's or the NAIA's own
+   * directory, so a two-year college cannot be a member of any of them. Our own
+   * table holds 249 NJCAA and USCAA programmes anyway, and their names generate
+   * short variants that were stealing rows from the four-year colleges the
+   * tables actually meant: the Sooner Athletic Conference's "Oklahoma City" was
+   * filed under Oklahoma City Community College, the Coast-to-Coast's "Pratt"
+   * under Pratt Community College, the UMAC's "Northland" under Northland
+   * Pioneer College and the American Midwest's "Lincoln (Ill.)" under Lincoln
+   * Land Community College. Four false identities, one shape.
+   *
+   * It is a candidate filter, never a rejection of a row: where a report-universe
+   * programme also matches, that programme is chosen, and where none does the row
+   * is refused rather than published. A refused row costs nothing, because a
+   * programme outside the report universe can never be rendered.
+   *
+   * Note what this is NOT. It does not compare a programme's CURRENT division
+   * with the conference's — real movers depend on those differing, and
+   * Mercyhurst, Point Park, Roosevelt, Thomas More, Carlow, Defiance and Mount
+   * Mary all cross an association boundary legitimately. It only excludes
+   * candidates whose association makes membership impossible.
+   */
+  const REPORT_UNIVERSE = new Set(['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA']);
+
+  function resolveProgramme(raw, sport, { divisions = null, conferenceId = null, membersOnly = false } = {}) {
     const names = bySportName.get(sport);
     if (!names) return { collegeId: null, raw, reason: PROGRAMME_UNRESOLVED.NO_PROGRAMME_IN_SPORT };
+    const eligible = (row) => !membersOnly || REPORT_UNIVERSE.has(row.division);
     // A STATE THE SOURCE WROTE IS A VETO, not a hint. The PSAC prints
     // "California (Pa.)" and the rewriting that strips the qualifier leaves
     // "California", which is the University of California's row in our own
@@ -165,17 +216,42 @@ export function buildResolvers({ aliases = null, colleges = null } = {}) {
     const { state } = parseInstitutionName(raw);
     const agrees = (row) => !state || !row.state || row.state === state;
 
+    // The conference's own spelling for its own member comes first.
+    if (conferenceId) {
+      const unitid = scoped.get(`${normaliseInstitution(parseInstitutionName(raw).base)}|${conferenceId}`);
+      if (unitid != null) {
+        const rows = (bySportUnitid.get(sport)?.get(unitid) ?? [])
+          .filter((r) => (!divisions || divisions.includes(r.division)) && eligible(r));
+        if (rows.length === 1) {
+          return {
+            collegeId: rows[0].id, name: rows[0].name, unitid,
+            division: rows[0].division, method: PROGRAMME_METHOD.CONFERENCE_SCOPED_ALIAS, raw,
+          };
+        }
+        // The conference has told us who it means and we do not model that
+        // programme. That is a known institution, not an unknown name.
+        return {
+          collegeId: null, raw, unitid,
+          reason: rows.length ? PROGRAMME_UNRESOLVED.AMBIGUOUS : PROGRAMME_UNRESOLVED.NO_PROGRAMME_IN_SPORT,
+          candidates: rows.map((r) => r.id),
+        };
+      }
+    }
+
     // A veto is recorded and the search CONTINUES. "California (Pa.)" hits our
     // "California" first — the wrong state, so refused — and the row it means
     // is only reachable through the alias table further down.
     let vetoed = null;
+    let ineligible = null;
     const exact = names.get(normaliseInstitution(raw));
-    if (exact && agrees(exact)) return { collegeId: exact.id, name: exact.name, unitid: exact.unitid, division: exact.division, method: PROGRAMME_METHOD.NAME_EXACT, raw };
-    if (exact) vetoed = exact;
+    if (exact && agrees(exact) && eligible(exact)) return { collegeId: exact.id, name: exact.name, unitid: exact.unitid, division: exact.division, method: PROGRAMME_METHOD.NAME_EXACT, raw };
+    if (exact && !agrees(exact)) vetoed = exact;
+    if (exact && agrees(exact) && !eligible(exact)) ineligible = ineligible ?? exact;
     for (const map of [names, bySportVariant.get(sport) ?? new Map()]) {
       for (const v of institutionVariants(raw)) {
         const hit = map.get(v);
         if (!hit) continue;
+        if (agrees(hit) && !eligible(hit)) { ineligible = ineligible ?? hit; continue; }
         if (agrees(hit)) {
           const better = conferenceId ? contradictedByOfficialRoster(raw, hit.unitid, conferenceId) : null;
           if (better) {
@@ -192,12 +268,20 @@ export function buildResolvers({ aliases = null, colleges = null } = {}) {
     const inst = resolver.resolve(raw);
     if (!inst.unitid) {
       if (vetoed) return { collegeId: null, raw, reason: PROGRAMME_UNRESOLVED.STATE_CONFLICT, candidates: [vetoed.id] };
+      if (ineligible) {
+        return {
+          collegeId: null, raw, unitid: ineligible.unitid,
+          reason: PROGRAMME_UNRESOLVED.NO_PROGRAMME_IN_SPORT,
+          candidates: [ineligible.id],
+          note: `the only match is ${ineligible.name}, which is ${ineligible.division} and cannot be a member of an NCAA or NAIA conference`,
+        };
+      }
       // A spelling several institutions share, and a conference that published
       // it. Exactly one of the candidates whose OWN conference string names
       // this conference is the member; two or none leaves it refused.
       if (inst.reason === IDENTITY_UNRESOLVED.AMBIGUOUS && conferenceId && inst.candidates) {
         const inConf = byConference.get(`${conferenceId}|${sport}`) ?? new Set();
-        const hits = collegeRows.filter((c) => c.sport === sport && inst.candidates.includes(c.unitid) && inConf.has(c.id));
+        const hits = collegeRows.filter((c) => c.sport === sport && inst.candidates.includes(c.unitid) && inConf.has(c.id) && eligible(c));
         if (hits.length === 1) {
           return { collegeId: hits[0].id, name: hits[0].name, unitid: hits[0].unitid, division: hits[0].division, method: PROGRAMME_METHOD.CONFERENCE_AGREEMENT, raw };
         }
@@ -205,7 +289,7 @@ export function buildResolvers({ aliases = null, colleges = null } = {}) {
         // conference string does not — it is stale for the seven programmes
         // that changed division and absent for some women's rows.
         const official = officialMembers.get(conferenceId) ?? new Set();
-        const off = collegeRows.filter((c) => c.sport === sport && inst.candidates.includes(c.unitid) && official.has(c.unitid));
+        const off = collegeRows.filter((c) => c.sport === sport && inst.candidates.includes(c.unitid) && official.has(c.unitid) && eligible(c));
         if (off.length === 1) {
           return { collegeId: off[0].id, name: off[0].name, unitid: off[0].unitid, division: off[0].division, method: PROGRAMME_METHOD.OFFICIAL_MEMBERSHIP, raw };
         }
@@ -213,7 +297,7 @@ export function buildResolvers({ aliases = null, colleges = null } = {}) {
       return { collegeId: null, raw, reason: inst.reason, candidates: inst.candidates ?? null };
     }
     const rows = (bySportUnitid.get(sport)?.get(inst.unitid) ?? [])
-      .filter((r) => (!divisions || divisions.includes(r.division)) && agrees(r));
+      .filter((r) => (!divisions || divisions.includes(r.division)) && agrees(r) && eligible(r));
     if (rows.length === 1) {
       return { collegeId: rows[0].id, name: rows[0].name, unitid: rows[0].unitid, division: rows[0].division, method: PROGRAMME_METHOD.UNITID, raw };
     }
