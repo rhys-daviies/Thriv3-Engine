@@ -674,3 +674,91 @@ remaining gap 0.5pt** at the arrival card on the shortest box.
 4. **The `observedNames.length > 1` branch is rare.** It needs every measured
    season resolved, two names, and the season between them both unresolved and
    unmeasured. Covered by a unit test; not observed in the current database.
+
+
+---
+
+# PHASE 12B.1 — the coach column sometimes holds the cell beside it
+
+Found while building Competitive History: Concordia College-Moorhead women's
+head coach was on file as **"Detroit Lakes"** for 2026 and **"East Grand
+Forks"** for 2025. Both are towns in Minnesota.
+
+## 32. Root cause
+
+Not a name problem — a **column** problem. The rows are `method: roster-live`,
+`confidence: High`, from `gocobbers.com/sports/wsoc/2025-26/roster`, and the
+2022–2024 rows from the same path are correct. The difference is in the title:
+
+| season | `coach_title` | `coach_name` |
+|---|---|---|
+| 2022–24 | `Head Coach` | Rebecca Quimby |
+| 2025 | **`Head Coach:`** | East Grand Forks |
+| 2026 | **`Head Coach:`** | Detroit Lakes |
+
+A **trailing colon** means the scraper matched a page *label* rather than a
+staff entry, and took the next text node — which on a roster page is the grid:
+hometown, high school, major. 104 rows across 34 programmes are on that path.
+
+The path is a strong correlate and **not** the verdict: 60 of those rows carry
+real coaches — Brendan Adams, Chris Matejka, Breena Proctor — so refusing the
+path would have thrown them away with the contamination. Six contaminated rows
+have no colon at all.
+
+## 33. The three witnesses
+
+Precision first. Each is independent evidence from a source other than the
+name's own spelling, because a geographic blacklist would reject Preston,
+Houston and Austin, and the object is not to maximise rejections.
+
+| witness | test | rows |
+|---|---|--:|
+| `hometown-on-own-roster` | the value appears as a hometown on **this programme's** roster | 5 |
+| `academic-major` | the whole string is a field of study | 31 |
+| `institution-name` | the string ends in HS / Academy / Regional / School / Prep / Tech | 15 |
+| | **total** | **51** |
+
+Scoped to the same programme deliberately, so nobody is refused because a
+player somewhere is from a town that shares their name. All 51 were inspected
+individually: every one is a hometown, a major or a high school. **0 false
+positives.** All 2,259 distinct coach names in the table pass.
+
+## 34. The fix
+
+Two shape witnesses live in `nonPersonWitness` in `shared/coachTenure.js`,
+beside `readCoachRow` and `NOT_A_NAME` — **one definition, no second parser**,
+and the canonical reader consults it so a raw row surviving a re-import is still
+refused. The roster witness needs the roster and lives in
+`importCoachTenure.js`, which has it.
+
+Corrected **in the loader, not in the database**, so a re-import cannot undo it.
+A refused value is written the way `coach_seasons` already models an absence:
+`coach_name = NULL`, `reason = 'not-a-coach:<witness>'`. Nothing downstream
+changes shape — `readCoachRow` sees a blank name, `tenureFor` files the season
+unresolved, and no report can name a Minnesota town as a head coach.
+
+Not done: mining the real name out of the title. Only **1 of 46** flagged rows
+has one there (Worcester State women's 2025, `Head Coach: Kevin Cumberbatch
+(18th Season)`), and a second downstream heuristic exercised once is worse than
+a refusal. It belongs in the scraper.
+
+## 35. Effect
+
+**5 programmes had a non-person as their current head coach and no longer do:**
+Bridgewater State women's (*Blue Hills Regional Tech.*), Concordia-Moorhead
+women's (*Detroit Lakes*), Mount Holyoke women's (*Biological Sciences*),
+Tusculum women's (*F.W. Springstead HS*), Wentworth men's (*Mechanical
+Engineering*). At three of them `tenureFor` now recovers the last real coach it
+can read — Rebecca Quimby, Breena Proctor, Vanessa Fyffe — while the attribution
+correctly reports the 2026 post as unresolved. Those are two different questions.
+
+**0 verdicts changed**, because none of the five has readable minutes and so
+none has a verdict. The `727 continuity claims, 0 unsupported` invariant is
+unchanged. Marist's strength coach is still refused; interim and co-head
+behaviour is untouched.
+
+**60 rows remain AMBIGUOUS** — real-looking names on the colon path, plus about
+a dozen high schools with no suffix marker to catch them by (*West Fargo
+Sheyenne*, *Trabuco Hills*, *Forest Hills Northern*, *L'Anse Creuse North*,
+*St. Francis DeSales*). They are named in the audit and left alone: refusing
+them needs an external check, not a cleverer regex.

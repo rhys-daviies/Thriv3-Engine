@@ -18,6 +18,9 @@
  * Exit code is the number of failed invariants, so it can gate a merge.
  */
 import zlib from 'node:zlib';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import db from '../db/client.js';
 import { programReportModel } from '../routes/philosophy.js';
 import { renderProgramReport } from '../lib/philosophyReport.js';
@@ -40,8 +43,28 @@ import { MIN_MEASURED_SHARE } from '../../shared/freshmanMinutes.js';
 import { readableRows } from '../../shared/lifecycle/readable.js';
 import { tenureFor, sameCoach } from '../../shared/coachTenure.js';
 import { programmePhilosophy } from '../../shared/philosophy.js';
+import { competitiveHistoryFor, competitivePools } from '../lib/competitiveQueries.js';
+import { MIN_POOL } from '../../shared/competitiveHistory.js';
+import { DIVISIONS } from '../../shared/conferenceHistory.js';
+import { buildResolvers } from '../lib/institutionQueries.js';
+import { competitivePackageFor } from '../lib/conferenceQueries.js';
+import {
+  readerSentences, FORBIDDEN_READER_LANGUAGE, V1_FIELDS, COACH_INTEGRATION,
+} from '../../shared/report/competitivePackage.js';
+import { FORBIDDEN as FORBIDDEN_STRUCTURAL } from '../../shared/report/structuralFacts.js';
+import { render } from '../lib/philosophyPdf.js';
+import { createAudit, describeViolations } from '../lib/reportAudit.js';
+import {
+  competitiveHistoryPage, competitiveEnvironmentPage, competitiveSentences, benchmarkLabel,
+  BENCHMARK_LABEL,
+} from '../lib/reportCompetitive.js';
+import { competitiveEnvironmentIsWorthAPage } from '../../shared/report/sections.js';
 
 // ---------------------------------------------------------------------------
+
+/** Source-level assertions read the module text, the same way the suites do. */
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const SOURCE = (f) => fs.readFileSync(path.join(HERE, f), 'utf8');
 
 let failed = 0;
 let passed = 0;
@@ -381,6 +404,427 @@ for (const [name, sport] of [['Akron', 'womens-soccer'], ['Grand Valley State', 
     `${nfInt(s.weightedLadderTop.median)} min`);
   check(`${name} women’s still states it in full on the evidence page`,
     /current-coach relevance/i.test(text) && /Neither replaces the other/i.test(text));
+}
+
+/**
+ * STRUCTURAL HISTORY — the denominator the benchmark uses.
+ *
+ * Phase 12B.1 withheld every percentile because the only division on file was
+ * the CURRENT one, and comparing Mercyhurst's 2022 Division II season against
+ * 213 Division I programmes is a wrong denominator that no disclosure fixes.
+ * 12D established the season's own division from the conferences' own standings
+ * tables. These are the claims that would have to hold before any of it is
+ * printed.
+ */
+group('STRUCTURAL HISTORY — the season’s own division, or none');
+{
+  const idOf = (name, sport) => db.prepare('SELECT id FROM colleges WHERE name = ? AND sport = ?').get(name, sport)?.id ?? null;
+  const seasonsOf = (name, sport) => {
+    const id = idOf(name, sport);
+    return id ? competitiveHistoryFor(id).seasons : [];
+  };
+
+  // The mandatory case. Both its Division II seasons and both its Division I
+  // seasons, in one programme, inside the measured window.
+  for (const sport of ['mens-soccer', 'womens-soccer']) {
+    const rows = seasonsOf('Mercyhurst', sport);
+    const by = Object.fromEntries(rows.map((r) => [r.season, r]));
+    check(`Mercyhurst ${sport === 'mens-soccer' ? 'men’s' : 'women’s'} 2022 and 2023 are read as Division II`,
+      by[2022]?.historicalDivision === 'NCAA D2' && by[2023]?.historicalDivision === 'NCAA D2',
+      `${by[2022]?.historicalDivision} / ${by[2023]?.historicalDivision}`);
+    check(`Mercyhurst ${sport === 'mens-soccer' ? 'men’s' : 'women’s'} 2024 and 2025 are read as Division I`,
+      by[2024]?.historicalDivision === 'NCAA D1' && by[2025]?.historicalDivision === 'NCAA D1');
+    check(`Mercyhurst ${sport === 'mens-soccer' ? 'men’s' : 'women’s'} D2 seasons reach a D2 pool`,
+      by[2022]?.benchmark?.available === true && /NCAA D2/.test(by[2022].benchmark.scope ?? ''),
+      `${by[2022]?.benchmark?.scope} n=${by[2022]?.benchmark?.n}`);
+    check(`Mercyhurst ${sport === 'mens-soccer' ? 'men’s' : 'women’s'} D1 seasons reach a D1 pool`,
+      by[2024]?.benchmark?.available === true && /NCAA D1/.test(by[2024].benchmark.scope ?? ''),
+      `${by[2024]?.benchmark?.scope} n=${by[2024]?.benchmark?.n}`);
+    // The current division is D1. If it were the fallback, 2022 would rank
+    // against D1 — and it must not, even though the answer would look fine.
+    check(`Mercyhurst ${sport === 'mens-soccer' ? 'men’s' : 'women’s'} 2022 is not ranked against its CURRENT division`,
+      !/NCAA D1/.test(by[2022]?.benchmark?.scope ?? ''));
+  }
+
+  // Hartford men's moved out of Division I inside the window and its earliest
+  // season is not on file at all — a structural case and a gap in one.
+  const hartford = seasonsOf('Hartford', 'mens-soccer');
+  check('Hartford men’s carries only the seasons a conference table established',
+    hartford.every((r) => r.historicalDivision === null || DIVISIONS.includes(r.historicalDivision)),
+    hartford.map((r) => `${r.season}:${r.historicalDivision ?? '—'}`).join(' '));
+
+  for (const [name, sport, division] of [['Ohio State', 'womens-soccer', 'NCAA D1'],
+    ['Grand Valley State', 'womens-soccer', 'NCAA D2'], ['Messiah', 'mens-soccer', 'NCAA D3'],
+    ['Cumberlands', 'mens-soccer', 'NAIA']]) {
+    const rows = seasonsOf(name, sport).filter((r) => r.historicalDivision);
+    check(`${name} ${sport === 'mens-soccer' ? 'men’s' : 'women’s'} reads ${division} in every season established`,
+      rows.length > 0 && rows.every((r) => r.historicalDivision === division),
+      `${rows.length} seasons`);
+  }
+
+  // The refusal, which is the other half of the contract.
+  const unplaced = db.prepare(
+    `SELECT p.college_id, p.season FROM programme_seasons p
+       LEFT JOIN programme_conference_seasons x ON x.college_id = p.college_id AND x.season = p.season
+      WHERE x.historical_division IS NULL LIMIT 1`).get();
+  if (unplaced) {
+    const row = competitiveHistoryFor(unplaced.college_id).seasons.find((r) => r.season === unplaced.season);
+    check('a season with no established division is refused a percentile, with a reason',
+      row?.benchmark?.available === false && /division/i.test(row.benchmark.reason ?? ''),
+      row?.benchmark?.reason);
+  }
+
+  const pools = competitivePools();
+  const sizes = [];
+  for (const sport of ['mens-soccer', 'womens-soccer']) {
+    for (const season of [2022, 2023, 2024, 2025]) {
+      for (const [d, v] of Object.entries(pools.byKey.get(sport)?.[season] ?? {})) sizes.push([sport, season, d, v.rates.length]);
+    }
+  }
+  check('every sport-division-season pool is populated', sizes.length === 32, `${sizes.length} pools`);
+  check('every pool clears the minimum this product will quote from',
+    sizes.every(([, , , n]) => n >= MIN_POOL), `smallest ${Math.min(...sizes.map((x) => x[3]))}`);
+}
+
+/**
+ * STRUCTURAL HISTORY — what the table may and may not contain.
+ */
+group('STRUCTURAL HISTORY — the table’s own rules');
+{
+  const bad = (sql) => db.prepare(sql).get().n;
+  check('no season carries a division without a provenance that establishes it',
+    bad(`SELECT COUNT(*) n FROM programme_conference_seasons
+          WHERE historical_division IS NOT NULL
+            AND division_provenance NOT IN ('EXPLICIT_OFFICIAL', 'DERIVED_FROM_OFFICIAL_MEMBERSHIP')`) === 0);
+  check('no season carries a division outside the four this product reports',
+    bad(`SELECT COUNT(*) n FROM programme_conference_seasons
+          WHERE historical_division IS NOT NULL AND historical_division NOT IN ('NCAA D1','NCAA D2','NCAA D3','NAIA')`) === 0);
+  check('a conflicting division is stored as null, never as the majority',
+    bad(`SELECT COUNT(*) n FROM programme_conference_seasons
+          WHERE division_provenance = 'CONFLICTING' AND historical_division IS NOT NULL`) === 0);
+  check('no conference record contradicts its own matches played',
+    bad(`SELECT COUNT(*) n FROM programme_conference_seasons
+          WHERE conference_matches IS NOT NULL
+            AND conference_matches <> conference_wins + conference_draws + conference_losses`) === 0);
+  check('the benchmark reads no season whose source did not name its own season',
+    db.prepare(`SELECT COUNT(*) n FROM programme_conference_seasons WHERE season_confirmed = 0`).get().n >= 0
+      && db.prepare(`SELECT COUNT(*) n FROM programme_seasons p JOIN programme_conference_seasons x
+            ON x.college_id = p.college_id AND x.season = p.season
+           WHERE x.season_confirmed = 0 AND x.historical_division IS NOT NULL`).get().n >= 0
+      && competitivePools().observations
+        === db.prepare(`SELECT COUNT(*) n FROM programme_seasons p JOIN programme_conference_seasons x
+             ON x.college_id = p.college_id AND x.season = p.season
+            WHERE p.confidence <> 'ROSTER_CONTRADICTED' AND x.historical_division IS NOT NULL
+              AND x.season_confirmed = 1`).get().n);
+  check('`programme_seasons` no longer carries a division of its own',
+    !db.prepare('PRAGMA table_info(programme_seasons)').all().some((c) => c.name === 'historical_division'));
+}
+
+/**
+ * IDENTITY — a domain is not evidence.
+ */
+group('IDENTITY — the wrong-institution regressions');
+{
+  const resolvers = buildResolvers();
+  const named = [
+    ['Columbia (MO)', 'Columbia', 'mens-soccer'],
+    ['Maryville (TN)', 'Maryville University', null],
+  ];
+  for (const [a, b] of named) {
+    const ra = resolvers.resolve(a);
+    const rb = resolvers.resolve(b);
+    check(`"${a}" and "${b}" never resolve to the same institution`,
+      ra.unitid == null || rb.unitid == null || ra.unitid !== rb.unitid,
+      `${ra.unitid} vs ${rb.unitid}`);
+  }
+  // The two hosts 12C collected four seasons from under the wrong name. Neither
+  // may resolve to the institution it was filed under. The mapping to the
+  // institution it DOES belong to is correct and is left alone: this table
+  // makes a wrong mapping unusable, it does not rewrite known_domains.json.
+  for (const [domain, wrongFor, alsoClaimedBy] of [
+    ['gocolumbialions.com', 'Columbia (MO)', 'Columbia'],
+    ['maryvillesaints.com', 'Maryville (TN)', 'Maryville University'],
+  ]) {
+    const row = db.prepare('SELECT unitid, status, wrong_mappings FROM athletics_domains WHERE domain = ?').get(domain);
+    const wrongUnitid = resolvers.resolve(wrongFor).unitid;
+    check(`${domain} does not resolve to ${wrongFor}`,
+      !!row && row.unitid !== wrongUnitid,
+      `host is ${row?.unitid ?? 'unestablished'}, ${wrongFor} is ${wrongUnitid}`);
+    const wrongMappings = JSON.parse(row?.wrong_mappings ?? '[]');
+    check(`${domain} carries the refusal of the ${wrongFor} claim, or establishes nothing at all`,
+      row?.unitid == null || wrongMappings.some((m) => m.claimantUnitid === wrongUnitid),
+      `status ${row?.status}, also claimed by ${alsoClaimedBy}`);
+  }
+  // WITHIN A SCOPE. The same spelling deliberately names two institutions in two
+  // conferences: the Wolverine-Hoosier's "Rochester" is Rochester Christian and
+  // the University Athletic Association's is the University of Rochester, in the
+  // same seasons. That is what the scope is for, and an unscoped version of this
+  // check would forbid the fix.
+  check('every alias names exactly one institution within its scope',
+    db.prepare(`SELECT COUNT(*) n FROM (SELECT alias_key, conference_scope FROM institution_aliases
+                 GROUP BY alias_key, conference_scope HAVING COUNT(DISTINCT unitid) > 1)`).get().n === 0);
+  check('a conference-scoped alias is only ever read with its conference',
+    /scoped\.get\(`\$\{normaliseInstitution/.test(SOURCE('../lib/institutionQueries.js'))
+      && /if \(conferenceId\) \{\n\s+const unitid = scoped\.get/.test(SOURCE('../lib/institutionQueries.js')));
+  check('a two-year college is never published as a conference member',
+    db.prepare(`SELECT COUNT(*) n FROM programme_conference_seasons x JOIN colleges c ON c.id = x.college_id
+                 WHERE c.division NOT IN ('NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA')`).get().n === 0);
+  check('no programme is filed under two conferences in one season',
+    db.prepare(`SELECT COUNT(*) n FROM (SELECT college_id, season FROM programme_conference_seasons
+                 GROUP BY college_id, season HAVING COUNT(*) > 1)`).get().n === 0);
+}
+
+/**
+ * COMPETITIVE V1 — the whole-universe claims, checked over every row.
+ *
+ * Phase 12E froze the layer. These are the statements that have to hold across
+ * the entire table rather than on a fixture, and every one of them is a way the
+ * product would be wrong to print something.
+ */
+group('COMPETITIVE V1 — the whole universe');
+{
+  const zero = (sql) => db.prepare(sql).get().n;
+  check('no historical division without an accepted provenance',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons
+           WHERE historical_division IS NOT NULL
+             AND division_provenance NOT IN ('EXPLICIT_OFFICIAL', 'DERIVED_FROM_OFFICIAL_MEMBERSHIP')`) === 0);
+  check('no membership row from a source outside the accepted set',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons
+           WHERE membership_provenance NOT IN ('OFFICIAL_CONFERENCE_STANDINGS', 'OFFICIAL_PROGRAMME_SOURCE',
+             'OFFICIAL_CONFERENCE_MEMBERSHIP', 'OFFICIAL_NCAA_MEMBERSHIP', 'OFFICIAL_NAIA_MEMBERSHIP')`) === 0);
+  // The current-division firewall, over every row rather than one programme.
+  const fallback = db.prepare(
+    `SELECT COUNT(*) n FROM programme_conference_seasons x JOIN colleges c ON c.id = x.college_id
+      WHERE x.historical_division IS NOT NULL AND x.historical_division <> c.division`).get().n;
+  check('historical division is not a copy of the current division', fallback > 0,
+    `${fallback} rows differ from colleges.division`);
+  check('no season carries a division the conference itself was not established in',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons x
+           LEFT JOIN conference_seasons s
+             ON s.conference_id = x.conference_id AND s.sport = x.sport AND s.season = x.season
+          WHERE x.historical_division IS NOT NULL
+            AND x.membership_provenance = 'OFFICIAL_CONFERENCE_STANDINGS'
+            AND (s.division IS NULL OR s.division <> x.historical_division)`) === 0);
+  check('no unresolved institution identity is published',
+    zero('SELECT COUNT(*) n FROM programme_conference_seasons WHERE college_id IS NULL OR TRIM(college_id) = \'\'') === 0);
+  check('no ambiguous membership is published',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons
+           WHERE identity_method NOT IN ('PROGRAMME_NAME_EXACT', 'PROGRAMME_NAME_VARIANT',
+             'PROGRAMME_VIA_UNITID', 'PROGRAMME_VIA_UNITID_NAME',
+             'PROGRAMME_VIA_CONFERENCE_AGREEMENT', 'PROGRAMME_VIA_OFFICIAL_MEMBERSHIP',
+             'PROGRAMME_VIA_CONFERENCE_SCOPED_ALIAS')`) === 0);
+  check('no programme is filed under two conferences in one season',
+    zero(`SELECT COUNT(*) n FROM (SELECT college_id, season FROM programme_conference_seasons
+           GROUP BY college_id, season HAVING COUNT(*) > 1)`) === 0);
+  check('a conference record is never the overall record',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons x
+           JOIN programme_seasons p ON p.college_id = x.college_id AND p.season = x.season
+          WHERE x.conference_wins IS NOT NULL
+            AND x.conference_wins = p.wins AND x.conference_losses = p.losses
+            AND x.conference_draws = p.draws AND p.matches_played > 12`) === 0);
+  check('a missing conference record is null and not zero',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons
+           WHERE record_status = 'RECORD_UNAVAILABLE'
+             AND (conference_wins IS NOT NULL OR conference_draws IS NOT NULL OR conference_losses IS NOT NULL)`) === 0);
+  check('every conference record adds up to the matches its source printed',
+    zero(`SELECT COUNT(*) n FROM programme_conference_seasons
+           WHERE conference_matches IS NOT NULL
+             AND conference_matches <> conference_wins + conference_draws + conference_losses`) === 0);
+  const codeOf = (f) => SOURCE(f).replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+  check('a conference table row never reaches a sentence',
+    !/conferenceTableRow/.test(codeOf('../../shared/report/structuralFacts.js')));
+  check('the field contract keeps the table row, the seed and the size internal',
+    ['conferenceTableRow', 'seed', 'conferenceSize'].every((f) => V1_FIELDS[f]?.verdict === 'INTERNAL_ONLY'));
+}
+
+group('COMPETITIVE V1 — the reader contract');
+{
+  const ids = db.prepare(
+    `SELECT c.id, c.name, c.sport FROM colleges c
+       JOIN programme_seasons p ON p.college_id = c.id
+      WHERE c.division IN ('NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA')
+      GROUP BY c.id ORDER BY c.id`).all();
+  let sentences = 0; let offending = null; let movements = 0; let unsupported = null; let coachSentences = 0;
+  for (const c of ids) {
+    const pkg = competitivePackageFor(c.id);
+    if (!pkg) continue;
+    for (const s of readerSentences(pkg)) {
+      sentences += 1;
+      if (!offending && FORBIDDEN_READER_LANGUAGE.test(s)) offending = `${c.name} ${c.sport}: ${s}`;
+      if (/\bcoach/i.test(s)) coachSentences += 1;
+    }
+    // A structural movement must be backed by two seasons that are both on file.
+    for (const f of pkg.structuralFacts) {
+      if (f.kind !== 'CONFERENCE_CHANGE' && f.kind !== 'DIVISION_CHANGE') continue;
+      movements += 1;
+      const known = new Set(pkg.seasons.filter((x) => x.historicalConference).map((x) => x.season));
+      if (!unsupported && !f.seasons.every((y) => known.has(y))) unsupported = `${c.name} ${c.sport} ${f.text}`;
+    }
+  }
+  check('no forbidden reader language in any sentence the universe can produce',
+    offending === null, `${sentences} sentences over ${ids.length} programmes${offending ? ` — ${offending}` : ''}`);
+  check('no structural movement is claimed from a season not on file',
+    unsupported === null, `${movements} movements${unsupported ? ` — ${unsupported}` : ''}`);
+  // The coach contract, behaviourally: no sentence the universe produces mentions
+  // a coach at all in V1, and the contract names the framings it refuses.
+  check('no sentence the universe produces makes a causal coach claim',
+    coachSentences === 0, `${coachSentences} sentences mention a coach`);
+  check('the coach contract names the before/after framing it refuses',
+    COACH_INTEGRATION.refused.some((r) => /before\/after/.test(r))
+      && COACH_INTEGRATION.refused.some((r) => /improved/.test(r))
+      && COACH_INTEGRATION.allowed.some((a) => /denominator/.test(a)));
+}
+
+/**
+ * COMPETITIVE V1 ON THE PAGE — the claims the two report pages make.
+ *
+ * The group above holds the DATA contract: no sentence the package can produce
+ * carries a forbidden word. This one holds the PAGE contract, which is a
+ * different claim: the renderer authors sentences of its own, derives a
+ * benchmark label the package does not carry, and lays both pages out inside a
+ * fixed box. All three are checked against the real universe rather than a
+ * fixture, because the states that break a layout — a 55-character conference
+ * name in a one-season block, a division change across a season nobody has —
+ * are ones no fixture would have thought to build.
+ */
+group('COMPETITIVE V1 — on the page');
+{
+  const ids = db.prepare(`SELECT id, name, sport FROM colleges
+    WHERE division IN ('NCAA D1','NCAA D2','NCAA D3','NAIA') AND active = 1`).all();
+
+  let sentences = 0;
+  let offending = null;
+  let structural = null;
+  /**
+   * DENOMINATOR AMBIGUITY, AS A MACHINE CHECK.
+   *
+   * "Every season on file was played in NCAA Division III" was true of the
+   * seasons with an established division and read, beside a four-season table,
+   * as a claim about all four. The rule is not "avoid the phrase" — a sweeping
+   * quantifier is often the clearest sentence available — it is that a sentence
+   * which quantifies a set of seasons must also say WHICH set, in the same
+   * sentence, where a reader can see it.
+   */
+  const QUANTIFIER = /\b(?:every|each|all)\s+(?:\d+\s+)?seasons?\b/i;
+  // "that could be compared" and "that could be read" name their set as
+  // precisely as "whose conference is on file" does — the set is the seasons the
+  // model could compare, or read, and the sentence says which.
+  const NAMES_ITS_SET = /(?:with an established|with a division on file|whose conference is on file|seasons? read|that could be (?:read|compared)|of the four seasons|on file for)/i;
+  // Phrases that assert the whole window and cannot carry a denominator at all.
+  const WHOLE_WINDOW = /\b(?:throughout|across all|entire window|the whole window|all four seasons)\b/i;
+  let quantified = 0;
+  let ambiguous = null;
+  let whole = null;
+  let labelOutside = null;
+  let planMismatch = null;
+  let percentilePrinted = null;
+  for (const c of ids) {
+    // The two pages read `model.competitive` and nothing else, so the whole
+    // universe can be swept without building a roster model for any of it.
+    const pkg = competitivePackageFor(c.id);
+    if (!pkg?.available) continue;
+    const model = { competitive: pkg };
+    for (const line of competitiveSentences(model)) {
+      sentences += 1;
+      if (!offending && FORBIDDEN_READER_LANGUAGE.test(line)) offending = `${c.name} ${c.sport}: ${line}`;
+      if (!structural && FORBIDDEN_STRUCTURAL.test(line)) structural = `${c.name} ${c.sport}: ${line}`;
+      if (QUANTIFIER.test(line)) {
+        quantified += 1;
+        if (!ambiguous && !NAMES_ITS_SET.test(line)) ambiguous = `${c.name} ${c.sport}: ${line}`;
+      }
+      if (!whole && WHOLE_WINDOW.test(line)) whole = `${c.name} ${c.sport}: ${line}`;
+      // A percentile is a precision this pool cannot carry, and the three-word
+      // vocabulary exists so that it is never printed.
+      if (!percentilePrinted && /\bpercentile\b/i.test(line)) percentilePrinted = `${c.name}: ${line}`;
+    }
+    for (const season of pkg.seasons) {
+      const label = benchmarkLabel(season.benchmark);
+      if (label && !Object.values(BENCHMARK_LABEL).includes(label)) labelOutside = `${c.name} ${season.season}: ${label}`;
+      if (!label && season.benchmark?.available) labelOutside = `${c.name} ${season.season}: available with no label`;
+    }
+    // The registry and the page must answer "is there an environment to draw"
+    // identically, or a section is listed in the contents and never printed.
+    const worth = competitiveEnvironmentIsWorthAPage(pkg);
+    const hasStructure = pkg.coverage.membershipKnown > 0 || pkg.coverage.divisionKnown > 0;
+    if (worth !== hasStructure) planMismatch = `${c.name} ${c.sport}`;
+  }
+  check('no forbidden reader language in any sentence the two pages author',
+    offending === null, `${sentences} sentences over ${ids.length} programmes${offending ? ` — ${offending}` : ''}`);
+  check('every sweeping quantifier names the set it counted',
+    ambiguous === null, ambiguous ?? `${quantified} sentences quantify a set of seasons`);
+  check('no sentence claims the whole window without a denominator',
+    whole === null, whole ?? 'no "throughout", "across all" or "entire window" anywhere');
+  check('no structural sentence on either page implies a direction',
+    structural === null, structural ?? 'across the same universe');
+  check('every available benchmark draws one of the three labels and no other',
+    labelOutside === null, labelOutside ?? 'upper quarter / middle half / lower quarter');
+  check('no page prints a percentile', percentilePrinted === null, percentilePrinted ?? '');
+  check('the registry and the page agree on whether there is an environment to draw',
+    planMismatch === null, planMismatch ?? '');
+}
+
+/**
+ * The layout, on the states that actually stress it.
+ *
+ * Nine programmes rather than two thousand: the whole-universe sweep is a
+ * development tool and takes fifty seconds, and every state it found is
+ * represented here by the programme that produced the tightest measurement.
+ */
+group('COMPETITIVE V1 — the two pages, laid out');
+{
+  const cases = [
+    ['Mercyhurst', 'mens-soccer', 'changed division and conference inside the window'],
+    ['UCLA', 'mens-soccer', 'the tightest measured history page'],
+    ['Jamestown', 'womens-soccer', 'the tightest measured environment page'],
+    ['UC Merced', 'mens-soccer', 'a gap in the window, and a move across it'],
+    ['Albany', 'mens-soccer', 'a full record and no structural evidence at all'],
+    ['Anderson (IN)', 'mens-soccer', 'one readable season'],
+    ['Husson', 'mens-soccer', 'a conference that published no record for two seasons'],
+    ['Kansas State', 'womens-soccer', 'conference on file, division not established'],
+    ['University of Rochester', 'womens-soccer', 'the identity 12E.1 corrected'],
+  ];
+  let worstClearance = Infinity;
+  let worstName = '';
+  for (const [name, sport, why] of cases) {
+    const col = db.prepare('SELECT id FROM colleges WHERE name = ? AND sport = ?').get(name, sport);
+    if (!col) { check(`${name} ${sport} is on file`, false, why); continue; }
+    // The whole report model, not the package alone: the coach block is the
+    // tallest thing on the history page and it only exists where the coach
+    // attribution was handed in, so a package fetched bare measures a page the
+    // document never draws — 123 points of clearance at UCLA men's instead of 27.
+    const model = modelFor(name, sport);
+    const pkg = model.competitive;
+    const pages = [['history', competitiveHistoryPage]];
+    if (competitiveEnvironmentIsWorthAPage(pkg)) pages.push(['environment', competitiveEnvironmentPage]);
+    let trouble = null;
+    let clearance = Infinity;
+    for (const [which, fn] of pages) {
+      const audit = createAudit();
+      let left = null;
+      // eslint-disable-next-line no-await-in-loop
+      await render((k) => {
+        let first = true;
+        const addPage = k.doc.addPage.bind(k.doc);
+        k.doc.addPage = (...a) => (first ? ((first = false), k.doc) : addPage(...a));
+        fn(k, model);
+        left = k.remaining();
+      }, { audit });
+      if (audit.pages > 1) trouble = `${which} ran to ${audit.pages} pages`;
+      if (audit.violations.length) trouble = `${which}: ${describeViolations(audit.violations, 2)}`;
+      if (audit.collisions.length) trouble = `${which}: text over text — ${audit.collisions[0].text}`;
+      if (audit.clipped.length) trouble = `${which}: clipped — ${audit.clipped[0].label}`;
+      if (audit.unencodable.length) trouble = `${which}: undrawable character`;
+      clearance = Math.min(clearance, left);
+    }
+    if (clearance < worstClearance) { worstClearance = clearance; worstName = `${name} ${sport}`; }
+    check(`${name} ${sport} — ${why}`, trouble === null,
+      trouble ?? `${pages.length} page(s), ${Math.round(clearance)}pt clear of the flow floor`);
+  }
+  // The flow floor is 24 points above the boundary the overflow guard enforces,
+  // so a page sitting on it is still inside the box. This is the headroom a
+  // future wording change has, stated rather than discovered.
+  check('every page above stays inside the flow floor', worstClearance >= 0,
+    `tightest ${Math.round(worstClearance)}pt at ${worstName}`);
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

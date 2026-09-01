@@ -122,7 +122,50 @@ export function sameCoach(a, b) {
  * Championships" is the heading of a records table; "Prospective Athletes" and
  * "All News" are navigation links a parser reached instead of a person.
  */
-const NOT_A_NAME = /^(phone number|business management|emergency management|full name|email address|national championships|head coaching history|prospective athletes|head coaches|all news)$/i;
+const NOT_A_NAME = /^(phone number|full name|email address|national championships|head coaching history|prospective athletes|head coaches|all news)$/i;
+
+/**
+ * The value is not a person; it is the cell next to where the person should be.
+ *
+ * PHASE 12B.1. Concordia College-Moorhead's 2026 head coach was on file as
+ * "Detroit Lakes", a town in Minnesota, and its 2025 coach as "East Grand
+ * Forks". Neither is a blacklist entry — they are a roster table's HOMETOWN
+ * column, read one cell too far. The scraper takes the text after a staff
+ * label, and on 34 programmes' pages that label ends in a colon and is followed
+ * by the roster grid instead of by a name. 50 rows across 29 programmes carry a
+ * hometown, an academic major or a high school where a coach should be.
+ *
+ * TWO WITNESSES HERE, BOTH PURE FUNCTIONS OF THE STRING. The third — the value
+ * appears as a hometown on this programme's own roster — needs the roster and
+ * lives in `importCoachTenure.js`, which has it.
+ *
+ * WHY NOT A GEOGRAPHIC BLACKLIST. Because it would reject real people. Coaches
+ * are called Preston, Houston and Austin, and the point is not to maximise
+ * rejections: it is to reject only where independent evidence says the value
+ * came from another column. These two tests fired on 45 of 7,755 named rows,
+ * every one of them inspected and none of them a person.
+ */
+export const NON_PERSON = Object.freeze({
+  INSTITUTION: 'institution-name',
+  MAJOR: 'academic-major',
+  HOMETOWN: 'hometown-on-own-roster',
+});
+
+/** No person's name ends in "HS", "Academy" or "Regional". */
+const INSTITUTION_NAME = /\b(HS|H\.S\.|High School|Academy|Regional|Prep|Preparatory|Tech|Tech\.|Technical|Collegiate|School|Seminary)\s*$/i;
+/**
+ * A field of study, whole-string. Bounded to the closed set of nouns a
+ * roster's major column actually uses, so it cannot reach a surname.
+ */
+const MAJOR_NAME = /^(?:[A-Za-z' -]+ )?(Management|Sciences?|Studies|Justice|Engineering|Education|Nursing|Kinesiology|Media|Administration|Marketing|Accounting|Psychology|Biology|Economics|Finance|Business)$/i;
+
+export function nonPersonWitness(name) {
+  const n = String(name ?? '').trim();
+  if (!n) return null;
+  if (INSTITUTION_NAME.test(n)) return NON_PERSON.INSTITUTION;
+  if (MAJOR_NAME.test(n)) return NON_PERSON.MAJOR;
+  return null;
+}
 
 /**
  * A head-coaching phrase, bounded so it cannot span two jobs.
@@ -217,6 +260,8 @@ export function readCoachRow(row) {
   // whatever the reason column says.
   if (isVacancy(name)) return { usable: false, reason: UNUSABLE.VACANT };
   if (NOT_A_NAME.test(name)) return { usable: false, reason: UNUSABLE.NOT_A_NAME };
+  // The roster cell next to the coach, rather than the coach. See NON_PERSON.
+  if (nonPersonWitness(name)) return { usable: false, reason: UNUSABLE.NOT_A_NAME };
   // Structural insurance, and it currently fires on nothing: no name in the
   // table is a single token or carries a digit. It is here so a future import
   // that breaks that cannot quietly attribute four seasons to "2024 Roster".

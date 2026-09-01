@@ -184,6 +184,67 @@ const COACH_COLUMNS = [
   ['source', 'TEXT'],                            // which import produced the row
 ];
 
+/**
+ * Retires `programme_seasons.historical_division`, which 12B.1 added and 12D
+ * moved (Phase 12D / O).
+ *
+ * It was always null. It is owned by `programme_conference_seasons` now, and
+ * the reason it could not stay is mechanical rather than aesthetic:
+ * `importProgrammeSeasons.js` rebuilds its table with `DELETE FROM
+ * programme_seasons` and a full re-insert, so a column that importer does not
+ * write is emptied by every routine records refresh. The benchmark would have
+ * stopped producing percentiles with nothing raised anywhere.
+ *
+ * The index has to go first — SQLite refuses to drop an indexed column — and
+ * is recreated on the narrower key. Any value in the column is discarded, and
+ * on every database that has one that value is null.
+ */
+/**
+ * Phase 12E added membership provenance and a record status to
+ * `programme_conference_seasons`. Both have defaults that describe every row
+ * 12D wrote — every one of them came from a conference's own standings table
+ * and carried a record — so an existing table upgrades without a rebuild.
+ */
+/**
+ * Phase 12E.1 added a conference scope to `institution_aliases`. Every row 12E
+ * wrote is global, which is what the default says, so an existing table upgrades
+ * without a rebuild — but the primary key changes with it, so the table is
+ * rebuilt where the old single-column key is still in place.
+ */
+function scopeInstitutionAliases(db) {
+  if (!db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'institution_aliases'").get().n) return;
+  const cols = db.prepare('PRAGMA table_info(institution_aliases)').all();
+  if (cols.some((c) => c.name === 'conference_scope')) return;
+  const names = cols.map((c) => c.name).join(', ');
+  db.exec(`
+    ALTER TABLE institution_aliases RENAME TO institution_aliases_pre_12e1;
+    CREATE TABLE institution_aliases (
+      alias_key TEXT NOT NULL, alias_raw TEXT NOT NULL, unitid INTEGER NOT NULL,
+      conference_scope TEXT NOT NULL DEFAULT '*',
+      alias_type TEXT NOT NULL, source TEXT NOT NULL, confidence TEXT NOT NULL,
+      notes TEXT, imported_at TEXT NOT NULL,
+      PRIMARY KEY (alias_key, conference_scope)
+    );
+    INSERT INTO institution_aliases (${names}) SELECT ${names} FROM institution_aliases_pre_12e1;
+    DROP TABLE institution_aliases_pre_12e1;
+    CREATE INDEX IF NOT EXISTS idx_institution_aliases_unitid ON institution_aliases(unitid);
+    CREATE INDEX IF NOT EXISTS idx_institution_aliases_scope ON institution_aliases(conference_scope);
+  `);
+}
+
+const PCS_COLUMNS = [
+  ['membership_provenance', "TEXT NOT NULL DEFAULT 'OFFICIAL_CONFERENCE_STANDINGS'"],
+  ['record_status', "TEXT NOT NULL DEFAULT 'RECORD_KNOWN'"],
+];
+
+function retireProgrammeSeasonDivision(db) {
+  const cols = db.prepare('PRAGMA table_info(programme_seasons)').all().map((c) => c.name);
+  if (!cols.includes('historical_division')) return;
+  db.exec('DROP INDEX IF EXISTS idx_programme_seasons_pool');
+  db.exec('ALTER TABLE programme_seasons DROP COLUMN historical_division');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_programme_seasons_pool ON programme_seasons(sport, season)');
+}
+
 function addMissingColumns(db, table, columns) {
   const existing = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name));
   for (const [name, ddl] of columns) {
@@ -302,6 +363,11 @@ export function migrate(db) {
   addMissingColumns(db, 'roster_players', ROSTER_PLAYER_COLUMNS);
   addMissingColumns(db, 'colleges', COLLEGE_COLUMNS);
   addMissingColumns(db, 'coaches', COACH_COLUMNS);
+  retireProgrammeSeasonDivision(db);
+  scopeInstitutionAliases(db);
+  if (db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'programme_conference_seasons'").get().n) {
+    addMissingColumns(db, 'programme_conference_seasons', PCS_COLUMNS);
+  }
   backfillRecruitingClassYear(db);
   backfillAcademicRatingSource(db);
 }

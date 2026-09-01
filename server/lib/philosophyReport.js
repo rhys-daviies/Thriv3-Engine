@@ -41,6 +41,7 @@ import {
   methodologyPage,
 } from './reportAppendix.js';
 import { evidenceLimitsPage } from './reportLimits.js';
+import { competitiveHistoryPage, competitiveEnvironmentPage } from './reportCompetitive.js';
 import { positionRecordPage } from './reportPosition.js';
 import { squadUsagePage } from './reportSquadUsage.js';
 import { athletePositionIsStrong } from '../../shared/report/lifecycleSummary.js';
@@ -192,6 +193,12 @@ export function renderProgramReport(model, opts = {}) {
     section('current-depth', () => currentDepthPage(k, model));
     section('roster-continuity', () => rosterContinuityPage(k, model));
     section('observed-destinations', () => observedDestinationsPage(k, model));
+    // Competitive Intelligence closes the programme act. It sits after the
+    // roster material and before the named record because it answers the
+    // question that material provokes — what did the squad this programme
+    // builds actually produce — and because it is read, not looked up.
+    section('competitive-history', () => competitiveHistoryPage(k, model));
+    section('competitive-environment', () => competitiveEnvironmentPage(k, model));
     section('evidence-limits', () => evidenceLimitsPage(k, model));
 
     // ---- Act III: the record underneath both ----

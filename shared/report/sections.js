@@ -109,6 +109,22 @@ export function originIsProgrammeSpecific(originContext) {
  * taking one. The third branch draws a scatter of every arrival and a
  * two-population column chart, and never qualifies.
  */
+/**
+ * Is there a competitive ENVIRONMENT to draw, or only a record?
+ *
+ * 229 programmes carry a full four-season record and no historical conference
+ * or division at all. For them the environment page would be a title and four
+ * refusals — so the page is not planned, and the history page states those
+ * absences instead. Declared here, beside the other two shape questions, so the
+ * registry and the page cannot answer it differently: a section listed in the
+ * contents and never printed, or an absence stated on neither page, is what two
+ * answers produce.
+ */
+export function competitiveEnvironmentIsWorthAPage(pkg) {
+  if (!pkg?.available) return false;
+  return (pkg.coverage?.membershipKnown ?? 0) > 0 || (pkg.coverage?.divisionKnown ?? 0) > 0;
+}
+
 export function arrivalsAreOneFinding(model) {
   const e = model?.summary?.programme?.experiencedArrivalReliance;
   if (!e) return false;
@@ -540,6 +556,55 @@ export const SECTIONS = [
       return [
         `${d.tracing.observed} of ${d.departures.total} departures traced`,
         `${Math.round(100 * d.tracing.coverage)}% coverage`,
+      ];
+    },
+  },
+
+  /**
+   * Competitive Intelligence. Two pages and two questions, and they are not one
+   * page: a record and the competition it was recorded in are different facts.
+   * Filed in the programme-evidence act after the roster-opportunity material
+   * and before the named record, because a family reads how a programme has
+   * built its squad and then asks what that squad produced.
+   */
+  {
+    id: 'competitive-history',
+    title: 'How this programme has competed',
+    description: 'The win/draw/loss record for each season that can be read, the winning '
+      + 'percentage it produced, and where that rate sat among the programmes measured in the '
+      + 'same division and the same year.',
+    layer: 'programme-evidence',
+    scope: 'programme',
+    unavailableWhenEmpty: false,
+    // A programme with no readable season gets no page. 27 programmes are in
+    // that state and a page carrying four refusals and nothing else is not a
+    // page — the same rule `arrivalsAreOneFinding` applies one act earlier.
+    applies: ({ model }) => Boolean(model.competitive?.available),
+    scopeOf: ({ model }) => {
+      const c = model.competitive.coverage;
+      return [
+        `${c.readableSeasons} of ${c.expectedSeasons} seasons read`,
+        c.benchmarkAvailable
+          ? `${c.benchmarkAvailable} compared against its own division`
+          : 'no season could be compared',
+      ];
+    },
+  },
+  {
+    id: 'competitive-environment',
+    title: 'Where those seasons were played',
+    description: 'The division and the conference each of those seasons was played in, the '
+      + 'seasons in which either changed, and the record inside the conference where the '
+      + 'conference published one.',
+    layer: 'programme-evidence',
+    scope: 'programme',
+    unavailableWhenEmpty: false,
+    applies: ({ model }) => competitiveEnvironmentIsWorthAPage(model.competitive),
+    scopeOf: ({ model }) => {
+      const c = model.competitive.coverage;
+      return [
+        `conference on file for ${c.membershipKnown} of ${c.readableSeasons}`,
+        `division on file for ${c.divisionKnown}`,
       ];
     },
   },
