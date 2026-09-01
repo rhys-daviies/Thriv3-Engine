@@ -26,6 +26,7 @@ import { positionLabel } from '../../shared/positions.js';
 import { buildReportSummary } from '../../shared/report/summary.js';
 import { coachAttribution } from '../../shared/coachAttribution.js';
 import { planSections } from '../../shared/report/sections.js';
+import { competitivePackageFor } from '../lib/conferenceQueries.js';
 
 const selectPlayer = db.prepare(
   'SELECT id, full_name, position, nationality, recruiting_class_year, graduation_year, sport, football_ability FROM players WHERE id = ?',
@@ -381,12 +382,29 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     coachRows: found.coachRows ?? [],
     measuredSeasons: ph.describes ?? [],
   });
+  /**
+   * COMPETITIVE INTELLIGENCE V1, frozen in 12E and read here for the first time.
+   *
+   * ONE CALL, AND THE RENDERER SEES NOTHING ELSE. `competitivePackageFor` is the
+   * whole of the competitive contract: it owns the identity resolution, the
+   * historical division and conference, the per-season benchmark and every
+   * refusal, and the two report pages consume this object and no query of their
+   * own. That is deliberate — the previous three phases each found a false
+   * identity that survived because a consumer went back to the tables.
+   *
+   * The coach attribution is handed in rather than recomputed, so the count of
+   * seasons the competitive page states and the count the coach card states are
+   * the same number from the same model.
+   */
+  const competitive = competitivePackageFor(collegeId, {
+    coachAttribution: coachAttributionModel,
+  });
   // Which analyses were attempted and refused. Additive, and computed from
   // the model rather than from any new query: `evidenceLimitsFor` reads the
   // same fields the pages it replaces would have read.
   const withLifecycle = {
     ...model, summary, lifecycle, pressure, squadProfile, positionUtilisation,
-    coachAttribution: coachAttributionModel,
+    coachAttribution: coachAttributionModel, competitive,
   };
   const evidenceLimits = evidenceLimitsFor(withLifecycle);
   return {
@@ -399,6 +417,7 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     squadProfile,
     positionUtilisation,
     coachAttribution: coachAttributionModel,
+    competitive,
     evidenceLimits,
     // The document's shape, decided from the data rather than by whichever
     // section throws first. No page numbers: those are not knowable until the

@@ -344,3 +344,25 @@ was wrong: the current number had been copied into the historical slot. Measured
 by checking out each commit's own file and running it, the counts are **main 61,
 12D 95, 12E 111, 12E.1 113**. No test was changed to fit the narrative; the
 sentence was wrong and the numbers were always right.
+
+---
+
+## 12. Update — Phase 12F: the freeze, rendered
+
+Competitive Intelligence V1 now reaches the reader. Two pages in Act II of the
+Program Intelligence PDF — **Competitive history** ("How has this programme
+competed across the seasons we can measure?") and **Competitive environment**
+("Where were these results produced?") — consume `competitivePackageFor` and
+nothing else.
+
+Nothing in this document changed to make that possible: no field moved verdict,
+no coverage figure moved, no method was reopened, and no new metric was
+collected. The presentation contract that sits on top of this one — the
+three-word benchmark vocabulary, the movement-presentation invariant, the
+sparse-state behaviour and the measured layout — is in
+[competitive-report.md](competitive-report.md).
+
+The reader contract in section 7 above is now enforced twice over: once against
+every sentence the PACKAGE can produce (14,025 sentences over 2,125 programmes)
+and once against every sentence the two PAGES author (19,563 sentences over 2,152
+programmes). Baseline invariants: 113 → 128.

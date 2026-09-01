@@ -51,6 +51,14 @@ import { competitivePackageFor } from '../lib/conferenceQueries.js';
 import {
   readerSentences, FORBIDDEN_READER_LANGUAGE, V1_FIELDS, COACH_INTEGRATION,
 } from '../../shared/report/competitivePackage.js';
+import { FORBIDDEN as FORBIDDEN_STRUCTURAL } from '../../shared/report/structuralFacts.js';
+import { render } from '../lib/philosophyPdf.js';
+import { createAudit, describeViolations } from '../lib/reportAudit.js';
+import {
+  competitiveHistoryPage, competitiveEnvironmentPage, competitiveSentences, benchmarkLabel,
+  BENCHMARK_LABEL,
+} from '../lib/reportCompetitive.js';
+import { competitiveEnvironmentIsWorthAPage } from '../../shared/report/sections.js';
 
 // ---------------------------------------------------------------------------
 
@@ -665,6 +673,129 @@ group('COMPETITIVE V1 — the reader contract');
     COACH_INTEGRATION.refused.some((r) => /before\/after/.test(r))
       && COACH_INTEGRATION.refused.some((r) => /improved/.test(r))
       && COACH_INTEGRATION.allowed.some((a) => /denominator/.test(a)));
+}
+
+/**
+ * COMPETITIVE V1 ON THE PAGE — the claims the two report pages make.
+ *
+ * The group above holds the DATA contract: no sentence the package can produce
+ * carries a forbidden word. This one holds the PAGE contract, which is a
+ * different claim: the renderer authors sentences of its own, derives a
+ * benchmark label the package does not carry, and lays both pages out inside a
+ * fixed box. All three are checked against the real universe rather than a
+ * fixture, because the states that break a layout — a 55-character conference
+ * name in a one-season block, a division change across a season nobody has —
+ * are ones no fixture would have thought to build.
+ */
+group('COMPETITIVE V1 — on the page');
+{
+  const ids = db.prepare(`SELECT id, name, sport FROM colleges
+    WHERE division IN ('NCAA D1','NCAA D2','NCAA D3','NAIA') AND active = 1`).all();
+
+  let sentences = 0;
+  let offending = null;
+  let structural = null;
+  let labelOutside = null;
+  let planMismatch = null;
+  let percentilePrinted = null;
+  for (const c of ids) {
+    // The two pages read `model.competitive` and nothing else, so the whole
+    // universe can be swept without building a roster model for any of it.
+    const pkg = competitivePackageFor(c.id);
+    if (!pkg?.available) continue;
+    const model = { competitive: pkg };
+    for (const line of competitiveSentences(model)) {
+      sentences += 1;
+      if (!offending && FORBIDDEN_READER_LANGUAGE.test(line)) offending = `${c.name} ${c.sport}: ${line}`;
+      if (!structural && FORBIDDEN_STRUCTURAL.test(line)) structural = `${c.name} ${c.sport}: ${line}`;
+      // A percentile is a precision this pool cannot carry, and the three-word
+      // vocabulary exists so that it is never printed.
+      if (!percentilePrinted && /\bpercentile\b/i.test(line)) percentilePrinted = `${c.name}: ${line}`;
+    }
+    for (const season of pkg.seasons) {
+      const label = benchmarkLabel(season.benchmark);
+      if (label && !Object.values(BENCHMARK_LABEL).includes(label)) labelOutside = `${c.name} ${season.season}: ${label}`;
+      if (!label && season.benchmark?.available) labelOutside = `${c.name} ${season.season}: available with no label`;
+    }
+    // The registry and the page must answer "is there an environment to draw"
+    // identically, or a section is listed in the contents and never printed.
+    const worth = competitiveEnvironmentIsWorthAPage(pkg);
+    const hasStructure = pkg.coverage.membershipKnown > 0 || pkg.coverage.divisionKnown > 0;
+    if (worth !== hasStructure) planMismatch = `${c.name} ${c.sport}`;
+  }
+  check('no forbidden reader language in any sentence the two pages author',
+    offending === null, `${sentences} sentences over ${ids.length} programmes${offending ? ` — ${offending}` : ''}`);
+  check('no structural sentence on either page implies a direction',
+    structural === null, structural ?? 'across the same universe');
+  check('every available benchmark draws one of the three labels and no other',
+    labelOutside === null, labelOutside ?? 'upper quarter / middle half / lower quarter');
+  check('no page prints a percentile', percentilePrinted === null, percentilePrinted ?? '');
+  check('the registry and the page agree on whether there is an environment to draw',
+    planMismatch === null, planMismatch ?? '');
+}
+
+/**
+ * The layout, on the states that actually stress it.
+ *
+ * Nine programmes rather than two thousand: the whole-universe sweep is a
+ * development tool and takes fifty seconds, and every state it found is
+ * represented here by the programme that produced the tightest measurement.
+ */
+group('COMPETITIVE V1 — the two pages, laid out');
+{
+  const cases = [
+    ['Mercyhurst', 'mens-soccer', 'changed division and conference inside the window'],
+    ['UCLA', 'mens-soccer', 'the tightest measured history page'],
+    ['Jamestown', 'womens-soccer', 'the tightest measured environment page'],
+    ['UC Merced', 'mens-soccer', 'a gap in the window, and a move across it'],
+    ['Albany', 'mens-soccer', 'a full record and no structural evidence at all'],
+    ['Anderson (IN)', 'mens-soccer', 'one readable season'],
+    ['Husson', 'mens-soccer', 'a conference that published no record for two seasons'],
+    ['Kansas State', 'womens-soccer', 'conference on file, division not established'],
+    ['University of Rochester', 'womens-soccer', 'the identity 12E.1 corrected'],
+  ];
+  let worstClearance = Infinity;
+  let worstName = '';
+  for (const [name, sport, why] of cases) {
+    const col = db.prepare('SELECT id FROM colleges WHERE name = ? AND sport = ?').get(name, sport);
+    if (!col) { check(`${name} ${sport} is on file`, false, why); continue; }
+    // The whole report model, not the package alone: the coach block is the
+    // tallest thing on the history page and it only exists where the coach
+    // attribution was handed in, so a package fetched bare measures a page the
+    // document never draws — 123 points of clearance at UCLA men's instead of 27.
+    const model = modelFor(name, sport);
+    const pkg = model.competitive;
+    const pages = [['history', competitiveHistoryPage]];
+    if (competitiveEnvironmentIsWorthAPage(pkg)) pages.push(['environment', competitiveEnvironmentPage]);
+    let trouble = null;
+    let clearance = Infinity;
+    for (const [which, fn] of pages) {
+      const audit = createAudit();
+      let left = null;
+      // eslint-disable-next-line no-await-in-loop
+      await render((k) => {
+        let first = true;
+        const addPage = k.doc.addPage.bind(k.doc);
+        k.doc.addPage = (...a) => (first ? ((first = false), k.doc) : addPage(...a));
+        fn(k, model);
+        left = k.remaining();
+      }, { audit });
+      if (audit.pages > 1) trouble = `${which} ran to ${audit.pages} pages`;
+      if (audit.violations.length) trouble = `${which}: ${describeViolations(audit.violations, 2)}`;
+      if (audit.collisions.length) trouble = `${which}: text over text — ${audit.collisions[0].text}`;
+      if (audit.clipped.length) trouble = `${which}: clipped — ${audit.clipped[0].label}`;
+      if (audit.unencodable.length) trouble = `${which}: undrawable character`;
+      clearance = Math.min(clearance, left);
+    }
+    if (clearance < worstClearance) { worstClearance = clearance; worstName = `${name} ${sport}`; }
+    check(`${name} ${sport} — ${why}`, trouble === null,
+      trouble ?? `${pages.length} page(s), ${Math.round(clearance)}pt clear of the flow floor`);
+  }
+  // The flow floor is 24 points above the boundary the overflow guard enforces,
+  // so a page sitting on it is still inside the box. This is the headroom a
+  // future wording change has, stated rather than discovered.
+  check('every page above stays inside the flow floor', worstClearance >= 0,
+    `tightest ${Math.round(worstClearance)}pt at ${worstName}`);
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);
