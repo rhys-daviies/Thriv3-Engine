@@ -20,6 +20,14 @@
  *   - `published_at` is null, so it has never been shared and cannot be;
  *   - the id is a fixed, obviously-synthetic string and the name says QA.
  *
+ * AND `public_slug` IS CLEARED — 13I / §31. It had one. Not because anything
+ * assigned it here, but because `backfillSlugs` in the migration gave a slug to
+ * every row that lacked one, so the fixture acquired a public handle on the
+ * next migration after 13F created it. The handle resolved to nothing — the
+ * public profile refuses an archived row — but a fixture one flag away from a
+ * live URL is not isolated. The migration now skips archived rows, and this
+ * clears the slug so re-seeding an existing database reaches the same state.
+ *
  * Deterministic: the same id and the same fields every time, so a QA render is
  * reproducible and running this twice changes nothing.
  */
@@ -43,7 +51,7 @@ export function seedQaAthlete() {
   if (existing) {
     db.prepare(`UPDATE players SET full_name = ?, sport = ?, position = ?,
       recruiting_class_year = ?, nationality = ?, archived_at = COALESCE(archived_at, ?),
-      published_at = NULL, updated_date = ? WHERE id = ?`)
+      published_at = NULL, public_slug = NULL, updated_date = ? WHERE id = ?`)
       .run(QA_ATHLETE.full_name, QA_ATHLETE.sport, QA_ATHLETE.position,
         QA_ATHLETE.recruiting_class_year, QA_ATHLETE.nationality, now, now, QA_ATHLETE.id);
     return { id: QA_ATHLETE.id, created: false };
@@ -61,7 +69,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   const r = seedQaAthlete();
   console.log(`${r.created ? 'created' : 'refreshed'} ${r.id}`);
   const row = db.prepare('SELECT full_name, sport, position, recruiting_class_year, nationality, '
-    + 'archived_at IS NOT NULL archived, published_at IS NULL unpublished FROM players WHERE id = ?')
+    + 'archived_at IS NOT NULL archived, published_at IS NULL unpublished, '
+    + 'public_slug IS NULL "no public slug" FROM players WHERE id = ?')
     .get(QA_ATHLETE.id);
   console.log(JSON.stringify(row, null, 1));
 }

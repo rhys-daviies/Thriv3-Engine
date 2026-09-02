@@ -528,11 +528,25 @@ function dimensionCharts(k, dims, { compact = false, quiet = false } = {}) {
   });
 }
 
+/**
+ * 13I / §10: "LAST SEASON HERE" needed 78.1 points and had 71.4, so it wrapped
+ * — and the second line, right-aligned, finished about two points from
+ * "NEXT ROSTER" starting at the next column's left edge. It reads as one
+ * heading, "HERE NEXT ROSTER".
+ *
+ * Seventeen thousandths of the table's width move from `division` to `role`,
+ * which is the smallest change that fits the heading on one line: a single
+ * right-aligned line keeps the column's full six points of padding, so the gap
+ * becomes six points rather than two. `division` holds "NCAA D3" and had 51
+ * points for a 34-point heading, so it is the column with the room. The header
+ * row height does not change — three of the seven headings still wrap, and the
+ * table reserves two lines whenever any of them does.
+ */
 export const MOVEMENT_COLUMNS = [
   { key: 'name', label: 'Player', width: 0.19 },
-  { key: 'role', label: 'Last season here', width: 0.155, align: 'right' },
+  { key: 'role', label: 'Last season here', width: 0.172, align: 'right' },
   { key: 'destination', label: 'Next roster', width: 0.185 },
-  { key: 'division', label: 'Division', width: 0.115 },
+  { key: 'division', label: 'Division', width: 0.098 },
   { key: 'football', label: 'Football rating', width: 0.13 },
   { key: 'academic', label: 'Academic rating', width: 0.125 },
   { key: 'post', label: 'Minutes there', width: 0.1, align: 'right', dropWhenEmpty: true },

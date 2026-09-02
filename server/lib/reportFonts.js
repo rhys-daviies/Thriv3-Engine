@@ -42,6 +42,16 @@
  * at an operator-supplied directory, then at fonts already installed on the
  * host, and if none of them holds the character it draws nothing new and lets
  * the audit report the failure — see `encodableBy`.
+ *
+ * THE REPOSITORY NOW HOLDS ONE — 13I. Liberation Sans 2.1.5, SIL Open Font
+ * License 1.1, three faces vendored under `server/assets/fonts` with the
+ * licence beside them; see the README there. It is FIRST in the chain, so a
+ * production report no longer depends on the host having Helvetica and a
+ * report generated on a Linux container spells a name the same way one
+ * generated on a developer's Mac does. Liberation Sans is metric-compatible
+ * with Arial, and therefore with Helvetica: measured across the strings this
+ * report actually sets, the two agree to within 1.2% at worst and 0.3%
+ * typically, so a fallback run occupies the width the layout reserved for it.
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -58,31 +68,53 @@ export const aliasFor = (face) => `Thriv3Unicode-${face}`;
 /**
  * Where a Unicode-capable face may come from, in order of preference.
  *
- * 1. THE REPOSITORY. `server/assets/fonts` holds nothing today and that is a
- *    deliberate gap rather than an oversight: a font shipped in a client-facing
- *    PDF is a licensing decision and a binary in the tree, and neither is
- *    mine to make. Dropping three OFL-licensed files there — DejaVu Sans or
- *    Noto Sans, regular, bold and oblique, named as below — closes this on
- *    every host with no other change.
+ * 1. THE REPOSITORY, `server/assets/fonts`, which since 13I holds Liberation
+ *    Sans 2.1.5 under the SIL Open Font License 1.1. This is the runtime
+ *    contract: it is on every host that has the repository, so it is the one
+ *    source a production report may rely on.
  *
- * 2. AN OPERATOR DIRECTORY, `THRIV3_UNICODE_FONT_DIR`, with the same names.
+ * 2. AN OPERATOR DIRECTORY, `THRIV3_UNICODE_FONT_DIR`, for a deployment that
+ *    must use its own licensed face instead.
  *
- * 3. FONTS ALREADY ON THE HOST. macOS first, because its Helvetica collection
- *    is the typeface the report is already set in — the ideal fallback, and
- *    already licensed to whoever is running the machine. Then DejaVu, which is
- *    on effectively every Linux distribution.
+ * 3. FONTS ALREADY ON THE HOST, now a last resort rather than the answer.
+ *    macOS Helvetica first, because it is the typeface the report is set in;
+ *    then DejaVu, which is on effectively every Linux distribution.
+ *
+ * THE FILES KEEP THEIR OWN NAMES. Each face accepts either the upstream
+ * filename or a generic one, so vendoring is a copy rather than a rename: OFL
+ * 1.1 reserves the font's internal name for unmodified versions, and a file
+ * called `Thriv3Unicode-Regular.ttf` invites exactly the confusion about
+ * whether it was modified that the licence exists to prevent. An operator
+ * dropping a different face in an operator directory can use either name.
+ *
+ * OBLIQUE TAKES ITALIC. Liberation Sans ships a true italic and no oblique;
+ * the report's third face is `Helvetica-Oblique`, and an italic is the correct
+ * substitute for it. It is reached only by the two oblique strings this report
+ * sets — "not enough on file" and "no departing starter named" — neither of
+ * which has ever contained a non-WinAnsi character.
  */
 const BUNDLED_NAMES = Object.freeze({
-  Helvetica: 'Thriv3Unicode-Regular.ttf',
-  'Helvetica-Bold': 'Thriv3Unicode-Bold.ttf',
-  'Helvetica-Oblique': 'Thriv3Unicode-Oblique.ttf',
+  Helvetica: ['LiberationSans-Regular.ttf', 'Thriv3Unicode-Regular.ttf'],
+  'Helvetica-Bold': ['LiberationSans-Bold.ttf', 'Thriv3Unicode-Bold.ttf'],
+  'Helvetica-Oblique': ['LiberationSans-Italic.ttf', 'Thriv3Unicode-Oblique.ttf'],
 });
 
+/**
+ * A directory source resolves each face to the FIRST candidate filename that
+ * exists, so the same directory works whether it holds the upstream files or an
+ * operator's own three. A face with no candidate present resolves to the first
+ * name, which then fails the existence check and disqualifies the whole source
+ * — all three or none, as below.
+ */
 const dirSource = (id, dir) => (dir ? {
   id,
   dir,
-  faces: Object.fromEntries(PRIMARY_FACES.map((face) =>
-    [face, { file: path.join(dir, BUNDLED_NAMES[face]) }])),
+  faces: Object.fromEntries(PRIMARY_FACES.map((face) => {
+    const found = BUNDLED_NAMES[face]
+      .map((name) => path.join(dir, name))
+      .find((file) => { try { return fs.statSync(file).isFile(); } catch { return false; } });
+    return [face, { file: found ?? path.join(dir, BUNDLED_NAMES[face][0]) }];
+  })),
 } : null);
 
 const SOURCES = () => [

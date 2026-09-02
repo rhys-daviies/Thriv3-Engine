@@ -18,6 +18,7 @@
 import { charts, THEME, TYPE, pageHead } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { POSITIONS, positionPlural, canonicalPosition } from '../../shared/positions.js';
+import { classDisplay } from '../../shared/lifecycle/lifecycle.js';
 
 const { MUTED, CLARET, NAVY, MID, PALE, GREEN, M, W } = THEME;
 
@@ -738,7 +739,7 @@ export function currentSquadOutlookPage(k, model) {
       columns: [
         { key: 'name', label: 'Player', width: 0.28, bold: true },
         { key: 'position', label: 'Position', width: 0.16, format: (v) => cap(positionPlural(v)).replace(/s$/, '') },
-        { key: 'classLabel', label: 'Class', width: 0.12 },
+        { key: 'classLabel', label: 'Class', width: 0.12, format: classDisplay },
         { key: 'from', label: 'Arrived from', width: 0.28 },
         { key: 'projectedMinutes', label: 'Projected minutes', width: 0.16, align: 'right', format: (v) => (v == null ? null : nf(v)) },
       ],
@@ -824,7 +825,7 @@ export function currentDepthPage(k, model) {
      */
     columns: [
       { key: 'name', label: 'Player', width: 0.29, bold: true },
-      { key: 'classLabel', label: 'Class', width: 0.11 },
+      { key: 'classLabel', label: 'Class', width: 0.11, format: classDisplay },
       { key: 'projectedMinutes', label: 'Projected mins', width: 0.15, align: 'right', format: (v) => (v == null ? null : nf(v)) },
       { key: 'eligibleTo', label: 'Eligible to', width: 0.12, align: 'right' },
       { key: 'arrivedFrom', label: 'Previous programme', width: 0.33, dropWhenEmpty: true },

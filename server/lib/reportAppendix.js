@@ -19,6 +19,7 @@ import {
 } from '../../shared/freshmanMinutes.js';
 import { positionPlural } from '../../shared/positions.js';
 import { MOVEMENT_COLUMNS, movementRows } from './reportLifecycle.js';
+import { classDisplay } from '../../shared/lifecycle/lifecycle.js';
 
 const { INK, MUTED, CLARET, W, M } = THEME;
 
@@ -82,7 +83,7 @@ export function arrivalRecordPage(k, model) {
       { key: 'season', label: 'Season', width: 0.09 },
       { key: 'name', label: 'Player', width: 0.22, bold: true },
       { key: 'position', label: 'Position', width: 0.12, format: (v) => cap(positionPlural(v)).replace(/s$/, '') },
-      { key: 'classLabel', label: 'Class', width: 0.08 },
+      { key: 'classLabel', label: 'Class', width: 0.08, format: classDisplay },
       { key: 'priorProgramme', label: 'Previous programme', width: 0.2, dropWhenEmpty: true },
       { key: 'minutes', label: 'Minutes', width: 0.1, align: 'right', format: (v) => nf(v) },
       { key: 'gamesPlayed', label: 'Games', width: 0.09, align: 'right' },

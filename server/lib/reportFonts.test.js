@@ -15,7 +15,13 @@ import { describe, it, expect } from 'vitest';
 import { render, THEME } from './philosophyPdf.js';
 import { createAudit } from './reportAudit.js';
 import { pdfUnicodeText } from './pdfText.js';
-import { unicodeFallback, winAnsi, PRIMARY_FACES, aliasFor } from './reportFonts.js';
+import {
+  unicodeFallback, winAnsi, PRIMARY_FACES, aliasFor, registerUnicodeFallback, fallbackFor,
+} from './reportFonts.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import PDFDocument from 'pdfkit';
 
 const { M } = THEME;
 
@@ -177,5 +183,77 @@ describe('a glyph no approved face holds', () => {
     const { audit } = await drawAll(['x ≠ y']);
     const reported = new Set(audit.unencodable.flatMap((u) => u.characters));
     expect(reported.has('≠')).toBe(false);
+  });
+});
+
+/**
+ * PHASE 13I — THE FALLBACK IS IN THE REPOSITORY, NOT ON THE HOST.
+ *
+ * Until 13I the chain resolved to macOS Helvetica on a developer's Mac and to
+ * DejaVu or to nothing anywhere else, which made "is this name spelled right"
+ * a property of the machine that generated the PDF. Liberation Sans 2.1.5 is
+ * now vendored under `server/assets/fonts` with its OFL 1.1 licence beside it,
+ * first in the chain — see the README there.
+ */
+describe('the portable font contract', () => {
+  it('resolves the fallback from the repository, not from the host', () => {
+    const source = unicodeFallback({ refresh: true });
+    expect(source).toBeTruthy();
+    expect(source.id).toBe('repository');
+    for (const face of PRIMARY_FACES) {
+      expect(fs.existsSync(source.faces[face].file), face).toBe(true);
+      expect(source.faces[face].file).toMatch(/server\/assets\/fonts\//);
+    }
+  });
+
+  it('ships the licence beside the files it licenses', () => {
+    const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'assets', 'fonts');
+    const licence = fs.readFileSync(path.join(dir, 'LICENSE'), 'utf8');
+    expect(licence).toMatch(/SIL OPEN FONT LICENSE Version 1\.1/);
+    expect(licence.replace(/\s+/g, ' ')).toMatch(/bundled, embedded, redistributed and\/or sold/);
+    // And the provenance, so nobody has to guess where the binaries came from.
+    const readme = fs.readFileSync(path.join(dir, 'README.md'), 'utf8');
+    expect(readme).toMatch(/Liberation Sans 2\.1\.5/);
+    expect(readme).toMatch(/liberationfonts\/liberation-fonts/);
+  });
+
+  /**
+   * Metric compatibility is why bundling this family moved no page in any
+   * report: a fallback run occupies the width the layout reserved for it.
+   */
+  it('is metric-compatible with the face it stands in for', () => {
+    const doc = new PDFDocument({ autoFirstPage: false });
+    doc.addPage();
+    registerUnicodeFallback(doc);
+    const samples = ['Benjamin Buckley', 'Texas A&M University-Victoria',
+      'How does the staff expect the defender group to be structured around 2027?'];
+    for (const face of ['Helvetica', 'Helvetica-Bold']) {
+      for (const s of samples) {
+        doc.font(face).fontSize(10.5);
+        const a = doc.widthOfString(s);
+        doc.font(aliasFor(face)).fontSize(10.5);
+        const b = doc.widthOfString(s);
+        expect(Math.abs(a - b) / a, `${face} ${s}`).toBeLessThan(0.02);
+      }
+    }
+  });
+
+  /** The strings 13I named, read back through the PDF's own ToUnicode map. */
+  it('draws and extracts every script the roster actually holds', async () => {
+    const SAMPLES = ['Zoё May', 'Poreč', 'Wāhine', 'José Núñez', 'Ω π Δ', 'Жуков Ж',
+      'Łukasz Śliwa', 'Sébastien Œuvre'];
+    const buf = await render((k) => {
+      let y = M;
+      for (const s of SAMPLES) {
+        const alias = fallbackFor(k.doc, s);
+        const restore = k.doc._font;
+        if (alias) k.doc.font(alias);
+        k.doc.fontSize(12).text(s, M, y);
+        if (alias) k.doc._font = restore;
+        y += 22;
+      }
+    });
+    const text = pdfUnicodeText(buf);
+    for (const s of SAMPLES) expect(text, s).toContain(s);
   });
 });

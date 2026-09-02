@@ -17,6 +17,7 @@ import { staffQuestions, SOURCE_TITLES, PAGE_STANDFIRST } from '../../shared/rep
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 import { originIsProgrammeSpecific } from '../../shared/report/sections.js';
+import { classDisplay } from '../../shared/lifecycle/lifecycle.js';
 
 const { INK, MUTED, LINE, CLARET, NAVY, PALE, GREEN, W } = THEME;
 
@@ -600,7 +601,7 @@ export function currentPositionPage(k, model) {
        * columns and go to the two that carry names.
        */
       { key: 'name', label: 'Player', width: 0.3, bold: true },
-      { key: 'classLabel', label: 'Class', width: 0.08 },
+      { key: 'classLabel', label: 'Class', width: 0.08, format: classDisplay },
       { key: 'projectedMinutes', label: 'Projected minutes', width: 0.16, align: 'right', format: (v) => (v == null ? null : nf(v)) },
       { key: 'eligibleTo', label: 'Eligible through', width: 0.13, align: 'right' },
       { key: 'arrivedFrom', label: 'Previous programme', width: 0.33, dropWhenEmpty: true },

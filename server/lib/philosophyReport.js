@@ -50,7 +50,50 @@ import { athletePositionIsStrong } from '../../shared/report/lifecycleSummary.js
 // The document
 // ---------------------------------------------------------------------------
 
+/**
+ * A DETERMINISTIC NAME FOR A GENERATED REPORT — 13I / §17.
+ *
+ * The endpoints used to send "Mercyhurst program report.pdf" and "Mercyhurst
+ * program report for Rhys Davies.pdf". Three problems: "program" is the one
+ * American spelling anywhere near a document that says "programme" in every
+ * sentence; there is no sport in it, so the men's and women's reports for one
+ * college are the same filename; and spaces make a name that has to be quoted
+ * everywhere it is used.
+ *
+ *   Thriv3_Programme_Intelligence_Mercyhurst_Mens_Soccer.pdf
+ *   Thriv3_Rhys_Davies_Mercyhurst_Mens_Soccer.pdf
+ *
+ * Stable, filesystem-safe, no internal ids and no timestamp: the same inputs
+ * name the same file, so a regenerated report replaces its predecessor instead
+ * of accumulating beside it. Ids would only be needed to break a collision
+ * between two athletes of one name at one programme, and adding them
+ * unconditionally would put a database key in a client's downloads folder.
+ *
+ * NOTHING IS SILENTLY DROPPED. A character that is not filename-safe becomes
+ * an underscore rather than disappearing — `safeFilename` in the server used to
+ * turn "Zoё" into "Zo", which is a different name — and the endpoints send the
+ * exact Unicode name as well, in the RFC 5987 form, so a viewer that
+ * understands it saves the name as spelled.
+ */
+export function reportFilename(model) {
+  const sport = model.college?.sport === 'womens-soccer' ? 'Womens Soccer' : 'Mens Soccer';
+  const parts = model.athlete
+    ? ['Thriv3', model.athlete.name, model.college.name, sport]
+    : ['Thriv3', 'Programme Intelligence', model.college.name, sport];
+  return `${parts.join(' ').replace(/[\s/\\:*?"<>|]+/g, '_').replace(/_+/g, '_')}.pdf`;
+}
+
+/** The same name with every non-ASCII character replaced, never removed. */
+export function asciiFilename(name) {
+  return String(name)
+    .normalize('NFD')
+    .replace(/\p{Mn}+/gu, '')
+    .replace(/[^\x20-\x7E]/g, '_');
+}
+
 export function renderProgramReport(model, opts = {}) {
+  const c0 = model.college;
+  const sport0 = c0?.sport === 'womens-soccer' ? 'women’s soccer' : 'men’s soccer';
   return render((k) => {
     const c = model.college;
     const a = model.athlete;
@@ -314,5 +357,20 @@ export function renderProgramReport(model, opts = {}) {
     contentsPage(k.doc, model, plan, pages);
 
     footer(k.doc, `Thriv3 · ${c.name}${a ? ` · for ${a.name}` : ''} · prepared ${new Date().toISOString().slice(0, 10)}`);
-  }, opts);
+  }, {
+    ...opts,
+    info: {
+      Title: model.athlete
+        ? `${model.athlete.name} × ${c0.name} — Thriv3 Programme Intelligence`
+        : `${c0.name} — Thriv3 Programme Intelligence`,
+      Author: 'Thriv3',
+      Subject: model.athlete
+        ? `How ${c0.name} has recruited, developed and replaced ${sport0} players, `
+          + `read for a ${String(model.summary?.athlete?.positionLabel ?? 'player').toLowerCase()} `
+          + `arriving in ${model.entrySeason}. Not a forecast.`
+        : `How ${c0.name} recruits, develops, retains and replaces ${sport0} players. `
+          + 'Not a forecast.',
+      ...(opts.info ?? {}),
+    },
+  });
 }

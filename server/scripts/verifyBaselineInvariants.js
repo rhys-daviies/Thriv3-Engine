@@ -65,6 +65,8 @@ import { competitiveEnvironmentIsWorthAPage } from '../../shared/report/sections
 import {
   staffQuestions, SOURCE_TITLES, MAX_QUESTIONS,
 } from '../../shared/report/staffQuestions.js';
+import { readCoachRow } from '../../shared/coachTenure.js';
+import { classDisplay } from '../../shared/lifecycle/lifecycle.js';
 
 // ---------------------------------------------------------------------------
 
@@ -1208,6 +1210,128 @@ group('STAFF QUESTIONS — every question cites a page, and none of them forecas
     [...cats.values()].every((v) => v < checked),
     [...cats.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3)
       .map(([k, v]) => `${k} ${(100 * v / checked).toFixed(0)}%`).join(' · '));
+}
+
+/**
+ * RELEASE HARDENING — the four claims 13I made, made mechanical.
+ *
+ * Every one of these was established by an audit that is now written down in
+ * docs/report-release.md. An audit is a remembered caution; these are the
+ * checks that fail when the thing it established stops being true.
+ */
+group('RELEASE — what the audits established, checked rather than remembered');
+{
+  // 1. THE ROLE FILTER, at the season level.
+  //
+  // 129 programme-seasons carry a named coach row the reader refuses — a
+  // director of soccer, an associate head coach, a table cell that is not a
+  // person. Not one of them may attribute a season, and a name appearing
+  // elsewhere in a report because the SAME person is the head coach in another
+  // season is not a leak. The question is only ever whether a refused row
+  // carried a season.
+  const coachRows = db.prepare(
+    'SELECT school, sport, season, coach_name, coach_title, reason FROM coach_seasons').all();
+  const bySeason = new Map();
+  for (const r of coachRows) {
+    const k = `${r.school}|${r.sport}|${r.season}`;
+    if (!bySeason.has(k)) bySeason.set(k, []);
+    bySeason.get(k).push(r);
+  }
+  const onlyRefused = [];
+  for (const [k, rows] of bySeason) {
+    const named = rows.filter((r) => String(r.coach_name ?? '').trim());
+    if (!named.length || named.some((r) => readCoachRow(r).usable)) continue;
+    onlyRefused.push({ k, names: named.map((r) => r.coach_name.trim()) });
+  }
+  let attributed = 0; let firstLeak = null; const done = new Set();
+  for (const { k, names } of onlyRefused) {
+    const [school, sport, season] = k.split('|');
+    const col = db.prepare('SELECT id FROM colleges WHERE name = ? AND sport = ?').get(school, sport);
+    if (!col || done.has(`${school}|${sport}`)) continue;
+    done.add(`${school}|${sport}`);
+    let model;
+    try { model = programReportModel({ collegeId: col.id, playerId: null }); } catch { continue; }
+    const att = model.coachAttribution;
+    for (const s of att?.measuredSeasons ?? []) {
+      if (String(s.season) === String(season) && s.coachName && names.includes(s.coachName)) {
+        attributed += 1; firstLeak ??= `${k} → ${s.coachName}`;
+      }
+    }
+    if (att?.currentCoach?.name && names.includes(att.currentCoach.name)
+      && String(att.currentCoach.season) === String(season)) {
+      attributed += 1; firstLeak ??= `${k} → current ${att.currentCoach.name}`;
+    }
+  }
+  check('no season is attributed to a coach row the role filter refuses',
+    attributed === 0,
+    `${onlyRefused.length} programme-seasons carry only a refused named row${firstLeak ? ` — ${firstLeak}` : ''}`);
+
+  // 2. THE QA FIXTURE IS NOT REACHABLE.
+  //
+  // Seeded in 13F for a women's-soccer regression the production athletes
+  // cannot exercise. It must stay archived and unpublished, which is what the
+  // public profile, the publish route and the trial preflight all key on.
+  const qa = db.prepare('SELECT id, full_name, archived_at, published_at, public_slug FROM players WHERE id = ?')
+    .get('qa-fixture-womens-soccer-0001');
+  check('the QA fixture is archived, unpublished and has no public slug',
+    Boolean(qa) && Boolean(qa.archived_at) && !qa.published_at && !qa.public_slug,
+    qa ? `archived_at ${qa.archived_at ? 'set' : 'MISSING'} · published_at ${qa.published_at ?? 'null'} · slug ${qa.public_slug ?? 'null'}`
+      : 'the fixture is not in this database');
+
+  // 3. WHAT A TABLE SHOWS IS WHAT THE ANALYSIS COUNTED.
+  //
+  // `classDisplay` is derived from `classRank`, so this cannot drift by
+  // construction — which is the point of deriving it. The check is here
+  // because a second mapping table is the obvious "improvement" somebody makes
+  // later, and this is what would catch it.
+  const labels = db.prepare(
+    'SELECT DISTINCT class_year_label AS l FROM roster_players').all().map((r) => r.l);
+  const RANK_TO_ABBR = { 1: 'FY', 2: 'SO', 3: 'JR', 4: 'SR', 5: 'GR' };
+  const disagreed = labels.filter((l) => {
+    const shown = classDisplay(l);
+    const rank = classRank(l);
+    if (rank == null) return shown != null && shown !== String(l);
+    return shown !== RANK_TO_ABBR[rank];
+  });
+  const unresolved = labels.filter((l) => l != null && String(l).trim() !== '' && classRank(l) == null);
+  check('the class a table shows is the class the analysis read',
+    disagreed.length === 0,
+    `${labels.length} raw forms${disagreed.length ? ` — ${JSON.stringify(disagreed.slice(0, 3))}` : ''}`);
+  check('a class label the analysis cannot read is shown as it was stored',
+    unresolved.every((l) => classDisplay(l) === String(l)),
+    `${unresolved.length} forms are not a class at all, e.g. ${JSON.stringify(unresolved.slice(0, 4))}`);
+
+  // 4. THE NAME-FRAGMENT DEFECT, SURFACED RATHER THAN FAILED.
+  //
+  // 13I found that the three C1 control characters at Shawnee State are not a
+  // character problem: they are on DUPLICATE FRAGMENT rows, where one player's
+  // season is split across two or three differently-mangled spellings of their
+  // name and the minutes divide between them. Repairing the characters would
+  // make three bogus rows look legitimate. It is a source/importer defect,
+  // bounded and pre-existing, and it is printed here so it cannot be forgotten
+  // — never asserted to zero, because that would fail the build on somebody
+  // else's import rather than on a regression here.
+  const rosterNames = db.prepare(
+    'SELECT college_name c, sport s, season y, player_name n FROM roster_players').all();
+  const groups = new Map();
+  for (const r of rosterNames) {
+    const k = `${r.c}|${r.s}|${r.y}`;
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(String(r.n ?? ''));
+  }
+  const norm = (x) => x.trim().toLowerCase().replace(/\s+/g, ' ');
+  const affected = new Set();
+  for (const [k, names] of groups) {
+    for (const a of names) for (const b of names) {
+      if (a === b) continue;
+      const na = norm(a); const nb = norm(b);
+      if (na.length >= 6 && nb.length > na.length && nb.startsWith(na)) affected.add(k);
+    }
+  }
+  check('the roster name-fragment defect is bounded and known',
+    true,
+    `${affected.size} of ${groups.size} programme-seasons hold a name that is a prefix of another `
+    + '— one player split across differently-mangled spellings; see docs/report-release.md');
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

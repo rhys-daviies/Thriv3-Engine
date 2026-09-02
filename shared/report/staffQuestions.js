@@ -115,7 +115,22 @@ const admit = (id, { materiality, evidence, question, reason, sourceFact, sectio
   });
 };
 
-/** The findings the report actually ranked, by category. */
+/**
+ * The findings the report actually ranked, by category.
+ *
+ * COMPUTED ONCE PER CALL AND PASSED DOWN — 13I / §9. Five of the twelve
+ * builders are gated on a selected finding and each of them called this, so
+ * `athleteDecisionFindings` ran five times to answer one question set. With
+ * `applies`, `scopeOf` and the renderer each building the set, that was
+ * fifteen runs per athlete report, measured.
+ *
+ * It is now built once in `staffQuestionCandidates` and threaded through, so
+ * one question set costs one run and a report costs three. The outer three
+ * remain: memoising across them would mean handing the same mutable candidate
+ * objects to the section planner and the renderer, and at 0.009 ms a run —
+ * 0.045 ms of a 66 ms report, under a tenth of one per cent — that trade is
+ * not worth making. Composition, not caching.
+ */
 const selectedFindings = (model) => {
   const { findings } = athleteDecisionFindings(model);
   return new Map(findings.map((f) => [f.category, f]));
@@ -289,10 +304,9 @@ function rosterCoverage(model) {
  * players with college seasons behind them, which is not the same thing as a
  * transfer route, and the report has said so since v1.
  */
-function experiencedArrivalReliance(model) {
+function experiencedArrivalReliance(model, found) {
   const id = 'experienced-arrival-reliance';
   const a = model.summary?.athlete;
-  const found = selectedFindings(model).get('position-arrival-reliance');
   if (!found) return refuse(id, 'not-a-selected-finding');
   if (!(a?.positionVacancyHistory?.transitions > 0)) return refuse(id, 'no-readable-transition');
   const o = a?.positionOpeningOutcomes;
@@ -320,10 +334,9 @@ function experiencedArrivalReliance(model) {
  * question that assumed the route repeats would contradict the page it points
  * at.
  */
-function positionOpeningRoute(model) {
+function positionOpeningRoute(model, found) {
   const id = 'position-opening-route';
   const a = model.summary?.athlete;
-  const found = selectedFindings(model).get('position-opening-history');
   if (!found) return refuse(id, 'not-a-selected-finding');
   const v = a?.positionVacancyHistory;
   if (!(v?.transitions > 0)) return refuse(id, 'no-readable-transition');
@@ -349,11 +362,10 @@ function positionOpeningRoute(model) {
  * introduce a group the reader is not in. The historical record does not
  * predict the reader's minutes and the question does not suggest it does.
  */
-function firstYearIntroduction(model) {
+function firstYearIntroduction(model, found) {
   const id = 'first-year-introduction';
   const a = model.summary?.athlete;
   if (!entryTypeIsFirstTime(model.athlete)) return refuse(id, 'entry-type-not-established');
-  const found = selectedFindings(model).get('position-first-year-record');
   if (!found) return refuse(id, 'not-a-selected-finding');
   const fh = a?.positionFreshmanHistory;
   if (!fh?.measured) return refuse(id, 'no-first-year-measured-at-position');
@@ -434,9 +446,8 @@ function coachAttribution(model) {
  * administrative gap is not a question for a coach, and it is Rochester's
  * missing 2023 row that holds that.
  */
-function competitiveStructure(model) {
+function competitiveStructure(model, found) {
   const id = 'competitive-structure';
-  const found = selectedFindings(model).get('competitive-structure');
   // The finding IS the gate. It fires only on a division change inside the
   // measured window, so a second structural check here would be a second
   // reading of the same rule — and the one this had was reading a field that
@@ -505,9 +516,8 @@ function originCohort(model) {
  * due diligence — and it is worded as a request for information rather than as
  * "where did everybody go".
  */
-function tracedDestinations(model) {
+function tracedDestinations(model, found) {
   const id = 'traced-destinations';
-  const found = selectedFindings(model).get('traced-position-movement');
   if (!found) return refuse(id, 'not-a-selected-finding');
   const p = model.lifecycle?.athletePosition;
   const noun = String(model.summary?.athlete?.positionLabel ?? 'this position').toLowerCase();
@@ -555,26 +565,35 @@ function positionSample(model) {
  * declared id — the candidate then had no family and the page it fed crashed
  * inside its own error path.
  */
+/**
+ * The id, the builder, and the finding category the builder is gated on. The
+ * third column is what lets one lookup serve all five gated builders.
+ */
 const BUILDERS = [
-  ['position-group-beyond-entry', positionGroupBeyondEntry],
-  ['position-final-season-at-entry', positionFinalSeasonAtEntry],
-  ['known-arrivals-at-position', knownArrivalsAtPosition],
-  ['roster-coverage', rosterCoverage],
-  ['experienced-arrival-reliance', experiencedArrivalReliance],
-  ['position-opening-route', positionOpeningRoute],
-  ['first-year-introduction', firstYearIntroduction],
-  ['coach-attribution', coachAttribution],
-  ['competitive-structure', competitiveStructure],
-  ['origin-cohort', originCohort],
-  ['traced-destinations', tracedDestinations],
-  ['position-sample', positionSample],
+  ['position-group-beyond-entry', positionGroupBeyondEntry, null],
+  ['position-final-season-at-entry', positionFinalSeasonAtEntry, null],
+  ['known-arrivals-at-position', knownArrivalsAtPosition, null],
+  ['roster-coverage', rosterCoverage, null],
+  ['experienced-arrival-reliance', experiencedArrivalReliance, 'position-arrival-reliance'],
+  ['position-opening-route', positionOpeningRoute, 'position-opening-history'],
+  ['first-year-introduction', firstYearIntroduction, 'position-first-year-record'],
+  ['coach-attribution', coachAttribution, null],
+  ['competitive-structure', competitiveStructure, 'competitive-structure'],
+  ['origin-cohort', originCohort, null],
+  ['traced-destinations', tracedDestinations, 'traced-position-movement'],
+  ['position-sample', positionSample, null],
 ];
 
 /** Every candidate with its verdict, whether it was taken or refused. */
 export function staffQuestionCandidates(model) {
   if (!model?.summary?.athlete) return [];
-  return BUILDERS.map(([id, build]) => {
-    try { return build(model); } catch { return refuse(id, 'threw'); }
+  let ranked;
+  return BUILDERS.map(([id, build, gate]) => {
+    try {
+      if (!gate) return build(model);
+      ranked ??= selectedFindings(model);
+      return build(model, ranked.get(gate) ?? null);
+    } catch { return refuse(id, 'threw'); }
   });
 }
 

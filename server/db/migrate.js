@@ -284,9 +284,21 @@ function backfillVideoIds(db) {
   }
 }
 
-/** Every athlete gets a stable random slug; it is never re-rolled once set. */
+/**
+ * Every LIVE athlete gets a stable random slug; it is never re-rolled once set.
+ *
+ * ARCHIVED ROWS ARE SKIPPED — 13I / §31. An archived athlete has no public
+ * profile: `publicProfileHandler` returns the same neutral response for an
+ * archived row as for an unknown slug, and `publish` refuses one outright. So
+ * a slug on an archived row is a handle that resolves to nothing, and giving
+ * one to every row regardless meant the seeded women's-soccer QA fixture
+ * acquired a public handle on the next migration after it was created. A row
+ * that is later un-archived is picked up by the next run, which is when it
+ * first needs one.
+ */
 function backfillSlugs(db) {
-  const rows = db.prepare('SELECT id FROM players WHERE public_slug IS NULL').all();
+  const rows = db.prepare(
+    'SELECT id FROM players WHERE public_slug IS NULL AND archived_at IS NULL').all();
   const taken = db.prepare('SELECT 1 FROM players WHERE public_slug = ?');
   const update = db.prepare('UPDATE players SET public_slug = ? WHERE id = ?');
   for (const row of rows) {

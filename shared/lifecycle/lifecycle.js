@@ -80,6 +80,48 @@ export const CLASS_NAMES = Object.freeze({
   1: 'first-year', 2: 'sophomore', 3: 'junior', 4: 'senior', 5: 'graduate',
 });
 
+/** The abbreviation a table column shows, one per rank. */
+export const CLASS_ABBREVIATIONS = Object.freeze({
+  1: 'FY', 2: 'SO', 3: 'JR', 4: 'SR', 5: 'GR',
+});
+
+/**
+ * THE CLASS A TABLE PRINTS — 13I, and PRESENTATION ONLY.
+ *
+ * 276,745 roster rows carry 222 distinct raw class labels. 205 of those forms
+ * resolve through `readClassYear` and account for 98.3% of rows, but they
+ * resolve from 47 different spellings of a first-year alone — "Fr.", "Fy.",
+ * "FY", "FR", "First Year", "1st", "Fr. (1st)", "Redshirt Freshman", "R-Fr.",
+ * "F.Y." — and the tables printed whichever one the source happened to use. A
+ * single Albright roster showed "So." beside "FY" and Rochester's showed
+ * "SO" beside "JR", which reads as two different fields.
+ *
+ * DERIVED FROM THE RANK THE ANALYSIS ALREADY READ, deliberately. A second
+ * mapping table would be a second reader for one column, which is the defect
+ * that cost 121 programmes their development page in 13F: this way a row shown
+ * as "SO" is a row every aggregate counted as a sophomore, by construction.
+ *
+ * NOT "Fr.". The report says "first-year" in every sentence it writes and has
+ * since v1, because "freshman" is neither accurate for a redshirt nor the word
+ * the analysis uses. The abbreviations follow the report, not the roster.
+ *
+ * AN UNRESOLVED LABEL IS SHOWN AS IT WAS STORED. 574 rows in 16 forms carry
+ * something that is not a class at all — a graduation year ("2026", "'29"), or
+ * a redshirt with no year attached ("Rs.", "RS", "Medical Redshirt"). Printing
+ * a guess for those would misclassify a player; printing the raw string keeps
+ * the gap visible, which is the same rule every other column in this report
+ * follows. A null label stays null and the table draws its own dash.
+ *
+ * NOTHING ANALYTICAL READS THIS. `classRank`, `readClassYear`,
+ * `experienceGroup`, `isTerminalClass` and the continuity and movement models
+ * all read the stored label exactly as they did before; the model still carries
+ * `classLabel` verbatim, so no model hash moves.
+ */
+export function classDisplay(label) {
+  if (label == null || String(label).trim() === '') return null;
+  return CLASS_ABBREVIATIONS[classRank(label)] ?? String(label);
+}
+
 /** Whether the class label says this was a season the player could return from. */
 export function isTerminalClass(label) {
   const r = classRank(label);

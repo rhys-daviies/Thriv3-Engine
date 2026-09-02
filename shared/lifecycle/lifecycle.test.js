@@ -8,7 +8,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildLifecycles, seasonObservation, roleBand, classRank, originOf,
-  isTerminalClass, playerKeyOf, firstYearCohort, experiencedCohort, lifecyclesAt,
+  isTerminalClass, playerKeyOf, firstYearCohort, experiencedCohort, lifecyclesAt, classDisplay, CLASS_ABBREVIATIONS,
 } from './lifecycle.js';
 import { readClassYear } from '../classYear.js';
 import { canonicalHometown, sameHometown } from './hometown.js';
@@ -278,5 +278,58 @@ describe('hometown canonicalisation', () => {
 
   it('is case and punctuation insensitive', () => {
     expect(sameHometown('SAN DIEGO, CALIF.', 'San Diego, Calif')).toBe(true);
+  });
+});
+
+/**
+ * PHASE 13I — WHAT A TABLE SHOWS IS WHAT THE ANALYSIS COUNTED.
+ *
+ * 222 raw class labels reached the report's tables unchanged, so one roster
+ * printed "So." beside "FY" and another "SO" beside "JR". `classDisplay` is
+ * derived from `classRank` rather than from a second mapping table, which is
+ * the whole point: a row shown as SO is a row every aggregate counted as a
+ * sophomore, by construction.
+ */
+describe('the class a table shows', () => {
+  it('reads every spelling of a rank as that rank', () => {
+    for (const [raw, shown] of [
+      ['Fr.', 'FY'], ['Fy.', 'FY'], ['FY', 'FY'], ['FR', 'FY'], ['First Year', 'FY'],
+      ['Freshman', 'FY'], ['1st', 'FY'], ['Redshirt Freshman', 'FY'], ['R-Fr.', 'FY'],
+      ['So.', 'SO'], ['SO', 'SO'], ['R-So.', 'SO'], ['Sophomore', 'SO'],
+      ['Jr', 'JR'], ['JR', 'JR'], ['Junior', 'JR'], ['Yr.: Jr', 'JR'],
+      ['Sr.', 'SR'], ['SR', 'SR'], ['Senior', 'SR'],
+      ['Gr.', 'GR'], ['Graduate Student', 'GR'], ['5th', 'GR'],
+    ]) expect(classDisplay(raw), raw).toBe(shown);
+  });
+
+  /**
+   * A LABEL THE ANALYSIS CANNOT READ IS SHOWN AS IT WAS STORED — 574 rows in
+   * the production database carry something that is not a class at all: a
+   * graduation year, or a redshirt with no year attached. Printing a guess for
+   * those would misclassify a player.
+   */
+  it('shows an unreadable label exactly as stored, and never guesses', () => {
+    for (const raw of ['Rs.', 'RS', 'Redshirt', 'Medical Redshirt', '2026', "'29", '2023'])
+      expect(classDisplay(raw), raw).toBe(raw);
+  });
+
+  it('leaves an absent label absent, so the table draws its own dash', () => {
+    for (const raw of [null, undefined, '', '   ']) expect(classDisplay(raw)).toBeNull();
+  });
+
+  /**
+   * The property that makes a second mapping table impossible to add quietly:
+   * the display is a pure function of the rank, so display and analysis cannot
+   * disagree about a row.
+   */
+  it('never shows a class the analysis did not read', () => {
+    const ABBR = { 1: 'FY', 2: 'SO', 3: 'JR', 4: 'SR', 5: 'GR' };
+    for (const raw of ['Fr.', 'So.', 'Jr.', 'Sr.', 'Gr.', 'R-Jr.', '5th', 'Rs.', '2026'])
+      expect(classDisplay(raw), raw).toBe(ABBR[classRank(raw)] ?? raw);
+  });
+
+  it('says first-year rather than freshman, as every sentence in the report does', () => {
+    expect(Object.values(CLASS_ABBREVIATIONS)).not.toContain('FR');
+    expect(CLASS_ABBREVIATIONS[1]).toBe('FY');
   });
 });

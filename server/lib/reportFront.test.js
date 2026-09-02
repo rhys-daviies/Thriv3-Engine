@@ -10,7 +10,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import zlib from 'node:zlib';
 import db from '../db/client.js';
 import { programReportModel } from '../routes/philosophy.js';
-import { renderProgramReport } from './philosophyReport.js';
+import { renderProgramReport, reportFilename, asciiFilename } from './philosophyReport.js';
 import { invalidatePoolBenchmarks } from './philosophyQueries.js';
 import { invalidateLifecyclePool } from './lifecycleQueries.js';
 import PDFDocument from 'pdfkit';
@@ -87,6 +87,30 @@ function pdfPages(buf) {
 
 /** Pages one to three: everything Phase 3 owns. */
 const frontText = (buf) => pdfPages(buf).slice(0, 3).join(' ');
+
+/** The document information dictionary, as a viewer reads it. */
+function pdfInfo(buf) {
+  const raw = buf.toString('latin1');
+  const out = {};
+  for (const key of ['Title', 'Author', 'Subject', 'Producer', 'Creator']) {
+    const ref = raw.match(new RegExp(`/${key} (\\d+) 0 R`));
+    if (!ref) continue;
+    const obj = raw.match(new RegExp(`\\n${ref[1]} 0 obj\\s*\\(([\\s\\S]*?)\\)\\s*endobj`));
+    if (!obj) continue;
+    let v = obj[1];
+    // pdfkit writes UTF-16BE with a byte-order mark where a string is not
+    // Latin-1; the report's titles carry "×" and a curly apostrophe.
+    if (v.startsWith('\u00fe\u00ff')) {
+      v = Buffer.from(v.slice(2), 'latin1').toString('utf16le');
+      v = [...v].map((c) => {
+        const n = c.charCodeAt(0);
+        return String.fromCharCode(((n & 0xff) << 8) | (n >> 8));
+      }).join('');
+    }
+    out[key] = v;
+  }
+  return out;
+}
 
 const pageCount = (buf) => (buf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) || []).length;
 
@@ -793,6 +817,79 @@ describe('what to verify with the staff', () => {
     expect(page).not.toMatch(/☐|☑|✓|●/);
     // And it says what it is not.
     expect(page).toMatch(/not a concern and not a recommendation/);
+  });
+});
+
+/**
+ * PHASE 13I — the release contract: what a saved file is called, and what it
+ * says about itself.
+ */
+describe('the generated file', () => {
+  beforeEach(() => addProgramme('c1', 'Test College'));
+
+  it('names a programme report by programme and sport', async () => {
+    const { model } = await build();
+    expect(reportFilename(model)).toBe('Thriv3_Programme_Intelligence_Test_College_Mens_Soccer.pdf');
+  });
+
+  it('names an athlete report by athlete, programme and sport', async () => {
+    addAthlete('p1', { name: 'Sample Athlete' });
+    const { model } = await build('p1');
+    expect(reportFilename(model)).toBe('Thriv3_Sample_Athlete_Test_College_Mens_Soccer.pdf');
+  });
+
+  /**
+   * The sport is in the name because without it the men's and women's reports
+   * for one college are the same file, and one silently replaced the other.
+   */
+  it('distinguishes the two sports at one college', async () => {
+    const { model } = await build();
+    const womens = { ...model, college: { ...model.college, sport: 'womens-soccer' } };
+    expect(reportFilename(womens)).not.toBe(reportFilename(model));
+    expect(reportFilename(womens)).toMatch(/Womens_Soccer/);
+  });
+
+  it('carries no id, no timestamp and no space', async () => {
+    addAthlete('p1', { name: 'Sample Athlete' });
+    const { model } = await build('p1');
+    const name = reportFilename(model);
+    expect(name).not.toMatch(/\s/);
+    expect(name).not.toContain(model.college.id);
+    expect(name).not.toMatch(/\b(19|20)\d\d\b/);
+    expect(name).not.toMatch(/[/\\:*?"<>|]/);
+    // Stable: the same inputs name the same file, so a regenerated report
+    // replaces its predecessor rather than accumulating beside it.
+    expect(reportFilename(model)).toBe(name);
+  });
+
+  /**
+   * REPLACED, NEVER REMOVED. The helper this succeeded mapped every non-ASCII
+   * character to a space, which turned "Zoё" into "Zo " and renamed the
+   * athlete on the file a client saves.
+   */
+  it('replaces what ASCII cannot represent rather than dropping it', () => {
+    expect(asciiFilename('Thriv3_Zoё_May.pdf')).toBe('Thriv3_Zo__May.pdf');
+    expect(asciiFilename('Poreč')).toBe('Porec');
+    expect(asciiFilename('José Núñez')).toBe('Jose Nunez');
+    expect(asciiFilename('Théo')).toBe('Theo');
+  });
+
+  /**
+   * Metadata is what a viewer's title bar shows. Every value is something the
+   * cover already prints, so it cannot say anything the reader cannot see.
+   */
+  it('sets defensible metadata and no internal identifier', async () => {
+    addAthlete('p1', { name: 'Sample Athlete' });
+    const { buf, model } = await build('p1');
+    const info = pdfInfo(buf);
+    expect(info.Title).toContain('Sample Athlete');
+    expect(info.Title).toContain('Test College');
+    expect(info.Author).toBe('Thriv3');
+    expect(info.Subject).toMatch(/Not a forecast/);
+    const all = Object.values(info).join(' ');
+    expect(all).not.toContain(model.college.id);
+    expect(all).not.toContain('p1');
+    expect(all).not.toMatch(/\/Users\/|node_modules|\.sqlite|SELECT /);
   });
 });
 

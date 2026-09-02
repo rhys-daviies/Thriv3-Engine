@@ -774,10 +774,19 @@ export function footer(doc, line) {
  * filled in place, so the return value stays a Buffer and the production call
  * path is unchanged whether or not anything is watching.
  */
-export function render(build, { audit = null } = {}) {
+export function render(build, { audit = null, info = null } = {}) {
   return new Promise((resolve, reject) => {
+    /**
+     * Document metadata — 13I / §18.
+     *
+     * Enough that a saved file identifies itself in a viewer's title bar and a
+     * file manager's column, and no more. Every value is something already
+     * printed on the cover, so the metadata cannot say anything the reader
+     * cannot see: no internal ids, no filesystem paths, no athlete field the
+     * document does not show, no build or environment strings.
+     */
     const doc = new PDFDocument({ size: 'A4', margin: M, bufferPages: true,
-      info: { Producer: 'Thriv3', Creator: 'Thriv3' } });
+      info: { Producer: 'Thriv3', Creator: 'Thriv3', ...(info ?? {}) } });
     // Order matters: the audit patches `text` first so that the fitting and
     // composing layer sits on top of it, and the guard therefore measures the
     // string that is actually drawn rather than the one handed in.

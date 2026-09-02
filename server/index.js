@@ -34,7 +34,7 @@ import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js'
 import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
 import { philosophySummaries, programReportModel } from './routes/philosophy.js';
-import { renderProgramReport } from './lib/philosophyReport.js';
+import { renderProgramReport, reportFilename, asciiFilename } from './lib/philosophyReport.js';
 import { poolStatus, invalidatePoolBenchmarks, poolBenchmarks } from './lib/philosophyQueries.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -120,13 +120,20 @@ app.post('/api/functions/exportGraduatingDatabase', (req, res) => {
 // somebody tries to open the file.
 
 /** A filename a header can carry: these school names include quotes and parens. */
-function safeFilename(text) {
-  return String(text).replace(/[^A-Za-z0-9 .()'-]/g, ' ').replace(/\s+/g, ' ').trim();
-}
-
+/**
+ * Both forms of the filename — 13I / §17.
+ *
+ * `filename=` has to be ASCII, so it carries `asciiFilename`, which replaces
+ * what it cannot represent rather than deleting it: the previous helper mapped
+ * every non-ASCII character to a space, which turned "Zoё" into "Zo " and quietly
+ * renamed the athlete on the file a client saves. `filename*=` carries the exact
+ * name in the RFC 5987 form, and every current browser prefers it.
+ */
 function sendPdf(res, buffer, filename) {
+  const ascii = asciiFilename(filename).replace(/["\\]/g, '_');
   res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader('Content-Disposition', `attachment; filename="${safeFilename(filename)}"`);
+  res.setHeader('Content-Disposition',
+    `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(filename)}`);
   res.setHeader('Content-Length', buffer.length);
   res.send(buffer);
 }
@@ -167,7 +174,7 @@ app.post('/api/players/:playerId/philosophy/summaries', (req, res) => {
 app.get('/api/philosophy/:collegeId/report.pdf', async (req, res) => {
   try {
     const model = programReportModel({ collegeId: req.params.collegeId });
-    sendPdf(res, await renderProgramReport(model), `${model.college.name} program report.pdf`);
+    sendPdf(res, await renderProgramReport(model), reportFilename(model));
   } catch (err) {
     console.error('[philosophy/report.pdf]', err);
     res.status(/^Unknown college/.test(err.message) ? 404 : 500).json({ error: err.message });
@@ -179,8 +186,7 @@ app.get('/api/players/:playerId/philosophy/:collegeId/report.pdf', async (req, r
     const model = programReportModel({
       collegeId: req.params.collegeId, playerId: req.params.playerId,
     });
-    sendPdf(res, await renderProgramReport(model),
-      `${model.college.name} program report for ${model.athlete.name}.pdf`);
+    sendPdf(res, await renderProgramReport(model), reportFilename(model));
   } catch (err) {
     console.error('[philosophy/report.pdf]', err);
     const status = /^Unknown (college|player)/.test(err.message) ? 404
