@@ -813,13 +813,21 @@ export function currentDepthPage(k, model) {
 
   k.table({
     continued: `The ${model.squadSeason} squad`,
+    /**
+     * NO POSITION COLUMN — 13D.1 / §7D.
+     *
+     * The rows are grouped by position and every group is headed with it, so
+     * the column repeated its own heading down all fifty-nine rows: "Defenders
+     * (17)" over seventeen rows reading "Defender". The width it took goes to
+     * the two columns that were being cut instead — "Mid-America Christian
+     * Univer…" now fits.
+     */
     columns: [
-      { key: 'name', label: 'Player', width: 0.26, bold: true },
-      { key: 'position', label: 'Position', width: 0.12, format: (v) => cap(positionPlural(v)).replace(/s$/, '') },
+      { key: 'name', label: 'Player', width: 0.29, bold: true },
       { key: 'classLabel', label: 'Class', width: 0.11 },
       { key: 'projectedMinutes', label: 'Projected mins', width: 0.15, align: 'right', format: (v) => (v == null ? null : nf(v)) },
-      { key: 'eligibleTo', label: 'Eligible to', width: 0.11, align: 'right' },
-      { key: 'arrivedFrom', label: 'Previous programme', width: 0.25, dropWhenEmpty: true },
+      { key: 'eligibleTo', label: 'Eligible to', width: 0.12, align: 'right' },
+      { key: 'arrivedFrom', label: 'Previous programme', width: 0.33, dropWhenEmpty: true },
     ],
     rows: tableRows,
     highlight: athletePos ? (row) => row.position === athletePos : null,

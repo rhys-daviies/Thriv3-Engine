@@ -49,12 +49,14 @@ import { DIVISIONS } from '../../shared/conferenceHistory.js';
 import { buildResolvers } from '../lib/institutionQueries.js';
 import { competitivePackageFor } from '../lib/conferenceQueries.js';
 import { decisionFindings, MAX_FINDINGS } from '../../shared/report/decisionLayer.js';
+import { unicodeFallback } from '../lib/reportFonts.js';
+import { pdfUnicodeText } from '../lib/pdfText.js';
 import {
   readerSentences, FORBIDDEN_READER_LANGUAGE, V1_FIELDS, COACH_INTEGRATION,
 } from '../../shared/report/competitivePackage.js';
 import { FORBIDDEN as FORBIDDEN_STRUCTURAL } from '../../shared/report/structuralFacts.js';
 import { render } from '../lib/philosophyPdf.js';
-import { createAudit, describeViolations } from '../lib/reportAudit.js';
+import { createAudit, describeViolations, encodable } from '../lib/reportAudit.js';
 import {
   competitiveHistoryPage, competitiveEnvironmentPage, competitiveSentences, benchmarkLabel,
   BENCHMARK_LABEL,
@@ -959,6 +961,80 @@ group('DECISION LAYER — the ranking holds across the universe');
   check('the decision layer speaks at the great majority of programmes',
     withFindings / all.length >= 0.85,
     `${withFindings} of ${all.length} (${(100 * withFindings / all.length).toFixed(1)}%, floor 85%)`);
+}
+
+/**
+ * FONTS — every name is drawn as the characters it is spelled with.
+ *
+ * The failure this guards is invisible to every other check in this file:
+ * pdfkit's standard faces do not refuse a character outside WinAnsi, they hand
+ * back the code point as a glyph selector, and the viewer draws its low byte.
+ * "Zoё May" became "ZoQ May" on the page and in the extracted text, and nothing
+ * crashed. So the roster is scanned for characters the standard faces cannot
+ * encode and every programme carrying one is rendered and audited.
+ */
+group('FONTS — a name is drawn as it is spelled');
+{
+  const source = unicodeFallback();
+  check('a Unicode-capable face is available to fall back to',
+    Boolean(source),
+    source ? source.id : 'none: install one, or put three faces in server/assets/fonts');
+
+  /**
+   * TWO CLASSES, AND ONLY ONE OF THEM IS A RENDERING FAULT.
+   *
+   * A LETTER outside WinAnsi — ё, č, ā — is drawable by any Unicode face, so if
+   * it does not reach the page as itself the renderer is at fault and this
+   * fails. A code point with no glyph in any face — the C1 control characters
+   * three Shawnee State men's names carry from a double-decoded import — cannot
+   * be drawn by any font ever, so no rendering change can fix it. That one is
+   * surfaced rather than failed: the remedy is a data correction, and this
+   * phase is explicitly not allowed to make one.
+   *
+   * The scan is over the rosters rather than over the reports: 276,745 rows
+   * read in a second, against 2,401 reports that would take ten minutes.
+   */
+  const glyphless = (ch) => {
+    const c = ch.codePointAt(0);
+    // C0 and C1 controls, and the surrogate range. Nothing in these is a letter
+    // and nothing in them has a glyph.
+    return c < 0x20 || (c >= 0x7f && c <= 0x9f) || (c >= 0xd800 && c <= 0xdfff);
+  };
+  const names = db.prepare('SELECT college_name, sport, player_name FROM roster_players').all();
+  const withLetters = new Map();
+  const withGlyphless = new Map();
+  for (const r of names) {
+    const n = String(r.player_name ?? '').normalize('NFC');
+    const odd = [...n].filter((ch) => !encodable(ch));
+    if (!odd.length) continue;
+    const key = `${r.college_name}|${r.sport}`;
+    if (odd.some(glyphless)) withGlyphless.set(key, n);
+    else withLetters.set(key, n);
+  }
+
+  let clean = 0; const dirty = [];
+  for (const [key, example] of withLetters) {
+    const [name, sport] = key.split('|');
+    const col = db.prepare('SELECT id FROM colleges WHERE name = ? AND sport = ?').get(name, sport);
+    if (!col) continue;
+    const audit = createAudit();
+    // eslint-disable-next-line no-await-in-loop
+    const buf = await renderProgramReport(programReportModel({ collegeId: col.id, playerId: null }), { audit });
+    // Read through the PDF's own ToUnicode map, which is the route a reader's
+    // copy-and-paste takes; a WinAnsi reader cannot see an embedded subset.
+    const ok = audit.unencodable.length === 0 && pdfUnicodeText(buf).includes(example);
+    if (ok) clean += 1; else dirty.push(`${name}/${sport}: ${example}`);
+  }
+  check('every letter outside WinAnsi is drawn, and read back, as itself',
+    dirty.length === 0 && clean === withLetters.size,
+    `${clean} of ${withLetters.size} programmes${dirty.length ? ` — ${dirty.slice(0, 3).join(', ')}` : ''}`);
+
+  check('a code point no font can draw is surfaced rather than altered',
+    true,
+    withGlyphless.size
+      ? `${withGlyphless.size} programme(s) carry a control character from a double-decoded `
+        + `import, e.g. ${[...withGlyphless.values()][0]} — a data correction, not a font one`
+      : 'none on file');
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

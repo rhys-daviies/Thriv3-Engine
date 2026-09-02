@@ -381,7 +381,32 @@ function structuralTimeline(k, box, seasons) {
       .text(lane.label, box.x, y + 15, { width: laneW - 8, characterSpacing: 0.8, lineBreak: false });
     doc.save().moveTo(gridX, y + BLOCK_H + 1.5).lineTo(gridX + years.length * colW - 4, y + BLOCK_H + 1.5)
       .lineWidth(0.5).strokeColor(LINE).stroke().restore();
-    for (const span of spans(lane.cells)) {
+
+    /**
+     * ONE SIZE FOR EVERY BLOCK IN A LANE — 13D.1 / §7C.
+     *
+     * Sized per block, a lane could set the same conference name twice at two
+     * sizes: at Rochester women's "University Athletic Association" is 10 point
+     * across 2024–2025 and 7.5 point in the single 2022 column beside it, which
+     * reads as two different memberships rather than one interrupted by a
+     * season nobody could establish. The lane now takes the largest step that
+     * fits all of its labels, which is the same rule the decision layer's
+     * metric gutter follows.
+     */
+    const laneSpans = [...spans(lane.cells)];
+    const sizeFor = (span) => {
+      const label = span.value === NO_SEASON ? 'no season read' : (span.value ?? 'not established');
+      const width = (span.to - span.from + 1) * colW - 4 - 12;
+      doc.font('Helvetica-Bold');
+      for (const size of [10, 7.5, 6.2]) {
+        doc.fontSize(size);
+        if (doc.widthOfString(label) <= width) return size;
+      }
+      return 6.2;
+    };
+    const laneSize = Math.min(...laneSpans.map(sizeFor));
+
+    for (const span of laneSpans) {
       const x = gridX + span.from * colW;
       const w = (span.to - span.from + 1) * colW - 4;
       const absent = span.value === NO_SEASON;
@@ -416,12 +441,10 @@ function structuralTimeline(k, box, seasons) {
        */
       const label = absent ? 'no season read' : (span.value ?? 'not established');
       const inner = w - 12;
-      // The value at reading size where it fits, which at a division always
-      // does: "NCAA D1" is the single most consequential string on the page and
-      // it was set at 7.5 point.
-      doc.font(known ? 'Helvetica-Bold' : 'Helvetica-Oblique').fontSize(10);
-      if (doc.widthOfString(label) > inner) doc.fontSize(7.5);
-      if (doc.widthOfString(label) > inner) doc.fontSize(6.2);
+      // The value at the lane's own size. "NCAA D1" is the single most
+      // consequential string on the page and it was set at 7.5 point before
+      // 13D; it is set at the same size as every other block in its lane now.
+      doc.font(known ? 'Helvetica-Bold' : 'Helvetica-Oblique').fontSize(laneSize);
       const textH = Math.min(28, doc.heightOfString(label, { width: inner }));
       doc.fillColor(known ? INK : MUTED)
         .text(label, x + 6, y + Math.max(5, (BLOCK_H - 12 - textH) / 2),

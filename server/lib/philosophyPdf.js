@@ -15,6 +15,7 @@
  */
 import PDFDocument from 'pdfkit';
 import { attachAudit, reserved } from './reportAudit.js';
+import { registerUnicodeFallback, fallbackFor } from './reportFonts.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 
@@ -139,43 +140,17 @@ export function fitText(doc, text, width, opts = undefined) {
 const COMBINING = /[\u0300-\u036F]/;
 
 /**
- * Cyrillic and Greek letters that are drawn identically to a Latin one.
+ * THE HOMOGLYPH FOLD IS GONE — Phase 13D.1 / §1.
  *
- * PHASE 13D / §AB — a font-safe correction, not a fix for one player. The
- * report's fonts are the fourteen standard PDF faces and their encoding is
- * WinAnsi, so a code point outside it has no glyph: at UTSA women's, "Zoё May"
- * carries U+0451 CYRILLIC SMALL LETTER IO, which Helvetica cannot draw. The
- * name is spelled with a look-alike rather than with anything the roster meant
- * to be Cyrillic — the rest of it is Latin — and the general answer to a
- * look-alike is to fold it onto the letter it looks like.
+ * 13D drew ё as ë, on the grounds that the two are the same shape and Helvetica
+ * holds only the second. It rendered, and it was still not the name. It could
+ * not have been made general either: the same encoding gap swallows č, ć, ā, š
+ * and ž, which are Latin letters with no Latin twin to fold onto, and one of
+ * them is already in this database.
  *
- * Only exact homoglyphs are listed. A letter with no Latin twin is left alone
- * and the audit still reports it, because guessing at a transliteration would
- * be inventing a spelling rather than rendering one.
- *
- * NOTHING IS WRITTEN BACK. This is the drawing layer; the roster row, the
- * model and every table still hold what the source published.
+ * A name is now drawn in a face that has the glyph — see reportFonts.js — or
+ * reported as undrawable. It is never respelled.
  */
-const HOMOGLYPHS = new Map(Object.entries({
-  // Cyrillic
-  А: 'A', В: 'B', Е: 'E', К: 'K', М: 'M', Н: 'H', О: 'O', Р: 'P', С: 'C', Т: 'T',
-  У: 'Y', Х: 'X', Ј: 'J', Ѕ: 'S', І: 'I', Ї: 'Ï', Ё: 'Ë',
-  а: 'a', е: 'e', о: 'o', р: 'p', с: 'c', у: 'y', х: 'x', ј: 'j', і: 'i', ї: 'ï', ё: 'ë',
-  // Greek
-  Α: 'A', Β: 'B', Ε: 'E', Ζ: 'Z', Η: 'H', Ι: 'I', Κ: 'K', Μ: 'M', Ν: 'N', Ο: 'O',
-  Ρ: 'P', Τ: 'T', Υ: 'Y', Χ: 'X', ο: 'o', ν: 'v',
-}));
-const NON_LATIN = /[\u0370-\u04FF]/;
-
-export function foldHomoglyphs(str) {
-  if (typeof str !== 'string' || !NON_LATIN.test(str)) return str;
-  // Decomposed first, so a precomposed letter is folded through its base and
-  // keeps its accent: U+0451 becomes Cyrillic е plus a diaeresis, the base
-  // folds to Latin e, and NFC recomposes it as ë — which WinAnsi holds.
-  return str.normalize('NFD')
-    .replace(/[\u0370-\u04FF]/g, (ch) => HOMOGLYPHS.get(ch) ?? ch)
-    .normalize('NFC');
-}
 
 function installTextRules(doc) {
   const prev = doc.text.bind(doc);
@@ -185,14 +160,40 @@ function installTextRules(doc) {
     if (typeof x === 'object' && x !== null) { opts = x; ox = undefined; }
 
     let str = text;
-    if (typeof str === 'string') str = foldHomoglyphs(str);
     if (typeof str === 'string' && COMBINING.test(str)) str = str.normalize('NFC');
 
-    if (opts && opts.lineBreak === false && opts.ellipsis && opts.width) {
-      str = fitText(doc, str, opts.width, opts);
+    /**
+     * A face that can draw this string, where the one set cannot.
+     *
+     * Chosen before the fitting below, because `fitText` measures with the
+     * font that is set and the two must agree — measured in Helvetica and
+     * drawn in an embedded face, a clipped string is cut at the wrong
+     * character. The face is restored afterwards so a caller that sets a font
+     * and then draws twice is unaffected.
+     */
+    const alias = fallbackFor(doc, str);
+    if (!alias) {
+      if (opts && opts.lineBreak === false && opts.ellipsis && opts.width) {
+        str = fitText(doc, str, opts.width, opts);
+      }
+      if (str === text) return prev(text, x, y, options);
+      return typeof ox === 'number' ? prev(str, x, y, options) : prev(str, options);
     }
-    if (str === text) return prev(text, x, y, options);
-    return typeof ox === 'number' ? prev(str, x, y, options) : prev(str, options);
+
+    const restore = doc._font;
+    const size = doc._fontSize;
+    doc.font(alias).fontSize(size);
+    try {
+      if (opts && opts.lineBreak === false && opts.ellipsis && opts.width) {
+        str = fitText(doc, str, opts.width, opts);
+      }
+      return typeof ox === 'number' ? prev(str, x, y, options) : prev(str, options);
+    } finally {
+      // Restored by identity rather than by name: a caller may have set an
+      // alias of its own, and re-resolving a name would lose it.
+      doc._font = restore;
+      doc.fontSize(size);
+    }
   };
 }
 
@@ -782,6 +783,9 @@ export function render(build, { audit = null } = {}) {
     // string that is actually drawn rather than the one handed in.
     if (audit) attachAudit(doc, audit);
     installTextRules(doc);
+    // Registered, not embedded: pdfkit reads a face only when something is
+    // drawn in it, so an ASCII-only report is byte-for-byte unaffected.
+    registerUnicodeFallback(doc);
     const chunks = [];
     doc.on('data', (c) => chunks.push(c));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
@@ -1614,7 +1618,18 @@ export const charts = {
         if (!byYear.has(p.eligibleTo)) byYear.set(p.eligibleTo, []);
         byYear.get(p.eligibleTo).push(p);
       }
-      const spread = Math.min(11, laneH / 6);
+      /**
+       * The spread is bounded by the lane, not only by taste — 13D.1 / §7A.
+       *
+       * At a fixed pitch a year holding 21 players without a projection ran
+       * ±50 points out of a 30-point lane and drew its dots through the lane
+       * below and the key beneath the chart. The group is fitted to the lane
+       * instead: small groups keep the pitch they had, and a large one packs
+       * until its dots touch. Overlapping hollow dots are honest — they are 21
+       * identical marks, and the count beside them is in the table.
+       */
+      const biggest = Math.max(1, ...[...byYear.values()].map((g) => g.length));
+      const spread = Math.min(11, laneH / 6, (laneH - 8) / Math.max(1, biggest - 1));
       for (const [year, group] of byYear) {
         group.forEach((p, i) => {
           const off = (i - (group.length - 1) / 2) * spread;

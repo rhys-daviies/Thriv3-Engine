@@ -1362,9 +1362,13 @@ the player's name was silently misspelled. Every string is now composed to NFC b
 That is the same string written the other way, not a transliteration: nothing is stripped and no
 letter becomes a different letter.
 
-The fourth is a Cyrillic homoglyph in one name. It is reported by the audit rather than
-transliterated or substituted. **Unicode names are not a production risk at this font**; the
-residual is a data defect that is now visible instead of silent.
+The fourth is a Cyrillic letter in one name. It was reported by the audit rather than
+transliterated or substituted, and since Phase 13D.1 it is drawn: a string the standard faces
+cannot encode is set in an embedded face that holds it, so the page and the extracted text both
+carry the exact code points. See `docs/report-visual-system.md` for the fallback and the full
+production audit — four letters outside WinAnsi in 276,745 roster rows, one of which reaches a
+page. The residual is a set of C1 control characters from a double-decoded import at one
+programme, which no font can draw and which the build surfaces rather than alters.
 
 ### 13.8 Performance
 

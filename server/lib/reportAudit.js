@@ -59,22 +59,20 @@ export function createAudit() {
 }
 
 /**
- * Every character Helvetica can actually draw.
+ * Every character the standard fourteen can draw: WinAnsi (CP1252).
  *
- * The standard fourteen PDF fonts are encoded WinAnsi (CP1252): ASCII,
- * Latin-1's upper half, and a scattering of typographic extras. Anything
- * outside it is not drawn as itself — pdfkit substitutes, and the page carries
- * a character nobody wrote. Three phases of this report shipped exactly that,
- * an arrow and a not-equals each time, so the set is written down.
+ * Anything outside it is not drawn as itself — pdfkit returns the code point
+ * as a glyph selector and the viewer reads its low byte — so the page carries a
+ * character nobody wrote. Three phases of this report shipped exactly that, an
+ * arrow and a not-equals each time.
+ *
+ * The set lives in reportFonts.js since 13D.1, beside the fallback that uses
+ * it, and is re-exported here because this module's own name for it is the one
+ * the tests and the invariants have always used.
  */
-const CP1252_EXTRA = '\u20AC\u201A\u0192\u201E\u2026\u2020\u2021\u02C6\u2030\u0160\u2039'
-  + '\u0152\u017D\u2018\u2019\u201C\u201D\u2022\u2013\u2014\u02DC\u2122\u0161\u203A'
-  + '\u0153\u017E\u0178';
+import { encodableBy } from './reportFonts.js';
 
-export function encodable(ch) {
-  const c = ch.codePointAt(0);
-  return (c >= 0x20 && c <= 0x7e) || (c >= 0xa0 && c <= 0xff) || CP1252_EXTRA.includes(ch);
-}
+export { winAnsi as encodable } from './reportFonts.js';
 
 function snapshot(page) {
   return {
@@ -228,9 +226,22 @@ export function attachAudit(doc, audit) {
         collide(glyph, clip(str));
         ink.push(glyph);
       }
-      // What is drawn, not what was handed in: the composing layer sits above
-      // this one, so a decomposed name has already been made whole by now.
-      const out = [...str].filter((ch) => !encodable(ch));
+      /**
+       * WHAT THE FONT IN USE CAN DRAW, not what Helvetica can draw.
+       *
+       * This asked WinAnsi and nothing else, which was right while every face
+       * in the report was one of the standard fourteen. Since 13D.1 a string
+       * outside that set is drawn in an embedded face instead, and a character
+       * that face holds is on the page as itself — so reporting it would be
+       * reporting a defect that is not there. `encodableBy` asks whichever
+       * font is actually set, which is the only answer true of both the page
+       * and the extracted text.
+       *
+       * What is drawn, not what was handed in: the composing and fallback
+       * layers sit above this one, so a decomposed name has already been made
+       * whole and the face has already been switched by now.
+       */
+      const out = [...str].filter((ch) => !encodableBy(doc, ch));
       if (out.length) {
         audit.unencodable.push({ page: index + 1, text: clip(str), characters: [...new Set(out)] });
       }

@@ -13,7 +13,6 @@ import { programReportModel } from '../routes/philosophy.js';
 import { renderProgramReport } from './philosophyReport.js';
 import { invalidatePoolBenchmarks } from './philosophyQueries.js';
 import { invalidateLifecyclePool } from './lifecycleQueries.js';
-import { foldHomoglyphs } from './philosophyPdf.js';
 import { render, THEME } from './philosophyPdf.js';
 import { createAudit, describeViolations, reserved } from './reportAudit.js';
 
@@ -312,38 +311,37 @@ describe('names and the font', () => {
   });
 
   /**
-   * PHASE 13D / §AB. A Cyrillic letter drawn identically to a Latin one is
-   * folded onto that letter at draw time — U+0451 is Latin ë as far as any
-   * reader is concerned, and Helvetica holds ë. That is a rendering
-   * correction, not a transliteration: the model, the roster row and every
-   * table still hold what the source published.
+   * PHASE 13D.1. A character the standard faces cannot encode is drawn in an
+   * embedded face that holds it — see reportFonts.test.js, which reads the
+   * finished page through its ToUnicode map and asserts the exact code points.
+   * What this file asserts is the layout consequence: no defect, and no
+   * substitution.
    */
-  it('draws a letter identical to a Latin one as that letter', async () => {
+  it('draws a letter outside WinAnsi without reporting a defect', async () => {
     const audit = await drawn('Zo\u0451 May');
     expect(audit.unencodable).toEqual([]);
-    expect(foldHomoglyphs('Zo\u0451 May')).toBe('Zo\u00EB May');
   });
 
-  it('never guesses a transliteration for a letter with no Latin twin', async () => {
-    // Ж, ш and π look like nothing in the Latin alphabet. Folding them would be
-    // inventing a spelling, so they are left alone and still reported.
-    for (const ch of ['\u0416', '\u0448', '\u03C0']) {
-      expect(foldHomoglyphs(`Ivan ${ch}ova`)).toBe(`Ivan ${ch}ova`);
-      const audit = await drawn(`Ivan ${ch}ova`);
-      expect(audit.unencodable).toHaveLength(1);
-      expect(audit.unencodable[0].characters).toEqual([ch]);
+  it('draws Cyrillic and Greek letters that have no Latin twin', async () => {
+    // 13D folded look-alikes onto Latin letters and had nothing to offer these.
+    // They are drawn as themselves now.
+    for (const name of ['Ivan \u0416ova', 'Ivan \u0448ova', 'Ivan \u03C0ova']) {
+      const audit = await drawn(name);
+      expect(audit.unencodable, name).toEqual([]);
     }
   });
 
-  it('leaves a name that is already Latin exactly as it is', () => {
-    for (const name of ['Jos\u00E9 Ram\u00EDrez', 'Zoe May', 'O\u2019Connell']) {
-      expect(foldHomoglyphs(name)).toBe(name);
-    }
-  });
-
-  it('reports a glyph outside the set drawn anywhere in a report', async () => {
-    const audit = await drawn('a \u2192 b, x \u2260 y');
-    expect(audit.unencodable[0].characters.sort()).toEqual(['\u2192', '\u2260']);
+  /**
+   * The guard, restated for 13D.1: a character is a defect when the FACE THAT
+   * DRAWS IT has no glyph for it, not when Helvetica has none. A private-use
+   * code point is the host-independent case — no text face holds one — where an
+   * arrow's fate now depends on which fallback the host has, which is the
+   * point of having a fallback at all.
+   */
+  it('reports a glyph no available face can draw', async () => {
+    const audit = await drawn('a \uE000 b');
+    expect(audit.unencodable).toHaveLength(1);
+    expect(audit.unencodable[0].characters).toEqual(['\uE000']);
   });
 });
 
