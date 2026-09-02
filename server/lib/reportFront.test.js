@@ -18,6 +18,7 @@ import { fitText } from './reportFront.js';
 import { decisionFindings } from '../../shared/report/decisionLayer.js';
 import { againstPool } from '../../shared/report/narrative.js';
 import { positionRecordReading } from './reportPosition.js';
+import { staffQuestions, SOURCE_TITLES } from '../../shared/report/staffQuestions.js';
 import { BENCHMARK_BANDS } from '../../shared/report/summary.js';
 
 /**
@@ -697,6 +698,101 @@ describe('the athlete pages are set in the programme visual system', () => {
     const text = pdfText((await build('p1')).buf);
     expect(text).not.toMatch(/Evidence behind this group/);
     expect(text).toMatch(/EVIDENCE — /);
+  });
+});
+
+/**
+ * PHASE 13H — what to verify with the staff, on the page.
+ *
+ * The generator is held to its contract in shared/report/staffQuestions.test.js.
+ * These are the claims only a rendered document can make: the section sits
+ * last in the pathway act, its citations resolve to pages the reader can turn
+ * to, and it is absent rather than empty when nothing qualifies.
+ */
+describe('what to verify with the staff', () => {
+  beforeEach(() => addProgramme('c1', 'Test College'));
+
+  it('sits last in the pathway act, before the programme act', async () => {
+    addAthlete('p1');
+    const { model, buf } = await build('p1');
+    const sec = model.sections.find((x) => x.id === 'athlete-staff-questions');
+    expect(sec).toBeTruthy();
+    expect(sec.act).toBe('pathway');
+    const pathway = model.sections.filter((x) => x.act === 'pathway' && x.page != null);
+    const programme = model.sections.filter((x) => x.act === 'programme-evidence' && x.page != null);
+    expect(sec.page).toBe(Math.max(...pathway.map((x) => x.page)));
+    expect(sec.page).toBeLessThan(Math.min(...programme.map((x) => x.page)));
+    // And the two decision layers still come first.
+    const glance = model.sections.find((x) => x.id === 'athlete-at-a-glance');
+    expect(glance.page).toBeLessThan(sec.page);
+    expect(pdfPages(buf)[sec.page - 1]).toMatch(/What to verify with the staff/);
+  });
+
+  it('names the section its fact came from, and a page a reader can turn to', async () => {
+    addAthlete('p1');
+    const { model, buf } = await build('p1');
+    const sec = model.sections.find((x) => x.id === 'athlete-staff-questions');
+    const page = pdfPages(buf)[sec.page - 1];
+    const { questions } = staffQuestions(model);
+    expect(questions.length).toBeGreaterThan(0);
+    for (const q of questions) {
+      expect(page).toContain(q.question);
+      expect(page).toContain(q.reason);
+      // The section TITLE, never the id, and a real page number rather than
+      // the "elsewhere in this report" fallback.
+      expect(page).toContain(`Based on: ${SOURCE_TITLES[q.section]}`);
+      expect(page).not.toContain(q.section);
+      const target = model.sections.find((x) => x.id === q.section);
+      expect(target?.page, q.category).toBeTruthy();
+      expect(page).toContain(`p.${target.page}`);
+    }
+    expect(page).not.toMatch(/elsewhere in this report/);
+  });
+
+  it('lists itself in the contents with the number of questions it holds', async () => {
+    addAthlete('p1');
+    const { model, buf } = await build('p1');
+    const n = staffQuestions(model).questions.length;
+    expect(pdfPages(buf)[0]).toMatch(new RegExp(`What to verify with the staff \\d+ ${n} question`));
+  });
+
+  /**
+   * OMITTED AT ZERO — §27. Not an empty page, and not a page saying there is
+   * nothing to verify: printing one would tell a reader the programme is fully
+   * known, which is a claim no report in this document makes.
+   */
+  it('is absent rather than empty where no question qualifies', async () => {
+    // A programme with nobody at the athlete's position, no origin sample of
+    // its own and no readable opening: every candidate refuses.
+    addAthlete('p1', { position: 'Goalkeeper' });
+    const { model, buf } = await build('p1');
+    const { questions } = staffQuestions(model);
+    expect(questions).toEqual([]);
+    expect(model.sections.some((x) => x.id === 'athlete-staff-questions')).toBe(false);
+    const text = pdfText(buf);
+    expect(text).not.toMatch(/What to verify with the staff/);
+    expect(text).not.toMatch(/Nothing to verify/i);
+  });
+
+  it('never renders on a programme report', async () => {
+    const { model, buf } = await build();
+    expect(model.sections.some((x) => x.id === 'athlete-staff-questions')).toBe(false);
+    expect(pdfText(buf)).not.toMatch(/What to verify with the staff/);
+  });
+
+  /**
+   * The page is an advisory checklist, not a dashboard: it draws no card and
+   * nothing on it is set above the report's display ceiling. The 13G
+   * invariants cover the ceiling document-wide; this is the card.
+   */
+  it('draws no rounded card and no checkbox', async () => {
+    addAthlete('p1');
+    const { model, buf } = await build('p1');
+    const sec = model.sections.find((x) => x.id === 'athlete-staff-questions');
+    const page = pdfPages(buf)[sec.page - 1];
+    expect(page).not.toMatch(/☐|☑|✓|●/);
+    // And it says what it is not.
+    expect(page).toMatch(/not a concern and not a recommendation/);
   });
 });
 

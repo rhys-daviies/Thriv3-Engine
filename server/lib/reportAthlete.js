@@ -13,6 +13,7 @@
  * count is of the squad as it stands today, read against a date.
  */
 import { charts, THEME, TYPE, pageHead, humanCohort, fitText } from './philosophyPdf.js';
+import { staffQuestions, SOURCE_TITLES, PAGE_STANDFIRST } from '../../shared/report/staffQuestions.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 import { originIsProgrammeSpecific } from '../../shared/report/sections.js';
@@ -762,4 +763,101 @@ export function originPage(k, model) {
       + 'origin split itself, counted directly, and are not affected by that widening.',
     { title: 'A note on the earlier ladder' });
   }
+}
+
+// ---------------------------------------------------------------------------
+// F — what to verify with the staff
+// ---------------------------------------------------------------------------
+
+/**
+ * WHAT TO VERIFY WITH THE STAFF — 13H.
+ *
+ * An advisory checklist, not a dashboard. Three tiers per row and the same
+ * grammar the decision layers use for a finding: the QUESTION is the largest
+ * thing on the row, the reason it is here is a grey line under it, and the
+ * page its fact came from is a citation at label weight. A hairline between
+ * rows, starting at the text column so the page keeps one continuous left
+ * edge; no cards, no icons, no colour carrying a judgement, and nothing that
+ * looks like a workflow to complete.
+ *
+ * The numerals are NAVIGATION. They are set at the page-reference tier in
+ * grey, not in the decision layer's metric gutter in blue, because a column of
+ * blue numerals beside five questions would read as five quantities — or worse,
+ * as five scores.
+ *
+ * The renderer writes no wording. Every question, every reason and every
+ * source belongs to `staffQuestions`, which is the only place the rule lives.
+ */
+export function staffQuestionsPage(k, model) {
+  const { doc } = k;
+  const { questions } = staffQuestions(model);
+  // Never an empty page and never "nothing to verify" — the section does not
+  // render at all, and the registry refuses to plan it. This is the belt to
+  // that brace.
+  if (!questions.length) return;
+
+  pageHead(k, {
+    kicker: 'Understanding your pathway',
+    title: 'What to verify with the staff',
+    question: 'What should you check directly with the coaching staff before making a decision?',
+  });
+  k.scope([`${questions.length} ${questions.length === 1 ? 'question' : 'questions'}`,
+    'each from a stated finding or limitation', 'not a concern and not a recommendation']);
+  k.note(PAGE_STANDFIRST);
+  k.gap(4);
+
+  const NUM_W = 22;
+  const textX = THEME.M + NUM_W + 10;
+  const textW = W - NUM_W - 10;
+
+  questions.forEach((q, i) => {
+    const sourceTitle = SOURCE_TITLES[q.section] ?? null;
+    const questionH = doc.font('Helvetica').fontSize(10.5).heightOfString(q.question, { width: textW });
+    const reasonH = doc.font('Helvetica').fontSize(8).heightOfString(q.reason, { width: textW });
+    k.room(questionH + reasonH + (sourceTitle ? 18 : 0) + 48);
+    const top = doc.y;
+
+    doc.font('Helvetica-Bold').fontSize(7.5).fillColor(MUTED)
+      .text(String(i + 1), THEME.M, top + 2, { width: NUM_W, align: 'right', lineBreak: false });
+
+    doc.font('Helvetica').fontSize(10.5).fillColor(INK)
+      .text(q.question, textX, top, { width: textW });
+    let y = doc.y + 8;
+
+    doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+      .text('WHY THIS IS HERE', textX, y,
+        { width: textW, characterSpacing: TYPE.label.spacing, lineBreak: false });
+    y += 10;
+    doc.font('Helvetica').fontSize(8).fillColor(MUTED).text(q.reason, textX, y, { width: textW });
+    y = doc.y;
+
+    /**
+     * The citation. Section TITLES, never ids, and the page number is deferred
+     * for the same reason a finding's is: this page cannot know what page four
+     * is until the document is finished.
+     */
+    if (sourceTitle) {
+      y += 7;
+      const prefix = `Based on: ${sourceTitle} · `;
+      doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
+        .text(prefix, textX, y, { lineBreak: false });
+      const at = y;
+      const numX = textX + doc.widthOfString(prefix);
+      const id = q.section;
+      k.defer(({ pageOf, doc: d }) => {
+        const n = pageOf(id);
+        d.font('Helvetica').fontSize(6.8).fillColor(MUTED)
+          .text(n == null ? 'elsewhere in this report' : `p.${n}`, numX, at, { lineBreak: false });
+      });
+      y += 11;
+    }
+
+    doc.y = y;
+    if (i < questions.length - 1) {
+      doc.y += 14;
+      doc.save().moveTo(textX, doc.y).lineTo(THEME.M + W, doc.y)
+        .lineWidth(0.4).strokeColor(LINE).stroke().restore();
+      doc.y += 16;
+    }
+  });
 }

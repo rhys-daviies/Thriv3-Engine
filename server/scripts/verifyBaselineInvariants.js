@@ -62,6 +62,9 @@ import {
   BENCHMARK_LABEL,
 } from '../lib/reportCompetitive.js';
 import { competitiveEnvironmentIsWorthAPage } from '../../shared/report/sections.js';
+import {
+  staffQuestions, SOURCE_TITLES, MAX_QUESTIONS,
+} from '../../shared/report/staffQuestions.js';
 
 // ---------------------------------------------------------------------------
 
@@ -1113,6 +1116,98 @@ group('VISUAL SYSTEM — the athlete pages are set in the programme’s grammar'
     ['bigMetric', 'evidenceChip', 'miniStacked', 'calloutPrimary', 'pathwayBlock', 'headlineBand']
       .every((d) => !new RegExp(`${d}\\(`).test(frontSrc)),
     'panel, bigMetric, the callouts, the fact and player lines and the four athlete cards');
+}
+
+/**
+ * WHAT TO VERIFY WITH THE STAFF — the contract, checked against the universe.
+ *
+ * Three claims cannot be made from a fixture. Every question must cite a
+ * section this document actually contains — the defect the first sweep found
+ * at 215 of 791 reports, where a question generated from the roster horizon
+ * pointed at a position page that does not render when nobody is recorded at
+ * the position. No question may carry forecast or judgement language, at any
+ * programme, for any athlete. And the section must be omitted rather than
+ * drawn empty wherever nothing qualifies.
+ */
+group('STAFF QUESTIONS — every question cites a page, and none of them forecasts');
+{
+  // Lowercase and word-bounded: a coach called Will Roberts is a name in a
+  // reason, not a forecast, and the universe holds one.
+  const FORECAST = /\b(will|likely|chance|expected minutes|available minutes|blocked|competitor|competition|better|worse|good|bad|risk|safe|guarantee|scholarship|transfers?)\b/;
+  const WHY = /\bwhy\b/i;
+
+  const cases = [];
+  for (const p of db.prepare('SELECT id, full_name, sport FROM players ORDER BY full_name').all()) {
+    const cols = db.prepare('SELECT id, name FROM colleges WHERE sport = ? ORDER BY name').all(p.sport);
+    for (const c of cols.filter((_, i) => i % 9 === 0)) cases.push({ p, c });
+  }
+
+  let checked = 0; let dangling = 0; let over = 0; let forecast = 0; let why = 0;
+  let notOpened = 0; let dupFamily = 0; let emptySection = 0; let missingSection = 0;
+  let zero = 0; let restated = 0;
+  const example = {};
+  const counts = new Map();
+  const cats = new Map();
+  for (const { p, c } of cases) {
+    let model;
+    try { model = programReportModel({ collegeId: c.id, playerId: p.id }); } catch { continue; }
+    const { questions } = staffQuestions(model);
+    checked += 1;
+    counts.set(questions.length, (counts.get(questions.length) ?? 0) + 1);
+    const ids = new Set((model.sections ?? []).map((x) => x.id));
+    const here = ids.has('athlete-staff-questions');
+    if (!questions.length) {
+      zero += 1;
+      if (here) { emptySection += 1; example.empty ??= `${p.full_name} @ ${c.name}`; }
+      continue;
+    }
+    if (!here) { missingSection += 1; example.missing ??= `${p.full_name} @ ${c.name}`; }
+    if (questions.length > MAX_QUESTIONS) { over += 1; example.over ??= `${p.full_name} @ ${c.name}`; }
+    if (new Set(questions.map((x) => x.family)).size !== questions.length) {
+      dupFamily += 1; example.dup ??= `${p.full_name} @ ${c.name}`;
+    }
+    for (const x of questions) {
+      cats.set(x.category, (cats.get(x.category) ?? 0) + 1);
+      if (!ids.has(x.section) || !SOURCE_TITLES[x.section]) {
+        dangling += 1; example.dangling ??= `${p.full_name} @ ${c.name}/${x.category} → ${x.section}`;
+      }
+      const whole = `${x.question} ${x.reason}`;
+      if (FORECAST.test(whole)) { forecast += 1; example.forecast ??= `${x.category}: ${whole}`; }
+      if (WHY.test(whole)) { why += 1; example.why ??= `${x.category}: ${whole}`; }
+      if (!/^(How|What|Which)\b/.test(x.question) || !x.question.endsWith('?')) {
+        notOpened += 1; example.opened ??= `${x.category}: ${x.question}`;
+      }
+      // A question opens the unknown; it does not restate a measurement. The
+      // only digits it may carry are a season.
+      if (/\d/.test(x.question.replace(/\b(19|20)\d\d\b/g, ''))) {
+        restated += 1; example.restated ??= `${x.category}: ${x.question}`;
+      }
+    }
+  }
+
+  check('every question cites a section this document contains',
+    dangling === 0, `${checked} athlete reports${example.dangling ? ` — ${example.dangling}` : ''}`);
+  check('no question carries forecast or judgement language',
+    forecast === 0 && why === 0,
+    example.forecast ?? example.why ?? 'the scanned vocabulary appears nowhere');
+  check('every question opens with how, what or which',
+    notOpened === 0, example.opened ?? `${checked} athlete reports`);
+  check('no question restates a measurement',
+    restated === 0, example.restated ?? 'only the season a question is asked about');
+  check('one question per conversation, and never more than the ceiling',
+    dupFamily === 0 && over === 0,
+    example.dup ?? example.over ?? `ceiling ${MAX_QUESTIONS}`);
+  check('the section is omitted where nothing qualifies, and present where something does',
+    emptySection === 0 && missingSection === 0,
+    `${zero} of ${checked} reports produced no question${example.empty ? ` — ${example.empty}` : ''}`
+    + `${example.missing ? ` — ${example.missing}` : ''}`);
+  check('the page is not five questions by default',
+    (counts.get(MAX_QUESTIONS) ?? 0) / Math.max(1, checked) < 0.2,
+    [...counts.entries()].sort((a, b) => a[0] - b[0]).map(([k, v]) => `${k}→${v}`).join(' · '));
+  check('no single category is on every report',
+    [...cats.values()].every((v) => v < checked),
+    [...cats.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3)
+      .map(([k, v]) => `${k} ${(100 * v / checked).toFixed(0)}%`).join(' · '));
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

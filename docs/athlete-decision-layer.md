@@ -18,6 +18,7 @@ before the programme's own.
 | 2 | **What Thriv3 sees for you** — ranked athlete findings, the input strip, the scope statement |
 | 3 | **What Thriv3 sees about the programme** — the frozen programme findings and snapshot, one tier quieter |
 | 4… | the athlete pathway pages |
+| … | **What to verify with the staff** — added in 13H, last in the pathway act, generated from the findings above and omitted where none qualifies. See docs/staff-questions.md |
 | … | the frozen Programme Intelligence act, as substrate |
 | … | the evidence, athlete evidence first |
 

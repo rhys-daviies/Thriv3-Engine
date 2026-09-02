@@ -116,6 +116,21 @@ it to the athlete pages:
 | Where you are arriving from | the counts before the answer; a label wrapping "positions" onto a line of its own; the relaxation caveat as a claret-tinted box | the answer first, the label that repeated the scope strip shortened, the caveat as the report's quiet aside |
 | the cover | "A historical view of how players enter, develop and move through this programme" — the programme standfirst with a different verb | what the document is a reading of, and who it is read for. Never "fit" |
 
+### One more page, in the same grammar — 13H
+
+"What to verify with the staff" is the report's only decision-support surface
+and it is set as an advisory checklist rather than a dashboard: three tiers per
+row — the QUESTION at the finding's own 10.5pt ink, the reason it is here in
+8pt grey under a label, the page its fact came from as a 6.8pt citation — with
+a hairline between rows starting at the text column, so the page keeps one
+continuous left edge.
+
+The numerals are navigation. They are set at the page-reference tier in grey,
+not in the decision layer's metric gutter in blue, because a column of blue
+numerals beside five questions would read as five quantities, or worse as five
+scores. No card, no icon, no checkbox, no colour carrying a judgement, and
+nothing that looks like a workflow to complete.
+
 ### The three non-claims, and which is which
 
 Unchanged since 13D and now used consistently on both report kinds. It was the

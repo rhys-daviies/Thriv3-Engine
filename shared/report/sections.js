@@ -24,6 +24,7 @@
 
 import { MIN_POSITION_DESTINATIONS } from './lifecycleSummary.js';
 import { decisionFindings } from './decisionLayer.js';
+import { staffQuestions } from './staffQuestions.js';
 
 /**
  * The layers of the document, outermost structure first.
@@ -424,6 +425,39 @@ export const SECTIONS = [
         `${o.programme.sameOrigin.players} of ${o.programme.withRecordedOrigin} share this background`,
         originIsProgrammeSpecific(o) ? null : 'pool context only',
       ].filter(Boolean);
+    },
+  },
+
+  {
+    id: 'athlete-staff-questions',
+    /**
+     * WHAT TO VERIFY WITH THE STAFF — 13H, and the report's only
+     * decision-support surface.
+     *
+     * LAST IN THE PATHWAY ACT, and deliberately not in the evidence act: it is
+     * not a record of anything. It reads the athlete's own analysis and turns
+     * what the record cannot establish, plus what the current structure makes
+     * worth clarifying, into questions somebody can ask out loud. The rule is
+     * in docs/staff-questions.md.
+     *
+     * IT IS OMITTED AT ZERO, never drawn empty and never drawn with a line
+     * saying there is nothing to verify. `unavailableWhenEmpty` is false for
+     * exactly that reason: an "unavailable" state here would tell a reader the
+     * programme is fully known, which is a claim no report makes.
+     */
+    title: 'What to verify with the staff',
+    description: 'Questions this report’s own findings and limitations make worth asking, and the '
+      + 'fact behind each one.',
+    layer: 'athlete-evidence',
+    scope: 'athlete',
+    unavailableWhenEmpty: false,
+    applies: ({ model }) => staffQuestions(model).questions.length > 0,
+    scopeOf: ({ model }) => {
+      const { questions } = staffQuestions(model);
+      return [
+        `${questions.length} ${questions.length === 1 ? 'question' : 'questions'}`,
+        'each from a stated finding or limitation',
+      ];
     },
   },
 

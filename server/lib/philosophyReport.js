@@ -30,7 +30,7 @@ import {
   currentSquadOutlookPage, currentDepthPage,
 } from './reportEvidence.js';
 import {
-  positionOpeningsPage, currentPositionPage, originPage,
+  positionOpeningsPage, currentPositionPage, originPage, staffQuestionsPage,
 } from './reportAthlete.js';
 import {
   playerDevelopmentPage, rosterContinuityPage,
@@ -184,6 +184,17 @@ export function renderProgramReport(model, opts = {}) {
     if (athletePositionIsStrong(model)) {
       section('athlete-position-movement', () => athletePositionMovementPage(k, model));
     }
+
+    /**
+     * LAST IN THE PATHWAY ACT — 13H / §23.
+     *
+     * After the athlete's own analysis and before the frozen programme act:
+     * the questions are generated FROM the pages above, so they cannot precede
+     * them, and they are decision support rather than evidence, so they do not
+     * belong in the act at the back. Omitted entirely where no question
+     * qualifies — `section` does not draw a section the plan does not contain.
+     */
+    section('athlete-staff-questions', () => staffQuestionsPage(k, model));
 
     // ---- Act II: programme intelligence, in narrative order ----
     //
