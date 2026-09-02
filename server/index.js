@@ -35,6 +35,10 @@ import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
 import { philosophySummaries, programReportModel } from './routes/philosophy.js';
 import { renderProgramReport, reportFilename, asciiFilename } from './lib/philosophyReport.js';
+import {
+  generateReport, listReports, readArtifact, selectableAthletes, selectableProgrammes,
+  operatorMessage,
+} from './lib/reportDelivery.js';
 import { poolStatus, invalidatePoolBenchmarks, poolBenchmarks } from './lib/philosophyQueries.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -192,6 +196,80 @@ app.get('/api/players/:playerId/philosophy/:collegeId/report.pdf', async (req, r
     const status = /^Unknown (college|player)/.test(err.message) ? 404
       : / plays /.test(err.message) ? 400 : 500;
     res.status(status).json({ error: err.message });
+  }
+});
+
+/**
+ * ---- Report delivery — Phase 13J ------------------------------------------
+ *
+ * The operator workflow around the frozen report: pick, generate, download,
+ * and see what has been generated before. Four routes and no more.
+ *
+ * The two `report.pdf` endpoints above are unchanged and remain the direct
+ * path. These persist an immutable artefact and a history row as well, which
+ * is the difference between "I looked at a report" and "this is the document
+ * we sent".
+ */
+app.get('/api/reports/athletes', (req, res) => {
+  try {
+    res.json(selectableAthletes({ query: req.query.q, limit: req.query.limit }));
+  } catch (err) {
+    console.error('[reports/athletes]', err);
+    res.status(500).json({ error: 'The athlete list could not be read.' });
+  }
+});
+
+app.get('/api/reports/programmes', (req, res) => {
+  try {
+    res.json(selectableProgrammes({
+      query: req.query.q, sport: req.query.sport || null, limit: req.query.limit,
+    }));
+  } catch (err) {
+    console.error('[reports/programmes]', err);
+    res.status(500).json({ error: 'The programme list could not be read.' });
+  }
+});
+
+app.get('/api/reports', (req, res) => {
+  try {
+    res.json(listReports({
+      athleteId: req.query.athleteId || null,
+      collegeId: req.query.collegeId || null,
+      limit: req.query.limit,
+    }));
+  } catch (err) {
+    console.error('[reports/list]', err);
+    res.status(500).json({ error: 'The report history could not be read.' });
+  }
+});
+
+/**
+ * One explicit generation. Never triggered by selection alone — the client
+ * posts this because an operator pressed the button.
+ */
+app.post('/api/reports', async (req, res) => {
+  const { athleteId = null, collegeId } = req.body || {};
+  try {
+    if (!collegeId) return res.status(400).json({ error: 'Choose a programme first.' });
+    res.json(await generateReport({ athleteId, collegeId }));
+  } catch (err) {
+    // The cause is logged; the operator sees a sentence.
+    console.error('[reports/generate]', { athleteId, collegeId }, err);
+    res.status(err.status ?? 500).json({ error: err.message || operatorMessage(err) });
+  }
+});
+
+/**
+ * The artefact, resolved server-side from the generation id. The store is
+ * never served statically — this is the only way out of it.
+ */
+app.get('/api/reports/:id/download', (req, res) => {
+  try {
+    const { bytes, filename } = readArtifact(req.params.id);
+    sendPdf(res, bytes, filename);
+  } catch (err) {
+    if (!err.status || err.status >= 500) console.error('[reports/download]', req.params.id, err);
+    res.status(err.status ?? 500).json({ error: err.message || 'That report could not be read.' });
   }
 });
 
@@ -388,9 +466,26 @@ app.use(express.static(publicDir));
 // only in a terminal nobody is looking at.
 app.get('/api/engagement/sync/status', (req, res) => res.json(syncStatus()));
 
+/**
+ * THE ACCESS BOUNDARY, MADE REAL — Phase 13J / §27.
+ *
+ * This application has no authentication, deliberately: the README says
+ * "no auth, single user" and the roadmap's go-live shape is one operator
+ * running the engine on athletes' behalf. That is the trust boundary, and the
+ * delivery surface reuses it rather than inventing an auth system.
+ *
+ * But `app.listen(PORT)` binds every interface, so the boundary was not
+ * actually enforced — anything on the same network could read the whole API,
+ * including a client's report. Binding loopback by default is what makes the
+ * documented model true. `API_HOST=0.0.0.0` restores the old behaviour for a
+ * deployment that puts a real authenticating proxy in front, which is the only
+ * circumstance in which it should be reachable from off the machine.
+ */
 const PORT = process.env.API_PORT || 8787;
-app.listen(PORT, () => {
-  console.log(`Thriv3 API listening on http://localhost:${PORT}`);
+const HOST = process.env.API_HOST || '127.0.0.1';
+app.listen(PORT, HOST, () => {
+  console.log(`Thriv3 API listening on http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`
+    + (HOST === '0.0.0.0' ? '  (bound to every interface — there is no authentication)' : ''));
 
   // Said out loud either way. "Nothing schedules the sync" was true for four
   // days without anybody knowing, and silence at boot is what allowed that.

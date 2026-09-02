@@ -701,3 +701,81 @@ CREATE TABLE IF NOT EXISTS conference_members_official (
 );
 
 CREATE INDEX IF NOT EXISTS idx_cmo_conf ON conference_members_official(conference_id);
+
+-- ---------------------------------------------------------------------------
+-- Generated reports — the delivery surface's own history, and nothing else.
+--
+-- Phase 13J. One row per SUCCESSFUL OR FAILED generation of one document. It
+-- is the answer to six operator questions and no more: when was this
+-- generated, who for, which programme, which report type, which artefact went
+-- out, and which engine produced it.
+--
+-- IMMUTABLE. A row is written once and never updated. Regenerating the same
+-- athlete and programme writes a NEW row with a NEW artefact, because the
+-- roster and projection data underneath a report change between generations —
+-- so a report sent to a family in March is not the document the same inputs
+-- would produce in June, and calling them the same file would be a lie about
+-- what was sent.
+--
+-- `id` is the artefact key as well as the row key, so two generations of one
+-- pair cannot collide on disk however the display filename repeats.
+--
+-- NOT a document-management system. No folders, no tags, no sharing, no
+-- retention rules, no analytical model JSON. The report engine is frozen and
+-- this table does not touch a single one of its tables.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS generated_reports (
+  id TEXT PRIMARY KEY,
+
+  -- 'athlete' (athlete × programme) or 'programme' (the programme document).
+  report_type TEXT NOT NULL,
+  -- Null for a programme report. Deliberately NOT a foreign key: a history row
+  -- must survive an athlete being archived or removed, because it records
+  -- something that was sent.
+  athlete_id TEXT,
+  college_id TEXT NOT NULL,
+  sport TEXT NOT NULL,
+
+  -- Denormalised on purpose, so the history reads correctly years later even
+  -- if a programme is renamed or an athlete record changes.
+  athlete_name TEXT,
+  college_name TEXT,
+
+  -- The canonical human-readable name, from the frozen `reportFilename`.
+  filename TEXT NOT NULL,
+  -- Relative to the store root, never absolute: an absolute path in a database
+  -- row is a path that breaks when the machine changes.
+  artifact_path TEXT,
+
+  page_count INTEGER,
+  byte_size INTEGER,
+  -- TWO HASHES, BECAUSE THEY ANSWER DIFFERENT QUESTIONS.
+  --
+  -- `sha256` covers the file as stored, so it detects an artefact that has
+  -- been altered or truncated on disk. It CANNOT detect a duplicate: every
+  -- PDF embeds its own creation timestamp and an /ID derived from it, so two
+  -- generations of identical data are two different files.
+  --
+  -- `content_sha256` covers the concatenated content streams — the ink. 13I
+  -- proved those are byte-identical across repeated generation from unchanged
+  -- data, so this is what says "the same document, generated twice" and it is
+  -- what the operator sees as a fingerprint.
+  --
+  -- Internal either way; neither is ever shown as a client identifier.
+  sha256 TEXT,
+  content_sha256 TEXT,
+  -- Which frozen engine produced this artefact.
+  engine_sha TEXT,
+
+  -- 'generated' or 'failed'. A row is only written as generated once the
+  -- artefact is on disk, so a success row cannot describe a missing file.
+  status TEXT NOT NULL,
+  error TEXT,
+
+  generated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_generated_reports_athlete
+  ON generated_reports(athlete_id, generated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_generated_reports_pair
+  ON generated_reports(athlete_id, college_id, generated_at DESC);

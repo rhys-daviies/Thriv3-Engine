@@ -11,6 +11,13 @@ const TABS = [
   { segment: 'matching', label: 'Analysis & Matching' },
   { segment: 'engagement', label: 'Coach Engagement' },
   { segment: 'philosophy', label: 'Program Philosophy' },
+  /**
+   * 13J: the delivery surface. It lives here rather than on its own screen
+   * because the athlete is already chosen and displayed above these tabs —
+   * a second athlete picker is a second chance to send the wrong person's
+   * report — and because report history is naturally per athlete.
+   */
+  { segment: 'reports', label: 'Reports' },
 ];
 
 /**

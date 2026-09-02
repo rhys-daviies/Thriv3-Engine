@@ -20,10 +20,11 @@
 import zlib from 'node:zlib';
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import db from '../db/client.js';
 import { programReportModel } from '../routes/philosophy.js';
-import { renderProgramReport } from '../lib/philosophyReport.js';
+import { renderProgramReport, reportFilename } from '../lib/philosophyReport.js';
 import { classRank, STARTER_MINUTES } from '../../shared/lifecycle/lifecycle.js';
 import { readClassYear } from '../../shared/classYear.js';
 import {
@@ -67,6 +68,9 @@ import {
 } from '../../shared/report/staffQuestions.js';
 import { readCoachRow } from '../../shared/coachTenure.js';
 import { classDisplay } from '../../shared/lifecycle/lifecycle.js';
+import {
+  generateReport, readArtifact, selectableAthletes, STORE_ROOT,
+} from '../lib/reportDelivery.js';
 
 // ---------------------------------------------------------------------------
 
@@ -1332,6 +1336,90 @@ group('RELEASE — what the audits established, checked rather than remembered')
     true,
     `${affected.size} of ${groups.size} programme-seasons hold a name that is a prefix of another `
     + '— one player split across differently-mangled spellings; see docs/report-release.md');
+}
+
+/**
+ * DELIVERY — the claims that need the real database.
+ *
+ * The delivery suite builds its own in-memory fixtures, because every vitest
+ * file gets a throwaway database and must not read the working one. These are
+ * the two things that can only be checked here: that the named production
+ * pairs still produce the page counts the release recorded, and that a
+ * generation through the delivery surface leaves every table the report reads
+ * exactly as it was.
+ */
+group('DELIVERY — the frozen report, delivered unchanged');
+{
+  const PAIRS = [
+    ['Rhys Davies', 'Mercyhurst', 'mens-soccer', 31],
+    ['Shaan Anad', 'California', 'mens-soccer', 25],
+    ['Rhys Davies', 'Albright', 'mens-soccer', 18],
+  ];
+  const pagesOf = (buf) => (buf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) || []).length;
+  const streamsOf = (buf) => [...buf.toString('latin1').matchAll(/stream\r?\n([\s\S]*?)endstream/g)]
+    .map((m) => m[1]).join('');
+
+  const TABLES = ['colleges', 'roster_players', 'players', 'coach_seasons', 'programme_seasons',
+    'programme_conference_seasons', 'conference_members_official', 'conference_seasons',
+    'institution_aliases'];
+  const snapshot = () => Object.fromEntries(TABLES.map((t) => [t, crypto.createHash('sha256')
+    .update(db.prepare(`SELECT * FROM ${t}`).all().map((r) => JSON.stringify(r)).join('\n'))
+    .digest('hex')]));
+
+  const before = snapshot();
+  let checked = 0; let wrongPages = null; let differed = null; let wrongName = null;
+  const generated = [];
+  for (const [who, prog, sport, expected] of PAIRS) {
+    const col = db.prepare('SELECT id FROM colleges WHERE name = ? AND sport = ?').get(prog, sport);
+    const ath = db.prepare('SELECT id FROM players WHERE full_name = ? AND sport = ?').get(who, sport);
+    if (!col || !ath) continue;
+    checked += 1;
+
+    // A — the frozen path, exactly as the existing endpoint calls it.
+    const model = programReportModel({ collegeId: col.id, playerId: ath.id });
+    // eslint-disable-next-line no-await-in-loop
+    const direct = await renderProgramReport(model);
+    if (pagesOf(direct) !== expected) {
+      wrongPages ??= `${who} × ${prog}: ${pagesOf(direct)} pages, release recorded ${expected}`;
+    }
+
+    // B — the delivery surface.
+    // eslint-disable-next-line no-await-in-loop
+    const row = await generateReport({ athleteId: ath.id, collegeId: col.id });
+    generated.push(row.id);
+    const { bytes } = readArtifact(row.id);
+    if (streamsOf(bytes) !== streamsOf(direct)) differed ??= `${who} × ${prog}`;
+    if (row.filename !== reportFilename(model)) wrongName ??= `${who} × ${prog}: ${row.filename}`;
+    if (row.pages !== expected) wrongPages ??= `${who} × ${prog} via delivery: ${row.pages}`;
+  }
+
+  check('the release page counts still hold for the named pairs',
+    wrongPages === null,
+    wrongPages ?? `${checked} of ${PAIRS.length} pairs · 31 / 25 / 18`);
+  check('a report delivered is byte-identical to the same report rendered directly',
+    differed === null,
+    differed ? `content streams differ at ${differed}` : `${checked} pairs, every content stream`);
+  check('the delivered filename is the frozen helper’s',
+    wrongName === null, wrongName ?? 'reportFilename, never reconstructed');
+
+  const after = snapshot();
+  const moved = TABLES.filter((t) => before[t] !== after[t]);
+  check('generating through the delivery surface changes no table the report reads',
+    moved.length === 0,
+    moved.length ? `moved: ${moved.join(', ')}` : `${TABLES.length} tables unchanged`);
+
+  // The delivery surface's own rows and artefacts are removed again: this
+  // script runs against the working database and must not leave history in it.
+  for (const id of generated) {
+    try { fs.unlinkSync(path.join(STORE_ROOT, `${id}.pdf`)); } catch { /* already gone */ }
+    db.prepare('DELETE FROM generated_reports WHERE id = ?').run(id);
+  }
+
+  const qa = db.prepare('SELECT id FROM players WHERE id = ?').get('qa-fixture-womens-soccer-0001');
+  check('the QA fixture is not offered to an operator',
+    Boolean(qa) && !selectableAthletes({ limit: 500 }).some((a) => a.id === qa.id)
+      && selectableAthletes({ query: 'QA Fixture', limit: 500 }).length === 0,
+    'archived records are excluded from the athlete picker');
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

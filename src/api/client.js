@@ -110,6 +110,34 @@ async function requestBlob(path, options = {}) {
   return res.blob();
 }
 
+/**
+ * A blob AND the name the server gave it — 13J / §14.
+ *
+ * The report's filename is decided by `reportFilename` on the server and is
+ * part of the frozen product; the client must not reconstruct it. It reaches
+ * us in `Content-Disposition`, in both an ASCII `filename=` and an RFC 5987
+ * `filename*=`, and the second is preferred because it carries the exact
+ * spelling of a name like "Zoё".
+ */
+async function requestPdf(path, options = {}) {
+  const res = await fetch(path, options);
+  if (!res.ok) {
+    const text = await res.text();
+    let message = text;
+    try { message = JSON.parse(text).error || text; } catch { /* not JSON */ }
+    throw new Error(message || `Request failed (${res.status})`);
+  }
+  return { blob: await res.blob(), filename: filenameFrom(res.headers.get('content-disposition')) };
+}
+
+export function filenameFrom(disposition) {
+  if (!disposition) return null;
+  const extended = disposition.match(/filename\*=UTF-8''([^;]+)/i);
+  if (extended) { try { return decodeURIComponent(extended[1].trim()); } catch { /* fall through */ } }
+  const plain = disposition.match(/filename="?([^";]+)"?/i);
+  return plain ? plain[1].trim() : null;
+}
+
 export const philosophy = {
   /** One compact row per school for the Program Philosophy tab. */
   summaries(playerId, collegeIds) {
@@ -121,11 +149,49 @@ export const philosophy = {
   poolStatus() {
     return request('/api/philosophy/pool');
   },
-  /** One document. Without a player it omits the athlete-specific part. */
+  /**
+   * One document, with the filename the server chose for it. Without a player
+   * it omits the athlete-specific part.
+   */
   report(collegeId, playerId = null) {
-    return requestBlob(playerId
+    return requestPdf(playerId
       ? `/api/players/${playerId}/philosophy/${collegeId}/report.pdf`
       : `/api/philosophy/${collegeId}/report.pdf`);
+  },
+};
+
+/**
+ * The delivery surface — 13J.
+ *
+ * `generate` persists an immutable artefact and a history row; the two
+ * `philosophy.report` endpoints above stay as the direct, unrecorded path.
+ */
+export const reports = {
+  athletes(q = '') {
+    return request(`/api/reports/athletes${q ? `?q=${encodeURIComponent(q)}` : ''}`);
+  },
+  programmes(q = '', sport = null) {
+    const params = new URLSearchParams();
+    if (q) params.set('q', q);
+    if (sport) params.set('sport', sport);
+    const qs = params.toString();
+    return request(`/api/reports/programmes${qs ? `?${qs}` : ''}`);
+  },
+  history({ athleteId = null, collegeId = null } = {}) {
+    const params = new URLSearchParams();
+    if (athleteId) params.set('athleteId', athleteId);
+    if (collegeId) params.set('collegeId', collegeId);
+    const qs = params.toString();
+    return request(`/api/reports${qs ? `?${qs}` : ''}`);
+  },
+  generate({ athleteId = null, collegeId }) {
+    return request('/api/reports', {
+      method: 'POST',
+      body: JSON.stringify({ athleteId, collegeId }),
+    });
+  },
+  download(id) {
+    return requestPdf(`/api/reports/${id}/download`);
   },
 };
 

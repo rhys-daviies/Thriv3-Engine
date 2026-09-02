@@ -12,16 +12,25 @@ export default defineConfig({
       '@shared': path.resolve(process.cwd(), 'shared'),
     },
   },
+  /**
+   * Ports from the environment, defaults unchanged — 13J.
+   *
+   * `strictPort` with a hardcoded pair means a second checkout of this
+   * repository cannot run its dev server at all while the first one is up,
+   * which is exactly the situation a delivery branch is developed in.
+   * `CLIENT_PORT` and `API_PORT` move both halves together, and the proxy
+   * target follows the API port so the two cannot drift apart.
+   */
   server: {
-    port: 5183,
+    port: Number(process.env.CLIENT_PORT || 5183),
     strictPort: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8787',
+        target: `http://localhost:${process.env.API_PORT || 8787}`,
         changeOrigin: true,
       },
       '/uploads': {
-        target: 'http://localhost:8787',
+        target: `http://localhost:${process.env.API_PORT || 8787}`,
         changeOrigin: true,
       },
     },

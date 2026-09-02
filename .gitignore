@@ -14,3 +14,6 @@ build/
 
 # esbuild output for the Pages worker
 worker/dist/
+
+# Generated client report artefacts — never commit these
+server/reports/

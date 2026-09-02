@@ -83,9 +83,18 @@ export function PhilosophyRow({ college, summary, player }) {
     setBusy(true);
     setError(null);
     try {
-      const blob = await philosophy.report(college.id, player?.id ?? null);
-      downloadBlob(blob, `program-report-${slug(college.name)}`
-        + `${player ? `-for-${slug(player.full_name)}` : ''}.pdf`);
+      /**
+       * THE SERVER NAMES THE FILE — 13J / §14.
+       *
+       * This used to build "program-report-mercyhurst-for-rhys-davies.pdf"
+       * here, which stopped matching the product the moment 13I made
+       * `reportFilename` the canonical helper: two names for one document, and
+       * the client's was the one the operator saw. The canonical name now
+       * arrives in `Content-Disposition` and the fallback only fires if a
+       * proxy strips the header.
+       */
+      const { blob, filename } = await philosophy.report(college.id, player?.id ?? null);
+      downloadBlob(blob, filename || `Thriv3_${slug(college.name)}.pdf`);
     } catch (err) {
       if (alive.current) setError(err.message);
     } finally {

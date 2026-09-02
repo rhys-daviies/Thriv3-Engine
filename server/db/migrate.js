@@ -363,6 +363,25 @@ function backfillAcademicRatingSource(db) {
   }
 }
 
+/**
+ * Delivery history — Phase 13J. `generated_reports` is created by schema.sql,
+ * which uses CREATE TABLE IF NOT EXISTS and therefore cannot add a column to a
+ * table that already exists in the field. `content_sha256` was added after the
+ * first databases had the table, so it is owned here like every other added
+ * column.
+ *
+ * REVERSIBLE. Both are nullable with no default, so dropping them restores the
+ * previous shape exactly and nothing reads them as required:
+ *
+ *   ALTER TABLE generated_reports DROP COLUMN content_sha256;
+ *
+ * Rows written before it existed simply carry null, which the operator screen
+ * renders as no fingerprint rather than as an error.
+ */
+const GENERATED_REPORT_COLUMNS = [
+  ['content_sha256', 'TEXT'],
+];
+
 export function migrate(db) {
   addMissingColumns(db, 'players', PLAYER_COLUMNS);
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_players_public_slug ON players(public_slug)');
@@ -382,4 +401,11 @@ export function migrate(db) {
   }
   backfillRecruitingClassYear(db);
   backfillAcademicRatingSource(db);
+
+  // Guarded the same way `programme_conference_seasons` is: the table arrives
+  // with schema.sql, and on a database from before it existed there is nothing
+  // to alter yet.
+  if (db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'generated_reports'").get().n) {
+    addMissingColumns(db, 'generated_reports', GENERATED_REPORT_COLUMNS);
+  }
 }
