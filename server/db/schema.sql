@@ -779,3 +779,58 @@ CREATE INDEX IF NOT EXISTS idx_generated_reports_athlete
   ON generated_reports(athlete_id, generated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_generated_reports_pair
   ON generated_reports(athlete_id, college_id, generated_at DESC);
+
+-- ---------------------------------------------------------------------------
+-- OPERATOR ACCESS — Phase 13K.
+--
+-- The internal application had no authentication, deliberately: one operator,
+-- one machine, loopback-bound. Hosting it changes that, and nothing else about
+-- the delivery model changes with it. Two tables and no more: there are no
+-- roles, no client accounts and no permissions hierarchy in V1, because every
+-- authenticated account is a Thriv3 operator with the same reach.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS operator_users (
+  id TEXT PRIMARY KEY,
+  -- Stored lowercased; the unique index below is what makes "one account per
+  -- person" true rather than merely intended.
+  email TEXT NOT NULL,
+  -- scrypt, in a self-describing string that carries its own parameters, so a
+  -- future work-factor increase can re-hash on next sign-in without guessing
+  -- how an old hash was made. Never a plaintext password, never reversible.
+  password_hash TEXT NOT NULL,
+  -- Revocation without deletion: a deactivated account keeps its history
+  -- attribution but cannot sign in, and its live sessions are dropped.
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL,
+  last_login_at TEXT
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_operator_users_email
+  ON operator_users(email);
+
+-- Server-side sessions. The cookie carries an opaque random token and nothing
+-- else — no identity, no claims, no expiry the client could edit — so signing
+-- out is a delete here rather than a request the browser is trusted to honour.
+CREATE TABLE IF NOT EXISTS operator_sessions (
+  -- THE TOKEN IS NOT STORED. Only its SHA-256, so a database dump — or a
+  -- backup on somebody's laptop — does not hand over live sessions.
+  token_sha256 TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  last_seen_at TEXT NOT NULL,
+  -- The idle deadline, pushed forward on use but never past
+  -- created_at + the absolute lifetime.
+  expires_at TEXT NOT NULL,
+  absolute_expires_at TEXT NOT NULL,
+  -- Recorded for the login log, not for enforcement: pinning a session to an
+  -- IP breaks a laptop that moves between networks, which is the normal case
+  -- for the person this tool is for.
+  created_ip TEXT,
+  user_agent TEXT,
+  FOREIGN KEY (user_id) REFERENCES operator_users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_operator_sessions_user
+  ON operator_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_operator_sessions_expiry
+  ON operator_sessions(expires_at);

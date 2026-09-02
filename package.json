@@ -32,7 +32,9 @@
     "audit:performance": "node server/scripts/auditPerformanceSource.js",
     "snapshot:pi": "node server/scripts/snapshotProgrammeIntelligence.js",
     "verify:baseline": "node server/scripts/verifyBaselineInvariants.js",
-    "import:seasons": "node server/scripts/importProgrammeSeasons.js"
+    "import:seasons": "node server/scripts/importProgrammeSeasons.js",
+    "operator": "node server/scripts/createOperator.js",
+    "backup": "node server/scripts/backup.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",
@@ -51,6 +53,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "fastest-levenshtein": "^1.0.16",
+    "helmet": "^8.3.0",
     "lucide-react": "^0.454.0",
     "multer": "^2.2.0",
     "pdfkit": "^0.20.1",

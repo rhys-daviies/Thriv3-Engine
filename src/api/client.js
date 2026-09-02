@@ -5,14 +5,54 @@
  * `base44.entities.Player.filter({sport})` reads the same here.
  */
 
+/**
+ * SIGNED OUT, ANYWHERE — Phase 13K.
+ *
+ * The server answers 401 to any protected request without a live session. It
+ * can happen to any call at any moment — a session expires, an account is
+ * deactivated, the secret is rotated — so the app learns about it here, once,
+ * rather than in every component that might be the unlucky caller.
+ */
+const unauthenticatedListeners = new Set();
+
+export function onUnauthenticated(listener) {
+  unauthenticatedListeners.add(listener);
+  return () => unauthenticatedListeners.delete(listener);
+}
+
+function noteUnauthenticated() {
+  for (const listener of unauthenticatedListeners) {
+    try { listener(); } catch { /* a listener must not break a request */ }
+  }
+}
+
+/** True when the response says "sign in", so callers can stop rather than retry. */
+export class SignedOutError extends Error {
+  constructor(message) {
+    super(message || 'Sign in to continue.');
+    this.name = 'SignedOutError';
+    this.signedOut = true;
+  }
+}
+
 async function request(path, options = {}) {
   const res = await fetch(path, {
     headers: { 'Content-Type': 'application/json' },
+    // The session cookie is same-origin in every deployment shape, but saying
+    // so is what keeps a future cross-origin build from silently sending no
+    // credentials and looking like a permissions bug.
+    credentials: 'same-origin',
     ...options,
   });
+  if (res.status === 401) {
+    noteUnauthenticated();
+    throw new SignedOutError();
+  }
   if (!res.ok) {
     const text = await res.text().catch(() => '');
-    throw new Error(`Request failed (${res.status}): ${text}`);
+    let message = text;
+    try { message = JSON.parse(text).error || text; } catch { /* not JSON */ }
+    throw new Error(message || `Request failed (${res.status})`);
   }
   const contentType = res.headers.get('content-type') || '';
   if (contentType.includes('application/json')) return res.json();
@@ -58,6 +98,45 @@ export const entities = {
   RosterPlayer: makeEntity('roster_players'),
 };
 
+/**
+ * Sign in, sign out, who am I — Phase 13K.
+ *
+ * Three calls and no more: there is no registration, no password reset over
+ * HTTP and no invitation flow, because an operator account is created on the
+ * host by somebody with shell access. `me` answers with null rather than
+ * failing when nobody is signed in, so a page load is never an error.
+ */
+export const auth = {
+  me() {
+    return request('/api/auth/me');
+  },
+  /**
+   * Deliberately not routed through `request()`: a rejected sign-in is a 401,
+   * and treating it as "you have been signed out" would replace the server's
+   * own wording with a generic message and fire the sign-out listeners at
+   * somebody who was never signed in.
+   */
+  async login(email, password) {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ email, password }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw Object.assign(new Error(body.error || 'Sign-in failed.'), {
+        code: body.code, status: res.status,
+      });
+    }
+    return body;
+  },
+  async logout() {
+    // 204, so there is no body to read.
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+  },
+};
+
 export const publishing = {
   status(playerId) {
     return request(`/api/players/${playerId}/publish`);
@@ -100,7 +179,8 @@ export const outreach = {
  * the same way `request()` does rather than discarded.
  */
 async function requestBlob(path, options = {}) {
-  const res = await fetch(path, options);
+  const res = await fetch(path, { credentials: 'same-origin', ...options });
+  if (res.status === 401) { noteUnauthenticated(); throw new SignedOutError(); }
   if (!res.ok) {
     const text = await res.text();
     let message = text;
@@ -120,7 +200,8 @@ async function requestBlob(path, options = {}) {
  * spelling of a name like "Zoё".
  */
 async function requestPdf(path, options = {}) {
-  const res = await fetch(path, options);
+  const res = await fetch(path, { credentials: 'same-origin', ...options });
+  if (res.status === 401) { noteUnauthenticated(); throw new SignedOutError(); }
   if (!res.ok) {
     const text = await res.text();
     let message = text;
@@ -176,6 +257,11 @@ export const reports = {
     if (sport) params.set('sport', sport);
     const qs = params.toString();
     return request(`/api/reports/programmes${qs ? `?${qs}` : ''}`);
+  },
+  /** One programme by id, sport-scoped — the link from Program Philosophy. */
+  programme(id, sport = null) {
+    const qs = sport ? `?sport=${encodeURIComponent(sport)}` : '';
+    return request(`/api/reports/programmes/${encodeURIComponent(id)}${qs}`);
   },
   history({ athleteId = null, collegeId = null } = {}) {
     const params = new URLSearchParams();

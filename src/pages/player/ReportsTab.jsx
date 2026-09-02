@@ -13,6 +13,7 @@
  * before the button and the button says exactly what it will make.
  */
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { FileText, Download, Search, AlertCircle, RotateCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { reports } from '@/api/client';
@@ -34,6 +35,8 @@ function when(iso) {
 export default function ReportsTab() {
   const { player } = usePlayerWorkspace();
   const sportKey = player?.sport ?? 'mens-soccer';
+  const [params, setParams] = useSearchParams();
+  const preselected = params.get('collegeId');
 
   const [query, setQuery] = useState('');
   const [matches, setMatches] = useState([]);
@@ -54,6 +57,31 @@ export default function ReportsTab() {
   }, [player?.id]);
 
   useEffect(loadHistory, [loadHistory]);
+
+  /**
+   * ?collegeId= — arrived from the Program Philosophy tab (13K / §34).
+   *
+   * Resolved through the same sport-scoped search the picker uses, so a
+   * programme reaching this screen by link is subject to exactly the guards a
+   * programme chosen by hand is: wrong sport, inactive, or not on file and
+   * nothing is selected. Then the parameter is dropped from the URL, so a
+   * reload or a "change" does not silently re-select it.
+   */
+  useEffect(() => {
+    if (!preselected || programme) return;
+    let cancelled = false;
+    reports.programme(preselected, sportKey)
+      .then((row) => {
+        if (cancelled || !row) return;
+        setProgramme(row);
+        setState(STATE.READY);
+      })
+      .catch(() => { /* the picker is right there */ })
+      .finally(() => {
+        if (!cancelled) setParams({}, { replace: true });
+      });
+    return () => { cancelled = true; };
+  }, [preselected, programme, sportKey, setParams]);
 
   // Programme search, scoped to the athlete's own sport so the pairing guard
   // never has to fire on something this screen offered.
@@ -108,6 +136,19 @@ export default function ReportsTab() {
   const previousForPair = useMemo(
     () => (programme ? history.filter((h) => h.programme === programme.name).length : 0),
     [history, programme],
+  );
+
+  /**
+   * Who generated it, shown only when that is a question — 13K / §32.
+   *
+   * Attribution is recorded on every generation, but with one operator it is
+   * the same name on every row and therefore noise. It appears when the
+   * history actually holds more than one, which is the only time it tells the
+   * reader something.
+   */
+  const showOperator = useMemo(
+    () => new Set(history.map((h) => h.operator).filter(Boolean)).size > 1,
+    [history],
   );
 
   if (!player) return null;
@@ -287,6 +328,8 @@ export default function ReportsTab() {
                   <td className="py-2 pr-3 text-muted-foreground whitespace-nowrap">
                     {when(h.generatedAt)}
                     {h.pages ? <span className="block text-xs">{h.pages} pages</span> : null}
+                    {showOperator && h.operator
+                      ? <span className="block text-xs">by {h.operator}</span> : null}
                   </td>
                   <td className="py-2 pr-3 text-muted-foreground">
                     {h.status === 'generated' ? 'Generated' : 'Failed'}

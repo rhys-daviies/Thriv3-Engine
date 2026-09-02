@@ -42,7 +42,7 @@ const [
 
 const {
   generateReport, listReports, readArtifact, selectableAthletes, selectableProgrammes,
-  checkPair, presentReport, STORE_ROOT, engineVersion,
+  selectableProgramme, checkPair, presentReport, STORE_ROOT, engineVersion,
 } = delivery;
 
 afterAll(() => { try { fs.rmSync(STORE, { recursive: true, force: true }); } catch { /* gone */ } });
@@ -386,6 +386,147 @@ describe('what the operator surface exposes', () => {
     expect(presented.sport).toBe('Women’s soccer');
     expect(presented.fingerprint).toBe('abc123def456');
     expect(presented.engine).toBe('0123456');
+  });
+});
+
+describe('one way to produce a client PDF — Phase 13K / §34', () => {
+  /**
+   * A MECHANICAL CHECK, not a remembered rule.
+   *
+   * Until 13K the Program Philosophy tab called the report endpoint directly
+   * and handed over a PDF that nothing recorded, while the Reports tab
+   * produced an immutable artefact with a history row, a fingerprint and an
+   * operator against it. Two buttons that both say "report" and mean
+   * different things is how the wrong file gets sent — and how "which document
+   * did we send in March" stops having an answer.
+   *
+   * The endpoints themselves are untouched and remain the regression path.
+   * What this holds is that no client surface reaches them.
+   */
+  const clientSource = () => {
+    const root = path.resolve(import.meta.dirname, '../../src');
+    const files = [];
+    const walk = (dir) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (/\.jsx?$/.test(entry.name) && !entry.name.endsWith('.test.js')) {
+          files.push([full, fs.readFileSync(full, 'utf8')]);
+        }
+      }
+    };
+    walk(root);
+    return files;
+  };
+
+  it('no client surface calls the direct, unrecorded report endpoint', () => {
+    const offenders = clientSource()
+      // The API client is where the endpoint is DEFINED; it is not a caller,
+      // and the definition stays because tests and internal use need it.
+      .filter(([file]) => !file.endsWith(path.join('src', 'api', 'client.js')))
+      .filter(([, code]) => /philosophy\.report\s*\(/.test(code) || /report\.pdf/.test(code))
+      .map(([file]) => path.relative(process.cwd(), file));
+    expect(offenders).toEqual([]);
+  });
+
+  it('the Program Philosophy row navigates to the recorded flow instead', () => {
+    const [, code] = clientSource()
+      .find(([file]) => file.endsWith('PhilosophyRow.jsx'));
+    // One click either way, and the result is always a document the system
+    // remembers.
+    expect(code).toMatch(/\/reports\?collegeId=/);
+    expect(code).not.toMatch(/downloadBlob/);
+  });
+
+  it('the Reports tab is the only place a generation is triggered', () => {
+    const callers = clientSource()
+      .filter(([, code]) => /reports\.generate\s*\(/.test(code))
+      .map(([file]) => path.basename(file));
+    expect(callers).toEqual(['ReportsTab.jsx']);
+  });
+});
+
+describe('who generated it — Phase 13K', () => {
+  it('records the signed-in operator, and shows the address rather than the id', async () => {
+    const c = college('Albright');
+    const row = await generateReport({
+      collegeId: c.id,
+      operator: { id: 'user-1', email: 'operator@example.com' },
+    });
+    expect(row.operator).toBe('operator@example.com');
+
+    const stored = db.prepare(
+      'SELECT generated_by, generated_by_email FROM generated_reports WHERE id = ?').get(row.id);
+    expect(stored.generated_by).toBe('user-1');
+    expect(stored.generated_by_email).toBe('operator@example.com');
+    // The id stays internal: an operator screen shows a person, not a UUID.
+    expect(JSON.stringify(row)).not.toContain('user-1');
+  });
+
+  it('is attribution only — the artefact is byte-identical either way', async () => {
+    const c = college('Albright');
+    const anonymous = await generateReport({ collegeId: c.id });
+    const attributed = await generateReport({
+      collegeId: c.id, operator: { id: 'user-1', email: 'operator@example.com' },
+    });
+    // Same reading, same ink. Provenance changes the history row and nothing
+    // about the document, and it is never drawn in the PDF.
+    expect(attributed.fingerprint).toBe(anonymous.fingerprint);
+    const bytes = readArtifact(attributed.id).bytes.toString('latin1');
+    expect(bytes).not.toContain('operator@example.com');
+    expect(bytes).not.toContain('user-1');
+  });
+
+  it('leaves prior rows readable with no operator at all', async () => {
+    const c = college('Albright');
+    const row = await generateReport({ collegeId: c.id });
+    // Every row written before there were accounts carries null. Those
+    // artefacts were still generated and are still valid, so the screen shows
+    // no attribution rather than an error.
+    expect(row.operator).toBeNull();
+    expect(listReports({ collegeId: c.id })[0].operator).toBeNull();
+    expect(readArtifact(row.id).bytes.length).toBeGreaterThan(0);
+  });
+
+  it('takes the operator from the session, never from the request', async () => {
+    const c = college('Albright');
+    // `generateReport` has no path by which a caller-supplied name could reach
+    // the column other than the object the route builds from `req.operator`.
+    const row = await generateReport({ collegeId: c.id, operator: null });
+    expect(row.operator).toBeNull();
+  });
+});
+
+describe('a programme reached by link is still subject to the picker\'s rules', () => {
+  it('resolves one programme by id', () => {
+    const c = college('Albright');
+    const row = selectableProgramme({ id: c.id, sport: 'mens-soccer' });
+    expect(row.name).toBe('Albright');
+    expect(row.sportKey).toBe('mens-soccer');
+    // The same shape the search returns, so the screen cannot tell them apart.
+    expect(Object.keys(row).sort())
+      .toEqual(Object.keys(selectableProgrammes({ q: 'Albright' })[0] ?? row).sort());
+  });
+
+  it('returns nothing for the wrong sport, an unknown id or no id', () => {
+    const c = college('Albright');
+    // A link is not a way around a guard: the Program Philosophy tab hands
+    // this a college id, and it goes through the same sport and active filters
+    // a hand-picked programme does.
+    expect(selectableProgramme({ id: c.id, sport: 'womens-soccer' })).toBeNull();
+    expect(selectableProgramme({ id: 'no-such-college', sport: 'mens-soccer' })).toBeNull();
+    expect(selectableProgramme({ id: null })).toBeNull();
+    expect(selectableProgramme({})).toBeNull();
+  });
+
+  it('returns nothing for an inactive programme', () => {
+    const c = college('Albright');
+    db.prepare('UPDATE colleges SET active = 0 WHERE id = ?').run(c.id);
+    try {
+      expect(selectableProgramme({ id: c.id })).toBeNull();
+    } finally {
+      db.prepare('UPDATE colleges SET active = 1 WHERE id = ?').run(c.id);
+    }
   });
 });
 

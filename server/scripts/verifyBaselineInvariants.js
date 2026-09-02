@@ -28,6 +28,10 @@ import { renderProgramReport, reportFilename } from '../lib/philosophyReport.js'
 import { classRank, STARTER_MINUTES } from '../../shared/lifecycle/lifecycle.js';
 import { readClassYear } from '../../shared/classYear.js';
 import {
+  DEFAULTS as RUNTIME_DEFAULTS, resolveConfig as resolveRuntime, runtimeProblems,
+} from '../lib/runtimeConfig.js';
+import { setSessionCookie } from '../lib/operatorAuth.js';
+import {
   MEASURED_SEASONS, MIN_SQUAD_FOR_SHARE, MIN_SEASONS_TO_QUOTE, ROTATION_MINUTES,
 } from '../../shared/lifecycle/utilisation.js';
 import {
@@ -1420,6 +1424,120 @@ group('DELIVERY — the frozen report, delivered unchanged');
     Boolean(qa) && !selectableAthletes({ limit: 500 }).some((a) => a.id === qa.id)
       && selectableAthletes({ query: 'QA Fixture', limit: 500 }).length === 0,
     'archived records are excluded from the athlete picker');
+}
+
+/**
+ * ACCESS — Phase 13K.
+ *
+ * The report product is frozen and the delivery model is frozen; what 13K
+ * added is a boundary in front of them. These are the claims about that
+ * boundary that have to hold in the built product rather than in a test
+ * fixture: that the protection is not per-route, that nothing configures
+ * itself insecurely by default, and that the two deliberately public surfaces
+ * are still exactly two.
+ */
+group('ACCESS — the boundary in front of the product');
+{
+  const indexSource = fs.readFileSync(path.resolve(HERE, '../index.js'), 'utf8');
+
+  // ---- the boundary is one line, not a decoration on each route ----------
+  const boundary = indexSource.indexOf("app.use('/api', requireOperator)");
+  const firstApiRoute = indexSource.search(/app\.(get|post|put|delete|patch)\('\/api\//);
+  check('every /api route is declared after the authentication boundary',
+    boundary !== -1 && firstApiRoute !== -1 && boundary < firstApiRoute,
+    'one app.use, so a route added later is protected by default');
+
+  // ---- and the CSRF check is in front of it -----------------------------
+  const csrf = indexSource.indexOf("app.use('/api', requireSameOrigin)");
+  check('a state-changing request is checked for origin before anything else',
+    csrf !== -1 && csrf < boundary,
+    'a cross-site POST is refused on its origin, not told whether a session existed');
+
+  // ---- what is deliberately public, and nothing more --------------------
+  const publicSurfaces = [
+    ["app.use('/api', trackRouter)", 'the event collector'],
+    ["app.use('/api', authRouter)", 'sign in / sign out / me'],
+    ["app.get('/healthz'", 'liveness'],
+    ["app.get('/p/:slug', publicProfileHandler)", 'the athlete pages'],
+  ];
+  const missing = publicSurfaces.filter(([needle]) => !indexSource.includes(needle));
+  check('the unauthenticated surfaces are the four that are meant to be',
+    missing.length === 0,
+    missing.length ? `not found: ${missing.map(([, what]) => what).join(', ')}`
+      : publicSurfaces.map(([, what]) => what).join(' · '));
+
+  // ---- uploads are data, and behind the boundary -------------------------
+  check('uploaded files are not served without a session',
+    /app\.use\('\/uploads', requireOperator, express\.static/.test(indexSource),
+    'the /uploads static mount requires an operator');
+
+  // ---- nothing insecure by default --------------------------------------
+  check('loopback is still the default bind address',
+    RUNTIME_DEFAULTS.host === '127.0.0.1',
+    '13J\u2019s rule survives hosting: reachable from the network is a decision, never a default');
+  check('no proxy is trusted unless a hop count says so',
+    resolveRuntime({}).trustProxy === 0,
+    'never `true`, which would believe any X-Forwarded-For a caller invents');
+  check('a hosted process refuses to start without its secrets and its disk',
+    (() => {
+      const problems = runtimeProblems({ NODE_ENV: 'production' });
+      return ['THRIV3_SESSION_SECRET', 'RECRUITMATCH_DB', 'THRIV3_REPORT_STORE',
+        'THRIV3_APP_ORIGIN', 'API_HOST'].every((name) => problems.join(' ').includes(name));
+    })(),
+    'session secret, database path, report store, app origin and bind address');
+  check('production authentication is refused over plain http',
+    runtimeProblems({
+      NODE_ENV: 'production', THRIV3_APP_ORIGIN: 'http://app.example.com',
+      THRIV3_SESSION_SECRET: 'f'.repeat(64), API_HOST: '0.0.0.0', THRIV3_TRUST_PROXY: '1',
+      RECRUITMATCH_DB: '/data/db.sqlite', THRIV3_REPORT_STORE: '/data/reports',
+    }).join(' ').includes('only accepted over HTTPS'),
+    'a session cookie on http is a credential sent in clear');
+
+  // ---- what is stored for an account ------------------------------------
+  const tables = db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE "
+    + "name IN ('operator_users', 'operator_sessions')").get().n;
+  const users = db.prepare('SELECT COUNT(*) n FROM operator_users').get().n;
+  const notHashed = db.prepare(
+    "SELECT COUNT(*) n FROM operator_users WHERE password_hash NOT LIKE 'scrypt$%'").get().n;
+  check('every stored credential is a scrypt hash, and no account is unhashed',
+    tables === 2 && notHashed === 0,
+    `${users} account(s) · ${notHashed} not hashed`
+    + (users === 0 ? ' · nobody can sign in until createOperator.js is run' : ''));
+  // The token in a cookie is never the token in the table: a database dump —
+  // or a backup on a laptop — must not contain live sessions.
+  const rawTokens = db.prepare('SELECT COUNT(*) n FROM operator_sessions '
+    + "WHERE LENGTH(token_sha256) <> 64 OR token_sha256 GLOB '*[^0-9a-f]*'").get().n;
+  check('no session row holds anything but a 64-character keyed digest',
+    rawTokens === 0,
+    `${db.prepare('SELECT COUNT(*) n FROM operator_sessions').get().n} session row(s)`);
+
+  // ---- the session cookie is not readable by a script -------------------
+  check('the session cookie is HttpOnly, SameSite and server-resolved',
+    (() => {
+      const set = [];
+      setSessionCookie({ cookie: (n, v, o) => set.push(o) }, 'x',
+        { cookieSecure: true, sessionIdleHours: 12, production: true });
+      return set[0].httpOnly === true && set[0].sameSite === 'lax' && set[0].secure === true;
+    })(),
+    'nothing in the cookie identifies anybody; the row on the server does');
+
+  // ---- one way to make a client PDF -------------------------------------
+  const clientFiles = [];
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (/\.jsx?$/.test(entry.name) && !entry.name.endsWith('.test.js')) clientFiles.push(full);
+    }
+  };
+  walk(path.resolve(HERE, '../../src'));
+  const bypass = clientFiles
+    .filter((f) => !f.endsWith(path.join('src', 'api', 'client.js')))
+    .filter((f) => /philosophy\.report\s*\(|report\.pdf/.test(fs.readFileSync(f, 'utf8')));
+  check('no client surface produces a PDF the system does not record',
+    bypass.length === 0,
+    bypass.length ? `bypasses delivery: ${bypass.map((f) => path.basename(f)).join(', ')}`
+      : 'REPORTS \u2192 GENERATE \u2192 DOWNLOAD is the only route to a client document');
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

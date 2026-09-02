@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Download, Loader2, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { FileText } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Disclosure } from '@/components/ui/Disclosure';
-import { philosophy } from '@/api/client';
-import { downloadBlob, slug } from '@/lib/download';
 import { verdictLabel, ladderTopText, bandLabel, cohortText } from '@/lib/philosophyLabels';
 
 /** The three shares partition the position's minutes, so a stack is honest. */
@@ -57,50 +56,36 @@ function LadderRow({ rung }) {
 /**
  * One school.
  *
- * Download state lives here rather than in the body, because the body is
- * unmounted when the row collapses and an error the operator has not read yet
- * would vanish with it.
+ * Generation used to happen here, so download state and its errors lived here
+ * too. Since 13K the report is produced on the Reports tab, which is also
+ * where a failure is reported — this row now only ever navigates.
  */
 export function PhilosophyRow({ college, summary, player }) {
   const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(null);
-  const alive = useRef(true);
-  // Set on the way IN as well as cleared on the way out. StrictMode runs
-  // effects mount → unmount → remount in development, so a cleanup-only
-  // version latches false on the first mount and every download then hangs on
-  // "Generating…" for ever, having actually succeeded.
-  useEffect(() => {
-    alive.current = true;
-    return () => { alive.current = false; };
-  }, []);
 
   const loading = summary === undefined;
   const verdict = summary?.verdict ? verdictLabel(summary.verdict.verdict) : null;
   const top = ladderTopText(summary?.ladderTop);
 
-  async function download() {
-    setBusy(true);
-    setError(null);
-    try {
-      /**
-       * THE SERVER NAMES THE FILE — 13J / §14.
-       *
-       * This used to build "program-report-mercyhurst-for-rhys-davies.pdf"
-       * here, which stopped matching the product the moment 13I made
-       * `reportFilename` the canonical helper: two names for one document, and
-       * the client's was the one the operator saw. The canonical name now
-       * arrives in `Content-Disposition` and the fallback only fires if a
-       * proxy strips the header.
-       */
-      const { blob, filename } = await philosophy.report(college.id, player?.id ?? null);
-      downloadBlob(blob, filename || `Thriv3_${slug(college.name)}.pdf`);
-    } catch (err) {
-      if (alive.current) setError(err.message);
-    } finally {
-      if (alive.current) setBusy(false);
-    }
-  }
+  /**
+   * ONE WAY TO PRODUCE A CLIENT PDF — 13K / §34.
+   *
+   * This button used to call the report endpoint directly and hand the
+   * operator a file that nothing recorded. That left the product with two
+   * document semantics: a PDF from here existed only in somebody's downloads
+   * folder, while a PDF from the Reports tab was an immutable artefact with a
+   * history row, a fingerprint and an operator against it. Two buttons that
+   * both say "report" and mean different things is how the wrong file gets
+   * sent, and how "which document did we send in March" becomes unanswerable.
+   *
+   * So this now takes the operator to the recorded flow with this programme
+   * already chosen — one click either way, and the result is always a document
+   * the system remembers. The direct endpoints are untouched and remain the
+   * regression and internal path; nothing in the UI reaches them.
+   */
+  const reportsHref = player?.id
+    ? `/player/${player.id}/reports?collegeId=${encodeURIComponent(college.id)}`
+    : null;
 
   const header = (
     <div className="flex items-start gap-3">
@@ -176,15 +161,22 @@ export function PhilosophyRow({ college, summary, player }) {
         ) : null}
 
         <div className="flex flex-wrap items-center gap-2 pt-1">
-          <Button size="sm" variant="outline" disabled={busy || !summary?.reports?.available}
-            onClick={download}>
-            {busy
-              ? <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-              : <FileText className="h-3.5 w-3.5 mr-1.5" />}
-            {busy ? 'Generating…' : 'Program report'}
-          </Button>
-          <Download className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-          <span className="text-xs text-muted-foreground">PDF</span>
+          {reportsHref && summary?.reports?.available ? (
+            <Button asChild size="sm" variant="outline">
+              <Link to={reportsHref}>
+                <FileText className="h-3.5 w-3.5 mr-1.5" />
+                Report this programme
+              </Link>
+            </Button>
+          ) : (
+            <Button size="sm" variant="outline" disabled>
+              <FileText className="h-3.5 w-3.5 mr-1.5" />
+              Report this programme
+            </Button>
+          )}
+          <span className="text-xs text-muted-foreground">
+            generated and kept on the Reports tab
+          </span>
           {/* Stated as text, not a title attribute — a tooltip is invisible on
               touch and to most screen readers. */}
           {summary?.reports?.playerReason && (
@@ -194,11 +186,6 @@ export function PhilosophyRow({ college, summary, player }) {
           )}
         </div>
 
-        {error && (
-          <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2 text-xs">
-            <strong>That report could not be generated.</strong> {error}
-          </p>
-        )}
       </Disclosure>
     </div>
   );

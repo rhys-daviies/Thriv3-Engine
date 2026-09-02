@@ -370,16 +370,31 @@ function backfillAcademicRatingSource(db) {
  * first databases had the table, so it is owned here like every other added
  * column.
  *
- * REVERSIBLE. Both are nullable with no default, so dropping them restores the
- * previous shape exactly and nothing reads them as required:
+ * `generated_by` / `generated_by_email` follow in Phase 13K, once there is an
+ * authenticated operator to attribute a generation to. They answer "who
+ * generated the document we sent", which nothing else could answer.
+ *
+ * REVERSIBLE. All three are nullable with no default, so dropping them restores
+ * the previous shape exactly and nothing reads them as required:
  *
  *   ALTER TABLE generated_reports DROP COLUMN content_sha256;
+ *   ALTER TABLE generated_reports DROP COLUMN generated_by;
+ *   ALTER TABLE generated_reports DROP COLUMN generated_by_email;
  *
- * Rows written before it existed simply carry null, which the operator screen
- * renders as no fingerprint rather than as an error.
+ * Rows written before a column existed simply carry null. The operator screen
+ * renders a null fingerprint as no fingerprint and a null operator as no
+ * attribution, rather than as an error: a report generated before there were
+ * accounts was still generated, and its artefact is still valid.
+ *
+ * The email is denormalised beside the id for the same reason `athlete_name`
+ * and `college_name` are — history has to read correctly years later, including
+ * after an account is deleted, and an id alone would then attribute a sent
+ * document to nobody.
  */
 const GENERATED_REPORT_COLUMNS = [
   ['content_sha256', 'TEXT'],
+  ['generated_by', 'TEXT'],
+  ['generated_by_email', 'TEXT'],
 ];
 
 export function migrate(db) {

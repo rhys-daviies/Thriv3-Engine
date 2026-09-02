@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import express from 'express';
-import cors from 'cors';
 import multer from 'multer';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -34,27 +33,118 @@ import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js'
 import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
 import { philosophySummaries, programReportModel } from './routes/philosophy.js';
+import { authRouter } from './routes/auth.js';
+import {
+  attachOperator, requireOperator, requireSameOrigin,
+} from './lib/operatorAuth.js';
+import { securityHeaders, corsPolicy } from './lib/httpSecurity.js';
+import { assertRuntime, describeRuntime, resolveConfig } from './lib/runtimeConfig.js';
 import { renderProgramReport, reportFilename, asciiFilename } from './lib/philosophyReport.js';
 import {
   generateReport, listReports, readArtifact, selectableAthletes, selectableProgrammes,
-  operatorMessage,
+  operatorMessage, STORE_ROOT, selectableProgramme,
 } from './lib/reportDelivery.js';
+import db from './db/client.js';
 import { poolStatus, invalidatePoolBenchmarks, poolBenchmarks } from './lib/philosophyQueries.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const uploadsDir = path.resolve(__dirname, 'uploads');
+/**
+ * Uploaded files, which are not incidental — 13K / §19.
+ *
+ * `players.recommendations` stores a path into this directory, so an athlete's
+ * matching analysis lives here as a file. It is therefore a persistent path
+ * like the database and the report store, and in production it must be given
+ * explicitly on the mounted disk; `runtimeProblems` refuses to start without
+ * it. The in-tree default stays for local development.
+ */
+const uploadsDir = process.env.THRIV3_UPLOAD_DIR
+  ? path.resolve(process.env.THRIV3_UPLOAD_DIR)
+  : path.resolve(__dirname, 'uploads');
 fs.mkdirSync(uploadsDir, { recursive: true });
 
+const config = resolveConfig();
 const app = express();
-app.use(cors());
+
+/**
+ * Only as many proxies as are actually in front of this process — 13K / §37.
+ *
+ * `trust proxy` decides whether Express believes X-Forwarded-Proto (which
+ * decides whether a Secure cookie can be set) and X-Forwarded-For (which
+ * decides what the login rate limiter counts). Trusting every proxy means
+ * trusting whatever a caller invents for both, so this is a hop count from the
+ * environment: 1 on a platform that terminates TLS for you, 0 locally.
+ */
+if (config.trustProxy > 0) app.set('trust proxy', config.trustProxy);
+
+// Headers first, so a response that fails later still carries them.
+app.use(securityHeaders(config));
+
+/**
+ * Liveness, and the two things whose absence would make every other route
+ * fail — 13K / §25.
+ *
+ * Public, because the host's health check calls it from outside before there
+ * is any session to have. It reveals nothing: three booleans and an uptime,
+ * no version, no counts, no paths.
+ */
+app.get('/healthz', (_req, res) => {
+  const checks = { process: true, database: false, reportStore: false };
+  try {
+    db.prepare('SELECT 1').get();
+    checks.database = true;
+  } catch { /* reported as false */ }
+  try {
+    fs.accessSync(STORE_ROOT, fs.constants.W_OK);
+    checks.reportStore = true;
+  } catch { /* reported as false */ }
+  const ok = Object.values(checks).every(Boolean);
+  res.status(ok ? 200 : 503).json({ status: ok ? 'ok' : 'degraded', checks,
+    uptimeSeconds: Math.round(process.uptime()) });
+});
+
+app.use(corsPolicy(config));
 
 // The public event collector is mounted before express.json() on purpose: it
 // takes the raw body whatever Content-Type sendBeacon put on it, which the
 // JSON parser would otherwise consume or reject.
+//
+// It is also mounted before the authentication boundary below, deliberately:
+// it is called by athlete pages in coaches' browsers, identifies nobody, and
+// answers 204 to everything. See the route's own header.
 app.use('/api', trackRouter);
 
 app.use(express.json({ limit: '10mb' }));
-app.use('/uploads', express.static(uploadsDir));
+
+/**
+ * ---- THE AUTHENTICATION BOUNDARY — Phase 13K ------------------------------
+ *
+ * Everything below this point is the internal operator application, and all of
+ * it requires a session. Phase 13J made the documented "one operator, one
+ * machine" model true by binding loopback; hosting it makes that impossible,
+ * so the boundary has to be in the application.
+ *
+ * THE ORDER IS THE SECURITY.
+ *
+ *   attachOperator      reads the session cookie; sets req.operator or nothing
+ *   requireSameOrigin   refuses a state-changing request from another origin
+ *   authRouter          login / logout / me — the only unauthenticated /api
+ *   requireOperator     everything after this line needs a session
+ *
+ * `requireOperator` is a single `app.use` rather than a decoration on each
+ * route on purpose: a route added later is protected by default, and forgetting
+ * to protect one is the failure this whole phase exists to prevent. The two
+ * public surfaces — the collector above, and the athlete pages at the bottom of
+ * this file — are outside `/api` or mounted before it, and an invariant checks
+ * that the list of unauthenticated routes is exactly those.
+ */
+app.use(attachOperator);
+app.use('/api', requireSameOrigin);
+app.use('/api', authRouter);
+app.use('/api', requireOperator);
+
+// Uploaded match-recommendation files are internal data, so the static mount
+// is behind the boundary like everything else.
+app.use('/uploads', requireOperator, express.static(uploadsDir));
 
 const ENTITIES = {
   players: Player,
@@ -230,6 +320,21 @@ app.get('/api/reports/programmes', (req, res) => {
   }
 });
 
+/**
+ * One programme by id, for the link from the Program Philosophy tab — 13K.
+ * Answers 404 rather than an unselectable row when the sport does not match.
+ */
+app.get('/api/reports/programmes/:id', (req, res) => {
+  try {
+    const row = selectableProgramme({ id: req.params.id, sport: req.query.sport || null });
+    if (!row) return res.status(404).json({ error: 'That programme is not on file.' });
+    return res.json(row);
+  } catch (err) {
+    console.error('[reports/programme]', err);
+    return res.status(500).json({ error: 'That programme could not be read.' });
+  }
+});
+
 app.get('/api/reports', (req, res) => {
   try {
     res.json(listReports({
@@ -251,10 +356,17 @@ app.post('/api/reports', async (req, res) => {
   const { athleteId = null, collegeId } = req.body || {};
   try {
     if (!collegeId) return res.status(400).json({ error: 'Choose a programme first.' });
-    res.json(await generateReport({ athleteId, collegeId }));
+    // The signed-in operator is recorded on the artefact — 13K / §32. Taken
+    // from the session, never from the request body: a client that could name
+    // the operator could name somebody else.
+    const row = await generateReport({ athleteId, collegeId, operator: req.operator });
+    console.log('[reports/generate]', {
+      report: row.id, operator: req.operator?.email, pages: row.pages, status: row.status,
+    });
+    res.json(row);
   } catch (err) {
     // The cause is logged; the operator sees a sentence.
-    console.error('[reports/generate]', { athleteId, collegeId }, err);
+    console.error('[reports/generate]', { athleteId, collegeId, operator: req.operator?.email }, err);
     res.status(err.status ?? 500).json({ error: err.message || operatorMessage(err) });
   }
 });
@@ -268,7 +380,15 @@ app.get('/api/reports/:id/download', (req, res) => {
     const { bytes, filename } = readArtifact(req.params.id);
     sendPdf(res, bytes, filename);
   } catch (err) {
+    // Every refused download is logged — a 400 from a crafted id and a 410
+    // from a missing artefact are both things somebody needs to see — but only
+    // a real fault carries the stack.
     if (!err.status || err.status >= 500) console.error('[reports/download]', req.params.id, err);
+    else {
+      console.warn('[reports/download] refused', {
+        report: req.params.id, status: err.status, operator: req.operator?.email,
+      });
+    }
     res.status(err.status ?? 500).json({ error: err.message || 'That report could not be read.' });
   }
 });
@@ -467,30 +587,78 @@ app.use(express.static(publicDir));
 app.get('/api/engagement/sync/status', (req, res) => res.json(syncStatus()));
 
 /**
- * THE ACCESS BOUNDARY, MADE REAL — Phase 13J / §27.
+ * An unmatched API path is an API answer — 13K.
  *
- * This application has no authentication, deliberately: the README says
- * "no auth, single user" and the roadmap's go-live shape is one operator
- * running the engine on athletes' behalf. That is the trust boundary, and the
- * delivery surface reuses it rather than inventing an auth system.
- *
- * But `app.listen(PORT)` binds every interface, so the boundary was not
- * actually enforced — anything on the same network could read the whole API,
- * including a client's report. Binding loopback by default is what makes the
- * documented model true. `API_HOST=0.0.0.0` restores the old behaviour for a
- * deployment that puts a real authenticating proxy in front, which is the only
- * circumstance in which it should be reachable from off the machine.
+ * Without this it falls through to the single-page fallback below and returns
+ * the operator app's HTML with a 200, so a typo in a route name reaches the
+ * client as an unexplained JSON parse error rather than as a 404.
  */
-const PORT = process.env.API_PORT || 8787;
-const HOST = process.env.API_HOST || '127.0.0.1';
-app.listen(PORT, HOST, () => {
-  console.log(`Thriv3 API listening on http://${HOST === '0.0.0.0' ? 'localhost' : HOST}:${PORT}`
-    + (HOST === '0.0.0.0' ? '  (bound to every interface — there is no authentication)' : ''));
+app.use('/api', (req, res) => res.status(404).json({ error: 'No such endpoint.' }));
 
-  // Said out loud either way. "Nothing schedules the sync" was true for four
-  // days without anybody knowing, and silence at boot is what allowed that.
-  const scheduler = startSyncScheduler();
-  console.log(scheduler.started
-    ? `Engagement sync scheduled every ${scheduler.intervalMinutes} minute(s).`
-    : `Engagement sync NOT scheduled — ${scheduler.reason}.`);
-});
+/**
+ * ---- The built operator app — Phase 13K -----------------------------------
+ *
+ * In development Vite serves the app on its own port and proxies /api here, so
+ * this does nothing. In the hosted shape one process serves both, which is
+ * what makes the app and its API the same origin: no CORS, no second host, no
+ * cookie that has to work cross-site.
+ *
+ * The shell is public. It has to be — it is what draws the sign-in screen —
+ * and it contains no data: every byte of athlete information comes from the
+ * API, which is behind the boundary above.
+ */
+if (config.clientDir) {
+  const clientDir = path.resolve(config.clientDir);
+  app.use(express.static(clientDir, {
+    // The hashed asset filenames Vite emits may be cached hard; index.html
+    // must not be, or a deploy leaves browsers on the previous bundle.
+    setHeaders(res, filePath) {
+      if (filePath.endsWith('index.html')) res.setHeader('Cache-Control', 'no-cache');
+    },
+  }));
+  // Client-side routing: /player/x/reports is a route in the browser, not a
+  // file on disk. Everything unmatched and not an API call gets the shell.
+  app.get('*', (req, res, next) => {
+    if (req.method !== 'GET') return next();
+    return res.sendFile(path.join(clientDir, 'index.html'));
+  });
+}
+
+/**
+ * THE ACCESS BOUNDARY — 13J made it real, 13K moved it into the application.
+ *
+ * 13J bound loopback because there was no authentication and the documented
+ * model was one operator on one machine. That default survives: a process
+ * reachable from the network is now the result of somebody setting API_HOST,
+ * and it is only safe because everything above requires a session.
+ *
+ * `assertRuntime` is what stops a hosted process starting half-configured — no
+ * session secret, an ephemeral database path, an http origin — by exiting with
+ * the list of problems rather than serving.
+ */
+const isMain = process.argv[1]
+  && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isMain) {
+  assertRuntime({ env: process.env });
+
+  app.listen(config.port, config.host, () => {
+    console.log(`Thriv3 API listening on http://${config.host === '0.0.0.0' ? 'localhost' : config.host}:${config.port}`);
+    console.log(`  ${describeRuntime(config)}`);
+
+    // Said out loud either way. "Nothing schedules the sync" was true for four
+    // days without anybody knowing, and silence at boot is what allowed that.
+    const scheduler = startSyncScheduler();
+    console.log(scheduler.started
+      ? `Engagement sync scheduled every ${scheduler.intervalMinutes} minute(s).`
+      : `Engagement sync NOT scheduled — ${scheduler.reason}.`);
+  });
+}
+
+/**
+ * Exported so a test can bind it to an ephemeral port and exercise the real
+ * middleware chain — the authentication boundary, the CSRF check, the headers
+ * — rather than a reconstruction of it. The chain is the thing under test, and
+ * a test that builds its own app tests something else.
+ */
+export default app;

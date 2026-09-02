@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Home, Trophy, Users, Database, BookOpen } from 'lucide-react';
+import { Home, Trophy, Users, Database, BookOpen, LogOut } from 'lucide-react';
 import { Thriv3Mark, Thriv3Wordmark } from '@/components/Logo';
+import { useSession } from '@/lib/session';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
@@ -14,6 +15,7 @@ const NAV_ITEMS = [
 
 export default function Layout() {
   const location = useLocation();
+  const { operator, signOut } = useSession();
 
   return (
     <div className="min-h-screen bg-background">
@@ -40,6 +42,25 @@ export default function Layout() {
                 </Link>
               );
             })}
+            {/* Who is signed in, and the way out. Small and last: it is
+                orientation for one operator, not a feature. */}
+            {operator && (
+              <div className="flex items-center gap-1 ml-2 pl-3 border-l border-border">
+                <span className="hidden lg:inline text-xs text-muted-foreground max-w-[14rem] truncate"
+                  title={operator.email}>
+                  {operator.email}
+                </span>
+                <button
+                  type="button"
+                  onClick={signOut}
+                  className="flex items-center gap-1.5 px-2 py-2 rounded-md text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  title="Sign out"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="sr-only">Sign out</span>
+                </button>
+              </div>
+            )}
           </nav>
         </div>
       </header>

@@ -76,10 +76,10 @@ export function engineVersion() {
 const insert = db.prepare(`INSERT INTO generated_reports
   (id, report_type, athlete_id, college_id, sport, athlete_name, college_name,
    filename, artifact_path, page_count, byte_size, sha256, content_sha256, engine_sha,
-   status, error, generated_at)
+   generated_by, generated_by_email, status, error, generated_at)
   VALUES (@id, @report_type, @athlete_id, @college_id, @sport, @athlete_name, @college_name,
    @filename, @artifact_path, @page_count, @byte_size, @sha256, @content_sha256, @engine_sha,
-   @status, @error, @generated_at)`);
+   @generated_by, @generated_by_email, @status, @error, @generated_at)`);
 
 /**
  * A generation id, and therefore an artefact name.
@@ -132,6 +132,15 @@ export function presentReport(row) {
      */
     fingerprint: row.content_sha256 ? row.content_sha256.slice(0, 12) : null,
     engine: row.engine_sha ? row.engine_sha.slice(0, 7) : null,
+    /**
+     * Who generated it — 13K / §32. Internal: it answers "who made the
+     * document we sent" for an operator reading their own history, and it is
+     * never drawn in the PDF, never in its metadata and never on any
+     * client-facing surface. Null for every row written before there were
+     * accounts, which the screen shows as no attribution rather than as an
+     * error: those artefacts were still generated and are still valid.
+     */
+    operator: row.generated_by_email ?? null,
   };
 }
 
@@ -163,7 +172,7 @@ export function checkPair({ athlete, college }) {
  * step before that records a `failed` row instead, with the operator-facing
  * reason, and removes a partial file if one was made.
  */
-export async function generateReport({ athleteId = null, collegeId }) {
+export async function generateReport({ athleteId = null, collegeId, operator = null }) {
   const college = collegeId
     ? db.prepare('SELECT id, name, sport, division FROM colleges WHERE id = ?').get(collegeId)
     : null;
@@ -188,6 +197,13 @@ export async function generateReport({ athleteId = null, collegeId }) {
     athlete_name: athlete?.full_name ?? null,
     college_name: college.name,
     engine_sha: engineVersion(),
+    // Attribution, not authorisation: every operator has the same reach in V1,
+    // and this changes nothing about what a generation is allowed to do or
+    // about the artefact's immutability. The email is denormalised beside the
+    // id the way athlete_name and college_name are, so history still reads
+    // correctly after an account is removed.
+    generated_by: operator?.id ?? null,
+    generated_by_email: operator?.email ?? null,
     generated_at,
   };
 
@@ -342,6 +358,24 @@ export function selectableAthletes({ query = '', limit = 25 } = {}) {
  * would refuse the others anyway and offering them is how the wrong report
  * gets made. Division is shown so two programmes of one name are told apart.
  */
+/**
+ * ONE programme, subject to the same rules as the picker — 13K / §34.
+ *
+ * The Program Philosophy tab links here with a college id, so a programme can
+ * reach the delivery screen without being chosen from the list. It goes
+ * through the same `active = 1` and sport filters, and returns nothing rather
+ * than something unselectable: a link is not a way around a guard.
+ */
+export function selectableProgramme({ id, sport = null } = {}) {
+  if (!id) return null;
+  const clauses = ['id = ?', 'active = 1'];
+  const args = [id];
+  if (sport) { clauses.push('sport = ?'); args.push(sport); }
+  const row = db.prepare(`SELECT id, name, sport, division, conference, state FROM colleges
+      WHERE ${clauses.join(' AND ')}`).get(...args);
+  return row ? presentProgramme(row) : null;
+}
+
 export function selectableProgrammes({ query = '', sport = null, limit = 25 } = {}) {
   const q = String(query ?? '').trim();
   const clauses = ['active = 1'];
@@ -351,13 +385,17 @@ export function selectableProgrammes({ query = '', sport = null, limit = 25 } = 
   return db.prepare(`SELECT id, name, sport, division, conference, state FROM colleges
       WHERE ${clauses.join(' AND ')} ORDER BY name LIMIT ?`)
     .all(...args, Math.min(100, Math.max(1, Number(limit) || 25)))
-    .map((r) => ({
-      id: r.id,
-      name: r.name,
-      sport: r.sport === 'womens-soccer' ? 'Women’s soccer' : 'Men’s soccer',
-      sportKey: r.sport,
-      division: r.division,
-      conference: r.conference,
-      state: r.state,
-    }));
+    .map(presentProgramme);
+}
+
+function presentProgramme(r) {
+  return {
+    id: r.id,
+    name: r.name,
+    sport: r.sport === 'womens-soccer' ? 'Women’s soccer' : 'Men’s soccer',
+    sportKey: r.sport,
+    division: r.division,
+    conference: r.conference,
+    state: r.state,
+  };
 }

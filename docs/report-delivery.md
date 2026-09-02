@@ -59,15 +59,21 @@ existing endpoint's path and through the delivery service and compare the page
 count, the extracted text and every content stream.
 
 The two `report.pdf` endpoints are unchanged and remain the direct, unrecorded
-path — the Program Philosophy tab still uses them. The difference is that
-delivery persists an artefact, which is the difference between "I looked at a
-report" and "this is the document we sent".
+path — but **since 13K nothing in the UI reaches them.** The Program Philosophy
+tab's "Report this programme" button now navigates here with the programme
+preselected, so there is one way an operator produces a client PDF and it is
+always recorded. The endpoints stay for regression tests and internal use; an
+invariant checks that no client surface calls them.
+
+The difference delivery makes is that it persists an artefact, which is the
+difference between "I looked at a report" and "this is the document we sent".
 
 ### API
 
 ```
 GET  /api/reports/athletes?q=            the athletes an operator may generate for
 GET  /api/reports/programmes?q=&sport=   the programmes, scoped to a sport
+GET  /api/reports/programmes/:id         one programme, same rules as the picker
 GET  /api/reports?athleteId=&collegeId=  history, newest first
 POST /api/reports {athleteId?, collegeId}  generate one report
 GET  /api/reports/:id/download           the artefact, resolved server-side
@@ -130,11 +136,12 @@ IF NOT EXISTS` cannot add a column to a table already in the field.
 | `sha256` | the file as stored — integrity |
 | `content_sha256` | the ink — the only hash that can identify a duplicate |
 | `engine_sha` | which frozen engine produced it |
+| `generated_by`, `generated_by_email` | which operator produced it — 13K, internal only |
 | `status`, `error` | `generated` or `failed`, and the operator's sentence |
 | `generated_at` | when |
 
-Reversible: `ALTER TABLE generated_reports DROP COLUMN content_sha256;` restores
-the pre-migration shape, and the whole table can be dropped without touching
+Reversible: dropping `content_sha256`, `generated_by` and `generated_by_email`
+restores the pre-migration shape, and the whole table can be dropped without touching
 anything the report reads.
 
 ### Two hashes, because they answer different questions
@@ -178,19 +185,26 @@ technical cause is logged server-side.
 
 ## Access
 
-**This application has no authentication, deliberately.** The README says "no
-auth, single user" and the roadmap's go-live shape is one operator running the
-engine on athletes' behalf. That is the trust boundary and delivery reuses it
-rather than inventing an auth system.
+**Phase 13K put authentication in front of all of this.** Every `/api` route
+requires an operator session, including the four delivery routes and the
+artefact download; an artefact id is not a capability. See `hosting.md` for the
+boundary, the account model and the session design.
 
-But it was not enforced. `app.listen(PORT)` binds every interface, so anything
-on the same network could read the whole API — verified: a request from this
-machine's LAN address to the old default returned 200 for the full player list.
-The API now **binds `127.0.0.1` by default**, which is what makes the
-documented single-user model true. The same request is refused.
+What 13J established and 13K kept: the API still binds `127.0.0.1` by default,
+so a process reachable from the network remains a decision somebody wrote down
+rather than an accident. What changed is that being reachable is now safe,
+because the application refuses unauthenticated requests instead of relying on
+the bind address to do it.
 
-`API_HOST=0.0.0.0` restores the old behaviour, and should only be set behind a
-proxy that authenticates, because nothing in this application does.
+Delivery gained one column pair from that: `generated_by` and
+`generated_by_email` record which operator produced an artefact. It is
+attribution, not authorisation — every operator has the same reach in V1 — and
+it is never drawn in the PDF, never in its metadata, and never shown on a
+client-facing surface. Rows written before there were accounts carry null,
+which the screen shows as no attribution rather than as an error.
+
+The operator column appears in the history table only when the history holds
+more than one operator. With one, it is the same name on every row.
 
 ## Retention
 
@@ -227,24 +241,14 @@ alongside the first. The store directory is created on demand. Report
 generation stays read-only against every intelligence table — delivery writes
 only to `generated_reports` and its own store.
 
-### A future hosted environment
+### Hosted
 
-The report engine is **Express + better-sqlite3 + a local SQLite file**, and
-that constrains everything:
-
-- **Cloudflare Pages cannot run it.** `wrangler.toml` deploys the generated
-  public profile pages and the event collector to Pages; Workers have no
-  filesystem, no native modules and no `better-sqlite3`. The delivery surface
-  is not a Pages candidate.
-- It needs a **long-lived Node process** with a **persistent writable disk** —
-  the SQLite file and the artefact store both. A container platform with a
-  mounted volume, or a small VM.
-- It needs **authentication in front of it**, because the application has
-  none. That is the blocking requirement for hosting, not a nice-to-have: the
-  API would otherwise expose every athlete record and every generated report.
-- The first generation of a sport pays ~3.5 s to build the division benchmark
-  pool, cached per process — so a serverless model that cold-starts per request
-  pays it every time.
+Answered in `hosting.md` — the runtime contract, the recommended host, the
+persistent paths, backups and the runbooks. The short version: one Node
+process, one instance, one volume holding the database, the artefact store and
+the upload directory; authentication in the application rather than in the bind
+address; and not Cloudflare Workers, which have no filesystem and no native
+modules.
 
 ## Performance
 

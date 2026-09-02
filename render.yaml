@@ -1,0 +1,78 @@
+# Render blueprint for the internal Thriv3 operator application — Phase 13K.
+#
+# NOT DEPLOYED. This file is the deployment contract, reviewed before anything
+# is provisioned; docs/hosting.md is the runbook that uses it.
+#
+# WHY RENDER. The service needs a long-lived Node process, a persistent disk
+# for both the SQLite database and the generated report artefacts, and exactly
+# one instance against that disk. Render enforces the last of those rather than
+# leaving it to a comment: a service with a disk attached cannot be scaled to
+# more than one instance, and a deploy stops the old instance before starting
+# the new one instead of overlapping them. For SQLite in WAL mode that is not a
+# limitation, it is the requirement — two processes writing one database file
+# through a network filesystem is the failure mode this avoids by construction.
+#
+# The cost is a few seconds of downtime per deploy, for a tool with one
+# operator, which is the right trade.
+
+services:
+  - type: web
+    name: thriv3-operator
+    runtime: node
+    plan: starter          # 0.5 CPU / 512 MB. See docs/hosting.md on memory.
+    region: ohio
+    branch: main
+    # The client bundle and the server share one process, so the app and its
+    # API are one origin: no CORS in production, and a session cookie that is
+    # never cross-site.
+    buildCommand: npm ci && npm run build
+    startCommand: node server/index.js
+    healthCheckPath: /healthz
+
+    disk:
+      name: thriv3-data
+      mountPath: /data
+      sizeGB: 5
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # 0.0.0.0 deliberately, and only safe because every /api route below the
+      # authentication boundary requires a session — see server/index.js.
+      - key: API_HOST
+        value: 0.0.0.0
+      # Render terminates TLS one hop in front of the process. Without this
+      # Express sees plain http and refuses to set a Secure cookie, and sign-in
+      # fails with no visible error.
+      - key: THRIV3_TRUST_PROXY
+        value: 1
+      # Both on the persistent disk, and on the SAME disk: one snapshot then
+      # captures the history rows and the artefacts they point at together.
+      - key: RECRUITMATCH_DB
+        value: /data/recruitmatch.sqlite
+      - key: THRIV3_REPORT_STORE
+        value: /data/reports
+      - key: THRIV3_CLIENT_DIR
+        value: dist
+      # Generated at provision time and stored by Render, never in this file.
+      - key: THRIV3_SESSION_SECRET
+        generateValue: true
+      # The service's own public origin. Set by hand after the first deploy
+      # names it, or to the custom domain.
+      - key: THRIV3_APP_ORIGIN
+        sync: false
+      # Existing application secrets, unchanged and never in git.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: THRIV3_SENDER_IDENTITY
+        sync: false
+      - key: THRIV3_POSTAL_ADDRESS
+        sync: false
+      - key: THRIV3_SYNC_SECRET
+        sync: false
+      - key: THRIV3_PUBLIC_BASE_URL
+        sync: false
+      # Unset means the edge sync never runs by itself, and the server says so
+      # at boot. 15 is the pilot cadence.
+      - key: THRIV3_SYNC_INTERVAL_MINUTES
+        value: 15
