@@ -19,7 +19,13 @@ services:
   - type: web
     name: thriv3-operator
     runtime: node
-    plan: starter          # 0.5 CPU / 512 MB. See docs/hosting.md on memory.
+    # 1 CPU / 2 GB. Spec-based ID, which Render introduced in August 2026;
+    # the legacy name `standard` is still accepted but reads as a tier rather
+    # than a size, and this file previously said `starter` — 0.5 CPU / 512 MB,
+    # the plan 13K's own measurements ruled out. 389 MB resident with both
+    # benchmark pools plus a 64 MiB scrypt spike per sign-in does not fit in
+    # 512 MB, and an OOM kill mid-generation is a failed report.
+    plan: 1c-2g
     region: ohio
     branch: main
     # The client bundle and the server share one process, so the app and its
@@ -52,6 +58,14 @@ services:
         value: /data/recruitmatch.sqlite
       - key: THRIV3_REPORT_STORE
         value: /data/reports
+      # THE THIRD PERSISTENT PATH. Added to runtimeConfig after this file was
+      # first written, and missing here until 13L: `players.recommendations`
+      # holds a PATH into this directory, so without it every athlete's stored
+      # matching analysis is on the container filesystem and is discarded on
+      # the next deploy. Startup refuses to run without it, which is the gate
+      # doing its job — but the blueprint has to be right.
+      - key: THRIV3_UPLOAD_DIR
+        value: /data/uploads
       - key: THRIV3_CLIENT_DIR
         value: dist
       # Generated at provision time and stored by Render, never in this file.

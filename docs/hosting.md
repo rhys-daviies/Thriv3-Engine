@@ -57,12 +57,17 @@ One table, no roles. Every authenticated account is an operator with the same
 reach; the moment that stops being true it needs a design, not a flag.
 
 ```bash
-npm run operator -- rhys@example.com          # prompts, echo off
-THRIV3_OPERATOR_PASSWORD='…' npm run operator -- rhys@example.com
+npm run operator -- rhys@example.com              # prompts twice, echo off
 npm run operator -- --list
 npm run operator -- rhys@example.com --reset      # ends every session
 npm run operator -- rhys@example.com --deactivate # ends every session
 ```
+
+Where no terminal is available — a host's one-off shell, a provisioning step —
+the script also reads `THRIV3_OPERATOR_PASSWORD` from the environment. Supply
+it from the host's secret storage for that single command and unset it
+afterwards. Never write the value into a script, a file, a blueprint or a
+runbook: a documented example password is the password somebody uses.
 
 There is no registration, no password reset over HTTP and no default password:
 an account exists because somebody with shell access to the host made one. The
@@ -186,8 +191,14 @@ right trade.
 
 ## The recommended host
 
-**Render**, one web service on the **Standard** plan (1 CPU / 2 GB), with a
-5 GB persistent disk mounted at `/data`. `render.yaml` is the blueprint.
+**Render**, one web service on **`1c-2g`** (1 CPU / 2 GB), with a 5 GB
+persistent disk mounted at `/data`. `render.yaml` is the blueprint.
+
+Render replaced tier names with spec-based plan IDs in August 2026 — `1c-2g`
+is what used to be called Standard, and `0.5c-512mb` is what used to be
+Starter. Legacy names still work everywhere, including in a blueprint, but the
+rename is worth adopting: this file said "Standard" while `render.yaml` said
+`plan: starter`, and nobody noticed until 13L read the two side by side.
 
 | | Render | Fly.io | Railway |
 |---|---|---|---|
@@ -211,22 +222,25 @@ profiles and the event collector, which is a different deployment.
 
 ### Cost
 
-| | |
-|---|---|
-| Standard web service | **requires confirmation** — the docs pages available here do not carry the compute price; Render's pricing page is the source |
-| 5 GB disk | $1.25/month, at the documented $0.25/GB |
-| TLS, custom domain, daily snapshots | included |
+| | | |
+|---|---|---|
+| `1c-2g` web service | **needs confirmation at the dashboard** | Render deliberately keeps compute prices off its docs pages and renders them client-side on the pricing page, so no figure here would be trustworthy |
+| 5 GB disk | **$1.25/month** | verified: "$0.25 per GB per month, prorated by the second" |
+| TLS, custom domain, daily snapshots | included | verified |
 
-Verified from Render's own documentation: disk storage $0.25/GB/month; daily
-disk snapshots with at least seven days of retention; a service with a disk
-cannot scale past one instance and does not get zero-downtime deploys. The
-compute price is the one number that needs checking before provisioning.
+Verified from Render's own documentation and articles: disk storage $0.25/GB
+per month prorated by the second; daily disk snapshots retained at least seven
+days; a service with a disk cannot scale past one instance and does not get
+zero-downtime deploys. **The compute price is the one number to read off the
+dashboard before provisioning** — it is the only material cost input, and
+Render's own guidance is to estimate from the live page rather than from
+embedded numbers that go stale.
 
 For comparison, verified from Fly's pricing page: `shared-cpu-1x` at 256 MB is
 $2.02/month, 512 MB $3.32, 1 GB $5.92; volumes $0.15/GB/month with automatic
 daily snapshots kept 5 days.
 
-### Why Standard and not Starter
+### Why `1c-2g` and not `0.5c-512mb`
 
 Measured, in production mode, against the real database:
 
@@ -237,9 +251,9 @@ Measured, in production mode, against the real database:
 | RSS with both sports' pools resident | **389 MB** |
 | a sign-in (scrypt, N=2¹⁶) | +64 MiB transient |
 
-Starter is 512 MB. 389 MB resident plus a concurrent sign-in leaves almost
+`0.5c-512mb` is 512 MB. 389 MB resident plus a concurrent sign-in leaves almost
 nothing, and an OOM kill mid-generation is a failed report with a `failed` row.
-Standard's 2 GB is the honest choice. The pool is cached per process, which is
+`1c-2g`'s 2 GB is the honest choice. The pool is cached per process, which is
 also why a serverless model is wrong here: a cold start pays 4.5 s every time.
 
 ### Limits that matter
@@ -254,6 +268,32 @@ also why a serverless model is wrong here: a cold start pays 4.5 s every time.
 - The app loads its two webfonts from Google. On a host with no outbound
   network they fall back to system faces — cosmetic, and the CSP already
   permits the two hosts.
+
+## Known dependency exposure at the time of release
+
+Hosting makes the process publicly reachable, so the dependency tree's own
+advisories become part of the threat model. From a clean `npm ci` at this
+release, **five moderate advisories affect production dependencies** and none
+has a fix inside the declared semver ranges:
+
+| | |
+|---|---|
+| `qs`, `body-parser`, `express` | query-string parsing — an array-limit bypass and a denial of service. Reachable from the unauthenticated surface, because `/p/:slug`, `/api/track` and `/healthz` all parse a query string |
+| `react-router`, `react-router-dom` | open redirect via a backslash in `<Link>`, and an open redirect leading to XSS. **Not reachable in this application**: every `to` is a template built from internal ids, and no user-supplied value reaches a `Link` |
+
+The fixes are `express@5` and `react-router@7` — major upgrades with real
+breaking changes in routing and middleware. That is a product change with its
+own regression surface, not a deployment correction, so it is recorded here
+rather than smuggled into a release commit. `npm audit fix` was tried and
+reverted: it moved four package versions and closed none of the five.
+
+**Assessment for a supervised internal deployment**: not a blocker. The
+exposure is a bounded denial of service against a single-instance internal tool
+with one operator, behind the host's own edge, holding no public write path. It
+should be closed in its own phase before the tool is relied on commercially.
+
+Nothing else in the tree reaches the hosted runtime: the high and critical
+advisories are all in the dev toolchain (Vite/esbuild), which is not deployed.
 
 ## Backups
 
@@ -343,8 +383,10 @@ Not executed. Nothing is deployed.
 8. **Health check**: `GET /healthz` → `{"status":"ok"}` with all three checks
    true.
 9. **Create the first operator** from the host's shell:
-   `THRIV3_OPERATOR_PASSWORD='…' npm run operator -- rhys@example.com`, then
-   `--list` to confirm. Unset the variable afterwards.
+   `npm run operator -- rhys@example.com`, which prompts with echo off, then
+   `--list` to confirm. Where the host gives no interactive shell, pass the
+   password through `THRIV3_OPERATOR_PASSWORD` for that one command from the
+   host's own secret storage, and unset it afterwards.
 10. **Sign in** over HTTPS. Confirm the cookie is `Secure` and `HttpOnly`.
 11. **Generate one test report**, download it, confirm the filename, then
     delete that history row and artefact if it was only a test.
@@ -389,8 +431,7 @@ required in the environment, and the API still binds loopback. The one new step
 is that you need an account:
 
 ```bash
-THRIV3_OPERATOR_PASSWORD='a-long-enough-local-password' \
-  npm run operator -- you@example.com
+npm run operator -- you@example.com   # prompts, echo off
 ```
 
 The development session secret is random per boot rather than a fixed value in
