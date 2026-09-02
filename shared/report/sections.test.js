@@ -88,7 +88,9 @@ describe('athlete sections', () => {
     const model = fullModel({ athlete, fit: { position: { transitions: 3, openings: 2, seasons: [{ season: '2024' }] }, ladder: [], cohort: { applied: true, relaxed: null, refused: null, position: 'DEFENSE', origin: 'domestic' } } });
     const plan = planFor(model);
     expect(plan.some((s) => s.id === 'athlete-at-a-glance')).toBe(true);
-    expect(plan.some((s) => s.id === 'athlete-position-history')).toBe(true);
+    // `athlete-position-history` was absorbed into the record section in 13F.
+    expect(plan.some((s) => s.id === 'athlete-position-record')).toBe(true);
+    expect(plan.some((s) => s.id === 'athlete-position-history')).toBe(false);
   });
 });
 

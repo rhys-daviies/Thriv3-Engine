@@ -246,16 +246,42 @@ describe('the pathway page', () => {
     expect(text).not.toMatch(/UNDERSTANDING YOUR PATHWAY/);
   });
 
-  it('opens the athlete report with the synthesis, not with the cards', async () => {
+  /**
+   * 13F: the opening is the athlete's own findings, ranked, and the programme's
+   * follow it. It was the other way round — page two of a document named after
+   * somebody was six findings about somebody else.
+   */
+  it('opens the athlete report with the athlete’s own findings', async () => {
+    addAthlete('p1');
+    const { buf, model } = await build('p1');
+    const pages = pdfPages(buf);
+    expect(pages[1]).toMatch(/What Thriv3 sees for you/);
+    expect(pages[2]).toMatch(/What Thriv3 sees about the programme/);
+    const athleteGlance = model.sections.find((x) => x.id === 'athlete-at-a-glance');
+    const programmeGlance = model.sections.find((x) => x.id === 'programme-at-a-glance');
+    expect(athleteGlance.page).toBeLessThan(programmeGlance.page);
+    // The prose synthesis it replaced is gone rather than kept beside it.
+    expect(pdfText(buf)).not.toMatch(/THE PATHWAY THRIV3 SEES/);
+  });
+
+  it('states the inputs it was prepared from, and only those', async () => {
     addAthlete('p1');
     const { buf } = await build('p1');
-    const text = pdfText(buf);
-    expect(text).toMatch(/Your pathway at Test College/);
-    expect(text).toMatch(/THE PATHWAY THRIV3 SEES/);
-    // The four cards this page used to carry are each a page of their own now,
-    // immediately after it, so the synthesis does not reprint its own evidence.
-    expect(text).toMatch(/YOUR ARRIVAL WINDOW/i);
-    expect(text).toMatch(/YOUR POSITION NOW/i);
+    const front = pdfPages(buf)[1];
+    expect(front).toMatch(/What this report was prepared from/i);
+    expect(front).toMatch(/Position/);
+    expect(front).toMatch(/Entry year/);
+    expect(front).toMatch(/Origin group/);
+    // `level` and the individual nationality are on the model and used by no
+    // figure in the report, so neither is shown.
+    expect(front).not.toMatch(/\blevel\b/i);
+    expect(front).not.toMatch(/nationality/i);
+  });
+
+  it('says what the report does not assess', async () => {
+    addAthlete('p1');
+    const front = pdfPages((await build('p1')).buf)[1];
+    expect(front).toMatch(/does not assess academic fit, cost, choice of major/i);
   });
 
   // The lead group is the one the eligibility model can actually populate. For
@@ -281,7 +307,6 @@ describe('the pathway page', () => {
     expect(a.currentPlayersInFinalSeasonAtEntry.map((x) => x.name)).toEqual(['Final Year']);
     expect(a.currentPlayersEligibilityEndsBeforeEntry.map((x) => x.name)).toEqual(['Leaving Soon']);
     const text = pdfText(buf);
-    expect(text).toMatch(/in their final eligible season in 2027/);
     // All three temporal groups appear, named the same way on every report.
     expect(text).toMatch(/FINAL SEASON AT ENTRY/);
     expect(text).toMatch(/BEFORE ENTRY/);
@@ -294,7 +319,10 @@ describe('the pathway page', () => {
   it('always states what cannot be known about the entry season', async () => {
     addAthlete('p1');
     const { buf, model } = await build('p1');
-    expect(model.sections.find((x) => x.id === 'athlete-entry-window')).toBeTruthy();
+    // Absorbed into the current-position section in 13F; the limitation moved
+    // with the content it qualifies and is unchanged.
+    expect(model.sections.find((x) => x.id === 'athlete-entry-window')).toBeFalsy();
+    expect(model.sections.find((x) => x.id === 'athlete-current-position')).toBeTruthy();
     const text = pdfText(buf);
     expect(text).toMatch(/Future recruits, experienced arrivals, injuries, redshirts and eligibility changes are not known/);
     expect(text).toMatch(/it does not describe the squad you would find/);

@@ -19,7 +19,7 @@
  */
 import { render, footer } from './philosophyPdf.js';
 import {
-  contentsPage, programmeAtAGlance, programmeSnapshotPage, athletePathwayPage,
+  contentsPage, programmeAtAGlance, programmeSnapshotPage, athleteAtAGlance,
 } from './reportFront.js';
 import {
   actsFor, originIsProgrammeSpecific, arrivalsAreOneFinding,
@@ -30,8 +30,7 @@ import {
   currentSquadOutlookPage, currentDepthPage,
 } from './reportEvidence.js';
 import {
-  positionHistoryPage, positionOpeningsPage, currentPositionPage,
-  arrivalWindowPage, originPage,
+  positionOpeningsPage, currentPositionPage, originPage,
 } from './reportAthlete.js';
 import {
   playerDevelopmentPage, rosterContinuityPage,
@@ -116,14 +115,33 @@ export function renderProgramReport(model, opts = {}) {
     const acts = actsFor({ hasAthlete: Boolean(a) });
     let currentAct = null;
     let drawnAny = false;
-    const originInPathway = originIsProgrammeSpecific(model.summary?.athlete?.originContext);
 
     // Page one is reserved for the contents and drawn last, once the section
     // starts are known. Nothing is written to it here.
     k.doc.addPage();
 
+    /**
+     * THE ATHLETE'S OWN FINDINGS FIRST — 13F / §2.
+     *
+     * Page two of a document named after somebody was the programme decision
+     * layer, byte-identical to the standalone report: six ranked findings, not
+     * one of which mentioned their position, their entry year or the players
+     * already at it. The athlete layer opens the report now and the programme
+     * layer follows it, unchanged analytically and one tier quieter.
+     *
+     * A programme report is untouched: with no athlete there is no athlete
+     * layer, and the programme layer is still the first thing after the cover.
+     */
+    if (a && planned.has('athlete-at-a-glance')) {
+      at('athlete-at-a-glance');
+      currentAct = plan.find((x) => x.id === 'athlete-at-a-glance')?.act ?? null;
+      drawnAny = true;
+      athleteAtAGlance(k, model);
+      k.doc.addPage();
+    }
+
     at('programme-at-a-glance');
-    currentAct = plan.find((x) => x.id === 'programme-at-a-glance')?.act ?? null;
+    currentAct = plan.find((x) => x.id === 'programme-at-a-glance')?.act ?? currentAct;
     drawnAny = true;
     programmeAtAGlance(k, model);
 
@@ -150,26 +168,17 @@ export function renderProgramReport(model, opts = {}) {
     // has been built. A programme report has none of these sections and falls
     // straight through to the programme evidence.
 
-    // Through `section`, like every other page: drawn unconditionally it
-    // produced a page the contents did not list, on a programme whose
-    // synthesis had nothing to say.
-    if (a && planned.has('athlete-at-a-glance')) {
-      k.doc.addPage();
-      at('athlete-at-a-glance');
-      athletePathwayPage(k, model);
-    }
-
     section('athlete-current-position', () => currentPositionPage(k, model));
-    section('athlete-entry-window', () => arrivalWindowPage(k, model));
     section('athlete-position-openings', () => positionOpeningsPage(k, model));
     section('athlete-position-record', () => positionRecordPage(k, model));
-    section('athlete-position-history', () => positionHistoryPage(k, model));
-    // Act I only where this programme has its own record by origin. Where the
-    // page is mostly division context it is drawn with the supporting
-    // evidence, below — `layerOf` in the registry decides, and both places ask
-    // the same question of it so the contents and the document cannot
-    // disagree.
-    if (originInPathway) section('athlete-origin', () => originPage(k, model));
+    /**
+     * Pinned here since 13F. It used to move to the supporting record wherever
+     * the programme's own origin sample did not clear the cohort gate, which
+     * put it after every evidence table at four of five programmes audited —
+     * page 26 of 28 at Adams State. For the reader it matters to, the refusal
+     * is the finding.
+     */
+    section('athlete-origin', () => originPage(k, model));
     // Only where the position carries a real sample. A handful of players is
     // filed with the supporting record instead, below.
     if (athletePositionIsStrong(model)) {
@@ -251,24 +260,25 @@ export function renderProgramReport(model, opts = {}) {
 
     // ---- Act III: the record underneath both ----
 
-    // The roster first: it is the table a family returns to, and the one the
+    /**
+     * ATHLETE EVIDENCE FIRST — 13F / §25.
+     *
+     * The traced moves at the athlete's own position used to sit after five
+     * programme-wide tables, so the last athlete-specific thing in the document
+     * came 400 rows of other people's names later. The evidence act now opens
+     * with it where it exists, and the programme record follows unchanged.
+     */
+    if (!athletePositionIsStrong(model)) {
+      section('athlete-position-movement', () => athletePositionMovementPage(k, model));
+    }
+
+    // Then the roster: the table a family returns to, and the one the
     // squad-outlook page points at.
     section('current-depth', () => currentDepthPage(k, model));
     section('table-freshmen', () => freshmanRecordPage(k, model));
     section('table-experienced-arrivals', () => arrivalRecordPage(k, model));
     section('table-vacancies', () => vacancyRecordPage(k, model));
     section('table-destinations', () => destinationRecordPage(k, model));
-    // The origin page, where it turned out to be mostly division context.
-    // Every caveat it carries in Act I it carries here; only its priority
-    // changed.
-    if (!originInPathway) section('athlete-origin', () => originPage(k, model));
-    // Last of the record, and only where the position's sample was too thin to
-    // lead with. Opening the evidence act with a one-row table under a divider
-    // announcing "named players, actual seasons, actual minutes" set it at a
-    // volume one row cannot carry.
-    if (!athletePositionIsStrong(model)) {
-      section('athlete-position-movement', () => athletePositionMovementPage(k, model));
-    }
 
     atNext('methodology');
     if (plan.find((x) => x.id === 'methodology')?.act !== currentAct) {

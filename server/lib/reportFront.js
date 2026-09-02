@@ -21,6 +21,9 @@ import { STARTER_MINUTES } from '../../shared/philosophy.js';
 import { positionPlural } from '../../shared/positions.js';
 import { athleteHeadlines, pathwayNarrative } from '../../shared/report/narrative.js';
 import { decisionFindings, programmeSnapshot } from '../../shared/report/decisionLayer.js';
+import {
+  athleteDecisionFindings, athleteInputStrip, SCOPE_STATEMENT,
+} from '../../shared/report/athleteDecisionLayer.js';
 import { actTitle, groupTitle } from '../../shared/report/sections.js';
 import { coachContextFor, coachTimelineFor } from '../../shared/report/coachContext.js';
 
@@ -640,12 +643,14 @@ const PAGE_COL = 30;
  * is scored, and the priority class that decided the order is never printed —
  * it is an ordering over findings, not a rating of a programme.
  */
-function findingRow(k, f, { last = false, metricSize = 12.5 } = {}) {
+function findingRow(k, f, { last = false, metricSize = 12.5, quiet = false } = {}) {
   const { doc } = k;
   const textX = M + FINDING_GUTTER;
   const textW = W - FINDING_GUTTER - PAGE_COL - 10;
 
-  const sentH = doc.font('Helvetica').fontSize(10.5).heightOfString(f.text, { width: textW });
+  // One tier quieter where a programme's findings sit behind an athlete's.
+  const bodySize = quiet ? 9.5 : 10.5;
+  const sentH = doc.font('Helvetica').fontSize(bodySize).heightOfString(f.text, { width: textW });
   const noteH = f.evidenceNote
     ? doc.font('Helvetica').fontSize(7).heightOfString(f.evidenceNote, { width: textW }) + 3 : 0;
   k.room(11 + sentH + noteH + 18);
@@ -655,7 +660,9 @@ function findingRow(k, f, { last = false, metricSize = 12.5 } = {}) {
     .text(String(f.label).toUpperCase(), textX, top,
       { width: textW, characterSpacing: TYPE.label.spacing, lineBreak: false });
 
-  doc.font('Helvetica').fontSize(10.5).fillColor(INK)
+  // Grey rather than the metric gutter's blue: one colour, one job — a
+  // quieter row must not read as a different kind of row.
+  doc.font('Helvetica').fontSize(bodySize).fillColor(quiet ? MUTED : INK)
     .text(f.text, textX, top + 11, { width: textW });
   let y = doc.y;
   if (f.evidenceNote) {
@@ -722,14 +729,28 @@ function findingRow(k, f, { last = false, metricSize = 12.5 } = {}) {
  * docs/decision-layer.md. Nothing on this page decides anything: it draws what
  * the ranking selected, in the order the ranking selected it.
  */
+/**
+ * THE PROGRAMME DECISION LAYER, unchanged analytically — 13F / §21.
+ *
+ * On a programme report this is page two and the report's own voice. On an
+ * athlete report it is page three, retitled, and set one tier quieter: the
+ * ranking, the sentences and the metrics are `decisionFindings`' own, called
+ * exactly as they were and drawn by the same row. Only the title, the subtitle
+ * and the size of the metric column change, and only where an athlete is
+ * reading it — because a document named after somebody should not open with six
+ * findings about somebody else.
+ */
 export function programmeAtAGlance(k, model) {
   const { doc } = k;
+  const forAthlete = Boolean(model.athlete);
   const coach = coachContextFor(model.coachAttribution, { division: model.college?.division });
   const { findings } = decisionFindings({ ...model, coachContext: coach });
 
-  pageHeading(k, 'What Thriv3 sees',
-    'The findings this report rests on, most consequential first, each with the page that carries '
-    + 'its evidence.');
+  pageHeading(k, forAthlete ? 'What Thriv3 sees about the programme' : 'What Thriv3 sees',
+    forAthlete
+      ? 'The programme’s own record, ranked the same way, behind the findings for this athlete.'
+      : 'The findings this report rests on, most consequential first, each with the page that '
+        + 'carries its evidence.');
 
   if (!findings.length) {
     // Never a blank page and never a padded one. A programme with nothing
@@ -739,9 +760,81 @@ export function programmeAtAGlance(k, model) {
     return;
   }
 
-  const metricSize = metricSizeFor(doc, findings);
+  // One step down where an athlete's own findings are the page before this.
+  const metricSize = forAthlete
+    ? Math.min(10.5, metricSizeFor(doc, findings) ?? 10.5) : metricSizeFor(doc, findings);
   findings.forEach((f, i) => findingRow(k, f,
-    { last: i === findings.length - 1, metricSize }));
+    { last: i === findings.length - 1, metricSize, quiet: forAthlete }));
+}
+
+// ---------------------------------------------------------------------------
+// PAGE 2 of an athlete report — the athlete decision layer
+// ---------------------------------------------------------------------------
+
+/**
+ * What Thriv3 sees FOR YOU.
+ *
+ * The same grammar as the programme layer and the same `findingRow`, because a
+ * reader who has learned to read one has learned to read the other. What
+ * differs is the subject and the order: these findings are about one position,
+ * one entry year and one origin group, and they come first.
+ *
+ * Three things sit under them and nowhere else in the report: the inputs that
+ * actually shaped it, what the report measures, and what it does not. The last
+ * is there because a document titled "Rhys Davies × Mercyhurst" reads like a
+ * verdict on a university, and this one only ever measured a football
+ * environment.
+ */
+export function athleteAtAGlance(k, model) {
+  const { doc } = k;
+  const a = model.summary?.athlete;
+  const { findings } = athleteDecisionFindings(model);
+
+  pageHeading(k, 'What Thriv3 sees for you',
+    `What this programme’s record shows for a ${String(a?.positionLabel ?? 'player').toLowerCase()} `
+    + `arriving in ${a?.entrySeason}, most consequential first.`);
+
+  if (!findings.length) {
+    k.note('No finding at this position clears the evidence needed to lead a report. The pages '
+      + 'that follow show what could be measured at it and what could not.');
+  } else {
+    const metricSize = metricSizeFor(doc, findings);
+    findings.forEach((f, i) => findingRow(k, f,
+      { last: i === findings.length - 1, metricSize }));
+  }
+
+  /**
+   * The inputs that shaped this, and only those.
+   *
+   * `nationality` is on the model and used nowhere — the analysis groups origin
+   * only as within or outside the United States, and says so on the page it
+   * belongs to — and `level` is on the model and used nowhere at all. Showing
+   * either would tell a reader that a figure was shaped by something that never
+   * touched it.
+   */
+  k.heading('What this report was prepared from');
+  const strip = athleteInputStrip(model);
+  if (strip.length) {
+    const rows = Math.ceil(strip.length / 2);
+    absolute(k, rows * 13 + 4, (box) => {
+      strip.forEach(([label, value], i) => {
+        snapshotLine(k.doc, box.x + (i % 2) * (HALF + GAP), box.y + Math.floor(i / 2) * 13, HALF,
+          label, value ?? '—');
+      });
+    });
+  }
+  k.note(SCOPE_STATEMENT);
+
+  /**
+   * What this programme's record can and cannot be read for — 13F / §28.
+   *
+   * Preserved exactly from the page this replaced, and gated on the same
+   * question it always answered: whether this programme refused something. A
+   * sparse report's most useful page is the one that tells a family the shape
+   * of what follows instead of leaving them to notice the gaps, and 13E found
+   * it better structured than the full-data page above it.
+   */
+  if ((model.evidenceLimits ?? []).length && k.remaining() >= 250) evidenceStatus(k, model);
 }
 
 /**
@@ -1191,44 +1284,16 @@ function pathwayBlock(k, sentences) {
  * evidence twice. A synthesis that reprints its own evidence is not a
  * synthesis; the band says where each part of it is set out, and stops.
  */
-export function athletePathwayPage(k, model) {
-  const a = model.summary.athlete;
-  const athlete = model.athlete;
-
-  pageHead(k, {
-    kicker: 'Understanding your pathway',
-    title: `Your pathway at ${model.college.name}`,
-    question: 'How this programme’s history, this position, the entry year and the current roster '
-      + 'intersect.',
-    newPage: false,
-  });
-  k.scope([athlete.positionLabel, `entering ${model.entrySeason}`,
-    `${(a.currentPositionPlayers ?? []).length} at this position on the current roster`]);
-
-  const sentences = pathwayNarrative(model);
-  pathwayBlock(k, sentences);
-
-  k.aside('Nothing on this page says how many minutes an arriving player would get. That season '
-    + 'has not been played, who is on the squad by then is not knowable from this data, and no '
-    + 'figure here is a forecast.', { title: 'What this page is not' });
-
-  headlineBand(k, athleteHeadlines(model), { title: 'Where the evidence for this sits' });
-
-  /**
-   * Only on a page whose synthesis is thin, and only where there is room.
-   *
-   * Both conditions, because either alone gets it wrong. Room alone drew it on
-   * Akron's women's report, where it was six page titles and their numbers
-   * under a band that already carries page pointers — the contents page for a
-   * second time. A thin synthesis alone would draw it on a page that has no
-   * space for it.
-   *
-   * A one-sentence pathway page is the case this exists for: three-quarters
-   * empty under a single finding, which reads as a report that gave up rather
-   * than one whose subject published less.
-   */
-  if (sentences.length <= 2 && k.remaining() >= 250) evidenceStatus(k, model);
-}
+/**
+ * `athletePathwayPage` was replaced by `athleteAtAGlance` in Phase 13F.
+ *
+ * It carried five paragraphs of synthesis, a non-claim aside, a navigation band
+ * and — on a sparse programme — the two lists below. Every sentence of the
+ * synthesis is now a ranked finding with a metric and a page reference, and the
+ * navigation band is the page references on those findings. The two lists
+ * survive: they are the sparse programme's honest answer and 13E found them
+ * better structured than the full-data page they sat behind.
+ */
 
 /**
  * What this programme's record can be read for, and what it cannot — titles.

@@ -83,7 +83,11 @@ const plan = (model, summary) => planSections({ model, summary, philosophy: {} }
 describe('the acts', () => {
   it('runs an athlete report pathway, programme, evidence', () => {
     const acts = actsFor({ hasAthlete: true }).map((a) => a.id);
-    expect(acts).toEqual(['navigation', 'pathway', 'programme-evidence', 'supporting']);
+    // 13F: the two decision layers are their own act on an athlete report too.
+    // They were filed under "Understanding your pathway", which put the
+    // PROGRAMME's findings under a heading claiming they were about the reader.
+    expect(acts).toEqual(['navigation', 'interpretation', 'pathway', 'programme-evidence',
+      'supporting']);
     expect(actTitle('pathway', { hasAthlete: true })).toBe('Understanding your pathway');
     expect(actTitle('programme-evidence', { hasAthlete: true })).toBe('Understanding the programme');
     expect(actTitle('supporting', { hasAthlete: true })).toBe('The evidence behind it');
@@ -125,18 +129,23 @@ describe('athlete ordering', () => {
     expect(firstProgramme).toBeGreaterThan(lastPathway);
   });
 
-  it('opens with the decision layer and then the synthesis', () => {
+  it('opens with the athlete’s findings, then the programme’s', () => {
     const ids = built().map((s) => s.id);
-    // Findings, then the context they sit in, then the athlete's own reading.
+    // 13F: the athlete's own findings first, then the programme's and the
+    // context they sit in. The plan array describes the document, so it is
+    // declared in the order it is drawn.
     expect(ids.slice(0, 3)).toEqual([
-      'programme-at-a-glance', 'programme-snapshot', 'athlete-at-a-glance',
+      'athlete-at-a-glance', 'programme-at-a-glance', 'programme-snapshot',
     ]);
   });
 
   it('runs the pathway in a family’s order of questions', () => {
     const ids = built().map((s) => s.id).filter((x) => x.startsWith('athlete-'));
-    expect(ids).toEqual(['athlete-at-a-glance', 'athlete-current-position', 'athlete-entry-window',
-      'athlete-position-openings', 'athlete-position-history', 'athlete-origin',
+    // 13F consolidated two pairs — the arrival window into the current-position
+    // section, and the position history into the position record — and pinned
+    // the origin page into the pathway act at every programme.
+    expect(ids).toEqual(['athlete-at-a-glance', 'athlete-current-position',
+      'athlete-position-openings', 'athlete-position-record', 'athlete-origin',
       'athlete-position-movement']);
   });
 
@@ -152,17 +161,22 @@ describe('athlete ordering', () => {
     expect(built2.map((s) => s.order)).toEqual(built2.map((_, i) => i + 1));
   });
 
-  it('puts the glance page and every athlete page in the pathway act', () => {
+  it('files the two decision layers apart from the pathway pages', () => {
     for (const s of built()) {
-      if (s.id === 'programme-at-a-glance' || (s.id.startsWith('athlete-') && s.id !== 'athlete-position-movement')) {
+      if (s.id === 'programme-at-a-glance' || s.id === 'programme-snapshot'
+        || s.id === 'athlete-at-a-glance') {
+        expect(s.act, s.id).toBe('interpretation');
+      } else if (s.id.startsWith('athlete-') && s.id !== 'athlete-position-movement') {
         expect(s.act, s.id).toBe('pathway');
       }
     }
   });
 
-  it('titles the synthesis after the programme it is about', () => {
+  it('titles the athlete decision layer for the athlete, not the programme', () => {
+    // 13F: it is the report's opening and it is ranked findings, not a
+    // synthesis paragraph named after the college.
     expect(built().find((s) => s.id === 'athlete-at-a-glance').title)
-      .toBe('Your pathway at Test College');
+      .toBe('What Thriv3 sees for you');
   });
 });
 
@@ -282,8 +296,8 @@ describe('the sections Phase 9B added', () => {
     expect(p2.find((x) => x.id === 'athlete-position-record').act).toBe('pathway');
     expect(order.indexOf('athlete-position-record'))
       .toBeGreaterThan(order.indexOf('athlete-position-openings'));
-    expect(order.indexOf('athlete-position-record'))
-      .toBeLessThan(order.indexOf('athlete-position-history'));
+    // `athlete-position-history` was absorbed into the record section in 13F.
+    expect(order).not.toContain('athlete-position-history');
     expect(order.indexOf('athlete-position-record'))
       .toBeLessThan(order.indexOf('freshman-opportunity'));
   });
@@ -319,11 +333,17 @@ describe('the sections Phase 9B added', () => {
     }), richSummary())).toContain('athlete-position-record');
   });
 
-  it('drops the position record only where both halves have nothing', () => {
+  it('drops the position record only where every half has nothing', () => {
+    // Since 13F the section also carries the first-years and the experienced
+    // arrivals at the position, so a summary holding those keeps the page even
+    // where the intake and the minute reach are both suppressed.
+    const bare = richSummary();
+    bare.athlete.positionFreshmanHistory = { measured: 0, starters: 0, players: [] };
+    bare.athlete.experiencedArrivalsAtPosition = { measured: 0, starters: 0, players: [] };
     expect(ids(withNew({
       pressure: { athletePosition: { historical: { suppressed: true }, current: { readable: false, totalIncoming: null } } },
       positionUtilisation: { athletePosition: { supported: true, available: false, singleSeasonObservation: null } },
-    }), richSummary())).not.toContain('athlete-position-record');
+    }), bare)).not.toContain('athlete-position-record');
   });
 
   it('keeps squad usage on one readable season, and drops it on none', () => {
@@ -368,28 +388,41 @@ describe('where the origin page is filed', () => {
     expect(s.scopeNotes).not.toContain('pool context only');
   });
 
-  it('moves it to the supporting evidence where the page is pool context', () => {
+  /**
+   * PINNED SINCE 13F. It used to move to the supporting record wherever the
+   * programme's own origin sample did not clear the cohort gate, which put it
+   * after every evidence table at four of the five programmes 13E audited —
+   * page 26 of 28 at Adams State. For an international athlete the REFUSAL is
+   * decision-relevant, so it stays where they will read it and says what it
+   * could not establish.
+   */
+  it('keeps it in the pathway even where the page is pool context', () => {
     const s = plan(rich(), thin()).find((x) => x.id === 'athlete-origin');
     expect(s).toBeTruthy();
-    expect(s.layer).toBe('supporting');
-    expect(s.act).toBe('supporting');
-    // Still listed, and the contents says why it sits there.
+    expect(s.layer).toBe('athlete-evidence');
+    expect(s.act).toBe('pathway');
+    // And the contents still says what it is: a pool comparison, not this
+    // programme's own record.
     expect(s.scopeNotes).toContain('pool context only');
   });
 
-  it('moves it after the programme evidence, not out of the report', () => {
+  it('sits before the programme evidence, not after it', () => {
     const built = plan(rich(), thin());
     const ids = built.map((x) => x.id);
     expect(ids).toContain('athlete-origin');
-    expect(ids.indexOf('athlete-origin')).toBeGreaterThan(ids.indexOf('player-development'));
-    expect(ids.indexOf('athlete-origin')).toBeGreaterThan(ids.indexOf('squad-usage'));
+    // Before every programme page in the plan, whichever ones this fixture has.
+    const at = built.findIndex((x) => x.id === 'athlete-origin');
+    const firstProgramme = built.findIndex((x) => x.act === 'programme-evidence');
+    expect(firstProgramme).toBeGreaterThan(-1);
+    expect(at).toBeLessThan(firstProgramme);
   });
 
-  it('answers the same question in both places', () => {
+  it('does not move at all', () => {
     const a = SECTIONS.find((x) => x.id === 'athlete-origin');
     expect(a.title).toBe('Where you are arriving from');
     expect(a.layer).toBe('athlete-evidence');
-    expect(typeof a.layerOf).toBe('function');
+    // No `layerOf`: one home, whatever the cohort turns out to hold.
+    expect(a.layerOf).toBeUndefined();
   });
 });
 

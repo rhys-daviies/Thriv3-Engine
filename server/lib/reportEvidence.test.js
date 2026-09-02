@@ -536,11 +536,17 @@ describe('the athlete evidence layer', () => {
   it('renders each athlete page once for an athlete report', async () => {
     addAthlete('p1');
     const { text } = await build('p1');
-    expect(text).toMatch(/Defenders at this programme/);
+    // 13F consolidated two pairs. Every question they answered is still
+    // answered; two of them are answered under one head.
+    expect(text).toMatch(/What Thriv3 sees for you/);
+    expect(text).toMatch(/Your position, and the timing around your arrival/);
     expect(text).toMatch(/When a place opens at defender/i);
-    expect(text).toMatch(/Defenders on the 2026 roster/);
-    expect(text).toMatch(/Your arrival window, 2027/);
+    expect(text).toMatch(/What this position has looked like here/);
+    expect(text).toMatch(/First-year defenders/i);
     expect(text).toMatch(/Where you are arriving from/);
+    // And the pages they replaced are gone rather than duplicated.
+    expect(text).not.toMatch(/Your arrival window, 2027/);
+    expect(text).not.toMatch(/Defenders at this programme/);
   });
 
   // The comparison it replaced put a results-derived rating out of 100 beside
@@ -575,7 +581,9 @@ describe('the athlete evidence layer', () => {
     addAthlete('p1');
     const { text, model } = await build('p1');
     const a = model.summary.athlete;
-    expect(text).toMatch(/Current players with no eligibility year recorded/);
+    // The three eligibility bands account for everyone, and the players with
+    // no year recorded are named in the note rather than folded into a band.
+    expect(text).toMatch(/BEFORE ENTRY|FINAL SEASON AT ENTRY|BEYOND ENTRY/);
     const placed = a.currentPlayersEligibleAtEntry.length
       + a.currentPlayersEligibilityEndsBeforeEntry.length
       + a.currentPlayersEligibilityUnknown.length;
@@ -1164,15 +1172,20 @@ describe('the origin page is placed on the evidence it has', () => {
     const origin = model.sections.find((x) => x.id === 'athlete-origin');
     expect(origin).toBeTruthy();
     expect(model.summary.athlete.originContext.evidence.sufficient).toBe(false);
-    expect(origin.layer).toBe('supporting');
-    expect(origin.act).toBe('supporting');
-    // Kept whole, caveats and all — only its priority changed.
+    /**
+     * PINNED SINCE 13F. This used to move to the supporting record, which put
+     * it after every evidence table. For the reader it matters to — an athlete
+     * arriving from somewhere this programme has no record of — the refusal IS
+     * the finding, and it belongs where they will read it.
+     */
+    expect(origin.layer).toBe('athlete-evidence');
+    expect(origin.act).toBe('pathway');
+    // Kept whole, caveats and all.
     expect(text).toContain('Where you are arriving from');
     expect(text).toContain('Not enough programme-specific history to compare by origin');
     expect(text).toContain('context, not a substitute for evidence this programme has not produced');
-    // Drawn where the plan says it is, after the programme evidence.
     const dev = model.sections.find((x) => x.id === 'player-development');
-    expect(origin.page).toBeGreaterThan(dev.page);
+    expect(origin.page).toBeLessThan(dev.page);
     expect(origin.page).toBeLessThanOrEqual(pageCount(buf));
   });
 
@@ -1213,11 +1226,16 @@ describe('the pathway page on a sparse report', () => {
     }
   });
 
-  it('leaves a full pathway page alone', async () => {
+  it('leaves a report with nothing refused alone', async () => {
     addProgramme();
     addAthlete('p1', { position: 'Midfield' });
-    const { text } = await build('p1');
-    expect(text).not.toMatch(/what this record can be read for/i);
+    const { text, model } = await build('p1');
+    // Gated on the refusals themselves since 13F rather than on how many
+    // sentences the synthesis produced: the two lists exist to show the shape
+    // of what a programme could not measure.
+    if (!(model.evidenceLimits ?? []).length) {
+      expect(text).not.toMatch(/what this record can be read for/i);
+    }
   });
 });
 

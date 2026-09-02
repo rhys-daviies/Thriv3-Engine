@@ -28,6 +28,7 @@
  */
 import { charts, THEME, pageHead, spanText } from './philosophyPdf.js';
 import { STARTER_MINUTES } from '../../shared/philosophy.js';
+import { positionCohortBlock } from './reportAthlete.js';
 
 const { NAVY, PALE } = THEME;
 const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
@@ -245,13 +246,14 @@ function minutesBlock(k, util, { plural: posPlural }) {
 export function positionRecordPage(k, model) {
   const intake = model.pressure?.athletePosition ?? null;
   const util = model.positionUtilisation?.athletePosition ?? null;
+  const a = model.summary?.athlete;
   const posPlural = util?.plural ?? intake?.plural ?? 'players';
 
   pageHead(k, {
     kicker: 'Understanding your pathway',
     title: `What this position has looked like here`,
-    question: `How often has this programme added ${posPlural}, and how far have the minutes at `
-      + 'this position reached?',
+    question: `How often has this programme added ${posPlural}, how far have the minutes at this `
+      + 'position reached, and who has been used in them?',
     scope: [
       util?.available
         ? basisText(util.readableSeasons, util.seasons.length)
@@ -259,6 +261,8 @@ export function positionRecordPage(k, model) {
           ? `${plural(intake.historical.cyclesWithReadableRosterPresence, 'recruiting cycle', 'recruiting cycles')} on file`
           : null),
       util?.poolScope ? `compared against ${util.poolScope}` : null,
+      a ? `${a.positionFreshmanHistory.measured} first-years · `
+        + `${a.experiencedArrivalsAtPosition.measured} experienced arrivals` : null,
       'not a forecast',
     ].filter(Boolean),
   });
@@ -269,6 +273,18 @@ export function positionRecordPage(k, model) {
 
   const sentences = positionRecordReading(model);
   if (sentences.length) k.reading(sentences);
+
+  /**
+   * The people, under the same head — 13F / §14.
+   *
+   * "Your position, historically" was a page of its own directly after this
+   * one, carrying the first-years and the experienced arrivals at the same
+   * position. One question, two sheets, and a reader holding the intake and
+   * the minute reach across a page turn from the people they describe. The
+   * block continues here and is allowed to run onto a second sheet where the
+   * evidence is rich.
+   */
+  if (model.summary?.athlete) positionCohortBlock(k, model);
 }
 
 /**

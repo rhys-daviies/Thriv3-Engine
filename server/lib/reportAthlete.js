@@ -34,21 +34,44 @@ const nouns = (a) => positionPlural(a.position);
 // A — how this programme has treated players at the athlete's position
 // ---------------------------------------------------------------------------
 
-export function positionHistoryPage(k, model) {
+/**
+ * WHO HAS BEEN USED AT THIS POSITION — a block, not a page, since 13F / §14.
+ *
+ * It was "Your position, historically", a page of its own directly after "What
+ * this position has looked like here". Both answered one question — what this
+ * position's record is — and a reader met the intake and the minute reach on
+ * one sheet and the people on the next. They are one section now; this draws
+ * its second half, under the record page's own head and scope.
+ *
+ * The minute mix went with it and did NOT come here. It was on three surfaces
+ * at once — this block, the openings page and the programme's position page —
+ * so it is drawn once, on the page that owns the question "who takes the
+ * minutes when they come free".
+ */
+export function positionCohortBlock(k, model) {
   const a = model.summary.athlete;
   const fit = model.fit;
   const fh = a.positionFreshmanHistory;
   const ea = a.experiencedArrivalsAtPosition;
-  const v = a.positionVacancyHistory;
 
-  page(k, 'Understanding your pathway', `${cap(nouns(a))} at this programme`,
-    `How has this programme historically treated players at your position?`);
-  scope(k, [
-    v?.transitions ? `${plural(v.transitions, 'season transition', 'season transitions')} readable` : null,
-    `${plural(fh.measured, 'first-year', 'first-years')} measured`,
-    `${plural(ea.measured, 'experienced arrival', 'experienced arrivals')} measured`,
-    v?.openings ? `${plural(v.openings, 'starter opening', 'starter openings')}` : null,
-  ]);
+  /**
+   * The break, taken before the heading rather than after it.
+   *
+   * `k.heading` reserves forty points, which is enough for the heading and not
+   * for the cohort statement, ladder and fact list beneath it — so the first
+   * draft of this consolidation left "FIRST-YEAR DEFENDERS" alone at the foot
+   * of a page with its content on the next one. 260 is measured: the cohort
+   * line, a three-rung ladder and the three fact rows come to 244 at
+   * Mercyhurst men's.
+   */
+  if (k.remaining() < 260) {
+    k.doc.addPage();
+    pageHead(k, {
+      title: 'What this position has looked like here',
+      question: 'And who has this programme actually used in those minutes?',
+      continued: true,
+    });
+  }
 
   // --- first-years at this position ---
   k.heading(`First-year ${nouns(a)}`);
@@ -137,16 +160,6 @@ export function positionHistoryPage(k, model) {
     });
   }
 
-  // --- where this position's minutes have gone ---
-  const dials = a.positionOpeningOutcomes?.dials ?? null;
-  if (dials?.n) {
-    k.gap(4);
-    k.heading(`Where ${noun(a)} minutes have gone`);
-    k.stacked({ label: `Across ${plural(dials.n, 'readable position-season', 'readable position-seasons')}`, ...dials });
-    k.note('These three shares divide the minutes played at this position exactly. They describe '
-      + 'where the minutes went, not who won a place — a player can take minutes without anybody '
-      + 'losing a job, and a place can be shared.');
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -196,6 +209,27 @@ export function positionOpeningsPage(k, model) {
     k.box(`Only ${plural(v.openings, 'opening has', 'openings have')} been observed at this position. `
       + 'That is what happened, not a rate — a share of two reads far more confidently than it '
       + 'deserves to.', { color: CLARET });
+  }
+
+  /**
+   * THE MINUTE MIX, DRAWN ONCE — 13F / §13.
+   *
+   * It was on three surfaces: the position-history page, the programme's own
+   * position-by-position page, and per opening below. This is the page that
+   * owns the question "who takes the minutes when they come free at this
+   * position", so the aggregate is stated here and the history page stopped
+   * drawing it. The programme page keeps its version, which is the comparison
+   * ACROSS positions rather than the answer for this one.
+   */
+  const dials = o?.dials ?? null;
+  if (dials?.n) {
+    k.gap(2);
+    k.heading(`Where ${noun(a)} minutes have gone`);
+    k.stacked({ label: `Across ${plural(dials.n, 'readable position-season', 'readable position-seasons')}`, ...dials });
+    k.note('These three shares divide the minutes played at this position exactly. They describe '
+      + 'where the minutes went, not who won a place — a player can take minutes without anybody '
+      + 'losing a job, and a place can be shared. The same three routes are compared across every '
+      + 'position on the programme’s own position page.');
   }
 
   k.gap(4);
@@ -298,12 +332,31 @@ export function positionOpeningsPage(k, model) {
 // C — who is at the position now
 // ---------------------------------------------------------------------------
 
+/**
+ * YOUR POSITION, AND THE TIMING AROUND YOUR ARRIVAL — 13F / §11.
+ *
+ * Two pages until this phase: "Defenders on the 2026 roster" and "Your arrival
+ * window, 2027", consecutive, answering one question. The first opened with
+ * four counts that were the second's three eligibility bands restated, and a
+ * reader had to hold seventeen names across a page turn to put them together.
+ *
+ * One section now, in the order the question is actually asked: when do the
+ * players at this position run out of eligibility, who are they, and what
+ * playing-time load do they hold. It is allowed to run onto a second sheet —
+ * seventeen defenders need one — because the consolidation is of the question,
+ * not of the paper.
+ *
+ * NOTHING IS DROPPED. The timeline, the three bands with their names, the
+ * primary limitation, the coverage note and the non-forecast sentence under the
+ * table all survive. What went is the duplicated count block and the per-player
+ * status column, which repeated the bands drawn immediately above it.
+ */
 export function currentPositionPage(k, model) {
   const a = model.summary.athlete;
   const players = a.currentPositionPlayers ?? [];
 
-  page(k, 'Understanding your pathway', `${cap(nouns(a))} on the ${model.squadSeason} roster`,
-    'Who is currently at your position?');
+  page(k, 'Understanding your pathway', 'Your position, and the timing around your arrival',
+    `Who is at your position now, and what eligibility timing sits around ${a.entrySeason}?`);
 
   if (!players.length) {
     k.body(`No ${model.squadSeason} roster is on file for this programme, or nobody on it is `
@@ -311,105 +364,39 @@ export function currentPositionPage(k, model) {
     return;
   }
 
-  const eligible = a.currentPlayersEligibleAtEntry ?? [];
-  const finalSeason = a.currentPlayersInFinalSeasonAtEntry ?? [];
-  const endsBefore = a.currentPlayersEligibilityEndsBeforeEntry ?? [];
-  const unknown = a.currentPlayersEligibilityUnknown ?? [];
-
-  // Where NOBODY carries an eligibility year the three derived counts are not
-  // zero, they are unknown, and printing three zeros beside "18 with no
-  // eligibility year recorded" invites exactly the reading the report exists
-  // to prevent.
-  const placeable = players.length - unknown.length;
-  const count = (list) => (placeable ? String(list.length) : null);
-  k.facts([
-    [`Current known ${nouns(a)}`, String(players.length)],
-    [`Current players eligible in ${a.entrySeason}`, count(eligible)],
-    [`…of those, in their final eligible season in ${a.entrySeason}`, count(finalSeason)],
-    [`Current players whose eligibility ends before ${a.entrySeason}`, count(endsBefore)],
-    ['Current players with no eligibility year recorded', String(unknown.length)],
-  ]);
-  k.note(placeable
-    ? 'Counts of the roster as it stands today, read against your entry year. Who is actually on '
-      + 'the squad by then depends on recruiting, arrivals, departures and eligibility decisions '
-      + 'that have not happened yet.'
-    : 'No player at this position carries an eligibility year, so the three counts above cannot be '
-      + 'made — they are unknown rather than zero. The rows themselves are below.');
-
-  const bucket = (p) => {
-    if (p.eligibleTo == null) return 'not recorded';
-    if (Number(p.eligibleTo) < a.entrySeason) return `ends before ${a.entrySeason}`;
-    if (Number(p.eligibleTo) === a.entrySeason) return `final season in ${a.entrySeason}`;
-    return `eligible beyond ${a.entrySeason}`;
-  };
-
-  k.gap(4);
-  k.table({
-    continued: `${cap(nouns(a))} on the ${model.squadSeason} roster`,
-    columns: [
-      { key: 'name', label: 'Player', width: 0.24, bold: true },
-      { key: 'classLabel', label: 'Class', width: 0.1 },
-      { key: 'projectedMinutes', label: 'Projected minutes', width: 0.16, align: 'right', format: (v) => (v == null ? null : nf(v)) },
-      { key: 'eligibleTo', label: 'Eligible through', width: 0.14, align: 'right' },
-      { key: 'status', label: `At entry, ${a.entrySeason}`, width: 0.18 },
-      { key: 'arrivedFrom', label: 'Previous programme', width: 0.18, dropWhenEmpty: true },
-    ],
-    rows: [...players]
-      .sort((x, y) => (y.projectedMinutes ?? -1) - (x.projectedMinutes ?? -1))
-      .map((p) => ({ ...p, status: bucket(p) })),
-    // The athlete's own entry year is the thing being read against, so the
-    // final-season group is marked rather than colour-coded good or bad.
-    highlight: (row) => row.status === `final season in ${a.entrySeason}`,
-    note: 'The marked rows are players whose last eligible season is your entry year. Projected '
-      + 'minutes are attached to those players for the coming season; they are not minutes that '
-      + 'pass to anyone.',
-  });
-}
-
-// ---------------------------------------------------------------------------
-// D — the arrival window, in full
-// ---------------------------------------------------------------------------
-
-export function arrivalWindowPage(k, model) {
-  const a = model.summary.athlete;
-  const players = a.currentPositionPlayers ?? [];
-
-  page(k, 'Understanding your pathway', `Your arrival window, ${a.entrySeason}`,
-    'What current playing-time load sits around the season you would arrive in?');
-
-  if (!players.length) {
-    k.body(`No ${model.squadSeason} roster is on file at this position, so there is no current load `
-      + 'to read against your entry year.', { color: MUTED });
-    return;
-  }
-
   const before = a.currentProjectedMinutesOfPlayersEndingBeforeEntry;
   const final = a.currentProjectedMinutesOfPlayersInFinalSeasonAtEntry;
   const beyond = a.currentProjectedMinutesOfPlayersBeyondEntry;
   const unknown = a.currentProjectedMinutesOfPlayersWithUnknownEligibility;
-
   const years = [...new Set(players.map((p) => p.eligibleTo).filter((y) => y != null))]
     .map(Number).sort((x, y) => x - y);
 
-  // Nothing on this roster can be placed against a year. The three bands would
-  // all read zero for a reason that has nothing to do with the squad, which is
-  // the null-is-not-zero defect this whole report exists downstream of.
+  scope(k, [
+    `${plural(players.length, `current ${noun(a)}`, `current ${nouns(a)}`)}`,
+    years.length ? `${(a.currentPlayersBeyondEntry ?? []).length} eligible beyond ${a.entrySeason}` : null,
+    years.length ? `${(a.currentPlayersInFinalSeasonAtEntry ?? []).length} in a final season in ${a.entrySeason}` : null,
+  ].filter(Boolean));
+
+  /**
+   * Nothing on this roster can be placed against a year. The three bands would
+   * all read zero for a reason that has nothing to do with the squad, which is
+   * the null-is-not-zero defect this whole report exists downstream of. The
+   * table still draws, because the players are still the answer to half the
+   * question.
+   */
   if (!years.length) {
     k.body(`No eligibility year is recorded for any of the ${plural(players.length, 'current', 'current')} `
       + `${nouns(a)} on the ${model.squadSeason} roster.`, { bold: true });
-    k.body('So this page cannot say which of them are in a final season when you arrive, which have '
-      + 'already finished, and which are eligible beyond it. That is a gap in what this programme '
-      + 'publishes, not a squad with nobody in it — the players are listed in full on the previous '
-      + 'page and on the squad page.', { color: MUTED });
+    k.body('So this section cannot say which of them are in a final season when you arrive, which '
+      + 'have already finished, and which are eligible beyond it. That is a gap in what this '
+      + 'programme publishes, not a squad with nobody in it — the players are listed below.',
+    { color: MUTED });
     k.box('Future recruits, experienced arrivals, injuries, redshirts and eligibility changes are '
-      + 'not known either. This page describes the squad as it stands today, and today it cannot '
-      + 'be read against a year.', { color: CLARET, title: 'The primary limitation' });
-    return;
-  }
-
-  if (years.length) {
+      + 'not known either. This section describes the squad as it stands today, and today it '
+      + 'cannot be read against a year.', { color: CLARET, title: 'The primary limitation' });
+  } else {
     charts.eligibilityTimeline(k, {
-      box: k.slot(168),
+      box: k.slot(140),
       title: `Every current ${noun(a)}, at the year their eligibility ends`,
       subtitle: 'Dot size is the minutes they are projected to play. The dashed line is your entry year.',
       lanes: [{ label: cap(nouns(a)), players }],
@@ -418,76 +405,101 @@ export function arrivalWindowPage(k, model) {
       unplaceable: a.currentPlayersEligibilityUnknown.length,
       unavailable: null,
     });
+
+    // Three bands, with the final-season group as the visual focus.
+    const bands = [
+      { key: 'before', label: 'BEFORE ENTRY', sub: `eligibility ends before ${a.entrySeason}`,
+        group: a.currentPlayersEligibilityEndsBeforeEntry, minutes: before, color: MUTED },
+      { key: 'final', label: 'FINAL SEASON AT ENTRY', sub: `last eligible season is ${a.entrySeason}, the year you arrive`,
+        group: a.currentPlayersInFinalSeasonAtEntry, minutes: final, color: CLARET, focus: true },
+      { key: 'beyond', label: 'BEYOND ENTRY', sub: `eligible past ${a.entrySeason}`,
+        group: a.currentPlayersBeyondEntry, minutes: beyond, color: NAVY },
+    ];
+
+    k.gap(4);
+    for (const b of bands) {
+      k.room(b.focus ? 60 : 44);
+      const top = k.doc.y;
+      const h = b.focus ? 52 : 38;
+      if (b.focus) {
+        k.doc.save().rect(THEME.M, top, W, h).fillOpacity(0.05).fill(CLARET).restore();
+      }
+      k.doc.save().rect(THEME.M, top, 3, h).fill(b.color).restore();
+      k.doc.font('Helvetica-Bold').fontSize(b.focus ? 8 : 7).fillColor(b.focus ? CLARET : INK)
+        .text(b.label, THEME.M + 12, top + 7, { width: W * 0.6, characterSpacing: 0.7, lineBreak: false });
+      k.doc.font('Helvetica').fontSize(7).fillColor(MUTED)
+        .text(b.sub, THEME.M + 12, top + (b.focus ? 18 : 17), { width: W * 0.6, lineBreak: false, ellipsis: true });
+      k.doc.font('Helvetica-Bold').fontSize(b.focus ? 20 : 15).fillColor(INK)
+        .text(String((b.group ?? []).length), THEME.M + W - 150, top + 6, { width: 40, align: 'right', lineBreak: false });
+      // Measured and cut to one line: the longer phrasing wrapped and landed on
+      // the sub-line beneath it.
+      const minutesText = b.minutes?.currentProjectedMinutes == null
+        ? 'no projected minutes recorded'
+        : `${nf(b.minutes.currentProjectedMinutes)} projected minutes attached`;
+      k.doc.font('Helvetica').fontSize(7).fillColor(MUTED);
+      k.doc.text(fitText(k.doc, minutesText, 150), THEME.M + W - 150, top + (b.focus ? 12 : 8),
+        { width: 150, align: 'right', lineBreak: false });
+      if (b.minutes?.playersWithoutProjection) {
+        k.doc.font('Helvetica').fontSize(6.5).fillColor(MUTED);
+        k.doc.text(fitText(k.doc, `${b.minutes.playersWithoutProjection} of them carry no projection`, 150),
+          THEME.M + W - 150, top + (b.focus ? 23 : 19), { width: 150, align: 'right', lineBreak: false });
+      }
+      if (b.focus) {
+        const names = (b.group ?? []).map((p) => p.name).join(', ');
+        k.doc.font('Helvetica').fontSize(7).fillColor(INK)
+          .text(names || 'nobody at this position is in their final eligible season that year',
+            THEME.M + 12, top + 34, { width: W - 24, lineBreak: false, ellipsis: true });
+      }
+      k.doc.y = top + h + 6;
+    }
+
+    if (a.currentPlayersEligibilityUnknown.length) {
+      k.note(`${plural(a.currentPlayersEligibilityUnknown.length, 'current player', 'current players')} `
+        + 'at this position has no eligibility year recorded and is counted in none of the three '
+        + `bands${unknown?.currentProjectedMinutes == null ? '' : `, holding ${nf(unknown.currentProjectedMinutes)} projected minutes between them`}.`);
+    }
   }
 
-  // Three bands, with the final-season group as the visual focus.
-  const bands = [
-    { key: 'before', label: 'BEFORE ENTRY', sub: `eligibility ends before ${a.entrySeason}`,
-      group: a.currentPlayersEligibilityEndsBeforeEntry, minutes: before, color: MUTED },
-    { key: 'final', label: 'FINAL SEASON AT ENTRY', sub: `last eligible season is ${a.entrySeason}, the year you arrive`,
-      group: a.currentPlayersInFinalSeasonAtEntry, minutes: final, color: CLARET, focus: true },
-    { key: 'beyond', label: 'BEYOND ENTRY', sub: `eligible past ${a.entrySeason}`,
-      group: a.currentPlayersBeyondEntry, minutes: beyond, color: NAVY },
-  ];
+  /**
+   * The players themselves.
+   *
+   * NO STATUS COLUMN since 13F. It read "final season in 2027" or "eligible
+   * beyond 2027" on every row, which is the three bands drawn immediately above
+   * it, one player at a time. The width goes to the two columns that were being
+   * cut — the same fix the programme roster table took in 13D.1, where
+   * "Texas A&M University-Victoria" arrived as "Texas A&M Universit…".
+   */
+  k.heading(`Every current ${noun(a)}`);
+  k.table({
+    continued: `${cap(nouns(a))} on the ${model.squadSeason} roster`,
+    columns: [
+      { key: 'name', label: 'Player', width: 0.28, bold: true },
+      { key: 'classLabel', label: 'Class', width: 0.11 },
+      { key: 'projectedMinutes', label: 'Projected minutes', width: 0.17, align: 'right', format: (v) => (v == null ? null : nf(v)) },
+      { key: 'eligibleTo', label: 'Eligible through', width: 0.14, align: 'right' },
+      { key: 'arrivedFrom', label: 'Previous programme', width: 0.3, dropWhenEmpty: true },
+    ],
+    rows: [...players].sort((x, y) => (y.projectedMinutes ?? -1) - (x.projectedMinutes ?? -1)),
+    // The athlete's own entry year is the thing being read against, so the
+    // final-season group is marked rather than colour-coded good or bad.
+    highlight: (row) => row.eligibleTo != null && Number(row.eligibleTo) === a.entrySeason,
+    note: 'The marked rows are players whose last eligible season is your entry year. Projected '
+      + 'minutes are attached to those players for the coming season; they are not minutes that '
+      + 'pass to anyone.',
+  });
 
-  k.gap(4);
-  for (const b of bands) {
-    k.room(b.focus ? 60 : 44);
-    const top = k.doc.y;
-    const h = b.focus ? 52 : 38;
-    if (b.focus) {
-      k.doc.save().rect(THEME.M, top, W, h).fillOpacity(0.05).fill(CLARET).restore();
+  if (years.length) {
+    k.box('Future recruits, experienced arrivals, injuries, redshirts and eligibility changes are '
+      + 'not known. This section describes the squad as it stands today, read against your entry '
+      + 'year — it does not describe the squad you would find.',
+    { color: CLARET, title: 'The primary limitation' });
+
+    if (!a.entrySeasonKnown) {
+      k.aside(`Rosters and coaching records are held through ${model.squadSeason}. You would arrive `
+        + `in ${a.entrySeason}, which is beyond that horizon: who is in charge and who is on the `
+        + 'squad by then is further outside what this data can show than the bands above already '
+        + 'are.', { title: 'A note on coverage' });
     }
-    k.doc.save().rect(THEME.M, top, 3, h).fill(b.color).restore();
-    k.doc.font('Helvetica-Bold').fontSize(b.focus ? 8 : 7).fillColor(b.focus ? CLARET : INK)
-      .text(b.label, THEME.M + 12, top + 7, { width: W * 0.6, characterSpacing: 0.7, lineBreak: false });
-    k.doc.font('Helvetica').fontSize(7).fillColor(MUTED)
-      .text(b.sub, THEME.M + 12, top + (b.focus ? 18 : 17), { width: W * 0.6, lineBreak: false, ellipsis: true });
-    k.doc.font('Helvetica-Bold').fontSize(b.focus ? 20 : 15).fillColor(INK)
-      .text(String((b.group ?? []).length), THEME.M + W - 150, top + 6, { width: 40, align: 'right', lineBreak: false });
-    // Measured and cut to one line: the longer phrasing wrapped and landed on
-    // the sub-line beneath it.
-    const minutesText = b.minutes?.currentProjectedMinutes == null
-      ? 'no projected minutes recorded'
-      : `${nf(b.minutes.currentProjectedMinutes)} projected minutes attached`;
-    k.doc.font('Helvetica').fontSize(7).fillColor(MUTED);
-    k.doc.text(fitText(k.doc, minutesText, 150), THEME.M + W - 150, top + (b.focus ? 12 : 8),
-      { width: 150, align: 'right', lineBreak: false });
-    if (b.minutes?.playersWithoutProjection) {
-      k.doc.font('Helvetica').fontSize(6.5).fillColor(MUTED);
-      k.doc.text(fitText(k.doc, `${b.minutes.playersWithoutProjection} of them carry no projection`, 150),
-        THEME.M + W - 150, top + (b.focus ? 23 : 19), { width: 150, align: 'right', lineBreak: false });
-    }
-    if (b.focus) {
-      const names = (b.group ?? []).map((p) => p.name).join(', ');
-      k.doc.font('Helvetica').fontSize(7).fillColor(INK)
-        .text(names || 'nobody at this position is in their final eligible season that year',
-          THEME.M + 12, top + 34, { width: W - 24, lineBreak: false, ellipsis: true });
-    }
-    k.doc.y = top + h + 6;
-  }
-
-  if (a.currentPlayersEligibilityUnknown.length) {
-    k.note(`${plural(a.currentPlayersEligibilityUnknown.length, 'current player', 'current players')} `
-      + 'at this position has no eligibility year recorded and is counted in none of the three '
-      + `bands${unknown?.currentProjectedMinutes == null ? '' : `, holding ${nf(unknown.currentProjectedMinutes)} projected minutes between them`}.`);
-  }
-
-  // Two caveats of different weight, drawn differently. They were previously
-  // two identical claret boxes stacked on each other, which made the ceiling
-  // on the whole page and a note about how far the rosters run look like the
-  // same kind of statement.
-  k.gap(4);
-  k.box('Future recruits, experienced arrivals, injuries, redshirts and eligibility changes are not '
-    + 'known. This page describes the squad as it stands today, read against your entry year — it '
-    + 'does not describe the squad you would find.',
-  { color: CLARET, title: 'The primary limitation' });
-
-  if (!a.entrySeasonKnown) {
-    k.aside(`Rosters and coaching records are held through ${model.squadSeason}. You would arrive in `
-      + `${a.entrySeason}, which is beyond that horizon: who is in charge and who is on the squad by `
-      + 'then is further outside what this data can show than the bands above already are.',
-    { title: 'A note on coverage' });
   }
 }
 
@@ -500,21 +512,21 @@ export function originPage(k, model) {
   const o = a.originContext;
   const originWord = o.requestedOrigin === 'international' ? 'international' : 'US-based';
 
-  // The kicker follows the act this page was FILED under, which depends on
-  // whether this programme produced its own record by origin: a page that is
-  // mostly division context is drawn with the supporting evidence rather than
-  // in the pathway sequence, and announcing "understanding your pathway" over
-  // it there would contradict the divider it sits under.
-  const ownRecord = originIsProgrammeSpecific(o);
+  /**
+   * ONE KICKER AND ONE WEIGHT, since 13F pinned this page to the pathway act.
+   *
+   * It used to follow the act it was filed under, which moved with the cohort
+   * gate: a page that was mostly division context announced itself as evidence
+   * and was set quiet. It does not move any more, so it does not change voice.
+   * What still changes is what the page SAYS — a programme with its own record
+   * by origin shows it, and one without shows the refusal in full, which for an
+   * international athlete is the finding.
+   */
   pageHead(k, {
-    kicker: ownRecord ? 'Understanding your pathway' : 'The evidence behind it',
+    kicker: 'Understanding your pathway',
     title: 'Where you are arriving from',
     question: 'Does this programme’s record show anything useful for first-years from your '
       + 'background?',
-    // Relocated, it is drawn at the weight of the act it now sits in. A
-    // mostly-context page announcing itself at 19pt under a divider that reads
-    // "the evidence itself" claims more than it has.
-    quiet: !ownRecord,
   });
   // Stated once, at the top, and never implied away: the origin split is
   // across the whole intake. The previous pages narrow to a position, and a
@@ -522,7 +534,7 @@ export function originPage(k, model) {
   // The scope strip draws on ONE line, so the third item is short.
   k.scope(['every position, not only yours',
     'origin is grouped only as within or outside the United States',
-    ownRecord ? null : 'mostly division context'].filter(Boolean));
+    originIsProgrammeSpecific(o) ? null : 'mostly division context'].filter(Boolean));
 
   if (!o.requestedOrigin) {
     k.body('No origin is recorded for this athlete, so the record cannot be read by background.',

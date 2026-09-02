@@ -52,6 +52,15 @@ export const LAYERS = [
 export const ACTS = Object.freeze({
   athlete: [
     { id: 'navigation', title: 'Contents' },
+    /**
+     * The two readings, in their own act since 13F.
+     *
+     * They were filed under "Understanding your pathway" alongside the athlete
+     * pages, which put the PROGRAMME's decision layer under a heading claiming
+     * it was about the reader's pathway. Two readings and then the pathway is
+     * what the document does; the contents now says so.
+     */
+    { id: 'interpretation', title: 'At a glance' },
     { id: 'pathway',
       title: 'Understanding your pathway',
       blurb: 'What this programme’s record shows around this position, this entry year and the '
@@ -108,7 +117,7 @@ export const actsFor = ({ hasAthlete }) => (hasAthlete ? ACTS.athlete : ACTS.pro
 export const actTitle = (id, { hasAthlete }) => actsFor({ hasAthlete })
   .find((a) => a.id === id)?.title ?? id;
 
-import { pathwayNarrative } from './narrative.js';
+import { athleteDecisionFindings } from './athleteDecisionLayer.js';
 
 /**
  * Does the origin page have anything of this programme's OWN to say?
@@ -173,6 +182,44 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
  */
 export const SECTIONS = [
   // -- Act I: the summary this report opens with -----------------------------
+  // -- Act I: the two readings the report opens with ------------------------
+  //
+  // The athlete's own findings are declared first because they are drawn
+  // first: `planSections` hands the model a `sections` array, and a reader of
+  // that array should not have to sort it to learn what comes first. On a
+  // programme report the athlete entry is filtered out and the programme layer
+  // is the first thing after the cover, exactly as it was.
+  {
+    id: 'athlete-at-a-glance',
+    /**
+     * THE ATHLETE DECISION LAYER, and page two of an athlete report — 13F.
+     *
+     * It used to be page THREE, behind the programme's own decision layer, and
+     * it used to be five paragraphs of prose. Every sentence in that prose is
+     * now a ranked finding with a metric and a page reference, drawn by the
+     * same row the programme layer uses — the analysis did not change, the
+     * form and the order did.
+     *
+     * It always renders. A position with nothing readable says so, which is
+     * itself the most important thing that could be said about it.
+     */
+    title: 'What Thriv3 sees for you',
+    description: 'The findings this programme’s record supports for this position and this entry '
+      + 'year, most consequential first.',
+    layer: 'interpretation',
+    scope: 'athlete',
+    unavailableWhenEmpty: true,
+    applies: (ctx) => Boolean(ctx.summary?.athlete),
+    scopeOf: (ctx) => {
+      const { findings } = athleteDecisionFindings({ ...ctx.model, summary: ctx.summary });
+      return [
+        findings.length ? plural(findings.length, 'finding') : 'no finding clears the evidence',
+        count(ctx.summary.athlete?.currentPositionPlayers)
+          ? `${count(ctx.summary.athlete.currentPositionPlayers)} currently at the position` : null,
+      ].filter(Boolean);
+    },
+  },
+
   {
     id: 'programme-at-a-glance',
     /**
@@ -221,33 +268,6 @@ export const SECTIONS = [
       model.squad?.rostered ? `${plural(model.squad.rostered, 'player')} on the current roster` : null,
     ].filter(Boolean),
   },
-  {
-    id: 'athlete-at-a-glance',
-    title: 'Your pathway at this programme',
-    titleOf: ({ model }) => `Your pathway at ${model.college?.name ?? 'this programme'}`,
-    description: 'How this programme’s history, this position, the entry year and the current '
-      + 'roster intersect.',
-    layer: 'interpretation',
-    scope: 'athlete',
-    // The spine of an athlete report: it renders wherever the synthesis has a
-    // sentence to say. The old rule asked whether the four cards this page
-    // used to carry had data, and those cards are pages of their own now — a
-    // sparse programme was losing the one page that reads its analyses
-    // together while keeping the pages it reads FROM.
-    unavailableWhenEmpty: false,
-    // The summary is a sibling of the model in this context and a field on it
-    // in the route's payload. Joined here so the predicate does not depend on
-    // which of the two a caller happens to hand it.
-    applies: (ctx) => Boolean(ctx.summary?.athlete)
-      && pathwayNarrative({ ...ctx.model, summary: ctx.summary }).length > 0,
-    scopeOf: ({ summary }) => [
-      count(summary.athlete?.currentPositionPlayers)
-        ? `${count(summary.athlete.currentPositionPlayers)} currently at the position` : null,
-      summary.athlete?.positionVacancyHistory?.transitions
-        ? `${summary.athlete.positionVacancyHistory.transitions} position-seasons` : null,
-    ].filter(Boolean),
-  },
-
   // -- Act I, continued: the athlete's own pathway --------------------------
   //
   // Declared before the programme evidence because an athlete report runs in
@@ -261,8 +281,20 @@ export const SECTIONS = [
   // have to sort it to learn what comes first.
   {
     id: 'athlete-current-position',
-    title: 'Who is at your position now',
-    description: 'The current roster at the athlete’s position, read against their entry year.',
+    /**
+     * ONE QUESTION, ONE SECTION — 13F / §11.
+     *
+     * "Who is at your position now" and "Your arrival window" were consecutive
+     * pages answering one question, and the first page's four opening facts
+     * were the second page's three eligibility bands restated. They are one
+     * section now: the bands with their names, then every player in the group.
+     * Nothing is dropped — the coverage note, the primary limitation and the
+     * non-forecast language all survive — and the section is allowed to flow
+     * onto a second sheet where seventeen players need one.
+     */
+    title: 'Your position, and the timing around your arrival',
+    description: 'The current roster at the athlete’s position, the eligibility timing attached to '
+      + 'it, and the playing-time load those players hold.',
     layer: 'athlete-evidence',
     scope: 'athlete',
     unavailableWhenEmpty: false,
@@ -271,21 +303,7 @@ export const SECTIONS = [
       const a = summary.athlete;
       return [
         `${count(a.currentPositionPlayers)} on the roster`,
-        `${count(a.currentPlayersEligibleAtEntry)} eligible in ${a.entrySeason}`,
-      ];
-    },
-  },
-  {
-    id: 'athlete-entry-window',
-    title: 'Your arrival window',
-    description: 'The current playing-time load around the athlete’s entry season.',
-    layer: 'athlete-evidence',
-    scope: 'athlete',
-    unavailableWhenEmpty: false,
-    applies: ({ summary }) => count(summary?.athlete?.currentPositionPlayers) > 0,
-    scopeOf: ({ summary }) => {
-      const a = summary.athlete;
-      return [
+        `${count(a.currentPlayersBeyondEntry)} eligible beyond ${a.entrySeason}`,
         `${count(a.currentPlayersInFinalSeasonAtEntry)} in a final season in ${a.entrySeason}`,
       ];
     },
@@ -307,9 +325,19 @@ export const SECTIONS = [
   },
   {
     id: 'athlete-position-record',
+    /**
+     * ONE POSITION RECORD — 13F / §14.
+     *
+     * "What this position has looked like here" carried the intake and the
+     * minute reach; "Your position, historically" carried the first-years, the
+     * experienced arrivals and the minute mix at the same position. Two pages,
+     * one question. They are one section now, allowed to continue onto a second
+     * sheet where the evidence is rich, and the minute mix is drawn once —
+     * 13E found it on three surfaces.
+     */
     title: 'What this position has looked like here',
-    description: 'How often this programme has added players at the athlete’s position, and how '
-      + 'far the minutes at it have reached.',
+    description: 'How often this programme adds players at the athlete’s position, how far the '
+      + 'minutes at it reach, and how first-years and experienced arrivals at it have been used.',
     layer: 'athlete-evidence',
     scope: 'athlete',
     // Two independent histories on one page. It renders where EITHER half has
@@ -318,15 +346,19 @@ export const SECTIONS = [
     // keeps a sparse programme's page whole (the intake reads, the minutes do
     // not).
     unavailableWhenEmpty: false,
-    applies: ({ model }) => {
+    applies: ({ model, summary }) => {
       const intake = model.pressure?.athletePosition ?? null;
       const util = model.positionUtilisation?.athletePosition ?? null;
+      const a = summary?.athlete;
       return Boolean(intake && !intake.historical.suppressed)
         || Boolean(util?.available)
         // One season on file, or a current intake and no history: NAIA, where
         // the acquisition reaches a single season. Worth a page that says so.
         || Boolean(util?.singleSeasonObservation)
-        || Boolean(intake?.current?.readable && intake.current.totalIncoming != null);
+        || Boolean(intake?.current?.readable && intake.current.totalIncoming != null)
+        // The absorbed half: first-years and arrivals at this position.
+        || Boolean(a && (a.positionFreshmanHistory.measured > 0
+          || a.experiencedArrivalsAtPosition.measured > 0));
     },
     scopeOf: ({ model }) => {
       const intake = model.pressure?.athletePosition ?? null;
@@ -340,33 +372,17 @@ export const SECTIONS = [
       ].filter(Boolean);
     },
   },
-  {
-    id: 'athlete-position-history',
-    title: 'Your position, historically',
-    description: 'First-years, experienced arrivals and minute shares at the athlete’s position only.',
-    layer: 'athlete-evidence',
-    scope: 'athlete',
-    unavailableWhenEmpty: false,
-    applies: ({ summary }) => {
-      const a = summary?.athlete;
-      if (!a) return false;
-      return a.positionFreshmanHistory.measured > 0
-        || a.experiencedArrivalsAtPosition.measured > 0
-        || (a.positionOpeningOutcomes?.dials?.n ?? 0) > 0;
-    },
-    scopeOf: ({ summary }) => {
-      const a = summary.athlete;
-      return [
-        `${a.positionFreshmanHistory.measured} first-years`,
-        `${a.experiencedArrivalsAtPosition.measured} experienced arrivals`,
-      ];
-    },
-  },
+  /**
+   * `athlete-position-history` was absorbed into `athlete-position-record` in
+   * Phase 13F. It carried the first-years, the experienced arrivals and the
+   * minute mix at the athlete's position; that is the second half of the same
+   * question the record section asks, and two pages made a reader hold one
+   * position's story across a page turn.
+   */
   {
     id: 'athlete-origin',
     title: 'Where you are arriving from',
     description: 'Whether first-years from the same background have played here.',
-    layer: 'athlete-evidence',
     scope: 'athlete',
     unavailableWhenEmpty: false,
     applies: ({ summary }) => {
@@ -375,21 +391,23 @@ export const SECTIONS = [
         && (o.programme.withRecordedOrigin > 0 || Boolean(o.pool));
     },
     /**
-     * Act I where this programme has its own record by origin; the supporting
-     * evidence where the page is mostly division context.
+     * PINNED TO THE PATHWAY ACT — 13F / §20.
      *
-     * The page is never removed and never loses a caveat — what changes is
-     * where it sits in the reading order. At Albertus it carries no
-     * programme-specific international first-year at all and draws a D3 pool
-     * comparison, and a pool comparison is not a pathway finding: it was
-     * occupying prime sequence between the position pages and the squad,
-     * ahead of pages that ARE about this programme. Where the programme's own
-     * origin sample clears the cohort gate, nothing moves.
+     * It used to move: where the programme's own origin sample did not clear
+     * the cohort gate, `layerOf` filed it with the supporting record on the
+     * grounds that a pool comparison is not a pathway finding. At four of the
+     * five programmes audited in 13E that put "Where you are arriving from"
+     * after every evidence table — page 26 of 28 at Adams State.
+     *
+     * The premise was wrong for the reader it matters to. For an international
+     * athlete the REFUSAL is decision-relevant: "five international first-years
+     * on file here, which is not enough to compare by origin" is a fact about
+     * their pathway, and it belongs where they will read it. The page is
+     * unchanged — the relaxation disclosure, the refusal thresholds, the
+     * pool-versus-programme distinction and the never-by-nationality rule all
+     * stay exactly as they are.
      */
-    layerOf: ({ summary }) => {
-      const o = summary?.athlete?.originContext;
-      return originIsProgrammeSpecific(o) ? 'athlete-evidence' : 'supporting';
-    },
+    layer: 'athlete-evidence',
     scopeOf: ({ summary }) => {
       const o = summary.athlete.originContext;
       return [
@@ -857,6 +875,9 @@ export function planSections({ model, summary, philosophy }) {
           })();
           if (layer === 'supporting') return 'supporting';
           if (layer === 'programme-evidence') return 'programme-evidence';
+          // The two decision layers are their own act on both report kinds.
+          // Only the athlete's own analysis pages belong to the pathway.
+          if (layer === 'interpretation') return 'interpretation';
           return hasAthlete ? 'pathway' : 'interpretation';
         })(),
         scope: s.scope,
