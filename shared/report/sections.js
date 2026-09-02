@@ -229,6 +229,16 @@ export const SECTIONS = [
      * takes one page should take this one.
      */
     title: 'What Thriv3 sees',
+    /**
+     * And the contents calls it what the page calls itself — 13G / §W.
+     *
+     * The page has been retitled "What Thriv3 sees about the programme" inside
+     * an athlete report since 13F, while the contents kept the programme
+     * report's shorter title. Two names for page three, one of them only on
+     * the map. Presentation only: the same section, the same order, the same
+     * ranking.
+     */
+    titleOf: ({ model }) => (model?.athlete ? 'What Thriv3 sees about the programme' : 'What Thriv3 sees'),
     description: 'The findings this report rests on, most consequential first, each pointing at '
       + 'the page that carries its evidence.',
     layer: 'interpretation',

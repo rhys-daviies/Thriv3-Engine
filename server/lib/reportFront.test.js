@@ -14,9 +14,10 @@ import { renderProgramReport } from './philosophyReport.js';
 import { invalidatePoolBenchmarks } from './philosophyQueries.js';
 import { invalidateLifecyclePool } from './lifecycleQueries.js';
 import PDFDocument from 'pdfkit';
-import { fitText, panel } from './reportFront.js';
+import { fitText } from './reportFront.js';
 import { decisionFindings } from '../../shared/report/decisionLayer.js';
 import { againstPool } from '../../shared/report/narrative.js';
+import { positionRecordReading } from './reportPosition.js';
 import { BENCHMARK_BANDS } from '../../shared/report/summary.js';
 
 /**
@@ -269,9 +270,13 @@ describe('the pathway page', () => {
     const { buf } = await build('p1');
     const front = pdfPages(buf)[1];
     expect(front).toMatch(/What this report was prepared from/i);
-    expect(front).toMatch(/Position/);
-    expect(front).toMatch(/Entry year/);
-    expect(front).toMatch(/Origin group/);
+    // 13G / §E: the strip is one quiet run of label-and-value pairs rather
+    // than a two-by-two grid of right-aligned cells, so the labels are set as
+    // small capitals like every other label in the report.
+    expect(front).toMatch(/POSITION/);
+    expect(front).toMatch(/ENTRY YEAR/);
+    expect(front).toMatch(/ORIGIN GROUP/);
+    expect(front).toMatch(/SPORT/);
     // `level` and the individual nationality are on the model and used by no
     // figure in the report, so neither is shown.
     expect(front).not.toMatch(/\blevel\b/i);
@@ -511,7 +516,13 @@ describe('the contents page', () => {
     addAthlete('p1', { name: 'Sample Athlete' });
     const text = pdfText((await build('p1')).buf);
     expect(text).toMatch(/Sample Athlete × Test College/);
-    expect(text).toMatch(/A historical view of how players enter, develop and move through/);
+    // 13G / §V: the athlete standfirst says what the document is a reading of
+    // and what it is read FOR. It used to be the programme report's line with
+    // a different verb, naming neither the athlete nor the reading.
+    expect(text).toMatch(/read for a defender arriving in 2027/);
+    // Never "fit" on the cover. The report does not assess an institutional
+    // one, and the scope statement on page two says so in full.
+    expect(pdfPages((await build('p1')).buf)[0]).not.toMatch(/\bfit\b/);
     // The athlete's own pages are an act now, and the contents names it.
     expect(text).toMatch(/UNDERSTANDING YOUR PATHWAY/);
   });
@@ -521,6 +532,171 @@ describe('the contents page', () => {
     const { buf, model } = await build();
     const text = pdfText(buf);
     expect(text).toContain(`${model.describes.length} seasons of roster behaviour`);
+  });
+});
+
+/**
+ * PHASE 13G — THE VISUAL SYSTEM IS ONE SYSTEM.
+ *
+ * Every rule here is measured off the bytes, not off a screenshot: the type
+ * sizes come out of the `Tf` operators in each page's content stream, so a
+ * page that starts shouting fails a test rather than waiting to be noticed in
+ * a PDF. The two source assertions are for vocabularies that must stay
+ * deleted — a card is easy to reintroduce and impossible to see in a diff of
+ * a rendered page.
+ */
+describe('the athlete pages are set in the programme visual system', () => {
+  beforeEach(() => addProgramme('c1', 'Test College'));
+
+  /** Every type size a page sets, from its `Tf` operators. */
+  const sizesByPage = (buf) => {
+    const raw = buf.toString('latin1');
+    const out = [];
+    const re = /stream\r?\n([\s\S]*?)endstream/g;
+    let m;
+    while ((m = re.exec(raw)) !== null) {
+      let body;
+      try { body = zlib.inflateSync(Buffer.from(m[1], 'latin1')).toString('latin1'); } catch { continue; }
+      if (!/\bBT\b/.test(body)) continue;
+      out.push([...body.matchAll(/\/F\d+\s+([\d.]+)\s+Tf/g)].map((x) => Number(x[1])));
+    }
+    return out;
+  };
+
+  /**
+   * NO FIGURE OUTSHOUTS THE PAGE TITLE — 13G / §F.
+   *
+   * The eligibility bands drew their counts at 20pt with the entry-year band
+   * at 20 and the others at 15, on a page whose own title is 19: the loudest
+   * ink in the document was a number inside a band. The cover is the one page
+   * allowed above the ceiling, because the hero there is the name on the front
+   * of the document rather than a figure inside a layout.
+   */
+  it('sets nothing on any page after the cover larger than a page title', async () => {
+    addAthlete('p1');
+    const pages = sizesByPage((await build('p1')).buf);
+    expect(pages.length).toBeGreaterThan(4);
+    pages.slice(1).forEach((sizes, i) => {
+      expect(Math.max(0, ...sizes), `page ${i + 2}`).toBeLessThanOrEqual(19);
+    });
+  });
+
+  /**
+   * PAGE TWO IS THE ATHLETE'S; PAGE THREE IS BEHIND IT — 13G / §D.
+   *
+   * Both layers were set at the same 19pt claret-kickered head and differed
+   * only in their titles, so the typography said the two pages were peers and
+   * the subtitle was left to explain that one came first. Page three now takes
+   * the supporting-page tier the report already owns.
+   */
+  it('sets the programme layer a tier below the athlete layer', async () => {
+    addAthlete('p1');
+    const pages = sizesByPage((await build('p1')).buf);
+    expect(Math.max(...pages[1])).toBe(19);
+    expect(Math.max(...pages[2])).toBeLessThan(Math.max(...pages[1]));
+  });
+
+  // A programme report's own decision layer is page two and its own voice, and
+  // is not quietened by any of this.
+  it('leaves a programme report’s decision layer at full weight', async () => {
+    const pages = sizesByPage((await build()).buf);
+    expect(Math.max(...pages[1])).toBe(19);
+  });
+
+  /**
+   * THE CARD VOCABULARY STAYS DELETED — 13G / §Y.
+   *
+   * `roundedRect` was the openings page's per-opening card and, before 13C and
+   * 13F, the whole front of the report. There is no athlete drawing that needs
+   * one: a hairline groups a row and a border decorates it.
+   */
+  it('draws no rounded card in the athlete renderers', async () => {
+    const src = await import('node:fs').then((fs) => ({
+      athlete: fs.readFileSync(new URL('./reportAthlete.js', import.meta.url), 'utf8'),
+      front: fs.readFileSync(new URL('./reportFront.js', import.meta.url), 'utf8'),
+    }));
+    // Matched with a following bracket so the docblock that RECORDS the
+    // deletion does not count as a use of what it names.
+    expect(src.athlete).not.toMatch(/roundedRect\(/);
+    expect(src.front).not.toMatch(/roundedRect\(/);
+    for (const dead of ['bigMetric', 'evidenceChip', 'miniStacked', 'calloutPrimary',
+      'pathwayBlock', 'headlineBand', 'factLine', 'playerLine']) {
+      expect(src.front, dead).not.toMatch(new RegExp(`${dead}\\(`));
+    }
+    expect(src.front).not.toMatch(/function panel\(/);
+  });
+
+  /**
+   * NO EMPTY SHELLS — 13G / §AG.
+   *
+   * A position with nothing measured drew "0 · 0 of 0 · limited" as three
+   * table rows underneath a sentence saying the group could not be ranked, and
+   * a roster with nobody in a final eligible season at entry printed a note
+   * explaining what the marked rows meant.
+   */
+  it('states a refusal once rather than tabulating it as zeroes', async () => {
+    addAthlete('p1', { position: 'Goalkeeper' });
+    const text = pdfText((await build('p1')).buf);
+    expect(text).not.toMatch(/0 of 0/);
+  });
+
+  it('explains the row marks only where a row is marked', async () => {
+    // No player on the fixture roster has 2028 as their last eligible season.
+    addAthlete('p1', { year: 2028 });
+    const text = pdfText((await build('p1')).buf);
+    expect(text).not.toMatch(/The marked rows are players/);
+    // The non-forecast sentence is not conditional on anything.
+    expect(text).toMatch(/they are not minutes that pass to anyone/);
+  });
+
+  /**
+   * THE READING LEADS — 13G / §L.
+   *
+   * The consolidated position-record section drew both charts and then the two
+   * sentences that read them together, so its answer was the last thing on the
+   * page. The statement opens the section; the warning that the two records do
+   * not predict each other stays after the figures it is about.
+   */
+  it('opens the position record with what it says, and closes with what it does not', async () => {
+    addAthlete('p1');
+    const { model, buf } = await build('p1');
+    const sentences = positionRecordReading(model);
+    const page = pdfPages(buf).find((x) => /What this position has looked like here/.test(x)
+      && /HOW OFTEN THIS POSITION HAS BEEN ADDED TO/.test(x));
+    expect(page).toBeTruthy();
+    const reading = page.indexOf('WHAT THRIV3 SEES');
+    const firstChart = page.indexOf('HOW OFTEN THIS POSITION HAS BEEN ADDED TO');
+    expect(reading).toBeGreaterThan(-1);
+    if (sentences.length > 1) {
+      // The statement leads and the warning about it closes the section.
+      expect(reading).toBeLessThan(firstChart);
+      expect(page).toMatch(/AND WHAT IT DOES NOT SAY/);
+    } else {
+      /**
+       * THE FALLBACKS STAY BELOW WHAT THEY POINT AT.
+       *
+       * Every single-sentence form of this reading refers to a refusal printed
+       * above it — "the minutes at it do not, for the reasons above" — so a
+       * split that promoted it would have it pointing at a page it now opens.
+       * This fixture publishes no readable position-minute distribution, so it
+       * is the case that exercises the guard.
+       */
+      expect(reading).toBeGreaterThan(firstChart);
+      expect(page).not.toMatch(/AND WHAT IT DOES NOT SAY/);
+    }
+  });
+
+  /**
+   * ONE EVIDENCE TREATMENT — 13G / §Q.
+   *
+   * Evidence was a row in a fact list on the position pages and a small-caps
+   * label everywhere else in the report.
+   */
+  it('labels evidence rather than tabulating it', async () => {
+    addAthlete('p1');
+    const text = pdfText((await build('p1')).buf);
+    expect(text).not.toMatch(/Evidence behind this group/);
+    expect(text).toMatch(/EVIDENCE — /);
   });
 });
 
@@ -856,43 +1032,17 @@ describe('the coach verdict agrees with the coach card', () => {
 });
 
 /**
- * PHASE 11D — the evidence strip belongs to the card that owns it.
+ * PHASE 13G — the card vocabulary is gone, so its geometry test goes with it.
  *
- * It was placed at `Math.max(y + 10, p.bottom - 20)`, which put it below the
- * card whenever the content ran long: at 22 of 90 sampled reports the
- * first-year card's strip drew over the top border of the panel beneath it.
- * `panel({ evidence: true })` now reserves it, so the geometry is the contract
- * and there is nothing left for a card to get wrong.
+ * `panel`, `bigMetric`, `evidenceChip`, `miniBar`, `miniStacked`, the two
+ * callouts, the fact and player lines and the four athlete cards they built
+ * were the last of the dashboard front page. 13C replaced the programme cards
+ * with ranked finding rows and 13F replaced the athlete cards with the same
+ * row, which left 583 lines that nothing called. The PHASE 11D test that used
+ * to live here proved the evidence strip could not leave `panel`'s box; there
+ * is no panel and no strip to leave one.
+ *
+ * What replaced the guarantee is the layout audit, which measures every draw
+ * against the content box on every page of every report rather than one card
+ * in isolation — see `reportOverflow.test.js` and the BOUNDS invariants.
  */
-describe('the evidence strip stays inside its card', () => {
-  const box = { x: 54, y: 100, w: 260, h: 180 };
-  const doc = new PDFDocument({ autoFirstPage: false });
-  doc.addPage();
-
-  it('reserves the strip inside the box, ink and margin', () => {
-    const p = panel(doc, box, 'First-year opportunity', { evidence: true });
-    // 17 points of ink — a 6.5pt label and a 6.5pt sample line nine points
-    // under it — and it must finish above the border, not on it.
-    expect(p.evidenceY + 17).toBeLessThan(box.y + box.h);
-    expect(p.evidenceY).toBeGreaterThan(p.y);
-  });
-
-  it('makes the strip the floor for everything else on the card', () => {
-    const p = panel(doc, box, 'First-year opportunity', { evidence: true });
-    expect(p.bottom).toBe(p.evidenceY);
-  });
-
-  it('leaves a card without a strip exactly as it was', () => {
-    const p = panel(doc, box, 'Coach context');
-    expect(p.evidenceY).toBeNull();
-    expect(p.bottom).toBe(box.y + box.h - 14);
-  });
-
-  // The strip's position cannot depend on how much the card drew, which is the
-  // whole of the defect: the old placement moved with the content.
-  it('puts the strip in the same place whatever the box contains', () => {
-    const a = panel(doc, box, 'First-year opportunity', { evidence: true });
-    const b = panel(doc, { ...box, y: 400 }, 'Replacement behaviour', { evidence: true });
-    expect(a.evidenceY - box.y).toBe(b.evidenceY - 400);
-  });
-});

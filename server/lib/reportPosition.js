@@ -267,12 +267,34 @@ export function positionRecordPage(k, model) {
     ].filter(Boolean),
   });
 
+  /**
+   * THE ANSWER LEADS; THE CAVEAT FOLLOWS THE EVIDENCE — 13G / §L.
+   *
+   * `positionRecordReading` returns at most two sentences: the first states
+   * the two medians this section is about, the second is the warning that
+   * they do not predict each other. Both were drawn under both charts, so the
+   * section's answer was the last thing on a page of two equal-weight blocks
+   * and a reader met the components before knowing what they added up to —
+   * against the one principle this visual system leads with.
+   *
+   * The statement now opens the section and the warning stays where it can
+   * only be read after both figures it warns about. Where the pair collapses
+   * to a single sentence it stays at the bottom, because every one of those
+   * fallbacks refers to a refusal stated above it.
+   *
+   * NOT A COMBINED SCORE and not new prose: the same two strings, in the same
+   * order, split across the blocks they each belong to.
+   */
+  const sentences = positionRecordReading(model);
+  const lead = sentences.length > 1 ? sentences.slice(0, 1) : [];
+  const trail = sentences.length > 1 ? sentences.slice(1) : sentences;
+  if (lead.length) k.reading(lead);
+
   if (intake) intakeBlock(k, intake, { plural: posPlural });
   k.gap(6);
   if (util) minutesBlock(k, util, { plural: posPlural });
 
-  const sentences = positionRecordReading(model);
-  if (sentences.length) k.reading(sentences);
+  if (trail.length) k.reading(trail, lead.length ? { title: 'And what it does not say' } : {});
 
   /**
    * The people, under the same head — 13F / §14.

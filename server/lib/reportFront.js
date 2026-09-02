@@ -15,11 +15,20 @@
  * are all drawn identically and the WORD does the work, because a green chip
  * and a red chip would say something the arithmetic does not. And nothing is
  * scored — there is no composite number anywhere on these pages.
+ *
+ * NO CARDS LEFT — 13G / §Y. This file held the whole dashboard vocabulary:
+ * `panel` (a rounded, stroked box with a small-caps title), `bigMetric` (23pt
+ * bold, the loudest ink in the document), `evidenceChip`, `miniBar`,
+ * `miniStacked`, `calloutPrimary`, `calloutSecondary`, `factLine`,
+ * `playerLine`, `playerHeader`, `headlineBand`, `pathwayBlock` and the four
+ * athlete cards built from them. 13C replaced the five programme cards with
+ * ranked finding rows and 13F replaced the four athlete cards with the same
+ * row; that left 583 lines nothing called, and an athlete-only visual
+ * vocabulary sitting in the source ready for the next page to reach for. It
+ * is deleted rather than deprecated. The report now has one grammar for a
+ * finding, and `findingRow` is it.
  */
-import { THEME, TYPE, pageHead, fitHeadline, minutes, fitText } from './philosophyPdf.js';
-import { STARTER_MINUTES } from '../../shared/philosophy.js';
-import { positionPlural } from '../../shared/positions.js';
-import { athleteHeadlines, pathwayNarrative } from '../../shared/report/narrative.js';
+import { THEME, TYPE, pageHead, fitHeadline, fitText } from './philosophyPdf.js';
 import { decisionFindings, programmeSnapshot } from '../../shared/report/decisionLayer.js';
 import {
   athleteDecisionFindings, athleteInputStrip, SCOPE_STATEMENT,
@@ -31,10 +40,6 @@ const { INK, MUTED, LINE, CLARET, NAVY, MID, PALE, GREEN, M, W } = THEME;
 
 const GAP = 12;
 const HALF = (W - GAP) / 2;
-
-const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
-const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
-const pctOf = (v, digits = 0) => (v == null ? '—' : `${(100 * v).toFixed(digits)}%`);
 
 export { fitText };
 
@@ -90,208 +95,6 @@ function line(doc, text, x, y, width, { font = 'Helvetica', size = 7.5, color = 
  * own test — so keeping four unread maps here would leave two vocabularies for
  * one rule and no way to tell which one a reader had seen.
  */
-const EVIDENCE_LABEL = { strong: 'STRONG', moderate: 'MODERATE', limited: 'LIMITED' };
-
-// ---------------------------------------------------------------------------
-// Small reusable pieces
-// ---------------------------------------------------------------------------
-
-/**
- * The evidence strip's own space, reserved by the card that owns it.
- *
- * 17 is the strip's ink: a 6.5pt label, and a 6.5pt sample line nine points
- * under it. 6 is the white beneath that — less than the 14 the body sits on,
- * because a caption set that small does not need a body margin to read as
- * inside the border, and those eight points are what these cards had been
- * silently borrowing.
- */
-const EVIDENCE_INK = 17;
-const EVIDENCE_MARGIN = 6;
-
-/**
- * A bordered panel with a small-caps title. Returns the inner content box.
- *
- * Drawn in absolute coordinates inside a box the caller reserved with
- * `k.slot()`, the same contract the charts keep — the flow cursor is never
- * consulted, so nothing here can auto-paginate out from under a half-drawn
- * card.
- *
- * `evidence: true` for a card that ends with an evidence strip. The strip is
- * part of the card, so the card reserves it: `evidenceY` is a fixed position
- * inside the box, and `bottom` — the floor for everything else — is that same
- * line. It used to be neither. The strip was placed at
- * `Math.max(y + 10, p.bottom - 20)`, which put it below the card whenever the
- * content ran long, and at 22 of 90 sampled reports it drew clean over the top
- * border of the panel beneath: at Akron women's the first-year card's
- * "EVIDENCE — MODERATE / 4 seasons · 30 measured first-years" sat inside the
- * REPLACEMENT BEHAVIOUR panel. The 14 points of bottom padding hid the same
- * overrun on the other two cards, which were over by up to 10.5.
- *
- * So the strip can no longer leave the card by construction, and the cards
- * that could overrun it now measure the room they have first.
- */
-export function panel(doc, box, title, { evidence = false } = {}) {
-  doc.save().roundedRect(box.x, box.y, box.w, box.h, 4)
-    .lineWidth(0.75).strokeColor(LINE).stroke().restore();
-  const pad = 14;
-  let y = box.y + pad;
-  if (title) {
-    // The same claret small capitals with a rule under them that opens a
-    // section on a flowing page. A card and a section are the same level of
-    // the document, so they are set the same way.
-    doc.font(TYPE.section.font).fontSize(TYPE.section.size).fillColor(TYPE.section.color)
-      .text(title.toUpperCase(), box.x + pad, y,
-        { width: box.w - pad * 2, characterSpacing: TYPE.section.spacing, lineBreak: false, ellipsis: true });
-    y += 13;
-    doc.save().moveTo(box.x + pad, y).lineTo(box.x + box.w - pad, y)
-      .lineWidth(0.5).strokeColor(LINE).stroke().restore();
-    y += 11;
-  }
-  const evidenceY = evidence ? box.y + box.h - EVIDENCE_MARGIN - EVIDENCE_INK : null;
-  return {
-    x: box.x + pad,
-    y,
-    w: box.w - pad * 2,
-    bottom: evidenceY ?? box.y + box.h - pad,
-    evidenceY,
-  };
-}
-
-/** The one number a module is about, at a size that finds the eye first. */
-export function bigMetric(doc, x, y, value, { unit = '', caption = null, muted = false, width = 220 } = {}) {
-  doc.font('Helvetica-Bold').fontSize(23).fillColor(muted ? MUTED : INK)
-    .text(String(value), x, y, { lineBreak: false });
-  const w = doc.widthOfString(String(value));
-  if (unit) {
-    doc.font('Helvetica').fontSize(9).fillColor(MUTED)
-      .text(unit, x + w + 4, y + 12, { lineBreak: false });
-  }
-  if (caption) {
-    line(doc, caption, x, y + 27, width, { size: 7.8, color: MUTED });
-  }
-  return y + (caption ? 40 : 30);
-}
-
-/**
- * How much record stands behind the statement above it.
- *
- * Never "confidence" and never a percentage: the words are the whole point,
- * and a number here would be the false precision the model refuses upstream.
- */
-export function evidenceChip(doc, x, y, evidence, sample, width = 220) {
-  if (!evidence) return y;
-  const label = EVIDENCE_LABEL[evidence.level] ?? 'LIMITED';
-  doc.font('Helvetica-Bold').fontSize(6.5).fillColor(MUTED)
-    .text(`EVIDENCE — ${label}`, x, y, { characterSpacing: 0.8, lineBreak: false });
-  if (sample) line(doc, sample, x, y + 9, width, { size: 6.5, color: MUTED });
-  return y + (sample ? 20 : 11);
-}
-
-/** One horizontal bar with an optional pool marker. Null draws its reason. */
-export function miniBar(doc, x, y, w, { value, max, marker = null, unavailable = null, color = NAVY }) {
-  if (value == null || !max) {
-    doc.font('Helvetica-Oblique').fontSize(7).fillColor(MUTED)
-      .text(unavailable || 'not enough on file', x, y + 1, { width: w, lineBreak: false, ellipsis: true });
-    return y + 12;
-  }
-  doc.save().roundedRect(x, y, w, 8, 2).fill('#EDEFF3').restore();
-  doc.save().roundedRect(x, y, Math.max(2, Math.min(1, value / max) * w), 8, 2).fill(color).restore();
-  if (marker != null && marker > 0 && marker <= max) {
-    const mx = x + (marker / max) * w;
-    doc.save().moveTo(mx, y - 2).lineTo(mx, y + 10).lineWidth(1).strokeColor(CLARET).stroke().restore();
-  }
-  return y + 12;
-}
-
-/**
- * The three-way split, as a stacked bar.
- *
- * Honest here specifically because the shares partition the minutes exactly —
- * that is enforced in `vacancyObservations`. The opening COUNTS on the same
- * card overlap and are never drawn this way.
- */
-export function miniStacked(doc, x, y, w, parts, { unavailable = null } = {}) {
-  const usable = parts.filter((p) => p.value != null);
-  if (usable.length !== parts.length) {
-    doc.font('Helvetica-Oblique').fontSize(7).fillColor(MUTED)
-      .text(unavailable || 'no position-seasons we can read', x, y + 1, { width: w, lineBreak: false, ellipsis: true });
-    return y + 12;
-  }
-  const total = usable.reduce((s, p) => s + p.value, 0) || 100;
-  let cx = x;
-  for (const p of parts) {
-    const seg = (p.value / total) * w;
-    doc.save().rect(cx, y, Math.max(0, seg - 1.5), 10).fill(p.color).restore();
-    cx += seg;
-  }
-  let ly = y + 14;
-  for (const p of parts) {
-    doc.save().rect(x, ly + 1.5, 6, 6).fill(p.color).restore();
-    doc.font('Helvetica').fontSize(7).fillColor(INK)
-      .text(`${Math.round(p.value)}%  ${p.label}`, x + 10, ly, { width: w - 12, lineBreak: false, ellipsis: true });
-    ly += 11;
-  }
-  return ly;
-}
-
-/**
- * The limitation a reader must not miss, and the coverage detail beneath it.
- *
- * They were drawn identically — same size, same colour, same italic — while
- * carrying different weight. The primary is bordered and set in ink; the
- * secondary is muted and unbordered. Neither is coloured for good or bad.
- */
-export function calloutPrimary(doc, x, y, w, text) {
-  const inner = w - 14;
-  const h = doc.font('Helvetica').fontSize(7.2).heightOfString(text, { width: inner }) + 12;
-  doc.save().rect(x, y, w, h).fillOpacity(0.04).fill(INK).restore();
-  doc.save().rect(x, y, 2, h).fill(INK).restore();
-  doc.font(TYPE.label.font).fontSize(6).fillColor(MUTED)
-    .text('WHAT THIS CANNOT SEE', x + 8, y + 5, { width: inner, characterSpacing: 0.8, lineBreak: false });
-  doc.font('Helvetica').fontSize(7.2).fillColor(INK).text(text, x + 8, y + 14, { width: inner });
-  return y + h + 10;
-}
-
-export function calloutSecondary(doc, x, y, w, text) {
-  doc.font('Helvetica').fontSize(6.8).fillColor(MUTED).text(text, x, y, { width: w });
-  return doc.y + 6;
-}
-
-/** A key/value line, tight enough to stack several inside a card. */
-export function factLine(doc, x, y, w, key, value) {
-  doc.font('Helvetica-Bold').fontSize(7.5);
-  const valueW = Math.min(w * 0.5, doc.widthOfString(String(value)) + 2);
-  line(doc, key, x, y, w - valueW - 6, { size: 7.5, color: MUTED });
-  line(doc, value, x + w - valueW, y, valueW, { font: 'Helvetica-Bold', size: 7.5, align: 'right' });
-  return y + 11;
-}
-
-/** A compact roster row: who, what class, what they are projected to play. */
-function playerLine(doc, x, y, w, p, { highlight = false } = {}) {
-  doc.font(highlight ? 'Helvetica-Bold' : 'Helvetica').fontSize(7.5).fillColor(INK)
-    .text(p.name ?? '—', x, y, { width: w * 0.44, lineBreak: false, ellipsis: true });
-  doc.font('Helvetica').fontSize(7).fillColor(MUTED)
-    .text(p.classLabel ?? '—', x + w * 0.44, y, { width: w * 0.17, lineBreak: false, ellipsis: true });
-  doc.font('Helvetica').fontSize(7).fillColor(p.projectedMinutes == null ? MUTED : INK)
-    .text(p.projectedMinutes == null ? 'no projection' : `${nf(p.projectedMinutes)} min`,
-      x + w * 0.61, y, { width: w * 0.22, align: 'right', lineBreak: false, ellipsis: true });
-  doc.font('Helvetica').fontSize(7).fillColor(MUTED)
-    .text(p.eligibleTo == null ? '—' : String(p.eligibleTo), x + w * 0.85, y,
-      { width: w * 0.15, align: 'right', lineBreak: false });
-  return y + 10.5;
-}
-
-/** Column headings for a roster list, so the bare years have a meaning. */
-function playerHeader(doc, x, y, w) {
-  const put = (t, ox, ow, align) => line(doc, t, x + ox, y, ow,
-    { font: 'Helvetica-Bold', size: 6, color: MUTED, align });
-  put('PLAYER', 0, w * 0.44, 'left');
-  put('CLASS', w * 0.44, w * 0.17, 'left');
-  put('PROJECTED', w * 0.61, w * 0.22, 'right');
-  // Matched to the data column below it, and short enough to stay inside it.
-  put('ELIG.', w * 0.85, w * 0.15, 'right');
-  return y + 9;
-}
 
 // ---------------------------------------------------------------------------
 // PAGE 1 — the report map
@@ -372,9 +175,22 @@ export function contentsPage(doc, model, plan, pages) {
       { width: W, lineBreak: false, ellipsis: true });
   y += 24;
 
+  /**
+   * WHAT THE DOCUMENT ACTUALLY EVALUATES — 13G / §V.
+   *
+   * The athlete line was "A historical view of how players enter, develop and
+   * move through this programme", which is the PROGRAMME report's standfirst
+   * with a different verb: it named neither the athlete nor the reading the
+   * document is set at, on a cover whose hero is "Rhys Davies × Mercyhurst"
+   * and whose page two is titled "What Thriv3 sees for you". It now says what
+   * the report is a reading OF and what it is read FOR. Not "fit": nothing in
+   * this document assesses the institution, and the scope statement on page
+   * two says so in full.
+   */
   doc.font('Helvetica').fontSize(11.5).fillColor(INK)
     .text(a
-      ? 'A historical view of how players enter, develop and move through this programme.'
+      ? `How this programme has recruited, developed and replaced players, read for a `
+        + `${String(a.positionLabel ?? 'player').toLowerCase()} arriving in ${model.entrySeason}.`
       : 'How this programme recruits, develops, retains and replaces players.',
     M, y, { width: W * 0.86 });
   y = doc.y + 16;
@@ -453,10 +269,20 @@ export function contentsPage(doc, model, plan, pages) {
      * has. Grey rather than the metric gutter's blue — a colour doing two jobs
      * makes a quieter row read as a different kind of row.
      */
+    /**
+     * And the athlete's own evidence opens that act at half a step up — 13G /
+     * §W. The evidence act starts with the rows narrowed to this athlete's
+     * position and ends with the programme's full tables. Set at one weight
+     * they were indistinguishable, so a reader could not see that the first
+     * row of the act belonged to the analysis they had just read. Ink rather
+     * than grey, still regular rather than bold: visibly theirs, and still
+     * plainly supporting rather than a return to primary content.
+     */
     const quiet = s.act === 'supporting';
+    const colour = quiet ? (s.scope === 'athlete' ? INK : MUTED) : INK;
     line(doc, s.title, M + (s.group ? 20 : 10), y, W * 0.46 - (s.group ? 10 : 0),
-      { font: quiet ? 'Helvetica' : 'Helvetica-Bold', size: 9.5, color: quiet ? MUTED : INK });
-    doc.font(quiet ? 'Helvetica' : 'Helvetica-Bold').fontSize(9.5).fillColor(quiet ? MUTED : INK)
+      { font: quiet ? 'Helvetica' : 'Helvetica-Bold', size: 9.5, color: colour });
+    doc.font(quiet ? 'Helvetica' : 'Helvetica-Bold').fontSize(9.5).fillColor(colour)
       .text(String(pages.get(s.id)), M + W - 40, y, { width: 40, align: 'right', lineBreak: false });
     const scope = (s.scopeNotes ?? []).slice(0, 2).join(' · ');
     if (scope) {
@@ -488,8 +314,20 @@ function actHeading(id, hasAthlete) {
  * fixed 24 on top of the advance `doc.text` had already made, which is where
  * the forty-point hole between the title and its subtitle came from.
  */
-function pageHeading(k, title, subtitle) {
-  pageHead(k, { kicker: 'At a glance', title, question: subtitle, newPage: false });
+/**
+ * The heading both decision layers share, at one of two weights.
+ *
+ * `quiet` is not a new tier — it is the supporting-page tier `pageHead`
+ * already owns: a grey kicker, a 14pt title with a hairline rule under it, and
+ * an 8.5pt question. Page three of an athlete report is set in it so that the
+ * reader can see, before reading a word, that page two is the one addressed to
+ * them. 13F made the programme layer's SENTENCES quieter and left its heading
+ * at 19pt claret, which meant the two pages announced themselves at identical
+ * volume and only the titles distinguished them — the explanatory prose in the
+ * subtitle was carrying a job typography should do.
+ */
+function pageHeading(k, title, subtitle, { quiet = false } = {}) {
+  pageHead(k, { kicker: 'At a glance', title, question: subtitle, newPage: false, quiet });
 }
 
 
@@ -535,58 +373,6 @@ function tenureStrip(doc, x, y, w, timeline) {
   doc.font('Helvetica').fontSize(6.6).fillColor(MUTED).text(timeline.caption, x, y, { width: w });
   return doc.y + 4;
 }
-
-
-
-/**
- * The findings, in sentences, above the cards that evidence them.
- *
- * The reason this exists: a reader who stopped after page two used to have two
- * of the six questions answered — first-years and experienced arrivals — while
- * development, roster stability and traceable movement waited on pages five,
- * twelve and thirteen. Every line here restates a figure printed later and
- * carries the page it is printed on, so the band is a way in rather than a
- * summary that stands alone.
- *
- * The page numbers are drawn last: page two cannot know what page twelve is.
- */
-export function headlineBand(k, lines, { title = 'What Thriv3 sees' } = {}) {
-  const { doc } = k;
-  if (!lines.length) return;
-  const LABEL_W = 96;
-  const PAGE_W = 34;
-  const textW = W - LABEL_W - PAGE_W - 18;
-
-  doc.font(TYPE.section.font).fontSize(TYPE.section.size).fillColor(CLARET)
-    .text(title.toUpperCase(), M, doc.y, { width: W, characterSpacing: TYPE.section.spacing });
-  doc.y += 4;
-  doc.moveTo(M, doc.y).lineTo(M + W, doc.y).lineWidth(0.75).strokeColor(INK).stroke();
-  doc.y += 9;
-
-  for (const item of lines) {
-    const top = doc.y;
-    const h = doc.font('Helvetica').fontSize(9).heightOfString(item.text, { width: textW });
-    doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(MUTED)
-      .text(String(item.label).toUpperCase(), M, top + 1.5,
-        { width: LABEL_W - 10, characterSpacing: TYPE.label.spacing });
-    doc.font('Helvetica').fontSize(9).fillColor(INK)
-      .text(item.text, M + LABEL_W, top, { width: textW });
-    if (item.section) {
-      // Filled in once the document is complete. Recorded, not guessed.
-      const y = top;
-      const id = item.section;
-      k.defer(({ pageOf, doc: d }) => {
-        const n = id ? pageOf(id) : null;
-        if (n == null) return;
-        d.font('Helvetica-Bold').fontSize(8.5).fillColor(MID)
-          .text(`p.${n}`, M + W - PAGE_W, y + 1, { width: PAGE_W, align: 'right', lineBreak: false });
-      });
-    }
-    doc.y = top + Math.max(h, 12) + 5;
-  }
-  doc.y += 4;
-}
-
 
 
 // ---------------------------------------------------------------------------
@@ -682,8 +468,16 @@ function findingRow(k, f, { last = false, metricSize = 12.5, quiet = false } = {
    * Same size band, MID rather than INK: present enough to anchor the row,
    * quiet enough that the sentence is what gets read first.
    */
+  /**
+   * MID is the athlete's own figures; grey is the programme's — 13G / §D.
+   *
+   * Drawn in MID on both layers until this phase, so the two pages had the
+   * same column of blue numerals down the left and the quieter page's loudest
+   * mark was exactly as loud as the louder page's. One colour, one job: the
+   * metric column recedes with the sentences it belongs to.
+   */
   if (f.metric && metricSize) {
-    doc.font('Helvetica-Bold').fontSize(metricSize).fillColor(MID)
+    doc.font('Helvetica-Bold').fontSize(metricSize).fillColor(quiet ? MUTED : MID)
       .text(String(f.metric), M, top + 11 + (12.5 - metricSize) * 0.6,
         { width: METRIC_W, align: 'right', lineBreak: false });
   }
@@ -750,7 +544,8 @@ export function programmeAtAGlance(k, model) {
     forAthlete
       ? 'The programme’s own record, ranked the same way, behind the findings for this athlete.'
       : 'The findings this report rests on, most consequential first, each with the page that '
-        + 'carries its evidence.');
+        + 'carries its evidence.',
+  { quiet: forAthlete });
 
   if (!findings.length) {
     // Never a blank page and never a padded one. A programme with nothing
@@ -813,16 +608,7 @@ export function athleteAtAGlance(k, model) {
    * touched it.
    */
   k.heading('What this report was prepared from');
-  const strip = athleteInputStrip(model);
-  if (strip.length) {
-    const rows = Math.ceil(strip.length / 2);
-    absolute(k, rows * 13 + 4, (box) => {
-      strip.forEach(([label, value], i) => {
-        snapshotLine(k.doc, box.x + (i % 2) * (HALF + GAP), box.y + Math.floor(i / 2) * 13, HALF,
-          label, value ?? '—');
-      });
-    });
-  }
+  inputStrip(k, athleteInputStrip(model));
   k.note(SCOPE_STATEMENT);
 
   /**
@@ -835,6 +621,58 @@ export function athleteAtAGlance(k, model) {
    * it better structured than the full-data page above it.
    */
   if ((model.evidenceLimits ?? []).length && k.remaining() >= 250) evidenceStatus(k, model);
+}
+
+/**
+ * FOUR INPUTS, ON A LINE — 13G / §E.
+ *
+ * They were four cells of `snapshotLine` in a two-by-two grid: label left,
+ * value flush right against the half-page. That is the PROGRAMME SNAPSHOT's
+ * grammar and it is right for seven facts about a programme — but four inputs
+ * set that way read as a profile card, and the right-aligned values put
+ * "Defender" in the middle of the page with a hand-span of leader space in
+ * front of it. These are not facts the report is reporting; they are the
+ * settings it was read at, so they are set as one quiet run at label weight
+ * with the value beside its own label, and they wrap onto a second line rather
+ * than claiming a grid.
+ *
+ * No tiles, no rules, no metric weight, and never the fields the analysis did
+ * not use: `athleteInputStrip` decides what is on it, and this only draws it.
+ */
+function inputStrip(k, strip) {
+  if (!strip?.length) return;
+  const { doc } = k;
+  const PITCH = 13;
+  const SEP = 16;
+  // Measured first, so the block reserves the height it will actually use and
+  // the flow cursor lands under it rather than inside it.
+  const items = strip.map(([label, value]) => {
+    const l = String(label).toUpperCase();
+    const v = String(value ?? '—');
+    doc.font(TYPE.label.font).fontSize(TYPE.label.size);
+    const lw = doc.widthOfString(l, { characterSpacing: TYPE.label.spacing });
+    doc.font('Helvetica').fontSize(8.5);
+    return { l, v, lw, w: lw + 5 + doc.widthOfString(v) };
+  });
+  let rows = 1;
+  let used = 0;
+  for (const it of items) {
+    if (used > 0 && used + SEP + it.w > W) { rows += 1; used = it.w; } else {
+      used += (used ? SEP : 0) + it.w;
+    }
+  }
+  absolute(k, (rows - 1) * PITCH + 12, (box) => {
+    let x = box.x;
+    let y = box.y;
+    for (const it of items) {
+      if (x > box.x && x + it.w > box.x + W) { x = box.x; y += PITCH; }
+      doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+        .text(it.l, x, y + 1.5, { characterSpacing: TYPE.label.spacing, lineBreak: false });
+      doc.font('Helvetica').fontSize(8.5).fillColor(INK)
+        .text(it.v, x + it.lw + 5, y, { lineBreak: false });
+      x += it.w + SEP;
+    }
+  });
 }
 
 /**
@@ -963,337 +801,6 @@ export function programmeSnapshotPage(k, model, { newPage = true } = {}) {
     + 'from comparable programmes, then a pattern inside the normal range. The pages themselves '
     + 'run in the same order for every programme, so a finding may point forward or back.');
 }
-
-// ---------------------------------------------------------------------------
-// PAGE 3 — the athlete's opportunity
-// ---------------------------------------------------------------------------
-
-function positionNowCard(doc, box, a) {
-  const noun = positionPlural(a.position);
-  const p = panel(doc, box, 'Your position now');
-  let y = p.y;
-  const players = a.currentPositionPlayers ?? [];
-
-  if (!players.length) {
-    doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-      .text('No current roster on file for this programme, so we cannot show who is already at your position.',
-        p.x, y, { width: p.w });
-    return;
-  }
-
-  const projected = players.filter((x) => x.projectedMinutes != null);
-  const aboveStarter = projected.filter((x) => Number(x.projectedMinutes) >= STARTER_MINUTES).length;
-  y = bigMetric(doc, p.x, y, players.length, { caption: `current ${noun} on the roster` });
-  doc.font('Helvetica').fontSize(7.8).fillColor(INK)
-    .text(projected.length
-      ? `${aboveStarter} currently projected above ${STARTER_MINUTES} min (of ${projected.length} with a projection)`
-      : 'none of them carries a projected-minutes figure',
-    p.x, y, { width: p.w });
-  y += 20;
-
-  doc.save().moveTo(p.x, y).lineTo(p.x + p.w, y).lineWidth(0.5).strokeColor(LINE).stroke().restore();
-  y += 4;
-  y = playerHeader(doc, p.x, y, p.w);
-  const room = Math.floor((p.bottom - y - 10) / 10.5);
-  for (const player of players.slice(0, room)) y = playerLine(doc, p.x, y, p.w, player);
-  if (players.length > room) {
-    doc.font('Helvetica-Oblique').fontSize(6.8).fillColor(MUTED)
-      .text(`and ${players.length - room} more — the full squad is listed later in this report`,
-        p.x, y + 2, { width: p.w, lineBreak: false, ellipsis: true });
-  }
-}
-
-/**
- * The most important card on the page, and the one most at risk of overclaiming.
- *
- * It leads with the players whose LAST eligible season is the entry season,
- * because under five-year eligibility "gone before you arrive" is a near-empty
- * group for a later entrant — for a 2027 entrant it is graduate students only.
- * Leading with that would tell most athletes nobody is leaving while a quarter
- * of the squad plays its final season beside them.
- */
-function arrivalWindowCard(doc, box, a, model) {
-  const p = panel(doc, box, 'Your arrival window');
-  let y = p.y;
-  const finalSeason = a.currentPlayersInFinalSeasonAtEntry ?? [];
-  const endsBefore = a.currentPlayersEligibilityEndsBeforeEntry ?? [];
-  const eligible = a.currentPlayersEligibleAtEntry ?? [];
-  const unknown = a.currentPlayersEligibilityUnknown ?? [];
-  const finalMinutes = a.currentProjectedMinutesOfPlayersInFinalSeasonAtEntry;
-
-  if (!a.currentPositionPlayers?.length) {
-    doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-      .text('No current roster on file, so we cannot say who is at this position when you arrive.',
-        p.x, y, { width: p.w });
-    return;
-  }
-
-  // Not one player at this position carries an eligibility year. Every one of
-  // the three groups is then empty for a reason that has nothing to do with
-  // the squad, and drawing "0 · 0 · 0" beside "in their final eligible season"
-  // is the exact null-is-not-zero defect this report exists downstream of —
-  // stated here in the largest type on the most important card of the page.
-  const placeable = a.currentPositionPlayers.length - unknown.length;
-  if (!placeable) {
-    doc.font('Helvetica-Bold').fontSize(9).fillColor(INK)
-      .text(`No eligibility year is recorded for any of the ${a.currentPositionPlayers.length} `
-        + `${positionPlural(a.position)} on this roster.`, p.x, y, { width: p.w });
-    y = doc.y + 8;
-    doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
-      .text('So we cannot say which of them are in a final season when you arrive, which have '
-        + 'already finished, and which are eligible beyond it. That is a gap in what this '
-        + 'programme publishes, not a squad with nobody in it.', p.x, y, { width: p.w });
-    y = doc.y + 10;
-    calloutPrimary(doc, p.x, y, p.w,
-      'Future recruits, experienced arrivals, injuries and eligibility changes are not known either.');
-    return;
-  }
-
-  y = bigMetric(doc, p.x, y, finalSeason.length, {
-    caption: `in their final eligible season in ${a.entrySeason}`,
-  });
-  // "None of them carries a projection" describes an empty set when the group
-  // itself is empty, which reads as a data gap rather than as the finding.
-  doc.font('Helvetica').fontSize(7.8).fillColor(INK)
-    .text(finalSeason.length === 0
-      ? `No current ${positionPlural(a.position).replace(/s$/, '')} is in a final eligible season `
-        + `in ${a.entrySeason}.`
-      : finalMinutes?.currentProjectedMinutes == null
-        ? 'None of them carries a projected-minutes figure.'
-        : `${nf(finalMinutes.currentProjectedMinutes)} projected minutes are currently attached to those players.`,
-    p.x, y, { width: p.w });
-  // Advanced by what the sentence actually took, not by a guess. Once the
-  // minutes reached four digits it wrapped to two lines and the note beneath
-  // was drawn straight through the second one.
-  y = doc.y + 4;
-  const without = finalMinutes?.playersWithoutProjection ?? 0;
-  if (without) {
-    doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
-      .text(`${without} of them ${without === 1 ? 'has' : 'have'} no projection on file.`,
-        p.x, y, { width: p.w });
-    y = doc.y + 4;
-  }
-
-  // The three groups, with the entry season the loudest of them.
-  //
-  // Loudest, not best: an athlete arriving the year a group of players plays
-  // its last season is the fact this card exists to surface, and it was being
-  // set at exactly the weight of the two groups either side of it. The
-  // emphasis is scale and rule weight — no colour means good or bad here, and
-  // the entry band is claret because claret marks the reader's own year
-  // everywhere else in this report, not because more is better.
-  doc.save().moveTo(p.x, y).lineTo(p.x + p.w, y).lineWidth(0.5).strokeColor(LINE).stroke().restore();
-  y += 8;
-  const bands = [
-    { label: 'BEFORE ENTRY', n: endsBefore.length, note: `eligibility ends before ${a.entrySeason}`,
-      color: MUTED, lead: false },
-    { label: 'FINAL SEASON AT ENTRY', n: finalSeason.length,
-      note: `their last eligible season is ${a.entrySeason}`,
-      color: CLARET, lead: true },
-    { label: 'BEYOND ENTRY', n: eligible.length - finalSeason.length,
-      note: `eligible past ${a.entrySeason}`, color: NAVY, lead: false },
-  ];
-  for (const b of bands) {
-    const h = b.lead ? 30 : 21;
-    if (b.lead) {
-      doc.save().rect(p.x, y - 2, p.w, h + 2).fillOpacity(0.05).fill(CLARET).restore();
-    }
-    doc.save().rect(p.x, y, b.lead ? 4 : 2.5, h - 4).fill(b.color).restore();
-    doc.font('Helvetica-Bold').fontSize(b.lead ? 8 : 7).fillColor(INK)
-      .text(b.label, p.x + 10, y, { width: p.w * 0.62, characterSpacing: 0.5, lineBreak: false, ellipsis: true });
-    doc.font('Helvetica-Bold').fontSize(b.lead ? 15 : 10).fillColor(INK)
-      .text(String(Math.max(0, b.n)), p.x + p.w - 36, y - (b.lead ? 4 : 1),
-        { width: 32, align: 'right', lineBreak: false });
-    doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
-      .text(b.note, p.x + 10, y + (b.lead ? 12 : 9), { width: p.w - 50, lineBreak: false, ellipsis: true });
-    y += h + 3;
-  }
-  y += 4;
-
-  // Two notes of different weight, so they read as different things: the
-  // limitation the reader must not miss, then the coverage detail.
-  y = calloutPrimary(doc, p.x, y, p.w,
-    'Future recruits, experienced arrivals, injuries and eligibility changes are not known.');
-  if (unknown.length) {
-    y = calloutSecondary(doc, p.x, y, p.w,
-      `${unknown.length} of the ${a.currentPositionPlayers.length} current `
-      + `${positionPlural(a.position)} record no eligibility year, and are counted in none of the `
-      + 'three groups above.');
-  }
-}
-
-function positionOpensCard(doc, box, a) {
-  const p = panel(doc, box, 'When this position opens');
-  let y = p.y;
-  const o = a.positionOpeningOutcomes;
-  const v = a.positionVacancyHistory;
-
-  if (!o || !v?.transitions) {
-    doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-      .text('This position does not carry enough recorded minutes here to say how it behaves when a place comes free.',
-        p.x, y, { width: p.w });
-    return;
-  }
-
-  y = bigMetric(doc, p.x, y, `${v.openings}`, {
-    caption: `time${v.openings === 1 ? '' : 's'} a starter left, in ${v.transitions} season transitions`,
-  });
-
-  if (v.openings > 0) {
-    y = factLine(doc, p.x, y, p.w, 'A first-year then started', `${v.freshmanTookIt} of ${v.openings}`);
-    y = factLine(doc, p.x, y, p.w, 'An experienced arrival then started', `${v.newcomerTookIt} of ${v.openings}`);
-    doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
-      .text('These two can describe the same season: one opening can be filled by more than one player.',
-        p.x, y + 1, { width: p.w });
-    y += 20;
-  } else {
-    doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
-      .text('No starter left this position in the seasons on file — a complete answer to what happened, '
-        + 'and no answer at all to what happens when one does.', p.x, y, { width: p.w });
-    y += 26;
-  }
-
-  if (o.dials?.returning != null) {
-    doc.font('Helvetica-Bold').fontSize(6.5).fillColor(MUTED)
-      .text('MINUTES AT THIS POSITION WENT TO', p.x, y, { width: p.w, characterSpacing: 0.8, lineBreak: false });
-    y += 10;
-    y = miniStacked(doc, p.x, y, p.w, [
-      { value: o.dials.returning, label: 'returning', color: PALE },
-      { value: o.dials.freshman, label: 'first-years', color: NAVY },
-      { value: o.dials.newcomer, label: 'experienced arrivals', color: GREEN },
-    ]);
-  }
-
-  evidenceChip(doc, p.x, p.evidenceY, o.evidence,
-    `${plural(v.transitions, 'transition')} · ${plural(v.openings, 'opening')}`, p.w);
-}
-
-function originCard(doc, box, a) {
-  const p = panel(doc, box, 'First-years like you', { evidence: true });
-  let y = p.y;
-  const fh = a.positionFreshmanHistory;
-  const o = a.originContext;
-  const noun = positionPlural(a.position);
-
-  // Position history leads, and stays even where origin cannot be read.
-  if (fh?.measured) {
-    y = bigMetric(doc, p.x, y, `${fh.starters} of ${fh.measured}`, {
-      caption: `first-year ${noun} played a starter’s season`,
-    });
-  } else {
-    doc.font('Helvetica').fontSize(8).fillColor(MUTED)
-      .text(`No first-year ${noun} here has minutes on file.`, p.x, y, { width: p.w });
-    y += 26;
-  }
-
-  doc.save().moveTo(p.x, y).lineTo(p.x + p.w, y).lineWidth(0.5).strokeColor(LINE).stroke().restore();
-  y += 6;
-
-  const originWord = o?.requestedOrigin === 'international' ? 'International' : 'US-based';
-  if (!o?.requestedOrigin) {
-    doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
-      .text('No origin is recorded for this athlete, so we cannot compare by background.', p.x, y, { width: p.w });
-    return;
-  }
-
-  const same = o.programme.sameOrigin;
-  if (!o.evidence?.sufficient || same.share == null) {
-    doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
-      .text('Not enough programme-specific history to compare by origin: '
-        + `${same.players} ${originWord.toLowerCase()} first-year${same.players === 1 ? '' : 's'} `
-        + 'on file here, across every position.',
-      p.x, y, { width: p.w });
-    y += 26;
-  } else {
-    // Across every position, unlike the count above it. The card opens with
-    // "0 of 9 first-year goalkeepers" and then reports a figure built from all
-    // 77 of the programme's first-years; without the scope on the label those
-    // read as the same population.
-    doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
-      .text('THIS PROGRAMME · ALL POSITIONS', p.x, y,
-        { width: p.w, characterSpacing: TYPE.label.spacing, lineBreak: false });
-    y += 10;
-    y = factLine(doc, p.x, y, p.w, `${originWord} first-years starting`,
-      `${pctOf(same.share)}  (${same.starters} of ${same.players})`);
-    y += 4;
-  }
-
-  if (o.pool?.sameOrigin?.impactShare != null) {
-    doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
-      .text(o.pool.scope === 'division'
-        ? `${o.pool.division} BENCHMARK · ALL POSITIONS` : 'ALL DIVISIONS · ALL POSITIONS',
-      p.x, y, { width: p.w, characterSpacing: TYPE.label.spacing, lineBreak: false });
-    y += 10;
-    y = factLine(doc, p.x, y, p.w, `${originWord} first-years starting`,
-      `${pctOf(o.pool.sameOrigin.impactShare)}  (n=${nf(o.pool.sameOrigin.players)})`);
-    if (o.pool.otherOrigin?.impactShare != null) {
-      y = factLine(doc, p.x, y, p.w, 'The other group',
-        `${pctOf(o.pool.otherOrigin.impactShare)}  (n=${nf(o.pool.otherOrigin.players)})`);
-    }
-    doc.font('Helvetica').fontSize(6.6).fillColor(MUTED)
-      .text('A description of who has played, not of why. Where a player comes from is not the cause of the difference.',
-        p.x, y + 2, { width: p.w });
-  } else if (o.poolReason) {
-    doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
-      .text(`No benchmark comparison: ${o.poolReason}.`, p.x, y, { width: p.w });
-  }
-}
-
-/**
- * THE PATHWAY THRIV3 SEES — the synthesis, set apart from every page-level one.
- *
- * Deliberately a different object from `headlineBand` and from `k.reading`,
- * because it makes a different kind of claim and the difference has to be
- * visible. A page-level reading restates the page it sits on. This one reads
- * the first-year record at a position, the programme's multi-year development,
- * what happened when the position last opened and who is on the roster now,
- * and says what those four say together.
- *
- * It is the only block in this report that crosses analyses, so it is the only
- * one on a tinted ground with a rule down its full height.
- */
-function pathwayBlock(k, sentences) {
-  const { doc } = k;
-  const list = (sentences ?? []).filter(Boolean);
-  if (!list.length) return;
-  const inner = W - 36;
-  const h = list.reduce((sum, t) => sum + doc.font('Helvetica').fontSize(10)
-    .heightOfString(t, { width: inner }) + 7, 0) + 24;
-  k.room(h + 10);
-  const top = doc.y;
-  doc.save().rect(M, top, W, h).fillOpacity(0.05).fill(CLARET).restore();
-  doc.save().rect(M, top, 3.5, h).fill(CLARET).restore();
-  doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(CLARET)
-    .text('THE PATHWAY THRIV3 SEES', M + 18, top + 12,
-      { width: inner, characterSpacing: TYPE.label.spacing, lineBreak: false });
-  let y = top + 27;
-  for (const t of list) {
-    doc.font('Helvetica').fontSize(10).fillColor(INK).text(t, M + 18, y, { width: inner });
-    y = doc.y + 7;
-  }
-  doc.y = top + h;
-  k.gap(12);
-}
-
-/**
- * The hinge of an athlete report: four analyses read together, and nothing else.
- *
- * This page carried four cards — who is at the position now, the arrival
- * window, when the position opens, first-years like you. Every one of them is
- * now a page of its own immediately after this, so the cards were the same
- * evidence twice. A synthesis that reprints its own evidence is not a
- * synthesis; the band says where each part of it is set out, and stops.
- */
-/**
- * `athletePathwayPage` was replaced by `athleteAtAGlance` in Phase 13F.
- *
- * It carried five paragraphs of synthesis, a non-claim aside, a navigation band
- * and — on a sparse programme — the two lists below. Every sentence of the
- * synthesis is now a ranked finding with a metric and a page reference, and the
- * navigation band is the page references on those findings. The two lists
- * survive: they are the sparse programme's honest answer and 13E found them
- * better structured than the full-data page they sat behind.
- */
 
 /**
  * What this programme's record can be read for, and what it cannot — titles.

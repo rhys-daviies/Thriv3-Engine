@@ -1,8 +1,14 @@
 # The report's visual system
 
-Phase 13D. What the Programme Intelligence PDF looks like, and the rules that
-decide it. The information architecture is 13B's and the decision layer is
-13C's; nothing here changes what the report says.
+Phase 13D, extended to the athlete pages in 13G. What the Programme
+Intelligence PDF looks like, and the rules that decide it. The information
+architecture is 13B's, the programme decision layer is 13C's and the athlete
+one is 13F's; nothing here changes what the report says.
+
+One system, both report kinds. Before 13G the athlete pages had a vocabulary of
+their own — rounded stroked cards, a 20pt band count on a page whose title is
+19, an evidence level set as a row in a fact table — and a reader could tell
+which pages were which by their furniture. They cannot now.
 
 ## The tiers
 
@@ -92,6 +98,54 @@ horizontal rules crossing the page.
 A page with two blocks and a wide bottom margin is finished. A page whose
 content stops a third of the way down and whose header wraps into its own data
 is not, and those are what this phase went after.
+
+## The athlete pages — 13G
+
+Everything above already applied to the programme pages. What it took to apply
+it to the athlete pages:
+
+| page | what it was | what it is |
+|---|---|---|
+| What Thriv3 sees about the programme (p3) | the same 19pt claret-kickered head as p2, with only the title and a subtitle saying which came first | the supporting-page tier the report already owns — grey kicker, 14pt title over a hairline, 8.5pt question — and a grey metric gutter |
+| What this report was prepared from (p2) | four cells of the programme snapshot's two-column grid, values flush right against each half | one quiet run of label-and-value pairs at label weight, wrapping rather than gridding |
+| Your position, and the timing around your arrival | the entry-year band on a 0.05 claret tint with its count at 20pt; the limitation and the coverage note after a 17-row table, which put them alone on a nine-tenths-empty sheet | no fill, one count size, the claret rule and label kept as the entry-year anchor; the limitation before the table and the coverage note after it |
+| the eligibility timeline | two 1,000-minute dots at nine points of radius on a ten-point pitch, merged into one shape; unprojected players as 2pt discs at 18% opacity | a radius that cannot exceed its own pitch, open rings for players with no projection, a count under each year, and the entry year set claret bold on its own axis label |
+| When a place opens | three rounded stroked cards with a full-height claret bar and a three-colour key repeated inside each | grouped rows on hairlines, one legend above them, one pitch measured off the tallest |
+| What this position has looked like here | two equal-weight blocks and then the two sentences that read them | the statement opens the section; the warning that the two records do not predict each other closes it |
+| First-year and experienced arrivals at this position | opposite orders — ladder-then-counts and counts-then-scatter — with the counts landing 23 points under the ladder's key | counts, evidence label, chart, in both halves |
+| Where you are arriving from | the counts before the answer; a label wrapping "positions" onto a line of its own; the relaxation caveat as a claret-tinted box | the answer first, the label that repeated the scope strip shortened, the caveat as the report's quiet aside |
+| the cover | "A historical view of how players enter, develop and move through this programme" — the programme standfirst with a different verb | what the document is a reading of, and who it is read for. Never "fit" |
+
+### The three non-claims, and which is which
+
+Unchanged since 13D and now used consistently on both report kinds. It was the
+athlete pages that used the wrong one.
+
+| | treatment | what it is for |
+|---|---|---|
+| `reading` | claret left rule, no tint, 9.5pt ink | the page's own answer |
+| `box` | claret left rule on a 0.05 tint, 9.5pt ink | a limitation a reader must not miss |
+| `aside` | 0.04 ink tint, no rule, 8pt grey | a footnote or a cross-reference |
+
+A refusal is visible, clear and quiet: it takes the weight of what it is, and
+never a warning colour. The wording is the model's and 13G did not change any
+of it.
+
+### No empty shells
+
+A refusal is stated once, not tabulated as zeroes. A position with nothing
+measured drew "0 · 0 of 0 · limited" as three fact rows under a sentence saying
+the group could not be ranked; a roster with nobody in a final eligible season
+at entry printed a note explaining what the marked rows meant.
+
+### What is asserted rather than remembered
+
+Four checks in `npm run verify:baseline` and eight in
+`server/lib/reportFront.test.js`, all measured off the `Tf` operators in each
+page's content stream rather than off a screenshot: nothing after the cover is
+set above 19pt, page three is set below page two on every athlete report, and
+the card vocabulary stays deleted. A rounded border is easy to reintroduce and
+impossible to see in a diff of a rendered page.
 
 ## Font safety
 
@@ -194,3 +248,23 @@ The one layout problem in the universe — a character Helvetica could not draw 
 UTSA women's — is fixed by the font fallback above, so the universe now renders
 with no defects of any kind. 13D closed it by drawing a different letter; 13D.1
 closed it by drawing the right one.
+
+## What 13G cost
+
+583 lines deleted from `reportFront.js` — `panel`, `bigMetric`, `evidenceChip`,
+`miniBar`, `miniStacked`, `calloutPrimary`, `calloutSecondary`, `factLine`,
+`playerLine`, `playerHeader`, `headlineBand`, `pathwayBlock` and the four
+athlete cards built from them. Every one was unreachable: 13C replaced the five
+programme cards with ranked finding rows and 13F replaced the four athlete
+cards with the same row. Deleted rather than deprecated, so the next athlete
+page has nothing to reach for.
+
+No page count moved: Mercyhurst 30, California 24, Adams State 28, Albright 17,
+Rochester 24, before and after. The count row under the eligibility timeline is
+paid for out of the lane's own height cap rather than out of the page — twelve
+points at the bottom of a full sheet is a whole block, and at California it was
+the roster table's own footnote.
+
+Programme reports render byte-identical content streams, and every model —
+programme and athlete — hashes unchanged. Nothing in this phase touched an
+analysis.

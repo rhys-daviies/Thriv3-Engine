@@ -1037,5 +1037,83 @@ group('FONTS — a name is drawn as it is spelled');
       : 'none on file');
 }
 
+/**
+ * THE VISUAL SYSTEM — one grammar, measured off the bytes.
+ *
+ * 13G brought the athlete pages onto the system the programme pages have used
+ * since 13D. The two claims worth checking against real reports rather than a
+ * fixture are the ones that regress silently: a figure that grows past the
+ * page title, and an athlete layer that stops being louder than the programme
+ * layer behind it. Both are read out of the `Tf` operators in each page's
+ * content stream, so they measure what a reader sees rather than what a
+ * renderer intended.
+ *
+ * The card vocabulary is asserted at source, because a rounded border is easy
+ * to reintroduce and impossible to spot in a diff of a rendered page.
+ */
+group('VISUAL SYSTEM — the athlete pages are set in the programme’s grammar');
+{
+  const DISPLAY_CEILING = 19;
+  const sizesByPage = (buf) => {
+    const raw = buf.toString('latin1');
+    const out = [];
+    const re = /stream\r?\n([\s\S]*?)endstream/g;
+    let m;
+    while ((m = re.exec(raw)) !== null) {
+      let body;
+      try { body = zlib.inflateSync(Buffer.from(m[1], 'latin1')).toString('latin1'); } catch { continue; }
+      if (!/\bBT\b/.test(body)) continue;
+      out.push([...body.matchAll(/\/F\d+\s+([\d.]+)\s+Tf/g)].map((x) => Number(x[1])));
+    }
+    return out;
+  };
+
+  const cases = [];
+  for (const p of db.prepare('SELECT id, full_name, sport FROM players ORDER BY full_name').all()) {
+    const cols = db.prepare('SELECT id, name FROM colleges WHERE sport = ? ORDER BY name').all(p.sport);
+    for (const c of cols.filter((_, i) => i % 40 === 0)) cases.push({ p, c });
+  }
+
+  let checked = 0; let overCeiling = 0; let notQuieter = 0;
+  const example = {};
+  for (const { p, c } of cases) {
+    let model;
+    try { model = programReportModel({ collegeId: c.id, playerId: p.id }); } catch { continue; }
+    // eslint-disable-next-line no-await-in-loop
+    const buf = await renderProgramReport(model);
+    const pages = sizesByPage(buf);
+    if (pages.length < 3) continue;
+    checked += 1;
+    // The cover is the one page allowed above the ceiling: its hero is the
+    // name on the front of the document, not a figure inside a layout.
+    for (let i = 1; i < pages.length; i += 1) {
+      if (Math.max(0, ...pages[i]) > DISPLAY_CEILING) {
+        overCeiling += 1; example.over ??= `${p.full_name} @ ${c.name} p${i + 1}`;
+        break;
+      }
+    }
+    if (!(Math.max(0, ...pages[2]) < Math.max(0, ...pages[1]))) {
+      notQuieter += 1; example.quiet ??= `${p.full_name} @ ${c.name}`;
+    }
+  }
+
+  check('no figure on an athlete page is set larger than a page title',
+    overCeiling === 0,
+    `${checked} athlete reports${example.over ? ` — ${example.over}` : ` · ceiling ${DISPLAY_CEILING}pt`}`);
+  check('the programme decision layer is set below the athlete one on every athlete report',
+    notQuieter === 0,
+    `${checked} athlete reports${example.quiet ? ` — ${example.quiet}` : ''}`);
+
+  const athleteSrc = SOURCE('../lib/reportAthlete.js');
+  const frontSrc = SOURCE('../lib/reportFront.js');
+  check('no rounded or stroked card is drawn on an athlete page',
+    !/roundedRect\(/.test(athleteSrc) && !/roundedRect\(/.test(frontSrc),
+    'the openings page was three of them');
+  check('the dashboard helpers stay deleted',
+    ['bigMetric', 'evidenceChip', 'miniStacked', 'calloutPrimary', 'pathwayBlock', 'headlineBand']
+      .every((d) => !new RegExp(`${d}\\(`).test(frontSrc)),
+    'panel, bigMetric, the callouts, the fact and player lines and the four athlete cards');
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed);

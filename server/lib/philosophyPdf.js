@@ -1572,7 +1572,21 @@ export const charts = {
    * eligibility year cannot be placed and are counted beneath rather than
    * dropped — an absence that vanishes is an absence nobody accounts for.
    */
-  eligibilityTimeline(k, { box, title, subtitle, lanes, years, marker, unplaceable, unavailable }) {
+  /**
+   * `counts` and `markerLabel` are opt-in, and only the athlete page opts in.
+   *
+   * The programme's squad-outlook timeline draws five lanes of a whole roster
+   * and is frozen; this is the single-lane view of one position group, where
+   * the athlete's entry year is the thing being read against. Everything below
+   * that is gated on `counts` exists because that view has to survive
+   * seventeen players in four columns: at Mercyhurst men's, four defenders
+   * eligible through 2027 — two of them projected past a thousand minutes, so
+   * drawn at nine points of radius against a ten-point pitch — merged into one
+   * shape a reader could not count, and eight unprojected players at 2030
+   * drew as 2pt marks at 18% opacity that a printer loses altogether.
+   */
+  eligibilityTimeline(k, { box, title, subtitle, lanes, years, marker, unplaceable, unavailable,
+    counts = false, markerLabel = null }) {
     const plot = frame(k, box, { title, subtitle, unavailable, empty: !lanes?.length || !years?.length });
     if (!plot) return;
     const { doc } = k;
@@ -1587,13 +1601,24 @@ export const charts = {
     // one position, on an athlete page — was drawn 26 points tall on a page
     // with four hundred points spare, which made a chart of eleven players
     // look like a footnote.
-    const laneH = Math.min(lanes.length === 1 ? 84 : 30, (plot.h - 32) / lanes.length);
+    // Ten points of the single-lane cap pay for the count row under it, so the
+    // chart costs the page exactly what it did before 13G added the counts —
+    // a 12-point band on this page is a whole block at the bottom of it, and
+    // at California it was the table's own footnote.
+    const laneH = Math.min(lanes.length === 1 ? (counts ? 74 : 84) : 30,
+      (plot.h - 32) / lanes.length);
     const step = years.length > 1 ? w / (years.length - 1) : 0;
     const xOf = (year) => left + years.indexOf(year) * step;
     const maxMin = Math.max(1, ...lanes.flatMap((l) => l.players.map((p) => p.projectedMinutes ?? 0)));
 
     years.forEach((y) => {
-      doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+      // The entry year names itself, in the colour that means entry year on
+      // this page. A separate "YOUR ENTRY YEAR" caption beside the line cost a
+      // row of height the chart did not have and printed straight through the
+      // year label it was pointing at.
+      const isEntry = markerLabel && marker != null && y === marker;
+      doc.font(isEntry ? 'Helvetica-Bold' : 'Helvetica').fontSize(6.5)
+        .fillColor(isEntry ? CLARET : MUTED)
         .text(String(y), xOf(y) - 12, top, { width: 24, align: 'center', lineBreak: false });
       doc.save().moveTo(xOf(y), top + 10).lineTo(xOf(y), top + 10 + lanes.length * laneH)
         .lineWidth(0.4).strokeColor(LINE).stroke().restore();
@@ -1630,20 +1655,46 @@ export const charts = {
        */
       const biggest = Math.max(1, ...[...byYear.values()].map((g) => g.length));
       const spread = Math.min(11, laneH / 6, (laneH - 8) / Math.max(1, biggest - 1));
+      // A dot may not be wider than the pitch it is stacked at. Sized off the
+      // minutes alone, the two biggest dots in a year overlapped by seven
+      // points and the column became one blob; the count under the axis is
+      // then the only way to read it, which is a chart that needs a caption to
+      // be a chart. The AREA still carries the minutes — it is the ceiling that
+      // moves, not the encoding.
+      const rMax = counts ? Math.max(3.5, spread / 2 - 0.5) : Infinity;
       for (const [year, group] of byYear) {
         group.forEach((p, i) => {
           const off = (i - (group.length - 1) / 2) * spread;
-          const r = 2 + Math.sqrt(Math.max(0, p.projectedMinutes ?? 0) / maxMin)
-            * (laneH > 40 ? 7 : 4);
+          const r = Math.min(rMax, 2 + Math.sqrt(Math.max(0, p.projectedMinutes ?? 0) / maxMin)
+            * (laneH > 40 ? 7 : 4));
+          if (p.projectedMinutes == null && counts) {
+            // An open ring rather than a faint disc: a player with no
+            // projection is present on the roster and must be as visible as
+            // one with a projection, without being drawn as a quantity.
+            doc.save().circle(xOf(year), cy + off, 2.6).lineWidth(0.7)
+              .strokeColor(MUTED).stroke().restore();
+            return;
+          }
           doc.save().fillOpacity(p.projectedMinutes == null ? 0.18 : 0.6)
             .circle(xOf(year), cy + off, p.projectedMinutes == null ? 2 : r)
             .fill(p.projectedMinutes == null ? MUTED : NAVY).restore();
         });
       }
+      // How many are in each column, under the axis. Not a second encoding of
+      // the dots — the answer to the question a packed column stops answering.
+      if (counts) {
+        for (const [year, group] of byYear) {
+          doc.font('Helvetica-Bold').fontSize(6.5).fillColor(MUTED)
+            .text(String(group.length), xOf(year) - 12, top + 14 + lanes.length * laneH,
+              { width: 24, align: 'center', lineBreak: false });
+        }
+      }
     });
 
-    const footY = top + 12 + lanes.length * laneH;
-    const key = ['dot size is projected minutes', 'hollow dots carry no projection',
+    // The count row, where there is one, sits between the lane and the key.
+    const footY = top + 12 + lanes.length * laneH + (counts ? 12 : 0);
+    const key = [counts ? 'the figure under each year is how many' : null,
+      'dot size is projected minutes', 'hollow dots carry no projection',
       unplaceable ? `${unplaceable} with no eligibility year, not placed` : null]
       .filter(Boolean).join('   ·   ');
     doc.font('Helvetica').fontSize(6).fillColor(MUTED)
