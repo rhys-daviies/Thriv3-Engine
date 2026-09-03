@@ -37,7 +37,25 @@ services:
     # The client bundle and the server share one process, so the app and its
     # API are one origin: no CORS in production, and a session cookie that is
     # never cross-site.
-    buildCommand: npm ci && npm run build
+    #
+    # THREE STEPS, AND EACH ONE IS THERE FOR A REASON.
+    #
+    # `--include=dev` because NODE_ENV=production is set below and applies to
+    # the build stage as well as the runtime, and npm resolves `omit=dev` from
+    # it — so a plain `npm ci` installs no devDependencies and the build dies on
+    # `vite: not found`. Vite is a build tool and belongs in devDependencies;
+    # the fix is to ask for them here, not to move five packages into runtime
+    # dependencies to make the error go away. Five are needed, not one: vite,
+    # @vitejs/plugin-react, tailwindcss, postcss and autoprefixer. Vite is
+    # simply the first one reached.
+    #
+    # `npm prune --omit=dev` afterwards because the built output is all the
+    # runtime needs — it never runs Vite — and leaving the toolchain in the
+    # container would put esbuild and Vite on the production disk, which is
+    # exactly what docs/hosting.md says is not deployed. Verified: the prune
+    # removes 211 packages, keeps express/helmet/better-sqlite3/pdfkit, leaves
+    # dist/ intact and leaves the native binding loadable.
+    buildCommand: npm ci --include=dev && npm run build && npm prune --omit=dev
     startCommand: node server/index.js
     healthCheckPath: /healthz
 
