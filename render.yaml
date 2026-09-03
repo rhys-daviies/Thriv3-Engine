@@ -27,7 +27,13 @@ services:
     # 512 MB, and an OOM kill mid-generation is a failed report.
     plan: 1c-2g
     region: ohio
-    branch: main
+    # The blueprint and the code it deploys come from ONE branch. This said
+    # `main`, while the corrected blueprint existed only here — so pointing the
+    # Blueprint at main would have applied `plan: starter` and no upload path,
+    # and pointing it here would have deployed main's code against this file.
+    # Identical application code today, and a drift trap the moment either
+    # branch moves.
+    branch: release/internal-operator-hosting
     # The client bundle and the server share one process, so the app and its
     # API are one origin: no CORS in production, and a session cookie that is
     # never cross-site.
