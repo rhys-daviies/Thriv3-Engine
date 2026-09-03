@@ -56,7 +56,7 @@ services:
     # removes 211 packages, keeps express/helmet/better-sqlite3/pdfkit, leaves
     # dist/ intact and leaves the native binding loadable.
     buildCommand: npm ci --include=dev && npm run build && npm prune --omit=dev
-    startCommand: node server/index.js
+    startCommand: if [ ! -f /data/13l-cutover-complete ]; then /data/13l-incoming/cutover.sh; fi && exec node server/index.js
     healthCheckPath: /healthz
 
     disk:
