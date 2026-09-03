@@ -95,10 +95,20 @@ services:
       # Generated at provision time and stored by Render, never in this file.
       - key: THRIV3_SESSION_SECRET
         generateValue: true
-      # The service's own public origin. Set by hand after the first deploy
-      # names it, or to the custom domain.
+      # The service's own public origin — the CORS allow-list and the CSRF
+      # origin check, and required at startup.
+      #
+      # `sync: false` meant "ask the operator", but the Render service UI does
+      # not expose an Environment section for a Blueprint-managed variable, so
+      # there was nowhere to answer. The runtime refused to start and said
+      # exactly why, which is the gate working; the fix is to put the value
+      # where the blueprint can carry it. Not a secret — it is the public
+      # address of the service.
+      #
+      # Change this when a custom domain replaces the onrender.com address, or
+      # sign-in will be refused on origin.
       - key: THRIV3_APP_ORIGIN
-        sync: false
+        value: https://thriv3-operator.onrender.com
       # Existing application secrets, unchanged and never in git.
       - key: ANTHROPIC_API_KEY
         sync: false
@@ -110,7 +120,10 @@ services:
         sync: false
       - key: THRIV3_PUBLIC_BASE_URL
         sync: false
-      # Unset means the edge sync never runs by itself, and the server says so
-      # at boot. 15 is the pilot cadence.
+      # ZERO FOR INITIAL HOSTED VALIDATION. 0 (like unset) means the edge sync
+      # never runs by itself, and the boot log says so out loud rather than
+      # leaving it ambiguous. Nothing should run unattended against the
+      # Cloudflare edge until the deployment has been verified by hand. 15 is
+      # the pilot cadence to restore afterwards.
       - key: THRIV3_SYNC_INTERVAL_MINUTES
-        value: 15
+        value: 0
