@@ -34,6 +34,7 @@ import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
 import { philosophySummaries, programReportModel } from './routes/philosophy.js';
 import { evidenceSummaries } from './routes/evidence.js';
+import { operatorEvidenceSummaries } from './routes/operatorEvidence.js';
 import { renderProgramReport } from './lib/philosophyReport.js';
 import { poolStatus, invalidatePoolBenchmarks, poolBenchmarks } from './lib/philosophyQueries.js';
 
@@ -186,6 +187,23 @@ app.post('/api/players/:playerId/evidence', (req, res) => {
     }));
   } catch (err) {
     console.error('[evidence/summaries]', err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/**
+ * The operator Evidence surface. Separate from the composer route above and
+ * deliberately so: same identity mechanism, different payload, different job.
+ * See routes/operatorEvidence.js for why the two do not share a serializer.
+ */
+app.post('/api/players/:playerId/operator-evidence', (req, res) => {
+  try {
+    res.json(operatorEvidenceSummaries({
+      playerId: req.params.playerId,
+      collegeNames: (req.body || {}).collegeNames,
+    }));
+  } catch (err) {
+    console.error('[operator-evidence/summaries]', err);
     res.status(400).json({ error: err.message });
   }
 });
