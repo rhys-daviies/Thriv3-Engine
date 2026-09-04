@@ -44,6 +44,7 @@ export {
   EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, TIERS, CONFIDENCE, defineEvidence, kindSpec, isFact, isSignal,
   KIND_LABELS, kindLabel, TEMPORALITY, FRESHNESS_SENSITIVE, LEAD_SUITABILITY,
   assertSurfaceRenderable, COMPARISON_BANDS, COMPARISON_BAND_KEYS,
+  DECISION_CLASS, DECISION_CLASS_KEYS, POLARITY, POLARITY_KEYS,
 } from './kinds.js';
 export {
   FRESHNESS, FRESH_DAYS, ACCEPTABLE_DAYS, rosterFreshness, applyFreshness,
@@ -308,3 +309,13 @@ function numOrNull(v) {
   const n = Number(v);
   return Number.isFinite(n) ? n : null;
 }
+
+/**
+ * Ranking primitives. Pure, and read by no surface yet — the operator policy
+ * that turns an ordering into top reasons is deliberately not built, so the
+ * ordering can be read against real data before slot rules hide it.
+ */
+export {
+  compareEvidence, rankEvidence, decisionClassRank, specificityRank,
+  specificityKey, confidenceRank, rankingMetadata,
+} from './rank.js';

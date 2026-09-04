@@ -87,6 +87,60 @@ export const LEAD_SUITABILITY = Object.freeze({
 });
 
 /**
+ * What a piece of evidence is FOR, when the question is whether this athlete
+ * should go to this programme.
+ *
+ * Separate from `category`, which groups by SUBJECT (international, roster,
+ * academic) and drives dedupe and family caps. The two cut across each other:
+ * COACH_ARRIVAL_SAME_COUNTRY and INTERNATIONAL_SHARE share a category and are
+ * not remotely the same kind of reason. Separate from `strength`, which is an
+ * email-ordering constant with a deliberate international thumb on the scale —
+ * right for deciding what to open a letter with, wrong for deciding where to
+ * go.
+ *
+ * Ranking metadata only. Nothing in selection, rendering or logging reads it.
+ */
+export const DECISION_CLASS = Object.freeze({
+  /** A plausible place for this athlete, in their arrival window. */
+  OPENING: 'OPENING',
+  /** How this programme has treated players meaningfully like this one. */
+  PATHWAY: 'PATHWAY',
+  /** Makes the programme sensible without being an opening or a pathway. */
+  FIT: 'FIT',
+  /** True and useful when reading a programme; rarely a reason to choose it. */
+  CONTEXT: 'CONTEXT',
+});
+
+export const DECISION_CLASS_KEYS = Object.freeze(Object.keys(DECISION_CLASS));
+
+/**
+ * Which way a piece of evidence argues.
+ *
+ * POSITIVE is claimed only where the GENERATOR ITSELF establishes the direction
+ * — by refusing to fire when the reading is unfavourable. Three do exactly
+ * that: `returningPositionDepth` returns null above three returners,
+ * `positionGroupScarcity` above an 18% share, `programMomentum` on anything but
+ * a rise. Where the generator emits a measurement in either direction, the
+ * honest label is NEUTRAL, whatever the number happens to say today.
+ *
+ * That is why the four Philosophy measurements are NEUTRAL. A ladder is not
+ * favourable for existing; it is favourable or not depending on what it says,
+ * and nothing here has yet been licensed to make that call.
+ *
+ * CAUTION is declared and unused. No existing kind becomes one by
+ * reinterpretation — the unfavourable readings are currently deleted inside
+ * their generators, and recovering them is a new kind rather than an inverted
+ * flag.
+ */
+export const POLARITY = Object.freeze({
+  POSITIVE: 'POSITIVE',
+  NEUTRAL: 'NEUTRAL',
+  CAUTION: 'CAUTION',
+});
+
+export const POLARITY_KEYS = Object.freeze(Object.keys(POLARITY));
+
+/**
  * The places a piece of evidence can be shown, each with its own licence.
  *
  * `emailEligible` was one boolean answering for three audiences, and it had
@@ -238,6 +292,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 88,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.PATHWAY,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['country'],
   },
   CURRENT_SAME_COUNTRY: {
     leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
@@ -248,6 +305,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 82,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.PATHWAY,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['country'],
   },
   HISTORICAL_SAME_REGION: {
     leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
@@ -261,6 +321,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 70,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.PATHWAY,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['region'],
   },
   INTERNATIONAL_ROSTER: {
     leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
@@ -271,6 +334,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 52,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.CONTEXT,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: [],
   },
   /**
    * --- recruiting history -------------------------------------------------
@@ -319,6 +385,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 99,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.PATHWAY,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['coach', 'country'],
   },
 
   /** An arrival from the athlete's country, at the athlete's position. */
@@ -331,6 +400,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 95,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.PATHWAY,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['country', 'position'],
   },
 
   /**
@@ -349,6 +421,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 78,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.PATHWAY,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['region', 'position'],
   },
 
   // A share, not a count: it depends on the denominator being a complete
@@ -363,6 +438,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 44,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.CONTEXT,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: [],
   },
 
   // --- roster opportunity --------------------------------------------------
@@ -375,6 +453,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 76,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.OPENING,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['position'],
   },
   // Split from the count above on purpose. Who is leaving is a roster fact;
   // which of them was a starter in a season that has not been played is a
@@ -388,6 +469,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 68,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.OPENING,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['position'],
   },
   SQUAD_GRADUATION: {
     leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
@@ -398,6 +482,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 48,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.CONTEXT,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['athlete'],
   },
   // Internal, deliberately. A bare count is the factual anchor beneath the
   // depth story and is not an argument on its own: Air Force carries eleven
@@ -413,6 +500,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 46,
     emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.CONTEXT,
+    polarity: POLARITY.NEUTRAL,
+    specificityAxes: ['position'],
   },
   POSITION_GROUP_SCARCITY: {
     leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
@@ -423,6 +513,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 58,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.OPENING,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['position'],
   },
   RETURNING_POSITION_DEPTH: {
     leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
@@ -433,6 +526,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 54,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.OPENING,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['position'],
   },
   ELIGIBILITY_CLIFF: {
     leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
@@ -443,6 +539,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 50,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.OPENING,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['position'],
   },
 
   // --- programme record ----------------------------------------------------
@@ -460,6 +559,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 80,
     emailEligible: true,
     minConfidence: CONFIDENCE.HIGH,
+    decisionClass: DECISION_CLASS.FIT,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: [],
   },
   POSTSEASON_RESULT: {
     leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
@@ -475,6 +577,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 74,
     emailEligible: true,
     minConfidence: CONFIDENCE.HIGH,
+    decisionClass: DECISION_CLASS.FIT,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: [],
   },
   PROGRAM_MOMENTUM: {
     leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
@@ -485,6 +590,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 56,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.FIT,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: [],
   },
 
   // --- people and academics ------------------------------------------------
@@ -511,6 +619,9 @@ export const EVIDENCE_KINDS = Object.freeze({
      * whose source can tell a season it failed to read from one it never had.
      */
     requiresWindow: true,
+    decisionClass: DECISION_CLASS.CONTEXT,
+    polarity: POLARITY.NEUTRAL,
+    specificityAxes: [],
   },
   ACADEMIC_FIT: {
     leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
@@ -521,6 +632,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 78,
     emailEligible: true,
     minConfidence: CONFIDENCE.HIGH,
+    decisionClass: DECISION_CLASS.FIT,
+    polarity: POLARITY.POSITIVE,
+    specificityAxes: ['athlete'],
   },
 
   // --- internal only -------------------------------------------------------
@@ -555,6 +669,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     // the intakes we could compare, and without that denominator it is not a
     // weaker claim but a different one.
     requiresWindow: true,
+    decisionClass: DECISION_CLASS.CONTEXT,
+    polarity: POLARITY.NEUTRAL,
+    specificityAxes: ['position'],
   },
 
   // Generated, ranked and logged like everything else so that it is available
@@ -568,6 +685,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 40,
     emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
+    decisionClass: DECISION_CLASS.CONTEXT,
+    polarity: POLARITY.NEUTRAL,
+    specificityAxes: ['position'],
   },
 
   // --- programme development ------------------------------------------------
@@ -612,6 +732,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     minConfidence: CONFIDENCE.MEDIUM,
     permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
     requiresWindow: true,
+    decisionClass: DECISION_CLASS.FIT,
+    polarity: POLARITY.NEUTRAL,
+    specificityAxes: [],
   },
 
   /**
@@ -634,6 +757,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     minConfidence: CONFIDENCE.MEDIUM,
     permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
     requiresWindow: true,
+    decisionClass: DECISION_CLASS.FIT,
+    polarity: POLARITY.NEUTRAL,
+    specificityAxes: [],
   },
 
   /**
@@ -661,6 +787,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     minConfidence: CONFIDENCE.MEDIUM,
     permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
     requiresWindow: true,
+    decisionClass: DECISION_CLASS.PATHWAY,
+    polarity: POLARITY.NEUTRAL,
+    specificityAxes: ['position', 'origin'],
   },
 
   /**
@@ -686,8 +815,30 @@ export const EVIDENCE_KINDS = Object.freeze({
     // The only kind that requires one. "Above the pool" is not a claim until
     // the pool is named and the result stated.
     requiresComparison: true,
+    decisionClass: DECISION_CLASS.CONTEXT,
+    polarity: POLARITY.NEUTRAL,
+    specificityAxes: [],
   },
 });
+
+/**
+ * Every kind must declare its ranking metadata, checked once at module load.
+ *
+ * The same reason the tier lives in the registry: a field a new kind can forget
+ * is a field a new kind will eventually forget, and a missing decisionClass
+ * would sort silently rather than loudly.
+ */
+for (const [kind, spec] of Object.entries(EVIDENCE_KINDS)) {
+  if (!DECISION_CLASS_KEYS.includes(spec.decisionClass)) {
+    throw new Error(`${kind} must declare a decisionClass from ${DECISION_CLASS_KEYS.join(', ')}`);
+  }
+  if (!POLARITY_KEYS.includes(spec.polarity)) {
+    throw new Error(`${kind} must declare a polarity from ${POLARITY_KEYS.join(', ')}`);
+  }
+  if (!Array.isArray(spec.specificityAxes)) {
+    throw new Error(`${kind} must declare specificityAxes as an array`);
+  }
+}
 
 export const EVIDENCE_KIND_NAMES = Object.freeze(Object.keys(EVIDENCE_KINDS));
 
@@ -1024,6 +1175,14 @@ export function defineEvidence(kind, {
     freshness: freshness ? Object.freeze({ ...freshness }) : null,
     confidenceBeforeFreshness: confidence,
     category: spec.category,
+    /**
+     * Ranking metadata, carried like the tier and for the same reason: a
+     * consumer holding one piece of evidence should not have to go back to the
+     * registry to learn what it is, and a caller must not be able to restate
+     * it. Read by shared/evidence/rank.js and by nothing else today.
+     */
+    decisionClass: spec.decisionClass,
+    polarity: spec.polarity,
     dedupeGroup: spec.dedupeGroup,
     strength: clampStrength(strength ?? spec.baseStrength),
     confidence: effective,
