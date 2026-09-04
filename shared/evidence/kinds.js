@@ -497,6 +497,20 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 45,
     emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
+    /**
+     * A count BOUNDED BY THE WINDOW, which is what needing one means.
+     *
+     * "Four seasons into the job" is not a fact about a coach; it is a fact
+     * about how many seasons we could see. Notre Dame's 2022 and 2023 staff
+     * pages were unreadable and the evidence read "two seasons into the job"
+     * about a man who had had it since 2018. `windowBounded` already stops the
+     * renderer printing a start year on that basis; this stops the object
+     * existing without the seasons that explain where the bound came from.
+     *
+     * The only email-eligible kind that requires a window, and the only one
+     * whose source can tell a season it failed to read from one it never had.
+     */
+    requiresWindow: true,
   },
   ACADEMIC_FIT: {
     leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
@@ -537,6 +551,10 @@ export const EVIDENCE_KINDS = Object.freeze({
     baseStrength: 60,
     emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
+    // A RATE. "A defender in each of the last four intakes" is a numerator over
+    // the intakes we could compare, and without that denominator it is not a
+    // weaker claim but a different one.
+    requiresWindow: true,
   },
 
   // Generated, ranked and logged like everything else so that it is available
@@ -593,6 +611,7 @@ export const EVIDENCE_KINDS = Object.freeze({
     emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
     permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
+    requiresWindow: true,
   },
 
   /**
@@ -614,6 +633,7 @@ export const EVIDENCE_KINDS = Object.freeze({
     emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
     permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
+    requiresWindow: true,
   },
 
   /**
@@ -640,6 +660,7 @@ export const EVIDENCE_KINDS = Object.freeze({
     emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
     permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
+    requiresWindow: true,
   },
 
   /**
@@ -661,6 +682,10 @@ export const EVIDENCE_KINDS = Object.freeze({
     emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
     permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
+    requiresWindow: true,
+    // The only kind that requires one. "Above the pool" is not a claim until
+    // the pool is named and the result stated.
+    requiresComparison: true,
   },
 });
 
@@ -750,10 +775,28 @@ function validateDescribes(describes) {
   if (typeof describes !== 'object' || Array.isArray(describes)) {
     throw new Error('describes must be an object');
   }
-  const { seasons = [], seasonsUnread = [], n = null, cohort = null } = describes;
+  const { seasons = [], seasonsUnread = null, n = null, cohort = null } = describes;
   if (!isSeasonList(seasons)) throw new Error('describes.seasons must be an array of season strings');
-  if (!isSeasonList(seasonsUnread)) {
-    throw new Error('describes.seasonsUnread must be an array of season strings');
+  /**
+   * Three states, and the third is why this is not simply an array.
+   *
+   *   []            we looked for holes and there are none
+   *   ['2024']      we looked and 2024 could not be read
+   *   null          we cannot tell, and must not imply either answer
+   *
+   * The third is not hypothetical. `freshmanProfile` computes its unreadable
+   * seasons for the cohort ASKED for and then relaxes the narrowing when that
+   * cohort is too thin — so at 160 of 219 real athlete-programme pairs the
+   * unreadable set on file belongs to a different population from the ladder.
+   * Flattening that to `[]` would report one cohort's clean bill of health for
+   * another cohort's measurement.
+   *
+   * UNKNOWN is also the default. A generator that says nothing has not told us
+   * there are no holes, and the reassuring reading of missing provenance is
+   * exactly what puts unverified claims in front of people.
+   */
+  if (seasonsUnread !== null && !isSeasonList(seasonsUnread)) {
+    throw new Error('describes.seasonsUnread must be an array of season strings, or null for unknown');
   }
   if (n !== null && (!Number.isInteger(n) || n < 0)) {
     throw new Error('describes.n must be a non-negative integer or null');
@@ -764,21 +807,44 @@ function validateDescribes(describes) {
   // A window naming no seasons at all describes nothing, and would render as a
   // qualification that qualifies nothing — worse than having no window, because
   // it looks like one.
-  if (!seasons.length && !seasonsUnread.length) {
+  if (!seasons.length && !(seasonsUnread ?? []).length) {
     throw new Error('describes must name at least one season');
   }
   return Object.freeze({
     seasons: Object.freeze([...seasons]),
-    seasonsUnread: Object.freeze([...seasonsUnread]),
+    seasonsUnread: seasonsUnread === null ? null : Object.freeze([...seasonsUnread]),
     n,
     cohort: cohort === null ? null : Object.freeze({ ...cohort }),
   });
 }
 
 /**
+ * Where a measurement fell against the pool, when a quartile is all we have.
+ *
+ * Named for the benchmark's own fields rather than for a new scale, because it
+ * IS the benchmark's own answer: `buildPoolBenchmarks` keeps `p25`, `median`
+ * and `p75` per ladder rank and discards the distribution they came from, so
+ * which of those four intervals a programme sits in is the most precise true
+ * statement available. There is no fifth possibility and no finer one.
+ *
+ * This exists so that a comparison can be honest instead of silent. Reporting
+ * "above p75" as `percentile: 90` — which is what the shape allowed before —
+ * gives a programme one point above the third quartile and the best in the
+ * country the same number.
+ */
+export const COMPARISON_BANDS = Object.freeze({
+  AT_OR_BELOW_P25: 'at-or-below-p25',
+  P25_TO_MEDIAN: 'p25-to-median',
+  MEDIAN_TO_P75: 'median-to-p75',
+  ABOVE_P75: 'above-p75',
+});
+
+export const COMPARISON_BAND_KEYS = Object.freeze(Object.values(COMPARISON_BANDS));
+
+/**
  * What a measurement was compared against.
  *
- * Optional and unused in this step. Separate from `describes` because they
+ * Separate from `describes` because they
  * answer different questions — one bounds the measurement, the other names the
  * population it was ranked within — and a benchmark needs both. "Above the
  * pool" is not a claim until the pool is named, which is why `basis` and
@@ -790,16 +856,33 @@ function validateComparison(comparison) {
   if (typeof comparison !== 'object' || Array.isArray(comparison)) {
     throw new Error('comparison must be an object');
   }
-  const { basis = null, statistic = null, poolSize = null, percentile = null } = comparison;
+  const {
+    basis = null, statistic = null, poolSize = null,
+    percentile = null, band = null,
+  } = comparison;
   if (typeof basis !== 'string' || !basis) throw new Error('comparison.basis is required');
   if (typeof statistic !== 'string' || !statistic) throw new Error('comparison.statistic is required');
-  if (poolSize !== null && (!Number.isInteger(poolSize) || poolSize < 0)) {
-    throw new Error('comparison.poolSize must be a non-negative integer or null');
+  if (!Number.isInteger(poolSize) || poolSize < 0) {
+    throw new Error('comparison.poolSize is required and must be a non-negative integer');
   }
   if (percentile !== null && (typeof percentile !== 'number' || percentile < 0 || percentile > 100)) {
     throw new Error('comparison.percentile must be a number between 0 and 100, or null');
   }
-  return Object.freeze({ basis, statistic, poolSize, percentile });
+  if (band !== null && !COMPARISON_BAND_KEYS.includes(band)) {
+    throw new Error(`comparison.band must be one of ${COMPARISON_BAND_KEYS.join(', ')}, or null`);
+  }
+  /**
+   * A comparison that ranks nothing is a shell.
+   *
+   * `basis` and `statistic` say what was compared against what; without a
+   * `percentile` or a `band` the object never says how it came out. That reads
+   * as a comparison to anyone holding it and answers nothing, which is worse
+   * than carrying no comparison at all.
+   */
+  if (percentile === null && band === null) {
+    throw new Error('comparison must carry a percentile or a band — one of them is the result');
+  }
+  return Object.freeze({ basis, statistic, poolSize, percentile, band });
 }
 
 /**
@@ -814,6 +897,53 @@ function validateComparison(comparison) {
  * Frozen because a later stage editing `tier` in place would defeat the same
  * guarantee by a different route.
  */
+/**
+ * May this surface render this evidence, and does it have what it needs?
+ *
+ * The guard a renderer calls before it writes anything. It exists because the
+ * permission grade alone is not self-enforcing: QUALIFIED says a renderer must
+ * state the qualification, and nothing stops one that simply does not. Asking
+ * here turns "should have" into a throw.
+ *
+ * QUALIFIED does NOT imply a window. It means the surface must use whatever
+ * qualification this kind declares, and today the only declarable qualification
+ * is `requiresWindow` — a future one might be a hedge, a sample warning or a
+ * caveat that has nothing to do with seasons. Requiring a historical window for
+ * every QUALIFIED item would hard-code today's single case into the model.
+ *
+ * Deliberately NOT wired into outreach. The existing composer is already
+ * governed by `emailEligible` and selection, and threading a second gate
+ * through a path with byte-identical output to protect would be a behavioural
+ * risk taken for no gain. It is here, tested, for the Evidence surface that
+ * comes next.
+ *
+ * Renders nothing and mutates nothing: it answers a question and returns the
+ * grade so a caller can branch on ALLOWED versus QUALIFIED.
+ */
+export function assertSurfaceRenderable(evidence, surface) {
+  if (!evidence?.kind) throw new Error('assertSurfaceRenderable needs an evidence object');
+  if (!SURFACE_KEYS.includes(surface)) throw new Error(`Unknown surface "${surface}"`);
+
+  const grade = evidence.permissions?.[surface] ?? permissionsFor(evidence.kind)[surface];
+  if (grade === PERMISSION.DENIED) {
+    throw new Error(`${evidence.kind} is not permitted on ${surface}`);
+  }
+
+  const spec = kindSpec(evidence.kind);
+  if (spec.requiresWindow && !(evidence.describes?.seasons?.length)) {
+    throw new Error(
+      `${evidence.kind} requires the window it was measured over before ${surface} `
+      + 'may render it',
+    );
+  }
+  if (spec.requiresComparison && !evidence.comparison) {
+    throw new Error(
+      `${evidence.kind} requires its comparison before ${surface} may render it`,
+    );
+  }
+  return grade;
+}
+
 export function defineEvidence(kind, {
   strength = null,
   confidence = CONFIDENCE.MEDIUM,
@@ -832,6 +962,34 @@ export function defineEvidence(kind, {
     throw new Error(`Unknown confidence "${confidence}" for evidence ${kind}`);
   }
   if (!source) throw new Error(`Evidence ${kind} must declare a source`);
+
+  const validDescribes = validateDescribes(describes);
+  const validComparison = validateComparison(comparison);
+
+  /**
+   * A kind whose truth is bounded by a window may not be built without one.
+   *
+   * The same mechanism as the tier and the source: a rule every generator has
+   * to remember is a rule one of them will eventually not remember. This is
+   * the difference between "across the seasons we can read, first-year
+   * defenders took meaningful minutes" and "this programme plays freshmen" —
+   * one describes four seasons, the other forecasts the next.
+   *
+   * `validateDescribes` has already refused a window naming no seasons, so
+   * reaching here with a window means it names at least one.
+   */
+  if (spec.requiresWindow && !validDescribes) {
+    throw new Error(
+      `Evidence ${kind} is a measurement over a window and must declare `
+      + '`describes` — see requiresWindow in the registry.',
+    );
+  }
+  if (spec.requiresComparison && !validComparison) {
+    throw new Error(
+      `Evidence ${kind} ranks a programme against a pool and must declare `
+      + '`comparison` — a ranking without its pool is not a claim.',
+    );
+  }
 
   // Applied HERE rather than in each generator, for the same reason the tier
   // is read from the registry: a policy every generator has to remember to
@@ -891,9 +1049,9 @@ export function defineEvidence(kind, {
     /** Per-surface licence. Nothing reads this yet — see the migration note. */
     permissions: resolvedPermissions,
     /** The window a measurement covers. Optional; no kind requires one yet. */
-    describes: validateDescribes(describes),
+    describes: validDescribes,
     /** What a measurement was ranked against. Optional; unused so far. */
-    comparison: validateComparison(comparison),
+    comparison: validComparison,
   });
 }
 

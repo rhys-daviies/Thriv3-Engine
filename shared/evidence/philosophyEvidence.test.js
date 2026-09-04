@@ -483,7 +483,10 @@ describe('playerFit provenance', () => {
       // whose unread set is unknowable — either way nothing is invented.
       if (relaxed) {
         expect(relaxed.data.unreadSeasonsKnown).toBe(false);
-        expect(relaxed.describes.seasonsUnread).toEqual([]);
+        // UNKNOWN, carried as null rather than flattened to an empty list. An
+        // empty list would say we looked and found no holes in THIS cohort,
+        // which is the one thing the relaxation means we cannot say.
+        expect(relaxed.describes.seasonsUnread).toBeNull();
       }
       const held = athleteCohortLadder(athlete, ctxWithFit(mixedRows()));
       expect(held.data.unreadSeasonsKnown).toBe(true);

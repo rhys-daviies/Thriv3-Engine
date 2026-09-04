@@ -43,6 +43,7 @@ export {
 export {
   EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, TIERS, CONFIDENCE, defineEvidence, kindSpec, isFact, isSignal,
   KIND_LABELS, kindLabel, TEMPORALITY, FRESHNESS_SENSITIVE, LEAD_SUITABILITY,
+  assertSurfaceRenderable, COMPARISON_BANDS, COMPARISON_BAND_KEYS,
 } from './kinds.js';
 export {
   FRESHNESS, FRESH_DAYS, ACCEPTABLE_DAYS, rosterFreshness, applyFreshness,

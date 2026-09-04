@@ -86,8 +86,27 @@ function richProgramme(over = {}) {
 }
 
 /** A hand-built evidence object, for the selection rules that need exact numbers. */
+/**
+ * A piece of evidence of a given kind and strength.
+ *
+ * Supplies whatever the registry requires of that kind — a measured window, a
+ * comparison — so these tests keep asking about SELECTION. The requirements
+ * themselves are asserted in contractV2.test.js; duplicating them here would
+ * mean a change to one of them broke thirty unrelated ranking tests.
+ */
 const ev = (kind, strength, o = {}) => defineEvidence(kind, {
-  strength, confidence: 'HIGH', source: 'test', ...o,
+  strength,
+  confidence: 'HIGH',
+  source: 'test',
+  ...(EVIDENCE_KINDS[kind]?.requiresWindow
+    ? { describes: { seasons: ['2024', '2025'], seasonsUnread: [], n: 8 } } : {}),
+  ...(EVIDENCE_KINDS[kind]?.requiresComparison
+    ? {
+      comparison: {
+        basis: 'pool', statistic: 'median', poolSize: 900, band: 'above-p75',
+      },
+    } : {}),
+  ...o,
 });
 
 // ---------------------------------------------------------------------------

@@ -12,7 +12,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   defineEvidence, permissionsFor, narrowPermissions, PERMISSION, SURFACE_KEYS,
-  EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, TIERS,
+  EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, TIERS, assertSurfaceRenderable,
 } from './kinds.js';
 import { selectEvidence } from './index.js';
 
@@ -218,11 +218,33 @@ describe('describes', () => {
     expect(ev(EMAILABLE).describes).toBeNull();
   });
 
-  it('accepts a window with no unread seasons and no cohort', () => {
+  /**
+   * Three states, and the default is the humble one.
+   *
+   * A generator that says nothing about holes has not told us there are none.
+   * Defaulting to `[]` would have every silent caller quietly certifying a
+   * clean window, which is the reassuring reading of missing provenance this
+   * contract exists to refuse.
+   */
+  it('treats an unstated unread list as UNKNOWN, not as none', () => {
     const e = ev(EMAILABLE, { describes: { seasons: ['2025'] } });
-    expect(e.describes.seasonsUnread).toEqual([]);
+    expect(e.describes.seasonsUnread).toBeNull();
     expect(e.describes.cohort).toBeNull();
     expect(e.describes.n).toBeNull();
+  });
+
+  it('distinguishes known-none from known-some from unknown', () => {
+    const none = ev(EMAILABLE, { describes: { seasons: ['2025'], seasonsUnread: [] } });
+    const some = ev(EMAILABLE, { describes: { seasons: ['2025'], seasonsUnread: ['2024'] } });
+    const unknown = ev(EMAILABLE, { describes: { seasons: ['2025'], seasonsUnread: null } });
+    expect(none.describes.seasonsUnread).toEqual([]);
+    expect(some.describes.seasonsUnread).toEqual(['2024']);
+    expect(unknown.describes.seasonsUnread).toBeNull();
+  });
+
+  it('refuses an unread list that is neither a season list nor null', () => {
+    expect(() => ev(EMAILABLE, { describes: { seasons: ['2025'], seasonsUnread: 'nope' } }))
+      .toThrow(/seasonsUnread/);
   });
 
   it('refuses a window naming no seasons at all', () => {
@@ -260,9 +282,49 @@ describe('comparison', () => {
     basis: 'division-pool', statistic: 'ladder-rank-1-median', poolSize: 1072, percentile: 75,
   };
 
-  it('accepts a valid comparison', () => {
+  it('accepts an exact-percentile comparison', () => {
     const e = ev(EMAILABLE, { comparison: valid });
-    expect(e.comparison).toEqual(valid);
+    expect(e.comparison).toEqual({ ...valid, band: null });
+  });
+
+  /**
+   * The shape the pool benchmark actually needs.
+   *
+   * `buildPoolBenchmarks` keeps p25/median/p75 and discards the distribution,
+   * so a quartile is the most precise true answer available. Before this, the
+   * only field for a result was `percentile`, and reporting "above p75" as 90
+   * would give a programme one point over the third quartile and the best in
+   * the country the same number.
+   */
+  it('accepts a band-only comparison', () => {
+    const e = ev(EMAILABLE, {
+      comparison: {
+        basis: 'division-pool', statistic: 'ladder-rank-1-median',
+        poolSize: 920, band: 'above-p75',
+      },
+    });
+    expect(e.comparison.band).toBe('above-p75');
+    expect(e.comparison.percentile).toBeNull();
+  });
+
+  it('refuses a comparison that ranks nothing', () => {
+    expect(() => ev(EMAILABLE, {
+      comparison: { basis: 'division-pool', statistic: 'median', poolSize: 920 },
+    })).toThrow(/percentile or a band/);
+  });
+
+  it('refuses a band outside the benchmark\'s own vocabulary', () => {
+    expect(() => ev(EMAILABLE, {
+      comparison: {
+        basis: 'division-pool', statistic: 'median', poolSize: 920, band: 'top-quartile',
+      },
+    })).toThrow(/comparison.band must be one of/);
+  });
+
+  it('requires a pool size — "above the pool" means nothing without one', () => {
+    expect(() => ev(EMAILABLE, {
+      comparison: { basis: 'division-pool', statistic: 'median', percentile: 75 },
+    })).toThrow(/poolSize is required/);
   });
 
   it('defaults to null', () => {
@@ -317,7 +379,9 @@ describe('immutability', () => {
 
   it('freezes comparison', () => {
     const e = ev(EMAILABLE, {
-      comparison: { basis: 'division-pool', statistic: 'median' },
+      comparison: {
+        basis: 'division-pool', statistic: 'median', poolSize: 920, percentile: 50,
+      },
     });
     expect(Object.isFrozen(e.comparison)).toBe(true);
   });
@@ -395,5 +459,125 @@ describe('selection is unchanged by the new fields', () => {
     for (const k of internalKinds) {
       expect(result.selected.map((e) => e.kind), k).not.toContain(k);
     }
+  });
+});
+
+/* ------------------------------------------------------------------------- */
+/* Stage C hardening — window enforcement and the surface guard              */
+/* ------------------------------------------------------------------------- */
+
+describe('requiresWindow', () => {
+  const WINDOWED = EVIDENCE_KIND_NAMES.filter((k) => EVIDENCE_KINDS[k].requiresWindow);
+
+  it('is registry-owned and cannot be passed by a caller', () => {
+    expect(WINDOWED.length).toBeGreaterThan(0);
+    // A generator cannot opt out of its own requirement, the same way it cannot
+    // choose its tier.
+    const opts = { ...src, requiresWindow: false, describes: null };
+    expect(() => defineEvidence(WINDOWED[0], opts)).toThrow(/requiresWindow/);
+  });
+
+  it('refuses a required-window kind built without a window', () => {
+    for (const kind of WINDOWED) {
+      expect(() => ev(kind, {}), kind).toThrow(/must declare `describes`/);
+    }
+  });
+
+  it('accepts a required-window kind with a usable window', () => {
+    for (const kind of WINDOWED) {
+      const built = ev(kind, {
+        describes: { seasons: ['2024', '2025'], seasonsUnread: [], n: 12 },
+        ...(EVIDENCE_KINDS[kind].requiresComparison ? {
+          comparison: {
+            basis: 'pool', statistic: 'median', poolSize: 900, band: 'above-p75',
+          },
+        } : {}),
+      });
+      expect(built.describes.seasons, kind).toEqual(['2024', '2025']);
+    }
+  });
+
+  it('refuses a window naming no seasons even when the field is present', () => {
+    expect(() => ev(WINDOWED[0], { describes: { seasons: [], seasonsUnread: [] } }))
+      .toThrow(/at least one season/);
+  });
+
+  /**
+   * The classification is a judgement about the CLAIM, not about temporality.
+   *
+   * A count of discrete events is true whatever window it was found in — "two
+   * players from New Zealand came through" does not become misleading without
+   * its seasons. A rate or a median is a different matter: its denominator IS
+   * the window, and stating one without the other invites a reader to hear a
+   * property of the programme rather than a measurement of four seasons.
+   */
+  it('does not simply track temporality', () => {
+    const historical = EVIDENCE_KIND_NAMES
+      .filter((k) => EVIDENCE_KINDS[k].temporality === 'HISTORICAL');
+    const historicalWithout = historical.filter((k) => !EVIDENCE_KINDS[k].requiresWindow);
+    expect(historicalWithout.length).toBeGreaterThan(0);
+    // And a kind that is not HISTORICAL still requires one, on its semantics.
+    expect(EVIDENCE_KINDS.COACH_CONTEXT.temporality).toBe('STATIC');
+    expect(EVIDENCE_KINDS.COACH_CONTEXT.requiresWindow).toBe(true);
+  });
+
+  it('leaves kinds without the flag buildable with no window at all', () => {
+    for (const kind of EVIDENCE_KIND_NAMES) {
+      if (EVIDENCE_KINDS[kind].requiresWindow) continue;
+      expect(ev(kind).describes, kind).toBeNull();
+    }
+  });
+});
+
+describe('assertSurfaceRenderable', () => {
+  const windowed = () => ev('FRESHMAN_MINUTES_LADDER', {
+    describes: { seasons: ['2024', '2025'], seasonsUnread: [], n: 12 },
+  });
+
+  it('rejects a surface the evidence is denied', () => {
+    expect(() => assertSurfaceRenderable(windowed(), 'OUTREACH'))
+      .toThrow(/not permitted on OUTREACH/);
+    expect(() => assertSurfaceRenderable(windowed(), 'MATCHING_SUMMARY'))
+      .toThrow(/not permitted on MATCHING_SUMMARY/);
+  });
+
+  it('accepts an ALLOWED item and returns its grade', () => {
+    expect(assertSurfaceRenderable(ev(EMAILABLE), 'OUTREACH')).toBe(PERMISSION.ALLOWED);
+  });
+
+  it('accepts a QUALIFIED item that carries its window', () => {
+    expect(assertSurfaceRenderable(windowed(), 'OPERATOR_EVIDENCE'))
+      .toBe(PERMISSION.QUALIFIED);
+  });
+
+  it('rejects a required-window item whose window was stripped after construction', () => {
+    // `defineEvidence` cannot produce this, which is the point: the guard is
+    // the second line, for anything hand-assembled or reshaped downstream.
+    const stripped = { ...windowed(), describes: null };
+    expect(() => assertSurfaceRenderable(stripped, 'OPERATOR_EVIDENCE'))
+      .toThrow(/requires the window it was measured over/);
+  });
+
+  it('rejects a required-comparison item without one', () => {
+    const bench = ev('PROGRAMME_POOL_BENCHMARK', {
+      describes: { seasons: ['2024', '2025'], seasonsUnread: [], n: 12 },
+      comparison: { basis: 'pool', statistic: 'median', poolSize: 900, band: 'above-p75' },
+    });
+    expect(assertSurfaceRenderable(bench, 'OPERATOR_EVIDENCE')).toBe(PERMISSION.QUALIFIED);
+    expect(() => assertSurfaceRenderable({ ...bench, comparison: null }, 'OPERATOR_EVIDENCE'))
+      .toThrow(/requires its comparison/);
+  });
+
+  it('rejects an unknown surface rather than passing it through', () => {
+    expect(() => assertSurfaceRenderable(windowed(), 'NEWSLETTER')).toThrow(/Unknown surface/);
+  });
+
+  it('renders no prose and mutates nothing', () => {
+    const e = windowed();
+    const before = JSON.stringify(e);
+    const result = assertSurfaceRenderable(e, 'OPERATOR_EVIDENCE');
+    expect(JSON.stringify(e)).toBe(before);
+    // A grade, not a sentence.
+    expect(Object.values(PERMISSION)).toContain(result);
   });
 });

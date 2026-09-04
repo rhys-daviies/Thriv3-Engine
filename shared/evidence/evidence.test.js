@@ -117,7 +117,20 @@ describe('FACT / SIGNAL separation is mechanical', () => {
   it('refuses every SIGNAL kind through the fact renderer, not just the one', () => {
     for (const kind of EVIDENCE_KIND_NAMES) {
       if (EVIDENCE_KINDS[kind].tier !== TIERS.SIGNAL) continue;
-      const ev = defineEvidence(kind, { source: 'test', data: {} });
+      // A kind that declares `requiresWindow` cannot be constructed without one,
+      // which is a different guarantee being asserted elsewhere. Supplied here
+      // so this test keeps asking its own question: can a SIGNAL be stated as a
+      // fact? The answer must be no for every one of them.
+      const ev = defineEvidence(kind, {
+        source: 'test',
+        data: {},
+        ...(EVIDENCE_KINDS[kind].requiresWindow ? { describes: { seasons: ['2025'] } } : {}),
+        ...(EVIDENCE_KINDS[kind].requiresComparison ? {
+          comparison: {
+            basis: 'pool', statistic: 'median', poolSize: 900, band: 'above-p75',
+          },
+        } : {}),
+      });
       expect(() => factParts(ev), kind).toThrow(EvidenceRenderError);
     }
   });

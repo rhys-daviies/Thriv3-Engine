@@ -27,7 +27,7 @@
  * renderer showing the first without the clause that makes it the first.
  */
 
-import { defineEvidence, CONFIDENCE } from './kinds.js';
+import { defineEvidence, CONFIDENCE, COMPARISON_BANDS } from './kinds.js';
 import { MIN_COHORT_PLAYERS, MIN_COHORT_SEASONS } from '../freshmanMinutes.js';
 
 /**
@@ -217,15 +217,16 @@ export function athleteCohortLadder(athlete, ctx) {
      * number the n >= 6 rule will later be applied to, with nothing to
      * recompute when it is enforced.
      *
-     * A null `seasonsUnread` becomes an empty list here because `describes`
-     * carries claims and we have none to make: where the cohort was relaxed,
-     * the unreadable seasons on file belong to the cohort that was asked for,
-     * not the one measured. The distinction is kept in `data` rather than
-     * silently flattened.
+     * `seasonsUnread` is passed through UNCHANGED, null included. The contract
+     * carries three states — known none, known some, and unknown — precisely so
+     * this case does not have to be flattened: where the cohort was relaxed, the
+     * unreadable seasons on file belong to the cohort that was asked for, and
+     * reporting `[]` would give one cohort's clean bill of health to another's
+     * measurement.
      */
     describes: {
       seasons,
-      seasonsUnread: seasonsUnread ?? [],
+      seasonsUnread,
       n: players,
       cohort: { position: applied.position ?? null, origin: applied.origin ?? null },
     },
@@ -254,6 +255,19 @@ export function athleteCohortLadder(athlete, ctx) {
       positionHistory: fit.position ?? null,
     },
   });
+}
+
+/**
+ * Which quartile of the pool a median falls in.
+ *
+ * The four intervals `buildPoolBenchmarks` can distinguish, and no more: it
+ * keeps p25, median and p75 and discards the distribution behind them.
+ */
+function bandOf(median, pool) {
+  if (median <= pool.p25) return COMPARISON_BANDS.AT_OR_BELOW_P25;
+  if (median <= pool.median) return COMPARISON_BANDS.P25_TO_MEDIAN;
+  if (median <= pool.p75) return COMPARISON_BANDS.MEDIAN_TO_P75;
+  return COMPARISON_BANDS.ABOVE_P75;
 }
 
 /**
@@ -289,22 +303,24 @@ export function programmePoolBenchmark(athlete, ctx) {
        * distribution it took them from, so the only ranking available is which
        * quartile a programme falls in. Writing that into a field called
        * `percentile` would report a bucket as a position — a programme just
-       * above p75 and the best in the country would both read as 90. The
-       * quartile is carried under its own name in `data.band`, and an exact
+       * above p75 and the best in the country would both read as 90. An exact
        * percentile would need `buildPoolBenchmarks` to keep its samples, which
        * is a change to the Philosophy calculation and out of scope here.
        */
       percentile: null,
+      // The canonical result, in the contract rather than in `data`. Named for
+      // the benchmark's own fields because it is the benchmark's own answer.
+      band: bandOf(top.median, poolRank1),
     },
     data: {
       programmeRank: top.rank,
       programmeMedian: top.median,
       programmeBand: { low: top.low ?? null, high: top.high ?? null, agreement: top.agreement ?? null },
       pool: { rank: poolRank1.rank, n: poolRank1.n, p25: poolRank1.p25, median: poolRank1.median, p75: poolRank1.p75 },
-      // The quartile, named for what it is.
-      band: top.median <= poolRank1.p25 ? 'at-or-below-p25'
-        : top.median <= poolRank1.median ? 'p25-to-median'
-          : top.median <= poolRank1.p75 ? 'median-to-p75' : 'above-p75',
+      // Mirrors `comparison.band`, which is canonical. Kept for the operator
+      // panel's existing reads and derived from the same helper, so the two
+      // cannot drift; it should go once nothing reads `data.band`.
+      band: bandOf(top.median, poolRank1),
       poolDials: bench.dials ?? null,
       poolProgrammes: bench.programmes ?? null,
     },
