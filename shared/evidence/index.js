@@ -319,3 +319,9 @@ export {
   compareEvidence, rankEvidence, decisionClassRank, specificityRank,
   specificityKey, confidenceRank, rankingMetadata,
 } from './rank.js';
+
+/**
+ * The operator Top Reasons policy. Internal in this step — no route, no UI,
+ * and nothing in outreach or matching reads it.
+ */
+export { topReasons, MAX_REASONS, MAX_PER_CATEGORY, OPERATOR_DISPOSITION } from './topReasons.js';
