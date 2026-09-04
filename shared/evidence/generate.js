@@ -122,6 +122,42 @@ const isInternational = (r) => {
 };
 
 /**
+ * The window and population a historical measurement was taken over.
+ *
+ * Built here rather than in each generator so the same question is answered the
+ * same way, and so the one rule that matters cannot be forgotten: a window this
+ * function cannot fill honestly comes back null, and the evidence carries no
+ * window at all. `defineEvidence` refuses a `describes` naming no seasons, and
+ * a generator throwing at that point would delete a claim the programme is
+ * entitled to make — so the guard lives here, before the throw is reachable.
+ *
+ * `seasonsUnread` is empty for every roster- and arrival-derived kind, and that
+ * is a statement about the data rather than an omission. `roster_players` and
+ * `recruiting_arrivals` record what was read; neither records an attempt that
+ * failed, so a season absent from them is a season we may simply never have
+ * held. Reading that absence as unreadable would invent exactly the kind of
+ * fact this field exists to keep honest. `coach_seasons` is the one source that
+ * does know the difference, and it is the one caller that passes anything here.
+ */
+function windowOf({ seasons = [], seasonsUnread = [], n = null, cohort = null } = {}) {
+  const clean = (xs) => [...new Set((xs ?? [])
+    .filter((s) => s !== null && s !== undefined && String(s) !== '')
+    .map(String))].sort();
+  const read = clean(seasons);
+  const unread = clean(seasonsUnread).filter((s) => !read.includes(s));
+  if (!read.length && !unread.length) return null;
+  return {
+    seasons: read,
+    seasonsUnread: unread,
+    n: Number.isInteger(n) && n >= 0 ? n : null,
+    cohort: cohort && Object.values(cohort).some((v) => v != null) ? cohort : null,
+  };
+}
+
+/** Every season the programme has rows for — the span a roster claim searched. */
+const rosterSeasons = (rows = []) => rows.map((r) => r.season);
+
+/**
  * Normalises whatever the caller could fetch into one shape.
  *
  * `hasSquad` and `hasHistory` are separate because they fail separately: 325
@@ -205,6 +241,16 @@ export function historicalSameCountry(athlete, ctx) {
     season: seasonSpan(rows),
     source: 'roster_players',
     freshness: ctx.freshness,
+    // The seasons SEARCHED, not the seasons the compatriots appear in. Those
+    // are already in `data.seasons`, and they are the answer to a different
+    // question: "two came through" is interpretable only against how many
+    // intakes we could look at. The hit seasons alone would understate the
+    // search and read as a narrower window than we actually examined.
+    describes: windowOf({
+      seasons: rosterSeasons(ctx.allRows),
+      n: players.length,
+      cohort: { country },
+    }),
     data: {
       country,
       count: players.length,
@@ -262,6 +308,15 @@ export function historicalSameRegion(athlete, ctx) {
     season: seasonSpan(rows),
     source: 'roster_players',
     freshness: ctx.freshness,
+    // The athlete's own country is excluded from `peers` above, so the cohort
+    // records the region AND the exclusion. Without it the population reads as
+    // "the region", which would silently include the compatriots this kind
+    // deliberately hands to HISTORICAL_SAME_COUNTRY.
+    describes: windowOf({
+      seasons: rosterSeasons(ctx.allRows),
+      n: players.length,
+      cohort: { region, excludingCountry: country },
+    }),
     data: {
       region,
       athleteCountry: country,
@@ -663,6 +718,29 @@ export function coachContext(athlete, ctx) {
     season: `${tenure.current.since}-${tenure.knownThrough ?? tenure.current.since}`,
     source: 'coach_seasons',
     freshness: ctx.freshness,
+    /**
+     * The only kind whose source knows the difference between a season it
+     * could not read and a season it never had.
+     *
+     * `coachTenure` keeps them apart deliberately — `vacantSeasons` is "the
+     * page said nobody", `unknownSeasons` is "we could not read the page" —
+     * and this is where that distinction stops being internal. Notre Dame's
+     * 2022 and 2023 staff pages both came back unreadable, and the resulting
+     * evidence read "two seasons into the job" about a man who had had it
+     * since 2018. `windowBounded` already stops the renderer printing a start
+     * year on that basis; recording the unread seasons says WHY the window
+     * stops where it does rather than only that it does.
+     *
+     * Vacant seasons stay out of both lists: a season with nobody in post is
+     * an observation, not a hole, and filing it as unread would make an
+     * answered question look unanswered.
+     */
+    describes: windowOf({
+      seasons: tenure.resolvedSeasons,
+      seasonsUnread: tenure.unknownSeasons,
+      n: seasons,
+      cohort: { coach: tenure.current.coach },
+    }),
     data: {
       name: tenure.current.coach,
       seasonsObserved: seasons,
@@ -916,6 +994,16 @@ export function arrivalSameCountryPosition(athlete, ctx) {
     season: spanOf(view.seasons),
     source: 'recruiting_arrivals',
     freshness: ctx.freshness,
+    // The intakes we could compare, which is the denominator this claim is
+    // read against — "two defenders from Australia" means something different
+    // across two intakes than across four. `coverage.seasons` is the arrival
+    // side of each observed transition, so it is the window searched rather
+    // than the seasons that happened to produce someone.
+    describes: windowOf({
+      seasons: o.coverage.seasons,
+      n: view.total,
+      cohort: { country: athlete.country, position: athlete.position },
+    }),
     data: {
       country: athlete.country,
       position: athlete.position,
@@ -974,6 +1062,20 @@ export function coachArrivalSameCountry(athlete, ctx) {
     season: spanOf(view.seasons),
     source: 'recruiting_arrivals',
     freshness: ctx.freshness,
+    // Scoped to the coach, not the programme: `scope.coverage` counts only the
+    // transitions attributable to them, with their inherited first roster
+    // already excluded. Using the programme window here would credit this coach
+    // with intakes they did not run, which is the one mistake this kind is
+    // built to avoid.
+    describes: windowOf({
+      seasons: scope.coverage.seasons,
+      n: view.total,
+      cohort: {
+        country: athlete.country,
+        coach: scope.coach,
+        position: samePosition ? athlete.position : null,
+      },
+    }),
     data: {
       country: athlete.country,
       coach: scope.coach,
@@ -1032,6 +1134,17 @@ export function arrivalSameRegionPosition(athlete, ctx) {
     season: spanOf(seasons),
     source: 'recruiting_arrivals',
     freshness: ctx.freshness,
+    // `peers` excludes the athlete's own country for the same reason
+    // HISTORICAL_SAME_REGION does, so the cohort records the exclusion too.
+    describes: windowOf({
+      seasons: o.coverage.seasons,
+      n: peers.length,
+      cohort: {
+        region: obs.player.region,
+        excludingCountry: athlete.country,
+        position: athlete.position,
+      },
+    }),
     data: {
       position: athlete.position,
       countries,
@@ -1071,6 +1184,15 @@ export function positionIntakeHistory(athlete, ctx) {
     confidence: CONFIDENCE.HIGH,
     season: spanOf(view.seasons),
     source: 'recruiting_arrivals',
+    // Internal-only, and the window is exactly why. "A defender in each of the
+    // last four intakes" is a rate whose denominator is the intakes observed,
+    // and the day this kind is considered for an email that denominator is the
+    // first thing anyone should have to look at.
+    describes: windowOf({
+      seasons: o.coverage.seasons,
+      n: view.total,
+      cohort: { position: athlete.position },
+    }),
     data: {
       position: athlete.position,
       count: view.total,

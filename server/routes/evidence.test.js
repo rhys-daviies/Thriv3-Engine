@@ -276,6 +276,35 @@ describe('wire shape', () => {
   });
 
   /**
+   * The Contract V2 fields stay off the wire until a surface needs them.
+   *
+   * `describes` is populated on real evidence from migration step 9.3, so this
+   * is a live exclusion rather than a vacuous one: the objects being serialised
+   * here genuinely carry a window, and `wireEvidence` genuinely does not send
+   * it. When the new Evidence experience needs it, that will be a deliberate
+   * change to the wire contract with this test updated to say so — which is
+   * the point of asserting it now rather than discovering it later.
+   */
+  it('does not yet expose describes, comparison or permissions', () => {
+    const athlete = db.prepare('SELECT * FROM players WHERE id = ?').get(athleteId);
+    const result = evidenceFor(athlete, SCHOOL, { sport: 'mens-soccer' });
+    const anyWindow = [...result.selected, ...result.internal, ...result.ranked]
+      .some((ev) => ev.describes !== null);
+    expect(anyWindow, 'fixture should produce at least one windowed item').toBe(true);
+
+    const wire = toWire(result);
+    const walk = (node, path) => {
+      if (Array.isArray(node)) return node.forEach((n, i) => walk(n, `${path}[${i}]`));
+      if (!node || typeof node !== 'object') return undefined;
+      for (const field of ['describes', 'comparison', 'permissions']) {
+        expect(Object.keys(node), `${path} must not carry ${field}`).not.toContain(field);
+      }
+      return Object.entries(node).forEach(([k, v]) => walk(v, `${path}.${k}`));
+    };
+    walk(wire, 'wire');
+  });
+
+  /**
    * The composer renders `composition.template`, so if it is absent the
    * browser silently falls back to the athlete's saved template and every
    * draft comes out the same shape while the panel names a structure that
