@@ -2,6 +2,7 @@ import React from 'react';
 import TopReasons from '@/components/TopReasons';
 import RosterOpportunity from '@/components/RosterOpportunity';
 import RecruitmentPathway from '@/components/RecruitmentPathway';
+import Development from '@/components/Development';
 
 /**
  * One programme's answer to "why do we think this is relevant to this athlete?"
@@ -107,6 +108,7 @@ export default function ProgrammeDecision({ model, loading = false, failed = fal
 
   const roster = model.sections?.ROSTER_OPPORTUNITY ?? [];
   const pathway = model.sections?.RECRUITMENT_PATHWAY ?? [];
+  const development = model.sections?.DEVELOPMENT ?? [];
 
   if (summary.reasonCount > 0) {
     return (
@@ -119,6 +121,7 @@ export default function ProgrammeDecision({ model, loading = false, failed = fal
             which the summary line does not carry. */}
         <RosterOpportunity items={roster} />
         <RecruitmentPathway items={pathway} />
+        <Development items={development} />
       </div>
     );
   }
@@ -156,6 +159,7 @@ export default function ProgrammeDecision({ model, loading = false, failed = fal
           operator deciding whether to look further needs to see which. */}
       <RosterOpportunity items={roster} />
       <RecruitmentPathway items={pathway} />
+      <Development items={development} />
     </div>
   );
 }
