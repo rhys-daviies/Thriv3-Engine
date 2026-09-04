@@ -333,3 +333,11 @@ export { topReasons, MAX_REASONS, MAX_PER_CATEGORY, OPERATOR_DISPOSITION } from 
 export {
   operatorFactsFor, operatorFactsForAll, qualificationFor, EXPOSURE,
 } from './operatorFacts.js';
+
+/**
+ * The operator read model. Internal in this step — no route, no serializer, no
+ * UI, and the existing composer wire is untouched.
+ */
+export {
+  operatorEvidenceFor, SECTIONS, SECTION_KEYS, SECTION_OF, EXCLUSION,
+} from './operatorEvidence.js';
