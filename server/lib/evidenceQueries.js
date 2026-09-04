@@ -13,9 +13,9 @@
  */
 
 import db from '../db/client.js';
-import { squadRows, programmeRows, programmeCoachRows } from './philosophyQueries.js';
+import { squadRows, programmeRows, programmeCoachRows, poolBenchmarks } from './philosophyQueries.js';
 import { loadProgrammePatterns } from './recruitingPatterns.js';
-import { SQUAD_SEASON } from '../../shared/philosophy.js';
+import { SQUAD_SEASON, programmePhilosophy } from '../../shared/philosophy.js';
 import { selectEvidence, MAX_EMAIL_EVIDENCE } from '../../shared/evidence/index.js';
 import { buildRosterIndex, departures } from '../../shared/matching/pool.js';
 import { canonicalPosition } from '../../shared/positions.js';
@@ -82,6 +82,29 @@ export function departureFields(collegeName, sport, athlete) {
 export function programmeInputs(collegeName, sport, { match = null, now = Date.now() } = {}) {
   const college = selectCollege.get(collegeName, sport) ?? null;
   const squad = squadRows(collegeName, sport);
+  const history = programmeRows(collegeName, sport);
+  const coachRows = programmeCoachRows(collegeName, sport);
+
+  /**
+   * The freshman-minutes intelligence, computed ONCE for this programme.
+   *
+   * Same function the programme report calls, over the same rows already
+   * fetched above — no extra query, and no second answer to the question. The
+   * adapter in shared/evidence/philosophyEvidence.js translates this into
+   * evidence and performs no arithmetic of its own, so a report and an operator
+   * panel cannot come to disagree about a programme's ladder.
+   *
+   * Wrapped because a programme whose rows cannot support a profile is not an
+   * error: it is a programme with no development evidence, and the twenty other
+   * kinds must still be generated for it.
+   */
+  let philosophy = null;
+  try {
+    philosophy = programmePhilosophy({ rows: history, coachRows });
+  } catch (err) {
+    console.error(`[evidence/philosophy] ${collegeName}:`, err.message);
+  }
+
   return {
     college: college ?? { name: collegeName, sport },
     // Freshness inputs. The stamp comes off the rows themselves — every
@@ -100,8 +123,19 @@ export function programmeInputs(collegeName, sport, { match = null, now = Date.n
     // numbers into evidence labelled 2026. A match now carries its own season
     // or is not trusted; see evidenceFor.
     match,
-    history: programmeRows(collegeName, sport),
-    coachRows: programmeCoachRows(collegeName, sport),
+    history,
+    coachRows,
+    philosophy,
+    /**
+     * The pool this programme's ladder is read against.
+     *
+     * Cached by sport in philosophyQueries with its own fingerprint and recheck
+     * window, so a twenty-programme page builds it at most once. Returns
+     * `sufficient: false` rather than zeros when there is not enough on file —
+     * every `:memory:` test database is in that state — and the benchmark
+     * evidence declines to generate rather than comparing against nothing.
+     */
+    benchmarks: poolBenchmarks(sport),
     /**
      * The recruiting-history patterns behind the arrival evidence.
      *

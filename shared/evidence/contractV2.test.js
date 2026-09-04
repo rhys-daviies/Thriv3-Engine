@@ -67,8 +67,41 @@ describe('permissions on every evidence object', () => {
     }
   });
 
-  it('lets every existing kind be inspected by an operator', () => {
+  /**
+   * The operator can always see what we know — the grade only says how.
+   *
+   * Written as "never DENIED" rather than "always ALLOWED" because the second
+   * was true only while every kind was a plain fact. The development kinds are
+   * measurements over a window and are QUALIFIED: visible, but not without the
+   * window they were measured over. Asserting ALLOWED for all would have forced
+   * that distinction out of the model to keep a test green.
+   */
+  it('never hides a kind from the operator', () => {
     for (const kind of EVIDENCE_KIND_NAMES) {
+      expect(permissionsFor(kind).OPERATOR_EVIDENCE, kind).not.toBe(PERMISSION.DENIED);
+    }
+  });
+
+  /**
+   * The 9.1 guarantee, pinned by name so it cannot erode.
+   *
+   * These 22 were all plainly visible before the permission model existed, and
+   * the migration promised to change nothing for them. A later commit demoting
+   * one to QUALIFIED would be a real behavioural change and should fail here.
+   */
+  it('leaves every pre-permissions kind plainly visible to the operator', () => {
+    const original = [
+      'HISTORICAL_SAME_COUNTRY', 'CURRENT_SAME_COUNTRY', 'HISTORICAL_SAME_REGION',
+      'INTERNATIONAL_ROSTER', 'COACH_ARRIVAL_SAME_COUNTRY', 'ARRIVAL_SAME_COUNTRY_POSITION',
+      'ARRIVAL_SAME_REGION_POSITION', 'INTERNATIONAL_SHARE', 'POSITION_GRADUATION',
+      'POSITION_GRADUATION_STARTERS', 'SQUAD_GRADUATION', 'POSITION_GROUP_SIZE',
+      'POSITION_GROUP_SCARCITY', 'RETURNING_POSITION_DEPTH', 'ELIGIBILITY_CLIFF',
+      'CONFERENCE_TITLE', 'POSTSEASON_RESULT', 'PROGRAM_MOMENTUM', 'COACH_CONTEXT',
+      'ACADEMIC_FIT', 'POSITION_INTAKE_HISTORY', 'TRANSFER_BEHAVIOUR',
+    ];
+    expect(original).toHaveLength(22);
+    for (const kind of original) {
+      expect(EVIDENCE_KIND_NAMES, `${kind} should still exist`).toContain(kind);
       expect(permissionsFor(kind).OPERATOR_EVIDENCE, kind).toBe(PERMISSION.ALLOWED);
     }
   });

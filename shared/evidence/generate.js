@@ -22,6 +22,7 @@
  */
 
 import { canonicalPosition } from '../positions.js';
+import { PHILOSOPHY_GENERATORS } from './philosophyEvidence.js';
 import { nameKey, depthChartAt, eligibilityCliff, namedArrivals } from '../philosophy.js';
 import { tenureFor, stillInPost } from '../coachTenure.js';
 import { majorLabelFor } from '../academicMajors.js';
@@ -168,6 +169,7 @@ export function buildProgrammeContext({
   college = {}, match = null, squad = null, history = null,
   coachRows = null, sport = null, rosterUpdatedAt = null, seasonBehind = false,
   recruiting = null,
+  philosophy = null, benchmarks = null,
   now = Date.now(),
 } = {}) {
   const squadRows = Array.isArray(squad) ? squad : [];
@@ -203,6 +205,17 @@ export function buildProgrammeContext({
      * always got.
      */
     recruiting,
+    /**
+     * A `programmePhilosophy` result and the pool benchmarks it is read
+     * against, or null.
+     *
+     * Computed once, server-side, from rows `programmeInputs` had already
+     * fetched — not recomputed here and not recomputed per generator. Optional
+     * exactly like `recruiting`: a caller without them (the browser, a test
+     * fixture) simply gets no development evidence, which is the honest result
+     * rather than a guessed one.
+     */
+    philosophy, benchmarks,
     hasSquad: squadRows.length > 0,
     hasHistory: historyRows.length > 0,
     hasAnyRoster: allRows.length > 0,
@@ -1234,6 +1247,10 @@ export const GENERATORS = Object.freeze([
   coachContext,
   academicFit,
   transferBehaviour,
+  // The freshman-minutes intelligence, translated rather than recomputed. All
+  // three are operator-only; selection separates them before an email is
+  // composed, exactly as it does for the other internal kinds.
+  ...PHILOSOPHY_GENERATORS,
 ]);
 
 /** Runs every generator and drops the ones with nothing to say. */

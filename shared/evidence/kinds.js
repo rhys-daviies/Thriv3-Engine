@@ -551,6 +551,107 @@ export const EVIDENCE_KINDS = Object.freeze({
     emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
   },
+
+  // --- programme development ------------------------------------------------
+  //
+  // The freshman-minutes intelligence, translated rather than recomputed. Every
+  // number in these four comes from shared/freshmanMinutes.js and
+  // shared/philosophy.js exactly as the programme report reads it; the adapter
+  // in philosophyEvidence.js turns it into evidence objects and does no
+  // arithmetic of its own.
+  //
+  // All four are OPERATOR_EVIDENCE: QUALIFIED and nothing else. They are
+  // measurements over a window, and a window is the difference between "first
+  // years took meaningful minutes across the seasons we can read" and "this
+  // programme plays freshmen" — the second being a claim about the future that
+  // no season of history supports. QUALIFIED says the renderer may not show
+  // them without the window; DENIED everywhere else says nobody outside the
+  // operator screen may show them at all yet.
+  //
+  // `category: 'development'` rather than 'internal'. A family is what an
+  // observation is ABOUT and a permission is what may be done with it; folding
+  // the second into the first is what left POSITION_GROUP_SIZE filed as roster
+  // evidence with its restriction recorded only in a comment.
+
+  /**
+   * How first-year minutes have behaved across the measured seasons, and
+   * whether that pattern survived the coaching changes inside the window.
+   *
+   * SIGNAL, and it could not be anything else. `classifyProgramme` returns a
+   * judgement — `steady`, `regime-change`, `structural-through-changes` — and a
+   * judgement rendered as a fact is the whole failure this tier exists to stop.
+   * The label itself is analytical vocabulary and stays in `data`: what a
+   * reader may be shown is the measurement it was derived from.
+   */
+  PROGRAMME_DEVELOPMENT_PATTERN: {
+    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
+    tier: TIERS.SIGNAL,
+    temporality: TEMPORALITY.HISTORICAL,
+    category: 'development',
+    dedupeGroup: 'development-pattern',
+    baseStrength: 40,
+    emailEligible: false,
+    minConfidence: CONFIDENCE.MEDIUM,
+    permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
+  },
+
+  /**
+   * The whole-intake ladder: what the nth-ranked first year took, by season.
+   *
+   * FACT — a median of observed minutes is asserted directly by the rows, and
+   * `ladderByRank` names its own agreement band rather than implying precision
+   * it does not have. Carried as the ladder and never as one number: the top
+   * rung alone reads as what a newcomer can expect, and the rungs below it are
+   * the reason that reading is wrong.
+   */
+  FRESHMAN_MINUTES_LADDER: {
+    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
+    tier: TIERS.FACT,
+    temporality: TEMPORALITY.HISTORICAL,
+    category: 'development',
+    dedupeGroup: 'freshman-ladder',
+    baseStrength: 38,
+    emailEligible: false,
+    minConfidence: CONFIDENCE.MEDIUM,
+    permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
+  },
+
+  // ATHLETE_COHORT_LADDER is deliberately absent.
+  //
+  // `playerFit` returns { asked, cohort, ladder, seasonsObserved, position,
+  // wholeIntakeLadder } and discards the narrowed profile it built, so the
+  // cohort's SEASON IDENTIFIERS and PLAYER COUNT are not observable from its
+  // result. Without them the kind cannot carry an honest `describes`, and n is
+  // the number the n >= 6 claim floor is expressed in — the one figure it most
+  // needs to record. Borrowing the programme's window would be worse than
+  // having none: a season readable for a whole intake is not necessarily
+  // readable for a two-player cohort, and the narrowed profile filters seasons
+  // independently.
+  //
+  // The fix is additive and one line — returning the profile alongside the
+  // ladder — but it is a change to a Philosophy return shape, so it is a
+  // decision to take deliberately rather than inside an adapter commit.
+
+  /**
+   * Where this programme's measured first-year opportunity sits in the pool.
+   *
+   * OUTREACH is DENIED by product decision and not merely by default: telling a
+   * coach how they rank against their peers is a different act from telling
+   * them what we noticed about their squad, and it is not licensed. The
+   * comparison basis is required on the object because "above the pool" is not
+   * a claim until the pool is named.
+   */
+  PROGRAMME_POOL_BENCHMARK: {
+    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
+    tier: TIERS.FACT,
+    temporality: TEMPORALITY.HISTORICAL,
+    category: 'development',
+    dedupeGroup: 'pool-benchmark',
+    baseStrength: 30,
+    emailEligible: false,
+    minConfidence: CONFIDENCE.MEDIUM,
+    permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
+  },
 });
 
 export const EVIDENCE_KIND_NAMES = Object.freeze(Object.keys(EVIDENCE_KINDS));
@@ -582,6 +683,11 @@ export const KIND_LABELS = Object.freeze({
   COACH_CONTEXT: 'Coach tenure',
   ACADEMIC_FIT: 'Intended major offered',
   TRANSFER_BEHAVIOUR: 'Transfer recruiting behaviour',
+  // Named for what was measured, not for what it might imply. "Plays freshmen"
+  // is the reading these labels exist to avoid handing anybody.
+  PROGRAMME_DEVELOPMENT_PATTERN: 'First-year minutes across measured seasons',
+  FRESHMAN_MINUTES_LADDER: 'First-year minutes ladder',
+  PROGRAMME_POOL_BENCHMARK: 'First-year opportunity against the pool',
   COACH_ARRIVAL_SAME_COUNTRY: 'Same-country arrival under this coach',
   ARRIVAL_SAME_COUNTRY_POSITION: 'Same-country arrival at this position',
   ARRIVAL_SAME_REGION_POSITION: 'Same-region arrival at this position',

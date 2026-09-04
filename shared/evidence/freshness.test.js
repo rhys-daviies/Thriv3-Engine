@@ -7,6 +7,7 @@ import {
   selectEvidence, EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, TEMPORALITY, TIERS,
   renderEvidence, kindSpec,
 } from './index.js';
+import { RENDERABLE_KINDS } from './render.js';
 
 const NOW = Date.parse('2026-08-28T00:00:00Z');
 const daysAgo = (n) => new Date(NOW - n * 24 * 60 * 60 * 1000).toISOString();
@@ -216,7 +217,16 @@ describe('temporal language matches declared temporality', () => {
     return { kind, tier: EVIDENCE_KINDS[kind].tier, data, season: '2022-2025' };
   };
 
-  const renderable = (kind) => EVIDENCE_KINDS[kind].emailEligible || kind === 'POSITION_GROUP_SIZE';
+  /**
+   * Whether this kind has copy at all.
+   *
+   * Asked of the copy maps rather than of `emailEligible`, which is a different
+   * question and was drifting from this one: POSITION_GROUP_SIZE is barred from
+   * email and still renders for the operator, so it had been added here by name.
+   * The development kinds have no copy by design, so a name-by-name list would
+   * have needed extending again. RENDERABLE_KINDS is the fact being asked about.
+   */
+  const renderable = (kind) => RENDERABLE_KINDS.includes(kind);
 
   it('never lets a CURRENT kind borrow the language of history', () => {
     // This is the "come through the programme since 2026" bug, as a rule.
@@ -267,6 +277,7 @@ describe('temporal language matches declared temporality', () => {
   it('writes HISTORICAL kinds as a span, never as the present', () => {
     for (const kind of EVIDENCE_KIND_NAMES) {
       if (EVIDENCE_KINDS[kind].temporality !== TEMPORALITY.HISTORICAL) continue;
+      if (!renderable(kind)) continue;
       const text = renderEvidence(sample(kind));
       expect(text, `${kind}: ${text}`).toMatch(SPAN);
       expect(text, `${kind} must not claim the present`).not.toMatch(/\bcurrently\b/i);
@@ -289,6 +300,7 @@ describe('temporal language matches declared temporality', () => {
     for (const kind of EVIDENCE_KIND_NAMES) {
       if (EVIDENCE_KINDS[kind].temporality !== TEMPORALITY.CURRENT) continue;
       if (!EVIDENCE_KINDS[kind].emailEligible && kind === 'TRANSFER_BEHAVIOUR') continue;
+      if (!renderable(kind)) continue;
       expect(renderEvidence(sample(kind)), kind).not.toMatch(/\bwill\b|\bgoing to\b/i);
     }
   });
