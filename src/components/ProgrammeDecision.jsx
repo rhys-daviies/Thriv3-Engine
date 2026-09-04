@@ -1,5 +1,6 @@
 import React from 'react';
 import TopReasons from '@/components/TopReasons';
+import RosterOpportunity from '@/components/RosterOpportunity';
 
 /**
  * One programme's answer to "why do we think this is relevant to this athlete?"
@@ -103,11 +104,18 @@ export default function ProgrammeDecision({ model, loading = false, failed = fal
     );
   }
 
+  const roster = model.sections?.ROSTER_OPPORTUNITY ?? [];
+
   if (summary.reasonCount > 0) {
     return (
       <div className="space-y-3">
         <Summary summary={summary} />
         <TopReasons reasons={topReasons} />
+        {/* Beneath the reasons, always. The reasons are the decision; this is
+            the evidence behind the roster part of it, and an item that is a
+            reason above appears here too — with its names, years and basis,
+            which the summary line does not carry. */}
+        <RosterOpportunity items={roster} />
       </div>
     );
   }
@@ -140,6 +148,10 @@ export default function ProgrammeDecision({ model, loading = false, failed = fal
           </p>
         )}
       </div>
+      {/* Shown in the quiet states too. "Nothing rose to a reason" is a
+          different statement from "we hold nothing about the roster", and an
+          operator deciding whether to look further needs to see which. */}
+      <RosterOpportunity items={roster} />
     </div>
   );
 }
