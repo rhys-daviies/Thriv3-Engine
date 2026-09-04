@@ -37,7 +37,7 @@ import { operatorEvidenceFor, SECTION_KEYS } from '../../shared/evidence/operato
 export const MAX_COLLEGES = 40;
 
 /** Top-level keys the read model may carry, and what happens to each. */
-const MODEL_KEYS = Object.freeze(['summary', 'topReasons', 'sections', 'diagnostics']);
+const MODEL_KEYS = Object.freeze(['programme', 'summary', 'topReasons', 'sections', 'diagnostics']);
 
 /**
  * Summary fields that cross. `generatedCount` deliberately does not.
@@ -115,6 +115,12 @@ export function wireOperatorEvidence(model) {
   );
 
   return {
+    /**
+     * The semantic resolution state only, never the `colleges` row behind it.
+     * A surface needs to know whether we found the school, not what we hold
+     * about it — that is what the sections are for.
+     */
+    programme: { resolved: model.programme.resolved },
     summary: Object.fromEntries(SUMMARY_KEYS.map((k) => [k, model.summary[k]])),
     topReasons: model.topReasons.map((reason) => ({
       primary: wireFacts(reason.primary),

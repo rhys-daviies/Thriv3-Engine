@@ -28,6 +28,7 @@ import { operatorEvidenceFor, SECTION_KEYS } from '../../shared/evidence/operato
 const athleteId = randomUUID();
 const OPEN = 'Opportunity University';   // an opening, a pathway, and a group of three
 const BARE = 'Bare College';             // a real programme with nothing to say
+const EMPTY = 'Rosterless College';      // a real programme with no roster rows
 const MISSING = 'Not A Real Programme';  // never inserted
 
 let baseUrl;
@@ -93,6 +94,9 @@ beforeAll(async () => {
       'New Zealand', 2027, 'Business')`).run(athleteId);
   college(OPEN, ['Business']);
   college(BARE);
+  // A programme we hold with nothing on file. Not a contrivance: 247 men's
+  // and 33 women's active programmes have no roster_players rows at all.
+  college(EMPTY);
 
   // Three defenders leaving before the 2027 intake, two of them projected
   // starters — the position-opportunity group that must survive as one reason
@@ -106,7 +110,15 @@ beforeAll(async () => {
   for (let i = 0; i < 18; i += 1) roster(OPEN, { player_name: `Squad ${i}`, position: 'MIDFIELD' });
 
   // Bare College exists and has a squad, but nothing about it is a reason.
+  // A settled coach gives it COACH_CONTEXT — real evidence, CONTEXT class, so
+  // it is browsable and never a reason. The real analogue is Hamilton and
+  // Carleton for the pilot athlete: resolved, evidence present, no reasons.
   for (let i = 0; i < 6; i += 1) roster(BARE, { player_name: `Bare ${i}`, position: 'MIDFIELD' });
+  for (const season of [2022, 2023, 2024, 2025, 2026]) {
+    db.prepare(`INSERT INTO coach_seasons (school, sport, season, coach_name, imported_at)
+      VALUES (?, 'mens-soccer', ?, 'A Settled Coach', ?)`)
+      .run(BARE, season, new Date().toISOString());
+  }
 
   const app = mount();
   await new Promise((resolve) => {
@@ -149,6 +161,7 @@ function fact(over = {}) {
 /** A minimal read model in the shape operatorEvidenceFor produces. */
 function model(over = {}) {
   return {
+    programme: { resolved: true },
     summary: {
       reasonCount: 0, hasPositiveReasons: false, openingIdentified: false,
       hasEvidence: false, evidenceCount: 0, generatedCount: 7,
@@ -221,22 +234,19 @@ describe('the endpoint answers for one athlete across many programmes', () => {
 
   it('answers for a programme it has never heard of rather than erroring', async () => {
     // `evidenceFor` does not throw on an unknown name — it finds no rows and
-    // generates nothing — so the `unavailable` branch is reserved for a real
-    // failure and this is the normal path.
+    // generates nothing — so this is a modelled state, not a failure.
     const { status, body } = await post(athleteId, { collegeNames: [MISSING] });
     expect(status).toBe(200);
-    expect(Object.keys(body[MISSING]).sort()).toEqual(['sections', 'summary', 'topReasons']);
+    expect(Object.keys(body[MISSING]).sort()).toEqual(['programme', 'sections', 'summary', 'topReasons']);
   });
 
-  it('cannot yet distinguish an unknown programme from an empty one', async () => {
-    const { body } = await post(athleteId, { collegeNames: [MISSING, BARE] });
-    // KNOWN GAP, pinned rather than hidden. The composer route separates these
-    // with `programme.hasSquad`; this payload carries no equivalent, so both
-    // read as `hasEvidence: false` and a zero state would say "nothing found"
-    // about a school we have never heard of. Closing it is a read-model change
-    // — a field on `operatorEvidenceFor` — not a serializer one.
-    expect(body[MISSING].summary.hasEvidence).toBe(false);
-    expect(body[BARE].summary).toEqual(body[MISSING].summary);
+  it('distinguishes an unknown programme from a resolved empty one', async () => {
+    const { body } = await post(athleteId, { collegeNames: [MISSING, EMPTY] });
+    // The gap this field was added to close. Both hold nothing, and only one
+    // of them is a school we have.
+    expect(body[MISSING].programme.resolved).toBe(false);
+    expect(body[EMPTY].programme.resolved).toBe(true);
+    expect(body[MISSING].summary.hasEvidence).toBe(body[EMPTY].summary.hasEvidence);
   });
 });
 
@@ -245,8 +255,8 @@ describe('the serializer is an allowlist, not a passthrough', () => {
     evidenceFor(db.prepare('SELECT * FROM players WHERE id = ?').get(athleteId), OPEN, { sport: 'mens-soccer' }),
   ));
 
-  it('crosses exactly three top-level keys', () => {
-    expect(Object.keys(live()).sort()).toEqual(['sections', 'summary', 'topReasons']);
+  it('crosses exactly four top-level keys', () => {
+    expect(Object.keys(live()).sort()).toEqual(['programme', 'sections', 'summary', 'topReasons']);
   });
 
   it('never sends a raw evidence `data` object', () => {
@@ -596,5 +606,116 @@ describe('the composer route is untouched by any of this', () => {
     // Both surfaces run `evidenceFor` over the same generators. A cache or a
     // mutation introduced for one would show up here.
     expect(JSON.stringify(evidenceSummaries({ playerId: athleteId, collegeNames: [OPEN] }))).toBe(before);
+  });
+});
+
+describe('programme resolution is its own axis', () => {
+  const stateOf = async (name) => {
+    const { body } = await post(athleteId, { collegeNames: [name] });
+    return body[name];
+  };
+
+  it('A: a known programme with positive reasons', async () => {
+    const m = await stateOf(OPEN);
+    expect(m.programme.resolved).toBe(true);
+    expect(m.summary.reasonCount).toBeGreaterThan(0);
+    expect(m.summary.hasEvidence).toBe(true);
+  });
+
+  it('B: a known programme with evidence but no positive reasons', async () => {
+    const m = await stateOf(BARE);
+    expect(m.programme.resolved).toBe(true);
+    expect(m.summary.reasonCount).toBe(0);
+    expect(m.summary.hasEvidence).toBe(true);
+  });
+
+  it('C: a known programme with no evidence at all', async () => {
+    const m = await stateOf(EMPTY);
+    // Resolved and empty. Before this field, indistinguishable from D.
+    expect(m.programme.resolved).toBe(true);
+    expect(m.summary.hasEvidence).toBe(false);
+    expect(m.summary.evidenceCount).toBe(0);
+  });
+
+  it('D: an unknown programme', async () => {
+    const m = await stateOf(MISSING);
+    expect(m.programme.resolved).toBe(false);
+    expect(m.summary.reasonCount).toBe(0);
+    expect(m.summary.hasEvidence).toBe(false);
+  });
+
+  it('C and D are structurally distinguishable', async () => {
+    const [c, d] = [await stateOf(EMPTY), await stateOf(MISSING)];
+    // Every evidence field agrees; only resolution separates them. That is
+    // the whole requirement: a surface must never have to read "no evidence"
+    // as "no such school".
+    expect(c.summary).toEqual(d.summary);
+    expect(c.programme.resolved).not.toBe(d.programme.resolved);
+  });
+
+  it('does not move with hasEvidence', async () => {
+    const [withEv, without] = [await stateOf(OPEN), await stateOf(EMPTY)];
+    expect(withEv.summary.hasEvidence).not.toBe(without.summary.hasEvidence);
+    expect(withEv.programme.resolved).toBe(without.programme.resolved);
+  });
+
+  it('does not move with hasPositiveReasons', async () => {
+    const [withReasons, without] = [await stateOf(OPEN), await stateOf(BARE)];
+    expect(withReasons.summary.hasPositiveReasons).not.toBe(without.summary.hasPositiveReasons);
+    expect(withReasons.programme.resolved).toBe(without.programme.resolved);
+  });
+
+  it('does not move with openingIdentified', async () => {
+    const [withOpening, without] = [await stateOf(OPEN), await stateOf(BARE)];
+    expect(withOpening.summary.openingIdentified).not.toBe(without.summary.openingIdentified);
+    expect(withOpening.programme.resolved).toBe(without.programme.resolved);
+  });
+
+  it('leaves the evidence fields meaning exactly what they meant', async () => {
+    const m = await stateOf(BARE);
+    // Task C: resolution is added beside these, never folded into them.
+    expect(m.summary.hasEvidence).toBe(true);
+    expect(m.summary.hasPositiveReasons).toBe(false);
+    expect(m.summary.openingIdentified).toBe(false);
+    expect(m.summary.reasonCount).toBe(0);
+  });
+
+  it('is refused rather than guessed when the caller cannot answer it', () => {
+    const athlete = db.prepare('SELECT * FROM players WHERE id = ?').get(athleteId);
+    const { programmeResolved, ...withoutIt } = evidenceFor(athlete, OPEN, { sport: 'mens-soccer' });
+    expect(programmeResolved).toBe(true);
+    // No default in either direction: one would call a real school unknown,
+    // the other would call an unknown name a school.
+    expect(() => operatorEvidenceFor(withoutIt)).toThrow(/programmeResolved/);
+  });
+
+  it('sends the resolution state and not the programme row behind it', async () => {
+    const m = await stateOf(OPEN);
+    expect(Object.keys(m.programme)).toEqual(['resolved']);
+    // No name, no division, no squad size, no colleges row.
+    expect(keysAnywhere(m.programme).size).toBe(1);
+  });
+
+  it('still excludes diagnostics now that a field was added beside them', async () => {
+    expect((await stateOf(OPEN)).diagnostics).toBeUndefined();
+  });
+
+  it('separates an unknown programme from a server failure', async () => {
+    const unknown = await post(athleteId, { collegeNames: [MISSING] });
+    const failure = await post('no-such-athlete', { collegeNames: [MISSING] });
+    // An unknown programme is a modelled 200. A request that cannot be
+    // answered is still an error under the existing convention.
+    expect(unknown.status).toBe(200);
+    expect(unknown.body[MISSING].programme.resolved).toBe(false);
+    expect(failure.status).toBe(400);
+    expect(failure.body.error).toMatch(/^Unknown player/);
+    expect(failure.body).not.toHaveProperty('programme');
+  });
+
+  it('does not turn a thrown programme failure into an unresolved one', async () => {
+    // A generator that throws becomes `unavailable`, never `resolved: false`.
+    // Asserted on the serializer, which is where the two could be conflated.
+    expect(() => wireOperatorEvidence(model({ programme: undefined })))
+      .toThrow();
   });
 });

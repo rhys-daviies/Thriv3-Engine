@@ -161,6 +161,22 @@ export function operatorEvidenceFor(evidenceResult) {
       + 'evidence and must not be passed.',
     );
   }
+  /**
+   * REQUIRED, with no default in either direction.
+   *
+   * A default of `false` would report every real programme as one we have
+   * never heard of; a default of `true` would do the reverse for the one case
+   * this field exists to name. Both are a claim about a school made by an
+   * omission, which is how this surface lost every ACADEMIC_FIT once already.
+   * A caller that cannot answer must say so by not calling.
+   */
+  if (typeof evidenceResult.programmeResolved !== 'boolean') {
+    throw new Error(
+      'operatorEvidenceFor needs `programmeResolved` on the result. Only '
+      + '`evidenceFor` knows whether the name resolved to a programme we hold, '
+      + 'and it must not be guessed from evidence counts.',
+    );
+  }
   const all = evidenceResult.all;
 
   // The existing policy, over the full set. Not reimplemented and not tuned.
@@ -201,6 +217,26 @@ export function operatorEvidenceFor(evidenceResult) {
   const evidenceCount = SECTION_KEYS.reduce((n, key) => n + sections[key].length, 0);
 
   return {
+    /**
+     * Does this name correspond to a programme we hold?
+     *
+     * SEPARATE FROM EVERY EVIDENCE FIELD, and that separation is the whole
+     * point. A resolved programme may legitimately have no evidence at all —
+     * 247 men's and 33 women's programmes on file have no roster rows — and
+     * until now that read identically to a name nobody recognised. A surface
+     * asking "did we find this school" had to answer it by counting evidence,
+     * which is not what an evidence count means.
+     *
+     * Deliberately just the one fact. `hasSquad` and `hasHistory` are a second
+     * axis, already computed and already on `result.programme` for the email
+     * panel; folding them into a single status enum would make one field
+     * answer two questions. If the zero state later needs them, that is a
+     * decision to publish them, not a derivation to invent here.
+     */
+    programme: {
+      resolved: evidenceResult.programmeResolved,
+    },
+
     /**
      * Enough state for a surface to distinguish every empty case without
      * inferring anything. `openingIdentified: false` records that the system did

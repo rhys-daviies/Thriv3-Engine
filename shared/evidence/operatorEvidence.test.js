@@ -32,7 +32,9 @@ const mk = (kind, o = {}) => defineEvidence(kind, {
 });
 
 /** An `evidenceFor`-shaped result carrying the full pre-dedupe set. */
-const resultOf = (all) => ({ all });
+// `programmeResolved` is required rather than defaulted, so the helper states
+// it. These fixtures are all about a programme that exists.
+const resultOf = (all, programmeResolved = true) => ({ all, programmeResolved });
 
 /** The Jacksonville roster trio, with their real numbers. */
 const POSITION = 'DEFENSE';

@@ -106,6 +106,20 @@ export function programmeInputs(collegeName, sport, { match = null, now = Date.n
   }
 
   return {
+    /**
+     * Whether the name we were asked about is a programme we hold.
+     *
+     * Recorded here because this is the only place that knows. The line below
+     * substitutes a stub for a name with no `colleges` row, so that every
+     * generator can read `college.name` without a null check — and from that
+     * point on an unknown programme is indistinguishable from a known one with
+     * nothing on file. `hasSquad` does not answer it either: 247 men's and 33
+     * women's programmes we hold have no roster rows at all, and 94 more have
+     * earlier seasons but no current squad. Answering it costs nothing — the
+     * lookup already happened above — and guessing it wrong in either
+     * direction is a claim about a school.
+     */
+    resolved: college !== null,
     college: college ?? { name: collegeName, sport },
     // Freshness inputs. The stamp comes off the rows themselves — every
     // roster_players row carries `updated_date` — so there is no second query
@@ -197,11 +211,17 @@ export function evidenceFor(athlete, collegeName, {
     }
   }
 
-  return selectEvidence(
-    athlete,
-    { ...inputs, fit },
-    { maxEmail, prefer, preferStructure },
-  );
+  /**
+   * Resolution rides on the RESULT, not inside `programme`.
+   *
+   * `toWire` copies `result.programme` wholesale to the composer, so putting it
+   * there would change the email panel's payload for a field only the operator
+   * surface asked for. A new top-level key is invisible to that allowlist.
+   */
+  return {
+    ...selectEvidence(athlete, { ...inputs, fit }, { maxEmail, prefer, preferStructure }),
+    programmeResolved: inputs.resolved,
+  };
 }
 
 /**
