@@ -137,6 +137,24 @@ export const evidence = {
   },
 };
 
+/**
+ * The operator decision surface's own endpoint.
+ *
+ * Separate from `evidence` above, matching the server: that one returns the
+ * composer's rendered prose, this one returns structured facts the screen
+ * phrases for itself. Same identity mechanism — athlete in the path, programme
+ * names in the body — because there is one athlete and one list of programmes,
+ * not two.
+ */
+export const operatorEvidence = {
+  summaries(playerId, collegeNames) {
+    return request(`/api/players/${playerId}/operator-evidence`, {
+      method: 'POST',
+      body: JSON.stringify({ collegeNames }),
+    });
+  },
+};
+
 export const philosophy = {
   /** One compact row per school for the Program Philosophy tab. */
   summaries(playerId, collegeIds) {

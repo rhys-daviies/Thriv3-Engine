@@ -11,7 +11,11 @@ const TABS = [
   { segment: 'matching', label: 'Analysis & Matching' },
   { segment: 'engagement', label: 'Coach Engagement' },
   { segment: 'philosophy', label: 'Program Philosophy' },
+  // Two evidence surfaces, named for the question each answers rather than
+  // both being called "Evidence". This one is the assessment; the one above
+  // is what an email would say.
   { segment: 'evidence', label: 'Evidence' },
+  { segment: 'decision', label: 'Decision Evidence' },
 ];
 
 /**
