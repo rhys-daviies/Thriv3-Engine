@@ -325,3 +325,11 @@ export {
  * and nothing in outreach or matching reads it.
  */
 export { topReasons, MAX_REASONS, MAX_PER_CATEGORY, OPERATOR_DISPOSITION } from './topReasons.js';
+
+/**
+ * Operator fact extraction. Internal in this step — no route reads it, and the
+ * existing composer wire is untouched.
+ */
+export {
+  operatorFactsFor, operatorFactsForAll, qualificationFor, EXPOSURE,
+} from './operatorFacts.js';
