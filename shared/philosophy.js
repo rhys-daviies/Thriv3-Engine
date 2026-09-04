@@ -284,6 +284,35 @@ export function playerFit(philosophy, athlete, rows, { seasons = SEASONS } = {})
     // is itself the finding: narrowing moved the top of the ladder downward at
     // 17 of one pilot athlete's 19 programmes.
     wholeIntakeLadder: philosophy.ladder,
+    /**
+     * What the ladder above was measured over. ADDITIVE — nothing here changes
+     * a field, a threshold, or which rows the cohort contains.
+     *
+     * The ladder alone cannot be interpreted. A rank-1 median of 900 minutes
+     * across four seasons of eleven players and the same number across one
+     * season of two are different findings, and until now the second was
+     * indistinguishable from the first once it left this function. The profile
+     * that knows the difference was built here and thrown away.
+     *
+     * `seasonsUnread` is null far more often than it is empty, and the two mean
+     * different things. `freshmanProfile` computes its unreadable set for the
+     * cohort that was ASKED for, then relaxes the narrowing when that cohort is
+     * too thin to read — so where a relaxation happened, the unreadable seasons
+     * on file describe a different population from the ladder. That is the
+     * majority case, not a corner: 160 of 219 real athlete-programme pairs
+     * relax. Reporting those seasons anyway would attach one cohort's holes to
+     * another cohort's measurement, so this says null — we do not know — and
+     * leaves an empty array to mean what it should, that we looked and there
+     * were none.
+     */
+    provenance: mine ? {
+      seasons: mine.seasons.map((s) => String(s.season)),
+      seasonsUnread: mine.cohort?.relaxed ? null : [...(mine.unreadableSeasons ?? [])].map(String),
+      // First-year players behind the ladder, summed exactly as `thinOf` sums
+      // them to apply MIN_COHORT_PLAYERS — so the number a reader sees is the
+      // number the sufficiency rule was applied to.
+      players: mine.seasons.reduce((sum, s) => sum + (Number(s.intake) || 0), 0),
+    } : null,
   };
 }
 

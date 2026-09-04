@@ -15,7 +15,7 @@
 import db from '../db/client.js';
 import { squadRows, programmeRows, programmeCoachRows, poolBenchmarks } from './philosophyQueries.js';
 import { loadProgrammePatterns } from './recruitingPatterns.js';
-import { SQUAD_SEASON, programmePhilosophy } from '../../shared/philosophy.js';
+import { SQUAD_SEASON, programmePhilosophy, playerFit } from '../../shared/philosophy.js';
 import { selectEvidence, MAX_EMAIL_EVIDENCE } from '../../shared/evidence/index.js';
 import { buildRosterIndex, departures } from '../../shared/matching/pool.js';
 import { canonicalPosition } from '../../shared/positions.js';
@@ -177,9 +177,29 @@ export function evidenceFor(athlete, collegeName, {
    */
   const usable = match && match.roster_season === SQUAD_SEASON ? match : null;
   const resolvedMatch = usable ?? departureFields(collegeName, resolved, athlete);
+  const inputs = programmeInputs(collegeName, resolved, { match: resolvedMatch });
+
+  /**
+   * The athlete's own view of this programme's freshman ladder.
+   *
+   * Computed HERE rather than in `programmeInputs` because it is the first
+   * point that holds both the athlete and the programme — `playerFit` narrows
+   * the ladder to the cohort this recruit would compete with, so it cannot be
+   * cached against the programme alone. Same call `philosophyQueries.fitFor`
+   * makes, over the rows already fetched, so there is one ladder and not two.
+   */
+  let fit = null;
+  if (inputs.philosophy) {
+    try {
+      fit = playerFit(inputs.philosophy, athlete, inputs.history);
+    } catch (err) {
+      console.error(`[evidence/playerFit] ${collegeName}:`, err.message);
+    }
+  }
+
   return selectEvidence(
     athlete,
-    programmeInputs(collegeName, resolved, { match: resolvedMatch }),
+    { ...inputs, fit },
     { maxEmail, prefer, preferStructure },
   );
 }

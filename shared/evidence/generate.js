@@ -169,7 +169,7 @@ export function buildProgrammeContext({
   college = {}, match = null, squad = null, history = null,
   coachRows = null, sport = null, rosterUpdatedAt = null, seasonBehind = false,
   recruiting = null,
-  philosophy = null, benchmarks = null,
+  philosophy = null, benchmarks = null, fit = null,
   now = Date.now(),
 } = {}) {
   const squadRows = Array.isArray(squad) ? squad : [];
@@ -216,6 +216,14 @@ export function buildProgrammeContext({
      * rather than a guessed one.
      */
     philosophy, benchmarks,
+    /**
+     * This athlete's `playerFit` against this programme, or null.
+     *
+     * Athlete x programme, so it cannot be cached with the programme and is
+     * computed once by the caller that has both. Carries the cohort provenance
+     * ATHLETE_COHORT_LADDER reads its window from — see shared/philosophy.js.
+     */
+    fit,
     hasSquad: squadRows.length > 0,
     hasHistory: historyRows.length > 0,
     hasAnyRoster: allRows.length > 0,

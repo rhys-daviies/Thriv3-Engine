@@ -616,21 +616,31 @@ export const EVIDENCE_KINDS = Object.freeze({
     permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
   },
 
-  // ATHLETE_COHORT_LADDER is deliberately absent.
-  //
-  // `playerFit` returns { asked, cohort, ladder, seasonsObserved, position,
-  // wholeIntakeLadder } and discards the narrowed profile it built, so the
-  // cohort's SEASON IDENTIFIERS and PLAYER COUNT are not observable from its
-  // result. Without them the kind cannot carry an honest `describes`, and n is
-  // the number the n >= 6 claim floor is expressed in — the one figure it most
-  // needs to record. Borrowing the programme's window would be worse than
-  // having none: a season readable for a whole intake is not necessarily
-  // readable for a two-player cohort, and the narrowed profile filters seasons
-  // independently.
-  //
-  // The fix is additive and one line — returning the profile alongside the
-  // ladder — but it is a change to a Philosophy return shape, so it is a
-  // decision to take deliberately rather than inside an adapter commit.
+  /**
+   * The same ladder, cut to the cohort this athlete would actually compete with.
+   *
+   * A SEPARATE dedupe group from the whole-intake ladder, deliberately. The two
+   * look like one idea and are not: narrowing moved the top of the ladder
+   * downward at 17 of one pilot athlete's 19 programmes, and the DIFFERENCE
+   * between them is the finding. Collapsing them would keep the flattering one.
+   *
+   * Reads its window from `playerFit`'s own provenance and never from the
+   * programme's. A season readable for a whole intake need not be readable for
+   * a two-player cohort, and the narrowed profile filters seasons
+   * independently — so the programme window would describe a measurement this
+   * ladder was not taken over.
+   */
+  ATHLETE_COHORT_LADDER: {
+    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
+    tier: TIERS.FACT,
+    temporality: TEMPORALITY.HISTORICAL,
+    category: 'development',
+    dedupeGroup: 'cohort-ladder',
+    baseStrength: 42,
+    emailEligible: false,
+    minConfidence: CONFIDENCE.MEDIUM,
+    permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
+  },
 
   /**
    * Where this programme's measured first-year opportunity sits in the pool.
@@ -687,6 +697,7 @@ export const KIND_LABELS = Object.freeze({
   // is the reading these labels exist to avoid handing anybody.
   PROGRAMME_DEVELOPMENT_PATTERN: 'First-year minutes across measured seasons',
   FRESHMAN_MINUTES_LADDER: 'First-year minutes ladder',
+  ATHLETE_COHORT_LADDER: 'First-year minutes ladder, this athlete’s cohort',
   PROGRAMME_POOL_BENCHMARK: 'First-year opportunity against the pool',
   COACH_ARRIVAL_SAME_COUNTRY: 'Same-country arrival under this coach',
   ARRIVAL_SAME_COUNTRY_POSITION: 'Same-country arrival at this position',

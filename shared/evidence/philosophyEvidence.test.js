@@ -14,10 +14,10 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { programmePhilosophy } from '../philosophy.js';
+import { programmePhilosophy, playerFit } from '../philosophy.js';
 import {
   programmeDevelopmentPattern, freshmanMinutesLadder, programmePoolBenchmark,
-  PHILOSOPHY_GENERATORS,
+  athleteCohortLadder, PHILOSOPHY_GENERATORS,
 } from './philosophyEvidence.js';
 import { buildProgrammeContext } from './generate.js';
 import {
@@ -26,7 +26,8 @@ import {
 import { PERMISSION, permissionsFor } from './kinds.js';
 
 const DEV_KINDS = [
-  'PROGRAMME_DEVELOPMENT_PATTERN', 'FRESHMAN_MINUTES_LADDER', 'PROGRAMME_POOL_BENCHMARK',
+  'PROGRAMME_DEVELOPMENT_PATTERN', 'FRESHMAN_MINUTES_LADDER',
+  'ATHLETE_COHORT_LADDER', 'PROGRAMME_POOL_BENCHMARK',
 ];
 
 const stamp = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
@@ -319,5 +320,223 @@ describe('selection isolation', () => {
   it('keeps every development kind out of the email-eligible set registry-wide', () => {
     const emailable = EVIDENCE_KIND_NAMES.filter((k) => EVIDENCE_KINDS[k].emailEligible);
     for (const kind of DEV_KINDS) expect(emailable, kind).not.toContain(kind);
+  });
+});
+
+/* ------------------------------------------------------------------------- */
+/* ATHLETE_COHORT_LADDER — step 9.5                                          */
+/* ------------------------------------------------------------------------- */
+
+describe('playerFit provenance', () => {
+  /**
+   * A programme whose international first-years are numerous enough to survive
+   * narrowing, so a cohort actually holds rather than relaxing to the intake.
+   */
+  function mixedRows({ seasons = ['2022', '2023', '2024', '2025'], intlMinutes = 1200 } = {}) {
+    const out = [];
+    for (const season of seasons) {
+      for (let i = 0; i < 3; i += 1) {
+        out.push({
+          college_name: 'Example', sport: 'mens-soccer', season,
+          player_name: `Intl ${season}-${i}`, position: 'DEFENSE', class_year_label: 'Fr.',
+          minutes_played: intlMinutes - i * 300, estimated_graduation_year: Number(season) + 4,
+          updated_date: stamp, nationality: 'International', country: 'New Zealand',
+        });
+      }
+      for (let i = 0; i < 3; i += 1) {
+        out.push({
+          college_name: 'Example', sport: 'mens-soccer', season,
+          player_name: `Dom ${season}-${i}`, position: 'MIDFIELD', class_year_label: 'Fr.',
+          minutes_played: 400, estimated_graduation_year: Number(season) + 4,
+          updated_date: stamp, nationality: 'USA', country: null,
+        });
+      }
+      for (let i = 0; i < 14; i += 1) {
+        out.push({
+          college_name: 'Example', sport: 'mens-soccer', season,
+          player_name: `Vet ${season}-${i}`, position: 'MIDFIELD', class_year_label: 'Jr.',
+          minutes_played: 900, estimated_graduation_year: Number(season) + 2,
+          updated_date: stamp, nationality: 'USA', country: null,
+        });
+      }
+    }
+    return out;
+  }
+
+  const fitOf = (history, who = athlete) => {
+    const philosophy = programmePhilosophy({ rows: history, coachRows: coachRows() });
+    return playerFit(philosophy, who, history);
+  };
+
+  it('keeps every pre-existing field', () => {
+    const fit = fitOf(mixedRows());
+    for (const f of ['asked', 'cohort', 'ladder', 'seasonsObserved', 'position', 'wholeIntakeLadder']) {
+      expect(fit, f).toHaveProperty(f);
+    }
+    // The ladder is still whatever it was; provenance is beside it, not instead.
+    expect(Array.isArray(fit.ladder)).toBe(true);
+  });
+
+  it('adds provenance and nothing else', () => {
+    const fit = fitOf(mixedRows());
+    const extra = Object.keys(fit).filter((k) => ![
+      'asked', 'cohort', 'ladder', 'seasonsObserved', 'position', 'wholeIntakeLadder',
+    ].includes(k));
+    expect(extra).toEqual(['provenance']);
+  });
+
+  it('reports the seasons the COHORT used, not the programme\'s', () => {
+    // 2024's internationals are unmeasurable; the domestic intake is fine, so
+    // the programme keeps four seasons and the cohort loses one.
+    const history = mixedRows().map((r) => (
+      r.season === '2024' && r.country === 'New Zealand'
+        ? { ...r, minutes_played: null } : r));
+    const philosophy = programmePhilosophy({ rows: history, coachRows: coachRows() });
+    const fit = playerFit(philosophy, athlete, history);
+    expect(philosophy.freshman.seasons.map((s) => String(s.season)))
+      .toEqual(['2022', '2023', '2024', '2025']);
+    expect(fit.provenance.seasons).toEqual(['2022', '2023', '2025']);
+  });
+
+  it('preserves a cohort season that was attempted and unreadable', () => {
+    const history = mixedRows().map((r) => (
+      r.season === '2024' && r.country === 'New Zealand'
+        ? { ...r, minutes_played: null } : r));
+    const fit = fitOf(history);
+    // The cohort held (no relaxation), so the unreadable set describes it.
+    expect(fit.cohort.relaxed).toBeNull();
+    expect(fit.provenance.seasonsUnread).toContain('2024');
+  });
+
+  it('does not mark a season the programme never had as unreadable', () => {
+    const fit = fitOf(mixedRows({ seasons: ['2022', '2023', '2025'] }));
+    expect(fit.provenance.seasons).toEqual(['2022', '2023', '2025']);
+    expect(fit.provenance.seasonsUnread).toEqual([]);
+  });
+
+  it('says null, not empty, when the cohort was relaxed', () => {
+    // A programme with too few internationals: the narrowing is refused and
+    // relaxed, so the unreadable set on file belongs to the cohort ASKED for.
+    const history = rows();
+    const fit = fitOf(history);
+    expect(fit.cohort.relaxed).toBeTruthy();
+    expect(fit.provenance.seasonsUnread).toBeNull();
+  });
+
+  it('counts players in the cohort, summed as the sufficiency rule sums them', () => {
+    const fit = fitOf(mixedRows());
+    // Three international defenders per season across four seasons.
+    expect(fit.provenance.players).toBe(12);
+    expect(fit.cohort.position).toBe('DEFENSE');
+    expect(fit.cohort.origin).toBe('international');
+  });
+
+  it('returns null provenance when no profile could be built', () => {
+    const fit = fitOf([]);
+    expect(fit.provenance).toBeNull();
+    expect(fit.ladder).toEqual([]);
+  });
+
+  describe('the evidence built from it', () => {
+    const ctxWithFit = (history, who = athlete) => {
+      const philosophy = programmePhilosophy({ rows: history, coachRows: coachRows() });
+      return buildProgrammeContext({
+        college: { name: 'Example', sport: 'mens-soccer' },
+        squad: [], history, coachRows: coachRows(), rosterUpdatedAt: stamp,
+        philosophy, fit: playerFit(philosophy, who, history),
+      });
+    };
+
+    it('deep-equals the ladder playerFit produced', () => {
+      const history = mixedRows();
+      const ctx = ctxWithFit(history);
+      const ev = athleteCohortLadder(athlete, ctx);
+      expect(ev.data.ladder).toEqual(ctx.fit.ladder);
+    });
+
+    it('describes the cohort window, never the programme window', () => {
+      const history = mixedRows().map((r) => (
+        r.season === '2024' && r.country === 'New Zealand'
+          ? { ...r, minutes_played: null } : r));
+      const ctx = ctxWithFit(history);
+      const cohortEv = athleteCohortLadder(athlete, ctx);
+      const progEv = freshmanMinutesLadder(athlete, ctx);
+      expect(cohortEv.describes.seasons).toEqual(['2022', '2023', '2025']);
+      expect(progEv.describes.seasons).toEqual(['2022', '2023', '2024', '2025']);
+      expect(cohortEv.describes.seasons).not.toEqual(progEv.describes.seasons);
+    });
+
+    it('takes n and the cohort straight from the provenance', () => {
+      const ctx = ctxWithFit(mixedRows());
+      const ev = athleteCohortLadder(athlete, ctx);
+      expect(ev.describes.n).toBe(ctx.fit.provenance.players);
+      expect(ev.describes.cohort).toEqual({
+        position: ctx.fit.cohort.position, origin: ctx.fit.cohort.origin,
+      });
+      // And NOT the athlete's own fields, which differ once a narrowing relaxes.
+      expect(ev.data.asked).toEqual(ctx.fit.asked);
+    });
+
+    it('records whether the unreadable set describes this cohort', () => {
+      const relaxed = athleteCohortLadder(athlete, ctxWithFit(rows()));
+      // Relaxed programmes produce no cohort narrowing worth reporting, or one
+      // whose unread set is unknowable — either way nothing is invented.
+      if (relaxed) {
+        expect(relaxed.data.unreadSeasonsKnown).toBe(false);
+        expect(relaxed.describes.seasonsUnread).toEqual([]);
+      }
+      const held = athleteCohortLadder(athlete, ctxWithFit(mixedRows()));
+      expect(held.data.unreadSeasonsKnown).toBe(true);
+    });
+
+    it('records the claim floor without enforcing it', () => {
+      const ev = athleteCohortLadder(athlete, ctxWithFit(mixedRows()));
+      expect(ev.data.claimFloor).toBe(6);
+      expect(ev.data.meetsClaimFloor).toBe(ev.describes.n >= 6);
+      // Nothing gates on it yet, and the kind is barred from outreach anyway.
+      expect(ev.permissions.OUTREACH).toBe(PERMISSION.DENIED);
+    });
+
+    it('generates nothing when no narrowing held', () => {
+      // The chain relaxed all the way to the whole intake: that is not this
+      // athlete's cohort, and FRESHMAN_MINUTES_LADDER already carries it.
+      const history = rows();
+      const ctx = ctxWithFit(history);
+      if (!ctx.fit.cohort?.applied) expect(athleteCohortLadder(athlete, ctx)).toBeNull();
+    });
+
+    it('generates nothing without a fit on the context', () => {
+      const history = mixedRows();
+      const ctx = buildProgrammeContext({
+        college: { name: 'Example', sport: 'mens-soccer' },
+        squad: [], history, coachRows: coachRows(), rosterUpdatedAt: stamp,
+        philosophy: programmePhilosophy({ rows: history, coachRows: coachRows() }),
+      });
+      expect(athleteCohortLadder(athlete, ctx)).toBeNull();
+    });
+
+    it('is QUALIFIED for the operator and DENIED everywhere else', () => {
+      expect(permissionsFor('ATHLETE_COHORT_LADDER')).toEqual({
+        OPERATOR_EVIDENCE: PERMISSION.QUALIFIED,
+        MATCHING_SUMMARY: PERMISSION.DENIED,
+        OUTREACH: PERMISSION.DENIED,
+      });
+    });
+
+    it('has no copy, so nothing can render it into an email', async () => {
+      const { RENDERABLE_KINDS } = await import('./render.js');
+      expect(RENDERABLE_KINDS).not.toContain('ATHLETE_COHORT_LADDER');
+    });
+
+    it('never enters outreach selection', () => {
+      const result = selectEvidence(athlete, ctxWithFit(mixedRows()));
+      expect(result.selected.map((e) => e.kind)).not.toContain('ATHLETE_COHORT_LADDER');
+      expect(result.ranked.map((e) => e.kind)).not.toContain('ATHLETE_COHORT_LADDER');
+    });
+
+    it('keeps the two ladders in different dedupe groups so neither hides the other', () => {
+      expect(EVIDENCE_KINDS.ATHLETE_COHORT_LADDER.dedupeGroup)
+        .not.toBe(EVIDENCE_KINDS.FRESHMAN_MINUTES_LADDER.dedupeGroup);
+    });
   });
 });

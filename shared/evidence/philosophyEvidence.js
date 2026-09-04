@@ -8,16 +8,14 @@
  * ladder is recomputed here, there are two answers to one question and the
  * report and the evidence can disagree about a programme.
  *
- * It makes no calls of its own at all: the philosophy result and the pool
- * benchmarks are computed once, server-side, and handed in on the context the
- * same way the recruiting patterns already are. A fourth kind — the ladder
- * narrowed to the athlete's cohort — is deliberately absent, and the reason is
- * recorded in full further down.
+ * It makes no calls of its own at all: the philosophy result, the athlete's
+ * `playerFit` and the pool benchmarks are computed once, server-side, and
+ * handed in on the context the same way the recruiting patterns already are.
  *
  * WHAT THESE MAY BE USED FOR
  *
  * Operator inspection, qualified by the window they were measured over. Nothing
- * else. All three are `emailEligible: false` and MATCHING_SUMMARY DENIED in the
+ * else. All four are `emailEligible: false` and MATCHING_SUMMARY DENIED in the
  * registry, so selection separates them before composition can see them and no
  * surface but the operator panel may render them.
  *
@@ -30,6 +28,7 @@
  */
 
 import { defineEvidence, CONFIDENCE } from './kinds.js';
+import { MIN_COHORT_PLAYERS, MIN_COHORT_SEASONS } from '../freshmanMinutes.js';
 
 /**
  * The measured window, in the source module's own readability semantics.
@@ -156,31 +155,106 @@ export function freshmanMinutesLadder(athlete, ctx) {
 }
 
 /**
- * THE ATHLETE COHORT LADDER IS NOT BUILT HERE, AND THE REASON IS UPSTREAM.
+ * How firmly a COHORT ladder may be stated.
  *
- * `playerFit` returns { asked, cohort, ladder, seasonsObserved, position,
- * wholeIntakeLadder }. It builds a narrowed `freshmanProfile` to produce that
- * ladder and then discards it, so the cohort's SEASON IDENTIFIERS and PLAYER
- * COUNT are not observable from the result. Both are needed and neither can be
- * substituted:
+ * Uses the source module's own sufficiency numbers rather than a scale invented
+ * here: MIN_COHORT_PLAYERS and MIN_COHORT_SEASONS are what `thinOf` applies
+ * when it decides a narrowing is too thin to read, so a cohort below them is
+ * one `freshmanProfile` itself would have refused had it been asked explicitly.
  *
- *   The seasons, because the narrowed profile filters seasons independently.
- *   A season readable for a whole intake is not necessarily readable for a
- *   two-player cohort, so the programme's window is the wrong window and
- *   lending it to this kind would misstate what was measured.
+ * `cohort.thin` is NOT consulted, and that is not an oversight: on the athlete
+ * path a thin narrowing is refused and relaxed rather than flagged, so the
+ * field is always null there. The counts are the real sufficiency signal.
  *
- *   The player count, because n >= 6 is the floor the product expressed the
- *   claim rule in. A cohort ladder that cannot say how many players it rests
- *   on cannot serve the purpose it was asked for.
- *
- * Re-running `freshmanProfile` here would answer both and is exactly what this
- * module exists not to do: two computations of one ladder is how a report and
- * an email come to disagree about a programme.
- *
- * The unblocking change is additive and one line — return the profile beside
- * the ladder — but it changes a Philosophy return shape, so it belongs to a
- * decision rather than to an adapter commit.
+ * An unknown unreadable-season set caps the reading at MEDIUM. Not knowing
+ * whether a cohort has holes is not the same as knowing it has none, and the
+ * reassuring reading of missing provenance is exactly what puts unverified
+ * claims in front of people.
  */
+function cohortConfidence({ players, seasons, seasonsUnread }) {
+  if (players < MIN_COHORT_PLAYERS || seasons.length < MIN_COHORT_SEASONS) return CONFIDENCE.LOW;
+  if (seasonsUnread === null) return CONFIDENCE.MEDIUM;
+  if (seasons.length >= 3 && seasonsUnread.length === 0) return CONFIDENCE.HIGH;
+  return CONFIDENCE.MEDIUM;
+}
+
+/**
+ * The ladder narrowed to the cohort this athlete would compete with.
+ *
+ * Everything here comes off `playerFit`'s own result. The cohort is the one the
+ * calculation APPLIED — not the one the athlete's fields imply — because
+ * `freshmanProfile` relaxes a narrowing it finds too thin, and 160 of 219 real
+ * athlete-programme pairs are relaxed. Reading the cohort off the athlete
+ * instead would describe a population the ladder was never cut to.
+ *
+ * Generated only where a narrowing actually held. Where the chain relaxed all
+ * the way to the whole intake there is no cohort: the ladder is the same
+ * population FRESHMAN_MINUTES_LADDER already carries, and showing it twice
+ * under a label promising specificity would manufacture a distinction the data
+ * does not have.
+ */
+export function athleteCohortLadder(athlete, ctx) {
+  const fit = ctx?.fit;
+  if (!fit?.provenance) return null;
+  const applied = fit.cohort;
+  // No narrowing held — see above.
+  if (!applied?.applied) return null;
+  const ladder = fit.ladder;
+  if (!Array.isArray(ladder) || !ladder.length) return null;
+
+  const { seasons, seasonsUnread, players } = fit.provenance;
+  if (!seasons.length) return null;
+
+  return defineEvidence('ATHLETE_COHORT_LADDER', {
+    confidence: cohortConfidence({ players, seasons, seasonsUnread }),
+    season: seasons.join(', '),
+    source: 'roster_players:freshman-minutes',
+    /**
+     * The COHORT's window, never the programme's.
+     *
+     * `n` is the first-year players behind this ladder, summed exactly as the
+     * source sums them to apply its own floor — so the number recorded is the
+     * number the n >= 6 rule will later be applied to, with nothing to
+     * recompute when it is enforced.
+     *
+     * A null `seasonsUnread` becomes an empty list here because `describes`
+     * carries claims and we have none to make: where the cohort was relaxed,
+     * the unreadable seasons on file belong to the cohort that was asked for,
+     * not the one measured. The distinction is kept in `data` rather than
+     * silently flattened.
+     */
+    describes: {
+      seasons,
+      seasonsUnread: seasonsUnread ?? [],
+      n: players,
+      cohort: { position: applied.position ?? null, origin: applied.origin ?? null },
+    },
+    data: {
+      ladder,
+      cohort: applied,
+      asked: fit.asked ?? null,
+      players,
+      seasonsObserved: fit.seasonsObserved ?? null,
+      // Whether the unreadable-season set describes THIS cohort. False when the
+      // narrowing was relaxed, because the profile computes that set for the
+      // cohort originally asked for.
+      unreadSeasonsKnown: seasonsUnread !== null,
+      // Set by the source when it refused the narrowing first asked for, and
+      // what it fell back to. Carried, not acted on.
+      refused: applied.refused ?? null,
+      relaxed: applied.relaxed ?? null,
+      // Whether this cohort clears the product's claim floor. Recorded so the
+      // rule can be enforced later without recomputing anything; nothing reads
+      // it yet, and OUTREACH is DENIED for the kind regardless.
+      meetsClaimFloor: players >= MIN_COHORT_PLAYERS,
+      claimFloor: MIN_COHORT_PLAYERS,
+      // The whole-intake ladder alongside, because the DIFFERENCE between them
+      // is the finding — see the registry note on the dedupe group.
+      wholeIntakeLadder: fit.wholeIntakeLadder ?? null,
+      positionHistory: fit.position ?? null,
+    },
+  });
+}
 
 /**
  * Where this programme sits against the comparable pool.
@@ -241,5 +315,6 @@ export function programmePoolBenchmark(athlete, ctx) {
 export const PHILOSOPHY_GENERATORS = Object.freeze([
   programmeDevelopmentPattern,
   freshmanMinutesLadder,
+  athleteCohortLadder,
   programmePoolBenchmark,
 ]);
