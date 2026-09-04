@@ -86,6 +86,125 @@ export const LEAD_SUITABILITY = Object.freeze({
   SUPPORT_ONLY: 'SUPPORT_ONLY',
 });
 
+/**
+ * The places a piece of evidence can be shown, each with its own licence.
+ *
+ * `emailEligible` was one boolean answering for three audiences, and it had
+ * already run out. POSITION_GROUP_SIZE is the proof: it sits in the `roster`
+ * category, it has rendered copy, and it is still barred from an email — a
+ * third state the boolean could not hold, recorded nowhere and recoverable
+ * only by reading the comment beside it.
+ *
+ * Reading a claim is not making one. An operator inspecting what we know about
+ * a programme is a different act from asserting it to a coach, and the two have
+ * never needed the same permission.
+ */
+export const SURFACES = Object.freeze({
+  /** The operator's own view. Inspection, not assertion. */
+  OPERATOR_EVIDENCE: 'OPERATOR_EVIDENCE',
+  /** Why a programme ranked where it did. Treated as a real claim surface. */
+  MATCHING_SUMMARY: 'MATCHING_SUMMARY',
+  /** A sentence a coach reads. The strictest surface. */
+  OUTREACH: 'OUTREACH',
+});
+
+export const SURFACE_KEYS = Object.freeze(Object.keys(SURFACES));
+
+/**
+ * What a surface may do with a piece of evidence.
+ *
+ * QUALIFIED is the grade the boolean could not express, and the reason this
+ * enum exists rather than a second flag: a historical measurement is safe to
+ * state only while it carries the window it was measured over. "First-year
+ * defenders took meaningful minutes" and "across the seasons we can measure,
+ * first-year defenders took meaningful minutes" are the same evidence and
+ * different claims.
+ *
+ * Nothing reads QUALIFIED yet — no kind is granted it in this step. It is
+ * defined now so that granting one later is a registry edit rather than a
+ * change to the shape every surface already depends on.
+ */
+export const PERMISSION = Object.freeze({
+  /** May be rendered as written. */
+  ALLOWED: 'ALLOWED',
+  /** May be rendered only through a path that states its qualification. */
+  QUALIFIED: 'QUALIFIED',
+  /** Never reaches this surface, and the surface may not offer it. */
+  DENIED: 'DENIED',
+});
+
+/**
+ * Ordered least to most permissive, so narrowing can be compared numerically.
+ *
+ * The order is the whole mechanism for the caller rule below: a caller may move
+ * a permission DOWN this list and never up.
+ */
+const PERMISSION_RANK = Object.freeze({ DENIED: 0, QUALIFIED: 1, ALLOWED: 2 });
+
+/**
+ * The permissions a kind carries when the registry does not say otherwise.
+ *
+ * Derived from `emailEligible` so this step changes no behaviour: whatever
+ * could reach an email yesterday can reach one today, and whatever could not,
+ * still cannot. OPERATOR_EVIDENCE is ALLOWED for every existing kind — all 22
+ * are already visible in the operator panel today, internal ones included, so
+ * granting less would be a behavioural change disguised as a default.
+ *
+ * MATCHING_SUMMARY is DENIED for everything. Nothing renders it yet, and the
+ * product decision is that it is a genuine claim surface: it must be licensed
+ * kind by kind, deliberately, not inherited by whatever happened to be
+ * email-eligible.
+ */
+function defaultPermissions(spec) {
+  return Object.freeze({
+    OPERATOR_EVIDENCE: PERMISSION.ALLOWED,
+    MATCHING_SUMMARY: PERMISSION.DENIED,
+    OUTREACH: spec.emailEligible ? PERMISSION.ALLOWED : PERMISSION.DENIED,
+  });
+}
+
+/**
+ * The registry's permissions for a kind, explicit entry winning over the
+ * derived default. No kind declares one yet; the lookup exists so that the
+ * first one to do so needs no change here.
+ */
+export function permissionsFor(kind) {
+  const spec = kindSpec(kind);
+  return spec.permissions ? Object.freeze({ ...defaultPermissions(spec), ...spec.permissions })
+    : defaultPermissions(spec);
+}
+
+/**
+ * Applies a caller's request to the registry's grant, keeping the stricter.
+ *
+ * The same rule `emailEligible` already enforced by AND-ing the two, restated
+ * for three surfaces and three grades. A generator may decide its evidence is
+ * weaker than its kind normally allows — a thin cohort, an unreadable season —
+ * and say so. It may never decide the opposite: a registry DENIED cannot be
+ * argued up to ALLOWED by a caller, which is the invariant that makes the
+ * registry worth reading.
+ *
+ * Exported for its own tests. No kind declares QUALIFIED yet, so the promotion
+ * that matters most — QUALIFIED up to ALLOWED — is unreachable through
+ * `defineEvidence` and would otherwise go untested until the day it is load
+ * bearing. The rule is min() over the rank; the test says so directly.
+ */
+export function narrowPermissions(granted, requested) {
+  if (requested == null) return granted;
+  if (typeof requested !== 'object' || Array.isArray(requested)) {
+    throw new Error('permissions must be an object keyed by surface');
+  }
+  const out = { ...granted };
+  for (const [surface, grade] of Object.entries(requested)) {
+    if (!SURFACES[surface]) throw new Error(`Unknown evidence surface "${surface}"`);
+    if (PERMISSION_RANK[grade] === undefined) {
+      throw new Error(`Unknown permission "${grade}" for surface ${surface}`);
+    }
+    out[surface] = PERMISSION_RANK[grade] < PERMISSION_RANK[out[surface]] ? grade : out[surface];
+  }
+  return Object.freeze(out);
+}
+
 /** Ordered worst to best, so a minimum can be compared numerically. */
 const CONFIDENCE_RANK = { LOW: 0, MEDIUM: 1, HIGH: 2 };
 
@@ -487,6 +606,85 @@ export function kindSpec(kind) {
   return spec;
 }
 
+const isSeasonList = (v) => Array.isArray(v) && v.every((s) => typeof s === 'string' && s.length > 0);
+
+/**
+ * The window and population a measurement was taken over.
+ *
+ * Optional and unused in this step. It exists because nothing in the object
+ * could state what a derived number describes: `season` is one string, and a
+ * median across four seasons of a nineteen-player cohort has no way to say so.
+ * That absence is what lets "first-year defenders took meaningful minutes"
+ * escape without the clause that makes it true rather than predictive.
+ *
+ * `seasonsUnread` is separate from `seasons` on purpose, and is the field this
+ * shape exists for as much as any other. A season we could not read is not a
+ * season in which nothing happened — Marywood was filed as one of the largest
+ * regime changes in the pool on the strength of three blank seasons read as
+ * zeroes. A window that cannot record its own holes will eventually be read as
+ * complete.
+ *
+ * Validation is deliberately shallow: shapes and types, not statistics. It is
+ * here to catch a generator handing over a string where a list belongs, not to
+ * audit the arithmetic.
+ */
+function validateDescribes(describes) {
+  if (describes == null) return null;
+  if (typeof describes !== 'object' || Array.isArray(describes)) {
+    throw new Error('describes must be an object');
+  }
+  const { seasons = [], seasonsUnread = [], n = null, cohort = null } = describes;
+  if (!isSeasonList(seasons)) throw new Error('describes.seasons must be an array of season strings');
+  if (!isSeasonList(seasonsUnread)) {
+    throw new Error('describes.seasonsUnread must be an array of season strings');
+  }
+  if (n !== null && (!Number.isInteger(n) || n < 0)) {
+    throw new Error('describes.n must be a non-negative integer or null');
+  }
+  if (cohort !== null && (typeof cohort !== 'object' || Array.isArray(cohort))) {
+    throw new Error('describes.cohort must be an object or null');
+  }
+  // A window naming no seasons at all describes nothing, and would render as a
+  // qualification that qualifies nothing — worse than having no window, because
+  // it looks like one.
+  if (!seasons.length && !seasonsUnread.length) {
+    throw new Error('describes must name at least one season');
+  }
+  return Object.freeze({
+    seasons: Object.freeze([...seasons]),
+    seasonsUnread: Object.freeze([...seasonsUnread]),
+    n,
+    cohort: cohort === null ? null : Object.freeze({ ...cohort }),
+  });
+}
+
+/**
+ * What a measurement was compared against.
+ *
+ * Optional and unused in this step. Separate from `describes` because they
+ * answer different questions — one bounds the measurement, the other names the
+ * population it was ranked within — and a benchmark needs both. "Above the
+ * pool" is not a claim until the pool is named, which is why `basis` and
+ * `statistic` are required together rather than left to `data`, where nothing
+ * could insist on them.
+ */
+function validateComparison(comparison) {
+  if (comparison == null) return null;
+  if (typeof comparison !== 'object' || Array.isArray(comparison)) {
+    throw new Error('comparison must be an object');
+  }
+  const { basis = null, statistic = null, poolSize = null, percentile = null } = comparison;
+  if (typeof basis !== 'string' || !basis) throw new Error('comparison.basis is required');
+  if (typeof statistic !== 'string' || !statistic) throw new Error('comparison.statistic is required');
+  if (poolSize !== null && (!Number.isInteger(poolSize) || poolSize < 0)) {
+    throw new Error('comparison.poolSize must be a non-negative integer or null');
+  }
+  if (percentile !== null && (typeof percentile !== 'number' || percentile < 0 || percentile > 100)) {
+    throw new Error('comparison.percentile must be a number between 0 and 100, or null');
+  }
+  return Object.freeze({ basis, statistic, poolSize, percentile });
+}
+
 /**
  * Builds one evidence object.
  *
@@ -508,6 +706,9 @@ export function defineEvidence(kind, {
   sourceUrl = null,
   emailEligible = null,
   freshness = null,
+  permissions = null,
+  describes = null,
+  comparison = null,
 } = {}) {
   const spec = kindSpec(kind);
   if (!Object.values(CONFIDENCE).includes(confidence)) {
@@ -521,6 +722,23 @@ export function defineEvidence(kind, {
   // suppresses the evidence outright — see applyFreshness.
   const effective = freshness ? applyFreshness(spec, confidence, freshness) : confidence;
   if (effective === null) return null;
+
+  /**
+   * `emailEligible` and `permissions.OUTREACH` are the same decision, so they
+   * are computed from one value rather than side by side. A caller narrowing
+   * the old flag has to narrow the new surface too — otherwise a generator
+   * passing `emailEligible: false` would leave OUTREACH reading ALLOWED, and
+   * the compatibility alias would be the honest field while the new one lied.
+   */
+  const outreachAllowed = emailEligible === null
+    ? spec.emailEligible
+    : (emailEligible && spec.emailEligible);
+
+  const resolvedPermissions = narrowPermissions(
+    narrowPermissions(permissionsFor(kind),
+      outreachAllowed ? null : { OUTREACH: PERMISSION.DENIED }),
+    permissions,
+  );
 
   return Object.freeze({
     kind,
@@ -542,7 +760,23 @@ export function defineEvidence(kind, {
     // there is rarely one URL to name. Carried in the shape from the start so
     // adding it later is a generator change rather than a schema change.
     sourceUrl,
-    emailEligible: emailEligible === null ? spec.emailEligible : (emailEligible && spec.emailEligible),
+    /**
+     * Kept, and kept authoritative for selection, because this step is meant to
+     * add a shape and change no behaviour. Seven call sites across selection,
+     * rendering, freshness and their tests read either this field or the
+     * registry's, and rewriting them to consult `permissions` would make a
+     * scaffolding commit the one that could break an email.
+     *
+     * It is now derived from the same value as `permissions.OUTREACH`, so the
+     * two cannot disagree, and retiring it later is a mechanical change.
+     */
+    emailEligible: outreachAllowed,
+    /** Per-surface licence. Nothing reads this yet — see the migration note. */
+    permissions: resolvedPermissions,
+    /** The window a measurement covers. Optional; no kind requires one yet. */
+    describes: validateDescribes(describes),
+    /** What a measurement was ranked against. Optional; unused so far. */
+    comparison: validateComparison(comparison),
   });
 }
 
