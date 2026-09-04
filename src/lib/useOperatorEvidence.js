@@ -30,13 +30,16 @@ export function useOperatorEvidence(playerId, collegeNames) {
    * on every render is a new dependency every render and the effect would
    * refetch in a loop.
    *
-   * JSON rather than a space join. `useEvidence` joins on a space and splits
-   * the same string back apart, which silently shreds every programme whose
-   * name contains one: "Sacred Heart" is requested as "Sacred" and "Heart",
-   * neither resolves, and the real name is never asked about — the programme
-   * renders blank with no error anywhere. 722 of the 1,166 men's programmes
-   * have a space in their name. Reported rather than fixed there, since this
-   * step must not change the composer surface.
+   * JSON rather than a delimiter, after this hook shipped with a space join
+   * and shredded every programme whose name contains one: "Sacred Heart" went
+   * out as "Sacred" and "Heart", neither resolved, the real name was never
+   * asked about, and the programme rendered blank with no error anywhere.
+   * 1,698 of the 2,401 active programmes across both sports have a space.
+   *
+   * The space came from misreading `useEvidence`, which joined on a NUL — a
+   * character that displays as nothing and made that file binary to grep. Its
+   * separator was correct; the one copied from it was not. Both are JSON now,
+   * so the next reader has nothing invisible to reproduce.
    */
   const key = JSON.stringify(collegeNames ?? []);
 

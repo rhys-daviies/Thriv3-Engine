@@ -58,7 +58,7 @@ export default function MatchingTab() {
    *
    * The page rather than the whole stored analysis: a hundred programmes is
    * five times the work for a screen showing twenty, and the operator pages
-   * through them. `useEvidence` keys its effect on the joined names, so
+   * through them. `useEvidence` keys its effect on the name list, so
    * changing page refetches; every lookup below is BY NAME, so the previous
    * page's response can never be read as this page's — a name that is not in
    * it simply misses, and `loading` covers the gap while the new one is in
