@@ -121,23 +121,38 @@ export function specificityKey(evidence) {
   if (fromProvenance && SPECIFICITY_ORDER.includes(fromProvenance)) return fromProvenance;
 
   /**
-   * The cohort ladder's axes are the APPLIED cohort, never the asked one.
+   * A declared cohort is the APPLIED one, never the asked one, and it is read
+   * by VALUE rather than by key.
    *
    * `freshmanProfile` relaxes a narrowing it finds too thin, and 160 of 219
    * real athlete-programme pairs relax. Taking the axes from the registry would
    * claim position+origin for a ladder actually built over one axis or none —
    * wrong in the majority case, and wrong in the flattering direction.
+   *
+   * Two things this used to get wrong, and both came from asking whether a KEY
+   * existed rather than whether a VALUE did. `{ country, coach, position: null }`
+   * satisfied `'position' in cohort`, so it entered here — and then only
+   * position and origin were read, so the country and coach it actually names
+   * were discarded and it resolved GENERAL. Reading every populated axis fixes
+   * both: a null is not an axis, and an axis is not only position or origin.
+   *
+   * `excludingCountry` is deliberately not an axis. It records the country a
+   * region item left OUT, which narrows nothing.
    */
   const cohort = evidence.describes?.cohort;
-  if (cohort && ('position' in cohort || 'origin' in cohort)) {
-    return axesToKey([
-      cohort.position ? 'position' : null,
-      cohort.origin ? 'origin' : null,
-    ].filter(Boolean));
-  }
+  if (cohort) return axesToKey(COHORT_AXES.filter((axis) => cohort[axis]));
 
   return axesToKey(kindSpec(evidence.kind).specificityAxes ?? []);
 }
+
+/**
+ * The cohort keys that name a real narrowing, most to least place-like.
+ *
+ * Order is irrelevant to the result — `axesToKey` reads them by name — but the
+ * list is the allowlist: anything else on a cohort object is descriptive rather
+ * than an axis, and must not widen or narrow a reading.
+ */
+const COHORT_AXES = Object.freeze(['country', 'region', 'origin', 'position', 'coach']);
 
 /** Higher is more specific. Unrecognised keys sort as GENERAL, never above it. */
 export function specificityRank(evidence) {
@@ -145,13 +160,22 @@ export function specificityRank(evidence) {
   return i === -1 ? 0 : i;
 }
 
-/** Declared axes to a name on the ladder above. */
+/**
+ * Declared axes to a name on the ladder above.
+ *
+ * A coach axis QUALIFIES another axis rather than being one. The vocabulary has
+ * no bare COACH — every entry pairs it with a place or a position — because
+ * knowing which coach did the recruiting narrows nothing on its own; it says
+ * who, not who to. This used to map a lone coach to COACH_POSITION, inventing a
+ * position axis the evidence never had, which would have promoted a
+ * programme-wide coach-tenure item nine rungs up the ladder.
+ */
 function axesToKey(axes = []) {
   const has = (a) => axes.includes(a);
   const place = has('country') ? 'COUNTRY' : has('region') ? 'REGION' : has('origin') ? 'ORIGIN' : null;
   const parts = [place, has('position') ? 'POSITION' : null].filter(Boolean);
   let key = parts.length ? parts.join('_') : (has('athlete') ? 'ATHLETE' : SPECIFICITY.GENERAL);
-  if (has('coach')) key = key === SPECIFICITY.GENERAL ? 'COACH_POSITION' : `COACH_${key}`;
+  if (has('coach') && key !== SPECIFICITY.GENERAL) key = `COACH_${key}`;
   return SPECIFICITY_ORDER.includes(key) ? key : SPECIFICITY.GENERAL;
 }
 

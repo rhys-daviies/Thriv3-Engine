@@ -17,6 +17,7 @@ import {
   compareEvidence, rankEvidence, decisionClassRank, specificityRank,
   specificityKey, confidenceRank, rankingMetadata,
 } from './rank.js';
+import { SPECIFICITY } from '../recruiting/patterns.js';
 
 const mk = (kind, o = {}) => defineEvidence(kind, { source: 'test', data: {}, ...o });
 
@@ -233,5 +234,103 @@ describe('the four classes rank in the intended order', () => {
     const shuffled = [order[3], order[1], order[0], order[2]];
     expect(rankEvidence(shuffled).map((e) => e.decisionClass))
       .toEqual(['OPENING', 'PATHWAY', 'FIT', 'CONTEXT']);
+  });
+});
+
+/* ------------------------------------------------------------------------- */
+/* Cohort specificity — axes are read by VALUE, never by key                  */
+/* ------------------------------------------------------------------------- */
+
+describe('a null axis is not an axis', () => {
+  /** Evidence carrying only a declared cohort, with no provenance to fall back on. */
+  const withCohort = (cohort, kind = 'COACH_ARRIVAL_SAME_COUNTRY', data = {}) => ({
+    kind,
+    describes: { seasons: ['2025'], seasonsUnread: [], n: 1, cohort },
+    data,
+  });
+
+  it('keeps coach and country when position is present but null', () => {
+    // The bug: `'position' in cohort` was true for a null value, the branch was
+    // entered, and only position/origin were read — so both real axes were lost
+    // and this resolved GENERAL.
+    expect(specificityKey(withCohort({
+      country: 'New Zealand', coach: 'Ali Simmons', position: null,
+    }))).toBe('COACH_COUNTRY');
+  });
+
+  it('keeps country when position is null', () => {
+    expect(specificityKey(withCohort({ country: 'New Zealand', position: null })))
+      .toBe(SPECIFICITY.COUNTRY);
+  });
+
+  it('keeps region when position is null', () => {
+    expect(specificityKey(withCohort({ region: 'OCEANIA', position: null })))
+      .toBe(SPECIFICITY.REGION);
+  });
+
+  it('reads a populated position', () => {
+    expect(specificityKey(withCohort({ position: 'DEFENSE' }))).toBe(SPECIFICITY.POSITION);
+  });
+
+  it('reads origin alone when the position relaxed away', () => {
+    expect(specificityKey(withCohort(
+      { position: null, origin: 'international' }, 'ATHLETE_COHORT_LADDER',
+    ))).toBe('ORIGIN');
+  });
+
+  it('reads origin and position together when both held', () => {
+    expect(specificityKey(withCohort(
+      { position: 'DEFENSE', origin: 'international' }, 'ATHLETE_COHORT_LADDER',
+    ))).toBe('ORIGIN_POSITION');
+  });
+
+  it('reads all three axes when all three are populated', () => {
+    expect(specificityKey(withCohort({
+      country: 'New Zealand', coach: 'Ali Simmons', position: 'DEFENSE',
+    }))).toBe(SPECIFICITY.COACH_COUNTRY_POSITION);
+  });
+
+  it('resolves GENERAL when a cohort names no populated axis', () => {
+    expect(specificityKey(withCohort(
+      { position: null, origin: null }, 'ATHLETE_COHORT_LADDER',
+    ))).toBe(SPECIFICITY.GENERAL);
+  });
+
+  it('ignores excludingCountry, which narrows nothing', () => {
+    // It records the country a region item left OUT. Counting it as a country
+    // axis would report a narrower reading than the evidence supports.
+    expect(specificityKey(withCohort(
+      { region: 'OCEANIA', excludingCountry: 'New Zealand', position: 'DEFENSE' },
+      'ARRIVAL_SAME_REGION_POSITION',
+    ))).toBe(SPECIFICITY.REGION_POSITION);
+  });
+
+  it('treats a lone coach as no narrowing at all', () => {
+    // The vocabulary has no bare COACH: every entry pairs it with a place or a
+    // position, because knowing WHO recruited narrows nothing on its own. This
+    // used to return COACH_POSITION and invent an axis the evidence never had.
+    expect(specificityKey(withCohort({ coach: 'Ali Simmons' }, 'COACH_CONTEXT')))
+      .toBe(SPECIFICITY.GENERAL);
+  });
+
+  it('still lets recruiting provenance win over the cohort', () => {
+    expect(specificityKey(withCohort(
+      { country: 'New Zealand', coach: 'X', position: null },
+      'COACH_ARRIVAL_SAME_COUNTRY',
+      { provenance: { specificity: 'COACH_COUNTRY_POSITION' } },
+    ))).toBe(SPECIFICITY.COACH_COUNTRY_POSITION);
+  });
+
+  it('falls back to the registry axes when no cohort is declared', () => {
+    expect(specificityKey({ kind: 'HISTORICAL_SAME_COUNTRY', data: {} }))
+      .toBe(SPECIFICITY.COUNTRY);
+    expect(specificityKey({ kind: 'COACH_CONTEXT', data: {} }))
+      .toBe(SPECIFICITY.GENERAL);
+  });
+
+  it('ranks the fixed reading above the GENERAL it used to give', () => {
+    const fixed = withCohort({ country: 'New Zealand', coach: 'Ali Simmons', position: null });
+    const general = { kind: 'PROGRAM_MOMENTUM', data: {} };
+    expect(specificityRank(fixed)).toBeGreaterThan(specificityRank(general));
   });
 });
