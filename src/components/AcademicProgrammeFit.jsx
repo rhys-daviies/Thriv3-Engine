@@ -1,5 +1,6 @@
 import React from 'react';
 import { fitCopyFor, fitQualification } from '@/lib/fitEvidenceCopy';
+import EvidenceDetails from '@/components/EvidenceDetails';
 
 /**
  * The academic match, and separately, how the team has been doing.
@@ -40,6 +41,7 @@ function Row({ item }) {
       {qualification && (
         <p className="mt-1 text-xs text-muted-foreground/80">{qualification}</p>
       )}
+      <EvidenceDetails item={item} />
     </li>
   );
 }

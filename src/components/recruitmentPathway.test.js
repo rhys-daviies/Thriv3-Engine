@@ -6,6 +6,22 @@ import ProgrammeDecision from './ProgrammeDecision.jsx';
 import { pathwayCopyFor, PATHWAY_COPY_KINDS } from '@/lib/pathwayEvidenceCopy';
 import { PATHWAY_FIXTURES } from '@/lib/__fixtures__/pathwayEvidence.js';
 import { SECTION_OF, SECTIONS } from '@shared/evidence/operatorEvidence.js';
+import { provenanceRows } from '@/lib/evidenceProvenance';
+
+/**
+ * Everything ONE evidence object puts on the page: its copy and its own
+ * provenance drawer.
+ *
+ * Axis borrowing is a property of a single claim, so it has to be asserted
+ * against a single item. Concatenating the whole section and searching it
+ * flattens away the element boundaries — one row's drawer runs straight into
+ * the next row's headline — and would fail on adjacency that no reader ever
+ * sees as one sentence.
+ */
+const itemText = (i, copy) => [
+  copy.headline, copy.detail, ...(copy.names ?? []),
+  ...provenanceRows(i).map((r) => `${r.label} ${r.value}`),
+].filter(Boolean).join(' ');
 
 /**
  * The pathway section, against real payloads for ten real programmes.
@@ -118,8 +134,11 @@ describe('a coach claim keeps its own axes', () => {
     const region = item('Jacksonville', 'ARRIVAL_SAME_REGION_POSITION');
     expect(region.facts.position).toBe('DEFENSE');
     // The forbidden synthesis: coach + country + position, assembled from two
-    // objects neither of which carries all three.
-    expect(t).not.toMatch(new RegExp(`${coach.facts.coach}[^.]*defender`, 'i'));
+    // objects neither of which carries all three. Asserted per item, drawer
+    // included — no single claim names both the coach and a position.
+    const coachText = itemText(coach, pathwayCopyFor(coach));
+    expect(coachText).toContain(coach.facts.coach);
+    expect(coachText).not.toMatch(/defender|forward|midfield|goalkeeper/i);
     expect(t).not.toMatch(/New Zealand defender/i);
   });
 
@@ -448,11 +467,17 @@ describe('no claim is assembled from two evidence objects', () => {
     expect(region.facts.countries).toEqual(['Australia']);
 
     const t = renderTogether([coach, region]);
-    // Neither "New Zealand defender" nor the coach anywhere near a position.
+    // Neither "New Zealand defender" nor a single claim carrying both.
     expect(t).not.toMatch(/New Zealand defender/i);
-    expect(t).not.toMatch(new RegExp(`${coach.facts.coach}[^.]*defender`, 'i'));
-    // And the coach's country never attaches to the region item's position.
-    expect(t).not.toMatch(/defender[^.]*from New Zealand/i);
+    const coachText = itemText(coach, pathwayCopyFor(coach));
+    const regionText = itemText(region, pathwayCopyFor(region));
+    expect(coachText).not.toMatch(/defender|forward|midfield/i);
+    // And the region item names no coach, and claims no arrival FROM New
+    // Zealand. It does mention the country — as the one its count deliberately
+    // excludes, which is the opposite claim and has to stay visible.
+    expect(regionText).not.toContain(coach.facts.coach);
+    expect(regionText).not.toMatch(/recruited[^.]*from New Zealand/i);
+    expect(regionText).toContain('Counted separately from New Zealand');
   });
 
   it('country + region-position never becomes one country-region-position claim', () => {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { rosterCopyFor, rosterQualification } from '@/lib/rosterEvidenceCopy';
+import EvidenceDetails from '@/components/EvidenceDetails';
 
 /**
  * The roster evidence behind a programme's opening, laid out for inspection.
@@ -61,6 +62,7 @@ function Row({ item }) {
       {qualification && (
         <p className="mt-1 text-xs text-muted-foreground/80">{qualification}</p>
       )}
+      <EvidenceDetails item={item} />
     </li>
   );
 }

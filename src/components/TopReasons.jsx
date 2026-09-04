@@ -1,5 +1,6 @@
 import React from 'react';
 import { operatorCopyFor, DECISION_CLASS_LABEL } from '@/lib/operatorEvidenceCopy';
+import EvidenceDetails from '@/components/EvidenceDetails';
 
 /**
  * The ranked reasons this programme is worth an operator's attention.
@@ -56,6 +57,10 @@ function Supporting({ items }) {
             {/* One line. `operatorCopyFor` collapses a supporting item to a
                 single string precisely so this cannot render the wrong one. */}
             {copy ? copy.conclusion : <MissingCopy kind={item.kind} />}
+            {/* Its OWN provenance, never the primary's. Three roster items in
+                one reason describe different populations over different
+                windows, and one shared drawer would say otherwise. */}
+            <EvidenceDetails item={item} label="Where this comes from" />
           </li>
         );
       })}
@@ -90,6 +95,7 @@ export default function TopReasons({ reasons = [] }) {
               ) : (
                 <MissingCopy kind={reason.primary.kind} />
               )}
+              <EvidenceDetails item={reason.primary} />
               <Supporting items={reason.supporting ?? []} />
             </div>
           </li>

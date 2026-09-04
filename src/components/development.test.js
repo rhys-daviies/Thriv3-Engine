@@ -410,10 +410,14 @@ describe('the section sits beneath the others and changes none of them', () => {
   });
 
   it('is visible without anything being opened', () => {
-    // Nothing on this surface collapses; "open by default" means rendered.
+    // The MEASUREMENTS are open by default; only the provenance behind each
+    // one is collapsed, and every provenance panel starts hidden.
     expect(full).not.toContain('<details');
-    expect(full).not.toContain('aria-expanded');
     expect(t).toContain(item('Carleton (Ryan)', 'PROGRAMME_DEVELOPMENT_PATTERN').facts.verdictNote);
+    expect(t).toContain('Every first-year, ranked by minutes');
+    for (const state of full.match(/aria-expanded="[a-z]+"/g) ?? []) {
+      expect(state).toBe('aria-expanded="false"');
+    }
   });
 
   it('appears for a programme with no positive reasons at all', () => {

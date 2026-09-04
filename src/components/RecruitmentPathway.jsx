@@ -1,5 +1,6 @@
 import React from 'react';
 import { pathwayCopyFor, pathwayQualification } from '@/lib/pathwayEvidenceCopy';
+import EvidenceDetails from '@/components/EvidenceDetails';
 
 /**
  * How athletes with this athlete's background have reached this programme.
@@ -61,6 +62,7 @@ function Row({ item }) {
       {qualification && (
         <p className="mt-1 text-xs text-muted-foreground/80">{qualification}</p>
       )}
+      <EvidenceDetails item={item} />
     </li>
   );
 }

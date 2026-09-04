@@ -1,5 +1,6 @@
 import React from 'react';
 import { contextCopyFor, contextWindow } from '@/lib/contextEvidenceCopy';
+import EvidenceDetails from '@/components/EvidenceDetails';
 
 /**
  * Who is in charge, and how much of their time in post we actually watched.
@@ -44,6 +45,7 @@ function Row({ item }) {
           {window.coverage ? ` · ${window.coverage}` : ''}
         </p>
       )}
+      <EvidenceDetails item={item} />
     </li>
   );
 }

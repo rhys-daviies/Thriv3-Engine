@@ -7,6 +7,7 @@ import { contextCopyFor, contextWindow, CONTEXT_COPY_KINDS } from '@/lib/context
 import { CONTEXT_FIXTURES } from '@/lib/__fixtures__/contextEvidence.js';
 import { PATHWAY_FIXTURES } from '@/lib/__fixtures__/pathwayEvidence.js';
 import { SECTION_OF, SECTIONS } from '@shared/evidence/operatorEvidence.js';
+import { provenanceRows } from '@/lib/evidenceProvenance';
 
 /**
  * The programme-context section, against six real programmes.
@@ -272,9 +273,14 @@ describe('coach context and coach-attributed arrivals stay apart', () => {
   it('gives the coach no position-specific claim', () => {
     // The roster section above names defenders and the pathway section names a
     // coach. Neither combines into "this coach recruits defenders".
-    const ctx = contextCopyFor(coach('Jacksonville'));
-    expect(`${ctx.headline} ${ctx.tenure} ${ctx.detail}`).not.toMatch(/defender|position/i);
-    expect(t).not.toMatch(new RegExp(`${coach('Jacksonville').facts.coach}[^.]*defender`, 'i'));
+    const c = coach('Jacksonville');
+    const ctx = contextCopyFor(c);
+    // The item's own text, drawer included. Searching the whole page instead
+    // would flatten the element boundary between this row and the next.
+    const own = [ctx.headline, ctx.tenure, ctx.detail,
+      ...provenanceRows(c).map((r) => `${r.label} ${r.value}`)].join(' ');
+    expect(own).toContain(c.facts.coach);
+    expect(own).not.toMatch(/defender|forward|midfield|position/i);
   });
 
   it('does not turn a coaching change beside roster turnover into a rebuild', () => {

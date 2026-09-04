@@ -1,5 +1,6 @@
 import React from 'react';
 import { developmentCopyFor, developmentWindow, BAND_ORDER } from '@/lib/developmentEvidenceCopy';
+import EvidenceDetails from '@/components/EvidenceDetails';
 
 /**
  * What has happened to first-year players at this programme.
@@ -119,6 +120,7 @@ function Row({ item }) {
           {window.coverage ? ` · ${window.coverage}` : ''}
         </p>
       )}
+      <EvidenceDetails item={item} />
     </li>
   );
 }

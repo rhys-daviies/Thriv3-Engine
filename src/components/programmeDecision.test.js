@@ -95,10 +95,13 @@ describe('a resolved programme with evidence but no reasons', () => {
     });
 
     it(`${name}: promises no navigation that does not exist yet`, () => {
-      // The sections are not built. A "see the detail below" link would be a
-      // dead end, so the copy says the detail is not on this screen yet.
+      // No link anywhere: the zero state must not point at a page that does
+      // not exist. Buttons are a different matter now — each evidence row
+      // carries a provenance disclosure — so the assertion is that the ZERO
+      // STATE itself offers no way out, not that the payload has no controls.
       expect(html).not.toContain('<a ');
-      expect(html).not.toContain('<button');
+      const zeroState = text(html).slice(text(html).indexOf('No positive reasons identified'));
+      expect(zeroState).not.toMatch(/see |view |open |click/i);
     });
   }
 });
