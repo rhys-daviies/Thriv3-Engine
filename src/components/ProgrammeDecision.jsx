@@ -4,6 +4,7 @@ import RosterOpportunity from '@/components/RosterOpportunity';
 import RecruitmentPathway from '@/components/RecruitmentPathway';
 import Development from '@/components/Development';
 import AcademicProgrammeFit from '@/components/AcademicProgrammeFit';
+import ProgrammeContext from '@/components/ProgrammeContext';
 
 /**
  * One programme's answer to "why do we think this is relevant to this athlete?"
@@ -111,6 +112,7 @@ export default function ProgrammeDecision({ model, loading = false, failed = fal
   const pathway = model.sections?.RECRUITMENT_PATHWAY ?? [];
   const development = model.sections?.DEVELOPMENT ?? [];
   const fit = model.sections?.ACADEMIC_PROGRAMME_FIT ?? [];
+  const context = model.sections?.PROGRAMME_CONTEXT ?? [];
 
   if (summary.reasonCount > 0) {
     return (
@@ -125,6 +127,7 @@ export default function ProgrammeDecision({ model, loading = false, failed = fal
         <RecruitmentPathway items={pathway} />
         <Development items={development} />
         <AcademicProgrammeFit items={fit} />
+        <ProgrammeContext items={context} />
       </div>
     );
   }
@@ -164,6 +167,7 @@ export default function ProgrammeDecision({ model, loading = false, failed = fal
       <RecruitmentPathway items={pathway} />
       <Development items={development} />
       <AcademicProgrammeFit items={fit} />
+      <ProgrammeContext items={context} />
     </div>
   );
 }
