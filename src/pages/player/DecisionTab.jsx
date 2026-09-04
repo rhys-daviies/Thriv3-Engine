@@ -14,10 +14,10 @@ import { usePlayerWorkspace } from './PlayerWorkspace';
  * generators through different endpoints, and neither is derived from the
  * other.
  *
- * This is the first slice. The ranked reasons are here; the sections beneath
- * them — roster, pathway, development, fit, context — are the next step, and
- * the placeholder at the bottom holds their place without inventing content
- * for them.
+ * The page reads top to bottom as conclusion, then reasons, then evidence: a
+ * summary line, the ranked reasons, and beneath them the five detailed
+ * sections — roster, pathway, development, fit and context — each with a
+ * one-click provenance drawer on every claim.
  */
 
 /** The route caps a batch at 40; the tab pages through the list in those. */
@@ -76,6 +76,15 @@ export default function DecisionTab() {
         className="max-w-sm"
       />
 
+      {query && filtered.length === 0 && (
+        // A filter that matches nothing used to render the header and then
+        // stop, which reads as a page that failed rather than a search that
+        // found nothing.
+        <p className="text-sm text-muted-foreground">
+          No programme in this analysis matches “{query}”.
+        </p>
+      )}
+
       <div className="space-y-4">
         {filtered.map((r) => (
           <section key={r.name} className="rounded-lg border border-border p-4">
@@ -91,13 +100,6 @@ export default function DecisionTab() {
               loading={loading}
               failed={failed}
             />
-
-            {/*
-              Where the roster, pathway, development, fit and context sections
-              will go. Left as spacing rather than filled with placeholder
-              cards: a mock section is indistinguishable from a real one that
-              found nothing, and an operator would learn to ignore both.
-            */}
           </section>
         ))}
       </div>

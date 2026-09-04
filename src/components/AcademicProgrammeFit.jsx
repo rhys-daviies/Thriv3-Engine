@@ -80,10 +80,16 @@ export default function AcademicProgrammeFit({ items = [] }) {
   return (
     <section className="mt-5 border-t border-border pt-4">
       <h4 className="font-heading text-sm font-semibold">Academic and programme fit</h4>
-      <p className="mt-0.5 text-sm text-muted-foreground">
+        {/* The description frames how to read the rows beneath it. With no
+            rows there is nothing to frame, and on a programme where every
+            section is empty the page said the same thing six times over —
+            once at the top and once more under each heading. */}
+        {items.length > 0 && (
+        <p className="mt-0.5 text-sm text-muted-foreground">
         What the athlete’s stated subject matches here, and separately, how the team has been
         doing. These are two different things and neither strengthens the other.
-      </p>
+        </p>
+        )}
 
       {items.length === 0 ? (
         // Neither group has anything. One restrained line rather than two

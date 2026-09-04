@@ -346,7 +346,11 @@ describe('an empty section is a gap, not a finding', () => {
   });
 
   it('still shows the section, so the operator can see it was looked at', () => {
-    expect(text(html)).toContain('Current roster structure');
+    // The heading stays so the operator can see the section was looked at;
+    // the framing paragraph does not, because it explains how to read rows
+    // and there are none.
+    expect(text(html)).toContain('Roster opportunity');
+    expect(text(html)).not.toContain('Current roster structure');
   });
 });
 
@@ -360,10 +364,17 @@ describe('the section sits beneath Top Reasons and adds to them', () => {
     // Anchored on the section's own intro, not its heading: "Roster
     // opportunity" is also the class tag on every OPENING reason above, so
     // the heading alone cannot say which of the two was found.
+    // Anchored on the section's framing paragraph, which only a populated
+    // section renders — Jacksonville's roster section has rows.
     const section = t.indexOf('Current roster structure');
+    expect(section).toBeGreaterThan(-1);
     expect(section).toBeGreaterThan(t.indexOf('reasons identified'));
-    expect(section).toBeGreaterThan(t.indexOf('Recruitment pathway'));
+    // "Recruitment pathway" is now ONLY the section heading, which sits below
+    // this one — the class tag it used to collide with reads "Pathway". That
+    // collision is what the rename removed, so the reasons are anchored on
+    // their own text instead of on a tag.
     expect(section).toBeGreaterThan(t.indexOf('Results are trending upwards'));
+    expect(section).toBeLessThan(t.indexOf('Recruiting history and roster make-up'));
   });
 
   it('keeps evidence that is also a top reason', () => {

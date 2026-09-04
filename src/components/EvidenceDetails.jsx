@@ -16,7 +16,7 @@ import { provenanceRows } from '@/lib/evidenceProvenance';
  * COLLAPSED BY DEFAULT, and it changes nothing when opened. It adds no
  * ordering, no selection, and no navigation; the row above is untouched.
  */
-export default function EvidenceDetails({ item, label = 'Where this comes from' }) {
+export default function EvidenceDetails({ item, label = 'Provenance' }) {
   const [open, setOpen] = useState(false);
   const panelId = useId();
 
@@ -34,15 +34,23 @@ export default function EvidenceDetails({ item, label = 'Where this comes from' 
         aria-expanded={open}
         aria-controls={panelId}
         onClick={() => setOpen((v) => !v)}
-        className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+        // The same focus treatment the app's Button uses, so a keyboard user
+        // sees this control the way they see every other one.
+        className="rounded-sm text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
+        {/* One word, because a rich programme carries twenty-seven of these
+            down one page and "Where this comes from" repeated that often is
+            the loudest text on the screen. */}
         {open ? 'Hide provenance' : label}
       </button>
       <div id={panelId} hidden={!open}>
         <dl className="mt-2 space-y-1 border-l border-border pl-3">
           {rows.map((row) => (
             <div key={row.label} className="flex gap-3 text-xs">
-              <dt className="w-40 shrink-0 text-muted-foreground">{row.label}</dt>
+              {/* Narrower label column on a phone: 160px of a 375px screen
+                  left "Roster records — projected minutes" wrapping to four
+                  lines beside a mostly empty gutter. */}
+              <dt className="w-28 shrink-0 text-muted-foreground sm:w-40">{row.label}</dt>
               <dd className="text-muted-foreground">{row.value}</dd>
             </div>
           ))}

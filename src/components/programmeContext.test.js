@@ -231,7 +231,11 @@ describe('an empty section is a gap, not an absence of context', () => {
   });
 
   it('still shows the section', () => {
-    expect(text(html)).toContain('Coaching context that may change how');
+    // The heading stays so the operator can see the section was looked at;
+    // the framing paragraph does not, because it explains how to read rows
+    // and there are none.
+    expect(text(html)).toContain('Programme context');
+    expect(text(html)).not.toContain('Coaching context that may change how');
   });
 });
 

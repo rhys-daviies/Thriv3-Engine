@@ -241,11 +241,15 @@ describe('the ranked list', () => {
 
   it('tags a reason with an operator label, not the backend enum', () => {
     const t = text(html);
-    expect(t).toContain('Roster opportunity');
-    expect(t).toContain('Recruitment pathway');
-    expect(t).toContain('Programme fit');
+    // One word each, so a tag on a reason cannot be mistaken for the section
+    // heading further down the page — which is what "Roster opportunity" in
+    // both places used to do.
+    expect(t).toContain('Opening');
+    expect(t).toContain('Pathway');
+    expect(t).toContain('Fit');
     expect(t).not.toContain('OPENING');
     expect(t).not.toContain('PATHWAY');
+    expect(t).not.toContain('Roster opportunity');
   });
 
   it('shows a kind it has no words for rather than dropping it', () => {

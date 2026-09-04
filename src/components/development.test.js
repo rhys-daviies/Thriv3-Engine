@@ -367,7 +367,11 @@ describe('an empty section is a gap, not a finding', () => {
   });
 
   it('still shows the section, as the other two sections do', () => {
-    expect(text(html)).toContain('How first-year players have been used here');
+    // The heading stays so the operator can see the section was looked at;
+    // the framing paragraph does not, because it explains how to read rows
+    // and there are none.
+    expect(text(html)).toContain('Development');
+    expect(text(html)).not.toContain('How first-year players have been used here');
   });
 });
 
@@ -429,7 +433,10 @@ describe('the section sits beneath the others and changes none of them', () => {
   });
 
   it('leaves the roster and pathway sections untouched', () => {
-    expect(t).toContain('Current roster structure');
+    // Carleton has no roster evidence, so that section shows its heading and
+    // its empty line; the pathway section has rows and shows its framing.
+    expect(t).toContain('Roster opportunity');
+    expect(t).toContain('No roster evidence on file');
     expect(t).toContain('Recruiting history and roster make-up');
   });
 

@@ -84,11 +84,17 @@ export default function RecruitmentPathway({ items = [] }) {
   return (
     <section className="mt-5 border-t border-border pt-4">
       <h4 className="font-heading text-sm font-semibold">Recruitment pathway</h4>
-      <p className="mt-0.5 text-sm text-muted-foreground">
+        {/* The description frames how to read the rows beneath it. With no
+            rows there is nothing to frame, and on a programme where every
+            section is empty the page said the same thing six times over —
+            once at the top and once more under each heading. */}
+        {items.length > 0 && (
+        <p className="mt-0.5 text-sm text-muted-foreground">
         Recruiting history and roster make-up showing how athletes with a similar background
         have reached this programme. This is a record of what has happened, not an indication
         of what this programme will do next.
-      </p>
+        </p>
+        )}
 
       {items.length === 0 ? (
         // Not "no pathway". We hold no recruiting history we can read for this

@@ -82,11 +82,17 @@ export default function RosterOpportunity({ items = [] }) {
   return (
     <section className="mt-5 border-t border-border pt-4">
       <h4 className="font-heading text-sm font-semibold">Roster opportunity</h4>
-      <p className="mt-0.5 text-sm text-muted-foreground">
+        {/* The description frames how to read the rows beneath it. With no
+            rows there is nothing to frame, and on a programme where every
+            section is empty the page said the same thing six times over —
+            once at the top and once more under each heading. */}
+        {items.length > 0 && (
+        <p className="mt-0.5 text-sm text-muted-foreground">
         Current roster structure and upcoming turnover at this athlete’s position. These are
         separate measurements of overlapping groups — they are not steps in one calculation,
         and none of them is a claim about playing time.
-      </p>
+        </p>
+        )}
 
       {items.length === 0 ? (
         // Not "no roster opportunity". We did not read anything about this

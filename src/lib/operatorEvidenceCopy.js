@@ -332,11 +332,18 @@ export function operatorCopyFor(item, role = 'primary') {
 /**
  * The operator's word for a decision class.
  *
+ * One word each, deliberately. These used to read "Roster opportunity",
+ * "Recruitment pathway" and "Programme fit" — the same phrases the detailed
+ * sections use as their headings, so the page said "Roster opportunity" both
+ * as a tag on a reason and as a section title further down, and a reader could
+ * not tell from the words which of the two they were looking at. The tag says
+ * what KIND of reason this is; the heading says which section you are in.
+ *
  * CONTEXT has no entry on purpose: the top-reasons policy never selects one,
  * so a label for it would be a promise this surface cannot keep.
  */
 export const DECISION_CLASS_LABEL = Object.freeze({
-  OPENING: 'Roster opportunity',
-  PATHWAY: 'Recruitment pathway',
-  FIT: 'Programme fit',
+  OPENING: 'Opening',
+  PATHWAY: 'Pathway',
+  FIT: 'Fit',
 });

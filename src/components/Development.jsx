@@ -132,11 +132,17 @@ export default function Development({ items = [] }) {
   return (
     <section className="mt-5 border-t border-border pt-4">
       <h4 className="font-heading text-sm font-semibold">Development</h4>
-      <p className="mt-0.5 text-sm text-muted-foreground">
+        {/* The description frames how to read the rows beneath it. With no
+            rows there is nothing to frame, and on a programme where every
+            section is empty the page said the same thing six times over —
+            once at the top and once more under each heading. */}
+        {items.length > 0 && (
+        <p className="mt-0.5 text-sm text-muted-foreground">
         How first-year players have been used here, measured across the programme and across the
         cohort closest to this athlete. These are records of what happened in earlier seasons,
         not predictions about what this athlete would get.
-      </p>
+        </p>
+        )}
 
       {items.length === 0 ? (
         // Not "this programme does not develop first-years". We hold no

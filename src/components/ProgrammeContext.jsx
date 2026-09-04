@@ -54,10 +54,16 @@ export default function ProgrammeContext({ items = [] }) {
   return (
     <section className="mt-5 border-t border-border pt-4">
       <h4 className="font-heading text-sm font-semibold">Programme context</h4>
-      <p className="mt-0.5 text-sm text-muted-foreground">
+        {/* The description frames how to read the rows beneath it. With no
+            rows there is nothing to frame, and on a programme where every
+            section is empty the page said the same thing six times over —
+            once at the top and once more under each heading. */}
+        {items.length > 0 && (
+        <p className="mt-0.5 text-sm text-muted-foreground">
         Coaching context that may change how the evidence above should be read — who has been in
         charge, and over how much of the record we hold.
-      </p>
+        </p>
+        )}
 
       {items.length === 0 ? (
         // Not "there is no relevant context". We hold no coaching records for

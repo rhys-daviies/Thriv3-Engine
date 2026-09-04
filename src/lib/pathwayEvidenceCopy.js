@@ -204,7 +204,12 @@ const PATHWAY_COPY = Object.freeze({
       n(f.intakesWithArrival)
         ? `${f.intakesWithArrival} of those intakes included at least one.`
         : null,
-      Number.isFinite(f.meanPerIntake) ? `Averaging ${f.meanPerIntake} per intake.` : null,
+      // Rounded for display. The server's mean is 8/3 at Carleton and printed
+      // as "Averaging 2.6666666666666665 per intake" — a true number that
+      // reads as a bug and implies a precision the count cannot support.
+      // Rounding a given value is formatting; it computes nothing.
+      Number.isFinite(f.meanPerIntake)
+        ? `Averaging ${Number(f.meanPerIntake.toFixed(1))} per intake.` : null,
     ].filter(Boolean).join(' ') || null,
     // Keys arrive as "2022->2023", one row per intake window.
     timeline: f.byIntake ? Object.entries(f.byIntake).map(([window, howMany]) => ({

@@ -60,7 +60,7 @@ function Supporting({ items }) {
             {/* Its OWN provenance, never the primary's. Three roster items in
                 one reason describe different populations over different
                 windows, and one shared drawer would say otherwise. */}
-            <EvidenceDetails item={item} label="Where this comes from" />
+            <EvidenceDetails item={item} />
           </li>
         );
       })}

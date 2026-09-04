@@ -88,8 +88,11 @@ describe('every pathway kind can be presented', () => {
         if (typeof node === 'number') {
           allowed.add(String(node));
           // A decimal the server computed — meanPerIntake is 4.75 — reaches the
-          // page whole, but the digit scan below sees "4" and "75".
+          // page whole, but the digit scan below sees "4" and "75". Its
+          // one-decimal rounding is licensed formatting and is allowed too:
+          // 8/3 is displayed as 2.7, not as 2.6666666666666665.
           String(node).split('.').forEach((part) => allowed.add(part));
+          String(Number(node.toFixed(1))).split('.').forEach((part) => allowed.add(part));
           if (node > 0 && node < 1) allowed.add(String(Math.round(node * 100)));
         } else if (typeof node === 'string') {
           // Seasons arrive as strings, and intake keys as "2022->2023".
@@ -313,7 +316,11 @@ describe('intake history is a measurement, not a forecast', () => {
   });
 
   it('reports the mean the server computed, and computes none of its own', () => {
-    expect(copy.detail).toContain(`Averaging ${intake.facts.meanPerIntake} per intake`);
+    // Rounded for display only. Carleton's is 8/3 and printed in full read
+    // "Averaging 2.6666666666666665 per intake" — true, and unreadable.
+    const shown = Number(intake.facts.meanPerIntake.toFixed(1));
+    expect(copy.detail).toContain(`Averaging ${shown} per intake`);
+    expect(copy.detail).not.toMatch(/\.\d{3,}/);
   });
 
   it('breaks the intakes down by window', () => {
@@ -373,7 +380,10 @@ describe('an empty section is unknown, not negative', () => {
   });
 
   it('still shows the section, so the operator can see it was looked at', () => {
-    expect(text(html)).toContain('Recruiting history and roster make-up');
+    // The heading stays; the framing paragraph does not. It explains how to
+    // read rows, and there are none.
+    expect(text(html)).toContain('Recruitment pathway');
+    expect(text(html)).not.toContain('Recruiting history and roster make-up');
   });
 });
 
