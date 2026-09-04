@@ -1,6 +1,7 @@
 import React from 'react';
 import TopReasons from '@/components/TopReasons';
 import RosterOpportunity from '@/components/RosterOpportunity';
+import RecruitmentPathway from '@/components/RecruitmentPathway';
 
 /**
  * One programme's answer to "why do we think this is relevant to this athlete?"
@@ -105,6 +106,7 @@ export default function ProgrammeDecision({ model, loading = false, failed = fal
   }
 
   const roster = model.sections?.ROSTER_OPPORTUNITY ?? [];
+  const pathway = model.sections?.RECRUITMENT_PATHWAY ?? [];
 
   if (summary.reasonCount > 0) {
     return (
@@ -116,6 +118,7 @@ export default function ProgrammeDecision({ model, loading = false, failed = fal
             reason above appears here too — with its names, years and basis,
             which the summary line does not carry. */}
         <RosterOpportunity items={roster} />
+        <RecruitmentPathway items={pathway} />
       </div>
     );
   }
@@ -152,6 +155,7 @@ export default function ProgrammeDecision({ model, loading = false, failed = fal
           different statement from "we hold nothing about the roster", and an
           operator deciding whether to look further needs to see which. */}
       <RosterOpportunity items={roster} />
+      <RecruitmentPathway items={pathway} />
     </div>
   );
 }
