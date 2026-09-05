@@ -134,18 +134,20 @@ const COPY = Object.freeze({
     note: list(f.seasonsPresent) ? `Present in ${list(f.seasonsPresent)}.` : null,
   } : null),
 
-  /**
-   * Compatriots on the squad now.
+  /*
+   * CURRENT_SAME_COUNTRY HAS NO ENTRY HERE, AND MUST NOT GET ONE.
    *
-   * PRESENCE IS NOT DEMAND. Who is on a roster today says nothing about what a
-   * programme is looking for tomorrow, and beside a match score the omission
-   * would be read as the claim. So the note says it.
+   * It is DENIED for MATCHING_SUMMARY because the match score already counts
+   * the same thing: `internationalFit` reads the athlete's compatriots on the
+   * same 2026 roster rows, and the geography row on the very same card labels
+   * it "a compatriot here". Words for it here would be a licence granted in
+   * the client, where no permission check can see it — and the registry test
+   * fails the build if this file and the licence disagree in either direction.
+   *
+   * The kind is alive elsewhere. `pathwayEvidenceCopy` renders it on the
+   * Decision Evidence page and the composer may put it in an email; neither is
+   * beside a score.
    */
-  CURRENT_SAME_COUNTRY: (f) => (f.country && n(f.count) ? {
-    line: `${f.count} ${f.country} ${f.count === 1 ? 'player is' : 'players are'} `
-      + `on the current squad.`,
-    note: 'On the roster now — not a statement about current recruiting.',
-  } : null),
 
   /**
    * A thin position group.

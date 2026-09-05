@@ -11,10 +11,19 @@ import { operatorFactsFor } from './operatorFacts.js';
  * the product. A match card shows a number, and any fact printed beside a
  * number is read as its cause. So this surface carries only evidence of a
  * demonstrated recruiting pathway that the match score does not already use:
- * two ALLOWED kinds and four QUALIFIED ones out of twenty-six. Everything the
+ * two ALLOWED kinds and three QUALIFIED ones out of twenty-six. Everything the
  * score consumes, everything derived from what the score consumes, and
  * everything sharing a criterion's name is DENIED — not because it is untrue,
  * but because next to a score it would read as the reason for the score.
+ *
+ * THE TEST IS THE MEASUREMENT, NOT THE CRITERION'S NAME. CURRENT_SAME_COUNTRY
+ * was licensed here once and is not any more: it counts the athlete's
+ * compatriots on the current squad, and so does `internationalFit`, which the
+ * geography criterion delegates to for every international athlete. Same
+ * rows, same season, same country — one fact, which a card would have printed
+ * twice and called the second one independent. Kinds that merely sound like a
+ * criterion, or that correlate with one in the real world, are a different
+ * question and are judged one at a time.
  *
  * "What Thriv3 knows" remains the Decision Evidence page, which has room to
  * explain a horizon and a caveat. This has room for one line.
@@ -69,17 +78,23 @@ const RULES = Object.freeze({
 
   HISTORICAL_SAME_COUNTRY: {
     lead: false,
-    // Q-TENSE. The distinction from CURRENT_SAME_COUNTRY is structural, not
-    // editorial: the two kinds carry different temporality, and a card that
-    // could not tell them apart would report a player who left in 2022 as
-    // being on the squad.
+    /**
+     * Q-TENSE. The claim is that compatriots came through the programme, and
+     * the qualification is that the object says so structurally.
+     *
+     * This test used to be one half of a pair with CURRENT_SAME_COUNTRY, which
+     * is now denied this surface — the score already counts the current squad's
+     * compatriots through `internationalFit`. The test stays, and matters more
+     * alone than it did in the pair: it is what stops a CURRENT-temporality
+     * object from being rendered by historical copy, which is now the only way
+     * a current-roster headcount could reach a card at all.
+     *
+     * What is licensed here is a claim about EARLIER ROSTERS, which the score
+     * never reads — matching indexes the 2026 squad only. That some of those
+     * compatriots are still on the roster is a fact about people, not a second
+     * measurement of the same thing; see the note on `seasonsPresent` below.
+     */
     satisfied: (f, q) => q.temporality === 'HISTORICAL',
-  },
-
-  CURRENT_SAME_COUNTRY: {
-    lead: false,
-    // Q-TENSE, the other way.
-    satisfied: (f, q) => q.temporality === 'CURRENT',
   },
 
   POSITION_GROUP_SCARCITY: {
@@ -134,12 +149,18 @@ const FACTS = Object.freeze({
     country: f.country,
     count: f.count,
     names: f.names ?? [],
+    /**
+     * The seasons the compatriots actually appear in, as the server sent them.
+     *
+     * KNOWN TO INCLUDE THE CURRENT SEASON on 17-19% of items, because a
+     * compatriot who arrived in 2024 and is still here appears in 2026 too.
+     * That is Stage H debt in the generator's `data.seasons`, not a licence
+     * problem: the claim this kind makes is that they came through earlier
+     * rosters, which the guard above enforces and the score never reads.
+     * Filtering the array here would be inventing a season filter the server
+     * did not apply, so it is passed through and the copy states only the past.
+     */
     seasonsPresent: f.seasonsPresent ?? [],
-  }),
-  CURRENT_SAME_COUNTRY: (f) => ({
-    country: f.country,
-    count: f.count,
-    names: f.names ?? [],
   }),
   POSITION_GROUP_SCARCITY: (f) => ({
     position: f.position,
@@ -151,9 +172,11 @@ const FACTS = Object.freeze({
 /**
  * The qualification a card needs, and no more.
  *
- * `temporality` is here because it is the only thing separating the two
- * same-country kinds, and a surface that lost it would state a past presence
- * as a present one. `seasons` says what was read. Nothing else crosses:
+ * `temporality` is here because HISTORICAL_SAME_COUNTRY's licence depends on
+ * it: the same generator shape can describe a past presence or a present one,
+ * and only this field says which. Since CURRENT_SAME_COUNTRY was denied this
+ * surface it is also the gate that keeps a current-roster headcount off the
+ * card entirely. `seasons` says what was read. Nothing else crosses:
  * confidence is enforced below as a floor and never shown, because a grade
  * beside a score invites arithmetic between the two.
  */
@@ -269,9 +292,9 @@ export function matchingSummaryFor(evidenceResult) {
   /**
    * One per dedupe group, and this cuts deeply here.
    *
-   * Five of the six licensed kinds share `international-connection`: a coach
-   * arrival from New Zealand, a New Zealand defender recruited, a New
-   * Zealander on an earlier roster and one on the current squad are four
+   * Four of the five licensed kinds share `international-connection`: a coach
+   * arrival from New Zealand, a New Zealand defender recruited, a compatriot
+   * on an earlier roster and an arrival from the wider region are four
    * statements about ONE connection. Printed as four rows beside a match
    * score they would read as four independent signals, which is the same false
    * corroboration this surface's licensing exists to prevent. So a card shows

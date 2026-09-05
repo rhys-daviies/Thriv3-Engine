@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
 import {
   matchingSummaryFor, LICENSED_KINDS, MAX_FACTS,
 } from './matchingSummary.js';
 import {
-  EVIDENCE_KINDS, PERMISSION, permissionsFor, defineEvidence, CONFIDENCE,
+  EVIDENCE_KINDS, PERMISSION, permissionsFor, kindSpec, defineEvidence, CONFIDENCE,
 } from './kinds.js';
 
 /**
@@ -30,7 +31,19 @@ const APPROVED = Object.freeze({
   POSITION_GROUP_SCARCITY: 'QUALIFIED',
   ARRIVAL_SAME_REGION_POSITION: 'QUALIFIED',
   HISTORICAL_SAME_COUNTRY: 'QUALIFIED',
-  CURRENT_SAME_COUNTRY: 'QUALIFIED',
+
+  /**
+   * DENIED, and it was QUALIFIED until the final Stage F audit.
+   *
+   * It counts the athlete's compatriots on the current squad; `internationalFit`
+   * — which the geography criterion delegates to for every international
+   * athlete — counts the same country over the same 2026 rows. Measurement
+   * identity, not adjacency: of 8 real programmes where this kind fired, 8
+   * also carried the score's own "a compatriot here" label. The other licensed
+   * kinds range 0-60% and vary, which is what a different measurement looks
+   * like.
+   */
+  CURRENT_SAME_COUNTRY: 'DENIED',
 
   HISTORICAL_SAME_REGION: 'DENIED',
   INTERNATIONAL_ROSTER: 'DENIED',
@@ -124,10 +137,10 @@ describe('the registry says exactly what F1 approved', () => {
     }
   });
 
-  it('licenses two, qualifies four and denies twenty', () => {
+  it('licenses two, qualifies three and denies twenty-one', () => {
     const by = { ALLOWED: 0, QUALIFIED: 0, DENIED: 0 };
     for (const kind of Object.keys(EVIDENCE_KINDS)) by[permissionsFor(kind).MATCHING_SUMMARY] += 1;
-    expect(by).toEqual({ ALLOWED: 2, QUALIFIED: 4, DENIED: 20 });
+    expect(by).toEqual({ ALLOWED: 2, QUALIFIED: 3, DENIED: 21 });
   });
 
   it('leaves OPERATOR and OUTREACH exactly as they were', () => {
@@ -194,6 +207,95 @@ describe('a denied kind cannot reach the payload', () => {
   });
 });
 
+/**
+ * The fact the match score already counts.
+ *
+ * CURRENT_SAME_COUNTRY is not a kind that merely sounds like a criterion. It
+ * counts the athlete's compatriots on the current squad, and `internationalFit`
+ * — which `geography` delegates to for every international athlete — reads
+ * `sameCountryRows`: the same country, the same 2026 roster rows, the same
+ * number. The card would have shown one fact twice, once as `Location · a
+ * compatriot here · +4.7` and once as a signal, with a line underneath saying
+ * the signal was not an input to the score.
+ *
+ * Its own suite because it is the one kind whose licence was granted and then
+ * withdrawn, and a future editor restoring it should have to delete tests that
+ * say why.
+ */
+describe('CURRENT_SAME_COUNTRY is denied this surface', () => {
+  it('is DENIED in the registry, not merely absent from a rule table', () => {
+    expect(permissionsFor('CURRENT_SAME_COUNTRY').MATCHING_SUMMARY).toBe(PERMISSION.DENIED);
+  });
+
+  it('is not in the licensed set', () => {
+    expect(LICENSED_KINDS).not.toContain('CURRENT_SAME_COUNTRY');
+    expect(LICENSED_KINDS).toHaveLength(5);
+  });
+
+  it('drops a perfectly valid one', () => {
+    // Not malformed, not stale, not below its floor. Denied on the merits.
+    const ev = currentCountry();
+    expect(ev.kind).toBe('CURRENT_SAME_COUNTRY');
+    expect(ev.confidence).toBe(CONFIDENCE.HIGH);
+    expect(matchingSummaryFor(resultOf([ev])).facts).toEqual([]);
+  });
+
+  it('drops it even when it is the only evidence there is', () => {
+    // The card must go silent rather than reach for the next thing.
+    const m = matchingSummaryFor(resultOf([currentCountry()]));
+    expect(m.facts).toEqual([]);
+    expect(m.hasEvidence).toBe(false);
+    expect(m.programme.resolved).toBe(true);
+  });
+
+  it('leaks no trace of it into the payload', () => {
+    const json = JSON.stringify(matchingSummaryFor(resultOf([currentCountry(), scarcity()])));
+    expect(json).not.toContain('CURRENT_SAME_COUNTRY');
+    expect(json).not.toContain('Joby Reid');
+    expect(json).not.toContain('New Zealand');
+  });
+
+  it('is not promoted by being email-eligible', () => {
+    expect(kindSpec('CURRENT_SAME_COUNTRY').emailEligible).toBe(true);
+    expect(permissionsFor('CURRENT_SAME_COUNTRY').OUTREACH).toBe(PERMISSION.ALLOWED);
+    expect(permissionsFor('CURRENT_SAME_COUNTRY').MATCHING_SUMMARY).toBe(PERMISSION.DENIED);
+  });
+
+  it('is not promoted by being visible to the operator', () => {
+    expect(permissionsFor('CURRENT_SAME_COUNTRY').OPERATOR_EVIDENCE).toBe(PERMISSION.ALLOWED);
+    expect(permissionsFor('CURRENT_SAME_COUNTRY').MATCHING_SUMMARY).toBe(PERMISSION.DENIED);
+  });
+
+  it('cannot be argued up by a generator asking for it', () => {
+    const ev = defineEvidence('CURRENT_SAME_COUNTRY', {
+      confidence: CONFIDENCE.HIGH,
+      season: '2026',
+      source: 'roster_players',
+      permissions: { MATCHING_SUMMARY: PERMISSION.ALLOWED },
+      data: { country: 'New Zealand', count: 2, names: ['A', 'B'] },
+    });
+    expect(ev.permissions.MATCHING_SUMMARY).toBe(PERMISSION.DENIED);
+    expect(matchingSummaryFor(resultOf([ev])).facts).toEqual([]);
+  });
+
+  it('has no rule and no projection left behind', () => {
+    // Dead qualification machinery for a denied kind is how a licence gets
+    // restored by accident: the load-time guard would stay quiet, because it
+    // only checks that every LICENSED kind has a rule.
+    const src = readFileSync(new URL('./matchingSummary.js', import.meta.url), 'utf8');
+    const code = src.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+    expect(code).not.toContain('CURRENT_SAME_COUNTRY');
+  });
+
+  it('still belongs to the operator and the composer', () => {
+    // The kind is unchanged everywhere else. Denying it here must not have
+    // quietly deleted a true thing from the surfaces that may say it.
+    expect(EVIDENCE_KINDS.CURRENT_SAME_COUNTRY).toBeTruthy();
+    expect(kindSpec('CURRENT_SAME_COUNTRY').temporality).toBe('CURRENT');
+    expect(kindSpec('CURRENT_SAME_COUNTRY').dedupeGroup).toBe('international-connection');
+  });
+});
+
 describe('a QUALIFIED kind fails closed', () => {
   it('keeps a region arrival that names a position and countries', () => {
     const m = matchingSummaryFor(resultOf([regionArrival()]));
@@ -223,22 +325,16 @@ describe('a QUALIFIED kind fails closed', () => {
     expect(fact.qualification.temporality).toBe('HISTORICAL');
   });
 
-  it('keeps a current country claim that is current', () => {
-    const [fact] = matchingSummaryFor(resultOf([currentCountry()])).facts;
-    expect(fact.qualification.temporality).toBe('CURRENT');
-  });
-
-  it('drops a same-country claim whose tense contradicts its kind', () => {
-    // Q-TENSE, mutated on the serialized object only. The two kinds are
-    // separated structurally; a card that could not tell them apart would
-    // report a player who left in 2022 as being on the squad now.
+  it('drops a historical country claim whose tense says otherwise', () => {
+    // Q-TENSE, mutated on the serialized object only.
+    //
+    // This test carried more weight once CURRENT_SAME_COUNTRY was denied the
+    // surface: it is now the ONLY thing standing between a current-roster
+    // compatriot headcount and a match card, and that headcount is the figure
+    // the geography criterion already scores.
     const wrong = { ...historicalCountry() };
     Object.defineProperty(wrong, 'temporality', { value: 'CURRENT', enumerable: true });
     expect(matchingSummaryFor(resultOf([wrong])).facts).toEqual([]);
-
-    const alsoWrong = { ...currentCountry() };
-    Object.defineProperty(alsoWrong, 'temporality', { value: 'HISTORICAL', enumerable: true });
-    expect(matchingSummaryFor(resultOf([alsoWrong])).facts).toEqual([]);
   });
 
   it('drops anything below its own confidence floor', () => {
@@ -280,11 +376,15 @@ describe('support-only never leads', () => {
 });
 
 describe('one connection is one fact', () => {
-  it('collapses five same-group kinds to one', () => {
-    // A coach arrival from New Zealand, a New Zealand defender recruited, a
-    // New Zealander on an earlier roster and one on the squad now are four
-    // statements about ONE connection. Four rows beside a score would read as
-    // four independent signals.
+  it('collapses the same-group kinds to one', () => {
+    // A coach arrival from New Zealand, a New Zealander on an earlier roster
+    // and an arrival from the wider region are three statements about ONE
+    // connection. Three rows beside a score would read as three independent
+    // signals.
+    //
+    // `currentCountry` is in the input and is dropped a step earlier, by
+    // licence rather than by dedupe — two separate mechanisms, and this test
+    // is about the second.
     const m = matchingSummaryFor(resultOf([
       historicalCountry(), currentCountry(), coachArrival(), regionArrival(),
     ]));
@@ -306,7 +406,7 @@ describe('one connection is one fact', () => {
   });
 
   it('can never exceed two facts with the kinds licensed today', () => {
-    // Only two dedupe groups are represented among the six licensed kinds, so
+    // Only two dedupe groups are represented among the five licensed kinds, so
     // the cap of four is not reachable. Stated so the day a third group is
     // licensed, this test says what changed.
     const m = matchingSummaryFor(resultOf([

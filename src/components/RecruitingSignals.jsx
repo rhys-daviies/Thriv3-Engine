@@ -13,9 +13,12 @@ import { recruitingSignalCopyFor } from '@/lib/recruitingSignalsCopy';
  * These rows are NOT the score's justification and must never read as it. The
  * score is six criteria over roster, academics, cost, distance and programme
  * quality; every kind that shares an input or a name with one of those is
- * denied this surface, which is why six of twenty-six kinds reach it. What
+ * denied this surface, which is why five of twenty-six kinds reach it. What
  * survives is a demonstrated recruiting pathway — something the score does not
- * look at and cannot see.
+ * look at and cannot see. The test is the measurement, not the criterion's
+ * name: CURRENT_SAME_COUNTRY was licensed here until it was found to count the
+ * same 2026 compatriots the geography criterion already scores, and was
+ * denied.
  *
  * IT RENDERS NOTHING FAR MORE OFTEN THAN IT RENDERS SOMETHING. Across a sweep
  * of all 1,169 men's programmes for one athlete, 969 — 82.9% — carried no
@@ -105,9 +108,16 @@ export default function RecruitingSignals({ signals }) {
         Said once, under the rows, because the rows sit under a score. Without
         it, a reader who has just read six weighted criteria reads these as a
         seventh.
+
+        IT SAYS "EVIDENCE", NOT "HISTORY", and the change is not cosmetic. Four
+        of the five licensed kinds are historical, but POSITION_GROUP_SCARCITY
+        describes the roster as it stands now — so "observed history" was
+        false for it. This wording is checked against all five: none of their
+        measurements appears among the scoring inputs, which are enumerated in
+        `score.js` and asserted in the signals suite.
       */}
       <p className="text-[11px] text-muted-foreground mt-2 italic">
-        Observed history. Not an input to the score above.
+        Independent evidence, not used in the match score above.
       </p>
     </section>
   );

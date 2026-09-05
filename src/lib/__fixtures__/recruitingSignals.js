@@ -120,7 +120,18 @@ export const HISTORICAL = {
   hasEvidence: true,
 };
 
-/** Compatriots on the squad now, plural. Ferrum. */
+/**
+ * UNREACHABLE. Compatriots on the squad now, plural. Ferrum.
+ *
+ * Captured while CURRENT_SAME_COUNTRY was still licensed here. It is now
+ * DENIED — `internationalFit` scores the same compatriots off the same 2026
+ * roster, and on Ferrum's card the score's own geography row reads "a
+ * compatriot here" — so the server can no longer produce this payload.
+ *
+ * Kept precisely because of that. The component must fail closed on a shape it
+ * should never see, and "the server would never send that" is the assumption
+ * that makes a client-side leak invisible on the day it stops being true.
+ */
 export const CURRENT = {
   programme: { resolved: true },
   facts: [{

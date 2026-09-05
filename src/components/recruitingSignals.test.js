@@ -64,8 +64,20 @@ describe('the licence and the words are kept in step', () => {
     for (const kind of COPY_KINDS) expect(LICENSED_KINDS).toContain(kind);
   });
 
-  it('covers exactly the six', () => {
-    expect(COPY_KINDS).toHaveLength(6);
+  it('covers exactly the five', () => {
+    expect(COPY_KINDS).toHaveLength(5);
+  });
+
+  it('has no words for the kind the score already counts', () => {
+    // CURRENT_SAME_COUNTRY was licensed here until the final Stage F audit
+    // found that `internationalFit` scores the same compatriots off the same
+    // 2026 roster. Words for it in this file would be a licence granted in the
+    // client, where no permission check can see it.
+    expect(COPY_KINDS).not.toContain('CURRENT_SAME_COUNTRY');
+    expect(recruitingSignalCopyFor({
+      kind: 'CURRENT_SAME_COUNTRY',
+      facts: { country: 'New Zealand', count: 2, names: ['A', 'B'] },
+    })).toBeNull();
   });
 
   it('says so visibly rather than inventing prose for an unknown kind', () => {
@@ -198,18 +210,22 @@ describe('tense is the qualification, and it is visible', () => {
     expect(rendered('HISTORICAL')).toContain('Present in 2022, 2023, 2025 and 2026');
   });
 
-  it('keeps the current squad in the present', () => {
-    expect(rendered('CURRENT')).toContain('2 New Zealand players are on the current squad.');
-  });
-
-  it('says presence is not recruiting', () => {
-    expect(rendered('CURRENT')).toContain('not a statement about current recruiting');
-  });
-
-  it('does not turn presence into activity', () => {
+  it('will not render a current-squad headcount even if one arrives', () => {
+    /**
+     * A payload the server cannot produce, rendered anyway.
+     *
+     * CURRENT_SAME_COUNTRY is DENIED for this surface — the read model drops
+     * it, the route asserts it never appears — so this fixture is a shape that
+     * should be unreachable. The component still has to fail closed on it,
+     * because "the server would never send that" is exactly the assumption
+     * that makes a client leak invisible when it stops being true.
+     */
     const out = rendered('CURRENT');
-    expect(out).not.toMatch(/recruit(s|ing|ed) from/);
-    expect(out).not.toMatch(/regularly|consistently|often|frequently/i);
+    expect(out).toContain('No signal wording for CURRENT_SAME_COUNTRY yet');
+    // No sentence assembled out of the facts it carries.
+    expect(out).not.toContain('New Zealand');
+    expect(out).not.toContain('current squad');
+    expect(out).not.toContain('Kaspar');
   });
 
   it('never merges a past and a present claim into a habit', () => {
@@ -285,7 +301,24 @@ describe('nothing on this surface is a score', () => {
   });
 
   it('says out loud that it is not part of the score', () => {
-    expect(rendered('TWO_SIGNALS')).toContain('Not an input to the score above.');
+    expect(rendered('TWO_SIGNALS'))
+      .toContain('Independent evidence, not used in the match score above.');
+  });
+
+  it('does not claim everything here is history, because one kind is not', () => {
+    /**
+     * POSITION_GROUP_SCARCITY carries CURRENT temporality and describes the
+     * roster as it stands. The boundary line used to read "Observed history",
+     * which was false for it — and false in the direction that matters, since
+     * the sentence's whole job is to be exactly true. The claim it makes now
+     * is about the SCORE, which holds for all five: none of their measurements
+     * is among the inputs `score.js` passes to a criterion.
+     */
+    expect(LICENSED_KINDS).toContain('POSITION_GROUP_SCARCITY');
+    expect(SCARCITY.facts[0].qualification.temporality).toBe('CURRENT');
+    const out = rendered('SCARCITY');
+    expect(out).not.toMatch(/observed history/i);
+    expect(out).toContain('Independent evidence, not used in the match score above.');
   });
 
   it('renders no bar, meter or coloured verdict', () => {

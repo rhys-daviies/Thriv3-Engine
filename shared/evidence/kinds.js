@@ -311,9 +311,31 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['country'],
-    // MATCHING_SUMMARY: QUALIFIED. Only with its tense: "on the squad now". Presence is not
-    // recruiting demand.
-    permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED },
+    /**
+     * MATCHING_SUMMARY: DENIED, and the reason is measurement identity.
+     *
+     * This kind counts the athlete's compatriots on the CURRENT squad. So does
+     * the match score: `geography` delegates to `internationalFit` for every
+     * international athlete, and that reads `sameCountryRows` — the same
+     * country over the same 2026 roster rows. It is not an adjacent
+     * measurement or a correlated one; it is the same population, and the
+     * score's own label for it reads "a compatriot here".
+     *
+     * Measured before this was corrected: of 8 real programmes where this kind
+     * fired, 8 also carried that label — 100%, where the other licensed kinds
+     * range from 0% to 60% and vary because they measure something else.
+     *
+     * It was first licensed QUALIFIED on the tense axis alone ("only with its
+     * tense: on the squad now"), which is sound as far as it goes and never
+     * touched the question the F1 rule actually asks: does the score already
+     * consume this fact. It does. Beside a number, a card would have stated
+     * one fact twice and called the second occurrence independent.
+     *
+     * The kind is unchanged everywhere else. OPERATOR_EVIDENCE still shows it
+     * on the Decision Evidence page, which has room to say what it is next to;
+     * OUTREACH still lets an email use it. Only the match card is closed.
+     */
+    permissions: { MATCHING_SUMMARY: PERMISSION.DENIED },
   },
   HISTORICAL_SAME_REGION: {
     leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,

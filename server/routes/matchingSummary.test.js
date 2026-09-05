@@ -22,6 +22,7 @@ import { EVIDENCE_KINDS, PERMISSION, permissionsFor } from '../../shared/evidenc
 const athleteId = randomUUID();
 const SIGNAL = 'Pathway University';    // a coach arrival from the athlete's country
 const QUIET = 'Quiet College';          // resolved, licensed nothing
+const COMPATRIOT = 'Compatriot State';  // a compatriot on the CURRENT squad and nowhere else
 const MISSING = 'Not A Real Programme'; // never inserted
 
 let baseUrl;
@@ -84,6 +85,7 @@ beforeAll(async () => {
       'New Zealand', 2027)`).run(athleteId);
   college(SIGNAL);
   college(QUIET);
+  college(COMPATRIOT);
 
   // A compatriot on an earlier roster, which licenses a country signal, plus a
   // graduating cohort, which licenses nothing here and must never appear.
@@ -109,6 +111,26 @@ beforeAll(async () => {
   for (let i = 0; i < 10; i += 1) roster(QUIET, { player_name: `Quiet Def ${i}`, position: 'DEFENSE' });
   roster(QUIET, { player_name: 'Quiet Leaver One', position: 'DEFENSE', estimated_graduation_year: 2027, projected_minutes: 1200 });
   roster(QUIET, { player_name: 'Quiet Leaver Two', position: 'DEFENSE', estimated_graduation_year: 2027, projected_minutes: 1100 });
+
+  /**
+   * The programme whose only evidence is the one kind the score already has.
+   *
+   * A New Zealander on the 2026 squad and on no earlier roster, so
+   * CURRENT_SAME_COUNTRY fires and HISTORICAL_SAME_COUNTRY deliberately does
+   * not — the generator refuses to call a player who has only ever been in the
+   * current squad "history". The match score counts this same person through
+   * `internationalFit`'s `sameCountryRows`, which is why the kind is denied
+   * this surface, and this fixture is what makes that denial testable rather
+   * than asserted against a programme that never had one.
+   *
+   * Balanced position groups so scarcity does not fire and leave the card
+   * something else to say.
+   */
+  for (let i = 0; i < 12; i += 1) roster(COMPATRIOT, { player_name: `Compat Mid ${i}` });
+  for (let i = 0; i < 10; i += 1) roster(COMPATRIOT, { player_name: `Compat Def ${i}`, position: 'DEFENSE' });
+  roster(COMPATRIOT, {
+    player_name: 'Kiwi Now', position: 'DEFENSE', country: 'New Zealand', nationality: 'International',
+  });
 
   const app = mount();
   await new Promise((resolve) => {
@@ -299,7 +321,42 @@ describe('no denied kind reaches JSON', () => {
     const { body } = await post(athleteId, { collegeNames: [SIGNAL, QUIET, MISSING] });
     const json = JSON.stringify(body);
     for (const kind of DENIED) expect(json, kind).not.toContain(kind);
-    expect(DENIED).toHaveLength(20);
+    expect(DENIED).toHaveLength(21);
+  });
+
+  /**
+   * The kind the match score already counts.
+   *
+   * Denied for MATCHING_SUMMARY because `internationalFit` — which the
+   * geography criterion delegates to for every international athlete — reads
+   * the same compatriots off the same current roster. On a card it would have
+   * appeared beside the score's own "a compatriot here" label, under a line
+   * saying it was not an input to the score.
+   */
+  it('will not serve CURRENT_SAME_COUNTRY, even as a programme’s only evidence', async () => {
+    const { status, body } = await post(athleteId, { collegeNames: [COMPATRIOT] });
+    expect(status).toBe(200);
+    expect(JSON.stringify(body)).not.toContain('CURRENT_SAME_COUNTRY');
+    expect(body[COMPATRIOT].facts).toEqual([]);
+    expect(body[COMPATRIOT].hasEvidence).toBe(false);
+    // A resolved programme with nothing to show — not a failure, not unknown.
+    expect(body[COMPATRIOT].programme.resolved).toBe(true);
+  });
+
+  it('names nobody the denied kind would have named', async () => {
+    const { body } = await post(athleteId, { collegeNames: [COMPATRIOT] });
+    expect(JSON.stringify(body)).not.toContain('Kiwi Now');
+    expect(JSON.stringify(body)).not.toContain('New Zealand');
+  });
+
+  it('proves that denial is doing the work, not an empty fixture', async () => {
+    // The same programme, on the surfaces that may say it: the composer offers
+    // the kind and the Decision Evidence page holds it. If this ever stops
+    // being true the assertions above go quiet and prove nothing.
+    const composer = evidenceSummaries({ playerId: athleteId, collegeNames: [COMPATRIOT] })[COMPATRIOT];
+    expect(composer.available.map((e) => e.kind)).toContain('CURRENT_SAME_COUNTRY');
+    const decision = operatorEvidenceSummaries({ playerId: athleteId, collegeNames: [COMPATRIOT] })[COMPATRIOT];
+    expect(decision.summary.hasEvidence).toBe(true);
   });
 
   it('names none of the kinds most likely to be argued back in', async () => {
