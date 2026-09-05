@@ -7,7 +7,6 @@ import { positionLabel, positionNoun, positionPlural } from '../../shared/positi
 import { UNDECLARED_BUDGET } from '../../shared/matching/constants.js';
 import { majorLabelFor } from '../../shared/academicMajors.js';
 import { conferenceLabel } from '../../shared/conference.js';
-import { evidenceParagraph } from '../../shared/evidence/index.js';
 import { SLOT_TOKENS } from '../../shared/email/blocks.js';
 
 // Section 11: The Email Template System — ported exactly.
@@ -349,12 +348,26 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
   // be able to turn a projection into a plain assertion by choosing a
   // different token, so there is exactly one evidence paragraph and the engine
   // decided how firmly it speaks.
-  // Prefers the paragraph the engine already rendered. Across the network the
-  // browser receives that string and no evidence objects at all, so the
-  // fallback only fires for an in-process caller holding real ones.
+  /**
+   * The paragraph the outbound engine rendered, and NOTHING BEHIND IT.
+   *
+   * There used to be a fallback here: `evidenceParagraph(evidence.selected)`,
+   * which goes through the LEGACY renderer and its "so I thought you might be
+   * open to another Kiwi" reasoning. Stage G measured it unreachable — over
+   * 3,498 pairs, `paragraph` was empty only when `selected` was empty too.
+   *
+   * H1 changed that arithmetic. Now that every outbound clause returns null
+   * rather than interpolating a missing field, an item can be selected and
+   * produce no sentence — which is precisely the branch that fallback was
+   * waiting for. It would have answered a hardening change by reaching for the
+   * unsafe renderer.
+   *
+   * So an empty paragraph is an empty paragraph. A template carrying
+   * {{evidence_paragraph}} renders no evidence sentence, which is the same
+   * thing a composed email does with nothing to say.
+   */
   const evidenceSentences = evidence?.sentences ?? [];
-  const evidenceText = evidence?.paragraph
-    ?? (evidence ? evidenceParagraph(evidence.selected ?? []) : '');
+  const evidenceText = evidence?.paragraph ?? '';
 
   // Matches the recruit's own free-text intended_major against this school's
   // notable_majors (see shared/academicMajors.js) -- gated on an actual match

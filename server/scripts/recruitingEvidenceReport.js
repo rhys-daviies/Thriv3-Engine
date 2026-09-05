@@ -18,7 +18,7 @@ import { evidenceFor, programmeInputs, departureFields } from '../lib/evidenceQu
 import { selectEvidence } from '../../shared/evidence/index.js';
 import { loadPatternsForSport } from '../lib/recruitingPatterns.js';
 import { emailBodyFor } from '../../src/lib/emailTemplate.js';
-import { EVIDENCE_KINDS, kindLabel } from '../../shared/evidence/kinds.js';
+import { EVIDENCE_KINDS, kindLabel, permissionsFor, PERMISSION } from '../../shared/evidence/kinds.js';
 import { renderEvidence } from '../../shared/evidence/render.js';
 import { COVERAGE } from '../../shared/recruiting/patterns.js';
 
@@ -190,7 +190,10 @@ function distribution(athlete) {
     const g = counts.get(kind);
     const sel = selectedCounts.get(kind);
     console.log(`  ${kind.padEnd(32)} ${String(g).padStart(8)}   ${String(sel).padStart(8)}`
-      + `  ${pct(sel, g)}${EVIDENCE_KINDS[kind].emailEligible ? '' : '   (shadow, never emailed)'}`);
+      // The OUTREACH grade, not the legacy flag. Since G4 the two disagree for
+      // fifteen kinds, and "(shadow, never emailed)" was silent about nine of
+      // them — every one of which can no longer be emailed.
+      + `  ${pct(sel, g)}${permissionsFor(kind).OUTREACH === PERMISSION.DENIED ? '   (not for outreach)' : ''}`);
   }
 
   console.log('\n  WHAT THE NEW EVIDENCE SUPERSEDED');

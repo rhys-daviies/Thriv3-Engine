@@ -140,6 +140,13 @@ export function composeOutreach(flow, roles, byKind, ctx = {}) {
 }
 
 /**
+ * LEGACY. No production caller since G4 — `composeOutreach` above composes
+ * every email. Retained, not deleted, because `compose.test.js` still uses it
+ * to defend block assembly, graceful degradation and the "nothing after the
+ * profile link" rule, and those properties are worth keeping under test while
+ * they are migrated onto the live path. Deleting it is an H2 job with its own
+ * parity proof, not a line to slip into a hardening commit.
+ *
  * The evidence paragraphs, and a record of what went where.
  *
  * @param {object} flow      a `chooseStructure`/`resolveStructure` result

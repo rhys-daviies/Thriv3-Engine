@@ -1,4 +1,4 @@
-import { positionNoun, positionPlural } from '../positions.js';
+import { canonicalPosition, positionNoun, positionPlural } from '../positions.js';
 import { conferenceLabel } from '../conference.js';
 import { yearPhrase, joinNames } from './render.js';
 
@@ -49,6 +49,53 @@ import { yearPhrase, joinNames } from './render.js';
  * used instead.
  */
 
+/**
+ * The guards, and why every entry below opens with them.
+ *
+ * The docstring above has always promised that a clause returns null rather
+ * than a weaker sentence. Until H1 it did not: handed an object missing a
+ * field, eight of the ten entries interpolated it anyway and produced "you've
+ * brought undefined players in from undefined". No live pair reached that —
+ * 0 of 1,459 licensed items were missing a field they needed — but the
+ * guarantee was a comment rather than code, and `count` was read by seven
+ * entries while being required by none of the qualification rules.
+ *
+ * So each of these returns null for anything that cannot be said, and every
+ * entry checks what it interpolates before it interpolates it. The failure
+ * mode being engineered out is the worst-looking one there is: the word
+ * "undefined" in a coach's inbox.
+ */
+
+/** A non-empty, non-blank string, or null. */
+const str = (v) => (typeof v === 'string' && v.trim() ? v.trim() : null);
+
+/** A whole number of things, at least one of them, or null. */
+const positive = (v) => (Number.isInteger(v) && v > 0 ? v : null);
+
+/** A non-empty list of non-blank strings, or null. */
+const strings = (v) => {
+  if (!Array.isArray(v)) return null;
+  const clean = v.map(str).filter(Boolean);
+  return clean.length ? clean : null;
+};
+
+/**
+ * A position the registry RECOGNISES, or null.
+ *
+ * `positionNoun` deliberately falls back to the raw input rather than to
+ * "unknown" — right for a profile chip, wrong here, because it would put
+ * whatever the roster scrape read straight into a coach's inbox. So this asks
+ * `canonicalPosition`, which answers UNKNOWN for anything it does not know,
+ * and refuses that.
+ */
+const position = (v) => (str(v) && canonicalPosition(v) !== 'UNKNOWN' ? v : null);
+
+/** A four-digit season or class year, or null. Never a blank or a stray word. */
+const year = (v) => {
+  const n = Number(String(v ?? '').trim());
+  return Number.isInteger(n) && n >= 1900 && n <= 2100 ? n : null;
+};
+
 /** A count as a word, for the small numbers these claims carry. */
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const count = (n) => (Number.isFinite(n) && n >= 0 && n <= 10 ? WORDS[n] : String(n));
@@ -78,8 +125,10 @@ const titleCase = (v) => String(v ?? '').replace(/\b[a-z]/g, (c) => c.toUpperCas
  *
  * Null means the facts cannot support a safe sentence, and the caller drops
  * the claim rather than saying something weaker. The selector's qualification
- * rules already guarantee the required fields, so a null here is a
- * belt-and-braces refusal rather than an expected path.
+ * rules are the first gate and cover the same fields, so a null here should be
+ * unreachable in production — which is exactly why it is implemented rather
+ * than assumed. Two modules agreeing today is not a guarantee; each refusing
+ * independently is.
  */
 const CLAUSE = Object.freeze({
   /**
@@ -87,8 +136,9 @@ const CLAUSE = Object.freeze({
    * and the only kind that may say "you".
    */
   COACH_ARRIVAL_SAME_COUNTRY: (f) => {
+    if (!str(f.country) || !positive(f.count)) return null;
     const span = when(f.seasons);
-    if (f.namedArrival && f.count === 1) {
+    if (str(f.namedArrival) && f.count === 1) {
       const y = yearPhrase(f.namedArrivalSeason);
       return `you brought ${f.namedArrival} in from ${f.country}${y ? ` ${y}` : ''}`;
     }
@@ -101,8 +151,9 @@ const CLAUSE = Object.freeze({
    * attributed to the reader: these span whoever was in charge.
    */
   ARRIVAL_SAME_COUNTRY_POSITION: (f) => {
+    if (!str(f.country) || !position(f.position) || !positive(f.count)) return null;
     const span = when(f.seasons);
-    if (f.namedArrival && f.count === 1) {
+    if (str(f.namedArrival) && f.count === 1) {
       const y = yearPhrase(f.namedArrivalSeason);
       return `${f.namedArrival} came into the programme from ${f.country}`
         + `${y ? ` ${y}` : ''}, also a ${positionNoun(f.position)}`;
@@ -113,8 +164,10 @@ const CLAUSE = Object.freeze({
 
   /** Compatriots who came through. Past tense, and it stays there. */
   HISTORICAL_SAME_COUNTRY: (f) => {
+    if (!str(f.country) || !positive(f.count)) return null;
     const span = when(f.seasons);
-    const named = f.names?.length === 1 && f.count === 1 ? f.names[0] : null;
+    const only = strings(f.names);
+    const named = only?.length === 1 && f.count === 1 ? only[0] : null;
     if (named) {
       return `${named} came through the programme from ${f.country}${span ? ` ${span}` : ''}`;
     }
@@ -124,11 +177,12 @@ const CLAUSE = Object.freeze({
 
   /** Compatriots on the squad now. Present tense, and it stays there. */
   CURRENT_SAME_COUNTRY: (f) => {
-    const named = f.names?.length === 1 ? f.names[0] : null;
-    if (named) return `${named}, from ${f.country}, is on your roster this season`;
+    if (!str(f.country) || !positive(f.count)) return null;
+    const named = strings(f.names);
+    if (named?.length === 1) return `${named[0]}, from ${f.country}, is on your roster this season`;
     return `${count(f.count)} ${f.count === 1 ? 'player' : 'players'} from ${f.country} `
       + `${f.count === 1 ? 'is' : 'are'} on your roster this season`
-      + (f.names?.length ? ` (${joinNames(f.names)})` : '');
+      + (named ? ` (${joinNames(named)})` : '');
   },
 
   /**
@@ -146,14 +200,16 @@ const CLAUSE = Object.freeze({
    * the introduction two lines down says where the athlete is actually from.
    */
   ARRIVAL_SAME_REGION_POSITION: (f) => {
+    const where = list(strings(f.countries) ?? []);
+    if (!where || !position(f.position) || !positive(f.count)) return null;
     const span = when(f.seasons);
-    const where = list(f.countries);
     return `the programme has taken ${count(f.count)} ${noun(f.position, f.count)} `
       + `from ${where}${span ? ` ${span}` : ''} — the same part of the world`;
   },
 
   HISTORICAL_SAME_REGION: (f) => {
-    const where = list(f.countries);
+    const where = list(strings(f.countries) ?? []);
+    if (!where || !positive(f.count)) return null;
     return `${count(f.count)} ${f.count === 1 ? 'player' : 'players'} from ${where} `
       + `${f.count === 1 ? 'has' : 'have'} come through the programme — the same part of `
       + 'the world';
@@ -168,10 +224,11 @@ const CLAUSE = Object.freeze({
    * against their own roster, and the fact does the work.
    */
   POSITION_GRADUATION: (f) => {
-    const names = joinNames(f.names ?? []);
+    const named = strings(f.names);
+    if (!named || !position(f.position) || !positive(f.count) || !year(f.classYear)) return null;
     return `${count(f.count)} ${noun(f.position, f.count)} `
       + `${f.count === 1 ? 'is' : 'are'} listed to graduate in ${f.classYear}`
-      + `${names ? ` — ${names}` : ''}`;
+      + ` — ${joinNames(named)}`;
   },
 
   /**
@@ -186,15 +243,16 @@ const CLAUSE = Object.freeze({
    * says it once rather than echoing.
    */
   ACADEMIC_FIT: (f, ctx) => {
-    const who = ctx?.firstName ?? 'the athlete';
+    const theirs = str(f.athleteStatedMajor);
+    const ours = str(f.programmeMatchedSubject);
+    if (!theirs || !ours) return null;
+    const who = str(ctx?.firstName) ?? 'the athlete';
     // The athlete typed "exercise science"; a sentence starts it with a
     // capital. Casing only — the words stay theirs.
-    const stated = titleCase(f.athleteStatedMajor);
-    const same = String(f.athleteStatedMajor).trim().toLowerCase()
-      === String(f.programmeMatchedSubject).trim().toLowerCase();
-    if (same) return `${who} is looking to study ${f.programmeMatchedSubject}, which you offer`;
-    return `${who} is looking to study ${stated}, and `
-      + `${f.programmeMatchedSubject} is among the programmes you list`;
+    const same = theirs.toLowerCase() === ours.toLowerCase();
+    if (same) return `${who} is looking to study ${ours}, which you offer`;
+    return `${who} is looking to study ${titleCase(theirs)}, and `
+      + `${ours} is among the programmes you list`;
   },
 });
 
@@ -204,12 +262,14 @@ const CLAUSE = Object.freeze({
  */
 const RECOGNITION = Object.freeze({
   CONFERENCE_TITLE: (f) => {
+    if (!str(f.conference)) return null;
     const conf = conferenceLabel(f.conference);
     return conf
       ? `Congrats on winning the ${conf} last year as well — looks like a great season.`
       : 'Congrats on winning your conference last year as well.';
   },
   POSTSEASON_RESULT: (f) => {
+    if (!str(f.round)) return null;
     const ROUND = {
       champion: 'the national title', final: 'reaching the national final',
       semi: 'reaching the semi-finals', quarter: 'reaching the quarter-finals',

@@ -21,6 +21,10 @@ import { evidenceFor } from '../lib/evidenceQueries.js';
 import {
   renderEvidence, kindLabel, FLOWS, FAMILY_LABELS, MAX_EMAIL_EVIDENCE, outreachPermitted,
 } from '../../shared/evidence/index.js';
+import { outreachCopyFor } from '../../shared/evidence/outreachCopy.js';
+
+/** The athlete's first name, for the one clause that needs it. Never a pronoun. */
+const firstNameOf = (name) => String(name ?? '').trim().split(/\s+/)[0] || null;
 
 const selectPlayer = db.prepare(`
   SELECT id, full_name, position, secondary_position, nationality, intended_major,
@@ -76,6 +80,9 @@ const wireEvidence = (ev, text) => ({
 
 export function toWire(result) {
   const selectedKinds = new Set(result.selected.map((ev) => ev.kind));
+  const roles = result.roles ?? { hooks: [], relevance: [], recognition: [], alternatives: [] };
+  const roleItems = [...roles.hooks, ...roles.relevance, ...roles.recognition];
+  const byKind = new Map((result.all ?? []).map((ev) => [ev.kind, ev]));
   const placement = result.composition?.placement ?? [];
   const slotOf = new Map(placement.map((p) => [p.kind, p.slot]));
   const displayedOf = new Map(placement.map((p) => [p.kind, p.displayed !== false]));
@@ -138,15 +145,36 @@ export function toWire(result) {
       // loud so the panel does not imply the coach read it.
       displayed: displayedOf.get(ev.kind) ?? false,
     })),
-    // Every email-eligible piece, each with its own rendered sentence, so the
-    // operator can preview an alternative angle before choosing it. `selected`
-    // marks the engine's own picks within the same list.
-    available: result.ranked.map((ev) => ({
-      ...wireEvidence(ev, renderEvidence(ev)),
-      selected: selectedKinds.has(ev.kind),
-      disposition: dispositionOf.get(ev.kind)?.disposition ?? null,
-      reason: reasonFor(ev.kind),
-    })),
+    /**
+     * Every angle the operator may actually choose, with the sentence the
+     * email would carry if they did.
+     *
+     * SURVIVORS PLUS SAME-CONNECTION ALTERNATIVES, and nothing else. It used
+     * to be `result.ranked` — the legacy engine's ranking, filtered only by
+     * permission — which listed two things the send path would refuse: kinds
+     * that fail their qualification, and dedupe losers that `applyPrefer` had
+     * no way to honour. Fifteen real POSTSEASON_RESULT swaps were offerable
+     * and unreachable.
+     *
+     * The text comes from the OUTBOUND copy for the same reason. Rendering
+     * through `renderEvidence` showed the operator the legacy sentence — "so I
+     * thought you might be open to another Kiwi" — for a claim the email would
+     * state as a bare observation. A preview that disagrees with the send is
+     * the failure this whole surface is built to prevent.
+     */
+    available: [...roleItems, ...(result.roles?.alternatives ?? [])].map((item) => {
+      const ev = byKind.get(item.kind);
+      const copy = outreachCopyFor(item, { firstName: firstNameOf(result.athlete?.name) });
+      return {
+        ...wireEvidence(ev ?? { kind: item.kind }, copy?.clause ?? copy?.recognition ?? null),
+        role: item.role,
+        selected: selectedKinds.has(item.kind),
+        disposition: dispositionOf.get(item.kind)?.disposition ?? null,
+        reason: reasonFor(item.kind),
+        // The claim this one would replace, when it is an alternative.
+        supersedes: item.supersededBy ?? null,
+      };
+    }),
     // Redundant and too-weak evidence, each with its reason and its rendered
     // sentence. Shown rather than hidden: "we knew this and dropped it because
     // it restates the item above" is the difference between a considered

@@ -49,10 +49,9 @@ import {
  * bridge, and the copy contract in `SAFE_CLAIM` below forbids it per kind.
  *
  * ---------------------------------------------------------------------------
- * NOT WIRED TO PRODUCTION. `selectFrom` still composes every email. This is
- * the read model the composer will move onto, built and measured first so the
- * move is a switch rather than a rewrite. See the note on ROLE_OF for why the
- * registry cannot yet be narrowed to match.
+ * THIS IS THE PRODUCTION OUTBOUND SELECTOR. `selectEvidence` calls it, and
+ * `selectFrom` — which used to decide this — now serves the operator panel's
+ * diagnostics and nothing a coach reads.
  */
 
 /**
@@ -74,27 +73,15 @@ export const ROLES = Object.freeze({
 });
 
 /**
- * Which role each licensed kind plays. THE LIST IS THE LICENCE, for now.
+ * Which role each licensed kind plays.
  *
- * ---------------------------------------------------------------------------
- * A TEMPORARY DIVERGENCE, RECORDED RATHER THAN HIDDEN.
- *
- * The registry currently grants OUTREACH to nineteen kinds. This table names
- * ten. They disagree because the two cannot be changed at the same time: G2
- * made `permissions.OUTREACH` authoritative for the LEGACY selector, so
- * narrowing the registry now would change 61.5% of live emails and empty 27.6%
- * of them, months before the copy those emails need has been written.
- *
- * So the registry stays as it is and this table is narrower. The gate below
- * still asks the registry FIRST and honours a DENIED or QUALIFIED grade — the
- * permission remains necessary — and the role table is the additional
- * condition. A kind can therefore lose its licence in either place and gain it
- * in neither, which is the safe direction.
- *
- * The load-time check under it asserts the containment that must hold today.
- * When G4 narrows the registry to 4 ALLOWED / 6 QUALIFIED / 16 DENIED and
- * moves the composer across in one commit, that check becomes an equality and
- * this note goes away. It is a staging state, not an architecture.
+ * The registry and this table are ONE POLICY, asserted as an equality at load:
+ * every OUTREACH-licensed kind has a role here, every role here is licensed,
+ * and each has a qualification rule and a copy handler. G3 ran with the two
+ * deliberately out of step for one commit — the registry granted nineteen
+ * while this named ten — because narrowing the registry before the copy
+ * existed would have changed live emails. G4 closed that in a single commit
+ * and the invariant has been equality since.
  */
 const ROLE_OF = Object.freeze({
   // Pathway. One connection, six ways of observing it; the dedupe group keeps
@@ -126,10 +113,33 @@ const ROLE_OF = Object.freeze({
  * blob holding identity-matching internals, coach attribution methods and the
  * raw REGION key, none of which may travel to a coach by any route.
  */
+/**
+ * A whole number of things, at least one. Shared by every rule below because
+ * every clause interpolates a count, and a count of zero or null produces
+ * "undefined players from New Zealand".
+ *
+ * `count` was read by seven of the ten copy entries and required by none of
+ * these rules until H1 — two lists that had to agree with nothing keeping them
+ * in step. It is checked here AND in the copy: the selector refuses the item,
+ * and the copy refuses to write it, independently.
+ */
+const some = (n) => Number.isInteger(n) && n > 0;
+
+/**
+ * A STRUCTURAL VALIDITY CHECK IS NOT A QUALIFICATION.
+ *
+ * The four ALLOWED kinds carry `satisfied` tests too, and that does not make
+ * them QUALIFIED. The distinction is what the test is for: a QUALIFIED kind's
+ * rule decides whether the CLAIM may be made at all without its caveat — a
+ * region arrival with no countries cannot be stated safely in any wording. An
+ * ALLOWED kind's test only asks whether the object is well-formed enough to
+ * render. The permission grades are unchanged: 4 ALLOWED, 6 QUALIFIED, 16
+ * DENIED.
+ */
 const QUALIFICATION = Object.freeze({
   COACH_ARRIVAL_SAME_COUNTRY: {
-    // ALLOWED: the coach, the country and when. Nothing to qualify.
-    satisfied: (d) => Boolean(d.coach) && Boolean(d.country),
+    // ALLOWED: the coach, the country and how many. Structural only.
+    satisfied: (d) => Boolean(d.coach) && Boolean(d.country) && some(d.count),
     facts: (d) => ({
       coach: d.coach, country: d.country, count: d.count,
       seasons: d.seasons ?? [], namedArrival: d.name ?? null, namedArrivalSeason: d.nameSeason ?? null,
@@ -137,7 +147,7 @@ const QUALIFICATION = Object.freeze({
   },
 
   ARRIVAL_SAME_COUNTRY_POSITION: {
-    satisfied: (d) => Boolean(d.country) && Boolean(d.position),
+    satisfied: (d) => Boolean(d.country) && Boolean(d.position) && some(d.count),
     facts: (d) => ({
       country: d.country, position: d.position, count: d.count,
       seasons: d.seasons ?? [], namedArrival: d.name ?? null, namedArrivalSeason: d.nameSeason ?? null,
@@ -145,14 +155,14 @@ const QUALIFICATION = Object.freeze({
   },
 
   HISTORICAL_SAME_COUNTRY: {
-    satisfied: (d) => Boolean(d.country),
+    satisfied: (d) => Boolean(d.country) && some(d.count),
     facts: (d) => ({
       country: d.country, count: d.count, names: d.names ?? [], seasons: d.seasons ?? [],
     }),
   },
 
   CURRENT_SAME_COUNTRY: {
-    satisfied: (d) => Boolean(d.country),
+    satisfied: (d) => Boolean(d.country) && some(d.count),
     facts: (d) => ({ country: d.country, count: d.count, names: d.names ?? [] }),
   },
 
@@ -164,7 +174,8 @@ const QUALIFICATION = Object.freeze({
      * a database constant at them. The countries are checkable against their
      * own roster.
      */
-    satisfied: (d) => Array.isArray(d.countries) && d.countries.length > 0 && Boolean(d.position),
+    satisfied: (d) => Array.isArray(d.countries) && d.countries.length > 0
+      && Boolean(d.position) && some(d.count),
     facts: (d) => ({
       // No `region`, and no `provenance`.
       countries: d.countries, position: d.position, count: d.count,
@@ -184,7 +195,8 @@ const QUALIFICATION = Object.freeze({
      * from the region who are NOT compatriots, so a claim that read as
      * same-country would be counting different people.
      */
-    satisfied: (d) => Array.isArray(d.countries) && d.countries.length > 0 && Boolean(d.athleteCountry),
+    satisfied: (d) => Array.isArray(d.countries) && d.countries.length > 0
+      && Boolean(d.athleteCountry) && some(d.count),
     facts: (d) => ({
       countries: d.countries, count: d.count, names: d.names ?? [],
       widerThanOwnCountry: true, excludingCountry: d.athleteCountry,
@@ -200,7 +212,8 @@ const QUALIFICATION = Object.freeze({
      * one". Naming them and dating the cohort keeps it an observation they can
      * check against their own roster, which is a different kind of sentence.
      */
-    satisfied: (d) => Array.isArray(d.names) && d.names.length > 0 && d.classYear != null,
+    satisfied: (d) => Array.isArray(d.names) && d.names.length > 0 && d.classYear != null
+      && Boolean(d.position) && some(d.count),
     facts: (d) => ({
       position: d.position, count: d.count, names: d.names, classYear: d.classYear,
     }),
@@ -317,6 +330,29 @@ for (const kind of Object.keys(EVIDENCE_KINDS)) {
 for (const kind of Object.keys(QUALIFICATION)) {
   if (!ROLE_OF[kind]) throw new Error(`${kind} declares an outreach qualification but no role`);
 }
+
+/**
+ * The copy handler, checked at load with the rest.
+ *
+ * Four things must exist together for a kind to be sendable: a licence, a
+ * role, a qualification rule and words. Three of them were already asserted
+ * here; the fourth lived in another module and was only discovered missing by
+ * rendering. A kind licensed with no handler would reach composition and
+ * produce nothing, which reads as a programme with nothing to say.
+ *
+ * Imported lazily so the two modules do not form a cycle — `outreachCopy`
+ * needs nothing from here, and this needs only the key list.
+ */
+import('./outreachCopy.js').then(({ OUTREACH_COPY_KINDS }) => {
+  for (const kind of LICENSED_KINDS) {
+    if (!OUTREACH_COPY_KINDS.includes(kind)) {
+      throw new Error(`${kind} is licensed for OUTREACH but has no copy handler`);
+    }
+  }
+  for (const kind of OUTREACH_COPY_KINDS) {
+    if (!ROLE_OF[kind]) throw new Error(`${kind} has outreach copy but no role`);
+  }
+});
 // A hook missing from the ladder would sort to -1 and silently outrank the
 // coach's own record — the exact failure the ladder was written to fix.
 for (const kind of LICENSED_KINDS) {
@@ -430,10 +466,31 @@ export function outreachEvidenceFor(evidenceResult) {
    * depth kinds that could have corroborated each other is licensed. An
    * exclusion table here would be machinery guarding nothing.
    */
-  const seen = new Set();
+  const survivor = new Map();
   const hooks = []; const relevance = []; const recognition = [];
+  /**
+   * The claims that lost their group and could validly have won it.
+   *
+   * Licensed, qualified, same role, same connection — a different true way of
+   * saying the one thing. They are not sent, and they ARE offerable: an
+   * operator may prefer one, and `applyPrefer` will swap it for the survivor.
+   *
+   * Carried explicitly because they used to vanish. A dedupe loser got no
+   * disposition at all, so the panel listed it as available while
+   * `applyPrefer` refused it — measured at 15 real POSTSEASON_RESULT swaps the
+   * operator could ask for and never receive.
+   */
+  const alternatives = [];
   for (const item of eligible) {
-    if (seen.has(item._group)) continue;
+    const held = survivor.get(item._group);
+    if (held) {
+      note(item.kind, 'DEDUPED', `the same connection as ${held.kind}, said another way`);
+      alternatives.push({
+        kind: item.kind, role: item.role, facts: item.facts,
+        group: item._group, supersededBy: held.kind,
+      });
+      continue;
+    }
     const bucket = item.role === ROLES.HOOK ? hooks
       : item.role === ROLES.RELEVANCE ? relevance : recognition;
     const bodyFull = item.role !== ROLES.RECOGNITION
@@ -442,11 +499,17 @@ export function outreachEvidenceFor(evidenceResult) {
       note(item.kind, 'OVER_CAP', 'the email already carries as much as it should');
       continue;
     }
-    seen.add(item._group);
-    bucket.push({ kind: item.kind, role: item.role, facts: item.facts });
+    const chosen = { kind: item.kind, role: item.role, facts: item.facts };
+    survivor.set(item._group, { ...chosen, group: item._group });
+    bucket.push(chosen);
   }
 
   return {
+    /**
+     * Same-connection claims the operator may swap in. Never sent as they
+     * stand — exactly one member of a group ever reaches an email.
+     */
+    alternatives,
     hooks,
     relevance,
     recognition,
@@ -484,33 +547,66 @@ export function outreachEvidenceFor(evidenceResult) {
  */
 export function applyPrefer(result, prefer = null) {
   const wanted = Array.isArray(prefer) ? prefer.filter(Boolean) : [];
-  if (!wanted.length) return { ...result, operatorSelected: false, unavailableRequests: [] };
+  const empty = { ...result, operatorSelected: false, unavailableRequests: [] };
+  if (!wanted.length) return empty;
 
-  const permitted = new Map(
-    [...result.hooks, ...result.relevance, ...result.recognition].map((i) => [i.kind, i]),
+  /**
+   * The choices an operator may actually make.
+   *
+   * Survivors AND the same-connection alternatives that lost their group. All
+   * of them are licensed, qualified and carry a role; the only reason an
+   * alternative is not being sent is that a sibling won the group, and that is
+   * a default rather than a safety boundary. So an operator naming one gets
+   * it, and the sibling steps aside — see the note on `alternatives`.
+   *
+   * What preference still cannot do: restore a denied kind, revive one that
+   * failed its qualification, move a claim between roles, or put two members
+   * of one group in the same email. The group rule is re-applied below, so a
+   * list naming both a survivor and its alternative yields one of them.
+   */
+  const offerable = new Map(
+    [...result.hooks, ...result.relevance, ...result.recognition,
+      ...(result.alternatives ?? [])].map((i) => [i.kind, i]),
   );
+  const groupOf = new Map((result.alternatives ?? []).map((a) => [a.kind, a.group]));
+
   const seen = new Set();
   const chosen = [];
   const unavailable = [];
   for (const kind of wanted) {
     if (seen.has(kind)) continue;
     seen.add(kind);
-    if (permitted.has(kind)) chosen.push(permitted.get(kind));
+    if (offerable.has(kind)) chosen.push(offerable.get(kind));
     else unavailable.push(kind);
   }
-  if (!chosen.length) {
-    return { ...result, operatorSelected: false, unavailableRequests: unavailable };
+  if (!chosen.length) return { ...empty, unavailableRequests: unavailable };
+
+  /**
+   * One per connection, still. An operator who names two members of a group
+   * gets the first they named — their ordering is the tie-break, exactly as it
+   * is everywhere else in this function.
+   */
+  const usedGroups = new Set();
+  const kept = [];
+  for (const item of chosen) {
+    const group = groupOf.get(item.kind) ?? groupFor(item.kind);
+    if (usedGroups.has(group)) { unavailable.push(item.kind); continue; }
+    usedGroups.add(group);
+    kept.push(item);
   }
 
   // Re-bucketed by the kind's OWN role, not by where the operator put it in
   // the list. Order within each bucket is theirs.
   return {
     ...result,
-    hooks: chosen.filter((i) => i.role === ROLES.HOOK),
-    relevance: chosen.filter((i) => i.role === ROLES.RELEVANCE),
-    recognition: chosen.filter((i) => i.role === ROLES.RECOGNITION).slice(0, MAX_RECOGNITION),
-    hasPersonalisation: chosen.some((i) => i.role !== ROLES.RECOGNITION),
+    hooks: kept.filter((i) => i.role === ROLES.HOOK),
+    relevance: kept.filter((i) => i.role === ROLES.RELEVANCE),
+    recognition: kept.filter((i) => i.role === ROLES.RECOGNITION).slice(0, MAX_RECOGNITION),
+    hasPersonalisation: kept.some((i) => i.role !== ROLES.RECOGNITION),
     operatorSelected: true,
     unavailableRequests: unavailable,
   };
 }
+
+/** The dedupe group a licensed kind belongs to. */
+const groupFor = (kind) => kindSpec(kind).dedupeGroup;

@@ -446,6 +446,7 @@ describe('hasPersonalisation', () => {
   it('is false when nothing survives', () => {
     const r = outreachEvidenceFor(resultOf([]));
     expect(r).toEqual({
+      alternatives: [],
       hooks: [], relevance: [], recognition: [], hasPersonalisation: false, dispositions: [],
     });
   });
