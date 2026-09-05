@@ -155,6 +155,23 @@ export const operatorEvidence = {
   },
 };
 
+/**
+ * Recruiting signals for the match card.
+ *
+ * A third evidence endpoint beside `evidence` and `operatorEvidence`, on the
+ * same identity mechanism. It is separate because the licence is: six of the
+ * twenty-six kinds may appear beside a match score, and none of them is
+ * anything the score already consumes.
+ */
+export const matchingSummary = {
+  summaries(playerId, collegeNames) {
+    return request(`/api/players/${playerId}/matching-summary`, {
+      method: 'POST',
+      body: JSON.stringify({ collegeNames }),
+    });
+  },
+};
+
 export const philosophy = {
   /** One compact row per school for the Program Philosophy tab. */
   summaries(playerId, collegeIds) {

@@ -35,6 +35,7 @@ import { markResponded, clearResponded } from './lib/engagementRollup.js';
 import { philosophySummaries, programReportModel } from './routes/philosophy.js';
 import { evidenceSummaries } from './routes/evidence.js';
 import { operatorEvidenceSummaries } from './routes/operatorEvidence.js';
+import { matchingSummaries } from './routes/matchingSummary.js';
 import { renderProgramReport } from './lib/philosophyReport.js';
 import { poolStatus, invalidatePoolBenchmarks, poolBenchmarks } from './lib/philosophyQueries.js';
 
@@ -204,6 +205,22 @@ app.post('/api/players/:playerId/operator-evidence', (req, res) => {
     }));
   } catch (err) {
     console.error('[operator-evidence/summaries]', err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/**
+ * Recruiting signals for the match card. A third surface with a third licence:
+ * six of twenty-six kinds, and nothing the match score already consumes.
+ */
+app.post('/api/players/:playerId/matching-summary', (req, res) => {
+  try {
+    res.json(matchingSummaries({
+      playerId: req.params.playerId,
+      collegeNames: (req.body || {}).collegeNames,
+    }));
+  } catch (err) {
+    console.error('[matching-summary/summaries]', err);
     res.status(400).json({ error: err.message });
   }
 });
