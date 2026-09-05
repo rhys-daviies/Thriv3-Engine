@@ -8,7 +8,7 @@ import EmailComposer from '@/components/EmailComposer';
 import BulkEmailComposer from '@/components/BulkEmailComposer';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
-import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
+import { useMatchingSummary, recruitingSignalsForCollege } from '@/lib/useMatchingSummary';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 
 const PAGE_SIZE = 20;
@@ -54,23 +54,30 @@ export default function MatchingTab() {
   const pageButtons = Array.from({ length: Math.min(totalPages, MAX_PAGE_BUTTONS) }, (_, i) => i + 1);
 
   /**
-   * Outreach evidence for the twenty programmes on THIS page, in one request.
+   * Recruiting signals for the twenty programmes on THIS page, in ONE request.
+   *
+   * The page owns the fetch and the cards are handed their answer. A card that
+   * fetched for itself would turn one request into twenty, and — worse — would
+   * make the request count a function of how the page happens to be paginated,
+   * which nothing downstream would notice going wrong.
    *
    * The page rather than the whole stored analysis: a hundred programmes is
    * five times the work for a screen showing twenty, and the operator pages
-   * through them. `useEvidence` keys its effect on the name list, so
-   * changing page refetches; every lookup below is BY NAME, so the previous
-   * page's response can never be read as this page's — a name that is not in
-   * it simply misses, and `loading` covers the gap while the new one is in
-   * flight.
+   * through them. `useMatchingSummary` keys its effect on the name list as
+   * JSON, so changing page refetches and a response for the previous page is
+   * discarded rather than merged; every lookup below is BY NAME, so even a
+   * response that did survive could not be read as this page's — a name that
+   * is not in it simply misses.
    *
-   * The composer and the Evidence tab call the same hook against the same
-   * route. A second path to evidence would eventually disagree with the one
-   * that sends the email.
+   * Outreach evidence is deliberately NOT fetched here any more. The card
+   * stopped showing it when Recruiting Signals arrived, and a fetch with no
+   * consumer is twenty programmes of server work per page for nothing. The
+   * composer, the bulk composer and the Evidence tab still call `useEvidence`
+   * against the same route, which is where an email is actually written.
    */
-  const { evidence, loading: evidenceLoading, failed: evidenceFailed } = useEvidence(
-    player?.id, pageItems.map((c) => c.name),
-  );
+  const {
+    data: signalData, failed: signalsFailed,
+  } = useMatchingSummary(player?.id, pageItems.map((c) => c.name));
 
   // Counted here as well as inside the dialog so the button says how many
   // programmes on this page actually have a head coach to write to, rather
@@ -123,15 +130,30 @@ export default function MatchingTab() {
 
       {recommendations && !analyzing && (
         <>
+          {/*
+            A FAILED REQUEST IS SAID ONCE, HERE.
+            The request covers the whole page, so its failure is a fact about
+            the page and not about any programme on it. Said per card it would
+            be the same sentence twenty times, and each copy would look like a
+            statement about the school it sat under. Per-programme
+            `unavailable` — one roster the generator could not read while the
+            other nineteen were fine — stays local to that card, because that
+            one really is about that programme.
+          */}
+          {signalsFailed && (
+            <p className="text-xs text-muted-foreground">
+              Recruiting signals could not be loaded for these programmes.
+            </p>
+          )}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {pageItems.map((college) => (
               <CollegeCard
                 key={college.name}
                 college={college}
                 onEmailCoaches={setEmailTarget}
-                evidence={evidenceForCollege(evidence, college.name)}
-                evidenceLoading={evidenceLoading}
-                evidenceFailed={evidenceFailed}
+                playerId={player?.id}
+                recruitingSignals={recruitingSignalsForCollege(signalData, college.name)}
               />
             ))}
           </div>

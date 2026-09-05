@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, ExternalLink, Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, ChevronDown, ChevronUp, ExternalLink, Mail } from 'lucide-react';
 import CoachEmail from '@/components/CoachEmail';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { CardEvidence } from '@/components/EvidencePanel';
+import RecruitingSignals from '@/components/RecruitingSignals';
 import { STARTER_MINUTES } from '@shared/matching/pool.js';
 
 function SeniorGroup({ label, names, collegeName }) {
@@ -117,13 +118,17 @@ function SectionHeading({ children }) {
 }
 
 /**
- * @param {object|null} evidence  one programme's server-rendered evidence, from
- *   `evidenceForCollege`. Null means the request has not resolved for this
- *   name, which `evidenceLoading` distinguishes from "nothing to say".
+ * @param {object|null} recruitingSignals  this programme's licensed signals,
+ *   from `recruitingSignalsForCollege` — `{ facts }`, `{ unavailable: true }`
+ *   or null. Deliberately not the endpoint response and not the summary
+ *   object: the card is handed what it renders, never something it has to
+ *   interpret. No score, weight or criterion reaches it, so a signal cannot be
+ *   selected or worded by how the programme scored.
+ * @param {string|null} playerId  for the link to the full evidence page. The
+ *   card knows the programme; only the route needs the athlete.
  */
 export default function CollegeCard({
-  college, onEmailCoaches,
-  evidence = null, evidenceLoading = false, evidenceFailed = false,
+  college, onEmailCoaches, recruitingSignals = null, playerId = null,
 }) {
   const [expanded, setExpanded] = useState(false);
   const coaches = (college.coaching_staff || []).filter((c) => c.email && c.email !== 'N/A');
@@ -222,21 +227,44 @@ export default function CollegeCard({
               component's. */}
           <ScoreBreakdown breakdown={college.breakdown} />
 
-          {/* 3. OUTREACH EVIDENCE — what do we know that could help us
-              approach this programme?
+          {/* 3. RECRUITING SIGNALS — what have we observed about how this
+              programme recruits?
               A different question from the two above, from a different engine:
               the score is six weighted criteria computed in the browser, this
-              is roster and recruiting history computed on the server. They are
-              kept apart deliberately — evidence never explains the score, and
-              the score never licenses a claim to a coach. */}
-          <div>
-            <SectionHeading>Outreach evidence</SectionHeading>
-            <CardEvidence
-              evidence={evidence}
-              loading={evidenceLoading}
-              failed={evidenceFailed}
-            />
-          </div>
+              is recruiting history computed on the server. They are kept apart
+              deliberately — evidence never explains the score.
+
+              This replaced "Outreach evidence", which answered a third
+              question — what could we say to a coach — on a surface where
+              nobody is writing to one yet. That question, and the composer's
+              own permissions, moved nowhere: they live in the composer and on
+              the Evidence tab, which is where an email actually gets written.
+
+              Renders nothing at all for the four pairs in five with no
+              licensed signal — 969 of 1,169 programmes for the athlete this
+              was measured against — so most cards are unchanged by its
+              arrival. */}
+          <RecruitingSignals signals={recruitingSignals} />
+
+          {/* Everything the card had to leave out. The programme name goes
+              through the URL exactly as the matching engine holds it, because
+              that is the key every evidence lookup is by. */}
+          {playerId && (
+            <Link
+              to={`/player/${playerId}/decision?college=${encodeURIComponent(college.name)}`}
+              /* `flex w-fit`, not `inline-flex`. The official-roster link below
+                 is inline-flex, and two inline boxes in a `space-y` stack share
+                 a line: live QA showed "View full evidence ⧉Official roster ⧉"
+                 run together with no separator. A block-level flex box takes
+                 its own row and `w-fit` keeps the target the width of the
+                 words rather than the card. */
+              className="flex w-fit items-center gap-1 text-xs text-accent hover:underline"
+            >
+              {/* An arrow, not the external-link glyph the roster link below
+                  uses: this navigation stays inside the app. */}
+              View full evidence <ArrowRight className="h-3 w-3" />
+            </Link>
+          )}
 
           {college.reason && (
             <p className="text-xs text-muted-foreground italic">{college.reason}</p>

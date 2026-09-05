@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import ProgrammeDecision from '@/components/ProgrammeDecision';
 import { useOperatorEvidence, operatorEvidenceForCollege } from '@/lib/useOperatorEvidence';
@@ -25,8 +26,52 @@ const PAGE = 20;
 
 export default function DecisionTab() {
   const { player, recommendations } = usePlayerWorkspace();
-  const [query, setQuery] = useState('');
+
+  /**
+   * A match card can send an operator straight to one programme.
+   *
+   * PRESELECTION ONLY, and the URL is not written back on every keystroke.
+   * The param seeds the filter this page already has, rather than becoming a
+   * second source of truth for it — two-way synchronisation would mean every
+   * character typed pushed a history entry, and the back button would then
+   * walk backwards through a search box. What is gained by writing it back is
+   * a shareable link to a filter; what is lost is the back button, and the
+   * link that matters is the one the card already produces.
+   *
+   * The name arrives exactly as the matching engine holds it — `Mount St.
+   * Mary's`, `Davis & Elkins`, `Ozarks (AR)` — because the card encodes it and
+   * the router decodes it, and nothing in between splits or trims. It then
+   * goes into the SAME substring filter an operator would have typed by hand,
+   * so an unknown name is a search that finds nothing, not a crash.
+   */
+  const { id: routeId } = useParams();
+  const [searchParams] = useSearchParams();
+
+  /**
+   * The param belongs to the athlete named in the same URL, and only to them.
+   *
+   * `/player/A/decision?college=Duke` is a statement about A. If the loaded
+   * athlete is not A — a switch that has not finished, or a workspace showing
+   * someone else — the college in that URL is the previous athlete's and must
+   * not filter this one's list, where it would read as an analysis that
+   * matched a single programme. Scoped by comparing the two rather than
+   * remembered in a ref, because the URL already carries the pairing.
+   */
+  const belongsToThisAthlete = !player?.id || !routeId || player.id === routeId;
+  const preselected = belongsToThisAthlete ? (searchParams.get('college') ?? '') : '';
+
+  const [query, setQuery] = useState(preselected);
   const [shown, setShown] = useState(PAGE);
+
+  /**
+   * Re-seed when the link changes, or when the athlete does.
+   *
+   * Keyed on both, so arriving from another card's link replaces the filter
+   * and switching athlete clears a college that was not theirs. It does not
+   * run on typing, so a manual edit survives until one of those two things
+   * happens.
+   */
+  useEffect(() => { setQuery(preselected); }, [player?.id, preselected]);
 
   // Null until an analysis has run; an empty array is a run that matched
   // nothing. Those are different things to tell an operator.

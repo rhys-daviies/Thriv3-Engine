@@ -84,3 +84,37 @@ export function matchingSummaryForCollege(data, collegeName) {
   if (!found || found.unavailable) return null;
   return found;
 }
+
+/**
+ * What a match card needs, and nothing else.
+ *
+ * A NARROWER SELECTOR THAN THE ONE ABOVE, because a card has to tell apart
+ * three things that `matchingSummaryForCollege` collapses into null. Returning
+ * the whole summary object would hand the card `hasEvidence` — which is
+ * `facts.length > 0` restated — and `programme.resolved`, which it would then
+ * have to interpret. Both decisions belong here, once, rather than in twenty
+ * card renders.
+ *
+ *   null                  nothing to render. No answer for this name yet, and
+ *                         also an unresolved name: see below.
+ *   { unavailable: true } the server could not read this programme. The card
+ *                         says so quietly. Rendering silence instead would
+ *                         make a failure look like a programme with no
+ *                         signals, which is the one confusion this surface
+ *                         cannot afford.
+ *   { facts: [...] }      an answer, possibly empty.
+ *
+ * AN UNRESOLVED NAME RENDERS NOTHING, and carries no badge. Every programme on
+ * a match card came out of the matching engine against a real college row, so
+ * a name that fails to resolve here is our lookup disagreeing with itself, not
+ * a fact about the programme worth showing an operator. The facts are dropped
+ * with it — an unresolved programme should have none, and if it ever had one,
+ * silence is the safe direction.
+ */
+export function recruitingSignalsForCollege(data, collegeName) {
+  const found = data?.[collegeName];
+  if (!found) return null;
+  if (found.unavailable) return { unavailable: true };
+  if (!found.programme?.resolved) return null;
+  return { facts: found.facts ?? [] };
+}
