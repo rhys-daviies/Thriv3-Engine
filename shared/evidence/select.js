@@ -24,7 +24,42 @@
  * have had.
  */
 
-import { confidenceAtLeast, kindLabel, kindSpec, TIERS } from './kinds.js';
+import {
+  confidenceAtLeast, kindLabel, kindSpec, TIERS, PERMISSION, assertSurfaceRenderable,
+} from './kinds.js';
+
+/**
+ * May this evidence reach an email at all?
+ *
+ * THE REGISTRY DECIDES, NOT THE LEGACY FLAG. Until this function existed the
+ * gate was `ev.emailEligible`, a boolean that answers for one audience, and
+ * the OUTREACH permission beside it was read by nothing. The two agreed for
+ * all 26 kinds — but by construction rather than by enforcement, so a caller
+ * narrowing `permissions.OUTREACH` to DENIED still got an email, and a
+ * QUALIFIED grade could not have been honoured because no code path looked.
+ *
+ * FAILS CLOSED, TWICE OVER.
+ *
+ * `assertSurfaceRenderable` throws for a denied kind and for one missing a
+ * requirement it declares — COACH_CONTEXT is the only outbound kind with a
+ * `requiresWindow`, and across 15,433 real objects it always carries one, so
+ * this adds a guarantee rather than a behaviour.
+ *
+ * QUALIFIED IS REFUSED, DELIBERATELY. The grade means a surface may render the
+ * kind only through a path that states its qualification, and outreach has no
+ * such path yet — `outreachEvidenceFor` is Stage G2. Treating QUALIFIED as
+ * ALLOWED in the meantime would be the silent degradation the whole permission
+ * model exists to prevent: a correct-looking sentence in a coach's inbox with
+ * its caveat missing. There are zero QUALIFIED outreach kinds today, so this
+ * branch changes nothing and is here to be true the day one is added.
+ */
+export function outreachPermitted(ev) {
+  try {
+    return assertSurfaceRenderable(ev, 'OUTREACH') === PERMISSION.ALLOWED;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * A fact outranks an interpretation of the same strength.
@@ -147,39 +182,22 @@ export function meetsConfidence(ev) {
   return confidenceAtLeast(ev.confidence, kindSpec(ev.kind).minConfidence);
 }
 
-/**
- * May this evidence open an email?
+/*
+ * WHAT MAY OPEN AN EMAIL IS NOT DECIDED HERE, and a `canLead` /
+ * `promoteLeadable` pair that claimed otherwise was removed from this spot.
  *
- * Defaults to yes; only a kind that declares `canLead: false` in the registry
- * is excluded, and only while something else can take the slot.
+ * It read `kindSpec(ev.kind).canLead`, which NO KIND DECLARES — so the
+ * predicate was always true and the reordering was an identity function. Its
+ * comment described a five-structure architecture that `structures.js` reduced
+ * to two, and the concept it implemented had already been replaced by
+ * `leadSuitability` + `canOpenCold`, where the decision genuinely lives and is
+ * tested (see multiEvidence.test.js, "lead suitability decides what may open
+ * an email").
+ *
+ * Removed rather than left because the file a reader opens first should not
+ * describe a policy it does not enforce. There must be ONE lead vocabulary;
+ * this was the third.
  */
-export function canLead(ev) {
-  return kindSpec(ev.kind).canLead !== false;
-}
-
-/**
- * Moves a non-opening kind out of the first position.
- *
- * The opening sentence is `selected[0]` — four of the five structures lead on
- * it — so the decision about what opens an email is made HERE, in selection
- * order, and not by the structure. That is why demoting the academic angle
- * could not be done by retiring or re-gating the ACADEMIC_FIT structure: every
- * other structure would have opened on the same sentence.
- *
- * Order only. Nothing is added, nothing is dropped, and the relative order of
- * everything else is preserved — so an email that opened on the academic
- * sentence now opens on the item that was second and says the same three
- * things.
- *
- * If no selected item may lead, the order is returned untouched: an email that
- * opens with its one usable claim is better than one that opens with nothing.
- */
-export function promoteLeadable(selected) {
-  if (selected.length < 2 || canLead(selected[0])) return selected;
-  const i = selected.findIndex(canLead);
-  if (i <= 0) return selected;
-  return [selected[i], ...selected.filter((_, j) => j !== i)];
-}
 
 /** How each generated piece ended up. One value per kind, for panel and log. */
 export const DISPOSITION = Object.freeze({
@@ -279,11 +297,10 @@ export function fillSlots(ranked, { maxEmail = MAX_EMAIL_EVIDENCE } = {}) {
     familyUse.set(family, used + 1);
   }
 
-  // Ordered for the email rather than for the ranking: see promoteLeadable.
-  // Applied to the ENGINE's own choice only — an operator who ordered the
-  // evidence themselves has said what should open the email, and quietly
-  // reordering it would be overruling them.
-  return { selected: promoteLeadable(selected), belowThreshold, familyLimited, spare };
+  // In ranking order. Placement — which of these opens the email, and which
+  // paragraph each lands in — belongs to `structures.js`, which reads
+  // `leadSuitability`. Selection says what is worth saying and stops there.
+  return { selected, belowThreshold, familyLimited, spare };
 }
 
 const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth'];
@@ -313,10 +330,15 @@ export function selectFrom(evidence, { maxEmail = MAX_EMAIL_EVIDENCE, prefer = n
   const usable = all.filter(meetsConfidence);
 
   // Internal evidence is separated before dedupe, not after: it must never
-  // suppress an email-eligible piece it happens to outrank, because the thing
-  // it would suppress is the thing that actually goes in the email.
-  const internal = usable.filter((ev) => !ev.emailEligible);
-  const emailable = usable.filter((ev) => ev.emailEligible);
+  // suppress an emailable piece it happens to outrank, because the thing it
+  // would suppress is the thing that actually goes in the email.
+  //
+  // The split is now the registry's OUTREACH permission rather than the legacy
+  // `emailEligible` flag — see `outreachPermitted`. "Internal" therefore means
+  // "not permitted on this surface", which is what the word was always meant
+  // to mean and what the operator panel already says it means.
+  const emailable = usable.filter(outreachPermitted);
+  const internal = usable.filter((ev) => !outreachPermitted(ev));
 
   const { kept, suppressed } = dedupe(emailable);
   const ranked = kept.sort((a, b) => priorityOf(b) - priorityOf(a));

@@ -19,7 +19,7 @@
 import db from '../db/client.js';
 import { evidenceFor } from '../lib/evidenceQueries.js';
 import {
-  renderEvidence, kindLabel, FLOWS, FAMILY_LABELS, MAX_EMAIL_EVIDENCE,
+  renderEvidence, kindLabel, FLOWS, FAMILY_LABELS, MAX_EMAIL_EVIDENCE, outreachPermitted,
 } from '../../shared/evidence/index.js';
 
 const selectPlayer = db.prepare(`
@@ -164,7 +164,14 @@ export function toWire(result) {
         reason: entry.reason ?? null,
         // Rendered so it can be swapped in and previewed. Still through the
         // tier-appropriate renderer — a suppressed SIGNAL arrives hedged.
-        text: ev && ev.emailEligible ? renderEvidence(ev) : null,
+        //
+        // Gated on the OUTREACH permission rather than the legacy flag, for
+        // the same reason selection is: this decides whether an operator is
+        // OFFERED a sentence, and offering one the send path would then refuse
+        // is a worse failure than not offering it. `suppressed` and
+        // `belowThreshold` only ever hold emailable items today, so nothing
+        // here changes; the gate now says why.
+        text: ev && outreachPermitted(ev) ? renderEvidence(ev) : null,
         tier: ev?.tier ?? null,
         confidence: ev?.confidence ?? null,
       };

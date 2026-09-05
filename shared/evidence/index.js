@@ -28,7 +28,7 @@ import { renderEvidence } from './render.js';
 export { buildProgrammeContext, generateEvidence, REGIONS, regionFor } from './generate.js';
 export {
   selectFrom, priorityOf, MAX_EMAIL_EVIDENCE, MAX_PER_FAMILY, SLOT_FLOORS,
-  DISPOSITION, FAMILY_LABELS, familyOf,
+  DISPOSITION, FAMILY_LABELS, familyOf, outreachPermitted,
 } from './select.js';
 export {
   chooseStructure, resolveStructure, FLOWS, FLOW_KEYS, BLOCKS, EVIDENCE_BLOCKS,
