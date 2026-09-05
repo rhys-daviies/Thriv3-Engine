@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { BLOCK_COPY, fragmentFor, slotToken, SLOT_TOKENS } from './blocks.js';
-import {
-  composeStructured, evidenceSlots, structuredTemplate, paragraphFor,
-} from './compose.js';
-import { BLOCKS, FLOWS, FLOW_KEYS, MAX_GATHERED } from '../evidence/structures.js';
+import { composeOutreach, structuredTemplate } from './compose.js';
+import { BLOCKS, FLOWS, FLOW_KEYS } from '../evidence/structures.js';
+import { outreachEvidenceFor } from '../evidence/outreachEvidence.js';
+import { defineEvidence, CONFIDENCE } from '../evidence/kinds.js';
+import { renderEvidence } from '../evidence/render.js';
 import {
   DEFAULT_EMAIL_TEMPLATE, fillTemplate, buildEmailContext, emailBodyFor,
   canComposeStructured, BODY_SOURCE, unresolvedTokens, structureKeyOf,
@@ -13,18 +14,29 @@ import {
 const flow = (key, over = {}) => ({ key, ...FLOWS[key], ...over });
 
 /**
- * A minimal evidence object.
+ * Real evidence objects, composed the way production composes them.
  *
- * Composition renders its own sentences now, because the SLOT decides which of
- * the two variants a kind uses — so it needs evidence rather than prose. These
- * carry only what the renderers read.
+ * These tests used to drive `composeStructured` and `evidenceSlots` — a second
+ * composer that G4 replaced and that no production caller has reached since.
+ * The properties they defended are real and are kept; what changed is the
+ * function under test. Going through `outreachEvidenceFor` rather than
+ * hand-building role items means the licence, the qualification rules, the
+ * projection and the outbound copy are all exercised on the way, which is what
+ * the composer actually sits on top of.
  */
-const ev = (kind, data = {}, tier = 'FACT') => ({ kind, tier, data, season: '2022-2025' });
+const ev = (kind, data) => defineEvidence(kind, {
+  source: 'roster_players', confidence: CONFIDENCE.HIGH, season: '2022-2025', data,
+});
 
-const NZ = () => ev('HISTORICAL_SAME_COUNTRY', { country: 'New Zealand', count: 2, names: ['A', 'B'] });
-const GRAD = () => ev('POSITION_GRADUATION', { position: 'DEFENSE', count: 3, names: [], classYear: 2027 });
-const ACAD = () => ev('ACADEMIC_FIT', { major: 'Kinesiology' });
+const NZ = () => ev('HISTORICAL_SAME_COUNTRY', { country: 'New Zealand', count: 2, names: ['A', 'B'], seasons: ['2022'] });
+const GRAD = () => ev('POSITION_GRADUATION', { position: 'DEFENSE', count: 3, names: ['P', 'Q', 'R'], classYear: 2027 });
+const ACAD = () => ev('ACADEMIC_FIT', { stated: 'exercise science', major: 'Kinesiology' });
 const TITLE = () => ev('CONFERENCE_TITLE', { conference: 'ACC' });
+
+/** The production composer, given real evidence. */
+const compose = (key, items, ctx = { firstName: 'Rhys' }) => composeOutreach(
+  flow(key), outreachEvidenceFor({ all: items }), new Map(items.map((e) => [e.kind, e])), ctx,
+);
 
 const player = {
   full_name: 'Rhys Davies',
@@ -124,7 +136,7 @@ describe('every structure assembles into a whole email', () => {
   const three = [NZ(), GRAD(), ACAD()];
 
   it.each(FLOW_KEYS)('%s greets, introduces, links and signs off', (key) => {
-    const { template } = composeStructured(flow(key), three);
+    const { template } = compose(key, three);
     const body = fillTemplate(template, buildEmailContext(player, college, 'Coach Smith', {
       profileUrl: 'https://example.test/p/x',
     }));
@@ -135,20 +147,32 @@ describe('every structure assembles into a whole email', () => {
     expect(body.trimEnd().endsWith('Striv3 Elite Sports Management')).toBe(true);
   });
 
-  it.each(FLOW_KEYS)('%s places every selected claim somewhere', (key) => {
-    const { placement } = composeStructured(flow(key), three);
-    expect(placement.map((p) => p.kind)).toEqual(three.map((s) => s.kind));
-    for (const p of placement) expect([BLOCKS.HOOK, BLOCKS.RELEVANCE, BLOCKS.RECOGNITION]).toContain(p.slot);
+  it.each(FLOW_KEYS)('%s records every selected claim, rendered or held', (key) => {
+    /**
+     * SELECTED IS NOT RENDERED. The licence permits three body claims and the
+     * email carries at most two — one hook and one relevance — so the third is
+     * recorded with `slot: null` and `displayed: false` rather than dropped.
+     * The panel and the log both read this, and neither may imply a coach read
+     * something they did not.
+     */
+    const { placement } = compose(key, three);
+    expect(placement.map((p) => p.kind).sort()).toEqual(three.map((s) => s.kind).sort());
+    const shown = placement.filter((p) => p.displayed);
+    expect(shown.length).toBeGreaterThan(0);
+    for (const p of shown) {
+      expect([BLOCKS.HOOK, BLOCKS.RELEVANCE, BLOCKS.RECOGNITION]).toContain(p.slot);
+    }
+    for (const p of placement.filter((x) => !x.displayed)) expect(p.slot).toBeNull();
   });
 
   it.each(FLOW_KEYS)('%s leaves no unresolved token', (key) => {
-    const { template, tokens } = composeStructured(flow(key), three);
+    const { template, tokens } = compose(key, three);
     const context = { ...buildEmailContext(player, college, 'Coach', {}), ...tokens };
     expect(unresolvedTokens(template, context)).toEqual([]);
   });
 
   it('produces a different email for each structure', () => {
-    const bodies = FLOW_KEYS.map((key) => composeStructured(flow(key), three).template);
+    const bodies = FLOW_KEYS.map((key) => compose(key, three).template);
     expect(new Set(bodies).size).toBe(FLOW_KEYS.length);
   });
 });
@@ -157,7 +181,7 @@ describe('graceful degradation', () => {
   const one = [TITLE()];
 
   it.each(FLOW_KEYS)('%s with one item leaves no empty paragraph', (key) => {
-    const { template, tokens } = composeStructured(flow(key), one);
+    const { template, tokens } = compose(key, one);
     const body = fillTemplate(template, {
       // A profileUrl is supplied because without one `player_profile_url`
       // deliberately resolves to its own token — the real link carries the
@@ -171,7 +195,7 @@ describe('graceful degradation', () => {
   });
 
   it.each(FLOW_KEYS)('%s with no evidence drops its evidence blocks entirely', (key) => {
-    const { template, placement } = composeStructured(flow(key), []);
+    const { template, placement } = compose(key, []);
     expect(placement).toEqual([]);
     for (const token of SLOT_TOKENS) expect(template).not.toContain(`{{${token}}}`);
     // Still a complete email, not a stub.
@@ -188,46 +212,20 @@ describe('graceful degradation', () => {
   });
 });
 
-describe('the single-paragraph form, for customised templates', () => {
-  it('states the opening observation with its reasoning', () => {
-    expect(paragraphFor([NZ()], { firstName: 'Rhys' }))
-      .toMatch(/^I saw you've had .*, so I thought you might be open to another Kiwi\.$/);
-  });
-
-  /**
-   * One lead-in for the group. Three sentences each opening "I noticed" is the
-   * failure conversational copy creates, and it reads worse than the database
-   * prose it replaced.
-   */
-  it('gathers the rest under a single lead-in', () => {
-    const out = paragraphFor([NZ(), GRAD(), ACAD()], { firstName: 'Rhys' });
-    expect(out.match(/I also noticed/g)).toHaveLength(1);
-    expect(out).toContain(', and ');
-  });
-
-  it('puts a congratulation in its own sentence, never inside a clause', () => {
-    const out = paragraphFor([GRAD(), TITLE()], { firstName: 'Rhys' });
-    expect(out).toMatch(/Congrats on winning the ACC last year as well/);
-    expect(out).not.toMatch(/and congrats/i);
-  });
-
-  it('is empty when there is nothing to say', () => {
-    expect(paragraphFor([], {})).toBe('');
-  });
-});
-
 describe('placement into blocks', () => {
-  it('fills the hook, then the relevance paragraph', () => {
-    const { placement } = evidenceSlots(flow('RELATIONSHIP_FIRST'),
-      [NZ(), GRAD(), ACAD()], { firstName: 'Rhys' });
+  it('fills the hook, then one relevance paragraph, then holds the rest', () => {
+    const { placement } = compose('RELATIONSHIP_FIRST', [NZ(), GRAD(), ACAD()]);
     expect(placement[0].slot).toBe(BLOCKS.HOOK);
     expect(placement[1].slot).toBe(BLOCKS.RELEVANCE);
-    expect(placement[2].slot).toBe(BLOCKS.RELEVANCE);
+    // One relevance claim, not two. A first approach that lists everything
+    // true about a programme reads as a report however well each line is
+    // written.
+    expect(placement[2].slot).toBeNull();
+    expect(placement[2].displayed).toBe(false);
   });
 
   it('has no hook block in the player-first flow', () => {
-    const { tokens, placement } = evidenceSlots(flow('PLAYER_FIRST'),
-      [NZ(), GRAD()], { firstName: 'Rhys' });
+    const { tokens, placement } = compose('PLAYER_FIRST', [NZ(), GRAD()]);
     expect(tokens.evidence_hook).toBeUndefined();
     expect(placement.every((p) => p.slot !== BLOCKS.HOOK)).toBe(true);
   });
@@ -260,7 +258,7 @@ describe('which route composes the body', () => {
       structure: { key: 'PLAYER_FIRST' },
       selected: [],
       paragraph: 'Something true.',
-      composition: composeStructured(flow('PLAYER_FIRST'), [NZ()], { firstName: 'Rhys' }),
+      composition: compose('PLAYER_FIRST', [NZ()], { firstName: 'Rhys' }),
     };
     const out = emailBodyFor({ ...player, email_template: custom }, college, 'Coach', { evidence });
     expect(out.source).toBe(BODY_SOURCE.TEMPLATE);
@@ -278,8 +276,7 @@ describe('which route composes the body', () => {
       structure: { key: 'PLAYER_FIRST' },
       selected: [],
       paragraph: '',
-      composition: composeStructured(flow('PLAYER_FIRST'), [ACAD()],
-        { firstName: 'Rhys', academicIntro: true }),
+      composition: compose('PLAYER_FIRST', [ACAD()], { firstName: 'Rhys', academicIntro: true }),
     };
     const out = emailBodyFor(player, college, 'Coach', { evidence });
     expect(out.source).toBe(BODY_SOURCE.STRUCTURED);
@@ -293,7 +290,9 @@ describe('which route composes the body', () => {
      * the reason the two sentences no longer echo.
      */
     expect(out.body).toContain('planning to study Exercise Science');
-    expect(out.body).toContain('you offer Kinesiology');
+    // The evidence clause names both since G4, in one sentence, so a coach
+    // reads a match rather than two unrelated subjects four lines apart.
+    expect(out.body).toContain('Kinesiology is among the programmes you list');
     expect(out.body).not.toMatch(/Kinesiology[\s\S]*Kinesiology/);
   });
 });
@@ -307,8 +306,7 @@ describe('which route composes the body', () => {
  * name beside a body that was plainly assembled from one.
  */
 describe('the structure key, in either shape it arrives in', () => {
-  const composition = composeStructured(flow('PLAYER_FIRST'), [ACAD()],
-    { firstName: 'Rhys', academicIntro: true });
+  const composition = compose('PLAYER_FIRST', [ACAD()], { firstName: 'Rhys', academicIntro: true });
 
   it('reads the object form the engine returns', () => {
     expect(structureKeyOf({ structure: { key: 'ACADEMIC_FIT', label: 'Academic fit' } }))
@@ -346,85 +344,9 @@ describe('the structure key, in either shape it arrives in', () => {
  * Kinesiology, and you've got one defender graduating, and …", which is the
  * sentence this cap exists to prevent.
  */
-describe('an email displays at most two gathered clauses per paragraph', () => {
-  const four = () => [
-    NZ(),
-    GRAD(),
-    ACAD(),
-    ev('SQUAD_GRADUATION', { total: 7, classYear: 2027 }),
-  ];
-
-  it('caps a single-slot structure and holds the rest back', () => {
-    // PLAYER_FIRST has one evidence block: the opener plus two gathered is the
-    // most it can carry, so the fourth is selected and not displayed.
-    const { placement, tokens } = composeStructured(
-      flow('PLAYER_FIRST'), four(), { firstName: 'Rhys' },
-    );
-    const shown = placement.filter((p) => p.displayed);
-    const held = placement.filter((p) => !p.displayed);
-
-    expect(shown).toHaveLength(3);
-    expect(held).toHaveLength(1);
-    expect(held[0].slot).toBeNull();
-    // One lead-in, two clauses under it — never three.
-    const para = Object.values(tokens).join(' ');
-    expect(para.match(/, and /g) ?? []).toHaveLength(1);
-  });
-
-  it('spills into a later slot, and still caps that slot', () => {
-    // INTERNATIONAL_CONNECTION has LEAD and SUPPORT. The opener takes one and
-    // SUPPORT gathers two, so a fourth has nowhere left to go that would read
-    // well — held back rather than forced into a third clause.
-    const { placement } = composeStructured(
-      flow('RELATIONSHIP_FIRST'), four(), { firstName: 'Rhys' },
-    );
-    expect(placement.filter((p) => p.displayed)).toHaveLength(3);
-    expect(placement.filter((p) => !p.displayed)).toHaveLength(1);
-    // The spill is real: the second and third items are in the SUPPORT slot,
-    // not crammed into the opener.
-    expect(placement.filter((p) => p.slot === 'RELEVANCE')).toHaveLength(2);
-  });
-
-  it('does not count the opener or a congratulation against the cap', () => {
-    // Opener + congratulation + two gathered: four displayed in one block,
-    // because only two of them are gathered into a single lead-in.
-    const items = [GRAD(), TITLE(), ACAD(), ev('INTERNATIONAL_ROSTER', { count: 6, uniqueCountries: 2 })];
-    const { placement, tokens } = composeStructured(
-      flow('PLAYER_FIRST'), items, { firstName: 'Rhys' },
-    );
-    expect(placement.filter((p) => p.displayed)).toHaveLength(4);
-    // ONE gathering lead-in. The opener's own "I noticed" is not one of them —
-    // it is a sentence stating why we wrote, which is what the lead form is.
-    expect(Object.values(tokens).join(' ').match(/I also noticed/g)).toHaveLength(1);
-  });
-
-  it('reports the cap it enforced', () => {
-    expect(MAX_GATHERED).toBe(2);
-  });
-
-  it('keeps every selected item in the placement, displayed or not', () => {
-    const { placement } = composeStructured(
-      flow('PLAYER_FIRST'), four(), { firstName: 'Rhys' },
-    );
-    expect(placement.map((p) => p.kind).sort()).toEqual(four().map((e) => e.kind).sort());
-  });
-
-  it('renders no sentence for a claim it held back', () => {
-    // The send path checks each sentence against the body to decide whether a
-    // claim was delivered. A held-back item must not have one, or it would be
-    // logged as cut by the operator rather than never sent.
-    const { sentences, placement } = composeStructured(
-      flow('PLAYER_FIRST'), four(), { firstName: 'Rhys' },
-    );
-    const held = placement.find((p) => !p.displayed);
-    expect(sentences.map((x) => x.kind)).not.toContain(held.kind);
-    expect(sentences).toHaveLength(3);
-  });
-});
-
 describe('the filler fit line is gone', () => {
   it.each(FLOW_KEYS)('%s does not claim a fit in its own sentence', (key) => {
-    const { template } = composeStructured(flow(key), [NZ(), GRAD()], { firstName: 'Rhys' });
+    const { template } = compose(key, [NZ(), GRAD()]);
     const body = fillTemplate(template, buildEmailContext(player, college, 'Coach', {
       profileUrl: 'https://example.test/p/x',
     }));
@@ -433,11 +355,18 @@ describe('the filler fit line is gone', () => {
   });
 });
 
+/**
+ * INTERNATIONAL_ROSTER is OUTREACH DENIED since G4 — a squad's international
+ * count says nothing about this athlete — so it can no longer reach a composed
+ * email at all. Its wording still exists for the surfaces that may show it,
+ * and is exercised through the renderer directly rather than through a
+ * composer that would now refuse it.
+ */
 describe('large international counts stop being counted', () => {
-  const roster = (count) => renderedFor(ev('INTERNATIONAL_ROSTER', { count, uniqueCountries: 3 }));
-  const renderedFor = (item) => composeStructured(
-    flow('PLAYER_FIRST'), [item], { firstName: 'Rhys' },
-  ).sentences[0].text;
+  const roster = (count) => renderEvidence(defineEvidence('INTERNATIONAL_ROSTER', {
+    source: 'roster_players', confidence: CONFIDENCE.HIGH, season: '2026',
+    data: { count, uniqueCountries: 3, countries: ['Spain', 'Brazil', 'Japan'] },
+  }));
 
   it('states a small count, which a coach recognises as their own squad', () => {
     expect(roster(6)).toContain('six internationals');
@@ -527,83 +456,12 @@ describe('no block assumes what the coach wants', () => {
  * output rather than individual sentences: one reasoning sentence per email,
  * one gathering lead-in per paragraph, and the congratulation on its own.
  */
-describe('the composed email explains itself exactly once', () => {
-  const ctx = { firstName: 'Rhys' };
-
-  it('gives the reasoning to the hook in the relationship flow', () => {
-    const { tokens } = composeStructured(flow('RELATIONSHIP_FIRST'), [NZ(), GRAD()], ctx);
-    expect(tokens.evidence_hook).toMatch(/^I saw .*, so I thought you might be open to another Kiwi\.$/);
-    // The relevance paragraph is observations only — the reasoning was given.
-    expect(tokens.evidence_relevance).toMatch(/^I also noticed /);
-    expect(tokens.evidence_relevance).not.toMatch(/, so I/);
-  });
-
-  it('gives the reasoning to the first observation when there is no hook', () => {
-    const { tokens } = composeStructured(flow('PLAYER_FIRST'), [GRAD(), ACAD()], ctx);
-    expect(tokens.evidence_hook).toBeUndefined();
-    expect(tokens.evidence_relevance)
-      .toMatch(/^I was having a look through your program and noticed .*, so I thought Rhys/);
-  });
-
-  it('never uses more than one gathering lead-in in a paragraph', () => {
-    for (const key of FLOW_KEYS) {
-      const { tokens } = composeStructured(flow(key), [NZ(), GRAD(), ACAD(), TITLE()], ctx);
-      for (const [name, text] of Object.entries(tokens)) {
-        expect((text.match(/I also noticed/g) ?? []).length, `${key}.${name}`).toBeLessThanOrEqual(1);
-      }
-    }
-  });
-
-  it('keeps the congratulation out of the reasoning and in its own line', () => {
-    const { tokens } = composeStructured(flow('PLAYER_FIRST'), [GRAD(), TITLE()], ctx);
-    expect(tokens.evidence_recognition).toMatch(/^Congrats on winning the ACC last year as well/);
-    expect(tokens.evidence_relevance).not.toMatch(/congrats/i);
-  });
-
-  /**
-   * A single trailing observation reads flat as "I also noticed X." Where a
-   * kind supplies a sentence with its own point, composition uses it — for a
-   * few kinds only, because appending a reason to everything is the
-   * mechanical version of this and reads worse than the bare clause.
-   */
-  it('lets a lone supporting observation carry its own point', () => {
-    const intl = ev('INTERNATIONAL_ROSTER', { count: 12, uniqueCountries: 3 });
-    const { tokens } = composeStructured(flow('PLAYER_FIRST'), [GRAD(), intl], ctx);
-    expect(tokens.evidence_relevance)
-      .toContain("You've also got a pretty international squad, which made me think it was worth reaching out.");
-  });
-
-  it('does not append a reason to every gathered clause', () => {
-    const { tokens } = composeStructured(flow('PLAYER_FIRST'), [GRAD(), ACAD(), NZ()], ctx);
-    expect((tokens.evidence_relevance.match(/which made me think/g) ?? []).length)
-      .toBeLessThanOrEqual(1);
-  });
-
-  it('never frames a clause that already opens with its own adverbial', () => {
-    // "I saw going off last season's minutes, …" is what the naive framing
-    // produces for a clause that starts with one.
-    const starters = ev('POSITION_GRADUATION_STARTERS',
-      { position: 'DEFENSE', count: 2 }, 'SIGNAL');
-    const { tokens } = composeStructured(flow('PLAYER_FIRST'), [starters], ctx);
-    expect(tokens.evidence_relevance).toMatch(/^Going off last season's minutes/);
-    expect(tokens.evidence_relevance).not.toMatch(/noticed going off/);
-  });
-});
-
-/**
- * The player snapshot in a first approach.
- *
- * Budget is real, useful and internal. It drives matching and affordability
- * and it stays on the athlete's record; what it must not do is appear in the
- * opening email, where a band invites a coach to price the athlete before they
- * have watched a minute of film.
- */
 describe('the credentials block', () => {
   const bodyFor = (p) => emailBodyFor(p, college, 'Ali Simmons', {
     evidence: {
       selected: [ACAD()],
       structure: flow('PLAYER_FIRST'),
-      composition: composeStructured(flow('PLAYER_FIRST'), [ACAD()], { firstName: 'Rhys' }),
+      composition: compose('PLAYER_FIRST', [ACAD()]),
     },
   }).body;
 

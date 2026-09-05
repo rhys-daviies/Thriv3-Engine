@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { groupEvidence, CardEvidence } from './EvidencePanel.jsx';
+import { groupEvidence } from './EvidencePanel.jsx';
 import { evidenceForCollege } from '@/lib/useEvidence';
 
 /**
@@ -19,7 +19,6 @@ import { evidenceForCollege } from '@/lib/useEvidence';
  * what the "collapsed by default" assertions need.
  */
 
-const render = (props) => renderToStaticMarkup(createElement(CardEvidence, props));
 
 /** A wire item, in the shape `wireEvidence` actually emits. */
 const item = (kind, o = {}) => ({
@@ -130,150 +129,6 @@ describe('groupEvidence — the rule both surfaces share', () => {
   });
 });
 
-describe('CardEvidence — the three sections', () => {
-  it('names the sections in the operator\'s words, not the registry\'s', () => {
-    const html = render({ evidence: wire() });
-    expect(html).toContain('Recommended outreach evidence');
-    expect(html).toContain('Other available evidence');
-    // The internal group is never called evidence.
-    expect(html).toContain('additional intelligence finding');
-    expect(html).not.toContain('Internal evidence');
-  });
-
-  /**
-   * A registry key is a grouping constant for a database. An operator should
-   * not have to decode COACH_ARRIVAL_SAME_COUNTRY to learn that we have
-   * recruited from this athlete's country under this coach.
-   */
-  it('labels findings in prose and never with a raw kind', () => {
-    const html = render({ evidence: wire() });
-    expect(html).toContain('Same-country arrival under this coach');
-    expect(html).not.toContain('COACH_ARRIVAL_SAME_COUNTRY');
-    expect(html).not.toContain('POSITION_GRADUATION');
-  });
-
-  it('prints the server-rendered sentence verbatim', () => {
-    const html = render({
-      evidence: wire({
-        selected: [{
-          ...item('COACH_ARRIVAL_SAME_COUNTRY', {
-            text: "you've brought in Hayden Aish from New Zealand in 2025",
-          }),
-          order: 0, slot: 'HOOK', displayed: true,
-        }],
-      }),
-    });
-    expect(html).toContain('you&#x27;ve brought in Hayden Aish from New Zealand in 2025');
-  });
-
-  it('keeps additional intelligence collapsed, and renders no sentence for it', () => {
-    const html = render({ evidence: wire() });
-    expect(html).toContain('Show 2 additional intelligence findings');
-    // Collapsed: neither the label nor the caveat is in the initial markup.
-    expect(html).not.toContain('Intake history at this position');
-    expect(html).not.toContain('not approved for outreach');
-  });
-
-  it('folds a long other-available list rather than printing all of it', () => {
-    const many = wire({
-      otherKnown: Array.from({ length: 9 }, (_, i) => ({
-        kind: `K${i}`, label: `K${i}`, disposition: 'SUPPRESSED_REDUNDANT',
-        reason: 'says the same thing as something above', text: `text ${i}`,
-        tier: 'FACT', confidence: 'HIGH',
-      })),
-    });
-    const html = render({ evidence: many });
-    expect(html).toContain('Show 7 more findings');
-    expect(html).toContain('text 0');
-    expect(html).not.toContain('text 8');
-  });
-
-  /**
-   * The composer caps a paragraph at two gathered clauses, so a selected item
-   * can be recorded and never reach a coach. The card must not imply otherwise.
-   */
-  it('says so when a recommended item would not be carried', () => {
-    const html = render({
-      evidence: wire({
-        selected: [{ ...item('ACADEMIC_FIT', { category: 'academic' }), order: 0, slot: 'RELEVANCE', displayed: false }],
-      }),
-    });
-    expect(html).toContain('a default approach would not carry it');
-  });
-});
-
-describe('CardEvidence — empty, loading and failure are three different things', () => {
-  it('shows loading rather than emptiness while a request is in flight', () => {
-    const html = render({ evidence: null, loading: true });
-    expect(html).toContain('Loading outreach evidence');
-    expect(html).not.toContain('No strong outreach evidence');
-  });
-
-  /** Loading wins even when a stale previous page is still in state. */
-  it('keeps showing loading when the previous page\'s response is still held', () => {
-    const html = render({ evidence: wire(), loading: true });
-    expect(html).toContain('Loading outreach evidence');
-    expect(html).not.toContain('Recommended outreach evidence');
-  });
-
-  /**
-   * A failed request and a programme with nothing to say produce the same empty
-   * screen. Conflating them lets a server problem read as a fact about the
-   * school.
-   */
-  it('distinguishes a failed load from having nothing to say', () => {
-    const failed = render({ evidence: null, failed: true });
-    expect(failed).toContain('could not be loaded');
-    expect(failed).not.toContain('No strong outreach evidence');
-
-    const empty = render({ evidence: null });
-    expect(empty).toContain('No strong outreach evidence identified for this programme');
-    expect(empty).not.toContain('could not be loaded');
-  });
-
-  it('keeps the internal-only case explicit', () => {
-    const html = render({
-      evidence: { selected: [], available: [], otherKnown: [], internal: wire().internal },
-    });
-    expect(html).toContain('No strong outreach evidence identified for this programme');
-    expect(html).toContain('Show 2 additional intelligence findings');
-  });
-
-  it('says what an approach would do when nothing was selected but options exist', () => {
-    const html = render({ evidence: wire({ selected: [] }) });
-    expect(html).toContain('introduce the athlete first');
-  });
-});
-
-describe('CardEvidence — the boundary the card must not cross', () => {
-  const html = () => render({ evidence: wire() });
-
-  it('exposes no provenance, because the wire carries none', () => {
-    for (const word of ['provenance', 'supporting', 'attributable', 'coverageStatus', 'specificity']) {
-      expect(html()).not.toContain(word);
-    }
-  });
-
-  /** Read-only: every control the composer offers is absent here. */
-  it('renders no selection, ordering or structure control', () => {
-    const out = html();
-    expect(out).not.toContain('<select');
-    expect(out).not.toContain('type="checkbox"');
-    expect(out).not.toContain('Add to email');
-    expect(out).not.toContain('Remove from email');
-    expect(out).not.toContain('Move up');
-  });
-});
-
-/**
- * Paging must not show page 1's evidence on page 2.
- *
- * `useEvidence` keeps the previous response in state until the new one lands,
- * so for the duration of the request the card holds the wrong page's object.
- * Two things make that safe, and both are asserted here: every lookup is BY
- * NAME, so a foreign page's object simply misses; and `loading` is true for
- * that whole window, which the card prefers over an empty result.
- */
 describe('pagination cannot leak evidence across pages', () => {
   const PAGE_SIZE = 20;
   const all = Array.from({ length: 100 }, (_, i) => ({ name: `College ${i}` }));
@@ -305,11 +160,9 @@ describe('pagination cannot leak evidence across pages', () => {
   });
 
   /**
-   * The miss above would otherwise render as "no strong outreach evidence" for
-   * as long as the request is in flight. Loading wins, so it reads as loading.
+   * The miss above would otherwise render as "nothing to say" for as long as
+   * the request is in flight. Loading wins, so it reads as loading — asserted
+   * on the panel that ships, in `evidencePanel.test.js`, since the card-shaped
+   * one it used to be tested on was removed in H2.
    */
-  it('shows loading over a miss while the new page is in flight', () => {
-    const html = render({ evidence: null, loading: true });
-    expect(html).toContain('Loading outreach evidence');
-  });
 });

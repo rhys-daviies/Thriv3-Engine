@@ -22,7 +22,7 @@ import { canonicalPosition } from '../positions.js';
 import { buildProgrammeContext, generateEvidence } from './generate.js';
 import { selectFrom, MAX_EMAIL_EVIDENCE } from './select.js';
 import { resolveStructure } from './structures.js';
-import { composeStructured, composeOutreach, paragraphFor } from '../email/compose.js';
+import { composeOutreach } from '../email/compose.js';
 import { outreachEvidenceFor, applyPrefer } from './outreachEvidence.js';
 import { renderEvidence, DEFAULT_HOOK_FRAMING } from './render.js';
 
@@ -36,7 +36,7 @@ export {
   eligibleFlows, planPlacement, canOpenCold, MAX_GATHERED, LEGACY_STRUCTURE_KEYS,
   STRUCTURES, STRUCTURE_KEYS, eligibleStructures,
 } from './structures.js';
-export { composeStructured, evidenceSlots, structuredTemplate, paragraphFor } from '../email/compose.js';
+export { composeOutreach, outreachSlots, structuredTemplate } from '../email/compose.js';
 export {
   factParts, signalParts, evidenceParts, isRecognition,
   renderEvidence, renderSentence, joinNames, EvidenceRenderError,
@@ -237,42 +237,6 @@ export function selectEvidence(athlete, programme = {}, {
       return `${t[0].toUpperCase()}${t.slice(1)}.`;
     }).join(' '),
   };
-}
-
-/**
- * Every selected clause as one paragraph.
- *
- * The single-paragraph form, for the templates that carry one
- * {{evidence_paragraph}} token — a saved template an operator has customised,
- * and anything written before structures existed. A structured email does not
- * use this: it places its evidence through the body, which is the whole point
- * of shared/email/compose.js.
- *
- * The FIRST clause takes the lead form — it opens the paragraph, so it carries
- * its own reasoning — and the rest are gathered under one lead-in, exactly as
- * a structured email's opening slot does. A customised template therefore gets
- * the same voice as a structured one, just all in one place.
- */
-export function evidenceParagraph(selected = [], ctx = {}) {
-  // Evidence objects straight through: `paragraphFor` renders them itself,
-  // because the framing depends on position and cannot be decided before the
-  // position is known.
-  return paragraphFor(selected, ctx);
-}
-
-/**
- * The same paragraph, built from sentences somebody else already rendered.
- *
- * Exported so the browser can recombine the operator's chosen angles without a
- * round trip AND without gaining a renderer: it joins strings the server
- * wrote, and cannot manufacture a sentence from data. That distinction is the
- * whole reason the wire carries prose rather than evidence objects.
- *
- * The server re-renders from its own evidence at send time regardless, so a
- * client that got this wrong would change the preview and not the email.
- */
-export function paragraphFromSentences(sentences = []) {
-  return paragraphFor(sentences);
 }
 
 /**

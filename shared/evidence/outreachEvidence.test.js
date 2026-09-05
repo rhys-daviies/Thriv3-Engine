@@ -503,3 +503,62 @@ describe('the claim ends at the observation', () => {
     });
   });
 });
+
+/**
+ * One of each, and no legacy alternate.
+ *
+ * H2 deleted a second composer (`composeStructured`/`evidenceSlots`) and a
+ * second paragraph builder (`paragraphFor`/`evidenceParagraph`), both of which
+ * had had no production caller since G4 and both of which rendered through the
+ * legacy copy — the "so I thought you might be open to another Kiwi" reasoning
+ * Stage G removed. A dead alternate is not harmless when it writes sentences:
+ * the H1 hardening quietly made one of them reachable again, and it took a
+ * measurement to notice.
+ *
+ * So the invariant is stated rather than assumed. Scanned as source text
+ * because the failure mode is a new file nobody thought to wire into a test.
+ */
+describe('there is one of each, in production', () => {
+  const ROOT = new URL('../../', import.meta.url).pathname;
+  const read = (rel) => readFileSync(`${ROOT}${rel}`, 'utf8');
+  const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
+  const PRODUCTION = [
+    'shared/evidence/index.js', 'shared/email/compose.js', 'shared/evidence/structures.js',
+    'server/routes/evidence.js', 'server/routes/sendOutreach.js',
+    'src/lib/emailTemplate.js', 'server/scripts/evidenceReport.js',
+    'server/scripts/recruitingEvidenceReport.js',
+  ];
+
+  it('names no deleted legacy composer or paragraph builder anywhere in production', () => {
+    for (const rel of PRODUCTION) {
+      const code = strip(read(rel));
+      for (const gone of ['composeStructured', 'evidenceSlots', 'paragraphFor',
+        'evidenceParagraph', 'paragraphFromSentences', 'CardEvidence']) {
+        expect(code, `${rel} :: ${gone}`).not.toContain(gone);
+      }
+    }
+  });
+
+  it('routes outbound selection through `outreachEvidenceFor` and nothing else', () => {
+    const index = strip(read('shared/evidence/index.js'));
+    expect(index).toContain('outreachEvidenceFor(');
+    expect(index).toContain('composeOutreach(');
+    // `selectFrom` still runs, and only for the panel's diagnostics.
+    expect(index).toContain('diagnostics');
+  });
+
+  it('renders outbound claims through `outreachCopyFor` and nothing else', () => {
+    const composer = strip(read('shared/email/compose.js'));
+    expect(composer).toContain('outreachCopyFor(');
+    // The legacy per-tier renderer must not reach the outbound composer.
+    expect(composer).not.toContain('evidenceParts(');
+    expect(composer).not.toContain('factParts(');
+    expect(composer).not.toContain('signalParts(');
+  });
+
+  it('plans placement through `planFromRoles` and nothing else', () => {
+    const composer = strip(read('shared/email/compose.js'));
+    expect(composer).toContain('planFromRoles(');
+    expect(composer).not.toContain('planPlacement(');
+  });
+});

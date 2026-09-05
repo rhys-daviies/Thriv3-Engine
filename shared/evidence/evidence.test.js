@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   selectEvidence, generateEvidence, buildProgrammeContext, normaliseEvidenceAthlete,
   factParts, signalParts, renderEvidence, EvidenceRenderError,
-  EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, defineEvidence, TIERS, evidenceParagraph, MAX_EMAIL_EVIDENCE,
+  EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, defineEvidence, TIERS, renderEvidence, MAX_EMAIL_EVIDENCE,
   evidenceLogPayload, regionFor,
 } from './index.js';
 import { RENDERABLE_KINDS } from './render.js';
@@ -298,7 +298,9 @@ describe('missing roster produces unknown, never zero', () => {
     const result = selectEvidence(nzDefender, { college: college() });
     expect(result.selected).toHaveLength(0);
     expect(result.structure.key).toBe('PLAYER_FIRST');
-    expect(evidenceParagraph(result.selected)).toBe('');
+    // Nothing to say, so nothing is said — the email carries the athlete.
+    expect(result.paragraph).toBe('');
+    expect(result.sentences).toEqual([]);
   });
 });
 
@@ -620,17 +622,15 @@ describe('coach tenure respects the observed window', () => {
     /**
      * COACH_CONTEXT is DENIED for outreach since G4 — a stranger telling a
      * coach how long they have held their own job — so it no longer reaches an
-     * email at all and the clause it used to contribute is unreachable there.
-     * The renderer still owns the wording for the surfaces that may show it,
-     * which is what `evidenceParagraph` is exercised on here.
+     * email at all. Its wording still belongs to the surfaces that may show
+     * it, and is exercised through the renderer that owns them.
      */
     expect(result.selected.map((e) => e.kind)).not.toContain('COACH_CONTEXT');
     const coachEv = result.all.find((e) => e.kind === 'COACH_CONTEXT');
     expect(coachEv).toBeTruthy();
-    const para = evidenceParagraph([coachEv]);
-    expect(para).not.toContain('and with you');
-    expect(para).toMatch(/you're two seasons into the job/);
-    expect(para.endsWith('.')).toBe(true);
+    const clause = renderEvidence(coachEv);
+    expect(clause).not.toContain('and with you');
+    expect(clause).toMatch(/you're two seasons into the job/);
   });
 
   it('produces nothing when no season resolved a name', () => {
@@ -730,17 +730,20 @@ describe('copy holds up grammatically', () => {
 });
 
 describe('composition and logging', () => {
-  it('joins two pieces into one paragraph rather than a list', () => {
+  it('opens on the hook and adds at most one more observation', () => {
     const history = [row({ season: '2023', country: 'New Zealand', player_name: 'Kiwi' })];
     const match = { graduating_at_position: 3, graduating_names_at_position: ['A', 'B', 'C'] };
     const result = selectEvidence(nzDefender, { college: college(), history, match });
-    const para = evidenceParagraph(result.selected);
-    // The lead states its own reasoning; anything sharing the paragraph is
-    // gathered under one lead-in rather than conjoined to it, which is what
-    // stops three "I noticed" sentences in a row.
-    expect(para).toMatch(/^I saw you've had/);
-    expect(para).toContain('I also noticed');
-    expect(para.endsWith('.')).toBe(true);
+    /**
+     * The paragraph form a saved template receives, built from the same
+     * sentences the composed body carries. The hook is framed; what follows is
+     * its own sentence rather than a clause gathered onto it — the legacy
+     * composer's "I also noticed A, and B" is gone with the composer.
+     */
+    expect(result.paragraph).toMatch(/^I saw /);
+    expect(result.paragraph.endsWith('.')).toBe(true);
+    expect(result.sentences.length).toBeLessThanOrEqual(2);
+    expect(result.paragraph).not.toContain(', and ');
   });
 
   it('caps an email at four pieces of evidence, however much is known', () => {
