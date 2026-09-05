@@ -295,6 +295,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['country'],
+    // MATCHING_SUMMARY: QUALIFIED. Only with its tense: "on earlier rosters". Without it, past
+    // presence reads as present presence.
+    permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED },
   },
   CURRENT_SAME_COUNTRY: {
     leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
@@ -308,6 +311,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['country'],
+    // MATCHING_SUMMARY: QUALIFIED. Only with its tense: "on the squad now". Presence is not
+    // recruiting demand.
+    permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED },
   },
   HISTORICAL_SAME_REGION: {
     leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
@@ -388,6 +394,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['coach', 'country'],
+    // MATCHING_SUMMARY: ALLOWED. Nothing coach-related is scored, so this cannot be read as
+    // the score’s cause.
+    permissions: { MATCHING_SUMMARY: PERMISSION.ALLOWED },
   },
 
   /** An arrival from the athlete's country, at the athlete's position. */
@@ -403,6 +412,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['country', 'position'],
+    // MATCHING_SUMMARY: ALLOWED. Country and position on one object; no criterion shares
+    // its inputs or its name.
+    permissions: { MATCHING_SUMMARY: PERMISSION.ALLOWED },
   },
 
   /**
@@ -424,6 +436,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['region', 'position'],
+    // MATCHING_SUMMARY: QUALIFIED. Only with a position and named countries. The region key
+    // never reaches a surface.
+    permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED },
   },
 
   // A share, not a count: it depends on the denominator being a complete
@@ -516,6 +531,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.OPENING,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['position'],
+    // MATCHING_SUMMARY: QUALIFIED. Support only. Its squadSize disagrees with POSITION_GROUP_SIZE
+    // at 47 of 228 programmes, so it may not lead.
+    permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED },
   },
   RETURNING_POSITION_DEPTH: {
     leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,

@@ -106,8 +106,34 @@ describe('permissions on every evidence object', () => {
     }
   });
 
-  it('denies the matching summary to everything until a kind is licensed', () => {
+  it('denies the matching summary to everything not licensed by name', () => {
+    /**
+     * This asserted DENIED for all 26 until Stage F1 licensed six of them.
+     * What it defends is unchanged and is the part that matters: the DEFAULT
+     * is still denial, so a kind added tomorrow arrives with no matching
+     * licence whatever its `emailEligible` says. The six are granted one at a
+     * time in the registry, and `matchingSummary.test.js` states all 26 values.
+     */
+    const LICENSED = ['COACH_ARRIVAL_SAME_COUNTRY', 'ARRIVAL_SAME_COUNTRY_POSITION',
+      'POSITION_GROUP_SCARCITY', 'ARRIVAL_SAME_REGION_POSITION',
+      'HISTORICAL_SAME_COUNTRY', 'CURRENT_SAME_COUNTRY'];
     for (const kind of EVIDENCE_KIND_NAMES) {
+      if (LICENSED.includes(kind)) continue;
+      expect(permissionsFor(kind).MATCHING_SUMMARY, kind).toBe(PERMISSION.DENIED);
+    }
+  });
+
+  it('still denies the matching summary by default', () => {
+    // The grant is per kind and never derived. Asserted through the public
+    // lookup on kinds that declare no MATCHING_SUMMARY: email-eligible ones
+    // are denied just as firmly as the rest, which is what stops a licence
+    // being inherited from the wrong surface.
+    const undeclared = EVIDENCE_KIND_NAMES
+      .filter((k) => !EVIDENCE_KINDS[k].permissions?.MATCHING_SUMMARY);
+    expect(undeclared).toHaveLength(20);
+    const emailable = undeclared.filter((k) => EVIDENCE_KINDS[k].emailEligible);
+    expect(emailable.length).toBeGreaterThan(0);
+    for (const kind of undeclared) {
       expect(permissionsFor(kind).MATCHING_SUMMARY, kind).toBe(PERMISSION.DENIED);
     }
   });
