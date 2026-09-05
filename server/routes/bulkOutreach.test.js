@@ -225,16 +225,24 @@ describe('one failure cannot misattribute another programme', () => {
 
 describe('operator selection does not leak across the batch', () => {
   it('applies an override to the programme it was made for and no other', async () => {
-    // Only Kiwi State is told to lead with the roster angle instead.
+    /**
+     * Only Kiwi State is given an explicit choice.
+     *
+     * It used to name INTERNATIONAL_ROSTER, which G4 denied for outreach — a
+     * squad's international count says nothing about this athlete — and which
+     * this fixture no longer offers. The override now names the one licensed
+     * claim this programme has, so what is under test is what the test is
+     * called: that the choice binds to one programme and no other.
+     */
     await runBatch((name) => (
-      name === 'Kiwi State' ? { evidenceSelection: ['INTERNATIONAL_ROSTER'] } : {}
+      name === 'Kiwi State' ? { evidenceSelection: ['HISTORICAL_SAME_COUNTRY'] } : {}
     ));
 
     const rows = db.prepare('SELECT college_name, primary_kind, operator_selected FROM outreach_evidence').all();
     const kiwi = rows.find((r) => r.college_name === 'Kiwi State');
     const aussie = rows.find((r) => r.college_name === 'Aussie Tech');
 
-    expect(kiwi.primary_kind).toBe('INTERNATIONAL_ROSTER');
+    expect(kiwi.primary_kind).toBe('HISTORICAL_SAME_COUNTRY');
     expect(kiwi.operator_selected).toBe(1);
     // Aussie Tech keeps the engine's own choice and is not marked as chosen.
     expect(aussie.primary_kind).toBe('HISTORICAL_SAME_REGION');

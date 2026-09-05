@@ -143,18 +143,15 @@ describe('the registry says exactly what F1 approved', () => {
     expect(by).toEqual({ ALLOWED: 2, QUALIFIED: 3, DENIED: 21 });
   });
 
-  it('leaves OPERATOR and OUTREACH exactly as they were', () => {
-    // Granting a third surface must change nothing about the other two.
+  it('leaves OPERATOR exactly as it was', () => {
+    // The card's licence must change nothing about the operator surface.
+    // OUTREACH is no longer asserted here: G4 gave it its own policy, and it
+    // is owned by `outreachEvidence.test.js`.
     const OPERATOR_QUALIFIED = ['PROGRAMME_DEVELOPMENT_PATTERN', 'FRESHMAN_MINUTES_LADDER',
       'ATHLETE_COHORT_LADDER', 'PROGRAMME_POOL_BENCHMARK'];
-    const OUTREACH_DENIED = ['POSITION_GROUP_SIZE', 'POSITION_INTAKE_HISTORY', 'TRANSFER_BEHAVIOUR',
-      ...OPERATOR_QUALIFIED];
     for (const kind of Object.keys(EVIDENCE_KINDS)) {
-      const p = permissionsFor(kind);
-      expect(p.OPERATOR_EVIDENCE, kind)
+      expect(permissionsFor(kind).OPERATOR_EVIDENCE, kind)
         .toBe(OPERATOR_QUALIFIED.includes(kind) ? PERMISSION.QUALIFIED : PERMISSION.ALLOWED);
-      expect(p.OUTREACH, kind)
-        .toBe(OUTREACH_DENIED.includes(kind) ? PERMISSION.DENIED : PERMISSION.ALLOWED);
     }
   });
 

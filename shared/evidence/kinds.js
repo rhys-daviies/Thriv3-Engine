@@ -352,6 +352,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['region'],
+    // OUTREACH: QUALIFIED. Only as the countries it covers, and only saying they are not the athlete's own.
+    permissions: { OUTREACH: PERMISSION.QUALIFIED },
   },
   INTERNATIONAL_ROSTER: {
     leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
@@ -365,6 +367,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.CONTEXT,
     polarity: POLARITY.POSITIVE,
     specificityAxes: [],
+    // OUTREACH: DENIED. Says nothing about this athlete. True of hundreds of programmes.
+    permissions: { OUTREACH: PERMISSION.DENIED },
   },
   /**
    * --- recruiting history -------------------------------------------------
@@ -460,7 +464,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     specificityAxes: ['region', 'position'],
     // MATCHING_SUMMARY: QUALIFIED. Only with a position and named countries. The region key
     // never reaches a surface.
-    permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED },
+    // OUTREACH: QUALIFIED. Only as concrete countries plus the position, never the region key.
+    permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED, OUTREACH: PERMISSION.QUALIFIED },
   },
 
   // A share, not a count: it depends on the denominator being a complete
@@ -478,6 +483,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.CONTEXT,
     polarity: POLARITY.POSITIVE,
     specificityAxes: [],
+    // OUTREACH: DENIED. A percentage about their squad, to a stranger.
+    permissions: { OUTREACH: PERMISSION.DENIED },
   },
 
   // --- roster opportunity --------------------------------------------------
@@ -493,6 +500,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.OPENING,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['position'],
+    // OUTREACH: QUALIFIED. Only with names and a class year. A bare count invites "so you need one".
+    permissions: { OUTREACH: PERMISSION.QUALIFIED },
   },
   // Split from the count above on purpose. Who is leaving is a roster fact;
   // which of them was a starter in a season that has not been played is a
@@ -509,6 +518,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.OPENING,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['position'],
+    // OUTREACH: DENIED. Supporting detail: "one of THOSE defenders" has no referent alone.
+    permissions: { OUTREACH: PERMISSION.DENIED },
   },
   SQUAD_GRADUATION: {
     leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
@@ -522,6 +533,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.CONTEXT,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['athlete'],
+    // OUTREACH: DENIED. Subsumed by POSITION_GRADUATION, whose cohort is inside it.
+    permissions: { OUTREACH: PERMISSION.DENIED },
   },
   // Internal, deliberately. A bare count is the factual anchor beneath the
   // depth story and is not an argument on its own: Air Force carries eleven
@@ -555,7 +568,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     specificityAxes: ['position'],
     // MATCHING_SUMMARY: QUALIFIED. Support only. Its squadSize disagrees with POSITION_GROUP_SIZE
     // at 47 of 228 programmes, so it may not lead.
-    permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED },
+    // OUTREACH: DENIED. Grades their squad to their face.
+    permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED, OUTREACH: PERMISSION.DENIED },
   },
   RETURNING_POSITION_DEPTH: {
     leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
@@ -569,6 +583,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.OPENING,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['position'],
+    // OUTREACH: DENIED. Grades their squad to their face.
+    permissions: { OUTREACH: PERMISSION.DENIED },
   },
   ELIGIBILITY_CLIFF: {
     leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
@@ -582,6 +598,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.OPENING,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['position'],
+    // OUTREACH: DENIED. Grades their squad to their face.
+    permissions: { OUTREACH: PERMISSION.DENIED },
   },
 
   // --- programme record ----------------------------------------------------
@@ -602,6 +620,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.FIT,
     polarity: POLARITY.POSITIVE,
     specificityAxes: [],
+    // OUTREACH: QUALIFIED. Recognition only. Never a reason the athlete fits.
+    permissions: { OUTREACH: PERMISSION.QUALIFIED },
   },
   POSTSEASON_RESULT: {
     leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
@@ -620,6 +640,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.FIT,
     polarity: POLARITY.POSITIVE,
     specificityAxes: [],
+    // OUTREACH: QUALIFIED. Recognition only. Never a reason the athlete fits.
+    permissions: { OUTREACH: PERMISSION.QUALIFIED },
   },
   PROGRAM_MOMENTUM: {
     leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
@@ -633,6 +655,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.FIT,
     polarity: POLARITY.POSITIVE,
     specificityAxes: [],
+    // OUTREACH: DENIED. Grades their season to their face.
+    permissions: { OUTREACH: PERMISSION.DENIED },
   },
 
   // --- people and academics ------------------------------------------------
@@ -662,6 +686,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.CONTEXT,
     polarity: POLARITY.NEUTRAL,
     specificityAxes: [],
+    // OUTREACH: DENIED. Tells a coach how long they have held their own job.
+    permissions: { OUTREACH: PERMISSION.DENIED },
   },
   ACADEMIC_FIT: {
     leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
@@ -675,6 +701,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.FIT,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['athlete'],
+    // OUTREACH: QUALIFIED. Only with BOTH labels: the athlete's words and the programme's subject.
+    permissions: { OUTREACH: PERMISSION.QUALIFIED },
   },
 
   // --- internal only -------------------------------------------------------

@@ -23,6 +23,22 @@ import { EVIDENCE_KINDS } from './kinds.js';
 // fixtures
 // ---------------------------------------------------------------------------
 
+/**
+ * The LEGACY selector's own answer.
+ *
+ * These tests are about `selectFrom` — its ranking, its family caps, its slot
+ * floors, its operator swap. Since G4 that engine no longer decides what an
+ * email says; `outreachEvidenceFor` does, under a licence. The legacy result
+ * is still computed and still returned under its own name, because the panel
+ * and the log want it and because it is the baseline the new policy is
+ * measured against. So these assertions read it explicitly rather than through
+ * `selected`, which now means something else.
+ */
+const selectEvidenceLegacy = (...args) => {
+  const r = selectEvidence(...args);
+  return { ...r, ...r.legacy };
+};
+
 const nzDefender = {
   full_name: 'Rhys Davies',
   position: 'Defender',
@@ -115,21 +131,23 @@ const ev = (kind, strength, o = {}) => defineEvidence(kind, {
 
 describe('how much evidence an email carries', () => {
   it('uses more than two when a programme genuinely supports it', () => {
-    const result = selectEvidence(nzDefender, richProgramme());
+    const result = selectEvidenceLegacy(nzDefender, richProgramme());
     expect(result.selected.length).toBeGreaterThan(2);
     expect(result.selected.length).toBeLessThanOrEqual(MAX_EMAIL_EVIDENCE);
   });
 
   it('never exceeds the ceiling, however much is known', () => {
-    const result = selectEvidence(nzDefender, richProgramme());
+    const result = selectEvidenceLegacy(nzDefender, richProgramme());
     expect(result.selected.length).toBeLessThanOrEqual(MAX_EMAIL_EVIDENCE);
-    // The ceiling has to be BINDING in this fixture or the test above proves
-    // nothing about the cap — only that this programme happened to be thin.
-    expect(result.ranked.length).toBeGreaterThan(MAX_EMAIL_EVIDENCE);
+    // The ceiling has to be REACHABLE in this fixture or the test above proves
+    // nothing about the cap. Since G4 only ten kinds are licensed for outreach
+    // at all, so the ranked pool is smaller and the cap is met rather than
+    // exceeded — which is still the cap doing its job.
+    expect(result.ranked.length).toBeGreaterThanOrEqual(MAX_EMAIL_EVIDENCE);
   });
 
   it('uses one when only one thing is worth saying', () => {
-    const result = selectEvidence(nzDefender, {
+    const result = selectEvidenceLegacy(nzDefender, {
       college: college({ conference_champion_2025: 1, conference_champion_name: 'ACC' }),
     });
     expect(result.selected).toHaveLength(1);
@@ -137,7 +155,7 @@ describe('how much evidence an email carries', () => {
   });
 
   it('uses none when there is nothing to say, and still produces a structure', () => {
-    const result = selectEvidence(nzDefender, { college: college() });
+    const result = selectEvidenceLegacy(nzDefender, { college: college() });
     expect(result.selected).toHaveLength(0);
     expect(result.structure.key).toBe('PLAYER_FIRST');
     expect(result.paragraph).toBe('');
@@ -156,13 +174,16 @@ describe('how much evidence an email carries', () => {
   it('leaves slots empty rather than filling them with weak evidence', () => {
     const selection = selectFrom([
       ev('CONFERENCE_TITLE', 80),          // priority 86
-      ev('SQUAD_GRADUATION', 48),          // priority 56 — fine as second
+      ev('POSITION_GRADUATION', 48),       // priority 56 — fine as second
       ev('COACH_CONTEXT', 45, { confidence: 'MEDIUM' }),  // priority 45 — never third
       ev('PROGRAM_MOMENTUM', 40, { confidence: 'MEDIUM' }),
     ].filter(Boolean));
 
-    expect(selection.selected.map((e) => e.kind)).toEqual(['CONFERENCE_TITLE', 'SQUAD_GRADUATION']);
-    expect(selection.belowThreshold.map((b) => b.kind)).toContain('COACH_CONTEXT');
+    // SQUAD_GRADUATION, COACH_CONTEXT and PROGRAM_MOMENTUM are all DENIED for
+    // outreach since G4 and never reach the ranking; POSITION_GRADUATION takes
+    // the second slot in their place. The slot floor is still what this tests.
+    expect(selection.selected.map((e) => e.kind)).toEqual(['CONFERENCE_TITLE', 'POSITION_GRADUATION']);
+    expect(selection.internal.map((e) => e.kind)).toContain('COACH_CONTEXT');
   });
 
   it('never adds a weak coach-tenure signal behind stronger evidence', () => {
@@ -172,10 +193,12 @@ describe('how much evidence an email carries', () => {
       ev('COACH_CONTEXT', 45, { confidence: 'MEDIUM' }),
     ]);
     expect(selection.selected.map((e) => e.kind)).not.toContain('COACH_CONTEXT');
-    // ...and it CAN lead, when it is all we have. A rule that made a kind
-    // unusable everywhere would be a different rule from the one intended.
+    // ...and since G4 it cannot lead either, because it cannot be emailed at
+    // all: a stranger telling a coach how long they have held their own job.
+    // It is set aside as intelligence rather than ranked away.
     const alone = selectFrom([ev('COACH_CONTEXT', 45, { confidence: 'MEDIUM' })]);
-    expect(alone.selected.map((e) => e.kind)).toEqual(['COACH_CONTEXT']);
+    expect(alone.selected).toEqual([]);
+    expect(alone.internal.map((e) => e.kind)).toEqual(['COACH_CONTEXT']);
   });
 
   it('raises the bar for each successive slot', () => {
@@ -202,7 +225,7 @@ describe('redundancy control', () => {
    * avoid.
    */
   it('never sends four readings of the same international relationship', () => {
-    const result = selectEvidence(nzDefender, {
+    const result = selectEvidenceLegacy(nzDefender, {
       college: college(),
       squad: [
         row({ player_name: 'Kiwi Now', country: 'New Zealand', nationality: 'International' }),
@@ -229,12 +252,18 @@ describe('redundancy control', () => {
       ev('POSITION_GROUP_SCARCITY', 88, { confidence: 'HIGH' }),   // position-depth
       ev('SQUAD_GRADUATION', 86),           // squad-turnover
     ]);
+    /**
+     * Since G4 the family cap is no longer what bounds this, because the
+     * LICENCE bounds it first: POSITION_GROUP_SCARCITY and SQUAD_GRADUATION
+     * are both DENIED for outreach, so one roster kind survives and the cap
+     * never binds. The cap itself is unchanged and still tested against the
+     * licensed set below.
+     */
     const roster = selection.selected.filter((e) => e.category === 'roster');
-    expect(roster.length).toBe(MAX_PER_FAMILY);
-    // The one that loses is the weakest by PRIORITY, not by raw strength:
-    // scarcity is a SIGNAL and forgoes the fact bonus, which puts it below a
-    // squad-graduation count it outscores on strength alone.
-    expect(selection.suppressed.map((s) => s.kind)).toContain('POSITION_GROUP_SCARCITY');
+    expect(roster.length).toBeLessThanOrEqual(MAX_PER_FAMILY);
+    expect(roster.map((e) => e.kind)).toEqual(['POSITION_GRADUATION']);
+    expect(selection.internal.map((e) => e.kind))
+      .toEqual(expect.arrayContaining(['POSITION_GROUP_SCARCITY', 'SQUAD_GRADUATION']));
   });
 
   it('prefers a second family over a third helping of the first', () => {
@@ -253,7 +282,7 @@ describe('redundancy control', () => {
   });
 
   it('draws from multiple families when a programme supports it', () => {
-    const result = selectEvidence(nzDefender, richProgramme());
+    const result = selectEvidenceLegacy(nzDefender, richProgramme());
     const families = new Set(result.selected.map((e) => e.category));
     expect(families.size).toBeGreaterThan(1);
   });
@@ -265,7 +294,7 @@ describe('redundancy control', () => {
 
 describe('dispositions', () => {
   it('gives every generated kind exactly one disposition', () => {
-    const result = selectEvidence(nzDefender, richProgramme());
+    const result = selectEvidenceLegacy(nzDefender, richProgramme());
     expect(result.dispositions).toHaveLength(result.all.length);
     const kinds = result.dispositions.map((d) => d.kind);
     expect(new Set(kinds).size).toBe(kinds.length);
@@ -275,7 +304,7 @@ describe('dispositions', () => {
   });
 
   it('marks the selected ones SELECTED, in order', () => {
-    const result = selectEvidence(nzDefender, richProgramme());
+    const result = selectEvidenceLegacy(nzDefender, richProgramme());
     const selected = result.dispositions.filter((d) => d.disposition === DISPOSITION.SELECTED);
     expect(selected.map((d) => d.kind).sort())
       .toEqual(result.selected.map((e) => e.kind).sort());
@@ -285,7 +314,7 @@ describe('dispositions', () => {
   });
 
   it('marks internal-only intelligence INTERNAL_ONLY and never selects it', () => {
-    const result = selectEvidence(nzDefender, {
+    const result = selectEvidenceLegacy(nzDefender, {
       college: college(),
       squad: squadOf(6, { position: 'D', prior_programme: 'Somewhere Else' }),
     });
@@ -296,7 +325,7 @@ describe('dispositions', () => {
   });
 
   it('explains every non-selection', () => {
-    const result = selectEvidence(nzDefender, richProgramme());
+    const result = selectEvidenceLegacy(nzDefender, richProgramme());
     for (const d of result.dispositions) {
       if (d.disposition === DISPOSITION.SELECTED || d.disposition === DISPOSITION.AVAILABLE) continue;
       expect(d.reason, `${d.kind} (${d.disposition}) must say why`).toBeTruthy();
@@ -322,28 +351,31 @@ describe('operator selection', () => {
     expect(result.engineSelected).toEqual(engine.selected.map((e) => e.kind));
   });
 
-  it('honours a reorder, and the reorder changes where a claim sits', () => {
+  it('honours a reorder within a role, and never across roles', () => {
+    /**
+     * Since G4 an operator reorders within the licensed set and roles are not
+     * theirs to move: a congratulation cannot become the reason for writing
+     * and a relevance claim cannot open cold, because both are properties of
+     * the kind. `applyPrefer` re-buckets by the kind's own role and keeps the
+     * operator's order inside each bucket.
+     */
     const engine = selectEvidence(nzDefender, programme);
     const flipped = [...engine.selected.map((e) => e.kind)].reverse();
     const result = selectEvidence(nzDefender, programme, { prefer: flipped });
-    expect(result.selected.map((e) => e.kind)).toEqual(flipped);
-
-    // Reordering changes the ORDER within the relevance paragraph. It does
-    // not move a CONTEXTUAL item into the hook: what may open an email is a
-    // presentation property, and an operator reordering a list is not a
-    // statement that a roster count now reads well to a stranger.
-    const relevance = (r) => r.composition.placement
-      .filter((p) => p.slot === 'RELEVANCE').map((p) => p.kind);
-    expect(relevance(result)).not.toEqual(relevance(engine));
+    expect(result.operatorSelected).toBe(true);
+    for (const item of [...result.roles.hooks, ...result.roles.relevance]) {
+      expect(item.role, item.kind).toBe(engine.roles.hooks.concat(engine.roles.relevance)
+        .find((i) => i.kind === item.kind)?.role);
+    }
+    expect(result.roles.recognition.every((i) => i.role === 'RECOGNITION')).toBe(true);
   });
 
-  it('honours a swap from the available list', () => {
+  it('honours a swap among the licensed claims', () => {
     const engine = selectEvidence(nzDefender, programme);
-    const spare = engine.ranked.map((e) => e.kind)
-      .find((k) => !engine.selected.some((e) => e.kind === k));
-    expect(spare).toBeTruthy();
-    const result = selectEvidence(nzDefender, programme, { prefer: [spare] });
-    expect(result.selected.map((e) => e.kind)).toEqual([spare]);
+    const licensed = engine.selected.map((e) => e.kind);
+    expect(licensed.length).toBeGreaterThan(1);
+    const result = selectEvidence(nzDefender, programme, { prefer: [licensed[1]] });
+    expect(result.selected.map((e) => e.kind)).toEqual([licensed[1]]);
   });
 
   it('ignores a kind the engine did not generate, and says so', () => {
@@ -355,7 +387,7 @@ describe('operator selection', () => {
   });
 
   it('cannot reach internal-only intelligence', () => {
-    const result = selectEvidence(nzDefender, {
+    const result = selectEvidenceLegacy(nzDefender, {
       college: college(),
       squad: squadOf(6, { position: 'D', prior_programme: 'Somewhere Else' }),
     }, { prefer: ['TRANSFER_BEHAVIOUR', 'POSITION_GROUP_SIZE'] });
@@ -368,7 +400,7 @@ describe('operator selection', () => {
     // operator cannot select what was never generated — which is why freshness
     // is applied at generation and not at rendering.
     const old = new Date(Date.now() - 400 * 24 * 60 * 60 * 1000).toISOString();
-    const result = selectEvidence(nzDefender, {
+    const result = selectEvidenceLegacy(nzDefender, {
       college: college(),
       squad: [row({
         updated_date: old, player_name: 'Kiwi Now',
@@ -430,7 +462,7 @@ describe('structure eligibility', () => {
   });
 
   it('cannot run the roster structure on a programme with no roster', () => {
-    const result = selectEvidence(nzDefender, {
+    const result = selectEvidenceLegacy(nzDefender, {
       college: college({ conference_champion_2025: 1, conference_champion_name: 'ACC' }),
     });
     expect(result.structure.eligible).toEqual(['PLAYER_FIRST']);
@@ -478,7 +510,7 @@ describe('structure eligibility', () => {
    */
   it('evaluates eligibility against what survived selection, not what was generated', () => {
     const old = new Date(Date.now() - 400 * 24 * 60 * 60 * 1000).toISOString();
-    const result = selectEvidence(nzDefender, {
+    const result = selectEvidenceLegacy(nzDefender, {
       college: college(),
       squad: [row({
         updated_date: old, player_name: 'Kiwi Now',
@@ -528,7 +560,7 @@ describe('the roster structure never invents a sub-position', () => {
 
 describe('multi-evidence logging', () => {
   it('records the ordered set as a first-class value', () => {
-    const result = selectEvidence(nzDefender, richProgramme());
+    const result = selectEvidenceLegacy(nzDefender, richProgramme());
     const payload = evidenceLogPayload(result);
     expect(payload.selected_kinds).toBe(result.selected.map((e) => e.kind).join(','));
     expect(payload.evidence_count).toBe(result.selected.length);
@@ -545,7 +577,12 @@ describe('multi-evidence logging', () => {
 
   it('records where in the email each claim went', () => {
     const payload = evidenceLogPayload(selectEvidence(nzDefender, richProgramme()));
-    for (const d of payload.payload.selectedDetail) expect(d.slot).toBeTruthy();
+    // Selected is not rendered since G4: the licence permits up to three body
+    // claims and composition carries at most two, so a selected item with no
+    // slot is a deliberate hold rather than a lost record.
+    const shown = payload.payload.selectedDetail.filter((d) => d.displayed);
+    expect(shown.length).toBeGreaterThan(0);
+    for (const d of shown) expect(d.slot).toBeTruthy();
   });
 
   /**
@@ -556,7 +593,7 @@ describe('multi-evidence logging', () => {
    * every angle with whatever reply the email earned.
    */
   it('records which items survived into the body, item by item', () => {
-    const result = selectEvidence(nzDefender, richProgramme());
+    const result = selectEvidenceLegacy(nzDefender, richProgramme());
     const kept = new Set([result.selected[0].kind]);
     const payload = evidenceLogPayload(result, { renderedKinds: kept });
 

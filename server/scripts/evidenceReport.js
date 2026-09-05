@@ -20,7 +20,7 @@ import db from '../db/client.js';
 import { Player } from '../db/entities/player.js';
 import { buildRosterIndex, rankMatches, normaliseAthlete } from '../../shared/matching/pool.js';
 import { evidenceFor } from '../lib/evidenceQueries.js';
-import { evidenceParagraph } from '../../shared/evidence/index.js';
+import { permissionsFor, PERMISSION } from '../../shared/evidence/kinds.js';
 import { evidenceReport } from '../lib/evidencePerformance.js';
 import { positionLabel } from '../../shared/positions.js';
 import { SQUAD_SEASON } from '../../shared/philosophy.js';
@@ -53,9 +53,16 @@ function report(athlete, match, evidence) {
     console.log('  none');
   } else {
     const selectedKinds = new Set(selected.map((e) => e.kind));
+    // What the email actually carries. Selected is not rendered since G4:
+    // the licence permits up to three body claims and composition carries
+    // at most two.
+    const renderedKinds = new Set(evidence.sentences.map((x) => x.kind));
     const usable = new Set(evidence.usable.map((e) => e.kind));
     all.forEach((ev, i) => {
-      const flag = ev.emailEligible ? '' : '   [internal only]';
+      // The authoritative grade, not the legacy flag: since G4 they differ
+      // for 15 kinds and the flag would report as emailable things that
+      // can no longer be sent.
+      const flag = permissionsFor(ev.kind).OUTREACH === PERMISSION.DENIED ? '   [not for outreach]' : '';
       console.log(`\n  ${i + 1}. ${ev.kind}${flag}`);
       console.log(`     ${ev.tier}   ${ev.confidence} CONFIDENCE   strength ${ev.strength}`);
       console.log(`     selected: ${selectedKinds.has(ev.kind)}`);
@@ -63,7 +70,7 @@ function report(athlete, match, evidence) {
       // only if the athlete's template carries {{evidence_paragraph}}, which is
       // checked at send time. Here it mirrors selection among email-eligible
       // kinds and is false for anything the registry forbids in email.
-      console.log(`     rendered: ${selectedKinds.has(ev.kind) && ev.emailEligible}`);
+      console.log(`     rendered: ${renderedKinds.has(ev.kind)}`);
       if (!usable.has(ev.kind)) console.log('     REJECTED: below its confidence floor');
       console.log(`     ${describe(ev)}`);
       console.log(`     source: ${ev.source}${ev.season ? `, ${ev.season}` : ''}`);
@@ -86,7 +93,16 @@ function report(athlete, match, evidence) {
   console.log('\nEMAIL STRUCTURE');
   console.log(`  ${structure.key}${structure.eligible.length > 1 ? `   (also eligible: ${structure.eligible.slice(1).join(', ')})` : ''}`);
 
-  const paragraph = evidenceParagraph(selected);
+  /**
+   * What the email WOULD SAY, taken from the result rather than re-rendered.
+   *
+   * It used to call `evidenceParagraph(selected)`, which goes through the
+   * legacy renderer — so after G4 the report printed "so I thought you might
+   * be open to more players from this part of the world" for an email that
+   * says no such thing. A report that shows a sentence the send path cannot
+   * produce is worse than no report.
+   */
+  const paragraph = evidence.paragraph;
   console.log('\nEMAIL WOULD SAY');
   console.log(paragraph ? `  ${paragraph}` : '  (nothing about the programme — the athlete carries the email)');
 

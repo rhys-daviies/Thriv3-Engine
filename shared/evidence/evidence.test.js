@@ -374,9 +374,10 @@ describe('historical same-country', () => {
     expect(kinds).not.toContain('HISTORICAL_SAME_COUNTRY');
     // The same row is still evidence — just the honest kind for it.
     expect(kinds).toContain('CURRENT_SAME_COUNTRY');
-    // Anchored to the present squad. The wording is "you've already got a Kiwi
-    // on the roster"; the property is that it cannot be read as "ever".
-    expect(result.paragraph).toMatch(/on the roster/);
+    // Anchored to the present squad — "is on your roster this season" since
+    // G4 rewrote the outbound copy. The property is unchanged: it cannot be
+    // read as "ever".
+    expect(result.paragraph).toMatch(/on your roster this season/);
     expect(result.paragraph).not.toMatch(/come through|since \d{4}/);
   });
 
@@ -456,9 +457,14 @@ describe('redundancy', () => {
     for (const weaker of ['CURRENT_SAME_COUNTRY', 'INTERNATIONAL_ROSTER', 'INTERNATIONAL_SHARE']) {
       expect(selectedKinds, weaker).not.toContain(weaker);
     }
-    // Suppressed, not forgotten — the comparison later needs to know it was
-    // available.
-    expect(result.suppressed.map((s) => s.kind)).toContain('INTERNATIONAL_ROSTER');
+    /**
+     * Kept, not forgotten — the comparison later needs to know it was
+     * available. Since G4 the international-count angles are DENIED for
+     * outreach outright rather than merely outranked, so they are recorded as
+     * intelligence instead of as suppressed-by-a-stronger-claim. Either way
+     * the panel and the log can still see them.
+     */
+    expect(result.internal.map((e) => e.kind)).toContain('INTERNATIONAL_ROSTER');
   });
 
   it('keeps at most one observation per dedupe group', () => {
@@ -611,9 +617,17 @@ describe('coach tenure respects the observed window', () => {
     const result = selectEvidence(nzDefender, {
       college: college({ postseason_2025_round: 'r32' }), coachRows: rows,
     });
-    const para = evidenceParagraph(result.selected);
-    // Previously produced "..., and with you now two seasons into the job."
-    // The clause has to stand on its own wherever the composer puts it.
+    /**
+     * COACH_CONTEXT is DENIED for outreach since G4 — a stranger telling a
+     * coach how long they have held their own job — so it no longer reaches an
+     * email at all and the clause it used to contribute is unreachable there.
+     * The renderer still owns the wording for the surfaces that may show it,
+     * which is what `evidenceParagraph` is exercised on here.
+     */
+    expect(result.selected.map((e) => e.kind)).not.toContain('COACH_CONTEXT');
+    const coachEv = result.all.find((e) => e.kind === 'COACH_CONTEXT');
+    expect(coachEv).toBeTruthy();
+    const para = evidenceParagraph([coachEv]);
     expect(para).not.toContain('and with you');
     expect(para).toMatch(/you're two seasons into the job/);
     expect(para.endsWith('.')).toBe(true);
@@ -737,7 +751,9 @@ describe('composition and logging', () => {
       squad, history,
     });
     expect(result.selected.length).toBeLessThanOrEqual(MAX_EMAIL_EVIDENCE);
-    expect(result.ranked.length).toBeGreaterThan(2);
+    // Ten kinds are licensed for outreach since G4, so the ranked pool is
+    // smaller than it was — the cap is still the thing being tested.
+    expect(result.ranked.length).toBeGreaterThanOrEqual(2);
   });
 
   it('produces a log payload carrying what was used and what was not', () => {

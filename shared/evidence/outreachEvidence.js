@@ -291,17 +291,27 @@ for (const kind of LICENSED_KINDS) {
     throw new Error(`${kind} has an outreach role but declares no qualification`);
   }
   if (!EVIDENCE_KINDS[kind]) throw new Error(`${kind} has an outreach role but is not a kind`);
-  /**
-   * CONTAINMENT, NOT EQUALITY — and this is the assertion G4 tightens.
-   *
-   * Every kind this surface carries must also be permitted by the registry, so
-   * the role table can only ever be narrower than the licence. The reverse
-   * check — that every OUTREACH-permitted kind has a role — cannot hold until
-   * the registry is narrowed to 4/6/16, because nine kinds the legacy selector
-   * still emails have no role here on purpose.
-   */
   if (permissionsFor(kind).OUTREACH === PERMISSION.DENIED) {
     throw new Error(`${kind} has an outreach role but the registry denies it`);
+  }
+}
+
+/**
+ * EQUALITY, in both directions. The registry and this module are one policy.
+ *
+ * Until G4 this was containment only: the registry granted OUTREACH to
+ * nineteen kinds while this table named ten, because narrowing the registry
+ * would have changed live emails before the copy existed. Both moved in one
+ * commit, so the gap is closed and stays closed — a kind licensed in the
+ * registry with no role here would be silently unreachable and would look like
+ * a programme with nothing to say.
+ */
+for (const kind of Object.keys(EVIDENCE_KINDS)) {
+  const licensed = permissionsFor(kind).OUTREACH !== PERMISSION.DENIED;
+  if (licensed !== Boolean(ROLE_OF[kind])) {
+    throw new Error(
+      `${kind} is ${licensed ? 'licensed for OUTREACH but has no role' : 'given an outreach role but denied by the registry'}`,
+    );
   }
 }
 for (const kind of Object.keys(QUALIFICATION)) {
@@ -348,19 +358,14 @@ export function outreachEvidenceFor(evidenceResult) {
     /**
      * The registry first, and it may only narrow.
      *
-     * A DENIED grade drops the kind whatever its role says, and a QUALIFIED
-     * one is refused here too: the grade means a surface may render the kind
-     * only through a path that states its qualification, and while the two
-     * tables disagree there is no way to know which qualification the registry
-     * meant. It is the safe direction, and no kind is QUALIFIED today.
+     * DENIED drops the kind whatever its role says. QUALIFIED proceeds to the
+     * rule below and is dropped there if it cannot state what it needs — which
+     * is what the grade means: renderable only through a path that states its
+     * qualification. This module IS that path, which is why QUALIFIED is no
+     * longer refused outright the way it was while the path did not exist.
      */
-    let grade;
-    try { grade = assertSurfaceRenderable(ev, 'OUTREACH'); }
+    try { assertSurfaceRenderable(ev, 'OUTREACH'); }
     catch (err) { note(ev.kind, 'DENIED', err.message); continue; }
-    if (grade !== PERMISSION.ALLOWED) {
-      note(ev.kind, 'DENIED', `${grade} on this surface, and outreach cannot state a qualification yet`);
-      continue;
-    }
 
     /**
      * The kind's own confidence floor, reused deliberately.
@@ -456,5 +461,56 @@ export function outreachEvidenceFor(evidenceResult) {
      */
     hasPersonalisation: hooks.length + relevance.length > 0,
     dispositions,
+  };
+}
+
+/**
+ * The operator's own ordering, applied to what the licence already permitted.
+ *
+ * PREFERENCE CHOOSES AMONG THE PERMITTED. It cannot promote a denied kind,
+ * cannot bypass a qualification, cannot move a claim between roles and cannot
+ * make a congratulation open an email — every one of those is a property of
+ * the kind, decided by policy, and an operator reordering sentences has said
+ * nothing about any of them. What it CAN do is say which of two licensed hooks
+ * leads, or which relevance claim is the one worth carrying.
+ *
+ * Names only, matched against what survived. Anything unrecognised — a denied
+ * kind, a kind that failed its qualification, a typo, a tampered client — is
+ * dropped and reported, and the result falls back to the selector's own order
+ * rather than to nothing.
+ *
+ * @param {object} result   an `outreachEvidenceFor` result
+ * @param {Array}  prefer   kind names, in the order the operator wants them
+ */
+export function applyPrefer(result, prefer = null) {
+  const wanted = Array.isArray(prefer) ? prefer.filter(Boolean) : [];
+  if (!wanted.length) return { ...result, operatorSelected: false, unavailableRequests: [] };
+
+  const permitted = new Map(
+    [...result.hooks, ...result.relevance, ...result.recognition].map((i) => [i.kind, i]),
+  );
+  const seen = new Set();
+  const chosen = [];
+  const unavailable = [];
+  for (const kind of wanted) {
+    if (seen.has(kind)) continue;
+    seen.add(kind);
+    if (permitted.has(kind)) chosen.push(permitted.get(kind));
+    else unavailable.push(kind);
+  }
+  if (!chosen.length) {
+    return { ...result, operatorSelected: false, unavailableRequests: unavailable };
+  }
+
+  // Re-bucketed by the kind's OWN role, not by where the operator put it in
+  // the list. Order within each bucket is theirs.
+  return {
+    ...result,
+    hooks: chosen.filter((i) => i.role === ROLES.HOOK),
+    relevance: chosen.filter((i) => i.role === ROLES.RELEVANCE),
+    recognition: chosen.filter((i) => i.role === ROLES.RECOGNITION).slice(0, MAX_RECOGNITION),
+    hasPersonalisation: chosen.some((i) => i.role !== ROLES.RECOGNITION),
+    operatorSelected: true,
+    unavailableRequests: unavailable,
   };
 }

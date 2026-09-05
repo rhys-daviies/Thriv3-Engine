@@ -101,20 +101,30 @@ describe('the licence', () => {
     }
   });
 
-  it('records the divergence it is staging, so it cannot be forgotten', () => {
+  it('is the registry, exactly — no gap in either direction', () => {
     /**
-     * The nine kinds the LEGACY selector still emails and this surface will
-     * not. Pinned as a number so G4 has to come back here: when the registry
-     * is narrowed, this list empties and the assertion changes to an equality.
+     * Until G4 this was containment: the registry granted OUTREACH to nineteen
+     * kinds while this module named ten, because narrowing the registry alone
+     * would have changed live emails before the copy existed. Both moved in one
+     * commit, so the two are now one policy and the invariant is equality.
      */
-    const registryAllows = EVIDENCE_KIND_NAMES
+    const licensedByRegistry = EVIDENCE_KIND_NAMES
+      .filter((k) => permissionsFor(k).OUTREACH !== PERMISSION.DENIED);
+    expect([...licensedByRegistry].sort()).toEqual([...LICENSED_KINDS].sort());
+  });
+
+  it('grades them 4 ALLOWED, 6 QUALIFIED, 16 DENIED', () => {
+    const by = { ALLOWED: 0, QUALIFIED: 0, DENIED: 0 };
+    for (const k of EVIDENCE_KIND_NAMES) by[permissionsFor(k).OUTREACH] += 1;
+    expect(by).toEqual({ ALLOWED: 4, QUALIFIED: 6, DENIED: 16 });
+  });
+
+  it('grants ALLOWED only to the four that need no qualification', () => {
+    const allowed = EVIDENCE_KIND_NAMES
       .filter((k) => permissionsFor(k).OUTREACH === PERMISSION.ALLOWED);
-    const withoutRole = registryAllows.filter((k) => !LICENSED_KINDS.includes(k));
-    expect(registryAllows).toHaveLength(19);
-    expect([...withoutRole].sort()).toEqual([
-      'COACH_CONTEXT', 'ELIGIBILITY_CLIFF', 'INTERNATIONAL_ROSTER', 'INTERNATIONAL_SHARE',
-      'POSITION_GRADUATION_STARTERS', 'POSITION_GROUP_SCARCITY', 'PROGRAM_MOMENTUM',
-      'RETURNING_POSITION_DEPTH', 'SQUAD_GRADUATION',
+    expect([...allowed].sort()).toEqual([
+      'ARRIVAL_SAME_COUNTRY_POSITION', 'COACH_ARRIVAL_SAME_COUNTRY',
+      'CURRENT_SAME_COUNTRY', 'HISTORICAL_SAME_COUNTRY',
     ]);
   });
 
@@ -212,15 +222,19 @@ describe('the permission is asked first, and may only narrow', () => {
     expect(kindsOf(outreachEvidenceFor(resultOf([denied])))).toEqual([]);
   });
 
-  it('refuses QUALIFIED, because outreach cannot state a qualification yet', () => {
-    const q = defineEvidence('COACH_ARRIVAL_SAME_COUNTRY', {
-      ...src, season: '2025', permissions: { OUTREACH: PERMISSION.QUALIFIED },
-      data: { country: 'New Zealand', coach: 'Ali Simmons', count: 1, seasons: ['2025'] },
-    });
-    expect(q.permissions.OUTREACH).toBe(PERMISSION.QUALIFIED);
-    const r = outreachEvidenceFor(resultOf([q]));
+  it('lets a QUALIFIED kind through its rule, and only through it', () => {
+    /**
+     * QUALIFIED means renderable only via a path that states the
+     * qualification. THIS module is that path, so the grade proceeds to the
+     * rule — and the rule is what refuses it. Six of the ten licensed kinds
+     * are QUALIFIED; every one of them is dropped when its facts cannot state
+     * what the claim needs.
+     */
+    expect(permissionsFor('POSITION_GRADUATION').OUTREACH).toBe(PERMISSION.QUALIFIED);
+    expect(kindsOf(outreachEvidenceFor(resultOf([graduation()])))).toEqual(['POSITION_GRADUATION']);
+    const r = outreachEvidenceFor(resultOf([graduation({ names: [] })]));
     expect(kindsOf(r)).toEqual([]);
-    expect(r.dispositions[0].disposition).toBe('DENIED');
+    expect(r.dispositions[0].disposition).toBe('UNQUALIFIED');
   });
 
   it('does not read the legacy flag', () => {

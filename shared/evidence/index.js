@@ -22,8 +22,9 @@ import { canonicalPosition } from '../positions.js';
 import { buildProgrammeContext, generateEvidence } from './generate.js';
 import { selectFrom, MAX_EMAIL_EVIDENCE } from './select.js';
 import { resolveStructure } from './structures.js';
-import { composeStructured, paragraphFor } from '../email/compose.js';
-import { renderEvidence } from './render.js';
+import { composeStructured, composeOutreach, paragraphFor } from '../email/compose.js';
+import { outreachEvidenceFor, applyPrefer } from './outreachEvidence.js';
+import { renderEvidence, DEFAULT_HOOK_FRAMING } from './render.js';
 
 export { buildProgrammeContext, generateEvidence, REGIONS, regionFor } from './generate.js';
 export {
@@ -96,12 +97,40 @@ export function selectEvidence(athlete, programme = {}, {
   const subject = normaliseEvidenceAthlete(athlete);
   const ctx = buildProgrammeContext(programme);
   const evidence = generateEvidence(subject, ctx);
-  const selection = selectFrom(evidence, { maxEmail, prefer });
-  // Resolved AFTER selection, and against the selection: an operator who
-  // swapped the evidence has changed which structures the email can honestly
-  // carry, and a structure chosen before that would be describing a different
-  // email. A request for an ineligible one is refused, not silently swapped.
-  const structure = resolveStructure(selection, preferStructure);
+
+  /**
+   * WHAT THE EMAIL SAYS COMES FROM `outreachEvidenceFor`. ONE OWNER.
+   *
+   * `selectFrom` still runs, and still owns the operator panel's diagnostics —
+   * what was generated, what was suppressed as redundant, what fell below a
+   * confidence floor, what a family cap held back. Those are questions about
+   * the whole picture and it answers them well.
+   *
+   * It no longer decides what is SENT. That question is a licence question,
+   * and it ranked by strength, category prior and family cap across nineteen
+   * kinds, most of which may not be said to a stranger at all. The outbound
+   * answer comes from the surface-specific selector, over the full pre-dedupe
+   * collection, and nothing downstream may reach past it.
+   */
+  const roles = outreachEvidenceFor({ all: evidence });
+  const byKind = new Map(evidence.map((ev) => [ev.kind, ev]));
+  const diagnostics = selectFrom(evidence, { maxEmail, prefer });
+  /**
+   * The operator's own choice, applied to the LICENSED set.
+   *
+   * `prefer` carries kind names and is matched against what survived the
+   * licence, the qualification and the dedupe — so it may change WHICH true,
+   * sayable thing opens the email and in what order, and can never introduce a
+   * denied kind, bypass a qualification, turn a congratulation into a hook or
+   * make a relevance claim open cold. A role is a property of the kind, not of
+   * the operator's preference.
+   */
+  const applied = applyPrefer(roles, prefer);
+
+  // Resolved AFTER selection and against the ROLES: an operator who swapped
+  // the evidence has changed which structures the email can honestly carry,
+  // and a request for an ineligible one is refused rather than swapped.
+  const structure = resolveStructure({ selected: diagnostics.selected, roles: applied }, preferStructure);
 
   /**
    * What the copy layer needs to write like a person rather than a report.
@@ -114,19 +143,24 @@ export function selectEvidence(athlete, programme = {}, {
    * Nothing here reaches the client. It is an input to rendering, and what
    * crosses the wire is still the rendered prose.
    */
-  const renderCtx = {
-    firstName: firstNameOf(subject.name),
-    // Whether the introduction will name the athlete's subject, so the
-    // academic clause can stop repeating it four lines later.
-    academicIntro: selection.selected.some((e) => e.kind === 'ACADEMIC_FIT'),
-  };
+  const renderCtx = { firstName: firstNameOf(subject.name) };
 
-  // Rendering happens INSIDE composition now, because the slot decides which
-  // variant a kind uses — the full "I saw X, so I thought Y" for the opener
-  // and a bare clause for everything after. The text cannot be produced before
-  // the placement is known.
-  const composed = composeStructured(structure, selection.selected, renderCtx);
+  // Rendering happens INSIDE composition, because the slot decides how a claim
+  // is framed and the text cannot be produced before placement is known.
+  const composed = composeOutreach(structure, applied, byKind, renderCtx);
   const sentences = composed.sentences;
+
+  /**
+   * What the email actually carries, in the order it carries it.
+   *
+   * SELECTED IS NOT RENDERED. The selector licenses up to three body claims;
+   * composition renders at most two. `selected` is the licensed set — logged,
+   * offered to the operator, available to swap — and `sentences` is what a
+   * coach will read.
+   */
+  const renderedKinds = new Set(sentences.map((x) => x.kind));
+  const selected = [...applied.hooks, ...applied.relevance, ...applied.recognition]
+    .map((i) => byKind.get(i.kind)).filter(Boolean);
 
   return {
     athlete: subject,
@@ -147,7 +181,33 @@ export function selectEvidence(athlete, programme = {}, {
       rosterAgeDays: ctx.freshness?.ageDays ?? null,
       rosterSeason: ctx.match?.roster_season ?? null,
     },
-    ...selection,
+    // The operator panel's picture: what was generated, what was suppressed as
+    // redundant and why, what fell below a floor. Not what is sent.
+    ...diagnostics,
+    /**
+     * The legacy engine's own answer, whole and under its own name.
+     *
+     * It no longer decides anything outbound. It is kept because the panel and
+     * the send-time log both want "what did we know and not use", and because
+     * an analysis comparing the two policies needs the old one to still be
+     * computable — the ranking, the family caps and the slot floors are the
+     * baseline the licence is measured against.
+     */
+    legacy: diagnostics,
+    // What the licence permits, replacing the legacy engine's ranked pick.
+    selected,
+    primary: selected[0] ?? null,
+    secondary: selected[1] ?? null,
+    /**
+     * The outbound roles, carried whole.
+     *
+     * Kept rather than flattened so the log, the panel and any future surface
+     * read the same three lists the composer did — a caller that had to
+     * re-derive a role from the registry would be a second policy.
+     */
+    roles: applied,
+    hasPersonalisation: applied.hasPersonalisation,
+    renderedKinds: [...renderedKinds],
     structure,
     // Rendered here so callers never have to know which renderer to use for
     // which tier — the one place that decision could still be got wrong.
@@ -161,7 +221,21 @@ export function selectEvidence(athlete, programme = {}, {
     // to re-render. The browser composer receives this string rather than the
     // evidence objects that produced it, which means the client cannot render
     // a SIGNAL through a FACT sentence even by mistake — it has no renderer.
-    paragraph: evidenceParagraph(selection.selected, renderCtx),
+    /**
+     * The one-paragraph form, for a saved template carrying a single
+     * {{evidence_paragraph}} token. Built from the SAME rendered sentences the
+     * structured body uses, so a customised template cannot say something the
+     * composed email would not.
+     */
+    paragraph: sentences.map((x, i) => {
+      const t = x.text;
+      // The first clause carries the framing that makes it a sentence; the
+      // rest are clauses too and need a capital of their own. Recognition
+      // items already arrive as whole sentences.
+      if (i === 0) return `${DEFAULT_HOOK_FRAMING} ${t}.`;
+      if (/^[A-Z]/.test(t) && /[.!?]$/.test(t)) return t;
+      return `${t[0].toUpperCase()}${t.slice(1)}.`;
+    }).join(' '),
   };
 }
 
@@ -246,10 +320,39 @@ export function evidenceLogPayload(result, { renderedKinds = null } = {}) {
     rendered: renderedFor(e.kind),
   }));
 
+  /**
+   * The claim this email rests on.
+   *
+   * ROLE, NOT RANKING. The legacy `primary` was `selected[0]` from an engine
+   * that ranked by strength and category prior, so it reported ACADEMIC_FIT as
+   * the primary of 701 emails — a kind that was SUPPORT_ONLY and never opened
+   * one of them. The log said the email led on a sentence the email did not
+   * contain.
+   *
+   * Defined now as: the HOOK if there is one, otherwise the first RELEVANCE
+   * claim, otherwise nothing. A RECOGNITION item is never primary — a
+   * congratulation is not why we wrote, and counting it would make the
+   * reply-rate comparison between angles measure the wrong thing.
+   */
+  const roles = result.roles ?? { hooks: [], relevance: [], recognition: [] };
+  const primaryItem = roles.hooks[0] ?? roles.relevance[0] ?? null;
+  const primaryEvidence = primaryItem
+    ? result.selected.find((e) => e.kind === primaryItem.kind) ?? null
+    : null;
+
   return {
-    primary_kind: result.primary?.kind ?? null,
-    primary_tier: result.primary?.tier ?? null,
-    primary_strength: result.primary?.strength ?? null,
+    primary_kind: primaryEvidence?.kind ?? null,
+    primary_tier: primaryEvidence?.tier ?? null,
+    primary_strength: primaryEvidence?.strength ?? null,
+    /** Which role carried it, so an analysis never has to infer it back. */
+    primary_role: primaryItem?.role ?? null,
+    /** The hook specifically, when there was one. */
+    hook_kind: roles.hooks[0]?.kind ?? null,
+    /**
+     * Whether this email said anything about THIS athlete at THIS programme.
+     * Recognition alone is false — see `outreachEvidenceFor`.
+     */
+    has_personalisation: result.hasPersonalisation ?? false,
     secondary_kind: result.secondary?.kind ?? null,
     secondary_tier: result.secondary?.tier ?? null,
     secondary_strength: result.secondary?.strength ?? null,

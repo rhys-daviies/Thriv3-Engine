@@ -66,27 +66,35 @@ describe('the registry is the gate', () => {
         describes: spec.requiresWindow ? { seasons: ['2025'] } : null,
         comparison: spec.requiresComparison ? { band: 'ABOVE' } : null,
       };
-      expect(outreachPermitted(fake), kind).toBe(grade === PERMISSION.ALLOWED);
+      expect(outreachPermitted(fake), kind).toBe(grade !== PERMISSION.DENIED);
     }
   });
 
-  it('grants 19 kinds and bars 7, which is what production reaches today', () => {
-    const allowed = EVIDENCE_KIND_NAMES.filter((k) => permissionsFor(k).OUTREACH === PERMISSION.ALLOWED);
-    expect(allowed).toHaveLength(19);
+  it('grants 4, qualifies 6 and bars 16', () => {
+    const by = { ALLOWED: 0, QUALIFIED: 0, DENIED: 0 };
+    for (const k of EVIDENCE_KIND_NAMES) by[permissionsFor(k).OUTREACH] += 1;
+    expect(by).toEqual({ ALLOWED: 4, QUALIFIED: 6, DENIED: 16 });
     expect(EVIDENCE_KIND_NAMES).toHaveLength(26);
   });
 
-  it('agrees with the legacy flag for every kind — today', () => {
+  it('has left the legacy flag behind, and says so out loud', () => {
     /**
-     * The agreement this step makes ENFORCED rather than accidental.
-     *
-     * It is asserted so that the day someone changes one without the other,
-     * this test says so — rather than the change being discovered as a
-     * sentence in a coach's inbox. It is NOT the gate; `outreachPermitted` is.
+     * `emailEligible` and the OUTREACH grade agreed for all 26 kinds until G4
+     * narrowed the policy. They cannot agree any more, and the field could not
+     * be updated to match even if we wanted it to: `defineEvidence` derives
+     * `outreachAllowed` from it and narrows OUTREACH to DENIED when it is
+     * false, so setting it false on a QUALIFIED kind would silently revoke the
+     * licence. It is legacy metadata; the grade is the policy.
      */
-    for (const kind of EVIDENCE_KIND_NAMES) {
-      expect(permissionsFor(kind).OUTREACH === PERMISSION.ALLOWED, kind)
-        .toBe(kindSpec(kind).emailEligible === true);
+    const diverged = EVIDENCE_KIND_NAMES.filter((k) => (
+      (permissionsFor(k).OUTREACH === PERMISSION.ALLOWED) !== (kindSpec(k).emailEligible === true)
+    ));
+    expect(diverged).toHaveLength(15);
+    // Every QUALIFIED kind must keep the flag true or lose its licence.
+    for (const k of EVIDENCE_KIND_NAMES) {
+      if (permissionsFor(k).OUTREACH === PERMISSION.QUALIFIED) {
+        expect(kindSpec(k).emailEligible, k).toBe(true);
+      }
     }
   });
 });
@@ -157,38 +165,34 @@ describe('QUALIFIED fails closed until outreach can state a qualification', () =
    * silent: the kind would be emailed WITHOUT its caveat, and the email would
    * look exactly like a correct one.
    */
-  it('has no QUALIFIED outreach kinds right now', () => {
+  it('has six QUALIFIED kinds, whose rules live in the outbound selector', () => {
     const qualified = EVIDENCE_KIND_NAMES
       .filter((k) => permissionsFor(k).OUTREACH === PERMISSION.QUALIFIED);
-    expect(qualified).toEqual([]);
+    expect(qualified).toHaveLength(6);
   });
 
   it('refuses a hypothetical QUALIFIED kind rather than treating it as ALLOWED', () => {
     const hypothetical = graduation({ permissions: { OUTREACH: PERMISSION.QUALIFIED } });
     expect(hypothetical.permissions.OUTREACH).toBe(PERMISSION.QUALIFIED);
-    // It was emailable a moment ago and is not now — the grade did that, and
-    // nothing about the object's own facts changed.
-    expect(hypothetical.emailEligible).toBe(true);
-    expect(outreachPermitted(hypothetical)).toBe(false);
-    expect(emailedKinds([hypothetical, country()])).toEqual(['HISTORICAL_SAME_COUNTRY']);
+    expect(outreachPermitted(hypothetical)).toBe(true);
+    // Licensed, and still not automatically sent: `outreachEvidenceFor` runs
+    // the qualification rule and drops it if the facts cannot state it.
   });
 
-  it('sets it aside as not-permitted rather than dropping it silently', () => {
+  it('sets a DENIED kind aside rather than dropping it silently', () => {
     // The operator panel shows `internal` as "useful for ranking, not
-    // permitted in an email". A refused QUALIFIED item belongs there, not
-    // nowhere.
-    const hypothetical = graduation({ permissions: { OUTREACH: PERMISSION.QUALIFIED } });
-    const result = selectFrom([hypothetical, country()], {});
+    // permitted in an email". That is where the sixteen denied kinds belong —
+    // visible, and not offerable.
+    const denied = graduation({ permissions: { OUTREACH: PERMISSION.DENIED } });
+    const result = selectFrom([denied, country()], {});
     expect(result.internal.map((e) => e.kind)).toContain(EMAILABLE);
     expect(result.dispositions.find((d) => d.kind === EMAILABLE).disposition)
       .toBe('INTERNAL_ONLY');
   });
 
-  it('refuses it even when it is the only evidence there is', () => {
-    const only = graduation({ permissions: { OUTREACH: PERMISSION.QUALIFIED } });
-    const result = selectFrom([only], {});
-    expect(result.selected).toEqual([]);
-    expect(result.paragraph).toBeUndefined();   // selectFrom composes nothing
+  it('refuses a DENIED kind even when it is the only evidence there is', () => {
+    const only = graduation({ permissions: { OUTREACH: PERMISSION.DENIED } });
+    expect(selectFrom([only], {}).selected).toEqual([]);
   });
 });
 
@@ -197,17 +201,16 @@ describe('a requirement a kind declares is enforced here too', () => {
     // COACH_CONTEXT is the only OUTREACH-allowed kind with `requiresWindow`.
     // Real data always carries one — 0 of 15,433 objects failed — so this is a
     // guarantee rather than a behaviour, and it is asserted so it stays one.
+    // COACH_CONTEXT is now DENIED outright, so the window requirement no
+    // longer gates anything outbound — no licensed kind declares one. Asserted
+    // rather than deleted, so licensing a windowed kind has to come back here.
     const windowed = EVIDENCE_KIND_NAMES.filter((k) => EVIDENCE_KINDS[k].requiresWindow
-      && permissionsFor(k).OUTREACH === PERMISSION.ALLOWED);
-    expect(windowed).toEqual(['COACH_CONTEXT']);
+      && permissionsFor(k).OUTREACH !== PERMISSION.DENIED);
+    expect(windowed).toEqual([]);
     expect(outreachPermitted({
-      kind: 'COACH_CONTEXT', permissions: permissionsFor('COACH_CONTEXT'), describes: null,
-    })).toBe(false);
-    expect(outreachPermitted({
-      kind: 'COACH_CONTEXT',
-      permissions: permissionsFor('COACH_CONTEXT'),
+      kind: 'COACH_CONTEXT', permissions: permissionsFor('COACH_CONTEXT'),
       describes: { seasons: ['2024', '2025'] },
-    })).toBe(true);
+    })).toBe(false);
   });
 });
 
@@ -241,9 +244,9 @@ describe('preference cannot promote what permission refused', () => {
     expect(result.unavailableRequests).toContain(BARRED);
   });
 
-  it('ignores a preference for a QUALIFIED kind', () => {
-    const hypothetical = graduation({ permissions: { OUTREACH: PERMISSION.QUALIFIED } });
-    const result = selectFrom([hypothetical, country()], { prefer: [EMAILABLE] });
+  it('ignores a preference for a DENIED kind', () => {
+    const denied = graduation({ permissions: { OUTREACH: PERMISSION.DENIED } });
+    const result = selectFrom([denied, country()], { prefer: [EMAILABLE] });
     expect(result.selected.map((e) => e.kind)).not.toContain(EMAILABLE);
     expect(result.unavailableRequests).toContain(EMAILABLE);
   });

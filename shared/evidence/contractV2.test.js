@@ -49,11 +49,22 @@ describe('permissions on every evidence object', () => {
     }
   });
 
-  it('maps emailEligible true to OUTREACH ALLOWED', () => {
-    for (const kind of EVIDENCE_KIND_NAMES) {
-      if (!EVIDENCE_KINDS[kind].emailEligible) continue;
-      expect(permissionsFor(kind).OUTREACH, kind).toBe(PERMISSION.ALLOWED);
-    }
+  it('no longer maps emailEligible onto the OUTREACH grade', () => {
+    /**
+     * It did, at V2 migration: the permission was DERIVED from the flag so the
+     * step changed no behaviour. G4 narrowed OUTREACH to a real policy — four
+     * ALLOWED, six QUALIFIED, sixteen DENIED — and the flag stayed where it
+     * was, because `defineEvidence` reads it to decide whether to narrow the
+     * grade to DENIED: setting it false on a QUALIFIED kind would revoke the
+     * licence it is meant to describe.
+     *
+     * So the flag is legacy metadata. What it still guarantees, and all it
+     * guarantees, is the one direction below: false means denied.
+     */
+    const eligible = EVIDENCE_KIND_NAMES.filter((k) => EVIDENCE_KINDS[k].emailEligible);
+    const allowed = eligible.filter((k) => permissionsFor(k).OUTREACH === PERMISSION.ALLOWED);
+    expect(eligible).toHaveLength(19);
+    expect(allowed).toHaveLength(4);
   });
 
   it('maps emailEligible false to OUTREACH DENIED', () => {
@@ -469,13 +480,17 @@ describe('selection is unchanged by the new fields', () => {
     }
   });
 
-  it('keeps permissions and the emailEligible alias in agreement everywhere', () => {
+  it('keeps the one direction the alias still guarantees', () => {
+    // `emailEligible: false` still forces OUTREACH to DENIED — that is the
+    // registry's own bar and a caller cannot widen it. The converse stopped
+    // holding at G4; see the note above.
     const result = selectEvidence(athlete, ctx);
     const all = [...result.selected, ...result.internal, ...(result.ranked ?? [])];
     expect(all.length).toBeGreaterThan(0);
     for (const e of all) {
-      expect(e.emailEligible, e.kind)
-        .toBe(e.permissions.OUTREACH === PERMISSION.ALLOWED);
+      if (!e.emailEligible) {
+        expect(e.permissions.OUTREACH, e.kind).toBe(PERMISSION.DENIED);
+      }
     }
   });
 
@@ -568,7 +583,11 @@ describe('assertSurfaceRenderable', () => {
   });
 
   it('accepts an ALLOWED item and returns its grade', () => {
-    expect(assertSurfaceRenderable(ev(EMAILABLE), 'OUTREACH')).toBe(PERMISSION.ALLOWED);
+    // POSITION_GRADUATION became QUALIFIED at G4; the four still ALLOWED are
+    // the same-country pathway kinds.
+    expect(assertSurfaceRenderable(ev('HISTORICAL_SAME_COUNTRY'), 'OUTREACH'))
+      .toBe(PERMISSION.ALLOWED);
+    expect(assertSurfaceRenderable(ev(EMAILABLE), 'OUTREACH')).toBe(PERMISSION.QUALIFIED);
   });
 
   it('accepts a QUALIFIED item that carries its window', () => {

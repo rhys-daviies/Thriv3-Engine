@@ -103,7 +103,17 @@ export const FLOWS = Object.freeze({
       BLOCKS.CTA,
       BLOCKS.SIGNOFF,
     ],
-    eligible: (sel) => sel.selected.some(canOpenCold),
+    /**
+     * A HOOK, and nothing else, decides this.
+     *
+     * Roles come from `outreachEvidenceFor`, which has already asked whether
+     * a claim may open cold — that is what HOOK means. Re-deriving it from
+     * `leadSuitability` here would be a second lead policy answering the same
+     * question, and the two would eventually disagree.
+     */
+    eligible: (sel) => (sel.roles
+      ? sel.roles.hooks.length > 0
+      : sel.selected.some(canOpenCold)),
   },
 
   /**
@@ -219,6 +229,67 @@ export function planPlacement(selected = [], flowKey = 'PLAYER_FIRST') {
     relevance,
     recognition: shownRecognition,
     held: [...remaining.slice(capacity), ...recognition.slice(1)],
+  };
+}
+
+/**
+ * Placement from ROLES, which is what outbound composition now uses.
+ *
+ * `planPlacement` above infers a hook from `leadSuitability` and a
+ * congratulation from a registry flag, because it was written before roles
+ * existed. This takes them as given: `outreachEvidenceFor` has already decided
+ * what may open cold, what may only follow the introduction, and what is a
+ * congratulation, under a licence and a qualification rule per kind.
+ *
+ * ---------------------------------------------------------------------------
+ * ONE HOOK, ONE RELEVANCE, ONE RECOGNITION. SELECTED IS NOT RENDERED.
+ *
+ * The selector permits up to three body facts; composition renders at most
+ * two, and never three. A first approach that lists everything true about a
+ * programme reads as a report however well each sentence is written — the
+ * measured example being "you've got three defenders graduating in 2027 (…),
+ * and you offer Kinesiology", two unrelated observations joined by an "and"
+ * that carries no thought.
+ *
+ * What is selected and not rendered is still logged and still offered to the
+ * operator, so "we knew this and chose not to lead with it" stays a visible
+ * decision rather than a silent drop.
+ *
+ * @param {object} roles  an `outreachEvidenceFor` result
+ * @param {Map}    byKind evidence objects by kind, for the renderer
+ */
+export function planFromRoles(roles, byKind, flowKey = 'PLAYER_FIRST') {
+  const obj = (item) => byKind.get(item.kind) ?? null;
+  const hookItem = flowKey === 'RELATIONSHIP_FIRST' ? roles.hooks[0] ?? null : null;
+  const hook = hookItem ? obj(hookItem) : null;
+
+  /**
+   * Without a hook block, the strongest hook still has something to say — it
+   * simply says it after the introduction instead of before it. A programme
+   * we have a real pathway to must not become a generic email because the
+   * flow lost its opening slot.
+   */
+  const body = flowKey === 'RELATIONSHIP_FIRST'
+    ? roles.relevance
+    : [...roles.hooks, ...roles.relevance];
+
+  const shown = body.slice(0, 1);
+  const heldItems = [
+    ...body.slice(1),
+    ...roles.recognition.slice(1),
+  ];
+
+  return {
+    hook,
+    relevance: shown.map(obj).filter(Boolean),
+    recognition: (roles.recognition[0] ? [obj(roles.recognition[0])] : []).filter(Boolean),
+    held: heldItems.map(obj).filter(Boolean),
+    // The role each rendered object was carrying, so composition never has to
+    // guess it back from the registry.
+    roleOf: new Map([...roles.hooks, ...roles.relevance, ...roles.recognition]
+      .map((i) => [i.kind, i.role])),
+    itemOf: new Map([...roles.hooks, ...roles.relevance, ...roles.recognition]
+      .map((i) => [i.kind, i])),
   };
 }
 

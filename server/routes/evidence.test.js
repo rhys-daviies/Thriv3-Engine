@@ -177,7 +177,9 @@ describe('operator override', () => {
 
   it('offers every eligible angle with a server-rendered sentence', () => {
     const got = evidenceSummaries({ playerId: athleteId, collegeNames: [SCHOOL] })[SCHOOL];
-    expect(got.available.length).toBeGreaterThan(got.selected.length);
+    // Since G4 only licensed kinds are offerable at all, so `available` can
+    // equal `selected` on a programme whose whole licensed set fits.
+    expect(got.available.length).toBeGreaterThanOrEqual(got.selected.length);
     for (const ev of got.available) {
       expect(typeof ev.text, ev.kind).toBe('string');
       expect(ev.text.length, ev.kind).toBeGreaterThan(0);
@@ -216,15 +218,19 @@ describe('operator override', () => {
     expect(out.operatorSelected).toBe(false);   // nothing valid was chosen
   });
 
-  it('cannot promote a SIGNAL — a chosen signal is still hedged', () => {
+  it('cannot promote a denied kind — the request is refused, not hedged', () => {
+    /**
+     * This used to test that a preferred SIGNAL arrived hedged. Since G4
+     * POSITION_GRADUATION_STARTERS is DENIED for outreach — its prose is "one
+     * of THOSE defenders", supporting detail whose subject lives in another
+     * claim — so the request cannot be honoured at all and is reported instead.
+     */
     const out = evidenceFor(athlete(), SCHOOL, {
       sport: 'mens-soccer', prefer: ['POSITION_GRADUATION_STARTERS'],
     });
-    const picked = out.selected[0];
-    if (picked) {
-      expect(picked.tier).toBe('SIGNAL');
-      expect(out.paragraph).toMatch(/going off last season's minutes/i);
-    }
+    expect(out.selected.map((e) => e.kind)).not.toContain('POSITION_GRADUATION_STARTERS');
+    expect(out.unavailableRequests).toContain('POSITION_GRADUATION_STARTERS');
+    expect(out.paragraph).not.toMatch(/going off last season's minutes/i);
   });
 
   it('falls back to the engine when nothing valid was requested', () => {

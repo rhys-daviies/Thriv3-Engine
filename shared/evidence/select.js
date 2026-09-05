@@ -45,17 +45,23 @@ import {
  * `requiresWindow`, and across 15,433 real objects it always carries one, so
  * this adds a guarantee rather than a behaviour.
  *
- * QUALIFIED IS REFUSED, DELIBERATELY. The grade means a surface may render the
- * kind only through a path that states its qualification, and outreach has no
- * such path yet — `outreachEvidenceFor` is Stage G2. Treating QUALIFIED as
- * ALLOWED in the meantime would be the silent degradation the whole permission
- * model exists to prevent: a correct-looking sentence in a coach's inbox with
- * its caveat missing. There are zero QUALIFIED outreach kinds today, so this
- * branch changes nothing and is here to be true the day one is added.
+ * QUALIFIED COUNTS AS LICENSED HERE, AND DID NOT USED TO.
+ *
+ * While `selectFrom` was the outbound owner this refused QUALIFIED, because
+ * the grade means "renderable only through a path that states the
+ * qualification" and no such path existed. G4 built one — `outreachEvidenceFor`
+ * — and moved outbound selection to it. This function is no longer the gate on
+ * what is SENT; it answers the narrower question the operator panel and the
+ * diagnostics ask: is this kind licensed for outreach at all, or is it
+ * intelligence that may never leave the building.
+ *
+ * So DENIED is excluded and QUALIFIED is included, and whether a QUALIFIED
+ * claim can actually state its qualification is decided where that decision
+ * belongs, once, in the outbound selector.
  */
 export function outreachPermitted(ev) {
   try {
-    return assertSurfaceRenderable(ev, 'OUTREACH') === PERMISSION.ALLOWED;
+    return assertSurfaceRenderable(ev, 'OUTREACH') !== PERMISSION.DENIED;
   } catch {
     return false;
   }

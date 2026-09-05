@@ -16,9 +16,10 @@
  */
 
 import {
-  BLOCKS, EVIDENCE_BLOCKS, planPlacement, MAX_GATHERED,
+  BLOCKS, EVIDENCE_BLOCKS, planPlacement, planFromRoles, MAX_GATHERED,
 } from '../evidence/structures.js';
 import { evidenceParts, DEFAULT_HOOK_FRAMING, RELEVANCE_FRAMING } from '../evidence/render.js';
+import { outreachCopyFor } from '../evidence/outreachCopy.js';
 import { fragmentFor, slotToken } from './blocks.js';
 
 const cap = (s) => (s ? `${s[0].toUpperCase()}${s.slice(1)}` : s);
@@ -47,6 +48,95 @@ function gathered(list, leadIn) {
   if (!texts.length) return '';
   if (texts.length === 1) return `${leadIn} ${texts[0]}.`;
   return `${leadIn} ${texts.slice(0, -1).join(', ')}, and ${texts[texts.length - 1]}.`;
+}
+
+/**
+ * The outbound paragraphs, built from ROLES and the safe outreach copy.
+ *
+ * ---------------------------------------------------------------------------
+ * NO "SO I THOUGHT". THE OBSERVATION IS THE SENTENCE.
+ *
+ * `evidenceSlots` below writes "I saw X, so I thought Y" — an observation
+ * followed by an inference about what the coach might want. That shape is what
+ * `outreachCopyFor` refuses to produce, so this function does not have a place
+ * to put a reason: a hook renders as "I saw you brought Hayden Aish in from
+ * New Zealand in 2025." and stops.
+ *
+ * The thought that follows belongs to the ATHLETE_INTRO block, in our own
+ * voice — "I'm reaching out about ..." — which is a statement about us rather
+ * than a guess about them.
+ *
+ * @param {object} flow    a resolved flow
+ * @param {object} roles   an `outreachEvidenceFor` result
+ * @param {Map}    byKind  evidence objects by kind
+ * @param {object} ctx     { firstName }
+ */
+export function outreachSlots(flow, roles, byKind, ctx = {}) {
+  const plan = planFromRoles(roles, byKind, flow.key);
+  const tokens = {};
+  const placement = [];
+  const sentences = [];
+  let order = 0;
+
+  const record = (ev, block, text) => {
+    placement.push({ kind: ev.kind, tier: ev.tier, slot: block, order, displayed: true });
+    sentences.push({ kind: ev.kind, tier: ev.tier, slot: block, order, text });
+    order += 1;
+  };
+  const copyOf = (ev) => outreachCopyFor(plan.itemOf.get(ev.kind), ctx);
+
+  if (plan.hook) {
+    const copy = copyOf(plan.hook);
+    if (copy?.clause) {
+      tokens[slotToken(BLOCKS.HOOK)] = `${DEFAULT_HOOK_FRAMING} ${copy.clause}.`;
+      record(plan.hook, BLOCKS.HOOK, copy.clause);
+    }
+  }
+
+  for (const ev of plan.relevance) {
+    const copy = copyOf(ev);
+    if (!copy?.clause) continue;
+    // Framed as looking through the programme, which is what happened. With a
+    // hook already spent, the shorter "I also noticed" carries it.
+    const framing = plan.hook ? 'I also noticed' : RELEVANCE_FRAMING;
+    tokens[slotToken(BLOCKS.RELEVANCE)] = `${framing} ${copy.clause}.`;
+    record(ev, BLOCKS.RELEVANCE, copy.clause);
+  }
+
+  for (const ev of plan.recognition) {
+    const copy = copyOf(ev);
+    if (!copy?.recognition) continue;
+    tokens[slotToken(BLOCKS.RECOGNITION)] = copy.recognition;
+    record(ev, BLOCKS.RECOGNITION, copy.recognition);
+  }
+
+  // Licensed, qualified, and deliberately not in this email. Recorded so the
+  // log and the operator panel can say so rather than implying it was sent.
+  for (const ev of plan.held) {
+    placement.push({ kind: ev.kind, tier: ev.tier, slot: null, order, displayed: false });
+    order += 1;
+  }
+
+  return { tokens, placement, sentences };
+}
+
+/**
+ * The composed outbound email.
+ *
+ * @returns {{template, tokens, placement, sentences}}
+ */
+export function composeOutreach(flow, roles, byKind, ctx = {}) {
+  const { tokens, placement, sentences } = outreachSlots(flow, roles, byKind, ctx);
+  // The introduction names the athlete's subject only when the academic claim
+  // is actually in the email.
+  const academic = sentences.some((x) => x.kind === 'ACADEMIC_FIT');
+  const variants = academic ? { [BLOCKS.ATHLETE_INTRO]: 'academic' } : {};
+  return {
+    template: structuredTemplate(flow, tokens, variants),
+    tokens,
+    placement,
+    sentences,
+  };
 }
 
 /**
