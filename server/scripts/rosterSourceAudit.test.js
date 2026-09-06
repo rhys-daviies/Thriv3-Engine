@@ -26,13 +26,19 @@ const d = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) console.warn(`\n  rosterSourceAudit.test.js SKIPPED — no database at ${DB}\n`);
 
 const inDb = (expr) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
-  import { auditRosterSources, institutionsWithSeveralSites } from '${path.join(ROOT, 'server/scripts/rosterSourceAudit.js')}';
-  void auditRosterSources; void institutionsWithSeveralSites;
+  import db from '${path.join(ROOT, 'server/db/client.js')}';
+  import { auditRosterSources, institutionsWithSeveralSites, registryIntegrity }
+    from '${path.join(ROOT, 'server/scripts/rosterSourceAudit.js')}';
+  void auditRosterSources; void institutionsWithSeveralSites; void registryIntegrity; void db;
   process.stdout.write(JSON.stringify(${expr}));
 `], { cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: DB }, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }));
 
 const audit = (season = '2026') => inDb(`auditRosterSources({ season: '${season}' })`);
 const institutionsWithSeveralSites = () => inDb('institutionsWithSeveralSites()');
+const integrityStates = () => inDb(`(() => {
+  const n = {}; for (const v of registryIntegrity().values()) n[v.state] = (n[v.state] ?? 0) + 1; return n;
+})()`);
+const sql = (q) => inDb(`db.prepare(\`${q}\`).all()`);
 
 d('the roster-source audit', () => {
   const r = audit();
@@ -135,5 +141,69 @@ d('the roster-source audit', () => {
     expect(stonehill, 'Stonehill 2025 must be quarantined').toBeTruthy();
     expect(['PLAYER_BIO', 'INSTITUTION_MISMATCH', 'UNVERIFIED_HOST']).toContain(stonehill.reason);
     expect(y2025.counts.PLAYER_BIO).toBeGreaterThan(0);
+  });
+});
+
+/**
+ * The registry's contradictions, measured against the live registry.
+ *
+ * The unit tests fix the RULE on fixtures. These fix what the rule currently
+ * finds — so that a re-scrape which quietly changes the registry's shape
+ * arrives as a failing test and a decision, rather than as a silent movement
+ * in how many links an operator is offered.
+ */
+d('registry integrity, against the real registry', () => {
+  const states = integrityStates();
+
+  it('classifies every trusted host into exactly one state', () => {
+    const total = Object.values(states).reduce((a, b) => a + b, 0);
+    const hosts = sql('SELECT COUNT(*) n FROM athletics_domains'
+      + " WHERE status IN ('VERIFIED','VERIFIED_ALIAS') AND role = 'ATHLETICS_SITE'"
+      + " AND confidence IN ('CERTAIN','CORROBORATED') AND unitid IS NOT NULL")[0].n;
+    // Hosts collapse on www/port, so classified <= rows; nothing may be dropped.
+    expect(total).toBeGreaterThan(800);
+    expect(total).toBeLessThanOrEqual(hosts);
+  });
+
+  it('finds the great majority clean, and a small minority refused', () => {
+    const total = Object.values(states).reduce((a, b) => a + b, 0);
+    expect(states.CLEAN / total).toBeGreaterThan(0.9);
+    expect(states.MULTI_SITE_UNCORROBORATED ?? 0).toBeGreaterThan(0);
+    expect(states.MULTI_SITE_UNCORROBORATED ?? 0).toBeLessThan(60);
+  });
+
+  it('has no host two institutions are both trusted to own', () => {
+    // Zero today. Asserted rather than assumed: the classifier refuses such a
+    // host, and this is the tripwire that tells us the class stopped being
+    // empty instead of leaving it to be noticed in a link.
+    expect(states.SHARED_HOST_CONFLICT ?? 0).toBe(0);
+  });
+
+  it('trusts no domain whose own mapping was contradicted', () => {
+    /**
+     * `wrong_mappings` records a REJECTED CLAIMANT, not a doubt about the
+     * row's own id — `gocolumbialions.com` carries Columbia University's
+     * unitid and a refused claim from Columbia (MO). Every one of those rows
+     * is nonetheless marked WRONG_INSTITUTION, so the trust filter already
+     * excludes all of them and no separate rule is needed.
+     *
+     * That is a fact about today's registry, not a guarantee. If one ever
+     * reaches trust, this fails and someone decides what a contradicted claim
+     * should mean — rather than the gate silently deciding it means nothing.
+     */
+    const [{ n }] = sql("SELECT COUNT(*) n FROM athletics_domains"
+      + " WHERE wrong_mappings IS NOT NULL AND wrong_mappings NOT IN ('','[]')"
+      + " AND status IN ('VERIFIED','VERIFIED_ALIAS') AND role = 'ATHLETICS_SITE'"
+      + " AND confidence IN ('CERTAIN','CORROBORATED') AND unitid IS NOT NULL");
+    expect(n).toBe(0);
+  });
+
+  it('refuses a source on a host, without moving what it can already link', () => {
+    // The refused hosts are by definition ones their own institution's rosters
+    // never point at, so today the gate removes nothing. It is a guard against
+    // the next bad assignment, and its cost must stay zero until then.
+    const r = audit();
+    expect(r.counts.REGISTRY_CONFLICT ?? 0).toBe(0);
+    expect(100 * r.counts.VERIFIED_DIRECT / r.total).toBeGreaterThan(70);
   });
 });

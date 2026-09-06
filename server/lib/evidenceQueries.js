@@ -20,6 +20,7 @@ import { selectEvidence, MAX_EMAIL_EVIDENCE } from '../../shared/evidence/index.
 import { buildRosterIndex, departures } from '../../shared/matching/pool.js';
 import { canonicalPosition } from '../../shared/positions.js';
 import { verifyRosterSource, canonicalHost } from '../../shared/evidence/sourceVerification.js';
+import { classifyRegistry } from '../../shared/evidence/registryIntegrity.js';
 
 const selectCollege = db.prepare('SELECT * FROM colleges WHERE name = ? AND sport = ?');
 
@@ -32,15 +33,48 @@ const selectCollege = db.prepare('SELECT * FROM colleges WHERE name = ? AND spor
  * would be the only expensive thing about provenance.
  */
 let domainCache = null;
-function verifiedDomains() {
-  if (domainCache) return domainCache;
-  domainCache = new Map();
-  for (const d of db.prepare(`
+let integrityCache = null;
+let trustedCache = null;
+/** The trust filter, read once. Both callers below share this one result. */
+function trustedRows() {
+  if (trustedCache) return trustedCache;
+  trustedCache = db.prepare(`
     SELECT domain, unitid FROM athletics_domains
     WHERE status IN ('VERIFIED','VERIFIED_ALIAS') AND role = 'ATHLETICS_SITE'
       AND confidence IN ('CERTAIN','CORROBORATED') AND unitid IS NOT NULL
-  `).all()) domainCache.set(canonicalHost(d.domain), d.unitid);
+  `).all();
+  return trustedCache;
+}
+function verifiedDomains() {
+  if (domainCache) return domainCache;
+  domainCache = new Map();
+  for (const d of trustedRows()) domainCache.set(canonicalHost(d.domain), d.unitid);
   return domainCache;
+}
+
+/**
+ * The registry's own contradictions, classified once per process.
+ *
+ * Four registry facts were not enough — H15 found ten hosts carrying all of
+ * them and still assigned to the wrong school. This is the fifth check, and it
+ * needs roster usage across every sport and season, so it is built beside the
+ * domain map rather than per request.
+ */
+function registryIntegrity() {
+  if (integrityCache) return integrityCache;
+  const unit = new Map(db.prepare('SELECT name, sport, unitid FROM colleges').all()
+    .map((c) => [`${c.name}|${c.sport}`, c.unitid]));
+  const usage = [];
+  for (const r of db.prepare(`
+    SELECT DISTINCT college_name, sport, source_roster_url AS url
+    FROM roster_players WHERE source_roster_url IS NOT NULL
+  `).all()) {
+    let host; try { host = canonicalHost(new URL(r.url).hostname); } catch { continue; }
+    const unitid = unit.get(`${r.college_name}|${r.sport}`);
+    if (unitid != null) usage.push({ unitid, host });
+  }
+  integrityCache = classifyRegistry(trustedRows(), usage);
+  return integrityCache;
 }
 
 /**
@@ -63,6 +97,7 @@ function rosterSourceFor(college, squad) {
     season: SQUAD_SEASON,
     urlSeason: squad[0]?.season ?? null,
     verifiedDomains: verifiedDomains(),
+    registryIntegrity: registryIntegrity(),
   });
 }
 

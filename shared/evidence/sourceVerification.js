@@ -1,3 +1,5 @@
+import { integrityRefuses, canonicalHost } from './registryIntegrity.js';
+
 /**
  * May this page be offered as the source of a claim?
  *
@@ -26,6 +28,11 @@
  *      college row only by naming variant ("Avila" against "Avila
  *      University"), and resolving those by string similarity would be a
  *      guess dressed as a check.
+ *   4b. The registry does not contradict itself about that assignment. H15
+ *      found ten hosts carrying every one of the checks above and still
+ *      assigned to the wrong school, so the four are necessary and not
+ *      sufficient; `registryIntegrity` supplies the fifth and refuses an
+ *      assignment its own institution's rosters never corroborate.
  *   5. The URL is the source for the SEASON the claim is about. No fallback:
  *      a 2026 claim linked to a 2025 roster would show a squad that has since
  *      turned over.
@@ -42,6 +49,7 @@ export const SOURCE_STATUS = Object.freeze({
   OTHER_SHAPE: 'OTHER_SHAPE',
   UNVERIFIED_HOST: 'UNVERIFIED_HOST',
   INSTITUTION_MISMATCH: 'INSTITUTION_MISMATCH',
+  REGISTRY_CONFLICT: 'REGISTRY_CONFLICT',
   UNKNOWN_INSTITUTION: 'UNKNOWN_INSTITUTION',
 });
 
@@ -57,8 +65,7 @@ export const SOURCE_STATUS = Object.freeze({
 const PLAYER_PATH = /\/(bios?|player|players)\//i;
 const ROSTER_PATH = /\/roster(\/|$|\?)|\/roster-\d|\/sports\/[^/]+\/[^/]*roster/i;
 
-/** Hosts compare without a leading www; nothing else about them is rewritten. */
-export const canonicalHost = (host) => String(host || '').toLowerCase().replace(/^www\./, '');
+export { canonicalHost } from './registryIntegrity.js';
 
 /**
  * The URL, if it is one we would ever follow.
@@ -83,9 +90,12 @@ export function safeUrl(raw) {
  * @param {string}  input.urlSeason  the season the stored URL was recorded for
  * @param {Map}     input.verifiedDomains  canonical host -> institution id, pre-filtered
  *   to VERIFIED/VERIFIED_ALIAS + ATHLETICS_SITE + CERTAIN/CORROBORATED
+ * @param {Map}     input.registryIntegrity  canonical host -> `classifyRegistry` state
  * @returns {{status: string, url: string|null, host: string|null}}
  */
-export function verifyRosterSource({ url, unitid, season, urlSeason, verifiedDomains } = {}) {
+export function verifyRosterSource({
+  url, unitid, season, urlSeason, verifiedDomains, registryIntegrity,
+} = {}) {
   const no = (status, host = null) => ({ status, url: null, host });
 
   if (!url) return no(SOURCE_STATUS.MISSING);
@@ -117,6 +127,16 @@ export function verifyRosterSource({ url, unitid, season, urlSeason, verifiedDom
    * instead of asserting the school is wrong.
    */
   if (Number(owner) !== Number(unitid)) return no(SOURCE_STATUS.INSTITUTION_MISMATCH, host);
+
+  /**
+   * The registry's own contradictions, kept distinct from a bare unverified
+   * host — the audit needs to tell "nobody checked this" from "the registry
+   * disagrees with itself about it". The operator sees neither: `sourceUrl`
+   * is simply null, as it is for every claim without a page that shows it.
+   */
+  if (integrityRefuses(registryIntegrity?.get(host)?.state)) {
+    return no(SOURCE_STATUS.REGISTRY_CONFLICT, host);
+  }
 
   return { status: SOURCE_STATUS.VERIFIED_DIRECT, url: parsed.toString(), host };
 }
