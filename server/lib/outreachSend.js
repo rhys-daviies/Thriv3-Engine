@@ -3,6 +3,7 @@ import db from '../db/client.js';
 import { utcNow } from './time.js';
 import { buildSendSnapshot } from '../../shared/evidence/sendSnapshot.js';
 import { LEGACY_POLICY_VERSION } from '../../shared/evidence/outreachPolicy.js';
+import { verifiedProgrammeCampaignId } from './campaignAttribution.js';
 
 /**
  * PERSISTING ONE OUTBOUND EMAIL.
@@ -37,14 +38,14 @@ import { LEGACY_POLICY_VERSION } from '../../shared/evidence/outreachPolicy.js';
 const insertSend = db.prepare(`
   INSERT INTO outreach_send (
     id, outreach_id, sequence, drafted_at, sent_at,
-    athlete_id, coach_id, college_name, sport, policy_version,
+    athlete_id, coach_id, college_name, sport, programme_campaign_id, policy_version,
     structure, structure_source, body_source, template_variant,
     has_personalisation, primary_kind, primary_role, hook_kind,
     rendered_kinds, rendered_roles, rendered_count,
     subject, body_hash, payload, created_at
   ) VALUES (
     @id, @outreach_id, @sequence, @drafted_at, @sent_at,
-    @athlete_id, @coach_id, @college_name, @sport, @policy_version,
+    @athlete_id, @coach_id, @college_name, @sport, @programme_campaign_id, @policy_version,
     @structure, @structure_source, @body_source, @template_variant,
     @has_personalisation, @primary_kind, @primary_role, @hook_kind,
     @rendered_kinds, @rendered_roles, @rendered_count,
@@ -78,10 +79,25 @@ export function nextSequence(outreachId) {
  */
 export function recordDraft({
   outreachId, athleteId, coachId, collegeName = null, sport = null,
+  programmeCampaignId = null,
   evidence, body = null, subject = null,
   bodySource = null, templateVariant = null, renderedKinds = null,
   at = utcNow(),
 }) {
+  /**
+   * THE AUTHORITATIVE CAMPAIGN ATTRIBUTION, and it comes from the CALLER.
+   *
+   * It is deliberately NOT read from `outreach.programme_campaign_id`. That
+   * column records which campaign first opened the relationship, and a
+   * relationship endures across campaigns: a message sent under Campaign 2
+   * through a relationship first opened under Campaign 1 must record Campaign
+   * 2, and inferring it from the relationship would credit Campaign 1 with
+   * Campaign 2's work — silently, and irrecoverably once the send is history.
+   *
+   * So whoever composes the message says which campaign it is for, or says
+   * nothing and gets NULL, which is the honest record of a manual send.
+   */
+  const verifiedCampaign = verifiedProgrammeCampaignId({ programmeCampaignId, athleteId, coachId });
   const snapshot = buildSendSnapshot({
     evidence, body, subject, bodySource, templateVariant, renderedKinds,
   });
@@ -96,6 +112,7 @@ export function recordDraft({
     coach_id: coachId,
     college_name: collegeName,
     sport,
+    programme_campaign_id: verifiedCampaign,
     policy_version: snapshot.policy_version,
     structure: snapshot.structure,
     structure_source: snapshot.structure_source,
@@ -126,7 +143,11 @@ export function recordDraft({
         rendered_kinds = @rendered_kinds, rendered_roles = @rendered_roles,
         rendered_count = @rendered_count, subject = @subject,
         body_hash = @body_hash, payload = @payload,
-        college_name = @college_name, sport = @sport
+        college_name = @college_name, sport = @sport,
+        -- Moves with the body. Re-drafting to the same coach under a different
+        -- campaign replaces the pending message, and the row must not keep the
+        -- previous campaign's attribution while carrying the new one's text.
+        programme_campaign_id = @programme_campaign_id
       WHERE id = @id AND sent_at IS NULL
     `).run(row);
   } else {
@@ -216,3 +237,26 @@ export function sendsByPolicy() {
 }
 
 export { LEGACY_POLICY_VERSION };
+
+/**
+ * Every send made under one programme campaign, in the order they happened.
+ *
+ * THE question A6 exists to make answerable, and it reads the per-message
+ * column rather than the relationship's. A campaign that reused a relationship
+ * opened by an earlier campaign appears here for its own messages and not for
+ * the earlier one's — which is the whole distinction between the two columns.
+ *
+ * `sentOnly` because a draft is not a send: every denominator in this system
+ * keys on `sent_at IS NOT NULL`, and a caller counting drafts as sends would
+ * reintroduce the overstatement `outreach_send` was built to remove.
+ */
+export function sendsForProgrammeCampaign(programmeCampaignId, { sentOnly = false } = {}) {
+  // All-named binding: mixing `?` with `@name` in one statement is legal and
+  // reads as though the two are related, which they are not.
+  return db.prepare(`
+    SELECT * FROM outreach_send
+    WHERE programme_campaign_id = @programmeCampaignId
+      AND (@sentOnly = 0 OR sent_at IS NOT NULL)
+    ORDER BY COALESCE(sent_at, drafted_at, created_at), id
+  `).all({ programmeCampaignId, sentOnly: sentOnly ? 1 : 0 }).map(parse);
+}

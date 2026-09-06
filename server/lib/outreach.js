@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import { utcNow } from './time.js';
 import { generateToken, generateUnique } from './tokens.js';
+import { verifiedProgrammeCampaignId } from './campaignAttribution.js';
 
 const tokenTaken = (candidate) => !!db.prepare('SELECT 1 FROM outreach WHERE token = ?').get(candidate);
 
@@ -13,11 +14,38 @@ const tokenTaken = (candidate) => !!db.prepare('SELECT 1 FROM outreach WHERE tok
  * `matchId` links back to the Tab 2 recommendation that produced this outreach.
  * Nothing reads it yet — Phase 5 uses it to ask whether the matching algorithm
  * actually produces engagement — so populate it whenever the caller knows it.
+ *
+ * ---------------------------------------------------------------------------
+ * `programmeCampaignId` IS PROVENANCE, AND IT IS WRITTEN ONCE.
+ *
+ * It records the programme campaign under which this relationship was FIRST
+ * OPENED, and nothing else. The row endures — one per athlete-coach pair for
+ * all time, carrying a token a coach may click two years from now — while a
+ * campaign is finite, so a second campaign next season reaches the same coach
+ * through this same row. When it does, this column does not move: the
+ * relationship really was first opened under the earlier campaign, and
+ * rewriting it would destroy the only record of that.
+ *
+ * It is therefore NOT the campaign a message belongs to. That lives on
+ * `outreach_send.programme_campaign_id`, per message, and is the only place the
+ * question can be answered correctly. `recordDraft` deliberately does not read
+ * this column — see the note there.
+ *
+ * A relationship that predates campaigns keeps NULL for ever. Filling it in
+ * from whichever campaign happened to reuse it would be inventing a history.
+ * ---------------------------------------------------------------------------
  */
-export function createOutreach({ athleteId, coachId, matchId = null }) {
+export function createOutreach({ athleteId, coachId, matchId = null, programmeCampaignId = null }) {
+  // Validated before the existing-row check, so a wrong attribution is refused
+  // whether or not the relationship happens to exist already. A caller passing
+  // another athlete's campaign has a bug either way.
+  const verified = verifiedProgrammeCampaignId({ programmeCampaignId, athleteId, coachId });
+
   const existing = db
     .prepare('SELECT * FROM outreach WHERE athlete_id = ? AND coach_id = ?')
     .get(athleteId, coachId);
+  // Returned UNCHANGED, including a NULL provenance. This is the line that
+  // keeps "first created under" true.
   if (existing) return existing;
 
   const row = {
@@ -26,14 +54,17 @@ export function createOutreach({ athleteId, coachId, matchId = null }) {
     coach_id: coachId,
     token: generateUnique(generateToken, tokenTaken),
     match_id: matchId,
+    programme_campaign_id: verified,
     drafted_at: null,
     sent_at: null,
     revoked_at: null,
     created_at: utcNow(),
   };
   db.prepare(`
-    INSERT INTO outreach (id, athlete_id, coach_id, token, match_id, drafted_at, sent_at, revoked_at, created_at)
-    VALUES (@id, @athlete_id, @coach_id, @token, @match_id, @drafted_at, @sent_at, @revoked_at, @created_at)
+    INSERT INTO outreach (id, athlete_id, coach_id, token, match_id, programme_campaign_id,
+                          drafted_at, sent_at, revoked_at, created_at)
+    VALUES (@id, @athlete_id, @coach_id, @token, @match_id, @programme_campaign_id,
+            @drafted_at, @sent_at, @revoked_at, @created_at)
   `).run(row);
   return row;
 }
@@ -95,4 +126,18 @@ export function revokeOutreach(id, at = utcNow()) {
 
 export function listOutreachForAthlete(athleteId) {
   return db.prepare('SELECT * FROM outreach WHERE athlete_id = ? ORDER BY created_at').all(athleteId);
+}
+
+/**
+ * Relationships FIRST OPENED under one programme campaign.
+ *
+ * Read carefully: this is not "relationships this campaign wrote to". A
+ * campaign reusing a relationship opened by an earlier one does not appear
+ * here, and should not — `sendsForProgrammeCampaign` in outreachSend.js is the
+ * question about messages.
+ */
+export function outreachCreatedUnder(programmeCampaignId) {
+  return db.prepare(
+    'SELECT * FROM outreach WHERE programme_campaign_id = ? ORDER BY created_at, id',
+  ).all(programmeCampaignId);
 }

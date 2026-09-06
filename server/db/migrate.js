@@ -222,6 +222,48 @@ const OUTREACH_EVIDENCE_COLUMNS = [
  */
 const OUTREACH_COLUMNS = [
   ['drafted_at', 'TEXT'],
+  /**
+   * WHICH PROGRAMME CAMPAIGN FIRST CREATED THIS RELATIONSHIP. Provenance only.
+   *
+   * `outreach` is one row per athlete-coach pair FOR ALL TIME — the token a
+   * coach may click two years from now lives on it. A campaign is finite, so a
+   * second campaign next season reaches the same coach through the SAME row.
+   * This column therefore answers "under which campaign did we first open this
+   * relationship", and nothing else. It is written once, at creation, and never
+   * rewritten; a relationship first opened under Campaign 1 stays that way
+   * however many campaigns later use it.
+   *
+   * IT IS NOT THE CAMPAIGN A GIVEN MESSAGE BELONGS TO. That is
+   * `outreach_send.programme_campaign_id`, which is per-message and
+   * authoritative. Reading this one to attribute a send would credit Campaign 1
+   * with Campaign 2's work.
+   *
+   * NULL for every row that predates campaigns, and it stays NULL: nothing
+   * infers a campaign for a relationship opened before campaigns existed.
+   *
+   * ON DELETE SET NULL, never CASCADE. Deleting a campaign must not delete the
+   * relationship or the token in a coach's inbox — the provenance goes, the
+   * relationship stays.
+   */
+  ['programme_campaign_id', 'TEXT REFERENCES programme_campaigns(id) ON DELETE SET NULL'],
+];
+
+/**
+ * WHICH PROGRAMME CAMPAIGN THIS MESSAGE WAS SENT UNDER. Authoritative.
+ *
+ * One row per message, so this is the only place campaign attribution can be
+ * correct: the relationship is reused across campaigns and the message is not.
+ * Written explicitly by whoever composes the message; never inferred from
+ * `outreach.programme_campaign_id`, which may name an earlier campaign.
+ *
+ * NULL for a manual or legacy send, which is the honest record of a message
+ * nobody sent under a campaign. The 41 historical sends keep it.
+ *
+ * ON DELETE SET NULL: send history is evidence and outlives the campaign that
+ * produced it.
+ */
+const OUTREACH_SEND_COLUMNS = [
+  ['programme_campaign_id', 'TEXT REFERENCES programme_campaigns(id) ON DELETE SET NULL'],
 ];
 
 const COACH_COLUMNS = [
@@ -486,6 +528,13 @@ export function migrate(db) {
   addMissingColumns(db, 'outreach', OUTREACH_COLUMNS);
   backfillDraftedAt(db);
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_drafted ON outreach(drafted_at)');
+  // Campaign attribution. Both columns are added here rather than in
+  // schema.sql because both tables already exist in the field, and both
+  // indexes are created after the column they cover — schema.sql runs first
+  // and cannot index a column this function is about to add.
+  addMissingColumns(db, 'outreach_send', OUTREACH_SEND_COLUMNS);
+  db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_programme_campaign ON outreach(programme_campaign_id)');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_send_programme_campaign ON outreach_send(programme_campaign_id)');
   addMissingColumns(db, 'outreach_evidence', OUTREACH_EVIDENCE_COLUMNS);
   // After the column exists, never before: schema.sql runs first and cannot
   // index a column this function is about to add.

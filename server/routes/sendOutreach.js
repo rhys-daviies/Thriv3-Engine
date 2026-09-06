@@ -111,10 +111,23 @@ function ensureExported(athlete) {
  *   log records what the database supports rather than what a long-open tab
  *   was holding.
  */
+/**
+ * @param {string|null} [args.programmeCampaignId]  the programme campaign this
+ *   message is being sent under, when there is one.
+ *
+ *   OPTIONAL, AND NOTHING INFERS IT. A manual send has no campaign and records
+ *   NULL, which is the honest answer. When it is given it is validated against
+ *   the athlete and the coach's programme before anything is written, and it is
+ *   passed to BOTH writes for different reasons: `createOutreach` records it as
+ *   the relationship's first-created provenance and only if the relationship is
+ *   new, while `recordDraft` records it on the message itself, every time. The
+ *   second is the authoritative one.
+ */
 export async function sendOutreach({
   athleteId, coaches = [], subject, body, greetingName,
   collegeName, division, matchId = null, send = false, evidence = null,
   evidenceSelection = null, evidenceStructure = null, bodySource = null,
+  programmeCampaignId = null,
 }) {
   const athlete = Player.get(athleteId);
   if (!athlete) throw new Error('Unknown athlete');
@@ -238,7 +251,7 @@ export async function sendOutreach({
         position_title: coach.title,
       });
 
-      const outreach = createOutreach({ athleteId, coachId: record.id, matchId });
+      const outreach = createOutreach({ athleteId, coachId: record.id, matchId, programmeCampaignId });
       const url = `${PUBLIC_BASE_URL}/p/${athlete.public_slug}.html?ref=${outreach.token}`;
 
       const personalisedBody = ensureProfileLink(
@@ -295,6 +308,9 @@ export async function sendOutreach({
             coachId: record.id,
             collegeName,
             sport: athlete.sport,
+            // Per message, and never read back off the relationship: see the
+            // note in recordDraft.
+            programmeCampaignId,
             evidence: evidenceUsed,
             body: personalisedBody,
             subject: personalise(subject, greetingName, coach.name || 'Coach'),
