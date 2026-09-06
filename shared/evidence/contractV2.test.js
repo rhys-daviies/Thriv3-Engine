@@ -62,16 +62,16 @@ describe('permissions on every evidence object', () => {
     }
   });
 
-  it('carries the locked policy: 4 allowed, 6 qualified, 16 denied', () => {
+  it('carries the locked policy: 4 allowed, 5 qualified, 17 denied', () => {
     const by = { ALLOWED: 0, QUALIFIED: 0, DENIED: 0 };
     for (const kind of EVIDENCE_KIND_NAMES) by[permissionsFor(kind).OUTREACH] += 1;
-    expect(by).toEqual({ ALLOWED: 4, QUALIFIED: 6, DENIED: 16 });
+    expect(by).toEqual({ ALLOWED: 4, QUALIFIED: 5, DENIED: 17 });
   });
 
   it('denies the surfaces a kind says nothing about', () => {
     const denied = EVIDENCE_KIND_NAMES
       .filter((k) => permissionsFor(k).OUTREACH === PERMISSION.DENIED);
-    expect(denied).toHaveLength(16);
+    expect(denied).toHaveLength(17);
     for (const kind of denied) {
       expect(permissionsFor(kind).OUTREACH, kind).toBe(PERMISSION.DENIED);
     }
@@ -101,7 +101,7 @@ describe('permissions on every evidence object', () => {
    */
   it('leaves every pre-permissions kind plainly visible to the operator', () => {
     const original = [
-      'HISTORICAL_SAME_COUNTRY', 'CURRENT_SAME_COUNTRY', 'HISTORICAL_SAME_REGION',
+      'HISTORICAL_SAME_COUNTRY', 'CURRENT_SAME_COUNTRY',
       'INTERNATIONAL_ROSTER', 'COACH_ARRIVAL_SAME_COUNTRY', 'ARRIVAL_SAME_COUNTRY_POSITION',
       'ARRIVAL_SAME_REGION_POSITION', 'INTERNATIONAL_SHARE', 'POSITION_GRADUATION',
       'POSITION_GRADUATION_STARTERS', 'SQUAD_GRADUATION', 'POSITION_GROUP_SIZE',
@@ -109,7 +109,7 @@ describe('permissions on every evidence object', () => {
       'CONFERENCE_TITLE', 'POSTSEASON_RESULT', 'PROGRAM_MOMENTUM', 'COACH_CONTEXT',
       'ACADEMIC_FIT', 'POSITION_INTAKE_HISTORY', 'TRANSFER_BEHAVIOUR',
     ];
-    expect(original).toHaveLength(22);
+    expect(original).toHaveLength(21);
     for (const kind of original) {
       expect(EVIDENCE_KIND_NAMES, `${kind} should still exist`).toContain(kind);
       expect(permissionsFor(kind).OPERATOR_EVIDENCE, kind).toBe(PERMISSION.ALLOWED);
@@ -504,7 +504,7 @@ describe('selection is unchanged by the new fields', () => {
     const result = selectEvidence(athlete, ctx);
     const denied = EVIDENCE_KIND_NAMES
       .filter((k) => permissionsFor(k).OUTREACH === PERMISSION.DENIED);
-    expect(denied).toHaveLength(16);
+    expect(denied).toHaveLength(17);
     for (const k of denied) {
       expect(result.selected.map((e) => e.kind), k).not.toContain(k);
     }

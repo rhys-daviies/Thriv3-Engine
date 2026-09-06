@@ -95,7 +95,7 @@ describe('the registry is the gate', () => {
   it('grants 4, qualifies 6 and bars 16', () => {
     const by = { ALLOWED: 0, QUALIFIED: 0, DENIED: 0 };
     for (const k of EVIDENCE_KIND_NAMES) by[permissionsFor(k).OUTREACH] += 1;
-    expect(by).toEqual({ ALLOWED: 4, QUALIFIED: 6, DENIED: 16 });
+    expect(by).toEqual({ ALLOWED: 4, QUALIFIED: 5, DENIED: 17 });
     expect(EVIDENCE_KIND_NAMES).toHaveLength(26);
   });
 
@@ -177,10 +177,10 @@ describe('QUALIFIED fails closed until outreach can state a qualification', () =
    * silent: the kind would be emailed WITHOUT its caveat, and the email would
    * look exactly like a correct one.
    */
-  it('has six QUALIFIED kinds, whose rules live in the outbound selector', () => {
+  it('has five QUALIFIED kinds, whose rules live in the outbound selector', () => {
     const qualified = EVIDENCE_KIND_NAMES
       .filter((k) => permissionsFor(k).OUTREACH === PERMISSION.QUALIFIED);
-    expect(qualified).toHaveLength(6);
+    expect(qualified).toHaveLength(5);
   });
 
   it('refuses a hypothetical QUALIFIED kind rather than treating it as ALLOWED', () => {
@@ -356,7 +356,7 @@ describe('the registry cannot grant an outbound licence by omission', () => {
       expect(permissionsFor(kind).OUTREACH, kind).toBe(declared);
       by[declared] += 1;
     }
-    expect(by).toEqual({ ALLOWED: 4, QUALIFIED: 6, DENIED: 16 });
+    expect(by).toEqual({ ALLOWED: 4, QUALIFIED: 5, DENIED: 17 });
   });
 
   it('defaults the two other surfaces and denies this one', async () => {

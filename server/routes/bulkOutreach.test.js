@@ -47,13 +47,19 @@ const athleteId = randomUUID();
 
 /**
  * Three programmes with deliberately different evidence:
- *   Kiwi State    — NZ history      → HISTORICAL_SAME_COUNTRY
- *   Aussie Tech   — Australian only → HISTORICAL_SAME_REGION
- *   Plain College — nothing at all  → no evidence
+ *   Kiwi State     — NZ history           → HISTORICAL_SAME_COUNTRY
+ *   Grad Tech      — a graduating cohort  → POSITION_GRADUATION
+ *   Plain College  — nothing at all       → no evidence
+ *
+ * The middle programme used to be an Australians-only roster producing
+ * HISTORICAL_SAME_REGION. J3 denied that kind, so it produced nothing and the
+ * fixture stopped testing what it was written for. What matters here is that
+ * three programmes in one batch get three DIFFERENT records, so the second one
+ * now earns its distinct kind from a graduating cohort instead.
  */
 const PROGRAMMES = [
   { name: 'Kiwi State', country: 'New Zealand', season: '2023' },
-  { name: 'Aussie Tech', country: 'Australia', season: '2024' },
+  { name: 'Grad Tech', country: null, season: null, graduating: true },
   { name: 'Plain College', country: null, season: null },
 ];
 
@@ -63,10 +69,10 @@ function rosterRow(college, o = {}) {
      position, minutes_played, projected_minutes, estimated_graduation_year,
      eligibility_end_year, nationality, country)
     VALUES (@id, @stamp, @stamp, @college, 'mens-soccer', 'NCAA D1', @season, @name,
-     @position, NULL, 600, @grad, 2029, @nat, @country)`)
+     @position, NULL, 600, @grad, @elig, @nat, @country)`)
     .run({
       id: randomUUID(), stamp: RECENT(), college, season: '2026', name: 'Squad Player',
-      position: 'DEFENSE', grad: 2029, nat: 'USA', country: '', ...o,
+      position: 'DEFENSE', grad: 2029, elig: 2029, nat: 'USA', country: '', ...o,
     });
 }
 
@@ -95,7 +101,15 @@ function seed() {
     // A realistic current squad for every programme — defenders and midfielders
     // in ordinary proportions — so freshness is CURRENT throughout and the only
     // thing differing between programmes is what their history holds.
-    for (let i = 0; i < 8; i += 1) rosterRow(p.name, { name: `D${i}`, position: 'DEFENSE' });
+    // The athlete is a 2027 defender, so a defender cohort leaving in 2027 is
+    // the claim POSITION_GRADUATION makes about this programme and no other.
+    for (let i = 0; i < 8; i += 1) {
+      rosterRow(p.name, {
+        name: `D${i}`,
+        position: 'DEFENSE',
+        ...(p.graduating && i < 2 ? { grad: 2027, elig: 2027 } : {}),
+      });
+    }
     for (let i = 0; i < 12; i += 1) rosterRow(p.name, { name: `M${i}`, position: 'MIDFIELD' });
     if (p.country) {
       // Current internationals, so more than one angle is genuinely available
@@ -145,7 +159,7 @@ describe('a bulk batch attributes evidence per programme', () => {
         .map((r) => [r.college_name, r.primary_kind]),
     );
     expect(byCollege['Kiwi State']).toBe('HISTORICAL_SAME_COUNTRY');
-    expect(byCollege['Aussie Tech']).toBe('HISTORICAL_SAME_REGION');
+    expect(byCollege['Grad Tech']).toBe('POSITION_GRADUATION');
     // The programme with nothing to say must record nothing, not inherit.
     expect(byCollege['Plain College']).toBeNull();
   });
@@ -154,10 +168,10 @@ describe('a bulk batch attributes evidence per programme', () => {
     await runBatch();
     const rows = db.prepare('SELECT college_name, rendered_paragraph FROM outreach_evidence').all();
     const kiwi = rows.find((r) => r.college_name === 'Kiwi State');
-    const aussie = rows.find((r) => r.college_name === 'Aussie Tech');
+    const grad = rows.find((r) => r.college_name === 'Grad Tech');
     expect(kiwi.rendered_paragraph).toContain('New Zealand');
-    expect(aussie.rendered_paragraph).toContain('Australia');
-    expect(aussie.rendered_paragraph).not.toContain('New Zealand');
+    expect(grad.rendered_paragraph).toContain('graduate');
+    expect(grad.rendered_paragraph).not.toContain('New Zealand');
   });
 
   it('evaluates evidence_rendered against each body, not the batch', async () => {
@@ -173,11 +187,11 @@ describe('a bulk batch attributes evidence per programme', () => {
     await sendOutreach(request('Kiwi State', {
       body: `Hi,\n\n${claim}.\n\n{{player_profile_url}}`,
     }));
-    await sendOutreach(request('Aussie Tech', { body: 'Hi,\n\nNothing specific.\n\n{{player_profile_url}}' }));
+    await sendOutreach(request('Grad Tech', { body: 'Hi,\n\nNothing specific.\n\n{{player_profile_url}}' }));
 
     const rows = db.prepare('SELECT college_name, evidence_rendered FROM outreach_evidence').all();
     expect(rows.find((r) => r.college_name === 'Kiwi State').evidence_rendered).toBe(1);
-    expect(rows.find((r) => r.college_name === 'Aussie Tech').evidence_rendered).toBe(0);
+    expect(rows.find((r) => r.college_name === 'Grad Tech').evidence_rendered).toBe(0);
   });
 
   it('gives every outreach in the batch its own tracking token', async () => {
@@ -191,7 +205,7 @@ describe('a bulk batch attributes evidence per programme', () => {
 
 describe('one failure cannot misattribute another programme', () => {
   it('logs nothing for the failed send and everything for the rest', async () => {
-    failOn = 'AussieTech';
+    failOn = 'GradTech';
     const results = await runBatch();
 
     expect(results[1].results[0].status).toBe('error');
@@ -211,12 +225,12 @@ describe('one failure cannot misattribute another programme', () => {
    * always been about.
    */
   it('leaves the failed outreach undrafted rather than half-recorded', async () => {
-    failOn = 'AussieTech';
+    failOn = 'GradTech';
     await runBatch();
     const rows = db.prepare(`
       SELECT c.school, o.drafted_at, o.sent_at FROM outreach o JOIN coaches c ON c.id = o.coach_id
     `).all();
-    expect(rows.find((r) => r.school === 'Aussie Tech').drafted_at).toBeNull();
+    expect(rows.find((r) => r.school === 'Grad Tech').drafted_at).toBeNull();
     expect(rows.find((r) => r.school === 'Kiwi State').drafted_at).not.toBeNull();
     // And nothing in a draft-only batch is claimed as sent.
     for (const r of rows) expect(r.sent_at, r.school).toBeNull();
@@ -240,13 +254,13 @@ describe('operator selection does not leak across the batch', () => {
 
     const rows = db.prepare('SELECT college_name, primary_kind, operator_selected FROM outreach_evidence').all();
     const kiwi = rows.find((r) => r.college_name === 'Kiwi State');
-    const aussie = rows.find((r) => r.college_name === 'Aussie Tech');
+    const grad = rows.find((r) => r.college_name === 'Grad Tech');
 
     expect(kiwi.primary_kind).toBe('HISTORICAL_SAME_COUNTRY');
     expect(kiwi.operator_selected).toBe(1);
-    // Aussie Tech keeps the engine's own choice and is not marked as chosen.
-    expect(aussie.primary_kind).toBe('HISTORICAL_SAME_REGION');
-    expect(aussie.operator_selected).toBe(0);
+    // Grad Tech keeps the engine's own choice and is not marked as chosen.
+    expect(grad.primary_kind).toBe('POSITION_GRADUATION');
+    expect(grad.operator_selected).toBe(0);
   });
 
   it('ignores an override naming a kind that programme never generated', async () => {
@@ -327,7 +341,7 @@ describe('the batch is readable by the performance report', () => {
 
     expect(rep.totals.sends).toBe(PROGRAMMES.length);
     expect(rep.byPrimaryKind.map((r) => r.kind).sort())
-      .toEqual(['HISTORICAL_SAME_COUNTRY', 'HISTORICAL_SAME_REGION', null].sort());
+      .toEqual(['HISTORICAL_SAME_COUNTRY', 'POSITION_GRADUATION', null].sort());
     // Three sends is nowhere near the floor, and the report must say so
     // rather than reporting a rate that looks like a finding.
     for (const row of rep.byPrimaryKind) expect(row.verdict).toBe('INSUFFICIENT_SAMPLE');

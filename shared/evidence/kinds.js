@@ -322,8 +322,32 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['region'],
-    // OUTREACH: QUALIFIED. Only as the countries it covers, and only saying they are not the athlete's own.
-    permissions: { OUTREACH: PERMISSION.QUALIFIED },
+    /**
+     * OUTREACH: DENIED at J3, after measuring what it actually opened.
+     *
+     * It rendered 286 emails and 224 of them said "one player from Australia
+     * has come through the programme" to a New Zealander — one person, from a
+     * country that is not the athlete's, with no date, as the first line of a
+     * cold email. 128 of the 286 had their most recent regional peer in 2022,
+     * 2023 or 2024.
+     *
+     * Dating it makes the weakness visible rather than fixing it: "one player
+     * from Australia came through the programme in 2022" reads worse than the
+     * silence it replaces. And the corpus flatters it — every instance is
+     * OCEANIA, where Australia genuinely is next door. `REGIONS` puts 50
+     * countries in EUROPE and 56 in AFRICA, so for most nationalities this
+     * claim would pair a Norwegian with a Portuguese player and call it the
+     * same part of the world.
+     *
+     * J2's rule is what decides it: a useful outreach fact gains its value by
+     * CONJUNCTION. Same-country is a compatriot. Same-region-and-position
+     * keeps two conjuncts and a date. This has one conjunct, no date and a
+     * count of one, and no wording rescues that.
+     *
+     * Still generated, still operator-visible: an operator weighing a
+     * programme should see a regional connection. It is not a reason to write.
+     */
+    permissions: { OUTREACH: PERMISSION.DENIED },
   },
   INTERNATIONAL_ROSTER: {
     tier: TIERS.FACT,

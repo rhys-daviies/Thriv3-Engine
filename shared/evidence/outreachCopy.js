@@ -182,13 +182,6 @@ const CLAUSE = Object.freeze({
       + `from ${where}${span ? ` ${span}` : ''} — the same part of the world`;
   },
 
-  HISTORICAL_SAME_REGION: (f) => {
-    const where = list(strings(f.countries));
-    return `${count(f.count)} ${f.count === 1 ? 'player' : 'players'} from ${where} `
-      + `${f.count === 1 ? 'has' : 'have'} come through the programme — the same part of `
-      + 'the world';
-  },
-
   /**
    * The graduating cohort, named and dated.
    *

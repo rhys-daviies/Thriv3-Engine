@@ -98,9 +98,12 @@ const INTERNATIONAL = (e) => e.selected.filter((x) => x.category === 'internatio
 const CATEGORIES = [
   ['COACH_ARRIVAL_SAME_COUNTRY', 3, (e) => hasKind(e, 'COACH_ARRIVAL_SAME_COUNTRY')],
   ['ARRIVAL_SAME_COUNTRY_POSITION', 2, (e) => hasKind(e, 'ARRIVAL_SAME_COUNTRY_POSITION')],
+  // The only regional category left. J3 denied HISTORICAL_SAME_REGION, so the
+  // "HISTORICAL_SAME_REGION fallback" slot that sat below this one could never
+  // be filled again — and a quota nothing can satisfy silently shortens the
+  // sample rather than reporting that it did.
   ['ARRIVAL_SAME_REGION_POSITION', 2, (e) => hasKind(e, 'ARRIVAL_SAME_REGION_POSITION')],
   ['HISTORICAL_SAME_COUNTRY fallback', 2, (e) => hasKind(e, 'HISTORICAL_SAME_COUNTRY')],
-  ['HISTORICAL_SAME_REGION fallback', 1, (e) => hasKind(e, 'HISTORICAL_SAME_REGION')],
   ['PLAYER_FIRST, no international hook', 2,
     (e) => e.structure.key === 'PLAYER_FIRST' && INTERNATIONAL(e).length === 0 && e.selected.length >= 2],
   ['strong recognition', 1,
@@ -263,7 +266,7 @@ function main() {
     const composed = emailBodyFor(athlete, college, contacts[0].name || 'Coach', { evidence });
     const subject = fillTemplate(athlete.email_subject || DEFAULT_EMAIL_SUBJECT, composed.context);
 
-    head(`${i + 1}/15  ${college.name}   [${category}]`);
+    head(`${i + 1}/${picked.length}  ${college.name}   [${category}]`);
     console.log(`  PROGRAMME     : ${college.name} · ${college.division} · `
       + `${college.conference ?? '—'} · match ${college.match_score} (rank ${rank} of ${ranked.length})`);
     console.log(`  COACH/CONTACT : ${contacts.map((c) => `${c.name} (${c.role}, ${c.email})`).join('\n                  ')}`);

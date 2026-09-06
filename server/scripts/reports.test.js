@@ -164,8 +164,12 @@ describeReports('outreachQA', () => {
   });
 
   it('carries every section it owes, for every programme', () => {
-    for (const [heading, atLeast] of [['OUTBOUND DISPOSITIONS', 15], ['SELECTED ORDER', 15],
-      ['DISPLAYED ORDER', 15], ['FINAL EMAIL', 15], ['FACT CHECK', 15]]) {
+    // Fourteen since J3, not fifteen. `outreachQA` had a
+    // "HISTORICAL_SAME_REGION fallback" category worth one programme; that
+    // kind is now OUTREACH DENIED, so the slot can never be filled and was
+    // removed rather than left to shorten the sample silently.
+    for (const [heading, atLeast] of [['OUTBOUND DISPOSITIONS', 14], ['SELECTED ORDER', 14],
+      ['DISPLAYED ORDER', 14], ['FINAL EMAIL', 14], ['FACT CHECK', 14]]) {
       const n = result.out.split(heading).length - 1;
       expect(n, `${heading} appeared ${n} times`).toBeGreaterThanOrEqual(atLeast);
     }
@@ -219,7 +223,17 @@ describeReports('outreachQA', () => {
      *
      * The other two report fixtures did not move.
      */
-    expect(sha(result.out)).toBe('2bd8ab0becbc165e');
+    /**
+     * Re-pinned in J3, and the movement is the product change.
+     *
+     * HISTORICAL_SAME_REGION is DENIED and ARRIVAL_SAME_REGION_POSITION now
+     * requires a season inside two of the squad season, so 302 emails across
+     * the corpus lost a hook they should not have had. In this report the
+     * sample also drops from fifteen programmes to fourteen, because the
+     * category that existed to show a regional-history email has nothing left
+     * to show.
+     */
+    expect(sha(result.out)).toBe('99930dbb6ac0a5e8');
   });
 });
 

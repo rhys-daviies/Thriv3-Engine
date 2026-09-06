@@ -32,7 +32,6 @@ const GOOD = {
   HISTORICAL_SAME_COUNTRY: { country: 'New Zealand', count: 2, names: ['A', 'B'], seasons: ['2022'] },
   CURRENT_SAME_COUNTRY: { country: 'New Zealand', count: 1, names: ['A'] },
   ARRIVAL_SAME_REGION_POSITION: { countries: ['Australia'], position: 'DEFENSE', count: 1, seasons: ['2024'], widerThanOwnCountry: true, excludingCountry: 'New Zealand' },
-  HISTORICAL_SAME_REGION: { countries: ['Australia'], count: 1, names: ['X'], widerThanOwnCountry: true, excludingCountry: 'New Zealand' },
   POSITION_GRADUATION: { position: 'DEFENSE', count: 3, names: ['A', 'B', 'C'], classYear: 2027 },
   ACADEMIC_FIT: { athleteStatedMajor: 'exercise science', programmeMatchedSubject: 'Kinesiology' },
   CONFERENCE_TITLE: { conference: 'ACC' },
@@ -46,7 +45,6 @@ const REQUIRED = {
   HISTORICAL_SAME_COUNTRY: ['country', 'count'],
   CURRENT_SAME_COUNTRY: ['country', 'count'],
   ARRIVAL_SAME_REGION_POSITION: ['countries', 'position', 'count'],
-  HISTORICAL_SAME_REGION: ['countries', 'count'],
   POSITION_GRADUATION: ['position', 'count', 'names', 'classYear'],
   ACADEMIC_FIT: ['athleteStatedMajor', 'programmeMatchedSubject'],
   CONFERENCE_TITLE: ['conference'],
@@ -56,9 +54,9 @@ const REQUIRED = {
 // ---------------------------------------------------------------------------
 
 describe('the copy registry covers exactly the licence', () => {
-  it('has words for all ten licensed kinds and nothing else', () => {
+  it('has words for all nine licensed kinds and nothing else', () => {
     expect([...OUTREACH_COPY_KINDS].sort()).toEqual([...LICENSED_KINDS].sort());
-    expect(OUTREACH_COPY_KINDS).toHaveLength(10);
+    expect(OUTREACH_COPY_KINDS).toHaveLength(9);
   });
 
   it('writes a sentence for every one of them when the facts are whole', () => {
@@ -105,7 +103,7 @@ describe('every handler fails closed', () => {
   });
 
   it('refuses an empty or null array where a list is needed', () => {
-    for (const kind of ['ARRIVAL_SAME_REGION_POSITION', 'HISTORICAL_SAME_REGION']) {
+    for (const kind of ['ARRIVAL_SAME_REGION_POSITION']) {
       for (const bad of [[], null, [''], ['   '], 'Australia']) {
         expect(say(kind, { ...GOOD[kind], countries: bad }), `${kind} countries=${JSON.stringify(bad)}`)
           .toBeNull();
@@ -178,7 +176,6 @@ describe('the selector refuses the same objects, before copy is reached', () => 
     HISTORICAL_SAME_COUNTRY: { country: 'New Zealand', count: 2, names: ['A'], seasons: ['2022'] },
     CURRENT_SAME_COUNTRY: { country: 'New Zealand', count: 1, names: ['A'] },
     ARRIVAL_SAME_REGION_POSITION: { countries: ['Australia'], position: 'DEFENSE', count: 1, seasons: ['2024'], athleteCountry: 'New Zealand' },
-    HISTORICAL_SAME_REGION: { countries: ['Australia'], athleteCountry: 'New Zealand', count: 1, names: ['X'] },
     POSITION_GRADUATION: { position: 'DEFENSE', count: 3, names: ['A', 'B', 'C'], classYear: 2027 },
     ACADEMIC_FIT: { stated: 'exercise science', major: 'Kinesiology' },
     CONFERENCE_TITLE: { conference: 'ACC' },
@@ -212,7 +209,7 @@ describe('the selector refuses the same objects, before copy is reached', () => 
     const by = { ALLOWED: 0, QUALIFIED: 0, DENIED: 0 };
     for (const kind of LICENSED_KINDS) by[permissionsFor(kind).OUTREACH] += 1;
     expect(by.ALLOWED).toBe(4);
-    expect(by.QUALIFIED).toBe(6);
+    expect(by.QUALIFIED).toBe(5);
     expect(permissionsFor('COACH_ARRIVAL_SAME_COUNTRY').OUTREACH).toBe(PERMISSION.ALLOWED);
     expect(permissionsFor('POSITION_GRADUATION').OUTREACH).toBe(PERMISSION.QUALIFIED);
   });

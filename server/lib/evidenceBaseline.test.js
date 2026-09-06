@@ -245,11 +245,15 @@ d('the corpus is worth hashing', () => {
     expect(s.structures.RELATIONSHIP_FIRST).toBeGreaterThan(0);
   });
 
-  it('renders all ten licensed kinds at least once', () => {
+  it('renders all nine licensed kinds at least once', () => {
+    // Nine since J3 denied HISTORICAL_SAME_REGION. The list is written out
+    // rather than derived from LICENSED_KINDS deliberately: a kind quietly
+    // losing its licence should fail here too, not disappear from the check
+    // along with the licence.
     for (const kind of [
       'COACH_ARRIVAL_SAME_COUNTRY', 'ARRIVAL_SAME_COUNTRY_POSITION',
       'HISTORICAL_SAME_COUNTRY', 'CURRENT_SAME_COUNTRY',
-      'ARRIVAL_SAME_REGION_POSITION', 'HISTORICAL_SAME_REGION',
+      'ARRIVAL_SAME_REGION_POSITION',
       'POSITION_GRADUATION', 'ACADEMIC_FIT', 'CONFERENCE_TITLE', 'POSTSEASON_RESULT',
     ]) {
       expect(s.renderedByKind[kind] ?? 0, `${kind} never renders in the corpus`).toBeGreaterThan(0);

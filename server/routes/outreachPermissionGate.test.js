@@ -85,11 +85,11 @@ describe('the server derives through the permission gate', () => {
     expect(deniedGenerated.length).toBeGreaterThan(0);
   });
 
-  it('selects none of the sixteen denied kinds', () => {
+  it('selects none of the seventeen denied kinds', () => {
     const selected = derive().selected.map((e) => e.kind);
     expect(selected.length).toBeGreaterThan(0);
     for (const kind of DENIED) expect(selected, kind).not.toContain(kind);
-    expect(DENIED).toHaveLength(16);
+    expect(DENIED).toHaveLength(17);
   });
 
   it('files them as not permitted rather than losing them', () => {

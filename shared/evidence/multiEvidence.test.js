@@ -564,7 +564,6 @@ describe('the ranking comparator did not move', () => {
     const expected = {
       HISTORICAL_SAME_COUNTRY: 102,
       CURRENT_SAME_COUNTRY: 96,
-      HISTORICAL_SAME_REGION: 84,
       ACADEMIC_FIT: 88,
       CONFERENCE_TITLE: 86,
       POSITION_GRADUATION: 84,
@@ -602,7 +601,6 @@ const FACTS = {
   HISTORICAL_SAME_COUNTRY: { country: 'New Zealand', count: 2, names: ['A', 'B'], seasons: ['2022'] },
   CURRENT_SAME_COUNTRY: { country: 'New Zealand', count: 1, names: ['A'] },
   ARRIVAL_SAME_REGION_POSITION: { countries: ['Australia'], position: 'DEFENSE', count: 1, seasons: ['2024'], athleteCountry: 'New Zealand' },
-  HISTORICAL_SAME_REGION: { countries: ['Australia'], athleteCountry: 'New Zealand', count: 1, names: ['X'] },
   POSITION_GRADUATION: { position: 'DEFENSE', count: 3, names: ['A', 'B', 'C'], classYear: 2027 },
   ACADEMIC_FIT: { stated: 'exercise science', major: 'Kinesiology' },
   CONFERENCE_TITLE: { conference: 'ACC' },
@@ -636,7 +634,7 @@ describe('what may open an email cold', () => {
       // writing to this coach, observed one level more specifically.
       'ARRIVAL_SAME_COUNTRY_POSITION', 'ARRIVAL_SAME_REGION_POSITION',
       'COACH_ARRIVAL_SAME_COUNTRY',
-      'CURRENT_SAME_COUNTRY', 'HISTORICAL_SAME_COUNTRY', 'HISTORICAL_SAME_REGION',
+      'CURRENT_SAME_COUNTRY', 'HISTORICAL_SAME_COUNTRY',
     ]);
   });
 
@@ -777,8 +775,8 @@ describe('placement, which is separate from ranking', () => {
   it('opens on the hook wherever it ranked', () => {
     // The Sacred Heart case: the roster count ranks first and the region
     // connection second, and the email opens on the connection.
-    const p = plan(['POSITION_GRADUATION', 'HISTORICAL_SAME_REGION'], 'RELATIONSHIP_FIRST');
-    expect(p.hook.kind).toBe('HISTORICAL_SAME_REGION');
+    const p = plan(['POSITION_GRADUATION', 'ARRIVAL_SAME_REGION_POSITION'], 'RELATIONSHIP_FIRST');
+    expect(p.hook.kind).toBe('ARRIVAL_SAME_REGION_POSITION');
     expect(p.relevance.map((e) => e.kind)).toEqual(['POSITION_GRADUATION']);
   });
 

@@ -1,5 +1,6 @@
 import { canonicalPosition } from '../positions.js';
 import { conferenceLabel } from '../conference.js';
+import { SQUAD_SEASON } from '../philosophy.js';
 
 /**
  * WHAT AN OUTBOUND CLAIM MUST CARRY, DECLARED ONCE.
@@ -69,6 +70,43 @@ export const strings = (v) => {
  * know, and refuses that.
  */
 export const position = (v) => (str(v) && canonicalPosition(v) !== 'UNKNOWN' ? v : null);
+
+/**
+ * How far back a regional claim may reach, in seasons.
+ *
+ * J3 measured what the region hooks were opening with. The surviving one —
+ * region AND position — rendered 75 emails, and 30 of them reached back to
+ * 2023 or 2024: "the programme has taken one forward from Australia back in
+ * 2023" is a three-year-old signing from a country that is not the athlete's,
+ * used as the reason for writing today. Two seasons is the window in which a
+ * squad still contains the people it describes.
+ *
+ * Deliberately applied ONLY to the regional claim. A compatriot is a
+ * compatriot whenever they came through, and the same-country kinds are not
+ * reaching for the connection.
+ */
+export const REGION_RECENCY_SEASONS = 2;
+
+/**
+ * A season list whose most recent entry is inside that window, or null.
+ *
+ * Requires the seasons to be there at all, which is the other half of what J3
+ * found: `HISTORICAL_SAME_REGION` carried its span on the evidence object and
+ * never in `data`, so its copy had nothing to print and said nothing. A
+ * regional claim with no date does not qualify — there is no vague form of it
+ * to fall back to.
+ */
+export const recentSeasons = (v) => {
+  const years = (Array.isArray(v) ? v : []).map((x) => Number(String(x).trim()))
+    .filter((n) => Number.isInteger(n) && n >= 1900 && n <= 2100);
+  if (!years.length) return null;
+  const newest = Math.max(...years);
+  const age = Number(SQUAD_SEASON) - newest;
+  // Bounded on BOTH sides. A negative age is a season that has not happened,
+  // which is a broken row rather than a very recent arrival — and an unbounded
+  // "<= 2" would have welcomed it as the most recent thing we know.
+  return age >= 0 && age <= REGION_RECENCY_SEASONS ? v : null;
+};
 
 /** A four-digit season or class year, or null. Never a blank or a stray word. */
 export const year = (v) => {
@@ -162,22 +200,13 @@ const CONTRACT = Object.freeze({
       widerThanOwnCountry: true,
       excludingCountry: d.athleteCountry ?? null,
     }),
-    requires: { countries: strings, position, count: positive },
-  },
-
-  HISTORICAL_SAME_REGION: {
     /**
-     * Q-REGION again, plus the exclusion. `excludingCountry` is set on every
-     * real instance and is what makes the count meaningful: these are players
-     * from the region who are NOT compatriots, so a claim that read as
-     * same-country would be counting different people. Required and not
-     * printed — see the clause for why naming it would be worse.
+     * The season is REQUIRED here and optional on every other kind, because
+     * this is the one claim whose whole justification is that it is recent.
+     * Region and position are a real conjunction; region, position and "at
+     * some point" is a stretch, and J3 chose not to send stretches.
      */
-    facts: (d) => ({
-      countries: d.countries, count: d.count, names: d.names ?? [],
-      widerThanOwnCountry: true, excludingCountry: d.athleteCountry ?? null,
-    }),
-    requires: { countries: strings, excludingCountry: str, count: positive },
+    requires: { countries: strings, position, count: positive, seasons: recentSeasons },
   },
 
   POSITION_GRADUATION: {

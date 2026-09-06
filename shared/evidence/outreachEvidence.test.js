@@ -78,16 +78,16 @@ const CODE = SOURCE.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, '
 // ---------------------------------------------------------------------------
 
 describe('the licence', () => {
-  it('carries exactly ten of the twenty-six kinds', () => {
+  it('carries exactly nine of the twenty-six kinds', () => {
     expect(EVIDENCE_KIND_NAMES).toHaveLength(26);
-    expect(LICENSED_KINDS).toHaveLength(10);
+    expect(LICENSED_KINDS).toHaveLength(9);
   });
 
   it('names the four that need no qualification and the six that do', () => {
     expect([...LICENSED_KINDS].sort()).toEqual([
       'ACADEMIC_FIT', 'ARRIVAL_SAME_COUNTRY_POSITION', 'ARRIVAL_SAME_REGION_POSITION',
       'COACH_ARRIVAL_SAME_COUNTRY', 'CONFERENCE_TITLE', 'CURRENT_SAME_COUNTRY',
-      'HISTORICAL_SAME_COUNTRY', 'HISTORICAL_SAME_REGION', 'POSITION_GRADUATION',
+      'HISTORICAL_SAME_COUNTRY', 'POSITION_GRADUATION',
       'POSTSEASON_RESULT',
     ]);
   });
@@ -116,7 +116,7 @@ describe('the licence', () => {
   it('grades them 4 ALLOWED, 6 QUALIFIED, 16 DENIED', () => {
     const by = { ALLOWED: 0, QUALIFIED: 0, DENIED: 0 };
     for (const k of EVIDENCE_KIND_NAMES) by[permissionsFor(k).OUTREACH] += 1;
-    expect(by).toEqual({ ALLOWED: 4, QUALIFIED: 6, DENIED: 16 });
+    expect(by).toEqual({ ALLOWED: 4, QUALIFIED: 5, DENIED: 17 });
   });
 
   it('grants ALLOWED only to the four that need no qualification', () => {
@@ -270,7 +270,8 @@ describe('qualification, one rule per kind', () => {
   it('says out loud that a region claim is wider than the athlete’s country', () => {
     // Without it a coach reads a row about Australia as a row about the New
     // Zealander being introduced.
-    for (const ev of [regionPosition(), historicalRegion()]) {
+    // One regional kind since J3: HISTORICAL_SAME_REGION is DENIED.
+    for (const ev of [regionPosition()]) {
       const [item] = outreachEvidenceFor(resultOf([ev])).hooks;
       expect(item.facts.widerThanOwnCountry).toBe(true);
       expect(item.facts.excludingCountry).toBe('New Zealand');

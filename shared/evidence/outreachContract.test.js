@@ -29,8 +29,8 @@ const VALID = {
   ARRIVAL_SAME_COUNTRY_POSITION: { country: 'New Zealand', position: 'defender', count: 2, seasons: ['2023', '2024'] },
   HISTORICAL_SAME_COUNTRY: { country: 'New Zealand', count: 2, names: ['Luke Johnson', 'Willem Ebbinge'], seasons: ['2022'] },
   CURRENT_SAME_COUNTRY: { country: 'New Zealand', count: 1, names: ['Joby Reid'] },
-  ARRIVAL_SAME_REGION_POSITION: { countries: ['Australia'], position: 'defender', count: 1, seasons: ['2023'], athleteCountry: 'New Zealand' },
-  HISTORICAL_SAME_REGION: { countries: ['Australia'], count: 1, names: ['Tom Blake'], athleteCountry: 'New Zealand' },
+  // Dated and recent: J3 made the season required on this kind alone.
+  ARRIVAL_SAME_REGION_POSITION: { countries: ['Australia'], position: 'defender', count: 1, seasons: ['2025'], athleteCountry: 'New Zealand' },
   POSITION_GRADUATION: { position: 'defender', count: 2, names: ['Enzo Panozzo', 'Owen Zarnick'], classYear: 2027 },
   ACADEMIC_FIT: { stated: 'exercise science', major: 'Kinesiology' },
   CONFERENCE_TITLE: { conference: 'ACC' },
@@ -65,7 +65,8 @@ describe('the contract covers exactly the licensed kinds', () => {
     // would be answering the wrong one.
     const grade = (k) => permissionsFor(k).OUTREACH;
     expect(CONTRACT_KINDS.filter((k) => grade(k) === PERMISSION.ALLOWED)).toHaveLength(4);
-    expect(CONTRACT_KINDS.filter((k) => grade(k) === PERMISSION.QUALIFIED)).toHaveLength(6);
+    // Five, not six, since J3 denied HISTORICAL_SAME_REGION. See regionHooks.test.js.
+    expect(CONTRACT_KINDS.filter((k) => grade(k) === PERMISSION.QUALIFIED)).toHaveLength(5);
     for (const k of CONTRACT_KINDS) expect(requiredFields(k).length, k).toBeGreaterThan(0);
   });
 
@@ -76,7 +77,7 @@ describe('the contract covers exactly the licensed kinds', () => {
   });
 });
 
-describe('a complete object qualifies and renders, for all ten', () => {
+describe('a complete object qualifies and renders, for all nine', () => {
   for (const kind of Object.keys(VALID)) {
     it(`${kind} says something`, () => {
       const r = through(kind, VALID[kind]);
@@ -115,8 +116,7 @@ describe('removing the generator field behind a required fact fails closed too',
     ARRIVAL_SAME_COUNTRY_POSITION: ['country', 'position', 'count'],
     HISTORICAL_SAME_COUNTRY: ['country', 'count'],
     CURRENT_SAME_COUNTRY: ['country', 'count'],
-    ARRIVAL_SAME_REGION_POSITION: ['countries', 'position', 'count'],
-    HISTORICAL_SAME_REGION: ['countries', 'athleteCountry', 'count'],
+    ARRIVAL_SAME_REGION_POSITION: ['countries', 'position', 'count', 'seasons'],
     POSITION_GRADUATION: ['position', 'count', 'names', 'classYear'],
     ACADEMIC_FIT: ['stated', 'major'],
     CONFERENCE_TITLE: ['conference'],
@@ -140,8 +140,6 @@ describe('an optional field missing only shortens the sentence', () => {
     ARRIVAL_SAME_COUNTRY_POSITION: ['seasons'],
     HISTORICAL_SAME_COUNTRY: ['names', 'seasons'],
     CURRENT_SAME_COUNTRY: ['names'],
-    ARRIVAL_SAME_REGION_POSITION: ['seasons'],
-    HISTORICAL_SAME_REGION: ['names'],
   };
   for (const [kind, fields] of Object.entries(OPTIONAL)) {
     for (const field of fields) {
@@ -197,8 +195,6 @@ describe('qualification and copy cannot disagree', () => {
     ['CURRENT_SAME_COUNTRY', 'country', '   '],
     ['COACH_ARRIVAL_SAME_COUNTRY', 'country', '   '],
     ['COACH_ARRIVAL_SAME_COUNTRY', 'coach', '  '],
-    ['HISTORICAL_SAME_REGION', 'countries', ['', ' ']],
-    ['HISTORICAL_SAME_REGION', 'athleteCountry', '   '],
     ['ARRIVAL_SAME_REGION_POSITION', 'countries', ['', ' ']],
     ['ACADEMIC_FIT', 'stated', '   '],
     ['ACADEMIC_FIT', 'major', '   '],
@@ -259,7 +255,8 @@ describe('the postseason rounds are declared once', () => {
  * and they must survive any rewording of it.
  */
 describe('region claims say only the regional observation', () => {
-  const REGION = ['ARRIVAL_SAME_REGION_POSITION', 'HISTORICAL_SAME_REGION'];
+  // One kind since J3 — see regionHooks.test.js for why the other was denied.
+  const REGION = ['ARRIVAL_SAME_REGION_POSITION'];
 
   it('names the countries it saw and never the athlete\'s own', () => {
     for (const kind of REGION) {

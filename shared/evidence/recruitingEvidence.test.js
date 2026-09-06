@@ -456,7 +456,16 @@ describe('G. the dedupe hierarchy', () => {
     expect(suppressedBy(r, 'HISTORICAL_SAME_COUNTRY')).toBe('ARRIVAL_SAME_COUNTRY_POSITION');
   });
 
-  it('supersedes HISTORICAL_SAME_REGION', () => {
+  /**
+   * J3 changed the answer here, and the reason is worth keeping.
+   *
+   * Both kinds are still GENERATED and still share `international-connection`.
+   * What moved is the OUTBOUND licence: HISTORICAL_SAME_REGION is now DENIED,
+   * so it never reaches the qualification stage to be DEDUPED — it is refused
+   * one step earlier, as NOT_LICENSED. The regional arrival still wins the
+   * group; it simply has nothing left to beat.
+   */
+  it('leaves HISTORICAL_SAME_REGION unlicensed, not superseded', () => {
     const aussieRow = row({
       season: '2024', player_name: 'Aussie One', nationality: 'International', country: 'Australia',
     });
@@ -465,7 +474,9 @@ describe('G. the dedupe hierarchy', () => {
       { squad: [row()], history: [aussieRow] },
     )));
     expect(kindsOf(r)).toContain('ARRIVAL_SAME_REGION_POSITION');
-    expect(suppressedBy(r, 'HISTORICAL_SAME_REGION')).toBe('ARRIVAL_SAME_REGION_POSITION');
+    expect(suppressedBy(r, 'HISTORICAL_SAME_REGION')).toBe(null);
+    expect(r.dispositions.find((d) => d.kind === 'HISTORICAL_SAME_REGION')?.disposition)
+      .toBe('NOT_LICENSED');
   });
 
   it('lets the country kind outrank its region equivalent', () => {
