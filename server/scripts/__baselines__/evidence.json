@@ -1,0 +1,65 @@
+{
+  "note": "Committed Evidence behavioural baseline. See docs/EVIDENCE_BASELINES.md before repinning.",
+  "manifest": {
+    "tables": [
+      {
+        "table": "players",
+        "rows": 4,
+        "digest": "67a40ceb30ddaa7a172fce920755073b61cd5449bf25958245a834f477375774"
+      },
+      {
+        "table": "colleges",
+        "rows": 2404,
+        "digest": "cdcbe3c7c693c81b8d90d35beff6f36a563cd38b870261af4208af2cdad81bc5"
+      },
+      {
+        "table": "roster_players",
+        "rows": 276745,
+        "digest": "16a5f3ca4414f6a90adcf6c22b2da63208ec7ab46fc4a0f986c384b408281bbc"
+      },
+      {
+        "table": "coaches",
+        "rows": 6347,
+        "digest": "35c83c5c8fd75c4d1884660f4edf1ef8c90f597545e6e2ce1f8deb3619984872"
+      },
+      {
+        "table": "athletics_domains",
+        "rows": 2717,
+        "digest": "4adeb22a0650d51139b1e916f1286c598cbecba3a10b7d723100fff229bbe420"
+      }
+    ],
+    "digest": "7f19b7d8b75608c26a76cd71c12250fb29c0fe5c32b612305b18f4deb9026bcc"
+  },
+  "baselines": [
+    {
+      "name": "OUTBOUND_DECISION",
+      "size": 4742,
+      "digest": "d3fbf9743ee65e59330022e7715742cb5ee4531700d163df21dc51fe707dffc0"
+    },
+    {
+      "name": "COACH_COMPOSITION",
+      "size": 4742,
+      "digest": "091be2150b2a5dc3b60c753a7cdc9e083e180d8480ffeaf5f2a2ae1172920b7d"
+    },
+    {
+      "name": "EMAIL_BODY",
+      "size": 4742,
+      "digest": "175c5dc51fa1286735d3aea9507fc7f0e01a7f9e5c12e79bc4f7b6d330ade19b"
+    },
+    {
+      "name": "OPERATOR_WIRE",
+      "size": 4742,
+      "digest": "3b0dd34193786ed1e4d880699f3eaed31211bb439a4379584d4e01d891e2a42b"
+    },
+    {
+      "name": "LOG_PAYLOAD",
+      "size": 4742,
+      "digest": "24e469393ee10f544200391570e4a8e2dd6413dc48a61c19ec0e37129cb235e2"
+    },
+    {
+      "name": "OPERATOR_EVIDENCE",
+      "size": 4742,
+      "digest": "73a026336b5de0861154c0332b6333cc04f2c65b5e04ef938b2a2b04c48fec40"
+    }
+  ]
+}
