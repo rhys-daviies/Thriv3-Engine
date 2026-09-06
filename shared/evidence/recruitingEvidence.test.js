@@ -5,7 +5,8 @@ import {
   positionIntakeHistory,
 } from './generate.js';
 import { selectFrom } from './select.js';
-import { resolveStructure, planPlacement } from './structures.js';
+import { resolveStructure, planFromRoles } from './structures.js';
+import { outreachEvidenceFor } from './outreachEvidence.js';
 import { renderEvidence, evidenceParts } from './render.js';
 import { normaliseEvidenceAthlete, evidenceLogPayload, selectEvidence } from './index.js';
 import { EVIDENCE_KINDS } from './kinds.js';
@@ -563,16 +564,23 @@ describe('I. composition and logging', () => {
     at('2023->2024', intl('New Zealand', { playerName: 'Kiwi One' })),
   ]));
 
-  it('makes RELATIONSHIP_FIRST available, and adds no new structure', () => {
+  /** Selection plus its roles — the shape production resolves a structure against. */
+  const withRoles = () => {
     const selection = selectFrom(generateEvidence(RHYS, kiwiCtx()));
-    const structure = resolveStructure(selection);
+    return { selection, roles: outreachEvidenceFor(selection) };
+  };
+
+  it('makes RELATIONSHIP_FIRST available, and adds no new structure', () => {
+    const { selection, roles } = withRoles();
+    const structure = resolveStructure({ selected: selection.selected, roles });
     expect(structure.key).toBe('RELATIONSHIP_FIRST');
     expect(structure.eligible).toEqual(['RELATIONSHIP_FIRST', 'PLAYER_FIRST']);
   });
 
   it('puts the arrival claim in the hook', () => {
-    const selection = selectFrom(generateEvidence(RHYS, kiwiCtx()));
-    const placed = planPlacement(selection.selected, 'RELATIONSHIP_FIRST');
+    const { selection, roles } = withRoles();
+    const byKind = new Map(selection.selected.map((e) => [e.kind, e]));
+    const placed = planFromRoles(roles, byKind, 'RELATIONSHIP_FIRST');
     expect(placed.hook.kind).toBe('COACH_ARRIVAL_SAME_COUNTRY');
   });
 

@@ -23,9 +23,9 @@
  * rather than the front.
  *
  * NOT USED HERE, and each for a reason: CATEGORY_PRIOR and FACT_BONUS (email
- * weighting), SLOT_FLOORS (email slot gating), leadSuitability and recognition
- * (where a sentence reads best in a letter). Those are all properties of how an
- * email is written.
+ * weighting), SLOT_FLOORS (email slot gating), and the outbound ROLE (where a
+ * sentence reads best in a letter). Those are all properties of how an email is
+ * written.
  */
 
 import { EVIDENCE_KINDS, DECISION_CLASS, CONFIDENCE, kindSpec } from './kinds.js';

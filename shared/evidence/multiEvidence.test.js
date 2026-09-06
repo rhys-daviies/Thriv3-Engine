@@ -2,11 +2,13 @@ import { describe, it, expect } from 'vitest';
 import {
   selectEvidence, defineEvidence, evidenceLogPayload,
   MAX_EMAIL_EVIDENCE, MAX_PER_FAMILY, SLOT_FLOORS,
-  FLOWS, FLOW_KEYS, canOpenCold, planPlacement, LEAD_SUITABILITY,
+  FLOWS, FLOW_KEYS, eligibleFlows,
 } from './index.js';
 import { selectFrom, priorityOf, DISPOSITION } from './select.js';
 import { canonicalPosition, POSITIONS } from '../positions.js';
-import { EVIDENCE_KINDS } from './kinds.js';
+import { EVIDENCE_KINDS, permissionsFor, PERMISSION } from './kinds.js';
+import { planFromRoles } from './structures.js';
+import { outreachEvidenceFor, ROLES } from './outreachEvidence.js';
 
 /**
  * Multi-evidence selection, redundancy control and the structure library.
@@ -710,25 +712,47 @@ describe('the ranking itself did not move', () => {
 // ---------------------------------------------------------------------------
 
 /**
- * `leadSuitability` — strong evidence and a good opening sentence are not the
- * same judgement.
+ * Facts good enough to pass each licensed kind's outreach qualification.
  *
- * This replaced a `canLead: false` flag that existed only for ACADEMIC_FIT and
- * worked by reordering the SELECTION. Reordering selection to fix a
- * presentation problem is what made the two concerns hard to separate; the
- * classification now sits beside the evidence and selection is left alone.
+ * Roles are only assigned to objects that could actually be SENT, so a kind
+ * asked for its role with empty data reports none — which would make every
+ * assertion below vacuously true. Anything not listed here is unlicensed, and
+ * its absence is the point.
  */
-describe('lead suitability decides what may open an email', () => {
-  it('classifies every email-eligible kind', () => {
-    for (const kind of Object.keys(EVIDENCE_KINDS)) {
-      expect(Object.values(LEAD_SUITABILITY), kind)
-        .toContain(EVIDENCE_KINDS[kind].leadSuitability);
-    }
-  });
+const FACTS = {
+  COACH_ARRIVAL_SAME_COUNTRY: { coach: 'Ali Simmons', country: 'New Zealand', count: 1, seasons: ['2025'] },
+  ARRIVAL_SAME_COUNTRY_POSITION: { country: 'New Zealand', position: 'DEFENSE', count: 2, seasons: ['2023'] },
+  HISTORICAL_SAME_COUNTRY: { country: 'New Zealand', count: 2, names: ['A', 'B'], seasons: ['2022'] },
+  CURRENT_SAME_COUNTRY: { country: 'New Zealand', count: 1, names: ['A'] },
+  ARRIVAL_SAME_REGION_POSITION: { countries: ['Australia'], position: 'DEFENSE', count: 1, seasons: ['2024'], athleteCountry: 'New Zealand' },
+  HISTORICAL_SAME_REGION: { countries: ['Australia'], athleteCountry: 'New Zealand', count: 1, names: ['X'] },
+  POSITION_GRADUATION: { position: 'DEFENSE', count: 3, names: ['A', 'B', 'C'], classYear: 2027 },
+  ACADEMIC_FIT: { stated: 'exercise science', major: 'Kinesiology' },
+  CONFERENCE_TITLE: { conference: 'ACC' },
+  POSTSEASON_RESULT: { round: 'semi' },
+};
 
-  it('lets only the country relationships open an email cold', () => {
-    const openers = Object.keys(EVIDENCE_KINDS)
-      .filter((k) => canOpenCold({ kind: k }));
+/**
+ * WHAT MAY OPEN AN EMAIL: role === HOOK, and nothing else.
+ *
+ * This block used to ask `canOpenCold`, a predicate over a three-valued
+ * `leadSuitability` property carried by all 26 kinds. It agreed with the roles
+ * for every kind — and had not been consulted since G4, because production
+ * supplies roles and the predicate only ran on the fallback branch. H4 deleted
+ * it. The properties it defended were real, so they are asked of the owner.
+ *
+ * The distinction itself is unchanged and is the reason any of this exists:
+ * strong evidence and a good opening sentence are not the same judgement.
+ */
+describe('what may open an email cold', () => {
+  /** The roles an object of this kind would be given, with facts good enough to pass. */
+  const roleOf = (kind) => {
+    const r = outreachEvidenceFor({ all: [ev(kind, 80, { data: FACTS[kind] ?? {} })] });
+    return [...r.hooks, ...r.relevance, ...r.recognition][0]?.role ?? null;
+  };
+
+  it('lets only the country and region relationships open one', () => {
+    const openers = Object.keys(EVIDENCE_KINDS).filter((k) => roleOf(k) === ROLES.HOOK);
     expect(openers.sort()).toEqual([
       // The three recruiting-history kinds join the roster-derived ones: an
       // arrival from the athlete's country is the same KIND of reason to be
@@ -744,14 +768,86 @@ describe('lead suitability decides what may open an email', () => {
     // graduating, so I thought Ryan could be worth putting on your radar" as
     // the first line to someone who does not know who Ryan is.
     for (const kind of ['POSITION_GRADUATION', 'POSITION_GROUP_SCARCITY', 'COACH_CONTEXT']) {
-      expect(canOpenCold({ kind }), kind).toBe(false);
+      expect(roleOf(kind), kind).not.toBe(ROLES.HOOK);
     }
   });
 
+  it('never opens on a congratulation', () => {
+    // "Congrats on winning the ACC last year" is a fine thing to say and a
+    // strange thing to say first, to a stranger, before saying who you are.
+    for (const kind of ['CONFERENCE_TITLE', 'POSTSEASON_RESULT']) {
+      expect(roleOf(kind), kind).toBe(ROLES.RECOGNITION);
+    }
+  });
+
+  it('gives every kind that may be emailed exactly one role, and the rest none', () => {
+    // Replaces an assertion that every kind carried a valid `leadSuitability`
+    // value. A licence without a role is a claim with no job in the email.
+    for (const kind of Object.keys(EVIDENCE_KINDS)) {
+      const licensed = permissionsFor(kind).OUTREACH !== PERMISSION.DENIED;
+      const role = roleOf(kind);
+      if (licensed) expect(Object.values(ROLES), kind).toContain(role);
+      else expect(role, kind).toBeNull();
+    }
+  });
+});
+
+describe('a selection with no roles cannot manufacture a relationship', () => {
+  /**
+   * The fallback H4 removed, asserted as behaviour rather than as absence.
+   *
+   * `eligibleFlows` used to re-derive an opener from kind metadata when a
+   * selection arrived without roles. It never fired in production — roles have
+   * been supplied since G4 — but what it would have done is worse than
+   * nothing: manufacture RELATIONSHIP_FIRST for a caller that had not decided
+   * any claim could open. Missing role data is missing data, not a hook.
+   */
+  const leadable = [ev('HISTORICAL_SAME_COUNTRY', 90, { data: { country: 'New Zealand', count: 2, names: ['A', 'B'] } })];
+
+  it('gets PLAYER_FIRST when roles are absent', () => {
+    expect(eligibleFlows({ selected: leadable })).toEqual(['PLAYER_FIRST']);
+  });
+
+  it('gets PLAYER_FIRST when roles are empty, null or malformed', () => {
+    for (const roles of [
+      { hooks: [], relevance: [], recognition: [] },
+      { relevance: [], recognition: [] },
+      null, undefined, {},
+    ]) {
+      expect(eligibleFlows({ selected: leadable, roles }), JSON.stringify(roles))
+        .toEqual(['PLAYER_FIRST']);
+    }
+  });
+
+  it('does not throw on a selection object with nothing in it at all', () => {
+    // Graceful degradation is the composer's established contract: a malformed
+    // selection costs the email its opener, not the send.
+    expect(eligibleFlows({})).toEqual(['PLAYER_FIRST']);
+    expect(eligibleFlows(null)).toEqual(['PLAYER_FIRST']);
+  });
+
+  it('gets RELATIONSHIP_FIRST as soon as one hook is present', () => {
+    const roles = outreachEvidenceFor({ all: leadable });
+    expect(roles.hooks).toHaveLength(1);
+    expect(eligibleFlows({ selected: leadable, roles })).toEqual(['RELATIONSHIP_FIRST', 'PLAYER_FIRST']);
+  });
+
+  it('does not change class when there is more than one hook', () => {
+    // Two reasons to be writing is still one email, in the same shape.
+    const two = [
+      ...leadable,
+      ev('CURRENT_SAME_COUNTRY', 80, { data: { country: 'New Zealand', count: 1, names: ['C'] } }),
+    ];
+    const roles = outreachEvidenceFor({ all: two });
+    expect(eligibleFlows({ selected: two, roles })).toEqual(['RELATIONSHIP_FIRST', 'PLAYER_FIRST']);
+  });
+});
+
+describe('presentation does not reach back into selection', () => {
   it('leaves selection order alone', () => {
-    // ACADEMIC_FIT outranks POSITION_GRADUATION on priority and is SUPPORT_ONLY
-    // for presentation. It must still be selected first — presentation decides
-    // where it goes, not whether it was chosen.
+    // ACADEMIC_FIT outranks POSITION_GRADUATION on priority and cannot open an
+    // email. It must still be selected first — its role decides where it goes,
+    // not whether it was chosen.
     const selection = selectFrom([
       ev('ACADEMIC_FIT', 78, { data: { major: 'Business' } }),
       ev('POSITION_GRADUATION', 76),
@@ -760,29 +856,53 @@ describe('lead suitability decides what may open an email', () => {
   });
 });
 
+/**
+ * PLACEMENT, WHICH IS SEPARATE FROM RANKING.
+ *
+ * These asked `planPlacement`, deleted in H4: a second placement function that
+ * inferred a hook from `leadSuitability` and a congratulation from a registry
+ * flag. It had no caller after G4. The block it produced is now produced by
+ * `planFromRoles`, from roles that were decided under a licence and a
+ * qualification rule, so the same properties are asked of that.
+ *
+ * Three of the old assertions are not migrated, and deliberately:
+ *
+ *   "lifts a lower-ranked NATURAL_LEAD into the hook" and "puts a contextual
+ *   item in front of a SUPPORT_ONLY one" described `leadWithContextual`, a
+ *   presentation reorder that existed because selection order and opening
+ *   quality were decided by different properties. Roles decide both now: a
+ *   HOOK is a hook wherever it ranked, and there is nothing left to reorder.
+ *
+ *   "holds back what will not fit" described the gathered-slot capacity of two
+ *   or three. Composition renders one body claim beside the hook; the cap it
+ *   enforces is asserted in outreachEvidence.test.js, where it lives.
+ */
 describe('placement, which is separate from ranking', () => {
-  const plan = (kinds, flow) => planPlacement(
-    kinds.map((k) => ({ kind: k, tier: EVIDENCE_KINDS[k].tier })), flow,
-  );
+  /** Roles from real objects, then the plan — the path production takes. */
+  const plan = (kinds, flow) => {
+    const objects = kinds.map((k) => ev(k, 80, { data: FACTS[k] ?? {} }));
+    const roles = outreachEvidenceFor({ all: objects });
+    return planFromRoles(roles, new Map(objects.map((e) => [e.kind, e])), flow);
+  };
 
-  it('lifts a lower-ranked NATURAL_LEAD into the hook', () => {
-    // The Sacred Heart case: the roster count ranks first and the Australia
-    // connection second, and the email should open on the connection.
+  it('opens on the hook wherever it ranked', () => {
+    // The Sacred Heart case: the roster count ranks first and the region
+    // connection second, and the email opens on the connection.
     const p = plan(['POSITION_GRADUATION', 'HISTORICAL_SAME_REGION'], 'RELATIONSHIP_FIRST');
     expect(p.hook.kind).toBe('HISTORICAL_SAME_REGION');
     expect(p.relevance.map((e) => e.kind)).toEqual(['POSITION_GRADUATION']);
   });
 
-  it('takes the highest-ranked lead when there is more than one', () => {
+  it('takes the highest-ranked hook when there is more than one', () => {
     const p = plan(['HISTORICAL_SAME_COUNTRY', 'CURRENT_SAME_COUNTRY'], 'RELATIONSHIP_FIRST');
     expect(p.hook.kind).toBe('HISTORICAL_SAME_COUNTRY');
   });
 
-  it('has no hook in the player-first flow', () => {
+  it('has no hook in the player-first flow, and does not waste the claim', () => {
+    // The hook still has something to say; it says it after the introduction.
     const p = plan(['HISTORICAL_SAME_COUNTRY', 'POSITION_GRADUATION'], 'PLAYER_FIRST');
     expect(p.hook).toBeNull();
-    expect(p.relevance.map((e) => e.kind))
-      .toEqual(['HISTORICAL_SAME_COUNTRY', 'POSITION_GRADUATION']);
+    expect(p.relevance.map((e) => e.kind)).toEqual(['HISTORICAL_SAME_COUNTRY']);
   });
 
   it('pulls a congratulation out of the reasoning, wherever it ranked', () => {
@@ -790,8 +910,7 @@ describe('placement, which is separate from ranking', () => {
     expect(p.recognition.map((e) => e.kind)).toEqual(['CONFERENCE_TITLE']);
     expect(p.relevance.map((e) => e.kind)).toEqual(['POSITION_GRADUATION']);
     // ...and never as the hook, however highly it ranked.
-    const q = plan(['CONFERENCE_TITLE'], 'RELATIONSHIP_FIRST');
-    expect(q.hook).toBeNull();
+    expect(plan(['CONFERENCE_TITLE'], 'RELATIONSHIP_FIRST').hook).toBeNull();
   });
 
   it('never shows two congratulations', () => {
@@ -799,57 +918,12 @@ describe('placement, which is separate from ranking', () => {
     // congratulations in one email is bad enough to refuse here as well.
     const p = plan(['CONFERENCE_TITLE', 'POSTSEASON_RESULT'], 'PLAYER_FIRST');
     expect(p.recognition).toHaveLength(1);
-    expect(p.held.map((e) => e.kind)).toContain('POSTSEASON_RESULT');
   });
 
-  it('holds back what will not fit rather than crowding the paragraph', () => {
-    const p = plan(
-      ['HISTORICAL_SAME_COUNTRY', 'POSITION_GRADUATION', 'ACADEMIC_FIT', 'SQUAD_GRADUATION'],
-      'RELATIONSHIP_FIRST',
-    );
-    expect(p.hook.kind).toBe('HISTORICAL_SAME_COUNTRY');
-    expect(p.relevance).toHaveLength(2);
-    expect(p.held.map((e) => e.kind)).toEqual(['SQUAD_GRADUATION']);
-  });
-
-  it('keeps selection order inside each block', () => {
+  it('keeps role order inside the body', () => {
     const p = plan(['POSITION_GRADUATION', 'ACADEMIC_FIT'], 'PLAYER_FIRST');
-    expect(p.relevance.map((e) => e.kind)).toEqual(['POSITION_GRADUATION', 'ACADEMIC_FIT']);
+    expect(p.relevance.map((e) => e.kind)).toEqual(['POSITION_GRADUATION']);
+    expect(p.held.map((e) => e.kind)).toEqual(['ACADEMIC_FIT']);
   });
 });
 
-describe('a SUPPORT_ONLY kind never carries the opening reasoning', () => {
-  const plan = (kinds, flow) => planPlacement(
-    kinds.map((k) => ({ kind: k, tier: EVIDENCE_KINDS[k].tier })), flow,
-  );
-
-  /**
-   * At Elon the academic match outranked the graduating defender and opened
-   * the relevance paragraph with "I noticed you offer Kinesiology, so it lines
-   * up with what Rhys wants to study" — true, and not a reason to have written
-   * to a soccer coach.
-   */
-  it('puts a contextual item in front of it', () => {
-    const p = plan(['ACADEMIC_FIT', 'POSITION_GRADUATION'], 'PLAYER_FIRST');
-    expect(p.relevance.map((e) => e.kind)).toEqual(['POSITION_GRADUATION', 'ACADEMIC_FIT']);
-  });
-
-  it('leaves a natural lead alone, which is better at it still', () => {
-    const p = plan(['HISTORICAL_SAME_COUNTRY', 'POSITION_GRADUATION'], 'PLAYER_FIRST');
-    expect(p.relevance.map((e) => e.kind))
-      .toEqual(['HISTORICAL_SAME_COUNTRY', 'POSITION_GRADUATION']);
-  });
-
-  it('still leads with support evidence when it is all there is', () => {
-    // Saying the one thing we know beats saying nothing.
-    const p = plan(['ACADEMIC_FIT'], 'PLAYER_FIRST');
-    expect(p.relevance.map((e) => e.kind)).toEqual(['ACADEMIC_FIT']);
-  });
-
-  it('does not reorder inside the hook flow, where the hook carries it', () => {
-    const p = plan(['ACADEMIC_FIT', 'HISTORICAL_SAME_COUNTRY', 'POSITION_GRADUATION'],
-      'RELATIONSHIP_FIRST');
-    expect(p.hook.kind).toBe('HISTORICAL_SAME_COUNTRY');
-    expect(p.relevance.map((e) => e.kind)).toEqual(['ACADEMIC_FIT', 'POSITION_GRADUATION']);
-  });
-});

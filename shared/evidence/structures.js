@@ -12,10 +12,10 @@
  *
  * The five — INTERNATIONAL_CONNECTION, ACADEMIC_FIT, ROSTER_OPPORTUNITY,
  * EVIDENCE_FIRST, PLAYER_FIRST — were distinguished by which evidence opened
- * the email. Once `leadSuitability` decided that a roster count, a programme
- * record and an academic match all read badly as the first line to a stranger,
- * three of them collapsed onto the same shape: introduce the athlete, then
- * explain what made this programme worth writing to.
+ * the email. Once it was settled that a roster count, a programme record and
+ * an academic match all read badly as the first line to a stranger, three of
+ * them collapsed onto the same shape: introduce the athlete, then explain what
+ * made this programme worth writing to.
  *
  * What remains is the one distinction that carries meaning:
  *
@@ -26,17 +26,20 @@
  * variety's sake; artificial variety is what the old set had become.
  *
  * ---------------------------------------------------------------------------
- * SELECTION AND PRESENTATION ARE SEPARATE.
+ * WHAT MAY OPEN AN EMAIL IS NOT DECIDED HERE.
  *
- * Selection answers "what is worth mentioning" and is untouched by this file.
- * Placement answers "what is the most natural way to say it". So a
- * second-ranked NATURAL_LEAD moves ahead of a first-ranked CONTEXTUAL item for
- * PRESENTATION, while the selection order — and therefore `primary_kind` in
- * the log — stays exactly as ranked. Both are recorded; neither is rewritten
- * to match the other.
+ * A claim opens cold if and only if its ROLE is HOOK, and roles come from
+ * `outreachEvidenceFor`. This file had a second answer to that question until
+ * H4 — `leadSuitability`, a three-valued property on every kind, read through
+ * a `canOpenCold` predicate. The two agreed for all 26 kinds, but only one of
+ * them was reachable: production has supplied `roles` since G4, so the
+ * predicate had been answering nobody for two stages while still looking like
+ * policy. Agreement maintained by nothing is a coincidence with a deadline.
+ *
+ * Selection answers "what is worth mentioning" and is untouched here.
+ * Placement answers "in what order, in which block" — and takes the roles as
+ * given.
  */
-
-import { LEAD_SUITABILITY, kindSpec } from './kinds.js';
 
 /**
  * The blocks a flow can order.
@@ -68,20 +71,7 @@ export const EVIDENCE_BLOCKS = Object.freeze([
 /**
  * How many observations may be gathered into the relevance paragraph beyond
  * the sentence that opens it.
- *
- * Two. Three reads as a list however well each is written — "I also noticed
- * you offer Kinesiology, and you've got one defender graduating, and you've
- * got a pretty international squad" is the sentence this prevents.
  */
-export const MAX_GATHERED = 2;
-
-const suitability = (ev) => kindSpec(ev.kind).leadSuitability;
-const isRecognitionKind = (ev) => Boolean(kindSpec(ev.kind).recognition);
-
-/** Evidence that can open an email cold, before the athlete is introduced. */
-export function canOpenCold(ev) {
-  return suitability(ev) === LEAD_SUITABILITY.NATURAL_LEAD && !isRecognitionKind(ev);
-}
 
 export const FLOWS = Object.freeze({
   /**
@@ -106,14 +96,14 @@ export const FLOWS = Object.freeze({
     /**
      * A HOOK, and nothing else, decides this.
      *
-     * Roles come from `outreachEvidenceFor`, which has already asked whether
-     * a claim may open cold — that is what HOOK means. Re-deriving it from
-     * `leadSuitability` here would be a second lead policy answering the same
-     * question, and the two would eventually disagree.
+     * Roles come from `outreachEvidenceFor`, which has already asked whether a
+     * claim may open cold — that is what HOOK means. There is no fallback:
+     * a selection that arrives without roles gets PLAYER_FIRST, because the
+     * absence of role data is not evidence of a relationship. Re-deriving one
+     * from kind metadata is how the second lead policy got here in the first
+     * place.
      */
-    eligible: (sel) => (sel.roles
-      ? sel.roles.hooks.length > 0
-      : sel.selected.some(canOpenCold)),
+    eligible: (sel) => (sel?.roles?.hooks?.length ?? 0) > 0,
   },
 
   /**
@@ -168,78 +158,14 @@ export function eligibleFlows(selection) {
 }
 
 /**
- * Which piece of evidence goes where.
+ * Placement from ROLES — the only placement there is.
  *
- * Order within each block follows SELECTION order, so the ranking is visible
- * in the email wherever placement does not override it. The only reordering is
- * the one placement exists to do: lifting a NATURAL_LEAD to the hook, and
- * lifting a congratulation out of the prose.
- *
- * `held` is evidence that was selected and is deliberately not displayed. The
- * email does not have to carry everything worth logging, and a fourth
- * observation is where a note becomes a report.
- */
-export function planPlacement(selected = [], flowKey = 'PLAYER_FIRST') {
-  const queue = [...selected];
-
-  // Congratulations come out first, wherever they ranked. They are their own
-  // sentence and never part of the reasoning.
-  const recognition = queue.filter(isRecognitionKind);
-  const rest = queue.filter((ev) => !isRecognitionKind(ev));
-
-  // The hook, only in the flow that has one. `find` takes the highest-ranked
-  // NATURAL_LEAD, so among equals the ranking still decides.
-  const hook = flowKey === 'RELATIONSHIP_FIRST' ? rest.find(canOpenCold) ?? null : null;
-  const remaining = rest.filter((ev) => ev !== hook);
-
-  /**
-   * The relevance paragraph.
-   *
-   * With a hook, the reasoning has already been given, so this paragraph is
-   * gathered clauses only. Without one, its first item carries the reasoning
-   * and the rest are gathered behind it — so a hookless email still explains
-   * itself, just after the introduction instead of before it.
-   */
-  const capacity = hook ? MAX_GATHERED : MAX_GATHERED + 1;
-  const chosen = remaining.slice(0, capacity);
-
-  /**
-   * Without a hook, the FIRST relevance item carries the reasoning — so it is
-   * the sentence that explains why we wrote, and a SUPPORT_ONLY kind must not
-   * be the one doing it. At Elon the academic match outranked the graduating
-   * defender and opened with "I noticed you offer Kinesiology, so it lines up
-   * with what Rhys wants to study", which is not a reason to have written to a
-   * soccer coach.
-   *
-   * Presentation only, and only within what was already selected: the
-   * strongest CONTEXTUAL item moves in front of the SUPPORT_ONLY ones, and
-   * everything keeps its relative order otherwise. With no CONTEXTUAL item
-   * available the support evidence still leads, because saying the one thing
-   * we know beats saying nothing.
-   */
-  const relevance = hook ? chosen : leadWithContextual(chosen);
-
-  // One congratulation. CONFERENCE_TITLE and POSTSEASON_RESULT share a dedupe
-  // group so selection already prevents both, but two congratulations in one
-  // email is bad enough to be worth refusing here as well.
-  const shownRecognition = recognition.slice(0, 1);
-
-  return {
-    hook,
-    relevance,
-    recognition: shownRecognition,
-    held: [...remaining.slice(capacity), ...recognition.slice(1)],
-  };
-}
-
-/**
- * Placement from ROLES, which is what outbound composition now uses.
- *
- * `planPlacement` above infers a hook from `leadSuitability` and a
- * congratulation from a registry flag, because it was written before roles
- * existed. This takes them as given: `outreachEvidenceFor` has already decided
- * what may open cold, what may only follow the introduction, and what is a
- * congratulation, under a licence and a qualification rule per kind.
+ * There was a second one, `planPlacement`, written before roles existed: it
+ * inferred a hook from `leadSuitability` and a congratulation from a registry
+ * flag, and by G4 nothing called it. This takes the roles as given.
+ * `outreachEvidenceFor` has already decided what may open cold, what may only
+ * follow the introduction, and what is a congratulation, under a licence and a
+ * qualification rule per kind.
  *
  * ---------------------------------------------------------------------------
  * ONE HOOK, ONE RELEVANCE, ONE RECOGNITION. SELECTED IS NOT RENDERED.
@@ -291,21 +217,6 @@ export function planFromRoles(roles, byKind, flowKey = 'PLAYER_FIRST') {
     itemOf: new Map([...roles.hooks, ...roles.relevance, ...roles.recognition]
       .map((i) => [i.kind, i])),
   };
-}
-
-/**
- * Moves a CONTEXTUAL item in front of a SUPPORT_ONLY one, order otherwise
- * intact.
- *
- * Only when the first item is SUPPORT_ONLY. A NATURAL_LEAD at the front is
- * left exactly where it is — it is the best thing available at carrying a
- * reason, and displacing it would be the same mistake in reverse.
- */
-function leadWithContextual(items) {
-  if (!items.length || suitability(items[0]) !== LEAD_SUITABILITY.SUPPORT_ONLY) return items;
-  const i = items.findIndex((ev) => suitability(ev) === LEAD_SUITABILITY.CONTEXTUAL);
-  if (i <= 0) return items;
-  return [items[i], ...items.filter((_, n) => n !== i)];
 }
 
 function describe(key, eligible, source) {

@@ -57,36 +57,6 @@ export const TEMPORALITY = Object.freeze({
 });
 
 /**
- * How well a kind works as the FIRST line of an email to a stranger.
- *
- * A PRESENTATION property, deliberately separate from strength, confidence,
- * tier and priority — "strong evidence" and "good opening sentence" are not
- * the same judgement, and treating them as one is what produced
- *
- *   "I noticed you've got three defenders graduating in 2027, so I thought
- *    Ryan could be worth putting on your radar."
- *
- * as the opening line to a coach who does not yet know who Ryan is. The
- * evidence is good. Its placement was wrong.
- *
- * The test each classification below is answered against: can this sentence
- * stand as the first thing a stranger reads, before the athlete exists in
- * their mind? A useful tell is that several kinds NAME THE ATHLETE in their
- * reasoning, which is only coherent after the introduction.
- *
- * Nothing here affects what is selected or in what order. Selection asks what
- * is worth mentioning; this asks where it reads best.
- */
-export const LEAD_SUITABILITY = Object.freeze({
-  /** Explains why we wrote to THIS coach, needing no knowledge of the athlete. */
-  NATURAL_LEAD: 'NATURAL_LEAD',
-  /** Real evidence, but it lands after the athlete has been introduced. */
-  CONTEXTUAL: 'CONTEXTUAL',
-  /** Supports an argument someone else opened; never carries one alone. */
-  SUPPORT_ONLY: 'SUPPORT_ONLY',
-});
-
-/**
  * What a piece of evidence is FOR, when the question is whether this athlete
  * should go to this programme.
  *
@@ -288,7 +258,6 @@ export function confidenceAtLeast(actual, minimum) {
 export const EVIDENCE_KINDS = Object.freeze({
   // --- international connection -------------------------------------------
   HISTORICAL_SAME_COUNTRY: {
-    leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.HISTORICAL,
     category: 'international',
@@ -304,7 +273,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED, OUTREACH: PERMISSION.ALLOWED },
   },
   CURRENT_SAME_COUNTRY: {
-    leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.CURRENT,
     category: 'international',
@@ -342,7 +310,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     permissions: { MATCHING_SUMMARY: PERMISSION.DENIED, OUTREACH: PERMISSION.ALLOWED },
   },
   HISTORICAL_SAME_REGION: {
-    leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.HISTORICAL,
     category: 'international',
@@ -359,7 +326,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     permissions: { OUTREACH: PERMISSION.QUALIFIED },
   },
   INTERNATIONAL_ROSTER: {
-    leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.CURRENT,
     category: 'international',
@@ -411,7 +377,6 @@ export const EVIDENCE_KINDS = Object.freeze({
    * programme history behind them and no record of their own.
    */
   COACH_ARRIVAL_SAME_COUNTRY: {
-    leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.HISTORICAL,
     category: 'international',
@@ -429,7 +394,6 @@ export const EVIDENCE_KINDS = Object.freeze({
 
   /** An arrival from the athlete's country, at the athlete's position. */
   ARRIVAL_SAME_COUNTRY_POSITION: {
-    leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.HISTORICAL,
     category: 'international',
@@ -453,7 +417,6 @@ export const EVIDENCE_KINDS = Object.freeze({
    * claim on a coach's attention than a compatriot.
    */
   ARRIVAL_SAME_REGION_POSITION: {
-    leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.HISTORICAL,
     category: 'international',
@@ -473,7 +436,6 @@ export const EVIDENCE_KINDS = Object.freeze({
   // roster, which is a judgement about our own scrape rather than a fact about
   // the programme.
   INTERNATIONAL_SHARE: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.SIGNAL,
     temporality: TEMPORALITY.CURRENT,
     category: 'international',
@@ -489,7 +451,6 @@ export const EVIDENCE_KINDS = Object.freeze({
 
   // --- roster opportunity --------------------------------------------------
   POSITION_GRADUATION: {
-    leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.CURRENT,
     category: 'roster',
@@ -506,7 +467,6 @@ export const EVIDENCE_KINDS = Object.freeze({
   // which of them was a starter in a season that has not been played is a
   // projection carried forward from an earlier one.
   POSITION_GRADUATION_STARTERS: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.SIGNAL,
     temporality: TEMPORALITY.PROJECTED,
     category: 'roster',
@@ -520,7 +480,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     permissions: { OUTREACH: PERMISSION.DENIED },
   },
   SQUAD_GRADUATION: {
-    leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.CURRENT,
     category: 'roster',
@@ -539,7 +498,6 @@ export const EVIDENCE_KINDS = Object.freeze({
   // to a coach as a reason to sign a twelfth. Where the group IS thin,
   // POSITION_GROUP_SCARCITY says so in the form that means something.
   POSITION_GROUP_SIZE: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.CURRENT,
     category: 'roster',
@@ -553,7 +511,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     permissions: { OUTREACH: PERMISSION.DENIED },
   },
   POSITION_GROUP_SCARCITY: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.SIGNAL,
     temporality: TEMPORALITY.CURRENT,
     category: 'roster',
@@ -569,7 +526,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED, OUTREACH: PERMISSION.DENIED },
   },
   RETURNING_POSITION_DEPTH: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.SIGNAL,
     temporality: TEMPORALITY.PROJECTED,
     category: 'roster',
@@ -583,7 +539,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     permissions: { OUTREACH: PERMISSION.DENIED },
   },
   ELIGIBILITY_CLIFF: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.SIGNAL,
     temporality: TEMPORALITY.PROJECTED,
     category: 'roster',
@@ -599,7 +554,6 @@ export const EVIDENCE_KINDS = Object.freeze({
 
   // --- programme record ----------------------------------------------------
   CONFERENCE_TITLE: {
-    leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
     // Composition metadata, orthogonal to suitability: a congratulation is
     // its own sentence wherever it lands and is never gathered into another
     // clause. Placed late, after the relevance reasoning, where it reads as
@@ -618,7 +572,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     permissions: { OUTREACH: PERMISSION.QUALIFIED },
   },
   POSTSEASON_RESULT: {
-    leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
     // Composition metadata, orthogonal to suitability: a congratulation is
     // its own sentence wherever it lands and is never gathered into another
     // clause. Placed late, after the relevance reasoning, where it reads as
@@ -637,7 +590,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     permissions: { OUTREACH: PERMISSION.QUALIFIED },
   },
   PROGRAM_MOMENTUM: {
-    leadSuitability: LEAD_SUITABILITY.CONTEXTUAL,
     tier: TIERS.SIGNAL,
     temporality: TEMPORALITY.STATIC,
     category: 'performance',
@@ -653,7 +605,6 @@ export const EVIDENCE_KINDS = Object.freeze({
 
   // --- people and academics ------------------------------------------------
   COACH_CONTEXT: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.SIGNAL,
     temporality: TEMPORALITY.STATIC,
     category: 'coach',
@@ -681,7 +632,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     permissions: { OUTREACH: PERMISSION.DENIED },
   },
   ACADEMIC_FIT: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.STATIC,
     category: 'academic',
@@ -709,13 +659,12 @@ export const EVIDENCE_KINDS = Object.freeze({
    * cannot reach an email, because `outreachEvidenceFor` asks the registry
    * before composition ever sees it.
    *
-   * `leadSuitability` is inert while that flag is false — structures.js only
-   * ever reads it for SELECTED evidence — and is set to the most conservative
-   * value so that promoting the kind later is a deliberate decision rather than
-   * an accident of what was already written here.
+   * It carries no outbound role either. A role is what licenses a claim to
+   * open, follow or congratulate, and this kind has none — so promoting it
+   * later means writing one down, which is the deliberate decision this entry
+   * exists to keep deliberate.
    */
   POSITION_INTAKE_HISTORY: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.HISTORICAL,
     category: 'internal',
@@ -736,7 +685,6 @@ export const EVIDENCE_KINDS = Object.freeze({
   // Generated, ranked and logged like everything else so that it is available
   // the day we can measure it, but never rendered into an email.
   TRANSFER_BEHAVIOUR: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.SIGNAL,
     temporality: TEMPORALITY.CURRENT,
     category: 'internal',
@@ -782,7 +730,6 @@ export const EVIDENCE_KINDS = Object.freeze({
    * reader may be shown is the measurement it was derived from.
    */
   PROGRAMME_DEVELOPMENT_PATTERN: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.SIGNAL,
     temporality: TEMPORALITY.HISTORICAL,
     category: 'development',
@@ -807,7 +754,6 @@ export const EVIDENCE_KINDS = Object.freeze({
    * the reason that reading is wrong.
    */
   FRESHMAN_MINUTES_LADDER: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.HISTORICAL,
     category: 'development',
@@ -837,7 +783,6 @@ export const EVIDENCE_KINDS = Object.freeze({
    * ladder was not taken over.
    */
   ATHLETE_COHORT_LADDER: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.HISTORICAL,
     category: 'development',
@@ -862,7 +807,6 @@ export const EVIDENCE_KINDS = Object.freeze({
    * a claim until the pool is named.
    */
   PROGRAMME_POOL_BENCHMARK: {
-    leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.HISTORICAL,
     category: 'development',

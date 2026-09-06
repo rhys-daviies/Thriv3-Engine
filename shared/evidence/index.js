@@ -33,7 +33,7 @@ export {
 } from './select.js';
 export {
   chooseStructure, resolveStructure, FLOWS, FLOW_KEYS, BLOCKS, EVIDENCE_BLOCKS,
-  eligibleFlows, planPlacement, canOpenCold, MAX_GATHERED, LEGACY_STRUCTURE_KEYS,
+  eligibleFlows, LEGACY_STRUCTURE_KEYS,
   STRUCTURES, STRUCTURE_KEYS, eligibleStructures,
 } from './structures.js';
 export { composeOutreach, outreachSlots, structuredTemplate } from '../email/compose.js';
@@ -43,7 +43,7 @@ export {
 } from './render.js';
 export {
   EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, TIERS, CONFIDENCE, defineEvidence, kindSpec, isFact, isSignal,
-  KIND_LABELS, kindLabel, TEMPORALITY, FRESHNESS_SENSITIVE, LEAD_SUITABILITY,
+  KIND_LABELS, kindLabel, TEMPORALITY, FRESHNESS_SENSITIVE,
   assertSurfaceRenderable, COMPARISON_BANDS, COMPARISON_BAND_KEYS,
   DECISION_CLASS, DECISION_CLASS_KEYS, POLARITY, POLARITY_KEYS,
 } from './kinds.js';

@@ -196,14 +196,16 @@ export function meetsConfidence(ev) {
  * It read `kindSpec(ev.kind).canLead`, which NO KIND DECLARES — so the
  * predicate was always true and the reordering was an identity function. Its
  * comment described a five-structure architecture that `structures.js` reduced
- * to two, and the concept it implemented had already been replaced by
- * `leadSuitability` + `canOpenCold`, where the decision genuinely lives and is
- * tested (see multiEvidence.test.js, "lead suitability decides what may open
- * an email").
+ * to two.
+ *
+ * That concept was replaced by `leadSuitability`, and H4 replaced THAT with
+ * the outbound role: a claim opens an email if and only if its role is HOOK,
+ * decided once in `outreachEvidenceFor`. Tested in multiEvidence.test.js,
+ * "what may open an email cold".
  *
  * Removed rather than left because the file a reader opens first should not
  * describe a policy it does not enforce. There must be ONE lead vocabulary;
- * this was the third.
+ * this was the third, and there have been two since.
  */
 
 /** How each generated piece ended up. One value per kind, for panel and log. */
@@ -305,8 +307,8 @@ export function fillSlots(ranked, { maxEmail = MAX_EMAIL_EVIDENCE } = {}) {
   }
 
   // In ranking order. Placement — which of these opens the email, and which
-  // paragraph each lands in — belongs to `structures.js`, which reads
-  // `leadSuitability`. Selection says what is worth saying and stops there.
+  // paragraph each lands in — belongs to `structures.js`, which reads the
+  // outbound ROLES. Selection says what is worth saying and stops there.
   return { selected, belowThreshold, familyLimited, spare };
 }
 
