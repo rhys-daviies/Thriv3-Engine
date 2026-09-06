@@ -39,6 +39,7 @@
     "outreach-qa": "node server/scripts/outreachQA.js",
     "panel-baseline": "vitest run src/components/panelBaseline.test.js --reporter=verbose",
     "test:reports": "vitest run server/scripts/reports.test.js --reporter=verbose",
+    "test:operations": "vitest run server/scripts/operations.test.js --reporter=verbose",
     "roster-sources": "node server/scripts/rosterSourceAudit.js"
   },
   "dependencies": {

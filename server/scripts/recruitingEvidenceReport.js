@@ -176,11 +176,18 @@ function distribution(athlete) {
         examples.push({ programme: name, text: renderEvidence(found), count: found.data.count });
       }
     }
-    // What the new evidence pushed aside, which is the number that says whether
-    // the hierarchy is doing anything.
-    for (const s of ev.suppressed) {
-      if (!NEW_KINDS.includes(s.suppressedBy)) continue;
-      const key = `${s.suppressedBy} > ${s.kind}`;
+    /**
+     * What the new evidence pushed aside, which is the number that says
+     * whether the hierarchy is doing anything.
+     *
+     * Read `ev.suppressed` until H14 — a field H7 deleted with the legacy
+     * selector — so this mode threw on the first programme and nobody found
+     * out, because `reports.test.js` runs the command's DEFAULT invocation and
+     * this is behind `--distribution`. The third script to break the same way.
+     */
+    for (const d of ev.dispositions ?? []) {
+      if (d.disposition !== 'DEDUPED' || !NEW_KINDS.includes(d.supersededBy)) continue;
+      const key = `${d.supersededBy} > ${d.kind}`;
       supersedes.set(key, (supersedes.get(key) ?? 0) + 1);
     }
   }
