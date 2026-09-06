@@ -317,6 +317,52 @@ function close(row, reason, at) {
   return { ...getCampaign(row.id), changed: true };
 }
 
+/**
+ * The operator-authored fields of an existing campaign: its name and its
+ * service boundaries. Nothing else.
+ *
+ * IT VALIDATES THE MERGED RESULT, not the incoming fields. A campaign running
+ * 1 September to 7 October, patched with `starts_on: 2026-10-10` alone, is a
+ * perfectly well-formed field and an impossible campaign — so the current row
+ * is read, the change applied on top, and the whole set put through the same
+ * rule creation uses. There is one date rule and this is not a second copy of it.
+ *
+ * Deliberately CANNOT change state: lifecycle goes through
+ * `setCampaignState` and its transition table, so a detail edit can never
+ * activate or close anything. Nor can it reach the snapshot — `athlete_id`,
+ * `sport`, `source_analysis_ref`, `snapshot_taken_at`, `matching_inputs` and
+ * `programme_count` are absent from the update by construction rather than by
+ * a filter somebody has to maintain.
+ *
+ * `undefined` leaves a field alone; an explicit `null` clears an end date,
+ * which is how an open-ended campaign is expressed. Those are different
+ * requests and the distinction is deliberate.
+ */
+export function updateCampaignDetails(id, changes = {}, { at = utcNow() } = {}) {
+  const row = requireCampaign(id);
+
+  const next = {
+    label: 'label' in changes
+      ? (typeof changes.label === 'string' && changes.label.trim() ? changes.label.trim() : null)
+      : row.label,
+    starts_on: 'starts_on' in changes && changes.starts_on != null ? changes.starts_on : row.starts_on,
+    outreach_ends_on: 'outreach_ends_on' in changes ? changes.outreach_ends_on : row.outreach_ends_on,
+    ends_on: 'ends_on' in changes ? changes.ends_on : row.ends_on,
+  };
+
+  // Throws before anything is written, so a refused edit leaves the campaign
+  // exactly as it was.
+  const dates = validateCampaignDates(next);
+
+  db.prepare(`
+    UPDATE campaigns
+    SET label = ?, starts_on = ?, outreach_ends_on = ?, ends_on = ?, updated_at = ?
+    WHERE id = ?
+  `).run(next.label, dates.starts_on, dates.outreach_ends_on, dates.ends_on, at, id);
+
+  return { ...getCampaign(id), changed: true };
+}
+
 export function activateCampaign(id, opts = {}) {
   return setCampaignState(id, 'active', opts);
 }
@@ -747,6 +793,36 @@ function validDate(value, field) {
 }
 
 /**
+ * THE DATE RULE, in one place, for creation and for every later edit.
+ *
+ * It validates a COMPLETE set rather than the fields somebody happens to be
+ * changing. That distinction is the whole reason it is a function: a PATCH
+ * moving `starts_on` to October on a campaign whose `ends_on` is already
+ * September is a valid field and an impossible campaign, and a route checking
+ * only what it received would accept it.
+ *
+ * `starts_on` is required; the two ends are optional and null means open.
+ * Comparison is lexicographic, which is exact for YYYY-MM-DD and involves no
+ * timezone, no clock and no locale.
+ */
+export function validateCampaignDates({ starts_on: startsOn, outreach_ends_on: outreachEndsOn = null, ends_on: endsOn = null }) {
+  const starts = validDate(startsOn, 'starts_on');
+  const outreachEnds = outreachEndsOn == null ? null : validDate(outreachEndsOn, 'outreach_ends_on');
+  const ends = endsOn == null ? null : validDate(endsOn, 'ends_on');
+
+  if (outreachEnds && outreachEnds < starts) {
+    throw fail('INVALID_DATE_ORDER', `outreach_ends_on (${outreachEnds}) is before starts_on (${starts})`);
+  }
+  if (ends && ends < starts) {
+    throw fail('INVALID_DATE_ORDER', `ends_on (${ends}) is before starts_on (${starts})`);
+  }
+  if (ends && outreachEnds && ends < outreachEnds) {
+    throw fail('INVALID_DATE_ORDER', `ends_on (${ends}) is before outreach_ends_on (${outreachEnds})`);
+  }
+  return { starts_on: starts, outreach_ends_on: outreachEnds, ends_on: ends };
+}
+
+/**
  * CREATE A CAMPAIGN BY FREEZING THE ATHLETE'S CURRENT STORED ANALYSIS.
  *
  * This is the moment a mutable pointer becomes a durable record. Everything it
@@ -796,20 +872,12 @@ export function createCampaign(athleteId, {
   const sport = athlete.sport || 'mens-soccer';
   const programmes = freezeRecommendations({ analysis, sport, at });
 
-  const starts = validDate(startsOn ?? at.slice(0, 10), 'starts_on');
-  const outreachEnds = outreachEndsOn == null ? null : validDate(outreachEndsOn, 'outreach_ends_on');
-  const ends = endsOn == null ? null : validDate(endsOn, 'ends_on');
-
-  // Lexicographic comparison is exact for YYYY-MM-DD and involves no timezone.
-  if (outreachEnds && outreachEnds < starts) {
-    throw fail('INVALID_DATE_ORDER', `outreach_ends_on (${outreachEnds}) is before starts_on (${starts})`);
-  }
-  if (ends && ends < starts) {
-    throw fail('INVALID_DATE_ORDER', `ends_on (${ends}) is before starts_on (${starts})`);
-  }
-  if (ends && outreachEnds && ends < outreachEnds) {
-    throw fail('INVALID_DATE_ORDER', `ends_on (${ends}) is before outreach_ends_on (${outreachEnds})`);
-  }
+  const { starts_on: starts, outreach_ends_on: outreachEnds, ends_on: ends } =
+    validateCampaignDates({
+      starts_on: startsOn ?? at.slice(0, 10),
+      outreach_ends_on: outreachEndsOn,
+      ends_on: endsOn,
+    });
 
   const campaign = {
     id: randomUUID(),

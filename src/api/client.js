@@ -92,6 +92,81 @@ export const outreach = {
 };
 
 /**
+ * Finite recruiting campaigns around an athlete's Top 100.
+ *
+ * A purpose-built namespace rather than an `entities` table, and the
+ * difference is the point: `entities` is unvalidated pass-through CRUD, and a
+ * campaign's rank, score, provenance and programme rows are a SNAPSHOT that
+ * nothing may rewrite. The server refuses any field outside the small
+ * operator-authored set — it answers 400 naming the field rather than
+ * silently dropping it — so sending more than these does not fail quietly.
+ *
+ * Note what `createForPlayer` does NOT send: the Top 100. The server reads the
+ * athlete's own stored analysis and freezes that, so a campaign records what
+ * the product actually ranked rather than whatever a long-open tab was
+ * holding — the same reasoning as the evidence endpoints, which take
+ * programme names and recompute every fact for themselves.
+ */
+export const campaigns = {
+  /**
+   * @param {object} [payload]  label, starts_on, outreach_ends_on, ends_on.
+   *   Dates are YYYY-MM-DD service boundaries, not timestamps.
+   * @returns {Promise<{campaign: object, programmes: object[]}>} a DRAFT
+   *   campaign; activating it is a separate, deliberate call to `update`.
+   */
+  createForPlayer(playerId, payload = {}) {
+    return request(`/api/players/${playerId}/campaigns`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /** Summaries only — no programme rows. Use `get` for the one being read. */
+  listForPlayer(playerId) {
+    return request(`/api/players/${playerId}/campaigns`);
+  },
+
+  /** The campaign and its programmes, in snapshotted rank order. */
+  get(campaignId) {
+    return request(`/api/campaigns/${campaignId}`);
+  },
+
+  /**
+   * ONE KIND OF CHANGE PER CALL. Either the details — `label`, `starts_on`,
+   * `outreach_ends_on`, `ends_on` in any combination — or a lifecycle move,
+   * `{ state: 'active' }` or `{ state: 'closed', close_reason: '...' }`.
+   * Mixing them is refused, because the two are separate operations server-side
+   * and a mixed request could half-apply.
+   *
+   * Dates are validated against the MERGED result, so moving `starts_on` past
+   * an existing `ends_on` is refused even though the field alone is valid.
+   */
+  update(campaignId, payload) {
+    return request(`/api/campaigns/${campaignId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /**
+   * One programme inside one campaign, addressed through its parent — the
+   * server checks the programme actually belongs to that campaign.
+   *
+   * Either a tier change — `{ tier: 'A' }`, or `{ tier_source: 'AUTO' }` to put
+   * it back where the rank bands had it — or a state change, `{ state: 'stopped',
+   * state_reason: 'not_recruiting' }`. `tier_source` is a request to restore and
+   * accepts only 'AUTO'; it becomes 'OPERATOR' by setting a tier and is never
+   * declared directly.
+   */
+  updateProgramme(campaignId, programmeCampaignId, payload) {
+    return request(`/api/campaigns/${campaignId}/programmes/${programmeCampaignId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+};
+
+/**
  * A response we want as bytes.
  *
  * Separate from `request()` on purpose: a function whose return type depends

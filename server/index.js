@@ -23,6 +23,7 @@ import { coachingImportPreview } from './routes/coachingImportPreview.js';
 import { coachingImportApply } from './routes/coachingImportApply.js';
 import { trackRouter } from './routes/track.js';
 import { uploadsRouter } from './routes/uploads.js';
+import { campaignsRouter } from './routes/campaigns.js';
 import { UPLOADS_DIR } from './lib/uploadPath.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
@@ -295,6 +296,14 @@ app.post('/api/functions/:name', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// ---- Campaigns ----
+//
+// A purpose-built router, deliberately NOT an entry in ENTITIES above: that
+// registry is unvalidated pass-through CRUD and would let a client rewrite a
+// snapshot's rank, score or provenance. Every mutation here goes through
+// server/lib/campaigns.js, which owns the invariants.
+app.use('/api', campaignsRouter);
 
 // ---- Uploads (UploadFile integration replacement) ----
 //

@@ -8,6 +8,7 @@ import {
   setCampaignState, activateCampaign, closeCampaign,
   setProgrammeCampaignState, startProgrammeCampaign, stopProgrammeCampaign, completeProgrammeCampaign,
   setProgrammeTier, restoreAutoTier,
+  updateCampaignDetails, validateCampaignDates,
 } from './campaigns.js';
 
 /**
@@ -561,6 +562,92 @@ describe('reads', () => {
 });
 
 // ---------------------------------------------------------------------------
+
+describe('editing a campaign\u2019s details', () => {
+  it('changes the label and the dates, and nothing else', () => {
+    const id = makeCampaign({ starts_on: '2026-09-01' });
+    const before = getCampaign(id);
+    const out = updateCampaignDetails(id, {
+      label: '  Autumn 2026  ', outreach_ends_on: '2026-09-30', ends_on: '2026-10-07',
+    }, { at: '2026-09-08T00:00:00.000Z' });
+
+    expect(out.label).toBe('Autumn 2026');
+    expect(out.outreach_ends_on).toBe('2026-09-30');
+    expect(out.ends_on).toBe('2026-10-07');
+    expect(out.updated_at).toBe('2026-09-08T00:00:00.000Z');
+    // The snapshot and the lifecycle are untouched.
+    expect([out.state, out.athlete_id, out.sport, out.source_analysis_ref,
+      out.snapshot_taken_at, out.programme_count, out.created_at])
+      .toEqual([before.state, before.athlete_id, before.sport, before.source_analysis_ref,
+        before.snapshot_taken_at, before.programme_count, before.created_at]);
+  });
+
+  /**
+   * The reason this is a data-layer function rather than a route check: the
+   * incoming field is valid and the resulting campaign is not.
+   */
+  it('validates the MERGED campaign, not the fields it was handed', () => {
+    const id = makeCampaign({ starts_on: '2026-09-01', outreach_ends_on: '2026-09-30', ends_on: '2026-10-07' });
+    expect(() => updateCampaignDetails(id, { starts_on: '2026-10-10' }))
+      .toThrow(expect.objectContaining({ code: 'INVALID_DATE_ORDER' }));
+    expect(() => updateCampaignDetails(id, { ends_on: '2026-09-15' }))
+      .toThrow(expect.objectContaining({ code: 'INVALID_DATE_ORDER' }));
+    // And a coherent move of all three is accepted.
+    expect(updateCampaignDetails(id, {
+      starts_on: '2026-11-01', outreach_ends_on: '2026-11-20', ends_on: '2026-12-01',
+    }).starts_on).toBe('2026-11-01');
+  });
+
+  it('writes nothing when the merged result is refused', () => {
+    const id = makeCampaign({ starts_on: '2026-09-01', ends_on: '2026-10-07' });
+    const before = getCampaign(id);
+    expect(() => updateCampaignDetails(id, { starts_on: '2026-11-01' })).toThrow();
+    expect(getCampaign(id)).toEqual(before);
+  });
+
+  it('treats an explicit null as clearing an end, and an absent field as leaving it', () => {
+    const id = makeCampaign({ starts_on: '2026-09-01', outreach_ends_on: '2026-09-30', ends_on: '2026-10-07' });
+    expect(updateCampaignDetails(id, { ends_on: null }).ends_on).toBeNull();
+    expect(getCampaign(id).outreach_ends_on).toBe('2026-09-30');
+    expect(updateCampaignDetails(id, { label: 'x' }).outreach_ends_on).toBe('2026-09-30');
+  });
+
+  it('refuses a date that is not a date', () => {
+    const id = makeCampaign();
+    expect(() => updateCampaignDetails(id, { starts_on: '2026-02-30' }))
+      .toThrow(expect.objectContaining({ code: 'INVALID_DATE' }));
+  });
+
+  it('refuses to act on a campaign that does not exist', () => {
+    expect(() => updateCampaignDetails('nope', { label: 'x' }))
+      .toThrow(expect.objectContaining({ code: 'CAMPAIGN_NOT_FOUND' }));
+  });
+
+  it('cannot reach state, by construction', () => {
+    const id = makeCampaign();
+    // `state` is simply not a field this function reads.
+    updateCampaignDetails(id, { label: 'x', state: 'active' });
+    expect(getCampaign(id).state).toBe('draft');
+  });
+});
+
+describe('validateCampaignDates', () => {
+  it('is the one rule creation and editing share', () => {
+    expect(validateCampaignDates({ starts_on: '2026-09-01' }))
+      .toEqual({ starts_on: '2026-09-01', outreach_ends_on: null, ends_on: null });
+    expect(() => validateCampaignDates({ starts_on: '2026-09-01', ends_on: '2026-08-01' }))
+      .toThrow(expect.objectContaining({ code: 'INVALID_DATE_ORDER' }));
+    expect(() => validateCampaignDates({ starts_on: '2026-13-01' }))
+      .toThrow(expect.objectContaining({ code: 'INVALID_DATE' }));
+  });
+
+  it('compares dates as dates, with no timezone anywhere', () => {
+    // Lexicographic on YYYY-MM-DD. No Date arithmetic, no local midnight.
+    expect(validateCampaignDates({
+      starts_on: '2026-09-01', outreach_ends_on: '2026-09-01', ends_on: '2026-09-01',
+    }).ends_on).toBe('2026-09-01');
+  });
+});
 
 describe('the boundary this module is', () => {
   it('exports the approved vocabularies and nothing wider', () => {
