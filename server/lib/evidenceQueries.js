@@ -19,8 +19,52 @@ import { SQUAD_SEASON, programmePhilosophy, playerFit } from '../../shared/philo
 import { selectEvidence, MAX_EMAIL_EVIDENCE } from '../../shared/evidence/index.js';
 import { buildRosterIndex, departures } from '../../shared/matching/pool.js';
 import { canonicalPosition } from '../../shared/positions.js';
+import { verifyRosterSource, canonicalHost } from '../../shared/evidence/sourceVerification.js';
 
 const selectCollege = db.prepare('SELECT * FROM colleges WHERE name = ? AND sport = ?');
+
+/**
+ * Hosts we would follow, and the institution each belongs to.
+ *
+ * Built ONCE per process. 918 rows, and resolving it per evidence object would
+ * mean a query for each of the ten thousand a composer batch produces —
+ * `athletics_domains` is small and static enough that reading it repeatedly
+ * would be the only expensive thing about provenance.
+ */
+let domainCache = null;
+function verifiedDomains() {
+  if (domainCache) return domainCache;
+  domainCache = new Map();
+  for (const d of db.prepare(`
+    SELECT domain, unitid FROM athletics_domains
+    WHERE status IN ('VERIFIED','VERIFIED_ALIAS') AND role = 'ATHLETICS_SITE'
+      AND confidence IN ('CERTAIN','CORROBORATED') AND unitid IS NOT NULL
+  `).all()) domainCache.set(canonicalHost(d.domain), d.unitid);
+  return domainCache;
+}
+
+/**
+ * The page an operator may open to check a current-roster claim, or null.
+ *
+ * Resolved once for the programme and handed to the context, so a generator
+ * asks a field rather than a database. `verifyRosterSource` owns the rule; this
+ * only supplies it with the three things it needs and the season the SQUAD
+ * rows came from — never a different one, because a 2026 claim linked to a
+ * 2025 page would show a squad that has since turned over.
+ */
+function rosterSourceFor(college, squad) {
+  const urls = [...new Set(squad.map((r) => r.source_roster_url).filter(Boolean))];
+  // More than one URL for one programme-season happens on 37 of 4,038 and
+  // there is no rule for choosing between them, so none is offered.
+  if (urls.length !== 1) return { status: urls.length ? 'AMBIGUOUS_SOURCE' : 'MISSING', url: null };
+  return verifyRosterSource({
+    url: urls[0],
+    unitid: college?.unitid ?? null,
+    season: SQUAD_SEASON,
+    urlSeason: squad[0]?.season ?? null,
+    verifiedDomains: verifiedDomains(),
+  });
+}
 
 /**
  * Has the calendar moved past the roster season we are pinned to?
@@ -106,6 +150,13 @@ export function programmeInputs(collegeName, sport, { match = null, now = Date.n
   }
 
   return {
+    /**
+     * The page an operator may open to check a current-roster claim, or null.
+     *
+     * One resolution per programme, handed to the generators as a field. See
+     * `rosterSourceFor`.
+     */
+    rosterSource: rosterSourceFor(college, squad),
     /**
      * Whether the name we were asked about is a programme we hold.
      *

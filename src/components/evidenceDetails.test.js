@@ -382,3 +382,51 @@ describe('every claim keeps its own provenance', () => {
     expect(t).toContain('Head coach: Ali Simmons');
   });
 });
+
+describe('the one link in the drawer', () => {
+  /**
+   * H12. Four kinds carry a roster page the server verified belongs to that
+   * programme; everything else carries none, and the drawer says nothing about
+   * the difference. An absent link is the normal state for a claim derived
+   * across seasons, not a gap to apologise for.
+   */
+  const URL_ = 'https://judolphins.com/sports/mens-soccer/roster/2026';
+  const withSource = (sourceUrl) => ({
+    qualification: {
+      source: 'roster_players', sourceUrl, season: '2026',
+      temporality: 'CURRENT', confidence: 'HIGH', window: null,
+    },
+  });
+  const html = (sourceUrl) => renderToStaticMarkup(
+    createElement(EvidenceDetails, { item: withSource(sourceUrl) }),
+  );
+
+  it('renders View source as a real link when the server supplied one', () => {
+    const out = html(URL_);
+    expect(out).toContain('Roster page');
+    expect(out).toContain('View source');
+    expect(out).toContain(`href="${URL_}"`);
+  });
+
+  it("follows the app's external-link convention", () => {
+    const out = html(URL_);
+    expect(out).toContain('target="_blank"');
+    expect(out).toContain('rel="noreferrer"');
+    // The same focus treatment the disclosure button above already uses, so a
+    // keyboard user meets one pattern rather than two.
+    expect(out).toContain('focus-visible:ring-2');
+  });
+
+  it('says nothing at all when there is no link', () => {
+    const out = html(null);
+    expect(out).toContain('Roster records');
+    expect(out).not.toContain('View source');
+    expect(out).not.toContain('href');
+    // No apology, no warning, no placeholder.
+    expect(out).not.toMatch(/unavailable|no source|not verified/i);
+  });
+
+  it('never calls the page proof', () => {
+    expect(html(URL_)).not.toMatch(/\bProof\b|Verified proof|Citation|Evidence confirms/i);
+  });
+});

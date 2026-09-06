@@ -77,13 +77,19 @@ describe('no link is offered, because none can be kept', () => {
     expect(operatorFactsFor(ev).qualification).toHaveProperty('sourceUrl');
   });
 
-  it('renders no link and implies none while the field is empty', () => {
+  it('offers a row to link only when the server supplied a URL', () => {
+    /**
+     * H12 gave four kinds a real page. The drawer builds a `href` row for
+     * those and prints plain values for everything else — so the absence of a
+     * link is silent, which is the normal state for a claim derived across
+     * seasons rather than something to apologise for.
+     */
     const ui = readFileSync(new URL('../../src/lib/evidenceProvenance.js', import.meta.url), 'utf8');
     const code = ui.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
-    // The drawer prints label/value rows. Nothing turns a value into an anchor.
-    expect(code).not.toContain('href');
-    expect(code).not.toContain('sourceUrl');
-    expect(code).not.toMatch(/View source|Open source|see source/i);
+    expect(code).toContain('if (q.sourceUrl)');
+    // And nothing invents one, or apologises for its absence.
+    expect(code).not.toMatch(/unavailable|no source|not verified/i);
+    expect(code).not.toMatch(/\bProof\b|Citation|Evidence confirms/i);
   });
 });
 

@@ -51,7 +51,31 @@ export default function EvidenceDetails({ item, label = 'Provenance' }) {
                   left "Roster records — projected minutes" wrapping to four
                   lines beside a mostly empty gutter. */}
               <dt className="w-28 shrink-0 text-muted-foreground sm:w-40">{row.label}</dt>
-              <dd className="text-muted-foreground">{row.value}</dd>
+              <dd className="text-muted-foreground">
+                {row.href ? (
+                  /**
+                   * The one link in the drawer, and only where the server
+                   * verified the page belongs to this programme.
+                   *
+                   * "View source", not "proof" — the page is the record the
+                   * claim was read from, and for a count that is the same
+                   * thing, but the word must not promise more than that.
+                   *
+                   * `target`/`rel` follow the app's existing external-link
+                   * pattern (CollegeCard, PublishCard) rather than inventing a
+                   * second one, and the focus ring is the same treatment the
+                   * disclosure button above already uses.
+                   */
+                  <a
+                    href={row.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-sm text-primary underline underline-offset-2 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {row.value}
+                  </a>
+                ) : row.value}
+              </dd>
             </div>
           ))}
         </dl>

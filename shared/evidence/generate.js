@@ -185,7 +185,7 @@ const rosterSeasons = (rows = []) => rows.map((r) => r.season);
 export function buildProgrammeContext({
   college = {}, match = null, squad = null, history = null,
   coachRows = null, sport = null, rosterUpdatedAt = null, seasonBehind = false,
-  recruiting = null,
+  recruiting = null, rosterSource = null,
   philosophy = null, benchmarks = null, fit = null,
   now = Date.now(),
 } = {}) {
@@ -241,6 +241,18 @@ export function buildProgrammeContext({
      * ATHLETE_COHORT_LADDER reads its window from — see shared/philosophy.js.
      */
     fit,
+    /**
+     * A page that shows this squad, or null — verified, once, by the caller.
+     *
+     * Only four kinds may cite it, and only because one current-season roster
+     * page shows what those four sentences say. See `DIRECTLY_VERIFIABLE_KINDS`
+     * for the argument, and for why the graduation kinds are not among them
+     * even though they read these same rows.
+     *
+     * Null for a caller with no database — a test fixture, the browser — which
+     * is the honest answer rather than a guessed link.
+     */
+    rosterSourceUrl: rosterSource?.status === 'VERIFIED_DIRECT' ? rosterSource.url : null,
     hasSquad: squadRows.length > 0,
     hasHistory: historyRows.length > 0,
     hasAnyRoster: allRows.length > 0,
@@ -318,6 +330,9 @@ export function currentSameCountry(athlete, ctx) {
 
   const players = distinctPlayers(rows);
   return defineEvidence('CURRENT_SAME_COUNTRY', {
+    // The roster page lists these players and their country. See
+    // `DIRECTLY_VERIFIABLE_KINDS`.
+    sourceUrl: ctx.rosterSourceUrl,
     strength: 82 + Math.min(6, players.length * 2),
     confidence: CONFIDENCE.HIGH,
     season: seasonSpan(rows),
@@ -384,6 +399,7 @@ export function internationalRoster(athlete, ctx) {
 
   const countries = [...new Set(rows.map(countryOf))].sort();
   return defineEvidence('INTERNATIONAL_ROSTER', {
+    sourceUrl: ctx.rosterSourceUrl,
     confidence: CONFIDENCE.HIGH,
     season: seasonSpan(ctx.squad),
     source: 'roster_players',
@@ -399,6 +415,9 @@ export function internationalShare(athlete, ctx) {
 
   const share = count / ctx.squadSize;
   return defineEvidence('INTERNATIONAL_SHARE', {
+    // Both numbers are countable on the page: the internationals, and the
+    // length of the list they are counted against.
+    sourceUrl: ctx.rosterSourceUrl,
     strength: 44 + Math.round(share * 20),
     confidence: CONFIDENCE.MEDIUM,
     season: seasonSpan(ctx.squad),
@@ -503,6 +522,7 @@ export function positionGroupSize(athlete, ctx) {
   if (!at.length) return null;
 
   return defineEvidence('POSITION_GROUP_SIZE', {
+    sourceUrl: ctx.rosterSourceUrl,
     confidence: CONFIDENCE.HIGH,
     season: seasonSpan(ctx.squad),
     source: 'roster_players',

@@ -26,7 +26,7 @@ const SEASON_LIST = SEASONS.map(() => '?').join(',');
 const ROSTER_COLUMNS = `college_name, sport, season, player_name, position, minutes_played,
   games_played, games_started, class_year_label, nationality, country, hometown,
   estimated_graduation_year, eligibility_end_year, projected_minutes, prior_programme,
-  updated_date`;
+  updated_date, source_roster_url`;
 
 const selectRoster = db.prepare(
   `SELECT ${ROSTER_COLUMNS} FROM roster_players

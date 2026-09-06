@@ -223,6 +223,19 @@ export function provenanceRows(item) {
     add('Source', SOURCE_LABEL[q.source] ?? `Unrecognised source (${q.source})`);
   }
   /**
+   * A page that shows what this claim says, when there is one.
+   *
+   * FOUR KINDS CARRY IT, on the 74% of programmes whose 2026 roster URL
+   * verifies as that school's own athletics site. Everything else stays as it
+   * was: the source family and the window, and no link — which is the normal
+   * state for a claim derived across seasons, not a gap to apologise for. The
+   * panel says nothing about the absence.
+   *
+   * `href` rather than `value` so the renderer can tell a row it should link
+   * from a row it should print. Nothing else in the drawer is a link.
+   */
+  if (q.sourceUrl) rows.push({ label: 'Roster page', value: 'View source', href: q.sourceUrl });
+  /**
    * NO LINK, AND NONE IMPLIED. `sourceUrl` is null on every one of 10,206
    * live objects, so there is nothing to render — and this is the right
    * behaviour rather than a gap waiting to be filled. H11 measured both
