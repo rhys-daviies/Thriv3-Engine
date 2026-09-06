@@ -598,3 +598,237 @@ CREATE TABLE IF NOT EXISTS coach_seasons (
 );
 
 CREATE INDEX IF NOT EXISTS idx_coach_seasons_prog ON coach_seasons(school, sport);
+
+-- ===========================================================================
+-- CAMPAIGNS — Phase A1. Additive DDL only.
+--
+-- A campaign is a FINITE recruiting service around one athlete and the Top 100
+-- programmes their matching run produced. It is not a subscription and not an
+-- endless automation: `starts_on` opens it, `ends_on` closes it, and both are
+-- set by an operator because the product has not fixed a duration.
+--
+-- WHY THE TOP 100 IS COPIED RATHER THAN POINTED AT. Match recommendations live
+-- today as a JSON blob uploaded to server/uploads/, addressed by the single
+-- mutable pointer `players.recommendations`. Re-analysing overwrites that
+-- pointer and editing a profile nulls it (see src/pages/EditPlayer.jsx), so a
+-- campaign that stored the pointer would be one profile save away from having
+-- no Top 100 at all. The rank, score, breakdown and programme identity are
+-- therefore COPIED into programme_campaigns at creation and never touched by
+-- matching again — which is what makes a campaign from last season still
+-- readable after the model has been retuned twice.
+--
+-- Nothing writes to either table yet. Creation, tier assignment, state
+-- transitions and the API are A2 onwards.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS campaigns (
+  id TEXT PRIMARY KEY,
+
+  -- OWNED BY THE ATHLETE. A campaign has no meaning without one, and the
+  -- delete path in src/pages/Players.jsx issues a bare DELETE with no cascade
+  -- of its own, so the cascade is declared here rather than left to a caller
+  -- that does not exist.
+  athlete_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+
+  -- SNAPSHOT of players.sport at creation. The athlete row is mutable, and a
+  -- sport changed afterwards would silently re-interpret every programme row
+  -- underneath this campaign.
+  sport TEXT NOT NULL,
+
+  label TEXT,                                 -- operator-facing name; two campaigns a year apart need telling apart
+
+  -- LIFECYCLE ONLY, and deliberately three values.
+  --   draft   snapshot taken, tiers assignable, nothing may be sent
+  --   active  outreach may proceed
+  --   closed  the finite service has ended
+  -- `paused` is absent because nothing schedules a send yet and there is
+  -- nothing to pause; it belongs with the scheduler that would obey it.
+  -- NOT named `status`: players.status already exists with unrelated values
+  -- (New / Analyzed / Contacted / Committed) and the collision would be read
+  -- wrong at a glance.
+  state TEXT NOT NULL DEFAULT 'draft' CHECK (state IN ('draft', 'active', 'closed')),
+
+  -- Dates, not timestamps: these are service boundaries an operator sets, not
+  -- events we observed. Nullable ends are honest — the product has not fixed a
+  -- campaign duration, and encoding a default one here would silently re-date
+  -- every live campaign the day that default changed.
+  starts_on TEXT NOT NULL,                    -- YYYY-MM-DD
+  outreach_ends_on TEXT,                      -- last date new outreach may be initiated
+  ends_on TEXT,                               -- the campaign closes
+
+  created_at TEXT NOT NULL,                   -- ISO-8601 UTC with an explicit Z
+  updated_at TEXT NOT NULL,
+
+  -- When it ACTUALLY closed, which is not `ends_on`: a campaign can be closed
+  -- early, and the planned end and the real end are different facts.
+  closed_at TEXT,
+  -- Why. Kept off the state enum on purpose, so a new reason never needs a
+  -- state migration.
+  close_reason TEXT,
+
+  -- ---- snapshot provenance -------------------------------------------------
+  -- The exact players.recommendations pointer this snapshot was taken from, so
+  -- an audit can go back to the blob while it exists and can tell that it does
+  -- not when it has been replaced. Nullable: a campaign seeded by some other
+  -- route than the stored analysis has no such reference, and inventing one
+  -- would be worse than recording none.
+  source_analysis_ref TEXT,
+  snapshot_taken_at TEXT NOT NULL,
+
+  -- JSON. The model's INPUTS as they were: match_weights, criterion_ranking,
+  -- origin, academic_minimum, preferred divisions/conferences, recruiting
+  -- class year, position, roster season, pool size, exclusion counts, and the
+  -- identity of the scoring model. A rank without its weights cannot be
+  -- explained a year later, and the six-criterion model has already changed
+  -- once — comparing ranks across model versions without knowing they differ
+  -- is the failure `outreach_send.policy_version` exists to prevent.
+  matching_inputs TEXT,
+
+  -- How many programme rows were snapshotted. A denominator recorded once,
+  -- rather than recomputed later from rows that may have been added.
+  programme_count INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_campaigns_athlete ON campaigns(athlete_id, state);
+
+-- ONE ACTIVE CAMPAIGN PER ATHLETE, enforced by the database rather than by a
+-- convention somebody has to remember. A partial index, so drafts and closed
+-- campaigns are unlimited: an athlete may have several drafts under review and
+-- a history of closed campaigns, and only the live one is exclusive.
+--
+-- This is what lets a later send resolve "the campaign this message belongs
+-- to" from the athlete alone, without every call site having to name one.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_campaigns_one_active
+  ON campaigns(athlete_id) WHERE state = 'active';
+
+-- ===========================================================================
+-- One row per Top 100 programme inside one campaign.
+--
+-- MEMBERSHIP IS NOT TIERING. Every Top 100 programme is here regardless of
+-- tier; tier controls how much outreach a programme receives, never whether it
+-- is in the campaign. Nothing should ever delete a row to "remove" a
+-- programme — `state = 'stopped'` is how outreach ceases, and it keeps the
+-- record of the programme having been in the campaign at all.
+--
+-- WHAT IS A SNAPSHOT HERE, frozen at campaign creation and never updated by a
+-- later matching run: `rank`, `match_score`, `score_breakdown`, `division`,
+-- `conference`, and the programme identity itself (`college_name`, `sport`,
+-- `college_id`). The name is what everything else in this database joins on —
+-- coaches.school, outreach_evidence.college_name, outreach_send.college_name,
+-- roster_players.college_name — and the id is kept ALONGSIDE it, not instead,
+-- so a school renamed in `colleges` afterwards leaves this row still readable
+-- and still joinable.
+--
+-- WHAT IS AUTHORITATIVE: `tier`, `tier_source`, `state`, `state_reason` and
+-- their timestamps. These are decisions, and an operator may change them
+-- without disturbing the snapshot that records where the model put the
+-- programme.
+--
+-- Deliberately ABSENT: any counter — coaches contacted, messages sent, replies.
+-- All of those are derivable from outreach_send, and a stored counter is a
+-- second answer to a question that already has one. outreach_evidence made the
+-- same choice for the same reason.
+--
+-- Also absent: the coaching staff. Contacts legitimately change and outreach
+-- must use current addresses, so this table records the PROGRAMME, not its
+-- staff list on the day the campaign opened.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS programme_campaigns (
+  id TEXT PRIMARY KEY,
+  campaign_id TEXT NOT NULL REFERENCES campaigns(id) ON DELETE CASCADE,
+
+  -- Programme identity, snapshotted. (college_name, sport) is the real key
+  -- this codebase joins on; colleges.id is a distinct row per (name, sport).
+  college_name TEXT NOT NULL,
+  sport TEXT NOT NULL,
+  college_id TEXT,                            -- nullable: a name with no colleges row is still a programme
+
+  -- Snapshot of the ranked list. `rank` was previously implicit — array
+  -- position in the uploaded blob — and is a stored fact for the first time
+  -- here.
+  rank INTEGER NOT NULL,
+  match_score INTEGER NOT NULL,
+  -- JSON: the per-criterion breakdown, labels and confidence as scored. The
+  -- difference between "Duke was #4" and "Duke was #4 because geography and
+  -- roster opportunity", which is the only version of the first statement
+  -- anybody can act on a year later.
+  score_breakdown TEXT,
+
+  -- Snapshotted because both drift. Conference realignment is routine — see
+  -- the note on colleges.conference_champion_name — so a campaign that read
+  -- today's conference would misdescribe its own history.
+  division TEXT,
+  conference TEXT,
+
+  -- A / B / C. AUTHORITATIVE AND MUTABLE: an operator may promote a programme
+  -- without corrupting `rank`, which records where the model put it.
+  --
+  -- NOT the same concept as engagement_rollup.tier, which is an engagement
+  -- temperature (cold | warm | hot | priority | responded) computed from what
+  -- a coach did. Any query or response carrying both MUST alias them —
+  -- campaign_tier and engagement_tier — because one word answering two
+  -- questions is how the wrong one gets rendered.
+  --
+  -- No DEFAULT: a tier is assigned by the banding rule at creation (A2), and a
+  -- row that reached the database without one is a bug worth failing on rather
+  -- than a row quietly labelled 'C'.
+  tier TEXT NOT NULL CHECK (tier IN ('A', 'B', 'C')),
+
+  -- Whether the band assigned this tier or a human did. An operator's tier is
+  -- a different treatment from a banded one, and mixing the two would make the
+  -- first "does Tier A out-reply Tier B" comparison meaningless in a way
+  -- nobody could see afterwards — the same reasoning as
+  -- outreach_evidence.structure_source.
+  tier_source TEXT NOT NULL DEFAULT 'AUTO' CHECK (tier_source IN ('AUTO', 'OPERATOR')),
+  tier_set_at TEXT,
+
+  -- LIFECYCLE ONLY. Four values, and the restraint is the point:
+  --   queued     in the campaign, nothing sent yet
+  --   active     at least one message sent for this programme, outreach continues
+  --   stopped    outreach deliberately ceased before the plan finished
+  --   completed  the planned outreach finished without a stop
+  --
+  -- `stopped` is what makes a PROGRAMME the decision unit above a coach: Duke
+  -- says it is not recruiting the position, this row stops, and every Duke
+  -- coach for that athlete is out of scope in one write.
+  --
+  -- WHAT DOES NOT BELONG IN THIS COLUMN, and why:
+  --   * Reply classifications — not_interested, not_recruiting,
+  --     active_conversation. Those are the OUTCOME that produces a stop, not
+  --     the state; they belong in `state_reason` once reply classification
+  --     exists, and `active_conversation` is not even exclusive of `active`.
+  --   * Derived facts — awaiting_response, action_required. Both are
+  --     computable at read time from outreach_send and a date, and stored they
+  --     are only true while something keeps writing them: the first missed
+  --     tick leaves the column asserting a falsehood every screen repeats.
+  --     engagement_rollup already settled this correctly by being a
+  --     rebuildable derived table rather than a status field.
+  --   * unreachable — a property of the programme's CONTACT DATA, already
+  --     answerable from pickBestContact, emailRisk and suppressions, and one
+  --     that changes the moment a contact is added.
+  state TEXT NOT NULL DEFAULT 'queued'
+    CHECK (state IN ('queued', 'active', 'stopped', 'completed')),
+
+  -- Why it left `active`. Free text against a vocabulary held in code
+  -- (not_recruiting | not_interested | no_contact | suppressed |
+  -- athlete_declined | committed_elsewhere | operator) rather than a CHECK,
+  -- precisely so growing that list never requires a schema migration.
+  state_reason TEXT,
+  state_changed_at TEXT,
+
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+
+  -- A programme appears once per campaign.
+  UNIQUE (campaign_id, college_name, sport),
+  -- `rank` is a snapshot of a TOTAL ORDER. Two #4s in one campaign means the
+  -- snapshot was written twice, which is a corruption worth refusing rather
+  -- than discovering later in a report.
+  UNIQUE (campaign_id, rank)
+);
+
+-- The list read: one campaign, grouped by tier, in rank order.
+CREATE INDEX IF NOT EXISTS idx_programme_campaigns_list
+  ON programme_campaigns(campaign_id, tier, rank);
+-- The reverse question: which campaigns is this programme in.
+CREATE INDEX IF NOT EXISTS idx_programme_campaigns_programme
+  ON programme_campaigns(college_name, sport);
