@@ -2,6 +2,7 @@ import {
   EVIDENCE_KINDS, PERMISSION, permissionsFor, kindSpec, kindLabel,
   assertSurfaceRenderable, confidenceAtLeast,
 } from './kinds.js';
+import { renderInput, hasContract, CONTRACT_KINDS } from './outreachContract.js';
 
 /**
  * What Thriv3 may say to a coach it has never met.
@@ -118,146 +119,27 @@ const ROLE_OF = Object.freeze({
  * surface: a card that drops a claim shows one fewer line, an email that
  * sends one without its qualification has already arrived.
  *
- * `facts` is the projection — the fields a future renderer may read, and
- * nothing else. Deliberately narrow: the arrival kinds carry a `provenance`
- * blob holding identity-matching internals, coach attribution methods and the
- * raw REGION key, none of which may travel to a coach by any route.
- */
-/**
- * A whole number of things, at least one. Shared by every rule below because
- * every clause interpolates a count, and a count of zero or null produces
- * "undefined players from New Zealand".
+ * THE RULE ITSELF LIVES IN `outreachContract.js`, with the projection it is
+ * stated over and with nothing else. It used to live here, in generator field
+ * names, while the copy re-derived its own version in the renamed projection —
+ * two lists that had to agree and that nothing kept in step. H17 measured them
+ * disagreeing on fourteen of sixteen value cases.
  *
- * `count` was read by seven of the ten copy entries and required by none of
- * these rules until H1 — two lists that had to agree with nothing keeping them
- * in step. It is checked here AND in the copy: the selector refuses the item,
- * and the copy refuses to write it, independently.
- */
-const some = (n) => Number.isInteger(n) && n > 0;
-
-/**
+ * What stays here is the POLICY this module owns: which kinds have a role,
+ * where each may appear, and that a kind may not be licensed without a
+ * contract to satisfy. Whether one object satisfies it is the contract's
+ * answer, asked once and used by the copy as well.
+ *
  * A STRUCTURAL VALIDITY CHECK IS NOT A QUALIFICATION.
  *
- * The four ALLOWED kinds carry `satisfied` tests too, and that does not make
- * them QUALIFIED. The distinction is what the test is for: a QUALIFIED kind's
- * rule decides whether the CLAIM may be made at all without its caveat — a
- * region arrival with no countries cannot be stated safely in any wording. An
- * ALLOWED kind's test only asks whether the object is well-formed enough to
- * render. The permission grades are unchanged: 4 ALLOWED, 6 QUALIFIED, 16
- * DENIED.
+ * The four ALLOWED kinds go through the same contract, and that does not make
+ * them QUALIFIED. The distinction is what the requirement is FOR: a QUALIFIED
+ * kind's contract decides whether the CLAIM may be made at all without its
+ * caveat — a region arrival with no countries cannot be stated safely in any
+ * wording. An ALLOWED kind's contract only asks whether the object is
+ * well-formed enough to render. The permission grades are unchanged: 4
+ * ALLOWED, 6 QUALIFIED, 16 DENIED.
  */
-const QUALIFICATION = Object.freeze({
-  COACH_ARRIVAL_SAME_COUNTRY: {
-    // ALLOWED: the coach, the country and how many. Structural only.
-    satisfied: (d) => Boolean(d.coach) && Boolean(d.country) && some(d.count),
-    facts: (d) => ({
-      coach: d.coach, country: d.country, count: d.count,
-      seasons: d.seasons ?? [], namedArrival: d.name ?? null, namedArrivalSeason: d.nameSeason ?? null,
-    }),
-  },
-
-  ARRIVAL_SAME_COUNTRY_POSITION: {
-    satisfied: (d) => Boolean(d.country) && Boolean(d.position) && some(d.count),
-    facts: (d) => ({
-      country: d.country, position: d.position, count: d.count,
-      seasons: d.seasons ?? [], namedArrival: d.name ?? null, namedArrivalSeason: d.nameSeason ?? null,
-    }),
-  },
-
-  HISTORICAL_SAME_COUNTRY: {
-    satisfied: (d) => Boolean(d.country) && some(d.count),
-    facts: (d) => ({
-      country: d.country, count: d.count, names: d.names ?? [], seasons: d.seasons ?? [],
-    }),
-  },
-
-  CURRENT_SAME_COUNTRY: {
-    satisfied: (d) => Boolean(d.country) && some(d.count),
-    facts: (d) => ({ country: d.country, count: d.count, names: d.names ?? [] }),
-  },
-
-  ARRIVAL_SAME_REGION_POSITION: {
-    /**
-     * Q-REGION. Sayable only as the countries it actually covers, at the
-     * position it was cut to. OCEANIA is a bucket key from the recruiting
-     * tables; a coach reading it would learn nothing and we would have printed
-     * a database constant at them. The countries are checkable against their
-     * own roster.
-     */
-    satisfied: (d) => Array.isArray(d.countries) && d.countries.length > 0
-      && Boolean(d.position) && some(d.count),
-    facts: (d) => ({
-      // No `region`, and no `provenance`.
-      countries: d.countries, position: d.position, count: d.count,
-      seasons: d.seasons ?? [], namedArrival: d.name ?? null, namedArrivalSeason: d.nameSeason ?? null,
-      // What makes the claim honest: this is a WIDER cut than the athlete's
-      // own country, and copy that omitted that would let a coach read a row
-      // about Australia as a row about a New Zealander.
-      widerThanOwnCountry: true,
-      excludingCountry: d.athleteCountry ?? null,
-    }),
-  },
-
-  HISTORICAL_SAME_REGION: {
-    /**
-     * Q-REGION again, plus the exclusion. `athleteCountry` is set on every
-     * real instance and is what makes the count meaningful: these are players
-     * from the region who are NOT compatriots, so a claim that read as
-     * same-country would be counting different people.
-     */
-    satisfied: (d) => Array.isArray(d.countries) && d.countries.length > 0
-      && Boolean(d.athleteCountry) && some(d.count),
-    facts: (d) => ({
-      countries: d.countries, count: d.count, names: d.names ?? [],
-      widerThanOwnCountry: true, excludingCountry: d.athleteCountry,
-    }),
-  },
-
-  POSITION_GRADUATION: {
-    /**
-     * Q-CONCRETE. Named players and a stated class year, never a bare count.
-     *
-     * "Three defenders are graduating" invites the coach to finish the
-     * sentence themselves — and the ending they will reach for is "so you need
-     * one". Naming them and dating the cohort keeps it an observation they can
-     * check against their own roster, which is a different kind of sentence.
-     */
-    satisfied: (d) => Array.isArray(d.names) && d.names.length > 0 && d.classYear != null
-      && Boolean(d.position) && some(d.count),
-    facts: (d) => ({
-      position: d.position, count: d.count, names: d.names, classYear: d.classYear,
-    }),
-  },
-
-  ACADEMIC_FIT: {
-    /**
-     * Q-TWO-LABELS. Both the athlete's own words and the programme's subject,
-     * kept apart.
-     *
-     * `majorLabelFor` maps "exercise science" onto the canonical bucket
-     * "Kinesiology", and the live email prints the athlete's phrase in the
-     * introduction and the bucket in the evidence — so a coach reads that the
-     * athlete wants to study Exercise Science and that the programme offers
-     * Kinesiology, four lines apart, as though they were different subjects.
-     *
-     * Both are on the object already, so the fix is a copy contract and not an
-     * upstream change: the renderer must be able to say them as one claim and
-     * must never assert the two labels are the same word.
-     */
-    satisfied: (d) => Boolean(d.stated) && Boolean(d.major),
-    facts: (d) => ({ athleteStatedMajor: d.stated, programmeMatchedSubject: d.major }),
-  },
-
-  CONFERENCE_TITLE: {
-    satisfied: (d) => Boolean(d.conference),
-    facts: (d) => ({ conference: d.conference }),
-  },
-
-  POSTSEASON_RESULT: {
-    satisfied: (d) => Boolean(d.round),
-    facts: (d) => ({ round: d.round }),
-  },
-});
 
 /** Registry declaration order — the tie-break within a role. */
 const DECLARATION_ORDER = Object.freeze(Object.keys(EVIDENCE_KINDS));
@@ -310,7 +192,7 @@ export const LICENSED_KINDS = Object.freeze(
  * shows up in a coach's inbox.
  */
 for (const kind of LICENSED_KINDS) {
-  if (!QUALIFICATION[kind]) {
+  if (!hasContract(kind)) {
     throw new Error(`${kind} has an outreach role but declares no qualification`);
   }
   if (!EVIDENCE_KINDS[kind]) throw new Error(`${kind} has an outreach role but is not a kind`);
@@ -337,7 +219,7 @@ for (const kind of Object.keys(EVIDENCE_KINDS)) {
     );
   }
 }
-for (const kind of Object.keys(QUALIFICATION)) {
+for (const kind of CONTRACT_KINDS) {
   if (!ROLE_OF[kind]) throw new Error(`${kind} declares an outreach qualification but no role`);
 }
 
@@ -467,8 +349,13 @@ export function outreachEvidenceFor(evidenceResult) {
       continue;
     }
 
-    const rule = QUALIFICATION[ev.kind];
-    if (!rule.satisfied(ev.data ?? {})) {
+    /**
+     * The contract, asked once. It returns the render input or nothing, so
+     * there is no state in which this surface holds a qualified object and the
+     * copy holds a different opinion about it.
+     */
+    const facts = renderInput(ev.kind, ev.data ?? {});
+    if (!facts) {
       note(ev.kind, 'UNQUALIFIED', 'cannot state what this claim needs to be safe');
       continue;
     }
@@ -476,7 +363,7 @@ export function outreachEvidenceFor(evidenceResult) {
     eligible.push({
       kind: ev.kind,
       role,
-      facts: rule.facts(ev.data ?? {}),
+      facts,
       _group: kindSpec(ev.kind).dedupeGroup,
       // Hooks order by the specificity ladder; everything else by the
       // registry's declaration order.

@@ -1,6 +1,7 @@
-import { canonicalPosition, positionNoun, positionPlural } from '../positions.js';
+import { positionNoun, positionPlural } from '../positions.js';
 import { conferenceLabel } from '../conference.js';
 import { yearPhrase, joinNames } from './render.js';
+import { renderable, str, strings, POSTSEASON_ROUNDS } from './outreachContract.js';
 
 /**
  * The words an outbound email may use, for the ten kinds licensed to send.
@@ -50,51 +51,30 @@ import { yearPhrase, joinNames } from './render.js';
  */
 
 /**
- * The guards, and why every entry below opens with them.
+ * THE REQUIRED FIELDS ARE NOT LISTED IN THIS FILE.
  *
- * The docstring above has always promised that a clause returns null rather
- * than a weaker sentence. Until H1 it did not: handed an object missing a
- * field, eight of the ten entries interpolated it anyway and produced "you've
- * brought undefined players in from undefined". No live pair reached that —
- * 0 of 1,459 licensed items were missing a field they needed — but the
- * guarantee was a comment rather than code, and `count` was read by seven
- * entries while being required by none of the qualification rules.
+ * They were, once, and that was the defect H17 closed. Each entry below opened
+ * with its own guard — `if (!str(f.country) || !positive(f.count)) return null`
+ * — which is a second statement of what the claim needs, written in this
+ * module, agreeing with the selector's rule only by inspection. They did not
+ * agree: fourteen of sixteen measured value cases passed qualification and
+ * were refused here, so the selector recorded a claim as SELECTED that this
+ * file then declined to write.
  *
- * So each of these returns null for anything that cannot be said, and every
- * entry checks what it interpolates before it interpolates it. The failure
- * mode being engineered out is the worst-looking one there is: the word
- * "undefined" in a coach's inbox.
+ * `outreachContract.js` now states each kind's requirements once, and
+ * `outreachCopyFor` asks it at the boundary — so a clause below is only ever
+ * called with facts that have already been checked, and a caller who reaches
+ * past the boundary with malformed facts is refused by the same check rather
+ * than by a guard that happens to be there.
+ *
+ * What remains here is OPTIONAL-field handling and formatting: whether a name
+ * is available to use instead of a count, how a span of seasons reads, how a
+ * small number is spelled. Those are choices about wording, which is what this
+ * module is for.
+ *
+ * The failure mode being engineered out is still the worst-looking one there
+ * is: the word "undefined" in a coach's inbox.
  */
-
-/** A non-empty, non-blank string, or null. */
-const str = (v) => (typeof v === 'string' && v.trim() ? v.trim() : null);
-
-/** A whole number of things, at least one of them, or null. */
-const positive = (v) => (Number.isInteger(v) && v > 0 ? v : null);
-
-/** A non-empty list of non-blank strings, or null. */
-const strings = (v) => {
-  if (!Array.isArray(v)) return null;
-  const clean = v.map(str).filter(Boolean);
-  return clean.length ? clean : null;
-};
-
-/**
- * A position the registry RECOGNISES, or null.
- *
- * `positionNoun` deliberately falls back to the raw input rather than to
- * "unknown" — right for a profile chip, wrong here, because it would put
- * whatever the roster scrape read straight into a coach's inbox. So this asks
- * `canonicalPosition`, which answers UNKNOWN for anything it does not know,
- * and refuses that.
- */
-const position = (v) => (str(v) && canonicalPosition(v) !== 'UNKNOWN' ? v : null);
-
-/** A four-digit season or class year, or null. Never a blank or a stray word. */
-const year = (v) => {
-  const n = Number(String(v ?? '').trim());
-  return Number.isInteger(n) && n >= 1900 && n <= 2100 ? n : null;
-};
 
 /** A count as a word, for the small numbers these claims carry. */
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
@@ -136,7 +116,6 @@ const CLAUSE = Object.freeze({
    * and the only kind that may say "you".
    */
   COACH_ARRIVAL_SAME_COUNTRY: (f) => {
-    if (!str(f.country) || !positive(f.count)) return null;
     const span = when(f.seasons);
     if (str(f.namedArrival) && f.count === 1) {
       const y = yearPhrase(f.namedArrivalSeason);
@@ -151,7 +130,6 @@ const CLAUSE = Object.freeze({
    * attributed to the reader: these span whoever was in charge.
    */
   ARRIVAL_SAME_COUNTRY_POSITION: (f) => {
-    if (!str(f.country) || !position(f.position) || !positive(f.count)) return null;
     const span = when(f.seasons);
     if (str(f.namedArrival) && f.count === 1) {
       const y = yearPhrase(f.namedArrivalSeason);
@@ -164,7 +142,6 @@ const CLAUSE = Object.freeze({
 
   /** Compatriots who came through. Past tense, and it stays there. */
   HISTORICAL_SAME_COUNTRY: (f) => {
-    if (!str(f.country) || !positive(f.count)) return null;
     const span = when(f.seasons);
     const only = strings(f.names);
     const named = only?.length === 1 && f.count === 1 ? only[0] : null;
@@ -177,7 +154,6 @@ const CLAUSE = Object.freeze({
 
   /** Compatriots on the squad now. Present tense, and it stays there. */
   CURRENT_SAME_COUNTRY: (f) => {
-    if (!str(f.country) || !positive(f.count)) return null;
     const named = strings(f.names);
     if (named?.length === 1) return `${named[0]}, from ${f.country}, is on your roster this season`;
     return `${count(f.count)} ${f.count === 1 ? 'player' : 'players'} from ${f.country} `
@@ -200,16 +176,14 @@ const CLAUSE = Object.freeze({
    * the introduction two lines down says where the athlete is actually from.
    */
   ARRIVAL_SAME_REGION_POSITION: (f) => {
-    const where = list(strings(f.countries) ?? []);
-    if (!where || !position(f.position) || !positive(f.count)) return null;
+    const where = list(strings(f.countries));
     const span = when(f.seasons);
     return `the programme has taken ${count(f.count)} ${noun(f.position, f.count)} `
       + `from ${where}${span ? ` ${span}` : ''} — the same part of the world`;
   },
 
   HISTORICAL_SAME_REGION: (f) => {
-    const where = list(strings(f.countries) ?? []);
-    if (!where || !positive(f.count)) return null;
+    const where = list(strings(f.countries));
     return `${count(f.count)} ${f.count === 1 ? 'player' : 'players'} from ${where} `
       + `${f.count === 1 ? 'has' : 'have'} come through the programme — the same part of `
       + 'the world';
@@ -225,7 +199,6 @@ const CLAUSE = Object.freeze({
    */
   POSITION_GRADUATION: (f) => {
     const named = strings(f.names);
-    if (!named || !position(f.position) || !positive(f.count) || !year(f.classYear)) return null;
     return `${count(f.count)} ${noun(f.position, f.count)} `
       + `${f.count === 1 ? 'is' : 'are'} listed to graduate in ${f.classYear}`
       + ` — ${joinNames(named)}`;
@@ -245,7 +218,6 @@ const CLAUSE = Object.freeze({
   ACADEMIC_FIT: (f, ctx) => {
     const theirs = str(f.athleteStatedMajor);
     const ours = str(f.programmeMatchedSubject);
-    if (!theirs || !ours) return null;
     const who = str(ctx?.firstName) ?? 'the athlete';
     // The athlete typed "exercise science"; a sentence starts it with a
     // capital. Casing only — the words stay theirs.
@@ -257,28 +229,53 @@ const CLAUSE = Object.freeze({
 });
 
 /**
+ * How each claimable round is said.
+ *
+ * WHICH rounds may be claimed is the contract's question and is answered in
+ * `POSTSEASON_ROUNDS`; this is only the wording for them. Asserted equal at
+ * load, so a round added to one list and not the other fails on import rather
+ * than qualifying a claim that renders as nothing.
+ */
+const ROUND = Object.freeze({
+  champion: 'the national title', final: 'reaching the national final',
+  semi: 'reaching the semi-finals', quarter: 'reaching the quarter-finals',
+  r16: 'reaching the round of 16', r32: 'reaching the round of 32',
+  appearance: 'getting to the postseason',
+});
+for (const r of POSTSEASON_ROUNDS) {
+  if (!ROUND[r]) throw new Error(`POSTSEASON_RESULT can be claimed for "${r}" but has no wording for it`);
+}
+for (const r of Object.keys(ROUND)) {
+  if (!POSTSEASON_ROUNDS.includes(r)) throw new Error(`POSTSEASON_RESULT has wording for "${r}" but it is not claimable`);
+}
+
+/**
  * Recognition. Its own shape because it is a whole sentence, not a clause: it
  * is never joined to a claim and never becomes the reason for writing.
  */
 const RECOGNITION = Object.freeze({
+  /**
+   * THE CONFERENCE NAME IS PROSE, NOT A KEY.
+   *
+   * `conferenceLabel` formats — it strips the "-D3" tag two rows carry to
+   * disambiguate our own data — and it never resolves. So there is no table to
+   * check the name against and no "unknown conference" to fall back from:
+   * whatever `colleges.conference` holds is what the conference is called.
+   *
+   * The one thing it can return is an empty string, for a stored value that is
+   * nothing but a division tag. That is refused rather than softened. This
+   * file's older text promised a vaguer sentence — "Congrats on winning your
+   * conference" — for that case; it was unreachable, and it was the wrong
+   * answer anyway. A congratulation we cannot address is not a smaller
+   * congratulation.
+   */
   CONFERENCE_TITLE: (f) => {
-    if (!str(f.conference)) return null;
     const conf = conferenceLabel(f.conference);
     return conf
       ? `Congrats on winning the ${conf} last year as well — looks like a great season.`
-      : 'Congrats on winning your conference last year as well.';
+      : null;
   },
-  POSTSEASON_RESULT: (f) => {
-    if (!str(f.round)) return null;
-    const ROUND = {
-      champion: 'the national title', final: 'reaching the national final',
-      semi: 'reaching the semi-finals', quarter: 'reaching the quarter-finals',
-      r16: 'reaching the round of 16', r32: 'reaching the round of 32',
-      appearance: 'getting to the postseason',
-    };
-    const what = ROUND[f.round];
-    return what ? `Congrats on ${what} last season as well.` : null;
-  },
+  POSTSEASON_RESULT: (f) => `Congrats on ${ROUND[f.round]} last season as well.`,
 });
 
 /** The kinds this module has words for. Checked against the licence by tests. */
@@ -296,12 +293,23 @@ export const OUTREACH_COPY_KINDS = Object.freeze(
  */
 export function outreachCopyFor(item, ctx = {}) {
   if (!item?.kind) return null;
+  /**
+   * THE BOUNDARY, AND IT DOES NOT TRUST THE SELECTOR.
+   *
+   * `outreachEvidenceFor` asks the same contract before it hands anything
+   * over, so in the production path this can only pass. It is checked anyway,
+   * because "the caller always calls it correctly" is an invariant this module
+   * cannot enforce and a developer holding an evidence object is one import
+   * away from calling it directly. Refusing is the answer to malformed input;
+   * a weaker sentence is not.
+   */
+  if (!renderable(item.kind, item.facts)) return null;
   if (RECOGNITION[item.kind]) {
-    const recognition = RECOGNITION[item.kind](item.facts ?? {});
+    const recognition = RECOGNITION[item.kind](item.facts);
     return recognition ? { recognition } : null;
   }
   const write = CLAUSE[item.kind];
   if (!write) return null;
-  const clause = write(item.facts ?? {}, ctx);
+  const clause = write(item.facts, ctx);
   return clause ? { clause } : null;
 }
