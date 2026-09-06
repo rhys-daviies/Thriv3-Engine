@@ -223,6 +223,9 @@ const EXTRACTORS = Object.freeze({
     excludingCountry: e.data.athleteCountry ?? null,
     count: e.data.count,
     names: e.data.names ?? [],
+    // OUTREACH DENIED since J3, so this is the only surface that sees it — and
+    // "one Australian, in 2022" is a different judgement from "one Australian".
+    seasons: e.data.seasons ?? [],
   }),
   INTERNATIONAL_ROSTER: (e) => ({
     count: e.data.count,

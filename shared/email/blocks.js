@@ -120,12 +120,31 @@ export const BLOCK_COPY = Object.freeze({
    * or SAT removes its whole line including the newline in front of it, rather
    * than leaving a bullet with an empty label.
    */
+  /**
+   * The academic snapshot, and only that.
+   *
+   * IT USED TO REPEAT THE INTRODUCTION. Two lines after "a forward from New
+   * Zealand looking at options for the 2027 class" the block said "• Position:
+   * Forward / • Graduation: 2027" — the same two facts, in a worse form, in
+   * every email in the corpus. For an athlete with no GPA or test score on
+   * file the block was NOTHING BUT the repetition, which is 2,404 of 4,742
+   * pairs.
+   *
+   * Position and class year are the introduction's, said in prose where they
+   * read as a sentence rather than as a form. What is left here is what the
+   * introduction does not carry and a coach does scan for. Where none of it is
+   * on file the block resolves to nothing and disappears, which is why the
+   * conditionals wrap whole lines.
+   *
+   * The secondary position went with the position line. It is a qualifier on a
+   * fact the introduction already states, and re-introducing the fact to carry
+   * the qualifier is how the duplication started.
+   */
   [BLOCKS.CREDENTIALS]: {
     default: [
-      '• Position: {{player_position}}{{player_secondary_position}}',
-      '• Graduation: {{player_class_year}}{{#if has_gpa}}',
-      '• GPA: {{player_gpa}}{{/if}}{{#if has_sat_score}}',
-      '• SAT: {{player_sat_score}}{{/if}}',
+      '{{#if has_gpa}}• GPA: {{player_gpa}}{{/if}}',
+      '{{#if has_sat_score}}• SAT: {{player_sat_score}}{{/if}}',
+      '{{#if has_act_score}}• ACT: {{player_act_score}}{{/if}}',
     ].join('\n'),
   },
 

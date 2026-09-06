@@ -140,6 +140,69 @@ const ROLE_OF = Object.freeze({
  * ALLOWED, 6 QUALIFIED, 16 DENIED.
  */
 
+
+/**
+ * POSITION_FLOW_HOLD — the one cross-group rule, and deliberately the only one.
+ *
+ * Dedupe stops several observations of ONE connection reading as several
+ * independent reasons. It works inside a group and cannot see what J2 and J3
+ * both ran into: two claims from DIFFERENT groups, each true, each safe alone,
+ * assembling a conclusion neither of them makes.
+ *
+ * The concrete shape, measured on 30 live emails:
+ *
+ *   "Harrison Dudley came into the programme from New Zealand back in 2024,
+ *    also a forward"                                    a forward came IN
+ *   "one forward is listed to graduate in 2027"         a forward is going OUT
+ *
+ * and the athlete is a forward. Nothing says "you need another"; the reader
+ * assembles it, and we built the ramp. That is the sentence this whole surface
+ * exists not to write, so the pair is not sent.
+ *
+ * ---------------------------------------------------------------------------
+ * MEMBERSHIP IS A LIST, NOT A PROPERTY.
+ *
+ * Named kinds on both sides, because the relation is semantic and nothing
+ * structural carries it. `specificityAxes` would be the tempting shortcut and
+ * it is wrong: it would also catch pairings that are safe, and it would
+ * silently enrol any future kind that happened to declare `position`. A rule
+ * that grows by itself is the generic inference engine J4 was told not to
+ * build.
+ *
+ * WHAT IS NOT IN IT, and why. `COACH_ARRIVAL_SAME_COUNTRY` (57 live pairings),
+ * `HISTORICAL_SAME_COUNTRY` (98) and `CURRENT_SAME_COUNTRY` (4) are compatriot
+ * claims with no position in them. "Leo Harbottle came through from New
+ * Zealand in 2025" beside "one forward is listed to graduate in 2027" is two
+ * observations on two axes, and a reader gets no flow from it. Those 159
+ * emails are the strongest in the corpus and are untouched.
+ */
+const POSITION_FLOW = Object.freeze({
+  /** Arrivals stated AT the athlete's position. */
+  arrivals: Object.freeze(['ARRIVAL_SAME_COUNTRY_POSITION', 'ARRIVAL_SAME_REGION_POSITION']),
+  /** Departures stated at the athlete's position. */
+  departures: Object.freeze(['POSITION_GRADUATION']),
+});
+
+/**
+ * Which of the two survives, and why it is not the stronger-sounding one.
+ *
+ * The prior going in was that POSITION_GRADUATION should win: it answers this
+ * athlete, this programme and now, and it is the most-rendered kind in the
+ * system. Measuring the 30 emails reversed it.
+ *
+ *   Holding the DEPARTURE  all 30 keep their hook and stay RELATIONSHIP_FIRST;
+ *                          11 pick up ACADEMIC_FIT in the freed slot.
+ *   Holding the ARRIVAL    all 30 fall to PLAYER_FIRST, and 11 of the 29 total
+ *                          ARRIVAL_SAME_COUNTRY_POSITION renders in the whole
+ *                          corpus disappear — 38% of that kind.
+ *
+ * So the arrival survives. It is the scarcer and more specific claim — a named
+ * compatriot at the athlete's own position — and it is what makes the email
+ * open on a relationship at all. POSITION_GRADUATION is available at 814
+ * programmes and loses one appearance in thirty.
+ */
+const POSITION_FLOW_SURVIVOR = 'ARRIVAL';
+
 /** Registry declaration order — the tie-break within a role. */
 const DECLARATION_ORDER = Object.freeze(Object.keys(EVIDENCE_KINDS));
 
@@ -437,6 +500,43 @@ export function outreachEvidenceFor(evidenceResult) {
     const chosen = { kind: item.kind, role: item.role, facts: item.facts };
     survivor.set(item._group, { ...chosen, group: item._group });
     bucket.push(chosen);
+  }
+
+  /**
+   * The cross-group hold, applied last.
+   *
+   * AFTER licence, confidence, qualification, dedupe and the cap, because it
+   * is a question about the FINAL combination and nothing earlier knows what
+   * that will be. Before composition, because the copy layer must never be
+   * where a claim is silently dropped — it writes what it is given.
+   */
+  const flowArrival = hooks.find((h) => POSITION_FLOW.arrivals.includes(h.kind));
+  if (flowArrival) {
+    for (const kind of POSITION_FLOW.departures) {
+      const at = relevance.findIndex((r) => r.kind === kind);
+      if (at === -1) continue;
+      const [heldItem] = relevance.splice(at, 1);
+      /**
+       * Not `sameConnectionAs`. That phrase belongs to dedupe and says two
+       * claims observe ONE thing; these observe two different things, which is
+       * precisely why they combine into a third the evidence does not support.
+       */
+      note(kind, 'HELD', 'held to avoid implying roster need: the email already '
+        + `states an arrival at this position (${kindLabel(flowArrival.kind).toLowerCase()})`,
+        { supersededBy: flowArrival.kind });
+      /**
+       * Offerable, not deleted. The claim is licensed, qualified and true —
+       * it is being withheld for what it would MEAN beside the hook, which is
+       * a judgement an operator may disagree with and override.
+       */
+      alternatives.push({
+        kind: heldItem.kind,
+        role: heldItem.role,
+        facts: heldItem.facts,
+        group: kindSpec(heldItem.kind).dedupeGroup,
+        supersededBy: flowArrival.kind,
+      });
+    }
   }
 
   return {

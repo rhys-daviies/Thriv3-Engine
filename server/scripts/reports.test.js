@@ -233,7 +233,14 @@ describeReports('outreachQA', () => {
      * category that existed to show a regional-history email has nothing left
      * to show.
      */
-    expect(sha(result.out)).toBe('99930dbb6ac0a5e8');
+/**
+     * Re-pinned in J4 for two changes, both visible in this report.
+     *
+     * POSITION_FLOW_HOLD withholds POSITION_GRADUATION where a position-bearing
+     * arrival already opens the email, and the credentials block stopped
+     * repeating the position and class year the introduction states.
+     */
+    expect(sha(result.out)).toBe('7c197d8d29578727');
   });
 });
 
@@ -285,6 +292,11 @@ describeReports('recruitingEvidenceReport', () => {
   });
 
   it('matches its recorded output', () => {
-    expect(sha(result.out)).toBe('cc55798f67058da8');
+    /**
+     * Re-pinned in J4 for the credentials block alone. Jacksonville opens on a
+     * COACH_ARRIVAL_SAME_COUNTRY hook, which carries no position, so the
+     * cross-group hold does not apply and the evidence here is unchanged.
+     */
+    expect(sha(result.out)).toBe('922e6a0813a1b113');
   });
 });

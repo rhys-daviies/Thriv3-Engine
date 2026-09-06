@@ -773,10 +773,17 @@ describe('placement, which is separate from ranking', () => {
   };
 
   it('opens on the hook wherever it ranked', () => {
-    // The Sacred Heart case: the roster count ranks first and the region
-    // connection second, and the email opens on the connection.
-    const p = plan(['POSITION_GRADUATION', 'ARRIVAL_SAME_REGION_POSITION'], 'RELATIONSHIP_FIRST');
-    expect(p.hook.kind).toBe('ARRIVAL_SAME_REGION_POSITION');
+    /**
+     * The Sacred Heart case: the roster count ranks first and the connection
+     * second, and the email opens on the connection.
+     *
+     * Stated with a COUNTRY hook. A position-bearing arrival would hold
+     * POSITION_GRADUATION under POSITION_FLOW_HOLD, and this test is about
+     * placement beating ranking, not about the cross-group rule — see
+     * positionFlow.test.js for that.
+     */
+    const p = plan(['POSITION_GRADUATION', 'HISTORICAL_SAME_COUNTRY'], 'RELATIONSHIP_FIRST');
+    expect(p.hook.kind).toBe('HISTORICAL_SAME_COUNTRY');
     expect(p.relevance.map((e) => e.kind)).toEqual(['POSITION_GRADUATION']);
   });
 

@@ -473,14 +473,22 @@ describe('the credentials block', () => {
     expect(body).not.toContain('$5k-$10k/yr');
   });
 
-  it('renders exactly the four lines the pilot approved', () => {
+  /**
+   * Two lines since J4, not four.
+   *
+   * The block used to open with "• Position: Defender / • Graduation: 2027",
+   * two lines after the introduction had already said "a defender … looking at
+   * options for the 2027 class". Position and class year belong to the
+   * introduction, which says them in prose; what is left here is what the
+   * introduction does not carry.
+   */
+  it('renders the academic facts, and only those', () => {
     const bullets = bodyFor(withBudget).split('\n').filter((l) => l.startsWith('•'));
-    expect(bullets).toEqual([
-      '• Position: Defender',
-      '• Graduation: 2027',
-      '• GPA: 3.6',
-      '• SAT: 1210',
-    ]);
+    expect(bullets).toEqual(['• GPA: 3.6', '• SAT: 1210']);
+    // And the facts it stopped repeating are still in the email, once.
+    const body = bodyFor(withBudget);
+    expect(body).toContain('a defender');
+    expect(body).toContain('2027 class');
   });
 
   /**
@@ -492,19 +500,27 @@ describe('the credentials block', () => {
   it('omits a missing SAT cleanly, leaving no empty label', () => {
     const bullets = bodyFor({ ...player, budget_range: '$5k-$10k/yr' })
       .split('\n').filter((l) => l.startsWith('•'));
-    expect(bullets).toEqual(['• Position: Defender', '• Graduation: 2027', '• GPA: 3.6']);
+    expect(bullets).toEqual(['• GPA: 3.6']);
   });
 
   it('omits a missing GPA cleanly and keeps the SAT', () => {
     const bullets = bodyFor({ ...player, gpa: null, sat_score: 1210 })
       .split('\n').filter((l) => l.startsWith('•'));
-    expect(bullets).toEqual(['• Position: Defender', '• Graduation: 2027', '• SAT: 1210']);
+    expect(bullets).toEqual(['• SAT: 1210']);
   });
 
-  it('falls back to position and graduation alone when neither is on file', () => {
-    const bullets = bodyFor({ ...player, gpa: null })
-      .split('\n').filter((l) => l.startsWith('•'));
-    expect(bullets).toEqual(['• Position: Defender', '• Graduation: 2027']);
+  /**
+   * Half the corpus. With no GPA and no test score the block used to be
+   * nothing but the two repeated facts; now it resolves to nothing and the
+   * email simply does not have a bullet list.
+   */
+  it('disappears entirely when no academic fact is on file', () => {
+    const body = bodyFor({ ...player, gpa: null });
+    expect(body.split('\n').filter((l) => l.startsWith('•'))).toEqual([]);
+    // The athlete is still fully introduced.
+    expect(body).toContain('a defender');
+    expect(body).toContain('2027 class');
+    expect(body).not.toMatch(/\n{3,}/);
   });
 
   /** Budget stays available to anything that is not the outreach body. */

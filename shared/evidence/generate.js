@@ -388,6 +388,20 @@ export function historicalSameRegion(athlete, ctx) {
       countries,
       count: players.length,
       names: players.map((p) => p.name),
+      /**
+       * The seasons these players were actually on the roster.
+       *
+       * Absent until J4, which is the defect J3 traced: the span was on the
+       * evidence object as `season` and in `describes`, and neither reaches a
+       * surface — so the operator panel could show a regional connection
+       * without showing WHEN, which is most of what makes one worth weighing.
+       *
+       * Taken from the same rows the count is, exactly as
+       * HISTORICAL_SAME_COUNTRY does. NOT from `describes.seasons`: that is the
+       * whole measured window and would say 2022-2025 for a player who was
+       * only ever there in 2023.
+       */
+      seasons: [...new Set(rows.map((r) => String(r.season)))].sort(),
     },
   });
 }
