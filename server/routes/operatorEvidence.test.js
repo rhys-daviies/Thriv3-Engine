@@ -578,8 +578,7 @@ describe('the composer route is untouched by any of this', () => {
     // share a serializer, this is the test that notices.
     expect(Object.keys(out[OPEN]).sort()).toEqual([
       'available', 'composition', 'dispositions', 'engineSelected',
-      'internal', 'legacy_belowThreshold', 'legacy_rejected', 'legacy_suppressed',
-      'maxEvidence', 'operatorSelected', 'otherKnown', 'paragraph',
+      'internal', 'maxEvidence', 'operatorSelected', 'otherKnown', 'paragraph',
       'programme', 'selected', 'structure', 'structureEligible',
       'structureLabel', 'structureOptions', 'structureRefused', 'structureSource',
       'unavailableRequests',

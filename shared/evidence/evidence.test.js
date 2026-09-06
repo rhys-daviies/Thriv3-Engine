@@ -722,7 +722,9 @@ describe('copy holds up grammatically', () => {
       history: [row({ season: '2023', country: 'New Zealand', player_name: 'Kiwi' })],
       match: { graduating_at_position: 1, graduating_names_at_position: ['A'], graduating_total: 1 },
     });
-    for (const ev of result.ranked) {
+    // Every kind generated, not the legacy engine's ranked subset: a copy
+    // rule has to hold for anything the renderer can be handed.
+    for (const ev of result.all) {
       const text = renderEvidence(ev);
       expect(text, ev.kind).not.toMatch(/\b1 \w/);
       expect(text, ev.kind).not.toMatch(/\ss are\b|\bplayer are\b/);
@@ -757,7 +759,7 @@ describe('composition and logging', () => {
     expect(result.selected.length).toBeLessThanOrEqual(MAX_EMAIL_EVIDENCE);
     // Ten kinds are licensed for outreach since G4, so the ranked pool is
     // smaller than it was — the cap is still the thing being tested.
-    expect(result.ranked.length).toBeGreaterThanOrEqual(2);
+    expect(result.all.length).toBeGreaterThanOrEqual(2);
   });
 
   it('produces a log payload carrying what was used and what was not', () => {
@@ -766,10 +768,12 @@ describe('composition and logging', () => {
     expect(payload.primary_kind).toBe('HISTORICAL_SAME_COUNTRY');
     expect(payload.primary_tier).toBe('FACT');
     expect(payload.structure).toBe('RELATIONSHIP_FIRST');
-    // Legacy diagnostics, under their own name since H6.
-    expect(payload.payload.legacy_ranked.length).toBeGreaterThan(0);
-    expect(payload.payload).toHaveProperty('legacy_suppressed');
-    expect(payload.payload).toHaveProperty('legacy_rejected');
+    // H7 stopped logging the legacy selector's parallel account. What the log
+    // carries about a decision is the account of the engine that made it.
+    expect(payload.payload.dispositions.length).toBeGreaterThan(0);
+    for (const gone of ['legacy_ranked', 'legacy_suppressed', 'legacy_rejected', 'legacy_belowThreshold']) {
+      expect(payload.payload, gone).not.toHaveProperty(gone);
+    }
   });
 
   it('renders every selected sentence without throwing, across a busy programme', () => {
@@ -790,7 +794,7 @@ describe('composition and logging', () => {
       match: { graduating_at_position: 2, graduating_names_at_position: ['A', 'B'], graduating_total: 7 },
       coachRows: [{ season: 2026, coach_name: 'Pat Smith', reason: '' }],
     });
-    for (const ev of result.ranked) expect(() => renderEvidence(ev), ev.kind).not.toThrow();
+    for (const ev of result.all) expect(() => renderEvidence(ev), ev.kind).not.toThrow();
     expect(result.sentences.length).toBe(result.selected.length);
   });
 });

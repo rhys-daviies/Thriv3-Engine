@@ -378,6 +378,45 @@ export const MAX_BODY_FACTS = 3;
 export const MAX_RECOGNITION = 1;
 
 /**
+ * Evidence we hold and may not send: the operator's "internal-only" list.
+ *
+ * DERIVED FROM THE LICENCE, and from nothing else. It used to come out of
+ * `selectFrom` — the legacy selector — which computed it correctly but meant
+ * that a surface owning none of this policy ran on every request to produce it.
+ *
+ * TWO CONDITIONS, AND THE SECOND IS NOT DECORATION.
+ *
+ *   Not permitted for OUTREACH. That is what "internal" means, and it is a
+ *   registry answer, not a ranking one.
+ *   Meets its kind's confidence floor. A claim we are not sure enough of is
+ *   not something we know and are choosing not to say; it is something we do
+ *   not know. Showing it under "internal-only findings" would offer an
+ *   operator a finding the system does not stand behind.
+ *
+ * NOT THE SAME SET AS `NOT_LICENSED` + `DENIED` in the dispositions, and the
+ * difference is real: the selector tests the licence FIRST and never reaches
+ * the confidence check for an unlicensed kind, so its disposition list holds
+ * 1,343 more items across the live corpus — every one of them a kind that is
+ * both unlicensed and below its floor. Those belong in neither list.
+ *
+ * Returns them unordered. WHICH claims are internal is a licence question and
+ * belongs here; what order to show them in is a presentation choice and is
+ * made where the result is assembled.
+ */
+export function internalEvidence(all = []) {
+  return all.filter((ev) => !outreachLicensed(ev) && meetsFloor(ev));
+}
+
+/** Whether this object may appear in an email at all. The registry decides. */
+function outreachLicensed(ev) {
+  try { return assertSurfaceRenderable(ev, 'OUTREACH') !== PERMISSION.DENIED; }
+  catch { return false; }
+}
+
+/** Whether the object clears its kind's confidence floor. */
+const meetsFloor = (ev) => confidenceAtLeast(ev.confidence, kindSpec(ev.kind).minConfidence);
+
+/**
  * What a cold email may say about one athlete at one programme.
  *
  * @param {object} evidenceResult  an `evidenceFor` / `selectEvidence` result,

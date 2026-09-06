@@ -20,10 +20,10 @@
 
 import { canonicalPosition } from '../positions.js';
 import { buildProgrammeContext, generateEvidence } from './generate.js';
-import { selectFrom, MAX_EMAIL_EVIDENCE } from './select.js';
+import { MAX_EMAIL_EVIDENCE, priorityOf } from './select.js';
 import { resolveStructure } from './structures.js';
 import { composeOutreach } from '../email/compose.js';
-import { outreachEvidenceFor, applyPrefer } from './outreachEvidence.js';
+import { outreachEvidenceFor, applyPrefer, internalEvidence } from './outreachEvidence.js';
 import { renderEvidence, DEFAULT_HOOK_FRAMING } from './render.js';
 
 export { buildProgrammeContext, generateEvidence, REGIONS, regionFor } from './generate.js';
@@ -99,22 +99,24 @@ export function selectEvidence(athlete, programme = {}, {
   const evidence = generateEvidence(subject, ctx);
 
   /**
-   * WHAT THE EMAIL SAYS COMES FROM `outreachEvidenceFor`. ONE OWNER.
+   * ONE SELECTOR RUNS. `selectFrom` is not it, and no longer runs at all.
    *
-   * `selectFrom` still runs, and still owns the operator panel's diagnostics —
-   * what was generated, what was suppressed as redundant, what fell below a
-   * confidence floor, what a family cap held back. Those are questions about
-   * the whole picture and it answers them well.
+   * It decided nothing outbound after G4 and explained nothing after H6, and
+   * it was still executing on every request — sorting the whole collection by
+   * strength, deduping it, filling slot floors and building a parallel
+   * disposition log — so that four fields could be derived from it. Three of
+   * those were diagnostics nothing read. The fourth, `internal`, is a licence
+   * question, and `internalEvidence` answers it from the registry.
    *
-   * It no longer decides what is SENT. That question is a licence question,
-   * and it ranked by strength, category prior and family cap across nineteen
-   * kinds, most of which may not be said to a stranger at all. The outbound
-   * answer comes from the surface-specific selector, over the full pre-dedupe
-   * collection, and nothing downstream may reach past it.
+   * What was lost with it: the legacy ranking, `engineSelected` as "what the
+   * old engine would have picked", and the side-by-side policy comparison.
+   * Two policies were worth comparing while one was being replaced by the
+   * other; that finished at G4, and the comparison has answered no question
+   * since. It is still computable — `selectFrom` is exported and tested — and
+   * a request no longer pays for it.
    */
   const roles = outreachEvidenceFor({ all: evidence });
   const byKind = new Map(evidence.map((ev) => [ev.kind, ev]));
-  const diagnostics = selectFrom(evidence, { maxEmail, prefer });
   /**
    * The operator's own choice, applied to the LICENSED set.
    *
@@ -127,10 +129,26 @@ export function selectEvidence(athlete, programme = {}, {
    */
   const applied = applyPrefer(roles, prefer);
 
+  /**
+   * What the email actually carries, in the order it carries it.
+   *
+   * SELECTED IS NOT RENDERED. The selector licenses up to three body claims;
+   * composition renders at most two. `selected` is the licensed set — logged,
+   * offered to the operator, available to swap — and `sentences` is what a
+   * coach will read.
+   */
+  const selected = [...applied.hooks, ...applied.relevance, ...applied.recognition]
+    .map((i) => byKind.get(i.kind)).filter(Boolean);
+
   // Resolved AFTER selection and against the ROLES: an operator who swapped
   // the evidence has changed which structures the email can honestly carry,
   // and a request for an ineligible one is refused rather than swapped.
-  const structure = resolveStructure({ selected: diagnostics.selected, roles: applied }, preferStructure);
+  //
+  // `selected` was the LEGACY selector's list here until H7. `eligibleFlows`
+  // has read only `roles` since H4, so it changed nothing — but a function
+  // being handed one engine's answer to decide another engine's shape is the
+  // arrangement this stage exists to remove, whether or not it was read.
+  const structure = resolveStructure({ selected, roles: applied }, preferStructure);
 
   /**
    * What the copy layer needs to write like a person rather than a report.
@@ -150,17 +168,7 @@ export function selectEvidence(athlete, programme = {}, {
   const composed = composeOutreach(structure, applied, byKind, renderCtx);
   const sentences = composed.sentences;
 
-  /**
-   * What the email actually carries, in the order it carries it.
-   *
-   * SELECTED IS NOT RENDERED. The selector licenses up to three body claims;
-   * composition renders at most two. `selected` is the licensed set — logged,
-   * offered to the operator, available to swap — and `sentences` is what a
-   * coach will read.
-   */
   const renderedKinds = new Set(sentences.map((x) => x.kind));
-  const selected = [...applied.hooks, ...applied.relevance, ...applied.recognition]
-    .map((i) => byKind.get(i.kind)).filter(Boolean);
 
   return {
     athlete: subject,
@@ -181,9 +189,32 @@ export function selectEvidence(athlete, programme = {}, {
       rosterAgeDays: ctx.freshness?.ageDays ?? null,
       rosterSeason: ctx.match?.roster_season ?? null,
     },
-    // The operator panel's picture: what was generated, what was suppressed as
-    // redundant and why, what fell below a floor. Not what is sent.
-    ...diagnostics,
+    /**
+     * Everything generated, in generation order.
+     *
+     * It used to arrive sorted by the legacy engine's `priorityOf`. Nothing
+     * downstream reads the order — `toWire` builds a Map, the reports group by
+     * kind — and a ranking is a policy this file no longer runs.
+     */
+    all: evidence,
+    /**
+     * What we know and may not send, from the licence.
+     *
+     * See `internalEvidence`: not permitted for OUTREACH, and clearing its own
+     * confidence floor. The same set `selectFrom` produced across all 3,498
+     * live pairings, which is the point — the set did not change, only who
+     * computes it.
+     *
+     * STRONGEST FIRST, and `priorityOf` rather than plain `strength`, because
+     * that is the order the panel's drawer has always shown and an ownership
+     * change should not silently reorder a list an operator reads. Measured
+     * rather than assumed: the two orderings differ on 2,463 of the 3,498
+     * pairings, so "sort by strength, it comes to the same thing" would have
+     * been wrong. `priorityOf` is a comparator, not the legacy policy — what
+     * H7 removed is `selectFrom`, the ranking-plus-dedupe-plus-slot-floors
+     * engine, and a shared sort key is not that.
+     */
+    internal: [...internalEvidence(evidence)].sort((a, b) => priorityOf(b) - priorityOf(a)),
     /**
      * WHAT BECAME OF EACH KIND, ACCORDING TO THE ENGINE THAT DECIDED IT.
      *
@@ -202,16 +233,25 @@ export function selectEvidence(athlete, programme = {}, {
      */
     dispositions: applied.dispositions ?? [],
     /**
-     * The legacy engine's own answer, whole and under its own name.
+     * Whether a human overrode the selector, and what they asked for that we
+     * could not honour.
      *
-     * It no longer decides anything outbound. It is kept because the panel and
-     * the send-time log both want "what did we know and not use", and because
-     * an analysis comparing the two policies needs the old one to still be
-     * computable — the ranking, the family caps and the slot floors are the
-     * baseline the licence is measured against.
+     * From `applied`, which is the function that honoured or refused it. These
+     * came from the legacy selector until H7 — a second, differently-scoped
+     * `prefer` implementation matching against its own survivor list — so the
+     * wire reported one function's answer about another function's decision.
      */
-    legacy: diagnostics,
-    // What the licence permits, replacing the legacy engine's ranked pick.
+    operatorSelected: applied.operatorSelected ?? false,
+    unavailableRequests: applied.unavailableRequests ?? [],
+    /**
+     * What the selector chose before the operator touched it.
+     *
+     * Logged so an analysis can ask whether operators improved on the engine.
+     * It named the LEGACY engine's pick until H7, which had not been the
+     * engine for two stages.
+     */
+    engineSelected: [...roles.hooks, ...roles.relevance, ...roles.recognition].map((i) => i.kind),
+    // What the licence permits.
     selected,
     primary: selected[0] ?? null,
     secondary: selected[1] ?? null,
@@ -374,18 +414,14 @@ export function evidenceLogPayload(result, { renderedKinds = null } = {}) {
        */
       dispositions: result.dispositions ?? [],
       /**
-       * The legacy selector's parallel account, under its own name.
+       * The legacy selector's parallel account is gone from here.
        *
-       * Kept because an analysis comparing the two policies needs the old one
-       * computable, and prefixed because these four fields answer a DIFFERENT
-       * question — strength ranking, family caps and slot floors across
-       * nineteen kinds — and an unlabelled `suppressed` beside an outbound
-       * `dispositions` is exactly the mixing this stage removed from the wire.
+       * H6 gave these four fields a `legacy_` prefix so they could not be read
+       * as this surface's answer. H7 asked the next question — who reads them —
+       * and the answer was nobody. They recorded what a policy replaced at G4
+       * would have done, on every send, forever. `dispositions` above is the
+       * account of the engine that actually decided.
        */
-      legacy_ranked: result.ranked.map((e) => ({ kind: e.kind, strength: e.strength, tier: e.tier })),
-      legacy_suppressed: result.suppressed,
-      legacy_belowThreshold: result.belowThreshold ?? [],
-      legacy_rejected: result.rejected,
       structureEligible: result.structure?.eligible ?? [],
       structureSource: result.structure?.source ?? null,
       structureRefused: result.structure?.refusedRequest ?? null,

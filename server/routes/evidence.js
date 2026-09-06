@@ -215,7 +215,7 @@ export function toWire(result) {
      */
     otherKnown: OTHER_KNOWN.flatMap((disposition) => (result.dispositions ?? [])
       .filter((d) => d.disposition === disposition)).map((entry) => {
-      const ev = byKind.get(entry.kind) ?? result.usable.find((e) => e.kind === entry.kind);
+      const ev = byKind.get(entry.kind) ?? null;
       return {
         kind: entry.kind,
         label: kindLabel(entry.kind),
@@ -243,16 +243,9 @@ export function toWire(result) {
       kind: ev.kind, tier: ev.tier, confidence: ev.confidence,
       strength: ev.strength, season: ev.season, source: ev.source,
     })),
-    /**
-     * The legacy selector's parallel account, prefixed so it cannot be read as
-     * this surface's answer. No client consumes these; they are here for the
-     * same reason `result.legacy` is — an analysis comparing the two policies
-     * needs the old one visible — and an unlabelled `suppressed` beside an
-     * outbound `dispositions` is precisely the mixing H6 removed.
-     */
-    legacy_suppressed: result.legacy?.suppressed ?? [],
-    legacy_belowThreshold: result.legacy?.belowThreshold ?? [],
-    legacy_rejected: result.legacy?.rejected ?? [],
+    // The three `legacy_*` arrays that stood here carried the old selector's
+    // parallel account across the wire on every request. H6 named them so they
+    // could not be misread; H7 found no reader and stopped sending them.
     // One row per generated kind and how it ended up, which is what the tab
     // groups by. Carries no data — a disposition is a decision about evidence,
     // not evidence — so it adds nothing the client could render from.

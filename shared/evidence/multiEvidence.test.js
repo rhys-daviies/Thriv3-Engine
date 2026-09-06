@@ -26,19 +26,22 @@ import { outreachEvidenceFor, ROLES } from './outreachEvidence.js';
 // ---------------------------------------------------------------------------
 
 /**
- * The LEGACY selector's own answer.
+ * The LEGACY selector's own answer, asked for explicitly.
  *
  * These tests are about `selectFrom` — its ranking, its family caps, its slot
  * floors, its operator swap. Since G4 that engine no longer decides what an
- * email says; `outreachEvidenceFor` does, under a licence. The legacy result
- * is still computed and still returned under its own name, because the panel
- * and the log want it and because it is the baseline the new policy is
- * measured against. So these assertions read it explicitly rather than through
- * `selected`, which now means something else.
+ * email says; `outreachEvidenceFor` does, under a licence.
+ *
+ * Until H7 it still RAN on every production request and returned its answer
+ * under `result.legacy`, so this helper read it from there. Nothing consumed
+ * it, so H7 stopped computing it — and the assertions below did not change,
+ * because the function is exported and its behaviour is unchanged. That is the
+ * whole shape of the migration: the old policy is still testable, and a
+ * request no longer pays to compute it.
  */
-const selectEvidenceLegacy = (...args) => {
-  const r = selectEvidence(...args);
-  return { ...r, ...r.legacy };
+const selectEvidenceLegacy = (athlete, ctx, opts = {}) => {
+  const r = selectEvidence(athlete, ctx, opts);
+  return { ...r, ...selectFrom(r.all, { maxEmail: opts.maxEmail, prefer: opts.prefer }) };
 };
 
 const nzDefender = {
@@ -415,7 +418,7 @@ describe('operator selection', () => {
 
   it('still respects the count ceiling', () => {
     const result = selectEvidence(nzDefender, programme, {
-      prefer: selectEvidence(nzDefender, programme).ranked.map((e) => e.kind),
+      prefer: selectEvidence(nzDefender, programme).all.map((e) => e.kind),
     });
     expect(result.selected.length).toBeLessThanOrEqual(MAX_EMAIL_EVIDENCE);
   });
@@ -631,8 +634,9 @@ describe('multi-evidence logging', () => {
   it('carries the dispositions and the reasons into the payload', () => {
     const payload = evidenceLogPayload(selectEvidence(nzDefender, richProgramme()));
     expect(payload.payload.dispositions.length).toBeGreaterThan(0);
-    expect(payload.payload).toHaveProperty('legacy_belowThreshold');
     expect(payload.payload).toHaveProperty('engineSelected');
+    // H7 stopped logging the legacy selector's parallel account entirely.
+    expect(payload.payload).not.toHaveProperty('legacy_belowThreshold');
     // The logged dispositions are the OUTBOUND selector's, so every kind the
     // email carries appears as SELECTED with an order rather than by absence.
     const sent = payload.payload.dispositions.filter((d) => d.disposition === 'SELECTED');
@@ -704,8 +708,9 @@ describe('the ranking itself did not move', () => {
 
   it('puts the same evidence first as a two-item selection would', () => {
     const programme = richProgramme();
-    const four = selectFrom(selectEvidence(nzDefender, programme).usable, { maxEmail: 4 });
-    const two = selectFrom(selectEvidence(nzDefender, programme).usable, { maxEmail: 2 });
+    const generated = selectEvidence(nzDefender, programme).all;
+    const four = selectFrom(generated, { maxEmail: 4 });
+    const two = selectFrom(generated, { maxEmail: 2 });
     expect(four.selected.slice(0, 2).map((e) => e.kind))
       .toEqual(two.selected.map((e) => e.kind));
   });

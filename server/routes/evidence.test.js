@@ -250,16 +250,15 @@ describe('wire shape', () => {
    * contains.
    */
   it('carries what the panel needs and nothing it does not', () => {
-    // The three `legacy_` keys are the legacy selector's arrays under a name
-    // that says so. H6 renamed them: an unprefixed `suppressed` sitting beside
-    // an outbound `dispositions` is how one engine's answer gets read as the
-    // other's, which it was for five programmes.
+    // Three `legacy_` keys stood here after H6, which named the old selector's
+    // arrays so they could not be misread as this surface's answer. H7 asked
+    // who read them, found nobody, and stopped sending a replaced policy's
+    // opinion across the wire on every request.
     const athlete = db.prepare('SELECT * FROM players WHERE id = ?').get(athleteId);
     const wire = toWire(evidenceFor(athlete, SCHOOL, { sport: 'mens-soccer' }));
     expect(Object.keys(wire).sort()).toEqual([
       'available', 'composition', 'dispositions', 'engineSelected',
-      'internal', 'legacy_belowThreshold', 'legacy_rejected', 'legacy_suppressed',
-      'maxEvidence', 'operatorSelected', 'otherKnown', 'paragraph',
+      'internal', 'maxEvidence', 'operatorSelected', 'otherKnown', 'paragraph',
       'programme', 'selected', 'structure', 'structureEligible',
       'structureLabel', 'structureOptions', 'structureRefused', 'structureSource',
       'unavailableRequests',
@@ -299,8 +298,7 @@ describe('wire shape', () => {
   it('does not yet expose describes, comparison or permissions', () => {
     const athlete = db.prepare('SELECT * FROM players WHERE id = ?').get(athleteId);
     const result = evidenceFor(athlete, SCHOOL, { sport: 'mens-soccer' });
-    const anyWindow = [...result.selected, ...result.internal, ...result.ranked]
-      .some((ev) => ev.describes !== null);
+    const anyWindow = result.all.some((ev) => ev.describes !== null);
     expect(anyWindow, 'fixture should produce at least one windowed item').toBe(true);
 
     const wire = toWire(result);

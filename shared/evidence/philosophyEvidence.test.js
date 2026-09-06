@@ -298,10 +298,12 @@ describe('selection isolation', () => {
     const result = selectEvidence(athlete, ctx);
     const internalKinds = result.internal.map((e) => e.kind);
     expect(internalKinds).toContain('FRESHMAN_MINUTES_LADDER');
-    // And none of them is offerable as an email angle.
-    for (const kind of DEV_KINDS) {
-      expect(result.ranked.map((e) => e.kind), kind).not.toContain(kind);
-    }
+    // And none of them is offerable as an email angle. Asked of the outbound
+    // roles, which is the list an operator can actually swap from; it was the
+    // legacy engine's ranking until H7 stopped computing one.
+    const offerable = [...result.roles.hooks, ...result.roles.relevance,
+      ...result.roles.recognition, ...(result.roles.alternatives ?? [])].map((i) => i.kind);
+    for (const kind of DEV_KINDS) expect(offerable, kind).not.toContain(kind);
   });
 
   it('leaves every email-eligible kind exactly as it was', () => {
@@ -534,7 +536,9 @@ describe('playerFit provenance', () => {
     it('never enters outreach selection', () => {
       const result = selectEvidence(athlete, ctxWithFit(mixedRows()));
       expect(result.selected.map((e) => e.kind)).not.toContain('ATHLETE_COHORT_LADDER');
-      expect(result.ranked.map((e) => e.kind)).not.toContain('ATHLETE_COHORT_LADDER');
+      const offerable = [...result.roles.hooks, ...result.roles.relevance,
+        ...result.roles.recognition, ...(result.roles.alternatives ?? [])].map((i) => i.kind);
+      expect(offerable).not.toContain('ATHLETE_COHORT_LADDER');
     });
 
     it('keeps the two ladders in different dedupe groups so neither hides the other', () => {

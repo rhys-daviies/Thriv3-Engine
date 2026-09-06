@@ -543,8 +543,15 @@ describe('there is one of each, in production', () => {
     const index = strip(read('shared/evidence/index.js'));
     expect(index).toContain('outreachEvidenceFor(');
     expect(index).toContain('composeOutreach(');
-    // `selectFrom` still runs, and only for the panel's diagnostics.
-    expect(index).toContain('diagnostics');
+    /**
+     * And `selectFrom` does not run at all. It decided nothing outbound after
+     * G4, explained nothing after H6, and was still sorting, deduping and
+     * slot-filling the whole collection on every request so that four fields
+     * could be derived from it. H7 removed the call; the function is exported
+     * and tested, and a production request no longer computes a policy the
+     * system replaced.
+     */
+    expect(index).not.toContain('selectFrom(');
   });
 
   it('renders outbound claims through `outreachCopyFor` and nothing else', () => {

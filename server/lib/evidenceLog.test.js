@@ -69,19 +69,21 @@ describe('evidence logging', () => {
     expect(row.class_year).toBe(2027);
   });
 
-  it('keeps what was suppressed and rejected, not only what was used', () => {
+  it('keeps what was not used, and says which engine decided', () => {
     const id = outreachRow();
     logEvidence({ outreachId: id, athleteId, evidence: nzEvidence() });
 
     const { payload } = evidenceForOutreach(id);
-    // H6 renamed these. They are the LEGACY selector's account — a different
-    // policy over a different set — and an unprefixed `suppressed` sitting
-    // beside an outbound `dispositions` is what let the two be read as one.
-    expect(payload).toHaveProperty('legacy_suppressed');
-    expect(payload).toHaveProperty('legacy_rejected');
-    expect(payload.legacy_ranked.length).toBeGreaterThan(0);
-    expect(payload).not.toHaveProperty('suppressed');
-    expect(payload).not.toHaveProperty('ranked');
+    // One account, from the selector that made the decision. H6 prefixed the
+    // legacy arrays so they could not be misread; H7 asked who read them,
+    // found nobody, and stopped writing a replaced policy's opinion to every
+    // send row forever.
+    expect(payload.dispositions.length).toBeGreaterThan(0);
+    expect(payload.internal).toBeTruthy();
+    for (const gone of ['suppressed', 'rejected', 'ranked',
+      'legacy_suppressed', 'legacy_rejected', 'legacy_ranked', 'legacy_belowThreshold']) {
+      expect(payload, gone).not.toHaveProperty(gone);
+    }
   });
 
   it('separates "no roster on file" from "roster with nothing to say"', () => {

@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { toWire } from './evidence.js';
 import { selectEvidence } from '../../shared/evidence/index.js';
+import { selectFrom } from '../../shared/evidence/select.js';
 import { outreachEvidenceFor, applyPrefer, ROLES } from '../../shared/evidence/outreachEvidence.js';
 import { defineEvidence, CONFIDENCE, kindLabel } from '../../shared/evidence/kinds.js';
 
@@ -166,13 +167,12 @@ describe('the wire carries the outbound decision and nothing else', () => {
     expect(source).not.toContain('selectFrom');
 
     /**
-     * The legacy arrays may still be PASSED THROUGH — that is what the
-     * `legacy_` prefix is for — and may never be read into an entry. Asserted
-     * line by line: every mention sits on a line that names it legacy.
+     * H6 allowed the legacy arrays to be PASSED THROUGH under a `legacy_`
+     * prefix, and asserted line by line that every mention was named. H7 found
+     * no reader and stopped sending them, so the assertion is now absence.
      */
-    for (const [i, line] of source.split('\n').entries()) {
-      if (!/result\.(legacy|suppressed|belowThreshold|rejected)\b/.test(line)) continue;
-      expect(line.trim(), `line ${i + 1}`).toMatch(/^legacy_/);
+    for (const gone of ['result.legacy', 'result.suppressed', 'result.belowThreshold', 'result.rejected']) {
+      expect(source, gone).not.toContain(gone);
     }
   });
 
@@ -209,13 +209,23 @@ describe('the wire carries the outbound decision and nothing else', () => {
     for (const e of wire.selected) expect(e.displayed, e.kind).toBe(placement.get(e.kind) ?? false);
   });
 
-  it('leaves the legacy answer computable, under its own name', () => {
-    // It is not deleted. An analysis comparing the two policies needs the old
-    // one, and the panel is simply no longer one of its readers.
+  it('does not compute the legacy answer at all, and can still be asked for it', () => {
+    /**
+     * H6 left `selectFrom` running on every request and returning its answer
+     * under `result.legacy`. H7 asked who read it: nobody. So a production
+     * request no longer computes a policy the system replaced at G4 — and the
+     * function is unchanged, exported, and gives the same answer to anyone who
+     * asks for it explicitly.
+     */
     const result = selectEvidence(athlete, ctx());
-    expect(result.legacy).toBeTruthy();
-    expect(result.legacy.dispositions.length).toBeGreaterThan(0);
-    // And it may disagree, harmlessly, because nothing operator-facing reads it.
-    expect(result.dispositions).not.toEqual(result.legacy.dispositions);
+    expect(result).not.toHaveProperty('legacy');
+    for (const gone of ['ranked', 'usable', 'suppressed', 'belowThreshold', 'rejected']) {
+      expect(result, gone).not.toHaveProperty(gone);
+    }
+
+    const asked = selectFrom(result.all);
+    expect(asked.dispositions.length).toBeGreaterThan(0);
+    // And it may still disagree — harmlessly, because nothing reads it.
+    expect(result.dispositions).not.toEqual(asked.dispositions);
   });
 });

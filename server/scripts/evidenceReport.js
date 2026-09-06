@@ -20,7 +20,8 @@ import db from '../db/client.js';
 import { Player } from '../db/entities/player.js';
 import { buildRosterIndex, rankMatches, normaliseAthlete } from '../../shared/matching/pool.js';
 import { evidenceFor } from '../lib/evidenceQueries.js';
-import { permissionsFor, PERMISSION } from '../../shared/evidence/kinds.js';
+import { permissionsFor, PERMISSION, kindSpec } from '../../shared/evidence/kinds.js';
+import { meetsConfidence, priorityOf } from '../../shared/evidence/select.js';
 import { evidenceReport } from '../lib/evidencePerformance.js';
 import { positionLabel } from '../../shared/positions.js';
 import { SQUAD_SEASON } from '../../shared/philosophy.js';
@@ -37,7 +38,26 @@ function findAthlete(needle) {
 
 /** The evidence picture for one pairing, in the shape the brief asked for. */
 function report(athlete, match, evidence) {
-  const { all, selected, structure, programme, suppressed, rejected } = evidence;
+  const { all, selected, structure, programme, dispositions } = evidence;
+
+  /**
+   * The outbound selector's account, which is what this report is about.
+   *
+   * It read `evidence.suppressed` and `evidence.rejected` — the legacy
+   * selector's arrays — until H7 stopped that engine running on every
+   * request. Same two questions, asked of the engine that decides them.
+   */
+  const deduped = dispositions.filter((d) => d.disposition === 'DEDUPED');
+  const belowFloorKinds = all.filter((ev) => !meetsConfidence(ev));
+
+  /**
+   * Strongest first, for a numbered list somebody reads top-down.
+   *
+   * `all` used to arrive sorted, as a side effect of passing through the
+   * legacy selector. It is generation order now, and a report is the right
+   * place to decide how a report is ordered.
+   */
+  const ranked = [...all].sort((a, b) => priorityOf(b) - priorityOf(a));
 
   console.log(`\nPROGRAM:  ${programme.name}`);
   console.log(`ATHLETE:  ${athlete.full_name}`);
@@ -49,7 +69,7 @@ function report(athlete, match, evidence) {
     + `${programme.hasHistory ? ', earlier seasons on file' : ', no earlier seasons on file'}`);
 
   console.log('\nAVAILABLE EVIDENCE');
-  if (!all.length) {
+  if (!ranked.length) {
     console.log('  none');
   } else {
     const selectedKinds = new Set(selected.map((e) => e.kind));
@@ -57,8 +77,9 @@ function report(athlete, match, evidence) {
     // the licence permits up to three body claims and composition carries
     // at most two.
     const renderedKinds = new Set(evidence.sentences.map((x) => x.kind));
-    const usable = new Set(evidence.usable.map((e) => e.kind));
-    all.forEach((ev, i) => {
+    // Asked directly of the registry. It used to be read off the legacy
+    // selector's `usable` array — a field whose only meaning was this test.
+    ranked.forEach((ev, i) => {
       // The authoritative grade. A boolean here reported as emailable, for
       // fifteen kinds, things G4 had stopped sending; H3 removed it.
       const flag = permissionsFor(ev.kind).OUTREACH === PERMISSION.DENIED ? '   [not for outreach]' : '';
@@ -70,7 +91,7 @@ function report(athlete, match, evidence) {
       // checked at send time. Here it mirrors selection among email-eligible
       // kinds and is false for anything the registry forbids in email.
       console.log(`     rendered: ${renderedKinds.has(ev.kind)}`);
-      if (!usable.has(ev.kind)) console.log('     REJECTED: below its confidence floor');
+      if (!meetsConfidence(ev)) console.log('     REJECTED: below its confidence floor');
       console.log(`     ${describe(ev)}`);
       console.log(`     source: ${ev.source}${ev.season ? `, ${ev.season}` : ''}`);
     });
@@ -80,13 +101,15 @@ function report(athlete, match, evidence) {
   console.log(`  Primary:   ${selected[0]?.kind ?? '—'}`);
   console.log(`  Secondary: ${selected[1]?.kind ?? '—'}`);
 
-  if (suppressed.length) {
+  if (deduped.length) {
     console.log('\n  SUPPRESSED AS REDUNDANT');
-    for (const s of suppressed) console.log(`    ${s.kind} — says the same as ${s.suppressedBy}`);
+    for (const d of deduped) console.log(`    ${d.kind} — says the same as ${d.supersededBy}`);
   }
-  if (rejected.length) {
+  if (belowFloorKinds.length) {
     console.log('\n  REJECTED');
-    for (const r of rejected) console.log(`    ${r.kind} — ${r.reason}`);
+    for (const ev of belowFloorKinds) {
+      console.log(`    ${ev.kind} — confidence ${ev.confidence} below ${kindSpec(ev.kind).minConfidence}`);
+    }
   }
 
   console.log('\nEMAIL STRUCTURE');

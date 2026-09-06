@@ -128,14 +128,14 @@ describe('a tampered client cannot restore a denied kind', () => {
   });
 
   it('still honours a preference among permitted kinds', () => {
-    const permitted = derive().ranked.map((e) => e.kind);
+    const permitted = derive().selected.map((e) => e.kind);
     expect(permitted.length).toBeGreaterThan(1);
     const chosen = derive({ prefer: [permitted[1]] }).selected.map((e) => e.kind);
     expect(chosen).toEqual([permitted[1]]);
   });
 
   it('drops the denied names out of a mixed preference and keeps the rest', () => {
-    const permitted = derive().ranked.map((e) => e.kind);
+    const permitted = derive().selected.map((e) => e.kind);
     const result = derive({ prefer: [DENIED[0], permitted[0]] });
     expect(result.selected.map((e) => e.kind)).toEqual([permitted[0]]);
     expect(result.unavailableRequests).toEqual([DENIED[0]]);

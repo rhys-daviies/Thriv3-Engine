@@ -279,11 +279,10 @@ function main() {
       console.log(`    ${d.kind.padEnd(32)} ${d.disposition}`);
     }
 
-    console.log('\n  LEGACY DIAGNOSTIC — SUPPRESSED EVIDENCE');
-    const dropped = [...(evidence.suppressed ?? []), ...(evidence.belowThreshold ?? []),
-      ...(evidence.rejected ?? [])];
-    if (!dropped.length) console.log('    (none)');
-    for (const s of dropped) console.log(`    ${s.kind.padEnd(32)} ${s.reason}`);
+    // The legacy engine's suppressed/below-threshold/rejected lists stood here.
+    // They described a policy replaced at G4 by an engine whose own account is
+    // printed above, with a reason per kind — so this section restated a
+    // different question's answer under a heading that looked like this one's.
 
     console.log('\n  SELECTED ORDER');
     evidence.selected.forEach((ev, n) => console.log(
