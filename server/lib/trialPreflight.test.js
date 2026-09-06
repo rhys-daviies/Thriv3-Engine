@@ -18,7 +18,7 @@ let health;
 let pageFor;
 
 beforeEach(() => {
-  db.exec('DELETE FROM sync_state; DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
+  db.exec('DELETE FROM sync_state; DELETE FROM tracking_events; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
   health = {
     ok: true, liveTokens: 1, revokedTokens: 0, events: 0,
     maxEventId: 0, eventSequence: 0, guardUnlockedUntil: null, deletesLocked: true,

@@ -157,7 +157,7 @@ const preview = (athlete, evidence, college = COLLEGE) => {
 beforeEach(() => {
   composed.length = 0;
   failNext = null;
-  db.exec('DELETE FROM outreach_evidence; DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches; DELETE FROM suppressions;');
+  db.exec('DELETE FROM outreach_evidence; DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches; DELETE FROM suppressions;');
 });
 
 // ---------------------------------------------------------------------------

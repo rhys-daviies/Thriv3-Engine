@@ -6,6 +6,7 @@ import { isSuppressed } from '../lib/suppressions.js';
 import { isSendCapped, recentSendCount } from '../lib/sendCap.js';
 import { createOutreach, markOutreachDrafted, markOutreachSent } from '../lib/outreach.js';
 import { logEvidence } from '../lib/evidenceLog.js';
+import { recordDraft, confirmSend } from '../lib/outreachSend.js';
 import { evidenceFor } from '../lib/evidenceQueries.js';
 import { templateVariant } from '../../shared/evidence/templateVariant.js';
 import { BODY_SOURCE } from '../../src/lib/emailTemplate.js';
@@ -270,6 +271,42 @@ export async function sendOutreach({
        */
       markOutreachDrafted(outreach.id);
       if (send) markOutreachSent(outreach.id);
+
+      /**
+       * The immutable record of THIS message.
+       *
+       * Written after the compose returned, so it records a body that reached
+       * Outlook rather than one we intended to write — and in two phases,
+       * because the world has two: the snapshot is frozen here from the
+       * evidence and the body as sent, and the row only becomes an analytics
+       * send when something we observed sent it.
+       *
+       * Wrapped, and deliberately so. `logEvidence` has always been
+       * best-effort on the principle that a gap in the analysis is survivable
+       * and a campaign that aborts halfway through a list is not. This is the
+       * same trade: a coach has already received the email by the time we get
+       * here, and throwing now would neither unsend it nor help.
+       */
+      if (evidenceUsed) {
+        try {
+          recordDraft({
+            outreachId: outreach.id,
+            athleteId,
+            coachId: record.id,
+            collegeName,
+            sport: athlete.sport,
+            evidence: evidenceUsed,
+            body: personalisedBody,
+            subject: personalise(subject, greetingName, coach.name || 'Coach'),
+            bodySource: Object.values(BODY_SOURCE).includes(bodySource) ? bodySource : null,
+            templateVariant: variant,
+            renderedKinds,
+          });
+          if (send) confirmSend(outreach.id);
+        } catch (err) {
+          console.warn(`  send record failed for outreach ${outreach.id}: ${err.message}`);
+        }
+      }
 
       // Written after the compose succeeded, so the table records messages
       // that actually reached Outlook rather than ones we intended to write.

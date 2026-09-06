@@ -372,6 +372,105 @@ function backfillAcademicRatingSource(db) {
   }
 }
 
+/**
+ * One send event for every email already confirmed sent.
+ *
+ * CONSERVATIVE, AND IT INVENTS NOTHING.
+ *
+ * Every historical row is stamped LEGACY_UNKNOWN. Fourteen of them carry an
+ * `outreach_evidence` snapshot and thirteen carry none, and both are recorded
+ * as what they are — a null snapshot is the honest record of an email we did
+ * not instrument, and filling it in from today's engine would fabricate a
+ * decision that was never made.
+ *
+ * The evidence that IS present is copied narrowly: structure, body source,
+ * variant and the stored sentences. `primary_kind` is deliberately NOT copied
+ * into the analytics columns — those rows name kinds that are no longer
+ * licensed and one names a RECOGNITION kind as primary, a state the current
+ * model cannot represent. It stays readable in the legacy table and in
+ * `payload.legacy`, and it is not laundered into a column an analysis would
+ * read as current vocabulary.
+ *
+ * Idempotent: keyed on (outreach_id, sequence), and every historical send is
+ * sequence 1 because nothing has ever sent a follow-up.
+ */
+function backfillSendEvents(db) {
+  const rows = db.prepare(`
+    SELECT o.id, o.athlete_id, o.coach_id, o.sent_at, o.drafted_at, o.created_at,
+           e.college_name, e.sport, e.structure, e.structure_source, e.body_source,
+           e.template_variant, e.rendered_paragraph, e.payload
+    FROM outreach o
+    LEFT JOIN outreach_evidence e ON e.outreach_id = o.id
+    WHERE o.sent_at IS NOT NULL
+      AND NOT EXISTS (SELECT 1 FROM outreach_send s WHERE s.outreach_id = o.id)
+  `).all();
+  if (!rows.length) return 0;
+
+  const insert = db.prepare(`
+    INSERT INTO outreach_send (
+      id, outreach_id, sequence, drafted_at, sent_at,
+      athlete_id, coach_id, college_name, sport, policy_version,
+      structure, structure_source, body_source, template_variant,
+      has_personalisation, primary_kind, primary_role, hook_kind,
+      rendered_kinds, rendered_roles, rendered_count,
+      subject, body_hash, payload, created_at
+    ) VALUES (
+      @id, @outreach_id, 1, @drafted_at, @sent_at,
+      @athlete_id, @coach_id, @college_name, @sport, 'LEGACY_UNKNOWN',
+      @structure, @structure_source, @body_source, @template_variant,
+      NULL, NULL, NULL, NULL,
+      NULL, NULL, NULL,
+      NULL, NULL, @payload, @created_at
+    )
+  `);
+
+  let n = 0;
+  db.transaction(() => {
+    for (const r of rows) {
+      let legacy = null;
+      if (r.payload) {
+        try {
+          const p = JSON.parse(r.payload);
+          /**
+           * Only what the current vocabulary can hold: the sentences as sent,
+           * and the paragraph. `ranked`, `suppressed`, `belowThreshold` and
+           * `rejected` are the legacy selector's fields, deleted at H7, and
+           * they are NOT copied — the new model speaks one language. They stay
+           * untouched in `outreach_evidence` for anyone auditing back.
+           */
+          legacy = {
+            rendered: (p.sentences ?? []).map((x) => ({
+              order: x.order, slot: x.slot, role: null, kind: x.kind, text: x.text,
+            })),
+            paragraph: r.rendered_paragraph ?? null,
+            note: 'Pre-P2 send. Kinds and roles are in a retired vocabulary and are '
+              + 'not promoted to the analytics columns. See outreach_evidence for the '
+              + 'full historical record.',
+          };
+        } catch { legacy = null; }
+      }
+      insert.run({
+        id: `legacy-${r.id}`,
+        outreach_id: r.id,
+        drafted_at: r.drafted_at,
+        sent_at: r.sent_at,
+        athlete_id: r.athlete_id,
+        coach_id: r.coach_id,
+        college_name: r.college_name,
+        sport: r.sport,
+        structure: r.structure,
+        structure_source: r.structure_source,
+        body_source: r.body_source,
+        template_variant: r.template_variant,
+        payload: legacy ? JSON.stringify({ legacy }) : null,
+        created_at: r.created_at,
+      });
+      n += 1;
+    }
+  })();
+  return n;
+}
+
 export function migrate(db) {
   addMissingColumns(db, 'players', PLAYER_COLUMNS);
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_players_public_slug ON players(public_slug)');
@@ -391,6 +490,7 @@ export function migrate(db) {
   // After the column exists, never before: schema.sql runs first and cannot
   // index a column this function is about to add.
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_evidence_selected ON outreach_evidence(selected_kinds)');
+  backfillSendEvents(db);
   addMissingColumns(db, 'recruiting_arrivals', RECRUITING_ARRIVAL_COLUMNS);
   backfillRecruitingClassYear(db);
   backfillAcademicRatingSource(db);

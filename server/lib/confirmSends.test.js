@@ -22,7 +22,7 @@ const { markOutreachDrafted, markOutreachSent } = await import('./outreach.js');
 const ATHLETE = 'athlete-1';
 
 function seed() {
-  db.exec('DELETE FROM outreach; DELETE FROM coaches; DELETE FROM players;');
+  db.exec('DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM coaches; DELETE FROM players;');
   db.prepare(`INSERT INTO players (id, full_name, position, sport, created_date, updated_date)
     VALUES (?, 'Rhys Davies', 'DEFENSE', 'mens-soccer', '2026-01-01', '2026-01-01')`).run(ATHLETE);
 }

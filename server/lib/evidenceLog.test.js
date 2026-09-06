@@ -12,7 +12,7 @@ const { selectEvidence } = await import('../../shared/evidence/index.js');
 const athleteId = randomUUID();
 
 function seed() {
-  db.exec('DELETE FROM outreach_evidence; DELETE FROM engagement_rollup; DELETE FROM outreach; DELETE FROM coaches;');
+  db.exec('DELETE FROM outreach_evidence; DELETE FROM engagement_rollup; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM coaches;');
   db.prepare(`INSERT OR REPLACE INTO players (id, created_date, updated_date, full_name, position, sport)
     VALUES (?, '2026-01-01', '2026-01-01', 'Rhys Davies', 'Defender', 'mens-soccer')`).run(athleteId);
 }

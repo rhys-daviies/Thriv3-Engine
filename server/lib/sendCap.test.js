@@ -29,7 +29,7 @@ function outreachRow(coachId, { sentAt = utcNow(), athleteId } = {}) {
     .run(randomUUID(), athleteId || athlete(), coachId, randomUUID(), sentAt, utcNow());
 }
 
-beforeEach(() => { db.exec('DELETE FROM outreach; DELETE FROM coaches; DELETE FROM players;'); });
+beforeEach(() => { db.exec('DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM coaches; DELETE FROM players;'); });
 
 describe('recentSendCount', () => {
   it('ignores a draft that was never sent', () => {

@@ -78,7 +78,7 @@ function seed() {
   // later one — which is the cross-run leakage these tests exist to catch,
   // found in the fixture rather than the code.
   db.exec(`DELETE FROM outreach_evidence; DELETE FROM engagement_rollup;
-           DELETE FROM outreach; DELETE FROM coaches; DELETE FROM players;
+           DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM coaches; DELETE FROM players;
            DELETE FROM roster_players; DELETE FROM colleges; DELETE FROM suppressions;`);
 
   // `video_id`, not just the URL: sendOutreach refuses to put a dead profile

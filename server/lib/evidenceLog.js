@@ -1,4 +1,23 @@
 /**
+ * DEMOTED AT I2. This table is no longer the analytics authority.
+ *
+ * `outreach_send` is — one immutable row per outbound message, stamped with
+ * the policy that produced it. This one keeps a LATEST-DRAFT mirror per
+ * athlete-coach pair, which is what it has always been and what the operator
+ * report and `evidencePerformance` still read. Two things it cannot do, and
+ * they are why it stopped being the record of a send:
+ *
+ *   it holds one row per RELATIONSHIP, upserted, so a second email would
+ *   overwrite the first email's account of itself;
+ *   its `payload` still speaks the pre-H7 selector's vocabulary — `ranked`,
+ *   `suppressed`, `belowThreshold` — which the current model does not.
+ *
+ * Kept writing, deliberately: retiring it would change what the operator
+ * report and the engagement views show, and I2 is instrumentation only. Its
+ * readers move to `outreach_send` when someone is measuring rather than
+ * debugging, and it can retire then. Nothing new should read it.
+ *
+ * ---------------------------------------------------------------------------
  * Recording what each email said, so we can eventually find out what works.
  *
  * The audit that led to this build found 41 sends, one reply, and nothing

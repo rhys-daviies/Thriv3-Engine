@@ -64,7 +64,7 @@ function watch(outreachId, { at, watchedTo = null, rewinds = 0, chapters = [] })
 }
 
 beforeEach(() => {
-  db.exec('DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
+  db.exec('DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
   athleteId = makeAthlete();
 });
 

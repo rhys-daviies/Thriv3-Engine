@@ -23,6 +23,7 @@
 import db from '../db/client.js';
 import { utcNow } from './time.js';
 import { markOutreachSent } from './outreach.js';
+import { confirmSend } from './outreachSend.js';
 
 /**
  * How long a gap splits one drafting run from the next.
@@ -118,7 +119,18 @@ export function confirmSent(ids = [], { at = utcNow() } = {}) {
   // One transaction: a half-confirmed batch is a denominator nobody can
   // reason about afterwards.
   db.transaction(() => {
-    for (const id of confirmable) markOutreachSent(id, at);
+    for (const id of confirmable) {
+      markOutreachSent(id, at);
+      /**
+       * Stamps the draft this batch is confirming, if one was recorded.
+       *
+       * Returns null for a relationship drafted before `outreach_send`
+       * existed, and that is left as null rather than filled in: there is no
+       * snapshot for that message and inventing one would put a fabricated
+       * record beside real ones. The migration marks those LEGACY_UNKNOWN.
+       */
+      confirmSend(id, at);
+    }
   })();
 
   return { confirmed: confirmable.length, skipped, at };

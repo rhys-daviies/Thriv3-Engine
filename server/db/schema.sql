@@ -299,6 +299,78 @@ CREATE TABLE IF NOT EXISTS engagement_rollup (
 -- stronger" is what makes a later comparison causal rather than merely
 -- descriptive.
 -- ===========================================================================
+/**
+ * ONE ACTUAL OUTBOUND EMAIL.
+ *
+ * `outreach` is the RELATIONSHIP — one row per athlete-coach pair, for all
+ * time, carrying the tracking token a coach may click years later. That was
+ * also, until now, the only record of a send, so a second email to the same
+ * coach would overwrite the first email's evidence and keep the first email's
+ * timestamp. This table is the missing distinction: the relationship endures,
+ * each message is its own immutable row.
+ *
+ * A row exists from the moment a body is composed, and BECOMES a confirmed
+ * send when `sent_at` is stamped — by Outlook's own Send, or by
+ * `npm run confirm-sends`. Analytics counts `sent_at IS NOT NULL` and nothing
+ * else, which is exactly the denominator `outreach.sent_at` established and
+ * I1 found trustworthy.
+ *
+ * `sequence` is 1 for the initial approach and 2, 3, … for follow-ups. Nothing
+ * sends follow-ups today; the model represents them so that when something
+ * does, it cannot destroy the first email's record of itself.
+ *
+ * The tracking token stays on `outreach` and is NOT per-send. A three-step
+ * sequence is one conversation and one link — `server/lib/sendCap.js` already
+ * counts it that way — and giving each message its own token would change what
+ * a click means.
+ */
+CREATE TABLE IF NOT EXISTS outreach_send (
+  id TEXT PRIMARY KEY,
+  outreach_id TEXT NOT NULL REFERENCES outreach(id),
+  sequence INTEGER NOT NULL,          -- 1 initial, 2+ follow-up
+
+  drafted_at TEXT,                    -- a body reached Outlook
+  sent_at TEXT,                       -- CONFIRMED. The analytics denominator.
+
+  -- Denormalised from the relationship so a snapshot reads without a join and
+  -- survives a coach row being merged or a programme renamed.
+  athlete_id TEXT NOT NULL REFERENCES players(id),
+  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  college_name TEXT,
+  sport TEXT,
+
+  -- LEGACY_UNKNOWN for anything predating the role-based engine. Never
+  -- backfilled to a current version: see shared/evidence/outreachPolicy.js.
+  policy_version TEXT NOT NULL,
+
+  structure TEXT,
+  structure_source TEXT,
+  body_source TEXT,                   -- STRUCTURED | TEMPLATE
+  template_variant TEXT,
+
+  -- All four derived from what was RENDERED, never from what was selected.
+  has_personalisation INTEGER,
+  primary_kind TEXT,
+  primary_role TEXT,                  -- HOOK | RELEVANCE (never RECOGNITION)
+  hook_kind TEXT,
+  rendered_kinds TEXT,                -- ordered, comma-joined
+  rendered_roles TEXT,
+  rendered_count INTEGER,
+
+  subject TEXT,
+  body_hash TEXT,                     -- SHA-256, profile URL normalised
+  payload TEXT,                       -- JSON: rendered sentences with text, held, operator state
+
+  created_at TEXT NOT NULL,
+
+  -- Repeated execution must not silently create a second send.
+  UNIQUE (outreach_id, sequence)
+);
+CREATE INDEX IF NOT EXISTS idx_outreach_send_outreach ON outreach_send(outreach_id);
+CREATE INDEX IF NOT EXISTS idx_outreach_send_sent ON outreach_send(sent_at);
+CREATE INDEX IF NOT EXISTS idx_outreach_send_policy ON outreach_send(policy_version);
+CREATE INDEX IF NOT EXISTS idx_outreach_send_primary ON outreach_send(primary_kind);
+
 CREATE TABLE IF NOT EXISTS outreach_evidence (
   outreach_id TEXT PRIMARY KEY REFERENCES outreach(id),
   athlete_id TEXT NOT NULL REFERENCES players(id),

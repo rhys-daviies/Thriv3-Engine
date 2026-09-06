@@ -68,7 +68,7 @@ beforeEach(() => {
   composed.length = 0;
   // outreach_evidence references outreach, so it goes first — sendOutreach
   // now writes a row per message describing the personalisation it used.
-  db.exec('DELETE FROM outreach_evidence; DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches; DELETE FROM suppressions;');
+  db.exec('DELETE FROM outreach_evidence; DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches; DELETE FROM suppressions;');
 });
 
 describe('one email per coach', () => {
