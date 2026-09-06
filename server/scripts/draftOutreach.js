@@ -92,9 +92,22 @@ function domainSplit(coaches) {
  * programme is being written to on the athlete alone, which is honest but
  * worth seeing before twenty of them go out.
  */
+/**
+ * What the dry run shows about one programme's evidence.
+ *
+ * BROKEN SINCE H7, and nothing caught it. It read `evidence.ranked`,
+ * `.suppressed` and `.belowThreshold` — three fields H7 removed with the
+ * legacy selector — so `npm run draft` threw on the first programme with any
+ * evidence at all and drafted nothing. H7 migrated `evidenceReport.js` off the
+ * same three fields in the same commit; this file was the one consumer with no
+ * test to notice, which is the whole argument for H13.
+ *
+ * Now reads the outbound account, like every other surface: what was sent,
+ * what was offered instead, and what the selector could not use.
+ */
 function printEvidence(evidence) {
   if (!evidence) return;
-  const { selected, ranked, structure, programme } = evidence;
+  const { selected, structure, programme, dispositions = [] } = evidence;
   if (!selected.length) {
     const why = programme.hasSquad || programme.hasHistory
       ? 'nothing specific enough to say'
@@ -112,15 +125,21 @@ function printEvidence(evidence) {
     console.log(`           ${i + 1}. ${ev.kind} (${ev.tier}, ${ev.confidence}, ${ev.strength})`
       + `${slotOf.get(ev.kind) ? ` → ${slotOf.get(ev.kind).toLowerCase()}` : ''}`);
   }
-  const notUsed = ranked.slice(selected.length).map((e) => e.kind);
-  if (notUsed.length) console.log(`           also had: ${notUsed.join(', ')}`);
-  // Why the engine stopped where it did. Without this a dry run showing two
-  // items where four were available looks like a bug rather than a decision.
-  for (const s of evidence.suppressed ?? []) {
-    console.log(`           dropped:  ${s.kind} — ${s.reason ?? 'redundant'}`);
-  }
-  for (const b of evidence.belowThreshold ?? []) {
-    console.log(`           too thin: ${b.kind} — ${b.reason}`);
+  /**
+   * Why the selector stopped where it did.
+   *
+   * Without this a dry run showing one item where three were available looks
+   * like a bug rather than a decision. Taken from the dispositions so the CLI,
+   * the panel and the reports describe the same choice in the same words — a
+   * second account here is what H6 spent a stage removing.
+   */
+  const chosen = new Set(selected.map((e) => e.kind));
+  for (const d of dispositions) {
+    if (chosen.has(d.kind) || d.disposition === 'SELECTED') continue;
+    // Kinds that may never be emailed are not a decision about this
+    // programme; they are the licence, and the panel reports them separately.
+    if (d.disposition === 'NOT_LICENSED') continue;
+    console.log(`           dropped:  ${d.kind} — ${d.reason ?? d.disposition.toLowerCase()}`);
   }
 }
 
@@ -129,6 +148,47 @@ function findAthlete(needle) {
   return Player.get(needle)
     || db.prepare('SELECT * FROM players WHERE lower(full_name) = lower(?)').get(needle)
     || db.prepare("SELECT * FROM players WHERE lower(full_name) LIKE lower(?)").get(`%${needle}%`);
+}
+
+/**
+ * One programme's draft: compose, then hand it to the send path.
+ *
+ * EXPORTED SO A TEST CAN DRIVE THE REAL THING. It was inline in `main()`,
+ * which runs at module scope — so the only production path that WRITES was
+ * also the only one that could not be imported, and it was the last consumer
+ * of the evidence result with no test at all. H7 broke a read-only report the
+ * same way and nothing noticed for a commit.
+ *
+ * ---------------------------------------------------------------------------
+ * NOTHING HERE DECIDES ANYTHING.
+ *
+ * `emailBodyFor` is the composer the browser preview calls with the same four
+ * arguments, so a CLI draft and a previewed draft to the same coach are the
+ * same email — and `sendOutreach` is the function the browser POSTs to, with
+ * `send: false` as the only difference between a draft and a send. Every
+ * evidence decision was made upstream in `evidenceFor`; this reads the result
+ * and writes it.
+ *
+ * The subject is composed the same way as the body, from the athlete's own
+ * template against the same context, because a draft whose subject came from
+ * somewhere else would be a second answer to the same question.
+ */
+export async function draftOne({ athlete, college, coaches, evidence }) {
+  const greetingName = coaches[0]?.name || 'Coach';
+  const composed = emailBodyFor(athlete, college, greetingName, { evidence });
+  return sendOutreach({
+    athleteId: athlete.id,
+    coaches: coaches.map((c) => ({ name: c.name, email: c.email, title: c.title })),
+    subject: fillTemplate(athlete.email_subject || DEFAULT_EMAIL_SUBJECT, composed.context),
+    body: composed.body,
+    greetingName,
+    collegeName: college.name,
+    division: college.division,
+    matchId: college.name,
+    bodySource: composed.source,
+    send: false,   // drafts only, always — you press send in Outlook
+    evidence,
+  });
 }
 
 function main() {
@@ -277,24 +337,8 @@ function main() {
   const failures = [];
   (async () => {
     for (const { college, coaches, evidence } of plan) {
-      // Through the one composer every other caller uses, so a CLI draft and a
-      // browser draft to the same coach are the same email. It also means the
-      // CLI gets the structures without knowing what a structure is.
-      const composed = emailBodyFor(athlete, college, coaches[0].name || 'Coach', { evidence });
       try {
-        const { results: sent } = await sendOutreach({
-          athleteId: athlete.id,
-          coaches: coaches.map((c) => ({ name: c.name, email: c.email, title: c.title })),
-          subject: fillTemplate(athlete.email_subject || DEFAULT_EMAIL_SUBJECT, composed.context),
-          body: composed.body,
-          greetingName: coaches[0].name || 'Coach',
-          collegeName: college.name,
-          division: college.division,
-          matchId: college.name,
-          bodySource: composed.source,
-          send: false,   // drafts only, always — you press send in Outlook
-          evidence,
-        });
+        const { results: sent } = await draftOne({ athlete, college, coaches, evidence });
         for (const r of sent) {
           if (r.status === 'drafted') drafted++;
           else failures.push(`${college.name} / ${r.email}: ${r.status}${r.error ? ` — ${r.error}` : ''}`);
@@ -320,4 +364,6 @@ function main() {
   })();
 }
 
-main();
+// Only when run as a command. Importing this module must compose nothing and
+// write nothing — the test drives `draftOne` directly.
+if (import.meta.url === `file://${process.argv[1]}`) main();
