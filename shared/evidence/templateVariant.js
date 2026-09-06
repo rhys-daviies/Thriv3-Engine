@@ -24,7 +24,19 @@
 import { EVIDENCE_TOKEN } from '../templateMigration.js';
 
 export const TEMPLATE_VARIANTS = Object.freeze({
-  /** Byte-identical to the shipped default, evidence paragraph included. */
+  /**
+   * UNREACHABLE FROM J6 ONWARDS, and kept because history carries it.
+   *
+   * It meant "byte-identical to the shipped default". J5 made a saved template
+   * an override whatever it says and archived the two copies on file, so a
+   * template that matches the default is now a deliberate override like any
+   * other and classifies as CUSTOM_EVIDENCE. Nothing new can be written with
+   * this value.
+   *
+   * Not deleted: `outreach_evidence` and `outreach_send` rows carry it for
+   * real historical sends, and I2's whole point is that those rows say what
+   * happened. A reader of old data still needs the word.
+   */
   DEFAULT_EVIDENCE_FIRST: 'DEFAULT_EVIDENCE_FIRST',
   /** Operator-edited, but still renders the engine's paragraph. */
   CUSTOM_EVIDENCE: 'CUSTOM_EVIDENCE',
@@ -41,12 +53,15 @@ export const TEMPLATE_VARIANTS = Object.freeze({
 
 /**
  * @param {string|null} template  the athlete's saved `email_template`
- * @param {string}      defaultTemplate  the current shipped default
  */
-export function templateVariant(template, defaultTemplate) {
+export function templateVariant(template) {
   const text = String(template ?? '');
   if (!text.trim()) return TEMPLATE_VARIANTS.UNKNOWN;
-  if (text === defaultTemplate) return TEMPLATE_VARIANTS.DEFAULT_EVIDENCE_FIRST;
+  /**
+   * No comparison to the default any more — see the note on
+   * DEFAULT_EVIDENCE_FIRST. A saved template is an override, and the only
+   * question left is whether it carries the engine's paragraph.
+   */
   return text.includes(EVIDENCE_TOKEN)
     ? TEMPLATE_VARIANTS.CUSTOM_EVIDENCE
     : TEMPLATE_VARIANTS.CUSTOM_NO_EVIDENCE;

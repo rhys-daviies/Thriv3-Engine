@@ -43,31 +43,6 @@ export const TEMPLATE_VARIABLES = [
     label: 'If nickname known… (conditional sentence)',
     snippet: '{{#if has_real_nickname}}Go {{college_nickname}}!{{/if}}',
   },
-  { token: 'conference_champion_name', label: 'Conference Won (2025)' },
-  {
-    token: 'is_conference_champion',
-    label: 'If 2025 conference champs… (conditional sentence)',
-    snippet: '{{#if is_conference_champion}}Congratulations on winning the {{conference_champion_name}} last year!{{/if}}',
-  },
-  { token: 'postseason_round_label', label: '2025 Postseason Result (e.g. "reached the semifinals")' },
-  {
-    token: 'has_postseason_result',
-    label: 'If the program reached the postseason in 2025… (conditional sentence)',
-    snippet: '{{#if has_postseason_result}}Congratulations, you {{postseason_round_label}} this past season.{{/if}}',
-  },
-  { token: 'graduating_seniors_count', label: 'Graduating Seniors Count' },
-  { token: 'graduating_seniors_names', label: 'Graduating Seniors Names' },
-  { token: 'graduating_seniors_position', label: 'Position word agreeing with that count (defender / defenders)' },
-  {
-    token: 'has_graduating_seniors',
-    label: 'If anyone is graduating at the position… (conditional sentence)',
-    snippet: '{{#if has_graduating_seniors}}{{graduating_seniors_count}} {{graduating_seniors_position}} graduating.{{/if}}',
-  },
-  {
-    token: 'has_graduating_names',
-    label: 'If those names were verified… (conditional sentence)',
-    snippet: '{{#if has_graduating_names}} {{graduating_seniors_names}}{{/if}}',
-  },
   /**
    * REMOVED AT J5: graduating_starters_*, graduating_total_*, and the
    * international-roster pair below.
@@ -109,12 +84,6 @@ export const TEMPLATE_VARIABLES = [
   // body renders, and they are absent from this list so nothing offers them.
 
 
-  { token: 'players_from_country_count', label: "Players From the Recruit's Own Country" },
-  {
-    token: 'has_players_from_country',
-    label: "If a teammate already shares the recruit's country… (conditional sentence)",
-    snippet: '{{#if has_players_from_country}}We currently have players from {{player_nationality}} on the roster.{{/if}}',
-  },
   { token: 'player_name', label: 'Player Name' },
   { token: 'player_first_name', label: 'Player First Name (for use after the introduction)' },
   { token: 'player_position', label: 'Player Position' },
@@ -132,13 +101,6 @@ export const TEMPLATE_VARIABLES = [
   { token: 'has_yearly_budget', label: 'If a budget band is set… (conditional line)' },
   { token: 'player_class_year', label: 'Class Year (arrival)' },
   { token: 'player_profile_url', label: 'Tracked Profile Link' },
-  { token: 'intended_major_label', label: "Recruit's Intended Major, Matched to a Notable Program" },
-  { token: 'intended_major_stated', label: "Recruit's Intended Field, In Their Own Words" },
-  {
-    token: 'offers_intended_major',
-    label: "If the school notably offers the recruit's intended major… (conditional sentence)",
-    snippet: '{{#if offers_intended_major}}We also have a strong {{intended_major_label}} program.{{/if}}',
-  },
 ];
 
 /**
@@ -188,43 +150,49 @@ export const DEFAULT_EMAIL_SUBJECT = '{{player_name}} | {{player_position}} | {{
  * where a blank line is a paragraph and a single newline a line break; without
  * them the message arrives as one block, which is how it used to look.
  */
+/**
+ * THE EDITOR SCAFFOLD, AND THE FAILURE FALLBACK. NOT AN EVIDENCE ENGINE.
+ *
+ * J5 took composition authority away from this constant; J6 takes the
+ * evidence away. What it carried before:
+ *
+ *   an ELSE branch that rebuilt POSITION_GRADUATION from the recommendations
+ *   blob — "particularly with 4 defenders graduating this season (…)" — which
+ *   fired exactly when `has_evidence` was FALSE. The engine having nothing to
+ *   say was the trigger for the template to say something anyway, with no
+ *   qualification, freshness, dedupe or hold behind it;
+ *
+ *   "could be an interesting fit" and "Given your current roster and X's
+ *   needs" — suitability and roster need, the two inferences
+ *   `outreachCopy.js` exists to refuse;
+ *
+ *   the position and class year three times over: in the sentence, in a
+ *   heading, and in a bullet. J4 removed that from the structured block and
+ *   could not touch it here, because editing this text reclassified athletes.
+ *
+ * What is left is raw athlete and programme facts, framing in our own voice,
+ * and ONE evidence token that carries the engine's own words. If the engine
+ * has nothing, the email says nothing about the programme — which is what a
+ * generic email is.
+ */
 export const DEFAULT_EMAIL_TEMPLATE = `Hi {{coach_name}},
 
 I'm reaching out regarding {{player_name}}, a {{player_position|lowercase}}{{#if has_nationality}} from {{player_nationality}}{{/if}} who is exploring opportunities for the {{player_class_year}} recruiting class.
-
-{{player_name}} — {{player_position}}
-
-Recruiting Profile
-• Position: {{player_position}}{{player_secondary_position}}
-• Graduation: {{player_class_year}}{{#if has_gpa}}
+{{#if has_evidence}}
+{{evidence_paragraph}}
+{{/if}}{{#if has_gpa}}
 • GPA: {{player_gpa}}{{/if}}{{#if has_sat_score}}
 • SAT: {{player_sat_score}}{{/if}}{{#if has_yearly_budget}}
 • Annual Budget: {{player_yearly_budget}}{{/if}}
 
 Profile and highlight film:
 {{player_profile_url}}
-{{#if has_evidence}}
-{{evidence_paragraph}}
 
-We believe {{player_name}} could be an interesting fit for {{college_name}}.
-{{else}}{{#if has_graduating_seniors}}
-We believe {{player_name}} could be an interesting fit for {{college_name}}, particularly with {{graduating_seniors_count}} {{graduating_seniors_position}} graduating this season{{#if has_graduating_names}} {{graduating_seniors_names}}{{/if}}.
-{{/if}}{{/if}}
-Given your current roster and {{college_name}}'s needs, we'd love to hear your thoughts on whether {{player_name}} could be a potential fit for your programme.
-
-Would you be open to taking a look at the profile and highlight film? If there's interest you can contact me directly via WhatsApp [[+64 21 920 775](tel:+6421920775)] to chat more.
+Would you be open to taking a look at the profile and highlight film? If there\'s interest you can contact me directly via WhatsApp [[+64 21 920 775](tel:+6421920775)] to chat more.
 
 Best regards,
 Rhys Davies
 Striv3 Elite Sports Management`;
-
-function formatNameList(names) {
-  const list = (names || []).filter(Boolean);
-  if (list.length === 0) return 'names could not be verified from official sources';
-  if (list.length === 1) return `(${list[0]})`;
-  if (list.length === 2) return `(${list[0]} and ${list[1]})`;
-  return `(${list.slice(0, -1).join(', ')}, and ${list[list.length - 1]})`;
-}
 
 /**
  * Builds the token-resolution context from the player profile, a matched
@@ -246,18 +214,6 @@ function formatNameList(names) {
  * JSON blobs written under the legacy names, and an athlete analysed last week
  * must keep rendering.
  */
-function graduatingAtPosition(college) {
-  return {
-    count: college.graduating_at_position
-      ?? college.graduating_seniors_at_position
-      ?? 0,
-    names: (college.graduating_names_at_position
-      ?? college.graduating_senior_names_at_position
-      ?? []).filter(Boolean),
-    starters: college.graduating_starters_at_position ?? 0,
-    starterNames: (college.graduating_starter_names_at_position ?? []).filter(Boolean),
-  };
-}
 
 /**
  * @param {object} [options.evidence]  a `selectEvidence()` result. Optional
@@ -346,10 +302,6 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     ? ` / ${positionLabel(player.secondary_position)}`
     : '';
 
-  const grad = graduatingAtPosition(college);
-  const gradCount = grad.count;
-  const gradNames = grad.names;
-
   // Rendered by the evidence engine, which picked the renderer appropriate to
   // each piece's tier. Deliberately not re-derived here: a template must not
   // be able to turn a projection into a plain assertion by choosing a
@@ -424,32 +376,21 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     // realignment) -- this is whichever conference Wikipedia's own 2025
     // results actually credited the win to, so the sentence stays correct
     // even when that drifts from our stored conference field.
-    conference_champion_name: conferenceLabel(college.conference_champion_name),
-    is_conference_champion: college.conference_champion_2025 ? 'true' : '',
     // Soccer's own round names, not basketball's -- there is no "Sweet 16" in
     // an NCAA soccer bracket, and borrowing one would read as a mistake to
     // anyone who follows the sport. "Appearance" means qualified and lost the
     // first game, so it reads as having made the postseason at all rather
     // than claiming a specific round.
-    postseason_round_label: POSTSEASON_ROUND_LABELS[college.postseason_2025_round] || '',
-    has_postseason_result: college.postseason_2025_round ? 'true' : '',
     // Gates for the two ways this sentence goes wrong on a thin school: no
     // graduating players at the position ("0 defenders graduating"), and a
     // programme whose names we could not read, where the name list renders as
     // "names could not be verified from official sources" — true, and not
     // something to say to a coach about his own roster.
-    has_graduating_seniors: gradCount > 0 ? 'true' : '',
-    has_graduating_names: gradNames.length > 0 ? 'true' : '',
-    graduating_seniors_count: String(gradCount),
     // Agrees with the count beside it. "{{graduating_seniors_count}}
     // {{player_position_plural}}" reads "1 defenders" at the 14 schools in a
     // typical top 100 that are losing exactly one, and a coach reading his own
     // roster back at him ungrammatically is the wrong first impression. Zero
     // takes the plural, which is correct: "0 defenders".
-    graduating_seniors_position: gradCount === 1
-      ? positionNoun(player.position)
-      : positionPlural(player.position),
-    graduating_seniors_names: formatNameList(gradNames),
     // Squad-wide, every position — a different number from the four above and
     // carried through pool.js since 2026-08-25 without anything reading it.
     // ---- evidence engine ----
@@ -470,10 +411,8 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     // Sourced from shared/matching/pool.js's roster aggregation (international
     // count + same-country count), already computed for the international-fit
     // scoring criterion -- these just expose the same two numbers as tokens.
-    players_from_country_count: String(college.players_from_country ?? 0),
     // Gated on the recruit having a stated country too -- a domestic athlete
     // has no "own country" for the sentence to be about.
-    has_players_from_country: player.nationality && (college.players_from_country ?? 0) > 0 ? 'true' : '',
     player_name: player.full_name || '',
     /**
      * What a person says after the introduction.
@@ -535,7 +474,6 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     // a preview displaying "{{player_profile_url}}" looks like the link failed
     // to resolve rather than like it resolves later.
     player_profile_url: profileUrl || '{{player_profile_url}}',
-    intended_major_label: intendedMajorLabel,
     /**
      * What the ATHLETE said, in their own words, as distinct from the
      * programme name the college publishes.
@@ -551,6 +489,25 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
      * sentence never reads "planning to study .".
      */
     intended_major_stated: titleCaseField(player.intended_major) || intendedMajorLabel,
+    /**
+     * THE ONE EVIDENCE-SHAPED FIELD LEFT IN THIS CONTEXT, and it is not offered
+     * to templates.
+     *
+     * `shared/email/blocks.js` gates the academic introduction on it. That use
+     * is safe because the variant carrying the clause is chosen by
+     * `composeOutreach` from the RENDERED sentences — the gate can only narrow
+     * a decision the engine already made, never widen it.
+     *
+     * J6 tried removing it, having measured the gate as always true where
+     * ACADEMIC_FIT renders. The measurement was taken against a full college
+     * row; the composer passes a thin one, where `notable_majors` is absent
+     * and the gate is FALSE. Dropping it added the clause to 269 emails and
+     * re-introduced the echo the block exists to avoid — the introduction
+     * saying "planning to study Exercise Science" a line above the evidence
+     * clause saying it again.
+     *
+     * Absent from TEMPLATE_VARIABLES, so no saved template can reach it.
+     */
     offers_intended_major: intendedMajorLabel ? 'true' : '',
   };
 }

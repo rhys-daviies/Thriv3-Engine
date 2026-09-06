@@ -85,9 +85,14 @@ describe('the block library and the frozen legacy template', () => {
     // Stated as an expectation so nobody "fixes" the divergence by pasting the
     // old sentences back in.
     expect(DEFAULT_EMAIL_TEMPLATE).not.toContain(BLOCK_COPY[BLOCKS.CTA].default);
-    // The legacy template still carries the sentence the rewrite removed; the
-    // block library has no equivalent block at all any more.
-    expect(DEFAULT_EMAIL_TEMPLATE).toContain('We believe');
+    /**
+     * The scaffold has caught up with the blocks rather than the other way
+     * round. It used to carry "We believe X could be an interesting fit" —
+     * a suitability claim the outreach copy contract forbids — which is why
+     * the block library never had an equivalent. J6 removed it from the
+     * scaffold too, so neither says it now.
+     */
+    expect(DEFAULT_EMAIL_TEMPLATE).not.toContain('We believe');
     expect(BLOCKS.FIT).toBeUndefined();
     expect(Object.keys(BLOCK_COPY)).not.toContain('FIT');
   });

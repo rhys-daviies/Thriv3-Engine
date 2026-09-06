@@ -70,10 +70,20 @@ describe('finding the block to anchor to', () => {
 });
 
 describe('migrating the real legacy template', () => {
-  it('produces exactly the current default', () => {
+  it('adds the evidence token to a legacy template', () => {
+    /**
+     * It used to assert byte-equality with DEFAULT_EMAIL_TEMPLATE. J6 rewrote
+     * that constant — the else-branch that rebuilt POSITION_GRADUATION from
+     * the recommendations blob is gone — so the migration's OUTPUT and the
+     * shipped scaffold are no longer the same text, and there is no reason
+     * they should be. What the migration is for is unchanged: a legacy
+     * template gains the engine's paragraph.
+     */
     const { status, template } = migrateTemplate(LEGACY_TEMPLATE);
     expect(status).toBe(MIGRATION_STATUS.MIGRATED);
-    expect(template).toBe(DEFAULT_EMAIL_TEMPLATE);
+    expect(template).toContain('{{evidence_paragraph}}');
+    expect(template).toContain('{{#if has_evidence}}');
+    expect(DEFAULT_EMAIL_TEMPLATE).toContain('{{evidence_paragraph}}');
   });
 
   it('is idempotent — running it twice changes nothing', () => {
@@ -147,10 +157,18 @@ describe('the migrated template still renders correctly', () => {
     expect(out).not.toContain('particularly with');
   });
 
-  it('falls back to the old sentence when there is no evidence at all', () => {
+  it('says nothing about the programme when the engine found nothing', () => {
+    /**
+     * This used to assert the opposite: with no evidence the template fell
+     * back to "3 defenders graduating this season", rebuilt from the
+     * recommendations blob. That branch fired exactly when the engine had
+     * nothing to say, which is the worst possible moment for a second
+     * evidence engine to speak. J6 removed it.
+     */
     const withGraduating = { ...college, graduating_at_position: 3, graduating_names_at_position: ['A', 'B'] };
     const out = fillTemplate(migrated, buildEmailContext(player, withGraduating, 'Coach'));
-    expect(out).toContain('3 defenders graduating this season');
+    expect(out).not.toContain('3 defenders graduating this season');
+    expect(out).not.toContain('particularly with');
     expect(unresolvedConditionals(out)).toEqual([]);
   });
 
