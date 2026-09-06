@@ -42,6 +42,44 @@ export function verifiedDomains() {
   return out;
 }
 
+/**
+ * Institutions the registry says own more than one athletics site.
+ *
+ * A school has one athletics site. Where a `unitid` holds several, at most one
+ * assignment is right and the registry does not say which — so every source on
+ * those hosts is untrustworthy until someone looks.
+ *
+ * This is what the 2026 institution-id disagreements turn out to be. The Citadel
+ * is recorded as owning `citadelsports.com`, `gocobbers.com` (Concordia
+ * Moorhead's) and `gosuffolkrams.com` (Suffolk's) — and Suffolk's page says
+ * "The Official Athletics Site of Suffolk University" in the row itself.
+ * Connecticut College is recorded as owning `uconnhuskies.com`; Saint John
+ * Fisher, `redstormsports.com`.
+ *
+ * Merged institutions legitimately hold several — Commonwealth
+ * University-Bloomsburg carries Bloomsburg's, Lock Haven's and Mansfield's —
+ * so this is a queue for a person, not a rule that can repair anything.
+ *
+ * `www.` and a port are the same host and are collapsed; a subdomain is not.
+ */
+export function institutionsWithSeveralSites() {
+  const canon = (h) => canonicalHost(h).replace(/:\d+$/, '');
+  const byUnit = new Map();
+  for (const d of db.prepare(`
+    SELECT domain, unitid FROM athletics_domains
+    WHERE role = 'ATHLETICS_SITE' AND status IN ('VERIFIED','VERIFIED_ALIAS')
+      AND confidence IN ('CERTAIN','CORROBORATED') AND unitid IS NOT NULL
+  `).all()) {
+    if (!byUnit.has(d.unitid)) byUnit.set(d.unitid, new Set());
+    byUnit.get(d.unitid).add(canon(d.domain));
+  }
+  const name = db.prepare('SELECT name FROM colleges WHERE unitid = ? LIMIT 1');
+  return [...byUnit]
+    .filter(([, hosts]) => hosts.size > 1)
+    .map(([unitid, hosts]) => ({ unitid, name: name.get(unitid)?.name ?? null, hosts: [...hosts].sort() }))
+    .sort((a, b) => b.hosts.length - a.hosts.length || String(a.name).localeCompare(String(b.name)));
+}
+
 export function auditRosterSources({ season = '2026', sport = 'mens-soccer' } = {}) {
   const domains = verifiedDomains();
   const unitid = new Map(db.prepare('SELECT name, unitid FROM colleges WHERE sport = ?')
@@ -114,6 +152,31 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       console.log();
     }
     console.log('  Re-run with --list for every non-linkable programme-season.\n');
+  }
+  /**
+   * Why the institution-id disagreements cannot be repaired from here.
+   *
+   * H15 traced all ten to one defect: the verification pipeline read each
+   * site's own title — "University of Connecticut Athletics" — and matched
+   * that NAME to a similarly-named institution, landing on Connecticut
+   * College. `institution_aliases` shows the collision in every case.
+   *
+   * Repairing them means asserting which of two similarly-named schools a
+   * domain belongs to, and every internal route to that assertion is a name
+   * comparison — the thing the verification contract forbids, and the thing
+   * that caused the defect. It needs an authoritative institution-to-domain
+   * source, which this repository does not have.
+   */
+  const several = institutionsWithSeveralSites();
+  if (several.length) {
+    console.log(`  REGISTRY INTEGRITY — ${several.length} institutions hold more than one athletics site\n`);
+    for (const s of several.slice(0, 8)) {
+      console.log(`    ${String(s.unitid).padEnd(8)} ${String(s.name ?? '—').padEnd(34)} ${s.hosts.join(', ')}`);
+    }
+    if (several.length > 8) console.log(`    …and ${several.length - 8} more`);
+    console.log('\n    A school has one athletics site. Where several are recorded, at most');
+    console.log('    one is right and the registry does not say which. Merged institutions');
+    console.log('    are the honest exception; the rest are the id disagreements above.\n');
   }
   console.log('Read-only. Nothing was changed.\n');
 }

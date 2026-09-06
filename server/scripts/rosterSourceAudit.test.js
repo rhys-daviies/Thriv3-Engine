@@ -25,10 +25,14 @@ const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 const d = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) console.warn(`\n  rosterSourceAudit.test.js SKIPPED — no database at ${DB}\n`);
 
-const audit = (season = '2026') => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
-  import { auditRosterSources } from '${path.join(ROOT, 'server/scripts/rosterSourceAudit.js')}';
-  process.stdout.write(JSON.stringify(auditRosterSources({ season: '${season}' })));
+const inDb = (expr) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
+  import { auditRosterSources, institutionsWithSeveralSites } from '${path.join(ROOT, 'server/scripts/rosterSourceAudit.js')}';
+  void auditRosterSources; void institutionsWithSeveralSites;
+  process.stdout.write(JSON.stringify(${expr}));
 `], { cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: DB }, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }));
+
+const audit = (season = '2026') => inDb(`auditRosterSources({ season: '${season}' })`);
+const institutionsWithSeveralSites = () => inDb('institutionsWithSeveralSites()');
 
 d('the roster-source audit', () => {
   const r = audit();
@@ -83,6 +87,44 @@ d('the roster-source audit', () => {
       .filter(([k]) => k !== 'VERIFIED_DIRECT')
       .sort((a, b) => b[1] - a[1])[0];
     expect(biggest[0]).toBe('UNVERIFIED_HOST');
+  });
+
+  it('finds the registry defect behind the id disagreements', () => {
+    /**
+     * H15 traced all ten institution-id disagreements to one cause: the
+     * verification pipeline matched each site's own title to a
+     * similarly-named institution. The Citadel is recorded as owning
+     * Concordia Moorhead's and Suffolk's athletics sites; Connecticut College
+     * owns UConn's; Saint John Fisher owns St. John's.
+     *
+     * Asserted as a floor rather than a list, because a merged institution
+     * legitimately holds several and the count will move as the registry is
+     * repaired. What must not happen is the check silently finding nothing.
+     */
+    const several = institutionsWithSeveralSites();
+    expect(several.length).toBeGreaterThan(0);
+    expect(several.length).toBeLessThan(80);
+    for (const s of several) {
+      expect(s.hosts.length, String(s.unitid)).toBeGreaterThan(1);
+      expect(new Set(s.hosts).size, String(s.unitid)).toBe(s.hosts.length);
+    }
+    // The Citadel case, which is the one with no innocent explanation.
+    const citadel = several.find((s) => s.unitid === 217864);
+    expect(citadel, 'The Citadel must still be flagged').toBeTruthy();
+    expect(citadel.hosts).toEqual(expect.arrayContaining(['gocobbers.com', 'gosuffolkrams.com']));
+  });
+
+  it('collapses www and a port, but never a subdomain', () => {
+    // `www.kstatesports.com` and `kstatesports.com:443` are one host; a
+    // subdomain like `timberwolves.gonorthwood.com` is a different one, and
+    // collapsing it would hide a real second site.
+    const several = institutionsWithSeveralSites();
+    for (const s of several) {
+      for (const h of s.hosts) {
+        expect(h, h).not.toMatch(/^www\./);
+        expect(h, h).not.toMatch(/:\d+$/);
+      }
+    }
   });
 
   it('refuses the known player-bio and wrong-school rows in earlier seasons', () => {
