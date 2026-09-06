@@ -577,19 +577,33 @@ describe('the boundary this module is', () => {
     const src = fs.readFileSync(new URL('./campaigns.js', import.meta.url), 'utf8');
     const body = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 
-    // Every table this module's SQL names. `outreach`, `outreach_send`,
-    // `coaches` and `players` are other slices' business, and A3's snapshot
-    // reader is the only thing that should ever open a recommendations blob.
-    const tables = [...body.matchAll(/\b(?:FROM|UPDATE|JOIN|INTO)\s+([a-z_][a-z0-9_]*)/gi)]
-      .map((m) => m[1].toLowerCase());
-    expect([...new Set(tables)].sort()).toEqual(['campaigns', 'programme_campaigns']);
+    /**
+     * Every table this module's SQL names. `players` was added at A3 —
+     * creation loads the athlete and their stored-analysis pointer — and that
+     * is the whole of the widening. `outreach`, `outreach_send`, `coaches`,
+     * `colleges` and `roster_players` are other slices' business, and reading
+     * a college or roster table here would mean creation was reconstructing
+     * the ranking rather than freezing it.
+     */
+    // Read out of the SQL itself rather than the whole file, so an error
+    // message saying "inferred from the stored breakdown" is not mistaken for
+    // a query against a table called `the`.
+    const sql = [...body.matchAll(/db\.prepare\(\s*(`[^`]*`|'[^']*')/g)].map((m) => m[1]);
+    expect(sql.length).toBeGreaterThan(0);
+    const tables = sql.flatMap((s) => [...s.matchAll(/\b(?:FROM|UPDATE|JOIN|INTO)\s+([a-z_][a-z0-9_]*)/gi)]
+      .map((m) => m[1].toLowerCase()));
+    expect([...new Set(tables)].sort()).toEqual(['campaigns', 'players', 'programme_campaigns']);
 
-    // And every module it depends on.
+    // And every module it depends on. Note the absence of shared/matching:
+    // creation must never be able to re-score anything.
     const imports = [...body.matchAll(/\bfrom\s+'([^']+)'/g)].map((m) => m[1]).sort();
-    expect(imports).toEqual(['../db/client.js', './time.js']);
+    expect(imports).toEqual([
+      '../db/client.js', './time.js', 'node:crypto', 'node:fs', 'node:path', 'node:url',
+    ]);
 
-    // No scheduling, no network, no filesystem.
-    for (const forbidden of ['fetch(', 'setTimeout', 'setInterval', 'readFile', 'node:fs']) {
+    // No scheduling and no network. The filesystem is reachable, but only
+    // through resolveAnalysisPath, which is tested separately.
+    for (const forbidden of ['fetch(', 'setTimeout', 'setInterval', 'child_process', 'https']) {
       expect(body).not.toContain(forbidden);
     }
   });

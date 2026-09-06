@@ -19,6 +19,9 @@ export default defineConfig({
       RECRUITMATCH_DB: ':memory:',
       // Generated pages go to a scratch directory, never the publish directory.
       THRIV3_BUILD_DIR: path.resolve(process.cwd(), 'node_modules/.tmp/thriv3-test-build'),
+      // Same arrangement for uploaded match analyses: a test that writes a
+      // fixture analysis must not leave it in the store the product reads.
+      THRIV3_UPLOADS_DIR: path.resolve(process.cwd(), 'node_modules/.tmp/thriv3-test-uploads'),
       // Sending refuses to run without these, which is the point of them. Set
       // here so every suite exercises the normal path; the suite that checks
       // the refusal clears them for itself.

@@ -8,11 +8,17 @@
  * make. Every mutation goes through a named function here, and every function
  * here owns an invariant that the schema alone cannot express.
  *
- * WHAT THIS MODULE DOES NOT DO, and must not grow into: it does not read
- * `players.recommendations`, does not create campaigns or snapshot a match
- * list, does not touch `outreach` or `outreach_send`, does not choose coaches,
- * does not send, does not schedule, and stores no counters. Creation is the
- * next slice; the rest are later phases.
+ * IT ALSO OWNS CREATION, which is where a mutable pointer becomes a durable
+ * record: `createCampaign` freezes the athlete's currently stored match
+ * analysis into rows that no later re-analysis can move. It reads that one
+ * blob and the athlete row and nothing else — it re-runs no matching, re-scores
+ * nothing, and never consults a college or roster table, because the ranking
+ * being frozen is the historical one rather than today's answer to the same
+ * question.
+ *
+ * WHAT THIS MODULE DOES NOT DO, and must not grow into: it does not touch
+ * `outreach` or `outreach_send`, does not choose coaches, does not send, does
+ * not schedule, and stores no counters. Those are later phases.
  *
  * ---------------------------------------------------------------------------
  * SAME-STATE REQUESTS ARE IDEMPOTENT NO-OPS, NOT ERRORS.
@@ -33,6 +39,10 @@
  * transition.
  * ---------------------------------------------------------------------------
  */
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import { utcNow } from './time.js';
 
@@ -441,4 +451,424 @@ export function restoreAutoTier(id, { at = utcNow() } = {}) {
     WHERE id = ?
   `).run(tier, at, at, id);
   return { ...getProgrammeCampaign(id), changed: true, previousTier: row.tier };
+}
+
+// ---------------------------------------------------------------------------
+// Creation — freezing a stored analysis into a campaign
+// ---------------------------------------------------------------------------
+
+/**
+ * WHERE UPLOADED ANALYSES LIVE.
+ *
+ * Declared here rather than imported because the only other declaration is in
+ * server/index.js, which starts an Express app on import. The two must agree,
+ * and a test asserts they do rather than trusting this comment.
+ *
+ * THRIV3_UPLOADS_DIR points the test suite at a throwaway directory, the same
+ * arrangement THRIV3_BUILD_DIR makes for generated pages: without it, tests
+ * writing fixture analyses would leave them in the store the product reads.
+ */
+export const UPLOADS_DIR = process.env.THRIV3_UPLOADS_DIR
+  || path.resolve(fileURLToPath(new URL('../uploads', import.meta.url)));
+
+/** The prefix `POST /api/uploads` puts on every `file_url` it hands back. */
+const UPLOAD_URL_PREFIX = '/uploads/';
+
+/**
+ * A FINGERPRINT OF A STORED BLOB, deliberately not imported from
+ * shared/matching/weights.js.
+ *
+ * It identifies which model produced a recommendation list by the shape of
+ * what was stored. Importing the live criterion list would mean a future
+ * change to the model retroactively changed how a five-year-old snapshot is
+ * identified — the opposite of what a fingerprint is for. It is frozen here on
+ * purpose and must not be "kept in step" with the matcher.
+ */
+const SIX_CRITERION_KEYS = Object.freeze([
+  'athletic', 'roster', 'academic', 'affordability', 'programQuality', 'geography',
+]);
+
+export const MATCHING_MODEL_SIX_CRITERION = 'SIX_CRITERION_V1';
+export const MATCHING_MODEL_UNKNOWN = 'UNKNOWN';
+
+/**
+ * The most programmes a campaign can freeze.
+ *
+ * Not an arbitrary cap: `tierForRank` has no band above `MAX_RANK`, so a
+ * 101st programme would have to be given a tier no rule chose.
+ */
+const MAX_PROGRAMMES = MAX_RANK;
+
+/** Control characters have no business in a filename and are refused outright. */
+const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
+
+/**
+ * Resolve `players.recommendations` to a file inside the upload store, or
+ * refuse.
+ *
+ * A DATABASE VALUE IS NOT A SAFE PATH. This one is built from a filename the
+ * browser supplied, so it must be treated as untrusted: the store is flat, so
+ * anything carrying a separator, a parent segment or a scheme is refused
+ * outright rather than normalised into something that looks acceptable. The
+ * realpath check afterwards is the belt to those braces — it also catches a
+ * symlink pointing out of the store, which no amount of string inspection
+ * would.
+ *
+ * The browser's own loader (src/pages/player/PlayerWorkspace.jsx) additionally
+ * accepts an http(s) URL and a raw JSON string. Neither is accepted here: the
+ * server must not fetch a URL a database row names, and no row in existence
+ * carries inline JSON.
+ */
+export function resolveAnalysisPath(ref) {
+  if (typeof ref !== 'string' || !ref.startsWith(UPLOAD_URL_PREFIX)) {
+    throw fail('ANALYSIS_REF_UNSAFE',
+      `A stored analysis must be an upload reference beginning "${UPLOAD_URL_PREFIX}", got ${JSON.stringify(ref)}`);
+  }
+  const name = ref.slice(UPLOAD_URL_PREFIX.length);
+  if (!name || name.includes('/') || name.includes('\\') || CONTROL_CHARS.test(name)
+      || name === '.' || name === '..' || path.basename(name) !== name) {
+    throw fail('ANALYSIS_REF_UNSAFE', `Unsafe stored-analysis reference ${JSON.stringify(ref)}`);
+  }
+  const resolved = path.resolve(UPLOADS_DIR, name);
+  if (resolved !== path.join(UPLOADS_DIR, name) || !resolved.startsWith(UPLOADS_DIR + path.sep)) {
+    throw fail('ANALYSIS_REF_UNSAFE', `Stored-analysis reference escapes the upload store: ${JSON.stringify(ref)}`);
+  }
+  if (!fs.existsSync(resolved)) {
+    throw fail('ANALYSIS_FILE_MISSING',
+      `The stored analysis ${ref} is no longer on disk. Re-run the match analysis before creating a campaign.`);
+  }
+  // Follows symlinks, so a link inside the store pointing outside it is caught
+  // where the string checks above cannot see it.
+  const real = fs.realpathSync(resolved);
+  if (real !== resolved && !real.startsWith(fs.realpathSync(UPLOADS_DIR) + path.sep)) {
+    throw fail('ANALYSIS_REF_UNSAFE',
+      `Stored-analysis reference resolves outside the upload store: ${JSON.stringify(ref)}`);
+  }
+  return resolved;
+}
+
+/**
+ * Which model produced this list, INFERRED from what was stored.
+ *
+ * The analysis never recorded its own version — there is no such field in any
+ * blob on disk — so this is an inference from shape and says so. Of the 98
+ * stored analyses, 39 carry neither a `breakdown` nor a college `id` on any
+ * row: those predate the six-criterion model and cannot be identified further,
+ * so they are UNKNOWN rather than assigned a version they may not have had.
+ */
+function identifyModel(recommendations) {
+  const shaped = recommendations.filter((r) => {
+    if (!Array.isArray(r.breakdown) || r.breakdown.length === 0) return false;
+    const keys = r.breakdown.map((b) => b && b.key);
+    return SIX_CRITERION_KEYS.every((k) => keys.includes(k));
+  }).length;
+
+  if (shaped === recommendations.length) {
+    return {
+      id: MATCHING_MODEL_SIX_CRITERION,
+      identifiedBy: 'RECOMMENDATION_BREAKDOWN_SHAPE',
+      criteria: [...SIX_CRITERION_KEYS],
+      note: 'Inferred from the stored breakdown, not recorded by the analysis run.',
+    };
+  }
+  return {
+    id: MATCHING_MODEL_UNKNOWN,
+    identifiedBy: shaped === 0 ? 'NO_BREAKDOWN_STORED' : 'MIXED_BREAKDOWN_SHAPES',
+    criteria: null,
+    note: 'The stored analysis carries no per-criterion breakdown this code recognises. '
+      + 'No version is asserted, because none was ever recorded.',
+  };
+}
+
+/** JSON columns arrive as strings or as already-parsed values; neither may throw. */
+function safeJson(value) {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== 'string') return value;
+  try { return JSON.parse(value); } catch { return value; }
+}
+
+/**
+ * Everything that can honestly be said about how this ranking was produced.
+ *
+ * THREE KINDS OF FACT, KEPT APART, because merging them would be the exact
+ * fabrication this field exists to prevent:
+ *
+ *   analysis     HISTORICAL. Read out of the stored blob itself. The summary is
+ *                kept verbatim rather than parsed — it is the analysis's own
+ *                account of itself, and it states the eligible-pool size in
+ *                prose that would be a guess to extract.
+ *   athlete      SNAPSHOT-TIME. Read from `players` at creation, NOT from the
+ *                analysis run. Believed to be the inputs, because the only edit
+ *                path in the product nulls `recommendations` on save — so a
+ *                surviving pointer means the profile has not been edited
+ *                through the UI since. That is an argument, not a guarantee,
+ *                and it is recorded as such rather than promoted to history.
+ *   unavailable  NEVER RECORDED. Named individually with the reason, so a
+ *                reader can tell "we did not keep this" from "this was absent".
+ */
+function buildMatchingInputs({ athlete, analysis, ref, count }) {
+  return {
+    schema: 'campaign-matching-inputs/1',
+    model: identifyModel(analysis.recommendations),
+    analysis: {
+      provenance: 'HISTORICAL',
+      source_analysis_ref: ref,
+      // Verbatim. It states the eligible pool and what the filters removed.
+      summary: typeof analysis.summary === 'string' ? analysis.summary : null,
+      returned: count,
+    },
+    athlete: {
+      provenance: 'SNAPSHOT_TIME',
+      note: 'Read from the athlete row when the campaign was created, not recorded by the '
+        + 'analysis run. Saving a profile clears players.recommendations, so a surviving '
+        + 'pointer is evidence these were the inputs — not proof.',
+      sport: athlete.sport ?? null,
+      position: athlete.position ?? null,
+      secondary_position: athlete.secondary_position ?? null,
+      recruiting_class_year: athlete.recruiting_class_year ?? null,
+      graduation_year: athlete.graduation_year ?? null,
+      origin: athlete.origin ?? null,
+      nationality: athlete.nationality ?? null,
+      state: athlete.state ?? null,
+      city: athlete.city ?? null,
+      academic_minimum: athlete.academic_minimum ?? null,
+      budget_range: athlete.budget_range ?? null,
+      preferred_divisions: safeJson(athlete.preferred_divisions),
+      preferred_conferences: safeJson(athlete.preferred_conferences),
+      match_weights: safeJson(athlete.match_weights),
+      criterion_ranking: safeJson(athlete.criterion_ranking),
+    },
+    unavailable: [
+      { field: 'roster_season', why: 'The season the opportunity figures came from is not stored in the analysis.' },
+      { field: 'pool_size', why: 'Not stored as a value. Stated in prose in analysis.summary.' },
+      { field: 'excluded_counts', why: 'Not stored as values. Stated in prose in analysis.summary.' },
+      { field: 'analysed_at', why: 'The analysis records no timestamp of its own; only snapshot_taken_at is known.' },
+      {
+        field: 'resolved_weights',
+        why: 'The weights actually used were computed at run time and never persisted. '
+          + 'athlete.match_weights and athlete.criterion_ranking are the inputs to that computation as they stand now.',
+      },
+    ],
+  };
+}
+
+/**
+ * Validate the stored analysis and turn it into rows, WITHOUT touching the
+ * database. Everything that can be refused is refused here, so the transaction
+ * below either writes a whole campaign or is never opened.
+ */
+function freezeRecommendations({ analysis, sport, at }) {
+  const list = analysis && analysis.recommendations;
+  if (!Array.isArray(list)) {
+    throw fail('ANALYSIS_INVALID',
+      'The stored analysis has no `recommendations` array — it is not a match analysis this can freeze.');
+  }
+  if (list.length === 0) {
+    throw fail('ANALYSIS_EMPTY',
+      'The stored analysis ranked no programmes. There is nothing to build a campaign from.');
+  }
+  if (list.length > MAX_PROGRAMMES) {
+    throw fail('ANALYSIS_TOO_LARGE',
+      `The stored analysis holds ${list.length} programmes and a campaign tiers at most ${MAX_PROGRAMMES}. `
+      + 'Ranks beyond that have no band, and giving them one would be a tier no rule chose.');
+  }
+
+  const seen = new Set();
+  return list.map((rec, index) => {
+    const rank = index + 1;              // ARRAY ORDER IS THE RANKING. Never re-sorted.
+    const where = `entry ${rank}`;
+
+    if (!rec || typeof rec !== 'object' || Array.isArray(rec)) {
+      throw fail('ANALYSIS_INVALID', `${where} of the stored analysis is not a programme record.`);
+    }
+    const collegeName = typeof rec.name === 'string' ? rec.name.trim() : '';
+    if (!collegeName) {
+      throw fail('ANALYSIS_INVALID', `${where} of the stored analysis has no programme name.`);
+    }
+    /**
+     * A score that is null, a float or a string is refused rather than coerced.
+     * One orphaned blob on disk carries `match_score: null` on all 100 rows;
+     * rounding or defaulting it would put a number in the record that the
+     * analysis never produced.
+     */
+    if (!Number.isInteger(rec.match_score)) {
+      throw fail('ANALYSIS_INVALID',
+        `${where} (${collegeName}) has match_score ${JSON.stringify(rec.match_score)}, which is not an integer. `
+        + 'A campaign records the score that was given, never one this code invented.');
+    }
+
+    const key = `${collegeName} ${sport}`;
+    if (seen.has(key)) {
+      throw fail('ANALYSIS_INVALID',
+        `${collegeName} appears twice in the stored analysis. A programme is in a campaign once.`);
+    }
+    seen.add(key);
+
+    // Present on six-criterion analyses, absent on the 39 older ones. Absent
+    // is stored as absent.
+    const breakdown = Array.isArray(rec.breakdown) && rec.breakdown.length ? rec.breakdown : null;
+    const labels = rec.labels && typeof rec.labels === 'object' ? rec.labels : null;
+    const confidence = typeof rec.confidence === 'string' ? rec.confidence : null;
+
+    return {
+      id: randomUUID(),
+      college_name: collegeName,
+      // The campaign's own snapshotted sport, not anything on the record: a
+      // recommendation carries no sport, and the athlete plays one.
+      sport,
+      college_id: typeof rec.id === 'string' && rec.id.trim() ? rec.id.trim() : null,
+      rank,
+      match_score: rec.match_score,
+      score_breakdown: breakdown || labels || confidence
+        ? JSON.stringify({ breakdown, labels, confidence })
+        : null,
+      division: typeof rec.division === 'string' ? rec.division : null,
+      conference: typeof rec.conference === 'string' ? rec.conference : null,
+      tier: tierForRank(rank),
+      tier_source: 'AUTO',
+      tier_set_at: at,
+      state: 'queued',
+      state_reason: null,
+      state_changed_at: null,
+      created_at: at,
+      updated_at: at,
+    };
+  });
+}
+
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+/** A real calendar date in YYYY-MM-DD, with no timezone interpretation at all. */
+function validDate(value, field) {
+  if (typeof value !== 'string' || !DATE_ONLY.test(value)) {
+    throw fail('INVALID_DATE', `${field} must be a YYYY-MM-DD date, got ${JSON.stringify(value)}`);
+  }
+  // Round-trips through UTC so 2026-02-30 and 2026-13-01 are refused rather
+  // than silently rolling into March and the following January.
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  if (Number.isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== value) {
+    throw fail('INVALID_DATE', `${field} is not a real date: ${value}`);
+  }
+  return value;
+}
+
+/**
+ * CREATE A CAMPAIGN BY FREEZING THE ATHLETE'S CURRENT STORED ANALYSIS.
+ *
+ * This is the moment a mutable pointer becomes a durable record. Everything it
+ * writes comes from the blob that pointer named and from the athlete row; it
+ * re-runs nothing, re-scores nothing, and reads no college or roster table —
+ * the ranking being frozen is the historical one, not today's answer to the
+ * same question.
+ *
+ * Always opens in `draft`. Activation is a separate, deliberate act, so a
+ * hundred programmes cannot become live outreach as a side effect of creation.
+ *
+ * ALL OR NOTHING. Validation happens entirely before the transaction opens, and
+ * the parent row and every programme row are written inside one, so a failure
+ * anywhere leaves no campaign behind.
+ *
+ * @returns {{campaign: object, programmes: object[]}} programmes in rank order.
+ */
+export function createCampaign(athleteId, {
+  label = null, startsOn = null, outreachEndsOn = null, endsOn = null, at = utcNow(),
+} = {}) {
+  const athlete = db.prepare('SELECT * FROM players WHERE id = ?').get(athleteId);
+  if (!athlete) throw fail('ATHLETE_NOT_FOUND', `No athlete ${athleteId}`);
+
+  // Read ONCE, and every later step uses this exact value — so the campaign
+  // records the analysis it actually froze, even if the pointer moves under it
+  // a moment later.
+  const ref = athlete.recommendations;
+  if (!ref) {
+    throw fail('NO_STORED_ANALYSIS',
+      `${athlete.full_name || athleteId} has no stored match analysis. `
+      + 'Run Find Matches before creating a campaign.');
+  }
+
+  const file = resolveAnalysisPath(ref);
+  let analysis;
+  try {
+    analysis = JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch (err) {
+    throw fail('ANALYSIS_UNREADABLE', `The stored analysis ${ref} could not be read: ${err.message}`);
+  }
+  if (!analysis || typeof analysis !== 'object' || Array.isArray(analysis)) {
+    throw fail('ANALYSIS_INVALID', `The stored analysis ${ref} is not an analysis object.`);
+  }
+
+  // The athlete's sport, snapshotted. The athlete row is mutable and a sport
+  // changed later must not re-interpret these programme rows.
+  const sport = athlete.sport || 'mens-soccer';
+  const programmes = freezeRecommendations({ analysis, sport, at });
+
+  const starts = validDate(startsOn ?? at.slice(0, 10), 'starts_on');
+  const outreachEnds = outreachEndsOn == null ? null : validDate(outreachEndsOn, 'outreach_ends_on');
+  const ends = endsOn == null ? null : validDate(endsOn, 'ends_on');
+
+  // Lexicographic comparison is exact for YYYY-MM-DD and involves no timezone.
+  if (outreachEnds && outreachEnds < starts) {
+    throw fail('INVALID_DATE_ORDER', `outreach_ends_on (${outreachEnds}) is before starts_on (${starts})`);
+  }
+  if (ends && ends < starts) {
+    throw fail('INVALID_DATE_ORDER', `ends_on (${ends}) is before starts_on (${starts})`);
+  }
+  if (ends && outreachEnds && ends < outreachEnds) {
+    throw fail('INVALID_DATE_ORDER', `ends_on (${ends}) is before outreach_ends_on (${outreachEnds})`);
+  }
+
+  const campaign = {
+    id: randomUUID(),
+    athlete_id: athlete.id,
+    sport,
+    label: typeof label === 'string' && label.trim() ? label.trim() : null,
+    // NEVER 'active'. Review, then activate.
+    state: 'draft',
+    starts_on: starts,
+    outreach_ends_on: outreachEnds,
+    ends_on: ends,
+    created_at: at,
+    updated_at: at,
+    closed_at: null,
+    close_reason: null,
+    source_analysis_ref: ref,
+    snapshot_taken_at: at,
+    matching_inputs: JSON.stringify(
+      buildMatchingInputs({ athlete, analysis, ref, count: programmes.length }),
+    ),
+    // What was ACTUALLY frozen, not what a Top 100 is meant to hold. Of the 98
+    // analyses on disk, counts of 6, 27, 46, 50 and 53 all occur legitimately
+    // where division and conference filters left a smaller eligible pool.
+    programme_count: programmes.length,
+  };
+
+  const insertCampaign = db.prepare(`
+    INSERT INTO campaigns (
+      id, athlete_id, sport, label, state, starts_on, outreach_ends_on, ends_on,
+      created_at, updated_at, closed_at, close_reason,
+      source_analysis_ref, snapshot_taken_at, matching_inputs, programme_count
+    ) VALUES (
+      @id, @athlete_id, @sport, @label, @state, @starts_on, @outreach_ends_on, @ends_on,
+      @created_at, @updated_at, @closed_at, @close_reason,
+      @source_analysis_ref, @snapshot_taken_at, @matching_inputs, @programme_count
+    )
+  `);
+  const insertProgramme = db.prepare(`
+    INSERT INTO programme_campaigns (
+      id, campaign_id, college_name, sport, college_id, rank, match_score, score_breakdown,
+      division, conference, tier, tier_source, tier_set_at,
+      state, state_reason, state_changed_at, created_at, updated_at
+    ) VALUES (
+      @id, @campaign_id, @college_name, @sport, @college_id, @rank, @match_score, @score_breakdown,
+      @division, @conference, @tier, @tier_source, @tier_set_at,
+      @state, @state_reason, @state_changed_at, @created_at, @updated_at
+    )
+  `);
+
+  db.transaction(() => {
+    insertCampaign.run(campaign);
+    for (const p of programmes) insertProgramme.run({ ...p, campaign_id: campaign.id });
+  })();
+
+  return { campaign: getCampaign(campaign.id), programmes: listProgrammeCampaigns(campaign.id) };
 }
