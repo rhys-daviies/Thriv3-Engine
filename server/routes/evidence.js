@@ -23,6 +23,17 @@ import {
 } from '../../shared/evidence/index.js';
 import { outreachCopyFor } from '../../shared/evidence/outreachCopy.js';
 
+/**
+ * Outbound outcomes that belong in "what we knew and could not use".
+ *
+ * NOT `DEDUPED` — a dedupe loser is licensed, qualified and swappable, and
+ * belongs in the offer list. NOT `NOT_LICENSED` or `DENIED` — those are the
+ * internal kinds, which have no rendered sentence and are reported separately
+ * so they cannot be offered. In send order of severity, so the drawer reads
+ * from nearest-miss to furthest.
+ */
+const OTHER_KNOWN = Object.freeze(['OVER_CAP', 'UNQUALIFIED', 'BELOW_CONFIDENCE']);
+
 /** The athlete's first name, for the one clause that needs it. Never a pronoun. */
 const firstNameOf = (name) => String(name ?? '').trim().split(/\s+/)[0] || null;
 
@@ -92,9 +103,14 @@ export function toWire(result) {
   /**
    * Why an item is not in the email, in the operator's words.
    *
-   * Taken from the selection rather than recomputed, so the panel and the log
-   * cannot describe the same decision differently. An item with no entry is
-   * simply available — a reason would be an invention.
+   * Taken from the OUTBOUND selection rather than recomputed, so the panel and
+   * the log cannot describe the same decision differently. An item with no
+   * entry is simply available — a reason would be an invention.
+   *
+   * These used to come from the legacy selector's log, which decides nothing
+   * outbound: at five programmes it had picked the other congratulation, so
+   * the wire marked the claim being SENT as suppressed and the one being
+   * offered as selected. Both statements were about a different email.
    */
   const reasonFor = (kind) => dispositionOf.get(kind)?.reason ?? null;
 
@@ -171,24 +187,40 @@ export function toWire(result) {
         selected: selectedKinds.has(item.kind),
         disposition: dispositionOf.get(item.kind)?.disposition ?? null,
         reason: reasonFor(item.kind),
-        // The claim this one would replace, when it is an alternative.
-        supersedes: item.supersededBy ?? null,
+        // The claim this one would replace, when it is an alternative. From
+        // the selector's own note where it has one, so the wire agrees with
+        // itself after an operator swap rewrites who superseded whom.
+        supersedes: dispositionOf.get(item.kind)?.supersededBy ?? item.supersededBy ?? null,
       };
     }),
-    // Redundant and too-weak evidence, each with its reason and its rendered
-    // sentence. Shown rather than hidden: "we knew this and dropped it because
-    // it restates the item above" is the difference between a considered
-    // choice and an arbitrary one, and an operator who disagrees can still
-    // select it — the panel offers it, the engine simply did not pick it.
-    otherKnown: [
-      ...result.suppressed, ...result.belowThreshold,
-    ].map((entry) => {
-      const ev = result.usable.find((e) => e.kind === entry.kind);
+    /**
+     * Licensed claims the outbound selector could not use, with its reason.
+     *
+     * Shown rather than hidden: "we knew this and could not say it" is the
+     * difference between a considered choice and an arbitrary one.
+     *
+     * WHAT CHANGED IN H6. This was the legacy selector's `suppressed` and
+     * `belowThreshold` lists, which on live data held exactly the 865
+     * dedupe losers that `available` was already offering — so the panel put
+     * them in a collapsed "suppressed or below-threshold" drawer with legacy
+     * wording, and "Other strong options" held the 15 the legacy engine had
+     * happened to pick, with no reason at all. Two lists, drawn by an engine
+     * that decides nothing outbound, and the wrong way round: the drawer held
+     * the swappable claims and the offer list held the leftovers.
+     *
+     * Now it holds what the OUTBOUND selector could not use — a claim below
+     * its confidence floor, one that cannot state what it needs, one past the
+     * cap. A dedupe loser is not here: it is offerable, it is in `available`,
+     * and calling it suppressed was the error.
+     */
+    otherKnown: OTHER_KNOWN.flatMap((disposition) => (result.dispositions ?? [])
+      .filter((d) => d.disposition === disposition)).map((entry) => {
+      const ev = byKind.get(entry.kind) ?? result.usable.find((e) => e.kind === entry.kind);
       return {
         kind: entry.kind,
         label: kindLabel(entry.kind),
         family: ev ? (FAMILY_LABELS[ev.category] ?? ev.category) : null,
-        disposition: dispositionOf.get(entry.kind)?.disposition ?? null,
+        disposition: entry.disposition,
         reason: entry.reason ?? null,
         // Rendered so it can be swapped in and previewed. Still through the
         // tier-appropriate renderer — a suppressed SIGNAL arrives hedged.
@@ -211,9 +243,16 @@ export function toWire(result) {
       kind: ev.kind, tier: ev.tier, confidence: ev.confidence,
       strength: ev.strength, season: ev.season, source: ev.source,
     })),
-    suppressed: result.suppressed,
-    belowThreshold: result.belowThreshold,
-    rejected: result.rejected,
+    /**
+     * The legacy selector's parallel account, prefixed so it cannot be read as
+     * this surface's answer. No client consumes these; they are here for the
+     * same reason `result.legacy` is — an analysis comparing the two policies
+     * needs the old one visible — and an unlabelled `suppressed` beside an
+     * outbound `dispositions` is precisely the mixing H6 removed.
+     */
+    legacy_suppressed: result.legacy?.suppressed ?? [],
+    legacy_belowThreshold: result.legacy?.belowThreshold ?? [],
+    legacy_rejected: result.legacy?.rejected ?? [],
     // One row per generated kind and how it ended up, which is what the tab
     // groups by. Carries no data — a disposition is a decision about evidence,
     // not evidence — so it adds nothing the client could render from.

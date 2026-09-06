@@ -631,8 +631,12 @@ describe('multi-evidence logging', () => {
   it('carries the dispositions and the reasons into the payload', () => {
     const payload = evidenceLogPayload(selectEvidence(nzDefender, richProgramme()));
     expect(payload.payload.dispositions.length).toBeGreaterThan(0);
-    expect(payload.payload).toHaveProperty('belowThreshold');
+    expect(payload.payload).toHaveProperty('legacy_belowThreshold');
     expect(payload.payload).toHaveProperty('engineSelected');
+    // The logged dispositions are the OUTBOUND selector's, so every kind the
+    // email carries appears as SELECTED with an order rather than by absence.
+    const sent = payload.payload.dispositions.filter((d) => d.disposition === 'SELECTED');
+    expect(sent.map((d) => d.kind)).toEqual(payload.selected_kinds.split(','));
   });
 });
 

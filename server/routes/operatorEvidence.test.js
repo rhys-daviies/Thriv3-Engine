@@ -577,11 +577,12 @@ describe('the composer route is untouched by any of this', () => {
     // Twenty-one keys, none of them from the operator surface. If the two ever
     // share a serializer, this is the test that notices.
     expect(Object.keys(out[OPEN]).sort()).toEqual([
-      'available', 'belowThreshold', 'composition', 'dispositions', 'engineSelected',
-      'internal', 'maxEvidence', 'operatorSelected', 'otherKnown', 'paragraph',
-      'programme', 'rejected', 'selected', 'structure', 'structureEligible',
+      'available', 'composition', 'dispositions', 'engineSelected',
+      'internal', 'legacy_belowThreshold', 'legacy_rejected', 'legacy_suppressed',
+      'maxEvidence', 'operatorSelected', 'otherKnown', 'paragraph',
+      'programme', 'selected', 'structure', 'structureEligible',
       'structureLabel', 'structureOptions', 'structureRefused', 'structureSource',
-      'suppressed', 'unavailableRequests',
+      'unavailableRequests',
     ]);
   });
 

@@ -185,6 +185,23 @@ export function selectEvidence(athlete, programme = {}, {
     // redundant and why, what fell below a floor. Not what is sent.
     ...diagnostics,
     /**
+     * WHAT BECAME OF EACH KIND, ACCORDING TO THE ENGINE THAT DECIDED IT.
+     *
+     * Overwrites the legacy log's `dispositions` from the spread above, which
+     * is the whole point: the legacy selector ranks by strength across
+     * nineteen kinds under a different policy, and it was explaining outbound
+     * decisions it did not make. At five programmes the two picked different
+     * congratulations, so the panel labelled the claim it was sending
+     * "suppressed as redundant" and offered the one it was not with no
+     * explanation at all.
+     *
+     * Taken from `applied` rather than `roles`, so an operator's own ordering
+     * is reflected here too — the state describes the email as it now stands.
+     * The legacy answer is still computed and still returned, under `legacy`,
+     * where it explains itself and nothing else.
+     */
+    dispositions: applied.dispositions ?? [],
+    /**
      * The legacy engine's own answer, whole and under its own name.
      *
      * It no longer decides anything outbound. It is kept because the panel and
@@ -345,12 +362,30 @@ export function evidenceLogPayload(result, { renderedKinds = null } = {}) {
       // record the brief asks for, beside the convenience columns above.
       selectedDetail,
       engineSelected: result.engineSelected ?? [],
-      ranked: result.ranked.map((e) => ({ kind: e.kind, strength: e.strength, tier: e.tier })),
       internal: result.internal.map(compact),
+      /**
+       * What became of each kind, from the engine that decides outbound.
+       *
+       * Named without a qualifier because it is the answer: SELECTED with an
+       * order for what is being sent, DEDUPED with the claim that superseded
+       * it, and the licence, confidence, qualification and cap outcomes for
+       * the rest. It read the legacy log until H6, so five programmes are on
+       * record with the sent claim marked suppressed.
+       */
       dispositions: result.dispositions ?? [],
-      suppressed: result.suppressed,
-      belowThreshold: result.belowThreshold ?? [],
-      rejected: result.rejected,
+      /**
+       * The legacy selector's parallel account, under its own name.
+       *
+       * Kept because an analysis comparing the two policies needs the old one
+       * computable, and prefixed because these four fields answer a DIFFERENT
+       * question — strength ranking, family caps and slot floors across
+       * nineteen kinds — and an unlabelled `suppressed` beside an outbound
+       * `dispositions` is exactly the mixing this stage removed from the wire.
+       */
+      legacy_ranked: result.ranked.map((e) => ({ kind: e.kind, strength: e.strength, tier: e.tier })),
+      legacy_suppressed: result.suppressed,
+      legacy_belowThreshold: result.belowThreshold ?? [],
+      legacy_rejected: result.rejected,
       structureEligible: result.structure?.eligible ?? [],
       structureSource: result.structure?.source ?? null,
       structureRefused: result.structure?.refusedRequest ?? null,

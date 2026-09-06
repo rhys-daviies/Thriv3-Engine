@@ -66,7 +66,9 @@ function pairing(athlete, collegeName, { label = null } = {}) {
   console.log(`  roster: squad ${p.hasSquad ? 'yes' : 'no'}, history ${p.hasHistory ? 'yes' : 'no'}`
     + `, freshness ${p.freshness?.state ?? '—'}`);
 
-  console.log('\n  AVAILABLE EVIDENCE (generated, before selection)');
+  // The outbound selector's account, since H6. It was the legacy engine's
+  // until then, which is a different policy over a different set.
+  console.log('\n  OUTBOUND DISPOSITIONS (every kind generated, and what became of it)');
   for (const d of evidence.dispositions) {
     const flag = NEW_KINDS.includes(d.kind) ? ' *' : '  ';
     console.log(`   ${flag} ${d.kind.padEnd(32)} ${String(d.disposition).padEnd(22)}`

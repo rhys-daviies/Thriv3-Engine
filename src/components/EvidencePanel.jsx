@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowDown, ArrowUp, Plus, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { kindLabel } from '@shared/evidence/index.js';
+import { kindLabel, FLOWS } from '@shared/evidence/index.js';
 
 /**
  * Why this email says what it says — and, where the operator disagrees, a way
@@ -320,9 +320,14 @@ export default function EvidencePanel({
         )}
       </div>
 
+      {/* The flow's own label, from the same shared registry the server reads.
+          `kindLabel` was used here and a flow key is not an evidence kind, so
+          it passed the key straight through: the operator was told
+          "RELATIONSHIP_FIRST was not used". Not a wire change — the panel
+          already imports this registry to name kinds. */}
       {structureRefused && (
         <p className="rounded border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-800 dark:text-amber-400">
-          {kindLabel(structureRefused.key)} was not used — {structureRefused.reason}. Showing{' '}
+          {FLOWS[structureRefused.key]?.label ?? 'That structure'} was not used — {structureRefused.reason}. Showing{' '}
           {structureLabel || structure} instead.
         </p>
       )}
@@ -429,8 +434,12 @@ export default function EvidencePanel({
             onClick={() => setShowOther((v) => !v)}
             className="text-[11px] text-muted-foreground underline underline-offset-2"
           >
-            {showOther ? 'Hide' : 'Show'} {dropped.length} suppressed or below-threshold finding
-            {dropped.length === 1 ? '' : 's'}
+            {/* "suppressed or below-threshold" was the legacy selector's
+                vocabulary for a list that now holds outbound outcomes — a
+                claim past the cap, one that cannot state what it needs, one
+                below its confidence floor. */}
+            {showOther ? 'Hide' : 'Show'} {dropped.length} finding
+            {dropped.length === 1 ? '' : 's'} we could not use
           </button>
           {showOther && (
             <div className="mt-1">

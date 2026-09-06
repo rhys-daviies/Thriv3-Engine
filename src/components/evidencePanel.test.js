@@ -76,7 +76,7 @@ const alt = (over = {}) => ({
   text: 'two players from New Zealand have come through the programme since 2022',
   selected: false,
   disposition: 'DEDUPED',
-  reason: 'the same connection as COACH_ARRIVAL_SAME_COUNTRY, said another way',
+  reason: 'the same connection as same-country arrival under this coach, said another way',
   supersedes: 'COACH_ARRIVAL_SAME_COUNTRY',
   ...over,
 });
@@ -123,6 +123,36 @@ describe('the operator reads prose, never the registry', () => {
     const out = text(render({ evidence: wire() }));
     expect(out).not.toContain('COACH_ARRIVAL_SAME_COUNTRY');
     expect(out).not.toMatch(/[A-Z]{3,}_[A-Z_]{3,}/);
+  });
+
+  it('holds no kind key anywhere, in any state the wire can produce', () => {
+    /**
+     * The narrow version above only rendered the default state, so it never
+     * saw a reason — and H6's first outbound reason read "the same connection
+     * as COACH_ARRIVAL_SAME_COUNTRY, said another way". The panel keeps no
+     * vocabulary of its own by design, which means anything unreadable written
+     * on the server arrives unreadable, and only a test that renders the
+     * server's own strings can catch it.
+     */
+    const states = [
+      wire(),
+      wire({ available: [alt()] }),
+      wire({ available: [alt({ reason: null })] }),
+      wire({ selected: [{ ...wire().selected[0], displayed: false }] }),
+      wire({ internal: [{ kind: 'POSITION_GROUP_SCARCITY', tier: 'SIGNAL', confidence: 'MEDIUM' }] }),
+      wire({
+        otherKnown: [{
+          kind: 'ACADEMIC_FIT', label: 'Intended major offered', family: 'Academic',
+          disposition: 'UNQUALIFIED', reason: 'cannot state what this claim needs to be safe',
+          text: null, tier: 'FACT', confidence: 'MEDIUM',
+        }],
+      }),
+      wire({ structureRefused: { key: 'RELATIONSHIP_FIRST', reason: 'the evidence does not support it' } }),
+    ];
+    for (const [i, ev] of states.entries()) {
+      const out = text(render({ evidence: ev, onSelectionChange: () => {} }));
+      expect(out, `state ${i}`).not.toMatch(/[A-Z]{3,}_[A-Z_]{3,}/);
+    }
   });
 
   it('prints the server-rendered sentence verbatim', () => {
@@ -238,7 +268,7 @@ describe('what may be swapped in', () => {
      * at that point in the list.
      */
     const out = text(render({ evidence: wire({ available: [alt()] }) }));
-    expect(out).toContain('the same connection as COACH_ARRIVAL_SAME_COUNTRY, said another way');
+    expect(out).toContain('the same connection as same-country arrival under this coach, said another way');
   });
 
   it('says nothing at all when the server gave no reason', () => {
@@ -267,21 +297,29 @@ describe('what may be swapped in', () => {
     expect(withAlt).not.toContain('HOOK');
   });
 
-  it('keeps a suppressed finding collapsed, reason and all', () => {
-    // Unchanged by H5, and the difference from an alternative: a suppressed
-    // item is behind a count the operator has to open, an alternative is in
-    // the list. Both now carry their reason once visible.
+  it('keeps an unusable finding collapsed, reason and all', () => {
+    /**
+     * The difference from an alternative: this is a claim the outbound
+     * selector could NOT use, behind a count the operator has to open. An
+     * alternative is one it could have used and did not, in the list above.
+     *
+     * H6 moved this drawer off the legacy selector's `suppressed` and
+     * `belowThreshold` lists, which on live data held the 865 dedupe losers —
+     * so the drawer held the swappable claims and "Other strong options" held
+     * the 15 leftovers. It is empty on live data now, which is correct: every
+     * live near-miss is offerable.
+     */
     const out = text(render({
       evidence: wire({
         otherKnown: [{
-          kind: 'POSTSEASON_RESULT', label: 'Postseason run', family: 'Programme record',
-          disposition: 'SUPPRESSED_REDUNDANT', reason: 'says the same thing as conference title',
-          text: 'Congrats on the semi-final run last season.', tier: 'FACT', confidence: 'HIGH',
+          kind: 'ACADEMIC_FIT', label: 'Intended major offered', family: 'Academic',
+          disposition: 'UNQUALIFIED', reason: 'cannot state what this claim needs to be safe',
+          text: null, tier: 'FACT', confidence: 'HIGH',
         }],
       }),
     }));
-    expect(out).toMatch(/Show 1 suppressed or below-threshold finding/);
-    expect(out).not.toContain('says the same thing as conference title');
+    expect(out).toMatch(/Show 1 finding we could not use/);
+    expect(out).not.toContain('cannot state what this claim needs to be safe');
   });
 
   it('renders no swap controls when the panel is read-only', () => {

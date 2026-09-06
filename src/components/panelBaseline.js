@@ -61,19 +61,34 @@ const HELD = {
   order: 3, slot: null, displayed: false,
 };
 
-/** An alternative the operator could swap in, with the server's reason for not defaulting to it. */
+/**
+ * An alternative the operator could swap in, with the selector's own reason
+ * for not defaulting to it.
+ *
+ * H6 shapes. Before it, the disposition and reason on this object came from
+ * the legacy selector — `SUPPRESSED_REDUNDANT`, "says the same thing as
+ * same-country arrival under this coach" — an engine that decides nothing
+ * outbound, describing a claim the outbound engine was offering as a swap.
+ */
 const ALT_WITH_REASON = {
   kind: 'HISTORICAL_SAME_COUNTRY', tier: 'FACT', category: 'international', confidence: 'HIGH',
   role: 'HOOK', text: 'two players from New Zealand have come through the programme since 2022',
-  selected: false, disposition: 'SUPPRESSED_REDUNDANT',
-  reason: 'says the same thing as same-country arrival under this coach',
+  selected: false, disposition: 'DEDUPED',
+  reason: 'the same connection as same-country arrival under this coach, said another way',
   supersedes: 'COACH_ARRIVAL_SAME_COUNTRY',
 };
-/** The fifteen-of-880 case: the disposition log records it SELECTED, so it wrote no reason. */
+/**
+ * An alternative with no reason.
+ *
+ * Live data has none of these since H6 — every one of the 880 alternatives
+ * carries the selector's reason. Kept as a DEFENSIVE state: the panel must
+ * still be correct if a reason is ever missing, and inventing one on the
+ * client is the failure this whole seam produced.
+ */
 const ALT_NO_REASON = {
   kind: 'POSTSEASON_RESULT', tier: 'FACT', category: 'performance', confidence: 'HIGH',
   role: 'RECOGNITION', text: 'Congrats on the semi-final run last season.',
-  selected: false, disposition: 'SELECTED', reason: null, supersedes: 'CONFERENCE_TITLE',
+  selected: false, disposition: 'DEDUPED', reason: null, supersedes: 'CONFERENCE_TITLE',
 };
 const INTERNAL = [
   { kind: 'POSITION_GROUP_SCARCITY', tier: 'SIGNAL', confidence: 'MEDIUM' },
@@ -115,7 +130,10 @@ export const STATES = [
   ['heldEvidence', { evidence: wire({ selected: [HOOK, RELEVANCE, HELD] }) }],
   ['alternativeWithReason', { evidence: wire({ available: [ALT_WITH_REASON] }), onSelectionChange: () => {} }],
   ['alternativeWithoutReason', { evidence: wire({ selected: [HOOK, RECOGNITION], available: [ALT_NO_REASON] }), onSelectionChange: () => {} }],
-  ['internalOnly', { evidence: wire({ internal: INTERNAL, otherKnown: [{ kind: 'SQUAD_GRADUATION', label: 'Squad graduation', family: 'Roster', disposition: 'BELOW_THRESHOLD', reason: 'too weak to lead with', text: null, tier: 'FACT', confidence: 'MEDIUM' }] }) }],
+  // `otherKnown` now holds what the OUTBOUND selector could not use. Live data
+  // has none — a dedupe loser is offerable and belongs in the list above — so
+  // this is the shape the drawer takes when one does occur.
+  ['internalOnly', { evidence: wire({ internal: INTERNAL, otherKnown: [{ kind: 'ACADEMIC_FIT', label: 'Intended major offered', family: 'Academic', disposition: 'UNQUALIFIED', reason: 'cannot state what this claim needs to be safe', text: null, tier: 'FACT', confidence: 'MEDIUM' }] }) }],
 ];
 
 /** Every state's visible text, in a fixed order. */

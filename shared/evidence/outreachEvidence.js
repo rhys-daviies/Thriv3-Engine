@@ -1,5 +1,5 @@
 import {
-  EVIDENCE_KINDS, PERMISSION, permissionsFor, kindSpec,
+  EVIDENCE_KINDS, PERMISSION, permissionsFor, kindSpec, kindLabel,
   assertSurfaceRenderable, confidenceAtLeast,
 } from './kinds.js';
 
@@ -395,7 +395,8 @@ export function outreachEvidenceFor(evidenceResult) {
 
   const eligible = [];
   const dispositions = [];
-  const note = (kind, disposition, reason = null) => dispositions.push({ kind, disposition, reason });
+  const note = (kind, disposition, reason = null, extra = null) => dispositions
+    .push({ kind, disposition, reason, ...extra });
 
   for (const ev of evidenceResult.all) {
     const role = ROLE_OF[ev.kind];
@@ -494,7 +495,7 @@ export function outreachEvidenceFor(evidenceResult) {
   for (const item of eligible) {
     const held = survivor.get(item._group);
     if (held) {
-      note(item.kind, 'DEDUPED', `the same connection as ${held.kind}, said another way`);
+      note(item.kind, 'DEDUPED', sameConnectionAs(held.kind), { supersededBy: held.kind });
       alternatives.push({
         kind: item.kind, role: item.role, facts: item.facts,
         group: item._group, supersededBy: held.kind,
@@ -516,6 +517,18 @@ export function outreachEvidenceFor(evidenceResult) {
 
   return {
     /**
+     * Every kind this surface saw, and what became of it — INCLUDING what was
+     * sent. The losers were noted from the start; the winners were not, so a
+     * caller asking "what happened to this kind" got silence for the one
+     * answer that mattered and had to infer it from three other arrays.
+     *
+     * `server/routes/evidence.js` inferred it from the LEGACY selector's log
+     * instead, which is a different engine answering a different question. At
+     * five programmes the two disagreed and the panel labelled the claim it
+     * was sending as suppressed.
+     */
+    dispositions: withOutcomes(dispositions, { hooks, relevance, recognition }),
+    /**
      * Same-connection claims the operator may swap in. Never sent as they
      * stand — exactly one member of a group ever reaches an email.
      */
@@ -533,8 +546,23 @@ export function outreachEvidenceFor(evidenceResult) {
      * something, and the number exists to answer a different question.
      */
     hasPersonalisation: hooks.length + relevance.length > 0,
-    dispositions,
   };
+}
+
+/**
+ * The losers' notes plus the winners', in send order.
+ *
+ * SELECTED carries an `order` and no reason. A reason answers "why not this
+ * one", and the claims in the email do not need one — inventing something for
+ * them is how a log starts explaining decisions it did not make.
+ */
+function withOutcomes(notes, { hooks, relevance, recognition }) {
+  const sent = [...hooks, ...relevance, ...recognition];
+  const noted = new Set(notes.map((d) => d.kind));
+  const selected = sent
+    .filter((i) => !noted.has(i.kind))
+    .map((i, order) => ({ kind: i.kind, disposition: 'SELECTED', reason: null, role: i.role, order }));
+  return Object.freeze([...selected, ...notes]);
 }
 
 /**
@@ -607,16 +635,74 @@ export function applyPrefer(result, prefer = null) {
 
   // Re-bucketed by the kind's OWN role, not by where the operator put it in
   // the list. Order within each bucket is theirs.
+  const hooks = kept.filter((i) => i.role === ROLES.HOOK);
+  const relevance = kept.filter((i) => i.role === ROLES.RELEVANCE);
+  const recognition = kept.filter((i) => i.role === ROLES.RECOGNITION).slice(0, MAX_RECOGNITION);
   return {
     ...result,
-    hooks: kept.filter((i) => i.role === ROLES.HOOK),
-    relevance: kept.filter((i) => i.role === ROLES.RELEVANCE),
-    recognition: kept.filter((i) => i.role === ROLES.RECOGNITION).slice(0, MAX_RECOGNITION),
+    hooks,
+    relevance,
+    recognition,
+    /**
+     * The decision state AFTER the operator's choice, not before it.
+     *
+     * Spreading `result` carried the selector's own notes through untouched,
+     * so a swapped-in alternative still read DEDUPED and the claim it replaced
+     * still read SELECTED — the panel would have described the email it was no
+     * longer sending. The dedupe FACT is unchanged, which is why this is a
+     * rewrite of who superseded whom rather than a re-run of the policy.
+     */
+    dispositions: repointDispositions(result.dispositions ?? [], { hooks, relevance, recognition }),
     hasPersonalisation: kept.some((i) => i.role !== ROLES.RECOGNITION),
     operatorSelected: true,
     unavailableRequests: unavailable,
   };
 }
+
+/**
+ * The same notes, pointed at the claims that are actually being sent.
+ *
+ * A kind now sent becomes SELECTED. A kind no longer sent, whose group a
+ * sibling now holds, becomes DEDUPED behind that sibling. Everything else —
+ * a denied kind, one that failed its qualification, one over the cap — is
+ * untouched, because the operator's preference cannot have changed any of it.
+ */
+function repointDispositions(notes, { hooks, relevance, recognition }) {
+  const sent = [...hooks, ...relevance, ...recognition];
+  const sentAt = new Map(sent.map((i, order) => [i.kind, { role: i.role, order }]));
+  const holder = new Map(sent.map((i) => [groupFor(i.kind), i.kind]));
+
+  const out = notes.map((d) => {
+    const at = sentAt.get(d.kind);
+    if (at) return { kind: d.kind, disposition: 'SELECTED', reason: null, role: at.role, order: at.order };
+    if (d.disposition !== 'SELECTED') return d;
+    const winner = holder.get(groupFor(d.kind));
+    return winner
+      ? {
+        kind: d.kind,
+        disposition: 'DEDUPED',
+        reason: sameConnectionAs(winner),
+        supersededBy: winner,
+      }
+      // Dropped by the operator with nothing taking its place: it was a valid
+      // claim and is no longer in the email, which is all we can truthfully say.
+      : { kind: d.kind, disposition: 'DESELECTED', reason: 'not part of the order you chose' };
+  });
+  // Sent first, in send order, as `outreachEvidenceFor` returns them.
+  return Object.freeze([...out].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)));
+}
+
+/**
+ * Why a claim was not the default, in the operator's words.
+ *
+ * THE REGISTRY'S LABEL, NEVER ITS KEY. This read
+ * "the same connection as COACH_ARRIVAL_SAME_COUNTRY, said another way" until
+ * the panel baseline printed it and made the leak visible — a constant an
+ * operator would have to decode, in the one sentence explaining a decision to
+ * them. The panel holds no vocabulary of its own by design, so anything
+ * unreadable written here arrives unreadable.
+ */
+const sameConnectionAs = (kind) => `the same connection as ${kindLabel(kind).toLowerCase()}, said another way`;
 
 /** The dedupe group a licensed kind belongs to. */
 const groupFor = (kind) => kindSpec(kind).dedupeGroup;

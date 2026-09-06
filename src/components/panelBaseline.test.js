@@ -15,7 +15,7 @@ import { panelBaseline, panelBaselineHash, panelBaselineReport, STATES } from '.
  * is that a change to what an operator reads cannot happen silently.
  */
 
-const HASH = '48306d221099ebe2';
+const HASH = '4002a26076e25bed';
 
 describe('the panel says the same thing it said yesterday', () => {
   it('renders all ten operator states', () => {

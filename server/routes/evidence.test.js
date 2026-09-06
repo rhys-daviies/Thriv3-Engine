@@ -250,14 +250,19 @@ describe('wire shape', () => {
    * contains.
    */
   it('carries what the panel needs and nothing it does not', () => {
+    // The three `legacy_` keys are the legacy selector's arrays under a name
+    // that says so. H6 renamed them: an unprefixed `suppressed` sitting beside
+    // an outbound `dispositions` is how one engine's answer gets read as the
+    // other's, which it was for five programmes.
     const athlete = db.prepare('SELECT * FROM players WHERE id = ?').get(athleteId);
     const wire = toWire(evidenceFor(athlete, SCHOOL, { sport: 'mens-soccer' }));
     expect(Object.keys(wire).sort()).toEqual([
-      'available', 'belowThreshold', 'composition', 'dispositions', 'engineSelected',
-      'internal', 'maxEvidence', 'operatorSelected', 'otherKnown', 'paragraph',
-      'programme', 'rejected', 'selected', 'structure', 'structureEligible',
+      'available', 'composition', 'dispositions', 'engineSelected',
+      'internal', 'legacy_belowThreshold', 'legacy_rejected', 'legacy_suppressed',
+      'maxEvidence', 'operatorSelected', 'otherKnown', 'paragraph',
+      'programme', 'selected', 'structure', 'structureEligible',
       'structureLabel', 'structureOptions', 'structureRefused', 'structureSource',
-      'suppressed', 'unavailableRequests',
+      'unavailableRequests',
     ]);
   });
 

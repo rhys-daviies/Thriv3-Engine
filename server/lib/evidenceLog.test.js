@@ -74,9 +74,14 @@ describe('evidence logging', () => {
     logEvidence({ outreachId: id, athleteId, evidence: nzEvidence() });
 
     const { payload } = evidenceForOutreach(id);
-    expect(payload).toHaveProperty('suppressed');
-    expect(payload).toHaveProperty('rejected');
-    expect(payload.ranked.length).toBeGreaterThan(0);
+    // H6 renamed these. They are the LEGACY selector's account — a different
+    // policy over a different set — and an unprefixed `suppressed` sitting
+    // beside an outbound `dispositions` is what let the two be read as one.
+    expect(payload).toHaveProperty('legacy_suppressed');
+    expect(payload).toHaveProperty('legacy_rejected');
+    expect(payload.legacy_ranked.length).toBeGreaterThan(0);
+    expect(payload).not.toHaveProperty('suppressed');
+    expect(payload).not.toHaveProperty('ranked');
   });
 
   it('separates "no roster on file" from "roster with nothing to say"', () => {

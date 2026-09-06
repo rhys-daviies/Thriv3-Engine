@@ -271,12 +271,15 @@ function main() {
     console.log(`  STRUCTURE     : ${evidence.structure.key} (${evidence.structure.source})`);
     console.log(`  BODY SOURCE   : ${composed.source}`);
 
-    console.log('\n  AVAILABLE EVIDENCE');
+    // The outbound selector's own account of every kind it saw. Named for the
+    // engine that decided it: the section below is the legacy engine's answer
+    // to a different question and the two can disagree.
+    console.log('\n  OUTBOUND DISPOSITIONS');
     for (const d of evidence.dispositions) {
       console.log(`    ${d.kind.padEnd(32)} ${d.disposition}`);
     }
 
-    console.log('\n  SUPPRESSED EVIDENCE');
+    console.log('\n  LEGACY DIAGNOSTIC — SUPPRESSED EVIDENCE');
     const dropped = [...(evidence.suppressed ?? []), ...(evidence.belowThreshold ?? []),
       ...(evidence.rejected ?? [])];
     if (!dropped.length) console.log('    (none)');

@@ -766,9 +766,10 @@ describe('composition and logging', () => {
     expect(payload.primary_kind).toBe('HISTORICAL_SAME_COUNTRY');
     expect(payload.primary_tier).toBe('FACT');
     expect(payload.structure).toBe('RELATIONSHIP_FIRST');
-    expect(payload.payload.ranked.length).toBeGreaterThan(0);
-    expect(payload.payload).toHaveProperty('suppressed');
-    expect(payload.payload).toHaveProperty('rejected');
+    // Legacy diagnostics, under their own name since H6.
+    expect(payload.payload.legacy_ranked.length).toBeGreaterThan(0);
+    expect(payload.payload).toHaveProperty('legacy_suppressed');
+    expect(payload.payload).toHaveProperty('legacy_rejected');
   });
 
   it('renders every selected sentence without throwing, across a busy programme', () => {
