@@ -28,8 +28,7 @@ import { renderEvidence, DEFAULT_HOOK_FRAMING } from './render.js';
 
 export { buildProgrammeContext, generateEvidence, REGIONS, regionFor } from './generate.js';
 export {
-  selectFrom, priorityOf, MAX_EMAIL_EVIDENCE, MAX_PER_FAMILY, SLOT_FLOORS,
-  DISPOSITION, FAMILY_LABELS, familyOf, outreachPermitted,
+  priorityOf, MAX_EMAIL_EVIDENCE, FAMILY_LABELS, familyOf, outreachPermitted, meetsConfidence,
 } from './select.js';
 export {
   resolveStructure, FLOWS, FLOW_KEYS, BLOCKS, EVIDENCE_BLOCKS,

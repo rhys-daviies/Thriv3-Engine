@@ -4,7 +4,6 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { toWire } from './evidence.js';
 import { selectEvidence } from '../../shared/evidence/index.js';
-import { selectFrom } from '../../shared/evidence/select.js';
 import { outreachEvidenceFor, applyPrefer, ROLES } from '../../shared/evidence/outreachEvidence.js';
 import { defineEvidence, CONFIDENCE, kindLabel } from '../../shared/evidence/kinds.js';
 
@@ -209,13 +208,12 @@ describe('the wire carries the outbound decision and nothing else', () => {
     for (const e of wire.selected) expect(e.displayed, e.kind).toBe(placement.get(e.kind) ?? false);
   });
 
-  it('does not compute the legacy answer at all, and can still be asked for it', () => {
+  it('does not compute the legacy answer, because there is none to compute', () => {
     /**
      * H6 left `selectFrom` running on every request and returning its answer
-     * under `result.legacy`. H7 asked who read it: nobody. So a production
-     * request no longer computes a policy the system replaced at G4 — and the
-     * function is unchanged, exported, and gives the same answer to anyone who
-     * asks for it explicitly.
+     * under `result.legacy`. H7 asked who read it — nobody — and stopped
+     * calling it. H8 asked what anyone would decide from it, found nothing,
+     * and deleted it.
      */
     const result = selectEvidence(athlete, ctx());
     expect(result).not.toHaveProperty('legacy');
@@ -223,9 +221,9 @@ describe('the wire carries the outbound decision and nothing else', () => {
       expect(result, gone).not.toHaveProperty(gone);
     }
 
-    const asked = selectFrom(result.all);
-    expect(asked.dispositions.length).toBeGreaterThan(0);
-    // And it may still disagree — harmlessly, because nothing reads it.
-    expect(result.dispositions).not.toEqual(asked.dispositions);
+    // H8 deleted it. There is one account of an outbound decision now, and it
+    // is written by the engine that made it.
+    expect(result.dispositions.length).toBeGreaterThan(0);
+    for (const d of result.dispositions) expect(d.kind).toBeTruthy();
   });
 });

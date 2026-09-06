@@ -7,7 +7,8 @@ import {
   evidenceLogPayload, regionFor,
 } from './index.js';
 import { RENDERABLE_KINDS } from './render.js';
-import { selectFrom, priorityOf } from './select.js';
+import { priorityOf } from './select.js';
+import { outreachEvidenceFor } from './outreachEvidence.js';
 
 // ---------------------------------------------------------------------------
 // fixtures
@@ -801,12 +802,17 @@ describe('composition and logging', () => {
 
 describe('selection hygiene', () => {
   it('rejects evidence below its own confidence floor', () => {
+    // ACADEMIC_FIT sits at HIGH because a subject we are not sure the
+    // programme offers is worse than saying nothing. Asked of the outbound
+    // selector, which is what a floor now gates.
     const low = defineEvidence('ACADEMIC_FIT', {
       confidence: 'MEDIUM', source: 't', data: { major: 'Business' },
     });
-    const out = selectFrom([low]);
-    expect(out.selected).toHaveLength(0);
-    expect(out.rejected[0].kind).toBe('ACADEMIC_FIT');
+    const r = outreachEvidenceFor({ all: [low] });
+    expect([...r.hooks, ...r.relevance, ...r.recognition]).toHaveLength(0);
+    const note = r.dispositions.find((d) => d.kind === 'ACADEMIC_FIT');
+    expect(note.disposition).toBe('BELOW_CONFIDENCE');
+    expect(note.reason).toContain('HIGH');
   });
 
   it('sorts by priority, with facts edging out equal-strength signals', () => {

@@ -2,7 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync, writeFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { selectFrom, outreachPermitted } from './select.js';
+import { outreachPermitted } from './select.js';
+import { outreachEvidenceFor, applyPrefer, internalEvidence } from './outreachEvidence.js';
 import {
   defineEvidence, permissionsFor, kindSpec, PERMISSION, SURFACE_KEYS,
   EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, CONFIDENCE,
@@ -52,10 +53,25 @@ const country = (over = {}) => defineEvidence('HISTORICAL_SAME_COUNTRY', {
   ...over,
 });
 
-/** What `selectFrom` would put in an email. */
-const emailedKinds = (items) => selectFrom(items, {}).selected.map((e) => e.kind);
+/**
+ * What would go in an email, asked of the engine that decides it.
+ *
+ * These read `selectFrom` until H8. The assertions did not change when the
+ * owner did — a denied kind was refused by both, which is the point of asking
+ * the question twice over two stages — but the retired selector is gone and a
+ * permission test that runs it is testing a policy nobody ships.
+ */
+const emailedKinds = (items) => {
+  const r = outreachEvidenceFor({ all: items });
+  return [...r.hooks, ...r.relevance, ...r.recognition].map((i) => i.kind);
+};
 /** What it set aside as not permitted here. */
-const internalKinds = (items) => selectFrom(items, {}).internal.map((e) => e.kind);
+const internalKinds = (items) => internalEvidence(items).map((e) => e.kind);
+/** The same, after an operator names the kinds they want. */
+const preferredKinds = (items, prefer) => {
+  const r = applyPrefer(outreachEvidenceFor({ all: items }), prefer);
+  return { kinds: [...r.hooks, ...r.relevance, ...r.recognition].map((i) => i.kind), result: r };
+};
 
 // ---------------------------------------------------------------------------
 
@@ -176,19 +192,21 @@ describe('QUALIFIED fails closed until outreach can state a qualification', () =
   });
 
   it('sets a DENIED kind aside rather than dropping it silently', () => {
-    // The operator panel shows `internal` as "useful for ranking, not
-    // permitted in an email". That is where the sixteen denied kinds belong —
-    // visible, and not offerable.
+    // The operator panel shows `internal` as intelligence that may not be
+    // emailed. That is where a denied kind belongs — visible, and not
+    // offerable — and the selector records why.
     const denied = graduation({ permissions: { OUTREACH: PERMISSION.DENIED } });
-    const result = selectFrom([denied, country()], {});
-    expect(result.internal.map((e) => e.kind)).toContain(EMAILABLE);
-    expect(result.dispositions.find((d) => d.kind === EMAILABLE).disposition)
-      .toBe('INTERNAL_ONLY');
+    const items = [denied, country()];
+    expect(internalKinds(items)).toContain(EMAILABLE);
+    expect(emailedKinds(items)).not.toContain(EMAILABLE);
+    const note = outreachEvidenceFor({ all: items }).dispositions.find((d) => d.kind === EMAILABLE);
+    expect(note.disposition).toBe('DENIED');
+    expect(note.reason).toBeTruthy();
   });
 
   it('refuses a DENIED kind even when it is the only evidence there is', () => {
     const only = graduation({ permissions: { OUTREACH: PERMISSION.DENIED } });
-    expect(selectFrom([only], {}).selected).toEqual([]);
+    expect(emailedKinds([only])).toEqual([]);
   });
 });
 
@@ -213,10 +231,9 @@ describe('a requirement a kind declares is enforced here too', () => {
 describe('preference cannot promote what permission refused', () => {
   it('honours a preference among permitted kinds', () => {
     const items = [graduation(), country()];
-    expect(selectFrom(items, { prefer: ['HISTORICAL_SAME_COUNTRY'] }).selected.map((e) => e.kind))
+    expect(preferredKinds(items, ['HISTORICAL_SAME_COUNTRY']).kinds)
       .toEqual(['HISTORICAL_SAME_COUNTRY']);
-    expect(selectFrom(items, { prefer: [EMAILABLE] }).selected.map((e) => e.kind))
-      .toEqual([EMAILABLE]);
+    expect(preferredKinds(items, [EMAILABLE]).kinds).toEqual([EMAILABLE]);
   });
 
   it('ignores a preference for a kind the permission refused', () => {
@@ -224,38 +241,38 @@ describe('preference cannot promote what permission refused', () => {
     // gate, so a tampered client naming a denied kind names something that is
     // not in the map.
     const denied = graduation({ permissions: { OUTREACH: PERMISSION.DENIED } });
-    const result = selectFrom([denied, country()], { prefer: [EMAILABLE] });
-    expect(result.selected.map((e) => e.kind)).not.toContain(EMAILABLE);
+    const { kinds, result } = preferredKinds([denied, country()], [EMAILABLE]);
+    expect(kinds).not.toContain(EMAILABLE);
     expect(result.unavailableRequests).toContain(EMAILABLE);
     // And it falls back to the engine's own choice rather than sending nothing.
-    expect(result.selected.map((e) => e.kind)).toEqual(['HISTORICAL_SAME_COUNTRY']);
+    expect(kinds).toEqual(['HISTORICAL_SAME_COUNTRY']);
   });
 
   it('ignores a preference for a registry-barred kind', () => {
     const barred = defineEvidence(BARRED, {
       ...src, season: '2026', data: { count: 2, seasons: ['2025'] },
     });
-    const result = selectFrom([barred, country()], { prefer: [BARRED] });
-    expect(result.selected.map((e) => e.kind)).toEqual(['HISTORICAL_SAME_COUNTRY']);
+    const { kinds, result } = preferredKinds([barred, country()], [BARRED]);
+    expect(kinds).toEqual(['HISTORICAL_SAME_COUNTRY']);
     expect(result.unavailableRequests).toContain(BARRED);
   });
 
   it('ignores a preference for a DENIED kind', () => {
     const denied = graduation({ permissions: { OUTREACH: PERMISSION.DENIED } });
-    const result = selectFrom([denied, country()], { prefer: [EMAILABLE] });
-    expect(result.selected.map((e) => e.kind)).not.toContain(EMAILABLE);
+    const { kinds, result } = preferredKinds([denied, country()], [EMAILABLE]);
+    expect(kinds).not.toContain(EMAILABLE);
     expect(result.unavailableRequests).toContain(EMAILABLE);
   });
 
   it('ignores a name that is not evidence at all', () => {
-    const result = selectFrom([country()], { prefer: ['NOT_A_KIND', '__proto__'] });
-    expect(result.selected.map((e) => e.kind)).toEqual(['HISTORICAL_SAME_COUNTRY']);
+    expect(preferredKinds([country()], ['NOT_A_KIND', '__proto__']).kinds)
+      .toEqual(['HISTORICAL_SAME_COUNTRY']);
   });
 });
 
 describe('the legacy flag is gone', () => {
   it('is not read by the outreach selection path', () => {
-    const source = readFileSync(new URL('./select.js', import.meta.url), 'utf8');
+    const source = readFileSync(new URL('./outreachEvidence.js', import.meta.url), 'utf8');
     const code = source.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
     expect(code).not.toContain('emailEligible');
   });

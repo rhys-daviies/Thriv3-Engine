@@ -1,11 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { selectEvidence } from './index.js';
-import { selectFrom } from './select.js';
 import { internalEvidence } from './outreachEvidence.js';
 import { generateEvidence, buildProgrammeContext } from './generate.js';
 import { outreachEvidenceFor } from './outreachEvidence.js';
-import { defineEvidence, CONFIDENCE } from './kinds.js';
+import {
+  defineEvidence, CONFIDENCE, permissionsFor, PERMISSION, kindSpec, confidenceAtLeast,
+} from './kinds.js';
 
 /**
  * THE LEGACY SELECTOR DOES NOT RUN.
@@ -89,18 +90,26 @@ describe('no production path runs the legacy selector', () => {
 });
 
 describe('the fields it used to own are derived from the licence', () => {
-  it('gives the same `internal` set the legacy selector gave', () => {
+  it('holds exactly the kinds the registry bars from an email', () => {
     /**
-     * The proof the migration rests on, made local. Over the live corpus this
-     * was 3,498 pairings with zero item differences in either direction; here
-     * it is one fixture and the two functions, so a future edit to either is
-     * caught without a database.
+     * H7 proved this against `selectFrom` — 3,498 pairings, zero differences
+     * in either direction — and H8 deleted the function, so the comparison
+     * cannot be made any more. The rule it proved is asserted directly
+     * instead, which is what the comparison was standing in for.
      */
     const evidence = generateEvidence(athlete, buildProgrammeContext(ctx()));
-    const fromLicence = internalEvidence(evidence).map((e) => e.kind).sort();
-    const fromLegacy = selectFrom(evidence).internal.map((e) => e.kind).sort();
-    expect(fromLicence.length).toBeGreaterThan(0);
-    expect(fromLicence).toEqual(fromLegacy);
+    const internal = internalEvidence(evidence);
+    expect(internal.length).toBeGreaterThan(0);
+    for (const ev of internal) {
+      expect(permissionsFor(ev.kind).OUTREACH, ev.kind).toBe(PERMISSION.DENIED);
+      expect(confidenceAtLeast(ev.confidence, kindSpec(ev.kind).minConfidence), ev.kind).toBe(true);
+    }
+    // And nothing licensed is hidden in it.
+    const licensed = evidence.filter((e) => permissionsFor(e.kind).OUTREACH !== PERMISSION.DENIED);
+    expect(licensed.length).toBeGreaterThan(0);
+    for (const ev of licensed) {
+      expect(internal.map((e) => e.kind), ev.kind).not.toContain(ev.kind);
+    }
   });
 
   it('does not equate internal with the NOT_LICENSED dispositions', () => {
@@ -132,8 +141,6 @@ describe('the fields it used to own are derived from the licence', () => {
     // choosing not to say.
     expect(internalEvidence([weak, strong]).map((e) => e.kind)).toEqual(['TRANSFER_BEHAVIOUR']);
 
-    // Which is exactly what the legacy selector did, for the same reason.
-    expect(selectFrom([weak, strong]).internal.map((e) => e.kind)).toEqual(['TRANSFER_BEHAVIOUR']);
   });
 
   it('reports the operator\'s own choice from the function that honoured it', () => {
@@ -153,31 +160,43 @@ describe('the fields it used to own are derived from the licence', () => {
   });
 });
 
-describe('the old policy is still there to be asked', () => {
-  it('answers when called directly, and may disagree', () => {
-    const result = selectEvidence(athlete, ctx());
-    const legacy = selectFrom(result.all);
-    expect(legacy.dispositions.length).toBeGreaterThan(0);
-    expect(legacy.selected.length).toBeGreaterThan(0);
-    // Free to disagree: nothing production reads it.
-    expect(legacy.dispositions).not.toEqual(result.dispositions);
+describe('the old policy is not there at all', () => {
+  it('is gone from the source, not merely unreferenced', () => {
+    /**
+     * H7 left `selectFrom` exported and tested, on the argument that a policy
+     * comparison might still be wanted. H8 asked what decision anyone would
+     * make from it and found none: it ranks by strength across nineteen kinds,
+     * sixteen of which cannot be emailed, and where it disagrees with the
+     * outbound selector it is the one that is wrong.
+     *
+     * A retired policy that still compiles is a policy someone can call.
+     */
+    // Scanned as CODE. The file still explains what it used to be and why it
+    // is not that any more, which is a current safety boundary rather than
+    // nostalgia — the next author needs to know the ranking is not coming back.
+    const select = code('shared/evidence/select.js');
+    for (const gone of ['selectFrom', 'fillSlots', 'dispositionsFor', 'SLOT_FLOORS',
+      'MAX_PER_FAMILY', 'DISPOSITION', 'dedupe(']) {
+      expect(select, gone).not.toContain(gone);
+    }
   });
 
-  it('costs a production request nothing', () => {
-    /**
-     * Not a benchmark — a call count. `selectFrom` sorts the full collection,
-     * walks it four times, dedupes by group, fills slot floors and builds a
-     * disposition row per kind. Whatever that costs, a request now pays it
-     * zero times instead of once.
-     */
-    let calls = 0;
-    const evidence = generateEvidence(athlete, buildProgrammeContext(ctx()));
-    const counted = (...args) => { calls += 1; return selectFrom(...args); };
-    selectEvidence(athlete, ctx());
-    expect(calls).toBe(0);
-    // And the helper that replaced it walks the collection once.
-    expect(internalEvidence(evidence).length).toBeGreaterThan(0);
-    expect(counted(evidence).internal.length).toBeGreaterThan(0);
-    expect(calls).toBe(1);
+  it('left its shared helpers behind, because those have live callers', () => {
+    // `select.js` is not deleted: `outreachPermitted`, `meetsConfidence`,
+    // `priorityOf`, `familyOf`, `FAMILY_LABELS` and `MAX_EMAIL_EVIDENCE` all
+    // answer registry questions that outlived the engine that asked them.
+    const select = read('shared/evidence/select.js');
+    for (const kept of ['export function outreachPermitted', 'export function meetsConfidence',
+      'export function priorityOf', 'export function familyOf', 'export const FAMILY_LABELS',
+      'export const MAX_EMAIL_EVIDENCE']) {
+      expect(select, kept).toContain(kept);
+    }
+  });
+
+  it('costs a production request nothing, because there is nothing to run', () => {
+    const result = selectEvidence(athlete, ctx());
+    expect(result.selected.length).toBeGreaterThan(0);
+    expect(result.internal.length).toBeGreaterThan(0);
+    expect(result.dispositions.length).toBeGreaterThan(0);
   });
 });

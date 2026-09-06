@@ -4,9 +4,13 @@ import {
   arrivalSameCountryPosition, coachArrivalSameCountry, arrivalSameRegionPosition,
   positionIntakeHistory,
 } from './generate.js';
-import { selectFrom } from './select.js';
 import { resolveStructure, planFromRoles } from './structures.js';
-import { outreachEvidenceFor } from './outreachEvidence.js';
+import { outreachEvidenceFor, internalEvidence } from './outreachEvidence.js';
+
+/** The outbound selector, in the shape these tests ask their questions in. */
+const outbound = (evidence) => outreachEvidenceFor({ all: evidence });
+const kindsAnywhere = (r) => [...r.hooks, ...r.relevance, ...r.recognition,
+  ...(r.alternatives ?? [])].map((i) => i.kind);
 import { renderEvidence, evidenceParts } from './render.js';
 import { normaliseEvidenceAthlete, evidenceLogPayload, selectEvidence } from './index.js';
 import { EVIDENCE_KINDS } from './kinds.js';
@@ -427,13 +431,22 @@ describe('G. the dedupe hierarchy', () => {
     season, player_name: `Kiwi ${season}`, nationality: 'International', country: 'New Zealand',
   });
 
-  const full = (arrivals, opts = {}) => selectFrom(generateEvidence(RHYS, context(
+  /**
+   * Asked of the outbound selector, which owns the dedupe.
+   *
+   * These read `selectFrom` until H8. The hierarchy they assert — a specific
+   * arrival supersedes the general history of the same connection — is a live
+   * product rule and did not change with the owner; what changed is that the
+   * owner is now the engine that sends the email.
+   */
+  const full = (arrivals, opts = {}) => outbound(generateEvidence(RHYS, context(
     patterns(arrivals, opts),
     { squad: [row(), kiwiRow('2026')], history: [kiwiRow('2024'), row({ season: '2024' })] },
   )));
 
-  const kindsOf = (r) => r.selected.map((e) => e.kind);
-  const suppressedBy = (r, kind) => r.suppressed.find((s) => s.kind === kind)?.suppressedBy ?? null;
+  const kindsOf = (r) => [...r.hooks, ...r.relevance, ...r.recognition].map((i) => i.kind);
+  const suppressedBy = (r, kind) => r.dispositions
+    .find((d) => d.kind === kind && d.disposition === 'DEDUPED')?.supersededBy ?? null;
 
   /** With no coach on file, the programme-scoped arrival kind is the winner. */
   it('supersedes HISTORICAL_SAME_COUNTRY', () => {
@@ -447,7 +460,7 @@ describe('G. the dedupe hierarchy', () => {
     const aussieRow = row({
       season: '2024', player_name: 'Aussie One', nationality: 'International', country: 'Australia',
     });
-    const r = selectFrom(generateEvidence(RHYS, context(
+    const r = outbound(generateEvidence(RHYS, context(
       patterns([at('2023->2024', intl('Australia', { playerName: 'Aussie One' }))]),
       { squad: [row()], history: [aussieRow] },
     )));
@@ -484,8 +497,13 @@ describe('G. the dedupe hierarchy', () => {
       at('2023->2024', intl('New Zealand', { playerName: 'Kiwi 2024' })),
       at('2024->2025', intl('Australia', { playerName: 'Aussie One' })),
     ]);
-    const international = r.selected.filter((e) => e.category === 'international');
-    expect(international).toHaveLength(1);
+    // All six pathway kinds share one dedupe group, so exactly one survives —
+    // the rule that stops six observations of one connection reading as six
+    // independent reasons.
+    const PATHWAY = ['COACH_ARRIVAL_SAME_COUNTRY', 'ARRIVAL_SAME_COUNTRY_POSITION',
+      'HISTORICAL_SAME_COUNTRY', 'CURRENT_SAME_COUNTRY',
+      'ARRIVAL_SAME_REGION_POSITION', 'HISTORICAL_SAME_REGION'];
+    expect(kindsOf(r).filter((k) => PATHWAY.includes(k))).toHaveLength(1);
   });
 });
 
@@ -496,9 +514,10 @@ describe('H. what must never reach an email', () => {
 
   it('keeps POSITION_INTAKE_HISTORY out of every email', () => {
     expect(EVIDENCE_KINDS.POSITION_INTAKE_HISTORY.permissions.OUTREACH).toBe('DENIED');
-    const r = selectFrom(generateEvidence(RHYS, ctx()));
-    expect(r.selected.map((e) => e.kind)).not.toContain('POSITION_INTAKE_HISTORY');
-    expect(r.internal.map((e) => e.kind)).toContain('POSITION_INTAKE_HISTORY');
+    const evidence = generateEvidence(RHYS, ctx());
+    const r = outbound(evidence);
+    expect(kindsAnywhere(r)).not.toContain('POSITION_INTAKE_HISTORY');
+    expect(internalEvidence(evidence).map((e) => e.kind)).toContain('POSITION_INTAKE_HISTORY');
     const result = selectEvidence(
       { full_name: 'Rhys Davies', nationality: 'New Zealand', position: 'Defender', sport: 'mens-soccer' },
       {
@@ -523,8 +542,11 @@ describe('H. what must never reach an email', () => {
     for (const fn of [arrivalSameCountryPosition, coachArrivalSameCountry, arrivalSameRegionPosition]) {
       expect(fn(RHYS, none)).toBeNull();
     }
-    const r = selectFrom(generateEvidence(RHYS, none));
-    for (const ev of r.selected) expect(ev.source).not.toBe('recruiting_arrivals');
+    const evidence = generateEvidence(RHYS, none);
+    const byKind = new Map(evidence.map((e) => [e.kind, e]));
+    for (const kind of kindsAnywhere(outbound(evidence))) {
+      expect(byKind.get(kind).source, kind).not.toBe('recruiting_arrivals');
+    }
   });
 
   /**
@@ -566,8 +588,11 @@ describe('I. composition and logging', () => {
 
   /** Selection plus its roles — the shape production resolves a structure against. */
   const withRoles = () => {
-    const selection = selectFrom(generateEvidence(RHYS, kiwiCtx()));
-    return { selection, roles: outreachEvidenceFor(selection) };
+    const evidence = generateEvidence(RHYS, kiwiCtx());
+    const roles = outbound(evidence);
+    const selected = [...roles.hooks, ...roles.relevance, ...roles.recognition]
+      .map((i) => evidence.find((e) => e.kind === i.kind));
+    return { selection: { selected }, roles, evidence };
   };
 
   it('makes RELATIONSHIP_FIRST available, and adds no new structure', () => {
@@ -578,8 +603,8 @@ describe('I. composition and logging', () => {
   });
 
   it('puts the arrival claim in the hook', () => {
-    const { selection, roles } = withRoles();
-    const byKind = new Map(selection.selected.map((e) => [e.kind, e]));
+    const { evidence, roles } = withRoles();
+    const byKind = new Map(evidence.map((e) => [e.kind, e]));
     const placed = planFromRoles(roles, byKind, 'RELATIONSHIP_FIRST');
     expect(placed.hook.kind).toBe('COACH_ARRIVAL_SAME_COUNTRY');
   });
