@@ -241,6 +241,15 @@ export default function EvidencePanel({
   const atLimit = chosen.length >= maxEvidence;
   const editable = typeof onSelectionChange === 'function';
 
+  /**
+   * The sentences the coach will actually read.
+   *
+   * `displayed === false` is the server saying "selected, logged, offered — and
+   * not carried by this email". Anything that reports what the email SAYS has
+   * to read this rather than `selected`.
+   */
+  const displayed = selected.filter((e) => e.displayed !== false);
+
   const emit = (next) => onSelectionChange(next);
   const remove = (kind) => emit(chosen.filter((k) => k !== kind));
   const add = (kind) => { if (!atLimit) emit([...chosen, kind]); };
@@ -372,10 +381,28 @@ export default function EvidencePanel({
 
       {others.length > 0 && (
         <Section title="Other strong options">
+          {/* Each carries the reason it was not the default, in the server's
+              words and only when the server has some. Fifteen of 880 live
+              alternatives have none — the field is read from the disposition
+              log, and for those fifteen the log records the kind as SELECTED,
+              so there is no reason written down. Showing nothing is right
+              there: a reason invented on the client would be the panel's
+              opinion of a decision it did not make.
+
+              Same treatment as the suppressed list below, deliberately: these
+              are two ways of losing and an operator comparing them should be
+              reading the same shape of sentence.
+
+              No placement label here, though the role is on the wire.
+              `SLOT_WORDS` is written in the declarative — "opens the email" —
+              which is true of a selected claim and a promise about one that is
+              not. Rewording it for this list would be the client explaining a
+              decision rather than reporting one. */}
           {others.map((ev) => (
             <EvidenceLine
               key={ev.kind}
               ev={ev}
+              reason={ev.reason}
               actions={editable ? (
                 <IconButton
                   title={atLimit ? `${maxEvidence} is the limit — remove one first` : 'Add to email'}
@@ -435,8 +462,15 @@ export default function EvidencePanel({
       {/* What the coach will actually read, in the order the structure puts it.
           Checked against the body rather than assumed: a template that predates
           the evidence engine has no place for these sentences, so the panel
-          would otherwise promise prose the coach never receives. */}
-      {selected.length > 0 && (inBody === false ? (
+          would otherwise promise prose the coach never receives.
+
+          DISPLAYED, not selected. The selector licenses up to three body claims
+          and composition carries at most two, and this block used to list all
+          three — so on 232 of 3,498 live pairings it printed a sentence under
+          "In the email:" eight lines below the same sentence marked "kept for
+          the record — not in this email". The list above was right and the
+          summary contradicted it. */}
+      {displayed.length > 0 && (inBody === false ? (
         <p className="border-t pt-2 text-xs text-amber-700 dark:text-amber-500">
           Not in this draft — none of these sentences appear in the body. If you edited it,
           paste back what you want kept.
@@ -444,7 +478,7 @@ export default function EvidencePanel({
       ) : (
         <div className="border-t pt-2 text-xs text-muted-foreground">
           In the email:
-          {selected.map((e) => (
+          {displayed.map((e) => (
             <span key={e.kind} className="ml-1 text-foreground">{e.text}</span>
           ))}
         </div>

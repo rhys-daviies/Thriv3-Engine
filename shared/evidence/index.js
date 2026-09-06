@@ -32,7 +32,7 @@ export {
   DISPOSITION, FAMILY_LABELS, familyOf, outreachPermitted,
 } from './select.js';
 export {
-  chooseStructure, resolveStructure, FLOWS, FLOW_KEYS, BLOCKS, EVIDENCE_BLOCKS,
+  resolveStructure, FLOWS, FLOW_KEYS, BLOCKS, EVIDENCE_BLOCKS,
   eligibleFlows, LEGACY_STRUCTURE_KEYS,
   STRUCTURES, STRUCTURE_KEYS, eligibleStructures,
 } from './structures.js';

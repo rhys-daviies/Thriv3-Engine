@@ -64,7 +64,17 @@ import {
  *               opens cold: "you've got three defenders graduating" as a first
  *               line to a stranger reads as a pitch about their weakness.
  *   RECOGNITION a congratulation. Not evidence of anything about the athlete,
- *               and counted as none.
+ *               and counted as none. Its own sentence wherever it lands, never
+ *               gathered into another clause, and placed late — after the
+ *               relevance reasoning, where it reads as attention paid rather
+ *               than as flattery before an ask.
+ *
+ * THIS IS THE ONLY PLACE A KIND IS CLASSIFIED. There was a `recognition: true`
+ * flag on two registry specs saying the same thing about the same two kinds;
+ * `structures.js` read it until H4 removed its last reader, and H5 removed the
+ * flag. The copy registry agrees by construction — a RECOGNITION kind returns
+ * `{ recognition }` and everything else returns `{ clause }` — and that
+ * agreement is asserted rather than assumed.
  */
 export const ROLES = Object.freeze({
   HOOK: 'HOOK',

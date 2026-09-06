@@ -7,6 +7,9 @@ import {
   EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, TIERS, permissionsFor, PERMISSION,
 } from './kinds.js';
 import { conferenceLabel } from '../conference.js';
+import { outreachCopyFor } from './outreachCopy.js';
+import { outreachEvidenceFor, ROLES } from './outreachEvidence.js';
+import { defineEvidence, CONFIDENCE } from './kinds.js';
 
 /**
  * The conversational copy layer, and the rules it must not break.
@@ -70,6 +73,57 @@ const sample = (kind) => ({
 
 const CTX = { firstName: 'Rhys' };
 const emailKinds = EVIDENCE_KIND_NAMES.filter((k) => permissionsFor(k).OUTREACH !== PERMISSION.DENIED);
+
+/**
+ * Facts good enough to pass each licensed kind's outreach QUALIFICATION.
+ *
+ * The role is only assigned to an object that could actually be SENT, so a
+ * kind asked with empty data reports no role and every assertion below would
+ * pass vacuously. Separate from `SAMPLE` above, which feeds the preview
+ * renderer and may be a union of everything.
+ */
+const OUTBOUND_FACTS = {
+  COACH_ARRIVAL_SAME_COUNTRY: { coach: 'Ali Simmons', country: 'New Zealand', count: 1, seasons: ['2025'] },
+  ARRIVAL_SAME_COUNTRY_POSITION: { country: 'New Zealand', position: 'DEFENSE', count: 2, seasons: ['2023'] },
+  HISTORICAL_SAME_COUNTRY: { country: 'New Zealand', count: 2, names: ['A', 'B'], seasons: ['2022'] },
+  CURRENT_SAME_COUNTRY: { country: 'New Zealand', count: 1, names: ['A'] },
+  ARRIVAL_SAME_REGION_POSITION: { countries: ['Australia'], position: 'DEFENSE', count: 1, seasons: ['2024'], athleteCountry: 'New Zealand' },
+  HISTORICAL_SAME_REGION: { countries: ['Australia'], athleteCountry: 'New Zealand', count: 1, names: ['X'] },
+  POSITION_GRADUATION: { position: 'DEFENSE', count: 3, names: ['A', 'B', 'C'], classYear: 2027 },
+  ACADEMIC_FIT: { stated: 'exercise science', major: 'Kinesiology' },
+  CONFERENCE_TITLE: { conference: 'ACC' },
+  POSTSEASON_RESULT: { round: 'semi' },
+};
+
+/**
+ * Facts good enough for each kind's outbound COPY.
+ *
+ * Not the same object as the one above, and deliberately not merged: the
+ * qualification rules and the clause handlers read differently-named fields
+ * for four kinds, which is a real seam in the outbound path (`stated` /
+ * `athleteStatedMajor`, and the region kinds' `athleteCountry` /
+ * `widerThanOwnCountry`). outreachCopy.test.js carries the same pair for the
+ * same reason. Collapsing them here would hide the seam rather than close it.
+ */
+const COPY_FACTS = {
+  ...OUTBOUND_FACTS,
+  ACADEMIC_FIT: { athleteStatedMajor: 'exercise science', programmeMatchedSubject: 'Kinesiology' },
+  ARRIVAL_SAME_REGION_POSITION: { countries: ['Australia'], position: 'DEFENSE', count: 1, seasons: ['2024'], widerThanOwnCountry: true, excludingCountry: 'New Zealand' },
+  HISTORICAL_SAME_REGION: { countries: ['Australia'], count: 1, names: ['X'], widerThanOwnCountry: true, excludingCountry: 'New Zealand' },
+};
+
+/** The role the outbound selector gives this kind, asked the way production asks. */
+const roleOf = (kind) => {
+  const ev = defineEvidence(kind, {
+    source: 'test', confidence: CONFIDENCE.HIGH, season: '2026',
+    data: OUTBOUND_FACTS[kind] ?? {},
+  });
+  const r = outreachEvidenceFor({ all: [ev] });
+  return [...r.hooks, ...r.relevance, ...r.recognition][0]?.role ?? null;
+};
+
+/** The congratulations, by role — the only classification there is. */
+const RECOGNITION_KINDS = emailKinds.filter((k) => roleOf(k) === ROLES.RECOGNITION).sort();
 
 /**
  * Every piece of text any kind can put in an email: [kind, part, text].
@@ -211,20 +265,55 @@ describe('the tier wall survives the rewrite', () => {
 
 describe('recognition', () => {
   /**
-   * The registry's `recognition` flag and the copy must agree. A kind marked
-   * in one and not the other would either be gathered into somebody else's
-   * clause — "I also noticed congrats on winning the CAA" — or lose its
-   * placement at the end of the email.
+   * THE ROLE IS THE CLASSIFICATION, and both copy registries must agree with
+   * it. A kind treated as a congratulation by one and not the other would
+   * either be gathered into somebody else's clause — "I also noticed congrats
+   * on winning the CAA" — or lose its placement at the end of the email.
+   *
+   * This used to compare the outbound copy against a `recognition: true` flag
+   * on the registry spec. That flag had no reader left after H4 deleted
+   * `isRecognitionKind`, and a third statement of a two-value fact is how the
+   * three of them drift apart, so H5 removed it. The comparison is the same
+   * shape; it is now against the owner.
    */
-  it('matches what the copy actually produces', () => {
+  it('matches the role, in the preview renderer', () => {
     const fromCopy = emailKinds.filter((kind) => isRecognition(sample(kind), CTX));
-    const fromRegistry = emailKinds.filter((kind) => EVIDENCE_KINDS[kind].recognition);
-    expect(fromCopy.sort()).toEqual(fromRegistry.sort());
+    expect(fromCopy.sort()).toEqual(RECOGNITION_KINDS);
+  });
+
+  it('matches the role, in the outbound copy', () => {
+    // The renderer above writes the panel's preview sentence; this writes what
+    // a coach receives. Two registries, one classification.
+    const written = emailKinds.map((kind) => [kind, outreachCopyFor({ kind, facts: COPY_FACTS[kind] }, CTX)]);
+    // Non-vacuity: every licensed kind writes something, or the filter below
+    // would be measuring silence.
+    for (const [kind, out] of written) expect(out, kind).toBeTruthy();
+    expect(written.filter(([, o]) => typeof o.recognition === 'string').map(([k]) => k).sort())
+      .toEqual(RECOGNITION_KINDS);
+  });
+
+  it('never lets a congratulation take another role', () => {
+    for (const kind of RECOGNITION_KINDS) {
+      const out = outreachCopyFor({ kind, facts: COPY_FACTS[kind] }, CTX);
+      expect(out, kind).toHaveProperty('recognition');
+      // Not a hook, not a relevance clause — there is no `clause` to gather.
+      expect(out, kind).not.toHaveProperty('clause');
+      expect(roleOf(kind), kind).toBe('RECOGNITION');
+    }
+  });
+
+  it('never lets a hook or a relevance claim become one', () => {
+    for (const kind of emailKinds.filter((k) => !RECOGNITION_KINDS.includes(k))) {
+      expect(roleOf(kind), kind).toMatch(/^(HOOK|RELEVANCE)$/);
+      const out = outreachCopyFor({ kind, facts: COPY_FACTS[kind] }, CTX);
+      expect(out, kind).toHaveProperty('clause');
+      expect(out, kind).not.toHaveProperty('recognition');
+      expect(isRecognition(sample(kind), CTX), kind).toBe(false);
+    }
   });
 
   it('names the two congratulations', () => {
-    expect(isRecognition(sample('CONFERENCE_TITLE'), CTX)).toBe(true);
-    expect(isRecognition(sample('POSTSEASON_RESULT'), CTX)).toBe(true);
+    expect(RECOGNITION_KINDS).toEqual(['CONFERENCE_TITLE', 'POSTSEASON_RESULT']);
     expect(isRecognition(sample('POSITION_GRADUATION'), CTX)).toBe(false);
   });
 });

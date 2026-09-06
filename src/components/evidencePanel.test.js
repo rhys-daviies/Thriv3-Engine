@@ -180,6 +180,31 @@ describe('selected is not sent, and the panel says so', () => {
     expect(text(render({ evidence: wire() })))
       .not.toContain('kept for the record');
   });
+
+  it('leaves it out of the summary of what the email says', () => {
+    /**
+     * H5. "In the email:" listed every SELECTED claim, so on 232 of 3,498 live
+     * pairings it printed a sentence eight lines below the same sentence
+     * marked "kept for the record — not in this email". The list was right and
+     * the summary contradicted it; a panel that disagrees with itself is worse
+     * than one that says less.
+     */
+    const held = {
+      kind: 'ACADEMIC_FIT', tier: 'FACT', category: 'academic', confidence: 'HIGH',
+      text: 'Kinesiology is among the programmes you list', order: 1, slot: null, displayed: false,
+    };
+    const out = text(render({ evidence: wire({ selected: [wire().selected[0], held] }) }));
+    // Named once — in the list, as held. Not again under "In the email".
+    expect(out.split('Kinesiology is among the programmes you list')).toHaveLength(2);
+    expect(out).toContain('kept for the record — not in this email');
+    // The claim that IS carried appears twice: once in the list, once in the summary.
+    expect(out.split('you brought Hayden Aish in from New Zealand in 2025')).toHaveLength(3);
+  });
+
+  it('omits the summary entirely when nothing is carried', () => {
+    const held = { ...wire().selected[0], displayed: false };
+    expect(text(render({ evidence: wire({ selected: [held] }) }))).not.toContain('In the email:');
+  });
 });
 
 describe('what may be swapped in', () => {
@@ -195,14 +220,68 @@ describe('what may be swapped in', () => {
      * and gave the losers a DEDUPED disposition. Before that the panel listed
      * the legacy engine's whole ranking and `applyPrefer` refused fifteen real
      * swaps it had offered.
-     *
-     * The panel does not yet PRINT the reason for an alternative — `dropped`
-     * items show theirs, `available` ones do not. Carried as H3 presentation
-     * debt: the list is honest about what it offers, just terse about why.
      */
     const out = text(render({ evidence: wire({ available: [alt()] }) }));
     expect(out).toContain('two players from New Zealand have come through the programme');
     expect(out).not.toContain('HISTORICAL_SAME_COUNTRY');
+  });
+
+  it('says why an alternative was not the default', () => {
+    /**
+     * H5. The reason was on the wire from H1 and printed only for suppressed
+     * items, so an operator reading "Other strong options" saw a list of good
+     * sentences with nothing to distinguish them from the one that won.
+     *
+     * The words are the server's. 865 of 880 live alternatives carry a reason
+     * and it reads as why-not-this-one — "says the same thing as same-country
+     * arrival under this coach" — which is the question an operator is asking
+     * at that point in the list.
+     */
+    const out = text(render({ evidence: wire({ available: [alt()] }) }));
+    expect(out).toContain('the same connection as COACH_ARRIVAL_SAME_COUNTRY, said another way');
+  });
+
+  it('says nothing at all when the server gave no reason', () => {
+    // The other fifteen. The reason is read from the disposition log, which
+    // records those kinds as SELECTED and therefore writes no reason for them.
+    // A sentence invented here would be the panel's opinion of a decision it
+    // did not make.
+    const out = text(render({ evidence: wire({ available: [alt({ reason: null })] }) }));
+    expect(out).toContain('two players from New Zealand have come through the programme');
+    expect(out).not.toMatch(/said another way|not chosen|because/i);
+  });
+
+  it('does not promise an alternative a place in the email', () => {
+    /**
+     * The role is on the wire and deliberately not printed here: "opens the
+     * email" is true of the hook that won and a promise about one that has not
+     * been chosen. Counted rather than searched — the fixture's SELECTED hook
+     * says it once, legitimately, and the assertion is that offering an
+     * alternative hook does not make it say it twice.
+     */
+    const once = text(render({ evidence: wire() }));
+    const withAlt = text(render({ evidence: wire({ available: [alt({ role: 'HOOK' })] }) }));
+    const count = (s) => s.split('opens the email').length - 1;
+    expect(count(once)).toBe(1);
+    expect(count(withAlt)).toBe(1);
+    expect(withAlt).not.toContain('HOOK');
+  });
+
+  it('keeps a suppressed finding collapsed, reason and all', () => {
+    // Unchanged by H5, and the difference from an alternative: a suppressed
+    // item is behind a count the operator has to open, an alternative is in
+    // the list. Both now carry their reason once visible.
+    const out = text(render({
+      evidence: wire({
+        otherKnown: [{
+          kind: 'POSTSEASON_RESULT', label: 'Postseason run', family: 'Programme record',
+          disposition: 'SUPPRESSED_REDUNDANT', reason: 'says the same thing as conference title',
+          text: 'Congrats on the semi-final run last season.', tier: 'FACT', confidence: 'HIGH',
+        }],
+      }),
+    }));
+    expect(out).toMatch(/Show 1 suppressed or below-threshold finding/);
+    expect(out).not.toContain('says the same thing as conference title');
   });
 
   it('renders no swap controls when the panel is read-only', () => {

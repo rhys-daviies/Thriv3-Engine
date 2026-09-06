@@ -554,11 +554,6 @@ export const EVIDENCE_KINDS = Object.freeze({
 
   // --- programme record ----------------------------------------------------
   CONFERENCE_TITLE: {
-    // Composition metadata, orthogonal to suitability: a congratulation is
-    // its own sentence wherever it lands and is never gathered into another
-    // clause. Placed late, after the relevance reasoning, where it reads as
-    // attention paid rather than as flattery before an ask.
-    recognition: true,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.STATIC,
     category: 'performance',
@@ -572,11 +567,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     permissions: { OUTREACH: PERMISSION.QUALIFIED },
   },
   POSTSEASON_RESULT: {
-    // Composition metadata, orthogonal to suitability: a congratulation is
-    // its own sentence wherever it lands and is never gathered into another
-    // clause. Placed late, after the relevance reasoning, where it reads as
-    // attention paid rather than as flattery before an ask.
-    recognition: true,
     tier: TIERS.FACT,
     temporality: TEMPORALITY.STATIC,
     category: 'performance',

@@ -36,7 +36,8 @@
     "recruiting:patterns": "node server/scripts/recruitingPatterns.js",
     "recruiting:evidence": "node server/scripts/recruitingEvidenceReport.js",
     "archive-template": "node server/scripts/archiveEmailTemplate.js",
-    "outreach-qa": "node server/scripts/outreachQA.js"
+    "outreach-qa": "node server/scripts/outreachQA.js",
+    "panel-baseline": "vitest run src/components/panelBaseline.test.js --reporter=verbose"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",

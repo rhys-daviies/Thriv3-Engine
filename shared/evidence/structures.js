@@ -235,20 +235,19 @@ function describe(key, eligible, source) {
   };
 }
 
-/** The flow to use, and the ones that were also available. */
-export function chooseStructure(selection) {
-  const eligible = eligibleFlows(selection);
-  return describe(eligible[0] ?? 'PLAYER_FIRST', eligible, 'ENGINE');
-}
-
 /**
- * The flow to use when an operator asked for a particular one.
+ * The flow to use, and the ones that were also available.
  *
- * Validated against the SAME eligibility list the engine chooses from, so a
- * manual choice cannot open an email on a relationship the evidence does not
- * support. A request for an ineligible or unknown flow is refused and
- * recorded — not honoured, and not silently swapped either, because an
- * operator who asked for something and got something else needs to be told.
+ * THE ONLY CHOOSER. There was a second, `chooseStructure`, which was this
+ * function's `requested === null` branch written out separately; every caller
+ * came here instead, because an operator preference has to be validated
+ * against the same eligibility list the engine chooses from — and a chooser
+ * that could not be given one had nothing to validate.
+ *
+ * A manual choice therefore cannot open an email on a relationship the
+ * evidence does not support. A request for an ineligible or unknown flow is
+ * refused and recorded — not honoured, and not silently swapped either, because
+ * an operator who asked for something and got something else needs to be told.
  */
 export function resolveStructure(selection, requested = null) {
   const eligible = eligibleFlows(selection);
