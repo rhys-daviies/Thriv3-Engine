@@ -256,7 +256,7 @@ describe('permissions', () => {
   it('denies OUTREACH for all three', () => {
     for (const kind of DEV_KINDS) {
       expect(permissionsFor(kind).OUTREACH, kind).toBe(PERMISSION.DENIED);
-      expect(EVIDENCE_KINDS[kind].emailEligible, kind).toBe(false);
+      expect(permissionsFor(kind).OUTREACH !== PERMISSION.DENIED, kind).toBe(false);
     }
   });
 
@@ -318,7 +318,7 @@ describe('selection isolation', () => {
   });
 
   it('keeps every development kind out of the email-eligible set registry-wide', () => {
-    const emailable = EVIDENCE_KIND_NAMES.filter((k) => EVIDENCE_KINDS[k].emailEligible);
+    const emailable = EVIDENCE_KIND_NAMES.filter((k) => permissionsFor(k).OUTREACH !== PERMISSION.DENIED);
     for (const kind of DEV_KINDS) expect(emailable, kind).not.toContain(kind);
   });
 });

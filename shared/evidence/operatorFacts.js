@@ -321,7 +321,7 @@ const EXTRACTORS = Object.freeze({
 
   // --- internal kinds, operator-visible in the drill-down -------------------
   //
-  // Both are `emailEligible: false` shadow-mode kinds and both are
+  // Both are OUTREACH: DENIED shadow-mode kinds and both are
   // OPERATOR_EVIDENCE: ALLOWED, so they belong in the evidence table. Exposed
   // as measurements with no reading attached — POSITION_INTAKE_HISTORY in
   // particular sits one step from "so they will need another", which is the

@@ -31,12 +31,13 @@ import {
 /**
  * May this evidence reach an email at all?
  *
- * THE REGISTRY DECIDES, NOT THE LEGACY FLAG. Until this function existed the
- * gate was `ev.emailEligible`, a boolean that answers for one audience, and
- * the OUTREACH permission beside it was read by nothing. The two agreed for
- * all 26 kinds — but by construction rather than by enforcement, so a caller
- * narrowing `permissions.OUTREACH` to DENIED still got an email, and a
- * QUALIFIED grade could not have been honoured because no code path looked.
+ * THE REGISTRY DECIDES. Until this function existed the gate was a per-kind
+ * boolean that answered for one audience, and the OUTREACH permission beside
+ * it was read by nothing. The two agreed for all 26 kinds — but by
+ * construction rather than by enforcement, so a caller narrowing
+ * `permissions.OUTREACH` to DENIED still got an email, and a QUALIFIED grade
+ * could not have been honoured because no code path looked. H3 removed the
+ * boolean; there is one field now, and this reads it.
  *
  * FAILS CLOSED, TWICE OVER.
  *
@@ -339,8 +340,8 @@ export function selectFrom(evidence, { maxEmail = MAX_EMAIL_EVIDENCE, prefer = n
   // suppress an emailable piece it happens to outrank, because the thing it
   // would suppress is the thing that actually goes in the email.
   //
-  // The split is now the registry's OUTREACH permission rather than the legacy
-  // `emailEligible` flag — see `outreachPermitted`. "Internal" therefore means
+  // The split is the registry's OUTREACH permission — see `outreachPermitted`.
+  // "Internal" therefore means
   // "not permitted on this surface", which is what the word was always meant
   // to mean and what the operator panel already says it means.
   const emailable = usable.filter(outreachPermitted);

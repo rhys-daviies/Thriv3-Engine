@@ -49,30 +49,29 @@ describe('permissions on every evidence object', () => {
     }
   });
 
-  it('no longer maps emailEligible onto the OUTREACH grade', () => {
+  it('declares an OUTREACH grade on every kind, explicitly', () => {
     /**
-     * It did, at V2 migration: the permission was DERIVED from the flag so the
-     * step changed no behaviour. G4 narrowed OUTREACH to a real policy — four
-     * ALLOWED, six QUALIFIED, sixteen DENIED — and the flag stayed where it
-     * was, because `defineEvidence` reads it to decide whether to narrow the
-     * grade to DENIED: setting it false on a QUALIFIED kind would revoke the
-     * licence it is meant to describe.
-     *
-     * So the flag is legacy metadata. What it still guarantees, and all it
-     * guarantees, is the one direction below: false means denied.
+     * It used to derive one. `defaultPermissions` read a boolean written for a
+     * different audience — `emailEligible` — and turned it into a licence,
+     * which meant a kind could reach a coach because of a field nobody had
+     * reconsidered. H3 retired the boolean; the grade is now written down 26
+     * times, and the registry refuses to load without it.
      */
-    const eligible = EVIDENCE_KIND_NAMES.filter((k) => EVIDENCE_KINDS[k].emailEligible);
-    const allowed = eligible.filter((k) => permissionsFor(k).OUTREACH === PERMISSION.ALLOWED);
-    expect(eligible).toHaveLength(19);
-    expect(allowed).toHaveLength(4);
+    for (const kind of EVIDENCE_KIND_NAMES) {
+      expect(EVIDENCE_KINDS[kind].permissions?.OUTREACH, kind).toBeTruthy();
+    }
   });
 
-  it('maps emailEligible false to OUTREACH DENIED', () => {
-    const denied = EVIDENCE_KIND_NAMES.filter((k) => !EVIDENCE_KINDS[k].emailEligible);
-    // Three of them today: POSITION_GROUP_SIZE, POSITION_INTAKE_HISTORY,
-    // TRANSFER_BEHAVIOUR. Asserted as non-empty so this cannot pass vacuously
-    // if the registry is ever emptied of internal kinds.
-    expect(denied.length).toBeGreaterThan(0);
+  it('carries the locked policy: 4 allowed, 6 qualified, 16 denied', () => {
+    const by = { ALLOWED: 0, QUALIFIED: 0, DENIED: 0 };
+    for (const kind of EVIDENCE_KIND_NAMES) by[permissionsFor(kind).OUTREACH] += 1;
+    expect(by).toEqual({ ALLOWED: 4, QUALIFIED: 6, DENIED: 16 });
+  });
+
+  it('denies the surfaces a kind says nothing about', () => {
+    const denied = EVIDENCE_KIND_NAMES
+      .filter((k) => permissionsFor(k).OUTREACH === PERMISSION.DENIED);
+    expect(denied).toHaveLength(16);
     for (const kind of denied) {
       expect(permissionsFor(kind).OUTREACH, kind).toBe(PERMISSION.DENIED);
     }
@@ -142,8 +141,9 @@ describe('permissions on every evidence object', () => {
     const undeclared = EVIDENCE_KIND_NAMES
       .filter((k) => !EVIDENCE_KINDS[k].permissions?.MATCHING_SUMMARY);
     expect(undeclared).toHaveLength(20);
-    const emailable = undeclared.filter((k) => EVIDENCE_KINDS[k].emailEligible);
-    expect(emailable.length).toBeGreaterThan(0);
+    const outbound = undeclared
+      .filter((k) => permissionsFor(k).OUTREACH !== PERMISSION.DENIED);
+    expect(outbound.length).toBeGreaterThan(0);
     for (const kind of undeclared) {
       expect(permissionsFor(kind).MATCHING_SUMMARY, kind).toBe(PERMISSION.DENIED);
     }
@@ -212,11 +212,19 @@ describe('caller narrowing', () => {
     expect(e.permissions.MATCHING_SUMMARY).toBe(PERMISSION.DENIED);
   });
 
-  it('narrows OUTREACH when the caller narrows the emailEligible alias', () => {
-    // The two say the same thing and must not be able to disagree.
+  it('has no second field a caller could narrow OUTREACH through', () => {
+    /**
+     * There was one: `emailEligible: false` narrowed OUTREACH to DENIED, so a
+     * generator could revoke a licence through a boolean that answered a
+     * different question. H3 removed it, and passing it is now inert — the
+     * permission is the only route, and `narrowPermissions` is the only rule.
+     */
     const e = ev(EMAILABLE, { emailEligible: false });
-    expect(e.emailEligible).toBe(false);
-    expect(e.permissions.OUTREACH).toBe(PERMISSION.DENIED);
+    expect(e).not.toHaveProperty('emailEligible');
+    expect(e.permissions.OUTREACH).toBe(permissionsFor(EMAILABLE).OUTREACH);
+    // The real route still works, and still only downward.
+    expect(ev(EMAILABLE, { permissions: { OUTREACH: PERMISSION.DENIED } }).permissions.OUTREACH)
+      .toBe(PERMISSION.DENIED);
   });
 
   it('rejects an unknown surface', () => {
@@ -480,24 +488,24 @@ describe('selection is unchanged by the new fields', () => {
     }
   });
 
-  it('keeps the one direction the alias still guarantees', () => {
-    // `emailEligible: false` still forces OUTREACH to DENIED — that is the
-    // registry's own bar and a caller cannot widen it. The converse stopped
-    // holding at G4; see the note above.
+  it('carries no licence field beside the permissions', () => {
+    // The object knows its permissions and nothing else about where it may
+    // appear. A second field is a second answer to one question.
     const result = selectEvidence(athlete, ctx);
     const all = [...result.selected, ...result.internal, ...(result.ranked ?? [])];
     expect(all.length).toBeGreaterThan(0);
     for (const e of all) {
-      if (!e.emailEligible) {
-        expect(e.permissions.OUTREACH, e.kind).toBe(PERMISSION.DENIED);
-      }
+      expect(e, e.kind).not.toHaveProperty('emailEligible');
+      expect(Object.keys(e.permissions).sort()).toEqual(SURFACE_KEYS.slice().sort());
     }
   });
 
-  it('still refuses to select an internal-only kind', () => {
+  it('still refuses to select a kind the registry denies', () => {
     const result = selectEvidence(athlete, ctx);
-    const internalKinds = EVIDENCE_KIND_NAMES.filter((k) => !EVIDENCE_KINDS[k].emailEligible);
-    for (const k of internalKinds) {
+    const denied = EVIDENCE_KIND_NAMES
+      .filter((k) => permissionsFor(k).OUTREACH === PERMISSION.DENIED);
+    expect(denied).toHaveLength(16);
+    for (const k of denied) {
       expect(result.selected.map((e) => e.kind), k).not.toContain(k);
     }
   });

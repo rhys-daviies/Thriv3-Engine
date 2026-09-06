@@ -1187,7 +1187,7 @@ export function arrivalSameRegionPosition(athlete, ctx) {
 /**
  * How many arrived at this position, per intake. INTERNAL ONLY.
  *
- * `emailEligible: false` in the registry, so selection separates it before
+ * OUTREACH: DENIED in the registry, so selection separates it before
  * composition can see it. It exists to be read in the operator panel and the
  * log while we decide whether "you've added a defender in each of the last four
  * intakes" can be said without it being heard as "so you need another".

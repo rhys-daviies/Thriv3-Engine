@@ -1,3 +1,4 @@
+import { permissionsFor, PERMISSION } from './kinds.js';
 import { describe, it, expect } from 'vitest';
 import {
   rosterFreshness, applyFreshness, ageInDays, isFreshnessSensitive,
@@ -299,7 +300,7 @@ describe('temporal language matches declared temporality', () => {
   it('never lets a CURRENT kind be a SIGNAL-free assertion about the future', () => {
     for (const kind of EVIDENCE_KIND_NAMES) {
       if (EVIDENCE_KINDS[kind].temporality !== TEMPORALITY.CURRENT) continue;
-      if (!EVIDENCE_KINDS[kind].emailEligible && kind === 'TRANSFER_BEHAVIOUR') continue;
+      if (permissionsFor(kind).OUTREACH === PERMISSION.DENIED && kind === 'TRANSFER_BEHAVIOUR') continue;
       if (!renderable(kind)) continue;
       expect(renderEvidence(sample(kind)), kind).not.toMatch(/\bwill\b|\bgoing to\b/i);
     }

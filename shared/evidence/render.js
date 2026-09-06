@@ -375,8 +375,8 @@ const FACT_COPY = Object.freeze({
   /**
    * Intake at this position, per season. INTERNAL ONLY.
    *
-   * The registry marks this kind `emailEligible: false` and selection separates
-   * it before composition can see it, so this copy exists for the operator
+   * The registry grades this kind OUTREACH: DENIED and selection separates it
+   * before composition can see it, so this copy exists for the operator
    * panel alone. It is written flat on purpose: it must read as a count
    * somebody can check against their own rosters, never as a forecast of what
    * they will do next.

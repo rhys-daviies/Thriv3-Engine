@@ -190,9 +190,9 @@ function distribution(athlete) {
     const g = counts.get(kind);
     const sel = selectedCounts.get(kind);
     console.log(`  ${kind.padEnd(32)} ${String(g).padStart(8)}   ${String(sel).padStart(8)}`
-      // The OUTREACH grade, not the legacy flag. Since G4 the two disagree for
-      // fifteen kinds, and "(shadow, never emailed)" was silent about nine of
-      // them — every one of which can no longer be emailed.
+      // The OUTREACH grade — the only licence there is since H3. The boolean
+      // it replaced disagreed for fifteen kinds, and "(shadow, never
+      // emailed)" was silent about nine that can no longer be emailed.
       + `  ${pct(sel, g)}${permissionsFor(kind).OUTREACH === PERMISSION.DENIED ? '   (not for outreach)' : ''}`);
   }
 

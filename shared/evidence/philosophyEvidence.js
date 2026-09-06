@@ -15,7 +15,7 @@
  * WHAT THESE MAY BE USED FOR
  *
  * Operator inspection, qualified by the window they were measured over. Nothing
- * else. All four are `emailEligible: false` and MATCHING_SUMMARY DENIED in the
+ * else. All four are OUTREACH DENIED and MATCHING_SUMMARY DENIED in the
  * registry, so selection separates them before composition can see them and no
  * surface but the operator panel may render them.
  *

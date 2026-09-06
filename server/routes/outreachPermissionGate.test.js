@@ -169,6 +169,6 @@ describe('there is one gate, not two', () => {
     // failure than not being offered it.
     const src = strip(read('server/routes/evidence.js'));
     expect(src).toContain('outreachPermitted(ev)');
-    expect(src).not.toContain('ev.emailEligible');
+    expect(src).not.toContain('(ev.permissions.OUTREACH !== PERMISSION.DENIED)');
   });
 });

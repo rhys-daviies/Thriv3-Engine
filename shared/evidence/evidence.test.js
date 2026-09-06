@@ -1,3 +1,4 @@
+import { permissionsFor, PERMISSION } from './kinds.js';
 import { describe, it, expect } from 'vitest';
 import {
   selectEvidence, generateEvidence, buildProgrammeContext, normaliseEvidenceAthlete,
@@ -68,7 +69,7 @@ describe('registry integrity', () => {
 
   it('has copy for every email-eligible kind', () => {
     for (const kind of EVIDENCE_KIND_NAMES) {
-      if (EVIDENCE_KINDS[kind].emailEligible) expect(RENDERABLE_KINDS, kind).toContain(kind);
+      if (permissionsFor(kind).OUTREACH !== PERMISSION.DENIED) expect(RENDERABLE_KINDS, kind).toContain(kind);
     }
   });
 
@@ -76,7 +77,7 @@ describe('registry integrity', () => {
   // operator view — but it can never be selected into an email, which
   // selectFrom enforces rather than the copy map.
   it('never selects an internal-only kind into an email', () => {
-    const internalKinds = EVIDENCE_KIND_NAMES.filter((k) => !EVIDENCE_KINDS[k].emailEligible);
+    const internalKinds = EVIDENCE_KIND_NAMES.filter((k) => permissionsFor(k).OUTREACH === PERMISSION.DENIED);
     expect(internalKinds.length).toBeGreaterThan(0);
     const squad = [...squadOf(11, { position: 'D', eligibility_end_year: 2029 }),
       ...squadOf(20, { position: 'M', prior_programme: 'Elsewhere' })];
@@ -479,7 +480,7 @@ describe('redundancy', () => {
   it('never lets internal-only evidence suppress an email-eligible piece', () => {
     const squad = squadOf(25, { prior_programme: 'Another College' });
     const result = selectEvidence(nzDefender, { college: college(), squad });
-    expect(result.selected.every((e) => e.emailEligible)).toBe(true);
+    expect(result.selected.every((e) => (e.permissions.OUTREACH !== PERMISSION.DENIED))).toBe(true);
     expect(result.internal.map((e) => e.kind)).toContain('TRANSFER_BEHAVIOUR');
   });
 });

@@ -197,10 +197,10 @@ describe('POSITION_GRADUATION_STARTERS is refused', () => {
     expect(kindsOf(r)).not.toContain('POSITION_GRADUATION_STARTERS');
   });
 
-  it('is not promoted by the operator surface or the legacy flag', () => {
+  it('is not promoted by the operator surface', () => {
     expect(permissionsFor('POSITION_GRADUATION_STARTERS').OPERATOR_EVIDENCE)
       .toBe(PERMISSION.ALLOWED);
-    expect(kindSpec('POSITION_GRADUATION_STARTERS').emailEligible).toBe(true);
+    expect(permissionsFor('POSITION_GRADUATION_STARTERS').OUTREACH).toBe(PERMISSION.DENIED);
     expect(kindsOf(outreachEvidenceFor(resultOf([starters()])))).toEqual([]);
   });
 

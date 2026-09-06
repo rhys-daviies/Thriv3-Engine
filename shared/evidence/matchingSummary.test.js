@@ -252,8 +252,9 @@ describe('CURRENT_SAME_COUNTRY is denied this surface', () => {
     expect(json).not.toContain('New Zealand');
   });
 
-  it('is not promoted by being email-eligible', () => {
-    expect(kindSpec('CURRENT_SAME_COUNTRY').emailEligible).toBe(true);
+  it('is not promoted by being licensed for an email', () => {
+    // Surfaces do not lend each other licences. This kind may be sent to a
+    // coach and may not appear on a card, and both are deliberate.
     expect(permissionsFor('CURRENT_SAME_COUNTRY').OUTREACH).toBe(PERMISSION.ALLOWED);
     expect(permissionsFor('CURRENT_SAME_COUNTRY').MATCHING_SUMMARY).toBe(PERMISSION.DENIED);
   });

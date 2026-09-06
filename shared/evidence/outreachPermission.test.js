@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { selectFrom, outreachPermitted } from './select.js';
 import {
   defineEvidence, permissionsFor, kindSpec, PERMISSION, SURFACE_KEYS,
@@ -24,6 +26,10 @@ import {
  * field, has been granted nothing here. Each surface is asked its own
  * question, and outreach is the strictest of them because its answer leaves
  * the building.
+ *
+ * H3 removed the boolean entirely, so the third failure above is no longer
+ * possible: there is one field to drift from, and the last block in this file
+ * holds it there.
  */
 
 const src = { source: 'roster_players', confidence: CONFIDENCE.HIGH };
@@ -77,35 +83,25 @@ describe('the registry is the gate', () => {
     expect(EVIDENCE_KIND_NAMES).toHaveLength(26);
   });
 
-  it('has left the legacy flag behind, and says so out loud', () => {
+  it('has no legacy flag left to disagree with', () => {
     /**
-     * `emailEligible` and the OUTREACH grade agreed for all 26 kinds until G4
-     * narrowed the policy. They cannot agree any more, and the field could not
-     * be updated to match even if we wanted it to: `defineEvidence` derives
-     * `outreachAllowed` from it and narrows OUTREACH to DENIED when it is
-     * false, so setting it false on a QUALIFIED kind would silently revoke the
-     * licence. It is legacy metadata; the grade is the policy.
+     * `emailEligible` was derived into this grade at V2, diverged from it for
+     * fifteen kinds once G4 set the policy, and could not be corrected —
+     * `defineEvidence` read it to narrow OUTREACH to DENIED, so setting it
+     * false on a QUALIFIED kind would have revoked the licence it described.
+     * H3 removed it. There is one field, and it is the policy.
      */
-    const diverged = EVIDENCE_KIND_NAMES.filter((k) => (
-      (permissionsFor(k).OUTREACH === PERMISSION.ALLOWED) !== (kindSpec(k).emailEligible === true)
-    ));
-    expect(diverged).toHaveLength(15);
-    // Every QUALIFIED kind must keep the flag true or lose its licence.
     for (const k of EVIDENCE_KIND_NAMES) {
-      if (permissionsFor(k).OUTREACH === PERMISSION.QUALIFIED) {
-        expect(kindSpec(k).emailEligible, k).toBe(true);
-      }
+      expect(EVIDENCE_KINDS[k], k).not.toHaveProperty('emailEligible');
+      expect(EVIDENCE_KINDS[k].permissions?.OUTREACH, k).toBeTruthy();
     }
   });
 });
 
 describe('permission beats the legacy flag', () => {
-  it('refuses an object whose OUTREACH is narrowed to DENIED, flag or no flag', () => {
-    // The exact divergence the old gate could not see: `defineEvidence` still
-    // reports emailEligible true, because the caller narrowed the surface and
-    // not the alias.
+  it('refuses an object whose OUTREACH is narrowed to DENIED', () => {
     const narrowed = graduation({ permissions: { OUTREACH: PERMISSION.DENIED } });
-    expect(narrowed.emailEligible).toBe(true);
+    expect(narrowed).not.toHaveProperty('emailEligible');
     expect(narrowed.permissions.OUTREACH).toBe(PERMISSION.DENIED);
 
     expect(outreachPermitted(narrowed)).toBe(false);
@@ -113,9 +109,9 @@ describe('permission beats the legacy flag', () => {
     expect(internalKinds([narrowed, country()])).toContain(EMAILABLE);
   });
 
-  it('does not let the legacy flag rescue a registry-barred kind', () => {
-    // `emailEligible: false` on the spec is the registry's own bar, and a
-    // caller cannot widen it — narrowing only ever moves down.
+  it('does not let a caller widen a registry-barred kind', () => {
+    // The registry's DENIED is the floor; `narrowPermissions` only ever moves
+    // a grade down, and the retired boolean is inert if anyone still passes it.
     const barred = defineEvidence(BARRED, {
       ...src, season: '2026', emailEligible: true,
       permissions: { OUTREACH: PERMISSION.ALLOWED },
@@ -257,26 +253,105 @@ describe('preference cannot promote what permission refused', () => {
   });
 });
 
-describe('the legacy flag no longer grants anything', () => {
+describe('the legacy flag is gone', () => {
   it('is not read by the outreach selection path', () => {
     const source = readFileSync(new URL('./select.js', import.meta.url), 'utf8');
     const code = source.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/^\s*\/\/.*$/gm, ' ');
     expect(code).not.toContain('emailEligible');
   });
 
-  it('is still carried on the object, for the report scripts that describe it', () => {
-    // Kept deliberately: `server/scripts/evidenceReport.js` and
-    // `recruitingEvidenceReport.js` print it as a label, and removing the
-    // field in the same commit that changed the gate would put a cosmetic
-    // change inside a parity proof.
-    expect(graduation().emailEligible).toBe(true);
+  it('is not on the evidence object', () => {
+    expect(graduation()).not.toHaveProperty('emailEligible');
+    expect(Object.keys(graduation()).filter((k) => /email/i.test(k))).toEqual([]);
   });
 
-  it('is a description now, not a decision', () => {
-    // Proof by divergence: an object whose flag and grade disagree follows the
-    // GRADE. Before this step it followed the flag.
-    const narrowed = graduation({ permissions: { OUTREACH: PERMISSION.DENIED } });
-    expect(narrowed.emailEligible).toBe(true);
-    expect(emailedKinds([narrowed])).toEqual([]);
+  it('is inert when a caller still passes it', () => {
+    // A stale generator naming it changes nothing — it is not an argument any
+    // more, and the grade it used to revoke is untouched.
+    const passed = defineEvidence(EMAILABLE, {
+      ...src, season: '2026', emailEligible: false,
+      data: { position: 'DEFENSE', count: 3, names: ['A'], classYear: 2027 },
+    });
+    expect(passed.permissions.OUTREACH).toBe(permissionsFor(EMAILABLE).OUTREACH);
+    expect(passed).not.toHaveProperty('emailEligible');
+  });
+});
+
+describe('the registry cannot grant an outbound licence by omission', () => {
+  /**
+   * The load-time guard, exercised rather than asserted about.
+   *
+   * The default is DENIED, so a missing OUTREACH line already fails closed and
+   * this check buys nothing at runtime. It buys a decision: a kind added
+   * without one is a kind whose author never asked whether a stranger may say
+   * it to a coach. Proven by mutation — the registry is copied, one kind's
+   * OUTREACH line is removed, and the copy must refuse to load.
+   */
+  const KINDS_PATH = fileURLToPath(new URL('./kinds.js', import.meta.url));
+  const source = readFileSync(KINDS_PATH, 'utf8');
+
+  /** Loads a mutated copy of the registry beside the real one, so its relative imports resolve. */
+  const loadMutated = async (mutate) => {
+    const tmp = path.join(path.dirname(KINDS_PATH), `kinds.__mutation-${process.pid}-${n++}.js`);
+    writeFileSync(tmp, mutate(source));
+    try {
+      return await import(pathToFileURL(tmp).href);
+    } finally {
+      rmSync(tmp, { force: true });
+    }
+  };
+  let n = 0;
+
+  it('loads unmutated, so the mutations below prove something', async () => {
+    const mod = await loadMutated((s) => s);
+    expect(mod.EVIDENCE_KIND_NAMES).toHaveLength(26);
+  });
+
+  it('refuses to load when a kind declares no OUTREACH grade', async () => {
+    await expect(loadMutated((s) => s.replace(
+      'permissions: { OUTREACH: PERMISSION.QUALIFIED },',
+      'permissions: { MATCHING_SUMMARY: PERMISSION.DENIED },',
+    ))).rejects.toThrow(/must declare permissions\.OUTREACH/);
+  });
+
+  it('refuses to load when a kind declares no permissions at all', async () => {
+    await expect(loadMutated((s) => s.replace(
+      'permissions: { OUTREACH: PERMISSION.QUALIFIED },',
+      '',
+    ))).rejects.toThrow(/must declare permissions\.OUTREACH/);
+  });
+
+  it('names the kind it is refusing', async () => {
+    // A guard that says only "a kind is missing something" costs the next
+    // author a bisect over 26 entries.
+    await expect(loadMutated((s) => s.replace(
+      'permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED, OUTREACH: PERMISSION.ALLOWED },',
+      'permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED },',
+    ))).rejects.toThrow(/^HISTORICAL_SAME_COUNTRY must declare/);
+  });
+
+  it('every kind declares one, and the policy is where G4 left it', () => {
+    const by = { ALLOWED: 0, QUALIFIED: 0, DENIED: 0 };
+    for (const kind of EVIDENCE_KIND_NAMES) {
+      const declared = kindSpec(kind).permissions?.OUTREACH;
+      expect(declared, kind).toBeTruthy();
+      // Declared and resolved must agree: nothing derives this any more.
+      expect(permissionsFor(kind).OUTREACH, kind).toBe(declared);
+      by[declared] += 1;
+    }
+    expect(by).toEqual({ ALLOWED: 4, QUALIFIED: 6, DENIED: 16 });
+  });
+
+  it('defaults the two other surfaces and denies this one', async () => {
+    // A kind with no permissions block on the OTHER two surfaces still
+    // inherits their safe defaults; OUTREACH is the one that must be written.
+    const mod = await loadMutated((s) => s.replace(
+      'permissions: { OUTREACH: PERMISSION.QUALIFIED },',
+      'permissions: { OUTREACH: PERMISSION.DENIED },',
+    ));
+    for (const kind of mod.EVIDENCE_KIND_NAMES) {
+      const p = mod.permissionsFor(kind);
+      expect(SURFACE_KEYS.every((k) => p[k]), kind).toBe(true);
+    }
   });
 });

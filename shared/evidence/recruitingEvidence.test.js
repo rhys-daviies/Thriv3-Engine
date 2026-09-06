@@ -494,7 +494,7 @@ describe('H. what must never reach an email', () => {
   ]));
 
   it('keeps POSITION_INTAKE_HISTORY out of every email', () => {
-    expect(EVIDENCE_KINDS.POSITION_INTAKE_HISTORY.emailEligible).toBe(false);
+    expect(EVIDENCE_KINDS.POSITION_INTAKE_HISTORY.permissions.OUTREACH).toBe('DENIED');
     const r = selectFrom(generateEvidence(RHYS, ctx()));
     expect(r.selected.map((e) => e.kind)).not.toContain('POSITION_INTAKE_HISTORY');
     expect(r.internal.map((e) => e.kind)).toContain('POSITION_INTAKE_HISTORY');

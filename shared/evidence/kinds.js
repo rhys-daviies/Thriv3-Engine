@@ -143,11 +143,11 @@ export const POLARITY_KEYS = Object.freeze(Object.keys(POLARITY));
 /**
  * The places a piece of evidence can be shown, each with its own licence.
  *
- * `emailEligible` was one boolean answering for three audiences, and it had
- * already run out. POSITION_GROUP_SIZE is the proof: it sits in the `roster`
- * category, it has rendered copy, and it is still barred from an email — a
- * third state the boolean could not hold, recorded nowhere and recoverable
- * only by reading the comment beside it.
+ * A single boolean — `emailEligible`, retired in H3 — answered for three
+ * audiences and had already run out. POSITION_GROUP_SIZE was the proof: it sits
+ * in the `roster` category, it has rendered copy, and it is still barred from
+ * an email — a third state the boolean could not hold, recorded nowhere and
+ * recoverable only by reading the comment beside it.
  *
  * Reading a claim is not making one. An operator inspecting what we know about
  * a programme is a different act from asserting it to a coach, and the two have
@@ -198,22 +198,27 @@ const PERMISSION_RANK = Object.freeze({ DENIED: 0, QUALIFIED: 1, ALLOWED: 2 });
 /**
  * The permissions a kind carries when the registry does not say otherwise.
  *
- * Derived from `emailEligible` so this step changes no behaviour: whatever
- * could reach an email yesterday can reach one today, and whatever could not,
- * still cannot. OPERATOR_EVIDENCE is ALLOWED for every existing kind — all 22
- * are already visible in the operator panel today, internal ones included, so
- * granting less would be a behavioural change disguised as a default.
+ * OUTREACH IS DENIED BY DEFAULT AND EVERY KIND DECLARES IT ANYWAY. The default
+ * is the fail-closed floor; the completeness check below requires an explicit
+ * grade for all 26, because a new kind reaching a coach's inbox because
+ * somebody forgot to think about it is the failure this whole surface exists
+ * to prevent. Both together: silence if it is missed, and it cannot be missed.
  *
- * MATCHING_SUMMARY is DENIED for everything. Nothing renders it yet, and the
- * product decision is that it is a genuine claim surface: it must be licensed
- * kind by kind, deliberately, not inherited by whatever happened to be
- * email-eligible.
+ * It used to be derived from `emailEligible`, which meant a boolean written for
+ * one audience decided a licence for another. H3 retired that: the grade is
+ * declared, not inferred, and nothing else may narrow or widen it.
+ *
+ * OPERATOR_EVIDENCE is ALLOWED for every existing kind — all of them are
+ * already visible in the operator panel, internal ones included, so granting
+ * less would be a behavioural change disguised as a default.
+ *
+ * MATCHING_SUMMARY is DENIED for everything, and licensed kind by kind.
  */
-function defaultPermissions(spec) {
+function defaultPermissions() {
   return Object.freeze({
     OPERATOR_EVIDENCE: PERMISSION.ALLOWED,
     MATCHING_SUMMARY: PERMISSION.DENIED,
-    OUTREACH: spec.emailEligible ? PERMISSION.ALLOWED : PERMISSION.DENIED,
+    OUTREACH: PERMISSION.DENIED,
   });
 }
 
@@ -224,15 +229,14 @@ function defaultPermissions(spec) {
  */
 export function permissionsFor(kind) {
   const spec = kindSpec(kind);
-  return spec.permissions ? Object.freeze({ ...defaultPermissions(spec), ...spec.permissions })
-    : defaultPermissions(spec);
+  return spec.permissions ? Object.freeze({ ...defaultPermissions(), ...spec.permissions })
+    : defaultPermissions();
 }
 
 /**
  * Applies a caller's request to the registry's grant, keeping the stricter.
  *
- * The same rule `emailEligible` already enforced by AND-ing the two, restated
- * for three surfaces and three grades. A generator may decide its evidence is
+ * Three surfaces, three grades, one rule. A generator may decide its evidence is
  * weaker than its kind normally allows — a thin cohort, an unreadable season —
  * and say so. It may never decide the opposite: a registry DENIED cannot be
  * argued up to ALLOWED by a caller, which is the invariant that makes the
@@ -275,7 +279,7 @@ export function confidenceAtLeast(actual, minimum) {
  * rest — see select.js. Groups are deliberately coarse: the failure being
  * engineered against is an email that reads like a list of database queries.
  *
- * `emailEligible: false` marks intelligence that is real and useful for
+ * `permissions.OUTREACH: DENIED` marks intelligence that is real and useful for
  * ranking programmes but has no business in a first approach to a coach.
  * Transfer behaviour is the clearest case: knowing a programme fills holes
  * from the portal helps us decide whether to write at all, and telling them we
@@ -290,14 +294,14 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'international',
     dedupeGroup: 'international-connection',
     baseStrength: 88,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['country'],
     // MATCHING_SUMMARY: QUALIFIED. Only with its tense: "on earlier rosters". Without it, past
     // presence reads as present presence.
-    permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED },
+    // OUTREACH: ALLOWED. Compatriots came through; the tense is on the object and no criterion shares its inputs.
+    permissions: { MATCHING_SUMMARY: PERMISSION.QUALIFIED, OUTREACH: PERMISSION.ALLOWED },
   },
   CURRENT_SAME_COUNTRY: {
     leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
@@ -306,7 +310,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'international',
     dedupeGroup: 'international-connection',
     baseStrength: 82,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
@@ -335,7 +338,8 @@ export const EVIDENCE_KINDS = Object.freeze({
      * on the Decision Evidence page, which has room to say what it is next to;
      * OUTREACH still lets an email use it. Only the match card is closed.
      */
-    permissions: { MATCHING_SUMMARY: PERMISSION.DENIED },
+    // OUTREACH: ALLOWED. Compatriots on the squad now, checkable against their own roster.
+    permissions: { MATCHING_SUMMARY: PERMISSION.DENIED, OUTREACH: PERMISSION.ALLOWED },
   },
   HISTORICAL_SAME_REGION: {
     leadSuitability: LEAD_SUITABILITY.NATURAL_LEAD,
@@ -347,7 +351,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     // claim on a coach's attention than a compatriot, and ranking it level
     // would let the broader, blander sentence win on a tie.
     baseStrength: 70,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
@@ -362,7 +365,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'international',
     dedupeGroup: 'international-connection',
     baseStrength: 52,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.CONTEXT,
     polarity: POLARITY.POSITIVE,
@@ -415,14 +417,14 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'international',
     dedupeGroup: 'international-connection',
     baseStrength: 99,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['coach', 'country'],
     // MATCHING_SUMMARY: ALLOWED. Nothing coach-related is scored, so this cannot be read as
     // the score’s cause.
-    permissions: { MATCHING_SUMMARY: PERMISSION.ALLOWED },
+    // OUTREACH: ALLOWED. The coach's own record — the one claim addressed to the person reading it.
+    permissions: { MATCHING_SUMMARY: PERMISSION.ALLOWED, OUTREACH: PERMISSION.ALLOWED },
   },
 
   /** An arrival from the athlete's country, at the athlete's position. */
@@ -433,14 +435,14 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'international',
     dedupeGroup: 'international-connection',
     baseStrength: 95,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
     specificityAxes: ['country', 'position'],
     // MATCHING_SUMMARY: ALLOWED. Country and position on one object; no criterion shares
     // its inputs or its name.
-    permissions: { MATCHING_SUMMARY: PERMISSION.ALLOWED },
+    // OUTREACH: ALLOWED. The programme's arrivals at the athlete's country and position.
+    permissions: { MATCHING_SUMMARY: PERMISSION.ALLOWED, OUTREACH: PERMISSION.ALLOWED },
   },
 
   /**
@@ -457,7 +459,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'international',
     dedupeGroup: 'international-connection',
     baseStrength: 78,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.POSITIVE,
@@ -478,7 +479,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'international',
     dedupeGroup: 'international-connection',
     baseStrength: 44,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.CONTEXT,
     polarity: POLARITY.POSITIVE,
@@ -495,7 +495,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'roster',
     dedupeGroup: 'position-opportunity',
     baseStrength: 76,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.OPENING,
     polarity: POLARITY.POSITIVE,
@@ -513,7 +512,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'roster',
     dedupeGroup: 'position-opportunity',
     baseStrength: 68,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.OPENING,
     polarity: POLARITY.POSITIVE,
@@ -528,7 +526,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'roster',
     dedupeGroup: 'squad-turnover',
     baseStrength: 48,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.CONTEXT,
     polarity: POLARITY.POSITIVE,
@@ -548,11 +545,12 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'roster',
     dedupeGroup: 'position-depth',
     baseStrength: 46,
-    emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.CONTEXT,
     polarity: POLARITY.NEUTRAL,
     specificityAxes: ['position'],
+    // OUTREACH: DENIED. A squad headcount. Says nothing about this athlete.
+    permissions: { OUTREACH: PERMISSION.DENIED },
   },
   POSITION_GROUP_SCARCITY: {
     leadSuitability: LEAD_SUITABILITY.SUPPORT_ONLY,
@@ -561,7 +559,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'roster',
     dedupeGroup: 'position-depth',
     baseStrength: 58,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.OPENING,
     polarity: POLARITY.POSITIVE,
@@ -578,7 +575,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'roster',
     dedupeGroup: 'position-depth',
     baseStrength: 54,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.OPENING,
     polarity: POLARITY.POSITIVE,
@@ -593,7 +589,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'roster',
     dedupeGroup: 'position-opportunity',
     baseStrength: 50,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.OPENING,
     polarity: POLARITY.POSITIVE,
@@ -615,7 +610,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'performance',
     dedupeGroup: 'programme-success',
     baseStrength: 80,
-    emailEligible: true,
     minConfidence: CONFIDENCE.HIGH,
     decisionClass: DECISION_CLASS.FIT,
     polarity: POLARITY.POSITIVE,
@@ -635,7 +629,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'performance',
     dedupeGroup: 'programme-success',
     baseStrength: 74,
-    emailEligible: true,
     minConfidence: CONFIDENCE.HIGH,
     decisionClass: DECISION_CLASS.FIT,
     polarity: POLARITY.POSITIVE,
@@ -650,7 +643,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'performance',
     dedupeGroup: 'programme-success',
     baseStrength: 56,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.FIT,
     polarity: POLARITY.POSITIVE,
@@ -667,7 +659,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'coach',
     dedupeGroup: 'coach',
     baseStrength: 45,
-    emailEligible: true,
     minConfidence: CONFIDENCE.MEDIUM,
     /**
      * A count BOUNDED BY THE WINDOW, which is what needing one means.
@@ -696,7 +687,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'academic',
     dedupeGroup: 'academic',
     baseStrength: 78,
-    emailEligible: true,
     minConfidence: CONFIDENCE.HIGH,
     decisionClass: DECISION_CLASS.FIT,
     polarity: POLARITY.POSITIVE,
@@ -709,15 +699,15 @@ export const EVIDENCE_KINDS = Object.freeze({
   /**
    * How many arrived at this position, per intake. SHADOW MODE.
    *
-   * `emailEligible: false`, deliberately and for a reason that is about the
-   * sentence rather than about the data. "You've added a defender in each of
-   * the last four intakes" is a true and checkable observation that sits one
-   * short step from "so you'll need another" — a claim about a coach's future
-   * intentions that no roster row supports, and the exact overstatement the CTA
-   * was corrected for. It is generated, ranked, logged and visible in the
-   * operator panel so that real examples can be read before anything is
-   * licensed; it cannot reach an email, because selection separates
-   * email-ineligible evidence before composition ever sees it.
+   * OUTREACH DENIED, deliberately and for a reason that is about the sentence
+   * rather than about the data. "You've added a defender in each of the last
+   * four intakes" is a true and checkable observation that sits one short step
+   * from "so you'll need another" — a claim about a coach's future intentions
+   * that no roster row supports, and the exact overstatement the CTA was
+   * corrected for. It is generated, ranked, logged and visible in the operator
+   * panel so that real examples can be read before anything is licensed; it
+   * cannot reach an email, because `outreachEvidenceFor` asks the registry
+   * before composition ever sees it.
    *
    * `leadSuitability` is inert while that flag is false — structures.js only
    * ever reads it for SELECTED evidence — and is set to the most conservative
@@ -731,7 +721,6 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'internal',
     dedupeGroup: 'position-intake',
     baseStrength: 60,
-    emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
     // A RATE. "A defender in each of the last four intakes" is a numerator over
     // the intakes we could compare, and without that denominator it is not a
@@ -740,6 +729,8 @@ export const EVIDENCE_KINDS = Object.freeze({
     decisionClass: DECISION_CLASS.CONTEXT,
     polarity: POLARITY.NEUTRAL,
     specificityAxes: ['position'],
+    // OUTREACH: DENIED. Intake machinery: useful for ranking, not a thing to tell a coach.
+    permissions: { OUTREACH: PERMISSION.DENIED },
   },
 
   // Generated, ranked and logged like everything else so that it is available
@@ -751,11 +742,12 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'internal',
     dedupeGroup: 'transfer',
     baseStrength: 40,
-    emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
     decisionClass: DECISION_CLASS.CONTEXT,
     polarity: POLARITY.NEUTRAL,
     specificityAxes: ['position'],
+    // OUTREACH: DENIED. How a programme fills holes. Knowing it helps us; saying it helps nobody.
+    permissions: { OUTREACH: PERMISSION.DENIED },
   },
 
   // --- programme development ------------------------------------------------
@@ -796,9 +788,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'development',
     dedupeGroup: 'development-pattern',
     baseStrength: 40,
-    emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
-    permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
+    // OUTREACH: DENIED. A verdict on how they develop players, delivered by a stranger.
+    permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED, OUTREACH: PERMISSION.DENIED },
     requiresWindow: true,
     decisionClass: DECISION_CLASS.FIT,
     polarity: POLARITY.NEUTRAL,
@@ -821,9 +813,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'development',
     dedupeGroup: 'freshman-ladder',
     baseStrength: 38,
-    emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
-    permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
+    // OUTREACH: DENIED. One sentence away from promising playing time.
+    permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED, OUTREACH: PERMISSION.DENIED },
     requiresWindow: true,
     decisionClass: DECISION_CLASS.FIT,
     polarity: POLARITY.NEUTRAL,
@@ -851,9 +843,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'development',
     dedupeGroup: 'cohort-ladder',
     baseStrength: 42,
-    emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
-    permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
+    // OUTREACH: DENIED. Same, narrowed to this athlete's cohort. Worse, not better.
+    permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED, OUTREACH: PERMISSION.DENIED },
     requiresWindow: true,
     decisionClass: DECISION_CLASS.PATHWAY,
     polarity: POLARITY.NEUTRAL,
@@ -876,9 +868,9 @@ export const EVIDENCE_KINDS = Object.freeze({
     category: 'development',
     dedupeGroup: 'pool-benchmark',
     baseStrength: 30,
-    emailEligible: false,
     minConfidence: CONFIDENCE.MEDIUM,
-    permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED },
+    // OUTREACH: DENIED. A peer percentile. Grading their programme to their face.
+    permissions: { OPERATOR_EVIDENCE: PERMISSION.QUALIFIED, OUTREACH: PERMISSION.DENIED },
     requiresWindow: true,
     // The only kind that requires one. "Above the pool" is not a claim until
     // the pool is named and the result stated.
@@ -905,6 +897,27 @@ for (const [kind, spec] of Object.entries(EVIDENCE_KINDS)) {
   }
   if (!Array.isArray(spec.specificityAxes)) {
     throw new Error(`${kind} must declare specificityAxes as an array`);
+  }
+}
+
+/**
+ * Every kind declares its outbound grade, explicitly.
+ *
+ * The default above is DENIED and would already fail closed, so this check
+ * buys nothing at runtime — it buys a DECISION. A kind added without an
+ * OUTREACH line is a kind whose author never asked whether a stranger may say
+ * it to a coach, and the answer arriving by default is how that question gets
+ * skipped. It has to be written down.
+ *
+ * Deliberately only OUTREACH. The other two surfaces have safe defaults an
+ * author may reasonably inherit; this one is the only surface whose output
+ * leaves the building.
+ */
+for (const [kind, spec] of Object.entries(EVIDENCE_KINDS)) {
+  if (!spec.permissions?.OUTREACH) {
+    throw new Error(
+      `${kind} must declare permissions.OUTREACH — an outbound licence is a decision, not a default.`,
+    );
   }
 }
 
@@ -1130,11 +1143,10 @@ function validateComparison(comparison) {
  * caveat that has nothing to do with seasons. Requiring a historical window for
  * every QUALIFIED item would hard-code today's single case into the model.
  *
- * Deliberately NOT wired into outreach. The existing composer is already
- * governed by `emailEligible` and selection, and threading a second gate
- * through a path with byte-identical output to protect would be a behavioural
- * risk taken for no gain. It is here, tested, for the Evidence surface that
- * comes next.
+ * Called by all three surfaces. `outreachEvidenceFor` asks it first and then
+ * applies the qualification rule the grade implies; the operator and match-card
+ * read models ask it and branch on the answer. It decides the grade and never
+ * the qualification — those are per-surface and live with the surface.
  *
  * Renders nothing and mutates nothing: it answers a question and returns the
  * grade so a caller can branch on ALLOWED versus QUALIFIED.
@@ -1170,7 +1182,6 @@ export function defineEvidence(kind, {
   season = null,
   source = null,
   sourceUrl = null,
-  emailEligible = null,
   freshness = null,
   permissions = null,
   describes = null,
@@ -1218,21 +1229,15 @@ export function defineEvidence(kind, {
   if (effective === null) return null;
 
   /**
-   * `emailEligible` and `permissions.OUTREACH` are the same decision, so they
-   * are computed from one value rather than side by side. A caller narrowing
-   * the old flag has to narrow the new surface too — otherwise a generator
-   * passing `emailEligible: false` would leave OUTREACH reading ALLOWED, and
-   * the compatibility alias would be the honest field while the new one lied.
+   * The registry's grades, narrowed by whatever the caller asked for.
+   *
+   * ONE STEP, WHERE THERE WERE TWO. The first used to convert a legacy
+   * `emailEligible` boolean into an OUTREACH narrowing, so a generator could
+   * revoke a licence through a field that answered a different question. That
+   * is gone: a caller narrows `permissions` or narrows nothing, and
+   * `narrowPermissions` still only ever moves a grade down.
    */
-  const outreachAllowed = emailEligible === null
-    ? spec.emailEligible
-    : (emailEligible && spec.emailEligible);
-
-  const resolvedPermissions = narrowPermissions(
-    narrowPermissions(permissionsFor(kind),
-      outreachAllowed ? null : { OUTREACH: PERMISSION.DENIED }),
-    permissions,
-  );
+  const resolvedPermissions = narrowPermissions(permissionsFor(kind), permissions);
 
   return Object.freeze({
     kind,
@@ -1263,17 +1268,15 @@ export function defineEvidence(kind, {
     // adding it later is a generator change rather than a schema change.
     sourceUrl,
     /**
-     * Kept, and kept authoritative for selection, because this step is meant to
-     * add a shape and change no behaviour. Seven call sites across selection,
-     * rendering, freshness and their tests read either this field or the
-     * registry's, and rewriting them to consult `permissions` would make a
-     * scaffolding commit the one that could break an email.
+     * The per-surface licence, and the ONLY thing that decides where a claim
+     * may appear.
      *
-     * It is now derived from the same value as `permissions.OUTREACH`, so the
-     * two cannot disagree, and retiring it later is a mechanical change.
+     * There was a second field beside this one — `emailEligible` — which
+     * answered the same question for one surface with a boolean, could silently
+     * narrow this to DENIED, and diverged from it for fifteen kinds once the
+     * outbound policy was set. H3 removed it. An evidence object does not know
+     * whether it is "email eligible"; it knows its permissions.
      */
-    emailEligible: outreachAllowed,
-    /** Per-surface licence. Nothing reads this yet — see the migration note. */
     permissions: resolvedPermissions,
     /** The window a measurement covers. Optional; no kind requires one yet. */
     describes: validDescribes,

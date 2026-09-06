@@ -3,7 +3,9 @@ import {
   renderEvidence, evidenceParts, factParts, signalParts, RENDERABLE_KINDS,
   isRecognition, EvidenceRenderError, yearPhrase, BACK_IN_DISTANCE,
 } from './render.js';
-import { EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, TIERS } from './kinds.js';
+import {
+  EVIDENCE_KINDS, EVIDENCE_KIND_NAMES, TIERS, permissionsFor, PERMISSION,
+} from './kinds.js';
 import { conferenceLabel } from '../conference.js';
 
 /**
@@ -67,7 +69,7 @@ const sample = (kind) => ({
 });
 
 const CTX = { firstName: 'Rhys' };
-const emailKinds = EVIDENCE_KIND_NAMES.filter((k) => EVIDENCE_KINDS[k].emailEligible);
+const emailKinds = EVIDENCE_KIND_NAMES.filter((k) => permissionsFor(k).OUTREACH !== PERMISSION.DENIED);
 
 /**
  * Every piece of text any kind can put in an email: [kind, part, text].

@@ -59,9 +59,8 @@ function report(athlete, match, evidence) {
     const renderedKinds = new Set(evidence.sentences.map((x) => x.kind));
     const usable = new Set(evidence.usable.map((e) => e.kind));
     all.forEach((ev, i) => {
-      // The authoritative grade, not the legacy flag: since G4 they differ
-      // for 15 kinds and the flag would report as emailable things that
-      // can no longer be sent.
+      // The authoritative grade. A boolean here reported as emailable, for
+      // fifteen kinds, things G4 had stopped sending; H3 removed it.
       const flag = permissionsFor(ev.kind).OUTREACH === PERMISSION.DENIED ? '   [not for outreach]' : '';
       console.log(`\n  ${i + 1}. ${ev.kind}${flag}`);
       console.log(`     ${ev.tier}   ${ev.confidence} CONFIDENCE   strength ${ev.strength}`);
