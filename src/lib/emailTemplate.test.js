@@ -114,7 +114,13 @@ describe('graduating cohort, under either field name', () => {
     expect(c.has_graduating_seniors).toBe('true');
     expect(c.graduating_seniors_count).toBe('4');
     expect(c.graduating_seniors_names).toBe('(A Smith and B Jones)');
-    expect(c.graduating_starters_count).toBe('2');
+    /**
+     * `graduating_starters_count` is gone at J5. It recreated
+     * POSITION_GRADUATION_STARTERS — OUTREACH DENIED — from the
+     * recommendations blob, with named players and none of the gates the
+     * evidence engine applies. See src/lib/compositionAuthority.test.js.
+     */
+    expect(c.graduating_starters_count).toBeUndefined();
   });
 
   it('still reads the legacy names stored in older recommendation blobs', () => {
@@ -134,14 +140,16 @@ describe('graduating cohort, under either field name', () => {
     expect(out).toContain('A Smith and B Jones');
   });
 
-  it('exposes the squad-wide total separately from the position one', () => {
-    const c = buildEmailContext(player, { ...canonical, graduating_total: 9 }, 'Coach');
-    expect(c.graduating_total_count).toBe('9');
-    expect(c.graduating_seniors_count).toBe('4');
+  it('no longer exposes the squad-wide or international totals', () => {
+    // Both recreated DENIED kinds (SQUAD_GRADUATION, INTERNATIONAL_ROSTER)
+    // outside the evidence engine. Removed at J5.
+    const c = buildEmailContext(player, canonical, 'Coach');
+    for (const t of ['graduating_total_count', 'has_graduating_total',
+      'international_players_count', 'has_international_players']) {
+      expect(c[t], t).toBeUndefined();
+    }
   });
-});
 
-describe('evidence tokens', () => {
   it('resolve to nothing when no evidence is supplied, leaving old behaviour intact', () => {
     const c = buildEmailContext(player, college, 'Coach');
     expect(c.evidence_paragraph).toBe('');

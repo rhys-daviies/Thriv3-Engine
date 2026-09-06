@@ -68,14 +68,26 @@ export const TEMPLATE_VARIABLES = [
     label: 'If those names were verified… (conditional sentence)',
     snippet: '{{#if has_graduating_names}} {{graduating_seniors_names}}{{/if}}',
   },
-  { token: 'graduating_starters_count', label: 'Graduating Starters Count' },
-  { token: 'graduating_starters_names', label: 'Graduating Starters Names' },
-  { token: 'graduating_total_count', label: 'Total Graduating, Whole Squad' },
-  {
-    token: 'has_graduating_total',
-    label: 'If anyone at all is graduating… (conditional sentence)',
-    snippet: '{{#if has_graduating_total}}{{graduating_total_count}} players are graduating across the squad.{{/if}}',
-  },
+  /**
+   * REMOVED AT J5: graduating_starters_*, graduating_total_*, and the
+   * international-roster pair below.
+   *
+   * Each of them recreated, from the uploaded recommendations JSON, a claim
+   * the evidence registry DENIES for outreach — POSITION_GRADUATION_STARTERS,
+   * SQUAD_GRADUATION and INTERNATIONAL_ROSTER. They were a second production
+   * authority with no qualification, no confidence floor, no freshness check,
+   * no render contract and no disposition, and they could name players.
+   *
+   * Measured on Rhys Davies to Saint Joseph's: the outbound engine licensed
+   * one claim, "two players from New Zealand have come through the programme
+   * since 2022", while a custom template using these tokens rendered "6
+   * defenders graduating. starters: 4 — Herman Tveit-Reffsgaard, Diego Avelar,
+   * Jake Ross, and Cassidy Tanddo" from 2025 recommendations data.
+   *
+   * Nothing shipped used them, so they are gone rather than deprecated. What a
+   * template may still say about evidence is `{{evidence_paragraph}}`, which
+   * is the engine's own words and has been through every gate.
+   */
   {
     token: 'evidence_paragraph',
     label: 'Program Evidence — the strongest verified reasons to write (auto-selected)',
@@ -96,12 +108,7 @@ export const TEMPLATE_VARIABLES = [
   // structure had not chosen. They resolve in the context so a structured
   // body renders, and they are absent from this list so nothing offers them.
 
-  { token: 'international_players_count', label: 'International Players on Roster' },
-  {
-    token: 'has_international_players',
-    label: 'If the roster has any international players… (conditional sentence)',
-    snippet: '{{#if has_international_players}}We currently have {{international_players_count}} international players on the roster.{{/if}}',
-  },
+
   { token: 'players_from_country_count', label: "Players From the Recruit's Own Country" },
   {
     token: 'has_players_from_country',
@@ -443,12 +450,8 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
       ? positionNoun(player.position)
       : positionPlural(player.position),
     graduating_seniors_names: formatNameList(gradNames),
-    graduating_starters_count: String(grad.starters),
-    graduating_starters_names: formatNameList(grad.starterNames),
     // Squad-wide, every position — a different number from the four above and
     // carried through pool.js since 2026-08-25 without anything reading it.
-    graduating_total_count: String(college.graduating_total ?? 0),
-    has_graduating_total: (college.graduating_total ?? 0) > 0 ? 'true' : '',
     // ---- evidence engine ----
     // Empty when no evidence was supplied, so a template carrying these tokens
     // renders as it always did rather than leaving a hole.
@@ -467,8 +470,6 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     // Sourced from shared/matching/pool.js's roster aggregation (international
     // count + same-country count), already computed for the international-fit
     // scoring criterion -- these just expose the same two numbers as tokens.
-    international_players_count: String(college.international_players ?? 0),
-    has_international_players: (college.international_players ?? 0) > 0 ? 'true' : '',
     players_from_country_count: String(college.players_from_country ?? 0),
     // Gated on the recruit having a stated country too -- a domestic athlete
     // has no "own country" for the sentence to be about.
@@ -588,21 +589,30 @@ export function structureKeyOf(evidence) {
 }
 
 /**
- * Whether this athlete's email can be composed from a structure.
+ * WHETHER THIS ATHLETE HAS AN EXPLICIT COMPOSITION OVERRIDE.
  *
- * Only when their saved template is the shipped default, or absent. A
- * customised template is somebody's own voice — the whole reason the migration
- * in shared/templateMigration.js preserves their sentence verbatim — and
- * replacing it with an assembled body because the engine now has structures
- * would be taking that away without asking.
+ * PRESENCE, NOT CONTENT. It used to ask whether a saved template was
+ * byte-identical to `DEFAULT_EMAIL_TEMPLATE`, which made a product constant
+ * into the authority over which composer runs. J4 edited that constant to
+ * remove a duplicated line and silently moved 2,338 emails onto the fallback
+ * path — two athletes were carrying a copy of the old text, the equality
+ * broke, and nothing said so.
  *
- * The composer says so on screen rather than leaving the operator to wonder
- * why every draft looks the same shape; unpicking it is one edit, back to the
- * default template.
+ * So the rule is now the simplest one that cannot rot: a saved template means
+ * an operator deliberately wrote one, and no saved template means the
+ * structured composer. Nothing compares strings, and editing the default can
+ * no longer reclassify anybody.
+ *
+ * That only holds because the athlete form stopped seeding the field with a
+ * copy of the default (`src/components/PlayerFormSteps.jsx`). While it did,
+ * every athlete created through the UI carried a template nobody wrote, and
+ * "has a saved template" meant nothing at all.
+ *
+ * Clearing a template is not destructive: `npm run archive-template` moves it
+ * to `email_template_archived` with a timestamp and puts it back on request.
  */
-export function canComposeStructured(player, defaultTemplate = DEFAULT_EMAIL_TEMPLATE) {
-  const saved = String(player?.email_template ?? '');
-  return !saved.trim() || saved === defaultTemplate;
+export function canComposeStructured(player) {
+  return !String(player?.email_template ?? '').trim();
 }
 
 export const BODY_SOURCE = Object.freeze({

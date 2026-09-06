@@ -19,7 +19,7 @@ import { DIVISIONS } from '@shared/divisions.js';
 // band the model has no ceiling for.
 import { BUDGET_BANDS } from '@shared/matching/constants.js';
 import { positionLabel } from '@shared/positions.js';
-import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE } from '@/lib/emailTemplate';
+import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT } from '@/lib/emailTemplate';
 import { cn } from '@/lib/utils';
 import { entities } from '@/api/client';
 
@@ -89,7 +89,17 @@ function defaultsFrom(initialData) {
     academic_minimum: initialData?.academic_minimum ?? 'Not Important',
     additional_notes: initialData?.additional_notes || '',
     email_subject: initialData?.email_subject || DEFAULT_EMAIL_SUBJECT,
-    email_template: initialData?.email_template || DEFAULT_EMAIL_TEMPLATE,
+    /**
+     * Empty unless this athlete already HAS a template.
+     *
+     * It used to seed a full copy of DEFAULT_EMAIL_TEMPLATE, so every athlete
+     * created through this form carried a template nobody had written — and
+     * `canComposeStructured` then had to guess intent by comparing that copy
+     * to the current constant. Editing the constant broke the comparison and
+     * moved athletes onto the fallback composer silently (J4). An empty field
+     * means "no override", which is what it should always have meant.
+     */
+    email_template: initialData?.email_template || '',
   };
 }
 
@@ -192,8 +202,16 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
     setData((d) => ({ ...d, email_template: `${d.email_template}${text}` }));
   }
 
+  /**
+   * Reset means "no override", not "a copy of the default".
+   *
+   * It used to paste DEFAULT_EMAIL_TEMPLATE into the field, which under the
+   * presence-based rule would CREATE an override instead of removing one —
+   * the opposite of what the button says. Clearing it hands the athlete back
+   * to the structured composer, which is what the default is.
+   */
   function resetTemplate() {
-    setData((d) => ({ ...d, email_subject: DEFAULT_EMAIL_SUBJECT, email_template: DEFAULT_EMAIL_TEMPLATE }));
+    setData((d) => ({ ...d, email_subject: DEFAULT_EMAIL_SUBJECT, email_template: '' }));
   }
 
   return (
@@ -470,7 +488,15 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
               </Button>
             </div>
             <Input value={data.email_subject} onChange={(e) => set('email_subject')(e.target.value)} placeholder="Subject" />
-            <Textarea rows={10} value={data.email_template} onChange={(e) => set('email_template')(e.target.value)} className="font-mono text-xs" />
+            <Textarea
+              rows={10}
+              value={data.email_template}
+              onChange={(e) => set('email_template')(e.target.value)}
+              placeholder={'Leave empty to use the structured composer, which builds the email from '
+                + 'the evidence found for each programme.\n\nWriting anything here overrides it for '
+                + 'every programme this athlete is written to.'}
+              className="font-mono text-xs"
+            />
             <div className="flex flex-wrap gap-1.5">
               {TEMPLATE_VARIABLES.map((v) => (
                 <button

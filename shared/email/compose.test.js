@@ -69,12 +69,16 @@ const college = { name: 'Example University', division: 'NCAA D1', notable_major
  */
 describe('the block library and the frozen legacy template', () => {
   it('keeps the legacy template on the tokens it has always used', () => {
-    // The exact string both pilot athletes carry in `players.email_template`.
-    // If this fails, `canComposeStructured` has stopped recognising their
-    // saved template and every draft has quietly reverted to the old shape.
+    /**
+     * Both pilot athletes used to carry this exact string in
+     * `players.email_template`, and `canComposeStructured` recognised it by
+     * comparison. J5 ended that: a saved template is now an override whatever
+     * it says, the two copies were archived, and the constant is a scaffold
+     * for the editor rather than the authority over composition.
+     */
     expect(DEFAULT_EMAIL_TEMPLATE).toContain('{{#if has_evidence}}');
     expect(DEFAULT_EMAIL_TEMPLATE).toContain('{{evidence_paragraph}}');
-    expect(canComposeStructured({ email_template: DEFAULT_EMAIL_TEMPLATE })).toBe(true);
+    expect(canComposeStructured({ email_template: DEFAULT_EMAIL_TEMPLATE })).toBe(false);
   });
 
   it('has rewritten the blocks away from it', () => {
@@ -241,10 +245,11 @@ describe('placement into blocks', () => {
 });
 
 describe('which route composes the body', () => {
-  it('assembles from the structure when the template is the default', () => {
-    expect(canComposeStructured({ ...player, email_template: DEFAULT_EMAIL_TEMPLATE })).toBe(true);
+  it('assembles from the structure when there is no saved template', () => {
+    // Presence, not content — see src/lib/compositionAuthority.test.js.
     expect(canComposeStructured({ ...player, email_template: null })).toBe(true);
     expect(canComposeStructured({ ...player, email_template: '   ' })).toBe(true);
+    expect(canComposeStructured({ ...player, email_template: DEFAULT_EMAIL_TEMPLATE })).toBe(false);
   });
 
   it('leaves a customised template alone', () => {
