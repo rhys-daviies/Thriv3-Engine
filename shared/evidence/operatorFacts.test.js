@@ -278,7 +278,9 @@ describe('roster facts support one grouped story', () => {
   it('structures the remaining roster kinds', () => {
     expect(operatorFactsFor(mk('POSITION_GROUP_SCARCITY', {
       data: { position, count: 3, classifiedSquad: 24, share: 0.125 },
-    })).facts).toEqual({ position, count: 3, squadSize: 24, share: 0.125 });
+    // H9: `classifiedSquad`, under its own name. It crossed as `squadSize`,
+    // and the card said "in a squad of 24" about programmes carrying more.
+    })).facts).toEqual({ position, count: 3, classifiedSquad: 24, share: 0.125 });
 
     expect(operatorFactsFor(mk('RETURNING_POSITION_DEPTH', {
       data: { position, returning: 2, groupSize: 9, classYear: 2027, unknownEligibility: 1 },

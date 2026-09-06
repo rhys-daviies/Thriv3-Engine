@@ -115,9 +115,16 @@ const COPY = ({
     conclusion: (f) => (n(f.count) && f.position
       ? `Thin at ${positionNoun(f.position)}`
       : null),
-    detail: (f) => (n(f.count) && n(f.squadSize)
-      ? `${f.count} ${noun(f.position, f.count)} in a squad of ${f.squadSize}`
-        + `${pct(f.share) ? ` (${pct(f.share)})` : ''}.`
+    /**
+     * "in a squad of N" became "of N players with a position on file", because
+     * N is the classified squad and not the squad. The share is measured
+     * against the classified group deliberately — a group cannot be thin
+     * relative to players whose position was never read — so the denominator
+     * is right and only the noun was wrong.
+     */
+    detail: (f) => (n(f.count) && n(f.classifiedSquad)
+      ? `${f.count} ${noun(f.position, f.count)} of ${f.classifiedSquad} players `
+        + `with a position on file${pct(f.share) ? ` (${pct(f.share)})` : ''}.`
       : null),
   },
 

@@ -125,7 +125,18 @@ const EXTRACTORS = Object.freeze({
   POSITION_GROUP_SCARCITY: (e) => ({
     position: e.data.position,
     count: e.data.count,
-    squadSize: e.data.classifiedSquad,
+    /**
+     * PLAYERS WHOSE POSITION WE COULD READ, and named as that.
+     *
+     * It crossed the wire as `squadSize` until H9, which is a different
+     * quantity: the generator divides by the CLASSIFIED squad on purpose — a
+     * group cannot be called thin relative to players whose position was never
+     * parsed — but the operator card then said "3 defenders in a squad of 23"
+     * about a programme carrying 32. On 47 of 228 live claims the number under
+     * that label was not the squad size, and at Mobile it was short by
+     * eighteen. The maths was right and the word was wrong.
+     */
+    classifiedSquad: e.data.classifiedSquad,
     share: e.data.share,
   }),
   RETURNING_POSITION_DEPTH: (e) => ({
