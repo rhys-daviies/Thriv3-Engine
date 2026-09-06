@@ -222,7 +222,16 @@ export function provenanceRows(item) {
   if (q.source) {
     add('Source', SOURCE_LABEL[q.source] ?? `Unrecognised source (${q.source})`);
   }
-  // `sourceUrl` is null on every kind. No link is offered, and none is implied.
+  /**
+   * NO LINK, AND NONE IMPLIED. `sourceUrl` is null on every one of 10,206
+   * live objects, so there is nothing to render — and this is the right
+   * behaviour rather than a gap waiting to be filled. H11 measured both
+   * reasons: nine kinds rest on several seasons and no single page shows
+   * what they claim, and of the 4,038 roster pages that do exist, 943 are on
+   * a host unverified for that school and one points at a different school
+   * altogether. A "View source" that lands on the wrong programme would cost
+   * more trust than the missing link does.
+   */
 
   return rows;
 }

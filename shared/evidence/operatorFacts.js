@@ -403,9 +403,9 @@ export function qualificationFor(evidence) {
       : null,
     season: evidence.season ?? null,
     source: evidence.source,
-    // Declared in the contract and null on every kind today: the aggregates
-    // span many rows and seasons, so there is rarely one URL to name. Carried
-    // so a surface can tell "no link" from "field absent".
+    // Declared in the contract and null on every one of 10,206 live objects.
+    // Carried so a surface can tell "no link" from "field absent"; see
+    // `defineEvidence` for what H11 measured about why it is empty.
     sourceUrl: evidence.sourceUrl ?? null,
     window: evidence.describes
       ? {

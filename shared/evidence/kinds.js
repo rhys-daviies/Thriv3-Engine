@@ -1196,10 +1196,29 @@ export function defineEvidence(kind, {
     data: Object.freeze({ ...data }),
     season,
     source,
-    // Nothing populates this yet — the roster tables carry source_roster_url
-    // per row but the aggregates here span many rows and several seasons, so
-    // there is rarely one URL to name. Carried in the shape from the start so
-    // adding it later is a generator change rather than a schema change.
+    /**
+     * A page that shows what this claim says. Null on all 10,206 live objects.
+     *
+     * NOT FOR WANT OF A URL. `roster_players` carries `source_roster_url` on
+     * 99.6% of 276,745 rows — one real athletics-site roster page per
+     * programme-season, 4,038 of them for men's soccer. H11 measured what
+     * stopped it being wired, and it is two different things:
+     *
+     *   THE AGGREGATES. Nine of the twenty-six kinds rest on more than one
+     *   season, and for those one URL cannot show what the sentence says. A
+     *   2022 roster page does not prove "two have come through since 2022";
+     *   linking it would offer verification the link cannot give.
+     *
+     *   THE DATA, for the rest. 943 of 4,038 roster URLs sit on a host the
+     *   athletics-domain registry does not verify for that school, 30 point at
+     *   a player bio rather than a roster, and at least one — Stonehill 2025 —
+     *   points at a different school's site entirely. A link that lands on the
+     *   wrong programme is worse than no link.
+     *
+     * So it stays null, and `evidenceProvenance` offers no link and implies
+     * none. The eight single-season CURRENT kinds are where a URL could
+     * honestly be populated once the hosts are verified; see the H11 audit.
+     */
     sourceUrl,
     /**
      * The per-surface licence, and the ONLY thing that decides where a claim
