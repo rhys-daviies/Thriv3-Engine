@@ -4,10 +4,11 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import {
-  UPLOADS_DIR, MATCHING_MODEL_SIX_CRITERION, MATCHING_MODEL_UNKNOWN, MAX_RANK,
+  MATCHING_MODEL_SIX_CRITERION, MATCHING_MODEL_UNKNOWN, MAX_RANK,
   createCampaign, resolveAnalysisPath, tierForRank,
   getCampaign, listCampaignsForAthlete, listProgrammeCampaigns,
 } from './campaigns.js';
+import { UPLOADS_DIR } from './uploadPath.js';
 
 /**
  * A3 — the moment a mutable pointer becomes a durable record.
@@ -605,14 +606,22 @@ describe('the stored pointer is untrusted input', () => {
    * `server/index.js` is the only other place the upload store is named. If
    * the two ever disagree, creation reads from a directory nothing writes to.
    */
-  it('resolves the same upload store the upload route writes to', async () => {
-    const fsp = await import('node:fs');
-    const src = fsp.readFileSync(new URL('../index.js', import.meta.url), 'utf8');
-    expect(src).toContain("path.resolve(__dirname, 'uploads')");
-    // Under test the override is in force; without it, the default is
-    // server/uploads — the same directory that expression names.
+  it('resolves the same upload store the upload route writes to', () => {
+    /**
+     * There is ONE declaration of the store, in server/lib/uploadPath.js, and
+     * this asserts the server has not grown a second: two copies of a security
+     * boundary are how they come to disagree, and the route writing somewhere
+     * the reader does not look is a silent failure either way.
+     */
+    const src = fs.readFileSync(new URL('../index.js', import.meta.url), 'utf8');
+    expect(src).toContain("from './lib/uploadPath.js'");
+    expect(src).not.toMatch(/uploadsDir\s*=/);
+    expect(src).toContain('express.static(UPLOADS_DIR)');
+
+    // Under test the override is in force; without it the default is
+    // server/uploads, resolved from this module's own location.
     expect(process.env.THRIV3_UPLOADS_DIR).toBeTruthy();
-    expect(UPLOADS_DIR).toBe(process.env.THRIV3_UPLOADS_DIR);
+    expect(UPLOADS_DIR).toBe(path.resolve(process.env.THRIV3_UPLOADS_DIR));
   });
 });
 

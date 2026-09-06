@@ -41,10 +41,10 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import { utcNow } from './time.js';
+import { UPLOADS_DIR, UPLOAD_URL_PREFIX } from './uploadPath.js';
 
 export const CAMPAIGN_STATES = Object.freeze(['draft', 'active', 'closed']);
 export const PROGRAMME_CAMPAIGN_STATES = Object.freeze(['queued', 'active', 'stopped', 'completed']);
@@ -458,21 +458,15 @@ export function restoreAutoTier(id, { at = utcNow() } = {}) {
 // ---------------------------------------------------------------------------
 
 /**
- * WHERE UPLOADED ANALYSES LIVE.
+ * WHERE UPLOADED ANALYSES LIVE — the one declaration, shared with the route
+ * that writes them and the static mount that serves them.
  *
- * Declared here rather than imported because the only other declaration is in
- * server/index.js, which starts an Express app on import. The two must agree,
- * and a test asserts they do rather than trusting this comment.
- *
- * THRIV3_UPLOADS_DIR points the test suite at a throwaway directory, the same
- * arrangement THRIV3_BUILD_DIR makes for generated pages: without it, tests
- * writing fixture analyses would leave them in the store the product reads.
+ * It used to be declared here as well as in server/index.js, which is how two
+ * copies of a security boundary come to disagree. `server/lib/uploadPath.js`
+ * owns it now, along with the write-side containment rule; this module keeps
+ * its own, separate read-side guard below, because what we are willing to
+ * write and what we are willing to open are different questions.
  */
-export const UPLOADS_DIR = process.env.THRIV3_UPLOADS_DIR
-  || path.resolve(fileURLToPath(new URL('../uploads', import.meta.url)));
-
-/** The prefix `POST /api/uploads` puts on every `file_url` it hands back. */
-const UPLOAD_URL_PREFIX = '/uploads/';
 
 /**
  * A FINGERPRINT OF A STORED BLOB, deliberately not imported from

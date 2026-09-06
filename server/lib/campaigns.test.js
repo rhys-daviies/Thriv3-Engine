@@ -598,7 +598,7 @@ describe('the boundary this module is', () => {
     // creation must never be able to re-score anything.
     const imports = [...body.matchAll(/\bfrom\s+'([^']+)'/g)].map((m) => m[1]).sort();
     expect(imports).toEqual([
-      '../db/client.js', './time.js', 'node:crypto', 'node:fs', 'node:path', 'node:url',
+      '../db/client.js', './time.js', './uploadPath.js', 'node:crypto', 'node:fs', 'node:path',
     ]);
 
     // No scheduling and no network. The filesystem is reachable, but only

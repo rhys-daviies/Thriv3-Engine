@@ -1,11 +1,9 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import multer from 'multer';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { randomUUID } from 'node:crypto';
 
 import { Player } from './db/entities/player.js';
 import { College } from './db/entities/college.js';
@@ -24,6 +22,8 @@ import { csvAgentChat } from './routes/csvAgent.js';
 import { coachingImportPreview } from './routes/coachingImportPreview.js';
 import { coachingImportApply } from './routes/coachingImportApply.js';
 import { trackRouter } from './routes/track.js';
+import { uploadsRouter } from './routes/uploads.js';
+import { UPLOADS_DIR } from './lib/uploadPath.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
 import { emailStatusMap } from './lib/coaches.js';
@@ -40,8 +40,10 @@ import { renderProgramReport } from './lib/philosophyReport.js';
 import { poolStatus, invalidatePoolBenchmarks, poolBenchmarks } from './lib/philosophyQueries.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const uploadsDir = path.resolve(__dirname, 'uploads');
-fs.mkdirSync(uploadsDir, { recursive: true });
+// The upload store is declared once, in server/lib/uploadPath.js, so the
+// route that writes it, the mount that serves it and the campaign snapshot
+// reader that opens it cannot drift apart.
+fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 const app = express();
 app.use(cors());
@@ -52,7 +54,7 @@ app.use(cors());
 app.use('/api', trackRouter);
 
 app.use(express.json({ limit: '10mb' }));
-app.use('/uploads', express.static(uploadsDir));
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 const ENTITIES = {
   players: Player,
@@ -295,15 +297,11 @@ app.post('/api/functions/:name', async (req, res) => {
 });
 
 // ---- Uploads (UploadFile integration replacement) ----
-
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
-
-app.post('/api/uploads', upload.single('file'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file provided' });
-  const filename = `${randomUUID()}-${req.file.originalname}`;
-  fs.writeFileSync(path.join(uploadsDir, filename), req.file.buffer);
-  res.json({ file_url: `/uploads/${filename}` });
-});
+//
+// Mounted here rather than beside trackRouter so the middleware order is
+// unchanged: this route ran after express.json() before it was extracted, and
+// multer parses the multipart body itself either way.
+app.use('/api', uploadsRouter);
 
 // ---- CSV specialist chat agent ----
 
