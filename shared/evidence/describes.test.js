@@ -54,13 +54,19 @@ function ctxWith(extra = []) {
 }
 
 describe('HISTORICAL_SAME_COUNTRY window', () => {
-  it('names every season searched, not only the seasons with a compatriot', () => {
+  it('names every measured season searched, not only the seasons with a compatriot', () => {
     const ev = historicalSameCountry(kiwi, ctxWith());
-    // The Kiwi appears in 2022, 2023 and 2026. The SEARCH covered 2022, 2023,
-    // 2025 and 2026 — and reporting only the hits would describe a narrower
-    // look than we actually took.
-    expect(ev.describes.seasons).toEqual(['2022', '2023', '2025', '2026']);
-    expect(ev.data.seasons).toEqual(['2022', '2023', '2026']);
+    /**
+     * The Kiwi appears in 2022, 2023 and 2026. The SEARCH covers the measured
+     * window — 2022, 2023 and 2025 — and reporting only the hits would
+     * describe a narrower look than we took.
+     *
+     * H10 removed 2026 from both. This kind no longer reads the current
+     * snapshot at all, so the 2026 appearance is neither a hit nor part of the
+     * window; the same row is stated by CURRENT_SAME_COUNTRY instead.
+     */
+    expect(ev.describes.seasons).toEqual(['2022', '2023', '2025']);
+    expect(ev.data.seasons).toEqual(['2022', '2023']);
   });
 
   it('counts distinct humans, not roster rows', () => {

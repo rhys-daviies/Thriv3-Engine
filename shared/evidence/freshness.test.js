@@ -130,7 +130,11 @@ describe('end to end, through selectEvidence', () => {
     // The historical claim names its own window and survives, which is the
     // whole point of separating the two.
     expect(kinds).toContain('HISTORICAL_SAME_COUNTRY');
-    expect(r.paragraph).toContain('since 2023');
+    // "in 2023", not "since 2023": the compatriot's 2026 row left the
+    // historical population in H10, so the span is one measured season and the
+    // copy says so. More precise, from the same rows.
+    expect(r.paragraph).toContain('in 2023');
+    expect(r.paragraph).not.toContain('2026');
   });
 
   it('never renders a present-tense sentence from a stale roster', () => {

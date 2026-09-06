@@ -95,6 +95,23 @@ const seasonSpan = (rows) => {
 const countryOf = (r) => String(r.country || '').trim();
 
 /**
+ * The rows of a set that fall in the MEASURED seasons.
+ *
+ * The temporal boundary, in one place. `ctx.history` is the 2022-2025 window
+ * and `ctx.squad` is the 2026 snapshot; a HISTORICAL claim is about seasons
+ * that have been played, so it reads the first and not the second.
+ *
+ * Identity, not season arithmetic: `ctx.allRows` is literally
+ * `[...history, ...squad]`, so the same row objects are in both and a Set
+ * settles membership exactly. A season comparison here would be a second
+ * definition of the window, and the two would eventually disagree.
+ */
+function measured(ctx, rows) {
+  const window = new Set(ctx.history ?? []);
+  return rows.filter((r) => window.has(r));
+}
+
+/**
  * Drops roster rows that are the athlete themselves.
  *
  * Found on real data rather than reasoned about: drafting for Rhys Davies, a
@@ -239,16 +256,23 @@ export function historicalSameCountry(athlete, ctx) {
   const country = athlete?.country;
   if (!country || !ctx.hasAnyRoster) return null;
 
-  const rows = withoutAthlete(ctx.allRows.filter((r) => countryOf(r) === country), athlete);
+  /**
+   * MEASURED SEASONS ONLY. The whole claim is built from these rows.
+   *
+   * It used to be built from `allRows` — 2022 through the 2026 snapshot —
+   * behind an EXISTENCE check: if any one compatriot had a measured row, every
+   * compatriot counted, including players whose only appearance is a roster
+   * nobody has played yet. On 96 of 929 live claims that inflated the count,
+   * and at Hofstra it said five where two had actually been through.
+   *
+   * The check was right about the failure and wrong about the remedy: it
+   * filtered the CLAIM when it needed to filter the POPULATION. A compatriot
+   * on the 2026 roster and no earlier one is a fact about this squad, and
+   * CURRENT_SAME_COUNTRY states it — from the same row, in the present tense,
+   * where it is true.
+   */
+  const rows = measured(ctx, withoutAthlete(ctx.allRows.filter((r) => countryOf(r) === country), athlete));
   if (!rows.length) return null;
-
-  // A compatriot who appears ONLY in the current squad is not history, and
-  // saying so reads as nonsense. Adelphi's single New Zealander is on the 2026
-  // roster and no earlier one, and this produced "you've had one New Zealander
-  // come through the programme since 2026" — a past-tense claim about a season
-  // that has not been played. That programme's honest evidence is
-  // CURRENT_SAME_COUNTRY, which fires on exactly the same row.
-  if (!rows.some((r) => ctx.history.includes(r))) return null;
 
   const players = distinctPlayers(rows);
   if (!players.length) return null;
@@ -267,8 +291,12 @@ export function historicalSameCountry(athlete, ctx) {
     // question: "two came through" is interpretable only against how many
     // intakes we could look at. The hit seasons alone would understate the
     // search and read as a narrower window than we actually examined.
+    //
+    // The measured window, since H10 — this kind no longer searches the 2026
+    // snapshot, so saying it did would overstate the window in the other
+    // direction. The operator panel prints this as "Measured across …".
     describes: windowOf({
-      seasons: rosterSeasons(ctx.allRows),
+      seasons: rosterSeasons(ctx.history),
       n: players.length,
       cohort: { country },
     }),
@@ -314,11 +342,12 @@ export function historicalSameRegion(athlete, ctx) {
   const peers = REGIONS[region].filter((c) => c !== country);
   if (!peers.length) return null;
 
-  const rows = withoutAthlete(ctx.allRows.filter((r) => peers.includes(countryOf(r))), athlete);
+  // Same rule as same-country history, and for the same reason: a regional peer
+  // who is only on the current roster is a fact about this squad, not about how
+  // they recruit. `countries` below is drawn from these rows too, so the claim
+  // cannot name a country whose only presence is the current snapshot.
+  const rows = measured(ctx, withoutAthlete(ctx.allRows.filter((r) => peers.includes(countryOf(r))), athlete));
   if (!rows.length) return null;
-  // Same rule as same-country history: a regional peer who is only on the
-  // current roster is a fact about this squad, not about how they recruit.
-  if (!rows.some((r) => ctx.history.includes(r))) return null;
 
   const players = distinctPlayers(rows);
   const countries = [...new Set(rows.map(countryOf))].sort();
@@ -334,7 +363,7 @@ export function historicalSameRegion(athlete, ctx) {
     // "the region", which would silently include the compatriots this kind
     // deliberately hands to HISTORICAL_SAME_COUNTRY.
     describes: windowOf({
-      seasons: rosterSeasons(ctx.allRows),
+      seasons: rosterSeasons(ctx.history),
       n: players.length,
       cohort: { region, excludingCountry: country },
     }),

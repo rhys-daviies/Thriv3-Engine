@@ -210,7 +210,16 @@ describeReports('outreachQA', () => {
   });
 
   it('matches its recorded output', () => {
-    expect(sha(result.out)).toBe('53612fc62fc6d5c0');
+    /**
+     * Re-pinned in H10, for eight lines. A New Zealander at Utah Valley
+     * appears in 2025 and on the 2026 roster; the historical claim counted the
+     * snapshot, so its span read 2025-2026 and the sentence said "since 2025".
+     * The measured span is one season, so it now says "in 2025" — the same
+     * player, the same fact, one season more precisely.
+     *
+     * The other two report fixtures did not move.
+     */
+    expect(sha(result.out)).toBe('2bd8ab0becbc165e');
   });
 });
 
