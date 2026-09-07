@@ -4,6 +4,14 @@ import { utcNow } from './time.js';
 import { buildSendSnapshot } from '../../shared/evidence/sendSnapshot.js';
 import { LEGACY_POLICY_VERSION } from '../../shared/evidence/outreachPolicy.js';
 import { verifiedProgrammeCampaignId } from './campaignAttribution.js';
+import {
+  MESSAGE_STATE, ACCEPTED_SOURCE, OPEN_STATES, LEGAL_TRANSITIONS, canTransition,
+  isMessageState, isSendEventType,
+} from '../../shared/outreachMessageState.js';
+
+/** Rows leave this module with their payload parsed, never as stored JSON. */
+const safeParse = (s) => { try { return s ? JSON.parse(s) : null; } catch { return null; } };
+const parse = (row) => (row ? { ...row, payload: safeParse(row.payload) } : null);
 
 /**
  * PERSISTING ONE OUTBOUND EMAIL.
@@ -39,6 +47,7 @@ const insertSend = db.prepare(`
   INSERT INTO outreach_send (
     id, outreach_id, sequence, drafted_at, sent_at,
     athlete_id, coach_id, college_name, sport, programme_campaign_id, policy_version,
+    state, accepted_source,
     structure, structure_source, body_source, template_variant,
     has_personalisation, primary_kind, primary_role, hook_kind,
     rendered_kinds, rendered_roles, rendered_count,
@@ -46,6 +55,7 @@ const insertSend = db.prepare(`
   ) VALUES (
     @id, @outreach_id, @sequence, @drafted_at, @sent_at,
     @athlete_id, @coach_id, @college_name, @sport, @programme_campaign_id, @policy_version,
+    @state, @accepted_source,
     @structure, @structure_source, @body_source, @template_variant,
     @has_personalisation, @primary_kind, @primary_role, @hook_kind,
     @rendered_kinds, @rendered_roles, @rendered_count,
@@ -53,10 +63,25 @@ const insertSend = db.prepare(`
   )
 `);
 
-/** The unsent draft for this relationship, if one is open. At most one. */
+/**
+ * The OPEN message for this relationship, if there is one. At most one, and
+ * since B2 that is a database guarantee rather than a convention — see
+ * `idx_outreach_send_one_open`.
+ *
+ * Reads `state`, not `sent_at`. They agree today, and the state is what will
+ * still be right when a scheduler can hold a message QUEUED with no timestamp
+ * of any kind on it.
+ */
+const OPEN_LIST = OPEN_STATES.map((s) => `'${s}'`).join(', ');
 const pendingFor = db.prepare(
-  'SELECT * FROM outreach_send WHERE outreach_id = ? AND sent_at IS NULL ORDER BY sequence DESC LIMIT 1',
+  `SELECT * FROM outreach_send WHERE outreach_id = ? AND state IN (${OPEN_LIST})
+   ORDER BY sequence DESC LIMIT 1`,
 );
+
+/** The open message for a relationship, or null. Message-level truth. */
+export function openSendFor(outreachId) {
+  return parse(pendingFor.get(outreachId));
+}
 
 /**
  * The next sequence number for this relationship.
@@ -67,7 +92,7 @@ const pendingFor = db.prepare(
  */
 export function nextSequence(outreachId) {
   const { n } = db.prepare(
-    'SELECT COUNT(*) AS n FROM outreach_send WHERE outreach_id = ? AND sent_at IS NOT NULL',
+    "SELECT COUNT(*) AS n FROM outreach_send WHERE outreach_id = ? AND state = 'ACCEPTED'",
   ).get(outreachId);
   return n + 1;
 }
@@ -113,6 +138,10 @@ export function recordDraft({
     college_name: collegeName,
     sport,
     programme_campaign_id: verifiedCampaign,
+    // A body exists and may still be rewritten in place. Nothing has been
+    // handed to a transport by the time this is written.
+    state: MESSAGE_STATE.DRAFT,
+    accepted_source: null,
     policy_version: snapshot.policy_version,
     structure: snapshot.structure,
     structure_source: snapshot.structure_source,
@@ -148,7 +177,11 @@ export function recordDraft({
         -- campaign replaces the pending message, and the row must not keep the
         -- previous campaign's attribution while carrying the new one's text.
         programme_campaign_id = @programme_campaign_id
-      WHERE id = @id AND sent_at IS NULL
+      -- The guard is the STATE. An accepted message is history and no re-draft
+      -- may reach it. The old guard on sent_at said the same thing, until a
+      -- message could be QUEUED or FAILED without a timestamp of any kind.
+      -- (No backticks in here: this SQL is a JS template literal.)
+      WHERE id = @id AND state = 'DRAFT'
     `).run(row);
   } else {
     insertSend.run(row);
@@ -156,28 +189,194 @@ export function recordDraft({
   return { id: row.id, sequence: row.sequence };
 }
 
+/* -------------------------------------------------------------------------- */
+/* Message state — the one place it changes                                    */
+/* -------------------------------------------------------------------------- */
+
+function fail(code, message) {
+  const err = new Error(message);
+  err.code = code;
+  return err;
+}
+
+const SEND_BY_ID = db.prepare('SELECT * FROM outreach_send WHERE id = ?');
+
 /**
- * Confirm the open draft for this relationship as sent.
+ * THE ONLY WRITER OF `outreach_send.state`.
  *
- * Idempotent and one-way: a confirmed row is never re-stamped, so a second
- * confirmation cannot move a send forward out of an engagement window. Returns
- * null when there was no open draft — which is the honest answer for a
- * relationship confirmed before this table existed.
+ * Scattering `UPDATE outreach_send SET state = ...` across routes and scripts
+ * is how a transition table stops describing anything, so there is one door and
+ * the graph in shared/outreachMessageState.js is the rule behind it.
+ *
+ * SAME-STATE IS A NO-OP THAT WRITES NOTHING, following `suppress()`,
+ * `createOutreach` and `markOutreachSent` — and here it matters more than
+ * anywhere else: re-confirming a batch must not move the timestamp that dates
+ * an acceptance out of an engagement window. Returns `changed: false`.
+ *
+ * IT SAYS NOTHING ABOUT DELIVERY. `ACCEPTED` records that a transport or a
+ * person told us the message was accepted for sending. Whether it reached an
+ * inbox is not knowable here and is not claimed anywhere.
  */
-export function confirmSend(outreachId, at = utcNow()) {
+export function transitionSend(sendId, nextState, { acceptedSource = null, at = utcNow() } = {}) {
+  if (!isMessageState(nextState)) {
+    throw fail('INVALID_MESSAGE_STATE', `Unknown message state "${nextState}"`);
+  }
+  const row = SEND_BY_ID.get(sendId);
+  if (!row) throw fail('SEND_NOT_FOUND', `No outreach_send ${sendId}`);
+
+  if (row.state === nextState) return { ...parse(row), changed: false };
+
+  if (!canTransition(row.state, nextState)) {
+    throw fail(
+      'ILLEGAL_MESSAGE_TRANSITION',
+      `A message cannot go from ${row.state} to ${nextState}`
+      + (LEGAL_TRANSITIONS[row.state]?.length
+        ? ` (allowed: ${LEGAL_TRANSITIONS[row.state].join(', ')})`
+        : ` — ${row.state} is terminal`),
+    );
+  }
+
+  if (nextState === MESSAGE_STATE.ACCEPTED) {
+    if (!Object.hasOwn(ACCEPTED_SOURCE, String(acceptedSource))) {
+      throw fail(
+        'ACCEPTED_SOURCE_REQUIRED',
+        'Accepting a message needs to say how we know — one of: '
+        + `${Object.keys(ACCEPTED_SOURCE).join(', ')}. An acceptance whose evidence is `
+        + 'unrecorded cannot be told apart from a provider-confirmed one later.',
+      );
+    }
+    /**
+     * `sent_at` is stamped here for compatibility and nothing else. Every
+     * denominator in this system reads it — evidence performance, reply rates,
+     * the per-inbox cap — and B2 does not move them; it makes `state` the
+     * authority beside them.
+     */
+    db.prepare(`
+      UPDATE outreach_send SET state = ?, accepted_source = ?, sent_at = COALESCE(sent_at, ?)
+      WHERE id = ? AND state != 'ACCEPTED'
+    `).run(nextState, acceptedSource, at, sendId);
+  } else {
+    db.prepare('UPDATE outreach_send SET state = ? WHERE id = ?').run(nextState, sendId);
+  }
+
+  return { ...parse(SEND_BY_ID.get(sendId)), changed: true };
+}
+
+/**
+ * ACCEPT ONE SPECIFIC MESSAGE. The message-scoped operation B1 found missing.
+ *
+ * Confirmation used to be reachable only through the relationship, and
+ * `confirmSends.pendingDrafts` filtered on `outreach.sent_at IS NULL` — so once
+ * a first message was confirmed the relationship looked settled for ever and a
+ * follow-up could never be confirmed by anything. That defect is why this takes
+ * a SEND id.
+ *
+ * Idempotent rather than an error: a batch re-confirmed by a cautious operator
+ * is a normal thing to do, and the first acceptance keeps its timestamp and its
+ * source. Returns `changed: false`.
+ */
+export function acceptSend(sendId, { source = ACCEPTED_SOURCE.OPERATOR_ASSERTED, at = utcNow() } = {}) {
+  return transitionSend(sendId, MESSAGE_STATE.ACCEPTED, { acceptedSource: source, at });
+}
+
+/**
+ * Accept whichever message is open on this relationship.
+ *
+ * Kept because two callers reach acceptance from a relationship — the Outlook
+ * send path, which has just drafted through it, and the batch confirmation
+ * tool. It is a CONVENIENCE over `acceptSend`, not a second authority: it
+ * resolves the open message by STATE and delegates. There is at most one, and
+ * since B2 that is a database guarantee.
+ *
+ * Returns null when nothing is open — the honest answer for a relationship
+ * drafted before `outreach_send` existed, of which there are 55 on file.
+ */
+export function confirmSend(outreachId, at = utcNow(), { source = ACCEPTED_SOURCE.OPERATOR_ASSERTED } = {}) {
   const open = pendingFor.get(outreachId);
   if (!open) return null;
-  db.prepare('UPDATE outreach_send SET sent_at = ? WHERE id = ? AND sent_at IS NULL')
-    .run(at, open.id);
-  return { id: open.id, sequence: open.sequence, sent_at: at };
+  const out = acceptSend(open.id, { source, at });
+  return { id: out.id, sequence: out.sequence, sent_at: out.sent_at, state: out.state };
+}
+
+/* -------------------------------------------------------------------------- */
+/* Observations — append-only, and empty in this build                         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Record something we LEARNED about a message.
+ *
+ * Not a state change. A bounce arriving next week does not un-accept a message
+ * we accepted, and a reply does not either — which is exactly why these are
+ * rows in their own table rather than a column that the last writer wins.
+ *
+ * NOTHING IN THIS BUILD CALLS THIS WITH A BOUNCE, REPLY, COMPLAINT OR OPT_OUT.
+ * The vocabulary exists so ingestion has somewhere to land; producing one of
+ * those today would mean claiming an observation nobody made.
+ */
+export function appendSendEvent({
+  sendId, type, source, confidence = null, observedAt = null, payload = null, at = utcNow(),
+}) {
+  if (!isSendEventType(type)) {
+    throw fail('UNKNOWN_SEND_EVENT_TYPE',
+      `Unknown send event type "${type}". A new observation needs a name in `
+      + 'shared/outreachMessageState.js before it can be recorded.');
+  }
+  if (typeof source !== 'string' || !source.trim()) {
+    throw fail('SEND_EVENT_SOURCE_REQUIRED',
+      'An observation must say where it came from; an unattributed one cannot be weighed.');
+  }
+  if (!SEND_BY_ID.get(sendId)) throw fail('SEND_NOT_FOUND', `No outreach_send ${sendId}`);
+
+  let serialised = null;
+  if (payload !== null && payload !== undefined) {
+    try {
+      serialised = JSON.stringify(payload);
+      if (serialised === undefined) throw new Error('not serialisable');
+    } catch {
+      throw fail('SEND_EVENT_PAYLOAD_INVALID',
+        'An observation payload must be JSON-serialisable. Storing "[object Object]" '
+        + 'would make the observation unreadable exactly when somebody needed it.');
+    }
+  }
+
+  const row = {
+    id: randomUUID(),
+    outreach_send_id: sendId,
+    type,
+    source: source.trim(),
+    confidence,
+    // When it HAPPENED, defaulting to when we heard. The two differ for
+    // anything ingested later and a window keyed on the wrong one is wrong.
+    observed_at: observedAt ?? at,
+    created_at: at,
+    payload: serialised,
+  };
+  db.prepare(`
+    INSERT INTO outreach_send_event
+      (id, outreach_send_id, type, source, confidence, observed_at, created_at, payload)
+    VALUES (@id, @outreach_send_id, @type, @source, @confidence, @observed_at, @created_at, @payload)
+  `).run(row);
+  return { ...row, payload };
+}
+
+/**
+ * Everything observed about one message, oldest first.
+ *
+ * Ordered by `observed_at` then `id`, which is total: two observations sharing
+ * a timestamp still come back in a fixed order rather than whatever the page
+ * order happens to be.
+ */
+export function sendEvents(sendId) {
+  return db.prepare(`
+    SELECT * FROM outreach_send_event WHERE outreach_send_id = ?
+    ORDER BY observed_at, id
+  `).all(sendId).map((r) => ({ ...r, payload: safeParse(r.payload) }));
 }
 
 /* -------------------------------------------------------------------------- */
 /* The analytics read boundary                                                 */
 /* -------------------------------------------------------------------------- */
 
-const parse = (row) => (row ? { ...row, payload: safeParse(row.payload) } : null);
-const safeParse = (s) => { try { return s ? JSON.parse(s) : null; } catch { return null; } };
 
 /**
  * Confirmed sends, with the relationship they belong to.

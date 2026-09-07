@@ -2,11 +2,35 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import express from 'express';
 import fs from 'node:fs';
 import path from 'node:path';
-import { uploadsRouter } from './uploads.js';
-import {
+
+/**
+ * ITS OWN UPLOAD STORE, set before anything reads the variable.
+ *
+ * The census below asserts that nothing appeared in the directories ABOVE the
+ * store, and vitest runs test files in parallel workers that share one
+ * `THRIV3_UPLOADS_DIR` from the config. `campaignSnapshot.test.js` writes
+ * fixture analyses into that store and a deliberate escape target just above
+ * it, so with a shared directory this file's census failed roughly two runs in
+ * three — depending only on which worker got there first.
+ *
+ * The same arrangement `confirmSends.test.js` and `evidence.test.js` use for
+ * `RECRUITMATCH_DB`: set the environment, then import the modules that read it.
+ */
+/**
+ * NESTED THREE DEEP on purpose: the census below walks three levels ABOVE the
+ * store, so all three must belong to this file alone. One level of nesting was
+ * not enough — the grandparent was still the shared scratch directory, and a
+ * fixture written there by another worker still tripped it.
+ */
+process.env.THRIV3_UPLOADS_DIR = path.resolve(
+  process.cwd(), 'node_modules/.tmp/uploads-route-test/own/scratch/store',
+);
+
+const { uploadsRouter } = await import('./uploads.js');
+const {
   UPLOADS_DIR, UPLOAD_URL_PREFIX, safeUploadFilename, resolveUploadDestination,
-} from '../lib/uploadPath.js';
-import { resolveAnalysisPath } from '../lib/campaigns.js';
+} = await import('../lib/uploadPath.js');
+const { resolveAnalysisPath } = await import('../lib/campaigns.js');
 
 /**
  * A3.1 — the upload endpoint may not write outside its store.

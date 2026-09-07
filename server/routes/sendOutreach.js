@@ -7,6 +7,7 @@ import { isSendCapped, recentSendCount } from '../lib/sendCap.js';
 import { createOutreach, markOutreachDrafted, markOutreachSent } from '../lib/outreach.js';
 import { logEvidence } from '../lib/evidenceLog.js';
 import { recordDraft, confirmSend } from '../lib/outreachSend.js';
+import { ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
 import { evidenceFor } from '../lib/evidenceQueries.js';
 import { templateVariant } from '../../shared/evidence/templateVariant.js';
 import { BODY_SOURCE } from '../../src/lib/emailTemplate.js';
@@ -318,7 +319,21 @@ export async function sendOutreach({
             templateVariant: variant,
             renderedKinds,
           });
-          if (send) confirmSend(outreach.id);
+          /**
+           * The AppleScript issued Outlook's own Send and did not error, which
+           * is stronger evidence than an operator's later recollection and
+           * weaker than a provider API's answer. Recorded as what it is, so
+           * the day Gmail or Graph returns a real acceptance the two are
+           * distinguishable in the data.
+           *
+           * It still does not mean delivered. Nothing here observes a message
+           * leaving a mail server.
+           */
+          if (send) {
+            confirmSend(outreach.id, undefined, {
+              source: ACCEPTED_SOURCE.OUTLOOK_COMMAND_ASSERTED,
+            });
+          }
         } catch (err) {
           console.warn(`  send record failed for outreach ${outreach.id}: ${err.message}`);
         }

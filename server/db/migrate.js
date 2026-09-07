@@ -264,7 +264,67 @@ const OUTREACH_COLUMNS = [
  */
 const OUTREACH_SEND_COLUMNS = [
   ['programme_campaign_id', 'TEXT REFERENCES programme_campaigns(id) ON DELETE SET NULL'],
+
+  /**
+   * WHAT WE DID WITH THIS MESSAGE — the authoritative execution state.
+   *
+   * See shared/outreachMessageState.js for the vocabulary and the legal graph.
+   * It records only actions this system took or was told were taken, and never
+   * means delivered, inboxed, opened, replied or bounced. Those are learned
+   * afterwards from outside and live in `outreach_send_event`.
+   *
+   * `sent_at` and `drafted_at` stay exactly as they are, as compatibility
+   * timestamps — every denominator in the system reads them and a rename would
+   * be a large change to prove nothing. After this, `state` is the authority
+   * and `sent_at` is the date of the acceptance it records.
+   *
+   * No DEFAULT: a row that reached the database without a state is a bug worth
+   * failing on rather than one quietly called a draft. `recordDraft` sets it.
+   */
+  ['state', 'TEXT'],
+
+  /**
+   * HOW WE CAME TO BELIEVE IT WAS ACCEPTED, and the reason this is a column
+   * rather than an inference.
+   *
+   * An operator's recollection, an AppleScript command that did not error, and
+   * a provider API's own acceptance are three different strengths of evidence.
+   * They are indistinguishable in `sent_at`, which is why the 41 historical
+   * rows cannot be told apart from a future Gmail send without it.
+   *
+   * NULL until a message is ACCEPTED.
+   */
+  ['accepted_source', 'TEXT'],
 ];
+
+/**
+ * Every message gets the state it truthfully had, and not one it did not.
+ *
+ * THE 41 HISTORICAL ROWS WERE NOT OBSERVED BY ANY PROVIDER. They were either
+ * confirmed by a person through `npm run confirm-sends` or produced by a send
+ * path that recorded no provenance at all, and both are OPERATOR_ASSERTED —
+ * the weakest of the three sources, which is the honest reading. Calling them
+ * PROVIDER_ACCEPTED would invent an API call that never happened.
+ *
+ * NO SYNTHETIC EVENTS. `outreach_send_event` records observations, and there
+ * were none: nobody watched these messages leave. Writing 41 ACCEPTED events
+ * dated at the confirmation would manufacture a history of observations that
+ * do not exist, so the acceptance lives on the row as state plus source and
+ * the event table stays empty.
+ *
+ * Idempotent by construction: only rows with no state are touched, so a second
+ * boot changes nothing and a row whose state has since moved is never reset.
+ */
+function backfillSendState(db) {
+  db.prepare(`
+    UPDATE outreach_send SET state = 'ACCEPTED', accepted_source = 'OPERATOR_ASSERTED'
+    WHERE state IS NULL AND sent_at IS NOT NULL
+  `).run();
+  db.prepare(`
+    UPDATE outreach_send SET state = 'DRAFT'
+    WHERE state IS NULL AND sent_at IS NULL
+  `).run();
+}
 
 const COACH_COLUMNS = [
   ['email_status', "TEXT DEFAULT 'unknown'"],   // verified | inferred | generic | unknown
@@ -535,6 +595,29 @@ export function migrate(db) {
   addMissingColumns(db, 'outreach_send', OUTREACH_SEND_COLUMNS);
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_programme_campaign ON outreach(programme_campaign_id)');
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_send_programme_campaign ON outreach_send(programme_campaign_id)');
+  backfillSendState(db);
+  db.exec("CREATE INDEX IF NOT EXISTS idx_outreach_send_state ON outreach_send(state)");
+  /**
+   * ONE OPEN MESSAGE PER RELATIONSHIP, enforced rather than remembered.
+   *
+   * `recordDraft` has always replaced the pending row instead of adding a
+   * second, and until now that was a convention one writer maintained. The
+   * index covers every open state together, so it is not possible to hold a
+   * DRAFT and a QUEUED for the same relationship once a scheduler exists —
+   * which is the version of this rule that would otherwise be discovered too
+   * late.
+   *
+   * It is scoped to the RELATIONSHIP because that is the unit the current
+   * architecture has. When contact attempts exist, "one open message per
+   * attempt" may be the better scope; that is a later decision and this index
+   * does not prejudge it.
+   *
+   * Created after the backfill, never before: every row has NULL state until
+   * then, and NULL is not in the predicate.
+   */
+  db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_outreach_send_one_open
+             ON outreach_send(outreach_id)
+             WHERE state IN ('DRAFT', 'QUEUED', 'SENDING')`);
   addMissingColumns(db, 'outreach_evidence', OUTREACH_EVIDENCE_COLUMNS);
   // After the column exists, never before: schema.sql runs first and cannot
   // index a column this function is about to add.

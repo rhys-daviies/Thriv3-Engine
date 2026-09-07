@@ -832,3 +832,67 @@ CREATE INDEX IF NOT EXISTS idx_programme_campaigns_list
 -- The reverse question: which campaigns is this programme in.
 CREATE INDEX IF NOT EXISTS idx_programme_campaigns_programme
   ON programme_campaigns(college_name, sport);
+
+-- ===========================================================================
+-- WHAT WE LATER LEARNED ABOUT A MESSAGE. Append-only.
+--
+-- `outreach_send.state` is EXECUTION state — what Thriv3 did, or was told was
+-- done, and it is final the moment it happens. This table is the other half:
+-- facts that arrive AFTERWARDS, from outside, about a message already sent. A
+-- bounce, a reply, a complaint, an opt-out.
+--
+-- THEY ARE SEPARATE BECAUSE THEY DECAY DIFFERENTLY. Execution state is ours and
+-- settled. An observation may arrive days later, from a source of varying
+-- trustworthiness, and may be contradicted by a second one. Folding a bounce
+-- into `state` would overwrite the record of what we did with a record of what
+-- happened to it, and "did we send this" would stop being answerable.
+--
+-- APPEND-ONLY, enforced by the trigger below rather than by convention — the
+-- same guarantee `tracking_events` makes, for the same reason: an observation
+-- history that can be edited is not a history.
+--
+-- NOTHING WRITES A BOUNCE, REPLY OR COMPLAINT IN THIS BUILD. The vocabulary is
+-- declared in shared/outreachMessageState.js so the table has a stated shape
+-- from the start; a type existing is not permission to invent an observation.
+-- The only events this build can honestly produce are ones explaining an
+-- acceptance a provider actually reported, and no provider reports one yet.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS outreach_send_event (
+  id TEXT PRIMARY KEY,
+
+  -- The message this is about. No ON DELETE clause: nothing deletes a send,
+  -- and an observation orphaned from its message would be uninterpretable.
+  outreach_send_id TEXT NOT NULL REFERENCES outreach_send(id),
+
+  -- See SEND_EVENT_TYPE. Validated in code rather than by a CHECK constraint,
+  -- because the vocabulary grows when ingestion lands and a new observation
+  -- must not need a schema migration to be recordable.
+  type TEXT NOT NULL,
+
+  -- WHO SAYS SO. An operator's recollection, a transport command that did not
+  -- error, and a provider API's own answer are three different strengths of
+  -- evidence, and an analysis that pools them is measuring three things.
+  source TEXT NOT NULL,
+
+  -- How much to trust it, where the source cannot be certain. A bounce parsed
+  -- out of a mailer-daemon message is a guess with a good hit rate; a provider
+  -- webhook is not. NULL when the question does not arise.
+  confidence TEXT,
+
+  -- When the thing happened, as distinct from when we heard about it. A reply
+  -- observed on Tuesday may have been sent on Sunday, and a retention window
+  -- keyed on the wrong one is wrong by days.
+  observed_at TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+
+  payload TEXT                                  -- JSON, or null
+);
+
+CREATE INDEX IF NOT EXISTS idx_send_event_send ON outreach_send_event(outreach_send_id, observed_at, id);
+CREATE INDEX IF NOT EXISTS idx_send_event_type ON outreach_send_event(type, observed_at);
+
+CREATE TRIGGER IF NOT EXISTS trg_outreach_send_event_append_only
+BEFORE UPDATE ON outreach_send_event
+BEGIN
+  SELECT RAISE(ABORT, 'outreach_send_event is append-only');
+END;

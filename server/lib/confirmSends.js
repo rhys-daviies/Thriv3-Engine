@@ -23,7 +23,10 @@
 import db from '../db/client.js';
 import { utcNow } from './time.js';
 import { markOutreachSent } from './outreach.js';
-import { confirmSend } from './outreachSend.js';
+import { acceptSend } from './outreachSend.js';
+import { MESSAGE_STATE, OPEN_STATES, ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
+
+const OPEN_LIST = OPEN_STATES.map((s) => `'${s}'`).join(', ');
 
 /**
  * How long a gap splits one drafting run from the next.
@@ -46,7 +49,14 @@ const MINUTE = 60_000;
  */
 export function pendingDrafts({ athleteId = null } = {}) {
   return db.prepare(`
-    SELECT o.id, o.athlete_id, o.drafted_at, o.created_at,
+    SELECT o.id, o.athlete_id, o.created_at,
+           s.id           AS send_id,
+           s.sequence     AS sequence,
+           s.state        AS state,
+           -- The MESSAGE's draft time where there is a message, so a batch is
+           -- grouped by when its messages were written rather than by whenever
+           -- the relationship was last touched.
+           COALESCE(s.drafted_at, o.drafted_at) AS drafted_at,
            p.full_name AS athlete_name,
            c.full_name AS coach_name, c.email, c.school,
            e.structure, e.selected_kinds, e.evidence_count
@@ -54,11 +64,25 @@ export function pendingDrafts({ athleteId = null } = {}) {
     JOIN players p ON p.id = o.athlete_id
     JOIN coaches c ON c.id = o.coach_id
     LEFT JOIN outreach_evidence e ON e.outreach_id = o.id
-    WHERE o.sent_at IS NULL
-      AND o.drafted_at IS NOT NULL
-      AND o.revoked_at IS NULL
+    LEFT JOIN outreach_send s
+           ON s.outreach_id = o.id AND s.state IN (${OPEN_LIST})
+    WHERE o.revoked_at IS NULL
       AND (@athleteId IS NULL OR o.athlete_id = @athleteId)
-    ORDER BY o.drafted_at
+      AND (
+        -- A message is open. THE FIX: read per MESSAGE, so a follow-up appears
+        -- even though the relationship was confirmed months ago.
+        s.id IS NOT NULL
+        OR (
+          -- A relationship drafted before messages were recorded at all.
+          -- recordDraft only runs when evidence could be derived, so 55 rows
+          -- on file were drafted with no message record and would otherwise
+          -- become unconfirmable the moment this stopped reading outreach.
+          o.drafted_at IS NOT NULL
+          AND o.sent_at IS NULL
+          AND NOT EXISTS (SELECT 1 FROM outreach_send x WHERE x.outreach_id = o.id)
+        )
+      )
+    ORDER BY COALESCE(s.drafted_at, o.drafted_at)
   `).all({ athleteId });
 }
 
@@ -112,24 +136,40 @@ export function confirmSent(ids = [], { at = utcNow() } = {}) {
   const wanted = [...new Set(ids.filter(Boolean))];
   if (!wanted.length) return { confirmed: 0, skipped: [], at };
 
-  const eligible = new Set(pendingDrafts().map((r) => r.id));
+  const pending = pendingDrafts();
+  const eligible = new Set(pending.map((r) => r.id));
   const confirmable = wanted.filter((id) => eligible.has(id));
   const skipped = wanted.filter((id) => !eligible.has(id));
 
   // One transaction: a half-confirmed batch is a denominator nobody can
   // reason about afterwards.
+  // The open message for each relationship being confirmed, resolved BEFORE
+  // the transaction so the ids are the ones the caller was shown.
+  const openBy = new Map(pending.filter((r) => r.send_id).map((r) => [r.id, r.send_id]));
+
   db.transaction(() => {
     for (const id of confirmable) {
+      /**
+       * `outreach.sent_at` is FIRST-WINS and stays that way. It dates the first
+       * message ever confirmed on this relationship, and B2 does not move it:
+       * `sendCap` and the evidence denominators read it, and a follow-up
+       * advancing it would silently re-date somebody's engagement window.
+       *
+       * It is no longer what decides whether anything is pending — that is now
+       * the message's own state.
+       */
       markOutreachSent(id, at);
       /**
-       * Stamps the draft this batch is confirming, if one was recorded.
+       * The message itself. Accepted BY ID, so confirming this relationship's
+       * open message cannot reach another, and so a sequence 2 or 3 is
+       * confirmable at all — which it was not before B2.
        *
-       * Returns null for a relationship drafted before `outreach_send`
-       * existed, and that is left as null rather than filled in: there is no
-       * snapshot for that message and inventing one would put a fabricated
-       * record beside real ones. The migration marks those LEGACY_UNKNOWN.
+       * Absent for a relationship drafted before messages were recorded. Left
+       * absent rather than invented: there is no snapshot for that message and
+       * fabricating one would stand a made-up record beside real ones.
        */
-      confirmSend(id, at);
+      const sendId = openBy.get(id);
+      if (sendId) acceptSend(sendId, { source: ACCEPTED_SOURCE.OPERATOR_ASSERTED, at });
     }
   })();
 
@@ -138,14 +178,44 @@ export function confirmSent(ids = [], { at = utcNow() } = {}) {
 
 /** Counts for a status line, so "nothing pending" is distinguishable from an error. */
 export function draftSummary({ athleteId = null } = {}) {
-  return db.prepare(`
+  /**
+   * COUNTS MESSAGES WHERE THERE ARE MESSAGES, relationships where there are
+   * none.
+   *
+   * It used to count relationships throughout, which meant a confirmed
+   * relationship could never show a pending follow-up and a second confirmed
+   * message never raised `confirmed_sent` above one. Both are per-message
+   * facts and are read as such now.
+   *
+   * `never_drafted` and `revoked` stay relationship-level on purpose: a
+   * relationship whose compose threw has no message to count, and a revoked
+   * one is withdrawn as a whole.
+   */
+  const messages = db.prepare(`
     SELECT
-      COALESCE(SUM(CASE WHEN o.sent_at IS NOT NULL THEN 1 ELSE 0 END), 0)                        AS confirmed_sent,
-      COALESCE(SUM(CASE WHEN o.sent_at IS NULL AND o.drafted_at IS NOT NULL
-                         AND o.revoked_at IS NULL THEN 1 ELSE 0 END), 0)                         AS pending,
-      COALESCE(SUM(CASE WHEN o.drafted_at IS NULL AND o.sent_at IS NULL THEN 1 ELSE 0 END), 0)   AS never_drafted,
-      COALESCE(SUM(CASE WHEN o.revoked_at IS NOT NULL THEN 1 ELSE 0 END), 0)                     AS revoked
+      COALESCE(SUM(CASE WHEN s.state = '${MESSAGE_STATE.ACCEPTED}' THEN 1 ELSE 0 END), 0) AS confirmed_sent
+    FROM outreach_send s
+    JOIN outreach o ON o.id = s.outreach_id
+    WHERE (@athleteId IS NULL OR o.athlete_id = @athleteId)
+  `).get({ athleteId });
+
+  const relationships = db.prepare(`
+    SELECT
+      COALESCE(SUM(CASE WHEN o.drafted_at IS NULL AND o.sent_at IS NULL THEN 1 ELSE 0 END), 0) AS never_drafted,
+      COALESCE(SUM(CASE WHEN o.revoked_at IS NOT NULL THEN 1 ELSE 0 END), 0)                   AS revoked,
+      -- Confirmed before messages were recorded: counted here so the total
+      -- does not drop for the 41 rows that predate all of this.
+      COALESCE(SUM(CASE WHEN o.sent_at IS NOT NULL AND o.revoked_at IS NULL
+                    AND NOT EXISTS (SELECT 1 FROM outreach_send x WHERE x.outreach_id = o.id)
+                   THEN 1 ELSE 0 END), 0)                                                      AS legacy_sent
     FROM outreach o
     WHERE (@athleteId IS NULL OR o.athlete_id = @athleteId)
   `).get({ athleteId });
+
+  return {
+    confirmed_sent: messages.confirmed_sent + relationships.legacy_sent,
+    pending: pendingDrafts({ athleteId }).length,
+    never_drafted: relationships.never_drafted,
+    revoked: relationships.revoked,
+  };
 }
