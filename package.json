@@ -41,6 +41,7 @@
     "test:reports": "vitest run server/scripts/reports.test.js --reporter=verbose",
     "test:operations": "vitest run server/scripts/operations.test.js --reporter=verbose",
     "migrate-composition": "node server/scripts/migrateCompositionAuthority.js",
+    "test:generalisation": "node server/scripts/generalisationRun.js && vitest run shared/evidence/generalisation.test.js --reporter=verbose",
     "roster-sources": "node server/scripts/rosterSourceAudit.js",
     "evidence:baseline": "node server/scripts/evidenceBaseline.js",
     "test:baseline": "vitest run server/lib/evidenceBaseline.test.js --reporter=verbose"
