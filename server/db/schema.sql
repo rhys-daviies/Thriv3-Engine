@@ -896,3 +896,134 @@ BEFORE UPDATE ON outreach_send_event
 BEGIN
   SELECT RAISE(ABORT, 'outreach_send_event is append-only');
 END;
+
+-- ===========================================================================
+-- THIS CAMPAIGN IS PURSUING THIS COACH AT THIS PROGRAMME.
+--
+-- The layer between a programme campaign and the messages sent under it, and
+-- the one the model was missing. Four things sit in a line and each answers a
+-- different question:
+--
+--   programme_campaigns  this athlete is pursuing this programme this campaign
+--   THIS TABLE           this campaign is pursuing this COACH there
+--   outreach             this athlete and this coach, for all time, one token
+--   outreach_send        this one message happened
+--
+-- CAMPAIGN-SPECIFIC, WHICH IS THE WHOLE POINT. A relationship endures and a
+-- campaign is finite, so Campaign 1 pursuing Coach Smith and Campaign 2
+-- pursuing Coach Smith a season later are TWO attempts sharing ONE outreach
+-- row. Keying this on the relationship would have collapsed them into one and
+-- lost the second campaign's progression entirely — the same mistake A6 avoided
+-- by putting authoritative attribution on the message rather than the
+-- relationship.
+--
+-- A ROW HERE IS A PLAN, NOT A CONTACT. It may exist before anything is drafted
+-- and before the campaign is even active: an operator reviews a draft campaign
+-- and decides who to pursue. Whether a message may actually be written is B3's
+-- question and is asked at the write, not here. Nothing should ever read the
+-- existence of a row in this table as "we contacted this coach" — that is what
+-- outreach_send is for.
+--
+-- Nothing writes to it yet. Coach selection, sequence policy, depth by tier and
+-- scheduling are all later, and this is the place they will put their state.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS programme_contact_attempts (
+  id TEXT PRIMARY KEY,
+
+  -- OWNED BY the programme campaign, so it dies with it: an attempt is
+  -- execution state for a pursuit that no longer exists. This is the only
+  -- cascade on the table, and it deliberately stops here — see outreach_id.
+  programme_campaign_id TEXT NOT NULL
+    REFERENCES programme_campaigns(id) ON DELETE CASCADE,
+
+  -- REFERENCED, not owned. No ON DELETE clause, which under foreign_keys=ON
+  -- means the delete is refused — matching every other reference to `coaches`
+  -- in this schema (outreach.coach_id, outreach_send.coach_id). Deleting a
+  -- coach out from under live campaign state should fail loudly.
+  coach_id TEXT NOT NULL REFERENCES coaches(id),
+
+  /**
+   * The lifetime relationship this attempt executes through, once it has one.
+   *
+   * NULLABLE UNTIL FIRST EXECUTION, and that is forced rather than preferred.
+   * Creating an outreach row mints a permanent tracking token, and B3 refuses
+   * to create one under a campaign that is not active — so requiring it here
+   * would make it impossible to plan a draft campaign at all, and would mint a
+   * token for every one of roughly 320 coaches in a Top 100 that may never be
+   * activated.
+   *
+   * Also RESTRICT rather than SET NULL: an attempt whose relationship vanished
+   * is not interpretable, and every other reference to `outreach` in this
+   * schema refuses the delete the same way.
+   */
+  outreach_id TEXT REFERENCES outreach(id),
+
+  /**
+   * EXECUTION STATE OF THE PURSUIT. Three of these are reachable today:
+   *
+   *   planned    selected for pursuit; nothing has been written
+   *   active     being pursued
+   *   stopped    no longer being pursued
+   *
+   * `waiting` and `completed` are declared so the column does not need a table
+   * rebuild when they become real — SQLite cannot alter a CHECK — but NOTHING
+   * CAN REACH THEM. `waiting` means waiting for a reply or an interval, which
+   * needs a scheduler and reply ingestion; `completed` means a planned sequence
+   * finished, which needs a sequence policy to have planned one. The transition
+   * table in server/lib/contactAttempts.js refuses both by name until the thing
+   * that gives them meaning exists.
+   */
+  state TEXT NOT NULL DEFAULT 'planned'
+    CHECK (state IN ('planned', 'active', 'waiting', 'stopped', 'completed')),
+
+  -- Why it stopped. Off the enum for the same reason as everywhere else here:
+  -- reply classification will bring reasons no migration should be needed for.
+  state_reason TEXT,
+  state_changed_at TEXT,
+
+  /**
+   * CAMPAIGN-LOCAL progression, and emphatically not `outreach_send.sequence`.
+   *
+   *   sequence  the Nth accepted message EVER in the lifetime relationship
+   *   step      where this campaign's pursuit of this coach has got to
+   *
+   * A second campaign reaching a coach who already received two messages starts
+   * at step 1 while the next message is sequence 3. Collapsing them would make
+   * a campaign's own progression unreadable.
+   *
+   * WHAT A STEP DOES IS NOT DECIDED HERE. Depth by tier, what step 2 says and
+   * how long it waits are a sequence policy's business. This is only somewhere
+   * to keep the number.
+   */
+  step INTEGER NOT NULL DEFAULT 1 CHECK (step >= 1),
+
+  /**
+   * When the next thing should happen. WRITTEN BY NOTHING IN THIS BUILD — there
+   * is no scheduler and no interval policy. ISO-8601 UTC when it exists,
+   * because an instant is what a scheduler compares; which timezone produced it
+   * is a question that belongs with the scheduler that answers it.
+   */
+  next_action_at TEXT,
+
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+
+  /**
+   * ONE ATTEMPT PER COACH PER CAMPAIGN.
+   *
+   * Deliberately NOT unique on outreach_id: one lifetime relationship serves
+   * several campaigns, and a uniqueness rule there would stop the second
+   * campaign from ever pursuing a coach the first one reached.
+   */
+  UNIQUE (programme_campaign_id, coach_id)
+);
+
+-- The list read: one programme campaign's attempts.
+CREATE INDEX IF NOT EXISTS idx_contact_attempts_programme
+  ON programme_contact_attempts(programme_campaign_id, created_at, id);
+-- The reverse question: which campaigns have pursued this coach.
+CREATE INDEX IF NOT EXISTS idx_contact_attempts_coach
+  ON programme_contact_attempts(coach_id);
+-- Which attempts run through one lifetime relationship, across campaigns.
+CREATE INDEX IF NOT EXISTS idx_contact_attempts_outreach
+  ON programme_contact_attempts(outreach_id);
