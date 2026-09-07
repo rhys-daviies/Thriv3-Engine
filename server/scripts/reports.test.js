@@ -244,8 +244,12 @@ describeReports('outreachQA', () => {
      * starts a season later so nothing inside a recency window is called
      * distant, and the conference congratulation dropped its appended
      * compliment.
+     *
+     * Re-pinned again at J8: a congratulation says "as well" only when a claim
+     * about the programme precedes it, which in a recognition-only email is
+     * never.
      */
-    expect(sha(result.out)).toBe('ebca1e370d5b5ca3');
+    expect(sha(result.out)).toBe('ccf749c48734ff19');
   });
 });
 

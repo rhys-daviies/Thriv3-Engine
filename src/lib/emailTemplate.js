@@ -625,6 +625,42 @@ export function emailBodyFor(player, college, coachName, {
  * `{{#if}}` and `{{else}}` are template syntax, not tokens, and a filter
  * (`{{player_position|lowercase}}`) is stripped before the name is checked.
  */
+/**
+ * Whether an operator may save this template, and why not.
+ *
+ * THE SAME PARSER THE PREVIEW USES. `unresolvedTokens` decides what a body
+ * will fail to resolve; asking a second parser at save time would let a
+ * template pass one gate and fail the other, which is worse than no gate.
+ * The only thing added here is a context built from the token registry rather
+ * than from one athlete, so validity does not depend on whose profile is open.
+ *
+ * WHAT IT REFUSES. A token nothing resolves — a typo, or one of the claim
+ * tokens J5 and J6 retired. Those are the dangerous case: a template written
+ * against the old vocabulary still LOOKS right, and the failure only shows up
+ * as literal braces in a coach's inbox.
+ *
+ * WHAT IT DOES NOT DO. It never edits the operator's text. A refusal names the
+ * tokens and stops; silently stripping them would lose the sentence they were
+ * part of, and silently blanking them would hide the debt.
+ *
+ * A template that is empty is valid — that is not a template, it is the
+ * absence of an override, and the structured composer takes it.
+ */
+export function validateTemplate(template) {
+  const text = String(template ?? '');
+  if (!text.trim()) return { valid: true, unknown: [] };
+  /**
+   * Keys, not values. Every token the registry defines resolves in a real
+   * context; what matters here is whether the NAME is one the composer knows.
+   */
+  const context = buildEmailContext(
+    { full_name: 'A', position: 'Defender', sport: 'mens-soccer' },
+    { name: 'B' }, 'Coach', {},
+  );
+  const unknown = unresolvedTokens(text, context);
+  return { valid: unknown.length === 0, unknown };
+}
+
 export function unresolvedTokens(template, context) {
   const found = new Set();
   for (const match of String(template || '').matchAll(/\{\{\s*(?:#if\s+)?([a-zA-Z0-9_]+)\s*(?:\|[^}]*)?\}\}/g)) {

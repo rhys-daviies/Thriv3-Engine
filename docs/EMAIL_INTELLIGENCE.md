@@ -214,7 +214,18 @@ recruiting tendency.** That determination is J2's first task, not its last.
 
 # Stage J backlog
 
-## SAVE-TIME TEMPLATE VALIDATION (open, from J6)
+## SAVE-TIME TEMPLATE VALIDATION — RESOLVED at J8
+
+`validateTemplate` runs the same parser the preview uses and the athlete form
+refuses a template naming a token nothing resolves, listing them. It never
+edits the operator's text.
+
+One trap it exposed: three ARCHIVED templates contain tokens J5 and J6 retired.
+No live template does, so nothing broke — but restoring one now yields text the
+editor will refuse to save, so `npm run archive-template` says so before you
+restore it.
+
+### The original entry (for the record)
 
 An operator can save a custom template containing an unknown, retired or
 malformed token. `unresolvedTokens()` exists and the preview surfaces the
@@ -249,3 +260,23 @@ list means "these are all of them", "including" means "here are some". And **a
 shorter sentence is not automatically better** — the counts, dates and names
 above are load-bearing, and removing one destroys the reason the claim is worth
 making.
+
+
+## Stage J closeout (J8)
+
+Stage J is COMPLETE. What that means, and what it does not.
+
+**Proven.** One Evidence authority; no template bypass, tested against every
+registered kind rather than a remembered list; recognition framing coherent in
+all four shapes; the generic email professional on its own terms; no unsafe
+claim combination renders; composition deterministic and fingerprinted by six
+committed baselines.
+
+**Not proven, and not Stage J's to prove.** That a coach receives it. The
+structured composer has never produced a historical real send — every one of
+the 41 logged sends used the flat template under a retired policy. Email
+Intelligence ends at the final body and its snapshot; delivery, targeting,
+cadence and outcomes belong to the sending workstream.
+
+**Policy version is P3.** P2 described an engine that J3, J4 and J7 changed.
+A P2 send and a P3 send are different products and must never be pooled.

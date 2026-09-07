@@ -19,7 +19,7 @@ import { DIVISIONS } from '@shared/divisions.js';
 // band the model has no ceiling for.
 import { BUDGET_BANDS } from '@shared/matching/constants.js';
 import { positionLabel } from '@shared/positions.js';
-import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT } from '@/lib/emailTemplate';
+import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, validateTemplate } from '@/lib/emailTemplate';
 import { cn } from '@/lib/utils';
 import { entities } from '@/api/client';
 
@@ -108,6 +108,7 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
   const [data, setData] = useState(() => defaultsFrom(initialData));
   const [colleges, setColleges] = useState([]);
   const [collegesLoading, setCollegesLoading] = useState(true);
+  const [templateError, setTemplateError] = useState(null);
 
   // Conference options are dynamic, sourced from the College collection —
   // fetched once per sport (same bulk-fetch-then-filter-client-side pattern
@@ -194,6 +195,24 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
       setStep(0);
       return;
     }
+    /**
+     * A template naming a token nothing resolves does not fail here — it fails
+     * in a coach's inbox, as literal braces. The dangerous case is a template
+     * written against the old vocabulary: J5 and J6 retired the tokens that
+     * rebuilt Evidence claims, and one of those still LOOKS correct.
+     *
+     * Refused, never rewritten. Stripping the token would lose the sentence it
+     * was part of and blanking it would hide the problem; the operator is told
+     * which names are wrong and keeps their text.
+     */
+    const check = validateTemplate(data.email_template);
+    if (!check.valid) {
+      setTemplateError(`This template uses ${check.unknown.length === 1 ? 'a token' : 'tokens'} `
+        + `nothing will fill in: ${check.unknown.map((t) => `{{${t}}}`).join(', ')}. `
+        + 'Remove them or pick from the list below — they would reach a coach as raw text.');
+      return;
+    }
+    setTemplateError(null);
     onSubmit(data);
   }
 
@@ -497,6 +516,9 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
                 + 'every programme this athlete is written to.'}
               className="font-mono text-xs"
             />
+            {templateError && (
+              <p role="alert" className="text-xs text-destructive">{templateError}</p>
+            )}
             <div className="flex flex-wrap gap-1.5">
               {TEMPLATE_VARIABLES.map((v) => (
                 <button

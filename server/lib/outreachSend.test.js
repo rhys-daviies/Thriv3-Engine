@@ -264,7 +264,12 @@ describe('policy version', () => {
   it('stamps a current send with the current policy', () => {
     draft(evidenceWith([HOOK]));
     expect(sendsForOutreach('o1')[0].policy_version).toBe(OUTREACH_POLICY_VERSION);
-    expect(OUTREACH_POLICY_VERSION).toBe('P2');
+    /**
+     * P3 since J8. J3 changed licensing, qualification and selection, J4 added
+     * a cross-group hold and J7 changed copy — all on the bump list — while
+     * the constant stayed at P2.
+     */
+    expect(OUTREACH_POLICY_VERSION).toBe('P3');
   });
 
   it('cannot silently disappear', () => {
@@ -274,8 +279,10 @@ describe('policy version', () => {
     `).run()).toThrow(/NOT NULL/i);
   });
 
-  it('has one owner and two known values', () => {
-    expect(KNOWN_POLICY_VERSIONS).toEqual([LEGACY_POLICY_VERSION, OUTREACH_POLICY_VERSION]);
+  it('has one owner, and keeps every version it has ever shipped', () => {
+    // P2 is retired and still known: a row carrying it must be nameable, not
+    // treated as corruption, and never rewritten.
+    expect(KNOWN_POLICY_VERSIONS).toEqual([LEGACY_POLICY_VERSION, 'P2', OUTREACH_POLICY_VERSION]);
     expect(LEGACY_POLICY_VERSION).toBe('LEGACY_UNKNOWN');
   });
 
@@ -298,7 +305,7 @@ describe('policy version', () => {
     expect(confirmedSends({ policyVersion: LEGACY_POLICY_VERSION })).toHaveLength(1);
     expect(confirmedSends()).toHaveLength(2);
     expect(sendsByPolicy().map((r) => r.policy_version).sort())
-      .toEqual(['LEGACY_UNKNOWN', 'P2']);
+      .toEqual(['LEGACY_UNKNOWN', OUTREACH_POLICY_VERSION].sort());
   });
 });
 

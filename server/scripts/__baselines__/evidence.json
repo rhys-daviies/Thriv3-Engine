@@ -39,22 +39,22 @@
     {
       "name": "COACH_COMPOSITION",
       "size": 4742,
-      "digest": "88026f667c56a097c364da097fe3eb16fa9cb4ddc064395f834f4acb161c0932"
+      "digest": "db2cad830bd40f31b8a1d5172db2f563c29495ef364e91b503c6e05755606d5a"
     },
     {
       "name": "EMAIL_BODY",
       "size": 4742,
-      "digest": "bddee9e3ed2fd774c27c943387b93c320dbfc5811221e7831b041c6d1779e975"
+      "digest": "32df191b3e326185806ec66f3b81520a9ca87dc32a03ac34aea9e9c8ee779364"
     },
     {
       "name": "OPERATOR_WIRE",
       "size": 4742,
-      "digest": "5e9372480e7bb717f0f12ffed1ddb31aaac7d3afefd6625d3c40be4bc8e18ef4"
+      "digest": "f2feda81eccb9b27be283ecf9f38fc6efc2576fd67ba17bae3919e30b228a1b8"
     },
     {
       "name": "LOG_PAYLOAD",
       "size": 4742,
-      "digest": "5cd1b2047c71211b2f534c36ff5d422a75a67f769ca0df551998593234f81557"
+      "digest": "0b8d7970610626481eb492af0a496299f40a5fb78fd8bdc8dfe0950a2c207dc8"
     },
     {
       "name": "OPERATOR_EVIDENCE",

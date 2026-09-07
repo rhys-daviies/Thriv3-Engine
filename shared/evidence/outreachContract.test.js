@@ -236,7 +236,7 @@ describe('the postseason rounds are declared once', () => {
     for (const round of POSTSEASON_ROUNDS) {
       const r = through('POSTSEASON_RESULT', { round });
       expect(r.qualified, round).toBe(true);
-      expect(r.text, round).toMatch(/^Congrats on .+ last season as well\.$/);
+      expect(r.text, round).toMatch(/^Congrats on .+ last season( as well)?\.$/);
     }
   });
   it('claims nothing for a round it has no words for', () => {
@@ -357,9 +357,9 @@ describe('the academic claim keeps both vocabularies apart', () => {
 describe('recognition invents no season and no result', () => {
   it('congratulates exactly what the evidence carries', () => {
     expect(through('CONFERENCE_TITLE', { conference: 'ACC' }).text)
-      .toBe('Congrats on winning the ACC last year as well.');
+      .toBe('Congrats on winning the ACC last year.');
     expect(through('POSTSEASON_RESULT', { round: 'final' }).text)
-      .toBe('Congrats on reaching the national final last season as well.');
+      .toBe('Congrats on reaching the national final last season.');
   });
 
   it('requires the conference and the round themselves', () => {
@@ -375,7 +375,7 @@ describe('recognition invents no season and no result', () => {
      * called. All 124 champion names on the live corpus pass through it.
      */
     expect(through('CONFERENCE_TITLE', { conference: 'MWC-D3' }).text)
-      .toBe('Congrats on winning the MWC last year as well.');
+      .toBe('Congrats on winning the MWC last year.');
     expect(through('CONFERENCE_TITLE', { conference: 'Atlantic 10' }).text)
       .toContain('the Atlantic 10');
   });

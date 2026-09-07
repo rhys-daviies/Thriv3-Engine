@@ -143,7 +143,7 @@ describe('"back in" marks a fact that is genuinely old', () => {
 describe('a congratulation congratulates, and stops', () => {
   it('says the conference and nothing about the season', () => {
     expect(outreachCopyFor({ kind: 'CONFERENCE_TITLE', facts: { conference: 'NEWMAC' } }).recognition)
-      .toBe('Congrats on winning the NEWMAC last year as well.');
+      .toBe('Congrats on winning the NEWMAC last year.');
   });
 
   it('has dropped the appended compliment', () => {
@@ -155,10 +155,10 @@ describe('a congratulation congratulates, and stops', () => {
   it('leaves the postseason rounds exactly as they were', () => {
     // Seven branches, all correct soccer terminology, none of them flagged.
     const round = (r) => outreachCopyFor({ kind: 'POSTSEASON_RESULT', facts: { round: r } }).recognition;
-    expect(round('champion')).toBe('Congrats on the national title last season as well.');
-    expect(round('final')).toBe('Congrats on reaching the national final last season as well.');
-    expect(round('r16')).toBe('Congrats on reaching the round of 16 last season as well.');
-    expect(round('appearance')).toBe('Congrats on getting to the postseason last season as well.');
+    expect(round('champion')).toBe('Congrats on the national title last season.');
+    expect(round('final')).toBe('Congrats on reaching the national final last season.');
+    expect(round('r16')).toBe('Congrats on reaching the round of 16 last season.');
+    expect(round('appearance')).toBe('Congrats on getting to the postseason last season.');
   });
 });
 

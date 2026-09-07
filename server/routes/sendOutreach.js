@@ -183,7 +183,7 @@ export async function sendOutreach({
 
   // Which template shape rendered this email — a different variable from the
   // engine's `structure`, so a later A/B can separate the two.
-  const variant = templateVariant(athlete.email_template, DEFAULT_EMAIL_TEMPLATE);
+  const variant = templateVariant(athlete.email_template);
 
   /**
    * Did the evidence sentence actually survive into what was sent?

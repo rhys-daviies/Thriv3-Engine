@@ -275,6 +275,16 @@ for (const r of Object.keys(ROUND)) {
  * Recognition. Its own shape because it is a whole sentence, not a clause: it
  * is never joined to a claim and never becomes the reason for writing.
  */
+/**
+ * "as well", but only when there is something to be as well as.
+ *
+ * The composer passes `afterClaim` — whether a claim about this programme
+ * already appears above. With one, the congratulation is an addition and the
+ * connective is right. Without one it is the only thing the email says about
+ * them, and "as well" points at a sentence that was never written.
+ */
+const alongside = (ctx) => (ctx?.afterClaim ? ' as well' : '');
+
 const RECOGNITION = Object.freeze({
   /**
    * THE CONFERENCE NAME IS PROSE, NOT A KEY.
@@ -291,7 +301,7 @@ const RECOGNITION = Object.freeze({
    * answer anyway. A congratulation we cannot address is not a smaller
    * congratulation.
    */
-  CONFERENCE_TITLE: (f) => {
+  CONFERENCE_TITLE: (f, ctx) => {
     const conf = conferenceLabel(f.conference);
     /**
      * The congratulation, and then it stops.
@@ -301,9 +311,9 @@ const RECOGNITION = Object.freeze({
      * scraped, on 363 emails, in identical words. A recruiter congratulating a
      * coach on a title does not then tell them what kind of season they had.
      */
-    return conf ? `Congrats on winning the ${conf} last year as well.` : null;
+    return conf ? `Congrats on winning the ${conf} last year${alongside(ctx)}.` : null;
   },
-  POSTSEASON_RESULT: (f) => `Congrats on ${ROUND[f.round]} last season as well.`,
+  POSTSEASON_RESULT: (f, ctx) => `Congrats on ${ROUND[f.round]} last season${alongside(ctx)}.`,
 });
 
 /** The kinds this module has words for. Checked against the licence by tests. */
@@ -333,7 +343,7 @@ export function outreachCopyFor(item, ctx = {}) {
    */
   if (!renderable(item.kind, item.facts)) return null;
   if (RECOGNITION[item.kind]) {
-    const recognition = RECOGNITION[item.kind](item.facts);
+    const recognition = RECOGNITION[item.kind](item.facts, ctx);
     return recognition ? { recognition } : null;
   }
   const write = CLAUSE[item.kind];

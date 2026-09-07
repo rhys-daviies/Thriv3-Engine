@@ -55,7 +55,7 @@ export function outreachSlots(flow, roles, byKind, ctx = {}) {
     sentences.push({ kind: ev.kind, tier: ev.tier, slot: block, order, text });
     order += 1;
   };
-  const copyOf = (ev) => outreachCopyFor(plan.itemOf.get(ev.kind), ctx);
+  const copyOf = (ev, extra = {}) => outreachCopyFor(plan.itemOf.get(ev.kind), { ...ctx, ...extra });
 
   if (plan.hook) {
     const copy = copyOf(plan.hook);
@@ -76,7 +76,21 @@ export function outreachSlots(flow, roles, byKind, ctx = {}) {
   }
 
   for (const ev of plan.recognition) {
-    const copy = copyOf(ev);
+    /**
+     * "as well" needs something to be as well AS.
+     *
+     * The congratulation is written as a whole sentence, and it ended "last
+     * season as well" whatever came before it. In 429 emails nothing did: the
+     * only other paragraph was the introduction, so a coach read a connective
+     * pointing back at an observation about their programme that the email
+     * never made.
+     *
+     * The COMPOSER answers this, not the copy. Whether a claim precedes is a
+     * property of the email's shape, which is this function's business; how
+     * the sentence is worded stays in `outreachCopy.js`. Neither has to know
+     * the other's job.
+     */
+    const copy = copyOf(ev, { afterClaim: sentences.length > 0 });
     if (!copy?.recognition) continue;
     tokens[slotToken(BLOCKS.RECOGNITION)] = copy.recognition;
     record(ev, BLOCKS.RECOGNITION, copy.recognition);

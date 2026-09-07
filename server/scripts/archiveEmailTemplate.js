@@ -24,7 +24,7 @@
 import 'dotenv/config';
 import db from '../db/client.js';
 import { utcNow } from '../lib/time.js';
-import { canComposeStructured, DEFAULT_EMAIL_TEMPLATE } from '../../src/lib/emailTemplate.js';
+import { canComposeStructured, DEFAULT_EMAIL_TEMPLATE, validateTemplate } from '../../src/lib/emailTemplate.js';
 import { templateVariant } from '../../shared/evidence/templateVariant.js';
 
 const argv = process.argv.slice(2);
@@ -37,7 +37,23 @@ const describe = (p) => {
   console.log(`  ${p.full_name}`);
   console.log(`    email_template          : ${p.email_template ? `${p.email_template.length} chars` : '(none)'}`);
   console.log(`    email_template_archived : ${p.email_template_archived ? `${p.email_template_archived.length} chars, ${p.email_template_archived_at}` : '(none)'}`);
-  console.log(`    templateVariant         : ${templateVariant(p.email_template, DEFAULT_EMAIL_TEMPLATE)}`);
+  console.log(`    templateVariant         : ${templateVariant(p.email_template)}`);
+  /**
+   * Whether the archived text would still pass the editor.
+   *
+   * J5 and J6 retired every token that rebuilt an Evidence claim outside the
+   * engine, and three archived templates on file still name them. Restoring
+   * one puts text back that the form will now refuse to save — which is
+   * correct, and is a much better thing to learn here than in the editor.
+   */
+  for (const [label, text] of [['email_template', p.email_template], ['archived', p.email_template_archived]]) {
+    if (!text || !String(text).trim()) continue;
+    const check = validateTemplate(text);
+    if (!check.valid) {
+      console.log(`    ${label} uses retired tokens : ${check.unknown.map((t) => `{{${t}}}`).join(', ')}`);
+      console.log('      (restoring it puts back text the editor will refuse to save)');
+    }
+  }
   console.log(`    canComposeStructured    : ${canComposeStructured(p)}`);
 };
 
