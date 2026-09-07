@@ -9,6 +9,7 @@ import { logEvidence } from '../lib/evidenceLog.js';
 import { recordDraft, confirmSend } from '../lib/outreachSend.js';
 import { ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
 import { campaignContactDecision } from '../lib/campaignAttribution.js';
+import { recordOutboundAttempt, TRANSPORT } from '../lib/outboundBudget.js';
 import { evidenceFor } from '../lib/evidenceQueries.js';
 import { templateVariant } from '../../shared/evidence/templateVariant.js';
 import { BODY_SOURCE } from '../../src/lib/emailTemplate.js';
@@ -291,6 +292,47 @@ export async function sendOutreach({
       });
 
       const outreach = createOutreach({ athleteId, coachId: record.id, matchId, programmeCampaignId });
+
+      /**
+       * THE OUTBOUND ACTION BUDGET, SPENT BEFORE THE TRANSPORT AND NEVER AFTER.
+       *
+       * Only when something is actually being SENT. `send: false` opens a
+       * draft window and hands nothing to a provider, so it costs nothing —
+       * an operator may draft a whole Top 100 for review without spending a
+       * day's capacity on messages nobody has decided to send.
+       *
+       * LAST OF THE FOUR SAFETY CHECKS, and the order is deliberate: the
+       * campaign gate, suppression and the per-inbox cap all refuse above this
+       * line, so a message that was never permitted never spends budget.
+       * Everything after this line is the attempt itself.
+       *
+       * The refusal ends this coach and not the run. A campaign that has used
+       * its day should record nineteen sends and one refusal, not lose the
+       * nineteen — and the operator needs to see which coach to pick up
+       * tomorrow.
+       */
+      if (send) {
+        try {
+          recordOutboundAttempt({
+            outreachId: outreach.id,
+            // An assertion, checked against the relationship rather than
+            // trusted: the athlete whose budget this spends is derived.
+            athleteId,
+            // The mailbox we are ASKING to send from. Outlook reports which
+            // account it actually used only after the compose returns, so the
+            // requested identity is the only one available before the spend —
+            // see the mismatch reported at the end of this function.
+            sendingIdentity: OUTLOOK_FROM_ADDRESS,
+            transport: TRANSPORT.OUTLOOK_APPLESCRIPT,
+          });
+        } catch (err) {
+          results.push({
+            email: coach.email, name: coach.name, status: 'budget-refused',
+            reason: err.code, error: err.message,
+          });
+          continue;
+        }
+      }
       const url = `${PUBLIC_BASE_URL}/p/${athlete.public_slug}.html?ref=${outreach.token}`;
 
       const personalisedBody = ensureProfileLink(

@@ -28,6 +28,14 @@ export default defineConfig({
       THRIV3_SENDER_IDENTITY: 'Thriv3 (test)',
       THRIV3_POSTAL_ADDRESS: '1 Test Street, Testville, TS 00000',
       THRIV3_UNSUBSCRIBE_BASE_URL: 'https://example.test',
+      // The sending mailbox's daily ceiling, which has no default in
+      // production ON PURPOSE — an unset one means undecided, not unlimited,
+      // and automated execution refuses without it. Set here for the same
+      // reason as the two above: every suite should exercise the normal path,
+      // and the suites that check the refusal pass mailboxLimit: null
+      // themselves rather than relying on the environment being empty.
+      // Generous, because this is not the limit under test.
+      THRIV3_MAILBOX_DAILY_OUTBOUND: '500',
     },
   },
 });

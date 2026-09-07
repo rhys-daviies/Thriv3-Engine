@@ -1027,3 +1027,164 @@ CREATE INDEX IF NOT EXISTS idx_contact_attempts_coach
 -- Which attempts run through one lifetime relationship, across campaigns.
 CREATE INDEX IF NOT EXISTS idx_contact_attempts_outreach
   ON programme_contact_attempts(outreach_id);
+
+-- ===========================================================================
+-- ONE ATTEMPT TO HAND A MESSAGE TO A SENDING TRANSPORT.
+--
+-- THE SECOND SENDING-SAFETY AXIS. `sendCap` protects the RECIPIENT: how often
+-- one coach's inbox may be written to, keyed on the recipient address. This
+-- protects the other end — the SENDING mailbox's reputation, and the pace at
+-- which one athlete consumes campaign capacity. They are different dimensions
+-- and neither substitutes for the other:
+--
+--   sendCap        recipient inbox   keyed on coaches.email    30-day window
+--   THIS TABLE     sending mailbox   keyed on sending_identity daily window
+--   THIS TABLE     athlete pacing    keyed on athlete_id       daily window
+--
+-- WHY IT CANNOT BE DERIVED FROM `outreach_send`. Three reasons, each fatal on
+-- its own:
+--
+--   1. A RETRY IS A SECOND ATTEMPT. One message may consume capacity twice,
+--      and outreach_send holds one row per message however many times it was
+--      handed to a transport.
+--   2. A FAILED ATTEMPT STILL CONSUMED CAPACITY. The provider or the network
+--      was used either way, and `sent_at` records only successes.
+--   3. `sent_at` IS MUTABLE-ADJACENT AND FIRST-WINS. Accounting must not
+--      depend on a column whose meaning is "the first confirmation on this
+--      relationship".
+--
+-- SO IT IS ITS OWN LEDGER, AND ITS ROWS ARE IMMUTABLE. A trigger enforces
+-- that, following tracking_events and outreach_send_event: what was spent
+-- cannot be edited into something else afterwards.
+--
+-- WHAT IS DELIBERATELY NOT IN IT. No campaign id, no tier, no evidence, no
+-- outcome, no counters. Campaign attribution lives on outreach_send, where it
+-- is authoritative; putting a second copy here would make this table a place
+-- to do campaign analytics, and an accounting ledger that also reports is one
+-- that gets a column added to it every quarter.
+--
+-- No `outcome` column either, and that is the answer to "what if the
+-- transport then fails". A row here means ONE THING: an attempt began and
+-- capacity was consumed. What became of the message afterwards is already
+-- owned by outreach_send.state and outreach_send_event, and an outcome column
+-- would have to be written after the fact — which is precisely the mutation
+-- the triggers below forbid.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS outbound_send_attempt (
+  id TEXT PRIMARY KEY,
+
+  /**
+   * The relationship the attempt was made through.
+   *
+   * NOT `outreach_send_id`, and that is forced by the ordering rather than
+   * chosen. Capacity is consumed BEFORE the transport is invoked, and the
+   * message row is written AFTER the transport returns — `recordDraft` freezes
+   * a snapshot of a body that reached Outlook, so it cannot run first. At the
+   * instant this row is written there is no message row to point at, and on a
+   * transport failure there never will be one. A send FK would therefore be a
+   * column nothing could fill on the path that matters most.
+   *
+   * The relationship, by contrast, always exists by then — `createOutreach`
+   * runs before the transport — and it is also the durable place the athlete
+   * is recorded, which is what makes the derivation below trustworthy.
+   *
+   * ON DELETE SET NULL, which is the one place this table departs from the
+   * RESTRICT its neighbours use — and it departs in the direction that keeps
+   * the accounting right. THE BUDGET DOES NOT READ THIS COLUMN. Usage is
+   * counted on (athlete_id, sending_identity, attempted_at), so a relationship
+   * deleted later costs the ledger a pointer and not a single unit of spent
+   * capacity. RESTRICT would instead let a stale foreign key veto ordinary
+   * housekeeping, and CASCADE would let housekeeping hand back a day's budget.
+   * A6 made the same choice for the same reason on programme_campaign_id.
+   */
+  outreach_id TEXT REFERENCES outreach(id) ON DELETE SET NULL,
+
+  -- DERIVED FROM outreach.athlete_id AT WRITE TIME, never taken from a caller.
+  -- Denormalised so the daily-usage query reads one table, following
+  -- outreach_send, which denormalises the same pair for the same reason. A
+  -- caller may ASSERT an athlete and the assertion is checked against this,
+  -- so a wrong id is refused rather than spending someone else's budget.
+  --
+  -- SET NULL for the same reason as outreach_id, and it is written by nothing
+  -- but a delete of that very athlete. An athlete who no longer exists has no
+  -- budget to pace, so nothing is lost — while CASCADE would have let deleting
+  -- one athlete hand a whole day of MAILBOX capacity back to everybody else,
+  -- and RESTRICT would have let this table veto ordinary housekeeping.
+  athlete_id TEXT REFERENCES players(id) ON DELETE SET NULL,
+
+  /**
+   * WHICH MAILBOX PAID FOR IT.
+   *
+   * Deliberately not called `email`. Today it is the normalised
+   * THRIV3_FROM_ADDRESS, because the Outlook path has exactly one shared
+   * sending identity for every athlete — which is the whole reason a
+   * per-athlete ceiling is not enough on its own. When Gmail or Graph gives
+   * each athlete their own connected mailbox this becomes that account's
+   * stable key, and nothing that budgets against it has to change.
+   *
+   * Stored normalised (trimmed, lowercased) so two spellings of one mailbox
+   * cannot each get a full day's allowance.
+   */
+  sending_identity TEXT NOT NULL,
+
+  /**
+   * How the attempt was made, and how we came to know about it.
+   *
+   *   OUTLOOK_APPLESCRIPT  the process itself issued Outlook's Send. Recorded
+   *                        before the call, so it stands whether or not the
+   *                        call succeeded.
+   *   OUTLOOK_MANUAL       an operator pressed Send in Outlook by hand and
+   *                        said so afterwards through `npm run confirm-sends`.
+   *                        Recorded late by necessity — see attempted_at.
+   *
+   * Kept as a column rather than inferred so that mailbox usage assembled from
+   * both can still be read apart. They are not equally precise and a future
+   * analysis must be able to say so.
+   */
+  transport TEXT NOT NULL,
+
+  /**
+   * WHEN CAPACITY WAS CONSUMED. The instant every window query keys on.
+   *
+   * For OUTLOOK_APPLESCRIPT this is exact: it is written immediately before
+   * the transport call. For OUTLOOK_MANUAL it is the CONFIRMATION time, not
+   * the send time, because the send happened inside Outlook's own UI and this
+   * process never observed it. That is a real imprecision and it is recorded
+   * rather than smoothed over: a batch sent last night and confirmed this
+   * morning lands in this morning's window.
+   */
+  attempted_at TEXT NOT NULL,
+
+  created_at TEXT NOT NULL
+);
+
+-- The two usage queries, and nothing else. Both are (key, time) so a day's
+-- window is a range scan rather than a table scan.
+CREATE INDEX IF NOT EXISTS idx_outbound_attempt_athlete
+  ON outbound_send_attempt(athlete_id, attempted_at);
+CREATE INDEX IF NOT EXISTS idx_outbound_attempt_mailbox
+  ON outbound_send_attempt(sending_identity, attempted_at);
+CREATE INDEX IF NOT EXISTS idx_outbound_attempt_outreach
+  ON outbound_send_attempt(outreach_id, attempted_at, id);
+
+-- THE ACCOUNTING IS FROZEN; THE POINTERS ARE NOT. What was spent, from which
+-- mailbox, by what means and when cannot be edited into something else
+-- afterwards — those four plus the row's own id are the trigger's list.
+--
+-- outreach_id and athlete_id are deliberately absent from it, because their
+-- ON DELETE SET NULL is itself an UPDATE: a whole-row guard would turn an
+-- ordinary delete elsewhere into a constraint failure, and it would be
+-- protecting the two columns the budget never reads. Mailbox usage — the
+-- number that protects the sending domain — is untouchable either way.
+CREATE TRIGGER IF NOT EXISTS trg_outbound_send_attempt_append_only
+BEFORE UPDATE OF id, sending_identity, transport, attempted_at, created_at
+ON outbound_send_attempt
+BEGIN
+  SELECT RAISE(ABORT, 'outbound_send_attempt is append-only');
+END;
+
+-- Deletion is NOT blocked, matching tracking_events and outreach_send_event.
+-- A guard there would stop retention purges and ordinary housekeeping while
+-- stopping nobody with a SQL prompt; what actually protects the accounting is
+-- that server/lib/outboundBudget.js exports no delete, no decrement and no
+-- refund, which a test asserts.

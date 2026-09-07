@@ -24,6 +24,7 @@ import db from '../db/client.js';
 import { utcNow } from './time.js';
 import { markOutreachSent } from './outreach.js';
 import { acceptSend } from './outreachSend.js';
+import { recordManualOutboundAttempt } from './outboundBudget.js';
 import { MESSAGE_STATE, OPEN_STATES, ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
 
 const OPEN_LIST = OPEN_STATES.map((s) => `'${s}'`).join(', ');
@@ -170,6 +171,34 @@ export function confirmSent(ids = [], { at = utcNow() } = {}) {
        */
       const sendId = openBy.get(id);
       if (sendId) acceptSend(sendId, { source: ACCEPTED_SOURCE.OPERATOR_ASSERTED, at });
+
+      /**
+       * THE MAILBOX PAID FOR THIS ONE TOO.
+       *
+       * Every manual message leaves through the same shared Outlook account as
+       * every automated one, so a mailbox budget that counted only automated
+       * traffic would understate the thing it exists to protect — and would do
+       * so by exactly the volume the pilot is actually sending today.
+       *
+       * RECORDED, NEVER ENFORCED, and it could not be otherwise: by the time
+       * an operator is confirming a batch, the coach already has the email.
+       * Refusing here would decline to write down mail that had already gone.
+       * See recordManualOutboundAttempt, which is the only non-enforcing entry
+       * to the ledger and says why at length.
+       *
+       * Dated by the confirmation, because that is the only instant this
+       * process observed. Marked OUTLOOK_MANUAL so an analysis that needs
+       * exact timing can tell these apart from the ones it can trust.
+       *
+       * Best-effort, like logEvidence: an operator recording what they already
+       * sent must not be blocked by an accounting write, and the confirmation
+       * is the more important of the two facts.
+       */
+      try {
+        recordManualOutboundAttempt({ outreachId: id, at });
+      } catch (err) {
+        console.warn(`  outbound attempt not recorded for ${id}: ${err.message}`);
+      }
     }
   })();
 
