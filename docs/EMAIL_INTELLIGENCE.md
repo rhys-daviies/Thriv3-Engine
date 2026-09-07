@@ -209,3 +209,43 @@ just coverage.
 
 **It should not be licensed if the claim cannot be worded without implying a
 recruiting tendency.** That determination is J2's first task, not its last.
+
+---
+
+# Stage J backlog
+
+## SAVE-TIME TEMPLATE VALIDATION (open, from J6)
+
+An operator can save a custom template containing an unknown, retired or
+malformed token. `unresolvedTokens()` exists and the preview surfaces the
+result, but nothing blocks the save, so a template referencing a token J5 or J6
+retired — `graduating_starters_names`, `is_conference_champion`,
+`has_players_from_country` — is stored and renders literal `{{braces}}` at send
+time.
+
+The corpus has zero custom templates, so nothing is broken today. The fix is a
+save path that runs `unresolvedTokens` against the full context and refuses, or
+warns explicitly, before the row is written. It needs a UI touch rather than an
+engine change, which is why J6 and J7 both left it.
+
+## Copy density contract (J7)
+
+What each licensed kind must say, what it may say, and what stays internal.
+
+| kind | required in copy | optional if natural | operator only |
+|---|---|---|---|
+| COACH_ARRIVAL_SAME_COUNTRY | country, coach attribution ("you") | named arrival, season | coach name, count when 1 |
+| ARRIVAL_SAME_COUNTRY_POSITION | country, position | named arrival, season | count when 1 |
+| HISTORICAL_SAME_COUNTRY | country, past tense | name, season span | count when 1 |
+| CURRENT_SAME_COUNTRY | country, present tense | name | count when 1 |
+| ARRIVAL_SAME_REGION_POSITION | countries, position, season, "wider than own country" | — | region key, excluded country |
+| POSITION_GRADUATION | position, count, class year, **1–3 names in full / 2 with "including" above that** | — | names beyond the cap |
+| ACADEMIC_FIT | athlete's stated words AND programme's label, kept apart | athlete first name | matching internals |
+| CONFERENCE_TITLE | conference name | — | anything about the season |
+| POSTSEASON_RESULT | round | — | — |
+
+Two rules the table encodes. **The punctuation is a truth claim**: an em-dash
+list means "these are all of them", "including" means "here are some". And **a
+shorter sentence is not automatically better** — the counts, dates and names
+above are load-bearing, and removing one destroys the reason the claim is worth
+making.

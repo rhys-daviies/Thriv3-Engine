@@ -357,7 +357,7 @@ describe('the academic claim keeps both vocabularies apart', () => {
 describe('recognition invents no season and no result', () => {
   it('congratulates exactly what the evidence carries', () => {
     expect(through('CONFERENCE_TITLE', { conference: 'ACC' }).text)
-      .toBe('Congrats on winning the ACC last year as well — looks like a great season.');
+      .toBe('Congrats on winning the ACC last year as well.');
     expect(through('POSTSEASON_RESULT', { round: 'final' }).text)
       .toBe('Congrats on reaching the national final last season as well.');
   });
@@ -375,7 +375,7 @@ describe('recognition invents no season and no result', () => {
      * called. All 124 champion names on the live corpus pass through it.
      */
     expect(through('CONFERENCE_TITLE', { conference: 'MWC-D3' }).text)
-      .toBe('Congrats on winning the MWC last year as well — looks like a great season.');
+      .toBe('Congrats on winning the MWC last year as well.');
     expect(through('CONFERENCE_TITLE', { conference: 'Atlantic 10' }).text)
       .toContain('the Atlantic 10');
   });

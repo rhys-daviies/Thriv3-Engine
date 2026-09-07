@@ -233,14 +233,19 @@ describeReports('outreachQA', () => {
      * category that existed to show a regional-history email has nothing left
      * to show.
      */
-/**
-     * Re-pinned in J4 for two changes, both visible in this report.
+    /**
+     * Re-pinned in J4 for two changes, both visible in this report:
+     * POSITION_FLOW_HOLD withholding POSITION_GRADUATION where a
+     * position-bearing arrival already opens the email, and the credentials
+     * block no longer repeating the position and class year.
      *
-     * POSITION_FLOW_HOLD withholds POSITION_GRADUATION where a position-bearing
-     * arrival already opens the email, and the credentials block stopped
-     * repeating the position and class year the introduction states.
+     * Re-pinned again at J7, for copy alone: a graduating cohort of four or
+     * more now counts and names two rather than listing all of them, "back in"
+     * starts a season later so nothing inside a recency window is called
+     * distant, and the conference congratulation dropped its appended
+     * compliment.
      */
-    expect(sha(result.out)).toBe('7c197d8d29578727');
+    expect(sha(result.out)).toBe('ebca1e370d5b5ca3');
   });
 });
 

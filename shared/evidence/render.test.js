@@ -387,15 +387,16 @@ describe('year wording is measured from the pinned squad season', () => {
     expect(yearPhrase('2025', { squadSeason: '2026' })).toBe('in 2025');
   });
 
-  it('writes two seasons back and older as "back in {year}"', () => {
-    expect(yearPhrase('2024', { squadSeason: '2026' })).toBe('back in 2024');
+  it('writes three seasons back and older as "back in {year}"', () => {
+    expect(yearPhrase('2024', { squadSeason: '2026' })).toBe('in 2024');
     expect(yearPhrase('2019', { squadSeason: '2026' })).toBe('back in 2019');
-    expect(BACK_IN_DISTANCE).toBe(2);
+    expect(BACK_IN_DISTANCE).toBe(3);
   });
 
   /** The boundary itself, from both sides. */
-  it('turns over exactly at the two-season boundary', () => {
-    expect(yearPhrase(2024, { squadSeason: 2026 })).toBe('back in 2024');
+  it('turns over exactly at the three-season boundary', () => {
+    expect(yearPhrase(2023, { squadSeason: 2026 })).toBe('back in 2023');
+    expect(yearPhrase(2024, { squadSeason: 2026 })).toBe('in 2024');
     expect(yearPhrase(2025, { squadSeason: 2026 })).toBe('in 2025');
   });
 
@@ -404,8 +405,8 @@ describe('year wording is measured from the pinned squad season', () => {
    * year's squad re-dates every clause without anyone editing copy.
    */
   it('moves with the squad season instead of hardcoding a year', () => {
-    expect(yearPhrase('2026', { squadSeason: '2028' })).toBe('back in 2026');
-    expect(yearPhrase('2027', { squadSeason: '2028' })).toBe('in 2027');
+    expect(yearPhrase('2025', { squadSeason: '2028' })).toBe('back in 2025');
+    expect(yearPhrase('2026', { squadSeason: '2028' })).toBe('in 2026');
   });
 
   it('never prints a phrase for a year it cannot read', () => {

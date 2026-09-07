@@ -62,19 +62,25 @@ import { conferenceLabel } from '../conference.js';
 import { SQUAD_SEASON, nameKey } from '../philosophy.js';
 
 /**
- * How far back a season has to be before "back in" is the right words.
+ * How far back a season has to be before it is described as distant.
  *
- * "Back in 2026" was being written about a player who joined for the season
- * that has not been played yet, and "back in 2025" about one who arrived a
- * year ago — both read as though we had not looked at a calendar. Two seasons
- * is where the distance starts to feel like distance.
+ * THREE, not two, and the second season is the reason. J3 gave the surviving
+ * regional hook a two-season recency requirement — a claim only opens an email
+ * if the arrival is inside that window — and the copy then called the oldest
+ * season the window admits "back in 2024". The qualification said recent and
+ * the sentence said distant, about the same fact.
+ *
+ * At three, nothing inside a recency window is ever called distant, and "back
+ * in" keeps the job it exists for: marking a fact that genuinely is old. 69
+ * clauses move from "back in 2024" to "in 2024"; the 144 at 2022 and 2023 are
+ * unchanged, and they are the ones a coach would agree are a while ago.
  *
  * Measured against SQUAD_SEASON rather than the wall clock. The engine already
  * pins every present-tense claim to that season, and a draft saved in Outlook
  * for three weeks must say the same thing when it is sent as when it was
  * written — which a relative phrase like "this year" could not promise.
  */
-export const BACK_IN_DISTANCE = 2;
+export const BACK_IN_DISTANCE = 3;
 
 /**
  * "in 2025" or "back in 2023", by distance from the pinned squad season.

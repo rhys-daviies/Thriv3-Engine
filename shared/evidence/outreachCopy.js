@@ -76,6 +76,15 @@ import { renderable, str, strings, POSTSEASON_ROUNDS } from './outreachContract.
  * is: the word "undefined" in a coach's inbox.
  */
 
+/**
+ * How many graduating players may be named before the list becomes a dump.
+ *
+ * Up to three is a fact a coach can check. Beyond that the sentence switches
+ * to a count plus two illustrative names — see POSITION_GRADUATION.
+ */
+const NAMES_IN_FULL = 3;
+const NAMES_WHEN_TRUNCATED = 2;
+
 /** A count as a word, for the small numbers these claims carry. */
 const WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 const count = (n) => (Number.isFinite(n) && n >= 0 && n <= 10 ? WORDS[n] : String(n));
@@ -191,10 +200,30 @@ const CLAUSE = Object.freeze({
    * against their own roster, and the fact does the work.
    */
   POSITION_GRADUATION: (f) => {
+    /**
+     * THE NAMES ARE THE POINT, UP TO THREE OF THEM.
+     *
+     * They are what makes this checkable against the coach's own roster, which
+     * is the whole reason the claim is worth making. Past three they stop
+     * reading as a fact and start reading as a roster dump: "four defenders
+     * are listed to graduate in 2027 — Davide Luppi, Samuel Dundas, Pierre
+     * Coat and Pontus Schmitz Gustafsson" is a database showing its work.
+     *
+     * So the sentence has two honest forms, and the punctuation says which:
+     *
+     *   an em-dash list  these are ALL of them
+     *   "including"      here are some of them, and there are more
+     *
+     * Measured across the corpus: 768 of 784 render the complete list, 16 use
+     * the truncated form. The truncated names are the first of the same array
+     * the count came from, so they provably belong to the cohort counted.
+     */
     const named = strings(f.names);
-    return `${count(f.count)} ${noun(f.position, f.count)} `
-      + `${f.count === 1 ? 'is' : 'are'} listed to graduate in ${f.classYear}`
-      + ` — ${joinNames(named)}`;
+    const head = `${count(f.count)} ${noun(f.position, f.count)} `
+      + `${f.count === 1 ? 'is' : 'are'} listed to graduate in ${f.classYear}`;
+    return named.length > NAMES_IN_FULL
+      ? `${head}, including ${joinNames(named.slice(0, NAMES_WHEN_TRUNCATED))}`
+      : `${head} — ${joinNames(named)}`;
   },
 
   /**
@@ -264,9 +293,15 @@ const RECOGNITION = Object.freeze({
    */
   CONFERENCE_TITLE: (f) => {
     const conf = conferenceLabel(f.conference);
-    return conf
-      ? `Congrats on winning the ${conf} last year as well — looks like a great season.`
-      : null;
+    /**
+     * The congratulation, and then it stops.
+     *
+     * It used to add "— looks like a great season", which is not an
+     * observation about them: it is a compliment we appended to a fact we
+     * scraped, on 363 emails, in identical words. A recruiter congratulating a
+     * coach on a title does not then tell them what kind of season they had.
+     */
+    return conf ? `Congrats on winning the ${conf} last year as well.` : null;
   },
   POSTSEASON_RESULT: (f) => `Congrats on ${ROUND[f.round]} last season as well.`,
 });
