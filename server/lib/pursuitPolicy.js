@@ -5,8 +5,7 @@ import {
 import { isSuppressed } from './suppressions.js';
 import { campaignContactDecision } from './campaignAttribution.js';
 import { attemptsForProgrammeCampaign, attemptForCoach, createContactAttempt } from './contactAttempts.js';
-import { outboundBudgetDecision, athleteUsage, mailboxUsage } from './outboundBudget.js';
-import { ATHLETE_DAILY_OUTBOUND_LIMIT, MAILBOX_DAILY_OUTBOUND_LIMIT } from './config.js';
+import { outboundBudgetDecision, outboundBudgetDecisionForAthlete } from './outboundBudget.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
 import { utcNow, utcToday } from './time.js';
 
@@ -90,13 +89,20 @@ export const MESSAGES_PER_COACH = 2;
 /**
  * POLICY DAYS between the initial message and its follow-up. Not a clock time.
  *
- * Four working days is long enough that a coach who was travelling has been
- * back at a desk, and short enough that the follow-up still reads as part of
- * the same conversation. It is expressed as a NUMBER OF DAYS and never
- * resolved into an instant here: resolving it needs the recipient's or the
- * sender's timezone, which nothing in this build knows, and a UTC arithmetic
- * result would look like a decision that had been made rather than one that
- * had been skipped. Phase E resolves it.
+ * Four days is long enough that a coach who was travelling has been back at a
+ * desk, and short enough that the follow-up still reads as part of the same
+ * conversation.
+ *
+ * CALENDAR DAYS, NOT WORKING DAYS, and that is a deliberate narrowing. Working
+ * days would need a weekend rule and then a holiday calendar, in whichever
+ * country the recipient is in — none of which exists here and none of which
+ * should be invented for a delay this coarse. The consequence is real and
+ * small: a Thursday message becomes eligible on Monday rather than Wednesday.
+ *
+ * It is a NUMBER OF DAYS and is never resolved into an instant here. Resolving
+ * one needs the recipient's or the sender's timezone, which nothing in this
+ * build knows, and a UTC arithmetic result would look like a decision that had
+ * been made rather than one that had been skipped. Phase E resolves it.
  */
 export const FOLLOW_UP_DELAY_DAYS = 4;
 
@@ -210,7 +216,7 @@ const STAFF = db.prepare(
  * one would let an unsent draft consume a coach's allowance.
  */
 const ACCEPTED_FOR_COACH = db.prepare(`
-  SELECT COUNT(*) AS n FROM outreach_send
+  SELECT COUNT(*) AS n, MAX(sent_at) AS last_accepted_at FROM outreach_send
   WHERE coach_id = @coachId AND athlete_id = @athleteId
     AND programme_campaign_id = @programmeCampaignId
     AND state = '${MESSAGE_STATE.ACCEPTED}'
@@ -435,9 +441,10 @@ export function programmePursuitPlan({
    * what will keep the two in step when it executes.
    */
   const withHistory = eligible.slice(0, Math.max(depth, 0)).map((c, i) => {
-    const messagesSent = ACCEPTED_FOR_COACH.get({
+    const accepted = ACCEPTED_FOR_COACH.get({
       coachId: c.coachId, athleteId: pc.athlete_id, programmeCampaignId,
-    }).n;
+    });
+    const messagesSent = accepted.n;
     const responded = RESPONDED.get({ athleteId: pc.athlete_id, coachId: c.coachId })?.responded_at ?? null;
     /**
      * A RESPONSE COUNTS ONLY IF IT CAME AFTER THIS CAMPAIGN STARTED.
@@ -456,6 +463,20 @@ export function programmePursuitPlan({
       ...c,
       order: i + 1,
       messagesSent,
+      /**
+       * WHEN THE LAST ACCEPTED MESSAGE OF THIS CAMPAIGN WENT TO THEM.
+       *
+       * Reported rather than acted on: this module owns how many days a
+       * follow-up waits and never resolves that into an instant. It is here
+       * because the campaign-local message history is this module's question,
+       * and a caller working out follow-up eligibility should not have to ask
+       * it a second time with a query of its own.
+       *
+       * Null where a message was accepted without a timestamp, which is not
+       * reachable through `acceptSend` and is exactly the case a caller must
+       * not silently treat as "due now".
+       */
+      lastAcceptedAt: accepted.last_accepted_at ?? null,
       respondedAt: respondedThisCampaign ? responded : null,
       priorCampaignResponseAt: responded && !respondedThisCampaign ? responded : null,
       attemptId: attempt?.id ?? null,
@@ -574,12 +595,22 @@ function safetyAndBudget({ pc, coach, onDate, sendingIdentity, window }) {
     };
   }
 
+  /**
+   * The RELATIONSHIP is handed to B3 when there is one, and that is not
+   * optional decoration: revocation is a fact about a relationship, and B3
+   * cannot see it without the id. Omitting it left a revoked outreach looking
+   * contactable — the plan would have proposed a message whose tracking link
+   * deliberately no longer resolves.
+   */
+  const relationshipForSafety = OUTREACH_FOR.get(pc.athlete_id, coach.coachId);
+
   let safety;
   try {
     const decision = campaignContactDecision({
       programmeCampaignId: pc.id,
       athleteId: pc.athlete_id,
       coachId: coach.coachId,
+      outreachId: relationshipForSafety?.id ?? null,
       ...(onDate === undefined ? {} : { onDate }),
     });
     safety = { evaluated: true, allowed: decision.allowed, reason: decision.reason };
@@ -596,40 +627,36 @@ function safetyAndBudget({ pc, coach, onDate, sendingIdentity, window }) {
 /**
  * B5's answer, asked properly or not asked at all.
  *
- * `outboundBudgetDecision` derives the athlete from a RELATIONSHIP, because a
- * consuming caller must never be able to name one. A first approach has no
- * relationship yet — creating one mints a permanent token, which planning must
- * never do — so for the most common case in a dry run there is nothing to ask
- * it with.
+ * TWO ENTRY POINTS, ONE RULE. `outboundBudgetDecision` identifies the athlete
+ * through a RELATIONSHIP, because a consuming caller must never be able to name
+ * one; `outboundBudgetDecisionForAthlete` is the read-only form that takes the
+ * athlete directly. A first approach has no relationship yet — creating one
+ * mints a permanent token, which planning must never do — so the read-only form
+ * is what a dry run uses, and both reach the same `used < limit` in B5 rather
+ * than a copy of it here.
  *
- * Rather than re-derive `used < limit` here, which would put the rule in two
- * places and let them drift, this reports the usage B5's own read helpers give
- * and says plainly that no decision was made. See the note on B7 at the foot
- * of this file.
+ * The athlete passed to it is the CAMPAIGN'S OWN, read from the campaign row
+ * rather than accepted from a caller, so nothing here can spend or even report
+ * against somebody else's budget by being asked nicely.
  *
  * NOTHING IS CONSUMED. This module never calls `recordOutboundAttempt`.
  */
 function budgetStatus({ pc, coach, sendingIdentity, window }) {
   if (!sendingIdentity) return { evaluated: false, reason: 'NO_SENDING_IDENTITY_SUPPLIED' };
 
-  const usage = {
-    athleteUsed: athleteUsage(pc.athlete_id, ...(window ? [window] : [])),
-    athleteLimit: ATHLETE_DAILY_OUTBOUND_LIMIT,
-    mailboxUsed: mailboxUsage(sendingIdentity, ...(window ? [window] : [])),
-    mailboxLimit: MAILBOX_DAILY_OUTBOUND_LIMIT,
-  };
-
   const relationship = OUTREACH_FOR.get(pc.athlete_id, coach.coachId);
-  if (!relationship) {
-    return { evaluated: false, reason: 'NO_RELATIONSHIP_YET', ...usage };
-  }
-
-  const decision = outboundBudgetDecision({
-    outreachId: relationship.id,
-    athleteId: pc.athlete_id,
-    sendingIdentity,
-    ...(window ? { window } : {}),
-  });
+  const decision = relationship
+    ? outboundBudgetDecision({
+      outreachId: relationship.id,
+      athleteId: pc.athlete_id,
+      sendingIdentity,
+      ...(window ? { window } : {}),
+    })
+    : outboundBudgetDecisionForAthlete({
+      athleteId: pc.athlete_id,
+      sendingIdentity,
+      ...(window ? { window } : {}),
+    });
   return {
     evaluated: true,
     allowed: decision.allowed,

@@ -724,3 +724,156 @@ describe('the boundary this API is', () => {
     expect(Object.values(domain.body)).not.toContain('ANALYSIS_FILE_MISSING');
   });
 });
+
+// ---------------------------------------------------------------------------
+
+/**
+ * B7 — the read-only dry run.
+ *
+ * The boundary properties here are: that it is genuinely read-only, that an
+ * unknown campaign costs nothing, that the query is allow-listed like every
+ * other campaign request, and that no sibling endpoint executes what it
+ * describes.
+ */
+describe('GET /api/campaigns/:id/execution-plan', () => {
+  /** Coaches for the first `n` schools of the generated analysis. */
+  function staffFor(n) {
+    for (let i = 1; i <= n; i += 1) {
+      for (const [j, title] of ['Head Coach', 'Assistant Coach'].entries()) {
+        db.prepare(`
+          INSERT OR IGNORE INTO coaches (id, created_at, full_name, email, school, division,
+            sport, position_title, email_status)
+          VALUES (?, '2026-09-01T00:00:00.000Z', ?, ?, ?, 'NCAA D1', 'mens-soccer', ?, 'verified')
+        `).run(randomUUID(), `Coach ${i}${j}`, `c${j}.s${i}@example.edu`, `School ${i}`, title);
+      }
+    }
+  }
+
+  it('returns a campaign, a summary, its programmes and an ordered preview', async () => {
+    staffFor(5);
+    const { campaign } = await makeCampaign(ATHLETE, {}, 5);
+    await patch(`/api/campaigns/${campaign.id}`, { state: 'active' });
+
+    const { status, body } = await get(`/api/campaigns/${campaign.id}/execution-plan`);
+    expect(status).toBe(200);
+    expect(Object.keys(body).sort()).toEqual(['campaign', 'priorityActions', 'programmes', 'summary']);
+    expect(body.campaign).toMatchObject({ id: campaign.id, athleteId: ATHLETE, state: 'active' });
+    expect(body.programmes).toHaveLength(5);
+    expect(body.programmes.map((p) => p.rank)).toEqual([1, 2, 3, 4, 5]);
+    expect(body.summary.programmeCount).toBe(5);
+    expect(body.priorityActions.map((a) => a.priority)).toEqual([1, 2, 3, 4, 5]);
+    // Every one of them a first approach, which is what a fresh campaign is.
+    expect(body.priorityActions.every((a) => a.actionClass === 'FIRST_CONTACT')).toBe(true);
+  });
+
+  it('plans a draft campaign, and says it may not run', async () => {
+    staffFor(3);
+    const { campaign } = await makeCampaign(ATHLETE, {}, 3);
+
+    const { status, body } = await get(`/api/campaigns/${campaign.id}/execution-plan`);
+    expect(status).toBe(200);
+    expect(body.campaign.state).toBe('draft');
+    expect(body.programmes[0].nextAction).toBe('INITIAL_OUTREACH');
+    expect(body.programmes[0].executableNow).toBe(false);
+    expect(body.programmes[0].blockers)
+      .toContainEqual({ source: 'SAFETY', code: 'CAMPAIGN_NOT_ACTIVE' });
+    expect(body.summary.executableNowCount).toBe(0);
+  });
+
+  it('changes nothing, however many times it is asked', async () => {
+    staffFor(5);
+    const { campaign } = await makeCampaign(ATHLETE, {}, 5);
+    await patch(`/api/campaigns/${campaign.id}`, { state: 'active' });
+
+    const tables = ['campaigns', 'programme_campaigns', 'programme_contact_attempts',
+      'outreach', 'outreach_send', 'outbound_send_attempt', 'coaches', 'players'];
+    const before = Object.fromEntries(tables.map((t) => [t, db.prepare(`SELECT * FROM ${t}`).all()]));
+
+    const first = await get(`/api/campaigns/${campaign.id}/execution-plan`);
+    const second = await get(`/api/campaigns/${campaign.id}/execution-plan`);
+
+    expect(second.body).toEqual(first.body);
+    for (const t of tables) expect(db.prepare(`SELECT * FROM ${t}`).all(), t).toEqual(before[t]);
+  });
+
+  it('accepts on_date, and refuses anything else', async () => {
+    staffFor(2);
+    const { campaign } = await makeCampaign(ATHLETE, {}, 2);
+
+    const dated = await get(`/api/campaigns/${campaign.id}/execution-plan?on_date=2027-03-04`);
+    expect(dated.status).toBe(200);
+    expect(dated.body.campaign.onDate).toBe('2027-03-04');
+
+    const bad = await get(`/api/campaigns/${campaign.id}/execution-plan?on_date=tomorrow`);
+    expect(bad.status).toBe(400);
+    expect(bad.body.error).toMatch(/YYYY-MM-DD/);
+
+    // The sending mailbox is server config. A caller naming one would be
+    // reading, and later spending, against a mailbox of their choosing.
+    const unknown = await get(`/api/campaigns/${campaign.id}/execution-plan?sending_identity=x@y.z`);
+    expect(unknown.status).toBe(400);
+    expect(unknown.body.error).toMatch(/Unknown query parameter\(s\): sending_identity/);
+  });
+
+  it('404s an unknown campaign without planning anything', async () => {
+    const { status, body } = await get('/api/campaigns/no-such-campaign/execution-plan');
+    expect(status).toBe(404);
+    expect(body.error).toMatch(/No campaign/);
+  });
+
+  it('answers 404 rather than leaking another athlete\'s campaign shape', async () => {
+    staffFor(2);
+    const { campaign } = await makeCampaign(OTHER, {}, 2);
+    // It is addressable — it is theirs, and this router has no auth layer — so
+    // what is asserted is that the id is the only thing that resolves it.
+    const found = await get(`/api/campaigns/${campaign.id}/execution-plan`);
+    expect(found.status).toBe(200);
+    const guessed = await get(`/api/campaigns/${campaign.id}x/execution-plan`);
+    expect(guessed.status).toBe(404);
+  });
+
+  it('has no sibling that executes it', () => {
+    const src = fs.readFileSync(new URL('./campaigns.js', import.meta.url), 'utf8');
+    // The plan exists so a person can look before anything acts. An execution
+    // endpoint shipped beside it would make that inspection a formality.
+    expect(src).not.toMatch(/\.post\(['"][^'"]*(execute|send|run|process)/i);
+    expect(src).not.toMatch(/materialise|createOutreach|recordOutboundAttempt/i);
+    const methods = [...src.matchAll(/campaignsRouter\.(\w+)\(/g)].map((m) => m[1]);
+    expect(methods.filter((m) => m === 'get').length).toBe(3);
+    expect(new Set(methods)).toEqual(new Set(['post', 'get', 'patch']));
+  });
+});
+
+describe('the client method', () => {
+  it('builds the right URL and encodes the date', async () => {
+    const calls = [];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async (url) => {
+      calls.push(url);
+      return {
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ campaign: {}, summary: {}, programmes: [], priorityActions: [] }),
+      };
+    };
+    try {
+      const { campaigns } = await import('../../src/api/client.js');
+      await campaigns.executionPlan('camp-1');
+      await campaigns.executionPlan('camp-1', { onDate: '2026-09-07' });
+      expect(calls).toEqual([
+        '/api/campaigns/camp-1/execution-plan',
+        '/api/campaigns/camp-1/execution-plan?on_date=2026-09-07',
+      ]);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
+  it('is a read, with no companion that executes a plan', async () => {
+    const { campaigns } = await import('../../src/api/client.js');
+    expect(typeof campaigns.executionPlan).toBe('function');
+    for (const name of Object.keys(campaigns)) {
+      expect(name).not.toMatch(/execute|send|run|process|materialise/i);
+    }
+  });
+});

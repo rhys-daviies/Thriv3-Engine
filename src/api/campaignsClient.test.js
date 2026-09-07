@@ -97,9 +97,22 @@ describe('campaigns are not generic CRUD', () => {
     for (const key of Object.keys(entities)) expect(key).not.toMatch(/campaign|programme/i);
   });
 
-  it('exposes exactly the five campaign operations', () => {
+  /**
+   * Six now, and the sixth is a READ.
+   *
+   * `executionPlan` is a computed projection — what the campaign would do next
+   * and what is stopping it — recomputed on every call and stored nowhere. It
+   * is listed here rather than waved through because the point of this
+   * assertion is that the surface grows deliberately: the day something wants
+   * to EXECUTE a plan, it has to change this line and explain itself.
+   */
+  it('exposes exactly the six campaign operations, five of which are the only writes', () => {
     expect(Object.keys(campaigns).sort()).toEqual([
-      'createForPlayer', 'get', 'listForPlayer', 'update', 'updateProgramme',
+      'createForPlayer', 'executionPlan', 'get', 'listForPlayer', 'update', 'updateProgramme',
     ]);
+    // Nothing here executes, sends, runs or materialises anything.
+    for (const name of Object.keys(campaigns)) {
+      expect(name).not.toMatch(/execute|send|run|process|materialise|approve/i);
+    }
   });
 });

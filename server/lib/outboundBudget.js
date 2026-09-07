@@ -255,6 +255,52 @@ export function outboundBudgetDecision({
   // relationship that does not exist, or one belonging to somebody else, is a
   // caller bug rather than a state that changes when the day does.
   const athlete = resolveAthlete(outreachId, athleteId);
+  return decide({ athlete, sendingIdentity, window, athleteLimit, mailboxLimit });
+}
+
+/**
+ * THE SAME ANSWER, FOR AN ATHLETE WHO HAS NO RELATIONSHIP WITH THIS COACH YET.
+ * READ-ONLY, AND IT CANNOT CONSUME.
+ *
+ * The gap B6 found and B7 needed closed. `outboundBudgetDecision` identifies
+ * the athlete through an `outreach` row, which is right for a caller about to
+ * spend and useless for a caller about to ASK: a first approach has no
+ * relationship, and creating one to ask a question would mint a permanent
+ * tracking token for a message nobody has approved. A dry run across a Top 100
+ * would have minted three hundred.
+ *
+ * ---------------------------------------------------------------------------
+ * TWO SECURITY MODELS, KEPT APART DELIBERATELY.
+ *
+ *   READ / SIMULATE   may be told which athlete. Reporting that athlete X has
+ *                     used four of ten leaks nothing and spends nothing.
+ *   WRITE / CONSUME   must DERIVE the athlete from a durable relationship, and
+ *                     refuses a caller who names a different one. An athlete
+ *                     whose own budget is exhausted has an incentive to be
+ *                     attributed to another, and no later audit would notice.
+ *
+ * So this function exists and `recordOutboundAttempt` cannot reach it. A test
+ * asserts the consume path still derives and still refuses a named athlete.
+ * ---------------------------------------------------------------------------
+ *
+ * It shares the rule with the relationship-keyed form rather than restating it,
+ * so `used < limit`, the order of refusals and the meaning of an unset mailbox
+ * ceiling can never mean two different things in two places.
+ */
+export function outboundBudgetDecisionForAthlete({
+  athleteId, sendingIdentity,
+  window = utcDayWindow(),
+  athleteLimit = ATHLETE_DAILY_OUTBOUND_LIMIT,
+  mailboxLimit = MAILBOX_DAILY_OUTBOUND_LIMIT,
+} = {}) {
+  if (typeof athleteId !== 'string' || !athleteId) {
+    throw fail('ATHLETE_REQUIRED', 'A budget reading must say whose budget it is reading.');
+  }
+  return decide({ athlete: athleteId, sendingIdentity, window, athleteLimit, mailboxLimit });
+}
+
+/** The rule itself, in one place, reached by both entry points above. */
+function decide({ athlete, sendingIdentity, window, athleteLimit, mailboxLimit }) {
   const key = normaliseSendingIdentity(sendingIdentity);
 
   const athleteUsed = athleteUsage(athlete, window);

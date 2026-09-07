@@ -164,6 +164,29 @@ export const campaigns = {
       body: JSON.stringify(payload),
     });
   },
+
+  /**
+   * What this campaign would do next across its programmes, and what is
+   * stopping each of them.
+   *
+   * A DRY RUN. It sends nothing, reserves nothing and changes nothing — asking
+   * twice gives the same answer twice, because nothing was consumed by asking.
+   * There is no companion method that executes it: the plan exists so a person
+   * can look at it before anything is allowed to act on it.
+   *
+   * Returns `{ campaign, summary, programmes, priorityActions }`.
+   * `priorityActions` is the order the actions should be CONSIDERED in, with
+   * `withinBudgetToday` marking how far down today's remaining budget reaches.
+   * It is recomputed on every call and is not a queue.
+   *
+   * @param {string} [opts.onDate]  YYYY-MM-DD. Campaign boundaries and
+   *   follow-up eligibility are timezone-free dates, so reviewing tomorrow's
+   *   plan is a matter of asking for tomorrow. Defaults to today, UTC.
+   */
+  executionPlan(campaignId, { onDate } = {}) {
+    const qs = onDate ? `?on_date=${encodeURIComponent(onDate)}` : '';
+    return request(`/api/campaigns/${campaignId}/execution-plan${qs}`);
+  },
 };
 
 /**

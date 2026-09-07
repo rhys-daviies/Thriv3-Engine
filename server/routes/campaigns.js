@@ -6,6 +6,7 @@ import {
   getCampaign, listCampaignsForAthlete, getProgrammeCampaign, listProgrammeCampaigns,
   CAMPAIGN_STATES, PROGRAMME_CAMPAIGN_STATES, TIERS,
 } from '../lib/campaigns.js';
+import { campaignExecutionPlan } from '../lib/campaignExecution.js';
 
 /**
  * THE CAMPAIGN API — a doorway, not a second data layer.
@@ -310,6 +311,49 @@ campaignsRouter.get('/campaigns/:id', handle('campaigns/get', (req) => {
       // In snapshot rank order, always — see listProgrammeCampaigns.
       programmes: listProgrammeCampaigns(campaign.id).map(programmeCampaign),
     },
+  };
+}));
+
+/**
+ * WHAT THIS CAMPAIGN WOULD DO NEXT, AND WHAT IS STOPPING IT.
+ *
+ * READ-ONLY, AND THERE IS DELIBERATELY NO SIBLING THAT EXECUTES IT. No POST
+ * /execute, no /send, no /process-next. The point of this endpoint is that the
+ * plan can be inspected — by an operator, and by us — before anything is
+ * permitted to act on it, and an execution endpoint shipped alongside it would
+ * make that inspection a formality.
+ *
+ * Every field is computed on the way past and nothing is stored: opening this
+ * a hundred times must not make the campaign different for having been looked
+ * at. A test asserts the whole database is byte-identical across a request.
+ *
+ * THE SENDING MAILBOX COMES FROM SERVER CONFIG, never from the query. It is
+ * what the budget is charged against, and letting a caller name it would let
+ * them read — and eventually spend — against a mailbox of their choosing.
+ *
+ * `on_date` is accepted because campaign boundaries and follow-up eligibility
+ * are timezone-free DATES, and an operator reviewing tomorrow's plan today is
+ * a real thing to want. It is the same argument B3 takes, for the same reason.
+ */
+const EXECUTION_PLAN_QUERY = Object.freeze(['on_date']);
+
+campaignsRouter.get('/campaigns/:id/execution-plan', handle('campaigns/execution-plan', (req) => {
+  const unknown = Object.keys(req.query ?? {}).filter((k) => !EXECUTION_PLAN_QUERY.includes(k));
+  if (unknown.length) {
+    throw badRequest(
+      `Unknown query parameter(s): ${unknown.join(', ')}. Allowed: ${EXECUTION_PLAN_QUERY.join(', ')}.`,
+    );
+  }
+  const onDate = req.query?.on_date;
+  if (onDate !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(String(onDate))) {
+    throw badRequest('on_date must be a YYYY-MM-DD date.');
+  }
+  // 404 before anything is planned, so an unknown id costs nothing and leaks
+  // nothing about what a hundred programmes would have said.
+  if (!getCampaign(req.params.id)) throw notFoundCampaign(req.params.id);
+
+  return {
+    body: campaignExecutionPlan(req.params.id, ...(onDate ? [{ onDate }] : [])),
   };
 }));
 

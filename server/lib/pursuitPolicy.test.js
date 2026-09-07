@@ -616,14 +616,19 @@ describe('budget is composed, never consumed', () => {
     expect(athleteUsage(ATHLETE)).toBe(10);                        // and nothing more
   });
 
-  it('says plainly when it could not ask, rather than guessing', () => {
-    // A first approach has no relationship, and B5 derives the athlete from
-    // one. Reported as undecided rather than re-deriving B5's rule here.
+  it('answers for a first approach, which has no relationship to ask through', () => {
+    // B5's consuming form derives the athlete from an outreach row, and a
+    // first approach has none — creating one to ask a question would mint a
+    // permanent token. The read-only form takes the campaign's own athlete.
     const { pc } = scene();
+    expect(db.prepare('SELECT COUNT(*) n FROM outreach').get().n).toBe(0);
+
     const plan = programmePursuitPlan({ programmeCampaignId: pc, sendingIdentity: MAILBOX });
-    expect(plan.budget).toMatchObject({ evaluated: false, reason: 'NO_RELATIONSHIP_YET' });
+    expect(plan.budget).toMatchObject({ evaluated: true, allowed: true, reason: null });
     expect(plan.budget.athleteUsed).toBe(0);
     expect(plan.budget.athleteLimit).toBe(10);
+    // And asking still mints nothing.
+    expect(db.prepare('SELECT COUNT(*) n FROM outreach').get().n).toBe(0);
   });
 
   it('leaves budget unevaluated when no mailbox was named', () => {
