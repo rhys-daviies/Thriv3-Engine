@@ -97,6 +97,78 @@ export function canonicalCountry(country) {
 }
 
 /**
+ * Countries whose English name takes the definite article.
+ *
+ * DISPLAY GRAMMAR ONLY. Identity is `canonicalCountry`; nothing compares,
+ * groups, maps or stores the output of `countryPhrase`. "the Netherlands" is
+ * how you say Netherlands in a sentence, not a second name for it.
+ *
+ * The rule in English is roughly "plurals and names built from a common noun",
+ * but it is only roughly that, so this is an explicit list decided one country
+ * at a time rather than a regex over `Republic|Kingdom|States`. That pattern
+ * would be wrong at least twice in the data we actually hold:
+ *
+ *   Czechia          115 arrivals, and takes NO article. The Czech Republic
+ *                    does; Czechia does not, and the canonical name here is
+ *                    Czechia.
+ *   Ukraine          takes no article in modern usage, and adding one is not a
+ *                    neutral stylistic choice.
+ *
+ * EVERY ENTRY MUST BE A CANONICAL NAME. `countryPhrase` canonicalises before
+ * it looks here, so an alias in this list is simply dead: "Czech Republic"
+ * resolves to "Czechia" and would never match. That is not hypothetical — it
+ * was in the first draft of this list, and the mistake is the same one the
+ * regex would have made. A test asserts the invariant.
+ *
+ * Everything here is present in the current data except "United States", which
+ * is one domestic query away, and a handful of small island states listed
+ * because their first arrival should not be the moment we notice.
+ */
+const ARTICLE_COUNTRIES = Object.freeze(new Set([
+  'United Kingdom',
+  'Netherlands',
+  'Dominican Republic',
+  'Bahamas',
+  'United Arab Emirates',
+  'Democratic Republic of the Congo',
+  'Republic of the Congo',
+  'Congo',
+  'Philippines',
+  'Gambia',
+  'United States',
+  'Ivory Coast',
+  'Maldives',
+  'Comoros',
+  'Seychelles',
+  'Central African Republic',
+  'Marshall Islands',
+  'Solomon Islands',
+  'Cayman Islands',
+  'Falkland Islands',
+  'Faroe Islands',
+  'Isle of Man',
+]));
+
+/**
+ * A country as it should appear inside a sentence.
+ *
+ * "from the Netherlands", "from Norway". Returns null for a country it cannot
+ * canonicalise, so a caller that has nothing to say says nothing rather than
+ * printing "the undefined". A canonical name not on the article list is
+ * returned unchanged — which is the correct behaviour for the 150-odd
+ * countries in the data that take no article, and for any country that arrives
+ * tomorrow.
+ */
+export function countryPhrase(country) {
+  const canonical = canonicalCountry(country);
+  if (!canonical) return null;
+  return ARTICLE_COUNTRIES.has(canonical) ? `the ${canonical}` : canonical;
+}
+
+/** The article list, for tests and for anyone auditing display grammar. */
+export const articleCountries = () => [...ARTICLE_COUNTRIES];
+
+/**
  * Region membership, by canonical country name.
  *
  * Countries with no arrivals in the current data are included where they are

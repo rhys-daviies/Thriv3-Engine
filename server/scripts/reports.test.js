@@ -248,8 +248,13 @@ describeReports('outreachQA', () => {
      * Re-pinned again at J8: a congratulation says "as well" only when a claim
      * about the programme precedes it, which in a recognition-only email is
      * never.
+     *
+     * And again at K3C, for the regional clause: it now names the seasons that
+     * ADMITTED it rather than the oldest it ever saw, compresses past three
+     * countries, and gives countries their definite article — "the United
+     * Kingdom", not "United Kingdom".
      */
-    expect(sha(result.out)).toBe('ccf749c48734ff19');
+    expect(sha(result.out)).toBe('b764de7381c41e1c');
   });
 });
 

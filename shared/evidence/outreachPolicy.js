@@ -62,8 +62,35 @@
  *
  * A P2 send and a P3 send are different products. Pooling their reply rates
  * would average two engines, which is the whole reason this field exists.
+ *
+ * ---------------------------------------------------------------------------
+ * P4 — K3C. One bump for the whole remediation package, because it ships as
+ * one thing and a version per edit would make this field a changelog instead
+ * of a boundary.
+ *
+ *   LICENSING     recruiting-pattern PRESENCE claims are licensed by the
+ *                 observation rather than by sport, so women's soccer may now
+ *                 say COACH_ARRIVAL_SAME_COUNTRY, ARRIVAL_SAME_COUNTRY_POSITION
+ *                 and ARRIVAL_SAME_REGION_POSITION where the rows support it.
+ *                 ABSENCE and PROPORTION are unchanged and still gated:
+ *                 `countryAbsence` still refuses on UNVALIDATED coverage, and
+ *                 INTERNATIONAL_SHARE and POSITION_INTAKE_HISTORY stay DENIED
+ *                 for every sport. Nine licensed kinds still.
+ *   COPY          the regional clause names the seasons that ADMITTED it
+ *                 rather than the oldest it ever saw; it compresses past three
+ *                 countries on the graduation convention; and countries carry
+ *                 their definite article.
+ *
+ * NOT the reason for the bump, and listed so nobody looks for them here: the
+ * manifest V1->V2 transition is data comparability, and the saved-template
+ * fixture is test coverage. Neither changes what any email says.
+ *
+ * QUALIFICATION AND SELECTION DID NOT MOVE. `recentSeasons` keeps its exact
+ * behaviour, the hook ladder is untouched, and POSITION_FLOW_HOLD is
+ * untouched — which is why OUTBOUND_DECISION did not move on the copy half of
+ * this package.
  */
-export const OUTREACH_POLICY_VERSION = 'P3';
+export const OUTREACH_POLICY_VERSION = 'P4';
 
 /**
  * Everything sent before P2, and the only value that may be written to a
@@ -96,6 +123,13 @@ export const KNOWN_POLICY_VERSIONS = Object.freeze([
    * name it rather than treat it as corruption.
    */
   'P2',
+  /**
+   * P3 is retired from new writes and stays known, on exactly the argument P2
+   * is kept on. The 41 historical sends are LEGACY_UNKNOWN and no row carries
+   * P3 either, but a build that met one must be able to name it. No historical
+   * send is migrated: a stored version records what produced that email.
+   */
+  'P3',
   OUTREACH_POLICY_VERSION,
 ]);
 

@@ -109,6 +109,22 @@ const SCENARIOS = [
     expect: 'the same, and domestic on top of it' },
   { persona: K_TIGHT_M, college: 'Morningside', scenario: 'K2N/K-TIGHT-M/NO_ARRIVAL_DATA',
     expect: 'the same' },
+
+  /*
+   * K3C — the women's side, which until now could produce no recruiting
+   * Evidence at all. These are the scenarios K2's Task E asked for and could
+   * not run, because the sport gate refused before any of them was reachable.
+   */
+  { persona: K_TIGHT, college: 'Appalachian State', scenario: 'K3C/K-TIGHT/W_REGION_RECENT',
+    expect: 'a UK_IRELAND midfield claim — the positive control K2 could not produce' },
+  { persona: K_TIGHT, college: 'Charlotte', scenario: 'K3C/K-TIGHT/W_SAME_COUNTRY_POSITION',
+    expect: 'an Irish midfield arrival, same country and position' },
+  { persona: K_TIGHT, college: 'Middle Georgia State', scenario: 'K3C/K-TIGHT/W_COACH_SAME_COUNTRY',
+    expect: 'a coach-attributed Irish arrival' },
+  { persona: K_TIGHT, college: 'Baylor', scenario: 'K3C/K-TIGHT/W_REGION_STALE',
+    expect: 'NOTHING regional — the only UK_IRELAND midfield arrival is 2023' },
+  { persona: K_TIGHT, college: 'Duke', scenario: 'K3C/K-TIGHT/W_NO_MATCHING_ARRIVAL',
+    expect: 'no country or region claim; whatever else the programme supports' },
 ];
 
 /**

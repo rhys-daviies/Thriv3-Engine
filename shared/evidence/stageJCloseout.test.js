@@ -73,13 +73,18 @@ describe('the policy version tracks what Stage J changed', () => {
      * outreachPolicy.js, and the version had stayed at P2 while its own
      * description stopped being true of the engine.
      */
-    expect(OUTREACH_POLICY_VERSION).toBe('P3');
+    // J8 set P3. K3C set P4 on the same rule — a licensing change and two
+    // copy-semantic ones. What this test protects is that the version MOVED
+    // when the engine did, not that it stopped at any particular letter.
+    expect(KNOWN_POLICY_VERSIONS).toContain('P3');
+    expect(OUTREACH_POLICY_VERSION).not.toBe('P2');
   });
 
-  it('still knows P2 and LEGACY_UNKNOWN, and pools neither with P3', () => {
-    expect(KNOWN_POLICY_VERSIONS).toEqual([LEGACY_POLICY_VERSION, 'P2', 'P3']);
+  it('still knows P2 and LEGACY_UNKNOWN, and pools neither with anything', () => {
+    expect(KNOWN_POLICY_VERSIONS).toEqual([LEGACY_POLICY_VERSION, 'P2', 'P3', 'P4']);
     expect(comparablePolicies('P3', 'P3')).toBe(true);
     expect(comparablePolicies('P2', 'P3')).toBe(false);
+    expect(comparablePolicies('P3', 'P4')).toBe(false);
     expect(comparablePolicies(LEGACY_POLICY_VERSION, LEGACY_POLICY_VERSION)).toBe(false);
   });
 

@@ -30,7 +30,7 @@ import { defineEvidence, CONFIDENCE } from './kinds.js';
 import { rosterFreshness } from './freshness.js';
 import { IDENTITY_METHOD, COACH_ATTRIBUTION } from '../recruiting/arrivals.js';
 import {
-  observationsFor, COVERAGE, DATA_STATUS, FIELD_COVERAGE_FLOOR,
+  observationsFor, COVERAGE, FIELD_COVERAGE_FLOOR,
 } from '../recruiting/patterns.js';
 
 /**
@@ -905,9 +905,10 @@ export function transferBehaviour(athlete, ctx) {
 // Everything below is gated four ways, and every gate exists because the
 // sentence it protects would otherwise be confidently wrong:
 //
-//   sport        men's only. 9.7% of women's arrivals carry a nationality flag
-//                against 29.1% of men's, and roster data cannot separate
-//                under-recording from a smaller international share.
+//   sport        a sport whose arrival pipeline is built. Not a data-quality
+//                judgement since K3C: presence is licensed by the observation,
+//                and the under-recording argument gates ABSENCE, in
+//                `countryAbsence`, where it belongs.
 //   coverage     three comparable transitions, or the history is one intake.
 //   field        position recorded on 80% of arrivals, or "one defender" means
 //                "one of the arrivals we could classify".
@@ -920,8 +921,14 @@ const spanOf = (seasons = []) => (seasons.length > 1
   ? `${seasons[0]}-${seasons[seasons.length - 1]}`
   : seasons[0] ?? null);
 
-/** The sports whose nationality data is licensed for outreach claims. */
-export const RECRUITING_EVIDENCE_SPORTS = Object.freeze(['mens-soccer']);
+/**
+ * Sports whose recruiting patterns may be READ AT ALL.
+ *
+ * Kept as a list because a sport with no arrival pipeline has nothing here to
+ * license; it is no longer a statement about data quality. Both soccer files
+ * are built, so both are listed.
+ */
+export const RECRUITING_EVIDENCE_SPORTS = Object.freeze(['mens-soccer', 'womens-soccer']);
 
 /**
  * This athlete's observations at this programme, or null if unlicensed.
@@ -934,7 +941,35 @@ function recruitingObservations(athlete, ctx) {
   const patterns = ctx?.recruiting;
   if (!patterns) return null;
   if (!RECRUITING_EVIDENCE_SPORTS.includes(ctx.sport)) return null;
-  if (patterns.dataStatus?.status !== DATA_STATUS.LICENSED) return null;
+  /*
+   * PRESENCE IS LICENSED BY THE OBSERVATION; ABSENCE IS NOT. That is the whole
+   * rule, and it is why `dataStatus` is no longer consulted here.
+   *
+   * It used to be, and the reason it was is a real one applied in the wrong
+   * place. `countryDataStatus` reports women's nationality coverage
+   * UNVALIDATED because 9.7% of arrivals carry a country against men's 29.1%,
+   * and under-recording cannot be told from a smaller international share.
+   * True — and an argument about ABSENCE. Under-recording cannot make "they
+   * took two midfielders from Sweden" false; it can only make it an
+   * undercount, which is the safe direction. It can make "nobody from Sweden"
+   * false, and THAT is gated, separately and still, by `countryAbsence` in
+   * `patterns.js`, which reads the same UNVALIDATED status and is untouched.
+   * `INTERNATIONAL_SHARE`, the one kind stating a proportion, stays DENIED for
+   * every sport at the registry.
+   *
+   * K3B established the rest of it from the data. `recruiting_arrivals.country`
+   * is a direct copy of `roster_players.country` — 87,449 rows, zero
+   * divergence — and `HISTORICAL_SAME_COUNTRY` reads that same column and has
+   * always been ALLOWED for every sport. Forty women's programmes with an
+   * Irish roster player were rendering "came through the programme from
+   * Ireland" while this gate refused the arrival-shaped version of the same
+   * sentence about the same person. One field cannot be trustworthy on one
+   * path and not the other.
+   *
+   * Coverage stays. "We have not looked enough times" is a different
+   * objection from "this sport's field is thin", and it is the one that still
+   * applies to a programme with one intake on file.
+   */
   if (patterns.coverage?.status !== COVERAGE.SUFFICIENT) return null;
   return observationsFor({
     country: athlete?.country,

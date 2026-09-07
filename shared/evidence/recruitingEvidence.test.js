@@ -6,6 +6,7 @@ import {
 } from './generate.js';
 import { resolveStructure, planFromRoles } from './structures.js';
 import { outreachEvidenceFor, internalEvidence } from './outreachEvidence.js';
+import { permissionsFor, PERMISSION } from './kinds.js';
 
 /** The outbound selector, in the shape these tests ask their questions in. */
 const outbound = (evidence) => outreachEvidenceFor({ all: evidence });
@@ -289,7 +290,7 @@ describe('D. the four gates', () => {
    * and roster data cannot separate under-recording from a smaller
    * international share. Nothing here may become FACT until it can.
    */
-  it('suppresses every kind for women\'s soccer', () => {
+  it('licenses presence for women\'s soccer, and nothing more (K3C)', () => {
     const womens = buildProgrammePatterns(kiwi().map((a) => ({ ...a, sport: 'womens-soccer' })), {
       programme: 'Test',
       sport: 'womens-soccer',
@@ -297,12 +298,27 @@ describe('D. the four gates', () => {
       currentCoach: { coach: 'Pat Coach', attributableTransitions: T },
     });
     const ctx = context(womens, { sport: 'womens-soccer', college: { name: 'Test', sport: 'womens-soccer' } });
-    expect(arrivalSameCountryPosition(RHYS, ctx)).toBeNull();
-    expect(coachArrivalSameCountry(RHYS, ctx)).toBeNull();
-    expect(arrivalSameRegionPosition(RHYS, ctx)).toBeNull();
-    expect(positionIntakeHistory(RHYS, ctx)).toBeNull();
+    /*
+     * K3C reversed this. It used to assert that every recruiting kind was
+     * suppressed for women's soccer, on the grounds that 9.7% nationality
+     * coverage against men's 29.1% cannot tell under-recording from a smaller
+     * international share.
+     *
+     * That argument is about ABSENCE and it is still enforced, in
+     * `countryAbsence`, on the same UNVALIDATED status. It never applied to
+     * PRESENCE: under-recording cannot make "they took a defender from
+     * Australia" false, only an undercount. And the column these read is a
+     * direct copy of the one `HISTORICAL_SAME_COUNTRY` has always been allowed
+     * to read for every sport.
+     */
+    expect(arrivalSameCountryPosition(RHYS, ctx)).not.toBeNull();
+    expect(coachArrivalSameCountry(RHYS, ctx)).not.toBeNull();
     expect(generateEvidence(RHYS, ctx).map((e) => e.kind))
-      .not.toContain('ARRIVAL_SAME_COUNTRY_POSITION');
+      .toContain('ARRIVAL_SAME_COUNTRY_POSITION');
+
+    // POSITION_INTAKE_HISTORY generates and is refused at the registry, for
+    // every sport. Opening the observation did not open the claim.
+    expect(permissionsFor('POSITION_INTAKE_HISTORY').OUTREACH).toBe(PERMISSION.DENIED);
   });
 
   /**

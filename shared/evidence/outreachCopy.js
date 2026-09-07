@@ -1,7 +1,8 @@
 import { positionNoun, positionPlural } from '../positions.js';
 import { conferenceLabel } from '../conference.js';
 import { yearPhrase, joinNames } from './render.js';
-import { renderable, str, strings, POSTSEASON_ROUNDS } from './outreachContract.js';
+import { countryPhrase } from '../recruiting/regions.js';
+import { renderable, str, strings, seasonsInWindow, POSTSEASON_ROUNDS } from './outreachContract.js';
 
 /**
  * The words an outbound email may use, for the ten kinds licensed to send.
@@ -97,6 +98,38 @@ function list(items = []) {
   return `${clean.slice(0, -1).join(', ')} and ${clean[clean.length - 1]}`;
 }
 
+/**
+ * "in 2026" / "across 2025-26" — the seasons a claim actually qualified on.
+ *
+ * Separate from `when` below, which spans a whole history and is right for the
+ * kinds whose point IS the history. This is for the one claim admitted because
+ * it is RECENT, so it names the recent window and nothing older.
+ */
+function acrossSeasons(qualifying = [], all = []) {
+  const ys = [...new Set((qualifying ?? []).map(Number).filter(Number.isFinite))].sort((a, b) => a - b);
+  if (!ys.length) return '';
+  /*
+   * THE COUNT AND THE SPAN MUST DESCRIBE THE SAME PEOPLE.
+   *
+   * `count` is every arrival the cut found, not just the recent ones. So
+   * "five defenders across 2024-26" is a lie whenever one of the five came in
+   * 2023 — which is Montevallo, where the five span 2023 to 2026. Naming the
+   * window as if it bounded the count trades the old defect for a worse one:
+   * the old sentence was true and undersold itself, this would be false.
+   *
+   * So the window is only stated as a span when it genuinely contains the
+   * whole history. Otherwise the sentence keeps the count honest and states
+   * recency as what it is — the most recent season, which is the fact that
+   * admitted the claim.
+   */
+  const history = [...new Set((all ?? []).map(Number).filter(Number.isFinite))].sort((a, b) => a - b);
+  const newest = ys[ys.length - 1];
+  const bounded = history.length > 0 && history.every((y) => ys.includes(y));
+  if (!bounded) return `most recently in ${newest}`;
+  if (ys.length === 1) return `in ${ys[0]}`;
+  return `across ${ys[0]}\u2013${String(newest).slice(-2)}`;
+}
+
 /** "in 2025" / "back in 2023" / "since 2022" for a span. */
 function when(seasons = []) {
   const years = [...new Set((seasons ?? []).filter(Boolean).map(String))].sort();
@@ -185,10 +218,31 @@ const CLAUSE = Object.freeze({
    * the introduction two lines down says where the athlete is actually from.
    */
   ARRIVAL_SAME_REGION_POSITION: (f) => {
-    const where = list(strings(f.countries));
-    const span = when(f.seasons);
-    return `the programme has taken ${count(f.count)} ${noun(f.position, f.count)} `
-      + `from ${where}${span ? ` ${span}` : ''} — the same part of the world`;
+    /*
+     * Countries are named through `countryPhrase`, so this says "the
+     * Netherlands" and not "Netherlands". Display grammar only — the identity
+     * the claim was cut on is untouched.
+     *
+     * The density rule is the graduation convention, reused rather than
+     * reinvented: name up to three, and past that keep the count and give two
+     * examples. K2 measured 22% of these clauses naming four or more countries
+     * and one naming seven, which reads as a query result rather than as
+     * somebody having noticed something. Two names still let a coach check the
+     * claim against their own roster, which is the reason not to go to a bare
+     * count.
+     */
+    const named = strings(f.countries).map(countryPhrase).filter(Boolean);
+    // `qualifyingSeasons` is supplied by the contract on every production
+    // path. Derived here when it is absent so a caller holding hand-built
+    // facts gets the season rather than silently losing it — the same window,
+    // from the same helper, never a second rule.
+    const span = acrossSeasons(f.qualifyingSeasons ?? seasonsInWindow(f.seasons), f.seasons);
+    const head = `the programme has taken ${count(f.count)} ${noun(f.position, f.count)}`;
+    const dated = span ? ` ${span}` : '';
+    return named.length > NAMES_IN_FULL
+      ? `${head} from the same part of the world${dated}, `
+        + `including ${list(named.slice(0, NAMES_WHEN_TRUNCATED))}`
+      : `${head} from ${list(named)}${dated} — the same part of the world`;
   },
 
   /**

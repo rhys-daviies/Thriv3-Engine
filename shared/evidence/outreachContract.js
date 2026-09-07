@@ -96,6 +96,32 @@ export const REGION_RECENCY_SEASONS = 2;
  * regional claim with no date does not qualify — there is no vague form of it
  * to fall back to.
  */
+/**
+ * The seasons inside the recency window, ascending. DISPLAY ONLY.
+ *
+ * K2 found the copy printing the OLDEST season a programme had ever recruited
+ * from while the rule admitted the claim on the NEWEST — "since 2023" on a row
+ * that qualified on 2026, in 86 of 132 rendered clauses. The sentence was
+ * hiding its own justification.
+ *
+ * Deliberately NOT reused inside `recentSeasons`, and this is the important
+ * part: the two would disagree on a season list containing a future year.
+ * `recentSeasons` takes the max and refuses a negative age, so one broken row
+ * dated 2027 fails the whole claim; this returns the valid years and would
+ * pass it. That difference is a QUALIFICATION change, and K3C is not allowed to
+ * make one. The validator keeps its exact behaviour; this only decides what a
+ * claim that already qualified is allowed to print.
+ */
+export const seasonsInWindow = (v) => {
+  const now = Number(SQUAD_SEASON);
+  return (Array.isArray(v) ? v : [])
+    .map((x) => Number(String(x).trim()))
+    .filter((n) => Number.isInteger(n) && n >= 1900 && n <= 2100)
+    .filter((n) => Number.isFinite(now) && now - n >= 0 && now - n <= REGION_RECENCY_SEASONS)
+    .sort((a, b) => a - b)
+    .filter((n, i, xs) => xs.indexOf(n) === i);
+};
+
 export const recentSeasons = (v) => {
   const years = (Array.isArray(v) ? v : []).map((x) => Number(String(x).trim()))
     .filter((n) => Number.isInteger(n) && n >= 1900 && n <= 2100);
@@ -194,6 +220,10 @@ const CONTRACT = Object.freeze({
       // No `region`, and no `provenance`.
       countries: d.countries, position: d.position, count: d.count,
       seasons: d.seasons ?? [], namedArrival: d.name ?? null, namedArrivalSeason: d.nameSeason ?? null,
+      // The seasons that actually admitted the claim, which is what the
+      // sentence must name. `seasons` stays whole for anything reasoning about
+      // the full history.
+      qualifyingSeasons: seasonsInWindow(d.seasons ?? []),
       // What makes the claim honest: this is a WIDER cut than the athlete's
       // own country, and copy that omitted that would let a coach read a row
       // about Australia as a row about a New Zealander.
