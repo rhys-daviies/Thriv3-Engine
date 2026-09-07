@@ -8,6 +8,7 @@ import { createOutreach, markOutreachDrafted, markOutreachSent } from '../lib/ou
 import { logEvidence } from '../lib/evidenceLog.js';
 import { recordDraft, confirmSend } from '../lib/outreachSend.js';
 import { ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
+import { campaignContactDecision } from '../lib/campaignAttribution.js';
 import { evidenceFor } from '../lib/evidenceQueries.js';
 import { templateVariant } from '../../shared/evidence/templateVariant.js';
 import { BODY_SOURCE } from '../../src/lib/emailTemplate.js';
@@ -143,6 +144,43 @@ export async function sendOutreach({
       `Cannot send: the compliance footer is not configured — missing ${gaps.join(', ')}. `
       + 'Every commercial email needs a sender identity, a physical postal address and a working opt-out link.'
     );
+  }
+
+  /**
+   * THE CAMPAIGN GATE, ONCE, BEFORE THE LOOP.
+   *
+   * Every coach in one call is at the same programme, so a stopped programme
+   * or an inactive campaign is a fact about the whole run — evaluating it per
+   * coach would print the same refusal twenty times and leave the operator to
+   * work out that it was one problem. It is checked here against the first
+   * coach whose identity resolves, and the run stops rather than half-running.
+   *
+   * THIS IS A COURTESY, NOT THE GUARANTEE. The authoritative gate is inside
+   * `createOutreach` and `recordDraft`, which are the only two functions that
+   * write a campaign-attributed row — so a future execution engine that skips
+   * this endpoint entirely still cannot get past it. Coach-specific facts —
+   * suppression, the per-inbox cap, revocation — stay in the loop, because
+   * they differ per coach.
+   */
+  if (programmeCampaignId) {
+    const first = coaches.find((c) => c && c.email);
+    if (first) {
+      const record = findOrCreateCoach({
+        full_name: first.name, email: first.email, school: collegeName,
+        division, sport: athlete.sport, position_title: first.title,
+      });
+      const decision = campaignContactDecision({
+        programmeCampaignId, athleteId, coachId: record.id,
+      });
+      if (!decision.allowed && decision.reason !== 'SUPPRESSED') {
+        const err = new Error(
+          `Cannot send for this campaign: ${decision.reason}. `
+          + 'Nothing was drafted.',
+        );
+        err.code = decision.reason;
+        throw err;
+      }
+    }
   }
 
   const missing = checkRequiredCore(athlete);

@@ -52,9 +52,14 @@ const makeCoach = ({ school = 'Duke', email } = {}) => findOrCreateCoach({
 function makeCampaignProgramme(athleteId = ATHLETE, college = 'Duke') {
   const campaign = `camp-${++seq}`;
   const pc = `pc-${++seq}`;
+  // Active and long since started: B3 gates campaign-attributed writes, and
+  // these tests are about message state rather than permission. One active
+  // campaign per athlete, so a new one closes the one before it.
+  db.prepare(`UPDATE campaigns SET state = 'closed', closed_at = '2026-09-07T00:00:00.000Z',
+      close_reason = 'completed' WHERE athlete_id = ? AND state = 'active'`).run(athleteId);
   db.prepare(`INSERT INTO campaigns (id, athlete_id, sport, state, starts_on, created_at,
       updated_at, snapshot_taken_at, programme_count)
-    VALUES (?, ?, 'mens-soccer', 'draft', '2026-09-07', '2026-09-07T00:00:00.000Z',
+    VALUES (?, ?, 'mens-soccer', 'active', '2020-01-01', '2026-09-07T00:00:00.000Z',
       '2026-09-07T00:00:00.000Z', '2026-09-07T00:00:00.000Z', 1)`).run(campaign, athleteId);
   db.prepare(`INSERT INTO programme_campaigns (id, campaign_id, college_name, sport, rank,
       match_score, tier, created_at, updated_at)
@@ -367,11 +372,12 @@ describe('re-drafting', () => {
   });
 
   it('moves campaign attribution with the re-drafted body, never the relationship’s', () => {
-    const one = makeCampaignProgramme();
-    const two = makeCampaignProgramme();
     const coach = makeCoach();
+    const one = makeCampaignProgramme();
     const { outreach } = seedMessage({ coach, programmeCampaignId: one });
 
+    // A season later: campaign 1 closes, campaign 2 opens.
+    const two = makeCampaignProgramme();
     recordDraft({
       outreachId: outreach.id, athleteId: ATHLETE, coachId: coach.id,
       programmeCampaignId: two, evidence: null, body: 'campaign two', subject: 'c2',

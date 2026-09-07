@@ -8,7 +8,7 @@ import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import { createOutreach, outreachCreatedUnder, resolveToken, markOutreachSent } from './outreach.js';
 import { recordDraft, confirmSend, sendsForProgrammeCampaign, sendsForOutreach } from './outreachSend.js';
-import { resolveProgrammeCampaignFor, verifiedProgrammeCampaignId } from './campaignAttribution.js';
+import { resolveProgrammeCampaignFor, authorisedProgrammeCampaignId } from './campaignAttribution.js';
 import { findOrCreateCoach } from './coaches.js';
 import { isSuppressed, suppress } from './suppressions.js';
 import { recentSendCount } from './sendCap.js';
@@ -41,12 +41,25 @@ function insertAthlete(id, name) {
 }
 
 let seq = 0;
+/**
+ * ACTIVE, and started long ago.
+ *
+ * B3 gates campaign-attributed writes on the campaign being active and within
+ * its outreach window, and these tests are about ATTRIBUTION rather than
+ * permission — so the fixture grants permission and gets out of the way. The
+ * start date is far in the past so nothing here depends on what day it is.
+ */
 function makeCampaign(athleteId = ATHLETE, sport = 'mens-soccer') {
+  // An athlete runs ONE campaign at a time — A1's partial unique index — so a
+  // new one closes the one before it. That is also how a second season
+  // actually arrives, which is what the reuse tests below depend on.
+  db.prepare(`UPDATE campaigns SET state = 'closed', closed_at = '2026-09-07T00:00:00.000Z',
+      close_reason = 'completed' WHERE athlete_id = ? AND state = 'active'`).run(athleteId);
   const id = `camp-${++seq}`;
   db.prepare(`
     INSERT INTO campaigns (id, athlete_id, sport, state, starts_on, created_at, updated_at,
       snapshot_taken_at, programme_count)
-    VALUES (?, ?, ?, 'draft', '2026-09-07', '2026-09-07T00:00:00.000Z',
+    VALUES (?, ?, ?, 'active', '2020-01-01', '2026-09-07T00:00:00.000Z',
       '2026-09-07T00:00:00.000Z', '2026-09-07T00:00:00.000Z', 1)
   `).run(id, athleteId, sport);
   return id;
@@ -244,11 +257,12 @@ describe('creating a relationship with campaign context', () => {
 
 describe('provenance is written once and never rewritten', () => {
   it('keeps the first campaign when a second reuses the relationship', () => {
-    const first = makeProgramme(makeCampaign());
-    const second = makeProgramme(makeCampaign());
     const coach = makeCoach();
-
+    const first = makeProgramme(makeCampaign());
     const opened = createOutreach({ athleteId: ATHLETE, coachId: coach.id, programmeCampaignId: first });
+
+    // A season later. Campaign 1 closes as campaign 2 opens.
+    const second = makeProgramme(makeCampaign());
     const reused = createOutreach({ athleteId: ATHLETE, coachId: coach.id, programmeCampaignId: second });
 
     expect(reused.id).toBe(opened.id);
@@ -318,12 +332,12 @@ describe('a send names its own campaign', () => {
   it('moves the attribution when a pending draft is replaced under another campaign', () => {
     // Re-drafting replaces the message sitting in Outlook. The row must not
     // keep the old campaign's attribution while carrying the new one's text.
-    const first = makeProgramme(makeCampaign());
-    const second = makeProgramme(makeCampaign());
     const coach = makeCoach();
+    const first = makeProgramme(makeCampaign());
     const o = createOutreach({ athleteId: ATHLETE, coachId: coach.id, programmeCampaignId: first });
-
     const a = draft({ outreachId: o.id, athleteId: ATHLETE, coachId: coach.id, programmeCampaignId: first });
+
+    const second = makeProgramme(makeCampaign());
     const b = draft({ outreachId: o.id, athleteId: ATHLETE, coachId: coach.id, programmeCampaignId: second });
 
     expect(b.id).toBe(a.id);            // the same pending draft
@@ -343,16 +357,17 @@ describe('a send names its own campaign', () => {
  */
 describe('Campaign 1 opened it, Campaign 2 used it', () => {
   it('keeps the relationship with Campaign 1 and attributes each message correctly', () => {
-    const one = makeProgramme(makeCampaign());
-    const two = makeProgramme(makeCampaign());
     const coach = makeCoach();
 
     // --- Campaign 1: opens the relationship and sends.
+    const one = makeProgramme(makeCampaign());
     const o = createOutreach({ athleteId: ATHLETE, coachId: coach.id, programmeCampaignId: one });
     draft({ outreachId: o.id, athleteId: ATHLETE, coachId: coach.id, programmeCampaignId: one });
     confirmSend(o.id, '2026-09-10T00:00:00.000Z');
 
-    // --- Campaign 2, a season later: same athlete, same coach, same row.
+    // --- Campaign 2, a season later: campaign 1 closes, campaign 2 opens, and
+    // the same athlete reaches the same coach through the same row.
+    const two = makeProgramme(makeCampaign());
     const reused = createOutreach({ athleteId: ATHLETE, coachId: coach.id, programmeCampaignId: two });
     expect(reused.id).toBe(o.id);
     draft({ outreachId: o.id, athleteId: ATHLETE, coachId: coach.id, programmeCampaignId: two });
@@ -443,8 +458,10 @@ describe('reads', () => {
 
 describe('the guard itself', () => {
   it('passes null straight through without a lookup', () => {
-    expect(verifiedProgrammeCampaignId({ programmeCampaignId: null, athleteId: 'x', coachId: 'y' })).toBeNull();
-    expect(verifiedProgrammeCampaignId({ athleteId: 'x', coachId: 'y' })).toBeNull();
+    // Legacy and manual outreach has no campaign and is not gated at all.
+    expect(authorisedProgrammeCampaignId({ programmeCampaignId: null, athleteId: 'x', coachId: 'y' }))
+      .toBeNull();
+    expect(authorisedProgrammeCampaignId({ athleteId: 'x', coachId: 'y' })).toBeNull();
   });
 
   it('returns the verified row for a caller that needs it', () => {

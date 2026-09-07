@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import { utcNow } from './time.js';
 import { generateToken, generateUnique } from './tokens.js';
-import { verifiedProgrammeCampaignId } from './campaignAttribution.js';
+import { authorisedProgrammeCampaignId } from './campaignAttribution.js';
 
 const tokenTaken = (candidate) => !!db.prepare('SELECT 1 FROM outreach WHERE token = ?').get(candidate);
 
@@ -35,15 +35,28 @@ const tokenTaken = (candidate) => !!db.prepare('SELECT 1 FROM outreach WHERE tok
  * from whichever campaign happened to reuse it would be inventing a history.
  * ---------------------------------------------------------------------------
  */
-export function createOutreach({ athleteId, coachId, matchId = null, programmeCampaignId = null }) {
-  // Validated before the existing-row check, so a wrong attribution is refused
-  // whether or not the relationship happens to exist already. A caller passing
-  // another athlete's campaign has a bug either way.
-  const verified = verifiedProgrammeCampaignId({ programmeCampaignId, athleteId, coachId });
-
+export function createOutreach({
+  athleteId, coachId, matchId = null, programmeCampaignId = null, onDate = undefined,
+}) {
+  // READ FIRST, so the gate can see a relationship that already exists. It is
+  // only a read; nothing is written until the authorisation below has passed.
   const existing = db
     .prepare('SELECT * FROM outreach WHERE athlete_id = ? AND coach_id = ?')
     .get(athleteId, coachId);
+
+  /**
+   * B3: identity AND permission, before anything is written and BEFORE the
+   * existing-row shortcut — so a campaign that may not send is refused whether
+   * or not the relationship happens to exist already. Passing `existing.id` is
+   * what lets a REVOKED relationship be refused: revocation killed the token
+   * and, until B3, stopped nothing else.
+   *
+   * Null campaign means legacy or manual outreach and is not gated at all.
+   */
+  const verified = authorisedProgrammeCampaignId({
+    programmeCampaignId, athleteId, coachId, outreachId: existing?.id ?? null, onDate,
+  });
+
   // Returned UNCHANGED, including a NULL provenance. This is the line that
   // keeps "first created under" true.
   if (existing) return existing;

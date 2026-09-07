@@ -3,7 +3,7 @@ import db from '../db/client.js';
 import { utcNow } from './time.js';
 import { buildSendSnapshot } from '../../shared/evidence/sendSnapshot.js';
 import { LEGACY_POLICY_VERSION } from '../../shared/evidence/outreachPolicy.js';
-import { verifiedProgrammeCampaignId } from './campaignAttribution.js';
+import { authorisedProgrammeCampaignId } from './campaignAttribution.js';
 import {
   MESSAGE_STATE, ACCEPTED_SOURCE, OPEN_STATES, LEGAL_TRANSITIONS, canTransition,
   isMessageState, isSendEventType,
@@ -104,7 +104,7 @@ export function nextSequence(outreachId) {
  */
 export function recordDraft({
   outreachId, athleteId, coachId, collegeName = null, sport = null,
-  programmeCampaignId = null,
+  programmeCampaignId = null, onDate = undefined,
   evidence, body = null, subject = null,
   bodySource = null, templateVariant = null, renderedKinds = null,
   at = utcNow(),
@@ -122,7 +122,14 @@ export function recordDraft({
    * So whoever composes the message says which campaign it is for, or says
    * nothing and gets NULL, which is the honest record of a manual send.
    */
-  const verifiedCampaign = verifiedProgrammeCampaignId({ programmeCampaignId, athleteId, coachId });
+  /**
+   * B3 gates this as well as A6 attributing it, and DRAFTING IS GATED TOO — a
+   * stopped programme must not go on accumulating drafts that somebody can
+   * send later. Nothing is written when it refuses.
+   */
+  const verifiedCampaign = authorisedProgrammeCampaignId({
+    programmeCampaignId, athleteId, coachId, outreachId, onDate,
+  });
   const snapshot = buildSendSnapshot({
     evidence, body, subject, bodySource, templateVariant, renderedKinds,
   });
