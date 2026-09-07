@@ -84,6 +84,7 @@ function main() {
     if (!moved.length && cmp.dataset === 'UNCHANGED') console.log('    nothing moved.');
     writeFileSync(EXPECTED_PATH, `${JSON.stringify({
       note: 'Committed Evidence behavioural baseline. See docs/EVIDENCE_BASELINES.md before repinning.',
+      now: cmp.now,
       manifest: cmp.manifest,
       baselines: cmp.results.map((r) => ({ name: r.name, size: r.size, digest: r.digest })),
     }, null, 2)}\n`);

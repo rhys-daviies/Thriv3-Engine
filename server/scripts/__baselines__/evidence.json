@@ -1,5 +1,6 @@
 {
   "note": "Committed Evidence behavioural baseline. See docs/EVIDENCE_BASELINES.md before repinning.",
+  "now": "2026-09-06T00:00:00.000Z",
   "manifest": {
     "tables": [
       {
@@ -49,17 +50,17 @@
     {
       "name": "OPERATOR_WIRE",
       "size": 4742,
-      "digest": "f2feda81eccb9b27be283ecf9f38fc6efc2576fd67ba17bae3919e30b228a1b8"
+      "digest": "ff1efd287af573ef83f2cc5eb3feb887b5ced0214161919f8b0b258947cfd452"
     },
     {
       "name": "LOG_PAYLOAD",
       "size": 4742,
-      "digest": "0b8d7970610626481eb492af0a496299f40a5fb78fd8bdc8dfe0950a2c207dc8"
+      "digest": "63e68a3054cd821803b8276b44345facfb666b79da81d9be69b06709003413ef"
     },
     {
       "name": "OPERATOR_EVIDENCE",
       "size": 4742,
-      "digest": "709b552d5ecbde5e1182b207792f9f2906c03ccf6e35c74359c7fad4dde43e4f"
+      "digest": "5070be6cbc0011f2f00dfae3f7f6928cb932e8306e2452589ad5ce1850c17411"
     }
   ]
 }

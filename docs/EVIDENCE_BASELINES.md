@@ -124,3 +124,63 @@ read-only, and that is itself asserted.
 - **`npm run backtest`** — the matching model. It consumes a different engine
   with its own tuning cycle, and coupling it would mean an evidence baseline
   failing because someone adjusted a weight. Kept separate deliberately.
+
+## The clock, and the two stages that lost to it
+
+`buildBaselines` reads the corpus at a fixed instant, `BASELINE_NOW`, not at
+the wall clock. That constant is the fix for a defect the baseline system was
+born with, and it is worth knowing about before anyone is tempted to remove it.
+
+`rosterUpdatedAt` — the newest `updated_date` on a programme's squad rows —
+feeds `rosterFreshness(updatedAt, now)`, which returns `ageDays` and a `reason`
+with that number written into it. `toWire`, `evidenceLogPayload` and
+`wireOperatorEvidence` each copy the whole `programme` block, so **three of the
+six baselines had a day counter inside the bytes being hashed**.
+`OUTBOUND_DECISION`, `COACH_COMPOSITION` and `EMAIL_BODY` project a named field
+list that never included it, which is the only reason they stayed stable and
+the reason the split looked mysterious rather than obvious.
+
+So those three pins were correct when written and wrong the next morning:
+
+| pinned at | commit | failed by |
+|---|---|---|
+| H18, the commit that introduced the system | `bb1248a` | the following day |
+| J8 closeout | `5ac8107` | about two hours later, when Akron's roster crossed nine days old to ten |
+
+Both eras were **reproduced exactly** by re-running that same code with the
+clock frozen to the commit's own timestamp. That is what proved it. The
+smallest semantic diff between the two clocks is two leaf names — `ageDays` and
+`rosterAgeDays` — changing by one, and nothing else in ~180 to ~640 leaves.
+
+### Why a fixed clock rather than deleting the fields
+
+Freshness is not decoration. `state` decides whether `CURRENT` evidence is
+suppressed at all, and `seasonIsBehind` flips every programme's context in
+January. Stripping the fields would blind the baseline to a real product
+change. Pinning the clock keeps all of it under the hash and makes the whole
+thing a pure function of code and data — the same argument, and the same shape,
+as `FIXED_PROFILE_URL`.
+
+Moving `BASELINE_NOW` moves every baseline, deliberately. It is a statement
+about which day the corpus is read on.
+
+### The guard
+
+`evidenceBaseline.test.js` builds the corpus at two instants a year apart and
+requires all six digests to be identical. **A hash comparison cannot catch this
+class of defect on its own**: every run inside one day agrees with every other,
+so five runs, a fresh process and a clean worktree all reproduce the same wrong
+answer. Only two different clocks separate a behavioural fingerprint from a
+clock reading. If that test fails, a new environmental value has entered a
+payload, and repinning would restart the decay rather than fix it.
+
+### Known gap: the manifest does not cover `updated_date`
+
+The manifest fingerprints `roster_players` by `(college_name, sport, season,
+player_name)`. `rosterUpdatedAt` comes from `updated_date`, which is **not** in
+it. A re-scrape that rewrites timestamps without changing a single roster row
+would move `OPERATOR_WIRE`, `LOG_PAYLOAD` and `OPERATOR_EVIDENCE` while the
+dataset line still read `UNCHANGED` — the same misdiagnosis as the clock
+defect, arriving from data instead. Not closed here: widening the manifest
+changes the dataset digest and makes every pin `UNCOMPARABLE` at once, which is
+a decision to take deliberately rather than as a side effect.

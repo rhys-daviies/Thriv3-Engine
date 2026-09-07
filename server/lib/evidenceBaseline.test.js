@@ -265,3 +265,43 @@ d('the corpus is worth hashing', () => {
     expect(s.held).toBeGreaterThan(0);
   });
 });
+
+/* -------------------------------------------------------------------------- */
+/* The clock                                                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * THE GUARD THAT SHOULD HAVE EXISTED AT H18.
+ *
+ * Three of the six baselines carried `ageDays` — a whole-day counter derived
+ * from `Date.now()` — inside the bytes being hashed. They were correct when
+ * pinned and wrong the next morning, and because the corpus, the code and the
+ * dataset manifest were all genuinely unchanged, the failure read as an
+ * unexplained regression for two stages.
+ *
+ * A hash comparison cannot notice this on its own: every run inside one day
+ * agrees with every other, so five runs, a fresh process and a clean worktree
+ * all reproduce the same wrong answer. Only running the SAME code and data at
+ * two DIFFERENT instants separates a behavioural fingerprint from a clock
+ * reading, so that is what this does.
+ *
+ * If this test ever fails, a new environmental value has entered a payload.
+ * Repinning would not fix it; it would restart the same daily decay.
+ */
+d('the baselines do not depend on when they are run', () => {
+  const at = (iso) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
+    const F = Date.parse(${JSON.stringify(iso)});
+    Date.now = () => F;
+    const { buildBaselines } = await import(${JSON.stringify(path.join(ROOT, 'server/lib/evidenceBaseline.js'))});
+    const b = buildBaselines();
+    process.stdout.write(JSON.stringify(b.baselines.map((x) => [x.name, x.digest])));
+  `], { cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: DB }, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
+
+  it('produces identical digests a year apart', () => {
+    // A year, not a day: it also crosses the season boundary `seasonIsBehind`
+    // reads, which would flip every programme's context and move all six.
+    const early = at('2026-09-06T00:00:00Z');
+    const later = at('2027-09-06T00:00:00Z');
+    expect(later).toEqual(early);
+  });
+});

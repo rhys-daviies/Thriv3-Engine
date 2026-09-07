@@ -256,9 +256,23 @@ export function programmeInputs(collegeName, sport, { match = null, now = Date.n
  * `athlete` is a raw `players` row; normalisation happens inside
  * selectEvidence so every caller gets the same treatment.
  */
+/**
+ * `now` is threaded, not read, for one reason: freshness is clock-derived.
+ *
+ * `programmeInputs` already takes it and already defaults it, so this is that
+ * convention carried one level up rather than a new idea. Every caller that
+ * omits it gets `Date.now()` and is byte-identical to before.
+ *
+ * K3A is why it exists. `rosterUpdatedAt` feeds `rosterFreshness`, which puts
+ * `ageDays` and a `reason` naming that number into the operator wire, the log
+ * payload and the operator evidence — so three committed behavioural baselines
+ * changed value once a day, at the instant a programme's roster aged past a
+ * whole-day boundary, with no code and no data having moved. A harness that
+ * cannot say what time it is cannot hash a clock-dependent payload.
+ */
 export function evidenceFor(athlete, collegeName, {
   sport = null, match = null, maxEmail = MAX_EMAIL_EVIDENCE, prefer = null,
-  preferStructure = null,
+  preferStructure = null, now = Date.now(),
 } = {}) {
   const resolved = sport || athlete.sport || 'mens-soccer';
 
@@ -277,7 +291,7 @@ export function evidenceFor(athlete, collegeName, {
    */
   const usable = match && match.roster_season === SQUAD_SEASON ? match : null;
   const resolvedMatch = usable ?? departureFields(collegeName, resolved, athlete);
-  const inputs = programmeInputs(collegeName, resolved, { match: resolvedMatch });
+  const inputs = programmeInputs(collegeName, resolved, { match: resolvedMatch, now });
 
   /**
    * The athlete's own view of this programme's freshman ladder.

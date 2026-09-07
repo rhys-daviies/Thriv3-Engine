@@ -159,6 +159,46 @@ export function canonicalCorpus() {
 const FIXED_PROFILE_URL = 'https://baseline.invalid/p/FIXED';
 
 /**
+ * The instant this baseline is taken at. A CONSTANT, and it must stay one.
+ *
+ * ---------------------------------------------------------------------------
+ * THE DEFECT THIS FIXES, because it cost three baselines their entire life.
+ *
+ * `rosterUpdatedAt` — the newest `updated_date` on a programme's squad rows —
+ * feeds `rosterFreshness(updatedAt, now)`, which returns `ageDays` and a
+ * `reason` with that number written into it. `toWire`, `evidenceLogPayload`
+ * and `wireOperatorEvidence` each carry the whole `programme` block, so all
+ * three had a day counter inside the bytes being hashed.
+ *
+ * OUTBOUND_DECISION, COACH_COMPOSITION and EMAIL_BODY project a named field
+ * list that never included it, which is the only reason they were stable and
+ * the reason the split looked mysterious rather than obvious.
+ *
+ * So the three pins were correct when written and wrong the next morning. H18
+ * pinned them at bb1248a and they failed by the following day; J8 repinned
+ * them at 5ac8107 and they failed about two hours later, when Akron's roster
+ * crossed from nine days old to ten. Both eras were reproduced exactly by
+ * rerunning that same code with the clock frozen to the commit's own
+ * timestamp — which is what proved this rather than argued it.
+ *
+ * ---------------------------------------------------------------------------
+ * WHY A FIXED CLOCK AND NOT A FIELD STRIPPED OUT.
+ *
+ * Freshness is not decoration. `state` decides whether CURRENT evidence is
+ * suppressed at all, and `seasonIsBehind` flips every programme's context in
+ * January. Deleting the fields would blind the baseline to a real product
+ * change; pinning the clock keeps every one of them under the hash and makes
+ * the whole thing a pure function of code and data. Same argument, and the
+ * same shape, as FIXED_PROFILE_URL above.
+ *
+ * MOVING THIS CONSTANT MOVES EVERY BASELINE, deliberately: it is a statement
+ * about which day the corpus is being read on, and that is a product-relevant
+ * fact, not a detail. Chosen as the UTC midnight before the H18 pins so the
+ * fixed reading sits in the same freshness band those baselines were born in.
+ */
+export const BASELINE_NOW = Date.parse('2026-09-06T00:00:00Z');
+
+/**
  * Five fingerprints, each for a boundary the others cannot see.
  *
  * They are layered, and the layering is the diagnostic: a change that moves
@@ -205,7 +245,7 @@ export function buildBaselines() {
 
   for (const { athlete, sport, college } of canonicalCorpus()) {
     let ev;
-    try { ev = evidenceFor(athlete, college, { sport }); }
+    try { ev = evidenceFor(athlete, college, { sport, now: BASELINE_NOW }); }
     catch (err) {
       // Recorded, not skipped. A pairing that starts throwing is a regression,
       // and a harness that silently drops it would hash the same as before.
@@ -355,6 +395,8 @@ export function buildBaselines() {
 
   return {
     manifest: datasetManifest(),
+    /** Recorded so a reader can see which clock the hashes were taken at. */
+    now: new Date(BASELINE_NOW).toISOString(),
     stats,
     invariants,
     baselines: [
@@ -403,6 +445,7 @@ export function compareBaselines(expected, actual = buildBaselines()) {
     datasetExpected: expected?.manifest?.digest ?? null,
     datasetActual: actual.manifest.digest,
     manifest: actual.manifest,
+    now: actual.now,
     stats: actual.stats,
     invariants: actual.invariants,
     results,
