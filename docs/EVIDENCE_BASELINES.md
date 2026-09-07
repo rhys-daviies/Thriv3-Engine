@@ -184,3 +184,43 @@ dataset line still read `UNCHANGED` — the same misdiagnosis as the clock
 defect, arriving from data instead. Not closed here: widening the manifest
 changes the dataset digest and makes every pin `UNCOMPARABLE` at once, which is
 a decision to take deliberately rather than as a side effect.
+
+## Manifest V1 → V2: roster freshness
+
+The manifest carries a `version`. It changed once, at K3C, and the two
+definitions are not comparable.
+
+**V1** fingerprinted five tables by their identifying columns. **V2** adds a
+sixth component, `roster_freshness`.
+
+K3A found the gap: `rosterUpdatedAt` reads `updated_date`, which V1 never
+looked at. A re-scrape that only rewrote timestamps would move
+`OPERATOR_WIRE`, `LOG_PAYLOAD` and `OPERATOR_EVIDENCE` while the dataset line
+still read `UNCHANGED` — exactly the misdiagnosis the manifest exists to
+prevent, arriving from data instead of the clock.
+
+`roster_freshness` is `MAX(updated_date)` per `(college_name, sport)` **in
+`SQUAD_SEASON` only** — 1,910 rows, digest `80ab2d600fdb4462`. That is the unit
+production reads: `buildProgrammeContext` calls `latestUpdate(squadRows)`, and
+`squadRows` filters to the current season. Deliberately not every row's raw
+timestamp: there are ~11,800 distinct values in the table, so a full-timestamp
+digest would flap on any partial re-scrape, and a manifest that reports
+`CHANGED` constantly teaches people to repin without reading it. The narrow
+definition is also the honest one — a historical season's timestamp reaches no
+email, and moving the digest for it would claim a dependency that is not there.
+Both directions are tested.
+
+| | digest |
+|---|---|
+| V1 combined | `7f19b7d8b75608c2` |
+| V2 combined | `5bbca9054b7752d5` |
+
+**A V1 pin now reports `DEFINITION_CHANGED`, and every product line reads
+`UNCOMPARABLE` rather than `FAIL`.** That is not a baseline failure and must
+not be described as one: a digest computed under V1 answers a different
+question, so it is not a wrong answer to V2's, it is an answer to something
+else. The transition is a one-time explicit repin.
+
+**The transition moved no behavioural hash.** All six were byte-identical
+across it — proof that the manifest change is comparability only and touches no
+product behaviour.

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { SQUAD_SEASON } from '../../shared/philosophy.js';
 import db from '../db/client.js';
 import { evidenceFor } from './evidenceQueries.js';
 import { evidenceLogPayload } from '../../shared/evidence/index.js';
@@ -86,6 +87,26 @@ export const short = (d) => String(d).slice(0, 16);
  * catch a re-import, a roster refresh or a new programme, which are the
  * changes that move product hashes for reasons that are not code.
  */
+/**
+ * The manifest's definition, versioned because it changed once and will again.
+ *
+ * V1 fingerprinted five tables by their identifying columns. V2 adds
+ * `roster_freshness`, because K3A found a behavioural input the five did not
+ * cover: `rosterUpdatedAt` reads `updated_date`, which V1 never looked at, so a
+ * re-scrape that only rewrote timestamps would move three behavioural hashes
+ * while the dataset line still read UNCHANGED — the precise misdiagnosis the
+ * manifest exists to prevent.
+ *
+ * V1 AND V2 DIGESTS ARE NOT COMPARABLE, and the report says UNCOMPARABLE rather
+ * than FAIL when it meets one across the boundary. They describe different
+ * questions about the data; a number computed for one is not a wrong answer to
+ * the other, it is an answer to something else.
+ */
+export const MANIFEST_VERSION = 'V2';
+
+/** The last version before `roster_freshness`, kept so a V1 pin is nameable. */
+export const LEGACY_MANIFEST_VERSION = 'V1';
+
 const MANIFEST_TABLES = Object.freeze([
   ['players', 'SELECT id, full_name, sport, nationality, position, intended_major, recruiting_class_year FROM players ORDER BY id'],
   ['colleges', 'SELECT name, sport, unitid, division, conference FROM colleges ORDER BY sport, name'],
@@ -101,6 +122,34 @@ const MANIFEST_TABLES = Object.freeze([
  * job is to describe what it found, and a schema that has lost a table is
  * information the report should carry, not a crash.
  */
+/**
+ * Roster freshness, in exactly the unit production reads it.
+ *
+ * `buildProgrammeContext` calls `latestUpdate(squadRows)`, and `squadRows` is
+ * `(college_name, sport)` filtered to `SQUAD_SEASON` — so the behavioural input
+ * is one MAX per programme-sport over the CURRENT season, and that is what this
+ * fingerprints. Deliberately not every row's raw timestamp: there are ~11,800
+ * distinct values across the table, so a full-timestamp digest would flap on
+ * any partial re-scrape, and a manifest that reports CHANGED constantly teaches
+ * people to repin without reading it.
+ *
+ * The narrow definition is also the honest one. A historical season's timestamp
+ * and a non-max row in the current season do not reach any email, so moving
+ * this digest for them would be claiming a behavioural dependency that is not
+ * there.
+ */
+const ROSTER_FRESHNESS_SQL = `
+  SELECT college_name, sport, MAX(updated_date) AS latest
+  FROM roster_players
+  WHERE season = ?
+  GROUP BY college_name, sport
+  ORDER BY sport, college_name`;
+
+export function rosterFreshnessFingerprint() {
+  const rows = db.prepare(ROSTER_FRESHNESS_SQL).all(SQUAD_SEASON);
+  return { table: 'roster_freshness', rows: rows.length, digest: digest(canonical(rows)) };
+}
+
 export function datasetManifest() {
   const tables = [];
   for (const [name, sql] of MANIFEST_TABLES) {
@@ -109,7 +158,9 @@ export function datasetManifest() {
     catch (err) { tables.push({ table: name, rows: null, digest: null, error: err.message }); continue; }
     tables.push({ table: name, rows: rows.length, digest: digest(canonical(rows)) });
   }
-  return { tables, digest: digest(canonical(tables)) };
+  try { tables.push(rosterFreshnessFingerprint()); }
+  catch (err) { tables.push({ table: 'roster_freshness', rows: null, digest: null, error: err.message }); }
+  return { version: MANIFEST_VERSION, tables, digest: digest(canonical(tables)) };
 }
 
 /* -------------------------------------------------------------------------- */
@@ -430,7 +481,17 @@ export const CONTRADICTION_KEYS = Object.freeze([
 ]);
 
 export function compareBaselines(expected, actual = buildBaselines()) {
-  const datasetOk = expected?.manifest?.digest === actual.manifest.digest;
+  /**
+   * A pin from an older manifest DEFINITION is not a failed comparison.
+   *
+   * V1 did not look at roster freshness, so its digest answers a different
+   * question from V2's. Reporting that as CHANGED would be true but useless —
+   * it reads as "the data moved" when what moved is what we count as data. The
+   * verdict is its own value so the transition is legible exactly once.
+   */
+  const expectedVersion = expected?.manifest?.version ?? LEGACY_MANIFEST_VERSION;
+  const versionChanged = expectedVersion !== actual.manifest.version;
+  const datasetOk = !versionChanged && expected?.manifest?.digest === actual.manifest.digest;
   const byName = new Map((expected?.baselines ?? []).map((b) => [b.name, b]));
   const results = actual.baselines.map((b) => {
     const want = byName.get(b.name);
@@ -441,7 +502,9 @@ export function compareBaselines(expected, actual = buildBaselines()) {
     return { ...b, status: 'PASS', expected: want.digest };
   });
   return {
-    dataset: datasetOk ? 'UNCHANGED' : 'CHANGED',
+    dataset: datasetOk ? 'UNCHANGED' : (versionChanged ? 'DEFINITION_CHANGED' : 'CHANGED'),
+    manifestVersion: actual.manifest.version,
+    manifestVersionExpected: expectedVersion,
     datasetExpected: expected?.manifest?.digest ?? null,
     datasetActual: actual.manifest.digest,
     manifest: actual.manifest,

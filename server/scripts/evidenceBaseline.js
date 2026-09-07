@@ -59,7 +59,13 @@ function main() {
   console.log(`             ${s.personalised} personalised, ${s.generic} generic`);
   console.log(`             ${s.sentences} rendered sentences, ${s.held} held claims`);
   console.log(`             ${Object.entries(s.structures).map(([k, n]) => `${k} ${n}`).join(', ')}`);
-  console.log(`  dataset    ${short(cmp.datasetActual)}  ${cmp.dataset}`);
+  console.log(`  dataset    ${short(cmp.datasetActual)}  ${cmp.dataset}  (manifest ${cmp.manifestVersion})`);
+  if (cmp.dataset === 'DEFINITION_CHANGED') {
+    console.log(`             the committed pin was taken under manifest ${cmp.manifestVersionExpected}.`);
+    console.log('             A digest from an older manifest DEFINITION answers a different');
+    console.log('             question, so every product line reads UNCOMPARABLE rather than');
+    console.log('             FAIL. Repin once, deliberately, and say why.');
+  }
   if (cmp.dataset === 'CHANGED') {
     console.log(`             expected ${short(cmp.datasetExpected ?? '—')}`);
     console.log('             The data moved, so a product hash cannot be compared to one');

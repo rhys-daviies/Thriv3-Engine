@@ -3,7 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { canonical, digest, short } from './evidenceBaseline.js';
+import os from 'node:os';
+import { canonical, digest, short, datasetManifest, compareBaselines } from './evidenceBaseline.js';
 
 /**
  * THE BASELINES, AND THE RULE FOR READING THEM.
@@ -303,5 +304,86 @@ d('the baselines do not depend on when they are run', () => {
     const early = at('2026-09-06T00:00:00Z');
     const later = at('2027-09-06T00:00:00Z');
     expect(later).toEqual(early);
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/* Manifest V2 — roster freshness                                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The component K3A found missing, and the two things it must get right.
+ *
+ * It has to MOVE when the timestamp production actually reads moves, or it is
+ * decoration. It has to STAY STILL when a timestamp production never reads
+ * moves, or it is claiming a behavioural dependency that does not exist and
+ * will cry CHANGED on every partial re-scrape until nobody reads it.
+ *
+ * Both directions are exercised against a scratch copy of the database, which
+ * is why this can mutate rows at all: the production file is never opened for
+ * writing.
+ */
+d('roster_freshness mirrors what production reads', () => {
+  const probe = (mutation) => {
+    const tmp = path.join(os.tmpdir(), `rf-${Math.random().toString(36).slice(2)}.sqlite`);
+    fs.copyFileSync(DB, tmp);
+    try {
+      return JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
+        process.env.RECRUITMATCH_DB = ${JSON.stringify(tmp)};
+        const { default: db } = await import(${JSON.stringify(path.join(ROOT, 'server/db/client.js'))});
+        ${mutation}
+        const { rosterFreshnessFingerprint } = await import(${JSON.stringify(path.join(ROOT, 'server/lib/evidenceBaseline.js'))});
+        process.stdout.write(JSON.stringify(rosterFreshnessFingerprint()));
+      `], { cwd: ROOT, encoding: 'utf8', maxBuffer: 32 * 1024 * 1024 }));
+    } finally { fs.rmSync(tmp, { force: true }); }
+  };
+
+  const base = probe('');
+
+  it('fingerprints one row per programme-sport in the current season', () => {
+    expect(base.rows).toBeGreaterThan(1000);
+    expect(base.digest).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it('MOVES when the newest current-season timestamp moves', () => {
+    const moved = probe(`db.prepare("UPDATE roster_players SET updated_date = '2099-01-01T00:00:00.000Z'"
+      + " WHERE rowid = (SELECT rowid FROM roster_players WHERE season = '2026' LIMIT 1)").run();`);
+    expect(moved.digest).not.toBe(base.digest);
+    expect(moved.rows).toBe(base.rows);
+  });
+
+  it('does NOT move when a season production never reads moves', () => {
+    // 2023 is history. `squadRows` filters to SQUAD_SEASON, so no email can
+    // see this row's timestamp and no digest should pretend otherwise.
+    const still = probe(`db.prepare("UPDATE roster_players SET updated_date = '2099-01-01T00:00:00.000Z'"
+      + " WHERE season = '2023'").run();`);
+    expect(still.digest).toBe(base.digest);
+  });
+
+  it('does NOT move when a non-max row in the current season moves backwards', () => {
+    const still = probe(`
+      const row = db.prepare("SELECT college_name, sport FROM roster_players WHERE season = '2026'"
+        + " GROUP BY college_name, sport HAVING COUNT(*) > 2 LIMIT 1").get();
+      db.prepare("UPDATE roster_players SET updated_date = '2000-01-01T00:00:00.000Z'"
+        + " WHERE rowid = (SELECT rowid FROM roster_players WHERE season = '2026'"
+        + " AND college_name = ? AND sport = ? AND updated_date < (SELECT MAX(updated_date)"
+        + " FROM roster_players WHERE season = '2026' AND college_name = ? AND sport = ?) LIMIT 1)")
+        .run(row.college_name, row.sport, row.college_name, row.sport);`);
+    expect(still.digest).toBe(base.digest);
+  });
+});
+
+d('the manifest declares its own definition version', () => {
+  it('reports V2 and carries roster_freshness', () => {
+    const m = datasetManifest();
+    expect(m.version).toBe('V2');
+    expect(m.tables.map((t) => t.table)).toContain('roster_freshness');
+  });
+
+  it('reads a V1 pin as a definition change, not a data change', () => {
+    const actual = { manifest: datasetManifest(), stats: {}, invariants: {}, baselines: [] };
+    const cmp = compareBaselines({ manifest: { digest: 'old', tables: [] }, baselines: [] }, actual);
+    expect(cmp.dataset).toBe('DEFINITION_CHANGED');
+    expect(cmp.manifestVersionExpected).toBe('V1');
   });
 });
