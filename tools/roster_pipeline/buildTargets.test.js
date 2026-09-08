@@ -255,3 +255,41 @@ d('run scope', () => {
     expect(fs.existsSync(path.join(root, '2026 Roster Sheets'))).toBe(true);
   });
 });
+
+/**
+ * L6D — that the versioned pipeline can actually run from the repository.
+ *
+ * L6C copied 38 source files under version control and declared the repo the
+ * code authority. It was not: `lib.py` loads `geo25.json` from its own
+ * directory at import time, and L6C's blanket `*.json` ignore had left that
+ * file behind in the external copy. Every module in the acquisition path
+ * imports `lib`, so the whole pipeline raised FileNotFoundError on the first
+ * command L6D ran. Nothing in the test suite noticed, because no test had ever
+ * imported the acquisition modules — only the worklist generator.
+ *
+ * These do that. They are the cheapest possible statement of "the code in this
+ * repository is the code that runs", and they need no network and no season.
+ */
+d('versioned pipeline is self-sufficient', () => {
+  const STAGES = ['state', 'lib', 'run', 'variants', 'selector', 'browse',
+    'verify_gate', 'write_out', 'plan', 'paths'];
+
+  it('ships the geography table lib.py loads at import time', () => {
+    const geo = path.join(HERE, 'geo25.json');
+    expect(fs.existsSync(geo)).toBe(true);
+    const parsed = JSON.parse(fs.readFileSync(geo, 'utf8'));
+    // The two lookups `lib.geo()` indexes. This table is what turns a hometown
+    // into a nationality, so an empty one would silently call everyone American.
+    expect(Object.keys(parsed.exact).length).toBeGreaterThan(0);
+    expect(Object.keys(parsed.tail).length).toBeGreaterThan(0);
+  });
+
+  it.each(STAGES)('imports %s with nothing but the repository present', (mod) => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rb-import-'));
+    // RB_ROOT at an empty directory: if a module reaches for the operator's
+    // home for anything it needs at import time, this fails.
+    execFileSync(python, ['-c', `import sys; sys.path.insert(0, ${JSON.stringify(HERE)}); import ${mod}`],
+      { env: { ...process.env, RB_ROOT: root, RB_SEASON: '2026', RB_REF: '2025', RB_CURRENT: '1' },
+        stdio: 'pipe' });
+  });
+});

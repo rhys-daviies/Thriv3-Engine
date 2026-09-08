@@ -1,115 +1,245 @@
-# L6D — controlled NCAA roster acquisition: BLOCKED before the run
+# L6D — controlled NCAA roster acquisition: the run happened, and resolved nothing
 
-**No live acquisition was performed.** No source fetched, no sheet written, no
-roster row imported, no dataset row altered. P6 unchanged, manifest
-`5bbca9054b7752d5` unchanged, all six baselines byte-identical, corpus unmoved
-at 1,755 / 2,987.
+The scoping layer worked exactly as L6D-PRE designed it. The acquisition did
+not, and the reason is not a defect in the run: **all 34 targets are programmes
+for which no roster URL has ever been known**, and the current-season runner has
+no discovery stage. Every one of its four acquiring stages transforms a URL it
+already has.
 
-**Blocker: stop condition 10.** The only supported invocation would attempt
-**75 non-NCAA programmes** — NAIA 55, USCAA 20 — which this stage explicitly
-forbids, and the pipeline offers no way to scope the acquiring stages.
+So the cohort L6D was created to acquire is precisely the cohort that cannot be
+acquired without the `athletics_domains` work this stage is forbidden to touch.
+
+**Result: 0 of 34 resolved, all NO_SOURCE_FOUND.** No roster row imported, no
+dataset row altered, no coverage moved, P6 unchanged, manifest
+`5bbca9054b7752d5` unchanged, all six baselines byte-identical at 1,755 / 2,987.
+
+Two findings came out of it that were worth the run.
 
 ---
 
-## Containment — stop condition 1 is clear
+## Finding 1 — the versioned pipeline could not execute at all
 
-`npm run roster:acquire` resolves to `tools/roster_pipeline/run_season_current.sh`,
-which begins `cd "${0:a:h}"` — its own directory, wherever it lives. The
-**versioned copy executes**; the old external tree does not. Verified before
-anything else.
+The first command L6D ran raised `FileNotFoundError`.
 
-## The cohort reproduces exactly
+```
+lib.py:408  GEO = json.load(open(os.path.join(HERE, 'geo25.json')))
+            → No such file: tools/roster_pipeline/geo25.json
+```
 
-43 NCAA zero-roster rows → 2 inactive → 7 duplicates → **34**.
+L6C copied 38 source files under version control and declared the repository the
+code authority. It was not. `geo25.json` is a 1.2 MB reference table that
+`lib.py` loads **at import time**, and L6C's blanket `*.json` ignore left it
+behind in the external tree. Every module in the acquisition path imports `lib`,
+so nothing in the pipeline could start.
 
-| division | mens | womens |
-|---|---:|---:|
-| NCAA D2 | 2 | 5 |
-| NCAA D3 | 7 | 20 |
+It is not state and not refetchable output. It is the lookup that turns a
+hometown string into a nationality — the authority behind every country claim
+the Evidence layer makes downstream. An empty or absent one does not fail
+loudly; `lib.geo()` falls through to `return 'USA', ''`, which would silently
+call every international athlete American. It belongs in history.
 
-Full inventory with unitid, conference and athletics domain is in the L6 audit;
-the cohort is regenerated deterministically by the probe recorded here.
+Fixed: `geo25.json` committed byte-identical (`d93087607afac697`), and
+`.gitignore` given a `!geo25.json` exception with the reasoning attached.
 
-## Pre-run snapshot
+**Why no test caught it:** the L6C suite only ever imported the worklist
+generator. `buildTargets.test.js` now imports all ten modules in the acquisition
+path under an empty `RB_ROOT`, so "the code in this repository is the code that
+runs" is now a checked claim rather than an assumed one. Removing `geo25.json`
+fails 7 of them.
 
-| | |
-|---|---|
-| worklist targets | 2,165 |
-| pipeline state | 1,910 `done`, 194 `failed` |
-| `roster_players` rows | 276,745 |
-| distinct programme-sports with a roster | 2,122 |
-| manifest | `5bbca9054b7752d5` |
-| corpus | 1,755 personalised / 2,987 generic |
-| baselines | all six PASS |
+## Finding 2 — the 34 are a discovery problem, not an acquisition one
 
-## Why the run cannot proceed as scoped
+Every one of the 34 carries an empty `Roster URL 2025 (known good)` **and** an
+empty candidate URL, and none has a 2025 reference roster. They are L6B's
+registry-fallback rows, and `build_targets.py:139` already said so in a comment
+written before anyone tried to run them:
 
-The runner is state-driven and resumable: it attempts `targets() − done`. With
-1,910 done against a 2,165-row worklist, **255 programmes are eligible**:
+> A registry-only programme has no scanned entry and therefore no candidate URL.
+> It is a discovery job, not an omission.
 
-| division | remaining |
-|---|---:|
-| NCAA D3 | 144 |
-| NCAA D2 | 18 |
-| NCAA D1 | 18 |
-| **NAIA** | **55** |
-| **USCAA** | **20** |
+`run_season_current.sh` has four acquiring stages and all four are URL
+transformations:
 
-Two problems, and neither is avoidable with the current interface.
+| stage | what it does | with no base URL |
+|---|---|---|
+| `run.py direct` | year-swaps the known-good URL | nothing to swap |
+| `variants.py` | permutes the known-good URL | `variants: none` |
+| `selector.py` | picks the season on a known roster page | no page |
+| `browse.py` | browser-renders URL variants | requests `?view=table` |
 
-**1. Non-NCAA acquisition would be triggered.** 75 of the 255 are NAIA and
-USCAA. L6D forbids them, and the deferred-expansion decision is a product one.
+State recorded all 34 identically:
 
-**2. Even NCAA-only is not the 34.** 180 NCAA rows are eligible, because the 194
-previously-`failed` targets are correctly still eligible for retry — that is the
-refreshability guarantee L6B built working as designed. The 34 are a subset of a
-larger legitimate retry set.
+```json
+{"status": "failed", "stage": "variants", "err": "no candidate",
+ "tried": ["variants: none"]}
+```
 
-`run.py` takes only `stage`, `--workers` and `--limit` — **no key or division
-filter**. `selector.py` accepts `--keys`, but it is a later stage; starting
-there would skip `direct` and `variants` and change how sources are found, which
-is not a faithful run. There is no supported way to scope the acquiring stages
-to a cohort.
+**No HTTP request was made against any of the 34 institutions.** The browser
+stage's `?view=table` is not a resolvable URL; it errors before the network.
 
-**I did not work around this.** Rewriting `_targets.csv` to contain only the 34
-would have scoped the run, and would also have destroyed the registry-membership
-guarantee L6B exists to provide — the worklist would once again be a statement
-about what we intend to fetch rather than what exists. Adding a filter to
-`run.py` is a change to the acquisition path that this stage was not authorised
-to make.
+Acquiring these needs a starting domain per programme, which is the
+`athletics_domains` work recorded as the L7 concern (D1 54%, D2 48% populated).
+L6D cannot close its own cohort without it.
 
-## Recommended unblock
+---
 
-Smallest correct change, in the versioned pipeline, testable offline:
+## The run
 
-- add `--divisions "NCAA D1,NCAA D2,NCAA D3"` and `--keys <file>` to `run.py`
-  and `variants.py`, mirroring the `--keys` flag `selector.py` already has;
-- filter **which targets a stage attempts**, never which targets exist;
-- cover it with the existing network-free fixture harness.
+```bash
+node server/scripts/rosterTargetUniverse.js --gap-keys --out /tmp/l6d-keys.txt
+npm run roster:acquire -- 2026 2025 --keys /tmp/l6d-keys.txt
+```
 
-That preserves the L6B guarantee — membership stays registry-derived; only this
-run's attempt set narrows — and it makes every future stage able to say exactly
-what it touched. It is a prerequisite for any controlled acquisition, not just
-this one.
+`--divisions` deliberately not used: it matches verbatim, so a typo narrows
+silently, and the derived 34-key allowlist is already the strongest scope.
 
-With that in place, L6D runs in two steps: NCAA-only retry of the 180 eligible
-rows, of which the 34 are the coverage-relevant subset; or `--keys` scoped to
-exactly the 34 if a tighter first run is preferred.
+Key file `e4ca69df42411123…`, 34 lines. The runner printed the plan before its
+first stage:
 
-## External copy status
+```
+  target universe        2165   (membership — unchanged by scope)
+  already done           1910
+  eligible this season   255
+  TO ATTEMPT             34
+  excluded by scope      221  (left eligible for a future run)
+        2  NCAA D2  mens-soccer      7  NCAA D3  mens-soccer
+        5  NCAA D2  womens-soccer   20  NCAA D3  womens-soccer
+  excluded: NAIA 55 · NCAA D1 18 · NCAA D2 11 · NCAA D3 117 · USCAA 20
+  previously failed and being retried: 0    never attempted before: 34
+```
 
-**STILL_REQUIRED_FOR_STATE.** Code authority has moved, but `state.py` hardcodes
-`~/Documents/Thriv3/<season> Roster Sheets/_state` and the fetch cache remains at
-`~/Library/Caches/recruitmatch-rb`. Only `build_targets.py` was routed through
-`paths.py` in L6C. Before the old tree can be archived, `state.py`'s three path
-sites and the cache location need the same `RB_ROOT` treatment — a small,
-behaviour-preserving change, and the natural companion to the filter above.
+0 NAIA, 0 USCAA, 0 other NCAA. The scoping layer held.
 
-Nothing was deleted.
+### The 34
 
-## Unchanged
+**NCAA D2 men** Pace · Southwest Minnesota State
+**NCAA D2 women** Azusa Pacific University · Glenville State · Northwood ·
+Tuskegee · Wayne State (MI)
+**NCAA D3 men** Anna Maria · Bryn Athyn · Carlow · Goucher · New Jersey City ·
+Wisconsin-La Crosse · Wisconsin-Oshkosh
+**NCAA D3 women** Anna Maria College · Bryn Athyn College of the New Church ·
+Carlow University · College of Saint Benedict · Elms · Endicott College ·
+Eureka College · Goucher College · Lasell · Mitchell · New Jersey City
+University · Norwich · Rivier · Saint Mary's College (IN) · Simmons ·
+St. Catherine University · Trinity Washington University · UMass Boston ·
+UMass Dartmouth · Wesleyan (GA)
 
-P6 · manifest `5bbca9054b7752d5` · six baselines PASS · corpus 1,755 / 2,987 ·
-276,745 roster rows · 2,122 programme-sports. Coverage remains D1 100%,
-D2 97.9%, D3 95.5%, **NCAA 97.6%**, with 34 legitimate active gaps, 7
-duplicates and 2 inactive rows.
+### Classification
+
+| result | n | programmes |
+|---|---:|---|
+| `NO_SOURCE_FOUND` | **34** | all of the above |
+| `RESOLVED` · `SOFT_404` · `TURNOVER_REJECTED` · `SOURCE_PARSE_FAILURE` · `IDENTITY_MISMATCH` · `NETWORK_FAILURE` · `OTHER` | 0 | — |
+
+Success rate 0%. The historical ~91% is not a comparable figure: it describes
+re-acquiring programmes whose URL was already known. On its own population —
+programmes with no known source and no discovery stage — this run's ceiling was
+0% before it started.
+
+---
+
+## Output safety
+
+`write_out.py` rebuilt all sheets from state, as designed.
+
+| sheet | rows before → after | |
+|---|---|---|
+| ncaa_d1_mens / d1_womens / d2_mens / d2_womens / d3_mens / d3_womens | 6155 / 9327 / 6906 / 7485 / 8465 / 9317 | byte-identical |
+| naia_mens / naia_womens | 5557 / 4576 | byte-identical |
+| uscaa_womens | 19 → 19 | **one field changed** |
+
+Programmes 1,910 → 1,910. Rows 57,807 → 57,807. **Rows added 0, removed 0.**
+No unrelated roster data disappeared; stop condition 4 is clear.
+
+**The one change, and why it matters.** `uscaa_womens` kept all 19 players and
+changed `Conference` on every row, Pennsylvania State University Athletic
+Conference → Eastern College Athletic Conference. Nothing in this run touched
+USCAA. The cause is that the *state* row carries ECAC from its August browser
+read, while the *sheet* had been repaired to PSUAC out-of-band — a repair never
+written back to state. Rebuilding from state reverted it. The registry agrees
+with the sheet, not with state.
+
+This is the L6D-PRE concern about an unscoped `write_out.py` arriving in
+miniature: a sheet-level correction that was never persisted is silently undone
+by any future run. The sheet has been **restored to its pre-run bytes**; all
+nine now hash identically to the pre-run backup. State was left alone — the
+programme is USCAA and out of scope — and the underlying defect is handed to a
+separate stage.
+
+One new artefact: `uscaa_mens_soccer_2026_rosters.csv`, header only, 0 rows.
+`write_out` emits a file per (division, sport) and USCAA men's has no resolved
+programme. Left in place, not deleted.
+
+## Import, coverage, Evidence
+
+Nothing resolved, so nothing was imported. `roster_players` unchanged at
+276,745 total / 57,807 for 2026. The database was not opened for writing.
+
+| | programmes | with roster | before → after |
+|---|---:|---:|---|
+| D1 men | 213 | 213 | 213 → 213 |
+| D1 women | 349 | 349 | 349 → 349 |
+| D2 men | 203 | 201 | 201 → 201 |
+| D2 women | 260 | 254 | 254 → 254 |
+| D3 men | 318 | 311 | 311 → 311 |
+| D3 women | 418 | 392 | 392 → 392 |
+| **NCAA total** | **1,761** | **1,720** | **1,720 → 1,720** |
+
+Remaining gaps 41 = **34 legitimate active** + 7 duplicate registry rows. The 2
+inactive rows are outside the universe entirely. Duplicates and inactive rows
+are not acquisition failures and are not counted as such.
+
+Evidence impact is nil by construction: 0 canonical pairs affected, 0 generic →
+personalised, 0 supplemented, 4,742 unchanged. No newly personalised email
+exists to review, so the GOOD/ACCEPTABLE/WEAK/BAD review has an empty
+population and stop condition 9 cannot be reached. History depth is likewise
+empty — no programme resolved, so none is CURRENT_ONLY or otherwise.
+
+## Retry behaviour
+
+The 34 now carry `failed` state and **remain fully eligible**:
+
+* `--gap-keys` re-run after the acquisition emits the same 34 keys, same digest
+  `e4ca69df42411123`.
+* `plan.py` re-run reports `TO ATTEMPT 34` unchanged.
+* `_targets.csv` still holds 2,165 rows — membership untouched.
+* the 221 excluded targets were not written to state and stay eligible.
+
+`verify_gate.py` re-measured all 1,910 done rosters against the current 85%
+turnover gate and demoted **0**, both before and after the run.
+
+## Manifest and policy
+
+Manifest `5bbca9054b7752d5` **before and after** — dataset inputs did not move,
+so the comparison is **COMPARABLE** under the H18 rules and no baseline surface
+should move. All six PASS unrepinned. P6 unchanged; no Evidence semantics were
+touched and no historical send snapshot changed.
+
+## Remaining gap triage
+
+All 34 classify identically, because they share one cause:
+
+**`MANUAL_SOURCE_REVIEW` — blocked on athletics_domains (L7).** Source
+discovered: NO for all 34. Failure reason: no candidate URL and no discovery
+stage. `RETRY_AUTOMATICALLY` would be wrong — re-running this command changes
+nothing until a starting domain exists. No manual repair performed.
+
+The 7 duplicate registry rows and 2 inactive rows remain untouched and are not
+part of this debt.
+
+## External state handoff
+
+**STATE_STILL_REQUIRED.** L6D-PRE proposed READY_FOR_CONTROLLED_MIGRATION; this
+run shows that was premature for a reason it could not have known. The external
+tree held `geo25.json`, without which the versioned pipeline does not import —
+the code copy was still load-bearing, not merely stale. That specific dependency
+is now closed, but the sheets and the 31 MB `state2026.json` remain the only
+record of 1,910 resolved programmes and still live at
+`~/Documents/Thriv3/2026 Roster Sheets`. Cache stays at
+`~/Library/Caches/recruitmatch-rb` (8.6 GB). Nothing deleted or migrated.
+
+## Verification
+
+Six baselines PASS · manifest unchanged · baseline 33 · generalisation 21 ·
+reports 19 · operations 16 · registry + pipeline + scoping 49 (25 of them the
+pipeline's, up from 14) · **full suite 3,648 passing, 133 files** · build ✓.
