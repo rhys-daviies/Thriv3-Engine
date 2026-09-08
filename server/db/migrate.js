@@ -680,6 +680,108 @@ const GENERATED_REPORT_COLUMNS = [
   ['generated_by_email', 'TEXT'],
 ];
 
+
+/**
+ * D2.1 — MAILBOX IDENTITY MUST SURVIVE ITS OPERATOR.
+ *
+ * `connected_mailboxes.operator_user_id` shipped for one commit with ON DELETE
+ * CASCADE, which was wrong: a mailbox row is durable historical identity, and
+ * D4 will put a `connected_mailbox_id` on `outreach_send` to say which mailbox
+ * sent a message. Under CASCADE, deleting an operator would silently erase the
+ * identities that send history depends on. The corrected column has no ON
+ * DELETE clause, so the delete is refused and the operator's mailboxes must be
+ * revoked deliberately first.
+ *
+ * WHY THIS EXISTS AT ALL, since the table is new and unshipped. `schema.sql`
+ * uses CREATE TABLE IF NOT EXISTS, which does nothing to a table that is
+ * already there — and SQLite cannot alter a foreign key in place. So any
+ * database that ran the branch before this fix keeps the CASCADE shape for
+ * ever unless something rebuilds it. The local working database is one: it
+ * acquired both tables during D2 inspection, empty.
+ *
+ * IT PRESERVES ROWS RATHER THAN ASSUMING THERE ARE NONE. Every such database
+ * today holds zero mailboxes — nothing can create one, there is no OAuth and
+ * no route — so the copy is a formality. It is written anyway because
+ * "impossible today" is the assumption that later turns out to have been
+ * wrong, and the rows it would be discarding are encrypted credentials.
+ *
+ * No rename: renaming a table that another table references rewrites that
+ * reference in modern SQLite, which would leave the credential table pointing
+ * at the wrong name. Read out, drop, recreate, put back.
+ */
+export function preserveMailboxIdentityAcrossOperators(db) {
+  const present = db.prepare(
+    "SELECT COUNT(*) n FROM sqlite_master WHERE type = 'table' AND name = 'connected_mailboxes'",
+  ).get().n;
+  if (!present) return false;
+
+  const operatorFk = db.prepare('PRAGMA foreign_key_list(connected_mailboxes)').all()
+    .find((fk) => fk.table === 'operator_users');
+  // Already correct — the overwhelmingly common path, and every path after the
+  // first boot that runs this.
+  if (!operatorFk || operatorFk.on_delete !== 'CASCADE') return false;
+
+  const mailboxes = db.prepare('SELECT * FROM connected_mailboxes').all();
+  const credentials = db.prepare('SELECT * FROM connected_mailbox_credentials').all();
+
+  const columns = (rows) => Object.keys(rows[0]);
+  const insertInto = (table, rows) => {
+    if (!rows.length) return;
+    const cols = columns(rows);
+    const stmt = db.prepare(
+      `INSERT INTO ${table} (${cols.join(', ')}) VALUES (${cols.map((c) => `@${c}`).join(', ')})`,
+    );
+    for (const row of rows) stmt.run(row);
+  };
+
+  db.transaction(() => {
+    // The child first: dropping a parent out from under existing child rows is
+    // refused while foreign_keys is on, and it should be.
+    db.exec('DROP TABLE IF EXISTS connected_mailbox_credentials');
+    db.exec('DROP TABLE connected_mailboxes');
+    db.exec(`
+      CREATE TABLE connected_mailboxes (
+        id TEXT PRIMARY KEY,
+        operator_user_id TEXT NOT NULL REFERENCES operator_users(id),
+        athlete_id TEXT REFERENCES players(id),
+        provider TEXT NOT NULL CHECK (provider IN ('GOOGLE', 'MICROSOFT')),
+        provider_account_id TEXT NOT NULL,
+        email_address TEXT NOT NULL,
+        display_name TEXT,
+        status TEXT NOT NULL CHECK (status IN (
+          'CONNECTED', 'NEEDS_RECONSENT', 'REVOKED', 'UNHEALTHY_TEMPORARY'
+        )),
+        scopes TEXT,
+        connected_at TEXT NOT NULL,
+        last_verified_at TEXT,
+        revoked_at TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        UNIQUE (provider, provider_account_id)
+      );
+      CREATE INDEX IF NOT EXISTS idx_connected_mailboxes_operator
+        ON connected_mailboxes(operator_user_id, created_at, id);
+      CREATE INDEX IF NOT EXISTS idx_connected_mailboxes_athlete
+        ON connected_mailboxes(athlete_id);
+      CREATE INDEX IF NOT EXISTS idx_connected_mailboxes_email
+        ON connected_mailboxes(email_address);
+      CREATE TABLE connected_mailbox_credentials (
+        mailbox_id TEXT PRIMARY KEY REFERENCES connected_mailboxes(id) ON DELETE CASCADE,
+        ciphertext TEXT NOT NULL,
+        iv TEXT NOT NULL,
+        auth_tag TEXT NOT NULL,
+        key_version INTEGER NOT NULL,
+        rotated_at TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+    `);
+    insertInto('connected_mailboxes', mailboxes);
+    insertInto('connected_mailbox_credentials', credentials);
+  })();
+  return true;
+}
+
 export function migrate(db) {
   addMissingColumns(db, 'players', PLAYER_COLUMNS);
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_players_public_slug ON players(public_slug)');
@@ -731,6 +833,7 @@ export function migrate(db) {
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_evidence_selected ON outreach_evidence(selected_kinds)');
   backfillSendEvents(db);
   addMissingColumns(db, 'recruiting_arrivals', RECRUITING_ARRIVAL_COLUMNS);
+  preserveMailboxIdentityAcrossOperators(db);
   retireProgrammeSeasonDivision(db);
   scopeInstitutionAliases(db);
   if (db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'programme_conference_seasons'").get().n) {

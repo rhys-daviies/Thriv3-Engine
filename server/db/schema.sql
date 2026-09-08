@@ -1746,11 +1746,35 @@ CREATE TABLE IF NOT EXISTS connected_mailboxes (
    * away from being wrong. Every read in connectedMailboxes.js is scoped by
    * this column.
    *
-   * CASCADE because a mailbox has no meaning without the account that connected
-   * it, and because deactivating an operator must not leave live credentials
-   * addressable by nobody.
+   * NO ON DELETE CLAUSE, so the delete is REFUSED — and this was CASCADE for
+   * one commit, which was wrong for a reason worth writing down.
+   *
+   * A mailbox row is durable historical identity. Revocation destroys the
+   * credential and keeps the record precisely because messages were sent
+   * through it, and D4 will put a `connected_mailbox_id` on `outreach_send`
+   * to say which. Under CASCADE, deleting an operator would have silently
+   * erased the mailbox identities that send history depends on — the operator's
+   * lifecycle reaching through and deleting an athlete's provider identity and
+   * the attribution of every message it ever sent.
+   *
+   * The two lifecycles are separate and this is what keeps them apart:
+   *
+   *   OPERATOR   access is withdrawn by deactivation — `active = 0`, which
+   *              `operatorCount` already respects and which drops live
+   *              sessions. Nothing in the product hard-deletes an operator.
+   *   MAILBOX    the credential is destroyed by revocation; the identity stays.
+   *
+   * So a delete is refused while any mailbox references the account, which is
+   * the right way round: revoke the mailboxes first, deliberately, and the
+   * refusal is what makes that a decision rather than a side effect. Ownership
+   * is never nulled and never reassigned — a mailbox with no operator would be
+   * addressable by nobody, and moving one to another operator is a transfer
+   * this product has not designed.
+   *
+   * `operator_sessions` keeps its CASCADE, and correctly: a session is
+   * ephemeral, carries no history and must not outlive its user.
    */
-  operator_user_id TEXT NOT NULL REFERENCES operator_users(id) ON DELETE CASCADE,
+  operator_user_id TEXT NOT NULL REFERENCES operator_users(id),
 
   /**
    * WHOSE MAILBOX IT IS. Nullable, and the nullability is a judgement rather
