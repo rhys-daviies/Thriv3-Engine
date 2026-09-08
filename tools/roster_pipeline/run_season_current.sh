@@ -8,15 +8,31 @@
 #     (RB_CURRENT, gate in run.evaluate)
 #   * no Wayback stage and no minutes stage -- the season has not been played
 set -u
-S=$1; R=$2
+S=$1; R=$2; shift 2
 cd "${0:a:h}"   # the pipeline's own directory, wherever it lives
 export RB_SEASON=$S RB_REF=$R RB_CURRENT=1
+
+# RUN SCOPE, which is not target membership. --keys takes a file of
+# 'School||Sport' lines and --divisions a comma list matching the Division
+# column verbatim; both together intersect. A target excluded here is simply
+# not attempted -- nothing is written to state and _targets.csv is untouched,
+# so it stays eligible next run. Exported rather than passed along, because the
+# stages below are separate processes and a forgotten flag would silently widen
+# the run back to everything.
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --keys)      export RB_KEYS="$2"; shift 2 ;;
+    --divisions) export RB_DIVISIONS="$2"; shift 2 ;;
+    *) echo "unknown option: $1" >&2; exit 2 ;;
+  esac
+done
+[ -n "${RB_KEYS:-}${RB_DIVISIONS:-}" ] && python3 -u plan.py
 
 remaining () {
   python3 - "$S" <<'PY'
 import sys; sys.path.insert(0,'.')
 import state
-st=state.load(); tg=[state.key(r) for r in state.targets()]
+st=state.load(); tg=[state.key(r) for r in state.attempt_targets()]
 done={k for k,v in st.items() if v.get('status')=='done'}
 rem=sorted(set(tg)-done)
 open(f'rem{sys.argv[1]}.txt','w').write('\n'.join(rem))

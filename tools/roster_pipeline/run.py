@@ -198,7 +198,7 @@ if __name__ == '__main__':
     ap.add_argument('--limit', type=int, default=0)
     a = ap.parse_args()
     N25 = state.names25()
-    rows = state.targets()
+    rows = state.attempt_targets()
     if a.limit: rows = rows[:a.limit]
     st = state.load()
     if a.stage == 'direct': stage_direct(rows, st, a.workers)

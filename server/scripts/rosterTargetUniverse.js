@@ -92,6 +92,28 @@ function main() {
   const arg = (n) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : null; };
   const rows = rosterTargetUniverse();
 
+  /*
+   * The RUN SCOPE for one acquisition, as 'School||Sport' lines — the key
+   * `state.key()` builds. Emitting it from the registry rather than pasting a
+   * list into the pipeline keeps the cohort derived rather than declared: it is
+   * "active NCAA programmes with no roster", recomputed each time, not 34 names
+   * somebody typed. It is a run argument and never membership.
+   */
+  if (argv.includes('--gap-keys')) {
+    const have = db.prepare('SELECT COUNT(*) n FROM roster_players WHERE college_name = ? AND sport = ?');
+    const twin = db.prepare('SELECT name FROM colleges WHERE unitid = ? AND sport = ? AND name != ?');
+    const gaps = rows.filter((r) => !have.get(r.school, r.sport).n)
+      // A duplicate registry row whose twin already holds the roster is a
+      // registry-integrity job, not an acquisition one. L6 identified seven.
+      .filter((r) => !(r.unitid != null
+        && twin.all(r.unitid, r.sport, r.school).some((t) => have.get(t.name, r.sport).n)));
+    const body = `${gaps.map((r) => `${r.school}||${r.sport}`).join('\n')}\n`;
+    const out = arg('out');
+    if (out) { writeFileSync(out, body, 'utf8'); console.log(`wrote ${out} — ${gaps.length} keys`); }
+    else process.stdout.write(body);
+    return;
+  }
+
   if (argv.includes('--csv')) {
     const csv = toCsv(rows);
     const out = arg('out');

@@ -94,7 +94,7 @@ def main():
     shared = state.load()
     st = json.load(open(a.out, encoding='utf-8')) if os.path.exists(a.out) else {}
     sel = []
-    for r in state.targets():
+    for r in state.attempt_targets():
         k = state.key(r)
         s = shared.get(k, {})
         if s.get('status') == 'done' and not (a.reset_wayback and s.get('stage') == 'wayback'):

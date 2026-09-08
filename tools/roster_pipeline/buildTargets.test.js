@@ -132,3 +132,126 @@ d('scope stays isolated', () => {
     expect(r.Conference).toBe('NSIC');
   });
 });
+
+/* -------------------------------------------------------------------------- */
+/* L6D-PRE — run scope is not membership                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The distinction the whole stage exists to hold.
+ *
+ *   `targets()`         who exists and is eligible — unchanged by any filter
+ *   `attempt_targets()` who THIS run tries — narrowed by RB_KEYS/RB_DIVISIONS
+ *
+ * An excluded target is not attempted, and nothing else: not marked, not
+ * written to state, not removed from the worklist. L6D was stopped because the
+ * runner had no way to say this, and would have reached 75 programmes in
+ * associations the stage deferred.
+ */
+d('run scope', () => {
+  const REG = [
+    { school: 'D2 Gap', sport: 'mens-soccer', division: 'NCAA D2' },
+    { school: 'D3 Gap', sport: 'womens-soccer', division: 'NCAA D3' },
+    { school: 'D3 Other', sport: 'mens-soccer', division: 'NCAA D3' },
+    { school: 'Naia One', sport: 'mens-soccer', division: 'NAIA' },
+  ];
+  const PRIOR = [{ school: 'Anchor', div: 'd3', gender: 'mens', url: 'https://a.test/2025' }];
+
+  /** Read `attempt_targets()` through the real state module, no network. */
+  const attempt = (root, env = {}) => JSON.parse(execFileSync(python, ['-c', [
+    'import sys, json, os',
+    'sys.path.insert(0, ".")',
+    'import state',
+    'print(json.dumps({"universe": [state.key(r) for r in state.targets()],',
+    '                  "attempt":  [state.key(r) for r in state.attempt_targets()]}))',
+  ].join('\n')], {
+    cwd: HERE,
+    env: { ...process.env, RB_ROOT: root, RB_SEASON: '2026', RB_REF: '2025', RB_CURRENT: '1', ...env },
+    encoding: 'utf8',
+  }));
+
+  const rootWith = () => {
+    const root = fixture({ prior: PRIOR, registry: REG });
+    execFileSync(python, ['build_targets.py', '2026'],
+      { cwd: HERE, env: { ...process.env, RB_ROOT: root }, encoding: 'utf8' });
+    return root;
+  };
+
+  it('attempts everything when no filter is set', () => {
+    const root = rootWith();
+    const { universe, attempt: a } = attempt(root);
+    expect(a).toEqual(universe);
+    expect(a.length).toBe(5); // 4 registry + Anchor from the sheet
+  });
+
+  it('--keys narrows the attempt set only', () => {
+    const root = rootWith();
+    const keys = path.join(root, 'keys.txt');
+    fs.writeFileSync(keys, 'D2 Gap||mens-soccer\nD3 Gap||womens-soccer\n');
+    const { universe, attempt: a } = attempt(root, { RB_KEYS: keys });
+    expect(a).toEqual(['D2 Gap||mens-soccer', 'D3 Gap||womens-soccer']);
+    // Membership is untouched — the excluded three are still eligible.
+    expect(universe.length).toBe(5);
+  });
+
+  it('--divisions narrows the attempt set only', () => {
+    const root = rootWith();
+    const { universe, attempt: a } = attempt(root, { RB_DIVISIONS: 'NCAA D2,NCAA D3' });
+    expect(a).not.toContain('Naia One||mens-soccer');
+    expect(a).toHaveLength(4);
+    expect(universe).toContain('Naia One||mens-soccer');
+  });
+
+  it('intersects when both are given', () => {
+    const root = rootWith();
+    const keys = path.join(root, 'keys.txt');
+    // One in-division key and one out-of-division key: only the first survives.
+    fs.writeFileSync(keys, 'D2 Gap||mens-soccer\nNaia One||mens-soccer\n');
+    const { attempt: a } = attempt(root, { RB_KEYS: keys, RB_DIVISIONS: 'NCAA D2,NCAA D3' });
+    expect(a).toEqual(['D2 Gap||mens-soccer']);
+  });
+
+  it('leaves the target universe byte-identical under any filter', () => {
+    const root = rootWith();
+    const before = fs.readFileSync(path.join(root, '2026 Roster Sheets', '_targets.csv'), 'utf8');
+    const keys = path.join(root, 'keys.txt');
+    fs.writeFileSync(keys, 'D2 Gap||mens-soccer\n');
+    attempt(root, { RB_KEYS: keys, RB_DIVISIONS: 'NCAA D2' });
+    expect(fs.readFileSync(path.join(root, '2026 Roster Sheets', '_targets.csv'), 'utf8')).toBe(before);
+  });
+
+  it('writes no state for an excluded target', () => {
+    // Exclusion is silence. A target left out must not be recorded as skipped,
+    // or the next run would read it as attempted.
+    const root = rootWith();
+    const keys = path.join(root, 'keys.txt');
+    fs.writeFileSync(keys, 'D2 Gap||mens-soccer\n');
+    attempt(root, { RB_KEYS: keys });
+    const stateDir = path.join(root, '2026 Roster Sheets', '_state');
+    const files = fs.existsSync(stateDir) ? fs.readdirSync(stateDir) : [];
+    for (const f of files) {
+      const st = JSON.parse(fs.readFileSync(path.join(stateDir, f), 'utf8'));
+      expect(Object.keys(st)).not.toContain('D3 Gap||womens-soccer');
+    }
+  });
+
+  it('keeps a previously failed target retryable when it is out of scope', () => {
+    const root = rootWith();
+    const stateDir = path.join(root, '2026 Roster Sheets', '_state');
+    fs.mkdirSync(stateDir, { recursive: true });
+    fs.writeFileSync(path.join(stateDir, 'state2026.json'),
+      JSON.stringify({ 'D3 Other||mens-soccer': { status: 'failed', why: 'earlier run' } }));
+    const keys = path.join(root, 'keys.txt');
+    fs.writeFileSync(keys, 'D2 Gap||mens-soccer\n');
+    const { universe } = attempt(root, { RB_KEYS: keys });
+    expect(universe).toContain('D3 Other||mens-soccer');
+    const st = JSON.parse(fs.readFileSync(path.join(stateDir, 'state2026.json'), 'utf8'));
+    expect(st['D3 Other||mens-soccer'].status).toBe('failed');
+  });
+
+  it('isolates state entirely under RB_ROOT', () => {
+    const root = rootWith();
+    attempt(root);
+    expect(fs.existsSync(path.join(root, '2026 Roster Sheets'))).toBe(true);
+  });
+});
