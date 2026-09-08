@@ -41,7 +41,7 @@
     {
       "name": "OUTBOUND_DECISION",
       "size": 4742,
-      "digest": "a2867f60159f6322af33bd837e3b1a0d7ba6bbf9f283fcac22722dad3fd90090"
+      "digest": "11d52d4ddca3a48eb0055463ef45715ae94b8cc2c2d5bffaabb5ac4e57e5c692"
     },
     {
       "name": "COACH_COMPOSITION",
@@ -56,17 +56,17 @@
     {
       "name": "OPERATOR_WIRE",
       "size": 4742,
-      "digest": "2bdc00ea42311f090d540ac51db66d0995c774b554226fc62ed37b1294373005"
+      "digest": "e9379455c8dffe6e24dd8139be77cfd68dba942008291ba25c252dc0fb1be3d5"
     },
     {
       "name": "LOG_PAYLOAD",
       "size": 4742,
-      "digest": "511aafb0dd4d72f1e5e0a066aacb6e4fb5e62a7fae9804f6808851e035bf83a5"
+      "digest": "d4a41935dfb75b032849667237d037e2250288dbadb3a65e60eea48f54b88014"
     },
     {
       "name": "OPERATOR_EVIDENCE",
       "size": 4742,
-      "digest": "f4ffcd79aed6326bdbbb85b95a560a818ea803f4b61b30b909b9784d898ee467"
+      "digest": "c764171433964eb5c2afdd298669aaba63d6d097900cc95798e49ed1eb06a688"
     }
   ]
 }

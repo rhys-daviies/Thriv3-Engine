@@ -145,7 +145,17 @@ describeReports('evidenceReport', () => {
   });
 
   it('matches its recorded output', () => {
-    expect(sha(result.out)).toBe('8105bf98447a9cfe');
+    /**
+     * Repinned at D0.1, for the same reason as OUTBOUND_DECISION and the three
+     * decision-surface baselines beside it: trunk's coach-tenure correction.
+     * This report prints COACH_CONTEXT's verdict, so a claim that stopped
+     * asserting an appointment date changes the recorded text.
+     *
+     * The emails in this report are unchanged — EMAIL_BODY and
+     * COACH_COMPOSITION are byte-identical across all 4,742 pairings, because
+     * COACH_CONTEXT is DENIED for outreach and reaches no coach.
+     */
+    expect(sha(result.out)).toBe('05c2ac359017c556');
   });
 });
 

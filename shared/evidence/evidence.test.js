@@ -632,7 +632,25 @@ describe('coach tenure respects the observed window', () => {
     expect(coachEv).toBeTruthy();
     const clause = renderEvidence(coachEv);
     expect(clause).not.toContain('and with you');
-    expect(clause).toMatch(/you're two seasons into the job/);
+    /**
+     * "AT LEAST two seasons", not "two seasons into the job" — and the change
+     * is the engine getting stricter, not this test getting weaker.
+     *
+     * `tenureFor` used to resolve a season's head coach from any name in the
+     * row, and `classifyProgramme` inferred continuity from the ABSENCE of an
+     * observed change. Both were corrected on trunk: every row is read through
+     * `readCoachRow`, and a verdict now requires a usable head-coach
+     * observation for every season it describes. Two prior seasons are no
+     * longer enough to assert when this coach was appointed, so the claim
+     * becomes window-bounded and says "at least" instead of naming a start.
+     *
+     * 94 verdicts moved on the real corpus and every one moved toward refusal.
+     * This fixture is one of them, and the weaker sentence is the correct one:
+     * we do not in fact know that 2024 was their first season.
+     */
+    expect(coachEv.data.windowBounded).toBe(true);
+    expect(clause).toMatch(/at least two seasons/);
+    expect(clause).not.toMatch(/two seasons into the job/);
   });
 
   it('produces nothing when no season resolved a name', () => {
