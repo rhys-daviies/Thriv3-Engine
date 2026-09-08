@@ -1,0 +1,11 @@
+# Generated, stateful or refetchable. None of it belongs in history.
+#
+# The pipeline's own README explains why the cache lives in ~/Library/Caches
+# rather than here: it is refetchable, not work product. The same reasoning
+# applies to everything below — 11 MB of resolver state, run logs and per-season
+# output that a re-run reproduces.
+*.json
+*.log
+*.txt
+*.pre-consolidate
+_state/
