@@ -45,7 +45,7 @@ been read by someone deciding whether to recruit.
 |---|---|---|
 | Send architecture | **Outlook drafting. The ESP is off the plan** (revised 2026-08-25) | An ESP sending for many clients pools every client's list reputation into one domain, so one bad list poisons the rest — and a recruiting-service From address is pattern-matched and binned by coaches who have been trained for a decade to ignore exactly that. Both problems are avoided by the client sending from their own mailbox. §2.2 is on hold, not scheduled. |
 | Client portal | **Deferred until pilot 1 has run** (decided 2026-08-25) | The likely shape of pilot 2 is a portal where the client reads their own matches and engagement and sends from their own mailbox at their own pace. Deliberately not started: pilot 1 needs no portal, and its results decide whether the portal is worth building. Recorded here so the decision is not re-litigated, not as scheduled work. |
-| Product shape at go live | **Single user** (Rhys operates the engine on athletes' behalf) | No auth, no accounts, no athlete-facing UI. Pillar 1's weighting UI is an operator tool, not self-serve. A portal would reverse this — see above — which is most of why it waits for evidence. |
+| Product shape at go live | **Single user** (Rhys operates the engine on athletes' behalf) | No athlete-facing UI and no client accounts. Operator sign-in exists from Phase 13K — one or a few internal accounts, no roles — because hosting the tool requires it; that is not a portal. Pillar 1's weighting UI is an operator tool, not self-serve. A portal would reverse this — see above — which is most of why it waits for evidence. |
 | Pilot scope | **Men's and women's soccer, NCAA D1–D3** | 1,759 active programs, 1,621 with a coach email. NAIA/NJCAA and the four non-soccer sports are out of scope until after go live. |
 
 ### Verified coverage in scope
@@ -80,6 +80,24 @@ The count is deliberately not the headline. Nothing is in front of the pilot:
 Phase 1.1 closed on 2026-08-26, and every remaining box is either the pilot
 itself or work that only makes sense once it has run.
 
+**The report acquired a decision layer on 2026-09-02.** *Programme at a glance*
+was five equal cards and five fixed bullets — every module the same size, so a
+reader had to do the ranking themselves. It is now *What Thriv3 sees*: three to
+six ranked findings drawn from a controlled set of ten categories, each with the
+page that carries its evidence, followed by a compact *Programme snapshot*. The
+ranking is deterministic — structural change, then a measured departure from the
+comparable pool, then a pattern inside the normal range, with evidence as a gate
+and a ceiling and never an addition — and the page order is unchanged at every
+programme. Nothing is scored: there is still no overall number, no fit number
+and no recommendation. See `docs/decision-layer.md`.
+
+**Pillar 4's product half opened on 2026-08-31.** The Programme Intelligence
+report — the thing a family actually reads — is built, validated and frozen as
+an internal-data baseline: three acts, 9 to 30 pages, every figure computed
+from the rosters at request time, and a written contract of what it may not
+claim. It says nothing yet about coaching style, academics, cost or the
+professional pathway, all of which need data the rosters do not carry.
+
 **Pillar 4 stopped being a data pile and became analysis on 2026-08-27** — the
 freshman-minutes ladder and coach tenure both landed, and between them they
 answer "will I play here, and does the last four years still describe this
@@ -94,7 +112,7 @@ bulk-mail-looking link.
 | **1 · Matchmaking** | ✅✅✅✅✅✅✅✅✅✅ | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested against 1,500 real arrivals per sport |
 | **2 · Networking** | ✅✅✅✅✅⬜⬜⬜⬜⬜ | Personalisation, coach table, compliance, bulk drafting and best-contact fallback done — 1,984 of 1,986 programmes reachable. Campaign engine and A/B/C sequencing not started |
 | **3 · Interactions** | ✅✅✅✅✅✅✅✅✅⬜ | **Proven on real traffic 2026-08-26.** Only automated reply detection remains |
-| **4 · Recommendation** | ✅✅✅✅✅✅⬜⬜⬜⬜ | Five seasons imported (2022–2026, 264,614 rows); retention, **freshman-minutes ladder** and **coach tenure** all built. Lifestyle source and the whole product half outstanding |
+| **4 · Recommendation** | ✅✅✅✅✅✅✅⬜⬜⬜ | Five seasons imported (2022–2026, 276,745 rows); retention, **freshman-minutes ladder** and **coach tenure** built, and the **Programme Intelligence report frozen as a baseline 2026-08-31**. Lifestyle source, match rating and the UI outstanding |
 
 ### Phase by phase
 
@@ -115,7 +133,37 @@ bulk-mail-looking link.
 | 1 · Matchmaking | Athlete-ranked criteria, adaptive re-weighting, top 100 | **Complete.** Six weighted criteria, coupling layer, operator ranking in both UIs, backtested at the 95.8th percentile (men) / 95.2nd (women) against 1,500 real arrivals each | Nothing before go live. The learning loop is Phase 5 and needs real replies |
 | 2 · Networking | 3-week A/B/C sequence, 100 programs at a time | Excellent personalisation; coach table, compliance, per-inbox cap and bulk drafting all done. No campaign engine, and no automated send by design | Campaign model, A/B/C variants, sequencing. **Not** an ESP — see locked decisions |
 | 3 · Interactions | Tracking, coach score, session timelines | **Proven end to end 2026-08-26** — 13 edge-sourced events, cursor 6 → 19, rollup and tiering correct on real data. Sync automated | Real response detection. Everything else waits on a coach, not on code |
-| 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Rosters 2022–2026; retention trend, freshman-minutes ladder and coach tenure (6,876 coach-seasons, 84% named) all built | September re-run for the 193 unpublished rosters, real mid-season minutes, lifestyle data source, persist the metrics as model inputs, UI |
+| 4 · Recommendation | Quality/lifestyle reports, freshman minutes, turnover, match rating | Rosters 2022–2026; retention trend, freshman-minutes ladder and coach tenure all built. **Competitive Intelligence V1 is released** — see below. The **Programme Intelligence report** now runs to 6–24 pages over thirteen analytical modules, 1,976 tests and 139 baseline invariants | September re-run for the unpublished rosters, real mid-season minutes, lifestyle data source, match rating, UI. The remaining external-data phases (coach intelligence, academics, professional pathway) are still deliberately deferred — see the baseline doc |
+
+### Competitive Intelligence V1 — **released 2026-09-01**
+
+What a family now reads, on two pages of every Program Intelligence report that
+can carry them: what the programme recorded in each season we can read, and the
+division and conference each of those seasons was played in.
+
+| | |
+|---|---|
+| merged | `2a8521c` — nine commits, 12A to 12G, history preserved |
+| production data | 7 tables, 24,216 rows, loaded by the supported importers from the approved artefacts |
+| historical division coverage | 83.7% of readable programme-seasons (6,857 of 8,191) |
+| benchmark | 32 sport-division-season pools, smallest 125, `MIN_POOL` 30 |
+| structural movement | 133 conference movers, 32 division movers |
+| reports carrying the pages | 2,125 of 2,152 programmes (98.7%) |
+| verification | 1,976 tests · 139 baseline invariants · 0 snapshot differences · 542 reports rendered with 0 layout defects |
+
+Refused rather than deferred by accident: schedule strength, opponent strength,
+conference finish, postseason depth, goals for and against. The field contract in
+`shared/report/competitivePackage.js` says which of what V1 knows may reach a
+reader, and under what gate.
+
+Docs: [competitive-v1-freeze.md](docs/competitive-v1-freeze.md) (data),
+[competitive-report.md](docs/competitive-report.md) (presentation),
+[releases/competitive-v1.md](docs/releases/competitive-v1.md) (this release).
+
+Two things this release did **not** do, both recorded in the release note: the
+coaching-layer data refresh the branch also enables, and a determinism defect in
+the `institution_aliases` ↔ `athletics_domains` bootstrap that does not reach any
+published row.
 
 ---
 
@@ -2370,12 +2418,24 @@ Two tracks. The data track has the long lead time and starts in Phase 0.
 
 ### 4.2 Product
 - [ ] Athlete-program match rating combining the above with Pillar 1's score.
-- [x] **Program-specific reporting** — ONE "Program Report" per school, eight
-      pages for a full record and six for a thin one, in three parts: the
-      freshman intake, the transfer intake, and the athlete read one facet at a
-      time. Every freshman and every transfer of the last four seasons is drawn
-      individually rather than averaged. `server/lib/philosophyReport.js`
-      composes it; `philosophyPdf.js` holds the kit and the charts.
+- [x] **Program-specific reporting** — ONE "Program Report" per school.
+      **Rebuilt and frozen as the internal-data Programme Intelligence baseline
+      on 2026-08-31**, on `feature/report-v2-lifecycle`: 9 to 30 pages in three
+      acts — the athlete's own pathway, the programme's record, then the named
+      evidence underneath both. Every first-year, experienced arrival, opening
+      and traced move of the last four seasons is drawn individually rather than
+      averaged. `server/lib/philosophyReport.js` holds the running order and
+      draws nothing; `philosophyPdf.js` holds the kit and eleven charts; nine
+      page modules and eleven analytical modules sit behind them.
+
+      **Read [`docs/programme-intelligence-baseline.md`](docs/programme-intelligence-baseline.md)
+      first** — it carries the module map, every threshold, the non-claims the
+      product is built to keep, and the ten known limitations. The page-by-page
+      build history is in `docs/program-intelligence-report-v2.md`.
+
+      Baseline at freeze: 1,535 tests; 57 real-data invariants; an analytical
+      snapshot of four programmes that fails on drift; 20 required reports and a
+      90-report sweep at 0 errors and 0 layout defects.
 
       Three of its analyses come from columns nothing had read: the eligibility
       cliff (`eligibility_end_year`, 98% populated in every season), named 2026

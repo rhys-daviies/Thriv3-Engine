@@ -1,9 +1,15 @@
 /**
- * The Program Report: one document, three parts.
+ * The Program Intelligence Report: the running order, and nothing else.
  *
- *   1. How this programme uses first-years.
- *   2. How it uses the transfer market.
- *   3. What each part of one athlete's profile changes about the first two.
+ * Five layers. The contents page, the two at-a-glance pages that interpret,
+ * the programme evidence the interpretation was drawn from, the same evidence
+ * narrowed to one athlete, and the supporting record with the methodology.
+ *
+ * This file decides WHICH sections exist and WHERE each one starts. It draws
+ * nothing itself: every page lives in reportFront, reportEvidence,
+ * reportAthlete or reportAppendix, and every number comes from `model.summary`.
+ * It used to also carry four hundred lines of the previous report's own
+ * sections, unreachable since the evidence layer replaced them page for page.
  *
  * Written for the athlete and their family. Two rules run through every page.
  * Nothing here is a forecast — the season being recruited into has not been
@@ -11,439 +17,360 @@
  * states its reason: a chart handed no data and no reason throws rather than
  * drawing an empty axis, because an empty axis reads as a confident zero.
  */
+import { render, footer } from './philosophyPdf.js';
 import {
-  kit, render, charts, THEME, masthead, whatThisIs, whoRunsIt, ladderSection,
-  benchmarkSection, fillMixSection, positionSection, limits, footer, humanCohort,
-  minutes,
-} from './philosophyPdf.js';
-import { STARTER_MINUTES } from '../../shared/philosophy.js';
-import { positionPlural } from '../../shared/positions.js';
-
-const { INK, MUTED, CLARET, NAVY, MID, PALE, GREEN } = THEME;
-
-const ord = (n) => `${n}${['', 'st', 'nd', 'rd'][n] || 'th'}`;
-const cap = (s) => String(s ?? '').replace(/^./, (c) => c.toUpperCase());
-const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
-
-/** A part divider, so the reader always knows which of the three they are in. */
-function part(k, number, title, lede) {
-  k.doc.addPage();
-  k.doc.font('Helvetica-Bold').fontSize(8).fillColor(CLARET)
-    .text(`PART ${number}`, THEME.M, THEME.M - 18, { width: THEME.W, characterSpacing: 1.2 });
-  k.title(title);
-  if (lede) k.body(lede, { color: MUTED });
-  k.gap(6);
-}
-
-// ---------------------------------------------------------------------------
-// Part 1 — the freshman intake
-// ---------------------------------------------------------------------------
-
-function everyFreshman(k, model) {
-  const pts = model.freshman.points;
-  const seasons = model.freshman.intake.map((s) => s.season);
-  const xMax = Math.max(1600, ...pts.map((p) => p.minutes));
-  const maxGames = Math.max(1, ...pts.map((p) => p.gamesPlayed));
-  charts.scatter(k, {
-    box: k.slot(seasons.length * 26 + 34),
-    title: 'Every freshman of the last four seasons',
-    subtitle: 'One dot per player. Further right is more minutes; bigger is more games. '
-      + 'A filled dot started at least half of them.',
-    lanes: seasons,
-    xMax,
-    marker: STARTER_MINUTES,
-    markerLabel: `${STARTER_MINUTES} — a starter's season`,
-    points: pts.map((p) => ({
-      lane: p.season, value: p.minutes, size: p.gamesPlayed, sizeMax: maxGames,
-      solid: p.gamesStarted >= p.gamesPlayed / 2 && p.gamesPlayed > 0,
-      color: p.origin === 'international' ? GREEN : NAVY,
-    })),
-    unavailable: pts.length ? null
-      : 'no season on file carries enough recorded minutes to place a freshman',
-  });
-  k.note('Navy is a domestic recruit, green an international one. A player whose minutes were '
-    + 'never published is left out rather than drawn at zero.');
-}
-
-function intakeColumns(k, model) {
-  const rows = model.freshman.intake;
-  const yMax = Math.max(1, ...rows.map((s) => s.freshmen));
-  charts.columns(k, {
-    box: k.slot(140),
-    title: 'How many arrive, and how many of them play',
-    subtitle: 'Every first-year on the roster, then those given a minute, then those who played '
-      + `a ${STARTER_MINUTES}-minute season.`,
-    yMax,
-    groups: rows.map((s) => ({
-      label: s.season,
-      note: s.readable ? `${s.freshmen} in` : null,
-      bars: s.readable ? [
-        { key: 'in', value: s.freshmen, color: PALE },
-        { key: 'played', value: s.freshmanPlayed, color: MID },
-        { key: 'started', value: s.freshmanStarters, color: NAVY },
-      ] : [{ key: 'in', value: null }],
-    })),
-    unavailable: rows.length ? null : 'no seasons on file',
-  });
-  k.note('Pale is everyone who arrived, mid-blue those who got on the pitch, navy those who '
-    + 'played a starter’s season.');
-}
-
-function developmentSection(k, model) {
-  const pairs = model.freshman.progression;
-  const max = Math.max(1600, ...pairs.flatMap((p) => [p.year1, p.year2 ?? 0]));
-  charts.slope(k, {
-    box: k.slot(166),
-    title: 'From the first year to the second',
-    subtitle: 'One line per freshman. Rising means more minutes in year two.',
-    pairs: pairs.map((p) => ({ from: p.year1, to: p.year2 ?? 0, toState: p.year2State })),
-    max,
-    leftLabel: 'first year',
-    rightLabel: 'second year',
-    unavailable: pairs.length ? null
-      : 'no freshman here has a following season on file to compare against',
-  });
-  const r = model.freshman.retention;
-  if (r) {
-    k.body(`${r.stayed} of ${r.of} freshmen were still on the roster a year later.`);
-    k.note('A name leaving a roster can mean a transfer, an injury, a player who stopped '
-      + 'playing, or a spelling we could not match. It is the one departure that cannot mean '
-      + 'graduation, which is why it is worth showing — but it is not four separate facts.');
-  }
-}
-
-function heatSection(k, model) {
-  const seasons = model.freshman.intake.map((s) => s.season);
-  const rows = model.freshman.grid
-    .map((g) => ({
-      label: cap(positionPlural(g.position)),
-      cells: g.cells
-        .filter((c) => seasons.includes(c.season))
-        .map((c) => ({ value: c.share, n: c.players })),
-    }))
-    .filter((r) => r.cells.some((c) => c.value != null));
-  charts.heatGrid(k, {
-    box: k.slot(rows.length * 22 + 24),
-    title: 'Which positions the freshmen actually play in',
-    subtitle: 'The share of each position’s minutes that went to first-years. n is how many '
-      + 'players the cell is built from.',
-    cols: seasons,
-    rows,
-    unavailable: rows.length ? null
-      : 'no position group here carries enough recorded minutes to read season by season',
-  });
-}
-
-function cliffSection(k, model) {
-  const cliff = model.squad.cliff;
-  const yMax = Math.max(1, ...(cliff ?? []).map((y) => y.total));
-  charts.columns(k, {
-    box: k.slot(142),
-    title: 'When places actually come free',
-    subtitle: `Minutes on the ${model.squadSeason} roster whose eligibility ends in each year, `
-      + 'from the squad currently on campus.',
-    yMax,
-    unit: ' min',
-    groups: (cliff ?? []).map((y) => ({
-      label: `end of ${y.year}`,
-      note: `${Math.round(y.total).toLocaleString('en-US')}`,
-      bars: [{ key: 'min', value: y.total, color: y.year === model.entrySeason ? CLARET : NAVY }],
-    })),
-    unavailable: cliff?.length ? null
-      : `no ${model.squadSeason} roster on file for this programme, so we cannot say when a place opens`,
-  });
-  if (cliff?.length && model.entrySeason) {
-    const at = cliff.find((y) => y.year === model.entrySeason);
-    if (at) {
-      k.body(`${Math.round(at.total).toLocaleString('en-US')} minutes are due to come free at the `
-        + `end of ${model.entrySeason}.`, { bold: true });
-    }
-  }
-  k.note('Projected from each player’s last eligible season and the minutes they are expected to '
-    + 'play. A fifth year, a transfer out or an injury all move it.');
-}
-
-// ---------------------------------------------------------------------------
-// Part 2 — the transfer intake
-// ---------------------------------------------------------------------------
-
-function transferHeadline(k, model) {
-  const t = model.transfer;
-  if (!t.measurable) {
-    k.box('We cannot say whether this programme signs transfers: none of the seasons on file has '
-      + 'the season before it on file too, and an arrival is only visible by comparison.',
-    { color: CLARET });
-    return;
-  }
-  if (t.density === 'none') {
-    k.box(`Across ${plural(t.window.measurable.length, 'season', 'seasons')} we can measure, this `
-      + 'programme did not add a single player who was not a first-year. It builds from its own '
-      + 'recruiting class. About a quarter of programmes in this sport are the same.',
-    { color: GREEN });
-    return;
-  }
-  k.body(`${plural(t.points.length, 'player', 'players')} arrived here who were not first-years `
-    + `across ${plural(t.window.measurable.length, 'season', 'seasons')} — transfers, junior-college `
-    + 'arrivals, or older recruits. The roster cannot tell those apart, and for a recruit they '
-    + 'mean the same thing: somebody brought in ready to play.');
-}
-
-function everyTransfer(k, model) {
-  const t = model.transfer;
-  if (t.density === 'none' || !t.measurable) return;
-  if (t.density === 'few') {
-    k.heading('Who they were');
-    k.facts(t.points.map((p) => [
-      `${p.season}  ${p.name}`,
-      `${cap(positionPlural(p.position)).replace(/s$/, '')} · ${p.classLabel ?? 'class not stated'}`
-      + ` · ${minutes(p.minutes)}${p.gamesStarted ? `, ${p.gamesStarted} starts` : ''}`,
-    ]));
-    k.note('Too few to describe a policy. This is what happened, not what the programme does.');
-    return;
-  }
-  // Only the seasons an arrival could be detected in. A lane for a season with
-  // no prior roster on file would be drawn empty, and an empty lane reads as
-  // "nobody came" when it means "we could not look".
-  const seasons = t.window.measurable;
-  const xMax = Math.max(1600, ...t.points.map((p) => p.minutes));
-  const maxGames = Math.max(1, ...t.points.map((p) => p.gamesPlayed));
-  charts.scatter(k, {
-    box: k.slot(seasons.length * 26 + 34),
-    title: 'Every arrival who was not a first-year',
-    subtitle: 'Drawn the same way as the freshmen, so the two pages can be read against each other.',
-    lanes: seasons,
-    xMax,
-    marker: STARTER_MINUTES,
-    markerLabel: `${STARTER_MINUTES} — a starter's season`,
-    points: t.points.map((p) => ({
-      lane: p.season, value: p.minutes, size: p.gamesPlayed, sizeMax: maxGames,
-      solid: p.gamesStarted >= p.gamesPlayed / 2 && p.gamesPlayed > 0, color: GREEN,
-    })),
-    unavailable: null,
-  });
-  if (t.window.unmeasurable.length) {
-    k.note(`${t.window.unmeasurable.join(' and ')} ${t.window.unmeasurable.length === 1 ? 'is' : 'are'} `
-      + 'not shown: without the season before it on file, an arrival cannot be told from a returner.');
-  }
-}
-
-function freshmanVsTransfer(k, model) {
-  const rows = model.freshman.intake.filter((s) => s.readable);
-  const yMax = Math.max(1, ...rows.flatMap((s) => [s.freshmanMinutes ?? 0, s.newcomerMinutes ?? 0]));
-  charts.columns(k, {
-    box: k.slot(140),
-    title: 'Who gets the minutes',
-    subtitle: 'Minutes played by first-years against minutes played by everyone else who arrived.',
-    yMax,
-    unit: ' min',
-    groups: model.freshman.intake.map((s) => ({
-      label: s.season,
-      bars: s.readable ? [
-        { key: 'fresh', value: s.freshmanMinutes, color: NAVY },
-        { key: 'new', value: s.arrivalsMeasurable ? s.newcomerMinutes : null, color: GREEN },
-      ] : [{ key: 'fresh', value: null }],
-    })),
-    unavailable: rows.length ? null : 'no season on file carries enough recorded minutes',
-  });
-  k.note('Navy is first-years, green everyone else who arrived. A season with no bar is one whose '
-    + 'minutes were never published.');
-}
-
-function namedArrivalsSection(k, model) {
-  const arrivals = model.squad.arrivals;
-  k.heading(`Named arrivals for ${model.squadSeason}`);
-  if (!model.squad.rostered) {
-    k.body(`No ${model.squadSeason} roster is on file for this programme, so we cannot name who `
-      + 'has arrived.', { color: MUTED });
-    return;
-  }
-  if (!arrivals.length) {
-    k.body(`Nobody on the ${model.squadSeason} roster is recorded as arriving from another `
-      + 'programme.', { color: MUTED });
-    return;
-  }
-  k.facts(arrivals.map((a) => [
-    a.name,
-    `${cap(positionPlural(a.position)).replace(/s$/, '')} · ${a.classLabel ?? 'class not stated'}`
-    + ` · from ${a.from}`,
-  ]));
-  k.note('This is the only place in the report where an arrival is named rather than inferred — '
-    + 'the roster records where these players came from.');
-}
-
-// ---------------------------------------------------------------------------
-// Part 3 — the athlete, one facet at a time
-// ---------------------------------------------------------------------------
-
-function facetPosition(k, model) {
-  const a = model.athlete;
-  const ph = model.fit?.position;
-  k.heading(`If you are a ${positionPlural(a.position).replace(/s$/, '')}`);
-  const grid = model.freshman.grid.find((g) => g.position === (model.fit?.asked?.position ?? ''));
-  if (grid) {
-    charts.heatGrid(k, {
-      box: k.slot(46),
-      title: `${cap(positionPlural(a.position))} — the share of the position’s minutes that went to first-years`,
-      cols: grid.cells.map((c) => c.season),
-      rows: [{ label: cap(positionPlural(a.position)), cells: grid.cells.map((c) => ({ value: c.share, n: c.players })) }],
-      unavailable: grid.cells.some((c) => c.share != null) ? null
-        : 'this position does not carry enough recorded minutes here to read',
-    });
-  }
-  if (!ph || !ph.transitions) {
-    k.body('There is not enough recorded at this position to say how it behaves when a place '
-      + 'comes free.', { color: MUTED });
-    return;
-  }
-  k.facts([
-    ['Seasons we can read', String(ph.transitions)],
-    ['Starters who left', String(ph.startersDeparted)],
-    ['Seasons that opened a place', `${ph.openings} of ${ph.transitions}`],
-    ['…where a first-year then started', `${ph.freshmanTookIt} of ${ph.openings}`],
-    ['…where someone else brought in did', `${ph.newcomerTookIt} of ${ph.openings}`],
-  ]);
-  for (const s of ph.seasons) {
-    const names = s.departedNames.map((d) => `${d.name} (${minutes(d.minutes)})`).join(', ');
-    k.body(`${s.season}: ${s.startersDeparted ? `${names} left` : 'no starter left'}`
-      + ` — ${plural(s.freshStarters, 'first-year started', 'first-years started')}`
-      + `${s.newcomerStarters ? `, and ${plural(s.newcomerStarters, 'other arrival', 'other arrivals')}` : ''}.`);
-  }
-  if (ph.openings > 0 && ph.openings < 3) {
-    k.box(`Only ${plural(ph.openings, 'place has', 'places have')} come free at this position in `
-      + 'the seasons on file. That is too few to be a pattern — read it as what happened, not as '
-      + 'odds.', { color: CLARET });
-  }
-}
-
-function facetOrigin(k, model) {
-  const a = model.athlete;
-  k.heading(a.origin === 'international'
-    ? 'If you are arriving from outside the United States'
-    : 'If you are arriving from within the United States');
-  const pts = model.freshman.points.filter((p) => p.origin);
-  const mine = pts.filter((p) => p.origin === a.origin);
-  const theirs = pts.filter((p) => p.origin !== a.origin);
-  const rate = (list) => (list.length
-    ? Math.round(100 * list.filter((p) => p.minutes >= STARTER_MINUTES).length / list.length) : null);
-  charts.paired(k, {
-    box: k.slot(72),
-    title: 'First-years who played a starter’s season',
-    rows: [
-      { label: a.origin === 'international' ? 'International' : 'From the US', a: rate(mine), b: null },
-      { label: a.origin === 'international' ? 'From the US' : 'International', a: rate(theirs), b: null },
-    ],
-    aLabel: '', bLabel: '', max: 100, unit: '%',
-    unavailable: pts.length >= 6 ? null
-      : 'too few first-years here record where they came from to split them',
-  });
-  k.body(`${mine.length} of this programme’s ${pts.length} measured first-years came from `
-    + `${a.origin === 'international' ? 'outside the United States' : 'within the United States'}.`);
-  k.note('Across the game an international first-year is about 40% more likely to play a '
-    + 'starter’s season than a domestic one — 37% against 27% — but the effect disappears '
-    + 'entirely at Division III, and at some programmes it runs the other way. We can tell a US '
-    + 'recruit from an international one, but not one country from another: there are never '
-    + 'enough players from a single country at one programme to measure.');
-}
-
-function facetEntry(k, model) {
-  const a = model.athlete;
-  k.heading(`The squad you would be joining in ${model.entrySeason}`);
-  const depth = model.squad.depth;
-  if (!depth?.length) {
-    k.body(`No ${model.squadSeason} roster is on file for this programme, so we cannot show who is `
-      + 'already at your position.', { color: MUTED });
-    return;
-  }
-  k.body(`Every ${positionPlural(a.position).replace(/s$/, '')} on the ${model.squadSeason} roster, `
-    + 'with the minutes they are expected to play and the year their eligibility runs out.',
-  { color: MUTED });
-  k.facts(depth.slice(0, 10).map((d) => [
-    d.name,
-    `${d.classLabel ?? 'class not stated'}`
-    + `${d.projectedMinutes != null ? ` · about ${minutes(d.projectedMinutes)} expected` : ''}`
-    + `${d.eligibleTo != null ? ` · eligible through ${d.eligibleTo}` : ''}`
-    + `${d.arrivedFrom && d.arrivedFrom !== model.college.name ? ` · from ${d.arrivedFrom}` : ''}`,
-  ]));
-  const goneBy = depth.filter((d) => d.eligibleTo != null && d.eligibleTo < model.entrySeason).length;
-  if (goneBy) {
-    k.body(`${plural(goneBy, 'of them is', 'of them are')} out of eligibility before ${model.entrySeason}.`,
-      { bold: true });
-  }
-  if (!model.entrySeasonKnown) {
-    k.box(`We hold rosters and coaching records through ${model.squadSeason}. You would arrive in `
-      + `${model.entrySeason}, so who is in charge and who is on the squad by then is not `
-      + 'something this report can tell you.', { color: CLARET });
-  }
-}
-
-function facetLevel(k, model) {
-  const a = model.athlete;
-  k.heading('Level');
-  const score = model.college.soccer_score;
-  k.facts([
-    ['This programme', score == null ? 'not rated' : `${Math.round(score)} of 100 · ${model.college.division}`],
-    ['Your stated level', a.level == null ? 'not stated' : `${a.level} of 10`],
-  ]);
-  k.box('These two are not the same measurement and must not be read as one. The programme’s '
-    + 'rating is built from results; your level is what you entered on the form. They are '
-    + 'printed together because the gap is worth thinking about, not because it has been '
-    + 'measured.', { color: CLARET });
-}
+  contentsPage, programmeAtAGlance, programmeSnapshotPage, athleteAtAGlance,
+} from './reportFront.js';
+import {
+  actsFor, originIsProgrammeSpecific, arrivalsAreOneFinding,
+} from '../../shared/report/sections.js';
+import {
+  freshmanOpportunityPage, experiencedArrivalsPage,
+  replacingMinutesPage, replacementByPositionPage,
+  currentSquadOutlookPage, currentDepthPage,
+} from './reportEvidence.js';
+import {
+  positionOpeningsPage, currentPositionPage, originPage, staffQuestionsPage,
+} from './reportAthlete.js';
+import {
+  playerDevelopmentPage, rosterContinuityPage,
+  athletePositionMovementPage,
+} from './reportLifecycle.js';
+import {
+  freshmanRecordPage, arrivalRecordPage, vacancyRecordPage, destinationRecordPage,
+  methodologyPage,
+} from './reportAppendix.js';
+import { evidenceLimitsPage } from './reportLimits.js';
+import { competitiveHistoryPage, competitiveEnvironmentPage } from './reportCompetitive.js';
+import { positionRecordPage } from './reportPosition.js';
+import { squadUsagePage } from './reportSquadUsage.js';
+import { athletePositionIsStrong } from '../../shared/report/lifecycleSummary.js';
 
 // ---------------------------------------------------------------------------
 // The document
 // ---------------------------------------------------------------------------
 
-export function renderProgramReport(model) {
+/**
+ * A DETERMINISTIC NAME FOR A GENERATED REPORT — 13I / §17.
+ *
+ * The endpoints used to send "Mercyhurst program report.pdf" and "Mercyhurst
+ * program report for Rhys Davies.pdf". Three problems: "program" is the one
+ * American spelling anywhere near a document that says "programme" in every
+ * sentence; there is no sport in it, so the men's and women's reports for one
+ * college are the same filename; and spaces make a name that has to be quoted
+ * everywhere it is used.
+ *
+ *   Thriv3_Programme_Intelligence_Mercyhurst_Mens_Soccer.pdf
+ *   Thriv3_Rhys_Davies_Mercyhurst_Mens_Soccer.pdf
+ *
+ * Stable, filesystem-safe, no internal ids and no timestamp: the same inputs
+ * name the same file, so a regenerated report replaces its predecessor instead
+ * of accumulating beside it. Ids would only be needed to break a collision
+ * between two athletes of one name at one programme, and adding them
+ * unconditionally would put a database key in a client's downloads folder.
+ *
+ * NOTHING IS SILENTLY DROPPED. A character that is not filename-safe becomes
+ * an underscore rather than disappearing — `safeFilename` in the server used to
+ * turn "Zoё" into "Zo", which is a different name — and the endpoints send the
+ * exact Unicode name as well, in the RFC 5987 form, so a viewer that
+ * understands it saves the name as spelled.
+ */
+export function reportFilename(model) {
+  const sport = model.college?.sport === 'womens-soccer' ? 'Womens Soccer' : 'Mens Soccer';
+  const parts = model.athlete
+    ? ['Thriv3', model.athlete.name, model.college.name, sport]
+    : ['Thriv3', 'Programme Intelligence', model.college.name, sport];
+  return `${parts.join(' ').replace(/[\s/\\:*?"<>|]+/g, '_').replace(/_+/g, '_')}.pdf`;
+}
+
+/** The same name with every non-ASCII character replaced, never removed. */
+export function asciiFilename(name) {
+  return String(name)
+    .normalize('NFD')
+    .replace(/\p{Mn}+/gu, '')
+    .replace(/[^\x20-\x7E]/g, '_');
+}
+
+export function renderProgramReport(model, opts = {}) {
+  const c0 = model.college;
+  const sport0 = c0?.sport === 'womens-soccer' ? 'women’s soccer' : 'men’s soccer';
   return render((k) => {
     const c = model.college;
     const a = model.athlete;
+    const plan = model.sections ?? [];
 
-    masthead(k, model, `${c.name} — program report`,
-      [c.division, c.conference, [c.city, c.state].filter(Boolean).join(', ')]
-        .filter(Boolean).join('  ·  ')
-      + (a ? `\nPrepared for ${a.name} — ${a.positionLabel}, ${a.nationality}, entering ${model.entrySeason}` : ''));
-    whatThisIs(k, model);
-    whoRunsIt(k, model);
+    /**
+     * Where each section actually started.
+     *
+     * `bufferedPageRange().count` is the number of pages that exist, so while
+     * the document is written forward it is also the 1-based index of the page
+     * being written. `atNext` records the page a section is ABOUT to open,
+     * which is what the evidence pages need: each one begins by adding a page
+     * of its own.
+     */
+    const pages = new Map();
+    // Written back onto the plan as well as into the map. `planSections` states
+    // `page: null` as "the renderer fills this in once the section has been
+    // laid out", and until now nothing did — so the field was permanently null
+    // and the only place the real numbers existed was inside this closure.
+    const record = (id, n) => {
+      pages.set(id, n);
+      const entry = plan.find((x) => x.id === id);
+      if (entry) entry.page = n;
+    };
+    const at = (id) => record(id, k.doc.bufferedPageRange().count);
+    const atNext = (id) => record(id, k.doc.bufferedPageRange().count + 1);
 
-    part(k, 'ONE', 'The freshman intake',
-      'What has happened to first-years here across the four seasons on file — every one of '
-      + 'them, not an average.');
-    everyFreshman(k, model);
-    intakeColumns(k, model);
-    ladderSection(k, model);
-    benchmarkSection(k, model);
-    developmentSection(k, model);
-    heatSection(k, model);
-    cliffSection(k, model);
+    /**
+     * Render a section only where the registry says it has something to say.
+     *
+     * The plan decides, not the page: a section that discovers its own
+     * emptiness has already opened a page by the time it finds out, and an
+     * empty page is exactly what the dynamic-page rule exists to prevent.
+     */
+    const planned = new Set(plan.map((x) => x.id));
+    /**
+     * @param flow - draw beneath the section above rather than on a page of
+     * its own. The section still records a page and still appears in the
+     * contents; it records the page it is CONTINUING on rather than the next
+     * one, which is the only difference the rest of this function needs to
+     * know about.
+     */
+    const section = (id, draw, { flow = false } = {}) => {
+      if (!planned.has(id)) return;
+      // The act divider, where this is the first section of a new act. Set on
+      // the kit and consumed by the page's own `pageHead`, because the divider
+      // has to be drawn after the page exists and before its title — and no
+      // page function should have to know which act it opens.
+      const entry = plan.find((x) => x.id === id);
+      if (entry && entry.act !== currentAct) {
+        currentAct = entry.act;
+        const act = acts.find((x) => x.id === currentAct);
+        // Not on the first act: the cover and the summary page open the report
+        // and do not need to be told what they are.
+        if (act && drawnAny) k.pendingAct = act;
+      }
+      drawnAny = true;
+      if (flow) at(id); else atNext(id);
+      draw();
+    };
 
-    part(k, 'TWO', 'The transfer intake',
-      'Whether this programme fills places from its own recruiting class or from elsewhere. '
-      + 'Across the game this is the more predictable of the two habits.');
-    transferHeadline(k, model);
-    everyTransfer(k, model);
-    freshmanVsTransfer(k, model);
-    fillMixSection(k, model);
-    namedArrivalsSection(k, model);
-    positionSection(k, model);
+    const acts = actsFor({ hasAthlete: Boolean(a) });
+    let currentAct = null;
+    let drawnAny = false;
 
-    if (a) {
-      part(k, 'THREE', `For ${a.name}`,
-        'The same programme, read one part of your profile at a time.');
-      facetPosition(k, model);
-      facetOrigin(k, model);
-      facetEntry(k, model);
-      facetLevel(k, model);
+    // Page one is reserved for the contents and drawn last, once the section
+    // starts are known. Nothing is written to it here.
+    k.doc.addPage();
+
+    /**
+     * THE ATHLETE'S OWN FINDINGS FIRST — 13F / §2.
+     *
+     * Page two of a document named after somebody was the programme decision
+     * layer, byte-identical to the standalone report: six ranked findings, not
+     * one of which mentioned their position, their entry year or the players
+     * already at it. The athlete layer opens the report now and the programme
+     * layer follows it, unchanged analytically and one tier quieter.
+     *
+     * A programme report is untouched: with no athlete there is no athlete
+     * layer, and the programme layer is still the first thing after the cover.
+     */
+    if (a && planned.has('athlete-at-a-glance')) {
+      at('athlete-at-a-glance');
+      currentAct = plan.find((x) => x.id === 'athlete-at-a-glance')?.act ?? null;
+      drawnAny = true;
+      athleteAtAGlance(k, model);
+      k.doc.addPage();
     }
 
-    k.doc.addPage();
-    limits(k, model, [
-      'Retention counts a name leaving a roster, which can mean a transfer, an injury, a player '
-        + 'who stopped, or a spelling we could not match.',
-      'A transfer count of zero can mean a programme that does not use the portal, or one whose '
-        + 'previous season we could not read. The report says which.',
-      'A group of three players is a description of three players, however it is drawn.',
-    ]);
+    at('programme-at-a-glance');
+    currentAct = plan.find((x) => x.id === 'programme-at-a-glance')?.act ?? currentAct;
+    drawnAny = true;
+    programmeAtAGlance(k, model);
+
+    /**
+     * The snapshot, under the findings where the findings leave room for it.
+     *
+     * 215, measured: the block is 186 points at Mercyhurst men's — a four-row
+     * grid, the coach line with its tenure strip, and the note on how the page
+     * above was ordered — and the gate carries the slot gaps on top of it. Two
+     * pages are not hard-coded; a compact programme whose findings end high on
+     * the page keeps its snapshot on the same sheet, and one with six findings
+     * gets a page for it.
+     */
+    const snapFlow = k.remaining() >= 215;
+    section('programme-snapshot',
+      () => programmeSnapshotPage(k, model, { newPage: !snapFlow }),
+      { flow: snapFlow });
+
+    // ---- Act I, continued: the athlete's own pathway ----
+    //
+    // An athlete report answers the questions a family asks first — who is at
+    // this position now, what the entry year looks like, what has happened
+    // when the position opened — and only then shows how the squad as a whole
+    // has been built. A programme report has none of these sections and falls
+    // straight through to the programme evidence.
+
+    section('athlete-current-position', () => currentPositionPage(k, model));
+    section('athlete-position-openings', () => positionOpeningsPage(k, model));
+    section('athlete-position-record', () => positionRecordPage(k, model));
+    /**
+     * Pinned here since 13F. It used to move to the supporting record wherever
+     * the programme's own origin sample did not clear the cohort gate, which
+     * put it after every evidence table at four of five programmes audited —
+     * page 26 of 28 at Adams State. For the reader it matters to, the refusal
+     * is the finding.
+     */
+    section('athlete-origin', () => originPage(k, model));
+    // Only where the position carries a real sample. A handful of players is
+    // filed with the supporting record instead, below.
+    if (athletePositionIsStrong(model)) {
+      section('athlete-position-movement', () => athletePositionMovementPage(k, model));
+    }
+
+    /**
+     * LAST IN THE PATHWAY ACT — 13H / §23.
+     *
+     * After the athlete's own analysis and before the frozen programme act:
+     * the questions are generated FROM the pages above, so they cannot precede
+     * them, and they are decision support rather than evidence, so they do not
+     * belong in the act at the back. Omitted entirely where no question
+     * qualifies — `section` does not draw a section the plan does not contain.
+     */
+    section('athlete-staff-questions', () => staffQuestionsPage(k, model));
+
+    // ---- Act II: programme intelligence, in narrative order ----
+    //
+    // Five questions rather than sixteen modules. The order is owned by
+    // `NARRATIVE_GROUPS` in the section registry, and this run follows it:
+    // where you would be competing, then how players get on the pitch, then
+    // how the squad is built, then where openings come from, then what the
+    // programme recorded.
+
+    // The frame. Every pool comparison below it is scoped to a division, and
+    // at 32 programmes the division changes inside the measured window — so a
+    // reader needs the denominator before the ratios.
+    section('competitive-environment', () => competitiveEnvironmentPage(k, model));
+
+    section('freshman-opportunity', () => freshmanOpportunityPage(k, model));
+    section('player-development', () => playerDevelopmentPage(k, model));
+
+    section('squad-usage', () => squadUsagePage(k, model));
+    /**
+     * Experienced arrivals, beneath the squad page where it is one sentence.
+     *
+     * At a programme where no arrival could be detected, or where no season
+     * can be compared with the one before it, this section is a title, a scope
+     * line and a single box — a valid finding that was consuming a whole page
+     * at Albertus. It is not deleted and it is not demoted into a footnote: it
+     * keeps its heading, its scope line and its box, and flows under a page
+     * whose own blocks are already drawn.
+     *
+     * Guarded on measured room, not on a hunch. A programme with the full
+     * scatter and the by-position table never qualifies, and neither does a
+     * squad page that has already used its height.
+     */
+    const arrivalsFlow = arrivalsAreOneFinding(model)
+      && pages.get('squad-usage') != null
+      && k.remaining() >= 190;
+    section('experienced-arrivals',
+      () => experiencedArrivalsPage(k, model, { newPage: !arrivalsFlow }),
+      { flow: arrivalsFlow });
+    section('roster-continuity', () => rosterContinuityPage(k, model));
+
+    section('replacing-minutes', () => replacingMinutesPage(k, model));
+    /**
+     * Position by position, as the second half of the replacement story.
+     *
+     * 13A asked whether this still earns a page of its own. It earns the
+     * SECTION — what happens at one position is a materially different
+     * question from what happens across the programme, and it is the half a
+     * recruit reads first — but once the season-by-season openings moved to
+     * the evidence act, what is left is a four-row table that read as a thin
+     * page. It flows under the replacement page where the room is measured,
+     * and takes its own page where it is not, which is the same rule the
+     * arrivals section already runs on.
+     */
+    /**
+     * 430, re-measured in 13D. The seven-column table became four rows with a
+     * stacked minute bar each — the same figures, on a band a reader can
+     * compare — and the block is now 396 points at a four-position programme.
+     * The replacement page above it leaves 219 there, so at a full-data
+     * programme it keeps its own page, which is the §M answer: it needs the
+     * room. Where the replacement page is shorter it still flows, and reads as
+     * the second half of one opportunity story.
+     */
+    const positionFlow = pages.get('replacing-minutes') != null && k.remaining() >= 430;
+    section('replacement-by-position',
+      () => replacementByPositionPage(k, model, { newPage: !positionFlow }),
+      { flow: positionFlow });
+
+    section('eligibility-outlook', () => currentSquadOutlookPage(k, model));
+
+    // What the programme recorded, read inside the environment established at
+    // the top of the act.
+    section('competitive-history', () => competitiveHistoryPage(k, model));
+    section('evidence-limits', () => evidenceLimitsPage(k, model));
+
+    // ---- Act III: the record underneath both ----
+
+    /**
+     * ATHLETE EVIDENCE FIRST — 13F / §25.
+     *
+     * The traced moves at the athlete's own position used to sit after five
+     * programme-wide tables, so the last athlete-specific thing in the document
+     * came 400 rows of other people's names later. The evidence act now opens
+     * with it where it exists, and the programme record follows unchanged.
+     */
+    if (!athletePositionIsStrong(model)) {
+      section('athlete-position-movement', () => athletePositionMovementPage(k, model));
+    }
+
+    // Then the roster: the table a family returns to, and the one the
+    // squad-outlook page points at.
+    section('current-depth', () => currentDepthPage(k, model));
+    section('table-freshmen', () => freshmanRecordPage(k, model));
+    section('table-experienced-arrivals', () => arrivalRecordPage(k, model));
+    section('table-vacancies', () => vacancyRecordPage(k, model));
+    section('table-destinations', () => destinationRecordPage(k, model));
+
+    atNext('methodology');
+    if (plan.find((x) => x.id === 'methodology')?.act !== currentAct) {
+      currentAct = plan.find((x) => x.id === 'methodology')?.act ?? currentAct;
+      const act = acts.find((x) => x.id === currentAct);
+      if (act && drawnAny) k.pendingAct = act;
+    }
+    methodologyPage(k, model);
+
+    // Anything registered with `k.defer` — a cross-reference to a page that did
+    // not exist when its own page was written. Run before the contents so a
+    // deferred draw cannot be the thing that changes a page count.
+    for (const { page, fn } of k.later) {
+      k.doc.switchToPage(page);
+      fn({ pageOf: (id) => pages.get(id) ?? null, doc: k.doc });
+    }
+
+    // The contents, now that every page exists. Drawn in absolute coordinates
+    // on the reserved first page: anything consulting the flow cursor could
+    // call addPage() here and append a blank page to a finished document.
+    k.doc.switchToPage(0);
+    contentsPage(k.doc, model, plan, pages);
+
     footer(k.doc, `Thriv3 · ${c.name}${a ? ` · for ${a.name}` : ''} · prepared ${new Date().toISOString().slice(0, 10)}`);
+  }, {
+    ...opts,
+    info: {
+      Title: model.athlete
+        ? `${model.athlete.name} × ${c0.name} — Thriv3 Programme Intelligence`
+        : `${c0.name} — Thriv3 Programme Intelligence`,
+      Author: 'Thriv3',
+      Subject: model.athlete
+        ? `How ${c0.name} has recruited, developed and replaced ${sport0} players, `
+          + `read for a ${String(model.summary?.athlete?.positionLabel ?? 'player').toLowerCase()} `
+          + `arriving in ${model.entrySeason}. Not a forecast.`
+        : `How ${c0.name} recruits, develops, retains and replaces ${sport0} players. `
+          + 'Not a forecast.',
+      ...(opts.info ?? {}),
+    },
   });
 }

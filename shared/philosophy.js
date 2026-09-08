@@ -26,7 +26,7 @@
 import {
   freshmanProfile, classifyProgramme, weightsFromVerdict, ladderByRank,
   isTrueFreshman, minutesAreMissing, cohortFor, originOf, bandFor,
-  MIN_MEASURED_SHARE,
+  MIN_MEASURED_SHARE, MIN_COHORT_PLAYERS, MIN_COHORT_SEASONS,
 } from './freshmanMinutes.js';
 import { tenureFor, stillInPost } from './coachTenure.js';
 import { canonicalPosition, POSITIONS } from './positions.js';
@@ -214,11 +214,19 @@ export function positionHistory(observations, position) {
     dials: dials(at),
     seasons: at.map((o) => ({
       season: o.to,
+      from: o.from,
       startersDeparted: o.departedStarters,
       departedNames: o.departedStarterNames,
+      vacatedStarterMinutes: o.vacatedStarter,
       freshStarters: o.freshStarters,
       newcomerStarters: o.newcomerStarters,
       bestFresh: o.bestFresh,
+      // The three-way split for THIS transition. Reported per event because a
+      // reader looking at one departure wants what followed that departure,
+      // not the position's average across every season.
+      returningShare: round1(o.returningShare),
+      freshmanShare: round1(o.freshShare),
+      newcomerShare: round1(o.newcomerShare),
     })),
   };
 }
@@ -496,19 +504,221 @@ export function eligibilityCliff(squadRows, { positions = POSITIONS } = {}) {
   const rows = squadRows.filter((r) => r.eligibility_end_year != null);
   if (!rows.length) return null;
   const years = [...new Set(rows.map((r) => Number(r.eligibility_end_year)))].sort();
-  return years.map((year) => ({
-    year,
-    total: rows.filter((r) => Number(r.eligibility_end_year) === year)
-      .reduce((s, r) => s + (Number(r.projected_minutes) || 0), 0),
-    byPosition: positions.map((pos) => ({
-      position: pos,
-      minutes: rows.filter((r) => Number(r.eligibility_end_year) === year
-        && canonicalPosition(r.position) === pos)
-        .reduce((s, r) => s + (Number(r.projected_minutes) || 0), 0),
-      players: rows.filter((r) => Number(r.eligibility_end_year) === year
-        && canonicalPosition(r.position) === pos).length,
-    })),
-  }));
+  return years.map((year) => {
+    const at = rows.filter((r) => Number(r.eligibility_end_year) === year);
+    const projected = at.filter(hasProjectedMinutes);
+    return {
+      year,
+      total: at.reduce((s, r) => s + (Number(r.projected_minutes) || 0), 0),
+      // How much of that total is a measurement. A player with an eligibility
+      // year and no projected minutes contributes nothing to `total`, which is
+      // indistinguishable from one projected to play nothing — so the counts
+      // travel with the sum rather than a caller having to assume.
+      players: at.length,
+      playersWithProjection: projected.length,
+      playersWithoutProjection: at.length - projected.length,
+      byPosition: positions.map((pos) => {
+        const atPos = at.filter((r) => canonicalPosition(r.position) === pos);
+        return {
+          position: pos,
+          minutes: atPos.reduce((s, r) => s + (Number(r.projected_minutes) || 0), 0),
+          players: atPos.length,
+          playersWithoutProjection: atPos.length - atPos.filter(hasProjectedMinutes).length,
+        };
+      }),
+    };
+  });
+}
+
+/** A projected-minutes figure that was actually recorded, as opposed to absent. */
+function hasProjectedMinutes(row) {
+  const v = row?.projected_minutes;
+  return v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v));
+}
+
+/**
+ * The denominator turnover has to be read against.
+ *
+ * Minutes expiring means nothing on its own: four thousand minutes leaving a
+ * squad projected to play six thousand is a rebuild, and the same four
+ * thousand leaving a squad projected to play twenty-four is ordinary. Nothing
+ * summed the second number, so nothing could tell those apart.
+ *
+ * FIRST-YEARS ARE NOT PART OF THE DENOMINATOR, and that is a property of the
+ * data rather than a choice made here. Projected minutes are carried forward
+ * from a player's prior season, so a true first-year cannot have one: across
+ * the 2026 rosters they are populated for 0.7% of players labelled Fr. and
+ * for 65-81% of every returning class. Two consequences, both of which bit
+ * the first draft of this function:
+ *
+ *   - Coverage measured against the WHOLE roster reads about 50% everywhere,
+ *     no programme in the pool reaches full coverage, and a third of them get
+ *     refused for a gap that is by design. Measured against the players who
+ *     could have a projection it is 70% on average, and 193 programmes are
+ *     complete.
+ *   - The total is therefore the projected load of the RETURNING squad, not of
+ *     the squad. It must never be labelled "the squad's minutes": a share
+ *     taken against it is a share of what returning players are projected to
+ *     play, and calling it anything else overstates turnover by however much
+ *     the incoming class would have played.
+ *
+ * `total` is null rather than a partial sum when too few of those players
+ * carry a projection — the same MIN_MEASURED_SHARE gate the freshman share
+ * and the position grid already use, for the same reason.
+ */
+export function squadProjectedMinutes(squadRows, { minMeasuredShare = MIN_MEASURED_SHARE } = {}) {
+  const rostered = squadRows.length;
+  const projectable = squadRows.filter((r) => !isTrueFreshman(r));
+  const recorded = squadRows.filter(hasProjectedMinutes);
+  const projectableRecorded = projectable.filter(hasProjectedMinutes);
+  const coverage = projectable.length ? projectableRecorded.length / projectable.length : null;
+  const readable = projectable.length > 0 && coverage >= minMeasuredShare;
+  return {
+    rostered,
+    firstYears: rostered - projectable.length,
+    // The players a projection can exist for, which is the honest denominator
+    // for a coverage figure.
+    projectable: projectable.length,
+    playersWithProjection: recorded.length,
+    playersWithoutProjection: projectable.length - projectableRecorded.length,
+    coverage,
+    // Kept alongside so a caller reporting completeness can be transparent
+    // about the two different denominators rather than picking one silently.
+    coverageOfRoster: rostered ? recorded.length / rostered : null,
+    readable,
+    total: readable ? recorded.reduce((s, r) => s + Number(r.projected_minutes), 0) : null,
+    // Carried so no renderer has to remember what the total is of.
+    describes: 'players with a prior season on file',
+  };
+}
+
+/**
+ * Minutes expiring by a given season, as a share of the projected load — or
+ * null where either half is not measurable.
+ *
+ * Returns the reason alongside, because "this squad turns over very little"
+ * and "we cannot tell how much this squad turns over" are opposite claims and
+ * a bare null lets a caller collapse them.
+ *
+ * The share is of the RETURNING squad's projected minutes; see
+ * `squadProjectedMinutes`. `ofDescribes` travels with it so the phrase cannot
+ * be lost between here and the page.
+ */
+export function expiringShare(cliff, denominator, { before = null } = {}) {
+  if (!cliff?.length) {
+    return { share: null, minutes: null, of: null, ofDescribes: null, reason: 'no-eligibility-years-on-file' };
+  }
+  if (!denominator?.readable) {
+    return {
+      share: null, minutes: null, of: null, ofDescribes: null,
+      reason: 'projected-minutes-coverage-too-thin',
+    };
+  }
+  const years = before == null ? cliff : cliff.filter((y) => y.year < before);
+  const minutes = years.reduce((s, y) => s + y.total, 0);
+  const missing = years.reduce((s, y) => s + y.playersWithoutProjection, 0);
+  return {
+    share: denominator.total ? minutes / denominator.total : null,
+    minutes,
+    of: denominator.total,
+    ofDescribes: denominator.describes,
+    // Named so a caller can refuse to classify: the numerator has the same
+    // hole the denominator is guarded against, and it is not guarded here
+    // because dropping those players would understate what is leaving.
+    playersWithoutProjection: missing,
+    reason: null,
+  };
+}
+
+/**
+ * Freshman outcomes for one origin group.
+ *
+ * Fed from `freshmanPoints`, so the definition of a first-year here is
+ * literally the same code the programme half uses: a true freshman, not a
+ * redshirt, not somebody already on the previous roster, and with minutes that
+ * were actually published. Anything else would make the pool comparison a
+ * comparison of two different populations.
+ *
+ * Shares are null below the established cohort minimums rather than computed
+ * from four players. `withoutPublishedMinutes` travels alongside so a reader
+ * can see how much of the group was never visible — those rows are counted,
+ * never read as zero minutes.
+ */
+export function originGroupStats(points, { unmeasuredRows = 0 } = {}) {
+  const players = points.length;
+  const seasons = [...new Set(points.map((p) => p.season))].sort();
+  const programmes = new Set(points.map((p) => p.programme).filter(Boolean)).size;
+  const impact = points.filter((p) => p.minutes >= STARTER_MINUTES).length;
+  const played = points.filter((p) => p.minutes > 0).length;
+  const sufficient = players >= MIN_COHORT_PLAYERS && seasons.length >= MIN_COHORT_SEASONS;
+  const mins = points.map((p) => p.minutes).sort((a, b) => a - b);
+  const med = mins.length
+    ? (mins.length % 2 ? mins[(mins.length - 1) / 2]
+      : Math.round((mins[mins.length / 2 - 1] + mins[mins.length / 2]) / 2))
+    : null;
+  return {
+    players,
+    programmes: programmes || null,
+    seasons: seasons.length,
+    seasonsRepresented: seasons,
+    withoutPublishedMinutes: unmeasuredRows,
+    impact,
+    played,
+    impactShare: sufficient && players ? impact / players : null,
+    playedShare: sufficient && players ? played / players : null,
+    medianMinutes: sufficient ? med : null,
+    sufficient,
+  };
+}
+
+/**
+ * Domestic against international, for a set of freshman points.
+ *
+ * Three groups, and the third is not decoration: `originOf` returns null for
+ * rows carrying neither a nationality nor a country, and sorting those into
+ * "domestic" by default would be the same error as reading a blank minutes
+ * cell as a zero. They are counted on their own and excluded from the
+ * comparison.
+ *
+ * No difference, ratio or effect size is computed. Both shares are reported
+ * with their sample sizes and the reader compares them; a single number like
+ * "40% more likely" invites a causal reading the data cannot support, and this
+ * is a description of who played, not of why.
+ */
+export function originBenchmark(points, { unmeasured = {} } = {}) {
+  const of = (origin) => originGroupStats(
+    points.filter((p) => (p.origin ?? null) === origin),
+    { unmeasuredRows: unmeasured[origin ?? 'unknown'] ?? 0 },
+  );
+  const domestic = of('domestic');
+  const international = of('international');
+  return {
+    domestic,
+    international,
+    originUnrecorded: of(null),
+    // A difference stated against a group too thin to read is not a
+    // difference, so the two have to stand on their own first.
+    comparable: domestic.sufficient && international.sufficient,
+  };
+}
+
+/**
+ * Does this player's `prior_programme` name a DIFFERENT programme?
+ *
+ * Compared through `nameKey`, never raw. The roster and `colleges.name` spell
+ * the same school differently often enough that a raw comparison reports a
+ * returner as an arrival — the same class of defect that made 79 programmes
+ * invisible to every join before the school names were aligned. One predicate
+ * so the two callers cannot drift apart again.
+ */
+export function arrivedFromElsewhere(priorProgramme, school) {
+  if (!priorProgramme) return false;
+  const from = nameKey(priorProgramme);
+  if (!from) return false;
+  // An unknown school name cannot rule an arrival out: with nothing to compare
+  // against, "came from somewhere named" is the more honest reading.
+  const here = nameKey(school);
+  return !here || from !== here;
 }
 
 /**
@@ -520,7 +730,7 @@ export function eligibilityCliff(squadRows, { positions = POSITIONS } = {}) {
  */
 export function namedArrivals(squadRows, { school } = {}) {
   return squadRows
-    .filter((r) => r.prior_programme && nameKey(r.prior_programme) !== nameKey(school))
+    .filter((r) => arrivedFromElsewhere(r.prior_programme, school))
     .map((r) => ({
       name: r.player_name,
       position: canonicalPosition(r.position),
@@ -529,6 +739,62 @@ export function namedArrivals(squadRows, { school } = {}) {
       projectedMinutes: r.projected_minutes ?? null,
     }))
     .sort((a, b) => (b.projectedMinutes ?? 0) - (a.projectedMinutes ?? 0));
+}
+
+/**
+ * The whole current squad, in the shape the depth chart uses.
+ *
+ * `depthChartAt` answers the same question for one position and returns null
+ * for UNKNOWN; a report that lists the roster needs every row, including the
+ * ones whose position could not be read. Those keep their own group rather
+ * than being dropped — a player missing from a squad list is a player the
+ * reader will assume is not there.
+ */
+export function squadDepth(squadRows = []) {
+  return squadRows.map((r) => ({
+    name: r.player_name,
+    position: canonicalPosition(r.position),
+    // The label the roster actually printed, kept beside the canonical group.
+    // "CB" and "RB" both become DEFENSE, and a squad list that only ever shows
+    // the group throws away something the roster was willing to tell us.
+    rawPosition: r.position ?? null,
+    classLabel: r.class_year_label ?? null,
+    projectedMinutes: r.projected_minutes ?? null,
+    eligibleTo: r.eligibility_end_year ?? null,
+    arrivedFrom: arrivedFromElsewhere(r.prior_programme, r.college_name) ? r.prior_programme : null,
+  }));
+}
+
+/**
+ * Every position-season transition in which a starter left, as flat rows.
+ *
+ * The appendix that exposes the replacement analysis needs the events, not the
+ * aggregates. One row per transition, with the departed starters named inside
+ * it — splitting a transition into one row per departing player would count
+ * the same following-season outcome twice.
+ */
+export function vacancyRecord(observations = []) {
+  return observations
+    .filter((o) => o.departedStarters > 0)
+    .map((o) => ({
+      transition: `${o.from}\u2013${o.to}`,
+      from: o.from,
+      to: o.to,
+      position: o.pos,
+      departed: o.departedStarterNames,
+      departedStarters: o.departedStarters,
+      vacatedStarterMinutes: o.vacatedStarter,
+      freshmanStarted: o.freshStarters > 0,
+      freshStarters: o.freshStarters,
+      newcomerStarted: o.newcomerStarters > 0,
+      newcomerStarters: o.newcomerStarters,
+      returningShare: round1(o.returningShare),
+      freshmanShare: round1(o.freshShare),
+      newcomerShare: round1(o.newcomerShare),
+      readable: o.freshmenReadable,
+    }))
+    .sort((a, b) => Number(b.to) - Number(a.to)
+      || String(a.position ?? '').localeCompare(String(b.position ?? '')));
 }
 
 /** Who is already at this position, and the year each one's eligibility ends. */
@@ -543,7 +809,11 @@ export function depthChartAt(squadRows, position) {
       classLabel: r.class_year_label ?? null,
       projectedMinutes: r.projected_minutes ?? null,
       eligibleTo: r.eligibility_end_year ?? null,
-      arrivedFrom: r.prior_programme ?? null,
+      // Some rosters record a player's OWN programme in the prior-programme
+      // field, so this column printed "American International" against six
+      // American International players — a previous programme they never left.
+      // The same guard squadDepth already applies.
+      arrivedFrom: arrivedFromElsewhere(r.prior_programme, r.college_name) ? r.prior_programme : null,
     }))
     .sort((a, b) => (b.projectedMinutes ?? -1) - (a.projectedMinutes ?? -1));
 }

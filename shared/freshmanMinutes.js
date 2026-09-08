@@ -23,6 +23,8 @@
 
 import { readClassYear } from './classYear.js';
 import { canonicalPosition } from './positions.js';
+import { withReadablePerformance } from './performanceSource.js';
+import { sameCoach } from './coachTenure.js';
 
 /**
  * Where a player came from, because at some programmes it decides the ladder.
@@ -222,7 +224,7 @@ export function ladderByRank(seasons, { maxRank = 8, weights = null } = {}) {
     const atRank = seasons
       .map((s) => {
         const p = s.ladder.find((x) => x.rank === rank);
-        return p ? { minutes: p.minutes, season: s.season } : null;
+        return p ? { minutes: p.minutes, season: s.season, name: p.name ?? null } : null;
       })
       .filter(Boolean);
     if (!atRank.length) break;
@@ -240,6 +242,28 @@ export function ladderByRank(seasons, { maxRank = 8, weights = null } = {}) {
       // Stated rather than implied, so a caller can say which coach's
       // programme the number actually describes.
       weighted: Boolean(w),
+      // The seasons this rung is actually made of, in the order they were
+      // handed in. A rung is two to four observations and a reader deserves
+      // to see them: a median of 42 drawn from 42, 1001 and 14 is a different
+      // object from a median of 42 drawn from 40, 42 and 44, and only the
+      // second is a description of the programme.
+      //
+      // Only seasons that HAVE a player at this rank appear. A season whose
+      // intake was smaller, or whose minutes were never published, is absent
+      // rather than present at zero — a manufactured zero would drag the
+      // median down and read as a coaching decision.
+      //
+      // `weight` carries the per-season weighting the median was actually
+      // computed with, so a weighted rung can be explained without the
+      // renderer reconstructing weightsFromVerdict for itself. It is null on
+      // an unweighted ladder, never 1, because "not weighted" and "weighted
+      // at full" are different facts.
+      contributions: atRank.map((p, i) => ({
+        season: p.season,
+        minutes: p.minutes,
+        name: p.name ?? null,
+        weight: w ? w[i] : null,
+      })),
     });
   }
 
@@ -453,22 +477,71 @@ export function classifyProgramme(profile, tenure) {
           note: 'the coach changed but the pattern did not — this looks structural, so every season counts' };
   }
 
+  // ONE COACH THROUGHOUT — AND WHAT IT TAKES TO SAY SO.
+  //
+  // Everything below this line describes a single coach across the whole
+  // window, so a usable head-coach observation is required for every season
+  // being described. Nothing may stand in for one: not an unread page, not a
+  // season with no row, not a vacancy, and not a title naming somebody else's
+  // job. `tenureFor` reads rows through `readCoachRow`, so an associate head
+  // or a strength coach arrives here as an unresolved season rather than as a
+  // name, and this gate is what stops the absence being read as continuity.
+  //
+  // The branches above are untouched. Only this fall-through claimed
+  // continuity, and it claimed it from the ABSENCE of an observed change —
+  // `tenure.changes` counts a transition only between two adjacent resolved
+  // seasons, so a change either side of an unread season counted as none.
+  // Mercyhurst men's is the worked case: 2022 Brian Osborne, 2023 and 2024
+  // unread, 2025 Austin Solomon. Two names, no adjacent pair, and the report
+  // said "one coach, a consistent pattern — the record is as firm as this
+  // gets" over a window with two coaches in it and half of it unread.
+  const nameIn = (season) => tenure.segments
+    .find((g) => season >= g.from && season <= g.to)?.coach ?? null;
+  const observedNames = [...new Set(measuredSeasons.map(nameIn).filter(Boolean))];
+  const unobserved = measuredSeasons.filter((s) => !nameIn(s));
+
+  if (unobserved.length) {
+    const named = observedNames.length === 1 ? observedNames[0] : null;
+    return { ...base, verdict: 'coach-unknown-recent', since, weightFrom: null,
+      note: `no head coach on file for ${unobserved.join(', ')}`
+        + (named ? ` — the rest of the window was ${named}'s` : '')
+        + ', and a season we could not read is not a season in which nobody changed' };
+  }
+  // Two names inside the window with no adjacent pair between them: the change
+  // is real and the season it happened in is one the figures could not measure.
+  // Saying which two coaches is the whole of what we know.
+  if (observedNames.length > 1) {
+    return { ...base, verdict: 'coach-unknown-recent', since, weightFrom: null,
+      note: `${observedNames.join(' and ')} are both on file across these seasons, and the `
+        + 'season the change happened in is not one we could measure' };
+  }
+
   // One coach throughout. A step here is not a hire, it is the same person
   // changing their mind — Hofstra ran 2%, 0%, 8%, 18% under Richard Nuttall
   // for all four years. Its spread of 7.0 sits under the volatility
   // threshold, so without checking the step it would have been filed as
   // steady, which is the opposite of what a recruit needs to hear.
+  //
+  // Each note names its own window. Unscoped, "one coach throughout" reads as
+  // a claim about the season a recruit would join, and at Ursuline the post is
+  // recorded vacant for exactly that season — four seasons of Jason Kubbins
+  // and nobody in the job now. Both facts are true and the report shows them
+  // on one card; only the sentence that failed to say which seasons it meant
+  // made them look like a contradiction.
   if (stepped) {
     return { ...base, verdict: 'policy-shift-same-coach',
       weightFrom: shares[shares.length - half].season,
-      note: 'the same coach, but the recent seasons look different from the early ones — weight the recent ones' };
+      note: 'the same coach across every season measured, but the recent seasons look '
+        + 'different from the early ones — weight the recent ones' };
   }
   if (spread >= SPREAD_POINTS) {
     return { ...base, verdict: 'erratic-same-coach', weightFrom: null,
-      note: 'one coach throughout, and the freshman policy swings season to season — treat any single year with caution' };
+      note: 'one coach across every season measured, and the freshman policy swings season '
+        + 'to season — treat any single year with caution' };
   }
   return { ...base, verdict: 'steady', weightFrom: null,
-    note: 'one coach, a consistent pattern — every season counts and the record is as firm as this gets' };
+    note: 'one coach across every season measured, a consistent pattern — every season '
+      + 'counts and the record is as firm as this gets' };
 }
 
 /**
@@ -496,9 +569,40 @@ export function weightsFromVerdict(verdict, seasons) {
  * that started two freshmen every season is telling a recruit something a
  * programme that did it once, in a season with an injury crisis, is not.
  */
-export function freshmanProfile(rows, {
+/**
+ * A ranked ladder every rung of which is zero is not an opportunity finding.
+ *
+ * It is the shape a programme takes when its stats page was never read, and
+ * `readable` cannot catch it: that gate asks what SHARE of an intake carried a
+ * minutes figure, and a season where the importer assumed a zero for everybody
+ * answers "all of it". 84 programmes printed a ladder reading 0 at every rank
+ * — "best freshman: 0 minutes" — which is the same sentence commit 296492e
+ * removed from 154 others, arriving by a different route.
+ *
+ * The refusal is deliberately not "no freshman played much". `high` is the
+ * best single freshman at that rung in any season on file, so one minute
+ * anywhere clears it. Nothing survives this that a programme actually
+ * published.
+ *
+ * If a programme has genuinely never given a freshman a minute in four
+ * seasons, that belongs in a sentence saying so, not in a table of zeros a
+ * reader will take for a measurement.
+ */
+function ladderIsEntirelyZero(byRank) {
+  return byRank.length > 0 && byRank.every((r) => r.high === 0);
+}
+
+export function freshmanProfile(rawRows, {
   seasons, position = null, origin = null, athlete = null, maxRank = 8,
 } = {}) {
+  // A programme-season whose stats page was never read carries a fabricated
+  // zero for every player on it, and every gate below asks how much was
+  // measured — to which a fabricated season answers "all of it". Blanking it
+  // here, once, is what stops it counting as measured freshmen, as
+  // zero-minute freshmen, as ladder rungs, and as a season in which the
+  // programme gave its intake nothing.
+  const rows = withReadablePerformance(rawRows ?? []);
+
   // An athlete narrows the ladder to the people they would be competing with.
   // Explicit position/origin still win, so a caller can ask a question the
   // athlete does not imply.
@@ -532,9 +636,11 @@ export function freshmanProfile(rows, {
 
   const thinOf = (list) => {
     const players = list.reduce((sum, s) => sum + s.intake, 0);
-    return (players < MIN_COHORT_PLAYERS || list.length < MIN_COHORT_SEASONS)
-      ? `${players} in ${list.length} season${list.length === 1 ? '' : 's'}`
-      : null;
+    if (players >= MIN_COHORT_PLAYERS && list.length >= MIN_COHORT_SEASONS) return null;
+    // "0 in 0 seasons" is accurate and reads as a broken template. An empty
+    // group is an empty group.
+    if (!players) return 'nobody on file';
+    return `${players} in ${list.length} season${list.length === 1 ? '' : 's'}`;
   };
 
   // A caller who names a cohort gets that cohort, thin or not.
@@ -548,6 +654,7 @@ export function freshmanProfile(rows, {
   if (!athlete && (position || origin)) {
     const built = build(wantPosition, wantOrigin);
     if (!built.length) return null;
+    if (ladderIsEntirelyZero(ladderByRank(built, { maxRank }))) return null;
     return shape(built, {
       position: wantPosition, origin: wantOrigin, applied: true,
       refused: null, relaxed: null, thin: thinOf(built),
@@ -583,7 +690,10 @@ export function freshmanProfile(rows, {
     if (why) {
       // Record only the first refusal — it is the one the caller asked for.
       if (!cohort.refused) {
-        cohort.refused = `${[pos, org].filter(Boolean).join(' / ')}: only ${why} — too few to read separately`;
+        const named = [pos, org].filter(Boolean).join(' / ');
+        cohort.refused = why === 'nobody on file'
+          ? `${named}: nobody on file`
+          : `${named}: only ${why} — too few to read separately`;
       }
       continue;
     }
@@ -596,6 +706,11 @@ export function freshmanProfile(rows, {
   }
 
   if (!perSeason || !perSeason.length) return null;
+  if (ladderIsEntirelyZero(ladderByRank(perSeason, { maxRank }))) {
+    // Named rather than dropped, so a report says it could not read these
+    // seasons instead of saying nothing about them.
+    return null;
+  }
   return shape(perSeason, { ...cohort, unreadableSeasons }, maxRank);
 }
 

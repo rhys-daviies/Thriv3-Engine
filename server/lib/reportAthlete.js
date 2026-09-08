@@ -1,0 +1,864 @@
+/**
+ * The athlete evidence layer.
+ *
+ * Page three says what an athlete should notice. These pages show the record
+ * that supports it, filtered to their position and their background — a
+ * genuinely narrowed view of the programme, never a programme-wide chart with
+ * a position-specific caption.
+ *
+ * Two rules run through all of it. Where narrowing was refused or widened,
+ * the page says so and names the group it actually used; a ladder labelled
+ * "defenders" that is quietly the whole intake is the single most misleading
+ * thing this report could print. And nothing describes a future roster: every
+ * count is of the squad as it stands today, read against a date.
+ */
+import { charts, THEME, TYPE, pageHead, humanCohort, fitText } from './philosophyPdf.js';
+import { staffQuestions, SOURCE_TITLES, PAGE_STANDFIRST } from '../../shared/report/staffQuestions.js';
+import { STARTER_MINUTES } from '../../shared/philosophy.js';
+import { positionPlural } from '../../shared/positions.js';
+import { originIsProgrammeSpecific } from '../../shared/report/sections.js';
+import { classDisplay } from '../../shared/lifecycle/lifecycle.js';
+
+const { INK, MUTED, LINE, CLARET, NAVY, PALE, GREEN, W } = THEME;
+
+const nf = (v) => (v == null ? '—' : Math.round(v).toLocaleString('en-US'));
+const cap = (s) => String(s ?? '').replace(/^./, (c) => c.toUpperCase());
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
+
+const page = (k, kicker, title, question) => pageHead(k, { kicker, title, question });
+const scope = (k, parts) => k.scope(parts);
+
+/** The noun for the athlete's position group, singular and plural. */
+const noun = (a) => positionPlural(a.position).replace(/s$/, '');
+const nouns = (a) => positionPlural(a.position);
+
+/**
+ * HOW MUCH RECORD IS BEHIND A SUB-BLOCK — 13G / §Q and §X.
+ *
+ * It was a row in a `k.facts` list reading "Evidence behind this group ·
+ * strong", which set an evidence level at the same weight as a count of
+ * players and in the same object as one. Everywhere else in this report — on
+ * every finding on page two, on every row of the programme's position page —
+ * evidence is a small-caps label under the thing it qualifies. One treatment,
+ * and this is it. Never a number and never a colour: the WORD is the whole
+ * point, because a percentage here would be the false precision the model
+ * refuses upstream.
+ */
+function evidenceLine(k, level, sample = null) {
+  if (!level) return;
+  k.room(14);
+  const y = k.doc.y;
+  k.doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+    .text([`EVIDENCE — ${String(level).toUpperCase()}`, sample].filter(Boolean).join('  ·  '),
+      THEME.M, y, { width: W, characterSpacing: TYPE.label.spacing, lineBreak: false, ellipsis: true });
+  k.doc.y = y + 14;
+}
+
+// ---------------------------------------------------------------------------
+// A — how this programme has treated players at the athlete's position
+// ---------------------------------------------------------------------------
+
+/**
+ * WHO HAS BEEN USED AT THIS POSITION — a block, not a page, since 13F / §14.
+ *
+ * It was "Your position, historically", a page of its own directly after "What
+ * this position has looked like here". Both answered one question — what this
+ * position's record is — and a reader met the intake and the minute reach on
+ * one sheet and the people on the next. They are one section now; this draws
+ * its second half, under the record page's own head and scope.
+ *
+ * The minute mix went with it and did NOT come here. It was on three surfaces
+ * at once — this block, the openings page and the programme's position page —
+ * so it is drawn once, on the page that owns the question "who takes the
+ * minutes when they come free".
+ */
+export function positionCohortBlock(k, model) {
+  const a = model.summary.athlete;
+  const fit = model.fit;
+  const fh = a.positionFreshmanHistory;
+  const ea = a.experiencedArrivalsAtPosition;
+
+  /**
+   * The break, taken before the heading rather than after it.
+   *
+   * `k.heading` reserves forty points, which is enough for the heading and not
+   * for the cohort statement, ladder and fact list beneath it — so the first
+   * draft of this consolidation left "FIRST-YEAR DEFENDERS" alone at the foot
+   * of a page with its content on the next one. 260 is measured: the cohort
+   * line, a three-rung ladder and the three fact rows come to 244 at
+   * Mercyhurst men's.
+   */
+  if (k.remaining() < 260) {
+    k.doc.addPage();
+    pageHead(k, {
+      title: 'What this position has looked like here',
+      question: 'And who has this programme actually used in those minutes?',
+      continued: true,
+    });
+  }
+
+  // --- first-years at this position ---
+  k.heading(`First-year ${nouns(a)}`);
+
+  // The cohort the ladder actually describes, stated before the ladder itself.
+  // freshmanProfile relaxes one dimension at a time when a group is too thin,
+  // and a reader must never be shown the wider group under the narrower label.
+  const cohort = fit?.cohort ?? null;
+  if (cohort?.refused) {
+    k.box(`We could not read your exact group here — ${humanCohort(cohort.refused)}. The ladder `
+      + `below is the wider ${humanCohort(cohort.relaxed ?? 'whole intake')} group instead, and `
+      + 'every figure on it describes that wider group.', { color: CLARET });
+  } else if (cohort && !cohort.applied) {
+    k.box('There were too few first-years in your own group to read separately, so the ladder below '
+      + 'is the whole intake — every position and every background together.', { color: CLARET });
+  }
+
+  /**
+   * THE CONTEXT, THEN THE CHART — 13G / §M and §X.
+   *
+   * The two halves of this block ran in opposite orders: first-years drew the
+   * ladder and then the counts, experienced arrivals drew the counts and then
+   * the scatter. Same page, same tier, two rhythms — and the first-year
+   * counts landed twenty-three points under the ladder's own key line, so the
+   * caption and the first fact row read as one cramped block.
+   *
+   * Both halves now read counts, then chart. The chart is last and largest,
+   * which is what makes it the primary visual for its subsection; the counts
+   * above it do the job the scope strip does for a page.
+   */
+  if (fh.measured) {
+    k.facts([
+      [`First-year ${nouns(a)} measured`, String(fh.measured)],
+      [`…who reached ${STARTER_MINUTES} minutes`, `${fh.starters} of ${fh.measured}`],
+    ]);
+    evidenceLine(k, fh.evidence.level);
+    k.gap(2);
+  }
+
+  const ladder = (fit?.ladder ?? []).slice(0, 5);
+  if (!ladder.length) {
+    k.body(`No season on file carries enough recorded minutes to rank first-year ${nouns(a)} here.`,
+      { color: MUTED });
+    // NOTHING WHERE NOTHING WAS MEASURED — 13G / §AG. At Albright this drew
+    // "0 · 0 of 0 · limited" directly under a sentence saying the group could
+    // not be ranked: three rows of table restating a refusal as data.
+    if (!fh.measured) evidenceLine(k, fh.evidence.level, 'no first-year season at this position is readable');
+  } else {
+    const rows = ladder.map((r) => ({
+      label: r.rank === 1 ? 'Best in the group' : `${r.rank}${['', 'st', 'nd', 'rd'][r.rank] || 'th'} best`,
+      contributions: r.contributions ?? [],
+      median: r.median,
+      low: r.low,
+      high: r.high,
+      n: r.seasonsWithThisMany,
+      agreement: r.agreement,
+      comparable: r.comparable,
+      poolMedian: null,
+      poolP25: null,
+      poolP75: null,
+    }));
+    charts.dotLadder(k, {
+      box: k.slot(rows.length * 28 + 58),
+      title: cohort?.applied
+        ? `The ladder for ${humanCohort([cohort.position, cohort.origin].filter(Boolean).join(' / ')) || 'this group'}`
+        : 'The ladder, read across the whole intake',
+      subtitle: 'One dot per season, placed at the minutes that rank played. The heavy bar is the '
+        + 'median across those seasons.',
+      rows,
+      xMax: Math.max(1600, ...rows.map((r) => r.high ?? 0)),
+      marker: STARTER_MINUTES,
+      poolLabel: null,
+      unavailable: null,
+    });
+  }
+  // --- experienced arrivals at this position ---
+  k.gap(4);
+  k.heading(`Experienced arrivals at ${noun(a)}`);
+  if (!ea.measurableSeasons.length) {
+    k.body('No season on file has the season before it on file, so an arrival at this position '
+      + 'cannot be told from a player who was already here.', { color: MUTED });
+  } else if (!ea.measured) {
+    k.body(`Across ${plural(ea.measurableSeasons.length, 'measurable season', 'measurable seasons')}, `
+      + `this programme added no experienced ${nouns(a)}. It has filled this position from its own `
+      + 'recruiting class and from players already on the roster.', { color: MUTED });
+  } else {
+    k.facts([
+      ['Experienced arrivals measured', String(ea.measured)],
+      [`…who reached ${STARTER_MINUTES} minutes`, `${ea.starters} of ${ea.measured}`],
+      ['Seasons they arrived in', ea.seasonsRepresented.join(', ') || '—'],
+    ]);
+    const xMax = Math.max(1600, ...ea.players.map((p) => p.minutes));
+    charts.scatter(k, {
+      box: k.slot(ea.measurableSeasons.length * 24 + 36),
+      title: `Every experienced arrival at ${nouns(a)}`,
+      subtitle: 'Minutes they went on to play, drawn as the first-years are.',
+      lanes: ea.measurableSeasons,
+      xMax,
+      marker: STARTER_MINUTES,
+      markerLabel: `${STARTER_MINUTES} — a starter’s season`,
+      points: ea.players.map((p) => ({
+        lane: p.season, value: p.minutes, size: p.gamesPlayed, sizeMax: Math.max(1, ...ea.players.map((x) => x.gamesPlayed)),
+        solid: p.gamesStarted >= p.gamesPlayed / 2 && p.gamesPlayed > 0, color: GREEN,
+      })),
+      unavailable: null,
+    });
+  }
+
+}
+
+// ---------------------------------------------------------------------------
+// B — what happened when a place opened here
+// ---------------------------------------------------------------------------
+
+export function positionOpeningsPage(k, model) {
+  const a = model.summary.athlete;
+  const v = a.positionVacancyHistory;
+  const o = a.positionOpeningOutcomes;
+  const events = a.positionVacancyRecord ?? [];
+
+  page(k, 'Understanding your pathway', `When a place opens at ${noun(a)}`,
+    'When a meaningful place has opened at your position, what actually happened next?');
+
+  if (!v?.transitions) {
+    k.body('This position does not carry enough recorded minutes here to read what happens when a '
+      + 'place comes free. A season-to-season comparison needs both seasons to publish enough '
+      + 'minutes at the position, and these do not.', { color: MUTED });
+    return;
+  }
+
+  scope(k, [
+    `${plural(v.transitions, 'readable transition', 'readable transitions')}`,
+    `${plural(v.openings, 'starter opening', 'starter openings')}`,
+    `evidence ${o.evidence.level}`,
+  ]);
+
+  if (!v.openings) {
+    k.box(`No starter left ${noun(a)} in the seasons on file. That is a complete answer to what has `
+      + 'happened, and no answer at all to what happens when one does.', { color: CLARET });
+    return;
+  }
+
+  k.facts([
+    ['Starters who left', String(v.startersDeparted)],
+    ['Openings that followed', `${v.openings} of ${v.transitions} transitions`],
+    ['A first-year then started', `${v.freshmanTookIt} of ${v.openings}`],
+    ['An experienced arrival then started', `${v.newcomerTookIt} of ${v.openings}`],
+  ]);
+  k.note('These two counts can describe the same season. One opening can be filled by more than '
+    + 'one player, so they are never subtracted from each other or from the total, and there is no '
+    + 'single replacement to name.');
+
+  // Small samples are stated loudly rather than converted into a percentage.
+  if (!o.evidence.patternReadable) {
+    k.box(`Only ${plural(v.openings, 'opening has', 'openings have')} been observed at this position. `
+      + 'That is what happened, not a rate — a share of two reads far more confidently than it '
+      + 'deserves to.', { color: CLARET });
+  }
+
+  /**
+   * THE MINUTE MIX, DRAWN ONCE — 13F / §13.
+   *
+   * It was on three surfaces: the position-history page, the programme's own
+   * position-by-position page, and per opening below. This is the page that
+   * owns the question "who takes the minutes when they come free at this
+   * position", so the aggregate is stated here and the history page stopped
+   * drawing it. The programme page keeps its version, which is the comparison
+   * ACROSS positions rather than the answer for this one.
+   */
+  const dials = o?.dials ?? null;
+  if (dials?.n) {
+    k.gap(2);
+    k.heading(`Where ${noun(a)} minutes have gone`);
+    k.stacked({ label: `Across ${plural(dials.n, 'readable position-season', 'readable position-seasons')}`, ...dials });
+    k.note('These three shares divide the minutes played at this position exactly. They describe '
+      + 'where the minutes went, not who won a place — a player can take minutes without anybody '
+      + 'losing a job, and a place can be shared. The same three routes are compared across every '
+      + 'position on the programme’s own position page.');
+  }
+
+  k.gap(4);
+  k.heading('The openings themselves');
+
+  /**
+   * GROUPED ROWS, NOT CARDS — 13G / §J, §K and §Y.
+   *
+   * Each opening was a rounded, stroked box with a claret bar down its full
+   * height and a three-colour key repeated inside it. Three of those in a
+   * column is the dashboard grammar this report spent 13C and 13D removing
+   * from the programme pages: the borders were the loudest lines on the sheet,
+   * every card carried its own legend, and the claret rule — which means "your
+   * entry year" three pages earlier and "what Thriv3 sees" on nine others —
+   * meant "an opening happened" here.
+   *
+   * The rows are the same four facts in the same three columns. What went is
+   * the chrome: a hairline above each row instead of a border around it, one
+   * legend above all of them instead of a key inside each, and ONE pitch
+   * measured off the tallest row so three openings of two, three and two
+   * departures read as a rhythm rather than as three differently sized
+   * objects. NOTHING IS DROPPED — every departing starter is still named with
+   * their minutes, and a transition whose split cannot be read still says so
+   * rather than drawing an empty track.
+   */
+  const TRANS_W = W * 0.22;
+  const LEFT_X = THEME.M + W * 0.25;
+  const LEFT_W = W * 0.33;
+  const RIGHT_X = THEME.M + W * 0.62;
+  const RIGHT_W = W * 0.38;
+  const anySplit = events.some((e) => e.returningShare != null);
+
+  // One legend, above the rows, in the three colours the report already uses
+  // for these three routes — the same treatment the programme's own position
+  // page took in 13D.
+  if (anySplit) {
+    k.room(16);
+    const ly = k.doc.y;
+    let lx = RIGHT_X;
+    for (const [label, colour] of [['returning', PALE], ['first-years', NAVY],
+      ['experienced arrivals', GREEN]]) {
+      k.doc.save().rect(lx, ly + 1, 6, 6).fill(colour).restore();
+      k.doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+        .text(label, lx + 9, ly, { width: 90, lineBreak: false });
+      lx += 9 + k.doc.widthOfString(label) + 10;
+    }
+    k.doc.y = ly + 13;
+  }
+
+  // The pitch, measured once off the tallest row so every row shares it.
+  const rowOf = (e) => Math.max(
+    12 + Math.max(1, (e.departed ?? []).length) * 12,
+    12 + 24 + (e.returningShare != null ? 22 : 12),
+  );
+  const PITCH = 22 + Math.max(0, ...events.map(rowOf));
+
+  for (const e of events) {
+    const left = e.departed ?? [];
+    k.room(PITCH + 6);
+    const top = k.doc.y;
+    // A hairline, not a border. It groups the row with what is under it and
+    // leaves the page one continuous left edge.
+    k.doc.save().moveTo(THEME.M, top).lineTo(THEME.M + W, top)
+      .lineWidth(0.5).strokeColor(LINE).stroke().restore();
+
+    // The transition, and the size of the hole it left, in the left column.
+    k.doc.font('Helvetica-Bold').fontSize(13).fillColor(INK)
+      .text(e.transition, THEME.M, top + 10, { width: TRANS_W, lineBreak: false });
+    k.doc.font('Helvetica').fontSize(7.5).fillColor(MUTED)
+      .text(e.vacatedStarterMinutes == null
+        ? 'starter minutes vacated not readable'
+        : `${nf(e.vacatedStarterMinutes)} starter minutes vacated`,
+      THEME.M, top + 28, { width: TRANS_W });
+
+    // Every departing starter by name, one per line, never truncated into
+    // "and others".
+    let ly = top + 10;
+    k.doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+      .text('WHO LEFT', LEFT_X, ly, { width: LEFT_W, characterSpacing: TYPE.label.spacing, lineBreak: false });
+    ly += 11;
+    for (const d of left) {
+      k.doc.font('Helvetica').fontSize(7.8).fillColor(INK)
+        .text(fitText(k.doc, d.name ?? '—', LEFT_W - 56), LEFT_X, ly, { width: LEFT_W - 56, lineBreak: false });
+      k.doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
+        .text(`${nf(d.minutes)} min`, LEFT_X + LEFT_W - 54, ly, { width: 54, align: 'right', lineBreak: false });
+      ly += 12;
+    }
+    if (!left.length) {
+      k.doc.font('Helvetica-Oblique').fontSize(7.5).fillColor(MUTED)
+        .text('no departing starter named', LEFT_X, ly, { width: LEFT_W, lineBreak: false });
+    }
+
+    // What the following season did about it.
+    let ry = top + 10;
+    k.doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+      .text('WHAT HAPPENED NEXT', RIGHT_X, ry, { width: RIGHT_W, characterSpacing: TYPE.label.spacing, lineBreak: false });
+    ry += 11;
+    for (const [label, n] of [['First-years who started', e.freshStarters],
+      ['Experienced arrivals who started', e.newcomerStarters]]) {
+      k.doc.font('Helvetica').fontSize(7.8).fillColor(MUTED)
+        .text(fitText(k.doc, label, RIGHT_W - 30), RIGHT_X, ry, { width: RIGHT_W - 30, lineBreak: false });
+      k.doc.font('Helvetica-Bold').fontSize(7.8).fillColor(INK)
+        .text(n ? String(n) : 'none', RIGHT_X + RIGHT_W - 28, ry, { width: 28, align: 'right', lineBreak: false });
+      ry += 12;
+    }
+    // The minute split for this one transition, on the same three colours as
+    // the legend above. The percentages read under it because the legend
+    // already names the colours.
+    if (e.returningShare != null) {
+      const parts = [
+        { v: e.returningShare, c: PALE }, { v: e.freshmanShare, c: NAVY }, { v: e.newcomerShare, c: GREEN },
+      ].filter((x) => x.v != null);
+      const total = parts.reduce((sum, x) => sum + x.v, 0) || 100;
+      let cx = RIGHT_X;
+      for (const part of parts) {
+        const segW = (part.v / total) * (RIGHT_W - 4);
+        k.doc.save().rect(cx, ry + 3, Math.max(0, segW - 1), 7).fill(part.c).restore();
+        cx += segW;
+      }
+      ry += 12;
+      k.doc.font('Helvetica').fontSize(6.5).fillColor(MUTED)
+        .text(`${Math.round(e.returningShare)}% · ${Math.round(e.freshmanShare ?? 0)}%`
+          + ` · ${Math.round(e.newcomerShare ?? 0)}%`,
+        RIGHT_X, ry, { width: RIGHT_W, lineBreak: false, ellipsis: true });
+    } else {
+      k.doc.font('Helvetica-Oblique').fontSize(7).fillColor(MUTED)
+        .text('the minute split for this transition is not readable', RIGHT_X, ry,
+          { width: RIGHT_W, lineBreak: false, ellipsis: true });
+    }
+
+    k.doc.y = top + PITCH;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// C — who is at the position now
+// ---------------------------------------------------------------------------
+
+/**
+ * YOUR POSITION, AND THE TIMING AROUND YOUR ARRIVAL — 13F / §11.
+ *
+ * Two pages until this phase: "Defenders on the 2026 roster" and "Your arrival
+ * window, 2027", consecutive, answering one question. The first opened with
+ * four counts that were the second's three eligibility bands restated, and a
+ * reader had to hold seventeen names across a page turn to put them together.
+ *
+ * One section now, in the order the question is actually asked: when do the
+ * players at this position run out of eligibility, who are they, and what
+ * playing-time load do they hold. It is allowed to run onto a second sheet —
+ * seventeen defenders need one — because the consolidation is of the question,
+ * not of the paper.
+ *
+ * NOTHING IS DROPPED. The timeline, the three bands with their names, the
+ * primary limitation, the coverage note and the non-forecast sentence under the
+ * table all survive. What went is the duplicated count block and the per-player
+ * status column, which repeated the bands drawn immediately above it.
+ */
+export function currentPositionPage(k, model) {
+  const a = model.summary.athlete;
+  const players = a.currentPositionPlayers ?? [];
+
+  page(k, 'Understanding your pathway', 'Your position, and the timing around your arrival',
+    `Who is at your position now, and what eligibility timing sits around ${a.entrySeason}?`);
+
+  if (!players.length) {
+    k.body(`No ${model.squadSeason} roster is on file for this programme, or nobody on it is `
+      + `recorded at ${nouns(a)}.`, { color: MUTED });
+    return;
+  }
+
+  const before = a.currentProjectedMinutesOfPlayersEndingBeforeEntry;
+  const final = a.currentProjectedMinutesOfPlayersInFinalSeasonAtEntry;
+  const beyond = a.currentProjectedMinutesOfPlayersBeyondEntry;
+  const unknown = a.currentProjectedMinutesOfPlayersWithUnknownEligibility;
+  const years = [...new Set(players.map((p) => p.eligibleTo).filter((y) => y != null))]
+    .map(Number).sort((x, y) => x - y);
+
+  scope(k, [
+    `${plural(players.length, `current ${noun(a)}`, `current ${nouns(a)}`)}`,
+    years.length ? `${(a.currentPlayersBeyondEntry ?? []).length} eligible beyond ${a.entrySeason}` : null,
+    years.length ? `${(a.currentPlayersInFinalSeasonAtEntry ?? []).length} in a final season in ${a.entrySeason}` : null,
+  ].filter(Boolean));
+
+  /**
+   * Nothing on this roster can be placed against a year. The three bands would
+   * all read zero for a reason that has nothing to do with the squad, which is
+   * the null-is-not-zero defect this whole report exists downstream of. The
+   * table still draws, because the players are still the answer to half the
+   * question.
+   */
+  if (!years.length) {
+    k.body(`No eligibility year is recorded for any of the ${plural(players.length, 'current', 'current')} `
+      + `${nouns(a)} on the ${model.squadSeason} roster.`, { bold: true });
+    k.body('So this section cannot say which of them are in a final season when you arrive, which '
+      + 'have already finished, and which are eligible beyond it. That is a gap in what this '
+      + 'programme publishes, not a squad with nobody in it — the players are listed below.',
+    { color: MUTED });
+    k.box('Future recruits, experienced arrivals, injuries, redshirts and eligibility changes are '
+      + 'not known either. This section describes the squad as it stands today, and today it '
+      + 'cannot be read against a year.', { color: CLARET, title: 'The primary limitation' });
+  } else {
+    charts.eligibilityTimeline(k, {
+      box: k.slot(140),
+      title: `Every current ${noun(a)}, at the year their eligibility ends`,
+      subtitle: 'Dot size is the minutes they are projected to play. The dashed line is your entry year.',
+      lanes: [{ label: cap(nouns(a)), players }],
+      years,
+      marker: a.entrySeason,
+      // 13G / §H: the packed single-lane view. Counts under the years, a
+      // radius that cannot exceed its own pitch, unprojected players as open
+      // rings, and the entry year named on its line.
+      counts: true,
+      markerLabel: true,
+      unplaceable: a.currentPlayersEligibilityUnknown.length,
+      unavailable: null,
+    });
+
+    /**
+     * THREE BANDS, ONE ANCHOR, NO FOCUS FILL — 13G / §G and §Z.
+     *
+     * The entry-year band was drawn on a claret tint at 0.05 with its label a
+     * point larger and its count at 20pt — five points above the programme
+     * display ceiling and one point above the page's own title, so the loudest
+     * ink on the page was a number in a band. Worse, 0.05 claret is exactly
+     * what `k.box` uses for a limitation a reader must not miss, so the band
+     * holding the players whose eligibility ends at entry wore the report's
+     * "notice this" costume: an opportunity band by implication, on a page
+     * that must not imply one. At Albright the same treatment shouted a "0".
+     *
+     * The claret 3pt rule and the claret label stay, because claret has one
+     * job on this page and it is the entry year — the same job it does on the
+     * dashed line in the chart above. Every count is now one size.
+     */
+    const bands = [
+      { key: 'before', label: 'BEFORE ENTRY', sub: `eligibility ends before ${a.entrySeason}`,
+        group: a.currentPlayersEligibilityEndsBeforeEntry, minutes: before, color: MUTED },
+      { key: 'final', label: 'FINAL SEASON AT ENTRY', sub: `last eligible season is ${a.entrySeason}, the year you arrive`,
+        group: a.currentPlayersInFinalSeasonAtEntry, minutes: final, color: CLARET, focus: true },
+      { key: 'beyond', label: 'BEYOND ENTRY', sub: `eligible past ${a.entrySeason}`,
+        group: a.currentPlayersBeyondEntry, minutes: beyond, color: NAVY },
+    ];
+
+    k.gap(4);
+    for (const b of bands) {
+      k.room(b.focus ? 60 : 44);
+      const top = k.doc.y;
+      const h = b.focus ? 52 : 38;
+      k.doc.save().rect(THEME.M, top, 3, h).fill(b.color).restore();
+      k.doc.font('Helvetica-Bold').fontSize(7).fillColor(b.focus ? CLARET : INK)
+        .text(b.label, THEME.M + 12, top + 7, { width: W * 0.6, characterSpacing: 0.7, lineBreak: false });
+      k.doc.font('Helvetica').fontSize(7).fillColor(MUTED)
+        .text(b.sub, THEME.M + 12, top + 17, { width: W * 0.6, lineBreak: false, ellipsis: true });
+      k.doc.font('Helvetica-Bold').fontSize(15).fillColor(INK)
+        .text(String((b.group ?? []).length), THEME.M + W - 150, top + 6, { width: 40, align: 'right', lineBreak: false });
+      // Measured and cut to one line: the longer phrasing wrapped and landed on
+      // the sub-line beneath it.
+      const minutesText = b.minutes?.currentProjectedMinutes == null
+        ? 'no projected minutes recorded'
+        : `${nf(b.minutes.currentProjectedMinutes)} projected minutes attached`;
+      k.doc.font('Helvetica').fontSize(7).fillColor(MUTED);
+      k.doc.text(fitText(k.doc, minutesText, 150), THEME.M + W - 150, top + 8,
+        { width: 150, align: 'right', lineBreak: false });
+      if (b.minutes?.playersWithoutProjection) {
+        k.doc.font('Helvetica').fontSize(6.5).fillColor(MUTED);
+        k.doc.text(fitText(k.doc, `${b.minutes.playersWithoutProjection} of them carry no projection`, 150),
+          THEME.M + W - 150, top + 19, { width: 150, align: 'right', lineBreak: false });
+      }
+      if (b.focus) {
+        const names = (b.group ?? []).map((p) => p.name).join(', ');
+        k.doc.font('Helvetica').fontSize(7).fillColor(INK)
+          .text(names || 'nobody at this position is in their final eligible season that year',
+            THEME.M + 12, top + 34, { width: W - 24, lineBreak: false, ellipsis: true });
+      }
+      k.doc.y = top + h + 6;
+    }
+
+    if (a.currentPlayersEligibilityUnknown.length) {
+      k.note(`${plural(a.currentPlayersEligibilityUnknown.length, 'current player', 'current players')} `
+        + 'at this position has no eligibility year recorded and is counted in none of the three '
+        + `bands${unknown?.currentProjectedMinutes == null ? '' : `, holding ${nf(unknown.currentProjectedMinutes)} projected minutes between them`}.`);
+    }
+  }
+
+  /**
+   * The players themselves.
+   *
+   * NO STATUS COLUMN since 13F. It read "final season in 2027" or "eligible
+   * beyond 2027" on every row, which is the three bands drawn immediately above
+   * it, one player at a time. The width goes to the two columns that were being
+   * cut — the same fix the programme roster table took in 13D.1, where
+   * "Texas A&M University-Victoria" arrived as "Texas A&M Universit…".
+   */
+  /**
+   * THE LIMITS BEFORE THE LIST — 13G / §G and §AA.
+   *
+   * They were drawn after the table, and at Mercyhurst men's the table's
+   * seventeenth row landed ninety points from the bottom of page four, so the
+   * limitation and the coverage note went to page five and were the only two
+   * blocks on it: a sheet nine tenths empty, in the middle of the section a
+   * reader most needs. The order the question is asked in has the answer,
+   * then what the answer cannot cover, then the people it was read from —
+   * which is also the order that composes on paper. Page four now ends on the
+   * limits and page five carries the roster under a continued head.
+   *
+   * California is the check that this is not a page-count trick: its six
+   * forwards fit one sheet before and after, in the new order.
+   */
+  if (years.length) {
+    k.box('Future recruits, experienced arrivals, injuries, redshirts and eligibility changes are '
+      + 'not known. This section describes the squad as it stands today, read against your entry '
+      + 'year — it does not describe the squad you would find.',
+    { color: CLARET, title: 'The primary limitation' });
+  }
+
+  k.heading(`Every current ${noun(a)}`);
+  const marked = players.some((row) => row.eligibleTo != null
+    && Number(row.eligibleTo) === a.entrySeason);
+  k.table({
+    continued: `${cap(nouns(a))} on the ${model.squadSeason} roster`,
+    columns: [
+      /**
+       * Width by how much a reader needs of it — 13G / §I. `Class` held 57
+       * points for "Sr." while `Previous programme` had the longest strings in
+       * the table; four points come off the class column and the two numeric
+       * columns and go to the two that carry names.
+       */
+      { key: 'name', label: 'Player', width: 0.3, bold: true },
+      { key: 'classLabel', label: 'Class', width: 0.08, format: classDisplay },
+      { key: 'projectedMinutes', label: 'Projected minutes', width: 0.16, align: 'right', format: (v) => (v == null ? null : nf(v)) },
+      { key: 'eligibleTo', label: 'Eligible through', width: 0.13, align: 'right' },
+      { key: 'arrivedFrom', label: 'Previous programme', width: 0.33, dropWhenEmpty: true },
+    ],
+    rows: [...players].sort((x, y) => (y.projectedMinutes ?? -1) - (x.projectedMinutes ?? -1)),
+    // The athlete's own entry year is the thing being read against, so the
+    // final-season group is marked rather than colour-coded good or bad.
+    highlight: (row) => row.eligibleTo != null && Number(row.eligibleTo) === a.entrySeason,
+    /**
+     * The first sentence explains a mark, so it is printed only where there is
+     * one — 13G / §AG. At Albright nobody at this position is in a final
+     * eligible season at entry, and the table told a reader what the marked
+     * rows meant under a table with no marked rows in it. The non-forecast
+     * sentence is not conditional on anything and never has been.
+     */
+    note: [marked ? 'The marked rows are players whose last eligible season is your entry year.' : null,
+      `Projected minutes are attached to ${marked ? 'those players' : 'the players listed'} for the `
+        + 'coming season; they are not minutes that pass to anyone.'].filter(Boolean).join(' '),
+  });
+
+  // The coverage note stays a footnote and stays last: it is about the horizon
+  // of the whole file rather than about the bands, and moving it above the
+  // table with the limitation cost California's table its own footnote and a
+  // whole sheet to carry it.
+  if (years.length && !a.entrySeasonKnown) {
+    k.aside(`Rosters and coaching records are held through ${model.squadSeason}. You would arrive `
+      + `in ${a.entrySeason}, which is beyond that horizon: who is in charge and who is on the `
+      + 'squad by then is further outside what this data can show than the bands above already '
+      + 'are.', { title: 'A note on coverage' });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// E — origin
+// ---------------------------------------------------------------------------
+
+export function originPage(k, model) {
+  const a = model.summary.athlete;
+  const o = a.originContext;
+  const originWord = o.requestedOrigin === 'international' ? 'international' : 'US-based';
+
+  /**
+   * ONE KICKER AND ONE WEIGHT, since 13F pinned this page to the pathway act.
+   *
+   * It used to follow the act it was filed under, which moved with the cohort
+   * gate: a page that was mostly division context announced itself as evidence
+   * and was set quiet. It does not move any more, so it does not change voice.
+   * What still changes is what the page SAYS — a programme with its own record
+   * by origin shows it, and one without shows the refusal in full, which for an
+   * international athlete is the finding.
+   */
+  pageHead(k, {
+    kicker: 'Understanding your pathway',
+    title: 'Where you are arriving from',
+    question: 'Does this programme’s record show anything useful for first-years from your '
+      + 'background?',
+  });
+  // Stated once, at the top, and never implied away: the origin split is
+  // across the whole intake. The previous pages narrow to a position, and a
+  // reader arriving here from them would otherwise carry that narrowing over.
+  // The scope strip draws on ONE line, so the third item is short.
+  k.scope(['every position, not only yours',
+    'origin is grouped only as within or outside the United States',
+    originIsProgrammeSpecific(o) ? null : 'mostly division context'].filter(Boolean));
+
+  if (!o.requestedOrigin) {
+    k.body('No origin is recorded for this athlete, so the record cannot be read by background.',
+      { color: MUTED });
+    return;
+  }
+
+  const same = o.programme.sameOrigin;
+  const other = o.programme.otherOrigin;
+
+  /**
+   * THE PROGRAMME'S OWN ANSWER FIRST — 13G / §O and §N.
+   *
+   * Supported, this block drew three fact rows and then the sentence they add
+   * up to, so a reader met the counts before the answer and the answer landed
+   * between a table and a comparison. The sentence leads now and the counts
+   * are what it rests on. Refused, the refusal already led — and it was set in
+   * grey under a heading whose next block was a bold pool figure, so the one
+   * thing on the page about THIS PROGRAMME was the quietest ink on it. The
+   * refusal keeps the body weight the supported answer has; only the pool
+   * context stays grey.
+   *
+   * The label that wrapped is the one that repeated the scope strip — 13G /
+   * §X. "International first-years measured here, all positions" takes two
+   * lines in the 168 points `k.facts` gives a label, orphaning "positions" on
+   * a line of its own; the strip at the top of the page has said "every
+   * position, not only yours" since 13F.
+   */
+  k.heading('At this programme, across every position');
+  if (!o.evidence.sufficient || same.share == null) {
+    k.body(`Not enough programme-specific history to compare by origin: `
+      + `${plural(same.players, `${originWord} first-year`, `${originWord} first-years`)} on file here`
+      + `${same.players ? `, of whom ${same.starters} reached ${STARTER_MINUTES} minutes` : ''}.`,
+    { bold: true });
+    k.note('The pool figures below describe the division, not this programme. They are context, not '
+      + 'a substitute for evidence this programme has not produced.');
+  } else {
+    k.body(`At this programme, ${same.starters} of ${same.players} measured ${originWord} first-years `
+      + `reached ${STARTER_MINUTES} minutes.`, { bold: true });
+    if (other.share != null) {
+      k.body(`The other group, for comparison: ${other.starters} of ${other.players}.`, { color: MUTED });
+    }
+    k.facts([
+      [`${cap(originWord)} first-years measured here`, String(same.players)],
+      [`…who reached ${STARTER_MINUTES} minutes`, `${same.starters} of ${same.players}`],
+      ['Seasons represented', String(o.evidence.sample.seasons ?? '—')],
+    ]);
+  }
+  if (o.programme.withoutRecordedOrigin) {
+    k.note(`${plural(o.programme.withoutRecordedOrigin, 'first-year', 'first-years')} here `
+      + 'record neither a nationality nor a country and are counted in neither group.');
+  }
+
+  if (o.pool?.sameOrigin?.impactShare != null) {
+    k.gap(4);
+    k.heading(o.pool.scope === 'division' ? `Across ${o.pool.division}` : 'Across every division measured');
+    const rows = [
+      { label: `${cap(originWord)} first-years`, a: Math.round(o.pool.sameOrigin.impactShare * 100), b: null },
+      { label: 'The other group', a: o.pool.otherOrigin?.impactShare == null ? null
+        : Math.round(o.pool.otherOrigin.impactShare * 100), b: null },
+    ];
+    charts.paired(k, {
+      box: k.slot(64),
+      title: `First-years who reached ${STARTER_MINUTES} minutes`,
+      subtitle: `${nf(o.pool.sameOrigin.players)} and ${nf(o.pool.otherOrigin?.players)} players `
+        + 'respectively, across every programme measured at this level.',
+      rows,
+      aLabel: '', bLabel: '', max: 100, unit: '%',
+      unavailable: null,
+    });
+    k.note('Measured within this division rather than across the game, because the relationship is '
+      + 'not one thing: it runs one way at some levels and the other way at others. It describes '
+      + 'who has played, not why. Where a player is arriving from is not the cause of the '
+      + 'difference, and the groups differ in more ways than this measures. Origin is grouped only '
+      + 'as within or outside the United States — never by individual nationality, because there '
+      + 'are never enough players from one country at one programme to measure.');
+  } else if (o.poolReason) {
+    k.note(`No benchmark comparison is shown: ${o.poolReason}.`);
+  }
+
+  /**
+   * A FOOTNOTE ABOUT ANOTHER PAGE, SET AS ONE — 13G / §O and §Q.
+   *
+   * `k.box` is the limitation a reader must not miss and it puts claret down
+   * the full height of a tinted block. This note is about a widening on a
+   * different page and its own last clause says the figures here are not
+   * affected by it — so at Adams State the loudest object on a page whose
+   * answer is a refusal was a caveat that did not apply to it. `k.aside` is
+   * the report's quiet cross-reference and this is one: visible, clear,
+   * quiet. Wording unchanged.
+   */
+  if (o.cohortRelaxed) {
+    k.gap(2);
+    k.aside(`The ladder on the earlier position page could not be read for your exact group and used `
+      + `the wider ${humanCohort(o.cohortRelaxed)} group instead. The figures on this page are the `
+      + 'origin split itself, counted directly, and are not affected by that widening.',
+    { title: 'A note on the earlier ladder' });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// F — what to verify with the staff
+// ---------------------------------------------------------------------------
+
+/**
+ * WHAT TO VERIFY WITH THE STAFF — 13H.
+ *
+ * An advisory checklist, not a dashboard. Three tiers per row and the same
+ * grammar the decision layers use for a finding: the QUESTION is the largest
+ * thing on the row, the reason it is here is a grey line under it, and the
+ * page its fact came from is a citation at label weight. A hairline between
+ * rows, starting at the text column so the page keeps one continuous left
+ * edge; no cards, no icons, no colour carrying a judgement, and nothing that
+ * looks like a workflow to complete.
+ *
+ * The numerals are NAVIGATION. They are set at the page-reference tier in
+ * grey, not in the decision layer's metric gutter in blue, because a column of
+ * blue numerals beside five questions would read as five quantities — or worse,
+ * as five scores.
+ *
+ * The renderer writes no wording. Every question, every reason and every
+ * source belongs to `staffQuestions`, which is the only place the rule lives.
+ */
+export function staffQuestionsPage(k, model) {
+  const { doc } = k;
+  const { questions } = staffQuestions(model);
+  // Never an empty page and never "nothing to verify" — the section does not
+  // render at all, and the registry refuses to plan it. This is the belt to
+  // that brace.
+  if (!questions.length) return;
+
+  pageHead(k, {
+    kicker: 'Understanding your pathway',
+    title: 'What to verify with the staff',
+    question: 'What should you check directly with the coaching staff before making a decision?',
+  });
+  k.scope([`${questions.length} ${questions.length === 1 ? 'question' : 'questions'}`,
+    'each from a stated finding or limitation', 'not a concern and not a recommendation']);
+  k.note(PAGE_STANDFIRST);
+  k.gap(4);
+
+  const NUM_W = 22;
+  const textX = THEME.M + NUM_W + 10;
+  const textW = W - NUM_W - 10;
+
+  questions.forEach((q, i) => {
+    const sourceTitle = SOURCE_TITLES[q.section] ?? null;
+    const questionH = doc.font('Helvetica').fontSize(10.5).heightOfString(q.question, { width: textW });
+    const reasonH = doc.font('Helvetica').fontSize(8).heightOfString(q.reason, { width: textW });
+    k.room(questionH + reasonH + (sourceTitle ? 18 : 0) + 48);
+    const top = doc.y;
+
+    doc.font('Helvetica-Bold').fontSize(7.5).fillColor(MUTED)
+      .text(String(i + 1), THEME.M, top + 2, { width: NUM_W, align: 'right', lineBreak: false });
+
+    doc.font('Helvetica').fontSize(10.5).fillColor(INK)
+      .text(q.question, textX, top, { width: textW });
+    let y = doc.y + 8;
+
+    doc.font(TYPE.label.font).fontSize(TYPE.label.size).fillColor(TYPE.label.color)
+      .text('WHY THIS IS HERE', textX, y,
+        { width: textW, characterSpacing: TYPE.label.spacing, lineBreak: false });
+    y += 10;
+    doc.font('Helvetica').fontSize(8).fillColor(MUTED).text(q.reason, textX, y, { width: textW });
+    y = doc.y;
+
+    /**
+     * The citation. Section TITLES, never ids, and the page number is deferred
+     * for the same reason a finding's is: this page cannot know what page four
+     * is until the document is finished.
+     */
+    if (sourceTitle) {
+      y += 7;
+      const prefix = `Based on: ${sourceTitle} · `;
+      doc.font('Helvetica').fontSize(6.8).fillColor(MUTED)
+        .text(prefix, textX, y, { lineBreak: false });
+      const at = y;
+      const numX = textX + doc.widthOfString(prefix);
+      const id = q.section;
+      k.defer(({ pageOf, doc: d }) => {
+        const n = pageOf(id);
+        d.font('Helvetica').fontSize(6.8).fillColor(MUTED)
+          .text(n == null ? 'elsewhere in this report' : `p.${n}`, numX, at, { lineBreak: false });
+      });
+      y += 11;
+    }
+
+    doc.y = y;
+    if (i < questions.length - 1) {
+      doc.y += 14;
+      doc.save().moveTo(textX, doc.y).lineTo(THEME.M + W, doc.y)
+        .lineWidth(0.4).strokeColor(LINE).stroke().restore();
+      doc.y += 16;
+    }
+  });
+}

@@ -8,14 +8,25 @@
  */
 import db from '../db/client.js';
 import {
-  philosophyFor, fitFor, college, poolBenchmarks, percentileOfLadderTop, poolMixForBand,
+  philosophyFor, fitFrom, poolBenchmarks, percentileOfLadderTop, poolMixForBand,
 } from '../lib/philosophyQueries.js';
+import { lifecyclePool, lifecycleRows } from '../lib/lifecycleQueries.js';
+import { buildLifecycleSummary } from '../../shared/report/lifecycleSummary.js';
+import { buildPressureSummary } from '../../shared/report/pressure.js';
+import { buildSquadSummary } from '../../shared/report/squad.js';
+import { buildPositionUtilisationSummary } from '../../shared/report/positionUtilisation.js';
+import { readableRows } from '../../shared/lifecycle/readable.js';
+import { evidenceLimitsFor } from '../lib/reportLimits.js';
 import {
   RECRUIT_SEASON, SQUAD_SEASON, SEASONS,
-  freshmanPoints, newcomerPoints, arrivalWindow, secondYearProgression,
+  freshmanPoints, newcomerPoints, arrivalWindow,
   intakeBySeason, positionSeasonGrid, eligibilityCliff, namedArrivals, depthChartAt,
 } from '../../shared/philosophy.js';
 import { positionLabel } from '../../shared/positions.js';
+import { buildReportSummary } from '../../shared/report/summary.js';
+import { coachAttribution } from '../../shared/coachAttribution.js';
+import { planSections } from '../../shared/report/sections.js';
+import { competitivePackageFor } from '../lib/conferenceQueries.js';
 
 const selectPlayer = db.prepare(
   'SELECT id, full_name, position, nationality, recruiting_class_year, graduation_year, sport, football_ability FROM players WHERE id = ?',
@@ -67,7 +78,10 @@ export function philosophySummaries({ playerId, collegeIds } = {}) {
     // A sport mismatch is a real bug signal, not something to paper over by
     // quietly reporting the other sport's roster.
     const sportMatches = !athlete || athlete.sport === col.sport;
-    const fit = sportMatches && athlete ? fitFor(id, athlete)?.fit : null;
+    // Read from the programme already loaded above. Reloading it here cost a
+    // second roster, coach and squad query per school — up to eighty for one
+    // twenty-school tab.
+    const fit = sportMatches && athlete ? fitFrom(found, athlete)?.fit : null;
 
     const top = ph.ladder[0] ?? null;
     summaries[id] = {
@@ -111,8 +125,23 @@ export function philosophySummaries({ playerId, collegeIds } = {}) {
 export function programmeModel({ collegeId } = {}) {
   const found = philosophyFor(collegeId);
   if (!found) throw new Error(`Unknown college: ${collegeId}`);
+  return buildProgrammeModel(found, poolBenchmarks(found.college.sport));
+}
+
+/**
+ * The same model, from a programme already loaded.
+ *
+ * Separated from the entry point above so one request loads one programme.
+ * `programReportModel` needs `found` for its own sections and used to call
+ * `programmeModel` — and then `fitFor` — each of which loaded the whole
+ * programme again: three roster queries, three squad queries and three runs
+ * of `programmePhilosophy` to build one document.
+ *
+ * Takes `benchmarks` rather than fetching them so the pool cache is consulted
+ * once per request too, and so this stays free of query code.
+ */
+export function buildProgrammeModel(found, benchmarks) {
   const { college: col, philosophy: ph } = found;
-  const benchmarks = poolBenchmarks(col.sport);
   const top = ph.ladder[0] ?? null;
   const meanVacated = ph.observations.length
     ? ph.observations.reduce((s, o) => s + o.vacatedStarterShare, 0) / ph.observations.length
@@ -139,6 +168,8 @@ export function programmeModel({ collegeId } = {}) {
     benchmarks: benchmarks?.sufficient ? {
       ladderByRank: benchmarks.ladderByRank,
       dials: benchmarks.dials,
+      programmeDials: benchmarks.programmeDials,
+      byOrigin: benchmarks.byOrigin,
       vacancy: benchmarks.vacancy,
       byPosition: benchmarks.byPosition,
       poolMix: poolMixForBand(benchmarks, meanVacated),
@@ -152,13 +183,17 @@ export function programmeModel({ collegeId } = {}) {
 /** The same programme, read for one athlete. */
 export function playerProgrammeModel({ playerId, collegeId } = {}) {
   const athlete = loadAthlete(playerId);
-  const col = college(collegeId);
-  if (!col) throw new Error(`Unknown college: ${collegeId}`);
+  // Loaded once and read twice. The athlete is resolved first so an unknown
+  // player still throws before an unknown college, which is what the route's
+  // 404/400 split reads.
+  const loaded = philosophyFor(collegeId);
+  if (!loaded) throw new Error(`Unknown college: ${collegeId}`);
+  const col = loaded.college;
   if (athlete.sport !== col.sport) {
     throw new Error(`${athlete.full_name} plays ${athlete.sport}; ${col.name} is ${col.sport}`);
   }
-  const base = programmeModel({ collegeId });
-  const found = fitFor(collegeId, athlete);
+  const base = buildProgrammeModel(loaded, poolBenchmarks(col.sport));
+  const found = fitFrom(loaded, athlete);
   // The season THIS athlete would arrive in, which is not necessarily the one
   // the squad data describes. Ryan Billings is a 2027 entrant, and a report
   // built on RECRUIT_SEASON told him "the 2026 season has not been played" —
@@ -205,18 +240,16 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     }
   }
 
-  const base = programmeModel({ collegeId });
+  const base = buildProgrammeModel(found, poolBenchmarks(col.sport));
   const window = arrivalWindow(rows, { seasons: SEASONS });
   const transferPoints = newcomerPoints(rows, { seasons: SEASONS });
-  const progression = secondYearProgression(rows, { seasons: SEASONS });
-  const stayed = progression.filter((x) => x.year2State !== 'gone').length;
 
   const entrySeason = athlete
     ? Number(athlete.recruiting_class_year) || RECRUIT_SEASON
     : RECRUIT_SEASON;
-  const fit = athlete ? fitFor(collegeId, athlete)?.fit ?? null : null;
+  const fit = athlete ? fitFrom(found, athlete)?.fit ?? null : null;
 
-  return {
+  const model = {
     ...base,
     kind: athlete ? 'report+player' : 'report',
     squadSeason: SQUAD_SEASON,
@@ -227,11 +260,11 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
     freshman: {
       points: freshmanPoints(rows, { seasons: SEASONS }),
       intake: intakeBySeason(rows, { seasons: SEASONS }),
-      progression,
-      // Stated as a fraction, never a rate, because it conflates four
-      // different ways of leaving a roster.
-      retention: progression.length ? { stayed, of: progression.length } : null,
       grid: positionSeasonGrid(rows, { seasons: SEASONS }),
+      // `progression` and `retention` used to live here: a year-one-to-year-two
+      // comparison and a fraction of first-years still on the next roster. Both
+      // are answered properly and with their denominators by the lifecycle
+      // layer below, and two development models in one payload is one too many.
     },
 
     transfer: {
@@ -264,5 +297,133 @@ export function programReportModel({ collegeId, playerId = null } = {}) {
       level: athlete.football_ability ?? null,
     } : null,
     fit,
+  };
+
+  // Additive. Nothing above changes shape, so every existing reader — the
+  // PDF, the tab, the tests — sees exactly what it saw before, and the v2
+  // pages have somewhere to read from that is not the renderer.
+  const summary = buildReportSummary({ model, philosophy: ph, squadRows: squad });
+  // The lifecycle layer. Also additive: the pool half is cached per sport and
+  // per process, and the programme half is a few indexed lookups.
+  const lifeRows = lifecycleRows(col.name, col.sport);
+  const lifePool = lifecyclePool(col.sport);
+  const lifecycle = buildLifecycleSummary({
+    rows: lifeRows,
+    pool: lifePool,
+    division: col.division,
+    programme: col.name,
+    athlete: model.athlete,
+  });
+  /**
+   * Position intake. Attached and NOT rendered: no section reads it yet, and
+   * nothing in `planSections` mentions it, so every existing page and page
+   * count is unchanged. It is here so the intelligence can be inspected
+   * against real programmes before a page is designed for it.
+   *
+   * It reads the same five-season window the lifecycle layer does, because it
+   * needs 2026 — that roster is the current known intake — and it reads no
+   * minutes at all, which is why it survives at programmes where the
+   * performance analyses do not.
+   */
+  const pressure = buildPressureSummary({
+    rows: lifeRows,
+    pool: lifePool,
+    division: col.division,
+    athlete: model.athlete,
+  });
+  /**
+   * Minute concentration and years of study. Attached and NOT rendered, on the
+   * same terms as `pressure`: no section reads it, nothing in `planSections`
+   * mentions it, and every existing page and page count is unchanged.
+   *
+   * These read the readable rows rather than the raw ones — unlike intake,
+   * both halves of this are questions about minutes, and the experience half
+   * keeps its roster composition answerable even where the minutes are not.
+   */
+  const squadProfile = buildSquadSummary({
+    rows: readableRows(lifeRows),
+    pool: lifePool,
+    division: col.division,
+  });
+  /**
+   * Minute distribution within a position. Attached and NOT rendered, on the
+   * same terms as `pressure` and `squadProfile`.
+   *
+   * Both shapes are handed over rather than one being chosen here: the athlete
+   * half reads the athlete's own canonical position, and the programme half is
+   * a lookup across the three supported positions, so Phase 9B can decide what
+   * a generic report does with it. A goalkeeper gets an athlete entry that says
+   * the analysis is not reported at that position.
+   */
+  const positionUtilisation = buildPositionUtilisationSummary({
+    rows: readableRows(lifeRows),
+    pool: lifePool,
+    division: col.division,
+    athlete: model.athlete,
+  });
+  /**
+   * Whose measured seasons these are.
+   *
+   * ADDITIVE AND NOT ANALYTICAL. It recomputes nothing, reads no roster row,
+   * and adds no gate — it takes the coach rows already loaded for this
+   * programme and the seasons this report already says it describes, and
+   * answers how many of those seasons the coach on file for 2026 was in
+   * charge for.
+   *
+   * `ph.describes` IS the denominator, deliberately. It is what the cover
+   * states as the report's window, what the coach card states as "seasons
+   * analysed", and what the tenure strip on that card already draws — so a
+   * count built from anything else would contradict the page it appears on.
+   * Ohio State men's is the case: its window is three seasons, not four,
+   * because the freshman gate drops 2023, and "2 of 3" is the honest figure
+   * beside a card that says three.
+   */
+  const coachAttributionModel = coachAttribution({
+    coachRows: found.coachRows ?? [],
+    measuredSeasons: ph.describes ?? [],
+  });
+  /**
+   * COMPETITIVE INTELLIGENCE V1, frozen in 12E and read here for the first time.
+   *
+   * ONE CALL, AND THE RENDERER SEES NOTHING ELSE. `competitivePackageFor` is the
+   * whole of the competitive contract: it owns the identity resolution, the
+   * historical division and conference, the per-season benchmark and every
+   * refusal, and the two report pages consume this object and no query of their
+   * own. That is deliberate — the previous three phases each found a false
+   * identity that survived because a consumer went back to the tables.
+   *
+   * The coach attribution is handed in rather than recomputed, so the count of
+   * seasons the competitive page states and the count the coach card states are
+   * the same number from the same model.
+   */
+  const competitive = competitivePackageFor(collegeId, {
+    coachAttribution: coachAttributionModel,
+  });
+  // Which analyses were attempted and refused. Additive, and computed from
+  // the model rather than from any new query: `evidenceLimitsFor` reads the
+  // same fields the pages it replaces would have read.
+  const withLifecycle = {
+    ...model, summary, lifecycle, pressure, squadProfile, positionUtilisation,
+    coachAttribution: coachAttributionModel, competitive,
+  };
+  const evidenceLimits = evidenceLimitsFor(withLifecycle);
+  return {
+    ...model,
+    summary,
+    lifecycle,
+    pressure,
+    // `squad` is already the 2026 roster on this model; this is the historical
+    // profile of how its minutes were distributed and who took them.
+    squadProfile,
+    positionUtilisation,
+    coachAttribution: coachAttributionModel,
+    competitive,
+    evidenceLimits,
+    // The document's shape, decided from the data rather than by whichever
+    // section throws first. No page numbers: those are not knowable until the
+    // pages exist, and the renderer fills them in afterwards.
+    sections: planSections({
+      model: { ...withLifecycle, evidenceLimits }, summary, philosophy: ph,
+    }),
   };
 }

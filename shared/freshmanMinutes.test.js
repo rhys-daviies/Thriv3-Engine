@@ -6,6 +6,7 @@ import {
   originOf, cohortFor, MIN_COHORT_PLAYERS,
 } from './freshmanMinutes.js';
 import { tenureFor } from './coachTenure.js';
+import { withReadablePerformance, performanceUnreadableSeasons } from './performanceSource.js';
 
 const p = (over) => ({
   season: '2025', class_year_label: 'Fr.', player_name: 'A', position: 'DEFENSE',
@@ -181,6 +182,129 @@ describe('ladderByRank', () => {
 
   it('respects maxRank', () => {
     expect(ladderByRank(seasons, { maxRank: 1 })).toHaveLength(1);
+  });
+});
+
+/**
+ * Provenance, not methodology. Every assertion here about median, low, high,
+ * band, agreement and comparability restates a number the ladder already
+ * produced before contributions existed — if one of these moves, the change
+ * was not additive.
+ */
+describe('ladderByRank contributions', () => {
+  const seasons = [
+    { season: '2022', ladder: [{ rank: 1, minutes: 1000, name: 'Ana' }, { rank: 2, minutes: 400, name: 'Bea' }] },
+    { season: '2023', ladder: [{ rank: 1, minutes: 1200, name: 'Cal' }, { rank: 2, minutes: 200, name: 'Dee' }] },
+    { season: '2024', ladder: [{ rank: 1, minutes: 800, name: 'Eve' }] },
+  ];
+
+  it('leaves every existing figure exactly as it was', () => {
+    const byRank = ladderByRank(seasons);
+    expect(byRank[0]).toMatchObject({
+      rank: 1, median: 1000, low: 800, high: 1200, seasonsWithThisMany: 3,
+      band: 'impact', agreement: 'tight', comparable: true, weighted: false,
+    });
+    expect(byRank[1]).toMatchObject({
+      rank: 2, median: 300, low: 200, high: 400, seasonsWithThisMany: 2,
+      band: 'rotation', agreement: 'tight', comparable: true, weighted: false,
+    });
+  });
+
+  it('names the seasons, players and minutes each rung is made of', () => {
+    const byRank = ladderByRank(seasons);
+    expect(byRank[0].contributions).toEqual([
+      { season: '2022', minutes: 1000, name: 'Ana', weight: null },
+      { season: '2023', minutes: 1200, name: 'Cal', weight: null },
+      { season: '2024', minutes: 800, name: 'Eve', weight: null },
+    ]);
+  });
+
+  // The count and the list have to agree, or one of them is lying about the
+  // sample.
+  it('always carries exactly seasonsWithThisMany contributions', () => {
+    for (const r of ladderByRank(seasons)) {
+      expect(r.contributions).toHaveLength(r.seasonsWithThisMany);
+    }
+  });
+
+  // The defect this guards: a season with no player at this rank must be
+  // ABSENT, never present at zero. A manufactured zero would drag the median
+  // down and read as a coaching decision rather than a smaller intake.
+  it('omits a season that had nobody at this rank rather than scoring it zero', () => {
+    const rank2 = ladderByRank(seasons)[1];
+    expect(rank2.contributions.map((c) => c.season)).toEqual(['2022', '2023']);
+    expect(rank2.contributions.some((c) => c.minutes === 0)).toBe(false);
+  });
+
+  it('reconstructs low and high from the contributions themselves', () => {
+    for (const r of ladderByRank(seasons)) {
+      const mins = r.contributions.map((c) => c.minutes);
+      expect(Math.min(...mins)).toBe(r.low);
+      expect(Math.max(...mins)).toBe(r.high);
+    }
+  });
+
+  it('tolerates a season whose ladder carries no names', () => {
+    const nameless = [{ season: '2025', ladder: [{ rank: 1, minutes: 500 }] }];
+    expect(ladderByRank(nameless)[0].contributions).toEqual([
+      { season: '2025', minutes: 500, name: null, weight: null },
+    ]);
+  });
+
+  // A wide rung is the case where the contributions earn their place: the
+  // median alone asserts the opposite of what one of the seasons says.
+  it('exposes the disagreement behind a wide rung', () => {
+    const wide = [
+      { season: '2022', ladder: [{ rank: 1, minutes: 42, name: 'A' }] },
+      { season: '2023', ladder: [{ rank: 1, minutes: 1001, name: 'B' }] },
+      { season: '2024', ladder: [{ rank: 1, minutes: 14, name: 'C' }] },
+    ];
+    const r = ladderByRank(wide)[0];
+    expect(r.median).toBe(42);
+    expect(r.agreement).toBe('wide');
+    expect(r.contributions.map((c) => c.minutes)).toEqual([42, 1001, 14]);
+  });
+});
+
+describe('weighted ladder provenance', () => {
+  const seasons = [
+    { season: '2022', ladder: [{ rank: 1, minutes: 100, name: 'Old' }] },
+    { season: '2023', ladder: [{ rank: 1, minutes: 900, name: 'Mid' }] },
+    { season: '2024', ladder: [{ rank: 1, minutes: 950, name: 'New' }] },
+  ];
+
+  // The renderer has to be able to say WHY a weighted median differs, without
+  // re-deriving weightsFromVerdict for itself.
+  it('carries the weight each season was counted at', () => {
+    const r = ladderByRank(seasons, { weights: { 2022: 0.35, 2023: 1, 2024: 1 } })[0];
+    expect(r.weighted).toBe(true);
+    expect(r.contributions).toEqual([
+      { season: '2022', minutes: 100, name: 'Old', weight: 0.35 },
+      { season: '2023', minutes: 900, name: 'Mid', weight: 1 },
+      { season: '2024', minutes: 950, name: 'New', weight: 1 },
+    ]);
+  });
+
+  // Null, not 1. "Not weighted" and "weighted at full" are different facts and
+  // a renderer that saw 1 either way could not tell which ladder it held.
+  it('leaves the weight null on an unweighted ladder', () => {
+    const r = ladderByRank(seasons)[0];
+    expect(r.weighted).toBe(false);
+    expect(r.contributions.every((c) => c.weight === null)).toBe(true);
+  });
+
+  it('defaults an unlisted season to full weight and says so', () => {
+    const r = ladderByRank(seasons, { weights: { 2022: 0.35 } })[0];
+    expect(r.contributions.map((c) => c.weight)).toEqual([0.35, 1, 1]);
+  });
+
+  it('does not change the unweighted median, low or high', () => {
+    const plain = ladderByRank(seasons)[0];
+    const weighted = ladderByRank(seasons, { weights: { 2022: 0.35, 2023: 1, 2024: 1 } })[0];
+    expect(plain.median).toBe(900);
+    expect(weighted.median).toBe(900);
+    expect(weighted.low).toBe(100);
+    expect(weighted.high).toBe(950);
   });
 });
 
@@ -418,6 +542,139 @@ describe('classifyProgramme', () => {
 
   it('is null for a programme with nothing on file', () => {
     expect(classifyProgramme(null, GILLIS)).toBeNull();
+  });
+
+  /**
+   * PHASE 11D — continuity is a claim about observations.
+   *
+   * Every branch above this one is reached by naming a coaching change. The
+   * fall-through claimed one coach throughout from the ABSENCE of an observed
+   * change, and `tenure.changes` counts a transition only between two adjacent
+   * RESOLVED seasons — so an unread season, a missing row and a title naming
+   * somebody else's job all read as "nobody changed". 82 programmes said one
+   * coach throughout a window the coach table cannot support.
+   */
+  describe('one coach throughout, and what it takes to say so', () => {
+    const titled = (...pairs) => tenureFor(pairs.map(([coach_name, coach_title], i) => (
+      { season: 2022 + i, coach_name, coach_title })));
+
+    it('refuses continuity across a measured season with no coach on file', () => {
+      // Metro State Denver: Kirchhof 2022, nothing for 2023, Kirchhof after.
+      // Read as steady — "every season counts and the record is as firm as
+      // this gets" — over a season with no coach on file at all.
+      const v = classifyProgramme(prof([30, 22, 17, 18]),
+        ten('Nick Kirchhof', '', 'Nick Kirchhof', 'Nick Kirchhof'));
+      expect(v.verdict).toBe('coach-unknown-recent');
+      expect(v.note).toContain('2023');
+      expect(v.note).toContain('Nick Kirchhof');
+      expect(v.weightFrom).toBeNull();
+    });
+
+    it('refuses continuity where an associate head fills the season', () => {
+      const v = classifyProgramme(prof([30, 22, 17, 18]), titled(
+        ['Mary Hearin', 'Associate Head Coach'],
+        ['Kelly Lawrence', 'Head Coach'],
+        ['Kelly Lawrence', 'Head Coach'],
+        ['Kelly Lawrence', 'Head Coach'],
+      ));
+      expect(v.verdict).toBe('coach-unknown-recent');
+    });
+
+    it('refuses continuity where a strength coach fills every season', () => {
+      const v = classifyProgramme(prof([30, 22, 17, 18]), titled(
+        ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+        ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+        ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+        ['Aaron Suma', 'Head Strength and Conditioning Coach'],
+      ));
+      expect(v.verdict).toBe('coach-unknown');
+      expect(v.coach).toBeNull();
+    });
+
+    it('refuses continuity where an operations role fills a season', () => {
+      const v = classifyProgramme(prof([30, 22, 17, 18]), titled(
+        ['Michael Cracas', 'Head Coach'],
+        ['Michael Cracas', 'Head Coach'],
+        ['Michael Cracas', 'Head Coach'],
+        ['Rudy Brownell', 'Director of Soccer Operations'],
+      ));
+      expect(v.verdict).toBe('coach-unknown-recent');
+      expect(v.note).toContain('2025');
+    });
+
+    // Mercyhurst men's: Osborne, two unread seasons, then Solomon. Two coaches,
+    // no adjacent pair between them, and the report said one coach throughout.
+    it('does not read one name either side of a gap as one spell', () => {
+      const v = classifyProgramme(prof([30, 22, 17, 18]),
+        ten('Brian Osborne', '', '', 'Austin Solomon'));
+      expect(v.verdict).toBe('coach-unknown-recent');
+      expect(v.note).toContain('2023, 2024');
+    });
+
+    /**
+     * The other shape, and the reason it is not a change verdict.
+     *
+     * Every MEASURED season is resolved and they carry two names, but the
+     * season between them is resolved by nobody and was never measured — so
+     * there is no observed pair anywhere that dates the change. A change
+     * verdict would have to say when; this says who, and that the season it
+     * happened in is not one we read. (Where the intervening season IS
+     * resolved, the transition is observed and `regime-change` keeps it, even
+     * if the minutes for that season were unreadable.)
+     */
+    it('names both coaches where nothing observed dates the change', () => {
+      const seasons = [30, null, 17].map((v, i) => ({
+        season: String(2022 + i),
+        shareOfSquadMinutes: v === null ? null : v / 100, ladder: [], bands: {},
+      }));
+      const v = classifyProgramme({ seasons }, ten('Old Coach', '', 'New Coach'));
+      expect(v.verdict).toBe('coach-unknown-recent');
+      expect(v.note).toContain('Old Coach');
+      expect(v.note).toContain('New Coach');
+    });
+
+    // Contrast: the coach table resolved every season, so the transition IS
+    // observed and keeps its own verdict even though 2023's minutes were not
+    // measurable.
+    it('keeps a change verdict where the coach table dates the change', () => {
+      const seasons = [30, null, 17, 18].map((v, i) => ({
+        season: String(2022 + i),
+        shareOfSquadMinutes: v === null ? null : v / 100, ladder: [], bands: {},
+      }));
+      expect(classifyProgramme({ seasons },
+        ten('Old Coach', 'Old Coach', 'New Coach', 'New Coach')).verdict)
+        .toBe('regime-change');
+    });
+
+    // The claim still survives where the evidence is actually there.
+    it('still calls a fully observed window one coach throughout', () => {
+      expect(classifyProgramme(prof([30, 22, 17, 18]), GILLIS).verdict).toBe('steady');
+      expect(classifyProgramme(prof([2, 0, 8, 18]),
+        ten('Richard Nuttall', 'Richard Nuttall', 'Richard Nuttall', 'Richard Nuttall'))
+        .verdict).toBe('policy-shift-same-coach');
+      expect(classifyProgramme(prof([46, 21, 45, 22]), GILLIS).verdict).toBe('erratic-same-coach');
+    });
+
+    /**
+     * Each note names its own window.
+     *
+     * Unscoped, "one coach throughout" reads as a claim about the season a
+     * recruit would join, and at Ursuline the post is recorded vacant for
+     * exactly that season — four seasons of Jason Kubbins and nobody in the
+     * job now. Both facts are true; only the sentence that failed to say which
+     * seasons it meant made them look like a contradiction.
+     */
+    it('scopes every continuity note to the seasons measured', () => {
+      for (const v of [
+        classifyProgramme(prof([30, 22, 17, 18]), GILLIS),
+        classifyProgramme(prof([46, 21, 45, 22]), GILLIS),
+        classifyProgramme(prof([2, 0, 8, 18]),
+          ten('Richard Nuttall', 'Richard Nuttall', 'Richard Nuttall', 'Richard Nuttall')),
+      ]) {
+        expect(v.note, v.verdict).toMatch(/every season measured/);
+        expect(v.note, v.verdict).not.toMatch(/one coach throughout|the same coach,/);
+      }
+    });
   });
 });
 
@@ -659,5 +916,91 @@ describe('a ladder that rises as you go down it', () => {
       { ladder: [{ rank: 1, minutes: 900 }, { rank: 2, minutes: 350 }, { rank: 3, minutes: 40 }] },
     ];
     expect(ladderByRank(seasons).every((r) => r.comparable)).toBe(true);
+  });
+});
+
+describe('a season whose stats page was never read', () => {
+  const SEASONS4 = ['2022', '2023', '2024', '2025'];
+  /** A squad of `n`, `f` of them first-years, at `minutes` each. */
+  const roster = (season, n, { fresh = 6, minutes = 0, games = 0 } = {}) =>
+    Array.from({ length: n }, (_, i) => p({
+      season,
+      player_name: `${season}-${i}`,
+      class_year_label: i < fresh ? 'Fr.' : 'Jr.',
+      minutes_played: minutes ? minutes + i : 0,
+      games_played: minutes ? games : games,
+    }));
+
+  // Albertus Magnus, in miniature. 2022-24 published nothing; 2025 assumed a
+  // zero for all 34 players. Read as it stands, that programme's only
+  // "measured" season says seventeen first-years played nothing at all.
+  const fabricated = [
+    ...roster('2024', 31, { minutes: 0, games: 0 }).map((r) => ({ ...r, minutes_played: null, games_played: null })),
+    ...roster('2025', 34, { fresh: 17 }),
+  ];
+
+  it('does not count a fabricated intake as measured freshmen', () => {
+    const before = freshmanSeason(fabricated, { season: '2025' });
+    expect(before.measured).toBe(17);          // what the raw rows claim
+    const after = freshmanSeason(withReadablePerformance(fabricated), { season: '2025' });
+    expect(after.intake).toBe(17);
+    expect(after.measured).toBe(0);
+    expect(after.unknown).toBe(17);
+    expect(after.ladder).toEqual([]);
+  });
+
+  it('refuses the whole profile rather than reporting a squad that played none', () => {
+    expect(freshmanProfile(fabricated, { seasons: SEASONS4 })).toBeNull();
+  });
+
+  // The independent guard, which does not depend on the source rule firing.
+  // Gettysburg and Hendrix reach it: exactly half their intake carries a
+  // figure, every figure is zero, and the season clears the coverage gate.
+  it('never returns a ladder that is zero at every rank', () => {
+    const half = [
+      ...Array.from({ length: 6 }, (_, i) => p({ season: '2025', player_name: `m${i}`, minutes_played: 0, games_played: 0 })),
+      ...Array.from({ length: 6 }, (_, i) => p({ season: '2025', player_name: `u${i}`, minutes_played: 0, games_played: 4 })),
+      ...Array.from({ length: 20 }, (_, i) => p({ season: '2025', player_name: `s${i}`, class_year_label: 'Sr.', minutes_played: 800, games_played: 18 })),
+    ];
+    const season = freshmanSeason(half, { season: '2025' });
+    expect(season.measured / season.intake).toBe(0.5);      // clears MIN_MEASURED_SHARE
+    expect(ladderByRank([season]).every((r) => r.high === 0)).toBe(true);
+    expect(freshmanProfile(half, { seasons: ['2025'] })).toBeNull();
+  });
+
+  it('keeps a ladder where a single freshman played a single minute', () => {
+    const rows = [
+      ...Array.from({ length: 12 }, (_, i) => p({ season: '2025', player_name: `f${i}`, minutes_played: i === 0 ? 1 : 0, games_played: i === 0 ? 1 : 0 })),
+      ...Array.from({ length: 20 }, (_, i) => p({ season: '2025', player_name: `s${i}`, class_year_label: 'Sr.', minutes_played: 800, games_played: 18 })),
+    ];
+    const prof = freshmanProfile(rows, { seasons: ['2025'] });
+    expect(prof).not.toBeNull();
+    expect(prof.byRank[0].high).toBe(1);
+  });
+
+  // Lake Erie: 62 named men, 28 with minutes. The roster is inflated and the
+  // minutes are real, and nothing here may take the first for the second.
+  it('leaves an inflated roster with real minutes completely alone', () => {
+    const lakeErie = [
+      ...Array.from({ length: 28 }, (_, i) => p({ season: '2024', player_name: `plays${i}`, class_year_label: i < 8 ? 'Fr.' : 'Jr.', minutes_played: 1600 - i * 40, games_played: 18 })),
+      ...Array.from({ length: 34 }, (_, i) => p({ season: '2024', player_name: `reserve${i}`, class_year_label: i < 10 ? 'Fr.' : 'So.', minutes_played: 0, games_played: 0 })),
+    ];
+    const readable = withReadablePerformance(lakeErie);
+    expect(readable.filter((r) => r.minutes_played === 0)).toHaveLength(34);
+    const season = freshmanSeason(readable, { season: '2024' });
+    expect(season.intake).toBe(18);
+    expect(season.measured).toBe(18);
+    expect(season.ladder[0].minutes).toBe(1600);
+    expect(freshmanProfile(lakeErie, { seasons: ['2024'] })).not.toBeNull();
+  });
+
+  // The forward roster carries names and no minutes anywhere, which is not a
+  // source failure and must not be reported as one.
+  it('treats the 2026 roster as unmeasured rather than unreadable', () => {
+    const squad2026 = Array.from({ length: 30 }, (_, i) => p({
+      season: '2026', player_name: `n${i}`, minutes_played: null, games_played: null,
+    }));
+    expect(performanceUnreadableSeasons(squad2026).size).toBe(0);
+    expect(freshmanSeason(squad2026, { season: '2026' }).measured).toBe(0);
   });
 });

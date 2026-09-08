@@ -39,8 +39,31 @@ import { randomUUID } from 'node:crypto';
  * Resolved to absolute here so every containment check below compares like
  * with like, whatever the process's working directory happens to be.
  */
+/**
+ * TWO VARIABLES, ONE AUTHORITY — reconciled at D0.
+ *
+ * The hosted runtime arrived with its own upload directory resolved inline in
+ * server/index.js from THRIV3_UPLOAD_DIR, because `players.recommendations`
+ * stores a PATH into this store and a container filesystem discards it on the
+ * next deploy — so on a host it must sit on the mounted disk, and startup
+ * refuses without it.
+ *
+ * Two resolutions of the same directory is the shape of a real bug: A3.1's
+ * containment guard, the campaign snapshot reader and the static mount would
+ * each have been free to disagree about where the store is, and the guard that
+ * refuses a traversing filename is worth nothing if the reader opens somewhere
+ * else. So the production variable is read HERE, where the guard is, and
+ * index.js has no directory of its own.
+ *
+ *   THRIV3_UPLOAD_DIR   the hosted persistent disk. Production.
+ *   THRIV3_UPLOADS_DIR  a throwaway store for the test suite, as before.
+ *
+ * The test variable wins where both are set, so a suite can never be pointed
+ * at the real store by an environment it did not choose.
+ */
 export const UPLOADS_DIR = path.resolve(
   process.env.THRIV3_UPLOADS_DIR
+  || process.env.THRIV3_UPLOAD_DIR
   || fileURLToPath(new URL('../uploads', import.meta.url)),
 );
 

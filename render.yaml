@@ -1,0 +1,129 @@
+# Render blueprint for the internal Thriv3 operator application — Phase 13K.
+#
+# NOT DEPLOYED. This file is the deployment contract, reviewed before anything
+# is provisioned; docs/hosting.md is the runbook that uses it.
+#
+# WHY RENDER. The service needs a long-lived Node process, a persistent disk
+# for both the SQLite database and the generated report artefacts, and exactly
+# one instance against that disk. Render enforces the last of those rather than
+# leaving it to a comment: a service with a disk attached cannot be scaled to
+# more than one instance, and a deploy stops the old instance before starting
+# the new one instead of overlapping them. For SQLite in WAL mode that is not a
+# limitation, it is the requirement — two processes writing one database file
+# through a network filesystem is the failure mode this avoids by construction.
+#
+# The cost is a few seconds of downtime per deploy, for a tool with one
+# operator, which is the right trade.
+
+services:
+  - type: web
+    name: thriv3-operator
+    runtime: node
+    # 1 CPU / 2 GB. Spec-based ID, which Render introduced in August 2026;
+    # the legacy name `standard` is still accepted but reads as a tier rather
+    # than a size, and this file previously said `starter` — 0.5 CPU / 512 MB,
+    # the plan 13K's own measurements ruled out. 389 MB resident with both
+    # benchmark pools plus a 64 MiB scrypt spike per sign-in does not fit in
+    # 512 MB, and an OOM kill mid-generation is a failed report.
+    plan: 1c-2g
+    region: ohio
+    # The blueprint and the code it deploys come from ONE branch. This said
+    # `main`, while the corrected blueprint existed only here — so pointing the
+    # Blueprint at main would have applied `plan: starter` and no upload path,
+    # and pointing it here would have deployed main's code against this file.
+    # Identical application code today, and a drift trap the moment either
+    # branch moves.
+    branch: release/internal-operator-hosting
+    # The client bundle and the server share one process, so the app and its
+    # API are one origin: no CORS in production, and a session cookie that is
+    # never cross-site.
+    #
+    # THREE STEPS, AND EACH ONE IS THERE FOR A REASON.
+    #
+    # `--include=dev` because NODE_ENV=production is set below and applies to
+    # the build stage as well as the runtime, and npm resolves `omit=dev` from
+    # it — so a plain `npm ci` installs no devDependencies and the build dies on
+    # `vite: not found`. Vite is a build tool and belongs in devDependencies;
+    # the fix is to ask for them here, not to move five packages into runtime
+    # dependencies to make the error go away. Five are needed, not one: vite,
+    # @vitejs/plugin-react, tailwindcss, postcss and autoprefixer. Vite is
+    # simply the first one reached.
+    #
+    # `npm prune --omit=dev` afterwards because the built output is all the
+    # runtime needs — it never runs Vite — and leaving the toolchain in the
+    # container would put esbuild and Vite on the production disk, which is
+    # exactly what docs/hosting.md says is not deployed. Verified: the prune
+    # removes 211 packages, keeps express/helmet/better-sqlite3/pdfkit, leaves
+    # dist/ intact and leaves the native binding loadable.
+    buildCommand: npm ci --include=dev && npm run build && npm prune --omit=dev
+    startCommand: node server/index.js
+    healthCheckPath: /healthz
+
+    disk:
+      name: thriv3-data
+      mountPath: /data
+      sizeGB: 5
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # 0.0.0.0 deliberately, and only safe because every /api route below the
+      # authentication boundary requires a session — see server/index.js.
+      - key: API_HOST
+        value: 0.0.0.0
+      # Render terminates TLS one hop in front of the process. Without this
+      # Express sees plain http and refuses to set a Secure cookie, and sign-in
+      # fails with no visible error.
+      - key: THRIV3_TRUST_PROXY
+        value: 1
+      # Both on the persistent disk, and on the SAME disk: one snapshot then
+      # captures the history rows and the artefacts they point at together.
+      - key: RECRUITMATCH_DB
+        value: /data/recruitmatch.sqlite
+      - key: THRIV3_REPORT_STORE
+        value: /data/reports
+      # THE THIRD PERSISTENT PATH. Added to runtimeConfig after this file was
+      # first written, and missing here until 13L: `players.recommendations`
+      # holds a PATH into this directory, so without it every athlete's stored
+      # matching analysis is on the container filesystem and is discarded on
+      # the next deploy. Startup refuses to run without it, which is the gate
+      # doing its job — but the blueprint has to be right.
+      - key: THRIV3_UPLOAD_DIR
+        value: /data/uploads
+      - key: THRIV3_CLIENT_DIR
+        value: dist
+      # Generated at provision time and stored by Render, never in this file.
+      - key: THRIV3_SESSION_SECRET
+        generateValue: true
+      # The service's own public origin — the CORS allow-list and the CSRF
+      # origin check, and required at startup.
+      #
+      # `sync: false` meant "ask the operator", but the Render service UI does
+      # not expose an Environment section for a Blueprint-managed variable, so
+      # there was nowhere to answer. The runtime refused to start and said
+      # exactly why, which is the gate working; the fix is to put the value
+      # where the blueprint can carry it. Not a secret — it is the public
+      # address of the service.
+      #
+      # Change this when a custom domain replaces the onrender.com address, or
+      # sign-in will be refused on origin.
+      - key: THRIV3_APP_ORIGIN
+        value: https://thriv3-operator.onrender.com
+      # Existing application secrets, unchanged and never in git.
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: THRIV3_SENDER_IDENTITY
+        sync: false
+      - key: THRIV3_POSTAL_ADDRESS
+        sync: false
+      - key: THRIV3_SYNC_SECRET
+        sync: false
+      - key: THRIV3_PUBLIC_BASE_URL
+        sync: false
+      # ZERO FOR INITIAL HOSTED VALIDATION. 0 (like unset) means the edge sync
+      # never runs by itself, and the boot log says so out loud rather than
+      # leaving it ambiguous. Nothing should run unattended against the
+      # Cloudflare edge until the deployment has been verified by hand. 15 is
+      # the pilot cadence to restore afterwards.
+      - key: THRIV3_SYNC_INTERVAL_MINUTES
+        value: 0

@@ -16,6 +16,13 @@ const TABS = [
   // is what an email would say.
   { segment: 'evidence', label: 'Evidence' },
   { segment: 'decision', label: 'Decision Evidence' },
+  /**
+   * 13J: the delivery surface. It lives here rather than on its own screen
+   * because the athlete is already chosen and displayed above these tabs —
+   * a second athlete picker is a second chance to send the wrong person's
+   * report — and because report history is naturally per athlete.
+   */
+  { segment: 'reports', label: 'Reports' },
 ];
 
 /**

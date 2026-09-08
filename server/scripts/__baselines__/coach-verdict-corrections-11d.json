@@ -1,0 +1,2623 @@
+[
+ {
+  "programme": "Adrian|mens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Charlie Miles",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Charlie Miles's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Charlie Miles",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Charlie Miles|Head Coach|",
+   "2024=Charlie Miles|Head Men’s Soccer Coach|",
+   "2025=Charlie Miles|Head Men’s Soccer Coach|",
+   "2026=Charlie Miles|Head Men’s Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Alabama A&M|womens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Prince Borde",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Prince Borde's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Prince Borde",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Prince Borde|Head Women's Soccer Coach|",
+   "2024=Prince Borde|Head Coach|",
+   "2025=Prince Borde|Head Coach|",
+   "2026=Prince Borde|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Alcorn State|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Ken Kabiru",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Ken Kabiru's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Ken Kabiru",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-usable-page",
+   "2024=∅|∅|no-usable-page",
+   "2025=Ken Kabiru|Head Coach|",
+   "2026=Ken Kabiru|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Allegheny|mens-soccer",
+  "before": {
+   "verdict": "new-coach-no-record",
+   "note": "Toby Cline took over for 2026 and has not yet coached a season we can measure — the figures below are the previous staff's",
+   "coach": "Toby Cline",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no coach on file for 2026 — the seasons through 2025 were Trevor Jones's, and we are not assuming he stayed",
+   "coach": "Trevor Jones",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Max Fowler|Interim Head Coach|",
+   "2023=Troy Elsea|Head Men's Soccer Coach|",
+   "2024=Trevor Jones|Head Men's Soccer Coach|",
+   "2025=Trevor Jones|Head Men's Soccer Coach|",
+   "2026=Toby Cline|Head Peak Performance Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Alma College|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Sam Sibilski",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Sam Sibilski",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Kate Parney|Head Women's Soccer Coach|",
+   "2023=Kate Parney|Head Women's Soccer Coach|",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Sam Sibilski|Head Women's Soccer Coach|",
+   "2026=Sam Sibilski|Head Women's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Alma|mens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Alister Newby",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Alister Newby's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Alister Newby",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Alister Newby|Head Men's Soccer Coach|",
+   "2024=Alister Newby|Head Men's Soccer Coach|",
+   "2025=Alister Newby|Head Men's Soccer Coach|",
+   "2026=Alister Newby|Head Men's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Alvernia University|womens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Amanda Bezner",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2024 — the rest of the window was Amanda Bezner's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Amanda Bezner",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Amanda Bezner|Head Soccer Coach|",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Amanda Bezner|Head Soccer Coach|",
+   "2026=Amanda Bezner|Head Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Alvernia|mens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Casey Moore",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023, 2024 — the rest of the window was Casey Moore's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Casey Moore",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Casey Moore|Men's Soccer Head Coach|",
+   "2026=Casey Moore|Men's Soccer Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Baldwin Wallace University|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Jim Wojtkun",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023 — the rest of the window was Jim Wojtkun's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Jim Wojtkun",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Jim Wojtkun|Head Coach|",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Jim Wojtkun|Head Coach|",
+   "2025=Jim Wojtkun|Head Coach|",
+   "2026=Jim Wojtkun|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Binghamton|mens-soccer",
+  "before": {
+   "verdict": "change-too-recent",
+   "note": "the coach changed too recently to compare the two spells — the newest season is the only guide",
+   "coach": "Tommy Moon",
+   "weightFrom": 2025
+  },
+  "after": {
+   "verdict": "new-coach-no-record",
+   "note": "Tommy Moon took over for 2026 and has not yet coached a season we can measure — the figures below are the previous staff's",
+   "coach": "Tommy Moon",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Paul Marco|Head Coach|",
+   "2023=Paul Marco|Head Coach|",
+   "2024=Paul Marco|Head Coach|",
+   "2025=Tommy Moon|Associate Head Men's Soccer Coach|",
+   "2026=Tommy Moon|Interim Head Men's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Cal State Fullerton|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "George Kuntz",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was George Kuntz's, and a season we could not read is not a season in which nobody changed",
+   "coach": "George Kuntz",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=George Kuntz|Head Coach|",
+   "2024=George Kuntz|Head Coach (10th Season)|",
+   "2025=George Kuntz|Head Coach (11th Season)|",
+   "2026=George Kuntz|Head Coach (12th Season)|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "California Baptist|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Coe Michaelson",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023, 2024 — the rest of the window was Coe Michaelson's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Coe Michaelson",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Coe Michaelson|Head Men's Soccer Coach|",
+   "2026=Coe Michaelson|Head Men's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "California Baptist|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Kristen St. Clair",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023 — the rest of the window was Kristen St. Clair's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Kristen St. Clair",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Kristen St. Clair|Head Women's Soccer Coach|",
+   "2025=Kristen St. Clair|Head Women's Soccer Coach|",
+   "2026=Kristen St. Clair|Head Women's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Catawba|womens-soccer",
+  "before": {
+   "verdict": "change-too-recent",
+   "note": "the coach changed too recently to compare the two spells — the newest season is the only guide",
+   "coach": "Nick Brown",
+   "weightFrom": 2025
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2024 — the rest of the window was Nick Brown's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Nick Brown",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Colin Wylie|Assistant Women's Soccer Coach / Head Development Team Coach|",
+   "2023=Nick Brown|Head Women's Soccer Coach|",
+   "2024=Colin Wylie|Assistant Women's Soccer Coach / Head Development Team Coach|",
+   "2025=Nick Brown|Head Women's Soccer Coach|",
+   "2026=Nick Brown|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Centre|mens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Teddy Kolesnikov",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023, 2024 — the rest of the window was Teddy Kolesnikov's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Teddy Kolesnikov",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Teddy Kolesnikov|Head Coach|",
+   "2026=Teddy Kolesnikov|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Chowan|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Chris Whalley",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023, 2024 — the rest of the window was Chris Whalley's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Chris Whalley",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Chris Whalley|Head Men's Soccer Coach|",
+   "2026=Chris Whalley|Head Men's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Claremont McKenna College|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "David Nolan",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was David Nolan's, and a season we could not read is not a season in which nobody changed",
+   "coach": "David Nolan",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=David Nolan|Head Coach|",
+   "2024=David Nolan|Head Coach|",
+   "2025=David Nolan|Head Coach|",
+   "2026=David Nolan|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Claremont-Mudd-Scripps|mens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Edward Cartee",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Edward Cartee's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Edward Cartee",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Edward Cartee|Head Coach|",
+   "2024=Edward Cartee|Head Coach|",
+   "2025=Edward Cartee|Head Coach|",
+   "2026=Edward Cartee|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Cleveland State|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Sinisa Ubiparipovic",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Sinisa Ubiparipovic's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Sinisa Ubiparipovic",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Sinisa Ubiparipovic|Head Coach|",
+   "2024=Sinisa Ubiparipovic|Head Coach|",
+   "2025=Sinisa Ubiparipovic|Head Coach|",
+   "2026=Sinisa Ubiparipovic|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Cleveland State|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Mark Sappington",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Mark Sappington's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Mark Sappington",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Mark Sappington|Head Coach|",
+   "2024=Mark Sappington|Head Coach|",
+   "2025=Mark Sappington|Head Coach|",
+   "2026=Mark Sappington|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Concordia Irvine|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Chris Gould",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Chris Gould's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Chris Gould",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Chris Gould|Director of Soccer|",
+   "2023=Chris Gould|Head Coach|",
+   "2024=Chris Gould|Head Coach|",
+   "2025=Chris Gould|Head Coach|",
+   "2026=Chris Gould|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Concordia University-Chicago|womens-soccer",
+  "before": {
+   "verdict": "new-coach-no-record",
+   "note": "Ken Howard took over for 2026 and has not yet coached a season we can measure — the figures below are the previous staff's",
+   "coach": "Ken Howard",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no coach on file for 2026 — the seasons through 2025 were Eddie Garza's, and we are not assuming he stayed",
+   "coach": "Eddie Garza",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Eddie Garza|Head Women's Soccer Coach|",
+   "2023=Eddie Garza|Head Women's Soccer Coach|",
+   "2024=Eddie Garza|Head Women's Soccer Coach|",
+   "2025=Eddie Garza|Head Women's Soccer Coach|",
+   "2026=Ken Howard|Head Strength and Conditioning Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Delaware|womens-soccer",
+  "before": {
+   "verdict": "continuity-through-change",
+   "note": "the coach changed but the pattern did not — this looks structural, so every season counts",
+   "coach": "Kelly Lawrence",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Kelly Lawrence's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Kelly Lawrence",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Mary Hearin|Associate Head Coach|",
+   "2023=Kelly Lawrence|Head Women's Soccer Coach|",
+   "2024=Kelly Lawrence|Head Women's Soccer Coach|",
+   "2025=Kelly Lawrence|Head Women's Soccer Coach|",
+   "2026=Kelly Lawrence|Head Women's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Denison|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Brandon Bianco",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2024 — the rest of the window was Brandon Bianco's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Brandon Bianco",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Brandon Bianco|Head Men's Soccer Coach|",
+   "2023=Brandon Bianco|Head Men's Soccer Coach|",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Brandon Bianco|Head Men's Soccer Coach|",
+   "2026=Brandon Bianco|Head Men's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Drury|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Ben Taylor",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023 — the rest of the window was Ben Taylor's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Ben Taylor",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Ben Taylor|Head Coach, Men's Soccer|",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Ben Taylor|Head Coach, Men's Soccer|",
+   "2025=Ben Taylor|Head Coach, Men's Soccer|",
+   "2026=Ben Taylor|Head Coach, Men's Soccer|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Emporia State|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Jane Grimley-Gunn",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023, and a season we could not read is not a season in which nobody changed",
+   "coach": "Jane Grimley-Gunn",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Bryan Sailer|Head Soccer Coach|",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Jane Grimley-Gunn|Head Soccer Coach|",
+   "2025=Jane Grimley-Gunn|Head Soccer Coach|",
+   "2026=Jane Grimley-Gunn|Head Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Florida Southern|mens-soccer",
+  "before": {
+   "verdict": "continuity-through-change",
+   "note": "the coach changed but the pattern did not — this looks structural, so every season counts",
+   "coach": "Antony Moore",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown",
+   "note": "no coach on file, so these seasons cannot be attributed to anyone",
+   "coach": null,
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Dan Kirk|Head Coach, Strength & Conditioning|",
+   "2023=Dan Kirk|Head Coach, Strength & Conditioning|",
+   "2024=Antony Moore|Associate Head Coach|",
+   "2025=Antony Moore|Associate Head Coach|",
+   "2026=Antony Moore|Associate Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Franklin|mens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Josh Hughes",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Josh Hughes",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Josh Galvin|Head Men's Soccer Coach|",
+   "2023=Josh Galvin|Head Men's Soccer Coach|",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Josh Hughes|Head Men's Soccer Coach|",
+   "2026=Josh Hughes|Head Men's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Fresno Pacific|mens-soccer",
+  "before": {
+   "verdict": "change-too-recent",
+   "note": "the coach changed too recently to compare the two spells — the newest season is the only guide",
+   "coach": "Cameron Shahrokhi",
+   "weightFrom": 2025
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Cameron Shahrokhi",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Jaime Ramirez|Head Coach|",
+   "2023=Jaime Ramirez|Head Coach|",
+   "2024=Jaime Ramirez|Director of Soccer|",
+   "2025=Cameron Shahrokhi|Head Coach|",
+   "2026=Cameron Shahrokhi|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Gonzaga|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Katie Benz",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023 — the rest of the window was Katie Benz's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Katie Benz",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Katie Benz|Head Coach|",
+   "2025=Katie Benz|Head Coach|",
+   "2026=Katie Benz|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Harvey Mudd College|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "David Nolan",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was David Nolan's, and a season we could not read is not a season in which nobody changed",
+   "coach": "David Nolan",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=David Nolan|Head Coach|",
+   "2024=David Nolan|Head Coach|",
+   "2025=David Nolan|Head Coach|",
+   "2026=David Nolan|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Hiram College|womens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Mike Shiels",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023, and a season we could not read is not a season in which nobody changed",
+   "coach": "Mike Shiels",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Kaela Kovanda|Head Coach|",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Mike Shiels|Head Women's Soccer Coach|",
+   "2025=Mike Shiels|Head Women's Soccer Coach|",
+   "2026=Mike Shiels|Head Women's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Hiram|mens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Joe Chmura",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Joe Chmura's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Joe Chmura",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Joe Chmura|Head Men's Soccer Coach|",
+   "2024=Joe Chmura|Head Men's Soccer Coach|",
+   "2025=Joe Chmura|Head Men's Soccer Coach|",
+   "2026=Joe Chmura|Head Men's Soccer Coach/Director of Intramural Athletics|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Houghton University|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Esther Pellegrino",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Esther Pellegrino's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Esther Pellegrino",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Esther Pellegrino|Head Coach|",
+   "2024=Esther Pellegrino|Head Coach|",
+   "2025=Esther Pellegrino|Head Coach|",
+   "2026=Esther Pellegrino|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Houston|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Ben Williams",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Ben Williams",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Jaime Frias|Head Coach|",
+   "2023=Jaime Frias|Head Coach|",
+   "2024=∅|∅|sport-not-on-page",
+   "2025=Ben Williams|Head Coach|",
+   "2026=Ben Williams|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Immaculata University|womens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Seamus O'Connor",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023, 2024 — the rest of the window was Seamus O'Connor's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Seamus O'Connor",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Seamus O'Connor|Head Coach|",
+   "2026=Seamus O'Connor|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Immaculata|mens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Rob Dallas",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023, 2024 — the rest of the window was Rob Dallas's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Rob Dallas",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Rob Dallas|Head Coach|",
+   "2026=Rob Dallas|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Indiana State|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Paul Lawrence",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Paul Lawrence's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Paul Lawrence",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Paul Lawrence|Head Coach|",
+   "2024=Paul Lawrence|Head Coach|",
+   "2025=Paul Lawrence|Head Coach|",
+   "2026=Paul Lawrence|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Jacksonville State|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Corey Smith",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023, 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Corey Smith",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Tara McQueen|Interim Head Soccer Coach|",
+   "2023=∅|∅|sport-not-on-page",
+   "2024=∅|∅|sport-not-on-page",
+   "2025=Corey Smith|Head Soccer Coach|",
+   "2026=Corey Smith|Head Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Jacksonville|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Ryan Moon",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023, and a season we could not read is not a season in which nobody changed",
+   "coach": "Ryan Moon",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=John Constable|Head Coach|",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Ryan Moon|Head Coach|",
+   "2025=Ryan Moon|Head Coach|",
+   "2026=Ryan Moon|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "James Madison|womens-soccer",
+  "before": {
+   "verdict": "regime-change",
+   "note": "the coach changed and the pattern changed with them — the earlier seasons describe a different programme",
+   "coach": "Rob Donnenwirth",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown",
+   "note": "no coach on file, so these seasons cannot be attributed to anyone",
+   "coach": null,
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Phone Number|Head Coach|",
+   "2023=Phone Number|Head Coach|",
+   "2024=Rob Donnenwirth|Associate Head Coach|",
+   "2025=Rob Donnenwirth|Associate Head Coach|",
+   "2026=Rob Donnenwirth|Associate Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Jamestown|mens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Justin Gilfert",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023 — the rest of the window was Justin Gilfert's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Justin Gilfert",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Austin Shafer|Interim Associate Head Coach|",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Justin Gilfert|Head Coach|",
+   "2025=Justin Gilfert|Head Coach|",
+   "2026=Justin Gilfert|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Jamestown|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Nick Becker",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023 — the rest of the window was Nick Becker's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Nick Becker",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Nick Becker|Head Coach|",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Nick Becker|Head Coach|",
+   "2025=Nick Becker|Head Coach|",
+   "2026=Nick Becker|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Johnson & Wales (Charlotte)|mens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Teddy Bogba",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Teddy Bogba",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Nick Fusco|Interim Head Coach, Men's Soccer|",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Teddy Bogba|Head Coach, Men's Soccer|",
+   "2026=Teddy Bogba|Head Coach, Men's Soccer|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Johnson & Wales University-Charlotte|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Matt Hisler",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Matt Hisler's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Matt Hisler",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Matt Hisler|Head Coach, Women's Soccer|",
+   "2024=Matt Hisler|Head Coach, Women's Soccer|",
+   "2025=Matt Hisler|Head Coach, Women's Soccer|",
+   "2026=Matt Hisler|Head Coach, Women's Soccer|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "LaGrange|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Ryan Dickson",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Ryan Dickson's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Ryan Dickson",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Ryan Dickson|Head Men's Soccer Coach|",
+   "2024=Ryan Dickson|Head Men's Soccer Coach|",
+   "2025=Ryan Dickson|Head Men's Soccer Coach|",
+   "2026=Ryan Dickson|Head Men's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Lake Forest College|womens-soccer",
+  "before": {
+   "verdict": "vacancy-in-window",
+   "note": "no permanent head coach on file for 2022, 2023, 2024 — only the seasons since 2025 describe the programme as it is now",
+   "coach": "Bill Lund",
+   "weightFrom": 2025
+  },
+  "after": {
+   "verdict": "coach-unknown",
+   "note": "no coach on file, so these seasons cannot be attributed to anyone",
+   "coach": null,
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|vacant-or-tba",
+   "2023=∅|∅|vacant-or-tba",
+   "2024=∅|∅|vacant-or-tba",
+   "2025=Bill Lund|Head Strength & Conditioning Coach|",
+   "2026=Bill Lund|Head Strength & Conditioning Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Maranatha Baptist University|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Jeff Pill",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown",
+   "note": "no coach on file, so these seasons cannot be attributed to anyone",
+   "coach": null,
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Jeff Pill|Director of Soccer Operations|",
+   "2024=Jeff Pill|Director of Soccer Operations|",
+   "2025=Jeff Pill|Director of Soccer Operations|",
+   "2026=Jeff Pill|Director of Soccer Operations|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Marietta College|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Zack Votra",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023 — the rest of the window was Zack Votra's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Zack Votra",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-usable-page",
+   "2023=∅|∅|no-usable-page",
+   "2024=Zack Votra|Head Women's Soccer Coach|",
+   "2025=Zack Votra|Head Women's Soccer Coach|",
+   "2026=Zack Votra|Head Women's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Marietta|mens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Joe Bergin",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023 — the rest of the window was Joe Bergin's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Joe Bergin",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-usable-page",
+   "2023=∅|∅|no-usable-page",
+   "2024=Joe Bergin|Head Men's Soccer Coach|",
+   "2025=Joe Bergin|Head Men's Soccer Coach|",
+   "2026=Joe Bergin|Head Men's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Marist|mens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Aaron Suma",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown",
+   "note": "no coach on file, so these seasons cannot be attributed to anyone",
+   "coach": null,
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Aaron Suma|Head Strength and Conditioning Coach|",
+   "2023=Aaron Suma|Head Strength and Conditioning Coach|",
+   "2024=Aaron Suma|Head Strength and Conditioning Coach|",
+   "2025=Aaron Suma|Head Strength and Conditioning Coach|",
+   "2026=Aaron Suma|Head Strength and Conditioning Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Martin Luther|mens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Nicolas Schmoller",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023, 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Nicolas Schmoller",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Timothy Grundmeier|Men's Head Soccer Coach|",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Nicolas Schmoller|Head Men's Soccer Coach|",
+   "2026=Nicolas Schmoller|Head Men's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Mary Baldwin|mens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Zack Clark",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Zack Clark",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Felipe Juarez|Head Coach|",
+   "2023=Felipe Juarez|Head Coach|",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Zack Clark|Head Coach Men's Soccer|",
+   "2026=Zack Clark|Head Coach Men's Soccer|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "McDaniel College|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Michael Scott",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Michael Scott",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Sandy Lagana Bly|Head Coach|",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Michael Scott|Head Coach|",
+   "2026=Michael Scott|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "McDaniel|mens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Steve Corrieri",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2024 — the rest of the window was Steve Corrieri's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Steve Corrieri",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Steve Corrieri|Head Coach|",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Steve Corrieri|Head Coach|",
+   "2026=Steve Corrieri|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Mercyhurst|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Austin Solomon",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023, 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Austin Solomon",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Ryan Osborne|Head Coach|",
+   "2023=∅|∅|no-usable-page",
+   "2024=∅|∅|no-usable-page",
+   "2025=Austin Solomon|Head Coach|",
+   "2026=Austin Solomon|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Metro State Denver|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Nick Kirchhof",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023 — the rest of the window was Nick Kirchhof's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Nick Kirchhof",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Nick Kirchhof|Head Coach|",
+   "2023=∅|∅|no-usable-page",
+   "2024=Nick Kirchhof|Head Coach|",
+   "2025=Nick Kirchhof|Head Coach|",
+   "2026=Nick Kirchhof|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Northern Iowa|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Alex Place Thomas",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Alex Place Thomas",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Bruce Erickson|Head Coach|",
+   "2023=Bruce Erickson|Head Coach|",
+   "2024=∅|∅|school-not-on-page",
+   "2025=Alex Place Thomas|Interim Head Coach|",
+   "2026=Alex Place Thomas|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Notre Dame of Maryland University|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Nathan Rauscher",
+   "weightFrom": 2025
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Nathan Rauscher's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Nathan Rauscher",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-usable-page",
+   "2024=∅|∅|no-usable-page",
+   "2025=Nathan Rauscher|Head Coach|",
+   "2026=Nathan Rauscher|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Ohio State|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Brian Maisonneuve",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2024 — the rest of the window was Brian Maisonneuve's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Brian Maisonneuve",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Brian Maisonneuve|Head Coach|",
+   "2023=Brian Maisonneuve|Head Coach|",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Brian Maisonneuve|Head Coach|",
+   "2026=Brian Maisonneuve|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "PennWest Clarion|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Jason Edwards",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Jason Edwards's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Jason Edwards",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Jason Edwards|Head Coach|",
+   "2024=Jason Edwards|Head Coach|",
+   "2025=Jason Edwards|Head Coach|",
+   "2026=Jason Edwards|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Pitzer College|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Miranda Armstrong",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023, 2024 — the rest of the window was Miranda Armstrong's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Miranda Armstrong",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Miranda Armstrong|Acting Head Soccer Coach|",
+   "2026=Miranda Armstrong|Acting Head Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Pomona College|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Miranda Armstrong",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023, 2024 — the rest of the window was Miranda Armstrong's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Miranda Armstrong",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Miranda Armstrong|Acting Head Soccer Coach|",
+   "2026=Miranda Armstrong|Acting Head Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Pomona-Pitzer|mens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Clint Moore",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023, 2024 — the rest of the window was Clint Moore's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Clint Moore",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Clint Moore|Head Men's Soccer Coach|",
+   "2026=Clint Moore|Head Men's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Queens|womens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Shannon Neely Noel",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023, 2024 — the rest of the window was Shannon Neely Noel's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Shannon Neely Noel",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Shannon Neely Noel|Head Women's Soccer Coach|",
+   "2026=Shannon Neely Noel|Head Women's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Richmond|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Adam Denton",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Adam Denton's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Adam Denton",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Adam Denton|Head Coach|",
+   "2024=Adam Denton|Head Coach|",
+   "2025=Adam Denton|Head Coach|",
+   "2026=Adam Denton|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Rochester Institute of Technology|mens-soccer",
+  "before": {
+   "verdict": "regime-change",
+   "note": "the coach changed and the pattern changed with them — the earlier seasons describe a different programme",
+   "coach": "Bill Garno",
+   "weightFrom": 2023
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Bill Garno's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Bill Garno",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Yuri Lavrynenko|Associate Head Coach:|",
+   "2023=Bill Garno|Head Coach:|",
+   "2024=Bill Garno|Head Coach:|",
+   "2025=Bill Garno|Head Coach:|",
+   "2026=Bill Garno|Head Coach:|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Rochester Institute of Technology|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Liz Masterson",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2023 — the rest of the window was Liz Masterson's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Liz Masterson",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Liz Masterson|Head Coach:|",
+   "2025=Liz Masterson|Head Coach:|",
+   "2026=Liz Masterson|Head Coach:|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Saint Joseph's|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Tim Mulqueen",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Tim Mulqueen",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Don D'Ambra|Head Coach|",
+   "2023=Don D'Ambra|Head Coach|",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Tim Mulqueen|Head Coach|",
+   "2026=Tim Mulqueen|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Sam Houston|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Kendall Ayers",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2024, and a season we could not read is not a season in which nobody changed",
+   "coach": "Kendall Ayers",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Sonia Curvelo|Head Coach|",
+   "2023=Sonia Curvelo|Head Coach|",
+   "2024=∅|∅|sport-not-on-page",
+   "2025=Kendall Ayers|Head Coach|",
+   "2026=Kendall Ayers|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Scripps College|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "David Nolan",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was David Nolan's, and a season we could not read is not a season in which nobody changed",
+   "coach": "David Nolan",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=David Nolan|Head Coach|",
+   "2024=David Nolan|Head Coach|",
+   "2025=David Nolan|Head Coach|",
+   "2026=David Nolan|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Shaw|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Dr. Randy McClure",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2025 — the rest of the window was Dr. Randy McClure's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Dr. Randy McClure",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Dr. Randy McClure|Head Men's & Women's Soccer Coach|",
+   "2023=Dr. Randy McClure|Head Men's & Women's Soccer Coach|",
+   "2024=Dr. Randy McClure|Head Men's & Women's Soccer Coach|",
+   "2025=∅|∅|vacant-or-tba",
+   "2026=∅|∅|vacant-or-tba"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Shawnee State|mens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Stan Rodrigues",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Stan Rodrigues's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Stan Rodrigues",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Stan Rodrigues|Head Coach|",
+   "2024=Stan Rodrigues|Head Coach|",
+   "2025=Stan Rodrigues|Head Coach|",
+   "2026=Stan Rodrigues|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Shenandoah University|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Brett Sabol",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown",
+   "note": "no coach on file, so these seasons cannot be attributed to anyone",
+   "coach": null,
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Brett Sabol|Head Strength Coach|",
+   "2023=Brett Sabol|Head Strength Coach|",
+   "2024=Brett Sabol|Head Strength Coach|",
+   "2025=Brett Sabol|Head Strength Coach|",
+   "2026=Brett Sabol|Head Strength Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Southern Illinois|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Graeme Orr",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Graeme Orr's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Graeme Orr",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Graeme Orr|Head Coach|",
+   "2024=Graeme Orr|Head Coach|",
+   "2025=Graeme Orr|Head Coach|",
+   "2026=Graeme Orr|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "St. Mary's College of Maryland|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Jaime Webster",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023 — the rest of the window was Jaime Webster's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Jaime Webster",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Jaime Webster|Head Coach|",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Jaime Webster|Head Coach|",
+   "2025=Jaime Webster|Head Coach|",
+   "2026=Jaime Webster|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Stanford|mens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Drew Hutchins",
+   "weightFrom": 2025
+  },
+  "after": {
+   "verdict": "coach-unknown",
+   "note": "no coach on file, so these seasons cannot be attributed to anyone",
+   "coach": null,
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Drew Hutchins|Associate Head Coach|",
+   "2026=Drew Hutchins|Associate Head Coach|"
+  ],
+  "describes": [
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Stanford|womens-soccer",
+  "before": {
+   "verdict": "new-coach-no-record",
+   "note": "Paul Hart took over for 2026 and has not yet coached a season we can measure — the figures below are the previous staff's",
+   "coach": "Paul Hart",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown",
+   "note": "no coach on file, so these seasons cannot be attributed to anyone",
+   "coach": null,
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=∅|∅|no-head-coach-found",
+   "2026=Paul Hart|Catarina Macario Associate Head Coach|"
+  ],
+  "describes": [
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "SUNY Geneseo|mens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Mark Howlett",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Mark Howlett's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Mark Howlett",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Mark Howlett|Head Coach|",
+   "2024=Mark Howlett|Head Coach|",
+   "2025=Mark Howlett|Head Coach|",
+   "2026=Mark Howlett|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "SUNY Purchase College|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "James Oates",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was James Oates's, and a season we could not read is not a season in which nobody changed",
+   "coach": "James Oates",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=James Oates|Head Coach|",
+   "2024=James Oates|Head Coach|",
+   "2025=James Oates|Head Coach|",
+   "2026=James Oates|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Texas Lutheran University|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Kerwin Johnson",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Kerwin Johnson's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Kerwin Johnson",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Kerwin Johnson|Head Coach|",
+   "2024=Kerwin Johnson|Head Coach|",
+   "2025=Kerwin Johnson|Head Coach|",
+   "2026=Kerwin Johnson|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Thiel College|womens-soccer",
+  "before": {
+   "verdict": "new-coach-no-record",
+   "note": "Zack Walters took over for 2026 and has not yet coached a season we can measure — the figures below are the previous staff's",
+   "coach": "Zack Walters",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no coach on file for 2026 — the seasons through 2025 were Sports Information's, and we are not assuming he stayed",
+   "coach": "Sports Information",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Sports Information|Head Coach Directory|",
+   "2023=Carl Dei Cas|Head Coach|",
+   "2024=Carl Dei Cas|Head Coach|",
+   "2025=Sports Information|Head Coach Directory|",
+   "2026=Zack Walters|Director of Soccer|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Tiffin|mens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Rudy Brownell",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no coach on file for 2025, 2026 — the seasons through 2024 were Rudy Brownell's, and we are not assuming he stayed",
+   "coach": "Rudy Brownell",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Rudy Brownell|Head Coach - 21st Season|",
+   "2023=Rudy Brownell|Head Coach - 21st Season|",
+   "2024=Rudy Brownell|Head Coach|",
+   "2025=Rudy Brownell|Director of Soccer Operations|",
+   "2026=Rudy Brownell|Director of Soccer Operations|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Tiffin|womens-soccer",
+  "before": {
+   "verdict": "new-coach-no-record",
+   "note": "Rudy Brownell took over for 2026 and has not yet coached a season we can measure — the figures below are the previous staff's",
+   "coach": "Rudy Brownell",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no coach on file for 2026 — the seasons through 2025 were Michael Cracas's, and we are not assuming he stayed",
+   "coach": "Michael Cracas",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Michael Cracas|Head Coach - 3rd Season|",
+   "2023=Michael Cracas|Head Coach - 3rd Season|",
+   "2024=Michael Cracas|Head Coach|",
+   "2025=Michael Cracas|Head Coach|",
+   "2026=Rudy Brownell|Director of Soccer Operations|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "UAB|mens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "David Lilly",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023, and a season we could not read is not a season in which nobody changed",
+   "coach": "David Lilly",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Jeff Kinney|Head Coach|",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=David Lilly|Head Coach|",
+   "2025=David Lilly|Head Coach|",
+   "2026=David Lilly|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "UC San Diego|mens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Jon Pascale",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023 — the rest of the window was Jon Pascale's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Jon Pascale",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Jon Pascale|Head Coach|",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Jon Pascale|Head Coach|",
+   "2025=Jon Pascale|Head Coach|",
+   "2026=Jon Pascale|Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "University of Maine at Presque Isle|womens-soccer",
+  "before": {
+   "verdict": "regime-change",
+   "note": "the coach changed and the pattern changed with them — the earlier seasons describe a different programme",
+   "coach": "John Ala",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023, and a season we could not read is not a season in which nobody changed",
+   "coach": "John Ala",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Colby Phillips|Head Coach Women's Soccer|",
+   "2023=Keli Marston|Head Strength and Conditioning Coach - Women's Soccer Assistant Coach|",
+   "2024=John Ala|Head Women's Soccer Coach|",
+   "2025=John Ala|Head Women's Soccer Coach|",
+   "2026=John Ala|Head Women's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "University of Pittsburgh-Greensburg|womens-soccer",
+  "before": {
+   "verdict": "steady",
+   "note": "one coach, a consistent pattern — every season counts and the record is as firm as this gets",
+   "coach": "Chuck Wigle",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022, 2024 — the rest of the window was Chuck Wigle's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Chuck Wigle",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Chuck Wigle|Head Women's Soccer Coach | Creative Content Coordinator|",
+   "2024=∅|∅|no-head-coach-found",
+   "2025=Chuck Wigle|Head Women's Soccer Coach | Creative Content Coordinator|",
+   "2026=Chuck Wigle|Head Women's Soccer Coach | Creative Content Coordinator|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "University of Wisconsin-Platteville|womens-soccer",
+  "before": {
+   "verdict": "regime-change",
+   "note": "the coach changed and the pattern changed with them — the earlier seasons describe a different programme",
+   "coach": "Eliza Denmeade",
+   "weightFrom": 2023
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Eliza Denmeade's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Eliza Denmeade",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Sam Koenig|Director of Soccer|",
+   "2023=Eliza Denmeade|Head Coach|",
+   "2024=Eliza Denmeade|Women's Head Coach | Sports Performance Fellow|",
+   "2025=Eliza Denmeade|Women's Head Coach | Sports Performance Fellow|",
+   "2026=Eliza Denmeade|Women's Head Coach | Sports Performance Fellow|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Virginia Tech|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Drew Kopp",
+   "weightFrom": 2025
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no coach on file for 2026 — the seasons through 2025 were Drew Kopp's, and we are not assuming he stayed",
+   "coach": "Drew Kopp",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Drew Kopp|Associate Head Coach|",
+   "2023=Drew Kopp|Associate Head Coach|",
+   "2024=Drew Kopp|Associate Head Coach|",
+   "2025=Drew Kopp|Head Coach|",
+   "2026=Drew Kopp|Associate Head Coach|"
+  ],
+  "describes": [
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Wake Forest|womens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Brittany Cameron",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown",
+   "note": "no coach on file, so these seasons cannot be attributed to anyone",
+   "coach": null,
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Brittany Cameron|Associate Head Coach|",
+   "2023=Brittany Cameron|Associate Head Coach|",
+   "2024=Brittany Cameron|Associate Head Coach|",
+   "2025=Brittany Cameron|Associate Head Coach|",
+   "2026=Brittany Cameron|Associate Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Warren Wilson College|womens-soccer",
+  "before": {
+   "verdict": "policy-shift-same-coach",
+   "note": "the same coach, but the recent seasons look different from the early ones — weight the recent ones",
+   "coach": "Maximiliano Viera",
+   "weightFrom": 2024
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2023, and a season we could not read is not a season in which nobody changed",
+   "coach": "Maximiliano Viera",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Heather Davis|Head Coach Women's Soccer Coach|",
+   "2023=∅|∅|no-head-coach-found",
+   "2024=Maximiliano Viera|Head Women's Soccer Coach|",
+   "2025=Maximiliano Viera|Head Women's Soccer Coach|",
+   "2026=Maximiliano Viera|Head Women's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "West Liberty|womens-soccer",
+  "before": {
+   "verdict": "erratic-same-coach",
+   "note": "one coach throughout, and the freshman policy swings season to season — treat any single year with caution",
+   "coach": "Pete McMenemy",
+   "weightFrom": null
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Pete McMenemy's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Pete McMenemy",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=∅|∅|no-head-coach-found",
+   "2023=Pete McMenemy|Head Women's Soccer Coach|",
+   "2024=Pete McMenemy|Head Women's Soccer Coach|",
+   "2025=Pete McMenemy|Head Women's Soccer Coach|",
+   "2026=Pete McMenemy|Head Women's Soccer Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ },
+ {
+  "programme": "Wisconsin-Platteville|mens-soccer",
+  "before": {
+   "verdict": "regime-change",
+   "note": "the coach changed and the pattern changed with them — the earlier seasons describe a different programme",
+   "coach": "Jesse Tinney",
+   "weightFrom": 2023
+  },
+  "after": {
+   "verdict": "coach-unknown-recent",
+   "note": "no head coach on file for 2022 — the rest of the window was Jesse Tinney's, and a season we could not read is not a season in which nobody changed",
+   "coach": "Jesse Tinney",
+   "weightFrom": null
+  },
+  "coachRows": [
+   "2022=Sam Koenig|Director of Soccer|",
+   "2023=Jesse Tinney|Head Coach|",
+   "2024=Jesse Tinney|Men's Head Coach|",
+   "2025=Jesse Tinney|Men's Head Coach|",
+   "2026=Jesse Tinney|Men's Head Coach|"
+  ],
+  "describes": [
+   "2022",
+   "2023",
+   "2024",
+   "2025"
+  ]
+ }
+]

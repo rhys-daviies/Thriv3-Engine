@@ -38,6 +38,20 @@ export function createRateLimiter({ limit, windowMs, maxKeys = 10_000 }) {
       return bucket.count <= limit;
     },
 
+    /**
+     * Forget one key's budget.
+     *
+     * Added in 13K for sign-in: a SUCCESSFUL login clears the account's
+     * counter, so somebody who types their password correctly is never locked
+     * out by having signed in a few times, while an attacker guessing wrongly
+     * stays bounded. Found in live testing, where five sign-ins in a quarter
+     * of an hour — a restart, a second tab, a rotated secret — was enough to
+     * refuse the real operator.
+     */
+    clear(key) {
+      return buckets.delete(key);
+    },
+
     reset() {
       buckets.clear();
     },

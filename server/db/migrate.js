@@ -344,6 +344,67 @@ const RECRUITING_ARRIVAL_COLUMNS = [
   ['reconciled_from', 'TEXT'],
 ];
 
+/**
+ * Retires `programme_seasons.historical_division`, which 12B.1 added and 12D
+ * moved (Phase 12D / O).
+ *
+ * It was always null. It is owned by `programme_conference_seasons` now, and
+ * the reason it could not stay is mechanical rather than aesthetic:
+ * `importProgrammeSeasons.js` rebuilds its table with `DELETE FROM
+ * programme_seasons` and a full re-insert, so a column that importer does not
+ * write is emptied by every routine records refresh. The benchmark would have
+ * stopped producing percentiles with nothing raised anywhere.
+ *
+ * The index has to go first — SQLite refuses to drop an indexed column — and
+ * is recreated on the narrower key. Any value in the column is discarded, and
+ * on every database that has one that value is null.
+ */
+/**
+ * Phase 12E added membership provenance and a record status to
+ * `programme_conference_seasons`. Both have defaults that describe every row
+ * 12D wrote — every one of them came from a conference's own standings table
+ * and carried a record — so an existing table upgrades without a rebuild.
+ */
+/**
+ * Phase 12E.1 added a conference scope to `institution_aliases`. Every row 12E
+ * wrote is global, which is what the default says, so an existing table upgrades
+ * without a rebuild — but the primary key changes with it, so the table is
+ * rebuilt where the old single-column key is still in place.
+ */
+function scopeInstitutionAliases(db) {
+  if (!db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'institution_aliases'").get().n) return;
+  const cols = db.prepare('PRAGMA table_info(institution_aliases)').all();
+  if (cols.some((c) => c.name === 'conference_scope')) return;
+  const names = cols.map((c) => c.name).join(', ');
+  db.exec(`
+    ALTER TABLE institution_aliases RENAME TO institution_aliases_pre_12e1;
+    CREATE TABLE institution_aliases (
+      alias_key TEXT NOT NULL, alias_raw TEXT NOT NULL, unitid INTEGER NOT NULL,
+      conference_scope TEXT NOT NULL DEFAULT '*',
+      alias_type TEXT NOT NULL, source TEXT NOT NULL, confidence TEXT NOT NULL,
+      notes TEXT, imported_at TEXT NOT NULL,
+      PRIMARY KEY (alias_key, conference_scope)
+    );
+    INSERT INTO institution_aliases (${names}) SELECT ${names} FROM institution_aliases_pre_12e1;
+    DROP TABLE institution_aliases_pre_12e1;
+    CREATE INDEX IF NOT EXISTS idx_institution_aliases_unitid ON institution_aliases(unitid);
+    CREATE INDEX IF NOT EXISTS idx_institution_aliases_scope ON institution_aliases(conference_scope);
+  `);
+}
+
+const PCS_COLUMNS = [
+  ['membership_provenance', "TEXT NOT NULL DEFAULT 'OFFICIAL_CONFERENCE_STANDINGS'"],
+  ['record_status', "TEXT NOT NULL DEFAULT 'RECORD_KNOWN'"],
+];
+
+function retireProgrammeSeasonDivision(db) {
+  const cols = db.prepare('PRAGMA table_info(programme_seasons)').all().map((c) => c.name);
+  if (!cols.includes('historical_division')) return;
+  db.exec('DROP INDEX IF EXISTS idx_programme_seasons_pool');
+  db.exec('ALTER TABLE programme_seasons DROP COLUMN historical_division');
+  db.exec('CREATE INDEX IF NOT EXISTS idx_programme_seasons_pool ON programme_seasons(sport, season)');
+}
+
 function addMissingColumns(db, table, columns) {
   const existing = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name));
   for (const [name, ddl] of columns) {
@@ -407,9 +468,21 @@ function backfillVideoIds(db) {
   }
 }
 
-/** Every athlete gets a stable random slug; it is never re-rolled once set. */
+/**
+ * Every LIVE athlete gets a stable random slug; it is never re-rolled once set.
+ *
+ * ARCHIVED ROWS ARE SKIPPED — 13I / §31. An archived athlete has no public
+ * profile: `publicProfileHandler` returns the same neutral response for an
+ * archived row as for an unknown slug, and `publish` refuses one outright. So
+ * a slug on an archived row is a handle that resolves to nothing, and giving
+ * one to every row regardless meant the seeded women's-soccer QA fixture
+ * acquired a public handle on the next migration after it was created. A row
+ * that is later un-archived is picked up by the next run, which is when it
+ * first needs one.
+ */
 function backfillSlugs(db) {
-  const rows = db.prepare('SELECT id FROM players WHERE public_slug IS NULL').all();
+  const rows = db.prepare(
+    'SELECT id FROM players WHERE public_slug IS NULL AND archived_at IS NULL').all();
   const taken = db.prepare('SELECT 1 FROM players WHERE public_slug = ?');
   const update = db.prepare('UPDATE players SET public_slug = ? WHERE id = ?');
   for (const row of rows) {
@@ -573,6 +646,40 @@ function backfillSendEvents(db) {
   return n;
 }
 
+/**
+ * Delivery history — Phase 13J. `generated_reports` is created by schema.sql,
+ * which uses CREATE TABLE IF NOT EXISTS and therefore cannot add a column to a
+ * table that already exists in the field. `content_sha256` was added after the
+ * first databases had the table, so it is owned here like every other added
+ * column.
+ *
+ * `generated_by` / `generated_by_email` follow in Phase 13K, once there is an
+ * authenticated operator to attribute a generation to. They answer "who
+ * generated the document we sent", which nothing else could answer.
+ *
+ * REVERSIBLE. All three are nullable with no default, so dropping them restores
+ * the previous shape exactly and nothing reads them as required:
+ *
+ *   ALTER TABLE generated_reports DROP COLUMN content_sha256;
+ *   ALTER TABLE generated_reports DROP COLUMN generated_by;
+ *   ALTER TABLE generated_reports DROP COLUMN generated_by_email;
+ *
+ * Rows written before a column existed simply carry null. The operator screen
+ * renders a null fingerprint as no fingerprint and a null operator as no
+ * attribution, rather than as an error: a report generated before there were
+ * accounts was still generated, and its artefact is still valid.
+ *
+ * The email is denormalised beside the id for the same reason `athlete_name`
+ * and `college_name` are — history has to read correctly years later, including
+ * after an account is deleted, and an id alone would then attribute a sent
+ * document to nobody.
+ */
+const GENERATED_REPORT_COLUMNS = [
+  ['content_sha256', 'TEXT'],
+  ['generated_by', 'TEXT'],
+  ['generated_by_email', 'TEXT'],
+];
+
 export function migrate(db) {
   addMissingColumns(db, 'players', PLAYER_COLUMNS);
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_players_public_slug ON players(public_slug)');
@@ -624,6 +731,18 @@ export function migrate(db) {
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_evidence_selected ON outreach_evidence(selected_kinds)');
   backfillSendEvents(db);
   addMissingColumns(db, 'recruiting_arrivals', RECRUITING_ARRIVAL_COLUMNS);
+  retireProgrammeSeasonDivision(db);
+  scopeInstitutionAliases(db);
+  if (db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'programme_conference_seasons'").get().n) {
+    addMissingColumns(db, 'programme_conference_seasons', PCS_COLUMNS);
+  }
   backfillRecruitingClassYear(db);
   backfillAcademicRatingSource(db);
+
+  // Guarded the same way `programme_conference_seasons` is: the table arrives
+  // with schema.sql, and on a database from before it existed there is nothing
+  // to alter yet.
+  if (db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'generated_reports'").get().n) {
+    addMissingColumns(db, 'generated_reports', GENERATED_REPORT_COLUMNS);
+  }
 }
