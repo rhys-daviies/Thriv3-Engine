@@ -236,7 +236,15 @@ describe('E. region and region x position', () => {
     const o = p().regionPositions.pairs['OCEANIA||DEFENSE'];
     expect(o.total).toBe(2);
     expect(o.specificity).toBe(SPECIFICITY.REGION_POSITION);
-    expect(p().regionPositions.pairs['EUROPE||MIDFIELD'].total).toBe(1);
+    /*
+     * K3D: the REGION x POSITION cut keys on the RECRUITING relevance region,
+     * so Spain is WESTERN_EUROPE here. The broad `regions` tally above still
+     * says EUROPE, and that separation is the point — what may be claimed got
+     * tighter without changing what is counted.
+     */
+    expect(p().regionPositions.pairs['EUROPE||MIDFIELD']).toBeUndefined();
+    expect(p().regionPositions.pairs['WESTERN_EUROPE||MIDFIELD'].total).toBe(1);
+    expect(p().regions.regions.EUROPE.total).toBe(1);
   });
 });
 

@@ -90,7 +90,26 @@
  * untouched — which is why OUTBOUND_DECISION did not move on the copy half of
  * this package.
  */
-export const OUTREACH_POLICY_VERSION = 'P4';
+/**
+ * ---------------------------------------------------------------------------
+ * P5 — K3D. One change, and it is a qualification change, which is why this
+ * moves at all: the copy, the recency threshold, the licensing and the
+ * country-list rule are all exactly as P4 left them.
+ *
+ *   QUALIFICATION ARRIVAL_SAME_REGION_POSITION now requires the athlete and
+ *                 the arrival to share a RECRUITING RELEVANCE region rather
+ *                 than a broad analysis region. EUROPE, AFRICA, ASIA and
+ *                 LATIN_AMERICA are split; OCEANIA, UK_IRELAND, CARIBBEAN,
+ *                 MIDDLE_EAST and NORTH_AMERICA keep their broad grouping
+ *                 because the data says they are already tight. A country in a
+ *                 split region with no sub-region produces silence, not a
+ *                 fallback.
+ *
+ * Simulated at 58% fewer qualifying regional cuts, and none of them in the
+ * regions that were already tight. A P4 send and a P5 send offered the same
+ * words for a different set of relationships, so their reply rates do not pool.
+ */
+export const OUTREACH_POLICY_VERSION = 'P5';
 
 /**
  * Everything sent before P2, and the only value that may be written to a
@@ -130,6 +149,8 @@ export const KNOWN_POLICY_VERSIONS = Object.freeze([
    * send is migrated: a stored version records what produced that email.
    */
   'P3',
+  /** Retired from new writes at K3D, still nameable. No send is migrated. */
+  'P4',
   OUTREACH_POLICY_VERSION,
 ]);
 

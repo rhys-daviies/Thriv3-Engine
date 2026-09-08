@@ -50,7 +50,7 @@
 
 import { POSITIONS } from '../positions.js';
 import { ARRIVAL_TRANSITIONS, COACH_ATTRIBUTION, ENTRY_TYPE } from './arrivals.js';
-import { canonicalCountry, regionOf } from './regions.js';
+import { canonicalCountry, regionOf, recruitingRegionOf } from './regions.js';
 
 /** Comparable transitions required before a scope may be described. */
 export const COVERAGE_FLOOR = 3;
@@ -267,6 +267,20 @@ export const countryOf = (a) => canonicalCountry(a?.country);
  */
 export const regionOfArrival = (a) => regionOf(a?.country);
 
+/**
+ * The grouping the REGION x POSITION cut keys on, which is not the same one.
+ *
+ * `regionOfArrival` stays broad and keeps feeding the `regions` tally, because
+ * a coverage report wants every country placed. This one is the outreach
+ * relevance layer, and the two are deliberately separate: K3D tightened what
+ * may be CLAIMED without changing what is COUNTED.
+ *
+ * Returns null for a country inside a split region that has no sub-region, and
+ * a null key drops the row from the cut entirely — silence rather than a
+ * fallback to the bucket we just decided was too loose.
+ */
+export const recruitingRegionOfArrival = (a) => recruitingRegionOf(a?.country);
+
 /** The one row shape every aggregation in this file returns. */
 function observe(rows, { key = null, coverage, specificity, dataStatus = null }) {
   const seasons = uniqSorted(rows.map((r) => String(r.arrivalSeason)));
@@ -475,7 +489,7 @@ export function regionPositionHistory(arrivals = [], ctx = {}) {
 
   const byPair = new Map();
   for (const a of arrivals) {
-    const region = regionOfArrival(a);
+    const region = recruitingRegionOfArrival(a);
     if (!region) continue;
     const position = a.canonicalPosition ?? 'UNKNOWN';
     const key = `${region}||${position}`;
@@ -749,6 +763,9 @@ export function observationsFor(player = {}, patterns = null) {
 
   const country = canonicalCountry(player.country);
   const region = country ? regionOf(country) : null;
+  // The REGION x POSITION cut is keyed on relevance, so the athlete side must
+  // be looked up with the same taxonomy the arrivals were bucketed by.
+  const recruitingRegion = country ? recruitingRegionOf(country) : null;
   const position = player.canonicalPosition ?? player.position ?? null;
   const entryType = player.entryType ?? null;
 
@@ -777,9 +794,12 @@ export function observationsFor(player = {}, patterns = null) {
     })
     : null;
 
-  const regionPositionObs = region && position
-    ? orEmpty(patterns.regionPositions.pairs[`${region}||${position}`], {
-      key: `${region}||${position}`, coverage, dataStatus, specificity: SPECIFICITY.REGION_POSITION,
+  const regionPositionObs = recruitingRegion && position
+    ? orEmpty(patterns.regionPositions.pairs[`${recruitingRegion}||${position}`], {
+      key: `${recruitingRegion}||${position}`,
+      coverage,
+      dataStatus,
+      specificity: SPECIFICITY.REGION_POSITION,
     })
     : null;
 

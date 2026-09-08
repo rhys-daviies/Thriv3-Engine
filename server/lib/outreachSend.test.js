@@ -267,9 +267,9 @@ describe('policy version', () => {
     /**
      * The stamp must be the CURRENT version, whatever it is — that is the
      * property worth protecting, and pinning the letter here just means two
-     * files to edit at every bump. P4 since K3C; P3 since J8.
+     * files to edit at every bump. P5 since K3D; P4 since K3C; P3 since J8.
      */
-    expect(OUTREACH_POLICY_VERSION).toBe('P4');
+    expect(OUTREACH_POLICY_VERSION).toBe('P5');
   });
 
   it('cannot silently disappear', () => {
@@ -282,7 +282,7 @@ describe('policy version', () => {
   it('has one owner, and keeps every version it has ever shipped', () => {
     // P2 is retired and still known: a row carrying it must be nameable, not
     // treated as corruption, and never rewritten.
-    expect(KNOWN_POLICY_VERSIONS).toEqual([LEGACY_POLICY_VERSION, 'P2', 'P3', OUTREACH_POLICY_VERSION]);
+    expect(KNOWN_POLICY_VERSIONS).toEqual([LEGACY_POLICY_VERSION, 'P2', 'P3', 'P4', OUTREACH_POLICY_VERSION]);
     expect(LEGACY_POLICY_VERSION).toBe('LEGACY_UNKNOWN');
   });
 

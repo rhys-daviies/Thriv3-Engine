@@ -165,6 +165,114 @@ export function countryPhrase(country) {
   return ARTICLE_COUNTRIES.has(canonical) ? `the ${canonical}` : canonical;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Recruiting relevance                                                        */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * A SECOND, TIGHTER GEOGRAPHY, AND WHY THERE ARE TWO.
+ *
+ * `REGIONS` below is an ANALYSIS taxonomy. It wants every country placed
+ * somewhere so a coverage report has no holes, and 50 countries in EUROPE is
+ * the right answer to "how many European arrivals were there".
+ *
+ * It is the wrong answer to "would this coach read Sweden and Spain as the
+ * same part of the world", and K4 measured the cost: Spain->Sweden fired 20
+ * times, Japan->India 9, Ghana->Morocco 4. True sentences, thin relationships,
+ * and each one taking the hook slot at the top of an email.
+ *
+ * So outreach relevance gets its own layer rather than a redefinition of the
+ * shared one. `generate.js` reached the same conclusion from the other
+ * direction and kept a two-country OCEANIA map, with a docstring warning
+ * against "a large subjective classification of the world". This is that
+ * warning applied to the buckets that grew anyway.
+ *
+ * ---------------------------------------------------------------------------
+ * ONLY FOUR BUCKETS ARE SPLIT, AND THE OTHERS ARE LEFT ALONE ON EVIDENCE.
+ *
+ * OCEANIA observes three countries and is really Australia<->New Zealand;
+ * UK_IRELAND observes four and is really United Kingdom<->Ireland;
+ * NORTH_AMERICA observes one; MIDDLE_EAST observes eleven compact ones; and
+ * CARIBBEAN observes 22 island nations that are one football market — K4
+ * listed it as a candidate and the data does not support splitting it.
+ *
+ * WESTERN_EUROPE IS DELIBERATELY LARGE. The first draft of this map split the
+ * contiguous core into Iberia, Western and Central, and the simulation showed
+ * it removing Germany<->Spain (1,274 arrivals) and France<->Germany (720) —
+ * the two heaviest relationships in the whole dataset, between adjacent major
+ * football nations. Those are not weak hooks, and a taxonomy that cuts them is
+ * measuring tidiness rather than relevance.
+ */
+const RECRUITING_REGIONS = Object.freeze({
+  WESTERN_EUROPE: Object.freeze(['Spain', 'Portugal', 'Andorra', 'Gibraltar', 'France', 'Monaco',
+    'Netherlands', 'Belgium', 'Luxembourg', 'Germany', 'Austria', 'Switzerland', 'Liechtenstein',
+    'Italy', 'San Marino', 'Vatican City', 'Malta']),
+  NORDICS: Object.freeze(['Sweden', 'Norway', 'Denmark', 'Finland', 'Iceland', 'Faroe Islands']),
+  EASTERN_EUROPE: Object.freeze(['Poland', 'Czechia', 'Slovakia', 'Hungary', 'Slovenia', 'Croatia',
+    'Serbia', 'Bosnia and Herzegovina', 'Montenegro', 'North Macedonia', 'Albania', 'Kosovo',
+    'Bulgaria', 'Romania', 'Ukraine', 'Belarus', 'Moldova', 'Lithuania', 'Latvia', 'Estonia',
+    'Russia']),
+  WEST_AFRICA: Object.freeze(['Ghana', 'Nigeria', 'Senegal', 'Liberia', 'Côte d\'Ivoire',
+    'Sierra Leone', 'Mali', 'Burkina Faso', 'Gambia', 'Togo', 'Guinea', 'Guinea-Bissau', 'Benin',
+    'Cabo Verde', 'Niger', 'Mauritania']),
+  NORTH_AFRICA: Object.freeze(['Morocco', 'Egypt', 'Tunisia', 'Algeria', 'Libya']),
+  EAST_AFRICA: Object.freeze(['Kenya', 'Uganda', 'Tanzania', 'Ethiopia', 'Rwanda', 'Burundi',
+    'Somalia', 'Djibouti', 'Eritrea', 'South Sudan', 'Sudan']),
+  SOUTHERN_AFRICA: Object.freeze(['South Africa', 'Zimbabwe', 'Zambia', 'Botswana', 'Malawi',
+    'Mozambique', 'Lesotho', 'Namibia', 'Eswatini', 'Angola']),
+  CENTRAL_AFRICA: Object.freeze(['Cameroon', 'Democratic Republic of the Congo', 'Congo', 'Gabon',
+    'Chad', 'Central African Republic', 'Equatorial Guinea', 'Sao Tome and Principe']),
+  EAST_ASIA: Object.freeze(['Japan', 'South Korea', 'North Korea', 'China', 'Taiwan', 'Hong Kong',
+    'Macao', 'Mongolia']),
+  SOUTH_ASIA: Object.freeze(['India', 'Nepal', 'Pakistan', 'Bangladesh', 'Sri Lanka', 'Bhutan',
+    'Maldives', 'Afghanistan']),
+  SOUTHEAST_ASIA: Object.freeze(['Singapore', 'Thailand', 'Malaysia', 'Philippines', 'Vietnam',
+    'Indonesia', 'Myanmar', 'Cambodia', 'Laos', 'Brunei', 'Timor-Leste']),
+  CENTRAL_ASIA: Object.freeze(['Kazakhstan', 'Kyrgyzstan', 'Tajikistan', 'Turkmenistan',
+    'Uzbekistan']),
+  SOUTH_AMERICA: Object.freeze(['Brazil', 'Colombia', 'Argentina', 'Chile', 'Venezuela', 'Ecuador',
+    'Peru', 'Paraguay', 'Uruguay', 'Bolivia', 'Suriname', 'French Guiana']),
+  CENTRAL_AMERICA: Object.freeze(['Mexico', 'Costa Rica', 'Honduras', 'Panama', 'Guatemala',
+    'El Salvador', 'Nicaragua', 'Belize']),
+});
+
+/**
+ * The broad regions whose members must match at sub-region level.
+ *
+ * A region NOT in this set keeps its broad grouping, because the evidence says
+ * it is already tight enough to mean something.
+ */
+const SPLIT_REGIONS = Object.freeze(new Set(['EUROPE', 'AFRICA', 'ASIA', 'LATIN_AMERICA']));
+
+/**
+ * The grouping outreach relevance uses, or null when we will not claim one.
+ *
+ * NULL IS A REAL ANSWER AND IT MEANS SILENCE. A country inside a split region
+ * with no sub-region gets no regional hook at all — it does not fall back to
+ * the broad bucket, because the broad bucket is the thing we just decided was
+ * too loose to carry the claim. Today that is Turkey, Greece and Cyprus, whose
+ * nearest neighbours sit across a boundary nobody would defend in one word,
+ * and three Indian Ocean islands. Between them, 170 arrivals that will now say
+ * nothing rather than say something weak.
+ */
+export function recruitingRegionOf(country) {
+  const canonical = canonicalCountry(country);
+  if (!canonical) return null;
+  const broad = regionOf(canonical);
+  if (!broad) return null;
+  if (!SPLIT_REGIONS.has(broad)) return broad;
+  for (const [key, members] of Object.entries(RECRUITING_REGIONS)) {
+    if (members.includes(canonical)) return key;
+  }
+  return null;
+}
+
+/** For tests and for anyone auditing the relevance taxonomy. */
+export const recruitingRegions = () => Object.fromEntries(
+  Object.entries(RECRUITING_REGIONS).map(([k, v]) => [k, [...v]]),
+);
+export const splitRegions = () => [...SPLIT_REGIONS];
+
 /** The article list, for tests and for anyone auditing display grammar. */
 export const articleCountries = () => [...ARTICLE_COUNTRIES];
 
