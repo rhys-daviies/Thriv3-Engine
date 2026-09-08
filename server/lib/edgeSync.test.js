@@ -16,7 +16,7 @@ let pages = [];
 let tokensReply = null;
 
 beforeEach(() => {
-  db.exec('DELETE FROM sync_state; DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
+  db.exec('DELETE FROM sync_state; DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
   requests = [];
   pages = [];
   tokensReply = null;

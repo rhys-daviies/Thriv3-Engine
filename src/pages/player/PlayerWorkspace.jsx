@@ -11,6 +11,11 @@ const TABS = [
   { segment: 'matching', label: 'Analysis & Matching' },
   { segment: 'engagement', label: 'Coach Engagement' },
   { segment: 'philosophy', label: 'Program Philosophy' },
+  // Two evidence surfaces, named for the question each answers rather than
+  // both being called "Evidence". This one is the assessment; the one above
+  // is what an email would say.
+  { segment: 'evidence', label: 'Evidence' },
+  { segment: 'decision', label: 'Decision Evidence' },
   /**
    * 13J: the delivery surface. It lives here rather than on its own screen
    * because the athlete is already chosen and displayed above these tabs —

@@ -156,6 +156,7 @@ export function cleanSimulation() {
     if (coachIds.length) {
       const ph = coachIds.map(() => '?').join(',');
       db.prepare(`DELETE FROM engagement_rollup WHERE outreach_id IN (SELECT id FROM outreach WHERE coach_id IN (${ph}))`).run(...coachIds);
+      db.prepare(`DELETE FROM outreach_send WHERE outreach_id IN (SELECT id FROM outreach WHERE coach_id IN (${ph}))`).run(...coachIds);
       outreach = db.prepare(`DELETE FROM outreach WHERE coach_id IN (${ph})`).run(...coachIds).changes;
       db.prepare(`DELETE FROM coaches WHERE id IN (${ph})`).run(...coachIds);
     }

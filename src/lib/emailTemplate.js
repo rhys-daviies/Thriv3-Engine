@@ -6,6 +6,8 @@ import { classYearOf } from '../../shared/athlete.js';
 import { positionLabel, positionNoun, positionPlural } from '../../shared/positions.js';
 import { UNDECLARED_BUDGET } from '../../shared/matching/constants.js';
 import { majorLabelFor } from '../../shared/academicMajors.js';
+import { conferenceLabel } from '../../shared/conference.js';
+import { SLOT_TOKENS } from '../../shared/email/blocks.js';
 
 // Section 11: The Email Template System — ported exactly.
 
@@ -22,6 +24,7 @@ const POSTSEASON_ROUND_LABELS = {
 
 export const TEMPLATE_VARIABLES = [
   { token: 'coach_name', label: 'Coach Name' },
+  { token: 'coach_first_name', label: 'Coach First Name (falls back to the full name)' },
   { token: 'college_name', label: 'College Name' },
   { token: 'college_division', label: 'Division' },
   { token: 'college_conference', label: 'Conference' },
@@ -40,46 +43,49 @@ export const TEMPLATE_VARIABLES = [
     label: 'If nickname known… (conditional sentence)',
     snippet: '{{#if has_real_nickname}}Go {{college_nickname}}!{{/if}}',
   },
-  { token: 'conference_champion_name', label: 'Conference Won (2025)' },
+  /**
+   * REMOVED AT J5: graduating_starters_*, graduating_total_*, and the
+   * international-roster pair below.
+   *
+   * Each of them recreated, from the uploaded recommendations JSON, a claim
+   * the evidence registry DENIES for outreach — POSITION_GRADUATION_STARTERS,
+   * SQUAD_GRADUATION and INTERNATIONAL_ROSTER. They were a second production
+   * authority with no qualification, no confidence floor, no freshness check,
+   * no render contract and no disposition, and they could name players.
+   *
+   * Measured on Rhys Davies to Saint Joseph's: the outbound engine licensed
+   * one claim, "two players from New Zealand have come through the programme
+   * since 2022", while a custom template using these tokens rendered "6
+   * defenders graduating. starters: 4 — Herman Tveit-Reffsgaard, Diego Avelar,
+   * Jake Ross, and Cassidy Tanddo" from 2025 recommendations data.
+   *
+   * Nothing shipped used them, so they are gone rather than deprecated. What a
+   * template may still say about evidence is `{{evidence_paragraph}}`, which
+   * is the engine's own words and has been through every gate.
+   */
   {
-    token: 'is_conference_champion',
-    label: 'If 2025 conference champs… (conditional sentence)',
-    snippet: '{{#if is_conference_champion}}Congratulations on winning the {{conference_champion_name}} last year!{{/if}}',
-  },
-  { token: 'postseason_round_label', label: '2025 Postseason Result (e.g. "reached the semifinals")' },
-  {
-    token: 'has_postseason_result',
-    label: 'If the program reached the postseason in 2025… (conditional sentence)',
-    snippet: '{{#if has_postseason_result}}Congratulations, you {{postseason_round_label}} this past season.{{/if}}',
-  },
-  { token: 'graduating_seniors_count', label: 'Graduating Seniors Count' },
-  { token: 'graduating_seniors_names', label: 'Graduating Seniors Names' },
-  { token: 'graduating_seniors_position', label: 'Position word agreeing with that count (defender / defenders)' },
-  {
-    token: 'has_graduating_seniors',
-    label: 'If anyone is graduating at the position… (conditional sentence)',
-    snippet: '{{#if has_graduating_seniors}}{{graduating_seniors_count}} {{graduating_seniors_position}} graduating.{{/if}}',
+    token: 'evidence_paragraph',
+    label: 'Program Evidence — the strongest verified reasons to write (auto-selected)',
+    snippet: '{{#if has_evidence}}{{evidence_paragraph}}{{/if}}',
   },
   {
-    token: 'has_graduating_names',
-    label: 'If those names were verified… (conditional sentence)',
-    snippet: '{{#if has_graduating_names}} {{graduating_seniors_names}}{{/if}}',
+    token: 'evidence_primary',
+    label: 'Program Evidence — the single strongest reason only',
+    snippet: '{{#if has_evidence_primary}}{{evidence_primary}}{{/if}}',
   },
-  { token: 'graduating_starters_count', label: 'Graduating Starters Count' },
-  { token: 'graduating_starters_names', label: 'Graduating Starters Names' },
-  { token: 'international_players_count', label: 'International Players on Roster' },
-  {
-    token: 'has_international_players',
-    label: 'If the roster has any international players… (conditional sentence)',
-    snippet: '{{#if has_international_players}}We currently have {{international_players_count}} international players on the roster.{{/if}}',
-  },
-  { token: 'players_from_country_count', label: "Players From the Recruit's Own Country" },
-  {
-    token: 'has_players_from_country',
-    label: "If a teammate already shares the recruit's country… (conditional sentence)",
-    snippet: '{{#if has_players_from_country}}We currently have players from {{player_nationality}} on the roster.{{/if}}',
-  },
+  { token: 'has_evidence', label: 'If any program evidence was found… (conditional)' },
+  { token: 'has_evidence_primary', label: 'If a leading piece of evidence was found… (conditional)' },
+  { token: 'evidence_structure', label: 'Which email structure the evidence engine chose' },
+  // The per-slot evidence tokens are deliberately NOT offered to operators as
+  // template variables. They are filled by shared/email/compose.js, which
+  // decides how many clauses a slot holds and where that slot sits; a template
+  // that hardcoded {{evidence_lead}} would be asserting a placement the
+  // structure had not chosen. They resolve in the context so a structured
+  // body renders, and they are absent from this list so nothing offers them.
+
+
   { token: 'player_name', label: 'Player Name' },
+  { token: 'player_first_name', label: 'Player First Name (for use after the introduction)' },
   { token: 'player_position', label: 'Player Position' },
   { token: 'player_position_plural', label: 'Position, plural (defenders)' },
   { token: 'player_secondary_position', label: 'Secondary Position' },
@@ -95,12 +101,6 @@ export const TEMPLATE_VARIABLES = [
   { token: 'has_yearly_budget', label: 'If a budget band is set… (conditional line)' },
   { token: 'player_class_year', label: 'Class Year (arrival)' },
   { token: 'player_profile_url', label: 'Tracked Profile Link' },
-  { token: 'intended_major_label', label: "Recruit's Intended Major, Matched to a Notable Program" },
-  {
-    token: 'offers_intended_major',
-    label: "If the school notably offers the recruit's intended major… (conditional sentence)",
-    snippet: '{{#if offers_intended_major}}We also have a strong {{intended_major_label}} program.{{/if}}',
-  },
 ];
 
 /**
@@ -132,6 +132,15 @@ export const DEFAULT_EMAIL_SUBJECT = '{{player_name}} | {{player_position}} | {{
  *   could not be verified from official sources" — true, and not something to
  *   say to a coach about his own roster.
  *
+ * The programme sentence comes from the evidence engine where one is supplied
+ * (shared/evidence), which picks the strongest of several angles rather than
+ * always reaching for the graduating cohort — a programme with two New
+ * Zealanders in its recent history is a better reason to write than one
+ * defender leaving. The old hardcoded sentence survives as the {{else}}
+ * branch, because a caller with no evidence (the browser before the lookup
+ * returns, or after it fails) must still send the email it always sent rather
+ * than a worse one.
+ *
  * The GPA, SAT and budget lines are each gated on having something to say.
  * Unggated they sent "GPA: N/A" and "Annual Budget: Undeclared" — Undeclared
  * being the absence of a budget rather than one. A line that is simply absent
@@ -141,48 +150,183 @@ export const DEFAULT_EMAIL_SUBJECT = '{{player_name}} | {{player_position}} | {{
  * where a blank line is a paragraph and a single newline a line break; without
  * them the message arrives as one block, which is how it used to look.
  */
+/**
+ * THE EDITOR SCAFFOLD, AND THE FAILURE FALLBACK. NOT AN EVIDENCE ENGINE.
+ *
+ * J5 took composition authority away from this constant; J6 takes the
+ * evidence away. What it carried before:
+ *
+ *   an ELSE branch that rebuilt POSITION_GRADUATION from the recommendations
+ *   blob — "particularly with 4 defenders graduating this season (…)" — which
+ *   fired exactly when `has_evidence` was FALSE. The engine having nothing to
+ *   say was the trigger for the template to say something anyway, with no
+ *   qualification, freshness, dedupe or hold behind it;
+ *
+ *   "could be an interesting fit" and "Given your current roster and X's
+ *   needs" — suitability and roster need, the two inferences
+ *   `outreachCopy.js` exists to refuse;
+ *
+ *   the position and class year three times over: in the sentence, in a
+ *   heading, and in a bullet. J4 removed that from the structured block and
+ *   could not touch it here, because editing this text reclassified athletes.
+ *
+ * What is left is raw athlete and programme facts, framing in our own voice,
+ * and ONE evidence token that carries the engine's own words. If the engine
+ * has nothing, the email says nothing about the programme — which is what a
+ * generic email is.
+ */
 export const DEFAULT_EMAIL_TEMPLATE = `Hi {{coach_name}},
 
 I'm reaching out regarding {{player_name}}, a {{player_position|lowercase}}{{#if has_nationality}} from {{player_nationality}}{{/if}} who is exploring opportunities for the {{player_class_year}} recruiting class.
-
-{{player_name}} — {{player_position}}
-
-Recruiting Profile
-• Position: {{player_position}}{{player_secondary_position}}
-• Graduation: {{player_class_year}}{{#if has_gpa}}
+{{#if has_evidence}}
+{{evidence_paragraph}}
+{{/if}}{{#if has_gpa}}
 • GPA: {{player_gpa}}{{/if}}{{#if has_sat_score}}
 • SAT: {{player_sat_score}}{{/if}}{{#if has_yearly_budget}}
 • Annual Budget: {{player_yearly_budget}}{{/if}}
 
 Profile and highlight film:
 {{player_profile_url}}
-{{#if has_graduating_seniors}}
-We believe {{player_name}} could be an interesting fit for {{college_name}}, particularly with {{graduating_seniors_count}} {{graduating_seniors_position}} graduating this season{{#if has_graduating_names}} {{graduating_seniors_names}}{{/if}}.
-{{/if}}
-Given your current roster and {{college_name}}'s needs, we'd love to hear your thoughts on whether {{player_name}} could be a potential fit for your programme.
 
-Would you be open to taking a look at the profile and highlight film? If there's interest you can contact me directly via WhatsApp [[+64 21 920 775](tel:+6421920775)] to chat more.
+Would you be open to taking a look at the profile and highlight film? If there\'s interest you can contact me directly via WhatsApp [[+64 21 920 775](tel:+6421920775)] to chat more.
 
 Best regards,
 Rhys Davies
 Striv3 Elite Sports Management`;
 
-function formatNameList(names) {
-  const list = (names || []).filter(Boolean);
-  if (list.length === 0) return 'names could not be verified from official sources';
-  if (list.length === 1) return `(${list[0]})`;
-  if (list.length === 2) return `(${list[0]} and ${list[1]})`;
-  return `(${list.slice(0, -1).join(', ')}, and ${list[list.length - 1]})`;
-}
-
 /**
  * Builds the token-resolution context from the player profile, a matched
  * college/CollegeCard result object, and the specific coach being addressed.
  */
-export function buildEmailContext(player, college, coachName, { profileUrl = null } = {}) {
+/**
+ * The graduating-cohort numbers, under either name they travel by.
+ *
+ * `rankMatches` emits `graduating_at_position`; this file was written against
+ * `graduating_seniors_at_position`, and `playerAnalysis.js` bridged the two on
+ * the way through. Anything calling `buildEmailContext` with a rankMatches row
+ * directly therefore got `undefined`, read it as zero, and dropped the
+ * sentence — which is exactly what `server/scripts/draftOutreach.js` does, so
+ * every emailed draft was silently missing its roster paragraph. Evansville
+ * has four defenders graduating and the draft said nothing about them.
+ *
+ * Both names are read rather than one being renamed away, and that is
+ * permanent rather than transitional: `players.recommendations` holds stored
+ * JSON blobs written under the legacy names, and an athlete analysed last week
+ * must keep rendering.
+ */
+
+/**
+ * @param {object} [options.evidence]  a `selectEvidence()` result. Optional
+ *   throughout: with none supplied every token below resolves exactly as it
+ *   did before the evidence engine existed, which is what keeps the browser
+ *   composer — which cannot load five seasons of roster history — working
+ *   unchanged.
+ */
+/**
+ * Titles a staff page prints in front of a name. Stripped before the first
+ * name is taken, so "Coach Danny Frid" greets Danny rather than Coach.
+ */
+const NAME_TITLES = /^(coach|dr|mr|mrs|ms|mx|prof|professor|rev|sir)\.?$/i;
+
+/** Suffixes that are not a surname, so "Smith, Jr." is not read as a flip. */
+const NAME_SUFFIXES = /\b(jr|sr|ii|iii|iv|ph\.?d|m\.?s|m\.?ed|ed\.?d)\b/i;
+
+/**
+ * The name to greet a coach by, or '' when we cannot tell confidently.
+ *
+ * "Hi Ali Simmons," was the first line of every email in the QA sample, and
+ * nobody writes to a colleague that way. This takes the first name, and is
+ * deliberately conservative about when it refuses:
+ *
+ *   - an initial ("J. Smith") is not a first name, and "Hi J," is worse than
+ *     the full name;
+ *   - a bare title ("Coach", "Dr.") is stripped, not greeted;
+ *   - "Simmons, Ali" is flipped, unless the second part is a suffix.
+ *
+ * Nothing is normalised away. Accents, hyphens and apostrophes are part of a
+ * person's name — "Jean-Pierre", "Nuñez", "O'Brien" — and stripping them to be
+ * safe would misspell the one thing the reader is guaranteed to notice.
+ *
+ * Returns '' rather than a guess, and the caller falls back to the full name,
+ * so the greeting is never empty and never an unresolved token.
+ */
+export function coachFirstName(name) {
+  const raw = String(name ?? '').trim().replace(/\s+/g, ' ');
+  if (!raw) return '';
+
+  // "Simmons, Ali" -> "Ali Simmons". The same flip `normaliseCoach` does, for
+  // the same reason: staff pages print both orders.
+  const comma = raw.match(/^([^,]+),\s*([^,]+)$/);
+  // "Smith, Jr." is a surname and a suffix and no first name at all. Declining
+  // the flip is not enough — what is left would be read as "Smith".
+  if (comma && NAME_SUFFIXES.test(comma[2])) return '';
+  const text = comma ? `${comma[2]} ${comma[1]}` : raw;
+
+  const parts = text.split(' ').filter(Boolean);
+  while (parts.length > 1 && NAME_TITLES.test(parts[0])) parts.shift();
+
+  /**
+   * A first name is only recognisable BESIDE a surname.
+   *
+   * "Coach Smith" reduces to one token once the title is stripped, and that
+   * token is a surname — greeting somebody as "Hi Smith," is worse than using
+   * the full name we already had. One token, whatever it is, is a refusal.
+   */
+  if (parts.length < 2) return '';
+
+  const first = (parts[0] ?? '').replace(/[.,;:]+$/, '');
+  // Two letters is the floor. It rejects "J." and "A" while keeping genuine
+  // short names — Bo, Al, Ty — that a coach would actually be called.
+  const letters = first.replace(/[^\p{L}]/gu, '');
+  if (letters.length < 2) return '';
+  return first;
+}
+
+/**
+ * "exercise science" -> "Exercise Science".
+ *
+ * The athlete types their intended field in free text and it is almost always
+ * lower case, which reads as a typo in the middle of a sentence. Only the
+ * first letter of each word is touched: the rest is left exactly as written,
+ * so an acronym or a deliberate capital survives.
+ */
+export function titleCaseField(text) {
+  return String(text ?? '').trim().replace(/\s+/g, ' ')
+    .split(' ')
+    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+    .join(' ');
+}
+
+export function buildEmailContext(player, college, coachName, { profileUrl = null, evidence = null } = {}) {
   const secondary = player.secondary_position && player.secondary_position !== 'None'
     ? ` / ${positionLabel(player.secondary_position)}`
     : '';
+
+  // Rendered by the evidence engine, which picked the renderer appropriate to
+  // each piece's tier. Deliberately not re-derived here: a template must not
+  // be able to turn a projection into a plain assertion by choosing a
+  // different token, so there is exactly one evidence paragraph and the engine
+  // decided how firmly it speaks.
+  /**
+   * The paragraph the outbound engine rendered, and NOTHING BEHIND IT.
+   *
+   * There used to be a fallback here: `evidenceParagraph(evidence.selected)`,
+   * which goes through the LEGACY renderer and its "so I thought you might be
+   * open to another Kiwi" reasoning. Stage G measured it unreachable — over
+   * 3,498 pairs, `paragraph` was empty only when `selected` was empty too.
+   *
+   * H1 changed that arithmetic. Now that every outbound clause returns null
+   * rather than interpolating a missing field, an item can be selected and
+   * produce no sentence — which is precisely the branch that fallback was
+   * waiting for. It would have answered a hardening change by reaching for the
+   * unsafe renderer.
+   *
+   * So an empty paragraph is an empty paragraph. A template carrying
+   * {{evidence_paragraph}} renders no evidence sentence, which is the same
+   * thing a composed email does with nothing to say.
+   */
+  const evidenceSentences = evidence?.sentences ?? [];
+  const evidenceText = evidence?.paragraph ?? '';
 
   // Matches the recruit's own free-text intended_major against this school's
   // notable_majors (see shared/academicMajors.js) -- gated on an actual match
@@ -193,9 +337,12 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
 
   return {
     coach_name: coachName || 'Coach',
+    // The full name is kept beside it, unchanged: templates that want it still
+    // have it, and the log records the contact by full name either way.
+    coach_first_name: coachFirstName(coachName) || coachName || 'Coach',
     college_name: college.name || '',
     college_division: college.division || '',
-    college_conference: college.conference || '',
+    college_conference: conferenceLabel(college.conference),
     // Derived from city and state, which are populated, rather than read from
     // colleges.location, which is empty on all 2,374 rows — so this token
     // rendered as nothing for every school. The card already prefers
@@ -229,44 +376,57 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     // realignment) -- this is whichever conference Wikipedia's own 2025
     // results actually credited the win to, so the sentence stays correct
     // even when that drifts from our stored conference field.
-    conference_champion_name: college.conference_champion_name || '',
-    is_conference_champion: college.conference_champion_2025 ? 'true' : '',
     // Soccer's own round names, not basketball's -- there is no "Sweet 16" in
     // an NCAA soccer bracket, and borrowing one would read as a mistake to
     // anyone who follows the sport. "Appearance" means qualified and lost the
     // first game, so it reads as having made the postseason at all rather
     // than claiming a specific round.
-    postseason_round_label: POSTSEASON_ROUND_LABELS[college.postseason_2025_round] || '',
-    has_postseason_result: college.postseason_2025_round ? 'true' : '',
     // Gates for the two ways this sentence goes wrong on a thin school: no
     // graduating players at the position ("0 defenders graduating"), and a
     // programme whose names we could not read, where the name list renders as
     // "names could not be verified from official sources" — true, and not
     // something to say to a coach about his own roster.
-    has_graduating_seniors: (college.graduating_seniors_at_position ?? 0) > 0 ? 'true' : '',
-    has_graduating_names: (college.graduating_senior_names_at_position || []).filter(Boolean).length > 0 ? 'true' : '',
-    graduating_seniors_count: String(college.graduating_seniors_at_position ?? 0),
     // Agrees with the count beside it. "{{graduating_seniors_count}}
     // {{player_position_plural}}" reads "1 defenders" at the 14 schools in a
     // typical top 100 that are losing exactly one, and a coach reading his own
     // roster back at him ungrammatically is the wrong first impression. Zero
     // takes the plural, which is correct: "0 defenders".
-    graduating_seniors_position: (college.graduating_seniors_at_position ?? 0) === 1
-      ? positionNoun(player.position)
-      : positionPlural(player.position),
-    graduating_seniors_names: formatNameList(college.graduating_senior_names_at_position),
-    graduating_starters_count: String(college.graduating_starters_at_position ?? 0),
-    graduating_starters_names: formatNameList(college.graduating_starter_names_at_position),
+    // Squad-wide, every position — a different number from the four above and
+    // carried through pool.js since 2026-08-25 without anything reading it.
+    // ---- evidence engine ----
+    // Empty when no evidence was supplied, so a template carrying these tokens
+    // renders as it always did rather than leaving a hole.
+    evidence_paragraph: evidenceText,
+    has_evidence: evidenceText ? 'true' : '',
+    evidence_primary: evidenceSentences[0]
+      ? `${evidenceSentences[0].text[0].toUpperCase()}${evidenceSentences[0].text.slice(1)}.`
+      : '',
+    has_evidence_primary: evidenceSentences[0] ? 'true' : '',
+    evidence_structure: structureKeyOf(evidence) ?? '',
+    // One token per evidence slot the structure defined, each already a
+    // finished paragraph of server-rendered clauses. Always present, always a
+    // string: a structured body drops the blocks it has nothing for, and a
+    // saved template that never mentions them is unaffected either way.
+    ...evidenceSlotTokens(evidence),
     // Sourced from shared/matching/pool.js's roster aggregation (international
     // count + same-country count), already computed for the international-fit
     // scoring criterion -- these just expose the same two numbers as tokens.
-    international_players_count: String(college.international_players ?? 0),
-    has_international_players: (college.international_players ?? 0) > 0 ? 'true' : '',
-    players_from_country_count: String(college.players_from_country ?? 0),
     // Gated on the recruit having a stated country too -- a domestic athlete
     // has no "own country" for the sentence to be about.
-    has_players_from_country: player.nationality && (college.players_from_country ?? 0) > 0 ? 'true' : '',
     player_name: player.full_name || '',
+    /**
+     * What a person says after the introduction.
+     *
+     * The old copy used the full name four times in a short email. Every use
+     * after the first is now this token — and it is the FIRST NAME rather than
+     * a pronoun on purpose: `players` stores no gender or pronoun field, and
+     * inferring one from the sport would be a guess about a real person that
+     * is wrong for anyone it is wrong for.
+     *
+     * Falls back to the whole string when there is no space to split on, so a
+     * mononym renders as itself rather than as nothing.
+     */
+    player_first_name: (player.full_name || '').trim().split(/\s+/)[0] || '',
     // The person, not the stored key. These read as prose in every template
     // that uses them — "a talented Defense who is exploring" was going out
     // to coaches, and "graduating defense(s) this season" under it.
@@ -314,8 +474,141 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
     // a preview displaying "{{player_profile_url}}" looks like the link failed
     // to resolve rather than like it resolves later.
     player_profile_url: profileUrl || '{{player_profile_url}}',
-    intended_major_label: intendedMajorLabel,
+    /**
+     * What the ATHLETE said, in their own words, as distinct from the
+     * programme name the college publishes.
+     *
+     * Rhys typed "exercise science"; `majorLabelFor` maps that onto the
+     * catalogue label "Kinesiology", which is what Jacksonville's
+     * `notable_majors` actually lists. The introduction was printing the
+     * college's word as the athlete's plan — "planning to study Kinesiology" —
+     * and the evidence clause then repeated it a sentence later. Keeping both
+     * values fixes the attribution and removes the echo in one change.
+     *
+     * Falls back to the matched label when the athlete left it blank, so the
+     * sentence never reads "planning to study .".
+     */
+    intended_major_stated: titleCaseField(player.intended_major) || intendedMajorLabel,
+    /**
+     * THE ONE EVIDENCE-SHAPED FIELD LEFT IN THIS CONTEXT, and it is not offered
+     * to templates.
+     *
+     * `shared/email/blocks.js` gates the academic introduction on it. That use
+     * is safe because the variant carrying the clause is chosen by
+     * `composeOutreach` from the RENDERED sentences — the gate can only narrow
+     * a decision the engine already made, never widen it.
+     *
+     * J6 tried removing it, having measured the gate as always true where
+     * ACADEMIC_FIT renders. The measurement was taken against a full college
+     * row; the composer passes a thin one, where `notable_majors` is absent
+     * and the gate is FALSE. Dropping it added the clause to 269 emails and
+     * re-introduced the echo the block exists to avoid — the introduction
+     * saying "planning to study Exercise Science" a line above the evidence
+     * clause saying it again.
+     *
+     * Absent from TEMPLATE_VARIABLES, so no saved template can reach it.
+     */
     offers_intended_major: intendedMajorLabel ? 'true' : '',
+  };
+}
+
+/**
+ * The evidence slot tokens, every one of them defined.
+ *
+ * Defined even when empty, and that matters: `fillTemplate` leaves an
+ * UNKNOWN token exactly as written, so a slot the structure did not fill would
+ * otherwise reach a coach as the literal text "{{evidence_support}}". Every
+ * slot the registry knows about resolves to a string, and an unfilled one
+ * resolves to nothing.
+ */
+function evidenceSlotTokens(evidence) {
+  const filled = evidence?.composition?.tokens ?? {};
+  const out = {};
+  for (const token of SLOT_TOKENS) out[token] = filled[token] ?? '';
+  return out;
+}
+
+/**
+ * The structure key, whichever shape the evidence arrived in.
+ *
+ * `selectEvidence` returns `structure` as an OBJECT — key, label, blocks,
+ * eligible — and `toWire` flattens it to the key string before sending it to
+ * the browser. Both reach this file: the drafting CLI passes the object, the
+ * composer passes the wire form. Reading `.key` off a string yields undefined
+ * silently, which is what made `evidence_structure` render as nothing and the
+ * bulk preview show no structure name while the body it previewed was plainly
+ * assembled from one.
+ */
+export function structureKeyOf(evidence) {
+  const s = evidence?.structure;
+  if (!s) return null;
+  return typeof s === 'string' ? s : (s.key ?? null);
+}
+
+/**
+ * WHETHER THIS ATHLETE HAS AN EXPLICIT COMPOSITION OVERRIDE.
+ *
+ * PRESENCE, NOT CONTENT. It used to ask whether a saved template was
+ * byte-identical to `DEFAULT_EMAIL_TEMPLATE`, which made a product constant
+ * into the authority over which composer runs. J4 edited that constant to
+ * remove a duplicated line and silently moved 2,338 emails onto the fallback
+ * path — two athletes were carrying a copy of the old text, the equality
+ * broke, and nothing said so.
+ *
+ * So the rule is now the simplest one that cannot rot: a saved template means
+ * an operator deliberately wrote one, and no saved template means the
+ * structured composer. Nothing compares strings, and editing the default can
+ * no longer reclassify anybody.
+ *
+ * That only holds because the athlete form stopped seeding the field with a
+ * copy of the default (`src/components/PlayerFormSteps.jsx`). While it did,
+ * every athlete created through the UI carried a template nobody wrote, and
+ * "has a saved template" meant nothing at all.
+ *
+ * Clearing a template is not destructive: `npm run archive-template` moves it
+ * to `email_template_archived` with a timestamp and puts it back on request.
+ */
+export function canComposeStructured(player) {
+  return !String(player?.email_template ?? '').trim();
+}
+
+export const BODY_SOURCE = Object.freeze({
+  /** Assembled from the structure's blocks. */
+  STRUCTURED: 'STRUCTURED',
+  /** The athlete's own saved template, rendered as it always was. */
+  TEMPLATE: 'TEMPLATE',
+});
+
+/**
+ * The email body, by whichever route this athlete and this evidence support.
+ *
+ * ONE function so the browser composer, the bulk composer, the drafting CLI
+ * and the send route cannot disagree about which body a coach receives. They
+ * used to each call `fillTemplate` themselves, which was survivable while
+ * there was one template and became a real hazard the moment there were five
+ * structures and two composition routes.
+ *
+ * `structured` forces the choice (the composer's own toggle); left null it is
+ * decided by `canComposeStructured` and whether there is a composition to use.
+ * Falling back when a structure produced nothing is deliberate — an athlete
+ * whose evidence lookup failed still gets the email they always got.
+ */
+export function emailBodyFor(player, college, coachName, {
+  profileUrl = null, evidence = null, structured = null,
+} = {}) {
+  const context = buildEmailContext(player, college, coachName, { profileUrl, evidence });
+  const composed = evidence?.composition?.template || null;
+  const allowed = structured === null ? canComposeStructured(player) : Boolean(structured);
+  const useStructure = Boolean(allowed && composed);
+  const template = useStructure
+    ? composed
+    : (player.email_template || DEFAULT_EMAIL_TEMPLATE);
+  return {
+    body: fillTemplate(template, context),
+    source: useStructure ? BODY_SOURCE.STRUCTURED : BODY_SOURCE.TEMPLATE,
+    structure: useStructure ? structureKeyOf(evidence) : null,
+    template,
+    context,
   };
 }
 
@@ -332,6 +625,42 @@ export function buildEmailContext(player, college, coachName, { profileUrl = nul
  * `{{#if}}` and `{{else}}` are template syntax, not tokens, and a filter
  * (`{{player_position|lowercase}}`) is stripped before the name is checked.
  */
+/**
+ * Whether an operator may save this template, and why not.
+ *
+ * THE SAME PARSER THE PREVIEW USES. `unresolvedTokens` decides what a body
+ * will fail to resolve; asking a second parser at save time would let a
+ * template pass one gate and fail the other, which is worse than no gate.
+ * The only thing added here is a context built from the token registry rather
+ * than from one athlete, so validity does not depend on whose profile is open.
+ *
+ * WHAT IT REFUSES. A token nothing resolves — a typo, or one of the claim
+ * tokens J5 and J6 retired. Those are the dangerous case: a template written
+ * against the old vocabulary still LOOKS right, and the failure only shows up
+ * as literal braces in a coach's inbox.
+ *
+ * WHAT IT DOES NOT DO. It never edits the operator's text. A refusal names the
+ * tokens and stops; silently stripping them would lose the sentence they were
+ * part of, and silently blanking them would hide the debt.
+ *
+ * A template that is empty is valid — that is not a template, it is the
+ * absence of an override, and the structured composer takes it.
+ */
+export function validateTemplate(template) {
+  const text = String(template ?? '');
+  if (!text.trim()) return { valid: true, unknown: [] };
+  /**
+   * Keys, not values. Every token the registry defines resolves in a real
+   * context; what matters here is whether the NAME is one the composer knows.
+   */
+  const context = buildEmailContext(
+    { full_name: 'A', position: 'Defender', sport: 'mens-soccer' },
+    { name: 'B' }, 'Coach', {},
+  );
+  const unknown = unresolvedTokens(text, context);
+  return { valid: unknown.length === 0, unknown };
+}
+
 export function unresolvedTokens(template, context) {
   const found = new Set();
   for (const match of String(template || '').matchAll(/\{\{\s*(?:#if\s+)?([a-zA-Z0-9_]+)\s*(?:\|[^}]*)?\}\}/g)) {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildEmailContext, fillTemplate, unresolvedTokens, TEMPLATE_VARIABLES, DEFAULT_EMAIL_TEMPLATE } from './emailTemplate.js';
+import { buildEmailContext, fillTemplate, unresolvedTokens, TEMPLATE_VARIABLES, DEFAULT_EMAIL_TEMPLATE, coachFirstName } from './emailTemplate.js';
 
 const player = {
   full_name: 'Test Athlete', position: 'DEFENSE', secondary_position: 'None',
@@ -19,7 +19,8 @@ describe('buildEmailContext', () => {
     expect(c.college_mascot).toBe('Peruna');
     expect(c.has_real_nickname).toBe('true');
     expect(c.has_mascot).toBe('true');
-    expect(c.is_conference_champion).toBe('true');
+    // is_conference_champion is gone at J6 — it recreated CONFERENCE_TITLE.
+    expect(c.is_conference_champion).toBeUndefined();
     expect(c.college_nickname_have).toBe('have');
   });
 
@@ -96,48 +97,56 @@ describe('fillTemplate', () => {
   });
 });
 
+describe('the graduating cohort is the evidence engine\'s to state', () => {
+  /**
+   * These tokens rebuilt POSITION_GRADUATION from the recommendations blob,
+   * outside qualification, freshness, dedupe and the body cap. J5 removed the
+   * three that recreated DENIED kinds; J6 removed the rest. What a template
+   * may say about evidence is `{{evidence_paragraph}}`, which is the engine's
+   * own words.
+   */
+  const RETIRED = ['graduating_seniors_count', 'graduating_seniors_names',
+    'graduating_seniors_position', 'has_graduating_seniors', 'has_graduating_names',
+    'graduating_starters_count', 'graduating_starters_names',
+    'graduating_total_count', 'has_graduating_total'];
+
+  it('resolves none of them, under either field name the blobs use', () => {
+    const ctx = buildEmailContext(player, {
+      ...college,
+      graduating_at_position: 4,
+      graduating_names_at_position: ['A Smith', 'B Jones'],
+      graduating_seniors_at_position: 4,
+      graduating_senior_names_at_position: ['A Smith', 'B Jones'],
+      graduating_starters_at_position: 2,
+      graduating_total: 11,
+    }, 'Coach');
+    for (const t of RETIRED) expect(ctx[t], t).toBeUndefined();
+  });
+
+  it('offers none of them to a template author', () => {
+    const offered = TEMPLATE_VARIABLES.map((t) => t.token);
+    for (const t of RETIRED) expect(offered, t).not.toContain(t);
+  });
+
+  it('leaves a template using one visibly unresolved rather than silent', () => {
+    const ctx = buildEmailContext(player, college, 'Coach');
+    const out = fillTemplate('{{graduating_seniors_count}} leaving', ctx);
+    expect(out).toBe('{{graduating_seniors_count}} leaving');
+    expect(unresolvedTokens('{{graduating_seniors_count}} leaving', ctx))
+      .toContain('graduating_seniors_count');
+  });
+});
+
 describe('position grammar in the email', () => {
-  const ctx = (position, graduating) => buildEmailContext(
-    { ...player, position },
-    { ...college, graduating_seniors_at_position: graduating, graduating_senior_names_at_position: [] },
-    'Coach',
-  );
-
-  // "a talented Defense who is exploring" went to coaches. Every position now
-  // reads as the person, in the same form, whatever the stored key says.
-  it.each([
-    ['Goalkeeper', 'Goalkeeper', 'goalkeepers'],
-    ['Defense', 'Defender', 'defenders'],
-    ['Midfield', 'Midfielder', 'midfielders'],
-    ['Forward', 'Forward', 'forwards'],
-  ])('%s renders as %s / %s', (stored, label, plural) => {
-    const c = ctx(stored, 4);
-    expect(c.player_position).toBe(label);
-    expect(c.player_position_plural).toBe(plural);
-  });
-
-  it('agrees the position word with the graduating count', () => {
-    expect(ctx('Defense', 1).graduating_seniors_position).toBe('defender');
-    expect(ctx('Defense', 4).graduating_seniors_position).toBe('defenders');
-    // Zero takes the plural, which is correct English.
-    expect(ctx('Defense', 0).graduating_seniors_position).toBe('defenders');
-  });
-
-  it('never renders the raw stored key in the default template', () => {
-    for (const stored of ['Goalkeeper', 'Defense', 'Midfield', 'Forward']) {
-      const out = fillTemplate(DEFAULT_EMAIL_TEMPLATE, ctx(stored, 2));
-      expect(out).not.toMatch(/\bDefense\b|\bMidfield\b/);
-      expect(out).not.toMatch(/\(s\)/);
-    }
-  });
-
-  it('gives the secondary position the same treatment', () => {
-    const c = buildEmailContext({ ...player, secondary_position: 'Midfield' }, college, 'Coach');
-    expect(c.player_secondary_position).toBe(' / Midfielder');
-  });
-
-  it('omits the secondary position entirely when there is none', () => {
-    expect(buildEmailContext({ ...player, secondary_position: 'None' }, college, 'Coach').player_secondary_position).toBe('');
+  /**
+   * The count-agreeing position word belonged to the retired graduating
+   * tokens. The engine's own copy agrees its nouns in `outreachCopy.js`
+   * (`noun(position, n)`), which is where the sentence is written.
+   */
+  it('still exposes the position in both forms as a raw fact', () => {
+    const ctx = buildEmailContext(player, college, 'Coach');
+    expect(ctx.player_position).toBe('Defender');
+    expect(ctx.player_position_plural).toBe('defenders');
   });
 });
 
@@ -196,74 +205,129 @@ describe('nested conditionals', () => {
   });
 });
 
-describe('the pilot template degrades with the data', () => {
-  const render = (over) => fillTemplate(
-    DEFAULT_EMAIL_TEMPLATE,
-    buildEmailContext({ ...player, ...over.player }, { ...college, ...over.college }, 'Coach Smith'),
-  );
-
-  it('drops the roster sentence rather than saying "0 defenders graduating"', () => {
-    const out = render({ college: { graduating_seniors_at_position: 0, graduating_senior_names_at_position: [] } });
-    expect(out).not.toMatch(/\b0 defenders?\b/);
-    expect(out).not.toMatch(/could be an interesting fit/);
-  });
+describe('the default scaffold degrades with the data', () => {
+  const render = (p, c = college) => fillTemplate(DEFAULT_EMAIL_TEMPLATE, buildEmailContext(p, c, 'Coach'));
 
   it('never tells a coach his own roster could not be verified', () => {
-    const out = render({ college: { graduating_seniors_at_position: 2, graduating_senior_names_at_position: [] } });
-    expect(out).toContain('2 defenders graduating this season.');
-    expect(out).not.toMatch(/could not be verified/i);
-  });
-
-  it('agrees the position word with the count', () => {
-    expect(render({ college: { graduating_seniors_at_position: 1, graduating_senior_names_at_position: [] } }))
-      .toContain('1 defender graduating');
-  });
-
-  // Sent as "GPA: N/A" and "Annual Budget: Undeclared" before these were gated.
-  it('omits an optional profile line rather than sending a placeholder', () => {
-    const out = render({ player: { gpa: null, budget_range: 'Undeclared' } });
-    expect(out).not.toContain('N/A');
-    expect(out).not.toContain('Undeclared');
-    expect(out).not.toMatch(/GPA/);
-    expect(out).toContain('• SAT: 1210');
-  });
-
-  it('keeps a line that does have something to say', () => {
-    const out = render({ player: { budget_range: '$15k-$20k/yr' } });
-    expect(out).toContain('• Annual Budget: $15k-$20k/yr');
+    // The sentence that could say it is gone; so is the phrase.
+    expect(render(player)).not.toContain('could not be verified');
+    expect(DEFAULT_EMAIL_TEMPLATE).not.toContain('graduating');
   });
 
   it('leaves no blank line where a skipped line was', () => {
-    expect(render({ player: { gpa: null } })).not.toMatch(/\n\n•/);
+    const bare = render({ ...player, gpa: null, sat_score: null, budget_range: null });
+    expect(bare).not.toMatch(/\n{3,}/);
+    expect(bare).toContain('Rhys Davies');
   });
 
-  // The token emits its own " / ", so a slash beside it rendered "Defender / ".
   it('does not double the secondary-position separator', () => {
-    expect(render({ player: { secondary_position: 'None' } })).toContain('• Position: Defender\n');
-    expect(render({ player: { secondary_position: 'Midfield' } })).toContain('• Position: Defender / Midfielder');
+    const ctx = buildEmailContext({ ...player, secondary_position: 'None' }, college, 'Coach');
+    expect(ctx.player_secondary_position).toBe('');
+    const withSecond = buildEmailContext({ ...player, secondary_position: 'MIDFIELD' }, college, 'Coach');
+    expect(withSecond.player_secondary_position).toBe(' / Midfielder');
   });
 
-  it('names the nationality from the athlete rather than hard-coding it', () => {
-    expect(render({ player: { nationality: 'New Zealand' } })).toContain('a defender from New Zealand');
-    expect(render({ player: { nationality: 'Japan' } })).toContain('a defender from Japan');
+  it('says nothing about the programme when the engine found nothing', () => {
+    const out = render(player);
+    expect(out).not.toContain('particularly with');
+    expect(out).not.toContain('We believe');
+    expect(out).not.toContain('needs');
+  });
+});
+
+/**
+ * Greeting a coach by their first name.
+ *
+ * "Hi Ali Simmons," opened all fifteen emails in the QA sample, and a full-name
+ * greeting is the line that most reliably marks a message as generated.
+ */
+describe('coachFirstName', () => {
+  it('takes the first name from an ordinary name', () => {
+    expect(coachFirstName('Ali Simmons')).toBe('Ali');
+    expect(coachFirstName('Stephen Gorton')).toBe('Stephen');
+    expect(coachFirstName('Krystian Witkowski')).toBe('Krystian');
+    expect(coachFirstName('Cale Wassermann')).toBe('Cale');
   });
 
-  // A US athlete has no nationality on file, and the sentence has to read
-  // properly without one rather than trailing "from ".
-  it('reads correctly for an athlete with no nationality', () => {
-    const out = render({ player: { nationality: null } });
-    expect(out).toContain('a defender who is exploring');
-    expect(out).not.toMatch(/from\s+who/);
+  /**
+   * Accents, hyphens and apostrophes are part of a person's name. Stripping
+   * them "to be safe" misspells the one word the reader is guaranteed to read.
+   */
+  it('leaves accents, hyphens and apostrophes exactly as written', () => {
+    expect(coachFirstName('Jean-Pierre Dubois')).toBe('Jean-Pierre');
+    expect(coachFirstName('José Núñez')).toBe('José');
+    expect(coachFirstName("Se'an O'Brien")).toBe("Se'an");
+    expect(coachFirstName('Tønnes Daland')).toBe('Tønnes');
   });
 
-  it('carries exactly one link, the tracked profile', () => {
-    const out = render({});
-    expect(out.match(/\{\{player_profile_url\}\}/g)).toHaveLength(1);
-    expect(out).not.toMatch(/youtube/i);
+  it('flips a surname-first listing', () => {
+    expect(coachFirstName('Simmons, Ali')).toBe('Ali');
+    expect(coachFirstName('Mauzy-Fleming, Meghan')).toBe('Meghan');
   });
 
-  it('resolves completely for a school with nothing but a name', () => {
-    const ctx = buildEmailContext(player, { name: 'Some College' }, 'Coach');
-    expect(unresolvedTokens(DEFAULT_EMAIL_TEMPLATE, ctx)).toEqual([]);
+  it('does not read a suffix as a first name', () => {
+    expect(coachFirstName('Smith, Jr.')).toBe('');
+    expect(coachFirstName('Ryan Hopkins Jr.')).toBe('Ryan');
+  });
+
+  it('strips a title before taking the name', () => {
+    expect(coachFirstName('Coach Danny Frid')).toBe('Danny');
+    expect(coachFirstName('Dr. Marc Reeves')).toBe('Marc');
+  });
+
+  /**
+   * Every refusal below falls back to the full name at the call site, so the
+   * greeting is never empty and never a leftover token.
+   */
+  it('refuses when it cannot tell a first name from a surname', () => {
+    expect(coachFirstName('Coach Smith')).toBe('');   // one token once the title is gone
+    expect(coachFirstName('Simmons')).toBe('');
+    expect(coachFirstName('J. Smith')).toBe('');      // an initial is not a first name
+    expect(coachFirstName('A Smith')).toBe('');
+    expect(coachFirstName('')).toBe('');
+    expect(coachFirstName(null)).toBe('');
+  });
+
+  it('falls back to the full name in the email context', () => {
+    const ctx = buildEmailContext(
+      { full_name: 'Rhys Davies', position: 'Defender' },
+      { name: 'Example University' },
+      'Coach Smith',
+    );
+    expect(ctx.coach_first_name).toBe('Coach Smith');
+    expect(ctx.coach_name).toBe('Coach Smith');
+  });
+
+  it('keeps the full name beside the first name', () => {
+    const ctx = buildEmailContext(
+      { full_name: 'Rhys Davies', position: 'Defender' },
+      { name: 'Example University' },
+      'Ali Simmons',
+    );
+    expect(ctx.coach_first_name).toBe('Ali');
+    expect(ctx.coach_name).toBe('Ali Simmons');
+  });
+});
+
+/**
+ * The athlete's words and the college's, kept apart.
+ *
+ * Rhys typed "exercise science"; Jacksonville publishes "Kinesiology". The
+ * introduction was printing the college's label as the athlete's plan.
+ */
+describe('intended major attribution', () => {
+  /**
+   * The athlete's own words stay; the MATCH between their major and the
+   * programme's listing is ACADEMIC_FIT, and the engine owns it.
+   */
+  it('keeps the athlete\'s own words as a raw fact', () => {
+    const ctx = buildEmailContext({ ...player, intended_major: 'exercise science' }, college, 'Coach');
+    expect(ctx.intended_major_stated).toBe('Exercise Science');
+  });
+
+  it('does not offer the matched programme label to templates', () => {
+    const offered = TEMPLATE_VARIABLES.map((t) => t.token);
+    expect(offered).not.toContain('intended_major_label');
+    expect(offered).not.toContain('offers_intended_major');
   });
 });

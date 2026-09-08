@@ -65,8 +65,18 @@ export default function PublicProfileFields({ data, set, sport }) {
           <Field label="NCAA Eligibility ID">
             <Input value={data.ncaa_eligibility_id} onChange={(e) => set('ncaa_eligibility_id')(e.target.value)} placeholder="2110042886" />
           </Field>
+          {/* Not only a profile line. This is the input ACADEMIC_FIT evidence
+              reads: it is matched against each school's own notable majors, so
+              an email can say "you offer a strong Business program" only where
+              that is true. Left blank — which both pilot athletes were — the
+              angle cannot fire at any programme, which is why the field says
+              so rather than sitting silently among the optional ones. */}
           <Field label="Intended major">
             <Input value={data.intended_major} onChange={(e) => set('intended_major')(e.target.value)} placeholder="Sport Science" />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Used to find programmes that actually offer it — worth filling in even though
+              it is optional. Plain English is fine: “business”, “comp sci”, “exercise science”.
+            </p>
           </Field>
         </div>
       </div>

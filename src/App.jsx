@@ -15,6 +15,8 @@ import ProfileTab from '@/pages/player/ProfileTab';
 import MatchingTab from '@/pages/player/MatchingTab';
 import EngagementTab from '@/pages/player/EngagementTab';
 import PhilosophyTab from '@/pages/player/PhilosophyTab';
+import EvidenceTab from '@/pages/player/EvidenceTab';
+import DecisionTab from '@/pages/player/DecisionTab';
 import ReportsTab from '@/pages/player/ReportsTab';
 import Colleges from '@/pages/Colleges';
 import GraduatingDatabase from '@/pages/GraduatingDatabase';
@@ -71,6 +73,8 @@ export default function App() {
               <Route path="matching" element={<MatchingTab />} />
               <Route path="engagement" element={<EngagementTab />} />
               <Route path="philosophy" element={<PhilosophyTab />} />
+              <Route path="evidence" element={<EvidenceTab />} />
+              <Route path="decision" element={<DecisionTab />} />
               <Route path="reports" element={<ReportsTab />} />
               <Route path="*" element={<TabFallback />} />
             </Route>

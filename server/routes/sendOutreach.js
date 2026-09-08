@@ -4,7 +4,16 @@ import { Player } from '../db/entities/player.js';
 import { findOrCreateCoach } from '../lib/coaches.js';
 import { isSuppressed } from '../lib/suppressions.js';
 import { isSendCapped, recentSendCount } from '../lib/sendCap.js';
-import { createOutreach, markOutreachSent } from '../lib/outreach.js';
+import { createOutreach, markOutreachDrafted, markOutreachSent } from '../lib/outreach.js';
+import { logEvidence } from '../lib/evidenceLog.js';
+import { recordDraft, confirmSend } from '../lib/outreachSend.js';
+import { ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
+import { campaignContactDecision } from '../lib/campaignAttribution.js';
+import { recordOutboundAttempt, TRANSPORT } from '../lib/outboundBudget.js';
+import { evidenceFor } from '../lib/evidenceQueries.js';
+import { templateVariant } from '../../shared/evidence/templateVariant.js';
+import { BODY_SOURCE } from '../../src/lib/emailTemplate.js';
+import { DEFAULT_EMAIL_TEMPLATE } from '../../src/lib/emailTemplate.js';
 import { composeInOutlook, isOutlookAvailable } from '../lib/outlook.js';
 import { PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS, complianceGaps, SENDER_IDENTITY, SENDER_POSTAL_ADDRESS } from '../lib/config.js';
 import { checkRequiredCore } from '../export/renderProfile.js';
@@ -93,9 +102,35 @@ function ensureExported(athlete) {
   if (!fs.existsSync(file)) exportAthlete(athlete);
 }
 
+/**
+ * @param {object} [args.evidence]  the `selectEvidence()` result behind this
+ *   message. Callers that already computed it — the drafting CLI — pass it so
+ *   the logged row is the one they actually rendered. Callers that did not
+ *   get it computed here from `athleteId` and `collegeName`.
+ *
+ *   Never taken from an HTTP body. The browser composer receives rendered
+ *   prose and flat metadata from `/api/players/:id/evidence`, not evidence
+ *   objects, so it has nothing to post back; deriving it here also means the
+ *   log records what the database supports rather than what a long-open tab
+ *   was holding.
+ */
+/**
+ * @param {string|null} [args.programmeCampaignId]  the programme campaign this
+ *   message is being sent under, when there is one.
+ *
+ *   OPTIONAL, AND NOTHING INFERS IT. A manual send has no campaign and records
+ *   NULL, which is the honest answer. When it is given it is validated against
+ *   the athlete and the coach's programme before anything is written, and it is
+ *   passed to BOTH writes for different reasons: `createOutreach` records it as
+ *   the relationship's first-created provenance and only if the relationship is
+ *   new, while `recordDraft` records it on the message itself, every time. The
+ *   second is the authoritative one.
+ */
 export async function sendOutreach({
   athleteId, coaches = [], subject, body, greetingName,
-  collegeName, division, matchId = null, send = false,
+  collegeName, division, matchId = null, send = false, evidence = null,
+  evidenceSelection = null, evidenceStructure = null, bodySource = null,
+  programmeCampaignId = null,
 }) {
   const athlete = Player.get(athleteId);
   if (!athlete) throw new Error('Unknown athlete');
@@ -112,6 +147,43 @@ export async function sendOutreach({
     );
   }
 
+  /**
+   * THE CAMPAIGN GATE, ONCE, BEFORE THE LOOP.
+   *
+   * Every coach in one call is at the same programme, so a stopped programme
+   * or an inactive campaign is a fact about the whole run — evaluating it per
+   * coach would print the same refusal twenty times and leave the operator to
+   * work out that it was one problem. It is checked here against the first
+   * coach whose identity resolves, and the run stops rather than half-running.
+   *
+   * THIS IS A COURTESY, NOT THE GUARANTEE. The authoritative gate is inside
+   * `createOutreach` and `recordDraft`, which are the only two functions that
+   * write a campaign-attributed row — so a future execution engine that skips
+   * this endpoint entirely still cannot get past it. Coach-specific facts —
+   * suppression, the per-inbox cap, revocation — stay in the loop, because
+   * they differ per coach.
+   */
+  if (programmeCampaignId) {
+    const first = coaches.find((c) => c && c.email);
+    if (first) {
+      const record = findOrCreateCoach({
+        full_name: first.name, email: first.email, school: collegeName,
+        division, sport: athlete.sport, position_title: first.title,
+      });
+      const decision = campaignContactDecision({
+        programmeCampaignId, athleteId, coachId: record.id,
+      });
+      if (!decision.allowed && decision.reason !== 'SUPPRESSED') {
+        const err = new Error(
+          `Cannot send for this campaign: ${decision.reason}. `
+          + 'Nothing was drafted.',
+        );
+        err.code = decision.reason;
+        throw err;
+      }
+    }
+  }
+
   const missing = checkRequiredCore(athlete);
   if (missing.length) {
     throw new Error(
@@ -120,6 +192,70 @@ export async function sendOutreach({
     );
   }
   ensureExported(athlete);
+
+  // Derived here when the caller did not bring it, so the browser composer
+  // logs the same evidence the CLI does without having to post facts back.
+  // A failure to work it out must not stop a send — it is analysis, not
+  // delivery — so it degrades to logging nothing.
+  //
+  // `evidenceSelection` is a list of evidence KINDS, never evidence. The engine
+  // validates each against what it generated for this pairing, so an operator
+  // override can change which true thing is said and cannot introduce an
+  // untrue one, promote a SIGNAL, or reach a kind that failed its confidence
+  // floor. An unrecognised kind is dropped, not honoured.
+  let evidenceUsed = evidence;
+  if (!evidenceUsed && collegeName) {
+    try {
+      evidenceUsed = evidenceFor(athlete, collegeName, {
+        sport: athlete.sport,
+        prefer: Array.isArray(evidenceSelection) ? evidenceSelection : null,
+        // The structure the composer showed, revalidated here against the
+        // server's own selection. An ineligible or unknown key is refused and
+        // recorded rather than honoured — see resolveStructure — so a stale
+        // tab cannot open an email on a relationship the evidence lost.
+        preferStructure: typeof evidenceStructure === 'string' ? evidenceStructure : null,
+      });
+    } catch (err) {
+      console.warn(`  could not derive evidence for ${collegeName}: ${err.message}`);
+    }
+  }
+
+  // Which template shape rendered this email — a different variable from the
+  // engine's `structure`, so a later A/B can separate the two.
+  const variant = templateVariant(athlete.email_template);
+
+  /**
+   * Did the evidence sentence actually survive into what was sent?
+   *
+   * The composer hands the operator an editable body, and deleting the
+   * programme sentence is a reasonable thing to do. Logging the evidence
+   * regardless would then attribute a reply to a claim the coach never read,
+   * which is precisely the measurement error this table exists to avoid.
+   * Checked against the first selected sentence rather than the whole
+   * paragraph, so light editing still counts as carried.
+   */
+  const haystack = String(body || '').toLowerCase();
+  const sentences = evidenceUsed?.sentences ?? [];
+  /**
+   * Which claims survived, item by item.
+   *
+   * Per ITEM rather than per email, and that distinction is the reason this
+   * changed with multi-evidence: an operator who keeps the opening sentence
+   * and deletes the supporting paragraph has delivered one claim of three.
+   * Counting the email as "evidence rendered" would credit all three angles
+   * with whatever reply it earned, which is the measurement error the whole
+   * table exists to prevent, scaled up by the number of angles.
+   */
+  const renderedKinds = sentences.length
+    ? new Set(sentences.filter((s) => haystack.includes(String(s.text).toLowerCase()))
+      .map((s) => s.kind))
+    : null;
+  // The lead item, which is what this column has always meant. Kept on that
+  // definition so rows written before multi-evidence remain comparable.
+  const firstSentence = sentences[0]?.text ?? null;
+  const evidenceRendered = firstSentence
+    ? haystack.includes(firstSentence.toLowerCase())
+    : null;
 
   const results = [];
   let actualFrom = null;
@@ -155,7 +291,78 @@ export async function sendOutreach({
         position_title: coach.title,
       });
 
-      const outreach = createOutreach({ athleteId, coachId: record.id, matchId });
+      const outreach = createOutreach({ athleteId, coachId: record.id, matchId, programmeCampaignId });
+
+      /**
+       * THE SEQUENCE IS PER COACH, SO THE EVIDENCE IS TOO.
+       *
+       * `evidenceUsed` above is derived once for the whole run, which is right
+       * while every coach at a programme gets the same email. Under a campaign
+       * they do not: the head coach may be on their follow-up while the
+       * assistant has never been written to, and one shared evidence result
+       * would store the head coach's follow-up reasoning against the
+       * assistant's first approach.
+       *
+       * Re-derived ONLY when a campaign is attributed, so the manual and
+       * legacy paths cost nothing and behave identically. Best-effort like
+       * every other analysis step here: a failure to work out the sequence
+       * must not stop an email, so it falls back to the run-level result.
+       */
+      let coachEvidence = evidenceUsed;
+      if (programmeCampaignId && collegeName) {
+        try {
+          coachEvidence = evidenceFor(athlete, collegeName, {
+            sport: athlete.sport,
+            prefer: Array.isArray(evidenceSelection) ? evidenceSelection : null,
+            preferStructure: typeof evidenceStructure === 'string' ? evidenceStructure : null,
+            programmeCampaignId,
+            coachId: record.id,
+          });
+        } catch (err) {
+          console.warn(`  could not derive the sequence for ${coach.email}: ${err.message}`);
+        }
+      }
+
+      /**
+       * THE OUTBOUND ACTION BUDGET, SPENT BEFORE THE TRANSPORT AND NEVER AFTER.
+       *
+       * Only when something is actually being SENT. `send: false` opens a
+       * draft window and hands nothing to a provider, so it costs nothing —
+       * an operator may draft a whole Top 100 for review without spending a
+       * day's capacity on messages nobody has decided to send.
+       *
+       * LAST OF THE FOUR SAFETY CHECKS, and the order is deliberate: the
+       * campaign gate, suppression and the per-inbox cap all refuse above this
+       * line, so a message that was never permitted never spends budget.
+       * Everything after this line is the attempt itself.
+       *
+       * The refusal ends this coach and not the run. A campaign that has used
+       * its day should record nineteen sends and one refusal, not lose the
+       * nineteen — and the operator needs to see which coach to pick up
+       * tomorrow.
+       */
+      if (send) {
+        try {
+          recordOutboundAttempt({
+            outreachId: outreach.id,
+            // An assertion, checked against the relationship rather than
+            // trusted: the athlete whose budget this spends is derived.
+            athleteId,
+            // The mailbox we are ASKING to send from. Outlook reports which
+            // account it actually used only after the compose returns, so the
+            // requested identity is the only one available before the spend —
+            // see the mismatch reported at the end of this function.
+            sendingIdentity: OUTLOOK_FROM_ADDRESS,
+            transport: TRANSPORT.OUTLOOK_APPLESCRIPT,
+          });
+        } catch (err) {
+          results.push({
+            email: coach.email, name: coach.name, status: 'budget-refused',
+            reason: err.code, error: err.message,
+          });
+          continue;
+        }
+      }
       const url = `${PUBLIC_BASE_URL}/p/${athlete.public_slug}.html?ref=${outreach.token}`;
 
       const personalisedBody = ensureProfileLink(
@@ -172,9 +379,96 @@ export async function sendOutreach({
       if (outcome.from) actualFrom = outcome.from;
       if (outcome.fromMatches === false) fromMismatch = true;
 
-      // Records that the message was handed to Outlook. Whether the user then
-      // presses Send in Outlook is outside what we can observe.
-      markOutreachSent(outreach.id);
+      /**
+       * Drafted always; SENT only when something actually sent it.
+       *
+       * `send: true` means the AppleScript issued Outlook's own Send, which is
+       * a confirmation we observe rather than infer. `send: false` opens a
+       * draft window and nothing more, and whether the operator later presses
+       * Send is outside what we can see — so it stays unconfirmed until they
+       * say so through `npm run confirm-sends`.
+       *
+       * This line used to call `markOutreachSent` unconditionally. Drafting
+       * twenty and sending fifteen therefore recorded twenty sends, and every
+       * denominator keyed on `sent_at` — evidence performance, reply rates,
+       * the per-inbox cap — overstated by the difference.
+       */
+      markOutreachDrafted(outreach.id);
+      if (send) markOutreachSent(outreach.id);
+
+      /**
+       * The immutable record of THIS message.
+       *
+       * Written after the compose returned, so it records a body that reached
+       * Outlook rather than one we intended to write — and in two phases,
+       * because the world has two: the snapshot is frozen here from the
+       * evidence and the body as sent, and the row only becomes an analytics
+       * send when something we observed sent it.
+       *
+       * Wrapped, and deliberately so. `logEvidence` has always been
+       * best-effort on the principle that a gap in the analysis is survivable
+       * and a campaign that aborts halfway through a list is not. This is the
+       * same trade: a coach has already received the email by the time we get
+       * here, and throwing now would neither unsend it nor help.
+       */
+      if (coachEvidence) {
+        try {
+          recordDraft({
+            outreachId: outreach.id,
+            athleteId,
+            coachId: record.id,
+            collegeName,
+            sport: athlete.sport,
+            // Per message, and never read back off the relationship: see the
+            // note in recordDraft.
+            programmeCampaignId,
+            evidence: coachEvidence,
+            body: personalisedBody,
+            subject: personalise(subject, greetingName, coach.name || 'Coach'),
+            bodySource: Object.values(BODY_SOURCE).includes(bodySource) ? bodySource : null,
+            templateVariant: variant,
+            renderedKinds,
+          });
+          /**
+           * The AppleScript issued Outlook's own Send and did not error, which
+           * is stronger evidence than an operator's later recollection and
+           * weaker than a provider API's answer. Recorded as what it is, so
+           * the day Gmail or Graph returns a real acceptance the two are
+           * distinguishable in the data.
+           *
+           * It still does not mean delivered. Nothing here observes a message
+           * leaving a mail server.
+           */
+          if (send) {
+            confirmSend(outreach.id, undefined, {
+              source: ACCEPTED_SOURCE.OUTLOOK_COMMAND_ASSERTED,
+            });
+          }
+        } catch (err) {
+          console.warn(`  send record failed for outreach ${outreach.id}: ${err.message}`);
+        }
+      }
+
+      // Written after the compose succeeded, so the table records messages
+      // that actually reached Outlook rather than ones we intended to write.
+      // Never throws — see server/lib/evidenceLog.js.
+      if (coachEvidence) {
+        logEvidence({
+          outreachId: outreach.id,
+          athleteId,
+          collegeName,
+          sport: athlete.sport,
+          evidence: coachEvidence,
+          rendered: evidenceRendered,
+          templateVariant: variant,
+          renderedKinds,
+          // What the composer actually used to build this body. A log field,
+          // not a safety one: nothing downstream trusts it to decide what may
+          // be said, and it is constrained to the enum so a bad client cannot
+          // put arbitrary text in a grouping column.
+          bodySource: Object.values(BODY_SOURCE).includes(bodySource) ? bodySource : null,
+        });
+      }
       results.push({ email: coach.email, name: coach.name, status: send ? 'sent' : 'drafted', url });
     } catch (err) {
       results.push({ email: coach.email, name: coach.name, status: 'error', error: err.message });

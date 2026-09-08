@@ -56,7 +56,7 @@ const post = (body, headers = {}) =>
 const eventCount = () => db.prepare('SELECT COUNT(*) c FROM tracking_events').get().c;
 
 beforeEach(() => {
-  db.exec('DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
+  db.exec('DELETE FROM tracking_events; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
   resetTrackRateLimits();
 });
 

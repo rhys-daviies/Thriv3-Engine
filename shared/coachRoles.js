@@ -31,11 +31,33 @@ const HARD_EXCLUDED = [
  */
 const INCLUDED = [
   [/associate\s*head/i, 'associate-head'],
+  /**
+   * A title that OPENS with "assistant … coach" is an assistant, whatever it
+   * says afterwards.
+   *
+   * Checked before the head rule because the head pattern is not anchored, so
+   * it matched the second job in "Assistant Coach / Head EDS Coach" and
+   * "Assistant Coach/Head Reserves Coach", and matched "Head Coach" inside
+   * "Assistant Head Coach". All three then sorted ahead of the actual head
+   * coach and took the greeting.
+   *
+   * Deliberately requires the word "coach" straight after the assistant
+   * phrase, so "Assistant Athletic Director / Head Soccer Coach" — a genuine
+   * head coach who is also an AD — is untouched.
+   */
+  [/^\s*(senior\s+)?assistant\s+(head\s+)?((men|women)'?s?\s+|m\s+|w\s+)?(soccer\s+)?coach\b/i, 'assistant'],
   // "head ... coach" within one role phrase. A slash is allowed between them
   // ("Head Men's/Women's Soccer Coach", "Director of Soccer / Head Coach"),
   // a pipe or bracket is not — those separate one job from another, and
   // "Assistant Coach | Head of Goalkeeper Development" is not a head coach.
-  [/\bhead\b[^|(]*coach|director of soccer/i, 'head'],
+  //
+  // "director of soccer" is here because at some programmes it IS the senior
+  // coaching job. "Director of Soccer OPERATIONS" is not — it is an
+  // administrator, and reading it as the head put Abby Williams ahead of head
+  // coach Michael Chesler on Utah Valley's email. The lookahead excludes only
+  // that variant; "Director of Soccer Operations/Head Coach" still reads as a
+  // head through the head-coach alternative beside it.
+  [/\bhead\b[^|(]*coach|director of soccer(?!\s*operations)/i, 'head'],
   // Before goalkeeper on purpose: someone billed as an assistant who also runs
   // keeper development is an assistant, and should hear from every recruit
   // rather than only from keepers.
@@ -49,7 +71,7 @@ const INCLUDED = [
  * kit they also look after.
  */
 const SOFT_EXCLUDED = [
-  [/director of (operations|soccer operations)|operations coordinator/i, 'operations'],
+  [/director of (operations|soccer operations)|director,?\s*soccer operations|soccer operations|operations coordinator|coordinator of operations/i, 'operations'],
   [/equipment|media|sports?\s*information|^\s*manager\s*$/i, 'support-staff'],
   [/strength|conditioning|athletic trainer|nutrition|academic advis/i, 'performance-staff'],
 ];

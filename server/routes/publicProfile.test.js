@@ -56,7 +56,7 @@ const isProfile = async (res) => (await res.text()).includes(PAGE_MARKER);
 const isNeutral = async (res) => (await res.text()).includes('This profile is no longer shared');
 
 beforeEach(() => {
-  db.exec('DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
+  db.exec('DELETE FROM tracking_events; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
 });
 
 describe('serving a live link', () => {

@@ -1,0 +1,72 @@
+{
+  "note": "Committed Evidence behavioural baseline. See docs/EVIDENCE_BASELINES.md before repinning.",
+  "now": "2026-09-06T00:00:00.000Z",
+  "manifest": {
+    "version": "V2",
+    "tables": [
+      {
+        "table": "players",
+        "rows": 4,
+        "digest": "67a40ceb30ddaa7a172fce920755073b61cd5449bf25958245a834f477375774"
+      },
+      {
+        "table": "colleges",
+        "rows": 2404,
+        "digest": "cdcbe3c7c693c81b8d90d35beff6f36a563cd38b870261af4208af2cdad81bc5"
+      },
+      {
+        "table": "roster_players",
+        "rows": 276745,
+        "digest": "16a5f3ca4414f6a90adcf6c22b2da63208ec7ab46fc4a0f986c384b408281bbc"
+      },
+      {
+        "table": "coaches",
+        "rows": 6347,
+        "digest": "35c83c5c8fd75c4d1884660f4edf1ef8c90f597545e6e2ce1f8deb3619984872"
+      },
+      {
+        "table": "athletics_domains",
+        "rows": 2717,
+        "digest": "4adeb22a0650d51139b1e916f1286c598cbecba3a10b7d723100fff229bbe420"
+      },
+      {
+        "table": "roster_freshness",
+        "rows": 1910,
+        "digest": "80ab2d600fdb4462966c5de02b0efbaa5f87fadb2fa02961f09ec13dceb19189"
+      }
+    ],
+    "digest": "5bbca9054b7752d5dc9882df24890c35314cc330f532f0b3430c93af60656def"
+  },
+  "baselines": [
+    {
+      "name": "OUTBOUND_DECISION",
+      "size": 4742,
+      "digest": "11d52d4ddca3a48eb0055463ef45715ae94b8cc2c2d5bffaabb5ac4e57e5c692"
+    },
+    {
+      "name": "COACH_COMPOSITION",
+      "size": 4742,
+      "digest": "e664ac1f3f8ed0de3bc69a607b7efbedc8ef2f437a9083242505f4641311ed76"
+    },
+    {
+      "name": "EMAIL_BODY",
+      "size": 4742,
+      "digest": "a756b5a0e877581794880f5a04ff0f81fe57b9800695899ab54b0d7da06dd41b"
+    },
+    {
+      "name": "OPERATOR_WIRE",
+      "size": 4742,
+      "digest": "e9379455c8dffe6e24dd8139be77cfd68dba942008291ba25c252dc0fb1be3d5"
+    },
+    {
+      "name": "LOG_PAYLOAD",
+      "size": 4742,
+      "digest": "d4a41935dfb75b032849667237d037e2250288dbadb3a65e60eea48f54b88014"
+    },
+    {
+      "name": "OPERATOR_EVIDENCE",
+      "size": 4742,
+      "digest": "c764171433964eb5c2afdd298669aaba63d6d097900cc95798e49ed1eb06a688"
+    }
+  ]
+}

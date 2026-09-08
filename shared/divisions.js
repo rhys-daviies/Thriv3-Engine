@@ -8,7 +8,7 @@
  */
 
 /** The canonical spelling of every division, as `colleges.division` stores it. */
-export const DIVISIONS = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA'];
+export const DIVISIONS = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA', 'USCAA'];
 
 /**
  * Normalises any spelling to the canonical one, or 'Other'.
@@ -19,6 +19,12 @@ export const DIVISIONS = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA'];
 export function normalizeDivision(raw) {
   if (!raw) return 'Other';
   const s = String(raw).toUpperCase();
+  // USCAA is tested FIRST, and the order is as load-bearing as the D3-before-D2
+  // rule below. The association names its own tiers "USCAA Division I" and
+  // "USCAA Division II", so every one of the NCAA tests underneath matches a
+  // USCAA string — "USCAA Division II" would come back as NCAA D2, which is
+  // the exact claim this vocabulary was extended to stop making.
+  if (/\bUSCAA\b/.test(s)) return 'USCAA';
   if (/\bD\s*3\b/.test(s) || /\bDIVISION\s+III\b/.test(s)) return 'NCAA D3';
   if (/\bD\s*2\b/.test(s) || /\bDIVISION\s+II\b/.test(s)) return 'NCAA D2';
   if (/\bD\s*1\b/.test(s) || /\bDIVISION\s+I\b/.test(s)) return 'NCAA D1';

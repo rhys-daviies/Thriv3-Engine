@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, ExternalLink, Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, ChevronDown, ChevronUp, ExternalLink, Mail } from 'lucide-react';
+import CoachEmail from '@/components/CoachEmail';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import RecruitingSignals from '@/components/RecruitingSignals';
 import { STARTER_MINUTES } from '@shared/matching/pool.js';
 
 function SeniorGroup({ label, names, collegeName }) {
@@ -98,7 +101,35 @@ function matchScoreVariant(score) {
   return 'muted';
 }
 
-export default function CollegeCard({ college, onEmailCoaches }) {
+/**
+ * A heading for the sections the expanded card is now organised into.
+ *
+ * Matches ScoreBreakdown's own heading style rather than introducing a second
+ * one — that component prints "Why this score" in exactly these classes, and it
+ * is left untouched, so this is what the neighbouring sections have to look
+ * like.
+ */
+function SectionHeading({ children }) {
+  return (
+    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+      {children}
+    </p>
+  );
+}
+
+/**
+ * @param {object|null} recruitingSignals  this programme's licensed signals,
+ *   from `recruitingSignalsForCollege` — `{ facts }`, `{ unavailable: true }`
+ *   or null. Deliberately not the endpoint response and not the summary
+ *   object: the card is handed what it renders, never something it has to
+ *   interpret. No score, weight or criterion reaches it, so a signal cannot be
+ *   selected or worded by how the programme scored.
+ * @param {string|null} playerId  for the link to the full evidence page. The
+ *   card knows the programme; only the route needs the athlete.
+ */
+export default function CollegeCard({
+  college, onEmailCoaches, recruitingSignals = null, playerId = null,
+}) {
   const [expanded, setExpanded] = useState(false);
   const coaches = (college.coaching_staff || []).filter((c) => c.email && c.email !== 'N/A');
   const affordability = (college.breakdown || []).find((b) => b.key === 'affordability');
@@ -155,6 +186,12 @@ export default function CollegeCard({ college, onEmailCoaches }) {
 
       {expanded && (
         <div className="mt-4 pt-4 border-t border-border space-y-4">
+          {/* 1. KEY INFO — what do we know about the match?
+              The ratings, the affordability caveat that qualifies one of them,
+              and the graduating groups. Values and calculations are untouched;
+              what changed is that they now sit under a heading instead of
+              running into the score breakdown. */}
+          <SectionHeading>Key info</SectionHeading>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
             <div>
               <p className="text-xs text-muted-foreground">Program Rating</p>
@@ -174,8 +211,6 @@ export default function CollegeCard({ college, onEmailCoaches }) {
             </div>
           </div>
 
-          <ScoreBreakdown breakdown={college.breakdown} />
-
           {affordability?.detail?.caveat && (
             <p className="text-xs text-amber-400/90">{affordability.detail.caveat}</p>
           )}
@@ -185,6 +220,51 @@ export default function CollegeCard({ college, onEmailCoaches }) {
             <SeniorGroup label="At Your Position" names={college.graduating_senior_names_at_position} collegeName={college.name} />
             <SeniorGroup label={`Graduating Starters (${STARTER_MINUTES}+ min)`} names={college.graduating_starter_names_at_position} collegeName={college.name} />
           </div>
+
+          {/* 2. WHY THIS SCORE — why did Thriv3 rank this programme here?
+              Unchanged: it prints its own heading in the style above, and the
+              six criteria behind it are the matching engine's, not this
+              component's. */}
+          <ScoreBreakdown breakdown={college.breakdown} />
+
+          {/* 3. RECRUITING SIGNALS — what have we observed about how this
+              programme recruits?
+              A different question from the two above, from a different engine:
+              the score is six weighted criteria computed in the browser, this
+              is recruiting history computed on the server. They are kept apart
+              deliberately — evidence never explains the score.
+
+              This replaced "Outreach evidence", which answered a third
+              question — what could we say to a coach — on a surface where
+              nobody is writing to one yet. That question, and the composer's
+              own permissions, moved nowhere: they live in the composer and on
+              the Evidence tab, which is where an email actually gets written.
+
+              Renders nothing at all for the four pairs in five with no
+              licensed signal — 969 of 1,169 programmes for the athlete this
+              was measured against — so most cards are unchanged by its
+              arrival. */}
+          <RecruitingSignals signals={recruitingSignals} />
+
+          {/* Everything the card had to leave out. The programme name goes
+              through the URL exactly as the matching engine holds it, because
+              that is the key every evidence lookup is by. */}
+          {playerId && (
+            <Link
+              to={`/player/${playerId}/decision?college=${encodeURIComponent(college.name)}`}
+              /* `flex w-fit`, not `inline-flex`. The official-roster link below
+                 is inline-flex, and two inline boxes in a `space-y` stack share
+                 a line: live QA showed "View full evidence ⧉Official roster ⧉"
+                 run together with no separator. A block-level flex box takes
+                 its own row and `w-fit` keeps the target the width of the
+                 words rather than the card. */
+              className="flex w-fit items-center gap-1 text-xs text-accent hover:underline"
+            >
+              {/* An arrow, not the external-link glyph the roster link below
+                  uses: this navigation stays inside the app. */}
+              View full evidence <ArrowRight className="h-3 w-3" />
+            </Link>
+          )}
 
           {college.reason && (
             <p className="text-xs text-muted-foreground italic">{college.reason}</p>
@@ -208,7 +288,7 @@ export default function CollegeCard({ college, onEmailCoaches }) {
                 {coaches.map((c) => (
                   <div key={c.email} className="text-xs flex items-center justify-between">
                     <span>{c.name} <span className="text-muted-foreground">— {c.title}</span></span>
-                    <a href={`mailto:${c.email}`} className="text-accent hover:underline">{c.email}</a>
+                    <CoachEmail email={c.email} className="text-xs" />
                   </div>
                 ))}
               </div>

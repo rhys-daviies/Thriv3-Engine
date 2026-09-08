@@ -12,9 +12,12 @@ import EmailRiskBadge from '@/components/EmailRiskBadge';
 import { useCoachEmailStatus, statusOf } from '@/lib/useCoachEmailStatus';
 import { useProfileUrl } from '@/lib/useProfileUrl';
 import {
-  fillTemplate, buildEmailContext, unresolvedTokens, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE,
+  fillTemplate, buildEmailContext, unresolvedTokens, emailBodyFor, canComposeStructured,
+  DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE,
 } from '@/lib/emailTemplate';
 import { outreach } from '@/api/client';
+import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
+import EvidencePanel from '@/components/EvidencePanel';
 
 /**
  * One draft per programme on the page, addressed to its head coach.
@@ -73,6 +76,14 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
   const [subject, setSubject] = useState(player.email_subject || DEFAULT_EMAIL_SUBJECT);
   const [body, setBody] = useState(player.email_template || DEFAULT_EMAIL_TEMPLATE);
   const [previewName, setPreviewName] = useState(targets[0]?.college.name || '');
+
+  // One batched request for the whole page rather than one per programme.
+  // Absent until it lands and absent for good if it fails, in which case every
+  // draft is the plain template — the same email this composer sent before the
+  // evidence engine existed, rather than a wrong one.
+  const collegeNames = useMemo(() => targets.map((t) => t.college.name), [targets]);
+  const { evidence: evidenceMap, loading: evidenceLoading, failed: evidenceFailed } =
+    useEvidence(player.id, collegeNames);
   const [results, setResults] = useState({});   // college name -> { status, error }
   const [progress, setProgress] = useState({ done: 0, total: 0 });
   const [busy, setBusy] = useState(false);
@@ -82,24 +93,63 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
 
   const previewTarget = targets.find((t) => t.college.name === previewName) || targets[0] || null;
 
+  /**
+   * Whether each programme gets its own assembled body, or all of them share
+   * the one in the textarea.
+   *
+   * The textarea holds ONE template for the whole page, which was right when
+   * every email had the same shape and is not once structures exist: two
+   * programmes on the same page can now honestly want different argument
+   * orders. So while the template is untouched, each draft is composed from
+   * its own structure; the moment the operator edits it, their version wins
+   * for every programme — an edit is an instruction, and quietly ignoring it
+   * on nineteen of twenty programmes would be the worse surprise.
+   */
+  const pristineTemplate = player.email_template || DEFAULT_EMAIL_TEMPLATE;
+  const perProgramme = canComposeStructured(player) && body === pristineTemplate;
+
+  /**
+   * The body for one programme, by whichever route is active.
+   *
+   * One function, used by both the preview and the send loop, so what is shown
+   * and what is drafted cannot diverge — which is exactly how an operator ends
+   * up approving one email and sending another.
+   */
+  const bodyFor = (college, coachName, profileUrl = null) => {
+    const evidence = evidenceForCollege(evidenceMap, college.name);
+    if (perProgramme) {
+      return emailBodyFor(player, college, coachName, { evidence, profileUrl });
+    }
+    const context = buildEmailContext(player, college, coachName, { profileUrl, evidence });
+    return { body: fillTemplate(body, context), context, source: 'TEMPLATE', structure: null };
+  };
+
   // A token nothing resolves is left exactly as written, so a typo reaches
   // the coach intact. Checked against a real context rather than by looking
   // for braces, because a template legitimately still holds its tokens here.
   const unresolved = useMemo(() => {
     if (!previewTarget) return [];
-    const context = buildEmailContext(player, previewTarget.college, 'Coach');
+    const context = buildEmailContext(player, previewTarget.college, 'Coach', {
+      evidence: evidenceForCollege(evidenceMap, previewTarget.college.name),
+    });
     return [...new Set([
       ...unresolvedTokens(subject, context),
       ...unresolvedTokens(body, context),
     ])];
-  }, [previewTarget, player, subject, body]);
+  }, [previewTarget, player, subject, body, evidenceMap]);
+  const previewEvidence = evidenceForCollege(evidenceMap, previewTarget?.college.name);
   const preview = useMemo(() => {
     if (!previewTarget) return null;
-    const context = buildEmailContext(player, previewTarget.college, previewTarget.coach.name || 'Coach', {
-      profileUrl: previewProfileUrl,
-    });
-    return { subject: fillTemplate(subject, context), body: fillTemplate(body, context) };
-  }, [previewTarget, player, subject, body, previewProfileUrl]);
+    const composed = bodyFor(
+      previewTarget.college, previewTarget.coach.name || 'Coach', previewProfileUrl,
+    );
+    return {
+      subject: fillTemplate(subject, composed.context),
+      body: composed.body,
+      structure: composed.structure,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [previewTarget, player, subject, body, previewProfileUrl, previewEvidence, perProgramme]);
 
   function toggle(name) {
     setSelected((prev) => {
@@ -148,17 +198,21 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
     setProgress({ done: 0, total: queue.length });
 
     for (const { college, coach } of queue) {
-      const context = buildEmailContext(player, college, coach.name || 'Coach');
+      // Each programme's own evidence AND its own structure. A programme the
+      // lookup could not read drafts the plain template rather than borrowing
+      // another school's evidence or another school's shape.
+      const composed = bodyFor(college, coach.name || 'Coach');
       try {
         const response = await outreach.send({
           athleteId: player.id,
           coaches: [{ name: coach.name, email: coach.email, title: coach.title }],
-          subject: fillTemplate(subject, context),
-          body: fillTemplate(body, context),
+          subject: fillTemplate(subject, composed.context),
+          body: composed.body,
           greetingName: coach.name || 'Coach',
           collegeName: college.name,
           division: college.division,
           matchId: college.name,
+          bodySource: composed.source,
           send: false,   // never from here; you press send in Outlook
         });
         setResults((prev) => ({ ...prev, [college.name]: response.results[0] }));
@@ -298,11 +352,32 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
           </div>
           <div className="space-y-1.5">
             <Label>Body template</Label>
+            {/* Two modes, and which one is active depends on whether this box
+                has been touched. Said plainly rather than left to be worked
+                out from the previews, because the consequence of an edit here
+                is that nineteen other programmes stop being individually
+                shaped — which is a reasonable thing to want and a bad thing
+                to discover afterwards. */}
             <p className="text-xs text-muted-foreground">
-              Tokens stay unresolved here — {'{{college_name}}'} and the graduating-senior counts
-              fill differently for every programme. Read the preview below to see one rendered.
+              {perProgramme
+                ? <>Each programme is built from its own structure and its own evidence, so the
+                    drafts genuinely differ — switch programmes in the preview to see. Editing
+                    this box replaces that with one shared template for every programme.</>
+                : <>One shared template for every programme. Tokens stay unresolved here —{' '}
+                    {'{{college_name}}'} and the graduating-senior counts fill differently for
+                    each. Read the preview below to see one rendered.</>}
             </p>
             <Textarea rows={10} value={body} onChange={(e) => setBody(e.target.value)} className="text-sm" disabled={busy} />
+            {!perProgramme && canComposeStructured(player) && body !== pristineTemplate && (
+              <button
+                type="button"
+                onClick={() => setBody(pristineTemplate)}
+                className="text-[11px] text-muted-foreground underline underline-offset-2"
+                disabled={busy}
+              >
+                Discard these edits and go back to per-programme structures
+              </button>
+            )}
           </div>
 
           {unresolved.length > 0 && (
@@ -318,7 +393,14 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
           {preview && (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between gap-2">
-                <Label>Preview</Label>
+                <Label>
+                  Preview
+                  {preview.structure && (
+                    <span className="ml-1.5 font-normal text-[11px] text-muted-foreground">
+                      · {preview.structure}
+                    </span>
+                  )}
+                </Label>
                 <select
                   className="h-8 max-w-[60%] truncate rounded-md border border-border bg-background px-2 text-xs"
                   value={previewTarget.college.name}
@@ -329,6 +411,12 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
                   ))}
                 </select>
               </div>
+              <EvidencePanel
+                evidence={previewEvidence}
+                loading={evidenceLoading}
+                failed={evidenceFailed}
+                body={preview.body}
+              />
               <div className="rounded-md border border-border bg-muted/40 p-3">
                 <p className="text-xs font-medium">{preview.subject}</p>
                 <pre className="mt-2 whitespace-pre-wrap font-sans text-xs text-muted-foreground">{preview.body}</pre>

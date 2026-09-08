@@ -57,7 +57,7 @@ function session(outreachId, { at, qualified = true, coverage = 0, watched = 0, 
 }
 
 beforeEach(() => {
-  db.exec('DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
+  db.exec('DELETE FROM engagement_rollup; DELETE FROM tracking_events; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
 });
 
 describe('qualified visits only', () => {

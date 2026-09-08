@@ -19,6 +19,18 @@ describe('normalizeDivision', () => {
     expect(normalizeDivision('D3')).toBe('NCAA D3');
   });
 
+  // The USCAA names its own tiers "Division I" and "Division II", so every
+  // NCAA test in normalizeDivision matches a USCAA string. Before USCAA was
+  // tested first, "USCAA Division II" came back as NCAA D2 — which is the
+  // exact claim the division was added to stop making. Penn State Schuylkill
+  // contested the 2025 USCAA Division II national championship.
+  it('never reads a USCAA tier as an NCAA division', () => {
+    expect(normalizeDivision('USCAA')).toBe('USCAA');
+    expect(normalizeDivision('USCAA Division I')).toBe('USCAA');
+    expect(normalizeDivision('USCAA Division II')).toBe('USCAA');
+    expect(normalizeDivision('uscaa division ii')).toBe('USCAA');
+  });
+
   it('returns Other rather than guessing', () => {
     expect(normalizeDivision('NCCAA')).toBe('Other');
     expect(normalizeDivision('')).toBe('Other');
@@ -26,7 +38,7 @@ describe('normalizeDivision', () => {
   });
 
   it('canonical output is always one of DIVISIONS, or Other', () => {
-    for (const input of ['NCAA D1', 'Division II', 'naia', 'njcaa', 'nonsense']) {
+    for (const input of ['NCAA D1', 'Division II', 'naia', 'njcaa', 'USCAA Division II', 'nonsense']) {
       const out = normalizeDivision(input);
       expect(DIVISIONS.includes(out) || out === 'Other').toBe(true);
     }

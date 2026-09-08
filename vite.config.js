@@ -2,6 +2,8 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
 
+const API_TARGET = `http://localhost:${process.env.API_PORT || 8787}`;
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -25,12 +27,15 @@ export default defineConfig({
     port: Number(process.env.CLIENT_PORT || 5183),
     strictPort: true,
     proxy: {
+      // API_PORT so one variable moves the server and the proxy together —
+      // server/index.js already reads it. Without this the only way to run a
+      // second instance beside a running dev server was to edit this file.
       '/api': {
-        target: `http://localhost:${process.env.API_PORT || 8787}`,
+        target: API_TARGET,
         changeOrigin: true,
       },
       '/uploads': {
-        target: `http://localhost:${process.env.API_PORT || 8787}`,
+        target: API_TARGET,
         changeOrigin: true,
       },
     },

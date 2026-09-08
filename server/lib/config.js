@@ -107,3 +107,56 @@ export const PER_COACH_MAX_SENDS = Number(process.env.THRIV3_COACH_MAX_SENDS ?? 
  * a quarter of an hour is well inside how fast anybody acts on it.
  */
 export const SYNC_INTERVAL_MINUTES = Number(process.env.THRIV3_SYNC_INTERVAL_MINUTES || 0);
+
+/**
+ * THE OUTBOUND ACTION BUDGET. How much sending capacity may be spent in a day,
+ * measured along two axes that fail differently.
+ *
+ * These do not replace PER_COACH_MAX_SENDS above and are not a variant of it.
+ * That cap protects the RECIPIENT — one coach's inbox, over thirty days.
+ * These protect the SENDER: the mailbox's reputation, and the rate at which a
+ * single athlete consumes the service.
+ */
+
+/**
+ * How many outbound attempts one athlete may consume in a day.
+ *
+ * A CEILING, NOT A TARGET. Ten is the approved product rule and it is a
+ * maximum: the tenth attempt of the day is allowed and the eleventh is not.
+ * Nothing tries to reach it, and a campaign that sends four on a Tuesday is
+ * behaving normally.
+ *
+ * It exists for pacing and fairness rather than deliverability. Two athletes
+ * on one mailbox are governed by the mailbox limit below, which is the axis
+ * that protects reputation.
+ */
+export const ATHLETE_DAILY_OUTBOUND_LIMIT = Number(process.env.THRIV3_ATHLETE_DAILY_OUTBOUND ?? 10);
+
+/**
+ * How many outbound attempts one sending mailbox may make in a day.
+ *
+ * DELIBERATELY WITHOUT A DEFAULT, and that is the whole point of it.
+ *
+ * We know a sending mailbox needs a ceiling. We do not know what it should be:
+ * a safe number depends on the domain's age, its warm-up history, its SPF and
+ * DKIM alignment and its current reputation, and none of that has been
+ * measured here. Picking 50 or 100 would put a number nobody has evidence for
+ * into the one place that reads like it was chosen on evidence.
+ *
+ * So unset means UNCONFIGURED, never infinite. Automated execution refuses
+ * outright with MAILBOX_LIMIT_REQUIRED rather than proceeding without a
+ * ceiling — a missing limit is the most dangerous state a sender can be in,
+ * and it must not be the quietest.
+ *
+ * It does NOT block today's manual Outlook workflow, which reaches no
+ * enforcing path at all: the browser composer and the drafting CLI both pass
+ * `send: false` and the operator presses Send in Outlook themselves. That
+ * traffic is RECORDED against the mailbox when it is confirmed and is never
+ * refused. See server/lib/outboundBudget.js.
+ */
+export const MAILBOX_DAILY_OUTBOUND_LIMIT = (() => {
+  const raw = process.env.THRIV3_MAILBOX_DAILY_OUTBOUND;
+  if (raw === undefined || String(raw).trim() === '') return null;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+})();

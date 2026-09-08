@@ -63,6 +63,12 @@ export function coachEngagement(athleteId) {
       c.school,
       c.division,
       c.position_title,
+      -- Both, because they are different events: drafted_at is when the
+      -- message went into Outlook, sent_at only when the send was confirmed.
+      -- A row with a draft and no confirmation is a message we cannot say was
+      -- delivered, and the screen should not imply otherwise. (No backticks in
+      -- here: this SQL lives in a JS template literal and one would end it.)
+      o.drafted_at,
       o.sent_at,
       COALESCE(r.qualified_visits, 0)   AS qualified_visits,
       COALESCE(r.best_coverage_pct, 0)  AS best_coverage_pct,

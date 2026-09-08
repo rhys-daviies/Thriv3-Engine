@@ -4,7 +4,6 @@ import multer from 'multer';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { randomUUID } from 'node:crypto';
 
 import { Player } from './db/entities/player.js';
 import { College } from './db/entities/college.js';
@@ -19,11 +18,13 @@ import { importGraduatingCSV } from './routes/importGraduatingCSV.js';
 import { exportGraduatingDatabaseCsv } from './routes/exportGraduatingDatabase.js';
 import { listSchoolsByDivision } from './routes/listSchoolsByDivision.js';
 import { cleanInactiveSchools } from './routes/cleanInactiveSchools.js';
-import { sendEmailStub } from './routes/sendEmail.js';
 import { csvAgentChat } from './routes/csvAgent.js';
 import { coachingImportPreview } from './routes/coachingImportPreview.js';
 import { coachingImportApply } from './routes/coachingImportApply.js';
 import { trackRouter } from './routes/track.js';
+import { uploadsRouter } from './routes/uploads.js';
+import { campaignsRouter } from './routes/campaigns.js';
+import { UPLOADS_DIR } from './lib/uploadPath.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
 import { emailStatusMap } from './lib/coaches.js';
@@ -33,6 +34,10 @@ import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js'
 import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
 import { philosophySummaries, programReportModel } from './routes/philosophy.js';
+import { evidenceSummaries } from './routes/evidence.js';
+import { operatorEvidenceSummaries } from './routes/operatorEvidence.js';
+import { matchingSummaries } from './routes/matchingSummary.js';
+
 import { authRouter } from './routes/auth.js';
 import {
   attachOperator, requireOperator, requireSameOrigin,
@@ -48,19 +53,12 @@ import db from './db/client.js';
 import { poolStatus, invalidatePoolBenchmarks, poolBenchmarks } from './lib/philosophyQueries.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-/**
- * Uploaded files, which are not incidental — 13K / §19.
- *
- * `players.recommendations` stores a path into this directory, so an athlete's
- * matching analysis lives here as a file. It is therefore a persistent path
- * like the database and the report store, and in production it must be given
- * explicitly on the mounted disk; `runtimeProblems` refuses to start without
- * it. The in-tree default stays for local development.
- */
-const uploadsDir = process.env.THRIV3_UPLOAD_DIR
-  ? path.resolve(process.env.THRIV3_UPLOAD_DIR)
-  : path.resolve(__dirname, 'uploads');
-fs.mkdirSync(uploadsDir, { recursive: true });
+// The upload store is declared once, in server/lib/uploadPath.js, so the route
+// that writes it, the mount that serves it, the campaign snapshot reader that
+// opens it and the traversal guard that protects it cannot drift apart. It
+// reads THRIV3_UPLOAD_DIR itself, so the hosted persistent disk is honoured
+// without a second resolution living here.
+fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 const config = resolveConfig();
 const app = express();
@@ -144,7 +142,7 @@ app.use('/api', requireOperator);
 
 // Uploaded match-recommendation files are internal data, so the static mount
 // is behind the boundary like everything else.
-app.use('/uploads', requireOperator, express.static(uploadsDir));
+app.use('/uploads', requireOperator, express.static(UPLOADS_DIR));
 
 const ENTITIES = {
   players: Player,
@@ -261,6 +259,65 @@ app.post('/api/players/:playerId/philosophy/summaries', (req, res) => {
     }));
   } catch (err) {
     console.error('[philosophy/summaries]', err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ---- Email evidence ----
+//
+// Server-side because the strongest evidence spans five seasons of roster
+// rows, which the browser does not load. It never accepts facts from the
+// client: the departure numbers are recomputed here with the matching
+// engine's own functions, so an email and a match card cannot disagree.
+
+app.post('/api/players/:playerId/evidence', (req, res) => {
+  try {
+    res.json(evidenceSummaries({
+      playerId: req.params.playerId,
+      collegeNames: (req.body || {}).collegeNames,
+      // { "<college>": ["KIND", ...] } — an operator's chosen angles. Kinds
+      // only; the engine validates each against what it generated.
+      prefer: (req.body || {}).prefer || null,
+      // { "<college>": "STRUCTURE_KEY" } — an operator's chosen shape. Also
+      // validated: `resolveStructure` refuses one the selected evidence does
+      // not support rather than silently using it.
+      preferStructure: (req.body || {}).preferStructure || null,
+    }));
+  } catch (err) {
+    console.error('[evidence/summaries]', err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/**
+ * The operator Evidence surface. Separate from the composer route above and
+ * deliberately so: same identity mechanism, different payload, different job.
+ * See routes/operatorEvidence.js for why the two do not share a serializer.
+ */
+app.post('/api/players/:playerId/operator-evidence', (req, res) => {
+  try {
+    res.json(operatorEvidenceSummaries({
+      playerId: req.params.playerId,
+      collegeNames: (req.body || {}).collegeNames,
+    }));
+  } catch (err) {
+    console.error('[operator-evidence/summaries]', err);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/**
+ * Recruiting signals for the match card. A third surface with a third licence:
+ * six of twenty-six kinds, and nothing the match score already consumes.
+ */
+app.post('/api/players/:playerId/matching-summary', (req, res) => {
+  try {
+    res.json(matchingSummaries({
+      playerId: req.params.playerId,
+      collegeNames: (req.body || {}).collegeNames,
+    }));
+  } catch (err) {
+    console.error('[matching-summary/summaries]', err);
     res.status(400).json({ error: err.message });
   }
 });
@@ -437,23 +494,20 @@ app.post('/api/functions/:name', async (req, res) => {
   }
 });
 
+// ---- Campaigns ----
+//
+// A purpose-built router, deliberately NOT an entry in ENTITIES above: that
+// registry is unvalidated pass-through CRUD and would let a client rewrite a
+// snapshot's rank, score or provenance. Every mutation here goes through
+// server/lib/campaigns.js, which owns the invariants.
+app.use('/api', campaignsRouter);
+
 // ---- Uploads (UploadFile integration replacement) ----
-
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
-
-app.post('/api/uploads', upload.single('file'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file provided' });
-  const filename = `${randomUUID()}-${req.file.originalname}`;
-  fs.writeFileSync(path.join(uploadsDir, filename), req.file.buffer);
-  res.json({ file_url: `/uploads/${filename}` });
-});
-
-// ---- SendEmail integration replacement (stub) ----
-
-app.post('/api/send-email', async (req, res) => {
-  const result = await sendEmailStub(req.body || {});
-  res.json(result);
-});
+//
+// Mounted here rather than beside trackRouter so the middleware order is
+// unchanged: this route ran after express.json() before it was extracted, and
+// multer parses the multipart body itself either way.
+app.use('/api', uploadsRouter);
 
 // ---- CSV specialist chat agent ----
 

@@ -188,6 +188,7 @@ export function cleanEngagementSeed() {
 
     db.prepare(`DELETE FROM tracking_events WHERE outreach_id IN (${scope})`).run(...ids);
     db.prepare(`DELETE FROM engagement_rollup WHERE outreach_id IN (${scope})`).run(...ids);
+    db.prepare(`DELETE FROM outreach_send WHERE athlete_id IN (${placeholders})`).run(...ids);
     const outreach = db.prepare(`DELETE FROM outreach WHERE athlete_id IN (${placeholders})`).run(...ids);
     const coaches = db.prepare(
       `DELETE FROM coaches WHERE email IN (${COACHES.map(() => '?').join(',')})

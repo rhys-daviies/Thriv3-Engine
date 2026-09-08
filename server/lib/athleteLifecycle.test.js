@@ -40,7 +40,7 @@ describe('deactivation cascade', () => {
   let outreachRows;
 
   beforeEach(() => {
-    db.exec('DELETE FROM tracking_events; DELETE FROM engagement_rollup; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
+    db.exec('DELETE FROM tracking_events; DELETE FROM engagement_rollup; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
     athleteId = makeAthlete();
     outreachRows = makeCoaches(8).map((coach) => createOutreach({ athleteId, coachId: coach.id }));
   });
@@ -92,7 +92,7 @@ describe('retention grace period', () => {
   let outreachId;
 
   beforeEach(() => {
-    db.exec('DELETE FROM tracking_events; DELETE FROM engagement_rollup; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
+    db.exec('DELETE FROM tracking_events; DELETE FROM engagement_rollup; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
     athleteId = makeAthlete();
     const [coach] = makeCoaches(1);
     outreachId = createOutreach({ athleteId, coachId: coach.id }).id;
@@ -127,7 +127,7 @@ describe('retention grace period', () => {
 
 describe('tracking_events is append-only', () => {
   it('rejects any UPDATE at the database level', () => {
-    db.exec('DELETE FROM tracking_events; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
+    db.exec('DELETE FROM tracking_events; DELETE FROM outreach_send; DELETE FROM outreach; DELETE FROM players; DELETE FROM coaches;');
     const athleteId = makeAthlete();
     const [coach] = makeCoaches(1);
     const { id } = createOutreach({ athleteId, coachId: coach.id });

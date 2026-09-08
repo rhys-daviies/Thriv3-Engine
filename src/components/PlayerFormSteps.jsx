@@ -14,11 +14,12 @@ import AbilitySlider from '@/components/AbilitySlider';
 import PriorityTokens from '@/components/PriorityTokens';
 import ConferencePicker from '@/components/ConferencePicker';
 import { US_STATES, COUNTRIES, ORIGINS } from '@/lib/locations';
+import { DIVISIONS } from '@shared/divisions.js';
 // The bands and their ceilings live together, so the picker cannot offer a
 // band the model has no ceiling for.
 import { BUDGET_BANDS } from '@shared/matching/constants.js';
 import { positionLabel } from '@shared/positions.js';
-import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, DEFAULT_EMAIL_TEMPLATE } from '@/lib/emailTemplate';
+import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, validateTemplate } from '@/lib/emailTemplate';
 import { cn } from '@/lib/utils';
 import { entities } from '@/api/client';
 
@@ -26,7 +27,9 @@ import { entities } from '@/api/client';
 // the profile and in the email. Stored as written and canonicalised on read
 // (shared/positions.js), so rows saved as 'Defense' keep matching.
 const POSITIONS = ['Goalkeeper', 'Defender', 'Midfielder', 'Forward'];
-const DIVISIONS = ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA'];
+// Imported, not restated. This list was a third copy of the division
+// vocabulary and would have gone on offering five options after USCAA was
+// added, so an athlete could never have said they were open to it.
 
 
 /**
@@ -86,7 +89,17 @@ function defaultsFrom(initialData) {
     academic_minimum: initialData?.academic_minimum ?? 'Not Important',
     additional_notes: initialData?.additional_notes || '',
     email_subject: initialData?.email_subject || DEFAULT_EMAIL_SUBJECT,
-    email_template: initialData?.email_template || DEFAULT_EMAIL_TEMPLATE,
+    /**
+     * Empty unless this athlete already HAS a template.
+     *
+     * It used to seed a full copy of DEFAULT_EMAIL_TEMPLATE, so every athlete
+     * created through this form carried a template nobody had written — and
+     * `canComposeStructured` then had to guess intent by comparing that copy
+     * to the current constant. Editing the constant broke the comparison and
+     * moved athletes onto the fallback composer silently (J4). An empty field
+     * means "no override", which is what it should always have meant.
+     */
+    email_template: initialData?.email_template || '',
   };
 }
 
@@ -95,6 +108,7 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
   const [data, setData] = useState(() => defaultsFrom(initialData));
   const [colleges, setColleges] = useState([]);
   const [collegesLoading, setCollegesLoading] = useState(true);
+  const [templateError, setTemplateError] = useState(null);
 
   // Conference options are dynamic, sourced from the College collection —
   // fetched once per sport (same bulk-fetch-then-filter-client-side pattern
@@ -181,6 +195,24 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
       setStep(0);
       return;
     }
+    /**
+     * A template naming a token nothing resolves does not fail here — it fails
+     * in a coach's inbox, as literal braces. The dangerous case is a template
+     * written against the old vocabulary: J5 and J6 retired the tokens that
+     * rebuilt Evidence claims, and one of those still LOOKS correct.
+     *
+     * Refused, never rewritten. Stripping the token would lose the sentence it
+     * was part of and blanking it would hide the problem; the operator is told
+     * which names are wrong and keeps their text.
+     */
+    const check = validateTemplate(data.email_template);
+    if (!check.valid) {
+      setTemplateError(`This template uses ${check.unknown.length === 1 ? 'a token' : 'tokens'} `
+        + `nothing will fill in: ${check.unknown.map((t) => `{{${t}}}`).join(', ')}. `
+        + 'Remove them or pick from the list below — they would reach a coach as raw text.');
+      return;
+    }
+    setTemplateError(null);
     onSubmit(data);
   }
 
@@ -189,8 +221,16 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
     setData((d) => ({ ...d, email_template: `${d.email_template}${text}` }));
   }
 
+  /**
+   * Reset means "no override", not "a copy of the default".
+   *
+   * It used to paste DEFAULT_EMAIL_TEMPLATE into the field, which under the
+   * presence-based rule would CREATE an override instead of removing one —
+   * the opposite of what the button says. Clearing it hands the athlete back
+   * to the structured composer, which is what the default is.
+   */
   function resetTemplate() {
-    setData((d) => ({ ...d, email_subject: DEFAULT_EMAIL_SUBJECT, email_template: DEFAULT_EMAIL_TEMPLATE }));
+    setData((d) => ({ ...d, email_subject: DEFAULT_EMAIL_SUBJECT, email_template: '' }));
   }
 
   return (
@@ -467,7 +507,18 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
               </Button>
             </div>
             <Input value={data.email_subject} onChange={(e) => set('email_subject')(e.target.value)} placeholder="Subject" />
-            <Textarea rows={10} value={data.email_template} onChange={(e) => set('email_template')(e.target.value)} className="font-mono text-xs" />
+            <Textarea
+              rows={10}
+              value={data.email_template}
+              onChange={(e) => set('email_template')(e.target.value)}
+              placeholder={'Leave empty to use the structured composer, which builds the email from '
+                + 'the evidence found for each programme.\n\nWriting anything here overrides it for '
+                + 'every programme this athlete is written to.'}
+              className="font-mono text-xs"
+            />
+            {templateError && (
+              <p role="alert" className="text-xs text-destructive">{templateError}</p>
+            )}
             <div className="flex flex-wrap gap-1.5">
               {TEMPLATE_VARIABLES.map((v) => (
                 <button
