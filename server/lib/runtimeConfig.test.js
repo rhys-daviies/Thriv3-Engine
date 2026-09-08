@@ -25,6 +25,16 @@ const HOSTED = Object.freeze({
   RECRUITMATCH_DB: path.join(tmp, 'recruitmatch.sqlite'),
   THRIV3_REPORT_STORE: path.join(tmp, 'reports'),
   THRIV3_UPLOAD_DIR: path.join(tmp, 'uploads'),
+  /**
+   * D2. A hosted process that cannot encrypt a mailbox credential must not
+   * start, so a configuration without this one is no longer valid — which is
+   * why it belongs in the fixture that means "everything is set correctly"
+   * rather than only in the tests that check the refusal.
+   *
+   * Base64 of 32 bytes, written out rather than generated so the fixture is
+   * the same on every run.
+   */
+  THRIV3_MAILBOX_KEY: Buffer.alloc(32, 7).toString('base64'),
 });
 
 const problemsFor = (overrides) => runtimeProblems({ ...HOSTED, ...overrides });
