@@ -109,7 +109,29 @@
  * regions that were already tight. A P4 send and a P5 send offered the same
  * words for a different set of relationships, so their reply rates do not pool.
  */
-export const OUTREACH_POLICY_VERSION = 'P5';
+/**
+ * ---------------------------------------------------------------------------
+ * P6 — L3. One change, and it is the narrowest kind that still counts: the
+ * same stored athlete string can now produce a different ACADEMIC_FIT outcome.
+ *
+ *   QUALIFICATION free-text `intended_major` is matched on TOKEN boundaries
+ *                 rather than raw substrings. "Sport Science" and "Sports
+ *                 Medicine" now resolve to Kinesiology and "Data Science" to
+ *                 Computer Science, where before they resolved to nothing;
+ *                 "Martial Arts", "Liberal Arts", "Earth Science" and
+ *                 "Cartography" now resolve to nothing, where before every one
+ *                 of them resolved to Art & Design because "art" was matched
+ *                 as a substring.
+ *
+ * NOT a licensing, selection, dedupe, structure or copy change. ACADEMIC_FIT's
+ * own generation, permissions, role and wording are untouched, and the two
+ * vocabularies still stay apart. What moved is which free text reaches the
+ * claim at all.
+ *
+ * `EVIDENCE_SEQUENCE_POLICY_VERSION` is a separate authority on its own
+ * schedule and is not touched here; a send row records both.
+ */
+export const OUTREACH_POLICY_VERSION = 'P6';
 
 /**
  * Everything sent before P2, and the only value that may be written to a
@@ -151,6 +173,8 @@ export const KNOWN_POLICY_VERSIONS = Object.freeze([
   'P3',
   /** Retired from new writes at K3D, still nameable. No send is migrated. */
   'P4',
+  /** Retired from new writes at L3, still nameable. No send is migrated. */
+  'P5',
   OUTREACH_POLICY_VERSION,
 ]);
 
