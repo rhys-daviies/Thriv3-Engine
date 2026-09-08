@@ -36,6 +36,22 @@
 
 import { BLOCKS, EVIDENCE_BLOCKS } from '../evidence/structures.js';
 
+/**
+ * How a follow-up introduces the one fresh reason it carries.
+ *
+ * The initial framings live in `render.js` beside the clauses they wrap; this
+ * one lives here because it is a property of the FOLLOW-UP EMAIL rather than of
+ * any claim — the same clause takes it or does not depending only on which
+ * message it is in.
+ *
+ * "Another reason" is doing real work. It presupposes a first reason, which
+ * the first email gave, so the sentence reads as a continuation rather than as
+ * a fresh discovery. It claims nothing the evidence does not already license:
+ * what follows is the same clause the copy registry produces for an initial
+ * email, word for word.
+ */
+export const FOLLOW_UP_FRAMING = 'Another reason I thought it could be a good fit is';
+
 /** The token an evidence block resolves to. */
 export function slotToken(block) {
   return `evidence_${String(block).toLowerCase()}`;
@@ -148,6 +164,25 @@ export const BLOCK_COPY = Object.freeze({
     ].join('\n'),
   },
 
+  /**
+   * The follow-up's opening line. Never used by an initial email.
+   *
+   * IT MAKES NO CLAIM AND ASKS FOR NOTHING. It says we wrote, and that we are
+   * writing again briefly — which is the whole job of a second message's first
+   * line. Everything a coach might resent about a follow-up lives in the two
+   * things this deliberately does not do: it does not apologise for writing
+   * ("sorry to bother you again" invites the reader to agree), and it does not
+   * suggest the first email was missed or ignored ("in case you didn't see
+   * this" is a reproach wearing a helpful face).
+   *
+   * It does not date the first message either. We know when we drafted one and
+   * not when a coach read it, and "a couple of weeks ago" is a claim about
+   * their inbox we cannot make.
+   */
+  [BLOCKS.RECONNECT]: {
+    default: 'Following up on my note about {{player_name}}.',
+  },
+
   [BLOCKS.PROFILE]: {
     default: 'Profile and highlight film:\n{{player_profile_url}}',
   },
@@ -189,6 +224,22 @@ export const BLOCK_COPY = Object.freeze({
       + '\n\n'
       + "If it's worth a look I'm happy to send over anything else that would help — you can"
       + ' also reach me on WhatsApp [[+64 21 920 775](tel:+6421920775)].',
+
+    /**
+     * The follow-up's ask. ONE question, and the same question.
+     *
+     * The default carries two moves — a request for a view, then an offer of
+     * more material and a phone number. In a first email that reads as
+     * openness. In a second it reads as a second ask on top of an unanswered
+     * first, which is where a follow-up starts to feel like pressure.
+     *
+     * So this keeps the ask and drops the offer. It is deliberately the SAME
+     * question rather than a new one: asking something different would mean
+     * the first email's question no longer stands, and we are following up on
+     * it, not replacing it.
+     */
+    followUp: 'Would still be great to hear your thoughts on {{player_first_name}}'
+      + ' for your {{player_class_year}} group.',
   },
 
   [BLOCKS.SIGNOFF]: {

@@ -15,10 +15,10 @@
  * to a claim, which is what makes FACT/SIGNAL survive composition.
  */
 
-import { BLOCKS, EVIDENCE_BLOCKS, planFromRoles } from '../evidence/structures.js';
+import { BLOCKS, EVIDENCE_BLOCKS, planFromRoles, FOLLOW_UP_KEY } from '../evidence/structures.js';
 import { DEFAULT_HOOK_FRAMING, RELEVANCE_FRAMING } from '../evidence/render.js';
 import { outreachCopyFor } from '../evidence/outreachCopy.js';
-import { fragmentFor, slotToken } from './blocks.js';
+import { fragmentFor, slotToken, FOLLOW_UP_FRAMING } from './blocks.js';
 
 const cap = (s) => (s ? `${s[0].toUpperCase()}${s.slice(1)}` : s);
 
@@ -68,9 +68,27 @@ export function outreachSlots(flow, roles, byKind, ctx = {}) {
   for (const ev of plan.relevance) {
     const copy = copyOf(ev);
     if (!copy?.clause) continue;
-    // Framed as looking through the programme, which is what happened. With a
-    // hook already spent, the shorter "I also noticed" carries it.
-    const framing = plan.hook ? 'I also noticed' : RELEVANCE_FRAMING;
+    /**
+     * SAME FACT, DIFFERENT RHETORICAL ROLE.
+     *
+     * The evidence layer owns what is true; the framing owns what the sentence
+     * is DOING in this particular email. A pathway claim the initial message
+     * did not use is a perfectly good thing to say in a follow-up, and saying
+     * it in the first email's voice — "I was having a look through your program
+     * and noticed" — would tell a coach we had just discovered their programme
+     * in the message where we are following up on having written about it.
+     *
+     * So a follow-up frames the same clause as an additional reason rather
+     * than as a first observation. Nothing about the claim changes: the copy
+     * registry produced it, this only says what it is for.
+     *
+     * Otherwise unchanged. Framed as looking through the programme, which is
+     * what happened; with a hook already spent, the shorter "I also noticed"
+     * carries it.
+     */
+    const framing = flow.key === FOLLOW_UP_KEY
+      ? FOLLOW_UP_FRAMING
+      : (plan.hook ? 'I also noticed' : RELEVANCE_FRAMING);
     tokens[slotToken(BLOCKS.RELEVANCE)] = `${framing} ${copy.clause}.`;
     record(ev, BLOCKS.RELEVANCE, copy.clause);
   }
@@ -117,6 +135,14 @@ export function composeOutreach(flow, roles, byKind, ctx = {}) {
   // is actually in the email.
   const academic = sentences.some((x) => x.kind === 'ACADEMIC_FIT');
   const variants = academic ? { [BLOCKS.ATHLETE_INTRO]: 'academic' } : {};
+  /**
+   * The follow-up asks once, and asks the same thing.
+   *
+   * Set here rather than in the structure because a variant is a property of
+   * how this email is being written, not of which blocks it has — the same
+   * place the academic introduction is chosen, for the same reason.
+   */
+  if (flow.key === FOLLOW_UP_KEY) variants[BLOCKS.CTA] = 'followUp';
   return {
     template: structuredTemplate(flow, tokens, variants),
     tokens,

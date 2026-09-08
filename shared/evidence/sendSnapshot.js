@@ -32,6 +32,28 @@ import { OUTREACH_POLICY_VERSION } from './outreachPolicy.js';
  * be rebuilt, it will be rebuilt from data that has moved underneath it.
  */
 
+/**
+ * The sequence decision, flattened to what a later reader actually needs.
+ *
+ * Not the whole strategy object: `available` restates the licence decision the
+ * dispositions already carry, and copying it would make the payload a second
+ * account of the same thing — the failure mode this file was written to end.
+ */
+function sequenceRecord(seq) {
+  return {
+    policy_version: seq.sequencePolicyVersion,
+    step: seq.step,
+    status: seq.status,
+    /** Dedupe groups this campaign had already sent to this coach. */
+    previously_used: [...new Set((seq.previouslyUsed ?? [])
+      .filter((p) => p.source === 'SENT').map((p) => p.group))],
+    /** And the group this message was allowed to draw on. Empty is valid. */
+    selected: [...new Set((seq.available ?? [])
+      .filter((a) => (seq.preferredForThisMessage ?? []).includes(a.kind))
+      .map((a) => a.group))],
+  };
+}
+
 /** The slot a claim occupied, which is also the role it was playing. */
 const ROLE_OF_SLOT = Object.freeze({
   HOOK: 'HOOK', RELEVANCE: 'RELEVANCE', RECOGNITION: 'RECOGNITION',
@@ -152,6 +174,32 @@ export function buildSendSnapshot({
       operator_selected: Boolean(evidence?.operatorSelected),
       /** What the engine would have sent unaided, for that same comparison. */
       engine_selected: evidence?.engineSelected ?? [],
+      /**
+       * WHICH MESSAGE OF A CAMPAIGN THIS WAS, AND WHAT THAT COST IT.
+       *
+       * ABSENT for every unattributed send, which is why no existing payload
+       * changes shape: a manual email and a legacy relationship have no
+       * campaign, no step and no sequence policy, and inventing a step 1 for
+       * them would claim a campaign they were never part of.
+       *
+       * In the payload rather than in columns of its own. `outreach_send`
+       * already carries the queryable facts — `programme_campaign_id`,
+       * `state`, `rendered_kinds` — and nothing here is a filter or a GROUP BY;
+       * it is the record of a decision, read when somebody asks why this
+       * particular follow-up said what it said. A column per field would be
+       * five migrations in service of an audit.
+       *
+       * IDENTITIES ARE DEDUPE GROUPS, matching ESP1. The kinds are already in
+       * `rendered_kinds`; what is not recoverable afterwards is the GROUP
+       * reasoning — that "you have a New Zealander now" was withheld because
+       * "you've had New Zealanders before" had already gone. Storing the kind
+       * alone would leave a later reader unable to reconstruct why a claim
+       * they can see was licensed did not appear.
+       *
+       * `policy_version` beside it is P5 and moves on its own schedule. These
+       * are two independent authorities and a row records both.
+       */
+      ...(evidence?.sequence ? { sequence: sequenceRecord(evidence.sequence) } : {}),
     },
   };
 }

@@ -21,7 +21,7 @@
 import { canonicalPosition } from '../positions.js';
 import { buildProgrammeContext, generateEvidence } from './generate.js';
 import { MAX_EMAIL_EVIDENCE, priorityOf } from './select.js';
-import { resolveStructure } from './structures.js';
+import { resolveStructure, followUpStructure } from './structures.js';
 import { composeOutreach } from '../email/compose.js';
 import { outreachEvidenceFor, applyPrefer, internalEvidence } from './outreachEvidence.js';
 import { renderEvidence, DEFAULT_HOOK_FRAMING } from './render.js';
@@ -31,7 +31,7 @@ export {
   priorityOf, MAX_EMAIL_EVIDENCE, FAMILY_LABELS, familyOf, outreachPermitted, meetsConfidence,
 } from './select.js';
 export {
-  resolveStructure, FLOWS, FLOW_KEYS, BLOCKS, EVIDENCE_BLOCKS,
+  resolveStructure, followUpStructure, FOLLOW_UP_KEY, FLOWS, FLOW_KEYS, BLOCKS, EVIDENCE_BLOCKS,
   eligibleFlows, LEGACY_STRUCTURE_KEYS,
   STRUCTURES, STRUCTURE_KEYS, eligibleStructures,
 } from './structures.js';
@@ -90,8 +90,71 @@ export function normaliseEvidenceAthlete(player = {}) {
  *   `coachRows` its coach_seasons. Every one of them is optional: a missing
  *   input removes the evidence that depended on it and never fabricates a zero.
  */
+/**
+ * A FOLLOW-UP THAT HAS NOTHING NEW TO SAY STILL SENDS.
+ *
+ * `applyPrefer` cannot express this and should not learn to: handed an empty
+ * list it falls back to the selector's own choice, which is right for an
+ * operator who cleared their selection and exactly wrong here. A follow-up
+ * under NO_NEW_EVIDENCE must carry no programme claim at all — every licensed
+ * one has already been sent to this coach — and falling back would resend the
+ * first email's reasons under a "following up" line, which is the single worst
+ * output this whole phase exists to prevent.
+ *
+ * The dispositions are repointed rather than left alone. A claim reading
+ * SELECTED while not being in the email is how the operator panel came to
+ * describe an email it was not sending, and DESELECTED is the existing word
+ * for "valid, and not in this one".
+ */
+function withoutEvidence(roles, why) {
+  return {
+    ...roles,
+    hooks: [], relevance: [], recognition: [],
+    hasPersonalisation: false,
+    operatorSelected: false,
+    unavailableRequests: [],
+    dispositions: Object.freeze((roles.dispositions ?? []).map((d) => (
+      d.disposition === 'SELECTED'
+        ? { kind: d.kind, disposition: 'DESELECTED', reason: why }
+        : d
+    ))),
+  };
+}
+
+/**
+ * The claims this message may carry, once the sequence has had its say.
+ *
+ * ORDER MATTERS: the licence decides first and this narrows second. It can
+ * only ever remove, which is why it reuses `applyPrefer` — the function that
+ * already knows a preference may not restore a denied kind, bypass a
+ * qualification or move a claim between roles.
+ *
+ * `operatorSelected` IS FORCED BACK TO FALSE, and that is not a detail. It
+ * feeds `payload.operator_selected`, which exists so a human's override can be
+ * told apart from the engine's own choice in any later comparison. A sequence
+ * policy is neither: nobody overrode anything, and letting ESP1's narrowing
+ * masquerade as an operator decision would poison the first analysis that
+ * asked how manually-steered emails performed.
+ */
+function applySequence(roles, sequence, prefer) {
+  if (!sequence || sequence.step === 1) return applyPrefer(roles, prefer);
+  const wanted = sequence.preferredForThisMessage ?? [];
+  if (!wanted.length) {
+    return withoutEvidence(
+      roles,
+      'this campaign has already sent every licensed claim to this coach',
+    );
+  }
+  return { ...applyPrefer(roles, wanted), operatorSelected: false };
+}
+
+/**
+ * @param {object|null} [opts.sequence]  an `evidenceStrategyForMessage` result.
+ *   Absent — a manual send, a legacy relationship, anything with no campaign
+ *   attribution — and every line below behaves exactly as it did before C3.
+ */
 export function selectEvidence(athlete, programme = {}, {
-  maxEmail = MAX_EMAIL_EVIDENCE, prefer = null, preferStructure = null,
+  maxEmail = MAX_EMAIL_EVIDENCE, prefer = null, preferStructure = null, sequence = null,
 } = {}) {
   const subject = normaliseEvidenceAthlete(athlete);
   const ctx = buildProgrammeContext(programme);
@@ -126,7 +189,7 @@ export function selectEvidence(athlete, programme = {}, {
    * make a relevance claim open cold. A role is a property of the kind, not of
    * the operator's preference.
    */
-  const applied = applyPrefer(roles, prefer);
+  const applied = applySequence(roles, sequence, prefer);
 
   /**
    * What the email actually carries, in the order it carries it.
@@ -147,7 +210,19 @@ export function selectEvidence(athlete, programme = {}, {
   // has read only `roles` since H4, so it changed nothing — but a function
   // being handed one engine's answer to decide another engine's shape is the
   // arrangement this stage exists to remove, whether or not it was read.
-  const structure = resolveStructure({ selected, roles: applied }, preferStructure);
+  /**
+   * A FOLLOW-UP'S SHAPE IS NOT CHOSEN, IT IS DETERMINED.
+   *
+   * `resolveStructure` answers "which of the two flows does this evidence
+   * support" — an initial-email question. The step answers this one, and no
+   * amount of evidence makes a second message into a first. So the follow-up
+   * structure is taken directly and `resolveStructure` is not consulted, which
+   * is also what keeps it, `eligibleFlows` and `FLOW_PREFERENCE` byte-identical
+   * for every initial email.
+   */
+  const structure = sequence && sequence.step === 2
+    ? followUpStructure()
+    : resolveStructure({ selected, roles: applied }, preferStructure);
 
   /**
    * What the copy layer needs to write like a person rather than a report.
@@ -171,6 +246,12 @@ export function selectEvidence(athlete, programme = {}, {
 
   return {
     athlete: subject,
+    /**
+     * The sequence decision that shaped this message, carried so the durable
+     * per-message snapshot can record it. Null for every initial email and
+     * every unattributed send, which is why their payloads are unchanged.
+     */
+    sequence: sequence ?? null,
     programme: {
       name: ctx.college?.name ?? null,
       sport: ctx.sport,

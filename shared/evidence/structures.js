@@ -54,6 +54,14 @@
 export const BLOCKS = Object.freeze({
   GREETING: 'GREETING',
   HOOK: 'HOOK',
+  /**
+   * The follow-up's opening. Used by no initial flow.
+   *
+   * It says we wrote before and are writing again, which is the one thing a
+   * second message must establish and the one thing a first message cannot
+   * say. It carries no claim about the programme.
+   */
+  RECONNECT: 'RECONNECT',
   ATHLETE_INTRO: 'ATHLETE_INTRO',
   RELEVANCE: 'RELEVANCE',
   CREDENTIALS: 'CREDENTIALS',
@@ -130,6 +138,73 @@ export const FLOWS = Object.freeze({
 });
 
 export const FLOW_KEYS = Object.freeze(Object.keys(FLOWS));
+
+/**
+ * THE FOLLOW-UP, AND WHY IT IS NOT ONE OF THE FLOWS ABOVE.
+ *
+ * `FLOWS` is a set the engine CHOOSES BETWEEN, on the evidence: is there a
+ * genuine reason to address this coach before the athlete is introduced, or
+ * not. A follow-up is not an answer to that question. It is decided by the
+ * campaign-local step — this is the second message to this coach — and no
+ * amount of evidence makes an initial email into one or a follow-up into an
+ * initial.
+ *
+ * So it sits outside `FLOWS`, outside `FLOW_PREFERENCE` and outside
+ * `resolveStructure`, and the practical consequence is the point: an initial
+ * email cannot reach it by any path, including an operator's structure
+ * request. `eligibleFlows` returns exactly what it returned before this
+ * existed, and every initial email is composed by exactly the code that
+ * composed it yesterday.
+ *
+ * WHAT IT DROPS, AND WHY EACH ONE.
+ *
+ *   ATHLETE_INTRO  the coach was introduced to this athlete in the first
+ *                  message. Re-introducing them is the single clearest signal
+ *                  that nobody remembers having written.
+ *   CREDENTIALS    the GPA and test scores were in the first email and are on
+ *                  the profile page this one still links to. Repeating them
+ *                  turns a note into a resend.
+ *   RECOGNITION    a congratulation is a courtesy, and a courtesy paid twice
+ *                  reads as a template. C2 already refuses to let one carry a
+ *                  follow-up; this refuses to let one decorate it.
+ *   HOOK           there is no cold opening to make. A pathway claim the first
+ *                  message did not use is still worth saying — it says it in
+ *                  the relevance slot, in continuation voice. See compose.js.
+ *
+ * WHAT IT KEEPS. The greeting, one reconnect line, at most one fresh reason,
+ * the profile link and one ask. The link stays because it is how the coach
+ * acts and because it carries the tracking token — without it `sendOutreach`
+ * appends a bare URL, which is worse than the block.
+ */
+export const FOLLOW_UP_KEY = 'FOLLOW_UP';
+
+const FOLLOW_UP_BLOCKS = Object.freeze([
+  BLOCKS.GREETING,
+  BLOCKS.RECONNECT,
+  BLOCKS.RELEVANCE,
+  BLOCKS.PROFILE,
+  BLOCKS.CTA,
+  BLOCKS.SIGNOFF,
+]);
+
+/**
+ * The follow-up structure, in the shape `describe` returns for a flow.
+ *
+ * `source` is SEQUENCE rather than ENGINE or OPERATOR, because neither chose
+ * it: the campaign's own message history did. A stored row saying ENGINE would
+ * claim a selection that never happened, and one saying OPERATOR would claim a
+ * person made a choice they were never offered.
+ */
+export function followUpStructure() {
+  return Object.freeze({
+    key: FOLLOW_UP_KEY,
+    label: 'Follow-up',
+    blocks: FOLLOW_UP_BLOCKS,
+    eligible: [FOLLOW_UP_KEY],
+    source: 'SEQUENCE',
+    refusedRequest: null,
+  });
+}
 
 /**
  * The keys the log already carries, mapped to what replaced them.

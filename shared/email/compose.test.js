@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { BLOCK_COPY, fragmentFor, slotToken, SLOT_TOKENS } from './blocks.js';
 import { composeOutreach, structuredTemplate } from './compose.js';
-import { BLOCKS, FLOWS, FLOW_KEYS } from '../evidence/structures.js';
+import { BLOCKS, FLOWS, FLOW_KEYS, followUpStructure } from '../evidence/structures.js';
 import { outreachEvidenceFor } from '../evidence/outreachEvidence.js';
 import { defineEvidence, CONFIDENCE } from '../evidence/kinds.js';
 import { renderEvidence } from '../evidence/render.js';
@@ -451,11 +451,31 @@ describe('no block assumes what the coach wants', () => {
     expect(BLOCK_COPY[BLOCKS.CTA].default).toContain('your {{player_class_year}} group');
   });
 
-  it('offers one CTA, so no structure can reach a conditional variant', () => {
-    expect(Object.keys(BLOCK_COPY[BLOCKS.CTA])).toEqual(['default']);
+  /**
+   * TWO CTA VARIANTS NOW, AND THE GUARD IS UNCHANGED IN WHAT IT PROTECTS.
+   *
+   * This asserted a single variant because the second one it ever had opened
+   * "If you're looking at defenders for 2027" — a recruiting intention we do
+   * not know, conditioning the ask on a guess. The variant went and this was
+   * written to stop it coming back.
+   *
+   * The follow-up variant is not that mistake and could not be: it asks the
+   * SAME question as the default, shortened, and the forbidden-pattern test
+   * above enumerates every block and every variant, so it is already held to
+   * the identical rule. What is asserted here is the LIST — a third variant
+   * must change this line and say why it exists.
+   */
+  it('offers no CTA variant that conditions the ask on a recruiting need', () => {
+    expect(Object.keys(BLOCK_COPY[BLOCKS.CTA])).toEqual(['default', 'followUp']);
+    // The follow-up asks the same thing, and asks it once.
+    expect(BLOCK_COPY[BLOCKS.CTA].followUp)
+      .toContain('hear your thoughts on {{player_first_name}}');
+    expect(BLOCK_COPY[BLOCKS.CTA].followUp).toContain('your {{player_class_year}} group');
     for (const key of FLOW_KEYS) {
       expect(FLOWS[key].blocks, `${key} must ask for something`).toContain(BLOCKS.CTA);
     }
+    expect(followUpStructure().blocks, 'the follow-up must ask for something')
+      .toContain(BLOCKS.CTA);
   });
 });
 

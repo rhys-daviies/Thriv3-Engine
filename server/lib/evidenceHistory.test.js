@@ -605,15 +605,37 @@ describe('what C2 leaves behind', () => {
     for (const t of tables) expect(db.prepare(`SELECT * FROM ${t}`).all(), t).toEqual(before[t]);
   });
 
-  it('is wired into no production copy path', () => {
-    // C3 integrates. C2 builds and tests, and must not change an email.
-    const roots = ['src/lib/emailTemplate.js', 'shared/email/compose.js', 'shared/evidence/index.js',
-      'shared/evidence/outreachEvidence.js', 'shared/evidence/structures.js',
-      'server/routes/sendOutreach.js', 'server/scripts/draftOutreach.js',
-      'src/components/BulkEmailComposer.jsx', 'shared/evidence/sendSnapshot.js'];
-    for (const rel of roots) {
-      const src = fs.readFileSync(new URL(`../../${rel}`, import.meta.url), 'utf8');
-      expect(src, rel).not.toMatch(/sequenceStrategy|evidenceHistory|evidenceStrategyForMessage/);
+  /**
+   * C2 asserted this was wired into NOTHING. C3 wired it in, and the property
+   * worth defending changed with it: not that the strategy is unreachable, but
+   * that exactly ONE thing reaches it.
+   *
+   * `evidenceQueries.evidenceFor` is that seam. Every path that composes an
+   * outbound email for a real athlete goes through it, so a browser composer,
+   * a CLI and a route cannot each grow their own reading of ESP1 — which is
+   * how three surfaces came to disagree about what may open an email, twice,
+   * before G4 settled it.
+   *
+   * Read off the IMPORTS. `shared/evidence/index.js` names the strategy in a
+   * doc comment describing the argument it takes, and a guard that trips on
+   * its own explanation is not a guard.
+   */
+  it('is reachable from exactly one production seam', () => {
+    const importsOf = (rel) => fs.readFileSync(new URL(`../../${rel}`, import.meta.url), 'utf8')
+      .split('\n').filter((l) => /^\s*(import\b|\}\s*from|[A-Za-z_,{} ]+\bfrom ')/.test(l)).join('\n');
+
+    // The seam, and it holds the whole policy.
+    expect(importsOf('server/lib/evidenceQueries.js'))
+      .toMatch(/evidenceStrategyForMessage|sequenceStrategy/);
+    expect(importsOf('server/lib/evidenceQueries.js')).toMatch(/evidenceHistory/);
+
+    // Nobody else, including every client that composes an email.
+    for (const rel of ['src/lib/emailTemplate.js', 'shared/email/compose.js',
+      'shared/evidence/index.js', 'shared/evidence/outreachEvidence.js',
+      'shared/evidence/structures.js', 'server/routes/sendOutreach.js',
+      'server/scripts/draftOutreach.js', 'src/components/BulkEmailComposer.jsx',
+      'shared/evidence/sendSnapshot.js']) {
+      expect(importsOf(rel), rel).not.toMatch(/sequenceStrategy|evidenceHistory/);
     }
   });
 

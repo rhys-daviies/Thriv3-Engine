@@ -125,3 +125,35 @@ export function openDraftEvidenceForContact({ programmeCampaignId, athleteId, co
     ORDER BY sequence, id
   `).all({ programmeCampaignId, athleteId, coachId }));
 }
+
+/**
+ * WHICH MESSAGE OF THIS CAMPAIGN THIS WOULD BE, for this coach.
+ *
+ * Accepted messages plus one. Step 1 means nothing has been sent to this coach
+ * under this campaign; step 2 means one message has.
+ *
+ * DERIVED, NEVER TAKEN FROM A CALLER, and never from
+ * `outreach_send.sequence`. That column counts messages over the LIFETIME of
+ * the athlete-coach relationship, so a coach an earlier campaign wrote to
+ * twice would arrive at a new campaign already on sequence 3 — and would be
+ * sent a follow-up as their first contact of a season they have heard nothing
+ * about. The campaign-local count is the only one that describes the
+ * conversation a coach is actually in.
+ *
+ * COUNTS MESSAGES, NOT CLAIMS. A generic email with no licensed evidence is
+ * still a message the coach received, so this cannot be derived from
+ * `sentEvidenceForContact` — that returns kinds, and a generic message
+ * contributes none.
+ *
+ * It agrees with B6's derivation by construction: same table, same filters,
+ * same ACCEPTED state. They are two readings of one fact rather than two
+ * policies, and if they ever disagree B7's dry run reports it as step drift.
+ */
+export function campaignLocalStep({ programmeCampaignId, athleteId, coachId } = {}) {
+  if (!programmeCampaignId || !athleteId || !coachId) return null;
+  const { n } = db.prepare(`
+    SELECT COUNT(*) AS n FROM outreach_send
+    WHERE ${SCOPE} AND state = '${MESSAGE_STATE.ACCEPTED}'
+  `).get({ programmeCampaignId, athleteId, coachId });
+  return n + 1;
+}

@@ -16,6 +16,10 @@ import db from '../db/client.js';
 import { squadRows, programmeRows, programmeCoachRows, poolBenchmarks } from './philosophyQueries.js';
 import { loadProgrammePatterns } from './recruitingPatterns.js';
 import { SQUAD_SEASON, programmePhilosophy, playerFit } from '../../shared/philosophy.js';
+import { evidenceStrategyForMessage } from '../../shared/evidence/sequenceStrategy.js';
+import {
+  campaignLocalStep, sentEvidenceForContact, openDraftEvidenceForContact,
+} from './evidenceHistory.js';
 import { selectEvidence, MAX_EMAIL_EVIDENCE } from '../../shared/evidence/index.js';
 import { buildRosterIndex, departures } from '../../shared/matching/pool.js';
 import { canonicalPosition } from '../../shared/positions.js';
@@ -270,9 +274,44 @@ export function programmeInputs(collegeName, sport, { match = null, now = Date.n
  * whole-day boundary, with no code and no data having moved. A harness that
  * cannot say what time it is cannot hash a clock-dependent payload.
  */
+/**
+ * THE ONE SEQUENCE-AWARE COMPOSITION PATH.
+ *
+ * Everything that composes an outbound email for a real athlete at a real
+ * programme comes through `evidenceFor`, so the sequence decision is made here
+ * and once. A browser composer, a CLI and a route asking the same question get
+ * the same answer, and none of them holds an interpretation of ESP1 of its own.
+ *
+ * NO CAMPAIGN ATTRIBUTION, NO SEQUENCE. A manual send and a legacy
+ * relationship keep every line of their current behaviour: `programmeCampaignId`
+ * is what turns this on, and a lifetime sequence of 2 on an unattributed
+ * relationship is emphatically not an ESP1 follow-up.
+ *
+ * FAILS CLOSED ON A THIRD MESSAGE. PP1 plans one initial message and one
+ * follow-up per coach and ESP1 describes exactly those two, so a third throws
+ * rather than composing a generic email nobody chose to send.
+ */
+function sequenceFor({ programmeCampaignId, coachId, athleteId, evidenceResult }) {
+  if (!programmeCampaignId || !coachId || !athleteId) return null;
+  const scope = { programmeCampaignId, athleteId, coachId };
+  return evidenceStrategyForMessage({
+    outreach: evidenceResult.roles,
+    step: campaignLocalStep(scope),
+    previouslySentKinds: sentEvidenceForContact(scope),
+    openDraftKinds: openDraftEvidenceForContact(scope),
+  });
+}
+
+/**
+ * @param {string|null} [opts.programmeCampaignId]  turns the sequence policy on.
+ * @param {string|null} [opts.coachId]  whose conversation this is. The step is
+ *   per COACH, not per programme: an assistant approached after the head coach
+ *   starts at step 1 and receives an initial email.
+ */
 export function evidenceFor(athlete, collegeName, {
   sport = null, match = null, maxEmail = MAX_EMAIL_EVIDENCE, prefer = null,
   preferStructure = null, now = Date.now(),
+  programmeCampaignId = null, coachId = null,
 } = {}) {
   const resolved = sport || athlete.sport || 'mens-soccer';
 
@@ -318,8 +357,26 @@ export function evidenceFor(athlete, collegeName, {
    * there would change the email panel's payload for a field only the operator
    * surface asked for. A new top-level key is invisible to that allowlist.
    */
+  /**
+   * TWO PASSES, AND ONLY WHEN A CAMPAIGN IS ATTRIBUTED.
+   *
+   * The sequence strategy narrows a LICENCE DECISION, so that decision has to
+   * exist before it can be asked — and `outreachEvidenceFor` runs inside
+   * `selectEvidence`. The first pass produces it; the second composes under the
+   * strategy the first made possible. Both are pure and neither reads the
+   * database beyond the queries already made above, so the second pass costs
+   * arithmetic rather than I/O.
+   *
+   * The unattributed path runs once, exactly as it always has.
+   */
+  const composed = selectEvidence(athlete, { ...inputs, fit }, { maxEmail, prefer, preferStructure });
+  const sequence = sequenceFor({
+    programmeCampaignId, coachId, athleteId: athlete?.id, evidenceResult: composed,
+  });
+  if (!sequence) return { ...composed, programmeResolved: inputs.resolved };
+
   return {
-    ...selectEvidence(athlete, { ...inputs, fit }, { maxEmail, prefer, preferStructure }),
+    ...selectEvidence(athlete, { ...inputs, fit }, { maxEmail, prefer, preferStructure, sequence }),
     programmeResolved: inputs.resolved,
   };
 }

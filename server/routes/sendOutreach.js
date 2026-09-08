@@ -294,6 +294,36 @@ export async function sendOutreach({
       const outreach = createOutreach({ athleteId, coachId: record.id, matchId, programmeCampaignId });
 
       /**
+       * THE SEQUENCE IS PER COACH, SO THE EVIDENCE IS TOO.
+       *
+       * `evidenceUsed` above is derived once for the whole run, which is right
+       * while every coach at a programme gets the same email. Under a campaign
+       * they do not: the head coach may be on their follow-up while the
+       * assistant has never been written to, and one shared evidence result
+       * would store the head coach's follow-up reasoning against the
+       * assistant's first approach.
+       *
+       * Re-derived ONLY when a campaign is attributed, so the manual and
+       * legacy paths cost nothing and behave identically. Best-effort like
+       * every other analysis step here: a failure to work out the sequence
+       * must not stop an email, so it falls back to the run-level result.
+       */
+      let coachEvidence = evidenceUsed;
+      if (programmeCampaignId && collegeName) {
+        try {
+          coachEvidence = evidenceFor(athlete, collegeName, {
+            sport: athlete.sport,
+            prefer: Array.isArray(evidenceSelection) ? evidenceSelection : null,
+            preferStructure: typeof evidenceStructure === 'string' ? evidenceStructure : null,
+            programmeCampaignId,
+            coachId: record.id,
+          });
+        } catch (err) {
+          console.warn(`  could not derive the sequence for ${coach.email}: ${err.message}`);
+        }
+      }
+
+      /**
        * THE OUTBOUND ACTION BUDGET, SPENT BEFORE THE TRANSPORT AND NEVER AFTER.
        *
        * Only when something is actually being SENT. `send: false` opens a
@@ -381,7 +411,7 @@ export async function sendOutreach({
        * same trade: a coach has already received the email by the time we get
        * here, and throwing now would neither unsend it nor help.
        */
-      if (evidenceUsed) {
+      if (coachEvidence) {
         try {
           recordDraft({
             outreachId: outreach.id,
@@ -392,7 +422,7 @@ export async function sendOutreach({
             // Per message, and never read back off the relationship: see the
             // note in recordDraft.
             programmeCampaignId,
-            evidence: evidenceUsed,
+            evidence: coachEvidence,
             body: personalisedBody,
             subject: personalise(subject, greetingName, coach.name || 'Coach'),
             bodySource: Object.values(BODY_SOURCE).includes(bodySource) ? bodySource : null,
@@ -422,13 +452,13 @@ export async function sendOutreach({
       // Written after the compose succeeded, so the table records messages
       // that actually reached Outlook rather than ones we intended to write.
       // Never throws — see server/lib/evidenceLog.js.
-      if (evidenceUsed) {
+      if (coachEvidence) {
         logEvidence({
           outreachId: outreach.id,
           athleteId,
           collegeName,
           sport: athlete.sport,
-          evidence: evidenceUsed,
+          evidence: coachEvidence,
           rendered: evidenceRendered,
           templateVariant: variant,
           renderedKinds,
