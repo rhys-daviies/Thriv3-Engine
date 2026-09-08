@@ -257,9 +257,10 @@ d('presence opened without opening absence', () => {
 
 describe('the policy version', () => {
   it('is in force and keeps every earlier version nameable', () => {
-    // P4 was K3C's; K3D moved it to P5 for a qualification change. Every
-    // retired version stays nameable and no historical send is migrated.
-    expect(OUTREACH_POLICY_VERSION).toBe('P5');
-    expect(KNOWN_POLICY_VERSIONS).toEqual(['LEGACY_UNKNOWN', 'P2', 'P3', 'P4', 'P5']);
+    // P4 was K3C's, K3D moved it to P5 and L3 to P6, each for a
+    // qualification change. Every retired version stays nameable and no
+    // historical send is migrated.
+    expect(OUTREACH_POLICY_VERSION).toBe('P6');
+    expect(KNOWN_POLICY_VERSIONS).toEqual(['LEGACY_UNKNOWN', 'P2', 'P3', 'P4', 'P5', 'P6']);
   });
 });

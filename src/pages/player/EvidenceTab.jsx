@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import EvidencePanel from '@/components/EvidencePanel';
 import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
 import { usePlayerWorkspace } from './PlayerWorkspace';
-import { majorLabelFor } from '@shared/academicMajors.js';
+import { academicIntentState, ACADEMIC_INTENT } from '@shared/academicMajors.js';
 
 /**
  * Everything Thriv3 can say about this athlete at each matched programme.
@@ -84,18 +84,24 @@ export default function EvidenceTab() {
           ACADEMIC_FIT never appears is something about the athlete, not
           anything about the schools.
 
-          Checked through `majorLabelFor` rather than for mere presence. A
-          value that does not resolve to a known major leaves the angle just as
-          inactive as a blank field, and testing only for presence meant an
-          athlete whose major read "Undeclared" got no warning at all — the
-          operator would reasonably assume the angle was on. */}
-      {!majorLabelFor(player?.intended_major) && (
+          Checked through `academicIntentState` rather than for mere presence.
+          All three inactive states produce no ACADEMIC_FIT, but they are three
+          different things to act on: nobody asked, the athlete has genuinely
+          not decided, or they answered with something we cannot place. Testing
+          only for presence meant an athlete whose major read "Undeclared" got
+          no warning at all, and collapsing the last two meant an operator
+          could not tell "go and ask" from "we cannot map this yet". */}
+      {academicIntentState(player?.intended_major) !== ACADEMIC_INTENT.VALID && (
         <p className="rounded-md border border-dashed p-2.5 text-xs text-muted-foreground">
-          {player?.intended_major
-            ? <>“{player.intended_major}” doesn’t match a major we can check against, so the
-                academic angle cannot fire at any programme. Try the subject itself — “business”,
-                “exercise science”, “computer science”.</>
-            : <>No intended major on file, so the academic angle cannot fire at any programme.</>}
+          {academicIntentState(player?.intended_major) === ACADEMIC_INTENT.UNDECIDED
+            ? <>“{player.intended_major}” reads as undecided, so no academic-fit evidence is
+                generated. That is the correct outcome until the athlete has a field in mind.</>
+            : academicIntentState(player?.intended_major) === ACADEMIC_INTENT.UNSUPPORTED
+              ? <>“{player.intended_major}” is saved, but Thriv3 cannot currently map it to an
+                  academic family, so the angle cannot fire at any programme. Try the subject
+                  itself — “business”, “exercise science”, “computer science”.</>
+              : <>No intended field of study on file, so the academic angle cannot fire at any
+                  programme.</>}
           {' '}Edit under <span className="text-foreground">Edit Profile → Public profile → Academics</span>.
         </p>
       )}
