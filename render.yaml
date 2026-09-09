@@ -68,7 +68,23 @@ services:
     # exactly what docs/hosting.md says is not deployed. Verified: the prune
     # removes 211 packages, keeps express/helmet/better-sqlite3/pdfkit, leaves
     # dist/ intact and leaves the native binding loadable.
-    buildCommand: npm ci --include=dev && npm run build && npm prune --omit=dev
+    #
+    # `npm install --no-save wrangler` LAST, and only wrangler. Publishing a
+    # profile is a Cloudflare Pages deployment, and wrangler is the supported
+    # way to make one; without it the Go Live button could not work once
+    # hosted, which is what it did until this line existed.
+    #
+    # Not a package.json dependency, and that is the point of doing it here.
+    # Installing it as one pulls 226 MB — 145 MB of that workerd, a local dev
+    # runtime a deploy never executes — and drags @esbuild back in, which is
+    # exactly what the prune above removes. As a `--no-save` install after the
+    # prune the exception is one reviewable line in the deployment contract
+    # rather than a silent entry in a dependency list, and the app's own
+    # dependency model is untouched.
+    #
+    # Pinned. An unpinned deploy tool is a deploy that changes behaviour on a
+    # day nobody chose.
+    buildCommand: npm ci --include=dev && npm run build && npm prune --omit=dev && npm install --no-save --no-audit --no-fund --omit=dev wrangler@4.130.0
     startCommand: node server/index.js
     healthCheckPath: /healthz
 
@@ -160,6 +176,46 @@ services:
       - key: THRIV3_SYNC_SECRET
         sync: false
       - key: THRIV3_PUBLIC_BASE_URL
+        sync: false
+      # THE FOURTH PERSISTENT PATH — generated athlete pages.
+      #
+      # Same class of bug as THRIV3_UPLOAD_DIR above, and found by audit rather
+      # than by an outage. Without it the pages are written inside the
+      # container at build/public and discarded on the next deploy — and
+      # `/p/:slug` answers a missing file with the neutral "this profile is no
+      # longer shared" page. A coach opening yesterday's link would be told the
+      # athlete had been withdrawn. Startup refuses to run without it.
+      - key: THRIV3_BUILD_DIR
+        value: /data/profiles
+      # WHERE THE GENERATED PAGES POST THEIR EVENTS.
+      #
+      # Defaults to http://localhost:8787/api/track, which in a coach's browser
+      # means their own machine. The page looks perfect and reports nothing,
+      # and the failure is invisible until somebody asks why a month of
+      # outreach produced no engagement. Same origin as the pages themselves,
+      # so no CORS preflight is involved.
+      - key: THRIV3_TRACK_ENDPOINT
+        value: https://thriv3-profiles.pages.dev/api/track
+      # WHERE THE EDGE COLLECTOR LIVES, for the sync in the other direction.
+      #
+      # `isEdgeConfigured()` requires this AND THRIV3_SYNC_SECRET, so without
+      # it the scheduler refuses to start and the manual button returns 400 —
+      # regardless of the interval below.
+      - key: THRIV3_EDGE_URL
+        value: https://thriv3-profiles.pages.dev
+      # DEPLOY CREDENTIALS FOR CLOUDFLARE PAGES. Declarations only; the values
+      # are entered in the Render dashboard and never appear in git.
+      #
+      # The token needs exactly one permission — Account / Cloudflare Pages /
+      # Edit — and should have no others: this token can deploy the public
+      # athlete site, so its blast radius is worth keeping to that.
+      #
+      # The account id is required rather than optional. A token with access to
+      # more than one account cannot infer which, and wrangler fails with a
+      # message that reads like an authentication problem.
+      - key: CLOUDFLARE_API_TOKEN
+        sync: false
+      - key: CLOUDFLARE_ACCOUNT_ID
         sync: false
       # ZERO FOR INITIAL HOSTED VALIDATION. 0 (like unset) means the edge sync
       # never runs by itself, and the boot log says so out loud rather than

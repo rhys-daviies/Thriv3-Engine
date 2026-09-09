@@ -11,10 +11,48 @@ const { runOnce, syncStatus, startSyncScheduler, stopSyncScheduler, resetSyncSch
   await import('./syncScheduler.js');
 
 const quiet = { log: () => {}, warn: () => {}, error: () => {} };
-const okResult = { tokens: { pushed: 3, liveAtEdge: 3 }, events: { pulled: 2 }, suppressions: { added: 0, unresolved: [] } };
+// The shape `pullEvents` actually returns. This fixture previously said
+// `{ pulled: 2 }`, which is the key the scheduler was reading and the reason
+// the bug survived: the test agreed with the mistake.
+const okResult = {
+  tokens: { pushed: 3, liveAtEdge: 3 },
+  events: { fetched: 2, inserted: 2, unresolved: 0 },
+  suppressions: { added: 0, unresolved: [] },
+};
 
 beforeEach(() => { resetSyncScheduler(); syncWithEdge.mockReset(); isEdgeConfigured.mockReturnValue(true); });
 afterEach(() => stopSyncScheduler());
+
+describe('what the log reports', () => {
+  it('reports the number of events actually pulled', async () => {
+    syncWithEdge.mockResolvedValue(okResult);
+    const lines = [];
+    await runOnce({ log: { ...quiet, log: (m) => lines.push(m) } });
+    expect(lines.join(' ')).toContain('2 event(s) pulled');
+    expect(lines.join(' ')).not.toContain('0 event(s) pulled');
+  });
+
+  it('distinguishes fetched from newly inserted when a replay is absorbed', async () => {
+    syncWithEdge.mockResolvedValue({ ...okResult, events: { fetched: 5, inserted: 1, unresolved: 0 } });
+    const lines = [];
+    await runOnce({ log: { ...quiet, log: (m) => lines.push(m) } });
+    expect(lines.join(' ')).toContain('5 event(s) pulled, 1 new');
+  });
+
+  it('says when events could not be attributed to a coach', async () => {
+    syncWithEdge.mockResolvedValue({ ...okResult, events: { fetched: 4, inserted: 4, unresolved: 2 } });
+    const lines = [];
+    await runOnce({ log: { ...quiet, log: (m) => lines.push(m) } });
+    expect(lines.join(' ')).toContain('2 unattributable');
+  });
+
+  it('reports zero honestly when nothing arrived', async () => {
+    syncWithEdge.mockResolvedValue({ ...okResult, events: { fetched: 0, inserted: 0, unresolved: 0 } });
+    const lines = [];
+    await runOnce({ log: { ...quiet, log: (m) => lines.push(m) } });
+    expect(lines.join(' ')).toContain('0 event(s) pulled');
+  });
+});
 
 describe('runOnce', () => {
   it('records a success and clears the failure count', async () => {
