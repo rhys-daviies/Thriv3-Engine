@@ -1,0 +1,289 @@
+/**
+ * Where to look first, for a programme we have never fetched.
+ *
+ * L6D attempted 34 active NCAA programmes and made no request against any of
+ * them: every acquiring stage transforms a URL the pipeline already holds, and
+ * these had none. This is the step that supplies the first one — institution →
+ * verified athletics host → ordered roster candidates — and it is the only
+ * place those three are joined.
+ *
+ * It writes no pipeline state, no roster sheet and no database row. `--csv`
+ * emits `_registry_candidates.csv`, which `build_targets.py` reads ALONGSIDE
+ * the membership export and uses only where a programme has no scanned history:
+ * a known-good URL from a prior season always wins, because it is an
+ * observation and this is a suggestion.
+ *
+ *   node server/scripts/rosterCandidatePlan.js --keys /tmp/l6d-keys.txt
+ *   node server/scripts/rosterCandidatePlan.js --simulate
+ *   node server/scripts/rosterCandidatePlan.js --keys … --verify   (bounded HEAD/GET)
+ *   node server/scripts/rosterCandidatePlan.js --csv --out <path>
+ */
+import { readFileSync, writeFileSync } from 'node:fs';
+import db from '../db/client.js';
+import {
+  inverseIndex, canonicalHost, PROFILE, LOOKUP,
+} from '../../shared/evidence/domainAuthority.js';
+import { candidatesForLookup, CANDIDATE } from '../../shared/roster/rosterCandidates.js';
+import { rosterTargetUniverse } from './rosterTargetUniverse.js';
+
+export const CANDIDATE_SEASON = 2026;
+
+const LEDGER = `SELECT domain, unitid, status, role, confidence, identity_strength,
+                       evidence_text, wrong_mappings, platform
+                FROM athletics_domains`;
+
+/** Hosts an institution's own rosters have actually been fetched from. */
+export function rosterHostUsage() {
+  const out = new Set();
+  for (const r of db.prepare(
+    'SELECT DISTINCT source_roster_url u FROM roster_players WHERE source_roster_url IS NOT NULL',
+  ).all()) {
+    try { out.add(canonicalHost(new URL(r.u).hostname)); } catch { /* not a URL; nothing to learn */ }
+  }
+  return out;
+}
+
+/** Programmes that already hold a roster source, so a candidate is unnecessary. */
+function programmesWithSource() {
+  const out = new Set();
+  for (const r of db.prepare(
+    'SELECT DISTINCT college_name n, sport s FROM roster_players WHERE source_roster_url IS NOT NULL',
+  ).all()) out.add(`${r.n}||${r.s}`);
+  return out;
+}
+
+/**
+ * One row per programme: what the discovery path would offer it, and why.
+ *
+ * `profile` defaults to DISCOVERY because that is what this file is for. The
+ * STRICT profile is what production source verification reads, and the two are
+ * deliberately different — see `domainAuthority.js`.
+ */
+export function candidatePlan({
+  programmes = null, season = CANDIDATE_SEASON, profile = PROFILE.DISCOVERY, limit = Infinity,
+} = {}) {
+  const rows = db.prepare(LEDGER).all();
+  const usage = rosterHostUsage();
+  const index = inverseIndex(rows, { profile, usage });
+  const platform = new Map(rows.filter((r) => r.platform)
+    .map((r) => [canonicalHost(r.domain), r.platform]));
+  const haveSource = programmesWithSource();
+  const targets = programmes ?? rosterTargetUniverse();
+
+  return targets.map((p) => {
+    const key = `${p.school}||${p.sport}`;
+    const lookup = p.unitid == null
+      ? { status: LOOKUP.NO_UNITID, hosts: [], reason: 'programme has no unitid' }
+      : index.get(p.unitid) ?? { status: LOOKUP.NO_TRUSTED_HOST, hosts: [], reason: 'institution absent from the ledger' };
+    const host0 = lookup.hosts?.[0] ?? null;
+    const gen = candidatesForLookup(lookup, {
+      sport: p.sport, season, limit, platform: host0 ? platform.get(host0) ?? null : null,
+    });
+    let state;
+    if (haveSource.has(key)) state = 'EXISTING_CANDIDATE';
+    else if (gen.status === CANDIDATE.OK) state = 'NEW_VERIFIED_HOST_CANDIDATES';
+    else if (gen.status === CANDIDATE.AMBIGUOUS_HOST) state = 'AMBIGUOUS_HOST';
+    else state = 'NO_TRUSTED_HOST';
+    return {
+      key,
+      school: p.school,
+      sport: p.sport,
+      division: p.division,
+      unitid: p.unitid ?? null,
+      state,
+      host: gen.host ?? null,
+      hosts: lookup.hosts,
+      platform: gen.host ? platform.get(gen.host) ?? null : null,
+      candidates: gen.candidates,
+      reason: gen.reason,
+    };
+  });
+}
+
+/* -------------------------------------------------------------------------- */
+/* Bounded verification                                                        */
+/* -------------------------------------------------------------------------- */
+
+const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+  + '(KHTML, like Gecko) Chrome/124.0 Safari/537.36';
+
+/** A page that shows a squad, told apart from one that merely answered 200. */
+const ROSTER_MARKS = /sidearm-roster-player|roster-card|s-person-card|data-player|roster__player|class="[^"]*roster/i;
+/** A 200 that is really a "not found" — the failure mode L6's audit named. */
+const SOFT_404 = /page not found|404|cannot be found|no longer available/i;
+
+const ogSiteName = (html) => html.match(
+  /<meta[^>]+(?:property|name)="og:site_name"[^>]*content="([^"]*)"/i,
+)?.[1] ?? html.match(/<title[^>]*>([^<]{0,90})/i)?.[1]?.trim() ?? null;
+
+/**
+ * A redirect that changed the sport is a refusal wearing a 200.
+ *
+ * `uwlathletics.com/sports/mens-soccer/roster/2026` answers by redirecting to
+ * `/sports/mens-track-and-field/roster/gary-trkula/4182` — a different sport,
+ * and a player rather than a squad. It carries roster markup and would pass a
+ * naive "did we land on a roster" test, which is exactly how a source ends up
+ * cited for the wrong programme. So the landing path must still name the slug
+ * that was asked for, and must not end in a player segment.
+ */
+const SEASON_TAIL = /^(?:20\d\d|20\d\d-\d\d|season)$/i;
+const PLAYER_TAIL = /\/roster\/([a-z0-9][a-z0-9.-]*)(?:\/\d+)?\/?$/i;
+
+function landedOnAsked(finalUrl, slug) {
+  let path;
+  try { path = new URL(finalUrl).pathname; } catch { return false; }
+  if (!path.includes(`/sports/${slug}/`) && !path.endsWith(`/sports/${slug}`)) return false;
+  // `/roster/2026` and `/roster/season/2026` are seasons, not people.
+  const tail = path.match(PLAYER_TAIL)?.[1];
+  return !tail || SEASON_TAIL.test(tail);
+}
+
+async function probe(url, slug) {
+  let res;
+  try {
+    res = await fetch(url, { redirect: 'follow', headers: { 'User-Agent': UA, Accept: 'text/html' } });
+  } catch (err) { return { verdict: 'OTHER', detail: err.message.slice(0, 60) }; }
+  if (res.status === 403) return { verdict: '403', detail: 'blocked before any page was served' };
+  if (res.status === 404) return { verdict: '404', detail: null };
+  if (!res.ok) return { verdict: 'OTHER', detail: `HTTP ${res.status}` };
+  const html = (await res.text()).slice(0, 400_000);
+  if (SOFT_404.test(html.slice(0, 4000)) && !ROSTER_MARKS.test(html)) {
+    return { verdict: 'SOFT_404', detail: null };
+  }
+  if (!ROSTER_MARKS.test(html)) return { verdict: 'OTHER', detail: '200 with no roster markup' };
+  if (!landedOnAsked(res.url, slug)) {
+    return { verdict: 'SOFT_404', detail: `redirected off the programme — ${new URL(res.url).pathname}` };
+  }
+  const redirected = new URL(res.url).pathname !== new URL(url).pathname;
+  return {
+    verdict: redirected ? 'REDIRECT_TO_ROSTER' : '200_ROSTER',
+    url: res.url, identity: ogSiteName(html),
+  };
+}
+
+/** First candidate that answers, per programme. Sequential — this is a courtesy, not a crawl. */
+export async function verifyPlan(plan, per = 8) {
+  const out = [];
+  for (const p of plan) {
+    if (p.state !== 'NEW_VERIFIED_HOST_CANDIDATES') {
+      out.push({ ...p, verdict: p.state, tried: 0 });
+      continue;
+    }
+    let last = null; let tried = 0;
+    for (const c of p.candidates.slice(0, per)) {
+      tried += 1;
+      // Sequential with a pause. An earlier pass at full speed drew rate limits
+      // that read as 404s, which is a good way to conclude something false.
+      if (tried > 1) await new Promise((r) => { setTimeout(r, 600); });
+      const r = await probe(c.url, c.slug);
+      last = r;
+      if (r.verdict === '200_ROSTER' || r.verdict === 'REDIRECT_TO_ROSTER') break;
+      // A 403 is the host refusing every path; asking seven more proves nothing.
+      if (r.verdict === '403') break;
+    }
+    out.push({ school: p.school, sport: p.sport, host: p.host, tried, ...last });
+  }
+  return out;
+}
+
+/* -------------------------------------------------------------------------- */
+/* CLI                                                                        */
+/* -------------------------------------------------------------------------- */
+
+const argv = process.argv.slice(2);
+const arg = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
+
+function keyed(path) {
+  const want = new Set(readFileSync(path, 'utf8').split('\n').map((s) => s.trim()).filter(Boolean));
+  return rosterTargetUniverse().filter((p) => want.has(`${p.school}||${p.sport}`));
+}
+
+const cell = (v) => {
+  const s = String(v ?? '');
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+
+function main() {
+  const season = Number(arg('season', CANDIDATE_SEASON));
+  const keysPath = arg('keys');
+  const plan = candidatePlan({
+    programmes: keysPath ? keyed(keysPath) : null,
+    season,
+    limit: Number(arg('limit', Infinity)),
+  });
+
+  if (argv.includes('--csv')) {
+    /*
+     * The FIRST candidate only. The pipeline's own ladder expands a candidate
+     * into its season-bearing forms, so handing it eight would duplicate work
+     * it already does — and `_targets.csv` has one candidate column because a
+     * candidate is a starting point, not a search space.
+     */
+    const wanted = plan.filter((p) => p.state === 'NEW_VERIFIED_HOST_CANDIDATES');
+    const body = ['School,Sport,Host,Platform,Candidate', ...wanted.map((p) => [
+      p.school, p.sport, p.host, p.platform ?? '', p.candidates[0].url,
+    ].map(cell).join(','))].join('\r\n') + '\r\n';
+    const out = arg('out');
+    if (out) { writeFileSync(out, body, 'utf8'); console.log(`wrote ${out} — ${wanted.length} candidates`); }
+    else process.stdout.write(body);
+    return;
+  }
+
+  if (argv.includes('--verify')) {
+    /*
+     * BOUNDED VERIFICATION, NOT ACQUISITION. One request per candidate until a
+     * programme answers, no parsing into data, no state, no sheet, no import.
+     * It answers one architectural question — does a generated candidate reach
+     * a roster page — and nothing about whether that page may be believed,
+     * which is what the pipeline's own gates are for.
+     */
+    verifyPlan(plan, Number(arg('per', 8))).then((results) => {
+      const counts = {};
+      for (const r of results) counts[r.verdict] = (counts[r.verdict] ?? 0) + 1;
+      for (const r of results) {
+        console.log(`${r.verdict.padEnd(18)} ${r.school.slice(0, 34).padEnd(34)} `
+          + `${r.sport === 'mens-soccer' ? 'M' : 'W'}  ${r.tried} tried  ${r.url ?? r.detail ?? ''}`);
+        if (r.identity) console.log(`${''.padEnd(18)}   og:site_name = ${JSON.stringify(r.identity)}`);
+      }
+      console.log(`\n  ${JSON.stringify(counts)}`);
+    });
+    return;
+  }
+
+  if (argv.includes('--simulate')) {
+    const by = new Map();
+    for (const p of plan) {
+      const k = `${p.division}|${p.sport}`;
+      if (!by.has(k)) by.set(k, { EXISTING_CANDIDATE: 0, NEW_VERIFIED_HOST_CANDIDATES: 0, AMBIGUOUS_HOST: 0, NO_TRUSTED_HOST: 0 });
+      by.get(k)[p.state] += 1;
+    }
+    console.log(`\nCANDIDATE PLAN — ${plan.length} active NCAA programmes, season ${season}\n`);
+    console.log('  division    sport      existing   generated  ambiguous   no host');
+    const tot = { EXISTING_CANDIDATE: 0, NEW_VERIFIED_HOST_CANDIDATES: 0, AMBIGUOUS_HOST: 0, NO_TRUSTED_HOST: 0 };
+    for (const [k, e] of by) {
+      const [d, s] = k.split('|');
+      for (const x of Object.keys(tot)) tot[x] += e[x];
+      console.log(`  ${d.padEnd(11)}${s.replace('-soccer', '').padEnd(10)}`
+        + `${String(e.EXISTING_CANDIDATE).padStart(10)}${String(e.NEW_VERIFIED_HOST_CANDIDATES).padStart(12)}`
+        + `${String(e.AMBIGUOUS_HOST).padStart(11)}${String(e.NO_TRUSTED_HOST).padStart(10)}`);
+    }
+    console.log(`\n  ${tot.EXISTING_CANDIDATE} already hold a roster source — the generator is not used for them.`);
+    console.log(`  ${tot.NEW_VERIFIED_HOST_CANDIDATES} would be offered candidates from a verified host.`);
+    console.log(`  ${tot.AMBIGUOUS_HOST} hold several hosts and nothing distinguishes them.`);
+    console.log(`  ${tot.NO_TRUSTED_HOST} have no host this profile will stand behind.\n`);
+    console.log('  A candidate is a place to ask, not a verified source. Every gate still runs.');
+    return;
+  }
+
+  for (const p of plan) {
+    console.log(`${p.division.padEnd(8)} ${p.sport === 'mens-soccer' ? 'M' : 'W'} `
+      + `${p.school.slice(0, 38).padEnd(38)} ${p.state}`);
+    if (p.host) console.log(`    host ${p.host}${p.platform ? ` [${p.platform}]` : ''} — ${p.candidates.length} candidates`);
+    else console.log(`    ${p.reason}${p.hosts.length ? ` (${p.hosts.join(', ')})` : ''}`);
+  }
+  const n = (s) => plan.filter((p) => p.state === s).length;
+  console.log(`\n  EXISTING_CANDIDATE ${n('EXISTING_CANDIDATE')} · NEW_VERIFIED_HOST_CANDIDATES ${n('NEW_VERIFIED_HOST_CANDIDATES')}`
+    + ` · AMBIGUOUS_HOST ${n('AMBIGUOUS_HOST')} · NO_TRUSTED_HOST ${n('NO_TRUSTED_HOST')}`);
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) main();

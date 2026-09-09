@@ -127,21 +127,61 @@ def registry_universe():
         out[(r['School'], r['Sport'])] = {'div': r['Division'], 'conf': r.get('Conference', '')}
     return out
 
+
+def registry_candidates():
+    """A first URL for a programme with no history, from a VERIFIED athletics host.
+
+    L6D attempted 34 registry-only programmes and made no request against any of
+    them, because every acquiring stage transforms a URL and these had none:
+    'variants: none', thirty-four times. L7 found the reason was not missing
+    domains -- most of them sit on an athletics host the ledger has verified --
+    but that nothing inverted institution -> host -> URL.
+
+    Written by `node server/scripts/rosterCandidatePlan.js --csv --out ...` in
+    the Thriv3-Engine repo, which owns the ledger and the shape catalogue. A
+    separate file from the membership export on purpose: that one answers WHO
+    counts and must stay free of URLs, this one answers WHERE TO ASK FIRST.
+    Absent file means the previous behaviour.
+
+    It is a suggestion and is used only where there is no observation. A
+    known-good URL from a prior season always wins -- see the caller. And a
+    generated URL is not a verified source: turnover, soft-404, parsing and
+    source validation all still decide, exactly as for any other candidate.
+    """
+    path = os.path.join(season_dir(SEASON), '_registry_candidates.csv')
+    if not os.path.exists(path):
+        return {}
+    out = {}
+    for r in csv.DictReader(open(path, encoding='utf-8')):
+        u = (r.get('Candidate') or '').strip()
+        if u:
+            out[(r['School'], r['Sport'])] = u
+    return out
+
 KEPT = repairs(OUT, SEASON)
 per = {y: scan(y) for y in LATER}
 REGISTRY = registry_universe()
+CANDIDATES = registry_candidates()
 # Union, not replacement. The registry decides membership; the roster files
 # still supply the candidate URLs for everything they cover.
 keys = sorted(set().union(*[set(p) for p in per.values()], set(REGISTRY)))
 rows = []
 for k in keys:
     src = next((y for y in LATER if k in per[y]), None)
-    # A registry-only programme has no scanned entry and therefore no candidate
-    # URL. It is a discovery job, not an omission.
+    # A registry-only programme has no scanned entry and therefore no URL to
+    # swap. It is a discovery job, as it always was -- but from L7B the ledger
+    # can sometimes name a VERIFIED athletics host for it, and a first URL on
+    # that host beats starting from nothing.
     e = per[src][k] if src else {'div': REGISTRY[k]['div'], 'conf': REGISTRY[k]['conf'],
                                  'n': 0, 'roster': ''}
     u = e['roster']
     cand, meth = swap(u, SEASON), method(u)
+    # PRECEDENCE, EXPLICITLY. An observation always beats a suggestion: this
+    # runs only when there was no URL to transform. `u` stays empty either way,
+    # so a generated candidate never reaches the known-good column below and
+    # cannot be mistaken later for a page we actually fetched.
+    if not cand and k in CANDIDATES:
+        cand, meth = CANDIDATES[k], 'generated from a verified athletics host'
     if k in KEPT: cand, meth = KEPT[k]
     rows.append({'School': k[0], 'Sport': k[1], 'Division': e['div'], 'Conference': e['conf'],
                  f'Roster URL {SEASON} (candidate)': cand, 'Method': meth,
@@ -151,6 +191,7 @@ for k in keys:
 with open(OUT, 'w', newline='', encoding='utf-8') as fh:
     w = csv.DictWriter(fh, fieldnames=HDR, lineterminator='\r\n'); w.writeheader(); w.writerows(rows)
 print(f'wrote {OUT}\n  {len(rows)} school-sports, candidates sourced from {LATER}'
+      f'\n  {len(CANDIDATES)} registry-only programmes carry a generated candidate, '
       f'\n  {len(REGISTRY)} in the registry universe, '
       f'{sum(1 for k in keys if k in REGISTRY and not any(k in per[y] for y in LATER))} of them new to the worklist'
       f'\n  {sum(1 for r in rows if (r["School"], r["Sport"]) in KEPT)} repaired candidates carried forward')

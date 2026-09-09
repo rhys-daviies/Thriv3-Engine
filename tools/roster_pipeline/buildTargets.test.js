@@ -27,7 +27,7 @@ const SHEET = 'School,Conference,Player Name,Class/Year,Total Minutes Played,Gam
 const row = (school, conf, url) => `${school},${conf},A Player,Fr.,,,,,,,,${url},high,,2029,DEFENSE`;
 
 /** A throwaway RB_ROOT holding one prior season and an empty target season. */
-function fixture({ prior = [], registry = null, season = 2026 } = {}) {
+function fixture({ prior = [], registry = null, candidates = null, season = 2026 } = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'rb-'));
   fs.mkdirSync(path.join(root, `${season} Roster Sheets`), { recursive: true });
   const prev = path.join(root, `${season - 1} Roster Sheets`);
@@ -39,6 +39,12 @@ function fixture({ prior = [], registry = null, season = 2026 } = {}) {
     byFile.get(f).push(row(p.school, p.conf ?? 'CONF', p.url ?? ''));
   }
   for (const [f, lines] of byFile) fs.writeFileSync(path.join(prev, f), lines.join('\n'));
+  if (candidates) {
+    fs.writeFileSync(path.join(root, `${season} Roster Sheets`, '_registry_candidates.csv'),
+      ['School,Sport,Host,Platform,Candidate',
+        ...candidates.map((c) => `${c.school},${c.sport},${c.host ?? ''},${c.platform ?? ''},${c.candidate}`),
+      ].join('\r\n') + '\r\n');
+  }
   if (registry) {
     fs.writeFileSync(path.join(root, `${season} Roster Sheets`, '_registry_universe.csv'),
       ['School,Sport,Division,Conference,Unitid',
@@ -291,5 +297,71 @@ d('versioned pipeline is self-sufficient', () => {
     execFileSync(python, ['-c', `import sys; sys.path.insert(0, ${JSON.stringify(HERE)}); import ${mod}`],
       { env: { ...process.env, RB_ROOT: root, RB_SEASON: '2026', RB_REF: '2025', RB_CURRENT: '1' },
         stdio: 'pipe' });
+  });
+});
+
+/**
+ * L7B — a generated candidate is a suggestion, and an observation outranks it.
+ *
+ * The worklist gained a second optional input: `_registry_candidates.csv`, a
+ * first URL for a programme with no history, generated from an athletics host
+ * the ledger has verified. The risk it introduces is not a bad URL — every gate
+ * still runs on whatever answers — but a good URL in the wrong column, or a
+ * generated guess quietly displacing a page we actually fetched last season.
+ */
+d('a generated candidate never outranks a known-good URL', () => {
+  const REG = [
+    { school: 'Has Roster', sport: 'womens-soccer', division: 'NCAA D3' },
+    { school: 'Never Fetched', sport: 'womens-soccer', division: 'NCAA D3' },
+  ];
+  const CAND = [
+    { school: 'Has Roster', sport: 'womens-soccer', host: 'wrong.test', candidate: 'https://wrong.test/sports/womens-soccer/roster/2026' },
+    { school: 'Never Fetched', sport: 'womens-soccer', host: 'good.test', candidate: 'https://good.test/sports/womens-soccer/roster/2026' },
+  ];
+  const both = () => fixture({
+    prior: [{ school: 'Has Roster', div: 'd3', gender: 'womens', url: 'https://known.test/sports/womens-soccer/roster/2025' }],
+    registry: REG, candidates: CAND,
+  });
+
+  it('uses the prior season\'s URL where there is one', () => {
+    const row = run(both()).find((r) => r.School === 'Has Roster');
+    expect(row['Roster URL 2026 (candidate)']).toContain('known.test');
+    expect(row['Roster URL 2026 (candidate)']).not.toContain('wrong.test');
+  });
+
+  it('uses the generated candidate only where there is no history', () => {
+    const row = run(both()).find((r) => r.School === 'Never Fetched');
+    expect(row['Roster URL 2026 (candidate)']).toBe('https://good.test/sports/womens-soccer/roster/2026');
+    expect(row.Method).toBe('generated from a verified athletics host');
+  });
+
+  it('never records a generated candidate as a known-good URL', () => {
+    // The known-good column is a record of a page that was actually fetched.
+    // Writing a suggestion into it would make it indistinguishable later from
+    // an observation, which is the provenance failure this guards.
+    const row = run(both()).find((r) => r.School === 'Never Fetched');
+    expect(row['Roster URL 2025 (known good)']).toBe('');
+  });
+
+  it('leaves a programme with no candidate exactly as it was', () => {
+    const root = fixture({ registry: REG, candidates: [CAND[1]] });
+    const row = run(root).find((r) => r.School === 'Has Roster');
+    expect(row['Roster URL 2026 (candidate)']).toBe('');
+    expect(row.Method).toBe('no later URL on record — discover from scratch');
+  });
+
+  it('behaves exactly as before when the candidates file is absent', () => {
+    const withOut = run(fixture({ registry: REG }));
+    const rows = withOut.filter((r) => REG.some((x) => x.school === r.School));
+    expect(rows.length).toBe(2);
+    for (const r of rows) expect(r['Roster URL 2026 (candidate)']).toBe('');
+  });
+
+  it('hands the candidate to the normal flow rather than marking it resolved', () => {
+    // A generated URL enters as a CANDIDATE. Status stays todo, so every stage
+    // — direct, variants, selector, browse, the turnover gate — still runs.
+    const row = run(both()).find((r) => r.School === 'Never Fetched');
+    expect(row.Status).toBe('todo');
+    expect(row['2025 Player Count']).toBe('0');
   });
 });
