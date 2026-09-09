@@ -42,7 +42,7 @@
     "suppress": "node server/scripts/suppress.js",
     "sync": "node server/scripts/syncEngagement.js",
     "test": "vitest run",
-    "test:acceptance": "vitest run server/export/tracker.test.js server/routes/publicProfile.test.js server/routes/track.test.js server/lib/athleteLifecycle.test.js server/lib/engagementRollup.test.js",
+    "test:acceptance": "vitest run server/export/tracker.test.js server/routes/publicProfile.test.js server/routes/track.test.js server/lib/athleteLifecycle.test.js server/lib/engagementRollup.test.js server/lib/publishPermanence.test.js worker/index.test.js",
     "test:baseline": "vitest run server/lib/evidenceBaseline.test.js --reporter=verbose",
     "test:generalisation": "node server/scripts/generalisationRun.js && vitest run shared/evidence/generalisation.test.js --reporter=verbose",
     "test:operations": "vitest run server/scripts/operations.test.js --reporter=verbose",

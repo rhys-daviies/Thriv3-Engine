@@ -6,6 +6,7 @@ import { randomUUID } from 'node:crypto';
 
 const {
   resolveWranglerBin, publisherReadiness, assembleSite, publishSite, redactSecrets, WORKER_BUNDLE,
+  stagingDirFor,
 } = await import('./sitePublisher.js');
 const { Player } = await import('../db/entities/player.js');
 const db = (await import('../db/client.js')).default;
@@ -187,8 +188,10 @@ describe('deploying', () => {
 
     expect(calls).toHaveLength(1);
     expect(calls[0].bin).toBe(fakeBin);
+    // The freshly assembled and validated candidate, NOT the live directory —
+    // deploying the live one would ship whatever had accumulated in it.
     expect(calls[0].args).toEqual([
-      'pages', 'deploy', path.join(tmp, 'site'),
+      'pages', 'deploy', stagingDirFor(path.join(tmp, 'site')),
       '--project-name', 'thriv3-profiles',
       '--branch', 'main',
       '--commit-dirty=true',

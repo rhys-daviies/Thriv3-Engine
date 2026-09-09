@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { exportAll, writeRobotsTxt, trackingEndpoint, OUTPUT_DIR } from '../export/exportProfiles.js';
 import { PAGES_PROJECT, cloudflareCredentials } from './config.js';
+import { validateCandidate, readLedger, writeLedger } from './publishManifest.js';
 
 const runFile = promisify(execFile);
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -98,8 +99,16 @@ export function publisherReadiness({ env = process.env, root = repoRoot, workerB
  * A Pages deployment is a snapshot of a directory, so this regenerates all of
  * them rather than one. Slugs come from the athlete record and are reused, so
  * a URL already in a coach's inbox keeps working.
+ *
+ * It builds into an EMPTY directory every time. Reusing the live directory
+ * looked like an optimisation and was a correctness hole: files there survive
+ * the athlete they belong to, so an archived athlete's page would be shipped
+ * again by the next publish, and a half-finished earlier run would contribute
+ * pages nothing in this run had generated. What is deployed must be exactly
+ * what this run produced.
  */
-export function assembleSite({ outputDir = OUTPUT_DIR, workerBundle = WORKER_BUNDLE } = {}) {
+export function assembleSite({ outputDir = OUTPUT_DIR, workerBundle = WORKER_BUNDLE, fresh = false } = {}) {
+  if (fresh) fs.rmSync(outputDir, { recursive: true, force: true });
   fs.mkdirSync(outputDir, { recursive: true });
   const { written, skipped } = exportAll({ outputDir });
   writeRobotsTxt(outputDir);
@@ -112,8 +121,35 @@ export function assembleSite({ outputDir = OUTPUT_DIR, workerBundle = WORKER_BUN
   return { outputDir, written, skipped, workerBundle };
 }
 
+/** Where a candidate is built, and where the last good one is kept. */
+export const stagingDirFor = (outputDir) => `${outputDir}.staging`;
+const supersededDirFor = (outputDir) => `${outputDir}.superseded`;
+
 /**
- * Assembles and deploys.
+ * Replaces the locally served copy with the snapshot that just went public.
+ *
+ * Renames rather than copies, so the swap is a single filesystem operation on
+ * one volume. Done AFTER the deploy: if promotion fails, Cloudflare is already
+ * correct and only this machine's preview is stale, which is the harmless way
+ * round.
+ */
+function promote(staging, outputDir) {
+  const superseded = supersededDirFor(outputDir);
+  fs.rmSync(superseded, { recursive: true, force: true });
+  if (fs.existsSync(outputDir)) fs.renameSync(outputDir, superseded);
+  fs.renameSync(staging, outputDir);
+  fs.rmSync(superseded, { recursive: true, force: true });
+}
+
+/**
+ * Assembles, validates, and only then deploys.
+ *
+ * The order is the whole point. Everything that can fail — generating pages,
+ * finding the worker, checking that every already-public athlete is still
+ * present — happens before wrangler is invoked, so a failure at any of those
+ * steps leaves the previous Cloudflare deployment serving exactly as it was.
+ * The candidate is thrown away on any refusal; the live directory is never
+ * touched until a deploy has succeeded.
  *
  * `exec` is injectable so the command can be asserted without a network call
  * or a Cloudflare account — an untested deployment boundary behind an operator
@@ -131,12 +167,40 @@ export async function publishSite({
     throw new Error(`Cannot publish — ${readiness.problems.join(' ')}`);
   }
 
-  const assembled = assembleSite({ outputDir, workerBundle });
+  const staging = stagingDirFor(outputDir);
+  const discard = () => fs.rmSync(staging, { recursive: true, force: true });
+
+  let assembled;
+  try {
+    assembled = assembleSite({ outputDir: staging, workerBundle, fresh: true });
+  } catch (err) {
+    discard();
+    throw new Error(
+      `Publish refused — the candidate site could not be generated: ${err.message} `
+      + 'Nothing was deployed and the live site is unchanged.'
+    );
+  }
+
+  const verdict = validateCandidate({
+    dir: staging,
+    endpoint: readiness.endpoint,
+    skipped: assembled.skipped,
+    ledger: readLedger(outputDir),
+  });
+  if (!verdict.ok) {
+    discard();
+    throw new Error(
+      `Publish refused — the candidate site is not safe to make public. `
+      + `Nothing was deployed and the live site is unchanged.\n\n`
+      + verdict.failures.map((f) => `• ${f}`).join('\n')
+    );
+  }
+
   const { apiToken, accountId } = cloudflareCredentials(env);
   const bin = resolveWranglerBin({ root, env });
 
   const args = [
-    'pages', 'deploy', outputDir,
+    'pages', 'deploy', staging,
     '--project-name', PAGES_PROJECT,
     '--branch', 'main',
     '--commit-dirty=true',
@@ -154,16 +218,27 @@ export async function publishSite({
     });
     output = `${result.stdout || ''}\n${result.stderr || ''}`;
   } catch (err) {
+    // The deployment failed, so the previous one is still production. Throw
+    // away the candidate and change nothing locally either — in particular do
+    // not stamp anyone as published.
+    discard();
     const detail = `${err.stdout || ''}\n${err.stderr || ''}`.trim();
     throw new Error(
-      redactSecrets(detail.split('\n').filter(Boolean).slice(-3).join(' — ') || err.message, env)
+      `Deployment failed; the previous public site is still serving. `
+      + redactSecrets(detail.split('\n').filter(Boolean).slice(-3).join(' — ') || err.message, env)
     );
   }
 
+  const deploymentUrl = (output.match(/https:\/\/[a-z0-9.-]+\.pages\.dev/gi) || []).pop() || null;
+  writeLedger(outputDir, { slugs: verdict.slugs, deploymentUrl });
+  promote(staging, outputDir);
+
   return {
     ...assembled,
-    deploymentUrl: (output.match(/https:\/\/[a-z0-9.-]+\.pages\.dev/gi) || []).pop() || null,
+    outputDir,
+    deploymentUrl,
     project: PAGES_PROJECT,
+    slugs: verdict.slugs,
   };
 }
 

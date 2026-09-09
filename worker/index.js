@@ -69,24 +69,32 @@ async function collect(request, env) {
   const event = parsed.value;
   if (!PER_TOKEN.check(event.token)) return new Response(null, { status: 429, headers: CORS });
 
-  const known = await env.DB
-    .prepare('SELECT 1 FROM outreach_tokens WHERE token = ? AND revoked = 0')
-    .bind(event.token)
-    .first();
-  if (!known) return noContent();
+  // Recording is best-effort by design. The collector shares an origin with
+  // the profile pages, so anything thrown here becomes a Cloudflare error
+  // response on the same host a coach is reading; losing an event is a gap in
+  // a report, and there is no version of that worth risking the page for.
+  try {
+    const known = await env.DB
+      .prepare('SELECT 1 FROM outreach_tokens WHERE token = ? AND revoked = 0')
+      .bind(event.token)
+      .first();
+    if (!known) return noContent();
 
-  // created_at is stamped here, never taken from the client — its clock
-  // belongs to a stranger's laptop.
-  await env.DB.prepare(`
-    INSERT INTO tracking_events
-      (token, session_id, event_type, coverage_pct, watched_seconds, duration_seconds,
-       dwell_seconds, rewinds, skips, payload, created_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(
-    event.token, event.session_id, event.event_type, event.coverage_pct,
-    event.watched_seconds, event.duration_seconds, event.dwell_seconds,
-    event.rewinds, event.skips, event.payload, new Date().toISOString()
-  ).run();
+    // created_at is stamped here, never taken from the client — its clock
+    // belongs to a stranger's laptop.
+    await env.DB.prepare(`
+      INSERT INTO tracking_events
+        (token, session_id, event_type, coverage_pct, watched_seconds, duration_seconds,
+         dwell_seconds, rewinds, skips, payload, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(
+      event.token, event.session_id, event.event_type, event.coverage_pct,
+      event.watched_seconds, event.duration_seconds, event.dwell_seconds,
+      event.rewinds, event.skips, event.payload, new Date().toISOString()
+    ).run();
+  } catch {
+    // Same 204 as every other outcome — see this function's contract above.
+  }
 
   return noContent();
 }
@@ -275,11 +283,28 @@ export default {
 
       const ref = url.searchParams.get('ref');
       if (ref !== null) {
-        const live = await env.DB
-          .prepare('SELECT 1 FROM outreach_tokens WHERE token = ? AND revoked = 0')
-          .bind(ref)
-          .first();
-        if (!live) return neutral();
+        // FAIL OPEN ON INFRASTRUCTURE, CLOSED ON ANSWERS.
+        //
+        // A clean "no such live token" is a decision and revokes the page. A
+        // D1 outage is not a decision, and treating it as one would take every
+        // profile down at once — every link in every coach's inbox reading as
+        // withdrawn because a database we only consult for revocation was
+        // briefly unreachable. Availability of an already-sent profile does
+        // not get to depend on the tracking system being up.
+        //
+        // The exposure this accepts is bounded: a revoked link renders for the
+        // length of an outage. The exposure it refuses is not.
+        let verdict = 'unknown';
+        try {
+          const live = await env.DB
+            .prepare('SELECT 1 FROM outreach_tokens WHERE token = ? AND revoked = 0')
+            .bind(ref)
+            .first();
+          verdict = live ? 'live' : 'revoked';
+        } catch {
+          verdict = 'unknown';
+        }
+        if (verdict === 'revoked') return neutral();
       }
 
       const asset = await env.ASSETS.fetch(request);
