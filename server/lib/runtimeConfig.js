@@ -169,7 +169,70 @@ export function resolveConfig(env = process.env) {
     /** Where the built operator app is served from when this process serves it
      * itself, which is the hosted shape: one origin, no CORS, no second host. */
     clientDir: env.THRIV3_CLIENT_DIR || null,
+    /**
+     * The key that encrypts connected-mailbox refresh tokens — D2.
+     *
+     * It belongs here rather than in config.js by the same rule as the session
+     * secret: misconfiguring it makes the hosted process unsafe. Read as the
+     * raw string and validated below, so a bad value is one readable sentence
+     * at boot rather than a decryption failure the first time somebody tries
+     * to send.
+     */
+    mailboxKey: env.THRIV3_MAILBOX_KEY || null,
   };
+}
+
+/**
+ * The mailbox key version this build writes and reads.
+ *
+ * ONE VERSION, AND A CONSTANT RATHER THAN AN ENVIRONMENT VARIABLE. Every
+ * credential row stores the version it was written under, so introducing a
+ * second key later is a code change here plus a lookup — not a schema
+ * migration and not a re-encryption of every row. Making it configurable now
+ * would invite an operator to set a number for which no key exists, which is
+ * the one failure this design is meant to make impossible.
+ */
+export const MAILBOX_KEY_VERSION = 1;
+
+/** 32 bytes. AES-256, and nothing shorter is that. */
+export const MAILBOX_KEY_BYTES = 32;
+
+/**
+ * The decoded key, or a sentence saying why there isn't one.
+ *
+ * Returns `{ key, problem }` so the startup check and the crypto module can
+ * ask the same question and never disagree about the answer.
+ */
+export function decodeMailboxKey(raw) {
+  if (!raw) return { key: null, problem: null };
+  if (REFUSED_SECRETS.has(String(raw).toLowerCase())) {
+    return { key: null, problem: 'THRIV3_MAILBOX_KEY is a placeholder, not a key.' };
+  }
+  /**
+   * Base64 is CHECKED, not assumed. Node's Buffer.from is famously lenient —
+   * it discards anything it does not recognise rather than failing — so a
+   * hex key, a pasted UUID or a truncated value all decode to *something* of
+   * the wrong length, and the length check below would be the only thing
+   * standing between that and AES with attacker-influenced key material.
+   */
+  const text = String(raw).trim();
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(text)) {
+    return {
+      key: null,
+      problem: 'THRIV3_MAILBOX_KEY is not base64. Generate one with: '
+        + 'node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'base64\'))"',
+    };
+  }
+  const key = Buffer.from(text, 'base64');
+  if (key.length !== MAILBOX_KEY_BYTES) {
+    return {
+      key: null,
+      problem: `THRIV3_MAILBOX_KEY decodes to ${key.length} bytes; AES-256 needs exactly `
+        + `${MAILBOX_KEY_BYTES}. Generate one with: node -e "console.log(require('crypto')`
+        + `.randomBytes(32).toString('base64'))"`,
+    };
+  }
+  return { key, problem: null };
 }
 
 /**
@@ -198,6 +261,27 @@ export function runtimeProblems(env = process.env, config = resolveConfig(env)) 
   } else if (config.sessionSecret && config.sessionSecret.length < MIN_SECRET_LENGTH) {
     problems.push(`THRIV3_SESSION_SECRET is ${config.sessionSecret.length} characters; `
       + `${MIN_SECRET_LENGTH} is the minimum. Unset it to use a per-boot development secret.`);
+  }
+
+  // ---- the mailbox encryption key ----------------------------------------
+  //
+  // Required in production from D2 onwards, because a connected mailbox holds
+  // a refresh token and a refresh token is the ability to send mail as
+  // somebody else. A process that cannot encrypt one must not start and
+  // discover that later.
+  //
+  // Validated in development too when it is SET: a malformed key is a fault
+  // anywhere, and finding it at boot beats finding it when a token arrives.
+  {
+    const { problem } = decodeMailboxKey(config.mailboxKey);
+    if (production && !config.mailboxKey) {
+      problems.push('THRIV3_MAILBOX_KEY is not set. Connected mailboxes store an OAuth refresh '
+        + 'token, which is the ability to send mail as the athlete; it may not be held '
+        + 'unencrypted. Generate one with: node -e "console.log(require(\'crypto\')'
+        + '.randomBytes(32).toString(\'base64\'))"');
+    } else if (problem) {
+      problems.push(problem);
+    }
   }
 
   // ---- where the data lives ----------------------------------------------
@@ -317,6 +401,30 @@ export function sessionSecretFor(config) {
   if (config.production) throw new Error('No session secret in production');
   devSecret ??= crypto.randomBytes(32).toString('hex');
   return devSecret;
+}
+
+/**
+ * The mailbox key: configured, or a per-boot development one.
+ *
+ * The SAME shape as `sessionSecretFor` above, and for the same reason — a
+ * fixed development key written into the repository is a fixed production key
+ * the first time somebody copies the file. The cost here is higher than a
+ * signed-out session and is still the right trade: a restart makes any
+ * credential encrypted under the previous boot's key unreadable, which in
+ * development means reconnecting a mailbox that was never real.
+ *
+ * PRODUCTION THROWS. It cannot be reached in a correctly started process —
+ * `assertRuntime` refuses to boot without a key — so this is the second of two
+ * locks rather than the only one.
+ */
+let devMailboxKey;
+export function mailboxKeyFor(config = resolveConfig()) {
+  const { key, problem } = decodeMailboxKey(config.mailboxKey);
+  if (key) return key;
+  if (problem) throw new Error(problem);
+  if (config.production) throw new Error('No mailbox encryption key in production');
+  devMailboxKey ??= crypto.randomBytes(MAILBOX_KEY_BYTES);
+  return devMailboxKey;
 }
 
 /**

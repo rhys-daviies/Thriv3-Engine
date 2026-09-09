@@ -1705,3 +1705,219 @@ CREATE INDEX IF NOT EXISTS idx_operator_sessions_user
   ON operator_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_operator_sessions_expiry
   ON operator_sessions(expires_at);
+
+-- ===========================================================================
+-- A MAILBOX THIS APPLICATION MAY SEND THROUGH — Phase D2.
+--
+-- The athlete's own account at Google or Microsoft, authorised by the athlete
+-- and operated by Thriv3. Sending from the client's own mailbox rather than an
+-- agency address is a decision the roadmap made and gave two reasons for: an
+-- ESP pools every client's list reputation into one domain, and a
+-- recruiting-service From address is pattern-matched and binned by coaches who
+-- have been trained for a decade to ignore exactly that.
+--
+-- NOTHING HERE CONNECTS A MAILBOX. There is no OAuth in this build — no
+-- consent link, no callback, no Google, no Microsoft, no transport. What exists
+-- is the place a verified identity and its credential will live, built first
+-- and on its own so that the security properties are settled before anything
+-- can create a row.
+--
+-- ---------------------------------------------------------------------------
+-- THE IDENTITY IS THE PROVIDER'S, NEVER THE CALLER'S.
+--
+-- `provider_account_id` is the immutable subject the provider issues — Google's
+-- `sub`, Microsoft's `oid` — read from a verified ID token at consent and never
+-- afterwards from a request. `email_address` is read from the same place.
+--
+-- That is what closes the hole B5 records in its own comment: today the send
+-- path charges the budget to the address it ASKED to send from, while New
+-- Outlook may silently send from a different account. When the sending
+-- identity comes from the provider rather than from a parameter, a caller
+-- cannot spend one mailbox's reputation while sending through another. B5 is
+-- not wired to this yet — see the note on email_address.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS connected_mailboxes (
+  id TEXT PRIMARY KEY,
+
+  /**
+   * WHO OPERATES IT. Row-level ownership, kept even though go-live has one
+   * operator: "there is only one user" is a fact about today's data, not an
+   * authorisation rule, and a service layer that relies on it is one signup
+   * away from being wrong. Every read in connectedMailboxes.js is scoped by
+   * this column.
+   *
+   * NO ON DELETE CLAUSE, so the delete is REFUSED — and this was CASCADE for
+   * one commit, which was wrong for a reason worth writing down.
+   *
+   * A mailbox row is durable historical identity. Revocation destroys the
+   * credential and keeps the record precisely because messages were sent
+   * through it, and D4 will put a `connected_mailbox_id` on `outreach_send`
+   * to say which. Under CASCADE, deleting an operator would have silently
+   * erased the mailbox identities that send history depends on — the operator's
+   * lifecycle reaching through and deleting an athlete's provider identity and
+   * the attribution of every message it ever sent.
+   *
+   * The two lifecycles are separate and this is what keeps them apart:
+   *
+   *   OPERATOR   access is withdrawn by deactivation — `active = 0`, which
+   *              `operatorCount` already respects and which drops live
+   *              sessions. Nothing in the product hard-deletes an operator.
+   *   MAILBOX    the credential is destroyed by revocation; the identity stays.
+   *
+   * So a delete is refused while any mailbox references the account, which is
+   * the right way round: revoke the mailboxes first, deliberately, and the
+   * refusal is what makes that a decision rather than a side effect. Ownership
+   * is never nulled and never reassigned — a mailbox with no operator would be
+   * addressable by nobody, and moving one to another operator is a transfer
+   * this product has not designed.
+   *
+   * `operator_sessions` keeps its CASCADE, and correctly: a session is
+   * ephemeral, carries no history and must not outlive its user.
+   */
+  operator_user_id TEXT NOT NULL REFERENCES operator_users(id),
+
+  /**
+   * WHOSE MAILBOX IT IS. Nullable, and the nullability is a judgement rather
+   * than indecision.
+   *
+   * Every mailbox D3 creates will carry an athlete: the consent link is issued
+   * for one, so the athlete is known before the provider identity is. But the
+   * product may also connect a Thriv3-operated sending address, and a column
+   * that forbids one would make that a migration rather than a row.
+   *
+   * NO ON DELETE CLAUSE, so a delete is refused. Athletes are ARCHIVED in this
+   * product, never deleted — `athleteLifecycle.js` sets `archived_at` and the
+   * purge removes tracking data while leaving the row — so this costs nothing
+   * operationally and says the important thing: a player row may not be removed
+   * out from under a live credential that can still send mail in their name.
+   * Revoke the mailbox first, which destroys the credential; then the athlete
+   * is free to go.
+   */
+  athlete_id TEXT REFERENCES players(id),
+
+  -- Reserved for both, implemented for neither. A CHECK rather than a comment
+  -- so a third provider is a schema decision somebody makes on purpose.
+  provider TEXT NOT NULL CHECK (provider IN ('GOOGLE', 'MICROSOFT')),
+
+  /** The provider's own immutable id for the account. THE identity. */
+  provider_account_id TEXT NOT NULL,
+
+  /**
+   * The verified address, normalised lowercase.
+   *
+   * THE FUTURE SOURCE OF B5's `sending_identity`, and deliberately not wired to
+   * it yet. B5 budgets on a normalised address string and will keep doing so;
+   * what changes in a later phase is that callers name a MAILBOX and the
+   * address is looked up here, instead of naming an address. Doing that now
+   * would change execution behaviour in a slice that has no provider to send
+   * through.
+   *
+   * NOT UNIQUE, and that is considered. One person's alias can resolve to the
+   * same address as another account, an address can be reassigned inside an
+   * organisation, and a reconnection after revocation legitimately produces a
+   * second row with the same address. Identity is the provider account; the
+   * address is an attribute of it. Two live mailboxes sharing an address share
+   * one budget under B5, which is the correct accounting either way.
+   */
+  email_address TEXT NOT NULL,
+  display_name TEXT,
+
+  /**
+   * ADMINISTRATIVE TRUTH, NOT OBSERVED HEALTH.
+   *
+   *   CONNECTED             a verified provider identity and a stored credential
+   *   NEEDS_RECONSENT       the provider refused the credential; a person must act
+   *   REVOKED               withdrawn here or at the provider; credential destroyed
+   *   UNHEALTHY_TEMPORARY   repeated transient provider failures
+   *
+   * `CONNECTED` does not claim the provider will accept the next request. This
+   * build cannot know that — there is no transport — and a status that implied
+   * it would be the "fake healthy" this vocabulary was chosen to avoid. What it
+   * claims is exactly what it can: an identity we verified, and a credential we
+   * hold.
+   */
+  status TEXT NOT NULL CHECK (status IN (
+    'CONNECTED', 'NEEDS_RECONSENT', 'REVOKED', 'UNHEALTHY_TEMPORARY'
+  )),
+
+  -- JSON array of the scopes actually granted, as the provider reported them.
+  -- Recorded rather than assumed: a consent screen where the user unticks one
+  -- is a mailbox that cannot do what we think it can.
+  scopes TEXT,
+
+  connected_at TEXT NOT NULL,
+  /** When a provider call last actually succeeded. Null until one does — an
+   *  unused mailbox is unverified, not healthy. */
+  last_verified_at TEXT,
+  revoked_at TEXT,
+
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+
+  /**
+   * ONE PROVIDER ACCOUNT, ONE ROW, GLOBALLY.
+   *
+   * Not scoped to the operator: the constraint is protecting a real mailbox at
+   * Google, not a record. Two rows for one account would budget the same
+   * inbox's daily sending twice under B5 and split its reputation history in
+   * half — the failure being prevented is in the world, not in the table.
+   */
+  UNIQUE (provider, provider_account_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_connected_mailboxes_operator
+  ON connected_mailboxes(operator_user_id, created_at, id);
+CREATE INDEX IF NOT EXISTS idx_connected_mailboxes_athlete
+  ON connected_mailboxes(athlete_id);
+-- The lookup a future send path makes: which mailbox is this address?
+CREATE INDEX IF NOT EXISTS idx_connected_mailboxes_email
+  ON connected_mailboxes(email_address);
+
+-- ===========================================================================
+-- THE CREDENTIAL, AND THE ONLY ENCRYPTED THING IN THIS DATABASE.
+--
+-- A refresh token is not like the other secrets here. A session secret signs
+-- cookies we issued; a sync secret authenticates our own edge. This lets the
+-- bearer send mail as somebody else, from an address a coach trusts, until the
+-- athlete revokes it — and they will not think to.
+--
+-- A SEPARATE TABLE, so that no join reaches it by accident. Every read of a
+-- mailbox goes through `connected_mailboxes`; the ciphertext is fetched only by
+-- the one internal function that is about to decrypt it, and the public
+-- projection cannot express these columns because it never sees this row.
+--
+-- WHAT IS NOT STORED, EVER: a plaintext refresh token, an access token, a
+-- password, an OAuth authorization code. Access tokens are minutes-lived and
+-- belong in memory; storing one buys nothing and doubles the blast radius.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS connected_mailbox_credentials (
+  /**
+   * ONE CREDENTIAL PER MAILBOX, enforced by the primary key rather than by a
+   * convention somebody has to maintain. Replacing a credential is an UPDATE
+   * of this row, so a rotation cannot leave the old ciphertext behind.
+   *
+   * CASCADE: if a mailbox row ever is deleted, the credential goes with it.
+   * Revocation does not take that path — it deletes this row and keeps the
+   * mailbox for attribution — but a delete that left an orphaned encrypted
+   * token addressable by nothing is worse than either.
+   */
+  mailbox_id TEXT PRIMARY KEY REFERENCES connected_mailboxes(id) ON DELETE CASCADE,
+
+  -- AES-256-GCM, base64. The mailbox id and key version are bound in as AAD,
+  -- so a ciphertext moved to another mailbox's row fails to authenticate
+  -- rather than decrypting into a working credential for the wrong person.
+  ciphertext TEXT NOT NULL,
+  iv TEXT NOT NULL,          -- 96-bit, random per write, never reused
+  auth_tag TEXT NOT NULL,
+
+  /**
+   * Which key encrypted this row. One key exists; the column is what makes a
+   * second one a config change rather than a migration and a re-encryption of
+   * every row. An unknown version is refused, never guessed.
+   */
+  key_version INTEGER NOT NULL,
+
+  rotated_at TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);

@@ -109,6 +109,34 @@ services:
       # sign-in will be refused on origin.
       - key: THRIV3_APP_ORIGIN
         value: https://thriv3-operator.onrender.com
+      # THE MAILBOX ENCRYPTION KEY — D2. Base64 of exactly 32 random bytes.
+      #
+      # `sync: false` AND NOT `generateValue: true`, which is the opposite of
+      # THRIV3_SESSION_SECRET above and is deliberate.
+      #
+      # Render's generated value is a random string it chooses the alphabet and
+      # length of. The session secret does not care: it is fed to HMAC, which
+      # accepts any length, so "some long random string" is exactly right there.
+      # This key is different — it is an AES-256 key, and AES-256 takes 32
+      # bytes and nothing else. A generated value that happens not to decode
+      # from base64 to exactly 32 bytes is not a weaker key, it is not a key,
+      # and the runtime refuses to start rather than accept one.
+      #
+      # Bending the contract to fit the platform was the alternative: hash
+      # whatever Render generates down to 32 bytes and call it derived. That
+      # turns an unknown-entropy string into a key of unknown strength while
+      # looking rigorous, and nothing downstream could tell. So the key is
+      # provisioned by hand, once, and the startup check is what makes a
+      # mistake loud:
+      #
+      #   node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+      #
+      # Paste the result into the Render dashboard when the blueprint first
+      # applies. Losing it means every connected mailbox must be reconnected —
+      # no credential is readable without it — so it belongs in the same place
+      # as the database backups, not only in the dashboard.
+      - key: THRIV3_MAILBOX_KEY
+        sync: false
       # Existing application secrets, unchanged and never in git.
       - key: ANTHROPIC_API_KEY
         sync: false
