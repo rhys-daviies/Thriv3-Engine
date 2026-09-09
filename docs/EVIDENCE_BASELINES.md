@@ -54,11 +54,13 @@ earlier stages used was 3,498 pairs: three athletes against 1,166 programmes.
 There are 1,169 now, so the same definition yields 3,507 — nine pairs of silent
 drift, and every hash taken over it quietly incomparable.
 
-So the manifest fingerprints the five tables the evidence path reads —
-`players`, `colleges`, `roster_players`, `coaches`, `athletics_domains` — by row
-count and by a digest of their identifying columns in a stated order. It is
-checked **first**. When it has moved, the product lines are reported
-`UNCOMPARABLE`, not `FAIL`:
+So the manifest fingerprints every table the evidence path reads — `players`,
+`colleges`, `roster_players`, `coaches`, `athletics_domains`,
+`recruiting_arrivals` and `coach_seasons` — by row count and by an
+order-independent digest over **all** of their columns. (It fingerprinted five
+tables by a named projection until D3.3 measured what that missed; see *Manifest
+V2 → V3* below.) It is checked **first**. When it has moved, the product lines
+are reported `UNCOMPARABLE`, not `FAIL`:
 
     DATASET CHANGED — the rows moved, so the product hashes cannot be
     compared to ones taken over different rows.
@@ -101,34 +103,125 @@ a file copy of a live WAL database can be missing its most recent transactions.
 Proven, not assumed: with 5,000 roster rows deleted from the working database
 and every athlete renamed, both suites return identical results.
 
-### The EMAIL_BODY pin does not reproduce, and was not repinned
+### Why the EMAIL_BODY pin was unreproducible, and what was done — D3.3
 
-D3.2 found this and deliberately left it. On the recovered dataset — the one
-whose manifest digest is exactly the `5bbca905…` recorded in `evidence.json` —
-five of the six baselines reproduce their committed digests exactly.
-`EMAIL_BODY` does not: it yields `54a718f9…` against a pin of `a756b5a0…`.
+D3.2 found that on the recovered dataset — the one whose manifest digest is
+exactly the `5bbca905…` recorded in `evidence.json` — five of the six baselines
+reproduced their committed digests and `EMAIL_BODY` did not. Running the CLI
+**at `20af7c22`, the commit that recorded the pin**, gave the same disagreement.
+D3.3 found out why.
 
-That is **not** a code regression, and the test that establishes it is worth
-keeping in mind: running the baseline CLI *at `20af7c22`, the commit that
-recorded `a756b5a0`*, against a dataset carrying the manifest digest recorded
-beside it, also yields `54a718f9…`. The pin cannot be reproduced by the code
-that wrote it, on the dataset it says it was written against. No database on
-this machine reproduces it.
+**The manifest was not an identity for the data.** Instrumenting every prepared
+statement of a full `buildBaselines` walk shows it reads **seven** tables. V2
+fingerprinted five:
 
-So `EMAIL_BODY` depends on an input the manifest does not fingerprint, and that
-input's state at pin time is not recoverable. The manifest covers five tables
-plus roster freshness; the evidence path also reads `programme_seasons`,
-`coach_seasons`, `conference_seasons`, `institution_aliases` and the outreach
-tables, none of which are in it. Widening the manifest moves the dataset digest
-and makes every pin `UNCOMPARABLE` at once, which is the deliberate decision
-this document already says it is — and repinning `EMAIL_BODY` to whatever the
-current code emits would bless an unexplained change, which is exactly what
-this file exists to prevent.
+| table | statements per walk | in V2 |
+|---|---|---|
+| `roster_players` | 4,750 | yes |
+| **`recruiting_arrivals`** | **4,742** — one per pair | **no** |
+| **`coach_seasons`** | **3,963** | **no** |
+| `colleges`, `players`, `athletics_domains`, `coaches` | 15 | yes |
 
-**It is therefore still failing, on purpose, and is a pre-existing defect older
-than D3.** It needs a product decision: widen the manifest to cover the inputs
-that actually feed the body, then repin every baseline together against a
-snapshot taken at that moment.
+Measured consequences, all with the V2 dataset digest reading **UNCHANGED**:
+
+- changing 181 `recruiting_arrivals` rows moves `EMAIL_BODY`
+- emptying either omitted table moves **all six** baselines
+- nulling the `roster_players` columns V2 did not name — `position`,
+  `nationality`, `hometown`, `country`, `class_year_label`, the minutes — moves
+  all six
+
+So the projections were too narrow as well as incomplete. And **column
+materiality cannot be predicted by name**: `roster_row_id` looks like a join key
+and is inert; `built_at` and `imported_at` look like provenance timestamps and
+move all six hashes. Every hand-picked projection is a guess, and a guess that
+errs by omitting is silent.
+
+That is the whole explanation of the historical pin. It was taken over rows the
+manifest could not see, so the digest recorded beside it did not identify the
+data that produced it, and no later run could reproduce or diagnose it.
+
+## Manifest V2 → V3: every column of every table the walk reads
+
+V3 fingerprints all seven tables, **all columns**, and nothing else.
+`programme_seasons`, `conference_seasons`, `institution_aliases` and the
+outreach tables were all plausible and the instrumented walk touches none of
+them; fingerprinting those would report CHANGED for data no baseline can see,
+which is the same defect pointing the other way.
+
+**Ordering cannot change a digest.** Each row is hashed alone, the row hashes
+are sorted, and the table hash is taken over the sorted list — so a fingerprint
+is a property of the *set* of rows. There is no `ORDER BY` to get right, and a
+VACUUM, a rebuild or a different query plan cannot move it. Column names are
+sorted for the same reason: physical column order is not data. Each component
+carries `rows` and `columns` beside its digest so a DATASET CHANGED report names
+what moved.
+
+**Why the false-positive argument no longer applies.** V2 stayed narrow because
+a manifest that cries CHANGED constantly teaches people to repin without
+reading — and it was reading the working database, which moved daily. D3.2 made
+the input an immutable pinned snapshot. A maximally sensitive manifest over a
+fixture that only changes when somebody deliberately re-pins it produces no
+noise at all: it speaks exactly once, when the dataset really is a different
+dataset.
+
+`server/lib/datasetManifest.test.js` holds the implication in both directions on
+throwaway databases — every one of the seven moves the digest and is named by
+its own component, four tables the walk never reads do not, and reinserting the
+same rows in a different order does not.
+
+One genuine non-determinism, found while writing those tests and worth knowing:
+`migrate()` backfills `players.public_slug` with a **random** slug for any
+athlete without one, so a database seeded without slugs is a different database
+each time it is opened. The canonical fixture's four athletes are all slugged,
+so nothing backfills there.
+
+## The D3.3 provenance reset
+
+Not an ordinary repin. `evidence.json` carries a `provenance` block recording
+it, and `--update` now carries that block forward rather than overwriting it.
+
+Before resetting anything, the question that mattered was asked directly: **does
+D3 change any baseline when both sides see the same complete dataset?** The
+generator was run on byte-identical copies of the canonical fixture at pre-D3
+`main` (`ecb171c3`) and at the D3 branch head. All six baselines, `stats` and
+`invariants` came back identical. D3 did not move outbound email copy.
+
+The reset then moved exactly one number:
+
+| baseline | before | after |
+|---|---|---|
+| OUTBOUND_DECISION | `11d52d4d…` | unchanged |
+| COACH_COMPOSITION | `e664ac1f…` | unchanged |
+| **EMAIL_BODY** | **`a756b5a0…`** | **`54a718f9…`** |
+| OPERATOR_WIRE | `e9379455…` | unchanged |
+| LOG_PAYLOAD | `d4a41935…` | unchanged |
+| OPERATOR_EVIDENCE | `c7641714…` | unchanged |
+
+Five of six re-pinned to the digests they already held, which is the strongest
+available evidence that the canonical dataset is the pin-era dataset and that
+nothing else moved under cover of the reset.
+
+## Getting the canonical fixture
+
+`server/data/baseline/recruitmatch-baseline.sqlite` is 209MB (48MB gzipped) and
+`server/data/` is gitignored, so it is **not in the repository and is not
+reproducible from it**. Today it is materialised on a machine that already has a
+database carrying the dataset:
+
+    npm run baseline:dataset -- --from <database>   # verifies, then pins
+    npm run baseline:dataset -- --check             # confirms what is pinned
+
+The command refuses a source whose manifest digest is not the recorded one, so
+"is this the right dataset?" has a mechanical answer rather than a judgement.
+Any candidate database can be tested against the recorded digest without
+trusting its filename or its date.
+
+**CI cannot reproduce this fixture today, and the suites skip loudly there
+rather than pretending.** Closing that needs a decision this stage did not
+take: publish the gzipped snapshot as a release or object-store artefact,
+keyed by its dataset digest, and have `baseline:dataset` fetch and verify it.
+48MB is comfortable for a release asset and far too large for git. Until then,
+the baselines are a local gate, and a green CI run does not mean they passed.
 
 ## What is normalised away
 
@@ -238,21 +331,30 @@ answer. Only two different clocks separate a behavioural fingerprint from a
 clock reading. If that test fails, a new environmental value has entered a
 payload, and repinning would restart the decay rather than fix it.
 
-### Known gap: the manifest does not cover `updated_date`
+### Closed in V3: the manifest does not cover `updated_date`
 
-The manifest fingerprints `roster_players` by `(college_name, sport, season,
-player_name)`. `rosterUpdatedAt` comes from `updated_date`, which is **not** in
-it. A re-scrape that rewrites timestamps without changing a single roster row
-would move `OPERATOR_WIRE`, `LOG_PAYLOAD` and `OPERATOR_EVIDENCE` while the
-dataset line still read `UNCHANGED` — the same misdiagnosis as the clock
-defect, arriving from data instead. Not closed here: widening the manifest
-changes the dataset digest and makes every pin `UNCOMPARABLE` at once, which is
-a decision to take deliberately rather than as a side effect.
+**This gap is closed.** It read, correctly for V1 and V2:
+
+> The manifest fingerprints `roster_players` by `(college_name, sport, season,
+> player_name)`. `rosterUpdatedAt` comes from `updated_date`, which is **not** in
+> it. A re-scrape that rewrites timestamps without changing a single roster row
+> would move `OPERATOR_WIRE`, `LOG_PAYLOAD` and `OPERATOR_EVIDENCE` while the
+> dataset line still read `UNCHANGED`.
+
+V3 fingerprints every column of `roster_players`, `updated_date` included, so a
+timestamp-only re-scrape now moves the dataset digest before it moves a
+behavioural hash. The stated reason for leaving it open — that widening the
+manifest makes every pin `UNCOMPARABLE` at once — was still true, and D3.3 paid
+that cost deliberately once, in the provenance reset above.
+
+The same reasoning is what condemned the projections generally: this gap was
+known and named for one column, and D3.3 found the identical shape across
+`position`, `nationality`, `hometown`, `country` and two whole tables.
 
 ## Manifest V1 → V2: roster freshness
 
-The manifest carries a `version`. It changed once, at K3C, and the two
-definitions are not comparable.
+The manifest carries a `version`. **The current definition is V3, above.** V2 is
+kept here because a pin from either older definition must stay nameable.
 
 **V1** fingerprinted five tables by their identifying columns. **V2** adds a
 sixth component, `roster_freshness`.

@@ -88,9 +88,21 @@ function main() {
       console.log(`    ${r.name.padEnd(20)} ${short(r.expected ?? '—')} -> ${short(r.digest)}  (${r.status})`);
     }
     if (!moved.length && cmp.dataset === 'UNCHANGED') console.log('    nothing moved.');
+    /**
+     * PROVENANCE SURVIVES A REPIN — D3.3.
+     *
+     * The file records where its numbers came from, and an ordinary `--update`
+     * must not erase that: the reason the D3.3 reset was necessary is that a
+     * pin existed with no recoverable account of the data behind it. Carried
+     * forward verbatim rather than regenerated, because it describes an event
+     * — the reset — not the current run.
+     */
+    const previous = existsSync(EXPECTED_PATH)
+      ? JSON.parse(readFileSync(EXPECTED_PATH, 'utf8')) : {};
     writeFileSync(EXPECTED_PATH, `${JSON.stringify({
       note: 'Committed Evidence behavioural baseline. See docs/EVIDENCE_BASELINES.md before repinning.',
       now: cmp.now,
+      ...(previous.provenance ? { provenance: previous.provenance } : {}),
       manifest: cmp.manifest,
       baselines: cmp.results.map((r) => ({ name: r.name, size: r.size, digest: r.digest })),
     }, null, 2)}\n`);

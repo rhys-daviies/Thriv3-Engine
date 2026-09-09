@@ -400,10 +400,25 @@ d('roster_freshness mirrors what production reads', () => {
 });
 
 d('the manifest declares its own definition version', () => {
-  it('reports V2 and carries roster_freshness', () => {
+  it('reports V3, covers the seven tables the walk reads, and keeps roster_freshness', () => {
     const m = datasetManifest();
-    expect(m.version).toBe('V2');
-    expect(m.tables.map((t) => t.table)).toContain('roster_freshness');
+    expect(m.version).toBe('V3');
+    /**
+     * The seven are not a preference. They are what instrumenting every
+     * prepared statement of a full `buildBaselines` walk found it reading, and
+     * two of them — recruiting_arrivals and coach_seasons — were the omission
+     * that made the historical EMAIL_BODY pin unreproducible.
+     */
+    expect(m.tables.map((t) => t.table)).toEqual([
+      'players', 'colleges', 'roster_players', 'coaches', 'athletics_domains',
+      'recruiting_arrivals', 'coach_seasons', 'roster_freshness',
+    ]);
+    // Every column, not a projection: a hand-picked one is a guess, and D3.3
+    // measured that the guesses were wrong in the omitting direction.
+    for (const t of m.tables.filter((x) => x.table !== 'roster_freshness')) {
+      expect(t.columns, t.table).toBeGreaterThan(0);
+      expect(t.digest, t.table).toMatch(/^[0-9a-f]{64}$/);
+    }
   });
 
   it('reads a V1 pin as a definition change, not a data change', () => {
