@@ -804,6 +804,31 @@ export function migrate(db) {
   addMissingColumns(db, 'outreach_send', OUTREACH_SEND_COLUMNS);
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_programme_campaign ON outreach(programme_campaign_id)');
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_send_programme_campaign ON outreach_send(programme_campaign_id)');
+  addMissingColumns(db, 'outreach_evidence', OUTREACH_EVIDENCE_COLUMNS);
+  // After the column exists, never before: schema.sql runs first and cannot
+  // index a column this function is about to add.
+  db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_evidence_selected ON outreach_evidence(selected_kinds)');
+  backfillSendEvents(db);
+  /**
+   * AFTER `backfillSendEvents`, AND THE ORDER IS THE WHOLE POINT.
+   *
+   * This ran before it until the hosted reconciliation, which was correct on
+   * every database that already had `outreach_send` and wrong on the one that
+   * did not. `outreach_send` is a new table: a database that predates it —
+   * the deployed one — gets the table empty from schema.sql, so this backfill
+   * matches nothing, and `backfillSendEvents` then inserts the legacy rows
+   * afterwards with no `state` in its INSERT at all.
+   *
+   * The result was a first boot that left every historical send at NULL state,
+   * self-healing on the second. NULL is not a harmless gap:
+   * `nextSequence` in server/lib/outreachSend.js counts ACCEPTED rows, so it
+   * returned 1 for a relationship that already held sequence 1, and the next
+   * draft to an already-contacted coach died on
+   * UNIQUE (outreach_id, sequence) until the process restarted.
+   *
+   * Backfilling the state after the rows exist makes the first boot the
+   * correct one. Both indexes stay behind it, as before.
+   */
   backfillSendState(db);
   db.exec("CREATE INDEX IF NOT EXISTS idx_outreach_send_state ON outreach_send(state)");
   /**
@@ -821,17 +846,12 @@ export function migrate(db) {
    * attempt" may be the better scope; that is a later decision and this index
    * does not prejudge it.
    *
-   * Created after the backfill, never before: every row has NULL state until
-   * then, and NULL is not in the predicate.
+   * Created after the backfill, never before: NULL is not in the predicate,
+   * so the rows the backfill is about to name are invisible to it until then.
    */
   db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_outreach_send_one_open
              ON outreach_send(outreach_id)
              WHERE state IN ('DRAFT', 'QUEUED', 'SENDING')`);
-  addMissingColumns(db, 'outreach_evidence', OUTREACH_EVIDENCE_COLUMNS);
-  // After the column exists, never before: schema.sql runs first and cannot
-  // index a column this function is about to add.
-  db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_evidence_selected ON outreach_evidence(selected_kinds)');
-  backfillSendEvents(db);
   addMissingColumns(db, 'recruiting_arrivals', RECRUITING_ARRIVAL_COLUMNS);
   preserveMailboxIdentityAcrossOperators(db);
   retireProgrammeSeasonDivision(db);
