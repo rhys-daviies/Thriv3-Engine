@@ -56,12 +56,12 @@
     {
       "name": "OPERATOR_WIRE",
       "size": 4742,
-      "digest": "acff8995399ef10f3ddf25fef053a8a6011d251a137fd76a0a23b589cf67a21a"
+      "digest": "9945c004b4371bfdf9d6e485f8babc28dfa3429dc84482403fa32d6c740ccc3f"
     },
     {
       "name": "LOG_PAYLOAD",
       "size": 4742,
-      "digest": "f53b31360d3da2a8a9548ea26e7807fbe26a80ff959f6f93b50f90b2e6f3161d"
+      "digest": "48f46bb9173ac6f8a80ac8249553534119451fc18d22b7f1d611f360433a5644"
     },
     {
       "name": "OPERATOR_EVIDENCE",

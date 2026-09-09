@@ -67,6 +67,81 @@ export function canonical(value) {
   return JSON.stringify(walk(value));
 }
 
+/**
+ * Fields a behavioural baseline must not hash, because they are observations
+ * of WHEN we looked rather than statements about what is true.
+ *
+ * There is exactly one, and it earned its place by measurement rather than by
+ * argument. L7D imported 85 roster rows and moved OPERATOR_WIRE and LOG_PAYLOAD
+ * for 3,584 pairs — every one of them differing in `rosterUpdatedAt` and
+ * nothing else, because the import re-stamps `updated_date` on all 1,926
+ * programmes whether or not a single player changed. Two of the six surfaces
+ * could therefore never be stable across a refresh, which makes them useless
+ * for the thing they exist to detect.
+ *
+ * THIS IS NOT "REMOVE THE FIELD UNTIL THE TEST PASSES". The timestamp reaches
+ * behaviour, and it still does: `rosterFreshness` turns it into a `state`, an
+ * `ageDays` and a `reason`, and `applyFreshness` reads the STATE to suppress or
+ * downgrade evidence. Those derived values stay hashed, in full. What is
+ * dropped is only the raw instant they were derived from.
+ *
+ * Measured both ways on the real corpus before the change:
+ *
+ *   +37 seconds on all 58,270 roster rows — a shift that cannot cross a day
+ *   boundary — moved OPERATOR_WIRE and LOG_PAYLOAD and nothing else. Personalised
+ *   pairs 1,758 either way.
+ *
+ *   -400 days on the same rows — enough to turn CURRENT into STALE — moved all
+ *   six surfaces and took personalisation from 1,758 to 1,284.
+ *
+ * So the effect of freshness is still fully visible and only the clock reading
+ * is gone. K3A fixed the other half of this: `BASELINE_NOW` pins `now`, and
+ * this pins the other input to the same subtraction.
+ *
+ * Runtime is untouched. The panel, the wire and the log all still carry the
+ * real timestamp; `projectBehavioural` runs in the baseline harness alone.
+ */
+export const NON_BEHAVIOURAL_FIELDS = Object.freeze(['rosterUpdatedAt']);
+
+/**
+ * `canonical`, with observation instants removed.
+ *
+ * Applied to all six surfaces rather than the two that carry the field today,
+ * so a payload that starts reporting when it was scraped does not quietly
+ * reintroduce the problem. `baselineFieldSites` below keeps that honest by
+ * reporting where the field is actually found, and a test asserts the set.
+ */
+export function projectBehavioural(value) {
+  const walk = (v) => {
+    if (v === null || typeof v !== 'object') return v;
+    if (Array.isArray(v)) return v.map(walk);
+    if (v instanceof Map || v instanceof Set) return v;
+    const out = {};
+    for (const k of Object.keys(v)) {
+      if (NON_BEHAVIOURAL_FIELDS.includes(k)) continue;
+      out[k] = walk(v[k]);
+    }
+    return out;
+  };
+  return canonical(walk(value));
+}
+
+/** Every path at which a non-behavioural field appears in a payload. Diagnostic. */
+export function nonBehaviouralSites(value, surface = '') {
+  const found = [];
+  const walk = (v, path) => {
+    if (v === null || typeof v !== 'object') return;
+    if (Array.isArray(v)) { v.forEach((x, i) => walk(x, `${path}[${i}]`)); return; }
+    for (const k of Object.keys(v)) {
+      const at = path ? `${path}.${k}` : k;
+      if (NON_BEHAVIOURAL_FIELDS.includes(k)) found.push(surface ? `${surface}::${at}` : at);
+      else walk(v[k], at);
+    }
+  };
+  walk(value, '');
+  return found;
+}
+
 /** SHA-256, full. Display truncates; comparison never does. */
 export const digest = (s) => createHash('sha256').update(s, 'utf8').digest('hex');
 
@@ -311,7 +386,7 @@ export function buildBaselines() {
 
     /* 1. OUTBOUND_DECISION — what the outbound selector decided, and why. */
     const roles = ev.roles ?? { hooks: [], relevance: [], recognition: [], alternatives: [] };
-    decision.push(`${key}|${canonical({
+    decision.push(`${key}|${projectBehavioural({
       hooks: roles.hooks.map((h) => h.kind),
       relevance: roles.relevance.map((h) => h.kind),
       recognition: roles.recognition.map((h) => h.kind),
@@ -335,7 +410,7 @@ export function buildBaselines() {
 
     /* 2. COACH_COMPOSITION — what the email actually says, and where. */
     const comp = ev.composition ?? {};
-    composition.push(`${key}|${canonical({
+    composition.push(`${key}|${projectBehavioural({
       structure: ev.structure?.key ?? null,
       structureSource: ev.structure?.source ?? null,
       sentences: (comp.sentences ?? []).map((s) => [s.order, s.slot, s.kind, s.text]),
@@ -351,17 +426,17 @@ export function buildBaselines() {
         evidence: ev, profileUrl: FIXED_PROFILE_URL,
       });
     } catch (err) { rendered = { body: `THREW:${err.message}`, source: null, structure: null }; }
-    body.push(`${key}|${canonical({
+    body.push(`${key}|${projectBehavioural({
       source: rendered.source ?? null, structure: rendered.structure ?? null, body: rendered.body,
     })}`);
 
     /* 4. OPERATOR_WIRE — what the panel is handed. */
     let sent;
     try { sent = toWire(ev); } catch (err) { sent = { error: err.message }; }
-    wire.push(`${key}|${canonical(sent)}`);
+    wire.push(`${key}|${projectBehavioural(sent)}`);
 
     /* 5. LOG_PAYLOAD — what we record about the email we sent. */
-    log.push(`${key}|${canonical(evidenceLogPayload(ev))}`);
+    log.push(`${key}|${projectBehavioural(evidenceLogPayload(ev))}`);
 
     /**
      * 6. OPERATOR_EVIDENCE — the inspection surface, which is a different
@@ -376,7 +451,7 @@ export function buildBaselines() {
     let opv;
     try { opv = wireOperatorEvidence(operatorEvidenceFor(ev)); }
     catch (err) { opv = { error: err.message }; }
-    operator.push(`${key}|${canonical(opv)}`);
+    operator.push(`${key}|${projectBehavioural(opv)}`);
 
     /* ---- The rendered/recorded invariant, on the objects just built. ---- */
     const logged = evidenceLogPayload(ev);
