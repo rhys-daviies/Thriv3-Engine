@@ -166,6 +166,18 @@ export function resolveConfig(env = process.env) {
      * deploy, silently, and look exactly like an analysis nobody had run.
      */
     uploadDir: env.THRIV3_UPLOAD_DIR || null,
+    /**
+     * THE FOURTH PERSISTENT PATH. Generated athlete pages.
+     *
+     * The same shape of bug as THRIV3_UPLOAD_DIR above, found by audit rather
+     * than by an outage. `OUTPUT_DIR` falls back to the repository's
+     * build/public, which on a container host is thrown away on every deploy —
+     * and `/p/:slug` serves the neutral "no longer shared" page when the file
+     * is missing. A coach opening a link the morning after a deploy would be
+     * told the profile had been withdrawn, which is both wrong and the most
+     * alarming thing it could say.
+     */
+    profileDir: env.THRIV3_BUILD_DIR || null,
     /** Where the built operator app is served from when this process serves it
      * itself, which is the hosted shape: one origin, no CORS, no second host. */
     clientDir: env.THRIV3_CLIENT_DIR || null,
@@ -323,6 +335,17 @@ export function runtimeProblems(env = process.env, config = resolveConfig(env)) 
       if (bad) problems.push(`The upload directory is not usable: ${bad}.`);
     }
 
+    if (!config.profileDir) {
+      problems.push('THRIV3_BUILD_DIR is not set. In production it must be an absolute path on '
+        + 'the persistent disk: generated athlete pages are FILES, and a missing one makes '
+        + '/p/:slug tell a coach the profile is no longer shared.');
+    } else if (!path.isAbsolute(config.profileDir)) {
+      problems.push(`THRIV3_BUILD_DIR (${config.profileDir}) must be an absolute path.`);
+    } else {
+      const bad = checkWritableDir(config.profileDir, { create: true });
+      if (bad) problems.push(`The generated-profile directory is not usable: ${bad}.`);
+    }
+
     // The one check that is about the disk being the RIGHT disk rather than a
     // writable one. Sharing a mount is the intended shape: one volume holds
     // both, one snapshot captures both, and a restore cannot mix eras.
@@ -331,6 +354,7 @@ export function runtimeProblems(env = process.env, config = resolveConfig(env)) 
       volumeOf(config.dbPath && path.dirname(config.dbPath)),
       volumeOf(config.reportStore),
       volumeOf(config.uploadDir),
+      volumeOf(config.profileDir),
     ].filter(Boolean));
     if (volumes.size > 1) {
       problems.push('The database, the report store and the upload directory are on different '

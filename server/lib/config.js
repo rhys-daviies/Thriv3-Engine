@@ -40,6 +40,34 @@ export function isPubliclyReachable(baseUrl = PUBLIC_BASE_URL) {
  */
 export const OUTLOOK_FROM_ADDRESS = process.env.THRIV3_FROM_ADDRESS || 'rhys@striv3.com';
 
+/**
+ * The Cloudflare Pages project the generated site deploys to.
+ *
+ * Named rather than assumed, because the project name is also what keeps the
+ * public hostname — and therefore every link already in a coach's inbox —
+ * stable across deploys.
+ */
+export const PAGES_PROJECT = process.env.THRIV3_PAGES_PROJECT || 'thriv3-profiles';
+
+/**
+ * Credentials for deploying to Cloudflare.
+ *
+ * Read through a function rather than exported as constants, so a test can
+ * pass an environment without setting process-wide state, and so nothing
+ * imports a token into a module scope where a stray log could reach it. Never
+ * logged, never returned to the browser, never placed in argv.
+ *
+ * The token needs one permission — Account / Cloudflare Pages / Edit — and the
+ * account id is required because a token with access to more than one account
+ * cannot infer which. Neither belongs in git.
+ */
+export function cloudflareCredentials(env = process.env) {
+  return {
+    apiToken: env.CLOUDFLARE_API_TOKEN || '',
+    accountId: env.CLOUDFLARE_ACCOUNT_ID || '',
+  };
+}
+
 /** Where the edge collector lives. Empty means everything stays local. */
 export const EDGE_BASE_URL = (process.env.THRIV3_EDGE_URL || '').replace(/\/$/, '');
 

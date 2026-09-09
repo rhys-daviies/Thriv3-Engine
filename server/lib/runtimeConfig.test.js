@@ -25,6 +25,7 @@ const HOSTED = Object.freeze({
   RECRUITMATCH_DB: path.join(tmp, 'recruitmatch.sqlite'),
   THRIV3_REPORT_STORE: path.join(tmp, 'reports'),
   THRIV3_UPLOAD_DIR: path.join(tmp, 'uploads'),
+  THRIV3_BUILD_DIR: path.join(tmp, 'profiles'),
   /**
    * D2. A hosted process that cannot encrypt a mailbox credential must not
    * start, so a configuration without this one is no longer valid — which is
@@ -132,6 +133,23 @@ describe('where the data lives', () => {
     expect(missing).toMatch(/is a FILE in this directory/);
     expect(problemsFor({ THRIV3_UPLOAD_DIR: 'uploads' }).join(' '))
       .toMatch(/must be an absolute path/);
+  });
+
+  it('requires the profile directory, because a generated page is a file too', () => {
+    // FOUND BY AUDIT rather than by an outage, and the same shape as the
+    // upload directory above. `/p/:slug` answers a missing file with the
+    // neutral "no longer shared" page, so an ephemeral directory tells a coach
+    // the athlete has been withdrawn the morning after a deploy.
+    const missing = problemsFor({ THRIV3_BUILD_DIR: undefined }).join(' ');
+    expect(missing).toMatch(/THRIV3_BUILD_DIR is not set/);
+    expect(missing).toMatch(/no longer shared/);
+    expect(problemsFor({ THRIV3_BUILD_DIR: 'profiles' }).join(' '))
+      .toMatch(/must be an absolute path/);
+  });
+
+  it('keeps the generated pages on the same volume as everything else', () => {
+    expect(problemsFor({ THRIV3_BUILD_DIR: '/somewhere-else/profiles' }).join(' '))
+      .toMatch(/volume|disk/i);
   });
 
   it('requires absolute paths', () => {
