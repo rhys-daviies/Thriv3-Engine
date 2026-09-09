@@ -59,9 +59,34 @@ describe('the scopes', () => {
     ]);
   });
 
+  /**
+   * THE CLASSIFICATION, AS A TEST RATHER THAN A SENTENCE — D3.1.
+   *
+   * gmail.send is a SENSITIVE scope. Every Gmail scope Google classifies as
+   * RESTRICTED is listed here, and asking for any one of them would move this
+   * app into the tier that owes an annual independent security assessment.
+   * That is a recurring bill, so it should fail a test rather than a review.
+   */
+  it('asks for no RESTRICTED Gmail scope, which is what keeps us out of the assessment tier', () => {
+    const RESTRICTED_GMAIL = [
+      'https://mail.google.com/',
+      'https://www.googleapis.com/auth/gmail.readonly',
+      'https://www.googleapis.com/auth/gmail.compose',
+      'https://www.googleapis.com/auth/gmail.insert',
+      'https://www.googleapis.com/auth/gmail.modify',
+      'https://www.googleapis.com/auth/gmail.metadata',
+      'https://www.googleapis.com/auth/gmail.settings.basic',
+      'https://www.googleapis.com/auth/gmail.settings.sharing',
+    ];
+    for (const restricted of RESTRICTED_GMAIL) {
+      expect(GOOGLE_SCOPES, restricted).not.toContain(restricted);
+    }
+  });
+
   it('asks for nothing that can read, change or reach beyond the mailbox', () => {
     const forbidden = [
       /gmail\.readonly/, /gmail\.modify/, /mail\.google\.com/, /gmail\.compose/,
+      /gmail\.insert/, /gmail\.settings/,
       /gmail\.labels/, /gmail\.metadata/, /contacts/, /drive/, /calendar/, /profile/,
     ];
     for (const scope of GOOGLE_SCOPES) {

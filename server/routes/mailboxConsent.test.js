@@ -1,5 +1,5 @@
 /**
- * THE MAILBOX CONSENT SURFACE, END TO END — Phase D3.
+ * THE MAILBOX CONSENT SURFACE, END TO END — Phase D3, hardened in D3.1.
  *
  * Bound to the REAL application, like `auth.test.js`, and for the same reason:
  * D3 adds the first new public surface since hosting, and whether it is
@@ -9,12 +9,20 @@
  * The three questions asked here are the three trust boundaries: can an
  * athlete with a token do the one thing, can they do anything else, and can
  * somebody without a token or a session do either.
+ *
+ * D3.1 adds a fourth, and it is the one with a measurement behind it: does the
+ * capability ever reach a URL. `the capability never reaches a URL` below puts
+ * a logging proxy in front of the real application and drives the whole flow
+ * through it, because that is what a reverse proxy and a hosting platform
+ * actually record — and against D3's route shape, two of four log lines
+ * contained the raw token.
  */
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, beforeEach, afterEach } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { randomUUID } from 'node:crypto';
+import express from 'express';
 
 process.env.THRIV3_SCRYPT_COST = '14';
 process.env.THRIV3_SESSION_SECRET = `consent-${'q'.repeat(40)}`;
@@ -75,7 +83,16 @@ const issueLink = async () => {
   });
   return { status: res.status, body: await res.json() };
 };
-const tokenOf = (url) => url.split('/').pop();
+/** The token is the fragment now, which is the whole point of D3.1. */
+const tokenOf = (url) => url.split('#').pop();
+const CONSENT_PAGE = '/mailbox-consent';
+
+/** POST a token the way the page's script does: in the body, never in the URL. */
+const publicPost = (route, body, extra = {}) => fetch(`${base}${route}`, {
+  method: 'POST', redirect: 'manual',
+  headers: { 'Content-Type': 'application/json', Origin: ORIGIN, ...extra },
+  body: JSON.stringify(body),
+});
 
 // ---------------------------------------------------------------------------
 
@@ -86,7 +103,8 @@ describe('issuing a link is an operator action', () => {
     expect(body.consent).toMatchObject({
       athlete_id: ATHLETE, athlete_name: 'Jordan Fisher', provider: 'GOOGLE',
     });
-    expect(body.url).toMatch(/^http:\/\/localhost:5183\/api\/mailbox-consent\/[A-Za-z0-9_-]{43}$/);
+    // Root-mounted page, token AFTER the '#' — a browser never transmits it.
+    expect(body.url).toMatch(/^http:\/\/localhost:5183\/mailbox-consent#[A-Za-z0-9_-]{43}$/);
   });
 
   it('is refused without a session', async () => {
@@ -126,57 +144,105 @@ describe('issuing a link is an operator action', () => {
 
 // ---------------------------------------------------------------------------
 
-describe('the athlete page needs no account', () => {
-  it('is served to somebody with no session at all', async () => {
+describe('the athlete page carries no token at all', () => {
+  it('is the same bytes for everybody, because the server was told nothing', async () => {
     const { body } = await issueLink();
-    const res = await fetch(body.url.replace('http://localhost:5183', base));
-    const html = await res.text();
+    const withToken = await fetch(`${base}${CONSENT_PAGE}`); // the fragment never arrives
+    const withNothing = await fetch(`${base}${CONSENT_PAGE}`);
 
-    expect(res.status).toBe(200);
-    // Their own first name, so they know the link is theirs.
-    expect(html).toContain('Jordan');
+    expect(withToken.status).toBe(200);
+    const [a, b] = [await withToken.text(), await withNothing.text()];
+    expect(a).toBe(b);
+    // Nothing about this athlete, this grant, or any athlete.
+    expect(a).not.toContain(tokenOf(body.url));
+    expect(a).not.toContain('Jordan');
+    expect(a).not.toContain(ATHLETE);
+  });
+
+  it('states what is and is not being asked for, before any script runs', async () => {
+    const html = await fetch(`${base}${CONSENT_PAGE}`).then((r) => r.text());
+    // The consent copy is server-rendered, so no client branch can alter it.
     expect(html).toContain('Continue with Google');
-    // What is and is not being asked for.
     expect(html).toContain('send email from this address');
     expect(html).toMatch(/read, open or search any email/);
+    expect(html).toContain('<noscript>');
   });
 
   it('sets no cookie and offers no way into the application', async () => {
-    const { body } = await issueLink();
-    const res = await fetch(body.url.replace('http://localhost:5183', base));
+    const res = await fetch(`${base}${CONSENT_PAGE}`);
     const html = await res.text();
     // A capability is not a session.
     expect(res.headers.getSetCookie?.() ?? []).toHaveLength(0);
     expect(html).not.toMatch(/<a\s/i);
-    // No internal identifiers, no campaign, no operator data.
-    expect(html).not.toContain(ATHLETE);
     expect(html).not.toContain(operatorId);
     expect(html).not.toContain(EMAIL);
   });
 
-  it('refuses an unknown, expired or revoked link the same way', async () => {
-    const unknown = await fetch(`${base}/api/mailbox-consent/${'x'.repeat(43)}`);
+  it('serves its script from this origin, so the app CSP need not be loosened', async () => {
+    const res = await fetch(`${base}${CONSENT_PAGE}/consent.js`);
+    expect(res.status).toBe(200);
+    expect(res.headers.get('content-type')).toMatch(/javascript/);
+    const js = await res.text();
+    // It reads the fragment and then removes it from the address bar.
+    expect(js).toContain('window.location.hash');
+    expect(js).toContain('history.replaceState');
+    // And puts it nowhere that outlives the page.
+    expect(js).not.toMatch(/localStorage|sessionStorage|document\.cookie/);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe('resolving a link takes the token in the body', () => {
+  it('returns the first name and nothing else, and burns nothing', async () => {
+    const { body } = await issueLink();
+    const res = await publicPost('/api/mailbox-consent/resolve', { token: tokenOf(body.url) });
+    const data = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(data).toEqual({
+      ok: true, athlete_first_name: 'Jordan', provider: 'GOOGLE', ttl_minutes: 30,
+    });
+    // Resolving twice is still not consenting.
+    await publicPost('/api/mailbox-consent/resolve', { token: tokenOf(body.url) });
+    expect(db.prepare('SELECT consumed_at FROM mailbox_consent_grants').get().consumed_at).toBeNull();
+  });
+
+  it('refuses an unknown, revoked or absent token the same way', async () => {
+    const unknown = await publicPost('/api/mailbox-consent/resolve', { token: 'x'.repeat(43) });
     expect(unknown.status).toBe(410);
-    expect(await unknown.text()).toContain('cannot be used');
+    expect((await unknown.json()).message).toMatch(/not valid/);
+
+    const empty = await publicPost('/api/mailbox-consent/resolve', {});
+    expect(empty.status).toBe(410);
 
     const { body } = await issueLink();
     const id = db.prepare('SELECT id FROM mailbox_consent_grants').get().id;
     await api(`/api/mailbox-consents/${id}/revoke`, { method: 'POST', body: '{}' });
-    const revoked = await fetch(body.url.replace('http://localhost:5183', base));
+    const revoked = await publicPost('/api/mailbox-consent/resolve', { token: tokenOf(body.url) });
     expect(revoked.status).toBe(410);
     // Nothing tells the reader whether the link was ever real.
-    expect(await revoked.text()).not.toMatch(/revoked|expired/i);
+    expect((await revoked.json()).message).not.toMatch(/revoked|expired/i);
   });
 
-  it('sends the athlete to Google, and burns nothing by being opened', async () => {
+  it('is refused from another origin, like every other mutation', async () => {
     const { body } = await issueLink();
-    const url = body.url.replace('http://localhost:5183', base);
-    await fetch(url); await fetch(url);
-    expect(db.prepare('SELECT consumed_at FROM mailbox_consent_grants').get().consumed_at).toBeNull();
+    const res = await publicPost('/api/mailbox-consent/resolve',
+      { token: tokenOf(body.url) }, { Origin: 'https://evil.test' });
+    expect(res.status).toBe(403);
+  });
+});
 
-    const start = await fetch(`${url}/start`, { method: 'POST', headers: { Origin: ORIGIN }, redirect: 'manual' });
-    expect(start.status).toBe(302);
-    const to = new URL(start.headers.get('location'));
+// ---------------------------------------------------------------------------
+
+describe('starting the redirect hands back a URL rather than a 302', () => {
+  it('returns Google authorization URL, and consumes nothing', async () => {
+    const { body } = await issueLink();
+    const res = await publicPost('/api/mailbox-consent/start', { token: tokenOf(body.url) });
+    const data = await res.json();
+
+    expect(res.status).toBe(200);
+    const to = new URL(data.authorization_url);
     expect(to.origin).toBe('https://accounts.google.com');
     expect(to.searchParams.get('code_challenge_method')).toBe('S256');
     expect(to.searchParams.get('access_type')).toBe('offline');
@@ -184,16 +250,20 @@ describe('the athlete page needs no account', () => {
     expect(db.prepare('SELECT consumed_at FROM mailbox_consent_grants').get().consumed_at).toBeNull();
   });
 
-  it('puts no secret in the redirect it sends the browser', async () => {
+  it('puts no secret in the URL it hands the browser', async () => {
     const { body } = await issueLink();
-    const url = body.url.replace('http://localhost:5183', base);
-    const start = await fetch(`${url}/start`, { method: 'POST', headers: { Origin: ORIGIN }, redirect: 'manual' });
-    const location = start.headers.get('location');
+    const { authorization_url: url } = await publicPost('/api/mailbox-consent/start',
+      { token: tokenOf(body.url) }).then((r) => r.json());
 
     const tx = db.prepare('SELECT * FROM mailbox_oauth_transactions').get();
-    expect(location).not.toContain(tokenOf(body.url));      // not the capability
-    expect(location).not.toContain('test-secret');          // not the client secret
-    expect(location).not.toContain(tx.verifier_ciphertext); // and not the verifier
+    expect(url).not.toContain(tokenOf(body.url));      // not the capability
+    expect(url).not.toContain('test-secret');          // not the client secret
+    expect(url).not.toContain(tx.verifier_ciphertext); // and not the verifier
+  });
+
+  it('refuses a token it will not resolve', async () => {
+    const res = await publicPost('/api/mailbox-consent/start', { token: 'x'.repeat(43) });
+    expect(res.status).toBe(410);
   });
 });
 
@@ -202,9 +272,9 @@ describe('the athlete page needs no account', () => {
 describe('the callback', () => {
   const startFlow = async () => {
     const { body } = await issueLink();
-    const url = body.url.replace('http://localhost:5183', base);
-    const start = await fetch(`${url}/start`, { method: 'POST', headers: { Origin: ORIGIN }, redirect: 'manual' });
-    return new URL(start.headers.get('location')).searchParams.get('state');
+    const { authorization_url: url } = await publicPost('/api/mailbox-consent/start',
+      { token: tokenOf(body.url) }).then((r) => r.json());
+    return new URL(url).searchParams.get('state');
   };
 
   it('refuses a state it never minted', async () => {
@@ -244,7 +314,38 @@ describe('the callback', () => {
 
 // ---------------------------------------------------------------------------
 
-describe('the public surface grew by exactly three routes', () => {
+describe('the public surface is exactly the five routes D3.1 leaves', () => {
+  /**
+   * The token-in-path routes D3 shipped are GONE, not merely unused. A route
+   * that still resolves a capability out of a URL would still write it to a
+   * log, however few callers use it.
+   */
+  it('no longer answers on any token-bearing path', async () => {
+    const { body } = await issueLink();
+    const token = tokenOf(body.url);
+    const tried = [
+      ['GET', `/api/mailbox-consent/${token}`],
+      ['POST', `/api/mailbox-consent/${token}/start`],
+      ['GET', `/mailbox-consent/${token}`],
+    ];
+    for (const [method, route] of tried) {
+      const res = await fetch(`${base}${route}`, {
+        method, redirect: 'manual',
+        headers: method === 'GET' ? {} : { 'Content-Type': 'application/json', Origin: ORIGIN },
+        body: method === 'GET' ? undefined : '{}',
+      });
+      /**
+       * 401 under /api — the path fell through to `requireOperator`, which is
+       * the correct destination for a route that no longer exists: it is now
+       * INSIDE the boundary, not a forgotten public one. 404 at the root.
+       */
+      expect([401, 404], route).toContain(res.status);
+      expect(await res.text(), route).not.toContain('Continue with Google');
+    }
+    // And the grant is untouched by all of it.
+    expect(db.prepare('SELECT consumed_at FROM mailbox_consent_grants').get().consumed_at).toBeNull();
+  });
+
   const PROTECTED = [
     ['POST', `/api/players/${ATHLETE}/mailbox-consents`, 'issuing a link'],
     ['GET', `/api/players/${ATHLETE}/mailbox-consents`, 'listing links'],
@@ -285,9 +386,9 @@ describe('the public surface grew by exactly three routes', () => {
 describe('nothing secret is persisted or served', () => {
   it('holds no raw token, state, verifier, code or credential in the clear', async () => {
     const { body } = await issueLink();
-    const url = body.url.replace('http://localhost:5183', base);
-    const start = await fetch(`${url}/start`, { method: 'POST', headers: { Origin: ORIGIN }, redirect: 'manual' });
-    const state = new URL(start.headers.get('location')).searchParams.get('state');
+    const { authorization_url: url } = await publicPost('/api/mailbox-consent/start',
+      { token: tokenOf(body.url) }).then((r) => r.json());
+    const state = new URL(url).searchParams.get('state');
     await fetch(`${base}/api/mailbox-consent/google/callback?state=${state}&code=an-auth-code`);
 
     const dump = ['mailbox_consent_grants', 'mailbox_oauth_transactions',
@@ -303,5 +404,87 @@ describe('nothing secret is persisted or served', () => {
     await issueLink();
     const text = await api(`/api/players/${ATHLETE}/mailboxes`).then((r) => r.text());
     expect(text).not.toMatch(/ciphertext|iv|auth_tag|key_version|refresh|token/i);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+/**
+ * THE INVARIANT D3.1 EXISTS FOR, MEASURED RATHER THAN ASSERTED.
+ *
+ * A logging proxy is put in front of the REAL application and the whole flow is
+ * driven through it, recording what nginx's combined format and Render's HTTP
+ * request logs record: the request line, and the `Referer`. Render documents
+ * `path` as a filterable field of its request logs, retained for 7–30 days and
+ * optionally streamed onward, so "the platform probably does not log URLs" was
+ * never a defence available to us.
+ *
+ * Against D3's route shape this test found the raw token in two of four lines,
+ * and twice in one of them. It must now find it in none.
+ */
+describe('the capability never reaches a URL', () => {
+  let proxy; let proxyBase; let lines;
+
+  const runFlow = async (origin) => {
+    // The operator issues the link on the real base; only the athlete's half
+    // of the flow needs to go through the proxy.
+    const { body } = await issueLink();
+    const token = tokenOf(body.url);
+    const post = (route, payload, referer) => fetch(`${proxyBase}${route}`, {
+      method: 'POST', redirect: 'manual',
+      headers: {
+        'Content-Type': 'application/json',
+        Origin: origin,
+        // The page sends none, by its referrer policy. Sent anyway, so this
+        // proves the token is absent even from a browser that leaks more.
+        ...(referer ? { Referer: referer } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const pageUrl = `${proxyBase}/mailbox-consent`;
+    await fetch(pageUrl);                                  // the athlete opens the link
+    await fetch(`${pageUrl}/consent.js`);                  // the page loads its script
+    await post('/api/mailbox-consent/resolve', { token }, pageUrl);
+    const started = await post('/api/mailbox-consent/start', { token }, pageUrl);
+    const { authorization_url: authUrl } = await started.json();
+    const state = new URL(authUrl).searchParams.get('state');
+    await fetch(`${proxyBase}/api/mailbox-consent/google/callback?state=${state}&code=a-code`);
+    return { token, authUrl };
+  };
+
+  beforeEach(async () => {
+    lines = [];
+    const front = express();
+    front.use((req, _res, next) => {
+      lines.push(`"${req.method} ${req.originalUrl}" referer="${req.headers.referer ?? '-'}"`);
+      next();
+    });
+    front.use(app);
+    await new Promise((resolve) => { proxy = front.listen(0, '127.0.0.1', resolve); });
+    proxyBase = `http://127.0.0.1:${proxy.address().port}`;
+  });
+  afterEach(() => new Promise((resolve) => proxy.close(resolve)));
+
+  it('appears in no request line and no Referer, anywhere in the flow', async () => {
+    const { token } = await runFlow(ORIGIN);
+
+    expect(lines.length).toBeGreaterThan(4);
+    for (const line of lines) expect(line, line).not.toContain(token);
+    // Not a prefix of it either — a truncated secret is still a head start.
+    for (const line of lines) expect(line, line).not.toContain(token.slice(0, 16));
+  });
+
+  it('does not leak it to Google either, only the ten-minute state', async () => {
+    const { token, authUrl } = await runFlow(ORIGIN);
+    expect(authUrl).not.toContain(token);
+
+    // `state` IS in a URL, unavoidably — OAuth returns it in a query string.
+    // That is why it is a different secret with a different lifetime.
+    const state = new URL(authUrl).searchParams.get('state');
+    expect(lines.some((l) => l.includes(state))).toBe(true);
+    const tx = db.prepare('SELECT state_hmac, consumed_at, expires_at FROM mailbox_oauth_transactions').get();
+    expect(tx.state_hmac).not.toContain(state); // stored only as an HMAC
+    expect(tx.consumed_at).not.toBeNull();      // and already spent by the callback
   });
 });

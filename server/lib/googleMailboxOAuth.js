@@ -51,10 +51,17 @@ export const GOOGLE_ISSUERS = Object.freeze(['https://accounts.google.com', 'acc
  * and a second consent request reads like something went wrong. It is
  * least-privilege for the flow as a whole rather than for this slice alone.
  *
- * gmail.send is a RESTRICTED scope: publishing this app to external users will
- * require Google's verification and, for restricted scopes, a security
- * assessment. See docs/google-oauth.md — that is a project-setup obligation,
- * not a code one, and it is why it is written down.
+ * gmail.send is a SENSITIVE scope, not a restricted one, and the difference is
+ * expensive. Google's Gmail API scope table lists gmail.send under Sensitive;
+ * the restricted Gmail scopes are the ones that can read or alter mail —
+ * mail.google.com, gmail.readonly, gmail.compose, gmail.insert, gmail.modify,
+ * gmail.metadata and the two gmail.settings scopes — and it is those, not this
+ * one, that oblige an app to pass an annual independent third-party security
+ * assessment. Requesting gmail.send does require OAuth app verification before
+ * the app can be published to external users, and until then Google shows an
+ * unverified-app screen and caps the project at 100 users. See
+ * docs/google-oauth.md — a project-setup obligation, not a code one, and it is
+ * why it is written down.
  */
 export const GOOGLE_SCOPES = Object.freeze([
   'openid',

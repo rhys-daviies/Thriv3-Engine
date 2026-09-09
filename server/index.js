@@ -39,7 +39,9 @@ import { operatorEvidenceSummaries } from './routes/operatorEvidence.js';
 import { matchingSummaries } from './routes/matchingSummary.js';
 
 import { authRouter } from './routes/auth.js';
-import { mailboxConsentPublicRouter, mailboxRouter } from './routes/mailboxConsent.js';
+import {
+  mailboxConsentPageRouter, mailboxConsentPublicRouter, mailboxRouter,
+} from './routes/mailboxConsent.js';
 import {
   attachOperator, requireOperator, requireSameOrigin,
 } from './lib/operatorAuth.js';
@@ -140,29 +142,39 @@ app.use(attachOperator);
 app.use('/api', requireSameOrigin);
 app.use('/api', authRouter);
 /**
- * THE THIRD PUBLIC SURFACE — D3, and the only one added since 13K.
+ * THE THIRD PUBLIC SURFACE — D3, hardened in D3.1.
  *
  * An athlete authorising their own mailbox has no Thriv3 account and never
- * will, so these three routes cannot sit below the boundary:
+ * will, so these routes cannot sit below the boundary:
  *
- *   GET  /api/mailbox-consent/:token             the consent page
- *   POST /api/mailbox-consent/:token/start       the redirect to Google
+ *   GET  /mailbox-consent                        the consent page (no token)
+ *   GET  /mailbox-consent/consent.js             the page's only script
+ *   POST /api/mailbox-consent/resolve            token in the BODY
+ *   POST /api/mailbox-consent/start              token in the BODY
  *   GET  /api/mailbox-consent/google/callback    Google's return
  *
  * They are unauthenticated in the SESSION sense and not in the CAPABILITY
- * sense: the first two require an unguessable, single-use, athlete-specific,
- * provider-specific, thirty-minute token, and the third requires an
+ * sense: the two POSTs require an unguessable, single-use, athlete-specific,
+ * provider-specific, thirty-minute token, and the callback requires an
  * unguessable state value this server minted minutes earlier. Neither can
  * reach anything but the one mailbox connection it names, and neither issues a
  * session — there is no code path from here to createSession.
  *
- * requireSameOrigin still applies: it runs above this line, and the only
- * mutation here is a form POST from the page it serves.
+ * THE PAGE IS MOUNTED AT THE ROOT AND CARRIES NO TOKEN — D3.1. The capability
+ * travels in the URL fragment, which the browser never transmits, so the two
+ * GETs above are the same bytes for everybody and there is nothing in either
+ * request for a proxy or a platform log to record. The token reaches this
+ * server only in a POST body. See the route file's header for the measurement
+ * that motivated it.
+ *
+ * requireSameOrigin still applies to the POSTs: it runs above this line, and
+ * they are same-origin `fetch` calls from the page this server served.
  *
  * MAILBOX MANAGEMENT IS NOT HERE. Issuing a link, listing links, revoking one
  * and reading mailbox status are operator routes, mounted below the boundary
  * with everything else internal.
  */
+app.use(mailboxConsentPageRouter);
 app.use('/api', mailboxConsentPublicRouter);
 app.use('/api', requireOperator);
 app.use('/api', mailboxRouter);
