@@ -103,13 +103,28 @@ d('the gap it must close', () => {
   it('contains every active NCAA programme with no roster', () => {
     const have = new Set(rostered().map((r) => `${r.school}|${r.sport}`));
     const gaps = universe().filter((r) => !have.has(`${r.school}|${r.sport}`));
-    // L6 counted 41 such rows: 34 genuinely source-missing plus 7 duplicate
-    // registry rows whose twin holds the data. Both belong in the worklist —
-    // suppressing the duplicates by name would be the ad-hoc identity guess
-    // L4 made and L5 had to undo, and they resolve to a real source anyway.
-    expect(gaps.length).toBe(41);
-    for (const name of ['Wisconsin-Oshkosh', 'UMass Boston', 'Pace', 'Tuskegee']) {
+    /*
+     * L6 counted 41: 34 genuinely source-missing plus 7 duplicate registry rows
+     * whose twin holds the data. Both belong in the worklist — suppressing the
+     * duplicates by name would be the ad-hoc identity guess L4 made and L5 had
+     * to undo, and they resolve to a real source anyway.
+     *
+     * The number is now a RANGE, because acquisition is supposed to move it.
+     * L7C resolved twelve and it fell to 29; pinning an exact count would mean
+     * every successful run breaks the suite, which is how a test gets deleted
+     * rather than fixed. What is pinned is that the count can only fall, that
+     * the seven duplicates stay in, and that a programme still missing is
+     * still listed.
+     */
+    expect(gaps.length).toBeGreaterThan(0);
+    expect(gaps.length).toBeLessThanOrEqual(41);
+    for (const name of ['Tuskegee', 'Anna Maria', 'Eureka College']) {
       expect(gaps.some((g) => g.school === name), name).toBe(true);
+    }
+    // Acquired by L7C from a verified host, so no longer a gap.
+    for (const name of ['UMass Boston', 'Pace', 'Rivier']) {
+      expect(gaps.some((g) => g.school === name && g.sport === (name === 'Pace' ? 'mens-soccer' : 'womens-soccer')),
+        name).toBe(false);
     }
   });
 });

@@ -96,8 +96,16 @@ describe('ordering is deterministic and follows what was observed', () => {
   });
 
   it('puts the host\'s own provider first when the ledger knows it', () => {
+    // Shape AND segment. L7C attempted five Presto programmes with the long
+    // segment and got 404 from every one; of 37 Presto sources in the corpus,
+    // all 37 use the short one and none uses the long.
     const r = ok({ platform: 'PRESTO' });
-    expect(r.candidates[0].url).toBe('https://example.test/sports/mens-soccer/2026-27/roster?view=table');
+    expect(r.candidates[0].url).toBe('https://example.test/sports/msoc/2026-27/roster?view=table');
+  });
+
+  it('keeps the long segment first for a provider that uses it', () => {
+    expect(ok({ platform: 'SIDEARM' }).candidates[0].url)
+      .toBe('https://example.test/sports/mens-soccer/roster/2026');
   });
 
   it('is a stable partition — the same URLs, reordered', () => {

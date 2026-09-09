@@ -53,19 +53,31 @@ export const SHAPES = Object.freeze([
   { id: 'ROSTER_YEAR_TABLE', path: '/sports/<SLUG>/roster/<YEAR>?view=table', observed: 3, providers: ['SIDEARM'] },
 ]);
 
-/** Sport segments, ordered by observed frequency. The bare `soccer` is excluded. */
+/**
+ * Sport segments, ordered by observed frequency. The bare `soccer` is excluded.
+ *
+ * `short` marks the abbreviated forms, and the distinction is not cosmetic: the
+ * corpus splits on it almost perfectly by provider. Of 1,451 SIDEARM sources
+ * 1,439 use the long segment; of 37 PRESTO sources **all 37 use the short one**,
+ * and none uses the long. So on a Presto host `wsoc` is not a fallback, it is
+ * the answer — L7C spent five failed acquisitions learning that from the other
+ * direction.
+ */
 export const SLUGS = Object.freeze({
   'mens-soccer': Object.freeze([
-    { slug: 'mens-soccer', observed: 617 },
-    { slug: 'msoc', observed: 49 },
-    { slug: 'm-soccer', observed: 1 },
+    { slug: 'mens-soccer', observed: 617, short: false },
+    { slug: 'msoc', observed: 49, short: true },
+    { slug: 'm-soccer', observed: 1, short: true },
   ]),
   'womens-soccer': Object.freeze([
-    { slug: 'womens-soccer', observed: 857 },
-    { slug: 'wsoc', observed: 53 },
-    { slug: 'w-soccer', observed: 1 },
+    { slug: 'womens-soccer', observed: 857, short: false },
+    { slug: 'wsoc', observed: 53, short: true },
+    { slug: 'w-soccer', observed: 1, short: true },
   ]),
 });
+
+/** Providers whose sources use the short sport segment, measured not assumed. */
+export const SHORT_SLUG_PROVIDERS = Object.freeze(['PRESTO']);
 
 /** Why no candidate was generated. A reason is an answer; silence is not. */
 export const CANDIDATE = Object.freeze({
@@ -122,9 +134,14 @@ export function rosterCandidatesForVerifiedHost({
     ? [...SHAPES.filter((sh) => sh.providers.includes(platform)),
       ...SHAPES.filter((sh) => !sh.providers.includes(platform))]
     : SHAPES;
+  // The slug is a property of the provider too, and on the same evidence. Both
+  // orderings are stable partitions, so the ladder is the same set either way.
+  const bySlug = platform && SHORT_SLUG_PROVIDERS.includes(platform)
+    ? [...slugs.filter((s) => s.short), ...slugs.filter((s) => !s.short)]
+    : slugs;
   const out = [];
   for (const shape of ordered) {
-    for (const { slug } of slugs) {
+    for (const { slug } of bySlug) {
       const path = shape.path.replace('<SLUG>', slug).replace('<YEAR>', year).replace('<SPAN>', sp);
       const url = `https://${host}${path}`;
       if (!out.some((c) => c.url === url)) out.push({ url, shape: shape.id, slug });

@@ -31,6 +31,11 @@ GENERATED_METHODS = {
     'season-span swap',
     'year-swap (direct)',
     'no year in the later URL — append the season, else selector or archive',
+    # L7B's. Omitting it made `repairs()` read a generated candidate as a HUMAN
+    # repair and carry it forward, so a corrected generator could not replace
+    # what a previous run had written -- L7C spent a rebuild finding that out.
+    # A method this file writes belongs in this set, always.
+    'generated from a verified athletics host',
 }
 
 def repairs(path, season):
@@ -181,7 +186,13 @@ for k in keys:
     # so a generated candidate never reaches the known-good column below and
     # cannot be mistaken later for a page we actually fetched.
     if not cand and k in CANDIDATES:
-        cand, meth = CANDIDATES[k], 'generated from a verified athletics host'
+        # Through `swap` like every other candidate. L7C found the reason: the
+        # generated URL was going in raw, so a Presto candidate kept its
+        # `?view=table` and variants.ladder appended a season to the QUERY --
+        # `.../roster?view=table/2026-27`, a 404 by construction. A candidate
+        # that skips the normalisation everything else gets is not in the normal
+        # path, whatever the diagram says.
+        cand, meth = swap(CANDIDATES[k], SEASON), 'generated from a verified athletics host'
     if k in KEPT: cand, meth = KEPT[k]
     rows.append({'School': k[0], 'Sport': k[1], 'Division': e['div'], 'Conference': e['conf'],
                  f'Roster URL {SEASON} (candidate)': cand, 'Method': meth,

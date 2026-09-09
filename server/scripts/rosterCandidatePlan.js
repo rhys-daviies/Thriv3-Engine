@@ -240,6 +240,33 @@ function main() {
     verifyPlan(plan, Number(arg('per', 8))).then((results) => {
       const counts = {};
       for (const r of results) counts[r.verdict] = (counts[r.verdict] ?? 0) + 1;
+      /*
+       * The acquisition cohort, DERIVED. A programme whose generated candidate
+       * reached a roster page over plain HTTP is DIRECT_READY. One whose host
+       * answered 200 with the squad loaded by script is BROWSE_REQUIRED — this
+       * verifier is static and cannot read it, but `browse.py` drives Playwright
+       * and is the stage built for exactly that, so it belongs in the run.
+       *
+       * Everything else stays out: a soft-404 is a site answering every path
+       * with something else, and no trusted host is no candidate at all. Written
+       * to a file rather than pasted into a brief so the membership is
+       * reproducible and nobody has to trust a list.
+       */
+      const CLASS = { '200_ROSTER': 'DIRECT_READY', REDIRECT_TO_ROSTER: 'DIRECT_READY', OTHER: 'BROWSE_REQUIRED' };
+      const cohortOut = arg('cohort-out');
+      if (cohortOut) {
+        const picked = results.filter((r) => CLASS[r.verdict]);
+        writeFileSync(cohortOut, `${picked.map((r) => `${r.school}||${r.sport}`).join('\n')}\n`, 'utf8');
+        const classOut = arg('class-out');
+        if (classOut) {
+          writeFileSync(classOut, ['Key,Class,Host,Verdict,Url', ...results.map((r) => [
+            `${r.school}||${r.sport}`, CLASS[r.verdict] ?? 'EXCLUDED', r.host ?? '', r.verdict, r.url ?? '',
+          ].map(cell).join(','))].join('\r\n') + '\r\n', 'utf8');
+        }
+        console.log(`wrote ${cohortOut} — ${picked.length} keys `
+          + `(${picked.filter((r) => CLASS[r.verdict] === 'DIRECT_READY').length} direct, `
+          + `${picked.filter((r) => CLASS[r.verdict] === 'BROWSE_REQUIRED').length} browse)`);
+      }
       for (const r of results) {
         console.log(`${r.verdict.padEnd(18)} ${r.school.slice(0, 34).padEnd(34)} `
           + `${r.sport === 'mens-soccer' ? 'M' : 'W'}  ${r.tried} tried  ${r.url ?? r.detail ?? ''}`);
