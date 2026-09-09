@@ -8,6 +8,7 @@
     "audit:performance": "node server/scripts/auditPerformanceSource.js",
     "backtest": "node server/scripts/backtestMatching.js",
     "backup": "node server/scripts/backup.js",
+    "baseline:dataset": "node server/scripts/pinBaselineDataset.js",
     "build": "vite build",
     "build:recruiting": "node server/scripts/buildRecruitingHistory.js",
     "build:worker": "esbuild worker/index.js --bundle --format=esm --platform=neutral --outfile=build/public/_worker.js",

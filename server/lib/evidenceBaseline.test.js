@@ -1,10 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterAll } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import os from 'node:os';
 import { canonical, digest, short, datasetManifest, compareBaselines } from './evidenceBaseline.js';
+import {
+  BASELINE_DB, MISSING_MESSAGE, baselineDatasetAvailable, materialiseBaselineDataset,
+} from './baselineDataset.js';
 
 /**
  * THE BASELINES, AND THE RULE FOR READING THEM.
@@ -19,14 +22,37 @@ import { canonical, digest, short, datasetManifest, compareBaselines } from './e
  * The dataset is checked first and separately. A roster re-import moves every
  * product hash for reasons that are not code, and reporting that as five
  * regressions is how people learn to repin without reading.
+ *
+ * ---------------------------------------------------------------------------
+ * THE INPUT IS A PINNED SNAPSHOT, NOT THE WORKING DATABASE — D3.2.
+ *
+ * This ran against `server/data/recruitmatch.sqlite` until D3.2, which meant
+ * the committed hashes were compared against whatever rows the operator — or a
+ * second development session on the same machine — happened to have written by
+ * the time the suite ran. It went red exactly that way: sixteen programmes
+ * acquired in another window put 463 `roster_players` rows in, and six
+ * baselines and three report hashes reported DATASET CHANGED on a branch that
+ * had not touched the evidence path.
+ *
+ * The manifest below was right; the input was wrong. It is now a disposable
+ * copy of the verified snapshot in `server/lib/baselineDataset.js`, and when
+ * that snapshot is absent this file SKIPS and says how to materialise it —
+ * rather than falling back to the working database, which is the bug.
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
 const EXPECTED = path.join(ROOT, 'server/scripts/__baselines__/evidence.json');
-const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
+
+const HAVE_DB = baselineDatasetAvailable();
+/**
+ * Materialised at MODULE scope, because `FIRST` and `SECOND` below run the CLI
+ * while this file is being collected — before any `beforeAll` would fire.
+ */
+const dataset = HAVE_DB ? materialiseBaselineDataset({ label: 'evidence-baseline' }) : null;
+const DB = dataset?.path ?? BASELINE_DB;
 const d = HAVE_DB ? describe : describe.skip;
-if (!HAVE_DB) console.warn(`\n  evidenceBaseline.test.js SKIPPED — no database at ${DB}\n`);
+if (!HAVE_DB) console.warn(`\n  evidenceBaseline.test.js SKIPPED — ${MISSING_MESSAGE}\n`);
+afterAll(() => dataset?.release());
 
 /**
  * Run the real command, in a subprocess.

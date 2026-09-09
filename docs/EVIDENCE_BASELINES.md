@@ -66,6 +66,70 @@ checked **first**. When it has moved, the product lines are reported
 A roster import is not a regression, and reporting it as six is how people learn
 to repin without reading.
 
+## The dataset the suite actually reads — D3.2
+
+Until D3.2 the answer was `server/data/recruitmatch.sqlite`: the operator's
+working database. The manifest was pinned; its **input** was not. So the full
+repository suite went red — six baselines and three report hashes at once —
+because a second development session on the same machine acquired sixteen
+programmes and put 463 `roster_players` rows in. Nothing had touched the
+evidence path.
+
+The manifest was doing its job. It reported `DATASET CHANGED`, correctly. The
+defect was that the dataset was allowed to change under a test run at all.
+
+**The input is now a snapshot.**
+
+    npm run baseline:dataset -- --from <a database that still has the dataset>
+    npm run baseline:dataset -- --check
+
+`server/data/baseline/recruitmatch-baseline.sqlite` is a copy of the dataset the
+committed hashes were taken over. It is verified on creation — the command
+computes the copy's manifest and **refuses** a source whose digest is not the
+one in `evidence.json`, naming the tables that moved — and then left read-only.
+`server/data/` is gitignored and the file is 210MB, so it is materialised
+locally rather than committed, and `evidenceBaseline.test.js` and
+`reports.test.js` **skip loudly** when it is absent rather than falling back to
+the working database. Falling back is the bug.
+
+Each run works on a disposable copy: opening a database through
+`server/db/client.js` runs `schema.sql` and `migrate()`, which are writes, and a
+fixture that changes when you read it is not a fixture. The snapshot is created
+with SQLite's own backup API for the reason `server/scripts/backup.js` records —
+a file copy of a live WAL database can be missing its most recent transactions.
+
+Proven, not assumed: with 5,000 roster rows deleted from the working database
+and every athlete renamed, both suites return identical results.
+
+### The EMAIL_BODY pin does not reproduce, and was not repinned
+
+D3.2 found this and deliberately left it. On the recovered dataset — the one
+whose manifest digest is exactly the `5bbca905…` recorded in `evidence.json` —
+five of the six baselines reproduce their committed digests exactly.
+`EMAIL_BODY` does not: it yields `54a718f9…` against a pin of `a756b5a0…`.
+
+That is **not** a code regression, and the test that establishes it is worth
+keeping in mind: running the baseline CLI *at `20af7c22`, the commit that
+recorded `a756b5a0`*, against a dataset carrying the manifest digest recorded
+beside it, also yields `54a718f9…`. The pin cannot be reproduced by the code
+that wrote it, on the dataset it says it was written against. No database on
+this machine reproduces it.
+
+So `EMAIL_BODY` depends on an input the manifest does not fingerprint, and that
+input's state at pin time is not recoverable. The manifest covers five tables
+plus roster freshness; the evidence path also reads `programme_seasons`,
+`coach_seasons`, `conference_seasons`, `institution_aliases` and the outreach
+tables, none of which are in it. Widening the manifest moves the dataset digest
+and makes every pin `UNCOMPARABLE` at once, which is the deliberate decision
+this document already says it is — and repinning `EMAIL_BODY` to whatever the
+current code emits would bless an unexplained change, which is exactly what
+this file exists to prevent.
+
+**It is therefore still failing, on purpose, and is a pre-existing defect older
+than D3.** It needs a product decision: widen the manifest to cover the inputs
+that actually feed the body, then repin every baseline together against a
+snapshot taken at that moment.
+
 ## What is normalised away
 
 Exactly one thing: the **profile URL**, fixed to `https://baseline.invalid/p/FIXED`,
