@@ -6,7 +6,18 @@ dist
 # Runtime-generated — both created automatically by the app at startup
 # (see server/db/client.js and server/index.js). Contains local player
 # data / uploaded match-recommendation files — never commit these.
-server/data/
+# The database and its backups. Written as a contents glob rather than a
+# directory so the seeds below can be re-included — git will not un-ignore a
+# file whose parent DIRECTORY is excluded.
+server/data/*
+# ...except the verified-domain seeds, which are not data. Each row is the
+# written evidence for one athletics host — the official institution page that
+# links to it and what the host says it is — and the tests read it to hold the
+# two-anchor rule. A ledger row is only as good as the account beside it, and
+# that account belongs in history.
+!server/data/seeds/
+server/data/seeds/*
+!server/data/seeds/*.json
 server/uploads/
 
 # Generated public profile pages

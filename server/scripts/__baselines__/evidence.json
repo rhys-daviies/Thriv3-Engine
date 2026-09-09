@@ -26,8 +26,8 @@
       },
       {
         "table": "athletics_domains",
-        "rows": 2717,
-        "digest": "4adeb22a0650d51139b1e916f1286c598cbecba3a10b7d723100fff229bbe420"
+        "rows": 2722,
+        "digest": "7a9a228e02cea00508ac0a41d3bc4bf29847b24444f519328aebedf8b090ef33"
       },
       {
         "table": "roster_freshness",
@@ -35,7 +35,7 @@
         "digest": "ffd2d925d7536f05d6d51e72495b3acdf8bf5f4230d15581a4ed14335b6e356f"
       }
     ],
-    "digest": "a54be838875e8fef0835c85b853cebbfed6d083ff500d8a450f077e38d06860a"
+    "digest": "860c7b439677ac86f297e5eaad15ddff75808befe999dd01de48f10ac81c10d2"
   },
   "baselines": [
     {
@@ -66,7 +66,7 @@
     {
       "name": "OPERATOR_EVIDENCE",
       "size": 4742,
-      "digest": "30c2f087e44f5a7b40aca4bee6a1b94839ea31444bf38cba49c3222c94dc0ab5"
+      "digest": "e64f79df7ae4fc12a781d4f71102fabb2407d5c6c7915e24cfd1227735f4996a"
     }
   ]
 }

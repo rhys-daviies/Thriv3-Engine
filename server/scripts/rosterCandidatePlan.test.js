@@ -124,9 +124,17 @@ d('planning changes nothing', () => {
     expect(domainsAfter).toBe(domains);
   });
 
-  it('adds no athletics_domains row — L7B backfills nothing', () => {
-    const guessed = inDb(`db.prepare(\`SELECT COUNT(*) n FROM athletics_domains
-      WHERE checked_at > '2026-09-01T23:59:59Z'\`).get().n`);
-    expect(guessed).toBe(0);
+  it('adds no athletics_domains row', () => {
+    /*
+     * This used to assert the table held no row newer than the original crawl,
+     * which was true only because nothing had ever backfilled one. L7E verified
+     * ten hosts individually and the assertion became false without the planner
+     * having written anything — it was testing the age of the data rather than
+     * the behaviour of the planner. Now it measures the planner.
+     */
+    const count = `db.prepare('SELECT COUNT(*) n FROM athletics_domains').get().n`;
+    const before = inDb(count);
+    const after = inDb(`(() => { candidatePlan(); return ${count}; })()`);
+    expect(after).toBe(before);
   });
 });
