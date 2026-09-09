@@ -137,6 +137,18 @@ services:
       # as the database backups, not only in the dashboard.
       - key: THRIV3_MAILBOX_KEY
         sync: false
+      # Google mailbox authorisation — D3. Provisioned by hand, like the mailbox
+      # key: these are credentials from a Google Cloud project, not values a
+      # platform can generate. Both or neither — the runtime refuses to start on
+      # half a configuration, and leaves the flow switched off when both are
+      # absent rather than failing to boot over a feature nobody has enabled.
+      #
+      # The redirect URI is derived from THRIV3_APP_ORIGIN and must be
+      # registered in Google Cloud exactly. See docs/google-oauth.md.
+      - key: THRIV3_GOOGLE_CLIENT_ID
+        sync: false
+      - key: THRIV3_GOOGLE_CLIENT_SECRET
+        sync: false
       # Existing application secrets, unchanged and never in git.
       - key: ANTHROPIC_API_KEY
         sync: false

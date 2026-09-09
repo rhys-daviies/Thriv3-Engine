@@ -179,7 +179,47 @@ export function resolveConfig(env = process.env) {
      * to send.
      */
     mailboxKey: env.THRIV3_MAILBOX_KEY || null,
+    /**
+     * Google OAuth — D3. Both or neither.
+     *
+     * OPTIONAL EVEN IN PRODUCTION, and that is the deliberate part. A hosted
+     * Thriv3 that has not yet set up a Google Cloud project should still run
+     * everything else; what it must not do is offer a mailbox connection that
+     * cannot complete. So the flow is DISABLED when the pair is absent and the
+     * routes refuse with a readable reason, rather than the process refusing to
+     * boot over a feature nobody has switched on.
+     *
+     * Half-configured is a different thing and is a startup failure: a client
+     * id with no secret is somebody halfway through a change, and the failure
+     * it produces at the token endpoint is much harder to read than a sentence
+     * at boot.
+     */
+    googleClientId: env.THRIV3_GOOGLE_CLIENT_ID || null,
+    googleClientSecret: env.THRIV3_GOOGLE_CLIENT_SECRET || null,
   };
+}
+
+/**
+ * THE REDIRECT URI IS DERIVED, NEVER SUPPLIED.
+ *
+ * One fixed path on the application's own origin. A redirect URI that a caller
+ * can influence is the classic way an authorization code is delivered to
+ * somebody else's server, and Google's exact-match registration is only a
+ * defence if our side cannot be talked into asking for a different one.
+ *
+ * The first configured origin wins when several are listed, because that is the
+ * one registered with Google; the others exist for CORS.
+ */
+export const GOOGLE_CALLBACK_PATH = '/api/mailbox-consent/google/callback';
+
+export function googleRedirectUri(config = resolveConfig()) {
+  const origin = config.appOrigins[0];
+  return origin ? `${origin}${GOOGLE_CALLBACK_PATH}` : null;
+}
+
+/** Whether a Google mailbox connection can actually be completed. */
+export function googleOAuthConfigured(config = resolveConfig()) {
+  return Boolean(config.googleClientId && config.googleClientSecret && googleRedirectUri(config));
 }
 
 /**
@@ -281,6 +321,23 @@ export function runtimeProblems(env = process.env, config = resolveConfig(env)) 
         + '.randomBytes(32).toString(\'base64\'))"');
     } else if (problem) {
       problems.push(problem);
+    }
+  }
+
+  // ---- Google OAuth, if it is configured at all ---------------------------
+  //
+  // Half a configuration is a fault anywhere. Neither half is required.
+  {
+    const { googleClientId: id, googleClientSecret: secret } = config;
+    if (Boolean(id) !== Boolean(secret)) {
+      problems.push('Google mailbox OAuth is half configured: '
+        + `${id ? 'THRIV3_GOOGLE_CLIENT_ID is set and THRIV3_GOOGLE_CLIENT_SECRET is not'
+          : 'THRIV3_GOOGLE_CLIENT_SECRET is set and THRIV3_GOOGLE_CLIENT_ID is not'}. `
+        + 'Set both to enable it, or neither to leave it off.');
+    }
+    if (id && secret && production && !googleRedirectUri(config)) {
+      problems.push('Google mailbox OAuth is configured but THRIV3_APP_ORIGIN is not, so there is '
+        + 'no redirect URI to register with Google.');
     }
   }
 

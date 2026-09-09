@@ -39,6 +39,7 @@ import { operatorEvidenceSummaries } from './routes/operatorEvidence.js';
 import { matchingSummaries } from './routes/matchingSummary.js';
 
 import { authRouter } from './routes/auth.js';
+import { mailboxConsentPublicRouter, mailboxRouter } from './routes/mailboxConsent.js';
 import {
   attachOperator, requireOperator, requireSameOrigin,
 } from './lib/operatorAuth.js';
@@ -138,7 +139,33 @@ app.use(express.json({ limit: '10mb' }));
 app.use(attachOperator);
 app.use('/api', requireSameOrigin);
 app.use('/api', authRouter);
+/**
+ * THE THIRD PUBLIC SURFACE — D3, and the only one added since 13K.
+ *
+ * An athlete authorising their own mailbox has no Thriv3 account and never
+ * will, so these three routes cannot sit below the boundary:
+ *
+ *   GET  /api/mailbox-consent/:token             the consent page
+ *   POST /api/mailbox-consent/:token/start       the redirect to Google
+ *   GET  /api/mailbox-consent/google/callback    Google's return
+ *
+ * They are unauthenticated in the SESSION sense and not in the CAPABILITY
+ * sense: the first two require an unguessable, single-use, athlete-specific,
+ * provider-specific, thirty-minute token, and the third requires an
+ * unguessable state value this server minted minutes earlier. Neither can
+ * reach anything but the one mailbox connection it names, and neither issues a
+ * session — there is no code path from here to createSession.
+ *
+ * requireSameOrigin still applies: it runs above this line, and the only
+ * mutation here is a form POST from the page it serves.
+ *
+ * MAILBOX MANAGEMENT IS NOT HERE. Issuing a link, listing links, revoking one
+ * and reading mailbox status are operator routes, mounted below the boundary
+ * with everything else internal.
+ */
+app.use('/api', mailboxConsentPublicRouter);
 app.use('/api', requireOperator);
+app.use('/api', mailboxRouter);
 
 // Uploaded match-recommendation files are internal data, so the static mount
 // is behind the boundary like everything else.

@@ -1921,3 +1921,130 @@ CREATE TABLE IF NOT EXISTS connected_mailbox_credentials (
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
+
+-- ===========================================================================
+-- PERMISSION TO CONNECT ONE ATHLETE'S MAILBOX — Phase D3.
+--
+-- The product model says the athlete authorises their own mailbox and does not
+-- get a Thriv3 account. Those two are in tension only if you assume access
+-- means a session. It does not: this is a CAPABILITY. Possession of one
+-- unguessable token authorises exactly one action — connect this athlete's
+-- mailbox at this provider — and nothing else in the application.
+--
+-- WHAT IT DELIBERATELY IS NOT. Not a login, not a session, not a password
+-- reset, not a magic link into the operator app. There is no code path from a
+-- consent grant to an operator session, and a test asserts the public routes
+-- it enables cannot reach anything else.
+--
+-- THE TOKEN IS NOT STORED. Only its HMAC under the session secret, exactly as
+-- `operator_sessions` stores a session — so a database dump, or a backup on
+-- somebody's laptop, contains no usable consent link. Rotating
+-- THRIV3_SESSION_SECRET invalidates every outstanding grant, which is the
+-- right lever to have and cannot be added later.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS mailbox_consent_grants (
+  id TEXT PRIMARY KEY,
+
+  -- Who issued it. The mailbox this grant produces will be owned by them, and
+  -- the athlete never chooses an operator.
+  operator_user_id TEXT NOT NULL REFERENCES operator_users(id),
+
+  /**
+   * Whose mailbox this authorises, decided when the operator issued the link
+   * and never afterwards by anything the athlete's browser says.
+   *
+   * NOT NULL, unlike `connected_mailboxes.athlete_id`. A mailbox may exist for
+   * an operator-owned sending address; a consent grant is by definition an
+   * athlete being asked for permission, so one without an athlete has no
+   * meaning.
+   */
+  athlete_id TEXT NOT NULL REFERENCES players(id),
+
+  -- Bound to one provider at issue. A grant for Google cannot be redeemed
+  -- against Microsoft, so a future second provider cannot inherit consent
+  -- somebody gave for the first.
+  provider TEXT NOT NULL CHECK (provider IN ('GOOGLE', 'MICROSOFT')),
+
+  /** HMAC-SHA256 of the token under the session secret. Never the token. */
+  token_hmac TEXT NOT NULL UNIQUE,
+
+  -- Short by design. Long enough to forward an email and have the athlete act
+  -- on it, short enough that a link found later is already dead.
+  expires_at TEXT NOT NULL,
+
+  /**
+   * Set only when a mailbox has actually been connected — not when the page is
+   * opened, not when Google is visited, not when an exchange fails. A link that
+   * died because somebody refreshed the page is a support conversation, and the
+   * athlete cannot ask for a new one themselves.
+   */
+  consumed_at TEXT,
+  /** Withdrawn by the operator before it was used. */
+  revoked_at TEXT,
+  /** The mailbox it produced, once it produced one. */
+  connected_mailbox_id TEXT REFERENCES connected_mailboxes(id),
+
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_consent_grants_athlete
+  ON mailbox_consent_grants(athlete_id, created_at, id);
+CREATE INDEX IF NOT EXISTS idx_consent_grants_operator
+  ON mailbox_consent_grants(operator_user_id, created_at, id);
+
+-- ===========================================================================
+-- ONE TRIP TO GOOGLE AND BACK — Phase D3.
+--
+-- SEPARATE FROM THE GRANT, AND THE SEPARATION IS THE SECURITY.
+--
+-- The obvious shortcut is to use the consent token as OAuth `state`. It would
+-- work, and it would put a live bearer capability into a URL that travels
+-- through Google's servers, the browser's history, the Referer header of every
+-- link on the callback page, and any log in between. `state` is a
+-- single-purpose nonce that means "this callback belongs to that redirect" and
+-- nothing else; the grant is a capability that authorises an action. Conflating
+-- them makes the capability as exposed as the nonce.
+--
+-- So a transaction is created when the athlete presses Connect, carries its own
+-- random state, and is consumed by the callback whatever the outcome. The grant
+-- survives a cancelled or failed attempt; the transaction never survives its
+-- own callback.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS mailbox_oauth_transactions (
+  id TEXT PRIMARY KEY,
+
+  consent_grant_id TEXT NOT NULL REFERENCES mailbox_consent_grants(id) ON DELETE CASCADE,
+
+  /** HMAC of the OAuth state, for the same reason the grant hashes its token. */
+  state_hmac TEXT NOT NULL UNIQUE,
+
+  /**
+   * The PKCE verifier, encrypted with the mailbox key.
+   *
+   * It is a secret with the same blast radius as an authorization code: an
+   * attacker holding a stolen code and this verifier completes the exchange.
+   * It is never sent to the browser — only the S256 challenge goes to Google —
+   * and it is encrypted at rest rather than stored plainly, using the D2
+   * primitive with the transaction id as AAD so it cannot be moved between
+   * rows.
+   */
+  verifier_ciphertext TEXT NOT NULL,
+  verifier_iv TEXT NOT NULL,
+  verifier_auth_tag TEXT NOT NULL,
+  verifier_key_version INTEGER NOT NULL,
+
+  -- Provider is on the transaction as well as the grant, so a callback cannot
+  -- be answered by a provider the grant did not name.
+  provider TEXT NOT NULL CHECK (provider IN ('GOOGLE', 'MICROSOFT')),
+
+  -- Minutes. A round trip to a consent screen, not a session.
+  expires_at TEXT NOT NULL,
+  /** Set by the callback on ANY outcome — success, denial, or failure — which
+   *  is what makes a replayed callback a no-op rather than a second exchange. */
+  consumed_at TEXT,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_oauth_transactions_grant
+  ON mailbox_oauth_transactions(consent_grant_id, created_at, id);
