@@ -1,7 +1,10 @@
 # Render blueprint for the internal Thriv3 operator application — Phase 13K.
 #
-# NOT DEPLOYED. This file is the deployment contract, reviewed before anything
-# is provisioned; docs/hosting.md is the runbook that uses it.
+# DEPLOYED. This file is the deployment contract for the running service;
+# docs/hosting.md is the runbook that uses it. It said NOT DEPLOYED while the
+# blueprint was still under review, and stayed wrong after provisioning —
+# a comment claiming nothing is running is worse than none at all when
+# something is.
 #
 # WHY RENDER. The service needs a long-lived Node process, a persistent disk
 # for both the SQLite database and the generated report artefacts, and exactly
@@ -27,13 +30,23 @@ services:
     # 512 MB, and an OOM kill mid-generation is a failed report.
     plan: 1c-2g
     region: ohio
-    # The blueprint and the code it deploys come from ONE branch. This said
-    # `main`, while the corrected blueprint existed only here — so pointing the
-    # Blueprint at main would have applied `plan: starter` and no upload path,
-    # and pointing it here would have deployed main's code against this file.
-    # Identical application code today, and a drift trap the moment either
-    # branch moves.
-    branch: release/internal-operator-hosting
+    # The blueprint and the code it deploys come from ONE branch, and that
+    # branch is now `main`.
+    #
+    # It said `release/internal-operator-hosting` for the reason that branch
+    # existed: the corrected blueprint lived only there, so pointing the
+    # Blueprint at main would have applied `plan: starter` and no upload path.
+    # That reason is spent. `release/internal-operator-hosting` (c616e28) is a
+    # strict ancestor of main — zero commits unique to it — so main now carries
+    # both this file and every line the release branch ever deployed, and
+    # keeping two branches was the drift trap rather than the protection
+    # against one.
+    #
+    # Two things had to be true before this line could change, and both are:
+    # THRIV3_MAILBOX_KEY is provisioned (main refuses to start without it, and
+    # it is the only runtime prerequisite main adds), and a verified backup of
+    # /data exists off the volume.
+    branch: main
     # The client bundle and the server share one process, so the app and its
     # API are one origin: no CORS in production, and a session cookie that is
     # never cross-site.
