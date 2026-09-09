@@ -34,6 +34,7 @@ import db from '../db/client.js';
 import { parseCsvToObjects } from '../lib/csv.js';
 import { normalizeDivision } from '../../shared/divisions.js';
 import { utcNow } from '../lib/time.js';
+import { snapshotDatabase } from '../lib/dbSnapshot.js';
 
 const APPLY = process.argv.includes('--apply');
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i >= 0 ? process.argv[i + 1] : null; };
@@ -174,7 +175,7 @@ function main() {
 
   const dbPath = db.name;
   const backup = `${dbPath}.pre-promote-coaches-${new Date().toISOString().replace(/[:.]/g, '-')}`;
-  fs.copyFileSync(dbPath, backup);
+  snapshotDatabase(dbPath, backup, { overwrite: true });
   console.log(`\nbacked up -> ${path.basename(backup)}`);
 
   const insert = db.prepare(`

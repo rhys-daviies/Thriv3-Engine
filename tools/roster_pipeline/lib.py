@@ -376,6 +376,63 @@ def parse_tables(html):
         if recs and (best is None or len(recs) > len(best)): best = recs
     return best
 
+def parse_presto_cards(html):
+    """Presto's flip-card roster: a labelled list on the back of each card.
+
+    L7C attempted four programmes on this markup and imported none of them. The
+    pages render, the title names the right sport and season, and every existing
+    parser returned zero, so they were classified CLIENT_RENDER_FAILURE -- which
+    was half right. A browser IS required (an AWS WAF returns nothing at all to
+    a plain fetch), but the rendered DOM was perfectly readable; nothing knew how
+    to read it.
+
+    Why the existing card parsers miss it. `parse_roster_cards` wants a
+    `card__title-link`; `EXTRA_JS` in browse.py wants an `a[href*="/roster/"]`,
+    and these pages carry none -- the bio link is `/bios/`. So the cards were
+    found and every one was skipped for want of a name.
+
+    What this reads instead is the most structured thing on the page. The card
+    front holds `.firstname` and `.lastname` in their own elements, and the back
+    holds a LABELLED list:
+
+        <li><span class="fw-bold">Position:</span> GK</li>
+        <li><span class="fw-bold">Hometown:</span> Pittsburgh, Pa.</li>
+
+    So fields are taken by their label, never by position in a row. The visible
+    front text reads "Austin | Fabry | 0 | GK | Fr | 5-11" and reading THAT
+    would mean deciding that the fourth token is a position -- true here, and a
+    silent mis-column the first time a site drops the jersey number.
+
+    Nationality is not set. It is derived from `home` by `geo()` downstream,
+    exactly as for every other parser; this one has no opinion about it.
+    """
+    soup = BeautifulSoup(html, 'lxml')
+    recs, seen = [], set()
+    for c in soup.select('[class*="player-card-wrapper"]'):
+        first = c.select_one('[class*="firstname"]')
+        last = c.select_one('[class*="lastname"]')
+        if not (first and last): continue
+        nm = re.sub(r'\s+', ' ', f'{first.get_text(" ", strip=True)} {last.get_text(" ", strip=True)}').strip()
+        if not nm or len(nm) > 60 or not re.search(r'[A-Za-z]{2}', nm): continue
+        f = {}
+        for li in c.select('[class*="bio-data"] li'):
+            lab = li.select_one('span')
+            if not lab: continue
+            lt = re.sub(r'\s+', ' ', lab.get_text(' ', strip=True)).strip().rstrip(':').lower()
+            full = re.sub(r'\s+', ' ', li.get_text(' ', strip=True)).strip()
+            lh = re.sub(r'\s+', ' ', lab.get_text(' ', strip=True)).strip()
+            val = full[len(lh):].strip(' :') if full.startswith(lh) else full
+            if lt and val and lt not in f: f[lt] = val
+        pos, cls = f.get('position', ''), f.get('class', '')
+        # Page furniture -- a promo tile, a coach -- can carry a name and nothing
+        # else. The same guard the other card parsers use.
+        if not (pos or cls): continue
+        key = nm.lower()
+        if key in seen: continue
+        seen.add(key)
+        recs.append({'name': nm, 'cls': cls, 'pos': pos, 'home': clean_home(f.get('hometown', ''))})
+    return recs or None
+
 def parse_any(html):
     """Try every parser and keep the richest read.
 
@@ -393,7 +450,7 @@ def parse_any(html):
     except Exception:
         pass
     for fn, nm in ((parse_sidearm_html, 'sidearm-html'), (parse_tables, 'table'),
-                   (parse_roster_cards, 'roster-card')):
+                   (parse_roster_cards, 'roster-card'), (parse_presto_cards, 'presto-card')):
         try: rr = fn(html)
         except Exception: rr = None
         if rr and (best is None or len(rr) > len(best)):

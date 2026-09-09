@@ -21,6 +21,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import db from '../db/client.js';
 import { readClassYear } from '../../shared/classYear.js';
+import { snapshotDatabase } from '../lib/dbSnapshot.js';
 
 const APPLY = process.argv.includes('--apply');
 
@@ -55,7 +56,7 @@ function main() {
 
   const dbPath = db.name;
   const backup = `${dbPath}.pre-gradyear-fix-${new Date().toISOString().replace(/[:.]/g, '-')}`;
-  fs.copyFileSync(dbPath, backup);
+  snapshotDatabase(dbPath, backup, { overwrite: true });
   console.log(`\nbacked up -> ${path.basename(backup)}`);
 
   const stmt = db.prepare('UPDATE roster_players SET estimated_graduation_year = ?, updated_date = ? WHERE id = ?');

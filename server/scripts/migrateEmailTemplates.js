@@ -24,6 +24,7 @@ import db from '../db/client.js';
 import { migrateTemplate, MIGRATION_STATUS, EVIDENCE_TOKEN } from '../../shared/templateMigration.js';
 import { DEFAULT_EMAIL_TEMPLATE } from '../../src/lib/emailTemplate.js';
 import { utcNow } from '../lib/time.js';
+import { snapshotDatabase } from '../lib/dbSnapshot.js';
 
 const argv = process.argv.slice(2);
 const APPLY = argv.includes('--apply');
@@ -42,7 +43,7 @@ function backup() {
   if (!fs.existsSync(DB_PATH)) return null;
   const stamp = utcNow().replace(/[:.]/g, '-');
   const dest = `${DB_PATH}.pre-template-migration-${stamp}`;
-  fs.copyFileSync(DB_PATH, dest);
+  snapshotDatabase(DB_PATH, dest, { overwrite: true });
   return dest;
 }
 

@@ -68,16 +68,26 @@ echo "===== $S : season selector ====="
 python3 -u selector.py --keys rem$S.txt --out st_sel_$S.json 2>&1 | grep -cE '^  OK' | sed 's/^/  selector resolved /'
 absorb "st_sel_$S.json"; remaining
 
+# Only as many shards as there are keys. An empty shard file used to be handed
+# to browse.py, where an empty key set read as "no restriction" and the stage
+# walked the whole universe -- seen on a six-programme run where two of the four
+# shards were empty. browse.py now treats an empty file as an empty scope, and
+# this stops creating the file at all.
 echo "===== $S : browser, 4 shards ====="
 python3 - "$S" <<'PY'
 import sys
 keys=[l.strip() for l in open(f'rem{sys.argv[1]}.txt') if l.strip()]
-for i in range(4): open(f'shb{sys.argv[1]}_{i}.txt','w').write('\n'.join(keys[i::4]))
-print(f'  sharded {len(keys)}')
+n=min(4, len(keys))
+for i in range(n): open(f'shb{sys.argv[1]}_{i}.txt','w').write('\n'.join(keys[i::n]))
+open(f'shards{sys.argv[1]}.txt','w').write(str(n))
+print(f'  sharded {len(keys)} across {n}')
 PY
-for i in 0 1 2 3; do python3 -u browse.py --keys shb${S}_$i.txt --variants 8 --strict-season --out st_br${S}_$i.json > log_br${S}_$i.txt 2>&1 & done
-wait
-for i in 0 1 2 3; do echo "  shard$i ok=$(grep -cE '^  OK' log_br${S}_$i.txt) fail=$(grep -cE '^  FAIL' log_br${S}_$i.txt)"; done
+NSH=$(cat shards${S}.txt)
+if [ "$NSH" -gt 0 ]; then
+  for i in $(seq 0 $((NSH-1))); do python3 -u browse.py --keys shb${S}_$i.txt --variants 8 --strict-season --out st_br${S}_$i.json > log_br${S}_$i.txt 2>&1 & done
+  wait
+  for i in $(seq 0 $((NSH-1))); do echo "  shard$i ok=$(grep -cE '^  OK' log_br${S}_$i.txt) fail=$(grep -cE '^  FAIL' log_br${S}_$i.txt)"; done
+fi
 absorb "st_br${S}_*.json"; remaining
 
 # A stage file is a cache that outlives the code that filled it, and absorb

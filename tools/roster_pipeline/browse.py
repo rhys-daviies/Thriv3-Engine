@@ -116,13 +116,23 @@ def main():
     shared = state.load()
     st = json.load(open(a.out,encoding='utf-8')) if os.path.exists(a.out) else {}
     sel = []
-    keyset = set()
+    # AN EMPTY KEY FILE MEANS NOTHING, NOT EVERYTHING.
+    #
+    # `keyset` used to be a plain set and the filter read `if keyset and ...`,
+    # so an empty file was falsy and disabled scoping entirely. The runner
+    # shards the remaining keys four ways, so any run with fewer than four
+    # targets hands two or three shards an empty file -- and L7D watched two
+    # browser shards walk the whole universe on a six-programme run. None was
+    # absorbed and no sheet moved, because the run was stopped, but the scope
+    # had already been lost. `None` is "no restriction"; a set is a restriction,
+    # including when it is empty.
+    keyset = None
     if a.keys and os.path.exists(a.keys):
         keyset = set(x.strip() for x in open(a.keys) if x.strip())
     for r in rows:
         k = state.key(r)
         if (not a.redo and shared.get(k, {}).get('status') == 'done') or st.get(k, {}).get('status') == 'done': continue
-        if keyset and k not in keyset: continue
+        if keyset is not None and k not in keyset: continue
         if a.method and not r['Method'].startswith(a.method): continue
         if a.only_failed and shared.get(k, {}).get('status') != 'failed': continue
         sel.append(r)
