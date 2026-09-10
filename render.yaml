@@ -94,6 +94,29 @@ services:
       sizeGB: 5
 
     envVars:
+      # ATTACH THE EXISTING ENVIRONMENT GROUP. Render's Blueprint spec:
+      # `- fromGroup: <name>` adds every variable from that group.
+      #
+      # The group holds CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID and
+      # THRIV3_PUBLIC_BASE_URL — see the note further down explaining why those
+      # three are deliberately not declared as keys in this list.
+      #
+      # Linking the group in the dashboard was not enough. A Blueprint-managed
+      # service takes its environment from this file, so a link made only in
+      # the dashboard did not survive into the running process: a fresh shell
+      # reported all three unset even after the conflicting declarations were
+      # removed. The attachment has to be declared here to be real.
+      #
+      # NOT a root-level `envVarGroups:` block. That would put this file in
+      # charge of the group's contents, which is wrong twice over — the group
+      # holds secrets that must never enter git, and a Blueprint-managed group
+      # cannot hold `sync: false` variables at all. The group is owned in the
+      # dashboard; this line only points at it.
+      #
+      # Keys declared individually below still win over the group's values for
+      # those same keys — Render guarantees that precedence — so nothing in
+      # this list changes meaning by adding this line.
+      - fromGroup: THRIV3
       - key: NODE_ENV
         value: production
       # 0.0.0.0 deliberately, and only safe because every /api route below the
@@ -202,7 +225,8 @@ services:
       - key: THRIV3_EDGE_URL
         value: https://thriv3-profiles.pages.dev
       # NOT DECLARED HERE, DELIBERATELY. Three variables are owned by the
-      # linked Environment Group `THRIV3` and must not appear in this list:
+      # Environment Group `THRIV3`, attached by the `fromGroup` line at the top
+      # of this list, and must not appear in it as keys:
       #
       #   CLOUDFLARE_API_TOKEN     deploy credential for Cloudflare Pages
       #   CLOUDFLARE_ACCOUNT_ID    which account that token belongs to
