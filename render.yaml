@@ -175,8 +175,6 @@ services:
         sync: false
       - key: THRIV3_SYNC_SECRET
         sync: false
-      - key: THRIV3_PUBLIC_BASE_URL
-        sync: false
       # THE FOURTH PERSISTENT PATH — generated athlete pages.
       #
       # Same class of bug as THRIV3_UPLOAD_DIR above, and found by audit rather
@@ -203,20 +201,31 @@ services:
       # regardless of the interval below.
       - key: THRIV3_EDGE_URL
         value: https://thriv3-profiles.pages.dev
-      # DEPLOY CREDENTIALS FOR CLOUDFLARE PAGES. Declarations only; the values
-      # are entered in the Render dashboard and never appear in git.
+      # NOT DECLARED HERE, DELIBERATELY. Three variables are owned by the
+      # linked Environment Group `THRIV3` and must not appear in this list:
       #
-      # The token needs exactly one permission — Account / Cloudflare Pages /
-      # Edit — and should have no others: this token can deploy the public
-      # athlete site, so its blast radius is worth keeping to that.
+      #   CLOUDFLARE_API_TOKEN     deploy credential for Cloudflare Pages
+      #   CLOUDFLARE_ACCOUNT_ID    which account that token belongs to
+      #   THRIV3_PUBLIC_BASE_URL   where coach-facing profile links point
       #
-      # The account id is required rather than optional. A token with access to
-      # more than one account cannot infer which, and wrangler fails with a
-      # message that reads like an authentication problem.
-      - key: CLOUDFLARE_API_TOKEN
-        sync: false
-      - key: CLOUDFLARE_ACCOUNT_ID
-        sync: false
+      # They were declared here as `sync: false`, which creates a service-level
+      # entry with no value — and a service-level entry takes precedence over
+      # the group. The group held correct values, the service held empty ones,
+      # and the empty ones won: a fresh shell reported all three unset, the
+      # Profile tab said the Cloudflare credentials were missing, and
+      # coach-facing links fell back to http://localhost:8787. Declaring a
+      # variable here and also supplying it from the group is the conflict, so
+      # the declaration is what goes.
+      #
+      # Guidance that still applies, now to the group rather than to this file:
+      # the Cloudflare token needs exactly one permission — Account /
+      # Cloudflare Pages / Edit — because it can deploy the public athlete
+      # site, and its blast radius is worth keeping to that. The account id is
+      # required rather than optional: a token with access to more than one
+      # account cannot infer which, and wrangler fails with a message that
+      # reads like an authentication problem. THRIV3_PUBLIC_BASE_URL is
+      # https://thriv3-profiles.pages.dev — the Cloudflare Pages site that
+      # serves the profiles, NOT this service's own origin.
       # ZERO FOR INITIAL HOSTED VALIDATION. 0 (like unset) means the edge sync
       # never runs by itself, and the boot log says so out loud rather than
       # leaving it ambiguous. Nothing should run unattended against the
