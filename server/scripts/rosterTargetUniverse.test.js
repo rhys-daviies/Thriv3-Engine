@@ -109,22 +109,23 @@ d('the gap it must close', () => {
      * duplicates by name would be the ad-hoc identity guess L4 made and L5 had
      * to undo, and they resolve to a real source anyway.
      *
-     * The number is now a RANGE, because acquisition is supposed to move it.
-     * L7C resolved twelve and it fell to 29; pinning an exact count would mean
-     * every successful run breaks the suite, which is how a test gets deleted
-     * rather than fixed. What is pinned is that the count can only fall, that
-     * the seven duplicates stay in, and that a programme still missing is
-     * still listed.
+     * The count can only FALL, so only a ceiling is pinned. Naming programmes
+     * was the mistake below.
      */
-    expect(gaps.length).toBeGreaterThan(0);
     expect(gaps.length).toBeLessThanOrEqual(41);
-    for (const name of ['Tuskegee', 'Anna Maria', 'Eureka College']) {
-      expect(gaps.some((g) => g.school === name), name).toBe(true);
-    }
-    // Acquired by L7C from a verified host, so no longer a gap.
-    for (const name of ['UMass Boston', 'Pace', 'Rivier']) {
-      expect(gaps.some((g) => g.school === name && g.sport === (name === 'Pace' ? 'mens-soccer' : 'womens-soccer')),
-        name).toBe(false);
+
+    /*
+     * COMPUTED, NOT NAMED. This used to list programmes as "still a gap" and
+     * others as "no longer one", and it broke twice as acquisition did its job —
+     * Tuskegee and Eureka were named here and L7F acquired them. Naming a
+     * programme in an assertion about a set acquisition is meant to empty makes
+     * the test a record of one afternoon. The claim in the title is the one
+     * worth holding, so it is checked directly and in both directions.
+     */
+    for (const r of universe()) {
+      const key = `${r.school}|${r.sport}`;
+      const listed = gaps.some((g) => g.school === r.school && g.sport === r.sport);
+      expect(listed, `${key}: listed as a gap must mean it has no roster`).toBe(!have.has(key));
     }
   });
 });

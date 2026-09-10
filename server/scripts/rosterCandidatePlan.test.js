@@ -67,8 +67,18 @@ d('the L6D cohort', () => {
   })()`);
 
   it('is the programmes with no roster, and nothing else', () => {
-    expect(cohort.length).toBeGreaterThan(20);
-    expect(cohort.length).toBeLessThan(60);
+    /*
+     * Not a size range. This asserted 20 < n < 60, which was true of the cohort
+     * on the day it was written and false as soon as L7E and L7F resolved
+     * eighteen of them — the second threshold in this file to expire that way.
+     * A shrinking cohort is the work succeeding; what must stay true is that
+     * every member is a gap and carries a reason.
+     */
+    expect(cohort.length).toBeGreaterThanOrEqual(0);
+    for (const p of cohort) {
+      expect(p.state).not.toBe('EXISTING_CANDIDATE');
+      expect(STATES).toContain(p.state);
+    }
   });
 
   it('offers a verified host to those it can, and says so for the rest', () => {

@@ -180,8 +180,17 @@ d('the ledger after the backfill', () => {
     }
   });
 
-  it('touched no roster data', () => {
-    expect(inDb(`db.prepare('SELECT COUNT(*) n FROM roster_players').get().n`)).toBe(277208);
+  it('cannot touch roster data, because it names no other table', () => {
+    /*
+     * This used to pin roster_players at the count it happened to hold when the
+     * backfill ran, which L7F's import legitimately moved — the assertion was
+     * about the age of the database rather than the behaviour of the writer.
+     * The guarantee that matters is structural: this script writes one table.
+     */
+    const src = fs.readFileSync(path.join(ROOT, 'server/scripts/verifiedDomainBackfill.js'), 'utf8');
+    const tables = inDb(`db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map((r) => r.name)`);
+    const named = tables.filter((t) => new RegExp(`\\b${t}\\b`).test(src));
+    expect(named).toEqual(['athletics_domains']);
   });
 
   it('stayed inside NCAA', () => {
