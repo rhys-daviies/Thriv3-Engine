@@ -69,7 +69,20 @@ export async function runOnce({ log = console } = {}) {
     state.lastError = null;
     state.consecutiveFailures = 0;
 
-    const parts = [`${result.tokens?.pushed ?? 0} token(s) pushed`, `${result.events?.pulled ?? 0} event(s) pulled`];
+    // `pullEvents` returns fetched/inserted, never `pulled` — reading a key
+    // that does not exist made this line report "0 event(s) pulled" on every
+    // successful run, which is the one moment an operator is relying on it.
+    const fetched = result.events?.fetched ?? 0;
+    const inserted = result.events?.inserted ?? 0;
+    const parts = [
+      `${result.tokens?.pushed ?? 0} token(s) pushed`,
+      // Fetched and inserted differ when a replay is absorbed or a token no
+      // longer resolves, and collapsing them would hide both.
+      inserted === fetched
+        ? `${fetched} event(s) pulled`
+        : `${fetched} event(s) pulled, ${inserted} new`,
+    ];
+    if (result.events?.unresolved) parts.push(`${result.events.unresolved} unattributable`);
     if (result.suppressions?.added) parts.push(`${result.suppressions.added} opt-out(s)`);
     // A token count the edge disagrees with is the shape of the August
     // failure, so it is said out loud rather than folded into a total.

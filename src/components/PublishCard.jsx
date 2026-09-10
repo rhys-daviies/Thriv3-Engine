@@ -78,6 +78,18 @@ export default function PublishCard({ playerId, playerName }) {
         </p>
       )}
 
+      {status.publisherReady === false && (
+        <div className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs space-y-1">
+          <p className="font-semibold">This machine cannot publish.</p>
+          <ul className="list-disc pl-4 space-y-0.5">
+            {status.publisherProblems?.map((problem) => <li key={problem}>{problem}</li>)}
+          </ul>
+          <p className="text-muted-foreground">
+            Preview still works — it builds the page here without deploying anything.
+          </p>
+        </div>
+      )}
+
       {status.archived && (
         <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">
           This athlete is archived. Their links are revoked and the page will not serve.
@@ -120,7 +132,9 @@ export default function PublishCard({ playerId, playerName }) {
       )}
 
       {error && (
-        <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">{error}</p>
+        <p className="whitespace-pre-line rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">
+          {error}
+        </p>
       )}
 
       <div className="flex flex-wrap items-center gap-2">
@@ -133,8 +147,11 @@ export default function PublishCard({ playerId, playerName }) {
           {busy === 'preview' ? 'Building…' : 'Preview'}
         </Button>
         <Button
-          disabled={!status.canPublish || busy !== null}
+          disabled={!status.canPublish || status.publisherReady === false || busy !== null}
           onClick={() => act('publish', publishing.goLive)}
+          title={status.publisherReady === false
+            ? 'Publishing is not configured on this host'
+            : undefined}
         >
           {busy === 'publish'
             ? <RefreshCw className="h-4 w-4 mr-1.5 animate-spin" />

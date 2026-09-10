@@ -6,6 +6,16 @@
 # swallowing events — the failure the roadmap warns about most.
 name = "thriv3-profiles"
 compatibility_date = "2026-08-01"
+# The DEFAULT output directory, used when nothing else is named.
+#
+# Publishing always passes an explicit absolute directory to
+# `wrangler pages deploy`, because in production the generated site lives on
+# the persistent disk (THRIV3_BUILD_DIR=/data/profiles), not here. Which of the
+# two wins if they disagree is wrangler's business and is not verifiable from
+# this repository — but the failure is safe either way: `build/` is gitignored
+# and nothing on Render writes build/public, so a wrangler that preferred this
+# setting would fail on a missing directory rather than quietly deploying an
+# empty site over the live one.
 pages_build_output_dir = "build/public"
 
 # Events land here. The local app pulls them down and resolves each token to a

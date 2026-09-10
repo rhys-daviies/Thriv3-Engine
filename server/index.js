@@ -29,6 +29,7 @@ import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
 import { emailStatusMap } from './lib/coaches.js';
 import { publicProfileHandler } from './routes/publicProfile.js';
+import { OUTPUT_DIR } from './export/exportProfiles.js';
 import { publishStatus, regenerate, publish } from './routes/publish.js';
 import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js';
 import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
@@ -668,7 +669,10 @@ app.post('/api/engagement/outreach/:id/responded', (req, res) => {
 // tracker runs over http (the YouTube IFrame API will not initialise on a
 // file:// origin). This surface is deliberately separate from the staff app:
 // no session, no nav, nothing but the athlete's own page.
-const publicDir = path.resolve(__dirname, '../build/public');
+// The generated site, wherever it actually lives. Hardcoding build/public
+// here while publicProfileHandler read OUTPUT_DIR meant the two disagreed the
+// moment THRIV3_BUILD_DIR moved the pages onto the persistent disk.
+const publicDir = OUTPUT_DIR;
 
 // Gated ahead of the static mount so a revoked link cannot be served straight
 // off disk.
