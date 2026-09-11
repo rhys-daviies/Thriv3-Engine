@@ -22,7 +22,7 @@ LATER = _held((SEASON + 1, SEASON + 2, SEASON + 3)) or _held((SEASON - 1, SEASON
 assert LATER, f'no held season adjacent to {SEASON}'
 OUT = os.path.join(season_dir(SEASON), '_targets.csv')
 REF = LATER[0]
-HDR = ['School','Sport','Division','Conference',f'Roster URL {SEASON} (candidate)','Method',
+HDR = ['School','Sport','Division','Conference',f'Roster URL {SEASON} (candidate)','Generated Candidates','Method',
        f'Roster URL {REF} (known good)', f'{REF} Player Count','Status','Notes']
 
 GENERATED_METHODS = {
@@ -160,7 +160,16 @@ def registry_candidates():
     for r in csv.DictReader(open(path, encoding='utf-8')):
         u = (r.get('Candidate') or '').strip()
         if u:
-            out[(r['School'], r['Sport'])] = u
+            # `Candidate` is the first of an ORDERED list and `Candidates` is the
+            # whole of it. A generated candidate is one hypothesis out of a
+            # ranked set, not a starting point to transform: L7F lost Southwest
+            # Minnesota State because candidate one 404s and its roster is
+            # candidate ten, in a different shape family that no transformation
+            # of candidate one reaches.
+            out[(r['School'], r['Sport'])] = {
+                'first': u,
+                'all': [x.strip() for x in (r.get('Candidates') or u).split('|') if x.strip()],
+            }
     return out
 
 KEPT = repairs(OUT, SEASON)
@@ -185,6 +194,7 @@ for k in keys:
     # runs only when there was no URL to transform. `u` stays empty either way,
     # so a generated candidate never reaches the known-good column below and
     # cannot be mistaken later for a page we actually fetched.
+    generated = []
     if not cand and k in CANDIDATES:
         # Through `swap` like every other candidate. L7C found the reason: the
         # generated URL was going in raw, so a Presto candidate kept its
@@ -192,10 +202,18 @@ for k in keys:
         # `.../roster?view=table/2026-27`, a 404 by construction. A candidate
         # that skips the normalisation everything else gets is not in the normal
         # path, whatever the diagram says.
-        cand, meth = swap(CANDIDATES[k], SEASON), 'generated from a verified athletics host'
+        cand, meth = swap(CANDIDATES[k]['first'], SEASON), 'generated from a verified athletics host'
+        # Every candidate through the same `swap`, for the reason above, and
+        # deduplicated because normalisation collapses some of them together.
+        seen = set()
+        for c in CANDIDATES[k]['all']:
+            sc = swap(c, SEASON)
+            if sc and sc not in seen:
+                seen.add(sc); generated.append(sc)
     if k in KEPT: cand, meth = KEPT[k]
     rows.append({'School': k[0], 'Sport': k[1], 'Division': e['div'], 'Conference': e['conf'],
-                 f'Roster URL {SEASON} (candidate)': cand, 'Method': meth,
+                 f'Roster URL {SEASON} (candidate)': cand,
+                 'Generated Candidates': '|'.join(generated), 'Method': meth,
                  f'Roster URL {REF} (known good)': (per[REF].get(k) or {}).get('roster', u),
                  f'{REF} Player Count': str((per[REF].get(k) or {}).get('n', 0)),
                  'Status': 'todo', 'Notes': ''})

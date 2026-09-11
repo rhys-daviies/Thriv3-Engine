@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { sportContradicted } from './rosterCandidatePlan.js';
 
 /**
  * L7B — the discovery plan against the real registry, and what it must not touch.
@@ -146,5 +147,52 @@ d('planning changes nothing', () => {
     const before = inDb(count);
     const after = inDb(`(() => { candidatePlan(); return ${count}; })()`);
     expect(after).toBe(before);
+  });
+});
+
+/**
+ * L7G — a page on the right host can still be the wrong programme.
+ *
+ * L7E called Southwest Minnesota State ready on HTTP 200, the right host and 82
+ * roster markers. The page was `Sonya Smith - Women's Soccer - SMSU Athletics`
+ * — a women's bio served at `/sports/msoc/roster/season/2026`, on a host whose
+ * `.aspx` routing answers `/sports/msoc` with a football event page. Host
+ * identity was never in doubt; the sport was, and nothing looked.
+ *
+ * The markers were no defence: a site's navigation carries roster markup on
+ * every page it serves. The pipeline's own gates refused the page anyway —
+ * "too few players parsed (0)" — so nothing wrong was ever imported. What was
+ * wrong was the readiness report.
+ */
+describe('the page must be about the programme that was asked for', () => {
+  const page = (title) => `<html><head><meta property="og:title" content="${title}"><title>${title}</title></head></html>`;
+
+  it('refuses the exact page that made SMSU look ready', () => {
+    const html = page("Sonya Smith - Women&#39;s Soccer - SMSU Athletics");
+    expect(sportContradicted(html, 'mens-soccer')).toContain("Women's Soccer");
+  });
+
+  it('refuses a men\'s page offered for a women\'s programme', () => {
+    expect(sportContradicted(page("2026 Men's Soccer Roster - Example"), 'womens-soccer'))
+      .toContain("Men's Soccer");
+  });
+
+  it('accepts the programme it was asked for', () => {
+    expect(sportContradicted(page("2026 Men's Soccer Roster - Example"), 'mens-soccer')).toBe(null);
+    expect(sportContradicted(page("2026 Women's Soccer Roster - Example"), 'womens-soccer')).toBe(null);
+  });
+
+  it('accepts a page that names both, as an index legitimately does', () => {
+    // Refusing on the mere presence of the other sport would reject a roster
+    // whose navigation lists every programme the school fields.
+    expect(sportContradicted(page("Men's Soccer and Women's Soccer - Example"), 'mens-soccer')).toBe(null);
+  });
+
+  it('says nothing about a page that names no sport', () => {
+    expect(sportContradicted(page('Example University Athletics'), 'mens-soccer')).toBe(null);
+  });
+
+  it('reads a typographic apostrophe as an apostrophe', () => {
+    expect(sportContradicted(page("Sonya Smith - Women&apos;s Soccer"), 'mens-soccer')).toBeTruthy();
   });
 });

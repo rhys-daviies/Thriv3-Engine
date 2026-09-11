@@ -23,7 +23,7 @@ import db from '../db/client.js';
 import {
   inverseIndex, canonicalHost, PROFILE, LOOKUP,
 } from '../../shared/evidence/domainAuthority.js';
-import { candidatesForLookup, CANDIDATE } from '../../shared/roster/rosterCandidates.js';
+import { candidatesForLookup, CANDIDATE, MAX_ATTEMPTED_CANDIDATES } from '../../shared/roster/rosterCandidates.js';
 import { rosterTargetUniverse } from './rosterTargetUniverse.js';
 
 export const CANDIDATE_SEASON = 2026;
@@ -126,6 +126,35 @@ const ogSiteName = (html) => html.match(
  * cited for the wrong programme. So the landing path must still name the slug
  * that was asked for, and must not end in a player segment.
  */
+/**
+ * The page must be about the programme that was asked for.
+ *
+ * L7E called Southwest Minnesota State ready on the strength of HTTP 200, the
+ * right host, and 82 roster markers. The page was
+ * `Sonya Smith - Women's Soccer - SMSU Athletics` — a women's bio served at
+ * `/sports/msoc/roster/season/2026`, on a host whose `.aspx` routing answers
+ * `/sports/msoc` with a football event page. Host identity was never in
+ * question; the SPORT was, and nothing checked it.
+ *
+ * So a page that names the other gender's programme in its own title is
+ * refused. The markers are no defence: a site's navigation carries roster
+ * markup on every page it serves.
+ */
+const SPORT_TITLE = {
+  'mens-soccer': { own: /\bmen'?s soccer\b/i, other: /\bwomen'?s soccer\b/i },
+  'womens-soccer': { own: /\bwomen'?s soccer\b/i, other: /\bmen'?s soccer\b/i },
+};
+
+export function sportContradicted(html, sport) {
+  const t = SPORT_TITLE[sport];
+  if (!t) return null;
+  const title = html.match(/<meta[^>]+(?:property|name)="og:title"[^>]*content="([^"]*)"/i)?.[1]
+    ?? html.match(/<title[^>]*>([^<]{0,140})/i)?.[1] ?? '';
+  const said = title.replace(/&#39;|&apos;/g, "'");
+  if (t.other.test(said) && !t.own.test(said)) return said.trim().slice(0, 70);
+  return null;
+}
+
 const SEASON_TAIL = /^(?:20\d\d|20\d\d-\d\d|season)$/i;
 const PLAYER_TAIL = /\/roster\/([a-z0-9][a-z0-9.-]*)(?:\/\d+)?\/?$/i;
 
@@ -138,7 +167,7 @@ function landedOnAsked(finalUrl, slug) {
   return !tail || SEASON_TAIL.test(tail);
 }
 
-async function probe(url, slug) {
+async function probe(url, slug, sport) {
   let res;
   try {
     res = await fetch(url, { redirect: 'follow', headers: { 'User-Agent': UA, Accept: 'text/html' } });
@@ -153,6 +182,10 @@ async function probe(url, slug) {
   if (!ROSTER_MARKS.test(html)) return { verdict: 'OTHER', detail: '200 with no roster markup' };
   if (!landedOnAsked(res.url, slug)) {
     return { verdict: 'SOFT_404', detail: `redirected off the programme — ${new URL(res.url).pathname}` };
+  }
+  const wrongSport = sportContradicted(html, sport);
+  if (wrongSport) {
+    return { verdict: 'SOFT_404', detail: `page is another programme — ${JSON.stringify(wrongSport)}` };
   }
   const redirected = new URL(res.url).pathname !== new URL(url).pathname;
   return {
@@ -175,7 +208,7 @@ export async function verifyPlan(plan, per = 8) {
       // Sequential with a pause. An earlier pass at full speed drew rate limits
       // that read as 404s, which is a good way to conclude something false.
       if (tried > 1) await new Promise((r) => { setTimeout(r, 600); });
-      const r = await probe(c.url, c.slug);
+      const r = await probe(c.url, c.slug, p.sport);
       last = r;
       if (r.verdict === '200_ROSTER' || r.verdict === 'REDIRECT_TO_ROSTER') break;
       // A 403 is the host refusing every path; asking seven more proves nothing.
@@ -214,14 +247,23 @@ function main() {
 
   if (argv.includes('--csv')) {
     /*
-     * The FIRST candidate only. The pipeline's own ladder expands a candidate
-     * into its season-bearing forms, so handing it eight would duplicate work
-     * it already does — and `_targets.csv` has one candidate column because a
-     * candidate is a starting point, not a search space.
+     * THE WHOLE ORDERED LIST, not just the first.
+     *
+     * It used to be the first only, on the reasoning that the pipeline's own
+     * ladder expands a candidate into its season-bearing forms. That holds
+     * WITHIN a shape family and not across one. L7F met the difference:
+     * Southwest Minnesota State's first candidate 404s, its roster sits at
+     * `/sports/msoc/roster/season/2026` — candidate ten — and no amount of
+     * transforming candidate one reaches a different family. Measured against
+     * every known NCAA roster URL, 7.9% of them win at ordinal 2 or later.
+     *
+     * `Candidate` stays as the first so nothing that reads one URL breaks;
+     * `Candidates` carries the ordered list the acquirer walks.
      */
     const wanted = plan.filter((p) => p.state === 'NEW_VERIFIED_HOST_CANDIDATES');
-    const body = ['School,Sport,Host,Platform,Candidate', ...wanted.map((p) => [
+    const body = ['School,Sport,Host,Platform,Candidate,Candidates', ...wanted.map((p) => [
       p.school, p.sport, p.host, p.platform ?? '', p.candidates[0].url,
+      p.candidates.slice(0, MAX_ATTEMPTED_CANDIDATES).map((c) => c.url).join('|'),
     ].map(cell).join(','))].join('\r\n') + '\r\n';
     const out = arg('out');
     if (out) { writeFileSync(out, body, 'utf8'); console.log(`wrote ${out} — ${wanted.length} candidates`); }

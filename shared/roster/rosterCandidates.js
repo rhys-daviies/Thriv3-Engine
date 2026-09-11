@@ -79,6 +79,29 @@ export const SLUGS = Object.freeze({
 /** Providers whose sources use the short sport segment, measured not assumed. */
 export const SHORT_SLUG_PROVIDERS = Object.freeze(['PRESTO']);
 
+/**
+ * How many generated candidates an acquisition run may attempt.
+ *
+ * Measured, not chosen. Across the 1,605 NCAA roster URLs known to be real,
+ * 1,601 are reproduced somewhere in this catalogue, and the ordinal that wins:
+ *
+ *   #1   1,474   92.1%        #8      5   98.6%
+ *   #2      14   92.9%        #9      1   98.6%
+ *   #4      32   94.9%        #10     5   98.9%   <- Southwest Minnesota State
+ *   #5      45   97.8%        #11     4   99.2%
+ *   #7       8   98.3%        #13    10   99.8%
+ *                             #16     3  100.0%
+ *
+ * So sixteen is the observed maximum and covers every known case; nothing
+ * beyond it has ever won. The other eight entries stay in the catalogue because
+ * they are real shapes, and are not attempted.
+ *
+ * That 92.1% is also why the single-candidate design survived this long, and
+ * the 7.9% is why it had to stop: 127 programmes with a known-good URL would
+ * not have been reachable from candidate one alone.
+ */
+export const MAX_ATTEMPTED_CANDIDATES = 16;
+
 /** Why no candidate was generated. A reason is an answer; silence is not. */
 export const CANDIDATE = Object.freeze({
   OK: 'OK',

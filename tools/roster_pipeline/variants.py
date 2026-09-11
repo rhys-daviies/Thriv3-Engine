@@ -56,11 +56,42 @@ def ladder(cand, url25):
             add(m2.group(1) + f'/roster/season/{S}')
     return out[:8]
 
+# The catalogue's observed maximum winning ordinal. Mirrors
+# MAX_ATTEMPTED_CANDIDATES in shared/roster/rosterCandidates.js, where the
+# measurement behind it is written out.
+MAX_CANDIDATES = 16
+
+def attempt_urls(r):
+    """Every URL this row may be asked for, in order, and why it is that order.
+
+    TWO DIFFERENT THINGS, kept apart. `ladder()` TRANSFORMS one URL into its
+    season-bearing forms — the same page addressed differently. A generated
+    candidate list is a set of distinct HYPOTHESES about where a roster lives,
+    produced from the shape catalogue for a host whose identity is verified.
+    Transforming candidate one never reaches candidate ten's shape family, which
+    is exactly how L7F lost Southwest Minnesota State: its first candidate 404s
+    and its roster sits at `/sports/msoc/roster/season/2026`, tenth in the rank.
+
+    So a generated row walks its ranked candidates, each still expanded by
+    `ladder` and each still facing every gate below. Anything else — a
+    known-good URL from last season, a hand repair — keeps exactly the behaviour
+    it had: one candidate, its own ladder, nothing added.
+    """
+    gen = [u for u in (r.get('Generated Candidates') or '').split('|') if u.strip()]
+    if not gen:
+        return [(0, u) for u in ladder(r['_cand'], r[REFCOL])]
+    out, seen = [], set()
+    for ordinal, cand in enumerate(gen[:MAX_CANDIDATES], start=1):
+        for u in ladder(cand, ''):
+            if u in seen: continue
+            seen.add(u); out.append((ordinal, u))
+    return out
+
 def work(r):
     k = state.key(r)
     cnt25 = int(r[CNTCOL] or 0)
     tried = []
-    for u in ladder(r['_cand'], r[REFCOL]):
+    for ordinal, u in attempt_urls(r):
         st_, html = lib.fetch(u, tries=2, timeout=40)
         if st_ != 200 or not html:
             tried.append('%s -> fetch %s' % (u, st_)); continue
@@ -80,9 +111,37 @@ def work(r):
         rows = run.build(recs, r, u, 'High', f'direct read of the official {S} roster page; ' + why)
         if len(rows) < 5:
             tried.append('%s -> only %d rows' % (u, len(rows))); continue
+        # STOP ON SUCCESS. Nothing lower in the ranking is fetched once a
+        # candidate has passed every gate; `candidate` records which one won so
+        # a resolved roster stays traceable to the hypothesis that produced it.
         return r, k, {'status': 'done', 'stage': 'variants', 'url': u, 'parser': parser,
-                      'n': len(rows), 'rows': rows, 'title': title}, tried
+                      'n': len(rows), 'rows': rows, 'title': title,
+                      'candidate': ordinal or None}, tried
     return r, k, None, tried
+
+# A URL that was never served tells us the guess was wrong. A URL that WAS
+# served and then refused tells us something about the programme, and that is
+# the reason worth keeping.
+ROUTE_FAILURE = re.compile(r'-> fetch (?:\d+|None)$')
+
+def summarise(tried):
+    """The most informative reason a row failed, not merely the last one.
+
+    Walking a ranked list means most entries are 404s on shapes this host does
+    not use, and `tried[-1]` would report whichever wrong guess happened to come
+    last -- burying a turnover rejection from candidate one behind a 404 from
+    candidate sixteen. Content failures are reported first and route failures
+    are counted, so "the site served us last season's squad" never reads as
+    "nothing answered".
+    """
+    if not tried: return 'no candidate', []
+    content = [t for t in tried if not ROUTE_FAILURE.search(t)]
+    routes = len(tried) - len(content)
+    if content:
+        err = content[0]
+        if routes: err += f'  (+{routes} route failures across the candidate ranking)'
+        return err, content[:4]
+    return f'{tried[0]}  (+{len(tried) - 1} more route failures)', tried[:2]
 
 def main():
     ap = argparse.ArgumentParser()
@@ -111,9 +170,9 @@ def main():
                 print('  ERR', type(e).__name__, e); continue
             if res: st[k] = res; ok += 1
             else:
-                st[k] = {'status': 'failed', 'stage': 'variants',
-                         'err': (tried[-1] if tried else 'no candidate'),
-                         'tried': ['variants: ' + ('; '.join(tried[-4:]) or 'none')]}
+                err, kept = summarise(tried)
+                st[k] = {'status': 'failed', 'stage': 'variants', 'err': err,
+                         'tried': ['variants: ' + ('; '.join(kept) or 'none')]}
                 fail += 1
             if i % 25 == 0:
                 json.dump(st, open(a.out, 'w', encoding='utf-8'), ensure_ascii=False)
