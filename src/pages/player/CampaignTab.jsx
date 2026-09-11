@@ -1,13 +1,14 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CampaignProgrammeCard from '@/components/CampaignProgrammeCard';
 import { usePlayerWorkspace } from './PlayerWorkspace';
+import { campaigns } from '@/api/client';
 import { useCampaignPlan, CAMPAIGN_PLAN } from '@/lib/useCampaignPlan';
 import {
-  blockerCopy, isCampaignWide, CAMPAIGN_STATE_COPY, shortDate,
+  blockerCopy, isCampaignWide, approvalError, CAMPAIGN_STATE_COPY, shortDate,
 } from '@/lib/campaignLabels';
 
 /**
@@ -188,8 +189,66 @@ export default function CampaignTab() {
     status, plan, campaign, otherCampaigns, error, reload,
   } = useCampaignPlan(player?.id);
   const [query, setQuery] = useState('');
+  /** Which programmes have a request in flight, so a second click cannot start one. */
+  const inFlight = useRef(new Set());
+  /**
+   * SAID AT THE PAGE, BECAUSE THE CARD MAY NOT SURVIVE IT.
+   *
+   * Two approval refusals are not refusals at all — the server has moved on
+   * since the page was drawn, and the answer is to read the plan again. But a
+   * reload replaces every card, and the review that failed may be gone
+   * entirely, so a message attached to that card would vanish in the same
+   * moment it became true. It lives here instead, and stays until the next
+   * thing the operator does.
+   */
+  const [notice, setNotice] = useState(null);
 
   const programmes = plan?.programmes ?? [];
+
+  /**
+   * RECORD A REVIEW, THEN GO AND READ THE PLAN AGAIN.
+   *
+   * NOTHING IS ASSUMED ABOUT WHAT THE APPROVAL DID. It clears one hold, and the
+   * programme may still be blocked by a stance, a suppression, the campaign's
+   * own state or an unconfigured mailbox — so the card is not moved to Ready
+   * here, or anywhere. The next plan decides which group it belongs in, the
+   * same way it decided the last one.
+   *
+   * The identifiers are the plan's own. Nothing is reconstructed from a school
+   * name, and the request carries no body at all: the operator, the history
+   * snapshot and the timestamp are the server's to derive.
+   */
+  const approve = useCallback(async (programme) => {
+    const key = `${programme.programmeCampaignId}:${programme.currentCoach.id}`;
+    if (inFlight.current.has(key)) return;
+    inFlight.current.add(key);
+    try {
+      setNotice(null);
+      await campaigns.approveFirstTouch(programme.programmeCampaignId, programme.currentCoach.id);
+      reload();
+    } catch (err) {
+      /**
+       * A FAILED APPROVAL IS NOT A FAILED PLAN. The plan on screen is still the
+       * one the server sent and is still true, so it stays: replacing the page
+       * with the load-failure state would throw away something correct.
+       *
+       * WHERE THE MESSAGE GOES DEPENDS ON WHAT HAPPENED. A refusal this
+       * operator can retry belongs on the panel that tried. The server having
+       * moved on — somebody sent a message, the plan advanced to another coach
+       * — belongs at the page, because the reload that answers it may take the
+       * card away.
+       */
+      const copy = approvalError(err);
+      if (copy.refresh) {
+        setNotice(copy.message);
+        reload();
+        return;
+      }
+      throw Object.assign(err, { operatorMessage: copy.message });
+    } finally {
+      inFlight.current.delete(key);
+    }
+  }, [reload]);
 
   const grouped = useMemo(() => {
     const by = new Map(SECTIONS.map((s) => [s.key, []]));
@@ -273,6 +332,17 @@ export default function CampaignTab() {
         </ul>
       </Card>
 
+      {notice && (
+        <Card
+          className="p-4 flex items-center justify-between gap-3"
+          role="status"
+          data-testid="campaign-notice"
+        >
+          <p className="text-sm">{notice}</p>
+          <Button size="sm" variant="ghost" onClick={() => setNotice(null)}>Dismiss</Button>
+        </Card>
+      )}
+
       {campaignWide.map((b) => (
         <Card key={b.code} className="p-4 space-y-1" role="status" data-testid="campaign-banner">
           <p className="text-sm font-medium">{b.label}</p>
@@ -324,6 +394,12 @@ export default function CampaignTab() {
                       key={p.programmeCampaignId}
                       programme={p}
                       compact={compact}
+                      /*
+                        The ONLY state-changing control on this page, and it is
+                        offered on one group. Nothing here sends, prepares,
+                        executes or materialises anything.
+                      */
+                      onApprove={key === GROUP.REVIEW ? approve : null}
                     />
                   ))}
                 </div>

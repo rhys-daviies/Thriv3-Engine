@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Disclosure } from '@/components/ui/Disclosure';
 import { ORIGIN_LABEL, ORIGIN_UNRECORDED } from '@/lib/outreachLabels';
 import {
@@ -105,7 +106,96 @@ function Blockers({ blockers, policyEligibleOn, alreadySaid = [] }) {
   );
 }
 
-export default function CampaignProgrammeCard({ programme, compact = false }) {
+/**
+ * THE ONE THING THIS SCREEN CAN CHANGE.
+ *
+ * Approving a first touch records that a PERSON has looked at the prior contact
+ * and is content for the campaign's opening message to go. It approves nothing
+ * else: not a message, not a send, not the campaign. Every stance, suppression,
+ * revocation and lifecycle rule is evaluated afterwards exactly as before, and
+ * there is still no control anywhere on this page that makes an email happen.
+ *
+ * Three steps, inline. A modal is what this repo reserves for DELETION — the
+ * one irreversible thing it does — and an approval is neither destructive nor
+ * final: re-approving replaces it, and the hold comes back on its own the
+ * moment new contact is recorded. What the middle step buys is the scope said
+ * out loud, naming the coach and the school, so a click on the wrong card is
+ * caught before it is a decision on the record.
+ */
+function ApproveFirstTouch({ programme, onApprove }) {
+  const [mode, setMode] = useState('idle');
+  const [error, setError] = useState(null);
+  const coach = programme.currentCoach;
+
+  /**
+   * A NEW PLAN CLEARS THIS. `programme` is a fresh object on every successful
+   * load, so a reload after approving returns the control to rest — and if the
+   * server still holds the review, it comes back ready to be pressed again
+   * rather than stuck pending.
+   */
+  useEffect(() => { setMode('idle'); setError(null); }, [programme]);
+
+  const submit = async () => {
+    setMode('pending');
+    setError(null);
+    try {
+      await onApprove(programme);
+      // Left pending: the reload replaces this card's data, and the effect
+      // above is what returns it to rest. Nothing is assumed in between.
+    } catch (err) {
+      setMode('idle');
+      setError(err);
+    }
+  };
+
+  const stale = programme.firstTouchReview?.approval?.status === 'stale';
+  const where = `${coach.name} at ${programme.collegeName}`;
+
+  return (
+    <div className="space-y-2">
+      {mode === 'idle' && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setMode('confirming')}
+          /* Named in full, because a screen reader hears this without the card. */
+          aria-label={`${stale ? 'Review again' : 'Approve first touch'}: ${where}`}
+        >
+          {stale ? 'Review again' : 'Approve first touch'}
+        </Button>
+      )}
+
+      {mode === 'confirming' && (
+        <div className="space-y-2">
+          <p className="text-sm">
+            Approve the campaign’s first outreach to <span className="font-medium">{where}</span>,
+            knowing this athlete has contacted them before?
+          </p>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="ghost" onClick={() => setMode('idle')}>Cancel</Button>
+            <Button size="sm" onClick={submit} aria-label={`Confirm approval: ${where}`}>
+              Confirm approval
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {mode === 'pending' && (
+        <p className="text-sm text-muted-foreground" role="status" data-testid="approval-pending">
+          Recording your review…
+        </p>
+      )}
+
+      {error && (
+        <p className="text-sm text-destructive" role="alert" data-testid="approval-error">
+          {error.operatorMessage ?? 'Approval could not be recorded. Try again.'}
+        </p>
+      )}
+    </div>
+  );
+}
+
+export default function CampaignProgrammeCard({ programme, compact = false, onApprove = null }) {
   const {
     collegeName, rank, tier, tierSource, programmeState, currentCoach,
     nextAction, derivedStep, policyReason, blockers, policyEligibleOn, candidates,
@@ -178,9 +268,19 @@ export default function CampaignProgrammeCard({ programme, compact = false }) {
           <PriorContact priorContact={currentCoach?.priorContact} />
           <p className="text-xs text-muted-foreground">
             {approval?.status === 'stale'
-              ? 'The earlier review no longer matches what is on file, so this needs reviewing again.'
+              ? 'This review is out of date because further confirmed contact has been recorded '
+                + 'since it was approved.'
               : 'The first outreach of this campaign to this coach needs reviewing.'}
           </p>
+
+          {/*
+            OFFERED ONLY WHERE THE SERVER SAYS THERE IS SOMETHING TO APPROVE and
+            the identifiers it would be approved with are the plan's own. No
+            control is reconstructed from a school name.
+          */}
+          {onApprove && currentCoach?.id && programme.programmeCampaignId && (
+            <ApproveFirstTouch programme={programme} onApprove={onApprove} />
+          )}
         </div>
       )}
 

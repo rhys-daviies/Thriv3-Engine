@@ -441,7 +441,7 @@ describe('prior contact is shown as what it is', () => {
 
     expect(container.querySelector('[data-testid="stale-approval"]')).toBeTruthy();
     expect(text()).toMatch(/contact recorded since/i);
-    expect(text()).toMatch(/needs reviewing again/i);
+    expect(text()).toMatch(/out of date because further confirmed contact/i);
     // Whose decision it was is not printed — an operator id is not a name.
     expect(text()).not.toContain('op-1');
   });
@@ -672,8 +672,8 @@ describe('loading, empty and failure', () => {
 /* Read-only                                                                    */
 /* -------------------------------------------------------------------------- */
 
-describe('this checkpoint can look and cannot touch', () => {
-  it('offers no control that would change anything', async () => {
+describe('the page can review, and cannot send', () => {
+  it('offers no control that would make a message happen', async () => {
     stubApi({
       executionPlan: plan([
         heldForReview(),
@@ -682,14 +682,20 @@ describe('this checkpoint can look and cannot touch', () => {
     });
     await render();
 
-    const labels = buttons().map((b) => b.textContent);
-    for (const forbidden of [/approve/i, /\bsend\b/i, /execute/i, /prepare/i, /\bstart\b/i,
-      /\bstop\b/i, /complete campaign/i, /remove/i, /\bedit\b/i, /change tier/i]) {
-      expect(labels.join(' | '), String(forbidden)).not.toMatch(forbidden);
+    /**
+     * APPROVING IS NOT SENDING, and this is the list that keeps the difference.
+     * Recording that a person reviewed prior contact clears one hold; every
+     * stance, suppression and lifecycle rule is evaluated afterwards, and there
+     * is still nothing anywhere on this page that makes an email happen.
+     */
+    const labels = buttons().map((b) => b.textContent).join(' | ');
+    for (const forbidden of [/\bsend\b/i, /execute/i, /prepare/i, /materialise/i, /\bstart\b/i,
+      /\bstop\b/i, /complete campaign/i, /remove/i, /\bedit\b/i, /change tier/i, /bulk/i]) {
+      expect(labels, String(forbidden)).not.toMatch(forbidden);
     }
   });
 
-  it('writes nothing: every request is a GET', async () => {
+  it('reads without writing until somebody presses something', async () => {
     stubApi({ executionPlan: plan([heldForReview()]) });
     await render();
     expect(calls.every((c) => c.method === 'GET')).toBe(true);
@@ -766,5 +772,337 @@ describe('every code the server can send has words', () => {
     for (const claim of [/\bopened\b/i, /\bclicked\b/i, /\bdelivered\b/i, /\bbounced\b/i]) {
       expect(all, String(claim)).not.toMatch(claim);
     }
+  });
+});
+
+/* -------------------------------------------------------------------------- */
+/* Approving a first touch                                                      */
+/* -------------------------------------------------------------------------- */
+
+describe('recording that a person has looked', () => {
+  const approveButton = () => buttons().find((b) => /Approve first touch|Review again/.test(b.textContent));
+  const confirmButton = () => buttons().find((b) => b.textContent.includes('Confirm approval'));
+  const approvalCalls = () => calls.filter((c) => c.path.includes('first-touch-approval'));
+
+  it('offers approval where the server says a review is required', async () => {
+    stubApi({ executionPlan: plan([heldForReview()]) });
+    await render();
+    expect(approveButton()).toBeTruthy();
+    expect(approveButton().textContent).toBe('Approve first touch');
+  });
+
+  it('offers Review again where the earlier approval has gone stale', async () => {
+    stubApi({
+      executionPlan: plan([heldForReview({
+        firstTouchReview: {
+          required: true, reason: 'PRIOR_CONFIRMED_CONTACT',
+          approval: { status: 'stale', approvedAt: '2026-09-12T09:00:00.000Z', approvedByOperatorId: 'op-1' },
+        },
+      })]),
+    });
+    await render();
+    expect(approveButton().textContent).toBe('Review again');
+    expect(text()).toMatch(/out of date because further confirmed contact/i);
+  });
+
+  it('offers nothing on a programme the server is not holding', async () => {
+    stubApi({
+      executionPlan: plan([programme({ collegeName: 'Stanford', programmeCampaignId: 'pc-s' })]),
+    });
+    await render();
+    expect(approveButton()).toBeUndefined();
+  });
+
+  it('offers nothing where the plan names no coach to approve', async () => {
+    // The identifiers must be the plan's own; nothing is reconstructed from a
+    // school name, so a review with no current coach has no control.
+    stubApi({ executionPlan: plan([heldForReview({ currentCoach: null })]) });
+    await render();
+    expect(approveButton()).toBeUndefined();
+  });
+
+  it('says the scope out loud before it is a decision', async () => {
+    stubApi({ executionPlan: plan([heldForReview()]) });
+    await render();
+    await click(approveButton());
+
+    // Named, so a click on the wrong card is caught before it is on the record.
+    expect(text()).toMatch(/Approve the campaign’s first outreach to/);
+    expect(text()).toContain('John Smith at Duke');
+    expect(confirmButton()).toBeTruthy();
+    // And nothing has been sent yet.
+    expect(approvalCalls()).toHaveLength(0);
+  });
+
+  it('lets the operator back out', async () => {
+    stubApi({ executionPlan: plan([heldForReview()]) });
+    await render();
+    await click(approveButton());
+    await click(buttons().find((b) => b.textContent === 'Cancel'));
+
+    expect(confirmButton()).toBeUndefined();
+    expect(approveButton()).toBeTruthy();
+    expect(approvalCalls()).toHaveLength(0);
+  });
+
+  it('posts the plan’s own identifiers, with no body at all', async () => {
+    stubApi({ executionPlan: plan([heldForReview()]) });
+    await render();
+    await click(approveButton());
+    await click(confirmButton());
+
+    expect(approvalCalls()).toHaveLength(1);
+    expect(approvalCalls()[0].path)
+      .toBe('/api/programme-campaigns/pc-Duke/coaches/coach-1/first-touch-approval');
+    expect(approvalCalls()[0].method).toBe('POST');
+    /**
+     * The operator, the history snapshot and the timestamp are the server's to
+     * derive. A snapshot a caller could write would be an approval that never
+     * goes stale.
+     */
+    expect(approvalCalls()[0].body).toBeNull();
+  });
+
+  it('shows a pending state and cannot be submitted twice', async () => {
+    /**
+     * The request is held open, because pending is transient BY DESIGN: it ends
+     * when the fresh plan arrives, not when the POST returns, so a resolved
+     * request would have replaced it before an assertion could see it.
+     */
+    let release;
+    calls = [];
+    vi.stubGlobal('fetch', vi.fn(async (path, opts = {}) => {
+      calls.push({ path, method: opts.method || 'GET', body: opts.body ?? null });
+      if (String(path).includes('first-touch-approval')) {
+        return new Promise((r) => { release = () => r({
+          ok: true, status: 200, headers: { get: () => 'application/json' },
+          json: async () => ({}), text: async () => '{}',
+        }); });
+      }
+      const payload = String(path).includes('/execution-plan')
+        ? plan([heldForReview()]) : { campaigns: [CAMPAIGN] };
+      return {
+        ok: true, status: 200, headers: { get: () => 'application/json' },
+        json: async () => payload, text: async () => JSON.stringify(payload),
+      };
+    }));
+    await render();
+    await click(approveButton());
+    const confirm = confirmButton();
+    await click(confirm);
+    await click(confirm);
+
+    expect(approvalCalls()).toHaveLength(1);
+    expect(container.querySelector('[data-testid="approval-pending"]')).toBeTruthy();
+    expect(confirmButton()).toBeUndefined();
+    expect(release).toBeTruthy();
+  });
+
+  it('asks the server again rather than moving the card itself', async () => {
+    stubApi({ executionPlan: plan([heldForReview()]) });
+    await render();
+    const before = calls.filter((c) => c.path.includes('/execution-plan')).length;
+
+    await click(approveButton());
+    await click(confirmButton());
+
+    // Nothing is assumed about what the approval did: the next plan decides.
+    expect(calls.filter((c) => c.path.includes('/execution-plan')).length).toBe(before + 1);
+  });
+});
+
+describe('the plan that comes back decides what happens next', () => {
+  /** Approve, with the second execution-plan read returning `after`. */
+  async function approveThen(after) {
+    let planned = 0;
+    calls = [];
+    vi.stubGlobal('fetch', vi.fn(async (path, opts = {}) => {
+      calls.push({ path, method: opts.method || 'GET', body: opts.body ?? null });
+      let payload = { campaigns: [CAMPAIGN] };
+      if (String(path).includes('/execution-plan')) {
+        planned += 1;
+        payload = planned === 1 ? plan([heldForReview()]) : after;
+      }
+      if (String(path).includes('first-touch-approval')) payload = { approval: {}, firstTouchReview: {} };
+      return {
+        ok: true, status: 200, headers: { get: () => 'application/json' },
+        json: async () => payload, text: async () => JSON.stringify(payload),
+      };
+    }));
+    await render();
+    await click(buttons().find((b) => /Approve first touch/.test(b.textContent)));
+    await click(buttons().find((b) => b.textContent.includes('Confirm approval')));
+  }
+
+  it('lands in Ready when nothing else is in the way', async () => {
+    await approveThen(plan([programme({ collegeName: 'Duke', programmeCampaignId: 'pc-Duke' })]));
+    expect(section(GROUP.READY).textContent).toContain('Duke');
+    expect(section(GROUP.REVIEW)).toBeNull();
+  });
+
+  it('lands in Waiting when the mailbox limit is still unset', async () => {
+    /**
+     * APPROVAL CLEARS ONE HOLD. The campaign still cannot send, and the screen
+     * says so in the one place that is true — the banner — rather than pretending
+     * the approval finished the job.
+     */
+    await approveThen(plan([programme({
+      collegeName: 'Duke', programmeCampaignId: 'pc-Duke', executableNow: false,
+      blockers: [{ source: 'BUDGET', code: 'MAILBOX_LIMIT_REQUIRED' }],
+    })]));
+    expect(section(GROUP.WAITING).textContent).toContain('Duke');
+    expect(container.querySelector('[data-testid="campaign-banner"]')).toBeTruthy();
+  });
+
+  it('lands in Not contactable when a stance has been set since', async () => {
+    await approveThen(plan([programme({
+      collegeName: 'Duke', programmeCampaignId: 'pc-Duke', executableNow: false,
+      safety: { evaluated: true, allowed: false, reason: 'RELATIONSHIP_DO_NOT_CONTACT', kind: 'PROHIBITION' },
+      blockers: [{ source: 'SAFETY', code: 'RELATIONSHIP_DO_NOT_CONTACT' }],
+    })]));
+    expect(section(GROUP.BLOCKED).textContent).toContain('Duke');
+    expect(text()).toContain('Do not contact');
+  });
+
+  it('stays in Needs your review when the approval is already stale', async () => {
+    // Contact was recorded between the approval and the reload, so the review
+    // the operator gave no longer describes what is on file.
+    await approveThen(plan([heldForReview({
+      firstTouchReview: {
+        required: true, reason: 'PRIOR_CONFIRMED_CONTACT',
+        approval: { status: 'stale', approvedAt: '2026-09-15T09:00:00.000Z', approvedByOperatorId: 'op-1' },
+      },
+    })]));
+    expect(section(GROUP.REVIEW).textContent).toContain('Duke');
+    expect(buttons().find((b) => b.textContent === 'Review again')).toBeTruthy();
+  });
+});
+
+describe('a failed approval does not cost the operator the page', () => {
+  async function failWith({ status = 500, code = undefined, error = 'boom' } = {}) {
+    calls = [];
+    vi.stubGlobal('fetch', vi.fn(async (path, opts = {}) => {
+      calls.push({ path, method: opts.method || 'GET', body: opts.body ?? null });
+      if (String(path).includes('first-touch-approval')) {
+        return {
+          ok: false, status, headers: { get: () => 'application/json' },
+          text: async () => JSON.stringify({ error, code }),
+        };
+      }
+      const payload = String(path).includes('/execution-plan')
+        ? plan([heldForReview(), programme({ collegeName: 'Stanford', programmeCampaignId: 'pc-s' })])
+        : { campaigns: [CAMPAIGN] };
+      return {
+        ok: true, status: 200, headers: { get: () => 'application/json' },
+        json: async () => payload, text: async () => JSON.stringify(payload),
+      };
+    }));
+    await render();
+    await click(buttons().find((b) => /Approve first touch/.test(b.textContent)));
+    await click(buttons().find((b) => b.textContent.includes('Confirm approval')));
+  }
+
+  it('keeps the plan and says so on the card that tried', async () => {
+    await failWith();
+
+    /**
+     * A FAILED WRITE IS NOT A FAILED READ. The plan on screen is still the one
+     * the server sent and is still true, so replacing the page with the
+     * load-failure state would throw away something correct.
+     */
+    expect(cards()).toHaveLength(2);
+    expect(text()).not.toContain('could not be loaded');
+    const inline = container.querySelector('[data-testid="approval-error"]');
+    expect(inline).toBeTruthy();
+    expect(inline.textContent).toContain('Approval could not be recorded');
+    // On the card that tried, and not on the other one.
+    expect(inline.closest('[data-testid="campaign-programme"]').textContent).toContain('Duke');
+  });
+
+  it('lets the operator try again', async () => {
+    await failWith();
+    const before = calls.filter((c) => c.path.includes('first-touch-approval')).length;
+
+    await click(buttons().find((b) => /Approve first touch/.test(b.textContent)));
+    await click(buttons().find((b) => b.textContent.includes('Confirm approval')));
+    expect(calls.filter((c) => c.path.includes('first-touch-approval')).length).toBe(before + 1);
+  });
+
+  it('reads the plan again when the server says there is nothing to approve', async () => {
+    // Not a refusal: somebody else has changed something, and the honest answer
+    // is to go and look rather than argue with it.
+    await failWith({ status: 422, code: 'NO_REVIEW_REQUIRED' });
+    expect(calls.filter((c) => c.path.includes('/execution-plan')).length).toBe(2);
+    // At the page, because the reload may take the card that tried away.
+    expect(container.querySelector('[data-testid="campaign-notice"]').textContent)
+      .toMatch(/no longer a first-touch review/i);
+    expect(container.querySelector('[data-testid="approval-error"]')).toBeNull();
+  });
+
+  it('reads the plan again when the campaign has moved to another coach', async () => {
+    await failWith({ status: 422, code: 'COACH_NOT_IN_PURSUIT' });
+    expect(calls.filter((c) => c.path.includes('/execution-plan')).length).toBe(2);
+    expect(container.querySelector('[data-testid="campaign-notice"]').textContent)
+      .toMatch(/no longer approaching that coach/i);
+  });
+
+  it('re-resolves the campaign when it has gone', async () => {
+    await failWith({ status: 404, error: 'No campaign' });
+    // Back through the hook, which resolves the current campaign again — and
+    // would report none if the active one had closed.
+    expect(calls.filter((c) => c.path.includes('/campaigns')).length).toBeGreaterThan(1);
+    expect(container.querySelector('[data-testid="campaign-notice"]').textContent)
+      .toMatch(/could not be found/i);
+  });
+
+  it('never shows the operator a raw server code', async () => {
+    await failWith({ status: 422, code: 'NO_REVIEW_REQUIRED' });
+    expect(container.querySelector('[data-testid="campaign-notice"]').textContent)
+      .not.toMatch(/[A-Z]{4,}_[A-Z_]+/);
+    // And the plain failure keeps its own inline wording, with no code either.
+    await failWith();
+    expect(container.querySelector('[data-testid="approval-error"]').textContent)
+      .not.toMatch(/[A-Z]{4,}_[A-Z_]+/);
+  });
+});
+
+describe('the approval control is reachable and named', () => {
+  it('names the coach and the school for a screen reader', async () => {
+    stubApi({ executionPlan: plan([heldForReview()]) });
+    await render();
+
+    const label = buttons()
+      .find((b) => /Approve first touch/.test(b.textContent))
+      .getAttribute('aria-label');
+    expect(label).toBe('Approve first touch: John Smith at Duke');
+  });
+
+  it('announces a failure as an alert, on the panel that tried', async () => {
+    calls = [];
+    vi.stubGlobal('fetch', vi.fn(async (path, opts = {}) => {
+      calls.push({ path, method: opts.method || 'GET', body: opts.body ?? null });
+      if (String(path).includes('first-touch-approval')) {
+        return { ok: false, status: 500, headers: { get: () => 'application/json' },
+          text: async () => '{}' };
+      }
+      const payload = String(path).includes('/execution-plan')
+        ? plan([heldForReview()]) : { campaigns: [CAMPAIGN] };
+      return { ok: true, status: 200, headers: { get: () => 'application/json' },
+        json: async () => payload, text: async () => JSON.stringify(payload) };
+    }));
+    await render();
+    await click(buttons().find((b) => /Approve first touch/.test(b.textContent)));
+    await click(buttons().find((b) => b.textContent.includes('Confirm approval')));
+
+    expect(container.querySelector('[data-testid="approval-error"]').getAttribute('role'))
+      .toBe('alert');
+  });
+
+  it('is a real button, so it is keyboard reachable', async () => {
+    stubApi({ executionPlan: plan([heldForReview()]) });
+    await render();
+    const approve = buttons().find((b) => /Approve first touch/.test(b.textContent));
+    expect(approve.tagName).toBe('BUTTON');
+    expect(approve.disabled).toBe(false);
   });
 });

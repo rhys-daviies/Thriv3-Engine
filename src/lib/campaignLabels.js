@@ -281,6 +281,47 @@ export const CAMPAIGN_STATE_COPY = Object.freeze({
   closed: 'Closed',
 });
 
+/**
+ * WHY AN APPROVAL DID NOT RECORD, IN WORDS.
+ *
+ * Two of these are not really failures: the server has simply moved on since
+ * the page was drawn — somebody sent a message, the plan advanced to another
+ * coach — and the honest response is to read the plan again rather than argue
+ * with it. `refresh` says which those are.
+ *
+ * The raw code is never the operator's text. It is a name for a rule, not a
+ * sentence about what happened.
+ */
+export const APPROVAL_ERROR = Object.freeze({
+  NO_REVIEW_REQUIRED: {
+    message: 'There is no longer a first-touch review to approve here. Reloading the campaign.',
+    refresh: true,
+  },
+  COACH_NOT_IN_PURSUIT: {
+    message: 'This campaign is no longer approaching that coach. Reloading the campaign.',
+    refresh: true,
+  },
+  CAMPAIGN_NOT_FOUND: {
+    message: 'This campaign could not be found. Reloading.',
+    refresh: true,
+  },
+  PROGRAMME_CAMPAIGN_NOT_FOUND: {
+    message: 'This programme is no longer part of the campaign. Reloading.',
+    refresh: true,
+  },
+});
+
+const APPROVAL_FAILED = Object.freeze({
+  message: 'Approval could not be recorded. Try again.',
+  refresh: false,
+});
+
+/** What to tell the operator, and whether to go and look again. */
+export function approvalError(err) {
+  if (err?.status === 404) return APPROVAL_ERROR.CAMPAIGN_NOT_FOUND;
+  return APPROVAL_ERROR[err?.code] ?? APPROVAL_FAILED;
+}
+
 /** A date an operator reads, from the ISO dates and timestamps the plan carries. */
 export function shortDate(value) {
   if (!value) return null;
