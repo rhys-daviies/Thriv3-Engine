@@ -278,6 +278,29 @@ export const campaigns = {
     const qs = onDate ? `?on_date=${encodeURIComponent(onDate)}` : '';
     return request(`/api/campaigns/${campaignId}/execution-plan${qs}`);
   },
+
+  /**
+   * RECORD THAT A PERSON HAS REVIEWED A COACH'S PRIOR CONTACT.
+   *
+   * The one write that clears a first-touch review hold, and it SENDS NO BODY
+   * AT ALL. Everything an approval records — who approved it, how much history
+   * was on file, when the last of it was sent — is derived server-side from the
+   * pursuit plan and the session, and the endpoint does not read a body.
+   *
+   * That is the point rather than an economy. A snapshot a caller could write
+   * would be an approval that never goes stale, or one that matches nothing;
+   * an operator id a caller could write would be somebody else's decision.
+   *
+   * Returns `{ approval, firstTouchReview }` — the row as stored, and where the
+   * review stands afterwards, re-derived rather than asserted. A review that is
+   * already current comes back unchanged rather than being rewritten.
+   */
+  approveFirstTouch(programmeCampaignId, coachId) {
+    return request(
+      `/api/programme-campaigns/${programmeCampaignId}/coaches/${coachId}/first-touch-approval`,
+      { method: 'POST' },
+    );
+  },
 };
 
 /**
