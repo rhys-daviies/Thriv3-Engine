@@ -3,6 +3,7 @@ import db from '../db/client.js';
 import { utcNow } from './time.js';
 import { generateToken, generateUnique } from './tokens.js';
 import { authorisedProgrammeCampaignId } from './campaignAttribution.js';
+import { assertFirstTouchReviewed } from './campaignFirstTouchGate.js';
 
 const tokenTaken = (candidate) => !!db.prepare('SELECT 1 FROM outreach WHERE token = ?').get(candidate);
 
@@ -56,6 +57,15 @@ export function createOutreach({
   const verified = authorisedProgrammeCampaignId({
     programmeCampaignId, athleteId, coachId, outreachId: existing?.id ?? null, onDate,
   });
+
+  /**
+   * AND THE SAME FIRST-TOUCH REVIEW A CAMPAIGN OBEYS — F7.
+   *
+   * Asked with the VERIFIED id, so a campaign a caller does not own cannot
+   * invoke the rule or clear it. Null means the manual paths, which are not
+   * gated at all.
+   */
+  assertFirstTouchReviewed({ programmeCampaignId: verified, coachId });
 
   // Returned UNCHANGED, including a NULL provenance. This is the line that
   // keeps "first created under" true.
