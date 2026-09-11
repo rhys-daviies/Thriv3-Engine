@@ -45,6 +45,19 @@ function stubFetch(handler) {
   vi.stubGlobal('fetch', vi.fn(async (path, opts) => {
     const body = opts?.body ? JSON.parse(opts.body) : null;
     calls.push({ path, body });
+    /**
+     * ANSWERED HERE AND NEVER HANDED TO `handler`.
+     *
+     * MatchingTab also loads the athlete's programme relationships, which is
+     * nothing to do with recruiting signals. Letting that request share the
+     * handler's queue renumbers every resolver the out-of-order tests below
+     * index into, and they would fail describing a bug that was not there.
+     * `calls` still records it, so the one-request-per-page assertions are
+     * unaffected.
+     */
+    if (!path.includes('/matching-summary')) {
+      return ok({ programmes: [] });
+    }
     if (handler) {
       const res = handler(path, body);
       if (res) return res;

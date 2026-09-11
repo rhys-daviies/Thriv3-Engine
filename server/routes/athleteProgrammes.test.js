@@ -293,6 +293,59 @@ describe('GET /api/players/:playerId/programmes', () => {
   });
 });
 
+describe('presentation fields read live from the registry', () => {
+  /**
+   * The deliberate opposite of `programme_campaigns`, which snapshots division
+   * and conference because a campaign records what was true when it was made.
+   * A relationship is a statement about now, so a realignment should change
+   * what the screen says rather than leave it describing last season.
+   */
+  it('carries division, conference and location without storing them', async () => {
+    const { body } = await post(`/api/players/${ATHLETE}/programmes`, { college_id: duke });
+    expect(body.programme).toMatchObject({
+      college_name: 'Duke', division: 'NCAA D1', conference: 'ACC',
+      city: 'Durham', state: 'NC', college_active: 1,
+    });
+
+    // Not columns on the table — nothing was written for them.
+    const columns = db.prepare('PRAGMA table_info(athlete_programmes)').all().map((c) => c.name);
+    for (const field of ['division', 'conference', 'city', 'state']) {
+      expect(columns, `${field} must not be stored on the relationship`).not.toContain(field);
+    }
+  });
+
+  it('follows the registry when it changes, rather than a stale copy', async () => {
+    const { body } = await post(`/api/players/${ATHLETE}/programmes`, { college_id: duke });
+    db.prepare("UPDATE colleges SET conference = 'Big Ten' WHERE id = ?").run(duke);
+
+    const after = await get(`/api/players/${ATHLETE}/programmes/${body.programme.id}`);
+    expect(after.body.programme.conference).toBe('Big Ten');
+  });
+
+  it('reports a programme that has since been retired', async () => {
+    const { body } = await post(`/api/players/${ATHLETE}/programmes`, { college_id: duke });
+    db.prepare('UPDATE colleges SET active = 0 WHERE id = ?').run(duke);
+
+    const after = await get(`/api/players/${ATHLETE}/programmes/${body.programme.id}`);
+    // The relationship is still real and still listed. What changed is that
+    // the screen can now tell it is not a live programme.
+    expect(after.body.programme.college_name).toBe('Duke');
+    expect(after.body.programme.college_active).toBe(0);
+  });
+
+  it('keeps the relationship readable when the registry row is gone', async () => {
+    const { body } = await post(`/api/players/${ATHLETE}/programmes`, { college_id: duke });
+    db.prepare('DELETE FROM colleges WHERE id = ?').run(duke);
+
+    const after = await get(`/api/players/${ATHLETE}/programmes/${body.programme.id}`);
+    // A LEFT JOIN, so the identity on the row stands on its own. The
+    // relationship does not vanish from its own list.
+    expect(after.body.programme.college_name).toBe('Duke');
+    expect(after.body.programme.division).toBeNull();
+    expect(after.body.programme.college_active).toBeNull();
+  });
+});
+
 describe('no route here creates a global suppression', () => {
   it('leaves the suppressions table empty across the whole API surface', async () => {
     const { body } = await post(`/api/players/${ATHLETE}/programmes`, {

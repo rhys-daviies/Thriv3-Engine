@@ -112,6 +112,14 @@ function relationship(row) {
     note_updated_at: row.note_updated_at,
     created_at: row.created_at,
     updated_at: row.updated_at,
+    // Read live from `colleges` at request time, not stored on the row — see
+    // JOIN_REGISTRY in server/lib/athleteProgrammes.js. Null when the registry
+    // row has gone; the relationship and its own identity survive that.
+    division: row.division ?? null,
+    conference: row.conference ?? null,
+    city: row.city ?? null,
+    state: row.state ?? null,
+    college_active: row.college_active ?? null,
   };
 }
 
