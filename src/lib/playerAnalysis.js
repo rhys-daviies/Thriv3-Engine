@@ -1,6 +1,7 @@
 import { entities } from '@/api/client';
 import { CURRENT_ROSTER_SEASON } from '@/lib/divisions';
 import { buildRosterIndex, rankMatches, normaliseAthlete } from '@shared/matching/pool.js';
+import { splitRanked } from '@shared/matching/reserve.js';
 import { positionNoun } from '@shared/positions.js';
 
 /**
@@ -73,7 +74,15 @@ export async function analyze(player, { onPhase, onProgress }) {
   onPhase(3);
   const { results, excluded, poolSize } = rankMatches({ athlete, colleges: allColleges, rosterIndex });
 
-  const top100 = results.slice(0, 100).map((r) => ({
+  /**
+   * The presentation shape a match card, an email template and a campaign
+   * snapshot all read. Extracted from the Top 100 map it used to be inlined
+   * in, because the reserve below must be shaped IDENTICALLY: a programme
+   * promoted out of reserve is rendered by the same card and frozen by the
+   * same snapshot code as the rank it replaced, and a reserve entry missing
+   * these fields would fail at whichever of those it reached first.
+   */
+  const decorate = (r) => ({
     ...r,
     program_quality_rating: r.soccer_score != null ? r.soccer_score / 10 : null,
     coaching_staff: coachingStaffMap[r.name] || [],
@@ -90,7 +99,18 @@ export async function analyze(player, { onPhase, onProgress }) {
     graduating_senior_names_at_position: r.graduating_names_at_position,
     graduating_starter_names_at_position: r.graduating_starter_names_at_position,
     position_need: r.labels.roster === 'high' ? 'High' : r.labels.roster === 'medium' ? 'Medium' : 'Low',
-  }));
+  });
+
+  /**
+   * ONE RANKED LIST, STORED IN TWO PIECES. `recommendations` stays exactly the
+   * hundred it has always been — every reader of this blob, the campaign
+   * snapshot included, sees what it saw before — and `reserve` carries ranks
+   * 101-150 so that a later suppression has something to promote. See
+   * shared/matching/reserve.js for why the second array exists at all.
+   */
+  const split = splitRanked(results);
+  const top100 = split.top.map(decorate);
+  const reserve = split.reserve.map(decorate);
 
   const withOpportunity = top100.filter((r) => r.graduating_starters_at_position > 0).length;
   const unrated = top100.filter((r) => r.academic_rating == null).length;
@@ -112,5 +132,5 @@ export async function analyze(player, { onPhase, onProgress }) {
     unrated ? `${unrated} are shown without an academic rating rather than hidden.` : null,
   ].filter(Boolean).join(' ');
 
-  return { recommendations: top100, summary };
+  return { recommendations: top100, reserve, summary };
 }
