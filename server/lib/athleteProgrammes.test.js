@@ -3,6 +3,7 @@ import db from '../db/client.js';
 import {
   listAthleteProgrammes, getAthleteProgramme, findRelationship,
   upsertAthleteProgramme as upsertRaw, updateAthleteProgramme,
+  suppressedProgrammesForAthlete,
 } from './athleteProgrammes.js';
 
 /**
@@ -10,7 +11,7 @@ import {
  * row, so they unwrap it; the block on one-row-per-programme asserts the flag
  * itself.
  */
-const upsertAthleteProgramme = (athleteId, fields) => upsertRaw(athleteId, fields).programme;
+const upsertAthleteProgramme = (athleteId, fields, opts) => upsertRaw(athleteId, fields, opts).programme;
 
 /**
  * The relationship model, exercised through the module that owns it.
@@ -50,7 +51,7 @@ function insertAthlete(id, sport = 'mens-soccer') {
 
 let duke;
 beforeEach(() => {
-  db.exec('DELETE FROM athlete_programmes; DELETE FROM suppressions; DELETE FROM colleges; DELETE FROM players;');
+  db.exec('DELETE FROM athlete_programmes; DELETE FROM suppressions; DELETE FROM colleges; DELETE FROM players; DELETE FROM operator_users;');
   insertAthlete(ATHLETE);
   insertAthlete(OTHER);
   insertAthlete(WOMENS, 'womens-soccer');
@@ -372,6 +373,188 @@ describe('listing', () => {
 });
 
 // ---------------------------------------------------------------------------
+
+describe('the four decisions are independent of each other', () => {
+  /**
+   * THE PROPERTY THIS WHOLE SLICE RESTS ON.
+   *
+   * A school can be specifically requested, flagged as an existing
+   * relationship, still in the actionable Top 100, and manual-only for
+   * outreach — all at once, on one row. Each test below changes exactly one of
+   * those and asserts the other three did not move. A regression here would
+   * not throw; it would quietly hide a school, or silence a coach, because
+   * somebody flagged something.
+   */
+  const everything = {
+    request_state: 'requested',
+    requested_by: 'family',
+    flagged: true,
+    flag_reason: 'the head coach recruited her sister',
+    visibility: 'suppressed',
+    contact_stance: 'manual_only',
+    note: 'Handled by the family directly.',
+  };
+
+  function loaded(fields = everything) {
+    return upsertAthleteProgramme(ATHLETE, { college_id: duke, ...fields });
+  }
+
+  it('flagging sets flagged and touches nothing else', () => {
+    const before = loaded({ ...everything, flagged: false, flag_reason: null });
+    const after = updateAthleteProgramme(ATHLETE, before.id, {
+      flagged: true, flag_reason: 'Thriv3 personal contact',
+    });
+
+    expect(after.flagged).toBe(true);
+    expect(after.flag_reason).toBe('Thriv3 personal contact');
+    expect(after.flagged_at).toBeTruthy();
+    // The other three, unmoved.
+    expect(after.request_state).toBe('requested');
+    expect(after.requested_by).toBe('family');
+    expect(after.visibility).toBe('suppressed');
+    expect(after.contact_stance).toBe('manual_only');
+    expect(after.note).toBe(everything.note);
+  });
+
+  it('unflagging clears the flag and does NOT restore visibility', () => {
+    const before = loaded();
+    const after = updateAthleteProgramme(ATHLETE, before.id, { flagged: false });
+
+    expect(after.flagged).toBe(false);
+    expect(after.flag_reason).toBeNull();
+    // The operator made two decisions and has revisited one of them. A school
+    // removed from the Top 100 stays removed.
+    expect(after.visibility).toBe('suppressed');
+    expect(after.request_state).toBe('requested');
+    expect(after.contact_stance).toBe('manual_only');
+    expect(after.note).toBe(everything.note);
+  });
+
+  it('suppressing visibility touches nothing else', () => {
+    const before = loaded({ ...everything, visibility: 'default' });
+    const after = updateAthleteProgramme(ATHLETE, before.id, { visibility: 'suppressed' });
+
+    expect(after.visibility).toBe('suppressed');
+    expect(after.flagged).toBe(true);
+    expect(after.flag_reason).toBe(everything.flag_reason);
+    expect(after.request_state).toBe('requested');
+    // Removing a school from a ranked list is NOT saying nobody may write to
+    // it. Those are different decisions and this must not imply the other.
+    expect(after.contact_stance).toBe('manual_only');
+    expect(after.note).toBe(everything.note);
+  });
+
+  it('restoring visibility touches nothing else', () => {
+    const before = loaded();
+    const after = updateAthleteProgramme(ATHLETE, before.id, { visibility: 'default' });
+
+    expect(after.visibility).toBe('default');
+    expect(after.flagged).toBe(true);
+    expect(after.request_state).toBe('requested');
+    expect(after.contact_stance).toBe('manual_only');
+    expect(after.note).toBe(everything.note);
+  });
+
+  it('flagging never implies a contact stance in either direction', () => {
+    const row = upsertAthleteProgramme(ATHLETE, {
+      college_id: duke, flagged: true, flag_reason: 'athlete already in contact',
+    });
+    expect(row.contact_stance).toBe('default');
+    expect(row.visibility).toBe('default');
+
+    const cleared = updateAthleteProgramme(ATHLETE, row.id, { flagged: false });
+    expect(cleared.contact_stance).toBe('default');
+  });
+
+  it('updating the note touches nothing else', () => {
+    const before = loaded();
+    const after = updateAthleteProgramme(ATHLETE, before.id, { note: 'Spoke to the mother 12 Sept' });
+
+    expect(after.note).toBe('Spoke to the mother 12 Sept');
+    expect(after.flagged).toBe(true);
+    expect(after.visibility).toBe('suppressed');
+    expect(after.request_state).toBe('requested');
+    expect(after.contact_stance).toBe('manual_only');
+  });
+
+  it('holds all four at once on one row', () => {
+    const row = loaded();
+    expect(row).toMatchObject({
+      request_state: 'requested', flagged: true,
+      visibility: 'suppressed', contact_stance: 'manual_only',
+    });
+    expect(listAthleteProgrammes(ATHLETE)).toHaveLength(1);
+  });
+});
+
+describe('operator attribution', () => {
+  /**
+   * Bounded on purpose: WHO THE STATE BELONGS TO NOW, not a history of every
+   * change. `operator_users` and `attachOperator` exist, and
+   * `connected_mailboxes.operator_user_id` already set the convention for
+   * pointing at them. A full append-only log is a bigger thing and needs its
+   * own reason.
+   */
+  const OPERATOR = 'op-1';
+  beforeEach(() => {
+    db.prepare(`
+      INSERT INTO operator_users (id, email, password_hash, created_at)
+      VALUES (?, 'op@test', 'x', '2026-09-11T00:00:00.000Z')
+    `).run(OPERATOR);
+  });
+
+  it('records who flagged it and who wrote the note', () => {
+    const row = upsertAthleteProgramme(
+      ATHLETE,
+      { college_id: duke, flagged: true, flag_reason: 'knows the coach', note: 'call first' },
+      { operatorId: OPERATOR },
+    );
+    expect(row.flagged_by_operator_id).toBe(OPERATOR);
+    expect(row.note_updated_by_operator_id).toBe(OPERATOR);
+  });
+
+  it('clears the author when the flag or the note goes', () => {
+    const row = upsertAthleteProgramme(
+      ATHLETE, { college_id: duke, flagged: true, flag_reason: 'x', note: 'y' },
+      { operatorId: OPERATOR },
+    ).id;
+    const after = updateAthleteProgramme(ATHLETE, row, { flagged: false, note: null });
+    // An author with nothing to have authored reads worse than no author.
+    expect(after.flagged_by_operator_id).toBeNull();
+    expect(after.note_updated_by_operator_id).toBeNull();
+  });
+
+  it('records null rather than inventing one when nobody is signed in', () => {
+    const row = upsertAthleteProgramme(ATHLETE, {
+      college_id: duke, flagged: true, flag_reason: 'x',
+    });
+    expect(row.flagged_by_operator_id).toBeNull();
+  });
+
+  it('refuses an operator id that names nobody', () => {
+    expect(() => upsertAthleteProgramme(
+      ATHLETE, { college_id: duke, flagged: true, flag_reason: 'x' },
+      { operatorId: 'ghost' },
+    )).toThrowError(/FOREIGN KEY/);
+  });
+});
+
+describe('suppressedProgrammesForAthlete', () => {
+  it('names only this athlete’s suppressed programmes, in this sport', () => {
+    const unc = college({ name: 'North Carolina' });
+    upsertAthleteProgramme(ATHLETE, { college_id: duke, visibility: 'suppressed' });
+    upsertAthleteProgramme(ATHLETE, { college_id: unc, flagged: true, flag_reason: 'x' });
+    upsertAthleteProgramme(OTHER, { college_id: unc, visibility: 'suppressed' });
+
+    expect(suppressedProgrammesForAthlete(ATHLETE, 'mens-soccer')).toEqual(['Duke']);
+    expect(suppressedProgrammesForAthlete(OTHER, 'mens-soccer')).toEqual(['North Carolina']);
+    expect(suppressedProgrammesForAthlete(ATHLETE, 'womens-soccer')).toEqual([]);
+  });
+
+  it('is empty for an athlete with no relationships at all', () => {
+    expect(suppressedProgrammesForAthlete(ATHLETE, 'mens-soccer')).toEqual([]);
+  });
+});
 
 describe('the global suppression table is never touched', () => {
   /**

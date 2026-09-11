@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import ProgrammeDecision from '@/components/ProgrammeDecision';
 import { useOperatorEvidence, operatorEvidenceForCollege } from '@/lib/useOperatorEvidence';
 import { usePlayerWorkspace } from './PlayerWorkspace';
+import ActionableRecommendationsState, { isActionablePending } from '@/components/ActionableRecommendationsState';
 
 /**
  * Why Thriv3 believes each matched programme is worth this athlete's attention.
@@ -25,7 +26,19 @@ import { usePlayerWorkspace } from './PlayerWorkspace';
 const PAGE = 20;
 
 export default function DecisionTab() {
-  const { player, recommendations } = usePlayerWorkspace();
+  /**
+   * THE ACTIONABLE SET, NOT THE RAW ANALYSIS.
+   *
+   * This page assesses the programmes an operator is currently working, so a
+   * school removed from this athlete's Top 100 must not appear here — it
+   * appearing on three tabs after being removed on a fourth is worse than not
+   * having the control at all. Derived once in PlayerWorkspace; see
+   * src/lib/useActionableRecommendations.js.
+   *
+   * `recommendations` is still on the context and still authoritative. It is
+   * not what this view is about.
+   */
+  const { player, actionableRecommendations: recommendations, actionableStatus, reload } = usePlayerWorkspace();
 
   /**
    * A match card can send an operator straight to one programme.
@@ -85,6 +98,16 @@ export default function DecisionTab() {
 
   const names = useMemo(() => filtered.map((r) => r.name), [filtered]);
   const { data, loading, failed } = useOperatorEvidence(player?.id, names);
+
+  /**
+   * NOT KNOWN YET IS NOT THE SAME AS NOT ANALYSED, and neither is rendered as
+   * the raw list. Checked before the two branches below so that a school the
+   * operator removed cannot appear for the paint between the analysis arriving
+   * and the relationships arriving.
+   */
+  if (isActionablePending(actionableStatus)) {
+    return <ActionableRecommendationsState status={actionableStatus} onRetry={reload} />;
+  }
 
   if (!recommendations) {
     return (

@@ -252,9 +252,23 @@ describe('reads', () => {
   it('carries the provenance on the detail view', async () => {
     const created = await makeCampaign(ATHLETE, {}, 10);
     const { body } = await get(`/api/campaigns/${created.campaign.id}`);
-    expect(body.campaign.matching_inputs.schema).toBe('campaign-matching-inputs/1');
+    expect(body.campaign.matching_inputs.schema).toBe('campaign-matching-inputs/2');
     expect(body.campaign.matching_inputs.model.id).toBe('SIX_CRITERION_V1');
     expect(body.campaign.matching_inputs.athlete.provenance).toBe('SNAPSHOT_TIME');
+
+    /**
+     * Schema 2 adds the third provenance: what a PERSON decided about this
+     * athlete, read when the campaign was frozen. Without it, "why is Stanford
+     * not in here" has no answer a year later — the analysis still contains
+     * Stanford and always will.
+     */
+    const actionable = body.campaign.matching_inputs.actionable;
+    expect(actionable.provenance).toBe('OPERATOR_TIME');
+    expect(actionable.suppressed_count).toBe(0);
+    expect(actionable.suppressed).toEqual([]);
+    expect(actionable.promoted).toEqual([]);
+    expect(actionable.actionable_count).toBe(10);
+    expect(actionable.reserve_exhausted).toBe(false);
   });
 
   it('404s a campaign that does not exist', async () => {

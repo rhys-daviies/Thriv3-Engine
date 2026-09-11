@@ -8,12 +8,14 @@ import EmailComposer from '@/components/EmailComposer';
 import BulkEmailComposer from '@/components/BulkEmailComposer';
 import SpecificSearch from '@/components/SpecificSearch';
 import SpecificSchools from '@/components/SpecificSchools';
+import ProgrammeRelationship from '@/components/ProgrammeRelationship';
+import SuppressedProgrammes from '@/components/SuppressedProgrammes';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
 import { cn } from '@/lib/utils';
 import { useMatchingSummary, recruitingSignalsForCollege } from '@/lib/useMatchingSummary';
-import { useAthleteProgrammes } from '@/lib/useAthleteProgrammes';
 import { usePlayerWorkspace } from './PlayerWorkspace';
+import ActionableRecommendationsState, { isActionablePending } from '@/components/ActionableRecommendationsState';
 
 const PAGE_SIZE = 20;
 const MAX_PAGE_BUTTONS = 5;
@@ -49,7 +51,17 @@ function PhaseStep({ icon: Icon, title, description, active, done }) {
 }
 
 export default function MatchingTab() {
-  const { player, setPlayer, recommendations, summary, analyzing, phase, progress, page, setPage, onAnalyze } = usePlayerWorkspace();
+  const {
+    player, setPlayer, recommendations, summary, analyzing, phase, progress, page, setPage, onAnalyze,
+    // Derived once in PlayerWorkspace and shared by every tab that claims to
+    // show this athlete's recommendation set — see
+    // src/lib/useActionableRecommendations.js.
+    actionableRecommendations, actionableStatus, reload,
+    programmes: relationships, specific, byCollegeId, byCollegeName,
+    loading: programmesLoading, failed: programmesFailed,
+    pending, error: programmeError, clearError, add, withdraw,
+    flag, unflag, setVisibility, saveNote,
+  } = usePlayerWorkspace();
   const [emailTarget, setEmailTarget] = useState(null);
   const [showBulk, setShowBulk] = useState(false);
   /**
@@ -81,11 +93,6 @@ export default function MatchingTab() {
    * `recommendations` is read a rank off it to display alongside a specific
    * school that happens also to be ranked.
    */
-  const {
-    specific, byCollegeId, loading: programmesLoading, failed: programmesFailed,
-    pending, error: programmeError, clearError, add, withdraw,
-  } = useAthleteProgrammes(player?.id);
-
   /**
    * Opening the search also moves to the Specific Schools view, so a school
    * added from it lands somewhere the operator is already looking. Adding one
@@ -111,8 +118,16 @@ export default function MatchingTab() {
     await onAnalyze(updated);
   }
 
-  const totalPages = recommendations ? Math.ceil(recommendations.length / PAGE_SIZE) : 0;
-  const pageItems = recommendations ? recommendations.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : [];
+  /**
+   * THE ACTIONABLE HUNDRED. Derived in the workspace, not here, so Decision,
+   * Evidence and Philosophy read the same list rather than three subtly
+   * different ones. `recommendations` remains the model's untouched answer and
+   * is still on the context for anything that needs it.
+   */
+  const visible = actionableRecommendations;
+
+  const totalPages = visible ? Math.ceil(visible.length / PAGE_SIZE) : 0;
+  const pageItems = visible ? visible.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : [];
   const pageButtons = Array.from({ length: Math.min(totalPages, MAX_PAGE_BUTTONS) }, (_, i) => i + 1);
 
   /**
@@ -237,7 +252,17 @@ export default function MatchingTab() {
         </div>
       )}
 
-      {recommended && recommendations && !analyzing && (
+      {/*
+        THE RECOMMENDED VIEW WAITS. The tab bar and Specific Search stay put —
+        they do not depend on visibility — but the ranked cards are not drawn
+        until the athlete's own decisions are known, because drawing them early
+        means drawing a school that was removed.
+      */}
+      {recommended && recommendations && !analyzing && isActionablePending(actionableStatus) && (
+        <ActionableRecommendationsState status={actionableStatus} onRetry={reload} />
+      )}
+
+      {recommended && recommendations && !analyzing && !isActionablePending(actionableStatus) && (
         <>
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <Button size="sm" onClick={() => setShowBulk(true)} disabled={headCoachCount === 0}>
@@ -257,6 +282,17 @@ export default function MatchingTab() {
           {showPriorities && (
             <CriteriaRanking player={player} onApply={applyRanking} busy={analyzing} />
           )}
+
+          {/*
+            The way back. Removing a school takes its card — and the control
+            that would restore it — off the page, so the decision would
+            otherwise be one-way.
+          */}
+          <SuppressedProgrammes
+            suppressed={relationships.filter((p) => p.visibility === 'suppressed')}
+            pending={pending}
+            onRestore={setVisibility}
+          />
 
           {/*
             A FAILED REQUEST IS SAID ONCE, HERE.
@@ -282,6 +318,20 @@ export default function MatchingTab() {
                 onEmailCoaches={setEmailTarget}
                 playerId={player?.id}
                 recruitingSignals={recruitingSignalsForCollege(signalData, college.name)}
+                footer={(
+                  <ProgrammeRelationship
+                    collegeName={college.name}
+                    collegeId={college.id}
+                    relationship={byCollegeName.get(college.name) ?? null}
+                    busy={pending === college.id}
+                    error={programmeError?.collegeId === college.id ? programmeError : null}
+                    promotedFrom={college.promoted ? college.source_rank : null}
+                    onFlag={flag}
+                    onUnflag={unflag}
+                    onSetVisibility={setVisibility}
+                    onSaveNote={saveNote}
+                  />
+                )}
               />
             ))}
           </div>

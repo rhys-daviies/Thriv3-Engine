@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { entities, integrations } from '@/api/client';
 import { analyze } from '@/lib/playerAnalysis';
 import { readReserve } from '@shared/matching/reserve.js';
+import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 import { cn } from '@/lib/utils';
 
 const TABS = [
@@ -85,12 +86,35 @@ export default function PlayerWorkspace() {
   const [player, setPlayer] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [recommendations, setRecommendations] = useState(null);
+  /**
+   * Ranks 101-150, carried onto the context so the Matching tab can derive the
+   * ACTIONABLE hundred — a programme an operator removed is replaced from
+   * here. Never rendered on its own: the reserve is a replacement for
+   * something taken out, not an extension of the list.
+   */
+  const [reserve, setReserve] = useState([]);
   const [summary, setSummary] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
   const [phase, setPhase] = useState(0);
   const [progress, setProgress] = useState({ current: 0, total: 0, school: '' });
   const [page, setPage] = useState(1);
   const [saveError, setSaveError] = useState(null);
+
+  /**
+   * DERIVED ONCE, HERE, FOR EVERY TAB.
+   *
+   * `recommendations` and `reserve` stay exactly what the analysis produced.
+   * `actionableRecommendations` is what the operator has decided to act on —
+   * the same list on Matching, Decision, Evidence and Philosophy, so a school
+   * removed from this athlete's Top 100 is removed from all four rather than
+   * from whichever one happened to be looked at.
+   */
+  const {
+    actionableRecommendations, actionableStatus, derived,
+    programmes, specific, byCollegeId, byCollegeName,
+    loading, settled, failed, pending, error, clearError,
+    add, withdraw, apply, flag, unflag, setVisibility, saveNote, reload,
+  } = useActionableRecommendations({ playerId: player?.id, recommendations, reserve });
 
   useEffect(() => {
     let cancelled = false;
@@ -110,6 +134,7 @@ export default function PlayerWorkspace() {
       const stored = await loadStoredAnalysis(p.recommendations);
       if (cancelled || !stored) return;
       setRecommendations(stored.recommendations);
+      setReserve(stored.reserve || []);
       setSummary(stored.summary);
     })();
     return () => { cancelled = true; };
@@ -131,6 +156,7 @@ export default function PlayerWorkspace() {
     try {
       const result = await analyze(subject, { onPhase: setPhase, onProgress: setProgress });
       setRecommendations(result.recommendations);
+      setReserve(readReserve(result));
       setSummary(result.summary);
 
       // Ranking and persisting are separate failures and only one of them was
@@ -238,11 +264,47 @@ export default function PlayerWorkspace() {
         </p>
       )}
 
+      {/*
+        EVERY KEY NAMED, never spread.
+        src/pages/player/workspaceContext.test.js reads this object as SOURCE
+        TEXT to check that no tab destructures a key the workspace does not
+        publish — the check that would have caught EvidenceTab reading a
+        non-existent `analysis`. A spread here is invisible to that check, so
+        the relationship helpers are listed out even though they arrive
+        together.
+      */}
       <Outlet context={{
-        player, setPlayer,
-        recommendations, summary,
-        analyzing, phase, progress,
-        page, setPage,
+        player,
+        setPlayer,
+        recommendations,
+        reserve,
+        summary,
+        actionableRecommendations,
+        actionableStatus,
+        derived,
+        programmes,
+        specific,
+        byCollegeId,
+        byCollegeName,
+        loading,
+        settled,
+        failed,
+        pending,
+        error,
+        clearError,
+        add,
+        withdraw,
+        apply,
+        flag,
+        unflag,
+        setVisibility,
+        saveNote,
+        reload,
+        analyzing,
+        phase,
+        progress,
+        page,
+        setPage,
         onAnalyze: handleAnalyze,
       }} />
     </div>

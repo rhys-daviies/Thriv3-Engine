@@ -53,6 +53,7 @@ const SELECT_COLUMNS = `
   ap.flagged, ap.flag_reason, ap.flagged_at,
   ap.visibility, ap.contact_stance,
   ap.note, ap.note_updated_at,
+  ap.flagged_by_operator_id, ap.note_updated_by_operator_id,
   ap.created_at, ap.updated_at,
   c.division   AS division,
   c.conference AS conference,
@@ -207,7 +208,7 @@ function text(value, field) {
  * emphatically NOT an operator identity — 'operator' means "a member of staff
  * added this", not which one. Nothing in this build can say which one.
  */
-function normalisePatch(patch, current) {
+function normalisePatch(patch, current, operatorId = null) {
   const out = {};
   const now = utcNow();
 
@@ -256,11 +257,16 @@ function normalisePatch(patch, current) {
       }
       out.flag_reason = reason;
       if (!current || current.flagged !== true) out.flagged_at = now;
+      // Stamped on every flag write, not only the first: an operator who
+      // changes the reason owns the reason that is now on the row.
+      out.flagged_by_operator_id = operatorId;
     } else {
-      // Unflagging clears the reason and the timestamp together. A stale
-      // reason under flagged = 0 reads as a flag in every list view.
+      // Unflagging clears the reason, the timestamp and the author together. A
+      // stale reason under flagged = 0 reads as a flag in every list view, and
+      // an author with nothing to have authored reads worse.
       out.flag_reason = null;
       out.flagged_at = null;
+      out.flagged_by_operator_id = null;
     }
   } else if ('flag_reason' in patch) {
     const reason = text(patch.flag_reason, 'flag_reason');
@@ -279,6 +285,7 @@ function normalisePatch(patch, current) {
   if ('note' in patch) {
     out.note = text(patch.note, 'note');
     out.note_updated_at = out.note === null ? null : now;
+    out.note_updated_by_operator_id = out.note === null ? null : operatorId;
   }
 
   return { patch: out, now };
@@ -302,12 +309,12 @@ function normalisePatch(patch, current) {
  * be to count rows before and after, and a caller that guesses from
  * `created_at === updated_at` is wrong for the upsert that changed nothing.
  */
-export function upsertAthleteProgramme(athleteId, { college_id: collegeId, ...fields } = {}) {
+export function upsertAthleteProgramme(athleteId, { college_id: collegeId, ...fields } = {}, { operatorId = null } = {}) {
   const athlete = requireAthlete(athleteId);
   const { college, sport } = resolveProgramme(athlete, collegeId);
 
   const existing = findRelationship(athleteId, college.name, sport);
-  const { patch, now } = normalisePatch(fields, existing);
+  const { patch, now } = normalisePatch(fields, existing, operatorId);
 
   if (existing) {
     return { programme: applyPatch(athleteId, existing.id, patch, now), created: false };
@@ -332,6 +339,8 @@ export function upsertAthleteProgramme(athleteId, { college_id: collegeId, ...fi
     contact_stance: patch.contact_stance ?? 'default',
     note: patch.note ?? null,
     note_updated_at: patch.note_updated_at ?? null,
+    flagged_by_operator_id: patch.flagged_by_operator_id ?? null,
+    note_updated_by_operator_id: patch.note_updated_by_operator_id ?? null,
     created_at: now,
     updated_at: now,
   };
@@ -342,13 +351,17 @@ export function upsertAthleteProgramme(athleteId, { college_id: collegeId, ...fi
       request_state, requested_by, requested_at,
       flagged, flag_reason, flagged_at,
       visibility, contact_stance,
-      note, note_updated_at, created_at, updated_at
+      note, note_updated_at,
+      flagged_by_operator_id, note_updated_by_operator_id,
+      created_at, updated_at
     ) VALUES (
       @id, @athlete_id, @college_name, @sport, @college_id,
       @request_state, @requested_by, @requested_at,
       @flagged, @flag_reason, @flagged_at,
       @visibility, @contact_stance,
-      @note, @note_updated_at, @created_at, @updated_at
+      @note, @note_updated_at,
+      @flagged_by_operator_id, @note_updated_by_operator_id,
+      @created_at, @updated_at
     )
   `).run(row);
 
@@ -356,13 +369,13 @@ export function upsertAthleteProgramme(athleteId, { college_id: collegeId, ...fi
 }
 
 /** Patch an existing relationship, addressed by its own id. */
-export function updateAthleteProgramme(athleteId, id, fields = {}) {
+export function updateAthleteProgramme(athleteId, id, fields = {}, { operatorId = null } = {}) {
   requireAthlete(athleteId);
   const existing = getAthleteProgramme(athleteId, id);
   if (!existing) {
     throw fail('RELATIONSHIP_NOT_FOUND', `No programme relationship ${JSON.stringify(id)} for this athlete.`);
   }
-  const { patch, now } = normalisePatch(fields, existing);
+  const { patch, now } = normalisePatch(fields, existing, operatorId);
   return applyPatch(athleteId, id, patch, now);
 }
 
@@ -380,4 +393,24 @@ function applyPatch(athleteId, id, patch, now) {
      WHERE athlete_id = @athlete_id AND id = @id
   `).run({ ...patch, updated_at: now, athlete_id: athleteId, id });
   return getAthleteProgramme(athleteId, id);
+}
+
+/**
+ * The programmes this athlete's operator has taken out of the actionable list.
+ *
+ * A NARROW, PURPOSE-BUILT READ rather than `listAthleteProgrammes` filtered by
+ * the caller. Campaign creation is the caller, and it needs one fact: which
+ * names are suppressed. Handing it whole relationship rows would put flags,
+ * notes and contact stances inside the campaign module, which is where a
+ * later change starts reading one of them by accident.
+ *
+ * Sport-scoped, because a campaign is created for one sport and the same
+ * college name is a different programme in another.
+ */
+export function suppressedProgrammesForAthlete(athleteId, sport) {
+  return db.prepare(`
+    SELECT college_name FROM athlete_programmes
+     WHERE athlete_id = ? AND sport = ? AND visibility = 'suppressed'
+     ORDER BY college_name
+  `).all(athleteId, sport).map((r) => r.college_name);
 }

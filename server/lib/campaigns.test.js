@@ -681,12 +681,36 @@ describe('the boundary this module is', () => {
       .map((m) => m[1].toLowerCase()));
     expect([...new Set(tables)].sort()).toEqual(['campaigns', 'players', 'programme_campaigns']);
 
-    // And every module it depends on. Note the absence of shared/matching:
-    // creation must never be able to re-score anything.
+    /**
+     * And every module it depends on.
+     *
+     * THREE ARRIVED WHEN CAMPAIGNS STARTED FREEZING THE ACTIONABLE HUNDRED
+     * rather than the raw one, and the distinction they have to respect is the
+     * one this assertion has always been about: SELECTING is allowed, SCORING
+     * is not. `visibleTop100` and `reserve` decide which of the model's
+     * programmes an athlete's operator has left in play and in what order they
+     * already stood; neither computes a score, a weight or a rank of its own.
+     * `athleteProgrammes` supplies the operator's visibility decisions and
+     * nothing else — see suppressedProgrammesForAthlete, which returns names.
+     *
+     * The scoring half of shared/matching is named below and must stay absent.
+     * That is the property the old one-line list was protecting, now said
+     * directly instead of by omission.
+     */
     const imports = [...body.matchAll(/\bfrom\s+'([^']+)'/g)].map((m) => m[1]).sort();
     expect(imports).toEqual([
-      '../db/client.js', './time.js', './uploadPath.js', 'node:crypto', 'node:fs', 'node:path',
+      '../../shared/matching/reserve.js', '../../shared/matching/visibleTop100.js',
+      '../db/client.js', './athleteProgrammes.js', './time.js', './uploadPath.js',
+      'node:crypto', 'node:fs', 'node:path',
     ]);
+
+    // CREATION STILL CANNOT RE-SCORE ANYTHING. Reaching any of these would
+    // mean a campaign was reconstructing the ranking instead of freezing it.
+    for (const scorer of ['matching/score.js', 'matching/pool.js', 'matching/weights.js',
+      'matching/criteria.js', 'matching/couplings.js', 'matching/geo.js']) {
+      expect(imports, `campaigns.js must not import ${scorer}`)
+        .not.toContain(`../../shared/${scorer}`);
+    }
 
     // No scheduling and no network. The filesystem is reachable, but only
     // through resolveAnalysisPath, which is tested separately.

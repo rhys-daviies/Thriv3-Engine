@@ -196,6 +196,37 @@ const ROSTER_PLAYER_COLUMNS = [
  * Added after `outreach_evidence` was already in the field. schema.sql creates
  * the table but cannot add a column to an existing one.
  */
+/**
+ * OPERATOR ATTRIBUTION ON A PROGRAMME RELATIONSHIP.
+ *
+ * `athlete_programmes` shipped with a mutable, unattributed `note` and this
+ * comment where the reason used to be: there was no usable operator identity
+ * to attribute anything to. There is now — `operator_users`,
+ * `operator_sessions` and an `attachOperator` middleware that puts
+ * `req.operator` on every authenticated request — and
+ * `connected_mailboxes.operator_user_id` already sets the convention for
+ * pointing at it.
+ *
+ * So two columns, and deliberately only two. NOT a history table: this records
+ * WHO THE STATE BELONGS TO NOW, which is the question an operator looking at a
+ * flag actually asks. A full append-only log of every change is a bigger
+ * thing and would need a reason of its own.
+ *
+ * NULLABLE, and no backfill. Rows written before this existed have no author
+ * and inventing one would be recording something nobody observed — the same
+ * reason the note itself was left unattributed rather than guessed at.
+ *
+ * REFERENCES rather than a bare id, so a flag cannot point at an operator who
+ * was never here. No ON DELETE clause, matching every other reference to
+ * `operator_users` in this schema: under foreign_keys=ON that refuses the
+ * delete, and an account is deactivated (`active = 0`) rather than deleted
+ * precisely so its attribution survives.
+ */
+const ATHLETE_PROGRAMME_COLUMNS = [
+  ['flagged_by_operator_id', 'TEXT REFERENCES operator_users(id)'],
+  ['note_updated_by_operator_id', 'TEXT REFERENCES operator_users(id)'],
+];
+
 const OUTREACH_EVIDENCE_COLUMNS = [
   ['evidence_rendered', 'INTEGER'],
   ['primary_confidence', 'TEXT'],
@@ -805,6 +836,9 @@ export function migrate(db) {
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_programme_campaign ON outreach(programme_campaign_id)');
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_send_programme_campaign ON outreach_send(programme_campaign_id)');
   addMissingColumns(db, 'outreach_evidence', OUTREACH_EVIDENCE_COLUMNS);
+  // WHO FLAGGED IT, AND WHO LAST WROTE THE NOTE. Added here rather than in
+  // schema.sql because the table already exists in the field.
+  addMissingColumns(db, 'athlete_programmes', ATHLETE_PROGRAMME_COLUMNS);
   // After the column exists, never before: schema.sql runs first and cannot
   // index a column this function is about to add.
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_evidence_selected ON outreach_evidence(selected_kinds)');

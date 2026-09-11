@@ -444,14 +444,23 @@ describe('what creation refuses', () => {
 // ---------------------------------------------------------------------------
 
 describe('matching provenance', () => {
-  it('is valid JSON with the three kinds of fact kept apart', () => {
+  it('is valid JSON with the FOUR kinds of fact kept apart', () => {
     giveAnalysis(ATHLETE, analysisOf(30, 'Ranked 213 eligible programs on six weighted criteria.'));
     const { campaign } = createCampaign(ATHLETE);
     const inputs = JSON.parse(campaign.matching_inputs);
 
-    expect(inputs.schema).toBe('campaign-matching-inputs/1');
+    /**
+     * Schema 2 adds OPERATOR_TIME to the three. It is a fourth kind of fact
+     * and not a variation on the others: HISTORICAL is what the analysis said,
+     * SNAPSHOT_TIME is what the athlete row said when the campaign was frozen,
+     * `unavailable` is what was never recorded — and this is what a PERSON
+     * decided about this athlete and this school. Merging it into any of the
+     * three would be the exact fabrication they are kept apart to prevent.
+     */
+    expect(inputs.schema).toBe('campaign-matching-inputs/2');
     expect(inputs.analysis.provenance).toBe('HISTORICAL');
     expect(inputs.athlete.provenance).toBe('SNAPSHOT_TIME');
+    expect(inputs.actionable.provenance).toBe('OPERATOR_TIME');
     expect(Array.isArray(inputs.unavailable)).toBe(true);
   });
 

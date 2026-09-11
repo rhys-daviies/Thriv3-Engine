@@ -6,6 +6,7 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
 import MatchingTab from './MatchingTab.jsx';
 import { TWO_SIGNALS, COACH_ARRIVAL, ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
+import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 
 /**
  * The page owns the fetch; the cards own nothing.
@@ -127,18 +128,29 @@ function deferSignals() {
 }
 const namesOf = (call) => call.body?.collegeNames ?? null;
 
-/** MatchingTab reads its state from the workspace outlet context. */
+/**
+ * MatchingTab reads its state from the workspace outlet context.
+ *
+ * Stands in for PlayerWorkspace and calls the same hook it does, so the
+ * relationship state and the derived actionable list come from production code
+ * rather than from a second version of it assembled here.
+ */
 function Shell() {
   const [page, setPage] = useState(1);
   const [playerId, setPlayerId] = useState('athlete-1');
   setPageOutside = setPage;
   setPlayerIdOutside = setPlayerId;
+  const workspace = useActionableRecommendations({
+    playerId, recommendations: RECOMMENDATIONS, reserve: [],
+  });
   return createElement(Outlet, {
     context: {
       player: { id: playerId, sport: 'mens-soccer' },
       setPlayer: () => {},
       recommendations: RECOMMENDATIONS,
+      reserve: [],
       summary: '',
+      ...workspace,
       analyzing: false,
       phase: 0,
       progress: { current: 0, total: 0, school: '' },

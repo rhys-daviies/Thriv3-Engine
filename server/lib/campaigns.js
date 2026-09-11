@@ -42,6 +42,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { visibleTop100 } from '../../shared/matching/visibleTop100.js';
+import { readReserve } from '../../shared/matching/reserve.js';
+import { suppressedProgrammesForAthlete } from './athleteProgrammes.js';
 import db from '../db/client.js';
 import { utcNow } from './time.js';
 import { UPLOADS_DIR, UPLOAD_URL_PREFIX } from './uploadPath.js';
@@ -646,9 +649,9 @@ function safeJson(value) {
  *   unavailable  NEVER RECORDED. Named individually with the reason, so a
  *                reader can tell "we did not keep this" from "this was absent".
  */
-function buildMatchingInputs({ athlete, analysis, ref, count }) {
+function buildMatchingInputs({ athlete, analysis, ref, count, derived = null }) {
   return {
-    schema: 'campaign-matching-inputs/1',
+    schema: 'campaign-matching-inputs/2',
     model: identifyModel(analysis.recommendations),
     analysis: {
       provenance: 'HISTORICAL',
@@ -657,6 +660,41 @@ function buildMatchingInputs({ athlete, analysis, ref, count }) {
       summary: typeof analysis.summary === 'string' ? analysis.summary : null,
       returned: count,
     },
+
+    /**
+     * WHY THIS CAMPAIGN HOLDS WHAT IT HOLDS — schema 2.
+     *
+     * OPERATOR-TIME, a third provenance alongside HISTORICAL and
+     * SNAPSHOT_TIME: these are decisions a person made about this athlete,
+     * read when the campaign was frozen. Without them "why is Stanford not in
+     * here" has no answer a year later, because the analysis still contains
+     * Stanford and always will.
+     *
+     * `promoted` names the programmes that entered from the reserve AND THE
+     * RANK THE MODEL GAVE THEM. That is the only place rank 101 survives: the
+     * campaign row records the ACTIONABLE position, because that is what the
+     * tier bands read, and the two numbers must not be confused.
+     *
+     * Absent entirely on a campaign frozen from an analysis this code could
+     * not derive over, rather than present and zeroed — a zero here would
+     * assert that nothing was suppressed.
+     */
+    actionable: derived ? {
+      provenance: 'OPERATOR_TIME',
+      note: 'Athlete-specific visibility decisions read from athlete_programmes when the '
+        + 'campaign was frozen. The stored analysis is unchanged and still contains every '
+        + 'programme named here.',
+      suppressed_count: derived.suppressedCount,
+      suppressed: derived.suppressedNames,
+      promoted_count: derived.promoted.length,
+      promoted: derived.promoted,
+      actionable_count: derived.programmes.length,
+      // TRUE when suppression outran the reserve, so the campaign holds fewer
+      // than the athlete's analysis could have supplied. Recorded rather than
+      // padded.
+      reserve_exhausted: derived.exhausted,
+      short_by: derived.shortfall,
+    } : null,
     athlete: {
       provenance: 'SNAPSHOT_TIME',
       note: 'Read from the athlete row when the campaign was created, not recorded by the '
@@ -697,8 +735,23 @@ function buildMatchingInputs({ athlete, analysis, ref, count }) {
  * database. Everything that can be refused is refused here, so the transaction
  * below either writes a whole campaign or is never opened.
  */
-function freezeRecommendations({ analysis, sport, at }) {
-  const list = analysis && analysis.recommendations;
+function freezeRecommendations({ analysis, sport, at, actionable }) {
+  /**
+   * WHAT A CAMPAIGN FREEZES IS THE ACTIONABLE HUNDRED, NOT THE RAW ONE.
+   *
+   * `actionable` is the derived list — the stored analysis with this athlete's
+   * suppressed programmes removed and reserve entries promoted in their place
+   * (see shared/matching/visibleTop100.js). It is passed in rather than
+   * derived here so that this function stays what it was: validation and row
+   * building over a list somebody else decided on.
+   *
+   * The SHAPE IS UNCHANGED. Array order is still the ranking, rank is still
+   * index + 1, and the cap below still refuses anything over MAX_PROGRAMMES —
+   * a promoted programme enters the campaign at its ACTIONABLE position, never
+   * at 101, because the tier bands stop at 100 and a rank with no band is a
+   * tier no rule chose.
+   */
+  const list = actionable ?? (analysis && analysis.recommendations);
   if (!Array.isArray(list)) {
     throw fail('ANALYSIS_INVALID',
       'The stored analysis has no `recommendations` array — it is not a match analysis this can freeze.');
@@ -870,7 +923,32 @@ export function createCampaign(athleteId, {
   // The athlete's sport, snapshotted. The athlete row is mutable and a sport
   // changed later must not re-interpret these programme rows.
   const sport = athlete.sport || 'mens-soccer';
-  const programmes = freezeRecommendations({ analysis, sport, at });
+
+  /**
+   * THE ACTIONABLE HUNDRED, DERIVED AT FREEZE TIME.
+   *
+   * The stored analysis is the model's answer and is not edited to make a
+   * campaign work: what this reads is the same blob as before, plus the
+   * athlete's own visibility decisions out of `athlete_programmes`. A school
+   * the operator removed from this athlete's Top 100 does not enter their
+   * campaign, and the next programme the model ranked takes the slot.
+   *
+   * Derived HERE and not inside freezeRecommendations so the audit metadata
+   * below can describe what the derivation did.
+   */
+  const suppressedNames = suppressedProgrammesForAthlete(athlete.id, sport);
+  const derived = visibleTop100({
+    recommendations: Array.isArray(analysis.recommendations) ? analysis.recommendations : [],
+    reserve: readReserve(analysis),
+    suppressed: new Set(suppressedNames),
+  });
+  const programmes = freezeRecommendations({
+    analysis, sport, at,
+    // Only when the analysis is shaped as one — an unusable blob must still
+    // reach freezeRecommendations' own refusals rather than be turned into an
+    // empty list here.
+    actionable: Array.isArray(analysis.recommendations) ? derived.programmes : undefined,
+  });
 
   const { starts_on: starts, outreach_ends_on: outreachEnds, ends_on: ends } =
     validateCampaignDates({
@@ -896,7 +974,7 @@ export function createCampaign(athleteId, {
     source_analysis_ref: ref,
     snapshot_taken_at: at,
     matching_inputs: JSON.stringify(
-      buildMatchingInputs({ athlete, analysis, ref, count: programmes.length }),
+      buildMatchingInputs({ athlete, analysis, ref, count: programmes.length, derived }),
     ),
     // What was ACTUALLY frozen, not what a Top 100 is meant to hold. Of the 98
     // analyses on disk, counts of 6, 27, 46, 50 and 53 all occur legitimately

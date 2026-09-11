@@ -6,6 +6,7 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
 import MatchingTab from './MatchingTab.jsx';
 import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
+import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 
 /**
  * "Can you contact Stanford?"
@@ -106,14 +107,27 @@ function stubFetch({ programmes = [], search = [], onUpsert, onPatch } = {}) {
   }));
 }
 
-function Shell({ recommendations }) {
+/**
+ * Stands in for PlayerWorkspace, and CALLS THE SAME HOOK IT DOES.
+ *
+ * The relationship state and the derived actionable list are produced in the
+ * workspace now, not in the tab. A harness that assembled its own version of
+ * that context could pass while the real one was broken, so it calls the
+ * production hook and publishes what comes back.
+ */
+function Shell({ recommendations, reserve = [] }) {
   const [player] = useState({ id: ATHLETE, sport: 'mens-soccer' });
+  const workspace = useActionableRecommendations({
+    playerId: player.id, recommendations, reserve,
+  });
   return createElement(Outlet, {
     context: {
       player,
       setPlayer: () => {},
       recommendations,
+      reserve,
       summary: '',
+      ...workspace,
       analyzing: false,
       phase: 0,
       progress: { current: 0, total: 0, school: '' },

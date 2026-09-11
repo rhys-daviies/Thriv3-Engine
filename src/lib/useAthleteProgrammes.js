@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { athleteProgrammes as api } from '@/api/client';
 
 /**
@@ -31,18 +31,55 @@ export function useAthleteProgrammes(playerId) {
   const [programmes, setProgrammes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
+  /**
+   * WHICH ATHLETE'S LOAD HAS FINISHED — an id, not a boolean, and that is the
+   * whole of the difference.
+   *
+   * A bare `settled` flag is true for one render after the athlete changes,
+   * because the effect that resets it runs AFTER the render that changed the
+   * id. For that paint the new athlete's cards are drawn against the previous
+   * athlete's visibility decisions, which is the same class of bug as drawing
+   * them against none. Comparing an id closes the window in the render itself:
+   * the moment `playerId` changes, `settled` is false.
+   *
+   * `loading` IS NOT A SUBSTITUTE EITHER.
+   *
+   * `loading` is false on the very first render — the effect that sets it true
+   * has not run yet — so a consumer that gated on `loading` alone would see
+   * "not loading" with an empty relationship list and conclude that this
+   * athlete has no suppressions. For one paint that is exactly the wrong
+   * answer, and it is the paint in which a school the operator removed appears
+   * on screen and can be clicked.
+   *
+   * Set true on success AND on failure: both are answers, and a failure must
+   * not leave a consumer waiting forever for one that is not coming.
+   */
+  const [settledFor, setSettledFor] = useState(null);
+  const settled = Boolean(playerId) && settledFor === playerId;
   // The college_id currently being written to, so one row's button can say it
   // is working without disabling the rest of the list.
   const [pending, setPending] = useState(null);
   const [error, setError] = useState(null);
+  /**
+   * Read inside callbacks that are created before `byCollegeId` is computed.
+   * A ref rather than a dependency so `flag` does not get a new identity on
+   * every relationship change and re-render every card on the page.
+   */
+  const byCollegeIdRef = useRef(new Map());
 
   const load = useCallback(async ({ signal } = {}) => {
     if (!playerId) {
       setProgrammes([]);
+      // No athlete is not a pending answer. Nothing is coming, and the
+      // consumer decides what that means — for the workspace it means the
+      // athlete has not been loaded yet, which its own analysis state already
+      // describes.
+      setSettledFor(null);
       return;
     }
     setLoading(true);
     setFailed(false);
+    setSettledFor(null);
     try {
       const { programmes: rows } = await api.list(playerId);
       if (signal?.cancelled) return;
@@ -55,7 +92,13 @@ export function useAthleteProgrammes(playerId) {
       setFailed(true);
       setProgrammes([]);
     } finally {
-      if (!signal?.cancelled) setLoading(false);
+      if (!signal?.cancelled) {
+        setLoading(false);
+        // Stamped with WHOSE answer this is. Set on success and on failure
+        // alike: both are answers, and a failure must not leave a consumer
+        // waiting forever for one that is not coming.
+        setSettledFor(playerId);
+      }
     }
   }, [playerId]);
 
@@ -131,20 +174,95 @@ export function useAthleteProgrammes(playerId) {
     }
   }, [playerId, absorb]);
 
+  /**
+   * Write relationship state, whichever end the caller is holding.
+   *
+   * A RECOMMENDED SCHOOL USUALLY HAS NO ROW YET. The first flag on it is a
+   * create; every change after that is a patch on the row that now exists. The
+   * caller should not have to know which — it is holding a match-card entry and
+   * a state to set, and the `college_id` route is an upsert that lands on the
+   * same row either way.
+   *
+   * ONLY THE NAMED FIELDS ARE SENT. Setting visibility names `visibility`;
+   * flagging names `flagged` and `flag_reason`. Nothing else travels, so a
+   * flag cannot move a contact stance and removing a school from the Top 100
+   * cannot disturb a specific request.
+   */
+  const apply = useCallback(async ({ college, relationship }, fields) => {
+    if (!playerId) return null;
+    const key = relationship?.college_id || college?.id || relationship?.id;
+    setPending(key);
+    setError(null);
+    try {
+      const { programme } = relationship?.id
+        ? await api.update(playerId, relationship.id, fields)
+        : await api.upsert(playerId, { college_id: college?.id, ...fields });
+      absorb(programme);
+      return programme;
+    } catch (err) {
+      setError({ message: err.message, code: err.code, collegeId: key });
+      return null;
+    } finally {
+      setPending(null);
+    }
+  }, [playerId, absorb]);
+
+  /**
+   * A FACT ABOUT THE WORLD. It says nothing about whether the school stays in
+   * the athlete's actionable Top 100 — that is the separate call below, made
+   * by a separate control, because they are separate decisions.
+   */
+  const flag = useCallback((college, reason) => apply(
+    { college, relationship: byCollegeIdRef.current.get(college?.id) },
+    { flagged: true, flag_reason: reason },
+  ), [apply]);
+
+  /**
+   * Unflagging clears the flag and its reason and LEAVES VISIBILITY ALONE. A
+   * school removed from the Top 100 stays removed when the relationship that
+   * prompted it is cleared, because the operator made two decisions and only
+   * one of them has been revisited.
+   */
+  const unflag = useCallback((relationship) => apply(
+    { relationship }, { flagged: false },
+  ), [apply]);
+
+  /** `default` or `suppressed`, and nothing else travels with it. */
+  const setVisibility = useCallback((target, visibility) => apply(
+    target.id && target.athlete_id ? { relationship: target } : { college: target },
+    { visibility },
+  ), [apply]);
+
+  const saveNote = useCallback((target, note) => apply(
+    target?.athlete_id ? { relationship: target } : { college: target },
+    { note },
+  ), [apply]);
+
   const specific = programmes.filter((p) => p.request_state === 'requested');
   const byCollegeId = new Map(programmes.filter((p) => p.college_id).map((p) => [p.college_id, p]));
+  byCollegeIdRef.current = byCollegeId;
+
+  /** By programme NAME, which is what a match-card entry carries. */
+  const byCollegeName = new Map(programmes.map((p) => [p.college_name, p]));
 
   return {
     programmes,
     specific,
     byCollegeId,
+    byCollegeName,
     loading,
+    settled,
     failed,
     pending,
     error,
     clearError: () => setError(null),
     add,
     withdraw,
+    apply,
+    flag,
+    unflag,
+    setVisibility,
+    saveNote,
     reload: load,
   };
 }
