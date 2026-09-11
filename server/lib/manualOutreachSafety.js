@@ -248,10 +248,19 @@ export function campaignStanceDecision({
     collegeName, sport, coachEmails: coachEmail ? [coachEmail] : [],
   });
   for (const name of reached) {
-    if (contactStanceFor({ athleteId, collegeName: name, sport }) === 'do_not_contact') {
+    /**
+     * The verified programme is always in the reached set, and its stance has
+     * already been read — reading it a second time would be one redundant
+     * statement on every campaign contact decision, which is a hundred on a
+     * hundred-programme dry run.
+     */
+    const reachedStance = name === collegeName
+      ? stance
+      : contactStanceFor({ athleteId, collegeName: name, sport });
+    if (reachedStance === 'do_not_contact') {
       return {
         allowed: false,
-        stance: 'do_not_contact',
+        stance: reachedStance,
         reason: CONTACT_REFUSAL.DO_NOT_CONTACT,
         // Not always the programme the campaign named, and when it is not,
         // that is the half worth printing.
