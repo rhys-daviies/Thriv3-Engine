@@ -35,6 +35,12 @@ import db from '../db/client.js';
 
 export const CONTACT_REFUSAL = Object.freeze({
   DO_NOT_CONTACT: 'RELATIONSHIP_DO_NOT_CONTACT',
+  /**
+   * F6a. Refuses AUTOMATED CAMPAIGN OUTREACH ONLY, and is never raised by the
+   * manual paths — see `campaignStanceDecision` for why the two stances do not
+   * share a refusal even though they share a column.
+   */
+  MANUAL_ONLY: 'RELATIONSHIP_MANUAL_ONLY',
 });
 
 /**
@@ -164,4 +170,105 @@ export function assertContactAllowed({ athleteId, collegeName, sport, coachEmail
     throw err;
   }
   return decision;
+}
+
+/* -------------------------------------------------------------------------- */
+/* The campaign stance gate (F6a)                                              */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * WHETHER A VERIFIED CAMPAIGN MAY WRITE TO THIS PROGRAMME.
+ *
+ * The campaign sibling of `manualContactDecision`, and deliberately NOT the
+ * same function: the two stances are enforced with different reach, because
+ * they are different kinds of rule.
+ *
+ * ---------------------------------------------------------------------------
+ *   do_not_contact   A SAFETY RULE ABOUT A PERSON BEING WRITTEN TO. It keeps
+ *                    F1's conservative reach: if the recipient's address is on
+ *                    record at ANY programme this athlete has set to
+ *                    do-not-contact, the outreach is refused, whatever the run
+ *                    claims to be. A shared address is one inbox, and the
+ *                    instruction was about that inbox.
+ *
+ *   manual_only      A WORKFLOW RULE ABOUT A PROGRAMME. It says how THIS
+ *                    programme is worked — by hand rather than by campaign —
+ *                    and says nothing about the recipient in general. So it is
+ *                    enforced against the VERIFIED programme campaign alone:
+ *                    athlete + pc.college_name + pc.sport.
+ * ---------------------------------------------------------------------------
+ *
+ * THE DIFFERENCE, CONCRETELY. `soccer@shared.edu` is on record at School A and
+ * School B. The athlete set School A to manual_only and a campaign is running
+ * at School B. That campaign PROCEEDS — nobody said School B may not be
+ * campaigned, and refusing it would turn one programme's working preference
+ * into a silent block on an unrelated programme that happens to share an
+ * address. Had School A been do_not_contact instead, the same send is REFUSED,
+ * because that instruction was about the inbox rather than about the workflow.
+ *
+ * Reading `manual_only` conservatively across reached programmes would be the
+ * safer-looking choice and the wrong one: it would make an operator's decision
+ * to work School A by hand quietly cost them School B's campaign, with a
+ * refusal naming a school they were not writing to.
+ *
+ * WHAT IS TRUSTED. Only the caller's already-verified programme identity —
+ * `resolveProgrammeCampaignFor` has proved that `coach.school` and
+ * `coach.sport` equal the programme campaign's before this is reached. No
+ * request body, no origin string and no email label decides anything here.
+ *
+ * BOUNDED: at most one address lookup plus one stance read per reached name,
+ * and the reached set is only consulted for do_not_contact.
+ *
+ * THE COST, RECORDED RATHER THAN OPTIMISED. One to two indexed statements per
+ * campaign contact decision, so a hundred-programme dry run adds one to two
+ * hundred. Every one of them is a point lookup on an indexed key and no test
+ * shows a problem, so there is deliberately NO preload or cache here: a
+ * relationship cache would be a second copy of mutable stance state, and the
+ * whole value of this rule is that it reads the current one. Left for F7
+ * profiling to measure against the rest of the plan's query load.
+ *
+ * @param {string} args.athleteId
+ * @param {string} args.collegeName the VERIFIED programme campaign's college.
+ * @param {string} args.sport       the VERIFIED programme campaign's sport.
+ * @param {string|null} [args.coachEmail] the recipient, for do-not-contact reach.
+ * @returns {{allowed: boolean, stance: string, reason: string|null, programme: string|null}}
+ */
+export function campaignStanceDecision({
+  athleteId, collegeName, sport, coachEmail = null,
+}) {
+  const stance = contactStanceFor({ athleteId, collegeName, sport });
+
+  /**
+   * SAFETY FIRST, AND WIDER THAN THIS PROGRAMME. Checked before the workflow
+   * rule so that a programme which is both reached-by-do-not-contact and
+   * manual_only reports the stronger fact — an operator fixing the wrong one
+   * would think they had unblocked a send that is still refused.
+   */
+  const reached = programmesReachedBy({
+    collegeName, sport, coachEmails: coachEmail ? [coachEmail] : [],
+  });
+  for (const name of reached) {
+    if (contactStanceFor({ athleteId, collegeName: name, sport }) === 'do_not_contact') {
+      return {
+        allowed: false,
+        stance: 'do_not_contact',
+        reason: CONTACT_REFUSAL.DO_NOT_CONTACT,
+        // Not always the programme the campaign named, and when it is not,
+        // that is the half worth printing.
+        programme: name,
+      };
+    }
+  }
+
+  /** The verified programme only. Never a neighbour that shares an address. */
+  if (stance === 'manual_only') {
+    return {
+      allowed: false,
+      stance,
+      reason: CONTACT_REFUSAL.MANUAL_ONLY,
+      programme: collegeName,
+    };
+  }
+
+  return { allowed: true, stance, reason: null, programme: collegeName };
 }
