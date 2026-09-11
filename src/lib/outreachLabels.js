@@ -111,16 +111,39 @@ export const ORIGIN_UNRECORDED = 'origin not recorded';
  */
 export const ACTIVITY_LABEL = Object.freeze({
   reply: 'Reply recorded',
-  profile_visit: 'Opened profile',
+  /**
+   * "Profile visit recorded", NOT "opened profile" and certainly not "the
+   * coach viewed it".
+   *
+   * What the token proves is that the athlete's page was visited THROUGH THIS
+   * OUTREACH LINK. It does not prove who was holding the link: a coach
+   * forwards a promising recruit to an assistant, or to a recruiting
+   * coordinator, and the visit is attributed to the addressee either way.
+   * Naming the person would be an inference the data does not support, and it
+   * is the kind that reads as certainty.
+   */
+  profile_visit: 'Profile visit recorded',
   confirmed_send: 'Sent',
   draft: 'Drafted',
 });
 
 export const ENGAGEMENT_HINT = Object.freeze({
-  profile_visit: 'The coach followed their tracking link and the profile page loaded. '
-    + 'Scanner traffic is excluded and repeat sessions are counted as one visit.',
+  profile_visit: 'A qualified visit to the athlete profile was recorded through this '
+    + 'outreach link. Scanner-only page loads are excluded and repeat sessions count '
+    + 'as one visit. The link may have been forwarded, so this does not identify who visited.',
   reply: 'Recorded by an operator. Nothing in this build reads replies automatically.',
 });
+
+/**
+ * UNKNOWN IS NOT THE SAME AS NONE, and on a card the difference is invisible
+ * unless something says so: a programme with no history renders nothing, and a
+ * programme whose history could not be loaded would render exactly the same
+ * nothing. One of those is a fact and the other is an absence of one.
+ */
+export const CONTACT_UNAVAILABLE = 'Contact history unavailable';
+export const CONTACT_UNAVAILABLE_HINT =
+  'This athlete\u2019s outreach history could not be loaded, so these programmes are shown '
+  + 'without it. A programme with no marker here has not been shown to be uncontacted.';
 
 /** Said where a programme has been written to but nothing was ever confirmed. */
 export const DRAFT_ONLY_HINT = 'A message was drafted and never confirmed sent.';

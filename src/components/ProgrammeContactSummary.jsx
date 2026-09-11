@@ -1,6 +1,9 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { ACTIVITY_LABEL, ENGAGEMENT_HINT, DRAFT_ONLY_HINT } from '@/lib/outreachLabels';
+import {
+  ACTIVITY_LABEL, ENGAGEMENT_HINT, DRAFT_ONLY_HINT,
+  CONTACT_UNAVAILABLE, CONTACT_UNAVAILABLE_HINT,
+} from '@/lib/outreachLabels';
 
 /**
  * HAS ANYONE WRITTEN TO THIS PROGRAMME, AND DID THE COACH DO ANYTHING?
@@ -34,7 +37,25 @@ function when(iso) {
   return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 }
 
-export default function ProgrammeContactSummary({ summary, className = '' }) {
+export default function ProgrammeContactSummary({
+  summary, className = '',
+  /**
+   * TRUE WHEN THE HISTORY COULD NOT BE LOADED, which is a different thing from
+   * a programme having none. Both render nothing by default, so without this
+   * an operator glancing at a card after a failed request would read the
+   * absence of a marker as "never contacted" — the one conclusion the data
+   * does not support.
+   */
+  unavailable = false,
+}) {
+  if (unavailable) {
+    return (
+      <div className={`flex items-center gap-1.5 flex-wrap ${className}`} data-testid="contact-unavailable">
+        <Badge variant="muted" title={CONTACT_UNAVAILABLE_HINT}>{CONTACT_UNAVAILABLE}</Badge>
+      </div>
+    );
+  }
+
   /**
    * A MISS IS THE ANSWER. Programmes nobody has written to are absent from the
    * map rather than present and empty, and this renders nothing for them —
@@ -64,8 +85,8 @@ export default function ProgrammeContactSummary({ summary, className = '' }) {
       // A count is safe here ONLY because the rollup collapses sessions and
       // excludes scanner traffic. A raw event total would not be.
       text: engagement.profile_visits > 1
-        ? `Opened profile ${engagement.profile_visits}x`
-        : 'Opened profile',
+        ? `Profile visit recorded ${engagement.profile_visits}x`
+        : 'Profile visit recorded',
       title: ENGAGEMENT_HINT.profile_visit,
       tone: 'green',
     });

@@ -6,7 +6,7 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
 import MatchingTab from './MatchingTab.jsx';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
-import { RELATIONSHIP_OUTREACH } from '@/lib/outreachLabels';
+import { RELATIONSHIP_OUTREACH, CONTACT_UNAVAILABLE } from '@/lib/outreachLabels';
 import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
 
 /**
@@ -206,15 +206,40 @@ describe('what it says, and what it refuses to say', () => {
     stubFetch({ intelligence: [summary()] });
     await render();
     expect(body()).toMatch(/Sent 2x/);
-    expect(body()).toMatch(/Opened profile 3x/);
+    expect(body()).toMatch(/Profile visit recorded 3x/);
   });
 
-  it('never says opened or clicked about an email', async () => {
+  it('never claims an email was opened or a link clicked', async () => {
     stubFetch({ intelligence: [summary()] });
     await render();
     // There is no pixel and no email click tracking in this product.
     const shown = summaries().map((s) => s.textContent).join(' ');
     expect(shown).not.toMatch(/email opened|opened email|clicked link|click/i);
+  });
+
+  it('never says the COACH opened or viewed anything', async () => {
+    stubFetch({ intelligence: [summary()] });
+    await render();
+    const shown = document.body.textContent;
+    /**
+     * The token proves the page was visited through this outreach link. It
+     * does not prove who was holding the link — a coach forwards a promising
+     * recruit to an assistant and the visit is still attributed to the
+     * addressee. Naming the person would be an inference stated as certainty.
+     */
+    expect(shown).not.toMatch(/opened profile/i);
+    expect(shown).not.toMatch(/coach (opened|viewed|read)/i);
+    expect(shown).not.toMatch(/\bviewed\b/i);
+  });
+
+  it('says the passive thing that is true, and explains the ambiguity', async () => {
+    stubFetch({ intelligence: [summary()] });
+    await render();
+    const visit = summaries()[0].querySelector('[title]');
+    expect(summaries()[0].textContent).toMatch(/Profile visit recorded/);
+    expect(document.body.innerHTML).toMatch(/qualified visit to the athlete profile was recorded/i);
+    expect(document.body.innerHTML).toMatch(/may have been forwarded/i);
+    expect(visit).toBeTruthy();
   });
 
   it('says drafted, not sent, when nothing was confirmed', async () => {
@@ -323,24 +348,88 @@ describe('the relationship surfaces show it too', () => {
     // The dialog's own payload carries the summary for its one programme, so
     // opening it costs one relationship request and no second athlete sweep.
     expect(intelCalls()).toHaveLength(1);
-    expect(body()).toMatch(/Opened profile/);
+    expect(body()).toMatch(/Profile visit recorded/);
   });
 });
 
-describe('a failed intelligence load', () => {
-  it('degrades to showing no history rather than wrong history', async () => {
+describe('UNKNOWN IS NOT NONE', () => {
+  /**
+   * A programme with no history renders nothing, and so does every programme
+   * when the request fails. Same empty card, two opposite meanings — and on a
+   * failed load, "nothing here" is the one conclusion the data does not
+   * support. These are the tests that keep them apart.
+   */
+  let failing;
+
+  function stubFailing() {
+    failing = 0;
     vi.stubGlobal('fetch', vi.fn(async (path, opts = {}) => {
-      calls.push({ path, method: opts.method || 'GET' });
+      const method = opts.method || 'GET';
+      calls.push({ path, method, body: opts.body ? JSON.parse(opts.body) : null });
       if (path.includes('/contact-intelligence')) {
+        failing += 1;
         return { ok: false, status: 500, headers: { get: () => 'application/json' }, text: async () => '{}' };
       }
       if (path.includes('/programmes')) return ok({ programmes: [] });
-      if (path.includes('/matching-summary')) return ok({});
+      if (path.includes('/matching-summary')) {
+        return ok(Object.fromEntries(((opts.body ? JSON.parse(opts.body).collegeNames : []) ?? []).map((n) => [n, ZERO])));
+      }
+      if (path.includes('/evidence')) return ok({});
       return ok({});
     }));
+  }
+
+  it('marks every card unavailable rather than leaving it blank', async () => {
+    stubFailing();
     await render();
-    // The safe direction for a summary nobody should act on blindly.
+
+    const unknown = container.querySelectorAll('[data-testid="contact-unavailable"]');
+    expect(unknown.length).toBeGreaterThan(0);
+    expect(unknown[0].textContent).toContain(CONTACT_UNAVAILABLE);
+    // And no summary is fabricated to fill the gap.
     expect(summaries()).toHaveLength(0);
     expect(body()).not.toMatch(/Sent 2x/);
+  });
+
+  it('is visually distinct from a programme with no prior contact', async () => {
+    stubFetch({ intelligence: [] });
+    await render();
+    // Loaded successfully, nothing to report: no marker at all.
+    expect(container.querySelectorAll('[data-testid="contact-unavailable"]')).toHaveLength(0);
+    expect(summaries()).toHaveLength(0);
+  });
+
+  it('shows one page-level notice and one retry, not one per card', async () => {
+    stubFailing();
+    await render();
+    const retries = buttonsIn(container).filter((b) => b.textContent.includes('Try again'));
+    // The request is athlete-level; a control per card would be twenty ways to
+    // make the same call.
+    expect(retries).toHaveLength(1);
+    expect(body()).toMatch(/could not be loaded/i);
+  });
+
+  it('retries with exactly one more request', async () => {
+    stubFailing();
+    await render();
+    expect(intelCalls()).toHaveLength(1);
+    await click(buttonsIn(container).find((b) => b.textContent.includes('Try again')));
+    expect(intelCalls()).toHaveLength(2);
+    expect(failing).toBe(2);
+  });
+
+  it('does not block the rest of the page', async () => {
+    stubFailing();
+    await render();
+    // The ranked cards, the tabs and the actions are all still there.
+    expect(container.querySelectorAll('[data-testid="programme-relationship"]').length).toBeGreaterThan(0);
+    expect(body()).toContain('Programme1');
+    expect(tab('Specific Schools')).toBeTruthy();
+  });
+
+  it('creates no relationship rows', async () => {
+    stubFailing();
+    await render();
+    expect(calls.some((c) => c.method !== 'GET' && c.path.includes('/programmes'))).toBe(false);
   });
 });

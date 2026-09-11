@@ -35,6 +35,8 @@ export default function SuppressedProgrammes({
   onManualOutreach = null,
   /** The athlete's whole history, fetched once by the workspace. */
   contactByProgramme = new Map(),
+  /** The history could not be loaded; an absent entry means nothing. */
+  contactUnavailable = false,
 }) {
   const [open, setOpen] = useState(false);
   if (!suppressed.length) return null;
@@ -64,7 +66,11 @@ export default function SuppressedProgrammes({
                   {p.request_state === 'requested' && <Badge variant="purple">Specific Request</Badge>}
                 </div>
                 {p.flag_reason && <p className="text-xs text-muted-foreground">{p.flag_reason}</p>}
-                <ProgrammeContactSummary summary={contactByProgramme.get(p.college_name)} className="mt-1" />
+                <ProgrammeContactSummary
+                  summary={contactByProgramme.get(p.college_name)}
+                  unavailable={contactUnavailable}
+                  className="mt-1"
+                />
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 {onManualOutreach && (

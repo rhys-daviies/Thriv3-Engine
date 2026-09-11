@@ -181,15 +181,21 @@ function RelationshipContext({ relationship, priorContact, intelligence }) {
  * What the coach did, per coach, beneath what we sent them.
  *
  * SEPARATE FROM THE OUTREACH LINE ABOVE IT, because they are different kinds
- * of fact: one is what this product did, the other is what a person did. A
- * profile visit is the coach following their own tracked link — not an email
- * open, which this build does not record at all.
+ * of fact: one is what this product did, the other is what somebody else did.
+ *
+ * "PROFILE VISIT RECORDED", and the passive is the honest voice. The token
+ * proves the athlete's page was visited through this outreach link; it does
+ * not prove WHO visited, because a coach forwards a promising recruit to an
+ * assistant and the visit is still attributed to the addressee. This is also
+ * not an email open — no pixel exists in this build.
  */
 function CoachEngagement({ e }) {
   if (!e) return null;
   const bits = [];
   if (e.profile_visits > 0) {
-    bits.push(e.profile_visits > 1 ? `opened profile ${e.profile_visits}x` : 'opened profile');
+    bits.push(e.profile_visits > 1
+      ? `profile visit recorded ${e.profile_visits}x`
+      : 'profile visit recorded');
   }
   if (e.best_coverage_pct > 0) bits.push(`watched ${e.best_coverage_pct}% of the video`);
   if (e.reply_recorded) bits.push('reply recorded');

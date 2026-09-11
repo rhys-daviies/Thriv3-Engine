@@ -13,7 +13,8 @@ import SuppressedProgrammes from '@/components/SuppressedProgrammes';
 import ManualOutreachDialog from '@/components/ManualOutreachDialog';
 import { BOTH_PATHS_HINT } from '@/lib/outreachLabels';
 import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
-import { useContactIntelligence } from '@/lib/useContactIntelligence';
+import { CONTACT_UNAVAILABLE_HINT } from '@/lib/outreachLabels';
+import { useContactIntelligence, CONTACT_INTELLIGENCE } from '@/lib/useContactIntelligence';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
 import { cn } from '@/lib/utils';
@@ -85,7 +86,15 @@ export default function MatchingTab() {
    * recommendation nobody has flagged still shows that it was emailed last
    * week, without a row being created to say so.
    */
-  const { byProgramme: contactByProgramme } = useContactIntelligence(player?.id);
+  const {
+    byProgramme: contactByProgramme, status: contactStatus, reload: reloadContact,
+  } = useContactIntelligence(player?.id);
+  /**
+   * UNKNOWN, NOT NONE. An absent programme means "no history" when the load
+   * succeeded and "we could not find out" when it did not, and on a card those
+   * render identically. Every surface is told which it is.
+   */
+  const contactUnavailable = contactStatus === CONTACT_INTELLIGENCE.FAILED;
   const [showBulk, setShowBulk] = useState(false);
   /**
    * MATCH PRIORITIES HAS NO VISIBLE TRIGGER ANY MORE, AND IS NOT DELETED.
@@ -258,6 +267,22 @@ export default function MatchingTab() {
         </Button>
       </div>
 
+      {/*
+        ONE NOTICE AND ONE RETRY, at the page. The request is athlete-level, so
+        a control per card would be twenty ways to make the same call. The
+        cards carry a muted marker of their own so a card read in isolation
+        still cannot be mistaken for "never contacted".
+      */}
+      {contactUnavailable && (
+        <div
+          className="flex items-center justify-between gap-2 rounded-lg border border-border p-2.5"
+          role="status"
+        >
+          <p className="text-xs text-muted-foreground">{CONTACT_UNAVAILABLE_HINT}</p>
+          <Button size="sm" variant="outline" onClick={() => reloadContact()}>Try again</Button>
+        </div>
+      )}
+
       {showSearch && (
         <SpecificSearch
           sport={player?.sport}
@@ -280,6 +305,7 @@ export default function MatchingTab() {
           onRemove={withdraw}
           onManualOutreach={openManualOutreach}
           contactByProgramme={contactByProgramme}
+          contactUnavailable={contactUnavailable}
         />
       )}
 
@@ -349,6 +375,7 @@ export default function MatchingTab() {
             onRestore={setVisibility}
             onManualOutreach={openManualOutreach}
             contactByProgramme={contactByProgramme}
+            contactUnavailable={contactUnavailable}
           />
 
           {/*
@@ -390,6 +417,7 @@ export default function MatchingTab() {
                   */}
                   <ProgrammeContactSummary
                     summary={contactByProgramme.get(college.name)}
+                    unavailable={contactUnavailable}
                     className="mt-3 pt-3 border-t border-border"
                   />
                   <ProgrammeRelationship
