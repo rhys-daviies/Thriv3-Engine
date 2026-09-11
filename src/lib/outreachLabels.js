@@ -90,3 +90,37 @@ export const ORIGIN_LABEL = Object.freeze({
 });
 
 export const ORIGIN_UNRECORDED = 'origin not recorded';
+
+
+/**
+ * WHAT THIS PRODUCT CAN HONESTLY SAY A COACH DID.
+ *
+ * NOT "opened" and NOT "clicked". There is no email pixel and no email click
+ * tracking — what exists is a PROFILE VISIT, recorded when the coach follows
+ * their own tracked link and the athlete's page qualifies. That is a stronger
+ * signal than an open, and calling it an open would be both wrong and weaker.
+ *
+ * `visit_start` is deliberately non-qualifying in the collector because it is
+ * exactly what a Safe Links scanner produces, and the rollup collapses
+ * sessions into visits — so a visit count is neither raw events nor scanner
+ * noise, which is why a number is safe to show here at all.
+ *
+ * A REPLY IS ONLY EVER OPERATOR-RECORDED. Nothing ingests replies and nothing
+ * classifies them; a person sets it. The wording says so rather than implying
+ * the system observed it.
+ */
+export const ACTIVITY_LABEL = Object.freeze({
+  reply: 'Reply recorded',
+  profile_visit: 'Opened profile',
+  confirmed_send: 'Sent',
+  draft: 'Drafted',
+});
+
+export const ENGAGEMENT_HINT = Object.freeze({
+  profile_visit: 'The coach followed their tracking link and the profile page loaded. '
+    + 'Scanner traffic is excluded and repeat sessions are counted as one visit.',
+  reply: 'Recorded by an operator. Nothing in this build reads replies automatically.',
+});
+
+/** Said where a programme has been written to but nothing was ever confirmed. */
+export const DRAFT_ONLY_HINT = 'A message was drafted and never confirmed sent.';

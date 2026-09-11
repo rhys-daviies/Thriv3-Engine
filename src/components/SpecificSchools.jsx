@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RELATIONSHIP_OUTREACH } from '@/lib/outreachLabels';
+import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
 
 /**
  * The schools this athlete asked for, kept apart from the ones we ranked.
@@ -25,7 +26,7 @@ function where(row) {
   return [row.city, row.state].filter(Boolean).join(', ');
 }
 
-function SpecificSchoolRow({ programme, rank, busy, onRemove, onManualOutreach }) {
+function SpecificSchoolRow({ programme, rank, busy, onRemove, onManualOutreach, contact = null }) {
   return (
     <li className="flex items-start justify-between gap-3 p-3" data-testid="specific-school-row">
       <div className="min-w-0 space-y-1">
@@ -43,6 +44,7 @@ function SpecificSchoolRow({ programme, rank, busy, onRemove, onManualOutreach }
           rank is invented for a school that is not: a placeholder here would
           be read as a match score by the next person to look at the screen.
         */}
+        <ProgrammeContactSummary summary={contact} />
         {rank != null && (
           <p className="text-xs text-muted-foreground">
             Also ranked <span className="font-medium text-foreground">#{rank}</span> in this
@@ -74,6 +76,8 @@ function SpecificSchoolRow({ programme, rank, busy, onRemove, onManualOutreach }
 
 export default function SpecificSchools({
   specific, recommendations, loading, failed, pending, error, onRemove, onManualOutreach = null,
+  /** The athlete's whole history, fetched once by the workspace. */
+  contactByProgramme = new Map(),
 }) {
   /**
    * Rank by name, from the analysis already in memory. ARRAY ORDER IS THE
@@ -130,6 +134,7 @@ export default function SpecificSchools({
                 busy={pending === (p.college_id || p.id)}
                 onRemove={onRemove}
                 onManualOutreach={onManualOutreach}
+                contact={contactByProgramme.get(p.college_name)}
               />
             ))}
           </ul>

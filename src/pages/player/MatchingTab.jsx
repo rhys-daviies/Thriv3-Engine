@@ -12,6 +12,8 @@ import ProgrammeRelationship from '@/components/ProgrammeRelationship';
 import SuppressedProgrammes from '@/components/SuppressedProgrammes';
 import ManualOutreachDialog from '@/components/ManualOutreachDialog';
 import { BOTH_PATHS_HINT } from '@/lib/outreachLabels';
+import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
+import { useContactIntelligence } from '@/lib/useContactIntelligence';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
 import { cn } from '@/lib/utils';
@@ -71,6 +73,19 @@ export default function MatchingTab() {
    * server rather than from whatever this page is holding.
    */
   const [manualTarget, setManualTarget] = useState(null);
+
+  /**
+   * ONE REQUEST FOR THE WHOLE ATHLETE, read by every card on every page.
+   *
+   * Not per card, and not per page of cards: a hundred programmes would be a
+   * hundred requests, and paging would change the count. Cards do a Map lookup
+   * and a miss means nobody has written to that programme.
+   *
+   * It needs NO relationship — the history is keyed on the programme, so a
+   * recommendation nobody has flagged still shows that it was emailed last
+   * week, without a row being created to say so.
+   */
+  const { byProgramme: contactByProgramme } = useContactIntelligence(player?.id);
   const [showBulk, setShowBulk] = useState(false);
   /**
    * MATCH PRIORITIES HAS NO VISIBLE TRIGGER ANY MORE, AND IS NOT DELETED.
@@ -264,6 +279,7 @@ export default function MatchingTab() {
           error={programmeError}
           onRemove={withdraw}
           onManualOutreach={openManualOutreach}
+          contactByProgramme={contactByProgramme}
         />
       )}
 
@@ -332,6 +348,7 @@ export default function MatchingTab() {
             pending={pending}
             onRestore={setVisibility}
             onManualOutreach={openManualOutreach}
+            contactByProgramme={contactByProgramme}
           />
 
           {/*
@@ -365,6 +382,16 @@ export default function MatchingTab() {
                 */
                 outreachHint={relationshipFor(college) ? BOTH_PATHS_HINT : null}
                 footer={(
+                  <>
+                  {/*
+                    SHOWN WHETHER OR NOT A RELATIONSHIP EXISTS. Prior outreach
+                    is a fact about the programme, and surfacing it creates
+                    nothing — no row is written to say a school was emailed.
+                  */}
+                  <ProgrammeContactSummary
+                    summary={contactByProgramme.get(college.name)}
+                    className="mt-3 pt-3 border-t border-border"
+                  />
                   <ProgrammeRelationship
                     collegeName={college.name}
                     collegeId={college.id}
@@ -378,6 +405,7 @@ export default function MatchingTab() {
                     onSaveNote={saveNote}
                     onManualOutreach={openManualOutreach}
                   />
+                  </>
                 )}
               />
             ))}

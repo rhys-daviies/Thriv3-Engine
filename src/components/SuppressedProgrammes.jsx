@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RELATIONSHIP_OUTREACH } from '@/lib/outreachLabels';
+import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
 
 /**
  * THE WAY BACK.
@@ -32,6 +33,8 @@ export default function SuppressedProgrammes({
    * with their ids on them, so nothing is fetched or created to offer this.
    */
   onManualOutreach = null,
+  /** The athlete's whole history, fetched once by the workspace. */
+  contactByProgramme = new Map(),
 }) {
   const [open, setOpen] = useState(false);
   if (!suppressed.length) return null;
@@ -61,6 +64,7 @@ export default function SuppressedProgrammes({
                   {p.request_state === 'requested' && <Badge variant="purple">Specific Request</Badge>}
                 </div>
                 {p.flag_reason && <p className="text-xs text-muted-foreground">{p.flag_reason}</p>}
+                <ProgrammeContactSummary summary={contactByProgramme.get(p.college_name)} className="mt-1" />
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 {onManualOutreach && (

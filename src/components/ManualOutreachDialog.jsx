@@ -7,7 +7,9 @@ import { manualOutreach } from '@/api/client';
 import {
   RELATIONSHIP_OUTREACH, RELATIONSHIP_DIALOG_HINT, MANUAL_ONLY_HINT,
   DO_NOT_CONTACT_TITLE, DO_NOT_CONTACT_BODY, ORIGIN_LABEL, ORIGIN_UNRECORDED,
+  ENGAGEMENT_HINT,
 } from '@/lib/outreachLabels';
+import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
 
 /**
  * WRITING TO ONE PROGRAMME, BY HAND, BECAUSE THIS ONE IS DIFFERENT.
@@ -93,7 +95,7 @@ function activity(r) {
   return ` · ${parts.join(' · ')}`;
 }
 
-function PriorContact({ rows }) {
+function PriorContact({ rows, engagement }) {
   if (!rows?.length) {
     return (
       <div>
@@ -115,6 +117,7 @@ function PriorContact({ rows }) {
             <span className="font-medium">{r.coach_name}</span>
             {r.position_title ? <span className="text-muted-foreground"> — {r.position_title}</span> : null}
             <span className="text-muted-foreground">{activity(r)}</span>
+            <CoachEngagement e={engagement?.get(r.coach_id)} />
           </li>
         ))}
       </ul>
@@ -123,7 +126,11 @@ function PriorContact({ rows }) {
 }
 
 /** Why this programme is being written to by hand. */
-function RelationshipContext({ relationship, priorContact }) {
+function RelationshipContext({ relationship, priorContact, intelligence }) {
+  /** Per coach, from the one summary the server already computed. */
+  const engagementByCoach = new Map(
+    (intelligence?.coaches ?? []).map((c) => [c.coach_id, c.engagement]),
+  );
   /**
    * EACH FACT KEPT AS ITS OWN FACT. A school can be requested AND flagged AND
    * removed from the Top 100, and blending those into one status would lose
@@ -162,8 +169,35 @@ function RelationshipContext({ relationship, priorContact }) {
       {relationship.contact_stance === 'manual_only' && (
         <p className="text-xs text-muted-foreground">{MANUAL_ONLY_HINT}</p>
       )}
-      <PriorContact rows={priorContact} />
+
+      {/* The same summary the cards show, so the two cannot disagree. */}
+      <ProgrammeContactSummary summary={intelligence} />
+      <PriorContact rows={priorContact} engagement={engagementByCoach} />
     </div>
+  );
+}
+
+/**
+ * What the coach did, per coach, beneath what we sent them.
+ *
+ * SEPARATE FROM THE OUTREACH LINE ABOVE IT, because they are different kinds
+ * of fact: one is what this product did, the other is what a person did. A
+ * profile visit is the coach following their own tracked link — not an email
+ * open, which this build does not record at all.
+ */
+function CoachEngagement({ e }) {
+  if (!e) return null;
+  const bits = [];
+  if (e.profile_visits > 0) {
+    bits.push(e.profile_visits > 1 ? `opened profile ${e.profile_visits}x` : 'opened profile');
+  }
+  if (e.best_coverage_pct > 0) bits.push(`watched ${e.best_coverage_pct}% of the video`);
+  if (e.reply_recorded) bits.push('reply recorded');
+  if (!bits.length) return null;
+  return (
+    <span className="text-emerald-400" title={ENGAGEMENT_HINT.profile_visit}>
+      {' · '}{bits.join(' · ')}
+    </span>
   );
 }
 
@@ -201,7 +235,9 @@ export default function ManualOutreachDialog({ player, relationshipId, open, onO
     );
   }
 
-  const { relationship, college, coaches, contact: decision, priorContact } = context;
+  const {
+    relationship, college, coaches, contact: decision, priorContact, contactIntelligence,
+  } = context;
 
   if (!decision.allowed) {
     return (
@@ -251,7 +287,13 @@ export default function ManualOutreachDialog({ player, relationshipId, open, onO
       open={open}
       onOpenChange={onOpenChange}
       subtitle={RELATIONSHIP_DIALOG_HINT}
-      context={<RelationshipContext relationship={relationship} priorContact={priorContact} />}
+      context={(
+        <RelationshipContext
+          relationship={relationship}
+          priorContact={priorContact}
+          intelligence={contactIntelligence}
+        />
+      )}
       /**
        * THE RELATIONSHIP-SCOPED ENDPOINT, not the shared one.
        *

@@ -606,3 +606,22 @@ export const manualOutreach = {
     });
   },
 };
+
+
+/**
+ * EXISTING-CONTACT INTELLIGENCE, ONE REQUEST PER ATHLETE.
+ *
+ * Deliberately not a per-programme call. The matching page shows a hundred
+ * programmes twenty at a time, so a per-card endpoint would make the request
+ * count a function of how the page paginates. This returns every programme the
+ * athlete has history with; the caller indexes it and each card reads a local
+ * map. Programmes with no history are absent, which is what a map miss means.
+ *
+ * Read-only. There is no sibling that writes, and nothing here marks anything
+ * contacted.
+ */
+export const contactIntelligence = {
+  forAthlete(playerId) {
+    return request(`/api/players/${playerId}/contact-intelligence`);
+  },
+};

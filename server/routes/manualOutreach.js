@@ -4,6 +4,7 @@ import { getAthleteProgramme } from '../lib/athleteProgrammes.js';
 import { manualContactDecision } from '../lib/manualOutreachSafety.js';
 import { programmeCoaches } from './programmeCoaches.js';
 import { historyForAthleteProgramme } from '../lib/programmeContactHistory.js';
+import { contactIntelligenceForProgramme } from '../lib/contactIntelligence.js';
 import { sendOutreach } from './sendOutreach.js';
 import { OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
 
@@ -143,6 +144,15 @@ manualOutreachRouter.get('/players/:playerId/programmes/:id/outreach', (req, res
       coaches: programmeCoaches({ collegeName: ctx.collegeName, sport: ctx.sport }),
       contact: decision,
       priorContact: historyForAthleteProgramme({
+        athleteId: ctx.playerId, collegeName: ctx.collegeName, sport: ctx.sport,
+      }),
+      /**
+       * The same summary the cards read, for the one programme being written
+       * to. No N+1 concern here — this dialog is already about one programme —
+       * and reusing the helper is what keeps the card and the dialog from
+       * disagreeing about whether a coach has been written to.
+       */
+      contactIntelligence: contactIntelligenceForProgramme({
         athleteId: ctx.playerId, collegeName: ctx.collegeName, sport: ctx.sport,
       }),
     });
