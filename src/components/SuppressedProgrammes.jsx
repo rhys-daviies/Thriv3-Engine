@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Eye, Loader2, Mail } from 'lucide-react';
+import { Eye, Loader2, Handshake } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { RELATIONSHIP_OUTREACH } from '@/lib/outreachLabels';
 
 /**
  * THE WAY BACK.
@@ -64,7 +65,7 @@ export default function SuppressedProgrammes({
               <div className="flex items-center gap-1 shrink-0">
                 {onManualOutreach && (
                   <Button size="sm" variant="ghost" onClick={() => onManualOutreach(p)}>
-                    <Mail className="h-3.5 w-3.5 mr-1" /> Manual Outreach
+                    <Handshake className="h-3.5 w-3.5 mr-1" /> {RELATIONSHIP_OUTREACH}
                   </Button>
                 )}
                 <Button

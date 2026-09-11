@@ -140,6 +140,13 @@ export default function CollegeCard({
    * relationships, and stays the presentation of one ranked programme.
    */
   footer = null,
+  /**
+   * Shown beside "Email Coaches", and ONLY where the other path is also
+   * reachable — a card whose programme has a relationship record. Everywhere
+   * else there is nothing to disambiguate and a sentence on every card would
+   * be noise on a page of twenty.
+   */
+  outreachHint = null,
 }) {
   const [expanded, setExpanded] = useState(false);
   const coaches = (college.coaching_staff || []).filter((c) => c.email && c.email !== 'N/A');
@@ -308,9 +315,14 @@ export default function CollegeCard({
             </div>
           )}
 
-          <Button size="sm" onClick={() => onEmailCoaches(college)} disabled={coaches.length === 0}>
-            <Mail className="h-3.5 w-3.5 mr-1.5" /> Email Coaches
-          </Button>
+          <div className="space-y-1.5">
+            <Button size="sm" onClick={() => onEmailCoaches(college)} disabled={coaches.length === 0}>
+              <Mail className="h-3.5 w-3.5 mr-1.5" /> Email Coaches
+            </Button>
+            {outreachHint && (
+              <p className="text-xs text-muted-foreground max-w-prose">{outreachHint}</p>
+            )}
+          </div>
         </div>
       )}
     </Card>

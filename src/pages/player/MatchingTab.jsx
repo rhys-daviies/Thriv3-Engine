@@ -11,6 +11,7 @@ import SpecificSchools from '@/components/SpecificSchools';
 import ProgrammeRelationship from '@/components/ProgrammeRelationship';
 import SuppressedProgrammes from '@/components/SuppressedProgrammes';
 import ManualOutreachDialog from '@/components/ManualOutreachDialog';
+import { BOTH_PATHS_HINT } from '@/lib/outreachLabels';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
 import { cn } from '@/lib/utils';
@@ -357,6 +358,12 @@ export default function MatchingTab() {
                 onEmailCoaches={setEmailTarget}
                 playerId={player?.id}
                 recruitingSignals={recruitingSignalsForCollege(signalData, college.name)}
+                /*
+                  Only where both paths are reachable at once. A card with no
+                  relationship has one way to write to it and needs no sentence
+                  telling it apart from a button that is not there.
+                */
+                outreachHint={relationshipFor(college) ? BOTH_PATHS_HINT : null}
                 footer={(
                   <ProgrammeRelationship
                     collegeName={college.name}

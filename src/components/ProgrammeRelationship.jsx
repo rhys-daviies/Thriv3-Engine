@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Flag, Loader2, EyeOff, Eye, Mail } from 'lucide-react';
+import { Flag, Loader2, EyeOff, Eye, Handshake } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { RELATIONSHIP_OUTREACH, MANUAL_ONLY_HINT } from '@/lib/outreachLabels';
 
 /**
  * WHAT THRIV3 ALREADY KNOWS ABOUT THIS ATHLETE AND THIS SCHOOL.
@@ -68,6 +69,16 @@ export default function ProgrammeRelationship({
 
   return (
     <div className="mt-3 pt-3 border-t border-border space-y-2" data-testid="programme-relationship">
+      {/*
+        NAMED, so the controls below read as belonging to something. Without it
+        the flag, the note and the outreach action are three loose buttons at
+        the foot of a match card, and the operator has to infer that they are
+        about a record rather than about the ranking above them.
+      */}
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+        Relationship
+      </p>
+
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-1.5 flex-wrap">
           {/*
@@ -83,6 +94,8 @@ export default function ProgrammeRelationship({
           {flagged && <Badge variant="amber">Existing relationship</Badge>}
           {requested && <Badge variant="purple">Specific Request</Badge>}
           {suppressed && <Badge variant="muted">Not in Top 100</Badge>}
+          {relationship?.contact_stance === 'manual_only' && <Badge variant="blue">Manual only</Badge>}
+          {relationship?.contact_stance === 'do_not_contact' && <Badge variant="red">Do not contact</Badge>}
           {flagged && relationship?.flag_reason && (
             <span className="text-xs text-muted-foreground">{relationship.flag_reason}</span>
           )}
@@ -107,8 +120,9 @@ export default function ProgrammeRelationship({
             related reason: this action is the RELATIONSHIP-SCOPED workflow, so
             it needs a relationship. A recommended school nobody has said
             anything about has no row to scope it to, and the card's own
-            "Email Coaches" button is the path for that — opening this one
-            would have to invent a relationship as a side effect of a click.
+            card's own "Email Coaches" button is the path for that — opening
+            this one would have to invent a relationship as a side effect of a
+            click.
 
             OFFERED EVEN WHEN THE STANCE IS do_not_contact. The dialog resolves
             the stance server-side and explains the refusal; hiding the button
@@ -118,7 +132,13 @@ export default function ProgrammeRelationship({
           {relationship?.id && onManualOutreach && (
             <Button size="sm" variant="outline" disabled={busy}
               onClick={() => onManualOutreach(relationship)}>
-              <Mail className="h-3.5 w-3.5 mr-1" /> Manual Outreach
+              {/*
+                A DIFFERENT ICON FROM "Email Coaches", which is the fastest
+                discrimination available on a card carrying both. Same glyph
+                either side would make the labels the only difference, read at
+                a glance, in a row of small buttons.
+              */}
+              <Handshake className="h-3.5 w-3.5 mr-1" /> {RELATIONSHIP_OUTREACH}
             </Button>
           )}
 
@@ -207,6 +227,10 @@ export default function ProgrammeRelationship({
             </button>
           )}
         </div>
+      )}
+
+      {relationship?.contact_stance === 'manual_only' && (
+        <p className="text-xs text-muted-foreground">{MANUAL_ONLY_HINT}</p>
       )}
 
       {error && <p className="text-xs text-destructive" role="alert">{error.message}</p>}
