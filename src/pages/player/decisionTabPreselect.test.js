@@ -6,6 +6,7 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
 import DecisionTab from './DecisionTab.jsx';
 import { PAGE_FIXTURES } from '@/lib/__fixtures__/pageFixtures.js';
+import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 
 /**
  * Arriving at Decision Evidence from one card's "View full evidence".
@@ -46,8 +47,23 @@ let setPlayerIdOutside;
 const EMPTY = PAGE_FIXTURES.Bethesda;
 
 function stubFetch() {
-  vi.stubGlobal('fetch', vi.fn(async (path, opts) => {
-    const body = JSON.parse(opts.body);
+  vi.stubGlobal('fetch', vi.fn(async (path, opts = {}) => {
+    /**
+     * The relationship list, which DecisionTab now waits for.
+     *
+     * It does not render the ranked list until the athlete's own visibility
+     * decisions are known — the point of that gate is that a school the
+     * operator removed cannot appear in the gap. A harness that never answers
+     * this request leaves the tab correctly showing its loading state forever.
+     */
+    if (path.includes('/programmes')) {
+      return {
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ programmes: [] }),
+      };
+    }
+    const body = opts.body ? JSON.parse(opts.body) : {};
     return {
       ok: true,
       headers: { get: () => 'application/json' },
@@ -56,11 +72,27 @@ function stubFetch() {
   }));
 }
 
+/**
+ * Stands in for PlayerWorkspace and calls the same hook it does.
+ *
+ * DecisionTab reads `actionableRecommendations` now rather than the raw
+ * analysis, so a school an operator removed from this athlete's Top 100 is
+ * absent here too. Assembling that list here instead of calling the production
+ * hook would let this harness pass while the real derivation was broken.
+ */
 function Shell() {
   const [playerId, setPlayerId] = useState('athlete-1');
   setPlayerIdOutside = setPlayerId;
+  const workspace = useActionableRecommendations({
+    playerId, recommendations: RECOMMENDATIONS, reserve: [],
+  });
   return createElement(Outlet, {
-    context: { player: { id: playerId, sport: 'mens-soccer' }, recommendations: RECOMMENDATIONS },
+    context: {
+      player: { id: playerId, sport: 'mens-soccer' },
+      recommendations: RECOMMENDATIONS,
+      reserve: [],
+      ...workspace,
+    },
   });
 }
 

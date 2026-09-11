@@ -196,6 +196,37 @@ const ROSTER_PLAYER_COLUMNS = [
  * Added after `outreach_evidence` was already in the field. schema.sql creates
  * the table but cannot add a column to an existing one.
  */
+/**
+ * OPERATOR ATTRIBUTION ON A PROGRAMME RELATIONSHIP.
+ *
+ * `athlete_programmes` shipped with a mutable, unattributed `note` and this
+ * comment where the reason used to be: there was no usable operator identity
+ * to attribute anything to. There is now — `operator_users`,
+ * `operator_sessions` and an `attachOperator` middleware that puts
+ * `req.operator` on every authenticated request — and
+ * `connected_mailboxes.operator_user_id` already sets the convention for
+ * pointing at it.
+ *
+ * So two columns, and deliberately only two. NOT a history table: this records
+ * WHO THE STATE BELONGS TO NOW, which is the question an operator looking at a
+ * flag actually asks. A full append-only log of every change is a bigger
+ * thing and would need a reason of its own.
+ *
+ * NULLABLE, and no backfill. Rows written before this existed have no author
+ * and inventing one would be recording something nobody observed — the same
+ * reason the note itself was left unattributed rather than guessed at.
+ *
+ * REFERENCES rather than a bare id, so a flag cannot point at an operator who
+ * was never here. No ON DELETE clause, matching every other reference to
+ * `operator_users` in this schema: under foreign_keys=ON that refuses the
+ * delete, and an account is deactivated (`active = 0`) rather than deleted
+ * precisely so its attribution survives.
+ */
+const ATHLETE_PROGRAMME_COLUMNS = [
+  ['flagged_by_operator_id', 'TEXT REFERENCES operator_users(id)'],
+  ['note_updated_by_operator_id', 'TEXT REFERENCES operator_users(id)'],
+];
+
 const OUTREACH_EVIDENCE_COLUMNS = [
   ['evidence_rendered', 'INTEGER'],
   ['primary_confidence', 'TEXT'],
@@ -295,6 +326,30 @@ const OUTREACH_SEND_COLUMNS = [
    * NULL until a message is ACCEPTED.
    */
   ['accepted_source', 'TEXT'],
+
+  /**
+   * WHAT KIND OF ACTION PUT THIS MESSAGE IN THE WORLD.
+   *
+   * `programme_campaign_id IS NULL` was doing this job and cannot: it is null
+   * for a manual send, null for every row written before campaigns existed,
+   * and null again for a campaign row whose campaign was later deleted
+   * (ON DELETE SET NULL). Three different histories, one indistinguishable
+   * value, and a later question like "has anyone written to this coach outside
+   * a campaign" has no answer.
+   *
+   * NULLABLE AND NOT BACKFILLED. Rows written before this column existed were
+   * not observed to be either kind, and guessing from `programme_campaign_id`
+   * would manufacture exactly the certainty the column exists to record.
+   *
+   * NO CHECK CONSTRAINT, deliberately. SQLite cannot alter one, so a CHECK
+   * here would make every future origin — a reply, an import, a scheduled
+   * follow-up — a table rebuild. The vocabulary is owned by
+   * shared/outreachOrigin.js and enforced where it is written.
+   *
+   * SET FROM THE SERVER'S OWN CONTEXT, NEVER FROM A REQUEST BODY. See the
+   * second argument of sendOutreach.
+   */
+  ['origin', 'TEXT'],
 ];
 
 /**
@@ -805,6 +860,9 @@ export function migrate(db) {
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_programme_campaign ON outreach(programme_campaign_id)');
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_send_programme_campaign ON outreach_send(programme_campaign_id)');
   addMissingColumns(db, 'outreach_evidence', OUTREACH_EVIDENCE_COLUMNS);
+  // WHO FLAGGED IT, AND WHO LAST WROTE THE NOTE. Added here rather than in
+  // schema.sql because the table already exists in the field.
+  addMissingColumns(db, 'athlete_programmes', ATHLETE_PROGRAMME_COLUMNS);
   // After the column exists, never before: schema.sql runs first and cannot
   // index a column this function is about to add.
   db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_evidence_selected ON outreach_evidence(selected_kinds)');

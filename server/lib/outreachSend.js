@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
+import { normaliseOrigin, OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
 import { utcNow } from './time.js';
 import { buildSendSnapshot } from '../../shared/evidence/sendSnapshot.js';
 import { LEGACY_POLICY_VERSION } from '../../shared/evidence/outreachPolicy.js';
@@ -46,7 +47,7 @@ const parse = (row) => (row ? { ...row, payload: safeParse(row.payload) } : null
 const insertSend = db.prepare(`
   INSERT INTO outreach_send (
     id, outreach_id, sequence, drafted_at, sent_at,
-    athlete_id, coach_id, college_name, sport, programme_campaign_id, policy_version,
+    athlete_id, coach_id, college_name, sport, programme_campaign_id, origin, policy_version,
     state, accepted_source,
     structure, structure_source, body_source, template_variant,
     has_personalisation, primary_kind, primary_role, hook_kind,
@@ -54,7 +55,7 @@ const insertSend = db.prepare(`
     subject, body_hash, payload, created_at
   ) VALUES (
     @id, @outreach_id, @sequence, @drafted_at, @sent_at,
-    @athlete_id, @coach_id, @college_name, @sport, @programme_campaign_id, @policy_version,
+    @athlete_id, @coach_id, @college_name, @sport, @programme_campaign_id, @origin, @policy_version,
     @state, @accepted_source,
     @structure, @structure_source, @body_source, @template_variant,
     @has_personalisation, @primary_kind, @primary_role, @hook_kind,
@@ -107,6 +108,15 @@ export function recordDraft({
   programmeCampaignId = null, onDate = undefined,
   evidence, body = null, subject = null,
   bodySource = null, templateVariant = null, renderedKinds = null,
+  /**
+   * WHAT KIND OF ACTION THIS WAS — see shared/outreachOrigin.js.
+   *
+   * Supplied by the caller like `programmeCampaignId` above and for the same
+   * reason: whoever composed the message knows what it is, and inferring it
+   * here from a null campaign id would record "manual" for every legacy row
+   * and every campaign whose campaign row was later deleted.
+   */
+  origin = null,
   at = utcNow(),
 }) {
   /**
@@ -145,6 +155,16 @@ export function recordDraft({
     college_name: collegeName,
     sport,
     programme_campaign_id: verifiedCampaign,
+    /**
+     * CAMPAIGN ATTRIBUTION WINS, and it wins over the CALLER'S OWN CONTEXT.
+     *
+     * `verifiedCampaign` is what `authorisedProgrammeCampaignId` just approved,
+     * so a message that really is campaign work is recorded as campaign work
+     * whatever route composed it. Only when there is no campaign does the
+     * caller's context decide — and that context is a second argument no
+     * request body can reach.
+     */
+    origin: verifiedCampaign ? OUTREACH_ORIGIN.CAMPAIGN : normaliseOrigin(origin),
     // A body exists and may still be rewritten in place. Nothing has been
     // handed to a transport by the time this is written.
     state: MESSAGE_STATE.DRAFT,

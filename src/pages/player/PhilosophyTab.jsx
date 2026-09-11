@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { philosophy } from '@/api/client';
 import { PhilosophyRow } from '@/components/philosophy/PhilosophyRow';
 import { usePlayerWorkspace } from './PlayerWorkspace';
+import ActionableRecommendationsState, { isActionablePending } from '@/components/ActionableRecommendationsState';
 
 const PAGE_SIZE = 20;
 const MAX_PAGE_BUTTONS = 5;
@@ -36,7 +37,16 @@ function loadSummaries(playerId, ids) {
  * send from another tab.
  */
 export default function PhilosophyTab() {
-  const { player, recommendations, analyzing, onAnalyze } = usePlayerWorkspace();
+  /**
+   * THE ACTIONABLE SET — the same list Matching, Decision and Evidence show.
+   * Program Philosophy reads "the same schools Analysis & Matching produces",
+   * which is now the derived hundred rather than the raw analysis. See
+   * src/lib/useActionableRecommendations.js.
+   */
+  const {
+    player, actionableRecommendations: recommendations, analyzing, onAnalyze,
+    actionableStatus, reload,
+  } = usePlayerWorkspace();
   const [page, setPage] = useState(1);
   const [summaries, setSummaries] = useState({});
   const [loading, setLoading] = useState(false);
@@ -65,6 +75,15 @@ export default function PhilosophyTab() {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [player?.id, page, recommendations, attempt]);
+
+  /**
+   * Checked before the not-analysed branch: "we do not know what is
+   * actionable yet" must never be rendered as the raw analysis, and it must
+   * not be rendered as "no matches yet" either.
+   */
+  if (isActionablePending(actionableStatus)) {
+    return <ActionableRecommendationsState status={actionableStatus} onRetry={reload} />;
+  }
 
   if (!recommendations && !analyzing) {
     return (

@@ -2048,3 +2048,140 @@ CREATE TABLE IF NOT EXISTS mailbox_oauth_transactions (
 
 CREATE INDEX IF NOT EXISTS idx_oauth_transactions_grant
   ON mailbox_oauth_transactions(consent_grant_id, created_at, id);
+
+-- ===========================================================================
+-- athlete_programmes — what an athlete's relationship with a PROGRAMME is.
+--
+-- The first athlete-to-programme record in the schema. Three near-misses
+-- already existed and none of them can carry this:
+--
+--   outreach              athlete to COACH, and creating a row mints a
+--                         permanent tracking token. The wrong grain and a
+--                         side-effect nobody asked for.
+--   programme_campaigns   campaign to programme, ON DELETE CASCADE from the
+--                         campaign, and explicitly a frozen snapshot. A
+--                         relationship must outlive every campaign.
+--   suppressions          keyed on EMAIL and GLOBAL. See the rule below.
+--
+-- THREE STATES THAT ARE NOT THE SAME STATE, kept in three columns on purpose
+-- because they will be conflated in conversation and must not be in code:
+--
+--   flagged          A FACT ABOUT THE WORLD. The athlete or their family
+--                    already has a relationship here — a club connection, a
+--                    visit, a coach who knows them.
+--   visibility       A RANKING DECISION. Whether the programme appears in the
+--                    athlete's actionable Top 100.
+--   contact_stance   A SAFETY DECISION. Whether, and how, outreach may go out.
+--
+-- A flagged programme is not automatically hidden and not automatically
+-- silenced; a suppressed one may still be contacted by hand. Collapsing any
+-- pair of these would make one operator action mean three things.
+--
+-- ---------------------------------------------------------------------------
+-- THIS TABLE NEVER WRITES TO `suppressions`, AND THE REASON IS NOT STYLE.
+--
+-- `suppressions` is keyed on `email` with no athlete column: it is the record
+-- of an address that must never be written to again, for anyone. Turning
+-- "this athlete already knows the coach at Duke" into a suppression row would
+-- mute Duke's staff for every athlete in the system, permanently, from one
+-- operator marking one relationship. `contact_stance` is per relationship and
+-- is read by the campaign layer; it is never copied anywhere global.
+-- server/lib/athleteProgrammes.test.js asserts this directly.
+-- ---------------------------------------------------------------------------
+--
+-- IDENTITY IS CANONICAL OR IT IS REFUSED. (college_name, sport) is the key
+-- every join in this product uses, and `college_id` is kept ALONGSIDE it for
+-- the same reason programme_campaigns keeps both. What is different here is
+-- that both are COPIED FROM AN EXISTING `colleges` ROW and from nowhere else —
+-- no free text, no fuzzy resolution, no "create school from search text". The
+-- matcher in server/lib/schoolMatch.js has corrupted three columns by
+-- resolving names it was not sure about; this table declines to be the fourth.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS athlete_programmes (
+  id TEXT PRIMARY KEY,
+
+  -- OWNED BY THE ATHLETE, like campaigns: the relationship has no meaning
+  -- without one, and the delete path in src/pages/Players.jsx issues a bare
+  -- DELETE with no cascade of its own.
+  athlete_id TEXT NOT NULL REFERENCES players(id) ON DELETE CASCADE,
+
+  -- Copied from the resolved colleges row. NOT a foreign key to colleges(id):
+  -- a programme is retired by setting colleges.active = 0, never by deleting
+  -- the row, and a REFERENCES here would turn a name correction in the
+  -- registry into a refused write on unrelated athlete state.
+  college_name TEXT NOT NULL,
+  -- Snapshotted, as everywhere else: players.sport is mutable, and college
+  -- identity is (name, sport) — the same name is two different programmes in
+  -- two sports.
+  sport TEXT NOT NULL,
+  college_id TEXT,
+
+  -- ---- specific request (PR 2 drives this) ---------------------------------
+  -- 'withdrawn' rather than deleting the row: a school the family asked for
+  -- and then thought better of is a different thing from one nobody mentioned,
+  -- and the flag, note and contact stance on this row outlive the request.
+  request_state TEXT NOT NULL DEFAULT 'none'
+    CHECK (request_state IN ('none', 'requested', 'withdrawn')),
+  -- WHO ASKED, AT THE GRAIN WE CAN HONESTLY RECORD: 'athlete', 'family' or
+  -- 'operator'. It is NOT an operator id and must not be read as one — see the
+  -- note on `note` below.
+  requested_by TEXT CHECK (requested_by IS NULL OR requested_by IN ('athlete', 'family', 'operator')),
+  requested_at TEXT,
+
+  -- ---- existing relationship (PR 3 drives this) ----------------------------
+  flagged INTEGER NOT NULL DEFAULT 0 CHECK (flagged IN (0, 1)),
+  -- Free text, deliberately not an enum. The reasons are things like "trains
+  -- with the assistant's club side" and "her father is an alum" — a fixed vocabulary
+  -- here would be a migration every time an operator met a new situation.
+  flag_reason TEXT,
+  flagged_at TEXT,
+
+  -- ---- ranking visibility (PR 3 drives this) -------------------------------
+  -- Whether this programme is part of the athlete's actionable Top 100. The
+  -- DERIVATION is not built yet and nothing reads this column; what makes it
+  -- safe to build later is the reserve now persisted alongside the analysis
+  -- (shared/matching/reserve.js), which is where a replacement comes from.
+  visibility TEXT NOT NULL DEFAULT 'default'
+    CHECK (visibility IN ('default', 'suppressed')),
+
+  -- ---- contact safety (PR 4 reads this) ------------------------------------
+  --   default        no opinion; the existing safety layers decide
+  --   manual_only    a person may write to them; no campaign may
+  --   do_not_contact nobody writes to them for THIS athlete
+  -- Nothing enforces these yet. They are declared now so the column does not
+  -- need a table rebuild when PR 4 reads it — SQLite cannot alter a CHECK.
+  contact_stance TEXT NOT NULL DEFAULT 'default'
+    CHECK (contact_stance IN ('default', 'manual_only', 'do_not_contact')),
+
+  /**
+   * The operator's current note. MUTABLE AND UNATTRIBUTED, on purpose.
+   *
+   * Every other record of a decision in this schema is an append-only ledger
+   * with a trigger enforcing it — tracking_events, outreach_send_event,
+   * outbound_send_attempt. This one is not, because a history of notes that
+   * cannot say WHO WROTE EACH ONE answers none of the questions a history
+   * exists to answer. `operator_users` and `operator_sessions` now exist in
+   * this schema but nothing binds a session to a write, so an author column
+   * here would be invented rather than observed. When it can be observed, this
+   * becomes a log and this comment is the record of why it was not one first.
+   */
+  note TEXT,
+  note_updated_at TEXT,
+
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+
+  -- ONE RELATIONSHIP PER ATHLETE PER PROGRAMME. The upsert in
+  -- server/lib/athleteProgrammes.js depends on this, and so does the guarantee
+  -- that a flag and a specific request are two states of one row rather than
+  -- two rows that can disagree.
+  UNIQUE (athlete_id, college_name, sport)
+);
+
+-- The list read: one athlete's relationships.
+CREATE INDEX IF NOT EXISTS idx_athlete_programmes_athlete
+  ON athlete_programmes(athlete_id, college_name);
+-- The reverse question: which athletes have a relationship with this
+-- programme. Sport-scoped because the name alone is not an identity.
+CREATE INDEX IF NOT EXISTS idx_athlete_programmes_programme
+  ON athlete_programmes(college_name, sport);

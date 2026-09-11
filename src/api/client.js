@@ -51,8 +51,20 @@ async function request(path, options = {}) {
   if (!res.ok) {
     const text = await res.text().catch(() => '');
     let message = text;
-    try { message = JSON.parse(text).error || text; } catch { /* not JSON */ }
-    throw new Error(message || `Request failed (${res.status})`);
+    let code;
+    try {
+      const parsed = JSON.parse(text);
+      message = parsed.error || text;
+      code = parsed.code;
+    } catch { /* not JSON */ }
+    // `code` and `status` carried alongside the message rather than instead of
+    // it. Every caller that reads `err.message` is unaffected; the ones that
+    // need to tell a query-too-short apart from a school that is not in the
+    // registry can branch on the server's own machine-readable code instead of
+    // matching on a sentence somebody may improve later.
+    throw Object.assign(new Error(message || `Request failed (${res.status})`), {
+      code, status: res.status,
+    });
   }
   const contentType = res.headers.get('content-type') || '';
   if (contentType.includes('application/json')) return res.json();
@@ -492,5 +504,124 @@ export const functions = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body || {}),
     });
+  },
+};
+
+/**
+ * Programmes an athlete has a RELATIONSHIP with, as opposed to a rank.
+ *
+ * A purpose-built namespace rather than an `entities` table, for the reason
+ * campaigns gives and one of its own: `entities` is unvalidated pass-through
+ * CRUD, and through it a client could write any `college_name` it liked into
+ * an athlete's list. The point of `athlete_programmes` is that a programme
+ * identity is COPIED FROM THE REGISTRY rather than described by a request, so
+ * the only way to name one here is a `college_id` the search returned.
+ *
+ * Note what none of these calls touch: the stored analysis. A specific request
+ * is a relationship, not a recommendation — adding one does not put a school
+ * in the Top 100, does not change a rank, and does not reach the reserve.
+ */
+export const athleteProgrammes = {
+  /**
+   * Find programmes the operator may then choose between. DISCOVERY, NOT
+   * RESOLUTION: it answers with candidates and the operator picks one. There
+   * is no call here that turns typed text into a school.
+   *
+   * Refusals carry a `code` — SEARCH_QUERY_TOO_SHORT, SPORT_REQUIRED — so the
+   * UI can say the right thing without matching on the message.
+   */
+  search({ sport, q, limit } = {}) {
+    const qs = new URLSearchParams();
+    if (sport) qs.set('sport', sport);
+    if (q !== undefined) qs.set('q', q);
+    if (limit !== undefined) qs.set('limit', String(limit));
+    return request(`/api/colleges/search?${qs.toString()}`);
+  },
+
+  /** Every relationship this athlete has, whatever state it is in. */
+  list(playerId) {
+    return request(`/api/players/${playerId}/programmes`);
+  },
+
+  /**
+   * Create the relationship, or apply this state to the one that already
+   * exists. AN UPSERT, and that is what makes a specific request safe to make
+   * against a school that is already flagged: it lands on the same row and
+   * leaves every other piece of state on it alone.
+   *
+   * `college_id` and the state fields only. Sending `college_name` is a 400
+   * naming the field — the server reads the name off the registry row.
+   */
+  upsert(playerId, payload) {
+    return request(`/api/players/${playerId}/programmes`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+
+  /** Change the state of an existing relationship. Never the programme it is with. */
+  update(playerId, id, payload) {
+    return request(`/api/players/${playerId}/programmes/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    });
+  },
+};
+
+
+/**
+ * MANUAL, CASE-BY-CASE OUTREACH AGAINST ONE ATHLETE-PROGRAMME RELATIONSHIP.
+ *
+ * A separate namespace from `outreach` above, matching a separate endpoint,
+ * and the separation is the safety argument rather than tidiness.
+ * `/api/outreach/send` spreads the request body into its payload, so every
+ * field it reads is client-supplied by construction. These calls address a
+ * RELATIONSHIP by URL, and the programme, the contact stance, the campaign
+ * (always null) and the origin are read server-side from the database. There
+ * is no field this client could add to change any of them — it would be
+ * refused by name.
+ *
+ * What this client does decide: which coaches, what the message says, which
+ * evidence angles to prefer, and whether to send rather than draft.
+ */
+export const manualOutreach = {
+  /**
+   * Everything the composer needs in one request: the relationship, the
+   * canonical college, that programme's staff from the `coaches` table, the
+   * contact decision, and what has already been sent to this programme.
+   */
+  context(playerId, relationshipId) {
+    return request(`/api/players/${playerId}/programmes/${relationshipId}/outreach`);
+  },
+
+  /**
+   * @param {object} payload  coachIds, subject, body, greetingName, send,
+   *   evidenceSelection, evidenceStructure, bodySource — and nothing else.
+   *   `send` defaults to drafting; immediate sending is an explicit opt-in.
+   */
+  send(playerId, relationshipId, payload) {
+    return request(`/api/players/${playerId}/programmes/${relationshipId}/outreach`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+};
+
+
+/**
+ * EXISTING-CONTACT INTELLIGENCE, ONE REQUEST PER ATHLETE.
+ *
+ * Deliberately not a per-programme call. The matching page shows a hundred
+ * programmes twenty at a time, so a per-card endpoint would make the request
+ * count a function of how the page paginates. This returns every programme the
+ * athlete has history with; the caller indexes it and each card reads a local
+ * map. Programmes with no history are absent, which is what a map miss means.
+ *
+ * Read-only. There is no sibling that writes, and nothing here marks anything
+ * contacted.
+ */
+export const contactIntelligence = {
+  forAthlete(playerId) {
+    return request(`/api/players/${playerId}/contact-intelligence`);
   },
 };

@@ -16,6 +16,7 @@ import {
 import { outreach } from '@/api/client';
 import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
 import EvidencePanel from '@/components/EvidencePanel';
+import { RECOMMENDATION_DIALOG_HINT } from '@/lib/outreachLabels';
 
 /**
  * Whose name seeds the greeting in the editable draft. Every selected coach
@@ -30,7 +31,31 @@ function greetingSeed(coaches) {
   return pickBestContact(coaches) || coaches[0];
 }
 
-export default function EmailComposer({ player, college, open, onOpenChange }) {
+export default function EmailComposer({
+  player, college, open, onOpenChange,
+  /**
+   * WHO ACTUALLY PERFORMS THE SEND. One injected function, not a mode.
+   *
+   * The default is the shared `/api/outreach/send` endpoint this composer has
+   * always used. Manual, relationship-scoped outreach needs a different one —
+   * its route reads the programme, the contact stance and the campaign from
+   * the database instead of from a request body — and the difference is
+   * entirely in which endpoint is called, not in how a message is composed.
+   *
+   * A `manualMode` boolean would have been the other way to do this, and it is
+   * the way that ends with a component whose every paragraph is a conditional.
+   * This composer still knows nothing about relationships.
+   *
+   * Receives what the operator decided: coaches, subject, body, greeting, the
+   * send/draft choice and the evidence keys. It must resolve to the same
+   * `{ results, reachable, from }` shape the endpoint returns.
+   */
+  onSend = null,
+  /** Rendered above the recipients, for context the composer does not own. */
+  context = null,
+  /** One line under the title saying which kind of outreach this is. */
+  subtitle = RECOMMENDATION_DIALOG_HINT,
+}) {
   const validCoaches = useMemo(
     () => (college?.coaching_staff || []).filter((c) => c.email && c.email !== 'N/A'),
     [college]
@@ -168,17 +193,11 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
     setSending(true);
     setError(null);
     try {
-      const response = await outreach.send({
-        athleteId: player.id,
+      const composed = {
         coaches: selectedCoaches.map((c) => ({ name: c.name, email: c.email, title: c.title })),
         subject,
         body,
         greetingName: initialGreetingName,
-        collegeName: college.name,
-        division: college.division,
-        // Ties this outreach back to the Tab 2 recommendation that produced
-        // it, so Phase 5 can ask whether the matching actually works.
-        matchId: college.name,
         send: sendImmediately,
         // Kinds and a structure key — never sentences, never facts. The server
         // validates each against the evidence it generated for this pairing,
@@ -188,7 +207,18 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
         evidenceSelection: selection,
         evidenceStructure: structureChoice,
         bodySource,
-      });
+      };
+      const response = onSend
+        ? await onSend(composed)
+        : await outreach.send({
+          ...composed,
+          athleteId: player.id,
+          collegeName: college.name,
+          division: college.division,
+          // Ties this outreach back to the Tab 2 recommendation that produced
+          // it, so Phase 5 can ask whether the matching actually works.
+          matchId: college.name,
+        });
       setResults(Object.fromEntries(response.results.map((r) => [r.email, r])));
       setReachable(response.reachable);
       setFrom(response.from);
@@ -203,9 +233,18 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Email Coaches — {college?.name}</DialogTitle>
+          {/*
+            THE TWO COMPOSERS LOOK ALIKE ONCE OPEN, which is the point at which
+            a wrong choice costs something. One muted line naming the context
+            is cheaper than any amount of explanation on the card behind it.
+            `subtitle` lets the relationship wrapper name its own.
+          */}
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
         </DialogHeader>
 
         <div className="space-y-4">
+          {context}
+
           <div>
             <Label>Recipients</Label>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -227,6 +266,25 @@ export default function EmailComposer({ player, college, open, onOpenChange }) {
                   {results[c.email]?.status === 'error' && (
                     <span className="inline-flex items-center gap-1 text-xs text-destructive" title={results[c.email].error}>
                       <XCircle className="h-4 w-4" /> failed
+                    </span>
+                  )}
+                  {/*
+                    A COACH WHO WAS SKIPPED, AND WHY.
+                    Without this a refusal is a row with no tick and no cross:
+                    the operator presses the button, one recipient silently
+                    does not happen, and nothing on screen says so. Keyed on
+                    the server's own `message` rather than on a list of
+                    statuses, so the branch cannot fall behind the guards —
+                    a refusal that carries an explanation shows it, and the
+                    ones that do not are unchanged.
+                  */}
+                  {results[c.email]?.message && (
+                    <span
+                      className="inline-flex items-center gap-1 text-xs text-amber-400"
+                      title={results[c.email].message}
+                      role="status"
+                    >
+                      <XCircle className="h-4 w-4" /> not sent
                     </span>
                   )}
                 </label>

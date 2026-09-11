@@ -20,6 +20,7 @@ import 'dotenv/config';
 import db from '../db/client.js';
 import { Player } from '../db/entities/player.js';
 import { sendOutreach } from '../routes/sendOutreach.js';
+import { OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
 import { buildRosterIndex, rankMatches, normaliseAthlete } from '../../shared/matching/pool.js';
 import { shouldContact, bySeniority, classifyRole } from '../../shared/coachRoles.js';
 import { isSuppressed } from '../lib/suppressions.js';
@@ -188,6 +189,17 @@ export async function draftOne({ athlete, college, coaches, evidence }) {
     bodySource: composed.source,
     send: false,   // drafts only, always — you press send in Outlook
     evidence,
+  }, {
+    /**
+     * AN OPERATOR ACTION, CLASSIFIED BY INSPECTION RATHER THAN BY DEFAULT.
+     *
+     * This command ranks an athlete's matches and drafts to the staff worth
+     * writing to. It never sends — `send: false` above is unconditional — and
+     * a person presses send in Outlook afterwards. It has no campaign context
+     * and cannot acquire one. That is the same act as the browser composer
+     * doing twenty schools one at a time, which is what `manual` records.
+     */
+    origin: OUTREACH_ORIGIN.MANUAL,
   });
 }
 

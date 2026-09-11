@@ -9,6 +9,8 @@ import { logEvidence } from '../lib/evidenceLog.js';
 import { recordDraft, confirmSend } from '../lib/outreachSend.js';
 import { ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
 import { campaignContactDecision } from '../lib/campaignAttribution.js';
+import { assertContactAllowed } from '../lib/manualOutreachSafety.js';
+import { normaliseOrigin } from '../../shared/outreachOrigin.js';
 import { recordOutboundAttempt, TRANSPORT } from '../lib/outboundBudget.js';
 import { evidenceFor } from '../lib/evidenceQueries.js';
 import { templateVariant } from '../../shared/evidence/templateVariant.js';
@@ -131,7 +133,34 @@ export async function sendOutreach({
   collegeName, division, matchId = null, send = false, evidence = null,
   evidenceSelection = null, evidenceStructure = null, bodySource = null,
   programmeCampaignId = null,
-}) {
+}, {
+  /**
+   * WHAT KIND OF ACTION THIS IS — A SECOND ARGUMENT, AND THAT IS THE POINT.
+   *
+   * `/api/outreach/send` passes `req.body` straight into the first parameter,
+   * so anything named there is client-supplied by construction. Origin is a
+   * claim about WHO IS ACTING, and a claim about who is acting that the actor
+   * writes themselves is not a claim worth recording — still less one worth
+   * making a safety decision on later. It therefore lives in a context object
+   * that only a route handler builds, and no spread of a request body can
+   * reach it.
+   *
+   * Null when a caller says nothing, which is the honest record of the legacy
+   * composer path: it is neither a campaign send nor the relationship-scoped
+   * manual workflow, and labelling it either would invent a fact.
+   */
+  origin = null,
+} = {}) {
+  /**
+   * VALIDATED HERE, NOT WHERE IT IS WRITTEN.
+   *
+   * `recordDraft` normalises it too, but that runs inside the per-coach loop
+   * where a throw is caught and recorded as one coach's failure. An origin
+   * this code does not recognise is a caller bug about the whole run, so it
+   * stops the whole run — before anything is composed, drafted or written.
+   */
+  const resolvedOrigin = normaliseOrigin(origin);
+
   const athlete = Player.get(athleteId);
   if (!athlete) throw new Error('Unknown athlete');
   if (!isOutlookAvailable()) throw new Error('Outlook automation is only available on macOS');
@@ -146,6 +175,37 @@ export async function sendOutreach({
       + 'Every commercial email needs a sender identity, a physical postal address and a working opt-out link.'
     );
   }
+
+  /**
+   * THE RELATIONSHIP GATE, BEFORE ANYTHING IS COMPOSED OR WRITTEN.
+   *
+   * `contact_stance` is a per-athlete, per-programme decision and this is the
+   * only place every send path passes through, so it is checked here rather
+   * than in the manual route that prompted it. A rule that only holds on the
+   * screen that shows it is not a rule — an operator reaching this endpoint
+   * from the match-card composer, a script, or a stale tab gets the same
+   * refusal, and the client cannot soften it by saying otherwise in the body
+   * because nothing here reads a stance the caller supplied.
+   *
+   * ONE PROGRAMME PER CALL, so this is a fact about the whole run like the
+   * compliance check above, not a per-coach one.
+   *
+   * `visibility`, `flagged` and `request_state` are NOT consulted — see
+   * server/lib/manualOutreachSafety.js for why each of them would be wrong.
+   */
+  /**
+   * BOUND TO THE RECIPIENTS, NOT TO THE LABEL. `collegeName` and every address
+   * below arrive from the caller on the shared endpoint, and
+   * `findOrCreateCoach` would happily mint a coach row for a School A address
+   * under a School B label — so a stance resolved from the label alone could
+   * be a stance on a school nobody was writing to. See programmesReachedBy.
+   */
+  assertContactAllowed({
+    athleteId,
+    collegeName,
+    sport: athlete.sport,
+    coachEmails: coaches.map((c) => c && c.email).filter(Boolean),
+  });
 
   /**
    * THE CAMPAIGN GATE, ONCE, BEFORE THE LOOP.
@@ -294,6 +354,46 @@ export async function sendOutreach({
       const outreach = createOutreach({ athleteId, coachId: record.id, matchId, programmeCampaignId });
 
       /**
+       * A REVOKED OUTREACH RECORD IS NOT WRITEABLE THROUGH, on any path.
+       *
+       * Revocation withdraws the athlete's public page for ONE COACH: that
+       * outreach record's token stops resolving. `campaignAttribution` has
+       * refused a revoked outreach record since B1 — but only for
+       * campaign-attributed sends, so a manual or recommendation send through
+       * one composed happily and put a deliberately dead link in front of a
+       * coach. The campaign path already calls that OUTREACH_REVOKED; this is
+       * the same refusal for everything else.
+       *
+       * IT IS A FACT ABOUT ONE ATHLETE-COACH PAIR AND NOTHING WIDER. It is not
+       * a programme-level block, and it says nothing about
+       * `athlete_programmes` — not its contact stance, its visibility, its flag
+       * or its request state. Another coach at the same school in the same call
+       * is unaffected, which is why this skips rather than failing the run.
+       *
+       * Checked AFTER `createOutreach` because that function returns an
+       * existing record untouched — nothing is written for one that already
+       * exists. Un-revoking is its own deliberate act; nothing here clears it.
+       */
+      if (outreach.revoked_at) {
+        results.push({
+          email: coach.email,
+          name: coach.name,
+          status: 'revoked',
+          /**
+           * SAID OUT LOUD, because a skipped coach is otherwise a row with no
+           * tick and no cross. `reason` is the machine-readable code the
+           * campaign path already uses for this; `message` is what a person
+           * reads. The other guards in this loop are deliberately left as they
+           * were — widening their shape is not this change's business.
+           */
+          reason: 'OUTREACH_REVOKED',
+          message: 'Outreach to this coach was revoked, so their tracking link no longer '
+            + 'resolves. Nothing was drafted or sent.',
+        });
+        continue;
+      }
+
+      /**
        * THE SEQUENCE IS PER COACH, SO THE EVIDENCE IS TOO.
        *
        * `evidenceUsed` above is derived once for the whole run, which is right
@@ -422,6 +522,16 @@ export async function sendOutreach({
             // Per message, and never read back off the relationship: see the
             // note in recordDraft.
             programmeCampaignId,
+            /**
+             * The context's origin, or `campaign` when this run is attributed
+             * to one. Derived rather than asked for in the second case: a send
+             * carrying a programme campaign id that passed the gate above IS a
+             * campaign send, whatever a caller thought to say about it.
+             */
+            // Passed through. `recordDraft` overrides it with `campaign`
+            // when the attribution it verifies says so, which is the only
+            // authoritative answer to that question.
+            origin: resolvedOrigin,
             evidence: coachEvidence,
             body: personalisedBody,
             subject: personalise(subject, greetingName, coach.name || 'Coach'),
