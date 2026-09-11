@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Sparkles, Search, CheckCircle2, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -8,6 +8,9 @@ import EmailComposer from '@/components/EmailComposer';
 import BulkEmailComposer from '@/components/BulkEmailComposer';
 import SpecificSearch from '@/components/SpecificSearch';
 import SpecificSchools from '@/components/SpecificSchools';
+import ProgrammeRelationship from '@/components/ProgrammeRelationship';
+import SuppressedProgrammes from '@/components/SuppressedProgrammes';
+import { visibleTop100 } from '@shared/matching/visibleTop100.js';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
 import { cn } from '@/lib/utils';
@@ -49,7 +52,7 @@ function PhaseStep({ icon: Icon, title, description, active, done }) {
 }
 
 export default function MatchingTab() {
-  const { player, setPlayer, recommendations, summary, analyzing, phase, progress, page, setPage, onAnalyze } = usePlayerWorkspace();
+  const { player, setPlayer, recommendations, reserve, summary, analyzing, phase, progress, page, setPage, onAnalyze } = usePlayerWorkspace();
   const [emailTarget, setEmailTarget] = useState(null);
   const [showBulk, setShowBulk] = useState(false);
   /**
@@ -82,8 +85,10 @@ export default function MatchingTab() {
    * school that happens also to be ranked.
    */
   const {
-    specific, byCollegeId, loading: programmesLoading, failed: programmesFailed,
+    programmes: relationships, specific, byCollegeId, byCollegeName,
+    loading: programmesLoading, failed: programmesFailed,
     pending, error: programmeError, clearError, add, withdraw,
+    flag, unflag, setVisibility, saveNote,
   } = useAthleteProgrammes(player?.id);
 
   /**
@@ -111,8 +116,26 @@ export default function MatchingTab() {
     await onAnalyze(updated);
   }
 
-  const totalPages = recommendations ? Math.ceil(recommendations.length / PAGE_SIZE) : 0;
-  const pageItems = recommendations ? recommendations.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : [];
+  /**
+   * THE ACTIONABLE HUNDRED, DERIVED ON EVERY RENDER AND STORED NOWHERE.
+   *
+   * `recommendations` remains the model's answer, untouched — this removes the
+   * programmes THIS athlete's operator took out and promotes replacements from
+   * the reserve in the model's own order. Restoring a school is therefore one
+   * row update and not a re-analysis, and every entry still carries the rank
+   * the model gave it as `source_rank`.
+   *
+   * With no suppressions this returns exactly `recommendations`, in order, so
+   * the page is what it always was for every athlete nobody has edited.
+   */
+  const actionable = useMemo(
+    () => visibleTop100({ recommendations, reserve, relationships }),
+    [recommendations, reserve, relationships],
+  );
+  const visible = recommendations ? actionable.programmes : null;
+
+  const totalPages = visible ? Math.ceil(visible.length / PAGE_SIZE) : 0;
+  const pageItems = visible ? visible.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : [];
   const pageButtons = Array.from({ length: Math.min(totalPages, MAX_PAGE_BUTTONS) }, (_, i) => i + 1);
 
   /**
@@ -259,6 +282,17 @@ export default function MatchingTab() {
           )}
 
           {/*
+            The way back. Removing a school takes its card — and the control
+            that would restore it — off the page, so the decision would
+            otherwise be one-way.
+          */}
+          <SuppressedProgrammes
+            suppressed={relationships.filter((p) => p.visibility === 'suppressed')}
+            pending={pending}
+            onRestore={setVisibility}
+          />
+
+          {/*
             A FAILED REQUEST IS SAID ONCE, HERE.
             The request covers the whole page, so its failure is a fact about
             the page and not about any programme on it. Said per card it would
@@ -282,6 +316,20 @@ export default function MatchingTab() {
                 onEmailCoaches={setEmailTarget}
                 playerId={player?.id}
                 recruitingSignals={recruitingSignalsForCollege(signalData, college.name)}
+                footer={(
+                  <ProgrammeRelationship
+                    collegeName={college.name}
+                    collegeId={college.id}
+                    relationship={byCollegeName.get(college.name) ?? null}
+                    busy={pending === college.id}
+                    error={programmeError?.collegeId === college.id ? programmeError : null}
+                    promotedFrom={college.promoted ? college.source_rank : null}
+                    onFlag={flag}
+                    onUnflag={unflag}
+                    onSetVisibility={setVisibility}
+                    onSaveNote={saveNote}
+                  />
+                )}
               />
             ))}
           </div>

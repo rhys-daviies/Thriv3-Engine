@@ -57,9 +57,27 @@ const IMMUTABLE_FIELDS = Object.freeze({
   requested_at: 'stamped when a request is recorded, not by editing it',
   flagged_at: 'stamped when a flag is set, not by editing it',
   note_updated_at: 'stamped when the note changes, not by editing it',
+  flagged_by_operator_id: 'read from the signed-in operator, never from a request',
+  note_updated_by_operator_id: 'read from the signed-in operator, never from a request',
   created_at: 'dates the record',
   updated_at: 'maintained by the server',
 });
+
+/**
+ * WHO IS ACTING, READ FROM THE SESSION AND NEVER FROM THE BODY.
+ *
+ * `attachOperator` puts `req.operator` there when a valid session cookie says
+ * so, and `requireOperator` guarantees one in front of every route in
+ * server/index.js. It is read here rather than accepted as a field for the
+ * obvious reason: an attribution a client can choose is not an attribution.
+ *
+ * Null is tolerated rather than required, because these routes are mounted
+ * bare in their own tests and a missing author is honest — the alternative is
+ * a write that fails for a reason unrelated to what it was trying to do.
+ */
+function actor(req) {
+  return { operatorId: req.operator?.id ?? null };
+}
 
 function badRequest(message) {
   const err = new Error(message);
@@ -110,6 +128,8 @@ function relationship(row) {
     contact_stance: row.contact_stance,
     note: row.note,
     note_updated_at: row.note_updated_at,
+    flagged_by_operator_id: row.flagged_by_operator_id ?? null,
+    note_updated_by_operator_id: row.note_updated_by_operator_id ?? null,
     created_at: row.created_at,
     updated_at: row.updated_at,
     // Read live from `colleges` at request time, not stored on the row — see
@@ -239,13 +259,13 @@ athleteProgrammesRouter.get('/players/:playerId/programmes/:id', handle('program
  */
 athleteProgrammesRouter.post('/players/:playerId/programmes', handle('programmes/upsert', (req) => {
   const body = readBody(req.body, UPSERT_FIELDS, 'programme relationship');
-  const { programme, created } = upsertAthleteProgramme(req.params.playerId, body);
+  const { programme, created } = upsertAthleteProgramme(req.params.playerId, body, actor(req));
   return { status: created ? 201 : 200, body: { programme: relationship(programme) } };
 }));
 
 /** Change the state of an existing relationship. Never the programme it is with. */
 athleteProgrammesRouter.patch('/players/:playerId/programmes/:id', handle('programmes/update', (req) => {
   const body = readBody(req.body, PATCH_FIELDS, 'programme relationship update');
-  const row = updateAthleteProgramme(req.params.playerId, req.params.id, body);
+  const row = updateAthleteProgramme(req.params.playerId, req.params.id, body, actor(req));
   return { body: { programme: relationship(row) } };
 }));

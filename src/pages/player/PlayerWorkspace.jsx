@@ -85,6 +85,13 @@ export default function PlayerWorkspace() {
   const [player, setPlayer] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [recommendations, setRecommendations] = useState(null);
+  /**
+   * Ranks 101-150, carried onto the context so the Matching tab can derive the
+   * ACTIONABLE hundred — a programme an operator removed is replaced from
+   * here. Never rendered on its own: the reserve is a replacement for
+   * something taken out, not an extension of the list.
+   */
+  const [reserve, setReserve] = useState([]);
   const [summary, setSummary] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
   const [phase, setPhase] = useState(0);
@@ -110,6 +117,7 @@ export default function PlayerWorkspace() {
       const stored = await loadStoredAnalysis(p.recommendations);
       if (cancelled || !stored) return;
       setRecommendations(stored.recommendations);
+      setReserve(stored.reserve || []);
       setSummary(stored.summary);
     })();
     return () => { cancelled = true; };
@@ -131,6 +139,7 @@ export default function PlayerWorkspace() {
     try {
       const result = await analyze(subject, { onPhase: setPhase, onProgress: setProgress });
       setRecommendations(result.recommendations);
+      setReserve(readReserve(result));
       setSummary(result.summary);
 
       // Ranking and persisting are separate failures and only one of them was
@@ -240,7 +249,7 @@ export default function PlayerWorkspace() {
 
       <Outlet context={{
         player, setPlayer,
-        recommendations, summary,
+        recommendations, reserve, summary,
         analyzing, phase, progress,
         page, setPage,
         onAnalyze: handleAnalyze,
