@@ -295,15 +295,20 @@ describe('the relationship dialog explains why this school is here', () => {
   it('reports previous contact as fact, with no warning language', async () => {
     await open(relationship(), {
       priorContact: [{
-        coach_id: 'coach-1', coach_name: 'A Coach', position_title: 'Head Coach',
-        drafted_at: '2026-09-01T10:00:00.000Z', sent_at: '2026-09-01T11:00:00.000Z',
-        message_count: 2, revoked_at: null,
+        coach_id: 'coach-1', coach_name: 'A Coach', coach_email: 'a@alpha.test',
+        position_title: 'Head Coach',
+        relationship_opened_at: '2026-09-01T09:00:00.000Z',
+        last_drafted_at: '2026-09-01T10:00:00.000Z',
+        first_confirmed_send_at: '2026-09-01T11:00:00.000Z',
+        last_confirmed_send_at: '2026-09-04T11:00:00.000Z',
+        accepted_count: 2, draft_count: 0, record_count: 2,
+        has_confirmed_send: true, revoked_at: null, origins: ['manual'],
       }],
     });
     expect(body()).toContain('Previous outreach');
     expect(body()).toContain('A Coach');
     expect(body()).toMatch(/last sent/i);
-    expect(body()).toContain('2 messages');
+    expect(body()).toContain('2 sent');
     // A second deliberate message is the ordinary case, not an error.
     expect(body()).not.toMatch(/warning|cannot|do not send|already contacted — /i);
   });

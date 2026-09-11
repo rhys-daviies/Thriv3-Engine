@@ -268,6 +268,25 @@ export default function EmailComposer({
                       <XCircle className="h-4 w-4" /> failed
                     </span>
                   )}
+                  {/*
+                    A COACH WHO WAS SKIPPED, AND WHY.
+                    Without this a refusal is a row with no tick and no cross:
+                    the operator presses the button, one recipient silently
+                    does not happen, and nothing on screen says so. Keyed on
+                    the server's own `message` rather than on a list of
+                    statuses, so the branch cannot fall behind the guards —
+                    a refusal that carries an explanation shows it, and the
+                    ones that do not are unchanged.
+                  */}
+                  {results[c.email]?.message && (
+                    <span
+                      className="inline-flex items-center gap-1 text-xs text-amber-400"
+                      title={results[c.email].message}
+                      role="status"
+                    >
+                      <XCircle className="h-4 w-4" /> not sent
+                    </span>
+                  )}
                 </label>
               ))}
               {validCoaches.length === 0 && (

@@ -72,3 +72,21 @@ export const DO_NOT_CONTACT_BODY =
   'Nothing can be drafted or sent while that stands, from here or anywhere else. '
   + 'Restoring it to the Top 100 or clearing its flag will not change it — the contact '
   + 'stance is a separate setting on the relationship.';
+
+
+/**
+ * HOW A PAST MESSAGE'S PROVENANCE IS WORDED.
+ *
+ * `null` is the honest record for every row written before the column existed,
+ * and would be the record for any future path that forgot to classify itself.
+ * "Historical" was the other candidate and was rejected: it asserts AGE, which
+ * is true of today's null rows and would quietly become false the first time a
+ * new path produced one. "Origin not recorded" stays true in both cases and
+ * says exactly what is known — nothing.
+ */
+export const ORIGIN_LABEL = Object.freeze({
+  manual: 'Relationship or manual outreach',
+  campaign: 'Campaign outreach',
+});
+
+export const ORIGIN_UNRECORDED = 'origin not recorded';

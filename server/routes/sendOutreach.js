@@ -354,6 +354,46 @@ export async function sendOutreach({
       const outreach = createOutreach({ athleteId, coachId: record.id, matchId, programmeCampaignId });
 
       /**
+       * A REVOKED OUTREACH RECORD IS NOT WRITEABLE THROUGH, on any path.
+       *
+       * Revocation withdraws the athlete's public page for ONE COACH: that
+       * outreach record's token stops resolving. `campaignAttribution` has
+       * refused a revoked outreach record since B1 — but only for
+       * campaign-attributed sends, so a manual or recommendation send through
+       * one composed happily and put a deliberately dead link in front of a
+       * coach. The campaign path already calls that OUTREACH_REVOKED; this is
+       * the same refusal for everything else.
+       *
+       * IT IS A FACT ABOUT ONE ATHLETE-COACH PAIR AND NOTHING WIDER. It is not
+       * a programme-level block, and it says nothing about
+       * `athlete_programmes` — not its contact stance, its visibility, its flag
+       * or its request state. Another coach at the same school in the same call
+       * is unaffected, which is why this skips rather than failing the run.
+       *
+       * Checked AFTER `createOutreach` because that function returns an
+       * existing record untouched — nothing is written for one that already
+       * exists. Un-revoking is its own deliberate act; nothing here clears it.
+       */
+      if (outreach.revoked_at) {
+        results.push({
+          email: coach.email,
+          name: coach.name,
+          status: 'revoked',
+          /**
+           * SAID OUT LOUD, because a skipped coach is otherwise a row with no
+           * tick and no cross. `reason` is the machine-readable code the
+           * campaign path already uses for this; `message` is what a person
+           * reads. The other guards in this loop are deliberately left as they
+           * were — widening their shape is not this change's business.
+           */
+          reason: 'OUTREACH_REVOKED',
+          message: 'Outreach to this coach was revoked, so their tracking link no longer '
+            + 'resolves. Nothing was drafted or sent.',
+        });
+        continue;
+      }
+
+      /**
        * THE SEQUENCE IS PER COACH, SO THE EVIDENCE IS TOO.
        *
        * `evidenceUsed` above is derived once for the whole run, which is right
