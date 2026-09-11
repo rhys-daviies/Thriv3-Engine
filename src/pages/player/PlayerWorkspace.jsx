@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { entities, integrations } from '@/api/client';
 import { analyze } from '@/lib/playerAnalysis';
 import { readReserve } from '@shared/matching/reserve.js';
+import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 import { cn } from '@/lib/utils';
 
 const TABS = [
@@ -98,6 +99,22 @@ export default function PlayerWorkspace() {
   const [progress, setProgress] = useState({ current: 0, total: 0, school: '' });
   const [page, setPage] = useState(1);
   const [saveError, setSaveError] = useState(null);
+
+  /**
+   * DERIVED ONCE, HERE, FOR EVERY TAB.
+   *
+   * `recommendations` and `reserve` stay exactly what the analysis produced.
+   * `actionableRecommendations` is what the operator has decided to act on —
+   * the same list on Matching, Decision, Evidence and Philosophy, so a school
+   * removed from this athlete's Top 100 is removed from all four rather than
+   * from whichever one happened to be looked at.
+   */
+  const {
+    actionableRecommendations, derived,
+    programmes, specific, byCollegeId, byCollegeName,
+    loading, failed, pending, error, clearError,
+    add, withdraw, apply, flag, unflag, setVisibility, saveNote, reload,
+  } = useActionableRecommendations({ playerId: player?.id, recommendations, reserve });
 
   useEffect(() => {
     let cancelled = false;
@@ -247,11 +264,45 @@ export default function PlayerWorkspace() {
         </p>
       )}
 
+      {/*
+        EVERY KEY NAMED, never spread.
+        src/pages/player/workspaceContext.test.js reads this object as SOURCE
+        TEXT to check that no tab destructures a key the workspace does not
+        publish — the check that would have caught EvidenceTab reading a
+        non-existent `analysis`. A spread here is invisible to that check, so
+        the relationship helpers are listed out even though they arrive
+        together.
+      */}
       <Outlet context={{
-        player, setPlayer,
-        recommendations, reserve, summary,
-        analyzing, phase, progress,
-        page, setPage,
+        player,
+        setPlayer,
+        recommendations,
+        reserve,
+        summary,
+        actionableRecommendations,
+        derived,
+        programmes,
+        specific,
+        byCollegeId,
+        byCollegeName,
+        loading,
+        failed,
+        pending,
+        error,
+        clearError,
+        add,
+        withdraw,
+        apply,
+        flag,
+        unflag,
+        setVisibility,
+        saveNote,
+        reload,
+        analyzing,
+        phase,
+        progress,
+        page,
+        setPage,
         onAnalyze: handleAnalyze,
       }} />
     </div>

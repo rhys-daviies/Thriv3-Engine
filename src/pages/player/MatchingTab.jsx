@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { Sparkles, Search, CheckCircle2, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -10,12 +10,10 @@ import SpecificSearch from '@/components/SpecificSearch';
 import SpecificSchools from '@/components/SpecificSchools';
 import ProgrammeRelationship from '@/components/ProgrammeRelationship';
 import SuppressedProgrammes from '@/components/SuppressedProgrammes';
-import { visibleTop100 } from '@shared/matching/visibleTop100.js';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
 import { cn } from '@/lib/utils';
 import { useMatchingSummary, recruitingSignalsForCollege } from '@/lib/useMatchingSummary';
-import { useAthleteProgrammes } from '@/lib/useAthleteProgrammes';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 
 const PAGE_SIZE = 20;
@@ -52,7 +50,17 @@ function PhaseStep({ icon: Icon, title, description, active, done }) {
 }
 
 export default function MatchingTab() {
-  const { player, setPlayer, recommendations, reserve, summary, analyzing, phase, progress, page, setPage, onAnalyze } = usePlayerWorkspace();
+  const {
+    player, setPlayer, recommendations, summary, analyzing, phase, progress, page, setPage, onAnalyze,
+    // Derived once in PlayerWorkspace and shared by every tab that claims to
+    // show this athlete's recommendation set — see
+    // src/lib/useActionableRecommendations.js.
+    actionableRecommendations,
+    programmes: relationships, specific, byCollegeId, byCollegeName,
+    loading: programmesLoading, failed: programmesFailed,
+    pending, error: programmeError, clearError, add, withdraw,
+    flag, unflag, setVisibility, saveNote,
+  } = usePlayerWorkspace();
   const [emailTarget, setEmailTarget] = useState(null);
   const [showBulk, setShowBulk] = useState(false);
   /**
@@ -84,13 +92,6 @@ export default function MatchingTab() {
    * `recommendations` is read a rank off it to display alongside a specific
    * school that happens also to be ranked.
    */
-  const {
-    programmes: relationships, specific, byCollegeId, byCollegeName,
-    loading: programmesLoading, failed: programmesFailed,
-    pending, error: programmeError, clearError, add, withdraw,
-    flag, unflag, setVisibility, saveNote,
-  } = useAthleteProgrammes(player?.id);
-
   /**
    * Opening the search also moves to the Specific Schools view, so a school
    * added from it lands somewhere the operator is already looking. Adding one
@@ -117,22 +118,12 @@ export default function MatchingTab() {
   }
 
   /**
-   * THE ACTIONABLE HUNDRED, DERIVED ON EVERY RENDER AND STORED NOWHERE.
-   *
-   * `recommendations` remains the model's answer, untouched — this removes the
-   * programmes THIS athlete's operator took out and promotes replacements from
-   * the reserve in the model's own order. Restoring a school is therefore one
-   * row update and not a re-analysis, and every entry still carries the rank
-   * the model gave it as `source_rank`.
-   *
-   * With no suppressions this returns exactly `recommendations`, in order, so
-   * the page is what it always was for every athlete nobody has edited.
+   * THE ACTIONABLE HUNDRED. Derived in the workspace, not here, so Decision,
+   * Evidence and Philosophy read the same list rather than three subtly
+   * different ones. `recommendations` remains the model's untouched answer and
+   * is still on the context for anything that needs it.
    */
-  const actionable = useMemo(
-    () => visibleTop100({ recommendations, reserve, relationships }),
-    [recommendations, reserve, relationships],
-  );
-  const visible = recommendations ? actionable.programmes : null;
+  const visible = actionableRecommendations;
 
   const totalPages = visible ? Math.ceil(visible.length / PAGE_SIZE) : 0;
   const pageItems = visible ? visible.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) : [];

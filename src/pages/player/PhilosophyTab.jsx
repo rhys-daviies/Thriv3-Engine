@@ -36,7 +36,13 @@ function loadSummaries(playerId, ids) {
  * send from another tab.
  */
 export default function PhilosophyTab() {
-  const { player, recommendations, analyzing, onAnalyze } = usePlayerWorkspace();
+  /**
+   * THE ACTIONABLE SET — the same list Matching, Decision and Evidence show.
+   * Program Philosophy reads "the same schools Analysis & Matching produces",
+   * which is now the derived hundred rather than the raw analysis. See
+   * src/lib/useActionableRecommendations.js.
+   */
+  const { player, actionableRecommendations: recommendations, analyzing, onAnalyze } = usePlayerWorkspace();
   const [page, setPage] = useState(1);
   const [summaries, setSummaries] = useState({});
   const [loading, setLoading] = useState(false);

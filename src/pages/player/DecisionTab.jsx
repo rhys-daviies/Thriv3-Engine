@@ -25,7 +25,19 @@ import { usePlayerWorkspace } from './PlayerWorkspace';
 const PAGE = 20;
 
 export default function DecisionTab() {
-  const { player, recommendations } = usePlayerWorkspace();
+  /**
+   * THE ACTIONABLE SET, NOT THE RAW ANALYSIS.
+   *
+   * This page assesses the programmes an operator is currently working, so a
+   * school removed from this athlete's Top 100 must not appear here — it
+   * appearing on three tabs after being removed on a fourth is worse than not
+   * having the control at all. Derived once in PlayerWorkspace; see
+   * src/lib/useActionableRecommendations.js.
+   *
+   * `recommendations` is still on the context and still authoritative. It is
+   * not what this view is about.
+   */
+  const { player, actionableRecommendations: recommendations } = usePlayerWorkspace();
 
   /**
    * A match card can send an operator straight to one programme.

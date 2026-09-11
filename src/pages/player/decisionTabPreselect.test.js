@@ -6,6 +6,7 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
 import DecisionTab from './DecisionTab.jsx';
 import { PAGE_FIXTURES } from '@/lib/__fixtures__/pageFixtures.js';
+import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 
 /**
  * Arriving at Decision Evidence from one card's "View full evidence".
@@ -56,11 +57,27 @@ function stubFetch() {
   }));
 }
 
+/**
+ * Stands in for PlayerWorkspace and calls the same hook it does.
+ *
+ * DecisionTab reads `actionableRecommendations` now rather than the raw
+ * analysis, so a school an operator removed from this athlete's Top 100 is
+ * absent here too. Assembling that list here instead of calling the production
+ * hook would let this harness pass while the real derivation was broken.
+ */
 function Shell() {
   const [playerId, setPlayerId] = useState('athlete-1');
   setPlayerIdOutside = setPlayerId;
+  const workspace = useActionableRecommendations({
+    playerId, recommendations: RECOMMENDATIONS, reserve: [],
+  });
   return createElement(Outlet, {
-    context: { player: { id: playerId, sport: 'mens-soccer' }, recommendations: RECOMMENDATIONS },
+    context: {
+      player: { id: playerId, sport: 'mens-soccer' },
+      recommendations: RECOMMENDATIONS,
+      reserve: [],
+      ...workspace,
+    },
   });
 }
 

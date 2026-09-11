@@ -6,6 +6,7 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
 import MatchingTab from './MatchingTab.jsx';
 import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
+import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 
 /**
  * Flagging a school, and deciding separately whether it stays in the list.
@@ -103,13 +104,17 @@ function stubFetch({ programmes = [], onWrite } = {}) {
   }));
 }
 
+/** Stands in for PlayerWorkspace, calling the same hook it does. */
 function Shell({ recommendations, reserve }) {
   const [player] = useState({ id: ATHLETE, sport: 'mens-soccer' });
   const [page, setPage] = useState(1);
+  const workspace = useActionableRecommendations({
+    playerId: player.id, recommendations, reserve,
+  });
   return createElement(Outlet, {
     context: {
       player, setPlayer: () => {}, recommendations, reserve,
-      summary: '', analyzing: false, phase: 0,
+      summary: '', ...workspace, analyzing: false, phase: 0,
       progress: { current: 0, total: 0, school: '' },
       page, setPage, onAnalyze: async () => {},
     },

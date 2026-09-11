@@ -35,7 +35,13 @@ export default function EvidenceTab() {
   // and the tab reported "run the analysis first" however many times it had
   // been run. Going through the helper is what makes that mistake harder to
   // repeat.
-  const { player, recommendations } = usePlayerWorkspace();
+  /**
+   * THE ACTIONABLE SET. A school the operator removed from this athlete's Top
+   * 100 is not one we are building a case about, so it is absent here too —
+   * one derivation, shared by every tab that claims to show the athlete's
+   * current recommendations. See src/lib/useActionableRecommendations.js.
+   */
+  const { player, actionableRecommendations: recommendations } = usePlayerWorkspace();
   const [query, setQuery] = useState('');
   const [shown, setShown] = useState(PAGE);
 
