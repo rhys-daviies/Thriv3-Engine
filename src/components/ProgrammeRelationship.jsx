@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Flag, Loader2, EyeOff, Eye } from 'lucide-react';
+import { Flag, Loader2, EyeOff, Eye, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -41,6 +41,13 @@ export default function ProgrammeRelationship({
   collegeName, collegeId, relationship = null, busy = false, error = null,
   promotedFrom = null,
   onFlag, onUnflag, onSetVisibility, onSaveNote,
+  /**
+   * A CALLBACK, NOT A DIALOG. This component is rendered once per card, and
+   * importing the composer here would mount one dialog per programme on the
+   * page. The workspace owns the single instance; this only says which
+   * relationship an operator asked about.
+   */
+  onManualOutreach = null,
 }) {
   const flagged = Boolean(relationship?.flagged);
   const suppressed = relationship?.visibility === 'suppressed';
@@ -92,6 +99,26 @@ export default function ProgrammeRelationship({
             <Button size="sm" variant="ghost" disabled={busy}
               onClick={() => setEditing((v) => !v)}>
               <Flag className="h-3.5 w-3.5 mr-1" /> Flag relationship
+            </Button>
+          )}
+
+          {/*
+            THE SAME CONDITION AS THE VISIBILITY CONTROL BELOW, and for a
+            related reason: this action is the RELATIONSHIP-SCOPED workflow, so
+            it needs a relationship. A recommended school nobody has said
+            anything about has no row to scope it to, and the card's own
+            "Email Coaches" button is the path for that — opening this one
+            would have to invent a relationship as a side effect of a click.
+
+            OFFERED EVEN WHEN THE STANCE IS do_not_contact. The dialog resolves
+            the stance server-side and explains the refusal; hiding the button
+            would make this screen the place the rule lives, and it is not —
+            `sendOutreach` refuses whatever any screen does.
+          */}
+          {relationship?.id && onManualOutreach && (
+            <Button size="sm" variant="outline" disabled={busy}
+              onClick={() => onManualOutreach(relationship)}>
+              <Mail className="h-3.5 w-3.5 mr-1" /> Manual Outreach
             </Button>
           )}
 
