@@ -27,6 +27,7 @@ import { campaignsRouter } from './routes/campaigns.js';
 import { athleteProgrammesRouter } from './routes/athleteProgrammes.js';
 import { programmeCoachesRouter } from './routes/programmeCoaches.js';
 import { manualOutreachRouter } from './routes/manualOutreach.js';
+import { contactIntelligenceRouter } from './routes/contactIntelligence.js';
 import { OUTREACH_ORIGIN } from '../shared/outreachOrigin.js';
 import { UPLOADS_DIR } from './lib/uploadPath.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
@@ -525,6 +526,14 @@ app.use('/api', athleteProgrammesRouter);
 // here, which is what makes "do not contact" a rule rather than a preference.
 app.use('/api', programmeCoachesRouter);
 app.use('/api', manualOutreachRouter);
+
+// ---- Existing-contact intelligence ----
+//
+// ONE request per athlete, not one per programme. The matching page shows a
+// hundred programmes and asking per card would be a hundred requests for one
+// screen. Read-only: there is no sibling that writes, and nothing here marks a
+// programme contacted.
+app.use('/api', contactIntelligenceRouter);
 
 // ---- Uploads (UploadFile integration replacement) ----
 //

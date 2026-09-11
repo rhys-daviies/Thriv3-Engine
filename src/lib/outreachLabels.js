@@ -90,3 +90,64 @@ export const ORIGIN_LABEL = Object.freeze({
 });
 
 export const ORIGIN_UNRECORDED = 'origin not recorded';
+
+
+/**
+ * WHAT THIS PRODUCT CAN HONESTLY SAY A COACH DID.
+ *
+ * NOT "opened" and NOT "clicked". There is no email pixel and no email click
+ * tracking — what exists is a PROFILE VISIT, recorded when the coach follows
+ * their own tracked link and the athlete's page qualifies. That is a stronger
+ * signal than an open, and calling it an open would be both wrong and weaker.
+ *
+ * `visit_start` is deliberately non-qualifying in the collector because it is
+ * exactly what a Safe Links scanner produces, and the rollup collapses
+ * sessions into visits — so a visit count is neither raw events nor scanner
+ * noise, which is why a number is safe to show here at all.
+ *
+ * A REPLY IS ONLY EVER OPERATOR-RECORDED. Nothing ingests replies and nothing
+ * classifies them; a person sets it. The wording says so rather than implying
+ * the system observed it.
+ */
+export const ACTIVITY_LABEL = Object.freeze({
+  reply: 'Reply recorded',
+  /**
+   * "Profile visit recorded", NOT "opened profile" and certainly not "the
+   * coach viewed it".
+   *
+   * What the token proves is that the athlete's page was visited THROUGH THIS
+   * OUTREACH LINK. It does not prove who was holding the link: a coach
+   * forwards a promising recruit to an assistant, or to a recruiting
+   * coordinator, and the visit is attributed to the addressee either way.
+   * Naming the person would be an inference the data does not support, and it
+   * is the kind that reads as certainty.
+   */
+  profile_visit: 'Profile visit recorded',
+  confirmed_send: 'Sent',
+  draft: 'Drafted',
+});
+
+export const ENGAGEMENT_HINT = Object.freeze({
+  profile_visit: 'A qualified visit to the athlete profile was recorded through this '
+    + 'outreach link. Scanner-only page loads are excluded and repeat sessions count '
+    + 'as one visit. The link may have been forwarded, so this does not identify who visited.',
+  reply: 'Recorded by an operator. Nothing in this build reads replies automatically.',
+});
+
+/**
+ * UNKNOWN IS NOT THE SAME AS NONE, AND IT IS SAID ONCE, AT THE PAGE.
+ *
+ * One athlete-level request feeds every card, so its failure is a fact about
+ * the page and not about any programme on it. Repeated per card it would be
+ * the same sentence twenty times, each copy reading as a statement about the
+ * school it sat under \u2014 twenty programmes looking individually broken
+ * because one request failed.
+ *
+ * While this notice stands, cards show no contact intelligence at all. Showing
+ * nothing is only honest because this sentence is on screen saying why.
+ */
+export const CONTACT_UNAVAILABLE_NOTICE =
+  'Contact history unavailable. Some prior outreach information may be missing.';
+
+/** Said where a programme has been written to but nothing was ever confirmed. */
+export const DRAFT_ONLY_HINT = 'A message was drafted and never confirmed sent.';

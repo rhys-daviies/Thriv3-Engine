@@ -12,6 +12,11 @@ import ProgrammeRelationship from '@/components/ProgrammeRelationship';
 import SuppressedProgrammes from '@/components/SuppressedProgrammes';
 import ManualOutreachDialog from '@/components/ManualOutreachDialog';
 import { BOTH_PATHS_HINT } from '@/lib/outreachLabels';
+import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
+import { CONTACT_UNAVAILABLE_NOTICE } from '@/lib/outreachLabels';
+import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
+import { DEFAULT_SPORT } from '@shared/sportProfiles.js';
+import { useContactIntelligence, CONTACT_INTELLIGENCE } from '@/lib/useContactIntelligence';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
 import { cn } from '@/lib/utils';
@@ -71,6 +76,38 @@ export default function MatchingTab() {
    * server rather than from whatever this page is holding.
    */
   const [manualTarget, setManualTarget] = useState(null);
+
+  /**
+   * ONE REQUEST FOR THE WHOLE ATHLETE, read by every card on every page.
+   *
+   * Not per card, and not per page of cards: a hundred programmes would be a
+   * hundred requests, and paging would change the count. Cards do a Map lookup
+   * and a miss means nobody has written to that programme.
+   *
+   * It needs NO relationship — the history is keyed on the programme, so a
+   * recommendation nobody has flagged still shows that it was emailed last
+   * week, without a row being created to say so.
+   */
+  const {
+    byProgramme: contactByProgramme, status: contactStatus, reload: reloadContact,
+  } = useContactIntelligence(player?.id);
+  /**
+   * UNKNOWN, NOT NONE. An absent programme means "no history" when the load
+   * succeeded and "we could not find out" when it did not. The difference is
+   * announced once, in the page notice below; the surfaces receive this only
+   * so they can WITHHOLD what they would otherwise show, never so they can
+   * each repeat that something failed.
+   */
+  const contactUnavailable = contactStatus === CONTACT_INTELLIGENCE.FAILED;
+  /**
+   * THE SPORT THESE RECOMMENDATIONS ARE FOR, and half of every programme key.
+   *
+   * `analyze()` scouts colleges filtered by `player.sport || DEFAULT_SPORT`, so
+   * every card on this list is that sport whether or not the athlete record
+   * spells it out. Relationship rows carry their own `sport` column and are
+   * looked up with that instead — the surfaces do not assume they match.
+   */
+  const athleteSport = player?.sport || DEFAULT_SPORT;
   const [showBulk, setShowBulk] = useState(false);
   /**
    * MATCH PRIORITIES HAS NO VISIBLE TRIGGER ANY MORE, AND IS NOT DELETED.
@@ -243,6 +280,28 @@ export default function MatchingTab() {
         </Button>
       </div>
 
+      {/*
+        ONE NOTICE AND ONE RETRY, AT THE PAGE, AND NOWHERE ELSE.
+
+        The request is athlete-level: one call answers for every programme on
+        screen, so a failure is a fact about this page rather than about any
+        school on it. Said per card it would be twenty identical sentences,
+        each one reading as a claim about the programme it sat under, and a
+        retry per card would be twenty ways to make the same request.
+
+        So the unknown state lives here, and while it stands the cards withhold
+        contact intelligence entirely — no summary, and no marker either.
+      */}
+      {contactUnavailable && (
+        <div
+          className="flex items-center justify-between gap-2 rounded-lg border border-border p-2.5"
+          role="status"
+        >
+          <p className="text-xs text-muted-foreground">{CONTACT_UNAVAILABLE_NOTICE}</p>
+          <Button size="sm" variant="outline" onClick={() => reloadContact()}>Try again</Button>
+        </div>
+      )}
+
       {showSearch && (
         <SpecificSearch
           sport={player?.sport}
@@ -264,6 +323,8 @@ export default function MatchingTab() {
           error={programmeError}
           onRemove={withdraw}
           onManualOutreach={openManualOutreach}
+          contactByProgramme={contactByProgramme}
+          contactUnavailable={contactUnavailable}
         />
       )}
 
@@ -332,6 +393,8 @@ export default function MatchingTab() {
             pending={pending}
             onRestore={setVisibility}
             onManualOutreach={openManualOutreach}
+            contactByProgramme={contactByProgramme}
+            contactUnavailable={contactUnavailable}
           />
 
           {/*
@@ -365,6 +428,17 @@ export default function MatchingTab() {
                 */
                 outreachHint={relationshipFor(college) ? BOTH_PATHS_HINT : null}
                 footer={(
+                  <>
+                  {/*
+                    SHOWN WHETHER OR NOT A RELATIONSHIP EXISTS. Prior outreach
+                    is a fact about the programme, and surfacing it creates
+                    nothing — no row is written to say a school was emailed.
+                  */}
+                  <ProgrammeContactSummary
+                    summary={contactByProgramme.get(contactIntelligenceKey(college.name, athleteSport))}
+                    withhold={contactUnavailable}
+                    className="mt-3 pt-3 border-t border-border"
+                  />
                   <ProgrammeRelationship
                     collegeName={college.name}
                     collegeId={college.id}
@@ -378,6 +452,7 @@ export default function MatchingTab() {
                     onSaveNote={saveNote}
                     onManualOutreach={openManualOutreach}
                   />
+                  </>
                 )}
               />
             ))}
