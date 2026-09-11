@@ -186,34 +186,39 @@ afterEach(() => {
 // ---------------------------------------------------------------------------
 
 describe('B1 — the primary control', () => {
-  it('is Specific Search, where Match priorities used to be', async () => {
+  it('is Specific Search, and it is the entry point on that row', async () => {
     stubFetch();
     await render();
 
     const primary = buttonWith('Specific Search');
     expect(primary).toBeTruthy();
 
-    // The row that used to carry "Match priorities" as its right-hand control
-    // now carries this one. The tablist is its sibling.
+    // The row that used to carry the priorities control now carries this one.
+    // The tablist is its sibling.
     const row = primary.parentElement;
     expect(row.querySelector('[role="tablist"]')).toBeTruthy();
-    expect(row.textContent).not.toContain('Match priorities');
   });
 
-  it('has NOT deleted CriteriaRanking — it is demoted, and still reachable', async () => {
+  it('shows NO Match priorities control anywhere in the tab', async () => {
     stubFetch();
     await render();
 
-    const priorities = buttonWith('Match priorities');
-    expect(priorities, 'Match priorities must still be reachable').toBeTruthy();
-    // Demoted, not primary: ghost styling and muted text, against the Specific
-    // Search button's outline/default.
-    expect(priorities.className).toContain('text-muted-foreground');
-    expect(priorities.disabled).toBe(false);
+    // Not demoted, not hidden behind a disclosure — gone. The agreed direction
+    // is that Specific Search is the entry point here, and the priorities panel
+    // additionally crashes on render (see the characterisation test below), so
+    // exposing a control for it would be exposing a broken one.
+    expect(buttonWith('Match priorities')).toBeUndefined();
+    expect(buttonWith('Hide priorities')).toBeUndefined();
+    expect(text()).not.toContain('Match priorities');
+    expect(text()).not.toContain('priorities');
+
+    // And in the Specific Schools view too, not just this one.
+    await click(tab('Specific Schools'));
+    expect(text()).not.toContain('priorities');
   });
 
   /**
-   * THE PANEL ITSELF IS NOT OPENED HERE, AND THAT IS NOT AN OVERSIGHT.
+   * THE COMPONENT IS NOT RENDERED HERE, AND THAT IS NOT AN OVERSIGHT.
    *
    * `CriteriaRanking` throws on its first render on `main` today — `previewing`
    * is read inside a useMemo at src/components/CriteriaRanking.jsx:38 and
@@ -221,13 +226,13 @@ describe('B1 — the primary control', () => {
    * temporal dead zone. Introduced in a139ab0; nothing renders the component in
    * a test, which is why it went unnoticed.
    *
-   * This PR neither caused it nor fixes it — fixing it is a change to a
-   * component this slice was told not to touch. What the assertions below hold
-   * is the thing this PR IS responsible for: the component, its handler and its
-   * control are all still wired up, so demoting the button took nothing away.
-   * When the crash is fixed, this deserves to become a render test.
+   * This PR neither caused it nor fixes it, and deliberately does not expose a
+   * control that would hit it. What the assertions below hold is the thing this
+   * PR IS responsible for: the file, the import, the handler and the render are
+   * all still here, so relocating priorities later is moving one block rather
+   * than rebuilding a feature out of git history.
    */
-  it('still imports and wires CriteriaRanking, handler and all', async () => {
+  it('has NOT deleted CriteriaRanking — file, import, handler and render all remain', async () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const root = process.cwd();

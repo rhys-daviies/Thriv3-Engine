@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Search, CheckCircle2, SlidersHorizontal, Mail } from 'lucide-react';
+import { Sparkles, Search, CheckCircle2, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import CollegeCard from '@/components/CollegeCard';
@@ -52,7 +52,24 @@ export default function MatchingTab() {
   const { player, setPlayer, recommendations, summary, analyzing, phase, progress, page, setPage, onAnalyze } = usePlayerWorkspace();
   const [emailTarget, setEmailTarget] = useState(null);
   const [showBulk, setShowBulk] = useState(false);
-  const [showPriorities, setShowPriorities] = useState(false);
+  /**
+   * MATCH PRIORITIES HAS NO VISIBLE TRIGGER ANY MORE, AND IS NOT DELETED.
+   *
+   * Specific Search replaced it as this tab's entry point. Nothing sets
+   * `showPriorities` to true, so `CriteriaRanking` does not render — which is
+   * deliberate twice over: the agreed product direction is that this is no
+   * longer the operator's way in here, and the component throws on its first
+   * render on `main` today (`previewing` is read in a useMemo at
+   * CriteriaRanking.jsx:38 and declared with `const` nine lines below it,
+   * introduced in a139ab0). Exposing a control that crashes would be worse
+   * than exposing none.
+   *
+   * The state, the handler and the render stay so that relocating priorities
+   * is moving one block with a new trigger, rather than rebuilding a feature
+   * from its git history. The crash is recorded as a separate cleanup item and
+   * is deliberately NOT fixed here.
+   */
+  const [showPriorities] = useState(false);
   const [view, setView] = useState('recommended');
   const [showSearch, setShowSearch] = useState(false);
 
@@ -162,10 +179,10 @@ export default function MatchingTab() {
         </div>
 
         {/*
-          THE PRIMARY CONTROL ON THIS ROW, where "Match priorities" used to be.
-          Priorities have not gone anywhere — see the secondary control in the
-          Recommended view below — they are simply no longer the thing an
-          operator reaches for first here.
+          THE ENTRY POINT ON THIS ROW, and the only one. It replaced the
+          priorities control that used to sit here; that control has no visible
+          trigger anywhere in this tab any more. See the note on
+          `showPriorities` above for what survives and why.
         */}
         <Button size="sm" variant={showSearch ? 'default' : 'outline'} onClick={openSpecificSearch}>
           <Search className="h-3.5 w-3.5 mr-1.5" />
@@ -228,24 +245,15 @@ export default function MatchingTab() {
               Message all head coaches
               <span className="ml-1.5 opacity-70">({headCoachCount})</span>
             </Button>
-            {/*
-              KEPT, DEMOTED, NOT DELETED. CriteriaRanking and `applyRanking`
-              are untouched; this control is simply no longer the primary
-              button on the row above. Losing the only way to re-rank an
-              athlete would be a regression, not a relocation, so it lives
-              here until it has a permanent home.
-            */}
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-muted-foreground"
-              onClick={() => setShowPriorities((v) => !v)}
-            >
-              <SlidersHorizontal className="h-3.5 w-3.5 mr-1.5" />
-              {showPriorities ? 'Hide priorities' : 'Match priorities'}
-            </Button>
           </div>
 
+          {/*
+            NO TRIGGER, AND THAT IS THE POINT. `showPriorities` is never set
+            true, so this panel does not render — see the note on the state
+            declaration above for why the whole wiring is kept rather than
+            deleted. Relocating priorities means giving this block a new home
+            and a new trigger, not rebuilding it.
+          */}
           {showPriorities && (
             <CriteriaRanking player={player} onApply={applyRanking} busy={analyzing} />
           )}

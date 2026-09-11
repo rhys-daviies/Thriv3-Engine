@@ -46,14 +46,16 @@ function stubFetch(handler) {
     const body = opts?.body ? JSON.parse(opts.body) : null;
     calls.push({ path, body });
     /**
-     * ANSWERED HERE AND NEVER HANDED TO `handler`.
+     * TWO REQUEST CLASSES, TOLD APART BEFORE EITHER IS ANSWERED.
      *
-     * MatchingTab also loads the athlete's programme relationships, which is
-     * nothing to do with recruiting signals. Letting that request share the
-     * handler's queue renumbers every resolver the out-of-order tests below
-     * index into, and they would fail describing a bug that was not there.
-     * `calls` still records it, so the one-request-per-page assertions are
-     * unaffected.
+     * `handler` is every test's control over the RECRUITING-SIGNALS request
+     * and nothing else. MatchingTab also loads the athlete's programme
+     * relationships, which is a different feature entirely; handing that to
+     * the same handler would put an unrelated request into the queue the
+     * out-of-order tests below reach into, and they would fail describing a
+     * bug that was not there.
+     *
+     * `calls` still records it, so every request-count assertion is unchanged.
      */
     if (!path.includes('/matching-summary')) {
       return ok({ programmes: [] });
@@ -71,6 +73,58 @@ const ok = (payload) => ({
 });
 
 const summaryCalls = () => calls.filter((c) => c.path.includes('/matching-summary'));
+
+/**
+ * DEFERRED SIGNAL REQUESTS, ADDRESSED BY WHAT THEY ARE RATHER THAN BY WHEN
+ * THEY ARRIVED.
+ *
+ * The two tests below are about a response landing after the thing that asked
+ * for it stopped being current, so each must be able to answer ONE SPECIFIC
+ * outstanding request out of order. They used to do that with `resolvers[0]`
+ * and `resolvers[1]` — arrival position, which silently means "the Nth fetch
+ * MatchingTab happened to make". That is a property of the component's
+ * internals, not of the thing under test, and it moved the moment the
+ * component gained an unrelated request.
+ *
+ * So an outstanding request is now found by what actually distinguishes it:
+ * WHICH ATHLETE asked (the path) and WHICH PAGE it covers (the names in the
+ * body). The mechanism is otherwise identical — the request is still held
+ * open, still answered manually, still answered in whatever order the test
+ * chooses. Only the way a test names one has changed.
+ */
+function deferSignals() {
+  const outstanding = [];
+  stubFetch((path, body) => new Promise((resolve) => {
+    outstanding.push({ path, names: body?.collegeNames ?? [], resolve });
+  }));
+
+  return {
+    /**
+     * Answer the one outstanding request matching this description.
+     *
+     * Throws, loudly and with the list, when nothing matches or when more than
+     * one does — an ambiguous match would make a test pass for a reason it did
+     * not state, which is the failure mode the positional version had.
+     */
+    answer({ athlete, covering }, payload) {
+      const hits = outstanding.filter((r) => (
+        (!athlete || r.path.includes(`/players/${athlete}/`))
+        && (!covering || r.names.includes(covering))
+      ));
+      const described = JSON.stringify({ athlete, covering });
+      const pending = outstanding.map((r) => ({ path: r.path, covers: r.names[0] }));
+      if (hits.length === 0) {
+        throw new Error(`No outstanding signals request for ${described}. Outstanding: ${JSON.stringify(pending)}`);
+      }
+      if (hits.length > 1) {
+        throw new Error(`${hits.length} outstanding signals requests match ${described}; it must name exactly one. `
+          + `Outstanding: ${JSON.stringify(pending)}`);
+      }
+      hits[0].resolve(ok(payload));
+    },
+    count: () => outstanding.length,
+  };
+}
 const namesOf = (call) => call.body?.collegeNames ?? null;
 
 /** MatchingTab reads its state from the workspace outlet context. */
@@ -183,18 +237,20 @@ describe('one request per page, not one per card', () => {
 
 describe('a response can never land on the wrong page', () => {
   it('ignores the first page’s answer when it arrives after the second', async () => {
-    const resolvers = [];
-    stubFetch(() => new Promise((r) => resolvers.push(r)));
+    const signals = deferSignals();
     await mount();
     await act(async () => { setPageOutside(2); });
 
     const first = RECOMMENDATIONS[0].name;              // page 1
     const second = RECOMMENDATIONS[PAGE_SIZE].name;     // page 2
 
+    // Both pages are outstanding, and neither has been answered.
+    expect(signals.count()).toBe(2);
+
     // Page two answers, then page one's stale request finally lands.
     await act(async () => {
-      resolvers[1](ok({ [second]: COACH_ARRIVAL }));
-      resolvers[0](ok({ [first]: TWO_SIGNALS }));
+      signals.answer({ covering: second }, { [second]: COACH_ARRIVAL });
+      signals.answer({ covering: first }, { [first]: TWO_SIGNALS });
     });
 
     await expand(second);
@@ -216,17 +272,20 @@ describe('a response can never land on the wrong page', () => {
     // mean different things to two athletes — a New Zealand defender's
     // pathway is not an American goalkeeper's — so a response that outlives
     // the athlete it was asked for must be discarded, not reused.
-    const resolvers = [];
-    stubFetch(() => new Promise((r) => resolvers.push(r)));
+    const signals = deferSignals();
     await mount();
     await act(async () => { setPlayerIdOutside('athlete-2'); });
     expect(summaryCalls()).toHaveLength(2);
     expect(summaryCalls()[1].path).toBe('/api/players/athlete-2/matching-summary');
 
+    // Both athletes' requests cover the SAME twenty names, so the page cannot
+    // tell them apart — the athlete in the path is what does.
+    expect(signals.count()).toBe(2);
+
     // The first athlete's answer lands last.
     await act(async () => {
-      resolvers[1](ok({ [RECOMMENDATIONS[0].name]: ZERO }));
-      resolvers[0](ok({ [RECOMMENDATIONS[0].name]: TWO_SIGNALS }));
+      signals.answer({ athlete: 'athlete-2' }, { [RECOMMENDATIONS[0].name]: ZERO });
+      signals.answer({ athlete: 'athlete-1' }, { [RECOMMENDATIONS[0].name]: TWO_SIGNALS });
     });
     await expand(RECOMMENDATIONS[0].name);
     expect(flat()).not.toContain('Recruiting signals');
