@@ -176,6 +176,36 @@ export default function MatchingTab() {
    */
   const recommended = view === 'recommended';
 
+  /**
+   * THE RELATIONSHIP FOR A RANKED PROGRAMME, BY ID WHERE THERE IS ONE.
+   *
+   * Both maps come from the same per-athlete fetch, so both are already scoped
+   * to this athlete and their sport. What the id buys is identity: a
+   * relationship stores the `college_id` it resolved against, and a
+   * recommendation carries the same `colleges` row id, so matching on it cannot
+   * be fooled by two programmes sharing a name. The name is the fallback for
+   * the rows whose `college_id` is null — the column is nullable, and a
+   * relationship with no registry row is still a relationship.
+   *
+   * NULL IS A REAL ANSWER and the common one: most ranked programmes have no
+   * relationship, and that is what keeps the relationship-scoped workflow off
+   * cards it would have to invent a row for.
+   */
+  const relationshipFor = (college) => (college?.id && byCollegeId.get(college.id))
+    || byCollegeName.get(college?.name)
+    || null;
+
+  /**
+   * ONE DIALOG FOR THE WHOLE TAB, and every surface routes to it.
+   *
+   * Specific Schools, the relationship footer on a ranked card, and the
+   * removed-programmes panel all call this with a relationship ROW; what is
+   * kept is its id, so the dialog re-reads the programme, the staff and the
+   * contact stance from the server rather than trusting whatever this page was
+   * holding. Mounting a dialog per card would be twenty instances on a page.
+   */
+  const openManualOutreach = (relationship) => setManualTarget(relationship?.id ?? null);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -232,7 +262,7 @@ export default function MatchingTab() {
           pending={pending}
           error={programmeError}
           onRemove={withdraw}
-          onManualOutreach={(programme) => setManualTarget(programme.id)}
+          onManualOutreach={openManualOutreach}
         />
       )}
 
@@ -300,6 +330,7 @@ export default function MatchingTab() {
             suppressed={relationships.filter((p) => p.visibility === 'suppressed')}
             pending={pending}
             onRestore={setVisibility}
+            onManualOutreach={openManualOutreach}
           />
 
           {/*
@@ -330,7 +361,7 @@ export default function MatchingTab() {
                   <ProgrammeRelationship
                     collegeName={college.name}
                     collegeId={college.id}
-                    relationship={byCollegeName.get(college.name) ?? null}
+                    relationship={relationshipFor(college)}
                     busy={pending === college.id}
                     error={programmeError?.collegeId === college.id ? programmeError : null}
                     promotedFrom={college.promoted ? college.source_rank : null}
@@ -338,6 +369,7 @@ export default function MatchingTab() {
                     onUnflag={unflag}
                     onSetVisibility={setVisibility}
                     onSaveNote={saveNote}
+                    onManualOutreach={openManualOutreach}
                   />
                 )}
               />
