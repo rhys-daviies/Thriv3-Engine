@@ -10,6 +10,7 @@ import { attemptsForProgrammeCampaign, attemptForCoach, createContactAttempt } f
 import { outboundBudgetDecision, outboundBudgetDecisionForAthlete } from './outboundBudget.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
 import { priorContactForCoaches, priorContactOf } from './contactIntelligence.js';
+import { approvalStatus, APPROVAL_STATUS } from './firstTouchApprovals.js';
 import { utcNow, utcToday } from './time.js';
 
 /**
@@ -142,6 +143,72 @@ export const PURSUIT_REASON = Object.freeze({
   NO_ELIGIBLE_COACHES: 'NO_ELIGIBLE_COACHES',
   ALL_COACHES_EXHAUSTED: 'ALL_COACHES_EXHAUSTED',
 });
+
+/**
+ * WHY A PERSON HAS TO LOOK BEFORE THIS CAMPAIGN WRITES — F6d.
+ *
+ * PRIOR_CONFIRMED_CONTACT is the only one so far, and it is not a refusal. The
+ * campaign is about to send what reads as a first approach to somebody this
+ * athlete has already written to — by hand, or under a campaign that has since
+ * closed. Sending it is very often still right; sending it WITHOUT ANYBODY
+ * KNOWING is not, because the message will introduce an athlete the coach has
+ * already met.
+ */
+export const FIRST_TOUCH_REVIEW = Object.freeze({
+  PRIOR_CONFIRMED_CONTACT: 'PRIOR_CONFIRMED_CONTACT',
+});
+
+const NO_REVIEW_NEEDED = Object.freeze({
+  status: APPROVAL_STATUS.NONE, approvedAt: null, approvedByOperatorId: null,
+});
+const NO_FIRST_TOUCH_REVIEW = Object.freeze({
+  required: false, reason: null, approval: NO_REVIEW_NEEDED,
+});
+
+/**
+ * DOES THIS FIRST APPROACH NEED A PERSON FIRST?
+ *
+ * GATED ON INITIAL_OUTREACH, and that gate is the whole rule. After this
+ * campaign's own step 1, prior contact is EXPECTED to be true — the campaign
+ * put it there — so applying this to a follow-up would stop every second
+ * message in the product on evidence of its own first one.
+ *
+ * READS `hasConfirmedSend`, NEVER THE COUNT. A relationship older than the
+ * per-message table reports `confirmedSendCount: 0` with a confirmed send on
+ * file, so counting would wave through exactly the coaches with the longest
+ * history — see the note on that field in contactIntelligence.js.
+ *
+ * IT CONSUMES THE FACT F6c ALREADY PUT ON THE COACH, so the history costs no
+ * query here and there is no second definition of "confirmed". The only read
+ * is one indexed point lookup for the approval, and only where a review would
+ * otherwise be required — a campaign with no prior contact anywhere asks this
+ * table nothing.
+ *
+ * AN APPROVAL CLEARS THE HOLD AND NOTHING ELSE. It is reported either way, so
+ * a screen can tell an unreviewed first touch from one a person has already
+ * looked at, and a STALE approval — history has moved since it was given —
+ * from no approval at all.
+ */
+function firstTouchReviewFor(nextAction, coach, programmeCampaignId) {
+  if (nextAction !== PURSUIT_ACTION.INITIAL_OUTREACH) return NO_FIRST_TOUCH_REVIEW;
+  if (coach?.priorContact?.hasConfirmedSend !== true) return NO_FIRST_TOUCH_REVIEW;
+
+  const approval = approvalStatus({
+    programmeCampaignId, coachId: coach.coachId, priorContact: coach.priorContact,
+  });
+  return Object.freeze({
+    /**
+     * STALE IS NOT APPROVED. Somebody reviewed two messages and three are on
+     * file now, so the sentence they agreed to is no longer true of what is
+     * there — and the honest state is unreviewed, not approved-enough.
+     */
+    required: approval.status !== APPROVAL_STATUS.CURRENT,
+    reason: approval.status === APPROVAL_STATUS.CURRENT
+      ? null
+      : FIRST_TOUCH_REVIEW.PRIOR_CONFIRMED_CONTACT,
+    approval,
+  });
+}
 
 /** Why somebody on the staff list is not a candidate for cold pursuit. */
 export const INELIGIBLE_REASON = Object.freeze({
@@ -544,6 +611,13 @@ export function programmePursuitPlan({
     nextAction: PURSUIT_ACTION.NO_FURTHER_COLD_OUTREACH,
     reason: PURSUIT_REASON.NO_ELIGIBLE_COACHES,
     exhausted: true,
+    /**
+     * SIDE BY SIDE WITH THE ACTION, NEVER FOLDED INTO IT. The action, the step
+     * and the reason are what policy would do; this is whether somebody should
+     * look first. Collapsing them would make a campaign that pauses for review
+     * indistinguishable from one with nothing left to say.
+     */
+    firstTouchReview: NO_FIRST_TOUCH_REVIEW,
   };
 
   /**
@@ -591,17 +665,19 @@ export function programmePursuitPlan({
 
   const step = current.messagesSent + 1;
   const isFirstCoach = current.order === 1;
+  const nextAction = step === 1 ? PURSUIT_ACTION.INITIAL_OUTREACH : PURSUIT_ACTION.FOLLOW_UP;
   return {
     ...plan,
     current,
     // The CAMPAIGN-LOCAL step: 1 means the initial message is next, 2 means the
     // follow-up is. It is derived, and it never inherits a lifetime sequence.
     step,
-    nextAction: step === 1 ? PURSUIT_ACTION.INITIAL_OUTREACH : PURSUIT_ACTION.FOLLOW_UP,
+    nextAction,
     reason: step > 1
       ? PURSUIT_REASON.NO_RESPONSE_TO_INITIAL
       : (isFirstCoach ? PURSUIT_REASON.FIRST_CONTACT : PURSUIT_REASON.PREVIOUS_COACH_EXHAUSTED),
     exhausted: false,
+    firstTouchReview: firstTouchReviewFor(nextAction, current, pc.id),
     ...safetyAndBudget({ pc, coach: current, onDate, sendingIdentity, window }),
   };
 }
@@ -773,6 +849,22 @@ export function materialiseNextContactAttempt({ programmeCampaignId, at = utcNow
    * itself. Nothing here is silent — the reason travels with the answer, and
    * it is B3's own reason rather than a sentence composed here.
    */
+  /**
+   * AN OPERATOR-REVIEW HOLD, WHICH IS NOT A PROHIBITION — F6d.
+   *
+   * Nobody has forbidden this message. What is missing is a person having seen
+   * that the athlete already wrote to this coach, and a `planned` attempt is
+   * this campaign committing to approach them — so the hold has to bite HERE
+   * and not only in the screen that lists actions. Filtering a preview stops a
+   * reader from seeing a row; it does not stop a caller from materialising one.
+   *
+   * The plan's own derivation is what decides, so the rule is stated once and
+   * no history is re-read here.
+   */
+  if (plan.firstTouchReview?.required) {
+    return { created: false, attempt: null, plan, review: plan.firstTouchReview };
+  }
+
   const prohibition = standingProhibition({
     programmeCampaignId,
     athleteId: plan.campaign.athleteId,

@@ -2058,3 +2058,66 @@ CREATE INDEX IF NOT EXISTS idx_athlete_programmes_athlete
 -- programme. Sport-scoped because the name alone is not an identity.
 CREATE INDEX IF NOT EXISTS idx_athlete_programmes_programme
   ON athlete_programmes(college_name, sport);
+
+-- ---------------------------------------------------------------------------
+-- F6d — "I have seen that this athlete already wrote to this coach."
+--
+-- A campaign counts only its own messages, so a coach written to by hand last
+-- month starts a new campaign at step one and receives what reads as a first
+-- introduction. The pursuit plan withholds that message until a person has
+-- looked; this table is where the looking is recorded, because a review state
+-- that lives in a response object is one refresh away from never having
+-- happened.
+--
+-- IT RECORDS A REVIEW, NOT A PERMISSION. An operator approves the history they
+-- were shown, which is why the counts are snapshotted beside the decision: if
+-- another confirmed send is recorded afterwards, the approval no longer
+-- describes what is on file and the hold returns on its own. Nothing here is
+-- refreshed silently — a new approval is a new deliberate act.
+--
+-- IT CLEARS ONE HOLD AND NOTHING ELSE. Do-not-contact, manual-only,
+-- suppression, revocation, a stopped programme and a closed campaign are all
+-- evaluated after it and are all untouched by it.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS campaign_first_touch_approvals (
+  id TEXT PRIMARY KEY,
+
+  -- OWNED BY the programme campaign, like programme_contact_attempts: the
+  -- review is of THIS campaign's first approach, so it dies with it and the
+  -- next campaign asks its own question.
+  programme_campaign_id TEXT NOT NULL
+    REFERENCES programme_campaigns(id) ON DELETE CASCADE,
+
+  -- REFERENCED, not owned, and with no ON DELETE clause — so deleting a coach
+  -- out from under a live approval is refused, matching every other reference
+  -- to `coaches` in this schema.
+  coach_id TEXT NOT NULL REFERENCES coaches(id),
+
+  -- WHO decided. The authenticated operator, never a name a request supplied.
+  -- No ON DELETE: an approval whose approver vanished is an unattributable
+  -- decision, and `operator_users` deactivates rather than deletes.
+  approved_by_operator_id TEXT NOT NULL REFERENCES operator_users(id),
+  approved_at TEXT NOT NULL,
+
+  /**
+   * WHAT THEY WERE LOOKING AT WHEN THEY DECIDED.
+   *
+   * NOT NULL and legitimately ZERO: a relationship older than `outreach_send`
+   * proves a send through `outreach.sent_at` alone, so a count of nothing sits
+   * beside a confirmed send. Existence is `has_confirmed_send`'s question and
+   * never this column's, and an approval over zero is as real as any other.
+   */
+  reviewed_confirmed_send_count INTEGER NOT NULL,
+
+  -- Nullable for the same legacy shape: confirmed, and undated per message.
+  reviewed_last_confirmed_send_at TEXT,
+
+  -- ONE CURRENT APPROVAL PER COACH PER CAMPAIGN. Re-approving replaces it
+  -- rather than appending: this slice records the decision in force, and an
+  -- audit trail of superseded reviews is a separate question.
+  UNIQUE (programme_campaign_id, coach_id)
+);
+
+-- The only question asked of this table: has this coach been approved for this
+-- programme campaign. The UNIQUE constraint above already indexes that pair;
+-- this names the reverse lookup nothing needs yet and is deliberately omitted.
