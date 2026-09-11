@@ -359,17 +359,39 @@ describe('what D2 deliberately does not do', () => {
     expect(code).not.toMatch(/googleapis|graph\.microsoft|oauth|access_token|expires_in|token_type|tenant|fetch\(/i);
   });
 
-  it('is reachable from no HTTP route', () => {
-    // Creation before OAuth would let an operator type an address into a
-    // record whose whole purpose is to say "a provider told us this".
+  /**
+   * D2 asserted this service was reachable from NO route. D3 gave it one — the
+   * OAuth callback, which is the trusted server path that creates a mailbox
+   * from a provider-verified identity. So the invariant narrows to the half
+   * that still has to hold, and gets stricter about it.
+   *
+   * A route may create a mailbox and read its public projection. No route may
+   * touch the CREDENTIAL: not the crypto module, not `mailboxCredential`, not
+   * the ciphertext. There is no endpoint that can return a refresh token
+   * because no route module can obtain one.
+   */
+  it('lets no route reach the credential', () => {
     const routes = fs.readdirSync(new URL('../routes/', import.meta.url))
-      .filter((f) => f.endsWith('.js') && !f.endsWith('.test.js'));
-    for (const f of routes) {
-      const src = fs.readFileSync(new URL(`../routes/${f}`, import.meta.url), 'utf8');
-      expect(src, f).not.toMatch(/connectedMailboxes|mailboxCrypto|mailboxCredential/);
+      .filter((name) => name.endsWith('.js') && !name.endsWith('.test.js'));
+    expect(routes.length).toBeGreaterThan(5);
+    for (const name of routes) {
+      const src = fs.readFileSync(new URL(`../routes/${name}`, import.meta.url), 'utf8');
+      const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+      expect(code, name).not.toMatch(/mailboxCrypto|mailboxCredential|decryptMailboxCredential/);
+      expect(code, name).not.toMatch(/ciphertext|auth_tag|refresh_token/);
     }
-    const index = fs.readFileSync(new URL('../index.js', import.meta.url), 'utf8');
-    expect(index).not.toMatch(/connectedMailboxes|mailboxCrypto|mailboxes/);
+  });
+
+  it('is created from exactly one place, and it is not a request body', () => {
+    // Creation before a provider verified the identity would let an operator
+    // type an address into a record whose whole purpose is to say "Google told
+    // us this". The only caller is the OAuth callback.
+    const routes = fs.readdirSync(new URL('../routes/', import.meta.url))
+      .filter((name) => name.endsWith('.js') && !name.endsWith('.test.js'));
+    const creators = routes.filter((name) => /createConnectedMailbox/.test(
+      fs.readFileSync(new URL(`../routes/${name}`, import.meta.url), 'utf8'),
+    ));
+    expect(creators).toEqual(['mailboxConsent.js']);
   });
 
   it('changes no send behaviour', () => {

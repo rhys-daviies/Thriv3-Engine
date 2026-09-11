@@ -1,9 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterAll } from 'vitest';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  BASELINE_DB, MISSING_MESSAGE, baselineDatasetAvailable, materialiseBaselineDataset,
+} from '../lib/baselineDataset.js';
 
 /**
  * The report scripts, protected.
@@ -36,16 +39,32 @@ import { fileURLToPath } from 'node:url';
  * import one without running it. A subprocess is also the only way to observe
  * the failure mode that actually happened: a non-zero exit.
  *
- * The suite therefore runs against the working database and SKIPS, loudly,
- * when it is not there — these are regression tests for local report commands
- * that need that database anyway. Determinism comes from pinning a small,
- * named slice (`--athlete`, `--college`, `--programme`), which is stable
- * run-to-run; the fixtures below say which slice and why.
+ * The suite therefore runs against a database and SKIPS, loudly, when it is
+ * not there. Determinism comes from pinning a small, named slice
+ * (`--athlete`, `--college`, `--programme`); the fixtures below say which
+ * slice and why.
+ *
+ * ---------------------------------------------------------------------------
+ * WHICH DATABASE, AND WHY IT IS NO LONGER THE WORKING ONE — D3.2.
+ *
+ * "A small named slice is stable run-to-run" was true of the slice and false of
+ * the database under it. Three recorded outputs here are hashes of report text
+ * built from roster rows, so a roster import in another session moves them —
+ * and it did, alongside the six evidence baselines, on a branch that had
+ * touched none of this.
+ *
+ * So this runs against a disposable copy of the same verified snapshot the
+ * evidence baselines use (`server/lib/baselineDataset.js`). The reports and the
+ * baselines now agree about what dataset they are describing, which they could
+ * not while both were reading a file anybody could write.
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
-const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
+const HAVE_DB = baselineDatasetAvailable();
+const dataset = HAVE_DB ? materialiseBaselineDataset({ label: 'reports' }) : null;
+/** Module scope: the report subprocesses below run during collection. */
+const DB = dataset?.path ?? BASELINE_DB;
+afterAll(() => dataset?.release());
 
 /** Runs a report exactly as `npm run …` does, and reports how it ended. */
 const run = (script, args = []) => {
@@ -93,8 +112,7 @@ function assertHealthy(result, { name, floorLines, floorChars }) {
 const describeReports = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) {
   // eslint-disable-next-line no-console
-  console.warn(`\n  reports.test.js SKIPPED — no working database at ${DB}.`
-    + '\n  These guard the local report commands, which need it too.\n');
+  console.warn(`\n  reports.test.js SKIPPED — ${MISSING_MESSAGE}\n`);
 }
 
 // ---------------------------------------------------------------------------
