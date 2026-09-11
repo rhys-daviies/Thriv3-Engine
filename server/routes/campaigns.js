@@ -7,6 +7,10 @@ import {
   CAMPAIGN_STATES, PROGRAMME_CAMPAIGN_STATES, TIERS,
 } from '../lib/campaigns.js';
 import { campaignExecutionPlan } from '../lib/campaignExecution.js';
+import { programmePursuitPlan } from '../lib/pursuitPolicy.js';
+import {
+  approveFirstTouch, existingApproval, APPROVAL_STATUS,
+} from '../lib/firstTouchApprovals.js';
 
 /**
  * THE CAMPAIGN API — a doorway, not a second data layer.
@@ -210,6 +214,10 @@ const STATUS_BY_CODE = Object.freeze({
 
   // Well-formed, and asking for something that is not allowed to be true.
   ILLEGAL_TRANSITION: 422,
+  // F6d. Asking to approve a review that is not required, or naming a coach
+  // this campaign is not pursuing.
+  NO_REVIEW_REQUIRED: 422,
+  COACH_NOT_IN_PURSUIT: 422,
   INVALID_STATE: 422,
   INVALID_TIER: 422,
   INVALID_RANK: 422,
@@ -479,6 +487,120 @@ campaignsRouter.patch('/campaigns/:campaignId/programmes/:programmeId', handle('
   const updated = setProgrammeCampaignState(req.params.programmeId, state, { reason: stateReason ?? null });
   return { body: { programme: programmeCampaign(updated), changed: updated.changed } };
 }));
+
+/**
+ * "I HAVE SEEN THAT THIS ATHLETE ALREADY WROTE TO THIS COACH." — F6d.
+ *
+ * The one write that clears a first-touch review hold, and everything it
+ * records is derived here rather than accepted: the programme campaign and its
+ * coach from the pursuit plan, the history from the plan's own prior-contact
+ * fact, and the approver from the session. THE REQUEST BODY IS NOT READ AT
+ * ALL, which is what stops an approval being minted over history nobody looked
+ * at, in somebody else's name.
+ *
+ * It refuses rather than quietly succeeding where there is nothing to approve:
+ * an approval row for a coach with no prior contact would sit there waiting to
+ * clear a hold that has not happened yet, and its snapshot would describe a
+ * history that did not exist when it was written.
+ *
+ * APPROVING IS NOT SENDING. This clears one hold; every stance, suppression,
+ * revocation and lifecycle rule is evaluated afterwards exactly as before, and
+ * the campaign-local sequence is untouched — the message is still this
+ * campaign's step one, because it is.
+ */
+campaignsRouter.post(
+  '/programme-campaigns/:programmeCampaignId/coaches/:coachId/first-touch-approval',
+  handle('campaigns/first-touch-approval', (req) => {
+    const { programmeCampaignId, coachId } = req.params;
+
+    /**
+     * THE PLAN IS THE AUTHORITY, not a lookup of our own. It resolves the
+     * programme campaign, chooses who this campaign would write to, loads the
+     * prior-contact facts and decides whether a review is required — so an
+     * approval can only ever be recorded for the coach and the history the
+     * campaign machinery itself is holding on.
+     */
+    const plan = programmePursuitPlan({ programmeCampaignId });
+
+    const coach = plan.coaches.find((c) => c.coachId === coachId);
+    if (!coach) {
+      const err = new Error(
+        `Coach ${coachId} is not one this campaign would pursue at ${plan.programmeCampaign.collegeName}. `
+        + 'A first-touch review belongs to a coach the campaign is actually planning to write to.',
+      );
+      err.code = 'COACH_NOT_IN_PURSUIT';
+      throw err;
+    }
+
+    /**
+     * ONLY THE COACH THE HOLD IS ABOUT. `firstTouchReview` is derived for the
+     * plan's CURRENT coach, so approving anyone else would record a decision
+     * that clears nothing — and would look, later, like a review that had been
+     * given.
+     */
+    const isCurrent = plan.current?.coachId === coachId;
+
+    /**
+     * ALREADY REVIEWED, AND STILL CURRENT: nothing to decide, so nothing is
+     * written. The existing row comes back unchanged rather than being
+     * rewritten with a new time and a new approver — a second click must not
+     * quietly reattribute somebody else's decision, and it is not an error
+     * either, because what the caller asked for is already true.
+     */
+    if (isCurrent && plan.firstTouchReview.approval.status === APPROVAL_STATUS.CURRENT) {
+      return {
+        body: {
+          approval: describe(existingApproval({ programmeCampaignId, coachId })),
+          firstTouchReview: plan.firstTouchReview,
+        },
+      };
+    }
+
+    if (!isCurrent || !plan.firstTouchReview.required) {
+      const err = new Error(
+        'There is no first-touch review to approve for this coach: '
+        + (coach.priorContact.hasConfirmedSend
+          ? 'the campaign is not making a first approach to them right now.'
+          : 'this athlete has no confirmed prior contact with them.'),
+      );
+      err.code = 'NO_REVIEW_REQUIRED';
+      throw err;
+    }
+
+    const row = approveFirstTouch({
+      programmeCampaignId,
+      coachId,
+      // The session's operator, never a field. `requireOperator` guards every
+      // /api route, so this is present by the time the handler runs.
+      operatorId: req.operator.id,
+      priorContact: coach.priorContact,
+    });
+
+    return {
+      body: {
+        approval: describe(row),
+        /**
+         * WHERE THE REVIEW STANDS NOW, re-derived rather than asserted — so a
+         * caller learns that the hold has cleared from the same machinery that
+         * imposed it, and would learn if it had not.
+         */
+        firstTouchReview: programmePursuitPlan({ programmeCampaignId }).firstTouchReview,
+      },
+    };
+  }),
+);
+
+/** One shape for an approval row, wherever it came from. */
+function describe(row) {
+  return {
+    programmeCampaignId: row.programme_campaign_id,
+    coachId: row.coach_id,
+    approvedAt: row.approved_at,
+    approvedByOperatorId: row.approved_by_operator_id,
+    reviewedConfirmedSendCount: row.reviewed_confirmed_send_count,
+    reviewedLastConfirmedSendAt: row.reviewed_last_confirmed_send_at,
+  };
+}
 
 function notFoundCampaign(id) {
   const err = new Error(`No campaign ${id}`);

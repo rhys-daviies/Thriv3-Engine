@@ -10,6 +10,7 @@ import { attemptsForProgrammeCampaign, attemptForCoach, createContactAttempt } f
 import { outboundBudgetDecision, outboundBudgetDecisionForAthlete } from './outboundBudget.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
 import { priorContactForCoaches, priorContactOf } from './contactIntelligence.js';
+import { approvalStatus, APPROVAL_STATUS } from './firstTouchApprovals.js';
 import { utcNow, utcToday } from './time.js';
 
 /**
@@ -157,7 +158,12 @@ export const FIRST_TOUCH_REVIEW = Object.freeze({
   PRIOR_CONFIRMED_CONTACT: 'PRIOR_CONFIRMED_CONTACT',
 });
 
-const NO_FIRST_TOUCH_REVIEW = Object.freeze({ required: false, reason: null });
+const NO_REVIEW_NEEDED = Object.freeze({
+  status: APPROVAL_STATUS.NONE, approvedAt: null, approvedByOperatorId: null,
+});
+const NO_FIRST_TOUCH_REVIEW = Object.freeze({
+  required: false, reason: null, approval: NO_REVIEW_NEEDED,
+});
 
 /**
  * DOES THIS FIRST APPROACH NEED A PERSON FIRST?
@@ -172,15 +178,35 @@ const NO_FIRST_TOUCH_REVIEW = Object.freeze({ required: false, reason: null });
  * file, so counting would wave through exactly the coaches with the longest
  * history — see the note on that field in contactIntelligence.js.
  *
- * IT CONSUMES THE FACT F6c ALREADY PUT ON THE COACH. No query, no second
- * definition of "confirmed", and nothing here reads a table.
+ * IT CONSUMES THE FACT F6c ALREADY PUT ON THE COACH, so the history costs no
+ * query here and there is no second definition of "confirmed". The only read
+ * is one indexed point lookup for the approval, and only where a review would
+ * otherwise be required — a campaign with no prior contact anywhere asks this
+ * table nothing.
+ *
+ * AN APPROVAL CLEARS THE HOLD AND NOTHING ELSE. It is reported either way, so
+ * a screen can tell an unreviewed first touch from one a person has already
+ * looked at, and a STALE approval — history has moved since it was given —
+ * from no approval at all.
  */
-function firstTouchReviewFor(nextAction, coach) {
+function firstTouchReviewFor(nextAction, coach, programmeCampaignId) {
   if (nextAction !== PURSUIT_ACTION.INITIAL_OUTREACH) return NO_FIRST_TOUCH_REVIEW;
   if (coach?.priorContact?.hasConfirmedSend !== true) return NO_FIRST_TOUCH_REVIEW;
+
+  const approval = approvalStatus({
+    programmeCampaignId, coachId: coach.coachId, priorContact: coach.priorContact,
+  });
   return Object.freeze({
-    required: true,
-    reason: FIRST_TOUCH_REVIEW.PRIOR_CONFIRMED_CONTACT,
+    /**
+     * STALE IS NOT APPROVED. Somebody reviewed two messages and three are on
+     * file now, so the sentence they agreed to is no longer true of what is
+     * there — and the honest state is unreviewed, not approved-enough.
+     */
+    required: approval.status !== APPROVAL_STATUS.CURRENT,
+    reason: approval.status === APPROVAL_STATUS.CURRENT
+      ? null
+      : FIRST_TOUCH_REVIEW.PRIOR_CONFIRMED_CONTACT,
+    approval,
   });
 }
 
@@ -651,7 +677,7 @@ export function programmePursuitPlan({
       ? PURSUIT_REASON.NO_RESPONSE_TO_INITIAL
       : (isFirstCoach ? PURSUIT_REASON.FIRST_CONTACT : PURSUIT_REASON.PREVIOUS_COACH_EXHAUSTED),
     exhausted: false,
-    firstTouchReview: firstTouchReviewFor(nextAction, current),
+    firstTouchReview: firstTouchReviewFor(nextAction, current, pc.id),
     ...safetyAndBudget({ pc, coach: current, onDate, sendingIdentity, window }),
   };
 }

@@ -320,8 +320,13 @@ function programmeEntry(plan, { onDate }) {
     safety: plan.safety,
     budget: plan.budget,
 
-    /** B6's derivation, quoted so a caller need not infer it from the blockers. */
-    firstTouchReview: plan.firstTouchReview ?? { required: false, reason: null },
+    /**
+     * B6's derivation, quoted so a caller need not infer it from the blockers.
+     * `approval.status` is what separates a first touch nobody has reviewed
+     * from one whose review has gone stale because something was sent since.
+     */
+    firstTouchReview: plan.firstTouchReview
+      ?? { required: false, reason: null, approval: { status: 'none', approvedAt: null, approvedByOperatorId: null } },
 
     /**
      * `plan.executableNow` is B6's composition of permission and capacity.

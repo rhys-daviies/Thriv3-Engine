@@ -7,6 +7,7 @@ import {
 } from './pursuitPolicy.js';
 import { campaignExecutionPlan, BLOCKER_SOURCE, BLOCKER_CODE } from './campaignExecution.js';
 import { attemptsForProgrammeCampaign } from './contactAttempts.js';
+import { APPROVAL_STATUS } from './firstTouchApprovals.js';
 import { suppress } from './suppressions.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
 
@@ -160,15 +161,19 @@ describe('a first approach to somebody already written to', () => {
   it('needs no review where nobody has written to them', () => {
     const { pc } = scene();
     expect(planFor(pc).nextAction).toBe(PURSUIT_ACTION.INITIAL_OUTREACH);
-    expect(review(pc)).toEqual({ required: false, reason: null });
+    expect(review(pc)).toMatchObject({ required: false, reason: null });
+    // Nothing to review, so nothing was asked of the approval table.
+    expect(review(pc).approval.status).toBe(APPROVAL_STATUS.NONE);
   });
 
   it('is held after a manual send', () => {
     const { pc, head } = scene();
     manualHistory(head);
 
-    expect(review(pc)).toEqual({
-      required: true, reason: FIRST_TOUCH_REVIEW.PRIOR_CONFIRMED_CONTACT,
+    expect(review(pc)).toMatchObject({
+      required: true,
+      reason: FIRST_TOUCH_REVIEW.PRIOR_CONFIRMED_CONTACT,
+      approval: { status: APPROVAL_STATUS.NONE },
     });
   });
 
@@ -415,7 +420,7 @@ describe('the campaign dry run holds it out of the actionable list', () => {
     expect(out.programmes[0].operatorReviewRequired).toBe(false);
     expect(out.programmes[0].executableNow).toBe(true);
     expect(out.priorityActions).toHaveLength(1);
-    expect(out.programmes[0].firstTouchReview).toEqual({ required: false, reason: null });
+    expect(out.programmes[0].firstTouchReview).toMatchObject({ required: false, reason: null });
   });
 });
 
@@ -434,7 +439,7 @@ describe('the hold reaches the write, not only the screen', () => {
     expect(attempts(pc)).toEqual([]);
     expect(attemptRows()).toBe(0);
     // Not silent, and not confusable with a prohibition.
-    expect(out.review).toEqual({
+    expect(out.review).toMatchObject({
       required: true, reason: FIRST_TOUCH_REVIEW.PRIOR_CONFIRMED_CONTACT,
     });
     expect(out.prohibition).toBeUndefined();
