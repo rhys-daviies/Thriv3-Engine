@@ -5,6 +5,7 @@ import { utcNow } from './time.js';
 import { buildSendSnapshot } from '../../shared/evidence/sendSnapshot.js';
 import { LEGACY_POLICY_VERSION } from '../../shared/evidence/outreachPolicy.js';
 import { authorisedProgrammeCampaignId } from './campaignAttribution.js';
+import { assertFirstTouchReviewed } from './campaignFirstTouchGate.js';
 import {
   MESSAGE_STATE, ACCEPTED_SOURCE, OPEN_STATES, LEGAL_TRANSITIONS, canTransition,
   isMessageState, isSendEventType,
@@ -140,6 +141,13 @@ export function recordDraft({
   const verifiedCampaign = authorisedProgrammeCampaignId({
     programmeCampaignId, athleteId, coachId, outreachId, onDate,
   });
+
+  /**
+   * AND THE SAME FIRST-TOUCH REVIEW A CAMPAIGN OBEYS — F7. Refused BEFORE the
+   * snapshot is built and before any row is written, so a held first touch
+   * leaves no draft for somebody to send later.
+   */
+  assertFirstTouchReviewed({ programmeCampaignId: verifiedCampaign, coachId });
   const snapshot = buildSendSnapshot({
     evidence, body, subject, bodySource, templateVariant, renderedKinds,
   });
