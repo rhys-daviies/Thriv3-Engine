@@ -68,7 +68,7 @@ export default function SuppressedProgrammes({
                 {p.flag_reason && <p className="text-xs text-muted-foreground">{p.flag_reason}</p>}
                 <ProgrammeContactSummary
                   summary={contactByProgramme.get(p.college_name)}
-                  unavailable={contactUnavailable}
+                  withhold={contactUnavailable}
                   className="mt-1"
                 />
               </div>

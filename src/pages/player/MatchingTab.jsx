@@ -13,7 +13,7 @@ import SuppressedProgrammes from '@/components/SuppressedProgrammes';
 import ManualOutreachDialog from '@/components/ManualOutreachDialog';
 import { BOTH_PATHS_HINT } from '@/lib/outreachLabels';
 import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
-import { CONTACT_UNAVAILABLE_HINT } from '@/lib/outreachLabels';
+import { CONTACT_UNAVAILABLE_NOTICE } from '@/lib/outreachLabels';
 import { useContactIntelligence, CONTACT_INTELLIGENCE } from '@/lib/useContactIntelligence';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
@@ -91,8 +91,10 @@ export default function MatchingTab() {
   } = useContactIntelligence(player?.id);
   /**
    * UNKNOWN, NOT NONE. An absent programme means "no history" when the load
-   * succeeded and "we could not find out" when it did not, and on a card those
-   * render identically. Every surface is told which it is.
+   * succeeded and "we could not find out" when it did not. The difference is
+   * announced once, in the page notice below; the surfaces receive this only
+   * so they can WITHHOLD what they would otherwise show, never so they can
+   * each repeat that something failed.
    */
   const contactUnavailable = contactStatus === CONTACT_INTELLIGENCE.FAILED;
   const [showBulk, setShowBulk] = useState(false);
@@ -268,17 +270,23 @@ export default function MatchingTab() {
       </div>
 
       {/*
-        ONE NOTICE AND ONE RETRY, at the page. The request is athlete-level, so
-        a control per card would be twenty ways to make the same call. The
-        cards carry a muted marker of their own so a card read in isolation
-        still cannot be mistaken for "never contacted".
+        ONE NOTICE AND ONE RETRY, AT THE PAGE, AND NOWHERE ELSE.
+
+        The request is athlete-level: one call answers for every programme on
+        screen, so a failure is a fact about this page rather than about any
+        school on it. Said per card it would be twenty identical sentences,
+        each one reading as a claim about the programme it sat under, and a
+        retry per card would be twenty ways to make the same request.
+
+        So the unknown state lives here, and while it stands the cards withhold
+        contact intelligence entirely — no summary, and no marker either.
       */}
       {contactUnavailable && (
         <div
           className="flex items-center justify-between gap-2 rounded-lg border border-border p-2.5"
           role="status"
         >
-          <p className="text-xs text-muted-foreground">{CONTACT_UNAVAILABLE_HINT}</p>
+          <p className="text-xs text-muted-foreground">{CONTACT_UNAVAILABLE_NOTICE}</p>
           <Button size="sm" variant="outline" onClick={() => reloadContact()}>Try again</Button>
         </div>
       )}
@@ -417,7 +425,7 @@ export default function MatchingTab() {
                   */}
                   <ProgrammeContactSummary
                     summary={contactByProgramme.get(college.name)}
-                    unavailable={contactUnavailable}
+                    withhold={contactUnavailable}
                     className="mt-3 pt-3 border-t border-border"
                   />
                   <ProgrammeRelationship

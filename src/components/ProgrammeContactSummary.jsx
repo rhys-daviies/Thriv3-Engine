@@ -1,9 +1,6 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import {
-  ACTIVITY_LABEL, ENGAGEMENT_HINT, DRAFT_ONLY_HINT,
-  CONTACT_UNAVAILABLE, CONTACT_UNAVAILABLE_HINT,
-} from '@/lib/outreachLabels';
+import { ACTIVITY_LABEL, ENGAGEMENT_HINT, DRAFT_ONLY_HINT } from '@/lib/outreachLabels';
 
 /**
  * HAS ANYONE WRITTEN TO THIS PROGRAMME, AND DID THE COACH DO ANYTHING?
@@ -40,21 +37,19 @@ function when(iso) {
 export default function ProgrammeContactSummary({
   summary, className = '',
   /**
-   * TRUE WHEN THE HISTORY COULD NOT BE LOADED, which is a different thing from
-   * a programme having none. Both render nothing by default, so without this
-   * an operator glancing at a card after a failed request would read the
-   * absence of a marker as "never contacted" — the one conclusion the data
-   * does not support.
+   * TRUE WHEN THE HISTORY COULD NOT BE LOADED, AND THEN THIS RENDERS NOTHING.
+   *
+   * Not a badge saying so. The request is athlete-level, so its failure is one
+   * fact about the page, carried by one notice there; a marker on every card
+   * would claim twenty separate programme-level failures. What this flag buys
+   * is the guarantee that no card falls back to LOOKING contacted-or-not while
+   * the answer is unknown — a stale or partially populated map cannot leak a
+   * summary past it, and "nothing rendered" never becomes an assertion,
+   * because the page notice is what explains the silence.
    */
-  unavailable = false,
+  withhold = false,
 }) {
-  if (unavailable) {
-    return (
-      <div className={`flex items-center gap-1.5 flex-wrap ${className}`} data-testid="contact-unavailable">
-        <Badge variant="muted" title={CONTACT_UNAVAILABLE_HINT}>{CONTACT_UNAVAILABLE}</Badge>
-      </div>
-    );
-  }
+  if (withhold) return null;
 
   /**
    * A MISS IS THE ANSWER. Programmes nobody has written to are absent from the

@@ -6,7 +6,7 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
 import MatchingTab from './MatchingTab.jsx';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
-import { RELATIONSHIP_OUTREACH, CONTACT_UNAVAILABLE } from '@/lib/outreachLabels';
+import { RELATIONSHIP_OUTREACH, CONTACT_UNAVAILABLE_NOTICE } from '@/lib/outreachLabels';
 import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
 
 /**
@@ -131,6 +131,7 @@ const body = () => document.body.textContent;
 const summaries = () => Array.from(container.querySelectorAll('[data-testid="contact-summary"]'));
 const intelCalls = () => calls.filter((c) => c.path.includes('/contact-intelligence'));
 const buttonsIn = (el) => Array.from(el.querySelectorAll('button'));
+const occurrences = (haystack, needle) => haystack.split(needle).length - 1;
 const click = async (el) => {
   await act(async () => { el.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
 };
@@ -357,7 +358,14 @@ describe('UNKNOWN IS NOT NONE', () => {
    * A programme with no history renders nothing, and so does every programme
    * when the request fails. Same empty card, two opposite meanings — and on a
    * failed load, "nothing here" is the one conclusion the data does not
-   * support. These are the tests that keep them apart.
+   * support.
+   *
+   * The difference is carried ONCE, by a page-level notice, because one
+   * athlete-level request answers for every card: its failure is a fact about
+   * the page, not about any school on it. Marking each card would assert
+   * twenty separate programme-level failures. So these tests fix both halves —
+   * the page says the state is unknown, and no card either repeats that or
+   * quietly implies the opposite.
    */
   let failing;
 
@@ -379,34 +387,74 @@ describe('UNKNOWN IS NOT NONE', () => {
     }));
   }
 
-  it('marks every card unavailable rather than leaving it blank', async () => {
+  it('says the history is unknown exactly once, at the page', async () => {
     stubFailing();
     await render();
 
-    const unknown = container.querySelectorAll('[data-testid="contact-unavailable"]');
-    expect(unknown.length).toBeGreaterThan(0);
-    expect(unknown[0].textContent).toContain(CONTACT_UNAVAILABLE);
-    // And no summary is fabricated to fill the gap.
+    const notices = Array.from(container.querySelectorAll('[role="status"]'))
+      .filter((n) => n.textContent.includes('Contact history unavailable'));
+    expect(notices).toHaveLength(1);
+    expect(notices[0].textContent).toContain(CONTACT_UNAVAILABLE_NOTICE);
+  });
+
+  it('does not repeat the failure on the cards', async () => {
+    stubFailing();
+    await render();
+
+    // Thirty programmes, one sentence. Said per card it would read as thirty
+    // separate programme-level failures rather than one request that failed.
+    expect(occurrences(body(), 'Contact history unavailable')).toBe(1);
+    expect(container.querySelectorAll('[data-testid="contact-unavailable"]')).toHaveLength(0);
+  });
+
+  it('withholds contact intelligence from every card while it is unknown', async () => {
+    stubFailing();
+    await render();
+
+    // Nothing rendered, and nothing fabricated to fill the gap.
     expect(summaries()).toHaveLength(0);
     expect(body()).not.toMatch(/Sent 2x/);
+    expect(body()).not.toMatch(/Profile visit recorded/);
+  });
+
+  it('never tells an operator a programme has not been contacted', async () => {
+    stubFailing();
+    await render();
+
+    // The failure mode this whole describe exists to prevent: a card that
+    // looks clean because the answer never arrived.
+    for (const claim of [/never contacted/i, /not contacted/i, /no prior (contact|outreach)/i,
+      /no contact history/i, /zero outreach/i, /not yet (contacted|emailed)/i]) {
+      expect(body()).not.toMatch(claim);
+    }
   });
 
   it('is visually distinct from a programme with no prior contact', async () => {
     stubFetch({ intelligence: [] });
     await render();
-    // Loaded successfully, nothing to report: no marker at all.
-    expect(container.querySelectorAll('[data-testid="contact-unavailable"]')).toHaveLength(0);
+    // Loaded successfully, nothing to report: no summary, and no notice either
+    // — an empty map after a good request is an answer, not an absence of one.
     expect(summaries()).toHaveLength(0);
+    expect(body()).not.toContain('Contact history unavailable');
+    expect(buttonsIn(container).filter((b) => b.textContent.includes('Try again'))).toHaveLength(0);
   });
 
-  it('shows one page-level notice and one retry, not one per card', async () => {
+  it('still shows history when the request succeeds', async () => {
+    stubFetch({ intelligence: [summary()] });
+    await render();
+    // The other half of the rule: withholding is for the unknown state only.
+    expect(summaries()).toHaveLength(1);
+    expect(body()).toMatch(/Sent 2x/);
+    expect(body()).not.toContain('Contact history unavailable');
+  });
+
+  it('offers one retry, not one per card', async () => {
     stubFailing();
     await render();
     const retries = buttonsIn(container).filter((b) => b.textContent.includes('Try again'));
-    // The request is athlete-level; a control per card would be twenty ways to
+    // The request is athlete-level; a control per card would be thirty ways to
     // make the same call.
     expect(retries).toHaveLength(1);
-    expect(body()).toMatch(/could not be loaded/i);
   });
 
   it('retries with exactly one more request', async () => {
@@ -421,10 +469,15 @@ describe('UNKNOWN IS NOT NONE', () => {
   it('does not block the rest of the page', async () => {
     stubFailing();
     await render();
-    // The ranked cards, the tabs and the actions are all still there.
+    // The ranked cards, the tabs and the actions are all still there. Contact
+    // intelligence is supplemental: losing it must cost the operator that one
+    // fact and nothing else on the screen.
     expect(container.querySelectorAll('[data-testid="programme-relationship"]').length).toBeGreaterThan(0);
     expect(body()).toContain('Programme1');
+    expect(body()).toContain('Programme20');
     expect(tab('Specific Schools')).toBeTruthy();
+    expect(buttonsIn(container).some((b) => b.textContent.includes(RELATIONSHIP_OUTREACH)
+      || b.textContent.includes('Flag'))).toBe(true);
   });
 
   it('creates no relationship rows', async () => {

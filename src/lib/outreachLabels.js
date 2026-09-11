@@ -135,15 +135,19 @@ export const ENGAGEMENT_HINT = Object.freeze({
 });
 
 /**
- * UNKNOWN IS NOT THE SAME AS NONE, and on a card the difference is invisible
- * unless something says so: a programme with no history renders nothing, and a
- * programme whose history could not be loaded would render exactly the same
- * nothing. One of those is a fact and the other is an absence of one.
+ * UNKNOWN IS NOT THE SAME AS NONE, AND IT IS SAID ONCE, AT THE PAGE.
+ *
+ * One athlete-level request feeds every card, so its failure is a fact about
+ * the page and not about any programme on it. Repeated per card it would be
+ * the same sentence twenty times, each copy reading as a statement about the
+ * school it sat under \u2014 twenty programmes looking individually broken
+ * because one request failed.
+ *
+ * While this notice stands, cards show no contact intelligence at all. Showing
+ * nothing is only honest because this sentence is on screen saying why.
  */
-export const CONTACT_UNAVAILABLE = 'Contact history unavailable';
-export const CONTACT_UNAVAILABLE_HINT =
-  'This athlete\u2019s outreach history could not be loaded, so these programmes are shown '
-  + 'without it. A programme with no marker here has not been shown to be uncontacted.';
+export const CONTACT_UNAVAILABLE_NOTICE =
+  'Contact history unavailable. Some prior outreach information may be missing.';
 
 /** Said where a programme has been written to but nothing was ever confirmed. */
 export const DRAFT_ONLY_HINT = 'A message was drafted and never confirmed sent.';

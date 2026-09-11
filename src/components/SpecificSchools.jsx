@@ -46,7 +46,7 @@ function SpecificSchoolRow({
           rank is invented for a school that is not: a placeholder here would
           be read as a match score by the next person to look at the screen.
         */}
-        <ProgrammeContactSummary summary={contact} unavailable={contactUnavailable} />
+        <ProgrammeContactSummary summary={contact} withhold={contactUnavailable} />
         {rank != null && (
           <p className="text-xs text-muted-foreground">
             Also ranked <span className="font-medium text-foreground">#{rank}</span> in this
