@@ -9,6 +9,7 @@ import {
 import { attemptsForProgrammeCampaign, attemptForCoach, createContactAttempt } from './contactAttempts.js';
 import { outboundBudgetDecision, outboundBudgetDecisionForAthlete } from './outboundBudget.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
+import { priorContactForCoaches, priorContactOf } from './contactIntelligence.js';
 import { utcNow, utcToday } from './time.js';
 
 /**
@@ -442,7 +443,25 @@ export function programmePursuitPlan({
    * stored step is reported beside it as the attempt's own record, and B7 is
    * what will keep the two in step when it executes.
    */
-  const withHistory = eligible.slice(0, Math.max(depth, 0)).map((c, i) => {
+  /**
+   * LIFETIME PRIOR CONTACT, IN ONE STATEMENT FOR THE WHOLE PLAN — F6c.
+   *
+   * Asked once for the coaches this plan could name, never per coach and never
+   * as a whole-athlete sweep per programme: a hundred-programme dry run adds a
+   * hundred bounded statements, not a hundred times the depth.
+   *
+   * IT CHANGES NOTHING BELOW IT. `messagesSent`, `step`, `exhausted` and the
+   * action are computed exactly as they were, from the campaign-local count.
+   * This rides alongside as a fact, and what a campaign should DO about a coach
+   * who has heard from this athlete before is a separate decision nobody has
+   * made yet.
+   */
+  const pursued = eligible.slice(0, Math.max(depth, 0));
+  const priorContact = priorContactForCoaches({
+    athleteId: pc.athlete_id, coachIds: pursued.map((c) => c.coachId),
+  });
+
+  const withHistory = pursued.map((c, i) => {
     const accepted = ACCEPTED_FOR_COACH.get({
       coachId: c.coachId, athleteId: pc.athlete_id, programmeCampaignId,
     });
@@ -481,6 +500,14 @@ export function programmePursuitPlan({
       lastAcceptedAt: accepted.last_accepted_at ?? null,
       respondedAt: respondedThisCampaign ? responded : null,
       priorCampaignResponseAt: responded && !respondedThisCampaign ? responded : null,
+      /**
+       * WHAT THIS ATHLETE HAS EVER SENT THIS COACH, from any origin and any
+       * campaign, including this one. Reported beside the campaign-local count
+       * and deliberately not merged with it: a coach on message one of this
+       * campaign who was written to by hand last month has `messagesSent: 0`
+       * and `priorContact.hasConfirmedSend: true`, and both are correct.
+       */
+      priorContact: priorContactOf(priorContact, c.coachId),
       attemptId: attempt?.id ?? null,
       attemptState: attempt?.state ?? null,
       attemptStep: attempt?.step ?? null,
