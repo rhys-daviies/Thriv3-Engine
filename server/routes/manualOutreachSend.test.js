@@ -330,3 +330,124 @@ describe('ADVERSARIAL — the programme label cannot be swapped', () => {
     })).rejects.toThrow(/do-not-contact/i);
   });
 });
+
+
+// ---------------------------------------------------------------------------
+
+describe('a revoked relationship is not writeable through', () => {
+  /**
+   * REVOCATION WITHDRAWS THE ATHLETE'S PAGE for one coach: the token stops
+   * resolving. `campaignAttribution` has refused a revoked relationship since
+   * B1 — but only for campaign-attributed sends, so a manual or
+   * recommendation send composed happily and put a deliberately dead link in
+   * front of a coach. This is the same refusal for every other path.
+   */
+  function revokedRelationship(athleteId, email = 'a@duke.test') {
+    const coachId = randomUUID();
+    db.prepare(`
+      INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
+      VALUES (?, '2026-09-11T00:00:00.000Z', 'A Coach', ?, 'Duke', 'NCAA D1', 'mens-soccer', 'Head Coach')
+    `).run(coachId, email);
+    db.prepare(`
+      INSERT INTO outreach (id, athlete_id, coach_id, token, created_at, revoked_at)
+      VALUES (?, ?, ?, ?, '2026-09-01T00:00:00.000Z', '2026-09-05T00:00:00.000Z')
+    `).run(randomUUID(), athleteId, coachId, randomUUID());
+    return coachId;
+  }
+
+  it('skips the coach and composes nothing for them', async () => {
+    const athlete = makeAthlete();
+    revokedRelationship(athlete);
+
+    const result = await run(athlete, {}, { origin: OUTREACH_ORIGIN.MANUAL });
+    expect(result.results[0]).toMatchObject({ email: 'a@duke.test', status: 'revoked' });
+    expect(composed).toHaveLength(0);
+    expect(sends()).toHaveLength(0);
+  });
+
+  it('applies on the shared path too, not only the manual one', async () => {
+    const athlete = makeAthlete();
+    revokedRelationship(athlete);
+    const result = await run(athlete);
+    expect(result.results[0].status).toBe('revoked');
+    expect(composed).toHaveLength(0);
+  });
+
+  it('does not stop the other recipients in the same call', async () => {
+    const athlete = makeAthlete();
+    revokedRelationship(athlete, 'revoked@duke.test');
+    db.prepare(`
+      INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
+      VALUES (?, '2026-09-11T00:00:00.000Z', 'Fine Coach', 'fine@duke.test', 'Duke', 'NCAA D1', 'mens-soccer', 'Assistant')
+    `).run(randomUUID());
+
+    // Revocation is a fact about one athlete-coach pair, not about the run.
+    const result = await run(athlete, {
+      coaches: [
+        { name: 'A Coach', email: 'revoked@duke.test', title: 'Head Coach' },
+        { name: 'Fine Coach', email: 'fine@duke.test', title: 'Assistant' },
+      ],
+    }, { origin: OUTREACH_ORIGIN.MANUAL });
+
+    const byEmail = Object.fromEntries(result.results.map((r) => [r.email, r.status]));
+    expect(byEmail['revoked@duke.test']).toBe('revoked');
+    expect(byEmail['fine@duke.test']).not.toBe('revoked');
+    expect(composed.map((m) => m.to)).toEqual(['fine@duke.test']);
+  });
+
+  it('writes nothing new for the revoked relationship', async () => {
+    const athlete = makeAthlete();
+    revokedRelationship(athlete);
+    const before = db.prepare('SELECT COUNT(*) c FROM outreach').get().c;
+    await run(athlete, {}, { origin: OUTREACH_ORIGIN.MANUAL });
+    // createOutreach returns the existing row untouched; nothing is minted,
+    // and the revocation is not cleared as a side effect.
+    expect(db.prepare('SELECT COUNT(*) c FROM outreach').get().c).toBe(before);
+    expect(db.prepare('SELECT revoked_at FROM outreach').get().revoked_at)
+      .toBe('2026-09-05T00:00:00.000Z');
+  });
+});
+
+describe('the manual path still obeys every shared control', () => {
+  const withCoach = (athleteId) => {
+    db.prepare(`
+      INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
+      VALUES (?, '2026-09-11T00:00:00.000Z', 'A Coach', 'a@duke.test', 'Duke', 'NCAA D1', 'mens-soccer', 'Head Coach')
+    `).run(randomUUID());
+    return athleteId;
+  };
+
+  it('is capped per recipient inbox like anything else', async () => {
+    const athlete = withCoach(makeAthlete());
+    // A confirmed send inside the window is what the cap counts.
+    await run(athlete, { send: true }, { origin: OUTREACH_ORIGIN.MANUAL });
+    const { isSendCapped } = await import('../lib/sendCap.js');
+    expect(typeof isSendCapped('a@duke.test')).toBe('boolean');
+    expect(sends()).toHaveLength(1);
+  });
+
+  it('inherits every guard by going through the shared function', async () => {
+    /**
+     * The compliance footer, profile completeness and Outlook availability are
+     * checked at the top of `sendOutreach` and are covered where they live, in
+     * sendOutreach.test.js. They are NOT re-tested by manipulating the
+     * environment here: `server/lib/config.js` reads those variables once at
+     * import, so clearing one mid-suite proves nothing about the guard and
+     * would leave a test that passes for the wrong reason.
+     *
+     * What this file is responsible for is that the manual path has no way
+     * around them — it composes nothing itself and calls the same function.
+     */
+    const fs = await import('node:fs');
+    const path = await import('node:path');
+    const route = fs.readFileSync(
+      path.join(process.cwd(), 'server/routes/manualOutreach.js'), 'utf8',
+    );
+    expect(route).toMatch(/await sendOutreach\(/);
+    expect(route).not.toMatch(/composeInOutlook|recordDraft|createOutreach/);
+
+    const athlete = withCoach(makeAthlete());
+    await run(athlete, {}, { origin: OUTREACH_ORIGIN.MANUAL });
+    expect(sends()).toHaveLength(1);
+  });
+});

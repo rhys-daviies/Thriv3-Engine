@@ -212,10 +212,21 @@ describe('ManualOutreachDialog', () => {
     college: CANONICAL_COLLEGE,
     coaches: COACHES,
     contact: { allowed: true, stance: 'manual_only', reason: null },
+    /**
+     * The shape `historyForAthleteProgramme` returns. Every field is named for
+     * the fact it holds — `first_confirmed_send_at` is first-wins on the
+     * relationship, `last_confirmed_send_at` is the real latest, and a draft
+     * count is not a message count.
+     */
     priorContact: [{
-      coach_id: 'coach-1', coach_name: 'Head Person', position_title: 'Head Coach',
-      drafted_at: '2026-09-01T10:00:00.000Z', sent_at: '2026-09-01T11:00:00.000Z',
-      message_count: 2, revoked_at: null,
+      coach_id: 'coach-1', coach_name: 'Head Person', coach_email: 'head@stanford.test',
+      position_title: 'Head Coach',
+      relationship_opened_at: '2026-09-01T09:00:00.000Z',
+      last_drafted_at: '2026-09-04T10:00:00.000Z',
+      first_confirmed_send_at: '2026-09-01T11:00:00.000Z',
+      last_confirmed_send_at: '2026-09-04T11:00:00.000Z',
+      accepted_count: 2, draft_count: 0, record_count: 2,
+      has_confirmed_send: true, revoked_at: null, origins: ['manual'],
     }],
   };
 

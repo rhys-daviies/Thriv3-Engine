@@ -130,8 +130,19 @@ describe('prior contact is derived, never stored', () => {
 
     const { body } = await get(url());
     expect(body.priorContact).toHaveLength(1);
+    /**
+     * Field names carry their own meaning now. `first_confirmed_send_at` is
+     * first-wins on the relationship and is NOT "last sent"; a draft is
+     * counted separately from a message that was accepted.
+     */
     expect(body.priorContact[0]).toMatchObject({
-      coach_name: 'A Coach', drafted_at: '2026-09-01T10:00:00.000Z', sent_at: '2026-09-01T11:00:00.000Z',
+      coach_name: 'A Coach',
+      last_drafted_at: '2026-09-01T10:00:00.000Z',
+      first_confirmed_send_at: '2026-09-01T11:00:00.000Z',
+      has_confirmed_send: true,
+      accepted_count: 0,
+      draft_count: 0,
+      origins: [],
     });
 
     // And nothing was written onto the relationship to say so.

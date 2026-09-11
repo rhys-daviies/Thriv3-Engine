@@ -6,7 +6,7 @@ import EmailComposer from '@/components/EmailComposer';
 import { manualOutreach } from '@/api/client';
 import {
   RELATIONSHIP_OUTREACH, RELATIONSHIP_DIALOG_HINT, MANUAL_ONLY_HINT,
-  DO_NOT_CONTACT_TITLE, DO_NOT_CONTACT_BODY,
+  DO_NOT_CONTACT_TITLE, DO_NOT_CONTACT_BODY, ORIGIN_LABEL, ORIGIN_UNRECORDED,
 } from '@/lib/outreachLabels';
 
 /**
@@ -48,6 +48,51 @@ function when(iso) {
  * scrolled past by the second week. The hard limit stays where it protects the
  * recipient rather than the operator: `sendCap`, on the address, server-side.
  */
+/**
+ * ONE LINE OF FACTS PER COACH, and every clause is something the tables
+ * actually hold.
+ *
+ * A CONFIRMED SEND AND A DRAFT ARE SAID DIFFERENTLY, because they are
+ * different events and only one of them reached a coach. The date shown for a
+ * send is the LAST confirmed one where there is one — `outreach.sent_at` is
+ * first-wins and naming it "last sent" was how a coach written to three times
+ * showed the oldest of the three.
+ */
+function activity(r) {
+  const parts = [];
+
+  if (r.has_confirmed_send) {
+    const at = r.last_confirmed_send_at ?? r.first_confirmed_send_at;
+    parts.push(at ? `last sent ${when(at)}` : 'sent');
+    if (r.accepted_count > 1) parts.push(`${r.accepted_count} sent`);
+  } else if (r.last_drafted_at) {
+    // Said plainly. A body exists in Outlook; nobody has confirmed it left.
+    parts.push(`drafted ${when(r.last_drafted_at)}, never confirmed sent`);
+  } else {
+    parts.push('no message yet');
+  }
+
+  /**
+   * No draft count. `idx_outreach_send_one_open` is UNIQUE on outreach_id for
+   * the open states, so a relationship holds at most one draft at a time and
+   * "2 drafts" is not a thing that can be true.
+   */
+
+  /**
+   * Origin, where it is known, and honestly where it is not. A coach reached
+   * by a campaign must not read as one written to by hand.
+   */
+  const origins = [...new Set(r.origins ?? [])];
+  const known = origins.filter(Boolean).map((o) => ORIGIN_LABEL[o] ?? o);
+  if (known.length) parts.push(known.join(' and '));
+  if (origins.includes(null) && r.record_count > 0) parts.push(ORIGIN_UNRECORDED);
+
+  // The public link no longer resolves, so nothing further can go through it.
+  if (r.revoked_at) parts.push('link revoked');
+
+  return ` · ${parts.join(' · ')}`;
+}
+
 function PriorContact({ rows }) {
   if (!rows?.length) {
     return (
@@ -69,15 +114,7 @@ function PriorContact({ rows }) {
           <li key={r.coach_id} className="text-xs">
             <span className="font-medium">{r.coach_name}</span>
             {r.position_title ? <span className="text-muted-foreground"> — {r.position_title}</span> : null}
-            <span className="text-muted-foreground">
-              {r.sent_at
-                ? ` · last sent ${when(r.sent_at)}`
-                : r.drafted_at
-                  ? ` · drafted ${when(r.drafted_at)}, never confirmed sent`
-                  : ' · no message yet'}
-              {r.message_count > 1 ? ` · ${r.message_count} messages` : ''}
-              {r.revoked_at ? ' · revoked' : ''}
-            </span>
+            <span className="text-muted-foreground">{activity(r)}</span>
           </li>
         ))}
       </ul>

@@ -354,6 +354,30 @@ export async function sendOutreach({
       const outreach = createOutreach({ athleteId, coachId: record.id, matchId, programmeCampaignId });
 
       /**
+       * A REVOKED RELATIONSHIP IS NOT WRITEABLE THROUGH, on any path.
+       *
+       * Revocation withdraws the athlete's public page for this coach: the
+       * token stops resolving. `campaignAttribution` has refused a revoked
+       * relationship since B1 — but only for campaign-attributed sends, so a
+       * manual or recommendation send through a revoked relationship composed
+       * happily and put a deliberately dead link in front of a coach. The
+       * campaign path already calls that OUTREACH_REVOKED; this is the same
+       * refusal for everything else.
+       *
+       * Checked AFTER `createOutreach` because that function returns an
+       * existing row untouched — nothing is written for a relationship that
+       * already exists — and skipped per coach rather than failing the run,
+       * because revocation is a fact about one athlete-coach pair and the
+       * others in the same call may be perfectly sendable.
+       *
+       * Un-revoking is its own deliberate act. Nothing here clears it.
+       */
+      if (outreach.revoked_at) {
+        results.push({ email: coach.email, name: coach.name, status: 'revoked' });
+        continue;
+      }
+
+      /**
        * THE SEQUENCE IS PER COACH, SO THE EVIDENCE IS TOO.
        *
        * `evidenceUsed` above is derived once for the whole run, which is right

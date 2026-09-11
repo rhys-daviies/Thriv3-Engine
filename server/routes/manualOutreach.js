@@ -3,6 +3,7 @@ import db from '../db/client.js';
 import { getAthleteProgramme } from '../lib/athleteProgrammes.js';
 import { manualContactDecision } from '../lib/manualOutreachSafety.js';
 import { programmeCoaches } from './programmeCoaches.js';
+import { historyForAthleteProgramme } from '../lib/programmeContactHistory.js';
 import { sendOutreach } from './sendOutreach.js';
 import { OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
 
@@ -94,26 +95,14 @@ function readBody(body) {
 /**
  * PREVIOUS CONTACT, DERIVED AND NEVER STORED.
  *
- * `outreach` is unique per (athlete, coach) and carries the two timestamps
- * that mean different things — drafted into Outlook, and confirmed sent — so
- * the whole history is a join away. Copying a `previously_contacted` flag onto
- * `athlete_programmes` would be a second answer to a question that already has
- * one, and the second answer is the one that goes stale.
+ * The SQL lives in server/lib/programmeContactHistory.js so this route, and
+ * anything that later needs the same answer, cannot drift into two versions of
+ * it. Copying a `previously_contacted` flag onto `athlete_programmes` would be
+ * a second answer to a question `outreach` already answers.
  *
  * FACTS, NOT A VERDICT. Nothing here blocks anything: the most ordinary reason
  * to open this dialog is a deliberate second message to a coach who replied.
  */
-const PRIOR = db.prepare(`
-  SELECT c.id AS coach_id, c.full_name AS coach_name, c.position_title,
-         o.drafted_at, o.sent_at, o.revoked_at,
-         (SELECT COUNT(*) FROM outreach_send s WHERE s.outreach_id = o.id) AS message_count,
-         (SELECT MAX(s.sent_at) FROM outreach_send s WHERE s.outreach_id = o.id) AS last_message_sent_at
-    FROM outreach o
-    JOIN coaches c ON c.id = o.coach_id
-   WHERE o.athlete_id = @athleteId AND c.school = @collegeName AND c.sport = @sport
-   ORDER BY COALESCE(o.sent_at, o.drafted_at, o.created_at) DESC
-`);
-
 /** The relationship named by the URL, or a 404 that says which part is missing. */
 function loadContext(req) {
   const { playerId, id } = req.params;
@@ -153,7 +142,7 @@ manualOutreachRouter.get('/players/:playerId/programmes/:id/outreach', (req, res
       college: ctx.college,
       coaches: programmeCoaches({ collegeName: ctx.collegeName, sport: ctx.sport }),
       contact: decision,
-      priorContact: PRIOR.all({
+      priorContact: historyForAthleteProgramme({
         athleteId: ctx.playerId, collegeName: ctx.collegeName, sport: ctx.sport,
       }),
     });
