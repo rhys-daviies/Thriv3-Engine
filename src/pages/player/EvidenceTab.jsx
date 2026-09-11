@@ -4,6 +4,7 @@ import EvidencePanel from '@/components/EvidencePanel';
 import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 import { academicIntentState, ACADEMIC_INTENT } from '@shared/academicMajors.js';
+import ActionableRecommendationsState, { isActionablePending } from '@/components/ActionableRecommendationsState';
 
 /**
  * Everything Thriv3 can say about this athlete at each matched programme.
@@ -41,7 +42,7 @@ export default function EvidenceTab() {
    * one derivation, shared by every tab that claims to show the athlete's
    * current recommendations. See src/lib/useActionableRecommendations.js.
    */
-  const { player, actionableRecommendations: recommendations } = usePlayerWorkspace();
+  const { player, actionableRecommendations: recommendations, actionableStatus, reload } = usePlayerWorkspace();
   const [query, setQuery] = useState('');
   const [shown, setShown] = useState(PAGE);
 
@@ -57,6 +58,16 @@ export default function EvidenceTab() {
 
   const names = useMemo(() => filtered.map((r) => r.name), [filtered]);
   const { evidence, loading, failed } = useEvidence(player?.id, names);
+
+  /**
+   * NOT KNOWN YET IS NOT THE SAME AS NOT ANALYSED, and neither is rendered as
+   * the raw list. Checked before the two branches below so that a school the
+   * operator removed cannot appear for the paint between the analysis arriving
+   * and the relationships arriving.
+   */
+  if (isActionablePending(actionableStatus)) {
+    return <ActionableRecommendationsState status={actionableStatus} onRetry={reload} />;
+  }
 
   if (!recommendations) {
     return (

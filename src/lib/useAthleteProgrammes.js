@@ -31,6 +31,31 @@ export function useAthleteProgrammes(playerId) {
   const [programmes, setProgrammes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
+  /**
+   * WHICH ATHLETE'S LOAD HAS FINISHED — an id, not a boolean, and that is the
+   * whole of the difference.
+   *
+   * A bare `settled` flag is true for one render after the athlete changes,
+   * because the effect that resets it runs AFTER the render that changed the
+   * id. For that paint the new athlete's cards are drawn against the previous
+   * athlete's visibility decisions, which is the same class of bug as drawing
+   * them against none. Comparing an id closes the window in the render itself:
+   * the moment `playerId` changes, `settled` is false.
+   *
+   * `loading` IS NOT A SUBSTITUTE EITHER.
+   *
+   * `loading` is false on the very first render — the effect that sets it true
+   * has not run yet — so a consumer that gated on `loading` alone would see
+   * "not loading" with an empty relationship list and conclude that this
+   * athlete has no suppressions. For one paint that is exactly the wrong
+   * answer, and it is the paint in which a school the operator removed appears
+   * on screen and can be clicked.
+   *
+   * Set true on success AND on failure: both are answers, and a failure must
+   * not leave a consumer waiting forever for one that is not coming.
+   */
+  const [settledFor, setSettledFor] = useState(null);
+  const settled = Boolean(playerId) && settledFor === playerId;
   // The college_id currently being written to, so one row's button can say it
   // is working without disabling the rest of the list.
   const [pending, setPending] = useState(null);
@@ -45,10 +70,16 @@ export function useAthleteProgrammes(playerId) {
   const load = useCallback(async ({ signal } = {}) => {
     if (!playerId) {
       setProgrammes([]);
+      // No athlete is not a pending answer. Nothing is coming, and the
+      // consumer decides what that means — for the workspace it means the
+      // athlete has not been loaded yet, which its own analysis state already
+      // describes.
+      setSettledFor(null);
       return;
     }
     setLoading(true);
     setFailed(false);
+    setSettledFor(null);
     try {
       const { programmes: rows } = await api.list(playerId);
       if (signal?.cancelled) return;
@@ -61,7 +92,13 @@ export function useAthleteProgrammes(playerId) {
       setFailed(true);
       setProgrammes([]);
     } finally {
-      if (!signal?.cancelled) setLoading(false);
+      if (!signal?.cancelled) {
+        setLoading(false);
+        // Stamped with WHOSE answer this is. Set on success and on failure
+        // alike: both are answers, and a failure must not leave a consumer
+        // waiting forever for one that is not coming.
+        setSettledFor(playerId);
+      }
     }
   }, [playerId]);
 
@@ -214,6 +251,7 @@ export function useAthleteProgrammes(playerId) {
     byCollegeId,
     byCollegeName,
     loading,
+    settled,
     failed,
     pending,
     error,

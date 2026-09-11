@@ -15,6 +15,7 @@ import { entities } from '@/api/client';
 import { cn } from '@/lib/utils';
 import { useMatchingSummary, recruitingSignalsForCollege } from '@/lib/useMatchingSummary';
 import { usePlayerWorkspace } from './PlayerWorkspace';
+import ActionableRecommendationsState, { isActionablePending } from '@/components/ActionableRecommendationsState';
 
 const PAGE_SIZE = 20;
 const MAX_PAGE_BUTTONS = 5;
@@ -55,7 +56,7 @@ export default function MatchingTab() {
     // Derived once in PlayerWorkspace and shared by every tab that claims to
     // show this athlete's recommendation set — see
     // src/lib/useActionableRecommendations.js.
-    actionableRecommendations,
+    actionableRecommendations, actionableStatus, reload,
     programmes: relationships, specific, byCollegeId, byCollegeName,
     loading: programmesLoading, failed: programmesFailed,
     pending, error: programmeError, clearError, add, withdraw,
@@ -251,7 +252,17 @@ export default function MatchingTab() {
         </div>
       )}
 
-      {recommended && recommendations && !analyzing && (
+      {/*
+        THE RECOMMENDED VIEW WAITS. The tab bar and Specific Search stay put —
+        they do not depend on visibility — but the ranked cards are not drawn
+        until the athlete's own decisions are known, because drawing them early
+        means drawing a school that was removed.
+      */}
+      {recommended && recommendations && !analyzing && isActionablePending(actionableStatus) && (
+        <ActionableRecommendationsState status={actionableStatus} onRetry={reload} />
+      )}
+
+      {recommended && recommendations && !analyzing && !isActionablePending(actionableStatus) && (
         <>
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <Button size="sm" onClick={() => setShowBulk(true)} disabled={headCoachCount === 0}>

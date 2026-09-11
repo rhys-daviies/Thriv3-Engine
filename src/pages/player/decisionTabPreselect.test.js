@@ -47,8 +47,23 @@ let setPlayerIdOutside;
 const EMPTY = PAGE_FIXTURES.Bethesda;
 
 function stubFetch() {
-  vi.stubGlobal('fetch', vi.fn(async (path, opts) => {
-    const body = JSON.parse(opts.body);
+  vi.stubGlobal('fetch', vi.fn(async (path, opts = {}) => {
+    /**
+     * The relationship list, which DecisionTab now waits for.
+     *
+     * It does not render the ranked list until the athlete's own visibility
+     * decisions are known — the point of that gate is that a school the
+     * operator removed cannot appear in the gap. A harness that never answers
+     * this request leaves the tab correctly showing its loading state forever.
+     */
+    if (path.includes('/programmes')) {
+      return {
+        ok: true,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ programmes: [] }),
+      };
+    }
+    const body = opts.body ? JSON.parse(opts.body) : {};
     return {
       ok: true,
       headers: { get: () => 'application/json' },

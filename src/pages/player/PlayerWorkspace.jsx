@@ -110,9 +110,9 @@ export default function PlayerWorkspace() {
    * from whichever one happened to be looked at.
    */
   const {
-    actionableRecommendations, derived,
+    actionableRecommendations, actionableStatus, derived,
     programmes, specific, byCollegeId, byCollegeName,
-    loading, failed, pending, error, clearError,
+    loading, settled, failed, pending, error, clearError,
     add, withdraw, apply, flag, unflag, setVisibility, saveNote, reload,
   } = useActionableRecommendations({ playerId: player?.id, recommendations, reserve });
 
@@ -280,12 +280,14 @@ export default function PlayerWorkspace() {
         reserve,
         summary,
         actionableRecommendations,
+        actionableStatus,
         derived,
         programmes,
         specific,
         byCollegeId,
         byCollegeName,
         loading,
+        settled,
         failed,
         pending,
         error,

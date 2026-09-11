@@ -80,6 +80,39 @@ const ok = (payload) => ({
   json: async () => payload, text: async () => JSON.stringify(payload),
 });
 
+/**
+ * Holds the relationship request open until the test chooses to answer it.
+ *
+ * The gap between the analysis arriving and the relationship rows arriving is
+ * the entire subject of the block at the foot of this file, so it has to be a
+ * gap a test controls rather than one it races.
+ */
+function stubFetchDeferred({ fail = false } = {}) {
+  let release;
+  const gate = new Promise((resolve) => { release = resolve; });
+  vi.stubGlobal('fetch', vi.fn(async (path, opts = {}) => {
+    const body = opts.body ? JSON.parse(opts.body) : null;
+    calls.push({ path, method: opts.method || 'GET', body });
+    if (path.includes('/programmes')) {
+      const programmes = await gate;
+      if (fail) return { ok: false, status: 500, headers: { get: () => 'application/json' }, text: async () => '{}' };
+      return ok({ programmes });
+    }
+    if (path.includes('/matching-summary')) {
+      return ok(Object.fromEntries((body?.collegeNames ?? []).map((n) => [n, ZERO])));
+    }
+    if (path.includes('/philosophy/summaries')) {
+      return ok({
+        summaries: Object.fromEntries((body?.collegeIds ?? [])
+          .map((id) => [id, { college_id: id, college_name: NAME_BY_ID.get(id) ?? id, resolved: false }])),
+      });
+    }
+    return ok(Object.fromEntries((body?.collegeNames ?? [])
+      .map((n) => [n, { programme: { resolved: false }, evidence: [], facts: [] }])));
+  }));
+  return { settle: async (programmes = []) => { release(programmes); await act(async () => {}); } };
+}
+
 function stubFetch(programmes = []) {
   vi.stubGlobal('fetch', vi.fn(async (path, opts = {}) => {
     const body = opts.body ? JSON.parse(opts.body) : null;
@@ -291,4 +324,113 @@ describe('an athlete who has never been analysed', () => {
       expect(text()).not.toMatch(/matched no programmes/i);
     });
   }
+});
+
+
+// ---------------------------------------------------------------------------
+
+describe('while the relationship state is still loading', () => {
+  const suppressed = [relationship({ visibility: 'suppressed' })];
+
+  for (const segment of ['matching', 'decision', 'evidence', 'philosophy']) {
+    it(`${segment} shows a loading state instead of the raw list`, async () => {
+      const gate = stubFetchDeferred();
+      await render(segment);
+
+      // THE PAINT THIS WHOLE CHANGE IS ABOUT. The analysis is here and the
+      // operator's decisions are not, so nothing ranked is drawn.
+      expect(text()).toContain('Loading this athlete');
+      for (const n of ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo']) {
+        expect(text(), `${n} must not be drawn yet`).not.toContain(n);
+      }
+      // And nothing has been asked about any of them either.
+      expect(asked()).toEqual([]);
+
+      await gate.settle(suppressed);
+      expect(text()).not.toContain('Loading this athlete');
+    });
+
+    it(`${segment} never shows the suppressed school, before or after`, async () => {
+      const gate = stubFetchDeferred();
+      await render(segment);
+      expect(text()).not.toContain('Alpha');
+
+      await gate.settle(suppressed);
+      // Still absent, and now the derived list is on screen.
+      expect(text()).not.toContain('Alpha');
+      expect(text()).toContain('Bravo');
+    });
+
+    it(`${segment} shows the promoted reserve programme only once derivation is ready`, async () => {
+      const gate = stubFetchDeferred();
+      await render(segment);
+      expect(text()).not.toContain('Foxtrot');
+
+      await gate.settle(suppressed);
+      expect(text()).toContain('Foxtrot');
+      expect(asked()).toContain('Foxtrot');
+    });
+  }
+
+  it('leaves the raw analysis untouched throughout', async () => {
+    const before = JSON.stringify({ RECOMMENDATIONS, RESERVE });
+    const gate = stubFetchDeferred();
+    await render('matching');
+    expect(JSON.stringify({ RECOMMENDATIONS, RESERVE })).toBe(before);
+    await gate.settle(suppressed);
+    expect(JSON.stringify({ RECOMMENDATIONS, RESERVE })).toBe(before);
+  });
+});
+
+describe('when the relationship request fails', () => {
+  for (const segment of ['matching', 'decision', 'evidence', 'philosophy']) {
+    it(`${segment} says so rather than falling back to the raw list`, async () => {
+      const gate = stubFetchDeferred({ fail: true });
+      await render(segment);
+      await gate.settle();
+
+      /**
+       * NOT A DEGRADED ANSWER. A list assembled without the operator's
+       * decisions is the one specific list this feature exists to stop
+       * showing, so a failure shows nothing ranked and says why.
+       */
+      expect(text()).toContain('could not be loaded');
+      for (const n of ['Alpha', 'Bravo', 'Charlie', 'Delta', 'Echo', 'Foxtrot']) {
+        expect(text(), `${n} must not appear on a failed load`).not.toContain(n);
+      }
+      expect(asked()).toEqual([]);
+    });
+  }
+
+  it('offers the existing retry path', async () => {
+    const gate = stubFetchDeferred({ fail: true });
+    await render('decision');
+    await gate.settle();
+    const retry = Array.from(container.querySelectorAll('button'))
+      .find((b) => b.textContent.includes('Try again'));
+    expect(retry).toBeTruthy();
+  });
+});
+
+describe('an analysis that genuinely matched nothing', () => {
+  it('says so, rather than loading forever', async () => {
+    // EMPTY is a fourth state and not a variation on loading: everything is
+    // known, and the answer is that there is nothing.
+    stubFetch([]);
+    await render('decision', { recommendations: [], reserve: [] });
+    expect(text()).not.toContain('Loading this athlete');
+    expect(text()).toMatch(/matched no programmes|Run the analysis/i);
+  });
+
+  it('says so when every programme has been suppressed', async () => {
+    const all = RECOMMENDATIONS.map((c) => relationship({
+      id: `rel-${c.name}`, college_id: c.id, college_name: c.name, visibility: 'suppressed',
+    }));
+    stubFetch([...all, ...RESERVE.map((c) => relationship({
+      id: `rel-${c.name}`, college_id: c.id, college_name: c.name, visibility: 'suppressed',
+    }))]);
+    await render('decision');
+    expect(text()).not.toContain('Loading this athlete');
+    expect(text()).toMatch(/matched no programmes/i);
+  });
 });
