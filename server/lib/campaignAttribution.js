@@ -1,6 +1,7 @@
 import db from '../db/client.js';
 import { utcToday } from './time.js';
 import { isSuppressed } from './suppressions.js';
+import { campaignStanceDecision, CONTACT_REFUSAL as STANCE_REFUSAL } from './manualOutreachSafety.js';
 
 /**
  * THE ONE CHECK THAT MAKES CAMPAIGN ATTRIBUTION MEAN ANYTHING.
@@ -116,6 +117,20 @@ export function resolveProgrammeCampaignFor({ programmeCampaignId, athleteId, co
  *
  * Collapsing them would lose the difference between "this coach opted out of
  * Thriv3" and "we stopped pursuing Duke for this athlete".
+ *
+ * F6a adds the two RELATIONSHIP STANCES, and they stay apart from each other
+ * for the same reason:
+ *
+ *   RELATIONSHIP_DO_NOT_CONTACT  nobody may write to this programme, by any
+ *                                route. An operator seeing this must change the
+ *                                stance or write to somebody else.
+ *   RELATIONSHIP_MANUAL_ONLY     the CAMPAIGN may not. A person still may, and
+ *                                the operator seeing this is being told which
+ *                                button to use, not that the door is shut.
+ *
+ * One of those is a refusal and the other is a redirection, and a screen that
+ * printed the same sentence for both would send an operator to change a safety
+ * setting when all they had to do was press Relationship Outreach.
  */
 export const CONTACT_REFUSAL = Object.freeze({
   CAMPAIGN_NOT_ACTIVE: 'CAMPAIGN_NOT_ACTIVE',
@@ -124,8 +139,46 @@ export const CONTACT_REFUSAL = Object.freeze({
   PROGRAMME_STOPPED: 'PROGRAMME_STOPPED',
   PROGRAMME_COMPLETED: 'PROGRAMME_COMPLETED',
   OUTREACH_REVOKED: 'OUTREACH_REVOKED',
+  /** Spelled once, in the module that owns the stance vocabulary. */
+  RELATIONSHIP_DO_NOT_CONTACT: STANCE_REFUSAL.DO_NOT_CONTACT,
+  RELATIONSHIP_MANUAL_ONLY: STANCE_REFUSAL.MANUAL_ONLY,
   SUPPRESSED: 'SUPPRESSED',
 });
+
+/**
+ * IS THIS REFUSAL WAITING FOR A DAY, OR IS IT A DECISION?
+ *
+ * Two kinds, because callers need to act on them differently and only the
+ * module that owns the codes can classify them without copying the rules.
+ *
+ *   TIMING       a date or a lifecycle state. The campaign is still a draft,
+ *                or has not started, or its outreach window is closed — all
+ *                facts about WHEN, all changeable by activating a campaign or
+ *                editing its dates. Planning against one is legitimate: that is
+ *                exactly how a campaign is prepared before it is activated.
+ *
+ *   PROHIBITION  a decision about the programme, the relationship or the
+ *                person. Stopped, completed, revoked, suppressed, or a stance
+ *                the athlete's operator set. Waiting changes none of them, and
+ *                recording an intent to pursue somebody nobody may pursue is an
+ *                artefact a later execution engine would read back as a queue.
+ *
+ * The distinction is NOT "would it stop a send" — both kinds do. It is whether
+ * the refusal is about time.
+ */
+export const REFUSAL_KIND = Object.freeze({ TIMING: 'TIMING', PROHIBITION: 'PROHIBITION' });
+
+const TIMING_REFUSALS = Object.freeze(new Set([
+  'CAMPAIGN_NOT_ACTIVE',
+  'CAMPAIGN_NOT_STARTED',
+  'CAMPAIGN_OUTREACH_WINDOW_CLOSED',
+]));
+
+/** Every refusal is a prohibition unless it is one of the three dates above. */
+export function refusalKindOf(reason) {
+  if (!reason) return null;
+  return TIMING_REFUSALS.has(reason) ? REFUSAL_KIND.TIMING : REFUSAL_KIND.PROHIBITION;
+}
 
 /** Programme states outreach may proceed in. Not a transition — a permission. */
 const CONTACTABLE_PROGRAMME_STATES = Object.freeze(['queued', 'active']);
@@ -153,6 +206,14 @@ const OUTREACH_BY_ID = db.prepare('SELECT id, revoked_at FROM outreach WHERE id 
  */
 export function campaignContactDecision({
   programmeCampaignId, athleteId, coachId, outreachId = null, onDate = utcToday(),
+  /**
+   * WHETHER THE THREE DATE AND LIFECYCLE CHECKS APPLY — see `standingProhibition`.
+   *
+   * True for every caller that is deciding whether to SEND. False only for the
+   * one caller asking a different question: whether a standing prohibition
+   * exists at all, irrespective of what day it is.
+   */
+  timing = true,
 }) {
   // Identity first, and through A6's own rule rather than a second copy of it:
   // the programme campaign exists, belongs to this athlete, and is for this
@@ -160,11 +221,13 @@ export function campaignContactDecision({
   // bug rather than a state that changes with time.
   const pc = resolveProgrammeCampaignFor({ programmeCampaignId, athleteId, coachId });
 
-  const refuse = (reason) => ({ allowed: false, reason, programmeCampaign: pc });
+  const refuse = (reason) => ({
+    allowed: false, reason, kind: refusalKindOf(reason), programmeCampaign: pc,
+  });
 
   // ---- the campaign ----
-  if (pc.campaign_state !== 'active') return refuse(CONTACT_REFUSAL.CAMPAIGN_NOT_ACTIVE);
-  if (onDate < pc.starts_on) return refuse(CONTACT_REFUSAL.CAMPAIGN_NOT_STARTED);
+  if (timing && pc.campaign_state !== 'active') return refuse(CONTACT_REFUSAL.CAMPAIGN_NOT_ACTIVE);
+  if (timing && onDate < pc.starts_on) return refuse(CONTACT_REFUSAL.CAMPAIGN_NOT_STARTED);
   /**
    * `outreach_ends_on` is the OUTBOUND boundary and `ends_on` is not.
    *
@@ -173,7 +236,7 @@ export function campaignContactDecision({
    * service is for. Using `ends_on` here would keep sending into that window.
    * Null means open-ended, which is a legitimate campaign.
    */
-  if (pc.outreach_ends_on && onDate > pc.outreach_ends_on) {
+  if (timing && pc.outreach_ends_on && onDate > pc.outreach_ends_on) {
     return refuse(CONTACT_REFUSAL.CAMPAIGN_OUTREACH_WINDOW_CLOSED);
   }
 
@@ -197,6 +260,39 @@ export function campaignContactDecision({
     if (row?.revoked_at) return refuse(CONTACT_REFUSAL.OUTREACH_REVOKED);
   }
 
+  const coach = COACH.get(coachId);
+
+  /**
+   * THE ATHLETE'S OWN STANCE ON THIS PROGRAMME — F6a.
+   *
+   * Read here, which is the ONE place both halves of the campaign machinery
+   * pass through: the planner asks this for its dry run, and
+   * `authorisedProgrammeCampaignId` asks it from inside `createOutreach` and
+   * `recordDraft`, the only two functions that write a campaign-attributed
+   * row. So planning and writing cannot disagree, and a future execution
+   * engine that never touches the send route still cannot get past it.
+   *
+   * BEFORE F6a NEITHER STANCE WAS VISIBLE HERE. `do_not_contact` was enforced
+   * only inside the send route, so a dry run reported a do-not-contact
+   * programme as executable and a direct `recordDraft` wrote through it
+   * unchallenged. `manual_only` was enforced nowhere at all.
+   *
+   * THE IDENTITY IS THE VERIFIED ONE. `pc.college_name` and `pc.sport` come
+   * from `resolveProgrammeCampaignFor` above, which has already proved this
+   * coach is at that programme — so no request body, email label or origin
+   * string reaches the stance lookup. The two stances then differ in REACH,
+   * which is the stance module's decision and not re-implemented here.
+   */
+  const stance = campaignStanceDecision({
+    athleteId,
+    collegeName: pc.college_name,
+    sport: pc.sport,
+    coachEmail: coach?.email ?? null,
+  });
+  if (!stance.allowed) {
+    return { ...refuse(stance.reason), stanceProgramme: stance.programme };
+  }
+
   /**
    * The address, globally. `sendOutreach` checks this too and keeps doing so —
    * that check is the one every path to a send passes through and is not being
@@ -204,10 +300,31 @@ export function campaignContactDecision({
    * decision EXPLAIN a suppressed coach instead of a screen having to ask
    * separately.
    */
-  const coach = COACH.get(coachId);
   if (coach && isSuppressed(coach.email)) return refuse(CONTACT_REFUSAL.SUPPRESSED);
 
-  return { allowed: true, reason: null, programmeCampaign: pc };
+  return { allowed: true, reason: null, kind: null, programmeCampaign: pc };
+}
+
+/**
+ * IS ANYTHING STANDING IN THE WAY, WHATEVER DAY IT IS? — F6b.
+ *
+ * The same rules as `campaignContactDecision` with the three date and
+ * lifecycle checks skipped, so what comes back is a PROHIBITION or nothing.
+ *
+ * WHY IT EXISTS. Refusals are reported widest-first — a draft campaign whose
+ * programme is also stopped reports the campaign, so an operator fixes the
+ * outer problem first. That is right for a send, and wrong for the one caller
+ * that is not deciding a send: `materialiseNextContactAttempt` records an
+ * INTENT, and a campaign being a draft is exactly the state intents are
+ * recorded in. Asked the ordinary way, a draft campaign's timing refusal would
+ * mask a manual-only or do-not-contact stance underneath it, and the intent
+ * would be written against a decision somebody had already made.
+ *
+ * So this asks the question that caller actually has, through the same
+ * function and the same rules rather than a second copy of them.
+ */
+export function standingProhibition(args) {
+  return campaignContactDecision({ ...args, timing: false });
 }
 
 /**
@@ -228,9 +345,20 @@ export function assertCampaignContactAllowed(args) {
   return decision.programmeCampaign;
 }
 
-function refusalMessage({ reason, programmeCampaign: pc }) {
+function refusalMessage({ reason, programmeCampaign: pc, stanceProgramme = null }) {
   const where = `${pc.college_name} (${pc.sport})`;
   switch (reason) {
+    case CONTACT_REFUSAL.RELATIONSHIP_DO_NOT_CONTACT:
+      return `${stanceProgramme ?? where} is set to do-not-contact for this athlete. `
+        + (stanceProgramme && stanceProgramme !== pc.college_name
+          ? `This campaign is for ${where}, but the recipient is on record at `
+            + `${stanceProgramme}. `
+          : '')
+        + 'Nothing was drafted or sent. Change the contact stance on the relationship first.';
+    case CONTACT_REFUSAL.RELATIONSHIP_MANUAL_ONLY:
+      return `${where} is set to manual contact only for this athlete, so an automated `
+        + 'campaign may not write to it. A person still may — send it from Relationship '
+        + 'Outreach or Email Coaches, or change the contact stance on the relationship.';
     case CONTACT_REFUSAL.CAMPAIGN_NOT_ACTIVE:
       return `The campaign is ${pc.campaign_state}, so it may not send. Activate it first.`;
     case CONTACT_REFUSAL.CAMPAIGN_NOT_STARTED:

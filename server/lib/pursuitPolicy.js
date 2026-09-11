@@ -3,7 +3,9 @@ import {
   classifyRole, hasUsableEmail, titleOf, CONTACT_LADDER,
 } from '../../shared/coachRoles.js';
 import { isSuppressed } from './suppressions.js';
-import { campaignContactDecision } from './campaignAttribution.js';
+import {
+  campaignContactDecision, standingProhibition, REFUSAL_KIND,
+} from './campaignAttribution.js';
 import { attemptsForProgrammeCampaign, attemptForCoach, createContactAttempt } from './contactAttempts.js';
 import { outboundBudgetDecision, outboundBudgetDecisionForAthlete } from './outboundBudget.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
@@ -589,7 +591,7 @@ export function programmePursuitPlan({
 function safetyAndBudget({ pc, coach, onDate, sendingIdentity, window }) {
   if (!coach) {
     return {
-      safety: { evaluated: false, reason: 'NO_CURRENT_COACH', allowed: false },
+      safety: { evaluated: false, reason: 'NO_CURRENT_COACH', allowed: false, kind: null },
       budget: { evaluated: false, reason: 'NO_CURRENT_COACH' },
       executableNow: false,
     };
@@ -613,11 +615,25 @@ function safetyAndBudget({ pc, coach, onDate, sendingIdentity, window }) {
       outreachId: relationshipForSafety?.id ?? null,
       ...(onDate === undefined ? {} : { onDate }),
     });
-    safety = { evaluated: true, allowed: decision.allowed, reason: decision.reason };
+    safety = {
+      evaluated: true, allowed: decision.allowed, reason: decision.reason, kind: decision.kind,
+    };
   } catch (err) {
-    // Identity refusals throw in B3 because they are caller bugs. Reported
-    // rather than swallowed, and never re-implemented here.
-    safety = { evaluated: true, allowed: false, reason: err.code ?? 'CONTACT_CHECK_FAILED' };
+    /**
+     * Identity refusals throw in B3 because they are caller bugs. Reported
+     * rather than swallowed, and never re-implemented here.
+     *
+     * Classed as a PROHIBITION without asking: a mismatched athlete or a
+     * programme campaign that does not exist is not a thing that becomes true
+     * tomorrow, and the conservative reading is the right one for a class that
+     * decides whether an intent may be recorded.
+     */
+    safety = {
+      evaluated: true,
+      allowed: false,
+      reason: err.code ?? 'CONTACT_CHECK_FAILED',
+      kind: REFUSAL_KIND.PROHIBITION,
+    };
   }
 
   const budget = budgetStatus({ pc, coach, sendingIdentity, window });
@@ -687,6 +703,8 @@ function budgetStatus({ pc, coach, sendingIdentity, window }) {
  * Idempotent through B4: asking twice returns the existing attempt, and a
  * stopped one is never resurrected.
  *
+ * A REFUSED PLAN MATERIALISES NOTHING — F6b. See the safety check below.
+ *
  * @returns {{created: boolean, attempt: object|null, plan: object}}
  */
 export function materialiseNextContactAttempt({ programmeCampaignId, at = utcNow() } = {}) {
@@ -696,6 +714,45 @@ export function materialiseNextContactAttempt({ programmeCampaignId, at = utcNow
     && plan.nextAction !== PURSUIT_ACTION.FOLLOW_UP) {
     return { created: false, attempt: null, plan };
   }
+
+  /**
+   * WHAT POLICY WOULD DO NEXT IS NOT PERMISSION TO RECORD THE INTENT — F6b.
+   *
+   * This function used to check only whether the plan named an action, so a
+   * programme B3 refuses — suppressed, revoked, stopped, and after F6a a
+   * do-not-contact or manual-only relationship — still had an attempt written
+   * saying this campaign intended to pursue that person. It sent nothing, but
+   * a `planned` row is a record of intent, and recording an intent nobody is
+   * permitted to act on is the kind of artefact a later execution engine reads
+   * back as a queue.
+   *
+   * THE DECISION IS B3'S, QUOTED, NOT REPEATED. `plan.safety` is what
+   * `campaignContactDecision` already said about this exact coach; this reads
+   * the answer and refuses. No rule is re-implemented here, which is what the
+   * source-level test in this module's suite exists to keep true.
+   *
+   * ASKED WITHOUT THE DATES, because this caller is not deciding a send.
+   * A TIMING REFUSAL STILL MATERIALISES, and that is not an exception carved
+   * out for convenience. A draft campaign is refused by B3 and is precisely
+   * the state a campaign is prepared in — planning who would be approached is
+   * how an operator reviews one before activating it. What must not be
+   * recorded is an intent against a DECISION: a stopped programme, a revoked
+   * relationship, a suppressed address, or a stance saying this programme is
+   * not the campaign's to write to. B3 classifies its own refusals so that
+   * distinction is not a list of codes kept here.
+   *
+   * It NO-OPS rather than throwing, matching the two refusals above it: the
+   * caller gets `created: false`, the whole plan, and the refusing decision
+   * itself. Nothing here is silent — the reason travels with the answer, and
+   * it is B3's own reason rather than a sentence composed here.
+   */
+  const prohibition = standingProhibition({
+    programmeCampaignId,
+    athleteId: plan.campaign.athleteId,
+    coachId: plan.current.coachId,
+    outreachId: OUTREACH_FOR.get(plan.campaign.athleteId, plan.current.coachId)?.id ?? null,
+  });
+  if (!prohibition.allowed) return { created: false, attempt: null, plan, prohibition };
 
   const existing = attemptForCoach(programmeCampaignId, plan.current.coachId);
   const attempt = createContactAttempt({
