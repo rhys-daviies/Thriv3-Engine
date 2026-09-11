@@ -25,6 +25,8 @@ import { trackRouter } from './routes/track.js';
 import { uploadsRouter } from './routes/uploads.js';
 import { campaignsRouter } from './routes/campaigns.js';
 import { athleteProgrammesRouter } from './routes/athleteProgrammes.js';
+import { programmeCoachesRouter } from './routes/programmeCoaches.js';
+import { manualOutreachRouter } from './routes/manualOutreach.js';
 import { UPLOADS_DIR } from './lib/uploadPath.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
@@ -512,6 +514,16 @@ app.use('/api', campaignsRouter);
 // table is that a programme identity is copied from the registry rather than
 // described by a request. See server/routes/athleteProgrammes.js.
 app.use('/api', athleteProgrammesRouter);
+
+// ---- Manual, case-by-case outreach against one relationship ----
+//
+// Deliberately its own route rather than a flag on /api/outreach/send: that
+// endpoint spreads `req.body` into its payload, so anything named there is
+// client-supplied by construction. The programme, the contact stance, the
+// campaign (always null) and the origin are read from the URL and the database
+// here, which is what makes "do not contact" a rule rather than a preference.
+app.use('/api', programmeCoachesRouter);
+app.use('/api', manualOutreachRouter);
 
 // ---- Uploads (UploadFile integration replacement) ----
 //

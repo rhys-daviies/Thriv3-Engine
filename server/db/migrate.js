@@ -326,6 +326,30 @@ const OUTREACH_SEND_COLUMNS = [
    * NULL until a message is ACCEPTED.
    */
   ['accepted_source', 'TEXT'],
+
+  /**
+   * WHAT KIND OF ACTION PUT THIS MESSAGE IN THE WORLD.
+   *
+   * `programme_campaign_id IS NULL` was doing this job and cannot: it is null
+   * for a manual send, null for every row written before campaigns existed,
+   * and null again for a campaign row whose campaign was later deleted
+   * (ON DELETE SET NULL). Three different histories, one indistinguishable
+   * value, and a later question like "has anyone written to this coach outside
+   * a campaign" has no answer.
+   *
+   * NULLABLE AND NOT BACKFILLED. Rows written before this column existed were
+   * not observed to be either kind, and guessing from `programme_campaign_id`
+   * would manufacture exactly the certainty the column exists to record.
+   *
+   * NO CHECK CONSTRAINT, deliberately. SQLite cannot alter one, so a CHECK
+   * here would make every future origin — a reply, an import, a scheduled
+   * follow-up — a table rebuild. The vocabulary is owned by
+   * shared/outreachOrigin.js and enforced where it is written.
+   *
+   * SET FROM THE SERVER'S OWN CONTEXT, NEVER FROM A REQUEST BODY. See the
+   * second argument of sendOutreach.
+   */
+  ['origin', 'TEXT'],
 ];
 
 /**
