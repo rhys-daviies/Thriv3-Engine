@@ -25,6 +25,9 @@ import { trackRouter } from './routes/track.js';
 import { uploadsRouter } from './routes/uploads.js';
 import { campaignsRouter } from './routes/campaigns.js';
 import { athleteProgrammesRouter } from './routes/athleteProgrammes.js';
+import { programmeCoachesRouter } from './routes/programmeCoaches.js';
+import { manualOutreachRouter } from './routes/manualOutreach.js';
+import { OUTREACH_ORIGIN } from '../shared/outreachOrigin.js';
 import { UPLOADS_DIR } from './lib/uploadPath.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
@@ -513,6 +516,16 @@ app.use('/api', campaignsRouter);
 // described by a request. See server/routes/athleteProgrammes.js.
 app.use('/api', athleteProgrammesRouter);
 
+// ---- Manual, case-by-case outreach against one relationship ----
+//
+// Deliberately its own route rather than a flag on /api/outreach/send: that
+// endpoint spreads `req.body` into its payload, so anything named there is
+// client-supplied by construction. The programme, the contact stance, the
+// campaign (always null) and the origin are read from the URL and the database
+// here, which is what makes "do not contact" a rule rather than a preference.
+app.use('/api', programmeCoachesRouter);
+app.use('/api', manualOutreachRouter);
+
 // ---- Uploads (UploadFile integration replacement) ----
 //
 // Mounted here rather than beside trackRouter so the middleware order is
@@ -576,7 +589,21 @@ app.get('/api/coaches/email-status', (req, res) => {
 
 app.post('/api/outreach/send', async (req, res) => {
   try {
-    res.json(await sendOutreach(req.body || {}));
+    /**
+     * ORIGIN COMES FROM THE ROUTE, NOT FROM THE BODY.
+     *
+     * Everything below `requireOperator` is a signed-in person acting through
+     * the browser, and the two things that reach this endpoint — the match-card
+     * composer and the bulk composer — are both an operator composing and
+     * approving a message by hand. That is what `manual` means.
+     *
+     * A request carrying a programme campaign id is overridden to `campaign`
+     * inside `recordDraft`, against the attribution it VERIFIES rather than the
+     * one it was handed. So a campaign send through this route records campaign
+     * work whatever this line says, and a body naming `origin` reaches nothing
+     * at all — the context is a second argument.
+     */
+    res.json(await sendOutreach(req.body || {}, { origin: OUTREACH_ORIGIN.MANUAL }));
   } catch (err) {
     console.error('[outreach/send]', err);
     res.status(400).json({ error: err.message });

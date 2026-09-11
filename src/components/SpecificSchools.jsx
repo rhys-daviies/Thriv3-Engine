@@ -1,5 +1,5 @@
 import React from 'react';
-import { Loader2, Star } from 'lucide-react';
+import { Loader2, Star, Mail } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,7 @@ function where(row) {
   return [row.city, row.state].filter(Boolean).join(', ');
 }
 
-function SpecificSchoolRow({ programme, rank, busy, onRemove }) {
+function SpecificSchoolRow({ programme, rank, busy, onRemove, onManualOutreach }) {
   return (
     <li className="flex items-start justify-between gap-3 p-3" data-testid="specific-school-row">
       <div className="min-w-0 space-y-1">
@@ -49,15 +49,30 @@ function SpecificSchoolRow({ programme, rank, busy, onRemove }) {
           </p>
         )}
       </div>
-      <Button size="sm" variant="ghost" disabled={busy} onClick={() => onRemove(programme)}>
-        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Remove'}
-      </Button>
+      <div className="flex items-center gap-1 shrink-0">
+        {/*
+          THE POINT OF A SPECIFIC REQUEST. Somebody asked for this school, so
+          the next thing an operator wants is to write to it.
+          Deliberately offered on EVERY row, including one whose programme has
+          been taken out of the Top 100: a ranking decision is not a contact
+          decision, and `contact_stance` is the only thing that stops this —
+          server-side, inside the dialog and again inside the send path.
+        */}
+        {onManualOutreach && (
+          <Button size="sm" variant="outline" onClick={() => onManualOutreach(programme)}>
+            <Mail className="h-3.5 w-3.5 mr-1" /> Manual Outreach
+          </Button>
+        )}
+        <Button size="sm" variant="ghost" disabled={busy} onClick={() => onRemove(programme)}>
+          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Remove'}
+        </Button>
+      </div>
     </li>
   );
 }
 
 export default function SpecificSchools({
-  specific, recommendations, loading, failed, pending, error, onRemove,
+  specific, recommendations, loading, failed, pending, error, onRemove, onManualOutreach = null,
 }) {
   /**
    * Rank by name, from the analysis already in memory. ARRAY ORDER IS THE
@@ -113,6 +128,7 @@ export default function SpecificSchools({
                 rank={rankOf(p.college_name)}
                 busy={pending === (p.college_id || p.id)}
                 onRemove={onRemove}
+                onManualOutreach={onManualOutreach}
               />
             ))}
           </ul>

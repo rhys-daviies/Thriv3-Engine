@@ -10,6 +10,7 @@ import SpecificSearch from '@/components/SpecificSearch';
 import SpecificSchools from '@/components/SpecificSchools';
 import ProgrammeRelationship from '@/components/ProgrammeRelationship';
 import SuppressedProgrammes from '@/components/SuppressedProgrammes';
+import ManualOutreachDialog from '@/components/ManualOutreachDialog';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
 import { cn } from '@/lib/utils';
@@ -63,6 +64,12 @@ export default function MatchingTab() {
     flag, unflag, setVisibility, saveNote,
   } = usePlayerWorkspace();
   const [emailTarget, setEmailTarget] = useState(null);
+  /**
+   * The relationship being written to by hand, addressed by its own id so the
+   * dialog resolves the programme, the staff and the contact stance from the
+   * server rather than from whatever this page is holding.
+   */
+  const [manualTarget, setManualTarget] = useState(null);
   const [showBulk, setShowBulk] = useState(false);
   /**
    * MATCH PRIORITIES HAS NO VISIBLE TRIGGER ANY MORE, AND IS NOT DELETED.
@@ -225,6 +232,7 @@ export default function MatchingTab() {
           pending={pending}
           error={programmeError}
           onRemove={withdraw}
+          onManualOutreach={(programme) => setManualTarget(programme.id)}
         />
       )}
 
@@ -354,6 +362,15 @@ export default function MatchingTab() {
           colleges={pageItems}
           open={showBulk}
           onOpenChange={setShowBulk}
+        />
+      )}
+
+      {manualTarget && (
+        <ManualOutreachDialog
+          player={player}
+          relationshipId={manualTarget}
+          open={!!manualTarget}
+          onOpenChange={(v) => !v && setManualTarget(null)}
         />
       )}
 

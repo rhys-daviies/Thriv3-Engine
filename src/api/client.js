@@ -567,3 +567,42 @@ export const athleteProgrammes = {
     });
   },
 };
+
+
+/**
+ * MANUAL, CASE-BY-CASE OUTREACH AGAINST ONE ATHLETE-PROGRAMME RELATIONSHIP.
+ *
+ * A separate namespace from `outreach` above, matching a separate endpoint,
+ * and the separation is the safety argument rather than tidiness.
+ * `/api/outreach/send` spreads the request body into its payload, so every
+ * field it reads is client-supplied by construction. These calls address a
+ * RELATIONSHIP by URL, and the programme, the contact stance, the campaign
+ * (always null) and the origin are read server-side from the database. There
+ * is no field this client could add to change any of them — it would be
+ * refused by name.
+ *
+ * What this client does decide: which coaches, what the message says, which
+ * evidence angles to prefer, and whether to send rather than draft.
+ */
+export const manualOutreach = {
+  /**
+   * Everything the composer needs in one request: the relationship, the
+   * canonical college, that programme's staff from the `coaches` table, the
+   * contact decision, and what has already been sent to this programme.
+   */
+  context(playerId, relationshipId) {
+    return request(`/api/players/${playerId}/programmes/${relationshipId}/outreach`);
+  },
+
+  /**
+   * @param {object} payload  coachIds, subject, body, greetingName, send,
+   *   evidenceSelection, evidenceStructure, bodySource — and nothing else.
+   *   `send` defaults to drafting; immediate sending is an explicit opt-in.
+   */
+  send(playerId, relationshipId, payload) {
+    return request(`/api/players/${playerId}/programmes/${relationshipId}/outreach`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
+};
