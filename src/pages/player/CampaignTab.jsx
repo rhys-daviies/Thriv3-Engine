@@ -203,6 +203,24 @@ export default function CampaignTab() {
    */
   const [notice, setNotice] = useState(null);
 
+  /**
+   * WHERE FOCUS GOES WHEN THE PLAN IS REPLACED.
+   *
+   * Approving removes the control that was pressed — the card may move group or
+   * disappear entirely — so a keyboard user is otherwise returned to the top of
+   * the document with no account of what happened. The notice takes focus
+   * instead: it says what was recorded, and it is next to the thing that
+   * changed.
+   */
+  /**
+   * A CALLBACK REF RATHER THAN AN EFFECT, because the notice unmounts on the way
+   * past: setting it is immediately followed by a reload, and the page shows
+   * skeletons while that runs. An effect keyed on the message would have fired
+   * against an element that was about to be thrown away, and never again once
+   * the real one mounted. This focuses whatever notice actually appears.
+   */
+  const noticeRef = useCallback((el) => { el?.focus(); }, []);
+
   const programmes = plan?.programmes ?? [];
 
   /**
@@ -225,6 +243,14 @@ export default function CampaignTab() {
     try {
       setNotice(null);
       await campaigns.approveFirstTouch(programme.programmeCampaignId, programme.currentCoach.id);
+      /**
+       * SAID, NOT ASSUMED. The sentence reports what was RECORDED — a review —
+       * and never what it achieved: the reload decides whether this programme
+       * is now ready, still waiting on a setting, or refused by something the
+       * approval had no bearing on.
+       */
+      setNotice(`Review recorded for ${programme.currentCoach.name} at ${programme.collegeName}. `
+        + 'The campaign has been reloaded.');
       reload();
     } catch (err) {
       /**
@@ -334,6 +360,8 @@ export default function CampaignTab() {
 
       {notice && (
         <Card
+          ref={noticeRef}
+          tabIndex={-1}
           className="p-4 flex items-center justify-between gap-3"
           role="status"
           data-testid="campaign-notice"

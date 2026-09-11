@@ -1106,3 +1106,75 @@ describe('the approval control is reachable and named', () => {
     expect(approve.disabled).toBe(false);
   });
 });
+
+describe('focus is not dropped when the controls are replaced', () => {
+  const approveButton = () => buttons().find((b) => /Approve first touch/.test(b.textContent));
+
+  it('moves to the confirm button when the step changes', async () => {
+    stubApi({ executionPlan: plan([heldForReview()]) });
+    await render();
+    await click(approveButton());
+
+    // Pressing Approve removes the button that was pressed. A keyboard user
+    // left on a removed element is returned to the top of the document.
+    expect(document.activeElement.textContent).toContain('Confirm approval');
+  });
+
+  it('returns to the approve button on cancel', async () => {
+    stubApi({ executionPlan: plan([heldForReview()]) });
+    await render();
+    await click(approveButton());
+    await click(buttons().find((b) => b.textContent === 'Cancel'));
+
+    expect(document.activeElement.textContent).toContain('Approve first touch');
+  });
+
+  it('returns to the approve button when the approval fails', async () => {
+    calls = [];
+    vi.stubGlobal('fetch', vi.fn(async (path, opts = {}) => {
+      calls.push({ path, method: opts.method || 'GET', body: opts.body ?? null });
+      if (String(path).includes('first-touch-approval')) {
+        return { ok: false, status: 500, headers: { get: () => 'application/json' }, text: async () => '{}' };
+      }
+      const payload = String(path).includes('/execution-plan')
+        ? plan([heldForReview()]) : { campaigns: [CAMPAIGN] };
+      return { ok: true, status: 200, headers: { get: () => 'application/json' },
+        json: async () => payload, text: async () => JSON.stringify(payload) };
+    }));
+    await render();
+    await click(approveButton());
+    await click(buttons().find((b) => b.textContent.includes('Confirm approval')));
+
+    // Beside the alert, on the control that can try again.
+    expect(document.activeElement.textContent).toContain('Approve first touch');
+  });
+
+  it('lands on the notice when the plan is replaced under it', async () => {
+    stubApi({ executionPlan: plan([heldForReview()]) });
+    await render();
+    await click(approveButton());
+    await click(buttons().find((b) => b.textContent.includes('Confirm approval')));
+
+    /**
+     * The card may have moved group or gone entirely, so there is no control to
+     * return to. The notice says what was recorded and takes the focus.
+     */
+    const notice = container.querySelector('[data-testid="campaign-notice"]');
+    expect(notice).toBeTruthy();
+    expect(notice.textContent).toMatch(/Review recorded for John Smith at Duke/);
+    expect(document.activeElement).toBe(notice);
+  });
+
+  it('says what was recorded, never what it achieved', async () => {
+    stubApi({ executionPlan: plan([heldForReview()]) });
+    await render();
+    await click(approveButton());
+    await click(buttons().find((b) => b.textContent.includes('Confirm approval')));
+
+    const notice = container.querySelector('[data-testid="campaign-notice"]').textContent;
+    // Approval clears one hold; the reload decides the rest.
+    for (const claim of [/ready to send/i, /will be sent/i, /approved to send/i, /unblocked/i]) {
+      expect(notice, String(claim)).not.toMatch(claim);
+    }
+  });
+});

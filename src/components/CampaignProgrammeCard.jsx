@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -128,6 +128,28 @@ function ApproveFirstTouch({ programme, onApprove }) {
   const coach = programme.currentCoach;
 
   /**
+   * FOCUS FOLLOWS THE STEP, because the control the operator was on keeps being
+   * replaced. Pressing Approve swaps the button for two others, and cancelling
+   * or failing swaps them back — a keyboard user left on a removed element is
+   * returned to the top of the document each time.
+   *
+   * Only the steps this component owns. Where an approval succeeds the whole
+   * plan is replaced, and where focus goes then is the page's business rather
+   * than a card that may no longer exist.
+   */
+  const approveRef = useRef(null);
+  const confirmRef = useRef(null);
+  const returning = useRef(false);
+
+  useEffect(() => {
+    if (mode === 'confirming') confirmRef.current?.focus();
+    else if (returning.current) {
+      approveRef.current?.focus();
+      returning.current = false;
+    }
+  }, [mode]);
+
+  /**
    * A NEW PLAN CLEARS THIS. `programme` is a fresh object on every successful
    * load, so a reload after approving returns the control to rest — and if the
    * server still holds the review, it comes back ready to be pressed again
@@ -143,6 +165,8 @@ function ApproveFirstTouch({ programme, onApprove }) {
       // Left pending: the reload replaces this card's data, and the effect
       // above is what returns it to rest. Nothing is assumed in between.
     } catch (err) {
+      // Back to the control that can try again, with the alert beside it.
+      returning.current = true;
       setMode('idle');
       setError(err);
     }
@@ -155,6 +179,7 @@ function ApproveFirstTouch({ programme, onApprove }) {
     <div className="space-y-2">
       {mode === 'idle' && (
         <Button
+          ref={approveRef}
           size="sm"
           variant="outline"
           onClick={() => setMode('confirming')}
@@ -172,8 +197,19 @@ function ApproveFirstTouch({ programme, onApprove }) {
             knowing this athlete has contacted them before?
           </p>
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="ghost" onClick={() => setMode('idle')}>Cancel</Button>
-            <Button size="sm" onClick={submit} aria-label={`Confirm approval: ${where}`}>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => { returning.current = true; setMode('idle'); }}
+            >
+              Cancel
+            </Button>
+            <Button
+              ref={confirmRef}
+              size="sm"
+              onClick={submit}
+              aria-label={`Confirm approval: ${where}`}
+            >
               Confirm approval
             </Button>
           </div>
