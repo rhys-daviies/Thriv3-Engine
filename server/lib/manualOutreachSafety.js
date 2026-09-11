@@ -54,6 +54,47 @@ export function contactStanceFor({ athleteId, collegeName, sport }) {
 }
 
 /**
+ * EVERY PROGRAMME THIS SEND ACTUALLY REACHES, not the one it claims to.
+ *
+ * `collegeName` arrives in the request body on the shared endpoint, and so
+ * does every coach's address. `findOrCreateCoach` keys on
+ * (email, school, sport) and CREATES a row when it misses — so a caller
+ * writing to a coach at School A while labelling the run School B does not
+ * merely mislabel it: it mints a second `coaches` row for that address under
+ * School B. A stance resolved from the label alone would then be a stance on a
+ * school nobody was writing to, and the do-not-contact on School A would never
+ * be consulted.
+ *
+ * So the question asked is not "what did the caller call this" but "who is
+ * about to be emailed, and where is that address on record". The claimed name
+ * is still included — a first message to a programme we hold no coach row for
+ * is a legitimate send, and the relationship for it must still bind.
+ *
+ * SPORT. Rows for the athlete's own sport, plus rows whose sport is NULL.
+ * A null-sport coach row is ambiguous about which programme it belongs to, and
+ * for a rule whose whole job is to stop a message, the conservative reading is
+ * the correct one: an ambiguous row that might be the suppressed programme is
+ * treated as though it is.
+ */
+export function programmesReachedBy({ collegeName, sport, coachEmails = [] }) {
+  const names = new Set();
+  if (collegeName) names.add(collegeName);
+
+  const lookup = db.prepare(`
+    SELECT DISTINCT school FROM coaches
+     WHERE lower(trim(email)) = @email
+       AND (sport IS @sport OR sport IS NULL)
+       AND school IS NOT NULL
+  `);
+  for (const raw of coachEmails) {
+    const email = String(raw ?? '').trim().toLowerCase();
+    if (!email) continue;
+    for (const row of lookup.all({ email, sport: sport ?? null })) names.add(row.school);
+  }
+  return [...names];
+}
+
+/**
  * Refuse, or say nothing.
  *
  * ONE STANCE BLOCKS, and only one. `manual_only` is a restriction on WHICH
@@ -66,12 +107,39 @@ export function contactStanceFor({ athleteId, collegeName, sport }) {
  *
  * @returns {{allowed: boolean, stance: string, reason: string|null}}
  */
-export function manualContactDecision({ athleteId, collegeName, sport }) {
-  const stance = contactStanceFor({ athleteId, collegeName, sport });
-  if (stance === 'do_not_contact') {
-    return { allowed: false, stance, reason: CONTACT_REFUSAL.DO_NOT_CONTACT };
+export function manualContactDecision({ athleteId, collegeName, sport, coachEmails = [] }) {
+  /**
+   * ANY REACHED PROGRAMME REFUSES THE WHOLE RUN.
+   *
+   * One call writes to one programme's staff, so a refusal is a fact about the
+   * run rather than about one recipient — and where the reached set has more
+   * than one name in it, that is itself a sign the run is not what it says it
+   * is. Blocking on any is the only safe reading.
+   */
+  const reached = programmesReachedBy({ collegeName, sport, coachEmails });
+  const names = reached.length ? reached : [collegeName].filter(Boolean);
+
+  for (const name of names) {
+    const stance = contactStanceFor({ athleteId, collegeName: name, sport });
+    if (stance === 'do_not_contact') {
+      return {
+        allowed: false,
+        stance,
+        reason: CONTACT_REFUSAL.DO_NOT_CONTACT,
+        // WHICH programme refused, which is not always the one the caller
+        // named — and when it is not, that is the more important half.
+        programme: name,
+        reached: names,
+      };
+    }
   }
-  return { allowed: true, stance, reason: null };
+  return {
+    allowed: true,
+    stance: contactStanceFor({ athleteId, collegeName, sport }),
+    reason: null,
+    programme: collegeName ?? null,
+    reached: names,
+  };
 }
 
 /**
@@ -81,11 +149,15 @@ export function manualContactDecision({ athleteId, collegeName, sport }) {
  * a status without matching on prose, and names the programme in the message
  * because an operator sending to four schools needs to know which one refused.
  */
-export function assertContactAllowed({ athleteId, collegeName, sport }) {
-  const decision = manualContactDecision({ athleteId, collegeName, sport });
+export function assertContactAllowed({ athleteId, collegeName, sport, coachEmails = [] }) {
+  const decision = manualContactDecision({ athleteId, collegeName, sport, coachEmails });
   if (!decision.allowed) {
     const err = new Error(
-      `${collegeName} is set to do-not-contact for this athlete. `
+      `${decision.programme} is set to do-not-contact for this athlete. `
+      + (decision.programme !== collegeName
+        ? `This send was labelled ${collegeName}, but at least one recipient is on record at `
+          + `${decision.programme}. `
+        : '')
       + 'Nothing was drafted or sent. Change the contact stance on the relationship first.',
     );
     err.code = decision.reason;

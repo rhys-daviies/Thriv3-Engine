@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
-import { normaliseOrigin } from '../../shared/outreachOrigin.js';
+import { normaliseOrigin, OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
 import { utcNow } from './time.js';
 import { buildSendSnapshot } from '../../shared/evidence/sendSnapshot.js';
 import { LEGACY_POLICY_VERSION } from '../../shared/evidence/outreachPolicy.js';
@@ -155,7 +155,16 @@ export function recordDraft({
     college_name: collegeName,
     sport,
     programme_campaign_id: verifiedCampaign,
-    origin: normaliseOrigin(origin),
+    /**
+     * CAMPAIGN ATTRIBUTION WINS, and it wins over the CALLER'S OWN CONTEXT.
+     *
+     * `verifiedCampaign` is what `authorisedProgrammeCampaignId` just approved,
+     * so a message that really is campaign work is recorded as campaign work
+     * whatever route composed it. Only when there is no campaign does the
+     * caller's context decide — and that context is a second argument no
+     * request body can reach.
+     */
+    origin: verifiedCampaign ? OUTREACH_ORIGIN.CAMPAIGN : normaliseOrigin(origin),
     // A body exists and may still be rewritten in place. Nothing has been
     // handed to a transport by the time this is written.
     state: MESSAGE_STATE.DRAFT,

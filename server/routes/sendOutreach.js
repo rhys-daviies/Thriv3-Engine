@@ -10,7 +10,7 @@ import { recordDraft, confirmSend } from '../lib/outreachSend.js';
 import { ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
 import { campaignContactDecision } from '../lib/campaignAttribution.js';
 import { assertContactAllowed } from '../lib/manualOutreachSafety.js';
-import { OUTREACH_ORIGIN, normaliseOrigin } from '../../shared/outreachOrigin.js';
+import { normaliseOrigin } from '../../shared/outreachOrigin.js';
 import { recordOutboundAttempt, TRANSPORT } from '../lib/outboundBudget.js';
 import { evidenceFor } from '../lib/evidenceQueries.js';
 import { templateVariant } from '../../shared/evidence/templateVariant.js';
@@ -193,9 +193,19 @@ export async function sendOutreach({
    * `visibility`, `flagged` and `request_state` are NOT consulted — see
    * server/lib/manualOutreachSafety.js for why each of them would be wrong.
    */
-  if (collegeName) {
-    assertContactAllowed({ athleteId, collegeName, sport: athlete.sport });
-  }
+  /**
+   * BOUND TO THE RECIPIENTS, NOT TO THE LABEL. `collegeName` and every address
+   * below arrive from the caller on the shared endpoint, and
+   * `findOrCreateCoach` would happily mint a coach row for a School A address
+   * under a School B label — so a stance resolved from the label alone could
+   * be a stance on a school nobody was writing to. See programmesReachedBy.
+   */
+  assertContactAllowed({
+    athleteId,
+    collegeName,
+    sport: athlete.sport,
+    coachEmails: coaches.map((c) => c && c.email).filter(Boolean),
+  });
 
   /**
    * THE CAMPAIGN GATE, ONCE, BEFORE THE LOOP.
@@ -478,7 +488,10 @@ export async function sendOutreach({
              * carrying a programme campaign id that passed the gate above IS a
              * campaign send, whatever a caller thought to say about it.
              */
-            origin: resolvedOrigin ?? (programmeCampaignId ? OUTREACH_ORIGIN.CAMPAIGN : null),
+            // Passed through. `recordDraft` overrides it with `campaign`
+            // when the attribution it verifies says so, which is the only
+            // authoritative answer to that question.
+            origin: resolvedOrigin,
             evidence: coachEvidence,
             body: personalisedBody,
             subject: personalise(subject, greetingName, coach.name || 'Coach'),

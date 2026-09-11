@@ -27,6 +27,7 @@ import { campaignsRouter } from './routes/campaigns.js';
 import { athleteProgrammesRouter } from './routes/athleteProgrammes.js';
 import { programmeCoachesRouter } from './routes/programmeCoaches.js';
 import { manualOutreachRouter } from './routes/manualOutreach.js';
+import { OUTREACH_ORIGIN } from '../shared/outreachOrigin.js';
 import { UPLOADS_DIR } from './lib/uploadPath.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
@@ -588,7 +589,21 @@ app.get('/api/coaches/email-status', (req, res) => {
 
 app.post('/api/outreach/send', async (req, res) => {
   try {
-    res.json(await sendOutreach(req.body || {}));
+    /**
+     * ORIGIN COMES FROM THE ROUTE, NOT FROM THE BODY.
+     *
+     * Everything below `requireOperator` is a signed-in person acting through
+     * the browser, and the two things that reach this endpoint — the match-card
+     * composer and the bulk composer — are both an operator composing and
+     * approving a message by hand. That is what `manual` means.
+     *
+     * A request carrying a programme campaign id is overridden to `campaign`
+     * inside `recordDraft`, against the attribution it VERIFIES rather than the
+     * one it was handed. So a campaign send through this route records campaign
+     * work whatever this line says, and a body naming `origin` reaches nothing
+     * at all — the context is a second argument.
+     */
+    res.json(await sendOutreach(req.body || {}, { origin: OUTREACH_ORIGIN.MANUAL }));
   } catch (err) {
     console.error('[outreach/send]', err);
     res.status(400).json({ error: err.message });

@@ -146,11 +146,16 @@ describe('origin is recorded, and cannot be claimed by the payload', () => {
     expect(sends()[0]).toMatchObject({ origin: 'manual', programme_campaign_id: null });
   });
 
-  it('writes NULL for the legacy composer path, rather than guessing', async () => {
+  it('writes NULL only when no caller said what this was', async () => {
     const athlete = makeAthlete();
     await run(athlete);
-    // Neither a campaign send nor the relationship-scoped manual workflow.
-    // Labelling it either would invent a fact.
+    /**
+     * The FUNCTION default, which is not the same as a path's default. Every
+     * route and script that reaches this function now names its own origin —
+     * see server/index.js and server/scripts/draftOutreach.js — so NULL is
+     * reserved for history and for a caller that has not been classified yet,
+     * rather than being what a new send quietly gets.
+     */
     expect(sends()[0].origin).toBeNull();
   });
 
@@ -212,5 +217,116 @@ describe('a manual send is not campaign work', () => {
     await run(athlete, { matchId: 'Duke' }, { origin: OUTREACH_ORIGIN.MANUAL });
     expect(sends()).toHaveLength(1);
     expect(db.prepare('SELECT match_id FROM outreach').get().match_id).toBe('Duke');
+  });
+});
+
+
+// ---------------------------------------------------------------------------
+
+describe('ADVERSARIAL — the programme label cannot be swapped', () => {
+  /**
+   * THE HOLE THIS CLOSES.
+   *
+   * `findOrCreateCoach` keys on (email, school, sport) and CREATES a row when
+   * it misses. A caller writing to a Duke address while labelling the run
+   * "Elsewhere" therefore did not merely mislabel it — it minted a second
+   * coaches row for that address under "Elsewhere", and a stance resolved from
+   * the label alone was a stance on a school nobody was writing to. Duke's
+   * do-not-contact was never consulted.
+   */
+  function canonicalCoach({ email, school, sport = 'mens-soccer' }) {
+    db.prepare(`
+      INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
+      VALUES (?, '2026-09-11T00:00:00.000Z', 'A Coach', ?, ?, 'NCAA D1', ?, 'Head Coach')
+    `).run(randomUUID(), email, school, sport);
+  }
+
+  it('blocks a send to a do-not-contact school that claims to be another school', async () => {
+    const athlete = makeAthlete();
+    canonicalCoach({ email: 'a@duke.test', school: 'Duke' });
+    relate(athlete, 'Duke', 'do_not_contact');
+
+    // The attack: the label says Elsewhere, the recipient works at Duke.
+    await expect(sendOutreach({
+      athleteId: athlete, coaches: [{ name: 'A Coach', email: 'a@duke.test', title: 'Head Coach' }],
+      subject: 'S', body: 'B', greetingName: 'A Coach',
+      collegeName: 'Elsewhere', division: 'NCAA D1', send: false,
+    })).rejects.toThrow(/Duke is set to do-not-contact/);
+
+    expect(composed).toHaveLength(0);
+    expect(sends()).toHaveLength(0);
+    // And no coach row was minted under the false label on the way past.
+    expect(db.prepare("SELECT COUNT(*) c FROM coaches WHERE school = 'Elsewhere'").get().c).toBe(0);
+  });
+
+  it('says which programme refused, and that it was not the one claimed', async () => {
+    const athlete = makeAthlete();
+    canonicalCoach({ email: 'a@duke.test', school: 'Duke' });
+    relate(athlete, 'Duke', 'do_not_contact');
+
+    await expect(sendOutreach({
+      athleteId: athlete, coaches: [{ name: 'A Coach', email: 'a@duke.test' }],
+      subject: 'S', body: 'B', collegeName: 'Elsewhere', send: false,
+    })).rejects.toThrow(/labelled Elsewhere, but at least one recipient is on record at Duke/);
+  });
+
+  it('blocks when only ONE of several recipients is at the refused school', async () => {
+    const athlete = makeAthlete();
+    canonicalCoach({ email: 'clean@unc.test', school: 'North Carolina' });
+    canonicalCoach({ email: 'a@duke.test', school: 'Duke' });
+    relate(athlete, 'Duke', 'do_not_contact');
+
+    // A refusal is a fact about the run, not about one recipient.
+    await expect(sendOutreach({
+      athleteId: athlete,
+      coaches: [{ name: 'Clean', email: 'clean@unc.test' }, { name: 'A Coach', email: 'a@duke.test' }],
+      subject: 'S', body: 'B', collegeName: 'North Carolina', send: false,
+    })).rejects.toThrow(/Duke is set to do-not-contact/);
+    expect(composed).toHaveLength(0);
+  });
+
+  it('blocks on a coach row whose sport was never recorded', async () => {
+    const athlete = makeAthlete();
+    canonicalCoach({ email: 'a@duke.test', school: 'Duke', sport: null });
+    relate(athlete, 'Duke', 'do_not_contact');
+
+    // An ambiguous row that MIGHT be the suppressed programme is treated as
+    // though it is — the conservative direction for a rule whose job is to
+    // stop a message.
+    await expect(sendOutreach({
+      athleteId: athlete, coaches: [{ name: 'A Coach', email: 'a@duke.test' }],
+      subject: 'S', body: 'B', collegeName: 'Elsewhere', send: false,
+    })).rejects.toThrow(/do-not-contact/i);
+  });
+
+  it('does NOT block across sports', async () => {
+    const athlete = makeAthlete();   // mens-soccer
+    canonicalCoach({ email: 'a@duke.test', school: 'Duke', sport: 'womens-soccer' });
+    relate(athlete, 'Duke', 'default');
+    db.prepare(`
+      INSERT INTO athlete_programmes (id, athlete_id, college_name, sport, request_state,
+        flagged, visibility, contact_stance, created_at, updated_at)
+      VALUES (?, ?, 'Duke', 'womens-soccer', 'none', 0, 'default', 'do_not_contact',
+        '2026-09-11T00:00:00.000Z', '2026-09-11T00:00:00.000Z')
+    `).run(randomUUID(), athlete);
+
+    // A women's-soccer refusal is not a men's-soccer one.
+    await sendOutreach({
+      athleteId: athlete, coaches: [{ name: 'A Coach', email: 'a@duke.test' }],
+      subject: 'S', body: 'B {{player_profile_url}}', collegeName: 'Duke',
+      division: 'NCAA D1', send: false,
+    });
+    expect(sends()).toHaveLength(1);
+  });
+
+  it('still binds when the programme has no coach row at all', async () => {
+    const athlete = makeAthlete();
+    relate(athlete, 'Duke', 'do_not_contact');
+    // A first message to a programme we hold no contact for is a legitimate
+    // send, and the claimed name must still resolve the relationship.
+    await expect(sendOutreach({
+      athleteId: athlete, coaches: [{ name: 'New', email: 'new@duke.test' }],
+      subject: 'S', body: 'B', collegeName: 'Duke', send: false,
+    })).rejects.toThrow(/do-not-contact/i);
   });
 });

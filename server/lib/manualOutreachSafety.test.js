@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import {
-  contactStanceFor, manualContactDecision, assertContactAllowed, CONTACT_REFUSAL,
+  contactStanceFor, manualContactDecision, assertContactAllowed, programmesReachedBy,
+  CONTACT_REFUSAL,
 } from './manualOutreachSafety.js';
 
 /**
@@ -33,7 +34,7 @@ function relate(athleteId, collegeName, fields = {}, sport = 'mens-soccer') {
 }
 
 beforeEach(() => {
-  db.exec('DELETE FROM athlete_programmes; DELETE FROM players;');
+  db.exec('DELETE FROM athlete_programmes; DELETE FROM coaches; DELETE FROM players;');
   for (const id of [ATHLETE, OTHER]) {
     db.prepare(`
       INSERT INTO players (id, created_date, updated_date, full_name, position, sport)
@@ -167,5 +168,65 @@ describe('it never reaches the global suppressions table', () => {
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
     expect(code).not.toMatch(/suppressions/i);
     expect(code).not.toMatch(/isSuppressed/);
+  });
+});
+
+
+describe('the programme a send actually reaches', () => {
+  const canonicalCoach = ({ email, school, sport = 'mens-soccer' }) => db.prepare(`
+    INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
+    VALUES (?, '2026-09-11T00:00:00.000Z', 'A Coach', ?, ?, 'NCAA D1', ?, 'Head Coach')
+  `).run(randomUUID(), email, school, sport);
+
+  it('includes the claimed name AND every school the address is on record at', () => {
+    canonicalCoach({ email: 'a@duke.test', school: 'Duke' });
+    const reached = programmesReachedBy({
+      collegeName: 'Elsewhere', sport: 'mens-soccer', coachEmails: ['a@duke.test'],
+    });
+    expect(reached.sort()).toEqual(['Duke', 'Elsewhere']);
+  });
+
+  it('matches the address case- and whitespace-insensitively', () => {
+    canonicalCoach({ email: 'a@duke.test', school: 'Duke' });
+    expect(programmesReachedBy({
+      collegeName: null, sport: 'mens-soccer', coachEmails: ['  A@DUKE.TEST '],
+    })).toEqual(['Duke']);
+  });
+
+  it('refuses the run when any reached programme says do not contact', () => {
+    canonicalCoach({ email: 'a@duke.test', school: 'Duke' });
+    relate(ATHLETE, 'Duke', { contact_stance: 'do_not_contact' });
+
+    const d = manualContactDecision({
+      athleteId: ATHLETE, collegeName: 'Elsewhere', sport: 'mens-soccer',
+      coachEmails: ['a@duke.test'],
+    });
+    expect(d.allowed).toBe(false);
+    // Which one refused, which is not the one the caller named.
+    expect(d.programme).toBe('Duke');
+    expect(d.reached.sort()).toEqual(['Duke', 'Elsewhere']);
+  });
+
+  it('permits when nothing reached is refused', () => {
+    canonicalCoach({ email: 'a@duke.test', school: 'Duke' });
+    relate(ATHLETE, 'Duke', { contact_stance: 'manual_only' });
+    expect(manualContactDecision({
+      athleteId: ATHLETE, collegeName: 'Duke', sport: 'mens-soccer', coachEmails: ['a@duke.test'],
+    }).allowed).toBe(true);
+  });
+
+  it('falls back to the claimed name when no address resolves', () => {
+    relate(ATHLETE, 'Duke', { contact_stance: 'do_not_contact' });
+    // A first message to a programme we hold no contact for is legitimate, and
+    // the relationship for it must still bind.
+    expect(manualContactDecision({
+      athleteId: ATHLETE, collegeName: 'Duke', sport: 'mens-soccer', coachEmails: ['nobody@duke.test'],
+    }).allowed).toBe(false);
+  });
+
+  it('ignores blank and malformed addresses rather than throwing', () => {
+    expect(programmesReachedBy({ collegeName: 'Duke', sport: 'mens-soccer', coachEmails: ['', null, undefined] }))
+      .toEqual(['Duke']);
+    expect(programmesReachedBy({})).toEqual([]);
   });
 });
