@@ -4,6 +4,7 @@ import { ArrowLeft, Sparkles, MapPin, GraduationCap, Pencil } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { entities, integrations } from '@/api/client';
 import { analyze } from '@/lib/playerAnalysis';
+import { readReserve } from '@shared/matching/reserve.js';
 import { cn } from '@/lib/utils';
 
 const TABS = [
@@ -56,6 +57,11 @@ async function loadStoredAnalysis(ref) {
 
   const parsed = {
     recommendations: data.recommendations || data,
+    // Carried through rather than dropped, so the cache and the file on disk
+    // say the same thing. Absent on every analysis written before the reserve
+    // existed, and on the legacy blobs that are a bare array — both read as
+    // empty, which is the truth about them. See shared/matching/reserve.js.
+    reserve: readReserve(data),
     summary: data.summary || '',
   };
   analysisCache.set(ref, parsed);
@@ -136,7 +142,11 @@ export default function PlayerWorkspace() {
       const blob = new Blob([JSON.stringify(result)], { type: 'application/json' });
       const file = new File([blob], `recommendations-${id}.json`, { type: 'application/json' });
       const { file_url } = await integrations.Core.UploadFile(file);
-      analysisCache.set(file_url, { recommendations: result.recommendations, summary: result.summary });
+      analysisCache.set(file_url, {
+        recommendations: result.recommendations,
+        reserve: readReserve(result),
+        summary: result.summary,
+      });
       await entities.Player.update(id, { recommendations: file_url, status: 'Analyzed' });
 
       // Read back rather than trusting the write. The update is a partial one

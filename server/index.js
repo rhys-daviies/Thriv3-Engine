@@ -24,6 +24,7 @@ import { coachingImportApply } from './routes/coachingImportApply.js';
 import { trackRouter } from './routes/track.js';
 import { uploadsRouter } from './routes/uploads.js';
 import { campaignsRouter } from './routes/campaigns.js';
+import { athleteProgrammesRouter } from './routes/athleteProgrammes.js';
 import { UPLOADS_DIR } from './lib/uploadPath.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
@@ -502,6 +503,15 @@ app.post('/api/functions/:name', async (req, res) => {
 // snapshot's rank, score or provenance. Every mutation here goes through
 // server/lib/campaigns.js, which owns the invariants.
 app.use('/api', campaignsRouter);
+
+// ---- Athlete-programme relationships, and the programme search that feeds
+// ---- them
+//
+// Absent from ENTITIES for the campaigns reason and one more: that registry
+// would let a client POST any `college_name` it liked, and the point of this
+// table is that a programme identity is copied from the registry rather than
+// described by a request. See server/routes/athleteProgrammes.js.
+app.use('/api', athleteProgrammesRouter);
 
 // ---- Uploads (UploadFile integration replacement) ----
 //
