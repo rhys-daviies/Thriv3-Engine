@@ -106,13 +106,23 @@ describe('campaigns are not generic CRUD', () => {
    * assertion is that the surface grows deliberately: the day something wants
    * to EXECUTE a plan, it has to change this line and explain itself.
    */
-  it('exposes exactly the six campaign operations, five of which are the only writes', () => {
+  it('exposes exactly the seven campaign operations, and none of them sends', () => {
     expect(Object.keys(campaigns).sort()).toEqual([
-      'createForPlayer', 'executionPlan', 'get', 'listForPlayer', 'update', 'updateProgramme',
+      'approveFirstTouch', 'createForPlayer', 'executionPlan', 'get', 'listForPlayer',
+      'update', 'updateProgramme',
     ]);
-    // Nothing here executes, sends, runs or materialises anything.
+
+    /**
+     * NOTHING HERE EXECUTES, SENDS, RUNS OR MATERIALISES ANYTHING, which is the
+     * guard this test has always been. `approveFirstTouch` is new and does not
+     * breach it: it records that a PERSON has reviewed a coach's prior contact,
+     * which clears one review hold and sends nothing. Every stance,
+     * suppression, revocation and lifecycle rule is evaluated after it, and
+     * there is still no client method that makes a message happen — because
+     * there is still no endpoint that does.
+     */
     for (const name of Object.keys(campaigns)) {
-      expect(name).not.toMatch(/execute|send|run|process|materialise|approve/i);
+      expect(name).not.toMatch(/execute|send|run|process|materialise/i);
     }
   });
 });
