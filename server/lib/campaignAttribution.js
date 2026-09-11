@@ -174,7 +174,15 @@ const TIMING_REFUSALS = Object.freeze(new Set([
   'CAMPAIGN_OUTREACH_WINDOW_CLOSED',
 ]));
 
-/** Every refusal is a prohibition unless it is one of the three dates above. */
+/**
+ * Every refusal is a prohibition unless it is one of the three dates above.
+ *
+ * THE CODE ALONE IS NOT ALWAYS ENOUGH, and `CAMPAIGN_NOT_ACTIVE` is the one
+ * case: it covers a campaign that has not started yet and one that has ended,
+ * which are opposite facts under the same name. This map gives the kind a code
+ * carries when nothing refines it; the DECISION is the authority, because only
+ * it has read the campaign's state. See the refusal itself below.
+ */
 export function refusalKindOf(reason) {
   if (!reason) return null;
   return TIMING_REFUSALS.has(reason) ? REFUSAL_KIND.TIMING : REFUSAL_KIND.PROHIBITION;
@@ -221,12 +229,33 @@ export function campaignContactDecision({
   // bug rather than a state that changes with time.
   const pc = resolveProgrammeCampaignFor({ programmeCampaignId, athleteId, coachId });
 
-  const refuse = (reason) => ({
-    allowed: false, reason, kind: refusalKindOf(reason), programmeCampaign: pc,
+  const refuse = (reason, kind = refusalKindOf(reason)) => ({
+    allowed: false, reason, kind, programmeCampaign: pc,
   });
 
   // ---- the campaign ----
-  if (timing && pc.campaign_state !== 'active') return refuse(CONTACT_REFUSAL.CAMPAIGN_NOT_ACTIVE);
+  /**
+   * DRAFT IS A STATE A CAMPAIGN PASSES THROUGH. CLOSED IS WHERE IT ENDS.
+   *
+   * One refusal code covers both, which is right for a caller deciding a send —
+   * neither may send, and `campaign_state` is on the decision for a screen that
+   * wants to say which. It is NOT right for the kind: a draft becomes active by
+   * being activated, and a closed campaign becomes nothing. Classifying both as
+   * timing let `standingProhibition` skip the check for a campaign that had
+   * already ended, so a finished campaign could still record an intent to
+   * pursue somebody.
+   *
+   * So the state refines the kind, and a terminal one is never skipped.
+   */
+  if (pc.campaign_state !== 'active') {
+    const preparing = pc.campaign_state === 'draft';
+    if (timing || !preparing) {
+      return refuse(
+        CONTACT_REFUSAL.CAMPAIGN_NOT_ACTIVE,
+        preparing ? REFUSAL_KIND.TIMING : REFUSAL_KIND.PROHIBITION,
+      );
+    }
+  }
   if (timing && onDate < pc.starts_on) return refuse(CONTACT_REFUSAL.CAMPAIGN_NOT_STARTED);
   /**
    * `outreach_ends_on` is the OUTBOUND boundary and `ends_on` is not.

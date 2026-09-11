@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import {
   CONTACT_REFUSAL, campaignContactDecision, assertCampaignContactAllowed,
-  authorisedProgrammeCampaignId, REFUSAL_KIND,
+  authorisedProgrammeCampaignId, REFUSAL_KIND, refusalKindOf,
 } from './campaignAttribution.js';
 import { campaignStanceDecision } from './manualOutreachSafety.js';
 import { programmePursuitPlan, materialiseNextContactAttempt } from './pursuitPolicy.js';
@@ -523,7 +523,74 @@ describe('a refused plan materialises nothing', () => {
     expect(out.created).toBe(true);
     expect(out.attempt.coach_id).toBe(coach.id);
     expect(out.attempt.state).toBe('planned');
+    expect(out.attempt.step).toBe(1);
     expect(attempts(pc)).toHaveLength(1);
+    // An ACTIVE campaign is refused by nothing and reports no prohibition.
+    expect(out.plan.safety.allowed).toBe(true);
+    expect(out.prohibition).toBeUndefined();
+  });
+
+  it('treats a refusal code it has never seen as a prohibition', () => {
+    /**
+     * THE DEFAULT MATTERS MORE THAN THE LIST. A code added later — an
+     * unsubscribe scope, a provider block, a policy this build has not met — is
+     * a decision until somebody deliberately classifies it as a date. Failing
+     * the other way would let a new refusal silently start recording intents.
+     */
+    expect(refusalKindOf('SOMETHING_ADDED_LATER')).toBe(REFUSAL_KIND.PROHIBITION);
+    expect(refusalKindOf('CONTACT_CHECK_FAILED')).toBe(REFUSAL_KIND.PROHIBITION);
+    // Only these three are dates, and each is a fact about WHEN.
+    expect(['CAMPAIGN_NOT_ACTIVE', 'CAMPAIGN_NOT_STARTED', 'CAMPAIGN_OUTREACH_WINDOW_CLOSED']
+      .map(refusalKindOf)).toEqual([REFUSAL_KIND.TIMING, REFUSAL_KIND.TIMING, REFUSAL_KIND.TIMING]);
+  });
+
+  it('writes no attempt once the campaign is closed', () => {
+    const { pc } = scene({ campaign: { state: 'closed' } });
+
+    /**
+     * A CLOSED CAMPAIGN IS NOT WAITING FOR ANYTHING.
+     *
+     * It shares a refusal code with a draft — neither may send — but not a
+     * kind: a draft becomes active by being activated and a closed campaign
+     * becomes nothing. Classed as timing, it was skipped along with the dates,
+     * and a finished campaign could still record an intent to pursue somebody.
+     */
+    const out = materialiseNextContactAttempt({ programmeCampaignId: pc });
+    expect(out.created).toBe(false);
+    expect(out.attempt).toBeNull();
+    expect(out.prohibition.reason).toBe('CAMPAIGN_NOT_ACTIVE');
+    expect(out.prohibition.kind).toBe(REFUSAL_KIND.PROHIBITION);
+    expect(attempts(pc)).toEqual([]);
+    expect(db.prepare('SELECT COUNT(*) c FROM programme_contact_attempts').get().c).toBe(0);
+  });
+
+  it('writes no attempt for a closed campaign whose programme is also manual_only', () => {
+    const { pc } = scene({ campaign: { state: 'closed' } });
+    relationship({ stance: 'manual_only' });
+
+    // Two prohibitions. Which one is reported first does not matter — the
+    // attempt is not written either way.
+    const out = materialiseNextContactAttempt({ programmeCampaignId: pc });
+    expect(out.created).toBe(false);
+    expect(out.prohibition.kind).toBe(REFUSAL_KIND.PROHIBITION);
+    expect(attempts(pc)).toEqual([]);
+  });
+
+  it('tells a draft campaign apart from a closed one by kind, not by code', () => {
+    const draft = scene({ campaign: { state: 'draft' } });
+    const closed = scene({ campaign: { state: 'closed' } });
+
+    // The public code is deliberately unchanged — both campaigns are equally
+    // unable to send, and a caller matching on CAMPAIGN_NOT_ACTIVE keeps
+    // working. The kind is where the difference lives.
+    for (const { pc, coach } of [draft, closed]) {
+      expect(decide({ pc, coach }).reason).toBe(CONTACT_REFUSAL.CAMPAIGN_NOT_ACTIVE);
+    }
+    expect(decide(draft).kind).toBe(REFUSAL_KIND.TIMING);
+    expect(decide(closed).kind).toBe(REFUSAL_KIND.PROHIBITION);
+    // And the state itself is on the decision, for a screen that wants to say
+    // which of the two it is.
+    expect(decide(closed).programmeCampaign.campaign_state).toBe('closed');
   });
 
   it('still materialises for a draft campaign, which is how one is prepared', () => {

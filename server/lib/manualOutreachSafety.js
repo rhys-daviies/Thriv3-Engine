@@ -219,6 +219,14 @@ export function assertContactAllowed({ athleteId, collegeName, sport, coachEmail
  * BOUNDED: at most one address lookup plus one stance read per reached name,
  * and the reached set is only consulted for do_not_contact.
  *
+ * THE COST, RECORDED RATHER THAN OPTIMISED. One to two indexed statements per
+ * campaign contact decision, so a hundred-programme dry run adds one to two
+ * hundred. Every one of them is a point lookup on an indexed key and no test
+ * shows a problem, so there is deliberately NO preload or cache here: a
+ * relationship cache would be a second copy of mutable stance state, and the
+ * whole value of this rule is that it reads the current one. Left for F7
+ * profiling to measure against the rest of the plan's query load.
+ *
  * @param {string} args.athleteId
  * @param {string} args.collegeName the VERIFIED programme campaign's college.
  * @param {string} args.sport       the VERIFIED programme campaign's sport.
