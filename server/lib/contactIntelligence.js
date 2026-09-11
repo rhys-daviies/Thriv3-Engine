@@ -326,7 +326,28 @@ function priorContactStatement(n) {
   return priorContactByArity.get(n);
 }
 
-/** Deterministic: the recorded origins in order, then NULL if any row lacked one. */
+/**
+ * THE ORIGINS ON FILE, IN AN ORDER THAT DOES NOT DEPEND ON THE DATABASE.
+ *
+ * SQLite specifies no order for the values `group_concat` concatenates — it is
+ * whatever order the rows reach the aggregate, which is a function of the query
+ * plan rather than of the data. Two coaches with identical history could
+ * therefore produce `manual,campaign` and `campaign,manual`, and a caller
+ * comparing or snapshotting the array would see a difference that is not one.
+ *
+ * So the order is decided HERE, after the query: the recorded origins sorted,
+ * then NULL once at the end if any accepted send lacked one. Sorting in JS
+ * rather than with `ORDER BY` inside the aggregate keeps this independent of
+ * the SQLite version the build happens to link against.
+ *
+ * NULL IS APPENDED, NEVER SORTED IN AND NEVER NAMED. It is not a value in the
+ * origin vocabulary — it is the absence of one — so it has no natural place
+ * among them and is put last, exactly once, however many unrecorded sends
+ * there were.
+ *
+ * The split is safe because `normaliseOrigin` refuses anything outside the
+ * vocabulary at write time, so no stored origin contains a comma.
+ */
 function originsOf(row) {
   const named = row.origin_list ? row.origin_list.split(',').filter(Boolean).sort() : [];
   return row.unrecorded_count > 0 ? [...named, null] : named;
@@ -356,6 +377,13 @@ export function priorContactForCoaches({ athleteId, coachIds = [] }) {
        * ACCEPTED MESSAGES ON FILE. Zero alongside `hasConfirmedSend: true` is
        * the honest reading of a legacy relationship: one went, and nothing
        * recorded how many.
+       *
+       * SO POLICY MUST NEVER TEST `confirmedSendCount > 0`. It is a count of
+       * per-message records, not of messages; the question "has this coach
+       * heard from this athlete" is answered by `hasConfirmedSend` and only by
+       * it. Counting instead would treat every relationship older than the
+       * message table as a coach nobody had ever written to — which is the
+       * precise case a first-touch rule exists to catch.
        */
       confirmedSendCount: row.accepted_count,
       firstConfirmedSendAt: row.legacy_first_send_at ?? row.first_accepted_at ?? null,

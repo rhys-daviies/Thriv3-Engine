@@ -235,6 +235,58 @@ describe('origin is carried through as it is', () => {
     expect(factFor(c).confirmedSendCount).toBe(3);
   });
 
+  it('orders origins the same way whatever order the rows went in', () => {
+    /**
+     * SQLite specifies no order for what `group_concat` concatenates — it is a
+     * property of the query plan, not of the data. Two coaches with identical
+     * history must still produce identical arrays, so the order is decided
+     * after the query rather than taken from it.
+     */
+    const forwards = coach({ name: 'Forwards', email: 'f@duke.edu' });
+    const backwards = coach({ name: 'Backwards', email: 'b@duke.edu' });
+    const fo = outreach({ coachId: forwards, sent: '2026-09-02T11:00:00.000Z' });
+    const bo = outreach({ coachId: backwards, sent: '2026-09-02T11:00:00.000Z' });
+
+    const origins = ['manual', null, 'campaign'];
+    origins.forEach((origin, i) => message({
+      outreachId: fo, coachId: forwards, sentAt: `2026-09-0${i + 2}T11:00:00.000Z`, origin,
+    }));
+    [...origins].reverse().forEach((origin, i) => message({
+      outreachId: bo, coachId: backwards, sentAt: `2026-09-0${i + 2}T11:00:00.000Z`, origin,
+    }));
+
+    expect(factFor(forwards).origins).toEqual(factFor(backwards).origins);
+    // Recorded origins sorted, then the unknown one last and exactly once.
+    expect(factFor(forwards).origins).toEqual(['campaign', 'manual', null]);
+  });
+
+  it('puts NULL last rather than sorting it among the names', () => {
+    const c = coach();
+    const o = outreach({ coachId: c, sent: '2026-09-02T11:00:00.000Z' });
+    // Three unrecorded sends and one named one. NULL is the absence of a value
+    // rather than a value, so it has no place among them and appears once.
+    for (const at of ['2026-09-02', '2026-09-03', '2026-09-04']) {
+      message({ outreachId: o, coachId: c, sentAt: `${at}T11:00:00.000Z`, origin: null });
+    }
+    message({ outreachId: o, coachId: c, sentAt: '2026-09-05T11:00:00.000Z', origin: 'manual' });
+
+    expect(factFor(c).origins).toEqual(['manual', null]);
+    expect(factFor(c).origins.filter((x) => x === null)).toHaveLength(1);
+    expect(factFor(c).confirmedSendCount).toBe(4);
+  });
+
+  it('sorts the recorded origins without assuming which two exist', () => {
+    const c = coach();
+    const o = outreach({ coachId: c, sent: '2026-09-02T11:00:00.000Z' });
+    message({ outreachId: o, coachId: c, sentAt: '2026-09-02T11:00:00.000Z', origin: 'manual' });
+    message({ outreachId: o, coachId: c, sentAt: '2026-09-03T11:00:00.000Z', origin: 'campaign' });
+
+    // The vocabulary appears nowhere in the query or in the ordering rule — a
+    // third origin added later sorts into place without either changing.
+    const named = factFor(c).origins.filter((x) => x !== null);
+    expect(named).toEqual([...named].sort());
+  });
+
   it('does not repeat an origin that occurs twice', () => {
     const c = coach();
     const o = outreach({ coachId: c, sent: '2026-09-02T11:00:00.000Z' });
@@ -262,6 +314,9 @@ describe('history older than the record that would describe it', () => {
     const fact = factFor(c);
     expect(fact.hasConfirmedSend).toBe(true);
     expect(fact.confirmedSendCount).toBe(0);
+    // THE INVARIANT F6d MUST HONOUR. Counting instead of reading the boolean
+    // would treat this coach as one nobody has ever written to.
+    expect(fact.confirmedSendCount > 0).toBe(false);
     expect(fact.firstConfirmedSendAt).toBe('2025-04-02T11:00:00.000Z');
     expect(fact.lastConfirmedSendAt).toBe('2025-04-02T11:00:00.000Z');
     expect(fact.origins).toEqual([]);
