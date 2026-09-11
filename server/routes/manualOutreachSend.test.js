@@ -334,15 +334,19 @@ describe('ADVERSARIAL — the programme label cannot be swapped', () => {
 
 // ---------------------------------------------------------------------------
 
-describe('a revoked relationship is not writeable through', () => {
+describe('a revoked outreach record is not writeable through', () => {
   /**
-   * REVOCATION WITHDRAWS THE ATHLETE'S PAGE for one coach: the token stops
-   * resolving. `campaignAttribution` has refused a revoked relationship since
-   * B1 — but only for campaign-attributed sends, so a manual or
-   * recommendation send composed happily and put a deliberately dead link in
-   * front of a coach. This is the same refusal for every other path.
+   * REVOCATION WITHDRAWS THE ATHLETE'S PAGE for one coach: that outreach
+   * record's token stops resolving. `campaignAttribution` has refused a
+   * revoked outreach record since B1 — but only for campaign-attributed
+   * sends, so a manual or recommendation send composed happily and put a
+   * deliberately dead link in front of a coach. This is the same refusal for
+   * every other path.
+   *
+   * IT IS COACH-SPECIFIC. Nothing here touches `athlete_programmes` — not the
+   * contact stance, the visibility, the flag or the request state.
    */
-  function revokedRelationship(athleteId, email = 'a@duke.test') {
+  function revokedOutreach(athleteId, email = 'a@duke.test') {
     const coachId = randomUUID();
     db.prepare(`
       INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
@@ -357,7 +361,7 @@ describe('a revoked relationship is not writeable through', () => {
 
   it('skips the coach and composes nothing for them', async () => {
     const athlete = makeAthlete();
-    revokedRelationship(athlete);
+    revokedOutreach(athlete);
 
     const result = await run(athlete, {}, { origin: OUTREACH_ORIGIN.MANUAL });
     expect(result.results[0]).toMatchObject({ email: 'a@duke.test', status: 'revoked' });
@@ -365,9 +369,43 @@ describe('a revoked relationship is not writeable through', () => {
     expect(sends()).toHaveLength(0);
   });
 
+  it('TELLS THE CALLER WHY, rather than skipping silently', async () => {
+    const athlete = makeAthlete();
+    revokedOutreach(athlete);
+    const [only] = (await run(athlete, {}, { origin: OUTREACH_ORIGIN.MANUAL })).results;
+
+    // A machine-readable code — the same one the campaign path uses for this —
+    // and a sentence a person can read.
+    expect(only.reason).toBe('OUTREACH_REVOKED');
+    expect(only.message).toMatch(/revoked/i);
+    expect(only.message).toMatch(/Nothing was drafted or sent/);
+  });
+
+  it('says nothing about the programme relationship', async () => {
+    const athlete = makeAthlete();
+    revokedOutreach(athlete);
+    db.prepare(`
+      INSERT INTO athlete_programmes (id, athlete_id, college_name, sport, request_state,
+        flagged, visibility, contact_stance, created_at, updated_at)
+      VALUES (?, ?, 'Duke', 'mens-soccer', 'requested', 1, 'default', 'default',
+        '2026-09-11T00:00:00.000Z', '2026-09-11T00:00:00.000Z')
+    `).run(randomUUID(), athlete);
+
+    await run(athlete, {}, { origin: OUTREACH_ORIGIN.MANUAL });
+
+    // Revocation is coach-specific. It must not become a programme-level
+    // block, a contact stance, a visibility change, a flag or a request state.
+    const rel = db.prepare('SELECT * FROM athlete_programmes WHERE athlete_id = ?').get(athlete);
+    expect(rel).toMatchObject({
+      contact_stance: 'default', visibility: 'default', flagged: 1, request_state: 'requested',
+    });
+    const columns = db.prepare('PRAGMA table_info(athlete_programmes)').all().map((c) => c.name);
+    expect(columns.some((c) => /revok/i.test(c))).toBe(false);
+  });
+
   it('applies on the shared path too, not only the manual one', async () => {
     const athlete = makeAthlete();
-    revokedRelationship(athlete);
+    revokedOutreach(athlete);
     const result = await run(athlete);
     expect(result.results[0].status).toBe('revoked');
     expect(composed).toHaveLength(0);
@@ -375,7 +413,7 @@ describe('a revoked relationship is not writeable through', () => {
 
   it('does not stop the other recipients in the same call', async () => {
     const athlete = makeAthlete();
-    revokedRelationship(athlete, 'revoked@duke.test');
+    revokedOutreach(athlete, 'revoked@duke.test');
     db.prepare(`
       INSERT INTO coaches (id, created_at, full_name, email, school, division, sport, position_title)
       VALUES (?, '2026-09-11T00:00:00.000Z', 'Fine Coach', 'fine@duke.test', 'Duke', 'NCAA D1', 'mens-soccer', 'Assistant')
@@ -395,9 +433,9 @@ describe('a revoked relationship is not writeable through', () => {
     expect(composed.map((m) => m.to)).toEqual(['fine@duke.test']);
   });
 
-  it('writes nothing new for the revoked relationship', async () => {
+  it('writes nothing new for the revoked outreach record', async () => {
     const athlete = makeAthlete();
-    revokedRelationship(athlete);
+    revokedOutreach(athlete);
     const before = db.prepare('SELECT COUNT(*) c FROM outreach').get().c;
     await run(athlete, {}, { origin: OUTREACH_ORIGIN.MANUAL });
     // createOutreach returns the existing row untouched; nothing is minted,
