@@ -7,6 +7,7 @@ import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
 import MatchingTab from './MatchingTab.jsx';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
+import { RELATIONSHIP_OUTREACH } from '@/lib/outreachLabels';
 
 /**
  * ONE ATHLETE + ONE PROGRAMME RELATIONSHIP → ONE MANUAL OUTREACH CAPABILITY.
@@ -134,7 +135,7 @@ const buttonsIn = (el) => Array.from(el.querySelectorAll('button'));
  * button. The body alone covers the page and the portalled dialog.
  */
 const manualButtons = () => buttonsIn(document.body)
-  .filter((b) => b.textContent.includes('Manual Outreach'));
+  .filter((b) => b.textContent.includes(RELATIONSHIP_OUTREACH));
 const click = async (el) => {
   await act(async () => { el.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
 };
@@ -159,7 +160,7 @@ afterEach(() => {
 // ---------------------------------------------------------------------------
 
 describe('a ranked programme WITHOUT a relationship', () => {
-  it('offers no relationship-scoped Manual Outreach', async () => {
+  it('offers no relationship-scoped outreach action', async () => {
     stubFetch();
     await render();
     // Four cards, no relationships, no manual outreach anywhere.
@@ -192,11 +193,11 @@ describe('a ranked programme WITH a relationship', () => {
     ['manual_only', relationship({ contact_stance: 'manual_only' })],
     ['do_not_contact', relationship({ contact_stance: 'do_not_contact' })],
   ]) {
-    it(`offers Manual Outreach when it is ${label}`, async () => {
+    it(`offers relationship outreach when it is ${label}`, async () => {
       stubFetch({ programmes: [rel] });
       await render();
       const card = cardFor('Alpha');
-      expect(buttonsIn(card).some((b) => b.textContent.includes('Manual Outreach'))).toBe(true);
+      expect(buttonsIn(card).some((b) => b.textContent.includes(RELATIONSHIP_OUTREACH))).toBe(true);
     });
   }
 
@@ -204,7 +205,7 @@ describe('a ranked programme WITH a relationship', () => {
     const rel = relationship({ flagged: true, flag_reason: 'knows the coach' });
     stubFetch({ programmes: [rel] });
     await render();
-    await click(buttonsIn(cardFor('Alpha')).find((b) => b.textContent.includes('Manual Outreach')));
+    await click(buttonsIn(cardFor('Alpha')).find((b) => b.textContent.includes(RELATIONSHIP_OUTREACH)));
 
     expect(contextCalls()).toHaveLength(1);
     expect(contextCalls()[0].path).toBe(`/api/players/${ATHLETE}/programmes/rel-Alpha/outreach`);
@@ -214,7 +215,7 @@ describe('a ranked programme WITH a relationship', () => {
     stubFetch({ programmes: [relationship({ flagged: true, flag_reason: 'x' })] });
     await render();
     expect(manualButtons()).toHaveLength(1);
-    expect(buttonsIn(cardFor('Bravo')).some((b) => b.textContent.includes('Manual Outreach'))).toBe(false);
+    expect(buttonsIn(cardFor('Bravo')).some((b) => b.textContent.includes(RELATIONSHIP_OUTREACH))).toBe(false);
   });
 
   it('matches the relationship by college id, not by name alone', async () => {
@@ -222,7 +223,7 @@ describe('a ranked programme WITH a relationship', () => {
     const rel = relationship({ college_id: 'col-2', college_name: 'Bravo', id: 'rel-Bravo', flagged: true, flag_reason: 'x' });
     stubFetch({ programmes: [rel] });
     await render();
-    await click(buttonsIn(cardFor('Bravo')).find((b) => b.textContent.includes('Manual Outreach')));
+    await click(buttonsIn(cardFor('Bravo')).find((b) => b.textContent.includes(RELATIONSHIP_OUTREACH)));
     expect(contextCalls()[0].path).toContain('rel-Bravo');
   });
 });
@@ -237,7 +238,7 @@ describe('the do-not-contact relationship', () => {
       }),
     });
     await render();
-    await click(buttonsIn(cardFor('Alpha')).find((b) => b.textContent.includes('Manual Outreach')));
+    await click(buttonsIn(cardFor('Alpha')).find((b) => b.textContent.includes(RELATIONSHIP_OUTREACH)));
 
     /**
      * The button is not the rule. It opens, the server's own decision is what
@@ -252,7 +253,7 @@ describe('the do-not-contact relationship', () => {
 describe('the removed-programmes panel', () => {
   const suppressed = relationship({ visibility: 'suppressed', flagged: true, flag_reason: 'x' });
 
-  it('offers Manual Outreach beside Keep in Top 100', async () => {
+  it('offers relationship outreach beside Keep in Top 100', async () => {
     stubFetch({ programmes: [suppressed] });
     await render();
     await click([...buttonsIn(container)].find((b) => b.textContent.includes('Removed from this athlete')));
@@ -260,7 +261,7 @@ describe('the removed-programmes panel', () => {
     const list = container.querySelector('[data-testid="suppressed-list"]');
     // Suppressed from the Top 100 is a ranking decision. It says nothing about
     // whether anyone may write to them.
-    expect(buttonsIn(list).some((b) => b.textContent.includes('Manual Outreach'))).toBe(true);
+    expect(buttonsIn(list).some((b) => b.textContent.includes(RELATIONSHIP_OUTREACH))).toBe(true);
     expect(buttonsIn(list).some((b) => b.textContent.includes('Keep in Top 100'))).toBe(true);
   });
 
@@ -269,7 +270,7 @@ describe('the removed-programmes panel', () => {
     await render();
     await click([...buttonsIn(container)].find((b) => b.textContent.includes('Removed from this athlete')));
     const list = container.querySelector('[data-testid="suppressed-list"]');
-    await click(buttonsIn(list).find((b) => b.textContent.includes('Manual Outreach')));
+    await click(buttonsIn(list).find((b) => b.textContent.includes(RELATIONSHIP_OUTREACH)));
 
     expect(contextCalls()[0].path).toContain('rel-Alpha');
   });
@@ -289,13 +290,13 @@ describe('the removed-programmes panel', () => {
 });
 
 describe('Specific Schools is unchanged', () => {
-  it('still offers Manual Outreach on every row', async () => {
+  it('still offers relationship outreach on every row', async () => {
     stubFetch({ programmes: [relationship({ request_state: 'requested' })] });
     await render();
     await click(tab('Specific Schools'));
 
     const row = container.querySelector('[data-testid="specific-school-row"]');
-    expect(buttonsIn(row).some((b) => b.textContent.includes('Manual Outreach'))).toBe(true);
+    expect(buttonsIn(row).some((b) => b.textContent.includes(RELATIONSHIP_OUTREACH))).toBe(true);
     expect(buttonsIn(row).some((b) => b.textContent.includes('Remove'))).toBe(true);
   });
 
@@ -304,7 +305,7 @@ describe('Specific Schools is unchanged', () => {
     await render();
     await click(tab('Specific Schools'));
     const row = container.querySelector('[data-testid="specific-school-row"]');
-    await click(buttonsIn(row).find((b) => b.textContent.includes('Manual Outreach')));
+    await click(buttonsIn(row).find((b) => b.textContent.includes(RELATIONSHIP_OUTREACH)));
     expect(contextCalls()[0].path).toBe(`/api/players/${ATHLETE}/programmes/rel-Alpha/outreach`);
   });
 });
@@ -325,7 +326,7 @@ describe('one dialog, owned by the tab', () => {
     expect(contextCalls()).toHaveLength(0);
     expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0);
 
-    await click(buttonsIn(cardFor('Alpha')).find((b) => b.textContent.includes('Manual Outreach')));
+    await click(buttonsIn(cardFor('Alpha')).find((b) => b.textContent.includes(RELATIONSHIP_OUTREACH)));
     // Exactly one dialog, and exactly one context fetch.
     expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1);
     expect(contextCalls()).toHaveLength(1);

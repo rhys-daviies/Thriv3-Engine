@@ -4,6 +4,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import EmailComposer from '@/components/EmailComposer';
 import { manualOutreach } from '@/api/client';
+import {
+  RELATIONSHIP_OUTREACH, RELATIONSHIP_DIALOG_HINT, MANUAL_ONLY_HINT,
+  DO_NOT_CONTACT_TITLE, DO_NOT_CONTACT_BODY,
+} from '@/lib/outreachLabels';
 
 /**
  * WRITING TO ONE PROGRAMME, BY HAND, BECAUSE THIS ONE IS DIFFERENT.
@@ -46,39 +50,80 @@ function when(iso) {
  */
 function PriorContact({ rows }) {
   if (!rows?.length) {
-    return <p className="text-xs text-muted-foreground">No previous outreach to this programme.</p>;
+    return (
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+          Previous outreach
+        </p>
+        <p className="text-xs text-muted-foreground">None to this programme.</p>
+      </div>
+    );
   }
   return (
-    <ul className="space-y-1">
-      {rows.map((r) => (
-        <li key={r.coach_id} className="text-xs text-muted-foreground">
-          <span className="text-foreground">{r.coach_name}</span>
-          {r.position_title ? ` — ${r.position_title}` : ''}
-          {r.sent_at ? ` · last sent ${when(r.sent_at)}` : r.drafted_at ? ` · drafted ${when(r.drafted_at)}, never confirmed sent` : ' · no message yet'}
-          {r.message_count > 1 ? ` · ${r.message_count} messages` : ''}
-          {r.revoked_at ? ' · revoked' : ''}
-        </li>
-      ))}
-    </ul>
+    <div>
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+        Previous outreach
+      </p>
+      <ul className="space-y-0.5 mt-0.5">
+        {rows.map((r) => (
+          <li key={r.coach_id} className="text-xs">
+            <span className="font-medium">{r.coach_name}</span>
+            {r.position_title ? <span className="text-muted-foreground"> — {r.position_title}</span> : null}
+            <span className="text-muted-foreground">
+              {r.sent_at
+                ? ` · last sent ${when(r.sent_at)}`
+                : r.drafted_at
+                  ? ` · drafted ${when(r.drafted_at)}, never confirmed sent`
+                  : ' · no message yet'}
+              {r.message_count > 1 ? ` · ${r.message_count} messages` : ''}
+              {r.revoked_at ? ' · revoked' : ''}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
 /** Why this programme is being written to by hand. */
 function RelationshipContext({ relationship, priorContact }) {
+  /**
+   * EACH FACT KEPT AS ITS OWN FACT. A school can be requested AND flagged AND
+   * removed from the Top 100, and blending those into one status would lose
+   * the reason the operator opened this dialog. Nothing renders when there is
+   * nothing to say — a row of "not requested, not flagged" would be noise on
+   * every programme that has only a note.
+   */
+  const badges = [
+    relationship.request_state === 'requested' && ['purple', 'Specific Request'],
+    relationship.request_state === 'withdrawn' && ['muted', 'Request withdrawn'],
+    relationship.flagged && ['amber', 'Existing relationship'],
+    relationship.visibility === 'suppressed' && ['muted', 'Not in Top 100'],
+    relationship.contact_stance === 'manual_only' && ['blue', 'Manual only'],
+  ].filter(Boolean);
+
   return (
     <div className="rounded-lg border border-border p-3 space-y-2">
-      <div className="flex items-center gap-1.5 flex-wrap">
-        {relationship.request_state === 'requested' && <Badge variant="purple">Specific Request</Badge>}
-        {relationship.request_state === 'withdrawn' && <Badge variant="muted">Request withdrawn</Badge>}
-        {relationship.flagged && <Badge variant="amber">Existing relationship</Badge>}
-        {relationship.visibility === 'suppressed' && <Badge variant="muted">Not in Top 100</Badge>}
-        {relationship.contact_stance === 'manual_only' && <Badge variant="blue">Manual only</Badge>}
-      </div>
+      <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+        Why this programme is handled here
+      </p>
+
+      {badges.length > 0 && (
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {badges.map(([variant, label]) => (
+            <Badge key={label} variant={variant}>{label}</Badge>
+          ))}
+        </div>
+      )}
+
       {relationship.flag_reason && (
         <p className="text-xs text-muted-foreground">{relationship.flag_reason}</p>
       )}
       {relationship.note && (
         <p className="text-xs"><span className="text-muted-foreground">Note: </span>{relationship.note}</p>
+      )}
+      {relationship.contact_stance === 'manual_only' && (
+        <p className="text-xs text-muted-foreground">{MANUAL_ONLY_HINT}</p>
       )}
       <PriorContact rows={priorContact} />
     </div>
@@ -106,7 +151,7 @@ export default function ManualOutreachDialog({ player, relationshipId, open, onO
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>Manual outreach</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{RELATIONSHIP_OUTREACH}</DialogTitle></DialogHeader>
           {failed
             ? <p className="text-sm text-destructive py-8 text-center" role="alert">{failed}</p>
             : (
@@ -125,20 +170,21 @@ export default function ManualOutreachDialog({ player, relationshipId, open, onO
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>{relationship.college_name}</DialogTitle></DialogHeader>
-          <div className="py-8 text-center space-y-2">
+          <DialogHeader>
+            <DialogTitle>{RELATIONSHIP_OUTREACH} &mdash; {relationship.college_name}</DialogTitle>
+          </DialogHeader>
+          <div className="py-8 text-center space-y-2 max-w-md mx-auto">
             <Ban className="h-8 w-8 mx-auto text-destructive" />
-            <p className="text-sm text-destructive" role="alert">
-              This programme is set to do-not-contact for {player.full_name || 'this athlete'}.
-              Change the contact stance on the relationship before writing to them.
-            </p>
+            <p className="text-sm text-destructive" role="alert">{DO_NOT_CONTACT_TITLE}</p>
             {/*
-              Said plainly: the composer is not rendered, AND the server would
-              refuse anyway. The screen is not what makes this true.
+              WHAT WILL NOT LIFT IT. Visibility and the flag are the two
+              neighbouring controls an operator would reach for next, and
+              neither touches this — saying so is the difference between a
+              refusal somebody works around and one they understand. The
+              composer is not rendered AND the server refuses independently;
+              this screen is not what makes it true.
             */}
-            <p className="text-xs text-muted-foreground">
-              Nothing can be drafted or sent from here while that stands.
-            </p>
+            <p className="text-xs text-muted-foreground">{DO_NOT_CONTACT_BODY}</p>
           </div>
         </DialogContent>
       </Dialog>
@@ -167,6 +213,7 @@ export default function ManualOutreachDialog({ player, relationshipId, open, onO
       college={composerCollege}
       open={open}
       onOpenChange={onOpenChange}
+      subtitle={RELATIONSHIP_DIALOG_HINT}
       context={<RelationshipContext relationship={relationship} priorContact={priorContact} />}
       /**
        * THE RELATIONSHIP-SCOPED ENDPOINT, not the shared one.

@@ -16,6 +16,7 @@ import {
 import { outreach } from '@/api/client';
 import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
 import EvidencePanel from '@/components/EvidencePanel';
+import { RECOMMENDATION_DIALOG_HINT } from '@/lib/outreachLabels';
 
 /**
  * Whose name seeds the greeting in the editable draft. Every selected coach
@@ -52,6 +53,8 @@ export default function EmailComposer({
   onSend = null,
   /** Rendered above the recipients, for context the composer does not own. */
   context = null,
+  /** One line under the title saying which kind of outreach this is. */
+  subtitle = RECOMMENDATION_DIALOG_HINT,
 }) {
   const validCoaches = useMemo(
     () => (college?.coaching_staff || []).filter((c) => c.email && c.email !== 'N/A'),
@@ -230,6 +233,13 @@ export default function EmailComposer({
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Email Coaches — {college?.name}</DialogTitle>
+          {/*
+            THE TWO COMPOSERS LOOK ALIKE ONCE OPEN, which is the point at which
+            a wrong choice costs something. One muted line naming the context
+            is cheaper than any amount of explanation on the card behind it.
+            `subtitle` lets the relationship wrapper name its own.
+          */}
+          <p className="text-xs text-muted-foreground">{subtitle}</p>
         </DialogHeader>
 
         <div className="space-y-4">

@@ -1,8 +1,9 @@
 import React from 'react';
-import { Loader2, Star, Mail } from 'lucide-react';
+import { Loader2, Star, Handshake } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { RELATIONSHIP_OUTREACH } from '@/lib/outreachLabels';
 
 /**
  * The schools this athlete asked for, kept apart from the ones we ranked.
@@ -60,7 +61,7 @@ function SpecificSchoolRow({ programme, rank, busy, onRemove, onManualOutreach }
         */}
         {onManualOutreach && (
           <Button size="sm" variant="outline" onClick={() => onManualOutreach(programme)}>
-            <Mail className="h-3.5 w-3.5 mr-1" /> Manual Outreach
+            <Handshake className="h-3.5 w-3.5 mr-1" /> {RELATIONSHIP_OUTREACH}
           </Button>
         )}
         <Button size="sm" variant="ghost" disabled={busy} onClick={() => onRemove(programme)}>
