@@ -486,3 +486,93 @@ describe('UNKNOWN IS NOT NONE', () => {
     expect(calls.some((c) => c.method !== 'GET' && c.path.includes('/programmes'))).toBe(false);
   });
 });
+
+describe('A PROGRAMME IS A COLLEGE AND A SPORT', () => {
+  /**
+   * One institution fields a men's and a women's programme: different staff,
+   * different outreach, different history. The server groups on both columns
+   * and can legitimately return both for one athlete — a coach at the women's
+   * programme may have been written to about a men's athlete, and the athlete
+   * may switch sports. Keyed on the college name alone the second entry
+   * overwrites the first, and the surviving one is then rendered under the
+   * other programme's name: not a missing fact but a WRONG one, about the
+   * single question this feature exists to answer.
+   */
+  const mens = () => summary({ college_name: 'Programme1', sport: 'mens-soccer' });
+  const womens = () => summary({
+    college_name: 'Programme1',
+    sport: 'womens-soccer',
+    has_confirmed_send: false,
+    draft_only: true,
+    confirmed_send_count: 0,
+    last_confirmed_send_at: null,
+    last_drafted_at: '2026-01-01T10:00:00.000Z',
+    engagement: {
+      profile_visits: 0, last_visit_at: null, best_coverage_pct: 0,
+      reply_recorded: false, reply_recorded_at: null,
+    },
+    last_activity_at: '2026-01-01T10:00:00.000Z',
+    last_activity_kind: 'draft',
+  });
+
+  it('does not let one sport overwrite the other in the index', async () => {
+    // The women's entry arrives SECOND, which is the order that breaks a
+    // name-keyed Map: last write wins and the men's history disappears.
+    stubFetch({ intelligence: [mens(), womens()] });
+    await render();
+
+    const card = summaries()[0];
+    expect(card.textContent).toContain('Sent 2x');
+    expect(card.textContent).not.toContain('Drafted');
+  });
+
+  it('shows the recommendation card only its own sport', async () => {
+    stubFetch({ intelligence: [womens(), mens()] });
+    await render();
+
+    // These recommendations were scouted for the athlete's sport, so the card
+    // is a men's programme however the payload happens to be ordered.
+    expect(summaries()[0].textContent).toContain('Sent 2x');
+    expect(body()).not.toContain('Drafted');
+  });
+
+  it('cannot leak one sport\u2019s history onto the other\u2019s row', async () => {
+    stubFetch({
+      programmes: [relationship({ request_state: 'requested', sport: 'womens-soccer' })],
+      intelligence: [mens(), womens()],
+    });
+    await render();
+    await click(tab('Specific Schools'));
+
+    // A women's-soccer request at the same college reads the women's entry:
+    // one draft and nothing sent, NOT the men's two confirmed sends.
+    const row = container.querySelector('[data-testid="specific-school-row"]');
+    expect(row.textContent).toContain('Drafted');
+    expect(row.textContent).not.toContain('Sent 2x');
+    expect(row.textContent).not.toContain('Profile visit recorded');
+  });
+
+  it('reports nothing for a sport with no history of its own', async () => {
+    stubFetch({
+      programmes: [relationship({ request_state: 'requested', sport: 'womens-soccer' })],
+      intelligence: [mens()],
+    });
+    await render();
+    await click(tab('Specific Schools'));
+
+    // The men's programme has history and the women's has none. A miss is the
+    // answer for the women's row; borrowing the men's summary would be the
+    // exact confident-wrong claim this key prevents.
+    const row = container.querySelector('[data-testid="specific-school-row"]');
+    expect(row.querySelector('[data-testid="contact-summary"]')).toBeNull();
+    expect(row.textContent).not.toContain('Sent 2x');
+  });
+
+  it('leaves ordinary single-sport behaviour alone', async () => {
+    stubFetch({ intelligence: [mens()] });
+    await render();
+    expect(summaries()).toHaveLength(1);
+    expect(summaries()[0].textContent).toContain('Sent 2x');
+    expect(summaries()[0].textContent).toContain('Profile visit recorded 3x');
+  });
+});

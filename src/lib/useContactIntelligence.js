@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { contactIntelligence } from '@/api/client';
+import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
 
 /**
  * ONE FETCH PER ATHLETE, READ BY EVERY CARD.
@@ -9,9 +10,15 @@ import { contactIntelligence } from '@/api/client';
  * which is the same failure `useMatchingSummary` was built to avoid — and this
  * one would be worse, because a card is rendered on four surfaces.
  *
- * So the athlete is asked once, the answer is indexed by programme name, and
- * every consumer does a Map lookup. A MISS IS THE ANSWER "nobody has written
- * to them", not a reason to go and ask.
+ * So the athlete is asked once, the answer is indexed by programme, and every
+ * consumer does a Map lookup. A MISS IS THE ANSWER "nobody has written to
+ * them", not a reason to go and ask.
+ *
+ * INDEXED BY COLLEGE AND SPORT, never by name alone. The server groups on both
+ * columns and can legitimately return Duke men's and Duke women's for the same
+ * athlete; keyed on the name, the second would overwrite the first and a card
+ * would show the other programme's outreach as its own. Every consumer builds
+ * its key with `contactIntelligenceKey` and its own sport.
  *
  * ---------------------------------------------------------------------------
  * UNKNOWN IS NOT NONE, AND THE STATUS IS HOW A CALLER TELLS.
@@ -53,7 +60,8 @@ export function useContactIntelligence(playerId) {
     contactIntelligence.forAthlete(playerId)
       .then((body) => {
         if (cancelled) return;
-        setByProgramme(new Map((body.programmes ?? []).map((p) => [p.college_name, p])));
+        setByProgramme(new Map((body.programmes ?? [])
+          .map((p) => [contactIntelligenceKey(p.college_name, p.sport), p])));
         setStatus(CONTACT_INTELLIGENCE.READY);
       })
       .catch((err) => {

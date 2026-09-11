@@ -1,5 +1,6 @@
 import db from '../db/client.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
+import { contactIntelligenceKey } from '../../shared/contactIntelligenceKey.js';
 
 /**
  * WHAT AN OPERATOR SHOULD KNOW BEFORE WRITING TO A PROGRAMME AGAIN.
@@ -41,17 +42,26 @@ import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
  */
 
 /**
- * ONE QUERY FOR A WHOLE ATHLETE. This is the N+1 answer.
+ * A BOUNDED WHOLE-ATHLETE READ: TWO STATEMENTS, WHATEVER THE HISTORY SIZE.
  *
  * A Top 100 page renders twenty cards at a time out of a hundred programmes,
  * and asking per card would be a hundred requests for one screen. The matching
- * page therefore makes ONE call, indexes the result by programme, and every
- * card reads a local map. The relationship dialog is the only surface that
- * asks about a single programme, and it asks about one.
+ * page therefore makes ONE HTTP call, indexes the result by programme, and
+ * every card reads a local map. The relationship dialog is the only surface
+ * that asks about a single programme, and it asks about one.
+ *
+ * The same bound applies BELOW the endpoint, which is the part that is easy to
+ * lose: an athlete with two hundred outreach records costs the same two
+ * statements as one with two. A per-row lookup here would have been an N+1
+ * hiding behind a correctly bounded API — invisible from the network tab, and
+ * growing with exactly the athletes who have the most history.
  *
  * Grouped by (college_name, sport) because that is the key every join in this
- * product uses: `coaches.school`, `athlete_programmes.college_name`, and the
- * analysis entries' own `name`.
+ * product uses: `coaches.school` + `coaches.sport`,
+ * `athlete_programmes.college_name` + `.sport`, and the analysis entries' own
+ * name under the athlete's sport. One institution fields a men's and a
+ * women's programme with different staff and different history, so the name
+ * alone is not an identity.
  */
 const ROWS = db.prepare(`
   SELECT
@@ -78,8 +88,20 @@ const ROWS = db.prepare(`
   WHERE o.athlete_id = @athleteId AND c.school IS NOT NULL
 `);
 
+/**
+ * EVERY ORIGIN FOR THE ATHLETE, IN ONE STATEMENT.
+ *
+ * `DISTINCT` collapses the repeats, and SQLite treats NULLs as equal to one
+ * another for DISTINCT, so an outreach record whose sends are all unclassified
+ * yields exactly one row carrying NULL. That matters: NULL is a real value
+ * here — "historical or genuinely unclassified" — and dropping it would
+ * silently convert an unknown origin into no origin at all.
+ */
 const ORIGINS = db.prepare(`
-  SELECT DISTINCT origin FROM outreach_send WHERE outreach_id = @outreachId
+  SELECT DISTINCT s.outreach_id, s.origin
+  FROM outreach_send s
+  JOIN outreach o ON o.id = s.outreach_id
+  WHERE o.athlete_id = @athleteId
 `);
 
 /** Latest of a set of ISO strings, ignoring nulls. */
@@ -106,7 +128,7 @@ function lastActivity({ respondedAt, lastVisitAt, lastSendAt, lastDraftAt }) {
   return { at: null, kind: null };
 }
 
-function summarise(rows) {
+function summarise(rows, originsByOutreach) {
   const coaches = rows.map((row) => {
     const hasConfirmedSend = row.accepted_count > 0 || Boolean(row.sent_at);
     return {
@@ -118,7 +140,7 @@ function summarise(rows) {
       last_confirmed_send_at: row.last_confirmed_send_at ?? row.sent_at ?? null,
       last_drafted_at: row.drafted_at,
       revoked_at: row.revoked_at,
-      origins: ORIGINS.all({ outreachId: row.outreach_id }).map((r) => r.origin),
+      origins: originsByOutreach.get(row.outreach_id) ?? [],
       engagement: {
         /**
          * Scanner-filtered and session-collapsed by the rollup. A count here
@@ -192,13 +214,25 @@ export function contactIntelligenceForAthlete(athleteId) {
   if (!athleteId) return [];
   const rows = ROWS.all({ athleteId, accepted: MESSAGE_STATE.ACCEPTED });
 
+  /**
+   * The second and last statement. Indexed once here rather than asked per
+   * outreach record, so the statement count stays flat as an athlete's history
+   * grows. An outreach record with no sends at all is simply absent and reads
+   * back as an empty origin list, which is what it is.
+   */
+  const originsByOutreach = new Map();
+  for (const { outreach_id: id, origin } of ORIGINS.all({ athleteId })) {
+    if (!originsByOutreach.has(id)) originsByOutreach.set(id, []);
+    originsByOutreach.get(id).push(origin);
+  }
+
   const byProgramme = new Map();
   for (const row of rows) {
-    const key = `${row.college_name} ${row.sport}`;
+    const key = contactIntelligenceKey(row.college_name, row.sport);
     if (!byProgramme.has(key)) byProgramme.set(key, []);
     byProgramme.get(key).push(row);
   }
-  return [...byProgramme.values()].map(summarise);
+  return [...byProgramme.values()].map((group) => summarise(group, originsByOutreach));
 }
 
 /** The same summary for one programme, for the relationship dialog. */

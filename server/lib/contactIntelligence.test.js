@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
 import {
@@ -317,5 +317,119 @@ describe('it is derived, never stored', () => {
     outreach({ coachId: c, sent: '2026-09-02T11:00:00.000Z' });
     expect(db.prepare('SELECT COUNT(*) c FROM athlete_programmes').get().c).toBe(0);
     expect(forDuke().contacted).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe('the read model is bounded, not only the endpoint', () => {
+  /**
+   * ONE HTTP CALL IS HALF THE PROMISE. Underneath it, asking for each outreach
+   * record's origins separately would be an N+1 that no network tab shows:
+   * invisible from outside, and worst for exactly the athletes with the most
+   * history. These tests count the statements the read model actually issues,
+   * so a future per-row lookup fails here rather than in production.
+   *
+   * The db client is swapped for a counting proxy over THE SAME connection —
+   * a re-imported client would be a different in-memory database, and the
+   * count would be measured against no data at all.
+   */
+  let counts;
+
+  async function instrumented() {
+    counts = { statements: 0 };
+    const counting = new Proxy(db, {
+      get(target, prop) {
+        if (prop === 'prepare') {
+          return (sql) => {
+            const stmt = target.prepare(sql);
+            return new Proxy(stmt, {
+              get(t, key) {
+                const value = t[key];
+                if (typeof value !== 'function') return value;
+                return (...args) => {
+                  if (key === 'all' || key === 'get' || key === 'run') counts.statements += 1;
+                  return value.apply(t, args);
+                };
+              },
+            });
+          };
+        }
+        const value = target[prop];
+        return typeof value === 'function' ? value.bind(target) : value;
+      },
+    });
+    vi.resetModules();
+    vi.doMock('../db/client.js', () => ({ default: counting }));
+    return import('./contactIntelligence.js');
+  }
+
+  /** @param {number} n coaches, each with an outreach record and two sends. */
+  let seeded = 0;
+  function history(n) {
+    for (let i = seeded; i < seeded + n; i += 1) {
+      const c = coach({ name: `Coach ${i}`, email: `c${i}@duke.test`, school: `School ${i}` });
+      const o = outreach({ coachId: c, sent: '2026-09-02T11:00:00.000Z' });
+      message({ outreachId: o, coachId: c, state: MESSAGE_STATE.ACCEPTED, sentAt: '2026-09-02T11:00:00.000Z', origin: 'manual' });
+      message({ outreachId: o, coachId: c, state: MESSAGE_STATE.ACCEPTED, sentAt: '2026-09-03T11:00:00.000Z', origin: 'campaign' });
+      rollup({ outreachId: o, visits: 1, lastVisit: '2026-09-04T11:00:00.000Z' });
+    }
+    seeded += n;
+  }
+
+  beforeEach(() => { seeded = 0; });
+
+  afterEach(() => {
+    vi.doUnmock('../db/client.js');
+    vi.resetModules();
+  });
+
+  it('costs the same two statements for forty records as for two', async () => {
+    const mod = await instrumented();
+
+    history(2);
+    counts.statements = 0;
+    expect(mod.contactIntelligenceForAthlete(ATHLETE)).toHaveLength(2);
+    const small = counts.statements;
+
+    history(38);
+    counts.statements = 0;
+    expect(mod.contactIntelligenceForAthlete(ATHLETE)).toHaveLength(40);
+    expect(counts.statements).toBe(small);
+
+    // Two: the rows, and the origins for all of them. Not one per record.
+    expect(small).toBe(2);
+  });
+
+  it('still gives each outreach record its own origins', async () => {
+    const mod = await instrumented();
+
+    const manual = coach({ name: 'Manual Coach', email: 'm@duke.test' });
+    const campaign = coach({ name: 'Campaign Coach', email: 'c@duke.test', school: 'Elon' });
+    const silent = coach({ name: 'Old Coach', email: 'o@duke.test', school: 'Brown' });
+    const om = outreach({ coachId: manual, sent: '2026-09-02T11:00:00.000Z' });
+    const oc = outreach({ coachId: campaign, sent: '2026-09-02T11:00:00.000Z' });
+    const os = outreach({ coachId: silent, sent: '2026-09-02T11:00:00.000Z' });
+    message({ outreachId: om, coachId: manual, state: MESSAGE_STATE.ACCEPTED, origin: 'manual' });
+    message({ outreachId: oc, coachId: campaign, state: MESSAGE_STATE.ACCEPTED, origin: 'campaign' });
+    message({ outreachId: os, coachId: silent, state: MESSAGE_STATE.ACCEPTED, origin: null });
+
+    const byName = Object.fromEntries(
+      mod.contactIntelligenceForAthlete(ATHLETE).map((p) => [p.college_name, p.origins]),
+    );
+    // Batching indexes by outreach id, so one record's origin cannot become
+    // another's — and the unclassified row keeps its NULL rather than losing it
+    // to a DISTINCT that drops nulls or to a neighbour's value.
+    expect(byName).toEqual({ Duke: ['manual'], Elon: ['campaign'], Brown: [null] });
+  });
+
+  it('reads an outreach record with no sends as no origins, not as unrecorded', async () => {
+    const mod = await instrumented();
+    const c = coach({ name: 'Draft Coach', email: 'd@duke.test' });
+    outreach({ coachId: c, drafted: '2026-09-02T10:00:00.000Z' });
+
+    // Absent from the origins index entirely: nothing was ever sent, so there
+    // is no send whose origin could be unrecorded.
+    expect(mod.contactIntelligenceForAthlete(ATHLETE)[0].origins).toEqual([]);
   });
 });

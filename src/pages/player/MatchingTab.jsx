@@ -14,6 +14,8 @@ import ManualOutreachDialog from '@/components/ManualOutreachDialog';
 import { BOTH_PATHS_HINT } from '@/lib/outreachLabels';
 import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
 import { CONTACT_UNAVAILABLE_NOTICE } from '@/lib/outreachLabels';
+import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
+import { DEFAULT_SPORT } from '@shared/sportProfiles.js';
 import { useContactIntelligence, CONTACT_INTELLIGENCE } from '@/lib/useContactIntelligence';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
@@ -97,6 +99,15 @@ export default function MatchingTab() {
    * each repeat that something failed.
    */
   const contactUnavailable = contactStatus === CONTACT_INTELLIGENCE.FAILED;
+  /**
+   * THE SPORT THESE RECOMMENDATIONS ARE FOR, and half of every programme key.
+   *
+   * `analyze()` scouts colleges filtered by `player.sport || DEFAULT_SPORT`, so
+   * every card on this list is that sport whether or not the athlete record
+   * spells it out. Relationship rows carry their own `sport` column and are
+   * looked up with that instead — the surfaces do not assume they match.
+   */
+  const athleteSport = player?.sport || DEFAULT_SPORT;
   const [showBulk, setShowBulk] = useState(false);
   /**
    * MATCH PRIORITIES HAS NO VISIBLE TRIGGER ANY MORE, AND IS NOT DELETED.
@@ -424,7 +435,7 @@ export default function MatchingTab() {
                     nothing — no row is written to say a school was emailed.
                   */}
                   <ProgrammeContactSummary
-                    summary={contactByProgramme.get(college.name)}
+                    summary={contactByProgramme.get(contactIntelligenceKey(college.name, athleteSport))}
                     withhold={contactUnavailable}
                     className="mt-3 pt-3 border-t border-border"
                   />

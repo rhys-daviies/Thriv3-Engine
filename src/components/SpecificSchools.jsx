@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RELATIONSHIP_OUTREACH } from '@/lib/outreachLabels';
 import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
+import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
 
 /**
  * The schools this athlete asked for, kept apart from the ones we ranked.
@@ -138,7 +139,7 @@ export default function SpecificSchools({
                 busy={pending === (p.college_id || p.id)}
                 onRemove={onRemove}
                 onManualOutreach={onManualOutreach}
-                contact={contactByProgramme.get(p.college_name)}
+                contact={contactByProgramme.get(contactIntelligenceKey(p.college_name, p.sport))}
                 contactUnavailable={contactUnavailable}
               />
             ))}

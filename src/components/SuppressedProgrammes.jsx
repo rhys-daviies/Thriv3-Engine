@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { RELATIONSHIP_OUTREACH } from '@/lib/outreachLabels';
 import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
+import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
 
 /**
  * THE WAY BACK.
@@ -67,7 +68,7 @@ export default function SuppressedProgrammes({
                 </div>
                 {p.flag_reason && <p className="text-xs text-muted-foreground">{p.flag_reason}</p>}
                 <ProgrammeContactSummary
-                  summary={contactByProgramme.get(p.college_name)}
+                  summary={contactByProgramme.get(contactIntelligenceKey(p.college_name, p.sport))}
                   withhold={contactUnavailable}
                   className="mt-1"
                 />
