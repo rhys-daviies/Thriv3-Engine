@@ -48,13 +48,38 @@ export const RELATIONSHIP_FIELDS = Object.freeze([
 // ---------------------------------------------------------------------------
 
 const SELECT_COLUMNS = `
-  id, athlete_id, college_name, sport, college_id,
-  request_state, requested_by, requested_at,
-  flagged, flag_reason, flagged_at,
-  visibility, contact_stance,
-  note, note_updated_at,
-  created_at, updated_at
+  ap.id, ap.athlete_id, ap.college_name, ap.sport, ap.college_id,
+  ap.request_state, ap.requested_by, ap.requested_at,
+  ap.flagged, ap.flag_reason, ap.flagged_at,
+  ap.visibility, ap.contact_stance,
+  ap.note, ap.note_updated_at,
+  ap.created_at, ap.updated_at,
+  c.division   AS division,
+  c.conference AS conference,
+  c.city       AS city,
+  c.state      AS state,
+  c.active     AS college_active
 `;
+
+/**
+ * Presentation columns READ LIVE FROM THE REGISTRY, never stored on the row.
+ *
+ * The deliberate opposite of `programme_campaigns`, which snapshots `division`
+ * and `conference` because a campaign records what was true when it was
+ * created. A relationship is not a historical record: it says the athlete has
+ * a connection with this programme NOW, so a conference realignment should
+ * change what the screen says rather than leave it describing 2024.
+ *
+ * `college_active` comes with them because a programme can be retired after a
+ * relationship is made — a school that has since stopped fielding the sport is
+ * still a real relationship and must stay visible, but a screen that cannot
+ * tell is one that offers to email a programme that no longer exists.
+ *
+ * LEFT JOIN: the identity on the row stands on its own. A `colleges` row
+ * renamed or removed underneath leaves `college_name` readable with nulls
+ * beside it, rather than making the relationship disappear from its own list.
+ */
+const JOIN_REGISTRY = 'LEFT JOIN colleges c ON c.id = ap.college_id';
 
 /**
  * `flagged` is stored as 0/1 because SQLite has no boolean, and is handed out
@@ -69,17 +94,17 @@ function shape(row) {
 export function listAthleteProgrammes(athleteId) {
   requireAthlete(athleteId);
   const rows = db.prepare(`
-    SELECT ${SELECT_COLUMNS} FROM athlete_programmes
-     WHERE athlete_id = ?
-     ORDER BY college_name, sport
+    SELECT ${SELECT_COLUMNS} FROM athlete_programmes ap ${JOIN_REGISTRY}
+     WHERE ap.athlete_id = ?
+     ORDER BY ap.college_name, ap.sport
   `).all(athleteId);
   return rows.map(shape);
 }
 
 export function getAthleteProgramme(athleteId, id) {
   const row = db.prepare(`
-    SELECT ${SELECT_COLUMNS} FROM athlete_programmes
-     WHERE athlete_id = ? AND id = ?
+    SELECT ${SELECT_COLUMNS} FROM athlete_programmes ap ${JOIN_REGISTRY}
+     WHERE ap.athlete_id = ? AND ap.id = ?
   `).get(athleteId, id);
   return shape(row);
 }
@@ -87,8 +112,8 @@ export function getAthleteProgramme(athleteId, id) {
 /** The relationship for one programme, if there is one. Used by the upsert. */
 export function findRelationship(athleteId, collegeName, sport) {
   const row = db.prepare(`
-    SELECT ${SELECT_COLUMNS} FROM athlete_programmes
-     WHERE athlete_id = ? AND college_name = ? AND sport = ?
+    SELECT ${SELECT_COLUMNS} FROM athlete_programmes ap ${JOIN_REGISTRY}
+     WHERE ap.athlete_id = ? AND ap.college_name = ? AND ap.sport = ?
   `).get(athleteId, collegeName, sport);
   return shape(row);
 }
