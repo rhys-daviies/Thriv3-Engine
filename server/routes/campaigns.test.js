@@ -846,12 +846,35 @@ describe('GET /api/campaigns/:id/execution-plan', () => {
     expect(guessed.status).toBe(404);
   });
 
+  /**
+   * STILL NO SIBLING THAT EXECUTES IT — and F9b-2 is the change that had to
+   * explain itself here, which is what this guard was for.
+   *
+   * `materialiseNextContactAttempt` now appears in this router, and that is a
+   * deliberate, narrow exception rather than the rule weakening. It writes ONE
+   * row saying this campaign intends to write to this coach. It composes no
+   * message, mints no tracking token, reserves and spends no budget, calls no
+   * transport and moves no lifecycle — the route suite asserts every one of
+   * those against the tables.
+   *
+   * So what stays forbidden is what actually makes a message happen:
+   * `createOutreach` mints the relationship and its permanent token,
+   * `recordDraft` writes a body, and `recordOutboundAttempt` spends capacity.
+   * None of them may ever be reachable from this router, and the day one is,
+   * this line has to change again and say why.
+   */
   it('has no sibling that executes it', () => {
     const src = fs.readFileSync(new URL('./campaigns.js', import.meta.url), 'utf8');
     // The plan exists so a person can look before anything acts. An execution
     // endpoint shipped beside it would make that inspection a formality.
     expect(src).not.toMatch(/\.post\(['"][^'"]*(execute|send|run|process)/i);
-    expect(src).not.toMatch(/materialise|createOutreach|recordOutboundAttempt/i);
+    expect(src).not.toMatch(/createOutreach|recordDraft|recordOutboundAttempt|acceptSend/i);
+    // The one writer it may reach, named so no other can be added quietly.
+    // Matched against CODE, not prose: the route's own comments say the word.
+    const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+    const writers = [...code.matchAll(/\bmaterialise\w*/gi)].map((m) => m[0]);
+    expect(new Set(writers)).toEqual(new Set(['materialiseNextContactAttempt']));
+
     const methods = [...src.matchAll(/campaignsRouter\.(\w+)\(/g)].map((m) => m[1]);
     expect(methods.filter((m) => m === 'get').length).toBe(3);
     expect(new Set(methods)).toEqual(new Set(['post', 'get', 'patch']));

@@ -7,7 +7,10 @@ import {
   CAMPAIGN_STATES, PROGRAMME_CAMPAIGN_STATES, TIERS,
 } from '../lib/campaigns.js';
 import { campaignExecutionPlan } from '../lib/campaignExecution.js';
-import { programmePursuitPlan } from '../lib/pursuitPolicy.js';
+import {
+  programmePursuitPlan, materialiseNextContactAttempt, PREPARATION_REFUSAL,
+} from '../lib/pursuitPolicy.js';
+import { CONTACT_REFUSAL } from '../lib/campaignAttribution.js';
 import {
   approveFirstTouch, existingApproval, APPROVAL_STATUS,
 } from '../lib/firstTouchApprovals.js';
@@ -218,6 +221,29 @@ const STATUS_BY_CODE = Object.freeze({
   // this campaign is not pursuing.
   NO_REVIEW_REQUIRED: 422,
   COACH_NOT_IN_PURSUIT: 422,
+
+  /**
+   * F9b-2. Every way preparing a contact attempt can be refused.
+   *
+   * ALL 422, and none of them 409: the request is well-formed and names a real
+   * programme campaign, and what it asks for is not allowed to be true right
+   * now. A 409 would invite a retry, and retrying changes none of these — a
+   * stance, a suppression, a closed campaign and an unreviewed first touch all
+   * need somebody to do something else first.
+   *
+   * The B3 codes are quoted rather than re-spelled, so a refusal reaches a
+   * client under the same name the safety layer gave it.
+   */
+  [PREPARATION_REFUSAL.FIRST_TOUCH_REVIEW_REQUIRED]: 422,
+  [PREPARATION_REFUSAL.NO_ELIGIBLE_COACH]: 422,
+  [PREPARATION_REFUSAL.NO_ACTION_TO_PREPARE]: 422,
+  [CONTACT_REFUSAL.CAMPAIGN_NOT_ACTIVE]: 422,
+  [CONTACT_REFUSAL.PROGRAMME_STOPPED]: 422,
+  [CONTACT_REFUSAL.PROGRAMME_COMPLETED]: 422,
+  [CONTACT_REFUSAL.OUTREACH_REVOKED]: 422,
+  [CONTACT_REFUSAL.RELATIONSHIP_DO_NOT_CONTACT]: 422,
+  [CONTACT_REFUSAL.RELATIONSHIP_MANUAL_ONLY]: 422,
+  [CONTACT_REFUSAL.SUPPRESSED]: 422,
   INVALID_STATE: 422,
   INVALID_TIER: 422,
   INVALID_RANK: 422,
@@ -589,6 +615,140 @@ campaignsRouter.post(
     };
   }),
 );
+
+/**
+ * PREPARE THE NEXT CONTACT ATTEMPT AT THIS PROGRAMME — F9b-2.
+ *
+ * ---------------------------------------------------------------------------
+ * IT RECORDS AN INTENT. IT DOES NOT SEND ANYTHING.
+ *
+ * No message is composed, no body exists, no mailbox is touched, no budget is
+ * reserved or spent, no transport is called and nothing is scheduled. What it
+ * writes is one row saying THIS CAMPAIGN INTENDS TO WRITE TO THIS COACH, which
+ * is what a `planned` attempt has always meant. `outreach_send` remains the only
+ * thing in this system that says a message happened.
+ * ---------------------------------------------------------------------------
+ *
+ * THE ROUTE PARAM IS THE WHOLE REQUEST. The server derives the athlete, the
+ * campaign, the coach, the step, the action, the safety and the review from the
+ * pursuit plan — so a client cannot name a coach this campaign would not
+ * approach, nor a step the message history does not support, nor a date that
+ * would move a lifecycle check. There is nothing for a body to say, so a body
+ * with anything in it is a 400 rather than a field quietly ignored.
+ *
+ * IDEMPOTENT, WHICH IS WHY A REPLAY IS 200 AND NOT AN ERROR. The attempt is
+ * keyed on (programme campaign, coach) and the server picks the coach, so a
+ * retried request after a dropped connection lands on the same row and gets it
+ * back with `created: false`. 201 means a row was written by THIS call.
+ *
+ * A REFUSAL IS NEVER A 200. `created: false` already means "it was already
+ * there", so returning it for a refusal too would make the two indistinguishable
+ * to a client that only reads the flag.
+ */
+campaignsRouter.post(
+  '/programme-campaigns/:programmeCampaignId/contact-attempts',
+  handle('campaigns/prepare-contact-attempt', (req) => {
+    // An empty allow-list: any field at all is an unknown field.
+    readBody(req.body, [], 'contact attempt preparation');
+    const query = Object.keys(req.query ?? {});
+    if (query.length) {
+      throw badRequest(
+        `Unknown query parameter(s): ${query.join(', ')}. This request takes none — the server `
+        + 'derives the coach, the step and the date from the campaign itself.',
+      );
+    }
+
+    /**
+     * THE MATERIALISER IS THE AUTHORITY, and this route adds no rule of its own.
+     * It re-derives the plan, asks the shared preparation decision, and writes
+     * only if that decision allows it — so the button, the dry run and the write
+     * cannot disagree. An unknown id throws PROGRAMME_CAMPAIGN_NOT_FOUND from
+     * inside the plan, which the table above already maps to 404.
+     */
+    const out = materialiseNextContactAttempt({ programmeCampaignId: req.params.programmeCampaignId });
+
+    /**
+     * `attempt: null` is the refusal shape and `created` alone cannot express
+     * it — see the note on the envelope in pursuitPolicy.js. The reason is B6's
+     * or B3's own code; only the sentence is composed here.
+     */
+    if (!out.attempt) {
+      const reason = out.preparation?.reason ?? 'CONTACT_CHECK_FAILED';
+      const err = new Error(refusalSentence(reason, out));
+      err.code = reason;
+      throw err;
+    }
+
+    return {
+      status: out.created ? 201 : 200,
+      body: { created: out.created, attempt: contactAttemptBody(out.attempt) },
+    };
+  }),
+);
+
+/** One shape for a prepared attempt. Deliberately small — no plan, no history. */
+function contactAttemptBody(row) {
+  return {
+    id: row.id,
+    programmeCampaignId: row.programme_campaign_id,
+    coachId: row.coach_id,
+    state: row.state,
+    step: row.step,
+    createdAt: row.created_at,
+  };
+}
+
+/**
+ * WHY PREPARING WAS REFUSED, IN A SENTENCE.
+ *
+ * The CODES are B3's and B6's and are quoted; only the PROSE is here, which is
+ * this module's stated job. It is written for PREPARING rather than reused from
+ * the send path on purpose: "nothing was drafted or sent" is true of a refused
+ * preparation and beside the point, and "activate the campaign first" is the
+ * wrong advice for a campaign that has closed for good.
+ */
+function refusalSentence(reason, out) {
+  const where = out.plan?.programmeCampaign
+    ? `${out.plan.programmeCampaign.collegeName} (${out.plan.programmeCampaign.sport})`
+    : 'This programme';
+  switch (reason) {
+    case PREPARATION_REFUSAL.FIRST_TOUCH_REVIEW_REQUIRED:
+      return `${where}: this athlete has already had confirmed outreach to this coach, so the `
+        + 'campaign\'s first message would read as an introduction to somebody who has heard '
+        + 'from them before. '
+        + (out.review?.approval?.status === 'stale'
+          ? 'The earlier review no longer matches what is on file — something has been sent '
+            + 'since it was given. Review the contact history again and approve it.'
+          : 'Review the contact history and approve the first touch first.');
+    case PREPARATION_REFUSAL.NO_ELIGIBLE_COACH:
+      return `${where} has nobody this campaign can approach — every address on file is `
+        + 'unusable, opted out, or there is no staff record at all.';
+    case PREPARATION_REFUSAL.NO_ACTION_TO_PREPARE:
+      return `${where} has no next message to prepare: either somebody there has replied and it `
+        + 'is waiting for a person, or the programme\'s cold outreach is finished.';
+    case CONTACT_REFUSAL.CAMPAIGN_NOT_ACTIVE:
+      return `The campaign is ${out.plan?.campaign?.state ?? 'not active'}, so nothing further `
+        + 'may be prepared under it.';
+    case CONTACT_REFUSAL.PROGRAMME_STOPPED:
+      return `Outreach to ${where} was stopped. A programme-level stop covers every coach there.`;
+    case CONTACT_REFUSAL.PROGRAMME_COMPLETED:
+      return `Outreach to ${where} is complete.`;
+    case CONTACT_REFUSAL.OUTREACH_REVOKED:
+      return 'This outreach was revoked. Its tracking link no longer resolves, so there is '
+        + 'nothing further to pursue through it.';
+    case CONTACT_REFUSAL.RELATIONSHIP_DO_NOT_CONTACT:
+      return `${where} is set to do-not-contact for this athlete. Change the contact stance on `
+        + 'the relationship first.';
+    case CONTACT_REFUSAL.RELATIONSHIP_MANUAL_ONLY:
+      return `${where} is set to manual contact only for this athlete, so an automated campaign `
+        + 'may not pursue it. A person still may — send it from Relationship Outreach or Email '
+        + 'Coaches, or change the contact stance.';
+    case CONTACT_REFUSAL.SUPPRESSED:
+      return 'This address has opted out of Thriv3, across every athlete and campaign.';
+    default:
+      return `Preparing a contact attempt was refused: ${reason}`;
+  }
+}
 
 /** One shape for an approval row, wherever it came from. */
 function describe(row) {
