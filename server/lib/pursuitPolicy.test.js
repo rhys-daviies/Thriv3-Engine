@@ -747,19 +747,52 @@ describe('what B6 leaves exactly as it found it', () => {
     expect(src).not.toMatch(/'waiting'|'completed'/);
   });
 
-  it('advances no step and stops no attempt', () => {
-    const { pc, head } = scene();
+  /**
+   * ASKING WHAT A CAMPAIGN WOULD DO STILL WRITES NOTHING, which is this
+   * module's standing promise and the reason B7's dry run can read a hundred
+   * programmes safely. Unchanged by F9b-1.
+   */
+  it('advances no step and stops no attempt, however often it is asked', () => {
+    const { pc } = scene();
     materialiseNextContactAttempt({ programmeCampaignId: pc });
     const before = attemptsForProgrammeCampaign(pc);
 
-    sendUnder(pc, ATHLETE, head);
+    programmePursuitPlan({ programmeCampaignId: pc });
     programmePursuitPlan({ programmeCampaignId: pc });
 
-    // The plan's step moved to 2 from the message history; B4's stored counter
-    // did not, because advancing it is an execution act and B6 executes nothing.
-    expect(programmePursuitPlan({ programmeCampaignId: pc }).step).toBe(2);
     expect(attemptsForProgrammeCampaign(pc)).toEqual(before);
     expect(before[0].step).toBe(1);
+    expect(before[0].state).toBe('planned');
+  });
+
+  /**
+   * WHAT F9b-1 CHANGED, AND WHY THIS ASSERTION IS THE OPPOSITE OF WHAT IT WAS.
+   *
+   * This test used to prove the stored step did NOT move when a campaign
+   * message was confirmed, on the reasoning that advancing it is an execution
+   * act and this module executes nothing. That reasoning still holds for THIS
+   * module — the planner above writes nothing, and the acceptance is not its
+   * doing. What it got wrong was leaving the stored step with no writer at all:
+   * the derived step moved to 2 and the stored one stayed at 1, which is
+   * CONTACT_ATTEMPT_STEP_DRIFT, and the programme's own follow-up was then
+   * blocked by a DATA_INTEGRITY error that preparing the attempt had caused.
+   *
+   * So the step is now written where the derived step moves — inside the one
+   * transition that makes a message ACCEPTED — and the two cannot come apart.
+   * The planner is still pure; the bookkeeping simply has an owner now.
+   * See contactAttemptStep.test.js for the invariant in full.
+   */
+  it('has its stored step moved for it when a campaign message is confirmed', () => {
+    const { pc, head } = scene();
+    const { attempt } = materialiseNextContactAttempt({ programmeCampaignId: pc });
+    expect(contactAttempt(attempt.id).step).toBe(1);
+
+    sendUnder(pc, ATHLETE, head);
+
+    expect(programmePursuitPlan({ programmeCampaignId: pc }).step).toBe(2);
+    expect(contactAttempt(attempt.id).step).toBe(2);
+    // A step is not a send: the attempt is still only a plan.
+    expect(contactAttempt(attempt.id).state).toBe('planned');
   });
 
   it('leaves message state, attribution, the cap and the token alone', () => {

@@ -6,7 +6,10 @@ import { isSuppressed } from './suppressions.js';
 import {
   campaignContactDecision, standingProhibition, REFUSAL_KIND,
 } from './campaignAttribution.js';
-import { attemptsForProgrammeCampaign, attemptForCoach, createContactAttempt } from './contactAttempts.js';
+import {
+  attemptsForProgrammeCampaign, attemptForCoach, createContactAttempt,
+  reconcileContactAttemptStep,
+} from './contactAttempts.js';
 import { outboundBudgetDecision, outboundBudgetDecisionForAthlete } from './outboundBudget.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
 import { priorContactForCoaches, priorContactOf } from './contactIntelligence.js';
@@ -874,10 +877,37 @@ export function materialiseNextContactAttempt({ programmeCampaignId, at = utcNow
   if (!prohibition.allowed) return { created: false, attempt: null, plan, prohibition };
 
   const existing = attemptForCoach(programmeCampaignId, plan.current.coachId);
+
+  /**
+   * THE STORED STEP IS A REFLECTION OF THE DERIVED ONE, NOT A COUNTER — F9b-1.
+   *
+   * `plan.step` is what B6 derived from accepted campaign-local messages, and
+   * it is the authority in both directions this touches:
+   *
+   *   CREATING    the attempt starts where the campaign actually is. Creating
+   *               at 1 against a derived 2 raised CONTACT_ATTEMPT_STEP_DRIFT
+   *               the instant an attempt was prepared for a follow-up, which is
+   *               the defect F9a found.
+   *
+   *   EXISTING    a stored step left behind by a confirmed send is caught up.
+   *               This is DEFENCE, not the mechanism: `transitionSend` advances
+   *               it at the moment of acceptance, so by the time anybody presses
+   *               Prepare again the two normally already agree. It exists for
+   *               the rows that predate F9b-1 and for anything that reaches
+   *               ACCEPTED by a path nobody has written yet.
+   *
+   * FORWARD ONLY, and B4 enforces that rather than a condition here. A stored
+   * step AHEAD of the derived one is an attempt claiming a message that is not
+   * on file; repairing it would erase the evidence, so it is left for B7's
+   * drift blocker to keep reporting.
+   */
+  if (existing) reconcileContactAttemptStep(existing.id, plan.step, { at });
+
   const attempt = createContactAttempt({
     programmeCampaignId,
     coachId: plan.current.coachId,
     athleteId: plan.campaign.athleteId,
+    step: plan.step,
     at,
   });
   return { created: !existing, attempt, plan };
