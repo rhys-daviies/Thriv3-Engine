@@ -322,6 +322,136 @@ export function approvalError(err) {
   return APPROVAL_ERROR[err?.code] ?? APPROVAL_FAILED;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Preparing a contact attempt — F9b-3                                         */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * WHAT A PREPARED ATTEMPT IS, IN THE ONLY WORDS THAT ARE TRUE OF IT.
+ *
+ * A prepared attempt is a record that this campaign INTENDS to write to the
+ * coach the server named. No message exists, no mailbox was touched, no
+ * capacity was reserved and no transport was called.
+ *
+ * SO THIS VOCABULARY IS DELIBERATELY FLAT. Not "ready to send", not "queued",
+ * not "scheduled", not "drafted", not "email prepared" — every one of those
+ * claims something the row does not say, and an operator who believed any of
+ * them would think outreach had started. It reads as operational metadata
+ * because that is what it is.
+ */
+export const PREPARE_COPY = Object.freeze({
+  /** The control at rest. Says what it records, not what it achieves. */
+  action: 'Prepare next attempt',
+  confirm: 'Confirm preparation',
+  cancel: 'Cancel',
+  pending: 'Recording the intent…',
+  /**
+   * THE ONE SENTENCE THAT KEEPS THE BUTTON HONEST. Shown at the confirmation
+   * step rather than on every card: an operator deciding needs it, and a
+   * hundred cards each explaining themselves is not a screen.
+   */
+  explain: 'Records the campaign’s next contact intent. Nothing will be sent.',
+  /** The prepared marker. `state` is not surfaced — see `preparedLabel`. */
+  prepared: 'Attempt prepared',
+  /**
+   * F9 can only produce `planned`. Anything else would be a state this build
+   * has no meaning for, so it gets a neutral marker rather than an invented one.
+   */
+  preparedUnknown: 'Attempt recorded',
+});
+
+/**
+ * The prepared marker for an attempt, and the date if there is one.
+ *
+ * A MISSING `createdAt` IS NOT A MISSING MARKER. The attempt exists either way;
+ * what is unknown is when. Printing a fabricated or empty date would be worse
+ * than printing none, so the marker stands alone.
+ */
+export function preparedLabel(currentAttempt) {
+  if (!currentAttempt?.id) return null;
+  const label = currentAttempt.state === 'planned'
+    ? PREPARE_COPY.prepared
+    : PREPARE_COPY.preparedUnknown;
+  return { label, on: shortDate(currentAttempt.createdAt) };
+}
+
+/**
+ * WHY PREPARING DID NOT RECORD, IN WORDS — and whether to go and look again.
+ *
+ * MOST OF THESE ARE NOT FAILURES. The server has moved on since the page was
+ * drawn — a message was confirmed, a stance changed, the campaign closed — and
+ * the honest response is to read the plan again and let it decide what the card
+ * should say. `refresh` marks those.
+ *
+ * What is NOT refreshed is a failure with no server opinion in it: a dropped
+ * connection or a 500. The plan on screen is still the one the server sent and
+ * is still true, so it stays and the error sits on the control that tried.
+ * Retrying is safe because the endpoint is idempotent.
+ */
+export const PREPARATION_ERROR = Object.freeze({
+  NO_ELIGIBLE_COACH: {
+    message: 'There is nobody at this programme the campaign can approach. Reloading the campaign.',
+    refresh: true,
+  },
+  NO_ACTION_TO_PREPARE: {
+    message: 'This campaign has no next message to prepare here. Reloading the campaign.',
+    refresh: true,
+  },
+  PROGRAMME_CAMPAIGN_NOT_FOUND: {
+    message: 'This programme is no longer part of the campaign. Reloading.',
+    refresh: true,
+  },
+  /**
+   * THE ONE REFUSAL THE OPERATOR CAN RESOLVE ON THIS PAGE. It points at the
+   * review rather than apologising, and the reload moves the card into "Needs
+   * your review" if that is what the server now says.
+   */
+  CAMPAIGN_FIRST_TOUCH_REVIEW_REQUIRED: {
+    message: 'This athlete has already had confirmed outreach to this coach, so the first '
+      + 'message needs reviewing before the campaign can pursue them. Reloading the campaign.',
+    refresh: true,
+  },
+});
+
+/**
+ * Refusals that are a DECISION somebody already took, worded from the vocabulary
+ * the cards already use.
+ *
+ * Reusing `BLOCKER_COPY` rather than writing a second set of sentences is the
+ * point: an operator who has read "Manual outreach only" on a card should meet
+ * the same words when a preparation is refused for it, and two copies of the
+ * same explanation are two things that can drift apart.
+ *
+ * `CAMPAIGN_NOT_ACTIVE` is in here rather than given bespoke copy precisely
+ * because it covers a draft AND a closed campaign. "Activate it first" would be
+ * wrong advice for one of them; the shared line says only what is true of both.
+ */
+const PREPARATION_PROHIBITIONS = Object.freeze([
+  'RELATIONSHIP_MANUAL_ONLY',
+  'RELATIONSHIP_DO_NOT_CONTACT',
+  'OUTREACH_REVOKED',
+  'PROGRAMME_STOPPED',
+  'PROGRAMME_COMPLETED',
+  'CAMPAIGN_NOT_ACTIVE',
+  'SUPPRESSED',
+]);
+
+const PREPARATION_FAILED = Object.freeze({
+  message: 'The attempt could not be prepared. Try again.',
+  refresh: false,
+});
+
+/** What to tell the operator, and whether to go and look again. */
+export function preparationError(err) {
+  if (err?.status === 404) return PREPARATION_ERROR.PROGRAMME_CAMPAIGN_NOT_FOUND;
+  const code = err?.code;
+  if (code && PREPARATION_ERROR[code]) return PREPARATION_ERROR[code];
+  if (code && PREPARATION_PROHIBITIONS.includes(code)) {
+    return { message: `${blockerCopy(code).description} Reloading the campaign.`, refresh: true };
+  }
+  return PREPARATION_FAILED;
+}
+
 /** A date an operator reads, from the ISO dates and timestamps the plan carries. */
 export function shortDate(value) {
   if (!value) return null;

@@ -301,6 +301,33 @@ export const campaigns = {
       { method: 'POST' },
     );
   },
+
+  /**
+   * RECORD THAT THIS CAMPAIGN INTENDS TO CONTACT THE CURRENT COACH.
+   *
+   * ---------------------------------------------------------------------------
+   * IT SENDS NOTHING. No message is composed, no mailbox is touched, no sending
+   * capacity is reserved or spent, no transport is called and nothing is
+   * scheduled. What it writes is one row saying the campaign means to write to
+   * the coach the SERVER named.
+   * ---------------------------------------------------------------------------
+   *
+   * ONE ARGUMENT, AND DELIBERATELY NOT THREE. There is no coach, step or action
+   * parameter because the server derives all of them from the pursuit plan — so
+   * this method cannot express an intent against somebody the campaign would
+   * not approach, or a step the message history does not support. It sends no
+   * body at all; the endpoint refuses one with anything in it.
+   *
+   * IDEMPOTENT, so a retry after a dropped connection is safe. 201 means a row
+   * was written by this call and 200 means one was already there, both carrying
+   * the same `{ created, attempt }`. A refusal is never a 200.
+   */
+  prepareNextAttempt(programmeCampaignId) {
+    return request(
+      `/api/programme-campaigns/${programmeCampaignId}/contact-attempts`,
+      { method: 'POST' },
+    );
+  },
 };
 
 /**
