@@ -101,13 +101,42 @@ const SECTIONS = [
     blurb: 'A campaign message here would be a first introduction to somebody who has already '
       + 'heard from this athlete.',
   },
-  { key: GROUP.READY, title: 'Ready', blurb: null, compact: true },
+  {
+    key: GROUP.READY,
+    title: 'Ready',
+    /**
+     * ADDED IN F9c, ON THE STRENGTH OF LOOKING AT THE REAL SCREEN.
+     *
+     * Fourteen cards under an unqualified "Ready", each carrying the same
+     * button, reads as a list of things to fire — the section framing was doing
+     * the implying that the button's own wording carefully avoids. So the blurb
+     * says what "ready" is a fact ABOUT, and what the control actually does.
+     */
+    blurb: 'Nothing is stopping these. Preparing one records the campaign’s next intended '
+      + 'contact; it does not send anything.',
+    compact: true,
+  },
   {
     key: GROUP.DECISION,
     title: 'Needs a decision',
     blurb: 'Something here needs a person, and it is not a first-touch review.',
   },
-  { key: GROUP.WAITING, title: 'Waiting', blurb: null, compact: true },
+  {
+    key: GROUP.WAITING,
+    title: 'Waiting',
+    /**
+     * AND HERE THE AMBIGUITY IS SHARPER — F9c.
+     *
+     * "Waiting" beside a button an operator CAN press reads as though pressing
+     * it would stop the waiting. It would not: these become available on their
+     * own, and preparing is a separate thing that is allowed now because an
+     * intent is not a message. The section had no blurb at all, which left the
+     * card's own "Follow-up due Sep 15" line to carry the whole explanation.
+     */
+    blurb: 'These become available on their own — a date arrives, or a setting is made. '
+      + 'The next contact can still be prepared now.',
+    compact: true,
+  },
   { key: GROUP.BLOCKED, title: 'Not contactable', blurb: null },
   { key: GROUP.COMPLETE, title: 'Complete', blurb: null, compact: true },
 ];
@@ -381,9 +410,50 @@ export default function CampaignTab() {
     return by;
   }, [grouped, query]);
 
+  /**
+   * THE NOTICE OUTLIVES THE PAGE IT WAS RAISED ON — F9c.
+   *
+   * It was rendered only in the READY branch, which was wrong in exactly the
+   * case it matters most. A preparation refused because the campaign had closed
+   * reloads into "No campaign is running", and the sentence explaining what
+   * happened to the operator's click was dropped in the same moment it became
+   * true — leaving somebody who had just pressed Confirm with an empty page and
+   * no idea whether anything had been recorded.
+   *
+   * So it is built once and rendered in every terminal state. LOADING still
+   * drops it, which is right: the reload is in flight, and it returns with the
+   * answer a moment later.
+   */
+  const noticeCard = notice ? (
+    <Card
+      ref={noticeRef}
+      tabIndex={-1}
+      className="p-4 flex items-center justify-between gap-3"
+      role="status"
+      data-testid="campaign-notice"
+    >
+      <p className="text-sm">{notice}</p>
+      <Button size="sm" variant="ghost" onClick={() => setNotice(null)}>Dismiss</Button>
+    </Card>
+  ) : null;
+
   if (status === CAMPAIGN_PLAN.IDLE || status === CAMPAIGN_PLAN.LOADING) return <Loading />;
-  if (status === CAMPAIGN_PLAN.FAILED) return <Failed error={error} onRetry={reload} />;
-  if (status === CAMPAIGN_PLAN.NONE) return <Empty otherCampaigns={otherCampaigns} />;
+  if (status === CAMPAIGN_PLAN.FAILED) {
+    return (
+      <div className="space-y-6">
+        {noticeCard}
+        <Failed error={error} onRetry={reload} />
+      </div>
+    );
+  }
+  if (status === CAMPAIGN_PLAN.NONE) {
+    return (
+      <div className="space-y-6">
+        {noticeCard}
+        <Empty otherCampaigns={otherCampaigns} />
+      </div>
+    );
+  }
 
   const visible = [...filtered.values()].reduce((n, list) => n + list.length, 0);
 
@@ -415,18 +485,7 @@ export default function CampaignTab() {
         </ul>
       </Card>
 
-      {notice && (
-        <Card
-          ref={noticeRef}
-          tabIndex={-1}
-          className="p-4 flex items-center justify-between gap-3"
-          role="status"
-          data-testid="campaign-notice"
-        >
-          <p className="text-sm">{notice}</p>
-          <Button size="sm" variant="ghost" onClick={() => setNotice(null)}>Dismiss</Button>
-        </Card>
-      )}
+      {noticeCard}
 
       {campaignWide.map((b) => (
         <Card key={b.code} className="p-4 space-y-1" role="status" data-testid="campaign-banner">
