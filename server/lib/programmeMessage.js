@@ -76,7 +76,7 @@ import {
  * @returns {object} see `composeProgrammeMessage`.
  */
 export function composeMessage({
-  athlete, college, coachName, evidence = null, step = null,
+  athlete, college, coachName, evidence = null, step = null, composedFor = null,
 } = {}) {
   const composed = emailBodyFor(athlete, college, coachName, { evidence });
 
@@ -120,6 +120,22 @@ export function composeMessage({
     bodySource: composed.source,
     structure: composed.structure,
     step,
+
+    /**
+     * WHAT THIS WAS COMPOSED FOR, so a later writer can VERIFY rather than
+     * trust — F10b-2.
+     *
+     * Without it, persistence would take a caller's word for which pairing a
+     * body belongs to, and an email about Duke could be frozen against a
+     * Clemson attempt with nothing able to notice afterwards. Null for the
+     * pure primitive, which composes for a pairing nobody has named.
+     *
+     * IT IS NOT PERSISTENCE METADATA. These are identifiers of the SUBJECT of
+     * the composition, not of the composition itself — the same two arguments
+     * that produced it — so the value stays deterministic and two compositions
+     * of the same pairing still compare equal.
+     */
+    composedFor,
 
     /**
      * WHY THRIV3 WROTE THIS, in the words it wrote.
@@ -290,5 +306,6 @@ export function composeProgrammeMessage({ programmeCampaignId, coachId } = {}) {
     coachName: coach.full_name,
     evidence,
     step: evidence.sequence?.step ?? null,
+    composedFor: Object.freeze({ programmeCampaignId: pc.id, coachId: coach.id }),
   });
 }

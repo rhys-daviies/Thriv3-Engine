@@ -308,6 +308,8 @@ describe('what the caller may say, and it is three identifiers', () => {
     expect(out.body).toContain('Hi Danny,');
     // The signature of the function is the contract: two identifiers.
     expect(Object.keys(out)).not.toContain('recipientEmail');
+    // And the value says which pairing it is for, so a writer can verify it.
+    expect(out.composedFor).toEqual({ programmeCampaignId: pc, coachId: coach });
   });
 
   it('refuses a coach who is not at the campaign’s programme', () => {
@@ -554,6 +556,8 @@ describe('the primitive is shared, not campaign-only', () => {
     expect(out.body).toBe(canonical(athlete, collegeRow(), 'Danny Frid', evidence).body);
     expect(out.step).toBeNull();
     expect(out.sequencePolicyVersion).toBeNull();
+    // Nobody named a pairing, so the value does not claim one.
+    expect(out.composedFor).toBeNull();
     expect(out.evidence.rendered.length).toBeGreaterThan(0);
   });
 
@@ -577,7 +581,12 @@ describe('the primitive is shared, not campaign-only', () => {
 
     expect(composeProgrammeMessage({ programmeCampaignId: pc, coachId: coach })).toEqual(
       composeMessage({
-        athlete, college: collegeRow(), coachName: 'Danny Frid', evidence, step: 1,
+        athlete,
+        college: collegeRow(),
+        coachName: 'Danny Frid',
+        evidence,
+        step: 1,
+        composedFor: { programmeCampaignId: pc, coachId: coach },
       }),
     );
   });
