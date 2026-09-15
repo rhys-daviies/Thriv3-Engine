@@ -1,6 +1,7 @@
 import { getCampaign, listProgrammeCampaigns } from './campaigns.js';
 import {
   programmePursuitPlan, PURSUIT_ACTION, PURSUIT_REASON, FOLLOW_UP_DELAY_DAYS,
+  contactAttemptPreparation,
 } from './pursuitPolicy.js';
 import { utcToday } from './time.js';
 import { OUTLOOK_FROM_ADDRESS } from './config.js';
@@ -305,9 +306,22 @@ function programmeEntry(plan, { onDate }) {
        */
       priorContact: coach.priorContact,
     } : null,
+    /**
+     * THE PREPARED-STATE SIGNAL, and the only one. `id !== null` means this
+     * campaign has recorded that it intends to write to the coach named above —
+     * nothing more. It is not a draft, not a queued message and not a send;
+     * `outreach_send` is the only thing that says a message happened.
+     *
+     * `createdAt` is here so a screen can date the intent without a second read.
+     * The full attempt history is deliberately NOT exposed: this entry is about
+     * what the campaign would do next, and the coach it names has one attempt.
+     */
     currentAttempt: coach && coach.attemptId ? {
-      id: coach.attemptId, state: coach.attemptState, storedStep: coach.attemptStep,
-    } : { id: null, state: null, storedStep: null },
+      id: coach.attemptId,
+      state: coach.attemptState,
+      storedStep: coach.attemptStep,
+      createdAt: coach.attemptCreatedAt,
+    } : { id: null, state: null, storedStep: null, createdAt: null },
 
     derivedStep: plan.step,
     stepConsistent: steps.stepConsistent,
@@ -337,6 +351,24 @@ function programmeEntry(plan, { onDate }) {
      */
     executableNow: Boolean(isColdAction && plan.executableNow && timing.due
       && steps.stepConsistent && !plan.firstTouchReview?.required),
+
+    /**
+     * MAY A NEW CONTACT ATTEMPT BE PREPARED — F9b-2. NOT `executableNow`.
+     *
+     * QUOTED FROM B6, never decided here, and that is the point of it: the
+     * materialiser acts on the same function, so a screen showing this button
+     * and the write behind it cannot disagree. This module adds nothing to it —
+     * unlike `executableNow` above, which it refines with the campaign-level
+     * facts B6 has no way to know.
+     *
+     * THE TWO DISAGREE IN BOTH DIRECTIONS, deliberately. A draft campaign is
+     * preparable and not executable — preparing is how one is reviewed before it
+     * is activated. An already-prepared programme is executable and not
+     * preparable, because there is nothing new to prepare. A follow-up that is
+     * not due yet, a missing mailbox limit and an exhausted budget all block
+     * execution and none of them blocks an intent.
+     */
+    preparableNow: contactAttemptPreparation(plan).allowed,
     operatorReviewRequired,
     blockers,
 

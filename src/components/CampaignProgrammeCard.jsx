@@ -6,20 +6,23 @@ import { Disclosure } from '@/components/ui/Disclosure';
 import { ORIGIN_LABEL, ORIGIN_UNRECORDED } from '@/lib/outreachLabels';
 import {
   blockerCopy, isCampaignWide, BLOCKER_CATEGORY, ACTION_COPY, REASON_COPY, ROLE_COPY,
-  EMAIL_STATUS_COPY, shortDate,
+  EMAIL_STATUS_COPY, shortDate, PREPARE_COPY, preparedLabel,
 } from '@/lib/campaignLabels';
 
 /**
  * ONE PROGRAMME IN A CAMPAIGN, AS THE SERVER DESCRIBES IT.
  *
- * READ-ONLY. There is no button here, and that is this slice's whole point:
- * the screen has to be legible before it is allowed to do anything. A card
- * answers five questions and stops — which school, which coach, what step,
- * what state, and why — with the rest behind a disclosure.
+ * A card answers five questions and stops — which school, which coach, what
+ * step, what state, and why — with the rest behind a disclosure.
  *
- * IT DECIDES NOTHING. Which group a card is in, whether it is executable, what
- * the next action is and whether prior contact needs reviewing are all fields
- * on the plan. This formats them.
+ * IT DECIDES NOTHING. Which group a card is in, whether it is executable,
+ * whether a new attempt may be prepared, what the next action is and whether
+ * prior contact needs reviewing are all FIELDS ON THE PLAN. This formats them.
+ *
+ * TWO CONTROLS, AND NEITHER SENDS ANYTHING. Approving a first touch records
+ * that a person has read a coach's prior contact; preparing an attempt records
+ * that the campaign intends to write to them. No control on this card, or
+ * anywhere on this page, composes a message or hands one to a mailbox.
  */
 
 /** The facts a first-touch review is made on, and no more than the facts. */
@@ -231,11 +234,157 @@ function ApproveFirstTouch({ programme, onApprove }) {
   );
 }
 
-export default function CampaignProgrammeCard({ programme, compact = false, onApprove = null }) {
+/**
+ * RECORD THAT THIS CAMPAIGN INTENDS TO CONTACT THE CURRENT COACH.
+ *
+ * ---------------------------------------------------------------------------
+ * IT IS NOT A SEND BUTTON, AND IT MUST NOT LOOK LIKE ONE.
+ *
+ * Nothing is composed, queued, scheduled or handed to a mailbox. So the control
+ * is an outline button the same weight as Approve rather than a primary action,
+ * the confirmation says out loud that nothing will be sent, and the state it
+ * produces reads as operational metadata rather than a success banner. An
+ * operator who came away thinking outreach had started would have been misled
+ * by this component, not by the server.
+ * ---------------------------------------------------------------------------
+ *
+ * Three steps, inline, mirroring the first-touch approval beside it. A modal is
+ * what this repo reserves for deletion. What the middle step buys is the scope
+ * said out loud — the coach and the school — so a click on the wrong card is
+ * caught before it is a row on the record.
+ */
+function PrepareAttempt({ programme, onPrepare }) {
+  const [mode, setMode] = useState('idle');
+  const [error, setError] = useState(null);
+  const coach = programme.currentCoach;
+
+  /**
+   * FOCUS FOLLOWS THE STEP, because the control the operator was on keeps being
+   * replaced — pressing Prepare swaps the button for two others, and cancelling
+   * or failing swaps them back. Only the steps this component owns: where a
+   * preparation succeeds the whole plan is replaced, and where focus goes then
+   * is the page's business rather than a card that may no longer exist.
+   */
+  const prepareRef = useRef(null);
+  const confirmRef = useRef(null);
+  const returning = useRef(false);
+
+  useEffect(() => {
+    if (mode === 'confirming') confirmRef.current?.focus();
+    else if (returning.current) {
+      prepareRef.current?.focus();
+      returning.current = false;
+    }
+  }, [mode]);
+
+  /** A new plan returns the control to rest — see the approval control above. */
+  useEffect(() => { setMode('idle'); setError(null); }, [programme]);
+
+  const submit = async () => {
+    setMode('pending');
+    setError(null);
+    try {
+      await onPrepare(programme);
+      /*
+        LEFT PENDING ON PURPOSE. Nothing is rendered as prepared until the
+        server says so: the reload replaces this card's data and the effect
+        above returns it to rest. An optimistic marker would claim an intent
+        that a refusal or a dropped response never actually recorded.
+      */
+    } catch (err) {
+      returning.current = true;
+      setMode('idle');
+      setError(err);
+    }
+  };
+
+  const where = coach?.name ? `${coach.name} at ${programme.collegeName}` : programme.collegeName;
+
+  return (
+    <div className="space-y-2" data-testid="prepare-attempt">
+      {mode === 'idle' && (
+        <Button
+          ref={prepareRef}
+          size="sm"
+          variant="outline"
+          onClick={() => setMode('confirming')}
+          /* Named in full, because a screen reader hears this without the card. */
+          aria-label={`${PREPARE_COPY.action}: ${where}`}
+        >
+          {PREPARE_COPY.action}
+        </Button>
+      )}
+
+      {mode === 'confirming' && (
+        <div className="space-y-2">
+          <p className="text-sm">
+            Prepare this attempt for <span className="font-medium">{where}</span>?
+          </p>
+          {/* The one sentence that keeps the button honest. */}
+          <p className="text-xs text-muted-foreground">{PREPARE_COPY.explain}</p>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => { returning.current = true; setMode('idle'); }}
+            >
+              {PREPARE_COPY.cancel}
+            </Button>
+            <Button
+              ref={confirmRef}
+              size="sm"
+              variant="outline"
+              onClick={submit}
+              aria-label={`${PREPARE_COPY.confirm}: ${where}`}
+            >
+              {PREPARE_COPY.confirm}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {mode === 'pending' && (
+        <p className="text-sm text-muted-foreground" role="status" data-testid="prepare-pending">
+          {PREPARE_COPY.pending}
+        </p>
+      )}
+
+      {error && (
+        <p className="text-sm text-destructive" role="alert" data-testid="prepare-error">
+          {error.operatorMessage ?? 'The attempt could not be prepared. Try again.'}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * AN ATTEMPT IS ON FILE, SAID AS QUIETLY AS IT DESERVES.
+ *
+ * Operational metadata, not an achievement: no colour, no badge weight, no
+ * green. The campaign has recorded that it means to write to this coach, and
+ * nothing has been sent — so this sits in the same muted line as the rest of
+ * the card's bookkeeping.
+ */
+function PreparedMarker({ currentAttempt }) {
+  const prepared = preparedLabel(currentAttempt);
+  if (!prepared) return null;
+  return (
+    <p className="text-xs text-muted-foreground" data-testid="attempt-prepared">
+      <span className="text-foreground">{prepared.label}</span>
+      {/* No date rather than a fabricated one — the attempt exists either way. */}
+      {prepared.on ? ` · Prepared ${prepared.on}` : ''}
+    </p>
+  );
+}
+
+export default function CampaignProgrammeCard({
+  programme, compact = false, onApprove = null, onPrepare = null,
+}) {
   const {
     collegeName, rank, tier, tierSource, programmeState, currentCoach,
     nextAction, derivedStep, policyReason, blockers, policyEligibleOn, candidates,
-    firstTouchReview,
+    firstTouchReview, preparableNow, currentAttempt,
   } = programme;
 
   const role = currentCoach ? (ROLE_COPY[currentCoach.role] ?? currentCoach.role) : null;
@@ -287,6 +436,13 @@ export default function CampaignProgrammeCard({ programme, compact = false, onAp
       {emailNote && <p className="text-xs text-muted-foreground">{emailNote}</p>}
 
       {/*
+        AN ATTEMPT IS ON FILE. Shown wherever one exists, in whichever group the
+        card is in — it is a fact about the programme rather than a property of
+        a section, and a prepared programme in Waiting is still prepared.
+      */}
+      <PreparedMarker currentAttempt={currentAttempt} />
+
+      {/*
         THE REVIEW, STATED AND NOT YET ACTIONABLE. The button arrives in the
         next slice; what this checkpoint is testing is whether an operator can
         tell from the card alone what they would be deciding.
@@ -333,6 +489,21 @@ export default function CampaignProgrammeCard({ programme, compact = false, onAp
         policyEligibleOn={policyEligibleOn}
         alreadySaid={firstTouchReview?.required ? ['PRIOR_CONFIRMED_CONTACT'] : []}
       />
+
+      {/*
+        OFFERED ON THE SERVER'S WORD ALONE.
+
+        `preparableNow` is the plan's own answer to whether a NEW attempt can be
+        recorded, and `currentAttempt.id` is its answer to whether one already
+        is. Neither is re-derived here, and neither is `executableNow`: that
+        field answers whether something could be SENT now, and gating on it
+        would hide the control on exactly the programmes preparation is for —
+        a follow-up that is not due yet, a campaign whose mailbox limit is
+        unset, a day whose budget is spent. The two disagree on purpose.
+      */}
+      {onPrepare && preparableNow && !currentAttempt?.id && (
+        <PrepareAttempt programme={programme} onPrepare={onPrepare} />
+      )}
 
       {!compact && candidates && (
         <Disclosure

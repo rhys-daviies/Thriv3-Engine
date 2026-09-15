@@ -1,4 +1,6 @@
-import { programmePursuitPlan, PURSUIT_ACTION } from './pursuitPolicy.js';
+import {
+  programmePursuitPlan, PURSUIT_ACTION, FIRST_TOUCH_REVIEW_REQUIRED,
+} from './pursuitPolicy.js';
 
 /**
  * A CAMPAIGN-ATTRIBUTED SEND OBEYS THE SAME FIRST-TOUCH REVIEW AS A CAMPAIGN.
@@ -34,8 +36,15 @@ import { programmePursuitPlan, PURSUIT_ACTION } from './pursuitPolicy.js';
  * current for all three.
  */
 
-/** Reused from F6d rather than invented: one hold, one name for it. */
-export const FIRST_TOUCH_REVIEW_REQUIRED = 'CAMPAIGN_FIRST_TOUCH_REVIEW_REQUIRED';
+/**
+ * Reused from F6d rather than invented: one hold, one name for it.
+ *
+ * SPELLED IN `pursuitPolicy.js` SINCE F9b-2, because a third thing refuses on it
+ * — preparing a contact attempt — and two modules holding the same string is
+ * how one of them later stops matching. Re-exported here so this module's own
+ * callers are untouched.
+ */
+export { FIRST_TOUCH_REVIEW_REQUIRED };
 
 /**
  * Refuse a campaign-attributed write whose first touch has not been reviewed.

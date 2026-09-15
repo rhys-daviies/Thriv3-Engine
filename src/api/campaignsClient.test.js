@@ -98,31 +98,82 @@ describe('campaigns are not generic CRUD', () => {
   });
 
   /**
-   * Six now, and the sixth is a READ.
+   * EIGHT NOW, AND THE EIGHTH IS THE FIRST ONE THAT WRITES CAMPAIGN INTENT.
+   *
+   * The surface is pinned so it grows deliberately: adding a method means
+   * changing this line and saying why. Two have had to do that.
    *
    * `executionPlan` is a computed projection — what the campaign would do next
-   * and what is stopping it — recomputed on every call and stored nowhere. It
-   * is listed here rather than waved through because the point of this
-   * assertion is that the surface grows deliberately: the day something wants
-   * to EXECUTE a plan, it has to change this line and explain itself.
+   * and what is stopping it — recomputed on every call and stored nowhere.
+   *
+   * `prepareNextAttempt` records that the campaign INTENDS to contact the coach
+   * the SERVER named. It composes no message, touches no mailbox, reserves and
+   * spends no sending capacity, calls no transport and schedules nothing — the
+   * server suite asserts every one of those against the tables. It takes one
+   * argument and sends no body, so it cannot express an intent against a coach
+   * or a step of the caller's choosing.
    */
-  it('exposes exactly the seven campaign operations, and none of them sends', () => {
+  it('exposes exactly the eight campaign operations, and none of them sends', () => {
     expect(Object.keys(campaigns).sort()).toEqual([
       'approveFirstTouch', 'createForPlayer', 'executionPlan', 'get', 'listForPlayer',
-      'update', 'updateProgramme',
+      'prepareNextAttempt', 'update', 'updateProgramme',
     ]);
 
     /**
-     * NOTHING HERE EXECUTES, SENDS, RUNS OR MATERIALISES ANYTHING, which is the
-     * guard this test has always been. `approveFirstTouch` is new and does not
-     * breach it: it records that a PERSON has reviewed a coach's prior contact,
-     * which clears one review hold and sends nothing. Every stance,
-     * suppression, revocation and lifecycle rule is evaluated after it, and
-     * there is still no client method that makes a message happen — because
-     * there is still no endpoint that does.
+     * STILL NOTHING HERE SENDS, EXECUTES, RUNS OR PROCESSES ANYTHING.
+     *
+     * `materialise` left the forbidden list because F9b-2 shipped the endpoint
+     * that records an intent, and `prepareNextAttempt` is the one client method
+     * allowed to reach it. What replaces it is stricter about the thing that
+     * actually mattered: preparation may only ever be the SINGLE, server-driven
+     * operation below — never a bulk form, and never one that takes a coach, a
+     * step or an action from the caller. `assertNoSendingArguments` below is
+     * what holds that second half.
      */
     for (const name of Object.keys(campaigns)) {
-      expect(name).not.toMatch(/execute|send|run|process|materialise/i);
+      expect(name).not.toMatch(/execute|send|run|process|queue|schedule|dispatch/i);
+      // No bulk or multi-programme form of anything.
+      expect(name).not.toMatch(/all|bulk|batch|each|every/i);
     }
+
+    // Exactly one preparation operation, named.
+    const preparing = Object.keys(campaigns).filter((n) => /prepar|materialis/i.test(n));
+    expect(preparing).toEqual(['prepareNextAttempt']);
+  });
+
+  /**
+   * THE ARGUMENTS ARE THE OTHER HALF OF THE GUARD.
+   *
+   * A method called `prepareNextAttempt` that accepted a coach id and a step
+   * would breach the rule the name appears to keep: the server picks both
+   * precisely so a client cannot record an intent against somebody the campaign
+   * would not approach. One parameter, and no body.
+   */
+  it('prepareNextAttempt takes only a programme campaign, and sends no body', async () => {
+    expect(campaigns.prepareNextAttempt.length).toBe(1);
+
+    const calls = [];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async (url, options) => {
+      calls.push({ url, options });
+      return {
+        ok: true,
+        status: 201,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ created: true, attempt: {} }),
+      };
+    };
+    try {
+      // Extra arguments are not forwarded anywhere, whoever passes them.
+      await campaigns.prepareNextAttempt('pc-1', 'coach-9', 4);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].url).toBe('/api/programme-campaigns/pc-1/contact-attempts');
+    expect(calls[0].options.method).toBe('POST');
+    expect(calls[0].options.body).toBeUndefined();
+    expect(calls[0].url).not.toMatch(/coach|step|action|\?/);
   });
 });

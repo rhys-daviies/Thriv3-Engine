@@ -64,7 +64,7 @@ const programme = (over = {}) => ({
       origins: [],
     },
   },
-  currentAttempt: { id: null, state: null, storedStep: null },
+  currentAttempt: { id: null, state: null, storedStep: null, createdAt: null },
   derivedStep: 1,
   stepConsistent: true,
   nextAction: 'INITIAL_OUTREACH',
@@ -79,6 +79,13 @@ const programme = (over = {}) => ({
     approval: { status: 'none', approvedAt: null, approvedByOperatorId: null },
   },
   executableNow: true,
+  /**
+   * F9b-2. Whether a NEW attempt may be recorded — a different question from
+   * `executableNow`, and false by default in this fixture so F8b's suite goes on
+   * testing the read-only surface it was written for. The preparation control
+   * has its own suite in campaignPrepare.test.js.
+   */
+  preparableNow: false,
   operatorReviewRequired: false,
   blockers: [],
   policyEligibleOn: null,

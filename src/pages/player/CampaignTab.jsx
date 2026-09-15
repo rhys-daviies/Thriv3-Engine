@@ -8,7 +8,8 @@ import { usePlayerWorkspace } from './PlayerWorkspace';
 import { campaigns } from '@/api/client';
 import { useCampaignPlan, CAMPAIGN_PLAN } from '@/lib/useCampaignPlan';
 import {
-  blockerCopy, isCampaignWide, approvalError, CAMPAIGN_STATE_COPY, shortDate,
+  blockerCopy, isCampaignWide, approvalError, preparationError,
+  CAMPAIGN_STATE_COPY, shortDate,
 } from '@/lib/campaignLabels';
 
 /**
@@ -100,13 +101,42 @@ const SECTIONS = [
     blurb: 'A campaign message here would be a first introduction to somebody who has already '
       + 'heard from this athlete.',
   },
-  { key: GROUP.READY, title: 'Ready', blurb: null, compact: true },
+  {
+    key: GROUP.READY,
+    title: 'Ready',
+    /**
+     * ADDED IN F9c, ON THE STRENGTH OF LOOKING AT THE REAL SCREEN.
+     *
+     * Fourteen cards under an unqualified "Ready", each carrying the same
+     * button, reads as a list of things to fire — the section framing was doing
+     * the implying that the button's own wording carefully avoids. So the blurb
+     * says what "ready" is a fact ABOUT, and what the control actually does.
+     */
+    blurb: 'Nothing is stopping these. Preparing one records the campaign’s next intended '
+      + 'contact; it does not send anything.',
+    compact: true,
+  },
   {
     key: GROUP.DECISION,
     title: 'Needs a decision',
     blurb: 'Something here needs a person, and it is not a first-touch review.',
   },
-  { key: GROUP.WAITING, title: 'Waiting', blurb: null, compact: true },
+  {
+    key: GROUP.WAITING,
+    title: 'Waiting',
+    /**
+     * AND HERE THE AMBIGUITY IS SHARPER — F9c.
+     *
+     * "Waiting" beside a button an operator CAN press reads as though pressing
+     * it would stop the waiting. It would not: these become available on their
+     * own, and preparing is a separate thing that is allowed now because an
+     * intent is not a message. The section had no blurb at all, which left the
+     * card's own "Follow-up due Sep 15" line to carry the whole explanation.
+     */
+    blurb: 'These become available on their own — a date arrives, or a setting is made. '
+      + 'The next contact can still be prepared now.',
+    compact: true,
+  },
   { key: GROUP.BLOCKED, title: 'Not contactable', blurb: null },
   { key: GROUP.COMPLETE, title: 'Complete', blurb: null, compact: true },
 ];
@@ -276,6 +306,62 @@ export default function CampaignTab() {
     }
   }, [reload]);
 
+  /**
+   * RECORD THE CAMPAIGN'S NEXT CONTACT INTENT, THEN GO AND READ THE PLAN AGAIN.
+   *
+   * ---------------------------------------------------------------------------
+   * NOTHING IS SENT, AND NOTHING IS ASSUMED ABOUT WHAT WAS PREPARED.
+   *
+   * The request carries no body: the coach, the step and the action are the
+   * server's to derive from the pursuit plan, which is what stops this screen
+   * recording an intent against somebody the campaign would not approach.
+   *
+   * The card is NOT marked prepared here. The next plan decides whether this
+   * programme now shows an attempt, still needs a review, or has been refused by
+   * something the preparation had no bearing on — the same way it decided the
+   * last one.
+   * ---------------------------------------------------------------------------
+   */
+  const prepare = useCallback(async (programme) => {
+    const key = `prepare:${programme.programmeCampaignId}`;
+    if (inFlight.current.has(key)) return;
+    inFlight.current.add(key);
+    try {
+      setNotice(null);
+      await campaigns.prepareNextAttempt(programme.programmeCampaignId);
+      /**
+       * SAID, NOT ASSUMED, and said in the only words that are true of it. An
+       * intent was recorded. No message exists and nothing was sent, so the
+       * sentence must not imply either — and the reload is what decides how the
+       * card reads afterwards.
+       */
+      setNotice(`Attempt prepared for ${programme.currentCoach?.name ?? 'the current coach'} at `
+        + `${programme.collegeName}. Nothing has been sent. The campaign has been reloaded.`);
+      reload();
+    } catch (err) {
+      /**
+       * A FAILED PREPARATION IS NOT A FAILED PLAN — the same rule the approval
+       * follows. The plan on screen is still the server's and is still true.
+       *
+       * Where the message goes depends on what happened. A refusal that means
+       * the SERVER HAS MOVED ON — a stance changed, a message was confirmed, the
+       * campaign closed — belongs at the page, because the reload that answers
+       * it may take the card away. A dropped connection or a 500 belongs on the
+       * control that tried, which can safely try again: the endpoint is
+       * idempotent.
+       */
+      const copy = preparationError(err);
+      if (copy.refresh) {
+        setNotice(copy.message);
+        reload();
+        return;
+      }
+      throw Object.assign(err, { operatorMessage: copy.message });
+    } finally {
+      inFlight.current.delete(key);
+    }
+  }, [reload]);
+
   const grouped = useMemo(() => {
     const by = new Map(SECTIONS.map((s) => [s.key, []]));
     for (const p of programmes) by.get(groupFor(p)).push(p);
@@ -324,9 +410,50 @@ export default function CampaignTab() {
     return by;
   }, [grouped, query]);
 
+  /**
+   * THE NOTICE OUTLIVES THE PAGE IT WAS RAISED ON — F9c.
+   *
+   * It was rendered only in the READY branch, which was wrong in exactly the
+   * case it matters most. A preparation refused because the campaign had closed
+   * reloads into "No campaign is running", and the sentence explaining what
+   * happened to the operator's click was dropped in the same moment it became
+   * true — leaving somebody who had just pressed Confirm with an empty page and
+   * no idea whether anything had been recorded.
+   *
+   * So it is built once and rendered in every terminal state. LOADING still
+   * drops it, which is right: the reload is in flight, and it returns with the
+   * answer a moment later.
+   */
+  const noticeCard = notice ? (
+    <Card
+      ref={noticeRef}
+      tabIndex={-1}
+      className="p-4 flex items-center justify-between gap-3"
+      role="status"
+      data-testid="campaign-notice"
+    >
+      <p className="text-sm">{notice}</p>
+      <Button size="sm" variant="ghost" onClick={() => setNotice(null)}>Dismiss</Button>
+    </Card>
+  ) : null;
+
   if (status === CAMPAIGN_PLAN.IDLE || status === CAMPAIGN_PLAN.LOADING) return <Loading />;
-  if (status === CAMPAIGN_PLAN.FAILED) return <Failed error={error} onRetry={reload} />;
-  if (status === CAMPAIGN_PLAN.NONE) return <Empty otherCampaigns={otherCampaigns} />;
+  if (status === CAMPAIGN_PLAN.FAILED) {
+    return (
+      <div className="space-y-6">
+        {noticeCard}
+        <Failed error={error} onRetry={reload} />
+      </div>
+    );
+  }
+  if (status === CAMPAIGN_PLAN.NONE) {
+    return (
+      <div className="space-y-6">
+        {noticeCard}
+        <Empty otherCampaigns={otherCampaigns} />
+      </div>
+    );
+  }
 
   const visible = [...filtered.values()].reduce((n, list) => n + list.length, 0);
 
@@ -358,18 +485,7 @@ export default function CampaignTab() {
         </ul>
       </Card>
 
-      {notice && (
-        <Card
-          ref={noticeRef}
-          tabIndex={-1}
-          className="p-4 flex items-center justify-between gap-3"
-          role="status"
-          data-testid="campaign-notice"
-        >
-          <p className="text-sm">{notice}</p>
-          <Button size="sm" variant="ghost" onClick={() => setNotice(null)}>Dismiss</Button>
-        </Card>
-      )}
+      {noticeCard}
 
       {campaignWide.map((b) => (
         <Card key={b.code} className="p-4 space-y-1" role="status" data-testid="campaign-banner">
@@ -423,11 +539,20 @@ export default function CampaignTab() {
                       programme={p}
                       compact={compact}
                       /*
-                        The ONLY state-changing control on this page, and it is
-                        offered on one group. Nothing here sends, prepares,
-                        executes or materialises anything.
+                        TWO STATE-CHANGING CONTROLS, AND NEITHER SENDS ANYTHING.
+
+                        Approving is offered on the one group whose cards carry
+                        a review. Preparing is offered on EVERY group, because
+                        whether it appears is the server's decision and not a
+                        section's: `preparableNow` is true on a Waiting card
+                        whose follow-up is not due yet, and false on a Ready card
+                        that has already been prepared. Gating it by group here
+                        would be this screen inventing a rule the plan has not
+                        got — and would hide the control on exactly the
+                        programmes preparation exists for.
                       */
                       onApprove={key === GROUP.REVIEW ? approve : null}
+                      onPrepare={prepare}
                     />
                   ))}
                 </div>
