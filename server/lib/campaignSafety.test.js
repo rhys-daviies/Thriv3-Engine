@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import db from '../db/client.js';
 import {
   CONTACT_REFUSAL, campaignContactDecision, assertCampaignContactAllowed,
-  authorisedProgrammeCampaignId,
+  authorisedProgrammeCampaignId, REFUSAL_KIND, refusalKindOf,
 } from './campaignAttribution.js';
 import { createOutreach, revokeOutreach, markOutreachSent } from './outreach.js';
 import { recordDraft, sendsForOutreach } from './outreachSend.js';
@@ -450,8 +450,34 @@ describe('refusals are machine-readable', () => {
   it('names every reason as a code, never only a sentence', () => {
     expect(Object.values(CONTACT_REFUSAL).sort()).toEqual([
       'CAMPAIGN_NOT_ACTIVE', 'CAMPAIGN_NOT_STARTED', 'CAMPAIGN_OUTREACH_WINDOW_CLOSED',
-      'OUTREACH_REVOKED', 'PROGRAMME_COMPLETED', 'PROGRAMME_STOPPED', 'SUPPRESSED',
+      'OUTREACH_REVOKED', 'PROGRAMME_COMPLETED', 'PROGRAMME_STOPPED',
+      'RELATIONSHIP_DO_NOT_CONTACT', 'RELATIONSHIP_MANUAL_ONLY', 'SUPPRESSED',
     ]);
+  });
+
+  it('keeps the two stances apart, so a screen can tell them apart', () => {
+    // One is a refusal and the other is a redirection. A single code would
+    // send an operator to change a safety setting when all they had to do was
+    // press Relationship Outreach.
+    expect(CONTACT_REFUSAL.RELATIONSHIP_MANUAL_ONLY)
+      .not.toBe(CONTACT_REFUSAL.RELATIONSHIP_DO_NOT_CONTACT);
+  });
+
+  it('classes dates as timing and everything else as a decision', () => {
+    // The class exists so a caller can tell "not yet" from "not ever" without
+    // matching on codes of its own. F6b's materialiser is the first consumer.
+    for (const timing of ['CAMPAIGN_NOT_ACTIVE', 'CAMPAIGN_NOT_STARTED',
+      'CAMPAIGN_OUTREACH_WINDOW_CLOSED']) {
+      expect(refusalKindOf(timing), timing).toBe(REFUSAL_KIND.TIMING);
+    }
+    for (const decided of ['PROGRAMME_STOPPED', 'PROGRAMME_COMPLETED', 'OUTREACH_REVOKED',
+      'SUPPRESSED', 'RELATIONSHIP_DO_NOT_CONTACT', 'RELATIONSHIP_MANUAL_ONLY']) {
+      expect(refusalKindOf(decided), decided).toBe(REFUSAL_KIND.PROHIBITION);
+    }
+    // An unknown code is a decision, not a delay: the conservative reading is
+    // the right one where the answer decides whether intent may be recorded.
+    expect(refusalKindOf('SOMETHING_NEW')).toBe(REFUSAL_KIND.PROHIBITION);
+    expect(refusalKindOf(null)).toBeNull();
   });
 
   it('carries the code on the thrown error, so nothing parses prose', () => {

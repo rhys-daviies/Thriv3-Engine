@@ -3,10 +3,17 @@ import {
   classifyRole, hasUsableEmail, titleOf, CONTACT_LADDER,
 } from '../../shared/coachRoles.js';
 import { isSuppressed } from './suppressions.js';
-import { campaignContactDecision } from './campaignAttribution.js';
-import { attemptsForProgrammeCampaign, attemptForCoach, createContactAttempt } from './contactAttempts.js';
+import {
+  campaignContactDecision, standingProhibition, REFUSAL_KIND,
+} from './campaignAttribution.js';
+import {
+  attemptsForProgrammeCampaign, attemptForCoach, createContactAttempt,
+  reconcileContactAttemptStep,
+} from './contactAttempts.js';
 import { outboundBudgetDecision, outboundBudgetDecisionForAthlete } from './outboundBudget.js';
 import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
+import { priorContactForCoaches, priorContactOf } from './contactIntelligence.js';
+import { approvalStatus, APPROVAL_STATUS } from './firstTouchApprovals.js';
 import { utcNow, utcToday } from './time.js';
 
 /**
@@ -139,6 +146,108 @@ export const PURSUIT_REASON = Object.freeze({
   NO_ELIGIBLE_COACHES: 'NO_ELIGIBLE_COACHES',
   ALL_COACHES_EXHAUSTED: 'ALL_COACHES_EXHAUSTED',
 });
+
+/**
+ * WHY A PERSON HAS TO LOOK BEFORE THIS CAMPAIGN WRITES — F6d.
+ *
+ * PRIOR_CONFIRMED_CONTACT is the only one so far, and it is not a refusal. The
+ * campaign is about to send what reads as a first approach to somebody this
+ * athlete has already written to — by hand, or under a campaign that has since
+ * closed. Sending it is very often still right; sending it WITHOUT ANYBODY
+ * KNOWING is not, because the message will introduce an athlete the coach has
+ * already met.
+ */
+export const FIRST_TOUCH_REVIEW = Object.freeze({
+  PRIOR_CONFIRMED_CONTACT: 'PRIOR_CONFIRMED_CONTACT',
+});
+
+/**
+ * THE REFUSAL CODE FOR THAT HOLD, WHEREVER IT BITES. Spelled once, here.
+ *
+ * Three things refuse on it and they must be the same refusal, not three that
+ * happen to read alike: `campaignFirstTouchGate` stops a campaign-attributed
+ * send, `contactAttemptPreparation` stops an intent being recorded, and the
+ * prepare endpoint reports it. The gate re-exports this under its own name so
+ * its callers are unchanged; it lives here because this module owns the
+ * derivation that decides the hold in the first place.
+ */
+export const FIRST_TOUCH_REVIEW_REQUIRED = 'CAMPAIGN_FIRST_TOUCH_REVIEW_REQUIRED';
+
+/**
+ * WHY A NEW CONTACT ATTEMPT MAY NOT BE PREPARED — F9b-2.
+ *
+ * Only the reasons this module has to NAME itself. Everything B3 can say is
+ * quoted from `CONTACT_REFUSAL` rather than repeated, so a stance or a stopped
+ * programme reaches a caller under the code B3 gave it.
+ *
+ *   ALREADY_PREPARED      an attempt exists for the coach the plan names. NOT a
+ *                         prohibition and not an error: there is simply nothing
+ *                         NEW to prepare, which is why it refuses the decision
+ *                         while the endpoint still answers 200 with the row.
+ *   NO_ELIGIBLE_COACH     nobody at this programme is a candidate — every
+ *                         address suppressed, unusable, or nobody on file.
+ *   NO_ACTION_TO_PREPARE  there is a coach, but no cold message to prepare: a
+ *                         reply is waiting for a person, or the programme's
+ *                         allowance is spent.
+ */
+export const PREPARATION_REFUSAL = Object.freeze({
+  ALREADY_PREPARED: 'ALREADY_PREPARED',
+  NO_ELIGIBLE_COACH: 'NO_ELIGIBLE_COACH',
+  NO_ACTION_TO_PREPARE: 'NO_ACTION_TO_PREPARE',
+  FIRST_TOUCH_REVIEW_REQUIRED,
+});
+
+const NO_REVIEW_NEEDED = Object.freeze({
+  status: APPROVAL_STATUS.NONE, approvedAt: null, approvedByOperatorId: null,
+});
+const NO_FIRST_TOUCH_REVIEW = Object.freeze({
+  required: false, reason: null, approval: NO_REVIEW_NEEDED,
+});
+
+/**
+ * DOES THIS FIRST APPROACH NEED A PERSON FIRST?
+ *
+ * GATED ON INITIAL_OUTREACH, and that gate is the whole rule. After this
+ * campaign's own step 1, prior contact is EXPECTED to be true — the campaign
+ * put it there — so applying this to a follow-up would stop every second
+ * message in the product on evidence of its own first one.
+ *
+ * READS `hasConfirmedSend`, NEVER THE COUNT. A relationship older than the
+ * per-message table reports `confirmedSendCount: 0` with a confirmed send on
+ * file, so counting would wave through exactly the coaches with the longest
+ * history — see the note on that field in contactIntelligence.js.
+ *
+ * IT CONSUMES THE FACT F6c ALREADY PUT ON THE COACH, so the history costs no
+ * query here and there is no second definition of "confirmed". The only read
+ * is one indexed point lookup for the approval, and only where a review would
+ * otherwise be required — a campaign with no prior contact anywhere asks this
+ * table nothing.
+ *
+ * AN APPROVAL CLEARS THE HOLD AND NOTHING ELSE. It is reported either way, so
+ * a screen can tell an unreviewed first touch from one a person has already
+ * looked at, and a STALE approval — history has moved since it was given —
+ * from no approval at all.
+ */
+function firstTouchReviewFor(nextAction, coach, programmeCampaignId) {
+  if (nextAction !== PURSUIT_ACTION.INITIAL_OUTREACH) return NO_FIRST_TOUCH_REVIEW;
+  if (coach?.priorContact?.hasConfirmedSend !== true) return NO_FIRST_TOUCH_REVIEW;
+
+  const approval = approvalStatus({
+    programmeCampaignId, coachId: coach.coachId, priorContact: coach.priorContact,
+  });
+  return Object.freeze({
+    /**
+     * STALE IS NOT APPROVED. Somebody reviewed two messages and three are on
+     * file now, so the sentence they agreed to is no longer true of what is
+     * there — and the honest state is unreviewed, not approved-enough.
+     */
+    required: approval.status !== APPROVAL_STATUS.CURRENT,
+    reason: approval.status === APPROVAL_STATUS.CURRENT
+      ? null
+      : FIRST_TOUCH_REVIEW.PRIOR_CONFIRMED_CONTACT,
+    approval,
+  });
+}
 
 /** Why somebody on the staff list is not a candidate for cold pursuit. */
 export const INELIGIBLE_REASON = Object.freeze({
@@ -440,7 +549,25 @@ export function programmePursuitPlan({
    * stored step is reported beside it as the attempt's own record, and B7 is
    * what will keep the two in step when it executes.
    */
-  const withHistory = eligible.slice(0, Math.max(depth, 0)).map((c, i) => {
+  /**
+   * LIFETIME PRIOR CONTACT, IN ONE STATEMENT FOR THE WHOLE PLAN — F6c.
+   *
+   * Asked once for the coaches this plan could name, never per coach and never
+   * as a whole-athlete sweep per programme: a hundred-programme dry run adds a
+   * hundred bounded statements, not a hundred times the depth.
+   *
+   * IT CHANGES NOTHING BELOW IT. `messagesSent`, `step`, `exhausted` and the
+   * action are computed exactly as they were, from the campaign-local count.
+   * This rides alongside as a fact, and what a campaign should DO about a coach
+   * who has heard from this athlete before is a separate decision nobody has
+   * made yet.
+   */
+  const pursued = eligible.slice(0, Math.max(depth, 0));
+  const priorContact = priorContactForCoaches({
+    athleteId: pc.athlete_id, coachIds: pursued.map((c) => c.coachId),
+  });
+
+  const withHistory = pursued.map((c, i) => {
     const accepted = ACCEPTED_FOR_COACH.get({
       coachId: c.coachId, athleteId: pc.athlete_id, programmeCampaignId,
     });
@@ -479,9 +606,19 @@ export function programmePursuitPlan({
       lastAcceptedAt: accepted.last_accepted_at ?? null,
       respondedAt: respondedThisCampaign ? responded : null,
       priorCampaignResponseAt: responded && !respondedThisCampaign ? responded : null,
+      /**
+       * WHAT THIS ATHLETE HAS EVER SENT THIS COACH, from any origin and any
+       * campaign, including this one. Reported beside the campaign-local count
+       * and deliberately not merged with it: a coach on message one of this
+       * campaign who was written to by hand last month has `messagesSent: 0`
+       * and `priorContact.hasConfirmedSend: true`, and both are correct.
+       */
+      priorContact: priorContactOf(priorContact, c.coachId),
       attemptId: attempt?.id ?? null,
       attemptState: attempt?.state ?? null,
       attemptStep: attempt?.step ?? null,
+      /** When the intent was recorded. B7 reports it; nothing here acts on it. */
+      attemptCreatedAt: attempt?.created_at ?? null,
       stopped: attempt?.state === 'stopped',
       exhausted: messagesSent >= MESSAGES_PER_COACH,
     };
@@ -515,6 +652,15 @@ export function programmePursuitPlan({
     nextAction: PURSUIT_ACTION.NO_FURTHER_COLD_OUTREACH,
     reason: PURSUIT_REASON.NO_ELIGIBLE_COACHES,
     exhausted: true,
+    /**
+     * SIDE BY SIDE WITH THE ACTION, NEVER FOLDED INTO IT. The action, the step
+     * and the reason are what policy would do; this is whether somebody should
+     * look first. Collapsing them would make a campaign that pauses for review
+     * indistinguishable from one with nothing left to say.
+     */
+    firstTouchReview: NO_FIRST_TOUCH_REVIEW,
+    /** B3 with the dates skipped — see `prohibitionFrom`. Always present. */
+    prohibition: { allowed: false, reason: 'NO_CURRENT_COACH', kind: null },
   };
 
   /**
@@ -562,17 +708,19 @@ export function programmePursuitPlan({
 
   const step = current.messagesSent + 1;
   const isFirstCoach = current.order === 1;
+  const nextAction = step === 1 ? PURSUIT_ACTION.INITIAL_OUTREACH : PURSUIT_ACTION.FOLLOW_UP;
   return {
     ...plan,
     current,
     // The CAMPAIGN-LOCAL step: 1 means the initial message is next, 2 means the
     // follow-up is. It is derived, and it never inherits a lifetime sequence.
     step,
-    nextAction: step === 1 ? PURSUIT_ACTION.INITIAL_OUTREACH : PURSUIT_ACTION.FOLLOW_UP,
+    nextAction,
     reason: step > 1
       ? PURSUIT_REASON.NO_RESPONSE_TO_INITIAL
       : (isFirstCoach ? PURSUIT_REASON.FIRST_CONTACT : PURSUIT_REASON.PREVIOUS_COACH_EXHAUSTED),
     exhausted: false,
+    firstTouchReview: firstTouchReviewFor(nextAction, current, pc.id),
     ...safetyAndBudget({ pc, coach: current, onDate, sendingIdentity, window }),
   };
 }
@@ -589,8 +737,11 @@ export function programmePursuitPlan({
 function safetyAndBudget({ pc, coach, onDate, sendingIdentity, window }) {
   if (!coach) {
     return {
-      safety: { evaluated: false, reason: 'NO_CURRENT_COACH', allowed: false },
+      safety: { evaluated: false, reason: 'NO_CURRENT_COACH', allowed: false, kind: null },
       budget: { evaluated: false, reason: 'NO_CURRENT_COACH' },
+      // Nothing to prohibit and nobody to prohibit it for. The preparation
+      // decision refuses on the missing coach, not on this.
+      prohibition: { allowed: false, reason: 'NO_CURRENT_COACH', kind: null },
       executableNow: false,
     };
   }
@@ -613,15 +764,71 @@ function safetyAndBudget({ pc, coach, onDate, sendingIdentity, window }) {
       outreachId: relationshipForSafety?.id ?? null,
       ...(onDate === undefined ? {} : { onDate }),
     });
-    safety = { evaluated: true, allowed: decision.allowed, reason: decision.reason };
+    safety = {
+      evaluated: true, allowed: decision.allowed, reason: decision.reason, kind: decision.kind,
+    };
   } catch (err) {
-    // Identity refusals throw in B3 because they are caller bugs. Reported
-    // rather than swallowed, and never re-implemented here.
-    safety = { evaluated: true, allowed: false, reason: err.code ?? 'CONTACT_CHECK_FAILED' };
+    /**
+     * Identity refusals throw in B3 because they are caller bugs. Reported
+     * rather than swallowed, and never re-implemented here.
+     *
+     * Classed as a PROHIBITION without asking: a mismatched athlete or a
+     * programme campaign that does not exist is not a thing that becomes true
+     * tomorrow, and the conservative reading is the right one for a class that
+     * decides whether an intent may be recorded.
+     */
+    safety = {
+      evaluated: true,
+      allowed: false,
+      reason: err.code ?? 'CONTACT_CHECK_FAILED',
+      kind: REFUSAL_KIND.PROHIBITION,
+    };
   }
 
   const budget = budgetStatus({ pc, coach, sendingIdentity, window });
-  return { safety, budget, executableNow: safety.allowed && budget.allowed === true };
+  return {
+    safety,
+    budget,
+    prohibition: prohibitionFrom(safety, { pc, coach, outreachId: relationshipForSafety?.id ?? null }),
+    executableNow: safety.allowed && budget.allowed === true,
+  };
+}
+
+/**
+ * IS ANYTHING STANDING IN THE WAY, WHATEVER DAY IT IS — derived, not re-asked.
+ *
+ * `safety` above is B3 asked the way a SEND asks it, with the dates. Preparation
+ * asks the same rules with the three date and lifecycle checks skipped, and in
+ * two of the three cases the answer is already in front of us:
+ *
+ *   ALLOWED       every check passed, and timing=false runs a strict SUBSET of
+ *                 them, so it passes too.
+ *   PROHIBITION   the refusal is already one of the checks timing=false keeps,
+ *                 and it sits after the skipped ones — so the same code comes
+ *                 back for the same reason.
+ *   TIMING        and only here. A date refusal MASKS whatever is underneath it:
+ *                 a draft campaign whose programme is also stopped reports the
+ *                 campaign. This is the one case that has to be asked properly,
+ *                 and it is asked through `standingProhibition` — B3's own
+ *                 function with its own rules, never a copy of them here.
+ *
+ * SO IT COSTS NOTHING ON AN ACTIVE CAMPAIGN and one decision per programme on a
+ * draft one, which is exactly where preparing is the point. Before this the
+ * materialiser asked B3 a second time on EVERY call, including the common case
+ * where the first answer already settled it.
+ */
+function prohibitionFrom(safety, { pc, coach, outreachId }) {
+  if (!safety.evaluated) return { allowed: false, reason: safety.reason, kind: safety.kind };
+  if (safety.allowed) return { allowed: true, reason: null, kind: null, programmeCampaign: null };
+  if (safety.kind !== REFUSAL_KIND.TIMING) {
+    return { allowed: false, reason: safety.reason, kind: safety.kind };
+  }
+  return standingProhibition({
+    programmeCampaignId: pc.id,
+    athleteId: pc.athlete_id,
+    coachId: coach.coachId,
+    outreachId,
+  });
 }
 
 /**
@@ -669,6 +876,107 @@ function budgetStatus({ pc, coach, sendingIdentity, window }) {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Preparation — the one decision, shared                                      */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * MAY A NEW CONTACT ATTEMPT BE PREPARED FOR THIS PLAN? — F9b-2.
+ *
+ * ONE AUTHORITY, THREE CALLERS. `materialiseNextContactAttempt` acts on it, B7's
+ * execution plan reports it as `preparableNow`, and the prepare endpoint
+ * translates it into a status code. Before this the materialiser held the rules
+ * privately, so a screen could only guess whether the button would work —
+ * and the guess available to it, `executableNow`, was the wrong question.
+ *
+ * ---------------------------------------------------------------------------
+ * PREPARING IS NOT SENDING, AND THE DIFFERENCE IS THE WHOLE SHAPE OF THIS.
+ *
+ * It IGNORES timing and capacity, deliberately: the campaign start date, the
+ * outreach window, whether a follow-up is due, the mailbox limit, the athlete's
+ * daily budget and whether a sending identity exists at all. None of those is a
+ * reason not to record what a campaign intends — a draft campaign is precisely
+ * the state intents are recorded in, and an operator preparing tomorrow's
+ * follow-up today is doing their job.
+ *
+ * It REFUSES everything that makes the intent itself wrong: a person has not
+ * reviewed a first touch to somebody already written to, a stance, a
+ * suppression, a revocation, a stopped or completed programme, a closed
+ * campaign, nobody to write to, or nothing to say.
+ *
+ * SO IT IS NEVER `executableNow`, AND MUST NOT BE CONFUSED FOR IT. That field
+ * answers "could this be sent right now", and the two disagree in both
+ * directions — a draft campaign is preparable and not executable; an already
+ * prepared programme is executable and not preparable.
+ * ---------------------------------------------------------------------------
+ *
+ * PURE. It reads the plan it is given and asks nothing of its own: the
+ * prohibition and the review are already derived on the plan, and the existing
+ * attempt is already on the current coach. So B7 gets this for a hundred
+ * programmes without a hundred extra queries.
+ *
+ * @param {object} plan a `programmePursuitPlan`
+ * @returns {{allowed: boolean, reason: string|null, attempt: object|null}}
+ */
+export function contactAttemptPreparation(plan) {
+  /**
+   * NO `kind`, ON PURPOSE. B3 classifies refusals as TIMING or PROHIBITION so a
+   * caller can tell "not yet" from "no" — and preparation has already spent that
+   * distinction: timing never refuses here, so every refusal below would carry
+   * the same value. A field that is constant is a field that gets believed.
+   */
+  const refuse = (reason, attempt = null) => ({ allowed: false, reason, attempt });
+
+  // ---- nobody to prepare for ----
+  if (!plan.current) {
+    return refuse(plan.reason === PURSUIT_REASON.NO_ELIGIBLE_COACHES
+      ? PREPARATION_REFUSAL.NO_ELIGIBLE_COACH
+      : PREPARATION_REFUSAL.NO_ACTION_TO_PREPARE);
+  }
+
+  /**
+   * ---- nothing to prepare ----
+   *
+   * A reply is waiting for a person (AWAITING_OPERATOR), or the programme's cold
+   * allowance is spent. Both name a coach and neither is a message.
+   */
+  if (plan.nextAction !== PURSUIT_ACTION.INITIAL_OUTREACH
+    && plan.nextAction !== PURSUIT_ACTION.FOLLOW_UP) {
+    return refuse(PREPARATION_REFUSAL.NO_ACTION_TO_PREPARE);
+  }
+
+  /**
+   * ---- a person has to look first ----
+   *
+   * Checked BEFORE the prohibitions, matching the order the materialiser has
+   * always used: the most actionable answer wins, and this is the only refusal
+   * here an operator can resolve without changing a setting.
+   */
+  if (plan.firstTouchReview?.required) {
+    return refuse(PREPARATION_REFUSAL.FIRST_TOUCH_REVIEW_REQUIRED);
+  }
+
+  // ---- B3, quoted, with the dates skipped ----
+  if (!plan.prohibition?.allowed) {
+    return refuse(plan.prohibition?.reason ?? 'CONTACT_CHECK_FAILED');
+  }
+
+  /**
+   * ---- there is already one ----
+   *
+   * LAST, so a programme that has been prepared AND has since been stopped
+   * reports the stop. It is not an error and the endpoint answers 200 with the
+   * row; it refuses only the question this function asks, which is whether
+   * something NEW can be prepared.
+   */
+  const existing = plan.current.attemptId
+    ? plan.attempts.find((a) => a.id === plan.current.attemptId) ?? null
+    : null;
+  if (existing) return refuse(PREPARATION_REFUSAL.ALREADY_PREPARED, existing);
+
+  return { allowed: true, reason: null, attempt: null };
+}
+
+/* -------------------------------------------------------------------------- */
 /* Materialisation — the one thing here that writes                            */
 /* -------------------------------------------------------------------------- */
 
@@ -687,24 +995,80 @@ function budgetStatus({ pc, coach, sendingIdentity, window }) {
  * Idempotent through B4: asking twice returns the existing attempt, and a
  * stopped one is never resurrected.
  *
+ * A REFUSED PLAN MATERIALISES NOTHING — F6b. See the safety check below.
+ *
  * @returns {{created: boolean, attempt: object|null, plan: object}}
  */
 export function materialiseNextContactAttempt({ programmeCampaignId, at = utcNow() } = {}) {
   const plan = programmePursuitPlan({ programmeCampaignId });
-  if (!plan.current) return { created: false, attempt: null, plan };
-  if (plan.nextAction !== PURSUIT_ACTION.INITIAL_OUTREACH
-    && plan.nextAction !== PURSUIT_ACTION.FOLLOW_UP) {
-    return { created: false, attempt: null, plan };
+  const preparation = contactAttemptPreparation(plan);
+
+  /**
+   * THE RULES ARE NO LONGER HERE — F9b-2. They are in
+   * `contactAttemptPreparation`, which B7 reads as `preparableNow` and the
+   * prepare endpoint translates into a status. This function's job is now the
+   * WRITE and the envelope around it, so a screen and a write can no longer
+   * disagree about whether preparing is possible.
+   *
+   * ALREADY_PREPARED IS THE ONE REFUSAL THIS CALLER DOES NOT HONOUR, and that
+   * is the whole of idempotency: the decision says there is nothing NEW to
+   * prepare, and the honest answer to "prepare this" is the row that already
+   * exists — `created: false` with the attempt, never a failure.
+   */
+  if (!preparation.allowed && preparation.reason !== PREPARATION_REFUSAL.ALREADY_PREPARED) {
+    /**
+     * THE ENVELOPE IS UNCHANGED, and the two extra keys keep their meanings:
+     * `review` on the operator hold, `prohibition` on a B3 refusal, neither
+     * present otherwise. Callers written against F6b and F6d keep working, and
+     * `preparation` is added beside them as the one answer all three paths now
+     * share.
+     */
+    const envelope = { created: false, attempt: null, plan, preparation };
+    if (preparation.reason === PREPARATION_REFUSAL.FIRST_TOUCH_REVIEW_REQUIRED) {
+      return { ...envelope, review: plan.firstTouchReview };
+    }
+    if (preparation.reason === PREPARATION_REFUSAL.NO_ELIGIBLE_COACH
+      || preparation.reason === PREPARATION_REFUSAL.NO_ACTION_TO_PREPARE) {
+      return envelope;
+    }
+    return { ...envelope, prohibition: plan.prohibition };
   }
 
-  const existing = attemptForCoach(programmeCampaignId, plan.current.coachId);
+  const existing = preparation.attempt;
+
+  /**
+   * THE STORED STEP IS A REFLECTION OF THE DERIVED ONE, NOT A COUNTER — F9b-1.
+   *
+   * `plan.step` is what B6 derived from accepted campaign-local messages, and
+   * it is the authority in both directions this touches:
+   *
+   *   CREATING    the attempt starts where the campaign actually is. Creating
+   *               at 1 against a derived 2 raised CONTACT_ATTEMPT_STEP_DRIFT
+   *               the instant an attempt was prepared for a follow-up, which is
+   *               the defect F9a found.
+   *
+   *   EXISTING    a stored step left behind by a confirmed send is caught up.
+   *               This is DEFENCE, not the mechanism: `transitionSend` advances
+   *               it at the moment of acceptance, so by the time anybody presses
+   *               Prepare again the two normally already agree. It exists for
+   *               the rows that predate F9b-1 and for anything that reaches
+   *               ACCEPTED by a path nobody has written yet.
+   *
+   * FORWARD ONLY, and B4 enforces that rather than a condition here. A stored
+   * step AHEAD of the derived one is an attempt claiming a message that is not
+   * on file; repairing it would erase the evidence, so it is left for B7's
+   * drift blocker to keep reporting.
+   */
+  if (existing) reconcileContactAttemptStep(existing.id, plan.step, { at });
+
   const attempt = createContactAttempt({
     programmeCampaignId,
     coachId: plan.current.coachId,
     athleteId: plan.campaign.athleteId,
+    step: plan.step,
     at,
   });
-  return { created: !existing, attempt, plan };
+  return { created: !existing, attempt, plan, preparation };
 }
 
 /**

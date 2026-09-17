@@ -1,6 +1,7 @@
 import { getCampaign, listProgrammeCampaigns } from './campaigns.js';
 import {
   programmePursuitPlan, PURSUIT_ACTION, PURSUIT_REASON, FOLLOW_UP_DELAY_DAYS,
+  contactAttemptPreparation,
 } from './pursuitPolicy.js';
 import { utcToday } from './time.js';
 import { OUTLOOK_FROM_ADDRESS } from './config.js';
@@ -60,6 +61,12 @@ export const BLOCKER_CODE = Object.freeze({
   ATHLETE_DAILY_BUDGET_WOULD_BE_EXCEEDED: 'ATHLETE_DAILY_BUDGET_WOULD_BE_EXCEEDED',
   MAILBOX_DAILY_BUDGET_WOULD_BE_EXCEEDED: 'MAILBOX_DAILY_BUDGET_WOULD_BE_EXCEEDED',
   RESPONSE_OBSERVED: 'RESPONSE_OBSERVED',
+  /**
+   * The campaign's first approach to somebody the ATHLETE has already written
+   * to — quoted from B6's own derivation rather than decided here. Not a
+   * refusal: a person looks, and very often sends it anyway.
+   */
+  PRIOR_CONFIRMED_CONTACT: 'PRIOR_CONFIRMED_CONTACT',
   NO_ELIGIBLE_COACHES: 'NO_ELIGIBLE_COACHES',
   ALL_COACHES_EXHAUSTED: 'ALL_COACHES_EXHAUSTED',
   TIER_DEPTH_REACHED: 'TIER_DEPTH_REACHED',
@@ -209,6 +216,23 @@ function programmeEntry(plan, { onDate }) {
     if (plan.reason === PURSUIT_REASON.NO_ELIGIBLE_COACHES) operatorReviewRequired = true;
   }
 
+  /**
+   * ---- THIS ATHLETE HAS WRITTEN TO THIS PERSON BEFORE ----
+   *
+   * OPERATOR, not SAFETY: nothing forbids the message. The campaign-local
+   * sequence is untouched and still says step 1, because for this campaign it
+   * IS the first message — what has changed is that sending it silently would
+   * introduce an athlete the coach has already met.
+   *
+   * `operatorReviewRequired` then removes it from `priorityActions` through the
+   * filter that already exists, so this needs no second review mechanism and no
+   * new place for a screen to look.
+   */
+  if (plan.firstTouchReview?.required) {
+    blockers.push({ source: BLOCKER_SOURCE.OPERATOR, code: plan.firstTouchReview.reason });
+    operatorReviewRequired = true;
+  }
+
   // ---- a person answered ----
   if (plan.nextAction === PURSUIT_ACTION.AWAITING_OPERATOR) {
     blockers.push({ source: BLOCKER_SOURCE.OPERATOR, code: BLOCKER_CODE.RESPONSE_OBSERVED });
@@ -269,10 +293,35 @@ function programmeEntry(plan, { onDate }) {
       email: coach.email,
       emailStatus: coach.emailStatus,
       order: coach.order,
+      /**
+       * WHAT THE ATHLETE HAS ALREADY SENT THIS PERSON, so an operator asked to
+       * review a first touch can see WHY without opening anything else: whether
+       * a confirmed send exists, when the first and last were, how they were
+       * sent, and how many messages are on file.
+       *
+       * CONFIRMED SENDS ONLY. Nothing here says a message was delivered,
+       * opened, read or replied to — this build knows none of those, and the
+       * count is of records rather than of messages, which is why
+       * `hasConfirmedSend` is the field that answers the question.
+       */
+      priorContact: coach.priorContact,
     } : null,
+    /**
+     * THE PREPARED-STATE SIGNAL, and the only one. `id !== null` means this
+     * campaign has recorded that it intends to write to the coach named above —
+     * nothing more. It is not a draft, not a queued message and not a send;
+     * `outreach_send` is the only thing that says a message happened.
+     *
+     * `createdAt` is here so a screen can date the intent without a second read.
+     * The full attempt history is deliberately NOT exposed: this entry is about
+     * what the campaign would do next, and the coach it names has one attempt.
+     */
     currentAttempt: coach && coach.attemptId ? {
-      id: coach.attemptId, state: coach.attemptState, storedStep: coach.attemptStep,
-    } : { id: null, state: null, storedStep: null },
+      id: coach.attemptId,
+      state: coach.attemptState,
+      storedStep: coach.attemptStep,
+      createdAt: coach.attemptCreatedAt,
+    } : { id: null, state: null, storedStep: null, createdAt: null },
 
     derivedStep: plan.step,
     stepConsistent: steps.stepConsistent,
@@ -286,11 +335,40 @@ function programmeEntry(plan, { onDate }) {
     budget: plan.budget,
 
     /**
-     * `plan.executableNow` is B6's composition of permission and capacity.
-     * This adds the two campaign-level facts it could not know: whether the
-     * follow-up is due, and whether anything is claiming a step it should not.
+     * B6's derivation, quoted so a caller need not infer it from the blockers.
+     * `approval.status` is what separates a first touch nobody has reviewed
+     * from one whose review has gone stale because something was sent since.
      */
-    executableNow: Boolean(isColdAction && plan.executableNow && timing.due && steps.stepConsistent),
+    firstTouchReview: plan.firstTouchReview
+      ?? { required: false, reason: null, approval: { status: 'none', approvedAt: null, approvedByOperatorId: null } },
+
+    /**
+     * `plan.executableNow` is B6's composition of permission and capacity.
+     * This adds the campaign-level facts it could not know: whether the
+     * follow-up is due, whether anything is claiming a step it should not, and
+     * whether a person still has to look at a first approach to somebody the
+     * athlete has already written to.
+     */
+    executableNow: Boolean(isColdAction && plan.executableNow && timing.due
+      && steps.stepConsistent && !plan.firstTouchReview?.required),
+
+    /**
+     * MAY A NEW CONTACT ATTEMPT BE PREPARED — F9b-2. NOT `executableNow`.
+     *
+     * QUOTED FROM B6, never decided here, and that is the point of it: the
+     * materialiser acts on the same function, so a screen showing this button
+     * and the write behind it cannot disagree. This module adds nothing to it —
+     * unlike `executableNow` above, which it refines with the campaign-level
+     * facts B6 has no way to know.
+     *
+     * THE TWO DISAGREE IN BOTH DIRECTIONS, deliberately. A draft campaign is
+     * preparable and not executable — preparing is how one is reviewed before it
+     * is activated. An already-prepared programme is executable and not
+     * preparable, because there is nothing new to prepare. A follow-up that is
+     * not due yet, a missing mailbox limit and an exhausted budget all block
+     * execution and none of them blocks an intent.
+     */
+    preparableNow: contactAttemptPreparation(plan).allowed,
     operatorReviewRequired,
     blockers,
 

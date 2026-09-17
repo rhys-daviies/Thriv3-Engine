@@ -241,3 +241,160 @@ export function contactIntelligenceForProgramme({ athleteId, collegeName, sport 
   return contactIntelligenceForAthlete(athleteId)
     .find((p) => p.college_name === collegeName && p.sport === sport) ?? null;
 }
+
+/* -------------------------------------------------------------------------- */
+/* Prior contact, for campaign pursuit (F6c)                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * HAS THIS ATHLETE ALREADY HAD A CONFIRMED SEND TO THIS COACH?
+ *
+ * A FACT, NOT A PERMISSION. It reports what is on file and decides nothing:
+ * no caller is blocked by it, no cadence reads it, and it is deliberately
+ * separate from the campaign-local counter that drives sequencing. One answers
+ * "where is this campaign up to with this person"; this answers "has this
+ * athlete ever reached them". Both can be true at once and mean different
+ * things — a coach written to once inside this campaign has a campaign-local
+ * count of 1 AND a lifetime prior contact, and neither number is wrong.
+ *
+ * ---------------------------------------------------------------------------
+ * CONFIRMED MEANS WHAT F4 AND F5 ALREADY MADE IT MEAN, and this is the third
+ * reader of that definition rather than a fourth definition:
+ *
+ *   an ACCEPTED `outreach_send` row exists          (the modern record)
+ *   OR `outreach.sent_at` is set                     (the legacy one)
+ *
+ * `outreach.sent_at` is written `WHERE sent_at IS NULL`, so it is the FIRST
+ * confirmed send and never the last — F4 renamed it for exactly that reason.
+ * It is why a legacy relationship can report `hasConfirmedSend: true` with
+ * `confirmedSendCount: 0`: we know a message went, and the per-message rows
+ * that would say how many did not exist yet. A caller must therefore test
+ * `hasConfirmedSend` and never `confirmedSendCount > 0`.
+ *
+ * A DRAFT IS NOT A SEND and a failed send is not one either — both are absent
+ * from the count, because `state = 'accepted'` is the filter. REVOCATION DOES
+ * NOT ERASE HISTORY: `revoked_at` withdraws a tracking link, and a message that
+ * was sent was still sent.
+ * ---------------------------------------------------------------------------
+ *
+ * KEYED ON `coach_id`, the canonical row, never on an address. `coaches` is
+ * unique on (email, school, sport) precisely because a shared inbox like
+ * msoccer@cornell.edu is one address across a staff, so counting by address
+ * would report a message to one person as a message to all of them. The cost
+ * runs the other way — duplicate rows for one human read as separate people —
+ * which F4 documented and which collapsing safely would need a coach identity
+ * model this build does not have. Consistent here, not re-litigated.
+ *
+ * BOUNDED: ONE statement for every coach asked about, whatever the number.
+ * A pursuit plan asks about its own coaches once — at most the tier depth, so
+ * three — and never per coach, and never a whole-athlete sweep per programme.
+ *
+ * @param {string} args.athleteId
+ * @param {string[]} args.coachIds canonical `coaches.id` values.
+ * @returns {Map<string, object>} coach id → the fact. Coaches with no history
+ *   are ABSENT; `priorContactOf` below turns a miss into the empty fact, so no
+ *   caller has to decide what a missing key means.
+ */
+const priorContactByArity = new Map();
+
+function priorContactStatement(n) {
+  if (!priorContactByArity.has(n)) {
+    priorContactByArity.set(n, db.prepare(`
+      SELECT
+        o.coach_id                     AS coach_id,
+        -- First-wins by design in markOutreachSent, so this IS the first.
+        o.sent_at                      AS legacy_first_send_at,
+        COUNT(s.id)                    AS accepted_count,
+        MIN(s.sent_at)                 AS first_accepted_at,
+        MAX(s.sent_at)                 AS last_accepted_at,
+        /*
+          The origins present, WITHOUT the vocabulary appearing in this SQL —
+          a third origin added later is carried through without a query change.
+          group_concat drops NULLs, which is why the unrecorded rows are counted
+          separately: NULL is a real value here and must not vanish into an
+          empty string.
+        */
+        group_concat(DISTINCT s.origin) AS origin_list,
+        SUM(CASE WHEN s.id IS NOT NULL AND s.origin IS NULL THEN 1 ELSE 0 END)
+                                       AS unrecorded_count
+      FROM outreach o
+      LEFT JOIN outreach_send s ON s.outreach_id = o.id AND s.state = ?
+      WHERE o.athlete_id = ? AND o.coach_id IN (${Array(n).fill('?').join(', ')})
+      GROUP BY o.coach_id
+    `));
+  }
+  return priorContactByArity.get(n);
+}
+
+/**
+ * THE ORIGINS ON FILE, IN AN ORDER THAT DOES NOT DEPEND ON THE DATABASE.
+ *
+ * SQLite specifies no order for the values `group_concat` concatenates — it is
+ * whatever order the rows reach the aggregate, which is a function of the query
+ * plan rather than of the data. Two coaches with identical history could
+ * therefore produce `manual,campaign` and `campaign,manual`, and a caller
+ * comparing or snapshotting the array would see a difference that is not one.
+ *
+ * So the order is decided HERE, after the query: the recorded origins sorted,
+ * then NULL once at the end if any accepted send lacked one. Sorting in JS
+ * rather than with `ORDER BY` inside the aggregate keeps this independent of
+ * the SQLite version the build happens to link against.
+ *
+ * NULL IS APPENDED, NEVER SORTED IN AND NEVER NAMED. It is not a value in the
+ * origin vocabulary — it is the absence of one — so it has no natural place
+ * among them and is put last, exactly once, however many unrecorded sends
+ * there were.
+ *
+ * The split is safe because `normaliseOrigin` refuses anything outside the
+ * vocabulary at write time, so no stored origin contains a comma.
+ */
+function originsOf(row) {
+  const named = row.origin_list ? row.origin_list.split(',').filter(Boolean).sort() : [];
+  return row.unrecorded_count > 0 ? [...named, null] : named;
+}
+
+/** What a coach nobody has written to looks like. Never null, never partial. */
+export const NO_PRIOR_CONTACT = Object.freeze({
+  hasConfirmedSend: false,
+  confirmedSendCount: 0,
+  firstConfirmedSendAt: null,
+  lastConfirmedSendAt: null,
+  origins: Object.freeze([]),
+});
+
+export function priorContactForCoaches({ athleteId, coachIds = [] }) {
+  const ids = [...new Set(coachIds.filter(Boolean))];
+  const facts = new Map();
+  if (!athleteId || !ids.length) return facts;
+
+  for (const row of priorContactStatement(ids.length)
+    .all(MESSAGE_STATE.ACCEPTED, athleteId, ...ids)) {
+    const hasConfirmedSend = row.accepted_count > 0 || Boolean(row.legacy_first_send_at);
+    if (!hasConfirmedSend) continue;   // drafts only: a relationship, not a send.
+    facts.set(row.coach_id, {
+      hasConfirmedSend,
+      /**
+       * ACCEPTED MESSAGES ON FILE. Zero alongside `hasConfirmedSend: true` is
+       * the honest reading of a legacy relationship: one went, and nothing
+       * recorded how many.
+       *
+       * SO POLICY MUST NEVER TEST `confirmedSendCount > 0`. It is a count of
+       * per-message records, not of messages; the question "has this coach
+       * heard from this athlete" is answered by `hasConfirmedSend` and only by
+       * it. Counting instead would treat every relationship older than the
+       * message table as a coach nobody had ever written to — which is the
+       * precise case a first-touch rule exists to catch.
+       */
+      confirmedSendCount: row.accepted_count,
+      firstConfirmedSendAt: row.legacy_first_send_at ?? row.first_accepted_at ?? null,
+      lastConfirmedSendAt: row.last_accepted_at ?? row.legacy_first_send_at ?? null,
+      origins: originsOf(row),
+    });
+  }
+  return facts;
+}
+
+/** A miss is "nobody has written to them", which is a fact and not an absence. */
+export function priorContactOf(facts, coachId) {
+  return facts.get(coachId) ?? NO_PRIOR_CONTACT;
+}

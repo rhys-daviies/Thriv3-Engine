@@ -513,7 +513,11 @@ describe('step reconciliation', () => {
     const campaign = makeCampaign();
     makeProgramme(campaign, { college: 'Alpha', rank: 1, tier: 'A' });
     const entry = plan(campaign).programmes[0];
-    expect(entry.currentAttempt).toEqual({ id: null, state: null, storedStep: null });
+    // Null-filled, never absent — and `createdAt` joined the shape in F9b-2 so a
+    // screen can date a prepared intent without a second read.
+    expect(entry.currentAttempt).toEqual({
+      id: null, state: null, storedStep: null, createdAt: null,
+    });
     expect(entry.stepConsistent).toBe(true);
   });
 

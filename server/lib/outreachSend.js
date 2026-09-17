@@ -5,6 +5,8 @@ import { utcNow } from './time.js';
 import { buildSendSnapshot } from '../../shared/evidence/sendSnapshot.js';
 import { LEGACY_POLICY_VERSION } from '../../shared/evidence/outreachPolicy.js';
 import { authorisedProgrammeCampaignId } from './campaignAttribution.js';
+import { assertFirstTouchReviewed } from './campaignFirstTouchGate.js';
+import { advanceAttemptForConfirmedSend } from './contactAttempts.js';
 import {
   MESSAGE_STATE, ACCEPTED_SOURCE, OPEN_STATES, LEGAL_TRANSITIONS, canTransition,
   isMessageState, isSendEventType,
@@ -140,6 +142,13 @@ export function recordDraft({
   const verifiedCampaign = authorisedProgrammeCampaignId({
     programmeCampaignId, athleteId, coachId, outreachId, onDate,
   });
+
+  /**
+   * AND THE SAME FIRST-TOUCH REVIEW A CAMPAIGN OBEYS — F7. Refused BEFORE the
+   * snapshot is built and before any row is written, so a held first touch
+   * leaves no draft for somebody to send later.
+   */
+  assertFirstTouchReviewed({ programmeCampaignId: verifiedCampaign, coachId });
   const snapshot = buildSendSnapshot({
     evidence, body, subject, bodySource, templateVariant, renderedKinds,
   });
@@ -282,6 +291,43 @@ export function transitionSend(sendId, nextState, { acceptedSource = null, at = 
       UPDATE outreach_send SET state = ?, accepted_source = ?, sent_at = COALESCE(sent_at, ?)
       WHERE id = ? AND state != 'ACCEPTED'
     `).run(nextState, acceptedSource, at, sendId);
+
+    /**
+     * THE CAMPAIGN'S PURSUIT MOVED ON, SO THE ATTEMPT SAYS SO — F9b-1.
+     *
+     * This transition is the ONE fact B6 counts: its campaign-local step is
+     * `accepted messages + 1`, and this line is where a message becomes
+     * accepted. Advancing the stored step anywhere else would be tracking a
+     * derived number from a different place than the thing it derives from, and
+     * the two would drift the moment the paths disagreed.
+     *
+     * ---------------------------------------------------------------------------
+     * IT IS BOOKKEEPING, NOT TRANSPORT. Nothing is sent, queued, scheduled or
+     * handed to a provider here; a record this build already writes is being
+     * kept consistent with a record it already derives.
+     * ---------------------------------------------------------------------------
+     *
+     * ONLY CAMPAIGN-ATTRIBUTED WORK, and attribution is the row's own verified
+     * `programme_campaign_id` — written by `recordDraft` through B3, never taken
+     * from a request. A manual send carries NULL and advances nothing, which is
+     * right: a campaign-local step counts a CAMPAIGN's messages, and a person
+     * writing by hand has not spent one.
+     *
+     * REPLAY CANNOT REACH IT. `state` is checked at the top of this function and
+     * a same-state call returns before any of this; ACCEPTED is terminal in the
+     * graph besides. So confirming a batch twice advances nothing twice.
+     *
+     * IT CANNOT FAIL THE CONFIRMATION. Every case it cannot act on — no attempt
+     * was ever planned, the pursuit was stopped — comes back as a reason rather
+     * than an exception. Recording that a message was accepted is the more
+     * important of the two operations and must not break because of the lesser.
+     */
+    const accepted = SEND_BY_ID.get(sendId);
+    advanceAttemptForConfirmedSend({
+      programmeCampaignId: accepted?.programme_campaign_id ?? null,
+      coachId: accepted?.coach_id ?? null,
+      at,
+    });
   } else {
     db.prepare('UPDATE outreach_send SET state = ? WHERE id = ?').run(nextState, sendId);
   }

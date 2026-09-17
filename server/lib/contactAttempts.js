@@ -194,9 +194,28 @@ export function attemptsForOutreach(outreachId) {
  * write.
  */
 export function createContactAttempt({
-  programmeCampaignId, coachId, athleteId = null, outreachId = null, at = utcNow(),
+  programmeCampaignId, coachId, athleteId = null, outreachId = null,
+  /**
+   * WHERE THIS CAMPAIGN'S PURSUIT OF THIS COACH ALREADY IS — F9b-1.
+   *
+   * Defaults to 1 because a pursuit usually starts at its first message, and
+   * every caller before F9b-1 meant exactly that. It is a PARAMETER rather than
+   * a constant because an attempt can legitimately be created part-way through
+   * a pursuit: a campaign-attributed message may be confirmed for a coach no
+   * attempt was ever planned for — which is every message this build has sent,
+   * since nothing has ever written to this table — and the attempt recorded
+   * afterwards starts where the campaign actually is.
+   *
+   * IT IS NOT A SECOND SEQUENCE POLICY. The caller passes the step B6 DERIVED
+   * from accepted campaign-local messages; nothing here computes one. Creating
+   * at 1 against a derived 2 is what produced `CONTACT_ATTEMPT_STEP_DRIFT` the
+   * moment an attempt was prepared for a follow-up.
+   */
+  step = 1,
+  at = utcNow(),
 }) {
   const { pc } = resolvePair(programmeCampaignId, coachId, athleteId);
+  assertStep(step);
 
   const existing = attemptForCoach(programmeCampaignId, coachId);
   if (existing) return { ...existing, created: false };
@@ -211,8 +230,8 @@ export function createContactAttempt({
     state: ATTEMPT_STATE.PLANNED,
     state_reason: null,
     state_changed_at: null,
-    // Step 1 is the step this attempt is ON, not a count of what it has done.
-    step: 1,
+    // The step this attempt is ON, not a count of what it has done.
+    step,
     next_action_at: null,
     created_at: at,
     updated_at: at,
@@ -302,6 +321,81 @@ export function advanceContactAttemptStep(id, { at = utcNow() } = {}) {
 }
 
 /**
+ * BRING A STORED STEP BACK UP TO THE DERIVED ONE — F9b-1. FORWARD ONLY.
+ *
+ * The stored step is a REFLECTION of the campaign-local step B6 derives from
+ * accepted messages, never a counter of its own. When the two disagree the
+ * derived one is right by construction — it counts messages that exist — so
+ * catching the stored one up loses nothing.
+ *
+ * ---------------------------------------------------------------------------
+ * IT WILL NOT GO BACKWARDS, AND THAT IS THE POINT OF IT.
+ *
+ * A stored step AHEAD of the derived one cannot be explained by anything this
+ * module does: it would mean an attempt claiming a message that is not on file.
+ * Rewriting it would erase the only evidence of whatever produced it, so this
+ * writes nothing and returns `changed: false` — leaving B7's
+ * `CONTACT_ATTEMPT_STEP_DRIFT` blocker to keep saying so.
+ *
+ * It does NOT throw on that case. The caller is the materialiser, and a
+ * programme in an integrity state must still be readable and refusable rather
+ * than breaking the operation that noticed.
+ * ---------------------------------------------------------------------------
+ *
+ * A STOPPED ATTEMPT IS LEFT ALONE, matching `advanceContactAttemptStep`: a
+ * pursuit somebody stopped is not quietly resumed by bookkeeping.
+ */
+export function reconcileContactAttemptStep(id, derivedStep, { at = utcNow() } = {}) {
+  const row = requireAttempt(id);
+  assertStep(derivedStep);
+
+  if (row.state === ATTEMPT_STATE.STOPPED) return { ...row, changed: false };
+  // Equal is the ordinary case and must not restamp `updated_at`; behind is the
+  // integrity case and must not be touched at all.
+  if (derivedStep <= row.step) return { ...row, changed: false };
+
+  db.prepare('UPDATE programme_contact_attempts SET step = ?, updated_at = ? WHERE id = ?')
+    .run(derivedStep, at, id);
+  return { ...BY_ID.get(id), changed: true };
+}
+
+/**
+ * A CONFIRMED CAMPAIGN MESSAGE MOVED THE PURSUIT ON — F9b-1.
+ *
+ * Called from the one transition that makes `outreach_send.state` ACCEPTED,
+ * which is the same fact B6 counts to derive the campaign-local step. So the
+ * stored step advances at the instant the derived one does, and the two cannot
+ * drift apart by a campaign simply doing its work.
+ *
+ * ONE STEP, BECAUSE ONE MESSAGE WAS ACCEPTED. Before the acceptance the derived
+ * step was `n + 1`; after it, `n + 2`. Adding one is the whole arithmetic, and
+ * re-deriving the count here would be this module growing an opinion about
+ * campaign sequencing that B6 already owns.
+ *
+ * IT REFUSES NOTHING AND REPORTS EVERYTHING. Confirming a send is the more
+ * important operation of the two and must never fail because of bookkeeping, so
+ * every case this cannot act on returns a reason instead of throwing:
+ *
+ *   NO_ATTEMPT   no attempt was ever planned for this coach — which is every
+ *                message sent before F9, since nothing wrote to this table
+ *   STOPPED      the pursuit was stopped; advancing it would undo a decision
+ *
+ * @returns {{changed: boolean, attempt: object|null, reason: string|null}}
+ */
+export function advanceAttemptForConfirmedSend({ programmeCampaignId, coachId, at = utcNow() }) {
+  if (!programmeCampaignId || !coachId) return { changed: false, attempt: null, reason: 'NO_ATTEMPT' };
+
+  const row = attemptForCoach(programmeCampaignId, coachId);
+  if (!row) return { changed: false, attempt: null, reason: 'NO_ATTEMPT' };
+  if (row.state === ATTEMPT_STATE.STOPPED) {
+    return { changed: false, attempt: row, reason: 'STOPPED' };
+  }
+
+  const out = advanceContactAttemptStep(row.id, { at });
+  return { changed: true, attempt: out, reason: null };
+}
+
+/**
  * Point this attempt at the lifetime relationship it executes through.
  *
  * The relationship must be the RIGHT one: the same coach, and the athlete whose
@@ -328,6 +422,19 @@ export function linkContactAttemptToOutreach(id, outreachId, { at = utcNow() } =
   db.prepare('UPDATE programme_contact_attempts SET outreach_id = ?, updated_at = ? WHERE id = ?')
     .run(outreachId, at, id);
   return { ...BY_ID.get(id), changed: true };
+}
+
+/**
+ * A step is a POSITION in a progression: a whole number, starting at one. The
+ * column's CHECK says the same thing; this says it in a sentence a caller can
+ * read, before SQLite says it as a constraint failure.
+ */
+function assertStep(step) {
+  if (!Number.isInteger(step) || step < 1) {
+    throw fail('INVALID_ATTEMPT_STEP',
+      `A contact attempt step is a whole number from 1 upwards; got ${JSON.stringify(step)}.`);
+  }
+  return step;
 }
 
 function requireAttempt(id) {

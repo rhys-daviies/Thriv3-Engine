@@ -278,6 +278,56 @@ export const campaigns = {
     const qs = onDate ? `?on_date=${encodeURIComponent(onDate)}` : '';
     return request(`/api/campaigns/${campaignId}/execution-plan${qs}`);
   },
+
+  /**
+   * RECORD THAT A PERSON HAS REVIEWED A COACH'S PRIOR CONTACT.
+   *
+   * The one write that clears a first-touch review hold, and it SENDS NO BODY
+   * AT ALL. Everything an approval records — who approved it, how much history
+   * was on file, when the last of it was sent — is derived server-side from the
+   * pursuit plan and the session, and the endpoint does not read a body.
+   *
+   * That is the point rather than an economy. A snapshot a caller could write
+   * would be an approval that never goes stale, or one that matches nothing;
+   * an operator id a caller could write would be somebody else's decision.
+   *
+   * Returns `{ approval, firstTouchReview }` — the row as stored, and where the
+   * review stands afterwards, re-derived rather than asserted. A review that is
+   * already current comes back unchanged rather than being rewritten.
+   */
+  approveFirstTouch(programmeCampaignId, coachId) {
+    return request(
+      `/api/programme-campaigns/${programmeCampaignId}/coaches/${coachId}/first-touch-approval`,
+      { method: 'POST' },
+    );
+  },
+
+  /**
+   * RECORD THAT THIS CAMPAIGN INTENDS TO CONTACT THE CURRENT COACH.
+   *
+   * ---------------------------------------------------------------------------
+   * IT SENDS NOTHING. No message is composed, no mailbox is touched, no sending
+   * capacity is reserved or spent, no transport is called and nothing is
+   * scheduled. What it writes is one row saying the campaign means to write to
+   * the coach the SERVER named.
+   * ---------------------------------------------------------------------------
+   *
+   * ONE ARGUMENT, AND DELIBERATELY NOT THREE. There is no coach, step or action
+   * parameter because the server derives all of them from the pursuit plan — so
+   * this method cannot express an intent against somebody the campaign would
+   * not approach, or a step the message history does not support. It sends no
+   * body at all; the endpoint refuses one with anything in it.
+   *
+   * IDEMPOTENT, so a retry after a dropped connection is safe. 201 means a row
+   * was written by this call and 200 means one was already there, both carrying
+   * the same `{ created, attempt }`. A refusal is never a 200.
+   */
+  prepareNextAttempt(programmeCampaignId) {
+    return request(
+      `/api/programme-campaigns/${programmeCampaignId}/contact-attempts`,
+      { method: 'POST' },
+    );
+  },
 };
 
 /**

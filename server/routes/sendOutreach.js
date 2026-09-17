@@ -581,7 +581,15 @@ export async function sendOutreach({
       }
       results.push({ email: coach.email, name: coach.name, status: send ? 'sent' : 'drafted', url });
     } catch (err) {
-      results.push({ email: coach.email, name: coach.name, status: 'error', error: err.message });
+      /**
+       * `code` travels with the message so a caller need not read prose to
+       * tell a first-touch review hold from a compose failure. Null for the
+       * errors that carry none, which is most of them.
+       */
+      results.push({
+        email: coach.email, name: coach.name, status: 'error',
+        error: err.message, code: err.code ?? null,
+      });
     }
   }
 

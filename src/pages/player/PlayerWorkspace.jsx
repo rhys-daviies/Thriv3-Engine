@@ -12,6 +12,16 @@ const TABS = [
   { segment: 'profile', label: 'Profile' },
   { segment: 'matching', label: 'Analysis & Matching' },
   { segment: 'engagement', label: 'Coach Engagement' },
+  /**
+   * F8. Always present, whether or not a campaign exists — a tab that appears
+   * and disappears is harder to find than one that explains itself, and "this
+   * athlete has no campaign running" is a thing an operator needs to be able to
+   * check rather than infer from an absent tab.
+   *
+   * After Engagement because that is the order of the work: which programmes
+   * fit, what engagement has happened, and then what outreach is running.
+   */
+  { segment: 'campaign', label: 'Campaign' },
   { segment: 'philosophy', label: 'Program Philosophy' },
   // Two evidence surfaces, named for the question each answers rather than
   // both being called "Evidence". This one is the assessment; the one above
