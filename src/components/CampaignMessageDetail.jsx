@@ -162,13 +162,50 @@ export default function CampaignMessageDetail({
    * otherwise keep the height the longest draft ever had — plus the border,
    * which `scrollHeight` excludes and `box-sizing: border-box` then charges
    * against the content. Two pixels short is two pixels of scrollbar.
+   *
+   * AND IT RE-MEASURES ON WIDTH, not only on content — found in F10c by
+   * narrowing a real browser to a phone. The same text rewraps into far more
+   * lines at 375px than at 1200, so a height measured once at the wider size
+   * clipped 2,700 pixels of a long email behind exactly the internal scrollbar
+   * this effect exists to remove. A rotation or a resized window is not an edit,
+   * so nothing in the dependency list above would have fired.
    */
   useEffect(() => {
     const field = bodyRef.current;
-    if (!field) return;
-    field.style.height = 'auto';
-    const border = field.offsetHeight - field.clientHeight;
-    field.style.height = `${field.scrollHeight + border}px`;
+    if (!field) return undefined;
+
+    let lastWidth = null;
+    const fit = () => {
+      field.style.height = 'auto';
+      const border = field.offsetHeight - field.clientHeight;
+      field.style.height = `${field.scrollHeight + border}px`;
+      lastWidth = field.clientWidth;
+    };
+    fit();
+
+    /**
+     * A ResizeObserver rather than a window listener: the field also changes
+     * width when something OTHER than the viewport does — a panel opening, a
+     * zoom, a font loading — and those are the cases a resize event misses.
+     *
+     * WIDTH ONLY, and that guard is load-bearing rather than tidy. `fit` sets a
+     * height, which resizes the very element being observed — so an unguarded
+     * observer re-measures on its own writes, and a browser that detects the
+     * loop drops the notification rather than raising it. Setting a height never
+     * changes a width, so keying on width terminates.
+     *
+     * Guarded for jsdom and older browsers, where a window event is the honest
+     * fallback.
+     */
+    if (typeof ResizeObserver === 'function') {
+      const observer = new ResizeObserver(() => {
+        if (field.clientWidth !== lastWidth) fit();
+      });
+      observer.observe(field);
+      return () => observer.disconnect();
+    }
+    window.addEventListener('resize', fit);
+    return () => window.removeEventListener('resize', fit);
   }, [body, status, message?.id]);
 
   useEffect(() => {
@@ -319,9 +356,22 @@ export default function CampaignMessageDetail({
             role="status"
             data-testid="message-reviewed-note"
           >
-            {/* A date, and an id only if that is genuinely all we hold. No invented name. */}
+            {/*
+              A DATE, AND NO IDENTIFIER — F10c.
+
+              The server holds `reviewedByOperatorId` and goes on holding it:
+              the review is attributed on the record, where an audit needs it.
+              What it is NOT is a name, and printing a raw UUID beside a date
+              put the one thing on this screen a person cannot read where a
+              person's name would go. The choice was between a name we do not
+              have and an identifier that says nothing, so the honest line is
+              the fact itself — this message was reviewed, on this day.
+
+              A readable reviewer needs the operator's email or display name on
+              the resource, which is a server change and an F11 decision. This
+              is presentation only: nothing about what is stored has moved.
+            */}
             Reviewed{message.reviewedAt ? ` ${shortDate(message.reviewedAt)}` : ''}
-            {message.reviewedByOperatorId ? ` · ${message.reviewedByOperatorId}` : ''}
             {edited ? ` · ${MESSAGE_COPY.editedBeforeReview}` : ''}
           </p>
         )}

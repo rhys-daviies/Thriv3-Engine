@@ -734,8 +734,17 @@ describe('reviewing', () => {
     expect(el('message-detail')).toBeTruthy();
     expect(el('message-state').textContent).toBe(messageStateLabel('reviewed'));
     expect(el('message-reviewed-note').textContent).toMatch(/Reviewed/);
-    // The id, because that is genuinely all we hold. No invented display name.
-    expect(el('message-reviewed-note').textContent).toMatch(/op-1/);
+    /*
+      AND NO IDENTIFIER — F10c.
+
+      The server attributes the review and keeps doing so; the SCREEN does not
+      print a raw operator id where a person's name would go. A name we do not
+      have and an id that says nothing were the only two options, so the line
+      states the fact instead. The resource still carries the reviewer, asserted
+      just below.
+    */
+    expect(el('message-reviewed-note').textContent).not.toMatch(/op-1|[0-9a-f]{8}-[0-9a-f]{4}/);
+    expect(container.textContent).not.toMatch(/op-1/);
   });
 
   it('T — a reviewed message is read-only, with no way back', async () => {
@@ -1031,6 +1040,37 @@ describe('the screen is usable without a mouse or a wide window', () => {
     // the content rather than left to a fixed row count.
     expect(field.style.height).toBeTruthy();
     expect(field.className).not.toMatch(/overflow-y-(auto|scroll)/);
+  });
+
+  /**
+   * AD — AND RE-MEASURES WHEN THE WIDTH CHANGES, found in F10c by narrowing a
+   * real browser to 375px with a long email open: the same text rewraps into
+   * far more lines, and a height measured once at the wider size clipped 2,700
+   * pixels behind exactly the internal scrollbar the auto-size exists to
+   * remove. A rotation is not an edit, so no content-keyed effect would fire.
+   */
+  it('AD — keeps watching the field’s width, not only its content', async () => {
+    const observed = [];
+    class FakeResizeObserver {
+      constructor(cb) { this.cb = cb; }
+      observe(el) { observed.push({ el, cb: this.cb }); }
+      disconnect() { /* nothing to release in jsdom */ }
+    }
+    vi.stubGlobal('ResizeObserver', FakeResizeObserver);
+
+    stubApi({ plans: [plan([written('generated')])] });
+    await render();
+    await click(openButton());
+
+    const field = el('message-body');
+    // The field itself is observed — not the window, not a parent.
+    expect(observed.some((o) => o.el === field)).toBe(true);
+
+    // A width change re-fits; a bare notification at the same width does not,
+    // which is what stops the observer re-measuring its own height writes.
+    const before = field.style.height;
+    observed.at(-1).cb();
+    expect(field.style.height).toBe(before);
   });
 
   it('AD — explains the one token in the body that is not a word', async () => {
