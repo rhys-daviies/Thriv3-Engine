@@ -480,6 +480,90 @@ export async function sendOutreach({
       if (outcome.fromMatches === false) fromMismatch = true;
 
       /**
+       * THE DURABLE RECORD OF THIS MESSAGE, AND IT IS WRITTEN FIRST — D4.3.
+       *
+       * Written after the compose returned, so it records a body that reached
+       * Outlook rather than one we intended to write — and BEFORE the two
+       * relationship-level marks below, which is the repair. Those marks are a
+       * SUMMARY of messages; `outreach_send` is the message. Stamping the
+       * summary first meant `outreach.sent_at` could claim a send that no
+       * message row supported, and every denominator keyed on that column
+       * counted it.
+       *
+       * UNCONDITIONAL, WHICH IS THE OTHER HALF OF THE REPAIR. This block used
+       * to sit inside `if (coachEvidence)`, so an email composed where the
+       * evidence engine found nothing — or threw, which is caught and warned
+       * about above — reached a coach and left no message row at all. Evidence
+       * is analysis; a message is a fact, and the fact is recorded either way.
+       *
+       * NOTHING IS INVENTED WHEN THERE IS NO EVIDENCE. `buildSendSnapshot`
+       * reads `evidence?.composition`, so a null evidence produces an honest
+       * empty snapshot — no rendered sentences, `has_personalisation` false,
+       * `primary_kind`, `primary_role`, `hook_kind`, `rendered_kinds` and
+       * `rendered_roles` all null, `rendered_count` 0 — while `subject` and
+       * `body_hash` still record what the coach actually read.
+       *
+       * ONE TRY, AND THE CONFIRMATION STAYS INSIDE IT. `confirmSend` resolves
+       * the OPEN message on this relationship, so it must only run when the
+       * draft above actually wrote one; separating them would let a failed
+       * write leave a stale earlier draft to be confirmed as though it were
+       * the message just sent.
+       *
+       * Wrapped, and deliberately so. `logEvidence` has always been
+       * best-effort on the principle that a gap in the analysis is survivable
+       * and a campaign that aborts halfway through a list is not. This is the
+       * same trade: a coach has already received the email by the time we get
+       * here, and throwing now would neither unsend it nor help.
+       */
+      try {
+        recordDraft({
+          outreachId: outreach.id,
+          athleteId,
+          coachId: record.id,
+          collegeName,
+          sport: athlete.sport,
+          // Per message, and never read back off the relationship: see the
+          // note in recordDraft.
+          programmeCampaignId,
+          /**
+           * The context's origin, or `campaign` when this run is attributed
+           * to one. Derived rather than asked for in the second case: a send
+           * carrying a programme campaign id that passed the gate above IS a
+           * campaign send, whatever a caller thought to say about it.
+           */
+          // Passed through. `recordDraft` overrides it with `campaign`
+          // when the attribution it verifies says so, which is the only
+          // authoritative answer to that question.
+          origin: resolvedOrigin,
+          // May be null. See the note above: an absent composition is recorded
+          // as an absent composition, never as one that said nothing.
+          evidence: coachEvidence,
+          body: personalisedBody,
+          subject: personalise(subject, greetingName, coach.name || 'Coach'),
+          bodySource: Object.values(BODY_SOURCE).includes(bodySource) ? bodySource : null,
+          templateVariant: variant,
+          renderedKinds,
+        });
+        /**
+         * The AppleScript issued Outlook's own Send and did not error, which
+         * is stronger evidence than an operator's later recollection and
+         * weaker than a provider API's answer. Recorded as what it is, so
+         * the day Gmail or Graph returns a real acceptance the two are
+         * distinguishable in the data.
+         *
+         * It still does not mean delivered. Nothing here observes a message
+         * leaving a mail server.
+         */
+        if (send) {
+          confirmSend(outreach.id, undefined, {
+            source: ACCEPTED_SOURCE.OUTLOOK_COMMAND_ASSERTED,
+          });
+        }
+      } catch (err) {
+        console.warn(`  send record failed for outreach ${outreach.id}: ${err.message}`);
+      }
+
+      /**
        * Drafted always; SENT only when something actually sent it.
        *
        * `send: true` means the AppleScript issued Outlook's own Send, which is
@@ -492,72 +576,15 @@ export async function sendOutreach({
        * twenty and sending fifteen therefore recorded twenty sends, and every
        * denominator keyed on `sent_at` — evidence performance, reply rates,
        * the per-inbox cap — overstated by the difference.
+       *
+       * STILL UNCONDITIONAL ON THE RECORD ABOVE, AND THAT IS DELIBERATE — D4.3
+       * fixed the ORDER, not the dependency. The coach has the email either
+       * way, and declining to write down a send because its bookkeeping failed
+       * would understate exactly the traffic these columns exist to measure —
+       * the mistake `recordManualOutboundAttempt` describes at length.
        */
       markOutreachDrafted(outreach.id);
       if (send) markOutreachSent(outreach.id);
-
-      /**
-       * The immutable record of THIS message.
-       *
-       * Written after the compose returned, so it records a body that reached
-       * Outlook rather than one we intended to write — and in two phases,
-       * because the world has two: the snapshot is frozen here from the
-       * evidence and the body as sent, and the row only becomes an analytics
-       * send when something we observed sent it.
-       *
-       * Wrapped, and deliberately so. `logEvidence` has always been
-       * best-effort on the principle that a gap in the analysis is survivable
-       * and a campaign that aborts halfway through a list is not. This is the
-       * same trade: a coach has already received the email by the time we get
-       * here, and throwing now would neither unsend it nor help.
-       */
-      if (coachEvidence) {
-        try {
-          recordDraft({
-            outreachId: outreach.id,
-            athleteId,
-            coachId: record.id,
-            collegeName,
-            sport: athlete.sport,
-            // Per message, and never read back off the relationship: see the
-            // note in recordDraft.
-            programmeCampaignId,
-            /**
-             * The context's origin, or `campaign` when this run is attributed
-             * to one. Derived rather than asked for in the second case: a send
-             * carrying a programme campaign id that passed the gate above IS a
-             * campaign send, whatever a caller thought to say about it.
-             */
-            // Passed through. `recordDraft` overrides it with `campaign`
-            // when the attribution it verifies says so, which is the only
-            // authoritative answer to that question.
-            origin: resolvedOrigin,
-            evidence: coachEvidence,
-            body: personalisedBody,
-            subject: personalise(subject, greetingName, coach.name || 'Coach'),
-            bodySource: Object.values(BODY_SOURCE).includes(bodySource) ? bodySource : null,
-            templateVariant: variant,
-            renderedKinds,
-          });
-          /**
-           * The AppleScript issued Outlook's own Send and did not error, which
-           * is stronger evidence than an operator's later recollection and
-           * weaker than a provider API's answer. Recorded as what it is, so
-           * the day Gmail or Graph returns a real acceptance the two are
-           * distinguishable in the data.
-           *
-           * It still does not mean delivered. Nothing here observes a message
-           * leaving a mail server.
-           */
-          if (send) {
-            confirmSend(outreach.id, undefined, {
-              source: ACCEPTED_SOURCE.OUTLOOK_COMMAND_ASSERTED,
-            });
-          }
-        } catch (err) {
-          console.warn(`  send record failed for outreach ${outreach.id}: ${err.message}`);
-        }
-      }
 
       // Written after the compose succeeded, so the table records messages
       // that actually reached Outlook rather than ones we intended to write.

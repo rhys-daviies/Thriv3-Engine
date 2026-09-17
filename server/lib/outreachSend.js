@@ -89,13 +89,35 @@ export function openSendFor(outreachId) {
 /**
  * The next sequence number for this relationship.
  *
- * Confirmed sends plus one. A pending draft does not advance it — replacing an
- * unsent draft is not a second message — so drafting five times and sending
- * once produces sequence 1, not sequence 5.
+ * THE HIGHEST SEQUENCE EVER ALLOCATED, PLUS ONE — D4.3. A sequence is a
+ * position in this relationship's message history, and a position that has
+ * been handed out once is spent whatever became of the message that took it.
+ *
+ * ---------------------------------------------------------------------------
+ * IT USED TO COUNT ACCEPTED MESSAGES, AND THAT DEADLOCKED A RELATIONSHIP.
+ *
+ * A message that reached FAILED is neither ACCEPTED nor open, so it counted
+ * for nothing and held no lock: `nextSequence` re-offered the number it was
+ * already using and the next draft died on
+ * `UNIQUE (outreach_id, sequence)` — a relationship permanently unable to
+ * hold another message, with nothing in the error to say why. Reproduced on a
+ * disposable database before this changed. Nothing reaches FAILED in this
+ * build, which is the only reason it was never hit; D4 makes it reachable.
+ * ---------------------------------------------------------------------------
+ *
+ * DRAFTING FIVE TIMES AND SENDING ONCE STILL PRODUCES SEQUENCE 1. That
+ * property was never this function's: `recordDraft` reuses the OPEN row and
+ * never asks for a number while one exists, so a redraft allocates nothing.
+ * The count merely agreed with it by accident, and stopped agreeing the moment
+ * a message could end anywhere other than ACCEPTED.
+ *
+ * FORWARD ONLY, SO A GAP IS NEVER REFILLED. A cancelled or deleted sequence 2
+ * leaves the next message at 3, which is the honest reading: 2 happened, and
+ * reissuing it would make two different messages indistinguishable in history.
  */
 export function nextSequence(outreachId) {
   const { n } = db.prepare(
-    "SELECT COUNT(*) AS n FROM outreach_send WHERE outreach_id = ? AND state = 'ACCEPTED'",
+    'SELECT COALESCE(MAX(sequence), 0) AS n FROM outreach_send WHERE outreach_id = ?',
   ).get(outreachId);
   return n + 1;
 }

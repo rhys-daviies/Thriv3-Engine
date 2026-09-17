@@ -239,11 +239,36 @@ describe('transitions', () => {
     expect(() => acceptSend(sendId)).toThrow(/CANCELLED is terminal/);
   });
 
-  it('does not count a cancelled message toward the next sequence', () => {
+  it('does not reissue the sequence a cancelled message took', () => {
+    /**
+     * REVERSED BY D4.3, AND THE OLD RULE WAS NOT ACHIEVABLE.
+     *
+     * This asserted `toBe(1)` on the principle that "only an ACCEPTED message
+     * is a message that happened". The principle is sound about HISTORY and
+     * wrong about ALLOCATION: the cancelled row still occupies sequence 1, so
+     * the 1 this used to return could not be used. Writing a draft with it
+     * failed on UNIQUE (outreach_id, sequence) — proved on a disposable
+     * database — which made the assertion a statement about a number nothing
+     * could do anything with.
+     *
+     * A cancelled message leaves a GAP, and the gap is the honest record: that
+     * position was handed out, and reissuing it would make two different
+     * messages indistinguishable in this relationship's history.
+     */
     const { outreach, sendId } = seedMessage();
     transitionSend(sendId, 'CANCELLED');
-    // Only an ACCEPTED message is a message that happened.
-    expect(nextSequence(outreach.id)).toBe(1);
+    expect(nextSequence(outreach.id)).toBe(2);
+
+    // And the number is usable, which is the whole point of the change.
+    const next = recordDraft({
+      outreachId: outreach.id,
+      athleteId: outreach.athlete_id,
+      coachId: outreach.coach_id,
+      evidence: null,
+      body: 'a later message',
+      subject: 'later',
+    });
+    expect(next.sequence).toBe(2);
   });
 });
 
