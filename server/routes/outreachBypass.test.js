@@ -109,14 +109,46 @@ describe('there is exactly one coach-contact path', () => {
     expect(callers).toEqual(['server/routes/sendOutreach.js']);
   });
 
-  it('creates outreach records in exactly one place', () => {
+  /**
+   * TWO PATHS NOW OPEN A RELATIONSHIP, AND BOTH ARE GOVERNED — D4.5.
+   *
+   * This asserted ONE file, and the reason was never the number: it was that
+   * every path to a coach must carry suppression, the per-inbox cap, the
+   * tracking token and the campaign gates. `sendOutreach` is the legacy
+   * AppleScript path. `executionClaim` is the provider execution claim, and it
+   * was built to carry exactly those guarantees — which the test below now
+   * requires of it rather than taking on trust.
+   *
+   * The list is named and closed. A third file appearing here still fails, and
+   * a second path that skipped a guard would fail the companion test even if
+   * somebody added it to this list.
+   */
+  const CONTACT_PATHS = ['server/lib/executionClaim.js', 'server/routes/sendOutreach.js'];
+
+  it('creates outreach records in exactly two governed places', () => {
     const callers = FILES.filter((f) => (
       /createOutreach\s*\(/.test(read(f))
       && !f.endsWith('lib/outreach.js')
       && !f.endsWith('.test.js')
       && !allowed(f)
     ));
-    expect(callers).toEqual(['server/routes/sendOutreach.js']);
+    expect(callers.sort()).toEqual(CONTACT_PATHS);
+  });
+
+  it('makes every contact path carry the guarantees the single one carried', () => {
+    /**
+     * The assertion that keeps the list above honest. A path that opens a
+     * relationship with a coach must check the global suppression list and the
+     * per-inbox cap; without both, an opted-out coach can be written to again
+     * and a popular programme's head coach can be written to by five athletes
+     * in a fortnight. Named by symbol rather than by behaviour because this
+     * file scans source text — the behavioural proof is each path's own suite.
+     */
+    for (const f of CONTACT_PATHS) {
+      const src = read(f);
+      expect(src, `${f} must consult the suppression list`).toMatch(/isSuppressed|campaignContactDecision/);
+      expect(src, `${f} must consult the per-inbox send cap`).toMatch(/isSendCapped/);
+    }
   });
 
   /**
