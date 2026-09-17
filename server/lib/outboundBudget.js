@@ -52,6 +52,19 @@ import {
 export const TRANSPORT = Object.freeze({
   OUTLOOK_APPLESCRIPT: 'OUTLOOK_APPLESCRIPT',
   OUTLOOK_MANUAL: 'OUTLOOK_MANUAL',
+  /**
+   * A PROVIDER API — D4.5. The capacity an execution claim spends, and it is a
+   * third KIND of attempt rather than a third spelling of the two above: this
+   * process decided to send, through an account the athlete authorised, and
+   * paid for it before anything could be handed over.
+   *
+   * ONE VALUE FOR BOTH PROVIDERS. Which one is on the message —
+   * `outreach_send.provider` — and the ledger's job is accounting, not
+   * analytics. Splitting it into GOOGLE and MICROSOFT would put a second copy
+   * of a fact the message already holds into an append-only table, and the
+   * schema note on this file is explicit about not letting that happen.
+   */
+  PROVIDER_API: 'PROVIDER_API',
 });
 
 /**
@@ -381,8 +394,10 @@ function refusalMessage(decision) {
  */
 const GUARDED_INSERT = db.prepare(`
   INSERT INTO outbound_send_attempt
-    (id, outreach_id, athlete_id, sending_identity, transport, attempted_at, created_at)
-  SELECT @id, @outreach_id, @athlete_id, @sending_identity, @transport, @attempted_at, @created_at
+    (id, outreach_id, athlete_id, sending_identity, transport, attempted_at, created_at,
+     outreach_send_id)
+  SELECT @id, @outreach_id, @athlete_id, @sending_identity, @transport, @attempted_at, @created_at,
+         @outreach_send_id
   WHERE (
       SELECT COUNT(*) FROM outbound_send_attempt
       WHERE athlete_id = @athlete_id
@@ -397,8 +412,10 @@ const GUARDED_INSERT = db.prepare(`
 
 const PLAIN_INSERT = db.prepare(`
   INSERT INTO outbound_send_attempt
-    (id, outreach_id, athlete_id, sending_identity, transport, attempted_at, created_at)
-  VALUES (@id, @outreach_id, @athlete_id, @sending_identity, @transport, @attempted_at, @created_at)
+    (id, outreach_id, athlete_id, sending_identity, transport, attempted_at, created_at,
+     outreach_send_id)
+  VALUES (@id, @outreach_id, @athlete_id, @sending_identity, @transport, @attempted_at, @created_at,
+          @outreach_send_id)
 `);
 
 /**
@@ -452,6 +469,19 @@ export function recordOutboundAttempt({
   window = utcDayWindow(), at = utcNow(),
   athleteLimit = ATHLETE_DAILY_OUTBOUND_LIMIT,
   mailboxLimit = MAILBOX_DAILY_OUTBOUND_LIMIT,
+  /**
+   * WHICH MESSAGE THIS ACTION WAS SPENT ON — D4.5, and optional on purpose.
+   *
+   * The provider execution claim supplies it and cannot proceed without one;
+   * the legacy AppleScript path still passes nothing, because at the moment it
+   * spends there is no message row to name — D4.3 moved the message write ahead
+   * of the relationship marks, not ahead of the spend, and reordering the
+   * legacy transport is not this slice's business.
+   *
+   * NOT UNIQUE, and the schema says why at length: a retry is a second attempt
+   * against the SAME message and appears as a second row.
+   */
+  outreachSendId = null,
 } = {}) {
   const athlete = resolveAthlete(outreachId, athleteId);
   const key = normaliseSendingIdentity(sendingIdentity);
@@ -469,6 +499,7 @@ export function recordOutboundAttempt({
     transport,
     attempted_at: at,
     created_at: at,
+    outreach_send_id: outreachSendId,
     window_start: window.windowStart,
     window_end: window.windowEnd,
     athlete_limit: athleteLimit,
@@ -530,6 +561,13 @@ export function recordManualOutboundAttempt({
     transport,
     attempted_at: at,
     created_at: at,
+    /**
+     * NULL, ALWAYS — D4.5. A manual action is mail an operator already sent by
+     * hand, sometimes on a relationship that predates `outreach_send`
+     * entirely. There is no message row to point at and naming one would be a
+     * guess about which of several drafts they meant.
+     */
+    outreach_send_id: null,
   };
   PLAIN_INSERT.run(row);
   return outboundAttempt(row.id);

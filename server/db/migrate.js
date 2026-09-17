@@ -1147,6 +1147,28 @@ export function migrate(db) {
   db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_outreach_send_provider_message
              ON outreach_send(connected_mailbox_id, provider, provider_message_id)
              WHERE provider_message_id IS NOT NULL`);
+  /**
+   * ONE REVIEWED MESSAGE, ONE EXECUTION RECORD — D4.5.
+   *
+   * A `programme_message` is content a person approved; `outreach_send` is the
+   * execution of it. Two execution records for one approved message would mean
+   * the same words were separately claimed, budgeted and — once a provider
+   * exists — separately sent, which is the double send in a different costume.
+   *
+   * A RETRY IS NOT A SECOND EXECUTION RECORD. It is another
+   * `outbound_send_attempt` against the same `outreach_send`, which is exactly
+   * why that pointer is deliberately not unique. A message whose transport
+   * failed goes FAILED then QUEUED then SENDING again on the SAME row.
+   * Different words need a different `programme_message` — a different step,
+   * or a composition that does not exist yet — and that is a different row
+   * here too.
+   *
+   * PARTIAL, so every manual, legacy and historical send is outside it: they
+   * carry NULL, and NULL does not collide with NULL.
+   */
+  db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_outreach_send_programme_message
+             ON outreach_send(programme_message_id)
+             WHERE programme_message_id IS NOT NULL`);
   addMissingColumns(db, 'outbound_send_attempt', OUTBOUND_SEND_ATTEMPT_COLUMNS);
   /**
    * Every attempt spent on one message, oldest first — D4.4. Ordinary, not

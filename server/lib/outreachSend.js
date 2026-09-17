@@ -50,6 +50,7 @@ const insertSend = db.prepare(`
   INSERT INTO outreach_send (
     id, outreach_id, sequence, drafted_at, sent_at,
     athlete_id, coach_id, college_name, sport, programme_campaign_id, origin, policy_version,
+    programme_message_id, connected_mailbox_id, sending_identity, provider,
     state, accepted_source,
     structure, structure_source, body_source, template_variant,
     has_personalisation, primary_kind, primary_role, hook_kind,
@@ -58,6 +59,7 @@ const insertSend = db.prepare(`
   ) VALUES (
     @id, @outreach_id, @sequence, @drafted_at, @sent_at,
     @athlete_id, @coach_id, @college_name, @sport, @programme_campaign_id, @origin, @policy_version,
+    @programme_message_id, @connected_mailbox_id, @sending_identity, @provider,
     @state, @accepted_source,
     @structure, @structure_source, @body_source, @template_variant,
     @has_personalisation, @primary_kind, @primary_role, @hook_kind,
@@ -141,6 +143,21 @@ export function recordDraft({
    * and every campaign whose campaign row was later deleted.
    */
   origin = null,
+  /**
+   * EXECUTION ATTRIBUTION — D4.5. Which reviewed composition this send carries,
+   * and which mailbox is going to send it.
+   *
+   * NULL FOR EVERY MANUAL AND LEGACY DRAFT, which is every caller that existed
+   * before the execution claim: there was no composed message and no connected
+   * mailbox, and naming either would invent one. Only
+   * `claimProgrammeMessageForExecution` supplies them, and it supplies all four
+   * together — a send attributed to a mailbox but not to a message, or the
+   * reverse, would be a half-answer to "what was executed, and from where".
+   */
+  programmeMessageId = null,
+  connectedMailboxId = null,
+  sendingIdentity = null,
+  provider = null,
   at = utcNow(),
 }) {
   /**
@@ -196,6 +213,10 @@ export function recordDraft({
      * request body can reach.
      */
     origin: verifiedCampaign ? OUTREACH_ORIGIN.CAMPAIGN : normaliseOrigin(origin),
+    programme_message_id: programmeMessageId,
+    connected_mailbox_id: connectedMailboxId,
+    sending_identity: sendingIdentity,
+    provider,
     // A body exists and may still be rewritten in place. Nothing has been
     // handed to a transport by the time this is written.
     state: MESSAGE_STATE.DRAFT,
@@ -234,7 +255,15 @@ export function recordDraft({
         -- Moves with the body. Re-drafting to the same coach under a different
         -- campaign replaces the pending message, and the row must not keep the
         -- previous campaign's attribution while carrying the new one's text.
-        programme_campaign_id = @programme_campaign_id
+        programme_campaign_id = @programme_campaign_id,
+        -- D4.5, and the same reasoning: an open draft being claimed for
+        -- provider execution takes that execution's attribution. COALESCE
+        -- because the legacy path passes null for all four and must not blank
+        -- attribution a claim already wrote.
+        programme_message_id = COALESCE(@programme_message_id, programme_message_id),
+        connected_mailbox_id = COALESCE(@connected_mailbox_id, connected_mailbox_id),
+        sending_identity = COALESCE(@sending_identity, sending_identity),
+        provider = COALESCE(@provider, provider)
       -- The guard is the STATE. An accepted message is history and no re-draft
       -- may reach it. The old guard on sent_at said the same thing, until a
       -- message could be QUEUED or FAILED without a timestamp of any kind.
@@ -355,6 +384,72 @@ export function transitionSend(sendId, nextState, { acceptedSource = null, at = 
   }
 
   return { ...parse(SEND_BY_ID.get(sendId)), changed: true };
+}
+
+/* -------------------------------------------------------------------------- */
+/* The execution claim — D4.5                                                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * TAKE THIS MESSAGE FOR EXECUTION, OR LOSE THE RACE. One statement.
+ *
+ * The guard and the write are ONE UPDATE, and `changes` says which happened.
+ * That is the whole mechanism: two callers that both read DRAFT and both
+ * decide to send is the failure a send path cannot survive, and reading the
+ * state and then writing it — which is what `transitionSend` does, correctly,
+ * for every other transition — leaves a window between the two. Here the
+ * database decides.
+ *
+ * IT IS NOT A SECOND STATE AUTHORITY. The legal graph is still
+ * shared/outreachMessageState.js and is asked below before anything is
+ * written; what this adds is atomicity, not permission. Only the states the
+ * graph says may reach SENDING appear in the WHERE clause.
+ *
+ * THE CLAIM IS ALSO THE LOCK ACROSS PROCESSES. `claim_run_id` records which
+ * run holds it, so a row still SENDING whose run is gone is a claim whose
+ * owner died — the fact D4.6's recovery will read. Nothing here resolves one.
+ *
+ * @returns {{claimed: boolean, send: object|null}} `claimed: false` means
+ *   somebody else has it, and the caller must write nothing further.
+ */
+const CLAIMABLE = [MESSAGE_STATE.DRAFT, MESSAGE_STATE.QUEUED];
+const CLAIM_LIST = CLAIMABLE.map((s) => `'${s}'`).join(', ');
+
+export function claimSendForExecution(sendId, { runId, at = utcNow() } = {}) {
+  if (typeof runId !== 'string' || !runId.trim() || /\s/.test(runId) || runId.length > 64) {
+    throw fail(
+      'CLAIM_RUN_ID_REQUIRED',
+      'An execution claim must say which run holds it: a non-empty identifier of at most 64 '
+      + 'characters with no whitespace, minted by the process doing the work. A claim nobody '
+      + 'can be attributed to cannot be recovered when the process that took it dies.',
+    );
+  }
+  const row = SEND_BY_ID.get(sendId);
+  if (!row) throw fail('SEND_NOT_FOUND', `No outreach_send ${sendId}`);
+
+  /**
+   * A MESSAGE THAT IS NOT CLAIMABLE AND A RACE THAT WAS LOST ARE ONE ANSWER.
+   *
+   * Both mean the same thing to a caller — somebody else has this message, or
+   * it has already been executed, so write nothing — and returning the state
+   * beside the answer says which without needing two vocabularies for one
+   * outcome. Throwing is reserved for a caller bug: a missing row, or a run id
+   * that could never be recovered from.
+   *
+   * The graph decides what may be claimed; this only says it atomically.
+   */
+  if (!CLAIMABLE.includes(row.state) || !canTransition(row.state, MESSAGE_STATE.SENDING)) {
+    return { claimed: false, send: parse(row) };
+  }
+
+  const result = db.prepare(`
+    UPDATE outreach_send
+       SET state = ?, claimed_at = ?, claim_run_id = ?
+     WHERE id = ? AND state IN (${CLAIM_LIST})
+  `).run(MESSAGE_STATE.SENDING, at, runId.trim(), sendId);
+
+  if (result.changes !== 1) return { claimed: false, send: parse(SEND_BY_ID.get(sendId)) };
+  return { claimed: true, send: parse(SEND_BY_ID.get(sendId)) };
 }
 
 /**
