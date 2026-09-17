@@ -64,6 +64,8 @@ d('the L6D cohort', () => {
   const cohort = inDb(`(() => {
     const gaps = candidatePlan().filter((p) => p.state !== 'EXISTING_CANDIDATE');
     return gaps.map((p) => ({ key: p.key, state: p.state, host: p.host,
+      fetchHosts: p.fetchHosts ?? [],
+      hostnames: [...new Set(p.candidates.map((c) => new URL(c.url).hostname))],
       first: p.candidates[0]?.url ?? null, n: p.candidates.length }));
   })()`);
 
@@ -100,9 +102,24 @@ d('the L6D cohort', () => {
     }
   });
 
-  it('generates a candidate only on the host it names', () => {
+  it('generates a candidate only on a spelling of the host it names', () => {
+    /*
+     * L7I: this used to assert equality with `p.host`, which is the IDENTITY
+     * key — and asserting that is what kept Northwood unreachable. The apex and
+     * `www.gonorthwood.com` are one institution and one ledger entry apiece, and
+     * only the second serves a roster path.
+     *
+     * So the invariant is the one that was actually meant: every candidate is a
+     * spelling of the named identity, and every spelling is one the ledger or
+     * this institution's own rosters put forward. Nothing is derived, so no
+     * candidate can reach a host nobody has stood behind.
+     */
     for (const p of cohort.filter((x) => x.first)) {
-      expect(new URL(p.first).hostname).toBe(p.host);
+      expect(p.hostnames.length).toBeGreaterThan(0);
+      for (const h of p.hostnames) {
+        expect(h.replace(/^www\./, '')).toBe(p.host);
+        expect(p.fetchHosts).toContain(h);
+      }
     }
   });
 

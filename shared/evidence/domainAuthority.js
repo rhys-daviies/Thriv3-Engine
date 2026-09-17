@@ -207,6 +207,94 @@ export function forInstitution(row, unitid, profile = PROFILE.STRICT) {
   return !wrongClaimants(row).includes(unitid);
 }
 
+/**
+ * IDENTITY HOST versus FETCH HOST FORM.
+ *
+ * `canonicalHost` strips `www.`, and that is right for IDENTITY: `gonorthwood.com`
+ * and `www.gonorthwood.com` are one athletics property, one owner, one thing to
+ * detect a conflict over. L7B measured that collapse and it holds.
+ *
+ * What it is NOT is a network target, and the two were the same value.
+ * `hostsForInstitution` canonicalised the stored spelling and handed the result
+ * to the candidate generator, which interpolated it into `https://<host><path>`.
+ * So a site whose apex does not serve the path became unreachable.
+ *
+ * Northwood is the measured case. `www.gonorthwood.com/sports/wsoc/2026-27/roster`
+ * answers 200 with "2026 Northwood Women's Soccer Roster" and 37 player rows. The
+ * apex answers the same path with a 200 too — for `/landing/index`, the site's
+ * home page, because its redirect discards the path rather than preserving it.
+ * Both spellings are separately VERIFIED_ALIAS athletics rows in the ledger, so
+ * nothing was unknown; the working one was normalised away before it was used.
+ *
+ * It is not one site's quirk. 35 trusted rows carry a `www.` spelling, 71 of the
+ * 1,602 NCAA roster URLs in the 2026 corpus (4.4%) live on one, and 37 canonical
+ * identities have NO observed working form other than `www.` — including every
+ * host those 71 came from.
+ *
+ * ---------------------------------------------------------------------------
+ * WHAT MAY BE FETCHED IS EVIDENCE, NOT SPELLING RULES.
+ *
+ * A fetch form is admitted on one of exactly two grounds:
+ *
+ *   1. the ledger stores that spelling, on a row this profile stands behind
+ *      for this institution; or
+ *   2. this institution's own rosters have actually been fetched from it.
+ *
+ * Nothing is derived. `www.` is never prefixed onto an apex-only row, an apex is
+ * never stripped off a `www.`-only one, and no subdomain is guessed. The bound is
+ * structural rather than a rule to remember: a form only qualifies if it
+ * canonicalises to the identity it is offered for, and `canonicalHost` rewrites
+ * nothing but a leading `www.` and a port. `timberwolves.gonorthwood.com` is a
+ * different identity and cannot be reached from this one at all.
+ *
+ * Order is by the STRENGTH of the evidence, and the two grounds are not equal.
+ * A ledger row establishes ownership: this property is Northwood's. An observed
+ * roster source establishes fetchability: a squad was parsed out of a page at
+ * this exact spelling. Only the second is evidence about the thing the ordering
+ * decides, so observation outranks a row that merely stores the name.
+ *
+ * That was measured rather than reasoned. Ranking stored above observed put
+ * Carson-Newman's two known-good sources — recorded on the apex, while only the
+ * `www.` row is stored — past the attempt bound. Ranking observation first
+ * returns them to ordinal two.
+ *
+ *   stored AND observed  ->  observed only  ->  stored only
+ *
+ * Within a tier, the more often a spelling was actually fetched from, then
+ * lexically: both are properties of the data, so a ladder is the same list on
+ * every run.
+ */
+
+/** A host spelling reduced to something fetchable. Ports only; `www.` is kept. */
+export const fetchForm = (host) => String(host || '').toLowerCase().replace(/:\d+$/, '');
+
+/**
+ * The concrete spellings that may be fetched for one identity, best evidence first.
+ *
+ * `rows` are the ledger rows already established as authority for `unitid`;
+ * `observed` is the raw host spellings this institution's rosters were fetched
+ * from. Both are filtered to the identity, so neither can widen it.
+ */
+export function fetchHostsForIdentity(rows, identityHost, { observed = null } = {}) {
+  const identity = canonicalHost(identityHost);
+  if (!identity) return [];
+  const stored = new Set();
+  for (const r of rows) {
+    const f = fetchForm(r?.domain);
+    if (f && canonicalHost(f) === identity) stored.add(f);
+  }
+  const seen = new Set();
+  for (const o of observed?.keys?.() ?? observed ?? []) {
+    const f = fetchForm(o);
+    if (f && canonicalHost(f) === identity) seen.add(f);
+  }
+  const tier = (f) => (stored.has(f) && seen.has(f) ? 0 : seen.has(f) ? 1 : 2);
+  // `observed` may carry how many sources used each spelling; a plain Set counts 1.
+  const weight = (f) => (typeof observed?.get === 'function' ? Number(observed.get(f)) || 0 : 0);
+  return [...new Set([...stored, ...seen])]
+    .sort((a, b) => tier(a) - tier(b) || weight(b) - weight(a) || a.localeCompare(b));
+}
+
 /** Why an inverse lookup returned no usable host, or several. */
 export const LOOKUP = Object.freeze({
   OK: 'OK',
@@ -230,24 +318,36 @@ export const LOOKUP = Object.freeze({
  * settles a multi-host case to exactly one, that one is returned — corroborated
  * by observation rather than by preference.
  */
-export function hostsForInstitution(rows, unitid, { profile = PROFILE.STRICT, usage = null } = {}) {
-  if (unitid == null) return { status: LOOKUP.NO_UNITID, hosts: [], reason: 'programme has no unitid' };
-  const hosts = [...new Set(rows
-    .filter((r) => forInstitution(r, unitid, profile))
-    .map((r) => canonicalHost(r.domain)))].sort();
-  if (!hosts.length) {
-    return { status: LOOKUP.NO_TRUSTED_HOST, hosts: [], reason: 'no ledger row this profile will stand behind' };
+export function hostsForInstitution(rows, unitid, { profile = PROFILE.STRICT, usage = null, observed = null } = {}) {
+  if (unitid == null) {
+    return { status: LOOKUP.NO_UNITID, hosts: [], fetchHosts: [], reason: 'programme has no unitid' };
   }
-  if (hosts.length === 1) return { status: LOOKUP.OK, hosts, reason: null };
+  const authoritative = rows.filter((r) => forInstitution(r, unitid, profile));
+  const hosts = [...new Set(authoritative.map((r) => canonicalHost(r.domain)))].sort();
+  // The fetch forms of the hosts actually returned, in the order they are returned.
+  const forms = (chosen) => chosen.flatMap(
+    (h) => fetchHostsForIdentity(authoritative, h, { observed }),
+  );
+  if (!hosts.length) {
+    return {
+      status: LOOKUP.NO_TRUSTED_HOST, hosts: [], fetchHosts: [],
+      reason: 'no ledger row this profile will stand behind',
+    };
+  }
+  if (hosts.length === 1) return { status: LOOKUP.OK, hosts, fetchHosts: forms(hosts), reason: null };
   if (usage) {
     const used = hosts.filter((h) => usage.has(h));
     if (used.length === 1) {
-      return { status: LOOKUP.OK, hosts: used, reason: 'one of several, corroborated by this institution\'s own rosters' };
+      return {
+        status: LOOKUP.OK, hosts: used, fetchHosts: forms(used),
+        reason: 'one of several, corroborated by this institution\'s own rosters',
+      };
     }
   }
   return {
     status: LOOKUP.AMBIGUOUS,
     hosts,
+    fetchHosts: [],
     reason: `${hosts.length} hosts and nothing distinguishes them`,
   };
 }
@@ -260,7 +360,7 @@ export function hostsForInstitution(rows, unitid, { profile = PROFILE.STRICT, us
  * Requiring a row per programme would be duplicating the ledger to express
  * something it never said.
  */
-export function inverseIndex(rows, { profile = PROFILE.STRICT, usage = null } = {}) {
+export function inverseIndex(rows, { profile = PROFILE.STRICT, usage = null, observed = null } = {}) {
   const byUnitid = new Map();
   for (const r of rows) {
     if (r?.unitid == null) continue;
@@ -269,7 +369,7 @@ export function inverseIndex(rows, { profile = PROFILE.STRICT, usage = null } = 
   }
   const out = new Map();
   for (const [unitid, group] of byUnitid) {
-    out.set(unitid, hostsForInstitution(group, unitid, { profile, usage }));
+    out.set(unitid, hostsForInstitution(group, unitid, { profile, usage, observed }));
   }
   return out;
 }

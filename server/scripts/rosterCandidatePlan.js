@@ -24,6 +24,7 @@ import {
   inverseIndex, canonicalHost, PROFILE, LOOKUP,
 } from '../../shared/evidence/domainAuthority.js';
 import { candidatesForLookup, CANDIDATE, MAX_ATTEMPTED_CANDIDATES } from '../../shared/roster/rosterCandidates.js';
+import { classifyReadiness, READINESS } from '../../shared/roster/rosterReadiness.js';
 import { rosterTargetUniverse } from './rosterTargetUniverse.js';
 
 export const CANDIDATE_SEASON = 2026;
@@ -32,15 +33,37 @@ const LEDGER = `SELECT domain, unitid, status, role, confidence, identity_streng
                        evidence_text, wrong_mappings, platform
                 FROM athletics_domains`;
 
-/** Hosts an institution's own rosters have actually been fetched from. */
-export function rosterHostUsage() {
-  const out = new Set();
+/**
+ * Host spellings this corpus's rosters have actually been fetched from.
+ *
+ * TWO READINGS OF ONE QUERY, and they are not the same question. `usage` is
+ * canonical and answers "which of several hosts does this institution really
+ * use", the tiebreak `hostsForInstitution` applies. `observed` keeps the
+ * spelling — `www.gonorthwood.com`, not `gonorthwood.com` — and answers "what
+ * did we actually put on the wire and get a roster back from". Canonicalising
+ * the second into the first is the defect L7I exists to correct, so the raw
+ * form is carried rather than recovered.
+ */
+export function rosterHostForms() {
+  const usage = new Set();
+  // How MANY sources used each spelling, not merely that one did: where an
+  // institution has fetched rosters from both forms, the count is the tiebreak.
+  const observed = new Map();
   for (const r of db.prepare(
     'SELECT DISTINCT source_roster_url u FROM roster_players WHERE source_roster_url IS NOT NULL',
   ).all()) {
-    try { out.add(canonicalHost(new URL(r.u).hostname)); } catch { /* not a URL; nothing to learn */ }
+    try {
+      const h = new URL(r.u).hostname.toLowerCase();
+      observed.set(h, (observed.get(h) ?? 0) + 1);
+      usage.add(canonicalHost(h));
+    } catch { /* not a URL; nothing to learn */ }
   }
-  return out;
+  return { usage, observed };
+}
+
+/** Hosts an institution's own rosters have actually been fetched from. */
+export function rosterHostUsage() {
+  return rosterHostForms().usage;
 }
 
 /** Programmes that already hold a roster source, so a candidate is unnecessary. */
@@ -63,8 +86,8 @@ export function candidatePlan({
   programmes = null, season = CANDIDATE_SEASON, profile = PROFILE.DISCOVERY, limit = Infinity,
 } = {}) {
   const rows = db.prepare(LEDGER).all();
-  const usage = rosterHostUsage();
-  const index = inverseIndex(rows, { profile, usage });
+  const { usage, observed } = rosterHostForms();
+  const index = inverseIndex(rows, { profile, usage, observed });
   const platform = new Map(rows.filter((r) => r.platform)
     .map((r) => [canonicalHost(r.domain), r.platform]));
   const haveSource = programmesWithSource();
@@ -93,6 +116,7 @@ export function candidatePlan({
       state,
       host: gen.host ?? null,
       hosts: lookup.hosts,
+      fetchHosts: lookup.fetchHosts ?? [],
       platform: gen.host ? platform.get(gen.host) ?? null : null,
       candidates: gen.candidates,
       reason: gen.reason,
@@ -167,30 +191,37 @@ function landedOnAsked(finalUrl, slug) {
   return !tail || SEASON_TAIL.test(tail);
 }
 
-async function probe(url, slug, sport) {
+/**
+ * One request, and a verdict about the PROGRAMME rather than about the site.
+ *
+ * The verdict vocabulary is unchanged so the console output and the cohort file
+ * still read the same, but what decides it is now `classifyReadiness`, which
+ * reads the page's own title and counts its roster entries. `READY` carries the
+ * old `200_ROSTER` / `REDIRECT_TO_ROSTER` distinction; everything short of it is
+ * UNKNOWN, and a contradiction is REFUSED. See `rosterReadiness.js` for why.
+ */
+async function probe(url, slug, sport, { season = CANDIDATE_SEASON, identityHost = null } = {}) {
   let res;
   try {
     res = await fetch(url, { redirect: 'follow', headers: { 'User-Agent': UA, Accept: 'text/html' } });
-  } catch (err) { return { verdict: 'OTHER', detail: err.message.slice(0, 60) }; }
-  if (res.status === 403) return { verdict: '403', detail: 'blocked before any page was served' };
-  if (res.status === 404) return { verdict: '404', detail: null };
-  if (!res.ok) return { verdict: 'OTHER', detail: `HTTP ${res.status}` };
-  const html = (await res.text()).slice(0, 400_000);
-  if (SOFT_404.test(html.slice(0, 4000)) && !ROSTER_MARKS.test(html)) {
-    return { verdict: 'SOFT_404', detail: null };
+  } catch (err) { return { verdict: 'OTHER', readiness: READINESS.UNKNOWN, detail: err.message.slice(0, 60) }; }
+  const html = res.ok ? (await res.text()).slice(0, 400_000) : '';
+  const r = classifyReadiness({
+    html, finalUrl: res.url, slug, sport, season, identityHost, status: res.status,
+  });
+  const common = { readiness: r.readiness, entries: r.entries, title: r.title };
+  if (r.readiness === READINESS.REFUSED) {
+    if (res.status === 404) return { verdict: '404', ...common, detail: null };
+    return { verdict: 'SOFT_404', ...common, detail: r.reason };
   }
-  if (!ROSTER_MARKS.test(html)) return { verdict: 'OTHER', detail: '200 with no roster markup' };
-  if (!landedOnAsked(res.url, slug)) {
-    return { verdict: 'SOFT_404', detail: `redirected off the programme — ${new URL(res.url).pathname}` };
-  }
-  const wrongSport = sportContradicted(html, sport);
-  if (wrongSport) {
-    return { verdict: 'SOFT_404', detail: `page is another programme — ${JSON.stringify(wrongSport)}` };
+  if (r.readiness === READINESS.UNKNOWN) {
+    if (res.status === 403) return { verdict: '403', ...common, detail: r.reason };
+    return { verdict: 'OTHER', ...common, detail: r.reason };
   }
   const redirected = new URL(res.url).pathname !== new URL(url).pathname;
   return {
     verdict: redirected ? 'REDIRECT_TO_ROSTER' : '200_ROSTER',
-    url: res.url, identity: ogSiteName(html),
+    ...common, url: res.url, identity: ogSiteName(html),
   };
 }
 
@@ -208,7 +239,7 @@ export async function verifyPlan(plan, per = 8) {
       // Sequential with a pause. An earlier pass at full speed drew rate limits
       // that read as 404s, which is a good way to conclude something false.
       if (tried > 1) await new Promise((r) => { setTimeout(r, 600); });
-      const r = await probe(c.url, c.slug, p.sport);
+      const r = await probe(c.url, c.slug, p.sport, { identityHost: p.host });
       last = r;
       if (r.verdict === '200_ROSTER' || r.verdict === 'REDIRECT_TO_ROSTER') break;
       // A 403 is the host refusing every path; asking seven more proves nothing.
@@ -310,8 +341,9 @@ function main() {
           + `${picked.filter((r) => CLASS[r.verdict] === 'BROWSE_REQUIRED').length} browse)`);
       }
       for (const r of results) {
-        console.log(`${r.verdict.padEnd(18)} ${r.school.slice(0, 34).padEnd(34)} `
-          + `${r.sport === 'mens-soccer' ? 'M' : 'W'}  ${r.tried} tried  ${r.url ?? r.detail ?? ''}`);
+        console.log(`${(r.readiness ?? r.verdict).padEnd(9)} ${r.verdict.padEnd(18)} `
+          + `${r.school.slice(0, 32).padEnd(32)} ${r.sport === 'mens-soccer' ? 'M' : 'W'}  `
+          + `${r.tried} tried  ${r.entries != null ? `${r.entries} entries  ` : ''}${r.url ?? r.detail ?? ''}`);
         if (r.identity) console.log(`${''.padEnd(18)}   og:site_name = ${JSON.stringify(r.identity)}`);
       }
       console.log(`\n  ${JSON.stringify(counts)}`);

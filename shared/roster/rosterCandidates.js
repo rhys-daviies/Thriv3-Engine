@@ -167,7 +167,7 @@ export function rosterCandidatesForVerifiedHost({
     for (const { slug } of bySlug) {
       const path = shape.path.replace('<SLUG>', slug).replace('<YEAR>', year).replace('<SPAN>', sp);
       const url = `https://${host}${path}`;
-      if (!out.some((c) => c.url === url)) out.push({ url, shape: shape.id, slug });
+      if (!out.some((c) => c.url === url)) out.push({ url, shape: shape.id, slug, fetchHost: host });
       if (out.length >= limit) return { status: CANDIDATE.OK, candidates: out, reason: null };
     }
   }
@@ -184,13 +184,54 @@ export function rosterCandidatesForVerifiedHost({
  */
 export function candidatesForLookup(lookup, { sport, season, limit = Infinity, platform = null } = {}) {
   if (!lookup || lookup.status === 'NO_UNITID' || lookup.status === 'NO_TRUSTED_HOST') {
-    return { status: CANDIDATE.NO_TRUSTED_HOST, candidates: [], host: null,
+    return { status: CANDIDATE.NO_TRUSTED_HOST, candidates: [], host: null, fetchHosts: [],
       reason: lookup?.reason ?? 'no institution identity' };
   }
   if (lookup.status === 'AMBIGUOUS') {
-    return { status: CANDIDATE.AMBIGUOUS_HOST, candidates: [], host: null,
+    return { status: CANDIDATE.AMBIGUOUS_HOST, candidates: [], host: null, fetchHosts: [],
       hosts: lookup.hosts, reason: lookup.reason };
   }
   const host = lookup.hosts[0];
-  return { host, ...rosterCandidatesForVerifiedHost({ host, sport, season, verified: true, limit, platform }) };
+  /*
+   * HOST-MAJOR, AND THE ORDER OF THE FORMS IS THE WHOLE ARGUMENT.
+   *
+   * One identity may have more than one approved spelling — Northwood has the
+   * apex and the `www.`, both separately verified — and the ladder walks the
+   * best-evidenced one to exhaustion before it tries the next.
+   *
+   * Interleaving was the alternative and it is the one that breaks things. The
+   * sixteen-candidate bound is an evidence-based measurement over a SINGLE
+   * host's ladder: 92.1% of known sources win at ordinal one, and the deepest
+   * observed winner is sixteen. Alternating two spellings doubles every ordinal,
+   * so Southwest Minnesota State's winner at ten becomes twenty and falls off
+   * the end — a regression, in exchange for reaching a second spelling sooner.
+   * Host-major keeps every existing ordinal exactly where it was measured, and
+   * the identities that actually need a second form are ordered so they never
+   * have to reach one: `fetchHostsForIdentity` puts the spelling the
+   * institution's own rosters were fetched from first.
+   *
+   * The bound stays GLOBAL. `limit` is the length of the whole ordered ladder,
+   * not a per-host allowance, so admitting a second spelling can never make an
+   * acquisition run longer than it was.
+   */
+  const forms = lookup.fetchHosts?.length ? lookup.fetchHosts : [host];
+  const candidates = [];
+  const seen = new Set();
+  for (const form of forms) {
+    if (candidates.length >= limit) break;
+    const gen = rosterCandidatesForVerifiedHost({
+      host: form, sport, season, verified: true, platform,
+    });
+    if (gen.status !== CANDIDATE.OK) {
+      if (!candidates.length) return { host, fetchHosts: forms, ...gen };
+      break;
+    }
+    for (const c of gen.candidates) {
+      if (seen.has(c.url)) continue;
+      seen.add(c.url);
+      candidates.push(c);
+      if (candidates.length >= limit) break;
+    }
+  }
+  return { status: CANDIDATE.OK, host, fetchHosts: forms, candidates, reason: null };
 }
