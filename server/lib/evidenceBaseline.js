@@ -102,18 +102,95 @@ export const short = (d) => String(d).slice(0, 16);
  * questions about the data; a number computed for one is not a wrong answer to
  * the other, it is an answer to something else.
  */
-export const MANIFEST_VERSION = 'V2';
+/**
+ * ---------------------------------------------------------------------------
+ * V2 → V3: EVERY COLUMN OF EVERY TABLE THE WALK READS — D3.3.
+ *
+ * V2's premise was that a named projection of "identifying columns" describes
+ * the dataset. D3.3 disproved it twice over, by measurement rather than
+ * reading, and the second one is what cost a baseline its provenance:
+ *
+ *   TWO TABLES WERE MISSING ENTIRELY. Instrumenting `buildBaselines` — every
+ *   prepared statement it executes — shows the walk reads SEVEN tables. V2
+ *   fingerprinted five. `recruiting_arrivals` is queried once per pair (4,742
+ *   times) and `coach_seasons` 3,963 times, and neither was in the manifest.
+ *   Changing 181 arrival rows moves EMAIL_BODY while the dataset line still
+ *   reads UNCHANGED. That is exactly how the historical EMAIL_BODY pin became
+ *   unreproducible: it was taken over rows the manifest could not see, so the
+ *   digest recorded beside it was not an identity for the data that produced
+ *   it.
+ *
+ *   AND THE PROJECTIONS WERE TOO NARROW. Nulling the roster_players columns V2
+ *   did not name — position, nationality, hometown, country, class_year_label,
+ *   the minutes — moves all six baselines with the dataset line unchanged.
+ *
+ * COLUMN MATERIALITY CANNOT BE PREDICTED BY NAME, which is the finding that
+ * settles the design. `roster_row_id` looks like a join key and is inert.
+ * `built_at` and `imported_at` look like provenance timestamps and move all six
+ * hashes. Any hand-picked projection is a guess, and a guess that is wrong in
+ * the omitting direction is silent.
+ *
+ * So V3 fingerprints EVERY column of every table the walk actually reads, and
+ * nothing else. The seven are not a guess either — they are what the
+ * instrumentation found.
+ *
+ * WHY THE FALSE-POSITIVE ARGUMENT NO LONGER APPLIES. V2 stayed narrow because a
+ * manifest that reports CHANGED constantly teaches people to repin without
+ * reading, and it was reading the working database, which moved daily. D3.2
+ * made the input an immutable pinned snapshot. A maximally sensitive manifest
+ * over a fixture that only changes when somebody deliberately re-pins it
+ * produces no noise at all — it speaks exactly once, when the dataset really is
+ * a different dataset.
+ *
+ * ORDERING CANNOT CHANGE A DIGEST. Each row is hashed on its own and the row
+ * hashes are sorted before the table hash is taken, so the fingerprint is a
+ * property of the SET of rows. No ORDER BY to get right, and a VACUUM, a
+ * rebuild or a different query plan cannot move it. Column names are sorted for
+ * the same reason: physical column order is not data.
+ *
+ * V2 AND V3 DIGESTS ARE NOT COMPARABLE. The version carries that, and
+ * `compareBaselines` reports DEFINITION_CHANGED rather than CHANGED.
+ */
+export const MANIFEST_VERSION = 'V3';
 
 /** The last version before `roster_freshness`, kept so a V1 pin is nameable. */
 export const LEGACY_MANIFEST_VERSION = 'V1';
 
-const MANIFEST_TABLES = Object.freeze([
-  ['players', 'SELECT id, full_name, sport, nationality, position, intended_major, recruiting_class_year FROM players ORDER BY id'],
-  ['colleges', 'SELECT name, sport, unitid, division, conference FROM colleges ORDER BY sport, name'],
-  ['roster_players', 'SELECT college_name, sport, season, player_name FROM roster_players ORDER BY sport, college_name, season, player_name'],
-  ['coaches', 'SELECT school, sport, full_name, position_title FROM coaches ORDER BY sport, school, full_name, position_title'],
-  ['athletics_domains', 'SELECT domain, unitid, status, role, confidence FROM athletics_domains ORDER BY domain'],
+/**
+ * The tables `buildBaselines` reads, and only those.
+ *
+ * Found by instrumenting `db.prepare` across a full walk, not by reading
+ * imports: `programme_seasons`, `conference_seasons`, `institution_aliases` and
+ * the outreach tables were all plausible and none of them is touched. A
+ * manifest that fingerprinted them would report CHANGED for data no baseline
+ * can see, which is the same defect pointing the other way.
+ */
+export const MANIFEST_TABLES = Object.freeze([
+  'players',
+  'colleges',
+  'roster_players',
+  'coaches',
+  'athletics_domains',
+  'recruiting_arrivals',
+  'coach_seasons',
 ]);
+
+/**
+ * One table, every column, order-independent.
+ *
+ * `rows` and `columns` travel with the digest so a DATASET CHANGED report can
+ * say what moved before anyone opens a database.
+ */
+export function tableFingerprint(table) {
+  const columns = db.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name).sort();
+  if (!columns.length) throw new Error(`no such table: ${table}`);
+  const rows = db.prepare(`SELECT ${columns.map((c) => `"${c}"`).join(', ')} FROM "${table}"`).all();
+  const rowDigests = rows.map((row) => digest(canonical(columns.map((c) => row[c]))));
+  rowDigests.sort();
+  return {
+    table, rows: rows.length, columns: columns.length, digest: digest(canonical(rowDigests)),
+  };
+}
 
 /**
  * What the dataset is, in one line per table plus one digest over all of it.
@@ -152,12 +229,21 @@ export function rosterFreshnessFingerprint() {
 
 export function datasetManifest() {
   const tables = [];
-  for (const [name, sql] of MANIFEST_TABLES) {
-    let rows;
-    try { rows = db.prepare(sql).all(); }
-    catch (err) { tables.push({ table: name, rows: null, digest: null, error: err.message }); continue; }
-    tables.push({ table: name, rows: rows.length, digest: digest(canonical(rows)) });
+  for (const name of MANIFEST_TABLES) {
+    try { tables.push(tableFingerprint(name)); }
+    catch (err) {
+      tables.push({ table: name, rows: null, columns: null, digest: null, error: err.message });
+    }
   }
+  /**
+   * Kept from V2, and now a DIAGNOSTIC rather than the only cover.
+   *
+   * V3's full `roster_players` fingerprint already includes `updated_date`, so
+   * this component no longer closes a gap. It stays because it names the thing
+   * the product actually reads — one MAX per programme-sport over the current
+   * season — so a report can distinguish "the squad rows moved" from "the
+   * freshness the emails quote moved" without a second investigation.
+   */
   try { tables.push(rosterFreshnessFingerprint()); }
   catch (err) { tables.push({ table: 'roster_freshness', rows: null, digest: null, error: err.message }); }
   return { version: MANIFEST_VERSION, tables, digest: digest(canonical(tables)) };
