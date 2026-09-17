@@ -43,6 +43,7 @@
     "migrate-composition": "node server/scripts/migrateCompositionAuthority.js",
     "test:generalisation": "node server/scripts/generalisationRun.js && vitest run shared/evidence/generalisation.test.js --reporter=verbose",
     "roster-sources": "node server/scripts/rosterSourceAudit.js",
+    "roster-gaps": "node server/scripts/rosterGapQueue.js",
     "roster-targets": "node server/scripts/rosterTargetUniverse.js",
     "roster:universe": "node server/scripts/rosterTargetUniverse.js --csv --out",
     "roster:targets": "python3 tools/roster_pipeline/build_targets.py",

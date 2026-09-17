@@ -1188,3 +1188,77 @@ END;
 -- stopping nobody with a SQL prompt; what actually protects the accounting is
 -- that server/lib/outboundBudget.js exports no delete, no decrement and no
 -- refund, which a test asserts.
+
+-- ===========================================================================
+-- What an operator decided about a roster gap.
+--
+-- WHY A DATABASE TABLE AND NOT THE PIPELINE'S STATE FILE.
+--
+-- L7J established that `_state/state<S>.json` is the pipeline's own durable
+-- acquisition state, and that `_targets.csv` is a projection of it rather than
+-- an authority. Both belong to the acquisition engine: they are season-scoped,
+-- regenerated, and `build_targets.py --reset-state` exists precisely to clear
+-- the operational layer.
+--
+-- A human decision must not live anywhere that a pipeline reset can reach. The
+-- separation here is physical rather than promised: the pipeline is Python
+-- talking to CSV and JSON under `~/Documents/Thriv3`, and it has no connection
+-- to this database at all. `--reset-state` cannot clear this table because it
+-- cannot see it, which is a stronger guarantee than a rule someone has to
+-- remember.
+--
+-- It is also where operator decisions already live — `athlete_programmes`
+-- carries `flagged_by_operator_id` and `note_updated_by_operator_id` against
+-- `operator_users`, and this follows that shape.
+--
+-- OPERATIONAL METADATA ONLY. Nothing in Evidence, matching, outreach or
+-- programme inclusion reads this table, and `rosterGapReview.test.js` asserts
+-- that no such import exists. A review says what a person concluded about a
+-- data-acquisition gap; it is not a product fact about a programme, and a
+-- future decision to make it one would be a deliberate, separate change.
+--
+-- Registry truth is NOT here either. A `PROGRAMME_STATUS_QUESTION` records that
+-- whether a programme is fielded is in doubt; `colleges.active` records what
+-- the registry says. Resolving the doubt is a separate act by whoever owns the
+-- registry, and this table may never write that column.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS roster_gap_reviews (
+  -- The gap is a programme in a season: a programme reviewed for 2026 has said
+  -- nothing about 2027, and next season's queue starts empty rather than
+  -- inheriting last season's conclusions.
+  season INTEGER NOT NULL,
+  school TEXT NOT NULL,
+  sport TEXT NOT NULL,
+
+  -- `shared/roster/gapReview.js` owns the vocabulary. Not a CHECK constraint:
+  -- the allowed pairs of disposition and action are a contract with a reason
+  -- attached, and `validateReview` can say WHY a pair is refused where a
+  -- constraint can only fail.
+  disposition TEXT NOT NULL,
+  next_action TEXT NOT NULL,
+  -- Only for RETRY_AFTER, and required there: a temporary condition without a
+  -- date is a permanent one that has not admitted it yet.
+  retry_after TEXT,
+
+  -- What the person saw. A sentence, not a page: this is the record that makes
+  -- a disposition auditable, and storing payloads here would make it a cache.
+  evidence TEXT NOT NULL,
+
+  reviewed_at TEXT NOT NULL,
+  -- Attributed where an operator id is available, and NOT a foreign key.
+  -- `operator_users` is created by the auth path rather than by this file, so a
+  -- REFERENCES clause here makes a database built from schema.sql alone unable
+  -- to accept a review at all — which is how this was found. The column records
+  -- who, when anyone knows; it does not make the auth tables a prerequisite for
+  -- reviewing a roster gap.
+  reviewed_by_operator_id TEXT,
+
+  -- BOUNDED HISTORY: the immediately previous conclusion and when it was
+  -- reached, and nothing older. It answers "has this changed, and from what",
+  -- which is the question an auditor actually asks of a queue this size. A
+  -- full history table would be an event log for ten rows.
+  previous_disposition TEXT,
+  previous_reviewed_at TEXT,
+
+  PRIMARY KEY (season, school, sport)
+);
