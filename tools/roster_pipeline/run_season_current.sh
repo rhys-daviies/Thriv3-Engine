@@ -40,19 +40,13 @@ print(f'  {len(done)} done, {len(rem)} remaining')
 PY
 }
 absorb () {
+  # The merge policy lives in state.merge_attempt, not here. It used to be four
+  # lines of heredoc, and three of its four cases were wrong -- see state.py.
   python3 - "$1" <<'PY'
-import sys,json,glob; sys.path.insert(0,'.')
+import sys; sys.path.insert(0,'.')
 import state
-main=state.load(); n=0
-for f in sorted(glob.glob(sys.argv[1])):
-    for k,v in json.load(open(f,encoding='utf-8')).items():
-        if v.get('status')=='done' and main.get(k,{}).get('status')!='done': main[k]=v; n+=1
-        # merge FAILURES too. Absorbing only successes meant a target that the
-        # direct stage never touched, and no ladder resolved, had no entry at
-        # all -- it read as never-attempted when its reason was sitting in the
-        # stage file. 54 rows looked like a coverage gap and were a reporting one.
-        elif v.get('status')!='done' and k not in main: main[k]=v
-state.save(main); print(f'  absorbed +{n} from {sys.argv[1]}')
+c = state.absorb(sys.argv[1])
+print('  absorbed from %s  %s' % (sys.argv[1], dict(c) or 'nothing'))
 PY
 }
 

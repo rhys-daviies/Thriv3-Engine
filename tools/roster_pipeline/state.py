@@ -1,4 +1,4 @@
-import csv, json, os, re, threading, collections
+import csv, glob, json, os, re, threading, collections
 HERE=os.path.dirname(os.path.abspath(__file__))
 import sys
 sys.path.insert(0, HERE)
@@ -92,6 +92,156 @@ def save(st):
         tmp='%s.%d.%d.tmp'%(STATE,os.getpid(),threading.get_ident())
         json.dump(st,open(tmp,'w',encoding='utf-8'),ensure_ascii=False)
         os.replace(tmp,STATE)
+
+# ---------------------------------------------------------------------------
+# MERGING AN ATTEMPT INTO DURABLE STATE
+#
+# One owner, because there were two and they disagreed.
+#
+# `run.py::_drive` writes in-process and always overwrites, accumulating a
+# `tried` line per attempt. The runner's `absorb` step merged the stage files
+# written by the separate `variants.py`, `selector.py` and `browse.py`
+# processes, and it was a four-line heredoc inside `run_season_current.sh`:
+#
+#     if v['status']=='done' and main.get(k,{}).get('status')!='done': main[k]=v
+#     elif v['status']!='done' and k not in main:                      main[k]=v
+#
+# Read those two conditions as a table and three of the four cases are wrong:
+#
+#   failed -> failed   `k not in main` is false, so the merge is SKIPPED. The
+#                      FIRST failure a programme ever recorded wins forever.
+#                      Every one of the ten remaining NCAA gaps still reports
+#                      `stage: variants / no candidate` from L6D, including
+#                      Wisconsin-Oshkosh, which L7H proved is a 2027 programme,
+#                      and Southwest Minnesota State, which L7G proved serves a
+#                      women's bio at a men's-soccer path. Three stages have had
+#                      to re-derive residual classifications live because of it.
+#
+#   done   -> done     `main[k].status != 'done'` is false, so a newer
+#                      successful acquisition is DISCARDED. A deliberate refresh
+#                      silently does nothing.
+#
+#   done   -> failed   skipped, which is the one case the old shape got right,
+#                      and by accident rather than intent.
+#
+# So the rules are written down here, once, and both writers use them.
+# ---------------------------------------------------------------------------
+
+# How many attempt lines a key keeps. Bounded because the fix makes `tried`
+# grow where it previously could not: before it, a failure never merged into an
+# existing key at all, and the longest `tried` in 2,138 live entries is 2. A
+# current-season run has four acquiring stages, so twelve is three full runs of
+# history -- enough to see what a programme has been refusing to do, and a
+# ceiling rather than a place for a log to accumulate.
+TRIED_MAX = 12
+
+# Why an attempt failed, normalised from the reason the stage already wrote.
+#
+# DERIVED, NEVER AUTHORITATIVE. The raw `err` string stays exactly as the stage
+# produced it and is the evidence; this is an index over it, so a residual can
+# be counted without re-running an acquisition. 96 distinct reason strings in
+# live state collapse into these six.
+#
+# These are ACQUISITION-ENGINE outcomes. They are deliberately NOT the residual
+# vocabulary an operator reports -- SOURCE_NOT_AVAILABLE, PROGRAMME_STATUS_
+# QUESTION, SITE_TEMPORARILY_UNAVAILABLE, MANUAL_REVIEW, NO_HOST. Those are
+# product judgements made by a person who looked at a site: "Soccer (Coming in
+# 2027)" in a navigation menu is what makes Wisconsin-Oshkosh a programme-status
+# question, and no engine said that. The engine can say the page named the wrong
+# season; only a person can say the programme does not exist yet. Collapsing the
+# two would let the pipeline manufacture a diagnosis it never established.
+NO_CANDIDATE = 'NO_CANDIDATE'            # nothing to try: no URL, no host
+ROUTE_FAILURE = 'ROUTE_FAILURE'          # the request itself did not land
+SEASON_MISMATCH = 'SEASON_MISMATCH'      # the page names a different season
+TURNOVER_REFUSED = 'TURNOVER_REFUSED'    # last season's squad served back
+PARSER_FLOOR = 'PARSER_FLOOR'            # a page, too few usable rows
+CONTENT_UNREADABLE = 'CONTENT_UNREADABLE'  # reached it, could not read a squad
+UNCLASSIFIED = 'UNCLASSIFIED'
+
+_CLASSES = (
+    (re.compile(r'no candidate|no trusted host|not attempted', re.I), NO_CANDIDATE),
+    (re.compile(r'->\s*fetch\b|^fetch \d|unreachable', re.I), ROUTE_FAILURE),
+    (re.compile(r'page season is not|season \d{4}, not', re.I), SEASON_MISMATCH),
+    (re.compile(r'roster repeats \d+% of the', re.I), TURNOVER_REFUSED),
+    (re.compile(r'too few players parsed|only \d+ usable rows|implausible player count', re.I), PARSER_FLOOR),
+    (re.compile(r'renders client-side|nothing parsed|no roster markup', re.I), CONTENT_UNREADABLE),
+)
+
+
+def classify_failure(err):
+    """One of the classes above, from the reason string a stage wrote."""
+    text = str(err or '')
+    if not text.strip():
+        return UNCLASSIFIED
+    for pat, klass in _CLASSES:
+        if pat.search(text):
+            return klass
+    return UNCLASSIFIED
+
+
+def _tried(entry, attempt):
+    """The attempt history, oldest first, bounded."""
+    prior = list(entry.get('tried') or [])
+    line = '%s: %s' % (attempt.get('stage') or '?', attempt.get('err') or 'failed')
+    return (prior + [line])[-TRIED_MAX:]
+
+
+def merge_attempt(main, k, attempt):
+    """Fold one attempt into durable state. Returns what it did, for counting.
+
+    PRECEDENCE, and every case is deliberate:
+
+      absent  -> anything   record it
+      failed  -> failed     REPLACE: the newest diagnosis is the truthful one
+      failed  -> done       REPLACE: an acquisition supersedes a refusal
+      done    -> done       REPLACE: a newer successful read is a better one
+      done    -> failed     KEEP the success, and record the failure in `tried`
+
+    The last is the asymmetry that matters. A stage file is a cache, and a
+    failure in one is not evidence that a roster we hold is bad -- it is
+    evidence that one attempt did not land. Demoting a good roster on that is
+    how a season's work disappears.
+
+    Demotion is a real operation and it belongs to whoever can actually judge
+    it: `verify_gate.py` re-measures shipped rows against the gate in force now
+    and writes `failed` DIRECTLY, then purges the stage files so the next absorb
+    cannot resurrect what it demoted. That path is untouched by this function
+    and must stay that way.
+    """
+    prev = main.get(k)
+    incoming = dict(attempt)
+    if incoming.get('status') == 'done':
+        main[k] = incoming
+        return 'resolved' if not prev or prev.get('status') != 'done' else 'refreshed'
+    incoming['failure_class'] = classify_failure(incoming.get('err'))
+    if prev is None:
+        incoming['tried'] = _tried({}, incoming)
+        main[k] = incoming
+        return 'recorded'
+    if prev.get('status') == 'done':
+        # The success stands. The attempt is still worth keeping as history.
+        prev['tried'] = _tried(prev, incoming)
+        main[k] = prev
+        return 'kept-success'
+    incoming['tried'] = _tried(prev, incoming)
+    main[k] = incoming
+    return 'rediagnosed'
+
+
+def absorb(pattern):
+    """Merge every stage file matching `pattern` into durable state.
+
+    Sorted so a run is reproducible, and the whole merge policy is
+    `merge_attempt` -- this function chooses only what to feed it.
+    """
+    main = load()
+    counts = collections.Counter()
+    for f in sorted(glob.glob(pattern)):
+        for k, v in json.load(open(f, encoding='utf-8')).items():
+            counts[merge_attempt(main, k, v)] += 1
+    save(main)
+    return counts
+
 
 FILEMAP={('NCAA D1','mens-soccer'):f'ncaa_d1_mens_soccer_{REF}_rosters.csv',
          ('NCAA D1','womens-soccer'):f'ncaa_d1_womens_soccer_{REF}_rosters.csv',

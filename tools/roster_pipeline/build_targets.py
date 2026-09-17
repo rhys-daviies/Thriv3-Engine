@@ -38,6 +38,46 @@ GENERATED_METHODS = {
     'generated from a verified athletics host',
 }
 
+RESET = '--reset-state' in sys.argv
+
+# ---------------------------------------------------------------------------
+# REGENERATING THE WORKLIST IS NOT RESETTING THE SEASON.
+#
+# This file rebuilds `_targets.csv` from the registry and the reference season's
+# roster sheets. That is target-universe regeneration, and it is a safe, routine
+# thing to want: a new programme joins the registry, a candidate generator
+# improves, a conference is corrected.
+#
+# It also used to emit `'Status': 'todo', 'Notes': ''` for every row it wrote,
+# with nothing reading what was already there. Run mid-season, that is not a
+# regeneration -- it is a reset, and L7I measured the damage on the real sheet:
+# 1,933 `done` and 207 `failed` rows lost their status, and every Notes cell was
+# blanked, in one command that announced none of it.
+#
+# The damage was recoverable that day only because `write_out.py` derives both
+# columns from `_state/state<S>.json`, which this file never touches. That is
+# luck about which artefact happened to be authoritative, not a safety property,
+# and it stops being true the moment the state file is the thing that is missing.
+#
+# So the default preserves, and a reset is something you have to ask for.
+# ---------------------------------------------------------------------------
+
+
+def carried(path):
+    """Operational state on the existing worklist, per key.
+
+    `Status` and `Notes` are DERIVED -- `write_out.py` rewrites both for every
+    row from durable state at the end of a run. Carrying them across a rebuild
+    is therefore not preserving an opinion, it is refusing to throw away the
+    projection of one. A key this file has never seen starts clean.
+    """
+    if not os.path.exists(path): return {}
+    out = {}
+    for r in csv.DictReader(open(path, encoding='utf-8')):
+        out[(r['School'], r['Sport'])] = (r.get('Status') or 'todo', r.get('Notes') or '')
+    return out
+
+
 def repairs(path, season):
     """Candidate URLs a previous run REPAIRED, which a rebuild must not undo.
 
@@ -173,6 +213,7 @@ def registry_candidates():
     return out
 
 KEPT = repairs(OUT, SEASON)
+CARRIED = {} if RESET else carried(OUT)
 per = {y: scan(y) for y in LATER}
 REGISTRY = registry_universe()
 CANDIDATES = registry_candidates()
@@ -216,14 +257,31 @@ for k in keys:
                  'Generated Candidates': '|'.join(generated), 'Method': meth,
                  f'Roster URL {REF} (known good)': (per[REF].get(k) or {}).get('roster', u),
                  f'{REF} Player Count': str((per[REF].get(k) or {}).get('n', 0)),
-                 'Status': 'todo', 'Notes': ''})
+                 **dict(zip(('Status', 'Notes'),
+                           ('todo', '') if RESET else CARRIED.get(k, ('todo', ''))))})
 with open(OUT, 'w', newline='', encoding='utf-8') as fh:
     w = csv.DictWriter(fh, fieldnames=HDR, lineterminator='\r\n'); w.writeheader(); w.writerows(rows)
+kept_status = sum(1 for r in rows if r['Status'] != 'todo')
+kept_notes = sum(1 for r in rows if r['Notes'])
+fresh = sum(1 for r in rows if (r['School'], r['Sport']) not in CARRIED)
+dropped = sorted(set(CARRIED) - {(r['School'], r['Sport']) for r in rows})
 print(f'wrote {OUT}\n  {len(rows)} school-sports, candidates sourced from {LATER}'
       f'\n  {len(CANDIDATES)} registry-only programmes carry a generated candidate, '
       f'\n  {len(REGISTRY)} in the registry universe, '
       f'{sum(1 for k in keys if k in REGISTRY and not any(k in per[y] for y in LATER))} of them new to the worklist'
       f'\n  {sum(1 for r in rows if (r["School"], r["Sport"]) in KEPT)} repaired candidates carried forward')
+if RESET:
+    print('\n  --reset-state: every Status set to todo and every Notes cleared.')
+    print(f'  {len(carried(OUT))} rows held operational state before this run and no longer do.')
+    print('  Durable acquisition state in _state/ is NOT touched; re-run write_out.py to')
+    print('  rebuild these columns from it.')
+else:
+    print(f'\n  operational state carried forward: {kept_status} Status, {kept_notes} Notes')
+    print(f'  {fresh} new target(s) initialised as todo')
+    if dropped:
+        print(f'  {len(dropped)} target(s) left the registry universe and are no longer listed;')
+        print('  their durable state in _state/ is untouched: ' + ', '.join('||'.join(d) for d in dropped[:5])
+              + (' ...' if len(dropped) > 5 else ''))
 for y in LATER: print(f'    {y}: {len(per[y])} school-sports')
 print('\n  method breakdown:')
 for m, n in collections.Counter(r['Method'] for r in rows).most_common(): print(f'    {n:5}  {m}')

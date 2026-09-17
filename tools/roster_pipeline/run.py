@@ -174,14 +174,17 @@ def _drive(todo, work, st, label, workers):
             try: r, k, res, err = f.result()
             except Exception as e:
                 print('  ERR', type(e).__name__, e); continue
+            # Same merge policy as the runner's absorb step, because they are the
+            # same question asked by two processes. `_drive` used to overwrite a
+            # `done` with a `failed` outright; only the `todo` filter upstream
+            # kept that from demoting a good roster.
             if res:
-                st[k] = {'status': 'done', 'stage': label, 'url': res['url'], 'parser': res['parser'],
-                         'n': res['n'], 'rows': res['rows'], 'title': res.get('title', '')}
+                state.merge_attempt(st, k, {
+                    'status': 'done', 'stage': label, 'url': res['url'], 'parser': res['parser'],
+                    'n': res['n'], 'rows': res['rows'], 'title': res.get('title', '')})
                 done['ok'] += 1
             else:
-                prev = st.get(k, {})
-                st[k] = {'status': 'failed', 'stage': label, 'err': err,
-                         'tried': prev.get('tried', []) + [label + ': ' + str(err)]}
+                state.merge_attempt(st, k, {'status': 'failed', 'stage': label, 'err': err})
                 done['fail'] += 1
             if n % 50 == 0:
                 state.save(st)
