@@ -1,14 +1,16 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CampaignProgrammeCard from '@/components/CampaignProgrammeCard';
+import CampaignMessageDetail from '@/components/CampaignMessageDetail';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 import { campaigns } from '@/api/client';
 import { useCampaignPlan, CAMPAIGN_PLAN } from '@/lib/useCampaignPlan';
 import {
-  blockerCopy, isCampaignWide, approvalError, preparationError,
+  blockerCopy, isCampaignWide, approvalError, preparationError, generationError,
+  messageLoadError, messageEditError, messageReviewError,
   CAMPAIGN_STATE_COPY, shortDate,
 } from '@/lib/campaignLabels';
 
@@ -362,6 +364,236 @@ export default function CampaignTab() {
     }
   }, [reload]);
 
+  /**
+   * ONE MESSAGE, OPEN, INSIDE THIS TAB.
+   *
+   * ---------------------------------------------------------------------------
+   * STATE, NOT A ROUTE.
+   *
+   * No URL is minted for a message in F10. A deep link would be a durable
+   * reference to a row whose whole point is that it is part of a campaign an
+   * operator is working through, and inventing one now would settle a
+   * navigation design nobody has made. Opening one hides the list and shows the
+   * email; going back shows the list again, unchanged.
+   *
+   *   { programmeCampaignId, messageId, status, message, error }
+   *
+   * `message` is ALWAYS the server's own resource — from the generate response,
+   * the read, the edit or the review. Nothing on this page constructs one.
+   * ---------------------------------------------------------------------------
+   */
+  const [selected, setSelected] = useState(null);
+
+  /**
+   * WHERE FOCUS GOES ON THE WAY BACK. The control the operator pressed is on a
+   * card that was unmounted while the message was open, so returning has to put
+   * them back on it rather than at the top of a page of a hundred schools.
+   */
+  const returnTo = useRef(null);
+
+  useEffect(() => {
+    if (selected || !returnTo.current) return;
+    const card = document.querySelector(`[data-programme="${CSS.escape(returnTo.current)}"]`);
+    const control = card?.querySelector('[data-testid="open-message"]')
+      ?? card?.querySelector('button');
+    control?.focus();
+    returnTo.current = null;
+  }, [selected, programmes]);
+
+  const closeMessage = useCallback(() => setSelected(null), []);
+
+  /**
+   * WRITE THE MESSAGE, THEN SHOW IT, THEN GO AND READ THE PLAN AGAIN.
+   *
+   * ---------------------------------------------------------------------------
+   * THE REQUEST CARRIES NO CONTENT AND NOTHING IS SENT.
+   *
+   * Two identifiers go up; a subject, a body and the evidence behind them come
+   * back. The athlete, the recipient, the step, the structure and every sentence
+   * are the server's to derive from the campaign and the prepared intent, which
+   * is what stops this screen asking for words addressed to somebody the
+   * campaign would not approach.
+   * ---------------------------------------------------------------------------
+   *
+   * THE RESPONSE IS THE RESOURCE. The detail view opens on what the server
+   * returned rather than on a locally-assembled object, and the plan is reloaded
+   * afterwards so the card behind it reports `currentMessage` from server truth.
+   * Nothing is fabricated in between.
+   */
+  const generate = useCallback(async (programme) => {
+    const key = `generate:${programme.programmeCampaignId}`;
+    if (inFlight.current.has(key)) return;
+    inFlight.current.add(key);
+    try {
+      setNotice(null);
+      const message = await campaigns.generateMessage(
+        programme.programmeCampaignId, programme.currentCoach.id,
+      );
+      returnTo.current = programme.programmeCampaignId;
+      setSelected({
+        programmeCampaignId: programme.programmeCampaignId,
+        messageId: message.id,
+        status: 'ready',
+        message,
+        error: null,
+      });
+      reload();
+    } catch (err) {
+      /**
+       * A FAILED GENERATION IS NOT A FAILED PLAN — the same rule approving and
+       * preparing follow. The plan on screen is still the server's and is still
+       * true, so it stays.
+       *
+       * A refusal that means the SERVER HAS MOVED ON belongs at the page,
+       * because the reload that answers it may take the card away. A dropped
+       * connection or a 500 belongs on the control that tried, which can safely
+       * try again: generation is idempotent, and a second call returns the
+       * message the first one wrote.
+       */
+      const copy = generationError(err);
+      if (copy.refresh) {
+        setNotice(copy.message);
+        reload();
+        return;
+      }
+      throw Object.assign(err, { operatorMessage: copy.message });
+    } finally {
+      inFlight.current.delete(key);
+    }
+  }, [reload]);
+
+  /**
+   * OPEN A MESSAGE THAT ALREADY EXISTS. One read, by id.
+   *
+   * The whole campaign is NOT reloaded to open one email: the plan on screen is
+   * still true, and a hundred programmes recomputed to display one body would
+   * be the most expensive way possible to answer a cheap question.
+   */
+  const openMessage = useCallback(async (programme) => {
+    const messageId = programme.currentMessage?.id;
+    if (!messageId) return;
+    returnTo.current = programme.programmeCampaignId;
+    setNotice(null);
+    setSelected({
+      programmeCampaignId: programme.programmeCampaignId,
+      messageId,
+      status: 'loading',
+      message: null,
+      error: null,
+    });
+    try {
+      const message = await campaigns.message(messageId);
+      setSelected((prev) => (prev?.messageId === messageId
+        ? { ...prev, status: 'ready', message } : prev));
+    } catch (err) {
+      const copy = messageLoadError(err);
+      /**
+       * GONE MEANS LEAVE. A message that is not there is not a screen to redraw
+       * — the operator is returned to the campaign with the sentence at the
+       * page, and the reload decides what that card should now say.
+       */
+      if (copy.gone) {
+        setSelected(null);
+        setNotice(copy.message);
+        reload();
+        return;
+      }
+      setSelected((prev) => (prev?.messageId === messageId
+        ? { ...prev, status: 'failed', error: copy.message } : prev));
+    }
+  }, [reload]);
+
+  const retryMessage = useCallback(() => {
+    if (!selected) return;
+    const programme = programmes.find(
+      (p) => p.programmeCampaignId === selected.programmeCampaignId,
+    );
+    if (programme) openMessage(programme);
+  }, [selected, programmes, openMessage]);
+
+  /**
+   * SAVE THE OPERATOR'S WORDS. The changed fields only, and nothing else.
+   *
+   * NO PLAN RELOAD. Editing changes the subject and body of a message that is
+   * already `generated`; it does not change the programme's state, its blockers,
+   * its step, or whether a message exists — so there is nothing on the campaign
+   * behind this screen that could have become untrue. Reloading a hundred
+   * programmes on every save would be a cost with no answer attached.
+   */
+  const saveMessage = useCallback(async (message, patch) => {
+    const key = `edit:${message.id}`;
+    if (inFlight.current.has(key)) return;
+    inFlight.current.add(key);
+    try {
+      const saved = await campaigns.editMessage(message.id, patch);
+      setSelected((prev) => (prev?.messageId === message.id
+        ? { ...prev, message: saved } : prev));
+    } catch (err) {
+      const copy = messageEditError(err);
+      /**
+       * SOMEBODY REVIEWED IT WHILE THIS WAS OPEN. The edit was not applied and
+       * the words on file are final, so the honest move is to show what is
+       * actually stored rather than to leave an unsaved draft claiming to be
+       * the message.
+       */
+      if (copy.reload) {
+        setNotice(copy.message);
+        const programme = programmes.find(
+          (p) => p.programmeCampaignId === selected?.programmeCampaignId,
+        );
+        if (programme) openMessage(programme);
+        return;
+      }
+      if (copy.gone) {
+        setSelected(null);
+        setNotice(copy.message);
+        reload();
+        return;
+      }
+      throw Object.assign(err, { operatorMessage: copy.message });
+    } finally {
+      inFlight.current.delete(key);
+    }
+  }, [programmes, selected, openMessage, reload]);
+
+  /**
+   * RECORD THAT A PERSON READ THESE EXACT WORDS.
+   *
+   * ---------------------------------------------------------------------------
+   * IT IS NOT SEND APPROVAL.
+   *
+   * The request carries no body: the reviewer is the session's operator and the
+   * timestamp is the server's. Nothing is queued, scheduled or handed to a
+   * mailbox, and every stance, suppression, revocation, lifecycle rule, budget
+   * and timing check is evaluated afterwards exactly as before.
+   * ---------------------------------------------------------------------------
+   *
+   * THE PLAN IS RELOADED because the card's `currentMessage.state` genuinely
+   * changed — which is the one thing a save does not do.
+   */
+  const reviewMessage = useCallback(async (message) => {
+    const key = `review:${message.id}`;
+    if (inFlight.current.has(key)) return;
+    inFlight.current.add(key);
+    try {
+      const reviewed = await campaigns.reviewMessage(message.id);
+      setSelected((prev) => (prev?.messageId === message.id
+        ? { ...prev, message: reviewed } : prev));
+      reload();
+    } catch (err) {
+      const copy = messageReviewError(err);
+      if (copy.gone) {
+        setSelected(null);
+        setNotice(copy.message);
+        reload();
+        return;
+      }
+      throw Object.assign(err, { operatorMessage: copy.message });
+    } finally {
+      inFlight.current.delete(key);
+    }
+  }, [reload]);
+
   const grouped = useMemo(() => {
     const by = new Map(SECTIONS.map((s) => [s.key, []]));
     for (const p of programmes) by.get(groupFor(p)).push(p);
@@ -451,6 +683,39 @@ export default function CampaignTab() {
       <div className="space-y-6">
         {noticeCard}
         <Empty otherCampaigns={otherCampaigns} />
+      </div>
+    );
+  }
+
+  /**
+   * ONE EMAIL REPLACES THE LIST, RATHER THAN SITTING ON TOP OF IT.
+   *
+   * Not a modal: a modal is what this repo reserves for deletion, and an email
+   * body with its evidence is longer than a dialog should ever be — on a phone
+   * it would be a scrolling sheet over a scrolling page. The campaign is still
+   * there and Back returns to it with its search and its sections exactly as
+   * they were, because nothing about it was unmounted for a reason it could
+   * forget.
+   *
+   * The page notice stays above it: a refusal raised while a message was open
+   * is still the answer to what the operator just did.
+   */
+  if (selected) {
+    return (
+      <div className="space-y-6">
+        {noticeCard}
+        <CampaignMessageDetail
+          message={selected.message}
+          programme={programmes.find(
+            (p) => p.programmeCampaignId === selected.programmeCampaignId,
+          ) ?? null}
+          status={selected.status}
+          error={selected.error}
+          onBack={closeMessage}
+          onRetry={retryMessage}
+          onSave={saveMessage}
+          onReview={reviewMessage}
+        />
       </div>
     );
   }
@@ -553,6 +818,16 @@ export default function CampaignTab() {
                       */
                       onApprove={key === GROUP.REVIEW ? approve : null}
                       onPrepare={prepare}
+                      /*
+                        AND TWO MORE, OFFERED EVERYWHERE FOR THE SAME REASON.
+                        Whether a message can be written is `currentAttempt.id`
+                        and `currentMessage.id` — the server's answers — and
+                        whether one can be opened is whether one exists. A
+                        section is not a permission, and gating either by group
+                        would hide them on exactly the programmes that have them.
+                      */
+                      onGenerate={generate}
+                      onOpenMessage={openMessage}
                     />
                   ))}
                 </div>

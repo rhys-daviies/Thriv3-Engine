@@ -452,6 +452,314 @@ export function preparationError(err) {
   return PREPARATION_FAILED;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Writing and reviewing the message — F10b-5                                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * WHAT A GENERATED MESSAGE IS, IN THE ONLY WORDS THAT ARE TRUE OF IT.
+ *
+ * ---------------------------------------------------------------------------
+ * CONTENT, NOT DELIVERY.
+ *
+ * Generating writes a subject and a body into a row. It touches no mailbox,
+ * reserves no capacity, queues nothing, schedules nothing and hands nothing to
+ * a transport. `outreach_send` is still the only thing in this build that says
+ * a message happened, and nothing on this screen writes to it.
+ *
+ * SO THE VOCABULARY IS FLAT, the same discipline `PREPARE_COPY` follows above.
+ * Not "ready to send", not "queued", not "draft sent to your outbox", not
+ * "approve" — every one of those claims something the row does not say.
+ * ---------------------------------------------------------------------------
+ */
+export const MESSAGE_COPY = Object.freeze({
+  generate: 'Generate message',
+  generateConfirm: 'Generate message',
+  cancel: 'Cancel',
+  generatePending: 'Generating message…',
+  /** The one sentence that keeps the button honest, shown at the confirmation. */
+  generateExplain: 'Thriv3 will write this campaign’s personalised email using the current '
+    + 'athlete and programme evidence. Nothing will be sent.',
+
+  open: 'Review message',
+  openReviewed: 'View message',
+  back: 'Back to campaign',
+  loading: 'Loading the message…',
+
+  save: 'Save changes',
+  savePending: 'Saving…',
+  saved: 'Changes saved.',
+
+  review: 'Review message',
+  reviewConfirm: 'Mark as reviewed',
+  reviewPending: 'Recording review…',
+  /**
+   * SAID ABOUT THIS MESSAGE AND THIS OPERATOR, never about the product.
+   *
+   * "An operator has to review every email before it goes" is a policy nobody
+   * has decided, and copy that asserted it would make a future automated
+   * campaign look like a violation of a promise this screen invented. What is
+   * true today is that this transition is the one available here.
+   */
+  reviewExplain: 'This records that you have reviewed the exact subject and message shown here. '
+    + 'It does not send, queue or schedule the email.',
+  reviewDirty: 'Save your changes before reviewing this message.',
+
+  discard: 'Discard unsaved changes?',
+  discardConfirm: 'Discard changes',
+  keepEditing: 'Keep editing',
+
+  /**
+   * THE ONE TOKEN THAT SURVIVES COMPOSITION, EXPLAINED.
+   *
+   * ---------------------------------------------------------------------------
+   * FOUND BY LOOKING AT THE REAL SCREEN.
+   *
+   * `composeMessage` deliberately leaves `{{player_profile_url}}` unresolved:
+   * the tracked link carries a per-coach token that only exists once an
+   * outreach record is minted, so the composed body cannot contain it. This
+   * repo already knows what that costs a reader — `emailTemplate.js` says in so
+   * many words that a preview showing the raw token "looks like the link failed
+   * to resolve rather than like it resolves later", which is why the composer
+   * previews substitute a real URL.
+   *
+   * THIS SCREEN CANNOT SUBSTITUTE IT. The body is an EDITABLE field whose value
+   * is saved verbatim, so quietly swapping the token for display would either
+   * be lost on save or written into the stored message as a link belonging to
+   * one coach. So the token stays exactly as stored and gets a sentence instead.
+   * ---------------------------------------------------------------------------
+   */
+  profileToken: '{{player_profile_url}}',
+  profileTokenNote: 'Thriv3 replaces {{player_profile_url}} with this athlete’s tracked '
+    + 'profile link, one per coach. Leave it as it is — it is not part of the words you '
+    + 'are reviewing.',
+
+  evidenceHeading: 'Why this was written',
+  /**
+   * THE HONEST SENTENCE FOR A MESSAGE WITH NOTHING BEHIND IT. Some programmes
+   * have no licensed evidence at all, and the composer falls back to the
+   * generic template. Saying nothing would let the empty heading imply the
+   * evidence was simply not shown.
+   */
+  evidenceNone: 'No specific evidence was used in this message. Thriv3 used the generic '
+    + 'outreach template.',
+  editedBeforeReview: 'Edited before review',
+});
+
+/**
+ * THE MESSAGE'S CONTENT STATE, AND NOTHING ABOUT WHETHER IT MAY GO.
+ *
+ * `generated` and `reviewed` describe WORDS. They do not mean contactable,
+ * sendable, due, within budget or that a mailbox exists — the card's own
+ * blockers remain the only answer to that, which is why neither of these is
+ * green and neither says "ready".
+ */
+export const MESSAGE_STATE_COPY = Object.freeze({
+  generated: 'Generated',
+  reviewed: 'Reviewed',
+});
+
+export function messageStateLabel(state) {
+  return MESSAGE_STATE_COPY[state] ?? (state ? 'Written' : null);
+}
+
+/**
+ * WHY A MESSAGE WAS NOT WRITTEN, IN WORDS — and whether to go and look again.
+ *
+ * The same shape and the same discipline as `preparationError`: most of these
+ * are not failures at all. The server has moved on since the page was drawn —
+ * the campaign advanced a step, a stance changed, somebody sent something — and
+ * the honest response is to read the plan again and let it decide what the card
+ * should say.
+ *
+ * What is NOT refreshed is a failure with no server opinion in it: a dropped
+ * connection or a 500. The plan on screen is still the server's and is still
+ * true, so it stays, and the error sits on the control that tried. Retrying is
+ * safe because generation is idempotent — a second call returns the message the
+ * first one wrote.
+ */
+export const GENERATION_ERROR = Object.freeze({
+  /**
+   * NOTHING HAS BEEN PREPARED. The commonest of these by far, and it is not an
+   * error: the operator is looking at a card whose Prepare step has not
+   * happened, or whose attempt was consumed by a send. The reload puts the
+   * right control back on the card.
+   */
+  CONTACT_ATTEMPT_REQUIRED: {
+    message: 'This campaign has not recorded an intent to contact this coach yet, so there is '
+      + 'nothing to write. Reloading the campaign.',
+    refresh: true,
+  },
+  CONTACT_ATTEMPT_NOT_PLANNED: {
+    message: 'This contact attempt is no longer being pursued. Reloading the campaign.',
+    refresh: true,
+  },
+  COACH_NO_LONGER_CURRENT: {
+    message: 'This campaign has moved on to a different coach at this programme. Reloading the '
+      + 'campaign.',
+    refresh: true,
+  },
+  /**
+   * TWO RECORDS DISAGREE, and nobody should guess which. The reload is what
+   * surfaces the drift on the card, where the existing blocker copy explains it.
+   */
+  CONTACT_ATTEMPT_STEP_DRIFT: {
+    message: 'The prepared attempt and the campaign disagree about which message this would be, '
+      + 'so nothing was written. Reloading the campaign.',
+    refresh: true,
+  },
+  NO_ACTION_TO_PREPARE: {
+    message: 'This campaign has no next message to write here. Reloading the campaign.',
+    refresh: true,
+  },
+  NO_ELIGIBLE_COACH: {
+    message: 'There is nobody at this programme the campaign can approach. Reloading the campaign.',
+    refresh: true,
+  },
+  CAMPAIGN_FIRST_TOUCH_REVIEW_REQUIRED: {
+    message: 'This athlete has already had confirmed outreach to this coach, so the first '
+      + 'message needs reviewing before the campaign can pursue them. Reloading the campaign.',
+    refresh: true,
+  },
+  PROGRAMME_CAMPAIGN_NOT_FOUND: {
+    message: 'This programme is no longer part of the campaign. Reloading.',
+    refresh: true,
+  },
+  COACH_NOT_FOUND: {
+    message: 'This coach is no longer on file. Reloading the campaign.',
+    refresh: true,
+  },
+});
+
+const GENERATION_FAILED = Object.freeze({
+  message: 'The message could not be written. Try again.',
+  refresh: false,
+});
+
+/**
+ * What to tell the operator, and whether to go and look again.
+ *
+ * The prohibitions reuse `BLOCKER_COPY` rather than getting a second set of
+ * sentences — an operator who has read "Manual outreach only" on a card should
+ * meet the same words when generation is refused for it, and two copies of one
+ * explanation are two things that can drift apart.
+ */
+export function generationError(err) {
+  if (err?.status === 404 && !err?.code) return GENERATION_ERROR.PROGRAMME_CAMPAIGN_NOT_FOUND;
+  const code = err?.code;
+  if (code && GENERATION_ERROR[code]) return GENERATION_ERROR[code];
+  if (code && PREPARATION_PROHIBITIONS.includes(code)) {
+    return { message: `${blockerCopy(code).description} Reloading the campaign.`, refresh: true };
+  }
+  return GENERATION_FAILED;
+}
+
+/**
+ * WHY ONE MESSAGE COULD NOT BE READ, EDITED OR REVIEWED.
+ *
+ * ---------------------------------------------------------------------------
+ * A REFUSAL HERE IS ABOUT THE MESSAGE, NOT ABOUT THE CAMPAIGN.
+ *
+ * Editing and reviewing are deliberately NOT gated on live campaign safety: a
+ * message written before a coach was set to do-not-contact is still exactly
+ * what was written, and a person may still read it and record that they have.
+ * So there is no stance, suppression or lifecycle code in this table — the only
+ * things that can refuse are the message being gone, and the message being
+ * already reviewed.
+ * ---------------------------------------------------------------------------
+ *
+ * `gone` rather than `refresh`: this error happens INSIDE the detail view, and
+ * the answer is to leave it and reload the campaign rather than to redraw a
+ * screen about a message that is not there.
+ */
+export const MESSAGE_ERROR = Object.freeze({
+  PROGRAMME_MESSAGE_NOT_FOUND: {
+    message: 'This message is no longer on file. Returning to the campaign.',
+    gone: true,
+  },
+  /**
+   * SOMEBODY ELSE REVIEWED IT WHILE THIS SCREEN WAS OPEN. The words are final
+   * and the edit was not applied, so the honest move is to show what is
+   * actually stored rather than to keep an unsaved draft on screen.
+   */
+  MESSAGE_NOT_EDITABLE: {
+    message: 'This message has already been reviewed, so its words are final. '
+      + 'Reloading the message.',
+    reload: true,
+  },
+  ILLEGAL_MESSAGE_TRANSITION: {
+    message: 'This message has already been reviewed. Reloading the message.',
+    reload: true,
+  },
+  EMPTY_SUBJECT: { message: 'A subject is required.', field: 'subject' },
+  EMPTY_BODY: { message: 'A message body is required.', field: 'body' },
+});
+
+const MESSAGE_FAILED = Object.freeze({
+  message: 'The message could not be loaded. Try again.',
+});
+
+const SAVE_FAILED = Object.freeze({
+  message: 'Your changes could not be saved. Try again.',
+});
+
+const REVIEW_FAILED = Object.freeze({
+  message: 'The review could not be recorded. Try again.',
+});
+
+/** Reading one message. A 404 means it is gone, and the campaign is where to go. */
+export function messageLoadError(err) {
+  if (err?.status === 404) return MESSAGE_ERROR.PROGRAMME_MESSAGE_NOT_FOUND;
+  return MESSAGE_ERROR[err?.code] ?? MESSAGE_FAILED;
+}
+
+export function messageEditError(err) {
+  if (err?.status === 404) return MESSAGE_ERROR.PROGRAMME_MESSAGE_NOT_FOUND;
+  return MESSAGE_ERROR[err?.code] ?? SAVE_FAILED;
+}
+
+export function messageReviewError(err) {
+  if (err?.status === 404) return MESSAGE_ERROR.PROGRAMME_MESSAGE_NOT_FOUND;
+  return MESSAGE_ERROR[err?.code] ?? REVIEW_FAILED;
+}
+
+/**
+ * THE SENTENCES THE EMAIL ACTUALLY MADE, in the order it made them.
+ *
+ * ---------------------------------------------------------------------------
+ * `rendered` IS THE ANSWER, AND `held` IS NOT.
+ *
+ * `held` is a list of evidence KINDS the body cap licensed and deliberately
+ * withheld — claims this email does NOT make. It carries no sentences, only
+ * kind names, and presenting it under "Why this was written" would offer an
+ * operator a justification the coach will never read. It is kept for later
+ * causal comparison and is not part of this screen.
+ * ---------------------------------------------------------------------------
+ */
+export function evidenceSentences(evidence) {
+  const rendered = Array.isArray(evidence?.rendered) ? evidence.rendered : [];
+  return rendered
+    .filter((r) => typeof r?.text === 'string' && r.text.trim().length > 0)
+    .slice()
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    .map((r) => ({
+      key: `${r.order}:${r.kind ?? ''}`,
+      text: r.text,
+      /** A quiet label, only where the role is one this build names. */
+      role: EVIDENCE_ROLE_COPY[r.role] ?? null,
+    }));
+}
+
+/**
+ * WHAT A SENTENCE IS DOING IN THE EMAIL. Three roles, and they are the
+ * composer's own — this names them, it does not decide them.
+ */
+export const EVIDENCE_ROLE_COPY = Object.freeze({
+  HOOK: 'Opening',
+  RELEVANCE: 'Why this programme',
+  RECOGNITION: 'What they have done',
+});
+
 /** A date an operator reads, from the ISO dates and timestamps the plan carries. */
 export function shortDate(value) {
   if (!value) return null;

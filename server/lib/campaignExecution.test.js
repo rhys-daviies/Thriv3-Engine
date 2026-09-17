@@ -99,7 +99,8 @@ function codeOf(relative) {
 }
 
 beforeEach(() => {
-  db.exec(`DELETE FROM outbound_send_attempt; DELETE FROM programme_contact_attempts;
+  db.exec(`DELETE FROM programme_messages; DELETE FROM outbound_send_attempt;
+           DELETE FROM programme_contact_attempts;
            DELETE FROM engagement_rollup; DELETE FROM tracking_events;
            DELETE FROM outreach_send_event; DELETE FROM outreach_send;
            DELETE FROM outreach_evidence; DELETE FROM outreach;
@@ -712,13 +713,28 @@ describe('what a dry run leaves behind', () => {
     // as a transport.
     const src = fs.readFileSync(new URL('./campaignExecution.js', import.meta.url), 'utf8');
     const modules = [...src.matchAll(/from '([^']+)'/g)].map((m) => m[1]);
+    /**
+     * F10b-5 ADDED ONE MODULE, AND ONLY ONE FUNCTION FROM IT.
+     *
+     * The plan now reports whether the current pursuit has a message written
+     * for it, which needs the table that holds them. What it must never gain is
+     * the ability to WRITE one — a dry run that composed an email on being
+     * looked at would be the exact failure this whole suite exists to prevent —
+     * so the import is pinned to the batch READ and the writers are forbidden
+     * below by name.
+     */
     expect(modules.sort()).toEqual([
-      './campaigns.js', './config.js', './pursuitPolicy.js', './time.js',
+      './campaigns.js', './config.js', './programmeMessages.js', './pursuitPolicy.js',
+      './time.js',
     ]);
+    expect(db.prepare('SELECT COUNT(*) n FROM programme_messages').get().n).toBe(0);
+
     // Not even the one B6 helper that writes.
     const code = codeOf('./campaignExecution.js');
     expect(code).not.toMatch(/materialiseNextContactAttempt|createContactAttempt|createOutreach/);
     expect(code).not.toMatch(/recordOutboundAttempt|acceptSend|transitionSend/);
+    expect(code).not.toMatch(/composeProgrammeMessage|createProgrammeMessage/);
+    expect(code).not.toMatch(/generateProgrammeMessage|editProgrammeMessage|reviewProgrammeMessage/);
   });
 
   it('moves no campaign or programme state', () => {

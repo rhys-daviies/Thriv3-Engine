@@ -734,7 +734,12 @@ describe('nothing on this page sends anything', () => {
     .replace(/\{\/\*[\s\S]*?\*\/\}/g, '')
     .replace(/^\s*\/\/.*$/gm, '');
 
-  const SOURCES = [SRC.tab, SRC.card];
+  /**
+   * F10b-5 ADDED A THIRD FILE TO THIS PAGE. The message detail view renders an
+   * email and two controls, and it is inside the guard from the day it exists
+   * rather than after somebody notices it is not.
+   */
+  const SOURCES = [SRC.tab, SRC.card, path.resolve(process.cwd(), 'src/components/CampaignMessageDetail.jsx')];
 
   it('calls nothing on the client that sends, executes, runs or queues', () => {
     /*
@@ -749,8 +754,18 @@ describe('nothing on this page sends anything', () => {
     for (const name of clientCalls) {
       expect(name, name).not.toMatch(/send|execute|run|process|queue|schedule|dispatch/i);
     }
-    // And the only two this page may make at all.
-    expect(new Set(clientCalls)).toEqual(new Set(['approveFirstTouch', 'prepareNextAttempt']));
+    /*
+      AND THE ONLY SIX THIS PAGE MAY MAKE AT ALL.
+
+      Four arrived with F10b-5 and every one of them is about CONTENT: write
+      the words, read them, change them, record that a person read them. None
+      of them delivers anything, and the set is pinned by name so a seventh
+      cannot be added without this assertion being read and changed.
+    */
+    expect(new Set(clientCalls)).toEqual(new Set([
+      'approveFirstTouch', 'prepareNextAttempt',
+      'generateMessage', 'message', 'editMessage', 'reviewMessage',
+    ]));
   });
 
   it('imports no sending client and no transport', () => {

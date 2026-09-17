@@ -6,7 +6,7 @@ import { Disclosure } from '@/components/ui/Disclosure';
 import { ORIGIN_LABEL, ORIGIN_UNRECORDED } from '@/lib/outreachLabels';
 import {
   blockerCopy, isCampaignWide, BLOCKER_CATEGORY, ACTION_COPY, REASON_COPY, ROLE_COPY,
-  EMAIL_STATUS_COPY, shortDate, PREPARE_COPY, preparedLabel,
+  EMAIL_STATUS_COPY, shortDate, PREPARE_COPY, preparedLabel, MESSAGE_COPY, messageStateLabel,
 } from '@/lib/campaignLabels';
 
 /**
@@ -19,10 +19,11 @@ import {
  * whether a new attempt may be prepared, what the next action is and whether
  * prior contact needs reviewing are all FIELDS ON THE PLAN. This formats them.
  *
- * TWO CONTROLS, AND NEITHER SENDS ANYTHING. Approving a first touch records
- * that a person has read a coach's prior contact; preparing an attempt records
- * that the campaign intends to write to them. No control on this card, or
- * anywhere on this page, composes a message or hands one to a mailbox.
+ * FOUR CONTROLS, AND NONE OF THEM SENDS ANYTHING. Approving a first touch
+ * records that a person has read a coach's prior contact; preparing an attempt
+ * records that the campaign intends to write to them; generating writes the
+ * words into a row; opening shows them to a person. No control on this card, or
+ * anywhere on this page, hands a message to a mailbox, a queue or a schedule.
  */
 
 /** The facts a first-touch review is made on, and no more than the facts. */
@@ -378,13 +379,171 @@ function PreparedMarker({ currentAttempt }) {
   );
 }
 
+/**
+ * WRITE THE WORDS THIS CAMPAIGN WOULD SEND THIS COACH.
+ *
+ * ---------------------------------------------------------------------------
+ * IT IS STILL NOT A SEND BUTTON.
+ *
+ * Generating composes a subject and a body into a row and stops. No mailbox is
+ * touched, nothing is queued, scheduled or dispatched, and `outreach_send`
+ * remains the only thing in this build that says a message happened. So the
+ * control is the same outline weight as Prepare and Approve beside it, the
+ * confirmation says out loud that nothing will be sent, and no wording anywhere
+ * on this card calls the result ready.
+ * ---------------------------------------------------------------------------
+ *
+ * Three steps, inline, mirroring the two controls above it. What the middle step
+ * buys is the scope said out loud — the coach and the school — so a click on the
+ * wrong card is caught before it is content on the record.
+ */
+function GenerateMessage({ programme, onGenerate }) {
+  const [mode, setMode] = useState('idle');
+  const [error, setError] = useState(null);
+  const coach = programme.currentCoach;
+
+  const generateRef = useRef(null);
+  const confirmRef = useRef(null);
+  const returning = useRef(false);
+
+  useEffect(() => {
+    if (mode === 'confirming') confirmRef.current?.focus();
+    else if (returning.current) {
+      generateRef.current?.focus();
+      returning.current = false;
+    }
+  }, [mode]);
+
+  /** A new plan returns the control to rest — see the two controls above. */
+  useEffect(() => { setMode('idle'); setError(null); }, [programme]);
+
+  const submit = async () => {
+    setMode('pending');
+    setError(null);
+    try {
+      await onGenerate(programme);
+      /*
+        LEFT PENDING ON PURPOSE. Nothing is rendered as written until the server
+        says so — a success opens the detail view on the resource it returned,
+        and a refusal or a dropped response never claimed one.
+      */
+    } catch (err) {
+      returning.current = true;
+      setMode('idle');
+      setError(err);
+    }
+  };
+
+  const where = coach?.name ? `${coach.name} at ${programme.collegeName}` : programme.collegeName;
+
+  return (
+    <div className="space-y-2" data-testid="generate-message">
+      {mode === 'idle' && (
+        <Button
+          ref={generateRef}
+          size="sm"
+          variant="outline"
+          onClick={() => setMode('confirming')}
+          /* Named in full, because a screen reader hears this without the card. */
+          aria-label={`${MESSAGE_COPY.generate}: ${where}`}
+        >
+          {MESSAGE_COPY.generate}
+        </Button>
+      )}
+
+      {mode === 'confirming' && (
+        <div className="space-y-2">
+          <p className="text-sm">
+            Generate the message for <span className="font-medium">{where}</span>?
+          </p>
+          {/* The one sentence that keeps the button honest. */}
+          <p className="text-xs text-muted-foreground">{MESSAGE_COPY.generateExplain}</p>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => { returning.current = true; setMode('idle'); }}
+            >
+              {MESSAGE_COPY.cancel}
+            </Button>
+            <Button
+              ref={confirmRef}
+              size="sm"
+              variant="outline"
+              onClick={submit}
+              aria-label={`${MESSAGE_COPY.generateConfirm}: ${where}`}
+            >
+              {MESSAGE_COPY.generateConfirm}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {mode === 'pending' && (
+        <p className="text-sm text-muted-foreground" role="status" data-testid="generate-pending">
+          {MESSAGE_COPY.generatePending}
+        </p>
+      )}
+
+      {error && (
+        <p className="text-sm text-destructive" role="alert" data-testid="generate-error">
+          {error.operatorMessage ?? 'The message could not be written. Try again.'}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/**
+ * A MESSAGE EXISTS, SAID AS QUIETLY AS THE PREPARED MARKER BESIDE IT.
+ *
+ * `Generated` and `Reviewed` are states of WORDS. Neither means contactable,
+ * due, within budget or sendable, so neither gets a colour, a green badge or
+ * the word "ready" — the card's own blockers above remain the only account of
+ * whether this campaign may write to this coach at all.
+ *
+ * The control it carries OPENS the message. It is the only way onto the review
+ * screen, and it changes nothing by itself.
+ */
+function MessageMarker({ programme, onOpenMessage }) {
+  const message = programme.currentMessage;
+  if (!message?.id) return null;
+
+  const reviewed = message.state === 'reviewed';
+  const where = programme.currentCoach?.name
+    ? `${programme.currentCoach.name} at ${programme.collegeName}`
+    : programme.collegeName;
+
+  return (
+    <div className="space-y-2" data-testid="message-marker">
+      <p className="text-xs text-muted-foreground" data-testid="message-status">
+        <span className="text-foreground">{messageStateLabel(message.state)}</span>
+        {/* No date rather than a fabricated one — the message exists either way. */}
+        {shortDate(message.generatedAt) ? ` · Written ${shortDate(message.generatedAt)}` : ''}
+      </p>
+      {onOpenMessage && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => onOpenMessage(programme)}
+          aria-label={`${reviewed ? MESSAGE_COPY.openReviewed : MESSAGE_COPY.open}: ${where}`}
+          data-testid="open-message"
+        >
+          {reviewed ? MESSAGE_COPY.openReviewed : MESSAGE_COPY.open}
+        </Button>
+      )}
+    </div>
+  );
+}
+
 export default function CampaignProgrammeCard({
   programme, compact = false, onApprove = null, onPrepare = null,
+  onGenerate = null, onOpenMessage = null,
 }) {
   const {
     collegeName, rank, tier, tierSource, programmeState, currentCoach,
     nextAction, derivedStep, policyReason, blockers, policyEligibleOn, candidates,
-    firstTouchReview, preparableNow, currentAttempt,
+    firstTouchReview, preparableNow, currentAttempt, currentMessage,
   } = programme;
 
   const role = currentCoach ? (ROLE_COPY[currentCoach.role] ?? currentCoach.role) : null;
@@ -441,6 +600,14 @@ export default function CampaignProgrammeCard({
         a section, and a prepared programme in Waiting is still prepared.
       */}
       <PreparedMarker currentAttempt={currentAttempt} />
+
+      {/*
+        AND WHETHER THE WORDS EXIST YET. Shown wherever a message does, in
+        whichever group the card is in — a written message under a Waiting
+        programme is still written, and hiding it would make an operator
+        generate a second one to find out.
+      */}
+      <MessageMarker programme={programme} onOpenMessage={onOpenMessage} />
 
       {/*
         THE REVIEW, STATED AND NOT YET ACTIONABLE. The button arrives in the
@@ -503,6 +670,25 @@ export default function CampaignProgrammeCard({
       */}
       {onPrepare && preparableNow && !currentAttempt?.id && (
         <PrepareAttempt programme={programme} onPrepare={onPrepare} />
+      )}
+
+      {/*
+        AND GENERATION IS OFFERED ON THE SERVER'S WORD TOO — F10b-5.
+
+        `currentAttempt.id` is the plan's answer to whether this campaign has
+        recorded an intent to write to this coach, and `currentMessage.id` is
+        its answer to whether the words already exist. Both are the SERVER'S,
+        neither is re-derived here, and neither is `executableNow`: writing a
+        message is not sending one, so a follow-up that is not due yet and a
+        campaign whose mailbox limit is unset can both be written.
+
+        WHAT THIS SCREEN MUST NOT DO is invent a safety rule of its own. The
+        generation gate is the authority on whether these words may be written,
+        and it refuses with a code this card turns into a sentence — which is
+        why an operator meets a real refusal rather than a hidden control.
+      */}
+      {onGenerate && currentAttempt?.id && !currentMessage?.id && (
+        <GenerateMessage programme={programme} onGenerate={onGenerate} />
       )}
 
       {!compact && candidates && (

@@ -104,6 +104,75 @@ export function messagesForAttempt(programmeContactAttemptId) {
 }
 
 /**
+ * THE CURRENT MESSAGE FOR MANY PURSUITS AT ONCE — F10b-5.
+ *
+ * ---------------------------------------------------------------------------
+ * WHY THIS EXISTS RATHER THAN A LOOP OVER `messageForStep`.
+ *
+ * A campaign holds up to a hundred programmes and the execution plan describes
+ * every one of them on every read. Asking this table once per programme would
+ * put a hundred point lookups behind a screen that already answers in one plan
+ * read, and it would grow with the campaign rather than with the question. This
+ * asks once for all of them: `ceil(n / 400)` statements, which is ONE for every
+ * campaign this product can hold.
+ * ---------------------------------------------------------------------------
+ *
+ * AND IT ANSWERS THE NARROW QUESTION, not "what messages exist". A caller gives
+ * the attempt it means, the STEP that attempt is currently on and the COACH it
+ * is pursuing, and gets back only a message that matches all three. A step-1
+ * message is not the current message of a pursuit that has advanced to step 2,
+ * and a message written for another coach is not this coach's — so both are
+ * absent rather than approximately right. History stays in the table and stays
+ * readable by id; this is about what the campaign would do next.
+ *
+ * @param {Array<{attemptId: string, step: number, coachId: string}>} requests
+ * @returns {Map<string, {id, state, generatedAt, step, coachId}>} keyed by attempt id
+ */
+export function currentMessagesForAttempts(requests = []) {
+  const wanted = new Map();
+  for (const r of requests ?? []) {
+    if (r?.attemptId && Number.isInteger(r.step) && r.coachId) {
+      wanted.set(String(r.attemptId), { step: r.step, coachId: String(r.coachId) });
+    }
+  }
+
+  const out = new Map();
+  if (wanted.size === 0) return out;
+
+  const ids = [...wanted.keys()];
+  /**
+   * CHUNKED, because a bound-parameter list is not unbounded. SQLite's default
+   * ceiling is far above a campaign's hundred, and a helper that silently threw
+   * on the first campaign larger than the limit would be a worse answer than a
+   * second statement.
+   */
+  for (let i = 0; i < ids.length; i += CURRENT_MESSAGE_CHUNK) {
+    const chunk = ids.slice(i, i + CURRENT_MESSAGE_CHUNK);
+    const rows = db.prepare(
+      `SELECT id, programme_contact_attempt_id, step, coach_id, state, generated_at
+       FROM programme_messages
+       WHERE programme_contact_attempt_id IN (${chunk.map(() => '?').join(',')})`,
+    ).all(...chunk);
+
+    for (const row of rows) {
+      const ask = wanted.get(row.programme_contact_attempt_id);
+      if (!ask || row.step !== ask.step || row.coach_id !== ask.coachId) continue;
+      out.set(row.programme_contact_attempt_id, {
+        id: row.id,
+        state: row.state,
+        generatedAt: row.generated_at,
+        step: row.step,
+        coachId: row.coach_id,
+      });
+    }
+  }
+  return out;
+}
+
+/** How many attempt ids go into one statement. See above. */
+const CURRENT_MESSAGE_CHUNK = 400;
+
+/**
  * ONE MESSAGE, WITH THE CHAIN THAT OWNS IT — F10b-4.
  *
  * A message id on its own is not authority to read one. The row is reachable
