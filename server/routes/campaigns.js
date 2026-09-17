@@ -12,6 +12,12 @@ import {
 } from '../lib/pursuitPolicy.js';
 import { CONTACT_REFUSAL } from '../lib/campaignAttribution.js';
 import {
+  generateProgrammeMessage, GENERATION_REFUSAL,
+} from '../lib/programmeMessageGeneration.js';
+import {
+  programmeMessageWithContext, editProgrammeMessage, reviewProgrammeMessage,
+} from '../lib/programmeMessages.js';
+import {
   approveFirstTouch, existingApproval, APPROVAL_STATUS,
 } from '../lib/firstTouchApprovals.js';
 
@@ -244,6 +250,37 @@ const STATUS_BY_CODE = Object.freeze({
   [CONTACT_REFUSAL.RELATIONSHIP_DO_NOT_CONTACT]: 422,
   [CONTACT_REFUSAL.RELATIONSHIP_MANUAL_ONLY]: 422,
   [CONTACT_REFUSAL.SUPPRESSED]: 422,
+
+  /**
+   * F10b-4. Generating, editing and reviewing a programme message.
+   *
+   * The generation refusals join the preparation ones above rather than getting
+   * a block of their own, because they are the same kind of answer: the request
+   * is well-formed and names real things, and what it asks for is not allowed to
+   * be true. Every one of them needs somebody to do something else first, so
+   * none is a 409 inviting a retry.
+   *
+   * PROGRAMME_MESSAGE_NOT_FOUND is a 404 and CONTACT_ATTEMPT_NOT_FOUND is not:
+   * the first is a resource a caller asked for by id, the second is a thing the
+   * campaign was expected to hold and does not.
+   */
+  [GENERATION_REFUSAL.CONTACT_ATTEMPT_REQUIRED]: 422,
+  [GENERATION_REFUSAL.CONTACT_ATTEMPT_NOT_PLANNED]: 422,
+  [GENERATION_REFUSAL.COACH_NO_LONGER_CURRENT]: 422,
+  [GENERATION_REFUSAL.CONTACT_ATTEMPT_STEP_DRIFT]: 422,
+  CONTACT_ATTEMPT_NOT_FOUND: 422,
+  MESSAGE_ALREADY_GENERATED: 422,
+  MESSAGE_NOT_EDITABLE: 422,
+  REVIEWER_REQUIRED: 422,
+  EMPTY_SUBJECT: 422,
+  EMPTY_BODY: 422,
+  ILLEGAL_MESSAGE_TRANSITION: 422,
+  COMPOSITION_ATTEMPT_MISMATCH: 422,
+  COMPOSITION_NOT_ATTRIBUTED: 422,
+  INVALID_MESSAGE_STEP: 422,
+  UNSUPPORTED_SEQUENCE_STEP: 422,
+  PROGRAMME_MESSAGE_NOT_FOUND: 404,
+  COACH_NOT_FOUND: 404,
   INVALID_STATE: 422,
   INVALID_TIER: 422,
   INVALID_RANK: 422,
@@ -749,6 +786,233 @@ function refusalSentence(reason, out) {
       return `Preparing a contact attempt was refused: ${reason}`;
   }
 }
+
+/* -------------------------------------------------------------------------- */
+/* Programme messages — F10b-4                                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * ONE SHAPE FOR A MESSAGE, WHICHEVER ENDPOINT PRODUCED IT.
+ *
+ * Generating, reading, editing and reviewing all return this. A client that had
+ * to learn four contracts for one resource would eventually read the wrong
+ * field off the wrong response, and the values differ between them anyway —
+ * which is the whole point of returning the resource rather than an outcome.
+ *
+ * THE EVIDENCE COMES WITH IT. "Why was this written" is not a follow-up
+ * question about a message; it is part of what a message IS, and the review
+ * screen cannot show a sentence without the claim behind it. It is parsed
+ * rather than handed over as the stored JSON string.
+ *
+ * WHAT IS NOT HERE. No sender, mailbox, reply-to or signature — none of those
+ * columns exists, and inventing them in a response would promise a design
+ * nobody has made. No send state, no schedule, no delivery: a message is
+ * content, and `outreach_send` remains the only thing that says one happened.
+ */
+function programmeMessageBody(row) {
+  return {
+    id: row.id,
+    programmeContactAttemptId: row.programme_contact_attempt_id,
+    step: row.step,
+
+    coachId: row.coach_id,
+    recipientEmail: row.recipient_email,
+
+    generatedSubject: row.generated_subject,
+    generatedBody: row.generated_body,
+    subject: row.subject,
+    body: row.body,
+    /**
+     * Both hashes, so a client can tell an edited message from an untouched one
+     * without comparing two long texts — and so it never has to guess by
+     * diffing them itself.
+     */
+    generatedBodyHash: row.generated_body_hash,
+    bodyHash: row.body_hash,
+
+    bodySource: row.body_source,
+    structure: row.structure,
+    policyVersion: row.policy_version,
+    sequencePolicyVersion: row.sequence_policy_version,
+
+    state: row.state,
+    generatedAt: row.generated_at,
+    updatedAt: row.updated_at,
+    reviewedByOperatorId: row.reviewed_by_operator_id,
+    reviewedAt: row.reviewed_at,
+
+    evidence: row.evidence_snapshot,
+  };
+}
+
+/** No query parameter is accepted on any of these — the ids are the request. */
+function refuseQuery(req) {
+  const keys = Object.keys(req.query ?? {});
+  if (keys.length) {
+    throw badRequest(
+      `Unknown query parameter(s): ${keys.join(', ')}. This request takes none.`,
+    );
+  }
+}
+
+function notFoundMessage(id) {
+  const err = new Error(`No programme message ${id}`);
+  err.status = 404;
+  return err;
+}
+
+/**
+ * WRITE THE MESSAGE THIS CAMPAIGN INTENDS TO SEND THIS COACH — F10b-4.
+ *
+ * ---------------------------------------------------------------------------
+ * IT COMPOSES NOTHING AND DECIDES NOTHING.
+ *
+ * The route is an adapter: it refuses input it must not accept, calls the one
+ * gate, and turns the result into a resource. Every question worth asking —
+ * whether an intent exists, whether the campaign still names this coach,
+ * whether the steps agree, whether a stance, a suppression, a revocation, a
+ * lifecycle rule or an unreviewed first touch forbids it — is
+ * `generateProgrammeMessage`'s, and a guard elsewhere keeps this from being the
+ * second place that wires composition to persistence.
+ * ---------------------------------------------------------------------------
+ *
+ * THE ROUTE PARAMS ARE THE WHOLE REQUEST. No body and no query: the server
+ * derives the athlete, the recipient, the step, the evidence, the structure and
+ * every sentence, so a client cannot ask for content addressed to somebody this
+ * campaign would not approach, or claim a second message is a first.
+ *
+ * 201 means a message was written by this call and 200 means one was already
+ * there. A refusal is never a 200 — `created: false` already means "it was
+ * already written", and overloading it would let a client record a generation
+ * that never happened.
+ */
+campaignsRouter.post(
+  '/programme-campaigns/:programmeCampaignId/coaches/:coachId/message',
+  handle('campaigns/generate-message', (req) => {
+    readBody(req.body, [], 'programme message generation');
+    refuseQuery(req);
+
+    const { created, message } = generateProgrammeMessage({
+      programmeCampaignId: req.params.programmeCampaignId,
+      coachId: req.params.coachId,
+    });
+
+    return { status: created ? 201 : 200, body: programmeMessageBody(message) };
+  }),
+);
+
+/**
+ * READ ONE MESSAGE, AND THE CHAIN THAT OWNS IT.
+ *
+ * ---------------------------------------------------------------------------
+ * READING HISTORY IS NOT ACTIONABILITY.
+ *
+ * A message written under a campaign that has since closed, to a programme now
+ * set to do-not-contact, or to an address that has since opted out, is still
+ * exactly what was written — and stays readable. Hiding it would destroy the
+ * record the table exists to keep, and would make "what did we write" a
+ * question the product could answer only while nothing had changed.
+ *
+ * So this validates OWNERSHIP and never SAFETY. It recomposes nothing,
+ * revalidates no eligibility, moves no state and writes nothing.
+ * ---------------------------------------------------------------------------
+ *
+ * AN ID IS NOT AUTHORITY. The chain — message, attempt, programme campaign,
+ * campaign — is resolved in one query, and a message whose chain does not
+ * resolve is a 404 rather than a row returned on the strength of its id alone.
+ */
+campaignsRouter.get(
+  '/programme-messages/:messageId',
+  handle('campaigns/read-message', (req) => {
+    refuseQuery(req);
+    const found = programmeMessageWithContext(req.params.messageId);
+    if (!found) throw notFoundMessage(req.params.messageId);
+    return { body: programmeMessageBody(found.message) };
+  }),
+);
+
+/**
+ * CHANGE THE WORDS A PERSON HAS NOT YET APPROVED.
+ *
+ * TWO FIELDS, and the allow-list refuses rather than ignores — a client that
+ * believed it had just changed the recipient and got a 200 has been told
+ * something false. Everything else about a message is either the server's
+ * (recipient, step, evidence, policy versions) or immutable provenance
+ * (`generatedSubject`, `generatedBody`), and neither is editable by anybody.
+ *
+ * NO CAMPAIGN SAFETY GATE HERE, and that is deliberate. Editing is content
+ * work, not execution: a message whose programme has since become
+ * do-not-contact may still be tidied up, and doing so makes it no more sendable
+ * than it was. The state machine controls editability — reviewed words are not
+ * edited — and live safety is execution's to revalidate. Nothing in this
+ * response implies the campaign is actionable.
+ */
+const MESSAGE_PATCH_FIELDS = Object.freeze(['subject', 'body']);
+
+campaignsRouter.patch(
+  '/programme-messages/:messageId',
+  handle('campaigns/edit-message', (req) => {
+    const body = readBody(req.body, MESSAGE_PATCH_FIELDS, 'programme message edit');
+    refuseQuery(req);
+
+    const offered = MESSAGE_PATCH_FIELDS.filter((f) => f in body);
+    if (!offered.length) {
+      throw badRequest(
+        `Name what to change: ${MESSAGE_PATCH_FIELDS.join(' or ')}. An empty edit is not a change.`,
+      );
+    }
+
+    // 404 before the writer, so an unknown id reads as a missing resource
+    // rather than as a domain refusal about one.
+    if (!programmeMessageWithContext(req.params.messageId)) {
+      throw notFoundMessage(req.params.messageId);
+    }
+
+    const updated = editProgrammeMessage(req.params.messageId, {
+      ...(('subject' in body) ? { subject: body.subject } : {}),
+      ...(('body' in body) ? { body: body.body } : {}),
+    });
+    return { body: programmeMessageBody(updated) };
+  }),
+);
+
+/**
+ * A PERSON APPROVES THESE EXACT WORDS.
+ *
+ * ---------------------------------------------------------------------------
+ * WHAT IT IS NOT. Not send-approved, not queued, not scheduled, not a mailbox
+ * decision and not permission to contact anybody. Every stance, suppression,
+ * revocation, lifecycle rule, first-touch review, budget and timing check is
+ * evaluated afterwards exactly as before.
+ * ---------------------------------------------------------------------------
+ *
+ * THE REVIEWER IS THE SESSION'S, NEVER A FIELD. `requireOperator` guards every
+ * /api route, so `req.operator` is present by the time this runs — and an
+ * `operatorId` in the body is REFUSED rather than ignored, because a request
+ * that could name its own reviewer would make the attribution decorative.
+ *
+ * NO SAFETY GATE, for the same reason as the edit above and one more: the
+ * content being approved is durable, and a campaign that closed after it was
+ * written does not make the words somebody read any less approved. Whether they
+ * may be sent is asked at send, where the consequence is a message leaving.
+ */
+campaignsRouter.post(
+  '/programme-messages/:messageId/review',
+  handle('campaigns/review-message', (req) => {
+    readBody(req.body, [], 'programme message review');
+    refuseQuery(req);
+
+    if (!programmeMessageWithContext(req.params.messageId)) {
+      throw notFoundMessage(req.params.messageId);
+    }
+
+    const reviewed = reviewProgrammeMessage(req.params.messageId, {
+      // The session's operator, never a field. See above.
+      operatorId: req.operator.id,
+    });
+    return { body: programmeMessageBody(reviewed) };
+  }),
+);
 
 /** One shape for an approval row, wherever it came from. */
 function describe(row) {

@@ -258,6 +258,15 @@ describe('generating from a prepared intent', () => {
 /* ========================================================================== */
 
 describe('the prepared intent must be there, and must be sound', () => {
+  it('C. refuses an unknown programme campaign as a missing resource', () => {
+    const { coach } = prepared();
+    const err = caught(() => generate('pc-does-not-exist', coach));
+    // Identity before policy: a campaign that does not exist is not a campaign
+    // with nothing prepared.
+    expect(err.code).toBe('PROGRAMME_CAMPAIGN_NOT_FOUND');
+    expect(messages()).toHaveLength(0);
+  });
+
   it('C. refuses when nothing has been prepared, and prepares nothing', () => {
     const c = makeCampaign();
     const pc = makeProgramme(c);

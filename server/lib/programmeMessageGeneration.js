@@ -1,3 +1,4 @@
+import db from '../db/client.js';
 import {
   programmePursuitPlan, contactAttemptPreparation, PREPARATION_REFUSAL,
 } from './pursuitPolicy.js';
@@ -120,6 +121,20 @@ function fail(code, message) {
 }
 
 /**
+ * IDENTITY BEFORE POLICY.
+ *
+ * A programme campaign that does not exist is a caller naming a resource that
+ * is not there — not a campaign that has nothing prepared. Without this, an
+ * unknown id fell through to CONTACT_ATTEMPT_REQUIRED and told an operator that
+ * nothing had been prepared for a campaign that never existed, which is true
+ * and misleading. Every other module in this chain refuses the same mismatch
+ * under the same code.
+ */
+const PROGRAMME_CAMPAIGN_EXISTS = db.prepare(
+  'SELECT 1 FROM programme_campaigns WHERE id = ?',
+);
+
+/**
  * GENERATE THE MESSAGE THIS CAMPAIGN INTENDS TO SEND THIS COACH.
  *
  * TWO IDENTIFIERS, exactly as composition takes. Not a subject, body, evidence
@@ -129,6 +144,7 @@ function fail(code, message) {
  *
  * THE ORDER IS LOAD-BEARING and is asserted in the suite:
  *
+ *   0  the programme campaign is real
  *   1  the attempt exists, and is planned
  *   2  the campaign still names this coach
  *   3  the stored step and the derived step agree
@@ -165,6 +181,10 @@ export function generateProgrammeMessage({ programmeCampaignId, coachId, at = ut
    * "the campaign names somebody else", which is true and unhelpful. The
    * operator's question is why THIS one will not generate.
    */
+  if (!PROGRAMME_CAMPAIGN_EXISTS.get(programmeCampaignId)) {
+    throw fail('PROGRAMME_CAMPAIGN_NOT_FOUND', `No programme campaign ${programmeCampaignId}`);
+  }
+
   const attempt = attemptForCoach(programmeCampaignId, coachId);
   if (!attempt) {
     throw fail(

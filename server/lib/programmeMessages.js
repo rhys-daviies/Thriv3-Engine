@@ -103,6 +103,61 @@ export function messagesForAttempt(programmeContactAttemptId) {
   return FOR_ATTEMPT.all(programmeContactAttemptId).map(parse);
 }
 
+/**
+ * ONE MESSAGE, WITH THE CHAIN THAT OWNS IT — F10b-4.
+ *
+ * A message id on its own is not authority to read one. The row is reachable
+ * only through an attempt, which is reachable only through a programme campaign
+ * and a campaign, and a read that took the id as sufficient would return
+ * content without ever proving the thing it belongs to exists or is coherent.
+ * So the chain is resolved in the query rather than assumed, and a message whose
+ * chain does not resolve is `null` — which a caller reports as not found.
+ *
+ * READING IS NOT ACTIONABILITY. The campaign's STATE is returned and not
+ * judged: a message written under a campaign that has since closed, or to a
+ * programme now set to do-not-contact, is still exactly what was written, and
+ * hiding it would destroy the record this table exists to keep. Whether
+ * anything further may happen is a live question asked elsewhere.
+ */
+const WITH_CONTEXT = db.prepare(`
+  SELECT m.*,
+         a.programme_campaign_id, a.coach_id AS attempt_coach_id, a.state AS attempt_state,
+         a.step AS attempt_step,
+         pc.campaign_id, pc.college_name, pc.sport, pc.state AS programme_state,
+         c.athlete_id, c.state AS campaign_state
+  FROM programme_messages m
+  JOIN programme_contact_attempts a ON a.id = m.programme_contact_attempt_id
+  JOIN programme_campaigns pc ON pc.id = a.programme_campaign_id
+  JOIN campaigns c ON c.id = pc.campaign_id
+  WHERE m.id = ?
+`);
+
+export function programmeMessageWithContext(id) {
+  const row = WITH_CONTEXT.get(id);
+  if (!row) return null;
+  return {
+    message: parse(row),
+    context: {
+      programmeCampaignId: row.programme_campaign_id,
+      campaignId: row.campaign_id,
+      athleteId: row.athlete_id,
+      collegeName: row.college_name,
+      sport: row.sport,
+      campaignState: row.campaign_state,
+      programmeState: row.programme_state,
+      attemptState: row.attempt_state,
+      attemptStep: row.attempt_step,
+      /**
+       * The attempt's coach, beside the message's own. They agree by
+       * construction — the writer refuses a composition made for anybody else —
+       * and a caller scoping a read by programme campaign can check both
+       * without a second query.
+       */
+      attemptCoachId: row.attempt_coach_id,
+    },
+  };
+}
+
 /* -------------------------------------------------------------------------- */
 /* Creation                                                                    */
 /* -------------------------------------------------------------------------- */
