@@ -91,7 +91,15 @@ beforeEach(() => {
 describe('the vocabulary', () => {
   it('names only states Thriv3 can know about itself', () => {
     expect(Object.values(MESSAGE_STATE)).toEqual([
-      'DRAFT', 'QUEUED', 'SENDING', 'ACCEPTED', 'FAILED', 'CANCELLED',
+      'DRAFT', 'QUEUED', 'SENDING', 'ACCEPTED',
+      /**
+       * D4.4. Still a fact about THIS SYSTEM rather than about the world: it
+       * says a transport ran and its outcome could not be read, which is
+       * something we know about ourselves. It claims nothing about delivery —
+       * the test below still passes unchanged.
+       */
+      'UNKNOWN_PROVIDER_RESULT',
+      'FAILED', 'CANCELLED',
     ]);
   });
 
@@ -109,6 +117,13 @@ describe('the vocabulary', () => {
   it('grades acceptance evidence weakest to strongest', () => {
     expect(Object.values(ACCEPTED_SOURCE)).toEqual([
       'OPERATOR_ASSERTED', 'OUTLOOK_COMMAND_ASSERTED', 'PROVIDER_ACCEPTED',
+      /**
+       * D4.4, and it sits AFTER the live acceptance rather than beside it. A
+       * message found in a sent mailbox afterwards did go — but nobody watched
+       * it go, and an analysis that pooled the two could not say which kind of
+       * evidence it was averaging.
+       */
+      'PROVIDER_RECONCILED',
     ]);
   });
 
@@ -239,11 +254,36 @@ describe('transitions', () => {
     expect(() => acceptSend(sendId)).toThrow(/CANCELLED is terminal/);
   });
 
-  it('does not count a cancelled message toward the next sequence', () => {
+  it('does not reissue the sequence a cancelled message took', () => {
+    /**
+     * REVERSED BY D4.3, AND THE OLD RULE WAS NOT ACHIEVABLE.
+     *
+     * This asserted `toBe(1)` on the principle that "only an ACCEPTED message
+     * is a message that happened". The principle is sound about HISTORY and
+     * wrong about ALLOCATION: the cancelled row still occupies sequence 1, so
+     * the 1 this used to return could not be used. Writing a draft with it
+     * failed on UNIQUE (outreach_id, sequence) — proved on a disposable
+     * database — which made the assertion a statement about a number nothing
+     * could do anything with.
+     *
+     * A cancelled message leaves a GAP, and the gap is the honest record: that
+     * position was handed out, and reissuing it would make two different
+     * messages indistinguishable in this relationship's history.
+     */
     const { outreach, sendId } = seedMessage();
     transitionSend(sendId, 'CANCELLED');
-    // Only an ACCEPTED message is a message that happened.
-    expect(nextSequence(outreach.id)).toBe(1);
+    expect(nextSequence(outreach.id)).toBe(2);
+
+    // And the number is usable, which is the whole point of the change.
+    const next = recordDraft({
+      outreachId: outreach.id,
+      athleteId: outreach.athlete_id,
+      coachId: outreach.coach_id,
+      evidence: null,
+      body: 'a later message',
+      subject: 'later',
+    });
+    expect(next.sequence).toBe(2);
   });
 });
 

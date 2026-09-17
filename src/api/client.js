@@ -328,6 +328,70 @@ export const campaigns = {
       { method: 'POST' },
     );
   },
+
+  /**
+   * WRITE THE MESSAGE THIS CAMPAIGN INTENDS TO SEND THIS COACH.
+   *
+   * ---------------------------------------------------------------------------
+   * IT COMPOSES NOTHING HERE AND SENDS NOTHING ANYWHERE.
+   *
+   * The server derives the athlete, the recipient, the step, the evidence, the
+   * structure and every sentence from the campaign and the prepared intent. This
+   * method carries two identifiers and no body, so it cannot ask for content
+   * addressed to somebody the campaign would not approach, or claim a second
+   * message is a first.
+   *
+   * A MESSAGE IS CONTENT, NOT DELIVERY. Nothing is drafted into a mailbox,
+   * queued, scheduled or sent; `outreach_send` remains the only thing that says
+   * a message happened.
+   * ---------------------------------------------------------------------------
+   *
+   * 201 when this call wrote it, 200 when one was already there — both return
+   * the same message resource, so a retry after a dropped connection is safe.
+   */
+  generateMessage(programmeCampaignId, coachId) {
+    return request(
+      `/api/programme-campaigns/${programmeCampaignId}/coaches/${coachId}/message`,
+      { method: 'POST' },
+    );
+  },
+
+  /**
+   * One message, with the evidence behind it.
+   *
+   * READING IS NOT ACTIONABILITY: a message written under a campaign that has
+   * since closed, or to a programme now set to do-not-contact, is still exactly
+   * what was written and stays readable.
+   */
+  message(messageId) {
+    return request(`/api/programme-messages/${messageId}`);
+  },
+
+  /**
+   * Change the words a person has not yet approved.
+   *
+   * `{ subject }`, `{ body }` or both — the server refuses any other field
+   * rather than ignoring it. It never changes the recipient, the step, the
+   * evidence or the generated text, and editing does not make a message
+   * sendable.
+   */
+  editMessage(messageId, patch) {
+    return request(`/api/programme-messages/${messageId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(patch),
+    });
+  },
+
+  /**
+   * RECORD THAT A PERSON APPROVES THESE EXACT WORDS.
+   *
+   * Not send-approved, not queued, not scheduled. It sends no body at all: the
+   * reviewer is the session's operator and is derived server-side, and a
+   * request naming its own reviewer is refused rather than ignored.
+   */
+  reviewMessage(messageId) {
+    return request(`/api/programme-messages/${messageId}/review`, { method: 'POST' });
+  },
 };
 
 /**

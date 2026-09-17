@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import db from '../db/client.js';
 import {
   recordDraft, confirmSend, nextSequence, confirmedSends, sendsForOutreach, sendById, sendsByPolicy,
+  transitionSend, openSendFor,
 } from './outreachSend.js';
 import { buildSendSnapshot, bodyHash } from '../../shared/evidence/sendSnapshot.js';
 import { OUTREACH_POLICY_VERSION, LEGACY_POLICY_VERSION, comparablePolicies, KNOWN_POLICY_VERSIONS } from '../../shared/evidence/outreachPolicy.js';
@@ -101,9 +102,53 @@ describe('sequence, and the follow-up nobody sends yet', () => {
   it('advances only on a confirmed send, never on a redraft', () => {
     draft(evidenceWith([HOOK]));
     draft(evidenceWith([HOOK]));
-    expect(nextSequence('o1')).toBe(1);
+    /**
+     * THE PROPERTY IS "NO SECOND MESSAGE", AND IT IS ASSERTED AS THAT — D4.3.
+     *
+     * This used to read `expect(nextSequence('o1')).toBe(1)`, which pinned the
+     * COUNTER rather than the behaviour its name describes. `recordDraft`
+     * never asks for a number while a message is open — it reuses the row —
+     * so what a redraft must not do is create a second one, and that is what
+     * these two lines check. The old assertion only agreed with it by accident
+     * while every message ended ACCEPTED.
+     */
+    expect(sendsForOutreach('o1')).toHaveLength(1);
+    expect(sendsForOutreach('o1')[0].sequence).toBe(1);
     confirmSend('o1');
     expect(nextSequence('o1')).toBe(2);
+  });
+
+  it('never reissues a sequence a failed message already took', () => {
+    /**
+     * D4.3. `nextSequence` counted ACCEPTED rows, so a message that ended
+     * FAILED held a number the counter then offered again — and the next draft
+     * died on UNIQUE (outreach_id, sequence), leaving the relationship unable
+     * to hold another message at all. Reproduced on a disposable database
+     * before the repair; nothing reaches FAILED in this build, which is the
+     * only reason it was never hit.
+     */
+    const first = draft(evidenceWith([HOOK]));
+    transitionSend(first.id, 'SENDING');
+    transitionSend(first.id, 'FAILED');
+
+    expect(openSendFor('o1')).toBeNull();
+    expect(nextSequence('o1')).toBe(2);
+
+    const second = draft(evidenceWith([RELEVANCE]));
+    expect(second.sequence).toBe(2);
+    expect(sendsForOutreach('o1').map((s) => [s.sequence, s.state]))
+      .toEqual([[1, 'FAILED'], [2, 'DRAFT']]);
+  });
+
+  it('counts an accepted message and a failed one alike when allocating', () => {
+    draft(evidenceWith([HOOK]));
+    confirmSend('o1');
+    const second = draft(evidenceWith([RELEVANCE]));
+    transitionSend(second.id, 'SENDING');
+    transitionSend(second.id, 'FAILED');
+
+    expect(nextSequence('o1')).toBe(3);
+    expect(draft(evidenceWith([HOOK])).sequence).toBe(3);
   });
 
   it('keeps send 1 byte-for-byte when send 2 is written', () => {

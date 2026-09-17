@@ -2248,3 +2248,217 @@ CREATE TABLE IF NOT EXISTS campaign_first_touch_approvals (
 -- The only question asked of this table: has this coach been approved for this
 -- programme campaign. The UNIQUE constraint above already indexes that pair;
 -- this names the reverse lookup nothing needs yet and is deliberately omitted.
+
+-- ===========================================================================
+-- WHAT THIS CAMPAIGN INTENDS TO SAY, FROZEN AT THE MOMENT IT SAID IT.
+--
+-- The layer F10 was missing. Five things now sit in a line and each answers a
+-- different question:
+--
+--   programme_campaigns        this athlete is pursuing this programme
+--   programme_contact_attempts this campaign is pursuing this COACH there
+--   THIS TABLE                 and this is the message it means to send them
+--   outreach                   this athlete and this coach, for all time
+--   outreach_send              this one message actually happened
+--
+-- ---------------------------------------------------------------------------
+-- A ROW HERE IS CONTENT, NOT DELIVERY.
+--
+-- GENERATED is not DRAFTED, QUEUED, SCHEDULED or SENT. Nothing here has
+-- reached a mailbox, been handed to a transport or consumed a day's capacity.
+-- `outreach_send` remains the only thing in this database that says a message
+-- happened, and `outreach_send.state = 'DRAFT'` remains what it has always
+-- meant — a body that reached Outlook, which is a transport fact and not this
+-- one.
+--
+-- So there is deliberately no `sent_at`, no provider id, no scheduled time and
+-- no delivery state. The day execution exists it will record itself where
+-- execution is already recorded.
+-- ---------------------------------------------------------------------------
+--
+-- WHAT IT IS NOT YET. There is no sender on this row: no mailbox, no from
+-- address, no reply-to, no signature version. A message answers who it is for
+-- and what it says; WHICH MAILBOX SENDS IT is a question nobody has designed
+-- an answer to, and a column added before that design would be a guess that
+-- later has to be unpicked. `connected_mailboxes` exists and nothing sends
+-- through it.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS programme_messages (
+  id TEXT PRIMARY KEY,
+
+  /**
+   * OWNED BY THE ATTEMPT, so it dies with it: a message is the content of an
+   * intent, and an intent that no longer exists has nothing to say. The same
+   * cascade `programme_contact_attempts` takes from `programme_campaigns`, for
+   * the same reason, and it stops here — see `coach_id`.
+   *
+   * NOT NULLABLE, and that is a decision rather than an omission. Manual
+   * outreach will reuse the COMPOSITION primitive when it comes; it does not
+   * need this persistence model, and a nullable owner added for a hypothetical
+   * future caller is a column every reader afterwards has to ask about.
+   */
+  programme_contact_attempt_id TEXT NOT NULL
+    REFERENCES programme_contact_attempts(id) ON DELETE CASCADE,
+
+  /**
+   * WHICH MESSAGE OF THE SEQUENCE THIS IS — the campaign-local step, DERIVED
+   * by the composer from accepted campaign messages and never asserted by a
+   * caller.
+   *
+   * It is part of the identity below rather than a property of the attempt,
+   * because ONE ATTEMPT LEGITIMATELY OUTLIVES ONE MESSAGE: the attempt is
+   * unique on (programme campaign, coach) and its own `step` advances as
+   * messages are confirmed, so the same pursuit produces a step 1 message and,
+   * later, a step 2 one. Keying on the attempt alone would make the follow-up
+   * impossible to write.
+   *
+   * No upper bound here. PP1 plans two messages per coach and ESP1 describes
+   * two; the composer refuses a third by name, and a CHECK repeating that
+   * number would be a second place to change it.
+   */
+  step INTEGER NOT NULL CHECK (step >= 1),
+
+  /**
+   * WHO IT IS FOR, FROZEN.
+   *
+   * REFERENCED, not owned — no ON DELETE clause, so deleting a coach out from
+   * under a written message is refused, matching every other reference to
+   * `coaches` in this schema.
+   *
+   * `recipient_email` is frozen BESIDE the id rather than read through it, and
+   * that is the point of this column. A coach row is mutable: an address
+   * corrected between generation and execution would silently change who an
+   * operator approved a message for. The id says which person; the address
+   * says which inbox was agreed. Execution revalidates the two against each
+   * other rather than trusting either alone.
+   *
+   * Both are SERVER-RESOLVED. F10a found that `/api/outreach/send` accepts an
+   * address from its caller and mints a coach row from it; nothing may reach
+   * this column that way. The writer reads the address from the `coaches` row
+   * the ATTEMPT names, and refuses a composition made for anybody else.
+   */
+  coach_id TEXT NOT NULL REFERENCES coaches(id),
+  recipient_email TEXT NOT NULL,
+
+  /**
+   * WHAT THRIV3 WROTE, AND WHAT IS GOING TO BE SENT.
+   *
+   * Two texts, because they answer different questions and one of them must
+   * never move. `generated_*` is the server's own composition and is immutable
+   * provenance: it is what makes "did a person change this, and to what" a
+   * question the data can answer rather than a diff nobody kept. `subject` and
+   * `body` are the reviewable version, equal to the generated pair at creation
+   * and editable until a person approves them.
+   *
+   * THE BODY IS WHAT WAS WRITTEN, NOT WHAT WILL BE RECEIVED. The tracked
+   * profile link and the compliance footer are added at send, from a token
+   * that does not exist yet and configuration this layer does not read — so
+   * `{{player_profile_url}}` is still a token here, exactly as it is in the
+   * browser preview and in the drafting CLI.
+   */
+  generated_subject TEXT NOT NULL,
+  generated_body TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  body TEXT NOT NULL,
+
+  /**
+   * SHA-256 of each body, with the profile URL normalised — `bodyHash`'s own
+   * rule, reused rather than reinvented so a token rotation does not read as a
+   * changed body and the same email to two coaches hashes the same.
+   *
+   * TWO HASHES EARN THEIR PLACE: comparing them answers "has this been edited"
+   * without reading two long texts, and comparing an incoming generation
+   * against `generated_body_hash` is how a replay carrying different content
+   * is refused. There is deliberately no subject hash — a subject is one short
+   * line, and comparing it directly costs nothing.
+   */
+  generated_body_hash TEXT NOT NULL,
+  body_hash TEXT NOT NULL,
+
+  /**
+   * WHY THRIV3 WROTE THIS, in the representation that already exists.
+   *
+   * `buildSendSnapshot`'s payload, frozen whole: the rendered sentences with
+   * their order, slot, role, kind and TEXT, the claims the body cap licensed
+   * and held back, and the sequence reasoning behind a follow-up. It is the
+   * record no later re-render can supply, because the roster underneath it
+   * will have moved.
+   *
+   * ONE JSON COLUMN AND NOT TWENTY. Only the values that are genuinely
+   * relational are lifted out beside it — the two policy versions, which are
+   * analytics dimensions, and `body_source` and `structure`, which
+   * `outreach_send` already groups by. Copying the rest into columns would be
+   * a second account of the same facts, which is precisely how
+   * `outreach_evidence` and `outreach_send` came to disagree.
+   */
+  evidence_snapshot TEXT NOT NULL,
+  body_source TEXT,                   -- STRUCTURED | TEMPLATE
+  structure TEXT,
+
+  /**
+   * TWO POLICIES, MOVING SEPARATELY. `policy_version` says what a claim may
+   * assert and how it is worded; `sequence_policy_version` says what a second
+   * message may draw on. A reader asking why a message said what it said needs
+   * both, and they will not change together.
+   *
+   * A CAMPAIGN MESSAGE CARRIES ESP1 AT EVERY STEP, INCLUDING THE FIRST. Step 1
+   * is a decision the sequence policy made, not one it skipped, so a null here
+   * means the composition was UNATTRIBUTED — never that it was an initial
+   * campaign message. `step` is what says which message this is.
+   */
+  policy_version TEXT NOT NULL,
+  sequence_policy_version TEXT,
+
+  /**
+   * WHERE THIS MESSAGE HAS GOT TO. Two states, and no more than two.
+   *
+   *   generated  the server composed it; nobody has looked
+   *   reviewed   a named operator approved this exact subject and body
+   *
+   * REVIEWED IS NOT SEND-APPROVED. It is not a queue, not a schedule, not a
+   * mailbox decision and not permission to write to anybody: every stance,
+   * suppression, revocation, lifecycle rule, budget and timing check is
+   * evaluated afterwards exactly as before. It says one thing — a person read
+   * these words and was content with them.
+   *
+   * There is no `superseded`, `draft`, `queued`, `scheduled`, `sending`,
+   * `sent`, `failed` or `cancelled`. The first is regeneration, which nobody
+   * has designed; the rest belong to `outreach_send`, which owns execution and
+   * already has them.
+   */
+  state TEXT NOT NULL DEFAULT 'generated'
+    CHECK (state IN ('generated', 'reviewed')),
+
+  /**
+   * WHEN THE SERVER COMPOSED IT. There is no `generated_by`, and that is the
+   * same decision F9 made about a prepared attempt one slice earlier: the
+   * server chose the coach, the step, the evidence and every sentence, and an
+   * operator id here would attribute the prose to somebody who only asked for
+   * it. Who asked adds nothing this row does not already carry.
+   *
+   * REVIEW IS DIFFERENT AND IS ATTRIBUTED. It is a human judgement about
+   * specific words, so it records who made it and when — the same distinction
+   * `campaign_first_touch_approvals` draws, and for the same reason. No
+   * ON DELETE: a review whose reviewer vanished is an unattributable decision,
+   * and `operator_users` deactivates rather than deletes.
+   */
+  generated_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  reviewed_by_operator_id TEXT REFERENCES operator_users(id),
+  reviewed_at TEXT,
+
+  /**
+   * ONE MESSAGE PER STEP OF ONE PURSUIT.
+   *
+   * This is the whole cardinality. Generating twice returns what is already
+   * there; generating something DIFFERENT for a step already written is
+   * refused, because the stored row is durable evidence of what was composed
+   * first and overwriting it would erase the thing it exists to prove.
+   */
+  UNIQUE (programme_contact_attempt_id, step)
+);
+
+-- The only question asked of this table so far: the message for this step of
+-- this pursuit. The UNIQUE constraint above already indexes it. Listing by
+-- state, by reviewer or by coach are queries nothing makes yet, and an index
+-- for each would be three guesses about a screen that does not exist.

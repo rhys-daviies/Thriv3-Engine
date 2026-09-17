@@ -3,6 +3,7 @@ import {
   programmePursuitPlan, PURSUIT_ACTION, PURSUIT_REASON, FOLLOW_UP_DELAY_DAYS,
   contactAttemptPreparation,
 } from './pursuitPolicy.js';
+import { currentMessagesForAttempts } from './programmeMessages.js';
 import { utcToday } from './time.js';
 import { OUTLOOK_FROM_ADDRESS } from './config.js';
 
@@ -199,7 +200,7 @@ function stepReconciliation(coach, derivedStep) {
  * know — whether a follow-up is due yet, whether two step records agree, and
  * which of the refusals need a person rather than a day.
  */
-function programmeEntry(plan, { onDate }) {
+function programmeEntry(plan, { onDate, currentMessage = null }) {
   const coach = plan.current;
   const blockers = [];
   let operatorReviewRequired = false;
@@ -322,6 +323,37 @@ function programmeEntry(plan, { onDate }) {
       storedStep: coach.attemptStep,
       createdAt: coach.attemptCreatedAt,
     } : { id: null, state: null, storedStep: null, createdAt: null },
+
+    /**
+     * WHETHER THIS CAMPAIGN HAS WRITTEN THE WORDS YET — F10b-5, and the same
+     * shape as the attempt above so a screen reads them the same way.
+     *
+     * ---------------------------------------------------------------------
+     * IT IS A CONTENT STATE, NOT A PERMISSION.
+     *
+     * `generated` means the server composed a subject and a body; `reviewed`
+     * means a named operator read those exact words and was content with them.
+     * NEITHER says the programme is contactable, due, within budget, or that
+     * any mailbox exists — `safety`, `budget`, `executableNow` and the blockers
+     * above remain the only answers to that, and a reviewed message under a
+     * closed campaign is a reviewed message under a closed campaign.
+     * ---------------------------------------------------------------------
+     *
+     * CURRENT MEANS THIS ATTEMPT AT THIS STEP, FOR THIS COACH. A step-1
+     * message is absent here once the campaign has advanced to step 2 —
+     * `currentMessage` returns to null and the next action is to write the
+     * follow-up. The step-1 message is not gone: it is history, readable by
+     * id, and this field is about what the campaign would do next.
+     *
+     * SERVER DERIVED, IN ONE BOUNDED READ FOR THE WHOLE CAMPAIGN. A screen must
+     * never discover a message by asking per programme, and must never generate
+     * one to find out whether it exists.
+     */
+    currentMessage: currentMessage ? {
+      id: currentMessage.id,
+      state: currentMessage.state,
+      generatedAt: currentMessage.generatedAt,
+    } : { id: null, state: null, generatedAt: null },
 
     derivedStep: plan.step,
     stepConsistent: steps.stepConsistent,
@@ -555,12 +587,35 @@ export function campaignExecutionPlan(campaignId, {
 
   // Snapshot rank order, always — the order the campaign was frozen in, and
   // the order an operator reading the campaign already knows.
-  const programmes = listProgrammeCampaigns(campaignId).map((pc) => programmeEntry(
-    programmePursuitPlan({
-      programmeCampaignId: pc.id, onDate, sendingIdentity, window,
-    }),
-    { onDate },
-  ));
+  const plans = listProgrammeCampaigns(campaignId).map((pc) => programmePursuitPlan({
+    programmeCampaignId: pc.id, onDate, sendingIdentity, window,
+  }));
+
+  /**
+   * ONE READ FOR THE WHOLE CAMPAIGN'S MESSAGES, BEFORE ANY ENTRY IS BUILT.
+   *
+   * The reason the plans are materialised first rather than mapped straight
+   * through: a hundred programmes asking this table one at a time is a hundred
+   * statements behind a screen, growing with the campaign instead of with the
+   * question. Collected here, it is one.
+   *
+   * WHICH MESSAGE IS CURRENT IS DECIDED BY THE PLAN, not by the table. The
+   * attempt, the DERIVED step and the coach all come from B6's answer, so a
+   * message written for a step the campaign has moved past — or for a coach it
+   * has moved on from — is not returned at all.
+   */
+  const messages = currentMessagesForAttempts(plans.map((plan) => ({
+    attemptId: plan.current?.attemptId ?? null,
+    step: plan.step,
+    coachId: plan.current?.coachId ?? null,
+  })));
+
+  const programmes = plans.map((plan) => programmeEntry(plan, {
+    onDate,
+    currentMessage: plan.current?.attemptId
+      ? messages.get(plan.current.attemptId) ?? null
+      : null,
+  }));
 
   /**
    * The athlete's remaining capacity, taken from whichever programme B5 was

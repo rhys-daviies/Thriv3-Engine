@@ -350,7 +350,201 @@ const OUTREACH_SEND_COLUMNS = [
    * second argument of sendOutreach.
    */
   ['origin', 'TEXT'],
+
+  /* ---------------------------------------------------------------------- *
+   * D4.4 — WHAT A PROVIDER-EXECUTED MESSAGE WILL NEED TO RECORD.
+   *
+   * Ten columns, every one nullable, NONE of them backfilled, and nothing in
+   * this build writes any of them. They arrive now so that the execution
+   * boundary is a behaviour change rather than a behaviour change AND a
+   * migration, and so the shape can be argued about while it is still free.
+   *
+   * THE FORTY-ONE HISTORICAL ROWS KEEP NULL IN ALL TEN, FOR EVER. They left
+   * through a shared Outlook account by AppleScript: there was no connected
+   * mailbox, no provider, no provider message id and no claim. Filling any of
+   * it in would manufacture a provider interaction that did not happen — the
+   * same refusal `accepted_source` already makes for those rows by recording
+   * OPERATOR_ASSERTED rather than PROVIDER_ACCEPTED.
+   * ---------------------------------------------------------------------- */
+
+  /**
+   * WHICH COMPOSED AND REVIEWED MESSAGE THIS SEND CARRIED.
+   *
+   * `programme_messages` is the content artefact — what the campaign wrote and
+   * an operator approved — and this send is the execution of it. One pointer
+   * rather than two: the message reaches its contact attempt and its
+   * campaign-local step through its own row, so copying either here would be a
+   * second place for the same fact to be wrong.
+   *
+   * ON DELETE SET NULL, AND THAT IS NOT A PREFERENCE. `programme_messages`
+   * cascades from `programme_contact_attempts`, which cascades from
+   * `programme_campaigns`, which cascades from `campaigns` — so deleting a
+   * campaign destroys the composed bodies. Send history must outlive that, the
+   * same reason `programme_campaign_id` above is SET NULL rather than RESTRICT
+   * or CASCADE. `outreach_send` keeps its own `subject`, `body_hash` and
+   * `payload`, so what was actually sent survives the pointer going null.
+   *
+   * NULL for every manual and legacy send, which is the honest record of a
+   * message nobody composed through a campaign.
+   */
+  ['programme_message_id', 'TEXT REFERENCES programme_messages(id) ON DELETE SET NULL'],
+
+  /**
+   * WHICH MAILBOX SENT IT.
+   *
+   * NO ON DELETE CLAUSE, so the delete is REFUSED — matching every reference
+   * `connected_mailboxes` itself makes, and matching the reason that table
+   * rejected CASCADE on its own operator column: a mailbox row is durable
+   * historical identity precisely BECAUSE messages were sent through it.
+   * Nulling the pointer would erase the one fact this column exists to record,
+   * and cascading would delete the send. Revocation is the designed exit — it
+   * destroys the credential and keeps the row — so a revoked mailbox still
+   * answers "which mailbox sent this" years later.
+   *
+   * NULL for legacy and manual rows, and not backfilled. There was no
+   * connected mailbox; naming one now would invent it.
+   */
+  ['connected_mailbox_id', 'TEXT REFERENCES connected_mailboxes(id)'],
+
+  /**
+   * THE ADDRESS THAT SENT IT, SNAPSHOTTED.
+   *
+   * Normalised the way `outboundBudget.normaliseSendingIdentity` normalises
+   * it, so this row and the ledger row that paid for it are directly
+   * comparable. Frozen rather than read back through `connected_mailbox_id`
+   * because `updateMailbox` can change an address and a reconnect can move it,
+   * and history has to read correctly afterwards — the same reason this table
+   * already snapshots `college_name` and `generated_reports` snapshots
+   * `generated_by_email`.
+   */
+  ['sending_identity', 'TEXT'],
+
+  /**
+   * WHICH PROVIDER, SNAPSHOTTED. GOOGLE or MICROSOFT when there is one.
+   *
+   * NO CHECK CONSTRAINT, for the reason `origin` gives above: SQLite cannot
+   * alter one, so a third provider would become a table rebuild. The
+   * vocabulary is owned by `connectedMailboxes.MAILBOX_PROVIDER` and enforced
+   * where it is written.
+   *
+   * It is not decoration beside `provider_message_id` — it is what makes that
+   * identifier interpretable. A bare id says nothing about whose id space it
+   * belongs to.
+   */
+  ['provider', 'TEXT'],
+
+  /**
+   * THE PROVIDER'S OWN IDENTIFIER FOR THE ACCEPTED MESSAGE. Gmail's
+   * `messages.send` id, Graph's message id.
+   *
+   * PER MAILBOX, NOT GLOBAL — which is why the uniqueness index on it is
+   * composite. See `idx_outreach_send_provider_message` below.
+   */
+  ['provider_message_id', 'TEXT'],
+
+  /** Gmail `threadId` / Graph `conversationId`. The same id space caveat. */
+  ['provider_thread_id', 'TEXT'],
+
+  /**
+   * THE RFC 5322 Message-ID, WHEN WE LEARN IT.
+   *
+   * The only identifier here that crosses providers, and the one an inbound
+   * reply's `In-Reply-To` will match — so it is what reply ingestion will need,
+   * long before anything else here is read. Nullable even on a successful
+   * send: Gmail returns an id and a thread id from `messages.send` and not
+   * this, which takes a further read that may fail without making the send any
+   * less sent.
+   */
+  ['internet_message_id', 'TEXT'],
+
+  /** When the provider said yes, as distinct from when we wrote it down. */
+  ['provider_accepted_at', 'TEXT'],
+
+  /**
+   * WHEN A PROCESS TOOK THIS MESSAGE FOR EXECUTION, and WHICH process.
+   *
+   * The pair a recovery sweep will read. A row still SENDING whose
+   * `claim_run_id` is not the current process's is a claim whose owner is
+   * gone, and the honest thing to do with it is UNKNOWN_PROVIDER_RESULT rather
+   * than a resend. Nothing claims anything yet; the columns exist so that the
+   * sweep is not also a migration.
+   */
+  ['claimed_at', 'TEXT'],
+  ['claim_run_id', 'TEXT'],
 ];
+
+/**
+ * D4.4 — WHICH MESSAGE AN OUTBOUND ACTION WAS SPENT ON.
+ *
+ * The table was built without it on purpose, and the schema comment says why:
+ * capacity is consumed BEFORE the transport runs, and the message row was
+ * written AFTER it returned, so at the instant a ledger row was written there
+ * was nothing to point at. D4.3 moved the message write ahead of the
+ * relationship marks and the execution boundary will write it ahead of the
+ * spend, so the pointer becomes fillable.
+ *
+ * NULLABLE AND NOT UNIQUE, and both matter.
+ *
+ *   NULLABLE   the 41 historical rows and every `recordManualOutboundAttempt`
+ *              have no message row to name — `confirm-sends` records mail an
+ *              operator already sent by hand, sometimes for a relationship
+ *              that predates `outreach_send` entirely. A NOT NULL column would
+ *              make the honest case unrecordable.
+ *
+ *   NOT UNIQUE ONE MESSAGE MAY COST SEVERAL ATTEMPTS. The schema states it
+ *              plainly: a retry is a second attempt and appears as a second
+ *              row. A definite failure spent capacity; an ambiguous outcome
+ *              spent it; a later retry spends it again. A unique index would
+ *              make the retry unrecordable and understate mailbox usage by
+ *              exactly the traffic it exists to measure.
+ *
+ * ON DELETE is deliberately absent, so a delete is refused — matching the
+ * RESTRICT this table's neighbours use, and unlike `outreach_id` beside it,
+ * which is SET NULL because the budget counts on (athlete, mailbox, time) and
+ * must not hand back capacity when housekeeping removes a relationship. Nothing
+ * deletes an `outreach_send`; a refusal here is the right way to find out if
+ * something ever tries.
+ */
+const OUTBOUND_SEND_ATTEMPT_COLUMNS = [
+  ['outreach_send_id', 'TEXT REFERENCES outreach_send(id)'],
+];
+
+/**
+ * WIDEN THE ONE-OPEN-MESSAGE GUARD TO COVER AN UNRESOLVED PROVIDER RESULT — D4.4.
+ *
+ * `CREATE UNIQUE INDEX IF NOT EXISTS` cannot do this on its own: the name
+ * already exists on every database in the field, so the IF NOT EXISTS is
+ * satisfied and the narrower predicate stays for ever. The index has to be
+ * dropped and rebuilt.
+ *
+ * REBUILT ONLY WHEN THE PREDICATE IS ACTUALLY OLD. The stored SQL is read and
+ * compared, so the common path — every boot after the first — does nothing at
+ * all, and a fresh database gets the current shape once. Idempotent by
+ * inspection rather than by luck.
+ *
+ * IT CANNOT FAIL TO BUILD ON EXISTING DATA. The wider predicate adds
+ * UNKNOWN_PROVIDER_RESULT, which nothing in this build can write, so no
+ * database can be holding a row the narrow index allowed and the wide one
+ * forbids. The rebuild is a no-op for every row on file.
+ *
+ * WHY IT MATTERS: a message whose provider result is unknown may already be in
+ * a coach's inbox. Opening a second message on that relationship beside it is
+ * the double send the ambiguity model exists to prevent, reached by a route
+ * that never touches the state machine.
+ */
+const ONE_OPEN_PREDICATE = "state IN ('DRAFT', 'QUEUED', 'SENDING', 'UNKNOWN_PROVIDER_RESULT')";
+
+function widenOneOpenMessageIndex(db) {
+  const existing = db.prepare(
+    "SELECT sql FROM sqlite_master WHERE type = 'index' AND name = 'idx_outreach_send_one_open'",
+  ).get();
+  if (existing?.sql?.includes('UNKNOWN_PROVIDER_RESULT')) return false;
+  if (existing) db.exec('DROP INDEX idx_outreach_send_one_open');
+  db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_outreach_send_one_open
+             ON outreach_send(outreach_id)
+             WHERE ${ONE_OPEN_PREDICATE}`);
+  return true;
+}
 
 /**
  * Every message gets the state it truthfully had, and not one it did not.
@@ -907,9 +1101,61 @@ export function migrate(db) {
    * Created after the backfill, never before: NULL is not in the predicate,
    * so the rows the backfill is about to name are invisible to it until then.
    */
-  db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_outreach_send_one_open
-             ON outreach_send(outreach_id)
-             WHERE state IN ('DRAFT', 'QUEUED', 'SENDING')`);
+  widenOneOpenMessageIndex(db);
+  /**
+   * D4.4 — the reads a provider-executed send will make, and one guard.
+   *
+   * Created after `addMissingColumns` above has added the columns, never
+   * before: schema.sql runs first and cannot index a column this function is
+   * about to add — the same ordering every other index here follows.
+   */
+  db.exec('CREATE INDEX IF NOT EXISTS idx_outreach_send_mailbox ON outreach_send(connected_mailbox_id)');
+  /**
+   * A CLAIM SWEEP READS THIS ONE. Every message a dead process left behind, by
+   * the run that left it. Partial, because the answer is only ever wanted for
+   * messages a transport is supposedly working on.
+   */
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_outreach_send_claim
+             ON outreach_send(claim_run_id, claimed_at)
+             WHERE state = 'SENDING'`);
+  /**
+   * THE SAME MESSAGE MUST NOT BE ACCEPTED TWICE FROM ONE MAILBOX — D4.4.
+   *
+   * COMPOSITE, AND THE MAILBOX IS IN IT DELIBERATELY. A provider-native
+   * message id is scoped to a MAILBOX, not to the provider: Gmail assigns ids
+   * within a user's mailbox, and Graph's are per-mailbox and change when a
+   * message moves folders. Two athletes' connected Gmail accounts can
+   * therefore each hold a message with the same id value, legitimately and
+   * with nothing wrong. A UNIQUE (provider, provider_message_id) would refuse
+   * the second one — a real send blocked by a collision between two id spaces
+   * that were never meant to share one.
+   *
+   * So the key is the mailbox's id space, which is the space the identifier
+   * actually lives in, and inside it the guard still catches the thing worth
+   * catching: one mailbox reporting the same accepted message twice, which
+   * would mean a double send or a double write.
+   *
+   * PARTIAL, so the 41 historical rows and every manual send — all of them
+   * NULL — are outside it entirely and cannot collide with each other.
+   *
+   * THERE IS DELIBERATELY NO UNIQUE INDEX ON `internet_message_id`. It is
+   * globally unique by construction and would be the stronger detector, but a
+   * retry that re-sends the same MIME legitimately carries the same Message-ID
+   * — and whether a retry does that is a D4.5 decision, not one to settle here
+   * with a constraint that would fail at the worst moment.
+   */
+  db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_outreach_send_provider_message
+             ON outreach_send(connected_mailbox_id, provider, provider_message_id)
+             WHERE provider_message_id IS NOT NULL`);
+  addMissingColumns(db, 'outbound_send_attempt', OUTBOUND_SEND_ATTEMPT_COLUMNS);
+  /**
+   * Every attempt spent on one message, oldest first — D4.4. Ordinary, not
+   * unique: see OUTBOUND_SEND_ATTEMPT_COLUMNS. `(attempted_at, id)` is a total
+   * order, so two attempts sharing a timestamp still read back in a fixed one,
+   * matching the three indexes this table already has.
+   */
+  db.exec(`CREATE INDEX IF NOT EXISTS idx_outbound_attempt_send
+             ON outbound_send_attempt(outreach_send_id, attempted_at, id)`);
   addMissingColumns(db, 'recruiting_arrivals', RECRUITING_ARRIVAL_COLUMNS);
   preserveMailboxIdentityAcrossOperators(db);
   retireProgrammeSeasonDivision(db);

@@ -869,14 +869,39 @@ describe('GET /api/campaigns/:id/execution-plan', () => {
     // endpoint shipped beside it would make that inspection a formality.
     expect(src).not.toMatch(/\.post\(['"][^'"]*(execute|send|run|process)/i);
     expect(src).not.toMatch(/createOutreach|recordDraft|recordOutboundAttempt|acceptSend/i);
-    // The one writer it may reach, named so no other can be added quietly.
-    // Matched against CODE, not prose: the route's own comments say the word.
+    // Matched against CODE, not prose: the routes' own comments say the words.
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
-    const writers = [...code.matchAll(/\bmaterialise\w*/gi)].map((m) => m[0]);
-    expect(new Set(writers)).toEqual(new Set(['materialiseNextContactAttempt']));
 
+    /**
+     * EVERY DOMAIN WRITER THIS ROUTER MAY REACH, NAMED.
+     *
+     * F10b-4 adds three and none of them makes a message happen.
+     * `generateProgrammeMessage` writes what a campaign INTENDS to say — no
+     * mailbox, no queue, no schedule, no transport — and `editProgrammeMessage`
+     * and `reviewProgrammeMessage` change words and record who approved them.
+     *
+     * NOTE WHAT IS ABSENT AND MUST STAY ABSENT: `composeProgrammeMessage` and
+     * `createProgrammeMessage`. Wiring those two together here would step around
+     * the generation gate entirely, and a guard in
+     * programmeMessageGeneration.test.js asserts exactly one production module
+     * does it.
+     */
+    const writers = [...code.matchAll(
+      /\b(materialise\w*|generateProgrammeMessage|editProgrammeMessage|reviewProgrammeMessage|composeProgrammeMessage|createProgrammeMessage|approveFirstTouch)\b/g,
+    )].map((m) => m[0]);
+    expect(new Set(writers)).toEqual(new Set([
+      'materialiseNextContactAttempt', 'approveFirstTouch',
+      'generateProgrammeMessage', 'editProgrammeMessage', 'reviewProgrammeMessage',
+    ]));
+
+    /**
+     * FOUR READS NOW, and the fourth is a message. `execution-plan` is a
+     * computed projection; a programme message is durable content that stays
+     * readable after the campaign that wrote it has closed — reading history is
+     * not actionability. The count is pinned so the surface grows deliberately.
+     */
     const methods = [...src.matchAll(/campaignsRouter\.(\w+)\(/g)].map((m) => m[1]);
-    expect(methods.filter((m) => m === 'get').length).toBe(3);
+    expect(methods.filter((m) => m === 'get').length).toBe(4);
     expect(new Set(methods)).toEqual(new Set(['post', 'get', 'patch']));
   });
 });

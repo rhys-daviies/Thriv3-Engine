@@ -113,10 +113,11 @@ describe('campaigns are not generic CRUD', () => {
    * argument and sends no body, so it cannot express an intent against a coach
    * or a step of the caller's choosing.
    */
-  it('exposes exactly the eight campaign operations, and none of them sends', () => {
+  it('exposes exactly the twelve campaign operations, and none of them sends', () => {
     expect(Object.keys(campaigns).sort()).toEqual([
-      'approveFirstTouch', 'createForPlayer', 'executionPlan', 'get', 'listForPlayer',
-      'prepareNextAttempt', 'update', 'updateProgramme',
+      'approveFirstTouch', 'createForPlayer', 'editMessage', 'executionPlan', 'generateMessage',
+      'get', 'listForPlayer', 'message', 'prepareNextAttempt', 'reviewMessage', 'update',
+      'updateProgramme',
     ]);
 
     /**
@@ -127,8 +128,19 @@ describe('campaigns are not generic CRUD', () => {
      * allowed to reach it. What replaces it is stricter about the thing that
      * actually mattered: preparation may only ever be the SINGLE, server-driven
      * operation below — never a bulk form, and never one that takes a coach, a
-     * step or an action from the caller. `assertNoSendingArguments` below is
-     * what holds that second half.
+     * step or an action from the caller.
+     *
+     * F10b-4 ADDS FOUR CONTENT OPERATIONS AND NO EXECUTION ONE.
+     * `generateMessage` writes what the campaign INTENDS to say — no mailbox is
+     * touched, nothing is queued, scheduled or sent, and `outreach_send`
+     * remains the only thing that says a message happened. `message` reads one,
+     * `editMessage` changes words nobody has approved yet, and `reviewMessage`
+     * records that somebody approves them — which is not send-approval and is
+     * asserted as such server-side.
+     *
+     * So `generate`, `edit` and `review` are content verbs and are allowed for
+     * this workflow only. The forbidden list below is unchanged and still
+     * catches anything that would make a message HAPPEN.
      */
     for (const name of Object.keys(campaigns)) {
       expect(name).not.toMatch(/execute|send|run|process|queue|schedule|dispatch/i);
@@ -139,6 +151,69 @@ describe('campaigns are not generic CRUD', () => {
     // Exactly one preparation operation, named.
     const preparing = Object.keys(campaigns).filter((n) => /prepar|materialis/i.test(n));
     expect(preparing).toEqual(['prepareNextAttempt']);
+
+    /**
+     * And exactly one generation operation — never a bulk or campaign-wide
+     * form. Generating a hundred messages at once is a product decision nobody
+     * has taken, and it would arrive here first.
+     */
+    const generating = Object.keys(campaigns).filter((n) => /generat|compos/i.test(n));
+    expect(generating).toEqual(['generateMessage']);
+
+    /**
+     * REVIEW IS NOT SEND-APPROVAL, and the name must not drift towards
+     * implying it. `approveSend`, `sendApproval`, `authoriseSend` are the
+     * names this rule exists to keep out.
+     */
+    for (const name of Object.keys(campaigns)) {
+      expect(name).not.toMatch(/approvesend|sendapprov|authorisesend|authorizesend/i);
+    }
+  });
+
+  /**
+   * THE MESSAGE METHODS CARRY IDENTIFIERS AND CONTENT, AND NOTHING ELSE.
+   *
+   * Generate and review send no body at all: the recipient, the step, the
+   * evidence and the reviewer are all the server's to derive, and a method that
+   * could name any of them would make the server-side authority decorative.
+   * Editing sends exactly the patch it is given — and the server refuses any
+   * field outside subject and body rather than ignoring it.
+   */
+  it('generate and review send no body; edit sends only its patch', async () => {
+    const calls = [];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = async (url, options) => {
+      calls.push({ url, options });
+      return {
+        ok: true,
+        status: 200,
+        headers: { get: () => 'application/json' },
+        json: async () => ({ id: 'm1' }),
+      };
+    };
+    try {
+      await campaigns.generateMessage('pc-1', 'coach-9');
+      await campaigns.message('m-1');
+      await campaigns.editMessage('m-1', { subject: 'New', body: 'Also new.' });
+      await campaigns.reviewMessage('m-1');
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+
+    expect(calls.map((c) => `${c.options?.method ?? 'GET'} ${c.url}`)).toEqual([
+      'POST /api/programme-campaigns/pc-1/coaches/coach-9/message',
+      'GET /api/programme-messages/m-1',
+      'PATCH /api/programme-messages/m-1',
+      'POST /api/programme-messages/m-1/review',
+    ]);
+    // No body on generate, read or review.
+    expect(calls[0].options.body).toBeUndefined();
+    expect(calls[1].options?.body).toBeUndefined();
+    expect(calls[3].options.body).toBeUndefined();
+    // And the edit carries the patch and nothing more.
+    expect(JSON.parse(calls[2].options.body)).toEqual({ subject: 'New', body: 'Also new.' });
+    // No query string anywhere — the ids are the request.
+    for (const c of calls) expect(c.url).not.toContain('?');
   });
 
   /**

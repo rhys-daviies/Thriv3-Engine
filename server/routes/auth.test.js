@@ -206,6 +206,19 @@ describe('with no session, nothing protected resolves', () => {
     ['POST', '/api/csv-agent/chat', 'the CSV agent'],
     ['PUT', '/api/entities/players/any-id', 'editing an athlete'],
     ['DELETE', '/api/entities/players/any-id', 'deleting an athlete'],
+
+    /**
+     * F10b-4. A programme message is campaign content — what an athlete's
+     * outreach would say and why — so reading one with no session must be
+     * refused exactly as the athlete list is. They are on `campaignsRouter`,
+     * mounted after the single `app.use('/api', requireOperator)`, which is
+     * what makes a route protected by default; this asks the real app rather
+     * than trusting that.
+     */
+    ['POST', '/api/programme-campaigns/any-pc/coaches/any-coach/message', 'generating a message'],
+    ['GET', '/api/programme-messages/any-id', 'reading a message'],
+    ['PATCH', '/api/programme-messages/any-id', 'editing a message'],
+    ['POST', '/api/programme-messages/any-id/review', 'reviewing a message'],
   ];
 
   it.each(PROTECTED)('%s %s (%s) is refused', async (method, route) => {
