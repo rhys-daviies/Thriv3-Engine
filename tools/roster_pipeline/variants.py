@@ -40,6 +40,14 @@ def ladder(cand, url25):
         if re.search(r'/20\d\d(-\d\d)?(/|$)', u):
             add(re.sub(r'/20\d\d-\d\d(?=/|$)', f'/{SPAN}', u))
             add(re.sub(r'/20\d\d(?=/|$)', f'/{S}', u))
+        # a2) season-bearing INSIDE the last segment, as a CMS page name is:
+        # `/soccer-roster-2026`. It states its season as surely as `/roster/2026`
+        # does, and falling through to (b) appends a second one — the URL we
+        # then record as provenance is a redirect artefact rather than the page
+        # that served the roster. Mirrors `swap()` in build_targets.py.
+        elif re.search(r'-20\d\d$', u):
+            add(re.sub(r'-20\d\d$', f'-{S}', u))
+            continue
         # b) append the season to a year-less roster path
         m = re.match(r'^(.*?/roster)(?:/.*)?$', u)
         base = m.group(1) if m else u

@@ -51,6 +51,30 @@ export const SHAPES = Object.freeze([
   { id: 'ROSTER_BARE', path: '/sports/<SLUG>/roster', observed: 7, providers: ['SIDEARM', 'NUXT'] },
   { id: 'ROSTER_SPAN', path: '/sports/<SLUG>/roster/<SPAN>', observed: 4, providers: ['SIDEARM'] },
   { id: 'ROSTER_YEAR_TABLE', path: '/sports/<SLUG>/roster/<YEAR>?view=table', observed: 3, providers: ['SIDEARM'] },
+  /*
+   * NOT A /sports/ SHAPE, AND ONLY FOR A HOST RECORDED AS USING IT.
+   *
+   * 9,704 of the 9,760 roster URLs this pipeline has ever fetched sit under
+   * `/sports/<slug>/…roster…`; the eight shapes above are that whole world.
+   * Trinity Washington's athletics site is not in it. It is a WordPress build
+   * on WPBakery, and it publishes `/soccer-roster-2026/`, and the same shape
+   * for `/basketball-roster-2026/`, `/tennis-roster-2026/` and
+   * `/volleyball-roster-2026/` — four sports, one deterministic form, linked
+   * from its own team pages.
+   *
+   * `exclusive` is what keeps that from costing anything. An ordinary shape is
+   * generated for every host and merely ORDERED by platform; this one is
+   * generated ONLY for a host the ledger records as WPBakery. So the ladder of
+   * all 1,760 other programmes is byte-identical, the sixteen-candidate bound
+   * cannot be inflated, and historical reproduction cannot regress — not
+   * because a simulation says so, but because no other host reaches this line.
+   *
+   * `observed: 0` is the honest count. This shape has no corpus precedent at
+   * all; its evidence is four sibling sports on one site. That is thin, and
+   * recording it as thin is the point — if a second WPBakery athletics host
+   * ever appears, this is the number that should change.
+   */
+  { id: 'CMS_SPORT_ROSTER_YEAR', path: '/<SLUG>-roster-<YEAR>', observed: 0, providers: ['WPBAKERY'], exclusive: true },
 ]);
 
 /**
@@ -68,13 +92,38 @@ export const SLUGS = Object.freeze({
     { slug: 'mens-soccer', observed: 617, short: false },
     { slug: 'msoc', observed: 49, short: true },
     { slug: 'm-soccer', observed: 1, short: true },
+    { slug: 'soccer', observed: 4, short: false, soleProgrammeOnly: true },
   ]),
   'womens-soccer': Object.freeze([
     { slug: 'womens-soccer', observed: 857, short: false },
     { slug: 'wsoc', observed: 53, short: true },
     { slug: 'w-soccer', observed: 1, short: true },
+    { slug: 'soccer', observed: 4, short: false, soleProgrammeOnly: true },
   ]),
 });
+
+/**
+ * THE BARE `soccer` SLUG, READMITTED UNDER THE CONDITION THAT MADE IT UNSAFE.
+ *
+ * The note above explains why it was catalogued and never generated: asking a
+ * school that fields both programmes for "the soccer roster" gives you no way
+ * to know which one answered, and a discovery target has no prior squad for the
+ * turnover gate to catch a wrong-gender page with.
+ *
+ * That risk is a property of the INSTITUTION, not of the slug. Where the
+ * registry says a school fields exactly one soccer programme, `soccer` is
+ * unambiguous by construction — there is no other programme it could return.
+ * 314 of the 1,029 NCAA institutions with soccer are in that position (297
+ * women's-only, 17 men's-only), and Trinity Washington, a women's college, is
+ * one of them.
+ *
+ * It is still not offered to the eight `/sports/` shapes: those already have
+ * three slugs each that between them cover 1,578 of 1,582 observed sources, and
+ * widening them buys nothing while lengthening every ladder. The bare slug is
+ * reachable only from a shape that asked for it — today, only the exclusive
+ * CMS family above.
+ */
+const SOLE_PROGRAMME_SLUGS = true;
 
 /** Providers whose sources use the short sport segment, measured not assumed. */
 export const SHORT_SLUG_PROVIDERS = Object.freeze(['PRESTO']);
@@ -128,6 +177,7 @@ const span = (season) => `${season}-${String((Number(season) + 1) % 100).padStar
  */
 export function rosterCandidatesForVerifiedHost({
   host, sport, season, verified = false, limit = Infinity, platform = null,
+  soleSoccerProgramme = false,
 } = {}) {
   if (!verified) {
     return { status: CANDIDATE.HOST_NOT_VERIFIED, candidates: [],
@@ -153,10 +203,16 @@ export function rosterCandidatesForVerifiedHost({
    * ladder stays the same list in a better order and is identical when the
    * platform is unknown.
    */
+  /*
+   * An `exclusive` shape is generated only for the platform that was observed
+   * using it. Every other shape is generated for everyone and merely ordered,
+   * exactly as before, so nothing about the existing ladders moves.
+   */
+  const usable = SHAPES.filter((sh) => !sh.exclusive || (platform && sh.providers.includes(platform)));
   const ordered = platform
-    ? [...SHAPES.filter((sh) => sh.providers.includes(platform)),
-      ...SHAPES.filter((sh) => !sh.providers.includes(platform))]
-    : SHAPES;
+    ? [...usable.filter((sh) => sh.providers.includes(platform)),
+      ...usable.filter((sh) => !sh.providers.includes(platform))]
+    : usable;
   // The slug is a property of the provider too, and on the same evidence. Both
   // orderings are stable partitions, so the ladder is the same set either way.
   const bySlug = platform && SHORT_SLUG_PROVIDERS.includes(platform)
@@ -164,7 +220,11 @@ export function rosterCandidatesForVerifiedHost({
     : slugs;
   const out = [];
   for (const shape of ordered) {
-    for (const { slug } of bySlug) {
+    // The bare slug is offered only to a shape that is itself gated, and only
+    // where the institution fields one soccer programme. See SOLE_PROGRAMME_SLUGS.
+    const shapeSlugs = bySlug.filter((sl) => !sl.soleProgrammeOnly
+      || (SOLE_PROGRAMME_SLUGS && shape.exclusive && soleSoccerProgramme));
+    for (const { slug } of shapeSlugs) {
       const path = shape.path.replace('<SLUG>', slug).replace('<YEAR>', year).replace('<SPAN>', sp);
       const url = `https://${host}${path}`;
       if (!out.some((c) => c.url === url)) out.push({ url, shape: shape.id, slug, fetchHost: host });
@@ -182,7 +242,9 @@ export function rosterCandidatesForVerifiedHost({
  * person, not a tiebreak for a generator — L4 is the record of what happens
  * when a lookup takes the first row.
  */
-export function candidatesForLookup(lookup, { sport, season, limit = Infinity, platform = null } = {}) {
+export function candidatesForLookup(lookup, {
+  sport, season, limit = Infinity, platform = null, soleSoccerProgramme = false,
+} = {}) {
   if (!lookup || lookup.status === 'NO_UNITID' || lookup.status === 'NO_TRUSTED_HOST') {
     return { status: CANDIDATE.NO_TRUSTED_HOST, candidates: [], host: null, fetchHosts: [],
       reason: lookup?.reason ?? 'no institution identity' };
@@ -220,7 +282,7 @@ export function candidatesForLookup(lookup, { sport, season, limit = Infinity, p
   for (const form of forms) {
     if (candidates.length >= limit) break;
     const gen = rosterCandidatesForVerifiedHost({
-      host: form, sport, season, verified: true, platform,
+      host: form, sport, season, verified: true, platform, soleSoccerProgramme,
     });
     if (gen.status !== CANDIDATE.OK) {
       if (!candidates.length) return { host, fetchHosts: forms, ...gen };

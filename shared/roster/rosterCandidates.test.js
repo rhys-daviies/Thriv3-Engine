@@ -45,9 +45,20 @@ describe('nothing is generated without a verified host', () => {
 
 describe('the shapes are the ones the corpus actually used', () => {
   it('generates every catalogued shape on every catalogued slug', () => {
+    /*
+     * OPEN shapes and slugs only, which is the whole catalogue for an ordinary
+     * host. L7N added one `exclusive` shape — generated solely for a platform
+     * the ledger records as using it — and one `soleProgrammeOnly` slug that
+     * only such a shape may ask for. Neither is reachable here, and that is the
+     * property being asserted: a host with no recorded platform still gets
+     * exactly the eight-by-three ladder it always got.
+     */
+    const openShapes = SHAPES.filter((sh) => !sh.exclusive);
+    const openSlugs = SLUGS['mens-soccer'].filter((sl) => !sl.soleProgrammeOnly);
     const r = ok();
     expect(r.status).toBe(CANDIDATE.OK);
-    expect(r.candidates.length).toBe(SHAPES.length * SLUGS['mens-soccer'].length);
+    expect(r.candidates.length).toBe(openShapes.length * openSlugs.length);
+    expect(r.candidates.length).toBe(24);
     expect(new Set(r.candidates.map((c) => c.url)).size).toBe(r.candidates.length);
   });
 

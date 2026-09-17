@@ -3,6 +3,7 @@
 
 The season is set by RB_SEASON (default 2024) so the same code drives every
 year rather than being forked per season."""
+import html as html_mod
 import json, os, re, hashlib, time, random, unicodedata
 import requests
 from bs4 import BeautifulSoup
@@ -433,6 +434,120 @@ def parse_presto_cards(html):
         recs.append({'name': nm, 'cls': cls, 'pos': pos, 'home': clean_home(f.get('hometown', ''))})
     return recs or None
 
+# ------------------------------------------------- list-shaped (bespoke CMS)
+#
+# WHEN A ROSTER IS NEITHER A TABLE NOR A CARD.
+#
+# Every parser above reads a page built by a college-athletics platform --
+# Sidearm, Presto, Nuxt, WMT -- and each of those emits markup with a shape we
+# can name. A small college running an ordinary WordPress site has none of that.
+# Trinity Washington's roster is a WPBakery page: a heading per player, then a
+# row of three short cells holding position, class and hometown. `parse_any`
+# returns `none` on it, which is correct behaviour for every parser it has.
+#
+# THE DANGER IS OBVIOUS AND IS WHY THIS IS NARROW.
+#
+# "A heading followed by short strings" describes a staff directory, a news
+# index, a schedule and half the footers on the internet. So nothing here looks
+# at a page until the PAGE has proved what it is, and nothing is accepted as a
+# player until the ENTRY has proved what it is:
+#
+#   THE PAGE must name a roster and a season, in its own title or heading.
+#     `season_ok` and the sport/institution gates still run afterwards in the
+#     caller; this is the parser refusing to read a page that never claimed to
+#     be a roster at all, which is the thing that makes the shape safe.
+#
+#   AN ENTRY must be a heading that reads like a person's name, followed within
+#     a short window by at least two short field-like cells. A heading with no
+#     fields under it is a section title, not a player.
+#
+# TEMPLATE ROWS ARE REAL AND THIS PAGE HAS TWO.
+#
+# Trinity's roster carries seventeen entries and fifteen players: two are the
+# page builder's unfilled placeholders, literally named "Player Name" with the
+# cells reading "Position", "Class", "Hometown". A parser that trusted the shape
+# would have shipped two people called Player Name. Two genuine players carry
+# the author's own unknown-markers -- "Position ?", "Class ?" -- which become
+# empty fields rather than a position called "?".
+
+# Soccer positions as roster pages actually spell them. Deliberately a small
+# closed set: it is used to LABEL a field, never to admit one.
+_LIST_POS = re.compile(r'^(gk|goalkeep\w*|def\w*|mid\w*|forward|striker|att\w*|back|winger|util\w*)$', re.I)
+
+_LIST_LABELS = {'position', 'class', 'hometown', 'name', 'player name', 'player',
+                'number', 'no', 'no.', 'year', 'height', 'pos'}
+_LIST_NAME = re.compile(r'<h3[^>]*>(.*?)</h3>', re.I | re.S)
+_LIST_FIELD = re.compile(r'<h4[^>]*>(.*?)</h4>', re.I | re.S)
+_LIST_ANY_HEADING = re.compile(r'<(h[234])[^>]*>(.*?)</\1>', re.I | re.S)
+_ROSTER_PAGE = re.compile(r'\broster\b', re.I)
+
+
+def _list_clean(s):
+    """Visible text of a fragment, with the author's unknown-markers dropped."""
+    t = re.sub(r'<[^>]+>', ' ', s or '')
+    t = html_mod.unescape(t)
+    t = re.sub(r'\s+', ' ', t).strip()
+    # "Position ?" and "Class ?" are this author's "not known yet", not values.
+    if re.fullmatch(r'(position|class|hometown|no\.?|number)\s*\?', t, re.I): return ''
+    return t
+
+
+def parse_list_roster(html):
+    """A roster written as headings, on a page that proves it is a roster.
+
+    The shape, exactly: a player's name is an `<h3>`, and the fields that
+    describe them are the `<h4>` headings between it and the next `<h3>`. That
+    is a structural claim about the document, not a CSS class one site's author
+    happened to choose, and it is narrow enough that a staff directory or a news
+    index does not satisfy it.
+
+    Returns None rather than an empty list when the page does not qualify, so
+    `parse_any` treats it exactly like every other parser that found nothing.
+    """
+    mt = re.search(r'<title[^>]*>(.*?)</title>', html, re.S)
+    title = html_mod.unescape(re.sub(r'\s+', ' ', mt.group(1)).strip()) if mt else ''
+    heading_text = ' '.join(_list_clean(h[1]) for h in _LIST_ANY_HEADING.findall(html)[:12])
+    # THE PAGE: it must call itself a roster, and it must name a season. Without
+    # both, this parser has no business reading a list of names off it.
+    if not _ROSTER_PAGE.search(title) and not _ROSTER_PAGE.search(heading_text): return None
+    if not re.search(r'\b20\d\d\b', title + ' ' + heading_text): return None
+
+    names = list(_LIST_NAME.finditer(html))
+    recs = []
+    for i, m in enumerate(names):
+        nm = _list_clean(m.group(1))
+        if not nm or len(nm) > 60: continue
+        if nm.lower() in _LIST_LABELS: continue                    # "Player Name"
+        # A person's name: two to five words of letters and the punctuation
+        # names carry. Rejects "Fall 2026", "Soccer Roster", "Read More".
+        if not re.fullmatch(r"[A-Za-z][A-Za-z.'\u2019\-]*(?:\s+[A-Za-z][A-Za-z.'\u2019\-]*){1,4}", nm): continue
+        if re.search(r'\b(roster|schedule|staff|coach|news|results|standings|fall|spring|winter|summer)\b',
+                     nm, re.I):
+            continue
+        # THE ENTRY: the fields that belong to this name, up to the next name.
+        end = names[i + 1].start() if i + 1 < len(names) else len(html)
+        fields, seen_f = [], set()
+        for f in _LIST_FIELD.finditer(html, m.end(), end):
+            v = _list_clean(f.group(1))
+            if not v or len(v) > 40: continue
+            if v.lower() in _LIST_LABELS: continue                 # template labels
+            if v.isdigit(): continue                               # the next player's number
+            if v.lower() in seen_f: continue
+            seen_f.add(v.lower()); fields.append(v)
+        # A heading with nothing under it is a section title, not a player.
+        if len(fields) < 2: continue
+        pos = next((f for f in fields if _LIST_POS.match(f)), '')
+        cls = next((f for f in fields if CLASSY.match(f)), '')
+        home = next((f for f in fields if f not in (pos, cls)), '')
+        recs.append({'name': nm, 'cls': cls, 'pos': pos, 'home': home})
+    seen, out = set(), []
+    for r in recs:
+        k = r['name'].lower()
+        if k in seen: continue
+        seen.add(k); out.append(r)
+    return out or None
+
+
 def parse_any(html):
     """Try every parser and keep the richest read.
 
@@ -450,7 +565,8 @@ def parse_any(html):
     except Exception:
         pass
     for fn, nm in ((parse_sidearm_html, 'sidearm-html'), (parse_tables, 'table'),
-                   (parse_roster_cards, 'roster-card'), (parse_presto_cards, 'presto-card')):
+                   (parse_roster_cards, 'roster-card'), (parse_presto_cards, 'presto-card'),
+                   (parse_list_roster, 'list')):
         try: rr = fn(html)
         except Exception: rr = None
         if rr and (best is None or len(rr) > len(best)):

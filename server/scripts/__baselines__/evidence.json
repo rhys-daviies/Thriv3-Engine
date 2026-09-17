@@ -16,8 +16,8 @@
       },
       {
         "table": "roster_players",
-        "rows": 277397,
-        "digest": "4034cdbe7e98b85768e11a66b21fcf9c95e7fe4c81cbd2ccb7e068605a57540d"
+        "rows": 277410,
+        "digest": "b19ac4b809619ecae9d229e0c403fa292fef655c1d510f022d31ba03e419804f"
       },
       {
         "table": "coaches",
@@ -26,22 +26,22 @@
       },
       {
         "table": "athletics_domains",
-        "rows": 2722,
-        "digest": "7a9a228e02cea00508ac0a41d3bc4bf29847b24444f519328aebedf8b090ef33"
+        "rows": 2723,
+        "digest": "63d001e57c2712390e42dab0569c06ac757e4e2f9e50344fd8649bb4767b33cf"
       },
       {
         "table": "roster_freshness",
-        "rows": 1934,
-        "digest": "b8c8e9fb994e6f0b193194300c2f379b50450d1c158d7dace7d1e36c19643bad"
+        "rows": 1935,
+        "digest": "4cca210b7c9651cbfaf02acc1eb98aee6cd72131127f09a8d44f4112723c100a"
       }
     ],
-    "digest": "194fcf38877e6686e3a8eaa29975b53c0ded9112a9d4cb5160da7057e4c2487b"
+    "digest": "e7860685c33c1aead558272cb4a70a60ca0439e53c7942da1b4cb996ad76b7a6"
   },
   "baselines": [
     {
       "name": "OUTBOUND_DECISION",
       "size": 4742,
-      "digest": "b2d71bc805a6176cf5746a1c9296ce2742c00ccd43ffb43fda430edd6b6f8946"
+      "digest": "9c259f5ed4029f949941d1062951cf735816be0bd44700a78121681c282f7af2"
     },
     {
       "name": "COACH_COMPOSITION",
@@ -56,17 +56,17 @@
     {
       "name": "OPERATOR_WIRE",
       "size": 4742,
-      "digest": "d54e8e3797ffdd6ebc80b33f764c4481acb23673c6ad0469cb9c5fecf6cce3d1"
+      "digest": "109aba51ce5a3997b7ae85527fb6f982540741231ac778a4a701b824feca32a1"
     },
     {
       "name": "LOG_PAYLOAD",
       "size": 4742,
-      "digest": "0cb75a62102e7c6ba72a8835db82e01d80c8381e7c1c01b228f59762823e0756"
+      "digest": "4526cf967cfc90a2ac23ff12883acc86f32125e215cd8c8343f19153a28d4685"
     },
     {
       "name": "OPERATOR_EVIDENCE",
       "size": 4742,
-      "digest": "b1ad9660933467207448a0a5ef0424abf4ad7a20aa4a0a25fa54135787a8d4dd"
+      "digest": "f92e94f16ba496f4c57937c31c5d3ba6284a6b4222f97752bb76068d9e558d6c"
     }
   ]
 }

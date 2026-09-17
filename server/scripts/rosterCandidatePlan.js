@@ -92,6 +92,20 @@ export function candidatePlan({
     .map((r) => [canonicalHost(r.domain), r.platform]));
   const haveSource = programmesWithSource();
   const targets = programmes ?? rosterTargetUniverse();
+  /*
+   * Institutions the registry says field exactly one soccer programme. The bare
+   * `soccer` slug is unambiguous for them and for nobody else — see SLUGS.
+   * Counted over the whole registry rather than the run scope, because it is a
+   * fact about the institution and not about what this run happens to attempt.
+   */
+  const soccerProgrammes = new Map();
+  for (const r of db.prepare(
+    `SELECT unitid, sport FROM colleges
+      WHERE sport IN ('mens-soccer','womens-soccer') AND active = 1 AND unitid IS NOT NULL`,
+  ).all()) {
+    if (!soccerProgrammes.has(r.unitid)) soccerProgrammes.set(r.unitid, new Set());
+    soccerProgrammes.get(r.unitid).add(r.sport);
+  }
 
   return targets.map((p) => {
     const key = `${p.school}||${p.sport}`;
@@ -101,6 +115,7 @@ export function candidatePlan({
     const host0 = lookup.hosts?.[0] ?? null;
     const gen = candidatesForLookup(lookup, {
       sport: p.sport, season, limit, platform: host0 ? platform.get(host0) ?? null : null,
+      soleSoccerProgramme: (soccerProgrammes.get(p.unitid)?.size ?? 0) === 1,
     });
     let state;
     if (haveSource.has(key)) state = 'EXISTING_CANDIDATE';

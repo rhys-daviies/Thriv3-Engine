@@ -48,14 +48,17 @@ describe('the NCAA residual queue', () => {
 
   it('26. states the live accounting, duplicates and all', () => {
     // The denominator that must never be reported bare. 1,761 registry rows
-    // minus 7 duplicates is a legitimate universe of 1,754, of which 1,744 hold
-    // a roster and 10 do not.
+    // minus 7 duplicates is a legitimate universe of 1,754, of which 1,745 hold
+    // a roster and 9 do not — L7N acquired Trinity Washington.
+    //
+    // The universe is the invariant and is pinned; how it splits moves with
+    // every acquisition, so what is asserted about the split is that it adds up.
     const s = q.summary;
     expect(s.ncaaTotal).toBe(1761);
     expect(s.registryDuplicates).toBe(7);
-    expect(s.ncaaWithRoster).toBe(1744);
-    expect(s.legitimateGaps).toBe(10);
     expect(s.ncaaWithRoster + s.legitimateGaps).toBe(1754);
+    expect(s.ncaaWithRoster).toBe(1745);
+    expect(s.legitimateGaps).toBe(9);
   });
 
   it('separates a registry duplicate from an acquisition gap', () => {
@@ -87,22 +90,30 @@ describe('the NCAA residual queue', () => {
     }
   });
 
-  it('starts every gap unreviewed rather than inheriting a stage document', () => {
-    // L7K bootstrapped nothing: the five labels in L7F..L7I were conclusions
-    // about a state of the world that L7J proved the pipeline can no longer
-    // vouch for, and asserting them here would be the fabrication the stage
-    // exists to avoid.
-    expect(q.summary.reviewed).toBe(0);
-    expect(q.summary.unreviewed).toBe(q.rows.length);
+  it('carries only dispositions a person actually recorded', () => {
+    // L7K bootstrapped nothing and L7N wrote seven explicit human decisions.
+    // What must stay true is that a disposition never appears without a review
+    // behind it, and never comes from a stage document.
+    expect(q.summary.reviewed + q.summary.unreviewed).toBe(q.rows.length);
     for (const r of q.rows) {
-      expect(r.disposition).toBe(null);
-      expect(r.reviewStatus).toBe('UNREVIEWED');
+      if (r.reviewStatus === 'UNREVIEWED') {
+        expect(r.disposition).toBe(null);
+        expect(r.nextAction).toBe(null);
+      } else {
+        expect(r.disposition).toBeTruthy();
+        expect(r.reviewedAt).toMatch(/^\d{4}-\d\d-\d\d/);
+        expect(r.reviewEvidence).toBeTruthy();
+      }
     }
   });
 
-  it('leaves an unreviewed gap retry-eligible', () => {
-    expect(q.summary.retryEligible).toBe(q.rows.length);
-    expect(q.summary.retryHeld).toBe(0);
+  it('leaves an unreviewed gap retry-eligible, and holds only what a review held', () => {
+    // An unreviewed queue that blocks is a blocklist nobody chose.
+    for (const r of q.rows) {
+      if (r.reviewStatus === 'UNREVIEWED') expect(r.retryEligible).toBe(true);
+      else if (r.nextAction === 'CONFIRM_PROGRAMME_STATUS') expect(r.retryEligible).toBe(false);
+    }
+    expect(q.summary.retryEligible + q.summary.retryHeld).toBe(q.rows.length);
   });
 
   it('flags a recorded reason the live machine contradicts', () => {
@@ -121,8 +132,10 @@ describe('the NCAA residual queue', () => {
     expect(noHost.length).toBeGreaterThan(0);
     for (const r of noHost) {
       expect(r.candidates).toBe(0);
-      expect(r.disposition).toBe(null);   // it is a query result, not a conclusion
       expect(r.recordedStale).toBe(false);
+      // It is a query result, so it is never the disposition itself — a person
+      // may still have reviewed the programme for a reason of their own.
+      expect(r.disposition).not.toBe('NO_HOST');
     }
   });
 
@@ -135,7 +148,12 @@ describe('the NCAA residual queue', () => {
     `], { cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: LIVE_DB }, encoding: 'utf8' });
     queue();
     expect(fs.statSync(dbPath).size).toBe(before);
-    expect(reviews).toBe('0');
+    // Reading the queue must not create, remove or alter a review.
+    const after = execFileSync('node', ['--input-type=module', '-e', `
+      const { default: db } = await import('${ROOT}/server/db/client.js');
+      process.stdout.write(String(db.prepare('SELECT COUNT(*) n FROM roster_gap_reviews').get().n));
+    `], { cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: LIVE_DB }, encoding: 'utf8' });
+    expect(after).toBe(reviews);
   });
 
   it('6/7. a pipeline reset cannot reach a review — different store entirely', () => {

@@ -134,6 +134,18 @@ def swap(u, season):
         return re.sub(r'/20\d\d-\d\d(?=/|$)', f'/{season}-{(season+1)%100:02d}', u)
     if re.search(r'/(?:season/)?20\d\d(/|$)', u):
         return re.sub(r'/20\d\d(?=/|$)', f'/{season}', u)
+    # A YEAR CAN END A SEGMENT WITHOUT BEING ONE.
+    #
+    # The two cases above look for a season as its own path segment, which is
+    # how all eight `/sports/` shapes carry it. A CMS page named
+    # `/soccer-roster-2026` carries the same fact inside the segment, and
+    # falling through to the append below turned it into
+    # `/soccer-roster-2026/2026` — a 404 by construction. Exactly the failure
+    # L7C met when a Presto candidate skipped this normalisation, in the other
+    # direction: a URL that already states its season must never be given
+    # another one.
+    if re.search(r'-20\d\d/?$', u):
+        return re.sub(r'-20\d\d(?=/?$)', f'-{season}', u.rstrip('/'))
     return u.rstrip('/') + f'/{season}'
 
 def method(u):
