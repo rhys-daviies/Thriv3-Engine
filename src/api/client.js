@@ -276,6 +276,11 @@ export const rosterGaps = {
   review(body) {
     return request('/api/roster-gaps/review', { method: 'POST', body: JSON.stringify(body) });
   },
+  /** Programme status, read only — there is no write route by design. */
+  programmeStatus(season) {
+    const qs = season ? `?season=${encodeURIComponent(season)}` : '';
+    return request(`/api/programme-status${qs}`);
+  },
 };
 
 export const matchingSummary = {

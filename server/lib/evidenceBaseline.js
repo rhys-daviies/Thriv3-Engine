@@ -172,15 +172,25 @@ export const short = (d) => String(d).slice(0, 16);
  * while the dataset line still read UNCHANGED — the precise misdiagnosis the
  * manifest exists to prevent.
  *
- * V1 AND V2 DIGESTS ARE NOT COMPARABLE, and the report says UNCOMPARABLE rather
- * than FAIL when it meets one across the boundary. They describe different
- * questions about the data; a number computed for one is not a wrong answer to
- * the other, it is an answer to something else.
+ * V3 adds `programme_status`, for the same reason one version later. L7O found
+ * that `colleges.active` is absent from the `colleges` fingerprint, which was
+ * harmless while it was a dormant flag nothing read. `programme_status` is not
+ * dormant: it decides which programmes are eligible destinations for a season,
+ * so live matching and outreach change when it changes. A behavioural hash that
+ * moved while the dataset line read UNCHANGED is precisely what the manifest
+ * exists to prevent.
+ *
+ * SUCCESSIVE VERSIONS ARE NOT COMPARABLE WITH EACH OTHER, and the report says
+ * UNCOMPARABLE rather than FAIL when it meets one across a boundary. They
+ * describe different questions about the data; a number computed for one is not
+ * a wrong answer to the other, it is an answer to something else. Bumping the
+ * version is what keeps that honest — a V2 pin and a V2 digest taken over a
+ * different table list would both claim to be V2 and mean different things.
  */
-export const MANIFEST_VERSION = 'V2';
+export const MANIFEST_VERSION = 'V3';
 
-/** The last version before `roster_freshness`, kept so a V1 pin is nameable. */
-export const LEGACY_MANIFEST_VERSION = 'V1';
+/** The last version before `programme_status`, kept so a V2 pin is nameable. */
+export const LEGACY_MANIFEST_VERSION = 'V2';
 
 const MANIFEST_TABLES = Object.freeze([
   ['players', 'SELECT id, full_name, sport, nationality, position, intended_major, recruiting_class_year FROM players ORDER BY id'],
@@ -188,6 +198,20 @@ const MANIFEST_TABLES = Object.freeze([
   ['roster_players', 'SELECT college_name, sport, season, player_name FROM roster_players ORDER BY sport, college_name, season, player_name'],
   ['coaches', 'SELECT school, sport, full_name, position_title FROM coaches ORDER BY sport, school, full_name, position_title'],
   ['athletics_domains', 'SELECT domain, unitid, status, role, confidence FROM athletics_domains ORDER BY domain'],
+  /*
+   * PROGRAMME STATUS IS PRODUCT-SEMANTIC DATA, so the manifest has to see it.
+   *
+   * L7O found that `colleges.active` is absent from the fingerprint above, which
+   * was harmless while it was a dormant flag. `programme_status` is not dormant:
+   * it decides who is an eligible destination for a season, so live matching and
+   * outreach change when it changes. A behavioural hash that moved without the
+   * dataset line admitting why is exactly the misdiagnosis the manifest exists
+   * to prevent — K3A's finding, in a new place.
+   *
+   * The bounds are in the digest because they are the meaning: a row that moves
+   * from "not active" to "active from 2027" is a different fact about the world.
+   */
+  ['programme_status', 'SELECT school, sport, status, reason, active_from_season, active_to_season FROM programme_status ORDER BY sport, school'],
 ]);
 
 /**

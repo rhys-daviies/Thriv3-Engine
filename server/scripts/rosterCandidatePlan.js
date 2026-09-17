@@ -26,6 +26,7 @@ import {
 import { candidatesForLookup, CANDIDATE, MAX_ATTEMPTED_CANDIDATES } from '../../shared/roster/rosterCandidates.js';
 import { classifyReadiness, READINESS } from '../../shared/roster/rosterReadiness.js';
 import { rosterTargetUniverse } from './rosterTargetUniverse.js';
+import { allStatuses, programmeKey, activeForSeason } from '../lib/programmeStatus.js';
 
 export const CANDIDATE_SEASON = 2026;
 
@@ -99,10 +100,19 @@ export function candidatePlan({
    * fact about the institution and not about what this run happens to attempt.
    */
   const soccerProgrammes = new Map();
+  const statuses = allStatuses();
   for (const r of db.prepare(
-    `SELECT unitid, sport FROM colleges
+    `SELECT name, unitid, sport FROM colleges
       WHERE sport IN ('mens-soccer','womens-soccer') AND active = 1 AND unitid IS NOT NULL`,
   ).all()) {
+    /*
+     * SEASON-AWARE, because "fields one soccer programme" is a fact about a
+     * season. Wisconsin-Oshkosh fields only women's soccer in 2026 and both
+     * from 2027, so the bare `soccer` slug would be unambiguous for it this
+     * year and ambiguous next — and generating it in 2027 could return the
+     * wrong programme's roster, which is the risk the slug was excluded for.
+     */
+    if (!activeForSeason(statuses.get(programmeKey(r.name, r.sport)) ?? null, season)) continue;
     if (!soccerProgrammes.has(r.unitid)) soccerProgrammes.set(r.unitid, new Set());
     soccerProgrammes.get(r.unitid).add(r.sport);
   }

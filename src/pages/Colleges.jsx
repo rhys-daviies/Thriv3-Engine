@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SPORTS } from '@/lib/sports';
-import { entities } from '@/api/client';
+import { entities, rosterGaps } from '@/api/client';
 import { cn } from '@/lib/utils';
 
 const DIVISION_FILTERS = ['All', 'NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA'];
@@ -18,12 +18,25 @@ export default function Colleges() {
   const [sortCol, setSortCol] = useState(null); // 'academic_rating' | 'soccer_score'
   const [sortDir, setSortDir] = useState(null); // 'asc' | 'desc' | null
 
+  const [status, setStatus] = useState(new Map());
+
   useEffect(() => {
     // Exclude colleges flagged inactive -- confirmed not valid recruiting
     // targets (closed, doesn't field the sport, or ineligible for its listed
     // division). `active` defaults to 1, so null/undefined pass.
     entities.College.filter({ sport }).then((rows) => setColleges(rows.filter((c) => c.active !== 0)));
   }, [sport]);
+
+  /*
+   * Programme status for the season being recruited for. Read only, and sparse
+   * — a handful of rows — so it is fetched once rather than joined per college.
+   * A programme with no row is active, which is why absence is not shown.
+   */
+  useEffect(() => {
+    rosterGaps.programmeStatus()
+      .then((r) => setStatus(new Map(r.rows.map((x) => [`${x.school}||${x.sport}`, x]))))
+      .catch(() => setStatus(new Map()));
+  }, []);
 
   function toggleSort(col) {
     if (sortCol !== col) {
@@ -106,6 +119,7 @@ export default function Colleges() {
               <th className="px-4 py-2 font-medium text-muted-foreground w-12">#</th>
               <th className="px-4 py-2 font-medium text-muted-foreground">School</th>
               <th className="px-4 py-2 font-medium text-muted-foreground">Division</th>
+              <th className="px-4 py-2 font-medium text-muted-foreground">2026</th>
               <th className="px-4 py-2 font-medium text-muted-foreground cursor-pointer select-none" onClick={() => toggleSort('academic_rating')}>
                 <span className="inline-flex items-center gap-1">Academic Score <ArrowUpDown className="h-3 w-3" /></span>
               </th>
@@ -120,6 +134,20 @@ export default function Colleges() {
                 <td className="px-4 py-2 text-muted-foreground">{idx + 1}</td>
                 <td className="px-4 py-2 font-medium">{c.name}</td>
                 <td className="px-4 py-2"><Badge>{c.division}</Badge></td>
+                <td className="px-4 py-2 text-xs">
+                  {(() => {
+                    const s = status.get(`${c.name}||${c.sport}`);
+                    if (!s) return <span className="text-muted-foreground">Active</span>;
+                    if (s.status === 'FUTURE') {
+                      return <span className="text-amber-600" title={s.evidence}>From {s.activeFromSeason}</span>;
+                    }
+                    return (
+                      <span className="text-muted-foreground" title={s.evidence}>
+                        Not active{s.activeToSeason ? ` · through ${s.activeToSeason}` : ''}
+                      </span>
+                    );
+                  })()}
+                </td>
                 <td className="px-4 py-2">{c.academic_rating != null ? `${c.academic_rating}/10` : '—'}</td>
                 <td className="px-4 py-2">{c.soccer_score != null ? c.soccer_score.toFixed(2) : '—'}</td>
               </tr>

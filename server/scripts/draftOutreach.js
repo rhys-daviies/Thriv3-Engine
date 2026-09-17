@@ -18,6 +18,7 @@
  */
 import 'dotenv/config';
 import db from '../db/client.js';
+import { activeCollegesForSeason } from '../lib/programmeStatus.js';
 import { Player } from '../db/entities/player.js';
 import { sendOutreach } from '../routes/sendOutreach.js';
 import { buildRosterIndex, rankMatches, normaliseAthlete } from '../../shared/matching/pool.js';
@@ -200,7 +201,23 @@ function main() {
   }
 
   const sport = athlete.sport || 'mens-soccer';
-  const colleges = db.prepare('SELECT * FROM colleges WHERE sport = ? AND active = 1').all(sport);
+  /*
+   * TEMPORAL ELIGIBILITY, NOT JUST `active`.
+   *
+   * A programme the registry still carries may not be fielded this season —
+   * Wisconsin-Oshkosh's men's side starts in 2027, Anna Maria closed after
+   * 2025-26 — and offering one as a current destination would be wrong about
+   * the world. Scores, weights and ranking are untouched; only who is eligible
+   * to be ranked changes.
+   *
+   * Deliberately NOT applied to `backtestMatching.js` or `matchingBacktest.js`:
+   * those measure the model against real placements from 2024 and 2025, and
+   * filtering them by today's status would rewrite the universe those arrivals
+   * actually chose from. See shared/roster/programmeStatus.js.
+   */
+  const colleges = activeCollegesForSeason(
+    db.prepare('SELECT * FROM colleges WHERE sport = ? AND active = 1').all(sport),
+  );
   const roster = db.prepare(
     'SELECT college_name, player_name, position, minutes_played, estimated_graduation_year, country FROM roster_players WHERE sport = ? AND season = ?'
   ).all(sport, '2025');

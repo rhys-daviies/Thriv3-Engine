@@ -374,16 +374,22 @@ d('roster_freshness mirrors what production reads', () => {
 });
 
 d('the manifest declares its own definition version', () => {
-  it('reports V2 and carries roster_freshness', () => {
+  it('reports V3 and carries every table the product reads', () => {
     const m = datasetManifest();
-    expect(m.version).toBe('V2');
-    expect(m.tables.map((t) => t.table)).toContain('roster_freshness');
+    expect(m.version).toBe('V3');
+    const tables = m.tables.map((t) => t.table);
+    // V2 added roster_freshness (K3A: a re-scrape that only moved timestamps).
+    expect(tables).toContain('roster_freshness');
+    // V3 adds programme_status (L7P): it decides which programmes are eligible
+    // destinations for a season, so matching and outreach change when it does.
+    expect(tables).toContain('programme_status');
   });
 
-  it('reads a V1 pin as a definition change, not a data change', () => {
+  it('reads an older pin as a definition change, not a data change', () => {
     const actual = { manifest: datasetManifest(), stats: {}, invariants: {}, baselines: [] };
     const cmp = compareBaselines({ manifest: { digest: 'old', tables: [] }, baselines: [] }, actual);
     expect(cmp.dataset).toBe('DEFINITION_CHANGED');
-    expect(cmp.manifestVersionExpected).toBe('V1');
+    // An unversioned pin is the version before the current one.
+    expect(cmp.manifestVersionExpected).toBe('V2');
   });
 });

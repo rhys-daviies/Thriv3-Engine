@@ -2,6 +2,7 @@ import express from 'express';
 import { gapQueue, QUEUE_SEASON } from '../scripts/rosterGapQueue.js';
 import { recordReview, reviewFor } from '../lib/rosterGapReview.js';
 import { DISPOSITIONS, NEXT_ACTIONS, allowedActionsFor } from '../../shared/roster/gapReview.js';
+import { allStatuses, activeForSeason, TARGET_SEASON } from '../lib/programmeStatus.js';
 
 /**
  * THE ROSTER-GAP REVIEW API — a doorway, not a second data layer.
@@ -173,6 +174,38 @@ rosterGapsRouter.post('/roster-gaps/review', (req, res) => {
   });
   if (!result.ok) return res.status(400).json({ error: result.reason });
   return res.json({ review: result.review });
+});
+
+/**
+ * Programme status, read only.
+ *
+ * Sparse by design, so this is the whole table — a few rows, not a page of a
+ * thousand. There is deliberately NO write route: the six records are approved
+ * product decisions recorded by a narrow library call, and a generic mutation
+ * endpoint would make it easy to remove a programme from the universe by
+ * accident. If a status ever needs changing from the UI, that is a deliberate
+ * stage of its own.
+ */
+rosterGapsRouter.get('/programme-status', (req, res) => {
+  try {
+    const season = Number(req.query.season) || TARGET_SEASON;
+    const rows = [...allStatuses().values()].map((r) => ({
+      school: r.school,
+      sport: r.sport,
+      status: r.status,
+      reason: r.reason,
+      activeFromSeason: r.activeFromSeason,
+      activeToSeason: r.activeToSeason,
+      activeForSeason: activeForSeason(r, season),
+      evidence: r.evidence,
+      sourceUrl: r.sourceUrl,
+      recordedAt: r.recordedAt,
+    })).sort((a, b) => a.school.localeCompare(b.school) || a.sport.localeCompare(b.sport));
+    res.json({ season, rows });
+  } catch (err) {
+    console.error('[programme-status]', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 rosterGapsRouter.get('/roster-gaps/review', (req, res) => {

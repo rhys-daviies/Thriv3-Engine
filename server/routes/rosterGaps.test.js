@@ -127,13 +127,19 @@ describe('the queue endpoint', () => {
   });
 
   it('reconciles its own arithmetic', () => {
-    // The LIVE numbers — 1,744 rostered, 7 duplicates, 10 gaps — are asserted in
-    // rosterGapQueue.test.js, which reads the real registry. Here the question
-    // is only that the summary adds up over whatever registry it was handed.
+    // The LIVE numbers are asserted in rosterGapQueue.test.js, which reads the
+    // real registry. Here the question is only that the summary adds up over
+    // whatever registry it was handed.
+    //
+    // The fixture's one rostered programme carries a 2026 roster, so
+    // current-season and historical coverage agree on it — which is the point
+    // of naming them separately rather than assuming they ever diverge.
     const s = q.summary;
     expect(s.reconciles).toBe(true);
-    expect(s.ncaaWithRoster).toBe(1);
-    expect(s.ncaaWithRoster + s.registryDuplicates + s.legitimateGaps).toBe(s.ncaaTotal);
+    expect(s.currentSeasonRostered).toBe(1);
+    expect(s.historicallyRostered).toBe(1);
+    expect(s.currentSeasonRostered + s.registryDuplicates + s.currentSeasonMissing)
+      .toBe(s.ncaaTotal);
   });
 
   it('keeps the three layers in named groups and offers no flattened status', () => {

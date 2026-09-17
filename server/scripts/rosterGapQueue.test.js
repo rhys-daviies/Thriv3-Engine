@@ -39,26 +39,32 @@ describe('the NCAA residual queue', () => {
     for (const r of q.rows) expect(r.division).toMatch(/^NCAA /);
   });
 
-  it('17. reconciles: with roster + registry duplicates + gaps = the universe', () => {
+  it('17. reconciles: current-season rostered + duplicates + missing = the universe', () => {
     const s = q.summary;
     expect(s.reconciles).toBe(true);
-    expect(s.ncaaWithRoster + s.registryDuplicates + s.legitimateGaps).toBe(s.ncaaTotal);
-    expect(s.legitimateGaps).toBe(q.rows.length);
+    expect(s.currentSeasonRostered + s.registryDuplicates + s.currentSeasonMissing)
+      .toBe(s.ncaaTotal);
+    expect(s.currentSeasonMissing).toBe(q.rows.length);
   });
 
-  it('26. states the live accounting, duplicates and all', () => {
-    // The denominator that must never be reported bare. 1,761 registry rows
-    // minus 7 duplicates is a legitimate universe of 1,754, of which 1,745 hold
-    // a roster and 9 do not — L7N acquired Trinity Washington.
-    //
-    // The universe is the invariant and is pinned; how it splits moves with
-    // every acquisition, so what is asserted about the split is that it adds up.
+  it('26. states the live accounting, for the season it is asked about', () => {
+    /*
+     * 1,761 registry rows carry 6 programmes L7P recorded as not fielded in
+     * 2026, leaving 1,755 active. Of those, 1,607 hold a 2026 roster, 7 are
+     * duplicate rows whose twin holds one, and 141 are missing it.
+     *
+     * The two coverage numbers are asserted separately on purpose. Until L7P
+     * this file had one, counted over every season, and 1,745 was being read as
+     * a 2026 figure when the 2026 figure was 1,607.
+     */
     const s = q.summary;
-    expect(s.ncaaTotal).toBe(1761);
+    expect(s.ncaaTotal).toBe(1755);
     expect(s.registryDuplicates).toBe(7);
-    expect(s.ncaaWithRoster + s.legitimateGaps).toBe(1754);
-    expect(s.ncaaWithRoster).toBe(1745);
-    expect(s.legitimateGaps).toBe(9);
+    expect(s.currentSeasonRostered).toBe(1607);
+    expect(s.currentSeasonMissing).toBe(141);
+    expect(s.historicallyRostered).toBe(1745);
+    expect(s.historicalOnly).toBe(138);
+    expect(s.neverRostered).toBe(3);
   });
 
   it('separates a registry duplicate from an acquisition gap', () => {

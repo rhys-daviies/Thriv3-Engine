@@ -41,26 +41,58 @@ export const QUEUE_SEASON = 2026;
  * finding that seven registry duplicates read as coverage gaps and were a
  * registry job instead.
  */
-function ncaaGaps() {
-  const have = db.prepare('SELECT COUNT(*) n FROM roster_players WHERE college_name = ? AND sport = ?');
+/**
+ * TWO COVERAGE QUESTIONS, ASKED SEPARATELY.
+ *
+ * Until L7P this file asked one, and it was the wrong one. `withRoster` counted
+ * `roster_players WHERE college_name = ? AND sport = ?` with **no season
+ * filter**, so a programme last fetched in 2024 counted as covered for 2026.
+ * That is how "NCAA coverage 1,745" came to read as a 2026 number when the 2026
+ * figure was 1,607 and 138 programmes were being carried by an older season.
+ *
+ *   CURRENT-SEASON COVERAGE  does this programme have a roster for the season
+ *                            being asked about? This is the completeness metric.
+ *
+ *   HISTORICAL COVERAGE      does it have a usable roster in the dataset at all?
+ *                            This is the old measurement, kept because knowing
+ *                            a programme from 2024 is genuinely useful — it is
+ *                            simply not the same claim.
+ *
+ * A roster's season is read from `roster_players.season` and from nothing else:
+ * not a scrape timestamp, not the newest row, not the programme's status, not
+ * whether a website exists. The season a roster is FOR is a property of the
+ * roster.
+ */
+function ncaaGaps(season) {
+  const current = db.prepare(
+    'SELECT COUNT(*) n FROM roster_players WHERE college_name = ? AND sport = ? AND season = ?',
+  );
+  const any = db.prepare('SELECT COUNT(*) n FROM roster_players WHERE college_name = ? AND sport = ?');
   const twin = db.prepare('SELECT name FROM colleges WHERE unitid = ? AND sport = ? AND name != ?');
-  const ncaa = rosterTargetUniverse().filter((p) => String(p.division).startsWith('NCAA'));
-  const withRoster = ncaa.filter((r) => have.get(r.school, r.sport).n);
-  const without = ncaa.filter((r) => !have.get(r.school, r.sport).n);
+  const yr = String(season);
+  const hasCurrent = (r) => current.get(r.school, r.sport, yr).n > 0;
+  const hasAny = (r) => any.get(r.school, r.sport).n > 0;
+
+  // The universe for THIS season: a programme that is not fielded is not a gap.
+  const ncaa = rosterTargetUniverse({ season }).filter((p) => String(p.division).startsWith('NCAA'));
+  const withCurrent = ncaa.filter(hasCurrent);
+  const withAny = ncaa.filter(hasAny);
+  const without = ncaa.filter((r) => !hasCurrent(r));
+
   /*
-   * THREE NUMBERS, NOT TWO, AND THEY HAVE TO ADD UP.
-   *
    * A registry duplicate holds no roster under its own spelling while its twin
-   * holds one under the other — L6 found seven, and counting them as coverage
-   * gaps is how 1,744 and 1,751 both get called "programmes with a roster" in
-   * the same week. They are a registry-integrity job and not an acquisition
-   * one, so they are separated here and reported rather than dropped.
+   * holds one under the other — L6 found seven. They are a registry-integrity
+   * job and not an acquisition one, so they are separated and reported rather
+   * than dropped. Season-aware for the same reason as everything else here.
    */
   const duplicates = without.filter((r) => r.unitid != null
-    && twin.all(r.unitid, r.sport, r.school).some((t) => have.get(t.name, r.sport).n));
+    && twin.all(r.unitid, r.sport, r.school).some((t) => current.get(t.name, r.sport, yr).n));
   const dupKeys = new Set(duplicates.map((r) => gapKey(r.school, r.sport)));
   const gaps = without.filter((r) => !dupKeys.has(gapKey(r.school, r.sport)));
-  return { ncaa, withRoster, duplicates, gaps };
+
+  // The programmes carried by an older season: covered historically, missing now.
+  const historicalOnly = gaps.filter(hasAny);
+  return { ncaa, withCurrent, withAny, duplicates, gaps, historicalOnly };
 }
 
 /** Durable acquisition state, if the pipeline has written any for this season. */
@@ -71,11 +103,19 @@ function pipelineState(season) {
 }
 
 export function gapQueue({ season = QUEUE_SEASON, now = new Date() } = {}) {
-  const { ncaa, withRoster, duplicates, gaps } = ncaaGaps();
+  const { ncaa, withCurrent, withAny, duplicates, gaps, historicalOnly } = ncaaGaps(season);
   const plan = new Map(candidatePlan().map((p) => [p.key, p]));
   const reviews = reviewsForSeason(season);
   const state = pipelineState(season);
 
+  /*
+   * A programme missing this season splits in two, and the difference is the
+   * whole shape of the remaining work: 138 are known from an earlier season and
+   * need re-acquiring, and the rest have never been fetched at all.
+   */
+  const latest = db.prepare(
+    'SELECT MAX(season) s FROM roster_players WHERE college_name = ? AND sport = ?',
+  );
   const rows = gaps.map((g) => {
     const key = gapKey(g.school, g.sport);
     const p = plan.get(key);
@@ -98,7 +138,9 @@ export function gapQueue({ season = QUEUE_SEASON, now = new Date() } = {}) {
       gender: g.sport === 'mens-soccer' ? 'M' : 'W',
       division: g.division,
       unitid: g.unitid ?? null,
-      hasRoster: false,
+      hasCurrentSeasonRoster: false,
+      latestRosterSeason: latest.get(g.school, g.sport).s ?? null,
+      historicalOnly: latest.get(g.school, g.sport).s != null,
       // --- machine, live ---
       candidateState: p?.state ?? 'UNKNOWN',
       candidates,
@@ -138,11 +180,17 @@ export function gapQueue({ season = QUEUE_SEASON, now = new Date() } = {}) {
     rows,
     summary: {
       ncaaTotal: ncaa.length,
-      ncaaWithRoster: withRoster.length,
+      // CURRENT-SEASON: the completeness metric. Named so it cannot be misread.
+      currentSeasonRostered: withCurrent.length,
+      currentSeasonMissing: gaps.length,
       registryDuplicates: duplicates.length,
       legitimateGaps: gaps.length,
-      // ncaaTotal = ncaaWithRoster + registryDuplicates + legitimateGaps
-      reconciles: withRoster.length + duplicates.length + gaps.length === ncaa.length,
+      // HISTORICAL: the old measurement, under a name that says what it is.
+      historicallyRostered: withAny.length,
+      historicalOnly: historicalOnly.length,
+      // ncaaTotal = currentSeasonRostered + registryDuplicates + currentSeasonMissing
+      reconciles: withCurrent.length + duplicates.length + gaps.length === ncaa.length,
+      neverRostered: rows.filter((r) => !r.historicalOnly).length,
       reviewed: rows.filter((r) => r.reviewStatus === REVIEW_STATUS.REVIEWED).length,
       unreviewed: rows.filter((r) => r.reviewStatus === REVIEW_STATUS.UNREVIEWED).length,
       byCandidateState: tally((r) => r.candidateState),
@@ -164,18 +212,29 @@ function main() {
   const s = q.summary;
   console.log(`\nNCAA ROSTER RESIDUAL QUEUE — season ${q.season}\n`);
   console.log('  division  g  school                                 candidates  recorded            review');
-  for (const r of q.rows) {
+  const shown = process.argv.includes('--all') ? q.rows : q.rows.filter((r) => !r.historicalOnly);
+  if (shown.length !== q.rows.length) {
+    console.log(`  (showing ${shown.length} never-rostered; --all adds ${q.rows.length - shown.length} `
+      + 'known from an earlier season)\n');
+  }
+  for (const r of shown) {
     const rec = r.recordedStale ? `${r.lastStage ?? '?'} (stale)` : (r.lastStage ?? 'no attempt');
     console.log(`  ${r.division.padEnd(9)} ${r.gender}  ${r.school.slice(0, 36).padEnd(36)} `
       + `${String(r.candidates).padStart(5)}      ${rec.padEnd(19)} `
       + `${r.disposition ?? r.reviewStatus}${r.retryEligible ? '' : ' [held]'}`);
   }
-  console.log(`\n  NCAA programmes            ${s.ncaaTotal}`);
-  console.log(`  with roster data           ${s.ncaaWithRoster}`);
-  console.log(`  registry duplicates        ${s.registryDuplicates}  (a registry job, not an acquisition one)`);
-  console.log(`  legitimate active gaps     ${s.legitimateGaps}`);
-  console.log(`  reconciles                 ${s.reconciles ? 'yes' : 'NO'}  `
-    + `(${s.ncaaWithRoster} + ${s.registryDuplicates} + ${s.legitimateGaps} = ${s.ncaaTotal})`);
+  console.log(`\n  NCAA programmes active for ${q.season}   ${s.ncaaTotal}`);
+  console.log(`  with a ${q.season} roster              ${s.currentSeasonRostered}   `
+    + `(${(100 * s.currentSeasonRostered / s.ncaaTotal).toFixed(1)}% current-season coverage)`);
+  console.log(`  missing a ${q.season} roster           ${s.currentSeasonMissing}`);
+  console.log(`  registry duplicates             ${s.registryDuplicates}  (a registry job, not an acquisition one)`);
+  console.log(`  reconciles                      ${s.reconciles ? 'yes' : 'NO'}  `
+    + `(${s.currentSeasonRostered} + ${s.registryDuplicates} + ${s.currentSeasonMissing} = ${s.ncaaTotal})`);
+  console.log(`\n  with a roster in ANY season     ${s.historicallyRostered}   `
+    + `(${(100 * s.historicallyRostered / s.ncaaTotal).toFixed(1)}% historical coverage — NOT a ${q.season} number)`);
+  console.log(`  historical only                 ${s.historicalOnly}  `
+    + `(known from an earlier season, missing for ${q.season})`);
+  console.log(`  never rostered                  ${s.neverRostered}  (no roster in any season)`);
   console.log(`  reviewed / unreviewed      ${s.reviewed} / ${s.unreviewed}`);
   console.log(`  retry eligible / held      ${s.retryEligible} / ${s.retryHeld}`);
   console.log(`  candidate state            ${JSON.stringify(s.byCandidateState)}`);

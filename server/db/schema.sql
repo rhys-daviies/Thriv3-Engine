@@ -1262,3 +1262,68 @@ CREATE TABLE IF NOT EXISTS roster_gap_reviews (
 
   PRIMARY KEY (season, school, sport)
 );
+
+-- ===========================================================================
+-- When a programme is fielded.
+--
+-- SPARSE. ABSENCE MEANS ACTIVE.
+--
+-- There is deliberately no ACTIVE row and there will not be one. Writing 1,754
+-- rows to say "as before" would make the table's size meaningless and turn every
+-- read into a join that can silently lose programmes. A row exists only where a
+-- person decided something that departs from "active"; everything without one
+-- keeps exactly the behaviour it had. An UNDECIDED programme gets no row either,
+-- because a record saying "we do not know" is indistinguishable in effect from
+-- no record while implying a decision was made.
+--
+-- WHY NOT `colleges.active`.
+--
+-- `colleges` is keyed (name, sport), so `active` is already programme-level —
+-- Montana State Billings has carried `mens-soccer active=0` beside
+-- `womens-soccer active=1` under one unitid for some time. The problem is not
+-- granularity, it is time. Wisconsin-Oshkosh's own navigation reads "Soccer
+-- (Coming in 2027)": not fielded in 2026, fielded from 2027, and `active = 0`
+-- records that as gone forever. Anna Maria genuinely played through Fall 2025
+-- and closed after; a boolean cannot say "not any more" without erasing "used
+-- to". So `colleges.active` keeps its meaning and this table answers the
+-- temporal question. Both must agree before a programme is offered for a season.
+--
+-- SEASONS, NOT DATES. A season is the year its autumn begins: `span(2026)` is
+-- `2026-27` and a roster fetched in Fall 2025 is `season = '2025'`.
+--
+-- `shared/roster/programmeStatus.js` owns the vocabulary and `activeForSeason`.
+-- Not CHECK constraints: the allowed pairings are a contract with a reason
+-- attached, and the validator can say WHY a pair is refused where a constraint
+-- can only fail.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS programme_status (
+  -- The programme key the whole pipeline already uses.
+  school TEXT NOT NULL,
+  sport TEXT NOT NULL,
+
+  status TEXT NOT NULL,            -- NOT_ACTIVE | FUTURE
+  reason TEXT NOT NULL,            -- INSTITUTION_CLOSED | NOT_SPONSORED
+                                   -- | IDENTITY_TRANSITION | LAUNCHING
+
+  -- Inclusive bounds, either nullable.
+  --   NOT_ACTIVE + active_to_season = T   fielded through T, not after.
+  --   NOT_ACTIVE + active_to_season NULL  never fielded.
+  --   FUTURE     + active_from_season = F not fielded before F.
+  active_from_season INTEGER,
+  active_to_season INTEGER,
+
+  -- A programme leaves the active universe only on first-party evidence, and
+  -- the sentence and the URL that justified it travel with the row. A status
+  -- nobody can audit is a status nobody should trust.
+  evidence TEXT NOT NULL,
+  source_url TEXT NOT NULL,
+
+  recorded_at TEXT NOT NULL,
+  -- Attributed where an operator id is available, and NOT a foreign key:
+  -- `operator_users` is created by the auth path rather than by this file, so a
+  -- REFERENCES clause makes a database built from schema.sql alone unable to
+  -- accept a row — which is how that was found in L7K.
+  recorded_by_operator_id TEXT,
+
+  PRIMARY KEY (school, sport)
+);
