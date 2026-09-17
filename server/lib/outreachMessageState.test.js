@@ -91,7 +91,15 @@ beforeEach(() => {
 describe('the vocabulary', () => {
   it('names only states Thriv3 can know about itself', () => {
     expect(Object.values(MESSAGE_STATE)).toEqual([
-      'DRAFT', 'QUEUED', 'SENDING', 'ACCEPTED', 'FAILED', 'CANCELLED',
+      'DRAFT', 'QUEUED', 'SENDING', 'ACCEPTED',
+      /**
+       * D4.4. Still a fact about THIS SYSTEM rather than about the world: it
+       * says a transport ran and its outcome could not be read, which is
+       * something we know about ourselves. It claims nothing about delivery —
+       * the test below still passes unchanged.
+       */
+      'UNKNOWN_PROVIDER_RESULT',
+      'FAILED', 'CANCELLED',
     ]);
   });
 
@@ -109,6 +117,13 @@ describe('the vocabulary', () => {
   it('grades acceptance evidence weakest to strongest', () => {
     expect(Object.values(ACCEPTED_SOURCE)).toEqual([
       'OPERATOR_ASSERTED', 'OUTLOOK_COMMAND_ASSERTED', 'PROVIDER_ACCEPTED',
+      /**
+       * D4.4, and it sits AFTER the live acceptance rather than beside it. A
+       * message found in a sent mailbox afterwards did go — but nobody watched
+       * it go, and an analysis that pooled the two could not say which kind of
+       * evidence it was averaging.
+       */
+      'PROVIDER_RECONCILED',
     ]);
   });
 

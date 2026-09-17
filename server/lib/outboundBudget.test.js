@@ -110,8 +110,11 @@ describe('the ledger', () => {
     const cols = db.prepare('PRAGMA table_info(outbound_send_attempt)').all();
     expect(cols.map((c) => c.name).sort()).toEqual([
       'athlete_id', 'attempted_at', 'created_at', 'id',
+      // D4.4. WHICH MESSAGE the action was spent on — nullable, not unique, and
+      // still not an outcome: a retry is a second attempt and a second row.
+      'outreach_send_id',
       'outreach_id', 'sending_identity', 'transport',
-    ]);
+    ].sort());
     // No outcome, no counters, no campaign columns. An accounting ledger that
     // also reports is one that grows a column every quarter — and an outcome
     // would have to be written after the fact, which the trigger forbids.

@@ -1029,9 +1029,22 @@ describe('§29 the table arrives additively and leaves cleanly', () => {
   it('is created by the schema every boot runs, with no migration step', () => {
     const sql = fs.readFileSync(path.resolve(process.cwd(), 'server/db/schema.sql'), 'utf8');
     expect(sql).toMatch(/CREATE TABLE IF NOT EXISTS programme_messages/);
-    // Additive only: nothing in this slice drops, renames or rewrites.
+    /**
+     * Additive only: nothing drops, renames or rewrites this table.
+     *
+     * NARROWED IN D4.4, AND THE GUARD IS THE SAME ONE. It used to forbid the
+     * NAME anywhere in migrate.js, which caught more than it meant: D4.4 adds
+     * `outreach_send.programme_message_id`, a foreign key on a DIFFERENT table
+     * that happens to point here. That is a reference, not a migration step for
+     * this table, and the table is still created once by schema.sql and never
+     * touched by a migration. What is forbidden is what was always forbidden —
+     * creating, altering, dropping or writing rows into it from migrate.js.
+     */
     const migrate = fs.readFileSync(path.resolve(process.cwd(), 'server/db/migrate.js'), 'utf8');
-    expect(migrate).not.toMatch(/programme_messages/);
+    expect(migrate).not.toMatch(/CREATE\s+TABLE[^;]*programme_messages/i);
+    expect(migrate).not.toMatch(/ALTER\s+TABLE\s+programme_messages/i);
+    expect(migrate).not.toMatch(/DROP\s+TABLE[^;]*programme_messages/i);
+    expect(migrate).not.toMatch(/(INSERT\s+INTO|UPDATE|DELETE\s+FROM)\s+programme_messages/i);
     expect(sql).not.toMatch(/DROP TABLE\s+(IF EXISTS\s+)?programme_messages/);
   });
 
