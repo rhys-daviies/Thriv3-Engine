@@ -24,6 +24,7 @@ import { coachingImportApply } from './routes/coachingImportApply.js';
 import { trackRouter } from './routes/track.js';
 import { uploadsRouter } from './routes/uploads.js';
 import { campaignsRouter } from './routes/campaigns.js';
+import { rosterGapsRouter } from './routes/rosterGaps.js';
 import { UPLOADS_DIR } from './lib/uploadPath.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
@@ -304,6 +305,13 @@ app.post('/api/functions/:name', async (req, res) => {
 // snapshot's rank, score or provenance. Every mutation here goes through
 // server/lib/campaigns.js, which owns the invariants.
 app.use('/api', campaignsRouter);
+
+// ---- NCAA roster-gap review ----
+//
+// Purpose-built for the same reason as campaignsRouter: `roster_gap_reviews`
+// must not be reachable through the unvalidated ENTITIES pass-through, where a
+// client could store a disposition the vocabulary refuses.
+app.use('/api', rosterGapsRouter);
 
 // ---- Uploads (UploadFile integration replacement) ----
 //

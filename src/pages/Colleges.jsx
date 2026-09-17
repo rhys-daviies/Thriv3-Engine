@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ArrowUpDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -59,9 +60,24 @@ export default function Colleges() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-heading text-2xl font-bold">College Database</h1>
-        <p className="text-sm text-muted-foreground">{rows.length} programs</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-heading text-2xl font-bold">College Database</h1>
+          <p className="text-sm text-muted-foreground">{rows.length} programs</p>
+        </div>
+        {/*
+          The one way in to the roster-gap queue. It lives here rather than in
+          the top-level nav because a missing roster is college data that is
+          incomplete, not a domain of its own — and because the queue is ten
+          rows that end when they are reviewed, which is not worth permanent
+          chrome.
+        */}
+        <Link
+          to="/colleges/roster-gaps"
+          className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4"
+        >
+          NCAA roster gaps
+        </Link>
       </div>
 
       <div className="flex flex-wrap gap-1.5">

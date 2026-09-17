@@ -117,6 +117,11 @@ export function gapQueue({ season = QUEUE_SEASON, now = new Date() } = {}) {
       retryAfter: review?.retryAfter ?? null,
       reviewedAt: review?.reviewedAt ?? null,
       reviewEvidence: review?.evidence ?? null,
+      reviewedByOperatorId: review?.reviewedByOperatorId ?? null,
+      // L7K keeps exactly one step of history. The detail view shows it as a
+      // single line, so it has to travel with the row or it cannot be shown.
+      previousDisposition: review?.previousDisposition ?? null,
+      previousReviewedAt: review?.previousReviewedAt ?? null,
       // --- derived ---
       ...(() => { const r = retryEligible(review, now); return { retryEligible: r.eligible, retryReason: r.reason }; })(),
     };

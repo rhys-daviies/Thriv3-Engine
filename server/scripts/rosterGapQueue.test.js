@@ -46,6 +46,18 @@ describe('the NCAA residual queue', () => {
     expect(s.legitimateGaps).toBe(q.rows.length);
   });
 
+  it('26. states the live accounting, duplicates and all', () => {
+    // The denominator that must never be reported bare. 1,761 registry rows
+    // minus 7 duplicates is a legitimate universe of 1,754, of which 1,744 hold
+    // a roster and 10 do not.
+    const s = q.summary;
+    expect(s.ncaaTotal).toBe(1761);
+    expect(s.registryDuplicates).toBe(7);
+    expect(s.ncaaWithRoster).toBe(1744);
+    expect(s.legitimateGaps).toBe(10);
+    expect(s.ncaaWithRoster + s.legitimateGaps).toBe(1754);
+  });
+
   it('separates a registry duplicate from an acquisition gap', () => {
     // L6 found seven duplicate registry rows whose twin holds the roster.
     // Counting them as gaps is how two different numbers both get called

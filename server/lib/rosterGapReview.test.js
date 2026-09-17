@@ -218,12 +218,28 @@ describe('operator review is operational metadata and nothing else', () => {
 
   const REVIEW = /gapReview|rosterGapReview|roster_gap_reviews|rosterGapQueue/;
 
+  /**
+   * The review surface itself, named rather than pattern-matched.
+   *
+   * These four files ARE the feature: the vocabulary, the store, the read model
+   * and the one route in front of them. Everything else in the product must not
+   * reach the table, and listing the exceptions explicitly means adding a fifth
+   * is a deliberate edit to this line rather than something a regex quietly
+   * starts allowing.
+   */
+  const REVIEW_SURFACE = Object.freeze([
+    'gapReview.js',        // shared/roster — the vocabulary and its rules
+    'rosterGapReview.js',  // server/lib — the store
+    'rosterGapQueue.js',   // server/scripts — the read model
+    'rosterGaps.js',       // server/routes — the operator front door (L7L)
+  ]);
+
   it('18/19/20. no Evidence, matching or outreach source imports it', () => {
     const offenders = [];
     for (const dir of ['shared/evidence', 'server/lib', 'server/routes', 'src/lib', 'shared/roster']) {
       for (const f of sources(dir)) {
         const base = path.basename(f);
-        if (base === 'rosterGapReview.js' || base === 'gapReview.js') continue;
+        if (REVIEW_SURFACE.includes(base)) continue;
         const text = fs.readFileSync(f, 'utf8');
         // an IMPORT, not a mention in prose
         for (const m of text.matchAll(/^\s*import\s[^;]*?from\s*'([^']+)'/gm)) {
