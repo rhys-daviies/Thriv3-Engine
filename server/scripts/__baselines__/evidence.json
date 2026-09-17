@@ -1,33 +1,85 @@
 {
   "note": "Committed Evidence behavioural baseline. See docs/EVIDENCE_BASELINES.md before repinning.",
   "now": "2026-09-06T00:00:00.000Z",
+  "provenance": {
+    "event": "PROVENANCE RESET \u2014 D3.3, 2026-09-09. Not an ordinary repin.",
+    "reason": "The committed EMAIL_BODY pin could not be reproduced by the commit that created it, on a dataset carrying the manifest digest recorded beside it. The manifest was therefore not an identity for the data behind the pin, so no baseline taken under it could be trusted, and no failure under it could be diagnosed. The manifest was repaired first (V2 -> V3) and every baseline re-established together against a verified snapshot.",
+    "oldManifestDefect": {
+      "version": "V2",
+      "digest": "5bbca9054b7752d5dc9882df24890c35314cc330f532f0b3430c93af60656def",
+      "tablesOmittedEntirely": [
+        "recruiting_arrivals",
+        "coach_seasons"
+      ],
+      "evidence": "Instrumenting every prepared statement of a full buildBaselines walk shows it reads seven tables; V2 fingerprinted five. recruiting_arrivals is read once per pair (4,742 times) and coach_seasons 3,963 times. Changing 181 recruiting_arrivals rows moves EMAIL_BODY while the V2 dataset digest is unchanged; deleting either table moves all six baselines with the V2 digest unchanged.",
+      "projectionsAlsoTooNarrow": "Nulling the roster_players columns V2 did not name \u2014 position, nationality, hometown, country, class_year_label, the minutes \u2014 moves all six baselines with the V2 dataset digest unchanged. Column materiality is not predictable by name: roster_row_id is inert, built_at and imported_at are not."
+    },
+    "oldPin": {
+      "EMAIL_BODY": "a756b5a0e877581794880f5a04ff0f81fe57b9800695899ab54b0d7da06dd41b",
+      "pinnedAt": "20af7c22 \u2014 'License presence by observation, and say the season that earned it'",
+      "unreproducible": "Running the baseline CLI AT 20af7c22, against a dataset whose V2 manifest digest is exactly the 5bbca905\u2026 recorded beside that pin, yields 54a718f9aa8f2ab1. No database on the machine reproduces a756b5a0\u2026."
+    },
+    "canonicalDataset": {
+      "source": "server/data/recruitmatch.sqlite.pre-l7c-20260909T135704",
+      "fileSha256": "a189f09d7e0cfd08 (first 16; `npm run baseline:dataset -- --check` prints it)",
+      "coherence": "integrity_check ok; foreign_key_check clean; freelist 0; 4 athletes x 1,169 men's + 1,235 women's programmes = 4,742 pairs; zero orphans from roster_players, recruiting_arrivals or coach_seasons into colleges; 87,449 of 87,449 arrivals resolve to a real roster row; seasons 2022-2026.",
+      "reproducesOldOutputs": "Five of the six V2-era output digests exactly, which is what identifies it as the pin-era dataset."
+    },
+    "regressionCheckBeforeReset": {
+      "question": "Does D3 change any baseline when both sides see the same complete dataset?",
+      "baseMain": "ecb171c3bfc91b9b504a86f9ad0826497d342814",
+      "d3Head": "f7843f77255be9e486563039bc94e9a9dd85adef",
+      "result": "All six baselines, stats and invariants byte-identical on the identical fixture. D3 did not move outbound email copy."
+    },
+    "outcome": {
+      "EMAIL_BODY": "a756b5a0e877581794880f5a04ff0f81fe57b9800695899ab54b0d7da06dd41b -> 54a718f9aa8f2ab1e7ba84969096efd0b5d225cb636c0fa44235c5ef2c0129d5  (the orphaned pin, replaced)",
+      "otherFive": "unchanged \u2014 OUTBOUND_DECISION, COACH_COMPOSITION, OPERATOR_WIRE, LOG_PAYLOAD, OPERATOR_EVIDENCE all re-pinned to the identical digests they already held."
+    }
+  },
   "manifest": {
-    "version": "V2",
+    "version": "V3",
     "tables": [
       {
         "table": "players",
         "rows": 4,
-        "digest": "67a40ceb30ddaa7a172fce920755073b61cd5449bf25958245a834f477375774"
+        "columns": 58,
+        "digest": "cba9fe42383379e5c859e2f8528765a8a0313947120da177d12f543e28e34735"
       },
       {
         "table": "colleges",
         "rows": 2404,
-        "digest": "cdcbe3c7c693c81b8d90d35beff6f36a563cd38b870261af4208af2cdad81bc5"
+        "columns": 44,
+        "digest": "c0cd08e597d3492fea67429f4def795078a092001c257df4be23a8b1a9fc8307"
       },
       {
         "table": "roster_players",
         "rows": 276745,
-        "digest": "16a5f3ca4414f6a90adcf6c22b2da63208ec7ab46fc4a0f986c384b408281bbc"
+        "columns": 27,
+        "digest": "b9e785a9301bb94afe1d35b704ac1fb1770d5850f435fb35e60eb76b4989c3c6"
       },
       {
         "table": "coaches",
         "rows": 6347,
-        "digest": "35c83c5c8fd75c4d1884660f4edf1ef8c90f597545e6e2ce1f8deb3619984872"
+        "columns": 12,
+        "digest": "c8c6d96dea9e0d5b55229c94113ff5459e4266d0e6b3c276330ca0becaa590eb"
       },
       {
         "table": "athletics_domains",
         "rows": 2717,
-        "digest": "4adeb22a0650d51139b1e916f1286c598cbecba3a10b7d723100fff229bbe420"
+        "columns": 18,
+        "digest": "e42ad164df1f8af51328941b04c27349ea650f640146f49f3487ff9712bc676c"
+      },
+      {
+        "table": "recruiting_arrivals",
+        "rows": 87449,
+        "columns": 25,
+        "digest": "c4e90faa349c3eb448dbb9278ba808df18d30efde6e7f5d03a0b7f60ffa7966b"
+      },
+      {
+        "table": "coach_seasons",
+        "rows": 8595,
+        "columns": 11,
+        "digest": "89d07aa030be1eb40c110add4668760f6f06b9a2ed8b4864b95a86760c087679"
       },
       {
         "table": "roster_freshness",
@@ -35,7 +87,7 @@
         "digest": "80ab2d600fdb4462966c5de02b0efbaa5f87fadb2fa02961f09ec13dceb19189"
       }
     ],
-    "digest": "5bbca9054b7752d5dc9882df24890c35314cc330f532f0b3430c93af60656def"
+    "digest": "ecb5d149719d5aae568aea85065263b2f5fc356718e8911d145438f758380160"
   },
   "baselines": [
     {
@@ -51,7 +103,7 @@
     {
       "name": "EMAIL_BODY",
       "size": 4742,
-      "digest": "a756b5a0e877581794880f5a04ff0f81fe57b9800695899ab54b0d7da06dd41b"
+      "digest": "54a718f9aa8f2ab1e7ba84969096efd0b5d225cb636c0fa44235c5ef2c0129d5"
     },
     {
       "name": "OPERATOR_WIRE",

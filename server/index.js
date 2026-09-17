@@ -46,6 +46,9 @@ import { matchingSummaries } from './routes/matchingSummary.js';
 
 import { authRouter } from './routes/auth.js';
 import {
+  mailboxConsentPageRouter, mailboxConsentPublicRouter, mailboxRouter,
+} from './routes/mailboxConsent.js';
+import {
   attachOperator, requireOperator, requireSameOrigin,
 } from './lib/operatorAuth.js';
 import { securityHeaders, corsPolicy } from './lib/httpSecurity.js';
@@ -144,7 +147,43 @@ app.use(express.json({ limit: '10mb' }));
 app.use(attachOperator);
 app.use('/api', requireSameOrigin);
 app.use('/api', authRouter);
+/**
+ * THE THIRD PUBLIC SURFACE — D3, hardened in D3.1.
+ *
+ * An athlete authorising their own mailbox has no Thriv3 account and never
+ * will, so these routes cannot sit below the boundary:
+ *
+ *   GET  /mailbox-consent                        the consent page (no token)
+ *   GET  /mailbox-consent/consent.js             the page's only script
+ *   POST /api/mailbox-consent/resolve            token in the BODY
+ *   POST /api/mailbox-consent/start              token in the BODY
+ *   GET  /api/mailbox-consent/google/callback    Google's return
+ *
+ * They are unauthenticated in the SESSION sense and not in the CAPABILITY
+ * sense: the two POSTs require an unguessable, single-use, athlete-specific,
+ * provider-specific, thirty-minute token, and the callback requires an
+ * unguessable state value this server minted minutes earlier. Neither can
+ * reach anything but the one mailbox connection it names, and neither issues a
+ * session — there is no code path from here to createSession.
+ *
+ * THE PAGE IS MOUNTED AT THE ROOT AND CARRIES NO TOKEN — D3.1. The capability
+ * travels in the URL fragment, which the browser never transmits, so the two
+ * GETs above are the same bytes for everybody and there is nothing in either
+ * request for a proxy or a platform log to record. The token reaches this
+ * server only in a POST body. See the route file's header for the measurement
+ * that motivated it.
+ *
+ * requireSameOrigin still applies to the POSTs: it runs above this line, and
+ * they are same-origin `fetch` calls from the page this server served.
+ *
+ * MAILBOX MANAGEMENT IS NOT HERE. Issuing a link, listing links, revoking one
+ * and reading mailbox status are operator routes, mounted below the boundary
+ * with everything else internal.
+ */
+app.use(mailboxConsentPageRouter);
+app.use('/api', mailboxConsentPublicRouter);
 app.use('/api', requireOperator);
+app.use('/api', mailboxRouter);
 
 // Uploaded match-recommendation files are internal data, so the static mount
 // is behind the boundary like everything else.
