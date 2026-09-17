@@ -151,8 +151,17 @@ function addDays(isoDate, days) {
  * cannot be produced by `acceptSend`, but if one is ever met the honest answer
  * is that we do not know when the clock started — so it becomes a person's
  * problem rather than a message.
+ *
+ * EXPORTED IN F11b, AND ONLY BECAUSE THE ALTERNATIVE WAS A SECOND COPY.
+ *
+ * The execution decision asks this about ONE programme, and the only other way
+ * to reach it was to build a whole campaign's plan to read one entry. Four
+ * policy days after an accepted message is a rule, and a rule with two
+ * implementations is a rule that will eventually be two different rules — so
+ * the function moves out of this module's private half rather than being
+ * written again next door. Nothing about it changed.
  */
-function followUpTiming(coach, onDate) {
+export function followUpTiming(coach, onDate) {
   const sentOn = day(coach?.lastAcceptedAt);
   if (!sentOn) {
     return {

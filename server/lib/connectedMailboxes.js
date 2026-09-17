@@ -342,6 +342,61 @@ export function revokeMailbox(id, { operatorUserId, at = utcNow() } = {}) {
 }
 
 /** Whether a credential exists, without reading or decrypting it. */
+/**
+ * THE MAILBOXES AN ATHLETE COULD ACTUALLY BE SENT AS — F11b.
+ *
+ * ---------------------------------------------------------------------------
+ * ATHLETE-SCOPED, NOT OPERATOR-SCOPED, AND THAT IS THE DIFFERENCE FROM EVERY
+ * READ ABOVE.
+ *
+ * The reads above answer "what may this operator see", which is an
+ * authorisation question and is rightly parameterised on the asker. This
+ * answers a different one: whether THIS ATHLETE has authorised a mailbox that
+ * could carry a message. That is a fact about the athlete's consent, and it
+ * must not change depending on who is looking — otherwise one operator sees a
+ * campaign as executable and another sees it as unconfigured, and a later
+ * automated caller, which has no operator at all, sees neither.
+ *
+ * Authorisation stays where it belongs: the route that reaches an execution
+ * decision has already proved the operator may act for this athlete.
+ * ---------------------------------------------------------------------------
+ *
+ * USABLE IS NARROW ON PURPOSE. A NULL `athlete_id` never matches — a mailbox
+ * nobody attached to an athlete is not this athlete's — and only CONNECTED
+ * rows with a credential still on file count. A REVOKED mailbox keeps its row
+ * precisely so history survives; it is not a thing to send from.
+ *
+ * NO CREDENTIAL LEAVES THIS FUNCTION. It returns the same public projection as
+ * every other read here, filtered by the EXISTENCE of a credential. Presence
+ * is a readiness fact; the token is not.
+ */
+export function usableMailboxesForAthlete(athleteId) {
+  if (!athleteId) return [];
+  return db.prepare(`
+    SELECT ${PUBLIC_COLUMNS} FROM connected_mailboxes m
+    WHERE m.athlete_id = ?
+      AND m.status = ?
+      AND EXISTS (SELECT 1 FROM connected_mailbox_credentials c WHERE c.mailbox_id = m.id)
+    ORDER BY m.created_at, m.id
+  `).all(athleteId, MAILBOX_STATUS.CONNECTED).map(project);
+}
+
+/**
+ * Every mailbox attached to this athlete, usable or not.
+ *
+ * The decision layer needs both: the usable set decides whether a send can
+ * happen, and this one is how a refusal tells the truth about WHY — "reconnect
+ * the mailbox you already have" and "connect one" are different instructions
+ * and an operator given the wrong one goes looking for the wrong screen.
+ */
+export function mailboxesAttachedToAthlete(athleteId) {
+  if (!athleteId) return [];
+  return db.prepare(`
+    SELECT ${PUBLIC_COLUMNS} FROM connected_mailboxes
+    WHERE athlete_id = ? ORDER BY created_at, id
+  `).all(athleteId).map(project);
+}
+
 export function hasStoredCredential(id) {
   return Boolean(db.prepare(
     'SELECT 1 FROM connected_mailbox_credentials WHERE mailbox_id = ?',

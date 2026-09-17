@@ -147,6 +147,25 @@ export function revokeOutreach(id, at = utcNow()) {
   db.prepare('UPDATE outreach SET revoked_at = ? WHERE id = ? AND revoked_at IS NULL').run(at, id);
 }
 
+/**
+ * THE RELATIONSHIP BETWEEN ONE ATHLETE AND ONE COACH, OR NULL — F11b.
+ *
+ * A READ, AND THE REASON IT IS EXPORTED IS REVOCATION. `campaignContactDecision`
+ * can only refuse a revoked relationship when it is handed the id: revocation
+ * is a fact about a row, and a caller that does not look it up gets a decision
+ * that never saw it. B6 already keeps a private copy of this query for exactly
+ * that reason — see `relationshipForSafety` — and a third copy in the execution
+ * layer would be a third place for the same lookup to drift.
+ *
+ * It creates nothing. `createOutreach` is the writer, and an execution DECISION
+ * must be askable about a pairing that has never been written to.
+ */
+export function outreachBetween(athleteId, coachId) {
+  if (!athleteId || !coachId) return null;
+  return db.prepare('SELECT * FROM outreach WHERE athlete_id = ? AND coach_id = ?')
+    .get(athleteId, coachId) ?? null;
+}
+
 export function listOutreachForAthlete(athleteId) {
   return db.prepare('SELECT * FROM outreach WHERE athlete_id = ? ORDER BY created_at').all(athleteId);
 }

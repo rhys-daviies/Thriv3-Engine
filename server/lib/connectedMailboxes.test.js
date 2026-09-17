@@ -6,6 +6,7 @@ import {
   MAILBOX_PROVIDER, MAILBOX_STATUS,
   createConnectedMailbox, mailbox, mailboxesForOperator, mailboxesForAthlete,
   updateMailbox, storeMailboxCredential, mailboxCredential, revokeMailbox, hasStoredCredential,
+  usableMailboxesForAthlete, mailboxesAttachedToAthlete,
 } from './connectedMailboxes.js';
 
 /**
@@ -17,6 +18,7 @@ import {
 const OP = 'op-1';
 const OTHER_OP = 'op-2';
 const ATHLETE = 'a-mbx';
+const OTHER_ATHLETE = 'a-mbx-other';
 const TOKEN = '1//0gTOKEN-not-a-real-refresh-token';
 let seq = 0;
 
@@ -48,6 +50,7 @@ beforeEach(() => {
   insertOperator(OP, 'op1@thriv3.test');
   insertOperator(OTHER_OP, 'op2@thriv3.test');
   insertAthlete(ATHLETE);
+  insertAthlete(OTHER_ATHLETE);
   seq = 0;
 });
 
@@ -127,9 +130,97 @@ describe('ownership is a parameter, not an assumption', () => {
   it('never trusts that there is only one operator', () => {
     const src = fs.readFileSync(new URL('./connectedMailboxes.js', import.meta.url), 'utf8');
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
-    // Every statement that reads the table scopes on the operator.
-    for (const stmt of code.match(/FROM connected_mailboxes[\s\S]*?`/g) ?? []) {
-      expect(stmt, stmt.slice(0, 80)).toMatch(/operator_user_id/);
+    /**
+     * EVERY OPERATOR-FACING READ SCOPES ON THE OPERATOR.
+     *
+     * NARROWED IN F11b, AND THE RULE IS UNCHANGED. This guard used to say
+     * "every statement that touches the table", which caught more than it
+     * meant the moment a read appeared that is not an operator-facing one.
+     *
+     * `usableMailboxesForAthlete` and `mailboxesAttachedToAthlete` answer a
+     * different question: whether THIS ATHLETE has authorised a mailbox. That
+     * is a fact about the athlete's consent, not about who is looking — and it
+     * cannot be operator-scoped, because `players` has no operator column, so
+     * there is no operator to scope it to. Scoping it on whoever happens to be
+     * asking would mean one operator sees a campaign as executable and another
+     * sees it as unconfigured, and a later automated caller — which has no
+     * operator at all — sees neither.
+     *
+     * What the rule was always about is still enforced: a read that takes an
+     * operator must USE it, and no read may enumerate across athletes. Both are
+     * asserted below.
+     */
+    const ATHLETE_SCOPED = ['usableMailboxesForAthlete', 'mailboxesAttachedToAthlete'];
+    const fns = code.split(/\nexport function /).slice(1);
+
+    for (const fn of fns) {
+      const name = fn.slice(0, fn.indexOf('('));
+      if (!/FROM connected_mailboxes/.test(fn)) continue;
+      if (ATHLETE_SCOPED.includes(name)) {
+        // Bounded by the athlete, and by nothing the caller chose.
+        expect(fn, name).toMatch(/athlete_id = \?/);
+        expect(fn, name).not.toMatch(/operatorUserId/);
+      } else {
+        expect(fn, name).toMatch(/operator_user_id/);
+      }
+    }
+    // And the set of exemptions is pinned, so a third one is a decision.
+    for (const name of ATHLETE_SCOPED) {
+      expect(code, name).toMatch(new RegExp(`export function ${name}\\(`));
+    }
+  });
+
+  /**
+   * THE PROPERTY THE EXEMPTION HAS TO EARN: an athlete-scoped read still
+   * cannot reach another athlete's mailbox, or one attached to nobody.
+   */
+  it('scopes the execution-readiness reads to one athlete and no further', () => {
+    const mine = connect({ providerAccountId: 'sub-mine' });
+    storeMailboxCredential(mine.id, { refreshToken: TOKEN, operatorUserId: OP });
+
+    const theirs = createConnectedMailbox({
+      operatorUserId: OP, athleteId: OTHER_ATHLETE, provider: 'GOOGLE',
+      providerAccountId: 'sub-theirs', emailAddress: 'theirs@gmail.test', scopes: [],
+    });
+    storeMailboxCredential(theirs.id, { refreshToken: TOKEN, operatorUserId: OP });
+
+    const detached = createConnectedMailbox({
+      operatorUserId: OP, athleteId: null, provider: 'GOOGLE',
+      providerAccountId: 'sub-detached', emailAddress: 'nobody@gmail.test', scopes: [],
+    });
+    storeMailboxCredential(detached.id, { refreshToken: TOKEN, operatorUserId: OP });
+
+    expect(usableMailboxesForAthlete(ATHLETE).map((m) => m.id)).toEqual([mine.id]);
+    expect(mailboxesAttachedToAthlete(ATHLETE).map((m) => m.id)).toEqual([mine.id]);
+    // A mailbox attached to nobody belongs to nobody.
+    expect(usableMailboxesForAthlete(null)).toEqual([]);
+    expect(usableMailboxesForAthlete(OTHER_ATHLETE).map((m) => m.id)).toEqual([theirs.id]);
+  });
+
+  /** Usable is narrower than attached, and the difference is what can send. */
+  it('counts only CONNECTED mailboxes that still hold a credential', () => {
+    const m = connect({ providerAccountId: 'sub-usable' });
+    expect(usableMailboxesForAthlete(ATHLETE)).toEqual([]);          // no credential yet
+
+    storeMailboxCredential(m.id, { refreshToken: TOKEN, operatorUserId: OP });
+    expect(usableMailboxesForAthlete(ATHLETE).map((x) => x.id)).toEqual([m.id]);
+
+    revokeMailbox(m.id, { operatorUserId: OP });
+    expect(usableMailboxesForAthlete(ATHLETE)).toEqual([]);
+    // Still attached — the row survives so history does.
+    expect(mailboxesAttachedToAthlete(ATHLETE).map((x) => x.id)).toEqual([m.id]);
+  });
+
+  /** And no credential material leaves through either of them. */
+  it('returns the public projection from the readiness reads', () => {
+    const m = connect({ providerAccountId: 'sub-projection' });
+    storeMailboxCredential(m.id, { refreshToken: TOKEN, operatorUserId: OP });
+
+    for (const row of [...usableMailboxesForAthlete(ATHLETE), ...mailboxesAttachedToAthlete(ATHLETE)]) {
+      for (const secret of ['ciphertext', 'iv', 'auth_tag', 'key_version', 'refresh_token']) {
+        expect(row, secret).not.toHaveProperty(secret);
+      }
+      expect(row.id).toBe(m.id);
     }
   });
 });
