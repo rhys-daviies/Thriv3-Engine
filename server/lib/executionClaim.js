@@ -9,6 +9,7 @@ import { recordDraft, claimSendForExecution, sendById } from './outreachSend.js'
 import { recordOutboundAttempt, normaliseSendingIdentity, TRANSPORT } from './outboundBudget.js';
 import { isSendCapped } from './sendCap.js';
 import { mailbox, hasStoredCredential, MAILBOX_STATUS } from './connectedMailboxes.js';
+import { RUN_ID } from './executionRun.js';
 import { OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
 
 /**
@@ -139,13 +140,33 @@ function rehydrateEvidence(snapshot) {
  * @param {string} args.programmeMessageId  the reviewed composition to execute.
  * @param {string} args.operatorUserId      from the session; never a field.
  * @param {string} args.connectedMailboxId  which mailbox is going to send it.
- * @param {string} args.runId               the process holding the claim.
+ * @param {string} [args.runId]             the process holding the claim.
  * @returns {{send, outreach, mailbox, attempt, attemptId, step, ledgerAttemptId}}
  * @throws with `err.code` — CLAIM_REFUSAL, or the owning authority's own code.
  */
 export function claimProgrammeMessageForExecution({
   programmeMessageId, operatorUserId, connectedMailboxId,
-  runId, at = utcNow(), onDate = utcToday(), window = undefined,
+  /**
+   * WHICH PROCESS IS TAKING IT — D4.6, and it now defaults to THIS one.
+   *
+   * A production caller has exactly one truthful answer and no way to know it
+   * better than the process does, so making each one invent a run id was an
+   * invitation to invent a WRONG one: a constant, a per-request value, or a
+   * string copied from a test. Any of those breaks recovery silently — a
+   * constant makes a dead claim look live across a restart, a per-request value
+   * makes every live claim look dead — and the failure would only appear the
+   * day a process died mid-send.
+   *
+   * INJECTION IS UNCHANGED AND STILL WINS. An explicit `runId` overrides this,
+   * which is what the D4.5 concurrency proof relies on: it runs two node
+   * processes with two named runs and asserts exactly one of them holds the
+   * row. The default is what production gets, not what tests get.
+   *
+   * IT IS NOT REACHABLE FROM A REQUEST. There is no HTTP route to this function
+   * — D4.9 owns that — and when there is one it will pass no run id at all,
+   * because the only correct value is the one this module already imports.
+   */
+  runId = RUN_ID, at = utcNow(), onDate = utcToday(), window = undefined,
   /**
    * B5'S CEILINGS, INJECTABLE FOR THE SAME REASON `at` AND `onDate` ARE. They
    * default to the configured ones and are passed straight through to the

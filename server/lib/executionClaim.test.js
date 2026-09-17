@@ -5,6 +5,7 @@ import { materialiseNextContactAttempt } from './pursuitPolicy.js';
 import { generateProgrammeMessage } from './programmeMessageGeneration.js';
 import { reviewProgrammeMessage, programmeMessage } from './programmeMessages.js';
 import { claimProgrammeMessageForExecution, CLAIM_REFUSAL } from './executionClaim.js';
+import { RUN_ID } from './executionRun.js';
 import { createOutreach, revokeOutreach } from './outreach.js';
 import { recordDraft, confirmSend, sendsForOutreach, transitionSend } from './outreachSend.js';
 import { findOrCreateCoach } from './coaches.js';
@@ -718,13 +719,34 @@ describe('J. legacy and manual behaviour is unchanged', () => {
 /* ========================================================================== */
 
 describe('the run that holds the claim', () => {
-  it('requires a run id', () => {
+  it('requires a run id that says something', () => {
     const { messageId } = reviewed();
     const mailboxId = mailboxFor();
-    for (const runId of [undefined, '', '   ']) {
+    for (const runId of ['', '   ']) {
       expect(() => claim(messageId, mailboxId, { runId })).toThrow();
     }
     expect(count('outreach_send')).toBe(0);
+  });
+
+  /**
+   * D4.6 — SAYING NOTHING NOW MEANS THIS PROCESS, and that is the production
+   * path. A caller with no opinion had no correct opinion to have; the only
+   * truthful answer is the run that is about to do the work. An EMPTY run id is
+   * still refused above, because that is a caller which tried to answer and
+   * answered with nothing.
+   */
+  it('defaults to this process when the caller names no run', () => {
+    const { messageId } = reviewed();
+    const out = claim(messageId, mailboxFor(), { runId: undefined });
+    expect(out.send.claim_run_id).toBe(RUN_ID);
+    expect(RUN_ID).toBeTruthy();
+  });
+
+  it('still lets an explicit run id win over this process', () => {
+    const { messageId } = reviewed();
+    const out = claim(messageId, mailboxFor(), { runId: 'worker-3' });
+    expect(out.send.claim_run_id).toBe('worker-3');
+    expect(out.send.claim_run_id).not.toBe(RUN_ID);
   });
 
   it('refuses a run id that is not server-shaped', () => {
