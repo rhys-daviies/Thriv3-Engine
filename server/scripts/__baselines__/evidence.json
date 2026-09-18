@@ -16,8 +16,8 @@
       },
       {
         "table": "roster_players",
-        "rows": 278584,
-        "digest": "0ab6a371996a05a7a4d7fe41eca08f7ead9b25f77f517f2dc6f976df050cc53b"
+        "rows": 281022,
+        "digest": "90ac91961078e925cee69e1bf87695dac8251b28e18878a6e1928cff4cbcde58"
       },
       {
         "table": "coaches",
@@ -36,42 +36,42 @@
       },
       {
         "table": "roster_freshness",
-        "rows": 1972,
-        "digest": "0a6deb1588ff32f9fb2c8d46c05ad4bf8c34855954bbab33ee83712be3936ce6"
+        "rows": 2053,
+        "digest": "500557bb82be843ed2ace3e9dfdd69791fc496b9e22ee20edae1ce2141cff32e"
       }
     ],
-    "digest": "6e68f353df74ff3d6f1a2a071501b4bccf1f9e1433cfbfa41f15fbbe0e198ab4"
+    "digest": "2895861d5587a5c28bc35971abd9b9b04980b45e2ef2efaee23b51c8d3e3253f"
   },
   "baselines": [
     {
       "name": "OUTBOUND_DECISION",
       "size": 4742,
-      "digest": "01da841a9cb4d942708f507009453a5f3a954999017dc5e9abfeab5107c9b884"
+      "digest": "53a1f6a85f27a5f77932141d7eedc38244a6481bbc812235fbfbd4db37b785d3"
     },
     {
       "name": "COACH_COMPOSITION",
       "size": 4742,
-      "digest": "bba8d3f3536005b3994d183beaae863ecd5cef76c35949a12c3791d420274db1"
+      "digest": "f3bc9656e2b15342411580992adf0e3b645a05dee4dc093493468e2394071134"
     },
     {
       "name": "EMAIL_BODY",
       "size": 4742,
-      "digest": "ec2cf84fc90e5b6289d570fac248b37334f43d34fa7fc3e05877a1a7509da451"
+      "digest": "e94d94be0131d72f2c002e00a393dadf702add3a537c4063a247dd4ef49b491c"
     },
     {
       "name": "OPERATOR_WIRE",
       "size": 4742,
-      "digest": "aedeca265f1063ebcab6f86156577b574bff0ec6d299a049e0bf68b4d87ee9e0"
+      "digest": "0decdc9eb5727eeefb7ef1465924e6e9d2cbb92599ad1b147e067d7a0643ac55"
     },
     {
       "name": "LOG_PAYLOAD",
       "size": 4742,
-      "digest": "f7c6204679d534fb3ca3550ed06bbf4b9ec1f1b9d091726fb6f0838fca045caa"
+      "digest": "e33bdbc018b98ca8ef3551dda2269486d9322d8c8ca76a5445b8350b65a92cfe"
     },
     {
       "name": "OPERATOR_EVIDENCE",
       "size": 4742,
-      "digest": "6c219b5d39d3c1f4ae099aeaf7bd16bcb0dcba425736356962e071aad810b0bb"
+      "digest": "92a06a1f2904c1e78d6b9626ac89c6047f65b518b474eabbbc2b5a65a61c866b"
     }
   ]
 }

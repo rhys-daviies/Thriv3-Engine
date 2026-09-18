@@ -50,8 +50,8 @@ describe('the NCAA residual queue', () => {
   it('26. states the live accounting, for the season it is asked about', () => {
     /*
      * 1,761 registry rows carry 6 programmes L7P recorded as not fielded in
-     * 2026, leaving 1,755 active. Of those, 1,644 hold a 2026 roster, 7 are
-     * duplicate rows whose twin holds one, and 104 are missing it.
+     * 2026, leaving 1,755 active. Of those, 1,725 hold a 2026 roster, 7 are
+     * duplicate rows whose twin holds one, and 23 are missing it.
      *
      * The two coverage numbers are asserted separately on purpose. Until L7P
      * this file had one, counted over every season, and 1,745 was being read as
@@ -60,18 +60,19 @@ describe('the NCAA residual queue', () => {
      * L7Q moved the current-season figures and NOT the historical one, which is
      * the clearest possible statement of what the two metrics mean: the pilot
      * re-acquired 13 programmes the dataset already knew, so 1,745 could not
-     * move and 1,607 had to. L7R took one more and L7T twenty-three, all for
-     * the same reason. These are live-registry numbers and a stage that
-     * acquires rosters is expected to change them; `reconciles` above is the
-     * invariant, and this is the measurement.
+     * move and 1,607 had to. L7R took one more, L7T twenty-three and L7V
+     * eighty-one, all for the same reason, and across all four the historical
+     * figure has not moved once. These are live-registry numbers and a stage
+     * that acquires rosters is expected to change them; `reconciles` above is
+     * the invariant, and this is the measurement.
      */
     const s = q.summary;
     expect(s.ncaaTotal).toBe(1755);
     expect(s.registryDuplicates).toBe(7);
-    expect(s.currentSeasonRostered).toBe(1644);
-    expect(s.currentSeasonMissing).toBe(104);
+    expect(s.currentSeasonRostered).toBe(1725);
+    expect(s.currentSeasonMissing).toBe(23);
     expect(s.historicallyRostered).toBe(1745);
-    expect(s.historicalOnly).toBe(101);
+    expect(s.historicalOnly).toBe(20);
     expect(s.neverRostered).toBe(3);
   });
 
