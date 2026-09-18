@@ -349,10 +349,18 @@ describe('B. no transport, no credential, no provider', () => {
       'nodemailer', 'googleapis', 'google-auth']) {
       expect(imports).not.toContain(forbidden);
     }
-    // And it calls neither the decryptor nor any transport, anywhere.
-    expect(src).not.toMatch(/mailboxCredential\s*\(/);
-    expect(src).not.toMatch(/\bfetch\s*\(/);
-    expect(src).not.toMatch(/composeInOutlook/);
+    /**
+     * And it calls neither the decryptor nor any transport, anywhere — asserted
+     * on CODE for the reason stated above, which until D5.1 was applied only to
+     * the imports. `executionSnapshot`'s note on `operatorUserId` now explains
+     * that the id exists so a PROVIDER may call `mailboxCredential`, naming the
+     * function; matching raw source read that explanation as the offence.
+     * Stripping comments keeps the guard exact instead of retiring it.
+     */
+    const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+    expect(code).not.toMatch(/mailboxCredential\s*\(/);
+    expect(code).not.toMatch(/\bfetch\s*\(/);
+    expect(code).not.toMatch(/composeInOutlook/);
   });
 
   it('leaves the message in SENDING and resolves nothing', () => {

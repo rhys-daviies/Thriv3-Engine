@@ -757,9 +757,12 @@ const SNAPSHOT_FOR_TRANSPORT = db.prepare(`
   SELECT s.id, s.subject, s.body, s.body_hash, s.wire_body_sha256,
          s.state, s.connected_mailbox_id, s.sending_identity, s.provider,
          s.internet_message_id, s.programme_message_id,
-         m.recipient_email AS recipient_email
+         m.recipient_email AS recipient_email,
+         b.provider_account_id AS provider_account_id,
+         b.operator_user_id AS operator_user_id
     FROM outreach_send s
     LEFT JOIN programme_messages m ON m.id = s.programme_message_id
+    LEFT JOIN connected_mailboxes b ON b.id = s.connected_mailbox_id
    WHERE s.id = ?
 `);
 
@@ -790,9 +793,67 @@ export function executionSnapshot(sendId) {
     sendingIdentity: row.sending_identity ?? null,
     provider: row.provider ?? null,
     programmeMessageId: row.programme_message_id ?? null,
+    /**
+     * THE PROVIDER'S OWN IMMUTABLE ID FOR THE SENDING ACCOUNT — D5.1.
+     *
+     * Joined from `connected_mailboxes`, not copied onto `outreach_send`:
+     * duplicating an already-durable fact only creates a second place for it to
+     * be wrong, which is the same argument `recipient_email` is joined for.
+     *
+     * A provider adapter compares this against the `sub` of whatever account
+     * its credential actually authenticates. That comparison is the one that
+     * catches the serious case — a token belonging to a DIFFERENT account —
+     * where the address comparison only catches drift.
+     */
+    providerAccountId: row.provider_account_id ?? null,
+    /**
+     * WHOSE AUTHORITY READS THE CREDENTIAL — D5.1, and derived rather than
+     * denormalised.
+     *
+     * ---------------------------------------------------------------------
+     * WHY NO `outreach_send.authorised_by_operator_id` COLUMN WAS ADDED.
+     *
+     * `mailboxCredential(id, { operatorUserId })` must be scoped to an
+     * operator, so a provider adapter needs one. The question was whether the
+     * existing chain can supply it durably, and it can, through a single join:
+     *
+     *   outreach_send.connected_mailbox_id -> connected_mailboxes.operator_user_id
+     *
+     * Every link is immutable. `connected_mailbox_id` has no ON DELETE clause,
+     * so removing the mailbox is refused. `operator_user_id` is NOT NULL, is
+     * absent from `UPDATABLE` in connectedMailboxes.js, is written once by
+     * `createConnectedMailbox` and is updated by nothing in the codebase — the
+     * schema says ownership "is never nulled and never reassigned", and a
+     * migration deliberately removed an ON DELETE CASCADE from it so that
+     * deleting an operator is refused while a mailbox references them.
+     *
+     * AND THERE IS NO SECOND AUTHORITY TO DISAGREE WITH. `campaigns` carries no
+     * operator column and neither does `players`; `connected_mailboxes` and
+     * `mailbox_consent_grants` are the only tables in the schema that hold an
+     * `operator_user_id` at all. So there is exactly one answer to "whose
+     * mailbox is this", and no reconciliation is required.
+     *
+     * The claim has already proved this operator held this mailbox — `mailbox()`
+     * is scoped by operator and refuses otherwise — so the row cannot point at
+     * a mailbox some other operator owned.
+     *
+     * A copied column would have added a second, staler copy of an immutable
+     * fact, for no gain.
+     * ---------------------------------------------------------------------
+     */
+    operatorUserId: row.operator_user_id ?? null,
+    /**
+     * COMPLETE MEANS TRANSPORTABLE, and D5.1 raises the bar to match what a
+     * real provider needs: without the account id there is nothing to verify
+     * the credential's identity against, and without the operator there is no
+     * authority under which to read it. A partial row must fail here rather
+     * than half-way through a send.
+     */
     complete: Boolean(
       row.body && row.wire_body_sha256 && row.subject
-      && row.recipient_email && row.connected_mailbox_id,
+      && row.recipient_email && row.connected_mailbox_id
+      && row.sending_identity && row.provider
+      && row.provider_account_id && row.operator_user_id,
     ),
   };
 }
