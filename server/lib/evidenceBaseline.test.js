@@ -374,15 +374,24 @@ d('roster_freshness mirrors what production reads', () => {
 });
 
 d('the manifest declares its own definition version', () => {
-  it('reports V3 and carries every table the product reads', () => {
+  it('reports V4 and carries every table the product reads', () => {
     const m = datasetManifest();
-    expect(m.version).toBe('V3');
+    expect(m.version).toBe('V4');
     const tables = m.tables.map((t) => t.table);
     // V2 added roster_freshness (K3A: a re-scrape that only moved timestamps).
     expect(tables).toContain('roster_freshness');
     // V3 adds programme_status (L7P): it decides which programmes are eligible
     // destinations for a season, so matching and outreach change when it does.
     expect(tables).toContain('programme_status');
+    /*
+     * V4 adds roster_measurements (L7ZA): the other two roster components cover
+     * membership and current-season timestamps, so a historical measurement --
+     * minutes, class label, position -- moved PROGRAMME_POOL_BENCHMARK while the
+     * dataset line read UNCHANGED. Kept separate from roster_players so the
+     * report can say "same squad, measured differently".
+     */
+    expect(tables).toContain('roster_measurements');
+    expect(tables).toContain('roster_players');
   });
 
   it('reads an older pin as a definition change, not a data change', () => {
@@ -390,6 +399,6 @@ d('the manifest declares its own definition version', () => {
     const cmp = compareBaselines({ manifest: { digest: 'old', tables: [] }, baselines: [] }, actual);
     expect(cmp.dataset).toBe('DEFINITION_CHANGED');
     // An unversioned pin is the version before the current one.
-    expect(cmp.manifestVersionExpected).toBe('V2');
+    expect(cmp.manifestVersionExpected).toBe('V3');
   });
 });

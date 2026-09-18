@@ -69,10 +69,16 @@ function main() {
   if (cmp.dataset === 'CHANGED') {
     console.log(`             expected ${short(cmp.datasetExpected ?? '—')}`);
     console.log('             The data moved, so a product hash cannot be compared to one');
-    console.log('             taken over different rows. Per-table digests:\n');
-    for (const t of cmp.manifest.tables) {
-      console.log(`               ${t.table.padEnd(20)} ${String(t.rows ?? '—').padStart(8)} rows  ${short(t.digest ?? '—')}`);
+    console.log('             taken over different rows. Components:\n');
+  }
+  if (cmp.dataset !== 'UNCHANGED') {
+    // Named and marked, so the answer is "roster measurements moved" rather
+    // than "something in the dataset moved".
+    for (const t of cmp.components ?? cmp.manifest.tables) {
+      console.log(`               ${t.table.padEnd(22)} ${String(t.rows ?? '—').padStart(8)} rows  `
+        + `${short(t.digest ?? '—')}  ${t.status ?? ''}`);
     }
+    console.log();
   }
   console.log();
   for (const r of cmp.results) {

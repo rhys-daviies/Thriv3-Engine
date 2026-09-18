@@ -2,7 +2,7 @@
   "note": "Committed Evidence behavioural baseline. See docs/EVIDENCE_BASELINES.md before repinning.",
   "now": "2026-09-06T00:00:00.000Z",
   "manifest": {
-    "version": "V3",
+    "version": "V4",
     "tables": [
       {
         "table": "players",
@@ -38,9 +38,14 @@
         "table": "roster_freshness",
         "rows": 2059,
         "digest": "c7648f217abf6d686795ec5f4775485b330c68226856378fa65b65c7889e4429"
+      },
+      {
+        "table": "roster_measurements",
+        "rows": 281148,
+        "digest": "81e0cebbccf9ef3341d071838696c3aaaca5e8c5a7bc295f6ceb02fbb03f367f"
       }
     ],
-    "digest": "4955986edd3bc976eb93c6489fe1d696ca5104e31e1f5a775327999432ecc512"
+    "digest": "3854e1ec19d88c23abceb3d22882e31b0021b70824908eb5d3ecf5ba69d0c4cb"
   },
   "baselines": [
     {

@@ -180,6 +180,22 @@ export const short = (d) => String(d).slice(0, 16);
  * moved while the dataset line read UNCHANGED is precisely what the manifest
  * exists to prevent.
  *
+ * V4 adds `roster_measurements`, for the same reason two versions later, and
+ * this time the gap was demonstrated rather than reasoned about. L7ZA changed
+ * 1,762 historical rows' `minutes_played` and nothing else — no player added,
+ * removed or renamed — and watched PROGRAMME_POOL_BENCHMARK move while BOTH
+ * roster components reported UNCHANGED. The `roster_players` line projects
+ * `(college_name, sport, season, player_name)`, which is membership, and
+ * `roster_freshness` watches the CURRENT season's timestamps. A historical
+ * measurement appears in neither, so a behavioural hash could move with the
+ * dataset line saying nothing happened — the same misdiagnosis K3A found for
+ * timestamps and L7O found for programme status, in the field the Philosophy
+ * kinds are actually computed from.
+ *
+ * The two roster components are kept APART rather than merged. "The squad
+ * changed" and "the same squad, measured differently" are different events with
+ * different causes, and a single digest covering both would answer neither.
+ *
  * SUCCESSIVE VERSIONS ARE NOT COMPARABLE WITH EACH OTHER, and the report says
  * UNCOMPARABLE rather than FAIL when it meets one across a boundary. They
  * describe different questions about the data; a number computed for one is not
@@ -187,10 +203,10 @@ export const short = (d) => String(d).slice(0, 16);
  * version is what keeps that honest — a V2 pin and a V2 digest taken over a
  * different table list would both claim to be V2 and mean different things.
  */
-export const MANIFEST_VERSION = 'V3';
+export const MANIFEST_VERSION = 'V4';
 
-/** The last version before `programme_status`, kept so a V2 pin is nameable. */
-export const LEGACY_MANIFEST_VERSION = 'V2';
+/** The last version before `roster_measurements`, kept so a V3 pin is nameable. */
+export const LEGACY_MANIFEST_VERSION = 'V3';
 
 const MANIFEST_TABLES = Object.freeze([
   ['players', 'SELECT id, full_name, sport, nationality, position, intended_major, recruiting_class_year FROM players ORDER BY id'],
@@ -244,6 +260,83 @@ const ROSTER_FRESHNESS_SQL = `
   GROUP BY college_name, sport
   ORDER BY sport, college_name`;
 
+/**
+ * Every roster_players field an Evidence generator can actually read.
+ *
+ * NOT every column. The Evidence path loads roster rows through exactly one
+ * projection — `ROSTER_COLUMNS` in server/lib/philosophyQueries.js, used by
+ * both `programmeRows` and `squadRows` — so a column absent from it is
+ * invisible to every generator by construction. This list is that projection
+ * minus `updated_date`, which is a statement about when we looked rather than
+ * what is true: `roster_freshness` already fingerprints it in the one form
+ * production reads, and hashing it raw here would move this component on every
+ * re-import, which is the L7D defect that cost two baselines their usefulness.
+ *
+ * Deliberately included despite looking like provenance: `source_roster_url`.
+ * `rosterSourceFor` in evidenceQueries.js resolves the operator's verification
+ * link from it and returns AMBIGUOUS_SOURCE when a programme-season carries
+ * more than one, so it changes what an operator is shown. It is a behavioural
+ * input that happens to be a URL.
+ *
+ * Deliberately EXCLUDED: `source_page_season`, `source_fetched_at`,
+ * `source_parser` (L7Z), `data_confidence`, `source_stats_url`,
+ * `projected_minutes_season`, `division`, `conference`, `notes`. None is in
+ * ROSTER_COLUMNS, so no generator can see any of them. They are recorded facts
+ * about acquisition, and a manifest that moved for them would report work that
+ * changed nothing an athlete or an operator reads.
+ */
+export const ROSTER_MEASUREMENT_FIELDS = Object.freeze([
+  'college_name', 'sport', 'season', 'player_name',
+  'position', 'class_year_label',
+  'minutes_played', 'games_played', 'games_started',
+  'estimated_graduation_year', 'eligibility_end_year', 'projected_minutes',
+  'nationality', 'country', 'hometown', 'prior_programme',
+  'source_roster_url',
+]);
+
+/**
+ * One row, reduced to what behaviour can distinguish.
+ *
+ * Storage representation must not move the hash where production cannot see
+ * it. The importer writes numbers through `toIntOrNull` and text through
+ * `|| undefined`, so `998`, `'998'` and `'998.0'` are one value to it and `''`
+ * is absence — and this normalises to the same, using those semantics rather
+ * than inventing new ones. Nothing else is canonicalised: `position` is already
+ * stored in production's normalised vocabulary because `normalizePosition`
+ * runs at import, and `class_year_label` is carried RAW into philosophy output
+ * as `classLabel`, so its exact spelling is itself behavioural.
+ */
+const NUMERIC_MEASUREMENTS = new Set(['minutes_played', 'games_played', 'games_started',
+  'estimated_graduation_year', 'eligibility_end_year', 'projected_minutes']);
+
+export function canonicalMeasurement(field, value) {
+  if (value === undefined || value === null) return null;
+  if (NUMERIC_MEASUREMENTS.has(field)) {
+    if (value === '') return null;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+  const s = String(value);
+  return s === '' ? null : s;
+}
+
+/**
+ * The measurements, in an order the database cannot influence.
+ *
+ * Rows are serialised and then SORTED, so neither SQLite's row order nor an
+ * index change can move the digest, and two programme-seasons holding the same
+ * player name twice stay distinguishable.
+ */
+export function rosterMeasurementFingerprint() {
+  const rows = db.prepare(
+    `SELECT ${ROSTER_MEASUREMENT_FIELDS.join(', ')} FROM roster_players`,
+  ).all();
+  const lines = rows
+    .map((r) => canonical(ROSTER_MEASUREMENT_FIELDS.map((f) => canonicalMeasurement(f, r[f]))))
+    .sort();
+  return { table: 'roster_measurements', rows: lines.length, digest: digest(lines.join('\n')) };
+}
+
 export function rosterFreshnessFingerprint() {
   const rows = db.prepare(ROSTER_FRESHNESS_SQL).all(SQUAD_SEASON);
   return { table: 'roster_freshness', rows: rows.length, digest: digest(canonical(rows)) };
@@ -259,6 +352,8 @@ export function datasetManifest() {
   }
   try { tables.push(rosterFreshnessFingerprint()); }
   catch (err) { tables.push({ table: 'roster_freshness', rows: null, digest: null, error: err.message }); }
+  try { tables.push(rosterMeasurementFingerprint()); }
+  catch (err) { tables.push({ table: 'roster_measurements', rows: null, digest: null, error: err.message }); }
   return { version: MANIFEST_VERSION, tables, digest: digest(canonical(tables)) };
 }
 
@@ -607,6 +702,23 @@ export function compareBaselines(expected, actual = buildBaselines()) {
     datasetExpected: expected?.manifest?.digest ?? null,
     datasetActual: actual.manifest.digest,
     manifest: actual.manifest,
+    /**
+     * Which components moved, so a reader is not left diffing eight digests.
+     *
+     * "The dataset changed" is not an answer anyone can act on. "Roster
+     * membership unchanged, roster measurements changed" says where to look,
+     * and it is the distinction L7ZB split the two roster components to make.
+     * A component absent from the pin is reported as new rather than moved --
+     * across a version boundary that is the expected state, not a difference.
+     */
+    components: actual.manifest.tables.map((t) => {
+      const want = (expected?.manifest?.tables ?? []).find((x) => x.table === t.table);
+      return {
+        table: t.table, rows: t.rows, digest: t.digest,
+        status: !want ? 'NEW' : (want.digest === t.digest ? 'unchanged' : 'MOVED'),
+        expected: want?.digest ?? null,
+      };
+    }),
     now: actual.now,
     stats: actual.stats,
     invariants: actual.invariants,
