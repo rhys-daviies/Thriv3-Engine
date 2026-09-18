@@ -53,6 +53,7 @@ import {
 } from './lib/operatorAuth.js';
 import { securityHeaders, corsPolicy } from './lib/httpSecurity.js';
 import { assertRuntime, describeRuntime, resolveConfig } from './lib/runtimeConfig.js';
+import { recoverPriorRunSendingClaims } from './lib/executionRecovery.js';
 import { renderProgramReport, reportFilename, asciiFilename } from './lib/philosophyReport.js';
 import {
   generateReport, listReports, readArtifact, selectableAthletes, selectableProgrammes,
@@ -782,21 +783,62 @@ if (config.clientDir) {
 const isMain = process.argv[1]
   && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
-if (isMain) {
-  assertRuntime({ env: process.env });
+/**
+ * THE ORDER OF BOOT, EXTRACTED SO IT CAN BE PROVED — D4.6.
+ *
+ * It was three statements inside `if (isMain)`, which is fine until one of them
+ * is a correctness requirement rather than a convenience. Recovery is one:
+ *
+ *   assertRuntime   refuse to start half-configured
+ *   RECOVERY        resolve the claims a dead process left behind
+ *   listen          only now may a request arrive
+ *
+ * RECOVERY MUST PRECEDE THE FIRST REQUEST, and the reason is the state it
+ * resolves. Between a crash and the sweep, every abandoned message is still
+ * SENDING — which reads as "a transport is working on it". A request served in
+ * that window sees a live claim where there is a dead one. There is no
+ * execution route yet, so nothing can observe it today; the ordering is
+ * established now because adding the route later is not the moment to remember
+ * this, and because a sweep that ran after `listen` would be a race nobody
+ * would think to look for.
+ *
+ * It runs HERE and nowhere else. Importing `executionRecovery.js` recovers
+ * nothing, so a CLI script that reaches the execution modules for its own work
+ * cannot silently rewrite SENDING rows as a side effect of starting up.
+ *
+ * The seams are for the ordering test and for `assertRuntime`'s own contract;
+ * nothing else about startup moved.
+ */
+export function boot({
+  env = process.env, log = console, exit = process.exit,
+  recover = recoverPriorRunSendingClaims,
+  listen = (...args) => app.listen(...args),
+} = {}) {
+  assertRuntime({ env, log, exit });
 
-  app.listen(config.port, config.host, () => {
-    console.log(`Thriv3 API listening on http://${config.host === '0.0.0.0' ? 'localhost' : config.host}:${config.port}`);
-    console.log(`  ${describeRuntime(config)}`);
+  const recovery = recover();
+  // Said out loud even when it is zero: a boot that quietly adopted messages
+  // from a dead run is exactly the thing somebody needs to be able to see.
+  log.log(recovery.recovered
+    ? `Recovered ${recovery.recovered} abandoned execution claim(s) — now UNKNOWN_PROVIDER_RESULT.`
+    : 'No abandoned execution claims to recover.');
+
+  const server = listen(config.port, config.host, () => {
+    log.log(`Thriv3 API listening on http://${config.host === '0.0.0.0' ? 'localhost' : config.host}:${config.port}`);
+    log.log(`  ${describeRuntime(config)}`);
 
     // Said out loud either way. "Nothing schedules the sync" was true for four
     // days without anybody knowing, and silence at boot is what allowed that.
     const scheduler = startSyncScheduler();
-    console.log(scheduler.started
+    log.log(scheduler.started
       ? `Engagement sync scheduled every ${scheduler.intervalMinutes} minute(s).`
       : `Engagement sync NOT scheduled — ${scheduler.reason}.`);
   });
+
+  return { recovery, server };
 }
+
+if (isMain) boot();
 
 /**
  * Exported so a test can bind it to an ephemeral port and exercise the real
