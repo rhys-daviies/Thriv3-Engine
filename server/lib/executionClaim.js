@@ -1,11 +1,14 @@
 import db from '../db/client.js';
 import { utcNow, utcToday } from './time.js';
 import { programmeMessageWithContext, MESSAGE_STATE as CONTENT_STATE } from './programmeMessages.js';
-import { programmePursuitPlan } from './pursuitPolicy.js';
+import { programmePursuitPlan, PURSUIT_ACTION } from './pursuitPolicy.js';
+import { followUpTiming } from './followUpTiming.js';
 import { campaignContactDecision } from './campaignAttribution.js';
 import { createOutreach } from './outreach.js';
 import { linkContactAttemptToOutreach } from './contactAttempts.js';
-import { recordDraft, claimSendForExecution, sendById } from './outreachSend.js';
+import {
+  recordDraft, claimSendForExecution, sendById, unresolvedSendFor,
+} from './outreachSend.js';
 import { recordOutboundAttempt, normaliseSendingIdentity, TRANSPORT } from './outboundBudget.js';
 import { isSendCapped } from './sendCap.js';
 import { mailbox, hasStoredCredential, MAILBOX_STATUS } from './connectedMailboxes.js';
@@ -90,6 +93,45 @@ export const CLAIM_REFUSAL = Object.freeze({
 
   /** Somebody else holds it, or it has already been executed. */
   SEND_CLAIM_LOST: 'SEND_CLAIM_LOST',
+
+  /**
+   * THIS EXACT COMPOSITION HAS ALREADY BEEN EXECUTED — D4.8.
+   *
+   * `idx_outreach_send_programme_message` is UNIQUE on `programme_message_id`,
+   * so a second claim of one message has always been impossible. What it was
+   * not was EXPLAINED: the refusal arrived as SQLITE_CONSTRAINT_UNIQUE, from
+   * inside a transaction, after the budget had been consulted — a database
+   * error used as control flow.
+   *
+   * It covers every prior outcome. A message that reached ACCEPTED must not be
+   * sent twice; one that reached FAILED or UNKNOWN_PROVIDER_RESULT must not be
+   * retried by re-executing the same row, because a retry is a fresh decision
+   * about fresh content and not a repeat of this one. The index remains the
+   * final word under a race; this is the answer when there is no race.
+   */
+  MESSAGE_ALREADY_EXECUTED: 'MESSAGE_ALREADY_EXECUTED',
+
+  /**
+   * AN EARLIER MESSAGE TO THIS COACH IS UNRESOLVED — D4.8. Same fact
+   * `RELATIONSHIP_HAS_UNRESOLVED_SEND` names at generation, asked again here
+   * because the world moves between the two.
+   */
+  RELATIONSHIP_HAS_UNRESOLVED_SEND: 'RELATIONSHIP_HAS_UNRESOLVED_SEND',
+
+  /**
+   * THE FOLLOW-UP IS NOT DUE YET — D4.8, and the most important refusal added
+   * in this slice.
+   *
+   * The four-day delay existed as policy and was checked only by a read-only
+   * planning screen, so the write path would happily transmit a follow-up the
+   * same day the first message was accepted. A coach receiving two emails in
+   * one afternoon is the one failure in this system with a victim outside it.
+   *
+   * The rule is not restated here: `followUpTiming` is imported from the module
+   * that owns FOLLOW_UP_DELAY_DAYS, so the screen and the send path cannot
+   * drift apart.
+   */
+  FOLLOW_UP_NOT_DUE: 'FOLLOW_UP_NOT_DUE',
 });
 
 function fail(code, message) {
@@ -111,6 +153,10 @@ const ATHLETE_FOR_CONTENT = db.prepare(
 );
 /** The lifetime relationship, if there already is one. B3 needs it to see a revocation. */
 const OUTREACH_FOR = db.prepare('SELECT id FROM outreach WHERE athlete_id = ? AND coach_id = ?');
+/** Has this exact composition already been executed, and how did it end? — D4.8. */
+const EXECUTION_FOR_MESSAGE = db.prepare(
+  'SELECT id, state FROM outreach_send WHERE programme_message_id = ?',
+);
 
 const sameEmail = (a, b) => String(a ?? '').trim().toLowerCase() === String(b ?? '').trim().toLowerCase();
 
@@ -237,6 +283,48 @@ const CLAIM = db.transaction(({
   }
   const { message, context } = found;
 
+  /**
+   * ---- 1a. this composition has not already been executed — D4.8 ----------
+   *
+   * Asked FIRST, before policy, before the mailbox, before anything is written.
+   * A message with an execution row behind it has had its answer, whatever that
+   * answer was, and every later check would be asking questions about a send
+   * that already happened.
+   */
+  const priorExecution = EXECUTION_FOR_MESSAGE.get(message.id);
+  if (priorExecution) {
+    throw fail(CLAIM_REFUSAL.MESSAGE_ALREADY_EXECUTED,
+      `This message has already been executed — it is ${priorExecution.state}. A message is `
+      + 'executed once; sending the same approved words again is a new decision about new '
+      + 'content, not a repeat of this one. Nothing was claimed.');
+  }
+
+  /**
+   * ---- 1b. nothing unresolved is in flight to this coach — D4.8 ----------
+   *
+   * ASKED BEFORE THE PLAN, AND THE ORDER IS THE POINT. A relationship holding
+   * an unresolved message makes `programmePursuitPlan` return AWAITING_OPERATOR
+   * with a null step — so the step-agreement check below would fire first and
+   * refuse with CONTACT_ATTEMPT_STEP_DRIFT, which is true of the numbers and
+   * says nothing about what happened. An operator needs to be told that a
+   * message may already be in that coach's inbox, not that two counters
+   * disagree.
+   *
+   * `idx_outreach_send_one_open` has always refused a second open row on the
+   * relationship. This says so in words, before a body is frozen and before any
+   * capacity is spent, rather than letting a unique-index violation explain it.
+   *
+   * Read through the EXISTING relationship. A campaign's first message has none
+   * yet and so has nothing to be blocked by.
+   */
+  const existingRelationship = OUTREACH_FOR.get(context.athleteId, message.coach_id);
+  if (unresolvedSendFor(existingRelationship?.id ?? null)) {
+    throw fail(CLAIM_REFUSAL.RELATIONSHIP_HAS_UNRESOLVED_SEND,
+      'An earlier message to this coach is unresolved — we do not know whether the provider '
+      + 'accepted it, so it may already be in their inbox. It has to be resolved before another '
+      + 'message goes to them. Nothing was claimed and no capacity was spent.');
+  }
+
   if (message.state !== CONTENT_STATE.REVIEWED) {
     throw fail(CLAIM_REFUSAL.MESSAGE_NOT_REVIEWED,
       'Nobody has approved these words. A message is executed as a person read it, and this '
@@ -326,6 +414,38 @@ const CLAIM = db.transaction(({
       `${context.collegeName}: the first-touch review this coach needs is not current. `
       + 'Nothing was claimed.');
   }
+  /* ---- 2b. a follow-up waits its four days — D4.8 ------------------------ */
+  /**
+   * THE HIGHEST-VALUE REFUSAL IN THIS SLICE, and it refuses BEFORE the claim,
+   * BEFORE the budget and BEFORE any provider handoff — so an early follow-up
+   * costs nothing and leaves nothing behind.
+   *
+   * ONLY A FOLLOW-UP WAITS. A first message has no preceding accepted send and
+   * therefore no clock; `PURSUIT_ACTION.INITIAL_OUTREACH` passes straight
+   * through.
+   *
+   * THE RULE IS IMPORTED, NOT RESTATED. `followUpTiming` lives beside
+   * FOLLOW_UP_DELAY_DAYS in pursuitPolicy and is the same function the planning
+   * screen calls, so "what the screen says" and "what the send path does" are
+   * one implementation. Calendar days, inclusive of the fourth — unchanged.
+   *
+   * AN UNRESOLVED ANCHOR IS NOT "DUE NOW". An accepted message with no
+   * `sent_at` cannot be produced by `acceptSend`; if one is ever met, this
+   * refuses rather than guessing that the wait has elapsed.
+   */
+  if (plan.nextAction === PURSUIT_ACTION.FOLLOW_UP) {
+    const timing = followUpTiming(plan.current, onDate);
+    if (!timing.due) {
+      throw fail(CLAIM_REFUSAL.FOLLOW_UP_NOT_DUE,
+        timing.unresolved
+          ? 'The previous message to this coach has no recorded send time, so there is no way '
+            + 'to know when a follow-up became due. Somebody needs to look at it. Nothing was '
+            + 'claimed and no capacity was spent.'
+          : `A follow-up to this coach is not due until ${timing.policyEligibleOn}; today is `
+            + `${onDate}. Nothing was claimed and no capacity was spent.`);
+    }
+  }
+
   /* ---- 3. the recipient is still the recipient --------------------------- */
   const coach = COACH.get(message.coach_id);
   if (!coach) throw fail('COACH_NOT_FOUND', `No coach ${message.coach_id}`);

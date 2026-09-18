@@ -395,6 +395,144 @@ export function advanceAttemptForConfirmedSend({ programmeCampaignId, coachId, a
   return { changed: true, attempt: out, reason: null };
 }
 
+/* -------------------------------------------------------------------------- */
+/* Reconciliation — D4.8                                                       */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * HOW MANY MESSAGES THIS CAMPAIGN HAS ACTUALLY LANDED WITH THIS COACH.
+ *
+ * ===========================================================================
+ * ONLY `ACCEPTED` COUNTS, AND THE OMISSIONS ARE THE WHOLE POINT.
+ *
+ *   DRAFT / QUEUED / SENDING   nothing has happened yet
+ *   FAILED                     a provider refused it; nobody received it
+ *   UNKNOWN_PROVIDER_RESULT    we do not know, and counting a maybe as a
+ *                              message would advance a campaign on a guess
+ *   CANCELLED                  withdrawn before it went anywhere
+ *
+ * This is the same predicate B6 uses to derive the step, expressed once more
+ * here rather than imported — `pursuitPolicy` imports THIS module, so reaching
+ * back the other way would be a cycle. Two prepared statements, one rule; a
+ * test pins them equal.
+ * ===========================================================================
+ *
+ * Scoped to athlete AND campaign AND coach. The athlete scope matters: one
+ * coach receives messages from many athletes, and a campaign-local count that
+ * ignored it would advance a pursuit on somebody else's send.
+ */
+const ACCEPTED_SENDS_FOR_ATTEMPT = db.prepare(`
+  SELECT COUNT(*) AS n
+    FROM outreach_send s
+    JOIN programme_campaigns pc ON pc.id = s.programme_campaign_id
+    JOIN campaigns c ON c.id = pc.campaign_id
+   WHERE s.programme_campaign_id = @programmeCampaignId
+     AND s.coach_id = @coachId
+     AND s.athlete_id = c.athlete_id
+     AND s.state = 'ACCEPTED'
+`);
+
+/**
+ * BRING ONE ATTEMPT BACK INTO AGREEMENT WITH WHAT ACTUALLY HAPPENED — D4.8.
+ *
+ * ===========================================================================
+ * IT DERIVES; IT DOES NOT COUNT.
+ *
+ * `advanceAttemptForConfirmedSend` above adds one at the moment of acceptance,
+ * which is correct and cheap and is still how the legacy Outlook path keeps up.
+ * It has one weakness: it only works if it RUNS. D4.7 deliberately commits a
+ * provider acceptance in its own transaction and does the bookkeeping
+ * afterwards, precisely so a bookkeeping failure cannot unwind a real email —
+ * which means the bookkeeping CAN be missed, and something has to be able to
+ * put it right afterwards.
+ *
+ * So this re-derives the truth from durable ACCEPTED rows instead of trusting
+ * the stored number. Running it after an acceptance and running it a week later
+ * give the same answer, because the answer was never in the counter.
+ * ===========================================================================
+ *
+ * TWO FACTS MOVE TOGETHER OR NEITHER DOES, which is why this holds a
+ * transaction of its own. They derive from one count, and a reader that caught
+ * the row between them would see `active` with a stale step, or `planned` with
+ * a reconciled one — neither of which was ever true.
+ *
+ * ---------------------------------------------------------------------------
+ * WHAT IT WILL NOT DO.
+ *
+ *   NEVER DECREMENT. `reconcileContactAttemptStep` is forward-only, and a
+ *      stored step AHEAD of the derived one is reported as drift rather than
+ *      corrected — it is evidence of something no code path explains, and
+ *      rewriting it would destroy the only record of it.
+ *   NEVER RESUME A STOPPED PURSUIT. Somebody stopped it; bookkeeping does not
+ *      overrule a person.
+ *   NEVER TOUCH EXECUTION STATE. `outreach_send` is read and never written.
+ *      Provider truth is what this derives FROM, not something it may edit.
+ *   NEVER INVENT A STATE. `waiting` and `completed` remain unreachable.
+ *
+ * @returns {{reconciled, acceptedCount, derivedStep, step, state, drift, reason}}
+ */
+export function reconcileProgrammeContactAttempt(attemptId, { at = utcNow() } = {}) {
+  const row = BY_ID.get(attemptId);
+  if (!row) {
+    return {
+      reconciled: false, acceptedCount: null, derivedStep: null,
+      step: null, state: null, drift: false, reason: 'NO_ATTEMPT',
+    };
+  }
+
+  const { n: acceptedCount } = ACCEPTED_SENDS_FOR_ATTEMPT.get({
+    programmeCampaignId: row.programme_campaign_id,
+    coachId: row.coach_id,
+  });
+  const derivedStep = acceptedCount + 1;
+
+  /**
+   * A STOPPED PURSUIT IS READ AND LEFT ALONE. It still reports what the derived
+   * truth would have been, because an operator deciding whether to resume one
+   * needs to see it.
+   */
+  if (row.state === ATTEMPT_STATE.STOPPED) {
+    return {
+      reconciled: false, acceptedCount, derivedStep,
+      step: row.step, state: row.state,
+      drift: row.step > derivedStep, reason: 'STOPPED',
+    };
+  }
+
+  return RECONCILE.immediate({ row, acceptedCount, derivedStep, at });
+}
+
+const RECONCILE = db.transaction(({ row, acceptedCount, derivedStep, at }) => {
+  /**
+   * PLANNED MEANS NOTHING HAS LANDED. One accepted message is the entire
+   * difference between the two states, and it is derived rather than
+   * remembered — so an attempt whose activation was missed becomes active the
+   * next time anybody asks.
+   */
+  if (acceptedCount >= 1 && row.state === ATTEMPT_STATE.PLANNED) {
+    db.prepare(`
+      UPDATE programme_contact_attempts
+         SET state = ?, state_changed_at = ?, updated_at = ?
+       WHERE id = ? AND state = ?
+    `).run(ATTEMPT_STATE.ACTIVE, at, at, row.id, ATTEMPT_STATE.PLANNED);
+  }
+
+  // Forward-only, and silent when there is nothing to move.
+  reconcileContactAttemptStep(row.id, derivedStep, { at });
+
+  const after = BY_ID.get(row.id);
+  return {
+    reconciled: true,
+    acceptedCount,
+    derivedStep,
+    step: after.step,
+    state: after.state,
+    /** Stored ahead of derived: left alone, reported, and B7 keeps refusing. */
+    drift: after.step > derivedStep,
+    reason: null,
+  };
+});
+
 /**
  * Point this attempt at the lifetime relationship it executes through.
  *

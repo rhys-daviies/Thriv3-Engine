@@ -113,6 +113,7 @@ export const MESSAGES_PER_COACH = 2;
  */
 export const FOLLOW_UP_DELAY_DAYS = 4;
 
+
 /**
  * WHAT WOULD HAPPEN NEXT AT THIS PROGRAMME. Four outcomes, and no more.
  *
@@ -142,6 +143,16 @@ export const PURSUIT_REASON = Object.freeze({
   NO_RESPONSE_TO_INITIAL: 'NO_RESPONSE_TO_INITIAL',
   PREVIOUS_COACH_EXHAUSTED: 'PREVIOUS_COACH_EXHAUSTED',
   RESPONSE_OBSERVED: 'RESPONSE_OBSERVED',
+  /**
+   * A MESSAGE TO THIS COACH IS UNRESOLVED — D4.8.
+   *
+   * Its provider result is unknown, so it may already be in their inbox. The
+   * programme is not blocked because a rule says so; it is blocked because
+   * nobody knows what happened, and the only honest next action is a person
+   * reconciling it. It is deliberately NOT a reason to move to the next coach:
+   * the ambiguity belongs to this relationship and follows it.
+   */
+  UNRESOLVED_SEND: 'UNRESOLVED_SEND',
   TIER_DEPTH_REACHED: 'TIER_DEPTH_REACHED',
   NO_ELIGIBLE_COACHES: 'NO_ELIGIBLE_COACHES',
   ALL_COACHES_EXHAUSTED: 'ALL_COACHES_EXHAUSTED',
@@ -329,6 +340,36 @@ const ACCEPTED_FOR_COACH = db.prepare(`
   WHERE coach_id = @coachId AND athlete_id = @athleteId
     AND programme_campaign_id = @programmeCampaignId
     AND state = '${MESSAGE_STATE.ACCEPTED}'
+`);
+
+/**
+ * WHAT ELSE HAPPENED TO THIS CAMPAIGN'S MESSAGES TO THIS COACH — D4.8.
+ *
+ * ===========================================================================
+ * AN EXECUTION THAT DID NOT LAND IS STILL SOMETHING THAT HAPPENED.
+ *
+ * `messagesSent` counts ACCEPTED and nothing else, which is right — only an
+ * accepted message advances a step or starts a follow-up clock. But it left a
+ * programme where a send was definitely refused looking identical to one where
+ * nothing had ever been attempted, and an operator reading "FIRST_CONTACT"
+ * after a rejection is being told a fiction.
+ *
+ * So the other outcomes are counted BESIDE it and act on nothing. `failed` is
+ * reported so the screen can say a send was attempted and refused; `unresolved`
+ * is reported AND blocks, because a message that may be in somebody's inbox is
+ * not a state a campaign may write past.
+ *
+ * Deliberately no change to step arithmetic, coach depth or exhaustion.
+ * ===========================================================================
+ */
+const EXECUTION_OUTCOMES_FOR_COACH = db.prepare(`
+  SELECT
+    SUM(CASE WHEN state = '${MESSAGE_STATE.FAILED}' THEN 1 ELSE 0 END) AS failed,
+    SUM(CASE WHEN state = '${MESSAGE_STATE.UNKNOWN_PROVIDER_RESULT}' THEN 1 ELSE 0 END) AS unresolved,
+    MAX(CASE WHEN state = '${MESSAGE_STATE.FAILED}' THEN drafted_at END) AS last_failed_at
+  FROM outreach_send
+  WHERE coach_id = @coachId AND athlete_id = @athleteId
+    AND programme_campaign_id = @programmeCampaignId
 `);
 
 /**
@@ -572,6 +613,9 @@ export function programmePursuitPlan({
       coachId: c.coachId, athleteId: pc.athlete_id, programmeCampaignId,
     });
     const messagesSent = accepted.n;
+    const outcomes = EXECUTION_OUTCOMES_FOR_COACH.get({
+      coachId: c.coachId, athleteId: pc.athlete_id, programmeCampaignId,
+    });
     const responded = RESPONDED.get({ athleteId: pc.athlete_id, coachId: c.coachId })?.responded_at ?? null;
     /**
      * A RESPONSE COUNTS ONLY IF IT CAME AFTER THIS CAMPAIGN STARTED.
@@ -604,6 +648,15 @@ export function programmePursuitPlan({
        * not silently treat as "due now".
        */
       lastAcceptedAt: accepted.last_accepted_at ?? null,
+      /**
+       * EXECUTIONS THAT DID NOT LAND — D4.8. Reported, never counted as
+       * messages. `failedSends` distinguishes "nothing was attempted" from "an
+       * attempt was refused before the provider accepted it"; `unresolvedSends`
+       * is the one that blocks, below.
+       */
+      failedSends: outcomes.failed ?? 0,
+      unresolvedSends: outcomes.unresolved ?? 0,
+      lastFailedAt: outcomes.last_failed_at ?? null,
       respondedAt: respondedThisCampaign ? responded : null,
       priorCampaignResponseAt: responded && !respondedThisCampaign ? responded : null,
       /**
@@ -692,6 +745,41 @@ export function programmePursuitPlan({
       reason: PURSUIT_REASON.RESPONSE_OBSERVED,
       exhausted: false,
       ...safetyAndBudget({ pc, coach: responder, onDate, sendingIdentity, window }),
+    };
+  }
+
+  /**
+   * ---- A MESSAGE NOBODY CAN ACCOUNT FOR STOPS THE PROGRAMME — D4.8 --------
+   *
+   * ===========================================================================
+   * IT BLOCKS, AND IT DOES NOT MOVE TO THE NEXT COACH.
+   *
+   * A send in UNKNOWN_PROVIDER_RESULT may already be in that coach's inbox. So
+   * the honest next action is not another email to them, and it is not an email
+   * to their colleague either: moving down the staff list would turn "we do not
+   * know what we sent" into a reason to send more, which is the opposite of
+   * what the state means. The ambiguity belongs to this relationship and the
+   * programme waits with it.
+   *
+   * ASKED BEFORE THE CURRENT COACH IS CHOSEN, and the unresolved coach is
+   * returned as `current`, so a screen shows the person who needs reconciling
+   * rather than the next one in the queue.
+   *
+   * AWAITING_OPERATOR, following the reply branch above: nothing here can
+   * resolve it, and only a person looking at a sent mailbox can. D4.4's states
+   * are the authority; this reads them and adds no flag of its own.
+   * ===========================================================================
+   */
+  const unresolved = withHistory.find((c) => c.unresolvedSends > 0);
+  if (unresolved) {
+    return {
+      ...plan,
+      current: unresolved,
+      step: null,
+      nextAction: PURSUIT_ACTION.AWAITING_OPERATOR,
+      reason: PURSUIT_REASON.UNRESOLVED_SEND,
+      exhausted: false,
+      ...safetyAndBudget({ pc, coach: unresolved, onDate, sendingIdentity, window }),
     };
   }
 

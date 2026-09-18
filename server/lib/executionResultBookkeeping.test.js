@@ -33,7 +33,7 @@ vi.mock('./contactAttempts.js', async (importOriginal) => {
   const real = await importOriginal();
   return {
     ...real,
-    advanceAttemptForConfirmedSend(...args) {
+    reconcileProgrammeContactAttempt(...args) {
       if (advanceThrows.on) {
         const err = new Error('the campaign step could not be advanced');
         err.code = 'TEST_ADVANCE_EXPLODED';
@@ -50,12 +50,19 @@ const { recordDraft, claimSendForExecution, sendById, sendEvents } = await impor
 const { createOutreach } = await import('./outreach.js');
 const { findOrCreateCoach } = await import('./coaches.js');
 const { RUN_ID } = await import('./executionRun.js');
+const { randomUUID: uuid } = await import('node:crypto');
 
 const ATHLETE = 'a-d47-book';
 const NOW = '2026-09-18T12:00:00.000Z';
 let seq = 0;
 
-/** A claimed execution row. The campaign chain is irrelevant to this failure. */
+/**
+ * A claimed execution row WITH a campaign attempt behind it.
+ *
+ * The attempt matters: reconciliation short-circuits on `NO_ATTEMPT` before it
+ * reaches anything that could throw, so a fixture without one would test the
+ * short-circuit rather than the failure this file is about.
+ */
 function claimedSend() {
   const coach = findOrCreateCoach({
     full_name: `Coach ${++seq}`,
@@ -65,10 +72,29 @@ function claimedSend() {
     division: 'NCAA D1',
     position_title: 'Head Coach',
   });
+  const campaignId = `c-${seq}`;
+  const pcId = `pc-${seq}`;
+  db.prepare(`
+    INSERT INTO campaigns (id, athlete_id, sport, state, starts_on, outreach_ends_on,
+      created_at, updated_at, snapshot_taken_at, programme_count)
+    VALUES (?, ?, 'mens-soccer', 'active', '2020-01-01', NULL, 'x', 'x', 'x', 1)
+  `).run(campaignId, ATHLETE);
+  db.prepare(`
+    INSERT INTO programme_campaigns (id, campaign_id, college_name, sport, rank, match_score,
+      tier, tier_source, state, created_at, updated_at)
+    VALUES (?, ?, 'Duke', 'mens-soccer', ?, 82, 'A', 'AUTO', 'active', 'x', 'x')
+  `).run(pcId, campaignId, seq);
+  db.prepare(`
+    INSERT INTO programme_contact_attempts (id, programme_campaign_id, coach_id, state, step,
+      created_at, updated_at)
+    VALUES (?, ?, ?, 'planned', 1, 'x', 'x')
+  `).run(uuid(), pcId, coach.id);
+
   const o = createOutreach({ athleteId: ATHLETE, coachId: coach.id });
   const { id } = recordDraft({
     outreachId: o.id, athleteId: ATHLETE, coachId: coach.id, collegeName: 'Duke',
-    sport: 'mens-soccer', evidence: null, body: 'Wire body.', subject: 'Subject',
+    sport: 'mens-soccer', programmeCampaignId: pcId,
+    evidence: null, body: 'Wire body.', subject: 'Subject',
     wireBody: 'Wire body.', at: NOW,
   });
   claimSendForExecution(id, { runId: RUN_ID, at: NOW });
@@ -78,7 +104,8 @@ function claimedSend() {
 beforeEach(() => {
   advanceThrows.on = false;
   for (const t of [
-    'outreach_send_event', 'outbound_send_attempt', 'outreach_send', 'outreach',
+    'outreach_send_event', 'outbound_send_attempt', 'outreach_send',
+    'programme_contact_attempts', 'outreach', 'programme_campaigns', 'campaigns',
     'coaches', 'players',
   ]) db.prepare(`DELETE FROM ${t}`).run();
   db.prepare(`
@@ -89,7 +116,7 @@ beforeEach(() => {
   seq = 0;
 });
 
-describe('when advancing the attempt throws', () => {
+describe('when reconciling the attempt throws', () => {
   it('leaves the acceptance, its source, its metadata and its event durable', () => {
     const sendId = claimedSend();
     advanceThrows.on = true;
@@ -127,7 +154,8 @@ describe('when advancing the attempt throws', () => {
     expect(threw).toBe(null);
     expect(out.persisted).toBe(true);
     expect(out.bookkeeping).toEqual({
-      advanced: false, reason: 'THREW', error: 'TEST_ADVANCE_EXPLODED',
+      reconciled: false, step: null, state: null, drift: false,
+      reason: 'THREW', error: 'TEST_ADVANCE_EXPLODED',
     });
     expect(out.send.state).toBe(MESSAGE_STATE.ACCEPTED);
   });

@@ -383,7 +383,20 @@ describe('G. the same message claimed twice', () => {
     expect(count('outbound_send_attempt')).toBe(1);
   });
 
-  it('refuses with the claim-lost code rather than a safety one', () => {
+  /**
+   * NARROWED IN D4.8, AND THE OLD CODE WAS THE LESS TRUE OF THE TWO.
+   *
+   * D4.5 answered a second claim of one message with SEND_CLAIM_LOST, which
+   * means "somebody else holds it" — a race. That was the closest available
+   * word, but it was not what happened: the first claim finished, and the
+   * second one is asking to execute a composition that has already been
+   * executed. D4.8 gives that its own name, checked before any policy, budget
+   * or mailbox work.
+   *
+   * SEND_CLAIM_LOST keeps its meaning and its own test below — it is still what
+   * a genuine race returns from `claimSendForExecution`.
+   */
+  it('refuses with the already-executed code, naming what actually happened', () => {
     const { messageId } = reviewed();
     const mailboxId = mailboxFor();
     claim(messageId, mailboxId);
@@ -391,7 +404,9 @@ describe('G. the same message claimed twice', () => {
       claim(messageId, mailboxId);
       throw new Error('should have refused');
     } catch (err) {
-      expect(err.code).toBe(CLAIM_REFUSAL.SEND_CLAIM_LOST);
+      expect(err.code).toBe(CLAIM_REFUSAL.MESSAGE_ALREADY_EXECUTED);
+      // Never a raw database error reaching a caller as control flow.
+      expect(err.code).not.toMatch(/SQLITE/);
     }
   });
 });
