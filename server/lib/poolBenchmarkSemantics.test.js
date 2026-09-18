@@ -239,21 +239,28 @@ describe('L7ZA — propagation', () => {
 });
 
 describe('L7ZA — what the claim reports about its own pool', () => {
-  it('poolSize counts programmes with ANY rows, not the values the quantiles used', () => {
+  it('keeps "has rows" and "entered the quantiles" as two different quantities', () => {
     /*
-     * `comparison.poolSize` is `bench.programmes` — every programme with
-     * historical rows — while `data.pool.n` is the count of medians the
-     * quantiles were actually taken from. On the live corpus these differ by
-     * 157 (women's) and 150 (men's): the stated basis says "programmes with a
-     * readable freshman ladder" and the number attached to it counts more than
-     * that. Pinned as current behaviour, not endorsed.
+     * `bench.programmes` is every programme with historical rows;
+     * `ladderByRank[n].n` counts the medians the quantiles were actually taken
+     * from. On the live corpus they differ by 157 (women's) and 150 (men's).
+     *
+     * L7ZA FOUND THE CLAIM REPORTING THE FIRST AS THE SECOND: `poolSize` was
+     * `bench.programmes` while the band came from the smaller set, so the
+     * stated basis — "programmes with a readable freshman ladder" — described
+     * one cohort and the number printed beside it described another. L7ZC
+     * corrected it, and `poolPopulation.test.js` owns that behaviour on a
+     * fixture where the two counts genuinely differ.
+     *
+     * What belongs here is the measurement L7ZA came for: that these are two
+     * quantities and not one. In THIS fixture every programme is readable, so
+     * they agree — which is precisely why the defect needed a fixture of its
+     * own to be visible at all.
      */
     const b = pool('womens-soccer');
     const r = b.ladderByRank.find((x) => x.rank === 1);
     expect(typeof b.programmes).toBe('number');
     expect(typeof r.n).toBe('number');
-    // In this fixture every programme is readable, so they agree; the assertion
-    // that matters is that they are two different quantities.
     expect(b.programmes).toBe(13);
     expect(r.n).toBe(13);
   });

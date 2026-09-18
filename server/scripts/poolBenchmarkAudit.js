@@ -217,3 +217,44 @@ head('CACHE INVALIDATION');
   line('  sport, so the VALUE cannot move — only the work is shared.');
 }
 line();
+
+/**
+ * L7ZC — WHAT THE CLAIM SAYS THE POOL WAS, against what it was.
+ *
+ * L7ZA reported `programmes` and `ladder n` side by side above and left the
+ * reader to notice that the claim printed the first while being ranked within
+ * the second. That made the defect visible to someone who already knew to
+ * look. This section asks the question directly, so the regression is a line
+ * of output rather than a piece of reasoning.
+ *
+ * Reads production claims through the real generator. No counts are asserted:
+ * both populations are data-dependent and the only invariant is that they
+ * agree.
+ */
+head('CLAIMED POPULATION vs POOL USED (L7ZC regression)');
+{
+  const { canonicalCorpus, BASELINE_NOW } = await import('../lib/evidenceBaseline.js');
+  const { evidenceFor } = await import('../lib/evidenceQueries.js');
+  const seen = new Map();
+  let claims = 0; let mismatch = 0;
+  for (const { athlete, sport, college } of canonicalCorpus()) {
+    let ev;
+    try { ev = evidenceFor(athlete, college, { sport, now: BASELINE_NOW }); } catch { continue; }
+    for (const c of (ev.all ?? [])) {
+      if (c.kind !== 'PROGRAMME_POOL_BENCHMARK') continue;
+      claims += 1;
+      const reported = c.comparison?.poolSize ?? null;
+      const used = c.data?.pool?.n ?? null;
+      const wider = c.data?.poolProgrammes ?? null;
+      if (reported !== used) mismatch += 1;
+      const k = `${sport}  rank ${c.data?.programmeRank}  reported ${reported}  used ${used}  (any-rows ${wider})`;
+      seen.set(k, (seen.get(k) ?? 0) + 1);
+    }
+  }
+  for (const [k, n] of [...seen].sort()) line(`  ${k}   x${n}`);
+  line(`  claims ${claims}   disagreeing ${mismatch}`);
+  line(mismatch === 0
+    ? '  => every claim reports the population its own quantiles were taken from.'
+    : '  => DEFECT PRESENT: comparison.poolSize is not the quantile population.');
+}
+line();
