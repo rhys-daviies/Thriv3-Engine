@@ -32,6 +32,25 @@ function greetingSeed(coaches) {
 }
 
 export default function EmailComposer({
+  /**
+   * WHETHER THIS SURFACE MAY ASK THRIV3 TO SEND — F7b.
+   *
+   * ---------------------------------------------------------------------------
+   * DEFAULTS TRUE, AND THE DEFAULT IS THE POINT. This composer is shared by
+   * three surfaces — the Top 100 match cards, the bulk composer and the
+   * relationship dialog — and only the last of them is changing. A default of
+   * false would have quietly removed a capability from two callers that never
+   * asked, which is exactly the kind of change a shared component should not
+   * make on anyone's behalf.
+   *
+   * Specific Search passes false explicitly. That workflow is deliberately
+   * draft-only: Thriv3 opens the draft, a PERSON reviews and edits and presses
+   * Send in Outlook, and then tells Thriv3 it went. The server refuses
+   * `send: true` on that route regardless of what any screen offers, so this
+   * prop is the courtesy and not the guarantee.
+   * ---------------------------------------------------------------------------
+   */
+  allowImmediateSend = true,
   player, college, open, onOpenChange,
   /**
    * WHO ACTUALLY PERFORMS THE SEND. One injected function, not a mode.
@@ -167,6 +186,13 @@ export default function EmailComposer({
   const [results, setResults] = useState({}); // email -> { status, error, url }
   const [sending, setSending] = useState(false);
   const [sendImmediately, setSendImmediately] = useState(false);
+  /**
+   * The state above is per-surface and starts false everywhere, but a surface
+   * that may not send must not be able to reach true by any route — a stale
+   * value after a prop change, or a future control somebody adds. Derived once
+   * here so every read below goes through the capability.
+   */
+  const immediate = allowImmediateSend && sendImmediately;
   const [error, setError] = useState(null);
   const [reachable, setReachable] = useState(true);
   const [from, setFrom] = useState(null);
@@ -198,7 +224,7 @@ export default function EmailComposer({
         subject,
         body,
         greetingName: initialGreetingName,
-        send: sendImmediately,
+        send: immediate,
         // Kinds and a structure key — never sentences, never facts. The server
         // validates each against the evidence it generated for this pairing,
         // refuses a structure that evidence does not support, and re-renders
@@ -363,19 +389,26 @@ export default function EmailComposer({
           <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">{error}</p>
         )}
 
-        <label className="flex items-start gap-2.5 text-sm">
-          <Checkbox
-            className="mt-0.5 shrink-0"
-            checked={sendImmediately}
-            onCheckedChange={(v) => setSendImmediately(v === true)}
-          />
-          <span className="text-xs leading-relaxed">
-            <span className="text-sm font-medium">Send immediately</span>
-            <span className="text-muted-foreground">
-              {' '}— leave this off and each message opens in Outlook for you to read and send yourself.
+        {/*
+          ABSENT RATHER THAN DISABLED where the surface may not send. A greyed
+          checkbox reads as "this is how you would turn it on", and on Specific
+          Search there is no turning it on — the server refuses it.
+        */}
+        {allowImmediateSend && (
+          <label className="flex items-start gap-2.5 text-sm">
+            <Checkbox
+              className="mt-0.5 shrink-0"
+              checked={sendImmediately}
+              onCheckedChange={(v) => setSendImmediately(v === true)}
+            />
+            <span className="text-xs leading-relaxed">
+              <span className="text-sm font-medium">Send immediately</span>
+              <span className="text-muted-foreground">
+                {' '}— leave this off and each message opens in Outlook for you to read and send yourself.
+              </span>
             </span>
-          </span>
-        </label>
+          </label>
+        )}
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
@@ -383,7 +416,7 @@ export default function EmailComposer({
             <Send className="h-3.5 w-3.5 mr-1.5" />
             {sending
               ? 'Working…'
-              : sendImmediately
+              : immediate
                 ? `Send ${selected.size} email${selected.size === 1 ? '' : 's'}`
                 : `Open ${selected.size} draft${selected.size === 1 ? '' : 's'} in Outlook`}
           </Button>

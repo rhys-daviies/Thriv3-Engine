@@ -17,6 +17,8 @@ import { CONTACT_UNAVAILABLE_NOTICE } from '@/lib/outreachLabels';
 import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
 import { DEFAULT_SPORT } from '@shared/sportProfiles.js';
 import { useContactIntelligence, CONTACT_INTELLIGENCE } from '@/lib/useContactIntelligence';
+import { usePendingManualDrafts } from '@/lib/usePendingManualDrafts';
+import { manualOutreach } from '@/api/client';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
 import { cn } from '@/lib/utils';
@@ -110,6 +112,47 @@ export default function MatchingTab() {
    * make. Only READY licenses it.
    */
   const contactKnown = contactStatus === CONTACT_INTELLIGENCE.READY;
+
+  /**
+   * MANUAL DRAFTS STILL AWAITING A PERSON'S WORD — F7b.
+   *
+   * A second athlete-level request beside the history one, and kept separate on
+   * purpose: that payload is derived read-only intelligence with no row ids,
+   * this one carries an actionable `outreach_send.id`. Two bounded calls for
+   * the page, still none per card.
+   */
+  const {
+    byProgramme: pendingByProgramme, reload: reloadPendingDrafts,
+  } = usePendingManualDrafts(player?.id);
+
+  /**
+   * THE OPERATOR SAYS THEY SENT IT, OR SAYS THEY DID NOT.
+   *
+   * Both refetch rather than patching state, because each changes two things
+   * this page shows — what is pending, and what the contact history says — and
+   * only the server knows the second. A screen that removed the pending row but
+   * left the summary reading "Drafted" would be disagreeing with itself about
+   * whether a coach was written to.
+   */
+  const afterDraftDecision = async () => {
+    reloadPendingDrafts();
+    reloadContact();
+    await reload();
+  };
+
+  const confirmDraftSent = async (draft) => {
+    const relationship = byCollegeName.get(draft.college_name);
+    if (!relationship) return;
+    await manualOutreach.confirmSent(player.id, relationship.id, draft.send_id);
+    await afterDraftDecision();
+  };
+
+  const discardDraft = async (draft) => {
+    const relationship = byCollegeName.get(draft.college_name);
+    if (!relationship) return;
+    await manualOutreach.discardDraft(player.id, relationship.id, draft.send_id);
+    await afterDraftDecision();
+  };
   /**
    * THE SPORT THESE RECOMMENDATIONS ARE FOR, and half of every programme key.
    *
@@ -339,6 +382,9 @@ export default function MatchingTab() {
           contactByProgramme={contactByProgramme}
           contactUnavailable={contactUnavailable}
           contactKnown={contactKnown}
+          pendingByProgramme={pendingByProgramme}
+          onConfirmSent={confirmDraftSent}
+          onDiscardDraft={discardDraft}
         />
       )}
 

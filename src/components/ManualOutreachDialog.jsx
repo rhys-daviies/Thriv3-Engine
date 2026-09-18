@@ -6,6 +6,7 @@ import EmailComposer from '@/components/EmailComposer';
 import { manualOutreach } from '@/api/client';
 import {
   RELATIONSHIP_OUTREACH, RELATIONSHIP_DIALOG_HINT, MANUAL_ONLY_HINT, MANUAL_ONLY_BADGE,
+  DRAFT_OPENED_TITLE, DRAFT_OPENED_BODY, DRAFT_HANDOVER_HINT,
   DO_NOT_CONTACT_TITLE, DO_NOT_CONTACT_BODY, ORIGIN_LABEL, ORIGIN_UNRECORDED,
   ENGAGEMENT_HINT,
 } from '@/lib/outreachLabels';
@@ -170,6 +171,25 @@ function RelationshipContext({ relationship, priorContact, intelligence }) {
         <p className="text-xs text-muted-foreground">{MANUAL_ONLY_HINT}</p>
       )}
 
+      {/*
+        WHAT HAPPENS NEXT, SAID BEFORE IT HAPPENS — F7b.
+
+        Thriv3 opens the draft and then loses sight of it: AppleScript returns
+        no message id and no handle, so there is no callback to wait for and
+        nothing to poll. The operator has to know that pressing Send in Outlook
+        tells this system nothing, and that "Mark as sent" is what does.
+
+        The second line is the safety boundary. Once the draft is in Outlook, a
+        later do-not-contact cannot reach it — stated plainly rather than
+        discovered.
+      */}
+      <div className="rounded-md border border-border/60 bg-muted/40 p-2.5 space-y-1"
+        data-testid="draft-handover">
+        <p className="text-xs font-medium">{DRAFT_OPENED_TITLE}</p>
+        <p className="text-xs text-muted-foreground">{DRAFT_OPENED_BODY}</p>
+        <p className="text-xs text-muted-foreground">{DRAFT_HANDOVER_HINT}</p>
+      </div>
+
       {/* The same summary the cards show, so the two cannot disagree. */}
       <ProgrammeContactSummary summary={intelligence} />
       <PriorContact rows={priorContact} engagement={engagementByCoach} />
@@ -309,6 +329,19 @@ export default function ManualOutreachDialog({ player, relationshipId, open, onO
        * the campaign (null) and the origin are not sent at all — the route
        * reads them, and refuses a body that tries to name them.
        */
+      /**
+       * THRIV3 DOES NOT SEND THIS ONE — F7b.
+       *
+       * The checkbox is gone from this surface and the payload always carries
+       * `send: false`. That is the courtesy; the guarantee is the route, which
+       * refuses `send: true` outright with MANUAL_OUTREACH_DRAFT_ONLY whatever
+       * any screen offers.
+       *
+       * The Top 100 and bulk composers share this component and keep their
+       * immediate-send control — the prop defaults to true so they were not
+       * changed on their behalf.
+       */
+      allowImmediateSend={false}
       onSend={({ coaches: chosen, ...composed }) => manualOutreach.send(player.id, relationshipId, {
         ...composed,
         coachIds: chosen
