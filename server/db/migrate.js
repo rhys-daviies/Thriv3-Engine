@@ -471,6 +471,61 @@ const OUTREACH_SEND_COLUMNS = [
    */
   ['claimed_at', 'TEXT'],
   ['claim_run_id', 'TEXT'],
+
+  /* ---- D4.7: what a claim freezes before any network call ---------------- */
+
+  /**
+   * THE EXACT BYTES INTENDED FOR THE WIRE.
+   *
+   * `subject` and `body_hash` have always been here; the BODY itself never
+   * was, because nothing before D4.7 needed to reproduce a message it had
+   * already handed to Outlook. A provider transport does: it must encode the
+   * body that was FROZEN, not a fresh opinion of it derived after the claim
+   * committed.
+   *
+   * ---------------------------------------------------------------------------
+   * A DIGEST CANNOT RECREATE BYTES, WHICH IS THE WHOLE ARGUMENT FOR THE COLUMN.
+   *
+   * The wire body is the approved words plus the substituted profile link plus
+   * the compliance footer, and of the seven inputs that produce it only two —
+   * `programme_messages.body` and `outreach.token` — are durable. The athlete's
+   * name and public slug are mutable columns, and the base URL, sender identity
+   * and postal address are environment variables. Re-deriving the body after
+   * any of those five moved yields DIFFERENT bytes, and `wire_body_sha256`
+   * below would then prove the mismatch without recovering the original.
+   *
+   * So the bytes are kept. Plaintext, like `programme_messages.subject` and
+   * `.body` one table over: the same words, already stored the same way, and
+   * encrypting only this copy would give one class of data two protections
+   * while making the reconciliation the column exists for impossible without a
+   * key.
+   * ---------------------------------------------------------------------------
+   *
+   * NULL FOR EVERY LEGACY AND MANUAL ROW. Those paths hand a body straight to
+   * Outlook and have no execution claim behind them; there was never a frozen
+   * wire body to record and inventing one would claim a transmission boundary
+   * they never crossed.
+   */
+  ['body', 'TEXT'],
+
+  /**
+   * THE DIGEST OF THOSE EXACT BYTES, BESIDE THE CANONICAL ONE — and the reason
+   * there are two is worth the column.
+   *
+   * `body_hash` normalises every `?ref=<token>` URL to a fixed placeholder
+   * before digesting. That is right for its job — comparing what two emails
+   * SAID, where a per-coach tracking token is noise — and exactly wrong for
+   * "which message left this mailbox": two coaches sent identical words share
+   * a `body_hash` and always will.
+   *
+   * So this is the un-normalised SHA-256 of the same bytes. Reconciling an
+   * ambiguous send reads this one; every existing analytics reader keeps
+   * reading the other, unchanged.
+   *
+   * NOT UNIQUE. Two athletes may legitimately send the same words to the same
+   * coach, and a constraint here would refuse the second.
+   */
+  ['wire_body_sha256', 'TEXT'],
 ];
 
 /**

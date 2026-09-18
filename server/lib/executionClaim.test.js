@@ -271,22 +271,44 @@ describe('A. a claim that succeeds', () => {
       .toEqual(message.evidence_snapshot.rendered.map((r) => r.kind));
   });
 
-  it('records the APPROVED body, and does not pretend the wire body exists', () => {
-    /**
-     * THE BOUNDARY D4.5 IS HONEST ABOUT. What a coach eventually reads is the
-     * approved words plus the tracked profile link and the compliance footer,
-     * both applied at transport. Neither has happened, so the snapshot hashes
-     * what it actually has — and the message is SENDING rather than ACCEPTED,
-     * which is the state in which that is still true and still correctable.
-     */
+  /**
+   * THIS REVERSES WHAT D4.5 ASSERTED HERE, AND THE REVERSAL IS THE POINT — D4.7.
+   *
+   * The test this replaces was called "records the APPROVED body, and does not
+   * pretend the wire body exists", and it was correct for a slice with no
+   * transport after it: `body_hash` held the hash of the approved words, and a
+   * comment in `executionClaim` asked a future transport slice to re-stamp it.
+   *
+   * D4.7 is that slice and it does the opposite of re-stamping later: the wire
+   * content is resolved INSIDE the claim transaction, so the row describes what
+   * will actually be transmitted from the moment it can be transmitted. Paying
+   * the debt where it was booked is what makes a crash between the claim and
+   * the provider's answer reconcilable at all — see executionClaimFreeze.test.js.
+   *
+   * `subject` is unchanged either way: the approved subject is the wire subject,
+   * by decision. Only the BODY gains the link and the footer.
+   */
+  it('records the WIRE body, which is what a transport will send', () => {
     const { messageId } = reviewed();
     const message = programmeMessage(messageId);
     const out = claim(messageId, mailboxFor());
     const [send] = sendsForOutreach(out.outreach.id);
 
-    expect(send.subject).toBe(message.subject);
-    expect(send.body_hash).toBe(message.body_hash);
     expect(message.body).toContain('{{player_profile_url}}');
+
+    // The subject a person approved is the subject that goes.
+    expect(send.subject).toBe(message.subject);
+
+    // The body is not the approved body any more, and the hash says so.
+    expect(send.body_hash).not.toBe(message.body_hash);
+    expect(send.body).not.toBe(message.body);
+    expect(send.body).not.toContain('{{player_profile_url}}');
+    expect(send.body).toContain('?ref=');
+    expect(send.body).toContain("If you'd rather not hear from us");
+
+    // And the approved composition is untouched by any of it.
+    expect(programmeMessage(messageId).body).toBe(message.body);
+    expect(programmeMessage(messageId).body_hash).toBe(message.body_hash);
   });
 });
 
