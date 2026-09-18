@@ -3,6 +3,7 @@ import db from '../db/client.js';
 import { normaliseOrigin, OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
 import { utcNow } from './time.js';
 import { buildSendSnapshot } from '../../shared/evidence/sendSnapshot.js';
+import { wireBodySha256 } from './executionContent.js';
 import { LEGACY_POLICY_VERSION } from '../../shared/evidence/outreachPolicy.js';
 import { authorisedProgrammeCampaignId } from './campaignAttribution.js';
 import { assertFirstTouchReviewed } from './campaignFirstTouchGate.js';
@@ -55,7 +56,7 @@ const insertSend = db.prepare(`
     structure, structure_source, body_source, template_variant,
     has_personalisation, primary_kind, primary_role, hook_kind,
     rendered_kinds, rendered_roles, rendered_count,
-    subject, body_hash, payload, created_at
+    subject, body_hash, body, wire_body_sha256, payload, created_at
   ) VALUES (
     @id, @outreach_id, @sequence, @drafted_at, @sent_at,
     @athlete_id, @coach_id, @college_name, @sport, @programme_campaign_id, @origin, @policy_version,
@@ -64,7 +65,7 @@ const insertSend = db.prepare(`
     @structure, @structure_source, @body_source, @template_variant,
     @has_personalisation, @primary_kind, @primary_role, @hook_kind,
     @rendered_kinds, @rendered_roles, @rendered_count,
-    @subject, @body_hash, @payload, @created_at
+    @subject, @body_hash, @body, @wire_body_sha256, @payload, @created_at
   )
 `);
 
@@ -158,6 +159,26 @@ export function recordDraft({
   connectedMailboxId = null,
   sendingIdentity = null,
   provider = null,
+  /**
+   * THE EXACT BYTES A TRANSPORT WILL ENCODE — D4.7.
+   *
+   * Distinct from `body` above, and the distinction is the point. `body` is
+   * hashed and discarded, which was sufficient while the only transport was
+   * Outlook and the message had already reached it by the time this ran. A
+   * provider transport has to be HANDED the body after the claim commits, and
+   * it must be handed the one that was frozen rather than one re-derived from
+   * inputs that may have moved since — see the column's note in migrate.js.
+   *
+   * NULL FOR EVERY LEGACY AND MANUAL CALLER, which is every caller but the
+   * execution claim. Passing `body` alone keeps today's behaviour exactly:
+   * hashed, not stored. Only a caller that has genuinely frozen a wire body
+   * says so, and it says so with a second argument rather than by changing what
+   * the first one means.
+   *
+   * The digest is derived here rather than taken from the caller, so the two
+   * columns cannot disagree about one body.
+   */
+  wireBody = null,
   at = utcNow(),
 }) {
   /**
@@ -235,6 +256,15 @@ export function recordDraft({
     rendered_count: snapshot.rendered_count,
     subject: snapshot.subject,
     body_hash: snapshot.body_hash,
+    /**
+     * The frozen bytes and their exact digest, or NULL for both. They move
+     * together always: a body with no digest cannot be verified and a digest
+     * with no body cannot be reproduced, and either alone is a worse record
+     * than neither.
+     */
+    body: wireBody,
+    wire_body_sha256: wireBody === null || wireBody === undefined
+      ? null : wireBodySha256(wireBody),
     payload: JSON.stringify(snapshot.payload),
     created_at: open?.created_at ?? at,
   };
@@ -263,7 +293,12 @@ export function recordDraft({
         programme_message_id = COALESCE(@programme_message_id, programme_message_id),
         connected_mailbox_id = COALESCE(@connected_mailbox_id, connected_mailbox_id),
         sending_identity = COALESCE(@sending_identity, sending_identity),
-        provider = COALESCE(@provider, provider)
+        provider = COALESCE(@provider, provider),
+        -- D4.7, and COALESCE'd for the same reason: a legacy re-draft over a
+        -- row a claim already froze passes null for both and must not blank
+        -- the bytes a transport is going to need.
+        body = COALESCE(@body, body),
+        wire_body_sha256 = COALESCE(@wire_body_sha256, wire_body_sha256)
       -- The guard is the STATE. An accepted message is history and no re-draft
       -- may reach it. The old guard on sent_at said the same thing, until a
       -- message could be QUEUED or FAILED without a timestamp of any kind.
@@ -304,7 +339,31 @@ const SEND_BY_ID = db.prepare('SELECT * FROM outreach_send WHERE id = ?');
  * person told us the message was accepted for sending. Whether it reached an
  * inbox is not knowable here and is not claimed anywhere.
  */
-export function transitionSend(sendId, nextState, { acceptedSource = null, at = utcNow() } = {}) {
+export function transitionSend(sendId, nextState, {
+  acceptedSource = null, at = utcNow(),
+  /**
+   * WHETHER THE CAMPAIGN'S STEP MOVES WITH THE ACCEPTANCE — D4.7.
+   *
+   * TRUE FOR EVERY CALLER THAT EXISTED BEFORE, so nothing about the legacy
+   * Outlook path or `confirm-sends` changes: they accept a message and its
+   * campaign step advances in the same breath, which is what they have always
+   * done and what their tests assert.
+   *
+   * The provider result boundary passes FALSE, and the reason is the one
+   * principle D4.1 settled: a provider's acceptance is primary truth and must
+   * not be rolled back because secondary bookkeeping failed. Advancing the
+   * attempt inside this transaction makes that impossible to honour — a
+   * constraint problem in a campaign table would unwind the only record that a
+   * real email reached a real coach. So `executionResult` commits the
+   * acceptance alone, then advances the attempt in a second transaction where
+   * a failure costs the bookkeeping and not the truth.
+   *
+   * IT IS NOT A LICENCE TO SKIP THE ADVANCE. The caller that passes false owes
+   * the advance immediately afterwards; it is a change of transaction, not of
+   * outcome.
+   */
+  advanceAttempt = true,
+} = {}) {
   if (!isMessageState(nextState)) {
     throw fail('INVALID_MESSAGE_STATE', `Unknown message state "${nextState}"`);
   }
@@ -373,12 +432,14 @@ export function transitionSend(sendId, nextState, { acceptedSource = null, at = 
      * than an exception. Recording that a message was accepted is the more
      * important of the two operations and must not break because of the lesser.
      */
-    const accepted = SEND_BY_ID.get(sendId);
-    advanceAttemptForConfirmedSend({
-      programmeCampaignId: accepted?.programme_campaign_id ?? null,
-      coachId: accepted?.coach_id ?? null,
-      at,
-    });
+    if (advanceAttempt) {
+      const accepted = SEND_BY_ID.get(sendId);
+      advanceAttemptForConfirmedSend({
+        programmeCampaignId: accepted?.programme_campaign_id ?? null,
+        coachId: accepted?.coach_id ?? null,
+        at,
+      });
+    }
   } else {
     db.prepare('UPDATE outreach_send SET state = ? WHERE id = ?').run(nextState, sendId);
   }

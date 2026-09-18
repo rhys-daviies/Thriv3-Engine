@@ -10,6 +10,14 @@ import { recordOutboundAttempt, normaliseSendingIdentity, TRANSPORT } from './ou
 import { isSendCapped } from './sendCap.js';
 import { mailbox, hasStoredCredential, MAILBOX_STATUS } from './connectedMailboxes.js';
 import { RUN_ID } from './executionRun.js';
+/**
+ * F11c's pure content helper — D4.7. Deliberately NOT `executionDecision` or
+ * `executionResolution`: those are read-only advisory layers for a screen, and
+ * an authority chain that ran `decision → claim` would make the send path
+ * depend on a preview of a world that may already have moved. This module
+ * keeps asking the underlying policies directly, exactly as D4.5 does.
+ */
+import { resolveWireContent } from './executionContent.js';
 import { OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
 
 /**
@@ -92,6 +100,15 @@ function fail(code, message) {
 
 const COACH = db.prepare('SELECT id, full_name, email, school, sport FROM coaches WHERE id = ?');
 const OUTREACH_BY_ID = db.prepare('SELECT id, revoked_at FROM outreach WHERE id = ?');
+/**
+ * The two athlete facts the wire content needs — D4.7. Read here rather than
+ * through the `Player` entity so this stays one prepared statement inside the
+ * transaction, and narrowed to two columns so nothing else about an athlete can
+ * drift into an email.
+ */
+const ATHLETE_FOR_CONTENT = db.prepare(
+  'SELECT full_name, public_slug FROM players WHERE id = ?',
+);
 /** The lifetime relationship, if there already is one. B3 needs it to see a revocation. */
 const OUTREACH_FOR = db.prepare('SELECT id FROM outreach WHERE athlete_id = ? AND coach_id = ?');
 
@@ -390,23 +407,61 @@ const CLAIM = db.transaction(({
   // Idempotent, and refuses a relationship belonging to anybody else.
   linkContactAttemptToOutreach(message.programme_contact_attempt_id, outreach.id, { at });
 
-  /* ---- 6. the execution record, with its attribution --------------------- */
+  /* ---- 6. the wire content, now that a token exists — D4.7 --------------- */
   /**
-   * THE EXECUTION SNAPSHOT IS NOT THE COMPOSITION, and D4.5 is honest about
-   * which one it is holding.
+   * THE APPROVED WORDS BECOME THE WIRE BODY, AND THIS IS THE FIRST MOMENT THEY
+   * CAN.
    *
    * `programme_messages.subject` / `.body` are the APPROVED words. What a coach
-   * eventually reads is those words plus two things this layer cannot supply:
-   * the tracked profile link substituted for `{{player_profile_url}}`, and the
-   * compliance footer. The legacy path applies both immediately before handing
-   * a body to Outlook, because both need facts that only exist at that moment.
+   * reads is those words plus two things composition cannot supply: the tracked
+   * profile link substituted for `{{player_profile_url}}`, and the compliance
+   * footer. The link needs `outreach.token`, which the `createOutreach` above
+   * has just guaranteed — so freezing content any earlier is impossible, and
+   * freezing it any later means a crashed process leaves a SENDING row with no
+   * record of what it was about to send.
    *
-   * NEITHER HAS HAPPENED HERE, so neither is pretended. `body_hash` is the hash
-   * of the approved body, which is exactly what this row can truthfully claim
-   * at claim time. The transport slice must re-stamp `subject` and `body_hash`
-   * with the wire body before the message is ACCEPTED, or the column stops
-   * meaning "proof of what the coach read" — and it may, because the row is
-   * still SENDING and only an accepted message is frozen.
+   * ---------------------------------------------------------------------------
+   * D4.5 LEFT A NOTE HERE ASKING A TRANSPORT SLICE TO RE-STAMP THE HASH LATER.
+   * THIS IS THAT SLICE, AND IT DOES IT HERE INSTEAD — BEFORE THE CLAIM.
+   *
+   * Re-stamping after the provider call would mean the bytes that went out were
+   * never durable at the one moment they mattered: between the claim and the
+   * result write, which is precisely the window a crash falls into. So the
+   * transformation happens inside this transaction and commits with it.
+   * ---------------------------------------------------------------------------
+   *
+   * F11c'S PURE HELPER DOES THE WHOLE TRANSFORMATION and this module holds no
+   * copy of any of it: explicit `{{player_profile_url}}` substitution and the
+   * compliance footer, nothing else. No personalisation of the greeting, no
+   * rewriting of the subject, no silent link insertion where an operator
+   * removed the placeholder, and no re-composition. `programme_messages` is
+   * read and never touched.
+   *
+   * IT CAN REFUSE, AND A REFUSAL IS A ROLLBACK. Missing tracking token, no
+   * published profile page, no public base url, unconfigured compliance footer:
+   * every one throws, this transaction unwinds, and nothing is claimed and no
+   * capacity is spent. Sending a degraded body would be worse than sending
+   * none — the footer is a legal requirement and the link is the only thing
+   * that makes a send measurable.
+   */
+  const athlete = ATHLETE_FOR_CONTENT.get(context.athleteId);
+  const content = resolveWireContent({
+    reviewedSubject: message.subject,
+    reviewedBody: message.body,
+    athleteName: athlete?.full_name,
+    publicSlug: athlete?.public_slug,
+    trackingToken: outreach.token,
+  });
+
+  /* ---- 7. the execution record, holding the frozen wire content ---------- */
+  /**
+   * `subject` and `body_hash` now describe WHAT WILL ACTUALLY BE TRANSMITTED,
+   * which is what those columns have always meant everywhere else — the legacy
+   * path passes its footed, link-substituted body to this same function. The
+   * exact bytes go in `body` beside them and their un-normalised digest in
+   * `wire_body_sha256`.
+   *
+   * After this, a transport ENCODES an email. It does not decide one.
    */
   const { id: sendId } = recordDraft({
     outreachId: outreach.id,
@@ -418,8 +473,10 @@ const CLAIM = db.transaction(({
     onDate,
     // The evidence the composer recorded, re-projected rather than re-derived.
     evidence: rehydrateEvidence(message.evidence_snapshot),
-    body: message.body,
-    subject: message.subject,
+    body: content.body,
+    subject: content.subject,
+    /** The same bytes again, to be KEPT rather than only hashed. */
+    wireBody: content.body,
     bodySource: message.body_source,
     templateVariant: message.evidence_snapshot?.templateVariant ?? null,
     // Set by the caller for the legacy path; here the verified campaign makes
@@ -476,5 +533,78 @@ const CLAIM = db.transaction(({
     mailbox: { id: box.id, provider: box.provider, sendingIdentity: identity },
     step: plan.step,
     ledgerAttemptId: attempt.id,
+    /**
+     * WHAT A TRANSPORT NEEDS, READ BACK FROM THE COMMITTED ROW — D4.7.
+     *
+     * Read back rather than assembled from the variables that wrote it, so a
+     * caller is holding what is DURABLE and not what was intended. A transport
+     * may equally ask for it later by send id — see `executionSnapshot` — and
+     * both return the same rows, because there is one source.
+     */
+    execution: executionSnapshot(sendId),
   };
 });
+
+/* -------------------------------------------------------------------------- */
+/* The frozen payload a transport is allowed to send — D4.7                    */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * THE RECIPIENT COMES FROM IMMUTABLE EXECUTION TRUTH, NOT FROM A SECOND COLUMN
+ * AND NOT FROM `coaches.email`.
+ *
+ * `programme_messages.recipient_email` is NOT NULL, is never updated by any
+ * writer in this build, and belongs to a row whose `reviewed` state is terminal
+ * — so it cannot move after the claim proved it equal to the coach's live
+ * address. `coaches.email` CAN move, which is the entire reason
+ * RECIPIENT_EMAIL_CHANGED exists, so reading it here would reintroduce exactly
+ * the drift the claim just refused.
+ *
+ * Joined rather than copied onto `outreach_send`: duplicating an
+ * already-frozen fact only creates a second place for it to be wrong.
+ *
+ * (No backticks in the SQL below: it is a JS template literal.)
+ */
+const SNAPSHOT_FOR_TRANSPORT = db.prepare(`
+  SELECT s.id, s.subject, s.body, s.body_hash, s.wire_body_sha256,
+         s.state, s.connected_mailbox_id, s.sending_identity, s.provider,
+         s.internet_message_id, s.programme_message_id,
+         m.recipient_email AS recipient_email
+    FROM outreach_send s
+    LEFT JOIN programme_messages m ON m.id = s.programme_message_id
+   WHERE s.id = ?
+`);
+
+/**
+ * EVERYTHING FROZEN FOR ONE EXECUTION, AND NOTHING DERIVED NOW.
+ *
+ * The one durable source a transport reads. It must never re-run
+ * `resolveWireContent`: the helper is deterministic in its INPUTS, and five of
+ * those inputs are mutable — the athlete's name and slug, and three
+ * environment variables. Re-deriving after any of them moved would transmit
+ * bytes that no row on file attests to.
+ *
+ * `complete` is the transport's gate. A row missing the frozen body or its
+ * digest is a row nothing may be sent for, whatever else is on it.
+ */
+export function executionSnapshot(sendId) {
+  const row = SNAPSHOT_FOR_TRANSPORT.get(sendId);
+  if (!row) return null;
+  return {
+    sendId: row.id,
+    recipientEmail: row.recipient_email ?? null,
+    subject: row.subject ?? null,
+    body: row.body ?? null,
+    bodyHash: row.body_hash ?? null,
+    wireBodySha256: row.wire_body_sha256 ?? null,
+    state: row.state,
+    mailboxId: row.connected_mailbox_id ?? null,
+    sendingIdentity: row.sending_identity ?? null,
+    provider: row.provider ?? null,
+    programmeMessageId: row.programme_message_id ?? null,
+    complete: Boolean(
+      row.body && row.wire_body_sha256 && row.subject
+      && row.recipient_email && row.connected_mailbox_id,
+    ),
+  };
+}

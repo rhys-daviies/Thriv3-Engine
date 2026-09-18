@@ -204,19 +204,34 @@ describe('PROVIDER_RECONCILED', () => {
     expect(out.accepted_source).toBe('PROVIDER_RECONCILED');
   });
 
-  it('nothing in this build produces it, or PROVIDER_ACCEPTED', () => {
-    /**
-     * The CODE form, not the word. Both names appear in migrate.js prose,
-     * explaining why the forty-one historical rows are OPERATOR_ASSERTED and
-     * not something stronger — which is the opposite of a producer. What would
-     * make one is a reference through the enum.
-     */
-    const hits = execFileSync('grep', [
-      '-rl', 'ACCEPTED_SOURCE.PROVIDER_', 'server', 'src', 'shared',
-    ], { cwd: ROOT, encoding: 'utf8', });
-    const produced = hits.trim().split('\n').filter(Boolean)
-      .filter((f) => !f.endsWith('.test.js'));
-    expect(produced).toEqual([]);
+  /**
+   * NARROWED IN D4.7, AND ONLY FOR PROVIDER_ACCEPTED.
+   *
+   * This asserted that NEITHER provider source had a producer, which was true
+   * of a build with no transport. D4.7 adds one: `executionResult` writes
+   * PROVIDER_ACCEPTED when a transport answers yes, which is exactly what that
+   * value was named for. Keeping the old assertion would mean the vocabulary
+   * could never be used by the slice it was declared for.
+   *
+   * PROVIDER_RECONCILED KEEPS ITS GUARD, unchanged and for the original
+   * reason. It means "an ambiguous send was later established to have been
+   * accepted" — found afterwards, by a person or a mailbox search, not watched.
+   * Nothing in this build establishes that, reconciliation is D4.8, and a
+   * live 2xx must never be recorded as it.
+   */
+  it('has exactly one producer, and it is not PROVIDER_RECONCILED', () => {
+    const producersOf = (value) => execFileSync('grep', [
+      '-rl', `ACCEPTED_SOURCE.${value}`, 'server', 'src', 'shared',
+    ], { cwd: ROOT, encoding: 'utf8' })
+      .trim().split('\n').filter(Boolean).filter((f) => !f.endsWith('.test.js'));
+
+    // The transport result boundary, and nothing else.
+    expect(producersOf('PROVIDER_ACCEPTED')).toEqual(['server/lib/executionResult.js']);
+
+    // Still nobody. A grep that matches nothing exits 1, which is the answer.
+    let reconciled = [];
+    try { reconciled = producersOf('PROVIDER_RECONCILED'); } catch { reconciled = []; }
+    expect(reconciled).toEqual([]);
   });
 });
 
