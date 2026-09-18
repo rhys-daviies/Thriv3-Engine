@@ -5,6 +5,7 @@ import {
 import { resolveConfig, googleOAuthConfigured } from './runtimeConfig.js';
 import { buildRfc822 } from './rfc822.js';
 import { TRANSPORT_OUTCOME } from './outboundTransport.js';
+import { providerCapability } from './providerCapability.js';
 
 /**
  * HANDING ONE FROZEN MESSAGE TO GMAIL — D5.1.
@@ -95,6 +96,15 @@ export const TRANSPORT_REASON = Object.freeze({
   PROVIDER_UNSUPPORTED: 'PROVIDER_UNSUPPORTED',
   PROVIDER_NOT_CONFIGURED: 'PROVIDER_NOT_CONFIGURED',
   MESSAGE_UNBUILDABLE: 'MESSAGE_UNBUILDABLE',
+  /**
+   * REAL SENDING IS SWITCHED OFF ON THIS DEPLOYMENT — D5.2's kill switch.
+   *
+   * Should be unreachable: the orchestrator refuses before the claim, so a
+   * message whose provider is not send-enabled never gets this far. It is
+   * checked here anyway, because "unreachable" is a property of today's call
+   * graph and this is the last line before a real coach receives a real email.
+   */
+  SEND_DISABLED: 'SEND_DISABLED',
   CREDENTIAL_MISSING: 'CREDENTIAL_MISSING',
   MAILBOX_AUTH_FAILED: 'MAILBOX_AUTH_FAILED',
   CREDENTIAL_NOT_PERSISTED: 'CREDENTIAL_NOT_PERSISTED',
@@ -363,11 +373,46 @@ export function googleTransport({
   persistRefreshToken = storeMailboxCredential,
   timeoutMs = SEND_TIMEOUT_MS,
   date = undefined,
+  /**
+   * THE KILL SWITCH, AS AN INJECTABLE READ RATHER THAN A DIRECT `process.env`
+   * — D5.2.
+   *
+   * It defaults to the real authority, so omitting it means the REAL answer
+   * rather than a permissive one: a caller who forgets gets whatever the
+   * deployment actually says, which on any deployment that has not explicitly
+   * enabled sending is "no". The seam exists so a test can prove BOTH sides of
+   * the gate without setting a process-wide environment variable that would
+   * leak into every other test file in the run.
+   */
+  sendEnabled = () => providerCapability(MAILBOX_PROVIDER.GOOGLE).sendEnabled,
 } = {}) {
+  /** Refused identically wherever the gate is checked. */
+  const sendDisabled = () => refused(TRANSPORT_REASON.SEND_DISABLED,
+    'Real email sending is not enabled on this deployment, so nothing was submitted to Gmail. '
+    + 'Nothing left this process.');
+
   return {
     name: MAILBOX_PROVIDER.GOOGLE,
 
     async send(request) {
+      /* ---- 0. is this deployment allowed to send at all? ---------------- */
+      /**
+       * FIRST, BEFORE EVERYTHING — so a disabled deployment reads no
+       * credential, contacts no token endpoint, asks Google nothing and leaves
+       * no trace anywhere. The cheapest possible refusal, and the one that
+       * touches least.
+       *
+       * REFUSED_BEFORE_TRANSPORT rather than a thrown configuration error, and
+       * the reason is D5.0's accounting: if this is somehow reached AFTER a
+       * claim, the outcome settles the reservation to REFUSED_BEFORE_TRANSPORT
+       * and the athlete's capacity is released rather than spent on a send
+       * that provably never happened. A throw would strand the message SENDING
+       * until recovery called it UNKNOWN — a lie about a send nobody made.
+       *
+       * NOT `UNKNOWN`. Nothing was submitted and we can prove it.
+       */
+      if (!sendEnabled()) return sendDisabled();
+
       /* ---- 1. is this even a transport input? --------------------------- */
       const need = ['mailboxId', 'from', 'to', 'subject', 'body',
         'providerAccountId', 'operatorUserId'];
@@ -474,6 +519,22 @@ export function googleTransport({
       }
 
       /* ---- 5. EXACTLY ONE MUTATION ------------------------------------- */
+      /**
+       * ASKED A SECOND TIME, IMMEDIATELY BEFORE THE REQUEST.
+       *
+       * Not redundancy for its own sake. Between step 0 and here this function
+       * has awaited three times — a credential read, a token exchange and an
+       * identity lookup — and `resolveConfig` reads the live environment on
+       * every call. A deployment switched off during that window must not have
+       * a message leave anyway, and the cost of being sure is one boolean.
+       *
+       * It is also the check that survives refactoring: if somebody later
+       * moves the entry gate, extracts the steps above, or reaches this file
+       * through a path nobody has thought of yet, the last statement before
+       * `fetch` still asks.
+       */
+      if (!sendEnabled()) return sendDisabled();
+
       const startedAt = Date.now();
       let response;
       try {

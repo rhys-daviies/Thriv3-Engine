@@ -208,6 +208,32 @@ export function resolveConfig(env = process.env) {
      */
     googleClientId: env.THRIV3_GOOGLE_CLIENT_ID || null,
     googleClientSecret: env.THRIV3_GOOGLE_CLIENT_SECRET || null,
+    /**
+     * MAY THIS PROCESS ACTUALLY PUT EMAIL IN A COACH'S INBOX? — D5.2.
+     *
+     * =====================================================================
+     * OFF UNLESS SOMEBODY SWITCHED IT ON, AND OFF FOR EVERY AMBIGUOUS VALUE.
+     *
+     * Connecting a Google mailbox and SENDING through it are two different
+     * permissions, and until D5.2 they were the same one by accident: nothing
+     * could send because `productionTransport()` returned null, so no switch
+     * was needed. D5.2 wires that transport, which means the only thing left
+     * between a running deployment and a real recruit's coach is a decision
+     * somebody has to make on purpose.
+     *
+     * `bool` returns the fallback for absent or empty and true ONLY for `1`,
+     * `true`, `yes` or `on`. So an unset variable, a typo, a stray quote,
+     * `"FALSE"`, `"0"` and `"maybe"` all resolve to false. There is no value
+     * that accidentally enables sending.
+     *
+     * IT IS NOT THE ONLY GATE, AND IT IS NOT TRUSTED TO BE. The orchestrator
+     * refuses before the claim, and `googleTransport` refuses again inside the
+     * adapter immediately before the Gmail request — so a code path that
+     * somehow skipped the first check still cannot submit a message. See
+     * providerCapability.js.
+     * =====================================================================
+     */
+    googleSendEnabled: bool(env.THRIV3_GOOGLE_SEND_ENABLED, false),
   };
 }
 

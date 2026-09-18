@@ -370,6 +370,38 @@ const STATUS_BY_CODE = Object.freeze({
   EXECUTION_ARGUMENT_REQUIRED: 422,
 
   [EXECUTION_REFUSAL.TRANSPORT_NOT_CONFIGURED]: 503,
+  /**
+   * ---- D5.2: the server cannot send, for three separable reasons ----------
+   *
+   * 503 FOR ALL THREE, and not 422, because none of them is anything the
+   * caller did. The request was well formed and the campaign may be perfectly
+   * ready; this deployment cannot send right now. 503 says "the server, not
+   * you", which is the honest answer and the one a client should not treat as
+   * a validation error to be corrected.
+   *
+   * `PROVIDER_SEND_DISABLED` is the state this build ships in: a Google
+   * mailbox may be connected and everything else in order, and real sending is
+   * switched off until somebody turns it on deliberately. Nothing was claimed,
+   * no capacity was spent, no credential was read.
+   */
+  [EXECUTION_REFUSAL.PROVIDER_NOT_CONFIGURED]: 503,
+  [EXECUTION_REFUSAL.PROVIDER_SEND_DISABLED]: 503,
+  /**
+   * 422, NOT 503, AND ONE ENTRY RATHER THAN TWO.
+   *
+   * `EXECUTION_REFUSAL.MAILBOX_PROVIDER_UNSUPPORTED` and
+   * `CLAIM_REFUSAL.MAILBOX_PROVIDER_UNSUPPORTED` are the SAME STRING — the
+   * orchestrator quotes the claim's vocabulary rather than inventing a parallel
+   * one — so mapping them separately would put a duplicate key in this object
+   * and silently keep whichever came last. One code, one status.
+   *
+   * And the status is 422 because the refusal is permanent. 503 tells a client
+   * the server is temporarily unable and invites a later retry, which is right
+   * for a deployment that has not switched sending on and wrong for a mailbox
+   * whose provider this build will never support. The caller chose a mailbox
+   * that cannot be used; choosing a different one is the fix.
+   */
+  [CLAIM_REFUSAL.MAILBOX_PROVIDER_UNSUPPORTED]: 422,
 });
 
 /**

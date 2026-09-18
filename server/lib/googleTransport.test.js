@@ -100,11 +100,20 @@ const request = (over = {}) => ({
   ...over,
 });
 
-/** The adapter with everything injected; production constructs none of this. */
+/**
+ * The adapter with everything injected; production constructs none of this.
+ *
+ * `sendEnabled` IS FORCED ON HERE — D5.2. These tests are about encoding,
+ * ordering, credentials, identity and classification, all of which live behind
+ * the kill switch. Leaving the switch at its real value would make every one of
+ * them pass for the wrong reason: SEND_DISABLED, having proved nothing. The
+ * switch itself is tested separately, in section H.
+ */
 const adapter = (over = {}) => googleTransport({
   fetchImpl: fetchStub({ identity: okIdentity, send: okSend }),
   accessTokenFor: async () => ({ token: 'at-1', refreshToken: 'rt-1' }),
   date: new Date('2026-09-18T09:00:00.000Z'),
+  sendEnabled: () => true,
   ...over,
 });
 
@@ -190,6 +199,7 @@ describe('B. nothing is decrypted for a message that cannot be encoded', () => {
     const out = await googleTransport({
       fetchImpl: fetchStub({}),
       accessTokenFor: decrypt,
+      sendEnabled: () => true,
     }).send(request({ subject: 'Hi\r\nBcc: them@evil.test' }));
 
     expect(out.outcome).toBe(TRANSPORT_OUTCOME.REFUSED_BEFORE_TRANSPORT);
@@ -211,8 +221,9 @@ describe('B. nothing is decrypted for a message that cannot be encoded', () => {
     for (const missing of ['mailboxId', 'from', 'to', 'subject', 'body',
       'providerAccountId', 'operatorUserId']) {
       const decrypt = vi.fn();
-      const out = await googleTransport({ fetchImpl: fetchStub({}), accessTokenFor: decrypt })
-        .send(request({ [missing]: null }));
+      const out = await googleTransport({
+        fetchImpl: fetchStub({}), accessTokenFor: decrypt, sendEnabled: () => true,
+      }).send(request({ [missing]: null }));
       expect(out.outcome, missing).toBe(TRANSPORT_OUTCOME.REFUSED_BEFORE_TRANSPORT);
       expect(out.reason, missing).toBe(TRANSPORT_REASON.REQUEST_INCOMPLETE);
       expect(decrypt).not.toHaveBeenCalled();
@@ -223,6 +234,7 @@ describe('B. nothing is decrypted for a message that cannot be encoded', () => {
   it('reads the credential before verifying identity, and identity before sending', async () => {
     const order = [];
     const out = await googleTransport({
+      sendEnabled: () => true,
       accessTokenFor: async () => { order.push('credential'); return { token: 'at-1' }; },
       fetchImpl: async (url, init) => {
         order.push(url === GOOGLE_USERINFO_URL ? 'identity' : 'send');
@@ -619,13 +631,26 @@ describe('G. the result contract', () => {
 /* ========================================================================== */
 
 describe('H. unreachable from the product', () => {
-  it('productionTransport still returns null and imports nothing', async () => {
+  it('productionTransport still returns null, now because nothing is enabled', async () => {
+    /**
+     * D5.2 CHANGES WHY, NOT WHETHER — and the old assertion has to change with
+     * it rather than be deleted.
+     *
+     * From D4.7 to D5.1 this function had NO IMPORTS AT ALL, and that was the
+     * guarantee: there was nothing to promote into a real sender. D5.2 wires
+     * the registry, so that particular proof is spent — and the property it
+     * protected is now proved by behaviour instead, here and in section I.
+     *
+     * With no arguments it still returns null, so every caller and test written
+     * before D5.2 behaves identically. With GOOGLE named it STILL returns null,
+     * because this deployment has not enabled sending — which is the real
+     * guarantee and a stronger one than "the file has no imports".
+     */
     const { productionTransport } = await import('./productionTransport.js');
     expect(productionTransport()).toBeNull();
-
-    const src = fs.readFileSync(new URL('./productionTransport.js', import.meta.url), 'utf8');
-    expect(src).not.toMatch(/^import /m);
-    expect(src).not.toMatch(/googleTransport|rfc822|google-auth/);
+    expect(productionTransport({ provider: 'GOOGLE' })).toBeNull();
+    expect(productionTransport({ provider: 'MICROSOFT' })).toBeNull();
+    expect(productionTransport({ provider: 'ANYTHING_ELSE' })).toBeNull();
   });
 
   it('no module on the application send path imports the Google adapter', () => {

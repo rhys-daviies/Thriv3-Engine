@@ -347,3 +347,69 @@ export function hasStoredCredential(id) {
     'SELECT 1 FROM connected_mailbox_credentials WHERE mailbox_id = ?',
   ).get(id));
 }
+
+/**
+ * THE PROVIDER HAS DURABLY REFUSED THIS CREDENTIAL — D5.2.
+ *
+ * ===========================================================================
+ * A SEPARATE, DELIBERATE AUTHORITY. NOT A SIDE EFFECT OF A SEND.
+ *
+ * `googleTransport` learns this fact and does NOT act on it, which is the
+ * design rather than an omission. A transport's job is to report what the
+ * provider said; deciding that a mailbox is administratively broken is a
+ * different judgement with much wider consequences — the status blocks every
+ * future claim and every readiness answer for that athlete, so a transport
+ * making it as a side effect would let one failed request disable an athlete's
+ * entire outreach.
+ *
+ * ONLY DURABLE CREDENTIAL INVALIDITY. Google's `invalid_grant` means the
+ * refresh token is gone: revoked, expired, or invalidated by a password
+ * change. It cannot be retried into working.
+ *
+ * NEVER FOR A TIMEOUT, A RESET, A 5xx FROM THE TOKEN ENDPOINT OR ANY OTHER
+ * TRANSIENT FAILURE. Those say nothing about the credential, and marking a
+ * mailbox on one would take a working account offline because a network blipped
+ * — which is why this function takes an explicit reason rather than inferring
+ * one from an error it was handed.
+ * ===========================================================================
+ *
+ * THE CREDENTIAL IS NOT DELETED. `revokeMailbox` destroys it because the
+ * athlete withdrew consent and the secret must stop existing. This is a
+ * different event: the provider stopped honouring a token we still hold, and
+ * keeping the row lets a reconnect overwrite it through `storeMailboxCredential`
+ * — which already flips the status back to CONNECTED and clears `revoked_at`,
+ * so the return path needs no new code and cannot drift from the forward one.
+ *
+ * IDEMPOTENT. Marking an already-NEEDS_RECONSENT mailbox changes nothing and
+ * moves no timestamp.
+ *
+ * NO SECRET IN THE REASON. It is a short provider-neutral code — the caller is
+ * a transport whose own error handling has already discarded everything but a
+ * machine-readable one.
+ */
+export function markMailboxNeedsReconsent(id, { reason, operatorUserId, at = utcNow() } = {}) {
+  const current = mailbox(id, { operatorUserId });
+  if (!current) throw fail('MAILBOX_NOT_FOUND', `No mailbox ${id}.`);
+  if (typeof reason !== 'string' || !reason.trim() || /\s/.test(reason) || reason.length > 64) {
+    throw fail('MAILBOX_RECONSENT_REASON_REQUIRED',
+      'Marking a mailbox as needing reconsent must say why, as a short code with no whitespace. '
+      + 'A status nobody can account for is one nobody can safely clear.');
+  }
+  /**
+   * A REVOKED MAILBOX IS LEFT ALONE. Revocation is the athlete's own decision
+   * and is terminal for that credential; moving it to NEEDS_RECONSENT would
+   * describe a withdrawn mailbox as merely needing a reconnect.
+   */
+  if (current.status === MAILBOX_STATUS.REVOKED) {
+    return { changed: false, mailbox: current };
+  }
+  if (current.status === MAILBOX_STATUS.NEEDS_RECONSENT) {
+    return { changed: false, mailbox: current };
+  }
+
+  db.prepare(`
+    UPDATE connected_mailboxes SET status = ?, updated_at = ? WHERE id = ?
+  `).run(MAILBOX_STATUS.NEEDS_RECONSENT, at, id);
+
+  return { changed: true, reason: reason.trim(), mailbox: mailbox(id, { operatorUserId }) };
+}

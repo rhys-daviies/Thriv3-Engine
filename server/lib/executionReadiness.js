@@ -4,9 +4,9 @@ import { programmeMessageWithContext, MESSAGE_STATE as CONTENT_STATE } from './p
 import { programmePursuitPlan, PURSUIT_ACTION } from './pursuitPolicy.js';
 import { followUpTiming } from './followUpTiming.js';
 import { unresolvedSendFor } from './outreachSend.js';
-import { mailbox, hasStoredCredential, MAILBOX_STATUS, MAILBOX_PROVIDER } from './connectedMailboxes.js';
+import { mailbox, hasStoredCredential, MAILBOX_STATUS } from './connectedMailboxes.js';
 import { isSendCapped } from './sendCap.js';
-import { productionTransport } from './productionTransport.js';
+import { providerCapability } from './providerCapability.js';
 
 /**
  * WOULD THIS MESSAGE GO, IF SOMEBODY PRESSED SEND NOW? — D4.9.
@@ -69,6 +69,22 @@ export const READINESS_BLOCKER = Object.freeze({
   MAILBOX_ATHLETE_MISMATCH: 'MAILBOX_ATHLETE_MISMATCH',
   MAILBOX_CREDENTIAL_MISSING: 'MAILBOX_CREDENTIAL_MISSING',
   MAILBOX_PROVIDER_UNSUPPORTED: 'MAILBOX_PROVIDER_UNSUPPORTED',
+  /**
+   * THE MAILBOX NEEDS RECONNECTING — D5.2. Distinct from NOT_CONNECTED, which
+   * covers revoked and unhealthy too: this one tells an operator the specific
+   * thing that fixes it.
+   */
+  MAILBOX_NEEDS_RECONSENT: 'MAILBOX_NEEDS_RECONSENT',
+  /** The adapter exists, this deployment cannot feed it — D5.2. */
+  PROVIDER_NOT_CONFIGURED: 'PROVIDER_NOT_CONFIGURED',
+  /**
+   * EVERYTHING IS READY AND REAL SENDING IS SWITCHED OFF — D5.2.
+   *
+   * The one blocker on this list that is about the SERVER rather than about
+   * this message, and it is reported plainly because the alternative is an
+   * operator repeatedly fixing a campaign that was never the problem.
+   */
+  PROVIDER_SEND_DISABLED: 'PROVIDER_SEND_DISABLED',
   TRANSPORT_NOT_CONFIGURED: 'TRANSPORT_NOT_CONFIGURED',
   CAMPAIGN_BLOCKED: 'CAMPAIGN_BLOCKED',
   BUDGET_EXHAUSTED: 'BUDGET_EXHAUSTED',
@@ -173,6 +189,7 @@ export function executionReadiness({
 
   /* ---- the mailbox a caller would use ------------------------------------ */
   let box = null;
+  let capability = null;
   if (!connectedMailboxId) {
     add(READINESS_BLOCKER.MAILBOX_REQUIRED);
   } else {
@@ -183,15 +200,27 @@ export function executionReadiness({
       if (box.status !== MAILBOX_STATUS.CONNECTED) {
         add(READINESS_BLOCKER.MAILBOX_NOT_CONNECTED, { status: box.status });
       }
-      if (box.provider !== MAILBOX_PROVIDER.GOOGLE) {
-        add(READINESS_BLOCKER.MAILBOX_PROVIDER_UNSUPPORTED, { provider: box.provider });
+      if (box.status === MAILBOX_STATUS.NEEDS_RECONSENT) {
+        add(READINESS_BLOCKER.MAILBOX_NEEDS_RECONSENT);
       }
       if (!hasStoredCredential(box.id)) add(READINESS_BLOCKER.MAILBOX_CREDENTIAL_MISSING);
+
+      /**
+       * ---- and can this server send through that provider at all? — D5.2 ---
+       *
+       * THE SAME AUTHORITY THE CLAIM AND THE ORCHESTRATOR ASK, so a screen
+       * cannot say ready while the send path says otherwise. Three separable
+       * answers rather than one, because they need three different actions:
+       * an unsupported provider is permanent, an unconfigured one is a
+       * deployment task, and a disabled switch is a decision somebody makes.
+       *
+       * IT READS CONFIGURATION AND NOTHING SECRET. No client id, no redirect,
+       * no credential state beyond the actionable word.
+       */
+      capability = providerCapability(box.provider);
+      if (capability.refusal) add(READINESS_BLOCKER[capability.refusal], { provider: box.provider });
     }
   }
-
-  /* ---- and something to send with ---------------------------------------- */
-  if (!productionTransport()) add(READINESS_BLOCKER.TRANSPORT_NOT_CONFIGURED);
 
   return {
     programmeMessageId: message.id,
@@ -204,6 +233,19 @@ export function executionReadiness({
     connectedMailboxId: box?.id ?? null,
     sendingIdentity: box?.email_address ?? null,
     provider: box?.provider ?? null,
+    /**
+     * WHAT THE SERVER CAN DO, BESIDE WHAT THIS MESSAGE NEEDS — D5.2. Three
+     * booleans and no configuration detail: enough for a screen to say "this
+     * server cannot send yet" rather than blaming the campaign, and nothing a
+     * reader could use to learn how the deployment is set up.
+     */
+    providerCapability: capability
+      ? {
+        implemented: capability.implemented,
+        configured: capability.configured,
+        sendEnabled: capability.sendEnabled,
+      }
+      : null,
     plannedAction: plan.nextAction ?? null,
     planStep: plan.step ?? null,
     followUpEligibleOn: timing?.policyEligibleOn ?? null,

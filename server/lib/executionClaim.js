@@ -13,6 +13,7 @@ import {
   recordOutboundAttempt, normaliseSendingIdentity, TRANSPORT, OUTBOUND_ATTEMPT_DISPOSITION,
 } from './outboundBudget.js';
 import { isSendCapped } from './sendCap.js';
+import { providerImplemented } from './providerCapability.js';
 import { mailbox, hasStoredCredential, MAILBOX_STATUS } from './connectedMailboxes.js';
 import { RUN_ID } from './executionRun.js';
 /**
@@ -92,6 +93,15 @@ export const CLAIM_REFUSAL = Object.freeze({
   MAILBOX_NOT_CONNECTED: 'MAILBOX_NOT_CONNECTED',
   MAILBOX_ATHLETE_MISMATCH: 'MAILBOX_ATHLETE_MISMATCH',
   MAILBOX_CREDENTIAL_MISSING: 'MAILBOX_CREDENTIAL_MISSING',
+  /**
+   * THIS BUILD HAS NO ADAPTER FOR THAT MAILBOX'S PROVIDER — D5.2.
+   *
+   * The authoritative version of a refusal `executionReadiness` has reported
+   * advisorily since D4.9 and the claim could not make: until D5.2 nothing
+   * here asked what provider a mailbox was, so a MICROSOFT mailbox could be
+   * claimed, frozen and paid for, and only then found unsendable.
+   */
+  MAILBOX_PROVIDER_UNSUPPORTED: 'MAILBOX_PROVIDER_UNSUPPORTED',
 
   /** Somebody else holds it, or it has already been executed. */
   SEND_CLAIM_LOST: 'SEND_CLAIM_LOST',
@@ -522,6 +532,42 @@ export function assertExecutionSafety({
     throw fail(CLAIM_REFUSAL.MAILBOX_CREDENTIAL_MISSING,
       'That mailbox holds no credential, so nothing could send through it. It needs '
       + 'reconnecting before a message is claimed for it.');
+  }
+  /**
+   * ---- 4b. AND THIS BUILD HAS AN ADAPTER FOR ITS PROVIDER — D5.2 ----------
+   *
+   * =========================================================================
+   * IT ASKS `implemented`, AND DELIBERATELY NOT `sendEnabled`.
+   *
+   * The three capability questions are not interchangeable, and only one of
+   * them is a fact this transaction can be authoritative about:
+   *
+   *   implemented   a property of the BUILD. Constant for the life of the
+   *                 process, identical in every environment, and therefore the
+   *                 one thing a durable row can be judged against. A MICROSOFT
+   *                 mailbox is unsendable here for ever.
+   *   configured    a property of the DEPLOYMENT.
+   *   sendEnabled   a deliberate operational switch.
+   *
+   * THE LAST TWO ARE ENFORCED WHERE THEY BELONG: the orchestrator refuses on
+   * both before this transaction is entered, and `googleTransport` refuses
+   * again — twice — immediately around the Gmail request. Re-reading an
+   * environment variable in here would buy a window of microseconds while
+   * costing something real: every D4.5–D5.1 test that claims through the
+   * library, with no Google configuration present, would begin refusing. Those
+   * tests prove the execution engine, and an engine that cannot be tested
+   * without production Google credentials is a worse engine.
+   *
+   * SO OMITTING A CAPABILITY ARGUMENT CANNOT MEAN "EVERYTHING IS ENABLED".
+   * There is no argument to omit. The answer comes from a build-time allowlist
+   * that no environment can widen, which is exactly the property a claim needs
+   * and exactly the property an environment read would not have.
+   * =========================================================================
+   */
+  if (!providerImplemented(box.provider)) {
+    throw fail(CLAIM_REFUSAL.MAILBOX_PROVIDER_UNSUPPORTED,
+      `Nothing in this build can send through a ${box.provider ?? 'mailbox with no'} provider. `
+      + 'Nothing was claimed and no capacity was spent.');
   }
   const identity = normaliseSendingIdentity(box.email_address);
 

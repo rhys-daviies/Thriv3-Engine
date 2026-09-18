@@ -9,6 +9,9 @@ import { persistTransportResult } from './executionResult.js';
  */
 import { productionTransport } from './productionTransport.js';
 import { reclaimRefusedExecution } from './executionRetry.js';
+import { mailbox } from './connectedMailboxes.js';
+import { providerCapability } from './providerCapability.js';
+import { sendById } from './outreachSend.js';
 
 /**
  * SENDING ONE REVIEWED MESSAGE, END TO END — D4.9.
@@ -71,6 +74,24 @@ export const EXECUTION_REFUSAL = Object.freeze({
    */
   TRANSPORT_NOT_CONFIGURED: 'TRANSPORT_NOT_CONFIGURED',
   /**
+   * THIS BUILD HAS NO ADAPTER FOR THAT MAILBOX'S PROVIDER — D5.2. Microsoft,
+   * today. Durable: no configuration change makes it go away.
+   */
+  MAILBOX_PROVIDER_UNSUPPORTED: 'MAILBOX_PROVIDER_UNSUPPORTED',
+  /** The adapter exists and this deployment cannot feed it — D5.2. */
+  PROVIDER_NOT_CONFIGURED: 'PROVIDER_NOT_CONFIGURED',
+  /**
+   * EVERYTHING IS READY AND REAL SENDING IS SWITCHED OFF — D5.2, and the state
+   * this slice ships in.
+   *
+   * Refused HERE, before the claim, which is the whole point: a deployment
+   * with the switch off creates no execution row, spends no capacity, decrypts
+   * no credential and contacts nobody. It is not `REFUSED_BEFORE_TRANSPORT` —
+   * that is an outcome recorded against an execution, and there is no
+   * execution.
+   */
+  PROVIDER_SEND_DISABLED: 'PROVIDER_SEND_DISABLED',
+  /**
    * The claim committed but the row it froze is not transportable. Unreachable
    * — the claim's own invariant is that a committed SENDING row carries its
    * bytes — and checked anyway, because the alternative to checking is handing
@@ -87,6 +108,55 @@ function fail(code, message) {
 
 
 /**
+ * COULD THIS MAILBOX'S PROVIDER SEND ANYTHING, ON THIS DEPLOYMENT, RIGHT NOW?
+ *
+ * ===========================================================================
+ * ASKED BEFORE THE CLAIM, AND THEREFORE BEFORE ANYTHING IS SPENT — D5.2.
+ *
+ * D4.9 established the rule with `TRANSPORT_NOT_CONFIGURED`: discovering there
+ * is nothing to send with AFTER the claim leaves a message SENDING and a day's
+ * capacity gone for a request that could never have succeeded. D5.2 keeps the
+ * rule and gives it three answers instead of one, because "no transport" was
+ * hiding three different problems with three different fixes — a provider we
+ * have not built, a deployment that is not configured, and a switch nobody has
+ * turned on.
+ * ===========================================================================
+ *
+ * ---------------------------------------------------------------------------
+ * A LOOKUP, NOT AN AUTHORISATION DECISION — and the difference matters.
+ *
+ * It reads the mailbox only to learn its PROVIDER. It does not decide whether
+ * the operator may use that mailbox, whether it belongs to the athlete, or
+ * whether it is connected: every one of those is the claim's, inside the
+ * transaction that writes.
+ *
+ * SO AN UNREADABLE MAILBOX FALLS THROUGH DELIBERATELY. If `mailbox()` returns
+ * nothing — wrong operator, no such id — this returns null and lets the claim
+ * refuse, because the claim's answer is the authoritative one and its mailbox
+ * gate runs at step 4, before the budget at step 8. Nothing is spent either
+ * way, and refusing here would mean a second copy of MAILBOX_NOT_FOUND living
+ * outside the transaction that can actually prove it.
+ * ---------------------------------------------------------------------------
+ */
+function refuseUnlessProviderCanSend({ connectedMailboxId, operatorUserId, provider = null }) {
+  const known = provider ?? mailbox(connectedMailboxId, { operatorUserId })?.provider ?? null;
+  if (!known) return null;
+
+  const capability = providerCapability(known);
+  if (capability.sendEnabled) return capability;
+
+  throw fail(capability.refusal,
+    capability.refusal === EXECUTION_REFUSAL.MAILBOX_PROVIDER_UNSUPPORTED
+      ? 'This build cannot send through that mailbox\'s provider. Nothing was claimed and no '
+        + 'capacity was spent.'
+      : capability.refusal === EXECUTION_REFUSAL.PROVIDER_NOT_CONFIGURED
+        ? 'This server is not configured to send through that mailbox\'s provider. Nothing was '
+          + 'claimed and no capacity was spent.'
+        : 'Real email sending is not enabled on this server, so nothing can be sent. Nothing '
+          + 'was claimed, no capacity was spent and no mailbox was touched.');
+}
+
+/**
  * @param {string} args.programmeMessageId  the reviewed composition to send.
  * @param {string} args.operatorUserId      from the session; never a field.
  * @param {string} args.connectedMailboxId  which of the athlete's mailboxes.
@@ -97,7 +167,15 @@ function fail(code, message) {
 export async function executeProgrammeMessage({
   programmeMessageId, operatorUserId, connectedMailboxId, bodyHash,
   at = utcNow(), onDate = utcToday(),
-  transport = productionTransport(),
+  /**
+   * UNDEFINED, NOT `productionTransport()` — D5.2, and the change is load
+   * bearing. The registry now needs to know WHICH provider to build for, and
+   * that is not known until the mailbox has been read. Left undefined it is
+   * resolved below, after the provider gate; passed explicitly — including as
+   * null — a caller's value is used untouched, which is what every existing
+   * test relies on.
+   */
+  transport = undefined,
 } = {}) {
   for (const [name, value] of [
     ['programmeMessageId', programmeMessageId],
@@ -141,7 +219,31 @@ export async function executeProgrammeMessage({
   }
 
   /* ---- 2. something to send it with, BEFORE any capacity is spent -------- */
-  if (!transport) {
+  /**
+   * THE PROVIDER GATE FIRST — D5.2. It names WHICH of the three problems this
+   * is, where the transport check below can only say "nothing". Both run
+   * before the claim, so neither costs anything.
+   */
+  const capability = refuseUnlessProviderCanSend({ connectedMailboxId, operatorUserId });
+  if (transport === undefined && capability) {
+    transport = productionTransport({ provider: capability.provider });
+  }
+  /**
+   * THE TRANSPORT CHECK IS SKIPPED WHEN THE MAILBOX COULD NOT BE READ.
+   *
+   * `capability` is null only when `mailbox()` refused — a mailbox that does
+   * not exist, or one belonging to another operator. Answering that with
+   * "no transport is configured" would be both wrong and a small information
+   * leak: the server IS configured, and the caller would learn nothing about
+   * the thing they actually got wrong.
+   *
+   * The claim owns that answer and gives it at step 4, before the budget at
+   * step 8 — MAILBOX_NOT_FOUND, deliberately identical for "no such mailbox"
+   * and "not yours". So this falls through and lets the authority speak. The
+   * claim cannot succeed here, because it scopes the same lookup by the same
+   * operator.
+   */
+  if (capability && !transport) {
     throw fail(EXECUTION_REFUSAL.TRANSPORT_NOT_CONFIGURED,
       'No outbound transport is configured on this server, so nothing can be sent. Nothing was '
       + 'claimed and no capacity was spent.');
@@ -303,7 +405,7 @@ async function transmitClaimed(claimed, { transport, at, message }) {
 export async function reattemptExecution({
   outreachSendId, operatorUserId, connectedMailboxId = null,
   at = utcNow(), onDate = utcToday(),
-  transport = productionTransport(),
+  transport = undefined,
 } = {}) {
   for (const [name, value] of [
     ['outreachSendId', outreachSendId],
@@ -314,7 +416,35 @@ export async function reattemptExecution({
     }
   }
 
-  if (!transport) {
+  /**
+   * THE SAME GATE, BEFORE THE RECLAIM — D5.2.
+   *
+   * A retry's provider comes from the EXECUTION ROW rather than from a caller,
+   * because a retry names no mailbox at all: the frozen `provider` on
+   * `outreach_send` is the one the message was authorised to go through. So a
+   * send-disabled deployment refuses here, and the existing row is not
+   * transitioned FAILED -> QUEUED, no new reservation is taken and no
+   * credential is touched.
+   */
+  const existing = sendById(outreachSendId);
+  const capability = refuseUnlessProviderCanSend({
+    connectedMailboxId: existing?.connected_mailbox_id ?? null,
+    operatorUserId,
+    provider: existing?.provider ?? null,
+  });
+  if (transport === undefined && capability) {
+    transport = productionTransport({ provider: capability.provider });
+  }
+  /**
+   * SKIPPED WHEN THERE WAS NOTHING TO DERIVE A PROVIDER FROM — the send path
+   * makes the same allowance for the same reason. `capability` is null when the
+   * execution does not exist, carries no provider, or names a mailbox this
+   * operator does not hold; every one of those has an authoritative answer in
+   * `reclaimRefusedExecution` — EXECUTION_NOT_FOUND, or the shared safety
+   * gates — and answering "no transport" instead would report a server
+   * configuration problem for a caller error.
+   */
+  if (capability && !transport) {
     throw fail(EXECUTION_REFUSAL.TRANSPORT_NOT_CONFIGURED,
       'No outbound transport is configured on this server, so nothing can be sent. Nothing was '
       + 'reclaimed and no capacity was spent.');

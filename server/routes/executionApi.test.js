@@ -25,7 +25,7 @@ import db from '../db/client.js';
  */
 
 const { transportBehaviour } = vi.hoisted(() => ({
-  transportBehaviour: { current: null, calls: [], reconcileThrows: false },
+  transportBehaviour: { current: null, calls: [], reconcileThrows: false, sendEnabled: true },
 }));
 
 vi.mock('../lib/productionTransport.js', async () => {
@@ -44,6 +44,34 @@ vi.mock('../lib/productionTransport.js', async () => {
     },
   };
 });
+
+/**
+ * D5.2 — THIS TEST DEPLOYMENT DECLARES ITSELF SEND-ENABLED, EXPLICITLY.
+ *
+ * The real `providerCapability` reads `THRIV3_GOOGLE_SEND_ENABLED`, which is
+ * absent here as it is absent on any machine that has not deliberately switched
+ * real email on. Without this, every test below would refuse with 503
+ * PROVIDER_SEND_DISABLED before reaching the engine — passing, and proving
+ * nothing about the engine.
+ *
+ * So the switch is declared on, in the open, through the same object that
+ * controls the fake transport. Flipping `sendEnabled` to false falls back to
+ * the REAL authority, which is how the disabled-deployment tests prove the
+ * production behaviour rather than a mock of it.
+ */
+vi.mock('../lib/providerCapability.js', async (importOriginal) => {
+  const real = await importOriginal();
+  return {
+    ...real,
+    providerCapability(provider, config) {
+      if (!transportBehaviour.sendEnabled) return real.providerCapability(provider, config);
+      return Object.freeze({
+        provider, implemented: true, configured: true, sendEnabled: true, refusal: null,
+      });
+    },
+  };
+});
+
 
 /** The reconciliation-failure case needs the same partial-mock trick. */
 vi.mock('../lib/contactAttempts.js', async (importOriginal) => {
@@ -217,6 +245,7 @@ const rows = (t) => db.prepare(`SELECT * FROM ${t}`).all();
 beforeEach(() => {
   transportBehaviour.current = { outcome: TRANSPORT_OUTCOME.ACCEPTED };
   transportBehaviour.calls = [];
+  transportBehaviour.sendEnabled = true;
   transportBehaviour.reconcileThrows = false;
   currentOperator = OPERATOR;
   db.exec(`DELETE FROM programme_messages; DELETE FROM campaign_first_touch_approvals;
@@ -349,17 +378,30 @@ describe('when no transport is configured', () => {
     expect(count('outbound_send_attempt')).toBe(0);
   });
 
-  /** The shipped module really does refuse — the mock is the exception here. */
+  /**
+   * THE SHIPPED MODULE REALLY DOES REFUSE — and D5.2 changes WHY, so this
+   * changes with it rather than being retired.
+   *
+   * Until D5.1 the proof was structural: `productionTransport` had no imports
+   * at all, so there was nothing to promote into a real sender. D5.2 wires the
+   * registry, which spends that particular proof — and replaces it with a
+   * stronger one, asserted on BEHAVIOUR instead of on the absence of an import
+   * statement.
+   *
+   * The real module, unmocked, still returns null for every provider on this
+   * machine, because nothing has enabled sending. That is the guarantee that
+   * actually matters, and unlike the import check it would still hold if the
+   * file were refactored tomorrow.
+   */
   it('is what the shipped module actually does', async () => {
-    const { productionTransport } = await import('../lib/productionTransport.js');
-    // The mock replaces it for this file; assert the real source instead.
-    const src = (await import('node:fs')).readFileSync(
-      new URL('../lib/productionTransport.js', import.meta.url), 'utf8',
-    );
-    expect(src).toMatch(/return null;/);
-    /* It may DISCUSS the fake; it may not IMPORT one. */
-    expect(src).not.toMatch(/^import/m);
-    expect(typeof productionTransport).toBe('function');
+    /* Consult the REAL capability authority, not this file's send-enabled one. */
+    transportBehaviour.sendEnabled = false;
+    const real = await vi.importActual('../lib/productionTransport.js');
+    expect(typeof real.productionTransport).toBe('function');
+    for (const provider of [undefined, 'GOOGLE', 'MICROSOFT', 'NONSENSE', null]) {
+      expect(real.productionTransport({ provider }), String(provider)).toBeNull();
+    }
+    expect(real.productionTransport()).toBeNull();
   });
 });
 
@@ -737,15 +779,37 @@ describe('the boundary', () => {
 
   /** No provider module is reachable from the execution route. */
   it('imports no real transport anywhere on the path', async () => {
+    /**
+     * D5.2 NARROWS THIS LIST BY EXACTLY ONE FILE, AND FOR THE ONE FILE WHOSE
+     * ENTIRE JOB IS NOW TO SELECT AN ADAPTER.
+     *
+     * `productionTransport` is the registry: importing `googleTransport` is
+     * what it is FOR, and forbidding that would forbid the slice. Everything
+     * the rule actually defended is unchanged and still asserted here — the
+     * orchestrator, readiness and the route reach no provider, no credential
+     * and no decryptor, so nothing on the request path can contact Google
+     * except by going through the registry, which is gated three times over.
+     *
+     * The registry's own isolation is proved by BEHAVIOUR instead, above: it
+     * returns null for every provider unless a deployment has explicitly
+     * enabled sending.
+     */
     const fs = await import('node:fs');
     for (const rel of ['../lib/executeProgrammeMessage.js', '../lib/executionReadiness.js',
-      '../lib/productionTransport.js', './campaigns.js']) {
+      './campaigns.js']) {
       const src = fs.readFileSync(new URL(rel, import.meta.url), 'utf8')
         .replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
       expect(src, rel).not.toMatch(/googleapis|google-auth|OAuth2Client|nodemailer|smtp/i);
       expect(src, rel).not.toMatch(/googleTransport|rfc822|transportSnapshot|composeInOutlook/);
       expect(src, rel).not.toMatch(/mailboxCredential|mailboxCrypto|decrypt/);
     }
+
+    /** The registry may reach the adapter, and still nothing else. */
+    const registry = fs.readFileSync(new URL('../lib/productionTransport.js', import.meta.url), 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+    expect(registry).not.toMatch(/googleapis|google-auth|OAuth2Client|nodemailer|smtp/i);
+    expect(registry).not.toMatch(/mailboxCredential|mailboxCrypto|decrypt/);
+    expect(registry).not.toMatch(/fakeTransport/);
   });
 });
 
@@ -773,19 +837,34 @@ describe('GET execution-readiness', () => {
   });
 
   /**
-   * AND IT TELLS THE TRUTH ABOUT THIS BUILD when the transport is what it
-   * really is. `readyNow` must be false while nothing can send, or a screen
-   * would offer a button that always 503s.
+   * AND IT TELLS THE TRUTH ABOUT THIS BUILD. `readyNow` must be false while
+   * nothing can send, or a screen would offer a button that always 503s.
+   *
+   * D5.2 RENAMES THE REASON RATHER THAN REMOVING IT. Readiness no longer asks
+   * `productionTransport` — it asks the same capability authority the claim and
+   * the orchestrator ask, so a screen and the send path cannot disagree — and
+   * that authority distinguishes three cases a single TRANSPORT_NOT_CONFIGURED
+   * could not: a provider nobody built, a deployment not set up, and a switch
+   * nobody turned on. On this machine it is the third.
    */
-  it('reports the missing transport as a blocker when there is none', async () => {
-    transportBehaviour.current = null;
+  it('reports the real capability blocker when sending is not possible', async () => {
+    transportBehaviour.sendEnabled = false;     // fall through to the REAL authority
     const { messageId } = reviewed();
     const mailboxId = mailboxFor();
 
     const res = await readiness(messageId, `?connectedMailboxId=${mailboxId}`);
 
-    expect(res.body.blockers.map((b) => b.code)).toEqual(['TRANSPORT_NOT_CONFIGURED']);
+    /**
+     * PROVIDER_NOT_CONFIGURED on this machine, which has no Google OAuth client
+     * — the narrowest true cause, and the one an operator can act on. The
+     * send-switch case is proved against an explicitly configured deployment in
+     * providerCapability.test.js, where the config can be supplied directly
+     * rather than faked into the environment.
+     */
+    expect(res.body.blockers.map((b) => b.code)).toEqual(['PROVIDER_NOT_CONFIGURED']);
     expect(res.body.readyNow).toBe(false);
+    expect(res.body.providerCapability)
+      .toEqual({ implemented: true, configured: false, sendEnabled: false });
   });
 
   it('writes nothing and spends nothing, however many times it is asked', async () => {

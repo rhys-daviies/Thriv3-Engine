@@ -32,7 +32,7 @@ import db from '../db/client.js';
  */
 
 const { transportBehaviour } = vi.hoisted(() => ({
-  transportBehaviour: { current: null, calls: [] },
+  transportBehaviour: { current: null, calls: [], sendEnabled: true },
 }));
 
 vi.mock('../lib/productionTransport.js', async () => {
@@ -51,6 +51,34 @@ vi.mock('../lib/productionTransport.js', async () => {
     },
   };
 });
+
+/**
+ * D5.2 — THIS TEST DEPLOYMENT DECLARES ITSELF SEND-ENABLED, EXPLICITLY.
+ *
+ * The real `providerCapability` reads `THRIV3_GOOGLE_SEND_ENABLED`, which is
+ * absent here as it is absent on any machine that has not deliberately switched
+ * real email on. Without this, every test below would refuse with 503
+ * PROVIDER_SEND_DISABLED before reaching the engine — passing, and proving
+ * nothing about the engine.
+ *
+ * So the switch is declared on, in the open, through the same object that
+ * controls the fake transport. Flipping `sendEnabled` to false falls back to
+ * the REAL authority, which is how the disabled-deployment tests prove the
+ * production behaviour rather than a mock of it.
+ */
+vi.mock('../lib/providerCapability.js', async (importOriginal) => {
+  const real = await importOriginal();
+  return {
+    ...real,
+    providerCapability(provider, config) {
+      if (!transportBehaviour.sendEnabled) return real.providerCapability(provider, config);
+      return Object.freeze({
+        provider, implemented: true, configured: true, sendEnabled: true, refusal: null,
+      });
+    },
+  };
+});
+
 
 const { campaignsRouter } = await import('./campaigns.js');
 const { materialiseNextContactAttempt } = await import('../lib/pursuitPolicy.js');
@@ -202,6 +230,7 @@ async function refusedSend(fixture = null) {
 beforeEach(() => {
   transportBehaviour.current = { outcome: TRANSPORT_OUTCOME.ACCEPTED };
   transportBehaviour.calls = [];
+  transportBehaviour.sendEnabled = true;
   currentOperator = OPERATOR;
   db.exec(`DELETE FROM programme_messages; DELETE FROM campaign_first_touch_approvals;
            DELETE FROM outbound_send_attempt; DELETE FROM programme_contact_attempts;
