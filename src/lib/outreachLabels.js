@@ -190,3 +190,76 @@ export const CONTACT_UNAVAILABLE_NOTICE =
 
 /** Said where a programme has been written to but nothing was ever confirmed. */
 export const DRAFT_ONLY_HINT = 'A message was drafted and never confirmed sent.';
+
+/**
+ * NOTHING ON FILE — AND ONLY EVER SAID WHEN THAT IS ACTUALLY KNOWN.
+ *
+ * ===========================================================================
+ * UNKNOWN IS NOT NONE, AND THIS IS THE SENTENCE THAT COULD GET IT WRONG.
+ *
+ * Every other string in this file describes something that happened. This one
+ * describes an ABSENCE, which is the only kind of claim that can be false
+ * merely because a request had not finished. While the athlete-level history
+ * is loading, or failed, the honest answer is silence — see
+ * CONTACT_UNAVAILABLE_NOTICE above, which is the page-level sentence that
+ * explains the silence.
+ *
+ * `ProgrammeContactSummary` therefore renders this only when the history
+ * LOADED and the programme is genuinely absent from it. A programme nobody has
+ * written to is absent from the map rather than present and empty, so absence
+ * is the fact — once, and only once, the map is known to be complete.
+ * ===========================================================================
+ *
+ * IT MATTERS MOST BESIDE `manual_only`. F5b made "We've already been in touch"
+ * an explicit operator statement that establishes CURRENT CONTACT POLICY
+ * without fabricating a send — so a school can legitimately be worked by hand
+ * with nothing in `outreach` to show for it. Those two facts side by side are
+ * the point: the policy is ours, the history is the database's, and neither
+ * implies the other.
+ */
+export const NO_CONTACT_RECORDED = 'No contact recorded';
+export const NO_CONTACT_RECORDED_HINT =
+  'Nothing has been drafted or sent to this programme through Thriv3 for this athlete. '
+  + 'Contact made outside Thriv3 leaves no record here.';
+
+/**
+ * WHAT THE COACH DID WITH THE VIDEO, AS A PERCENTAGE AND NOTHING MORE.
+ *
+ * Worded identically to the per-coach line in ManualOutreachDialog, because
+ * the same fact appearing two ways on two surfaces is how an operator comes to
+ * believe they are two facts. Coverage is the highest any single session
+ * reached — `best_coverage_pct` on the rollup — so it is "watched N%", never a
+ * total across visits.
+ *
+ * NOT an email open and not a click. Neither exists in this build.
+ */
+export const videoWatched = (pct) => `Watched ${pct}% of the video`;
+
+export const VIDEO_HINT =
+  'The furthest through the highlight video any single viewing session reached, '
+  + 'recorded on the athlete profile rather than in the email.';
+
+/**
+ * WHICH PART OF THE PRODUCT WROTE TO THEM, IN THE SHORT FORM A BADGE CAN HOLD.
+ *
+ * ORIGIN_LABEL above is the sentence form used in the relationship dialog,
+ * where there is room for it. This is the same vocabulary compressed for a
+ * list row, and it is deliberately a SEPARATE map rather than a truncation:
+ * "Relationship or manual outreach" cannot be shortened mechanically without
+ * losing which of the two it was.
+ *
+ * NULL IS NOT IN THIS MAP. It is not a value in the origin vocabulary — it is
+ * the absence of one — so it is rendered through ORIGIN_UNRECORDED_SHORT and
+ * never guessed at. A message written before the column existed records no
+ * provenance, and inventing one would be exactly the fabrication the column
+ * was added to prevent.
+ */
+export const ORIGIN_SHORT = Object.freeze({
+  manual: 'Manual',
+  campaign: 'Campaign',
+});
+
+export const ORIGIN_UNRECORDED_SHORT = 'Origin not recorded';
+
+/** Said where several coaches at one programme have been written to. */
+export const moreCoaches = (n) => `+${n} more`;

@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import EmailComposer from '@/components/EmailComposer';
 import { manualOutreach } from '@/api/client';
 import {
-  RELATIONSHIP_OUTREACH, RELATIONSHIP_DIALOG_HINT, MANUAL_ONLY_HINT,
+  RELATIONSHIP_OUTREACH, RELATIONSHIP_DIALOG_HINT, MANUAL_ONLY_HINT, MANUAL_ONLY_BADGE,
   DO_NOT_CONTACT_TITLE, DO_NOT_CONTACT_BODY, ORIGIN_LABEL, ORIGIN_UNRECORDED,
   ENGAGEMENT_HINT,
 } from '@/lib/outreachLabels';
@@ -143,7 +143,7 @@ function RelationshipContext({ relationship, priorContact, intelligence }) {
     relationship.request_state === 'withdrawn' && ['muted', 'Request withdrawn'],
     relationship.flagged && ['amber', 'Existing relationship'],
     relationship.visibility === 'suppressed' && ['muted', 'Not in Top 100'],
-    relationship.contact_stance === 'manual_only' && ['blue', 'Manual only'],
+    relationship.contact_stance === 'manual_only' && ['blue', MANUAL_ONLY_BADGE],
   ].filter(Boolean);
 
   return (

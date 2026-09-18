@@ -9,7 +9,7 @@ import ManualOutreachDialog from '@/components/ManualOutreachDialog';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 import {
   RELATIONSHIP_OUTREACH, RECOMMENDATION_OUTREACH, BOTH_PATHS_HINT,
-  MANUAL_ONLY_HINT, DO_NOT_CONTACT_TITLE, DO_NOT_CONTACT_BODY,
+  MANUAL_ONLY_HINT, MANUAL_ONLY_BADGE, DO_NOT_CONTACT_TITLE, DO_NOT_CONTACT_BODY,
   RELATIONSHIP_DIALOG_HINT, RECOMMENDATION_DIALOG_HINT,
 } from '@/lib/outreachLabels';
 import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
@@ -277,19 +277,32 @@ describe('the relationship dialog explains why this school is here', () => {
 
   it('shows nothing where there is nothing to say', async () => {
     await open(relationship());
-    for (const empty of ['Specific Request', 'Existing relationship', 'Not in Top 100', 'Manual only']) {
+    for (const empty of ['Specific Request', 'Existing relationship', 'Not in Top 100', MANUAL_ONLY_BADGE]) {
       expect(body(), empty).not.toContain(empty);
     }
     expect(body()).toContain('None to this programme.');
   });
 
-  it('describes manual_only without claiming enforcement it does not have', async () => {
+  it('describes manual_only in the one wording the whole product uses', async () => {
     await open(relationship({ contact_stance: 'manual_only' }));
-    expect(body()).toContain('Manual only');
+    /**
+     * THROUGH THE CONSTANT — F6b. The dialog used to hardcode "Manual only"
+     * while the list surfaces read MANUAL_ONLY_BADGE, so one relationship had
+     * two names depending on which screen you were on.
+     */
+    expect(body()).toContain(MANUAL_ONLY_BADGE);
     expect(body()).toContain(MANUAL_ONLY_HINT);
-    // Campaign execution does not consult this stance yet. Saying it is
-    // "excluded from automated outreach" would be believed and would be false.
-    expect(MANUAL_ONLY_HINT).not.toMatch(/excluded|blocked|prevented/i);
+    /**
+     * IT SAYS WHAT STOPS AND WHAT DOES NOT. The enforcement is real —
+     * `campaignStanceDecision` refuses RELATIONSHIP_MANUAL_ONLY at the one
+     * chokepoint every campaign write passes through — so the sentence is
+     * allowed to state it, which it did not used to be. What it must never do
+     * is read as a closure: an operator who stops at "won't be contacted" and
+     * does not learn the school is still theirs to write to by hand has been
+     * told the wrong thing.
+     */
+    expect(MANUAL_ONLY_HINT).toMatch(/won't be contacted by the automated campaign/i);
+    expect(MANUAL_ONLY_HINT).toMatch(/still contact it manually/i);
   });
 
   it('reports previous contact as fact, with no warning language', async () => {
