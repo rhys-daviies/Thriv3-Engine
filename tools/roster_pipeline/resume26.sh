@@ -22,16 +22,17 @@ for i in 0 1 2 3; do python3 -u browse.py --keys shb${S}_$i.txt --variants 8 --s
 wait
 for i in 0 1 2 3; do echo "  shard$i ok=$(grep -cE '^  OK' log_br${S}_$i.txt) fail=$(grep -cE '^  FAIL' log_br${S}_$i.txt)"; done
 
+# Was an inlined merge of its own: two cases, pre-L7J, and unscoped. It is the
+# same substitution L7J made in run_season_current.sh, applied to the script it
+# missed -- one merge owner, and a run that can only touch its own keys.
 python3 - <<'PY'
-import sys,json,glob; sys.path.insert(0,'.')
+import sys; sys.path.insert(0,'.')
 import state
-main=state.load(); n=0
-for f in sorted(glob.glob('st_br2026_*.json')):
-    for k,v in json.load(open(f,encoding='utf-8')).items():
-        if v.get('status')=='done' and main.get(k,{}).get('status')!='done': main[k]=v; n+=1
-state.save(main)
-done=sum(1 for v in main.values() if v.get('status')=='done')
-print(f'  absorbed +{n}; {done} done of 1722')
+scope = state.run_scope()
+c = state.absorb('st_br2026_*.json', scope)
+done = sum(1 for v in state.load().values() if v.get('status') == 'done')
+print('  absorbed %s; %d done   scope %d key(s), %d out-of-scope refused'
+      % (dict(c) or 'nothing', done, len(scope), c.get('out-of-scope', 0)))
 PY
 
 echo "===== writing roster CSVs (no minutes -- season unplayed) ====="

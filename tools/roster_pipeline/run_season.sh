@@ -28,11 +28,19 @@ PY
 absorb () {
   # The merge policy lives in state.merge_attempt, not here. It used to be four
   # lines of heredoc, and three of its four cases were wrong -- see state.py.
+  #
+  # The SCOPE comes from state.run_scope(), the same RB_KEYS/RB_DIVISIONS
+  # narrowing plan.py prints as TO ATTEMPT. Stage files are resumable and so
+  # they accumulate across runs; without a scope a seven-programme run merges
+  # records belonging to twenty-three programmes it never attempted, which is
+  # how L7R moved Bentley's history from outside its own run.
   python3 - "$1" <<'PY'
 import sys; sys.path.insert(0,'.')
 import state
-c = state.absorb(sys.argv[1])
-print('  absorbed from %s  %s' % (sys.argv[1], dict(c) or 'nothing'))
+scope = state.run_scope()
+c = state.absorb(sys.argv[1], scope)
+print('  absorbed from %s  %s   scope %d key(s), %d out-of-scope record(s) refused'
+      % (sys.argv[1], dict(c) or 'nothing', len(scope), c.get('out-of-scope', 0)))
 PY
 }
 

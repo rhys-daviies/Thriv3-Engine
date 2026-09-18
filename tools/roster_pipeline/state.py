@@ -228,18 +228,94 @@ def merge_attempt(main, k, attempt):
     return 'rediagnosed'
 
 
-def absorb(pattern):
-    """Merge every stage file matching `pattern` into durable state.
+def run_scope():
+    """The exact programme keys THIS RUN may touch.
 
-    Sorted so a run is reproducible, and the whole merge policy is
-    `merge_attempt` -- this function chooses only what to feed it.
+    ONE DEFINITION OF "THIS RUN", and it is the one that already decides what
+    gets attempted. `attempt_targets()` is the set `plan.py` prints as
+    TO ATTEMPT and the set `run.py`, `variants.py` and `write_out.py` already
+    work from; deriving a second notion of scope inside this module is how two
+    subtly different answers to the same question get shipped.
+
+    It is `_targets.csv` narrowed by RB_KEYS and RB_DIVISIONS, so it is a
+    concrete set in every case: with neither filter set it is the whole target
+    universe, which is the behaviour an unfiltered run has always had. What it
+    is never is "whatever happens to be in a stage file".
+
+    Strictly it is TO ATTEMPT plus any member of the declared scope that is
+    already `done` -- `plan.py` subtracts those to report how much work is
+    left. That difference is deliberate: a programme resolved by an early stage
+    becomes `done` mid-run, and a later stage's absorb still has to be able to
+    merge its own fresh record for it. Excluding done keys would make the scope
+    depend on when in the run it was asked, which is exactly the kind of moving
+    definition this function exists to prevent.
     """
+    return {key(r) for r in attempt_targets()}
+
+
+def absorb(pattern, scope):
+    """Merge stage records for keys IN SCOPE into durable state.
+
+    ---------------------------------------------------------------------------
+    NO PROGRAMME OUTSIDE `scope` MAY HAVE ITS DURABLE STATE CHANGED HERE.
+    ---------------------------------------------------------------------------
+
+    A stage file is resumable by design: `variants.py`, `selector.py` and
+    `browse.py` each load their `--out` file before adding to it, so an
+    interrupted stage can be restarted without refetching. The consequence is
+    that those files ACCUMULATE, indefinitely, across every run that has ever
+    written them -- the 2026 files still carry Northwood from L7I, Trinity
+    Washington from L7N and all thirteen of L7Q's resolves.
+
+    This function used to take a glob and merge every key it found in it. So a
+    seven-programme run re-merged records belonging to twenty-three other
+    programmes, and twice it was caught doing so:
+
+      L7Q  Southwest Minnesota State's Notes moved, though SMSU was not in the
+           pilot. Cosmetic: it was already `failed`, so it was rediagnosed with
+           attempts it had already made.
+      L7R  Bentley's `tried` history went 3 -> 6, though Bentley was not in the
+           seven. NOT cosmetic: Bentley was `done`, and the stale records were
+           refusals. The only reason a good roster was not demoted is that
+           `merge_attempt` keeps a success over an incoming failure.
+
+    That precedence rule is correct and stays exactly as it is. It is not a
+    containment mechanism, and relying on it as one means every future defect
+    in stage-file hygiene gets one chance to destroy a season's work.
+
+    The merge policy is still `merge_attempt` alone. This function chooses only
+    what to feed it, and now it also refuses to feed it anything it was not
+    asked about. Out-of-scope records are skipped whole: not transformed, not
+    recorded, not counted as attempts. They stay on disk, because resumability
+    needs them there; they simply do not participate.
+
+    `scope` is required. `None` is a programming error and raises, because the
+    one thing it must never be taken to mean is "all of them" -- that reading is
+    the defect. An empty scope absorbs nothing and writes nothing.
+    """
+    if scope is None:
+        raise TypeError(
+            'absorb() requires an explicit run scope. None is not a shorthand for '
+            'every key in the stage file -- see state.run_scope().')
+    allowed = set(scope)
     main = load()
     counts = collections.Counter()
+    merged = 0
     for f in sorted(glob.glob(pattern)):
         for k, v in json.load(open(f, encoding='utf-8')).items():
+            if k not in allowed:
+                # Exact key equality, never a school or sport prefix: a men's
+                # record must not reach a women's programme at the same
+                # institution, and the two differ only after the '||'.
+                counts['out-of-scope'] += 1
+                continue
             counts[merge_attempt(main, k, v)] += 1
-    save(main)
+            merged += 1
+    # Nothing in scope means nothing to write. Rewriting an unchanged file would
+    # be harmless in content and would still make "an empty scope changes
+    # nothing" a claim about bytes rather than about the file.
+    if merged:
+        save(main)
     return counts
 
 

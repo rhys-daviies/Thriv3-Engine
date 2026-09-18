@@ -157,13 +157,16 @@ print(sorted(st))
   });
 
   it('7. absorbing an empty stage file changes nothing', () => {
+    // L7S made the run scope a required argument, so this passes one. The
+    // scoping itself is covered in runScopedAbsorb.test.js; what this still
+    // asserts is that an empty FILE is a no-op.
     const root = fixture();
     const f = path.join(root, 'empty.json');
     fs.writeFileSync(f, '{}');
     const out = py(root, `
 state.save({'Alpha||mens-soccer': {'status': 'done', 'stage': 'direct', 'url': 'https://a.test/r'}})
 before = json.dumps(state.load(), sort_keys=True)
-c = state.absorb(${JSON.stringify(f)})
+c = state.absorb(${JSON.stringify(f)}, {'Alpha||mens-soccer'})
 print(json.dumps(dict(c)))
 print(before == json.dumps(state.load(), sort_keys=True))
 `);
