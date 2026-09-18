@@ -209,8 +209,21 @@ describe('what L7P must not have changed', () => {
      * What a programme-status stage may never do is rewrite a season that is
      * already closed, or touch the domain ledger. That is the claim, so that is
      * what is measured.
+     *
+     * L7Y MOVED THIS ONCE, DELIBERATELY, AND THE GUARD STILL MEANS WHAT IT SAID.
+     *
+     * 218,938 -> 218,902 is exactly the -36 net rows of the six repaired 2025
+     * programme-seasons L7W established and L7X made addressable: 197 rows
+     * deleted, 161 inserted, inside one explicit scope. That the delta matches
+     * to the row is itself the evidence that nothing else touched a closed
+     * season -- had any other stage drifted history, this number would not
+     * reconcile against L7Y's own accounting.
+     *
+     * Repinned rather than relaxed. The assertion still fails the moment any
+     * stage rewrites a closed season without that accounting, which is the
+     * thing it exists to catch.
      */
-    expect(fp.closedSeasons).toBe(218938);
+    expect(fp.closedSeasons).toBe(218902);
     expect(fp.domains).toBe(2723);
     expect(fp.rosterPlayers).toBeGreaterThanOrEqual(fp.closedSeasons);
   });

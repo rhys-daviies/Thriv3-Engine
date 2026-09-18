@@ -16,8 +16,8 @@
       },
       {
         "table": "roster_players",
-        "rows": 281184,
-        "digest": "f59d06ac272e2e3ddf69597eef101c88716075192e90dbca577edfb4c90cbf93"
+        "rows": 281148,
+        "digest": "a6e400ae10e907367b2365618f0be07091c71de46763dc50a67c79eeb80e4577"
       },
       {
         "table": "coaches",
@@ -40,7 +40,7 @@
         "digest": "c7648f217abf6d686795ec5f4775485b330c68226856378fa65b65c7889e4429"
       }
     ],
-    "digest": "dcfcf4dcb0947b52c9c959161648339540f8a5c0edaace593dd680e889acd1a9"
+    "digest": "4955986edd3bc976eb93c6489fe1d696ca5104e31e1f5a775327999432ecc512"
   },
   "baselines": [
     {
@@ -66,12 +66,12 @@
     {
       "name": "LOG_PAYLOAD",
       "size": 4742,
-      "digest": "830f1726fd0105682efeea47474a52b0e598a74f1af5daec1f94c9707a3cbd47"
+      "digest": "5c92cdb5f022b03e6b208b95d4ff860b20d4e59be544dd5b28f40964007dd3de"
     },
     {
       "name": "OPERATOR_EVIDENCE",
       "size": 4742,
-      "digest": "b5599ad9aa968422cdc79530ec33240676f929751b43aaf8060cf735481196f8"
+      "digest": "6eaf3165211bb6584c0cfb67576402d4181a0339b6178bfa68a8970f75c4dcb0"
     }
   ]
 }
