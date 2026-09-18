@@ -16,8 +16,8 @@
       },
       {
         "table": "roster_players",
-        "rows": 277834,
-        "digest": "38bc2e2ec182169caf2fd73e53a35d3281a8132ec10986d2eb6051d909c1d242"
+        "rows": 277866,
+        "digest": "a57acf790c7db838c525cc8c9120c6f82de4eddb886639badbf5b8dcc650542b"
       },
       {
         "table": "coaches",
@@ -36,17 +36,17 @@
       },
       {
         "table": "roster_freshness",
-        "rows": 1948,
-        "digest": "332d9d9855bedcf4b6dd07cfbaeb07b169a8c2404a7ca9dabe424aaffcde634a"
+        "rows": 1949,
+        "digest": "9da20892294498ec2cb173f66463c5145942578979e9a8a3a966455928be941c"
       }
     ],
-    "digest": "884d06a7bb3e17acc428101214384c02ffb68b28b52f264cb01615da3be47a36"
+    "digest": "e2695737104c00b4345168d6944f33e3d328968892f85d793dd8c6224b237a75"
   },
   "baselines": [
     {
       "name": "OUTBOUND_DECISION",
       "size": 4742,
-      "digest": "284b9c2d4903dd90236df874dc3eb118e4ea5d29f9042b8f8c15bc4619a20acc"
+      "digest": "6d3866f25b3f041a4b6928cc0fe4e0c1cbbc64cdfb71ab197e4821d1dc006932"
     },
     {
       "name": "COACH_COMPOSITION",
@@ -61,17 +61,17 @@
     {
       "name": "OPERATOR_WIRE",
       "size": 4742,
-      "digest": "68211b0950aa499f6a826bb40a8b5ede080bf5a499a1aeb266514509472209aa"
+      "digest": "3ffc6fd93bfcf49b5c370dea6786ac5a167b83b44e58175cdce7c5d4e6d83309"
     },
     {
       "name": "LOG_PAYLOAD",
       "size": 4742,
-      "digest": "a7d1ade78a887f376e60d0e4a2a01392ffa042c225b15f8bf668b8ebcbf30b59"
+      "digest": "04a42a7c93f7d59eb89ad15cd83134507c75704175640f1b37f81a3182a7445e"
     },
     {
       "name": "OPERATOR_EVIDENCE",
       "size": 4742,
-      "digest": "73c466ce6a235e7bf5706ecceb781eb45eca86ed44d8134a37c9b28c7dd72ae5"
+      "digest": "3d3787b9524542497e102d30dd54ae2c9b430b9fcd4e4adf6ce8f3f63e4c8174"
     }
   ]
 }

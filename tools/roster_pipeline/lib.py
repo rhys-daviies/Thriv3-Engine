@@ -101,6 +101,100 @@ def _scal(flat, v, d=0):
         return _scal(flat, flat[v], d + 1)
     return None
 
+def _nref(flat, v):
+    """Resolve exactly ONE reference level in a Nuxt flat payload."""
+    if isinstance(v, bool) or not isinstance(v, int): return None
+    if v < 0 or v >= len(flat): return None
+    return flat[v]
+
+
+def _nstr(flat, v):
+    """A string the payload states, resolved at most one level. Never further.
+
+    WHY NOT `_scal`. That helper recurses until it finds a string, which is
+    right for the camelCase payloads it was written for and wrong here: this
+    vocabulary stores real numbers as payload entries too, so following one
+    lands on an unrelated string. Iowa's `height_inches` resolved to a photo's
+    alt text and its `id` to a different player's slug -- values that look
+    perfectly plausible and belong to somebody else. One level, a string or
+    nothing, so a number can never be mistaken for a pointer.
+    """
+    if isinstance(v, str): return v
+    e = _nref(flat, v)
+    return e if isinstance(e, str) else None
+
+
+def _ndict(flat, v):
+    e = _nref(flat, v)
+    return e if isinstance(e, dict) else None
+
+
+def _nuxt_player_lists(flat):
+    """Every non-empty `players` list the payload declares, as index lists."""
+    out = []
+    for e in flat:
+        if isinstance(e, dict) and 'players' in e:
+            lst = _nref(flat, e['players'])
+            if isinstance(lst, list) and lst: out.append(lst)
+    return out
+
+
+def parse_nuxt_roster(html):
+    """A Nuxt roster whose player objects are named in snake_case.
+
+    THE GAP THIS CLOSES. `parse_nuxt` above looks for dicts carrying
+    `firstName`/`lastName` anywhere in the payload. Four D1 sites -- Iowa,
+    New Mexico and both Notre Dame programmes -- serve the same framework with
+    a different vocabulary: a paginated `{players, meta}` container whose
+    entries point at a person node using `first_name`, `last_name`, `hometown`,
+    with `class_level` and `player_position` as nodes of their own. The key
+    signature never matched, `parse_nuxt` returned nothing, no HTML parser found
+    a table or a card, and a page listing 28 players read as zero.
+
+    ANCHORED ON THE CONTAINER, NOT ON A NAME SHAPE. This walks the declared
+    `players` list and nothing else, which is what makes it safe: a staff
+    directory, a schedule, a news index and an opponent list have no such
+    container, and the staff block on these very pages sits in a separate one.
+    Two containers means two rosters and no way to tell from the payload which
+    sport is wanted, so it refuses rather than guesses.
+
+    Extracts only what the page states: name, position, class and hometown.
+    Nationality is not inferred, a missing position stays empty rather than
+    becoming a guess, and the class label is passed through in the page's own
+    words -- `1st`..`5th` here -- because `grad_for_season` already resolves
+    that dialect and a translation would be a second opinion nobody asked for.
+    """
+    flat = _nuxt(html)
+    if not flat: return None
+    lists = _nuxt_player_lists(flat)
+    if len(lists) != 1: return None
+    recs = []
+    for ref in lists[0]:
+        entry = _ndict(flat, ref)
+        if entry is None: continue
+        # The site's own publication flag, and the `hide` flag the camelCase
+        # payloads use. Absent means published; anything else is not ours to ship.
+        state = _nstr(flat, entry.get('publication_state'))
+        if state is not None and state != 'published': continue
+        if isinstance(entry.get('hide'), bool) and entry['hide']: continue
+        person = _ndict(flat, entry.get('player')) or entry
+        nm = _nstr(flat, person.get('full_name'))
+        if not nm:
+            fn = _nstr(flat, person.get('first_name')) or ''
+            ln = _nstr(flat, person.get('last_name')) or ''
+            nm = f'{fn} {ln}'.strip()
+        if not nm: continue
+        pos = _ndict(flat, entry.get('player_position')) or _ndict(flat, person.get('player_position')) or {}
+        cls = _ndict(flat, entry.get('class_level')) or _ndict(flat, person.get('class_level')) or {}
+        recs.append({
+            'name': nm,
+            'cls': (_nstr(flat, cls.get('abbreviation')) or _nstr(flat, cls.get('name')) or '').strip(),
+            'pos': (_nstr(flat, pos.get('name')) or _nstr(flat, pos.get('abbreviation')) or '').strip(),
+            'home': (_nstr(flat, person.get('hometown')) or '').strip(),
+        })
+    return recs or None
+
+
 def parse_nuxt(html):
     flat = _nuxt(html)
     if not flat: return None, None
@@ -564,9 +658,14 @@ def parse_any(html):
         if r: best, best_name = r, 'nuxt'
     except Exception:
         pass
+    # `parse_nuxt_roster` is LAST deliberately. The winner below is decided by a
+    # STRICT `>`, so a reader placed last can only take a page no other parser
+    # read as well or better. Vanderbilt and Virginia carry this same payload and
+    # are already read by `table` at 26 and 38; leaving the new reader last is
+    # what guarantees they keep the owner they have.
     for fn, nm in ((parse_sidearm_html, 'sidearm-html'), (parse_tables, 'table'),
                    (parse_roster_cards, 'roster-card'), (parse_presto_cards, 'presto-card'),
-                   (parse_list_roster, 'list')):
+                   (parse_list_roster, 'list'), (parse_nuxt_roster, 'nuxt-roster')):
         try: rr = fn(html)
         except Exception: rr = None
         if rr and (best is None or len(rr) > len(best)):

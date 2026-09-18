@@ -141,19 +141,19 @@ describe('20/21/22/24. current-season coverage means the season asked for', () =
                .map(r => ({ key: r.key, latest: r.latestRosterSeason })) };`);
 
   it('a programme with only a 2025 roster is a 2026 gap', () => {
-    // 138 when L7P named the cohort; L7Q re-acquired 13 of them.
-    expect(q.s.historicalOnly).toBe(125);
+    // 138 when L7P named the cohort; L7Q re-acquired 13 and L7R one more.
+    expect(q.s.historicalOnly).toBe(124);
     for (const r of q.historicalOnlySample) expect(r.latest).toBe('2025');
   });
 
   it('separates current-season from historical coverage by name', () => {
     /*
      * The clearest demonstration of why these are two metrics: L7Q's pilot
-     * re-acquired 13 programmes the dataset ALREADY knew from 2025, so the
-     * current-season figure rose by 13 and the historical figure could not move
-     * at all. One number could never have shown that.
+     * re-acquired 13 programmes the dataset ALREADY knew from 2025, and L7R a
+     * fourteenth, so the current-season figure rose by 14 and the historical
+     * figure could not move at all. One number could never have shown that.
      */
-    expect(q.s.currentSeasonRostered).toBe(1620);
+    expect(q.s.currentSeasonRostered).toBe(1621);
     expect(q.s.historicallyRostered).toBe(1745);
     expect(q.s.currentSeasonRostered).toBeLessThan(q.s.historicallyRostered);
   });
