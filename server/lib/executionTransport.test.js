@@ -574,8 +574,12 @@ describe('an accepted send', () => {
 
   it('advances the campaign step, but only after the acceptance commits', async () => {
     const { pc, head, persisted } = await executed();
-    expect(persisted.bookkeeping).toEqual({ advanced: true, reason: null, error: null });
+    expect(persisted.bookkeeping).toEqual({
+      reconciled: true, step: 2, state: 'active', drift: false, reason: null, error: null,
+    });
     expect(attemptForCoach(pc, head.id).step).toBe(2);
+    /* D4.8: the first accepted message is what makes a pursuit active. */
+    expect(attemptForCoach(pc, head.id).state).toBe('active');
   });
 
   it('spends no further capacity', async () => {
@@ -784,7 +788,10 @@ describe('when bookkeeping fails after acceptance', () => {
     expect(sendEvents(ctx.send.id)).toHaveLength(1);
     expect(out.persisted).toBe(true);
     /* Said out loud, and not dressed up as a success. */
-    expect(out.bookkeeping).toEqual({ advanced: false, reason: 'NO_ATTEMPT', error: null });
+    expect(out.bookkeeping).toEqual({
+      reconciled: false, step: null, state: null, drift: false,
+      reason: 'NO_ATTEMPT', error: null,
+    });
   });
 });
 

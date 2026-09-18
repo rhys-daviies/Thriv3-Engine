@@ -723,10 +723,22 @@ describe('what a dry run leaves behind', () => {
      * so the import is pinned to the batch READ and the writers are forbidden
      * below by name.
      */
+    /**
+     * D4.8 ADDED ONE MORE, AND IT CANNOT WRITE ANYTHING.
+     *
+     * `followUpTiming` moved out of this file into its own module when the
+     * execution claim became a second caller of the four-day rule. It is pure
+     * date arithmetic over a number from pursuitPolicy — no database client, no
+     * table, no clock of its own — so the invariant this list protects is
+     * unchanged: the dry run still cannot mint, compose or send anything.
+     */
     expect(modules.sort()).toEqual([
-      './campaigns.js', './config.js', './programmeMessages.js', './pursuitPolicy.js',
-      './time.js',
+      './campaigns.js', './config.js', './followUpTiming.js', './programmeMessages.js',
+      './pursuitPolicy.js', './time.js',
     ]);
+    // And the helper it gained holds no writer and no database at all.
+    const timing = fs.readFileSync(new URL('./followUpTiming.js', import.meta.url), 'utf8');
+    expect(timing).not.toMatch(/db\.prepare|db\.exec|from '\.\.\/db\//);
     expect(db.prepare('SELECT COUNT(*) n FROM programme_messages').get().n).toBe(0);
 
     // Not even the one B6 helper that writes.

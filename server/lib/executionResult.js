@@ -1,7 +1,7 @@
 import db from '../db/client.js';
 import { utcNow } from './time.js';
 import { transitionSend, appendSendEvent, sendById } from './outreachSend.js';
-import { advanceAttemptForConfirmedSend } from './contactAttempts.js';
+import { reconcileProgrammeContactAttempt, attemptForCoach } from './contactAttempts.js';
 import { TRANSPORT_OUTCOME } from './outboundTransport.js';
 import {
   MESSAGE_STATE, ACCEPTED_SOURCE, SEND_EVENT_TYPE,
@@ -188,16 +188,31 @@ export function persistTransportResult(sendId, result, { at = utcNow() } = {}) {
            * true` on the strength of "nothing threw" would claim a step moved
            * when none did.
            */
-          const advance = advanceAttemptForConfirmedSend({
-            programmeCampaignId: accepted?.programme_campaign_id ?? null,
-            coachId: accepted?.coach_id ?? null,
-            at,
-          });
+          /**
+           * DERIVED, NOT INCREMENTED — D4.8.
+           *
+           * This used to add one to the stored step. Adding one is only right
+           * if it happens exactly once, and the whole reason TXN 2b is a
+           * separate transaction is that it might not happen at all. So it now
+           * re-derives the step and the state from durable ACCEPTED rows: a run
+           * that was missed is repaired by the next one, and a run that happens
+           * twice changes nothing the second time.
+           */
+          const attempt = attemptForCoach(
+            accepted?.programme_campaign_id ?? null,
+            accepted?.coach_id ?? null,
+          );
+          const rec = attempt
+            ? reconcileProgrammeContactAttempt(attempt.id, { at })
+            : { reconciled: false, reason: 'NO_ATTEMPT', step: null, state: null, drift: false };
           out = {
             ...out,
             bookkeeping: {
-              advanced: Boolean(advance?.changed),
-              reason: advance?.reason ?? null,
+              reconciled: Boolean(rec.reconciled),
+              step: rec.step ?? null,
+              state: rec.state ?? null,
+              drift: Boolean(rec.drift),
+              reason: rec.reason ?? null,
               error: null,
             },
           };
@@ -207,14 +222,17 @@ export function persistTransportResult(sendId, result, { at = utcNow() } = {}) {
            * campaign is a thing somebody has to be able to find. D4.8 owns the
            * repair; this owns not losing the acceptance over it.
            */
-          console.error('[executionResult] acceptance recorded, attempt advancement failed',
+          console.error('[executionResult] acceptance recorded, attempt reconciliation failed',
             { sendId, code: err?.code, message: err?.message });
           out = {
             ...out,
             bookkeeping: {
-              advanced: false,
+              reconciled: false,
+              step: null,
+              state: null,
+              drift: false,
               reason: 'THREW',
-              error: err?.code ?? 'ATTEMPT_ADVANCE_FAILED',
+              error: err?.code ?? 'ATTEMPT_RECONCILE_FAILED',
             },
           };
         }

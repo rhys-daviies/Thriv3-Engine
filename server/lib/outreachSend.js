@@ -90,6 +90,32 @@ export function openSendFor(outreachId) {
 }
 
 /**
+ * THE MESSAGE ON THIS RELATIONSHIP WHOSE OUTCOME NOBODY KNOWS — D4.8.
+ *
+ * `openSendFor` deliberately excludes UNKNOWN_PROVIDER_RESULT, because for its
+ * three callers an ambiguous message must not read as a draft still being
+ * written. This is the other half of that decision: the question "may another
+ * message be written to this coach at all", which UNKNOWN answers NO to.
+ *
+ * It exists so generation and the claim can say so IN WORDS, before composing a
+ * body or spending capacity. `idx_outreach_send_one_open` has always refused
+ * the second row — but it refuses at the last write, as a unique-index
+ * violation, which is the right final invariant and a terrible way to tell
+ * somebody their campaign is waiting on a reconciliation.
+ *
+ * NOT A NEW FLAG. The state is D4.4's and the predicate is one value from it.
+ */
+const UNRESOLVED_FOR = db.prepare(
+  `SELECT * FROM outreach_send WHERE outreach_id = ? AND state = '${MESSAGE_STATE.UNKNOWN_PROVIDER_RESULT}'
+   ORDER BY sequence DESC LIMIT 1`,
+);
+
+export function unresolvedSendFor(outreachId) {
+  if (!outreachId) return null;
+  return parse(UNRESOLVED_FOR.get(outreachId));
+}
+
+/**
  * The next sequence number for this relationship.
  *
  * THE HIGHEST SEQUENCE EVER ALLOCATED, PLUS ONE — D4.3. A sequence is a
