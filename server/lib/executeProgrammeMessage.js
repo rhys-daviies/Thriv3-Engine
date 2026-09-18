@@ -201,6 +201,26 @@ async function transmitClaimed(claimed, { transport, at, message }) {
     threadRef: null,
     /** A correlation identity, not a provider idempotency promise. */
     idempotencyKey: snapshot.sendId,
+    /* ---- what a real provider additionally needs — D5.1 ------------------ */
+    /**
+     * EVERY ONE OF THESE IS READ BACK FROM THE FROZEN SNAPSHOT, and none is
+     * reachable from a request body. They are on the transport request rather
+     * than on a snapshot object because they are provider-NEUTRAL: Microsoft
+     * would need the same three, and handing a transport the whole execution
+     * row would give it access to facts no transport has any business reading.
+     *
+     * `from` is the address the send was authorised from, frozen on the row —
+     * never the mailbox's live `email_address`, which can drift.
+     * `providerAccountId` is what an adapter compares the authenticated
+     * account's `sub` against. `operatorUserId` is the authority under which a
+     * credential may be read, derived from the immutable mailbox ownership
+     * join — see the note on executionSnapshot.
+     *
+     * NO CREDENTIAL, NO TOKEN. An adapter fetches its own, at its own boundary.
+     */
+    from: snapshot.sendingIdentity,
+    providerAccountId: snapshot.providerAccountId,
+    operatorUserId: snapshot.operatorUserId,
   });
 
   /* ---- 6. what it said, written down once ------------------------------- */
