@@ -1,10 +1,12 @@
 import React from 'react';
-import { Loader2, Star, Handshake } from 'lucide-react';
+import { Loader2, Star, Handshake, MailCheck } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   RELATIONSHIP_OUTREACH, MANUAL_ONLY_BADGE, MANUAL_ONLY_HINT, moreCoaches,
+  AWAITING_CONFIRMATION, MARK_AS_SENT, MARK_AS_SENT_HINT,
+  DISCARD_DRAFT, DISCARD_DRAFT_HINT,
 } from '@/lib/outreachLabels';
 import ContactStanceControl from '@/components/ContactStanceControl';
 import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
@@ -28,6 +30,73 @@ import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
 
 function where(row) {
   return [row.city, row.state].filter(Boolean).join(', ');
+}
+
+/**
+ * A DRAFT THRIV3 OPENED AND HAS HEARD NOTHING ABOUT SINCE — F7b.
+ *
+ * ===========================================================================
+ * THE ONE THING THE OPERATOR HAS TO DO, PUT WHERE THEY WILL SEE IT.
+ *
+ * Thriv3 hands the message to Outlook and receives no id and no handle back,
+ * so it cannot tell whether Send was pressed. Until a person says so, the
+ * school is not contacted, the campaign is still free to write to it, and
+ * every reply-rate denominator ignores it.
+ *
+ * That confirmation has existed since long before this — as a terminal
+ * command, `npm run confirm-sends`, which an operator working in a browser
+ * will never run. An action nobody can see is an action nobody takes, which is
+ * why this is a row on the screen they are already looking at rather than a
+ * better CLI.
+ * ===========================================================================
+ *
+ * BOTH ANSWERS ARE OFFERED, and the second is not an afterthought. A draft the
+ * operator deleted in Outlook would otherwise sit here for ever, and an
+ * operator with no way to say "I did not send that" eventually confirms it to
+ * clear the list — which is the one outcome that puts a message nobody
+ * received into every denominator.
+ *
+ * NEITHER BUTTON CLAIMS AN OBSERVATION. "Mark as sent" records what the person
+ * says; "Discard draft record" clears Thriv3's own expectation and touches
+ * nothing in Outlook.
+ */
+function PendingDrafts({ drafts, busy, onConfirm, onDiscard }) {
+  if (!drafts?.length) return null;
+  return (
+    <div className="space-y-1" data-testid="pending-drafts">
+      {drafts.map((d) => (
+        <div key={d.send_id} className="flex items-start justify-between gap-2 flex-wrap">
+          <p className="text-xs text-muted-foreground">
+            <span className="text-foreground font-medium">{AWAITING_CONFIRMATION}</span>
+            {d.coach_name ? ` — ${d.coach_name}` : ''}
+            {d.position_title ? ` (${d.position_title})` : ''}
+          </p>
+          <div className="flex items-center gap-1 shrink-0">
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={busy}
+              title={MARK_AS_SENT_HINT}
+              onClick={() => onConfirm(d)}
+            >
+              <MailCheck className="h-3.5 w-3.5 mr-1" /> {MARK_AS_SENT}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={busy}
+              title={DISCARD_DRAFT_HINT}
+              onClick={() => onDiscard(d)}
+            >
+              {DISCARD_DRAFT}
+            </Button>
+          </div>
+        </div>
+      ))}
+      {/* Said once per row group, because the action is an assertion. */}
+      <p className="text-[11px] text-muted-foreground">{MARK_AS_SENT_HINT}</p>
+    </div>
+  );
 }
 
 /** How many names fit on a list row before it stops being scannable. */
@@ -81,6 +150,7 @@ function ContactedCoaches({ summary }) {
 function SpecificSchoolRow({
   programme, rank, busy, onRemove, onManualOutreach, contact = null, contactUnavailable = false,
   contactKnown = false, onSetContactStance = null, onFlag = null,
+  pendingDrafts = [], onConfirmSent = null, onDiscardDraft = null,
 }) {
   return (
     <li className="flex items-start justify-between gap-3 p-3" data-testid="specific-school-row">
@@ -143,6 +213,14 @@ function SpecificSchoolRow({
           known={contactKnown}
         />
         <ContactedCoaches summary={contact} />
+        {onConfirmSent && onDiscardDraft && (
+          <PendingDrafts
+            drafts={pendingDrafts}
+            busy={busy}
+            onConfirm={onConfirmSent}
+            onDiscard={onDiscardDraft}
+          />
+        )}
         {rank != null && (
           <p className="text-xs text-muted-foreground">
             Also ranked <span className="font-medium text-foreground">#{rank}</span> in this
@@ -199,6 +277,14 @@ export default function SpecificSchools({
    * so out loud — see `known` in ProgrammeContactSummary.
    */
   contactKnown = false,
+  /**
+   * Manual drafts awaiting confirmation, keyed by programme. ONE athlete-level
+   * request feeds every row — a per-card lookup would be an N+1 that grows with
+   * exactly the athletes who have the most outreach.
+   */
+  pendingByProgramme = new Map(),
+  onConfirmSent = null,
+  onDiscardDraft = null,
 }) {
   /**
    * Rank by name, from the analysis already in memory. ARRAY ORDER IS THE
@@ -258,6 +344,9 @@ export default function SpecificSchools({
                 contact={contactByProgramme.get(contactIntelligenceKey(p.college_name, p.sport))}
                 contactUnavailable={contactUnavailable}
                 contactKnown={contactKnown}
+                pendingDrafts={pendingByProgramme.get(contactIntelligenceKey(p.college_name, p.sport)) ?? []}
+                onConfirmSent={onConfirmSent}
+                onDiscardDraft={onDiscardDraft}
                 onSetContactStance={onSetContactStance}
                 onFlag={onFlag}
               />

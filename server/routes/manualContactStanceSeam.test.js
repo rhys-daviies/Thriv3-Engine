@@ -26,26 +26,32 @@ const { programmeCoachesRouter } = await import('./programmeCoaches.js');
 const { upsertAthleteProgramme, updateAthleteProgramme, findRelationship } = await import('../lib/athleteProgrammes.js');
 
 /**
- * F5b — THE DIRECT MANUAL SEND SEAM.
+ * F5b's DIRECT-SEND SEAM, AND WHAT F7b DID TO IT.
  *
  * ===========================================================================
- * THE DISTINCTION THIS WHOLE FILE IS ABOUT: A DRAFT IS NOT CONTACT.
+ * THE SEAM IS GONE BECAUSE THE SEND IS GONE.
  *
- * `send: false` opens an Outlook window and nothing more. Whether the operator
- * then presses Send is precisely what this process cannot observe, so a
- * contact policy installed on a draft would silence the automated campaign for
- * a school nobody had actually written to — and it would do so invisibly,
- * because the draft looks identical either way.
+ * F5b established manual_only on this route when a send was confirmed inline,
+ * which could only happen through `send: true`. F7b made Specific Search
+ * DRAFT-ONLY: Thriv3 opens a draft in Outlook, a PERSON reviews and edits and
+ * presses Send, and the person then tells Thriv3 it went. So there is no
+ * inline confirmation left to hang a stance on, and the branch was removed
+ * rather than left as a dead conditional claiming to set contact policy.
  *
- * `send: true` means the bridge issued Outlook's own Send and did not throw.
- * That is a confirmation this process watched, and it is the only thing on
- * this route that establishes anything.
+ * What these tests now hold is the half that survived and the half that
+ * replaced it:
+ *
+ *   A DRAFT IS STILL NOT CONTACT. It records history, it changes no stance,
+ *   and that was true before F7b and is true after it.
+ *
+ *   `send: true` IS REFUSED RATHER THAN COERCED, and refused before anything
+ *   is written. See server/routes/manualDraftConfirmation.test.js for the
+ *   per-message confirmation that now establishes manual_only.
  * ===========================================================================
  *
- * The other half is where the seam LIVES. It is in this route and deliberately
- * not inside `sendOutreach`, which is shared by the Top 100 composer, the bulk
- * composer, the drafting CLI and the campaign path — a policy write down there
- * would let a campaign send establish manual-contact policy.
+ * The last block is unchanged and is the one that matters most: `sendOutreach`
+ * is shared by the manual route, the Top 100 composer, the bulk composer, the
+ * drafting CLI and the campaign, and no contact policy may be written there.
  */
 
 const ATHLETE = 'a-f5b-seam';
@@ -149,101 +155,57 @@ describe('a manual draft', () => {
     expect(db.prepare('SELECT drafted_at, sent_at FROM outreach').get().sent_at).toBeNull();
   });
 
+  /**
+   * AND IT REPORTS NO STANCE, BECAUSE IT DECIDED NOTHING. F5b answered with a
+   * `contactStance` field here; F7b removed it along with the seam, so the
+   * absence is the assertion.
+   */
   it('reports no stance outcome, because it decided nothing', async () => {
     const { body } = await compose({ send: false });
-    expect(body.contactStance).toBeNull();
+    expect(body.contactStance).toBeUndefined();
+    expect(stance()).toBe('default');
   });
 });
 
-describe('a confirmed manual send', () => {
-  it('establishes manual_only', async () => {
-    const { body } = await compose({ send: true });
-
-    expect(body.results[0].status).toBe('sent');
-    expect(stance()).toBe('manual_only');
-  });
-
-  it('reports the outcome, so the screen can update without a refetch', async () => {
-    const { body } = await compose({ send: true });
-    expect(body.contactStance).toMatchObject({ outcome: 'ESTABLISHED', changed: true, stance: 'manual_only' });
-  });
-
-  it('changes the stance and nothing else on the relationship', async () => {
-    updateAthleteProgramme(ATHLETE, relationshipId, {
-      flagged: true, flag_reason: 'Her father is an alum', visibility: 'suppressed', note: 'Call in July.',
-    });
-    const before = findRelationship(ATHLETE, 'Duke', SPORT);
-
-    await compose({ send: true });
-
-    const after = findRelationship(ATHLETE, 'Duke', SPORT);
-    expect(after.contact_stance).toBe('manual_only');
-    expect(after.flagged).toBe(true);
-    expect(after.flag_reason).toBe(before.flag_reason);
-    expect(after.flagged_at).toBe(before.flagged_at);
-    expect(after.visibility).toBe('suppressed');
-    expect(after.note).toBe(before.note);
-    expect(after.request_state).toBe(before.request_state);
-  });
-
-  it('is idempotent across a second send to the same school', async () => {
-    await compose({ send: true });
-    const after = findRelationship(ATHLETE, 'Duke', SPORT);
-
-    await compose({ send: true });
-
-    expect(findRelationship(ATHLETE, 'Duke', SPORT).updated_at).toBe(after.updated_at);
-    expect(stance()).toBe('manual_only');
-  });
-
-  it('never downgrades do_not_contact — and never gets the chance', async () => {
-    updateAthleteProgramme(ATHLETE, relationshipId, { contact_stance: 'do_not_contact' });
-
+describe('an attempt to make Thriv3 send', () => {
+  it('is refused by name, not quietly turned into a draft', async () => {
     const { status, body } = await compose({ send: true });
 
-    // Refused long before the seam: the route, and `sendOutreach` beneath it.
+    expect(status).toBe(422);
+    expect(body.code).toBe('MANUAL_OUTREACH_DRAFT_ONLY');
+  });
+
+  /**
+   * REFUSED BEFORE EVERYTHING. No relationship, no capacity reserved, no
+   * Outlook window, no message row — and no contact stance, which is the
+   * assertion this file was originally written to make in the opposite
+   * direction.
+   */
+  it('writes nothing and establishes no stance', async () => {
+    await compose({ send: true });
+
+    expect(count('outreach')).toBe(0);
+    expect(count('outreach_send')).toBe(0);
+    expect(count('outbound_send_attempt')).toBe(0);
+    expect(stance()).toBe('default');
+    expect(composed).toHaveLength(0);
+  });
+
+  it('is refused even where the relationship is perfectly contactable', async () => {
+    // Nothing about the world stops this send; the workflow does.
+    const { status } = await compose({ send: true });
+    expect(status).toBe(422);
+  });
+
+  it('leaves do_not_contact answering first, because it is about the world', async () => {
+    updateAthleteProgramme(ATHLETE, relationshipId, { contact_stance: 'do_not_contact' });
+
+    const { status, body } = await compose({ send: false });
+
     expect(status).toBe(422);
     expect(body.code).toBe('RELATIONSHIP_DO_NOT_CONTACT');
     expect(stance()).toBe('do_not_contact');
     expect(count('outreach_send')).toBe(0);
-  });
-
-  it('writes no suppression row', async () => {
-    await compose({ send: true });
-    expect(count('suppressions')).toBe(0);
-  });
-});
-
-describe('a send that did not happen', () => {
-  /**
-   * The bridge threw, so the coach has nothing. `sendOutreach` records the
-   * failure per coach as `status: 'error'` and the run returns 200 carrying
-   * it — which is why the seam reads the RESULTS rather than the HTTP status.
-   */
-  it('establishes nothing when Outlook refused the message', async () => {
-    outlookOk = false;
-
-    const { body } = await compose({ send: true });
-
-    expect(body.results[0].status).toBe('error');
-    expect(stance()).toBe('default');
-    expect(body.contactStance).toBeNull();
-  });
-
-  it('establishes nothing when the recipient is globally suppressed', async () => {
-    db.prepare(`INSERT INTO suppressions (email, created_at, reason, source)
-                VALUES ('a@duke.test', 'x', 'unsubscribed', 'manual')`).run();
-
-    const { body } = await compose({ send: true });
-
-    expect(body.results[0].status).toBe('suppressed');
-    expect(stance()).toBe('default');
-  });
-
-  it('establishes nothing when no coach was named', async () => {
-    const { status } = await post({ subject: 'x', body: 'y', coachIds: [], send: true });
-    expect(status).toBe(400);
-    expect(stance()).toBe('default');
   });
 });
 

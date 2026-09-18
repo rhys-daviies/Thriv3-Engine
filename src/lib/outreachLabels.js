@@ -263,3 +263,79 @@ export const ORIGIN_UNRECORDED_SHORT = 'Origin not recorded';
 
 /** Said where several coaches at one programme have been written to. */
 export const moreCoaches = (n) => `+${n} more`;
+
+/**
+ * WHAT HAPPENS AFTER THRIV3 OPENS THE DRAFT — F7b.
+ *
+ * ===========================================================================
+ * THE HANDOVER IS THE MOMENT WORTH BEING HONEST ABOUT.
+ *
+ * Thriv3 hands the message to Outlook over AppleScript and receives nothing
+ * back it could use later — no message id, no draft handle, no callback. From
+ * that instant the draft belongs to the operator and to Outlook, and this
+ * system cannot see it, cannot change it and cannot stop it.
+ *
+ * Two consequences the operator has to be told, once, plainly:
+ *
+ *   IT WILL NOT KNOW WHEN YOU PRESS SEND. Nothing is recorded as contact until
+ *   a person says so, which is why "Mark as sent" exists at all.
+ *
+ *   A LATER CHANGE OF MIND CANNOT REACH IT. Setting the school to
+ *   do-not-contact tomorrow stops Thriv3; it does not stop a draft already
+ *   sitting in Outlook.
+ *
+ * Stated, not dramatised. It is how the tool works rather than a warning.
+ * ===========================================================================
+ */
+export const DRAFT_OPENED_TITLE = 'Draft opened in Outlook';
+export const DRAFT_OPENED_BODY =
+  'Review and edit it there, then send it yourself. Thriv3 does not know when you press '
+  + 'Send — come back and use "Mark as sent" so this school counts as contacted.';
+export const DRAFT_HANDOVER_HINT =
+  'Once a draft is in Outlook, Thriv3 can no longer change or stop it — including if you '
+  + 'later set this school to do-not-contact.';
+
+/**
+ * THE CONFIRMATION, AND THE WORD IT MUST NOT USE.
+ *
+ * "Confirm" is the operator confirming their own action, never Thriv3
+ * confirming an observation. There is no pixel, no provider callback and no
+ * Outlook handle, so nothing here may read as "verified", "detected" or
+ * "delivered" — see ACCEPTED_SOURCE.OPERATOR_ASSERTED, which is the weakest of
+ * the four and is what this records.
+ */
+export const MARK_AS_SENT = 'Mark as sent';
+export const MARK_AS_SENT_HINT = 'Confirm that you sent this email from Outlook.';
+export const AWAITING_CONFIRMATION = 'Draft awaiting your confirmation';
+
+/**
+ * THE DRAFT THAT NEVER WENT.
+ *
+ * Deliberately "draft record", not "draft": Thriv3 cannot see or delete
+ * anything in Outlook, and a label promising otherwise would be the one claim
+ * this whole workflow is careful not to make. What it clears is this system's
+ * own expectation of an answer.
+ *
+ * The history stays. Subject, body hash, evidence and coach all survive, so
+ * what Thriv3 composed remains answerable; only the pending claim goes away.
+ */
+export const DISCARD_DRAFT = 'Discard draft record';
+export const DISCARD_DRAFT_HINT =
+  'Use this if you did not send it. The record of what Thriv3 drafted is kept, and nothing '
+  + 'is counted as contact. It does not delete anything in Outlook.';
+
+/**
+ * WHAT THRIV3 CAN HONESTLY SAY ABOUT THE COPY IT HOLDS.
+ *
+ * The operator is expected to edit the draft in Outlook, and Thriv3 never sees
+ * those edits — it stores what it GENERATED. So stored subject, body hash and
+ * evidence describe the drafted copy and not the sent copy, and no surface may
+ * call them the email that was sent.
+ */
+export const GENERATED_DRAFT_COPY = 'Generated draft';
+export const GENERATED_DRAFT_HINT =
+  'What Thriv3 drafted. You may have edited it in Outlook before sending; those edits are '
+  + 'not visible here.';
+
+/** Outlook, and only Outlook. There is no Apple Mail or Gmail path in this build. */
+export const MAIL_CLIENT = 'Outlook';

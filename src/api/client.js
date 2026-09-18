@@ -796,6 +796,44 @@ export const manualOutreach = {
       body: JSON.stringify(payload),
     });
   },
+
+  /**
+   * EVERY MANUAL DRAFT THIS ATHLETE HAS WAITING, IN ONE REQUEST — F7b.
+   *
+   * Athlete-level for the same reason `/contact-intelligence` is: Specific
+   * Schools renders a list, and a per-card lookup would be an N+1 that grows
+   * with exactly the athletes who have the most outreach. The client indexes it
+   * by programme and every row reads a local entry.
+   */
+  pendingDrafts(playerId) {
+    return request(`/api/players/${playerId}/pending-manual-drafts`);
+  },
+
+  /**
+   * "I SENT THIS ONE." An operator assertion about a specific message, and the
+   * only kind of evidence available — Outlook hands back no message id, so
+   * nothing can be observed or polled. Addressed by `outreach_send.id` rather
+   * than by relationship, so an operator who drafted to three coaches and sent
+   * two can say exactly that.
+   */
+  confirmSent(playerId, relationshipId, sendId) {
+    return request(
+      `/api/players/${playerId}/programmes/${relationshipId}/outreach/${sendId}/confirm-sent`,
+      { method: 'POST' },
+    );
+  },
+
+  /**
+   * "I NEVER SENT THIS ONE." Clears Thriv3's expectation of an answer and keeps
+   * the record of what it drafted. It does not touch Outlook, which this build
+   * cannot see.
+   */
+  discardDraft(playerId, relationshipId, sendId) {
+    return request(
+      `/api/players/${playerId}/programmes/${relationshipId}/outreach/${sendId}/discard`,
+      { method: 'POST' },
+    );
+  },
 };
 
 

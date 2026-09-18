@@ -664,9 +664,30 @@ describe('the boundaries this slice must not cross', () => {
     expect(source('../routes/sendOutreach.js')).not.toContain('establishManualOnly');
   });
 
-  it('is reached from exactly the two seams it should be', () => {
-    const callers = ['../routes/manualOutreach.js', './confirmSends.js']
+  /**
+   * RE-POINTED IN F7b, AND THE SEAM MOVED RATHER THAN DISAPPEARED.
+   *
+   * F5b's two callers were the batch confirmation and the manual route's
+   * `send: true` branch. F7b made Specific Search draft-only, so that branch
+   * was removed — Thriv3 no longer sends an individual message and therefore
+   * no longer learns of one at the moment of composing. Its replacement is the
+   * per-message confirmation, which is the only place in that workflow that
+   * learns a message actually went, because the only thing that knows is the
+   * person who pressed Send in Outlook.
+   *
+   * Still exactly two, and still both confirmations of a send that happened.
+   */
+  it('is reached from exactly the two confirmation seams it should be', () => {
+    const callers = ['./confirmSends.js', './manualDraftConfirmation.js']
       .filter((f) => source(f).includes('manualContactStance.js'));
     expect(callers).toHaveLength(2);
+
+    /**
+     * AND NO LONGER FROM THE COMPOSE ROUTE. A route that drafts must establish
+     * no contact policy: a draft is not contact, and the branch that used to do
+     * it here could only ever be reached by an automatic send this workflow no
+     * longer performs.
+     */
+    expect(source('../routes/manualOutreach.js')).not.toContain('manualContactStance.js');
   });
 });
