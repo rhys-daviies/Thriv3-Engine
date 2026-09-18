@@ -392,6 +392,59 @@ export const campaigns = {
   reviewMessage(messageId) {
     return request(`/api/programme-messages/${messageId}/review`, { method: 'POST' });
   },
+
+  /**
+   * WOULD THIS MESSAGE GO, IF SOMEBODY PRESSED SEND NOW? — D4.9.
+   *
+   * ADVISORY, and the response says so in its own payload: `advisory` and
+   * `claimRechecksEverything` are both on it. Every fact in it can move before
+   * a send, so it is for greying out a button and explaining why — never for
+   * deciding that a send is safe. The server asks everything again.
+   *
+   * `blockers` is EVERY reason, not the first, so an operator fixing one does
+   * not discover the next by pressing send.
+   */
+  executionReadiness(messageId, { connectedMailboxId } = {}) {
+    const query = connectedMailboxId
+      ? `?connectedMailboxId=${encodeURIComponent(connectedMailboxId)}`
+      : '';
+    return request(`/api/programme-messages/${messageId}/execution-readiness${query}`);
+  },
+
+  /**
+   * SEND A REVIEWED MESSAGE — D4.9, and the only function here that can cause
+   * an email.
+   *
+   * ===========================================================================
+   * TWO FIELDS, AND NEITHER IS AUTHORITY.
+   *
+   *   bodyHash            the reviewed hash this client was shown. If the words
+   *                       have been edited since, the server refuses with 409
+   *                       MESSAGE_REVIEW_CHANGED rather than sending a body
+   *                       nobody on this screen has read.
+   *   connectedMailboxId  which of the athlete's mailboxes to send from. The
+   *                       server proves it belongs to this operator AND this
+   *                       athlete, is connected and holds a credential.
+   *
+   * Everything else — recipient, subject, body, provider, campaign, coach,
+   * step, budget, timing — is derived server-side, and naming any of them is a
+   * 400 that says which field was refused.
+   * ===========================================================================
+   *
+   * THE RESULT IS DURABLE STATE, NOT A TRANSPORT ANSWER. A 200 means the
+   * request ran and `state` is what is on file: ACCEPTED, FAILED, or
+   * UNKNOWN_PROVIDER_RESULT. UNKNOWN IS A 200 ON PURPOSE — a 5xx would invite a
+   * retry, and an ambiguous send is the one thing that must never be retried.
+   *
+   * IN THIS BUILD IT ALWAYS REFUSES with 503 TRANSPORT_NOT_CONFIGURED: there is
+   * no production transport yet. Nothing is claimed and no capacity is spent.
+   */
+  sendMessage(messageId, { bodyHash, connectedMailboxId }) {
+    return request(`/api/programme-messages/${messageId}/send`, {
+      method: 'POST',
+      body: JSON.stringify({ bodyHash, connectedMailboxId }),
+    });
+  },
 };
 
 /**

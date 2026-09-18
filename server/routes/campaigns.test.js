@@ -863,11 +863,36 @@ describe('GET /api/campaigns/:id/execution-plan', () => {
    * None of them may ever be reachable from this router, and the day one is,
    * this line has to change again and say why.
    */
-  it('has no sibling that executes it', () => {
+  /**
+   * D4.9 SHIPS THE SIBLING, AND THE GUARD NARROWS RATHER THAN DISAPPEARING.
+   *
+   * ===========================================================================
+   * This said the plan must have no execution endpoint beside it, because
+   * inspection would otherwise be a formality. That was right for every phase
+   * in which the safety layers did not yet exist. They do now, and the send
+   * endpoint is the point of D4.9.
+   *
+   * WHAT THE GUARD ACTUALLY PROTECTED IS UNCHANGED AND STILL ASSERTED: this
+   * router may not reach a domain writer that makes a message happen.
+   * `createOutreach` mints the relationship and its permanent token,
+   * `recordDraft` writes a body, `recordOutboundAttempt` spends capacity,
+   * `acceptSend` declares a send. None of them appears here — the send route
+   * calls ONE orchestrator, which calls the claim, and the claim owns all four.
+   *
+   * The bulk prohibition is also unchanged: there is one send endpoint, it
+   * takes one message id, and no multi-programme form of it exists.
+   * ===========================================================================
+   */
+  it('has exactly one execution sibling, and reaches no writer that sends', () => {
     const src = fs.readFileSync(new URL('./campaigns.js', import.meta.url), 'utf8');
-    // The plan exists so a person can look before anything acts. An execution
-    // endpoint shipped beside it would make that inspection a formality.
-    expect(src).not.toMatch(/\.post\(['"][^'"]*(execute|send|run|process)/i);
+
+    /* One send endpoint, for one message, and nothing bulk. */
+    const sendRoutes = [...src.matchAll(/campaignsRouter\.post\(\s*\n?\s*'([^']*)'/g)]
+      .map((m) => m[1]).filter((path) => /send|execute|run|process|queue|dispatch/i.test(path));
+    expect(sendRoutes).toEqual(['/programme-messages/:messageId/send']);
+    expect(src).not.toMatch(/\.post\(['"][^'"]*(all|bulk|batch)/i);
+
+    /* The four writers that make a message happen are still unreachable here. */
     expect(src).not.toMatch(/createOutreach|recordDraft|recordOutboundAttempt|acceptSend/i);
     // Matched against CODE, not prose: the routes' own comments say the words.
     const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
@@ -901,7 +926,8 @@ describe('GET /api/campaigns/:id/execution-plan', () => {
      * not actionability. The count is pinned so the surface grows deliberately.
      */
     const methods = [...src.matchAll(/campaignsRouter\.(\w+)\(/g)].map((m) => m[1]);
-    expect(methods.filter((m) => m === 'get').length).toBe(4);
+    /** FIVE READS NOW: D4.9's execution-readiness, which writes nothing. */
+    expect(methods.filter((m) => m === 'get').length).toBe(5);
     expect(new Set(methods)).toEqual(new Set(['post', 'get', 'patch']));
   });
 });
@@ -931,11 +957,21 @@ describe('the client method', () => {
     }
   });
 
-  it('is a read, with no companion that executes a plan', async () => {
+  /**
+   * THE PLAN IS STILL A READ. D4.9 adds one send and one readiness read beside
+   * it, named here so that anything else still fails — a `sendAll`, a
+   * `processQueue`, a `materialiseEverything`.
+   */
+  it('is a read, and the only companion that sends is the single-message one', async () => {
     const { campaigns } = await import('../../src/api/client.js');
     expect(typeof campaigns.executionPlan).toBe('function');
+    expect(typeof campaigns.sendMessage).toBe('function');
+    const allowed = ['executionReadiness', 'sendMessage'];
     for (const name of Object.keys(campaigns)) {
+      if (allowed.includes(name)) continue;
       expect(name).not.toMatch(/execute|send|run|process|materialise/i);
     }
+    /* And the plan itself gained no executing form. */
+    expect(campaigns.executePlan).toBeUndefined();
   });
 });
