@@ -113,11 +113,34 @@ describe('campaigns are not generic CRUD', () => {
    * argument and sends no body, so it cannot express an intent against a coach
    * or a step of the caller's choosing.
    */
-  it('exposes exactly the twelve campaign operations, and none of them sends', () => {
+  /**
+   * D4.9 ENDS "NONE OF THEM SENDS", DELIBERATELY, AND NARROWS THE RULE RATHER
+   * THAN DROPPING IT.
+   *
+   * ===========================================================================
+   * The rule existed because every phase up to F10 was content-only: a client
+   * that could make a message HAPPEN would have been a client that could send
+   * one before any of the safety, budget, timing or freezing layers existed.
+   * All of them now do — D4.5 claims atomically, D4.6 recovers, D4.7 freezes
+   * the bytes and owns the result, D4.8 reconciles and enforces the four-day
+   * wait — and D4.9 is the slice whose entire purpose is to expose that path.
+   *
+   * So TWO named operations are now allowed, and the pattern below still
+   * catches everything else. A future `sendAll`, `queueMessage`,
+   * `dispatchCampaign` or `processQueue` fails this test exactly as before.
+   *
+   * `sendMessage` takes ONE message id and two preconditions. There is no bulk
+   * form, it names no coach, step, recipient, subject or body, and the server
+   * refuses any field it did not ask for.
+   * ===========================================================================
+   */
+  const EXECUTION_OPERATIONS = Object.freeze(['executionReadiness', 'sendMessage']);
+
+  it('exposes exactly the fourteen campaign operations', () => {
     expect(Object.keys(campaigns).sort()).toEqual([
-      'approveFirstTouch', 'createForPlayer', 'editMessage', 'executionPlan', 'generateMessage',
-      'get', 'listForPlayer', 'message', 'prepareNextAttempt', 'reviewMessage', 'update',
-      'updateProgramme',
+      'approveFirstTouch', 'createForPlayer', 'editMessage', 'executionPlan',
+      'executionReadiness', 'generateMessage', 'get', 'listForPlayer', 'message',
+      'prepareNextAttempt', 'reviewMessage', 'sendMessage', 'update', 'updateProgramme',
     ]);
 
     /**
@@ -143,8 +166,10 @@ describe('campaigns are not generic CRUD', () => {
      * catches anything that would make a message HAPPEN.
      */
     for (const name of Object.keys(campaigns)) {
-      expect(name).not.toMatch(/execute|send|run|process|queue|schedule|dispatch/i);
-      // No bulk or multi-programme form of anything.
+      if (!EXECUTION_OPERATIONS.includes(name)) {
+        expect(name).not.toMatch(/execute|send|run|process|queue|schedule|dispatch/i);
+      }
+      // No bulk or multi-programme form of anything, execution included.
       expect(name).not.toMatch(/all|bulk|batch|each|every/i);
     }
 
