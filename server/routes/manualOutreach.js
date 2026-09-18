@@ -2,6 +2,7 @@ import express from 'express';
 import db from '../db/client.js';
 import { getAthleteProgramme } from '../lib/athleteProgrammes.js';
 import { manualContactDecision } from '../lib/manualOutreachSafety.js';
+import { establishManualOnly } from '../lib/manualContactStance.js';
 import { programmeCoaches } from './programmeCoaches.js';
 import { historyForAthleteProgramme } from '../lib/programmeContactHistory.js';
 import { contactIntelligenceForProgramme } from '../lib/contactIntelligence.js';
@@ -235,7 +236,50 @@ manualOutreachRouter.post('/players/:playerId/programmes/:id/outreach', async (r
       programmeCampaignId: null,
     }, { origin: OUTREACH_ORIGIN.MANUAL });
 
-    return res.json(result);
+    /**
+     * A PERSON HAS NOW WRITTEN TO THIS SCHOOL, SO THE CAMPAIGN STOPS — F5b.
+     *
+     * -----------------------------------------------------------------------
+     * AFTER THE SEND, AND ONLY ON A CONFIRMED ONE.
+     *
+     * `status: 'sent'` is written only where the AppleScript issued Outlook's
+     * own Send and did not throw. A DRAFT IS NOT CONTACT: `send: false` opens
+     * a window and nothing more, whether the operator then presses Send is
+     * outside what this process can see, and a policy installed on a draft
+     * would silence the campaign for a school nobody had actually written to.
+     * That case is covered instead by `confirmSends`, where a person says so.
+     *
+     * `'error'`, `'suppressed'` and `'revoked'` results establish nothing for
+     * the same reason: no message left.
+     * -----------------------------------------------------------------------
+     *
+     * HERE RATHER THAN INSIDE `sendOutreach`, WHICH IS THE WHOLE POINT. That
+     * function is shared by the manual route, the Top 100 composer, the bulk
+     * composer, the drafting CLI and the campaign path. Putting this there
+     * would let a campaign send write manual-contact policy — the one coupling
+     * these two workstreams are kept apart to prevent. This route is the
+     * manual doorway, it forces `origin: manual` and a null campaign, and it
+     * already holds the relationship the policy is about.
+     *
+     * BEST EFFORT, AND REPORTED. The coach has the email. A policy write that
+     * failed must not become a 500 telling an operator their send did not
+     * work, so the outcome travels on the response instead and the client
+     * refreshes the relationship from it.
+     */
+    let contactStance = null;
+    if (body.send === true && result.results.some((r) => r.status === 'sent')) {
+      try {
+        contactStance = establishManualOnly({
+          athleteId: ctx.playerId,
+          collegeName: ctx.collegeName,
+          sport: ctx.sport,
+        });
+      } catch (err) {
+        console.warn(`[manual-outreach] contact stance not established: ${err.message}`);
+      }
+    }
+
+    return res.json({ ...result, contactStance });
   } catch (err) {
     if (err.status) return res.status(err.status).json({ error: err.message, code: err.code });
     if (err.code) return res.status(422).json({ error: err.message, code: err.code });

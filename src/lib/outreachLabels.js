@@ -49,16 +49,55 @@ export const RELATIONSHIP_DIALOG_HINT =
   'Composed from what is on record for this school with this athlete.';
 
 /**
- * `manual_only` — PHRASED FOR WHAT IS TRUE TODAY.
+ * `manual_only` — AND IT IS NOW ENFORCED, SO IT MAY SAY SO.
  *
- * It records an intention that automated outreach should leave this programme
- * alone. Campaign execution does not consult it yet, so saying "excluded from
- * automated outreach" would describe enforcement this build does not have and
- * would be believed. The wording says what the operator should do, and what the
- * setting is for, without claiming a guard that is not there.
+ * This wording used to hedge: it said what an operator SHOULD do rather than
+ * what the product WOULD do, because when it was written campaign execution
+ * did not consult the column and promising a guard that did not exist would
+ * have been believed. F6a made `campaignStanceDecision` refuse
+ * RELATIONSHIP_MANUAL_ONLY at the one chokepoint every campaign write passes
+ * through, and F11b's execution decision reads the same authority. The
+ * enforcement is real, so the sentence is now a statement of fact.
+ *
+ * BOTH HALVES ARE SAID, because only one of them is a restriction. An operator
+ * who reads "won't be contacted" and stops there will not discover that the
+ * school is still theirs to write to by hand, which is the entire point of
+ * this stance rather than the stronger one.
  */
 export const MANUAL_ONLY_HINT =
-  'Manual only — contact this programme directly rather than through automated outreach.';
+  'This school won\'t be contacted by the automated campaign. You can still contact it manually.';
+
+/** The badge, kept short — the sentence above carries the explanation. */
+export const MANUAL_ONLY_BADGE = 'Manual outreach only';
+
+/**
+ * THE TWO CONTACT-POLICY ACTIONS, AND WHY NEITHER MENTIONS HISTORY.
+ *
+ * "We've already been in touch" states a fact the operator knows and the
+ * database may not — contact that happened outside Thriv3 leaves no row here,
+ * and that case is the reason the stance is stored rather than derived.
+ *
+ * Its opposite is emphatically NOT "not previously contacted". History does
+ * not un-happen, and an operator changing a policy must not be made to assert
+ * something false to do it. `contact_stance` is CURRENT POLICY; the messages
+ * in `outreach` are the history, and they stay exactly as they are either way.
+ */
+export const ALREADY_IN_TOUCH = 'We\'ve already been in touch';
+export const ALLOW_CAMPAIGN_OUTREACH = 'Allow campaign outreach';
+
+/**
+ * The flag the "already in touch" button installs ALONGSIDE the stance.
+ *
+ * TWO MUTATIONS, NOT ONE, and the client makes both explicitly. A flag is a
+ * fact about the world and a stance is a contact policy; `establishManualOnly`
+ * on the server touches only the second and must never infer the first. What
+ * an operator may do in one click, a domain function may not do behind one.
+ *
+ * It is NEVER written over an existing reason. "Her father is an alum" is
+ * context somebody took the trouble to record, and replacing it with this
+ * would destroy the more informative of the two.
+ */
+export const ALREADY_IN_TOUCH_FLAG_REASON = 'Already in contact with this school';
 
 /**
  * `do_not_contact` — AND WHAT WILL NOT LIFT IT.

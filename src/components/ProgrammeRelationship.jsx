@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { RELATIONSHIP_OUTREACH, MANUAL_ONLY_HINT } from '@/lib/outreachLabels';
+import { RELATIONSHIP_OUTREACH, MANUAL_ONLY_HINT, MANUAL_ONLY_BADGE } from '@/lib/outreachLabels';
+import ContactStanceControl from '@/components/ContactStanceControl';
 
 /**
  * WHAT THRIV3 ALREADY KNOWS ABOUT THIS ATHLETE AND THIS SCHOOL.
@@ -41,7 +42,7 @@ const SUGGESTED_REASONS = [
 export default function ProgrammeRelationship({
   collegeName, collegeId, relationship = null, busy = false, error = null,
   promotedFrom = null,
-  onFlag, onUnflag, onSetVisibility, onSaveNote,
+  onFlag, onUnflag, onSetVisibility, onSaveNote, onSetContactStance = null,
   /**
    * A CALLBACK, NOT A DIALOG. This component is rendered once per card, and
    * importing the composer here would mount one dialog per programme on the
@@ -94,7 +95,7 @@ export default function ProgrammeRelationship({
           {flagged && <Badge variant="amber">Existing relationship</Badge>}
           {requested && <Badge variant="purple">Specific Request</Badge>}
           {suppressed && <Badge variant="muted">Not in Top 100</Badge>}
-          {relationship?.contact_stance === 'manual_only' && <Badge variant="blue">Manual only</Badge>}
+          {relationship?.contact_stance === 'manual_only' && <Badge variant="blue">{MANUAL_ONLY_BADGE}</Badge>}
           {relationship?.contact_stance === 'do_not_contact' && <Badge variant="red">Do not contact</Badge>}
           {flagged && relationship?.flag_reason && (
             <span className="text-xs text-muted-foreground">{relationship.flag_reason}</span>
@@ -148,6 +149,22 @@ export default function ProgrammeRelationship({
             reason attached, and the reason is the thing anyone reading this
             later needs.
           */}
+          {/*
+            THE CONTACT POLICY, BESIDE THE OTHER TWO DECISIONS AND SEPARATE
+            FROM BOTH. Offered on every card rather than only on one that
+            already has a relationship row: "we've already been in touch" is
+            most often said about a school nobody has recorded anything about
+            yet, and the write is an upsert that creates the row.
+          */}
+          <ContactStanceControl
+            collegeId={collegeId}
+            collegeName={collegeName}
+            relationship={relationship}
+            busy={busy}
+            onSetContactStance={onSetContactStance}
+            onFlag={onFlag}
+          />
+
           {(flagged || suppressed || requested) && (
             suppressed ? (
               <Button size="sm" variant="outline" disabled={busy}
