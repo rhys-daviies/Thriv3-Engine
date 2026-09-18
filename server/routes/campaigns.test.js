@@ -886,10 +886,27 @@ describe('GET /api/campaigns/:id/execution-plan', () => {
   it('has exactly one execution sibling, and reaches no writer that sends', () => {
     const src = fs.readFileSync(new URL('./campaigns.js', import.meta.url), 'utf8');
 
-    /* One send endpoint, for one message, and nothing bulk. */
+    /**
+     * TWO ROUTES REACH A TRANSPORT NOW, NOT ONE — D5.0, and the guard is
+     * WIDENED BY EXACTLY ONE NAMED PATH rather than loosened.
+     *
+     * The second is a RE-ATTEMPT of an execution that already exists: it takes
+     * one execution id, creates no `outreach_send`, composes nothing, and is
+     * refused unless the ledger and the event log both prove no provider was
+     * ever reached. It is not a second way to send a message — it is the only
+     * way to finish sending the one message that never went.
+     *
+     * Everything the original assertion defended survives: still one id per
+     * request, still nothing bulk, still no third path, and a future `sendAll`,
+     * `queueMessage`, `processQueue` or `dispatchCampaign` still fails this
+     * list.
+     */
     const sendRoutes = [...src.matchAll(/campaignsRouter\.post\(\s*\n?\s*'([^']*)'/g)]
-      .map((m) => m[1]).filter((path) => /send|execute|run|process|queue|dispatch/i.test(path));
-    expect(sendRoutes).toEqual(['/programme-messages/:messageId/send']);
+      .map((m) => m[1]).filter((path) => /send|execute|run|process|queue|dispatch|retry/i.test(path));
+    expect(sendRoutes.sort()).toEqual([
+      '/outreach-sends/:sendId/retry',
+      '/programme-messages/:messageId/send',
+    ]);
     expect(src).not.toMatch(/\.post\(['"][^'"]*(all|bulk|batch)/i);
 
     /* The four writers that make a message happen are still unreachable here. */
@@ -958,15 +975,17 @@ describe('the client method', () => {
   });
 
   /**
-   * THE PLAN IS STILL A READ. D4.9 adds one send and one readiness read beside
-   * it, named here so that anything else still fails — a `sendAll`, a
-   * `processQueue`, a `materialiseEverything`.
+   * THE PLAN IS STILL A READ. D4.9 added one send and one readiness read beside
+   * it; D5.0 adds `retrySend`, which re-attempts ONE existing execution and
+   * creates nothing. All three are named here so that anything else still
+   * fails — a `sendAll`, a `processQueue`, a `materialiseEverything`.
    */
-  it('is a read, and the only companion that sends is the single-message one', async () => {
+  it('is a read, and its only sending companions are the single-execution ones', async () => {
     const { campaigns } = await import('../../src/api/client.js');
     expect(typeof campaigns.executionPlan).toBe('function');
     expect(typeof campaigns.sendMessage).toBe('function');
-    const allowed = ['executionReadiness', 'sendMessage'];
+    expect(typeof campaigns.retrySend).toBe('function');
+    const allowed = ['executionReadiness', 'sendMessage', 'retrySend'];
     for (const name of Object.keys(campaigns)) {
       if (allowed.includes(name)) continue;
       expect(name).not.toMatch(/execute|send|run|process|materialise/i);

@@ -1,13 +1,14 @@
 import { utcNow, utcToday } from './time.js';
 import { programmeMessage, MESSAGE_STATE as CONTENT_STATE } from './programmeMessages.js';
 import { claimProgrammeMessageForExecution, executionSnapshot } from './executionClaim.js';
-import { attemptSend } from './outboundTransport.js';
+import { attemptSend, TRANSPORT_OUTCOME } from './outboundTransport.js';
 import { persistTransportResult } from './executionResult.js';
 /**
  * ITS OWN MODULE, so the HTTP route has a seam a test can replace. See the
  * file's own header for why an environment flag would have been worse.
  */
 import { productionTransport } from './productionTransport.js';
+import { reclaimRefusedExecution } from './executionRetry.js';
 
 /**
  * SENDING ONE REVIEWED MESSAGE, END TO END — D4.9.
@@ -157,6 +158,27 @@ export async function executeProgrammeMessage({
     programmeMessageId, operatorUserId, connectedMailboxId, at, onDate,
   });
 
+  return transmitClaimed(claimed, { transport, at, message });
+}
+
+/**
+ * HAND ONE CLAIMED EXECUTION TO A TRANSPORT AND WRITE DOWN WHAT CAME BACK.
+ *
+ * ---------------------------------------------------------------------------
+ * SHARED BY BOTH WAYS OF REACHING A PROVIDER — D5.0.
+ *
+ * A first execution and an explicit re-attempt differ entirely in how they get
+ * permission and not at all in what happens afterwards: the same frozen bytes,
+ * the same one transport call, the same result boundary, the same durable truth
+ * read back. Writing that twice would be two places for the transport contract
+ * to drift, and the drift would be invisible until a retry behaved differently
+ * from a send.
+ *
+ * So both claim paths produce the same shape — `{ send, ledgerAttemptId,
+ * execution, ... }` — and hand it here.
+ * ---------------------------------------------------------------------------
+ */
+async function transmitClaimed(claimed, { transport, at, message }) {
   /* ---- 4. the bytes that were frozen, read back from the row ------------- */
   const snapshot = executionSnapshot(claimed.send.id);
   if (!snapshot?.complete) {
@@ -182,7 +204,15 @@ export async function executeProgrammeMessage({
   });
 
   /* ---- 6. what it said, written down once ------------------------------- */
-  const persisted = persistTransportResult(claimed.send.id, result, { at });
+  const persisted = persistTransportResult(claimed.send.id, result, {
+    at,
+    /**
+     * WHICH RESERVATION THIS EXECUTION TOOK — D5.0. Named explicitly so the
+     * result boundary settles the row that actually paid for THIS attempt, not
+     * whichever row of a retried message happens to sort last.
+     */
+    ledgerAttemptId: claimed.ledgerAttemptId,
+  });
 
   /**
    * DURABLE TRUTH, READ BACK — never the transport's own answer. A caller must
@@ -203,5 +233,81 @@ export async function executeProgrammeMessage({
     step: message.step,
     /** Present only for an acceptance; see executionResult's TXN 2b. */
     attempt: persisted.bookkeeping ?? null,
+    /**
+     * WHAT THE TRANSPORT ITSELF SAID, BESIDE WHAT WAS WRITTEN DOWN — D5.0.
+     *
+     * The state alone cannot answer the question a caller now has to ask.
+     * FAILED is the durable truth for BOTH a provider rejection and a proven
+     * non-send, and those mean opposite things about what to do next: one is
+     * the provider's considered no, the other is an infrastructure problem that
+     * may be fixable in a minute. So the outcome is reported alongside.
+     *
+     * `retryable` is derived from it rather than from the state, and it is the
+     * ONLY place in the response that says a re-attempt is permitted. It is
+     * still advisory — `reclaimRefusedExecution` re-establishes every safety
+     * rule and may refuse anyway — for exactly the reason executionReadiness
+     * carries `claimRechecksEverything`.
+     */
+    transportOutcome: result?.outcome ?? null,
+    retryable: result?.outcome === TRANSPORT_OUTCOME.REFUSED_BEFORE_TRANSPORT,
   };
+}
+
+
+/**
+ * ATTEMPT AGAIN, ONCE, A MESSAGE THAT PROVABLY NEVER LEFT — D5.0.
+ *
+ * ===========================================================================
+ * EXPLICIT, AND THERE IS NO OTHER KIND.
+ *
+ * Nothing in this system retries anything by itself. There is no scheduler, no
+ * backoff, no loop, and no branch anywhere that turns a failure into a second
+ * attempt — `attemptSend` makes exactly one call and both claim paths reserve
+ * capacity before it. This function runs because a person or an application
+ * asked it to, by naming the execution it is re-attempting.
+ * ===========================================================================
+ *
+ * IT OWNS NO POLICY EITHER. Permission is `reclaimRefusedExecution`, which
+ * re-establishes every safety rule through the same `assertExecutionSafety` the
+ * ordinary claim uses; the bytes are the ones already frozen on the row; and
+ * the result goes through the same boundary as a first send. This orchestrates
+ * two calls and holds nothing.
+ *
+ * THE TRANSPORT CHECK IS STILL FIRST, for the same reason it is in a first
+ * send: discovering there is nothing to send with AFTER reclaiming the row
+ * would leave the message SENDING and a fresh reservation spent on an attempt
+ * that could never have happened.
+ *
+ * @returns the same shape a first execution returns, plus `reattempt: true`.
+ */
+export async function reattemptExecution({
+  outreachSendId, operatorUserId, connectedMailboxId = null,
+  at = utcNow(), onDate = utcToday(),
+  transport = productionTransport(),
+} = {}) {
+  for (const [name, value] of [
+    ['outreachSendId', outreachSendId],
+    ['operatorUserId', operatorUserId],
+  ]) {
+    if (typeof value !== 'string' || !value.trim()) {
+      throw fail('EXECUTION_ARGUMENT_REQUIRED', `Re-attempting a message needs ${name}.`);
+    }
+  }
+
+  if (!transport) {
+    throw fail(EXECUTION_REFUSAL.TRANSPORT_NOT_CONFIGURED,
+      'No outbound transport is configured on this server, so nothing can be sent. Nothing was '
+      + 'reclaimed and no capacity was spent.');
+  }
+
+  const claimed = reclaimRefusedExecution({
+    outreachSendId, operatorUserId, connectedMailboxId, at, onDate,
+  });
+
+  const out = await transmitClaimed(claimed, {
+    transport,
+    at,
+    message: { id: claimed.programmeMessageId, step: claimed.step },
+  });
+  return { ...out, reattempt: true, priorAttempts: claimed.priorAttempts };
 }

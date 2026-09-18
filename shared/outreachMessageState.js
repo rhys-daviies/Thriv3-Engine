@@ -296,6 +296,32 @@ export const SEND_EVENT_TYPE = Object.freeze({
    * touched it and what each attempt looked like.
    */
   TRANSPORT_UNKNOWN: 'TRANSPORT_UNKNOWN',
+  /**
+   * NO PROVIDER WAS EVER ASKED, AND WE CAN PROVE IT — D5.0.
+   *
+   * -------------------------------------------------------------------------
+   * IT IS NOT `TRANSPORT_REJECTED`, AND REUSING THAT ONE WOULD HAVE COST TWO
+   * THINGS WORTH MORE THAN A CONSTANT.
+   *
+   * The first is a question nobody could then answer: "how often is our own
+   * configuration broken?" A rejection is the provider's judgement of a message
+   * we successfully delivered to it; this is our own failure to get that far. A
+   * table that pools them measures two unrelated health problems as one number,
+   * and the one you can fix disappears into the one you cannot.
+   *
+   * The second is retry safety. This is the ONLY evidence in the system that
+   * licenses a re-execution — see executionRetry.js, which requires it — and a
+   * shared type would make a genuine provider refusal look retryable. That is
+   * the double-send this whole sequence exists to prevent, arrived at by an
+   * enum shortcut.
+   * -------------------------------------------------------------------------
+   *
+   * The message's own state is FAILED, the same as a rejection: what the
+   * message IS did not change, only how it came to be that way. The payload
+   * carries a provider-neutral `reason` and no raw provider error, no
+   * credential, no body and no stack.
+   */
+  TRANSPORT_REFUSED: 'TRANSPORT_REFUSED',
   BOUNCE_HARD: 'BOUNCE_HARD',
   BOUNCE_SOFT: 'BOUNCE_SOFT',
   REPLY: 'REPLY',

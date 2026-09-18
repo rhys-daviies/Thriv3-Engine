@@ -9,7 +9,9 @@ import { linkContactAttemptToOutreach } from './contactAttempts.js';
 import {
   recordDraft, claimSendForExecution, sendById, unresolvedSendFor,
 } from './outreachSend.js';
-import { recordOutboundAttempt, normaliseSendingIdentity, TRANSPORT } from './outboundBudget.js';
+import {
+  recordOutboundAttempt, normaliseSendingIdentity, TRANSPORT, OUTBOUND_ATTEMPT_DISPOSITION,
+} from './outboundBudget.js';
 import { isSendCapped } from './sendCap.js';
 import { mailbox, hasStoredCredential, MAILBOX_STATUS } from './connectedMailboxes.js';
 import { RUN_ID } from './executionRun.js';
@@ -271,34 +273,51 @@ export function claimProgrammeMessageForExecution({
   });
 }
 
-const CLAIM = db.transaction(({
-  programmeMessageId, operatorUserId, connectedMailboxId, runId, at, onDate, window,
-  athleteLimit, mailboxLimit,
-}) => {
-  /* ---- 1. the approved words, and what they were approved for ------------ */
-  const found = programmeMessageWithContext(programmeMessageId);
-  if (!found) {
-    throw fail(CLAIM_REFUSAL.PROGRAMME_MESSAGE_NOT_FOUND,
-      `No programme message ${programmeMessageId}`);
-  }
-  const { message, context } = found;
+/* -------------------------------------------------------------------------- */
+/* The safety gates, asked once and reachable from both execution paths        */
+/* -------------------------------------------------------------------------- */
 
-  /**
-   * ---- 1a. this composition has not already been executed — D4.8 ----------
-   *
-   * Asked FIRST, before policy, before the mailbox, before anything is written.
-   * A message with an execution row behind it has had its answer, whatever that
-   * answer was, and every later check would be asking questions about a send
-   * that already happened.
-   */
-  const priorExecution = EXECUTION_FOR_MESSAGE.get(message.id);
-  if (priorExecution) {
-    throw fail(CLAIM_REFUSAL.MESSAGE_ALREADY_EXECUTED,
-      `This message has already been executed — it is ${priorExecution.state}. A message is `
-      + 'executed once; sending the same approved words again is a new decision about new '
-      + 'content, not a repeat of this one. Nothing was claimed.');
-  }
-
+/**
+ * IS IT STILL SAFE TO SEND THIS MESSAGE, RIGHT NOW?
+ *
+ * ===========================================================================
+ * EXTRACTED IN D5.0 SO THAT A RETRY REUSES THESE RULES RATHER THAN RESTATING
+ * THEM — and that is the whole reason it is a function.
+ *
+ * D5.0 adds a second way to reach a provider: an explicit re-execution of a
+ * message whose transport provably never submitted anything. That path has to
+ * satisfy every check below, because a refusal that happened this morning says
+ * nothing about this afternoon — a coach may have replied, the campaign may
+ * have been stopped, the address may have been corrected, the inbox may have
+ * hit its cap, the day may have rolled over. Copying these gates into
+ * `executionRetry.js` would have put a SECOND policy at the last gate before
+ * an email leaves, which is the worst place in this system for two of them.
+ *
+ * So the gates moved here, unchanged, and both callers run the same code.
+ * ===========================================================================
+ *
+ * IT READS AND REFUSES. It writes nothing, claims nothing, spends nothing, and
+ * every rule in it belongs to somebody else — `campaignContactDecision`,
+ * `programmePursuitPlan`, `followUpTiming`, `isSendCapped`, `unresolvedSendFor`,
+ * `mailbox`, `hasStoredCredential`. It composes them; it does not re-derive a
+ * single one.
+ *
+ * IT DOES NOT ASK WHETHER THE MESSAGE HAS ALREADY BEEN EXECUTED. That gate —
+ * MESSAGE_ALREADY_EXECUTED — stays in the ordinary claim, and deliberately: a
+ * retry exists precisely BECAUSE an execution row is already there, and it is
+ * the one caller for which that fact is the precondition rather than the
+ * refusal.
+ *
+ * CALLED INSIDE THE CALLER'S TRANSACTION, never opening one. Both callers hold
+ * an immediate transaction already, which is what makes "these facts were true
+ * when the row was written" a guarantee rather than a hope.
+ *
+ * @returns {{plan, coach, box, identity}} the authorities' own answers, so a
+ *   caller need not ask any of them a second time and risk a different reply.
+ */
+export function assertExecutionSafety({
+  message, context, operatorUserId, connectedMailboxId, onDate, window,
+}) {
   /**
    * ---- 1b. nothing unresolved is in flight to this coach — D4.8 ----------
    *
@@ -506,6 +525,41 @@ const CLAIM = db.transaction(({
   }
   const identity = normaliseSendingIdentity(box.email_address);
 
+  return { plan, coach, box, identity };
+}
+
+const CLAIM = db.transaction(({
+  programmeMessageId, operatorUserId, connectedMailboxId, runId, at, onDate, window,
+  athleteLimit, mailboxLimit,
+}) => {
+  /* ---- 1. the approved words, and what they were approved for ------------ */
+  const found = programmeMessageWithContext(programmeMessageId);
+  if (!found) {
+    throw fail(CLAIM_REFUSAL.PROGRAMME_MESSAGE_NOT_FOUND,
+      `No programme message ${programmeMessageId}`);
+  }
+  const { message, context } = found;
+
+  /**
+   * ---- 1a. this composition has not already been executed — D4.8 ----------
+   *
+   * Asked FIRST, before policy, before the mailbox, before anything is written.
+   * A message with an execution row behind it has had its answer, whatever that
+   * answer was, and every later check would be asking questions about a send
+   * that already happened.
+   */
+  const priorExecution = EXECUTION_FOR_MESSAGE.get(message.id);
+  if (priorExecution) {
+    throw fail(CLAIM_REFUSAL.MESSAGE_ALREADY_EXECUTED,
+      `This message has already been executed — it is ${priorExecution.state}. A message is `
+      + 'executed once; sending the same approved words again is a new decision about new '
+      + 'content, not a repeat of this one. Nothing was claimed.');
+  }
+
+  const { plan, coach, box, identity } = assertExecutionSafety({
+    message, context, operatorUserId, connectedMailboxId, onDate, window,
+  });
+
   /* ---- 5. the lifetime relationship, and the attempt that runs through it - */
   /**
    * B3 AND F7 RUN AGAIN INSIDE THIS, which is not redundant with the plan
@@ -639,6 +693,20 @@ const CLAIM = db.transaction(({
     sendingIdentity: identity,
     transport: TRANSPORT.PROVIDER_API,
     outreachSendId: sendId,
+    /**
+     * RESERVED, NOT YET SPENT — D5.0.
+     *
+     * The row is written before the provider is reached, exactly as it always
+     * has been, and it counts against both ceilings from this instant. What
+     * changes is that it now says so: a later settlement records whether the
+     * capacity was actually consumed, and the one case that releases it is a
+     * transport that PROVES it never submitted anything.
+     *
+     * A ROW LEFT AT RESERVED KEEPS COUNTING, for ever if need be. That is the
+     * fail-closed direction and D5.0 deliberately does not sweep it — see the
+     * vocabulary note in outboundBudget.js.
+     */
+    disposition: OUTBOUND_ATTEMPT_DISPOSITION.RESERVED,
     at,
     ...(window ? { window } : {}),
     ...(athleteLimit === undefined ? {} : { athleteLimit }),

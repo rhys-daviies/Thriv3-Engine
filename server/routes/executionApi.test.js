@@ -719,9 +719,19 @@ describe('the boundary', () => {
       }
     }
     /* Nor the evidence payload or the body itself. */
+    /**
+     * D5.0 adds `transportOutcome` and `retryable`. Neither is a secret and
+     * neither is derived from one: the first is the provider-neutral outcome
+     * word the transport already returned, the second a boolean computed from
+     * it. They are here because FAILED alone cannot tell a caller whether the
+     * provider refused the message or was never reached — see the note on the
+     * orchestrator's return. Every negative assertion above is unchanged and
+     * still passes.
+     */
     expect(Object.keys(ok.body).sort()).toEqual([
       'acceptedAt', 'acceptedSource', 'attempt', 'executionId', 'programmeMessageId',
-      'provider', 'providerMessageId', 'providerThreadId', 'sentAt', 'sequence', 'state', 'step',
+      'provider', 'providerMessageId', 'providerThreadId', 'retryable', 'sentAt',
+      'sequence', 'state', 'step', 'transportOutcome',
     ]);
   });
 

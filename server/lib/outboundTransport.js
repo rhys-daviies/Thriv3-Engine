@@ -18,7 +18,7 @@
  * first real provider's shape becoming the contract by accident.
  *
  * ---------------------------------------------------------------------------
- * THREE OUTCOMES, AND THE THIRD IS THE ONE THAT MATTERS.
+ * FOUR OUTCOMES, AND THE BOUNDARY BETWEEN THE LAST TWO IS THE SAFETY PROPERTY.
  *
  *   ACCEPTED   the provider answered, and the answer was yes.
  *   REJECTED   the provider answered, and the answer was no. An invalid
@@ -27,6 +27,9 @@
  *              body may have gone out, a reset mid-transmission, a 5xx, a
  *              response it cannot parse — or a thrown exception, which is the
  *              same thing wearing different clothes.
+ *   REFUSED_BEFORE_TRANSPORT  no request was ever issued, provably — D5.0. The
+ *              only outcome that releases the capacity its claim reserved, and
+ *              the only one an explicit retry may follow.
  *
  * A THROWN ERROR IS UNKNOWN, NEVER REJECTED. This is the single most important
  * rule in the file. A rejection licenses a retry; "the socket died" is not a
@@ -40,6 +43,44 @@ export const TRANSPORT_OUTCOME = Object.freeze({
   ACCEPTED: 'ACCEPTED',
   REJECTED: 'REJECTED',
   UNKNOWN: 'UNKNOWN',
+  /**
+   * NO REQUEST WAS EVER ISSUED, AND THIS PROCESS CAN PROVE IT — D5.0.
+   *
+   * =========================================================================
+   * THE FOURTH ANSWER, AND IT IS THE ONLY ONE THAT RELEASES CAPACITY.
+   *
+   * A transport reaches this when it stopped BEFORE any request bytes could
+   * have reached the provider: nothing configured to authenticate with, a
+   * credential that would not open, an identity that disagreed with the frozen
+   * one, a name that would not resolve, a connection refused outright. In every
+   * case the provider was never asked, so no message can exist at the other
+   * end — which is exactly what `REJECTED` and `UNKNOWN` cannot say.
+   *
+   * THE BAR IS PROOF, NOT LIKELIHOOD, and the distinction has to be defended
+   * every time a new failure is classified. A connection reset, a timeout of
+   * any kind, an unreadable answer: those all *probably* mean nothing arrived,
+   * and every one of them is UNKNOWN, because a request body may already have
+   * been transmitted in full. Being wrong in that direction costs a person two
+   * minutes in a Sent folder. Being wrong in THIS direction releases capacity
+   * and permits a retry of a message a coach may already be reading.
+   *
+   * IT IS NOT A SOFTER `REJECTED`. A rejection means the provider received the
+   * request, understood it, and said no — an answer, and one worth keeping.
+   * This means there was no conversation.
+   * =========================================================================
+   *
+   * WHAT FOLLOWS FROM IT, all owned elsewhere and listed here because the
+   * outcome is where they are decided:
+   *
+   *   state       FAILED, not a new one. Evidence about how a send failed is
+   *               not a new thing for the message to BE.
+   *   event       TRANSPORT_REFUSED, distinct from TRANSPORT_REJECTED.
+   *   budget      the reservation settles to REFUSED_BEFORE_TRANSPORT and
+   *               stops counting. The ledger row itself is never removed.
+   *   retry       the one case an explicit re-execution is permitted — see
+   *               executionRetry.js. Never automatic.
+   */
+  REFUSED_BEFORE_TRANSPORT: 'REFUSED_BEFORE_TRANSPORT',
 });
 
 const OUTCOMES = Object.freeze(Object.values(TRANSPORT_OUTCOME));
@@ -83,7 +124,7 @@ export function assertSendRequest(request) {
 }
 
 /**
- * RUN A TRANSPORT AND ALWAYS COME BACK WITH ONE OF THE THREE.
+ * RUN A TRANSPORT AND ALWAYS COME BACK WITH ONE OF THE FOUR.
  *
  * The boundary that makes "a thrown error is UNKNOWN" a property of the system
  * rather than of every caller remembering it. The only thing that throws out of
@@ -175,6 +216,28 @@ export function fakeTransport({ outcome = TRANSPORT_OUTCOME.ACCEPTED, ...rest } 
           outcome: TRANSPORT_OUTCOME.REJECTED,
           providerCode: rest.providerCode ?? 'FAKE_REJECTED',
           providerMessage: rest.providerMessage ?? 'the fake transport refused this message',
+        };
+      }
+
+      /**
+       * D5.0 — AND IT NEEDS ITS OWN BRANCH RATHER THAN THE FALL-THROUGH BELOW.
+       *
+       * Everything unrecognised becomes UNKNOWN, which is the right default and
+       * would have quietly swallowed this one: a test asking for a provable
+       * non-send would have got an ambiguous result, the budget would not have
+       * been released, and the test would still have passed for the wrong
+       * reason. A named outcome needs a named branch.
+       *
+       * The reason is deliberately GENERIC. Nothing provider-shaped belongs in
+       * this build — no invalid_grant, no 429, no identity mismatch — because
+       * the fake must not teach the result boundary a vocabulary only Gmail
+       * would ever produce.
+       */
+      if (decided === TRANSPORT_OUTCOME.REFUSED_BEFORE_TRANSPORT) {
+        return {
+          outcome: TRANSPORT_OUTCOME.REFUSED_BEFORE_TRANSPORT,
+          reason: rest.reason ?? 'PRE_TRANSPORT_CONFIGURATION',
+          detail: rest.detail ?? null,
         };
       }
 

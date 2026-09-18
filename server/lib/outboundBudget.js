@@ -68,6 +68,92 @@ export const TRANSPORT = Object.freeze({
 });
 
 /**
+ * WHAT BECAME OF THE CAPACITY A LEDGER ROW RESERVED — D5.0.
+ *
+ * ===========================================================================
+ * A RESERVATION AND A CONSUMED ACTION ARE DIFFERENT THINGS, AND UNTIL NOW THIS
+ * TABLE COULD ONLY SAY THE FIRST.
+ *
+ * Capacity is taken before a provider is called — that ordering is the whole
+ * safety property and D5.0 does not touch it. What D5.0 adds is the answer to
+ * what happened next, because one of the possible answers is "provably
+ * nothing": no credential to decrypt, a connection that was never established,
+ * an identity that disagreed before a single byte left. Charging a real
+ * mailbox a real unit of its day for a message that demonstrably never left
+ * the process is an accounting error, not a safety measure.
+ *
+ * THIS IS NOT A REFUND, AND THE DISTINCTION IS THE POINT. No row is deleted,
+ * no counter is decremented, and this module still exports no operation that
+ * could do either — a test asserts it. The attempt stands in the ledger for
+ * ever, exactly as it was written. This column says whether it spent anything.
+ * ===========================================================================
+ */
+export const OUTBOUND_ATTEMPT_DISPOSITION = Object.freeze({
+  /**
+   * TAKEN, OUTCOME NOT YET KNOWN. Written inside the claim, before the provider
+   * is reached. COUNTS, and it must: between the reservation and the answer
+   * there is a live attempt in flight, and a concurrent caller that did not see
+   * it would be deciding against a usage figure that is already stale.
+   *
+   * A ROW LEFT HERE BY A DEAD PROCESS ALSO COUNTS. That is deliberate and it is
+   * the fail-closed direction: the process that could have said what happened
+   * is gone, so nobody can prove the message did not leave. D5.0 does not
+   * sweep these — guessing on behalf of a crashed send is how a coach gets a
+   * second copy.
+   */
+  RESERVED: 'RESERVED',
+  /**
+   * A PROVIDER WAS REACHED, OR MAY HAVE BEEN. COUNTS.
+   *
+   * ONE VALUE FOR THREE OUTCOMES, and pooling them is right rather than lazy:
+   * accepted, refused by the provider, and unresolved all mean the same thing
+   * to a daily ceiling. The mailbox made a request of the outside world. What
+   * the outside world said belongs on `outreach_send` and in its events, which
+   * is where anyone asking a different question should look.
+   *
+   * UNKNOWN IS IN HERE, NOT IN THE ONE BELOW, and that is the most important
+   * line in this file. An ambiguous send may genuinely be in a coach's inbox.
+   * Releasing its capacity would let one transmission be paid for twice.
+   */
+  SUBMITTED_OR_AMBIGUOUS: 'SUBMITTED_OR_AMBIGUOUS',
+  /**
+   * PROVABLY NO SUBMISSION OCCURRED. DOES NOT COUNT.
+   *
+   * The bar is proof, not likelihood: this process can demonstrate that no
+   * request bytes reached the provider. Anything it merely believes — a reset,
+   * a timeout, an answer it could not parse — is SUBMITTED_OR_AMBIGUOUS above,
+   * because being wrong in that direction costs a person two minutes and being
+   * wrong in this one sends a recruit's coach a duplicate.
+   */
+  REFUSED_BEFORE_TRANSPORT: 'REFUSED_BEFORE_TRANSPORT',
+});
+
+const DISPOSITIONS = Object.freeze(Object.values(OUTBOUND_ATTEMPT_DISPOSITION));
+export const isAttemptDisposition = (d) => DISPOSITIONS.includes(d);
+
+/**
+ * THE ONE DEFINITION OF "THIS ROW SPENT A DAY", WRITTEN ONCE AND INTERPOLATED
+ * INTO ALL FOUR COUNTING SITES.
+ *
+ * Four places count capacity — the athlete read, the mailbox read, and the two
+ * subqueries inside the guarded insert — and the failure this constant exists
+ * to prevent is subtle and expensive: an athlete rule and a mailbox rule that
+ * disagree about one disposition would let a message be affordable by one
+ * ceiling and not the other, intermittently, depending on which row was
+ * refused. One string, four uses, no second opinion possible.
+ *
+ * NULL IS CONSUMED. It is a legacy or manual row whose disposition was never
+ * recorded, and the conservative reading is the correct one — see the column
+ * comment in migrate.js. `IS NULL` is spelled out rather than relying on
+ * `<> ` because SQL three-valued logic would silently drop every NULL row from
+ * the count, which is the exact opposite of what is wanted and would fail
+ * quietly.
+ *
+ * (No backticks: the callers are JS template literals.)
+ */
+const CONSUMES_CAPACITY = `(disposition IS NULL OR disposition <> '${OUTBOUND_ATTEMPT_DISPOSITION.REFUSED_BEFORE_TRANSPORT}')`;
+
+/**
  * WHY THERE IS NO CAPACITY FOR THIS ACTION.
  *
  * Four reasons, kept apart because they need four different answers from
@@ -120,12 +206,14 @@ const ATHLETE_USED = db.prepare(`
   SELECT COUNT(*) AS n FROM outbound_send_attempt
   WHERE athlete_id = @athleteId
     AND attempted_at >= @windowStart AND attempted_at < @windowEnd
+    AND ${CONSUMES_CAPACITY}
 `);
 
 const MAILBOX_USED = db.prepare(`
   SELECT COUNT(*) AS n FROM outbound_send_attempt
   WHERE sending_identity = @sendingIdentity
     AND attempted_at >= @windowStart AND attempted_at < @windowEnd
+    AND ${CONSUMES_CAPACITY}
 `);
 
 /**
@@ -395,27 +483,29 @@ function refusalMessage(decision) {
 const GUARDED_INSERT = db.prepare(`
   INSERT INTO outbound_send_attempt
     (id, outreach_id, athlete_id, sending_identity, transport, attempted_at, created_at,
-     outreach_send_id)
+     outreach_send_id, disposition)
   SELECT @id, @outreach_id, @athlete_id, @sending_identity, @transport, @attempted_at, @created_at,
-         @outreach_send_id
+         @outreach_send_id, @disposition
   WHERE (
       SELECT COUNT(*) FROM outbound_send_attempt
       WHERE athlete_id = @athlete_id
         AND attempted_at >= @window_start AND attempted_at < @window_end
+        AND ${CONSUMES_CAPACITY}
     ) < @athlete_limit
     AND (
       SELECT COUNT(*) FROM outbound_send_attempt
       WHERE sending_identity = @sending_identity
         AND attempted_at >= @window_start AND attempted_at < @window_end
+        AND ${CONSUMES_CAPACITY}
     ) < @mailbox_limit
 `);
 
 const PLAIN_INSERT = db.prepare(`
   INSERT INTO outbound_send_attempt
     (id, outreach_id, athlete_id, sending_identity, transport, attempted_at, created_at,
-     outreach_send_id)
+     outreach_send_id, disposition)
   VALUES (@id, @outreach_id, @athlete_id, @sending_identity, @transport, @attempted_at, @created_at,
-          @outreach_send_id)
+          @outreach_send_id, @disposition)
 `);
 
 /**
@@ -482,7 +572,25 @@ export function recordOutboundAttempt({
    * against the SAME message and appears as a second row.
    */
   outreachSendId = null,
+  /**
+   * WHAT THIS RESERVATION IS, AT THE MOMENT IT IS TAKEN — D5.0, and NULL by
+   * default on purpose.
+   *
+   * The execution claim passes RESERVED, because it is about to call a provider
+   * and will come back to settle what happened. The legacy AppleScript path
+   * passes nothing and keeps passing nothing: it has no settlement step, no
+   * transport result to report, and a disposition it could never move off
+   * RESERVED would be a worse lie than the honest NULL that means "not
+   * recorded". Both count identically, so nothing about legacy accounting
+   * changes.
+   */
+  disposition = null,
 } = {}) {
+  if (disposition !== null && !isAttemptDisposition(disposition)) {
+    throw fail('OUTBOUND_DISPOSITION_INVALID',
+      `"${disposition}" is not an attempt disposition. A row whose verdict cannot be read `
+      + 'would be counted by guesswork.');
+  }
   const athlete = resolveAthlete(outreachId, athleteId);
   const key = normaliseSendingIdentity(sendingIdentity);
   const decisionArgs = {
@@ -500,6 +608,7 @@ export function recordOutboundAttempt({
     attempted_at: at,
     created_at: at,
     outreach_send_id: outreachSendId,
+    disposition,
     window_start: window.windowStart,
     window_end: window.windowEnd,
     athlete_limit: athleteLimit,
@@ -568,7 +677,96 @@ export function recordManualOutboundAttempt({
      * guess about which of several drafts they meant.
      */
     outreach_send_id: null,
+    /**
+     * NULL, ALWAYS — D5.0, and for the same reason. A manual confirmation is
+     * mail that has already left through somebody's hand; there is no
+     * reservation to settle and no transport outcome that could settle it.
+     * NULL counts as consumed, which is exactly right: the coach has the email.
+     */
+    disposition: null,
   };
   PLAIN_INSERT.run(row);
   return outboundAttempt(row.id);
 }
+
+/* -------------------------------------------------------------------------- */
+/* Settlement — D5.0                                                           */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * THE ONLY WRITER THAT MOVES A DISPOSITION, AND IT MOVES IT ONCE.
+ *
+ * ===========================================================================
+ * A ONE-WAY DOOR OUT OF `RESERVED`, ENFORCED BY THE STATEMENT AND NOT BY A
+ * CALLER'S GOOD MANNERS.
+ *
+ * The WHERE clause is the whole guard: only a row still sitting at RESERVED is
+ * eligible, so every one of these is structurally impossible rather than merely
+ * discouraged —
+ *
+ *   REFUSED_BEFORE_TRANSPORT -> SUBMITTED_OR_AMBIGUOUS   released capacity
+ *       silently taken back, so a day's allowance shrinks after the fact
+ *   SUBMITTED_OR_AMBIGUOUS -> REFUSED_BEFORE_TRANSPORT   a real transmission
+ *       declared free, which is how one message gets paid for twice
+ *   NULL -> anything                                     a legacy or manual row
+ *       re-judged by a transport that never touched it
+ *
+ * The last one matters as much as the other two. Those rows are outside this
+ * model entirely and must stay that way; `disposition IS NULL` is not an
+ * invitation to fill it in.
+ * ===========================================================================
+ *
+ * IDEMPOTENT, AND IT REPORTS WHICH KIND OF NOTHING HAPPENED. A caller that lost
+ * its answer and asked again, or a result written twice, finds the row already
+ * settled and is told so — `settled: false, already: <the standing verdict>` —
+ * rather than being thrown at. That matters because the caller is
+ * `executionResult`, whose entire design principle is that a secondary
+ * bookkeeping failure must never unwind or obscure a durable provider truth.
+ * Re-settling to the SAME value is therefore not an error either.
+ *
+ * NO ROW IS EVER DELETED HERE, and there is still no function in this module
+ * that could. The ledger keeps every attempt it ever held.
+ *
+ * NOT A TRANSACTION OF ITS OWN, deliberately. Every caller runs it inside one
+ * that is already writing the state and the event it belongs with — see the
+ * transaction note in executionResult.js. Opening a second one here would be
+ * the very split that leaves a message FAILED while its capacity sits RESERVED
+ * for ever.
+ *
+ * @param {string} attemptId  the ledger row's OWN id, from `ledgerAttemptId` on
+ *   the claim result. Never "the latest row for this send": a message that has
+ *   been retried has several, they can share a timestamp, and settling the
+ *   wrong one would release capacity a real transmission spent.
+ * @returns {{settled: boolean, disposition: string, already: string|null}}
+ */
+export function settleOutboundAttempt(attemptId, disposition) {
+  if (typeof attemptId !== 'string' || !attemptId.trim()) {
+    throw fail('OUTBOUND_ATTEMPT_ID_REQUIRED',
+      'Settling a reservation needs the ledger row it settles. Identifying one by recency '
+      + 'would settle the wrong attempt on any message that has been retried.');
+  }
+  if (!isAttemptDisposition(disposition) || disposition === OUTBOUND_ATTEMPT_DISPOSITION.RESERVED) {
+    throw fail('OUTBOUND_DISPOSITION_INVALID',
+      `"${disposition}" is not an outcome a reservation can settle to. A settlement records `
+      + 'what became of an attempt, so it cannot put one back into RESERVED.');
+  }
+
+  const changed = SETTLE_DISPOSITION.run({ id: attemptId.trim(), disposition }).changes;
+  if (changed === 1) return { settled: true, disposition, already: null };
+
+  /**
+   * NOTHING MOVED, AND THE ROW ITSELF SAYS WHY. Read back rather than assumed:
+   * "no such attempt" and "already settled" are different facts and a caller
+   * that conflated them would report a missing ledger row as a duplicate write.
+   */
+  const row = outboundAttempt(attemptId.trim());
+  if (!row) throw fail('OUTBOUND_ATTEMPT_NOT_FOUND', `No outbound_send_attempt ${attemptId}`);
+  return { settled: false, disposition, already: row.disposition ?? null };
+}
+
+const SETTLE_DISPOSITION = db.prepare(`
+  UPDATE outbound_send_attempt
+     SET disposition = @disposition
+   WHERE id = @id
+     AND disposition = '${OUTBOUND_ATTEMPT_DISPOSITION.RESERVED}'
+`);
