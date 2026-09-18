@@ -67,7 +67,7 @@ export default function MatchingTab() {
     programmes: relationships, specific, byCollegeId, byCollegeName,
     loading: programmesLoading, failed: programmesFailed,
     pending, error: programmeError, clearError, add, withdraw,
-    flag, unflag, setVisibility, saveNote,
+    flag, unflag, setVisibility, setContactStance, saveNote,
   } = usePlayerWorkspace();
   const [emailTarget, setEmailTarget] = useState(null);
   /**
@@ -323,6 +323,8 @@ export default function MatchingTab() {
           error={programmeError}
           onRemove={withdraw}
           onManualOutreach={openManualOutreach}
+          onSetContactStance={setContactStance}
+          onFlag={flag}
           contactByProgramme={contactByProgramme}
           contactUnavailable={contactUnavailable}
         />
@@ -449,6 +451,7 @@ export default function MatchingTab() {
                     onFlag={flag}
                     onUnflag={unflag}
                     onSetVisibility={setVisibility}
+                    onSetContactStance={setContactStance}
                     onSaveNote={saveNote}
                     onManualOutreach={openManualOutreach}
                   />

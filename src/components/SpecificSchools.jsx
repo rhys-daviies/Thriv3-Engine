@@ -3,7 +3,10 @@ import { Loader2, Star, Handshake } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { RELATIONSHIP_OUTREACH } from '@/lib/outreachLabels';
+import {
+  RELATIONSHIP_OUTREACH, MANUAL_ONLY_BADGE, MANUAL_ONLY_HINT,
+} from '@/lib/outreachLabels';
+import ContactStanceControl from '@/components/ContactStanceControl';
 import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
 import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
 
@@ -29,6 +32,7 @@ function where(row) {
 
 function SpecificSchoolRow({
   programme, rank, busy, onRemove, onManualOutreach, contact = null, contactUnavailable = false,
+  onSetContactStance = null, onFlag = null,
 }) {
   return (
     <li className="flex items-start justify-between gap-3 p-3" data-testid="specific-school-row">
@@ -37,7 +41,19 @@ function SpecificSchoolRow({
           <p className="text-sm font-medium truncate">{programme.college_name}</p>
           <Badge variant="purple">Specific Request</Badge>
           {programme.flagged && <Badge variant="amber">Flagged</Badge>}
+          {programme.contact_stance === 'manual_only'
+            && <Badge variant="blue">{MANUAL_ONLY_BADGE}</Badge>}
+          {programme.contact_stance === 'do_not_contact'
+            && <Badge variant="red">Do not contact</Badge>}
         </div>
+        {/*
+          THE BADGE ALONE WOULD BE READ AS A CLOSURE. "Manual outreach only"
+          says what stops; this says what does not — the school is still here,
+          still ranked where it was ranked, and still ours to write to by hand.
+        */}
+        {programme.contact_stance === 'manual_only' && (
+          <p className="text-xs text-muted-foreground">{MANUAL_ONLY_HINT}</p>
+        )}
         <p className="text-xs text-muted-foreground">
           {[programme.division, programme.conference, where(programme)].filter(Boolean).join(' · ')
             || programme.sport}
@@ -69,6 +85,20 @@ function SpecificSchoolRow({
             <Handshake className="h-3.5 w-3.5 mr-1" /> {RELATIONSHIP_OUTREACH}
           </Button>
         )}
+        {/*
+          Offered on every row for the same reason the outreach button above
+          it is: a ranking decision is not a contact decision, and a school
+          taken out of the Top 100 is very often the one somebody has already
+          spoken to.
+        */}
+        <ContactStanceControl
+          collegeId={programme.college_id}
+          collegeName={programme.college_name}
+          relationship={programme}
+          busy={busy}
+          onSetContactStance={onSetContactStance}
+          onFlag={onFlag}
+        />
         <Button size="sm" variant="ghost" disabled={busy} onClick={() => onRemove(programme)}>
           {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Remove'}
         </Button>
@@ -79,6 +109,7 @@ function SpecificSchoolRow({
 
 export default function SpecificSchools({
   specific, recommendations, loading, failed, pending, error, onRemove, onManualOutreach = null,
+  onSetContactStance = null, onFlag = null,
   /** The athlete's whole history, fetched once by the workspace. */
   contactByProgramme = new Map(),
   /** The history could not be loaded; an absent entry means nothing. */
@@ -141,6 +172,8 @@ export default function SpecificSchools({
                 onManualOutreach={onManualOutreach}
                 contact={contactByProgramme.get(contactIntelligenceKey(p.college_name, p.sport))}
                 contactUnavailable={contactUnavailable}
+                onSetContactStance={onSetContactStance}
+                onFlag={onFlag}
               />
             ))}
           </ul>

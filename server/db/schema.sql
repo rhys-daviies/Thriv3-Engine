@@ -2144,12 +2144,26 @@ CREATE TABLE IF NOT EXISTS athlete_programmes (
   visibility TEXT NOT NULL DEFAULT 'default'
     CHECK (visibility IN ('default', 'suppressed')),
 
-  -- ---- contact safety (PR 4 reads this) ------------------------------------
+  -- ---- contact safety ------------------------------------------------------
   --   default        no opinion; the existing safety layers decide
   --   manual_only    a person may write to them; no campaign may
   --   do_not_contact nobody writes to them for THIS athlete
-  -- Nothing enforces these yet. They are declared now so the column does not
-  -- need a table rebuild when PR 4 reads it — SQLite cannot alter a CHECK.
+  --
+  -- ENFORCED, and by two different readers with deliberately different reach.
+  -- server/lib/manualOutreachSafety.js is the only module that reads this
+  -- column: `manualContactDecision` refuses do_not_contact on the manual
+  -- paths, and `campaignStanceDecision` refuses both for a campaign —
+  -- do_not_contact across every programme the recipient's address is on
+  -- record at, manual_only against the verified programme alone, because one
+  -- is a rule about an inbox and the other is a rule about how a school is
+  -- worked. `campaignContactDecision` calls it at the single chokepoint every
+  -- campaign write passes through, and the execution decision reads the same
+  -- authority.
+  --
+  -- CURRENT POLICY, NOT HISTORY. A confirmed manual send ESTABLISHES
+  -- manual_only here (server/lib/manualContactStance.js) and an operator may
+  -- set it back to default afterwards; what was written to whom stays in
+  -- `outreach` and `outreach_send` either way and is never edited to match.
   contact_stance TEXT NOT NULL DEFAULT 'default'
     CHECK (contact_stance IN ('default', 'manual_only', 'do_not_contact')),
 
