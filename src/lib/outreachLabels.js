@@ -27,8 +27,29 @@
  * changing the wording is one line rather than four.
  */
 
-/** The action, on a relationship surface. */
-export const RELATIONSHIP_OUTREACH = 'Relationship Outreach';
+/**
+ * THE ACTION, ON A RELATIONSHIP SURFACE — RENAMED IN F8b.
+ *
+ * ===========================================================================
+ * IT NAMES THE ARTEFACT NOW, BECAUSE SINCE F7b THAT IS ALL IT CAN PRODUCE.
+ *
+ * "Relationship Outreach" named the SYSTEM's concept — the relationship-scoped
+ * route as distinct from the recommendation-scoped one — and carried no verb
+ * at all. F7b narrowed what the button does to exactly one thing: a draft
+ * appears in Outlook and nothing is sent, whatever the operator asks for. A
+ * label with no verb, on a button whose whole contract is that ceiling, was
+ * under-describing a guarantee that cost a slice to build.
+ *
+ * "Contact Coach" was rejected for implying contact occurs, which is the one
+ * thing this button does not do.
+ * ===========================================================================
+ *
+ * ONE VALUE ACROSS ALL THREE SURFACES — Specific Schools, the match-card
+ * relationship footer, and the removed-from-Top-100 panel — plus the dialog
+ * title. Forking it to spare the Top 100 the knock-on would leave two names
+ * for one action, which is the problem the single constant exists to prevent.
+ */
+export const CREATE_EMAIL_DRAFT = 'Create email draft';
 
 /** The action, on a ranked match card. Unchanged; operators know it. */
 export const RECOMMENDATION_OUTREACH = 'Email Coaches';
@@ -40,7 +61,7 @@ export const RECOMMENDATION_OUTREACH = 'Email Coaches';
  * every card is noise.
  */
 export const BOTH_PATHS_HINT =
-  'Composes from this match. Use Relationship Outreach to write using what is on '
+  `Composes from this match. Use "${CREATE_EMAIL_DRAFT}" to write using what is on `
   + 'record for this school — its notes, flags and contact settings.';
 
 /** Read under the dialog title, so the two composers are not mistaken after opening. */
@@ -84,6 +105,29 @@ export const MANUAL_ONLY_BADGE = 'Manual outreach only';
  */
 export const ALREADY_IN_TOUCH = 'We\'ve already been in touch';
 export const ALLOW_CAMPAIGN_OUTREACH = 'Allow campaign outreach';
+
+/**
+ * THE CONSEQUENCE, SAID BEFORE THE CLICK RATHER THAN AFTER IT — F8b.
+ *
+ * The label states a fact about the world; the button's effect is a CONTACT
+ * POLICY, and until F8b nothing visible connected the two. An operator read
+ * "We've already been in touch", pressed it because it was true, and only then
+ * discovered — from `MANUAL_ONLY_HINT`, which renders afterwards — what it had
+ * decided on their behalf.
+ *
+ * BOTH HALVES, for the same reason `MANUAL_ONLY_HINT` says both: the half that
+ * restricts and the half that does not. An operator who reads only "stops
+ * outreach" will not discover the school is still theirs to write to by hand.
+ *
+ * IT DOES NOT MENTION SENDING. "Mark as sent" is the other thing on this
+ * screen an operator might read as "yes, we contacted them", and the two are
+ * one row apart. This one asserts that a RELATIONSHIP exists; that one asserts
+ * that ONE SPECIFIC DRAFTED MESSAGE left the operator's machine. No wording
+ * here may blur them.
+ */
+export const ALREADY_IN_TOUCH_HINT =
+  'Records that contact already exists and stops automated Campaign outreach to this '
+  + 'school. Manual outreach is still allowed.';
 
 /**
  * The flag the "already in touch" button installs ALONGSIDE the stance.
@@ -339,3 +383,238 @@ export const GENERATED_DRAFT_HINT =
 
 /** Outlook, and only Outlook. There is no Apple Mail or Gmail path in this build. */
 export const MAIL_CLIENT = 'Outlook';
+
+
+/* ========================================================================== */
+/*  F8b — THE SPECIFIC SCHOOL WORKSPACE                                       */
+/* ========================================================================== */
+
+/**
+ * THE RELATIONSHIP FACT, UNDER ONE NAME.
+ *
+ * `athlete_programmes.flagged` was rendered as "Existing relationship" by the
+ * match card, the removed-from-Top-100 panel and the outreach dialog, and as
+ * "Flagged" by Specific Schools and Specific Search — one column, one amber
+ * badge, two words, two of them on the same screen at once.
+ *
+ * "Existing relationship" wins because it names the FACT. "Flagged" names what
+ * an operator DID to record it, which is the right word for the action and the
+ * wrong one for the state it leaves behind. The action keeps its own wording —
+ * "Flag relationship", "Unflag" — and that asymmetry is deliberate.
+ */
+export const EXISTING_RELATIONSHIP = 'Existing relationship';
+
+/**
+ * CONTACT POLICY, SAID OUT LOUD — INCLUDING WHEN IT PERMITS EVERYTHING.
+ *
+ * ===========================================================================
+ * "CAMPAIGN MAY CONTACT" IS THE BADGE THAT DID NOT EXIST, AND ITS ABSENCE WAS
+ * THE AMBIGUITY.
+ *
+ * `manual_only` and `do_not_contact` each had a badge; `default` had nothing.
+ * So the most permissive state in the product — the one where an automated
+ * campaign is free to write to a coach — was indistinguishable from a row
+ * whose policy nobody had considered. On a workspace whose entire purpose is
+ * deliberate, high-attention contact, that is exactly the state that most
+ * needs saying.
+ * ===========================================================================
+ *
+ * EXACTLY ONE OF THE THREE, EVER. They are values of one column, not flags,
+ * and rendering two would suggest a state that cannot exist.
+ */
+export const CAMPAIGN_MAY_CONTACT = 'Campaign may contact';
+export const CAMPAIGN_MAY_CONTACT_HINT =
+  'No contact restriction is recorded for this school, so the automated campaign may '
+  + 'write to it.';
+
+/** The strongest stance, worded identically wherever it appears. */
+export const DO_NOT_CONTACT_BADGE = 'Do not contact';
+
+/** The ranking decision. A decision, not a fact and not a policy. */
+export const NOT_IN_TOP_100 = 'Not in Top 100';
+export const REMOVE_FROM_TOP_100 = 'Remove from Top 100';
+export const KEEP_IN_TOP_100 = 'Keep in Top 100';
+
+/**
+ * WHAT HAS ACTUALLY GONE TO THIS PROGRAMME, IN ONE PHRASE — F8b.
+ *
+ * ===========================================================================
+ * THE COLLAPSED ROW GETS A PHRASE; THE EXPANSION KEEPS THE FULL BADGE STRIP.
+ *
+ * `ProgrammeContactSummary` renders up to eight badges, which is right where
+ * the operator has opened a row to study it and wrong on a list they are
+ * scanning. This compresses the OUTREACH half of that summary — and only that
+ * half — into the shortest true phrase.
+ * ===========================================================================
+ *
+ * NULL MEANS "SAY NOTHING", AND THAT IS THE IMPORTANT RETURN VALUE. It is
+ * returned whenever the history is not known to have arrived, so a row that
+ * has not settled cannot claim an absence. `known` is the same gate
+ * `ProgrammeContactSummary` applies to NO_CONTACT_RECORDED, applied here for
+ * the same reason: a programme nobody has written to is ABSENT from the map,
+ * and so is every programme in the product while the request is in flight.
+ *
+ * "Drafted" AND "Sent" ARE NEVER THE SAME PHRASE. A draft nobody confirmed did
+ * not reach a coach, and this is the one line on a scanned row that says so.
+ */
+export function contactStateShort(summary, known) {
+  if (!known) return null;
+  if (!summary?.contacted) return NO_CONTACT_RECORDED;
+  if (summary.draft_only) return 'Drafted';
+  if (summary.has_confirmed_send) {
+    const n = summary.confirmed_send_count;
+    return n > 1 ? `Sent ×${n}` : 'Sent';
+  }
+  /**
+   * An outreach record exists that is neither an unconfirmed draft nor a
+   * confirmed send — a cancelled draft, for instance. Saying "Sent" would be
+   * false and saying "No contact recorded" would be false too, so the row says
+   * nothing and the expansion shows the detail.
+   */
+  return null;
+}
+
+/**
+ * THE STRONGEST ENGAGEMENT FACT, AND ONLY ONE OF THEM — F8b.
+ *
+ * Engagement is the rarest and most valuable signal here, so the collapsed row
+ * carries one badge meaning "somebody at this school did something" rather
+ * than three the operator has to read together. The order is by what it says
+ * about the COACH, matching `lastActivity` on the server: a reply outranks a
+ * visit, and a visit outranks nothing.
+ *
+ * THIS IS DISPLAY COMPRESSION, NOT A SCORE. Nothing is ranked, nothing is
+ * weighted, and the expansion shows every fact unabridged. Deciding which
+ * engagement MATTERS is judgement and belongs to Email Intelligence.
+ */
+export function engagementShort(summary) {
+  const e = summary?.engagement;
+  if (!e) return null;
+  if (e.reply_recorded) return 'Reply recorded';
+  if (e.profile_visits > 0) return 'Profile visit';
+  return null;
+}
+
+/**
+ * HOW LONG A DRAFT HAS BEEN WAITING — F8b.
+ *
+ * ===========================================================================
+ * AGE, NOT URGENCY. THE WORDING DOES NOT ESCALATE.
+ *
+ * A draft from March is stated exactly as flatly as one from this morning:
+ * there is no "overdue", no "still", no colour that deepens, no exclamation.
+ * Thriv3 does not know whether the operator sent it, so it cannot know whether
+ * anything is wrong — and an interface that grows more alarmed about a fact it
+ * has not established is one that teaches operators to dismiss it.
+ *
+ * What age genuinely buys is discrimination: "drafted 3 minutes ago" is
+ * probably the message the operator is mid-way through, and "drafted 9 days
+ * ago" probably is not. That is worth showing and it is all that is shown.
+ * ===========================================================================
+ *
+ * Returns null on a missing or unparseable timestamp rather than guessing.
+ */
+export function draftAge(iso, now = Date.now()) {
+  if (!iso) return null;
+  const at = new Date(iso).getTime();
+  if (Number.isNaN(at)) return null;
+
+  const minutes = Math.floor((now - at) / 60000);
+  // A clock skew between the server and this browser is not a fact about the
+  // draft, so a negative age reads as the present rather than as the future.
+  if (minutes < 1) return 'Drafted just now';
+  if (minutes < 60) return `Drafted ${minutes} min ago`;
+
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `Drafted ${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+
+  const days = Math.floor(hours / 24);
+  if (days === 1) return 'Drafted yesterday';
+  if (days < 30) return `Drafted ${days} days ago`;
+
+  // Past a month a relative count stops being readable; the date itself is
+  // shorter and more precise.
+  return `Drafted on ${new Date(at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}`;
+}
+
+/**
+ * THE SECTION THAT EXISTS ONLY WHEN THERE IS SOMETHING TO DO — F8b.
+ *
+ * A heading reading "Awaiting your confirmation (0)" would be a standing
+ * reminder of an obligation nobody has, so the section is absent rather than
+ * empty. The count is in the heading because the operator's question is "how
+ * many", and a heading that answers it saves counting rows.
+ */
+export const AWAITING_SECTION = (n) => `Awaiting your confirmation (${n})`;
+
+/**
+ * The tab, carrying BOTH facts and never one at the expense of the other.
+ *
+ * The school count is what the tab has always meant and operators navigate by
+ * it. The pending count is the reason to look now. Replacing the first with
+ * the second would silently change what a familiar number means.
+ */
+export const TAB_AWAITING = (n) => `${n} awaiting`;
+
+/**
+ * THE PENDING READ FAILED, SAID ONCE, AT THE PAGE — F8b.
+ *
+ * ===========================================================================
+ * THE SAME DISCIPLINE AS CONTACT_UNAVAILABLE_NOTICE, FOR THE SAME REASON.
+ *
+ * `usePendingManualDrafts` has always computed `failed` precisely so a caller
+ * could tell "nothing is pending" from "we could not ask" — and until F8b the
+ * only caller dropped it on the floor. A failed pending read therefore
+ * rendered as a workspace with no outstanding actions, which is the single
+ * most consequential false statement this screen can make: it is the exact
+ * moment an operator concludes there is nothing to confirm.
+ * ===========================================================================
+ *
+ * ONE NOTICE, NOT ONE PER ROW. The request is athlete-level, so its failure is
+ * a fact about the page rather than about any school on it.
+ */
+export const PENDING_UNAVAILABLE_NOTICE =
+  'Drafts awaiting confirmation could not be loaded. Some may be outstanding.';
+
+/**
+ * A CONFIRMATION OR A DISCARD THAT DID NOT LAND.
+ *
+ * Nothing is removed from the list optimistically, so the draft the operator
+ * acted on is still on screen beneath this sentence, still offering both
+ * answers. The failure is attached to that draft rather than to the page: it
+ * is about one message, unlike the load failure above it.
+ */
+export const CONFIRM_FAILED = 'That confirmation did not save. Nothing was recorded as sent.';
+export const DISCARD_FAILED = 'That draft record could not be discarded. Nothing was changed.';
+
+/** The expansion. Named for what it reveals rather than for the widget. */
+export const SHOW_DETAILS = 'Details';
+export const HIDE_DETAILS = 'Hide details';
+
+/** Editing the two pieces of operator-written context, kept distinct. */
+export const NOTE_LABEL = 'Note';
+export const ADD_NOTE = 'Add a note';
+export const EDIT_NOTE = 'Edit note';
+export const SAVE_NOTE = 'Save note';
+export const NOTE_PLACEHOLDER = 'Ongoing context for this school';
+export const FLAG_REASON_LABEL = 'Why this school matters';
+export const ADD_FLAG_REASON = 'Add a reason';
+export const EDIT_FLAG_REASON = 'Edit reason';
+export const SAVE_FLAG_REASON = 'Save reason';
+export const FLAG_REASON_PLACEHOLDER = 'What makes this school specifically important';
+
+/**
+ * WHY THE TWO EDITORS ARE NOT ONE FIELD.
+ *
+ * `flag_reason` is mandatory when a relationship is flagged and answers a
+ * question asked once — why this school became specifically important. `note`
+ * is the operator's running context and changes as the recruitment does.
+ * Stored in separate columns, written by separate mutations, and worth keeping
+ * apart on screen: merged, the reason a school matters would be overwritten by
+ * whatever happened most recently.
+ */
+export const CONTEXT_HINT =
+  'The reason says why this school became important. The note is ongoing context.';
+
+/** Every coach on file for this programme, in the expansion. */
+export const ALL_CONTACTED_COACHES = 'Coaches contacted';

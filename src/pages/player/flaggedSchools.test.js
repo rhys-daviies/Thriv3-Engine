@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
 import MatchingTab from './MatchingTab.jsx';
+import { EXISTING_RELATIONSHIP } from '@/lib/outreachLabels';
 import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 
@@ -358,7 +359,17 @@ describe('the states coexist', () => {
     const rows = container.querySelectorAll('[data-testid="specific-school-row"]');
     expect(rows).toHaveLength(1);
     expect(rows[0].textContent).toContain('School 1');
-    expect(rows[0].textContent).toContain('Flagged');
+    /**
+     * F8b — THE SAME FACT, THE SAME NAME AS EVERY OTHER SURFACE, ONE CLICK IN.
+     * The relationship fact moved into the row's expansion, where it sits
+     * beside the reason that explains it, and it is called "Existing
+     * relationship" here exactly as the match card above already calls it.
+     */
+    await click(Array.from(rows[0].querySelectorAll('button'))
+      .find((b) => b.textContent.trim().startsWith('Details')));
+    expect(rows[0].textContent).toContain(EXISTING_RELATIONSHIP);
+    expect(rows[0].textContent).toContain('Specific Request');
+    expect(rows[0].textContent).not.toContain('Flagged');
   });
 });
 

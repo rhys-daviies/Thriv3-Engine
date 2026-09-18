@@ -10,7 +10,7 @@ import MatchingTab from './MatchingTab.jsx';
 import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 import {
-  NO_CONTACT_RECORDED, MANUAL_ONLY_BADGE, CONTACT_UNAVAILABLE_NOTICE,
+  CREATE_EMAIL_DRAFT, NO_CONTACT_RECORDED, MANUAL_ONLY_BADGE, CONTACT_UNAVAILABLE_NOTICE,
   ORIGIN_SHORT, ORIGIN_UNRECORDED_SHORT, videoWatched, moreCoaches,
 } from '@/lib/outreachLabels';
 
@@ -194,6 +194,32 @@ async function open(opts) {
   await click(tab('Specific Schools'));
 }
 
+/**
+ * F8b — THE FACTS DID NOT CHANGE; THE ROW THEY LIVED ON DID.
+ *
+ * The compact row answers what/policy/history at a glance and everything else
+ * moved into its expansion. Every assertion below still proves the same thing
+ * it proved before — that a fact is shown truthfully and an absence is never
+ * shown as a fact — it simply opens the row first where the fact now lives.
+ * Nothing here was weakened to accommodate the new layout.
+ */
+const detailsFor = (name = 'Stanford') => Array.from(row(name).querySelectorAll('button'))
+  .find((b) => b.textContent.trim().startsWith('Details'));
+async function expand(name = 'Stanford') { await click(detailsFor(name)); }
+/** Open the view and expand one row, for a fact that lives in the expansion. */
+async function openExpanded(opts, name = 'Stanford') { await open(opts); await expand(name); }
+/**
+ * The derived contact summary, scoped.
+ *
+ * Origin assertions MUST be made against this element rather than the whole
+ * row. F8b added a contact-POLICY badge reading "Campaign may contact", and a
+ * row-wide search for "Campaign" now matches the policy that is allowed to be
+ * there — which would make "names a campaign send" pass without a send and
+ * "invents no origin" fail without an invention. The word is the same; the
+ * fact is not.
+ */
+const summaryEl = (name = 'Stanford') => row(name).querySelector('[data-testid="contact-summary"]');
+
 beforeEach(() => {
   container = document.createElement('div');
   document.body.appendChild(container);
@@ -273,7 +299,7 @@ describe('manual_only with nothing on file', () => {
   });
 
   it('implies no send — no date, no count, no coach, no channel', async () => {
-    await open({
+    await openExpanded({
       programmes: [relationship({ contact_stance: 'manual_only' })],
       contact: [],
     });
@@ -325,13 +351,13 @@ describe('a draft is still not a send', () => {
 
 describe('which part of the product wrote to them', () => {
   it('names a manual send', async () => {
-    await open({ programmes: [relationship()], contact: [summary({ origins: ['manual'] })] });
-    expect(row().textContent).toContain(ORIGIN_SHORT.manual);
+    await openExpanded({ programmes: [relationship()], contact: [summary({ origins: ['manual'] })] });
+    expect(summaryEl().textContent).toContain(ORIGIN_SHORT.manual);
   });
 
   it('names a campaign send', async () => {
-    await open({ programmes: [relationship()], contact: [summary({ origins: ['campaign'] })] });
-    expect(row().textContent).toContain(ORIGIN_SHORT.campaign);
+    await openExpanded({ programmes: [relationship()], contact: [summary({ origins: ['campaign'] })] });
+    expect(summaryEl().textContent).toContain(ORIGIN_SHORT.campaign);
   });
 
   /**
@@ -340,12 +366,12 @@ describe('which part of the product wrote to them', () => {
    * and both are true. Collapsing would be choosing which half to hide.
    */
   it('names both where both happened', async () => {
-    await open({
+    await openExpanded({
       programmes: [relationship()],
       contact: [summary({ origins: ['campaign', 'manual'] })],
     });
 
-    const text = row().textContent;
+    const text = summaryEl().textContent;
     expect(text).toContain(ORIGIN_SHORT.manual);
     expect(text).toContain(ORIGIN_SHORT.campaign);
   });
@@ -356,21 +382,21 @@ describe('which part of the product wrote to them', () => {
    * would manufacture the provenance the column was added to protect.
    */
   it('says the origin was not recorded rather than inventing one', async () => {
-    await open({ programmes: [relationship()], contact: [summary({ origins: [null] })] });
+    await openExpanded({ programmes: [relationship()], contact: [summary({ origins: [null] })] });
 
-    const text = row().textContent;
+    const text = summaryEl().textContent;
     expect(text).toContain(ORIGIN_UNRECORDED_SHORT);
     expect(text).not.toContain(ORIGIN_SHORT.manual);
     expect(text).not.toContain(ORIGIN_SHORT.campaign);
   });
 
   it('carries a recorded origin alongside an unrecorded one', async () => {
-    await open({
+    await openExpanded({
       programmes: [relationship()],
       contact: [summary({ origins: ['manual', null] })],
     });
 
-    const text = row().textContent;
+    const text = summaryEl().textContent;
     expect(text).toContain(ORIGIN_SHORT.manual);
     expect(text).toContain(ORIGIN_UNRECORDED_SHORT);
   });
@@ -378,7 +404,7 @@ describe('which part of the product wrote to them', () => {
 
 describe('engagement', () => {
   it('reports how far through the video anyone got', async () => {
-    await open({
+    await openExpanded({
       programmes: [relationship()],
       contact: [summary({ engagement: engagement({ best_coverage_pct: 74 }) })],
     });
@@ -387,7 +413,7 @@ describe('engagement', () => {
   });
 
   it('says nothing at zero, where there is no number to give', async () => {
-    await open({
+    await openExpanded({
       programmes: [relationship()],
       contact: [summary({ engagement: engagement({ best_coverage_pct: 0, profile_visits: 1 }) })],
     });
@@ -398,7 +424,7 @@ describe('engagement', () => {
   });
 
   it('keeps profile visits and recorded replies exactly as they were', async () => {
-    await open({
+    await openExpanded({
       programmes: [relationship()],
       contact: [summary({
         engagement: engagement({ profile_visits: 3, reply_recorded: true, reply_recorded_at: '2026-09-14T00:00:00.000Z' }),
@@ -411,7 +437,7 @@ describe('engagement', () => {
   });
 
   it('claims no email open, click, delivery or bounce, because none exist', async () => {
-    await open({
+    await openExpanded({
       programmes: [relationship()],
       contact: [summary({ engagement: engagement({ profile_visits: 2, best_coverage_pct: 90, reply_recorded: true }) })],
     });
@@ -420,12 +446,12 @@ describe('engagement', () => {
   });
 
   it('still reports a revoked link', async () => {
-    await open({ programmes: [relationship()], contact: [summary({ revoked_count: 1 })] });
+    await openExpanded({ programmes: [relationship()], contact: [summary({ revoked_count: 1 })] });
     expect(row().textContent).toContain('Link revoked');
   });
 
   it('still reports a repeated send with its count', async () => {
-    await open({
+    await openExpanded({
       programmes: [relationship()],
       contact: [summary({ confirmed_send_count: 3 })],
     });
@@ -435,7 +461,7 @@ describe('engagement', () => {
 
 describe('why this school is here', () => {
   it('shows the flag reason the operator was required to give', async () => {
-    await open({
+    await openExpanded({
       programmes: [relationship({ flagged: true, flag_reason: 'Her father is an alum' })],
       contact: [],
     });
@@ -444,7 +470,7 @@ describe('why this school is here', () => {
   });
 
   it('shows the note', async () => {
-    await open({
+    await openExpanded({
       programmes: [relationship({ note: 'Spoke to the assistant in July.' })],
       contact: [],
     });
@@ -490,7 +516,7 @@ describe('a school taken out of the Top 100', () => {
     });
 
     const actions = Array.from(row().querySelectorAll('button')).map((b) => b.textContent);
-    expect(actions.some((t) => t.includes('Relationship Outreach'))).toBe(true);
+    expect(actions.some((t) => t.includes(CREATE_EMAIL_DRAFT))).toBe(true);
   });
 });
 
@@ -593,15 +619,26 @@ describe('what the row still does', () => {
   it('keeps the existing actions', async () => {
     await open({ programmes: [relationship()], contact: [] });
 
+    /**
+     * F8b — DRAFTING STAYS ON THE ROW; THE SECONDARY DECISIONS MOVED.
+     * The one action a specific request exists for is at the glance. Contact
+     * policy, the Top 100 decision and the single destructive control are in
+     * the expansion — still one click away, and no longer one `gap-1` from
+     * each other on a row being scanned.
+     */
+    const collapsed = Array.from(row().querySelectorAll('button')).map((b) => b.textContent.trim());
+    expect(collapsed.some((t) => t.startsWith(CREATE_EMAIL_DRAFT))).toBe(true);
+    expect(collapsed.some((t) => t.startsWith('Remove'))).toBe(false);
+
+    await expand();
     const actions = Array.from(row().querySelectorAll('button')).map((b) => b.textContent.trim());
-    expect(actions.some((t) => t.startsWith('Relationship Outreach'))).toBe(true);
     expect(actions.some((t) => t.startsWith('We’ve already been in touch')
       || t.startsWith('We\'ve already been in touch'))).toBe(true);
     expect(actions.some((t) => t.startsWith('Remove'))).toBe(true);
   });
 
   it('still shows the rank where the programme is genuinely ranked', async () => {
-    await open({ programmes: [relationship()], contact: [] });
+    await openExpanded({ programmes: [relationship()], contact: [] });
     expect(row().textContent).toContain('Also ranked');
   });
 

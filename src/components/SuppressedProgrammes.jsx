@@ -3,7 +3,7 @@ import { Eye, Loader2, Handshake } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { RELATIONSHIP_OUTREACH } from '@/lib/outreachLabels';
+import { EXISTING_RELATIONSHIP, CREATE_EMAIL_DRAFT } from '@/lib/outreachLabels';
 import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
 import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
 
@@ -63,7 +63,7 @@ export default function SuppressedProgrammes({
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-medium truncate">{p.college_name}</span>
-                  {p.flagged && <Badge variant="amber">Existing relationship</Badge>}
+                  {p.flagged && <Badge variant="amber">{EXISTING_RELATIONSHIP}</Badge>}
                   {p.request_state === 'requested' && <Badge variant="purple">Specific Request</Badge>}
                 </div>
                 {p.flag_reason && <p className="text-xs text-muted-foreground">{p.flag_reason}</p>}
@@ -76,7 +76,7 @@ export default function SuppressedProgrammes({
               <div className="flex items-center gap-1 shrink-0">
                 {onManualOutreach && (
                   <Button size="sm" variant="ghost" onClick={() => onManualOutreach(p)}>
-                    <Handshake className="h-3.5 w-3.5 mr-1" /> {RELATIONSHIP_OUTREACH}
+                    <Handshake className="h-3.5 w-3.5 mr-1" /> {CREATE_EMAIL_DRAFT}
                   </Button>
                 )}
                 <Button

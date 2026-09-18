@@ -1,15 +1,19 @@
-import React from 'react';
-import { Loader2, Star, Handshake, MailCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import {
+  Loader2, Star, MailCheck, ChevronDown, ChevronRight, PenSquare,
+} from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  RELATIONSHIP_OUTREACH, MANUAL_ONLY_BADGE, MANUAL_ONLY_HINT, moreCoaches,
+  CREATE_EMAIL_DRAFT, MANUAL_ONLY_BADGE, MANUAL_ONLY_HINT, moreCoaches,
   AWAITING_CONFIRMATION, MARK_AS_SENT, MARK_AS_SENT_HINT,
   DISCARD_DRAFT, DISCARD_DRAFT_HINT,
+  CAMPAIGN_MAY_CONTACT, CAMPAIGN_MAY_CONTACT_HINT, DO_NOT_CONTACT_BADGE,
+  NOT_IN_TOP_100, AWAITING_SECTION, SHOW_DETAILS, HIDE_DETAILS,
+  contactStateShort, engagementShort, draftAge,
 } from '@/lib/outreachLabels';
-import ContactStanceControl from '@/components/ContactStanceControl';
-import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
+import SpecificSchoolDetail from '@/components/SpecificSchoolDetail';
 import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
 
 /**
@@ -26,14 +30,31 @@ import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
  * the flag, the note and the contact stance, none of which have anything to do
  * with the request; deleting the row to clear a request would take all of them
  * with it.
+ *
+ * ---------------------------------------------------------------------------
+ * COMPACT ROW, EXPANDABLE DETAIL — F8b.
+ *
+ * Every slice from F3 to F7 added one more true thing to this row and had
+ * nowhere else to put it, until a fully-loaded row carried ten stacked lines
+ * and eleven badges. Nothing was wrong; it had simply stopped being scannable,
+ * which is the one job a list has.
+ *
+ * So the row now answers three questions at a glance — what is it, what is the
+ * contact policy, what has happened — plus a fourth above them when there is
+ * an outstanding action. Everything else moved to `SpecificSchoolDetail`,
+ * unabridged and one click away. No request is made when a row expands.
+ * ---------------------------------------------------------------------------
  */
 
 function where(row) {
   return [row.city, row.state].filter(Boolean).join(', ');
 }
 
+/** Both reads are keyed the same way, so the two lookups cannot drift. */
+const keyFor = (p) => contactIntelligenceKey(p.college_name, p.sport);
+
 /**
- * A DRAFT THRIV3 OPENED AND HAS HEARD NOTHING ABOUT SINCE — F7b.
+ * A DRAFT THRIV3 OPENED AND HAS HEARD NOTHING ABOUT SINCE — F7b, F8b.
  *
  * ===========================================================================
  * THE ONE THING THE OPERATOR HAS TO DO, PUT WHERE THEY WILL SEE IT.
@@ -46,8 +67,7 @@ function where(row) {
  * That confirmation has existed since long before this — as a terminal
  * command, `npm run confirm-sends`, which an operator working in a browser
  * will never run. An action nobody can see is an action nobody takes, which is
- * why this is a row on the screen they are already looking at rather than a
- * better CLI.
+ * why this is a band at the top of the row rather than a better CLI.
  * ===========================================================================
  *
  * BOTH ANSWERS ARE OFFERED, and the second is not an afterthought. A draft the
@@ -59,40 +79,73 @@ function where(row) {
  * NEITHER BUTTON CLAIMS AN OBSERVATION. "Mark as sent" records what the person
  * says; "Discard draft record" clears Thriv3's own expectation and touches
  * nothing in Outlook.
+ *
+ * TINTED, NOT ALARMED — F8b. The band is visually distinct because it is the
+ * only thing on the row asking for an action, and deliberately not red: a
+ * draft waiting three days is an ordinary state of this workflow, not a
+ * failure, and an interface that treats routine work as an emergency teaches
+ * operators to dismiss emergencies.
  */
-function PendingDrafts({ drafts, busy, onConfirm, onDiscard }) {
+function PendingDrafts({ drafts, busy, error, onConfirm, onDiscard }) {
   if (!drafts?.length) return null;
   return (
-    <div className="space-y-1" data-testid="pending-drafts">
-      {drafts.map((d) => (
-        <div key={d.send_id} className="flex items-start justify-between gap-2 flex-wrap">
-          <p className="text-xs text-muted-foreground">
-            <span className="text-foreground font-medium">{AWAITING_CONFIRMATION}</span>
-            {d.coach_name ? ` — ${d.coach_name}` : ''}
-            {d.position_title ? ` (${d.position_title})` : ''}
-          </p>
-          <div className="flex items-center gap-1 shrink-0">
-            <Button
-              size="sm"
-              variant="outline"
-              disabled={busy}
-              title={MARK_AS_SENT_HINT}
-              onClick={() => onConfirm(d)}
-            >
-              <MailCheck className="h-3.5 w-3.5 mr-1" /> {MARK_AS_SENT}
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              disabled={busy}
-              title={DISCARD_DRAFT_HINT}
-              onClick={() => onDiscard(d)}
-            >
-              {DISCARD_DRAFT}
-            </Button>
+    <div
+      className="rounded-md border border-border bg-muted/40 p-2 space-y-1.5 mb-2"
+      data-testid="pending-drafts"
+    >
+      {drafts.map((d) => {
+        const age = draftAge(d.drafted_at);
+        return (
+          <div key={d.send_id} className="space-y-1">
+            <div className="flex items-start justify-between gap-2 flex-wrap">
+              <p className="text-xs text-muted-foreground min-w-0">
+                <span className="text-foreground font-medium">{AWAITING_CONFIRMATION}</span>
+                {d.coach_name ? ` — ${d.coach_name}` : ''}
+                {d.position_title ? ` (${d.position_title})` : ''}
+                {/*
+                  AGE, NOT URGENCY. Stated as flatly at nine days as at nine
+                  minutes — Thriv3 does not know whether the message was sent,
+                  so it cannot know whether anything is wrong. What age buys is
+                  discrimination between the draft the operator is mid-way
+                  through and one they have plainly forgotten.
+                */}
+                {age && <span className="ml-1">· {age}</span>}
+              </p>
+              <div className="flex items-center gap-1 flex-wrap">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={busy}
+                  title={MARK_AS_SENT_HINT}
+                  onClick={() => onConfirm(d)}
+                >
+                  <MailCheck className="h-3.5 w-3.5 mr-1" /> {MARK_AS_SENT}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  disabled={busy}
+                  title={DISCARD_DRAFT_HINT}
+                  onClick={() => onDiscard(d)}
+                >
+                  {DISCARD_DRAFT}
+                </Button>
+              </div>
+            </div>
+            {/*
+              THE FAILURE STAYS WITH THE MESSAGE IT IS ABOUT — F8b.
+              Nothing was removed optimistically, so the draft is still here
+              beneath this sentence, still offering both answers. Unlike the
+              page-level load notice, this is a fact about ONE message.
+            */}
+            {error?.sendId === d.send_id && (
+              <p className="text-xs text-destructive" role="alert" data-testid="draft-action-error">
+                {error.message}
+              </p>
+            )}
           </div>
-        </div>
-      ))}
+        );
+      })}
       {/* Said once per row group, because the action is an assertion. */}
       <p className="text-[11px] text-muted-foreground">{MARK_AS_SENT_HINT}</p>
     </div>
@@ -110,20 +163,18 @@ const COACHES_SHOWN = 2;
  *
  * A coach carrying a draft nobody confirmed has not heard from this athlete,
  * and listing them under "Contacted" would be the same lie the summary badge
- * above already refuses to tell by saying "Drafted" rather than "Sent". The
- * drafted state is reported there, once, for the programme; this line is only
- * about people who received something.
+ * above already refuses to tell by saying "Drafted" rather than "Sent".
  * ===========================================================================
  *
  * NO RANKING AND NO RECOMMENDATION. The order is the one the shared
- * intelligence layer supplied and nothing re-sorts it. Deciding which coach
- * matters most, or which to write to next, is judgement — it belongs to the
- * Email Intelligence workstream, and a list row quietly implying an order
- * would be this surface answering a question it was not asked.
+ * intelligence layer supplied and nothing re-sorts it — not alphabetically
+ * either, which F8a proposed and F8b deliberately reversed. A sort order an
+ * operator can name is a claim about which coach matters, even when the claim
+ * is "none"; that judgement belongs to Email Intelligence.
  *
- * Renders nothing when nobody has been confirmed, rather than "0 coaches
- * contacted": the programme-level summary beside it has already said whether
- * anything was sent, and a zero here would be a second way of saying it.
+ * "+N more" IS NO LONGER THE ONLY WAY TO REACH THE REST — F8b. The expansion
+ * lists every contacted coach, so the truncation here is a density choice
+ * rather than the boundary of what is discoverable.
  */
 function ContactedCoaches({ summary }) {
   const contacted = (summary?.coaches ?? []).filter((c) => c.has_confirmed_send);
@@ -147,126 +198,176 @@ function ContactedCoaches({ summary }) {
   );
 }
 
+/**
+ * THE CONTACT POLICY, AS EXACTLY ONE BADGE — F8b.
+ *
+ * ===========================================================================
+ * INCLUDING WHEN THE POLICY PERMITS EVERYTHING.
+ *
+ * `manual_only` and `do_not_contact` each had a badge and `default` had
+ * nothing, so the most permissive state in the product was indistinguishable
+ * from a row nobody had thought about. Absence-as-a-state is the ambiguity
+ * this product refuses everywhere else, and on a workspace built for
+ * deliberate contact it is the one that most needs saying out loud.
+ * ===========================================================================
+ *
+ * ONE OF THREE, NEVER TWO. They are values of a single column, not flags.
+ */
+function ContactPolicyBadge({ stance }) {
+  if (stance === 'do_not_contact') {
+    return <Badge variant="red">{DO_NOT_CONTACT_BADGE}</Badge>;
+  }
+  if (stance === 'manual_only') {
+    return <Badge variant="blue">{MANUAL_ONLY_BADGE}</Badge>;
+  }
+  return (
+    <Badge variant="muted" title={CAMPAIGN_MAY_CONTACT_HINT}>{CAMPAIGN_MAY_CONTACT}</Badge>
+  );
+}
+
 function SpecificSchoolRow({
   programme, rank, busy, onRemove, onManualOutreach, contact = null, contactUnavailable = false,
   contactKnown = false, onSetContactStance = null, onFlag = null,
-  pendingDrafts = [], onConfirmSent = null, onDiscardDraft = null,
+  onSaveNote = null, onSetVisibility = null,
+  pendingDrafts = [], draftError = null, onConfirmSent = null, onDiscardDraft = null,
 }) {
+  const [open, setOpen] = useState(false);
+
+  /**
+   * UNKNOWN IS NOT NONE, AND THE COMPRESSION DOES NOT GET TO FORGET THAT.
+   *
+   * `contactStateShort` returns null unless the athlete-level history is known
+   * to have ARRIVED, and a failed read silences it outright — the page carries
+   * one notice explaining the silence. A collapsed row is a smaller surface,
+   * not a licence to assert an absence nobody established.
+   */
+  const historyText = contactUnavailable ? null : contactStateShort(contact, contactKnown);
+  const engagementText = contactUnavailable ? null : engagementShort(contact);
+
   return (
-    <li className="flex items-start justify-between gap-3 p-3" data-testid="specific-school-row">
-      <div className="min-w-0 space-y-1">
-        <div className="flex items-center gap-2 flex-wrap">
-          <p className="text-sm font-medium truncate">{programme.college_name}</p>
-          <Badge variant="purple">Specific Request</Badge>
-          {programme.flagged && <Badge variant="amber">Flagged</Badge>}
-          {programme.contact_stance === 'manual_only'
-            && <Badge variant="blue">{MANUAL_ONLY_BADGE}</Badge>}
-          {programme.contact_stance === 'do_not_contact'
-            && <Badge variant="red">Do not contact</Badge>}
-          {/*
-            A RANKING DECISION, SHOWN BESIDE THE OTHERS AND NOT INSTEAD OF THEM.
-            The row stays in this list either way — a school taken out of the
-            Top 100 is very often the one somebody asked for by name — so the
-            badge explains why it is absent from the ranked view rather than
-            removing it from this one. Same wording as the match card.
-          */}
-          {programme.visibility === 'suppressed'
-            && <Badge variant="muted">Not in Top 100</Badge>}
-        </div>
-        {/*
-          THE BADGE ALONE WOULD BE READ AS A CLOSURE. "Manual outreach only"
-          says what stops; this says what does not — the school is still here,
-          still ranked where it was ranked, and still ours to write to by hand.
-        */}
-        {programme.contact_stance === 'manual_only' && (
-          <p className="text-xs text-muted-foreground">{MANUAL_ONLY_HINT}</p>
-        )}
-        <p className="text-xs text-muted-foreground">
-          {[programme.division, programme.conference, where(programme)].filter(Boolean).join(' · ')
-            || programme.sport}
-        </p>
-        {/*
-          WHY THIS SCHOOL IS HERE — F6b.
-          `flag_reason` is mandatory when a relationship is flagged, precisely
-          so this question has an answer; it was being collected and never
-          shown on this surface. The note is the operator's own running
-          context. Both render only when present: an empty "Reason —" line on
-          every unflagged row would be a placeholder claiming a field exists
-          where nobody filled one in.
-        */}
-        {programme.flagged && programme.flag_reason && (
-          <p className="text-xs text-muted-foreground">{programme.flag_reason}</p>
-        )}
-        {programme.note && (
-          <p className="text-xs">
-            <span className="text-muted-foreground">Note: </span>{programme.note}
-          </p>
-        )}
-        {/*
-          SUPPLEMENTAL, and only when the programme is genuinely ranked. No
-          rank is invented for a school that is not: a placeholder here would
-          be read as a match score by the next person to look at the screen.
-        */}
-        <ProgrammeContactSummary
-          summary={contact}
-          withhold={contactUnavailable}
-          known={contactKnown}
-        />
-        <ContactedCoaches summary={contact} />
-        {onConfirmSent && onDiscardDraft && (
-          <PendingDrafts
-            drafts={pendingDrafts}
-            busy={busy}
-            onConfirm={onConfirmSent}
-            onDiscard={onDiscardDraft}
-          />
-        )}
-        {rank != null && (
-          <p className="text-xs text-muted-foreground">
-            Also ranked <span className="font-medium text-foreground">#{rank}</span> in this
-            athlete&rsquo;s recommendations.
-          </p>
-        )}
-      </div>
-      <div className="flex items-center gap-1 shrink-0">
-        {/*
-          THE POINT OF A SPECIFIC REQUEST. Somebody asked for this school, so
-          the next thing an operator wants is to write to it.
-          Deliberately offered on EVERY row, including one whose programme has
-          been taken out of the Top 100: a ranking decision is not a contact
-          decision, and `contact_stance` is the only thing that stops this —
-          server-side, inside the dialog and again inside the send path.
-        */}
-        {onManualOutreach && (
-          <Button size="sm" variant="outline" onClick={() => onManualOutreach(programme)}>
-            <Handshake className="h-3.5 w-3.5 mr-1" /> {RELATIONSHIP_OUTREACH}
-          </Button>
-        )}
-        {/*
-          Offered on every row for the same reason the outreach button above
-          it is: a ranking decision is not a contact decision, and a school
-          taken out of the Top 100 is very often the one somebody has already
-          spoken to.
-        */}
-        <ContactStanceControl
-          collegeId={programme.college_id}
-          collegeName={programme.college_name}
-          relationship={programme}
+    <li className="p-3" data-testid="specific-school-row">
+      {/* LEVEL 0 — the outstanding action, above everything it is about. */}
+      {onConfirmSent && onDiscardDraft && (
+        <PendingDrafts
+          drafts={pendingDrafts}
           busy={busy}
-          onSetContactStance={onSetContactStance}
-          onFlag={onFlag}
+          error={draftError}
+          onConfirm={onConfirmSent}
+          onDiscard={onDiscardDraft}
         />
-        <Button size="sm" variant="ghost" disabled={busy} onClick={() => onRemove(programme)}>
-          {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Remove'}
-        </Button>
+      )}
+
+      {/*
+        LEVEL 1 — THE GLANCE.
+        `flex-wrap` and no `shrink-0` on the action cluster: before F8b the
+        three buttons occupied roughly 440px that could neither shrink nor
+        wrap, so at tablet width they crushed the name column and at phone
+        width the row overflowed its card. Two buttons now, and they drop to
+        their own line rather than winning a fight with the school's name.
+      */}
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-sm font-medium truncate" data-testid="school-name">{programme.college_name}</p>
+            {/* POLICY — exactly one, always present. */}
+            <ContactPolicyBadge stance={programme.contact_stance} />
+            {/* FACT — what has actually gone to this programme, in one phrase. */}
+            {historyText && (
+              <Badge variant="muted" data-testid="contact-state">{historyText}</Badge>
+            )}
+            {/* FACT — the strongest single thing a coach did, if anything. */}
+            {engagementText && <Badge variant="green">{engagementText}</Badge>}
+            {/*
+              DECISION — a ranking decision, not a contact one. The row stays
+              in this list either way: a school taken out of the Top 100 is
+              very often the one somebody asked for by name, so the badge
+              explains its absence from the ranked view rather than removing it
+              from this one. The control to reverse it is in the expansion.
+            */}
+            {programme.visibility === 'suppressed'
+              && <Badge variant="muted">{NOT_IN_TOP_100}</Badge>}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {[programme.division, programme.conference, where(programme)].filter(Boolean).join(' · ')
+              || programme.sport}
+          </p>
+          {/*
+            THE BADGE ALONE WOULD BE READ AS A CLOSURE. "Manual outreach only"
+            says what stops; this says what does not — the school is still
+            here, still ranked where it was ranked, and still ours to write to
+            by hand. Kept at level 1 because a policy that restricts must never
+            be one click further away than the badge announcing it.
+          */}
+          {programme.contact_stance === 'manual_only' && (
+            <p className="text-xs text-muted-foreground">{MANUAL_ONLY_HINT}</p>
+          )}
+          <ContactedCoaches summary={contact} />
+        </div>
+
+        <div className="flex items-center gap-1 flex-wrap">
+          {/*
+            THE POINT OF A SPECIFIC REQUEST. Somebody asked for this school, so
+            the next thing an operator wants is to write to it. Offered on
+            EVERY row, including one taken out of the Top 100: a ranking
+            decision is not a contact decision, and `contact_stance` is the
+            only thing that stops this — server-side, inside the dialog and
+            again inside the send path.
+          */}
+          {onManualOutreach && (
+            <Button size="sm" variant="outline" onClick={() => onManualOutreach(programme)}>
+              <PenSquare className="h-3.5 w-3.5 mr-1" /> {CREATE_EMAIL_DRAFT}
+            </Button>
+          )}
+          <Button
+            size="sm"
+            variant="ghost"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            {open
+              ? <><ChevronDown className="h-3.5 w-3.5 mr-1" /> {HIDE_DETAILS}</>
+              : <><ChevronRight className="h-3.5 w-3.5 mr-1" /> {SHOW_DETAILS}</>}
+          </Button>
+        </div>
       </div>
+
+      {/* LEVEL 2 — context, history and the secondary decisions. */}
+      {open && (
+        <SpecificSchoolDetail
+          programme={programme}
+          rank={rank}
+          contact={contact}
+          contactUnavailable={contactUnavailable}
+          contactKnown={contactKnown}
+          busy={busy}
+          onRemove={onRemove}
+          onSaveNote={onSaveNote}
+          onFlag={onFlag}
+          onSetVisibility={onSetVisibility}
+          onSetContactStance={onSetContactStance}
+        />
+      )}
     </li>
   );
 }
 
+/**
+ * THE OLDEST DRAFT THIS PROGRAMME IS WAITING ON, or null if it is waiting on
+ * none. A missing timestamp sorts LAST rather than first — an unknown age is
+ * not evidence of urgency, and sorting it to the top would put the one draft
+ * nobody can date above every draft they can.
+ */
+function oldestPendingAt(drafts) {
+  if (!drafts?.length) return null;
+  return drafts.reduce((oldest, d) => {
+    const at = d.drafted_at || '￿';
+    return oldest === null || at < oldest ? at : oldest;
+  }, null);
+}
+
 export default function SpecificSchools({
   specific, recommendations, loading, failed, pending, error, onRemove, onManualOutreach = null,
-  onSetContactStance = null, onFlag = null,
+  onSetContactStance = null, onFlag = null, onSaveNote = null, onSetVisibility = null,
   /** The athlete's whole history, fetched once by the workspace. */
   contactByProgramme = new Map(),
   /** The history could not be loaded; an absent entry means nothing. */
@@ -283,6 +384,8 @@ export default function SpecificSchools({
    * exactly the athletes who have the most outreach.
    */
   pendingByProgramme = new Map(),
+  /** A confirm or discard that failed, attached to the message it was about. */
+  draftError = null,
   onConfirmSent = null,
   onDiscardDraft = null,
 }) {
@@ -316,6 +419,61 @@ export default function SpecificSchools({
     );
   }
 
+  /**
+   * TWO SECTIONS, AND ONLY STATES THAT ARE ACTUALLY KNOWN DECIDE WHICH — F8b.
+   *
+   * ===========================================================================
+   * A PENDING DRAFT IS THE ONLY THING THAT PROMOTES A SCHOOL.
+   *
+   * It is the one state on this screen that names an OUTSTANDING ACTION by a
+   * specific person: Thriv3 composed something, a human has it, and nobody has
+   * said what happened to it. Everything else is a fact or a policy.
+   *
+   * A reply is a fact, not a task — deciding that it needs answering is
+   * judgement, and judgement here belongs to Email Intelligence. `manual_only`
+   * and `do_not_contact` are policies; a policy is not a priority, and sorting
+   * by one would quietly turn a contact rule into a work queue.
+   * ===========================================================================
+   *
+   * DETERMINISTIC, AND STABLE ACROSS RENDERS. Oldest waiting draft first, ties
+   * broken by name; everything else alphabetical. The data only changes on the
+   * page's own bounded refetches, so a list cannot reorder under a cursor for
+   * any other reason.
+   */
+  const awaiting = [];
+  const rest = [];
+  for (const p of specific) {
+    const drafts = pendingByProgramme.get(keyFor(p)) ?? [];
+    if (drafts.length) awaiting.push([p, oldestPendingAt(drafts)]);
+    else rest.push(p);
+  }
+  awaiting.sort(([a, atA], [b, atB]) => (
+    atA < atB ? -1 : atA > atB ? 1 : a.college_name.localeCompare(b.college_name)
+  ));
+  rest.sort((a, b) => a.college_name.localeCompare(b.college_name));
+
+  const row = (p) => (
+    <SpecificSchoolRow
+      key={p.id}
+      programme={p}
+      rank={rankOf(p.college_name)}
+      busy={pending === (p.college_id || p.id)}
+      onRemove={onRemove}
+      onManualOutreach={onManualOutreach}
+      contact={contactByProgramme.get(keyFor(p))}
+      contactUnavailable={contactUnavailable}
+      contactKnown={contactKnown}
+      pendingDrafts={pendingByProgramme.get(keyFor(p)) ?? []}
+      draftError={draftError}
+      onConfirmSent={onConfirmSent}
+      onDiscardDraft={onDiscardDraft}
+      onSetContactStance={onSetContactStance}
+      onFlag={onFlag}
+      onSaveNote={onSaveNote}
+      onSetVisibility={onSetVisibility}
+    />
+  );
+
   return (
     <div className="space-y-3">
       {error && !error.collegeId && (
@@ -331,28 +489,27 @@ export default function SpecificSchools({
           </p>
         </div>
       ) : (
-        <Card className="overflow-hidden">
-          <ul className="divide-y divide-border">
-            {specific.map((p) => (
-              <SpecificSchoolRow
-                key={p.id}
-                programme={p}
-                rank={rankOf(p.college_name)}
-                busy={pending === (p.college_id || p.id)}
-                onRemove={onRemove}
-                onManualOutreach={onManualOutreach}
-                contact={contactByProgramme.get(contactIntelligenceKey(p.college_name, p.sport))}
-                contactUnavailable={contactUnavailable}
-                contactKnown={contactKnown}
-                pendingDrafts={pendingByProgramme.get(contactIntelligenceKey(p.college_name, p.sport)) ?? []}
-                onConfirmSent={onConfirmSent}
-                onDiscardDraft={onDiscardDraft}
-                onSetContactStance={onSetContactStance}
-                onFlag={onFlag}
-              />
-            ))}
-          </ul>
-        </Card>
+        <>
+          {/*
+            ABSENT RATHER THAN EMPTY. A heading reading "Awaiting your
+            confirmation (0)" would be a standing reminder of an obligation
+            nobody has, which is how a real one comes to be scrolled past.
+          */}
+          {awaiting.length > 0 && (
+            <div className="space-y-1.5" data-testid="awaiting-section">
+              <p className="text-xs font-semibold">{AWAITING_SECTION(awaiting.length)}</p>
+              <Card className="overflow-hidden">
+                <ul className="divide-y divide-border">{awaiting.map(([p]) => row(p))}</ul>
+              </Card>
+            </div>
+          )}
+
+          {rest.length > 0 && (
+            <Card className="overflow-hidden">
+              <ul className="divide-y divide-border">{rest.map(row)}</ul>
+            </Card>
+          )}
+        </>
       )}
 
       {error && error.collegeId && (

@@ -385,9 +385,16 @@ function refusalMessage({ reason, programmeCampaign: pc, stanceProgramme = null 
           : '')
         + 'Nothing was drafted or sent. Change the contact stance on the relationship first.';
     case CONTACT_REFUSAL.RELATIONSHIP_MANUAL_ONLY:
+      /*
+        F8c — the manual path is named as the UI names it. F8b renamed the
+        button to "Create email draft"; this sentence went on telling
+        operators to press one called "Relationship Outreach", which no
+        longer exists on any screen. Wording only — the refusal code, the
+        decision behind it and the caller's control flow are unchanged.
+      */
       return `${where} is set to manual contact only for this athlete, so an automated `
-        + 'campaign may not write to it. A person still may — send it from Relationship '
-        + 'Outreach or Email Coaches, or change the contact stance on the relationship.';
+        + 'campaign may not write to it. A person still may — use "Create email draft" '
+        + 'or "Email Coaches", or change the contact stance on the relationship.';
     case CONTACT_REFUSAL.CAMPAIGN_NOT_ACTIVE:
       return `The campaign is ${pc.campaign_state}, so it may not send. Activate it first.`;
     case CONTACT_REFUSAL.CAMPAIGN_NOT_STARTED:

@@ -869,9 +869,11 @@ function refusalSentence(reason, out) {
       return `${where} is set to do-not-contact for this athlete. Change the contact stance on `
         + 'the relationship first.';
     case CONTACT_REFUSAL.RELATIONSHIP_MANUAL_ONLY:
+      // F8c — named as the UI names it since F8b. Wording only; the code,
+      // the status and the response shape are unchanged.
       return `${where} is set to manual contact only for this athlete, so an automated campaign `
-        + 'may not pursue it. A person still may — send it from Relationship Outreach or Email '
-        + 'Coaches, or change the contact stance.';
+        + 'may not pursue it. A person still may — use "Create email draft" or "Email '
+        + 'Coaches", or change the contact stance.';
     case CONTACT_REFUSAL.SUPPRESSED:
       return 'This address has opted out of Thriv3, across every athlete and campaign.';
     default:
