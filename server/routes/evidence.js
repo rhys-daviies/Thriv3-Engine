@@ -18,6 +18,8 @@
  */
 import db from '../db/client.js';
 import { evidenceFor } from '../lib/evidenceQueries.js';
+import { usedEvidenceForCoaches, EVIDENCE_USE } from '../lib/evidenceHistory.js';
+import { identityOf } from '../../shared/evidence/sequenceStrategy.js';
 import {
   renderEvidence, kindLabel, FLOWS, FAMILY_LABELS, MAX_EMAIL_EVIDENCE, outreachPermitted,
 } from '../../shared/evidence/index.js';
@@ -89,7 +91,108 @@ const wireEvidence = (ev, text) => ({
   text,
 });
 
-export function toWire(result) {
+
+/* -------------------------------------------------------------------------- */
+/*  PRIOR EVIDENCE USE - F9e                                                  */
+/* -------------------------------------------------------------------------- */
+
+/** As many coaches as a composer could plausibly select at one programme. */
+export const MAX_COACHES = 40;
+
+/**
+ * WHAT THESE COACHES HAVE ALREADY BEEN TOLD, INDEXED BY CONNECTION.
+ *
+ * ===========================================================================
+ * IT ANNOTATES; IT DECIDES NOTHING.
+ *
+ * Nothing below reaches selection, ordering, structure, licensing or
+ * `operatorSelected`. Given the same evidence inputs the offer is identical
+ * with and without `coachIds`; the only difference is a `previouslyUsed`
+ * marker beside findings that are in the response either way. That invariant
+ * is the point of the feature and is pinned by tests.
+ * ===========================================================================
+ *
+ * KEYED ON THE DEDUPE GROUP, because that is the thing a coach experiences.
+ * The kind is what `rendered_kinds` stores; the group is what makes "you have
+ * a New Zealander now" and "you have had New Zealanders before" one connection
+ * rather than two. `identityOf` is the registry's own answer, imported rather
+ * than re-derived.
+ *
+ * CONFIRMED OUTRANKS OPEN where a connection is both. They are different
+ * facts - one a person said went, one is a body in a window - and the stronger
+ * is the one worth saying. The open-draft entry is not lost: it is simply not
+ * what this marker reports when a confirmed use exists.
+ */
+function historyIndex({ athleteId, coachIds }) {
+  const { confirmed, open } = usedEvidenceForCoaches({ athleteId, coachIds });
+
+  const byKey = new Map();
+  const add = (entry) => {
+    // A kind whose group the registry does not know falls back to the kind
+    // itself, so an unrecognised one still matches itself and never matches
+    // something else.
+    const key = entry.group ?? entry.kind;
+    if (!key) return;
+    const found = byKey.get(key) ?? {
+      source: null, coaches: new Set(), origins: new Set(), at: null,
+    };
+    const stronger = entry.source === EVIDENCE_USE.CONFIRMED
+      && found.source !== EVIDENCE_USE.CONFIRMED;
+    if (found.source === null || stronger) {
+      // Switching to the stronger fact restarts its own tallies: a coach
+      // counted for an open draft is not a coach this was confirmed to.
+      found.source = entry.source;
+      found.coaches = new Set();
+      found.origins = new Set();
+      found.at = null;
+    }
+    if (entry.source !== found.source) return;
+    found.coaches.add(entry.coachId);
+    found.origins.add(entry.origin ?? null);
+    // The most recent, so "when did we last put this to them" is answerable.
+    if (!found.at || (entry.at && entry.at > found.at)) found.at = entry.at ?? found.at;
+    byKey.set(key, found);
+  };
+
+  for (const entry of open) add(entry);
+  for (const entry of confirmed) add(entry);
+
+  return byKey;
+}
+
+/**
+ * The marker for one finding, or null.
+ *
+ * NULL IS THE COMMON ANSWER AND IS NOT A CLAIM. A finding with no marker is
+ * one this index has nothing about - which, when the history read failed,
+ * means nothing at all. That is why `history.status` is carried separately:
+ * a surface must be able to tell "never used" from "we could not check".
+ *
+ * NOTHING IS LEAKED. This is called only for findings ALREADY in the
+ * response, so a historical kind the current licence denies cannot appear:
+ * there is no finding for it to annotate.
+ */
+function markerFor(index, kind) {
+  if (!index) return null;
+  let group = null;
+  try { group = identityOf(kind); } catch { group = null; }
+  const found = index.get(group ?? kind);
+  if (!found) return null;
+  return {
+    source: found.source,
+    /**
+     * HOW MANY OF THE SELECTED COACHES, never which. The composer holds coach
+     * identity and this payload deliberately does not add a second source of
+     * it - a count is all the wording needs and all it may honestly carry.
+     */
+    coachCount: found.coaches.size,
+    /** Named where recorded, null where it never was. Never guessed. */
+    origins: [...found.origins],
+    at: found.at,
+  };
+}
+
+export function toWire(result, historyIdx = null) {
   const selectedKinds = new Set(result.selected.map((ev) => ev.kind));
   const roles = result.roles ?? { hooks: [], relevance: [], recognition: [], alternatives: [] };
   const roleItems = [...roles.hooks, ...roles.relevance, ...roles.recognition];
@@ -152,6 +255,9 @@ export function toWire(result) {
       // at two gathered clauses — so an index would pair the wrong sentence
       // with the wrong evidence the moment anything is held back.
       ...wireEvidence(ev, textOf.get(ev.kind) ?? null),
+      // F9e - annotation only. Null, and absent from the object's meaning,
+      // whenever no coachIds were supplied.
+      previouslyUsed: markerFor(historyIdx, ev.kind),
       order: i,
       // Which paragraph of the email this claim lands in. The panel shows it
       // so an operator reordering evidence can see that they are moving a
@@ -183,6 +289,7 @@ export function toWire(result) {
       const copy = outreachCopyFor(item, { firstName: firstNameOf(result.athlete?.name) });
       return {
         ...wireEvidence(ev ?? { kind: item.kind }, copy?.clause ?? copy?.recognition ?? null),
+        previouslyUsed: markerFor(historyIdx, item.kind),
         role: item.role,
         selected: selectedKinds.has(item.kind),
         disposition: dispositionOf.get(item.kind)?.disposition ?? null,
@@ -266,6 +373,20 @@ export function toWire(result) {
  */
 export function evidenceSummaries({
   playerId, collegeNames, prefer = null, preferStructure = null,
+  /**
+   * WHO THIS EMAIL IS FOR - F9e. OPTIONAL, and absent means absent.
+   *
+   * Supplied, the response gains a `previouslyUsed` marker on findings this
+   * athlete has already put to one of these coaches, and a `history` block
+   * saying whether that could be checked. Omitted, every existing consumer -
+   * the Evidence tab, the bulk composer, the drafting CLI - receives exactly
+   * the payload it received before, with no new keys at all.
+   *
+   * The browser may name COACHES. It may never name history: `previousKinds`,
+   * `usedKinds` and their relatives are not read here and could not be, which
+   * is what keeps a claim about what was said to somebody a server fact.
+   */
+  coachIds = null,
 } = {}) {
   const names = Array.isArray(collegeNames) ? collegeNames.filter(Boolean) : [];
   if (!names.length) throw new Error('collegeNames is required');
@@ -275,14 +396,51 @@ export function evidenceSummaries({
   const athlete = loadAthlete(playerId);
   const sport = athlete.sport || 'mens-soccer';
 
+  /**
+   * Coach ids, validated and capped. An unknown id matches no row and
+   * fabricates nothing; the query is scoped to THIS athlete, so an id the
+   * caller has no business with can only ever return this athlete's own
+   * history with that coach.
+   */
+  const wantedCoaches = Array.isArray(coachIds)
+    ? [...new Set(coachIds.filter((id) => typeof id === 'string' && id))]
+    : [];
+  if (wantedCoaches.length > MAX_COACHES) {
+    throw new Error(`Too many coaches at once: ${wantedCoaches.length} (max ${MAX_COACHES})`);
+  }
+
+  /**
+   * HISTORY MAY FAIL WITHOUT TAKING THE EMAIL WITH IT.
+   *
+   * The evidence is still correct and still personalised; only the "have we
+   * put this to them before" annotation is missing. Failing the request would
+   * let a history query block manual drafting, which is the one workflow that
+   * has to keep working. So the status is reported and composition continues -
+   * and UNKNOWN is not NONE: a surface reads `history.status` rather than the
+   * absence of markers.
+   */
+  let historyIdx = null;
+  let history = null;
+  if (wantedCoaches.length) {
+    try {
+      historyIdx = historyIndex({ athleteId: athlete.id, coachIds: wantedCoaches });
+      history = { status: 'READY', coachCount: wantedCoaches.length };
+    } catch (err) {
+      console.error('[evidence/history]', err);
+      historyIdx = null;
+      history = { status: 'FAILED', coachCount: wantedCoaches.length };
+    }
+  }
+
   const out = {};
   for (const name of names) {
     try {
-      out[name] = toWire(evidenceFor(athlete, name, {
+      const wire = toWire(evidenceFor(athlete, name, {
         sport,
         prefer: prefer?.[name] ?? null,
         preferStructure: preferStructure?.[name] ?? null,
-      }));
+      }), historyIdx);
+      out[name] = history ? { ...wire, history } : wire;
     } catch (err) {
       console.error(`[evidence] ${name}:`, err);
       out[name] = { unavailable: err.message };

@@ -120,8 +120,27 @@ export default function EmailComposer({
     };
   }, [college?.name, selection, structureChoice]);
 
+  /**
+   * WHICH CANONICAL COACHES THIS EMAIL IS CURRENTLY FOR - F9e.
+   *
+   * Wiring, and only wiring. Recipient selection, addresses, the greeting and
+   * the submitted `coachIds` are all exactly as they were; this reads the same
+   * selection a second time so the evidence request can ask what these people
+   * have already been told.
+   *
+   * EMPTY ON THE TOP 100 PATH, AND CORRECTLY SO. A match card's
+   * `coaching_staff` comes from the matching blob and carries no `coach_id`;
+   * only the relationship dialog supplies canonical `coaches` rows. So the
+   * ranked and bulk composers send no coach ids, receive no history, and
+   * behave precisely as before.
+   */
+  const selectedCoachIds = useMemo(
+    () => validCoaches.filter((c) => selected.has(c.email) && c.coach_id).map((c) => c.coach_id),
+    [validCoaches, selected],
+  );
+
   const { evidence: evidenceMap, loading: evidenceLoading, failed: evidenceFailed } =
-    useEvidence(player.id, collegeNames, overrides);
+    useEvidence(player.id, collegeNames, overrides, selectedCoachIds);
   const evidence = evidenceForCollege(evidenceMap, college?.name);
 
   /**

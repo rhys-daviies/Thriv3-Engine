@@ -510,10 +510,21 @@ export const evidence = {
    * evidence supports, and refuses rather than honours anything else — which
    * is why the client is allowed to ask at all.
    */
-  summaries(playerId, collegeNames, { prefer = null, preferStructure = null } = {}) {
+  /**
+   * @param {string[]} [opts.coachIds]  who this email is for - F9e. OPTIONAL.
+   *
+   * Supplied, the response marks findings this athlete has already put to one
+   * of these coaches. Omitted, the payload is exactly what it was before.
+   *
+   * COACHES, NEVER HISTORY. The client may say who it is writing to; it may
+   * not say what they have been told. There is deliberately no `previousKinds`
+   * or `usedKinds` field to send, because a claim about what a coach has
+   * already read is a server fact.
+   */
+  summaries(playerId, collegeNames, { prefer = null, preferStructure = null, coachIds = null } = {}) {
     return request(`/api/players/${playerId}/evidence`, {
       method: 'POST',
-      body: JSON.stringify({ collegeNames, prefer, preferStructure }),
+      body: JSON.stringify({ collegeNames, prefer, preferStructure, coachIds }),
     });
   },
 };
