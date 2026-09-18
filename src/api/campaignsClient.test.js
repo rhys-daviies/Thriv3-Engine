@@ -132,15 +132,27 @@ describe('campaigns are not generic CRUD', () => {
    * `sendMessage` takes ONE message id and two preconditions. There is no bulk
    * form, it names no coach, step, recipient, subject or body, and the server
    * refuses any field it did not ask for.
+   *
+   * D5.0 ADDS A THIRD, AND IT IS THE NARROWEST OF THEM. `retrySend` takes ONE
+   * execution id and NO body at all — no bytes, no mailbox, no recipient,
+   * nothing a caller could influence. It creates no `outreach_send`; it
+   * re-attempts one that already exists, and only when the ledger and the event
+   * log together prove no provider was ever reached. An ambiguous send is
+   * refused by it, permanently, as it is by every other path.
+   *
+   * So the list grows by one named operation and the pattern below still
+   * catches everything else.
    * ===========================================================================
    */
-  const EXECUTION_OPERATIONS = Object.freeze(['executionReadiness', 'sendMessage']);
+  const EXECUTION_OPERATIONS = Object.freeze([
+    'executionReadiness', 'sendMessage', 'retrySend',
+  ]);
 
-  it('exposes exactly the fourteen campaign operations', () => {
+  it('exposes exactly the fifteen campaign operations', () => {
     expect(Object.keys(campaigns).sort()).toEqual([
       'approveFirstTouch', 'createForPlayer', 'editMessage', 'executionPlan',
       'executionReadiness', 'generateMessage', 'get', 'listForPlayer', 'message',
-      'prepareNextAttempt', 'reviewMessage', 'sendMessage', 'update', 'updateProgramme',
+      'prepareNextAttempt', 'retrySend', 'reviewMessage', 'sendMessage', 'update', 'updateProgramme',
     ]);
 
     /**

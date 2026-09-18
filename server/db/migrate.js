@@ -562,6 +562,74 @@ const OUTREACH_SEND_COLUMNS = [
  */
 const OUTBOUND_SEND_ATTEMPT_COLUMNS = [
   ['outreach_send_id', 'TEXT REFERENCES outreach_send(id)'],
+
+  /**
+   * WHAT BECAME OF THE CAPACITY THIS ROW RESERVED — D5.0.
+   *
+   * ===========================================================================
+   * THE LEDGER STILL HOLDS EVERY ROW. THIS SAYS WHICH OF THEM SPENT A DAY.
+   *
+   * Capacity is reserved BEFORE a provider is called, because a message that
+   * reaches a provider must already have been paid for. That was the whole of
+   * the model until D5.0, and it had one wrong answer in it: an attempt that
+   * PROVABLY never reached a provider — no credential, no connection ever
+   * established, an identity that disagreed before a single byte went out —
+   * charged a real mailbox a real unit of its day for a transmission that did
+   * not happen.
+   *
+   * The fix is NOT a refund. Nothing deletes a row, nothing decrements a
+   * counter, and `outboundBudget.js` still exports no such operation. The row
+   * stays exactly where it is, saying what was attempted and when; this column
+   * says whether the attempt consumed the world's attention or merely this
+   * process's.
+   * ===========================================================================
+   *
+   * See OUTBOUND_ATTEMPT_DISPOSITION in server/lib/outboundBudget.js for the
+   * vocabulary. In short:
+   *
+   *   RESERVED                 taken, outcome not yet settled. COUNTS.
+   *   SUBMITTED_OR_AMBIGUOUS   a provider was reached, or may have been.
+   *                            COUNTS — including UNKNOWN, because the message
+   *                            may genuinely be in an inbox.
+   *   REFUSED_BEFORE_TRANSPORT provably no submission occurred. DOES NOT COUNT.
+   *
+   * ---------------------------------------------------------------------------
+   * NULL COUNTS AS CONSUMED, AND IT IS NOT A MISSING VALUE — it is the honest
+   * record of every row written before this column existed.
+   *
+   * The 41 historical AppleScript sends, every `OUTLOOK_MANUAL` confirmation,
+   * and every legacy attempt carry NULL and always will. NOT BACKFILLED: those
+   * attempts were made through a transport this system never observed
+   * returning, so no disposition was ever established for them and inventing
+   * one would manufacture exactly the certainty this column exists to record.
+   *
+   * So NULL means "disposition not recorded", and the counting rule resolves it
+   * conservatively: it consumed. The alternative reading — "unknown, therefore
+   * free" — would hand every historical row's capacity back at once and
+   * understate a shared mailbox's real usage, which is the failure the ledger
+   * was built to prevent.
+   * ---------------------------------------------------------------------------
+   *
+   * NO CHECK CONSTRAINT, for the reason `origin` and `provider` give on
+   * `outreach_send`: SQLite cannot alter one, so a fourth disposition would
+   * become a table rebuild. The vocabulary is owned in code and enforced where
+   * it is written.
+   *
+   * NO INDEX. Every capacity count is already keyed on (athlete_id | sending
+   * _identity, attempted_at) and this is an extra predicate on the rows those
+   * have already narrowed to a single day — a handful. An index here would buy
+   * nothing on a database this size and would make the guarded insert harder
+   * to read, which is the thing most worth protecting about it.
+   *
+   * IT IS OUTSIDE `trg_outbound_send_attempt_append_only` DELIBERATELY. That
+   * trigger names its columns — id, sending_identity, transport, attempted_at,
+   * created_at — and every one of them is a fact about what was attempted,
+   * which must never change. A disposition is what was LEARNED afterwards, so
+   * it is written once at reservation and settled once at the outcome. The
+   * accounting facts stay append-only; only the verdict on them moves, and
+   * `settleOutboundAttempt` is the single guarded writer.
+   */
+  ['disposition', 'TEXT'],
 ];
 
 /**

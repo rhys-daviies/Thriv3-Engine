@@ -445,6 +445,30 @@ export const campaigns = {
       body: JSON.stringify({ bodyHash, connectedMailboxId }),
     });
   },
+
+  /**
+   * ATTEMPT AGAIN AN EXECUTION THAT PROVABLY NEVER LEFT — D5.0.
+   *
+   * ------------------------------------------------------------------------
+   * KEYED ON THE EXECUTION ID, AND IT SENDS NOTHING WITH IT.
+   *
+   * The only messages this applies to are the ones `sendMessage` answered with
+   * `retryable: true` — a transport that stopped before it could submit
+   * anything. Everything else is refused 409, including the case that matters
+   * most: an ambiguous send, which may already be in the coach's inbox and can
+   * never be attempted again by any path.
+   *
+   * NO BODY. The bytes are frozen on the execution row and cannot be
+   * influenced, the mailbox is the one the message was authorised from, and
+   * there is nothing left for a caller to supply or to override.
+   *
+   * NOTHING IN THE UI CALLS THIS AUTOMATICALLY, and nothing should. A retry is
+   * somebody deciding to try again after fixing what broke.
+   * ------------------------------------------------------------------------
+   */
+  retrySend(outreachSendId) {
+    return request(`/api/outreach-sends/${outreachSendId}/retry`, { method: 'POST' });
+  },
 };
 
 /**

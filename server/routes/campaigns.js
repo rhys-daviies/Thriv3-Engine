@@ -8,8 +8,9 @@ import {
 } from '../lib/campaigns.js';
 import { campaignExecutionPlan } from '../lib/campaignExecution.js';
 import {
-  executeProgrammeMessage, EXECUTION_REFUSAL,
+  executeProgrammeMessage, reattemptExecution, EXECUTION_REFUSAL,
 } from '../lib/executeProgrammeMessage.js';
+import { RETRY_REFUSAL } from '../lib/executionRetry.js';
 import { executionReadiness } from '../lib/executionReadiness.js';
 import { CLAIM_REFUSAL } from '../lib/executionClaim.js';
 import { BUDGET_REFUSAL } from '../lib/outboundBudget.js';
@@ -327,6 +328,26 @@ const STATUS_BY_CODE = Object.freeze({
    *      the one refusal a client may reasonably retry later.
    */
   [EXECUTION_REFUSAL.MESSAGE_REVIEW_CHANGED]: 409,
+  /* ---- D5.0: explicit re-execution of a proven non-send ------------------ */
+  /**
+   * 409, NOT 422, AND THE DIFFERENCE IS DELIBERATE. Each of these says the
+   * execution is not in a state a re-attempt applies to — accepted, unresolved,
+   * already in flight, a mailbox that is not the frozen one, or another open
+   * message on the relationship. That is a conflict with the resource as it
+   * stands, which a caller resolves by looking at it rather than by waiting.
+   */
+  /**
+   * 404: THE EXECUTION IS NOT THERE. Answered like any other missing resource,
+   * and before any policy refusal could imply that it is.
+   */
+  [RETRY_REFUSAL.EXECUTION_NOT_FOUND]: 404,
+  [RETRY_REFUSAL.EXECUTION_NOT_RETRYABLE]: 409,
+  [RETRY_REFUSAL.NO_PRE_TRANSPORT_EVIDENCE]: 409,
+  [RETRY_REFUSAL.RETRY_CLAIM_LOST]: 409,
+  [RETRY_REFUSAL.RETRY_MAILBOX_MISMATCH]: 409,
+  [RETRY_REFUSAL.RELATIONSHIP_HAS_OPEN_MESSAGE]: 409,
+  [RETRY_REFUSAL.EXECUTION_SNAPSHOT_INCOMPLETE]: 409,
+  EXECUTION_RETRY_ARGUMENT_REQUIRED: 422,
   [CLAIM_REFUSAL.MESSAGE_ALREADY_EXECUTED]: 409,
   [CLAIM_REFUSAL.SEND_CLAIM_LOST]: 409,
   [CLAIM_REFUSAL.RELATIONSHIP_HAS_UNRESOLVED_SEND]: 409,
@@ -1144,6 +1165,57 @@ campaignsRouter.post(
      * The request succeeded; what the provider said is the payload. A 5xx for
      * an ambiguous send would invite the retry that must never happen.
      */
+    return { body: out };
+  }),
+);
+
+/**
+ * ---- ATTEMPT AGAIN A MESSAGE THAT PROVABLY NEVER LEFT — D5.0 --------------
+ *
+ * ===========================================================================
+ * KEYED ON THE EXECUTION, NOT ON THE MESSAGE, BECAUSE THAT IS WHAT IT REPEATS.
+ *
+ * `POST /programme-messages/:id/send` creates an execution; there is exactly
+ * one per approved message and a second is refused. This endpoint does not
+ * create anything — it re-attempts the execution that already exists, reusing
+ * its id, its frozen bytes, its sequence and its mailbox. Naming it after the
+ * message would suggest a second send of the same words was on offer, which is
+ * the one thing MESSAGE_ALREADY_EXECUTED exists to prevent.
+ *
+ * It is on this router rather than a new one: `campaignsRouter` is mounted at
+ * /api and already owns every execution route, and a router per resource noun
+ * would be architecture for its own sake.
+ * ===========================================================================
+ *
+ * ---------------------------------------------------------------------------
+ * IT TAKES NO BODY AT ALL, AND THAT IS THE STRONGEST VERSION OF THE RULE.
+ *
+ * A first send needs `bodyHash`, because the operator is approving words they
+ * were shown and those words could have moved. A re-attempt cannot have that
+ * problem: the bytes are frozen on `outreach_send` and are the only bytes that
+ * can go — nothing regenerates them, and `programme_messages` is not read for
+ * content here. There is nothing for an acknowledgement to acknowledge.
+ *
+ * `connectedMailboxId` is likewise absent. A retry goes from the mailbox the
+ * message was authorised to be sent from; the authority refuses any other, and
+ * an endpoint that accepted one would imply a choice that does not exist.
+ * ---------------------------------------------------------------------------
+ *
+ * NOT AUTOMATIC, ANYWHERE. Nothing in the product calls this on a timer, on a
+ * failure, or on a page load. It runs because somebody asked.
+ */
+campaignsRouter.post(
+  '/outreach-sends/:sendId/retry',
+  handle('campaigns/retry-send', async (req) => {
+    readBody(req.body, [], 'execution re-attempt');
+    refuseQuery(req);
+
+    const out = await reattemptExecution({
+      outreachSendId: req.params.sendId,
+      operatorUserId: req.operator.id,
+    });
+
+    /** 200 with the durable state, on the same terms as a first send. */
     return { body: out };
   }),
 );

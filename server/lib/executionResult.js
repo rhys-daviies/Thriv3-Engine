@@ -3,6 +3,7 @@ import { utcNow } from './time.js';
 import { transitionSend, appendSendEvent, sendById } from './outreachSend.js';
 import { reconcileProgrammeContactAttempt, attemptForCoach } from './contactAttempts.js';
 import { TRANSPORT_OUTCOME } from './outboundTransport.js';
+import { settleOutboundAttempt, OUTBOUND_ATTEMPT_DISPOSITION } from './outboundBudget.js';
 import {
   MESSAGE_STATE, ACCEPTED_SOURCE, SEND_EVENT_TYPE,
 } from '../../shared/outreachMessageState.js';
@@ -13,7 +14,7 @@ import {
  * ===========================================================================
  * THE ONE PLACE A TRANSPORT OUTCOME BECOMES DURABLE.
  *
- * Three outcomes, three states, three events, and no other module may write
+ * Four outcomes, three states, four events, and no other module may write
  * any of them:
  *
  *   ACCEPTED   SENDING -> ACCEPTED, accepted_source PROVIDER_ACCEPTED, the
@@ -29,13 +30,23 @@ import {
  * This one answers "what HAPPENED" and is the only writer of the answer.
  *
  * ---------------------------------------------------------------------------
- * THE BUDGET IS NEVER TOUCHED, ON ANY OUTCOME.
+ * NO LEDGER ROW IS EVER REMOVED, ON ANY OUTCOME. ITS VERDICT IS SETTLED — D5.0.
  *
  * `outbound_send_attempt` was written inside the claim, before the provider was
- * called, and it stays exactly as it was. A refusal is not a refund: the
- * attempt was made, and on UNKNOWN the message may genuinely be in an inbox.
- * Handing capacity back would let a mailbox spend a day's allowance twice for
- * one transmission, which is the failure the ledger exists to prevent.
+ * called, and the row itself still stays exactly where it is. What this module
+ * now adds is the answer to what became of it, in the same transaction as the
+ * state and the event it belongs with:
+ *
+ *   ACCEPTED / REJECTED / UNKNOWN   SUBMITTED_OR_AMBIGUOUS. All three consume,
+ *      and UNKNOWN consuming is the important one: an ambiguous send may
+ *      genuinely be in an inbox, and handing its capacity back would let one
+ *      transmission be paid for twice.
+ *   REFUSED_BEFORE_TRANSPORT        released. The transport PROVED it never
+ *      submitted anything, so no mailbox spent any of the world's attention.
+ *
+ * A REFUSAL IS STILL NOT A REFUND. Nothing is deleted and nothing decremented;
+ * a row that never represented a transmission simply stops being counted as
+ * one. See OUTBOUND_ATTEMPT_DISPOSITION for why that is a different thing.
  * ---------------------------------------------------------------------------
  *
  * AND THE ATTEMPT ADVANCES ONLY FOR ACCEPTED, IN ITS OWN TRANSACTION. See the
@@ -94,7 +105,32 @@ function alreadySettled(sendId) {
  *
  * `PROVIDER_ACCEPTED`, never `PROVIDER_RECONCILED`: we watched this one leave.
  */
-const ACCEPT = db.transaction(({ sendId, result, at }) => {
+/**
+ * SETTLE THE RESERVATION THIS EXECUTION TOOK, INSIDE THE CALLER'S TRANSACTION.
+ *
+ * ---------------------------------------------------------------------------
+ * BY EXPLICIT LEDGER ID, NEVER BY RECENCY.
+ *
+ * `ledgerAttemptId` comes off the claim result and names the exact row that
+ * reserved capacity for THIS attempt. A message that has been retried has
+ * several, they can share an `attempted_at` to the second, and "the latest row
+ * for this send" would eventually settle the wrong one — releasing capacity a
+ * real transmission spent, which is the one accounting error that costs a coach
+ * a duplicate email.
+ *
+ * OPTIONAL, AND SILENTLY SO. The recovery sweep and D4.7's own tests persist
+ * results for sends whose ledger id they never held, and a throw here would
+ * unwind a durable provider truth over a bookkeeping pointer. A caller that
+ * knows the id gets the settlement; one that does not leaves the row at
+ * RESERVED, which counts — the fail-closed direction.
+ * ---------------------------------------------------------------------------
+ */
+function settleLedger(ledgerAttemptId, disposition) {
+  if (typeof ledgerAttemptId !== 'string' || !ledgerAttemptId.trim()) return null;
+  return settleOutboundAttempt(ledgerAttemptId, disposition);
+}
+
+const ACCEPT = db.transaction(({ sendId, result, at, ledgerAttemptId }) => {
   const settled = alreadySettled(sendId);
   if (settled) return settled;
 
@@ -126,6 +162,21 @@ const ACCEPT = db.transaction(({ sendId, result, at }) => {
     },
   });
 
+  /**
+   * IN TXN 2a WITH THE ACCEPTANCE, AND THAT IS THE RIGHT SIDE OF THE SPLIT.
+   *
+   * D4.7's invariant is that provider acceptance becomes durable before any
+   * secondary bookkeeping can fail. The ledger verdict is not secondary
+   * bookkeeping about a CAMPAIGN — it is the accounting half of the same fact:
+   * this mailbox made a request of the outside world. Committing the acceptance
+   * without it would leave a real transmission sitting at RESERVED, which reads
+   * identically to a crashed send.
+   *
+   * The campaign's step still moves in TXN 2b, where a failure costs the
+   * bookkeeping and not the truth.
+   */
+  settleLedger(ledgerAttemptId, OUTBOUND_ATTEMPT_DISPOSITION.SUBMITTED_OR_AMBIGUOUS);
+
   return { persisted: true, alreadyResolved: false, state: MESSAGE_STATE.ACCEPTED };
 });
 
@@ -133,7 +184,9 @@ const ACCEPT = db.transaction(({ sendId, result, at }) => {
 /* REJECTED and UNKNOWN — one transaction each, state plus its event           */
 /* -------------------------------------------------------------------------- */
 
-const SETTLE = db.transaction(({ sendId, state, type, at, payload, observedAt }) => {
+const SETTLE = db.transaction(({
+  sendId, state, type, at, payload, observedAt, ledgerAttemptId, disposition,
+}) => {
   const settled = alreadySettled(sendId);
   if (settled) return settled;
 
@@ -141,6 +194,16 @@ const SETTLE = db.transaction(({ sendId, state, type, at, payload, observedAt })
   appendSendEvent({
     sendId, type, source: RESULT_SOURCE, observedAt: observedAt ?? at, at, payload,
   });
+  /**
+   * THE THIRD WRITE, AND IT BELONGS IN HERE WITH THE OTHER TWO — D5.0.
+   *
+   * State, event and ledger verdict commit together or not at all. Splitting
+   * the disposition into a transaction of its own would make a crash between
+   * them leave a message FAILED with its capacity stranded at RESERVED for
+   * ever — visibly failed, invisibly still charged, and nothing in the system
+   * able to tell that apart from a send that died mid-flight.
+   */
+  settleLedger(ledgerAttemptId, disposition);
 
   return { persisted: true, alreadyResolved: false, state };
 });
@@ -155,9 +218,15 @@ const SETTLE = db.transaction(({ sendId, state, type, at, payload, observedAt })
  *
  * @param {string} sendId  the claimed `outreach_send` row.
  * @param {object} result  an `attemptSend` result — `{ outcome, ... }`.
+ * @param {string} [opts.ledgerAttemptId]  the `outbound_send_attempt` this
+ *   execution reserved, from `ledgerAttemptId` on the claim result — D5.0. The
+ *   row whose disposition is settled here. Omitted by callers that never held
+ *   one; the reservation then stays RESERVED and keeps counting.
  * @returns {{persisted, alreadyResolved, state, send}}
  */
-export function persistTransportResult(sendId, result, { at = utcNow() } = {}) {
+export function persistTransportResult(sendId, result, {
+  at = utcNow(), ledgerAttemptId = null,
+} = {}) {
   if (typeof sendId !== 'string' || !sendId.trim()) {
     throw fail('RESULT_SEND_ID_REQUIRED', 'Recording a transport outcome needs the send it belongs to.');
   }
@@ -167,7 +236,7 @@ export function persistTransportResult(sendId, result, { at = utcNow() } = {}) {
   let out;
   switch (outcome) {
     case TRANSPORT_OUTCOME.ACCEPTED:
-      out = ACCEPT.immediate({ sendId, result, at });
+      out = ACCEPT.immediate({ sendId, result, at, ledgerAttemptId });
       /**
        * TXN 2b — AFTER 2a HAS COMMITTED, and outside it.
        *
@@ -258,6 +327,9 @@ export function persistTransportResult(sendId, result, { at = utcNow() } = {}) {
           providerCode: trimmed(result.providerCode),
           providerMessage: trimmed(result.providerMessage),
         },
+        ledgerAttemptId,
+        /** The provider was reached and answered. The request was made. */
+        disposition: OUTBOUND_ATTEMPT_DISPOSITION.SUBMITTED_OR_AMBIGUOUS,
       });
       break;
 
@@ -280,6 +352,69 @@ export function persistTransportResult(sendId, result, { at = utcNow() } = {}) {
           reason: trimmed(result.reason) ?? 'PROVIDER_RESULT_UNREADABLE',
           detail: trimmed(result.detail),
         },
+        ledgerAttemptId,
+        /**
+         * CONSUMED, AND THIS IS THE LINE THAT MATTERS MOST IN D5.0.
+         *
+         * The message may be in the coach's inbox. Releasing capacity for a
+         * send we cannot rule out would let one transmission be paid for
+         * twice — and, worse, would make an ambiguous result look like the
+         * provable non-send that a retry is allowed to follow.
+         */
+        disposition: OUTBOUND_ATTEMPT_DISPOSITION.SUBMITTED_OR_AMBIGUOUS,
+      });
+      break;
+
+    case TRANSPORT_OUTCOME.REFUSED_BEFORE_TRANSPORT:
+      /**
+       * NOTHING WAS SUBMITTED, AND THE TRANSPORT PROVED IT — D5.0.
+       *
+       * =====================================================================
+       * FAILED, LIKE A REJECTION, AND RECORDED AS SOMETHING ELSE ENTIRELY.
+       *
+       * The state is the same because what the message IS is the same: it did
+       * not go. The EVENT is different because how it failed is different, and
+       * the difference is worth more than a constant —
+       *
+       *   it is the only evidence that licenses a re-execution. See
+       *   executionRetry.js, which will not touch a FAILED row without it.
+       *   Pooling this into TRANSPORT_REJECTED would make a genuine provider
+       *   refusal look retryable, which is the double send in a third costume.
+       *
+       *   and it is the only way to answer "how often is our own configuration
+       *   broken", separately from "how often does the provider say no".
+       * =====================================================================
+       *
+       * NO PROVIDER METADATA IS WRITTEN. There is no provider message id, no
+       * thread id and no acceptance timestamp, because there was no provider
+       * interaction to have produced one. `PROVIDER_METADATA` is not reached on
+       * this path at all.
+       *
+       * NO STEP ADVANCES AND NO FOLLOW-UP CLOCK STARTS. Both are consequences
+       * of an ACCEPTED send and neither is asked for here: `transitionSend` is
+       * given FAILED, and the four-day clock is anchored on
+       * `outreach_send.sent_at` of an ACCEPTED row, which this is not. Nothing
+       * needs to suppress them; there is simply nothing to advance.
+       */
+      out = SETTLE.immediate({
+        sendId,
+        state: MESSAGE_STATE.FAILED,
+        type: SEND_EVENT_TYPE.TRANSPORT_REFUSED,
+        at,
+        payload: {
+          reason: trimmed(result.reason) ?? 'REFUSED_BEFORE_TRANSPORT',
+          detail: trimmed(result.detail),
+          /**
+           * Present only where a provider layer had one to give. It is a fact
+           * about a request that never became a message, kept because a future
+           * reader will want to know how far the attempt got.
+           */
+          httpStatus: Number.isInteger(result.httpStatus) ? result.httpStatus : null,
+          durationMs: Number.isInteger(result.durationMs) ? result.durationMs : null,
+        },
+        ledgerAttemptId,
+        /** The one outcome that releases it. The row itself is never removed. */
+        disposition: OUTBOUND_ATTEMPT_DISPOSITION.REFUSED_BEFORE_TRANSPORT,
       });
       break;
 
