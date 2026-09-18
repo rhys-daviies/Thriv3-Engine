@@ -156,6 +156,16 @@ def evaluate(recs, title, k, cnt25, url, strict_season=True):
     admitted = None
     if ok_season is False:
         return False, 'page season is not %d (title=%r)' % (lib.SEASON, (title or '')[:60])
+    # WHOSE ROSTER IS THIS, before anything about turnover.
+    #
+    # The key carries the sport, so no signature changes. Asked first because
+    # turnover is a statement ABOUT a squad and is meaningless until we know the
+    # squad is this programme's: Oklahoma State's equestrian page passed the
+    # turnover gate precisely because its athletes are unrelated to the soccer
+    # roster. See `lib.sport_contradicted`.
+    said = lib.sport_contradicted(title, k.split('||')[-1])
+    if said:
+        return False, 'page is not this programme\'s roster (title=%r)' % said
     # In CURRENT mode the gate applies even when the title names the season. A
     # site can flip its season label and URL before it swaps the roster content,
     # and 40 of 46 stale 2026 pages passed on exactly that: the page said 2026

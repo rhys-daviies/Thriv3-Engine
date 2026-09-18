@@ -15,6 +15,110 @@ SEASON = int(os.environ.get('RB_SEASON', '2024'))
 CACHE = os.path.expanduser('~/Library/Caches/recruitmatch-rb/pages')
 os.makedirs(CACHE, exist_ok=True)
 
+# ---------------------------------------------------------------------------
+# CACHE FRESHNESS
+#
+# THE DEFECT THIS REPLACES. `fetch` stored a body under sha1(url) and reused it
+# whenever the file existed. There was no age, no revalidation and no TTL, so a
+# cached page was reused forever. L7T found every page it was about to acquire
+# from had been cached 23 days earlier, and the staleness was not academic:
+# Augustana's squad read 28 players from the cached copy and 46 from the live
+# one, Stevens Point 29 and 47, Carleton 17 and 32. Worse, the cohort diagnostic
+# read the same stale bodies and classified 83 programmes as "still serving last
+# season" when their sites had published weeks before.
+#
+# A system that decides whether a page is the CURRENT season cannot do it from a
+# response of unbounded age.
+#
+# WHY SIX HOURS. The boundary that matters is "this run" versus "another day".
+# Within a run the same URL is asked for repeatedly -- the direct stage, then
+# the variants ladder, then a diagnostic -- and refetching each time is waste
+# and unkind to the host. Across days a current-season page is a different page:
+# rosters are published and topped up through August and September, which is
+# exactly the window L7T was reading across. Six hours covers a full bulk run
+# over two thousand programmes plus a restart, and cannot span the overnight
+# boundary on which a site flips season. One hour would refetch thousands of
+# pages mid-run; twenty-four would have let L7T's defect through at a smaller
+# scale, which is not a fix.
+#
+# WHY ARCHIVE CAPTURES ARE EXEMPT. A Wayback URL names a capture timestamp, so
+# its content is immutable by construction. Expiring it would add network
+# dependence and a failure mode in exchange for nothing. That is the only
+# exemption, and it is a property of the source rather than of the caller.
+CACHE_TTL_SECONDS = 6 * 3600
+
+# Sources whose content cannot change because the URL names a point in time.
+IMMUTABLE_CACHE_HOSTS = ('web.archive.org',)
+
+# Why each read was served the way it was, so a run can be audited for
+# freshness rather than assumed fresh. Counted, not logged per request.
+CACHE_STATS = {}
+
+
+def _stat(name):
+    CACHE_STATS[name] = CACHE_STATS.get(name, 0) + 1
+
+
+def reset_cache_stats():
+    CACHE_STATS.clear()
+
+
+def _now():
+    """The clock, as one seam. Tests replace this rather than sleeping."""
+    return time.time()
+
+
+def immutable_source(url):
+    """True when the URL names a capture and so can be cached indefinitely."""
+    return any(h in (url or '') for h in IMMUTABLE_CACHE_HOSTS)
+
+
+def _cache_paths(url):
+    k = ckey(url)
+    return os.path.join(CACHE, k + '.html'), os.path.join(CACHE, k + '.json')
+
+
+def cache_state(url, min_size=800, now=None):
+    """(state, body) for what is on disk: 'FRESH', 'STALE' or 'MISS'.
+
+    A body with no sidecar is STALE, never FRESH. Entries written before this
+    policy existed have no recorded fetch time, and the safe reading of "age
+    unknown" is "revalidate" -- the other reading is the defect. Nothing is
+    deleted for it; the next use simply refreshes it.
+
+    A timestamp in the future is also STALE. A clock that disagrees with the one
+    that wrote the entry is a reason to check, not to trust.
+    """
+    body_p, meta_p = _cache_paths(url)
+    if not os.path.exists(body_p):
+        return 'MISS', None
+    try:
+        body = open(body_p, encoding='utf-8', errors='replace').read()
+    except Exception:
+        return 'MISS', None
+    if len(body) < min_size:
+        return 'MISS', None
+    if immutable_source(url):
+        return 'FRESH', body
+    try:
+        fetched_at = float(json.load(open(meta_p, encoding='utf-8'))['fetched_at'])
+    except Exception:
+        return 'STALE', body
+    t = _now() if now is None else now
+    age = t - fetched_at
+    if age < 0 or age > CACHE_TTL_SECONDS:
+        return 'STALE', body
+    return 'FRESH', body
+
+
+def _write_cache(url, body):
+    body_p, meta_p = _cache_paths(url)
+    try:
+        open(body_p, 'w', encoding='utf-8').write(body)
+        json.dump({'url': url, 'fetched_at': _now()}, open(meta_p, 'w', encoding='utf-8'))
+    except Exception:
+        pass
+
 UAS = [
  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -33,14 +137,19 @@ def sess():
 
 def ckey(url): return hashlib.sha1(url.encode()).hexdigest()
 
-def fetch(url, tries=3, timeout=45, use_cache=True, min_size=800):
-    """Return (status, text). Caches successful bodies on disk."""
-    p = os.path.join(CACHE, ckey(url) + '.html')
-    if use_cache and os.path.exists(p):
-        try:
-            b = open(p, encoding='utf-8', errors='replace').read()
-            if len(b) >= min_size: return 200, b
-        except Exception: pass
+def fetch(url, tries=3, timeout=45, use_cache=True, min_size=800, now=None):
+    """Return (status, text). Serves a FRESH cached body, or goes to the network.
+
+    FAILS CLOSED. A stale body is never returned: if revalidation fails, this
+    answers exactly as a miss whose fetch failed, because a caller deciding
+    whether a page is the current season must not be handed a three-week-old
+    copy dressed as an answer. The caller sees no body and reports the source
+    unreachable, which is true and is the honest input to a diagnosis.
+    """
+    state, cached = ('MISS', None) if not use_cache else cache_state(url, min_size, now)
+    if state == 'FRESH':
+        _stat('immutable' if immutable_source(url) else 'fresh')
+        return 200, cached
     last = None
     for i in range(tries):
         try:
@@ -48,8 +157,8 @@ def fetch(url, tries=3, timeout=45, use_cache=True, min_size=800):
             r = sess().get(url, headers=h, timeout=timeout, allow_redirects=True)
             last = r.status_code
             if r.status_code == 200 and len(r.text) >= min_size:
-                try: open(p, 'w', encoding='utf-8').write(r.text)
-                except Exception: pass
+                _write_cache(url, r.text)
+                _stat('stale-refetched' if state == 'STALE' else 'miss-fetched')
                 return 200, r.text
             if r.status_code in (404, 410): return r.status_code, ''
             if r.status_code in (403, 429, 500, 502, 503, 504):
@@ -58,6 +167,9 @@ def fetch(url, tries=3, timeout=45, use_cache=True, min_size=800):
         except Exception as e:
             last = type(e).__name__
             time.sleep(1.0 * (i + 1) + random.random())
+    # Network gave us nothing. If a stale body is on disk it stays there and
+    # stays unused: see the docstring.
+    _stat('stale-refetch-failed' if state == 'STALE' else 'fetch-failed')
     return last, ''
 
 # ---------------------------------------------------------------- wayback
@@ -209,6 +321,18 @@ def parse_nuxt(html):
                     if s is not None: p[k] = s
             if isinstance(e.get('hide'), bool) and e['hide']: continue
             out.append(p)
+    # AMBIGUITY IS A REFUSAL, not a tie to break.
+    #
+    # `parse_nuxt_roster` below refuses a payload declaring more than one
+    # non-empty `players` container, because nothing in the payload says which
+    # one belongs to the programme being asked for. This scan had no such rule:
+    # it walks every player-shaped dict in the payload, so Drexel's two
+    # containers of 24 read as one squad of 48 -- two seasons at once, and a 50%
+    # overlap with last year that looked like ordinary turnover.
+    #
+    # Same rule, same reason: do not merge them, do not take the largest.
+    if len(_nuxt_player_lists(flat)) > 1:
+        return None, None
     title = None
     for e in flat:
         if isinstance(e, dict) and 'displayTitle' in e and 'players' in e:
@@ -866,6 +990,71 @@ def clean_home(s):
     s = re.sub(r'\s+', ' ', (s or '').strip())
     s = re.sub(r'^(hometown|home town)\s*[:/]\s*', '', s, flags=re.I)
     return s.strip(' -–/|')
+
+# ---------------------------------------------------------------------------
+# WHOSE ROSTER IS THIS?
+#
+# Production already asks this question, in `sportContradicted` in
+# `server/scripts/rosterCandidatePlan.js`, and that docstring records why: L7E
+# called Southwest Minnesota State ready on HTTP 200, the right host and 82
+# roster markers, and the page was a women's bio served at `/sports/msoc/`. Host
+# identity was never in question; the SPORT was, and nothing checked it.
+#
+# But that gate guards CANDIDATE DISCOVERY, which never runs for a programme
+# that already holds a source -- and the acquisition path's gate, `evaluate`,
+# had no sport check at all. L7T found what that costs. Oklahoma State's ladder
+# walked past its own soccer roster (turnover-refused) and accepted
+# `/sports/womens-soccer/roster/season/2026`, which the site answers with
+# "2026-27 Cowgirl Equestrian Roster": 90 athletes, no positions, and 1% name
+# overlap with the 2025 squad. It passed BECAUSE the squad was unrelated -- an
+# unrelated roster reads as total turnover.
+#
+# The JS gate would not have caught it either. It refuses a title naming the
+# OTHER GENDER's soccer programme, and equestrian is neither. So this is that
+# rule, on the path that decides acquisition, widened to the case it missed.
+#
+# THIS IS NOT A LOW-OVERLAP RULE. A legitimate roster may turn over almost
+# completely, and refusing it for that would throw away real squads. Low overlap
+# is how the defect became visible, not what is wrong with the page. What is
+# wrong is that the page is not this programme's roster, and the page says so
+# itself.
+SPORT_TITLE = {
+    'mens-soccer': (re.compile(r"\bmen'?s soccer\b", re.I), re.compile(r"\bwomen'?s soccer\b", re.I)),
+    'womens-soccer': (re.compile(r"\bwomen'?s soccer\b", re.I), re.compile(r"\bmen'?s soccer\b", re.I)),
+}
+
+# Sports a roster page may name that are not the one being asked for. A title
+# naming one of these, and not naming the requested programme, is somebody
+# else's squad.
+OTHER_SPORTS = re.compile(
+    r"\b(equestrian|volleyball|basketball|softball|baseball|lacrosse|field hockey|ice hockey|"
+    r"tennis|golf|track (?:and|&) field|cross ?country|swimming|diving|wrestling|rowing|crew|"
+    r"football|gymnastics|water polo|bowling|fencing|rugby|hockey|beach volleyball|"
+    r"acrobatics|stunt|triathlon|skiing|sailing|squash|cheer)\b", re.I)
+
+
+def sport_contradicted(title, sport):
+    """The page's own words naming a programme other than `sport`, or None.
+
+    Two readings, both from the title the site published:
+      * it names the other gender's soccer programme and not this one;
+      * it names a different sport entirely and not this one.
+
+    Mirrors `sportContradicted` in rosterCandidatePlan.js, which owns the same
+    question for candidate discovery; `sportContradictedParity` in
+    rosterContext.test.js pins the two to the same fixtures so they cannot drift.
+    """
+    pair = SPORT_TITLE.get(sport)
+    if not pair: return None
+    own, other = pair
+    said = html_mod.unescape(title or '').strip()
+    if not said: return None
+    if own.search(said): return None
+    if other.search(said): return said[:70]
+    m = OTHER_SPORTS.search(said)
+    if m and not re.search(r'\bsoccer\b', said, re.I): return said[:70]
+    return None
+
 
 def season_ok(title, extra='', season=None):
     """True if the page clearly belongs to the target season.

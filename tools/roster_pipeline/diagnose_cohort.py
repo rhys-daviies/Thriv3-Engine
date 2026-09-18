@@ -53,7 +53,33 @@ import run          # noqa: E402
 import state        # noqa: E402
 import variants as V  # noqa: E402
 
-ALGORITHM = 'L7R/ladder-walk-evaluate/v1'
+ALGORITHM = 'L7U/ladder-walk-evaluate/v2'
+
+# v1 -> v2, and why the version had to move.
+#
+# v1 asked one question of each rung -- does `run.evaluate` accept it -- and
+# reported the first acceptance. L7T found two programmes where that produced a
+# confident wrong answer, and both are now separate classes rather than folded
+# into a neighbour:
+#
+#   WRONG_ROSTER_CONTEXT  the page the ladder accepted is somebody else's squad.
+#                         Oklahoma State's rung served a Cowgirl Equestrian
+#                         roster: 90 athletes, no positions, 1% overlap. It
+#                         passed BECAUSE the athletes are unrelated -- an
+#                         unrelated roster reads as total turnover.
+#   AMBIGUOUS_ROSTER      the payload declares more than one non-empty roster
+#                         and nothing in it says which is the programme's.
+#                         Drexel's two containers of 24 read as one squad of 48.
+#
+# Neither is fixed here by a rule of the diagnostic's own. `run.evaluate` now
+# asks whose roster a page is, and `parse_nuxt` now refuses an ambiguous payload
+# exactly as `parse_nuxt_roster` already did, so the diagnostic inherits both
+# from the acquisition path it is supposed to be predicting. What v2 adds is the
+# ability to SAY which of the two happened, instead of reporting PARSE_ZERO.
+#
+# WOULD_RESOLVE_NOW therefore means what the name claims: the production
+# pipeline would accept this programme now. It never meant "a parser returned
+# enough names", and after L7T it cannot be read that way by accident.
 
 
 def targets_by_key():
@@ -72,8 +98,18 @@ def prior_players(row):
         return 0
 
 
-def classify(note, fetched_any, parsed):
+def classify(note, fetched_any, parsed, ambiguous=False):
+    """Name the refusal, in the words the production gate used.
+
+    Order matters. A wrong-programme page and an ambiguous payload are asked
+    about before the generic "nothing parsed", because both of them PRESENT as
+    nothing parsed once the gates that L7U added have done their job -- and
+    reporting them as PARSE_ZERO is how L7T came to believe the parser was at
+    fault for two pages that parsed perfectly well.
+    """
     s = note or ''
+    if 'page is not this programme' in s:
+        return 'WRONG_ROSTER_CONTEXT'
     if re.search(r'repeats \d+% of the', s):
         return 'TURNOVER_REFUSED'
     if 'page season is not' in s:
@@ -83,7 +119,9 @@ def classify(note, fetched_any, parsed):
     if re.search(r'too few players parsed \([1-4]\)', s):
         return 'THIN_PARSE'
     if 'too few players parsed (0)' in s:
-        return 'PARSE_ZERO' if fetched_any else 'SITE_UNREACHABLE'
+        if not fetched_any:
+            return 'SITE_UNREACHABLE'
+        return 'AMBIGUOUS_ROSTER' if ambiguous else 'PARSE_ZERO'
     return 'OTHER'
 
 
@@ -94,6 +132,7 @@ def diagnose(key, row):
     cnt = prior_players(row)
     best = None
     fetched_any = False
+    ambiguous = False
     rungs = []
     for ordinal, url in enumerate(ladder):
         try:
@@ -108,7 +147,13 @@ def diagnose(key, row):
         recs, title, parser = lib.parse_any(html)
         ok, note = run.evaluate(recs, title, key, cnt, url)
         n = len(recs or [])
+        # Asked of the parser's own helper rather than re-derived: the number of
+        # roster containers a Nuxt payload declares is the same fact
+        # `parse_nuxt` and `parse_nuxt_roster` refuse on.
+        containers = len(lib._nuxt_player_lists(lib._nuxt(html) or []))
+        if containers > 1: ambiguous = True
         rungs.append({'ordinal': ordinal, 'url': url, 'parser': parser, 'n': n,
+                      'containers': containers, 'title': re.sub(r'\s+', ' ', title or '')[:90],
                       'result': 'OK' if ok else note[:120]})
         if ok:
             aged, moved = run.returners_aged(
@@ -120,9 +165,10 @@ def diagnose(key, row):
         if best is None or n > best['n']:
             best = {'url': url, 'ordinal': ordinal, 'parser': parser, 'n': n, 'note': note}
     if best is None:
-        out.update(mechanism='SITE_UNREACHABLE', rungs=rungs, n=0)
+        out.update(mechanism='SITE_UNREACHABLE' if not fetched_any
+                   else ('AMBIGUOUS_ROSTER' if ambiguous else 'PARSE_ZERO'), rungs=rungs, n=0)
         return out
-    out.update(mechanism=classify(best['note'], fetched_any, best['n']),
+    out.update(mechanism=classify(best['note'], fetched_any, best['n'], ambiguous),
                url=best['url'], ordinal=best['ordinal'], parser=best['parser'],
                n=best['n'], note=best['note'], rungs=rungs)
     return out
@@ -140,6 +186,7 @@ def main():
     ap.add_argument('--workers', type=int, default=6)
     a = ap.parse_args()
 
+    lib.reset_cache_stats()
     run.N25 = state.names25()
     rows = targets_by_key()
     with open(a.keys, encoding='utf-8') as fh:
@@ -156,11 +203,15 @@ def main():
     for r in res:
         by[r['mechanism']] = by.get(r['mechanism'], 0) + 1
     payload = {'algorithm': ALGORITHM, 'cohort': len(res), 'by_mechanism': by, 'rows': res,
+               'cache': dict(lib.CACHE_STATS),
                'digests': {m: digest([r['key'] for r in res if r['mechanism'] == m]) for m in by}}
     json.dump(payload, open(a.out, 'w', encoding='utf-8'), indent=1)
     print(f'{len(res)} diagnosed  ({ALGORITHM})')
     for m, n in sorted(by.items(), key=lambda x: -x[1]):
-        print(f'  {n:4}  {m:20} digest {payload["digests"][m]}')
+        print(f'  {n:4}  {m:22} digest {payload["digests"][m]}')
+    # Freshness is auditable rather than assumed: a diagnosis that leaned on old
+    # responses is exactly what L7T shipped.
+    print(f'  cache  {dict(lib.CACHE_STATS)}')
 
 
 if __name__ == '__main__':
