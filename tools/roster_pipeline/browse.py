@@ -169,7 +169,8 @@ def main():
                 if not okk:
                     tried.append('%s -> %s' % (u, why)); continue
                 rws = run.build(recs, r, u, 'High',
-                                f'browser-rendered read of the official {S} roster; ' + why)
+                                f'browser-rendered read of the official {S} roster; ' + why,
+                                parser=par, title=title)
                 if len(rws) < 5:
                     tried.append('%s -> only %d rows' % (u, len(rws))); continue
                 got = {'status': 'done', 'stage': 'browser', 'url': u, 'parser': par,

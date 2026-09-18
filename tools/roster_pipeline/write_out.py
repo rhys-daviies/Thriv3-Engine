@@ -7,9 +7,13 @@ from paths import season_dir
 
 SEASON = int(os.environ.get('RB_SEASON', '2024'))
 OUT = season_dir(SEASON)
+# L7Z appended three columns rather than inserting them: a reader that keys on
+# names is unaffected either way, but a sheet diff stays legible when the
+# existing sixteen keep their positions.
 HDR = ['School','Conference','Player Name','Class/Year','Total Minutes Played','Games Played',
        'Games Started','Nationality','Hometown','Country','Source Stats URL','Source Roster URL',
-       'Data Confidence','Notes','Estimated Graduation','Position']
+       'Data Confidence','Notes','Estimated Graduation','Position',
+       'Source Page Season','Source Fetched At','Source Parser']
 FILES = {('NCAA D1','mens-soccer'):f'ncaa_d1_mens_soccer_{SEASON}_rosters.csv',
          ('NCAA D1','womens-soccer'):f'ncaa_d1_womens_soccer_{SEASON}_rosters.csv',
          ('NCAA D2','mens-soccer'):f'ncaa_d2_mens_soccer_{SEASON}_rosters.csv',

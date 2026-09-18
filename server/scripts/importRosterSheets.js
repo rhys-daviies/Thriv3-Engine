@@ -232,6 +232,19 @@ export function recordsFromFile({ file, sport, division }, { season, dir }) {
         source_roster_url: (row['Source Roster URL'] || '').trim() || undefined,
         data_confidence: normalizeConfidence(row['Data Confidence']),
         notes: noteParts.filter(Boolean).join('; ') || undefined,
+        /*
+         * L7Z acquisition provenance, TRANSPORTED AND NEVER DERIVED.
+         *
+         * A sheet written before these columns existed has no such keys, so
+         * they arrive `undefined` and the row stores NULL. That is the correct
+         * reading: the fact was not recorded. Nothing here falls back to the
+         * season being imported, to the clock, or to the URL's shape -- each of
+         * which would manufacture exactly the false confidence L7W had to spend
+         * a stage undoing.
+         */
+        source_page_season: (row['Source Page Season'] || '').trim() || undefined,
+        source_fetched_at: (row['Source Fetched At'] || '').trim() || undefined,
+        source_parser: (row['Source Parser'] || '').trim() || undefined,
       };
     })
     .filter(Boolean);
@@ -462,6 +475,7 @@ export const OWNED_FIELDS = Object.freeze([
   'games_started', 'estimated_graduation_year', 'eligibility_end_year', 'nationality',
   'hometown', 'country', 'source_stats_url', 'source_roster_url', 'data_confidence',
   'notes', 'division',
+  'source_page_season', 'source_fetched_at', 'source_parser',
 ]);
 
 const norm = (v) => (v === undefined || v === null || v === '' ? null : v);

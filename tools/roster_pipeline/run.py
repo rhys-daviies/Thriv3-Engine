@@ -199,7 +199,33 @@ def evaluate(recs, title, k, cnt25, url, strict_season=True):
     if admitted: n.append('admitted because the page names %d and %s' % (lib.SEASON, admitted))
     return True, '; '.join(n)
 
-def build(recs, r, src_url, conf, note, stats_url=''):
+def build(recs, r, src_url, conf, note, stats_url='', parser=None, title=None):
+    """Roster rows, stamped with what was observed when the page was accepted.
+
+    L7Z. Three facts were known here and thrown away, and the cost was a whole
+    stage: L7W could not tell whether a row filed under season=2025 came from a
+    page that said 2025, because nothing recorded what the page said. The fix is
+    to write down what was seen, not what we concluded.
+
+      Source Page Season  what the PAGE established, via `lib.season_ok` -- the
+                          same authority that let the roster through. EMPTY when
+                          the page established nothing, which is the honest
+                          answer for a live current-season page with no year in
+                          its title. Never the requested season, never the
+                          database season: copying either is the inference this
+                          column exists to make unnecessary.
+      Source Fetched At   when the body was fetched, from the cache sidecar.
+      Source Parser       the reader that actually accepted it.
+
+    All three default to unknown. Callers that do not know a fact write nothing
+    rather than a guess, so an absent value always means "not recorded" and
+    never "recorded as none".
+    """
+    # season_ok answers True / False / None. Only True establishes the season,
+    # and it is the SAME call the acceptance path made -- not a second opinion.
+    page_season = str(lib.SEASON) if (title is not None
+                                      and lib.season_ok(title) is True) else ''
+    at = lib.fetched_at(src_url) or ''
     out = []
     for p in _players(recs):
         nat, ctry = lib.geo(p['home'])
@@ -209,7 +235,9 @@ def build(recs, r, src_url, conf, note, stats_url=''):
                     'Source Stats URL': stats_url, 'Source Roster URL': src_url,
                     'Data Confidence': conf, 'Notes': note,
                     'Estimated Graduation': lib.grad_for_season(p['cls'], lib.SEASON),
-                    'Position': p['pos']})
+                    'Position': p['pos'],
+                    'Source Page Season': page_season, 'Source Fetched At': at,
+                    'Source Parser': parser or ''})
     return out
 
 def try_url(url, r, k, conf, note_prefix, wb=False):
@@ -220,7 +248,7 @@ def try_url(url, r, k, conf, note_prefix, wb=False):
     ok, why = evaluate(recs, title, k, cnt25, url)
     if not ok: return None, why
     note = (note_prefix + ('; ' if note_prefix and why else '') + why).strip('; ')
-    rows = build(recs, r, url, conf, note)
+    rows = build(recs, r, url, conf, note, parser=parser, title=title)
     if len(rows) < 5: return None, 'only %d usable rows' % len(rows)
     return {'rows': rows, 'parser': parser, 'title': title, 'url': url, 'n': len(rows)}, None
 

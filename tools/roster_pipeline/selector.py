@@ -131,7 +131,8 @@ def main():
                     okk, why = False, f'title does not confirm {S} (%r)' % (title or '')[:44]
                 if not okk: tried.append('%s -> %s' % (u, why)); continue
                 rws = run.build(recs, r, u, 'High',
-                                f"the {S} season reached through the site's own season selector; " + why)
+                                f"the {S} season reached through the site's own season selector; " + why,
+                                parser=parser, title=title)
                 if len(rws) < 5: tried.append('%s -> only %d rows' % (u, len(rws))); continue
                 got = {'status': 'done', 'stage': 'selector', 'url': u, 'parser': parser,
                        'n': len(rws), 'rows': rws, 'title': title}

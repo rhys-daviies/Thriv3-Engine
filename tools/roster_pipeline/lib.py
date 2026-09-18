@@ -4,7 +4,7 @@
 The season is set by RB_SEASON (default 2024) so the same code drives every
 year rather than being forked per season."""
 import html as html_mod
-import json, os, re, hashlib, time, random, unicodedata
+import datetime, json, os, re, hashlib, time, random, unicodedata
 import requests
 from bs4 import BeautifulSoup
 
@@ -109,6 +109,27 @@ def cache_state(url, min_size=800, now=None):
     if age < 0 or age > CACHE_TTL_SECONDS:
         return 'STALE', body
     return 'FRESH', body
+
+
+def fetched_at(url):
+    """When the cached body for `url` was fetched, ISO-8601 UTC, or None.
+
+    THE SIDECAR IS ALREADY THE ANSWER, for both cases that matter. A fresh hit
+    serves a body written earlier and its sidecar still carries that earlier
+    time; a refetch rewrites body and sidecar together. So asking the cache
+    "when was this fetched" is the same question in both, and no caller has to
+    thread a timestamp down from `fetch`.
+
+    None when there is no sidecar -- a body written before L7U's cache policy
+    existed. Unknown stays unknown; nothing here invents a time, and in
+    particular the clock of the process reading the cache is never it.
+    """
+    _, meta_p = _cache_paths(url)
+    try:
+        t = float(json.load(open(meta_p, encoding='utf-8'))['fetched_at'])
+    except Exception:
+        return None
+    return datetime.datetime.utcfromtimestamp(t).strftime('%Y-%m-%dT%H:%M:%SZ')
 
 
 def _write_cache(url, body):

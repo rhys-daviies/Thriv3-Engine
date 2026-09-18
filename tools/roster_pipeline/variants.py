@@ -116,7 +116,8 @@ def work(r):
                 ok, why = False, f'untitled page and no {state.REF} baseline to test turnover against'
         if not ok:
             tried.append('%s -> %s' % (u, why)); continue
-        rows = run.build(recs, r, u, 'High', f'direct read of the official {S} roster page; ' + why)
+        rows = run.build(recs, r, u, 'High', f'direct read of the official {S} roster page; ' + why,
+                         parser=parser, title=title)
         if len(rows) < 5:
             tried.append('%s -> only %d rows' % (u, len(rows))); continue
         # STOP ON SUCCESS. Nothing lower in the ranking is fetched once a
