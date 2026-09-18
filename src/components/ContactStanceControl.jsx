@@ -1,8 +1,9 @@
 import React from 'react';
-import { Handshake, Megaphone } from 'lucide-react';
+import { MegaphoneOff, Megaphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   ALREADY_IN_TOUCH, ALLOW_CAMPAIGN_OUTREACH, ALREADY_IN_TOUCH_FLAG_REASON,
+  ALREADY_IN_TOUCH_HINT,
 } from '@/lib/outreachLabels';
 
 /**
@@ -26,7 +27,7 @@ import {
  * NOTHING HERE HIDES A SCHOOL OR STOPS A PERSON WRITING TO IT.
  *
  * `manual_only` leaves the programme in the Top 100, in Specific Schools, on
- * its match card and fully available to Relationship Outreach. It says the
+ * its match card and fully available to "Create email draft". It says the
  * campaign is not the path. An operator who reads the badge and assumes the
  * school has been closed off has been told the wrong thing, which is why the
  * copy beside it says both halves.
@@ -105,9 +106,34 @@ export default function ContactStanceControl({
     }
   };
 
+  /**
+   * A CAMPAIGN ICON, BECAUSE THIS IS A CAMPAIGN DECISION — F8b.
+   *
+   * It carried the same `Handshake` as "Create email draft" and sat directly
+   * beside it, so the two adjacent buttons on a Specific Schools row — one
+   * that writes an email, one that changes contact policy — were
+   * distinguishable only by reading their labels. `ProgrammeRelationship`
+   * reasons in its own comments that a different glyph is "the fastest
+   * discrimination available on a card carrying both", and then both ended up
+   * with the same one.
+   *
+   * A SILENCED MEGAPHONE, matching the plain megaphone on its own reversal
+   * below, so the pair reads as one decision with two directions.
+   *
+   * THE CONSEQUENCE IS NOW SAID BEFORE THE CLICK. The label states a fact the
+   * operator knows; the effect is a policy they may not have intended. Until
+   * F8b the only explanation was `MANUAL_ONLY_HINT`, which renders AFTER the
+   * stance is already set.
+   */
   return (
-    <Button size="sm" variant="outline" disabled={busy} onClick={alreadyInTouch}>
-      <Handshake className="h-3.5 w-3.5 mr-1" /> {ALREADY_IN_TOUCH}
+    <Button
+      size="sm"
+      variant="outline"
+      disabled={busy}
+      title={ALREADY_IN_TOUCH_HINT}
+      onClick={alreadyInTouch}
+    >
+      <MegaphoneOff className="h-3.5 w-3.5 mr-1" /> {ALREADY_IN_TOUCH}
     </Button>
   );
 }

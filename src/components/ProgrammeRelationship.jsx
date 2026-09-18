@@ -4,7 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { RELATIONSHIP_OUTREACH, MANUAL_ONLY_HINT, MANUAL_ONLY_BADGE } from '@/lib/outreachLabels';
+import {
+  EXISTING_RELATIONSHIP, NOT_IN_TOP_100, CREATE_EMAIL_DRAFT,
+  MANUAL_ONLY_HINT, MANUAL_ONLY_BADGE,
+} from '@/lib/outreachLabels';
 import ContactStanceControl from '@/components/ContactStanceControl';
 
 /**
@@ -92,9 +95,9 @@ export default function ProgrammeRelationship({
           {promotedFrom != null && (
             <Badge variant="blue">Original rank #{promotedFrom}</Badge>
           )}
-          {flagged && <Badge variant="amber">Existing relationship</Badge>}
+          {flagged && <Badge variant="amber">{EXISTING_RELATIONSHIP}</Badge>}
           {requested && <Badge variant="purple">Specific Request</Badge>}
-          {suppressed && <Badge variant="muted">Not in Top 100</Badge>}
+          {suppressed && <Badge variant="muted">{NOT_IN_TOP_100}</Badge>}
           {relationship?.contact_stance === 'manual_only' && <Badge variant="blue">{MANUAL_ONLY_BADGE}</Badge>}
           {relationship?.contact_stance === 'do_not_contact' && <Badge variant="red">Do not contact</Badge>}
           {flagged && relationship?.flag_reason && (
@@ -139,7 +142,7 @@ export default function ProgrammeRelationship({
                 either side would make the labels the only difference, read at
                 a glance, in a row of small buttons.
               */}
-              <Handshake className="h-3.5 w-3.5 mr-1" /> {RELATIONSHIP_OUTREACH}
+              <Handshake className="h-3.5 w-3.5 mr-1" /> {CREATE_EMAIL_DRAFT}
             </Button>
           )}
 

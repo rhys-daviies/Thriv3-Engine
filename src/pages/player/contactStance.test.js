@@ -11,7 +11,7 @@ import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 import {
   ALREADY_IN_TOUCH, ALLOW_CAMPAIGN_OUTREACH, ALREADY_IN_TOUCH_FLAG_REASON,
-  MANUAL_ONLY_BADGE, MANUAL_ONLY_HINT, RELATIONSHIP_OUTREACH,
+  MANUAL_ONLY_BADGE, MANUAL_ONLY_HINT, CREATE_EMAIL_DRAFT,
 } from '@/lib/outreachLabels';
 
 /**
@@ -263,7 +263,7 @@ describe('what the operator then sees', () => {
     stubFetch({ programmes: [relationship({ contact_stance: 'manual_only' })] });
     await render();
 
-    expect(buttonWith(RELATIONSHIP_OUTREACH, cardFor('School 1'))).toBeTruthy();
+    expect(buttonWith(CREATE_EMAIL_DRAFT, cardFor('School 1'))).toBeTruthy();
   });
 
   it('offers the way back, and it is not phrased as a claim about history', async () => {

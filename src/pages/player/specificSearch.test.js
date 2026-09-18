@@ -7,6 +7,7 @@ import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
 import MatchingTab from './MatchingTab.jsx';
 import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
+import { EXISTING_RELATIONSHIP } from '@/lib/outreachLabels';
 
 /**
  * "Can you contact Stanford?"
@@ -163,6 +164,36 @@ const relationshipCalls = (method) => calls.filter(
   (c) => c.method === method && c.path.includes('/programmes'),
 );
 const buttonWith = (label) => buttons().find((b) => b.textContent.trim().startsWith(label));
+/**
+ * F8b — open a specific-school row.
+ *
+ * The row answers what/policy/history at a glance; the request badge, the
+ * rank, the relationship fact and the destructive control moved into its
+ * expansion. Every assertion below proves exactly what it proved before — it
+ * simply opens the row where the subject now lives.
+ */
+async function expandRow(name = null) {
+  const all = Array.from(container.querySelectorAll('[data-testid="specific-school-row"]'));
+  /*
+    Matched on the NAME element, not the row text: the fixture's city is also
+    "Stanford", so a row-wide search finds whichever school happens to sit in
+    California.
+  */
+  const row = name
+    ? all.find((r) => r.querySelector('[data-testid="school-name"]').textContent === name)
+    : all[0];
+  await click(Array.from(row.querySelectorAll('button'))
+    .find((b) => b.textContent.trim().startsWith('Details')));
+  return row;
+}
+const expandFirstRow = () => expandRow();
+/**
+ * "Remove" EXACTLY, never by prefix. The expansion also carries "Remove from
+ * Top 100", which is a ranking decision and not a withdrawal — a
+ * `startsWith('Remove')` finder picks whichever renders first and asserts
+ * against the wrong button.
+ */
+const withdrawButton = () => buttons().find((b) => b.textContent.trim() === 'Remove');
 const tab = (label) => Array.from(container.querySelectorAll('[role="tab"]'))
   .find((t) => t.textContent.includes(label));
 
@@ -300,6 +331,7 @@ describe('B4 — two views, kept apart', () => {
     stubFetch({ programmes: [relationship()] });
     await render();
     await click(tab('Specific Schools'));
+    await expandFirstRow();
     expect(text()).toContain('Specific Request');
   });
 
@@ -312,6 +344,7 @@ describe('B4 — two views, kept apart', () => {
     });
     await render();
     await click(tab('Specific Schools'));
+    await expandRow('Stanford');
 
     // Stanford is #2 in the recommendations above, read off the array.
     expect(text()).toContain('#2');
@@ -404,7 +437,8 @@ describe('B2/B3 — searching and adding', () => {
 
     // The add below lands on THAT row. An operator who cannot see it is one
     // who thinks they are creating something.
-    expect(container.querySelector('[data-testid="specific-search"]').textContent).toContain('Flagged');
+    expect(container.querySelector('[data-testid="specific-search"]').textContent)
+      .toContain(EXISTING_RELATIONSHIP);
   });
 
   it('keeps the flag when a flagged relationship becomes a specific request', async () => {
@@ -423,8 +457,9 @@ describe('B2/B3 — searching and adding', () => {
 
     const rows = container.querySelectorAll('[data-testid="specific-school-row"]');
     expect(rows).toHaveLength(1);              // the SAME row, not a second one
+    await expandFirstRow();
     expect(rows[0].textContent).toContain('Specific Request');
-    expect(rows[0].textContent).toContain('Flagged');
+    expect(rows[0].textContent).toContain(EXISTING_RELATIONSHIP);
   });
 });
 
@@ -486,7 +521,8 @@ describe('removing a specific school', () => {
     stubFetch({ programmes: [relationship()] });
     await render();
     await click(tab('Specific Schools'));
-    await click(buttonWith('Remove'));
+    await expandFirstRow();
+    await click(withdrawButton());
 
     const patch = relationshipCalls('PATCH')[0];
     expect(patch.body).toEqual({ request_state: 'withdrawn' });
@@ -502,7 +538,8 @@ describe('removing a specific school', () => {
     stubFetch({ programmes: [relationship()] });
     await render();
     await click(tab('Specific Schools'));
-    await click(buttonWith('Remove'));
+    await expandFirstRow();
+    await click(withdrawButton());
 
     // The row carries a flag, a note and a contact stance that have nothing to
     // do with the request. A DELETE would take all of them with it.
@@ -517,7 +554,8 @@ describe('removing a specific school', () => {
     });
     await render();
     await click(tab('Specific Schools'));
-    await click(buttonWith('Remove'));
+    await expandFirstRow();
+    await click(withdrawButton());
 
     expect(container.querySelectorAll('[data-testid="specific-school-row"]')).toHaveLength(0);
     expect(text()).toContain('No specific schools yet');
@@ -550,7 +588,8 @@ describe('what a specific request must never touch', () => {
     await type('Stanford');
     await click(buttonWith('Add to Specific Schools'));
     await click(tab('Specific Schools'));
-    await click(buttonWith('Remove'));
+    await expandFirstRow();
+    await click(withdrawButton());
 
     /**
      * `/matching-summary` is excluded because it is not a write: it is the

@@ -21,6 +21,8 @@
  * and the only reply fact it holds is one a person recorded by hand.
  */
 
+import { CREATE_EMAIL_DRAFT } from '@/lib/outreachLabels';
+
 /** Tone, not grouping. Which of these a card shows is decided by the plan. */
 export const BLOCKER_CATEGORY = Object.freeze({
   /** A person must decide something, and can. */
@@ -86,8 +88,15 @@ export const BLOCKER_COPY = Object.freeze({
   // ---- correct, and not this campaign's work ------------------------------
   RELATIONSHIP_MANUAL_ONLY: {
     label: 'Manual outreach only',
+    /*
+      NAMED FROM THE CONSTANT, NOT SPELLED OUT — F8c. This sentence tells an
+      operator which button to press, and it went on naming "Relationship
+      Outreach" after F8b renamed that button to "Create email draft".
+      Importing the label means the instruction cannot fall out of step with
+      the control it points at a second time.
+    */
     description: 'This programme is worked by hand for this athlete. A campaign does not write to '
-      + 'it; a person still can, from Relationship Outreach.',
+      + `it; a person still can, using "${CREATE_EMAIL_DRAFT}".`,
     category: BLOCKER_CATEGORY.WORKFLOW,
   },
 

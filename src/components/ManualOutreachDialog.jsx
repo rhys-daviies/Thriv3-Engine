@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import EmailComposer from '@/components/EmailComposer';
 import { manualOutreach } from '@/api/client';
 import {
-  RELATIONSHIP_OUTREACH, RELATIONSHIP_DIALOG_HINT, MANUAL_ONLY_HINT, MANUAL_ONLY_BADGE,
+  CREATE_EMAIL_DRAFT, RELATIONSHIP_DIALOG_HINT, MANUAL_ONLY_HINT, MANUAL_ONLY_BADGE,
   DRAFT_OPENED_TITLE, DRAFT_OPENED_BODY, DRAFT_HANDOVER_HINT,
   DO_NOT_CONTACT_TITLE, DO_NOT_CONTACT_BODY, ORIGIN_LABEL, ORIGIN_UNRECORDED,
   ENGAGEMENT_HINT,
@@ -248,7 +248,7 @@ export default function ManualOutreachDialog({ player, relationshipId, open, onO
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>{RELATIONSHIP_OUTREACH}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{CREATE_EMAIL_DRAFT}</DialogTitle></DialogHeader>
           {failed
             ? <p className="text-sm text-destructive py-8 text-center" role="alert">{failed}</p>
             : (
@@ -270,7 +270,7 @@ export default function ManualOutreachDialog({ player, relationshipId, open, onO
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{RELATIONSHIP_OUTREACH} &mdash; {relationship.college_name}</DialogTitle>
+            <DialogTitle>{CREATE_EMAIL_DRAFT} &mdash; {relationship.college_name}</DialogTitle>
           </DialogHeader>
           <div className="py-8 text-center space-y-2 max-w-md mx-auto">
             <Ban className="h-8 w-8 mx-auto text-destructive" />
