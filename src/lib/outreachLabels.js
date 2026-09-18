@@ -681,3 +681,64 @@ export const PROGRAMME_EVIDENCE_RETRY = 'Try again';
  * `EvidencePanel`.
  */
 export const PROGRAMME_EVIDENCE_ALSO_KNOWN = 'Also known';
+
+
+/* ========================================================================== */
+/*  F9e - WHAT THIS COACH HAS ALREADY BEEN PUT                                */
+/* ========================================================================== */
+
+/**
+ * THE STRONGEST TRUTHFUL SENTENCE, AND IT IS WEAKER THAN IT LOOKS.
+ *
+ * ===========================================================================
+ * THRIV3 KNOWS WHAT IT WROTE. IT DOES NOT KNOW WHAT WAS SENT.
+ *
+ * `outreach_send.rendered_kinds` records the claims present in the body
+ * Thriv3 handed to Outlook, and ACCEPTED records that a person afterwards
+ * asserted they sent it. Between those two moments the operator has an
+ * editable draft in a mail client this build cannot see: they may delete the
+ * sentence, rewrite it, or send something else entirely.
+ *
+ * So the honest claim is about the DRAFT and the ASSERTION, never about the
+ * coach. "Already sent" would state a fact nobody established; "the coach
+ * received this" and "the coach read this" would state two.
+ * ===========================================================================
+ *
+ * THE SAME WORDING FOR A CAMPAIGN MESSAGE, deliberately. A provider-accepted
+ * campaign send is evidentially stronger, and a second sentence saying so
+ * would put two grades of certainty on one list for a reader who has to act on
+ * both. Consistent understatement is the safer of the two errors; the origin
+ * is shown beside it for anyone who needs the distinction.
+ */
+export const EVIDENCE_USED_BEFORE = 'Used in a draft confirmed as sent to this coach';
+export const evidenceUsedBefore = (coachCount) => (coachCount > 1
+  ? `Used in a draft confirmed as sent to ${coachCount} selected coaches`
+  : EVIDENCE_USED_BEFORE);
+
+/**
+ * A BODY IN A WINDOW IS NOT A MESSAGE. Kept in wholly separate words from the
+ * sentence above, because nobody has read this one and the two facts must
+ * never be mistaken for each other.
+ */
+export const EVIDENCE_IN_OPEN_DRAFT = 'Already in an open draft for this coach';
+export const evidenceInOpenDraft = (coachCount) => (coachCount > 1
+  ? `Already in an open draft for ${coachCount} selected coaches`
+  : EVIDENCE_IN_OPEN_DRAFT);
+
+/** Where it is recorded. Never guessed, and never shown as extra certainty. */
+export const EVIDENCE_USE_ORIGIN = Object.freeze({
+  manual: 'by hand',
+  campaign: 'by a campaign',
+});
+
+/**
+ * UNKNOWN HISTORY IS NOT NO HISTORY - and this is the sentence that keeps
+ * those apart.
+ *
+ * A failed lookup leaves every finding unmarked, which looks exactly like a
+ * programme nothing has ever been said about. Composition continues, because
+ * a history query must never be able to block manual drafting; this says why
+ * the markers are missing so their absence cannot be read as an answer.
+ */
+export const EVIDENCE_HISTORY_UNAVAILABLE =
+  'Could not check what has been sent to this coach before.';

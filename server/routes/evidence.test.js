@@ -4,8 +4,13 @@ import { randomUUID } from 'node:crypto';
 process.env.RECRUITMATCH_DB = ':memory:';
 
 const db = (await import('../db/client.js')).default;
-const { evidenceSummaries, toWire, MAX_COLLEGES } = await import('./evidence.js');
+const { evidenceSummaries, toWire, MAX_COLLEGES, MAX_COACHES } = await import('./evidence.js');
 const { departureFields, evidenceFor } = await import('../lib/evidenceQueries.js');
+const { createOutreach } = await import('../lib/outreach.js');
+const { recordDraft, confirmSend } = await import('../lib/outreachSend.js');
+const { findOrCreateCoach } = await import('../lib/coaches.js');
+const { ACCEPTED_SOURCE } = await import('../../shared/outreachMessageState.js');
+const { OUTREACH_ORIGIN } = await import('../../shared/outreachOrigin.js');
 
 const athleteId = randomUUID();
 const SCHOOL = 'Example University';
@@ -336,5 +341,197 @@ describe('wire shape', () => {
     const wire = toWire(evidenceFor(athlete, SCHOOL, { sport: 'mens-soccer' }));
     expect(wire.structureOptions.map((o) => o.key)).toEqual(wire.structureEligible);
     expect(wire.structureOptions).toContainEqual({ key: 'PLAYER_FIRST', label: 'Player first' });
+  });
+});
+
+
+/* ========================================================================== */
+/*  F9e - PRIOR EVIDENCE USE                                                  */
+/* ========================================================================== */
+
+/**
+ * WHAT THIS COACH HAS ALREADY BEEN PUT, AS AN ANNOTATION AND NOTHING MORE.
+ *
+ * ===========================================================================
+ * THE CENTRAL INVARIANT IS THAT NOTHING MOVES.
+ *
+ * With `coachIds` and without, the same evidence is offered in the same order
+ * with the same tiers, the same text, the same structure and the same
+ * `operatorSelected`. The only difference in the payload is a marker beside
+ * findings that are present either way. Everything else in this file is a
+ * consequence of that.
+ * ===========================================================================
+ */
+
+let historyCoach;
+let historyCoachTwo;
+
+function sendWithKinds(coach, kinds, { origin = OUTREACH_ORIGIN.MANUAL, accept = true } = {}) {
+  const o = createOutreach({ athleteId, coachId: coach.id });
+  recordDraft({
+    outreachId: o.id, athleteId, coachId: coach.id,
+    collegeName: SCHOOL, sport: 'mens-soccer', origin,
+    evidence: {
+      composition: {
+        sentences: kinds.map((kind, i) => ({
+          order: i, slot: i === 0 ? 'HOOK' : 'RELEVANCE', kind, text: `sentence for ${kind}`,
+        })),
+        placement: [],
+      },
+    },
+    body: `body-${kinds.join('-')}`, subject: 's', at: '2026-09-07T09:00:00.000Z',
+  });
+  if (accept) confirmSend(o.id, '2026-09-07T09:00:00.000Z', { source: ACCEPTED_SOURCE.OPERATOR_ASSERTED });
+  return o;
+}
+
+/** Everything about an offer except the new annotation. */
+const offerShape = (wire) => JSON.stringify({
+  selected: (wire.selected ?? []).map(({ previouslyUsed, ...rest }) => rest),
+  available: (wire.available ?? []).map(({ previouslyUsed, ...rest }) => rest),
+  otherKnown: wire.otherKnown,
+  internal: wire.internal,
+  structure: wire.structure,
+  structureLabel: wire.structureLabel,
+  structureSource: wire.structureSource,
+  structureOptions: wire.structureOptions,
+  paragraph: wire.paragraph,
+  operatorSelected: wire.operatorSelected,
+  composition: wire.composition,
+  maxEvidence: wire.maxEvidence,
+});
+
+describe('the evidence offer does not move when history is asked for', () => {
+  beforeAll(() => {
+    historyCoach = findOrCreateCoach({
+      full_name: 'History Coach', email: 'history@example.edu', school: SCHOOL,
+      sport: 'mens-soccer', division: 'NCAA D1', position_title: 'Head Coach',
+    });
+    historyCoachTwo = findOrCreateCoach({
+      full_name: 'Second Coach', email: 'second@example.edu', school: SCHOOL,
+      sport: 'mens-soccer', division: 'NCAA D1', position_title: 'Assistant Coach',
+    });
+  });
+
+  /**
+   * THE INVARIANT THE WHOLE SLICE RESTS ON. Everything but the marker is
+   * compared as one serialised value, so a change anywhere in the offer -
+   * order, structure, text, confidence, freshness, operator_selected - fails
+   * this rather than being noticed later by somebody reading an email.
+   */
+  it('offers exactly the same evidence with and without coachIds', () => {
+    sendWithKinds(historyCoach, ['HISTORICAL_SAME_COUNTRY']);
+
+    const plain = evidenceSummaries({ playerId: athleteId, collegeNames: [SCHOOL] })[SCHOOL];
+    const withHistory = evidenceSummaries({
+      playerId: athleteId, collegeNames: [SCHOOL], coachIds: [historyCoach.id],
+    })[SCHOOL];
+
+    expect(offerShape(withHistory)).toBe(offerShape(plain));
+    // And the annotation really did arrive, so the comparison above is not
+    // passing because nothing happened.
+    expect(withHistory.history).toEqual({ status: 'READY', coachCount: 1 });
+  });
+
+  /**
+   * ABSENT coachIds MUST BE ABSENT. Every existing consumer - the Evidence
+   * tab, the bulk composer, the drafting CLI - gets the payload it always got,
+   * with no new keys to reason about.
+   */
+  it('adds no key at all when no coaches are named', () => {
+    const plain = evidenceSummaries({ playerId: athleteId, collegeNames: [SCHOOL] })[SCHOOL];
+
+    expect(plain.history).toBeUndefined();
+    expect('history' in plain).toBe(false);
+    for (const item of [...plain.selected, ...plain.available]) {
+      expect(item.previouslyUsed).toBeNull();
+    }
+  });
+
+  it('treats an empty coach list as no coaches named', () => {
+    const out = evidenceSummaries({
+      playerId: athleteId, collegeNames: [SCHOOL], coachIds: [],
+    })[SCHOOL];
+    expect(out.history).toBeUndefined();
+  });
+
+  it('marks a finding this coach has already been put', () => {
+    sendWithKinds(historyCoach, ['HISTORICAL_SAME_COUNTRY']);
+
+    const out = evidenceSummaries({
+      playerId: athleteId, collegeNames: [SCHOOL], coachIds: [historyCoach.id],
+    })[SCHOOL];
+    const all = [...out.selected, ...out.available];
+    const marked = all.filter((e) => e.previouslyUsed);
+
+    expect(marked.length).toBeGreaterThan(0);
+    for (const e of marked) {
+      expect(e.previouslyUsed.source).toBe('CONFIRMED');
+      expect(e.previouslyUsed.coachCount).toBe(1);
+      expect(e.previouslyUsed.origins).toEqual(['manual']);
+    }
+  });
+
+  /**
+   * THE GROUP, NOT THE KIND. A coach told "you have had New Zealanders before"
+   * has heard the international connection, and the sibling kind that states
+   * it in the present tense is the same point in different words.
+   */
+  it('marks the whole connection, not only the exact kind that was sent', () => {
+    sendWithKinds(historyCoach, ['HISTORICAL_SAME_COUNTRY']);
+
+    const out = evidenceSummaries({
+      playerId: athleteId, collegeNames: [SCHOOL], coachIds: [historyCoach.id],
+    })[SCHOOL];
+    const all = [...out.selected, ...out.available];
+    const family = all.filter((e) => e.kind === 'CURRENT_SAME_COUNTRY'
+      || e.kind === 'HISTORICAL_SAME_COUNTRY');
+    // Not vacuous: this fixture has a New Zealander in an earlier season, so
+    // the connection is licensed and at least one of the pair is on offer.
+    expect(family.length).toBeGreaterThan(0);
+    for (const e of family) expect(e.previouslyUsed).toBeTruthy();
+  });
+
+  it('leaves a coach who has heard nothing unmarked', () => {
+    sendWithKinds(historyCoach, ['HISTORICAL_SAME_COUNTRY']);
+
+    const out = evidenceSummaries({
+      playerId: athleteId, collegeNames: [SCHOOL], coachIds: [historyCoachTwo.id],
+    })[SCHOOL];
+    for (const e of [...out.selected, ...out.available]) {
+      expect(e.previouslyUsed).toBeNull();
+    }
+  });
+
+  /**
+   * NOTHING LEAKS. The marker is attached to findings ALREADY in the response,
+   * so a historical kind the current licence denies has nothing to annotate
+   * and cannot appear - there is no list of history in the payload at all.
+   */
+  it('never introduces a kind the current licence did not produce', () => {
+    sendWithKinds(historyCoach, ['A_RETIRED_KIND_THAT_IS_NOT_LICENSED']);
+
+    const plain = evidenceSummaries({ playerId: athleteId, collegeNames: [SCHOOL] })[SCHOOL];
+    const out = evidenceSummaries({
+      playerId: athleteId, collegeNames: [SCHOOL], coachIds: [historyCoach.id],
+    })[SCHOOL];
+
+    const kindsOf = (w) => [...w.selected, ...w.available].map((e) => e.kind).sort();
+    expect(kindsOf(out)).toEqual(kindsOf(plain));
+    expect(JSON.stringify(out)).not.toContain('A_RETIRED_KIND_THAT_IS_NOT_LICENSED');
+  });
+
+  it('refuses an unreasonable number of coaches rather than running the query', () => {
+    const many = Array.from({ length: MAX_COACHES + 1 }, (_, i) => `coach-${i}`);
+    expect(() => evidenceSummaries({
+      playerId: athleteId, collegeNames: [SCHOOL], coachIds: many,
+    })).toThrow(/Too many coaches/);
+  });
+
+  it('ignores a non-string coach id rather than failing the request', () => {
+    const out = evidenceSummaries({
+      playerId: athleteId, collegeNames: [SCHOOL], coachIds: [null, 42, '', historyCoach.id],
+    })[SCHOOL];
+    expect(out.history.coachCount).toBe(1);
   });
 });

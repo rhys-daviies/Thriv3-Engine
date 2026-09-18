@@ -328,6 +328,9 @@ app.post('/api/players/:playerId/evidence', (req, res) => {
       // validated: `resolveStructure` refuses one the selected evidence does
       // not support rather than silently using it.
       preferStructure: (req.body || {}).preferStructure || null,
+      // F9e - which coaches this email is for. Optional; the server derives
+      // what they have already been told and the client never asserts it.
+      coachIds: (req.body || {}).coachIds || null,
     }));
   } catch (err) {
     console.error('[evidence/summaries]', err);

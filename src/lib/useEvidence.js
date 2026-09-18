@@ -30,7 +30,15 @@ const CHUNK = 40;
  * mean the preview was assembled by code that holds no evidence objects and
  * has no idea which paragraph a claim belongs in.
  */
-export function useEvidence(playerId, collegeNames, overrides = null) {
+/**
+ * @param {string[]|null} [coachIds]  who this email is for - F9e. OPTIONAL.
+ *
+ * Coach ids join the request identity, so changing the recipients asks the
+ * question again: what one coach has already been told is not what another
+ * has. Omitted or empty, nothing about this hook's behaviour changes and the
+ * server returns the payload it always did.
+ */
+export function useEvidence(playerId, collegeNames, overrides = null, coachIds = null) {
   const [evidence, setEvidence] = useState(null);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -62,6 +70,21 @@ export function useEvidence(playerId, collegeNames, overrides = null) {
   // their own.
   const overrideKey = JSON.stringify(overrides ?? null);
 
+  /**
+   * CANONICAL, SO REORDERING IS NOT A REFETCH - F9e.
+   *
+   * The composer derives these from a Set of selected addresses, so the same
+   * two coaches can arrive in either order on consecutive renders. Sorted and
+   * de-duplicated, the key moves only when the SET does. History is a union
+   * across the recipients and does not depend on their order, so a key that
+   * did would be asking the same question twice.
+   */
+  const coachKey = JSON.stringify(
+    Array.isArray(coachIds)
+      ? [...new Set(coachIds.filter(Boolean))].sort()
+      : [],
+  );
+
   useEffect(() => {
     // Falsy entries dropped before the emptiness check, which is what the
     // old separator did incidentally: a list of nothing but blanks produced an
@@ -71,6 +94,8 @@ export function useEvidence(playerId, collegeNames, overrides = null) {
     const names = JSON.parse(key).filter(Boolean);
     if (!playerId || !names.length) { setEvidence(null); return undefined; }
     const opts = JSON.parse(overrideKey) ?? {};
+    const coaches = JSON.parse(coachKey);
+    if (coaches.length) opts.coachIds = coaches;
 
     let cancelled = false;
     setLoading(true);
@@ -92,7 +117,7 @@ export function useEvidence(playerId, collegeNames, overrides = null) {
       });
 
     return () => { cancelled = true; };
-  }, [playerId, key, overrideKey]);
+  }, [playerId, key, overrideKey, coachKey]);
 
   return { evidence, loading, failed };
 }
