@@ -266,3 +266,26 @@ def names25():
         for r in csv.DictReader(open(p,encoding='utf-8')):
             out[r['School']+'||'+sp].add(re.sub(r'[^a-z]','',r['Player Name'].lower()))
     return out
+
+
+def classes25():
+    """(school,sport) -> {lowercased 2025 player name: class label}.
+
+    The same rows `names25()` reads, keeping the one column it discards. The
+    turnover gate asks whether a page repeats last season's NAMES; L7Q found
+    that question cannot separate "last season served back" from "a real page
+    whose squad mostly returned", and that the answer is in this column.
+
+    A returning player is one year older, so a genuine page shows Jr. where
+    this one showed So. -- and the graduation year the two labels imply is the
+    SAME year. A page served back shows So. again, and its implied graduation
+    year has slipped a season. See `run.returners_aged`.
+    """
+    out=collections.defaultdict(dict)
+    for (div,sp),f in FILEMAP.items():
+        p=os.path.join(D25,f)
+        if not os.path.exists(p): continue
+        for r in csv.DictReader(open(p,encoding='utf-8')):
+            n=re.sub(r'[^a-z]','',r['Player Name'].lower())
+            if n: out[r['School']+'||'+sp][n]=(r.get('Class/Year') or '').strip()
+    return out

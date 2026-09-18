@@ -50,21 +50,41 @@ describe('the NCAA residual queue', () => {
   it('26. states the live accounting, for the season it is asked about', () => {
     /*
      * 1,761 registry rows carry 6 programmes L7P recorded as not fielded in
-     * 2026, leaving 1,755 active. Of those, 1,607 hold a 2026 roster, 7 are
-     * duplicate rows whose twin holds one, and 141 are missing it.
+     * 2026, leaving 1,755 active. Of those, 1,620 hold a 2026 roster, 7 are
+     * duplicate rows whose twin holds one, and 128 are missing it.
      *
      * The two coverage numbers are asserted separately on purpose. Until L7P
      * this file had one, counted over every season, and 1,745 was being read as
      * a 2026 figure when the 2026 figure was 1,607.
+     *
+     * L7Q moved the current-season figures and NOT the historical one, which is
+     * the clearest possible statement of what the two metrics mean: the pilot
+     * re-acquired 13 programmes the dataset already knew, so 1,745 could not
+     * move and 1,607 had to. These are live-registry numbers and a stage that
+     * acquires rosters is expected to change them; `reconciles` above is the
+     * invariant, and this is the measurement.
      */
     const s = q.summary;
     expect(s.ncaaTotal).toBe(1755);
     expect(s.registryDuplicates).toBe(7);
-    expect(s.currentSeasonRostered).toBe(1607);
-    expect(s.currentSeasonMissing).toBe(141);
+    expect(s.currentSeasonRostered).toBe(1620);
+    expect(s.currentSeasonMissing).toBe(128);
     expect(s.historicallyRostered).toBe(1745);
-    expect(s.historicalOnly).toBe(138);
+    expect(s.historicalOnly).toBe(125);
     expect(s.neverRostered).toBe(3);
+  });
+
+  it('27. the never-fetched three are not in the re-acquisition cohort', () => {
+    /*
+     * L7Q's cohort clause is "has a roster for the season before", and these
+     * three have none at all. It matters that they are excluded by that clause
+     * rather than by name: New Jersey City W and Bryn Athyn M/W carry unresolved
+     * identity and status questions, and a pilot must not quietly answer one by
+     * attempting it.
+     */
+    const never = q.rows.filter((r) => !r.historicalOnly);
+    expect(never).toHaveLength(3);
+    for (const r of never) expect(r.latestRosterSeason).toBe(null);
   });
 
   it('separates a registry duplicate from an acquisition gap', () => {

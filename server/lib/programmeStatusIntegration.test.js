@@ -141,12 +141,19 @@ describe('20/21/22/24. current-season coverage means the season asked for', () =
                .map(r => ({ key: r.key, latest: r.latestRosterSeason })) };`);
 
   it('a programme with only a 2025 roster is a 2026 gap', () => {
-    expect(q.s.historicalOnly).toBe(138);
+    // 138 when L7P named the cohort; L7Q re-acquired 13 of them.
+    expect(q.s.historicalOnly).toBe(125);
     for (const r of q.historicalOnlySample) expect(r.latest).toBe('2025');
   });
 
   it('separates current-season from historical coverage by name', () => {
-    expect(q.s.currentSeasonRostered).toBe(1607);
+    /*
+     * The clearest demonstration of why these are two metrics: L7Q's pilot
+     * re-acquired 13 programmes the dataset ALREADY knew from 2025, so the
+     * current-season figure rose by 13 and the historical figure could not move
+     * at all. One number could never have shown that.
+     */
+    expect(q.s.currentSeasonRostered).toBe(1620);
     expect(q.s.historicallyRostered).toBe(1745);
     expect(q.s.currentSeasonRostered).toBeLessThan(q.s.historicallyRostered);
   });
@@ -179,6 +186,7 @@ describe('what L7P must not have changed', () => {
     inactive: db.prepare('SELECT COUNT(*) n FROM colleges WHERE active = 0').get().n,
     activeDigest: db.prepare("SELECT group_concat(name || ':' || sport || ':' || COALESCE(active,'')) d FROM (SELECT name, sport, active FROM colleges ORDER BY sport, name)").get().d.length,
     rosterPlayers: db.prepare('SELECT COUNT(*) n FROM roster_players').get().n,
+    closedSeasons: db.prepare("SELECT COUNT(*) n FROM roster_players WHERE season != '2026'").get().n,
     domains: db.prepare('SELECT COUNT(*) n FROM athletics_domains').get().n,
     reviews: db.prepare('SELECT COUNT(*) n FROM roster_gap_reviews').get().n,
   };`);
@@ -188,9 +196,22 @@ describe('what L7P must not have changed', () => {
     expect(fp.inactive).toBe(3);
   });
 
-  it('33/34. no roster or domain rows moved', () => {
-    expect(fp.rosterPlayers).toBe(277410);
+  it('33/34. programme status moved no roster row and no domain row', () => {
+    /*
+     * PINNED AT THE SEASON BOUNDARY, NOT AT A TOTAL.
+     *
+     * This asserted `roster_players = 277410`, which said "L7P wrote no roster
+     * data" by freezing a number that every acquiring stage is supposed to
+     * move — and L7Q moved it, adding 424 rows across 13 programmes. Repinning
+     * the total each time would make the assertion mean nothing.
+     *
+     * What a programme-status stage may never do is rewrite a season that is
+     * already closed, or touch the domain ledger. That is the claim, so that is
+     * what is measured.
+     */
+    expect(fp.closedSeasons).toBe(218938);
     expect(fp.domains).toBe(2723);
+    expect(fp.rosterPlayers).toBeGreaterThanOrEqual(fp.closedSeasons);
   });
 
   it('19. the six roster-gap reviews are preserved', () => {

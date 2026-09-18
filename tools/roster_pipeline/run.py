@@ -15,9 +15,87 @@ import lib, state
 CURRENT = os.environ.get('RB_CURRENT') == '1'
 TURNOVER_MAX = 0.85
 
+# WHAT THE NAME GATE CANNOT SEE.
+#
+# The gate above asks one question -- how many of these names are last
+# season's -- and its own refusal message admits it cannot answer the next one:
+# "either last season served back, or a 2026 page listing only returners". L7Q
+# measured twenty programmes it had refused and found both kinds in the same
+# bucket. Bentley's 2026 page repeats 87% of the 2025 squad, names 2026, and
+# every one of its 26 returners is exactly one year older. Frostburg State's
+# also names 2026, repeats 97%, and not one of its 30 returners has moved.
+#
+# So the second question is asked of the column the gate was discarding. A
+# returning player's GRADUATION year is the same fact in both seasons, while
+# the LABEL that implies it has to change: So. in 2025 and Jr. in 2026 both
+# mean 2029. A page served back keeps the label, and the implied year slips.
+#
+# Measured over the 1,872 accepted 2026 rosters that have four or more
+# comparable returners, the fraction one year older has median 1.00 and mean
+# 0.95, and 95.8% sit at or above 0.75; the served-back page scores 0.00. The
+# threshold is in that empty middle rather than near either cluster.
+#
+# This can only ADMIT a page the name gate refuses. Nothing that passes today
+# reaches it, so no accepted roster can change.
+RETURNER_AGED_MIN = 0.75
+RETURNER_AGED_COUNT = 3
+RETURNER_COMPARABLE_MIN = 4
+
 N25 = None
+CLS25 = None
 _pl = threading.Lock()
 done = collections.Counter()
+
+
+def returners_aged(pairs, k, season=None):
+    """Of the returning players, how many got a year older, and how many did not.
+
+    `pairs` is (name, class label). A returner counts as AGED when the label
+    changed and the graduation year it implies did not, and as MOVED when the
+    implied year changed -- which a real player's cannot. Players whose class
+    cannot be resolved on either side, or whose label states an explicit year
+    and therefore cannot age, are counted in neither: they carry no evidence.
+    """
+    global CLS25
+    if CLS25 is None: CLS25 = state.classes25()
+    base = CLS25.get(k)
+    if not base: return 0, 0
+    s = int(season or lib.SEASON)
+    aged = moved = 0
+    for name, cls in pairs:
+        n = re.sub(r'[^a-z]', '', (name or '').lower())
+        old = base.get(n)
+        if n not in base: continue
+        a = lib.grad_for_season(old, s - 1)
+        b = lib.grad_for_season(cls, s)
+        if not a or not b: continue
+        if a == b:
+            # An unchanged label that implies the same year is an explicit
+            # class-of value ("'29"), which is invariant by construction and
+            # says nothing about which season the page is for.
+            if re.sub(r'[^a-z]', '', (old or '').lower()) != re.sub(r'[^a-z]', '', (cls or '').lower()):
+                aged += 1
+        else:
+            moved += 1
+    return aged, moved
+
+
+def aged_into_season(pairs, k, season=None):
+    """Does the class data positively say this page is the LATER season?
+
+    Deliberately unanimous-ish and deliberately blind to how many names repeat:
+    it is the independent second opinion, so it must not be a restatement of
+    the first. Returns (ok, note).
+    """
+    aged, moved = returners_aged(pairs, k, season)
+    total = aged + moved
+    if total < RETURNER_COMPARABLE_MIN:
+        return False, 'too few comparable returners (%d)' % total
+    if aged < RETURNER_AGED_COUNT:
+        return False, '%d of %d returners are a year older' % (aged, total)
+    if aged / total < RETURNER_AGED_MIN:
+        return False, '%d of %d returners are a year older' % (aged, total)
+    return True, '%d of %d returners are exactly one year older' % (aged, total)
 
 def _players(recs):
     """The parsed records that are really players, with their fields cleaned.
@@ -75,6 +153,7 @@ def evaluate(recs, title, k, cnt25, url, strict_season=True):
     if not recs or len(recs) < 5: return False, 'too few players parsed (%d)' % (len(recs) if recs else 0)
     ok_season = lib.season_ok(title)
     ov = overlap(recs, k)
+    admitted = None
     if ok_season is False:
         return False, 'page season is not %d (title=%r)' % (lib.SEASON, (title or '')[:60])
     # In CURRENT mode the gate applies even when the title names the season. A
@@ -84,11 +163,22 @@ def evaluate(recs, title, k, cnt25, url, strict_season=True):
     # the underlying data changed.
     gate = TURNOVER_MAX if CURRENT else 0.93
     if ov is not None and ov >= gate and (CURRENT or ok_season is not True):
-        return False, ('roster repeats %.0f%% of the %d squad (gate %.0f%%)%s - either last '
-                       'season served back, or a %d page listing only returners'
-                       % (ov * 100, state.REF, gate * 100,
-                          '' if ok_season is not True else ', despite the page naming %d' % lib.SEASON,
-                          lib.SEASON))
+        # The page must say which season it is AND its returners must have aged.
+        # Either alone is self-declared metadata or a coincidence; together they
+        # are two independent readings of the same page agreeing.
+        aged_ok, why = (aged_into_season(
+            [(x['name'], x['cls']) for x in _players(recs)], k) if ok_season is True else (False, 'title does not name the season'))
+        if not aged_ok:
+            return False, ('roster repeats %.0f%% of the %d squad (gate %.0f%%)%s - either last '
+                           'season served back, or a %d page listing only returners; %s'
+                           % (ov * 100, state.REF, gate * 100,
+                              '' if ok_season is not True else ', despite the page naming %d' % lib.SEASON,
+                              lib.SEASON, why))
+        # Admitted, but not yet accepted: the checks below still apply. They
+        # cannot in fact both fire -- a page repeating 85% of an N-player squad
+        # cannot also be 2.6N long -- and the point is that nothing has to
+        # reason about that. An admission removes one refusal, not the rest.
+        admitted = why
     # only an upper bound, and only against a credible baseline: a few 2025
     # rosters are themselves short (Purdue 10, LSU 13, Auburn 14), so a small
     # 2025 count says nothing about a plausible 2024 count
@@ -96,6 +186,7 @@ def evaluate(recs, title, k, cnt25, url, strict_season=True):
         return False, 'implausible player count %d vs %d %d' % (len(recs), state.REF, cnt25)
     n = []
     if ov is not None: n.append('%d name overlap %.0f%%' % (state.REF, ov * 100))
+    if admitted: n.append('admitted because the page names %d and %s' % (lib.SEASON, admitted))
     return True, '; '.join(n)
 
 def build(recs, r, src_url, conf, note, stats_url=''):

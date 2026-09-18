@@ -32,7 +32,7 @@ def shipped_names(rows):
 def main():
     ref = state.names25()
     st = state.load()
-    demoted, checked, blind = [], 0, 0
+    demoted, checked, blind, kept = [], 0, 0, []
     for k, v in st.items():
         if v.get('status') != 'done': continue
         names = shipped_names(v.get('rows'))
@@ -42,9 +42,22 @@ def main():
             continue
         checked += 1
         ov = sum(1 for n in names if n in base) / len(names)
-        if ov >= GATE:
-            demoted.append((k, ov, len(names), len(base), v.get('stage')))
+        if ov < GATE: continue
+        # THE SAME SECOND QUESTION run.evaluate ASKS, and it has to be asked
+        # here too. This file re-measures the gate that is in force now; if the
+        # gate learns to admit a high-overlap page whose returners aged, and
+        # this pass does not, then the very next run demotes exactly the rosters
+        # the gate just admitted -- and the demotion would look like the
+        # stale-cache problem this file was written to catch.
+        aged_ok, why = run.aged_into_season(
+            [(r.get('Player Name'), r.get('Class/Year')) for r in v.get('rows') or []], k)
+        if aged_ok:
+            kept.append((k, ov, why))
+            continue
+        demoted.append((k, ov, len(names), len(base), v.get('stage')))
     print(f'{checked} done rosters re-measured, {blind} with no {state.REF} baseline to test')
+    for k, ov, why in sorted(kept, key=lambda x: -x[1]):
+        print(f'   {ov*100:5.0f}%  {k:44} kept: {why}')
     print(f'{len(demoted)} at or above the {GATE:.0%} gate:')
     for k, ov, n, m, sg in sorted(demoted, key=lambda x: -x[1]):
         # Same size means last season served back; smaller means a real page
