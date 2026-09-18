@@ -6,6 +6,7 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import EmailComposer from './EmailComposer.jsx';
 import ManualOutreachDialog from './ManualOutreachDialog.jsx';
+import { MANUAL_ONLY_BADGE } from '@/lib/outreachLabels';
 
 /**
  * The composer had no test at all, which is how it came to be the thing every
@@ -257,7 +258,9 @@ describe('ManualOutreachDialog', () => {
     await render(open());
     // Removed from the Top 100 and flagged, and neither is a contact decision.
     expect(text()).toContain('Not in Top 100');
-    expect(text()).toContain('Manual only');
+    // Through the constant since F6b — the dialog used to hardcode a shorter
+    // label than every other surface used for the same stance.
+    expect(text()).toContain(MANUAL_ONLY_BADGE);
     expect(text()).toContain('Stanford');
     expect(composeButton()).toBeTruthy();
   });

@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  RELATIONSHIP_OUTREACH, MANUAL_ONLY_BADGE, MANUAL_ONLY_HINT,
+  RELATIONSHIP_OUTREACH, MANUAL_ONLY_BADGE, MANUAL_ONLY_HINT, moreCoaches,
 } from '@/lib/outreachLabels';
 import ContactStanceControl from '@/components/ContactStanceControl';
 import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
@@ -30,9 +30,57 @@ function where(row) {
   return [row.city, row.state].filter(Boolean).join(', ');
 }
 
+/** How many names fit on a list row before it stops being scannable. */
+const COACHES_SHOWN = 2;
+
+/**
+ * WHO WE HAVE ACTUALLY WRITTEN TO AT THIS SCHOOL — F6b.
+ *
+ * ===========================================================================
+ * CONFIRMED SENDS ONLY, AND THAT IS THE WHOLE FILTER.
+ *
+ * A coach carrying a draft nobody confirmed has not heard from this athlete,
+ * and listing them under "Contacted" would be the same lie the summary badge
+ * above already refuses to tell by saying "Drafted" rather than "Sent". The
+ * drafted state is reported there, once, for the programme; this line is only
+ * about people who received something.
+ * ===========================================================================
+ *
+ * NO RANKING AND NO RECOMMENDATION. The order is the one the shared
+ * intelligence layer supplied and nothing re-sorts it. Deciding which coach
+ * matters most, or which to write to next, is judgement — it belongs to the
+ * Email Intelligence workstream, and a list row quietly implying an order
+ * would be this surface answering a question it was not asked.
+ *
+ * Renders nothing when nobody has been confirmed, rather than "0 coaches
+ * contacted": the programme-level summary beside it has already said whether
+ * anything was sent, and a zero here would be a second way of saying it.
+ */
+function ContactedCoaches({ summary }) {
+  const contacted = (summary?.coaches ?? []).filter((c) => c.has_confirmed_send);
+  if (!contacted.length) return null;
+
+  const shown = contacted.slice(0, COACHES_SHOWN);
+  const remainder = contacted.length - shown.length;
+
+  return (
+    <p className="text-xs text-muted-foreground" data-testid="contacted-coaches">
+      <span className="uppercase tracking-wide text-[10px] font-semibold">Contacted </span>
+      {shown.map((c, i) => (
+        <span key={c.coach_id}>
+          {i > 0 && ', '}
+          <span className="text-foreground">{c.coach_name}</span>
+          {c.position_title ? ` — ${c.position_title}` : ''}
+        </span>
+      ))}
+      {remainder > 0 && <span> · {moreCoaches(remainder)}</span>}
+    </p>
+  );
+}
+
 function SpecificSchoolRow({
   programme, rank, busy, onRemove, onManualOutreach, contact = null, contactUnavailable = false,
-  onSetContactStance = null, onFlag = null,
+  contactKnown = false, onSetContactStance = null, onFlag = null,
 }) {
   return (
     <li className="flex items-start justify-between gap-3 p-3" data-testid="specific-school-row">
@@ -45,6 +93,15 @@ function SpecificSchoolRow({
             && <Badge variant="blue">{MANUAL_ONLY_BADGE}</Badge>}
           {programme.contact_stance === 'do_not_contact'
             && <Badge variant="red">Do not contact</Badge>}
+          {/*
+            A RANKING DECISION, SHOWN BESIDE THE OTHERS AND NOT INSTEAD OF THEM.
+            The row stays in this list either way — a school taken out of the
+            Top 100 is very often the one somebody asked for by name — so the
+            badge explains why it is absent from the ranked view rather than
+            removing it from this one. Same wording as the match card.
+          */}
+          {programme.visibility === 'suppressed'
+            && <Badge variant="muted">Not in Top 100</Badge>}
         </div>
         {/*
           THE BADGE ALONE WOULD BE READ AS A CLOSURE. "Manual outreach only"
@@ -59,11 +116,33 @@ function SpecificSchoolRow({
             || programme.sport}
         </p>
         {/*
+          WHY THIS SCHOOL IS HERE — F6b.
+          `flag_reason` is mandatory when a relationship is flagged, precisely
+          so this question has an answer; it was being collected and never
+          shown on this surface. The note is the operator's own running
+          context. Both render only when present: an empty "Reason —" line on
+          every unflagged row would be a placeholder claiming a field exists
+          where nobody filled one in.
+        */}
+        {programme.flagged && programme.flag_reason && (
+          <p className="text-xs text-muted-foreground">{programme.flag_reason}</p>
+        )}
+        {programme.note && (
+          <p className="text-xs">
+            <span className="text-muted-foreground">Note: </span>{programme.note}
+          </p>
+        )}
+        {/*
           SUPPLEMENTAL, and only when the programme is genuinely ranked. No
           rank is invented for a school that is not: a placeholder here would
           be read as a match score by the next person to look at the screen.
         */}
-        <ProgrammeContactSummary summary={contact} withhold={contactUnavailable} />
+        <ProgrammeContactSummary
+          summary={contact}
+          withhold={contactUnavailable}
+          known={contactKnown}
+        />
+        <ContactedCoaches summary={contact} />
         {rank != null && (
           <p className="text-xs text-muted-foreground">
             Also ranked <span className="font-medium text-foreground">#{rank}</span> in this
@@ -114,6 +193,12 @@ export default function SpecificSchools({
   contactByProgramme = new Map(),
   /** The history could not be loaded; an absent entry means nothing. */
   contactUnavailable = false,
+  /**
+   * The history HAS loaded, so an absent entry means "nobody has written to
+   * them" rather than "we have not asked yet". Only with this may a row say
+   * so out loud — see `known` in ProgrammeContactSummary.
+   */
+  contactKnown = false,
 }) {
   /**
    * Rank by name, from the analysis already in memory. ARRAY ORDER IS THE
@@ -172,6 +257,7 @@ export default function SpecificSchools({
                 onManualOutreach={onManualOutreach}
                 contact={contactByProgramme.get(contactIntelligenceKey(p.college_name, p.sport))}
                 contactUnavailable={contactUnavailable}
+                contactKnown={contactKnown}
                 onSetContactStance={onSetContactStance}
                 onFlag={onFlag}
               />

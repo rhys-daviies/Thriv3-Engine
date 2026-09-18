@@ -6,7 +6,9 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
 import MatchingTab from './MatchingTab.jsx';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
-import { RELATIONSHIP_OUTREACH, CONTACT_UNAVAILABLE_NOTICE } from '@/lib/outreachLabels';
+import {
+  RELATIONSHIP_OUTREACH, CONTACT_UNAVAILABLE_NOTICE, NO_CONTACT_RECORDED,
+} from '@/lib/outreachLabels';
 import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
 
 /**
@@ -560,12 +562,24 @@ describe('A PROGRAMME IS A COLLEGE AND A SPORT', () => {
     await render();
     await click(tab('Specific Schools'));
 
-    // The men's programme has history and the women's has none. A miss is the
-    // answer for the women's row; borrowing the men's summary would be the
-    // exact confident-wrong claim this key prevents.
+    /**
+     * The men's programme has history and the women's has none. A miss is the
+     * answer for the women's row; borrowing the men's summary would be the
+     * exact confident-wrong claim this key prevents.
+     *
+     * RE-POINTED IN F6b, AND THE PROPERTY IS UNCHANGED. This used to assert
+     * the row rendered no summary element at all. A Specific School row now
+     * says "No contact recorded" out loud where the history has LOADED and the
+     * programme is genuinely absent from it — which is this case, and which is
+     * the same fact stated rather than implied by silence. What must still be
+     * true, and is asserted below, is that none of the men's history reaches
+     * this row.
+     */
     const row = container.querySelector('[data-testid="specific-school-row"]');
-    expect(row.querySelector('[data-testid="contact-summary"]')).toBeNull();
+    expect(row.querySelector('[data-testid="contact-summary"]').textContent)
+      .toBe(NO_CONTACT_RECORDED);
     expect(row.textContent).not.toContain('Sent 2x');
+    expect(row.textContent).not.toContain('Profile visit recorded');
   });
 
   it('leaves ordinary single-sport behaviour alone', async () => {

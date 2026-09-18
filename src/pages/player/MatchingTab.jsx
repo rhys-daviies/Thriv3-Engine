@@ -100,6 +100,17 @@ export default function MatchingTab() {
    */
   const contactUnavailable = contactStatus === CONTACT_INTELLIGENCE.FAILED;
   /**
+   * THE ANSWER HAS ARRIVED — F6b, AND `!contactUnavailable` IS NOT THE SAME TEST.
+   *
+   * FAILED is one of four statuses; IDLE and LOADING are the other two that
+   * mean "we do not know yet", and during both the map is empty for exactly
+   * the same reason it is empty for a programme nobody has written to. A row
+   * reading "No contact recorded" off an unsettled map would be asserting an
+   * absence it has not established — the one false statement this slice could
+   * make. Only READY licenses it.
+   */
+  const contactKnown = contactStatus === CONTACT_INTELLIGENCE.READY;
+  /**
    * THE SPORT THESE RECOMMENDATIONS ARE FOR, and half of every programme key.
    *
    * `analyze()` scouts colleges filtered by `player.sport || DEFAULT_SPORT`, so
@@ -327,6 +338,7 @@ export default function MatchingTab() {
           onFlag={flag}
           contactByProgramme={contactByProgramme}
           contactUnavailable={contactUnavailable}
+          contactKnown={contactKnown}
         />
       )}
 

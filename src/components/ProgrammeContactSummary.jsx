@@ -1,6 +1,11 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { ACTIVITY_LABEL, ENGAGEMENT_HINT, DRAFT_ONLY_HINT } from '@/lib/outreachLabels';
+import {
+  ACTIVITY_LABEL, ENGAGEMENT_HINT, DRAFT_ONLY_HINT,
+  NO_CONTACT_RECORDED, NO_CONTACT_RECORDED_HINT,
+  ORIGIN_SHORT, ORIGIN_UNRECORDED_SHORT,
+  videoWatched, VIDEO_HINT,
+} from '@/lib/outreachLabels';
 
 /**
  * HAS ANYONE WRITTEN TO THIS PROGRAMME, AND DID THE COACH DO ANYTHING?
@@ -37,6 +42,27 @@ function when(iso) {
 export default function ProgrammeContactSummary({
   summary, className = '',
   /**
+   * TRUE ONLY WHEN THE ATHLETE'S HISTORY HAS ACTUALLY ARRIVED — F6b.
+   *
+   * ---------------------------------------------------------------------------
+   * THE ONE PROP THAT EXISTS TO PREVENT A FALSE STATEMENT.
+   *
+   * A programme nobody has written to is ABSENT from the map rather than
+   * present and empty, so absence is the fact — but only once the map is known
+   * to be complete. While the request is in flight, or before it starts, the
+   * map is also empty, and every programme in the product is momentarily
+   * indistinguishable from one nobody has ever contacted.
+   *
+   * So this defaults to FALSE and the no-history sentence is rendered only when
+   * a caller positively says the answer is settled. A surface that has not
+   * threaded the status through gets silence, which is what it had before and
+   * is never wrong. `withhold` remains the separate, stronger signal for a
+   * request that FAILED — there the page carries CONTACT_UNAVAILABLE_NOTICE and
+   * cards render nothing at all.
+   * ---------------------------------------------------------------------------
+   */
+  known = false,
+  /**
    * TRUE WHEN THE HISTORY COULD NOT BE LOADED, AND THEN THIS RENDERS NOTHING.
    *
    * Not a badge saying so. The request is athlete-level, so its failure is one
@@ -52,12 +78,32 @@ export default function ProgrammeContactSummary({
   if (withhold) return null;
 
   /**
-   * A MISS IS THE ANSWER. Programmes nobody has written to are absent from the
-   * map rather than present and empty, and this renders nothing for them —
-   * "Not contacted" on ninety cards would be ninety assertions of the same
-   * non-fact.
+   * A MISS IS THE ANSWER — WHERE THE ANSWER IS KNOWN.
+   *
+   * On the Top 100 this still renders nothing: "No contact recorded" under
+   * ninety cards would be ninety assertions of the same non-fact, and the
+   * absence of a badge already reads as "nothing yet" on a ranked list nobody
+   * has worked through.
+   *
+   * On a SPECIFIC SCHOOL it is said out loud, because the question there is
+   * different. Somebody asked for that school, or marked it as one we are
+   * handling by hand, and "what have we actually done about it" is the reason
+   * the row is being read. Silence answers that question badly — and since F5b
+   * it answers it ambiguously, because `manual_only` can now stand on a
+   * relationship with nothing in `outreach` behind it.
+   *
+   * `known` is what separates the two, and it never defaults to true.
    */
-  if (!summary?.contacted) return null;
+  if (!summary?.contacted) {
+    if (!known) return null;
+    return (
+      <div className={`flex items-center gap-1.5 flex-wrap ${className}`} data-testid="contact-summary">
+        <span className="text-xs text-muted-foreground" title={NO_CONTACT_RECORDED_HINT}>
+          {NO_CONTACT_RECORDED}
+        </span>
+      </div>
+    );
+  }
 
   const { engagement } = summary;
   const facts = [];
@@ -87,8 +133,56 @@ export default function ProgrammeContactSummary({
     });
   }
 
+  /**
+   * HOW FAR THROUGH THE VIDEO ANYONE GOT — F6b.
+   *
+   * Already on the summary and already shown per coach in the relationship
+   * dialog; it was simply never rendered here. `best_coverage_pct` is the
+   * furthest a SINGLE session reached, so the wording is "watched N%" and not a
+   * total across visits — the shared helper keeps this line and the dialog's
+   * identical, because the same fact worded two ways reads as two facts.
+   *
+   * Zero renders nothing. A programme with a visit and no video play is a real
+   * and common state, and "Watched 0%" would put a number where there is none.
+   */
+  if (engagement.best_coverage_pct > 0) {
+    facts.push({
+      key: 'video',
+      text: videoWatched(engagement.best_coverage_pct),
+      title: VIDEO_HINT,
+      tone: 'green',
+    });
+  }
+
   if (engagement.reply_recorded) {
     facts.push({ key: 'reply', text: 'Reply recorded', title: ENGAGEMENT_HINT.reply, tone: 'green' });
+  }
+
+  /**
+   * WHICH PART OF THE PRODUCT WROTE TO THEM — F6b.
+   *
+   * ---------------------------------------------------------------------------
+   * EVERY ORIGIN ON FILE, NEVER COLLAPSED TO ONE.
+   *
+   * `origins` is a SET across the relationship's messages, so a coach reached
+   * by a campaign in March and by hand in June carries both — and both are
+   * true. Picking one would be choosing which half of the history to hide, and
+   * the half that matters depends on the question being asked.
+   *
+   * NULL IS RENDERED, NOT DROPPED AND NOT GUESSED. It is the honest record for
+   * every message written before the origin column existed, and it means "not
+   * recorded", which is different from either named value. Inferring `manual`
+   * from it would manufacture exactly the provenance the column was added to
+   * stop being manufactured.
+   * ---------------------------------------------------------------------------
+   */
+  const origins = summary.origins ?? [];
+  const namedOrigins = origins.filter(Boolean).map((o) => ORIGIN_SHORT[o]).filter(Boolean);
+  for (const label of [...new Set(namedOrigins)].sort()) {
+    facts.push({ key: `origin-${label}`, text: label });
+  }
+  if (origins.includes(null)) {
+    facts.push({ key: 'origin-unrecorded', text: ORIGIN_UNRECORDED_SHORT });
   }
 
   if (summary.revoked_count > 0) {
