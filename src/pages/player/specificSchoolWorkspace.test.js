@@ -1033,7 +1033,7 @@ describe('the relationship fact has one name', () => {
 /* ========================================================================== */
 
 describe('the page asks the same three questions however many schools there are', () => {
-  it('adds no request per card, and none for expanding one', async () => {
+  it('adds no request per card', async () => {
     await open({
       programmes: [
         relationship({ id: 'r1', college_name: 'Akron', college_id: 'c-a' }),
@@ -1049,9 +1049,24 @@ describe('the page asks the same three questions however many schools there are'
     expect(pathCalls('/pending-manual-drafts')).toHaveLength(1);
     expect(calls.filter((c) => /\/players\/[^/]+\/programmes($|\?)/.test(c.path))).toHaveLength(1);
 
+    /**
+     * F9b - EXPANDING NOW COSTS EXACTLY ONE READ, AND ONLY EVIDENCE.
+     *
+     * The three athlete-level reads above are what the PAGE costs, and that
+     * number is still independent of how many schools are on it. What changed
+     * is that opening a row asks one further question about that one
+     * programme - see `useProgrammeEvidence` for why evidence is not on the
+     * page's load budget. Nothing else moves: no second programmes read, no
+     * contact-intelligence refetch, no pending refetch.
+     */
     const before = calls.length;
     await expand('Akron');
     await expand('Marist');
-    expect(calls.length).toBe(before);
+
+    expect(calls.length).toBe(before + 2);
+    expect(pathCalls('/evidence')).toHaveLength(2);
+    expect(pathCalls('/contact-intelligence')).toHaveLength(1);
+    expect(pathCalls('/pending-manual-drafts')).toHaveLength(1);
+    expect(calls.filter((c) => /\/players\/[^/]+\/programmes($|\?)/.test(c.path))).toHaveLength(1);
   });
 });

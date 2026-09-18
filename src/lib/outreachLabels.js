@@ -618,3 +618,66 @@ export const CONTEXT_HINT =
 
 /** Every coach on file for this programme, in the expansion. */
 export const ALL_CONTACTED_COACHES = 'Coaches contacted';
+
+
+/* ========================================================================== */
+/*  F9b — PROGRAMME EVIDENCE, ON THE WORKSPACE                                */
+/* ========================================================================== */
+
+/**
+ * TWO QUESTIONS, TWO SURFACES, AND THEY MUST NOT ANSWER EACH OTHER'S.
+ *
+ * ===========================================================================
+ * THE WORKSPACE ASKS "WHAT DOES THRIV3 KNOW?"
+ * THE COMPOSER ASKS "WHAT IS THRIV3 USING FOR THIS EMAIL?"
+ *
+ * Both read the same server contract, deliberately — a second idea of what the
+ * evidence is would eventually disagree with the one that sends the email, and
+ * the disagreement would surface as a coach receiving something no screen ever
+ * showed. What differs is the job. This one is read-only and answers a
+ * question asked BEFORE anyone opens a composer: is there anything here worth
+ * writing about, or will the draft be the plain template?
+ * ===========================================================================
+ *
+ * It carries no selection controls, no reordering, no structure and no
+ * preview. Choosing the angle is the composer's job and stays there.
+ */
+export const PROGRAMME_EVIDENCE_HEADING = 'What Thriv3 knows';
+export const PROGRAMME_EVIDENCE_HINT =
+  'What this programme’s own record supports saying. Choosing what an email actually '
+  + 'says happens in the draft.';
+
+/** Said while the answer is still coming, so silence is never read as absence. */
+export const PROGRAMME_EVIDENCE_LOADING = 'Checking what we can say about this programme…';
+
+/**
+ * WE ASKED, AND THE ANSWER IS NOTHING — WHICH IS A FACT ABOUT THE SCHOOL.
+ *
+ * Only ever rendered from a SUCCESSFUL response carrying no usable finding.
+ * A programme with nothing to say and a programme we could not read produce
+ * the same empty screen, and conflating them would turn a server problem into
+ * a statement about a school. The sentence also says what follows from it —
+ * the draft still works, it is simply not personalised.
+ */
+export const PROGRAMME_EVIDENCE_NONE =
+  'Nothing specific to say about this programme — a draft would use the plain template.';
+
+/**
+ * WE ASKED AND COULD NOT FIND OUT. Never rendered beside the sentence above.
+ * `reason` from the wire is appended where the server supplied one, because
+ * "the roster page could not be read" is more actionable than a generic
+ * failure and it is the server's own words rather than an interpretation.
+ */
+export const PROGRAMME_EVIDENCE_FAILED = 'Could not load programme evidence.';
+export const PROGRAMME_EVIDENCE_RETRY = 'Try again';
+
+/**
+ * EVERYTHING ELSE THE ENGINE HAS, KEPT SECONDARY.
+ *
+ * The findings the outbound selector did not lead with. Shown because "we knew
+ * this too" is the difference between a considered choice and an arbitrary
+ * one, and collapsed because this is a preview rather than the composer's
+ * working surface — the full picture, with what was dropped and why, stays in
+ * `EvidencePanel`.
+ */
+export const PROGRAMME_EVIDENCE_ALSO_KNOWN = 'Also known';

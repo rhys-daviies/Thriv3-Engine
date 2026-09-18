@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import ContactStanceControl from '@/components/ContactStanceControl';
 import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
+import { kindLabel } from '@shared/evidence/index.js';
+import { PROGRAMME_EVIDENCE } from '@/lib/useProgrammeEvidence';
 import {
   NOTE_LABEL, ADD_NOTE, EDIT_NOTE, SAVE_NOTE, NOTE_PLACEHOLDER,
   FLAG_REASON_LABEL, ADD_FLAG_REASON, EDIT_FLAG_REASON, SAVE_FLAG_REASON,
@@ -12,6 +14,9 @@ import {
   KEEP_IN_TOP_100, REMOVE_FROM_TOP_100,
   ALL_CONTACTED_COACHES, ORIGIN_LABEL, ORIGIN_UNRECORDED,
   MANUAL_ONLY_HINT, ALREADY_IN_TOUCH_HINT, EXISTING_RELATIONSHIP, videoWatched,
+  PROGRAMME_EVIDENCE_HEADING, PROGRAMME_EVIDENCE_HINT, PROGRAMME_EVIDENCE_LOADING,
+  PROGRAMME_EVIDENCE_NONE, PROGRAMME_EVIDENCE_FAILED, PROGRAMME_EVIDENCE_RETRY,
+  PROGRAMME_EVIDENCE_ALSO_KNOWN,
 } from '@/lib/outreachLabels';
 
 /**
@@ -214,10 +219,189 @@ function EngagementDetail({ summary }) {
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/*  WHAT THRIV3 KNOWS - F9b                                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * ONE FINDING, PRINTED AS THE SERVER WROTE IT.
+ *
+ * ===========================================================================
+ * `text` IS THE CLAIM. THIS COMPONENT HAS NO RENDERER AND CANNOT ACQUIRE ONE.
+ *
+ * The wire carries the SERVER-RENDERED sentence and no `data`, which is the
+ * whole safety argument: a SIGNAL arrives already hedged by the tier-aware
+ * renderer and stays hedged whatever a screen does with it, and there is
+ * nothing here from which a claim could be assembled, paraphrased or
+ * strengthened.
+ * ===========================================================================
+ *
+ * THE TIER IS THE PART TO KEEP. FACT is checkable against the programme's own
+ * pages; SIGNAL is an interpretation. The registry's words, unrenamed - an
+ * "Insight" or a "Prediction" badge would promote the weaker of the two into
+ * something the engine never said.
+ *
+ * NO STRENGTH, IN ANY FORM. `strength` is an internal 0-100 priority and the
+ * wire carries it; nothing here reads it. A number would be taken for a
+ * percentage of something, and a bar for a ranking - and this surface ranks
+ * nothing. The order is the server's.
+ *
+ * THE LABEL IS `kindLabel`, never the registry key: HISTORICAL_SAME_COUNTRY is
+ * a grouping constant for a database, and an operator should not have to
+ * decode it to learn we have recruited from this athlete's country before.
+ */
+function Finding({ ev, muted = false }) {
+  return (
+    <li className="py-0.5" data-testid="evidence-finding">
+      <span className="flex flex-wrap items-baseline gap-x-1.5">
+        <span className={muted ? 'text-xs text-muted-foreground' : 'text-xs font-medium'}>
+          {kindLabel(ev.kind)}
+        </span>
+        {ev.tier && (
+          <Badge variant={ev.tier === 'FACT' ? 'green' : 'amber'}>{ev.tier}</Badge>
+        )}
+      </span>
+      {ev.text && (
+        <p className={`text-xs ${muted ? 'text-muted-foreground/80' : 'text-muted-foreground'}`}>
+          {ev.text}
+        </p>
+      )}
+      {/*
+        FRESHNESS ONLY WHERE IT ACTUALLY MOVED SOMETHING - and in the server's
+        words. `downgraded` is present only when staleness changed the
+        confidence; nothing here computes an age or decides what one means. A
+        badge derived from a date in the browser would be this surface
+        inventing a freshness verdict the engine owns.
+      */}
+      {ev.downgraded?.reason && (
+        <p className="text-[11px] text-amber-700 dark:text-amber-500" data-testid="evidence-freshness">
+          {ev.downgraded.reason}
+        </p>
+      )}
+    </li>
+  );
+}
+
+/**
+ * WHAT THIS PROGRAMME'S OWN RECORD SUPPORTS SAYING - READ ONLY.
+ *
+ * ===========================================================================
+ * FOUR ANSWERS, AND ONLY ONE OF THEM IS ABOUT THE SCHOOL.
+ *
+ *   IDLE     nobody has asked. Renders NOTHING - an absence claimed before a
+ *            question was put is the one false statement available here.
+ *   LOADING  the answer is coming. Says so, rather than showing an empty list.
+ *   READY    the answer arrived. Findings, or the honest "nothing to say".
+ *   FAILED   we could not find out. Never the sentence above it, and never
+ *            beside it.
+ * ===========================================================================
+ *
+ * A PREVIEW, NOT THE COMPOSER. No selection, no reordering, no structure
+ * picker, no subject, no body, no coach list and no send. Deciding what this
+ * email says is `EvidencePanel`'s job inside the draft, and duplicating its
+ * controls here would give an operator two places to make one decision.
+ */
+function ProgrammeEvidence({ programmeEvidence }) {
+  const { status, evidence, reason, reload } = programmeEvidence ?? {};
+
+  /** Not asked yet. Nothing is known, and nothing is said. */
+  if (!status || status === PROGRAMME_EVIDENCE.IDLE) return null;
+
+  const heading = (
+    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      {PROGRAMME_EVIDENCE_HEADING}
+    </p>
+  );
+
+  if (status === PROGRAMME_EVIDENCE.LOADING) {
+    return (
+      <div data-testid="programme-evidence">
+        {heading}
+        <p className="text-xs text-muted-foreground">{PROGRAMME_EVIDENCE_LOADING}</p>
+      </div>
+    );
+  }
+
+  if (status === PROGRAMME_EVIDENCE.FAILED) {
+    return (
+      <div data-testid="programme-evidence">
+        {heading}
+        <p className="text-xs text-amber-700 dark:text-amber-500" data-testid="evidence-failed">
+          {PROGRAMME_EVIDENCE_FAILED}
+          {/* The server's own sentence where it sent one. More actionable than
+              a generic failure, and not an interpretation of it. */}
+          {reason ? ` ${reason}` : ''}
+        </p>
+        {reload && (
+          <Button size="sm" variant="outline" className="mt-1" onClick={() => reload()}>
+            {PROGRAMME_EVIDENCE_RETRY}
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  /**
+   * PRINTABLE MEANS THE SERVER RENDERED A SENTENCE FOR IT.
+   *
+   * A selected finding can legitimately arrive without one - the composer caps
+   * a paragraph, so a claim may be chosen, logged and deliberately not carried
+   * by the email. It is real, and there is nothing to print, so it is not
+   * counted as something this surface can show.
+   */
+  const selected = (evidence?.selected ?? []).filter((e) => e.text);
+  /**
+   * `available` says of itself which entries were selected, so the split is
+   * the wire's rather than this screen's. Dropped and internal-only findings
+   * are deliberately NOT here: the full picture, with what could not be used
+   * and why, belongs to the composer.
+   */
+  const alsoKnown = (evidence?.available ?? []).filter((e) => !e.selected && e.text);
+
+  if (!selected.length && !alsoKnown.length) {
+    return (
+      <div data-testid="programme-evidence">
+        {heading}
+        <p className="text-xs text-muted-foreground" data-testid="evidence-none">
+          {PROGRAMME_EVIDENCE_NONE}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div data-testid="programme-evidence">
+      {heading}
+      <p className="text-[11px] text-muted-foreground">{PROGRAMME_EVIDENCE_HINT}</p>
+      {selected.length > 0 && (
+        <ul className="mt-1">
+          {selected.map((ev) => <Finding key={ev.kind} ev={ev} />)}
+        </ul>
+      )}
+      {alsoKnown.length > 0 && (
+        <div className="mt-1.5" data-testid="evidence-also-known">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+            {PROGRAMME_EVIDENCE_ALSO_KNOWN}
+          </p>
+          <ul>
+            {alsoKnown.map((ev) => <Finding key={ev.kind} ev={ev} muted />)}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function SpecificSchoolDetail({
   programme, rank = null, contact = null, contactUnavailable = false, contactKnown = false,
   busy = false, onRemove, onSaveNote = null, onFlag = null,
   onSetVisibility = null, onSetContactStance = null,
+  /**
+   * The programme-evidence read, owned by the ROW rather than by this
+   * component - collapsing unmounts what is rendered here, and an answer that
+   * died with it would be fetched again every time somebody looked twice.
+   */
+  programmeEvidence = null,
 }) {
   const suppressed = programme.visibility === 'suppressed';
 
@@ -332,6 +516,13 @@ export default function SpecificSchoolDetail({
         <ContactedCoachDetail summary={contact} />
         <EngagementDetail summary={contact} />
       </div>
+
+      {/* ---------------------------------------------------------------- */}
+      {/* WHAT WE COULD SAY - separate from what we DID, deliberately.      */}
+      {/* Contact intelligence above is history; this is programme evidence, */}
+      {/* and a profile visit is not a reason to write to a coach.          */}
+      {/* ---------------------------------------------------------------- */}
+      <ProgrammeEvidence programmeEvidence={programmeEvidence} />
 
       {/* ---------------------------------------------------------------- */}
       {/* THE DECISIONS                                                    */}

@@ -596,8 +596,17 @@ describe('what a specific request must never touch', () => {
      * existing recruiting-signals READ, which happens to be a POST because it
      * carries a list of programme names too long for a query string. It
      * predates this PR and is untouched by it.
+     *
+     * `/evidence` is excluded for exactly that reason and no other - F9b reads
+     * programme evidence when a row is expanded, through the same contract the
+     * composer has always used, and it is a POST because it carries a list of
+     * names. It writes nothing. Everything this guard is actually for - no
+     * campaign, no analysis, no reserve, no recommendation write - is asserted
+     * below and unchanged.
      */
-    const writes = calls.filter((c) => c.method !== 'GET' && !c.path.includes('/matching-summary'));
+    const READS_THAT_POST = ['/matching-summary', '/evidence'];
+    const writes = calls.filter((c) => c.method !== 'GET'
+      && !READS_THAT_POST.some((r) => c.path.includes(r)));
     expect(writes.length).toBeGreaterThan(0);
     for (const c of writes) {
       expect(c.path, `${c.method} ${c.path} must not be a campaign or analysis write`)

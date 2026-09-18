@@ -14,6 +14,7 @@ import {
   contactStateShort, engagementShort, draftAge,
 } from '@/lib/outreachLabels';
 import SpecificSchoolDetail from '@/components/SpecificSchoolDetail';
+import { useProgrammeEvidence } from '@/lib/useProgrammeEvidence';
 import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
 
 /**
@@ -234,6 +235,31 @@ function SpecificSchoolRow({
   const [open, setOpen] = useState(false);
 
   /**
+   * WHAT THRIV3 KNOWS ABOUT THIS PROGRAMME - ASKED ONLY WHEN OPENED, F9b.
+   *
+   * =========================================================================
+   * HELD BY THE ROW, NOT BY THE DETAIL IT FEEDS.
+   *
+   * The detail unmounts when the row closes, so an answer living down there
+   * would be fetched again every time somebody looked twice. The row survives
+   * collapsing, so opening Stanford, closing it and opening it again is one
+   * request.
+   *
+   * `open` IS THE SWITCH, which is what keeps the page's load budget at three
+   * athlete-level reads. A row nobody opens makes no request at all, and a
+   * list of thirty specific schools costs exactly what it did before F9b
+   * until an operator asks about one of them.
+   * =========================================================================
+   *
+   * The athlete comes off the relationship row itself rather than down another
+   * prop: `athlete_id` is already on every programme this list renders, and
+   * threading a second copy of it through would be two sources for one fact.
+   */
+  const programmeEvidence = useProgrammeEvidence(
+    programme.athlete_id, programme.college_name, open,
+  );
+
+  /**
    * UNKNOWN IS NOT NONE, AND THE COMPRESSION DOES NOT GET TO FORGET THAT.
    *
    * `contactStateShort` returns null unless the athlete-level history is known
@@ -345,6 +371,7 @@ function SpecificSchoolRow({
           onFlag={onFlag}
           onSetVisibility={onSetVisibility}
           onSetContactStance={onSetContactStance}
+          programmeEvidence={programmeEvidence}
         />
       )}
     </li>
