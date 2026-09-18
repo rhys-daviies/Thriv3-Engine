@@ -50,8 +50,8 @@ describe('the NCAA residual queue', () => {
   it('26. states the live accounting, for the season it is asked about', () => {
     /*
      * 1,761 registry rows carry 6 programmes L7P recorded as not fielded in
-     * 2026, leaving 1,755 active. Of those, 1,725 hold a 2026 roster, 7 are
-     * duplicate rows whose twin holds one, and 23 are missing it.
+     * 2026, leaving 1,755 active. Of those, 1,731 hold a 2026 roster, 7 are
+     * duplicate rows whose twin holds one, and 17 are missing it.
      *
      * The two coverage numbers are asserted separately on purpose. Until L7P
      * this file had one, counted over every season, and 1,745 was being read as
@@ -60,19 +60,26 @@ describe('the NCAA residual queue', () => {
      * L7Q moved the current-season figures and NOT the historical one, which is
      * the clearest possible statement of what the two metrics mean: the pilot
      * re-acquired 13 programmes the dataset already knew, so 1,745 could not
-     * move and 1,607 had to. L7R took one more, L7T twenty-three and L7V
-     * eighty-one, all for the same reason, and across all four the historical
-     * figure has not moved once. These are live-registry numbers and a stage
-     * that acquires rosters is expected to change them; `reconciles` above is
-     * the invariant, and this is the measurement.
+     * move and 1,607 had to. L7R took one more, L7T twenty-three, L7V
+     * eighty-one and L7W six, all for the same reason, and across all five the
+     * historical figure has not moved once. These are live-registry numbers and
+     * a stage that acquires rosters is expected to change them; `reconciles`
+     * above is the invariant, and this is the measurement.
+     *
+     * L7W is the one that moved without finding a new page. Its six were
+     * already reachable and already parsed; what was wrong was the 2025 squad
+     * they were being measured against, which was the union of two seasons and
+     * therefore made the 2026 roster a subset of its own reference. Repairing
+     * the reference dropped their overlap from 90-100% to 41-77% and the gate
+     * accepted them unchanged.
      */
     const s = q.summary;
     expect(s.ncaaTotal).toBe(1755);
     expect(s.registryDuplicates).toBe(7);
-    expect(s.currentSeasonRostered).toBe(1725);
-    expect(s.currentSeasonMissing).toBe(23);
+    expect(s.currentSeasonRostered).toBe(1731);
+    expect(s.currentSeasonMissing).toBe(17);
     expect(s.historicallyRostered).toBe(1745);
-    expect(s.historicalOnly).toBe(20);
+    expect(s.historicalOnly).toBe(14);
     expect(s.neverRostered).toBe(3);
   });
 

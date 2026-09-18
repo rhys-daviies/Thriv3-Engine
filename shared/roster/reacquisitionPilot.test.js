@@ -187,3 +187,62 @@ describe('reading a known-good source', () => {
     expect(archived('https://athletics.mcla.edu/x')).toBe(false);
   });
 });
+
+describe('L7W — a cohort smaller than the pilot', () => {
+  /*
+   * THE LOOP THAT COULD NOT EXIT.
+   *
+   * `allocate` saturates each stratum at its own row count and hands the
+   * overflow back to whichever stratum has room. When the requested size
+   * exceeds the cohort total, nowhere has room: `seats.get(s) < sizes.get(s)`
+   * is false for every stratum, `overflow` never decrements, and the loop spins
+   * forever at 100% of a core.
+   *
+   * It was reachable from the day it was written and nothing reached it. L7Q
+   * sampled 138, L7V left the cohort at exactly 20 — `size === total`, the last
+   * value that still terminates — and L7W acquired six of those twenty and took
+   * it to 14. `reacquisitionCohort.js` then hung, and so did its test, which is
+   * how a coverage improvement disabled the tool that measures coverage.
+   *
+   * Asserted with a real timeout rather than by inspection: a non-terminating
+   * loop is not a wrong answer, and a test that only checks the answer would
+   * have passed against the broken version by never getting one.
+   */
+  const strata = new Map([['NCAA D1|M', 2], ['NCAA D1|W', 5], ['NCAA D2|M', 3],
+    ['NCAA D2|W', 1], ['NCAA D3|M', 1], ['NCAA D3|W', 2]]);
+  const total = [...strata.values()].reduce((n, v) => n + v, 0);   // 14
+
+  it('18. allocate returns when the requested size exceeds the cohort', () => {
+    const seats = allocate(strata, PILOT_SIZE);                    // 20 > 14
+    const sum = [...seats.values()].reduce((n, v) => n + v, 0);
+    expect(sum).toBe(total);
+    for (const [s, n] of seats) expect(n).toBe(strata.get(s));      // every row seated
+  }, 2000);
+
+  it('19. and still allocates proportionally when it does not', () => {
+    const seats = allocate(strata, 10);
+    expect([...seats.values()].reduce((n, v) => n + v, 0)).toBe(10);
+    for (const [s, n] of seats) expect(n).toBeLessThanOrEqual(strata.get(s));
+  }, 2000);
+
+  it('20. pilotSample clamps to the cohort and says the size it used', () => {
+    const rows = [];
+    for (const [s, n] of strata) {
+      const [division, gender] = s.split('|');
+      for (let i = 0; i < n; i += 1) {
+        rows.push({ key: `${s}-${i}||womens-soccer`, division, gender,
+          sourceShape: 'SPORTS_SLUG_ROSTER', provider: 'SIDEARM' });
+      }
+    }
+    const p = pilotSample(rows, { size: PILOT_SIZE });
+    expect(p.keys).toHaveLength(total);
+    expect(p.size).toBe(total);                                     // not 20
+    expect(new Set(p.keys).size).toBe(total);
+  }, 2000);
+
+  it('21. an empty cohort is a pilot of nothing, not a throw', () => {
+    const p = pilotSample([], { size: PILOT_SIZE });
+    expect(p.keys).toHaveLength(0);
+    expect(p.size).toBe(0);
+  }, 2000);
+});

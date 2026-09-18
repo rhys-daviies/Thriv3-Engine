@@ -82,7 +82,13 @@ describe('the 2026 re-acquisition cohort', () => {
   it('7. yields a reproducible pilot of exactly twenty from the live cohort', () => {
     const a = pilotSample(c.rows);
     const b = pilotSample(cohort().rows);
-    expect(a.keys).toHaveLength(PILOT_SIZE);
+    /*
+     * The pilot is `PILOT_SIZE` programmes, or the whole cohort when fewer
+     * remain. L7W acquired six of the twenty and took the cohort to 14, which
+     * is the first time this has been smaller than the pilot -- and asserting
+     * a bare 20 would now be asserting that acquisition never succeeds.
+     */
+    expect(a.keys).toHaveLength(Math.min(PILOT_SIZE, c.rows.length));
     expect(a.keys).toEqual(b.keys);
     expect(a.digest).toBe(b.digest);
     const keys = new Set(c.rows.map((r) => r.key));

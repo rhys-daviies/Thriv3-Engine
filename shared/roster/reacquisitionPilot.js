@@ -88,6 +88,21 @@ export function allocate(sizes, size = PILOT_SIZE) {
   const strata = [...sizes.keys()].sort();
   if (strata.length > size) throw new Error(`cannot floor ${strata.length} strata into ${size} seats`);
   const total = strata.reduce((n, s) => n + sizes.get(s), 0);
+  /*
+   * A PILOT CANNOT SEAT MORE PROGRAMMES THAN EXIST.
+   *
+   * Without this clamp the overflow loop below cannot terminate: every stratum
+   * saturates at its own count, so `seats.get(s) < sizes.get(s)` is false for
+   * all of them, `overflow` never decrements and the loop spins forever.
+   *
+   * L7Q wrote this against a cohort of 138 and L7V left it at exactly 20 --
+   * `size === total`, the last value that still terminates. L7W acquired six
+   * of the twenty and took the cohort to 14, so `reacquisitionCohort.js` and
+   * its test both hung. The condition was always reachable; shrinking the
+   * cohort is simply the first thing that reached it, and a stage that
+   * improves coverage should not be able to hang the tool that measures it.
+   */
+  size = Math.min(size, total);
   const seats = new Map(strata.map((s) => [s, 1]));
   let rest = size - strata.length;
 
@@ -112,9 +127,17 @@ export function allocate(sizes, size = PILOT_SIZE) {
     if (over > 0) { seats.set(s, sizes.get(s)); overflow += over; }
   }
   const roomy = [...strata].sort((a, b) => (sizes.get(b) - seats.get(b)) - (sizes.get(a) - seats.get(a)) || a.localeCompare(b));
-  for (let i = 0; overflow > 0; i += 1) {
-    const s = roomy[i % roomy.length];
-    if (seats.get(s) < sizes.get(s)) { seats.set(s, seats.get(s) + 1); overflow -= 1; }
+  // Terminates because the clamp above guarantees somewhere has room, and stops
+  // anyway if a whole pass places nothing -- a loop whose exit depends on an
+  // invariant holding should not be the thing that proves the invariant.
+  for (let i = 0; overflow > 0;) {
+    let placed = 0;
+    for (const s of roomy) {
+      if (overflow <= 0) break;
+      if (seats.get(s) < sizes.get(s)) { seats.set(s, seats.get(s) + 1); overflow -= 1; placed += 1; }
+    }
+    if (placed === 0) break;
+    i += 1;
   }
   return seats;
 }
@@ -152,6 +175,10 @@ export const cohortFingerprint = (rows) => sha([...rows].map((r) => r.key).sort(
 export function pilotSample(rows, { size = PILOT_SIZE } = {}) {
   const sizes = new Map();
   for (const r of rows) sizes.set(stratumOf(r), (sizes.get(stratumOf(r)) ?? 0) + 1);
+  // The requested size, or the whole cohort when it is smaller -- reported as
+  // the clamped value, because `size` is a statement about what was sampled and
+  // claiming 20 while returning 14 would be the wrong one.
+  size = Math.min(size, rows.length);
   const seats = allocate(sizes, size);
 
   const picked = [];
