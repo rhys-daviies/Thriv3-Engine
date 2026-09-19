@@ -50,6 +50,8 @@ const MAY_IMPORT_V2 = [
   'server/lib/v2/',
   'server/scripts/v2Compare.js',
   'server/scripts/v2Financial.js',
+  'server/scripts/v2Recruitability.js',
+  'server/scripts/derivePositionalNorms.js',
   'server/scripts/v2Fixtures.js',
   'server/scripts/v2Fixtures.test.js',
   'server/scripts/calibrateAbilityScale.js',
