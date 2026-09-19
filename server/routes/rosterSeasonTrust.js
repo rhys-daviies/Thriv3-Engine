@@ -146,7 +146,14 @@ rosterSeasonTrustRouter.get('/roster-season-trust', (req, res) => {
       enabled: false,
       reason: 'no authenticated operator identity exists in this application; '
         + 'every new human disposition requires one',
-      exclude_additionally_blocked: exclusionBlockedReason(),
+      /*
+       * Per sport, since L7ZL: whether an exclusion is technically safe now
+       * depends on whether that sport's derived recruiting data can be
+       * verified against the roster. Reported for both so a reader sees which
+       * blocker they would hit, rather than one generic sentence.
+       */
+      exclude_blocked_by_sport: Object.fromEntries(['mens-soccer', 'womens-soccer']
+        .map((s) => [s, exclusionBlockedReason(s)])),
     },
   });
 });

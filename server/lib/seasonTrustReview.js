@@ -1,5 +1,6 @@
 import db from '../db/client.js';
 import { DISPOSITION_KEYS, EXCLUDING_DISPOSITION, validateTrustRecord } from '../../shared/roster/seasonTrust.js';
+import { materialisationState, FRESH } from './recruitingMaterialisation.js';
 
 /**
  * L7ZK — the only place a human disposition may be written.
@@ -35,25 +36,40 @@ export const ATTRIBUTED = 'ATTRIBUTED';
 export const NOT_REVIEWED = 'NOT_REVIEWED';
 
 /**
- * Why `EXCLUDE_FROM_EVIDENCE` cannot be written yet, or null if it can.
+ * Why `EXCLUDE_FROM_EVIDENCE` cannot be written for this sport, or null if it
+ * can.
  *
- * `recruiting_arrivals` is MATERIALISED from `roster_players`, and
- * `buildRecruitingHistory.js` is its only writer — it deletes a sport's rows
- * and rebuilds them wholesale. An exclusion is honoured immediately by every
- * roster read, so the moment one is written the derived arrivals contain rows
- * the product may no longer read. That is an inconsistency, not a delay.
+ * `recruiting_arrivals` is MATERIALISED from `roster_players`, and an exclusion
+ * is honoured immediately by every roster read but not by the derived arrivals
+ * — so the moment one is written the two would disagree. L7ZK could only refuse
+ * outright; L7ZL gave the materialisation a fingerprint, so the refusal can now
+ * ask whether THIS sport's derived data is verifiable instead of assuming it
+ * never is.
  *
- * None of the three safe strategies exists today: a whole-sport rebuild of
- * ~87,000 rows is not a bounded synchronous operation, no staleness flag exists
- * to gate reads on, and `recruitingPatterns.js` has no invalidation hook of the
- * kind `philosophyQueries` uses for the pool. So the write stays closed, and
- * the reason travels with the refusal rather than living in a document.
+ * The reason travels with the refusal rather than living in a document.
  */
-export function exclusionBlockedReason() {
-  return 'EXCLUDE_FROM_EVIDENCE is not available yet: recruiting_arrivals is materialised from '
-    + 'roster_players and has no invalidation mechanism, so an exclusion would leave derived '
-    + 'recruiting patterns holding rows Evidence may no longer read. A safe rebuild or staleness '
-    + 'strategy is a prerequisite.';
+export function exclusionBlockedReason(sport) {
+  /*
+   * L7ZL BUILT THE MECHANISM, so this is no longer a blanket refusal. It now
+   * asks the one question that matters: can this sport's derived data be
+   * verified against the roster the exclusion is about to change?
+   *
+   * FRESH              -> null. Excluding stales the materialisation, the read
+   *                       guard refuses it, and a rebuild restores service. The
+   *                       invariant is closed.
+   * STALE              -> already diverged; rebuild before deciding, so the
+   *                       exclusion is measured against a known state.
+   * LEGACY_UNVERIFIED  -> the build predates the mechanism and nothing can say
+   *                       what it was derived from. An exclusion here would be
+   *                       taken on data nobody can vouch for.
+   */
+  if (!sport) return 'a sport is required to check materialisation freshness';
+  const state = materialisationState(sport);
+  if (state.state === FRESH) return null;
+  return `EXCLUDE_FROM_EVIDENCE is not available for ${sport}: its recruiting_arrivals `
+    + `materialisation is ${state.state}. An exclusion is honoured immediately by roster reads `
+    + 'but not by derived recruiting patterns, so the two would disagree. Rebuild with '
+    + '`npm run build:recruiting` and decide against a verified materialisation.';
 }
 
 /** How a stored record's reviewer should be described, without pretending. */
@@ -114,7 +130,10 @@ export function recordDisposition({
   if (!DISPOSITION_KEYS.includes(disposition)) {
     return bad(`disposition must be one of ${DISPOSITION_KEYS.join(', ')}`);
   }
-  if (disposition === EXCLUDING_DISPOSITION) return bad(exclusionBlockedReason());
+  if (disposition === EXCLUDING_DISPOSITION) {
+    const blocked = exclusionBlockedReason(sport);
+    if (blocked) return bad(blocked);
+  }
   if (!String(evidence ?? '').trim()) {
     return bad('a disposition needs evidence: one sentence saying what was decided and why');
   }

@@ -153,7 +153,14 @@ describe('L7ZK — GET, the half that works', () => {
     const { body } = await get('/roster-season-trust');
     expect(body.write.enabled).toBe(false);
     expect(body.write.reason).toMatch(/authenticated operator/i);
-    expect(body.write.exclude_additionally_blocked).toMatch(/recruiting_arrivals/);
+    /*
+     * L7ZL made this per sport: whether an exclusion is technically safe now
+     * depends on whether that sport's derived recruiting data can be verified
+     * against the roster, so one generic sentence would no longer be true.
+     */
+    for (const sport of ['mens-soccer', 'womens-soccer']) {
+      expect(body.write.exclude_blocked_by_sport[sport]).toMatch(/recruiting_arrivals/);
+    }
   });
 
   it('reports a grandfathered RETAIN as LEGACY_UNATTRIBUTED, not as nobody', async () => {
@@ -306,8 +313,9 @@ describe('L7ZK — the store refuses the same things, without a route', () => {
      */
     const r = call({ disposition: DISPOSITION.EXCLUDE_FROM_EVIDENCE });
     expect(r.ok).toBe(false);
-    expect(r.reason).toBe(exclusionBlockedReason());
-    expect(r.reason).toMatch(/recruiting_arrivals is materialised/);
+    // L7ZL: the reason is now per sport, and names the materialisation state.
+    expect(r.reason).toBe(exclusionBlockedReason('mens-soccer'));
+    expect(r.reason).toMatch(/recruiting_arrivals/);
   });
 
   it('requires evidence, and refuses an unknown disposition', () => {

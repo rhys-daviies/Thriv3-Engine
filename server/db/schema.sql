@@ -1394,3 +1394,38 @@ CREATE TABLE IF NOT EXISTS roster_season_trust (
 
   PRIMARY KEY (season, college_name, sport)
 );
+
+-- L7ZL — what roster `recruiting_arrivals` was actually built from.
+--
+-- The table is MATERIALISED and nothing recorded its inputs, so nothing could
+-- tell whether the answer it serves is still the answer the data supports. It
+-- matters because raw roster reads honour a trust exclusion immediately while
+-- the materialisation does not, and the product would otherwise hold two
+-- truths at once: a season removed from the ladder and still present in the
+-- arrivals behind an outreach-licensed claim.
+--
+-- ONE ROW PER SPORT, because that is the build's own grain: the builder deletes
+-- and rewrites a whole sport in one transaction. A finer key would promise a
+-- partial rebuild the builder cannot perform.
+--
+-- ABSENCE MEANS THE BUILD PREDATES THIS MECHANISM, and is reported as
+-- LEGACY_UNVERIFIED rather than treated as fresh. Stamping the existing table
+-- would have asserted a freshness L7ZL measured to be false.
+CREATE TABLE IF NOT EXISTS recruiting_arrivals_build (
+  sport TEXT PRIMARY KEY,
+
+  -- Digest of the EFFECTIVE input: the roster the builder can actually read,
+  -- with excluded programme-seasons removed, plus coach seasons, plus the
+  -- builder version. Semantic rather than storage-shaped -- see
+  -- server/lib/recruitingMaterialisation.js for why each part is in or out.
+  input_digest TEXT NOT NULL,
+
+  -- A digest over inputs cannot see a change to the transformation. Two builds
+  -- of the same roster by different code are different answers.
+  builder_version TEXT NOT NULL,
+
+  built_at TEXT NOT NULL,
+  -- Increments per successful build. Cheap, and it makes "has this been rebuilt
+  -- since I looked" answerable without comparing timestamps.
+  generation INTEGER NOT NULL
+);
