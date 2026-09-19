@@ -6,7 +6,7 @@ import { isSuppressed } from '../lib/suppressions.js';
 import { isSendCapped, recentSendCount } from '../lib/sendCap.js';
 import { createOutreach, markOutreachDrafted, markOutreachSent } from '../lib/outreach.js';
 import { logEvidence } from '../lib/evidenceLog.js';
-import { recordDraft, confirmSend } from '../lib/outreachSend.js';
+import { recordDraft, confirmSend, sendById } from '../lib/outreachSend.js';
 import { ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
 import { campaignContactDecision } from '../lib/campaignAttribution.js';
 import { assertContactAllowed } from '../lib/manualOutreachSafety.js';
@@ -17,6 +17,8 @@ import { templateVariant } from '../../shared/evidence/templateVariant.js';
 import { BODY_SOURCE } from '../../src/lib/emailTemplate.js';
 import { DEFAULT_EMAIL_TEMPLATE } from '../../src/lib/emailTemplate.js';
 import { composeInOutlook, isOutlookAvailable } from '../lib/outlook.js';
+import { buildHandoff } from '../lib/emailHandoff.js';
+import { bodyHash } from '../../shared/evidence/sendSnapshot.js';
 import { PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS, complianceGaps, SENDER_IDENTITY, SENDER_POSTAL_ADDRESS } from '../lib/config.js';
 import { checkRequiredCore } from '../export/renderProfile.js';
 import { exportAthlete, OUTPUT_DIR } from '../export/exportProfiles.js';
@@ -163,7 +165,56 @@ export async function sendOutreach({
 
   const athlete = Player.get(athleteId);
   if (!athlete) throw new Error('Unknown athlete');
-  if (!isOutlookAvailable()) throw new Error('Outlook automation is only available on macOS');
+
+  /**
+   * WHERE THE PREPARED EMAIL GOES, DECIDED ONCE FOR THE RUN — R2B.
+   *
+   * =========================================================================
+   * OUTLOOK IS NO LONGER A PRECONDITION FOR PREPARING A MANUAL DRAFT.
+   *
+   * This line used to be:
+   *
+   *     if (!isOutlookAvailable()) throw new Error(...only available on macOS)
+   *
+   * and it stood ABOVE the compliance check, the contact-stance gate, the
+   * suppression check and every write. On Render — Linux — it threw for every
+   * manual Specific Search draft before any of that logic was reached, which
+   * is the whole reason hosted manual outreach did not work. Nothing below it
+   * was ever platform-dependent; two functions in server/lib/outlook.js were.
+   *
+   * So availability stops being a gate and becomes a ROUTING FACT. On macOS
+   * the AppleScript path still runs and still opens a compose window, because
+   * it works and local operators rely on it. Everywhere else the identical
+   * email is prepared, validated, persisted and returned to the browser as a
+   * handoff — see server/lib/emailHandoff.js.
+   *
+   * IT IS NOT A FALLBACK AND THE TWO ARE NOT ALTERNATIVES IN QUALITY. Both
+   * paths compose the same body from the same code, record the same DRAFT row
+   * and reach the same confirmation. They differ only in who opens the
+   * compose window: an AppleScript, or the person sitting in front of it.
+   * =========================================================================
+   */
+  const canDriveOutlook = isOutlookAvailable();
+
+  /**
+   * SENDING STILL NEEDS OUTLOOK, AND THAT REFUSAL IS KEPT DELIBERATELY.
+   *
+   * `send: true` means something must actually issue a Send, and the only
+   * thing in this build that can is Outlook's own. A browser handoff cannot
+   * — it opens a window and a person decides. Allowing `send: true` to fall
+   * through to a handoff would return "sent" for an email nobody had sent
+   * yet, which is the exact class of claim F7b spent a slice removing.
+   *
+   * Specific Search never reaches this: the manual route refuses `send: true`
+   * outright with MANUAL_OUTREACH_DRAFT_ONLY. This is for the Top 100 and
+   * bulk composers, which still offer it.
+   */
+  if (send && !canDriveOutlook) {
+    throw new Error(
+      'Sending directly is only available on macOS with Outlook. '
+      + 'Prepare the email instead and send it from your own email app.',
+    );
+  }
 
   // Checked before anything is composed, not per coach: a run that mails half
   // a list and then discovers it has no postal address has already broken the
@@ -469,15 +520,29 @@ export async function sendOutreach({
         personalise(body, greetingName, coach.name || 'Coach'),
         url
       ) + complianceFooter({ athleteName: athlete.full_name });
+      // Worked out once. It is written to the row, handed to Outlook and put
+      // in the handoff, and three separate `personalise` calls would be three
+      // chances for them to differ.
+      const personalisedSubject = personalise(subject, greetingName, coach.name || 'Coach');
 
-      const outcome = await composeInOutlook({
-        to: coach.email,
-        subject: personalise(subject, greetingName, coach.name || 'Coach'),
-        body: personalisedBody,
-        send,
-      });
-      if (outcome.from) actualFrom = outcome.from;
-      if (outcome.fromMatches === false) fromMismatch = true;
+      /**
+       * The local compose window, on the only platform that has one.
+       *
+       * Unchanged on macOS, including the window-title scrape that reports
+       * which account Outlook actually picked. Skipped entirely elsewhere —
+       * not attempted and not caught, because `osascript` does not exist and
+       * an error from it would be noise rather than information.
+       */
+      if (canDriveOutlook) {
+        const outcome = await composeInOutlook({
+          to: coach.email,
+          subject: personalisedSubject,
+          body: personalisedBody,
+          send,
+        });
+        if (outcome.from) actualFrom = outcome.from;
+        if (outcome.fromMatches === false) fromMismatch = true;
+      }
 
       /**
        * THE DURABLE RECORD OF THIS MESSAGE, AND IT IS WRITTEN FIRST — D4.3.
@@ -515,8 +580,36 @@ export async function sendOutreach({
        * same trade: a coach has already received the email by the time we get
        * here, and throwing now would neither unsend it nor help.
        */
+      /**
+       * WHAT "DRAFT" MEANS HERE, AND THE ORDERING THAT CHANGED IT — R2B.
+       *
+       * =======================================================================
+       * DRAFT = THRIV3 PREPARED THIS EMAIL AND NOBODY HAS CONFIRMED IT SENT.
+       *
+       * It does NOT mean a provider draft. It does NOT mean an Outlook draft.
+       * It does not assert that any mail application ever received the
+       * message, or that one opened, or that a compose window is sitting on
+       * somebody's screen.
+       *
+       * THE ORDERING USED TO IMPLY MORE THAN THAT AND NO LONGER DOES. Until
+       * R2B this row was written AFTER `composeInOutlook` returned, so the
+       * existence of a DRAFT did carry the extra fact that a body had reached
+       * Outlook. On the hosted path there is no such moment: the row is
+       * written first and the browser handoff may fail afterwards, so a DRAFT
+       * can exist for a message that never reached a mail client.
+       *
+       * That is the correct reading rather than a weakening. The row records
+       * WHAT THRIV3 GENERATED, which is exactly the boundary F9e's wording
+       * was built on — "used in a draft confirmed as sent" — and the operator
+       * sees it in the awaiting-confirmation list where they can retry it or
+       * discard it. What must not happen is anyone reading DRAFT as evidence
+       * that a coach could receive something, which is why this is written
+       * down beside the ordering rather than left to be inferred from it.
+       * =======================================================================
+       */
+      let handoff = null;
       try {
-        recordDraft({
+        const draft = recordDraft({
           outreachId: outreach.id,
           athleteId,
           coachId: record.id,
@@ -539,11 +632,83 @@ export async function sendOutreach({
           // as an absent composition, never as one that said nothing.
           evidence: coachEvidence,
           body: personalisedBody,
-          subject: personalise(subject, greetingName, coach.name || 'Coach'),
+          subject: personalisedSubject,
           bodySource: Object.values(BODY_SOURCE).includes(bodySource) ? bodySource : null,
           templateVariant: variant,
           renderedKinds,
         });
+        /**
+         * THE HANDOFF IS PROVED AGAINST THE ROW — R2B.
+         *
+         * =====================================================================
+         * IT IS CHECKED RATHER THAN READ BACK, AND THE REASON IS A COLUMN THAT
+         * BELONGS TO SOMEBODY ELSE.
+         *
+         * The obvious implementation is `sendById(draft.id).body`, so that the
+         * bytes handed over ARE the recorded bytes by construction. That
+         * column is null here, deliberately: `outreach_send.body` is D4.7's
+         * FROZEN WIRE BODY, written only by an execution claim and only for a
+         * provider transport, and `recordDraft` takes it as a separate
+         * `wireBody` argument precisely so a manual caller cannot set it by
+         * accident. A manual draft is "hashed, not stored" — see the
+         * parameter's own note in outreachSend.js.
+         *
+         * Passing `wireBody` from here would make Specific Search write a
+         * Campaign execution column, and the COALESCE that protects a frozen
+         * body from a later re-draft would start protecting the wrong thing.
+         *
+         * So the guarantee is obtained the other way round: the handoff is
+         * built from the values that were just recorded, and then CHECKED
+         * against what the row holds — the subject directly, the body through
+         * the digest the snapshot stored. Same property, no borrowed column.
+         * A mismatch means something normalised or truncated between here and
+         * the write, and the right answer is no handoff rather than a copy of
+         * an email that differs from the record.
+         * =====================================================================
+         *
+         * Only on the hosted path. A macOS operator already has the compose
+         * window open; handing them a clipboard as well would be two
+         * competing copies of one email on one screen.
+         *
+         * IN ITS OWN TRY, so a refused handoff is reported as a refused
+         * handoff. Sharing the outer one made a perfectly good DRAFT log
+         * "send record failed", which is the opposite of what happened: the
+         * record is written and it is the CLIPBOARD COPY that could not be
+         * produced. A message that says the wrong thing is worse than one
+         * that says nothing, because somebody will act on it.
+         */
+        if (!canDriveOutlook) {
+          try {
+            const stored = sendById(draft.id);
+            const candidate = buildHandoff({
+              sendId: draft.id,
+              coachId: record.id,
+              // From the canonical coaches row, never from the request body.
+              // `outreach_send.recipient_email` is a campaign-execution column
+              // that `recordDraft` does not write, so the address comes from
+              // the row `outreach_send.coach_id` points at.
+              to: record.email,
+              subject: personalisedSubject,
+              body: personalisedBody,
+            });
+            const matchesRecord = stored
+              && stored.subject === candidate.subject
+              && stored.body_hash === bodyHash(candidate.body);
+            if (matchesRecord) {
+              handoff = candidate;
+            } else {
+              console.warn(
+                `  handoff refused for outreach ${outreach.id}: the prepared email does not `
+                + 'match the draft that was recorded.',
+              );
+            }
+          } catch (err) {
+            // The draft above stands. Only the clipboard copy is unavailable,
+            // and the operator sees the message waiting for confirmation with
+            // no handoff beside it.
+            console.warn(`  handoff refused for outreach ${outreach.id}: ${err.message}`);
+          }
+        }
         /**
          * The AppleScript issued Outlook's own Send and did not error, which
          * is stronger evidence than an operator's later recollection and
@@ -606,7 +771,16 @@ export async function sendOutreach({
           bodySource: Object.values(BODY_SOURCE).includes(bodySource) ? bodySource : null,
         });
       }
-      results.push({ email: coach.email, name: coach.name, status: send ? 'sent' : 'drafted', url });
+      /**
+       * `handoff` is present only when this coach's draft was prepared for a
+       * browser AND persisted. Null on macOS, and null if `recordDraft`
+       * threw — the catch above is deliberately survivable, and a handoff
+       * built from a row that does not exist would be the one copy of the
+       * email with nothing behind it.
+       */
+      results.push({
+        email: coach.email, name: coach.name, status: send ? 'sent' : 'drafted', url, handoff,
+      });
     } catch (err) {
       /**
        * `code` travels with the message so a caller need not read prose to

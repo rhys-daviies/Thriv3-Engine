@@ -331,13 +331,27 @@ export const moreCoaches = (n) => `+${n} more`;
  * Stated, not dramatised. It is how the tool works rather than a warning.
  * ===========================================================================
  */
-export const DRAFT_OPENED_TITLE = 'Draft opened in Outlook';
+/**
+ * PLATFORM-NEUTRAL SINCE R2B, AND NOT MERELY FOR TIDINESS.
+ *
+ * These said "Outlook" because AppleScript was the only transport and the
+ * claim was true. On the hosted deployment nothing drives Outlook: the email
+ * is prepared, put on the clipboard and handed to whatever mail application
+ * the operator's machine is configured to use. Leaving the old wording would
+ * have named a product Thriv3 has not opened and cannot see — the same
+ * overstatement F7b and F9e were spent removing, reintroduced by a string.
+ *
+ * "Your email app" rather than "Outlook" is also the literally correct
+ * authority: a `mailto` URL resolves through the operating system's handler, and
+ * Thriv3 does not get to know which application that is.
+ */
+export const DRAFT_OPENED_TITLE = 'After Thriv3 prepares the email';
 export const DRAFT_OPENED_BODY =
-  'Review and edit it there, then send it yourself. Thriv3 does not know when you press '
-  + 'Send — come back and use "Mark as sent" so this school counts as contacted.';
+  'Review and edit it in your email app, then send it yourself. Thriv3 does not know when '
+  + 'you press Send — come back and use "Mark as sent" so this school counts as contacted.';
 export const DRAFT_HANDOVER_HINT =
-  'Once a draft is in Outlook, Thriv3 can no longer change or stop it — including if you '
-  + 'later set this school to do-not-contact.';
+  'Once the email is in your email app, Thriv3 can no longer change or stop it — including '
+  + 'if you later set this school to do-not-contact.';
 
 /**
  * THE CONFIRMATION, AND THE WORD IT MUST NOT USE.
@@ -742,3 +756,91 @@ export const EVIDENCE_USE_ORIGIN = Object.freeze({
  */
 export const EVIDENCE_HISTORY_UNAVAILABLE =
   'Could not check what has been sent to this coach before.';
+
+
+/* ========================================================================== */
+/*  R2B — HANDING A PREPARED EMAIL TO THE OPERATOR'S OWN MAIL APP            */
+/* ========================================================================== */
+
+/**
+ * THE TWO ACTIONS, AND WHY NEITHER OF THEM NAMES OUTLOOK.
+ *
+ * ===========================================================================
+ * THE OPERATING SYSTEM DECIDES WHICH APPLICATION OPENS, NOT THRIV3.
+ *
+ * A `mailto` URL resolves through the OS's registered handler. On one
+ * operator's machine that is Outlook, on another Apple Mail, on a third a
+ * webmail tab. Thriv3 hands over a URL and learns nothing about what happened
+ * to it — there is no callback, no handle and no way to ask.
+ *
+ * So "Open in Outlook" would be a guess printed as a fact, and it would be
+ * wrong on the first machine that is set up differently. "Open in email" is
+ * the strongest true version.
+ * ===========================================================================
+ */
+export const OPEN_IN_EMAIL = 'Open in email';
+export const COPY_EMAIL = 'Copy email';
+/** After a successful handoff. Says what was observed, which is very little. */
+export const HANDOFF_OPENED = 'Opened in your email app';
+export const HANDOFF_RETRY = 'Open again';
+
+/**
+ * WHAT THE OPERATOR HAS TO DO NEXT, SAID BEFORE THEY GO LOOKING.
+ *
+ * The paste is the one step nobody expects, because every other "open in your
+ * email app" button on the internet fills the body in. It does not say why
+ * — the reason is a 2,007-character URL limit and it is the wrong thing to
+ * put in front of somebody trying to email a coach — but it does say it
+ * plainly enough that nobody stares at an empty compose window.
+ */
+export const HANDOFF_READY =
+  'Email copied. Your email app will open with the address and subject filled in — paste '
+  + 'the message in, check it over, and send.';
+
+/** The same instruction where only the clipboard worked. */
+export const HANDOFF_COPY_ONLY = (email) =>
+  `Email copied. Paste it into a new message to ${email} with the subject above.`;
+
+/**
+ * NOTHING HAS HAPPENED YET, AND THIS IS THE LINE THAT SAYS SO.
+ *
+ * ---------------------------------------------------------------------------
+ * A COMPOSE WINDOW OPENING IS THE MOST CONVINCING FALSE SIGNAL IN THIS
+ * WORKFLOW. The operator clicks, their mail app comes to the front with a
+ * recipient and a subject already in it, and the whole thing FEELS finished.
+ * It is not: nothing has been pasted, nothing has been read, nothing has been
+ * sent, and Thriv3 has recorded a DRAFT and no more.
+ *
+ * The F7b confirmation exists precisely because Thriv3 cannot observe the
+ * send. This sentence is what stops the handoff quietly undermining it.
+ * ---------------------------------------------------------------------------
+ */
+export const HANDOFF_NOT_SENT_YET =
+  'Nothing has been sent. Thriv3 only records this once you confirm you sent it.';
+
+/**
+ * THE CLIPBOARD REFUSED, WHICH IS A REDUCED HANDOFF AND NOT A FAILED ONE.
+ *
+ * Said as an instruction rather than an error, because the operator can
+ * complete the task from here unaided — the authoritative body is on screen
+ * beside this and selecting it is the only difference. The DRAFT is already
+ * recorded either way, so nothing has been lost and nothing needs retrying.
+ */
+export const HANDOFF_CLIPBOARD_FAILED =
+  'Could not copy the email. Select the message below and copy it by hand.';
+
+/**
+ * A PLAIN-TEXT COPY, NAMED RATHER THAN HIDDEN.
+ *
+ * The rich clipboard carries the anchors; plain text does not, so the profile
+ * link arrives as a bare URL most mail apps will linkify and the WhatsApp
+ * number arrives as the markdown it is written in. That is a visible
+ * difference in a coach's inbox, so the operator is told rather than left to
+ * notice it after sending.
+ */
+export const HANDOFF_PLAIN_ONLY =
+  'Copied as plain text — your browser would not take formatted text. Links may arrive '
+  + 'unformatted; check the message before you send it.';
+
+/** The section heading, above one row per prepared coach. */
+export const HANDOFF_SECTION = (n) => `Ready to send (${n})`;
