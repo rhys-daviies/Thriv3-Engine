@@ -217,7 +217,14 @@ describe('the composer on this surface cannot ask Thriv3 to send', () => {
     await mount({ allowImmediateSend: false });
 
     expect(document.body.textContent).not.toContain('Send immediately');
-    expect(buttonWith('Open', document.body)).toBeTruthy();
+    /**
+     * The non-sending action is present and the sending one is not. It used
+     * to be found by "Open", from "Open 1 draft in Outlook"; R2B renamed it
+     * to "Prepare 1 email", because on the hosted path nothing opens until
+     * the operator clicks a handoff row and on no path does Thriv3 know which
+     * application will. What the assertion means is unchanged.
+     */
+    expect(buttonWith('Prepare', document.body)).toBeTruthy();
     expect(buttonWith('Send ', document.body)).toBeFalsy();
   });
 

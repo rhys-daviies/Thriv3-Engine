@@ -98,12 +98,18 @@ const buttonWith = (label) => buttons().find((b) => b.textContent.trim().startsW
 /**
  * The composer's primary action, found by role rather than by wording.
  *
- * Its label says what will happen — "Open 2 drafts in Outlook" or "Send 2
- * emails" — and matching on that would make these tests fail the day somebody
- * improves a sentence. What identifies it is that it is the one button that
- * composes.
+ * Its label says what will happen — "Prepare 2 emails" or "Send 2 emails" —
+ * and matching on that would make these tests fail the day somebody improves
+ * a sentence. What identifies it is that it is the one button that composes.
+ *
+ * It DID fail that way, in R2B: the label said "Open 2 drafts in Outlook"
+ * until the hosted handoff arrived, at which point it named an application
+ * Thriv3 no longer opens and cannot see. `Outlook` is kept in the pattern
+ * anyway, so this keeps finding the button on any branch that still has the
+ * old wording rather than failing with "undefined has no dispatchEvent".
  */
-const composeButton = () => buttons().find((b) => /Outlook|^Send \d|Working/.test(b.textContent));
+const composeButton = () => buttons()
+  .find((b) => /^Prepare \d|Outlook|^Send \d|Working/.test(b.textContent.trim()));
 const click = async (el) => {
   await act(async () => { el.dispatchEvent(new MouseEvent('click', { bubbles: true })); });
 };

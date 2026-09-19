@@ -16,7 +16,8 @@ import {
 import { outreach } from '@/api/client';
 import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
 import EvidencePanel from '@/components/EvidencePanel';
-import { RECOMMENDATION_DIALOG_HINT } from '@/lib/outreachLabels';
+import { RECOMMENDATION_DIALOG_HINT, PREPARE_EMAILS } from '@/lib/outreachLabels';
+import HandoffSection, { handoffsFrom } from '@/components/HandoffSection';
 
 /**
  * Whose name seeds the greeting in the editable draft. Every selected coach
@@ -202,7 +203,7 @@ export default function EmailComposer({
       setSubject(fillTemplate(player.email_subject || DEFAULT_EMAIL_SUBJECT, composed.context));
     }
   }, [evidence, player, college, initialGreetingName, bodyEdited, subjectEdited]);
-  const [results, setResults] = useState({}); // email -> { status, error, url }
+  const [results, setResults] = useState({}); // email -> { status, error, url, handoff }
   const [sending, setSending] = useState(false);
   const [sendImmediately, setSendImmediately] = useState(false);
   /**
@@ -211,6 +212,21 @@ export default function EmailComposer({
    * value after a prop change, or a future control somebody adds. Derived once
    * here so every read below goes through the capability.
    */
+  /**
+   * THE COACHES WHOSE EMAIL WAS ACTUALLY PREPARED, IN THE ORDER THEY WERE.
+   *
+   * ---------------------------------------------------------------------------
+   * DERIVED FROM `results`, SO IT CANNOT INCLUDE A COACH THE SERVER REFUSED.
+   * `handoff` is set by the route on exactly one branch — a coach whose draft
+   * composed AND persisted — and is absent on every other outcome:
+   * suppressed, rate-capped, revoked, budget-refused, campaign-refused, or an
+   * error. Filtering on its presence rather than on a list of statuses means
+   * this cannot fall behind a guard that is added later: a new refusal
+   * returns no handoff and no row appears, without this line being touched.
+   * ---------------------------------------------------------------------------
+   */
+  const handoffs = useMemo(() => handoffsFrom(results), [results]);
+
   const immediate = allowImmediateSend && sendImmediately;
   const [error, setError] = useState(null);
   const [reachable, setReachable] = useState(true);
@@ -305,7 +321,14 @@ export default function EmailComposer({
                   {(results[c.email]?.status === 'sent' || results[c.email]?.status === 'drafted') && (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
                       <CheckCircle2 className="h-4 w-4" />
-                      {results[c.email].status === 'sent' ? 'sent' : 'draft open in Outlook'}
+                      {/*
+                        NEUTRAL SINCE R2B. It said "draft open in Outlook",
+                        which was true when AppleScript was the only transport
+                        and is a guess about somebody else's machine now. What
+                        Thriv3 knows is that it prepared the email and wrote
+                        the row; the handoff section below says the rest.
+                      */}
+                      {results[c.email].status === 'sent' ? 'sent' : 'prepared'}
                     </span>
                   )}
                   {results[c.email]?.status === 'error' && (
@@ -409,6 +432,17 @@ export default function EmailComposer({
         )}
 
         {/*
+          WHAT TO DO NOW THE EMAILS ARE PREPARED — R2B.
+          
+          Present only on the hosted path: `handoff` is null when the server
+          drove Outlook itself, because handing a macOS operator a clipboard
+          as well would put two competing copies of one email on one screen.
+          Rendered here, directly above the footer, so it appears where the
+          operator's attention already is after pressing the button.
+        */}
+        <HandoffSection handoffs={handoffs} />
+
+        {/*
           ABSENT RATHER THAN DISABLED where the surface may not send. A greyed
           checkbox reads as "this is how you would turn it on", and on Specific
           Search there is no turning it on — the server refuses it.
@@ -437,7 +471,14 @@ export default function EmailComposer({
               ? 'Working…'
               : immediate
                 ? `Send ${selected.size} email${selected.size === 1 ? '' : 's'}`
-                : `Open ${selected.size} draft${selected.size === 1 ? '' : 's'} in Outlook`}
+                /*
+                  "Prepare" rather than "Open ... in Outlook", because on the
+                  hosted path nothing opens until the operator clicks a row
+                  below, and on no path does Thriv3 know which application
+                  will. Preparing is the thing this button actually does: it
+                  composes, validates and records the DRAFT.
+                */
+                : PREPARE_EMAILS(selected.size)}
           </Button>
         </DialogFooter>
       </DialogContent>

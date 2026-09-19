@@ -65,6 +65,35 @@ const ALLOWED = new Map([
   // which the test below asserts rather than assumes.
   ['server/seed/seedEngagement.js', 'local engagement fixtures'],
   ['server/seed/simulateEngagement.js', 'local engagement fixtures'],
+  /**
+   * R2B — THE ONE LEGITIMATE mailto, AND WHY IT IS NOT THE BYPASS THIS FILE
+   * WAS WRITTEN AGAINST.
+   *
+   * =======================================================================
+   * THE 2026-08-28 BYPASS WAS A RAW LINK BESIDE A COACH ADDRESS ON A CARD.
+   * It reached a coach's inbox WITHOUT passing suppression, the per-inbox
+   * cap, the compliance footer, the tracking token or any record at all —
+   * which is why an opted-out coach could be written to again and the
+   * engagement data would show them as never contacted.
+   *
+   * This one is the opposite of that in every respect that matters. It is
+   * built by the SERVER, at the END of `sendOutreach`, downstream of every
+   * one of those guards, from a DRAFT that has already been persisted and
+   * whose digest it is checked against. The recipient is refused outright if
+   * it carries a character that is structural in a URI. And it carries no
+   * body: the operator pastes one that came from the same row.
+   *
+   * SO THE ALLOWLIST IS NOT THE WHOLE PROTECTION. The test below requires
+   * that the URL is CONSTRUCTED in exactly one file, so a second `mailto:`
+   * appearing anywhere — including inside these allowed files — still fails.
+   * =======================================================================
+   */
+  ['server/lib/emailHandoff.js', 'R2B: the one governed mailto, built after every guard'],
+  ['server/lib/emailHandoff.test.js', 'proves what that URL may and may not carry'],
+  // Receives a finished URL and navigates to it. Constructs nothing — which
+  // the construction test below is what actually enforces.
+  ['src/lib/emailHandoff.js', 'R2B: navigates to the server\u2019s URL, builds none'],
+  ['src/components/emailHandoff.test.js', 'proves the client builds no URL of its own'],
 ]);
 
 const allowed = (f) => ALLOWED.has(f);
@@ -97,6 +126,47 @@ describe('there is exactly one coach-contact path', () => {
         offenders.push(`${f}: ${line.trim()}`);
       }
     }
+    expect(offenders).toEqual([]);
+  });
+
+  /**
+   * THE TEETH THE ALLOWLIST WOULD OTHERWISE REMOVE — R2B.
+   *
+   * `mailto:` is now permitted in four files, so the line scan above no
+   * longer catches a second one appearing inside them. This asserts the
+   * property that actually matters: a URL is BUILT from a coach address in
+   * exactly one place, and that place is a server module running after every
+   * guard.
+   *
+   * Same exclusions as the scan above, for the same reasons. The athlete's
+   * own people are mail links on their own profile and always were; Thriv3's
+   * opt-out address is a CAN-SPAM obligation. Neither is coach outreach.
+   *
+   * A construction anywhere else — a component, a hook, a worker, a script —
+   * fails here whatever the allowlist says.
+   */
+  const ATHLETE_CONTACT_LINE = /(athlete|player|guardian|club_coach|contactEmail)/i;
+  const BUILDS_MAILTO = /(`|'|")mailto:[^'"`]*\$\{|(`|'|")mailto:['"`]\s*\+/;
+
+  const linesBuildingMailto = (f) => read(f).split('\n')
+    .filter((line) => BUILDS_MAILTO.test(line) && !ATHLETE_CONTACT_LINE.test(line));
+
+  it('builds a mailto: URL from a coach address in exactly one governed file', () => {
+    const builders = FILES.filter((f) => (
+      !f.endsWith('.test.js') && linesBuildingMailto(f).length > 0
+    ));
+    expect(builders).toEqual(['server/lib/emailHandoff.js']);
+  });
+
+  /**
+   * And the client builds none at all. It is handed a finished URL and
+   * navigates to it — the courier property, asserted as source text because
+   * the failure mode is a new file nobody wired into a test.
+   */
+  it('builds no coach mailto: anywhere under src/', () => {
+    const offenders = FILES.filter((f) => (
+      f.startsWith('src/') && !f.endsWith('.test.js') && linesBuildingMailto(f).length > 0
+    ));
     expect(offenders).toEqual([]);
   });
 
