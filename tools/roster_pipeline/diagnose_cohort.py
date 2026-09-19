@@ -25,6 +25,13 @@ the ladder offers, in order, and stops at the first rung `run.evaluate` accepts.
                       broken for this programme; it simply has not been re-run.
   PAGE_PRIOR_SEASON   the best page names an earlier season. A publication and
                       candidate question, not a parsing one.
+  SEASON_IDENTITY_UNPROVEN
+                      the page names NO season and there is no reference roster
+                      to measure turnover against, so nothing established which
+                      season it is. Distinct from the two above on purpose:
+                      neither "it is an older season" nor "the squad repeated"
+                      has been shown. L7ZH made this a refusal; before it, such
+                      a page was accepted under the requested season.
   TURNOVER_REFUSED    the page is reached and read, and the turnover gate refuses
                       it -- either last season served back, or a reference too
                       poor to measure against.
@@ -110,6 +117,13 @@ def classify(note, fetched_any, parsed, ambiguous=False):
     s = note or ''
     if 'page is not this programme' in s:
         return 'WRONG_ROSTER_CONTEXT'
+    # L7ZH. Asked before the season and turnover classes below, because it is
+    # the statement that NEITHER of them was established -- and folding it into
+    # either would report a fact nobody measured. PAGE_PRIOR_SEASON means the
+    # page named an earlier season; TURNOVER_REFUSED means the squad repeated.
+    # This means the page named no season and there was no squad to compare.
+    if s.startswith('season unproven:'):
+        return 'SEASON_IDENTITY_UNPROVEN'
     if re.search(r'repeats \d+% of the', s):
         return 'TURNOVER_REFUSED'
     if 'page season is not' in s:

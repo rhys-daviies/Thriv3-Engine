@@ -301,26 +301,27 @@ d('L7ZG — what the hardened pipeline refuses today', () => {
     expect(r.accepted).toBe(true);
   });
 
-  it('ACCEPTS an untitled page when there is no reference at all — THE GAP', () => {
+  it('REFUSES an untitled page when there is no reference at all — CLOSED IN L7ZH', () => {
     /*
      * THE ONE HOLE THIS AUDIT FOUND IN THE CURRENT PIPELINE, and the reason
-     * L7ZG reports a blocker rather than a clean bill.
+     * L7ZG reported a blocker rather than a clean bill.
      *
      * `overlap` returns None when the programme has no prior-season squad on
-     * file, and `evaluate` guards the turnover test with `if ov is not None`.
+     * file, and `evaluate` guarded the turnover test with `if ov is not None`.
      * So a first-ever acquisition of a programme, from a page that names no
-     * season, is accepted on NO season evidence whatsoever — the note it
-     * records is the empty string, which is the honest summary of what was
+     * season, was accepted on NO season evidence whatsoever — the note it
+     * recorded was the empty string, an honest summary of what had been
      * checked.
      *
-     * Narrow: it needs an untitled page AND no prior season. 21 historical
-     * programme-seasons outside 2022 were first appearances. Recorded here so
-     * the fix, when it comes, has a failing test to satisfy — this expectation
-     * is written against CURRENT behaviour and inverts the day it is closed.
+     * L7ZH closed exactly that intersection and nothing else. This expectation
+     * was written against the behaviour of the day and said it would invert
+     * when the hole was closed; this is that inversion, kept here rather than
+     * moved so the audit's own record shows what it found and what became of
+     * it. `tools/roster_pipeline/seasonEvidenceGate.test.js` owns the gate.
      */
     const r = evaluate({ title: 'Roster - X', players: SQUAD, ref: [] });
     expect(r.seasonOk).toBeNull();
-    expect(r.accepted).toBe(true);
-    expect(r.note).toBe('');
+    expect(r.accepted).toBe(false);
+    expect(r.note).toMatch(/^season unproven:/);
   });
 });

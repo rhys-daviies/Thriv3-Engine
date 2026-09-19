@@ -166,6 +166,35 @@ def evaluate(recs, title, k, cnt25, url, strict_season=True):
     said = lib.sport_contradicted(title, k.split('||')[-1])
     if said:
         return False, 'page is not this programme\'s roster (title=%r)' % said
+    # NOTHING HAS SAID WHICH SEASON THIS IS. Fail closed.
+    #
+    # `season_ok` is three-valued and only False is a refusal: a page that names
+    # no season cannot contradict the request, so the request stood. That was
+    # never acceptance on evidence -- it was acceptance on the ABSENCE of a
+    # contradiction -- and the turnover gate below was what actually did the
+    # work, by showing the squad was not last season's.
+    #
+    # `overlap` returns None when there is no reference roster to measure
+    # against, and the gate below is guarded by `ov is not None`. So a
+    # first-ever acquisition of a programme, from a page that names no season,
+    # reached the accept at the bottom of this function having been asked
+    # nothing at all about its season. L7ZG measured what that produced: a row
+    # stored under the requested season whose recorded note was the empty
+    # string, which was an honest summary of what had been checked.
+    #
+    # THE RULE, and the only acceptance paths that now exist:
+    #   A. the page establishes the season                 (ok_season is True)
+    #   B. the page does not, AND a reference roster shows the squad turned over
+    # There is no third path. This is the only place that can create one, and
+    # this is the line that closes it.
+    #
+    # DELIBERATELY NARROW. An untitled page whose squad HAS turned over is still
+    # accepted -- `run_season_current.sh` says a current page need not name its
+    # season if it shows a turned-over squad, and that substitute proof is
+    # untouched. Only the case with neither proof is refused.
+    if ok_season is None and ov is None:
+        return False, ('season unproven: the page names no season and there is no %d '
+                       'roster to measure turnover against' % state.REF)
     # In CURRENT mode the gate applies even when the title names the season. A
     # site can flip its season label and URL before it swaps the roster content,
     # and 40 of 46 stale 2026 pages passed on exactly that: the page said 2026
