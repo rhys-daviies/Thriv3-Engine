@@ -10,7 +10,7 @@ fs.mkdirSync(dataDir, { recursive: true });
 
 // RECRUITMATCH_DB lets tests point at ':memory:' or a throwaway file rather
 // than the working database.
-const dbPath = process.env.RECRUITMATCH_DB || path.join(dataDir, 'recruitmatch.sqlite');
+export const dbPath = process.env.RECRUITMATCH_DB || path.join(dataDir, 'recruitmatch.sqlite');
 const db = new Database(dbPath);
 if (dbPath !== ':memory:') db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');

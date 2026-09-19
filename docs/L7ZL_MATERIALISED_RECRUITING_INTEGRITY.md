@@ -446,11 +446,12 @@ real CLIs against the working database — and it is **exonerated by measurement
 the columns stayed at zero across it. Nothing in the test corpus reproduces the
 write.
 
-So the honest position is: the mutation was real, it was behaviourally live, it
-has been reversed exactly and durably, and **it has not recurred under any load
-this stage could apply** — but it is still unattributed. An unexplained write to
-the roster is not something a stage should sign off on its own authority, which
-is why this one closes DECISION REQUIRED.
+**ATTRIBUTED — see `docs/L7ZL_C_UNEXPLAINED_ROSTER_MUTATION.md`.** The writer
+was `projectRosterMinutes.js`, run by another session in the main checkout,
+reaching this database because `server/data/recruitmatch.sqlite` is a symlink
+to it. Nothing in L7ZL caused it and no test could have reproduced it. The
+restores performed here were overwriting that session's legitimate work; the
+data has been left as that session last wrote it.
 
 ---
 

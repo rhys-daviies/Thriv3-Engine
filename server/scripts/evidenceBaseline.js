@@ -20,6 +20,8 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { buildBaselines, compareBaselines, short, CONTRADICTION_KEYS } from '../lib/evidenceBaseline.js';
+import { dbPath } from '../db/client.js';
+import { corpusIdentity, sharedCorpusNotice } from '../db/corpusIdentity.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const EXPECTED_PATH = path.join(HERE, '__baselines__/evidence.json');
@@ -55,6 +57,13 @@ function main() {
 
   const s = cmp.stats;
   console.log('\nEVIDENCE BEHAVIOURAL BASELINE\n');
+  /*
+   * L7ZL-C. Stated BEFORE the numbers, because it changes how every number
+   * below should be read: on a shared corpus a moved digest is not by itself
+   * evidence of a local defect.
+   */
+  const notice = sharedCorpusNotice(corpusIdentity(dbPath));
+  if (notice) console.log(`  ${notice}\n`);
   console.log(`  corpus     ${s.pairs} athlete-programme pairs`);
   console.log(`             ${s.personalised} personalised, ${s.generic} generic`);
   console.log(`             ${s.sentences} rendered sentences, ${s.held} held claims`);
