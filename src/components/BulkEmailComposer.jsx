@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { riskCounts, emailRisk } from '@shared/emailRisk.js';
 import EmailRiskBadge from '@/components/EmailRiskBadge';
+import HandoffSection, { handoffsFrom } from '@/components/HandoffSection';
+import { PREPARE_EMAILS, PREPARING_PROGRESS, EMAILS_PREPARED } from '@/lib/outreachLabels';
 import { useCoachEmailStatus, statusOf } from '@/lib/useCoachEmailStatus';
 import { useProfileUrl } from '@/lib/useProfileUrl';
 import {
@@ -30,8 +32,8 @@ import EvidencePanel from '@/components/EvidencePanel';
  * the dropdown to read what that coach will get.
  *
  * Drafts only, never send. Twenty messages leaving an inbox in one burst is
- * the thing most likely to get the address filtered, and reading them in
- * Outlook before pressing send is the whole point of drafting.
+ * the thing most likely to get the address filtered, and reading each one in
+ * a mail app before pressing send is the whole point of drafting.
  */
 /**
  * Said plainly on the row, because "who am I actually writing to" is the one
@@ -184,9 +186,12 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
   /**
    * One request per programme, in sequence.
    *
-   * Sequential because each one drives Outlook through AppleScript and twenty
-   * at once is twenty compose windows racing each other. The per-row status
-   * fills in as it goes, so a run that stalls is visibly stalled.
+   * Sequential for a reason that predates R2B and survives it: on macOS each
+   * one drives Outlook through AppleScript, and twenty at once is twenty
+   * compose windows racing each other. On a hosted deployment it is twenty
+   * writes and twenty prepared emails, where order is what makes a stalled
+   * run visibly stalled rather than silently partial. The per-row status
+   * fills in as it goes either way.
    */
   async function handleDraft() {
     const queue = targets.filter((t) => selected.has(t.college.name));
@@ -213,14 +218,14 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
           division: college.division,
           matchId: college.name,
           bodySource: composed.source,
-          send: false,   // never from here; you press send in Outlook
+          send: false,   // never from here; a person presses send themselves
         });
         setResults((prev) => ({ ...prev, [college.name]: response.results[0] }));
         setReachable(response.reachable);
         if (response.from?.mismatch) setFrom(response.from);
       } catch (err) {
-        // sendOutreach throws only for whole-run conditions — no Outlook, a
-        // missing compliance footer, a profile that cannot be generated. Every
+        // sendOutreach throws only for whole-run conditions — a missing
+        // compliance footer, a profile that cannot be generated. Every
         // remaining programme would fail the same way, so stop rather than
         // print the same error twenty times.
         setResults((prev) => ({ ...prev, [college.name]: { status: 'error', error: err.message } }));
@@ -233,6 +238,29 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
   }
 
   const drafted = Object.values(results).filter((r) => r?.status === 'drafted').length;
+  /**
+   * WHAT CAME BACK THAT THE OPERATOR CAN ACTUALLY REACH — R2C.1.
+   *
+   * =========================================================================
+   * THE SAME ENDPOINT, SO THE SAME HANDOFFS, SO THE SAME COMPONENT.
+   *
+   * This screen posts to `/api/outreach/send` exactly as the other composer
+   * does, and since R2B that route returns a prepared email per coach on any
+   * platform that cannot drive Outlook. This surface was not reading them: it
+   * recorded correct DRAFTs, told the operator they were "waiting in Outlook"
+   * — where they were not — and offered no way to open one.
+   *
+   * `handoffsFrom` and `HandoffSection` are the same ones EmailComposer uses.
+   * Nothing about the clipboard, the mailto, the fallback ladder or the
+   * wording is reimplemented here; it would be a second copy of the one thing
+   * that must not have two.
+   * =========================================================================
+   *
+   * Empty on macOS, where the AppleScript already opened each window. Empty
+   * for any coach the server refused. Both render nothing rather than a
+   * broken control.
+   */
+  const handoffs = useMemo(() => handoffsFrom(results), [results]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -431,7 +459,7 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
         {busy && (
           <div className="space-y-1.5">
             <p className="text-xs text-muted-foreground">
-              Drafting {progress.done + 1} of {progress.total}… leave Outlook alone until this finishes.
+              {PREPARING_PROGRESS(progress.done + 1, progress.total)}
             </p>
             <div className="h-1.5 overflow-hidden rounded-full bg-muted">
               <div className="h-full bg-primary transition-all" style={{ width: `${(progress.done / progress.total) * 100}%` }} />
@@ -439,11 +467,26 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
           </div>
         )}
 
-        {!busy && drafted > 0 && (
+        {/*
+          THE COUNT, WITHOUT NAMING A PLACE THEY ARE NOT.
+
+          Only when there is nothing to hand over — the macOS path, or a run
+          where every recipient was refused. When handoffs exist the section
+          below carries the same count and the same "nothing has been sent",
+          and two copies of one sentence reads like two different facts.
+        */}
+        {!busy && drafted > 0 && handoffs.length === 0 && (
           <p className="rounded-md border border-emerald-500/40 bg-emerald-500/10 p-2.5 text-xs">
-            {drafted} draft{drafted === 1 ? '' : 's'} waiting in Outlook. Nothing has been sent — read them and press send yourself.
+            {EMAILS_PREPARED(drafted)}
           </p>
         )}
+
+        {/*
+          One row per prepared coach, one explicit click each. Deliberately no
+          "Open all": each body carries that coach's own tracking token, and N
+          mailto navigations from one gesture is what popup blockers stop.
+        */}
+        {!busy && <HandoffSection handoffs={handoffs} />}
 
         {from?.mismatch && (
           <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">
@@ -470,7 +513,7 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>Close</Button>
           <Button onClick={handleDraft} disabled={busy || selected.size === 0}>
             {busy ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Mail className="mr-1.5 h-3.5 w-3.5" />}
-            {busy ? 'Drafting…' : `Open ${selected.size} draft${selected.size === 1 ? '' : 's'} in Outlook`}
+            {busy ? 'Preparing…' : PREPARE_EMAILS(selected.size)}
           </Button>
         </DialogFooter>
       </DialogContent>

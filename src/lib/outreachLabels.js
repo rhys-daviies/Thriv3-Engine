@@ -844,3 +844,52 @@ export const HANDOFF_PLAIN_ONLY =
 
 /** The section heading, above one row per prepared coach. */
 export const HANDOFF_SECTION = (n) => `Ready to send (${n})`;
+
+
+/* ========================================================================== */
+/*  R2C.1 — THE SAME TRUTH ON THE BULK SURFACE                               */
+/* ========================================================================== */
+
+/**
+ * THE PRIMARY ACTION, ON BOTH COMPOSERS, IN ONE PLACE.
+ *
+ * "Prepare" rather than "Open N drafts in Outlook", which is what both
+ * buttons said. Preparing is what the button actually does: it composes,
+ * validates and records the DRAFT. Whether anything opens afterwards depends
+ * on the platform — an AppleScript window on macOS, an operator's click on a
+ * handoff row everywhere else — and on neither does Thriv3 know which
+ * application the operating system will choose.
+ */
+export const PREPARE_EMAILS = (n) => `Prepare ${n} email${n === 1 ? '' : 's'}`;
+
+/**
+ * DURING A BULK RUN.
+ *
+ * It said "Drafting {n} of {m}… leave Outlook alone until this finishes." The
+ * instruction was real advice on macOS — clicking inside Outlook mid-run can
+ * break the AppleScript — and is meaningless on a hosted deployment, where no
+ * mail application is involved until the operator opens one themselves.
+ *
+ * Dropped rather than made conditional: the client cannot know which platform
+ * the server is on until the first result comes back, and a caveat that
+ * appears halfway through a progress bar is worse than no caveat.
+ */
+export const PREPARING_PROGRESS = (done, total) => `Preparing ${done} of ${total}…`;
+
+/**
+ * AFTER A BULK RUN, WHERE THERE IS NOTHING TO HAND OVER.
+ *
+ * ---------------------------------------------------------------------------
+ * IT SAID "{n} drafts waiting in Outlook", AND ON RENDER THAT WAS FALSE.
+ *
+ * Nothing was in Outlook; the drafts were recorded rows the operator had no
+ * way to reach. This says only what Thriv3 can stand behind — it prepared
+ * them, and nobody has sent anything.
+ *
+ * Shown only when no handoff came back, which is macOS, or a run where every
+ * recipient was refused. When handoffs exist the shared HandoffSection says
+ * the same thing and offers the rows, so this would be a second copy.
+ * ---------------------------------------------------------------------------
+ */
+export const EMAILS_PREPARED = (n) =>
+  `${n} email${n === 1 ? '' : 's'} prepared. Nothing has been sent.`;

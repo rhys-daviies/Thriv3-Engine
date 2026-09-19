@@ -16,12 +16,8 @@ import {
 import { outreach } from '@/api/client';
 import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
 import EvidencePanel from '@/components/EvidencePanel';
-import {
-  RECOMMENDATION_DIALOG_HINT, OPEN_IN_EMAIL, COPY_EMAIL, HANDOFF_OPENED, HANDOFF_RETRY,
-  HANDOFF_READY, HANDOFF_COPY_ONLY, HANDOFF_NOT_SENT_YET, HANDOFF_CLIPBOARD_FAILED,
-  HANDOFF_PLAIN_ONLY, HANDOFF_SECTION,
-} from '@/lib/outreachLabels';
-import { openInEmail, copyEmail, HANDOFF_RESULT } from '@/lib/emailHandoff';
+import { RECOMMENDATION_DIALOG_HINT, PREPARE_EMAILS } from '@/lib/outreachLabels';
+import HandoffSection, { handoffsFrom } from '@/components/HandoffSection';
 
 /**
  * Whose name seeds the greeting in the editable draft. Every selected coach
@@ -34,105 +30,6 @@ import { openInEmail, copyEmail, HANDOFF_RESULT } from '@/lib/emailHandoff';
  */
 function greetingSeed(coaches) {
   return pickBestContact(coaches) || coaches[0];
-}
-
-/**
- * ONE PREPARED EMAIL, AND THE TWO WAYS TO GET IT INTO A MAIL APP — R2B.
- *
- * ===========================================================================
- * ONE ROW, ONE COACH, ONE CLICK. NOTHING OPENS BY ITSELF.
- *
- * A programme with three coaches produces three rows and needs three clicks,
- * deliberately. Each coach's body carries THAT COACH'S tracking token, so
- * they are three different emails and not one email sent three times —
- * opening them in a loop would also be three `mailto` navigations from one
- * gesture, which is what popup blockers exist to stop, and would leave the
- * operator with three compose windows and no idea which clipboard contents
- * belong to which.
- * ===========================================================================
- *
- * THE BODY IS THE SERVER'S. `handoff.body`, `handoff.bodyHtml` and
- * `handoff.mailtoUrl` were read back out of the persisted `outreach_send` row
- * — see server/lib/emailHandoff.js. This component displays them and passes
- * them along; it never builds one.
- */
-function HandoffRow({ handoff, name }) {
-  const [state, setState] = useState(null);   // { status, opened } | null
-  const [busy, setBusy] = useState(false);
-
-  const run = async (action) => {
-    if (busy) return;
-    setBusy(true);
-    try {
-      setState(await action(handoff));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const failed = state && state.status === HANDOFF_RESULT.MANUAL;
-  const plain = state && state.status === HANDOFF_RESULT.PLAIN;
-
-  return (
-    <div className="rounded-md border border-border/60 p-2.5 space-y-1.5" data-testid="handoff-row">
-      <p className="text-sm">
-        {name}{' '}
-        <span className="text-muted-foreground">({handoff.to})</span>
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        {/*
-          Disabled while its own handoff runs, and only its own: a second
-          click mid-navigation is a second compose window for one coach.
-        */}
-        <Button size="sm" disabled={busy} onClick={() => run(openInEmail)}>
-          {state?.opened ? HANDOFF_RETRY : OPEN_IN_EMAIL}
-        </Button>
-        {/*
-          INDEPENDENT OF mailto, WHICH IS THE POINT OF HAVING IT. An operator
-          whose machine has no handler registered, or who works in webmail,
-          gets a working path that never touches a URL scheme. Always visible
-          rather than revealed on failure — a fallback nobody can find until
-          something breaks is not a fallback.
-        */}
-        <Button size="sm" variant="outline" disabled={busy} onClick={() => run(copyEmail)}>
-          {COPY_EMAIL}
-        </Button>
-        {state?.opened && (
-          <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
-            <CheckCircle2 className="h-3.5 w-3.5" /> {HANDOFF_OPENED}
-          </span>
-        )}
-      </div>
-
-      {state && !failed && (
-        <p className="text-xs text-muted-foreground" role="status">
-          {state.opened ? HANDOFF_READY : HANDOFF_COPY_ONLY(handoff.to)}
-        </p>
-      )}
-      {plain && <p className="text-xs text-amber-400" role="status">{HANDOFF_PLAIN_ONLY}</p>}
-
-      {/*
-        THE AUTHORITATIVE BODY, ON SCREEN, WHEN THE CLIPBOARD WOULD NOT TAKE
-        IT. Read-only and selectable rather than an editable field: this is
-        the text the DRAFT row holds, and an operator editing it here would be
-        editing a copy that no longer matches the record. Editing belongs in
-        the composer above, before the draft is prepared.
-      */}
-      {failed && (
-        <div className="space-y-1">
-          <p className="text-xs text-destructive" role="alert">{HANDOFF_CLIPBOARD_FAILED}</p>
-          <Textarea
-            readOnly
-            rows={8}
-            value={handoff.body}
-            data-testid="handoff-manual-body"
-            className="text-xs font-mono"
-            onFocus={(e) => e.target.select()}
-          />
-        </div>
-      )}
-    </div>
-  );
 }
 
 export default function EmailComposer({
@@ -328,12 +225,7 @@ export default function EmailComposer({
    * returns no handoff and no row appears, without this line being touched.
    * ---------------------------------------------------------------------------
    */
-  const handoffs = useMemo(
-    () => Object.values(results)
-      .filter((r) => r && r.handoff)
-      .map((r) => ({ email: r.email, name: r.name, handoff: r.handoff })),
-    [results],
-  );
+  const handoffs = useMemo(() => handoffsFrom(results), [results]);
 
   const immediate = allowImmediateSend && sendImmediately;
   const [error, setError] = useState(null);
@@ -548,21 +440,7 @@ export default function EmailComposer({
           Rendered here, directly above the footer, so it appears where the
           operator's attention already is after pressing the button.
         */}
-        {handoffs.length > 0 && (
-          <div className="space-y-2 rounded-md border border-border/60 bg-muted/40 p-2.5"
-            data-testid="handoff-section">
-            <p className="text-xs font-medium">{HANDOFF_SECTION(handoffs.length)}</p>
-            {handoffs.map((h) => (
-              <HandoffRow key={h.handoff.sendId ?? h.email} handoff={h.handoff} name={h.name} />
-            ))}
-            {/*
-              THE SENTENCE THAT KEEPS THE CONFIRMATION HONEST. A compose window
-              opening is the most convincing false signal in this workflow —
-              see the label's own note.
-            */}
-            <p className="text-xs text-muted-foreground">{HANDOFF_NOT_SENT_YET}</p>
-          </div>
-        )}
+        <HandoffSection handoffs={handoffs} />
 
         {/*
           ABSENT RATHER THAN DISABLED where the surface may not send. A greyed
@@ -600,7 +478,7 @@ export default function EmailComposer({
                   will. Preparing is the thing this button actually does: it
                   composes, validates and records the DRAFT.
                 */
-                : `Prepare ${selected.size} email${selected.size === 1 ? '' : 's'}`}
+                : PREPARE_EMAILS(selected.size)}
           </Button>
         </DialogFooter>
       </DialogContent>
