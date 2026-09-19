@@ -298,7 +298,8 @@ function rankedList(athlete, sport) {
   const colleges = db.prepare('SELECT * FROM colleges WHERE sport = ? AND active = 1').all(sport);
   const roster = db.prepare(
     `SELECT college_name, player_name, position, minutes_played, projected_minutes,
-            estimated_graduation_year, country
+            estimated_graduation_year, eligibility_end_year, country,
+            season, division, class_year_label
      FROM roster_players WHERE sport = ? AND season = ?`,
   ).all(sport, SQUAD_SEASON);
   return rankMatches({

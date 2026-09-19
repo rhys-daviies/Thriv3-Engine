@@ -729,7 +729,7 @@
     "route": null
    },
    "development": {
-    "players": 42,
+    "players": 50,
     "minutesReadable": false,
     "measured": 0,
     "playerSeasons": 66,
@@ -747,17 +747,17 @@
     ]
    },
    "continuity": {
-    "returnable": 90,
-    "returned": 51,
-    "retention": 0.5667,
+    "returnable": 124,
+    "returned": 72,
+    "retention": 0.5806,
     "band": "typical"
    },
    "departures": {
     "gateAllowed": false,
     "gateReason": "division-suppressed",
-    "total": 39,
-    "observed": 0,
-    "coverage": 0
+    "total": 52,
+    "observed": 1,
+    "coverage": 0.0192
    },
    "utilisation": {
     "available": false,
@@ -836,10 +836,10 @@
      ],
      "current": {
       "season": "2026",
-      "readable": false,
-      "totalIncoming": null,
-      "firstYears": null,
-      "experiencedArrivals": null
+      "readable": true,
+      "totalIncoming": 0,
+      "firstYears": 0,
+      "experiencedArrivals": 0
      }
     },
     {
@@ -859,10 +859,10 @@
      ],
      "current": {
       "season": "2026",
-      "readable": false,
-      "totalIncoming": null,
-      "firstYears": null,
-      "experiencedArrivals": null
+      "readable": true,
+      "totalIncoming": 3,
+      "firstYears": 3,
+      "experiencedArrivals": 0
      }
     },
     {
@@ -882,10 +882,10 @@
      ],
      "current": {
       "season": "2026",
-      "readable": false,
-      "totalIncoming": null,
-      "firstYears": null,
-      "experiencedArrivals": null
+      "readable": true,
+      "totalIncoming": 6,
+      "firstYears": 4,
+      "experiencedArrivals": 2
      }
     },
     {
@@ -905,10 +905,10 @@
      ],
      "current": {
       "season": "2026",
-      "readable": false,
-      "totalIncoming": null,
-      "firstYears": null,
-      "experiencedArrivals": null
+      "readable": true,
+      "totalIncoming": 2,
+      "firstYears": 1,
+      "experiencedArrivals": 1
      }
     }
    ],
@@ -995,15 +995,16 @@
     "squad-usage:programme-evidence:programme-evidence",
     "experienced-arrivals:programme-evidence:programme-evidence",
     "roster-continuity:programme-evidence:programme-evidence",
+    "eligibility-outlook:programme-evidence:programme-evidence",
     "competitive-history:programme-evidence:programme-evidence",
     "evidence-limits:programme-evidence:programme-evidence",
+    "current-depth:supporting:supporting",
     "methodology:supporting:supporting"
    ],
    "evidenceLimits": [
     "replacing-minutes",
     "player-development-shares",
-    "observed-destinations",
-    "current-depth"
+    "observed-destinations"
    ]
   },
   "Akron (womens-soccer)": {

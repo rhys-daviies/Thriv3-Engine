@@ -36,7 +36,7 @@ import db from '../db/client.js';
 import { programReportModel } from '../routes/philosophy.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const BASELINE = path.join(__dirname, '__baselines__', 'programme-intelligence-2026-08-31.json');
+const BASELINE = path.join(__dirname, '__baselines__', 'programme-intelligence-2026-09-19.json');
 
 const PROGRAMMES = [
   ['Akron', 'mens-soccer'],

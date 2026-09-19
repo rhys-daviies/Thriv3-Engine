@@ -1672,86 +1672,9 @@
    "top": [
     {
      "rank": 1,
-     "name": "Lesley",
+     "name": "Wentworth",
      "division": "NCAA D3",
-     "score": 80,
-     "confidence": "measured",
-     "labels": {
-      "athletic": "target",
-      "roster": "medium",
-      "academic": "likely",
-      "affordability": "within budget",
-      "programQuality": "developing",
-      "geography": "in state"
-     },
-     "breakdown": [
-      {
-       "key": "athletic",
-       "weight": 0.286,
-       "score": 0.944,
-       "contribution": 27,
-       "confidence": "measured",
-       "status": "target"
-      },
-      {
-       "key": "roster",
-       "weight": 0.095,
-       "score": 0.48,
-       "contribution": 4.6,
-       "confidence": "measured",
-       "status": "medium"
-      },
-      {
-       "key": "academic",
-       "weight": 0.143,
-       "score": 0.566,
-       "contribution": 8.1,
-       "confidence": "partial",
-       "status": "likely"
-      },
-      {
-       "key": "affordability",
-       "weight": 0.143,
-       "score": 1,
-       "contribution": 14.3,
-       "confidence": "measured",
-       "status": "within budget"
-      },
-      {
-       "key": "programQuality",
-       "weight": 0.095,
-       "score": 0.256,
-       "contribution": 2.4,
-       "confidence": "measured",
-       "status": "developing"
-      },
-      {
-       "key": "geography",
-       "weight": 0.238,
-       "score": 0.979,
-       "contribution": 23.3,
-       "confidence": "measured",
-       "status": "in state"
-      }
-     ],
-     "roster": {
-      "atPosition": 3,
-      "startersAtPosition": 0,
-      "starterNamesAtPosition": 0,
-      "namesAtPosition": 3,
-      "total": 7,
-      "startersTotal": 0,
-      "internationalPlayers": 2,
-      "playersFromCountry": 0
-     },
-     "soccerScore": 30.77,
-     "netPrice": 31152
-    },
-    {
-     "rank": 2,
-     "name": "Clark (MA)",
-     "division": "NCAA D3",
-     "score": 80,
+     "score": 81,
      "confidence": "measured",
      "labels": {
       "athletic": "target",
@@ -1765,24 +1688,24 @@
       {
        "key": "athletic",
        "weight": 0.286,
-       "score": 0.704,
-       "contribution": 20.1,
+       "score": 0.854,
+       "contribution": 24.4,
        "confidence": "measured",
        "status": "target"
       },
       {
        "key": "roster",
        "weight": 0.095,
-       "score": 0.72,
-       "contribution": 6.9,
+       "score": 0.8,
+       "contribution": 7.6,
        "confidence": "measured",
        "status": "high"
       },
       {
        "key": "academic",
        "weight": 0.143,
-       "score": 0.854,
-       "contribution": 12.2,
+       "score": 0.618,
+       "contribution": 8.8,
        "confidence": "measured",
        "status": "likely"
       },
@@ -1797,36 +1720,36 @@
       {
        "key": "programQuality",
        "weight": 0.095,
-       "score": 0.355,
-       "contribution": 3.4,
+       "score": 0.262,
+       "contribution": 2.5,
        "confidence": "measured",
        "status": "developing"
       },
       {
        "key": "geography",
        "weight": 0.238,
-       "score": 0.987,
-       "contribution": 23.5,
+       "score": 0.978,
+       "contribution": 23.3,
        "confidence": "measured",
        "status": "in state"
       }
      ],
      "roster": {
-      "atPosition": 3,
-      "startersAtPosition": 1,
-      "starterNamesAtPosition": 1,
-      "namesAtPosition": 3,
-      "total": 9,
-      "startersTotal": 5,
-      "internationalPlayers": 0,
+      "atPosition": 5,
+      "startersAtPosition": 0,
+      "starterNamesAtPosition": 0,
+      "namesAtPosition": 5,
+      "total": 14,
+      "startersTotal": 0,
+      "internationalPlayers": 4,
       "playersFromCountry": 0
      },
-     "soccerScore": 37.74,
-     "netPrice": 28714
+     "soccerScore": 33.87,
+     "netPrice": 34170
     },
     {
-     "rank": 3,
-     "name": "University of New England",
+     "rank": 2,
+     "name": "Trinity (CT)",
      "division": "NCAA D3",
      "score": 79,
      "confidence": "measured",
@@ -1842,8 +1765,8 @@
       {
        "key": "athletic",
        "weight": 0.286,
-       "score": 0.937,
-       "contribution": 26.8,
+       "score": 0.829,
+       "contribution": 23.7,
        "confidence": "measured",
        "status": "target"
       },
@@ -1858,9 +1781,9 @@
       {
        "key": "academic",
        "weight": 0.143,
-       "score": 0.619,
-       "contribution": 8.8,
-       "confidence": "partial",
+       "score": 0.869,
+       "contribution": 12.4,
+       "confidence": "measured",
        "status": "likely"
       },
       {
@@ -1874,16 +1797,16 @@
       {
        "key": "programQuality",
        "weight": 0.095,
-       "score": 0.3,
-       "contribution": 2.9,
+       "score": 0.186,
+       "contribution": 1.8,
        "confidence": "measured",
        "status": "developing"
       },
       {
        "key": "geography",
        "weight": 0.238,
-       "score": 0.911,
-       "contribution": 21.7,
+       "score": 0.938,
+       "contribution": 22.3,
        "confidence": "measured",
        "status": "nearby"
       }
@@ -1894,18 +1817,18 @@
       "starterNamesAtPosition": 0,
       "namesAtPosition": 3,
       "total": 7,
-      "startersTotal": 0,
-      "internationalPlayers": 0,
+      "startersTotal": 1,
+      "internationalPlayers": 4,
       "playersFromCountry": 0
      },
-     "soccerScore": 31.04,
-     "netPrice": 38107
+     "soccerScore": 34.57,
+     "netPrice": 34832
     },
     {
-     "rank": 4,
-     "name": "Rensselaer",
+     "rank": 3,
+     "name": "Keuka",
      "division": "NCAA D3",
-     "score": 79,
+     "score": 78,
      "confidence": "measured",
      "labels": {
       "athletic": "target",
@@ -1919,8 +1842,8 @@
       {
        "key": "athletic",
        "weight": 0.286,
-       "score": 0.737,
-       "contribution": 21.1,
+       "score": 0.996,
+       "contribution": 28.5,
        "confidence": "measured",
        "status": "target"
       },
@@ -1935,9 +1858,9 @@
       {
        "key": "academic",
        "weight": 0.143,
-       "score": 0.827,
-       "contribution": 11.8,
-       "confidence": "measured",
+       "score": 0.501,
+       "contribution": 7.2,
+       "confidence": "partial",
        "status": "likely"
       },
       {
@@ -1951,35 +1874,35 @@
       {
        "key": "programQuality",
        "weight": 0.095,
-       "score": 0.14,
-       "contribution": 1.3,
+       "score": 0.055,
+       "contribution": 0.5,
        "confidence": "measured",
        "status": "developing"
       },
       {
        "key": "geography",
        "weight": 0.238,
-       "score": 0.901,
-       "contribution": 21.5,
+       "score": 0.776,
+       "contribution": 18.5,
        "confidence": "measured",
        "status": "nearby"
       }
      ],
      "roster": {
       "atPosition": 4,
-      "startersAtPosition": 3,
-      "starterNamesAtPosition": 3,
+      "startersAtPosition": 2,
+      "starterNamesAtPosition": 2,
       "namesAtPosition": 4,
-      "total": 8,
-      "startersTotal": 7,
-      "internationalPlayers": 0,
+      "total": 9,
+      "startersTotal": 5,
+      "internationalPlayers": 1,
       "playersFromCountry": 0
      },
-     "soccerScore": 36.93,
-     "netPrice": 36228
+     "soccerScore": 27.2,
+     "netPrice": 24338
     },
     {
-     "rank": 5,
+     "rank": 4,
      "name": "Bryant & Stratton College (Albany)",
      "division": "USCAA",
      "score": 78,
@@ -2056,85 +1979,8 @@
      "netPrice": 12443
     },
     {
-     "rank": 6,
-     "name": "Elms",
-     "division": "NCAA D3",
-     "score": 78,
-     "confidence": "measured",
-     "labels": {
-      "athletic": "target",
-      "roster": "medium",
-      "academic": "likely",
-      "affordability": "within budget",
-      "programQuality": "developing",
-      "geography": "in state"
-     },
-     "breakdown": [
-      {
-       "key": "athletic",
-       "weight": 0.286,
-       "score": 0.878,
-       "contribution": 25.1,
-       "confidence": "measured",
-       "status": "target"
-      },
-      {
-       "key": "roster",
-       "weight": 0.095,
-       "score": 0.64,
-       "contribution": 6.1,
-       "confidence": "measured",
-       "status": "medium"
-      },
-      {
-       "key": "academic",
-       "weight": 0.143,
-       "score": 0.511,
-       "contribution": 7.3,
-       "confidence": "partial",
-       "status": "likely"
-      },
-      {
-       "key": "affordability",
-       "weight": 0.143,
-       "score": 1,
-       "contribution": 14.3,
-       "confidence": "measured",
-       "status": "within budget"
-      },
-      {
-       "key": "programQuality",
-       "weight": 0.095,
-       "score": 0.246,
-       "contribution": 2.3,
-       "confidence": "measured",
-       "status": "developing"
-      },
-      {
-       "key": "geography",
-       "weight": 0.238,
-       "score": 0.95,
-       "contribution": 22.6,
-       "confidence": "measured",
-       "status": "in state"
-      }
-     ],
-     "roster": {
-      "atPosition": 4,
-      "startersAtPosition": 0,
-      "starterNamesAtPosition": 0,
-      "namesAtPosition": 4,
-      "total": 7,
-      "startersTotal": 0,
-      "internationalPlayers": 8,
-      "playersFromCountry": 0
-     },
-     "soccerScore": 33.13,
-     "netPrice": 17545
-    },
-    {
-     "rank": 7,
-     "name": "Trinity (CT)",
+     "rank": 5,
+     "name": "University of New England",
      "division": "NCAA D3",
      "score": 78,
      "confidence": "measured",
@@ -2150,23 +1996,100 @@
       {
        "key": "athletic",
        "weight": 0.286,
-       "score": 0.829,
-       "contribution": 23.7,
+       "score": 0.937,
+       "contribution": 26.8,
        "confidence": "measured",
        "status": "target"
       },
       {
        "key": "roster",
        "weight": 0.095,
-       "score": 0.4,
-       "contribution": 3.8,
+       "score": 0.32,
+       "contribution": 3,
        "confidence": "measured",
        "status": "medium"
       },
       {
        "key": "academic",
        "weight": 0.143,
-       "score": 0.869,
+       "score": 0.619,
+       "contribution": 8.8,
+       "confidence": "partial",
+       "status": "likely"
+      },
+      {
+       "key": "affordability",
+       "weight": 0.143,
+       "score": 1,
+       "contribution": 14.3,
+       "confidence": "measured",
+       "status": "within budget"
+      },
+      {
+       "key": "programQuality",
+       "weight": 0.095,
+       "score": 0.3,
+       "contribution": 2.9,
+       "confidence": "measured",
+       "status": "developing"
+      },
+      {
+       "key": "geography",
+       "weight": 0.238,
+       "score": 0.911,
+       "contribution": 21.7,
+       "confidence": "measured",
+       "status": "nearby"
+      }
+     ],
+     "roster": {
+      "atPosition": 2,
+      "startersAtPosition": 0,
+      "starterNamesAtPosition": 0,
+      "namesAtPosition": 2,
+      "total": 8,
+      "startersTotal": 0,
+      "internationalPlayers": 0,
+      "playersFromCountry": 0
+     },
+     "soccerScore": 31.04,
+     "netPrice": 38107
+    },
+    {
+     "rank": 6,
+     "name": "Union (NY)",
+     "division": "NCAA D3",
+     "score": 78,
+     "confidence": "measured",
+     "labels": {
+      "athletic": "target",
+      "roster": "high",
+      "academic": "likely",
+      "affordability": "within budget",
+      "programQuality": "developing",
+      "geography": "nearby"
+     },
+     "breakdown": [
+      {
+       "key": "athletic",
+       "weight": 0.286,
+       "score": 0.612,
+       "contribution": 17.5,
+       "confidence": "measured",
+       "status": "target"
+      },
+      {
+       "key": "roster",
+       "weight": 0.095,
+       "score": 1,
+       "contribution": 9.5,
+       "confidence": "measured",
+       "status": "high"
+      },
+      {
+       "key": "academic",
+       "weight": 0.143,
+       "score": 0.866,
        "contribution": 12.4,
        "confidence": "measured",
        "status": "likely"
@@ -2182,36 +2105,36 @@
       {
        "key": "programQuality",
        "weight": 0.095,
-       "score": 0.186,
-       "contribution": 1.8,
+       "score": 0.31,
+       "contribution": 3,
        "confidence": "measured",
        "status": "developing"
       },
       {
        "key": "geography",
        "weight": 0.238,
-       "score": 0.938,
-       "contribution": 22.3,
+       "score": 0.89,
+       "contribution": 21.2,
        "confidence": "measured",
        "status": "nearby"
       }
      ],
      "roster": {
-      "atPosition": 1,
+      "atPosition": 5,
       "startersAtPosition": 1,
       "starterNamesAtPosition": 1,
-      "namesAtPosition": 1,
-      "total": 5,
+      "namesAtPosition": 5,
+      "total": 7,
       "startersTotal": 2,
       "internationalPlayers": 4,
       "playersFromCountry": 0
      },
-     "soccerScore": 34.57,
-     "netPrice": 34832
+     "soccerScore": 39.88,
+     "netPrice": 34561
     },
     {
-     "rank": 8,
-     "name": "Bard",
+     "rank": 7,
+     "name": "Springfield",
      "division": "NCAA D3",
      "score": 78,
      "confidence": "measured",
@@ -2221,14 +2144,14 @@
       "academic": "likely",
       "affordability": "within budget",
       "programQuality": "developing",
-      "geography": "nearby"
+      "geography": "in state"
      },
      "breakdown": [
       {
        "key": "athletic",
        "weight": 0.286,
-       "score": 0.648,
-       "contribution": 18.5,
+       "score": 0.578,
+       "contribution": 16.5,
        "confidence": "measured",
        "status": "target"
       },
@@ -2243,8 +2166,8 @@
       {
        "key": "academic",
        "weight": 0.143,
-       "score": 0.792,
-       "contribution": 11.3,
+       "score": 0.766,
+       "contribution": 10.9,
        "confidence": "measured",
        "status": "likely"
       },
@@ -2259,146 +2182,69 @@
       {
        "key": "programQuality",
        "weight": 0.095,
-       "score": 0.345,
-       "contribution": 3.3,
+       "score": 0.388,
+       "contribution": 3.7,
        "confidence": "measured",
        "status": "developing"
       },
       {
        "key": "geography",
        "weight": 0.238,
-       "score": 0.894,
-       "contribution": 21.3,
+       "score": 0.952,
+       "contribution": 22.7,
        "confidence": "measured",
-       "status": "nearby"
+       "status": "in state"
       }
      ],
      "roster": {
-      "atPosition": 6,
-      "startersAtPosition": 5,
-      "starterNamesAtPosition": 5,
-      "namesAtPosition": 6,
-      "total": 11,
-      "startersTotal": 8,
-      "internationalPlayers": 3,
+      "atPosition": 4,
+      "startersAtPosition": 3,
+      "starterNamesAtPosition": 3,
+      "namesAtPosition": 4,
+      "total": 10,
+      "startersTotal": 4,
+      "internationalPlayers": 0,
       "playersFromCountry": 0
      },
-     "soccerScore": 39.05,
-     "netPrice": 34649
+     "soccerScore": 40.66,
+     "netPrice": 30587
     },
     {
-     "rank": 9,
-     "name": "Wilkes",
+     "rank": 8,
+     "name": "Lesley",
      "division": "NCAA D3",
-     "score": 76,
+     "score": 77,
      "confidence": "measured",
      "labels": {
       "athletic": "target",
-      "roster": "high",
+      "roster": "low",
       "academic": "likely",
       "affordability": "within budget",
       "programQuality": "developing",
-      "geography": "nearby"
+      "geography": "in state"
      },
      "breakdown": [
       {
        "key": "athletic",
        "weight": 0.286,
-       "score": 0.913,
-       "contribution": 26.1,
+       "score": 0.944,
+       "contribution": 27,
        "confidence": "measured",
        "status": "target"
       },
       {
        "key": "roster",
        "weight": 0.095,
-       "score": 0.96,
-       "contribution": 9.1,
+       "score": 0.16,
+       "contribution": 1.5,
        "confidence": "measured",
-       "status": "high"
+       "status": "low"
       },
       {
        "key": "academic",
        "weight": 0.143,
-       "score": 0.49,
-       "contribution": 7,
-       "confidence": "measured",
-       "status": "likely"
-      },
-      {
-       "key": "affordability",
-       "weight": 0.143,
-       "score": 1,
-       "contribution": 14.3,
-       "confidence": "measured",
-       "status": "within budget"
-      },
-      {
-       "key": "programQuality",
-       "weight": 0.095,
-       "score": 0.074,
-       "contribution": 0.7,
-       "confidence": "measured",
-       "status": "developing"
-      },
-      {
-       "key": "geography",
-       "weight": 0.238,
-       "score": 0.809,
-       "contribution": 19.3,
-       "confidence": "measured",
-       "status": "nearby"
-      }
-     ],
-     "roster": {
-      "atPosition": 3,
-      "startersAtPosition": 2,
-      "starterNamesAtPosition": 2,
-      "namesAtPosition": 3,
-      "total": 9,
-      "startersTotal": 6,
-      "internationalPlayers": 3,
-      "playersFromCountry": 0
-     },
-     "soccerScore": 31.99,
-     "netPrice": 27743
-    },
-    {
-     "rank": 10,
-     "name": "Colby-Sawyer",
-     "division": "NCAA D3",
-     "score": 76,
-     "confidence": "measured",
-     "labels": {
-      "athletic": "target",
-      "roster": "medium",
-      "academic": "likely",
-      "affordability": "within budget",
-      "programQuality": "developing",
-      "geography": "nearby"
-     },
-     "breakdown": [
-      {
-       "key": "athletic",
-       "weight": 0.286,
-       "score": 0.809,
-       "contribution": 23.1,
-       "confidence": "measured",
-       "status": "target"
-      },
-      {
-       "key": "roster",
-       "weight": 0.095,
-       "score": 0.64,
-       "contribution": 6.1,
-       "confidence": "measured",
-       "status": "medium"
-      },
-      {
-       "key": "academic",
-       "weight": 0.143,
-       "score": 0.557,
-       "contribution": 8,
+       "score": 0.566,
+       "contribution": 8.1,
        "confidence": "partial",
        "status": "likely"
       },
@@ -2413,32 +2259,186 @@
       {
        "key": "programQuality",
        "weight": 0.095,
-       "score": 0.275,
-       "contribution": 2.6,
+       "score": 0.256,
+       "contribution": 2.4,
        "confidence": "measured",
        "status": "developing"
       },
       {
        "key": "geography",
        "weight": 0.238,
-       "score": 0.928,
-       "contribution": 22.1,
+       "score": 0.979,
+       "contribution": 23.3,
+       "confidence": "measured",
+       "status": "in state"
+      }
+     ],
+     "roster": {
+      "atPosition": 1,
+      "startersAtPosition": 0,
+      "starterNamesAtPosition": 0,
+      "namesAtPosition": 1,
+      "total": 3,
+      "startersTotal": 0,
+      "internationalPlayers": 2,
+      "playersFromCountry": 0
+     },
+     "soccerScore": 30.77,
+     "netPrice": 31152
+    },
+    {
+     "rank": 9,
+     "name": "Clark (MA)",
+     "division": "NCAA D3",
+     "score": 77,
+     "confidence": "measured",
+     "labels": {
+      "athletic": "target",
+      "roster": "medium",
+      "academic": "likely",
+      "affordability": "within budget",
+      "programQuality": "developing",
+      "geography": "in state"
+     },
+     "breakdown": [
+      {
+       "key": "athletic",
+       "weight": 0.286,
+       "score": 0.704,
+       "contribution": 20.1,
+       "confidence": "measured",
+       "status": "target"
+      },
+      {
+       "key": "roster",
+       "weight": 0.095,
+       "score": 0.4,
+       "contribution": 3.8,
+       "confidence": "measured",
+       "status": "medium"
+      },
+      {
+       "key": "academic",
+       "weight": 0.143,
+       "score": 0.854,
+       "contribution": 12.2,
+       "confidence": "measured",
+       "status": "likely"
+      },
+      {
+       "key": "affordability",
+       "weight": 0.143,
+       "score": 1,
+       "contribution": 14.3,
+       "confidence": "measured",
+       "status": "within budget"
+      },
+      {
+       "key": "programQuality",
+       "weight": 0.095,
+       "score": 0.355,
+       "contribution": 3.4,
+       "confidence": "measured",
+       "status": "developing"
+      },
+      {
+       "key": "geography",
+       "weight": 0.238,
+       "score": 0.987,
+       "contribution": 23.5,
+       "confidence": "measured",
+       "status": "in state"
+      }
+     ],
+     "roster": {
+      "atPosition": 1,
+      "startersAtPosition": 1,
+      "starterNamesAtPosition": 1,
+      "namesAtPosition": 1,
+      "total": 2,
+      "startersTotal": 1,
+      "internationalPlayers": 0,
+      "playersFromCountry": 0
+     },
+     "soccerScore": 37.74,
+     "netPrice": 28714
+    },
+    {
+     "rank": 10,
+     "name": "Yeshiva",
+     "division": "NCAA D3",
+     "score": 77,
+     "confidence": "measured",
+     "labels": {
+      "athletic": "target",
+      "roster": "high",
+      "academic": "likely",
+      "affordability": "within budget",
+      "programQuality": "developing",
+      "geography": "nearby"
+     },
+     "breakdown": [
+      {
+       "key": "athletic",
+       "weight": 0.286,
+       "score": 0.661,
+       "contribution": 18.9,
+       "confidence": "measured",
+       "status": "target"
+      },
+      {
+       "key": "roster",
+       "weight": 0.095,
+       "score": 1,
+       "contribution": 9.5,
+       "confidence": "measured",
+       "status": "high"
+      },
+      {
+       "key": "academic",
+       "weight": 0.143,
+       "score": 0.864,
+       "contribution": 12.3,
+       "confidence": "measured",
+       "status": "likely"
+      },
+      {
+       "key": "affordability",
+       "weight": 0.143,
+       "score": 1,
+       "contribution": 14.3,
+       "confidence": "measured",
+       "status": "within budget"
+      },
+      {
+       "key": "programQuality",
+       "weight": 0.095,
+       "score": 0.167,
+       "contribution": 1.6,
+       "confidence": "measured",
+       "status": "developing"
+      },
+      {
+       "key": "geography",
+       "weight": 0.238,
+       "score": 0.866,
+       "contribution": 20.6,
        "confidence": "measured",
        "status": "nearby"
       }
      ],
      "roster": {
       "atPosition": 4,
-      "startersAtPosition": 0,
-      "starterNamesAtPosition": 0,
+      "startersAtPosition": 2,
+      "starterNamesAtPosition": 2,
       "namesAtPosition": 4,
-      "total": 9,
-      "startersTotal": 1,
-      "internationalPlayers": 1,
+      "total": 5,
+      "startersTotal": 2,
+      "internationalPlayers": 11,
       "playersFromCountry": 0
      },
-     "soccerScore": 35.11,
-     "netPrice": 27431
+     "soccerScore": 38.74,
+     "netPrice": 49965
     }
    ],
    "top100Divisions": {
@@ -2452,14 +2452,14 @@
    },
    "top100ScoreRange": [
     68,
-    80
+    81
    ],
    "top100WithAthleticBelow": {
     "0.10": 0,
-    "0.25": 3
+    "0.25": 1
    },
    "bestElite": {
-    "rank": 262,
+    "rank": 255,
     "name": "UConn",
     "score": 62,
     "athletic": 0
@@ -3269,14 +3269,14 @@
     }
    ],
    "top100Divisions": {
-    "NJCAA": 92,
-    "NAIA": 6,
+    "NJCAA": 91,
+    "NAIA": 7,
     "NCAA D2": 1,
     "NCAA D1": 1
    },
    "top100Confidence": {
-    "measured": 41,
-    "partial": 59
+    "measured": 42,
+    "partial": 58
    },
    "top100ScoreRange": [
     58,
@@ -3284,10 +3284,10 @@
    ],
    "top100WithAthleticBelow": {
     "0.10": 6,
-    "0.25": 8
+    "0.25": 9
    },
    "bestElite": {
-    "rank": 291,
+    "rank": 293,
     "name": "SMU",
     "score": 48,
     "athletic": 0
@@ -3327,9 +3327,9 @@
    "top": [
     {
      "rank": 1,
-     "name": "Wayland Baptist",
+     "name": "Texas Wesleyan University",
      "division": "NAIA",
-     "score": 86,
+     "score": 84,
      "confidence": "measured",
      "labels": {
       "athletic": "target",
@@ -3343,25 +3343,25 @@
       {
        "key": "athletic",
        "weight": 0.23,
-       "score": 0.963,
-       "contribution": 22.2,
+       "score": 0.96,
+       "contribution": 22.1,
        "confidence": "measured",
        "status": "target"
       },
       {
        "key": "roster",
        "weight": 0.077,
-       "score": 0.96,
-       "contribution": 7.4,
+       "score": 1,
+       "contribution": 7.7,
        "confidence": "measured",
        "status": "high"
       },
       {
        "key": "academic",
        "weight": 0.115,
-       "score": 0.385,
-       "contribution": 4.4,
-       "confidence": "partial",
+       "score": 0.241,
+       "contribution": 2.8,
+       "confidence": "measured",
        "status": "likely"
       },
       {
@@ -3375,8 +3375,8 @@
       {
        "key": "programQuality",
        "weight": 0.077,
-       "score": 0.577,
-       "contribution": 4.4,
+       "score": 0.554,
+       "contribution": 4.2,
        "confidence": "measured",
        "status": "solid"
       },
@@ -3390,23 +3390,23 @@
       }
      ],
      "roster": {
-      "atPosition": 3,
-      "startersAtPosition": 2,
-      "starterNamesAtPosition": 2,
-      "namesAtPosition": 3,
-      "total": 6,
-      "startersTotal": 3,
-      "internationalPlayers": 21,
+      "atPosition": 7,
+      "startersAtPosition": 0,
+      "starterNamesAtPosition": 0,
+      "namesAtPosition": 7,
+      "total": 12,
+      "startersTotal": 0,
+      "internationalPlayers": 9,
       "playersFromCountry": 0
      },
-     "soccerScore": 50.49,
-     "netPrice": 20590
+     "soccerScore": 50.66,
+     "netPrice": 24066
     },
     {
      "rank": 2,
      "name": "Nelson University",
      "division": "NAIA",
-     "score": 85,
+     "score": 83,
      "confidence": "measured",
      "labels": {
       "athletic": "target",
@@ -3428,8 +3428,8 @@
       {
        "key": "roster",
        "weight": 0.077,
-       "score": 1,
-       "contribution": 7.7,
+       "score": 0.8,
+       "contribution": 6.1,
        "confidence": "measured",
        "status": "high"
       },
@@ -3468,11 +3468,11 @@
      ],
      "roster": {
       "atPosition": 5,
-      "startersAtPosition": 3,
-      "starterNamesAtPosition": 3,
+      "startersAtPosition": 0,
+      "starterNamesAtPosition": 0,
       "namesAtPosition": 5,
-      "total": 12,
-      "startersTotal": 8,
+      "total": 13,
+      "startersTotal": 1,
       "internationalPlayers": 9,
       "playersFromCountry": 0
      },
@@ -3483,11 +3483,11 @@
      "rank": 3,
      "name": "Texas A&M University-Texarkana",
      "division": "NAIA",
-     "score": 85,
+     "score": 83,
      "confidence": "measured",
      "labels": {
       "athletic": "target",
-      "roster": "high",
+      "roster": "medium",
       "academic": "likely",
       "affordability": "within budget",
       "programQuality": "solid",
@@ -3505,10 +3505,10 @@
       {
        "key": "roster",
        "weight": 0.077,
-       "score": 0.96,
-       "contribution": 7.4,
+       "score": 0.64,
+       "contribution": 4.9,
        "confidence": "measured",
-       "status": "high"
+       "status": "medium"
       },
       {
        "key": "academic",
@@ -3544,11 +3544,11 @@
       }
      ],
      "roster": {
-      "atPosition": 6,
+      "atPosition": 4,
       "startersAtPosition": 0,
       "starterNamesAtPosition": 0,
-      "namesAtPosition": 6,
-      "total": 14,
+      "namesAtPosition": 4,
+      "total": 12,
       "startersTotal": 0,
       "internationalPlayers": 5,
       "playersFromCountry": 0
@@ -3558,7 +3558,7 @@
     },
     {
      "rank": 4,
-     "name": "Our Lady of the Lake University",
+     "name": "Wayland Baptist",
      "division": "NAIA",
      "score": 83,
      "confidence": "measured",
@@ -3574,24 +3574,24 @@
       {
        "key": "athletic",
        "weight": 0.23,
-       "score": 0.98,
-       "contribution": 22.5,
+       "score": 0.963,
+       "contribution": 22.2,
        "confidence": "measured",
        "status": "target"
       },
       {
        "key": "roster",
        "weight": 0.077,
-       "score": 0.48,
-       "contribution": 3.7,
+       "score": 0.64,
+       "contribution": 4.9,
        "confidence": "measured",
        "status": "medium"
       },
       {
        "key": "academic",
        "weight": 0.115,
-       "score": 0.371,
-       "contribution": 4.3,
+       "score": 0.385,
+       "contribution": 4.4,
        "confidence": "partial",
        "status": "likely"
       },
@@ -3606,8 +3606,8 @@
       {
        "key": "programQuality",
        "weight": 0.077,
-       "score": 0.65,
-       "contribution": 5,
+       "score": 0.577,
+       "contribution": 4.4,
        "confidence": "measured",
        "status": "solid"
       },
@@ -3621,17 +3621,17 @@
       }
      ],
      "roster": {
-      "atPosition": 3,
+      "atPosition": 4,
       "startersAtPosition": 0,
       "starterNamesAtPosition": 0,
-      "namesAtPosition": 3,
-      "total": 7,
+      "namesAtPosition": 4,
+      "total": 12,
       "startersTotal": 0,
-      "internationalPlayers": 9,
+      "internationalPlayers": 21,
       "playersFromCountry": 0
      },
-     "soccerScore": 49.51,
-     "netPrice": 16442
+     "soccerScore": 50.49,
+     "netPrice": 20590
     },
     {
      "rank": 5,
@@ -3789,13 +3789,13 @@
     },
     {
      "rank": 7,
-     "name": "Texas Wesleyan University",
+     "name": "Wiley University",
      "division": "NAIA",
      "score": 81,
      "confidence": "measured",
      "labels": {
       "athletic": "target",
-      "roster": "medium",
+      "roster": "high",
       "academic": "likely",
       "affordability": "within budget",
       "programQuality": "solid",
@@ -3805,25 +3805,25 @@
       {
        "key": "athletic",
        "weight": 0.23,
-       "score": 0.96,
-       "contribution": 22.1,
+       "score": 0.991,
+       "contribution": 22.8,
        "confidence": "measured",
        "status": "target"
       },
       {
        "key": "roster",
        "weight": 0.077,
-       "score": 0.56,
-       "contribution": 4.3,
+       "score": 0.8,
+       "contribution": 6.1,
        "confidence": "measured",
-       "status": "medium"
+       "status": "high"
       },
       {
        "key": "academic",
        "weight": 0.115,
-       "score": 0.241,
-       "contribution": 2.8,
-       "confidence": "measured",
+       "score": 0.155,
+       "contribution": 1.8,
+       "confidence": "partial",
        "status": "likely"
       },
       {
@@ -3837,9 +3837,9 @@
       {
        "key": "programQuality",
        "weight": 0.077,
-       "score": 0.554,
-       "contribution": 4.2,
-       "confidence": "measured",
+       "score": 0.358,
+       "contribution": 2.7,
+       "confidence": "partial",
        "status": "solid"
       },
       {
@@ -3852,17 +3852,17 @@
       }
      ],
      "roster": {
-      "atPosition": 2,
-      "startersAtPosition": 1,
-      "starterNamesAtPosition": 1,
-      "namesAtPosition": 2,
-      "total": 9,
-      "startersTotal": 6,
-      "internationalPlayers": 9,
+      "atPosition": 5,
+      "startersAtPosition": 0,
+      "starterNamesAtPosition": 0,
+      "namesAtPosition": 5,
+      "total": 15,
+      "startersTotal": 0,
+      "internationalPlayers": 19,
       "playersFromCountry": 0
      },
-     "soccerScore": 50.66,
-     "netPrice": 24066
+     "soccerScore": 43.74,
+     "netPrice": 7092
     },
     {
      "rank": 8,
@@ -4097,10 +4097,10 @@
     }
    ],
    "top100Divisions": {
-    "NAIA": 55,
+    "NAIA": 57,
     "NCAA D2": 30,
     "NJCAA": 6,
-    "NCAA D3": 8,
+    "NCAA D3": 6,
     "NCAA D1": 1
    },
    "top100Confidence": {
@@ -4109,14 +4109,14 @@
    },
    "top100ScoreRange": [
     71,
-    86
+    84
    ],
    "top100WithAthleticBelow": {
     "0.10": 0,
     "0.25": 0
    },
    "bestElite": {
-    "rank": 941,
+    "rank": 946,
     "name": "Akron",
     "score": 50,
     "athletic": 0.006
@@ -4156,6 +4156,83 @@
    "top": [
     {
      "rank": 1,
+     "name": "Indiana Institute of Technology",
+     "division": "NAIA",
+     "score": 81,
+     "confidence": "measured",
+     "labels": {
+      "athletic": "target",
+      "roster": "high",
+      "academic": "likely",
+      "affordability": "within budget",
+      "programQuality": "strong",
+      "geography": "many internationals"
+     },
+     "breakdown": [
+      {
+       "key": "athletic",
+       "weight": 0.231,
+       "score": 0.995,
+       "contribution": 23,
+       "confidence": "measured",
+       "status": "target"
+      },
+      {
+       "key": "roster",
+       "weight": 0.077,
+       "score": 1,
+       "contribution": 7.7,
+       "confidence": "measured",
+       "status": "high"
+      },
+      {
+       "key": "academic",
+       "weight": 0.115,
+       "score": 0.329,
+       "contribution": 3.8,
+       "confidence": "partial",
+       "status": "likely"
+      },
+      {
+       "key": "affordability",
+       "weight": 0.192,
+       "score": 1,
+       "contribution": 19.2,
+       "confidence": "measured",
+       "status": "within budget"
+      },
+      {
+       "key": "programQuality",
+       "weight": 0.077,
+       "score": 0.741,
+       "contribution": 5.7,
+       "confidence": "measured",
+       "status": "strong"
+      },
+      {
+       "key": "geography",
+       "weight": 0.308,
+       "score": 0.698,
+       "contribution": 21.5,
+       "confidence": "measured",
+       "status": "many internationals"
+      }
+     ],
+     "roster": {
+      "atPosition": 3,
+      "startersAtPosition": 1,
+      "starterNamesAtPosition": 1,
+      "namesAtPosition": 3,
+      "total": 15,
+      "startersTotal": 2,
+      "internationalPlayers": 33,
+      "playersFromCountry": 0
+     },
+     "soccerScore": 59.61,
+     "netPrice": 23206
+    },
+    {
+     "rank": 2,
      "name": "Roberts Wesleyan",
      "division": "NCAA D2",
      "score": 81,
@@ -4232,83 +4309,6 @@
      "netPrice": 23130
     },
     {
-     "rank": 2,
-     "name": "Carroll (MT)",
-     "division": "NAIA",
-     "score": 81,
-     "confidence": "measured",
-     "labels": {
-      "athletic": "target",
-      "roster": "high",
-      "academic": "stretch",
-      "affordability": "within budget",
-      "programQuality": "strong",
-      "geography": "many internationals"
-     },
-     "breakdown": [
-      {
-       "key": "athletic",
-       "weight": 0.231,
-       "score": 0.998,
-       "contribution": 23,
-       "confidence": "measured",
-       "status": "target"
-      },
-      {
-       "key": "roster",
-       "weight": 0.077,
-       "score": 1,
-       "contribution": 7.7,
-       "confidence": "measured",
-       "status": "high"
-      },
-      {
-       "key": "academic",
-       "weight": 0.115,
-       "score": 0.445,
-       "contribution": 5.1,
-       "confidence": "partial",
-       "status": "stretch"
-      },
-      {
-       "key": "affordability",
-       "weight": 0.192,
-       "score": 1,
-       "contribution": 19.2,
-       "confidence": "measured",
-       "status": "within budget"
-      },
-      {
-       "key": "programQuality",
-       "weight": 0.077,
-       "score": 0.77,
-       "contribution": 5.9,
-       "confidence": "measured",
-       "status": "strong"
-      },
-      {
-       "key": "geography",
-       "weight": 0.308,
-       "score": 0.648,
-       "contribution": 19.9,
-       "confidence": "measured",
-       "status": "many internationals"
-      }
-     ],
-     "roster": {
-      "atPosition": 3,
-      "startersAtPosition": 3,
-      "starterNamesAtPosition": 3,
-      "namesAtPosition": 3,
-      "total": 8,
-      "startersTotal": 5,
-      "internationalPlayers": 19,
-      "playersFromCountry": 0
-     },
-     "soccerScore": 56.87,
-     "netPrice": 23960
-    },
-    {
      "rank": 3,
      "name": "Marian University (IN)",
      "division": "NAIA",
@@ -4374,11 +4374,11 @@
      ],
      "roster": {
       "atPosition": 3,
-      "startersAtPosition": 1,
-      "starterNamesAtPosition": 1,
+      "startersAtPosition": 2,
+      "starterNamesAtPosition": 2,
       "namesAtPosition": 3,
-      "total": 13,
-      "startersTotal": 6,
+      "total": 11,
+      "startersTotal": 3,
       "internationalPlayers": 28,
       "playersFromCountry": 0
      },
@@ -4387,83 +4387,6 @@
     },
     {
      "rank": 4,
-     "name": "Milligan University",
-     "division": "NAIA",
-     "score": 80,
-     "confidence": "measured",
-     "labels": {
-      "athletic": "target",
-      "roster": "high",
-      "academic": "stretch",
-      "affordability": "within budget",
-      "programQuality": "strong",
-      "geography": "many internationals"
-     },
-     "breakdown": [
-      {
-       "key": "athletic",
-       "weight": 0.231,
-       "score": 1,
-       "contribution": 23.1,
-       "confidence": "measured",
-       "status": "target"
-      },
-      {
-       "key": "roster",
-       "weight": 0.077,
-       "score": 1,
-       "contribution": 7.7,
-       "confidence": "measured",
-       "status": "high"
-      },
-      {
-       "key": "academic",
-       "weight": 0.115,
-       "score": 0.425,
-       "contribution": 4.9,
-       "confidence": "partial",
-       "status": "stretch"
-      },
-      {
-       "key": "affordability",
-       "weight": 0.192,
-       "score": 1,
-       "contribution": 19.2,
-       "confidence": "measured",
-       "status": "within budget"
-      },
-      {
-       "key": "programQuality",
-       "weight": 0.077,
-       "score": 0.652,
-       "contribution": 5,
-       "confidence": "measured",
-       "status": "strong"
-      },
-      {
-       "key": "geography",
-       "weight": 0.308,
-       "score": 0.657,
-       "contribution": 20.2,
-       "confidence": "measured",
-       "status": "many internationals"
-      }
-     ],
-     "roster": {
-      "atPosition": 3,
-      "startersAtPosition": 2,
-      "starterNamesAtPosition": 2,
-      "namesAtPosition": 3,
-      "total": 18,
-      "startersTotal": 4,
-      "internationalPlayers": 26,
-      "playersFromCountry": 0
-     },
-     "soccerScore": 58.52,
-     "netPrice": 21365
-    },
-    {
-     "rank": 5,
      "name": "New College of Florida",
      "division": "NAIA",
      "score": 80,
@@ -4527,11 +4450,11 @@
       }
      ],
      "roster": {
-      "atPosition": 3,
+      "atPosition": 5,
       "startersAtPosition": 1,
       "starterNamesAtPosition": 1,
-      "namesAtPosition": 3,
-      "total": 6,
+      "namesAtPosition": 5,
+      "total": 15,
       "startersTotal": 2,
       "internationalPlayers": 21,
       "playersFromCountry": 0
@@ -4540,15 +4463,15 @@
      "netPrice": 7195
     },
     {
-     "rank": 6,
-     "name": "Indiana Wesleyan",
+     "rank": 5,
+     "name": "William Carey University",
      "division": "NAIA",
      "score": 80,
      "confidence": "measured",
      "labels": {
       "athletic": "target",
       "roster": "high",
-      "academic": "stretch",
+      "academic": "likely",
       "affordability": "within budget",
       "programQuality": "strong",
       "geography": "many internationals"
@@ -4557,8 +4480,8 @@
       {
        "key": "athletic",
        "weight": 0.231,
-       "score": 0.999,
-       "contribution": 23.1,
+       "score": 0.996,
+       "contribution": 23,
        "confidence": "measured",
        "status": "target"
       },
@@ -4573,10 +4496,10 @@
       {
        "key": "academic",
        "weight": 0.115,
-       "score": 0.432,
-       "contribution": 5,
+       "score": 0.386,
+       "contribution": 4.5,
        "confidence": "partial",
-       "status": "stretch"
+       "status": "likely"
       },
       {
        "key": "affordability",
@@ -4589,16 +4512,16 @@
       {
        "key": "programQuality",
        "weight": 0.077,
-       "score": 0.67,
-       "contribution": 5.2,
+       "score": 0.661,
+       "contribution": 5.1,
        "confidence": "measured",
        "status": "strong"
       },
       {
        "key": "geography",
        "weight": 0.308,
-       "score": 0.639,
-       "contribution": 19.7,
+       "score": 0.681,
+       "contribution": 20.9,
        "confidence": "measured",
        "status": "many internationals"
       }
@@ -4608,16 +4531,170 @@
       "startersAtPosition": 1,
       "starterNamesAtPosition": 1,
       "namesAtPosition": 3,
-      "total": 9,
-      "startersTotal": 3,
-      "internationalPlayers": 13,
+      "total": 11,
+      "startersTotal": 2,
+      "internationalPlayers": 31,
       "playersFromCountry": 0
      },
-     "soccerScore": 57.39,
-     "netPrice": 22866
+     "soccerScore": 59.54,
+     "netPrice": 14258
+    },
+    {
+     "rank": 6,
+     "name": "Baker",
+     "division": "NAIA",
+     "score": 80,
+     "confidence": "measured",
+     "labels": {
+      "athletic": "target",
+      "roster": "high",
+      "academic": "likely",
+      "affordability": "within budget",
+      "programQuality": "strong",
+      "geography": "many internationals"
+     },
+     "breakdown": [
+      {
+       "key": "athletic",
+       "weight": 0.231,
+       "score": 0.998,
+       "contribution": 23,
+       "confidence": "measured",
+       "status": "target"
+      },
+      {
+       "key": "roster",
+       "weight": 0.077,
+       "score": 1,
+       "contribution": 7.7,
+       "confidence": "measured",
+       "status": "high"
+      },
+      {
+       "key": "academic",
+       "weight": 0.115,
+       "score": 0.343,
+       "contribution": 4,
+       "confidence": "partial",
+       "status": "likely"
+      },
+      {
+       "key": "affordability",
+       "weight": 0.192,
+       "score": 1,
+       "contribution": 19.2,
+       "confidence": "measured",
+       "status": "within budget"
+      },
+      {
+       "key": "programQuality",
+       "weight": 0.077,
+       "score": 0.765,
+       "contribution": 5.9,
+       "confidence": "measured",
+       "status": "strong"
+      },
+      {
+       "key": "geography",
+       "weight": 0.308,
+       "score": 0.659,
+       "contribution": 20.3,
+       "confidence": "measured",
+       "status": "many internationals"
+      }
+     ],
+     "roster": {
+      "atPosition": 5,
+      "startersAtPosition": 0,
+      "starterNamesAtPosition": 0,
+      "namesAtPosition": 5,
+      "total": 12,
+      "startersTotal": 0,
+      "internationalPlayers": 26,
+      "playersFromCountry": 0
+     },
+     "soccerScore": 59.06,
+     "netPrice": 25301
     },
     {
      "rank": 7,
+     "name": "Grace",
+     "division": "NAIA",
+     "score": 80,
+     "confidence": "measured",
+     "labels": {
+      "athletic": "target",
+      "roster": "high",
+      "academic": "likely",
+      "affordability": "within budget",
+      "programQuality": "strong",
+      "geography": "many internationals"
+     },
+     "breakdown": [
+      {
+       "key": "athletic",
+       "weight": 0.231,
+       "score": 0.994,
+       "contribution": 22.9,
+       "confidence": "measured",
+       "status": "target"
+      },
+      {
+       "key": "roster",
+       "weight": 0.077,
+       "score": 1,
+       "contribution": 7.7,
+       "confidence": "measured",
+       "status": "high"
+      },
+      {
+       "key": "academic",
+       "weight": 0.115,
+       "score": 0.402,
+       "contribution": 4.6,
+       "confidence": "partial",
+       "status": "likely"
+      },
+      {
+       "key": "affordability",
+       "weight": 0.192,
+       "score": 1,
+       "contribution": 19.2,
+       "confidence": "measured",
+       "status": "within budget"
+      },
+      {
+       "key": "programQuality",
+       "weight": 0.077,
+       "score": 0.567,
+       "contribution": 4.4,
+       "confidence": "measured",
+       "status": "strong"
+      },
+      {
+       "key": "geography",
+       "weight": 0.308,
+       "score": 0.681,
+       "contribution": 21,
+       "confidence": "measured",
+       "status": "many internationals"
+      }
+     ],
+     "roster": {
+      "atPosition": 5,
+      "startersAtPosition": 2,
+      "starterNamesAtPosition": 2,
+      "namesAtPosition": 5,
+      "total": 13,
+      "startersTotal": 8,
+      "internationalPlayers": 17,
+      "playersFromCountry": 0
+     },
+     "soccerScore": 55.77,
+     "netPrice": 19932
+    },
+    {
+     "rank": 8,
      "name": "Alabama Huntsville",
      "division": "NCAA D2",
      "score": 80,
@@ -4694,7 +4771,7 @@
      "netPrice": 18796
     },
     {
-     "rank": 8,
+     "rank": 9,
      "name": "Point Park",
      "division": "NCAA D2",
      "score": 80,
@@ -4769,83 +4846,6 @@
      },
      "soccerScore": 54.51,
      "netPrice": 25942
-    },
-    {
-     "rank": 9,
-     "name": "Madonna University",
-     "division": "NAIA",
-     "score": 80,
-     "confidence": "measured",
-     "labels": {
-      "athletic": "target",
-      "roster": "high",
-      "academic": "likely",
-      "affordability": "within budget",
-      "programQuality": "strong",
-      "geography": "many internationals"
-     },
-     "breakdown": [
-      {
-       "key": "athletic",
-       "weight": 0.231,
-       "score": 0.985,
-       "contribution": 22.7,
-       "confidence": "measured",
-       "status": "target"
-      },
-      {
-       "key": "roster",
-       "weight": 0.077,
-       "score": 1,
-       "contribution": 7.7,
-       "confidence": "measured",
-       "status": "high"
-      },
-      {
-       "key": "academic",
-       "weight": 0.115,
-       "score": 0.307,
-       "contribution": 3.5,
-       "confidence": "partial",
-       "status": "likely"
-      },
-      {
-       "key": "affordability",
-       "weight": 0.192,
-       "score": 1,
-       "contribution": 19.2,
-       "confidence": "measured",
-       "status": "within budget"
-      },
-      {
-       "key": "programQuality",
-       "weight": 0.077,
-       "score": 0.732,
-       "contribution": 5.6,
-       "confidence": "measured",
-       "status": "strong"
-      },
-      {
-       "key": "geography",
-       "weight": 0.308,
-       "score": 0.681,
-       "contribution": 21,
-       "confidence": "measured",
-       "status": "many internationals"
-      }
-     ],
-     "roster": {
-      "atPosition": 6,
-      "startersAtPosition": 3,
-      "starterNamesAtPosition": 3,
-      "namesAtPosition": 6,
-      "total": 16,
-      "startersTotal": 6,
-      "internationalPlayers": 37,
-      "playersFromCountry": 0
-     },
-     "soccerScore": 60.69,
-     "netPrice": 17755
     },
     {
      "rank": 10,
@@ -4926,10 +4926,10 @@
     }
    ],
    "top100Divisions": {
-    "NCAA D2": 46,
-    "NAIA": 46,
-    "NCAA D1": 6,
-    "NCAA D3": 2
+    "NAIA": 42,
+    "NCAA D2": 50,
+    "NCAA D1": 7,
+    "NCAA D3": 1
    },
    "top100Confidence": {
     "measured": 100
@@ -4943,7 +4943,7 @@
     "0.25": 0
    },
    "bestElite": {
-    "rank": 526,
+    "rank": 533,
     "name": "Marshall",
     "score": 60,
     "athletic": 0.101
@@ -5050,8 +5050,8 @@
       "startersAtPosition": 1,
       "starterNamesAtPosition": 1,
       "namesAtPosition": 1,
-      "total": 7,
-      "startersTotal": 5,
+      "total": 11,
+      "startersTotal": 4,
       "internationalPlayers": 1,
       "playersFromCountry": 0
      },
@@ -5137,14 +5137,14 @@
     },
     {
      "rank": 3,
-     "name": "Franciscan (OH)",
+     "name": "Ohio Wesleyan",
      "division": "NCAA D3",
      "score": 86,
      "confidence": "measured",
      "labels": {
       "athletic": "target",
       "roster": "high",
-      "academic": "competitive",
+      "academic": "likely",
       "affordability": "within budget",
       "programQuality": "solid",
       "geography": "in state"
@@ -5153,26 +5153,26 @@
       {
        "key": "athletic",
        "weight": 0.246,
-       "score": 0.983,
-       "contribution": 24.2,
+       "score": 0.979,
+       "contribution": 24.1,
        "confidence": "measured",
        "status": "target"
       },
       {
        "key": "roster",
        "weight": 0.082,
-       "score": 1,
-       "contribution": 8.2,
+       "score": 0.8,
+       "contribution": 6.6,
        "confidence": "measured",
        "status": "high"
       },
       {
        "key": "academic",
        "weight": 0.123,
-       "score": 0.486,
-       "contribution": 6,
-       "confidence": "measured",
-       "status": "competitive"
+       "score": 0.509,
+       "contribution": 6.3,
+       "confidence": "partial",
+       "status": "likely"
       },
       {
        "key": "affordability",
@@ -5185,32 +5185,32 @@
       {
        "key": "programQuality",
        "weight": 0.082,
-       "score": 0.43,
-       "contribution": 3.5,
+       "score": 0.397,
+       "contribution": 3.3,
        "confidence": "measured",
        "status": "solid"
       },
       {
        "key": "geography",
        "weight": 0.278,
-       "score": 0.904,
-       "contribution": 25.1,
+       "score": 0.98,
+       "contribution": 27.2,
        "confidence": "measured",
        "status": "in state"
       }
      ],
      "roster": {
       "atPosition": 2,
-      "startersAtPosition": 1,
-      "starterNamesAtPosition": 1,
+      "startersAtPosition": 0,
+      "starterNamesAtPosition": 0,
       "namesAtPosition": 2,
-      "total": 8,
-      "startersTotal": 4,
-      "internationalPlayers": 1,
+      "total": 6,
+      "startersTotal": 0,
+      "internationalPlayers": 0,
       "playersFromCountry": 0
      },
-     "soccerScore": 45.71,
-     "netPrice": 23589
+     "soccerScore": 45.26,
+     "netPrice": 20897
     },
     {
      "rank": 4,
@@ -5277,12 +5277,12 @@
       }
      ],
      "roster": {
-      "atPosition": 2,
+      "atPosition": 1,
       "startersAtPosition": 1,
       "starterNamesAtPosition": 1,
-      "namesAtPosition": 2,
-      "total": 13,
-      "startersTotal": 6,
+      "namesAtPosition": 1,
+      "total": 11,
+      "startersTotal": 3,
       "internationalPlayers": 28,
       "playersFromCountry": 0
      },
@@ -5291,6 +5291,160 @@
     },
     {
      "rank": 5,
+     "name": "College of Wooster",
+     "division": "NCAA D3",
+     "score": 86,
+     "confidence": "measured",
+     "labels": {
+      "athletic": "target",
+      "roster": "high",
+      "academic": "stretch",
+      "affordability": "within budget",
+      "programQuality": "solid",
+      "geography": "in state"
+     },
+     "breakdown": [
+      {
+       "key": "athletic",
+       "weight": 0.246,
+       "score": 0.944,
+       "contribution": 23.2,
+       "confidence": "measured",
+       "status": "target"
+      },
+      {
+       "key": "roster",
+       "weight": 0.082,
+       "score": 1,
+       "contribution": 8.2,
+       "confidence": "measured",
+       "status": "high"
+      },
+      {
+       "key": "academic",
+       "weight": 0.123,
+       "score": 0.436,
+       "contribution": 5.4,
+       "confidence": "measured",
+       "status": "stretch"
+      },
+      {
+       "key": "affordability",
+       "weight": 0.189,
+       "score": 1,
+       "contribution": 18.9,
+       "confidence": "measured",
+       "status": "within budget"
+      },
+      {
+       "key": "programQuality",
+       "weight": 0.082,
+       "score": 0.463,
+       "contribution": 3.8,
+       "confidence": "measured",
+       "status": "solid"
+      },
+      {
+       "key": "geography",
+       "weight": 0.278,
+       "score": 0.947,
+       "contribution": 26.3,
+       "confidence": "measured",
+       "status": "in state"
+      }
+     ],
+     "roster": {
+      "atPosition": 2,
+      "startersAtPosition": 1,
+      "starterNamesAtPosition": 1,
+      "namesAtPosition": 2,
+      "total": 9,
+      "startersTotal": 4,
+      "internationalPlayers": 4,
+      "playersFromCountry": 0
+     },
+     "soccerScore": 42.32,
+     "netPrice": 23458
+    },
+    {
+     "rank": 6,
+     "name": "Albion",
+     "division": "NCAA D3",
+     "score": 85,
+     "confidence": "measured",
+     "labels": {
+      "athletic": "target",
+      "roster": "high",
+      "academic": "stretch",
+      "affordability": "within budget",
+      "programQuality": "solid",
+      "geography": "nearby"
+     },
+     "breakdown": [
+      {
+       "key": "athletic",
+       "weight": 0.246,
+       "score": 0.966,
+       "contribution": 23.8,
+       "confidence": "measured",
+       "status": "target"
+      },
+      {
+       "key": "roster",
+       "weight": 0.082,
+       "score": 1,
+       "contribution": 8.2,
+       "confidence": "measured",
+       "status": "high"
+      },
+      {
+       "key": "academic",
+       "weight": 0.123,
+       "score": 0.547,
+       "contribution": 6.7,
+       "confidence": "partial",
+       "status": "stretch"
+      },
+      {
+       "key": "affordability",
+       "weight": 0.189,
+       "score": 1,
+       "contribution": 18.9,
+       "confidence": "measured",
+       "status": "within budget"
+      },
+      {
+       "key": "programQuality",
+       "weight": 0.082,
+       "score": 0.423,
+       "contribution": 3.5,
+       "confidence": "measured",
+       "status": "solid"
+      },
+      {
+       "key": "geography",
+       "weight": 0.278,
+       "score": 0.85,
+       "contribution": 23.6,
+       "confidence": "measured",
+       "status": "nearby"
+      }
+     ],
+     "roster": {
+      "atPosition": 1,
+      "startersAtPosition": 1,
+      "starterNamesAtPosition": 1,
+      "namesAtPosition": 1,
+      "total": 9,
+      "startersTotal": 5,
+      "internationalPlayers": 11,
+      "playersFromCountry": 0
+     },
+     "soccerScore": 44,
+     "netPrice": 14301
+    },
+    {
+     "rank": 7,
      "name": "Point Park",
      "division": "NCAA D2",
      "score": 85,
@@ -5367,7 +5521,161 @@
      "netPrice": 25942
     },
     {
-     "rank": 6,
+     "rank": 8,
+     "name": "Ohio Northern",
+     "division": "NCAA D3",
+     "score": 84,
+     "confidence": "measured",
+     "labels": {
+      "athletic": "target",
+      "roster": "medium",
+      "academic": "competitive",
+      "affordability": "within budget",
+      "programQuality": "solid",
+      "geography": "in state"
+     },
+     "breakdown": [
+      {
+       "key": "athletic",
+       "weight": 0.246,
+       "score": 0.999,
+       "contribution": 24.6,
+       "confidence": "measured",
+       "status": "target"
+      },
+      {
+       "key": "roster",
+       "weight": 0.082,
+       "score": 0.4,
+       "contribution": 3.3,
+       "confidence": "measured",
+       "status": "medium"
+      },
+      {
+       "key": "academic",
+       "weight": 0.123,
+       "score": 0.531,
+       "contribution": 6.5,
+       "confidence": "measured",
+       "status": "competitive"
+      },
+      {
+       "key": "affordability",
+       "weight": 0.189,
+       "score": 1,
+       "contribution": 18.9,
+       "confidence": "measured",
+       "status": "within budget"
+      },
+      {
+       "key": "programQuality",
+       "weight": 0.082,
+       "score": 0.527,
+       "contribution": 4.3,
+       "confidence": "measured",
+       "status": "solid"
+      },
+      {
+       "key": "geography",
+       "weight": 0.278,
+       "score": 0.935,
+       "contribution": 26,
+       "confidence": "measured",
+       "status": "in state"
+      }
+     ],
+     "roster": {
+      "atPosition": 1,
+      "startersAtPosition": 0,
+      "starterNamesAtPosition": 0,
+      "namesAtPosition": 1,
+      "total": 8,
+      "startersTotal": 0,
+      "internationalPlayers": 1,
+      "playersFromCountry": 0
+     },
+     "soccerScore": 49.05,
+     "netPrice": 24478
+    },
+    {
+     "rank": 9,
+     "name": "Mount Vernon Nazarene",
+     "division": "NAIA",
+     "score": 84,
+     "confidence": "measured",
+     "labels": {
+      "athletic": "target",
+      "roster": "medium",
+      "academic": "likely",
+      "affordability": "within budget",
+      "programQuality": "solid",
+      "geography": "in state"
+     },
+     "breakdown": [
+      {
+       "key": "athletic",
+       "weight": 0.246,
+       "score": 0.998,
+       "contribution": 24.6,
+       "confidence": "measured",
+       "status": "target"
+      },
+      {
+       "key": "roster",
+       "weight": 0.082,
+       "score": 0.4,
+       "contribution": 3.3,
+       "confidence": "measured",
+       "status": "medium"
+      },
+      {
+       "key": "academic",
+       "weight": 0.123,
+       "score": 0.459,
+       "contribution": 5.6,
+       "confidence": "measured",
+       "status": "likely"
+      },
+      {
+       "key": "affordability",
+       "weight": 0.189,
+       "score": 1,
+       "contribution": 18.9,
+       "confidence": "measured",
+       "status": "within budget"
+      },
+      {
+       "key": "programQuality",
+       "weight": 0.082,
+       "score": 0.519,
+       "contribution": 4.3,
+       "confidence": "measured",
+       "status": "solid"
+      },
+      {
+       "key": "geography",
+       "weight": 0.278,
+       "score": 0.984,
+       "contribution": 27.4,
+       "confidence": "measured",
+       "status": "in state"
+      }
+     ],
+     "roster": {
+      "atPosition": 1,
+      "startersAtPosition": 0,
+      "starterNamesAtPosition": 0,
+      "namesAtPosition": 1,
+      "total": 9,
+      "startersTotal": 0,
+      "internationalPlayers": 15,
+      "playersFromCountry": 0
+     },
+     "soccerScore": 48.55,
+     "netPrice": 22421
+    },
+    {
+     "rank": 10,
      "name": "West Liberty",
      "division": "NCAA D2",
      "score": 84,
@@ -5442,320 +5750,12 @@
      },
      "soccerScore": 51.14,
      "netPrice": 15366
-    },
-    {
-     "rank": 7,
-     "name": "Malone",
-     "division": "NCAA D2",
-     "score": 84,
-     "confidence": "measured",
-     "labels": {
-      "athletic": "target",
-      "roster": "high",
-      "academic": "likely",
-      "affordability": "within budget",
-      "programQuality": "solid",
-      "geography": "in state"
-     },
-     "breakdown": [
-      {
-       "key": "athletic",
-       "weight": 0.246,
-       "score": 0.981,
-       "contribution": 24.1,
-       "confidence": "measured",
-       "status": "target"
-      },
-      {
-       "key": "roster",
-       "weight": 0.082,
-       "score": 1,
-       "contribution": 8.2,
-       "confidence": "measured",
-       "status": "high"
-      },
-      {
-       "key": "academic",
-       "weight": 0.123,
-       "score": 0.268,
-       "contribution": 3.3,
-       "confidence": "measured",
-       "status": "likely"
-      },
-      {
-       "key": "affordability",
-       "weight": 0.189,
-       "score": 1,
-       "contribution": 18.9,
-       "confidence": "measured",
-       "status": "within budget"
-      },
-      {
-       "key": "programQuality",
-       "weight": 0.082,
-       "score": 0.506,
-       "contribution": 4.1,
-       "confidence": "measured",
-       "status": "solid"
-      },
-      {
-       "key": "geography",
-       "weight": 0.278,
-       "score": 0.927,
-       "contribution": 25.8,
-       "confidence": "measured",
-       "status": "in state"
-      }
-     ],
-     "roster": {
-      "atPosition": 1,
-      "startersAtPosition": 1,
-      "starterNamesAtPosition": 1,
-      "namesAtPosition": 1,
-      "total": 2,
-      "startersTotal": 1,
-      "internationalPlayers": 7,
-      "playersFromCountry": 0
-     },
-     "soccerScore": 45.42,
-     "netPrice": 20948
-    },
-    {
-     "rank": 8,
-     "name": "DePauw",
-     "division": "NCAA D3",
-     "score": 84,
-     "confidence": "measured",
-     "labels": {
-      "athletic": "target",
-      "roster": "high",
-      "academic": "stretch",
-      "affordability": "within budget",
-      "programQuality": "solid",
-      "geography": "nearby"
-     },
-     "breakdown": [
-      {
-       "key": "athletic",
-       "weight": 0.246,
-       "score": 0.97,
-       "contribution": 23.9,
-       "confidence": "measured",
-       "status": "target"
-      },
-      {
-       "key": "roster",
-       "weight": 0.082,
-       "score": 1,
-       "contribution": 8.2,
-       "confidence": "measured",
-       "status": "high"
-      },
-      {
-       "key": "academic",
-       "weight": 0.123,
-       "score": 0.458,
-       "contribution": 5.6,
-       "confidence": "measured",
-       "status": "stretch"
-      },
-      {
-       "key": "affordability",
-       "weight": 0.189,
-       "score": 1,
-       "contribution": 18.9,
-       "confidence": "measured",
-       "status": "within budget"
-      },
-      {
-       "key": "programQuality",
-       "weight": 0.082,
-       "score": 0.523,
-       "contribution": 4.3,
-       "confidence": "measured",
-       "status": "solid"
-      },
-      {
-       "key": "geography",
-       "weight": 0.278,
-       "score": 0.816,
-       "contribution": 22.7,
-       "confidence": "measured",
-       "status": "nearby"
-      }
-     ],
-     "roster": {
-      "atPosition": 1,
-      "startersAtPosition": 1,
-      "starterNamesAtPosition": 1,
-      "namesAtPosition": 1,
-      "total": 8,
-      "startersTotal": 6,
-      "internationalPlayers": 1,
-      "playersFromCountry": 0
-     },
-     "soccerScore": 44.31,
-     "netPrice": 22264
-    },
-    {
-     "rank": 9,
-     "name": "Seton Hill",
-     "division": "NCAA D2",
-     "score": 84,
-     "confidence": "measured",
-     "labels": {
-      "athletic": "target",
-      "roster": "high",
-      "academic": "likely",
-      "affordability": "within budget",
-      "programQuality": "strong",
-      "geography": "nearby"
-     },
-     "breakdown": [
-      {
-       "key": "athletic",
-       "weight": 0.246,
-       "score": 0.843,
-       "contribution": 20.7,
-       "confidence": "measured",
-       "status": "target"
-      },
-      {
-       "key": "roster",
-       "weight": 0.082,
-       "score": 1,
-       "contribution": 8.2,
-       "confidence": "measured",
-       "status": "high"
-      },
-      {
-       "key": "academic",
-       "weight": 0.123,
-       "score": 0.484,
-       "contribution": 6,
-       "confidence": "measured",
-       "status": "likely"
-      },
-      {
-       "key": "affordability",
-       "weight": 0.189,
-       "score": 1,
-       "contribution": 18.9,
-       "confidence": "measured",
-       "status": "within budget"
-      },
-      {
-       "key": "programQuality",
-       "weight": 0.082,
-       "score": 0.786,
-       "contribution": 6.4,
-       "confidence": "measured",
-       "status": "strong"
-      },
-      {
-       "key": "geography",
-       "weight": 0.278,
-       "score": 0.86,
-       "contribution": 23.9,
-       "confidence": "measured",
-       "status": "nearby"
-      }
-     ],
-     "roster": {
-      "atPosition": 2,
-      "startersAtPosition": 1,
-      "starterNamesAtPosition": 1,
-      "namesAtPosition": 2,
-      "total": 9,
-      "startersTotal": 2,
-      "internationalPlayers": 11,
-      "playersFromCountry": 0
-     },
-     "soccerScore": 57.96,
-     "netPrice": 22204
-    },
-    {
-     "rank": 10,
-     "name": "Cedarville",
-     "division": "NCAA D2",
-     "score": 84,
-     "confidence": "measured",
-     "labels": {
-      "athletic": "target",
-      "roster": "high",
-      "academic": "competitive",
-      "affordability": "within budget",
-      "programQuality": "strong",
-      "geography": "in state"
-     },
-     "breakdown": [
-      {
-       "key": "athletic",
-       "weight": 0.246,
-       "score": 0.824,
-       "contribution": 20.3,
-       "confidence": "measured",
-       "status": "target"
-      },
-      {
-       "key": "roster",
-       "weight": 0.082,
-       "score": 1,
-       "contribution": 8.2,
-       "confidence": "measured",
-       "status": "high"
-      },
-      {
-       "key": "academic",
-       "weight": 0.123,
-       "score": 0.444,
-       "contribution": 5.5,
-       "confidence": "measured",
-       "status": "competitive"
-      },
-      {
-       "key": "affordability",
-       "weight": 0.189,
-       "score": 1,
-       "contribution": 18.9,
-       "confidence": "measured",
-       "status": "within budget"
-      },
-      {
-       "key": "programQuality",
-       "weight": 0.082,
-       "score": 0.674,
-       "contribution": 5.5,
-       "confidence": "measured",
-       "status": "strong"
-      },
-      {
-       "key": "geography",
-       "weight": 0.278,
-       "score": 0.939,
-       "contribution": 26.1,
-       "confidence": "measured",
-       "status": "in state"
-      }
-     ],
-     "roster": {
-      "atPosition": 1,
-      "startersAtPosition": 1,
-      "starterNamesAtPosition": 1,
-      "namesAtPosition": 1,
-      "total": 6,
-      "startersTotal": 2,
-      "internationalPlayers": 7,
-      "playersFromCountry": 0
-     },
-     "soccerScore": 58.49,
-     "netPrice": 24468
     }
    ],
    "top100Divisions": {
-    "NCAA D3": 44,
-    "NCAA D2": 28,
-    "NAIA": 27,
+    "NCAA D3": 48,
+    "NCAA D2": 26,
+    "NAIA": 25,
     "NCAA D1": 1
    },
    "top100Confidence": {
@@ -5770,7 +5770,7 @@
     "0.25": 0
    },
    "bestElite": {
-    "rank": 779,
+    "rank": 788,
     "name": "Ohio State",
     "score": 62,
     "athletic": 0.007
@@ -6580,9 +6580,10 @@
     }
    ],
    "top100Divisions": {
-    "NCAA D1": 85,
+    "NCAA D1": 84,
     "NCAA D2": 14,
-    "NAIA": 1
+    "NAIA": 1,
+    "NCAA D3": 1
    },
    "top100Confidence": {
     "measured": 100
@@ -6596,7 +6597,7 @@
     "0.25": 0
    },
    "bestElite": {
-    "rank": 244,
+    "rank": 238,
     "name": "South Carolina",
     "score": 75,
     "athletic": 0.408
@@ -6657,7 +6658,7 @@
    "starters": 0,
    "squad": 1,
    "starterNames": 0,
-   "squadTotalThatYear": 6,
+   "squadTotalThatYear": 3,
    "squadStartersThatYear": 0,
    "opportunity": 0.229,
    "opportunityConfidence": "measured",

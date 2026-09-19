@@ -2,7 +2,7 @@
   "note": "Committed Evidence behavioural baseline. See docs/EVIDENCE_BASELINES.md before repinning.",
   "now": "2026-09-06T00:00:00.000Z",
   "provenance": {
-    "event": "PROVENANCE RESET \u2014 D3.3, 2026-09-09. Not an ordinary repin.",
+    "event": "PROVENANCE RESET — D3.3, 2026-09-09. Not an ordinary repin.",
     "reason": "The committed EMAIL_BODY pin could not be reproduced by the commit that created it, on a dataset carrying the manifest digest recorded beside it. The manifest was therefore not an identity for the data behind the pin, so no baseline taken under it could be trusted, and no failure under it could be diagnosed. The manifest was repaired first (V2 -> V3) and every baseline re-established together against a verified snapshot.",
     "oldManifestDefect": {
       "version": "V2",
@@ -12,12 +12,12 @@
         "coach_seasons"
       ],
       "evidence": "Instrumenting every prepared statement of a full buildBaselines walk shows it reads seven tables; V2 fingerprinted five. recruiting_arrivals is read once per pair (4,742 times) and coach_seasons 3,963 times. Changing 181 recruiting_arrivals rows moves EMAIL_BODY while the V2 dataset digest is unchanged; deleting either table moves all six baselines with the V2 digest unchanged.",
-      "projectionsAlsoTooNarrow": "Nulling the roster_players columns V2 did not name \u2014 position, nationality, hometown, country, class_year_label, the minutes \u2014 moves all six baselines with the V2 dataset digest unchanged. Column materiality is not predictable by name: roster_row_id is inert, built_at and imported_at are not."
+      "projectionsAlsoTooNarrow": "Nulling the roster_players columns V2 did not name — position, nationality, hometown, country, class_year_label, the minutes — moves all six baselines with the V2 dataset digest unchanged. Column materiality is not predictable by name: roster_row_id is inert, built_at and imported_at are not."
     },
     "oldPin": {
       "EMAIL_BODY": "a756b5a0e877581794880f5a04ff0f81fe57b9800695899ab54b0d7da06dd41b",
-      "pinnedAt": "20af7c22 \u2014 'License presence by observation, and say the season that earned it'",
-      "unreproducible": "Running the baseline CLI AT 20af7c22, against a dataset whose V2 manifest digest is exactly the 5bbca905\u2026 recorded beside that pin, yields 54a718f9aa8f2ab1. No database on the machine reproduces a756b5a0\u2026."
+      "pinnedAt": "20af7c22 — 'License presence by observation, and say the season that earned it'",
+      "unreproducible": "Running the baseline CLI AT 20af7c22, against a dataset whose V2 manifest digest is exactly the 5bbca905… recorded beside that pin, yields 54a718f9aa8f2ab1. No database on the machine reproduces a756b5a0…."
     },
     "canonicalDataset": {
       "source": "server/data/recruitmatch.sqlite.pre-l7c-20260909T135704",
@@ -33,7 +33,7 @@
     },
     "outcome": {
       "EMAIL_BODY": "a756b5a0e877581794880f5a04ff0f81fe57b9800695899ab54b0d7da06dd41b -> 54a718f9aa8f2ab1e7ba84969096efd0b5d225cb636c0fa44235c5ef2c0129d5  (the orphaned pin, replaced)",
-      "otherFive": "unchanged \u2014 OUTBOUND_DECISION, COACH_COMPOSITION, OPERATOR_WIRE, LOG_PAYLOAD, OPERATOR_EVIDENCE all re-pinned to the identical digests they already held."
+      "otherFive": "unchanged — OUTBOUND_DECISION, COACH_COMPOSITION, OPERATOR_WIRE, LOG_PAYLOAD, OPERATOR_EVIDENCE all re-pinned to the identical digests they already held."
     }
   },
   "manifest": {
@@ -93,32 +93,32 @@
     {
       "name": "OUTBOUND_DECISION",
       "size": 4742,
-      "digest": "11d52d4ddca3a48eb0055463ef45715ae94b8cc2c2d5bffaabb5ac4e57e5c692"
+      "digest": "d3fd5ba336849ccb3ceef75023eb2cb74d20098291f6846af0d95a4c34b5bb3f"
     },
     {
       "name": "COACH_COMPOSITION",
       "size": 4742,
-      "digest": "e664ac1f3f8ed0de3bc69a607b7efbedc8ef2f437a9083242505f4641311ed76"
+      "digest": "36b31c1803b78f91e2ac772621920f6c9971d8f89a05ec987bf7967cd2fb19fd"
     },
     {
       "name": "EMAIL_BODY",
       "size": 4742,
-      "digest": "54a718f9aa8f2ab1e7ba84969096efd0b5d225cb636c0fa44235c5ef2c0129d5"
+      "digest": "70a1f6e0fb1eca93a5d2b7635c2ac78af07b62dc03c66e3da69bea7e464c8466"
     },
     {
       "name": "OPERATOR_WIRE",
       "size": 4742,
-      "digest": "e9379455c8dffe6e24dd8139be77cfd68dba942008291ba25c252dc0fb1be3d5"
+      "digest": "a529303d5697678add055d0d4d8a2f4a31e77a5b97f3676c95c6735e63303a94"
     },
     {
       "name": "LOG_PAYLOAD",
       "size": 4742,
-      "digest": "d4a41935dfb75b032849667237d037e2250288dbadb3a65e60eea48f54b88014"
+      "digest": "42d0f27e66bfba8a7abbf9b505eb47e60b0d072d587d31b49f16ac24ceaf4b3a"
     },
     {
       "name": "OPERATOR_EVIDENCE",
       "size": 4742,
-      "digest": "c764171433964eb5c2afdd298669aaba63d6d097900cc95798e49ed1eb06a688"
+      "digest": "6f2e46c9ba8443bc6c41a9d2754eba8cf61601a770f4f10abc87dd6fcf178766"
     }
   ]
 }
