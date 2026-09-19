@@ -148,7 +148,9 @@ describe('copying the email', () => {
      * a plain-text composer or a notes app takes the other, and without it
      * they paste nothing at all.
      */
-    expect(richFlavours()).toEqual(['text/html', 'text/plain']);
+    // Sorted: a ClipboardItem is a map and the browser does not care about
+    // key order, so asserting it would be pinning an implementation detail.
+    expect(richFlavours().sort()).toEqual(['text/html', 'text/plain']);
   });
 
   it('falls back to plain text when HTML is refused', async () => {

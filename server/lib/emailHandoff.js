@@ -132,17 +132,28 @@ const RECIPIENT_URI_UNSAFE = /[/?#[\]&;=%,]/;
 const encodeAddress = (address) => encodeURIComponent(address).replace(/%40/g, '@');
 
 /**
- * The `mailto:` URL, carrying a recipient and a subject and deliberately
- * nothing else.
+ * THE ONE PLACE A mailto URL IS WRITTEN, AND IT IS THE ONLY ONE ON PURPOSE.
  *
- * Exported so a test can assert on the URL without building a whole handoff,
- * and so that the "no body, no cc, no bcc, no headers" property has one place
- * it can be violated rather than several.
+ * `outreachBypass.test.js` asserts that this FILE is the only one that builds
+ * such a URL from a coach address. That guard works at file granularity, so
+ * it would not have noticed the same template literal appearing twice inside
+ * this file — which it briefly did, once here and once in `buildHandoff`.
+ * Two copies of "no body, no cc, no bcc, no headers" is one copy too many:
+ * whichever is edited, the other keeps shipping.
+ *
+ * Both callers now go through this, so the property has exactly one place it
+ * can be violated.
+ */
+const mailtoFrom = (address, subjectText) =>
+  `mailto:${encodeAddress(address)}?subject=${encodeURIComponent(subjectText)}`;
+
+/**
+ * The URL on its own, validated, for a caller that has no handoff to build.
+ * Used by the tests to assert the refusals without constructing a whole
+ * prepared email.
  */
 export function mailtoUrlFor({ to, subject }) {
-  const address = assertRecipient(to);
-  const subjectText = assertHeaderSafe('Subject', subject ?? '');
-  return `mailto:${encodeAddress(address)}?subject=${encodeURIComponent(subjectText)}`;
+  return mailtoFrom(assertRecipient(to), assertHeaderSafe('Subject', subject ?? ''));
 }
 
 /** Both checks, in the order that gives the more specific message. */
@@ -205,6 +216,6 @@ export function buildHandoff({ sendId, coachId, to, subject, body }) {
     // Verbatim. What the operator pastes is what the row holds.
     body: bodyText,
     bodyHtml: textToHtml(bodyText),
-    mailtoUrl: `mailto:${encodeAddress(address)}?subject=${encodeURIComponent(subjectText)}`,
+    mailtoUrl: mailtoFrom(address, subjectText),
   };
 }

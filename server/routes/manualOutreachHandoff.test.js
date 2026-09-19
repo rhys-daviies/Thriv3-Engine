@@ -253,6 +253,20 @@ describe('what the handoff carries', () => {
     expect(row.connected_mailbox_id).toBeNull();
     expect(row.provider).toBeNull();
     expect(row.programme_campaign_id).toBeNull();
+    /**
+     * And the transport columns. `sendingIdentity` IS passed by this file,
+     * but only to the outbound BUDGET ledger and only inside `if (send)` —
+     * which now requires Outlook — so the hosted path reaches neither it nor
+     * this column.
+     *
+     * `authorised_by_operator_id` and `authorisation_kind` are deliberately
+     * not asserted: they exist in the live database but NOT in one built
+     * fresh from schema.sql + migrate.js, so asserting them here would pass
+     * vacuously on `undefined` and prove nothing. That drift is pre-existing
+     * and is recorded as baseline debt rather than papered over here.
+     */
+    expect(row.sending_identity).toBeNull();
+    expect(row.provider_accepted_at).toBeNull();
     // But the analytics digest IS written, which is what the handoff is
     // checked against.
     expect(row.body_hash).toEqual(expect.any(String));

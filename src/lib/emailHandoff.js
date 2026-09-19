@@ -64,29 +64,6 @@ export const HANDOFF_RESULT = Object.freeze({
 });
 
 /**
- * Can this browser put HTML on the clipboard?
- *
- * `ClipboardItem.supports` is the documented way to ask and is the reason it
- * is asked rather than assumed — but it is newer than `ClipboardItem` itself,
- * so an implementation that has the constructor and not the method is treated
- * as "try it and see". An optimistic attempt costs a caught exception; a
- * pessimistic assumption costs every operator on that browser the rich paste.
- */
-function canWriteHtml() {
-  if (typeof ClipboardItem === 'undefined') return false;
-  if (typeof ClipboardItem.supports !== 'function') return true;
-  try {
-    return ClipboardItem.supports('text/html') && ClipboardItem.supports('text/plain');
-  } catch {
-    return true;
-  }
-}
-
-function clipboard() {
-  return (typeof navigator !== 'undefined' && navigator.clipboard) || null;
-}
-
-/**
  * Put the email on the clipboard, as richly as this browser allows.
  *
  * THREE LAYERS, EACH A REAL DEGRADATION RATHER THAN AN ERROR. Rich, then
@@ -100,36 +77,42 @@ function clipboard() {
  * takes that flavour, and without it those paste nothing at all.
  */
 export async function copyEmail(handoff) {
-  const api = clipboard();
+  const api = (typeof navigator !== 'undefined' && navigator.clipboard) || null;
   if (!api) return { status: HANDOFF_RESULT.MANUAL, error: 'No clipboard access.' };
 
   const body = String(handoff?.body ?? '');
   const html = String(handoff?.bodyHtml ?? '');
 
-  if (html && canWriteHtml() && typeof api.write === 'function') {
+  if (html) {
     try {
+      /**
+       * `ClipboardItem.supports` is the documented way to ask, and it is
+       * newer than the constructor — so a missing method means "try it"
+       * rather than "no". Both the question and the write are inside one
+       * try: a browser without `ClipboardItem` throws on `new`, one that
+       * refuses HTML rejects the promise, and every one of those answers is
+       * the same answer, which is to fall through to plain text.
+       */
+      const rich = ClipboardItem.supports?.('text/html') !== false;
+      if (!rich) throw new Error('text/html unsupported');
       await api.write([new ClipboardItem({
         'text/html': new Blob([html], { type: 'text/html' }),
         'text/plain': new Blob([body], { type: 'text/plain' }),
       })]);
       return { status: HANDOFF_RESULT.RICH, error: null };
     } catch {
-      // Falls through. A refused rich write is common enough — Firefox, a
-      // locked-down policy, a non-secure context in development — that it is
-      // a branch rather than a failure.
+      // A refused rich write is common enough — Firefox, a locked-down
+      // policy, a non-secure context in development — that it is a branch
+      // rather than a failure.
     }
   }
 
-  if (typeof api.writeText === 'function') {
-    try {
-      await api.writeText(body);
-      return { status: HANDOFF_RESULT.PLAIN, error: null };
-    } catch (err) {
-      return { status: HANDOFF_RESULT.MANUAL, error: err?.message ?? null };
-    }
+  try {
+    await api.writeText(body);
+    return { status: HANDOFF_RESULT.PLAIN, error: null };
+  } catch (err) {
+    return { status: HANDOFF_RESULT.MANUAL, error: err?.message ?? null };
   }
-
-  return { status: HANDOFF_RESULT.MANUAL, error: 'No clipboard access.' };
 }
 
 /**
