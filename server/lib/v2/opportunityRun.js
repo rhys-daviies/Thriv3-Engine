@@ -1,0 +1,151 @@
+/**
+ * Evaluate Athlete Opportunity / Fit across a pool.
+ *
+ * NOT A RANKER, for the same reason the other two are not. A higher
+ * Opportunity score is not a better match: it says an opportunity is worth
+ * having, not that the athlete can reach it or pay for it.
+ */
+import {
+  playingOpportunity, programmeTrajectory, majorFit, locationFit, athleticOutcome,
+  athleteOpportunity, isScoreable, isNotApplicable, GRADE,
+} from '../../../shared/matching/v2/index.js';
+
+function summarise(values) {
+  if (!values.length) return null;
+  const s = [...values].sort((a, b) => a - b);
+  const at = (p) => s[Math.min(s.length - 1, Math.max(0, Math.ceil((p / 100) * s.length) - 1))];
+  return {
+    n: s.length,
+    min: Number(s[0].toFixed(4)), p25: Number(at(25).toFixed(4)),
+    median: Number(at(50).toFixed(4)), p75: Number(at(75).toFixed(4)),
+    max: Number(s[s.length - 1].toFixed(4)),
+    mean: Number((s.reduce((a, b) => a + b, 0) / s.length).toFixed(4)),
+  };
+}
+
+/**
+ * @param {object} p
+ * @param {object} p.athlete  { sport, position, intendedMajor, priorityRanking,
+ *                              preferredStates, preferredRegions, maxDistanceMiles, levelPreference }
+ * @param {Array}  p.colleges
+ * @param {Set}    p.rosterProgrammes  names we hold a current roster for
+ */
+export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overrides = {} }) {
+  const { sport, position } = athlete;
+
+  const results = colleges.map((college) => {
+    const playing = playingOpportunity({
+      sport, position, division: college.division, programme: college.name,
+      rosterOnFile: rosterProgrammes.has(college.name),
+    });
+    const trajectory = programmeTrajectory({
+      recentWinPct: college.recent_win_pct, priorWinPct: college.prior_win_pct,
+      saturation: overrides.saturation,
+    });
+    const major = majorFit({ intendedMajor: athlete.intendedMajor, notableMajors: college.notable_majors });
+    const location = locationFit({
+      preferredStates: athlete.preferredStates ?? null,
+      preferredRegions: athlete.preferredRegions ?? null,
+      maxDistanceMiles: athlete.maxDistanceMiles ?? null,
+      collegeState: college.state,
+      distanceMiles: null,
+    });
+    const outcome = athleticOutcome({ levelPreference: athlete.levelPreference ?? null });
+    const result = athleteOpportunity({
+      playing, trajectory, major, location, outcome,
+      priorityRanking: athlete.priorityRanking ?? null,
+      floor: overrides.floor, lift: overrides.lift,
+      valueWeights: overrides.valueWeights, preferenceWeights: overrides.preferenceWeights,
+    });
+    return {
+      id: college.id, name: college.name, division: college.division, state: college.state,
+      result, playing, trajectory, major, location, outcome,
+    };
+  });
+
+  const scored = results.filter((r) => isScoreable(r.result));
+  const n = results.length || 1;
+  const byDivision = {};
+  const byReason = {};
+  const grades = { [GRADE.MEASURED]: 0, [GRADE.PARTIAL]: 0 };
+  const componentCoverage = {
+    playingOpportunity: 0, programmeTrajectory: 0, majorFit: 0, locationFit: 0, athleticOutcome: 0,
+  };
+  const notApplicable = { majorFit: 0, locationFit: 0, athleticOutcome: 0 };
+
+  for (const r of results) {
+    const ok = isScoreable(r.result);
+    const d = (byDivision[r.division ?? 'UNKNOWN'] ||= { n: 0, scoreable: 0, values: [] });
+    d.n += 1;
+    if (ok) { d.scoreable += 1; d.values.push(r.result.value); grades[r.result.grade] += 1; }
+    else byReason[r.result.reason] = (byReason[r.result.reason] || 0) + 1;
+
+    if (isScoreable(r.playing)) componentCoverage.playingOpportunity += 1;
+    if (isScoreable(r.trajectory)) componentCoverage.programmeTrajectory += 1;
+    if (isScoreable(r.major)) componentCoverage.majorFit += 1;
+    if (isScoreable(r.location)) componentCoverage.locationFit += 1;
+    if (isScoreable(r.outcome)) componentCoverage.athleticOutcome += 1;
+    if (isNotApplicable(r.major)) notApplicable.majorFit += 1;
+    if (isNotApplicable(r.location)) notApplicable.locationFit += 1;
+    if (isNotApplicable(r.outcome)) notApplicable.athleticOutcome += 1;
+  }
+
+  const share = (x) => Number((x / n).toFixed(4));
+
+  return {
+    athlete: { ...athlete },
+    counts: {
+      programmes: results.length,
+      scoreable: scored.length,
+      unscoreable: results.length - scored.length,
+      scoreableRate: share(scored.length),
+      measuredRate: share(grades[GRADE.MEASURED]),
+      partialRate: share(grades[GRADE.PARTIAL]),
+    },
+    opportunity: summarise(scored.map((r) => r.result.value)),
+    objectiveValue: summarise(scored.map((r) => r.result.basis.objectiveValue).filter((v) => v !== null)),
+    playingOpportunity: summarise(results.filter((r) => isScoreable(r.playing)).map((r) => r.playing.value)),
+    programmeTrajectory: summarise(results.filter((r) => isScoreable(r.trajectory)).map((r) => r.trajectory.value)),
+    majorFit: summarise(results.filter((r) => isScoreable(r.major)).map((r) => r.major.value)),
+    componentCoverage: Object.fromEntries(Object.entries(componentCoverage).map(([k, v]) => [k, share(v)])),
+    notApplicable: Object.fromEntries(Object.entries(notApplicable).map(([k, v]) => [k, share(v)])),
+    preferenceKnown: scored.length ? scored[0].result.basis.preferenceKnown : false,
+    prioritiesApplied: scored.length ? scored[0].result.basis.priorities : null,
+    byDivision: Object.fromEntries(Object.entries(byDivision)
+      .sort((a, b) => b[1].n - a[1].n)
+      .map(([k, v]) => [k, {
+        n: v.n, scoreable: v.scoreable,
+        scoreableRate: Number((v.scoreable / v.n).toFixed(4)),
+        opportunity: summarise(v.values),
+      }])),
+    unscoreableReasons: byReason,
+    results,
+  };
+}
+
+/** One programme, flattened for a report. */
+export function opportunityRow(entry) {
+  const { result } = entry;
+  const common = { id: entry.id, name: entry.name, division: entry.division };
+  if (!isScoreable(result)) {
+    return { ...common, scoreable: false, reason: result.reason, coverage: result.coverage, missing: [...result.missing] };
+  }
+  const b = result.basis;
+  return {
+    ...common,
+    scoreable: true,
+    opportunity: Number(result.value.toFixed(4)),
+    grade: result.grade,
+    coverage: Number(result.coverage.toFixed(4)),
+    objectiveValue: b.objectiveValue === null ? null : Number(b.objectiveValue.toFixed(4)),
+    preferenceValue: b.preferenceValue === null ? null : Number(b.preferenceValue.toFixed(4)),
+    preferenceKnown: b.preferenceKnown,
+    playingOpportunity: isScoreable(entry.playing) ? Number(entry.playing.value.toFixed(4)) : null,
+    playingShare: b.playing?.playingShare ?? null,
+    playingLevel: b.playing?.level ?? null,
+    programmeTrajectory: isScoreable(entry.trajectory) ? Number(entry.trajectory.value.toFixed(4)) : null,
+    trajectoryChange: b.trajectory?.change ?? null,
+    majorFit: isScoreable(entry.major) ? entry.major.value : null,
+    notApplicable: b.notApplicable,
+  };
+}

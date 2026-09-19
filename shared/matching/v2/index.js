@@ -7,8 +7,9 @@
  * into V2 until there is something to adopt.
  *
  * A7.1 built the contract, the coverage algebra and the ability calibration.
- * A7.2 added Financial Viability and A7.3 adds Coach Recruitability. There is
- * still no pipeline, no pursuit priority and no gating.
+ * A7.2 added Financial Viability, A7.3 Coach Recruitability and A7.4 Athlete
+ * Opportunity / Fit. There is still no pipeline, no pursuit priority and no
+ * gating: three independent layers and nothing that combines them.
  */
 export {
   GRADE, REASON, RANKING_STATE,
@@ -50,3 +51,16 @@ export { athleticPlausibility, plausibilityFromDelta } from './layers/athleticPl
 export { positionalOpportunity } from './layers/positionalOpportunity.js';
 export { internationalPropensity, INTERNATIONAL_SATURATION, MIN_ARRIVALS_FOR_PROGRAMME_RATE } from './layers/recruitingBehaviour.js';
 export { coachRecruitability, RECRUITABILITY_REFUSALS } from './layers/recruitability.js';
+
+export {
+  PLAYING_NORMS_ID, PLAYING_NORMS_DIGEST, PLAYING_NORMS,
+  playingShareFor, playingScale, TRAJECTORY_SATURATION,
+  VALUE_WEIGHTS, PREFERENCE_WEIGHTS, PRIORITY_LIFT, PRIORITY_MAP,
+  FOREIGN_PRIORITIES, OPPORTUNITY_COVERAGE_FLOOR,
+} from './opportunityRules.js';
+
+export {
+  playingOpportunity, programmeTrajectory, majorFit, locationFit, athleticOutcome,
+} from './layers/opportunityComponents.js';
+
+export { athleteOpportunity, priorityWeights } from './layers/opportunity.js';
