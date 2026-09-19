@@ -125,6 +125,35 @@ def classify(note, fetched_any, parsed, ambiguous=False):
     return 'OTHER'
 
 
+# Season routes a SIDEARM-style roster page offers about ITSELF.
+#
+# L7ZF. PAGE_PRIOR_SEASON says the best page we reached names an earlier
+# season. It does not say whether the season we asked for EXISTS, and those are
+# different findings: "the site has not published 2026 yet" and "the site
+# published 2026 somewhere we did not look" both arrive here as the same class.
+#
+# Seven programmes sat in it, and every one served the SAME page for
+# `/roster/2026`, `/roster/2026-27` and the bare `/roster` -- a platform
+# fallback for an unknown season, which reads exactly like a stale page. What
+# separated the two readings was the page's own season menu: an enumeration,
+# published by the site, of the seasons it holds. All seven topped out below
+# the season asked for, which is the site saying the roster does not exist
+# rather than us failing to find it.
+#
+# Recorded, not acted on. Nothing selects a candidate from this, and the class
+# is unchanged by it -- it is the evidence a reader needs to tell C from B.
+SEASON_ROUTE = re.compile(r'/roster/(20\d\d(?:-\d\d)?)\b')
+SEASON_OPTION = re.compile(r'<option[^>]*value="[^"]*?(20\d\d(?:-\d\d)?)"', re.I)
+
+
+def seasons_offered(html):
+    """Sorted seasons the page's own navigation links to, or []."""
+    if not html:
+        return []
+    return sorted({m.group(1) for m in SEASON_ROUTE.finditer(html)}
+                  | {m.group(1) for m in SEASON_OPTION.finditer(html)})
+
+
 def diagnose(key, row):
     out = {'key': key, 'school': row['School'], 'sport': row['Sport'],
            'division': row['Division'], 'gender': 'M' if row['Sport'] == 'mens-soccer' else 'W'}
@@ -163,7 +192,8 @@ def diagnose(key, row):
                        note=note, rungs=rungs)
             return out
         if best is None or n > best['n']:
-            best = {'url': url, 'ordinal': ordinal, 'parser': parser, 'n': n, 'note': note}
+            best = {'url': url, 'ordinal': ordinal, 'parser': parser, 'n': n, 'note': note,
+                    'seasons': seasons_offered(html)}
     if best is None:
         out.update(mechanism='SITE_UNREACHABLE' if not fetched_any
                    else ('AMBIGUOUS_ROSTER' if ambiguous else 'PARSE_ZERO'), rungs=rungs, n=0)
@@ -171,6 +201,18 @@ def diagnose(key, row):
     out.update(mechanism=classify(best['note'], fetched_any, best['n'], ambiguous),
                url=best['url'], ordinal=best['ordinal'], parser=best['parser'],
                n=best['n'], note=best['note'], rungs=rungs)
+    # Only where it answers something. Everywhere else it is noise in a report
+    # whose job is to name one refusal per programme.
+    if out['mechanism'] == 'PAGE_PRIOR_SEASON':
+        offered = best.get('seasons') or []
+        out['seasonsOffered'] = offered
+        out['seasonsMaxOffered'] = offered[-1] if offered else None
+        # The season asked for, as the site would have to spell it. Both forms,
+        # because a site may publish either and neither is the pipeline's to
+        # choose.
+        out['seasonAskedPublished'] = (
+            str(lib.SEASON) in offered
+            or f'{lib.SEASON}-{str(lib.SEASON + 1)[-2:]}' in offered)
     return out
 
 
