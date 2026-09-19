@@ -211,9 +211,27 @@ describe('PROVIDER_RECONCILED', () => {
      * not something stronger — which is the opposite of a producer. What would
      * make one is a reference through the enum.
      */
-    const hits = execFileSync('grep', [
-      '-rl', 'ACCEPTED_SOURCE.PROVIDER_', 'server', 'src', 'shared',
-    ], { cwd: ROOT, encoding: 'utf8', });
+    /**
+     * `server/data` is excluded because it is not source. It holds the working
+     * database and forty-odd backups of it - 4.7GB - which this walked in full
+     * on every run, taking over two minutes and, worse, racing: another suite
+     * opening the database creates and removes a `-shm` file mid-walk, grep
+     * reports it missing and exits 2, and the whole test fails for a reason
+     * that has nothing to do with the enum. Neither data directory contains a
+     * line of JavaScript.
+     */
+    let hits;
+    try {
+      hits = execFileSync('grep', [
+        '-rl', '--exclude-dir=data', '--exclude-dir=node_modules',
+        'ACCEPTED_SOURCE.PROVIDER_', 'server', 'src', 'shared',
+      ], { cwd: ROOT, encoding: 'utf8' });
+    } catch (err) {
+      // grep exits 1 for "no matches", which is the outcome this test WANTS.
+      // Anything else is a real failure and must not be swallowed.
+      if (err.status !== 1) throw err;
+      hits = '';
+    }
     const produced = hits.trim().split('\n').filter(Boolean)
       .filter((f) => !f.endsWith('.test.js'));
     expect(produced).toEqual([]);

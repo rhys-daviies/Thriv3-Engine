@@ -236,14 +236,14 @@ separate the Division I tail**. The percentile targets are a design choice; the
 
 | Rating | Percentile | soccer_score | What sits there | Interpretation |
 |---|---|---|---|---|
-| 1 | 2 | 29.6 | D3 92% | entry D3 |
+| 1 | 2 | 29.5 | D3 92% | entry D3 |
 | 2 | 8 | 34.8 | D3 80%, NAIA 18% | competitive D3 |
 | 3 | 18 | 39.6 | D3 73%, NAIA 21% | upper D3 |
 | 4 | 32 | 44.6 | D3 47%, NAIA 30%, D2 22% | upper D3 / NAIA |
 | 5 | 48 | 51.0 | D2 42%, D3 34%, NAIA 24% | NAIA / low D2 |
 | 6 | 64 | 59.7 | D2 51%, **D1 26%** | D2 / low D1 |
 | 7 | 78 | 67.7 | **D1 80%**, D2 20% | D1 capable |
-| 8 | 89 | 73.7 | **D1 97%** | solid D1 |
+| 8 | 89 | 73.9 | **D1 97%** | solid D1 |
 | 9 | 96 | 82.7 | **D1 100%** | upper D1 |
 | 10 | 99.5 | 93.9 | **D1 100%** | elite D1 |
 
@@ -256,6 +256,15 @@ across divisions; a division-relative scale would make a D3 delta and a D1 delta
 different quantities and break the ceiling. The two sports differ materially —
 women's D1 sits at p70 median against men's p81, because there are 349 women's
 D1 programmes and 213 men's — so the table is per sport and must stay so.
+
+**As built (A7.1).** The tables above are reproduced exactly by
+`server/scripts/calibrateAbilityScale.js --write`, which pins them to
+`shared/matching/v2/calibration/abilityScale.data.json`. The quantile
+definition is **nearest-rank** and is recorded in the file, so a regeneration
+under a different definition shows up as a definition change rather than as
+drift. Two women's cells in the table above were transcription slips and are
+corrected here to the derived values: rating 1 is **29.5** (not 29.6) and rating
+8 is **73.9** (not 73.7). Neither moves a division mix or an interpretation.
 
 ### Interpolation and invariants
 
@@ -804,7 +813,34 @@ residency premiums.
 
 ## 15. Unresolved issues
 
-1. **`positionUtilisation` excludes goalkeepers by design** — the median programme uses two and one reaches 600 minutes, so there is no distribution. `typicalStarters` for GK must come from a different derivation (probably a constant of 1) and invariant 4 in §12 needs a GK-specific case.
+### BLOCKER — goalkeepers have no `typicalStarters`
+
+**Blocks: the positional-opportunity layer (§7). Must be resolved before that
+task starts, and must not be invented inside it.**
+
+`positionUtilisation` excludes goalkeepers by design — the median programme uses
+two and only one reaches 600 minutes, so there is no distribution to take a
+median of. Every count in §7 is divided by `typicalStarters`, so for GK that
+divisor does not currently exist.
+
+The obvious answer, a constant of 1, is *probably* right and is not yet
+defensible: a squad carrying three keepers of whom one plays is a different
+opportunity from a squad carrying two, and dividing both by 1 says they are the
+same. What is needed before the layer is written:
+
+- a derivation of GK starter count from the roster data directly, not from
+  `positionUtilisation`
+- a decision on whether GK opportunity is a *different quantity* from outfield
+  opportunity rather than the same one with a different divisor
+- a GK-specific case for invariant 4 in §12
+
+Until then, the positional-opportunity layer must return `NOT_APPLICABLE` for
+goalkeepers rather than a number, which under §3 costs coverage rather than
+inventing a value. A constant slipped in during implementation would be exactly
+the class of defect this document exists to prevent: a product decision made by
+whoever happened to be writing the divisor.
+### Everything else
+
 2. **Cross-sport athletes** — the scale is per sport and an athlete has one sport. Fine today; breaks if an athlete is ever matched across sports.
 3. **`soccer_score` is itself a model.** Every δ rests on it, and the pinned digest catches a rebuild but cannot tell us whether the rebuild is better.
 4. **Ties in the limited-data ordering** will be common, since coverage is coarse. May need a third key.

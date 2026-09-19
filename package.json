@@ -11,6 +11,7 @@
     "baseline:dataset": "node server/scripts/pinBaselineDataset.js",
     "build": "vite build && npm run build:worker",
     "build:recruiting": "node server/scripts/buildRecruitingHistory.js",
+    "calibrate:ability": "node server/scripts/calibrateAbilityScale.js",
     "build:worker": "esbuild worker/index.js --bundle --format=esm --platform=neutral --outfile=build/worker/_worker.js",
     "coaching-import": "node server/scripts/coachingImport.js",
     "confirm-sends": "node server/scripts/confirmSends.js",
@@ -52,6 +53,7 @@
     "test:watch": "vitest",
     "trial:preflight": "node server/scripts/trialPreflight.js",
     "tune:weights": "node server/scripts/tuneMatchingWeights.js",
+    "v2:compare": "node server/scripts/v2Compare.js",
     "verify:baseline": "node server/scripts/verifyBaselineInvariants.js"
   },
   "dependencies": {
