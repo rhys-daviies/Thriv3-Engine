@@ -374,9 +374,9 @@ d('roster_freshness mirrors what production reads', () => {
 });
 
 d('the manifest declares its own definition version', () => {
-  it('reports V4 and carries every table the product reads', () => {
+  it('reports V5 and carries every table the product reads', () => {
     const m = datasetManifest();
-    expect(m.version).toBe('V4');
+    expect(m.version).toBe('V5');
     const tables = m.tables.map((t) => t.table);
     // V2 added roster_freshness (K3A: a re-scrape that only moved timestamps).
     expect(tables).toContain('roster_freshness');
@@ -391,6 +391,15 @@ d('the manifest declares its own definition version', () => {
      * report can say "same squad, measured differently".
      */
     expect(tables).toContain('roster_measurements');
+    /*
+     * V5 adds roster_season_trust (L7ZI), and it is the first component added
+     * BEFORE the gap could be demonstrated rather than after. Its `disposition`
+     * decides whether Evidence reads a programme-season at all, so one row
+     * would change what every roster-derived kind computes while all four
+     * roster components reported UNCHANGED -- they fingerprint roster_players,
+     * and an exclusion changes nothing in it.
+     */
+    expect(tables).toContain('roster_season_trust');
     expect(tables).toContain('roster_players');
   });
 
@@ -399,6 +408,6 @@ d('the manifest declares its own definition version', () => {
     const cmp = compareBaselines({ manifest: { digest: 'old', tables: [] }, baselines: [] }, actual);
     expect(cmp.dataset).toBe('DEFINITION_CHANGED');
     // An unversioned pin is the version before the current one.
-    expect(cmp.manifestVersionExpected).toBe('V3');
+    expect(cmp.manifestVersionExpected).toBe('V4');
   });
 });

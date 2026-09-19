@@ -2,7 +2,7 @@
   "note": "Committed Evidence behavioural baseline. See docs/EVIDENCE_BASELINES.md before repinning.",
   "now": "2026-09-06T00:00:00.000Z",
   "manifest": {
-    "version": "V4",
+    "version": "V5",
     "tables": [
       {
         "table": "players",
@@ -18,6 +18,11 @@
         "table": "roster_players",
         "rows": 281159,
         "digest": "927b5fa9290cb654bbbf96e4154d462fdfbe06c4e049515eb80bc456f467b51b"
+      },
+      {
+        "table": "roster_season_trust",
+        "rows": 0,
+        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       {
         "table": "coaches",
@@ -45,7 +50,7 @@
         "digest": "ab56aa2dbd8cb5a35cad0d46255a2fafbebbc2cb578b6f2a5e57f8dde6b37f92"
       }
     ],
-    "digest": "7d256f519c130dd632a3386c5af0ddb7f03ac823c5e2cd0367686b47746384fe"
+    "digest": "322995fd7be5a6733a5fc49da18e0bec4d7f41ac0b9dea0763a5390b472cc0a7"
   },
   "baselines": [
     {

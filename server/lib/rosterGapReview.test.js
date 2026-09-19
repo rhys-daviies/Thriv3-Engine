@@ -245,7 +245,16 @@ describe('operator review is operational metadata and nothing else', () => {
         for (const m of text.matchAll(/^\s*import\s[^;]*?from\s*'([^']+)'/gm)) {
           if (REVIEW.test(m[1])) offenders.push(`${dir}/${base} -> ${m[1]}`);
         }
-        if (/roster_gap_reviews/.test(text)) offenders.push(`${dir}/${base} queries the table`);
+        /*
+         * COMMENTS STRIPPED FIRST. The import check above already says it looks
+         * for an import "not a mention in prose"; this one did not, and L7ZI
+         * caught it — `shared/roster/seasonTrust.js` names this table half a
+         * dozen times in comments, explaining that it follows its idiom, and was
+         * reported as querying it. A guard that cannot tell a citation from a
+         * query teaches people to stop citing.
+         */
+        const code = text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+        if (/roster_gap_reviews/.test(code)) offenders.push(`${dir}/${base} queries the table`);
       }
     }
     expect(offenders).toEqual([]);

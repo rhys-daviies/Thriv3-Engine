@@ -147,14 +147,31 @@ describe('L7ZA — cohort boundaries', () => {
   });
 
   it('applies no programme_status, colleges.active or division filter', () => {
-    // The pool reads roster_players alone: it never joins colleges or
-    // programme_status, so an inactive or retired programme still contributes
-    // through its historical rows.
+    /*
+     * The pool reads roster_players alone: it never joins colleges or
+     * programme_status, so an inactive or retired programme still contributes
+     * through its historical rows.
+     *
+     * L7ZI ADDED ONE PREDICATE, AND IT IS NOT A COHORT RULE. An operator
+     * exclusion removes a programme-season whose identity was found not to be
+     * trustworthy; it does not decide who belongs in the comparison. The
+     * distinction is the whole reason the cohort assertions below still stand —
+     * a division, status or activity filter would change WHO is compared, and
+     * L7ZA measured that none exists. This one changes only whether a season
+     * somebody reviewed is read at all, and with no rows in the table it
+     * removes nothing.
+     */
     const sql = fs.readFileSync(new URL('./philosophyQueries.js', import.meta.url), 'utf8');
     const build = sql.slice(sql.indexOf('export function buildPoolBenchmarks'));
     const body = build.slice(0, build.indexOf('\n}\n'));
-    expect(body).toMatch(/FROM roster_players WHERE sport = \? AND season IN/);
     expect(body).not.toMatch(/JOIN colleges|programme_status|active/);
+    /*
+     * The WHERE clause in full, so a third predicate cannot arrive unnoticed.
+     * Two conjuncts: the cohort (sport and season) and the trust exclusion.
+     */
+    const where = /WHERE sport = \? AND season IN \(\$\{SEASON_LIST\}\) AND \$\{TRUSTED\}/;
+    expect(body).toMatch(where);
+    expect(body).toMatch(/FROM roster_players/);
   });
 });
 

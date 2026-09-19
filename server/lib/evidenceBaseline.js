@@ -196,6 +196,20 @@ export const short = (d) => String(d).slice(0, 16);
  * changed" and "the same squad, measured differently" are different events with
  * different causes, and a single digest covering both would answer neither.
  *
+ * V5 adds `roster_season_trust`, and it is the first component added BEFORE the
+ * gap could be demonstrated rather than after. L7ZI introduced a table whose
+ * `disposition` decides whether Evidence reads a programme-season at all, so a
+ * single row written there would change what every roster-derived kind
+ * computes while all four roster components reported UNCHANGED — they
+ * fingerprint `roster_players`, and an exclusion changes nothing in it.
+ *
+ * The version moved even though production holds ZERO trust rows. That is the
+ * point of versioning the DEFINITION rather than the data: a V4 digest was
+ * taken over a table list that could not see this input, and a V4 digest taken
+ * now would claim to answer the same question while answering a different one.
+ * The manifest pin therefore moves in a stage where no product data moved at
+ * all, and the behavioural baselines correctly do not.
+ *
  * SUCCESSIVE VERSIONS ARE NOT COMPARABLE WITH EACH OTHER, and the report says
  * UNCOMPARABLE rather than FAIL when it meets one across a boundary. They
  * describe different questions about the data; a number computed for one is not
@@ -203,15 +217,22 @@ export const short = (d) => String(d).slice(0, 16);
  * version is what keeps that honest — a V2 pin and a V2 digest taken over a
  * different table list would both claim to be V2 and mean different things.
  */
-export const MANIFEST_VERSION = 'V4';
+export const MANIFEST_VERSION = 'V5';
 
-/** The last version before `roster_measurements`, kept so a V3 pin is nameable. */
-export const LEGACY_MANIFEST_VERSION = 'V3';
+/** The last version before `roster_season_trust`, kept so a V4 pin is nameable. */
+export const LEGACY_MANIFEST_VERSION = 'V4';
 
 const MANIFEST_TABLES = Object.freeze([
   ['players', 'SELECT id, full_name, sport, nationality, position, intended_major, recruiting_class_year FROM players ORDER BY id'],
   ['colleges', 'SELECT name, sport, unitid, division, conference FROM colleges ORDER BY sport, name'],
   ['roster_players', 'SELECT college_name, sport, season, player_name FROM roster_players ORDER BY sport, college_name, season, player_name'],
+  /*
+   * L7ZI. `disposition` is the field that changes behaviour; the rest are
+   * fingerprinted with it because a decision whose evidence or reviewer
+   * changed is a different decision, and a manifest that could not see an
+   * edit to the reason would let one be rewritten silently.
+   */
+  ['roster_season_trust', 'SELECT season, college_name, sport, diagnosis, diagnosis_evidence, diagnosed_at, disposition, disposition_evidence, reviewed_at, reviewed_by_operator_id, next_action, previous_disposition, previous_reviewed_at FROM roster_season_trust ORDER BY sport, college_name, season'],
   ['coaches', 'SELECT school, sport, full_name, position_title FROM coaches ORDER BY sport, school, full_name, position_title'],
   ['athletics_domains', 'SELECT domain, unitid, status, role, confidence FROM athletics_domains ORDER BY domain'],
   /*

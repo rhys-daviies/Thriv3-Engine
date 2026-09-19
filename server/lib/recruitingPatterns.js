@@ -19,6 +19,7 @@ import {
   ARRIVAL_TRANSITIONS, ARRIVAL_CONFIDENCE, currentCoachScope,
 } from '../../shared/recruiting/arrivals.js';
 import { buildProgrammePatterns } from '../../shared/recruiting/patterns.js';
+import { trustedRosterPredicate } from '../../shared/roster/seasonTrust.js';
 
 /** The stored row, in the shape the pure aggregations expect. */
 function toArrival(r) {
@@ -62,7 +63,11 @@ export function comparableTransitionsFor(seasons = []) {
 /** Roster seasons on file, per programme, for one sport. */
 export function loadSeasonsBySport(sport) {
   const rows = db.prepare(
-    'SELECT college_name, season FROM roster_players WHERE sport = ? GROUP BY college_name, season',
+    // L7ZI: an excluded programme-season must not count as a season on file,
+    // or a transition would be called comparable against data Evidence cannot read.
+    `SELECT college_name, season FROM roster_players
+      WHERE sport = ? AND ${trustedRosterPredicate('roster_players')}
+      GROUP BY college_name, season`,
   ).all(sport);
   const out = new Map();
   for (const r of rows) {
@@ -129,7 +134,9 @@ export function loadProgrammePatterns(sport, programme) {
   ).all(sport, programme, ARRIVAL_CONFIDENCE.DIRECT);
 
   const seasonRows = db.prepare(
-    'SELECT season FROM roster_players WHERE sport = ? AND college_name = ? GROUP BY season',
+    `SELECT season FROM roster_players
+      WHERE sport = ? AND college_name = ? AND ${trustedRosterPredicate('roster_players')}
+      GROUP BY season`,
   ).all(sport, programme);
   if (!seasonRows.length && !arrivalRows.length) return null;
 

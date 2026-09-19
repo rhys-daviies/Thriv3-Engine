@@ -15,6 +15,7 @@ import db from '../db/client.js';
 import { programmePhilosophy, playerFit, SEASONS, SQUAD_SEASON, vacancyObservations } from '../../shared/philosophy.js';
 import { ladderByRank } from '../../shared/freshmanMinutes.js';
 import { POSITIONS } from '../../shared/positions.js';
+import { trustedRosterPredicate } from '../../shared/roster/seasonTrust.js';
 
 const SEASON_LIST = SEASONS.map(() => '?').join(',');
 
@@ -28,9 +29,25 @@ const ROSTER_COLUMNS = `college_name, sport, season, player_name, position, minu
   estimated_graduation_year, eligibility_end_year, projected_minutes, prior_programme,
   updated_date, source_roster_url`;
 
+/**
+ * L7ZI — the one place an excluded programme-season is removed.
+ *
+ * Appended to every roster read that feeds Evidence, so a season an operator
+ * excluded cannot reach a generator through a query that forgot. Seven kinds
+ * each remembering to filter is seven places for the eighth to forget, and the
+ * failure would be silent: a claim built from an excluded season is
+ * indistinguishable from a correct one.
+ *
+ * Inert until something is excluded. With no rows in `roster_season_trust` the
+ * subquery matches nothing and every read returns exactly what it returned
+ * before — which is why introducing this moved no canonical Evidence at all.
+ */
+const TRUSTED = trustedRosterPredicate('roster_players');
+
 const selectRoster = db.prepare(
   `SELECT ${ROSTER_COLUMNS} FROM roster_players
-   WHERE college_name = ? AND sport = ? AND season IN (${SEASON_LIST})`,
+   WHERE college_name = ? AND sport = ? AND season IN (${SEASON_LIST})
+     AND ${TRUSTED}`,
 );
 // `reason` is not optional: a season the scraper could not read and a season
 // the page said was vacant are opposite claims, and tenureFor needs the reason
@@ -61,7 +78,8 @@ export function programmeRows(school, sport) {
  */
 const selectSquad = db.prepare(
   `SELECT ${ROSTER_COLUMNS} FROM roster_players
-   WHERE college_name = ? AND sport = ? AND season = ?`,
+   WHERE college_name = ? AND sport = ? AND season = ?
+     AND ${TRUSTED}`,
 );
 
 export function squadRows(school, sport) {
@@ -140,7 +158,8 @@ function quantile(sorted, q) {
 export function buildPoolBenchmarks(sport) {
   const started = Date.now();
   const roster = db.prepare(
-    `SELECT ${ROSTER_COLUMNS} FROM roster_players WHERE sport = ? AND season IN (${SEASON_LIST})`,
+    `SELECT ${ROSTER_COLUMNS} FROM roster_players
+     WHERE sport = ? AND season IN (${SEASON_LIST}) AND ${TRUSTED}`,
   ).all(sport, ...SEASONS).map((r) => ({ ...r, season: String(r.season) }));
 
   const empty = {

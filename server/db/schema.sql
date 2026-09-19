@@ -1327,3 +1327,70 @@ CREATE TABLE IF NOT EXISTS programme_status (
 
   PRIMARY KEY (school, sport)
 );
+
+-- L7ZI — whether Evidence should trust a historical programme-season.
+--
+-- `roster_players` says these rows exist. It cannot say whether the season they
+-- are stored under is the season the source established, and L7ZG found two
+-- probable duplicate captures and thirteen seasons with no surviving evidence
+-- of their identity at all. Every one must stay on file for audit, inspection,
+-- provenance and future repair, so keep-or-delete was never the right pair of
+-- options. This is the third one.
+--
+-- ONE ROW PER DECISION, NOT PER PLAYER. Trust is a statement about the season,
+-- so it is keyed at the programme-season. L7ZI measured the alternative: of 142
+-- multi-source programme-seasons, 120 collapse to a single origin page once
+-- archive wrappers and per-player bio segments are removed, and only 3 carry
+-- sources naming more than one season. Per-row source provenance already exists
+-- in `roster_players.source_*` from L7Z and answers a different question --
+-- where a row came from, not which season the page was.
+--
+-- ABSENCE MEANS NO OVERRIDE. A programme-season with no row here behaves
+-- exactly as it did before this table existed. There is no implicit TRUSTED and
+-- no implicit UNPROVEN: making either honest would mean backfilling 6,844
+-- programme-seasons with an assertion nobody measured.
+CREATE TABLE IF NOT EXISTS roster_season_trust (
+  -- Keyed as `roster_players` keys itself. `roster_gap_reviews` says `school`
+  -- because it is about a registry gap; this joins roster rows, and a second
+  -- spelling of the same column is how a join silently matches nobody.
+  season TEXT NOT NULL,
+  college_name TEXT NOT NULL,
+  sport TEXT NOT NULL,
+
+  -- THE MACHINE HALF. A measurement, and it never changes Evidence on its own.
+  -- `shared/roster/seasonTrust.js` owns the vocabulary; not a CHECK constraint,
+  -- for the reason roster_gap_reviews gives -- a validator can say WHY a value
+  -- is refused where a constraint can only fail.
+  diagnosis TEXT,
+  -- What the measurement saw. A sentence, not a payload.
+  diagnosis_evidence TEXT,
+  diagnosed_at TEXT,
+
+  -- THE HUMAN HALF. The only half that can remove a season from Evidence, and
+  -- only through EXCLUDE_FROM_EVIDENCE. Separated from the diagnosis because an
+  -- audit heuristic that silently changed product intelligence would be the
+  -- same class of defect this table records.
+  disposition TEXT,
+  disposition_evidence TEXT,
+  reviewed_at TEXT,
+  -- Attributed where an operator id is available, and NOT a foreign key: the
+  -- same reason roster_gap_reviews avoids one -- `operator_users` is created by
+  -- the auth path, and a REFERENCES clause makes a database built from this
+  -- file alone unable to accept a decision.
+  reviewed_by_operator_id TEXT,
+
+  -- What someone intends to do next. Free text on purpose: "retry discovery" and
+  -- "a repair source exists" are next actions, not trust states -- a season is
+  -- not in a different relationship with Evidence because someone means to
+  -- re-fetch it -- and inventing dispositions for them would grow the state
+  -- machine without adding a distinction Evidence can act on.
+  next_action TEXT,
+
+  -- BOUNDED HISTORY, exactly as roster_gap_reviews keeps it: the immediately
+  -- previous conclusion and when it was reached, which answers "has this
+  -- changed, and from what" without becoming an event log for a dozen rows.
+  previous_disposition TEXT,
+  previous_reviewed_at TEXT,
+
+  PRIMARY KEY (season, college_name, sport)
+);
