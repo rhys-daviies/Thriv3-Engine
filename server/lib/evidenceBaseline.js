@@ -473,7 +473,17 @@ export const BASELINE_NOW = Date.parse('2026-09-06T00:00:00Z');
  * one that moves EMAIL_BODY alone is the template. Reading which subset moved
  * localises the change before anyone opens a diff.
  */
-export function buildBaselines() {
+/**
+ * @param {{ withLines?: boolean }} [opts] — `withLines` also returns the raw
+ *   per-pair corpus lines behind each digest.
+ *
+ * L7ZN. A digest says THAT a surface moved; only the lines say WHICH pairs and
+ * WHAT about them. L7ZM had to report four moved baselines with no way to
+ * sample a single changed pair, and "probably the projection" is not an
+ * explanation. Off by default because the lines are large and nothing in the
+ * normal path wants them.
+ */
+export function buildBaselines({ withLines = false } = {}) {
   const decision = []; const composition = []; const body = [];
   const wire = []; const log = []; const operator = [];
   const stats = {
@@ -673,6 +683,14 @@ export function buildBaselines() {
       { name: 'LOG_PAYLOAD', size: log.length, digest: fingerprint(log) },
       { name: 'OPERATOR_EVIDENCE', size: operator.length, digest: fingerprint(operator) },
     ],
+    ...(withLines ? { lines: {
+      OUTBOUND_DECISION: decision,
+      COACH_COMPOSITION: composition,
+      EMAIL_BODY: body,
+      OPERATOR_WIRE: wire,
+      LOG_PAYLOAD: log,
+      OPERATOR_EVIDENCE: operator,
+    } } : {}),
   };
 }
 

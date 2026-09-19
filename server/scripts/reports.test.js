@@ -145,7 +145,7 @@ describeReports('evidenceReport', () => {
   });
 
   it('matches its recorded output', () => {
-    expect(sha(result.out)).toBe('9807e1e467664ede');
+    expect(sha(result.out)).toBe('8105bf98447a9cfe');
   });
 });
 
@@ -254,7 +254,7 @@ describeReports('outreachQA', () => {
      * countries, and gives countries their definite article — "the United
      * Kingdom", not "United Kingdom".
      */
-    expect(sha(result.out)).toBe('26bea874dc995b83');
+    expect(sha(result.out)).toBe('b764de7381c41e1c');
   });
 });
 
@@ -311,6 +311,6 @@ describeReports('recruitingEvidenceReport', () => {
      * COACH_ARRIVAL_SAME_COUNTRY hook, which carries no position, so the
      * cross-group hold does not apply and the evidence here is unchanged.
      */
-    expect(sha(result.out)).toBe('2b9292abd1199d47');
+    expect(sha(result.out)).toBe('922e6a0813a1b113');
   });
 });

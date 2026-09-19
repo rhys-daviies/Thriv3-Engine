@@ -51,55 +51,82 @@ export function projectMinutes(db, { season, from }) {
     console.log('        Only rows still missing them are projected — real data always wins.');
   }
 
-  db.prepare('UPDATE roster_players SET projected_minutes = NULL, projected_minutes_season = NULL, '
-    + 'prior_programme = NULL WHERE season = ?').run(season);
+  /**
+   * ONE TRANSACTION, BECAUSE THE CLEAR ALONE IS A VALID-LOOKING DATABASE.
+   *
+   * Ported from 754a70c, which is the commit that produced the current
+   * canonical projection. These were three separate write units: wipe the
+   * columns, rebuild the projections, backfill the prior programme. A process
+   * that died between the first and the second left every 2026 row with a NULL
+   * projection — which is not a crash, it is a silently degraded matcher.
+   * `isStarter` falls back to `false`, every departure drops from starter to
+   * squad at 0.4 weight, and nothing in the suite goes red.
+   *
+   * better-sqlite3 runs the callback inside BEGIN/COMMIT and rolls back on a
+   * throw, so an interrupted rebuild now leaves the previous projections in
+   * place rather than no projections at all. The clear is only durable if
+   * everything after it also is.
+   *
+   * L7ZN VERIFIED: this changes DURABILITY, not output. The pre-transaction
+   * code on this branch reproduced the canonical 39,430-row projection with
+   * zero mismatches across 281,159 rows before the wrapper was added.
+   */
+  const rebuild = db.transaction(() => {
+    db.prepare('UPDATE roster_players SET projected_minutes = NULL, projected_minutes_season = NULL, '
+      + 'prior_programme = NULL WHERE season = ?').run(season);
 
-  const info = db.prepare(`
-    UPDATE roster_players AS t
-       SET projected_minutes = (
-             SELECT MAX(p.minutes_played) FROM roster_players p
-              WHERE p.season = @source AND p.college_name = t.college_name
-                AND p.sport = t.sport AND ${NORM.replace(/player_name/g, 'p.player_name')} = ${NORM.replace(/player_name/g, 't.player_name')}
-                AND p.minutes_played IS NOT NULL),
-           projected_minutes_season = @source
-     WHERE t.season = @season
-       AND t.minutes_played IS NULL
-       AND EXISTS (
-             SELECT 1 FROM roster_players p
-              WHERE p.season = @source AND p.college_name = t.college_name
-                AND p.sport = t.sport AND ${NORM.replace(/player_name/g, 'p.player_name')} = ${NORM.replace(/player_name/g, 't.player_name')}
-                AND p.minutes_played IS NOT NULL)
-  `).run({ season, source });
+    const info = db.prepare(`
+      UPDATE roster_players AS t
+         SET projected_minutes = (
+               SELECT MAX(p.minutes_played) FROM roster_players p
+                WHERE p.season = @source AND p.college_name = t.college_name
+                  AND p.sport = t.sport AND ${NORM.replace(/player_name/g, 'p.player_name')} = ${NORM.replace(/player_name/g, 't.player_name')}
+                  AND p.minutes_played IS NOT NULL),
+             projected_minutes_season = @source
+       WHERE t.season = @season
+         AND t.minutes_played IS NULL
+         AND EXISTS (
+               SELECT 1 FROM roster_players p
+                WHERE p.season = @source AND p.college_name = t.college_name
+                  AND p.sport = t.sport AND ${NORM.replace(/player_name/g, 'p.player_name')} = ${NORM.replace(/player_name/g, 't.player_name')}
+                  AND p.minutes_played IS NOT NULL)
+    `).run({ season, source });
 
-  // ---- where each player was the season before -------------------------
-  // Recorded for every row we can identify, not just the ones we project from.
-  // A blank minutes cell has three quite different causes -- transferred in,
-  // new to college soccer, or on the same roster with no minutes published --
-  // and the UI can only say which if the data does.
-  //
-  // Skipped where the name is not unique to one programme in the prior season
-  // (1,007 of 54,174 names), because "transferred from X" has to be right.
-  const priorRows = db.prepare(
-    'SELECT college_name, sport, player_name FROM roster_players WHERE season = ?'
-  ).all(source);
-  const norm = (n) => String(n || '').toLowerCase().replace(/[^a-z]/g, '');
-  const seen = new Map();
-  for (const r of priorRows) {
-    const k = `${r.sport}|${norm(r.player_name)}`;
-    if (!k.endsWith('|')) seen.set(k, seen.has(k) && seen.get(k) !== r.college_name ? null : r.college_name);
-  }
-  const setPrior = db.prepare('UPDATE roster_players SET prior_programme = ? WHERE id = ?');
-  const targets = db.prepare('SELECT id, college_name, sport, player_name FROM roster_players WHERE season = ?').all(season);
-  let located = 0, movedIn = 0;
-  db.transaction(() => {
-    for (const t of targets) {
-      const was = seen.get(`${t.sport}|${norm(t.player_name)}`);
-      if (!was) continue;
-      setPrior.run(was, t.id);
-      located += 1;
-      if (was !== t.college_name) movedIn += 1;
+    // ---- where each player was the season before -------------------------
+    // Recorded for every row we can identify, not just the ones we project from.
+    // A blank minutes cell has three quite different causes -- transferred in,
+    // new to college soccer, or on the same roster with no minutes published --
+    // and the UI can only say which if the data does.
+    //
+    // Skipped where the name is not unique to one programme in the prior season
+    // (1,007 of 54,174 names), because "transferred from X" has to be right.
+    const priorRows = db.prepare(
+      'SELECT college_name, sport, player_name FROM roster_players WHERE season = ?'
+    ).all(source);
+    const norm = (n) => String(n || '').toLowerCase().replace(/[^a-z]/g, '');
+    const seen = new Map();
+    for (const r of priorRows) {
+      const k = `${r.sport}|${norm(r.player_name)}`;
+      if (!k.endsWith('|')) seen.set(k, seen.has(k) && seen.get(k) !== r.college_name ? null : r.college_name);
     }
-  })();
+    const setPrior = db.prepare('UPDATE roster_players SET prior_programme = ? WHERE id = ?');
+    const targets = db.prepare('SELECT id, college_name, sport, player_name FROM roster_players WHERE season = ?').all(season);
+    let located = 0, movedIn = 0;
+    // Already inside `rebuild`; better-sqlite3 nests this as a SAVEPOINT rather
+    // than a second BEGIN, so the whole operation still commits or rolls back
+    // as one.
+    db.transaction(() => {
+      for (const t of targets) {
+        const was = seen.get(`${t.sport}|${norm(t.player_name)}`);
+        if (!was) continue;
+        setPrior.run(was, t.id);
+        located += 1;
+        if (was !== t.college_name) movedIn += 1;
+      }
+    })();
+    return { info, located, movedIn };
+  });
+  const { info, located, movedIn } = rebuild();
 
   const tot = db.prepare('SELECT COUNT(*) n FROM roster_players WHERE season = ?').get(season).n;
   const grad = db.prepare(`

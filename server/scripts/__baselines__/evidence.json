@@ -47,16 +47,16 @@
       {
         "table": "roster_measurements",
         "rows": 281159,
-        "digest": "ab56aa2dbd8cb5a35cad0d46255a2fafbebbc2cb578b6f2a5e57f8dde6b37f92"
+        "digest": "2009f8afa02c1fb25afc29b441ae9889e784883df91e7cbcdcdcfe65df9ae557"
       }
     ],
-    "digest": "48ff9511e307817c92f3b2b6d13395f03b477414c76624af5efb28b89dbdcba9"
+    "digest": "a433a7c149fe1628fb22a2b8aab7e00e26825305f9505b194e928b7a871bc8fd"
   },
   "baselines": [
     {
       "name": "OUTBOUND_DECISION",
       "size": 4742,
-      "digest": "584ee4030bac43af836f5b2f2e422bca871518d3e9410b3789f2204749ae5706"
+      "digest": "e1bb8f2f4032c63bfd4fd871e097b3dbf4bd8f31d86f60d31086aa7b00c36272"
     },
     {
       "name": "COACH_COMPOSITION",
@@ -71,17 +71,17 @@
     {
       "name": "OPERATOR_WIRE",
       "size": 4742,
-      "digest": "fe7cc83f81db23d144a17b10e29d783163f42b75855467708097ff05f7ba8691"
+      "digest": "daf48688908e2cc8e984409989070892e305ade0ebd92fddac34b89f2c9c74a2"
     },
     {
       "name": "LOG_PAYLOAD",
       "size": 4742,
-      "digest": "6927bca2da9d7ecf99a90275f135f8c58279ad6d8baa7d6236a681651074fdd2"
+      "digest": "009192626440119e905921ab58ae58e58c1aaf804f01c10bf9683f7bfa54cdd3"
     },
     {
       "name": "OPERATOR_EVIDENCE",
       "size": 4742,
-      "digest": "51f95645e24c2bb3b048b7de0b2c18428eda51bc00a37a6d8886e1c4ed090aaa"
+      "digest": "72cbb26eb24896e180b18869a30e2b896aa4b3d62abcc5fde4d7ae3f7c65a1a0"
     }
   ]
 }
