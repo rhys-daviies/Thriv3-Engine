@@ -40,6 +40,7 @@
     "seed:engagement": "node server/seed/seedEngagement.js",
     "simulate": "node server/seed/simulateEngagement.js",
     "snapshot:pi": "node server/scripts/snapshotProgrammeIntelligence.js",
+    "snapshot:matching": "node server/scripts/snapshotMatchingBaseline.js",
     "suppress": "node server/scripts/suppress.js",
     "sync": "node server/scripts/syncEngagement.js",
     "test": "vitest run",

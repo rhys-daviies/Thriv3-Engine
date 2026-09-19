@@ -5,6 +5,10 @@ import {
   academicFit,
   affordability,
   athleticAidFraction,
+  maxAthleticAidFraction,
+  athleticAidPolicy,
+  expectedAward,
+  AID_POLICY,
   programQuality,
   geography,
   GRAD_YEAR_NULL_TOLERANCE,
@@ -251,8 +255,135 @@ describe('athleticAidFraction', () => {
       .toBeGreaterThan(athleticAidFraction({ division: 'NCAA D1', sport: 'mens-soccer' }));
   });
 
-  it('is zero for a division we hold no rule for', () => {
-    expect(athleticAidFraction({ division: 'NCCAA', sport: 'mens-soccer' })).toBe(0);
+  /**
+   * This assertion used to read `.toBe(0)`, and that was the defect: the
+   * lookup ended `?? 0`, so a division absent from the tables produced a
+   * confident zero and `expectedAward` told the reader that athletic
+   * scholarships do not exist there. Null is the honest answer and it cannot
+   * be mistaken for a measurement further down.
+   */
+  it('is NULL, not zero, for a division we hold no rule for', () => {
+    expect(athleticAidFraction({ division: 'NCCAA', sport: 'mens-soccer' })).toBeNull();
+    expect(maxAthleticAidFraction({ division: 'NCCAA', sport: 'mens-soccer' })).toBeNull();
+  });
+
+  it('is null for a sport a configured division does not list', () => {
+    expect(athleticAidFraction({ division: 'NCAA D1', sport: 'mens-lacrosse' })).toBeNull();
+  });
+});
+
+describe('athleticAidPolicy', () => {
+  it('separates a rule-set zero from an absent rule', () => {
+    expect(athleticAidPolicy({ division: 'NCAA D3', sport: 'mens-soccer' }))
+      .toMatchObject({ status: AID_POLICY.DIVISION_RULE, mean: 0, max: 0, rule: 'NCAA D3' });
+    expect(athleticAidPolicy({ division: 'USCAA', sport: 'mens-soccer' }))
+      .toMatchObject({ status: AID_POLICY.UNKNOWN, mean: null, max: null, rule: null });
+  });
+
+  it('attributes the Ivy League zero to the conference, not to D1', () => {
+    expect(athleticAidPolicy({ division: 'NCAA D1', sport: 'mens-soccer', conference: 'Ivy League' }))
+      .toMatchObject({ status: AID_POLICY.CONFERENCE_RULE, max: 0, rule: 'Ivy League' });
+  });
+
+  it('reads a configured pool as an equivalency', () => {
+    expect(athleticAidPolicy({ division: 'NCAA D1', sport: 'womens-soccer' }).status)
+      .toBe(AID_POLICY.EQUIVALENCY);
+  });
+
+  it('treats a missing division as unknown rather than as a rule', () => {
+    for (const division of [undefined, null, '', 'Other', 'NCCAA']) {
+      expect(athleticAidPolicy({ division, sport: 'mens-soccer' }).status).toBe(AID_POLICY.UNKNOWN);
+    }
+  });
+});
+
+describe('expectedAward — what may be claimed about scholarships', () => {
+  const at = (division, conference) =>
+    expectedAward({ division, sport: 'mens-soccer', conference, athleteLevel: 80, programLevel: 55 });
+
+  it('never claims scholarships are unavailable where no rule is held', () => {
+    for (const division of ['USCAA', 'NCCAA', null, undefined]) {
+      const r = at(division);
+      expect(r.known).toBe(false);
+      expect(r.basis).toBe('athletic aid unknown');
+      expect(r.caveat).not.toMatch(/offers no athletic scholarships/i);
+      expect(r.caveat).not.toMatch(/does not permit athletic scholarships/i);
+      expect(r.caveat).toMatch(/no athletic-scholarship rule is on file/i);
+    }
+  });
+
+  it('names USCAA as unknown rather than inventing a constant for it', () => {
+    const r = at('USCAA');
+    // The fraction stays 0 so pricing is unchanged and conservative; what
+    // changed is that nothing asserts this is a rule.
+    expect(r.fraction).toBe(0);
+    expect(r.known).toBe(false);
+    expect(r.caveat).toContain('USCAA');
+  });
+
+  it('still states the rule plainly where there genuinely is one', () => {
+    const d3 = at('NCAA D3');
+    expect(d3.known).toBe(true);
+    expect(d3.fraction).toBe(0);
+    expect(d3.caveat).toMatch(/^NCAA D3 offers no athletic scholarships/);
+  });
+
+  it('attributes an Ivy League zero to the Ivy League', () => {
+    const ivy = at('NCAA D1', 'Ivy League');
+    expect(ivy.known).toBe(true);
+    expect(ivy.fraction).toBe(0);
+    expect(ivy.caveat).toMatch(/^The Ivy League does not permit athletic scholarships/);
+    // The bug this replaces: the sentence was built from `division`, so an Ivy
+    // programme was explained as though the rule applied to all of Division I.
+    expect(ivy.caveat).not.toMatch(/NCAA D1 offers no athletic scholarships/);
+  });
+
+  it('never gives a non-Ivy D1 programme the Ivy explanation', () => {
+    for (const conference of [undefined, null, 'ACC', 'Big Ten', 'Patriot League']) {
+      const r = at('NCAA D1', conference);
+      expect(r.caveat).not.toMatch(/Ivy/i);
+      expect(r.fraction).toBeGreaterThan(0);
+      expect(r.known).toBe(true);
+    }
+  });
+
+  it('marks an award known wherever a rule produced it', () => {
+    for (const division of ['NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA']) {
+      expect(at(division).known).toBe(true);
+    }
+  });
+});
+
+describe('affordability — an unknown aid rule is not a measurement', () => {
+  const base = {
+    budgetRange: '$15k-$20k/yr', netPrice: 24000, control: 2,
+    sport: 'mens-soccer', athleteLevel: 80, programLevel: 40,
+  };
+
+  it('carries awardKnown so a surface can tell a rule from an absence', () => {
+    expect(affordability({ ...base, division: 'NCAA D3' }).detail.awardKnown).toBe(true);
+    expect(affordability({ ...base, division: 'USCAA' }).detail.awardKnown).toBe(false);
+  });
+
+  it('does not badge an estimate built on an absent rule as measured', () => {
+    expect(affordability({ ...base, division: 'NCAA D3' }).confidence).toBe('measured');
+    expect(affordability({ ...base, division: 'USCAA' }).confidence).toBe('partial');
+  });
+
+  /**
+   * The repair must be visible in the copy and invisible in the ranking.
+   * V1 priced an unconfigured division at its full net price via `?? 0`, and
+   * that arithmetic is deliberately unchanged — only the claim moved.
+   */
+  it('leaves the score identical to the zero-award case it replaces', () => {
+    expect(affordability({ ...base, division: 'USCAA' }).score)
+      .toBe(affordability({ ...base, division: 'NCAA D3' }).score);
+  });
+
+  it('does not use award vocabulary for an unknown rule', () => {
+    const r = affordability({ ...base, budgetRange: 'Need Full Scholarship', netPrice: null, division: 'USCAA' });
+    expect(r.label).toBe('athletic aid unknown');
+    expect(r.label).not.toBe('no athletic aid');
   });
 });
 
