@@ -17,11 +17,90 @@ import { STARTER_MINUTES, PROJECTED_STARTER_MINUTES } from './constants.js';
 /**
  * Index roster rows by school so opportunity is a lookup rather than a scan.
  *
- * Also counts how many of each school's rows have no estimated_graduation_year,
+ * Also counts how many of each school's rows carry no departure year at all,
  * which is what lets rosterOpportunity tell "nobody is graduating" apart from
  * "we do not know who is graduating". Phase 0 still has 3,118 unlabelled rows.
+ *
+ * ---------------------------------------------------------------------------
+ * WHICH YEAR OPENS A SPOT — changed 2026-09-19, and the reason is behavioural
+ * rather than a column mix-up.
+ *
+ * Both stored years are exactly what classYear.js documents, and the data
+ * matches the documented offsets on every one of the 28,567 readable 2026
+ * men's rows with no exceptions:
+ *
+ *   eligibility_end_year       the last season this player may play
+ *   estimated_graduation_year  that year plus one — the season their spot opens
+ *
+ * So cohorting on `estimated_graduation_year` and comparing it to the
+ * athlete's `recruiting_class_year` is the CORRECT reading of those columns.
+ * It is nonetheless one year late, because the offsets behind them assume
+ * every player takes the fifth year the current rules allow, and the rosters
+ * say otherwise. Across four transitions and both sports, the share of players
+ * labelled SENIOR who appear on the next season's roster is:
+ *
+ *   men    22.6%  23.6%  8.7%  8.6%      women  20.3%  22.6%  6.1%  7.8%
+ *
+ * The first two transitions carry the COVID eligibility cohort; the settled
+ * rate is 8-9%. Juniors return at 69-82% by contrast, so this is specific to
+ * the final year rather than a general attrition rate. A senior's spot
+ * therefore opens the season AFTER their senior season in nine cases out of
+ * ten — which is `eligibility_end_year`, not `estimated_graduation_year`.
+ *
+ * What that cost, measured on the 2026 roster at entry year 2027, the nearest
+ * and by far the most common arrival year:
+ *
+ *   - the departure cohort was 1,057 men's rows where it should be 5,653, and
+ *     it contained NO seniors at all — only graduate students and redshirt
+ *     seniors;
+ *   - 72% of the programmes we hold a roster for scored a MEASURED ZERO, while
+ *     the 441 programmes we hold no roster for kept the 0.5 neutral prior. A
+ *     programme we had data for sat 0.298 below one we knew nothing about,
+ *     which is the same inversion this criterion's own header was written to
+ *     prevent, arriving by a different route;
+ *   - the effect is worst at D3, where 105 rows became 1,952: D3 rosters carry
+ *     far fewer graduate students, so the old cohort was nearly empty there.
+ *
+ * The one-year lateness is exact and shows up as an identity: the old
+ * predicate at entry year Y produces precisely the distribution the new one
+ * produces at Y-1 (mean 0.348 either way at the men's midfield, 11% at zero).
+ *
+ * THIS IS A COMPENSATING FIX, NOT A ROOT-CAUSE ONE, and it is deliberately
+ * scoped that way. The root cause is the five-year offset table in
+ * classYear.js, which is a documented, deliberate choice to model the rule
+ * rather than the behaviour. Correcting it would rewrite both year columns on
+ * 130,703 rows and move every consumer — the report layer's four-way entry
+ * split, the lifecycle tracks, the evidence engine — so it is a separate piece
+ * of work. Until then, matching and `splitDepthByEntry` in
+ * shared/report/summary.js read the same columns against different
+ * assumptions, and that divergence is known rather than accidental.
+ *
+ * NOT `<= classYear`. Cohorting cumulatively would answer "who has left by
+ * then" where `EXPECTED_ANNUAL_NEED` is a per-class denominator, so the two
+ * would not be the same kind of quantity. Measured: it saturates the criterion
+ * at 1.0 for 25% of programmes at entry year 2028 and 65% at 2029, which stops
+ * it discriminating at exactly the horizons it is asked about.
+ *
+ * ONE KNOWN GAP, QUANTIFIED RATHER THAN CLOSED. At the NEAREST entry year —
+ * the season after the roster on file, so 2027 against the 2026 roster — the
+ * players whose eligibility already ends in the roster's own season are also
+ * expected gone, and equality does not reach them. That is 1,057 men's rows
+ * against the 5,653 this predicate does count: 16% of the true departure set,
+ * all of them graduate students and redshirt seniors (737 carry an explicit
+ * graduate label, and no graduate-labelled player appears at any later
+ * eligibility year). Their places arguably belong to the PREVIOUS intake,
+ * which is the flow argument for leaving them out, but the honest statement is
+ * that this is an approximation at one horizon and exact at the others.
+ *
+ * Closing it needs the class label, because "already expired" and "expires
+ * this year" are only separable by which class a player is in — and a second
+ * reader of the class vocabulary beside `readClassYear` is the specific defect
+ * that once cost 161 programmes their first-year data. It belongs with the
+ * offsets fix, not here.
+ * ---------------------------------------------------------------------------
  */
 export function buildRosterIndex(rosterRows) {
+  assertDepartureYearSelected(rosterRows);
   const index = new Map();
   for (const r of rosterRows) {
     let e = index.get(r.college_name);
@@ -37,8 +116,17 @@ export function buildRosterIndex(rosterRows) {
       e.byCountry.set(country, (e.byCountry.get(country) || 0) + 1);
     }
 
-    if (r.estimated_graduation_year === null || r.estimated_graduation_year === undefined) { e.missingGradYear++; continue; }
-    const key = `${r.estimated_graduation_year}|${String(r.position || '').toUpperCase()}`;
+    // Read from the column the cohort is actually keyed on. The two are not
+    // interchangeable for readability even though they are a rigid +1 where
+    // both exist: a roster that prints an explicit graduation year gives a
+    // graduation year and NO eligibility year, because the printed year says
+    // nothing about which class the player is in (see classYear.js). There are
+    // 0 such rows in the 2026 season and 98-674 per season in 2022-2025, so
+    // counting the wrong column's nulls would under-report doubt on exactly
+    // the seasons the backtest runs over.
+    const departureYear = r.eligibility_end_year;
+    if (departureYear === null || departureYear === undefined) { e.missingGradYear++; continue; }
+    const key = `${departureYear}|${String(r.position || '').toUpperCase()}`;
     let c = e.cohorts.get(key);
     if (!c) { c = { starters: 0, squad: 0, names: [], starterNames: [] }; e.cohorts.set(key, c); }
     // Starter names kept separately, not derivable afterwards from a flat
@@ -50,6 +138,36 @@ export function buildRosterIndex(rosterRows) {
     c.names.push(r.player_name);
   }
   return index;
+}
+
+/**
+ * A caller that forgot to SELECT the column the cohort is keyed on.
+ *
+ * Six queries feed this index and every one of them names its columns, so
+ * dropping `eligibility_end_year` from one is a one-word omission that fails
+ * SILENTLY and catastrophically: every row reads as having no departure year,
+ * every school falls back to the neutral prior, and the ranking still looks
+ * entirely reasonable. That is the same class of defect as the presentation
+ * columns this file already lost once by building its result object field by
+ * field.
+ *
+ * The test is deliberately narrow, so a genuinely unlabelled roster cannot
+ * trip it: rows exist, NOT ONE carries an eligibility year, and at least one
+ * carries a graduation year. A roster with neither is simply unreadable and is
+ * handled by `missingGradYear` as before.
+ */
+function assertDepartureYearSelected(rosterRows) {
+  if (!rosterRows?.length) return;
+  let sawGraduationYear = false;
+  for (const r of rosterRows) {
+    if (r.eligibility_end_year !== null && r.eligibility_end_year !== undefined) return;
+    if (r.estimated_graduation_year !== null && r.estimated_graduation_year !== undefined) sawGraduationYear = true;
+  }
+  if (!sawGraduationYear) return;
+  throw new Error(
+    'buildRosterIndex: every row has estimated_graduation_year and none has eligibility_end_year. '
+    + 'The cohort is keyed on eligibility_end_year — add it to the SELECT.',
+  );
 }
 
 /**

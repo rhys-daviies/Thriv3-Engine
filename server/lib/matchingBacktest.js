@@ -166,7 +166,7 @@ export function runConfig({ testSet, colleges, rosterIndex, overrides, band, ban
 export function loadBacktestData(db, sport) {
   return {
     colleges: db.prepare('SELECT * FROM colleges WHERE sport = ? AND active = 1').all(sport),
-    roster2024: db.prepare("SELECT college_name, player_name, position, minutes_played, estimated_graduation_year, country FROM roster_players WHERE sport = ? AND season = '2024'").all(sport),
+    roster2024: db.prepare("SELECT college_name, player_name, position, minutes_played, estimated_graduation_year, eligibility_end_year, country FROM roster_players WHERE sport = ? AND season = '2024'").all(sport),
     roster2025: db.prepare("SELECT college_name, player_name, position, hometown FROM roster_players WHERE sport = ? AND season = '2025'").all(sport),
   };
 }

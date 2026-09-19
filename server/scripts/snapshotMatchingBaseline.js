@@ -199,7 +199,7 @@ const r3 = (v) => (typeof v === 'number' && Number.isFinite(v) ? Math.round(v * 
 
 const rosterFor = (sport) => db.prepare(`
   SELECT college_name, player_name, position, minutes_played, projected_minutes,
-         estimated_graduation_year, country
+         estimated_graduation_year, eligibility_end_year, country
     FROM roster_players WHERE sport = ? AND season = ?
 `).all(sport, SEASON);
 
@@ -386,6 +386,35 @@ if (emptyPools.length) {
   console.error(`  ${emptyPools.map(([id]) => id).join(', ')}`);
   console.error('  the database this ran against holds no colleges for those sports');
   process.exit(3);
+}
+
+/**
+ * A roster with no starter split is a roster whose projections were dropped.
+ *
+ * THIS GUARD EXISTS BECAUSE IT HAPPENED TWICE. `projected_minutes` is not
+ * produced by the roster import — `npm run project-minutes` derives it
+ * afterwards — so any re-import, and at least one thing in this repository
+ * nobody has yet identified, silently returns the 2026 season to zero
+ * starters. Every departure then reads as a squad player at 0.4 weight, and
+ * the ranking still looks entirely reasonable.
+ *
+ * It was caught the first time by the probes below, which is the baseline
+ * doing its job, and only after a drift report had already been written
+ * attributing the movement to a code change. A baseline taken in that state is
+ * worse than none: it pins the wrong answer and then agrees with itself.
+ *
+ * The test is on the probes rather than a row count, because what matters is
+ * that the split is READABLE where the fixtures look, not that some column is
+ * non-null somewhere.
+ */
+const probed = Object.entries(now.probes).filter(([, p]) => p.present);
+const withStarters = probed.filter(([, p]) => p.starters > 0);
+if (probed.length && !withStarters.length) {
+  console.error(`refusing: not one of ${probed.length} roster probes carries a graduating starter`);
+  console.error('  every departure is reading as a squad player, which means the current');
+  console.error('  season has no minutes and no projections to stand in for them.');
+  console.error('  Run `npm run project-minutes` and try again.');
+  process.exit(4);
 }
 
 if (write) {

@@ -18,11 +18,11 @@ const athlete = (over = {}) => ({
 
 describe('buildRosterIndex', () => {
   const rows = [
-    { college_name: 'A', player_name: 'p1', position: 'MIDFIELD', minutes_played: 1200, estimated_graduation_year: 2027 },
-    { college_name: 'A', player_name: 'p2', position: 'MIDFIELD', minutes_played: 100, estimated_graduation_year: 2027 },
-    { college_name: 'A', player_name: 'p3', position: 'DEFENSE', minutes_played: 1500, estimated_graduation_year: 2027 },
-    { college_name: 'A', player_name: 'p4', position: 'MIDFIELD', minutes_played: 900, estimated_graduation_year: null },
-    { college_name: 'B', player_name: 'p5', position: 'MIDFIELD', minutes_played: 1000, estimated_graduation_year: 2028 },
+    { college_name: 'A', player_name: 'p1', position: 'MIDFIELD', minutes_played: 1200, estimated_graduation_year: 2028, eligibility_end_year: 2027 },
+    { college_name: 'A', player_name: 'p2', position: 'MIDFIELD', minutes_played: 100, estimated_graduation_year: 2028, eligibility_end_year: 2027 },
+    { college_name: 'A', player_name: 'p3', position: 'DEFENSE', minutes_played: 1500, estimated_graduation_year: 2028, eligibility_end_year: 2027 },
+    { college_name: 'A', player_name: 'p4', position: 'MIDFIELD', minutes_played: 900, estimated_graduation_year: null, eligibility_end_year: null },
+    { college_name: 'B', player_name: 'p5', position: 'MIDFIELD', minutes_played: 1000, estimated_graduation_year: 2029, eligibility_end_year: 2028 },
   ];
   const idx = buildRosterIndex(rows);
 
@@ -111,8 +111,8 @@ describe('rankMatches', () => {
     college({ id: 'mismatch', name: 'Mismatch', soccer_score: 20, state: 'OH', latitude: 40.19, longitude: -82.68 }),
   ];
   const rosterIndex = buildRosterIndex([
-    { college_name: 'Near', player_name: 'a', position: 'MIDFIELD', minutes_played: 1200, estimated_graduation_year: 2027 },
-    { college_name: 'Far', player_name: 'b', position: 'MIDFIELD', minutes_played: 1200, estimated_graduation_year: 2027 },
+    { college_name: 'Near', player_name: 'a', position: 'MIDFIELD', minutes_played: 1200, estimated_graduation_year: 2028, eligibility_end_year: 2027 },
+    { college_name: 'Far', player_name: 'b', position: 'MIDFIELD', minutes_played: 1200, estimated_graduation_year: 2028, eligibility_end_year: 2027 },
   ]);
 
   it('ranks a closer programme above an identical distant one', () => {
@@ -191,11 +191,11 @@ describe('normaliseAthlete', () => {
 
 describe('buildRosterIndex international counts', () => {
   const rows = [
-    { college_name: 'A', player_name: 'p1', position: 'MIDFIELD', minutes_played: 0, estimated_graduation_year: 2027, country: 'United Kingdom' },
-    { college_name: 'A', player_name: 'p2', position: 'DEFENSE', minutes_played: 0, estimated_graduation_year: 2027, country: 'United Kingdom' },
-    { college_name: 'A', player_name: 'p3', position: 'FORWARD', minutes_played: 0, estimated_graduation_year: 2027, country: 'Spain' },
-    { college_name: 'A', player_name: 'p4', position: 'FORWARD', minutes_played: 0, estimated_graduation_year: 2027, country: '' },
-    { college_name: 'A', player_name: 'p5', position: 'FORWARD', minutes_played: 0, estimated_graduation_year: 2027, country: 'USA' },
+    { college_name: 'A', player_name: 'p1', position: 'MIDFIELD', minutes_played: 0, estimated_graduation_year: 2028, eligibility_end_year: 2027, country: 'United Kingdom' },
+    { college_name: 'A', player_name: 'p2', position: 'DEFENSE', minutes_played: 0, estimated_graduation_year: 2028, eligibility_end_year: 2027, country: 'United Kingdom' },
+    { college_name: 'A', player_name: 'p3', position: 'FORWARD', minutes_played: 0, estimated_graduation_year: 2028, eligibility_end_year: 2027, country: 'Spain' },
+    { college_name: 'A', player_name: 'p4', position: 'FORWARD', minutes_played: 0, estimated_graduation_year: 2028, eligibility_end_year: 2027, country: '' },
+    { college_name: 'A', player_name: 'p5', position: 'FORWARD', minutes_played: 0, estimated_graduation_year: 2028, eligibility_end_year: 2027, country: 'USA' },
   ];
   const idx = buildRosterIndex(rows);
 
@@ -284,14 +284,121 @@ describe('normaliseAthlete academic minimum', () => {
   });
 });
 
+/**
+ * A5.2 — which current players count as departing before the athlete arrives.
+ *
+ * Every row here states BOTH years in the relationship the real data holds
+ * (`estimated_graduation_year = eligibility_end_year + 1`, exact on all 28,567
+ * readable 2026 men's rows), so a test cannot pass by accident on a fixture
+ * that could not exist.
+ */
+describe('departure cohort semantics', () => {
+  // season 2026 rosters, as classYear.js derives them.
+  const player = (name, klass, position = 'MIDFIELD', minutes = 1200) => {
+    const eligibilityEnd = { GRADUATE: 2026, SENIOR: 2027, JUNIOR: 2028, SOPHOMORE: 2029, FRESHMAN: 2030 }[klass];
+    return {
+      college_name: 'A', player_name: name, position, minutes_played: minutes,
+      estimated_graduation_year: eligibilityEnd == null ? null : eligibilityEnd + 1,
+      eligibility_end_year: eligibilityEnd ?? null,
+    };
+  };
+  const squad = buildRosterIndex([
+    player('grad', 'GRADUATE'),
+    player('senior', 'SENIOR'),
+    player('senior-sub', 'SENIOR', 'MIDFIELD', 100),
+    player('junior', 'JUNIOR'),
+    player('sophomore', 'SOPHOMORE'),
+    player('freshman', 'FRESHMAN'),
+    player('keeper-senior', 'SENIOR', 'GOALKEEPER', 1800),
+    player('no-class', 'UNKNOWN'),
+  ]).get('A');
+
+  const namesAt = (year, position) => (departures(squad, year, position).atPosition?.names ?? []).sort();
+
+  it('counts a senior as departing the season after their senior season', () => {
+    // The whole change. A 2026 senior plays 2026, is on 8.6% of 2027 rosters,
+    // and so opens a place for an athlete ARRIVING IN 2027 — not 2028.
+    expect(namesAt(2027, 'MIDFIELD')).toEqual(['senior', 'senior-sub']);
+  });
+
+  it('counts a graduate student as already gone before a 2027 entrant arrives', () => {
+    // Their last season was 2026. They are state A, not state B, and they are
+    // therefore in NO entry-year cohort from this roster: the place they
+    // vacated opened for 2026's own intake.
+    expect(namesAt(2027, 'MIDFIELD')).not.toContain('grad');
+    expect(namesAt(2028, 'MIDFIELD')).not.toContain('grad');
+    expect(departures(squad, 2026, 'MIDFIELD').atPosition?.names).toEqual(['grad']);
+  });
+
+  it('does not count a player still eligible when the athlete arrives', () => {
+    // A junior in 2026 is a senior in 2027 and still occupying the place.
+    expect(namesAt(2027, 'MIDFIELD')).not.toContain('junior');
+    expect(namesAt(2027, 'MIDFIELD')).not.toContain('sophomore');
+    expect(namesAt(2027, 'MIDFIELD')).not.toContain('freshman');
+  });
+
+  it('moves each class on by exactly one year for a 2028 entrant', () => {
+    expect(namesAt(2028, 'MIDFIELD')).toEqual(['junior']);
+    expect(namesAt(2029, 'MIDFIELD')).toEqual(['sophomore']);
+    expect(namesAt(2030, 'MIDFIELD')).toEqual(['freshman']);
+  });
+
+  it('keeps an unreadable class year OUT of every cohort and counts it as doubt', () => {
+    // Not "staying" and not "leaving" — state D. It must never be silently
+    // resolved into either, which is why it is counted separately and read by
+    // rosterOpportunity as missing rather than as a zero departure.
+    for (const y of [2026, 2027, 2028, 2029, 2030]) {
+      expect(namesAt(y, 'MIDFIELD')).not.toContain('no-class');
+    }
+    expect(squad.missingGradYear).toBe(1);
+    expect(squad.rows).toBe(8);
+  });
+
+  it('splits the cohort by position', () => {
+    expect(namesAt(2027, 'GOALKEEPER')).toEqual(['keeper-senior']);
+    expect(departures(squad, 2027, 'DEFENSE').atPosition).toBeNull();
+  });
+
+  it('counts starters separately from squad players inside the cohort', () => {
+    const c = departures(squad, 2027, 'MIDFIELD').atPosition;
+    expect(c.starters).toBe(1);                       // senior, 1200 minutes
+    expect(c.squad).toBe(1);                          // senior-sub, 100 minutes
+    expect(c.starterNames).toEqual(['senior']);
+  });
+
+  it('counts squad-wide departures across positions for the same entry year', () => {
+    const d = departures(squad, 2027, 'MIDFIELD');
+    expect(d.total).toBe(3);                          // senior, senior-sub, keeper-senior
+    expect(d.totalStarters).toBe(2);                  // senior, keeper-senior
+  });
+
+  /**
+   * The guard, tested on the thing it guards against. A caller that names its
+   * columns and omits this one used to get a silent, plausible ranking in
+   * which every school fell back to the neutral prior.
+   */
+  it('refuses rows that carry a graduation year and no eligibility year', () => {
+    expect(() => buildRosterIndex([
+      { college_name: 'A', player_name: 'x', position: 'MIDFIELD', minutes_played: 900, estimated_graduation_year: 2028 },
+    ])).toThrow(/eligibility_end_year/);
+  });
+
+  it('accepts a roster with no year information at all, which is merely unreadable', () => {
+    const idx = buildRosterIndex([
+      { college_name: 'A', player_name: 'x', position: 'MIDFIELD', minutes_played: 900 },
+    ]);
+    expect(idx.get('A').missingGradYear).toBe(1);
+  });
+});
+
 describe('departures', () => {
   const roster = buildRosterIndex([
-    { college_name: 'A', player_name: 'mid-starter', position: 'MIDFIELD', minutes_played: 1200, estimated_graduation_year: 2027 },
-    { college_name: 'A', player_name: 'mid-sub', position: 'MIDFIELD', minutes_played: 100, estimated_graduation_year: 2027 },
-    { college_name: 'A', player_name: 'def-starter', position: 'DEFENSE', minutes_played: 1500, estimated_graduation_year: 2027 },
-    { college_name: 'A', player_name: 'keeper', position: 'GOALKEEPER', minutes_played: 1800, estimated_graduation_year: 2027 },
-    { college_name: 'A', player_name: 'next-year', position: 'MIDFIELD', minutes_played: 1000, estimated_graduation_year: 2028 },
-    { college_name: 'A', player_name: 'unlabelled', position: 'MIDFIELD', minutes_played: 1000, estimated_graduation_year: null },
+    { college_name: 'A', player_name: 'mid-starter', position: 'MIDFIELD', minutes_played: 1200, estimated_graduation_year: 2028, eligibility_end_year: 2027 },
+    { college_name: 'A', player_name: 'mid-sub', position: 'MIDFIELD', minutes_played: 100, estimated_graduation_year: 2028, eligibility_end_year: 2027 },
+    { college_name: 'A', player_name: 'def-starter', position: 'DEFENSE', minutes_played: 1500, estimated_graduation_year: 2028, eligibility_end_year: 2027 },
+    { college_name: 'A', player_name: 'keeper', position: 'GOALKEEPER', minutes_played: 1800, estimated_graduation_year: 2028, eligibility_end_year: 2027 },
+    { college_name: 'A', player_name: 'next-year', position: 'MIDFIELD', minutes_played: 1000, estimated_graduation_year: 2029, eligibility_end_year: 2028 },
+    { college_name: 'A', player_name: 'unlabelled', position: 'MIDFIELD', minutes_played: 1000, estimated_graduation_year: null, eligibility_end_year: null },
   ]).get('A');
 
   // The defect this function exists for. Both were the same number, so the
@@ -360,9 +467,9 @@ describe('departures', () => {
 
 describe('rankMatches graduating figures', () => {
   const rosterIndex = buildRosterIndex([
-    { college_name: 'Test U', player_name: 'mid', position: 'MIDFIELD', minutes_played: 1200, estimated_graduation_year: 2027 },
-    { college_name: 'Test U', player_name: 'def', position: 'DEFENSE', minutes_played: 1500, estimated_graduation_year: 2027 },
-    { college_name: 'Test U', player_name: 'fwd', position: 'FORWARD', minutes_played: 200, estimated_graduation_year: 2027 },
+    { college_name: 'Test U', player_name: 'mid', position: 'MIDFIELD', minutes_played: 1200, estimated_graduation_year: 2028, eligibility_end_year: 2027 },
+    { college_name: 'Test U', player_name: 'def', position: 'DEFENSE', minutes_played: 1500, estimated_graduation_year: 2028, eligibility_end_year: 2027 },
+    { college_name: 'Test U', player_name: 'fwd', position: 'FORWARD', minutes_played: 200, estimated_graduation_year: 2028, eligibility_end_year: 2027 },
   ]);
 
   it('exposes the position and squad-wide figures as different numbers', () => {
@@ -431,7 +538,7 @@ describe('rankMatches carries the presentation columns', () => {
 describe('starter classification when the season is not yet played', () => {
   const row = (over) => ({
     college_name: 'A', player_name: 'p', position: 'MIDFIELD',
-    estimated_graduation_year: 2027, ...over,
+    estimated_graduation_year: 2028, eligibility_end_year: 2027, ...over,
   });
   const cohort = (rows) => buildRosterIndex(rows).get('A').cohorts.get('2027|MIDFIELD');
 

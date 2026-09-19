@@ -51,7 +51,7 @@ function poolFor(athlete) {
   const sport = athlete.sport || 'mens-soccer';
   const colleges = db.prepare('SELECT * FROM colleges WHERE sport = ? AND active = 1').all(sport);
   const roster = db.prepare(
-    'SELECT college_name, player_name, position, minutes_played, estimated_graduation_year, country'
+    'SELECT college_name, player_name, position, minutes_played, estimated_graduation_year, eligibility_end_year, country'
     + ' FROM roster_players WHERE sport = ? AND season = ?',
   ).all(sport, '2025');
   const { results } = rankMatches({

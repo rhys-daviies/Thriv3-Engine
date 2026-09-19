@@ -95,8 +95,8 @@ beforeAll(async () => {
     }
   }
   roster(SIGNAL, { season: '2023', player_name: 'Kiwi One', country: 'New Zealand', nationality: 'International' });
-  roster(SIGNAL, { player_name: 'Leaver One', position: 'DEFENSE', estimated_graduation_year: 2027, projected_minutes: 1200 });
-  roster(SIGNAL, { player_name: 'Leaver Two', position: 'DEFENSE', estimated_graduation_year: 2027, projected_minutes: 1100 });
+  roster(SIGNAL, { player_name: 'Leaver One', position: 'DEFENSE', estimated_graduation_year: 2028, eligibility_end_year: 2027, projected_minutes: 1200 });
+  roster(SIGNAL, { player_name: 'Leaver Two', position: 'DEFENSE', estimated_graduation_year: 2028, eligibility_end_year: 2027, projected_minutes: 1100 });
 
   /**
    * A squad with real evidence, none of it licensed here.
@@ -109,8 +109,8 @@ beforeAll(async () => {
    */
   for (let i = 0; i < 12; i += 1) roster(QUIET, { player_name: `Quiet Mid ${i}` });
   for (let i = 0; i < 10; i += 1) roster(QUIET, { player_name: `Quiet Def ${i}`, position: 'DEFENSE' });
-  roster(QUIET, { player_name: 'Quiet Leaver One', position: 'DEFENSE', estimated_graduation_year: 2027, projected_minutes: 1200 });
-  roster(QUIET, { player_name: 'Quiet Leaver Two', position: 'DEFENSE', estimated_graduation_year: 2027, projected_minutes: 1100 });
+  roster(QUIET, { player_name: 'Quiet Leaver One', position: 'DEFENSE', estimated_graduation_year: 2028, eligibility_end_year: 2027, projected_minutes: 1200 });
+  roster(QUIET, { player_name: 'Quiet Leaver Two', position: 'DEFENSE', estimated_graduation_year: 2028, eligibility_end_year: 2027, projected_minutes: 1100 });
 
   /**
    * The programme whose only evidence is the one kind the score already has.
