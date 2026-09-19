@@ -50,8 +50,8 @@ describe('the NCAA residual queue', () => {
   it('26. states the live accounting, for the season it is asked about', () => {
     /*
      * 1,761 registry rows carry 6 programmes L7P recorded as not fielded in
-     * 2026, leaving 1,755 active. Of those, 1,731 hold a 2026 roster, 7 are
-     * duplicate rows whose twin holds one, and 17 are missing it.
+     * 2026, leaving 1,755 active. Of those, 1,732 hold a 2026 roster, 7 are
+     * duplicate rows whose twin holds one, and 16 are missing it.
      *
      * The two coverage numbers are asserted separately on purpose. Until L7P
      * this file had one, counted over every season, and 1,745 was being read as
@@ -72,14 +72,20 @@ describe('the NCAA residual queue', () => {
      * therefore made the 2026 roster a subset of its own reference. Repairing
      * the reference dropped their overlap from 90-100% to 41-77% and the gate
      * accepted them unchanged.
+     *
+     * L7ZE is the sixth, and the only one whose SOURCE changed rather than our
+     * reading of it: CUNY Medgar Evers W published its 2026 roster at the URL
+     * that had been serving 2025, so the candidate already on file passed the
+     * season gate it had twice been refused by. It was historically rostered,
+     * so again 1,745 could not move and the current-season figure had to.
      */
     const s = q.summary;
     expect(s.ncaaTotal).toBe(1755);
     expect(s.registryDuplicates).toBe(7);
-    expect(s.currentSeasonRostered).toBe(1731);
-    expect(s.currentSeasonMissing).toBe(17);
+    expect(s.currentSeasonRostered).toBe(1732);
+    expect(s.currentSeasonMissing).toBe(16);
     expect(s.historicallyRostered).toBe(1745);
-    expect(s.historicalOnly).toBe(14);
+    expect(s.historicalOnly).toBe(13);
     expect(s.neverRostered).toBe(3);
   });
 
