@@ -21,8 +21,8 @@
       },
       {
         "table": "roster_season_trust",
-        "rows": 0,
-        "digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        "rows": 15,
+        "digest": "5391be738f856a22571cfa9e161c707c4784738a91090417e5a672c400d82c65"
       },
       {
         "table": "coaches",
@@ -50,7 +50,7 @@
         "digest": "ab56aa2dbd8cb5a35cad0d46255a2fafbebbc2cb578b6f2a5e57f8dde6b37f92"
       }
     ],
-    "digest": "322995fd7be5a6733a5fc49da18e0bec4d7f41ac0b9dea0763a5390b472cc0a7"
+    "digest": "48ff9511e307817c92f3b2b6d13395f03b477414c76624af5efb28b89dbdcba9"
   },
   "baselines": [
     {
