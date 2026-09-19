@@ -196,7 +196,7 @@ function applyMinutesMode(rows, mode) {
 
 function loadData() {
   const colleges = db.prepare('SELECT * FROM colleges WHERE sport = ? AND active = 1').all(SPORT);
-  const roster2024raw = db.prepare("SELECT college_name, player_name, position, minutes_played, estimated_graduation_year, eligibility_end_year FROM roster_players WHERE sport = ? AND season = '2024'").all(SPORT);
+  const roster2024raw = db.prepare("SELECT college_name, player_name, position, minutes_played, estimated_graduation_year, eligibility_end_year, season, division, class_year_label FROM roster_players WHERE sport = ? AND season = '2024'").all(SPORT);
   const roster2025 = db.prepare("SELECT college_name, player_name, position, hometown FROM roster_players WHERE sport = ? AND season = '2025'").all(SPORT);
   return { colleges, roster2024: applyMinutesMode(roster2024raw, MINUTES_MODE), roster2025 };
 }

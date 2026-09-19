@@ -199,7 +199,8 @@ const r3 = (v) => (typeof v === 'number' && Number.isFinite(v) ? Math.round(v * 
 
 const rosterFor = (sport) => db.prepare(`
   SELECT college_name, player_name, position, minutes_played, projected_minutes,
-         estimated_graduation_year, eligibility_end_year, country
+         estimated_graduation_year, eligibility_end_year, country,
+         season, division, class_year_label
     FROM roster_players WHERE sport = ? AND season = ?
 `).all(sport, SEASON);
 

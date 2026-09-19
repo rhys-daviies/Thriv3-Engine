@@ -101,9 +101,9 @@ beforeAll(async () => {
   // Three defenders leaving before the 2027 intake, two of them projected
   // starters — the position-opportunity group that must survive as one reason
   // with two supporting items rather than being collapsed into a single fact.
-  roster(OPEN, { player_name: 'Leaver One', estimated_graduation_year: 2028, eligibility_end_year: 2027, projected_minutes: 1200 });
-  roster(OPEN, { player_name: 'Leaver Two', estimated_graduation_year: 2028, eligibility_end_year: 2027, projected_minutes: 1100 });
-  roster(OPEN, { player_name: 'Leaver Three', estimated_graduation_year: 2028, eligibility_end_year: 2027, projected_minutes: 200 });
+  roster(OPEN, { player_name: 'Leaver One', estimated_graduation_year: 2027, eligibility_end_year: 2026, class_year_label: 'Gr.', projected_minutes: 1200 });
+  roster(OPEN, { player_name: 'Leaver Two', estimated_graduation_year: 2027, eligibility_end_year: 2026, class_year_label: 'Gr.', projected_minutes: 1100 });
+  roster(OPEN, { player_name: 'Leaver Three', estimated_graduation_year: 2027, eligibility_end_year: 2026, class_year_label: 'Gr.', projected_minutes: 200 });
   // A compatriot in an earlier season — a pathway in a second category, so the
   // per-category cap is exercised rather than assumed.
   roster(OPEN, { season: '2023', player_name: 'Kiwi One', country: 'New Zealand', nationality: 'International' });
