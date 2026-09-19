@@ -7,9 +7,10 @@
  * into V2 until there is something to adopt.
  *
  * A7.1 built the contract, the coverage algebra and the ability calibration.
- * A7.2 added Financial Viability, A7.3 Coach Recruitability and A7.4 Athlete
- * Opportunity / Fit. There is still no pipeline, no pursuit priority and no
- * gating: three independent layers and nothing that combines them.
+ * A7.2 added Financial Viability, A7.3 Coach Recruitability, A7.4 Athlete
+ * Opportunity / Fit, and A7.5 the Pursuit Priority that combines them and the
+ * ranked / limited-data pipeline. Nothing is adopted: V1 still serves every
+ * recommendation, and the pipeline runs only from the diagnostic scripts.
  */
 export {
   GRADE, REASON, RANKING_STATE,
@@ -64,3 +65,7 @@ export {
 } from './layers/opportunityComponents.js';
 
 export { athleteOpportunity, priorityWeights } from './layers/opportunity.js';
+
+export { PURSUIT_WEIGHTS, PURSUIT_GATES, TOP_N, smoothstep, tailGate } from './pursuitRules.js';
+export { pursuitPriority } from './layers/pursuit.js';
+export { rankPool } from './pipeline.js';
