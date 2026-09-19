@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { verifiedRow } from './verifiedDomainBackfill.js';
+import { fileCorpusOr } from '../db/corpusIdentity.js';
 import {
   classifyRow, forInstitution, hostsForInstitution, AUTHORITY, PROFILE, LOOKUP,
 } from '../../shared/evidence/domainAuthority.js';
@@ -28,7 +29,8 @@ import {
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const SEED = path.join(ROOT, 'server/data/seeds/athletics_domains_verified.json');
 const seed = JSON.parse(fs.readFileSync(SEED, 'utf8'));
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+/* L7ZO: obey an explicitly selected corpus; see `fileCorpusOr`. */
+const DB = fileCorpusOr(path.join(ROOT, 'server/data/recruitmatch.sqlite'));
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 
 const inDb = (expr) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `

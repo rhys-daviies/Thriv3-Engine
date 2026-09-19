@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { sportContradicted } from './rosterCandidatePlan.js';
+import { fileCorpusOr } from '../db/corpusIdentity.js';
 
 /**
  * L7B — the discovery plan against the real registry, and what it must not touch.
@@ -16,7 +17,8 @@ import { sportContradicted } from './rosterCandidatePlan.js';
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+/* L7ZO: obey an explicitly selected corpus; see `fileCorpusOr`. */
+const DB = fileCorpusOr(path.join(ROOT, 'server/data/recruitmatch.sqlite'));
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 const d = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) console.warn(`\n  rosterCandidatePlan.test.js SKIPPED — no database at ${DB}\n`);

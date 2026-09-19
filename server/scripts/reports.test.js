@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { fileCorpusOr } from '../db/corpusIdentity.js';
 
 /**
  * The report scripts, protected.
@@ -44,7 +45,15 @@ import { fileURLToPath } from 'node:url';
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+/*
+ * L7ZO. Was ROOT-relative and unconditional, and `run()` then forced it into
+ * the child's environment — so this suite overrode a stage's explicit corpus
+ * selection back to canonical, and L7ZN lost an experiment to it. A test may
+ * choose a default; it may not overrule the corpus the caller selected.
+ */
+/* L7ZO: obey an explicitly selected corpus; see `fileCorpusOr`. */
+const DB = fileCorpusOr(path.join(ROOT, 'server/data/recruitmatch.sqlite'));
+
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 
 /** Runs a report exactly as `npm run …` does, and reports how it ended. */

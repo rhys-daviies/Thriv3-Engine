@@ -35,6 +35,11 @@ import glob
 import re
 import shutil
 import sqlite3
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+import corpus as _corpus  # L7ZO: RECRUITMATCH_DB is honoured here too
+
 from collections import Counter, defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -42,7 +47,7 @@ from pathlib import Path
 SHEETS = Path.home() / "Documents" / "Thriv3" / "2025 Roster Sheets"
 HARVEST = SHEETS / "_gaps_harvested"
 SEASON = 2025
-DB = "file:server/data/recruitmatch.sqlite?mode=ro"
+DB = _corpus.read_only_uri(_corpus.resolve_db())
 
 DIVISION_FILE = {
     ("mens-soccer", "NCAA D1"): "ncaa_d1_mens_soccer_2025_rosters.csv",

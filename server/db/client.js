@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { migrate } from './migrate.js';
+import { resolveDbPath } from './corpusIdentity.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.resolve(__dirname, '../data');
@@ -10,7 +11,7 @@ fs.mkdirSync(dataDir, { recursive: true });
 
 // RECRUITMATCH_DB lets tests point at ':memory:' or a throwaway file rather
 // than the working database.
-export const dbPath = process.env.RECRUITMATCH_DB || path.join(dataDir, 'recruitmatch.sqlite');
+export const dbPath = resolveDbPath();
 const db = new Database(dbPath);
 if (dbPath !== ':memory:') db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');

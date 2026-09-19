@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { fileCorpusOr } from '../db/corpusIdentity.js';
 
 /**
  * L7K — the residual queue, against the live registry.
@@ -21,7 +22,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
  * across files in a worker, so inheriting it silently pointed this queue at an
  * empty database and it reported no registry at all.
  */
-const LIVE_DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+/* L7ZO: obey an explicitly selected corpus; see `fileCorpusOr`. */
+const LIVE_DB = fileCorpusOr(path.join(ROOT, 'server/data/recruitmatch.sqlite'));
 const queue = (env = {}) => JSON.parse(execFileSync('node',
   [path.join(ROOT, 'server/scripts/rosterGapQueue.js'), '--json'],
   {

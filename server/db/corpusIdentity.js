@@ -33,6 +33,45 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const checkoutRoot = path.resolve(HERE, '../..');
 
 /**
+ * The database a process in THIS checkout uses, without opening anything.
+ *
+ * `client.js` resolves the same thing, but importing it opens the file and runs
+ * the migrations — which is precisely what a snapshot tool or a maintenance
+ * script pointed at another corpus must not do on its way to deciding which
+ * corpus it is on. L7ZO found two scripts that had each re-derived this from
+ * `process.cwd()` instead, so the answer depended on the directory the operator
+ * happened to be standing in.
+ */
+export const defaultDbPath = path.join(checkoutRoot, 'server', 'data', 'recruitmatch.sqlite');
+
+/** RECRUITMATCH_DB if set, else this checkout's own database. */
+export function resolveDbPath(env = process.env) {
+  const v = (env.RECRUITMATCH_DB ?? '').trim();
+  return v || defaultDbPath;
+}
+
+/**
+ * The corpus a suite that needs a REAL FILE should use.
+ *
+ * An explicit path in RECRUITMATCH_DB is obeyed; ':memory:' falls through to
+ * `fallback`. That asymmetry is deliberate. `vitest.config.js` sets
+ * RECRUITMATCH_DB=':memory:' for every test file in the repository, which is a
+ * blanket default and not anyone choosing a corpus — and the suites that reach
+ * for this one drive real subprocesses that have to open a file or they have
+ * nothing to read at all.
+ *
+ * L7ZO found SIX suites that had each hardcoded their database and then forced
+ * it into their children's environment, so a stage pointing the toolchain at a
+ * snapshot was quietly overruled back to canonical. L7ZN lost an attribution
+ * experiment to exactly that. A suite may choose a default; it may not overrule
+ * the corpus its caller selected.
+ */
+export function fileCorpusOr(fallback, env = process.env) {
+  const v = (env.RECRUITMATCH_DB ?? '').trim();
+  return v && v !== ':memory:' ? v : fallback;
+}
+
+/**
  * `{ configuredPath, realPath, shared, reason }` for a database path.
  *
  * `shared` is true when the bytes live outside this checkout, whether that is a

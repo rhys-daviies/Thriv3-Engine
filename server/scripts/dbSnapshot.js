@@ -8,12 +8,17 @@
  */
 import path from 'node:path';
 import { snapshotDatabase, snapshotPathFor, WITNESS_TABLES } from '../lib/dbSnapshot.js';
+import { resolveDbPath } from '../db/corpusIdentity.js';
 
 const argv = process.argv.slice(2);
 const arg = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
 
-const DB = process.env.RECRUITMATCH_DB
-  || path.resolve(process.cwd(), 'server/data/recruitmatch.sqlite');
+/*
+ * L7ZO. Was `path.resolve(process.cwd(), …)`, so snapshotting from a different
+ * directory silently took a different database — or canonical. A snapshot's
+ * source has to be the corpus that was actually selected.
+ */
+const DB = resolveDbPath();
 const dest = arg('out') || snapshotPathFor(DB, arg('label', 'manual'));
 
 const r = snapshotDatabase(DB, dest, { overwrite: argv.includes('--force') });

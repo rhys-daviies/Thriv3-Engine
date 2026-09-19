@@ -25,13 +25,18 @@ import { migrateTemplate, MIGRATION_STATUS, EVIDENCE_TOKEN } from '../../shared/
 import { DEFAULT_EMAIL_TEMPLATE } from '../../src/lib/emailTemplate.js';
 import { utcNow } from '../lib/time.js';
 import { snapshotDatabase } from '../lib/dbSnapshot.js';
+import { resolveDbPath, assertCanonicalWrite } from '../db/corpusIdentity.js';
 
 const argv = process.argv.slice(2);
 const APPLY = argv.includes('--apply');
 const VERIFY = argv.includes('--verify');
 
-const DB_PATH = process.env.RECRUITMATCH_DB
-  || path.resolve(process.cwd(), 'server/data/recruitmatch.sqlite');
+/*
+ * L7ZO. Was `path.resolve(process.cwd(), …)`. This script both snapshots and
+ * writes, so a cwd-derived path meant the backup and the migration could in
+ * principle describe different databases.
+ */
+const DB_PATH = resolveDbPath();
 
 /**
  * A copy of the database beside itself before anything is written.
@@ -138,6 +143,14 @@ function main() {
     console.log('\nnothing to write.\n');
     return;
   }
+
+  /*
+   * A maintenance migration, not application startup — `migrate()` in
+   * db/client.js is the one that runs on every open and is deliberately
+   * untouched. This one is invoked by hand and rewrites operator-authored
+   * copy, so on a shared corpus it says so first.
+   */
+  assertCanonicalWrite({ script: 'migrateEmailTemplates.js', path: DB_PATH });
 
   const saved = backup();
   if (saved) console.log(`\nbacked up to ${path.basename(saved)}`);
