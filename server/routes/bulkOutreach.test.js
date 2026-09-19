@@ -67,12 +67,16 @@ function rosterRow(college, o = {}) {
   db.prepare(`INSERT INTO roster_players
     (id, created_date, updated_date, college_name, sport, division, season, player_name,
      position, minutes_played, projected_minutes, estimated_graduation_year,
-     eligibility_end_year, nationality, country)
+     eligibility_end_year, class_year_label, nationality, country)
     VALUES (@id, @stamp, @stamp, @college, 'mens-soccer', 'NCAA D1', @season, @name,
-     @position, NULL, 600, @grad, @elig, @nat, @country)`)
+     @position, NULL, 600, @grad, @elig, @klass, @nat, @country)`)
     .run({
+      // The eligibility ceiling is derived per division from the class label,
+      // so a roster row without one is unreadable and yields no departure
+      // evidence at all. A Division I junior's place opens for 2029 under the
+      // five-year model, which is what this fixture's years already said.
       id: randomUUID(), stamp: RECENT(), college, season: '2026', name: 'Squad Player',
-      position: 'DEFENSE', grad: 2029, elig: 2029, nat: 'USA', country: '', ...o,
+      position: 'DEFENSE', grad: 2029, elig: 2029, klass: 'Jr.', nat: 'USA', country: '', ...o,
     });
 }
 
@@ -107,7 +111,10 @@ function seed() {
       rosterRow(p.name, {
         name: `D${i}`,
         position: 'DEFENSE',
-        ...(p.graduating && i < 2 ? { grad: 2027, elig: 2027 } : {}),
+        // A Division I graduate student's last season is 2026 under the
+        // five-year model, so their place is the one that opens for a 2027
+        // arrival. A senior's would not: they may play 2027 alongside them.
+        ...(p.graduating && i < 2 ? { grad: 2027, elig: 2026, klass: 'Gr.' } : {}),
       });
     }
     for (let i = 0; i < 12; i += 1) rosterRow(p.name, { name: `M${i}`, position: 'MIDFIELD' });
