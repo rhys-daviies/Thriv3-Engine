@@ -15,7 +15,8 @@
  * transition counts at the end are what a later phase will gate on.
  */
 import 'dotenv/config';
-import db from '../db/client.js';
+import db, { dbPath } from '../db/client.js';
+import { assertCanonicalWrite } from '../db/corpusIdentity.js';
 import { utcNow } from '../lib/time.js';
 import {
   arrivalsFor, buildPriorIndex, ARRIVAL_TRANSITIONS,
@@ -113,6 +114,12 @@ function buildSport(sport) {
   }
 
   if (!REPORT_ONLY) {
+    /*
+     * L7ZM. This writes product data. When the corpus is one other checkouts
+     * share, say so out loud rather than surprising them — see
+     * `server/db/corpusIdentity.js`.
+     */
+    assertCanonicalWrite({ script: 'buildRecruitingHistory.js', path: dbPath });
     const builtAt = utcNow();
     /*
      * L7ZL — the digest is taken BEFORE the write and stamped INSIDE the same

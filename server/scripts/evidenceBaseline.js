@@ -20,8 +20,8 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { buildBaselines, compareBaselines, short, CONTRADICTION_KEYS } from '../lib/evidenceBaseline.js';
-import { dbPath } from '../db/client.js';
-import { corpusIdentity, sharedCorpusNotice } from '../db/corpusIdentity.js';
+import db, { dbPath } from '../db/client.js';
+import { corpus, sharedCorpusNotice, corpusChangeToken } from '../db/corpusIdentity.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const EXPECTED_PATH = path.join(HERE, '__baselines__/evidence.json');
@@ -34,15 +34,31 @@ const argv = process.argv.slice(2);
 const JSON_MODE = argv.includes('--json');
 const UPDATE = argv.includes('--update');
 
+/**
+ * L7ZM — did the corpus move WHILE this measurement was running?
+ *
+ * A baseline takes minutes over a corpus other checkouts can write. L7ZL-C is
+ * the whole argument for this: another session wrote 39,430 roster rows between
+ * one measurement and the next, and every signal this branch had pointed at its
+ * own code. A digest taken across a corpus that moved mid-run is not a failing
+ * measurement, it is NOT A MEASUREMENT, and it must not be reported as though
+ * this branch broke something.
+ *
+ * Same principle H18 established for the manifest: when the question changed
+ * underneath the answer, the verdict is UNCOMPARABLE, never FAIL.
+ */
 function main() {
+  const startedAt = corpusChangeToken(db);
   const actual = buildBaselines();
+  const movedDuringRun = corpusChangeToken(db) !== startedAt;
   const expected = readExpected();
   const cmp = compareBaselines(expected, actual);
 
   if (JSON_MODE) {
     // Deterministic: same repository state and dataset, same bytes.
     process.stdout.write(`${JSON.stringify({
-      dataset: cmp.dataset,
+      dataset: movedDuringRun ? 'CORPUS_MOVED' : cmp.dataset,
+      corpusMovedDuringRun: movedDuringRun,
       datasetDigest: cmp.datasetActual,
       stats: cmp.stats,
       invariants: cmp.invariants,
@@ -50,9 +66,9 @@ function main() {
       baselines: cmp.results.map((r) => ({
         name: r.name, size: r.size, digest: r.digest, expected: r.expected, status: r.status,
       })),
-      ok: cmp.ok,
+      ok: movedDuringRun ? false : cmp.ok,
     }, null, 2)}\n`);
-    process.exit(cmp.ok ? 0 : 1);
+    process.exit(!movedDuringRun && cmp.ok ? 0 : 1);
   }
 
   const s = cmp.stats;
@@ -62,7 +78,7 @@ function main() {
    * below should be read: on a shared corpus a moved digest is not by itself
    * evidence of a local defect.
    */
-  const notice = sharedCorpusNotice(corpusIdentity(dbPath));
+  const notice = sharedCorpusNotice(corpus(dbPath));
   if (notice) console.log(`  ${notice}\n`);
   console.log(`  corpus     ${s.pairs} athlete-programme pairs`);
   console.log(`             ${s.personalised} personalised, ${s.generic} generic`);
@@ -96,6 +112,16 @@ function main() {
   }
 
   if (UPDATE) {
+    /*
+     * Repinning to a corpus that moved mid-run would write down a number no
+     * single state of the data ever produced.
+     */
+    if (movedDuringRun) {
+      console.log('\n  CORPUS MOVED DURING THIS RUN — refusing to repin. Re-measure on a\n'
+        + '  corpus nothing else is writing (RECRUITMATCH_DB pointed at a snapshot).\n');
+      process.exitCode = 1;
+      return;
+    }
     const moved = cmp.results.filter((r) => r.status !== 'PASS');
     console.log(`\n  --update: rewriting ${EXPECTED_PATH.replace(`${process.cwd()}/`, '')}\n`);
     if (cmp.dataset === 'CHANGED') console.log('    dataset fingerprint  repinned');
@@ -124,6 +150,15 @@ function main() {
   for (const e of cmp.invariants.examples.slice(0, 5)) console.log(`      ${e.pair} — ${JSON.stringify(e)}`);
   console.log(`    ${'held claims (correct, not a contradiction)'.padEnd(38)} ${cmp.stats.held}`);
 
+  if (movedDuringRun) {
+    console.log('\n  CORPUS MOVED DURING THIS RUN — UNCOMPARABLE, not a regression.\n'
+      + '  Another writer reached this database while the baselines were being\n'
+      + '  measured, so these digests span more than one state of the data. This\n'
+      + '  says nothing about this branch. Re-measure against a corpus nothing\n'
+      + '  else is writing before drawing any conclusion.\n');
+    process.exitCode = 1;
+    return;
+  }
   console.log(cmp.ok
     ? '\n  All baselines match. Read-only; nothing was changed.\n'
     : '\n  A baseline moved. Do NOT repin until you can say what changed and why —'

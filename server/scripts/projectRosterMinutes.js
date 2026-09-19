@@ -1,4 +1,5 @@
-import db from '../db/client.js';
+import db, { dbPath } from '../db/client.js';
+import { assertCanonicalWrite } from '../db/corpusIdentity.js';
 
 /**
  * Carries minutes forward from an earlier season, for a season being played now.
@@ -116,6 +117,12 @@ export function projectMinutes(db, { season, from }) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
+  /*
+   * L7ZM. This writes product data. When the corpus is one other checkouts
+   * share, say so out loud rather than surprising them — see
+   * `server/db/corpusIdentity.js`.
+   */
+  assertCanonicalWrite({ script: 'projectRosterMinutes.js', path: dbPath });
   const season = String(arg('season', '2026'));
   const from = arg('from', null);
   const { source } = projectMinutes(db, { season, from });

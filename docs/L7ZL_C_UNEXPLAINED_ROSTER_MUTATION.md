@@ -26,6 +26,12 @@ worktree, so it is not isolated per stage, per branch, or per session. Every
 containment hash this roadmap has taken was a statement about a file that
 several other branches were also using — which nothing in the toolchain said.
 
+> **Corrected by L7ZM.** This section originally implied all 21 worktrees
+> resolve to this one file. They do not: **7 do** (`app` plus 6 symlinks), 3
+> share a *separate* staging corpus, 7 hold private databases and 4 have none.
+> The finding stands — it is three corpus populations, not one — but the
+> original wording overstated it. See `docs/L7ZM_SHARED_CORPUS_ISOLATION.md`.
+
 ---
 
 ## Forensic chain

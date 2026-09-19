@@ -20,6 +20,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import db from '../db/client.js';
+import { assertCanonicalWrite } from '../db/corpusIdentity.js';
 import { readClassYear } from '../../shared/classYear.js';
 import { snapshotDatabase } from '../lib/dbSnapshot.js';
 
@@ -53,6 +54,13 @@ function main() {
     console.log('\ndry run — nothing written. Re-run with --apply.\n');
     return;
   }
+
+  /*
+   * L7ZM. This writes product data. When the corpus is one other checkouts
+   * share, say so out loud rather than surprising them — see
+   * `server/db/corpusIdentity.js`.
+   */
+  assertCanonicalWrite({ script: 'refreshGraduationYears.js', path: db.name });
 
   const dbPath = db.name;
   const backup = `${dbPath}.pre-gradyear-fix-${new Date().toISOString().replace(/[:.]/g, '-')}`;
