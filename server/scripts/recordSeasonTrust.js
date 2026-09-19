@@ -15,22 +15,28 @@
  * the rule their own audit stated, against the database as it is now, and the
  * run refuses if the shape it finds is not the shape it was told to expect.
  *
- * WHAT IT MAY WRITE, and the refusal is structural rather than a convention:
+ * WHAT IT MAY WRITE: a machine diagnosis, and nothing else.
  *
- *   PROBABLE_DUPLICATE_CAPTURE + RETAIN    the two, an operator decision
- *   SEASON_IDENTITY_UNPROVEN   + nothing   the thirteen, pending review
+ * L7ZK made that structural rather than a convention. This file imports no
+ * disposition vocabulary, its INSERT names no disposition column, and it
+ * therefore cannot produce a human decision of any kind — not an exclusion,
+ * and not a RETAIN either. A decision belongs to an authenticated operator
+ * through `server/lib/seasonTrustReview.js`, which is the only writer of that
+ * half of the record.
  *
- * It cannot write an exclusion. `EXCLUDE_FROM_EVIDENCE` appears nowhere in this
- * file, so the one disposition that changes what the product believes cannot be
- * produced by a script that runs unattended — it needs a person and a different
- * tool. Unproven is not wrong, and a queue cleared by marking everything
- * RETAIN would be a decision disguised as tidiness.
+ * THE TWO RETAIN ROWS THIS SCRIPT ONCE WROTE ARE GRANDFATHERED. L7ZJ recorded
+ * an operator decision for Eastern New Mexico and San Francisco State with a
+ * null reviewer, which was this system's honest answer at the time: there was
+ * no identity to record and inventing one would have been worse. They remain,
+ * readable and marked LEGACY_UNATTRIBUTED. Run against a fresh database this
+ * script would now produce their diagnoses alone, and a person would have to
+ * decide again — which is the governance rule working rather than a regression.
  */
 import crypto from 'node:crypto';
 import db from '../db/client.js';
 import { SEASONS, SQUAD_SEASON } from '../../shared/philosophy.js';
 import { routeClass, nameKey } from './seasonIntegrityAudit.js';
-import { DIAGNOSIS, DISPOSITION, validateTrustRecord } from '../../shared/roster/seasonTrust.js';
+import { DIAGNOSIS, validateTrustRecord } from '../../shared/roster/seasonTrust.js';
 
 /** The turnover threshold, as a detector. Not redefined here — L7Q owns it. */
 const GATE = 0.85;
@@ -153,21 +159,6 @@ function unprovenEvidence(g) {
     + 'this is not a finding that they are wrong.';
 }
 
-/**
- * The operator decision of record for the two duplicates.
- *
- * It says what was decided and on what basis, and it deliberately does NOT say
- * the data is correct — nothing measured it to be. Retaining a season one
- * cannot vouch for is a different statement from verifying it, and a record
- * that blurred them would be worse than none.
- */
-const RETAIN_EVIDENCE =
-  'Probable duplicate capture identified. No trustworthy repair source is currently available: '
-  + 'the official site serves the earlier season at every season route, and the web archive holds '
-  + 'no capture of this roster within the season window. Operator decision is to retain the '
-  + 'existing rows pending a better source or a later disposition. This does not assert that the '
-  + 'stored season is correct.';
-
 export function buildRecords({ duplicates, unproven, at }) {
   const recs = [];
   for (const g of duplicates) {
@@ -176,19 +167,12 @@ export function buildRecords({ duplicates, unproven, at }) {
       diagnosis: DIAGNOSIS.PROBABLE_DUPLICATE_CAPTURE,
       diagnosis_evidence: duplicateEvidence(g),
       diagnosed_at: at,
-      disposition: DISPOSITION.RETAIN,
-      disposition_evidence: RETAIN_EVIDENCE,
-      reviewed_at: at,
-      /*
-       * NULL, and that is this system's answer rather than a missing one.
-       * `operator_users` is empty, every one of the seven human dispositions in
-       * `roster_gap_reviews` carries null here, and both validators decline to
-       * require it — accountability rests on the evidence and the timestamp.
-       * Inventing an id would attribute a decision to a person who does not
-       * exist, which is worse than recording that nobody was signed in.
-       */
+      /* A measurement, not a decision. The human half is not this file's. */
+      disposition: null,
+      disposition_evidence: null,
+      reviewed_at: null,
       reviewed_by_operator_id: null,
-      next_action: 'Re-examine if a dated archive capture or first-party source for this season appears.',
+      next_action: null,
     });
   }
   for (const g of unproven) {
@@ -228,11 +212,14 @@ export function planDigest(recs) {
   return crypto.createHash('sha256').update(payload).digest('hex').slice(0, 16);
 }
 
+/*
+ * DIAGNOSIS COLUMNS ONLY. The human half is absent from this statement, so a
+ * future edit to this file cannot set a disposition by accident — it would have
+ * to add the column, which is a visible act rather than a typo.
+ */
 const INSERT = `INSERT INTO roster_season_trust
-  (season, college_name, sport, diagnosis, diagnosis_evidence, diagnosed_at,
-   disposition, disposition_evidence, reviewed_at, reviewed_by_operator_id, next_action)
-  VALUES (@season, @college_name, @sport, @diagnosis, @diagnosis_evidence, @diagnosed_at,
-          @disposition, @disposition_evidence, @reviewed_at, @reviewed_by_operator_id, @next_action)`;
+  (season, college_name, sport, diagnosis, diagnosis_evidence, diagnosed_at)
+  VALUES (@season, @college_name, @sport, @diagnosis, @diagnosis_evidence, @diagnosed_at)`;
 
 /* -------------------------------------------------------------------------- */
 
@@ -262,8 +249,8 @@ export function main(argv = process.argv) {
   for (const r of recs) {
     const v = validateTrustRecord(r);
     if (!v.ok) throw new Error(`refused ${keyOf(r)}: ${v.reason}`);
-    if (r.disposition === DISPOSITION.EXCLUDE_FROM_EVIDENCE) {
-      throw new Error('this script cannot write an exclusion');
+    if (r.disposition !== null) {
+      throw new Error('this script cannot write a human disposition of any kind');
     }
   }
 
@@ -274,7 +261,7 @@ export function main(argv = process.argv) {
   line('  season  programme                                          sport          diagnosis                   disposition');
   for (const r of recs) {
     line(`  ${r.season}    ${r.college_name.slice(0, 48).padEnd(50)} ${r.sport.padEnd(14)} `
-      + `${r.diagnosis.padEnd(27)} ${r.disposition ?? '(none — pending review)'}`);
+      + `${r.diagnosis.padEnd(27)} ${r.disposition ?? '(none — an operator decides)'}`);
   }
 
   if (dryRun) { line('\n  DRY RUN — nothing was written.\n'); return { recs, written: 0 }; }

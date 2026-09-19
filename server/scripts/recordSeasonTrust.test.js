@@ -157,27 +157,34 @@ describe('L7ZJ — what the records say', () => {
     return buildRecords({ duplicates, unproven: deriveUnproven(ps, duplicates), at: '2026-09-19T00:00:00Z' });
   };
 
-  it('gives the duplicate a diagnosis AND a human RETAIN', () => {
-    const r = build().find((x) => x.college_name === 'Dup College');
-    expect(r.diagnosis).toBe(DIAGNOSIS.PROBABLE_DUPLICATE_CAPTURE);
-    expect(r.disposition).toBe(DISPOSITION.RETAIN);
-    expect(r.reviewed_at).toBeTruthy();
-    expect(r.disposition_evidence).toBeTruthy();
-  });
-
-  it('does NOT claim the retained season is correct', () => {
+  it('gives the duplicate a diagnosis and NO disposition', () => {
     /*
-     * The sentence an operator will read later, and the distinction the record
-     * exists to hold: retaining a season nobody can vouch for is not the same
-     * as verifying it. A record that blurred the two would be worse than none.
+     * CHANGED BY L7ZK, deliberately. L7ZJ had this script write RETAIN for the
+     * two duplicates with a null reviewer, which was the honest answer while no
+     * identity existed. The governance rule is now that every NEW human
+     * disposition carries an authenticated operator, so a machine recorder
+     * cannot produce one at all — not an exclusion, and not a RETAIN either.
+     *
+     * The two rows it already wrote are grandfathered and untouched. Run
+     * against a fresh database this script now produces their diagnoses alone
+     * and a person decides again, which is the rule working rather than a
+     * regression.
      */
     const r = build().find((x) => x.college_name === 'Dup College');
-    expect(r.disposition_evidence).toMatch(/does not assert that the stored season is correct/i);
-    expect(r.disposition_evidence).not.toMatch(/\bverified\b/i);
-    expect(r.disposition_evidence).not.toMatch(/\bconfirmed\b/i);
-    expect(r.disposition_evidence).not.toMatch(/\bresolved\b/i);
-    // And the diagnosis is preserved, not cleared by the decision.
     expect(r.diagnosis).toBe(DIAGNOSIS.PROBABLE_DUPLICATE_CAPTURE);
+    expect(r.disposition).toBeNull();
+    expect(r.disposition_evidence).toBeNull();
+    expect(r.reviewed_at).toBeNull();
+    expect(r.reviewed_by_operator_id).toBeNull();
+  });
+
+  it('cannot produce a human disposition for any record', () => {
+    // Enforced by the file's shape rather than by restraint: it imports no
+    // disposition vocabulary and its INSERT names no disposition column.
+    for (const r of build()) {
+      expect(r.disposition).toBeNull();
+      expect(r.reviewed_by_operator_id).toBeNull();
+    }
   });
 
   it('gives the unproven season a diagnosis and NO disposition', () => {
@@ -277,11 +284,14 @@ describe('L7ZJ — the write is atomic and the read model is deterministic', () 
     }
     // Nothing in the queue removes anything from Evidence.
     expect(q.filter((r) => r.excludedFromEvidence)).toEqual([]);
-    // Dispositioned and pending are separated by the record, not by a guess.
-    expect(q.filter((r) => r.reviewState === 'DISPOSITIONED').map((r) => r.college_name))
-      .toEqual(['Dup College']);
-    expect(q.filter((r) => r.reviewState === 'PENDING_REVIEW').map((r) => r.college_name))
-      .toEqual(['New College']);
+    /*
+     * Everything this script writes is PENDING_REVIEW after L7ZK: a diagnosis
+     * is a measurement, and the human half is now written only through
+     * `seasonTrustReview.recordDisposition` by an authenticated operator.
+     */
+    expect(q.filter((r) => r.reviewState === 'DISPOSITIONED')).toEqual([]);
+    expect(q.filter((r) => r.reviewState === 'PENDING_REVIEW').map((r) => r.college_name).sort())
+      .toEqual(['Dup College', 'New College']);
 
     // Deterministic: the same queue twice, in the same order.
     expect(trustQueue().map((r) => `${r.college_name}|${r.sport}|${r.season}`))

@@ -25,6 +25,7 @@ import { trackRouter } from './routes/track.js';
 import { uploadsRouter } from './routes/uploads.js';
 import { campaignsRouter } from './routes/campaigns.js';
 import { rosterGapsRouter } from './routes/rosterGaps.js';
+import { rosterSeasonTrustRouter } from './routes/rosterSeasonTrust.js';
 import { UPLOADS_DIR } from './lib/uploadPath.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
@@ -312,6 +313,16 @@ app.use('/api', campaignsRouter);
 // must not be reachable through the unvalidated ENTITIES pass-through, where a
 // client could store a disposition the vocabulary refuses.
 app.use('/api', rosterGapsRouter);
+
+// ---- Historical season trust review ----
+//
+// Same reason again, and one more: `roster_season_trust.disposition` is the one
+// operator-writable field in the product that CHANGES WHAT EVIDENCE BELIEVES.
+// Reachable through the ENTITIES pass-through it could be set anonymously, with
+// no evidence and no reviewer, which is precisely the governance rule L7ZK
+// exists to enforce. The write path here is built and deliberately disabled
+// until the application has an authenticated operator.
+app.use('/api', rosterSeasonTrustRouter);
 
 // ---- Uploads (UploadFile integration replacement) ----
 //
