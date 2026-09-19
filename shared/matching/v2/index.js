@@ -6,8 +6,9 @@
  * reach into frozen V1 scoring, and the rest of the repository may not reach
  * into V2 until there is something to adopt.
  *
- * At A7.1 there is no scorer. What exists is the contract, the coverage
- * algebra and the ability calibration that every later layer is built on.
+ * A7.1 built the contract, the coverage algebra and the ability calibration.
+ * A7.2 adds the first scoring layer, Financial Viability. There is still no
+ * pipeline, no pursuit priority and no gating.
  */
 export {
   GRADE, REASON, RANKING_STATE,
@@ -25,3 +26,14 @@ export {
 } from './calibration/abilityScale.js';
 
 export { AID_POLICY_STATUS, aidAssumption, assertMayClaimNoAthleticAid } from './aidPolicy.js';
+
+export {
+  BUDGET_INTERVALS, LEGACY_BUDGET_INTERVALS, UNDECLARED_BUDGET, budgetInterval,
+  CONTROL, ATHLETIC_AID_RULES, UNRULED_AID_DIVISIONS, NO_ATHLETIC_AID_CONFERENCES,
+  CONTRIBUTION_ANCHOR, HALF_VIABILITY_RELATIVE_GAP,
+} from './financialRules.js';
+
+export {
+  COST_BASIS, financialViability, applicableCost, fundingGap,
+  viabilityFromRelativeGap, athleticAidRule,
+} from './layers/financial.js';

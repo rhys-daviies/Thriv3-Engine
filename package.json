@@ -53,6 +53,7 @@
     "test:watch": "vitest",
     "trial:preflight": "node server/scripts/trialPreflight.js",
     "tune:weights": "node server/scripts/tuneMatchingWeights.js",
+    "v2:financial": "node server/scripts/v2Financial.js",
     "v2:compare": "node server/scripts/v2Compare.js",
     "verify:baseline": "node server/scripts/verifyBaselineInvariants.js"
   },

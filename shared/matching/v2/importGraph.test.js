@@ -37,11 +37,21 @@ const FORBIDDEN_TO_V2 = [
   'shared/matching/index.js',
 ];
 
-/** The only places allowed to import V2 at A7.1. */
+/**
+ * The only places allowed to import V2 while there is nothing to adopt.
+ *
+ * Every entry is a DIAGNOSTIC: a harness, a calibration generator or a report
+ * a person reads. Nothing that serves a route, renders a page or writes a
+ * recommendation appears here, and adoption means adding call sites to this
+ * list deliberately, one at a time, with a date on each.
+ */
 const MAY_IMPORT_V2 = [
   'shared/matching/v2/',
   'server/lib/v2/',
   'server/scripts/v2Compare.js',
+  'server/scripts/v2Financial.js',
+  'server/scripts/v2Fixtures.js',
+  'server/scripts/v2Fixtures.test.js',
   'server/scripts/calibrateAbilityScale.js',
 ];
 

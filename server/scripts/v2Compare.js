@@ -17,38 +17,10 @@
  * THE ADOPTION RULE: V2 is not adopted on destination recall. See the header of
  * server/lib/v2/parallelRun.js.
  */
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { FIXTURES, BASE_PLAYER } from './v2Fixtures.js';
 
 /** The season the product ranks against - the same one the frozen baseline uses. */
 const SEASON = '2026';
-
-/**
- * The same eight athletes the V1 matching baseline is pinned on.
- *
- * Reused deliberately: a harness that compares a different athlete from the one
- * the baseline pins is comparing two things neither of which is the frozen
- * answer. Between them they cover both sports, both origins, both ends of the
- * ability slider and both ends of the budget bands.
- */
-const FIXTURES = [
-  { id: 'A', why: 'strong, high budget, strong academics - affordability saturated', player: { sport: 'mens-soccer', football_ability: 9, position: 'Midfielder', recruiting_class_year: 2028, gpa: 3.9, sat_score: 1450, budget_range: '$40k+/yr', state: 'CA', city: 'Los Angeles', nationality: 'USA', origin: 'USA' } },
-  { id: 'B', why: 'strong, low budget - three couplings fire together', player: { sport: 'mens-soccer', football_ability: 9, position: 'Midfielder', recruiting_class_year: 2028, gpa: 3.2, budget_range: '$5k-$10k/yr', state: 'CA', city: 'Los Angeles', nationality: 'USA', origin: 'USA' } },
-  { id: 'C', why: 'THE PATHOLOGY FIXTURE - developmental athlete, high budget, elite academics', player: { sport: 'mens-soccer', football_ability: 3, position: 'Midfielder', recruiting_class_year: 2028, gpa: 4.0, sat_score: 1550, budget_range: '$40k+/yr', state: 'MA', city: 'Boston', nationality: 'USA', origin: 'USA' } },
-  { id: 'D', why: 'developmental, low budget - division composition at the bottom of the range', player: { sport: 'mens-soccer', football_ability: 3, position: 'Midfielder', recruiting_class_year: 2028, gpa: 3.0, budget_range: '$5k-$10k/yr', state: 'TX', city: 'Dallas', nationality: 'USA', origin: 'USA' } },
-  { id: 'E', why: 'international, mid ability - the propensity signal', player: { sport: 'mens-soccer', football_ability: 6, position: 'Defender', recruiting_class_year: 2027, gpa: 3.5, budget_range: '$20k-$30k/yr', state: null, city: 'London', nationality: 'England', origin: 'International' } },
-  { id: 'F', why: "women's, strong, mid budget", player: { sport: 'womens-soccer', football_ability: 8, position: 'Forward', recruiting_class_year: 2028, gpa: 3.7, sat_score: 1300, budget_range: '$20k-$30k/yr', state: 'NC', city: 'Charlotte', nationality: 'USA', origin: 'USA' } },
-  { id: 'G', why: "women's, mid ability, goalkeeper - the position where the starter split is decisive", player: { sport: 'womens-soccer', football_ability: 5, position: 'Goalkeeper', recruiting_class_year: 2027, gpa: 3.4, budget_range: '$10k-$15k/yr', state: 'IL', city: 'Chicago', nationality: 'USA', origin: 'USA' } },
-  { id: 'H', why: 'in-state lever, mid ability', player: { sport: 'mens-soccer', football_ability: 6, position: 'Forward', recruiting_class_year: 2028, gpa: 3.3, budget_range: '$15k-$30k/yr', state: 'OH', city: 'Columbus', nationality: 'USA', origin: 'USA' } },
-];
-
-const BASE_PLAYER = {
-  act_score: null, academic_minimum: null,
-  preferred_divisions: '[]', preferred_conferences: '[]',
-  match_weights: null, criterion_ranking: null,
-};
 
 function usage(code) {
   console.error('Usage: v2Compare.js (--fixture=<A-H> | --all) [--json] [--candidate=v1]');
@@ -92,7 +64,7 @@ async function main() {
     process.exit(2);
   }
 
-  const chosen = all ? FIXTURES : FIXTURES.filter((f) => f.id === one);
+  const chosen = all ? FIXTURES : FIXTURES.filter((f) => f.id.toUpperCase().startsWith(`${one}-`));
   if (chosen.length === 0) usage(2);
 
   const { default: db } = await import('../db/client.js');
