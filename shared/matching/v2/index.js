@@ -72,6 +72,6 @@ export {
   readPriority, isDeclared, priorityStrength,
 } from './athletePreferences.js';
 
-export { PURSUIT_WEIGHTS, PURSUIT_GATES, TOP_N, smoothstep, tailGate } from './pursuitRules.js';
+export { PURSUIT_WEIGHTS, PURSUIT_GATES, TOP_N, WEIGHTING_ARCHITECTURE, smoothstep, tailGate } from './pursuitRules.js';
 export { pursuitPriority } from './layers/pursuit.js';
 export { rankPool } from './pipeline.js';

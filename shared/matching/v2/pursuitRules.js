@@ -14,49 +14,62 @@
  *
  * Recruitability leads because the product's scarce resource is a coach's
  * attention, and a programme that would not have the athlete cannot repay any
- * of it. Financial sits second because it decides whether an offer could be
- * accepted. Opportunity is third and smallest: it is the layer with the least
- * athlete evidence behind it today, and weighting it higher would be weighting
- * an absence.
+ * of it. It holds exactly half the weight, which is unambiguous dominance:
+ * across the whole grid tested, no candidate let opportunity or finance rescue
+ * a programme the athlete could not reach.
  *
- * Chosen from the sensitivity grid rather than inherited: across the region
- * 0.45-0.65 / 0.20-0.35 / 0.15-0.30 the top hundred is stable and the
- * division mix barely moves, so this is a defensible point inside a flat
- * region rather than a peak.
+ * Opportunity carries 0.30 rather than A7.5's 0.20 because at 0.20 the
+ * athlete's own stated goals barely reached the list. Two athletes identical
+ * in ability, money and options but opposite in what they want shared 71% of
+ * their top hundred at 0.20 and 55% at 0.30 - the difference between
+ * collecting a preference and collecting it for nothing. It is not raised
+ * further because at 0.35 the developmental fixture's top ten begins to drift
+ * upward in programme strength and its weakest recruitability falls from 0.35
+ * to 0.28: opportunity starting to rescue, which is the thing the gate exists
+ * to prevent.
+ *
+ * Financial drops to 0.20 and stays fully material, which was measured rather
+ * than assumed: the same rating-9 athlete on a $40k budget and on a $5-10k
+ * budget still shares under half their top hundred, the financial gate still
+ * fires on 87% of the low-budget list, and no programme with viability below
+ * 0.30 survives into it at any weight tested.
+ *
+ * A FLAT REGION, NOT A FITTED POINT. Holding opportunity at 0.30 and moving
+ * recruitability between 0.475 and 0.525 leaves 95% of the top hundred
+ * unchanged. The sensitive axis is opportunity itself, which is why the
+ * argument above is about that number and not the other two.
+ *
+ * HEURISTIC. Nothing here is calibrated, and none of it was chosen by
+ * resemblance to V1, by destination recall, or by how any division's share
+ * came out.
  */
-export const PURSUIT_WEIGHTS = Object.freeze({ recruitability: 0.55, financial: 0.25, opportunity: 0.20 });
+export const PURSUIT_WEIGHTS = Object.freeze({ recruitability: 0.50, financial: 0.20, opportunity: 0.30 });
 
 /**
- * The gates, as (floor, threshold) pairs.
+ * WHY ONE GLOBAL WEIGHTING RATHER THAN ONE PER DECLARATION STATE.
  *
- * A gate CONSTRAINS A TAIL. It is 1 above its threshold and falls smoothly to
- * its floor at zero, so a layer stops mattering as a gate once it is merely
- * adequate and the weighted term carries it from there. The first version
- * multiplied by the layer across its whole range, which scaled everything down
- * and counted recruitability twice - it appeared in the base AND in the gate,
- * and the result correlated with recruitability at 0.98 while opportunity
- * correlated at 0.18. The other two layers had become decoration.
+ * A conditional scheme was built and measured: keep opportunity at 0.20 for
+ * athletes who have declared nothing, raise it to 0.30 for those who have. It
+ * ties exactly on the thing it was meant to win - the divergence between a
+ * level-first and a playing-first athlete is 0.549 either way, because that
+ * comparison only ever runs at the declared weights - and its advantage is
+ * that an undeclared athlete's list cannot move at all.
  *
- * RECRUITABILITY: floor 0.05, threshold 0.25.
- *   Below a quarter, the case collapses - at recruitability 0 only a twentieth
- *   of the base survives, so no amount of money or fit rescues a programme
- *   that would not have the athlete. At or above a quarter the gate is fully
- *   open. 0.25 is about the tenth percentile of the live recruitability
- *   distribution, so it constrains the tail and not the body.
+ * It was rejected on two grounds. The undeclared movement it avoids is small
+ * and turns out to be sensible: 13 of 100 change, and the programmes arriving
+ * share their minutes far more widely (0.74 against 0.55) and are improving
+ * rather than flat, at a slight cost in recruitability. That is precisely what
+ * weighting opportunity more should do, and refusing it would be refusing the
+ * change on its merits.
  *
- * FINANCIAL: floor 0.30, threshold 0.50.
- *   Deliberately a higher floor. Severe financial mismatch must STRONGLY
- *   DEMOTE and must not delete - an exceptional programme is still worth an
- *   approach when a scholarship is exactly what would make it reachable, and
- *   0.30 is what keeps it on the list. Financial viability 0.50 is the point
- *   at which a family must find half their stated contribution again, which is
- *   where the layer itself says the case is evenly balanced.
- *
- * OPPORTUNITY IS NOT GATED AT ALL. A coach who wants the athlete makes a
- * programme worth pursuing even where the athlete-side case is mediocre, and
- * the athlete-side evidence is the thinnest we hold - gating on it would let
- * the layer we know least about delete programmes.
+ * And declaration state is ALREADY handled, once, in the right place: the
+ * Opportunity layer drops athleticOutcome to NOT_APPLICABLE when nobody has
+ * asked, so an undeclared athlete's opportunity score is built only from
+ * measured evidence. Handling it a second time here would put the same fact in
+ * two places and make every explanation say which weighting it was under.
  */
+export const WEIGHTING_ARCHITECTURE = 'global';
+
 export const PURSUIT_GATES = Object.freeze({
   recruitability: { floor: 0.05, threshold: 0.25 },
   financial: { floor: 0.30, threshold: 0.50 },

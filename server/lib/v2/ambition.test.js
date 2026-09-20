@@ -52,8 +52,8 @@ const athlete = (rating, level, playing) => ({
   },
 });
 
-const run = (rating, level, playing) => runPursuit({
-  athlete: athlete(rating, level, playing), sport: 'mens-soccer', colleges, ctx, topN: 30,
+const run = (rating, level, playing, weights) => runPursuit({
+  athlete: athlete(rating, level, playing), sport: 'mens-soccer', colleges, ctx, topN: 30, weights,
 });
 
 const medianScore = (rep) => {
@@ -183,12 +183,73 @@ describe('the two fields are not one slider', () => {
   });
 });
 
-describe('the Pursuit Priority formula itself is untouched', () => {
-  it('still applies the same weights and gates whatever the preference', () => {
-    for (const [level, playing] of [[null, null], [5, 1], [1, 5]]) {
+describe('the Pursuit Priority weighting does not depend on the preference', () => {
+  it('applies ONE global weighting, whatever was or was not declared', async () => {
+    const { PURSUIT_WEIGHTS, WEIGHTING_ARCHITECTURE } = await import('../../../shared/matching/v2/index.js');
+    // The alternative considered and rejected was a second weighting for
+    // undeclared athletes. Declaration state is handled once, by
+    // athleticOutcome going NOT_APPLICABLE inside the Opportunity layer.
+    expect(WEIGHTING_ARCHITECTURE).toBe('global');
+    for (const [level, playing] of [[null, null], [5, 1], [1, 5], [3, 3]]) {
       const rep = run(9, level, playing);
-      const top = rep.pipeline.actionable[0].pursuitPriority.basis;
-      expect(top.weights).toEqual({ recruitability: 0.55, financial: 0.25, opportunity: 0.20 });
+      expect(rep.pipeline.actionable[0].pursuitPriority.basis.weights).toEqual(PURSUIT_WEIGHTS);
+    }
+  });
+
+  it('never lets preference INTENSITY reach the weighting a second time', () => {
+    // The 1-5 intensity is spent inside the Opportunity layer. Two different
+    // intensities must still produce the same Pursuit weights.
+    const a = run(9, 5, 1).pipeline.actionable[0].pursuitPriority.basis.weights;
+    const b = run(9, 1, 5).pipeline.actionable[0].pursuitPriority.basis.weights;
+    expect(a).toEqual(b);
+  });
+});
+
+describe('the retuned weights, held to what justified them', () => {
+  it('lets an explicit preference materially change the outreach list', () => {
+    // The whole reason opportunity rose from 0.20 to 0.30. Two athletes
+    // identical in every measured way and opposite in what they want must not
+    // receive nearly the same list.
+    const levelFirst = run(9, 5, 1).pipeline.actionable.map((r) => r.id);
+    const playingFirst = run(9, 1, 5).pipeline.actionable.map((r) => r.id);
+    const shared = levelFirst.filter((id) => playingFirst.includes(id)).length;
+    const jaccard = shared / ((levelFirst.length * 2) - shared);
+    expect(jaccard).toBeLessThan(0.8);
+  });
+
+  it('keeps the developmental athlete constrained at the new weights', () => {
+    // The reason opportunity did NOT rise to 0.35: beyond 0.30 the weakest
+    // recruitability in this athlete's top ten starts to fall.
+    const rep = run(3, 5, 1);
+    for (const r of rep.pipeline.actionable.slice(0, 10)) {
+      expect(r.recruitability.value).toBeGreaterThan(0.2);
+    }
+    expect(rep.pipeline.actionable.filter((r) => (r.soccerScore ?? 0) > 80)).toHaveLength(0);
+  });
+
+  it('keeps finance material at 0.20, which is why it could be reduced', () => {
+    const rich = runPursuit({
+      athlete: { ...athlete(9, null, null), v1Shape: { sport: 'mens-soccer', budgetRange: '$40k+/yr', state: 'OH', origin: 'USA' } },
+      sport: 'mens-soccer', colleges, ctx, topN: 30,
+    });
+    const poor = runPursuit({
+      athlete: { ...athlete(9, null, null), v1Shape: { sport: 'mens-soccer', budgetRange: '$5k-$10k/yr', state: 'OH', origin: 'USA' } },
+      sport: 'mens-soccer', colleges, ctx, topN: 30,
+    });
+    const shared = rich.pipeline.actionable.filter((r) => poor.pipeline.actionable.some((p) => p.id === r.id)).length;
+    expect(shared).toBeLessThan(rich.pipeline.actionable.length * 0.8);
+    expect(poor.gateFiringRate.financial).toBeGreaterThan(0.3);
+  });
+
+  it('sits in a flat region - moving recruitability either way barely moves the list', () => {
+    const at = (r, f) => runPursuit({
+      athlete: athlete(9, 5, 1), sport: 'mens-soccer', colleges, ctx, topN: 30,
+      weights: { recruitability: r, financial: f, opportunity: 0.30 },
+    }).pipeline.actionable.map((x) => x.id);
+    const base = at(0.50, 0.20);
+    for (const [r, f] of [[0.475, 0.225], [0.525, 0.175]]) {
+      const shared = base.filter((id) => at(r, f).includes(id)).length;
+      expect(shared / base.length, `at R=${r}`).toBeGreaterThan(0.85);
     }
   });
 });

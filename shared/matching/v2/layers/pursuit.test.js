@@ -29,13 +29,13 @@ describe('the product principles, as failure tests', () => {
     expect(P(0.03, 1.00, 1.00).value).toBeLessThan(P(0.50, 0.20, 0.20).value);
   });
 
-  it('1c. but a POOR financial case can overturn a large recruitability advantage, deliberately', () => {
-    // R 0.85 with finance at 0.30 - a family needing to find twice what they
-    // stated - loses to R 0.30 they can afford. That is principle 2 and
-    // principle 6 doing their work, not a failure of principle 1: dominance
-    // means recruitability moves the score most, not that it always wins.
-    const strongUnaffordable = P(0.85, 0.30, 0.30);
-    const weakerAffordable = P(0.30, 0.85, 0.85);
+  it('1c. but a POOR financial case can overturn a recruitability advantage, deliberately', () => {
+    // A programme rated 0.90 on recruitability that a family cannot afford
+    // loses to one rated 0.40 that they can. That is principle 2 and principle
+    // 6 doing their work, not a failure of principle 1: dominance means
+    // recruitability moves the score most, not that it always wins.
+    const strongUnaffordable = P(0.90, 0.25, 0.60);
+    const weakerAffordable = P(0.40, 0.90, 0.60);
     expect(strongUnaffordable.basis.base).toBeGreaterThan(weakerAffordable.basis.base);
     expect(strongUnaffordable.value).toBeLessThan(weakerAffordable.value);
     expect(strongUnaffordable.basis.financialGateLoss).toBeGreaterThan(0.1);
@@ -197,11 +197,24 @@ describe('all three layers are required', () => {
 });
 
 describe('the weights', () => {
-  it('sum to one and put recruitability first', () => {
+  it('sum to one, with recruitability holding at least half', () => {
     const { recruitability, financial, opportunity } = PURSUIT_WEIGHTS;
     expect(recruitability + financial + opportunity).toBeCloseTo(1, 10);
-    expect(recruitability).toBeGreaterThan(financial);
-    expect(financial).toBeGreaterThan(opportunity);
+    // Dominance is the principle. The ORDER of the other two is not: finance
+    // sits below opportunity because it is gated as well as weighted, and
+    // carries its force through the gate.
+    expect(recruitability).toBeGreaterThanOrEqual(0.5);
+    expect(recruitability).toBeGreaterThan(financial + 0.1);
+    expect(recruitability).toBeGreaterThan(opportunity + 0.1);
+  });
+
+  it('moves the priority more per point of recruitability than of anything else', () => {
+    const swing = (layer) => {
+      const at = (v) => P(layer === 'R' ? v : 0.5, layer === 'F' ? v : 0.5, layer === 'O' ? v : 0.5).value;
+      return at(0.9) - at(0.1);
+    };
+    expect(swing('R')).toBeGreaterThan(swing('F'));
+    expect(swing('R')).toBeGreaterThan(swing('O'));
   });
 
   it('are overridable, so a sensitivity run needs no second implementation', () => {

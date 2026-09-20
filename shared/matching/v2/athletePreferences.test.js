@@ -21,11 +21,22 @@ describe('the intake contract', () => {
     }
   });
 
-  it('asks a question an athlete can answer, with anchored ends', () => {
+  it('asks a question an athlete can answer, anchored at every point', () => {
     for (const f of Object.values(PREFERENCE_FIELDS)) {
       expect(f.question).toMatch(/\?$/);
-      expect(f.anchors[1]).toBeTruthy();
-      expect(f.anchors[5]).toBeTruthy();
+      for (const v of [1, 2, 3, 4, 5]) expect(f.anchors[v], `anchor ${v}`).toBeTruthy();
+      expect(f.helper).toMatch(/what you want/);
+    }
+  });
+
+  it('never asks the athlete to assess their own ability or chances', () => {
+    // "the strongest level you can realistically reach" invited exactly that.
+    // What is reachable is Coach Recruitability's answer, not the athlete's.
+    for (const f of Object.values(PREFERENCE_FIELDS)) {
+      const text = `${f.question} ${Object.values(f.anchors).join(' ')}`.toLowerCase();
+      for (const forbidden of ['realistic', 'reach', 'your ability', 'your level', 'good enough', 'likely']) {
+        expect(text, `${f.question} contains "${forbidden}"`).not.toContain(forbidden);
+      }
     }
   });
 });

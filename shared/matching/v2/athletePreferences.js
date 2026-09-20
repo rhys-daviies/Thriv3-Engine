@@ -61,12 +61,24 @@ export const PREFERENCE_FIELDS = Object.freeze({
     default: null,
     allowed: [1, 2, 3, 4, 5],
     missingMeans: 'UNDECLARED',
-    question: 'How important is competing at the strongest level you can realistically reach?',
+    /**
+     * REVISED. The first wording asked about "the strongest level you can
+     * realistically REACH", which invites the athlete to assess their own
+     * ability - and ability is not theirs to state here. It is the operator's
+     * 1-10 rating, and what is realistic is Coach Recruitability's answer, not
+     * a thing to ask a seventeen-year-old to estimate about themselves.
+     *
+     * The athlete states the PREFERENCE. Thriv3 decides what is reachable.
+     */
+    question: 'How important is playing at the highest competitive level possible?',
     anchors: Object.freeze({
-      1: 'Not important - I would rather find the right place than the highest level',
+      1: 'Not important - the right programme matters more to me than the level',
+      2: 'Slightly important',
       3: 'Somewhat important',
-      5: 'The most important thing - I want the strongest programme that would take me',
+      4: 'Very important',
+      5: 'The most important thing to me',
     }),
+    helper: 'We work out which levels are realistic for you. This is about what you want.',
     /** What it must never be read as. */
     notAnAbilityRating: 'This is what the athlete WANTS. Their ability stays the operator-assessed 1-10 rating.',
   },
@@ -76,12 +88,20 @@ export const PREFERENCE_FIELDS = Object.freeze({
     default: null,
     allowed: [1, 2, 3, 4, 5],
     missingMeans: 'UNDECLARED',
-    question: 'How important is a strong pathway to meaningful playing time early on?',
+    /**
+     * Deliberately about WANTING to play early, not about predicting that they
+     * will. The prediction is the layer's job, and asking an athlete to make
+     * it would be the same mistake as asking them to rate their own level.
+     */
+    question: 'How important is getting onto the field early in your college career?',
     anchors: Object.freeze({
       1: 'Not important - I am happy to work my way in over a few years',
+      2: 'Slightly important',
       3: 'Somewhat important',
-      5: 'The most important thing - I want to be playing as soon as I can',
+      4: 'Very important',
+      5: 'The most important thing to me',
     }),
+    helper: 'We work out where the playing time actually is. This is about what you want.',
     notAnAbilityRating: 'This is what the athlete WANTS, not a claim about how quickly they would play.',
   },
 });
