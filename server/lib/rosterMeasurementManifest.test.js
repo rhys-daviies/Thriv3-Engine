@@ -81,11 +81,12 @@ function mutate(sql, params = []) {
 /* -------------------------------------------------------------------------- */
 
 describe('L7ZB — the version', () => {
-  it('is V5, and V4 is nameable as the legacy pin', () => {
+  it('is V6, and V4 is nameable as the legacy pin', () => {
     // L7ZB introduced roster_measurements at V4; L7ZI added roster_season_trust
-    // at V5. This file's subject is the measurement component, which is present
-    // at both -- what moves here is only the number the definition carries.
-    expect(M.MANIFEST_VERSION).toBe('V5');
+    // at V5; L7ZQ added coach_seasons and recruiting_arrivals at V6. This
+    // file's subject is the measurement component, present at all of them --
+    // what moves here is only the number the definition carries.
+    expect(M.MANIFEST_VERSION).toBe('V6');
     expect(M.LEGACY_MANIFEST_VERSION).toBe('V4');
   });
 

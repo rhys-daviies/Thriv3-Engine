@@ -2,7 +2,7 @@
   "note": "Committed Evidence behavioural baseline. See docs/EVIDENCE_BASELINES.md before repinning.",
   "now": "2026-09-06T00:00:00.000Z",
   "manifest": {
-    "version": "V5",
+    "version": "V6",
     "tables": [
       {
         "table": "players",
@@ -40,6 +40,11 @@
         "digest": "0a1132f6cdaa853e2689939161893b7fb089a721c9e5380305b4fddbb7fdf25f"
       },
       {
+        "table": "coach_seasons",
+        "rows": 8595,
+        "digest": "9ff4a87d253ed71350b25a1c420a414c7e5827ac171bfd2ea069f052cca87108"
+      },
+      {
         "table": "roster_freshness",
         "rows": 2060,
         "digest": "3d70ff0168dc6842af1bd285845b01e5dbead34bc07ece0cdfe68098b0999551"
@@ -48,9 +53,14 @@
         "table": "roster_measurements",
         "rows": 281159,
         "digest": "2009f8afa02c1fb25afc29b441ae9889e784883df91e7cbcdcdcfe65df9ae557"
+      },
+      {
+        "table": "recruiting_arrivals",
+        "rows": 88879,
+        "digest": "cf05efc2ff02f00b9692b00627c9b57becd88e27c66fc2bcf952ed8b7db3df66"
       }
     ],
-    "digest": "a433a7c149fe1628fb22a2b8aab7e00e26825305f9505b194e928b7a871bc8fd"
+    "digest": "cc28ee6accdb84edae9612b37096ae3e39455d6a4dc0550a8c34af2b48eec83a"
   },
   "baselines": [
     {

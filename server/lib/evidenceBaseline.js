@@ -217,7 +217,43 @@ export const short = (d) => String(d).slice(0, 16);
  * version is what keeps that honest — a V2 pin and a V2 digest taken over a
  * different table list would both claim to be V2 and mean different things.
  */
-export const MANIFEST_VERSION = 'V5';
+export const MANIFEST_VERSION = 'V6';
+
+/*
+ * L7ZQ — V6 CLOSES TWO HOLES L7ZP MADE VISIBLE.
+ *
+ * L7ZP rebuilt `recruiting_arrivals`, moved all six behavioural baselines, and
+ * left this digest EXACTLY where it was. That breaks the one promise the
+ * manifest makes: if data capable of changing behaviour changes, dataset
+ * identity changes with it. Two independent causes, both demonstrated by
+ * mutating one field against a fixture and watching:
+ *
+ *   SOURCE_INPUT_MISSING          `coach_seasons` is read straight into
+ *                                 Evidence by `philosophyQueries` and reaches
+ *                                 coach tenure and arrival attribution. V5
+ *                                 carried `coaches`, which is a different
+ *                                 table. Renaming coaches moved all six
+ *                                 baselines with V5 unchanged.
+ *
+ *   DERIVED_STATE_NOT_IDENTIFIED  `recruiting_arrivals` is materialised, and
+ *                                 V5 saw only its inputs. Deleting a season of
+ *                                 it moved all six baselines with V5 unchanged
+ *                                 — AND with the L7ZL freshness state still
+ *                                 reporting FRESH, because that fingerprint
+ *                                 covers what the table was built FROM and
+ *                                 never what it now CONTAINS.
+ *
+ * The second point is why the freshness fingerprint could not simply be
+ * borrowed. Freshness answers "does this derived table still match its
+ * inputs"; the manifest answers "what data will the product actually read".
+ * A table truncated after a successful build satisfies the first and fails the
+ * second, so V6 hashes the derived CONTENT rather than trusting a build stamp.
+ *
+ * Operational fields stay out. `built_at` and the build generation counter are
+ * bookkeeping — a rebuild that reproduces identical rows must not move dataset
+ * identity, and L7ZP proved rebuilds are deterministic, so they would only add
+ * churn.
+ */
 
 /** The last version before `roster_season_trust`, kept so a V4 pin is nameable. */
 export const LEGACY_MANIFEST_VERSION = 'V4';
@@ -249,6 +285,19 @@ const MANIFEST_TABLES = Object.freeze([
    * from "not active" to "active from 2027" is a different fact about the world.
    */
   ['programme_status', 'SELECT school, sport, status, reason, active_from_season, active_to_season FROM programme_status ORDER BY sport, school'],
+  /*
+   * L7ZQ. NOT the same table as `coaches` above. `philosophyQueries` reads
+   * these rows directly into Evidence, `recruitingPatterns` reads them for
+   * arrival attribution, and `programmePhilosophy` computes coach tenure from
+   * them — so a coach name here changes what a coach is told about their own
+   * programme's history.
+   *
+   * The columns are the union of what the Evidence paths actually select.
+   * `method`, `confidence`, `source_url`, `division` and `imported_at` are
+   * acquisition provenance that reaches no claim, and including them would
+   * move dataset identity for a re-scrape that changed nothing anyone reads.
+   */
+  ['coach_seasons', 'SELECT school, sport, season, coach_name, coach_title, reason FROM coach_seasons ORDER BY sport, school, season, coach_name, coach_title, reason'],
 ]);
 
 /**
@@ -358,6 +407,49 @@ export function rosterMeasurementFingerprint() {
   return { table: 'roster_measurements', rows: lines.length, digest: digest(lines.join('\n')) };
 }
 
+/**
+ * The behavioural content of `recruiting_arrivals`, which is DERIVED data.
+ *
+ * Taken from `toArrival` in `recruitingPatterns.js` — the one function that
+ * turns a stored row into the object the aggregations see — so this hashes
+ * what the product reads and nothing else. Two columns are deliberately
+ * absent, and both would otherwise generate pure noise:
+ *
+ *   roster_row_id   loaded into the pattern object and consumed by nothing.
+ *                   L7ZP measured 24,929 rows differing ONLY here after a
+ *                   roster re-import gave the source rows new surrogate ids.
+ *                   A manifest that moved for that would cry wolf about a
+ *                   change no claim can see.
+ *
+ *   region          `toArrival` says in its own comment that it does not read
+ *                   the stored column, because `patterns.js` recomputes region
+ *                   from country so a taxonomy change applies immediately
+ *                   rather than at the next rebuild. The stored value is a
+ *                   cache, so it is not dataset identity.
+ *
+ * `id` and `built_at` are excluded for the same reason as any surrogate or
+ * timestamp: a deterministic rebuild must not move the digest.
+ *
+ * Lines are serialised and SORTED, as `rosterMeasurementFingerprint` does, so
+ * neither SQLite's row order nor a tie in any ORDER BY can move the result.
+ */
+export const ARRIVAL_SEMANTIC_FIELDS = Object.freeze([
+  'programme', 'sport', 'arrival_season', 'prior_season', 'source_transition',
+  'player_name', 'name_key', 'arrival_confidence', 'identity_method', 'reconciled_from',
+  'canonical_position', 'nationality_flag', 'country', 'is_international',
+  'class_label_raw', 'entry_type',
+  'prior_programme', 'prior_confidence', 'prior_candidates',
+  'coach', 'coach_attribution',
+]);
+
+export function recruitingArrivalsFingerprint() {
+  const rows = db.prepare(
+    `SELECT ${ARRIVAL_SEMANTIC_FIELDS.join(', ')} FROM recruiting_arrivals`,
+  ).all();
+  const lines = rows.map((r) => canonical(ARRIVAL_SEMANTIC_FIELDS.map((f) => r[f] ?? null))).sort();
+  return { table: 'recruiting_arrivals', rows: lines.length, digest: digest(lines.join('\n')) };
+}
+
 export function rosterFreshnessFingerprint() {
   const rows = db.prepare(ROSTER_FRESHNESS_SQL).all(SQUAD_SEASON);
   return { table: 'roster_freshness', rows: rows.length, digest: digest(canonical(rows)) };
@@ -375,6 +467,8 @@ export function datasetManifest() {
   catch (err) { tables.push({ table: 'roster_freshness', rows: null, digest: null, error: err.message }); }
   try { tables.push(rosterMeasurementFingerprint()); }
   catch (err) { tables.push({ table: 'roster_measurements', rows: null, digest: null, error: err.message }); }
+  try { tables.push(recruitingArrivalsFingerprint()); }
+  catch (err) { tables.push({ table: 'recruiting_arrivals', rows: null, digest: null, error: err.message }); }
   return { version: MANIFEST_VERSION, tables, digest: digest(canonical(tables)) };
 }
 

@@ -374,15 +374,21 @@ d('roster_freshness mirrors what production reads', () => {
 });
 
 d('the manifest declares its own definition version', () => {
-  it('reports V5 and carries every table the product reads', () => {
+  it('reports V6 and carries every table the product reads', () => {
     const m = datasetManifest();
-    expect(m.version).toBe('V5');
+    expect(m.version).toBe('V6');
     const tables = m.tables.map((t) => t.table);
     // V2 added roster_freshness (K3A: a re-scrape that only moved timestamps).
     expect(tables).toContain('roster_freshness');
     // V3 adds programme_status (L7P): it decides which programmes are eligible
     // destinations for a season, so matching and outreach change when it does.
     expect(tables).toContain('programme_status');
+    // V6 adds the two L7ZQ found missing after L7ZP moved every behavioural
+    // baseline while the dataset digest sat still: coach_seasons, which
+    // philosophyQueries reads straight into Evidence, and recruiting_arrivals,
+    // which is DERIVED and whose content V5 could not see at all.
+    expect(tables).toContain('coach_seasons');
+    expect(tables).toContain('recruiting_arrivals');
     /*
      * V4 adds roster_measurements (L7ZA): the other two roster components cover
      * membership and current-season timestamps, so a historical measurement --
