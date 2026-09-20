@@ -75,3 +75,13 @@ export {
 export { PURSUIT_WEIGHTS, PURSUIT_GATES, TOP_N, WEIGHTING_ARCHITECTURE, smoothstep, tailGate } from './pursuitRules.js';
 export { pursuitPriority } from './layers/pursuit.js';
 export { rankPool } from './pipeline.js';
+
+export {
+  LAYER, POLARITY, BAND, REASON_CODE, EVIDENCE, LAYER_BANDS,
+  bandFor, sampleStrength, ABSOLUTE, FORBIDDEN_LANGUAGE, PURSUIT_HAS_NO_BAND,
+} from './explain/vocabulary.js';
+export { explainProgramme, strengths, concerns, unknowns } from './explain/explain.js';
+export { explainMovement, largestMovers, MOVEMENT_CODE, MATERIAL_MOVE } from './explain/movement.js';
+export {
+  renderReason, renderGate, renderCheck, renderMovement, renderExplanation, CLIENT_UNSAFE,
+} from './explain/render.js';
