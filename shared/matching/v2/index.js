@@ -85,3 +85,24 @@ export { explainMovement, largestMovers, MOVEMENT_CODE, MATERIAL_MOVE } from './
 export {
   renderReason, renderGate, renderCheck, renderMovement, renderExplanation, CLIENT_UNSAFE,
 } from './explain/render.js';
+
+/**
+ * A7.7 validation. NOT part of the model: a vocabulary, a sampler and a
+ * packet format for putting V2 in front of a human before anything is adopted.
+ * Nothing here is read by any scorer, and no model parameter may be fitted to
+ * what it collects.
+ */
+export {
+  CLASSIFICATION, CLASSIFICATION_ORDER, PURSUE_SET, classificationRank, isPursue,
+  REASON_TAG, TAG_IMPLICATES, EXPLANATION_REVIEW,
+  DISAGREEMENT, DISAGREEMENT_MEANING, VALIDATION_QUESTIONS,
+  ADOPTION_BLOCKERS, TOLERABLE_DISAGREEMENT, assertReview,
+} from './validation/rubric.js';
+export {
+  REQUIRED_INPUTS, NOT_COLLECTED, PROFILES,
+  buildValidationAthlete, preferenceProfileOf,
+} from './validation/athleteInput.js';
+export { STRATUM, stratifiedSample, blindKey } from './validation/sample.js';
+export { PACK_FORMAT, buildPack, programmeFacts } from './validation/pack.js';
+export { renderPack, renderViewA } from './validation/renderPack.js';
+export { rowAgreement, kendallTauB, agreementFor, aggregateAgreement } from './validation/agreement.js';
