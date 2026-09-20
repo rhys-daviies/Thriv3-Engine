@@ -58,13 +58,19 @@ export {
   playingShareFor, playingScale, TRAJECTORY_SATURATION,
   VALUE_WEIGHTS, PREFERENCE_WEIGHTS, PRIORITY_LIFT, PRIORITY_MAP,
   FOREIGN_PRIORITIES, OPPORTUNITY_COVERAGE_FLOOR,
+  COMPETITIVE_LEVEL_SPAN, AMBITION_LIFT,
 } from './opportunityRules.js';
 
 export {
   playingOpportunity, programmeTrajectory, majorFit, locationFit, athleticOutcome,
 } from './layers/opportunityComponents.js';
 
-export { athleteOpportunity, priorityWeights } from './layers/opportunity.js';
+export { athleteOpportunity, priorityWeights, ambitionMultiplier } from './layers/opportunity.js';
+
+export {
+  UNDECLARED, PRIORITY_SCALE, PREFERENCE_FIELDS,
+  readPriority, isDeclared, priorityStrength,
+} from './athletePreferences.js';
 
 export { PURSUIT_WEIGHTS, PURSUIT_GATES, TOP_N, smoothstep, tailGate } from './pursuitRules.js';
 export { pursuitPriority } from './layers/pursuit.js';

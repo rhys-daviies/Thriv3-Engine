@@ -18,6 +18,7 @@ function usage(code) {
   console.error('');
   console.error('  --movers       explain the largest rises and falls against frozen V1');
   console.error('  --sensitivity  re-run across the weight and gate grid');
+  console.error('  --profiles     re-run under athlete ambition profiles A-E (A7.5.1)');
   process.exit(code);
 }
 
@@ -56,6 +57,7 @@ async function main() {
   const json = args.includes('--json');
   const movers = args.includes('--movers');
   const sensitivity = args.includes('--sensitivity');
+  const profiles = args.includes('--profiles');
   const one = args.find((a) => a.startsWith('--fixture='))?.split('=')[1]?.toUpperCase();
   const top = Number(args.find((a) => a.startsWith('--top='))?.split('=')[1] ?? 0);
   if (all === Boolean(one)) usage(2);
@@ -112,8 +114,12 @@ async function main() {
       },
       opportunity: {
         sport, position,
+        rating: f.player.football_ability,
         intendedMajor: f.player.intended_major ?? null,
         priorityRanking: f.player.criterion_ranking ? JSON.parse(f.player.criterion_ranking) : null,
+        // UNDECLARED unless a profile supplies them. No fixture states either.
+        competitiveLevelPriority: null,
+        playingOpportunityPriority: null,
       },
     };
 
@@ -190,6 +196,44 @@ async function main() {
             console.log(`    V1 #${String(v1Rank.get(r.id)).padStart(4)}  ${String(r.name).slice(0, 24).padEnd(25)}${String(r.division).padEnd(9)} missing ${r.missingLayers.join('+')}`);
           }
         }
+      }
+    }
+
+    if (profiles) {
+      /**
+       * The five profiles, run against the unchanged A7.5 Pursuit Priority.
+       * E is the control: both preferences UNDECLARED, so it must reproduce
+       * the A7.5 answer exactly.
+       */
+      const PROFILES = [
+        ['A level-first', 5, 1],
+        ['B both high', 5, 5],
+        ['C balanced', 3, 3],
+        ['D playing-first', 1, 5],
+        ['E undeclared', null, null],
+      ];
+      const baseTop = rep.pipeline.actionable.map((r) => r.id);
+      console.log('  ambition profiles (Pursuit Priority, gates and weights UNCHANGED):');
+      const medianScore = (rows) => {
+        const v = rows.map((r) => r.soccerScore).filter((x) => typeof x === 'number').sort((a, b) => a - b);
+        return v.length ? Number(v[Math.floor(v.length / 2)].toFixed(1)) : null;
+      };
+      console.log(`    ${'profile'.padEnd(16)} ${'top-100 mix'.padEnd(44)} J     corr(s,P)  top100 med soccer_score  top25`);
+      for (const [label, level, playingPref] of PROFILES) {
+        const alt = runPursuit({
+          athlete: {
+            ...athlete,
+            opportunity: {
+              ...athlete.opportunity,
+              competitiveLevelPriority: level,
+              playingOpportunityPriority: playingPref,
+            },
+          },
+          sport, colleges: ctx.colleges, ctx,
+        });
+        const altTop = alt.pipeline.actionable.map((r) => r.id);
+        const mix = Object.entries(alt.topComposition).map(([k, v]) => `${k} ${v}`).join(', ');
+        console.log(`    ${label.padEnd(16)} ${mix.padEnd(44)} ${String(jaccard(baseTop, altTop)).padEnd(6)} ${String(alt.programmeStrengthInfluence.pursuitPriority).padEnd(10)} ${String(medianScore(alt.pipeline.actionable)).padEnd(24)} ${medianScore(alt.pipeline.actionable.slice(0, 25))}`);
       }
     }
 

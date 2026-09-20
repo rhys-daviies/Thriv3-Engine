@@ -8,6 +8,7 @@
 import {
   playingOpportunity, programmeTrajectory, majorFit, locationFit, athleticOutcome,
   athleteOpportunity, isScoreable, isNotApplicable, GRADE,
+  abilityToPercentile, percentileOf, readPriority,
 } from '../../../shared/matching/v2/index.js';
 
 function summarise(values) {
@@ -33,6 +34,21 @@ function summarise(values) {
 export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overrides = {} }) {
   const { sport, position } = athlete;
 
+  /**
+   * The athlete's own place on the calibrated programme-strength axis.
+   *
+   * The SAME axis Coach Recruitability compares against, and used here for a
+   * different question: recruitability asks whether the programme would have
+   * them, this asks whether the level is what they said they wanted. Computed
+   * once. Null when no rating is on file, which makes athleticOutcome
+   * unscoreable rather than silently absent.
+   */
+  const athletePercentile = (() => {
+    const rating = Number(athlete.rating);
+    if (!Number.isFinite(rating) || rating < 1 || rating > 10) return null;
+    try { return abilityToPercentile(rating, sport); } catch { return null; }
+  })();
+
   const results = colleges.map((college) => {
     const playing = playingOpportunity({
       sport, position, division: college.division, programme: college.name,
@@ -50,11 +66,23 @@ export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overr
       collegeState: college.state,
       distanceMiles: null,
     });
-    const outcome = athleticOutcome({ levelPreference: athlete.levelPreference ?? null });
+    const programmePercentile = (() => {
+      const score = Number(college.soccer_score);
+      if (!Number.isFinite(score)) return null;
+      try { return percentileOf(score, sport); } catch { return null; }
+    })();
+    const outcome = athleticOutcome({
+      competitiveLevelPriority: athlete.competitiveLevelPriority ?? null,
+      athletePercentile,
+      programmePercentile,
+      span: overrides.levelSpan,
+    });
     const result = athleteOpportunity({
       playing, trajectory, major, location, outcome,
       priorityRanking: athlete.priorityRanking ?? null,
-      floor: overrides.floor, lift: overrides.lift,
+      competitiveLevelPriority: athlete.competitiveLevelPriority ?? null,
+      playingOpportunityPriority: athlete.playingOpportunityPriority ?? null,
+      floor: overrides.floor, lift: overrides.lift, ambitionLift: overrides.ambitionLift,
       valueWeights: overrides.valueWeights, preferenceWeights: overrides.preferenceWeights,
     });
     return {
@@ -107,6 +135,12 @@ export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overr
     playingOpportunity: summarise(results.filter((r) => isScoreable(r.playing)).map((r) => r.playing.value)),
     programmeTrajectory: summarise(results.filter((r) => isScoreable(r.trajectory)).map((r) => r.trajectory.value)),
     majorFit: summarise(results.filter((r) => isScoreable(r.major)).map((r) => r.major.value)),
+    athleticOutcome: summarise(results.filter((r) => isScoreable(r.outcome)).map((r) => r.outcome.value)),
+    ambition: {
+      competitiveLevelPriority: readPriority(athlete.competitiveLevelPriority ?? null),
+      playingOpportunityPriority: readPriority(athlete.playingOpportunityPriority ?? null),
+      athletePercentile,
+    },
     componentCoverage: Object.fromEntries(Object.entries(componentCoverage).map(([k, v]) => [k, share(v)])),
     notApplicable: Object.fromEntries(Object.entries(notApplicable).map(([k, v]) => [k, share(v)])),
     preferenceKnown: scored.length ? scored[0].result.basis.preferenceKnown : false,
@@ -146,6 +180,8 @@ export function opportunityRow(entry) {
     programmeTrajectory: isScoreable(entry.trajectory) ? Number(entry.trajectory.value.toFixed(4)) : null,
     trajectoryChange: b.trajectory?.change ?? null,
     majorFit: isScoreable(entry.major) ? entry.major.value : null,
+    athleticOutcome: isScoreable(entry.outcome) ? Number(entry.outcome.value.toFixed(4)) : null,
+    levelGapBelow: b.outcome?.levelGapBelow ?? null,
     notApplicable: b.notApplicable,
   };
 }

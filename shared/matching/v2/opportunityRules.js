@@ -60,6 +60,30 @@ export const VALUE_WEIGHTS = Object.freeze({
   programmeTrajectory: 0.35,
 });
 
+/**
+ * How far BELOW an athlete's own calibrated level a programme must sit before
+ * an athlete who cares most about competitive level considers it no longer
+ * the standard they are after.
+ *
+ * HEURISTIC, in percentile points of programme strength. 0.35 is a third of
+ * the pool: for a rating-9 athlete at the 96th percentile it reaches down to
+ * about the 61st, which spans Division I to mid Division II - a step down
+ * anybody would recognise as one.
+ */
+export const COMPETITIVE_LEVEL_SPAN = 0.35;
+
+/**
+ * How much an EXPLICIT 1-5 preference may move the weight of the one
+ * component it owns.
+ *
+ * HEURISTIC, and larger than PRIORITY_LIFT on purpose. The legacy ranking is
+ * an ordering of six tokens and says only that one matters more than another;
+ * these fields ask a direct question and get a direct answer, so "the most
+ * important thing" is allowed to carry nearly twice the default weight and
+ * "not important" about a fifth of it.
+ */
+export const AMBITION_LIFT = 0.8;
+
 /** Weight carried by a declared preference, when one exists. HEURISTIC. */
 export const PREFERENCE_WEIGHTS = Object.freeze({
   majorFit: 0.4,

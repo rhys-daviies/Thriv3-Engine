@@ -36,9 +36,25 @@
 import { GRADE, scoreable, unscoreable, isScoreable, isNotApplicable } from '../types.js';
 import { combine, component } from '../coverage.js';
 import {
-  VALUE_WEIGHTS, PREFERENCE_WEIGHTS, PRIORITY_MAP, PRIORITY_LIFT,
+  VALUE_WEIGHTS, PREFERENCE_WEIGHTS, PRIORITY_MAP, PRIORITY_LIFT, AMBITION_LIFT,
   FOREIGN_PRIORITIES, OPPORTUNITY_COVERAGE_FLOOR,
 } from '../opportunityRules.js';
+import { readPriority, PRIORITY_SCALE } from '../athletePreferences.js';
+
+/**
+ * What an explicit 1-5 answer does to the weight of the component it owns.
+ *
+ * 3 is "somewhat important" and leaves the default weight alone; 5 lifts it
+ * and 1 cuts it, linearly. Never to zero: an athlete saying playing time is
+ * not important has not said it is worthless to them, and a zero weight would
+ * remove the only objective athlete-side evidence we hold.
+ */
+export function ambitionMultiplier(priority, { lift = AMBITION_LIFT } = {}) {
+  const n = readPriority(priority);
+  if (n === null) return null;
+  const half = (PRIORITY_SCALE.max - PRIORITY_SCALE.neutral);
+  return 1 + (lift * ((n - PRIORITY_SCALE.neutral) / half));
+}
 
 /**
  * Turn a stated ranking into weight multipliers, for the two components it is
@@ -75,9 +91,25 @@ export function athleteOpportunity({
   playing, trajectory, major, location, outcome,
   priorityRanking = null, floor = OPPORTUNITY_COVERAGE_FLOOR,
   valueWeights = VALUE_WEIGHTS, preferenceWeights = PREFERENCE_WEIGHTS, lift,
+  competitiveLevelPriority = null, playingOpportunityPriority = null, ambitionLift,
 }) {
   const priorities = priorityWeights(priorityRanking, lift === undefined ? {} : { lift });
-  const w = (key, base) => base * (priorities.multipliers[key] ?? 1);
+
+  /**
+   * An EXPLICIT answer beats the legacy ranking for the component it owns.
+   *
+   * The ranking's `roster` token maps to playing opportunity, and it is a
+   * coarse reading - the athlete was ordering six things, one of which spans a
+   * recruiting opening and a playing pathway. A direct answer to a direct
+   * question replaces it rather than multiplying with it, so the two can never
+   * compound into a weight neither of them implied.
+   */
+  const opts = ambitionLift === undefined ? {} : { lift: ambitionLift };
+  const explicit = {
+    playingOpportunity: ambitionMultiplier(playingOpportunityPriority, opts),
+    athleticOutcome: ambitionMultiplier(competitiveLevelPriority, opts),
+  };
+  const w = (key, base) => base * (explicit[key] ?? priorities.multipliers[key] ?? 1);
 
   const components = [
     /**
@@ -125,6 +157,15 @@ export function athleteOpportunity({
       ignored: priorities.ignored ?? [],
       ranking: priorities.ranking,
     },
+    ambition: {
+      competitiveLevelPriority: readPriority(competitiveLevelPriority),
+      playingOpportunityPriority: readPriority(playingOpportunityPriority),
+      multipliers: Object.fromEntries(Object.entries(explicit).filter(([, v]) => v !== null)),
+      declared: Object.values(explicit).some((v) => v !== null),
+      // Which legacy multipliers an explicit answer displaced.
+      overrodeRanking: Object.keys(explicit)
+        .filter((k) => explicit[k] !== null && priorities.multipliers[k] !== undefined),
+    },
   };
 
   if (!isScoreable(combined)) {
@@ -148,6 +189,7 @@ export function athleteOpportunity({
       trajectory: isScoreable(trajectory) ? trajectory.basis : null,
       major: isScoreable(major) ? major.basis : null,
       location: isScoreable(location) ? location.basis : null,
+      outcome: isScoreable(outcome) ? outcome.basis : null,
     },
   });
 }

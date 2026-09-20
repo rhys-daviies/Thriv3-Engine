@@ -59,6 +59,8 @@ export function runPursuit({
   const opp = evaluateOpportunity({
     athlete: athlete.opportunity, colleges, rosterProgrammes: ctx.rosterProgrammes,
   });
+  // Carried out so a diagnostic can show which preference produced which list.
+  const ambition = opp.ambition;
 
   const byId = new Map(colleges.map((c) => [c.id, {
     id: c.id, name: c.name, division: c.division, state: c.state, soccerScore: c.soccer_score,
@@ -80,6 +82,7 @@ export function runPursuit({
 
   return {
     athlete: athlete.label,
+    ambition,
     counts: pipeline.counts,
     pursuitPriority: summarise(priorities),
     compression: {

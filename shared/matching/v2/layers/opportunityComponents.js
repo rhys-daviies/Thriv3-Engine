@@ -20,7 +20,8 @@
  * preference `athleticOutcome` would need and does not have.
  */
 import { GRADE, REASON, scoreable, unscoreable, notApplicable } from '../types.js';
-import { playingShareFor, playingScale, TRAJECTORY_SATURATION } from '../opportunityRules.js';
+import { playingShareFor, playingScale, TRAJECTORY_SATURATION, COMPETITIVE_LEVEL_SPAN } from '../opportunityRules.js';
+import { priorityStrength } from '../athletePreferences.js';
 import { majorLabelFor, academicIntentState, ACADEMIC_INTENT } from '../../../academicMajors.js';
 
 /**
@@ -186,27 +187,72 @@ export function locationFit({ preferredStates = null, preferredRegions = null, m
 }
 
 /**
- * How much this athlete wants the strongest programme they can reach, against
- * how much they want to play.
+ * How well this programme's competitive level matches what the athlete SAID
+ * they want.
  *
- * ALWAYS NOT_APPLICABLE TODAY. The engine knows the athlete's ability. It does
- * not know their ambition, and those are different things. Scoring this
- * without the preference means choosing a shape - and any peaked shape is V1's
- * Gaussian coming back through the one door V2 has not closed, this time
- * wearing the athlete's name instead of the coach's.
+ * -- WHAT CHANGED SINCE A7.4 ----------------------------------------------
  *
- * A6.2 marked this NOT_APPLICABLE and the preference audit confirms it: there
- * is no column, no form field and no collected value anywhere that states a
- * level ambition. Re-evaluated, not assumed.
+ * A7.4 held this NOT_APPLICABLE because the preference did not exist. It now
+ * does, as an explicit 1-5 answer, and the component is conditional on it: an
+ * athlete nobody asked still gets NOT_APPLICABLE, unchanged.
+ *
+ * -- WHY THIS IS NOT THE V1 GAUSSIAN --------------------------------------
+ *
+ * The gap is ONE-SIDED. A programme at or above the athlete's own calibrated
+ * level scores 1, and a stronger one never scores less than a weaker one. The
+ * Gaussian's defect was that passing a programme's level made you a worse fit;
+ * here, an athlete who wants the strongest level they can reach is not
+ * penalised for a programme being stronger still. Whether they could get in is
+ * Coach Recruitability's ceiling, and it is not duplicated here - this layer is
+ * allowed to say "they would love this level" while recruitability says "this
+ * is an extreme reach", and Pursuit Priority reconciles the two.
+ *
+ * -- HOW THE PREFERENCE SHAPES IT -----------------------------------------
+ *
+ *   gap    = athletePercentile - programmePercentile, floored at 0
+ *   value  = 1 - strength(priority) x min(1, gap / span)
+ *
+ * At priority 5 the value falls from 1 to 0 across a third of the pool below
+ * the athlete's level. At priority 1 it is 1 everywhere - which is exactly
+ * what "level is not important to me" means, and which reorders nothing.
+ *
+ * DIVISION IS NEVER READ. A strong Division II programme sits above a weak
+ * Division I one on the percentile axis, and that is the axis used.
  */
-export function athleticOutcome({ levelPreference = null }) {
-  if (!levelPreference) {
-    return notApplicable({ why: 'no level ambition is collected: ability is not a preference about ambition' });
+export function athleticOutcome({
+  competitiveLevelPriority = null, athletePercentile = null, programmePercentile = null,
+  span = COMPETITIVE_LEVEL_SPAN,
+}) {
+  const strength = priorityStrength(competitiveLevelPriority);
+  if (strength === null) {
+    return notApplicable({
+      why: 'the athlete has stated no competitive-level priority, and their ability is not a statement of ambition',
+    });
   }
-  return unscoreable({
-    reason: REASON.NO_STATED_PREFERENCE,
-    missing: ['levelPreferenceScorer'],
-    available: ['levelPreference'],
-    detail: { note: 'a level preference now exists and no scorer has been designed for it - refusing rather than inventing a shape' },
+  if (!stated(athletePercentile) || !stated(programmePercentile)) {
+    return unscoreable({
+      reason: REASON.NO_PROGRAMME_LEVEL,
+      missing: [...(stated(athletePercentile) ? [] : ['athletePercentile']),
+        ...(stated(programmePercentile) ? [] : ['programmePercentile'])],
+      available: ['competitiveLevelPriority'],
+    });
+  }
+  // Only BELOW counts. Above the athlete's level is still the level they asked
+  // for, and any peak here would be the Gaussian returning.
+  const gap = Math.max(0, Number(athletePercentile) - Number(programmePercentile));
+  const value = 1 - (strength * Math.min(1, gap / span));
+  return scoreable({
+    value,
+    grade: GRADE.MEASURED,
+    coverage: 1,
+    basis: {
+      competitiveLevelPriority: Number(competitiveLevelPriority),
+      priorityStrength: strength,
+      athletePercentile: Number(athletePercentile),
+      programmePercentile: Number(programmePercentile),
+      levelGapBelow: gap,
+      span,
+      atOrAboveOwnLevel: gap === 0,
+    },
   });
 }

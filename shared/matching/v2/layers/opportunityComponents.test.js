@@ -3,7 +3,7 @@ import {
   playingOpportunity, programmeTrajectory, majorFit, locationFit, athleticOutcome,
 } from './opportunityComponents.js';
 import { GRADE, REASON, isNotApplicable } from '../types.js';
-import { playingScale, TRAJECTORY_SATURATION } from '../opportunityRules.js';
+import { playingScale, TRAJECTORY_SATURATION, COMPETITIVE_LEVEL_SPAN } from '../opportunityRules.js';
 
 const SPORT = 'mens-soccer';
 const P = (over = {}) => playingOpportunity({
@@ -158,16 +158,67 @@ describe('location fit - the departure from V1', () => {
 });
 
 describe('athletic outcome', () => {
-  it('is NOT_APPLICABLE, because ability is not a statement of ambition', () => {
-    const r = athleticOutcome({});
-    expect(isNotApplicable(r)).toBe(true);
-    expect(r.detail.why).toMatch(/not a preference about ambition/);
+  const AO = (priority, programmePercentile, athletePercentile = 0.96) =>
+    athleticOutcome({ competitiveLevelPriority: priority, athletePercentile, programmePercentile });
+
+  it('is NOT_APPLICABLE when nobody asked, because ability is not ambition', () => {
+    for (const priority of [null, undefined, '', 0, 6, 'a lot']) {
+      const r = AO(priority, 0.5);
+      expect(isNotApplicable(r), String(priority)).toBe(true);
+    }
+    expect(AO(null, 0.5).detail.why).toMatch(/not a statement of ambition/);
   });
 
-  it('refuses rather than inventing a shape if a preference ever appears', () => {
-    const r = athleticOutcome({ levelPreference: 'highest possible' });
-    expect(r.ok).toBe(false);
-    expect(r.reason).toBe(REASON.NO_STATED_PREFERENCE);
-    expect(r.detail.note).toMatch(/refusing rather than inventing a shape/);
+  it('scores 1 at or above the athlete own level, whatever the priority', () => {
+    for (const priority of [1, 3, 5]) {
+      expect(AO(priority, 0.96).value, `at level, priority ${priority}`).toBe(1);
+      expect(AO(priority, 0.99).value, `above level, priority ${priority}`).toBe(1);
+    }
+  });
+
+  it('is one-sided - a stronger programme is NEVER worse, which the Gaussian was', () => {
+    let prev = -1;
+    for (const p of [0.2, 0.4, 0.6, 0.8, 0.96, 0.99, 1.0]) {
+      const v = AO(5, p).value;
+      expect(v, `at programme percentile ${p}`).toBeGreaterThanOrEqual(prev);
+      prev = v;
+    }
+  });
+
+  it('falls away below the athlete level in proportion to how much they care', () => {
+    expect(AO(5, 0.70).value).toBeLessThan(AO(3, 0.70).value);
+    expect(AO(3, 0.70).value).toBeLessThan(AO(1, 0.70).value);
+  });
+
+  it('is flat at priority 1, because "level is not important" reorders nothing', () => {
+    const values = [0.1, 0.3, 0.5, 0.7, 0.9, 0.96].map((p) => AO(1, p).value);
+    expect(new Set(values).size).toBe(1);
+    expect(values[0]).toBe(1);
+  });
+
+  it('saturates a span below the athlete level rather than running negative', () => {
+    expect(AO(5, 0.96 - COMPETITIVE_LEVEL_SPAN).value).toBeCloseTo(0, 10);
+    expect(AO(5, 0.05).value).toBe(0);
+  });
+
+  it('reads the percentile axis and never a division label', () => {
+    const b = AO(4, 0.62).basis;
+    expect(b).toHaveProperty('programmePercentile');
+    expect(b).toHaveProperty('athletePercentile');
+    expect(JSON.stringify(b)).not.toMatch(/D1|D2|D3|NAIA|NJCAA/);
+  });
+
+  it('refuses when a preference exists but a level does not', () => {
+    expect(athleticOutcome({ competitiveLevelPriority: 5, athletePercentile: null, programmePercentile: 0.5 }).reason)
+      .toBe(REASON.NO_PROGRAMME_LEVEL);
+    expect(athleticOutcome({ competitiveLevelPriority: 5, athletePercentile: 0.9, programmePercentile: null }).ok)
+      .toBe(false);
+  });
+
+  it('treats a developmental athlete own level as the target, not the top of the pool', () => {
+    // A rating-3 athlete sits near the 18th percentile. A D3 programme at their
+    // own level fully satisfies maximum ambition; ambition does not reach up.
+    expect(athleticOutcome({ competitiveLevelPriority: 5, athletePercentile: 0.18, programmePercentile: 0.18 }).value).toBe(1);
+    expect(athleticOutcome({ competitiveLevelPriority: 5, athletePercentile: 0.18, programmePercentile: 0.99 }).value).toBe(1);
   });
 });
