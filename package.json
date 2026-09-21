@@ -33,6 +33,7 @@
     "publish": "node server/scripts/publishSite.js",
     "recruiting:evidence": "node server/scripts/recruitingEvidenceReport.js",
     "recruiting:patterns": "node server/scripts/recruitingPatterns.js",
+    "retire-profile": "node server/scripts/retireOrphanProfile.js",
     "rollup": "node server/scripts/rebuildRollups.js",
     "roster-sources": "node server/scripts/rosterSourceAudit.js",
     "seed": "node server/seed/seedFromLocalData.js",
