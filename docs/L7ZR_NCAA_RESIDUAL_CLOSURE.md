@@ -80,6 +80,30 @@ agree. That is good design and it demonstrably caught 40 real failures.
 
 ## What the live pages actually contain
 
+> ## ⚠ RETRACTED BY L7ZS — THE NEWCOMER COUNTS BELOW ARE WRONG
+>
+> The "new players" column in this section was produced by counting
+> `a[href*="/roster/"]` anchors in a headless browser and differencing them
+> against stored names. That anchor set includes **coaching and support staff**
+> and other roster links, and it was never validated against the pipeline's own
+> parser.
+>
+> Measured with `lib.parse_any` + `run._players` — the same parse and staff
+> filter the gate uses — through the pipeline's **own browser path**:
+>
+> | programme | parsed | **newcomers** | reported below |
+> | --- | --- | --- | --- |
+> | Vanderbilt W | 26 | **1** | 12 ✗ |
+> | Miami (FL) W | 31 | **0** | 15 ✗ |
+> | Virginia W | 28 | **0** | 10 ✗ |
+>
+> The conclusion drawn from these numbers — that a newcomer discriminator would
+> resolve three residuals — **does not hold**. See
+> `docs/L7ZS_NEW_PLAYER_TURNOVER_DISCRIMINATOR.md`. The rest of this document
+> (universe derivation, classification, containment) stands.
+
+
+
 Measured directly with the pipeline's own browser, against the stored seasons:
 
 | programme | live | 2025 overlap | 2024 overlap | **new players** | page title | aged |
