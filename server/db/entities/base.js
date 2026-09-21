@@ -36,8 +36,13 @@ export function createEntity(tableName, columns, jsonFields = []) {
   function buildWhere(query) {
     const keys = Object.keys(query || {});
     if (keys.length === 0) return { clause: '', params: [] };
-    const clause = 'WHERE ' + keys.map((k) => `${k} = ?`).join(' AND ');
-    const params = keys.map((k) => query[k]);
+    // `x = NULL` is never true in SQL, so a null filter value used to mean
+    // "return nothing" — which no caller can ever have wanted, and which would
+    // silently empty a list rather than fail. Null means IS NULL.
+    const clause = 'WHERE ' + keys.map(
+      (k) => (query[k] === null ? `${k} IS NULL` : `${k} = ?`)
+    ).join(' AND ');
+    const params = keys.filter((k) => query[k] !== null).map((k) => query[k]);
     return { clause, params };
   }
 

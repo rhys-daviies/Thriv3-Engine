@@ -7,6 +7,36 @@ import { assertFirstTouchReviewed } from './campaignFirstTouchGate.js';
 
 const tokenTaken = (candidate) => !!db.prepare('SELECT 1 FROM outreach WHERE token = ?').get(candidate);
 
+const ATHLETE_LIFECYCLE = db.prepare('SELECT full_name, archived_at FROM players WHERE id = ?');
+
+/**
+ * Refuses to mint or hand back a relationship for an athlete who has been
+ * archived.
+ *
+ * WHY IT HAS TO BE HERE. Archiving revokes the outreach rows that EXIST, and
+ * `claimProgrammeMessageForExecution` refuses a revoked one. That covers a
+ * coach who has already been written to — and nothing else. A coach this
+ * athlete has never been contacted about has no row to revoke, so archiving
+ * could not touch it: `createOutreach` minted a fresh, unrevoked token and
+ * every downstream gate passed. An athlete deleted on Monday could have a new
+ * recruitment email with a live tracking link sent on Tuesday.
+ *
+ * This function is where that stops, because it is the one place every send
+ * path must come through: a message cannot carry a tracking link it has not
+ * been given, and this is what gives it.
+ */
+function assertAthleteActive(athleteId) {
+  const athlete = ATHLETE_LIFECYCLE.get(athleteId);
+  if (!athlete?.archived_at) return;
+  const err = new Error(
+    `${athlete.full_name} has been deleted from Thriv3, so no further outreach may be created `
+    + 'for them. Nothing was written.'
+  );
+  err.code = 'ATHLETE_ARCHIVED';
+  err.status = 409;
+  throw err;
+}
+
 /**
  * One row per athlete-coach pair, carrying the opaque token that makes
  * attribution possible. Idempotent: asking twice for the same pair returns the
@@ -39,6 +69,12 @@ const tokenTaken = (candidate) => !!db.prepare('SELECT 1 FROM outreach WHERE tok
 export function createOutreach({
   athleteId, coachId, matchId = null, programmeCampaignId = null, onDate = undefined,
 }) {
+  // BEFORE EVERYTHING, INCLUDING THE EXISTING-ROW SHORTCUT. An archived
+  // athlete must not be handed a relationship at all — neither a new one nor
+  // one that already exists — so the refusal cannot be walked around by
+  // picking a coach who happens to have been written to before.
+  assertAthleteActive(athleteId);
+
   // READ FIRST, so the gate can see a relationship that already exists. It is
   // only a read; nothing is written until the authorisation below has passed.
   const existing = db
