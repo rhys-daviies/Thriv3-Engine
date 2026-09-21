@@ -142,7 +142,8 @@ All work ran in a copied pipeline against a scratch `RB_ROOT`; the operator's
 sheet directory was not written to. No trust disposition, programme status,
 baseline or report pin was touched.
 
-`build_targets.py` remains unfixed and its omission is unchanged: the three
-never-rostered programmes are still absent from its generated worklist, because
-it still derives membership from adjacent-season roster files. Separate stage,
-as instructed.
+`build_targets.py` was reported here as still deriving membership from
+adjacent-season roster files. **That was wrong — retracted by L7ZT.** It takes
+membership from the registry export and includes all three never-rostered
+programmes when that file is present; the omission I saw was my scratch
+environment lacking `_registry_universe.csv`.

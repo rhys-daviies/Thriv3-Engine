@@ -173,7 +173,21 @@ Frostburg and Arkansas would still need their own answer.
 
 ---
 
-## A pipeline defect found in passing
+## A pipeline defect found in passing — ⚠ RETRACTED BY L7ZT
+
+> **This section was wrong.** `build_targets.py` already takes membership from
+> the registry: `keys = union(roster scans, REGISTRY)`, reading
+> `_registry_universe.csv`, with the L6 reasoning written out in
+> `registry_universe()` and pinned by its own tests — including one for the
+> no-export fallback.
+>
+> I saw the fallback because my scratch environment never contained
+> `_registry_universe.csv`, and the planner's output says **"0 in the registry
+> universe"** on exactly that line, which I truncated away with `tail -2`.
+> Proven by A/B: without the export 1,721 rows and 0 of the three never-rostered
+> programmes; with it 1,763 rows and all 3 — and 16/16 current residuals present.
+>
+> No planner change is required. See `docs/L7ZT_STRUCTURAL_TARGET_UNIVERSE.md`.
 
 `build_targets.py` still derives worklist membership from the **roster files of
 adjacent seasons**, so the three never-rostered programmes did not appear in the
