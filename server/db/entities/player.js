@@ -57,4 +57,22 @@ export const Player = {
   ...base,
   create: (data) => base.create(withSlug(deriveVideoId(data))),
   update: (id, data) => base.update(id, deriveVideoId(data)),
+
+  /**
+   * The athletes currently being represented.
+   *
+   * A SEPARATE METHOD RATHER THAN A FILTER INSIDE `list`. Deleting an athlete
+   * archives them, and the operator's Players screen must stop showing them —
+   * but the row itself is deliberately kept, and the model layer has to go on
+   * being able to reach it. Everything that legitimately needs an archived
+   * athlete reads one by id: the publish gate, the permanence validator, the
+   * public page handler, engagement attribution. Narrowing `list` for all of
+   * them to suit one screen would hide the record from the very code whose job
+   * is to reason about it.
+   *
+   * So the screen asks for what the screen means, and nothing else changes.
+   */
+  listActive(sort, limit) {
+    return base.filter({ archived_at: null }, sort, limit);
+  },
 };

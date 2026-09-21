@@ -165,6 +165,20 @@ export async function sendOutreach({
 
   const athlete = Player.get(athleteId);
   if (!athlete) throw new Error('Unknown athlete');
+  /**
+   * REFUSED HERE AS WELL AS INSIDE `createOutreach`, and both are wanted.
+   * That one is the guarantee — it stands on every path that mints a tracking
+   * link, including ones not written yet. This one is the sentence an operator
+   * reads: it names the athlete and says what happened to them, rather than
+   * surfacing a refusal from two layers down about a relationship they were
+   * not thinking about.
+   */
+  if (athlete.archived_at) {
+    throw new Error(
+      `${athlete.full_name} has been deleted from Thriv3. No further recruitment email can be `
+      + 'sent for them.'
+    );
+  }
 
   /**
    * WHERE THE PREPARED EMAIL GOES, DECIDED ONCE FOR THE RUN — R2B.

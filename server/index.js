@@ -36,6 +36,7 @@ import { emailStatusMap } from './lib/coaches.js';
 import { publicProfileHandler } from './routes/publicProfile.js';
 import { OUTPUT_DIR } from './export/exportProfiles.js';
 import { publishStatus, regenerate, publish } from './routes/publish.js';
+import { playerLifecycleRouter, blockPlayerHardDelete } from './routes/playerLifecycle.js';
 import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js';
 import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
@@ -230,7 +231,8 @@ app.put('/api/entities/:table/:id', (req, res) => {
   res.json(entity.update(req.params.id, req.body));
 });
 
-app.delete('/api/entities/:table/:id', (req, res) => {
+// Players are archived, never hard-deleted — see blockPlayerHardDelete.
+app.delete('/api/entities/:table/:id', blockPlayerHardDelete, (req, res) => {
   const entity = ENTITIES[req.params.table];
   if (!entity) return res.status(404).json({ error: 'Unknown entity' });
   res.json(entity.delete(req.params.id));
@@ -596,6 +598,9 @@ app.post('/api/csv-agent/chat', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// ---- Athlete lifecycle: the active list, and Delete ----
+app.use('/api', playerLifecycleRouter);
 
 // ---- Publishing an athlete's public page ----
 

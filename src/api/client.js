@@ -103,6 +103,25 @@ function makeEntity(name) {
   };
 }
 
+/**
+ * Athlete lifecycle, which is deliberately not part of the generic entity
+ * surface: `Player.delete` no longer exists as far as the app is concerned,
+ * and the server refuses it.
+ */
+export const players = {
+  /** Only the athletes currently being represented. */
+  listActive(sort, limit) {
+    const qs = new URLSearchParams();
+    if (sort) qs.set('_sort', sort);
+    if (limit) qs.set('_limit', String(limit));
+    return request(`/api/players/active${qs.toString() ? `?${qs}` : ''}`);
+  },
+  /** "Delete" in the UI. Archives: the record survives, the links stop. */
+  archive(playerId) {
+    return request(`/api/players/${playerId}/archive`, { method: 'POST' });
+  },
+};
+
 export const entities = {
   Player: makeEntity('players'),
   College: makeEntity('colleges'),
