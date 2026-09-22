@@ -18,6 +18,7 @@ import { BODY_SOURCE } from '../../src/lib/emailTemplate.js';
 import { DEFAULT_EMAIL_TEMPLATE } from '../../src/lib/emailTemplate.js';
 import { composeInOutlook, isOutlookAvailable } from '../lib/outlook.js';
 import { buildHandoff } from '../lib/emailHandoff.js';
+import { ensureTokenLive, ACTIVATION_REFUSAL } from '../lib/tokenActivation.js';
 import { bodyHash } from '../../shared/evidence/sendSnapshot.js';
 import { PUBLIC_BASE_URL, isPubliclyReachable, OUTLOOK_FROM_ADDRESS, complianceGaps, SENDER_IDENTITY, SENDER_POSTAL_ADDRESS } from '../lib/config.js';
 import { checkRequiredCore } from '../export/renderProfile.js';
@@ -540,6 +541,106 @@ export async function sendOutreach({
       const personalisedSubject = personalise(subject, greetingName, coach.name || 'Coach');
 
       /**
+       * Everything `recordDraft` needs, worked out once.
+       *
+       * Hoisted for R4C: the draft is written on BOTH branches below — the
+       * ordinary one and the one where the tracking link could not be
+       * activated — and two copies of this argument list is two chances for
+       * the recorded message to differ from the presented one.
+       */
+      const draftArgs = {
+        outreachId: outreach.id,
+        athleteId,
+        coachId: record.id,
+        collegeName,
+        sport: athlete.sport,
+        // Per message, and never read back off the relationship: see the
+        // note in recordDraft.
+        programmeCampaignId,
+        /**
+         * The context's origin, or `campaign` when this run is attributed
+         * to one. Derived rather than asked for in the second case: a send
+         * carrying a programme campaign id that passed the gate above IS a
+         * campaign send, whatever a caller thought to say about it.
+         */
+        // Passed through. `recordDraft` overrides it with `campaign`
+        // when the attribution it verifies says so, which is the only
+        // authoritative answer to that question.
+        origin: resolvedOrigin,
+        // May be null. See the note above: an absent composition is recorded
+        // as an absent composition, never as one that said nothing.
+        evidence: coachEvidence,
+        body: personalisedBody,
+        subject: personalisedSubject,
+        bodySource: Object.values(BODY_SOURCE).includes(bodySource) ? bodySource : null,
+        templateVariant: variant,
+        renderedKinds,
+      };
+
+      /**
+       * THE TRACKING LINK IS PROVED LIVE BEFORE ANYBODY IS SHOWN THIS EMAIL
+       * — R4C.
+       *
+       * =====================================================================
+       * THIS IS THE BOUNDARY, AND IT IS HERE FOR ONE REASON: IT IS THE LINE
+       * AFTER WHICH A HUMAN CAN SEE THE MESSAGE.
+       *
+       * Below it a compose window opens on macOS, or a handoff goes back to
+       * the browser. Both mean "ready to send" to the person reading the
+       * screen, and both put `?ref=<token>` in front of a coach shortly
+       * afterwards. The edge serves the neutral "Profile unavailable" page
+       * for a token it has never been told about — see tokenActivation.js.
+       *
+       * So the question is asked HERE rather than in `createOutreach`, which
+       * is a synchronous persistence primitive with callers that are not
+       * about to show anybody anything, and rather than on a timer, which
+       * only narrows the window.
+       *
+       * ONE TOKEN, UPSERTED, NO RECONCILE. `ensureTokenLive` cannot revoke
+       * anything and cannot resurrect a withdrawn link.
+       * =====================================================================
+       */
+      const activation = await ensureTokenLive(outreach.id);
+
+      if (!activation.ok) {
+        /**
+         * PREPARED, NOT PRESENTED.
+         *
+         * The message is still recorded, because the work is real and the
+         * operator should be able to retry or discard it exactly as they
+         * would a handoff that failed in the browser. What does NOT happen:
+         * no compose window, no handoff, no send, no confirmation, no
+         * `sent_at`, no `manual_only`, no outbound spend. Nothing here is
+         * contact, and nothing downstream may read it as contact.
+         *
+         * `markOutreachDrafted` still runs for the same reason it always
+         * has: a body was composed for this relationship, and declining to
+         * write that down would understate the traffic these columns exist
+         * to measure.
+         */
+        try {
+          recordDraft(draftArgs);
+          markOutreachDrafted(outreach.id);
+        } catch (err) {
+          console.warn(`  draft record failed for outreach ${outreach.id}: ${err.message}`);
+        }
+        results.push({
+          email: coach.email,
+          name: coach.name,
+          status: 'link-not-activated',
+          reason: activation.reason,
+          message: activation.reason === ACTIVATION_REFUSAL.OUTREACH_REVOKED
+            ? 'Outreach to this coach was revoked, so its tracking link cannot be made live '
+              + 'again. The email was prepared and nothing has been sent.'
+            : 'The email was prepared, but its tracking link could not be activated, so a '
+              + 'coach opening it would see nothing. Nothing has been sent — try preparing '
+              + 'it again.',
+          handoff: null,
+        });
+        continue;
+      }
+
+      /**
        * The local compose window, on the only platform that has one.
        *
        * Unchanged on macOS, including the window-title scrape that reports
@@ -623,34 +724,7 @@ export async function sendOutreach({
        */
       let handoff = null;
       try {
-        const draft = recordDraft({
-          outreachId: outreach.id,
-          athleteId,
-          coachId: record.id,
-          collegeName,
-          sport: athlete.sport,
-          // Per message, and never read back off the relationship: see the
-          // note in recordDraft.
-          programmeCampaignId,
-          /**
-           * The context's origin, or `campaign` when this run is attributed
-           * to one. Derived rather than asked for in the second case: a send
-           * carrying a programme campaign id that passed the gate above IS a
-           * campaign send, whatever a caller thought to say about it.
-           */
-          // Passed through. `recordDraft` overrides it with `campaign`
-          // when the attribution it verifies says so, which is the only
-          // authoritative answer to that question.
-          origin: resolvedOrigin,
-          // May be null. See the note above: an absent composition is recorded
-          // as an absent composition, never as one that said nothing.
-          evidence: coachEvidence,
-          body: personalisedBody,
-          subject: personalisedSubject,
-          bodySource: Object.values(BODY_SOURCE).includes(bodySource) ? bodySource : null,
-          templateVariant: variant,
-          renderedKinds,
-        });
+        const draft = recordDraft(draftArgs);
         /**
          * THE HANDOFF IS PROVED AGAINST THE ROW — R2B.
          *
