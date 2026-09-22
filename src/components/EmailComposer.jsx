@@ -324,7 +324,41 @@ export default function EmailComposer({
               {validCoaches.map((c) => (
                 <label key={c.email} className="flex items-center gap-2 text-sm">
                   <Checkbox checked={selected.has(c.email)} onCheckedChange={() => toggle(c.email)} />
-                  <span>{c.name} <span className="text-muted-foreground">({c.email})</span></span>
+                  <span className="min-w-0">
+                    <span className="block">
+                      {c.name} <span className="text-muted-foreground">({c.email})</span>
+                    </span>
+                    {/*
+                      THE ROLE, BECAUSE THIS IS THE ROW WHERE ONE COACH IS
+                      CHOSEN OVER ANOTHER.
+
+                      Manual Specific Search outreach goes to ONE coach at a
+                      programme, and until now this list gave an operator a
+                      name and an address to choose between — nothing that
+                      distinguishes a head coach from a graduate assistant or
+                      a shared team inbox. The title was already here: the
+                      route maps `coaches.position_title` to `title`, this
+                      component already posts it back on send and already
+                      feeds it to `pickBestContact` for the greeting. It was
+                      simply never drawn.
+
+                      RENDERED ONLY WHEN PRESENT, and never substituted. A
+                      coach with no recorded title gets no line rather than a
+                      guess — the same rule the two surfaces that already show
+                      this use (PriorContact, ContactedCoachDetail), and the
+                      reason they all read `x && <span>` rather than a
+                      fallback string.
+
+                      Its own line rather than inline, because the name is
+                      what is scanned and the title is what decides; second
+                      line, muted, smaller keeps that order without hiding it.
+                    */}
+                    {c.title && (
+                      <span className="block text-xs text-muted-foreground" data-testid="coach-title">
+                        {c.title}
+                      </span>
+                    )}
+                  </span>
                   <EmailRiskBadge status={statusOf(statuses, c.email)} loaded={statuses !== null} />
                   {(results[c.email]?.status === 'sent' || results[c.email]?.status === 'drafted') && (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
