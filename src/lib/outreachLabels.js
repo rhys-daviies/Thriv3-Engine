@@ -893,3 +893,32 @@ export const PREPARING_PROGRESS = (done, total) => `Preparing ${done} of ${total
  */
 export const EMAILS_PREPARED = (n) =>
   `${n} email${n === 1 ? '' : 's'} prepared. Nothing has been sent.`;
+
+
+/* ========================================================================== */
+/*  R4C — A TRACKED LINK THAT IS NOT LIVE YET                                */
+/* ========================================================================== */
+
+/**
+ * PREPARED, BUT NOT SAFE TO SEND.
+ *
+ * ===========================================================================
+ * THE ONE FAILURE WHERE THE EMAIL IS PERFECT AND SENDING IT WOULD STILL BE
+ * A MISTAKE.
+ *
+ * Every other refusal on this screen is about the recipient — opted out,
+ * rate-capped, revoked. This one is about the LINK: the message composed
+ * correctly, the draft was recorded, and the tracking token could not be
+ * proved live at the collector. A coach opening it would be shown "Profile
+ * unavailable" instead of the athlete.
+ *
+ * So the wording has to carry three things at once: the work is not lost,
+ * nothing was sent, and this is not a delivery problem. "Could not be
+ * activated" rather than "failed to send", because no mail server was ever
+ * involved and saying otherwise would send somebody looking in Outlook.
+ * ===========================================================================
+ */
+export const LINK_NOT_ACTIVATED = 'tracking link not activated';
+export const LINK_NOT_ACTIVATED_HINT =
+  'The email was prepared and nothing has been sent. Its tracking link could not be '
+  + 'activated, so a coach opening it would see nothing — prepare it again.';

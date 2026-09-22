@@ -16,7 +16,9 @@ import {
 import { outreach } from '@/api/client';
 import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
 import EvidencePanel from '@/components/EvidencePanel';
-import { RECOMMENDATION_DIALOG_HINT, PREPARE_EMAILS } from '@/lib/outreachLabels';
+import {
+  RECOMMENDATION_DIALOG_HINT, PREPARE_EMAILS, LINK_NOT_ACTIVATED, LINK_NOT_ACTIVATED_HINT,
+} from '@/lib/outreachLabels';
 import HandoffSection, { handoffsFrom } from '@/components/HandoffSection';
 
 /**
@@ -31,6 +33,12 @@ import HandoffSection, { handoffsFrom } from '@/components/HandoffSection';
 function greetingSeed(coaches) {
   return pickBestContact(coaches) || coaches[0];
 }
+
+/**
+ * Per-coach outcomes that draw their own word on the row, so the catch-all
+ * refusal badge below must not draw a second one for them.
+ */
+const OWN_BADGE = new Set(['link-not-activated']);
 
 export default function EmailComposer({
   /**
@@ -331,6 +339,23 @@ export default function EmailComposer({
                       {results[c.email].status === 'sent' ? 'sent' : 'prepared'}
                     </span>
                   )}
+                  {/*
+                    R4C — THE EMAIL IS FINE AND THE LINK IS NOT. Given its own
+                    branch rather than folded into the generic refusal below,
+                    because "not sent" alone would send an operator looking
+                    for a mail problem that does not exist. The server's own
+                    `message` is the tooltip; this is the word on the row.
+                  */}
+                  {results[c.email]?.status === 'link-not-activated' && (
+                    <span
+                      className="inline-flex items-center gap-1 text-xs text-amber-400"
+                      title={results[c.email].message || LINK_NOT_ACTIVATED_HINT}
+                      role="status"
+                      data-testid="link-not-activated"
+                    >
+                      <XCircle className="h-4 w-4" /> {LINK_NOT_ACTIVATED}
+                    </span>
+                  )}
                   {results[c.email]?.status === 'error' && (
                     <span className="inline-flex items-center gap-1 text-xs text-destructive" title={results[c.email].error}>
                       <XCircle className="h-4 w-4" /> failed
@@ -345,8 +370,16 @@ export default function EmailComposer({
                     statuses, so the branch cannot fall behind the guards —
                     a refusal that carries an explanation shows it, and the
                     ones that do not are unchanged.
+
+                    R4C: EXCEPT the ones that have a badge of their own. A
+                    `link-not-activated` result carries a `message` too, and
+                    without this it would draw both its own word and a second
+                    "not sent" beside it — one refusal reading as two. The
+                    catch-all still catches everything else, including
+                    refusals nobody has written a branch for yet.
                   */}
-                  {results[c.email]?.message && (
+                  {results[c.email]?.message
+                    && !OWN_BADGE.has(results[c.email]?.status) && (
                     <span
                       className="inline-flex items-center gap-1 text-xs text-amber-400"
                       title={results[c.email].message}
