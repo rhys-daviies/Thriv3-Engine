@@ -94,6 +94,20 @@ const ALLOWED = new Map([
   // the construction test below is what actually enforces.
   ['src/lib/emailHandoff.js', 'R2B: navigates to the server\u2019s URL, builds none'],
   ['src/components/emailHandoff.test.js', 'proves the client builds no URL of its own'],
+  /**
+   * R2C.1 added this file and did not add it here, so this guard has been
+   * failing on main since PR #37 — which means the one test standing between
+   * the product and a second coach-contact path has not been protecting
+   * anything. The escape is instructive: that slice was frontend-only and
+   * correctly did not re-run the backend suite, and an allowlist in a server
+   * test is exactly the thing a frontend change cannot see itself break.
+   *
+   * The file's only `mailto:` is at line 61, inside `handoffFor()` — a test
+   * double fabricating the shape the SERVER returns so the component can be
+   * rendered without one. It builds no URL the product uses, and nothing
+   * imports it.
+   */
+  ['src/components/bulkHandoff.test.js', 'fixture handoffs; the construction tests below are the guard'],
 ]);
 
 const allowed = (f) => ALLOWED.has(f);
