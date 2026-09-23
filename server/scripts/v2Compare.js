@@ -72,7 +72,7 @@ async function main() {
   const { compare, v1Ranker, isIdentical } = await import('../lib/v2/parallelRun.js');
 
   const rosterFor = (sport) => db.prepare(`
-    SELECT college_name, player_name, position, minutes_played, projected_minutes,
+    SELECT college_name, player_name, position, minutes_played, projected_minutes, games_started, projected_games_started,
            estimated_graduation_year, eligibility_end_year, country,
            season, division, class_year_label
       FROM roster_players WHERE sport = ? AND season = ?

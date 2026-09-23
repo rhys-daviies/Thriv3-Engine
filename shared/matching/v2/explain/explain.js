@@ -96,6 +96,16 @@ function recruitabilityReasons(result) {
           positionRows: p.contextOnly?.positionRows ?? null,
         }));
     }
+    /**
+     * Emitted whenever the departing cohort is only partly placed, on an
+     * opening and on a non-opening alike: the caveat belongs to the coverage,
+     * not to the direction of the answer.
+     */
+    const se = p.starterEvidence;
+    if (se && se.departingUnknown > 0) {
+      out.push(reason(REASON_CODE.POSITION_EVIDENCE_PARTIAL, LAYER.RECRUITABILITY, POLARITY.UNKNOWN,
+        BAND.UNKNOWN, { departing: se.departing, departingUnknown: se.departingUnknown, position: p.position }));
+    }
     if (p.arrivalsApplicable === false) {
       out.push(reason(REASON_CODE.POSITION_ARRIVALS_NOT_YET_KNOWN, LAYER.RECRUITABILITY, POLARITY.UNKNOWN,
         BAND.UNKNOWN, { horizon: p.arrivalsHorizon }));

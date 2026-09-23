@@ -22,6 +22,7 @@ const roster = colleges.filter((c) => c.division !== 'NJCAA').flatMap((c, i) =>
     season: '2026',
     minutes_played: null,
     projected_minutes: j % 3 === 0 ? 1200 : 100,
+    games_started: null, projected_games_started: null,
   })));
 
 const arrivals = colleges.flatMap((c, i) => Array.from({ length: 10 }, (_, j) => ({

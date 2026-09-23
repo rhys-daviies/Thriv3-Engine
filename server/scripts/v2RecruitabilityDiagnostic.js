@@ -54,7 +54,7 @@ async function main() {
     if (cache.has(sport)) return cache.get(sport);
     const colleges = db.prepare('SELECT * FROM colleges WHERE sport = ? AND active = 1').all(sport);
     const roster = db.prepare(`
-      SELECT college_name, player_name, position, minutes_played, projected_minutes,
+      SELECT college_name, player_name, position, minutes_played, projected_minutes, games_started, projected_games_started,
              estimated_graduation_year, eligibility_end_year, country, season, division, class_year_label
         FROM roster_players WHERE sport = ? AND season = ?`).all(sport, SEASON);
     const arrivals = db.prepare('SELECT programme, sport, arrival_season, canonical_position, is_international FROM recruiting_arrivals WHERE sport = ?').all(sport);
@@ -185,12 +185,18 @@ async function main() {
     // Minutes coverage decides whether that zero is a measurement or an absence.
     const mins = db.prepare(`
       SELECT COUNT(*) n, SUM(minutes_played IS NOT NULL) mp, SUM(projected_minutes IS NOT NULL) pm,
-             SUM(COALESCE(projected_minutes, minutes_played) >= 600) starters
+             SUM(projected_games_started IS NOT NULL) pgs,
+             SUM(COALESCE(projected_minutes, minutes_played) >= 600 OR projected_games_started >= 7) starters
         FROM roster_players WHERE sport = ? AND season = ? AND college_name = ?`).get(sport, SEASON, c.name);
+    const se = p?.starterEvidence;
     console.log('');
-    console.log('  IS THAT ZERO A MEASUREMENT OR AN ABSENCE?');
-    console.log(`    roster rows ${mins.n}  with minutes_played ${mins.mp}  with projected_minutes ${mins.pm}  identified starters ${mins.starters}`);
-    if (mins.starters === 0 || mins.pm === 0) {
+    console.log('  IS THAT COUNT A MEASUREMENT OR AN ABSENCE?');
+    console.log(`    roster rows ${mins.n}  minutes ${mins.mp}  projected minutes ${mins.pm}  projected starts ${mins.pgs}  identified starters ${mins.starters}`);
+    if (se) {
+      console.log(`    departing cohort at this position: ${se.departing}, of which ${se.departingUnknown} unplaceable`);
+      console.log(`    -> ${se.departingUnknown === 0 ? 'fully placed, so the count is a MEASUREMENT' : se.departingKnown > 0 ? 'partly placed, so the count is a FLOOR (grade PARTIAL)' : 'unplaceable, which refuses rather than scores'}`);
+    }
+    if (mins.starters === 0 && mins.pgs === 0) {
       console.log('    THIS PROGRAMME HAS NO USABLE MINUTES. "vacatedStarters = 0" therefore means');
       console.log('    "nobody could be identified as a starter", not "no starting place opens".');
       console.log('    The layer reports grade MEASURED regardless, because the grade tracks class-label');

@@ -3,7 +3,8 @@ import { buildPositionIndex, buildArrivalIndex, positionEvidence, divisionArriva
 
 const row = (over = {}) => ({
   college_name: 'Test U', position: 'MIDFIELD', class_year_label: 'Sr.',
-  division: 'NCAA D1', season: '2026', minutes_played: null, projected_minutes: 1200, ...over,
+  division: 'NCAA D1', season: '2026', minutes_played: null, projected_minutes: 1200,
+  games_started: null, projected_games_started: null, ...over,
 });
 
 const evidenceFor = (rows, over = {}) => positionEvidence({

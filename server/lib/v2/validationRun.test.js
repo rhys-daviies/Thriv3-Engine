@@ -31,6 +31,7 @@ const roster = colleges.filter((c) => c.division !== 'NJCAA').flatMap((c, i) =>
     class_year_label: ['Fr.', 'So.', 'Jr.', 'Sr.', 'Gr.'][(i + j) % 5],
     division: c.division, season: '2026', minutes_played: null,
     projected_minutes: j % 3 === 0 ? 1200 : 100,
+    games_started: null, projected_games_started: null,
     estimated_graduation_year: 2027 + ((i + j) % 3), eligibility_end_year: 2027 + ((i + j) % 3),
     country: (i + j) % 6 === 0 ? 'England' : 'USA',
   })));

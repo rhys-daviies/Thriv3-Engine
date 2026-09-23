@@ -73,7 +73,13 @@ const SENTENCE = {
   [REASON_CODE.POSITION_OPENING_MEASURED]: (e) =>
     `Roster evidence shows ${e.vacatedStarters} starting ${e.position.toLowerCase()} place${e.vacatedStarters === 1 ? '' : 's'} opening for the entry year, against ${e.typicalStarters} typically held.`,
   [REASON_CODE.POSITION_NO_OPENING_MEASURED]: (e) =>
-    `Roster evidence shows no starting ${e.position.toLowerCase()} place opening for the entry year.`,
+    `Available evidence indicates no starting ${e.position.toLowerCase()} place opening for the entry year.`,
+  /**
+   * Never "no need exists" when the truth is "we cannot fully determine need".
+   * The count stands; the coverage behind it is stated beside it.
+   */
+  [REASON_CODE.POSITION_EVIDENCE_PARTIAL]: (e) =>
+    `Positional recruiting coverage is incomplete: of the ${e.departing} player${e.departing === 1 ? '' : 's'} whose eligibility ends before the entry year, ${e.departingUnknown} could not be placed as a starter or a squad player, so this reads as a floor rather than a full count.`,
   [REASON_CODE.POSITION_FILL_HISTORY]: (e) =>
     `When a place like this opens, a newcomer has taken it ${pct(e.rate)} of the time (${e.hits} of ${e.trials}, ${e.level} level), ${SAMPLE[e.strength]}.`,
   [REASON_CODE.POSITION_ARRIVALS_COMMITTED]: (e) =>

@@ -68,6 +68,7 @@ export function projectMinutes(db, { season, from }) {
    */
   const rebuild = db.transaction(() => {
     db.prepare('UPDATE roster_players SET projected_minutes = NULL, projected_minutes_season = NULL, '
+      + 'projected_games_started = NULL, projected_games_played = NULL, projected_games_season = NULL, '
       + 'prior_programme = NULL WHERE season = ?').run(season);
 
     const info = db.prepare(`
@@ -85,6 +86,40 @@ export function projectMinutes(db, { season, from }) {
                 WHERE p.season = @source AND p.college_name = t.college_name
                   AND p.sport = t.sport AND ${NORM.replace(/player_name/g, 'p.player_name')} = ${NORM.replace(/player_name/g, 't.player_name')}
                   AND p.minutes_played IS NOT NULL)
+    `).run({ season, source });
+
+    /**
+     * Appearances, carried forward under exactly the same rule.
+     *
+     * A separate statement rather than a wider one, because the two are
+     * available independently: a programme may publish games and not minutes
+     * (MIT: 35 of 35 rows carry games in 2025, 5 carry minutes) or the reverse.
+     * Joining them would make each one's coverage the intersection of both.
+     *
+     * Same programme only, and only where the current season has no real
+     * figure - identical conditions to the minutes carry-forward, so a
+     * transfer's appearances are no more carried than their minutes are.
+     */
+    const games = db.prepare(`
+      UPDATE roster_players AS t
+         SET projected_games_started = (
+               SELECT MAX(p.games_started) FROM roster_players p
+                WHERE p.season = @source AND p.college_name = t.college_name
+                  AND p.sport = t.sport AND ${NORM.replace(/player_name/g, 'p.player_name')} = ${NORM.replace(/player_name/g, 't.player_name')}
+                  AND p.games_started IS NOT NULL),
+             projected_games_played = (
+               SELECT MAX(p.games_played) FROM roster_players p
+                WHERE p.season = @source AND p.college_name = t.college_name
+                  AND p.sport = t.sport AND ${NORM.replace(/player_name/g, 'p.player_name')} = ${NORM.replace(/player_name/g, 't.player_name')}
+                  AND p.games_played IS NOT NULL),
+             projected_games_season = @source
+       WHERE t.season = @season
+         AND t.games_started IS NULL
+         AND EXISTS (
+               SELECT 1 FROM roster_players p
+                WHERE p.season = @source AND p.college_name = t.college_name
+                  AND p.sport = t.sport AND ${NORM.replace(/player_name/g, 'p.player_name')} = ${NORM.replace(/player_name/g, 't.player_name')}
+                  AND p.games_started IS NOT NULL)
     `).run({ season, source });
 
     // ---- where each player was the season before -------------------------
@@ -119,9 +154,9 @@ export function projectMinutes(db, { season, from }) {
         if (was !== t.college_name) movedIn += 1;
       }
     })();
-    return { info, located, movedIn };
+    return { info, games, located, movedIn };
   });
-  const { info, located, movedIn } = rebuild();
+  const { info, games, located, movedIn } = rebuild();
 
   const tot = db.prepare('SELECT COUNT(*) n FROM roster_players WHERE season = ?').get(season).n;
   const grad = db.prepare(`
@@ -130,7 +165,8 @@ export function projectMinutes(db, { season, from }) {
   `).get(season, Number(season) + 1);
 
   console.log(`\n  ${season} projected from ${source}:`);
-  console.log(`    ${info.changes} of ${tot} rows carry a projection (${(100 * info.changes / tot).toFixed(1)}%)`);
+  console.log(`    ${info.changes} of ${tot} rows carry a minutes projection (${(100 * info.changes / tot).toFixed(1)}%)`);
+  console.log(`    ${games.changes} of ${tot} rows carry an appearances projection (${(100 * games.changes / tot).toFixed(1)}%)`);
   console.log(`    graduating cohort (${Number(season) + 1}): ${grad.proj} of ${grad.n} (${(100 * grad.proj / grad.n).toFixed(1)}%)`);
   console.log(`    the remainder are newcomers with no prior season — unknown, NOT zero`);
   console.log(`    ${located} rows located on a ${source} roster, of which ${movedIn} at a different programme`);

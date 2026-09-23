@@ -183,6 +183,26 @@ const ROSTER_PLAYER_COLUMNS = [
   // with the value so every consumer can say where it came from.
   ['projected_minutes', 'INTEGER'],
   ['projected_minutes_season', 'TEXT'],
+  /**
+   * Appearances carried forward beside the minutes, for the same reason and
+   * under the same rule.
+   *
+   * A large minority of programmes publish games played and games started but
+   * NOT minutes - MIT is the case that found this, with games on 35 of 35 rows
+   * in 2025 and minutes on 5 - and a starter is more directly evidenced by
+   * having started matches than by a minutes threshold standing in for it.
+   * Carried forward only from the SAME programme, exactly as minutes are: a
+   * transfer's prior appearances predict a starting place at a new programme
+   * no better than their prior minutes do.
+   */
+  ['projected_games_started', 'INTEGER'],
+  ['projected_games_played', 'INTEGER'],
+  /**
+   * Its own source season, not the minutes one. A row may carry appearances
+   * and no minutes, and labelling it with `projected_minutes_season` would
+   * say a minutes projection exists where none does.
+   */
+  ['projected_games_season', 'TEXT'],
   // Where this player was the season before, if we can identify them
   // unambiguously. Explains an absent figure instead of leaving a bare dash:
   // a transfer's prior minutes are deliberately NOT carried forward (they

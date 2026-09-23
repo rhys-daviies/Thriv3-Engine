@@ -70,7 +70,7 @@ async function main() {
   const colleges = db.prepare('SELECT * FROM colleges WHERE sport = ? AND active = 1').all(sport);
   const byId = new Map(colleges.map((c) => [c.id, c]));
   const roster = db.prepare(`
-    SELECT college_name, player_name, position, minutes_played, projected_minutes,
+    SELECT college_name, player_name, position, minutes_played, projected_minutes, games_started, projected_games_started,
            estimated_graduation_year, eligibility_end_year, country, season, division, class_year_label
       FROM roster_players WHERE sport = ? AND season = ?`).all(sport, SEASON);
   const arrivals = db.prepare('SELECT programme, sport, arrival_season, canonical_position, is_international FROM recruiting_arrivals WHERE sport = ?').all(sport);

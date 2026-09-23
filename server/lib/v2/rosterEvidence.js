@@ -29,22 +29,97 @@ const readPosition = (raw) => {
 import { fillPropensity } from '../../../shared/matching/v2/index.js';
 
 /** The same threshold the norms were derived at. */
-const STARTER_MINUTES = 600;
+export const STARTER_MINUTES = 600;
 
-const isStarter = (row) => {
-  if (row.minutes_played !== null && row.minutes_played !== undefined) return row.minutes_played >= STARTER_MINUTES;
-  if (row.projected_minutes !== null && row.projected_minutes !== undefined) return row.projected_minutes >= STARTER_MINUTES;
-  // A row with neither figure is a newcomer. Counted as squad, never as a
-  // starter on no evidence - the same conservative reading V1 settled on.
-  return false;
-};
+/**
+ * Starting appearances that stand in for the minutes threshold.
+ *
+ * CALIBRATED, not chosen. Across the 55,293 season rows that carry BOTH a
+ * minutes figure and a starts figure, `games_started >= 7` reproduces the
+ * 600-minute rule with precision 0.964, recall 0.902 and 94.3% agreement -
+ * the joint maximum of F1 across every integer threshold tested (6 scores
+ * 0.931, 7 scores 0.932, 8 scores 0.920). 7 is taken rather than 6 because
+ * the errors are not symmetric: inventing a starter manufactures a departure
+ * that never happens, while missing one leaves a real opening unseen, and the
+ * layer's whole contract is that it would rather say nothing than say
+ * something untrue.
+ */
+export const STARTER_GAMES_STARTED = 7;
+
+/**
+ * THREE STATES, NOT TWO.
+ *
+ * The old reading returned false for a row with no figures at all, which put
+ * "we know this player did not start" and "we know nothing about this player"
+ * in the same bucket. Downstream that became `vacatedStarters = 0`, graded
+ * MEASURED, and a programme we hold no minutes for was reported as having no
+ * starting place open - an absence presented as a measurement, in a model
+ * whose founding rule forbids exactly that.
+ *
+ * Appearances are read AFTER real minutes and BEFORE projected minutes: a
+ * start actually recorded this season is better evidence than a minutes total
+ * carried forward from the last one.
+ */
+export const STARTER_STATE = Object.freeze({ STARTER: 'STARTER', SQUAD: 'SQUAD', UNKNOWN: 'UNKNOWN' });
+
+const stated = (v) => v !== null && v !== undefined && Number.isFinite(Number(v));
+
+export function starterState(row) {
+  if (stated(row.minutes_played)) {
+    return Number(row.minutes_played) >= STARTER_MINUTES ? STARTER_STATE.STARTER : STARTER_STATE.SQUAD;
+  }
+  if (stated(row.games_started)) {
+    return Number(row.games_started) >= STARTER_GAMES_STARTED ? STARTER_STATE.STARTER : STARTER_STATE.SQUAD;
+  }
+  if (stated(row.projected_minutes)) {
+    return Number(row.projected_minutes) >= STARTER_MINUTES ? STARTER_STATE.STARTER : STARTER_STATE.SQUAD;
+  }
+  if (stated(row.projected_games_started)) {
+    return Number(row.projected_games_started) >= STARTER_GAMES_STARTED ? STARTER_STATE.STARTER : STARTER_STATE.SQUAD;
+  }
+  // No figure of any kind. NOT a squad player - we do not know.
+  return STARTER_STATE.UNKNOWN;
+}
+
+const isStarter = (row) => starterState(row) === STARTER_STATE.STARTER;
 
 /**
  * Index a roster by programme, then by position.
  *
  * @param {Array} rows  roster_players rows for one sport and the current season
  */
+/**
+ * A roster query that forgot the appearance columns.
+ *
+ * An absent COLUMN and a null VALUE are different facts and a plain read
+ * cannot tell them apart: both look like `undefined`. Without this guard a
+ * query that simply does not SELECT `games_started` silently reclassifies
+ * every player as UNKNOWN, which under rule R-b turns whole programmes
+ * UNSCOREABLE for a reason that is nothing to do with the data. That happened
+ * within minutes of the columns being added - the first diagnostic to run
+ * against the repaired database reported MIT as unrankable because its own
+ * SELECT was stale.
+ *
+ * V1 has the same guard for its own inputs, in pool.js, for the same reason.
+ */
+export function assertStarterInputsSelected(rows) {
+  if (!rows?.length) return;
+  const sample = rows[0];
+  const has = (k) => Object.prototype.hasOwnProperty.call(sample, k);
+  if (!has('minutes_played') && !has('projected_minutes')) return; // not a roster query
+  const missing = ['games_started', 'projected_games_started'].filter((k) => !has(k));
+  if (missing.length) {
+    throw new Error(
+      `buildPositionIndex: the roster query does not select ${missing.join(' and ')}. `
+      + 'Starter evidence reads appearances as well as minutes, and a column left out of the '
+      + 'SELECT is indistinguishable from a player nobody recorded - which would make this '
+      + 'programme UNSCOREABLE for a reason that has nothing to do with the data.',
+    );
+  }
+}
+
 export function buildPositionIndex(rows) {
+  assertStarterInputsSelected(rows);
   const index = new Map();
   for (const row of rows) {
     const position = readPosition(row.position);
@@ -68,7 +143,15 @@ export function buildPositionIndex(rows) {
       continue;
     }
     if (!entry.positions.has(position)) {
-      entry.positions.set(position, { rows: 0, unreadable: 0, byLastSeason: new Map(), starterLastSeason: new Map() });
+      entry.positions.set(position, {
+        rows: 0, unreadable: 0, byLastSeason: new Map(), starterLastSeason: new Map(),
+        // How much of the position is classifiable at all, and how much of the
+        // DEPARTING cohort specifically - which is the only group
+        // `vacatedStarters` counts, so it is the only coverage that decides
+        // whether a zero there means anything.
+        classified: 0, unknownState: 0,
+        byLastSeasonUnknown: new Map(),
+      });
     }
     const bucket = entry.positions.get(position);
     bucket.rows += 1;
@@ -78,7 +161,14 @@ export function buildPositionIndex(rows) {
       continue;
     }
     bucket.byLastSeason.set(ceiling.lastSeason, (bucket.byLastSeason.get(ceiling.lastSeason) || 0) + 1);
-    if (isStarter(row)) {
+    const state = starterState(row);
+    if (state === STARTER_STATE.UNKNOWN) {
+      bucket.unknownState += 1;
+      bucket.byLastSeasonUnknown.set(ceiling.lastSeason, (bucket.byLastSeasonUnknown.get(ceiling.lastSeason) || 0) + 1);
+    } else {
+      bucket.classified += 1;
+    }
+    if (state === STARTER_STATE.STARTER) {
       bucket.starterLastSeason.set(ceiling.lastSeason, (bucket.starterLastSeason.get(ceiling.lastSeason) || 0) + 1);
     }
   }
@@ -127,6 +217,18 @@ export function positionEvidence({
     openings: 0,
     eligibleToRemain: 0,
     unreadable: bucket?.unreadable ?? 0,
+    /**
+     * How much of the position, and of the departing cohort, could be placed
+     * as starter or squad at all. `positionalOpportunity` reads this to decide
+     * whether a zero is a measurement or a silence.
+     */
+    starterEvidence: {
+      positionRows: bucket?.rows ?? 0,
+      classified: bucket?.classified ?? 0,
+      unknown: bucket?.unknownState ?? 0,
+      departing: 0,
+      departingUnknown: 0,
+    },
     arrivals: null,
     fill: fillPropensity({ sport, division, position, programme }),
   };
@@ -142,6 +244,10 @@ export function positionEvidence({
     for (const [lastSeason, count] of bucket.starterLastSeason) {
       if (lastSeason < entryYear) evidence.vacatedStarters += count;
     }
+    for (const [lastSeason, count] of bucket.byLastSeasonUnknown) {
+      if (lastSeason < entryYear) evidence.starterEvidence.departingUnknown += count;
+    }
+    evidence.starterEvidence.departing = evidence.openings;
   }
 
   /**

@@ -53,6 +53,12 @@ export const REASON_CODE = Object.freeze({
   ATHLETIC_BEYOND_RANGE: 'ATHLETIC_BEYOND_RANGE',
   POSITION_OPENING_MEASURED: 'POSITION_OPENING_MEASURED',
   POSITION_NO_OPENING_MEASURED: 'POSITION_NO_OPENING_MEASURED',
+  /**
+   * Some of the departing cohort could not be placed as starter or squad. The
+   * count is real and the coverage behind it is not complete, and an operator
+   * reading "no place opening" is entitled to know which.
+   */
+  POSITION_EVIDENCE_PARTIAL: 'POSITION_EVIDENCE_PARTIAL',
   POSITION_FILL_HISTORY: 'POSITION_FILL_HISTORY',
   POSITION_ARRIVALS_COMMITTED: 'POSITION_ARRIVALS_COMMITTED',
   POSITION_ARRIVALS_NOT_YET_KNOWN: 'POSITION_ARRIVALS_NOT_YET_KNOWN',
@@ -230,6 +236,7 @@ export const COMPONENT_LABEL = Object.freeze({
   eligibilityRule: 'an eligibility rule for this association',
   positionRows: 'any player recorded at this position',
   notableMajors: 'a list of majors offered',
+  starterEvidence: 'evidence of who was starting among the players leaving',
 });
 
 /** The three layers, as an operator should see them named. */
@@ -254,7 +261,7 @@ export const REFUSAL_PHRASE = Object.freeze({
   NO_ROSTER_ON_FILE: 'Thriv3 holds no current roster for this programme',
   NO_ELIGIBILITY_RULE: 'no eligibility rule is established for this association',
   NO_CLASS_LABELS: 'the roster carries no readable class years',
-  NO_MINUTES_HISTORY: 'Thriv3 holds no minutes history for this programme',
+  NO_MINUTES_HISTORY: 'nobody leaving this position could be placed as a starter or a squad player, so a count of zero would be silence rather than a measurement',
   NO_PROGRAMME_LEVEL: 'this programme carries no strength rating',
   NO_ATHLETE_LEVEL: 'this athlete carries no ability rating',
   NO_COST_BASIS: 'Thriv3 holds no cost figure for this programme',

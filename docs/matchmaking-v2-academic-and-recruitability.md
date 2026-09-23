@@ -465,3 +465,200 @@ every programme and needs its own phase, its own weights and its own coverage
 rule — including the fact that adding a 0.3-weight component to a core with a
 0.6 coverage floor does not by itself save a programme whose positional
 evidence is refused.
+
+---
+
+# A7.7.2 — Minutes / starter evidence repair
+
+## The root cause
+
+MIT publishes appearances and not minutes. Its 2025 roster carries
+`games_played` and `games_started` on **35 of 35** rows and `minutes_played`
+on **5**. `projectRosterMinutes` carried only minutes forward, and
+`isStarter` read only minutes, so 30 of 34 MIT players were classified as
+non-starters on no evidence at all.
+
+Across the 2025 season, 4,940 rows carry starts and no minutes — NAIA and D3
+most of all. The source was never the problem; the pipeline only ever asked
+for half of what the source published.
+
+## The repair
+
+1. **`projected_games_started` / `projected_games_played` / `projected_games_season`** —
+   new columns, carried forward under exactly the minutes rule: same
+   programme only, only where the current season has no real figure, its own
+   source season beside it. A re-run leaves `projected_minutes` byte-identical
+   (digest `6596a0fc01bc9241` before and after), so the repair is purely
+   additive and V1 cannot have moved.
+2. **`starterState()` returns three states, not two.** STARTER / SQUAD /
+   **UNKNOWN**. Read in order: real minutes, real starts, projected minutes,
+   projected starts. A row with none of them is UNKNOWN, where it used to be
+   silently SQUAD.
+3. **`games_started >= 7`**, calibrated rather than chosen. Over the 55,293
+   rows carrying both figures it reproduces the 600-minute rule with
+   precision 0.964, recall 0.902, agreement 94.3% — the joint F1 maximum
+   (6 → 0.931, 7 → 0.932, 8 → 0.920). 7 over 6 because the errors are
+   asymmetric: an invented starter manufactures a departure that never
+   happens.
+4. **A stale-query guard.** `buildPositionIndex` throws when a roster query
+   omits the appearance columns. An absent column and a null value both read
+   as `undefined`, and the first diagnostic to run against the repaired
+   database reported MIT as unrankable because its own SELECT was stale.
+
+## Why rows are still UNKNOWN
+
+| cause | men's | women's |
+|---|---|---|
+| **structurally unavailable — newcomer, no prior season** | 13,690 | 13,431 |
+| source missing in the prior season | 959 | 667 |
+| projection missing | 1 | 2 |
+
+85% of every unclassifiable row is a freshman or an incoming transfer, who
+cannot have prior college minutes and **never vacates a place**. The
+projection pipeline itself is essentially complete.
+
+## The evidence sufficiency rule
+
+The departing cohort is the right denominator, because it is the only group
+`vacatedStarters` counts. Five candidates tested; false-zero risk is the
+count of cells scoring a MEASURED zero on a cohort nobody could classify.
+
+| rule | MEASURED | PARTIAL | UNSCOREABLE | false zeros |
+|---|---|---|---|---|
+| R-a any departing row placed | 3,161 | 0 | 307 | 0 |
+| **R-b all departing rows placed** | **2,053** | **1,108** | **307** | **0** |
+| R-c ≥ half the cohort | 2,934 | 227 | 307 | 0 |
+| R-d R-b + half the position | 1,829 | 1,108 | 531 | 0 |
+| R-e the old rule | 3,468 | 0 | 0 | **307** |
+
+(men's; women's is 341 false zeros under R-e.)
+
+**R-b selected.** It carries zero false-zero risk, as do the looser
+candidates, and it is the only one that also tells a partly-evidenced cell
+from a fully-evidenced one — which is what PARTIAL is for. R-d refuses cells
+where genuinely nobody is leaving, which is a true zero, for no reduction in
+risk.
+
+## Tier coverage after repair
+
+TIER 1 = MEASURED, TIER 2 = PARTIAL, TIER 3 = UNSCOREABLE.
+
+| men's | cells | TIER 1 | TIER 2 | TIER 3 |
+|---|---|---|---|---|
+| GOALKEEPER | 866 | 630 | 114 | 122 |
+| DEFENSE | 869 | 471 | 348 | 50 |
+| MIDFIELD | 868 | 448 | 357 | 63 |
+| FORWARD | 865 | 504 | 289 | 72 |
+| NAIA | 615 | 140 | 388 | 87 |
+| NCAA D1 | 837 | 536 | 213 | 88 |
+| NCAA D2 | 790 | 522 | 190 | 78 |
+| NCAA D3 | 1,226 | 855 | 317 | 54 |
+
+| women's | cells | TIER 1 | TIER 2 | TIER 3 |
+|---|---|---|---|---|
+| GOALKEEPER | 1,159 | 949 | 84 | 126 |
+| DEFENSE | 1,164 | 809 | 292 | 63 |
+| MIDFIELD | 1,163 | 803 | 294 | 66 |
+| FORWARD | 1,158 | 825 | 247 | 86 |
+| NAIA | 661 | 258 | 347 | 56 |
+| NCAA D1 | 1,359 | 1,038 | 217 | 104 |
+| NCAA D2 | 1,026 | 852 | 104 | 70 |
+| NCAA D3 | 1,598 | 1,238 | 249 | 111 |
+
+**A7.7.1B projected 453 of 858 goalkeeper programmes would be lost under a
+truthful refusal rule. After repair it is 122 of 866 — 14%.** The data was
+there; nobody was reading it.
+
+## The fallback architecture
+
+**TIER 1 — full positional evidence.** Every departing player placed.
+Positional analysis runs as now, grade MEASURED.
+
+**TIER 2 — reduced positional evidence.** Some departing players placed,
+some not. The layer scores, graded PARTIAL, and the value is explicitly a
+**floor**: the count of vacated starters can only rise as coverage improves,
+never fall. The explanation says so. It never claims "no positional demand".
+
+**TIER 3 — positional evidence unscoreable.** No departing player placed.
+`positionalOpportunity` refuses with `NO_MINUTES_HISTORY`. Roster demand
+contributes **no value of any kind** — not 0, not 0.5, not a constant.
+
+Today Tier 3 takes Coach Recruitability with it, because for a domestic
+athlete `internationalPropensity` is NOT_APPLICABLE and the core has nothing
+else in it. **That is the honest answer with the evidence now held**, and it
+is the reason the A7.7.1B propensity finding matters: a validated
+programme-level recruiting-behaviour signal is the only thing that could keep
+Recruitability scoreable at Tier 3 without inventing positional need. It is
+not implemented, and implementing it needs its own phase.
+
+## Missing data is not rewarded
+
+The invariant, and the semantic answer to the ranking question:
+
+**UNKNOWN is not a number, so it is not compared.** A Tier 3 programme leaves
+the ranked list entirely rather than being placed above or below a measured
+zero. It does not outrank measured low demand, and measured low demand does
+not outrank it — they are not on one scale. The limited-data list is ordered
+by how much is known, never by a priority, which was settled at A7.5 and this
+phase does not change it.
+
+Tested directly in `layers/starterEvidence.test.js`: a refusal carries no
+`value` key at all.
+
+## Explanations
+
+Three states, three sentences, none of which claims an absence of need:
+
+- MEASURED — "Available evidence indicates no starting midfield place opening
+  for the entry year."
+- PARTIAL — "Positional recruiting coverage is incomplete: of the 4 players
+  whose eligibility ends before the entry year, 2 could not be placed as a
+  starter or a squad player, so this reads as a floor rather than a full
+  count."
+- UNSCOREABLE — "Coach recruitability could not be scored — evidence of who
+  was starting among the players leaving is missing, and nobody leaving this
+  position could be placed as a starter or a squad player, so a count of zero
+  would be silence rather than a measurement."
+
+No internal identifier appears in any of them.
+
+## Backlog: household income and financial privacy
+
+**Not built, and deliberately not started.** Current Thriv3 usage is primarily
+international, and the income-bracketed Scorecard columns describe a
+Title IV-aided, domestic, first-time full-time cohort that an international
+athlete is not in. Budget remains the primary financial input. `NPT41..NPT45`
+stays a future domestic-athlete capability.
+
+If household income is ever collected, this must be settled **before** any
+code:
+
+- why the information is required, and what it buys that budget does not
+- the minimum that would do — bands almost certainly suffice, and the
+  Scorecard's own five bands are the natural unit
+- storage and encryption at rest
+- who may read it: operator visibility, client visibility, support access
+- retention and deletion, including on account closure
+- export and auditability — who read it, when
+- applicable privacy disclosures and the privacy-policy change
+- whether an athlete may decline and still be matched (they must)
+
+It is a governance workstream with a legal dependency, not a schema change.
+
+## Preserved decisions
+
+- **`academic_strength_priority`** — design intact, not implemented. INTEGER
+  NULL, 1–5, NULL = UNDECLARED, never inferred or backfilled. Owned by
+  Athlete Opportunity/Fit. Reorders realistic opportunities; never makes an
+  unrealistic one realistic. Reads `academic_rating` only — never GPA, SAT,
+  ACT, admit rate, net price or intended major.
+- **Merit aid: NONE.** No proxy built. Strong academics do not imply money.
+- **Admissions Viability** — separate from Coach Recruitability, not a gate,
+  not implemented. STRONG / PLAUSIBLE / STRETCH / UNKNOWN, no probability
+  claim. Institutional selectivity must never lower coach interest.
+- **NJCAA** — nothing manufactured. Priorities unchanged: eligibility rule,
+  current roster, minutes, then admissions. The appearance carry-forward
+  built here is reusable the day an NJCAA roster exists, and the
+  eligibility-rule refusal still fires before it.
+- **MODEL_SCOPE_GAP** — retained in the validation taxonomy; no historical
+  review row rewritten.

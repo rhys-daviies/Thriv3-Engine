@@ -54,8 +54,8 @@
       {
         "table": "roster_players",
         "rows": 276745,
-        "columns": 27,
-        "digest": "b9e785a9301bb94afe1d35b704ac1fb1770d5850f435fb35e60eb76b4989c3c6"
+        "columns": 30,
+        "digest": "e4a8b16c4fe581e4afcc01459e023e33f1b4f469678557a825aa51f415bc1bd5"
       },
       {
         "table": "coaches",
@@ -87,7 +87,7 @@
         "digest": "80ab2d600fdb4462966c5de02b0efbaa5f87fadb2fa02961f09ec13dceb19189"
       }
     ],
-    "digest": "ecb5d149719d5aae568aea85065263b2f5fc356718e8911d145438f758380160"
+    "digest": "514f452dd8a1aede5de9865f36a7274dd88807691d40da2077e9de7736bc2416"
   },
   "baselines": [
     {

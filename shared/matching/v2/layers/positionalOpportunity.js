@@ -97,6 +97,48 @@ export function positionalOpportunity({ sport, position, evidence, weights = {} 
     return unscoreable({ reason: REASON.NO_ROSTER_ON_FILE, missing: ['fillPropensity'], available: ['roster'] });
   }
 
+  /**
+   * A ZERO MUST REST ON SOMETHING.
+   *
+   * `vacatedStarters` counts players whose eligibility ends before the entry
+   * year AND who were holding a starting place. If nobody in that departing
+   * cohort could be placed as starter or squad at all, a count of zero is not
+   * a measurement of no opening - it is silence about whoever is leaving. The
+   * two were indistinguishable until A7.7.2 measured them: 307 men's and 341
+   * women's programme-position cells scored a confident MEASURED zero on a
+   * departing cohort nobody could classify.
+   *
+   * THE DEPARTING COHORT IS THE RIGHT DENOMINATOR, not the whole position. A
+   * freshman cannot have prior minutes and never vacates a place, so including
+   * newcomers would refuse cells whose actual evidence is complete - across
+   * both sports, structurally-unavailable newcomers are 85% of every
+   * unclassifiable row.
+   *
+   * Selected from the data as rule R-b of five tested: MEASURED only when the
+   * whole departing cohort is placed, PARTIAL when part of it is, UNSCOREABLE
+   * when none of it is. It carries zero false-zero risk, as do the looser
+   * candidates; it is chosen over those because it is the one that also tells
+   * a partly-evidenced cell apart from a fully-evidenced one.
+   */
+  const starter = evidence.starterEvidence ?? null;
+  const departing = starter?.departing ?? 0;
+  const departingUnknown = starter?.departingUnknown ?? 0;
+  const departingKnown = departing - departingUnknown;
+  if (departing > 0 && departingKnown === 0) {
+    return unscoreable({
+      reason: REASON.NO_MINUTES_HISTORY,
+      missing: ['starterEvidence'],
+      available: ['roster', 'classYears', 'eligibilityRule'],
+      coverage: 0,
+      detail: {
+        position,
+        departing,
+        departingUnknown,
+        note: 'nobody in the departing cohort could be placed as starter or squad, so a count of zero vacated starters would be silence rather than a measurement',
+      },
+    });
+  }
+
   const vacated = Math.max(0, Number(evidence.vacatedStarters) || 0);
   const remain = Math.max(0, Number(evidence.eligibleToRemain) || 0);
   const arrivals = evidence.arrivals === null || evidence.arrivals === undefined
@@ -125,6 +167,7 @@ export function positionalOpportunity({ sport, position, evidence, weights = {} 
      * recruited that class yet, so there is nothing we failed to observe.
      */
     grade: (evidence.unreadable > 0
+      || departingUnknown > 0
       || (evidence.arrivalsApplicable !== false && (evidence.arrivals === null || evidence.arrivals === undefined)))
       ? GRADE.PARTIAL : GRADE.MEASURED,
     coverage: 1,
@@ -154,6 +197,13 @@ export function positionalOpportunity({ sport, position, evidence, weights = {} 
         eligibleToRemain: remain,
         unreadableRows: evidence.unreadable ?? 0,
       },
+      /**
+       * Carried so an explanation can say which of the three states this is,
+       * and so a reader can see how much of the departing cohort was placed.
+       */
+      starterEvidence: starter
+        ? { departing, departingUnknown, departingKnown, positionClassified: starter.classified, positionRows: starter.positionRows }
+        : null,
       weights: { arrivalClaim, maxClaimShare },
     },
   });
