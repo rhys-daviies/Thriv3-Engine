@@ -135,7 +135,7 @@
         "basis": "reviewer amendment made during View A, before the model reveal"
       },
       "triage": {
-        "at": "2026-09-23T09:55:12.586Z",
+        "at": "2026-09-23T10:20:08.804Z",
         "phase": "A7.7.9 Fixture A View B reveal + disagreement triage",
         "decidedBy": "rhys.davies@cardaxia.ai",
         "reviewedRows": 42,
@@ -151,9 +151,16 @@
           "humanWouldNotPursueInTop100": 0.9259,
           "limitedDataReadAsPoor": 0
         },
-        "summary": "The two lists answer different questions. The reviewer ordered 42 programmes by how strong they are; Thriv3 ordered 858 by how attainable they are. Four of the reviewer's six pursues are suppressed by roster evidence rather than by their strength, and the other two - Furman 93 and Princeton 95 - are inside the actionable hundred. The level preference is the largest single preference effect in the model, moving individual programmes by up to 604 ranks, but it cannot reverse the recruitability tilt: only 2 of the level-first top 100 have strength at or above 80.",
+        "summary": "The two lists answer different questions. The reviewer ordered 42 programmes by how strong they are; Thriv3 ordered 858 by how attainable they are. Four of the reviewer's six pursues are suppressed by roster evidence rather than by their strength, and the other two - Furman 93 and Princeton 95 - are inside the actionable hundred. The level preference is the largest single preference effect in the model, moving individual programmes by up to 604 ranks, but it cannot reverse the recruitability tilt: only 2 of the level-first top 100 have strength at or above 80. The 15 top-25 rows are held as HUMAN_JUDGEMENT / OPEN PRODUCT QUESTION rather than as acceptable differences: no bug is demonstrated, and neither is the ranking established as correct.",
         "modelChangeJustified": false,
-        "modelChangeReasoning": "No arithmetic is wrong, no evidence is misread, and the elite guard holds - Stanford 352, NC State 242, Maryland 490, Michigan 599, Ohio State 628 for a 96th-percentile athlete. What remains is an open product question about how much authority a stated competitive-level preference should carry against attainability, and it should be settled by designed counterfactuals rather than by tuning to a 42-row review that moved on one axis."
+        "modelChangeReasoning": "No arithmetic is wrong, no evidence is misread, and the elite guard holds - Stanford 352, NC State 242, Maryland 490, Michigan 599, Ohio State 628 for a 96th-percentile athlete. What remains is an open product question about how much authority a stated competitive-level preference should carry against attainability, and it should be settled by designed counterfactuals rather than by tuning to a 42-row review that moved on one axis.",
+        "openProductQuestion": {
+          "rows": 15,
+          "label": "HUMAN_JUDGEMENT / OPEN PRODUCT QUESTION",
+          "question": "Pursuit Priority means \"how strongly should Thriv3 pursue this school for this athlete\", not \"which school is easiest for this athlete to be recruited by\". Recruitability is dominant evidence because a programme cannot be actionable without a realistic recruiting path. Once several programmes are realistically recruitable, the athlete's explicit preferences should materially determine which are pursued first. Where that transition should occur is not yet established.",
+          "note": "Recorded as HUMAN_JUDGEMENT rather than ACCEPTABLE_DIFFERENCE so the question stays open. ACCEPTABLE_DIFFERENCE would close it as taste on both sides, and the evidence does not support closing it.",
+          "nextTest": "A7.7.10 controlled counterfactual trade-off pairs."
+        }
       },
       "crossFixture": {
         "question": "Does V2 change behaviour when the primary stated preference changes?",
@@ -292,12 +299,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 3
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 3,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 6,
@@ -349,12 +357,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 17
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 17,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 9,
@@ -406,12 +415,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 21
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 21,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 12,
@@ -463,12 +473,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 9
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 9,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 15,
@@ -502,12 +513,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 5
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 5,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 17,
@@ -523,12 +535,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 20
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 20,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 18,
@@ -583,12 +596,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 25
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 25,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 21,
@@ -622,12 +636,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 8
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 8,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 23,
@@ -643,12 +658,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 2
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 2,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 24,
@@ -700,12 +716,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 1
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 1,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 27,
@@ -742,12 +759,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 4
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 4,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 29,
@@ -799,12 +817,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 16
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 16,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 32,
@@ -859,12 +878,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 10
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 10,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 35,
@@ -970,12 +990,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 7
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 7,
+        "openProductQuestion": true
       },
       {
         "reviewNo": 41,
@@ -1009,12 +1030,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": "ACCEPTABLE_DIFFERENCE",
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T09:36:54.179Z",
         "method": "RULE",
-        "triageReason": "Thriv3 ranked it on attainability - measured positional opportunity, recruiting footprint and athletic plausibility - where the blind review ranked on programme strength alone. Neither ordering is objectively better, and the reviewer's strength>=80 rule is review behaviour rather than ground truth.",
-        "triagedAt": "2026-09-23T09:55:12.586Z",
-        "modelRank": 6
+        "triageReason": "The model is correctly identifying high-attainability programmes. What has not been established is that Pursuit Priority SHOULD rank substantially weaker programmes ahead of realistic programmes near the athlete's explicitly stated competitive level. No MODEL_BUG is demonstrated; this is an open product question about the intended meaning of Pursuit Priority, and it is held open rather than settled as taste.",
+        "triagedAt": "2026-09-23T10:20:08.804Z",
+        "modelRank": 6,
+        "openProductQuestion": true
       }
     ]
   }

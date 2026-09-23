@@ -87,5 +87,8 @@ financial viability while Princeton, at a published $62,688 tuition, scored
 The arithmetic is right and the conservatism is the safe direction. The gap
 is that we never asked the question that would resolve it.
 
-**Repair:** intake, not model — either a stated ceiling above the top band or
-an explicit "no ceiling" answer.
+**Repair:** intake, not model. Future intake should investigate collecting a
+**maximum annual family contribution**, with an explicit option equivalent to
+*"cost is not a meaningful constraint."* **Do not implement intake changes
+yet** — this is recorded so the Fixture A financial values can be read
+correctly, not as a scheduled change.

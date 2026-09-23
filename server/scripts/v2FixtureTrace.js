@@ -157,6 +157,37 @@ async function main() {
     console.log(`  base ${fmt(r.base)}  gateR ${fmt(r.gateR)}  gateF ${fmt(r.gateF)}  ->  P ${fmt(r.P)}`);
   }
 
+  if (args.includes('--candidates')) {
+    /**
+     * Every ranked programme with the factual evidence a blind row would
+     * carry, beside the model values, so a counterfactual pair can be chosen
+     * on the facts and then checked for accidental domination.
+     */
+    const { buildValidationFacts } = await import('../lib/v2/validationFacts.js');
+    const facts = buildValidationFacts({
+      colleges: ctx.colleges, ctx, sport, position,
+      entryYear: fixture.player.recruiting_class_year,
+      athleteState: fixture.player.state ?? null,
+      athleteIsInternational: fixture.player.origin === 'International',
+      academicScale: ctx.academicScale ?? null,
+    });
+    console.log(['name', 'div', 'conf', 'strength', 'natRank', 'winPct', 'acad', 'netPrice', 'rosterRows',
+      'departing', 'depStarters', 'depUnknown', 'remain', 'evidence', 'arrivals', 'nearPlaced', 'nearOf',
+      'distanceKm', 'intlSquadPct', 'rank', 'A', 'pos', 'mkt', 'R', 'F', 'O', 'P'].join('\t'));
+    for (const r of ranked) {
+      const c = byId.get(r.id);
+      const f = facts.get(r.id) ?? {};
+      const ro = f.roster ?? {}; const mk = f.market ?? {};
+      console.log([c.name, c.division, c.conference ?? '', fmt(c.soccer_score, 1), c.national_ranking ?? '',
+        fmt(c.recent_win_pct, 2), fmt(c.academic_rating, 1), c.net_price ?? '',
+        ro.positionalRosterCount ?? '', ro.departingBeforeEntryYear ?? '', ro.identifiableDepartingStarters ?? '',
+        ro.departingPlayersUnplaceable ?? '', ro.eligibleToRemain ?? '', ro.evidenceState ?? '',
+        mk.recentArrivals ?? '', mk.recruitsWithin300km ?? '', mk.domesticRecruitsPlaced ?? '', mk.athleteDistanceKm ?? '',
+        mk.internationalRosterShare ?? '', r.rank, fmt(r.A), fmt(r.positional), fmt(r.market),
+        fmt(r.R), fmt(r.F), fmt(r.O), fmt(r.P)].join('\t'));
+    }
+  }
+
   if (args.includes('--zero')) {
     /**
      * How often a *measured* zero positional signal is produced from a cohort
