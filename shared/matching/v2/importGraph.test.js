@@ -63,6 +63,7 @@ const MAY_IMPORT_V2 = [
   'server/scripts/v2CalibrateRecruitability.js',
   'server/scripts/v2AcademicPreference.js',
   'server/scripts/v2EliteGuard.js',
+  'server/scripts/v2FixtureTrace.js',
   'server/scripts/v2ValidationFixtures.js',
   'server/scripts/derivePlayingNorms.js',
   'server/scripts/derivePositionalNorms.js',
