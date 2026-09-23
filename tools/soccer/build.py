@@ -36,10 +36,15 @@ Boston College onto Boston University and Colorado College onto Colorado. Parent
 state qualifiers are kept as tokens too, so Marian (IN) cannot take Marian (WI).
 """
 import csv, json, re, sqlite3, collections, os, urllib.parse
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+import corpus as _corpus  # L7ZO: RECRUITMATCH_DB is honoured here too
+
 
 BASE   = "/Users/rhysdavies/Documents/Recruitmatch"
 OUTDIR = "/Users/rhysdavies/Documents/Thriv3/University individualisation"
-DB     = f"{BASE}/app/server/data/recruitmatch.sqlite"
+DB     = _corpus.resolve_db()
 REC    = {"men":   "/Users/rhysdavies/Documents/Thriv3/Soccer Records/soccer_records.csv",
           "women": "/Users/rhysdavies/Documents/Thriv3/Soccer Records/soccer_records_women.csv"}
 RANK   = {"men": f"{BASE}/individualisation/rank_men.csv",

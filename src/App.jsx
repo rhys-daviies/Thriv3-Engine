@@ -20,6 +20,7 @@ import EvidenceTab from '@/pages/player/EvidenceTab';
 import DecisionTab from '@/pages/player/DecisionTab';
 import ReportsTab from '@/pages/player/ReportsTab';
 import Colleges from '@/pages/Colleges';
+import RosterGaps from '@/pages/RosterGaps';
 import GraduatingDatabase from '@/pages/GraduatingDatabase';
 import CSVAgent from '@/pages/CSVAgent';
 
@@ -81,6 +82,7 @@ export default function App() {
               <Route path="*" element={<TabFallback />} />
             </Route>
             <Route path="/colleges" element={<Colleges />} />
+            <Route path="/colleges/roster-gaps" element={<RosterGaps />} />
             <Route path="/graduating-db" element={<GraduatingDatabase />} />
             <Route path="/csv-agent" element={<CSVAgent />} />
           </Route>

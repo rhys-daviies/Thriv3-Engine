@@ -15,12 +15,15 @@
  * transition counts at the end are what a later phase will gate on.
  */
 import 'dotenv/config';
-import db from '../db/client.js';
+import db, { dbPath } from '../db/client.js';
+import { assertCanonicalWrite } from '../db/corpusIdentity.js';
 import { utcNow } from '../lib/time.js';
 import {
   arrivalsFor, buildPriorIndex, ARRIVAL_TRANSITIONS,
   ENTRY_TYPE, PRIOR_CONFIDENCE, COACH_ATTRIBUTION,
 } from '../../shared/recruiting/arrivals.js';
+import { effectiveInputDigest, recordBuild } from '../lib/recruitingMaterialisation.js';
+import { trustedRosterPredicate } from '../../shared/roster/seasonTrust.js';
 
 const argv = process.argv.slice(2);
 const arg = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
@@ -55,7 +58,25 @@ const show = (obj) => Object.entries(obj).sort((a, b) => b[1] - a[1])
   .map(([k, v]) => `${k}=${v}`).join('  ');
 
 function buildSport(sport) {
-  const rows = db.prepare('SELECT * FROM roster_players WHERE sport = ?').all(sport);
+  /*
+   * L7ZL — THE BUILDER READS THE EFFECTIVE ROSTER, not the raw one.
+   *
+   * Without this the fingerprint would be a lie of the worst kind. It digests
+   * the roster with excluded programme-seasons removed, so after an exclusion a
+   * rebuild would stamp itself FRESH against that effective input while the
+   * rows it wrote still contained the excluded season — a materialisation
+   * certified as consistent and demonstrably not. The guard would then be worse
+   * than no guard, because it would assert the thing it exists to check.
+   *
+   * Caught by a fixture rather than by reasoning: the lifecycle test excluded a
+   * season, rebuilt, and found its arrivals still present.
+   *
+   * Removes nothing today — there are no exclusions — so this changes no stored
+   * row, only what a future rebuild is capable of honouring.
+   */
+  const rows = db.prepare(
+    `SELECT * FROM roster_players WHERE sport = ? AND ${trustedRosterPredicate('roster_players')}`,
+  ).all(sport);
   const coachRows = db.prepare('SELECT school, season, coach_name, reason FROM coach_seasons WHERE sport = ? ORDER BY season').all(sport);
 
   const coachBy = new Map();
@@ -93,7 +114,27 @@ function buildSport(sport) {
   }
 
   if (!REPORT_ONLY) {
+    /*
+     * L7ZM. This writes product data. When the corpus is one other checkouts
+     * share, say so out loud rather than surprising them — see
+     * `server/db/corpusIdentity.js`.
+     */
+    assertCanonicalWrite({ script: 'buildRecruitingHistory.js', path: dbPath });
     const builtAt = utcNow();
+    /*
+     * L7ZL — the digest is taken BEFORE the write and stamped INSIDE the same
+     * transaction as the rows.
+     *
+     * Before, because it must describe the input this build actually read; a
+     * digest taken afterwards could pick up a roster change that landed during
+     * the build and would then certify rows that were never derived from it.
+     *
+     * Inside, because data and stamp must not be able to diverge. If they could
+     * commit separately, a crash between them would leave a materialisation
+     * claiming a freshness it does not have — the precise failure the stamp
+     * exists to make impossible.
+     */
+    const digest = effectiveInputDigest(sport);
     db.transaction(() => {
       db.prepare('DELETE FROM recruiting_arrivals WHERE sport = ?').run(sport);
       for (const a of allArrivals) {
@@ -105,6 +146,7 @@ function buildSport(sport) {
           builtAt,
         });
       }
+      recordBuild({ sport, digest, now: new Date(builtAt) });
     })();
   }
 

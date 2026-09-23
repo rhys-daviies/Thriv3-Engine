@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import {
   BASELINE_DB, MISSING_MESSAGE, baselineDatasetAvailable, materialiseBaselineDataset,
 } from '../lib/baselineDataset.js';
+import { fileCorpusOr } from '../db/corpusIdentity.js';
 
 /**
  * The report scripts, protected.
@@ -60,10 +61,32 @@ import {
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const HAVE_DB = baselineDatasetAvailable();
-const dataset = HAVE_DB ? materialiseBaselineDataset({ label: 'reports' }) : null;
+/*
+ * TWO RULES, AND THEY DO NOT COMPETE.
+ *
+ * D3.2 (main): the default input is the pinned snapshot, never the working
+ * database, and a disposable copy of it per run -- because opening one through
+ * client.js runs schema.sql and migrate(), so a snapshot the suite reads
+ * directly is a snapshot the suite can drift.
+ *
+ * L7ZO (Evidence): a test may CHOOSE a default; it may not OVERRULE the corpus
+ * the caller selected. This suite was once ROOT-relative and unconditional and
+ * `run()` forced it into the child's environment, so it overrode a stage's
+ * explicit selection back to canonical and L7ZN lost an experiment to it.
+ *
+ * So an explicit RECRUITMATCH_DB wins, and when there is none the pinned
+ * snapshot is materialised exactly as D3.2 requires. Falling back to the
+ * working database is what neither rule allows, and neither branch does it.
+ */
+const SELECTED = fileCorpusOr(null);
+const dataset = SELECTED || !baselineDatasetAvailable()
+  ? null
+  : materialiseBaselineDataset({ label: 'reports' });
 /** Module scope: the report subprocesses below run during collection. */
-const DB = dataset?.path ?? BASELINE_DB;
+const DB = SELECTED ?? (dataset?.path ?? BASELINE_DB);
+const HAVE_DB = SELECTED
+  ? fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000
+  : baselineDatasetAvailable();
 afterAll(() => dataset?.release());
 
 /** Runs a report exactly as `npm run …` does, and reports how it ended. */

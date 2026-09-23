@@ -2,7 +2,7 @@
   "note": "Committed Evidence behavioural baseline. See docs/EVIDENCE_BASELINES.md before repinning.",
   "now": "2026-09-06T00:00:00.000Z",
   "provenance": {
-    "event": "PROVENANCE RESET \u2014 D3.3, 2026-09-09. Not an ordinary repin.",
+    "event": "PROVENANCE RESET — D3.3, 2026-09-09. Not an ordinary repin.",
     "reason": "The committed EMAIL_BODY pin could not be reproduced by the commit that created it, on a dataset carrying the manifest digest recorded beside it. The manifest was therefore not an identity for the data behind the pin, so no baseline taken under it could be trusted, and no failure under it could be diagnosed. The manifest was repaired first (V2 -> V3) and every baseline re-established together against a verified snapshot.",
     "oldManifestDefect": {
       "version": "V2",
@@ -12,12 +12,12 @@
         "coach_seasons"
       ],
       "evidence": "Instrumenting every prepared statement of a full buildBaselines walk shows it reads seven tables; V2 fingerprinted five. recruiting_arrivals is read once per pair (4,742 times) and coach_seasons 3,963 times. Changing 181 recruiting_arrivals rows moves EMAIL_BODY while the V2 dataset digest is unchanged; deleting either table moves all six baselines with the V2 digest unchanged.",
-      "projectionsAlsoTooNarrow": "Nulling the roster_players columns V2 did not name \u2014 position, nationality, hometown, country, class_year_label, the minutes \u2014 moves all six baselines with the V2 dataset digest unchanged. Column materiality is not predictable by name: roster_row_id is inert, built_at and imported_at are not."
+      "projectionsAlsoTooNarrow": "Nulling the roster_players columns V2 did not name — position, nationality, hometown, country, class_year_label, the minutes — moves all six baselines with the V2 dataset digest unchanged. Column materiality is not predictable by name: roster_row_id is inert, built_at and imported_at are not."
     },
     "oldPin": {
       "EMAIL_BODY": "a756b5a0e877581794880f5a04ff0f81fe57b9800695899ab54b0d7da06dd41b",
-      "pinnedAt": "20af7c22 \u2014 'License presence by observation, and say the season that earned it'",
-      "unreproducible": "Running the baseline CLI AT 20af7c22, against a dataset whose V2 manifest digest is exactly the 5bbca905\u2026 recorded beside that pin, yields 54a718f9aa8f2ab1. No database on the machine reproduces a756b5a0\u2026."
+      "pinnedAt": "20af7c22 — 'License presence by observation, and say the season that earned it'",
+      "unreproducible": "Running the baseline CLI AT 20af7c22, against a dataset whose V2 manifest digest is exactly the 5bbca905… recorded beside that pin, yields 54a718f9aa8f2ab1. No database on the machine reproduces a756b5a0…."
     },
     "canonicalDataset": {
       "source": "server/data/recruitmatch.sqlite.pre-l7c-20260909T135704",
@@ -33,17 +33,39 @@
     },
     "outcome": {
       "EMAIL_BODY": "a756b5a0e877581794880f5a04ff0f81fe57b9800695899ab54b0d7da06dd41b -> 54a718f9aa8f2ab1e7ba84969096efd0b5d225cb636c0fa44235c5ef2c0129d5  (the orphaned pin, replaced)",
-      "otherFive": "unchanged \u2014 OUTBOUND_DECISION, COACH_COMPOSITION, OPERATOR_WIRE, LOG_PAYLOAD, OPERATOR_EVIDENCE all re-pinned to the identical digests they already held."
+      "otherFive": "unchanged — OUTBOUND_DECISION, COACH_COMPOSITION, OPERATOR_WIRE, LOG_PAYLOAD, OPERATOR_EVIDENCE all re-pinned to the identical digests they already held."
+    },
+    "supersededBy": {
+      "event": "MANIFEST V2 -> V3 (main) and V3 -> V7 (L8B-3). The reset above is main-side history and is kept because it is why every column is fingerprinted at all.",
+      "note": "The six digests in this file are NOT the ones named in `outcome` below. Those were taken on main, under V3, against main's own snapshot. The pins here were taken PRE-MERGE on the L8B-2 pinned acceptance corpus, whose V7 identity is recorded in `manifest.digest`, and they are what the merged tree is accepted against."
+    },
+    "l8b3Repin": {
+      "event": "L8B-3 merge of the Evidence branch into main 9a18d78, accepted on the pinned corpus 8bb808b66db9ee3b.",
+      "corpusMoved": "NO. Identical V7 digest and identical per-table digests before and after, so this is code movement only.",
+      "emailsMoved": "NO. EMAIL_BODY and COACH_COMPOSITION are byte-identical across 4,742 pairs and were NOT repinned.",
+      "repinned": {
+        "OUTBOUND_DECISION": "cf1e7968 -> dd49dadd, 183 pairs.",
+        "OPERATOR_WIRE": "8d502959 -> 2b333f2d, 2,311 pairs.",
+        "LOG_PAYLOAD": "37544f26 -> 6c1c2454, 3,315 pairs.",
+        "OPERATOR_EVIDENCE": "7ca0e350 -> cdc14d31, 2,802 pairs."
+      },
+      "causes": {
+        "9c0a036": "\"A season nobody read is not a season nobody played.\" Programme-seasons whose stats page was never read stop counting as measured zeros. Every one of 2,720 pool movements is SMALLER (770 -> 736 seasons); none is larger. Movement is uniformly toward refusal.",
+        "2555ff7 + 655dfc0": "tenureFor accepted any name in the coach row, so a strength coach or a department became the head coach. 35 pairs across 16 programmes lose COACH_CONTEXT — e.g. Elms was filed under a coach named \"Sports Management\".",
+        "9b700db": "Expose the seasons behind each ladder rung: the additive contributions[] field.",
+        "241fadc": "Surface prior evidence use in manual outreach: the additive previouslyUsed field, on 2,203 OPERATOR_WIRE pairs."
+      },
+      "mergeContribution": "NONE. The one resolution that touches a behavioural query — adding main's `division` column to the pool SELECT that carries Evidence's TRUSTED predicate — was measured against all six outputs with the column removed and every digest was identical."
     }
   },
   "manifest": {
-    "version": "V3",
+    "version": "V7",
     "tables": [
       {
         "table": "players",
         "rows": 4,
         "columns": 58,
-        "digest": "cba9fe42383379e5c859e2f8528765a8a0313947120da177d12f543e28e34735"
+        "digest": "81e0bbc14dbd239f3ddb3679e9159f0ed7d355aec6543e89a741b5c5bc66ed46"
       },
       {
         "table": "colleges",
@@ -53,9 +75,15 @@
       },
       {
         "table": "roster_players",
-        "rows": 276745,
-        "columns": 27,
-        "digest": "b9e785a9301bb94afe1d35b704ac1fb1770d5850f435fb35e60eb76b4989c3c6"
+        "rows": 281159,
+        "columns": 30,
+        "digest": "3c9ae42653ad7bc71e41bfd0d1c88582c107e1231b3606a5ef30922dc78332dd"
+      },
+      {
+        "table": "roster_season_trust",
+        "rows": 15,
+        "columns": 13,
+        "digest": "6b4b925529560830d8fbb5923b45e92145ff568a2e910eb71ecb85d643ce83f1"
       },
       {
         "table": "coaches",
@@ -65,15 +93,15 @@
       },
       {
         "table": "athletics_domains",
-        "rows": 2717,
+        "rows": 2723,
         "columns": 18,
-        "digest": "e42ad164df1f8af51328941b04c27349ea650f640146f49f3487ff9712bc676c"
+        "digest": "c52a19ecc56cacef6d652cf6e11fefd1e9dce741c2ea6141bba1f09bdaaea1ab"
       },
       {
-        "table": "recruiting_arrivals",
-        "rows": 87449,
-        "columns": 25,
-        "digest": "c4e90faa349c3eb448dbb9278ba808df18d30efde6e7f5d03a0b7f60ffa7966b"
+        "table": "programme_status",
+        "rows": 6,
+        "columns": 10,
+        "digest": "32daab29b8c5a9ddd49abed5e6f40d0eedf3628c0f1f63c43d030b2fefa75f24"
       },
       {
         "table": "coach_seasons",
@@ -82,43 +110,55 @@
         "digest": "89d07aa030be1eb40c110add4668760f6f06b9a2ed8b4864b95a86760c087679"
       },
       {
+        "table": "recruiting_arrivals",
+        "rows": 88879,
+        "columns": 25,
+        "digest": "fe7359e5b20a431b67e61f0b634dca1dec75b0f760c362c589eb82ca7a031f04"
+      },
+      {
+        "table": "recruiting_arrivals_build",
+        "rows": 2,
+        "columns": 5,
+        "digest": "950457029abf81480a10a00cdd4d6371611ade136704626b2fab7d79b05cfd4d"
+      },
+      {
         "table": "roster_freshness",
-        "rows": 1910,
-        "digest": "80ab2d600fdb4462966c5de02b0efbaa5f87fadb2fa02961f09ec13dceb19189"
+        "rows": 2060,
+        "digest": "3d70ff0168dc6842af1bd285845b01e5dbead34bc07ece0cdfe68098b0999551"
       }
     ],
-    "digest": "ecb5d149719d5aae568aea85065263b2f5fc356718e8911d145438f758380160"
+    "digest": "8bb808b66db9ee3b6aec56255a428867d61da804e6a27455eab3e149f51a5c5e"
   },
   "baselines": [
     {
       "name": "OUTBOUND_DECISION",
       "size": 4742,
-      "digest": "11d52d4ddca3a48eb0055463ef45715ae94b8cc2c2d5bffaabb5ac4e57e5c692"
+      "digest": "dd49daddf7292d3704fd013acf0d056346fd150786ce6a686a15c4c4eaae048c"
     },
     {
       "name": "COACH_COMPOSITION",
       "size": 4742,
-      "digest": "e664ac1f3f8ed0de3bc69a607b7efbedc8ef2f437a9083242505f4641311ed76"
+      "digest": "5e6fb62e12c3a02227803ca37e24ecf3cc8a72ef8b425f2402159e1077c82564"
     },
     {
       "name": "EMAIL_BODY",
       "size": 4742,
-      "digest": "54a718f9aa8f2ab1e7ba84969096efd0b5d225cb636c0fa44235c5ef2c0129d5"
+      "digest": "54a05ec90e8937fd6d06e60f4b935ec64ecd265791cc566f2eba3ee917d72541"
     },
     {
       "name": "OPERATOR_WIRE",
       "size": 4742,
-      "digest": "e9379455c8dffe6e24dd8139be77cfd68dba942008291ba25c252dc0fb1be3d5"
+      "digest": "2b333f2dcaf3b0432c0da33ee2d2eb248e2aa0e4784a73ca327e452b1861f42f"
     },
     {
       "name": "LOG_PAYLOAD",
       "size": 4742,
-      "digest": "d4a41935dfb75b032849667237d037e2250288dbadb3a65e60eea48f54b88014"
+      "digest": "6c1c24546ea2d310d8a0d99b1d39b263fe0667d9850f80757074abbd976652e8"
     },
     {
       "name": "OPERATOR_EVIDENCE",
       "size": 4742,
-      "digest": "c764171433964eb5c2afdd298669aaba63d6d097900cc95798e49ed1eb06a688"
+      "digest": "cdc14d31bd3fdc648f52289d565881d58d5dc10c640bc56a71486120db523853"
     }
   ]
 }

@@ -38,6 +38,11 @@ import csv
 import json
 import shutil
 import sqlite3
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+import corpus as _corpus  # L7ZO: RECRUITMATCH_DB is honoured here too
+
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
@@ -46,7 +51,7 @@ from urllib.parse import urlparse
 INDIV = Path.home() / "Documents" / "Thriv3" / "University individualisation"
 KNOWN = Path.home() / "Documents" / "Recruitmatch" / "individualisation" / "known_domains.json"
 FILES = ["mens_soccer_universities.csv", "womens_soccer_universities.csv"]
-DB = "file:server/data/recruitmatch.sqlite?mode=ro"
+DB = _corpus.read_only_uri(_corpus.resolve_db())
 
 SOURCE_COL = "athletics_domain_source"
 

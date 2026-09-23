@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { fileCorpusOr } from './corpusIdentity.js';
 
 /**
  * THE HISTORICAL SENDS, MIGRATED WITHOUT INVENTING ANYTHING.
@@ -15,7 +16,8 @@ import { execFileSync } from 'node:child_process';
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+/* L7ZO: obey an explicitly selected corpus; see `fileCorpusOr`. */
+const DB = fileCorpusOr(path.join(ROOT, 'server/data/recruitmatch.sqlite'));
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 const d = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) console.warn(`\n  sendMigration.test.js SKIPPED — no database at ${DB}\n`);
