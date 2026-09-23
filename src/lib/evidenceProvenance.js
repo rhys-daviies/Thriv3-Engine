@@ -236,14 +236,18 @@ export function provenanceRows(item) {
    */
   if (q.sourceUrl) rows.push({ label: 'Roster page', value: 'View source', href: q.sourceUrl });
   /**
-   * NO LINK, AND NONE IMPLIED. `sourceUrl` is null on every one of 10,206
-   * live objects, so there is nothing to render — and this is the right
-   * behaviour rather than a gap waiting to be filled. H11 measured both
-   * reasons: nine kinds rest on several seasons and no single page shows
-   * what they claim, and of the 4,038 roster pages that do exist, 943 are on
-   * a host unverified for that school and one points at a different school
-   * altogether. A "View source" that lands on the wrong programme would cost
-   * more trust than the missing link does.
+   * NO LINK WHERE NONE IS PROVABLE. H11 measured `sourceUrl` as null on every
+   * one of 10,206 live objects; that is no longer the state. L7 re-measured
+   * under P6 and found 6,936 of 48,871 objects carrying a URL, across 2,602 of
+   * the 4,742 canonical pairs — the kinds added since H11 rest on the current
+   * season, which one page can prove.
+   *
+   * The absence on the rest is still right rather than a gap to fill. Nine
+   * kinds rest on several seasons and no single page shows what they claim,
+   * and of the roster pages that do exist, 477 programme-seasons sit on a host
+   * unverified for that school and 21 on a host the registry assigns to a
+   * different institution. A "View source" that lands on the wrong programme
+   * would cost more trust than the missing link does.
    */
 
   return rows;

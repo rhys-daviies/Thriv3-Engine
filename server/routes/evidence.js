@@ -255,9 +255,16 @@ export function toWire(result, historyIdx = null) {
       // at two gathered clauses — so an index would pair the wrong sentence
       // with the wrong evidence the moment anything is held back.
       ...wireEvidence(ev, textOf.get(ev.kind) ?? null),
-      // F9e - annotation only. Null, and absent from the object's meaning,
-      // whenever no coachIds were supplied.
-      previouslyUsed: markerFor(historyIdx, ev.kind),
+      /*
+       * F9e - annotation only, and ABSENT rather than null when no coachIds
+       * were supplied. `evidenceSummaries` states the contract outright:
+       * omitted, every existing consumer "receives exactly the payload it
+       * received before, with no new keys at all". Spreading it
+       * unconditionally put `previouslyUsed: null` on every finding of every
+       * caller that never asked - which `operatorEvidence.test.js` fails on,
+       * on main as well as here, and which moved 2,203 OPERATOR_WIRE pairs.
+       */
+      ...(historyIdx ? { previouslyUsed: markerFor(historyIdx, ev.kind) } : {}),
       order: i,
       // Which paragraph of the email this claim lands in. The panel shows it
       // so an operator reordering evidence can see that they are moving a
@@ -289,7 +296,8 @@ export function toWire(result, historyIdx = null) {
       const copy = outreachCopyFor(item, { firstName: firstNameOf(result.athlete?.name) });
       return {
         ...wireEvidence(ev ?? { kind: item.kind }, copy?.clause ?? copy?.recognition ?? null),
-        previouslyUsed: markerFor(historyIdx, item.kind),
+        /* Absent rather than null when unasked — see `selected` above. */
+        ...(historyIdx ? { previouslyUsed: markerFor(historyIdx, item.kind) } : {}),
         role: item.role,
         selected: selectedKinds.has(item.kind),
         disposition: dispositionOf.get(item.kind)?.disposition ?? null,

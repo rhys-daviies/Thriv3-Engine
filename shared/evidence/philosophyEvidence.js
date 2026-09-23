@@ -295,7 +295,25 @@ export function programmePoolBenchmark(athlete, ctx) {
     comparison: {
       basis: `${bench.sport} programmes with a readable freshman ladder, ${(bench.seasons ?? []).join('-')}`,
       statistic: `ladder-rank-${top.rank}-median-minutes`,
-      poolSize: Number.isInteger(bench.programmes) ? bench.programmes : null,
+      /**
+       * THE POPULATION THIS CLAIM WAS ACTUALLY RANKED WITHIN, and nothing
+       * wider. The contract is on `validateComparison` in kinds.js.
+       *
+       * `poolRank1.n` is `values.length` for this rank inside
+       * `buildPoolBenchmarks` — the same array its p25, median and p75 are
+       * taken from, on the same line of that file. So this number and the band
+       * beneath it cannot disagree about who was counted.
+       *
+       * It used to be `bench.programmes`, which is `byProg.size`: every
+       * programme with ANY row in the window, counted before
+       * `programmePhilosophy` decided whether a freshman ladder could be read
+       * at all. That made the basis line — "programmes with a readable
+       * freshman ladder" — describe one cohort while the size printed beside
+       * it described another, overstating the women's pool by 157 programmes
+       * and the men's by 150. The broader count is not lost: it stays in
+       * `data.poolProgrammes`, where its name says what it is.
+       */
+      poolSize: Number.isInteger(poolRank1.n) ? poolRank1.n : null,
       /**
        * NOT populated, and not an oversight.
        *

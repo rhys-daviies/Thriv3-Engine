@@ -6,14 +6,30 @@ dist
 # Runtime-generated — both created automatically by the app at startup
 # (see server/db/client.js and server/index.js). Contains local player
 # data / uploaded match-recommendation files — never commit these.
-# The trailing slash matches a DIRECTORY only. A symlink of the same name is
-# not matched by it, which is how `server/data` and `server/uploads` were once
-# committed as absolute symlinks into a developer's home directory — dangling
-# on any other machine, and client.js's mkdirSync then throws ENOENT at import
-# before the database is opened. Both spellings are listed so the path is
-# ignored whatever it is.
-server/data/
-server/data
+#
+# `server/data` is written as a CONTENTS GLOB rather than a directory, because
+# the seeds below have to be re-included and git will not un-ignore a file
+# whose parent DIRECTORY is excluded. That is measured, not assumed: adding the
+# bare spelling `server/data` here makes `!server/data/seeds/*.json` stop
+# matching, because git never descends into an excluded directory.
+#
+# `server/uploads` therefore carries the dual spelling alone. The trailing
+# slash matches a DIRECTORY only; a SYMLINK of the same name is not matched by
+# it, which is how `server/data` and `server/uploads` were once committed as
+# absolute symlinks into a developer's home directory — dangling on any other
+# machine, and client.js's mkdirSync then throws ENOENT at import before the
+# database is opened. `server/data` cannot take that guard without losing the
+# seeds; the contents glob still ignores everything a symlink would have
+# shadowed, and client.js's own startup guard covers the rest.
+server/data/*
+# ...except the verified-domain seeds, which are not data. Each row is the
+# written evidence for one athletics host — the official institution page that
+# links to it and what the host says it is — and the tests read it to hold the
+# two-anchor rule. A ledger row is only as good as the account beside it, and
+# that account belongs in history.
+!server/data/seeds/
+server/data/seeds/*
+!server/data/seeds/*.json
 server/uploads/
 server/uploads
 

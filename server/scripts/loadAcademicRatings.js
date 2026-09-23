@@ -34,6 +34,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseCsvToObjects } from '../lib/csv.js';
 import db from '../db/client.js';
+import { snapshotDatabase } from '../lib/dbSnapshot.js';
 
 const apply = process.argv.includes('--apply');
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -132,7 +133,7 @@ if (!apply) {
 const stamp = new Date().toISOString().replace(/[:.]/g, '-');
 const dbPath = path.resolve(__dirname, '../data/recruitmatch.sqlite');
 const backup = `${dbPath}.pre-academic-${stamp}`;
-fs.copyFileSync(dbPath, backup);
+snapshotDatabase(dbPath, backup, { overwrite: true });
 
 const update = db.prepare(
   'UPDATE colleges SET academic_rating = ?, academic_rating_source = ?, updated_date = ? WHERE id = ?'

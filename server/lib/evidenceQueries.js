@@ -25,6 +25,7 @@ import { buildRosterIndex, departures } from '../../shared/matching/pool.js';
 import { canonicalPosition } from '../../shared/positions.js';
 import { verifyRosterSource, canonicalHost } from '../../shared/evidence/sourceVerification.js';
 import { classifyRegistry } from '../../shared/evidence/registryIntegrity.js';
+import { classifyRow, AUTHORITY, PROFILE } from '../../shared/evidence/domainAuthority.js';
 
 const selectCollege = db.prepare('SELECT * FROM colleges WHERE name = ? AND sport = ?');
 
@@ -42,11 +43,15 @@ let trustedCache = null;
 /** The trust filter, read once. Both callers below share this one result. */
 function trustedRows() {
   if (trustedCache) return trustedCache;
-  trustedCache = db.prepare(`
-    SELECT domain, unitid FROM athletics_domains
-    WHERE status IN ('VERIFIED','VERIFIED_ALIAS') AND role = 'ATHLETICS_SITE'
-      AND confidence IN ('CERTAIN','CORROBORATED') AND unitid IS NOT NULL
+  const rows = db.prepare(`
+    SELECT domain, unitid, status, role, confidence, identity_strength, evidence_text, wrong_mappings
+    FROM athletics_domains
   `).all();
+  // `domainAuthority` owns the rule. The same predicate used to be written out
+  // here and again in rosterSourceAudit.js; L7B needed a third reading for
+  // discovery, and three copies of a trust rule is how they drift apart.
+  trustedCache = rows.filter((r) => classifyRow(r, PROFILE.STRICT) === AUTHORITY.TRUSTED)
+    .map((r) => ({ domain: r.domain, unitid: r.unitid }));
   return trustedCache;
 }
 function verifiedDomains() {

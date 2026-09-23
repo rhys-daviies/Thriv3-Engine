@@ -574,6 +574,28 @@ export const operatorEvidence = {
  * twenty-six kinds may appear beside a match score, and none of them is
  * anything the score already consumes.
  */
+/**
+ * The NCAA roster-gap queue and the operator review of one gap.
+ *
+ * Read and write are separate calls on purpose: the queue is derived from the
+ * registry and the pipeline's own state, and a review is the one thing here a
+ * person authors.
+ */
+export const rosterGaps = {
+  queue(season) {
+    const qs = season ? `?season=${encodeURIComponent(season)}` : '';
+    return request(`/api/roster-gaps${qs}`);
+  },
+  review(body) {
+    return request('/api/roster-gaps/review', { method: 'POST', body: JSON.stringify(body) });
+  },
+  /** Programme status, read only — there is no write route by design. */
+  programmeStatus(season) {
+    const qs = season ? `?season=${encodeURIComponent(season)}` : '';
+    return request(`/api/programme-status${qs}`);
+  },
+};
+
 export const matchingSummary = {
   summaries(playerId, collegeNames) {
     return request(`/api/players/${playerId}/matching-summary`, {

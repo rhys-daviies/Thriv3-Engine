@@ -1,0 +1,86 @@
+{
+  "note": "Athletics hosts verified individually, not by batch. Each row records BOTH anchors that established it: an official institution page that links to the host, and the host's own self-identification. The shape follows the three OFFICIAL_DIRECTORY_AND_PAGE_SELF_IDENTIFICATION rows already in the ledger (cokercobras.com, bsubears.com, fsurams.com), including their treatment of an abbreviated og:site_name as WHOLE_NAME identity: the strength column records that the identity is whole rather than a short-base-name coincidence, and the notes column carries the audit trail.",
+  "stage": "L7E",
+  "rows": [
+    {
+      "domain": "smsumustangs.com",
+      "unitid": 175078,
+      "school": "Southwest Minnesota State",
+      "platform": "PRESTO",
+      "evidence_text": "Southwest Minnesota State",
+      "notes": "https://www.smsu.edu/ (VERIFIED for this institution) links 'ATHLETICS' to smsumustangs.com, whose own OG_SITE_NAME reads \"SMSU Athletics\" and whose page names Marshall, MN as the registry does. The abbreviation alone was refused in L7; the official link is what settles it."
+    },
+    {
+      "domain": "goamcats.com",
+      "unitid": 164492,
+      "school": "Anna Maria College",
+      "platform": "PRESTO",
+      "evidence_text": "Anna Maria College",
+      "notes": "https://annamaria.edu/ (VERIFIED for this institution) links 'Athletics' to goamcats.com, which redirects to annamaria.prestosports.com — the institution's own name on its provider. The site was answering 403 site-in-maintenance when checked, which is a source-availability question and not an identity one."
+    },
+    {
+      "domain": "eurekareddevils.com",
+      "unitid": 144971,
+      "school": "Eureka College",
+      "platform": "PRESTO",
+      "evidence_text": "Eureka College",
+      "notes": "https://www.eureka.edu/ (VERIFIED for this institution) links 'Athletics' to eurekareddevils.com, whose own OG_SITE_NAME reads \"Eureka College\" and whose page names Eureka, IL as the registry does."
+    },
+    {
+      "domain": "mitchellathletics.com",
+      "unitid": 129774,
+      "school": "Mitchell College",
+      "platform": "PRESTO",
+      "evidence_text": "Mitchell College",
+      "notes": "https://mitchell.edu/athletics/ (mitchell.edu is VERIFIED_ALIAS for this institution) links 'Athletics Website' to mitchellathletics.com, whose own OG_SITE_NAME reads \"Mitchell College\" and whose page names New London, CT as the registry does."
+    },
+    {
+      "domain": "goldentigersports.com",
+      "unitid": 102377,
+      "school": "Tuskegee",
+      "platform": "SIDEARM",
+      "evidence_text": "Tuskegee",
+      "notes": "https://www.tuskegee.edu/ (self-identifies as \"Home | Tuskegee University\") links 'Athletics' to goldentigersports.com, whose own OG_SITE_NAME reads \"Tuskegee University Athletics\" and whose page names Tuskegee, AL as the registry does."
+    },
+    {
+      "domain": "wsuathletics.com",
+      "unitid": 172644,
+      "school": "Wayne State (MI)",
+      "platform": "SIDEARM",
+      "evidence_text": "Wayne State",
+      "notes": "https://wayne.edu/ (self-identifies as \"Wayne State University\") links 'Athletics' to wsuathletics.com, whose own OG_SITE_NAME reads \"Wayne State University Athletics\" and whose page names Detroit, MI. The city anchor is what separates this institution from Wayne State College in Nebraska."
+    },
+    {
+      "domain": "wesleyanathletics.com",
+      "unitid": 141325,
+      "school": "Wesleyan (GA)",
+      "platform": "PRESTO",
+      "evidence_text": "Wesleyan",
+      "notes": "https://www.wesleyancollege.edu/ (self-identifies as \"Wesleyan College\") links 'Athletics' to wesleyanathletics.com, whose own OG_SITE_NAME reads \"Wesleyan College\" and whose page names Macon, GA. The city anchor is what separates this institution from the several other Wesleyans."
+    },
+    {
+      "domain": "belles.saintmarys.edu",
+      "unitid": 152390,
+      "school": "Saint Mary's College (IN)",
+      "platform": "PRESTO",
+      "evidence_text": "Saint Mary's College",
+      "notes": "https://www.saintmarys.edu/athletics (the institution's own domain, whose page names Notre Dame, IN as the registry does) redirects to belles.saintmarys.edu, which self-identifies as \"Saint Mary's College\" and whose store link reads schools/indiana/notredame/saint-marys-college. L7 refused saintmaryssports.com for this institution because that host is Saint Mary's University of Minnesota's; this is the separate, correct one."
+    },
+    {
+      "domain": "regisrangers.com",
+      "unitid": 127918,
+      "school": "Regis (CO)",
+      "platform": "SIDEARM",
+      "evidence_text": "Regis",
+      "notes": "L7B measured seven of the eight BASE_ONLY rows as wrong and this as the one correct member, which left it quarantined for discovery on a rule it did not deserve. Repaired on the same standard as the rest of this seed rather than by loosening the rule: https://www.regis.edu/ self-identifies as \"Regis University | Jesuit Catholic University in Denver, Colorado\" — Denver, CO as the registry has it, which separates it from Regis College in Massachusetts — and links 'Athletics' to regisrangers.com, whose own OG_SITE_NAME reads \"Regis University Athletics\"."
+    }
+  ],
+  "roleCorrections": [
+    {
+      "domain": "laserpride.lasell.edu",
+      "unitid": 166391,
+      "school": "Lasell",
+      "notes": "Already VERIFIED_ALIAS/CERTAIN/WHOLE_NAME for this institution and excluded only by role=INSTITUTION_SITE, which L7B's hostname rule could not promote because the host carries no 'athletics' label. https://www.lasell.edu/ links to it as \"LaserPride - Official site of Lasell Athletics\". The identity was never in question; the role label was wrong."
+    }
+  ]
+}
