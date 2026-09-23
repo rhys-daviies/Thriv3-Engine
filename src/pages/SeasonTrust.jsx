@@ -122,7 +122,29 @@ export default function SeasonTrust() {
   }, [data, filter]);
 
   const s = data?.summary;
-  const stale = Object.entries(data?.materialisation ?? {}).filter(([, m]) => m.state !== 'FRESH');
+  /*
+   * THREE STATES, NOT TWO. The first version of this screen asked only whether
+   * the state was FRESH and called everything else "stale", which put the word
+   * STALE and a Rebuild button in front of a LEGACY_UNVERIFIED materialisation
+   * on the deployed environment. They are different facts with different
+   * remedies:
+   *
+   *   STALE              a build exists and the input has moved since. A
+   *                      rebuild is exactly the right action, and the digest
+   *                      it stamps is verifiable against the roster it read.
+   *
+   *   LEGACY_UNVERIFIED  NO build record exists at all, so nothing can say
+   *                      what the arrivals were derived from -- or whether
+   *                      there are any. `exclusionBlockedReason` already
+   *                      treats this as a BLOCKER rather than a chore, and a
+   *                      rebuild here would stamp a fresh-looking generation
+   *                      over source data nobody has established. That is
+   *                      certifying an unknown, which is worse than leaving it
+   *                      visibly unknown.
+   */
+  const materialisation = Object.entries(data?.materialisation ?? {});
+  const stale = materialisation.filter(([, m]) => m.state === 'STALE');
+  const unverified = materialisation.filter(([, m]) => m.state === 'LEGACY_UNVERIFIED');
 
   async function rebuild(sport) {
     setRebuilding(sport);
@@ -166,7 +188,7 @@ export default function SeasonTrust() {
           <p className="flex items-start gap-2 text-sm">
             <TriangleAlert className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
             <span>
-              Derived recruiting data is stale for {stale.map(([sp]) => sportLabel(sp)).join(' and ')} soccer.
+              Derived recruiting data is <strong>stale</strong> for {stale.map(([sp]) => sportLabel(sp)).join(' and ')} soccer.
               An exclusion changed the roster those patterns were built from, so Evidence that
               depends on them will refuse to serve until it is rebuilt. Nothing was rebuilt
               automatically.
@@ -183,6 +205,22 @@ export default function SeasonTrust() {
             ))}
           </div>
           {rebuildError && <p className="text-sm text-destructive">Rebuild failed: {rebuildError}</p>}
+        </div>
+      )}
+
+      {unverified.length > 0 && (
+        <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3">
+          <p className="flex items-start gap-2 text-sm">
+            <CircleAlert className="h-4 w-4 mt-0.5 shrink-0 text-destructive" />
+            <span>
+              Derived recruiting data is <strong>unverified</strong> for
+              {' '}{unverified.map(([sp]) => sportLabel(sp)).join(' and ')} soccer — no build
+              record exists, so nothing establishes what the recruiting patterns were derived
+              from, or whether this database holds any. This is not staleness and a rebuild is
+              deliberately not offered: it would stamp a fresh generation over source data
+              nobody has established. Exclusions are blocked in this state for the same reason.
+            </span>
+          </p>
         </div>
       )}
 
