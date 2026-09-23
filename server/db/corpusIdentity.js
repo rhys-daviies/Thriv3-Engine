@@ -72,6 +72,49 @@ export function fileCorpusOr(fallback, env = process.env) {
 }
 
 /**
+ * The same corpus, but only if it is actually THERE.
+ *
+ * L8B-4. `fileCorpusOr` answers "which file", and a suite that then spawns a
+ * child with `RECRUITMATCH_DB=<that path>` has assumed the answer exists.
+ * `client.js` does not refuse an absent path -- it creates the database, runs
+ * `schema.sql` and `migrate()`, which is correct for an operator opening the
+ * application for the first time and wrong for a test that meant to read
+ * something.
+ *
+ * MEASURED, in a checkout with no working database:
+ * `rosterGapQueue.test.js` left a 786KB empty database at the default path,
+ * and `academicMajors.test.js` -- which gates on `existsSync` -- then stopped
+ * skipping and ran four tests against zero rows. A suite that creates the file
+ * a later suite tests for has changed that suite's behaviour, and which of
+ * them runs first is not something either one states.
+ *
+ * So this returns the path or NULL, and the caller skips loudly. It is the
+ * same shape as `baselineDatasetAvailable` for the pinned snapshot, and the
+ * same rule L8B-2 put on the baseline runner: absent data must read as ABSENT,
+ * never as empty data.
+ *
+ * `minBytes` because an empty database is not a present one. A real corpus is
+ * hundreds of megabytes; the floor only has to be above a bare schema.
+ */
+export function fileCorpusIfPresent(fallback, { minBytes = 1_000_000, env = process.env } = {}) {
+  const chosen = fileCorpusOr(fallback, env);
+  if (!chosen || chosen === ':memory:') return null;
+  try {
+    return fs.statSync(chosen).size >= minBytes ? chosen : null;
+  } catch {
+    return null;
+  }
+}
+
+/** What to print when a suite skips for want of a corpus. Says which file. */
+export function missingCorpusMessage(fallback, env = process.env) {
+  return `no corpus at ${fileCorpusOr(fallback, env)}. `
+    + 'These tests read a real database and will not create one: an empty file here '
+    + 'changes what other suites do. Point RECRUITMATCH_DB at a copy, or restore the '
+    + 'working database.';
+}
+
+/**
  * `{ configuredPath, realPath, shared, reason }` for a database path.
  *
  * `shared` is true when the bytes live outside this checkout, whether that is a

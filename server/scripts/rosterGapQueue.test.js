@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
-import { fileCorpusOr } from '../db/corpusIdentity.js';
+import { fileCorpusIfPresent, missingCorpusMessage } from '../db/corpusIdentity.js';
 
 /**
  * L7K — the residual queue, against the live registry.
@@ -22,9 +22,28 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
  * across files in a worker, so inheriting it silently pointed this queue at an
  * empty database and it reported no registry at all.
  */
-/* L7ZO: obey an explicitly selected corpus; see `fileCorpusOr`. */
-const LIVE_DB = fileCorpusOr(path.join(ROOT, 'server/data/recruitmatch.sqlite'));
-const queue = (env = {}) => JSON.parse(execFileSync('node',
+/*
+ * L7ZO: obey an explicitly selected corpus. L8B-4: and only if it EXISTS.
+ *
+ * Spawning a child with RECRUITMATCH_DB pointing at an absent path does not
+ * fail -- `client.js` creates the database and migrates it. This suite left a
+ * 786KB empty one at the default path in a checkout without a working
+ * database, and `academicMajors.test.js` then stopped skipping and ran against
+ * zero rows. Skip loudly instead; never create.
+ */
+const DEFAULT_DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const LIVE_DB = fileCorpusIfPresent(DEFAULT_DB);
+/*
+ * REFUSES rather than spawns when there is no corpus. `describe.skip` still
+ * RUNS the suite factory -- it only marks the tests skipped -- so a guard on
+ * the describe alone does not stop this. Worse, `RECRUITMATCH_DB: null` is
+ * coerced to the STRING 'null' by the child's environment, which produced a
+ * 786KB database in a file called `null` at the repository root. Measured, not
+ * predicted. The refusal is here so no future caller can spawn without one.
+ */
+const queue = (env = {}) => {
+  if (!LIVE_DB) throw new Error(missingCorpusMessage(DEFAULT_DB));
+  return JSON.parse(execFileSync('node',
   [path.join(ROOT, 'server/scripts/rosterGapQueue.js'), '--json'],
   {
     cwd: ROOT,
@@ -32,9 +51,17 @@ const queue = (env = {}) => JSON.parse(execFileSync('node',
     encoding: 'utf8',
     maxBuffer: 32 * 1024 * 1024,
   }));
+};
 
-describe('the NCAA residual queue', () => {
-  const q = queue();
+const describeQueue = LIVE_DB ? describe : describe.skip;
+if (!LIVE_DB) {
+  // eslint-disable-next-line no-console
+  console.warn(`\n  rosterGapQueue.test.js SKIPPED — ${missingCorpusMessage(DEFAULT_DB)}\n`);
+}
+
+describeQueue('the NCAA residual queue', () => {
+  /* Not called at all without a corpus: the factory runs even when skipped. */
+  const q = LIVE_DB ? queue() : null;
 
   it('16. is NCAA only', () => {
     expect(q.rows.length).toBeGreaterThan(0);

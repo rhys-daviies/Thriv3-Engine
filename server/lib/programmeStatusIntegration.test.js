@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { fileCorpusIfPresent, missingCorpusMessage } from '../db/corpusIdentity.js';
 import { execFileSync } from 'node:child_process';
 
 /**
@@ -15,9 +16,29 @@ import { execFileSync } from 'node:child_process';
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const LIVE_DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+/*
+ * L8B-4. Two rules this file used to break by hardcoding the path: obey an
+ * explicitly selected corpus (L7ZO), and require that it EXISTS before
+ * spawning a child at it. `client.js` creates an absent database rather than
+ * refusing, and a suite that creates the file a later suite tests for has
+ * changed that suite's behaviour.
+ */
+const DEFAULT_DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const LIVE_DB = fileCorpusIfPresent(DEFAULT_DB);
 
-const run = (body) => JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
+const describeLive = LIVE_DB ? describe : describe.skip;
+if (!LIVE_DB) {
+  // eslint-disable-next-line no-console
+  console.warn(`\n  programmeStatusIntegration.test.js SKIPPED — ${missingCorpusMessage(DEFAULT_DB)}\n`);
+}
+
+/*
+ * NULL, NOT A SPAWN, when there is no corpus. `describe.skip` still RUNS the
+ * suite factory, so these calls happen even when every test below is skipped;
+ * spawning here is what left an empty database at the default path. The null
+ * is only ever reached from a skipped factory -- no `it` runs to read it.
+ */
+const run = (body) => (!LIVE_DB ? null : JSON.parse(execFileSync('node', ['--input-type=module', '-e', `
   process.env.RECRUITMATCH_DB = ${JSON.stringify(LIVE_DB)};
   const { default: db } = await import('${ROOT}/server/db/client.js');
   const U = await import('${ROOT}/server/scripts/rosterTargetUniverse.js');
@@ -25,7 +46,7 @@ const run = (body) => JSON.parse(execFileSync('node', ['--input-type=module', '-
   const S = await import('${ROOT}/server/lib/programmeStatus.js');
   void db; void U; void Q; void S;
   process.stdout.write(JSON.stringify(await (async () => { ${body} })() ?? null));
-`], { cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: LIVE_DB }, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }));
+`], { cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: LIVE_DB }, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })));
 
 const KEYS = {
   annaM: ['Anna Maria', 'mens-soccer'],
@@ -39,7 +60,7 @@ const KEYS = {
   brynW: ['Bryn Athyn College of the New Church', 'womens-soccer'],
 };
 
-describe('the six approved decisions', () => {
+describeLive('the six approved decisions', () => {
   const seen = run(`
     const out = {};
     for (const [k, [school, sport]] of Object.entries(${JSON.stringify(KEYS)})) {
@@ -104,7 +125,7 @@ describe('the six approved decisions', () => {
   });
 });
 
-describe('23. the target universe is season-aware', () => {
+describeLive('23. the target universe is season-aware', () => {
   const u = run(`return {
     legacy: U.rosterTargetUniverse().length,
     y2024: U.rosterTargetUniverse({ season: 2024 }).length,
@@ -132,7 +153,7 @@ describe('23. the target universe is season-aware', () => {
   });
 });
 
-describe('20/21/22/24. current-season coverage means the season asked for', () => {
+describeLive('20/21/22/24. current-season coverage means the season asked for', () => {
   const q = run(`
     const q26 = Q.gapQueue({ season: 2026 });
     return { s: q26.summary,
@@ -184,7 +205,7 @@ describe('20/21/22/24. current-season coverage means the season asked for', () =
   });
 });
 
-describe('what L7P must not have changed', () => {
+describeLive('what L7P must not have changed', () => {
   const fp = run(`return {
     colleges: db.prepare('SELECT COUNT(*) n FROM colleges').get().n,
     inactive: db.prepare('SELECT COUNT(*) n FROM colleges WHERE active = 0').get().n,
@@ -248,7 +269,7 @@ describe('what L7P must not have changed', () => {
 /* 26. both database construction paths                                      */
 /* ------------------------------------------------------------------------- */
 
-describe('the table exists on a database built either way', () => {
+describeLive('the table exists on a database built either way', () => {
   let dir;
   beforeAll(() => { dir = fs.mkdtempSync(path.join(os.tmpdir(), 'l7p-')); });
   afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));

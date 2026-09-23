@@ -314,15 +314,19 @@ Measured on both instruments, before and after:
 ## Two things worth knowing
 
 **The short canonical hashes quoted in L7ZM through L8B-1 are not reproducible
-by any instrument now in the tree.** `roster 3a83be99`, `trust 80279ea5`,
-`programme_status 2271489b`, `arrivals 2d694ab4`: running V6's own
-`datasetManifest` against canonical gives `927b5fa9`, `5391be73`, `0a1132f6`
-and `cf05efc2` instead. The DATA is provably unchanged — the V6 manifest
+by any instrument now in the tree.** `roster 3a83be9932c4c50d`, `trust
+80279ea51e330ff6`, `programme_status 2271489bb81e747a`, `arrivals
+2d694ab74f831491` (this document first wrote that last one as `2d694ab4`, which
+was a transcription slip of mine): running V6's own `datasetManifest` against
+canonical gives `927b5fa9`, `5391be73`, `0a1132f6` and `cf05efc2` instead. The DATA is provably unchanged — the V6 manifest
 reproduces its pinned `cc28ee6accdb84ed` exactly, and that digest is taken over
 those very per-table entries — so this is a question about which instrument
 produced those four numbers, not about the rows. Reported rather than quietly
-restated, because a figure carried forward across seven stage documents that
-nothing can now recompute is worth naming.
+restated, because a figure carried forward across fifteen stage documents that
+nothing can now recompute is worth naming. L8B-4 closed this: see
+`docs/L8B4_INTEGRATION_CLOSEOUT.md` and the hash hierarchy at the end of
+`docs/EVIDENCE_BASELINES.md`. Classification:
+`LEGACY_UNREPRODUCIBLE_AUDIT_HASH`.
 
 **A test creates an empty database at the default path, and other suites then
 trust it.** `rosterGapQueue.test.js` spawns a child with

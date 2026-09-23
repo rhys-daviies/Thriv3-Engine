@@ -7,6 +7,7 @@ import { snapshotDatabase } from '../lib/dbSnapshot.js';
 import {
   corpusIdentity, sharedCorpusNotice, corpus, corpusChangeToken, assertCanonicalWrite,
   CanonicalWriteRefused, CANONICAL_SHARED, WORKTREE_LOCAL, EPHEMERAL_TEST, STAGE_SNAPSHOT,
+  fileCorpusOr, fileCorpusIfPresent, missingCorpusMessage,
 } from './corpusIdentity.js';
 
 /**
@@ -307,5 +308,85 @@ describe('L7ZM — corpus identity is NOT materialisation freshness', () => {
       .replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
     expect(code('./corpusIdentity.js')).not.toContain('recruitingMaterialisation');
     expect(code('../lib/recruitingMaterialisation.js')).not.toContain('corpusIdentity');
+  });
+});
+
+/**
+ * L8B-4 — A CORPUS THAT IS NOT THERE MUST READ AS ABSENT, NOT AS EMPTY.
+ *
+ * `fileCorpusOr` answers which file. It cannot answer whether that file
+ * exists, and a suite that spawns a child with `RECRUITMATCH_DB=<path>` has
+ * assumed it does: `client.js` creates an absent database and migrates it
+ * rather than refusing. Measured consequence, in a checkout with no working
+ * database: `rosterGapQueue.test.js` left a 786KB empty one at the default
+ * path and `academicMajors.test.js`, which gates on `existsSync`, stopped
+ * skipping and ran four tests against zero rows.
+ *
+ * It is the same rule L8B-2 put on the baseline runner, one layer down.
+ */
+describe('fileCorpusIfPresent', () => {
+  const big = (file) => { fs.writeFileSync(file, Buffer.alloc(2_000_000)); return file; };
+
+  it('returns an explicitly selected corpus that exists', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'l8b4-'));
+    const chosen = big(path.join(dir, 'chosen.sqlite'));
+    const fallback = big(path.join(dir, 'fallback.sqlite'));
+    expect(fileCorpusIfPresent(fallback, { env: { RECRUITMATCH_DB: chosen } })).toBe(chosen);
+  });
+
+  it('returns NULL for an explicitly selected corpus that does not exist', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'l8b4-'));
+    const fallback = big(path.join(dir, 'fallback.sqlite'));
+    const absent = path.join(dir, 'nope.sqlite');
+    // Not the fallback: the caller chose, and the choice is missing.
+    expect(fileCorpusIfPresent(fallback, { env: { RECRUITMATCH_DB: absent } })).toBeNull();
+    expect(fs.existsSync(absent)).toBe(false);
+  });
+
+  it("treats ':memory:' as no selection and falls through, as fileCorpusOr does", () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'l8b4-'));
+    const fallback = big(path.join(dir, 'fallback.sqlite'));
+    const env = { RECRUITMATCH_DB: ':memory:' };
+    expect(fileCorpusOr(fallback, env)).toBe(fallback);
+    expect(fileCorpusIfPresent(fallback, { env })).toBe(fallback);
+  });
+
+  it('returns NULL when the fallback itself is absent', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'l8b4-'));
+    expect(fileCorpusIfPresent(path.join(dir, 'nothing.sqlite'), { env: {} })).toBeNull();
+  });
+
+  it('rejects a bare-schema file: an empty database is not a present one', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'l8b4-'));
+    const empty = path.join(dir, 'empty.sqlite');
+    new Database(empty).exec('CREATE TABLE t (a TEXT)');
+    // This is the exact artefact the defect produced: openable, migrated, useless.
+    expect(fs.statSync(empty).size).toBeLessThan(1_000_000);
+    expect(fileCorpusIfPresent(empty, { env: {} })).toBeNull();
+  });
+
+  it('names the file it looked for, so a skip is actionable', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'l8b4-'));
+    const fallback = path.join(dir, 'fallback.sqlite');
+    expect(missingCorpusMessage(fallback, {})).toContain(fallback);
+    expect(missingCorpusMessage(fallback, {})).toMatch(/will not create one/);
+  });
+
+  it('is used by every suite that spawns a child at the default corpus path', () => {
+    /*
+     * The regression guard. These three each hardcoded the path and spawned
+     * unconditionally; a fourth doing the same would reintroduce the defect
+     * without failing anything, because the damage lands in ANOTHER suite.
+     */
+    const files = [
+      '../scripts/rosterGapQueue.test.js',
+      '../scripts/reacquisitionCohort.test.js',
+      '../lib/programmeStatusIntegration.test.js',
+    ];
+    for (const f of files) {
+      const code = fs.readFileSync(new URL(f, import.meta.url), 'utf8');
+      expect(code, f).toContain('fileCorpusIfPresent');
+      expect(code, f).toMatch(/describe\.skip|LIVE_DB \? describe/);
+    }
   });
 });

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { fileCorpusIfPresent, missingCorpusMessage } from '../db/corpusIdentity.js';
 import { execFileSync } from 'node:child_process';
 import { pilotSample, PILOT_SIZE } from '../../shared/roster/reacquisitionPilot.js';
 
@@ -20,15 +21,33 @@ import { pilotSample, PILOT_SIZE } from '../../shared/roster/reacquisitionPilot.
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const LIVE_DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+/*
+ * L8B-4. Two rules, both of which this file used to break by hardcoding the
+ * path: obey an explicitly selected corpus (L7ZO), and require that it EXISTS
+ * before spawning a child at it. `client.js` creates an absent database rather
+ * than refusing, and a test that creates the file a later suite tests for has
+ * changed that suite's behaviour.
+ */
+const DEFAULT_DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+const LIVE_DB = fileCorpusIfPresent(DEFAULT_DB);
 
-const cohort = () => JSON.parse(execFileSync('node',
-  [path.join(ROOT, 'server/scripts/reacquisitionCohort.js'), '--json'],
-  { cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: LIVE_DB }, encoding: 'utf8',
-    maxBuffer: 64 * 1024 * 1024 }));
+const cohort = () => {
+  if (!LIVE_DB) throw new Error(missingCorpusMessage(DEFAULT_DB));
+  return JSON.parse(execFileSync('node',
+    [path.join(ROOT, 'server/scripts/reacquisitionCohort.js'), '--json'],
+    { cwd: ROOT, env: { ...process.env, RECRUITMATCH_DB: LIVE_DB }, encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024 }));
+};
 
-describe('the 2026 re-acquisition cohort', () => {
-  const c = cohort();
+const describeCohort = LIVE_DB ? describe : describe.skip;
+if (!LIVE_DB) {
+  // eslint-disable-next-line no-console
+  console.warn(`\n  reacquisitionCohort.test.js SKIPPED — ${missingCorpusMessage(DEFAULT_DB)}\n`);
+}
+
+describeCohort('the 2026 re-acquisition cohort', () => {
+  /* The factory runs even when the suite is skipped; do not spawn. */
+  const c = LIVE_DB ? cohort() : null;
 
   it('1. is every current-season gap that already holds a source, and nothing else', () => {
     expect(c.rows.length + c.excluded.length).toBe(c.coverage.currentSeasonMissing);
