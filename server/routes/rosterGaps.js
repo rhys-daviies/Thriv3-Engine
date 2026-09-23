@@ -152,15 +152,26 @@ rosterGapsRouter.post('/roster-gaps/review', (req, res) => {
   }
 
   /*
-   * REVIEWER IDENTITY IS NOT INVENTED HERE.
+   * REVIEWER IDENTITY IS NOT INVENTED HERE, AND SINCE L8C IT NO LONGER HAS
+   * TO BE ABSENT.
    *
-   * This API has no authentication — the operator app runs behind whatever
-   * protects the deployment, and `server/index.js` mounts only `cors()` and
-   * `express.json()`. There is therefore no identity to attribute, and putting
-   * a placeholder in `reviewed_by_operator_id` would make the column lie in a
-   * way that is worse than its being empty. It stays null, exactly as
-   * `athlete_programmes` leaves its operator note unattributed, until the
-   * application has a sign-in worth recording.
+   * This route shipped writing `operatorId: null`, and said so: the
+   * application had no authentication, `server/index.js` mounted only
+   * `cors()` and `express.json()`, and putting a placeholder in
+   * `reviewed_by_operator_id` would make the column lie in a way that is worse
+   * than its being empty.
+   *
+   * That premise is now false. Phase 13K arrived with main: `attachOperator`
+   * runs before this router and `requireOperator` guards `/api` above it, so
+   * every request that reaches this line is a signed-in person. A NEW human
+   * decision therefore carries the identity the server already knows, read
+   * from the session and never from the body — the same rule, and the same
+   * one function, as `rosterSeasonTrust.operatorFromRequest`.
+   *
+   * ROWS WRITTEN BEFORE THIS ARE LEFT ALONE. They have a null reviewer because
+   * nobody was recorded, which is a fact about those records rather than a gap
+   * to be filled. Backfilling them would invent the very attribution this
+   * comment refused to invent in the first place.
    */
   const result = recordReview({
     season,
@@ -170,7 +181,7 @@ rosterGapsRouter.post('/roster-gaps/review', (req, res) => {
     nextAction: body.nextAction,
     retryAfter: body.retryAfter ?? null,
     evidence,
-    operatorId: null,
+    operatorId: req.operator?.id ?? null,
   });
   if (!result.ok) return res.status(400).json({ error: result.reason });
   return res.json({ review: result.review });

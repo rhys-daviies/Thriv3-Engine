@@ -89,12 +89,16 @@ function withApi(body) {
       db.prepare('DELETE FROM roster_gap_reviews').run();
       const { rosterGapsRouter } = await import('${ROOT}/server/routes/rosterGaps.js');
       /** Call a route without standing up a server. */
-      const call = (method, url, payload) => new Promise((resolve) => {
+      // The 4th argument is what attachOperator puts on a signed-in request.
+      // Absent means an unauthenticated caller, which is how this harness has
+      // always driven the handler and is still a case worth covering.
+      const call = (method, url, payload, operator) => new Promise((resolve) => {
         const [pathname, query] = url.split('?');
         const req = {
           method, url, path: pathname, body: payload,
           query: Object.fromEntries(new URLSearchParams(query ?? '')),
           params: {},
+          ...(operator ? { operator } : {}),
         };
         const res = {
           statusCode: 200,
@@ -351,5 +355,76 @@ describe('what saving a review cannot do', () => {
     expect(imports.filter((p) => /child_process|node:fs|fs\//.test(p))).toEqual([]);
     const code = text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
     expect(code).not.toMatch(/writeFileSync|appendFileSync|execFile|execSync|spawn\(/);
+  });
+});
+
+/**
+ * L8C — A NEW HUMAN DECISION CARRIES THE OPERATOR THE SERVER ALREADY KNOWS.
+ *
+ * This route shipped writing `operatorId: null` and said why: the application
+ * had no authentication, so a reviewer id would have been invented. Phase 13K
+ * arrived with main, `requireOperator` guards `/api` above this router, and
+ * the id now comes from the session — read from `req.operator`, never from the
+ * body, which the allow-list refuses as an unknown field.
+ */
+describe('L8C. reviewer identity on a new roster-gap review', () => {
+  it('records the authenticated operator on a new review', () => {
+    const out = withApi(`
+      ${FIRST}
+      db.prepare('DELETE FROM roster_gap_reviews').run();
+      const save = await call('POST', '/roster-gaps/review', {
+        season: q.season, school: g.school, sport: g.sport,
+        disposition: 'SOURCE_NOT_AVAILABLE', nextAction: 'RETRY_ACQUISITION',
+        evidence: 'trusted host answers, no roster path found on it',
+      }, { id: 'op-l8c-fixture', email: 'l8c@example.test' });
+      const row = db.prepare('SELECT * FROM roster_gap_reviews WHERE school = ? AND sport = ?')
+        .get(g.school, g.sport);
+      return { status: save.status, reviewer: row.reviewed_by_operator_id,
+               disposition: row.disposition, at: row.reviewed_at };`);
+    expect(out.status).toBe(200);
+    expect(out.reviewer).toBe('op-l8c-fixture');
+    expect(out.disposition).toBe('SOURCE_NOT_AVAILABLE');
+    expect(Date.parse(out.at)).toBeGreaterThan(0);
+  });
+
+  it('refuses a reviewer supplied in the body rather than trusting it', () => {
+    const out = withApi(`
+      ${FIRST}
+      db.prepare('DELETE FROM roster_gap_reviews').run();
+      const spoofs = {};
+      for (const field of ['reviewed_by_operator_id', 'operatorId', 'reviewer', 'reviewed_by']) {
+        spoofs[field] = await call('POST', '/roster-gaps/review', {
+          season: q.season, school: g.school, sport: g.sport,
+          disposition: 'SOURCE_NOT_AVAILABLE', nextAction: 'RETRY_ACQUISITION',
+          evidence: 'probe', [field]: 'attacker',
+        }, { id: 'op-l8c-fixture', email: 'l8c@example.test' });
+      }
+      const n = db.prepare('SELECT COUNT(*) n FROM roster_gap_reviews').get().n;
+      return { spoofs, written: n };`);
+    for (const [field, res] of Object.entries(out.spoofs)) {
+      expect(res.status, field).toBe(400);
+      expect(res.body.error, field).toMatch(/unknown field/);
+    }
+    expect(out.written).toBe(0);
+  });
+
+  it('still writes null when there is no operator, rather than inventing one', () => {
+    const out = withApi(`
+      ${FIRST}
+      db.prepare('DELETE FROM roster_gap_reviews').run();
+      const save = await call('POST', '/roster-gaps/review', {
+        season: q.season, school: g.school, sport: g.sport,
+        disposition: 'SOURCE_NOT_AVAILABLE', nextAction: 'RETRY_ACQUISITION',
+        evidence: 'probe',
+      });
+      const row = db.prepare('SELECT * FROM roster_gap_reviews WHERE school = ? AND sport = ?')
+        .get(g.school, g.sport);
+      return { status: save.status, reviewer: row.reviewed_by_operator_id };`);
+    expect(out.status).toBe(200);
+    // Unreachable in production -- `requireOperator` is mounted above this
+    // router -- and the rule stands anyway: absent identity is recorded as
+    // absent. This is what the legacy rows already hold, and why they are left
+    // exactly as they are rather than backfilled.
+    expect(out.reviewer).toBeNull();
   });
 });
