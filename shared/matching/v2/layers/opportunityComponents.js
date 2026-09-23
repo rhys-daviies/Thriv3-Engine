@@ -256,3 +256,79 @@ export function athleticOutcome({
     },
   });
 }
+
+/**
+ * How much this athlete values the academic strength of the institution.
+ *
+ * -- WHY IT IS A PREFERENCE AND NOT A QUALITY TERM -------------------------
+ *
+ * A stronger institution is not universally better here. It becomes more
+ * attractive because THIS athlete said academic strength matters, and for an
+ * athlete who said it does not, it changes nothing. Multiplying a programme
+ * percentile by a stated priority is the whole design; scoring academic
+ * strength on its own would be the ProgramQuality criterion returning under a
+ * new name, which A5.1 deleted for good reason.
+ *
+ * -- WHY PERCENTILE AND NOT rating / 10 ------------------------------------
+ *
+ * `academic_rating` is skewed: the men's pool runs p10 1.8, median 4.2, p90
+ * 8.1 on a nominal 0-10 scale, so raw/10 would compress four fifths of the
+ * pool into the bottom half and make the preference nearly inert where most
+ * programmes are. A percentile within the athlete's own sport pool spends the
+ * whole range on the programmes that actually exist, and is the same
+ * treatment `abilityScale` already gives programme strength.
+ *
+ * -- WHAT IT CANNOT DO -----------------------------------------------------
+ *
+ * It lives inside Athlete Opportunity/Fit, which is one of three layers
+ * combined AFTER Coach Recruitability has had its say and AFTER the
+ * recruitability gate. It reorders realistic options; it cannot make an
+ * unrealistic one realistic, and there is no academic override of the gate.
+ *
+ * It reads ONE input. Not GPA, not SAT, not ACT, not admit rate, not net
+ * price, not the intended major - each of those belongs to a different
+ * question, and three of them are not modelled at all yet.
+ */
+export function academicStrengthFit({
+  academicStrengthPriority = null, academicPercentile = null,
+}) {
+  const strength = priorityStrength(academicStrengthPriority);
+  if (strength === null) {
+    return notApplicable({
+      why: 'the athlete has stated no academic-strength priority, and their grades are not a statement of what they want',
+    });
+  }
+  if (!stated(academicPercentile)) {
+    /**
+     * UNKNOWN, never average. 27 programmes carry a placeholder rating and 4
+     * carry their division's modal value; both are inferences rather than
+     * measurements, and the caller is expected to pass null for them.
+     */
+    return unscoreable({
+      reason: REASON.NO_ACADEMIC_PROFILE,
+      missing: ['academicPercentile'],
+      available: ['academicStrengthPriority'],
+    });
+  }
+  const percentile = Number(academicPercentile);
+  /**
+   * A flat 1.0 at priority 1, tilting toward the percentile as the priority
+   * rises. At priority 5 the component IS the percentile, so the strongest
+   * institution in the pool is worth a full point more than the weakest -
+   * inside this component's own weight, which is what bounds the effect.
+   */
+  const value = (1 - strength) + (strength * percentile);
+  return scoreable({
+    value,
+    grade: GRADE.MEASURED,
+    coverage: 1,
+    basis: {
+      academicStrengthPriority: Number(academicStrengthPriority),
+      priorityStrength: strength,
+      academicPercentile: percentile,
+      // Flat at priority 1: the component exists and reorders nothing, which
+      // is a different statement from not being asked.
+      inert: strength === 0,
+    },
+  });
+}

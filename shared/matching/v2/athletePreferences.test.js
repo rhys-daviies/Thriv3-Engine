@@ -4,9 +4,9 @@ import {
 } from './athletePreferences.js';
 
 describe('the intake contract', () => {
-  it('names both fields, nullable, defaulting to null', () => {
+  it('names all three fields, nullable, defaulting to null', () => {
     expect(Object.keys(PREFERENCE_FIELDS).sort())
-      .toEqual(['competitive_level_priority', 'playing_opportunity_priority']);
+      .toEqual(['academic_strength_priority', 'competitive_level_priority', 'playing_opportunity_priority']);
     for (const f of Object.values(PREFERENCE_FIELDS)) {
       expect(f.nullable).toBe(true);
       expect(f.default).toBeNull();

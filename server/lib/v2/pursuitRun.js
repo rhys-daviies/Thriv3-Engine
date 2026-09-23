@@ -48,7 +48,7 @@ const composition = (rows) => Object.fromEntries(
  */
 export function runPursuit({
   athlete, sport, colleges, ctx, suppressedIds = new Set(), ineligible = new Map(),
-  weights, gates, topN = TOP_N, recruitabilityOverrides = {},
+  weights, gates, topN = TOP_N, recruitabilityOverrides = {}, opportunityOverrides = {},
 }) {
   const fin = evaluateFinancial({ athlete: athlete.v1Shape, colleges, sport });
   const rec = evaluateRecruitability({
@@ -60,6 +60,7 @@ export function runPursuit({
   });
   const opp = evaluateOpportunity({
     athlete: athlete.opportunity, colleges, rosterProgrammes: ctx.rosterProgrammes,
+    overrides: opportunityOverrides,
   });
   // Carried out so a diagnostic can show which preference produced which list.
   const ambition = opp.ambition;

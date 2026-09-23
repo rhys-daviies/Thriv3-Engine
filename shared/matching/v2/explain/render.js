@@ -144,6 +144,20 @@ const SENTENCE = {
     `The athlete marked competitive level as a priority, and this programme is at or above the standard they are aiming at.`,
   [REASON_CODE.LEVEL_PREFERENCE_BELOW]: (e) =>
     `The athlete marked competitive level as a priority, and this programme sits about ${pts(e.levelGapBelow)} below the standard they are aiming at.`,
+  /**
+   * Preference-aware and factual. It says where the institution sits in the
+   * pool this athlete is choosing from and how much they said it matters. It
+   * does not call one university better than another, and it says nothing
+   * about admission or money.
+   */
+  [REASON_CODE.ACADEMIC_PREFERENCE_STRONG]: (e) =>
+    `Academic strength is one of this athlete's highest priorities, and this institution sits in the top ${pct(1 - e.percentile)} of the programmes available to them academically.`,
+  [REASON_CODE.ACADEMIC_PREFERENCE_WEAK_MATCH]: (e) =>
+    `Academic strength is one of this athlete's highest priorities, and this institution sits in the lower ${pct(e.percentile)} of the pool academically.`,
+  [REASON_CODE.ACADEMIC_PREFERENCE_MINOR]: (e) =>
+    `Academic strength is not a major stated priority for this athlete (${e.priority} of 5), so it has limited influence here.`,
+  [REASON_CODE.ACADEMIC_STRENGTH_UNKNOWN]: () =>
+    'Thriv3 holds no measured academic rating for this institution, so academic strength was not scored either way.',
   [REASON_CODE.PLAYING_PREFERENCE_WEIGHTED]: () =>
     `Early playing time is a stated priority, so the minutes evidence carries more weight here.`,
   [REASON_CODE.LOCATION_NOT_COLLECTED]: () =>

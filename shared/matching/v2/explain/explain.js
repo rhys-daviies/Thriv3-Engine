@@ -277,6 +277,27 @@ function opportunityReasons(result) {
     out.push(reason(REASON_CODE.PLAYING_PREFERENCE_WEIGHTED, LAYER.OPPORTUNITY, POLARITY.CONTEXT,
       BAND.PREFERENCE_EFFECT, { priority: amb.playingOpportunityPriority, share: b.playing.playingShare }));
   }
+  /**
+   * ACADEMIC STRENGTH IS ONLY EVER MENTIONED WHEN DECLARED. An athlete nobody
+   * asked gets no sentence, and their grades are never read as an answer.
+   */
+  const ac = b.academic;
+  if (amb.academicStrengthPriority !== null && amb.academicStrengthPriority !== undefined) {
+    if (ac) {
+      if (amb.academicStrengthPriority >= 4) {
+        const high = ac.academicPercentile >= 0.6;
+        out.push(reason(high ? REASON_CODE.ACADEMIC_PREFERENCE_STRONG : REASON_CODE.ACADEMIC_PREFERENCE_WEAK_MATCH,
+          LAYER.OPPORTUNITY, high ? POLARITY.STRENGTH : POLARITY.CONCERN, BAND.PREFERENCE_EFFECT,
+          { percentile: r3(ac.academicPercentile), priority: amb.academicStrengthPriority }));
+      } else {
+        out.push(reason(REASON_CODE.ACADEMIC_PREFERENCE_MINOR, LAYER.OPPORTUNITY, POLARITY.CONTEXT,
+          BAND.PREFERENCE_EFFECT, { priority: amb.academicStrengthPriority }));
+      }
+    } else if ((b.missing ?? []).includes('academicStrengthFit')) {
+      out.push(reason(REASON_CODE.ACADEMIC_STRENGTH_UNKNOWN, LAYER.OPPORTUNITY, POLARITY.UNKNOWN, BAND.UNKNOWN, {}));
+    }
+  }
+
   if ((b.notApplicable ?? []).includes('locationFit')) {
     out.push(reason(REASON_CODE.LOCATION_NOT_COLLECTED, LAYER.OPPORTUNITY, POLARITY.UNKNOWN, BAND.UNKNOWN, {}));
   }

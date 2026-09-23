@@ -7,6 +7,7 @@
  */
 import {
   playingOpportunity, programmeTrajectory, majorFit, locationFit, athleticOutcome,
+  academicStrengthFit,
   athleteOpportunity, isScoreable, isNotApplicable, GRADE,
   abilityToPercentile, percentileOf, readPriority,
 } from '../../../shared/matching/v2/index.js';
@@ -49,6 +50,38 @@ export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overr
     try { return abilityToPercentile(rating, sport); } catch { return null; }
   })();
 
+  /**
+   * Academic strength as a percentile of the athlete's own sport pool, built
+   * once.
+   *
+   * A NOMINAL 0-10 RATING IS NOT A PERCENTILE. The men's pool runs p10 1.8,
+   * median 4.2, p90 8.1, so raw/10 would put four fifths of it in the bottom
+   * half and make a stated preference nearly inert where most programmes are.
+   *
+   * INFERRED RATINGS ARE EXCLUDED. 27 programmes carry `placeholder` and 4
+   * carry `division-modal`; neither is a measurement of that institution, and
+   * A7.7.5 forbids inferring academic strength from division. They are passed
+   * as null, so the component refuses rather than scoring a guess.
+   */
+  const academicScale = (() => {
+    const measured = colleges
+      .filter((c) => c.academic_rating !== null && c.academic_rating !== undefined
+        && c.academic_rating_source !== 'placeholder' && c.academic_rating_source !== 'division-modal')
+      .map((c) => Number(c.academic_rating))
+      .sort((a, b) => a - b);
+    return (rating, source) => {
+      if (rating === null || rating === undefined) return null;
+      if (source === 'placeholder' || source === 'division-modal') return null;
+      if (!measured.length) return null;
+      // Mid-rank, so ties share a percentile rather than being ordered by the sort.
+      let lo = 0; let hi = measured.length;
+      while (lo < hi) { const m = (lo + hi) >> 1; if (measured[m] < rating) lo = m + 1; else hi = m; }
+      let up = lo;
+      while (up < measured.length && measured[up] === rating) up += 1;
+      return ((lo + up) / 2) / measured.length;
+    };
+  })();
+
   const results = colleges.map((college) => {
     const playing = playingOpportunity({
       sport, position, division: college.division, programme: college.name,
@@ -77,17 +110,22 @@ export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overr
       programmePercentile,
       span: overrides.levelSpan,
     });
+    const academic = academicStrengthFit({
+      academicStrengthPriority: athlete.academicStrengthPriority ?? null,
+      academicPercentile: academicScale(college.academic_rating, college.academic_rating_source),
+    });
     const result = athleteOpportunity({
-      playing, trajectory, major, location, outcome,
+      playing, trajectory, major, location, outcome, academic,
       priorityRanking: athlete.priorityRanking ?? null,
       competitiveLevelPriority: athlete.competitiveLevelPriority ?? null,
       playingOpportunityPriority: athlete.playingOpportunityPriority ?? null,
+      academicStrengthPriority: athlete.academicStrengthPriority ?? null,
       floor: overrides.floor, lift: overrides.lift, ambitionLift: overrides.ambitionLift,
       valueWeights: overrides.valueWeights, preferenceWeights: overrides.preferenceWeights,
     });
     return {
       id: college.id, name: college.name, division: college.division, state: college.state,
-      result, playing, trajectory, major, location, outcome,
+      result, playing, trajectory, major, location, outcome, academic,
     };
   });
 
@@ -97,9 +135,9 @@ export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overr
   const byReason = {};
   const grades = { [GRADE.MEASURED]: 0, [GRADE.PARTIAL]: 0 };
   const componentCoverage = {
-    playingOpportunity: 0, programmeTrajectory: 0, majorFit: 0, locationFit: 0, athleticOutcome: 0,
+    playingOpportunity: 0, programmeTrajectory: 0, majorFit: 0, locationFit: 0, athleticOutcome: 0, academicStrengthFit: 0,
   };
-  const notApplicable = { majorFit: 0, locationFit: 0, athleticOutcome: 0 };
+  const notApplicable = { majorFit: 0, locationFit: 0, athleticOutcome: 0, academicStrengthFit: 0 };
 
   for (const r of results) {
     const ok = isScoreable(r.result);
@@ -113,6 +151,7 @@ export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overr
     if (isScoreable(r.major)) componentCoverage.majorFit += 1;
     if (isScoreable(r.location)) componentCoverage.locationFit += 1;
     if (isScoreable(r.outcome)) componentCoverage.athleticOutcome += 1;
+    if (isScoreable(r.academic)) componentCoverage.academicStrengthFit += 1;
     if (isNotApplicable(r.major)) notApplicable.majorFit += 1;
     if (isNotApplicable(r.location)) notApplicable.locationFit += 1;
     if (isNotApplicable(r.outcome)) notApplicable.athleticOutcome += 1;

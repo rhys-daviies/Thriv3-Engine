@@ -89,6 +89,17 @@ export const PREFERENCE_WEIGHTS = Object.freeze({
   majorFit: 0.4,
   locationFit: 0.3,
   athleticOutcome: 0.3,
+  /**
+   * A7.7.5. Matched to athleticOutcome, because the two ask the same shape of
+   * question about different axes - what standard of programme, and what
+   * standard of institution - and nothing measured justifies preferring one.
+   *
+   * Selected on a plateau rather than at an optimum: across 0.20 to 0.40 the
+   * top-25 Jaccard between priority 1 and priority 5 moves smoothly and the
+   * recruitability guard holds; above 0.40 academic reaches begin to arrive
+   * in a developmental athlete's list. HEURISTIC, UNCALIBRATED TO OUTCOMES.
+   */
+  academicStrengthFit: 0.3,
 });
 
 /**

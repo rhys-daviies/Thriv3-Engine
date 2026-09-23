@@ -1,4 +1,25 @@
 /**
+ * SUPERSEDED AT A7.7.4. Retained as the record, not as a scorer.
+ *
+ * `internationalPropensity` was Coach Recruitability's international signal
+ * until Recruiting Market Match replaced it. Two things changed:
+ *
+ *   It fell back to the DIVISION rate whenever a programme had fewer than
+ *   eight arrivals, and reported that as PARTIAL evidence about the
+ *   programme. Market match shrinks toward the division instead, and refuses
+ *   outright below the threshold - reporting a division's behaviour under a
+ *   programme's name is the same error as reporting an absence as a zero.
+ *
+ *   It answered only half the question. An international athlete got a
+ *   behavioural signal and a domestic athlete got none, which is why the
+ *   Recruitability core for a domestic athlete was roster demand alone.
+ *
+ * It is NO LONGER EXPORTED from the V2 index and nothing scores with it. The
+ * module and its tests stay because they hold measurements worth keeping -
+ * international roster share correlates with the scored arrival share at
+ * r = 0.941, which is why roster share was never added as a second term.
+ */
+/**
  * Does this programme recruit athletes like this one?
  *
  * -- ONE INTERNATIONAL SIGNAL, NOT TWO --------------------------------------

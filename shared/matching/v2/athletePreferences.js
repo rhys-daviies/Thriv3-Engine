@@ -82,6 +82,30 @@ export const PREFERENCE_FIELDS = Object.freeze({
     /** What it must never be read as. */
     notAnAbilityRating: 'This is what the athlete WANTS. Their ability stays the operator-assessed 1-10 rating.',
   },
+  /**
+   * A7.7.5. Added because the first real human review found academics were
+   * not underweighted but ABSENT, and because the athlete's own grades are
+   * not a statement of what they want: a 4.0 may be someone aiming at a
+   * strong institution, or someone intending to use those grades as leverage
+   * somewhere less selective. Only they can say which.
+   */
+  academic_strength_priority: {
+    type: 'INTEGER',
+    nullable: true,
+    default: null,
+    allowed: [1, 2, 3, 4, 5],
+    missingMeans: 'UNDECLARED',
+    question: 'How important is the academic strength of the college to you?',
+    anchors: Object.freeze({
+      1: 'Not important',
+      2: 'Slightly important',
+      3: 'Somewhat important',
+      4: 'Very important',
+      5: 'One of my highest priorities',
+    }),
+    helper: 'This is about what you want from the institution. It is not a question about your grades.',
+    notAnAbilityRating: 'This is what the athlete WANTS. It is never inferred from GPA, SAT, ACT or intended major.',
+  },
   playing_opportunity_priority: {
     type: 'INTEGER',
     nullable: true,

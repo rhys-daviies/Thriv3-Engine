@@ -92,7 +92,8 @@ async function main() {
         A: b.athleticPlausibility, core: b.core, phi: b.phi,
         delta: b.athleticDelta,
         positional: b.positional,
-        intlApplicable: b.internationalApplicable,
+        market: b.market ?? null,
+        marketValue: b.signals?.find((x) => x.key === 'recruitingMarket')?.value ?? null,
         R: e.recruitability.value,
         F: e.financial.value, O: e.opportunity.value,
         P: e.pursuitPriority.value,
@@ -148,10 +149,10 @@ async function main() {
     console.log(`    claims on those places        ${fmt(p?.claims)}  capped ${p?.claimsCapped}`);
     console.log(`    positionalOpportunity         ${fmt((p?.expectedNewcomerPlaces - p?.claims) / p?.typicalStarters)}`);
     console.log('  C. COACH RECRUITING PROPENSITY');
-    console.log(`    internationalPropensity       ${row.intlApplicable ? 'applicable' : 'NOT_APPLICABLE (domestic athlete)'}`);
-    console.log(`    -> any domestic propensity    NONE HELD`);
+    const mk = row.market ?? null;
+    console.log(`    recruiting market match       ${mk ? `${mk.arm} ${(row.marketValue ?? 0).toFixed(3)}` : 'UNKNOWN'}`);
     console.log('  CORE AND CEILING');
-    console.log(`    core                          ${fmt(row.core)}   (weights: positional 0.7, international 0.3, renormalised)`);
+    console.log(`    core                          ${fmt(row.core)}   (behavioural support; positional 0.75, market 0.25)`);
     console.log(`    phi                           ${fmt(row.phi)}`);
     console.log(`    phi + (1-phi) x core          ${fmt(preCeiling)}   <- recruitability BEFORE the athletic ceiling`);
     console.log(`    x A                           ${fmt(row.A)}`);

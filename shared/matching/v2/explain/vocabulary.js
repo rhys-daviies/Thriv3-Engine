@@ -93,6 +93,10 @@ export const REASON_CODE = Object.freeze({
   MAJOR_OFFERED: 'MAJOR_OFFERED',
   MAJOR_NOT_OFFERED: 'MAJOR_NOT_OFFERED',
   LEVEL_PREFERENCE_MET: 'LEVEL_PREFERENCE_MET',
+  ACADEMIC_PREFERENCE_STRONG: 'ACADEMIC_PREFERENCE_STRONG',
+  ACADEMIC_PREFERENCE_WEAK_MATCH: 'ACADEMIC_PREFERENCE_WEAK_MATCH',
+  ACADEMIC_PREFERENCE_MINOR: 'ACADEMIC_PREFERENCE_MINOR',
+  ACADEMIC_STRENGTH_UNKNOWN: 'ACADEMIC_STRENGTH_UNKNOWN',
   LEVEL_PREFERENCE_BELOW: 'LEVEL_PREFERENCE_BELOW',
   PLAYING_PREFERENCE_WEIGHTED: 'PLAYING_PREFERENCE_WEIGHTED',
   LOCATION_NOT_COLLECTED: 'LOCATION_NOT_COLLECTED',
@@ -249,6 +253,7 @@ export const COMPONENT_LABEL = Object.freeze({
   recruitingMarket: 'evidence about the markets this programme recruits from',
   recruitingHistory: 'enough recruiting history to describe a pattern',
   recruitOrigins: 'where this programme\'s recruits have come from',
+  academicPercentile: 'an academic strength rating for this institution',
   divisionBaseline: 'a comparable rate for this division',
 });
 

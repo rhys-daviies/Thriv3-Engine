@@ -51,7 +51,13 @@ export {
 
 export { athleticPlausibility, plausibilityFromDelta } from './layers/athleticPlausibility.js';
 export { positionalOpportunity } from './layers/positionalOpportunity.js';
-export { internationalPropensity, INTERNATIONAL_SATURATION, MIN_ARRIVALS_FOR_PROGRAMME_RATE } from './layers/recruitingBehaviour.js';
+/**
+ * `internationalPropensity` is deliberately NOT re-exported: A7.7.4 replaced
+ * it with Recruiting Market Match and nothing may wire it back into a score.
+ * The constant is still shared, because market match's international arm uses
+ * the same saturation point.
+ */
+export { INTERNATIONAL_SATURATION } from './layers/recruitingBehaviour.js';
 export {
   recruitingMarket, shrinkToBaseline,
   internationalUtilisationCaveat, UTILISATION_CAVEAT,
@@ -68,6 +74,7 @@ export {
 
 export {
   playingOpportunity, programmeTrajectory, majorFit, locationFit, athleticOutcome,
+  academicStrengthFit,
 } from './layers/opportunityComponents.js';
 
 export { athleteOpportunity, priorityWeights, ambitionMultiplier } from './layers/opportunity.js';

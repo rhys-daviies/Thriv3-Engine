@@ -35,6 +35,7 @@
  */
 import { GRADE, scoreable, unscoreable, isScoreable, isNotApplicable } from '../types.js';
 import { combine, component } from '../coverage.js';
+import { notApplicable } from '../types.js';
 import {
   VALUE_WEIGHTS, PREFERENCE_WEIGHTS, PRIORITY_MAP, PRIORITY_LIFT, AMBITION_LIFT,
   FOREIGN_PRIORITIES, OPPORTUNITY_COVERAGE_FLOOR,
@@ -89,9 +90,16 @@ export function priorityWeights(ranking, { lift = PRIORITY_LIFT } = {}) {
  */
 export function athleteOpportunity({
   playing, trajectory, major, location, outcome,
+  /**
+   * Defaults to NOT_APPLICABLE so that a caller which has never heard of this
+   * component behaves exactly as it did before it existed - which is also the
+   * correct answer for an athlete nobody has asked.
+   */
+  academic = notApplicable({ why: 'the athlete has stated no academic-strength priority' }),
   priorityRanking = null, floor = OPPORTUNITY_COVERAGE_FLOOR,
   valueWeights = VALUE_WEIGHTS, preferenceWeights = PREFERENCE_WEIGHTS, lift,
-  competitiveLevelPriority = null, playingOpportunityPriority = null, ambitionLift,
+  competitiveLevelPriority = null, playingOpportunityPriority = null,
+  academicStrengthPriority = null, ambitionLift,
 }) {
   const priorities = priorityWeights(priorityRanking, lift === undefined ? {} : { lift });
 
@@ -108,6 +116,14 @@ export function athleteOpportunity({
   const explicit = {
     playingOpportunity: ambitionMultiplier(playingOpportunityPriority, opts),
     athleticOutcome: ambitionMultiplier(competitiveLevelPriority, opts),
+    /**
+     * The component already scales itself by how strongly the athlete feels,
+     * so the multiplier here moves its WEIGHT for the same reason the other
+     * two do: an athlete who says academics are everything should have more
+     * of their Opportunity decided by it, not merely a steeper version of the
+     * same small slice.
+     */
+    academicStrengthFit: ambitionMultiplier(academicStrengthPriority, opts),
   };
   const w = (key, base) => base * (explicit[key] ?? priorities.multipliers[key] ?? 1);
 
@@ -122,6 +138,7 @@ export function athleteOpportunity({
     component('majorFit', w('majorFit', preferenceWeights.majorFit), major),
     component('locationFit', w('locationFit', preferenceWeights.locationFit), location),
     component('athleticOutcome', w('athleticOutcome', preferenceWeights.athleticOutcome), outcome),
+    component('academicStrengthFit', w('academicStrengthFit', preferenceWeights.academicStrengthFit), academic),
   ];
 
   const combined = combine(components, { floor });
@@ -132,7 +149,7 @@ export function athleteOpportunity({
    * from a good opportunity somebody did.
    */
   const objective = [playing, trajectory].filter(isScoreable);
-  const preference = [major, location, outcome];
+  const preference = [major, location, outcome, academic];
   const declared = preference.filter((r) => !isNotApplicable(r));
   const scoredPreference = preference.filter(isScoreable);
 
@@ -150,6 +167,7 @@ export function athleteOpportunity({
       ...(isNotApplicable(major) ? ['majorFit'] : []),
       ...(isNotApplicable(location) ? ['locationFit'] : []),
       ...(isNotApplicable(outcome) ? ['athleticOutcome'] : []),
+      ...(isNotApplicable(academic) ? ['academicStrengthFit'] : []),
     ],
     priorities: {
       applied: priorities.applied,
@@ -160,6 +178,7 @@ export function athleteOpportunity({
     ambition: {
       competitiveLevelPriority: readPriority(competitiveLevelPriority),
       playingOpportunityPriority: readPriority(playingOpportunityPriority),
+      academicStrengthPriority: readPriority(academicStrengthPriority),
       multipliers: Object.fromEntries(Object.entries(explicit).filter(([, v]) => v !== null)),
       declared: Object.values(explicit).some((v) => v !== null),
       // Which legacy multipliers an explicit answer displaced.
@@ -188,6 +207,7 @@ export function athleteOpportunity({
       playing: isScoreable(playing) ? playing.basis : null,
       trajectory: isScoreable(trajectory) ? trajectory.basis : null,
       major: isScoreable(major) ? major.basis : null,
+    academic: isScoreable(academic) ? academic.basis : null,
       location: isScoreable(location) ? location.basis : null,
       outcome: isScoreable(outcome) ? outcome.basis : null,
     },

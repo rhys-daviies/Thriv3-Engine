@@ -909,3 +909,121 @@ Fixture C's guard holds at every weight tested.
 Fires only on ≥15 roster rows, ≥20% international presence, and a minutes
 share below 60% of that presence. It carries a description and no value; it is
 not subtracted from anything.
+
+---
+
+# A7.7.5 — Academic strength preference, and the pre-validation audit
+
+## academic_rating audit
+
+| | |
+|---|---|
+| coverage | 1,155 / 1,166 men's, 1,224 / 1,235 women's |
+| sources | `scorecard-v1` 2,160 · `scorecard-njcaa-v1` 186 · **`placeholder` 27** · **`division-modal` 4** |
+| men's distribution | p10 1.8 · p25 2.7 · **median 4.2** · p75 6.3 · p90 8.1 · max 9.9 |
+
+**31 ratings are inferences, not measurements.** `placeholder` and
+`division-modal` are excluded and passed as null, so the component refuses
+rather than scoring a guess — A7.7.5 forbids inferring academic strength from
+division, and those four rows are literally that inference.
+
+**Percentile, not rating/10.** The scale is skewed: raw/10 would put four
+fifths of the pool in the bottom half and make a stated preference nearly
+inert where most programmes are. Mid-rank percentile within the athlete's own
+sport pool, the same treatment `abilityScale` gives programme strength.
+
+## The component
+
+```
+value = (1 − strength) + (strength × academicPercentile)
+```
+
+`strength = priorityStrength(1..5)`, so 0 at priority 1 and 1 at priority 5.
+At priority 1 the value is a flat 1.0 and reorders nothing; at priority 5 the
+component *is* the percentile. UNDECLARED returns NOT_APPLICABLE and leaves
+the coverage denominator — which is not the same as priority 1, a stated
+answer that happens to change nothing.
+
+Weight `0.3`, matching `athleticOutcome`, selected on a plateau.
+
+## Calibration grid (fixture C, priority 5 against priority 1)
+
+| weight | J25 | J100 | acad@25 | minR@10 | maxStr@10 |
+|---|---|---|---|---|---|
+| 0.10 | 0.85 | 0.94 | 5.7 → 5.7 | 0.27 | 37.7 |
+| 0.20 | 0.85 | 0.89 | 5.7 → 5.7 | 0.27 | 37.7 |
+| **0.30** | 0.79 | 0.87 | 5.7 → **5.9** | 0.27 | 37.7 |
+| 0.40 | 0.79 | 0.83 | 5.7 → **6.3** | 0.27 | 37.7 |
+| 0.50 | 0.72 | 0.79 | 5.7 → 6.4 | 0.27 | 37.7 |
+| 0.60 | 0.72 | 0.77 | 5.7 → 6.4 | 0.27 | **39.0** |
+
+Plateau 0.20–0.40; 0.30 is mid-plateau. At 0.60 the top-10 maximum programme
+strength starts to rise, which is academic reaches beginning to arrive.
+HEURISTIC, UNCALIBRATED TO OUTCOMES.
+
+## Fixture C by priority
+
+| priority | acad@10 | acad@25 | str@25 | R@25 | J25 vs undeclared |
+|---|---|---|---|---|---|
+| UNDECLARED | 5.1 | 5.7 | 34.9 | 0.34 | — |
+| 1 | 5.1 | 5.7 | 34.9 | 0.34 | **1.00** |
+| 3 | **6.3** | 5.7 | 34.9 | 0.34 | 0.85 |
+| 5 | **7.6** | 5.9 | 34.3 | 0.34 | 0.79 |
+
+Division composition stays 25 × D3 at every priority. **Median
+recruitability at 25 does not move at all** — the preference reorders
+realistic options and does not import reaches.
+
+## All fixtures, undeclared vs priority 5
+
+| fixture | J25 | J100 | acad@25 | corr(strength, P) |
+|---|---|---|---|---|
+| A | 0.56 | 0.65 | 6.9 → 8.1 | −0.53 → −0.49 |
+| B | 0.72 | 0.75 | 4.8 → 6.1 | −0.49 → −0.49 |
+| C | 0.79 | 0.87 | 5.7 → 5.9 | −0.67 → −0.67 |
+| E | 0.72 | 0.74 | 5.4 → 6.7 | −0.87 → −0.88 |
+| G | 0.52 | 0.74 | 4.9 → 6.3 | −0.90 → −0.90 |
+| H | 0.56 | 0.69 | 6.3 → 7.6 | −0.67 → −0.67 |
+
+Academic strength rises 1–1.4 points everywhere and **the programme-strength
+correlation is unchanged**: this is a preference, not a universal tilt toward
+elite institutions.
+
+## NJCAA re-entry audit
+
+**Zero NJCAA programmes entered any ranked list.** All 228 remain
+LIMITED_DATA for every men's fixture.
+
+The A7.7.4 concern does not materialise, and the reason is worth recording:
+`recruiting_arrivals` is built from roster transitions, NJCAA holds no current
+roster, so its market arm is UNKNOWN as well as its positional arm. The
+evidence floor refuses, exactly as A7.3 intended. The backlog is unchanged —
+authoritative eligibility rule, current roster, minutes evidence.
+
+## internationalPropensity cleanup
+
+Removed from the V2 public surface; nothing scores with it. The module and its
+tests remain as the record of why it was replaced, including the r = 0.941
+between international roster share and arrival share that kept roster share
+out of the model. `INTERNATIONAL_SATURATION` is still shared, because market
+match's international arm uses the same saturation point.
+
+## Pre-validation audit — every issue from the first human review
+
+| issue | status | evidence |
+|---|---|---|
+| False MEASURED-zero roster demand | **FIXED** | A7.7.2: appearances read, three-state starter, rule R-b. 648 false zeros → 0 |
+| Weakest-programme tilt | **PARTLY ADDRESSED** | corr(strength, P) unchanged at −0.5 to −0.9. Market match and academic preference both pull elsewhere, neither targets it. Product judgement, not a defect |
+| Missing academic ambition | **FIXED** | A7.7.5, this phase |
+| Admissions viability | **DESIGNED, DEFERRED** | A7.7.1B §5. Needs coach-support evidence that does not exist |
+| Academic financial leverage | **DEFERRED** | merit-aid evidence is NONE; no proxy permitted |
+| D3 / no-athletic-aid recruitability | **ANSWERED** | A7.7.1B: the gate was never the mechanism; MIT was a data absence |
+| Explanation contradiction | **FIXED** | A7.7.1B §18: positional recruiting evidence vs playing-time opportunity, 8 regression tests |
+| Validation taxonomy | **FIXED** | MODEL_SCOPE_GAP + Q14; numeric reason tags accepted |
+| Roster context in View A | **OPEN** | still not shown; reason codes 4, 5 and 8 remain unanswerable in the blind view |
+| Undeclared ≈ playing-first | **OPEN** | measured at J = 0.90–0.98. Intake question, not a weighting one |
+| NJCAA limited data | **DEFERRED** | unchanged; 228 still LIMITED_DATA, backlog intact |
+
+**Two issues remain open and both are pack-design or intake questions, not
+ranking defects.** Roster context in View A should be fixed before the packs
+are regenerated; the undeclared default is a product decision for Rhys.

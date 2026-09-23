@@ -58,7 +58,7 @@ import { CORE_FLOOR, BEHAVIOUR_WEIGHTS } from '../recruitingRules.js';
  * @param {object} p
  * @param {object} p.athletic      result from athleticPlausibility
  * @param {object} p.positional    result from positionalOpportunity
- * @param {object} p.international result from internationalPropensity
+ * @param {object} p.market       result from recruitingMarket
  */
 export function coachRecruitability({
   athletic, positional, market,

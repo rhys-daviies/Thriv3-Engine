@@ -31,7 +31,7 @@ describe('the objective half scores without any preference at all', () => {
     expect(r.basis.preferenceKnown).toBe(false);
     expect(r.basis.preferencesDeclared).toBe(0);
     expect(r.basis.preferenceValue).toBeNull();
-    expect(r.basis.notApplicable.sort()).toEqual(['athleticOutcome', 'locationFit', 'majorFit']);
+    expect(r.basis.notApplicable.sort()).toEqual(['academicStrengthFit', 'athleticOutcome', 'locationFit', 'majorFit']);
   });
 
   it('reports the objective subtotal separately from the single value', () => {
