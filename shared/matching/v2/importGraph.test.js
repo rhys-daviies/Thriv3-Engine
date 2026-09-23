@@ -58,6 +58,8 @@ const MAY_IMPORT_V2 = [
   'server/scripts/v2D3Diagnostic.js',
   'server/scripts/v2RecruitabilityDiagnostic.js',
   'server/scripts/v2MinutesEvidence.js',
+  'server/scripts/v2RecruitingBehaviour.js',
+  'server/scripts/v2RecruitabilityArchitectures.js',
   'server/scripts/v2ValidationFixtures.js',
   'server/scripts/derivePlayingNorms.js',
   'server/scripts/derivePositionalNorms.js',

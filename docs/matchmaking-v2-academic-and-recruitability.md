@@ -662,3 +662,186 @@ It is a governance workstream with a legal dependency, not a schema change.
   eligibility-rule refusal still fires before it.
 - **MODEL_SCOPE_GAP** — retained in the validation taxonomy; no historical
   review row rewritten.
+
+---
+
+# A7.7.3 — Recruiting behaviour and the Recruitability architecture
+
+**Diagnostic and architectural. Nothing implemented; no scorer changed.**
+
+## Coach Recruitability, restated
+
+> *How plausible is it that this programme would recruit an athlete like this
+> athlete?*
+
+Distinct from **Athlete Opportunity/Fit** ("how useful is this programme to
+the athlete?") and from **positional need** ("does it need this position?"),
+which is one input to it and not the whole of it.
+
+## Signal reliability
+
+Split-half across odd and even arrival seasons, 2023–2026. Same standard that
+rejected newcomer minutes share at r = 0.05.
+
+| signal | men's r | women's r | verdict |
+|---|---|---|---|
+| **within300kmShare** | **0.871** | **0.876** | USABLE — best geographic |
+| **internationalArrivalShare** | **0.877** | **0.755** | USABLE — best overall |
+| sameStateShare | 0.820 | 0.838 | USABLE |
+| freshmanShare | 0.736 | 0.546 | USABLE |
+| medianRecruitDistanceKm | 0.709 | 0.737 | USABLE |
+| newcomerPerRosterRow | 0.687 | 0.415 | MARGINAL (women) |
+| newcomerVolumePerSeason | 0.595 | 0.353 | **MARGINAL — reject** |
+
+### The freshman-share critique
+
+A7.7.1B proposed it at r = 0.663. It survives at 0.736/0.546 but it is **not
+the best signal**, and raw volume is worse than it looks: `newcomerVolume`
+correlates with roster size at **0.71**. It is squad size wearing a
+recruiting-behaviour disguise — exactly the artefact §5 warned about, and the
+same failure mode as the bench term A7.3 removed at r = 0.945.
+
+### Distance beats state, once the states parse
+
+The first pass read only 33% of domestic hometowns. The NCAA stats pages print
+AP style — "Madison, Wis.", "Croton on Hudson, N.Y." — not postal codes, and
+23,636 of 30,287 men's domestic arrivals were being discarded by the parser.
+With AP abbreviations, coverage is **27,321 of 31,240 (87%)** and
+`within300kmShare` overtakes `sameStateShare` (0.871 vs 0.820).
+
+A distance band also avoids the border artefact §6 names: a programme 20 miles
+across a state line is near, and a same-state programme 600 miles away is not.
+
+Domestic footprint, men's: median recruit distance **224 km**, 61% within
+300 km, 50% same state. By division — D1 median 347 km / 37% same-state, D3
+194 km / 51%. Programmes genuinely differ, and consistently.
+
+## International: arrivals, presence, utilisation
+
+| correlation | men's | women's |
+|---|---|---|
+| arrivalShare ↔ rosterShare | **0.963** | 0.947 |
+| arrivalShare ↔ minutesShare | 0.854 | 0.782 |
+| rosterShare ↔ minutesShare | 0.882 | 0.832 |
+| minutesShare ↔ starterShare | **0.971** | 0.919 |
+
+Median `minutesShare − rosterShare` is **0.00**. Programmes that recruit
+internationals and then do not play them: **27 of 757 (3.6%)** men's, 18 of
+996 (1.8%) women's.
+
+**Utilisation adds no independent information for 96% of programmes.** It is a
+real phenomenon at the margin and it is not a component; it is a caveat on the
+few programmes where it applies. Adding it would be double-counting the
+arrival signal four ways.
+
+### Origin granularity
+
+Only **international generally** is supported. Per programme, EUROPE averages
+8.5 arrivals, LATIN_AMERICA 4.0, UK_IRELAND 3.4 — and **OCEANIA 1.5 across
+199 programmes**. A New Zealand or Oceania rule would rest on one or two
+observations per programme. Refused.
+
+## Programme, not coach
+
+| signal | programme | coach |
+|---|---|---|
+| internationalArrivalShare | **0.877** | 0.851 |
+| within300kmShare | **0.871** | 0.846 |
+| sameStateShare | **0.820** | 0.796 |
+| freshmanShare | **0.736** | 0.697 |
+
+Programme-level is higher on **every** signal in both sports. Coach adds
+nothing, and `coach` is 86% populated with 9,470 rows INHERITED rather than
+observed. Use the programme.
+
+## Position-specific
+
+| signal | programme × position |
+|---|---|
+| internationalArrivalShare | 0.707 / 0.566 USABLE |
+| sameStateShare | 0.573 / 0.667 USABLE |
+| freshmanShare | 0.487 / 0.315 **MARGINAL** |
+
+Behaviour does persist at position level for origin signals — but positional
+need is already modelled separately, and splitting the behavioural signal by
+position would halve its samples to answer a question the positional layer
+already asks. Not pursued.
+
+## Double counting
+
+| pair | men's | reading |
+|---|---|---|
+| volume ↔ rosterSize | **0.71** | volume is squad size |
+| freshmanShare ↔ internationalShare | **−0.49** | substantial overlap |
+| sameState ↔ medianDistance | **−0.51** | one construct, pick one |
+| strength ↔ internationalShare | 0.36 | mild; keep division-relative |
+| strength ↔ freshmanShare | −0.36 | mild; keep division-relative |
+| **internationalShare ↔ sameState** | **−0.06** | **independent** |
+
+International propensity and domestic footprint are genuinely separate, which
+is what makes a single **market match** possible: one component, one meaning,
+whichever side of it applies to this athlete.
+
+## Architectures
+
+The decisive test is §22's, and it separates them cleanly. Two identical
+programmes, one with **measured low** positional demand, one with **unknown**:
+
+| architecture | R(measured low) | R(unknown) | verdict |
+|---|---|---|---|
+| CURRENT | 0.382 | — | leaves the list; unknown is not a number |
+| R-A weighted core | 0.529 | **0.870** | **missing evidence rewarded** |
+| R-B evidence-renormalised | 0.529 | **0.870** | **missing evidence rewarded** |
+| R-D positive/negative/unknown | 0.500 | **0.700** | **missing evidence rewarded** |
+| **R-C baseline + modifiers** | 0.529 | 0.506 | does not outrank |
+| **R-C + evidence floor** | 0.529 | 0.506 | does not outrank |
+
+R-A, R-B and R-D fail for one reason: renormalising over the signals that
+happen to exist lets the surviving signal absorb the missing one's weight.
+R-C gives each signal its own slice of the range, so an unknown signal
+contributes nothing rather than nothing-and-a-promotion.
+
+**R-C alone is not sufficient.** It is scoreable whenever athletic
+plausibility is, which would undo A7.3's refusal that plausibility alone is
+not a recruitability score — the NJCAA case. **R-C with an evidence floor**
+keeps both: an unknown contributes nothing, and no behavioural evidence at all
+still refuses.
+
+### Fixture C holds under every candidate
+
+Elite programmes in the top 25: **0** under all five. Top-10 maximum programme
+strength 36.4–39.3 against a pool whose elite sits above 90. No behavioural
+evidence rescues an athletically implausible reach — the ceiling is
+multiplicative and stays multiplicative.
+
+### Tier 3
+
+Market evidence rescues only part of it, because most Tier 3 programmes are
+also thin on arrivals:
+
+| fixture | positional UNSCOREABLE | with market evidence | still unscoreable |
+|---|---|---|---|
+| A / B / C / D | 264 | 58 (22%) | 206 |
+| E | 250 | 49 | 201 |
+| F international | 276 | 91 (33%) | 185 |
+| **G goalkeeper** | **325** | **114 (35%)** | **211** |
+| H women's | 133 | 57 (43%) | 76 |
+
+## Recommended architecture
+
+**R-C with an evidence floor**, carrying two behavioural signals:
+
+1. **Positional recruiting evidence** — unchanged, Tier 1/2/3 as A7.7.2 left it.
+2. **Recruiting market match** — one component, `internationalArrivalShare`
+   for an international athlete and the near/far reading of `within300kmShare`
+   for a domestic one, shrunk toward the division baseline with a pseudo-count
+   of 10 (roughly one recruiting class), and `null` below 8 arrivals.
+
+**Rejected:** newcomer volume (roster size at 0.71), international utilisation
+(0.96 with arrivals; a caveat, not a component), coach-level rates (lower than
+programme on every signal), position-split behaviour (halves the sample to
+answer a question already asked), regional origin below "international"
+(1.5 arrivals per programme at OCEANIA).
+
+Value and confidence stay separate: the score is R-C's, and coverage reports
+how many of the two behavioural signals were known.
