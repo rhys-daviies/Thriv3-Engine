@@ -8,7 +8,7 @@
  * stale. One builder, one query, one place to change.
  */
 import { buildPositionIndex, buildArrivalIndex, divisionArrivalRates } from './rosterEvidence.js';
-import { buildMarketIndex, stateCentroids } from './recruitingMarketEvidence.js';
+import { buildMarketIndex, stateCentroids, utilisationCounts } from './recruitingMarketEvidence.js';
 import { buildRosterIndex } from '../../../shared/matching/pool.js';
 
 export const ROSTER_COLUMNS = `
@@ -45,6 +45,7 @@ export function buildPoolContext({ db, sport, season = '2026', nearBandKm }) {
     arrivalsHorizon: arrivals.reduce((m, r) => Math.max(m, Number(r.arrival_season) || 0), 0),
     centroids,
     marketIndex: buildMarketIndex(marketRows, { centroids, nearBandKm }),
+    utilisation: utilisationCounts(roster),
     marketRows,
   };
 }

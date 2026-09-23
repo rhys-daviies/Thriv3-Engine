@@ -40,6 +40,55 @@ const or = (v, alt = '—') => (v === null || v === undefined || v === '' ? alt 
 /** IPEDS `control`, spelled out. A reviewer should not have to know that 2 means private. */
 const CONTROL_WORD = { 1: 'public', 2: 'private', 3: 'private for-profit' };
 
+/**
+ * The roster, market and academic evidence a reviewer needs to answer the
+ * roster-related questions at all.
+ *
+ * Counts and states only. If a reviewer could reconstruct the model's
+ * conclusion from this block, the blind review is over.
+ */
+function evidenceBlock(f) {
+  const out = [];
+  const r = f.roster;
+  if (r) {
+    const arrivals = r.arrivalsAtPosition === null
+      ? `not yet recorded (arrivals run to ${r.arrivalsRecordedTo})`
+      : `${r.arrivalsAtPosition}`;
+    out.push(`_Roster at ${String(r.position).toLowerCase()}, for entry year ${r.entryYear}:_ `
+      + `${r.positionalRosterCount} on the current roster · `
+      + `${r.departingBeforeEntryYear} depart before the entry year · `
+      + `${r.identifiableDepartingStarters} of them identifiable as starters · `
+      + `${r.eligibleToRemain} eligible to remain · incoming at this position: ${arrivals}`
+      + ` · **evidence ${r.evidenceState}**`
+      + (r.departingPlayersUnplaceable
+        ? ` (${r.departingPlayersUnplaceable} departing player${r.departingPlayersUnplaceable === 1 ? '' : 's'} could not be placed as starter or squad)` : ''));
+    if (!r.rosterOnFile) out.push('_Roster:_ **none on file for this programme.**');
+    else if (!r.eligibilityRuleOnFile) out.push('_Eligibility:_ **no rule established for this association**, so departures cannot be computed.');
+  }
+  const m = f.recruitingMarket;
+  if (m) {
+    if (m.evidenceState === 'FULL' && m.describedAs) {
+      const bits = [`_Recruiting history:_ ${m.recentArrivals} recent arrivals — ${m.describedAs}`];
+      if (m.internationalArrivals !== undefined) bits.push(`${m.internationalArrivals} international`);
+      if (m.recruitsWithin300km !== undefined) bits.push(`${m.recruitsWithin300km} of ${m.domesticRecruitsPlaced} placed recruits came from within ~300 km`);
+      if (m.athleteDistanceKm !== null && m.athleteDistanceKm !== undefined) bits.push(`this athlete's home is about ${m.athleteDistanceKm} km away`);
+      out.push(`${bits.join(' · ')}.`);
+    } else {
+      out.push(`_Recruiting history:_ **insufficient** — ${m.recentArrivals} recent arrivals on file.`);
+    }
+    if (m.internationalRosterShare !== undefined) {
+      out.push(`_International representation:_ ${pct(m.internationalRosterShare)} of the squad, ${pct(m.internationalMinutesShare)} of its minutes (${m.utilisationSampleRosterRows} roster rows).`);
+    }
+  }
+  const a = f.academic;
+  if (a) {
+    out.push(a.evidenceState === 'UNKNOWN'
+      ? '_Academic strength:_ **no measured rating on file.**'
+      : `_Academic strength:_ rating ${num(a.rating, 1)} — ${a.relativeStanding}.`);
+  }
+  return out.join('  \n');
+}
+
 function factBlock(f) {
   if (!f) return '_No programme record._';
   const where = [f.city, f.state].filter(Boolean).join(', ');
@@ -51,7 +100,8 @@ function factBlock(f) {
       + ` · win rate ${pct(f.recentWinPct)} (prior ${pct(f.priorWinPct)})`,
     `Academics: rating ${stated(f.academicRating) ? num(f.academicRating, 1) : 'not rated'} · SAT avg ${or(f.satAvg)} · admit rate ${pct(f.admitRate)}`,
     `Cost: net price ${money(f.netPrice)} · tuition in-state ${money(f.tuitionInState)} / out-of-state ${money(f.tuitionOutState)}`,
-  ].join('  \n');
+    evidenceBlock(f),
+  ].filter(Boolean).join('  \n');
 }
 
 function athleteBlock(a) {
@@ -73,8 +123,9 @@ function athleteBlock(a) {
     row('nationality', a.nationality),
     row('home state', a.state),
     row('recruit type', a.recruitType),
-    row('competitive-level priority (1-5)', a.competitiveLevelPriority ?? 'UNDECLARED'),
-    row('playing-opportunity priority (1-5)', a.playingOpportunityPriority ?? 'UNDECLARED'),
+    row('**competitive-level priority (1-5)**', a.competitiveLevelPriority ?? '**UNDECLARED**'),
+    row('**playing-opportunity priority (1-5)**', a.playingOpportunityPriority ?? '**UNDECLARED**'),
+    row('**academic-strength priority (1-5)**', a.academicStrengthPriority ?? '**UNDECLARED**'),
     row('intended major', a.intendedMajor ?? 'NOT COLLECTED'),
     row('preferred divisions', a.preferredDivisions?.length ? a.preferredDivisions.join(', ') : 'none (no division filter)'),
     row('preferred conferences', a.preferredConferences?.length ? a.preferredConferences.join(', ') : 'none'),
@@ -203,6 +254,26 @@ export function renderPack(pack) {
     '- **WOULD NOT CURRENTLY PURSUE** — would not email this school for this athlete.',
     '- **INSUFFICIENT INFORMATION** — you cannot say. This is not a mild answer; it means the question cannot be answered from what is here.', '');
   w('## The athlete', '', athleteBlock(pack.athlete), '');
+  /**
+   * A7.7.6. The reviewer must know what the athlete actually asked Thriv3 to
+   * optimise before reading a single programme - and must be told plainly
+   * when nobody asked, rather than left to assume a preference the model
+   * never received.
+   */
+  const undeclared = pack.athlete.undeclaredPreferences ?? [];
+  w('### What this athlete asked for', '');
+  w(`- Competitive level: **${pack.athlete.competitiveLevelPriority ?? 'UNDECLARED'}**`
+    + ` · Playing opportunity: **${pack.athlete.playingOpportunityPriority ?? 'UNDECLARED'}**`
+    + ` · Academic strength: **${pack.athlete.academicStrengthPriority ?? 'UNDECLARED'}**`);
+  w(`- Intended major: **${pack.athlete.intendedMajor ?? 'UNDECLARED'}**`
+    + ` · ${pack.athlete.origin === 'International' ? 'International' : 'Domestic'} athlete`
+    + ` · Budget: **${pack.athlete.budgetRange}**`, '');
+  if (undeclared.length) {
+    w(`> **${undeclared.length} of the three core preferences ${undeclared.length === 1 ? 'is' : 'are'} undeclared** (${undeclared.join(', ')}).`,
+      '> Read this list as partially personalised. Thriv3 has not been told what the athlete wants on',
+      '> those axes and has not substituted an answer. How much that should count against a programme',
+      '> is your judgement, not the model\'s.', '');
+  }
   /**
    * Only NEUTRAL notes here. A fixture's `why` says what the model is expected
    * to do with it - "the pathology fixture", "what rank an elite programme

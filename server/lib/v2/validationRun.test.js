@@ -43,6 +43,7 @@ const arrivals = colleges.flatMap((c, i) => Array.from({ length: 10 }, (_, j) =>
 
 const ctx = {
   colleges,
+  roster,
   rosterProgrammes: new Set(roster.map((r) => r.college_name)),
   rosterIndex: buildPositionIndex(roster),
   v1RosterIndex: buildRosterIndex(roster),

@@ -32,6 +32,36 @@ function summarise(values) {
  * @param {Array}  p.colleges
  * @param {Set}    p.rosterProgrammes  names we hold a current roster for
  */
+/**
+ * Academic strength as a percentile of the athlete's own sport pool.
+ *
+ * A NOMINAL 0-10 RATING IS NOT A PERCENTILE. The men's pool runs p10 1.8,
+ * median 4.2, p90 8.1, so raw/10 would put four fifths of it in the bottom
+ * half and make a stated preference nearly inert where most programmes are.
+ *
+ * INFERRED RATINGS ARE EXCLUDED. 27 programmes carry `placeholder` and 4
+ * carry `division-modal`; neither is a measurement of that institution, and
+ * inferring academic strength from division is exactly what A7.7.5 forbids.
+ * They return null, so the component refuses rather than scoring a guess.
+ */
+export function academicPercentileScale(colleges) {
+  const measured = colleges
+    .filter((c) => c.academic_rating !== null && c.academic_rating !== undefined
+      && c.academic_rating_source !== 'placeholder' && c.academic_rating_source !== 'division-modal')
+    .map((c) => Number(c.academic_rating))
+    .sort((a, b) => a - b);
+  return (rating, source) => {
+    if (rating === null || rating === undefined) return null;
+    if (source === 'placeholder' || source === 'division-modal') return null;
+    if (!measured.length) return null;
+    let lo = 0; let hi = measured.length;
+    while (lo < hi) { const m = (lo + hi) >> 1; if (measured[m] < rating) lo = m + 1; else hi = m; }
+    let up = lo;
+    while (up < measured.length && measured[up] === rating) up += 1;
+    return ((lo + up) / 2) / measured.length;
+  };
+}
+
 export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overrides = {} }) {
   const { sport, position } = athlete;
 
@@ -63,24 +93,7 @@ export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overr
    * A7.7.5 forbids inferring academic strength from division. They are passed
    * as null, so the component refuses rather than scoring a guess.
    */
-  const academicScale = (() => {
-    const measured = colleges
-      .filter((c) => c.academic_rating !== null && c.academic_rating !== undefined
-        && c.academic_rating_source !== 'placeholder' && c.academic_rating_source !== 'division-modal')
-      .map((c) => Number(c.academic_rating))
-      .sort((a, b) => a - b);
-    return (rating, source) => {
-      if (rating === null || rating === undefined) return null;
-      if (source === 'placeholder' || source === 'division-modal') return null;
-      if (!measured.length) return null;
-      // Mid-rank, so ties share a percentile rather than being ordered by the sort.
-      let lo = 0; let hi = measured.length;
-      while (lo < hi) { const m = (lo + hi) >> 1; if (measured[m] < rating) lo = m + 1; else hi = m; }
-      let up = lo;
-      while (up < measured.length && measured[up] === rating) up += 1;
-      return ((lo + up) / 2) / measured.length;
-    };
-  })();
+  const academicScale = academicPercentileScale(colleges);
 
   const results = colleges.map((college) => {
     const playing = playingOpportunity({

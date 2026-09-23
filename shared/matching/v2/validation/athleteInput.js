@@ -43,6 +43,7 @@ export const REQUIRED_INPUTS = Object.freeze({
   act_score: { required: false, withoutIt: 'Academic eligibility screens cannot run. Does not affect any V2 layer score.' },
   competitive_level_priority: { required: false, withoutIt: 'UNDECLARED. athleticOutcome goes NOT_APPLICABLE and Opportunity is built from measured evidence only.' },
   playing_opportunity_priority: { required: false, withoutIt: 'UNDECLARED. Component weights stay at their objective values.' },
+  academic_strength_priority: { required: false, withoutIt: 'UNDECLARED. academicStrengthFit goes NOT_APPLICABLE and institutional academic strength reorders nothing.' },
   intended_major: { required: false, withoutIt: 'NOT COLLECTED on the current form. Major fit is NOT_APPLICABLE for every athlete today.' },
   preferred_divisions: { required: false, withoutIt: 'No division filter; nothing is ruled INELIGIBLE on division.' },
 });
@@ -83,6 +84,7 @@ export function buildValidationAthlete({ record, v1Shape, position, profile = {}
   const rating = Number(record.football_ability);
   const level = profile.competitiveLevelPriority ?? readPriority(record.competitive_level_priority);
   const playing = profile.playingOpportunityPriority ?? readPriority(record.playing_opportunity_priority);
+  const academic = profile.academicStrengthPriority ?? readPriority(record.academic_strength_priority);
 
   const missing = [];
   for (const [field, spec] of Object.entries(REQUIRED_INPUTS)) {
@@ -126,7 +128,14 @@ export function buildValidationAthlete({ record, v1Shape, position, profile = {}
     recruitType: recruitType ?? 'NOT COLLECTED — V2 reads only domestic/international and the entry year',
     competitiveLevelPriority: level,
     playingOpportunityPriority: playing,
+    academicStrengthPriority: academic,
     preferenceProfile: preferenceProfileOf(level, playing),
+    /** Which of the three core questions this athlete has actually answered. */
+    undeclaredPreferences: [
+      ...(level === null ? ['competitive_level_priority'] : []),
+      ...(playing === null ? ['playing_opportunity_priority'] : []),
+      ...(academic === null ? ['academic_strength_priority'] : []),
+    ],
     intendedMajor: record.intended_major ?? null,
     preferredDivisions: v1Shape.divisions ?? [],
     preferredConferences: v1Shape.conferences ?? [],
@@ -142,6 +151,14 @@ export function buildValidationAthlete({ record, v1Shape, position, profile = {}
       sport, rating, position,
       entryYear: record.recruiting_class_year,
       isInternational: v1Shape.origin === 'International',
+      /**
+       * REQUIRED by the domestic arm of Recruiting Market Match. Without it
+       * the arm is NOT_APPLICABLE, and where positional evidence is also
+       * unknown the evidence floor refuses - so a pack built without this
+       * would describe a model with 60 fewer ranked programmes than the one
+       * actually running. It did, until A7.7.6 caught it.
+       */
+      homeState: record.state ?? null,
     },
     opportunity: {
       sport, position, rating,
@@ -149,6 +166,7 @@ export function buildValidationAthlete({ record, v1Shape, position, profile = {}
       priorityRanking: v1Shape.criterionRanking?.length ? v1Shape.criterionRanking : null,
       competitiveLevelPriority: level,
       playingOpportunityPriority: playing,
+      academicStrengthPriority: academic,
     },
   };
 
@@ -166,9 +184,42 @@ export function buildValidationAthlete({ record, v1Shape, position, profile = {}
  * reported, because no fixture states either preference.
  */
 export const PROFILES = Object.freeze({
-  UNDECLARED: { competitiveLevelPriority: null, playingOpportunityPriority: null, label: 'neither preference declared' },
-  LEVEL_FIRST: { competitiveLevelPriority: 5, playingOpportunityPriority: 1, label: 'competitive level 5, playing opportunity 1' },
-  PLAYING_FIRST: { competitiveLevelPriority: 1, playingOpportunityPriority: 5, label: 'competitive level 1, playing opportunity 5' },
-  BOTH_HIGH: { competitiveLevelPriority: 5, playingOpportunityPriority: 5, label: 'both priorities 5' },
-  BALANCED: { competitiveLevelPriority: 3, playingOpportunityPriority: 3, label: 'both priorities 3' },
+  UNDECLARED: {
+    competitiveLevelPriority: null, playingOpportunityPriority: null, academicStrengthPriority: null,
+    label: 'no preference declared',
+  },
+  LEVEL_FIRST: {
+    competitiveLevelPriority: 5, playingOpportunityPriority: 1, academicStrengthPriority: null,
+    label: 'competitive level 5, playing opportunity 1, academics undeclared',
+  },
+  PLAYING_FIRST: {
+    competitiveLevelPriority: 1, playingOpportunityPriority: 5, academicStrengthPriority: null,
+    label: 'competitive level 1, playing opportunity 5, academics undeclared',
+  },
+  BOTH_HIGH: {
+    competitiveLevelPriority: 5, playingOpportunityPriority: 5, academicStrengthPriority: null,
+    label: 'both athletic priorities 5, academics undeclared',
+  },
+  BALANCED: {
+    competitiveLevelPriority: 3, playingOpportunityPriority: 3, academicStrengthPriority: null,
+    label: 'both athletic priorities 3, academics undeclared',
+  },
+  /**
+   * A7.7.6. The profile the first human review effectively asked for: an
+   * athlete who has answered all three questions and says academics matter
+   * most. Fixture C's review named academics as the missing preference, so
+   * this is the one that tests whether collecting it was worth doing.
+   */
+  ACADEMIC_FIRST: {
+    competitiveLevelPriority: 3, playingOpportunityPriority: 3, academicStrengthPriority: 5,
+    label: 'competitive level 3, playing opportunity 3, academic strength 5',
+  },
+  FULLY_DECLARED_LEVEL: {
+    competitiveLevelPriority: 5, playingOpportunityPriority: 1, academicStrengthPriority: 3,
+    label: 'competitive level 5, playing opportunity 1, academic strength 3',
+  },
+  FULLY_DECLARED_PLAYING: {
+    competitiveLevelPriority: 1, playingOpportunityPriority: 5, academicStrengthPriority: 3,
+    label: 'competitive level 1, playing opportunity 5, academic strength 3',
+  },
 });

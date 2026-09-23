@@ -93,6 +93,26 @@ export { PROFILES } from '../../shared/matching/v2/index.js';
  * because the two profiles are the comparison; so does H, because the
  * instruction is explicitly not to validate only men's soccer.
  */
+/**
+ * A7.7.6 — the SECOND review set, versioned separately.
+ *
+ * The originals and Rhys's Fixture C review stay exactly where they are. This
+ * set differs in two ways that must not be confused with each other: the
+ * model has changed (A7.7.2 through A7.7.5) and the athletes now declare a
+ * third preference. Fixture C therefore appears TWICE - once undeclared, so
+ * the model change can be read on its own, and once with academics declared,
+ * which is the review the first one asked for.
+ */
+export const PACK_SET_V2 = Object.freeze([
+  { fixture: 'C', profile: 'ACADEMIC_FIRST', why: 'The review the first one asked for: the athlete who says academics matter most. Lead with this.' },
+  { fixture: 'C', profile: 'UNDECLARED', why: 'The same athlete under the original profile, so model change can be separated from new preference information.' },
+  { fixture: 'A', profile: 'FULLY_DECLARED_LEVEL', why: 'A strong athlete who has answered all three questions, level-first.' },
+  { fixture: 'A', profile: 'FULLY_DECLARED_PLAYING', why: 'The same athlete, opposite athletic goal. The pair is the review.' },
+  { fixture: 'G', profile: 'BALANCED', why: 'Goalkeeper, all three declared and none dominant.' },
+  { fixture: 'H', profile: 'ACADEMIC_FIRST', why: 'Women\'s soccer, academics first.' },
+  { fixture: 'F', profile: 'BALANCED', why: 'International athlete, where recruiting market match is the international arm.' },
+]);
+
 export const FIRST_PACK_SET = Object.freeze([
   { fixture: 'C', profile: 'UNDECLARED', why: 'A7.7 §15 - the V1 pathology fixture. Reviewed first: it is the one that decides whether the layered model bought anything.' },
   { fixture: 'A', profile: 'LEVEL_FIRST', why: 'A7.7 §16 - the programme-strength tilt, from the ambitious side.' },

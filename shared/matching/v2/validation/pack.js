@@ -41,9 +41,32 @@ const r4 = (n) => (Number.isFinite(n) ? Number(n.toFixed(4)) : null);
  * operator would look up before emailing anyway. No Thriv3 judgement about
  * this athlete appears here.
  */
-export function programmeFacts(college) {
+/**
+ * Evidence states a blind reviewer may see. These are DESCRIPTIONS OF WHAT WE
+ * HOLD, never of what the model concluded from it.
+ */
+export const EVIDENCE_STATE = Object.freeze({
+  FULL: 'FULL', PARTIAL: 'PARTIAL', INSUFFICIENT: 'INSUFFICIENT', UNKNOWN: 'UNKNOWN',
+});
+
+/**
+ * @param {object} college
+ * @param {object|null} evidence  factual roster / market / academic context,
+ *                                built server-side and carrying no model value
+ */
+export function programmeFacts(college, evidence = null) {
   if (!college) return null;
   return {
+    /**
+     * A7.7.6. The first review found View A asked the reviewer to judge
+     * roster-related recommendations while withholding the roster. Three
+     * reason codes were unanswerable and a fourth was marked on all 43 rows.
+     * These are counts and states only - no component value, no score, no
+     * model conclusion.
+     */
+    roster: evidence?.roster ?? null,
+    recruitingMarket: evidence?.market ?? null,
+    academic: evidence?.academic ?? null,
     name: college.name,
     division: college.division,
     conference: college.conference ?? null,
@@ -117,7 +140,8 @@ function modelRow(entry) {
  * @param {object} [args.ambitionSensitivity] rank under each ambition profile, by programme id
  */
 export function buildPack({
-  packId, provenance, athlete, run, v1Ranks, sample, collegesById, ambitionSensitivity = null,
+  packId, provenance, athlete, run, v1Ranks, sample, collegesById,
+  ambitionSensitivity = null, factsById = null,
 }) {
   const ranked = run.pipeline.ranked;
   const poolMedianPriority = run.pursuitPriority?.median ?? null;
@@ -129,7 +153,7 @@ export function buildPack({
   const viewA = sample.blindOrder.map((row, i) => ({
     reviewNo: i + 1,
     id: row.id,
-    facts: programmeFacts(collegesById.get(row.id)),
+    facts: programmeFacts(collegesById.get(row.id), factsById?.get(row.id) ?? null),
   }));
 
   const blindNo = new Map(viewA.map((v) => [v.id, v.reviewNo]));

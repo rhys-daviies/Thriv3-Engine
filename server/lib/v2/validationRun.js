@@ -15,6 +15,12 @@
  * the blind view.
  */
 import crypto from 'node:crypto';
+
+/** Null unless the record or profile actually states a 1-5 answer. */
+const readPriorityOrNull = (v) => {
+  const n = Number(v);
+  return Number.isInteger(n) && n >= 1 && n <= 5 ? n : null;
+};
 import { normaliseAthlete, rankMatches } from '../../../shared/matching/pool.js';
 import { canonicalPosition } from '../../../shared/positions.js';
 import {
@@ -24,6 +30,8 @@ import {
   buildValidationAthlete, stratifiedSample, buildPack, PROFILES,
 } from '../../../shared/matching/v2/index.js';
 import { runPursuit } from './pursuitRun.js';
+import { buildValidationFacts } from './validationFacts.js';
+import { academicPercentileScale } from './opportunityRun.js';
 
 const digest = (value) => crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0, 16);
 
@@ -53,6 +61,8 @@ export function buildValidationPack({ fixture, profileId, ctx, commits, rosterSe
     record: fixture.player, v1Shape, position, label: `${fixture.id} · ${profile.label}`,
     profile, recruitType: fixture.recruitType ?? null,
   });
+  inputs.academicStrengthPriority = profile.academicStrengthPriority
+    ?? readPriorityOrNull(fixture.player.academic_strength_priority);
 
   /**
    * The pack is named for what was actually used, not for what was asked for.
@@ -134,10 +144,23 @@ export function buildValidationPack({ fixture, profileId, ctx, commits, rosterSe
     poolDigest: poolDigest(colleges),
   };
 
+  /**
+   * A7.7.6. Factual roster, market and academic context for the BLIND view.
+   * Counts and states only - the reviewer must be able to judge the
+   * recommendation without being handed the model's conclusion.
+   */
+  const factsById = buildValidationFacts({
+    colleges, ctx, sport, position,
+    entryYear: fixture.player.recruiting_class_year,
+    athleteState: fixture.player.state ?? null,
+    athleteIsInternational: v1Shape.origin === 'International',
+    academicScale: academicPercentileScale(colleges),
+  });
+
   const pack = buildPack({
     packId, provenance, athlete: inputs, run, v1Ranks, sample,
     collegesById: new Map(colleges.map((c) => [c.id, c])),
-    ambitionSensitivity,
+    ambitionSensitivity, factsById,
   });
 
   pack.whyThisAthlete = fixture.why;

@@ -16,7 +16,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { FIXTURES } from './v2Fixtures.js';
-import { VALIDATION_FIXTURES, FIRST_PACK_SET, ARCHETYPE_COVERAGE, PROFILES } from './v2ValidationFixtures.js';
+import { VALIDATION_FIXTURES, FIRST_PACK_SET, PACK_SET_V2, ARCHETYPE_COVERAGE, PROFILES } from './v2ValidationFixtures.js';
 
 const SEASON = '2026';
 const DEFAULT_OUT = 'docs/validation';
@@ -25,7 +25,7 @@ const DEFAULT_OUT = 'docs/validation';
 const V1_FREEZE_COMMIT = '480a915645425c3286a19c2da10e3a1d60b3a3ec';
 
 function usage(code) {
-  console.error('Usage: v2ValidationPack.js (--first-set | --fixture=<A-H|V-ELITE|V-WMID> | --athlete=<file.json>) [--profile=<UNDECLARED|LEVEL_FIRST|PLAYING_FIRST|BOTH_HIGH|BALANCED>] [--out=dir] [--quiet]');
+  console.error('Usage: v2ValidationPack.js (--first-set | --v2-set | --fixture=<A-H|V-ELITE|V-WMID> | --athlete=<file.json>) [--profile=<UNDECLARED|LEVEL_FIRST|PLAYING_FIRST|BOTH_HIGH|BALANCED>] [--out=dir] [--quiet]');
   console.error('  --athlete  a real Thriv3 athlete in the player shape. Nothing about them is committed.');
   process.exit(code);
 }
@@ -69,15 +69,16 @@ function loadAthleteFile(file) {
 async function main() {
   const args = process.argv.slice(2);
   const firstSet = args.includes('--first-set');
+  const v2Set = args.includes('--v2-set');
   const quiet = args.includes('--quiet');
   const out = args.find((a) => a.startsWith('--out='))?.split('=')[1] ?? DEFAULT_OUT;
   const one = args.find((a) => a.startsWith('--fixture='))?.split('=')[1];
   const athleteFile = args.find((a) => a.startsWith('--athlete='))?.split('=')[1];
   const profileArg = args.find((a) => a.startsWith('--profile='))?.split('=')[1]?.toUpperCase() ?? 'UNDECLARED';
-  if ([firstSet, Boolean(one), Boolean(athleteFile)].filter(Boolean).length !== 1) usage(2);
+  if ([firstSet, v2Set, Boolean(one), Boolean(athleteFile)].filter(Boolean).length !== 1) usage(2);
 
   const fromFile = athleteFile ? loadAthleteFile(athleteFile) : null;
-  const wanted = firstSet
+  const wanted = v2Set ? PACK_SET_V2 : firstSet
     ? FIRST_PACK_SET
     : [{ fixture: fromFile ? fromFile.id : one, profile: profileArg, why: fromFile ? 'real athlete' : 'ad hoc' }];
   for (const w of wanted) {
@@ -143,7 +144,15 @@ async function main() {
       fixture, profileId: w.profile, ctx, commits, rosterSeason: SEASON, generatedAt,
     });
     pack.purpose = w.why;
-    const base = path.join(out, `pack-${pack.packId}`);
+    /**
+     * VERSIONED. The A7.6 packs keep their names and their review; nothing
+     * here may overwrite them, and a refusal is better than a clobber.
+     */
+    const base = path.join(out, `pack-${pack.packId}${v2Set ? '-v2' : ''}`);
+    if (v2Set && fs.existsSync(`${base}.md`) && !args.includes('--force')) {
+      console.error(`Refusing to overwrite ${base}.md — pass --force only if you mean it.`);
+      process.exit(5);
+    }
     fs.writeFileSync(`${base}.md`, renderPack(pack));
     fs.writeFileSync(`${base}.json`, `${JSON.stringify(pack, null, 2)}\n`);
     written.push({ packId: pack.packId, md: `${base}.md`, json: `${base}.json`, pack });
@@ -155,9 +164,10 @@ async function main() {
     }
   }
 
-  if (firstSet) {
-    fs.writeFileSync(path.join(out, 'README.md'), renderIndex(written, commits, generatedAt));
-    written.push({ packId: 'README', md: path.join(out, 'README.md') });
+  if (firstSet || v2Set) {
+    const indexName = v2Set ? 'README-v2.md' : 'README.md';
+    fs.writeFileSync(path.join(out, indexName), renderIndex(written, commits, generatedAt));
+    written.push({ packId: indexName, md: path.join(out, indexName) });
   }
   if (!quiet) {
     console.log('');
