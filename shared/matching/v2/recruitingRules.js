@@ -74,32 +74,70 @@ export function fillPropensity({ sport, division, position, programme }) {
 }
 
 /**
- * The slope of the athletic-plausibility logistic, in percentile points.
+ * ATHLETIC RECRUITING COMPATIBILITY, and the three numbers that shape it.
  *
- * HEURISTIC. `s` is the scale over which a coach's interest changes: at s =
- * 0.12 an athlete ten percentile points below a programme scores 0.30 and one
- * thirty points below scores 0.08. Translated into real programmes, a rating-8
- * athlete is at California, a reach at UNC Greensboro (-0.05) and a stretch at
- * Maryland (-0.10).
+ * The question is "on athletic level alone, how compatible is this athlete
+ * with the level this programme recruits at". It is a DECLARED HEURISTIC
+ * COMPATIBILITY FACTOR, not a probability: nothing here is estimated from
+ * coach replies, offers or any other outreach response, because none are held.
+ * When that data exists it may replace these constants; until then they are a
+ * stated design position and should be read as one.
  *
- * Not fitted, and deliberately not fittable from destination recall: where an
- * athlete ended up is decided by who recruited and offered first as much as by
- * whether a coach would have been interested. Chosen instead for the shape the
- * sensitivity run reports - s <= 0.08 turns the curve into a filter wearing a
- * score's clothing, s >= 0.20 leaves an implausible reach scoring 0.18.
+ * -- WHY THE SHAPE IS ASYMMETRIC --------------------------------------------
+ *
+ * The axis is percentiles of the programme-strength distribution, and that
+ * distribution is not evenly spread. For a men's rating-9 athlete the whole
+ * span from their own level to the strongest programme in the country is 0.039
+ * percentile points, while the span from their level to a mid-table Division
+ * III side is 0.58 - about eleven times less resolution above them than below.
+ * A symmetric curve therefore cannot tell "at level" from "a genuine reach"
+ * without also flattening everything below; every symmetric alternative tested
+ * in A7.7.13 either left at-level programmes compressed or carried Stanford
+ * into the outreach slice alongside them.
+ *
+ * An asymmetric curve can, because it spends its steepness in exactly those
+ * few points. THIS IS COMPENSATION FOR A KNOWN LIMITATION OF THE REFERENCE
+ * AXIS, not a discovery about how coaches behave. If the axis is ever replaced
+ * with a measure of recruiting competition rather than programme density,
+ * these three constants must be derived again from scratch.
  */
-export const PLAUSIBILITY_SLOPE = 0.12;
 
 /**
- * Where the logistic passes one half.
+ * Compatibility at the athlete's own level.
  *
- * HEURISTIC, and held at zero on purpose: parity. An athlete at exactly a
- * programme's own level is an even proposition. Moving it would be a claim
- * about how far above or below their level coaches typically sign, and no
- * measurement here supports one - the only data that could fit it is
- * destination recall, which answers a different question.
+ * HEURISTIC. The ability scale already declares what a rating means: a men's
+ * rating 9 IS the 96th percentile, equivalent to a programme scoring 83.58. An
+ * athlete standing at the level the calibration places them is an ordinary
+ * member of that programme's recruiting class, so this is high rather than
+ * even. The previous value of one half discounted the same fact twice - once
+ * in the calibration and again in the curve - and because this term multiplies
+ * recruitability, the second discount halved every at-level programme.
  */
-export const PLAUSIBILITY_MIDPOINT = 0;
+export const COMPATIBILITY_AT_LEVEL = 0.80;
+
+/**
+ * How quickly compatibility falls away BELOW the programme's level, in
+ * percentile points.
+ *
+ * HEURISTIC. Roster places are contested, so a coach with better options takes
+ * them: five points below scores 0.43, ten points 0.23, twenty points 0.07.
+ * The A7.7.13 surface found this to be the sensitive parameter - the safe
+ * region runs 0.07 to 0.09, and at 0.12 a national contender reaches the
+ * outreach slice for an athlete who is not close to it.
+ */
+export const COMPATIBILITY_DECAY = 0.08;
+
+/**
+ * How quickly compatibility saturates toward 1 ABOVE the programme's level.
+ *
+ * HEURISTIC, and held equal to the decay so the curve keeps two parameters
+ * rather than three. The direction is the whole point: OVERQUALIFICATION IS
+ * NEVER PENALISED HERE. A Division III coach does not turn down a Division I
+ * player, so the curve rises and never falls. If a strong athlete does not
+ * WANT a weak programme, that is a preference and it belongs in Athlete
+ * Opportunity, where competitive-level priority already carries it.
+ */
+export const COMPATIBILITY_RISE = 0.08;
 
 /**
  * The share of athletic plausibility that survives when no other recruiting

@@ -1,10 +1,18 @@
 /**
- * Would a coach at this programme consider an athlete at this level at all?
+ * ATHLETIC RECRUITING COMPATIBILITY.
+ *
+ * On athletic level alone, how compatible is this athlete with the level this
+ * programme recruits at?
  *
  * ONE SIGNAL, and the only place athletic ability enters V2. It is not a
  * component of recruitability - it is the CEILING on it, applied in
  * recruitability.js, so that no amount of roster need makes a clearly
- * under-level athlete a plausible recruit.
+ * under-level athlete a compatible recruit.
+ *
+ * NOT A PROBABILITY. It does not estimate how often a coach would reply, how
+ * likely an offer is, or anything else we could only learn from real outreach
+ * responses. It is a declared heuristic compatibility factor, and the
+ * constants behind it say so in `recruitingRules.js`.
  *
  * -- WHY NOT V1's GAUSSIAN --------------------------------------------------
  *
@@ -13,7 +21,8 @@
  * pass the programme's own standard. That is a statement about the athlete's
  * preferences wearing the coach's name: a Division III coach does not turn
  * down a Division I player. The curve here is monotone and saturating, so
- * being stronger never reduces a coach's interest.
+ * being stronger never reduces compatibility. An athlete who does not WANT a
+ * weaker programme is answered in Athlete Opportunity, not here.
  *
  * -- THE AXIS ---------------------------------------------------------------
  *
@@ -27,18 +36,33 @@
  * gap means something different at 40 than at 90, and because the calibrated
  * rating is only defined on that axis.
  *
- *   A = 1 / (1 + exp(-(delta - delta0) / s))
+ * -- THE FORM ---------------------------------------------------------------
  *
- * Structural form here; delta0 and s live in recruitingRules.js as declared
- * heuristics.
+ * Asymmetric about the athlete's own level, because the axis is asymmetric:
+ * it compresses severely at the top, where "at level" and "a genuine reach"
+ * are a few percentile points apart. See `recruitingRules.js` for the
+ * measurement and for why this is compensation rather than a finding.
+ *
+ *   delta <  0   A = a0 x exp(delta / decay)
+ *   delta >= 0   A = a0 + (1 - a0) x (1 - exp(-delta / rise))
+ *
+ * Continuous at zero, where it equals a0; monotone non-decreasing throughout;
+ * bounded by (0, 1). Structural form here; a0, decay and rise live in
+ * recruitingRules.js as declared heuristics.
  */
 import { GRADE, REASON, scoreable, unscoreable } from '../types.js';
 import { abilityToPercentile, percentileOf, abilityToProgrammeScore } from '../calibration/abilityScale.js';
-import { PLAUSIBILITY_SLOPE, PLAUSIBILITY_MIDPOINT } from '../recruitingRules.js';
+import { COMPATIBILITY_AT_LEVEL, COMPATIBILITY_DECAY, COMPATIBILITY_RISE } from '../recruitingRules.js';
 
 /** The structural form, separated from its parameters so both can be tested alone. */
-export function plausibilityFromDelta(delta, { slope = PLAUSIBILITY_SLOPE, midpoint = PLAUSIBILITY_MIDPOINT } = {}) {
-  return 1 / (1 + Math.exp(-(delta - midpoint) / slope));
+export function plausibilityFromDelta(delta, {
+  atLevel = COMPATIBILITY_AT_LEVEL,
+  decay = COMPATIBILITY_DECAY,
+  rise = COMPATIBILITY_RISE,
+} = {}) {
+  return delta < 0
+    ? atLevel * Math.exp(delta / decay)
+    : atLevel + ((1 - atLevel) * (1 - Math.exp(-delta / rise)));
 }
 
 /**
@@ -47,7 +71,7 @@ export function plausibilityFromDelta(delta, { slope = PLAUSIBILITY_SLOPE, midpo
  * @param {number|null} p.soccerScore   the programme's strength
  * @param {string} p.sport
  */
-export function athleticPlausibility({ rating, soccerScore, sport, slope, midpoint }) {
+export function athleticPlausibility({ rating, soccerScore, sport, atLevel, decay, rise }) {
   if (rating === null || rating === undefined || !Number.isFinite(Number(rating))) {
     return unscoreable({ reason: REASON.NO_ATHLETE_LEVEL, missing: ['athleteRating'], available: [] });
   }
@@ -58,7 +82,7 @@ export function athleticPlausibility({ rating, soccerScore, sport, slope, midpoi
   const athletePercentile = abilityToPercentile(Number(rating), sport);
   const programmePercentile = percentileOf(Number(soccerScore), sport);
   const delta = athletePercentile - programmePercentile;
-  const value = plausibilityFromDelta(delta, { slope, midpoint });
+  const value = plausibilityFromDelta(delta, { atLevel, decay, rise });
 
   return scoreable({
     value,
@@ -73,9 +97,10 @@ export function athleticPlausibility({ rating, soccerScore, sport, slope, midpoi
       soccerScore: Number(soccerScore),
       programmePercentile,
       delta,
-      slope: slope ?? PLAUSIBILITY_SLOPE,
-      midpoint: midpoint ?? PLAUSIBILITY_MIDPOINT,
-      form: 'logistic in percentile space',
+      atLevel: atLevel ?? COMPATIBILITY_AT_LEVEL,
+      decay: decay ?? COMPATIBILITY_DECAY,
+      rise: rise ?? COMPATIBILITY_RISE,
+      form: 'asymmetric exponential in percentile space',
     },
   });
 }

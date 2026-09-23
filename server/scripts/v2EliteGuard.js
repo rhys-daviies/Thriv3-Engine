@@ -7,6 +7,13 @@
  *   node server/scripts/v2EliteGuard.js --audit
  *   node server/scripts/v2EliteGuard.js --sweep
  *   node server/scripts/v2EliteGuard.js --trace="Bryn Athyn"
+ *   node server/scripts/v2EliteGuard.js --reach
+ *
+ * A7.7.14 added `--reach`: the athlete-relative reach guard, run across every
+ * fixture under BOTH an undeclared and a level-first preference profile. The
+ * second profile is not optional - the A7.7.13 surface found a regression that
+ * an undeclared run alone did not show, because a stated level preference is
+ * what lifts a strong programme far enough for the guard to matter.
  *
  * THE COHORT: academic_rating >= 8 AND soccer_score >= 55 - elite on both
  * axes, which for a rating-3 athlete is the case Fixture C exists to guard
@@ -82,7 +89,56 @@ function describe(entry, college) {
 
 async function main() {
   const args = process.argv.slice(2);
-  if (!args.length) { console.error('Usage: --audit | --sweep | --trace="Name"'); process.exit(2); }
+  if (!args.length) { console.error('Usage: --audit | --sweep | --reach | --trace="Name"'); process.exit(2); }
+
+  if (args.includes('--reach')) {
+    const { PROFILES } = await import('./v2ValidationFixtures.js');
+    const { buildValidationAthlete, abilityToProgrammeScore } = await import('../../shared/matching/v2/index.js');
+    /**
+     * BASELINES, recorded rather than asserted as zero.
+     *
+     * Production already places one far-above programme inside the outreach
+     * slice: Stanford, for the strong low-budget athlete who has asked for
+     * level, at a net price of $13,807. Defining the guard as "no reaches"
+     * would have failed on the day it was written, so it is defined as "no
+     * worse than what A7.7.13 approved".
+     */
+    const BASELINE = { worstRankAllowed: 66, maxIntrusions: 1 };
+    const rows = [];
+    for (const f of FIXTURES) {
+      for (const pid of ['UNDECLARED', 'LEVEL_FIRST']) {
+        const sport = f.player.sport;
+        const position = canonicalPosition(f.player.position);
+        const ctx = buildPoolContext({ db, sport, season: SEASON });
+        const v1Shape = normaliseAthlete({ ...f.player, preferred_divisions: '[]', preferred_conferences: '[]' });
+        const { athlete } = buildValidationAthlete({
+          record: f.player, v1Shape, position, label: f.id, profile: PROFILES[pid], recruitType: null,
+        });
+        const rep = runPursuit({ athlete, sport, colleges: ctx.colleges, ctx });
+        const byId = new Map(ctx.colleges.map((c) => [c.id, c]));
+        const eq = abilityToProgrammeScore(f.player.football_ability, sport);
+        const intruders = rep.pipeline.ranked
+          .filter((e) => e.rank <= 100)
+          .map((e) => ({ name: e.name, rank: e.rank, strength: byId.get(e.id)?.soccer_score }))
+          .filter((e) => Number.isFinite(e.strength) && e.strength - eq >= 10);
+        rows.push({ fixture: f.id, profile: pid, eq, intruders });
+      }
+    }
+    let worst = null; let total = 0;
+    for (const r of rows) {
+      total += r.intruders.length;
+      for (const i of r.intruders) if (!worst || i.rank < worst.rank) worst = { ...i, fixture: r.fixture, profile: r.profile };
+      console.log(`${r.fixture.padEnd(46)}${r.profile.padEnd(16)} equivalent ${N(r.eq, 1).padStart(5)}  intrusions ${r.intruders.length}${r.intruders.length ? `  ${r.intruders.map((i) => `${i.name} #${i.rank} (${N(i.strength, 1)})`).join(', ')}` : ''}`);
+    }
+    console.log('');
+    console.log(`total far-above intrusions inside the first 100: ${total}`);
+    console.log(`worst: ${worst ? `${worst.name} #${worst.rank} [${worst.fixture} / ${worst.profile}]` : 'none'}`);
+    const failed = total > BASELINE.maxIntrusions || (worst && worst.rank < BASELINE.worstRankAllowed);
+    console.log(`baseline: at most ${BASELINE.maxIntrusions} intrusion, none better placed than #${BASELINE.worstRankAllowed}`);
+    console.log(failed ? 'REACH GUARD FAILED' : 'reach guard holds');
+    if (failed) process.exit(1);
+    return;
+  }
 
   if (args.includes('--audit')) {
     const { rep, byId } = run(5);

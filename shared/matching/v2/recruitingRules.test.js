@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   POSITIONS, NORMS, NORMS_ID, NORMS_DIGEST,
   typicalStarters, typicalStartersEvidence, fillPropensity,
-  PLAUSIBILITY_SLOPE, PLAUSIBILITY_MIDPOINT, CORE_FLOOR,
+  COMPATIBILITY_AT_LEVEL, COMPATIBILITY_DECAY, COMPATIBILITY_RISE, CORE_FLOOR,
   ARRIVAL_CLAIM_WEIGHT, MAX_CLAIM_SHARE, CORE_WEIGHTS, RECRUITABILITY_COVERAGE_FLOOR,
 } from './recruitingRules.js';
 
@@ -101,9 +101,22 @@ describe('the pinned norms carry their own provenance', () => {
 });
 
 describe('the declared heuristics', () => {
-  it('states the slope and midpoint of the plausibility curve', () => {
-    expect(PLAUSIBILITY_SLOPE).toBe(0.12);
-    expect(PLAUSIBILITY_MIDPOINT).toBe(0);
+  it('states the three constants of the athletic recruiting compatibility curve', () => {
+    expect(COMPATIBILITY_AT_LEVEL).toBe(0.80);
+    expect(COMPATIBILITY_DECAY).toBe(0.08);
+    expect(COMPATIBILITY_RISE).toBe(0.08);
+  });
+
+  it('keeps at-level compatibility high rather than even', () => {
+    // The A7.7.13 correction, pinned: an athlete at the level the calibration
+    // places them is an ordinary recruit for that programme, not a coin flip.
+    expect(COMPATIBILITY_AT_LEVEL).toBeGreaterThan(0.5);
+    expect(COMPATIBILITY_AT_LEVEL).toBeLessThan(1);
+  });
+
+  it('keeps the decay inside the region the robustness surface found safe', () => {
+    expect(COMPATIBILITY_DECAY).toBeGreaterThanOrEqual(0.07);
+    expect(COMPATIBILITY_DECAY).toBeLessThanOrEqual(0.09);
   });
 
   it('keeps the core floor inside the unit interval and away from both ends', () => {

@@ -48,7 +48,7 @@ export function evaluateRecruitability({
   const results = colleges.map((college) => {
     const plaus = athleticPlausibility({
       rating, soccerScore: college.soccer_score, sport,
-      slope: overrides.slope, midpoint: overrides.midpoint,
+      atLevel: overrides.atLevel, decay: overrides.decay, rise: overrides.rise,
     });
     const evidence = positionEvidence({
       programme: college.name, position, sport, division: college.division,

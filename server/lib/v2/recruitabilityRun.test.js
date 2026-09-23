@@ -153,10 +153,16 @@ describe('the things that must move it', () => {
 });
 
 describe('the heuristic overrides the sensitivity run uses', () => {
-  it('a steeper slope lowers a reaching athlete median', () => {
-    const steep = run({ rating: 4 }, { slope: 0.08 }).recruitability.median;
-    const shallow = run({ rating: 4 }, { slope: 0.2 }).recruitability.median;
+  it('a faster decay lowers a reaching athlete median', () => {
+    const steep = run({ rating: 4 }, { decay: 0.06 }).recruitability.median;
+    const shallow = run({ rating: 4 }, { decay: 0.2 }).recruitability.median;
     expect(steep).toBeLessThan(shallow);
+  });
+
+  it('a lower at-level value lowers everyone', () => {
+    const low = run({ rating: 4 }, { atLevel: 0.6 }).recruitability.median;
+    const high = run({ rating: 4 }, { atLevel: 0.9 }).recruitability.median;
+    expect(low).toBeLessThan(high);
   });
 
   it('a higher phi raises everything without changing what is scoreable', () => {

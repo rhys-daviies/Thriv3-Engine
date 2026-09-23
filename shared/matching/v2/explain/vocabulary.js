@@ -235,7 +235,7 @@ export const FORBIDDEN_LANGUAGE = Object.freeze([
  * NAMING ONLY. No component, weight, coverage rule or reason changes here.
  */
 export const COMPONENT_LABEL = Object.freeze({
-  athleticPlausibility: 'the athletic level comparison',
+  athleticPlausibility: 'athletic recruiting compatibility',
   positionalOpportunity: 'positional recruiting evidence',
   internationalPropensity: 'international recruiting history',
   playingOpportunity: 'playing-time opportunity',

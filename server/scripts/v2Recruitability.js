@@ -55,7 +55,8 @@ function printReport(f, rep, top, row) {
 }
 
 const GRID = [
-  ['slope', 'slope', [0.08, 0.10, 0.12, 0.15, 0.20]],
+  ['atLevel', 'atLevel', [0.70, 0.75, 0.80, 0.85, 0.90]],
+  ['decay', 'decay', [0.07, 0.08, 0.09, 0.12, 0.16]],
   ['phi', 'phi', [0.2, 0.35, 0.5]],
   ['floor', 'floor', [0.4, 0.5, 0.6, 0.75]],
   ['arrivalClaim', 'opportunityWeights.arrivalClaim', [0.3, 0.6, 1.0]],
