@@ -92,3 +92,33 @@ is that we never asked the question that would resolve it.
 *"cost is not a meaningful constraint."* **Do not implement intake changes
 yet** — this is recorded so the Fixture A financial values can be read
 correctly, not as a scheduled change.
+
+---
+
+## 5. A roster line that does not add up
+
+**Found:** while selecting counterfactual pairs (A7.7.10).
+
+Ten of the 858 ranked programmes in the Fixture A run render a blind roster
+line of the form:
+
+> *11 on the current roster · 0 depart before the entry year · 0 of them
+> identifiable as starters · **0 eligible to remain** · evidence FULL*
+
+Eleven players are on the roster and none of them is either leaving or
+staying. The underlying numbers are each correct — nobody's class year places
+them as departing, and `eligibleToRemain` counts only those the eligibility
+rule can place as remaining — but the rendered line reads as a contradiction,
+and `evidence FULL` compounds it because the FULL state is awarded whenever
+the departing cohort is empty.
+
+Affected in this run: Bates, Northwestern, Bowdoin, University of the
+Southwest (New Mexico), Hamilton, Elmira, Lakeland, Saint Joseph's (ME) and
+two others. Bowdoin was dropped from the counterfactual design for this
+reason.
+
+**Repair:** presentation. Either say what the unaccounted players are — the
+eligibility rule could not place them — or omit the two zeros rather than
+asserting them. **Do not change the evidence state or the scoring**; the
+positional layer's own handling is unaffected, and a reviewer misreading the
+line is an instrument defect, not a model one.
