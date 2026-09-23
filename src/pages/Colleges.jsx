@@ -91,6 +91,12 @@ export default function Colleges() {
         >
           NCAA roster gaps
         </Link>
+        <Link
+          to="/colleges/season-trust"
+          className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4"
+        >
+          Historical season trust
+        </Link>
       </div>
 
       <div className="flex flex-wrap gap-1.5">

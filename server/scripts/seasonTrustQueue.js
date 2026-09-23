@@ -46,6 +46,83 @@ export function trustQueue() {
   const division = db.prepare('SELECT division FROM colleges WHERE name = ? AND sport = ?');
   const window = new Set(SEASONS.map(String));
 
+  /*
+   * L8D — THE PROVENANCE A REVIEWER NEEDS, AND NOTHING INVENTED.
+   *
+   * `SEASON_IDENTITY_UNPROVEN` says nothing establishes WHICH season these rows
+   * represent. Deciding that needs the things L7Z started recording: what page
+   * the rows came from, what season that page declared, when it was fetched,
+   * which parser read it. All four are NULL for every record diagnosed before
+   * L7Z existed, and they are reported as null rather than defaulted — absent
+   * provenance is the finding, not a blank to be filled.
+   */
+  const provenance = db.prepare(`
+    SELECT COUNT(*) rows,
+           COUNT(DISTINCT source_roster_url)  distinctUrls,
+           MIN(source_roster_url)             sourceUrl,
+           COUNT(source_page_season)          withPageSeason,
+           MIN(source_page_season)            pageSeasonMin,
+           MAX(source_page_season)            pageSeasonMax,
+           COUNT(source_fetched_at)           withFetchedAt,
+           MIN(source_fetched_at)             fetchedAt,
+           COUNT(DISTINCT source_parser)      distinctParsers,
+           MIN(source_parser)                 parser
+      FROM roster_players
+     WHERE college_name = ? AND sport = ? AND season = ?`);
+
+  /* Row counts either side, so "is there a season to compare against" is answerable. */
+  const adjacent = db.prepare(`
+    SELECT season, COUNT(*) n FROM roster_players
+     WHERE college_name = ? AND sport = ? GROUP BY season ORDER BY season`);
+
+  /*
+   * How many of this season's names also appear in another season of the same
+   * programme. A page that repeats last year's squad and a page that is simply
+   * a stable squad look identical in a row count and different here — which is
+   * evidence for the reviewer, not a verdict. Names only: no rule is applied.
+   */
+  const overlap = db.prepare(`
+    SELECT COUNT(DISTINCT a.player_name) shared
+      FROM roster_players a
+      JOIN roster_players b
+        ON b.college_name = a.college_name AND b.sport = a.sport
+       AND b.player_name = a.player_name AND b.season = ?
+     WHERE a.college_name = ? AND a.sport = ? AND a.season = ?`);
+
+  /** Everything stored about one record, with absence reported as absence. */
+  function caseEvidence(r) {
+    const p = provenance.get(r.college_name, r.sport, r.season);
+    const seasons = adjacent.all(r.college_name, r.sport)
+      .map((x) => ({ season: String(x.season), rows: x.n }));
+    const here = Number(r.season);
+    const neighbours = seasons
+      .filter((x) => x.season !== String(r.season) && Math.abs(Number(x.season) - here) <= 1)
+      .map((x) => ({
+        ...x,
+        /* Shared names, and the share of THIS season they account for. */
+        sharedNames: overlap.get(x.season, r.college_name, r.sport, r.season).shared,
+      }));
+    return {
+      rows: p.rows,
+      source: {
+        /* One URL is the common case; more than one is itself worth seeing. */
+        url: p.sourceUrl,
+        distinctUrls: p.distinctUrls,
+        /*
+         * Null means NOT RECORDED. L7Z added these columns and nothing
+         * backfills them, so a record diagnosed before that has no answer and
+         * must not be given one.
+         */
+        pageSeason: p.withPageSeason ? [p.pageSeasonMin, p.pageSeasonMax] : null,
+        pageSeasonRowsRecorded: p.withPageSeason,
+        fetchedAt: p.withFetchedAt ? p.fetchedAt : null,
+        parser: p.distinctParsers ? p.parser : null,
+      },
+      seasonsHeld: seasons,
+      neighbours,
+    };
+  }
+
   return recs.map((r) => {
     const div = division.get(r.college_name, r.sport)?.division ?? null;
     return {
@@ -59,6 +136,7 @@ export function trustQueue() {
       // stated rather than assumed so a reader never has to infer it.
       excludedFromEvidence: isExcluded(r),
       reviewState: r.disposition ? 'DISPOSITIONED' : 'PENDING_REVIEW',
+      evidenceForReview: caseEvidence(r),
     };
   }).sort((a, b) =>
     Number(b.evidenceExposed) - Number(a.evidenceExposed)

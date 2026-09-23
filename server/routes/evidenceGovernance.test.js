@@ -448,3 +448,167 @@ describe('L8C/6 — the read model keeps unreviewed, retained and excluded apart
     ]).size).toBe(3);
   });
 });
+
+/* ------------------------------------------------------------------------ */
+/* L8D — the operator review surface over the same governed mechanism.       */
+/* ------------------------------------------------------------------------ */
+
+const queue = async (opts = {}) => {
+  const res = await fetch(`${base}/api/roster-season-trust`, {
+    headers: { origin: ORIGIN, ...(opts.cookie === null ? {} : { cookie }) },
+  });
+  return { status: res.status, body: await res.json() };
+};
+const rebuild = (body, opts = {}) => fetch(`${base}/api/roster-season-trust/rebuild`, {
+  method: 'POST',
+  headers: {
+    'content-type': 'application/json',
+    ...(opts.origin === null ? {} : { origin: opts.origin ?? ORIGIN }),
+    ...(opts.cookie === null ? {} : { cookie: opts.cookie ?? cookie }),
+  },
+  body: JSON.stringify(body),
+});
+const caseFor = async (name) => (await queue()).body.records
+  .find((r) => r.identity.college_name === name);
+
+describe('L8D/1 — the queue carries what a reviewer needs to decide', () => {
+  it('reports the case evidence, and absence as absence', async () => {
+    const c = await caseFor(DROP);
+    expect(c.machine.diagnosis).toBe('SEASON_IDENTITY_UNPROVEN');
+    expect(c.review_evidence.rows).toBe(3);
+    expect(c.review_evidence.seasonsHeld).toEqual([{ season: SEASON, rows: 3 }]);
+    /*
+     * The fixture records no page season, fetch time or parser -- exactly as
+     * the real 13 do not. They must arrive as null so the screen can say
+     * UNKNOWN rather than inventing "none".
+     */
+    expect(c.review_evidence.source.pageSeason).toBeNull();
+    expect(c.review_evidence.source.fetchedAt).toBeNull();
+    expect(c.review_evidence.source.parser).toBeNull();
+    /* No adjacent season exists here, and that is said rather than implied. */
+    expect(c.review_evidence.neighbours).toEqual([]);
+  });
+
+  it('counts shared names with an adjacent season without drawing a conclusion', async () => {
+    /* Same three names again in the prior season: the repeated-page shape. */
+    const NOW = '2026-09-23T00:00:00.000Z';
+    const ins = db.prepare(`INSERT INTO roster_players
+        (created_date, updated_date, college_name, sport, division, season, player_name,
+         class_year_label, position, minutes_played)
+      VALUES ('${NOW}', '${NOW}', ?, ?, 'NCAA D3', '2023', ?, 'Freshman', 'Forward', 900)`);
+    for (const n of ['Alpha', 'Bravo', 'Charlie']) ins.run(DROP, SPORT, `${DROP} ${n}`);
+
+    const c = await caseFor(DROP);
+    const prior = c.review_evidence.neighbours.find((n) => n.season === '2023');
+    expect(prior).toBeTruthy();
+    expect(prior.sharedNames).toBe(3);
+    expect(prior.rows).toBe(3);
+    /* A count, and no verdict field anywhere on it. */
+    expect(Object.keys(prior).sort()).toEqual(['rows', 'season', 'sharedNames']);
+  });
+
+  it('reports the three review states and the materialisation per sport', async () => {
+    const { body } = await queue();
+    expect(body.write.enabled).toBe(true);
+    expect(body.write.reason).toBeNull();
+    expect(body.materialisation[SPORT].state).toBe(FRESH);
+    expect(body.summary.pending_review).toBeGreaterThan(0);
+  });
+
+  it('says writing is unavailable to a request with no operator', async () => {
+    const res = await queue({ cookie: null });
+    expect(res.status).toBe(401);
+  });
+});
+
+describe('L8D/2 — the explicit rebuild', () => {
+  it('is refused without a session, cross-origin, or with an unknown field', async () => {
+    expect((await rebuild({ sport: SPORT }, { cookie: null })).status).toBe(401);
+    expect((await rebuild({ sport: SPORT }, { origin: 'https://evil.example' })).status).toBe(403);
+    expect((await rebuild({ sport: SPORT, script: 'rm -rf /' })).status).toBe(400);
+    expect((await rebuild({ sport: 'not-a-sport' })).status).toBe(400);
+  });
+
+  it('clears a stale materialisation, keeps the exclusion, and touches nothing else', async () => {
+    const otherRows = () => db.prepare(
+      `SELECT COUNT(*) n FROM roster_players WHERE college_name = ? AND sport = ? AND season = ?`,
+    ).get(KEEP, SPORT, SEASON).n;
+    const before = otherRows();
+
+    await dispose({
+      disposition: 'EXCLUDE_FROM_EVIDENCE',
+      disposition_evidence: 'L8D throwaway exclusion',
+      expected_disposition: null,
+    });
+    expect(materialisationState(SPORT).state).toBe(STALE);
+    /* The queue SHOWS the staleness rather than leaving it to a later error. */
+    expect((await queue()).body.materialisation[SPORT].state).toBe(STALE);
+
+    const res = await rebuild({ sport: SPORT });
+    expect(res.status).toBe(200);
+    const out = await res.json();
+    expect(out.before.state).toBe(STALE);
+    expect(out.after.state).toBe(FRESH);
+    expect(out.after.generation).toBe(out.before.generation + 1);
+    expect(out.after.input_digest_matches).toBe(true);
+
+    /* The exclusion survives, the untouched programme is untouched. */
+    expect(rosterVisibleToEvidence(DROP)).toBe(0);
+    expect(rosterVisibleToEvidence(KEEP)).toBe(3);
+    expect(otherRows()).toBe(before);
+    const patterns = await import('../lib/recruitingPatterns.js');
+    expect(() => patterns.loadProgrammePatterns(SPORT, KEEP)).not.toThrow();
+  });
+
+  it('does not run as a side effect of the decision', async () => {
+    const gen = materialisationState(SPORT).generation;
+    await dispose({
+      disposition: 'EXCLUDE_FROM_EVIDENCE',
+      disposition_evidence: 'L8D throwaway exclusion',
+      expected_disposition: null,
+    });
+    /* Same generation: the write rewrote one row and nothing else. */
+    expect(materialisationState(SPORT).generation).toBe(gen);
+    expect(materialisationState(SPORT).state).toBe(STALE);
+  });
+});
+
+describe('L8D/3 — RETAIN costs nothing', () => {
+  it('stores the decision and leaves Evidence and the materialisation alone', async () => {
+    const gen = materialisationState(SPORT).generation;
+    const digest = effectiveInputDigest(SPORT);
+
+    const res = await dispose({
+      disposition: 'RETAIN',
+      disposition_evidence: 'L8D throwaway retain',
+      expected_disposition: null,
+    });
+    expect(res.status).toBe(200);
+
+    const c = await caseFor(DROP);
+    expect(c.operator.disposition).toBe('RETAIN');
+    expect(c.operator.reviewed_by_operator_id).toBe(operatorId);
+    expect(c.operator.disposition_evidence).toBe('L8D throwaway retain');
+    expect(c.operator.attribution).toBe('ATTRIBUTED');
+
+    /* Nothing derived moved, so no rebuild is owed. */
+    expect(rosterVisibleToEvidence(DROP)).toBe(3);
+    expect(effectiveInputDigest(SPORT)).toBe(digest);
+    expect(materialisationState(SPORT).state).toBe(FRESH);
+    expect(materialisationState(SPORT).generation).toBe(gen);
+  });
+});
+
+describe('L8D/4 — a legacy decision renders as what it is', () => {
+  it('reports a disposition with no reviewer as LEGACY_UNATTRIBUTED', async () => {
+    db.prepare(`UPDATE roster_season_trust
+        SET disposition = 'RETAIN', disposition_evidence = 'decided before reviewers were stored',
+            reviewed_at = '2026-01-01T00:00:00.000Z', reviewed_by_operator_id = NULL
+      WHERE college_name = ? AND sport = ? AND season = ?`).run(DROP, SPORT, SEASON);
+    const c = await caseFor(DROP);
+    expect(c.operator.attribution).toBe('LEGACY_UNATTRIBUTED');
+    expect(c.operator.reviewed_by_operator_id).toBeNull();
+    /* Not "nobody decided" -- it IS decided, and the reviewer is unrecorded. */
+    expect(c.effect.review_state).toBe('DISPOSITIONED');
+  });
+});

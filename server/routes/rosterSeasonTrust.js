@@ -4,6 +4,8 @@ import {
   recordDisposition, attributionOf, exclusionBlockedReason,
 } from '../lib/seasonTrustReview.js';
 import { DIAGNOSIS_KEYS, DISPOSITION_KEYS } from '../../shared/roster/seasonTrust.js';
+import { materialisationState } from '../lib/recruitingMaterialisation.js';
+import { buildSport } from '../scripts/buildRecruitingHistory.js';
 
 /**
  * THE HISTORICAL SEASON TRUST API — a doorway, and for now a locked one.
@@ -99,6 +101,14 @@ function toWire(r) {
       previous_disposition: r.previous_disposition,
       previous_reviewed_at: r.previous_reviewed_at,
     },
+    /*
+     * L8D — the stored facts a reviewer needs, assembled by `trustQueue` and
+     * passed through unchanged. Nothing here is a judgement, and an absent
+     * value stays absent: `pageSeason`, `fetchedAt` and `parser` are null for
+     * every record diagnosed before L7Z began recording them, and the screen
+     * says UNKNOWN rather than filling the gap.
+     */
+    review_evidence: r.evidenceForReview ?? null,
     /* What this record currently does, stated rather than left to inference. */
     effect: {
       evidence_exposed: r.evidenceExposed,
@@ -107,6 +117,9 @@ function toWire(r) {
     },
   };
 }
+
+/** The only two values the rebuild route will accept. */
+const REBUILDABLE_SPORTS = Object.freeze(['mens-soccer', 'womens-soccer']);
 
 const FILTERS = Object.freeze(['diagnosis', 'disposition', 'reviewState', 'association', 'exposedOnly']);
 
@@ -154,9 +167,18 @@ rosterSeasonTrustRouter.get('/roster-season-trust', (req, res) => {
      * rather than offering a control that always fails.
      */
     write: {
-      enabled: false,
-      reason: 'no authenticated operator identity exists in this application; '
-        + 'every new human disposition requires one',
+      /*
+       * L8C OPENED THIS DOOR, so the read no longer hard-codes it shut. It
+       * reports what is true OF THIS REQUEST: `requireOperator` guards the
+       * whole of /api above this router, so a reader here is signed in, and a
+       * UI can render the control as available rather than discovering the
+       * answer by attempting a write.
+       */
+      enabled: Boolean(req.operator),
+      reason: req.operator
+        ? null
+        : 'this request carries no authenticated operator; every new human '
+          + 'disposition requires one',
       /*
        * Per sport, since L7ZL: whether an exclusion is technically safe now
        * depends on whether that sport's derived recruiting data can be
@@ -166,6 +188,21 @@ rosterSeasonTrustRouter.get('/roster-season-trust', (req, res) => {
       exclude_blocked_by_sport: Object.fromEntries(['mens-soccer', 'womens-soccer']
         .map((s) => [s, exclusionBlockedReason(s)])),
     },
+    /*
+     * L8D. An EXCLUDE stales the derived recruiting data, and the operator who
+     * caused that has to be able to SEE it — a staleness only visible as a
+     * thrown error deep in a report is a staleness nobody clears. Reported per
+     * sport on every read, so the screen shows the consequence of the decision
+     * that was just taken rather than waiting to be asked.
+     */
+    materialisation: Object.fromEntries(['mens-soccer', 'womens-soccer']
+      .map((sp) => {
+        const m = materialisationState(sp);
+        return [sp, {
+          state: m.state, generation: m.generation, built_at: m.builtAt,
+          input_digest_matches: m.expected === m.actual,
+        }];
+      })),
   });
 });
 
@@ -176,6 +213,75 @@ const ALLOWED = Object.freeze(['college_name', 'sport', 'season',
 const SERVER_OWNED = Object.freeze(['reviewed_by_operator_id', 'reviewed_at',
   'diagnosis', 'diagnosis_evidence', 'diagnosed_at',
   'previous_disposition', 'previous_reviewed_at']);
+
+/**
+ * Rebuild one sport's derived recruiting data, on purpose.
+ *
+ * ---------------------------------------------------------------------------
+ * WHY THIS EXISTS AND WHY IT IS NOT AUTOMATIC.
+ *
+ * An EXCLUDE_FROM_EVIDENCE decision changes the roster the recruiting patterns
+ * were derived from, so the materialisation goes STALE and `assertServable`
+ * starts refusing — correctly. Clearing that requires a rebuild.
+ *
+ * Doing it silently inside the disposition write would hide a second, larger
+ * act behind a first: the decision rewrites one row, the rebuild rewrites
+ * ~88,000. An operator is entitled to see those as two things, and to be told
+ * that the second is owed before it happens. So the write reports the stale
+ * state and this is a separate, deliberate action.
+ *
+ * ---------------------------------------------------------------------------
+ * NARROW ON PURPOSE. It takes a SPORT and nothing else — no table, no query,
+ * no script name, no flags. It is not a general "run a maintenance command"
+ * endpoint, because that is a remote code path wearing a rebuild's clothes.
+ * The only thing a caller can choose is which of two sports to rebuild, and an
+ * unknown value is a 400.
+ *
+ * It runs the SAME `buildSport` the CLI runs, which is why it was exported
+ * rather than reimplemented: a second rebuild is a second definition of fresh.
+ * `recordBuild` is called inside that function's own transaction, so the rows
+ * and the freshness stamp land together or not at all.
+ */
+const REBUILD_FIELDS = Object.freeze(['sport']);
+
+rosterSeasonTrustRouter.post('/roster-season-trust/rebuild', (req, res) => {
+  const body = req.body ?? {};
+  const unknown = Object.keys(body).filter((k) => !REBUILD_FIELDS.includes(k));
+  if (unknown.length) {
+    return res.status(400).json({ error: `unknown field(s): ${unknown.join(', ')}` });
+  }
+  const { sport } = body;
+  if (!REBUILDABLE_SPORTS.includes(sport)) {
+    return res.status(400).json({ error: `sport must be one of ${REBUILDABLE_SPORTS.join(', ')}` });
+  }
+  /* Same rule as a disposition: this changes product data, so it needs a person. */
+  const operatorId = operatorFromRequest(req);
+  if (!operatorId) {
+    return res.status(503).json({
+      error: 'rebuilding is unavailable: this request carries no authenticated operator.',
+      prerequisite: 'operator sign-in, exposing the reviewer on the request context',
+    });
+  }
+
+  const before = materialisationState(sport);
+  try {
+    buildSport(sport);
+  } catch (err) {
+    console.error('[roster-season-trust/rebuild]', err);
+    return res.status(500).json({ error: err.message });
+  }
+  const after = materialisationState(sport);
+  return res.json({
+    sport,
+    before: { state: before.state, generation: before.generation },
+    after: {
+      state: after.state,
+      generation: after.generation,
+      built_at: after.builtAt,
+      input_digest_matches: after.expected === after.actual,
+    },
+  });
+});
 
 rosterSeasonTrustRouter.post('/roster-season-trust/disposition', (req, res) => {
   const body = req.body ?? {};

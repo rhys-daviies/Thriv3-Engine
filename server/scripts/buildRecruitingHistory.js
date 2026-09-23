@@ -57,7 +57,24 @@ const tally = (rows, key) => rows.reduce((m, r) => {
 const show = (obj) => Object.entries(obj).sort((a, b) => b[1] - a[1])
   .map(([k, v]) => `${k}=${v}`).join('  ');
 
-function buildSport(sport) {
+/**
+ * Rebuild one sport's `recruiting_arrivals`, atomically.
+ *
+ * EXPORTED SINCE L8D so the operator rebuild and the CLI run THE SAME CODE. An
+ * EXCLUDE_FROM_EVIDENCE decision stales this materialisation and a person has
+ * to be able to clear that from the screen where they made the decision; a
+ * second implementation of the rebuild would be a second thing that can be
+ * wrong about what "fresh" means.
+ *
+ * `assertCanonicalWrite` is NOT called here, and that is deliberate.
+ * `corpusIdentity.js` says it in its own words: "THE SERVER NEVER CALLS THIS...
+ * the guard lives at script entry points, not in client.js, precisely so
+ * normal product writes are untouched." It is a CLI acknowledgement, and a
+ * route must never depend on a CLI flag. It now sits at this file's entry
+ * point instead, where it runs once before any work rather than once per
+ * sport — the same protection, taken earlier.
+ */
+export function buildSport(sport, { reportOnly = REPORT_ONLY } = {}) {
   /*
    * L7ZL — THE BUILDER READS THE EFFECTIVE ROSTER, not the raw one.
    *
@@ -113,13 +130,7 @@ function buildSport(sport) {
     transitionCounts.set(programme, out.coverage.comparableCount);
   }
 
-  if (!REPORT_ONLY) {
-    /*
-     * L7ZM. This writes product data. When the corpus is one other checkouts
-     * share, say so out loud rather than surprising them — see
-     * `server/db/corpusIdentity.js`.
-     */
-    assertCanonicalWrite({ script: 'buildRecruitingHistory.js', path: dbPath });
+  if (!reportOnly) {
     const builtAt = utcNow();
     /*
      * L7ZL — the digest is taken BEFORE the write and stamped INSIDE the same
@@ -201,8 +212,23 @@ function report(r) {
     + ' is a name match to more than one school');
 }
 
-const results = SPORTS.map(buildSport);
-results.forEach(report);
+/*
+ * Only when RUN, never when imported. The server imports `buildSport` for the
+ * operator rebuild, and an import that rebuilt both sports as a side effect
+ * would be the worst kind of surprise — the same reasoning as the D3.2 guard
+ * in `client.js`, one layer up.
+ */
+if (import.meta.url === `file://${process.argv[1]}`) {
+  /*
+   * L7ZM. This writes product data. When the corpus is one other checkouts
+   * share, say so out loud rather than surprising them — see
+   * `server/db/corpusIdentity.js`. Once, before any sport is built.
+   */
+  if (!REPORT_ONLY) assertCanonicalWrite({ script: 'buildRecruitingHistory.js', path: dbPath });
 
-console.log(`\n${REPORT_ONLY ? 'REPORT ONLY — nothing written.' : 'recruiting_arrivals rebuilt.'}`);
-console.log('The table is derived from roster_players and can be dropped and rebuilt at any time.\n');
+  const results = SPORTS.map((sport) => buildSport(sport));
+  results.forEach(report);
+
+  console.log(`\n${REPORT_ONLY ? 'REPORT ONLY — nothing written.' : 'recruiting_arrivals rebuilt.'}`);
+  console.log('The table is derived from roster_players and can be dropped and rebuilt at any time.\n');
+}

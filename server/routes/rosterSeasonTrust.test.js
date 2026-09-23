@@ -123,8 +123,15 @@ describe('L7ZK — GET, the half that works', () => {
     expect(res.status).toBe(200);
     expect(res.body.records).toHaveLength(3);
     const r = res.body.records[0];
-    // Machine and human halves never flatten into one status, the L7K lesson.
-    expect(Object.keys(r).sort()).toEqual(['effect', 'identity', 'machine', 'operator', 'programme']);
+    /*
+     * Machine and human halves never flatten into one status, the L7K lesson.
+     * L8D adds `review_evidence`, and it is a SIXTH sibling rather than a field
+     * folded into `machine`: it is neither a measurement nor a judgement, it is
+     * the stored provenance a reviewer reads while deciding. Keeping it apart
+     * is the same rule as the two halves it sits beside.
+     */
+    expect(Object.keys(r).sort()).toEqual(
+      ['effect', 'identity', 'machine', 'operator', 'programme', 'review_evidence']);
     expect(r.machine).toHaveProperty('diagnosis');
     expect(r.operator).toHaveProperty('disposition');
     expect(r).not.toHaveProperty('status');
