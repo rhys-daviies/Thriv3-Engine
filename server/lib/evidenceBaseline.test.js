@@ -374,9 +374,9 @@ d('roster_freshness mirrors what production reads', () => {
 });
 
 d('the manifest declares its own definition version', () => {
-  it('reports V6 and carries every table the product reads', () => {
+  it('reports V7 and carries every table the product reads', () => {
     const m = datasetManifest();
-    expect(m.version).toBe('V6');
+    expect(m.version).toBe('V7');
     const tables = m.tables.map((t) => t.table);
     // V2 added roster_freshness (K3A: a re-scrape that only moved timestamps).
     expect(tables).toContain('roster_freshness');
@@ -389,14 +389,17 @@ d('the manifest declares its own definition version', () => {
     // which is DERIVED and whose content V5 could not see at all.
     expect(tables).toContain('coach_seasons');
     expect(tables).toContain('recruiting_arrivals');
+    // V7 (L8B-2) adds the table the execution closure proved was missing: the
+    // freshness record every recruiting claim is gated on.
+    expect(tables).toContain('recruiting_arrivals_build');
     /*
-     * V4 adds roster_measurements (L7ZA): the other two roster components cover
-     * membership and current-season timestamps, so a historical measurement --
-     * minutes, class label, position -- moved PROGRAMME_POOL_BENCHMARK while the
-     * dataset line read UNCHANGED. Kept separate from roster_players so the
-     * report can say "same squad, measured differently".
+     * V4 added roster_measurements (L7ZA) because the narrow roster components
+     * could not see a historical measurement change. V7 hashes EVERY column of
+     * roster_players, so that component would now be the same bytes twice and
+     * is gone; the distinction it drew survives in the report, which still
+     * names which table moved.
      */
-    expect(tables).toContain('roster_measurements');
+    expect(tables).not.toContain('roster_measurements');
     /*
      * V5 adds roster_season_trust (L7ZI), and it is the first component added
      * BEFORE the gap could be demonstrated rather than after. Its `disposition`

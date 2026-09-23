@@ -50,7 +50,8 @@
     "roster:targets": "python3 tools/roster_pipeline/build_targets.py",
     "roster:acquire": "tools/roster_pipeline/run_season_current.sh",
     "evidence:baseline": "node server/scripts/evidenceBaseline.js",
-    "test:baseline": "vitest run server/lib/evidenceBaseline.test.js --reporter=verbose"
+    "test:baseline": "vitest run server/lib/evidenceBaseline.test.js --reporter=verbose",
+    "closure": "node server/scripts/dependencyClosure.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",

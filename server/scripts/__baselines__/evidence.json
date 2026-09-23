@@ -2,65 +2,75 @@
   "note": "Committed Evidence behavioural baseline. See docs/EVIDENCE_BASELINES.md before repinning.",
   "now": "2026-09-06T00:00:00.000Z",
   "manifest": {
-    "version": "V6",
+    "version": "V7",
     "tables": [
       {
         "table": "players",
         "rows": 4,
-        "digest": "67a40ceb30ddaa7a172fce920755073b61cd5449bf25958245a834f477375774"
+        "columns": 58,
+        "digest": "81e0bbc14dbd239f3ddb3679e9159f0ed7d355aec6543e89a741b5c5bc66ed46"
       },
       {
         "table": "colleges",
         "rows": 2404,
-        "digest": "cdcbe3c7c693c81b8d90d35beff6f36a563cd38b870261af4208af2cdad81bc5"
+        "columns": 44,
+        "digest": "c0cd08e597d3492fea67429f4def795078a092001c257df4be23a8b1a9fc8307"
       },
       {
         "table": "roster_players",
         "rows": 281159,
-        "digest": "927b5fa9290cb654bbbf96e4154d462fdfbe06c4e049515eb80bc456f467b51b"
+        "columns": 30,
+        "digest": "3c9ae42653ad7bc71e41bfd0d1c88582c107e1231b3606a5ef30922dc78332dd"
       },
       {
         "table": "roster_season_trust",
         "rows": 15,
-        "digest": "5391be738f856a22571cfa9e161c707c4784738a91090417e5a672c400d82c65"
+        "columns": 13,
+        "digest": "6b4b925529560830d8fbb5923b45e92145ff568a2e910eb71ecb85d643ce83f1"
       },
       {
         "table": "coaches",
         "rows": 6347,
-        "digest": "35c83c5c8fd75c4d1884660f4edf1ef8c90f597545e6e2ce1f8deb3619984872"
+        "columns": 12,
+        "digest": "c8c6d96dea9e0d5b55229c94113ff5459e4266d0e6b3c276330ca0becaa590eb"
       },
       {
         "table": "athletics_domains",
         "rows": 2723,
-        "digest": "63d001e57c2712390e42dab0569c06ac757e4e2f9e50344fd8649bb4767b33cf"
+        "columns": 18,
+        "digest": "c52a19ecc56cacef6d652cf6e11fefd1e9dce741c2ea6141bba1f09bdaaea1ab"
       },
       {
         "table": "programme_status",
         "rows": 6,
-        "digest": "0a1132f6cdaa853e2689939161893b7fb089a721c9e5380305b4fddbb7fdf25f"
+        "columns": 10,
+        "digest": "32daab29b8c5a9ddd49abed5e6f40d0eedf3628c0f1f63c43d030b2fefa75f24"
       },
       {
         "table": "coach_seasons",
         "rows": 8595,
-        "digest": "9ff4a87d253ed71350b25a1c420a414c7e5827ac171bfd2ea069f052cca87108"
+        "columns": 11,
+        "digest": "89d07aa030be1eb40c110add4668760f6f06b9a2ed8b4864b95a86760c087679"
+      },
+      {
+        "table": "recruiting_arrivals",
+        "rows": 88879,
+        "columns": 25,
+        "digest": "fe7359e5b20a431b67e61f0b634dca1dec75b0f760c362c589eb82ca7a031f04"
+      },
+      {
+        "table": "recruiting_arrivals_build",
+        "rows": 2,
+        "columns": 5,
+        "digest": "950457029abf81480a10a00cdd4d6371611ade136704626b2fab7d79b05cfd4d"
       },
       {
         "table": "roster_freshness",
         "rows": 2060,
         "digest": "3d70ff0168dc6842af1bd285845b01e5dbead34bc07ece0cdfe68098b0999551"
-      },
-      {
-        "table": "roster_measurements",
-        "rows": 281159,
-        "digest": "2009f8afa02c1fb25afc29b441ae9889e784883df91e7cbcdcdcfe65df9ae557"
-      },
-      {
-        "table": "recruiting_arrivals",
-        "rows": 88879,
-        "digest": "cf05efc2ff02f00b9692b00627c9b57becd88e27c66fc2bcf952ed8b7db3df66"
       }
     ],
-    "digest": "cc28ee6accdb84edae9612b37096ae3e39455d6a4dc0550a8c34af2b48eec83a"
+    "digest": "8bb808b66db9ee3b6aec56255a428867d61da804e6a27455eab3e149f51a5c5e"
   },
   "baselines": [
     {

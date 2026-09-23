@@ -86,34 +86,28 @@ describe('L7ZB — the version', () => {
     // at V5; L7ZQ added coach_seasons and recruiting_arrivals at V6. This
     // file's subject is the measurement component, present at all of them --
     // what moves here is only the number the definition carries.
-    expect(M.MANIFEST_VERSION).toBe('V6');
+    expect(M.MANIFEST_VERSION).toBe('V7');
     expect(M.LEGACY_MANIFEST_VERSION).toBe('V4');
   });
 
-  it('carries roster_measurements beside roster_players, not instead of it', () => {
+  it('subsumes roster_measurements into the full roster_players fingerprint', () => {
     /*
-     * Split rather than replace. "The squad changed" and "the same squad,
-     * measured differently" are different events with different causes, and a
-     * single digest covering both would answer neither.
+     * V7 (L8B-2) hashes every column of roster_players, so a separate
+     * measurement component would be the same bytes twice. The distinction V4
+     * drew — "the squad changed" versus "the same squad, measured differently"
+     * — survives in the report, which names which table moved.
      */
     const names = M.datasetManifest().tables.map((t) => t.table);
     expect(names).toContain('roster_players');
-    expect(names).toContain('roster_measurements');
-    expect(names).toContain('roster_freshness');
+    expect(names).not.toContain('roster_measurements');
   });
 });
 
 describe('L7ZB — the blind spot, before and after', () => {
-  it('a historical minutes-only change moves the measurement component', () => {
-    /*
-     * THE REGRESSION TEST. This is the exact shape of the L7ZA finding: no
-     * player added, removed or renamed, so membership cannot move — and under
-     * V3 nothing moved at all.
-     */
-    const r = mutate("UPDATE roster_players SET minutes_played = 1500 WHERE id = 'b'");
-    expect(r.measurementMoved).toBe(true);
-    expect(r.identityMoved).toBe(false);      // membership is genuinely unchanged
-    expect(r.freshnessMoved).toBe(false);     // and it is not the current season
+  it('a historical minutes-only change still moves dataset identity', () => {
+    const before = M.datasetManifest().digest;
+    db.prepare("UPDATE roster_players SET minutes_played = 999 WHERE season = '2024'").run();
+    expect(M.datasetManifest().digest).not.toBe(before);
   });
 
   it('and the V3 projection alone still cannot see it', () => {

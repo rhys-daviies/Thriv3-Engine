@@ -33,6 +33,7 @@ const V5_ADDED_BY_L7ZQ = ['coach_seasons', 'recruiting_arrivals'];
 const manifestV5 = () => digest(canonical(
   datasetManifest().tables.filter((t) => !V5_ADDED_BY_L7ZQ.includes(t.table))));
 const manifestV6 = () => datasetManifest().digest;
+const manifestV7 = () => datasetManifest().digest;
 
 const clear = () => {
   for (const t of ['recruiting_arrivals', 'coach_seasons', 'roster_players']) db.prepare(`DELETE FROM ${t}`).run();
@@ -66,14 +67,15 @@ const insertCoachSeason = (over = {}) => db.prepare(
 beforeEach(() => { clear(); insertArrival(); insertCoachSeason(); });
 
 describe('L7ZQ — the version moved, deliberately', () => {
-  it('is V6', () => {
-    expect(MANIFEST_VERSION).toBe('V6');
+  it('is V7', () => {
+    expect(MANIFEST_VERSION).toBe('V7');
   });
 
-  it('carries both components V5 was blind to', () => {
+  it('carries every table the six outputs execute against', () => {
     const names = datasetManifest().tables.map((t) => t.table);
-    expect(names).toContain('coach_seasons');
-    expect(names).toContain('recruiting_arrivals');
+    for (const t of ['players', 'colleges', 'roster_players', 'roster_season_trust', 'coaches',
+      'athletics_domains', 'programme_status', 'coach_seasons', 'recruiting_arrivals',
+      'recruiting_arrivals_build']) expect(names, t).toContain(t);
   });
 });
 
@@ -120,71 +122,50 @@ describe('L7ZQ — the L7ZP blind spot, as a regression', () => {
   });
 });
 
-describe('L7ZQ — what must NOT move dataset identity', () => {
-  it('roster_row_id churn is inert', () => {
+describe('L8B-2 — V7 moves for anything, which is the point', () => {
+  /*
+   * V6 asked which columns matter and answered by hand. L8B-1 measured the
+   * answer being wrong — see the blind spot below — so V7 stopped asking.
+   * These assertions are the inverse of V6's and are deliberate: the churn they
+   * now accept cannot occur on the PINNED acceptance corpus, where nothing
+   * writes, and acceptance is the only place a false CHANGED would cost
+   * anything.
+   */
+  it('THE BLIND SPOT: the freshness fingerprint is behavioural, and V7 sees it', () => {
     /*
-     * L7ZP found 24,929 rows differing ONLY here, after a roster re-import gave
-     * the source rows new surrogate ids. `toArrival` loads it and nothing
-     * consumes it. A manifest that moved for this would cry wolf.
+     * L8B-1: tampering with input_digest moved ALL SIX behavioural baselines,
+     * because assertServable gates every recruiting claim on it — while V6
+     * reported the dataset UNCHANGED. This is the regression for that.
      */
-    const before = manifestV6();
-    db.prepare("UPDATE recruiting_arrivals SET roster_row_id = 'different-entirely'").run();
-    expect(manifestV6()).toBe(before);
-  });
-
-  it('the stored region cache is inert', () => {
-    /*
-     * `toArrival` says in its own comment that it does not read this column,
-     * because patterns.js recomputes region from country. A cache is not
-     * dataset identity.
-     */
-    const before = manifestV6();
-    db.prepare("UPDATE recruiting_arrivals SET region = 'NOWHERE'").run();
-    expect(manifestV6()).toBe(before);
-  });
-
-  it('built_at is operational, so a deterministic rebuild does not move it', () => {
-    /*
-     * L7ZP proved rebuilds reproduce identical semantic rows. If the timestamp
-     * counted, every rebuild would move dataset identity and mean nothing by it.
-     */
-    const before = manifestV6();
-    db.prepare("UPDATE recruiting_arrivals SET built_at = '2099-12-31T23:59:59.000Z'").run();
-    expect(manifestV6()).toBe(before);
-  });
-
-  it('the build generation counter is operational too', () => {
     db.prepare(`INSERT INTO recruiting_arrivals_build (sport, input_digest, builder_version, built_at, generation)
-      VALUES ('mens-soccer', 'abc', 'v1', '2026-01-01T00:00:00.000Z', 1)`).run();
-    const before = manifestV6();
-    db.prepare("UPDATE recruiting_arrivals_build SET generation = 99, built_at = '2099-01-01T00:00:00.000Z'").run();
-    expect(manifestV6()).toBe(before);
+      VALUES ('mens-soccer', 'real', 'v1', '2026-01-01T00:00:00.000Z', 1)`).run();
+    const before = manifestV7();
+    db.prepare("UPDATE recruiting_arrivals_build SET input_digest = 'TAMPERED'").run();
+    expect(manifestV7()).not.toBe(before);
   });
 
-  it('coach acquisition provenance is inert', () => {
-    /* method/confidence/source_url reach no claim; a re-scrape must be quiet. */
-    const before = manifestV6();
-    db.prepare("UPDATE coach_seasons SET method = 'wayback:2020', confidence = 'Medium'").run();
-    expect(manifestV6()).toBe(before);
+  it('provenance churn moves it too, and that is accepted', () => {
+    const before = manifestV7();
+    db.prepare("UPDATE recruiting_arrivals SET roster_row_id = 'different-entirely'").run();
+    expect(manifestV7()).not.toBe(before);
   });
 
-  it('is not a code hash: identical data, any code version, same digest', () => {
-    /*
-     * Manifest is dataset identity. A refactor that changes no data must leave
-     * it alone, or the two questions collapse into one and neither is
-     * answerable.
-     */
-    const a = manifestV6();
-    const b = manifestV6();
-    expect(b).toBe(a);
+  it('a new column moves it automatically — no registration step', () => {
+    /* Schema evolution is the property a hand-picked projection cannot have. */
+    const before = manifestV7();
+    db.prepare('ALTER TABLE roster_players ADD COLUMN l8b2_probe TEXT').run();
+    expect(manifestV7()).not.toBe(before);
+  });
+
+  it('is not a code hash: identical data, same digest', () => {
+    expect(manifestV7()).toBe(manifestV7());
   });
 
   it('row ORDER cannot move it', () => {
-    /* Lines are sorted, so SQLite's scan order and index choices are invisible. */
-    const before = recruitingArrivalsFingerprint().digest;
+    const before = manifestV7();
     insertArrival({ player_name: 'Zzz Later', name_key: 'zzzlater' });
     db.prepare("DELETE FROM recruiting_arrivals WHERE name_key = 'zzzlater'").run();
-    expect(recruitingArrivalsFingerprint().digest).toBe(before);
+    expect(manifestV7()).toBe(before);
   });
 });
 

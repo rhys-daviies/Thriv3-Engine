@@ -217,7 +217,37 @@ export const short = (d) => String(d).slice(0, 16);
  * version is what keeps that honest — a V2 pin and a V2 digest taken over a
  * different table list would both claim to be V2 and mean different things.
  */
-export const MANIFEST_VERSION = 'V6';
+export const MANIFEST_VERSION = 'V7';
+
+/*
+ * L8B-2 — V7: EVERY COLUMN OF EVERY TABLE THE SIX OUTPUTS EXECUTE AGAINST.
+ *
+ * V6 named columns. That is a guess, and L8B-1 measured the guess being wrong:
+ * tampering with `recruiting_arrivals_build.input_digest` moved ALL SIX
+ * behavioural baselines — `assertServable` gates every recruiting claim on it —
+ * while V6 reported the dataset UNCHANGED. The table had been excluded as
+ * "operational metadata" on the strength of what it looked like.
+ *
+ * `main` reached the same conclusion independently at V3, and its wording is
+ * the rule: a hand-picked projection is a guess, and a guess that is wrong in
+ * the omitting direction is silent. V7 adopts main's `tableFingerprint`
+ * verbatim and applies it to a table set that is a MEASUREMENT rather than a
+ * choice — the execution closure of `buildBaselines`, instrumented at the
+ * statement level rather than at prepare, because modules prepare statements at
+ * import whether or not they run.
+ *
+ * WHAT THIS COSTS, AND WHY IT IS FREE HERE. Every-column hashing moves for
+ * `updated_date`, `roster_row_id` and `built_at` — churn that no behavioural
+ * output reflects. On a LIVE corpus that is noise, and noise teaches people to
+ * repin without reading. Acceptance therefore runs against a PINNED IMMUTABLE
+ * snapshot, where nothing writes and the churn cannot occur. The two decisions
+ * are one decision: every-column is safe only with a pinned corpus, and a
+ * pinned corpus makes every-column free.
+ *
+ * `roster_freshness` survives below as a DIAGNOSTIC line, exactly as main keeps
+ * it: subsumed by the full `roster_players` fingerprint, still useful in a
+ * report that has to say what moved.
+ */
 
 /*
  * L7ZQ — V6 CLOSES TWO HOLES L7ZP MADE VISIBLE.
@@ -258,47 +288,50 @@ export const MANIFEST_VERSION = 'V6';
 /** The last version before `roster_season_trust`, kept so a V4 pin is nameable. */
 export const LEGACY_MANIFEST_VERSION = 'V4';
 
-const MANIFEST_TABLES = Object.freeze([
-  ['players', 'SELECT id, full_name, sport, nationality, position, intended_major, recruiting_class_year FROM players ORDER BY id'],
-  ['colleges', 'SELECT name, sport, unitid, division, conference FROM colleges ORDER BY sport, name'],
-  ['roster_players', 'SELECT college_name, sport, season, player_name FROM roster_players ORDER BY sport, college_name, season, player_name'],
-  /*
-   * L7ZI. `disposition` is the field that changes behaviour; the rest are
-   * fingerprinted with it because a decision whose evidence or reviewer
-   * changed is a different decision, and a manifest that could not see an
-   * edit to the reason would let one be rewritten silently.
-   */
-  ['roster_season_trust', 'SELECT season, college_name, sport, diagnosis, diagnosis_evidence, diagnosed_at, disposition, disposition_evidence, reviewed_at, reviewed_by_operator_id, next_action, previous_disposition, previous_reviewed_at FROM roster_season_trust ORDER BY sport, college_name, season'],
-  ['coaches', 'SELECT school, sport, full_name, position_title FROM coaches ORDER BY sport, school, full_name, position_title'],
-  ['athletics_domains', 'SELECT domain, unitid, status, role, confidence FROM athletics_domains ORDER BY domain'],
-  /*
-   * PROGRAMME STATUS IS PRODUCT-SEMANTIC DATA, so the manifest has to see it.
-   *
-   * L7O found that `colleges.active` is absent from the fingerprint above, which
-   * was harmless while it was a dormant flag. `programme_status` is not dormant:
-   * it decides who is an eligible destination for a season, so live matching and
-   * outreach change when it changes. A behavioural hash that moved without the
-   * dataset line admitting why is exactly the misdiagnosis the manifest exists
-   * to prevent — K3A's finding, in a new place.
-   *
-   * The bounds are in the digest because they are the meaning: a row that moves
-   * from "not active" to "active from 2027" is a different fact about the world.
-   */
-  ['programme_status', 'SELECT school, sport, status, reason, active_from_season, active_to_season FROM programme_status ORDER BY sport, school'],
-  /*
-   * L7ZQ. NOT the same table as `coaches` above. `philosophyQueries` reads
-   * these rows directly into Evidence, `recruitingPatterns` reads them for
-   * arrival attribution, and `programmePhilosophy` computes coach tenure from
-   * them — so a coach name here changes what a coach is told about their own
-   * programme's history.
-   *
-   * The columns are the union of what the Evidence paths actually select.
-   * `method`, `confidence`, `source_url`, `division` and `imported_at` are
-   * acquisition provenance that reaches no claim, and including them would
-   * move dataset identity for a re-scrape that changed nothing anyone reads.
-   */
-  ['coach_seasons', 'SELECT school, sport, season, coach_name, coach_title, reason FROM coach_seasons ORDER BY sport, school, season, coach_name, coach_title, reason'],
+/**
+ * The execution closure of the six behavioural outputs, measured not chosen.
+ *
+ * Statement executions during one `buildBaselines` run, L8B-2:
+ *   roster_players 18,980 · roster_season_trust 18,973 · coach_seasons 8,738
+ *   colleges 4,748 · recruiting_arrivals 4,743 · recruiting_arrivals_build 4,742
+ *   players 2 · athletics_domains 2 · coaches 1 · programme_status 1
+ *
+ * `outreach`, `outreach_send` and `outreach_evidence` are PREPARED at module
+ * import and never executed by the walk, so they are not product identity for
+ * these outputs. `dependencyClosure.test.js` re-measures this and fails if the
+ * walk ever reads a table absent from here.
+ */
+export const MANIFEST_TABLES = Object.freeze([
+  'players',
+  'colleges',
+  'roster_players',
+  'roster_season_trust',
+  'coaches',
+  'athletics_domains',
+  'programme_status',
+  'coach_seasons',
+  'recruiting_arrivals',
+  'recruiting_arrivals_build',
 ]);
+
+/**
+ * One table, every column, order-independent — main's V3 semantics verbatim.
+ *
+ * Column names come from `PRAGMA table_info` and are SORTED, so physical column
+ * order is not data and a new column moves the digest automatically. Each row
+ * is hashed alone and the row hashes are sorted, so the result is a property of
+ * the SET of rows: no ORDER BY to get right, and a VACUUM or a different query
+ * plan cannot move it. `rows` and `columns` travel with the digest so a CHANGED
+ * report can say what moved before anyone opens a database.
+ */
+export function tableFingerprint(table) {
+  const columns = db.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name).sort();
+  if (!columns.length) throw new Error(`no such table: ${table}`);
+  const rows = db.prepare(`SELECT ${columns.map((c) => `"${c}"`).join(', ')} FROM "${table}"`).all();
+  const rowDigests = rows.map((row) => digest(canonical(columns.map((c) => row[c]))));
+  rowDigests.sort();
+  return { table, rows: rows.length, columns: columns.length, digest: digest(canonical(rowDigests)) };
+}
 
 /**
  * What the dataset is, in one line per table plus one digest over all of it.
@@ -457,18 +490,15 @@ export function rosterFreshnessFingerprint() {
 
 export function datasetManifest() {
   const tables = [];
-  for (const [name, sql] of MANIFEST_TABLES) {
-    let rows;
-    try { rows = db.prepare(sql).all(); }
-    catch (err) { tables.push({ table: name, rows: null, digest: null, error: err.message }); continue; }
-    tables.push({ table: name, rows: rows.length, digest: digest(canonical(rows)) });
+  for (const name of MANIFEST_TABLES) {
+    try { tables.push(tableFingerprint(name)); }
+    catch (err) {
+      tables.push({ table: name, rows: null, columns: null, digest: null, error: err.message });
+    }
   }
+  /* Diagnostic, not cover: subsumed by the full roster_players fingerprint. */
   try { tables.push(rosterFreshnessFingerprint()); }
   catch (err) { tables.push({ table: 'roster_freshness', rows: null, digest: null, error: err.message }); }
-  try { tables.push(rosterMeasurementFingerprint()); }
-  catch (err) { tables.push({ table: 'roster_measurements', rows: null, digest: null, error: err.message }); }
-  try { tables.push(recruitingArrivalsFingerprint()); }
-  catch (err) { tables.push({ table: 'recruiting_arrivals', rows: null, digest: null, error: err.message }); }
   return { version: MANIFEST_VERSION, tables, digest: digest(canonical(tables)) };
 }
 

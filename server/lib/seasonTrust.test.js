@@ -351,7 +351,7 @@ describe('L7ZI — EXCLUDE removes exactly its own programme-season', () => {
 
 describe('L7ZI — the manifest can see every state that matters', () => {
   it('is V6, and still carries the trust component L7ZI added at V5', () => {
-    expect(MANIFEST_VERSION).toBe('V6');
+    expect(MANIFEST_VERSION).toBe('V7');
     const m = datasetManifest();
     expect(m.tables.map((t) => t.table)).toContain('roster_season_trust');
   });
