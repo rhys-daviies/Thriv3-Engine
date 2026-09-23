@@ -12,6 +12,7 @@
  * view-A text contains no rank, no layer value and no explanation sentence.
  */
 import { CLASSIFICATION, REASON_TAG, VALIDATION_QUESTIONS, ADOPTION_BLOCKERS } from './rubric.js';
+import { layerLabel } from '../explain/vocabulary.js';
 
 const CHECK = (labels) => labels.map((l) => `\`[ ]\` ${l}`).join('  ');
 const CLASS_LINE = CHECK(Object.keys(CLASSIFICATION).map((k) => k.replace(/_/g, ' ')));
@@ -136,14 +137,14 @@ function viewBProgramme(p) {
       + `${p.standing.rankAloneIsMisleading ? ' · **rank alone is misleading here**' : ''}`);
   }
   if (p.layerSummary) {
-    out.push(`Bands: ${p.layerSummary.layers.map((l) => `${l.layer} ${l.band}`).join(' · ')}`
-      + ` — strongest ${p.layerSummary.strongest}, weakest ${p.layerSummary.weakest}`);
+    out.push(`Bands: ${p.layerSummary.layers.map((l) => `${layerLabel(l.layer)} ${l.band}`).join(' · ')}`
+      + ` — strongest ${layerLabel(p.layerSummary.strongest)}, weakest ${layerLabel(p.layerSummary.weakest)}`);
   }
   out.push('', 'Explanation as the operator would see it:', '');
   for (const line of p.explanation.lines) out.push(`- ${line}`);
   for (const g of p.explanation.gates) out.push(`- _gate:_ ${g}`);
   for (const c of p.explanation.checks) out.push(`- _next check:_ ${c}`);
-  out.push('', `Evidence: ${p.explanation.evidenceQuality.map((e) => `${e.layer} ${e.quality} (coverage ${num(e.coverage)})`).join(' · ')}`);
+  out.push('', `Evidence: ${p.explanation.evidenceQuality.map((e) => `${layerLabel(e.layer)} ${e.quality} (coverage ${num(e.coverage)})`).join(' · ')}`);
   out.push('', `Movement: ${p.movement.sentence}`);
   if (p.ambitionSensitivity) {
     const a = p.ambitionSensitivity;

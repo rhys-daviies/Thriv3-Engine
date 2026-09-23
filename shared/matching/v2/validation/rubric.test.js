@@ -3,6 +3,7 @@ import {
   CLASSIFICATION, CLASSIFICATION_ORDER, PURSUE_SET, classificationRank, isPursue,
   REASON_TAG, TAG_IMPLICATES, EXPLANATION_REVIEW, DISAGREEMENT, DISAGREEMENT_MEANING,
   VALIDATION_QUESTIONS, ADOPTION_BLOCKERS, TOLERABLE_DISAGREEMENT, assertReview,
+  REASON_TAG_ORDER, normaliseReasonTag, normaliseReasonTags,
 } from './rubric.js';
 
 describe('the classification scale', () => {
@@ -83,12 +84,57 @@ describe('the disagreement taxonomy', () => {
   it('says out loud that human judgement is recorded and not fitted to', () => {
     expect(DISAGREEMENT_MEANING.HUMAN_JUDGEMENT).toMatch(/do not fit to it/i);
   });
+
+  it('carries MODEL_SCOPE_GAP, which none of the other six covers', () => {
+    expect(DISAGREEMENT.MODEL_SCOPE_GAP).toBe('MODEL_SCOPE_GAP');
+    expect(DISAGREEMENT_MEANING.MODEL_SCOPE_GAP).toMatch(/does not read it at all/i);
+    expect(DISAGREEMENT_MEANING.MODEL_SCOPE_GAP).toMatch(/widen the model/i);
+  });
+
+  it('keeps a scope gap distinct from a bug and from a data gap', () => {
+    expect(DISAGREEMENT_MEANING.MODEL_SCOPE_GAP).not.toBe(DISAGREEMENT_MEANING.MODEL_BUG);
+    expect(DISAGREEMENT_MEANING.MODEL_SCOPE_GAP).not.toBe(DISAGREEMENT_MEANING.DATA_GAP);
+  });
 });
 
-describe('the thirteen questions', () => {
+describe('reason tags as the pack actually asks for them', () => {
+  it('accepts the numbers the printed legend uses', () => {
+    // The markdown prints a numbered legend and asks for ticks. A form that
+    // asks for numbers may not then demand enum spellings.
+    expect(normaliseReasonTag(1)).toBe(REASON_TAG_ORDER[0]);
+    expect(normaliseReasonTag('7')).toBe(REASON_TAG_ORDER[6]);
+    expect(normaliseReasonTag(13)).toBe('OTHER');
+  });
+
+  it('accepts the key and the printed text as well', () => {
+    expect(normaliseReasonTag('FINANCIAL_CONCERN')).toBe('FINANCIAL_CONCERN');
+    expect(normaliseReasonTag('financial concern')).toBe('FINANCIAL_CONCERN');
+  });
+
+  it('still refuses something that is neither', () => {
+    expect(normaliseReasonTag('VIBES')).toBeNull();
+    expect(normaliseReasonTag(99)).toBeNull();
+    expect(() => assertReview({ programmeId: 'x', classification: 'PURSUE', reasonTags: [99] })).toThrow(/unknown reason tag/);
+  });
+
+  it('lets a review filled in numbers pass the shape check', () => {
+    expect(assertReview({ programmeId: 'x', classification: 'BORDERLINE', reasonTags: [1, 7, 10, 12] })).toBe(true);
+  });
+
+  it('normalises a whole row for the metrics', () => {
+    expect(normaliseReasonTags([1, 'FINANCIAL_CONCERN', 'other'])).toEqual([REASON_TAG_ORDER[0], 'FINANCIAL_CONCERN', 'OTHER']);
+  });
+});
+
+describe('the validation questions', () => {
   it('are all present and each says where to look', () => {
-    expect(VALIDATION_QUESTIONS).toHaveLength(13);
+    expect(VALIDATION_QUESTIONS).toHaveLength(14);
     for (const q of VALIDATION_QUESTIONS) expect(q.evidence.length).toBeGreaterThan(5);
+  });
+
+  it('asks whether a factor is absent from the model rather than wrong in it', () => {
+    // The first real review had no slot for its own dominant finding.
+    expect(VALIDATION_QUESTIONS[13].evidence).toMatch(/MODEL_SCOPE_GAP/);
   });
 
   it('keeps convincing-but-wrong as its own question', () => {

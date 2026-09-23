@@ -379,6 +379,31 @@ async function main() {
       console.log('== ALTERNATIVE RECRUITABILITY ARCHITECTURES ==');
       console.log('');
       for (const [name, fn] of Object.entries(architectures)) report(name, fn);
+      /**
+       * R4. Not a formula - an EVIDENCE rule.
+       *
+       * If a scored zero that rests on no identifiable starter were refused
+       * rather than scored, how much of each list stops being rankable? That
+       * is the honest cost of treating the absence as an absence, and it is
+       * the number that decides whether R4 is affordable without new data.
+       */
+      console.log('  R4_REFUSE_UNEVIDENCED_ZERO: what refusing those zeros would cost');
+      console.log(`    ${'fix'.padEnd(5)}${'ranked now'.padEnd(12)}${'zero-core'.padEnd(11)}${'of those, no starter evidence'.padEnd(31)}${'would leave RANKED'.padEnd(20)}remaining`);
+      for (const r of all) {
+        const ctx2 = contextFor(r.sport);
+        const starterRows = new Map();
+        for (const x of ctx2.roster) {
+          const key = `${x.college_name}|${canonicalPosition(x.position)}`;
+          const st = (x.minutes_played ?? x.projected_minutes ?? 0) >= 600;
+          const cur = starterRows.get(key) ?? { starters: 0, rows: 0 };
+          cur.rows += 1; if (st) cur.starters += 1;
+          starterRows.set(key, cur);
+        }
+        const zeroCore = r.rows.filter((x) => x.core === 0);
+        const unevidenced = zeroCore.filter((x) => (starterRows.get(`${x.name}|${r.position}`)?.starters ?? 0) === 0);
+        console.log(`    ${r.f.id.split('-')[0].padEnd(5)}${String(r.rows.length).padEnd(12)}${String(zeroCore.length).padEnd(11)}${String(unevidenced.length).padEnd(31)}${String(unevidenced.length).padEnd(20)}${r.rows.length - unevidenced.length}`);
+      }
+      console.log('');
       console.log('  MIT under each architecture (fixture A, and fixture C for contrast):');
       for (const key of ['A', 'C']) {
         const r = all.find((x) => x.f.id.toUpperCase().startsWith(`${key}-`));
@@ -424,13 +449,58 @@ async function main() {
     const qq = (p) => perPos[Math.min(perPos.length - 1, Math.floor((p / 100) * perPos.length))];
     console.log(`    cells ${perPos.length}  p10 ${qq(10)}  median ${qq(50)}  p90 ${qq(90)}  max ${perPos[perPos.length - 1]}`);
     console.log('');
-    console.log('  transfer share by division (a candidate signal: does this programme recruit transfers?):');
+    console.log('  experienced-arrival share by division');
+    console.log('  (the candidate signal: does this programme recruit ready-made players or freshmen?)');
     for (const r of db.prepare(`
-      SELECT c.division, COUNT(*) n, SUM(CASE WHEN a.entry_type='TRANSFER' THEN 1 ELSE 0 END) transfers
+      SELECT c.division, COUNT(*) n, SUM(CASE WHEN a.entry_type='EXPERIENCED' THEN 1 ELSE 0 END) exp
         FROM recruiting_arrivals a JOIN colleges c ON c.name = a.programme AND c.sport = a.sport
        WHERE c.active = 1 GROUP BY c.division ORDER BY n DESC`).all()) {
-      console.log(`    ${String(r.division).padEnd(10)} arrivals ${String(r.n).padStart(6)}  transfers ${String(r.transfers).padStart(6)}  ${pctOf(r.transfers, r.n)}`);
+      console.log(`    ${String(r.division).padEnd(10)} arrivals ${String(r.n).padStart(6)}  experienced ${String(r.exp).padStart(6)}  ${pctOf(r.exp, r.n)}`);
     }
+    console.log('');
+
+    /**
+     * SPLIT-HALF RELIABILITY, the standard this codebase already holds signals
+     * to. A7.3 rejected newcomer minutes share at r = 0.05 by exactly this
+     * test; a rate that does not agree with itself across two halves of its
+     * own history cannot carry a ranking.
+     *
+     * Halves are by season parity, which is a real split rather than a random
+     * one: it asks whether a programme behaves the same way in different years.
+     */
+    const splitHalf = (label, keyExpr, minPerHalf) => {
+      const rows = db.prepare(`
+        SELECT ${keyExpr} k,
+               CAST(a.arrival_season AS INTEGER) % 2 half,
+               COUNT(*) n,
+               SUM(CASE WHEN a.entry_type='EXPERIENCED' THEN 1 ELSE 0 END) exp
+          FROM recruiting_arrivals a
+          JOIN colleges c ON c.name = a.programme AND c.sport = a.sport AND c.active = 1
+         WHERE a.entry_type IN ('FRESHMAN','EXPERIENCED')
+         GROUP BY k, half`).all();
+      const by = new Map();
+      for (const r of rows) {
+        if (!r.k) continue;
+        const e = by.get(r.k) ?? {};
+        e[r.half] = { n: r.n, rate: r.exp / r.n };
+        by.set(r.k, e);
+      }
+      const pairs = [...by.values()].filter((e) => e[0] && e[1] && e[0].n >= minPerHalf && e[1].n >= minPerHalf);
+      const a = pairs.map((e) => e[0].rate); const b = pairs.map((e) => e[1].rate);
+      const n = a.length;
+      if (n < 10) { console.log(`    ${label.padEnd(46)} too few units (${n})`); return; }
+      const ma = a.reduce((x, y) => x + y, 0) / n; const mb = b.reduce((x, y) => x + y, 0) / n;
+      let c2 = 0; let va = 0; let vb = 0;
+      for (let i = 0; i < n; i += 1) { const d = a[i] - ma; const e2 = b[i] - mb; c2 += d * e2; va += d * d; vb += e2 * e2; }
+      const r = c2 / Math.sqrt(va * vb);
+      console.log(`    ${label.padEnd(46)} units ${String(n).padStart(5)}  split-half r = ${r.toFixed(3)}  ${r >= 0.5 ? 'USABLE' : r >= 0.3 ? 'MARGINAL' : 'REJECT'}`);
+    };
+    console.log('  split-half reliability of the experienced-arrival rate (odd vs even seasons):');
+    splitHalf('per programme, >= 5 arrivals per half', "a.programme || '|' || a.sport", 5);
+    splitHalf('per programme, >= 10 arrivals per half', "a.programme || '|' || a.sport", 10);
+    splitHalf('per programme x position, >= 5 per half', "a.programme || '|' || a.sport || '|' || a.canonical_position", 5);
+    splitHalf('per coach, >= 5 per half', "a.coach", 5);
+    splitHalf('per division (ceiling check)', "c.division || '|' || a.sport", 5);
     console.log('');
     console.log('  coach attribution (a candidate: does THIS coach recruit this type?):');
     for (const r of db.prepare('SELECT coach_attribution, COUNT(*) n FROM recruiting_arrivals GROUP BY coach_attribution ORDER BY n DESC LIMIT 6').all()) {

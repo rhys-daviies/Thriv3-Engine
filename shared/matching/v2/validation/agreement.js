@@ -21,7 +21,7 @@
  *
  * NOTHING HERE IS A TARGET. No weight, gate or threshold may be fitted to it.
  */
-import { CLASSIFICATION, classificationRank, isPursue } from './rubric.js';
+import { CLASSIFICATION, classificationRank, isPursue, normaliseReasonTags } from './rubric.js';
 
 const rate = (n, d) => (d > 0 ? Number((n / d).toFixed(4)) : null);
 
@@ -180,7 +180,7 @@ export function agreementFor(pack, reviews) {
       readAsAbsence: share(limited, (x) => x.review.classification === CLASSIFICATION.INSUFFICIENT_INFORMATION
         || x.review.classification === CLASSIFICATION.BORDERLINE),
       readAsPoor: share(limited, (x) => x.review.classification === CLASSIFICATION.WOULD_NOT_PURSUE
-        && (x.review.reasonTags ?? []).includes('INSUFFICIENT_ROSTER_DATA')),
+        && normaliseReasonTags(x.review.reasonTags).includes('INSUFFICIENT_ROSTER_DATA')),
     },
 
     ordering: kendallTauB(ordinalPairs),
@@ -214,7 +214,7 @@ export function agreementFor(pack, reviews) {
       })),
     },
 
-    reasonTags: tally(rows.flatMap((x) => (x.review.reasonTags ?? []).map((t) => ({ t }))), (x) => x.t),
+    reasonTags: tally(rows.flatMap((x) => normaliseReasonTags(x.review.reasonTags).map((t) => ({ t }))), (x) => x.t),
     qualitative: rows.filter((x) => x.review.notes).map((x) => ({ id: x.p.id, name: x.p.name, notes: x.review.notes })),
   };
 }

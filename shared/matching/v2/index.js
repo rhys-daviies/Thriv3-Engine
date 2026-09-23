@@ -79,6 +79,8 @@ export { rankPool } from './pipeline.js';
 export {
   LAYER, POLARITY, BAND, REASON_CODE, EVIDENCE, LAYER_BANDS,
   bandFor, sampleStrength, ABSOLUTE, FORBIDDEN_LANGUAGE, PURSUIT_HAS_NO_BAND,
+  COMPONENT_LABEL, LAYER_LABEL, REFUSAL_PHRASE,
+  componentLabel, layerLabel, refusalPhrase,
 } from './explain/vocabulary.js';
 export { explainProgramme, strengths, concerns, unknowns } from './explain/explain.js';
 export { explainMovement, largestMovers, MOVEMENT_CODE, MATERIAL_MOVE } from './explain/movement.js';
@@ -97,6 +99,7 @@ export {
   REASON_TAG, TAG_IMPLICATES, EXPLANATION_REVIEW,
   DISAGREEMENT, DISAGREEMENT_MEANING, VALIDATION_QUESTIONS,
   ADOPTION_BLOCKERS, TOLERABLE_DISAGREEMENT, assertReview,
+  REASON_TAG_ORDER, normaliseReasonTag, normaliseReasonTags,
 } from './validation/rubric.js';
 export {
   REQUIRED_INPUTS, NOT_COLLECTED, PROFILES,

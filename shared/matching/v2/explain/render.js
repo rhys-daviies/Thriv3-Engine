@@ -10,7 +10,10 @@
  * a gate and a denominator are. See CLIENT_UNSAFE below for what must not
  * simply be forwarded to a family.
  */
-import { REASON_CODE, LAYER, FORBIDDEN_LANGUAGE } from './vocabulary.js';
+import {
+  REASON_CODE, LAYER, FORBIDDEN_LANGUAGE,
+  componentLabel, layerLabel, refusalPhrase,
+} from './vocabulary.js';
 import { MOVEMENT_CODE } from './movement.js';
 
 const money = (n) => `$${Math.round(n).toLocaleString('en-US')}`;
@@ -119,10 +122,19 @@ const SENTENCE = {
   [REASON_CODE.LOCATION_NOT_COLLECTED]: () =>
     `No location preference has been collected, so geography is not scored either way.`,
 
-  [REASON_CODE.LAYER_UNSCOREABLE]: (e) =>
-    `${e.layer.charAt(0).toUpperCase()}${e.layer.slice(1)} could not be scored — ${(e.missing ?? []).join(' and ') || 'the evidence'} is missing (${e.reason}).`,
+  /**
+   * Named, not enumerated. `positionalOpportunity` and `playingOpportunity`
+   * are different quantities owned by different layers, and printing both by
+   * their identifiers put an apparent contradiction on the page.
+   */
+  [REASON_CODE.LAYER_UNSCOREABLE]: (e) => {
+    const missing = (e.missing ?? []).map(componentLabel);
+    const why = refusalPhrase(e.reason);
+    const what = missing.length ? `${missing.join(' and ')} ${missing.length > 1 ? 'are' : 'is'} missing` : 'the evidence is missing';
+    return `${layerLabel(e.layer)} could not be scored — ${what}${why ? `, and ${why}` : ''}.`;
+  },
   [REASON_CODE.LIMITED_DATA_MISSING_LAYERS]: (e) =>
-    `Insufficient evidence to rank: ${(e.missing ?? []).join(' and ')} could not be scored${(e.available ?? []).length ? `, though ${e.available.join(' and ')} could be` : ''}.`,
+    `Insufficient evidence to rank: ${(e.missing ?? []).map(layerLabel).join(' and ')} could not be scored${(e.available ?? []).length ? `, though ${e.available.map(layerLabel).join(' and ')} could be` : ''}.`,
   [REASON_CODE.INELIGIBLE_RULE]: (e) =>
     `Excluded by a rule${e.rule ? `: ${e.rule}` : ''}. This is not a judgement about the programme.`,
   [REASON_CODE.SUPPRESSED_BY_OPERATOR]: () =>
@@ -217,4 +229,4 @@ export const CLIENT_UNSAFE = Object.freeze({
   reason: 'These are model-internal or need framing a family has not been given. A client register must be designed, not derived by deletion.',
 });
 
-export { FORBIDDEN_LANGUAGE, LAYER };
+export { FORBIDDEN_LANGUAGE, LAYER, componentLabel, layerLabel, refusalPhrase };

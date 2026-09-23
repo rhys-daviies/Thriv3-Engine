@@ -129,6 +129,7 @@ export const EXPLANATION_REVIEW = Object.freeze({
  */
 export const DISAGREEMENT = Object.freeze({
   MODEL_BUG: 'MODEL_BUG',
+  MODEL_SCOPE_GAP: 'MODEL_SCOPE_GAP',
   DATA_GAP: 'DATA_GAP',
   INPUT_GAP: 'INPUT_GAP',
   HUMAN_JUDGEMENT: 'HUMAN_JUDGEMENT',
@@ -136,8 +137,24 @@ export const DISAGREEMENT = Object.freeze({
   ACCEPTABLE_DIFFERENCE: 'ACCEPTABLE_DIFFERENCE',
 });
 
+/**
+ * MODEL_SCOPE_GAP was added after the first real review, which had no slot
+ * for its own dominant finding.
+ *
+ * Twelve of fourteen HUMAN_JUDGEMENT rows in the Fixture C review shared one
+ * cause: Thriv3 holds the data, the athlete supplied it, the arithmetic is
+ * right, and the factor is simply not in the scoring architecture. Academic
+ * strength was the instance. That is none of the other six - not a data gap,
+ * because the data is held; not an input gap, because the athlete answered;
+ * not a bug, because nothing computed wrongly; and emphatically not human
+ * judgement, because filing it there makes a systematic hole look like
+ * reviewer taste and lets it survive every future review unchanged.
+ *
+ * It is the one category whose correct response is to widen the model.
+ */
 export const DISAGREEMENT_MEANING = Object.freeze({
   MODEL_BUG: 'The evidence or the arithmetic is wrong. Fix the model.',
+  MODEL_SCOPE_GAP: 'Thriv3 holds the evidence and the model does not read it at all. The factor is outside the scoring architecture, not wrong inside it. Widen the model.',
   DATA_GAP: 'The model could not know, because Thriv3 holds no such data. Fix the data, or say so honestly in the explanation.',
   INPUT_GAP: 'We never asked the athlete. Fix the intake.',
   HUMAN_JUDGEMENT: 'Legitimate recruiting knowledge the model does not represent. Record it; do not fit to it.',
@@ -160,6 +177,7 @@ export const VALIDATION_QUESTIONS = Object.freeze([
   { id: 'Q11', question: 'Are Limited-Data programmes correctly separated rather than unfairly penalised?', evidence: 'the limited-data stratum, and whether the operator reads absence as judgement' },
   { id: 'Q12', question: 'Are explanations useful in deciding whether to send an email?', evidence: 'the HELPFUL field' },
   { id: 'Q13', question: 'Are explanations ever convincing but wrong?', evidence: 'HELPFUL=YES with ACCURATE=NO or PARTLY. The most important cell in the whole review.' },
+  { id: 'Q14', question: 'Is anything you weighed simply absent from the model rather than wrong in it?', evidence: 'rows you would otherwise file as HUMAN_JUDGEMENT. If Thriv3 holds the evidence and nothing reads it, that is MODEL_SCOPE_GAP.' },
 ]);
 
 /**
@@ -267,6 +285,30 @@ export const TOLERABLE_DISAGREEMENT = Object.freeze([
   'A limited-data programme the operator would contact anyway. That is the list working: it flags what we cannot score, not what is bad.',
 ]);
 
+/**
+ * The reason tags in the order the generated markdown numbers them.
+ *
+ * The pack prints a numbered legend and asks the operator to tick numbers, so
+ * a filled review legitimately arrives carrying `[1, 7, 10, 12]`. The first
+ * real review did exactly that and `assertReview` rejected it - a defect in
+ * the pack design, not in the review: a form that asks for numbers may not
+ * then demand enum spellings.
+ */
+export const REASON_TAG_ORDER = Object.freeze(Object.keys(REASON_TAG));
+
+/** Accepts a key, a 1-based number from the printed legend, or the tag's own text. */
+export function normaliseReasonTag(tag) {
+  if (typeof tag === 'number' || /^\d+$/.test(String(tag))) {
+    return REASON_TAG_ORDER[Number(tag) - 1] ?? null;
+  }
+  if (tag in REASON_TAG) return tag;
+  const byText = REASON_TAG_ORDER.find((k) => REASON_TAG[k] === tag);
+  return byText ?? null;
+}
+
+/** Every reason tag on a row, normalised; unrecognisable entries are dropped by `assertReview` first. */
+export const normaliseReasonTags = (tags) => (tags ?? []).map(normaliseReasonTag).filter(Boolean);
+
 /** Shape check for one filled review row. Throws on anything that would corrupt the metrics. */
 export function assertReview(row) {
   const fail = (m) => { throw new Error(`validation review: ${m}`); };
@@ -274,7 +316,7 @@ export function assertReview(row) {
   if (!row.programmeId) fail('row must name a programmeId');
   if (!(row.classification in CLASSIFICATION)) fail(`unknown classification ${JSON.stringify(row.classification)}`);
   for (const tag of row.reasonTags ?? []) {
-    if (!(tag in REASON_TAG)) fail(`unknown reason tag ${JSON.stringify(tag)}`);
+    if (normaliseReasonTag(tag) === null) fail(`unknown reason tag ${JSON.stringify(tag)}`);
   }
   const ex = row.explanationReview;
   if (ex) {

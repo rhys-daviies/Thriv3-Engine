@@ -191,3 +191,83 @@ export const FORBIDDEN_LANGUAGE = Object.freeze([
   'will receive', 'will offer', 'expect a scholarship', 'the coach needs',
   'the coach wants', 'you are good enough', 'odds of',
 ]);
+
+/**
+ * Operator-facing names for the things the model calls by identifier.
+ *
+ * -- WHY THIS EXISTS -------------------------------------------------------
+ *
+ * Two different components were being printed by their internal names, and
+ * the names collide in English. Coach Recruitability owns
+ * `positionalOpportunity` - whether a starting place is opening that a
+ * newcomer would take. Athlete Opportunity owns `playingOpportunity` - how
+ * widely a programme spreads its minutes. A limited-data row rendered both,
+ * and produced:
+ *
+ *   "Recruitability could not be scored - positionalOpportunity is missing"
+ *   "Evidence: ... opportunity MEASURED (coverage 1.00)"
+ *
+ * four lines apart, about the same programme. A reviewer read it as a
+ * contradiction and was right to: nothing on the page says those are two
+ * different quantities. The scores were correct throughout; only the words
+ * were wrong, which is the most dangerous kind of explanation defect because
+ * it is specific, technical and convincing.
+ *
+ * NAMING ONLY. No component, weight, coverage rule or reason changes here.
+ */
+export const COMPONENT_LABEL = Object.freeze({
+  athleticPlausibility: 'the athletic level comparison',
+  positionalOpportunity: 'positional recruiting evidence',
+  internationalPropensity: 'international recruiting history',
+  playingOpportunity: 'playing-time opportunity',
+  programmeTrajectory: 'programme trajectory',
+  majorFit: 'major fit',
+  locationFit: 'location preference',
+  athleticOutcome: 'competitive-level fit',
+  typicalStarters: 'a measured squad norm for this position',
+  fillPropensity: 'positional recruiting evidence',
+  roster: 'a current roster',
+  eligibilityRule: 'an eligibility rule for this association',
+  positionRows: 'any player recorded at this position',
+  notableMajors: 'a list of majors offered',
+});
+
+/** The three layers, as an operator should see them named. */
+export const LAYER_LABEL = Object.freeze({
+  recruitability: 'Coach recruitability',
+  financial: 'Financial viability',
+  opportunity: 'Athlete opportunity',
+  pursuit: 'Pursuit priority',
+  pipeline: 'Ranking',
+});
+
+/**
+ * Why a layer could not be scored, in words rather than in an enum.
+ *
+ * BELOW_COVERAGE_FLOOR in particular was rendering as "... is missing
+ * (BELOW_COVERAGE_FLOOR)", which is two different statements bolted together:
+ * the components are named because they are absent, and the LAYER refused
+ * because what remained did not cover enough of the question.
+ */
+export const REFUSAL_PHRASE = Object.freeze({
+  BELOW_COVERAGE_FLOOR: 'what remains does not cover enough of the question',
+  NO_ROSTER_ON_FILE: 'Thriv3 holds no current roster for this programme',
+  NO_ELIGIBILITY_RULE: 'no eligibility rule is established for this association',
+  NO_CLASS_LABELS: 'the roster carries no readable class years',
+  NO_MINUTES_HISTORY: 'Thriv3 holds no minutes history for this programme',
+  NO_PROGRAMME_LEVEL: 'this programme carries no strength rating',
+  NO_ATHLETE_LEVEL: 'this athlete carries no ability rating',
+  NO_COST_BASIS: 'Thriv3 holds no cost figure for this programme',
+  NO_FAMILY_CONTRIBUTION: 'the family has stated no budget',
+  NO_AID_RULE: 'no athletic-aid rule is on file',
+  NO_ACADEMIC_PROFILE: 'no academic profile is recorded',
+  NO_LOCATION: 'no location is recorded',
+  NO_STATED_PREFERENCE: 'the athlete has stated no preference',
+  NO_WIN_RATES: 'no season results are recorded',
+  NOT_APPLICABLE: 'it does not apply here',
+});
+
+/** Label a component, falling back to the identifier rather than inventing a name. */
+export const componentLabel = (key) => COMPONENT_LABEL[key] ?? key;
+export const layerLabel = (key) => LAYER_LABEL[key] ?? key;
+export const refusalPhrase = (reason) => REFUSAL_PHRASE[reason] ?? null;
