@@ -46,9 +46,109 @@
       "reviewer": "rhys.davies@cardaxia.ai (View A, blind, conducted conversationally)",
       "startedAt": "2026-09-23T08:45:17.308124+00:00",
       "completedAt": "2026-09-23T08:45:17.308124+00:00",
-      "modelRevealed": false,
-      "questionAnswers": {},
-      "redFlagVerdicts": {},
+      "modelRevealed": true,
+      "questionAnswers": {
+        "Q1": {
+          "answer": "NO",
+          "basis": "No elite-on-both programme reaches the top 100 (0 of 67; best rank 439). The top-25 minimum recruitability is 0.26."
+        },
+        "Q2": {
+          "answer": "YES",
+          "basis": "Four ranked omissions - New York University 178, Worcester Polytechnic 266, Brandeis 284, Wheaton (MA) 367 - plus Bryn Athyn as LIMITED_DATA. All are high-academic."
+        },
+        "Q3": {
+          "answer": "OPEN",
+          "basis": "Kendall tau-b 0.0474. The two orderings are near-independent, but the reviewer ordered on one dimension. Unresolved until the level-first control runs."
+        },
+        "Q4": {
+          "answer": "NOT_TESTED",
+          "basis": "Financial viability is 1.00 on 41 of 43 rows."
+        },
+        "Q5": {
+          "answer": "NOT_TESTED",
+          "basis": "Fixture A required."
+        },
+        "Q6": {
+          "answer": "NOT_TESTED",
+          "basis": "Fixture A required."
+        },
+        "Q7": {
+          "answer": "NOT_APPLICABLE",
+          "basis": "Developmental athlete."
+        },
+        "Q8": {
+          "answer": "YES",
+          "basis": "Top-25 maximum programme strength 38.8; nothing above 40 appears in the top 25."
+        },
+        "Q9": {
+          "answer": "NOT_APPLICABLE",
+          "basis": "Fixture G."
+        },
+        "Q10": {
+          "answer": "NOT_APPLICABLE",
+          "basis": "Different fixture."
+        },
+        "Q11": {
+          "answer": "YES",
+          "basis": "Absence was read as absence on four of five limited-data rows; readAsPoor is 0."
+        },
+        "Q12": {
+          "answer": "NOT_ASSESSED",
+          "basis": "No explanation review captured."
+        },
+        "Q13": {
+          "answer": "NOT_ASSESSED",
+          "basis": "No explanation review captured."
+        },
+        "Q14": {
+          "answer": "NO",
+          "basis": "Academic strength was the A7.6 scope gap and entered the architecture at A7.7.5. Nothing weighed in this review is absent from the model."
+        }
+      },
+      "redFlagVerdicts": {
+        "UNRECRUITABLE_IN_TOP_25": {
+          "verdict": "MIS_SPECIFIED",
+          "blocking": false,
+          "finding": "The flag fires on count - 5 WOULD_NOT_PURSUE inside the top 25 - but its stated evidence path is \"tagged athlete below level\", and the athlete is above the level of all five. The count and the cause do not describe the same thing.",
+          "action": "Added to the validation-tooling backlog for later repair. Not repaired in this phase, and no ranking behaviour altered."
+        },
+        "DEVELOPMENTAL_ELITE_REACH": {
+          "verdict": "REFUTED",
+          "blocking": false,
+          "finding": "No top-25 row carries recruitability below the 0.25 gate threshold. The minimum in the top 25 is 0.26."
+        },
+        "MISSING_STRONG_TARGETS": {
+          "verdict": "DEFERRED_WATCH",
+          "blocking": false,
+          "finding": "Two PURSUE_STRONGLY rows fall outside the top 100 (New York University, Brandeis), below the proposed trigger of three. The softer clause - any programme the operator would contact first - may be met.",
+          "action": "Held as WATCH rather than CONFIRMED. Fixture C's human review was almost entirely explained by academic rating, so the level-first control (A-FULLY_DECLARED_LEVEL-v2) must run before this is treated as a systematic model problem."
+        },
+        "LIMITED_DATA_READ_AS_POOR": {
+          "verdict": "REFUTED",
+          "blocking": false,
+          "finding": "Zero of five limited-data rows were classified on the missing data itself."
+        },
+        "ORDERING_DISAGREEMENT": {
+          "verdict": "CONFIRMED_WATCH",
+          "blocking": false,
+          "finding": "Pairwise ordering agreement 0.5293, Kendall tau-b 0.0474, below the proposed 0.6. Expected given the single-axis divergence."
+        },
+        "EXPLANATION_MISREPRESENTS": {
+          "verdict": "NOT_ASSESSED",
+          "blocking": false,
+          "finding": "No explanation review was captured during the blind pass; explanationReview is empty on all 43 rows."
+        },
+        "BUDGET_IGNORED": {
+          "verdict": "NOT_APPLICABLE",
+          "blocking": false,
+          "finding": "Financial viability is 1.00 on 41 of 43 rows. This fixture does not test budget."
+        },
+        "AMBITION_INERT": {
+          "verdict": "NOT_APPLICABLE",
+          "blocking": false,
+          "finding": "Requires the fixture A level-first / playing-first pair."
+        }
+      },
       "overall": {
         "wouldSendThisList": null,
         "changeFirst": ""
@@ -65,6 +165,28 @@
         "count": 3,
         "basis": "internal-consistency review of View A, conducted before the model reveal",
         "strengthCaveatClarified": "The reviewer's \"depending on programme strength\" caveat referred to programmes elite on BOTH axes - Duke-like, academic >=8 and strength >=55 - which would be athletically unrealistic for a 3/10 athlete. It was not a tiebreaker among realistic options. No such programme appears anywhere in this 43-row sample, so the caveat had no instance to act on and the absence of a strength effect is explained rather than inconsistent."
+      },
+      "triage": {
+        "at": "2026-09-23T09:26:54.515Z",
+        "phase": "A7.7.7 Fixture C View B reveal + disagreement triage",
+        "decidedBy": "rhys.davies@cardaxia.ai",
+        "reviewedRows": 43,
+        "agreements": 31,
+        "disagreements": 12,
+        "modelBugCandidates": 0,
+        "modelScopeGapCandidates": 0,
+        "summary": "Every disagreement lies on one axis: the reviewer ranked on academic rating, Thriv3 weights recruitability at 0.50. Where the two coincide - a strong institution the athlete can actually reach - they agree emphatically, with four of the reviewer's twelve pursues inside Thriv3's top eight. No disagreement is a MODEL_BUG or a MODEL_SCOPE_GAP: academic strength entered the architecture at A7.7.5 and is scored.",
+        "modelChangeJustified": false,
+        "modelChangeReasoning": "Nothing found is a bug, a misread of evidence, or a safety failure. The one systematic divergence is a magnitude question - how much a stated academic preference should weigh against reachability - measured against a review that responded to one preference dimension out of three, with 19 of 43 rows classified by a stated threshold rule. Tuning to it would fit the model to the instrument."
+      },
+      "fixtureStatus": {
+        "complete": true,
+        "limits": [
+          "The 43-row sample contains no programme elite on both academics and strength, so the reviewer's \"depending on programme strength\" caveat had no instance to act on. Tested separately by the 67-programme elite guard.",
+          "19 of 43 rows were classified by a stated threshold rule rather than individually. Agreement on those rows compares two rules.",
+          "The review responded to one preference dimension of three; competitive level and playing opportunity showed no visible effect across 34, 12 and 35 matched pairs."
+        ],
+        "next": "A-FULLY_DECLARED_LEVEL-v2, as the control that inverts the preference profile (level 5 / playing 1 / academic 3) on a rating-9 athlete."
       }
     },
     "rows": [
@@ -102,9 +224,11 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": null,
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
-        "method": "ROW_BY_ROW"
+        "method": "ROW_BY_ROW",
+        "triageReason": "Academic rating 5.1, below the reviewer's stated threshold. Thriv3 ranked it on reachability and a midfield opening.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
       },
       {
         "reviewNo": 3,
@@ -120,11 +244,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": null,
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
         "method": "ROW_BY_ROW",
         "priorClassification": "LOW_PRIORITY",
-        "amendedAt": "2026-09-23T08:51:51.323261+00:00"
+        "amendedAt": "2026-09-23T08:51:51.323261+00:00",
+        "triageReason": "Academic rating 5.2, below the reviewer's stated threshold. Thriv3 ranked it on reachability and a three-starter opening. Amended to WOULD_NOT_PURSUE during the reviewer's own consistency pass.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
       },
       {
         "reviewNo": 4,
@@ -266,9 +392,11 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": null,
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
-        "method": "ROW_BY_ROW"
+        "method": "ROW_BY_ROW",
+        "triageReason": "Academic rating 6.4, the reviewer's middle band. Thriv3 ranked it on reachability and a local recruiting footprint 160km from the athlete.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
       },
       {
         "reviewNo": 12,
@@ -302,9 +430,11 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": null,
+        "disagreement": "ACCEPTABLE_DIFFERENCE",
         "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
-        "method": "ROW_BY_ROW"
+        "method": "ROW_BY_ROW",
+        "triageReason": "About 26 percentile points above the athlete's assessed range. Neither ordering is objectively better at that reach.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
       },
       {
         "reviewNo": 14,
@@ -338,9 +468,11 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": null,
+        "disagreement": "DATA_GAP",
         "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
-        "method": "ROW_BY_ROW"
+        "method": "ROW_BY_ROW",
+        "triageReason": "Thriv3 is not judging the programme negatively. It holds no roster and no recruiting history for it, so neither behavioural signal is scoreable, the evidence floor refuses, and the programme leaves the ranked list as LIMITED_DATA rather than being scored on athletic plausibility alone. This is missing data that could in principle be acquired.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
       },
       {
         "reviewNo": 16,
@@ -356,9 +488,11 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": null,
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
-        "method": "RULE"
+        "method": "RULE",
+        "triageReason": "Academic rating 4.3, below the reviewer's stated threshold. Thriv3 ranked it on reachability.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
       },
       {
         "reviewNo": 17,
@@ -518,9 +652,11 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": null,
+        "disagreement": "ACCEPTABLE_DIFFERENCE",
         "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
-        "method": "ROW_BY_ROW"
+        "method": "ROW_BY_ROW",
+        "triageReason": "About 40 percentile points above the athlete's assessed range. Neither ordering is objectively better at that reach.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
       },
       {
         "reviewNo": 26,
@@ -554,9 +690,11 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": null,
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
-        "method": "RULE"
+        "method": "RULE",
+        "triageReason": "Academic rating 4.4, below the reviewer's stated threshold. Thriv3 ranked it on reachability.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
       },
       {
         "reviewNo": 28,
@@ -572,11 +710,13 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": null,
+        "disagreement": "ACCEPTABLE_DIFFERENCE",
         "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
         "method": "ROW_BY_ROW",
         "priorClassification": "PURSUE",
-        "amendedAt": "2026-09-23T08:51:51.323261+00:00"
+        "amendedAt": "2026-09-23T08:51:51.323261+00:00",
+        "triageReason": "About 27 percentile points above the athlete's assessed range. Neither ordering is objectively better at that reach.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
       },
       {
         "reviewNo": 29,
@@ -718,9 +858,11 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": null,
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
-        "method": "ROW_BY_ROW"
+        "method": "ROW_BY_ROW",
+        "triageReason": "The closest genuine product-boundary case in the sample. Roughly 14 percentile points above the athlete's assessed range; the reviewer would still consider outreach on the strength of the athlete's explicit 5/5 academic preference, while Thriv3 judged the athletic reach material enough to demote it to rank 178 through a 50% recruitability gate loss. Not evidence of MODEL_BUG: no evidence is misread and no arithmetic is wrong. It is an open product question about how aggressive Pursuit should be toward a highly desirable but athletically ambitious target.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
       },
       {
         "reviewNo": 37,
@@ -772,9 +914,11 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": null,
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
-        "method": "ROW_BY_ROW"
+        "method": "ROW_BY_ROW",
+        "triageReason": "Academic rating 6.3 sits in the reviewer's middle band. Both sides read the same evidence and weighted it differently; Thriv3 ranked it on reachability and a three-starter opening.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
       },
       {
         "reviewNo": 40,
@@ -790,9 +934,11 @@
           "missingImportantReason": "",
           "misleadingClaim": ""
         },
-        "disagreement": null,
+        "disagreement": "HUMAN_JUDGEMENT",
         "reviewedAt": "2026-09-23T08:45:17.308124+00:00",
-        "method": "RULE"
+        "method": "RULE",
+        "triageReason": "Academic rating 5.9, below the reviewer's stated threshold. Highest recruitability in Thriv3's top ten.",
+        "triagedAt": "2026-09-23T09:26:54.515Z"
       },
       {
         "reviewNo": 41,
