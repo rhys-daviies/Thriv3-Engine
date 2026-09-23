@@ -44,16 +44,16 @@
       "corpusMoved": "NO. Identical V7 digest and identical per-table digests before and after, so this is code movement only.",
       "emailsMoved": "NO. EMAIL_BODY and COACH_COMPOSITION are byte-identical across 4,742 pairs and were NOT repinned.",
       "repinned": {
-        "OUTBOUND_DECISION": "cf1e7968 -> dd49dadd, 183 pairs.",
-        "OPERATOR_WIRE": "8d502959 -> 2b333f2d, 2,311 pairs.",
-        "LOG_PAYLOAD": "37544f26 -> 6c1c2454, 3,315 pairs.",
-        "OPERATOR_EVIDENCE": "7ca0e350 -> cdc14d31, 2,802 pairs."
+        "OUTBOUND_DECISION": "cf1e7968 -> dd49dadd, 183 pairs. Only REMOVALS of NOT_LICENSED dispositions for kinds main no longer generates. A NOT_LICENSED claim was never permitted in an email, which is why no email moved.",
+        "OPERATOR_WIRE": "8d502959 -> 9af185f0, 217 pairs: the 183 above plus internal[] content from the same causes. It was 2,311 before the previouslyUsed defect below was fixed.",
+        "LOG_PAYLOAD": "37544f26 -> 6c1c2454, 3,315 pairs. 2,722 gain ladder contributions[] (9b700db); the pool percentiles move (9c0a036).",
+        "OPERATOR_EVIDENCE": "7ca0e350 -> cdc14d31, 2,802 pairs. The same causes surfaced in the operator sections."
       },
       "causes": {
         "9c0a036": "\"A season nobody read is not a season nobody played.\" Programme-seasons whose stats page was never read stop counting as measured zeros. Every one of 2,720 pool movements is SMALLER (770 -> 736 seasons); none is larger. Movement is uniformly toward refusal.",
         "2555ff7 + 655dfc0": "tenureFor accepted any name in the coach row, so a strength coach or a department became the head coach. 35 pairs across 16 programmes lose COACH_CONTEXT — e.g. Elms was filed under a coach named \"Sports Management\".",
-        "9b700db": "Expose the seasons behind each ladder rung: the additive contributions[] field.",
-        "241fadc": "Surface prior evidence use in manual outreach: the additive previouslyUsed field, on 2,203 OPERATOR_WIRE pairs."
+        "241fadc": "Surface prior evidence use in manual outreach. The additive previouslyUsed field was spread UNCONDITIONALLY, so every finding of every caller that never asked for history carried previouslyUsed: null. `evidenceSummaries` promises the opposite in its own comment -- omitted, a caller \"receives exactly the payload it received before, with no new keys at all\" -- and operatorEvidence.test.js fails on it AT 9a18d78, before any merge. Made absent-when-unasked here; OPERATOR_WIRE moved 2,311 -> 217 pairs as a result, and no previouslyUsed path remains in the residual.",
+        "9b700db": "Expose the seasons behind each ladder rung: the additive contributions[] field."
       },
       "mergeContribution": "NONE. The one resolution that touches a behavioural query — adding main's `division` column to the pool SELECT that carries Evidence's TRUSTED predicate — was measured against all six outputs with the column removed and every digest was identical."
     }
@@ -148,7 +148,7 @@
     {
       "name": "OPERATOR_WIRE",
       "size": 4742,
-      "digest": "2b333f2dcaf3b0432c0da33ee2d2eb248e2aa0e4784a73ca327e452b1861f42f"
+      "digest": "9af185f0786665fdac038a147a9cf294922e31c691bae65300226ae37c015f9e"
     },
     {
       "name": "LOG_PAYLOAD",
