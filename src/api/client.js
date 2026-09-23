@@ -906,3 +906,35 @@ export const contactIntelligence = {
     return request(`/api/players/${playerId}/contact-intelligence`);
   },
 };
+
+/**
+ * Historical season trust — the L8D operator review surface.
+ *
+ * `disposition` is the governed write: the server owns the reviewer and the
+ * timestamp, refuses either if a caller sends them, and refuses a decision
+ * taken against a stale reading. `expectedDisposition` is not optional
+ * padding — it is what the caller believed the current state to be, and the
+ * server answers 409 if it has moved since.
+ *
+ * `rebuild` is separate from `disposition` on purpose. An exclusion stales the
+ * derived recruiting data and clearing that rewrites tens of thousands of
+ * rows; hiding it inside the decision would make one act look like another.
+ */
+export const seasonTrust = {
+  queue(params = {}) {
+    const qs = new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v != null && v !== ''),
+    ).toString();
+    return request(`/api/roster-season-trust${qs ? `?${qs}` : ''}`);
+  },
+  disposition(body) {
+    return request('/api/roster-season-trust/disposition', {
+      method: 'POST', body: JSON.stringify(body),
+    });
+  },
+  rebuild(sport) {
+    return request('/api/roster-season-trust/rebuild', {
+      method: 'POST', body: JSON.stringify({ sport }),
+    });
+  },
+};
