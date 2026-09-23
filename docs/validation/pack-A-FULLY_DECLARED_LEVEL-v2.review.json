@@ -1,0 +1,832 @@
+{
+  "formatVersion": "thriv3-v2-validation-pack/1",
+  "packId": "A-FULLY_DECLARED_LEVEL",
+  "provenance": {
+    "generatedAt": "2026-09-23T08:12:31.940Z",
+    "v2Commit": "227b54f69371b59f4b98ce47bcd4aea583e0512c",
+    "explanationCommit": "227b54f69371b59f4b98ce47bcd4aea583e0512c",
+    "v1FreezeCommit": "480a915645425c3286a19c2da10e3a1d60b3a3ec",
+    "calibrationId": "ability-scale-2026-09-19",
+    "positionalNormsDigest": "4b2d7902f5f299a7",
+    "playingNormsDigest": "5edc2b0c8f64e9e3",
+    "weights": {
+      "recruitability": 0.5,
+      "financial": 0.2,
+      "opportunity": 0.3
+    },
+    "gates": {
+      "recruitability": {
+        "floor": 0.05,
+        "threshold": 0.25
+      },
+      "financial": {
+        "floor": 0.3,
+        "threshold": 0.5
+      }
+    },
+    "weightingArchitecture": "global",
+    "topN": 100,
+    "rosterSeason": "2026",
+    "fixtureId": "A-strong-high-budget-strong-academics",
+    "fixtureValidationOnly": false,
+    "profileId": "FULLY_DECLARED_LEVEL",
+    "effectiveProfile": "FULLY_DECLARED_LEVEL",
+    "preferenceProfile": "LEVEL_FIRST",
+    "fixtureDigest": "aa98901b74a4675c",
+    "poolDigest": "86b911af2515ab10"
+  },
+  "review": {
+    "meta": {
+      "packId": "A-FULLY_DECLARED_LEVEL",
+      "v2Commit": "227b54f69371b59f4b98ce47bcd4aea583e0512c",
+      "explanationCommit": "227b54f69371b59f4b98ce47bcd4aea583e0512c",
+      "calibrationId": "ability-scale-2026-09-19",
+      "fixtureDigest": "aa98901b74a4675c",
+      "poolDigest": "86b911af2515ab10",
+      "reviewer": "rhys.davies@cardaxia.ai (View A, blind, conducted conversationally)",
+      "startedAt": "2026-09-23T09:27:54.386Z",
+      "completedAt": "2026-09-23T09:41:38.354Z",
+      "modelRevealed": false,
+      "questionAnswers": {},
+      "redFlagVerdicts": {},
+      "overall": {
+        "wouldSendThisList": null,
+        "changeFirst": ""
+      },
+      "headerRestated": "The athlete block was restated in plain English before review, as in Fixture C. No pack content changed; the underlying pack file is unmodified.",
+      "thresholdControl": "The Fixture C academic threshold was deliberately not mentioned to the reviewer. Whether it reappears at a 3/5 academic priority is an observation of this review, not an instruction to it.",
+      "reviewMethod": {
+        "rowByRow": 7,
+        "ruleApplied": 35,
+        "rule": "programme strength < 80 (0-100 scale) -> WOULD_NOT_PURSUE",
+        "ruleBasis": "stated by the reviewer at row 2, unprompted, and confirmed against the strength scale: \"he is a 9/10 in athletic ability, high budget, cares about playing high level\"",
+        "caveat": "35 of 42 rows were classified by a stated threshold rule rather than individually. Agreement figures for those rows compare two rules, not a model against a human judgement."
+      },
+      "amendments": {
+        "at": "2026-09-23T09:41:38.354Z",
+        "count": 1,
+        "basis": "reviewer amendment made during View A, before the model reveal"
+      }
+    },
+    "rows": [
+      {
+        "reviewNo": 1,
+        "programmeId": "35fd6506-5b79-4d1a-8d06-050be692be74",
+        "programmeName": "George Mason",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:32:35.110Z",
+        "method": "RULE_CONFIRMED"
+      },
+      {
+        "reviewNo": 2,
+        "programmeId": "7042bb3b-b5f0-4bbb-95f4-9da47ad89ae6",
+        "programmeName": "Bridgeport",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 3,
+        "programmeId": "1017a37a-5725-4a25-a331-d09afc85d732",
+        "programmeName": "UC Riverside",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 4,
+        "programmeId": "20b80c24-fbe2-45ed-8d88-23cb70e6b4e4",
+        "programmeName": "Vermont",
+        "classification": "PURSUE_STRONGLY",
+        "reasonTags": [],
+        "notes": "amended during the blind review, before any model reveal: raised from PURSUE to PURSUE_STRONGLY",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:38:36.401Z",
+        "method": "ROW_BY_ROW",
+        "priorClassification": "PURSUE",
+        "amendedAt": "2026-09-23T09:41:38.354Z"
+      },
+      {
+        "reviewNo": 5,
+        "programmeId": "0a70334b-1c8c-4043-bf01-9041c8b6674e",
+        "programmeName": "Southwestern (TX)",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 6,
+        "programmeId": "2d96402f-5107-4e9d-9ecc-c4559b82a36b",
+        "programmeName": "Carlow",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 7,
+        "programmeId": "4aff0303-7476-483a-9786-897a8be11b82",
+        "programmeName": "Bridgewater (VA)",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 8,
+        "programmeId": "8dc0c337-afc5-4fb1-afd9-df8cdb2dcf6d",
+        "programmeName": "Hiram",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 9,
+        "programmeId": "bce6de36-7593-4acb-b18c-1d15698f92e6",
+        "programmeName": "Maine Maritime",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 10,
+        "programmeId": "e26ab30e-23fe-4fe8-8a65-062335b7ca37",
+        "programmeName": "New Hampshire",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 11,
+        "programmeId": "b957b1b6-3387-4c92-8e33-03d3c89ffd25",
+        "programmeName": "Bard",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 12,
+        "programmeId": "edacb5e0-a580-423c-bd81-eec51220b77e",
+        "programmeName": "Indiana University Northwest",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 13,
+        "programmeId": "29cc94cb-890e-495d-9c57-7a27662f8271",
+        "programmeName": "Baker",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 14,
+        "programmeId": "7cb1f025-2cc4-431c-bf65-d61c05dc83a3",
+        "programmeName": "Saint Olaf",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 15,
+        "programmeId": "ed25b74d-2e07-4068-a066-934af1e51fe0",
+        "programmeName": "Lewis & Clark",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 16,
+        "programmeId": "64d5c0aa-b5a4-4c95-8e85-6ee9e331de9a",
+        "programmeName": "Case Western Reserve",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 17,
+        "programmeId": "7a2f5f11-6aa9-4b63-b52f-750f1136647b",
+        "programmeName": "Calvin",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 18,
+        "programmeId": "31b7b0ca-829d-4931-9348-473c31a9f36a",
+        "programmeName": "Furman",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:39:54.072Z",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 19,
+        "programmeId": "0a757568-0fd0-4fcc-b838-59b26ff1e2c7",
+        "programmeName": "Penn State",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:40:15.409Z",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 20,
+        "programmeId": "197dc9c6-32b6-40c8-92ae-998543631a60",
+        "programmeName": "Hobart & William Smith",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 21,
+        "programmeId": "19465d98-cdee-4a2f-bc6d-030cc93b0136",
+        "programmeName": "Aurora",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 22,
+        "programmeId": "db4289ce-d577-43f5-9ea6-d28136cd402f",
+        "programmeName": "Williams",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 23,
+        "programmeId": "684f223f-3d4c-4ee9-afd9-a44b36c02c1a",
+        "programmeName": "Hawaii Pacific",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 24,
+        "programmeId": "8b7d39f9-ae50-4eed-b7f0-d0713f1df8ee",
+        "programmeName": "UC Irvine",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 25,
+        "programmeId": "5808fba7-2035-4a69-b439-7eaf8d735615",
+        "programmeName": "Millsaps",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 26,
+        "programmeId": "001de5ba-835d-4fc3-9f2d-61a58273feab",
+        "programmeName": "DePauw",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 27,
+        "programmeId": "435c3d97-49d5-4283-8072-c4d0c023d2a2",
+        "programmeName": "Loyola Marymount",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:41:38.329Z",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 28,
+        "programmeId": "19b315d9-b207-450f-b093-36785162cb66",
+        "programmeName": "Tufts",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 29,
+        "programmeId": "3a09782f-7f07-462f-91bb-a12fa87aee58",
+        "programmeName": "Kenyon",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 30,
+        "programmeId": "ba11b962-cb5b-4709-b0bc-deffdf4ea2c2",
+        "programmeName": "Old Dominion",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 31,
+        "programmeId": "9662887a-797a-4a54-84d3-b5cfc2e065b8",
+        "programmeName": "Southern Virginia",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 32,
+        "programmeId": "4315ac1d-11d6-4491-b638-637fafd59539",
+        "programmeName": "Rutgers",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:39:01.605Z",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 33,
+        "programmeId": "7957f1a6-db68-435d-afdf-542a51a3ebca",
+        "programmeName": "The Master's University",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 34,
+        "programmeId": "527ef283-39c5-47ac-aeb1-ed54de0bee0e",
+        "programmeName": "Whitman",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 35,
+        "programmeId": "195974a7-94c1-4240-aba6-e8b27bf6f91d",
+        "programmeName": "Goucher",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 36,
+        "programmeId": "19fb4f5c-96c6-4be4-8365-1f59e5674218",
+        "programmeName": "Keiser University",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 37,
+        "programmeId": "1e34f555-4aef-42a9-8b36-539c16e2f3aa",
+        "programmeName": "Princeton",
+        "classification": "PURSUE",
+        "reasonTags": [],
+        "notes": "",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:40:47.389Z",
+        "method": "ROW_BY_ROW"
+      },
+      {
+        "reviewNo": 38,
+        "programmeId": "78006bf5-e489-4405-9e9b-8bf8a5d7bfce",
+        "programmeName": "Kansas City",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 39,
+        "programmeId": "0296fc51-8fe4-4088-bb74-537ddf4801b1",
+        "programmeName": "Elizabethtown",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 40,
+        "programmeId": "57b522c9-faa2-438f-80f3-a4d115f801c4",
+        "programmeName": "Fredonia State",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 41,
+        "programmeId": "4d083bc1-c7b8-4eb8-8850-af3e6ac03094",
+        "programmeName": "West Liberty",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      },
+      {
+        "reviewNo": 42,
+        "programmeId": "5cbcb293-d03e-4e94-8842-f3f685056e77",
+        "programmeName": "Emmanuel (MA)",
+        "classification": "WOULD_NOT_PURSUE",
+        "reasonTags": [],
+        "notes": "classified by the reviewer's stated rule: programme strength below 80 is not a strong enough soccer level for a 9/10 athlete with a high budget whose primary stated goal is competitive level",
+        "explanationReview": {
+          "helpful": null,
+          "accurate": null,
+          "tooMuchDetail": null,
+          "missingImportantReason": "",
+          "misleadingClaim": ""
+        },
+        "disagreement": null,
+        "reviewedAt": "2026-09-23T09:36:54.179Z",
+        "method": "RULE"
+      }
+    ]
+  }
+}
