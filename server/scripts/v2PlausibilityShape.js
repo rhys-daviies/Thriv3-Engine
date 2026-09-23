@@ -35,6 +35,8 @@ const logistic = (d, s, m) => 1 / (1 + Math.exp(-(d - m) / s));
  * Candidate shapes. All monotone non-decreasing in delta, bounded [0,1],
  * deterministic, and describable in one sentence.
  */
+const asym = (a0, k) => (d) => (d >= 0 ? a0 + ((1 - a0) * (1 - Math.exp(-d / k))) : a0 * Math.exp(d / k));
+
 export const CANDIDATES = Object.freeze({
   P0: { label: 'current logistic (s .12, m 0)', at0: 0.500, f: (d) => logistic(d, 0.12, 0) },
   P1: { label: 'shifted logistic m -0.06', at0: 0.622, f: (d) => logistic(d, 0.12, -0.06) },
@@ -43,6 +45,11 @@ export const CANDIDATES = Object.freeze({
   P4: { label: 'asymmetric a0 .80, decay .12, rise .12', at0: 0.800, f: (d) => (d >= 0 ? 0.8 + (0.2 * (1 - Math.exp(-d / 0.12))) : 0.8 * Math.exp(d / 0.12)) },
   P5: { label: 'asymmetric a0 .70, decay .10, rise .14', at0: 0.700, f: (d) => (d >= 0 ? 0.7 + (0.3 * (1 - Math.exp(-d / 0.14))) : 0.7 * Math.exp(d / 0.10)) },
   P6: { label: 'saturating hinge, plateau 1.0, decay .15', at0: 1.000, f: (d) => Math.min(1, Math.exp(d / 0.15)) },
+  // The refined-grid finalists, added after the robustness surface.
+  Q1: { label: 'asymmetric a0 .76 / k .08', at0: 0.76, f: asym(0.76, 0.08) },
+  Q2: { label: 'asymmetric a0 .80 / k .08', at0: 0.80, f: asym(0.80, 0.08) },
+  Q3: { label: 'asymmetric a0 .84 / k .08', at0: 0.84, f: asym(0.84, 0.08) },
+  Q4: { label: 'asymmetric a0 .80 / k .07', at0: 0.80, f: asym(0.80, 0.07) },
 });
 
 const DELTAS = [-0.40, -0.30, -0.20, -0.15, -0.10, -0.05, 0, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40];
@@ -219,6 +226,123 @@ async function main() {
         const above = s.filter((r) => Number.isFinite(r.strength) && r.strength - eq >= 10);
         console.log(`  ${k}  top100 medStr ${fmt(med(t.map((r) => r.strength)), 1).padStart(5)} maxStr ${fmt(Math.max(...t.map((r) => r.strength)), 1).padStart(5)}  atLevel in100 ${String(atLevel.filter((r) => r.rank <= 100).length).padStart(3)}/${String(atLevel.length).padStart(3)}  farAbove in100 ${String(above.filter((r) => r.rank <= 100).length).padStart(3)}/${String(above.length).padStart(3)}  ${JSON.stringify(d)}`);
       }
+    }
+  }
+
+  if (args.includes('--grid')) {
+    /**
+     * Is 0.80 / 0.12 a region or a point?
+     *
+     * One asymmetric family, rise held equal to decay so the shape keeps two
+     * parameters rather than three. Every grid point is applied the same way
+     * as the named candidates: recompute R from the basis, re-rank with the
+     * production combination, discard.
+     */
+    const A0 = (arg('a0') ?? '0.65,0.70,0.75,0.80,0.85,0.90').split(',').map(Number);
+    const DEC = (arg('decay') ?? '0.08,0.10,0.12,0.14,0.16,0.18').split(',').map(Number);
+    const shapeOf = (a0, k) => ({
+      label: `a0 ${a0.toFixed(2)} / k ${k.toFixed(2)}`,
+      f: (d) => (d >= 0 ? a0 + ((1 - a0) * (1 - Math.exp(-d / k))) : a0 * Math.exp(d / k)),
+    });
+    const KEYS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+    const PROFILES_TESTED = ['UNDECLARED', 'LEVEL_FIRST'];
+    const EXTRA = [['A', 'FULLY_DECLARED_LEVEL']];
+    const runs = [];
+    for (const key of KEYS) {
+      for (const pid of PROFILES_TESTED) {
+        let u;
+        try { u = universeFor(key, pid); } catch { continue; }
+        runs.push({ key, pid, eq: equivalentFor(key), rows: u.rows });
+      }
+    }
+    for (const [key, pid] of EXTRA) {
+      const u = universeFor(key, pid);
+      runs.push({ key, pid, eq: equivalentFor(key), rows: u.rows });
+    }
+    const review = JSON.parse(fs.readFileSync(path.resolve(REVIEW), 'utf8'));
+    const aLevel = runs.find((r) => r.key === 'A' && r.pid === 'FULLY_DECLARED_LEVEL');
+
+    const metrics = (run, cand) => {
+      const { rows: s, byName } = applyShape(run.rows, cand);
+      const eq = run.eq;
+      const top = s.filter((r) => r.rank <= 100);
+      const band = (t) => s.filter((r) => Number.isFinite(r.strength) && t(r.strength - eq));
+      const at = band((d) => Math.abs(d) < 3);
+      const modAbove = band((d) => d >= 3 && d < 10);
+      const farAbove = band((d) => d >= 10);
+      const intrusions = farAbove.filter((r) => r.rank <= 100);
+      const d = {}; for (const r of top) d[r.division] = (d[r.division] ?? 0) + 1;
+      return {
+        byName,
+        atIn100: at.filter((r) => r.rank <= 100).length, atN: at.length, atMedRank: med(at.map((r) => r.rank)),
+        modAboveIn100: modAbove.filter((r) => r.rank <= 100).length, modAboveN: modAbove.length,
+        farAboveIn100: intrusions.length, farAboveN: farAbove.length,
+        worst: intrusions.sort((x, y) => x.rank - y.rank)[0] ?? null,
+        med10: med(s.slice(0, 10).map((r) => r.strength)),
+        med25: med(s.slice(0, 25).map((r) => r.strength)),
+        med100: med(top.map((r) => r.strength)),
+        div: d,
+      };
+    };
+    const pairMetrics = (byName) => {
+      let sev = 0; let noIn = 0; let inc = 0; let incN = 0;
+      for (const p of review.pairs) {
+        for (const side of ['A', 'B']) {
+          const h = p[`include${side}`]; const r = byName.get(p[side]);
+          if (!r || (h !== 'YES' && h !== 'NO')) continue;
+          incN += 1;
+          const inside = r.rank <= 100;
+          if ((h === 'YES') === inside) inc += 1;
+          if (h === 'YES' && r.rank > 400) sev += 1;
+          if (h === 'NO' && inside) noIn += 1;
+        }
+      }
+      return { sev, noIn, inc, incN };
+    };
+
+    const out = [];
+    const PTS = [['P0', null], ...A0.flatMap((a0) => DEC.map((k) => [null, [a0, k]]))];
+    for (const [tag, pt] of PTS) {
+      {
+        const [a0, k] = pt ?? [null, null];
+        const cand = tag === 'P0' ? CANDIDATES.P0 : shapeOf(a0, k);
+        const per = runs.map((run) => ({ run, m: metrics(run, cand) }));
+        const aRow = per.find((x) => x.run === aLevel).m;
+        const pm = pairMetrics(aRow.byName);
+        const intrusionRuns = per.filter((x) => x.m.farAboveIn100 > 0);
+        const totalIntrusions = per.reduce((n, x) => n + x.m.farAboveIn100, 0);
+        const worst = intrusionRuns.map((x) => x.m.worst).filter(Boolean).sort((x, y) => x.rank - y.rank)[0] ?? null;
+        const worstRun = worst ? intrusionRuns.find((x) => x.m.worst === worst).run : null;
+        const c = per.find((x) => x.run.key === 'C' && x.run.pid === 'UNDECLARED').m;
+        const dd = per.find((x) => x.run.key === 'D' && x.run.pid === 'UNDECLARED').m;
+        out.push({
+          tag: tag ?? '', a0: a0 ?? null, k: k ?? null, aAt: aRow.atIn100, aAtMed: aRow.atMedRank, aMod: aRow.modAboveIn100, aFar: aRow.farAboveIn100,
+          med10: aRow.med10, med25: aRow.med25, med100: aRow.med100, div: aRow.div,
+          sev: pm.sev, noIn: pm.noIn, inc: `${pm.inc}/${pm.incN}`,
+          fixturesWithIntrusion: intrusionRuns.length, totalIntrusions,
+          worst: worst ? `${worst.name} #${worst.rank} (${worstRun.key}/${worstRun.pid}, str ${fmt(worst.strength, 1)}, delta ${fmt(worst.delta)})` : '—',
+          cAt: c.atIn100, cMod: c.modAboveIn100, cFar: c.farAboveIn100, cMed: c.atMedRank,
+          dAt: dd.atIn100, dMod: dd.modAboveIn100, dFar: dd.farAboveIn100, dMed: dd.atMedRank,
+          per,
+        });
+      }
+    }
+    if (args.includes('--json')) {
+      fs.writeFileSync('/tmp/grid.json', JSON.stringify(out.map(({ per, ...r }) => r), null, 1));
+      console.log('wrote /tmp/grid.json');
+    }
+    console.log(`grid ${out.length} points x ${runs.length} runs (${KEYS.length} fixtures x ${PROFILES_TESTED.join('/')})`);
+    console.log(`${'a0'.padStart(5)}${'k'.padStart(6)}${'A@lvl'.padStart(7)}${'medRk'.padStart(7)}${'A>mod'.padStart(7)}${'A>far'.padStart(7)}${'sev'.padStart(5)}${'noIn'.padStart(6)}${'incl'.padStart(7)}${'fixIntr'.padStart(9)}${'totIntr'.padStart(9)}${'C@lvl'.padStart(7)}${'C>mod'.padStart(7)}${'D@lvl'.padStart(7)}${'D>mod'.padStart(7)}  worst intrusion`);
+    for (const r of out) {
+      if (args.includes('--intrusions') && r.per) {
+        const all = r.per.flatMap((x) => {
+          const eq = x.run.eq;
+          return [...x.m.byName.values()].filter((z) => z.rank <= 100 && Number.isFinite(z.strength) && z.strength - eq >= 10)
+            .map((z) => `${z.name} #${z.rank} [${x.run.key}/${x.run.pid} str ${fmt(z.strength, 1)} d ${fmt(z.delta)}]`);
+        });
+        if (all.length) console.log(`   ${(r.tag || `${fmt(r.a0, 2)}/${fmt(r.k, 2)}`)}: ${all.join('  ')}`);
+      }
+      console.log(`${(r.tag || fmt(r.a0, 2)).padStart(5)}${(r.tag ? 'prod' : fmt(r.k, 2)).padStart(6)}${String(r.aAt).padStart(7)}${String(r.aAtMed).padStart(7)}${String(r.aMod).padStart(7)}${String(r.aFar).padStart(7)}${String(r.sev).padStart(5)}${String(r.noIn).padStart(6)}${r.inc.padStart(7)}${String(r.fixturesWithIntrusion).padStart(9)}${String(r.totalIntrusions).padStart(9)}${String(r.cAt).padStart(7)}${String(r.cMod).padStart(7)}${String(r.dAt).padStart(7)}${String(r.dMod).padStart(7)}  ${r.worst}`);
     }
   }
 
