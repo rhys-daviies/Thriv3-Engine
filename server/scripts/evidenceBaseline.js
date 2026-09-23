@@ -15,6 +15,7 @@
  * `npm run evidence`, `npm run outreach-qa`, `npm run recruiting:evidence` —
  * on the pairing the movement points at.
  */
+import './acceptanceCorpusGuard.js';   // must precede any db/client.js import
 import 'dotenv/config';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
