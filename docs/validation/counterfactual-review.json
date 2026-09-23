@@ -1,0 +1,207 @@
+{
+  "formatVersion": "thriv3-v2-counterfactual-review/1",
+  "designCommit": "2ccd4ef",
+  "v2Commit": "6ffcef2",
+  "athlete": "A-strong-high-budget-strong-academics \u00b7 competitive level 5, playing opportunity 1, academic strength 3",
+  "meta": {
+    "reviewer": "rhys.davies@cardaxia.ai (blind, conducted conversationally, one pair at a time)",
+    "startedAt": "2026-09-23T20:30:03.775436+00:00",
+    "completedAt": "2026-09-23T20:48:13.085793+00:00",
+    "modelRevealed": false,
+    "blindnessRule": "no athletic plausibility, positional or market component, recruitability, financial, opportunity, pursuit priority, gate, rank, V2 preference or magnitude was shown at any point during the review",
+    "rulePolicy": "every pair judged individually; no threshold offered or applied across pairs"
+  },
+  "pairs": [
+    {
+      "pair": "1.1",
+      "A": "Marshall",
+      "B": "Green Bay",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:33:51.299256+00:00"
+    },
+    {
+      "pair": "1.2",
+      "A": "Princeton",
+      "B": "Evansville",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:34:31.448925+00:00"
+    },
+    {
+      "pair": "1.3",
+      "A": "Western Michigan",
+      "B": "Kansas City",
+      "firstPursuit": "B",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:36:17.845417+00:00"
+    },
+    {
+      "pair": "1.4",
+      "A": "Vermont",
+      "B": "UC Irvine",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:36:49.992731+00:00"
+    },
+    {
+      "pair": "1.5",
+      "A": "UConn",
+      "B": "Davidson",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:37:08.036043+00:00"
+    },
+    {
+      "pair": "1.6",
+      "A": "Furman",
+      "B": "UC Riverside",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:37:42.510016+00:00"
+    },
+    {
+      "pair": "1.7",
+      "A": "UMBC",
+      "B": "Canisius",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "NO",
+      "why": "",
+      "answeredAt": "2026-09-23T20:38:27.399723+00:00"
+    },
+    {
+      "pair": "1.8",
+      "A": "SMU",
+      "B": "Case Western Reserve",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "NO",
+      "why": "",
+      "answeredAt": "2026-09-23T20:38:56.059158+00:00"
+    },
+    {
+      "pair": "2.1",
+      "A": "Clemson",
+      "B": "Pittsburgh",
+      "firstPursuit": "BOTH_ABOUT_EQUALLY",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:40:13.363529+00:00"
+    },
+    {
+      "pair": "2.2",
+      "A": "Louisville",
+      "B": "North Florida",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:40:39.670579+00:00"
+    },
+    {
+      "pair": "2.3",
+      "A": "Saint Mary's",
+      "B": "VMI",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "NO",
+      "why": "",
+      "answeredAt": "2026-09-23T20:41:18.255926+00:00"
+    },
+    {
+      "pair": "2.4",
+      "A": "UC Davis",
+      "B": "Rollins",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "NO",
+      "why": "",
+      "answeredAt": "2026-09-23T20:42:30.742125+00:00"
+    },
+    {
+      "pair": "3.1",
+      "A": "Akron",
+      "B": "Harvard",
+      "firstPursuit": "A",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:42:53.926414+00:00"
+    },
+    {
+      "pair": "3.2",
+      "A": "Tiffin",
+      "B": "Carleton",
+      "firstPursuit": "NEITHER",
+      "includeA": "NO",
+      "includeB": "NO",
+      "why": "",
+      "answeredAt": "2026-09-23T20:43:54.575934+00:00"
+    },
+    {
+      "pair": "3.3",
+      "A": "UTRGV",
+      "B": "University of Chicago",
+      "firstPursuit": "NEITHER",
+      "includeA": "NO",
+      "includeB": "NO",
+      "why": "",
+      "answeredAt": "2026-09-23T20:44:39.020657+00:00"
+    },
+    {
+      "pair": "4.1",
+      "A": "Loyola Marymount",
+      "B": "Penn State",
+      "firstPursuit": "B",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:45:10.626650+00:00"
+    },
+    {
+      "pair": "4.2",
+      "A": "Xavier",
+      "B": "Kentucky",
+      "firstPursuit": "BOTH_ABOUT_EQUALLY",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:46:00.511979+00:00"
+    },
+    {
+      "pair": "4.3",
+      "A": "Lehigh",
+      "B": "Yale",
+      "firstPursuit": "BOTH_ABOUT_EQUALLY",
+      "includeA": "YES",
+      "includeB": "YES",
+      "why": "",
+      "answeredAt": "2026-09-23T20:46:30.115201+00:00"
+    },
+    {
+      "pair": "4.4",
+      "A": "Oakland",
+      "B": "Oral Roberts",
+      "firstPursuit": "BOTH_ABOUT_EQUALLY",
+      "includeA": "CONDITIONAL_LOWER_PRIORITY",
+      "includeB": "CONDITIONAL_LOWER_PRIORITY",
+      "why": "depends on other matches but i would say this is lower priority (not definitive yes or no)",
+      "answeredAt": "2026-09-23T20:48:13.085793+00:00",
+      "note": "Recorded verbatim rather than forced to YES/NO/INSUFFICIENT INFORMATION. The reviewer declined a definitive inclusion call and made it relative to the rest of the pool. This is not INSUFFICIENT INFORMATION in the rubric sense - the facts were sufficient - so a distinct value was used."
+    }
+  ]
+}
