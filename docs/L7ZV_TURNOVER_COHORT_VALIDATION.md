@@ -186,8 +186,24 @@ redshirt eligibility class versus year of enrolment (a redshirt sophomore is a
 3rd year; five freshmen who redshirted remain 1st years of eligibility while
 advancing a year of enrolment).
 
-**Virginia's page is genuinely the 2026-27 roster.** Its aged share is depressed
-by a vocabulary change plus redshirt semantics, not by staleness.
+> ## ⚠ MECHANISM RETRACTED BY L7ZW
+>
+> The claim that the vocabulary change depresses the score is **wrong**.
+> `CLSBASE` in `lib.py` already maps both vocabularies to one base — Freshman
+> and "1st Year" both resolve to 2029, Junior and "3rd Year" both to 2027 — and
+> a correct cross-vocabulary step (Sophomore → 3rd Year) registers as AGED.
+>
+> Measured across the corpus: 24 programmes changed NOMINAL → ORDINAL and their
+> aged share is **not** depressed (median 0.944, mean 0.908, 22 of 24 at or
+> above 0.75; James Madison 0.917, Washington 0.933, Old Dominion 0.923).
+>
+> Virginia's 8 failures are **not** vocabulary artefacts: six are players listed
+> at the identical resolved level a season later (FR→FR, JR→JR), one redshirt
+> and one graduate case. Whether the page is current remains unproven, and the
+> refusal stands. See `docs/L7ZW_CLASS_VOCABULARY_SEMANTICS.md`.
+
+The 20 correctly-advancing returners remain a fact, and a wholly stale page
+cannot produce them; but the mechanism asserted here was not the right one.
 
 ---
 
