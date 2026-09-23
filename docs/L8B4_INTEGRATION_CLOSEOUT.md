@@ -262,12 +262,60 @@ Trust `15 / 2 RETAIN / 13 NULL / 0 EXCLUDE`, arrivals FRESH, programme_status
 
 ---
 
+## Two identities, and why they differ
+
+These are different questions and the distinction is the point of the pinned
+corpus. Reading them as one number is the mistake this whole arrangement
+exists to prevent.
+
+| | value | what it is |
+| --- | --- | --- |
+| **Pinned acceptance corpus** | `8bb808b66db9ee3b` | the immutable rows every behavioural digest in this branch was taken over. Unchanged, and it still reproduces. |
+| **Live canonical** | `cd641a19e38225d5` | what the shared working database contains right now. |
+
+**The difference is three externally-added columns and nothing else.**
+`projected_games_started`, `projected_games_played` and
+`projected_games_season` were added to `roster_players` in the shared canonical
+database by another workstream during this stage. They exist nowhere in this
+branch, nowhere in either parent, and nowhere in any sibling checkout.
+
+**No pre-existing roster column moved, and no row moved**: 0 of 281,159 rows
+differ across all 30 columns that existed before, 0 objects added or removed,
+0 row-count movement in any table. None of the movement is attributable to
+L8B, and V7 reporting it is V7 doing its job — it hashes every column of a
+manifest table, so a schema change to one IS a change in dataset identity.
+
+The three columns are left exactly as they are. They are not this branch's to
+modify, and the acceptance corpus and the six baselines are NOT repinned
+because of live movement that no code here can see.
+
+---
+
+## What comes next
+
+Corrected here because the L8B-4 report got it wrong:
+
+- **L8C — authenticated Evidence governance activation.** The door is built and
+  the key exists; turning it is L8C.
+- **L8D — the operator review UI, and resolving the 13 currently unreviewed
+  historical seasons.**
+- **NAIA / NJCAA expansion is PAUSED.** It is not L8D and it is not scheduled.
+  `ROADMAP.md` already scopes it out until after go-live.
+
+After Evidence governance is complete the roadmap **stops** for Rhys to choose
+the next Thriv3 product priority.
+
+---
+
 ## PR readiness
 
 Clean tree, merge parents intact, V7 10/10, corpus identity correct, six
 baselines green, auth green, suite green, build green, no product-data movement
 attributable to this branch.
 
-**Not pushed.** Stop condition 9 — "canonical product data changes" — fired in
-letter during this stage, from an external writer. The facts are above; the
-decision is the operator's.
+The external canonical movement was reviewed and ruled **not a blocker**: the
+pinned corpus is still valid, closure is still 10/10, all six baselines pass,
+`EMAIL_BODY` and `COACH_COMPOSITION` are unchanged, auth is unchanged, and the
+movement is concurrent shared-corpus activity rather than an L8B product-data
+mutation. Pushed and opened as a PR on that basis; the PR is not merged
+automatically.
