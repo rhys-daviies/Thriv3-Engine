@@ -67,7 +67,7 @@ async function main() {
   const { default: db } = await import('../db/client.js');
   const { canonicalPosition } = await import('../../shared/positions.js');
   const { normaliseAthlete, buildRosterIndex, rankMatches } = await import('../../shared/matching/pool.js');
-  const { buildPositionIndex, buildArrivalIndex, divisionArrivalRates } = await import('../lib/v2/rosterEvidence.js');
+  const { buildPoolContext } = await import('../lib/v2/poolContext.js');
   const { runPursuit, pursuitRow } = await import('../lib/v2/pursuitRun.js');
 
   const cache = new Map();
@@ -81,15 +81,7 @@ async function main() {
         FROM roster_players WHERE sport = ? AND season = ?
     `).all(sport, SEASON);
     const arrivals = db.prepare('SELECT programme, sport, arrival_season, canonical_position, is_international FROM recruiting_arrivals WHERE sport = ?').all(sport);
-    const ctx = {
-      colleges,
-      rosterProgrammes: new Set(roster.map((r) => r.college_name)),
-      rosterIndex: buildPositionIndex(roster),
-      v1RosterIndex: buildRosterIndex(roster),
-      arrivalIndex: buildArrivalIndex(arrivals),
-      divisionArrivals: divisionArrivalRates(arrivals, new Map(colleges.map((c) => [c.name, c]))),
-      arrivalsHorizon: arrivals.reduce((m, r) => Math.max(m, Number(r.arrival_season) || 0), 0),
-    };
+    const ctx = buildPoolContext({ db, sport, season: SEASON });
     cache.set(sport, ctx);
     return ctx;
   };
@@ -111,6 +103,7 @@ async function main() {
         sport, rating: f.player.football_ability, position,
         entryYear: f.player.recruiting_class_year,
         isInternational: f.player.origin === 'International',
+        homeState: f.player.state ?? null,
       },
       opportunity: {
         sport, position,

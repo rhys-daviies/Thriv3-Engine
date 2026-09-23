@@ -48,13 +48,15 @@ const composition = (rows) => Object.fromEntries(
  */
 export function runPursuit({
   athlete, sport, colleges, ctx, suppressedIds = new Set(), ineligible = new Map(),
-  weights, gates, topN = TOP_N,
+  weights, gates, topN = TOP_N, recruitabilityOverrides = {},
 }) {
   const fin = evaluateFinancial({ athlete: athlete.v1Shape, colleges, sport });
   const rec = evaluateRecruitability({
     athlete: athlete.recruitability, colleges,
     rosterIndex: ctx.rosterIndex, arrivalIndex: ctx.arrivalIndex,
-    divisionArrivals: ctx.divisionArrivals, arrivalsHorizon: ctx.arrivalsHorizon,
+    arrivalsHorizon: ctx.arrivalsHorizon,
+    marketIndex: ctx.marketIndex, centroids: ctx.centroids,
+    overrides: recruitabilityOverrides,
   });
   const opp = evaluateOpportunity({
     athlete: athlete.opportunity, colleges, rosterProgrammes: ctx.rosterProgrammes,

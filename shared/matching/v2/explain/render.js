@@ -80,6 +80,27 @@ const SENTENCE = {
    */
   [REASON_CODE.POSITION_EVIDENCE_PARTIAL]: (e) =>
     `Positional recruiting coverage is incomplete: of the ${e.departing} player${e.departing === 1 ? '' : 's'} whose eligibility ends before the entry year, ${e.departingUnknown} could not be placed as a starter or a squad player, so this reads as a floor rather than a full count.`,
+  /**
+   * BEHAVIOUR, NEVER PREDICTION. Each of these states what the programme has
+   * done, with the count behind it. None of them says a coach will recruit
+   * this athlete, and none says the programme needs them.
+   */
+  [REASON_CODE.MARKET_INTERNATIONAL_HISTORY]: (e) =>
+    `This programme has a sustained history of recruiting international athletes — ${pct(e.share)} of its recent intake (${e.count} of ${e.total}).`,
+  [REASON_CODE.MARKET_INTERNATIONAL_LITTLE]: (e) =>
+    `This programme has recruited few international athletes recently — ${pct(e.share)} of its intake (${e.count} of ${e.total}).`,
+  [REASON_CODE.MARKET_FOOTPRINT_LOCAL_NEAR]: (e) =>
+    `Most of this programme's recent recruits have come from within roughly ${e.band} km (${pct(e.nearShare)} of ${e.placed} placed), and this athlete's home is about ${e.distance} km away.`,
+  [REASON_CODE.MARKET_FOOTPRINT_LOCAL_FAR]: (e) =>
+    `This programme recruits mainly from within roughly ${e.band} km (${pct(e.nearShare)} of ${e.placed} placed), and this athlete's home is about ${e.distance} km away — outside the pattern its recent intake shows.`,
+  [REASON_CODE.MARKET_FOOTPRINT_BROAD_FAR]: (e) =>
+    `This programme recruits from a broad geographic footprint — only ${pct(e.nearShare)} of ${e.placed} recent recruits came from within roughly ${e.band} km — and distance is not a departure from that pattern.`,
+  [REASON_CODE.MARKET_FOOTPRINT_BROAD_NEAR]: (e) =>
+    `This programme recruits from a broad geographic footprint (${pct(e.nearShare)} of ${e.placed} recent recruits from within roughly ${e.band} km), so being nearby is not in itself evidence either way.`,
+  [REASON_CODE.MARKET_UNKNOWN]: (e) =>
+    `Thriv3 does not hold enough recruiting history for this programme to describe the markets it recruits from${e.arrivals ? ` — ${e.arrivals} recent arrivals, against the ${e.minArrivals} needed` : ''}.`,
+  [REASON_CODE.INTERNATIONAL_UTILISATION_CAVEAT]: (e) =>
+    `Worth checking in an approach: international players are ${pct(e.rosterShare)} of this squad but have taken ${pct(e.minutesShare)} of its minutes. That is about the programme's recent record, not a forecast for this athlete.`,
   [REASON_CODE.POSITION_FILL_HISTORY]: (e) =>
     `When a place like this opens, a newcomer has taken it ${pct(e.rate)} of the time (${e.hits} of ${e.trials}, ${e.level} level), ${SAMPLE[e.strength]}.`,
   [REASON_CODE.POSITION_ARRIVALS_COMMITTED]: (e) =>

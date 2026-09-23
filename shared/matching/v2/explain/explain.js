@@ -115,6 +115,36 @@ function recruitabilityReasons(result) {
     }
   }
 
+  /**
+   * Market match. One component, two arms, and the sentence names which -
+   * because "recruits locally" and "recruits internationally" are different
+   * facts and an operator must not have to guess which one was measured.
+   */
+  const mk = b.market;
+  if (mk && mk.arm === 'INTERNATIONAL') {
+    const strong = mk.internationalArrivalShare >= 0.15;
+    out.push(reason(strong ? REASON_CODE.MARKET_INTERNATIONAL_HISTORY : REASON_CODE.MARKET_INTERNATIONAL_LITTLE,
+      LAYER.RECRUITABILITY, strong ? POLARITY.STRENGTH : POLARITY.CONCERN, BAND.SECONDARY_EVIDENCE, {
+        share: r3(mk.rawShare), count: mk.internationalArrivals, total: mk.totalArrivals,
+        strength: sampleStrength(mk.totalArrivals),
+      }));
+  } else if (mk && mk.arm === 'DOMESTIC') {
+    const local = mk.footprint === 'LOCAL';
+    const code = local
+      ? (mk.athleteIsNear ? REASON_CODE.MARKET_FOOTPRINT_LOCAL_NEAR : REASON_CODE.MARKET_FOOTPRINT_LOCAL_FAR)
+      : (mk.athleteIsNear ? REASON_CODE.MARKET_FOOTPRINT_BROAD_NEAR : REASON_CODE.MARKET_FOOTPRINT_BROAD_FAR);
+    const positive = (local && mk.athleteIsNear) || (!local && !mk.athleteIsNear);
+    out.push(reason(code, LAYER.RECRUITABILITY,
+      positive ? POLARITY.STRENGTH : (local ? POLARITY.CONCERN : POLARITY.CONTEXT),
+      BAND.SECONDARY_EVIDENCE, {
+        nearShare: r3(mk.rawNearShare), placed: mk.domesticArrivalsPlaced,
+        band: mk.nearBandKm, distance: mk.athleteDistanceKm, footprint: mk.footprint,
+      }));
+  } else if (b.marketState && b.marketState !== 'NOT_APPLICABLE' && !mk) {
+    out.push(reason(REASON_CODE.MARKET_UNKNOWN, LAYER.RECRUITABILITY, POLARITY.UNKNOWN, BAND.UNKNOWN,
+      { arrivals: null, minArrivals: null }));
+  }
+
   if (b.international) {
     const i = b.international;
     out.push(reason(i.internationalArrivalShare > 0 ? REASON_CODE.INTERNATIONAL_HISTORY : REASON_CODE.INTERNATIONAL_NO_HISTORY,

@@ -64,6 +64,15 @@ export const REASON_CODE = Object.freeze({
   POSITION_ARRIVALS_NOT_YET_KNOWN: 'POSITION_ARRIVALS_NOT_YET_KNOWN',
   INTERNATIONAL_HISTORY: 'INTERNATIONAL_HISTORY',
   INTERNATIONAL_NO_HISTORY: 'INTERNATIONAL_NO_HISTORY',
+  /** A7.7.4 — Recruiting Market Match. */
+  MARKET_INTERNATIONAL_HISTORY: 'MARKET_INTERNATIONAL_HISTORY',
+  MARKET_INTERNATIONAL_LITTLE: 'MARKET_INTERNATIONAL_LITTLE',
+  MARKET_FOOTPRINT_LOCAL_NEAR: 'MARKET_FOOTPRINT_LOCAL_NEAR',
+  MARKET_FOOTPRINT_LOCAL_FAR: 'MARKET_FOOTPRINT_LOCAL_FAR',
+  MARKET_FOOTPRINT_BROAD_FAR: 'MARKET_FOOTPRINT_BROAD_FAR',
+  MARKET_FOOTPRINT_BROAD_NEAR: 'MARKET_FOOTPRINT_BROAD_NEAR',
+  MARKET_UNKNOWN: 'MARKET_UNKNOWN',
+  INTERNATIONAL_UTILISATION_CAVEAT: 'INTERNATIONAL_UTILISATION_CAVEAT',
 
   // Financial
   COST_WITHIN_BUDGET: 'COST_WITHIN_BUDGET',
@@ -237,6 +246,10 @@ export const COMPONENT_LABEL = Object.freeze({
   positionRows: 'any player recorded at this position',
   notableMajors: 'a list of majors offered',
   starterEvidence: 'evidence of who was starting among the players leaving',
+  recruitingMarket: 'evidence about the markets this programme recruits from',
+  recruitingHistory: 'enough recruiting history to describe a pattern',
+  recruitOrigins: 'where this programme\'s recruits have come from',
+  divisionBaseline: 'a comparable rate for this division',
 });
 
 /** The three layers, as an operator should see them named. */

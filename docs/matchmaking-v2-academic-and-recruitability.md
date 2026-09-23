@@ -845,3 +845,67 @@ answer a question already asked), regional origin below "international"
 
 Value and confidence stay separate: the score is R-C's, and coverage reports
 how many of the two behavioural signals were known.
+
+---
+
+# A7.7.4 — R-C implemented and calibrated
+
+## The formula
+
+```
+R = A × ( φ + (1 − φ) × Σ over KNOWN signals of w_s × v_s )
+```
+
+φ = 0.35, and the behavioural weights sum to 1, so the maximum is exactly A
+and athletic plausibility stays a true ceiling.
+
+**An unknown signal contributes nothing and its weight is not redistributed.**
+That single property is the reason this form was chosen: renormalising lets a
+surviving strong signal absorb a missing weak one's weight, which made two
+otherwise identical programmes score 0.529 and 0.870 with the *less* evidenced
+one higher.
+
+**Evidence floor:** at least one behavioural signal must be scoreable.
+Athletic plausibility alone is not a recruitability score.
+
+## Selected parameters — all HEURISTIC, none calibrated to an outcome
+
+| parameter | selected | plateau | basis |
+|---|---|---|---|
+| positional / market | **0.75 / 0.25** | 0.70–0.85 | J25 ≥ 0.85 across it; below 0.70 fixture C's top-10 minimum R falls 0.32 → 0.28 |
+| minimum arrivals | **8** | 4–12 | ranked count moves by 3 programmes across the whole range |
+| pseudo-count | **10** | 5–20 | J100 0.96–1.00 across the whole range |
+| near band | **300 km** | 250–400 | 61st percentile of the real distance distribution; reliability 0.82–0.92 everywhere and does not discriminate |
+
+## Market match
+
+**International arm:** the programme's international arrival share, shrunk
+toward its division, divided by the 0.30 saturation the A7.3 constant already
+set. Below 8 arrivals: UNKNOWN, not the division's rate — reporting a
+division's behaviour under a programme's name is the same error as reporting
+an absence as a zero.
+
+**Domestic arm:** the programme's near-share is read as a *description of its
+footprint*, and the athlete is matched to it. A near athlete is evidenced by a
+local footprint; a far athlete by a broad one. A programme that splits evenly
+returns 0.5 to both.
+
+MIT for fixture A is the case: 17.5% of its placed recruits come from within
+300 km, so its footprint is NATIONAL, and a Californian 4,199 km away scores
+0.72 rather than being penalised for the distance.
+
+## Results
+
+| | before A7.7.4 | after |
+|---|---|---|
+| MIT (fixture A) | #217 of 799 | **#140 of 858** |
+| fixture G ranked | 736 | **855** |
+| fixture C top-25 elite | 0 | **0** |
+
+Fixture C's guard holds at every weight tested.
+
+## Utilisation caveat
+
+Fires only on ≥15 roster rows, ≥20% international presence, and a minutes
+share below 60% of that presence. It carries a description and no value; it is
+not subtracted from anything.

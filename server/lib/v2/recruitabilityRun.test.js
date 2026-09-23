@@ -49,8 +49,13 @@ describe('scoring a pool', () => {
   const rep = run();
 
   it('refuses every junior college, and says why', () => {
+    // This synthetic pool holds no arrivals, so the market arm is unknown
+    // too and the evidence floor refuses. In the live pool junior colleges
+    // DO carry arrivals, and market match can score some of them - without
+    // ever making positional demand appear known.
     expect(rep.byDivision.NJCAA.scoreable).toBe(0);
-    expect(rep.unscoreableReasons[REASON.BELOW_COVERAGE_FLOOR]).toBeGreaterThan(0);
+    expect(Object.values(rep.unscoreableReasons).reduce((a, b) => a + b, 0)).toBeGreaterThan(0);
+    expect(rep.results.filter((r) => r.division === 'NJCAA').every((r) => !r.result.ok)).toBe(true);
   });
 
   it('refuses a programme with no level on file', () => {
@@ -72,7 +77,8 @@ describe('scoring a pool', () => {
     // college has a level. Neither on its own is an answer.
     expect(rep.athleticPlausibility.n).toBeGreaterThan(rep.recruitability.n);
     expect(rep.positionalOpportunity.n).toBeGreaterThanOrEqual(rep.counts.scoreable);
-    expect(rep.internationalPropensity).toBeNull();
+    // No arrivals in this pool, so the market arm is unknown everywhere.
+    expect(rep.recruitingMarket).toBeNull();
   });
 
   it('reports zero low-plausibility, high-recruitability violations', () => {
@@ -122,16 +128,21 @@ describe('the things that must move it', () => {
     }
   });
 
-  it('an international athlete gains a signal a domestic one does not have', () => {
-    expect(run({ isInternational: true }).internationalPropensity).not.toBeNull();
-    expect(run({ isInternational: false }).internationalPropensity).toBeNull();
+  it('an unmeasurable market arm costs its slice rather than being absorbed', () => {
+    // A7.7.4. With no arrivals and no centroids in this pool the market arm
+    // cannot be measured, so coverage reports 0.75 - the positional slice
+    // alone. Under the old renormalised core it reported 1.00, which is the
+    // property that let missing evidence be rewarded.
+    const domestic = run({ isInternational: false });
+    for (const r of domestic.results.filter((x) => x.result.ok)) {
+      expect(r.result.coverage).toBeCloseTo(0.75, 10);
+    }
   });
 
-  it('a domestic athlete loses no coverage for the signal not applying', () => {
+  it('scores a domestic and an international athlete the same when neither has market evidence', () => {
     const domestic = run({ isInternational: false });
     const intl = run({ isInternational: true });
-    expect(domestic.counts.scoreableRate).toBeGreaterThanOrEqual(intl.counts.scoreableRate);
-    for (const r of domestic.results.filter((x) => x.result.ok)) expect(r.result.coverage).toBe(1);
+    expect(domestic.counts.scoreableRate).toBe(intl.counts.scoreableRate);
   });
 
   it('the position changes the answer, because the normaliser and fill rate do', () => {

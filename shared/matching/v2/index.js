@@ -46,11 +46,16 @@ export {
   PLAUSIBILITY_SLOPE, PLAUSIBILITY_MIDPOINT, CORE_FLOOR,
   ARRIVAL_CLAIM_WEIGHT, MAX_CLAIM_SHARE,
   CORE_WEIGHTS, RECRUITABILITY_COVERAGE_FLOOR,
+  MARKET_MIN_ARRIVALS, MARKET_PSEUDO_COUNT, NEAR_BAND_KM, BEHAVIOUR_WEIGHTS,
 } from './recruitingRules.js';
 
 export { athleticPlausibility, plausibilityFromDelta } from './layers/athleticPlausibility.js';
 export { positionalOpportunity } from './layers/positionalOpportunity.js';
 export { internationalPropensity, INTERNATIONAL_SATURATION, MIN_ARRIVALS_FOR_PROGRAMME_RATE } from './layers/recruitingBehaviour.js';
+export {
+  recruitingMarket, shrinkToBaseline,
+  internationalUtilisationCaveat, UTILISATION_CAVEAT,
+} from './layers/recruitingMarket.js';
 export { coachRecruitability, RECRUITABILITY_REFUSALS } from './layers/recruitability.js';
 
 export {

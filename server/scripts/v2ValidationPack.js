@@ -86,7 +86,7 @@ async function main() {
   }
 
   const { default: db } = await import('../db/client.js');
-  const { buildPositionIndex, buildArrivalIndex, divisionArrivalRates } = await import('../lib/v2/rosterEvidence.js');
+  const { buildPoolContext } = await import('../lib/v2/poolContext.js');
   const { buildRosterIndex } = await import('../../shared/matching/pool.js');
   const { buildValidationPack } = await import('../lib/v2/validationRun.js');
   const { renderPack } = await import('../../shared/matching/v2/index.js');
@@ -129,15 +129,7 @@ async function main() {
         FROM roster_players WHERE sport = ? AND season = ?
     `).all(sport, SEASON);
     const arrivals = db.prepare('SELECT programme, sport, arrival_season, canonical_position, is_international FROM recruiting_arrivals WHERE sport = ?').all(sport);
-    const ctx = {
-      colleges,
-      rosterProgrammes: new Set(roster.map((r) => r.college_name)),
-      rosterIndex: buildPositionIndex(roster),
-      v1RosterIndex: buildRosterIndex(roster),
-      arrivalIndex: buildArrivalIndex(arrivals),
-      divisionArrivals: divisionArrivalRates(arrivals, new Map(colleges.map((c) => [c.name, c]))),
-      arrivalsHorizon: arrivals.reduce((m, r) => Math.max(m, Number(r.arrival_season) || 0), 0),
-    };
+    const ctx = buildPoolContext({ db, sport, season: SEASON });
     cache.set(sport, ctx);
     return ctx;
   };

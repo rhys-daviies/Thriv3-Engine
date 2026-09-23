@@ -6,10 +6,11 @@
  * priority does not exist yet and nothing here invents it.
  */
 import {
-  athleticPlausibility, positionalOpportunity, internationalPropensity,
+  athleticPlausibility, positionalOpportunity, recruitingMarket,
   coachRecruitability, isScoreable, GRADE,
 } from '../../../shared/matching/v2/index.js';
-import { positionEvidence, arrivalBehaviour } from './rosterEvidence.js';
+import { positionEvidence } from './rosterEvidence.js';
+import { athleteDistanceKm } from './recruitingMarketEvidence.js';
 
 function summarise(values) {
   if (!values.length) return null;
@@ -34,13 +35,15 @@ function summarise(values) {
  * @param {Array}  p.colleges
  * @param {Map}    p.rosterIndex   from buildPositionIndex
  * @param {Map}    p.arrivalIndex  from buildArrivalIndex
- * @param {Map}    p.divisionArrivals
+ * @param {object} p.marketIndex  from buildMarketIndex
+ * @param {Map}    p.centroids    from stateCentroids
  * @param {object} [p.overrides]   heuristic overrides, for the sensitivity run
  */
 export function evaluateRecruitability({
-  athlete, colleges, rosterIndex, arrivalIndex, divisionArrivals, arrivalsHorizon = null, overrides = {},
+  athlete, colleges, rosterIndex, arrivalIndex, arrivalsHorizon = null,
+  marketIndex = null, centroids = null, overrides = {},
 }) {
-  const { sport, rating, position, entryYear, isInternational } = athlete;
+  const { sport, rating, position, entryYear, isInternational, homeState = null } = athlete;
 
   const results = colleges.map((college) => {
     const plaus = athleticPlausibility({
@@ -54,24 +57,25 @@ export function evaluateRecruitability({
     const opportunity = positionalOpportunity({
       sport, position, evidence, weights: overrides.opportunityWeights ?? {},
     });
-    const behaviour = arrivalBehaviour({
-      programme: college.name, division: college.division, sport, arrivalIndex, divisionArrivals,
-    });
-    const intl = internationalPropensity({
+    const market = recruitingMarket({
       isInternational,
-      programmeArrivals: behaviour.programmeArrivals,
-      divisionArrivals: behaviour.divisionArrivals,
-      internationalRosterShare: null,
+      distanceKm: isInternational ? null
+        : athleteDistanceKm({ athleteState: homeState, college, centroids }),
+      programme: marketIndex?.programmes?.get(college.name) ?? null,
+      division: marketIndex?.divisions?.get(college.division) ?? null,
+      minArrivals: overrides.minArrivals,
+      pseudoCount: overrides.pseudoCount,
+      nearBandKm: overrides.nearBandKm,
       saturation: overrides.saturation,
     });
     const result = coachRecruitability({
-      athletic: plaus, positional: opportunity, international: intl,
-      phi: overrides.phi, weights: overrides.coreWeights, floor: overrides.floor,
+      athletic: plaus, positional: opportunity, market,
+      phi: overrides.phi, weights: overrides.behaviourWeights,
     });
     return {
       id: college.id, name: college.name, division: college.division,
       soccerScore: college.soccer_score,
-      result, plaus, opportunity, intl,
+      result, plaus, opportunity, market,
     };
   });
 
@@ -109,7 +113,7 @@ export function evaluateRecruitability({
     recruitability: summarise(scored.map((r) => r.result.value)),
     athleticPlausibility: summarise(results.filter((r) => isScoreable(r.plaus)).map((r) => r.plaus.value)),
     positionalOpportunity: summarise(results.filter((r) => isScoreable(r.opportunity)).map((r) => r.opportunity.value)),
-    internationalPropensity: summarise(results.filter((r) => isScoreable(r.intl)).map((r) => r.intl.value)),
+    recruitingMarket: summarise(results.filter((r) => isScoreable(r.market)).map((r) => r.market.value)),
     byDivision: Object.fromEntries(Object.entries(byDivision)
       .sort((a, b) => b[1].n - a[1].n)
       .map(([k, v]) => [k, {
@@ -151,6 +155,7 @@ export function recruitabilityRow(entry) {
     arrivals: b.positional?.arrivals ?? null,
     fillRate: b.positional?.fillRate ?? null,
     fillLevel: b.positional?.fillLevel ?? null,
-    internationalPropensity: isScoreable(entry.intl) ? Number(entry.intl.value.toFixed(4)) : null,
+    recruitingMarket: isScoreable(entry.market) ? Number(entry.market.value.toFixed(4)) : null,
+    marketArm: isScoreable(entry.market) ? entry.market.basis.arm : null,
   };
 }

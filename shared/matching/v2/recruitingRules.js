@@ -147,3 +147,45 @@ export const CORE_WEIGHTS = Object.freeze({
  * requiring it.
  */
 export const RECRUITABILITY_COVERAGE_FLOOR = 0.6;
+
+/**
+ * A7.7.4 — Recruiting Market Match parameters.
+ *
+ * ALL HEURISTIC AND UNCALIBRATED TO OUTCOMES. There is no labelled
+ * coach-response dataset; these were chosen on reliability, stability and
+ * semantics, in that order, and every one sits on a measured plateau rather
+ * than at a fitted optimum. See docs/matchmaking-v2-academic-and-recruitability.md.
+ */
+
+/**
+ * Arrivals a programme must have before its own behaviour is claimed at all.
+ *
+ * Below it the answer is UNKNOWN rather than the division's rate, because
+ * reporting a division's behaviour under a programme's name is the same
+ * mistake as reporting an absence as a zero.
+ */
+export const MARKET_MIN_ARRIVALS = 8;
+
+/** Arrivals at the division rate a programme is treated as also having. */
+export const MARKET_PSEUDO_COUNT = 10;
+
+/**
+ * The distance band that separates a local footprint from a broad one.
+ *
+ * Measured from the arrivals themselves: the median domestic recruit travels
+ * about 225 km, 61% come from within 300 km and 79% from within 800 km, so a
+ * 300 km band sits near the middle of the distribution rather than in a tail.
+ * Distance is used rather than state lines because a programme 20 miles
+ * across a border is near and one 600 miles away in the same state is not.
+ */
+export const NEAR_BAND_KM = 300;
+
+/**
+ * How much of Coach Recruitability's behavioural range each arm carries.
+ *
+ * Positional evidence leads because it is about THIS athlete's position in
+ * THIS entry year, where market match is a standing property of the
+ * programme. They must sum to 1: the athletic ceiling is exactly reached when
+ * both are 1, which is what keeps plausibility a ceiling rather than a term.
+ */
+export const BEHAVIOUR_WEIGHTS = Object.freeze({ positional: 0.75, market: 0.25 });

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { coachRecruitability } from './recruitability.js';
 import { athleticPlausibility } from './athleticPlausibility.js';
 import { positionalOpportunity } from './positionalOpportunity.js';
-import { internationalPropensity } from './recruitingBehaviour.js';
+import { recruitingMarket } from './recruitingMarket.js';
 import { GRADE, REASON, scoreable, unscoreable, notApplicable } from '../types.js';
 import { fillPropensity, CORE_FLOOR } from '../recruitingRules.js';
 
@@ -18,9 +18,26 @@ const O = (over = {}) => positionalOpportunity({
     ...over,
   },
 });
-const DOMESTIC = internationalPropensity({ isInternational: false });
-const R = (athletic, positional = O(), international = DOMESTIC) =>
-  coachRecruitability({ athletic, positional, international });
+/**
+ * A domestic athlete near a programme that recruits locally: a plain, scored
+ * market arm, so these scenarios exercise R-C with both signals present.
+ */
+const MARKET = recruitingMarket({
+  isInternational: false, distanceKm: 100,
+  programme: { arrivals: 40, international: 4, domesticWithGeo: 30, near: 24 },
+  division: { arrivals: 400, international: 80, domesticWithGeo: 300, near: 180 },
+});
+const R = (athletic, positional = O(), market = MARKET) =>
+  coachRecruitability({ athletic, positional, market });
+
+/** No usable home for the athlete, so the market arm has no question to answer. */
+const NO_MARKET = recruitingMarket({ isInternational: false, distanceKm: null, programme: { arrivals: 40 } });
+/** A perfect market arm, for the ceiling proofs. */
+const FULL_MARKET = recruitingMarket({
+  isInternational: true,
+  programme: { arrivals: 40, international: 40, domesticWithGeo: 0, near: 0 },
+  division: { arrivals: 400, international: 40, domesticWithGeo: 0, near: 0 },
+});
 
 describe('the pathological scenarios', () => {
   const huge = O({ vacatedStarters: 5, arrivals: 0 });
@@ -36,8 +53,10 @@ describe('the pathological scenarios', () => {
     expect(r.value).toBeLessThan(0.5);
   });
 
-  it('C. an at-level athlete with no opening keeps the floor and no more', () => {
-    const r = R(A(8, 73.38), O({ vacatedStarters: 0 }));
+  it('C. an at-level athlete with no opening and no market evidence keeps the floor and no more', () => {
+    // Both behavioural slices empty, so only phi survives - which is what
+    // phi means. With a market arm present it would be higher, correctly.
+    const r = R(A(8, 73.38), O({ vacatedStarters: 0 }), NO_MARKET);
     expect(r.value).toBeCloseTo(A(8, 73.38).value * CORE_FLOOR, 6);
   });
 
@@ -52,8 +71,12 @@ describe('the pathological scenarios', () => {
     expect(R(A(9, 40), huge).value).toBeGreaterThan(R(A(9, 73.4), huge).value);
   });
 
-  it('F. no roster evidence is UNSCOREABLE however plausible the athlete', () => {
-    const r = R(A(9, 73.4), O({ rosterOnFile: false }));
+  it('F. no behavioural evidence at all is UNSCOREABLE however plausible the athlete', () => {
+    // A7.7.4: the refusal is now about the EVIDENCE FLOOR, not about the
+    // roster alone. Market match can carry a programme whose roster we
+    // cannot read - but when neither signal is known, plausibility on its
+    // own still answers nothing.
+    const r = R(A(9, 73.4), O({ rosterOnFile: false }), NO_MARKET);
     expect(r.ok).toBe(false);
     expect('value' in r).toBe(false);
     expect(r.detail.athleticPlausibility).toBeGreaterThan(0.5);
@@ -63,15 +86,16 @@ describe('the pathological scenarios', () => {
 
 describe('athletic plausibility is a ceiling, not a term', () => {
   it('a perfect core returns exactly the plausibility', () => {
+    // Both slices full. The weights sum to 1, so the maximum is exactly A.
     const perfect = scoreable({ value: 1, grade: GRADE.MEASURED });
-    const r = coachRecruitability({ athletic: A(8, 73.38), positional: perfect, international: DOMESTIC });
+    const r = coachRecruitability({ athletic: A(8, 73.38), positional: perfect, market: FULL_MARKET });
     expect(r.value).toBeCloseTo(A(8, 73.38).value, 12);
   });
 
   it('no core can exceed it', () => {
     for (const core of [0, 0.25, 0.5, 0.75, 1]) {
       const r = coachRecruitability({
-        athletic: A(6, 73.4), positional: scoreable({ value: core, grade: GRADE.MEASURED }), international: DOMESTIC,
+        athletic: A(6, 73.4), positional: scoreable({ value: core, grade: GRADE.MEASURED }), market: MARKET,
       });
       expect(r.value).toBeLessThanOrEqual(A(6, 73.4).value + 1e-12);
     }
@@ -79,7 +103,7 @@ describe('athletic plausibility is a ceiling, not a term', () => {
 
   it('a near-zero plausibility cannot be rescued by anything', () => {
     const r = coachRecruitability({
-      athletic: A(1, 99), positional: scoreable({ value: 1, grade: GRADE.MEASURED }), international: DOMESTIC,
+      athletic: A(1, 99), positional: scoreable({ value: 1, grade: GRADE.MEASURED }), market: MARKET,
     });
     expect(r.value).toBeLessThan(0.01);
   });
@@ -88,7 +112,7 @@ describe('athletic plausibility is a ceiling, not a term', () => {
     let prev = -1;
     for (const core of [0, 0.2, 0.4, 0.6, 0.8, 1]) {
       const v = coachRecruitability({
-        athletic: A(7, 60), positional: scoreable({ value: core, grade: GRADE.MEASURED }), international: DOMESTIC,
+        athletic: A(7, 60), positional: scoreable({ value: core, grade: GRADE.MEASURED }), market: MARKET,
       }).value;
       expect(v).toBeGreaterThan(prev);
       prev = v;
@@ -101,10 +125,11 @@ describe('athletic plausibility is a ceiling, not a term', () => {
     }
   });
 
-  it('appears exactly once - the core cannot see the athlete level', () => {
+  it('appears exactly once - no behavioural signal can see the athlete level', () => {
     const r = R(A(8, 73.38));
-    expect(r.basis.coreBasis.components.positionalOpportunity).toBeDefined();
-    expect(JSON.stringify(r.basis.coreBasis)).not.toContain('delta');
+    expect(r.basis.signals.map((x) => x.key)).toEqual(['positionalOpportunity', 'recruitingMarket']);
+    expect(JSON.stringify(r.basis.positional)).not.toContain('delta');
+    expect(JSON.stringify(r.basis.market)).not.toContain('delta');
   });
 });
 
@@ -120,7 +145,11 @@ describe('required evidence', () => {
   });
 
   it('refuses a junior college with no eligibility rule, despite a fine athlete', () => {
-    const r = R(A(5, 40), O({ eligibilityRuled: false }));
+    // Still refused when nothing behavioural is known. Junior colleges DO
+    // carry arrivals, so in the live pool market match can now score some of
+    // them - which is the approved Tier 3 behaviour and does not invent a
+    // positional opening.
+    const r = R(A(5, 40), O({ eligibilityRuled: false }), NO_MARKET);
     expect(r.ok).toBe(false);
     expect(r.available).toContain('athleticPlausibility');
   });
@@ -130,31 +159,39 @@ describe('coverage', () => {
   it('lets positional opportunity carry the whole core for a domestic athlete', () => {
     const r = R(A(8, 73.38));
     expect(r.coverage).toBe(1);
-    expect(r.basis.internationalApplicable).toBe(false);
+    expect(r.basis.marketState).not.toBe('NOT_APPLICABLE');
   });
 
   it('reaches full coverage for an international athlete with both signals', () => {
-    const intl = internationalPropensity({
-      isInternational: true, programmeArrivals: { total: 20, international: 6 }, divisionArrivals: null,
+    const intl = recruitingMarket({
+      isInternational: true,
+      programme: { arrivals: 20, international: 6, domesticWithGeo: 0, near: 0 },
+      division: { arrivals: 200, international: 40, domesticWithGeo: 0, near: 0 },
     });
     expect(R(A(8, 73.38), O(), intl).coverage).toBe(1);
   });
 
-  it('refuses an international athlete who has only the international signal', () => {
-    // "They sign overseas players" is not an answer to "would they want this
-    // one". This is where the 0.60 floor actually binds.
-    const intl = internationalPropensity({
-      isInternational: true, programmeArrivals: { total: 20, international: 6 }, divisionArrivals: null,
+  it('scores an international athlete on market evidence alone, at reduced coverage', () => {
+    // CHANGED AT A7.7.4, deliberately. "They sign overseas players" is not an
+    // answer to "is a place opening", and it is no longer asked to be: the
+    // market slice fills, the positional slice stays empty, and coverage says
+    // so. What it must never do is make positional demand appear known.
+    const intl = recruitingMarket({
+      isInternational: true,
+      programme: { arrivals: 20, international: 6, domesticWithGeo: 0, near: 0 },
+      division: { arrivals: 200, international: 40, domesticWithGeo: 0, near: 0 },
     });
     const r = R(A(8, 73.38), O({ rosterOnFile: false }), intl);
-    expect(r.ok).toBe(false);
-    expect(r.reason).toBe(REASON.BELOW_COVERAGE_FLOOR);
-    expect(r.coverage).toBeCloseTo(0.3, 10);
+    expect(r.ok).toBe(true);
+    expect(r.coverage).toBeCloseTo(0.25, 10);
+    expect(r.grade).toBe(GRADE.PARTIAL);
+    expect(r.basis.positionalState).toBe(REASON.NO_ROSTER_ON_FILE);
+    expect(r.basis.positional).toBeNull();
   });
 
   it('downgrades the grade when any part of the evidence is a proxy', () => {
     const partial = scoreable({ value: 0.4, grade: GRADE.PARTIAL });
-    expect(coachRecruitability({ athletic: A(8, 73.38), positional: partial, international: DOMESTIC }).grade)
+    expect(coachRecruitability({ athletic: A(8, 73.38), positional: partial, market: MARKET }).grade)
       .toBe(GRADE.PARTIAL);
   });
 });
@@ -165,7 +202,11 @@ describe('what recruitability cannot see', () => {
     // of them carries a financial, academic or geographic field.
     const r = R(A(8, 73.38));
     const text = JSON.stringify(r.basis);
-    for (const forbidden of ['budget', 'netPrice', 'gpa', 'sat', 'distance', 'major', 'tuition', 'affordab']) {
+    // `distance` is no longer on this list: A7.7.4 put the programme's own
+    // recruiting footprint inside Coach Recruitability, and the athlete's
+    // distance is one side of that comparison. Where the athlete WANTS to be
+    // remains Opportunity/Fit's locationFit and is not read here.
+    for (const forbidden of ['budget', 'netPrice', 'gpa', 'sat', 'major', 'tuition', 'affordab']) {
       expect(text.toLowerCase()).not.toContain(forbidden.toLowerCase());
     }
   });
@@ -186,7 +227,7 @@ describe('phi', () => {
     const none = unscoreable({ reason: REASON.NO_ROSTER_ON_FILE });
     void none;
     const empty = scoreable({ value: 0, grade: GRADE.MEASURED });
-    const r = coachRecruitability({ athletic: A(8, 73.38), positional: empty, international: DOMESTIC, phi: 0.2 });
+    const r = coachRecruitability({ athletic: A(8, 73.38), positional: empty, market: NO_MARKET, phi: 0.2 });
     expect(r.value).toBeCloseTo(A(8, 73.38).value * 0.2, 12);
   });
 
@@ -195,11 +236,31 @@ describe('phi', () => {
   });
 });
 
-describe('a NOT_APPLICABLE component costs no coverage', () => {
-  it('scores a domestic athlete identically to one where the signal does not exist', () => {
+describe('coverage reports what was measured, not what applied', () => {
+  it('a NOT_APPLICABLE market arm costs its slice, and says so', () => {
+    // CHANGED AT A7.7.4. Under the old renormalised core a NOT_APPLICABLE
+    // component cost nothing, because the remaining component absorbed its
+    // weight - which is exactly the property that let missing evidence be
+    // rewarded. Now the slice stays empty and coverage reports 0.75.
     const withNa = R(A(8, 73.38), O(), notApplicable({ why: 'domestic' }));
-    const domestic = R(A(8, 73.38), O(), DOMESTIC);
-    expect(withNa.value).toBe(domestic.value);
-    expect(withNa.coverage).toBe(1);
+    expect(withNa.coverage).toBeCloseTo(0.75, 10);
+    expect(withNa.basis.marketState).toBe('NOT_APPLICABLE');
+  });
+
+  it('and an unknown market arm costs exactly the same, because both are unmeasured', () => {
+    const withNa = R(A(8, 73.38), O(), notApplicable({ why: 'domestic' }));
+    const unknown = R(A(8, 73.38), O(), NO_MARKET);
+    expect(unknown.value).toBeCloseTo(withNa.value, 12);
+  });
+
+  it('MISSING DATA IS NOT REWARDED', () => {
+    // The hard invariant. Measured-low positional evidence must not lose to
+    // the same programme with that evidence simply absent.
+    const low = scoreable({ value: 0.05, grade: GRADE.MEASURED });
+    const measured = coachRecruitability({ athletic: A(9, 40), positional: low, market: FULL_MARKET });
+    const missing = coachRecruitability({
+      athletic: A(9, 40), positional: unscoreable({ reason: REASON.NO_MINUTES_HISTORY }), market: FULL_MARKET,
+    });
+    expect(missing.value).toBeLessThan(measured.value);
   });
 });
