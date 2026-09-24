@@ -34,8 +34,13 @@ const financial = (over = {}) => L(over.value ?? 0.9, GRADE.MEASURED, {
   netPrice: 22000, costFloored: false,
   costBasis: over.costBasis ?? 'NET_PRICE_PRIVATE',
   applicableCostRange: over.cost ?? [22000, 22000],
-  budgetRange: '$20k-$25k/yr', budgetIsLegacyBand: false,
-  familyContributionRange: over.budget ?? [20000, 25000],
+  budgetRange: over.budgetRange === undefined ? '$20k-$25k/yr' : over.budgetRange,
+  budgetIsLegacyBand: false,
+  contributionSource: over.contributionSource ?? 'LEGACY_BAND',
+  contributionState: over.contributionState ?? null,
+  statedMaximumUsd: over.statedMaximum ?? null,
+  costNotAConstraint: over.notAConstraint ?? false,
+  familyContributionRange: over.budget === undefined ? [20000, 25000] : over.budget,
   fundingGapRange: over.gap ?? [0, 2000],
   viabilityRange: [0.8, 1], budgetCeilingUnstated: over.unbounded ?? false,
   isInternational: over.isInternational ?? false,
@@ -427,5 +432,83 @@ describe('the helpers', () => {
     const total = strengths(e).length + concerns(e).length + unknowns(e).length;
     expect(total).toBeLessThanOrEqual(e.reasons.length);
     expect(concerns(e).length).toBeGreaterThan(0);
+  });
+});
+
+/* ------------------------------------------------------------------ */
+/* A7.9.2 — what the family told us, said out loud                     */
+/* ------------------------------------------------------------------ */
+
+describe('the contribution states each get their own sentence', () => {
+  const lines = (over) => explainProgramme(entry({ financial: financial(over) }), {})
+    .layerReasons.financial.map(renderReason);
+
+  it('states an exact maximum as one figure when the cost is covered', () => {
+    const out = lines({
+      contributionSource: 'EXACT_STATED_MAXIMUM', contributionState: 'STATED',
+      statedMaximum: 60000, budget: [60000, 60000], gap: [0, 0], cost: [54021, 54021],
+      budgetRange: null,
+    });
+    expect(out).toContain("The estimated annual cost of $54,021 is within the family's stated maximum annual contribution of $60,000.");
+  });
+
+  it('states the shortfall against an exact maximum', () => {
+    const out = lines({
+      contributionSource: 'EXACT_STATED_MAXIMUM', contributionState: 'STATED',
+      statedMaximum: 40000, budget: [40000, 40000], gap: [14021, 14021], cost: [54021, 54021],
+      budgetRange: null,
+    });
+    expect(out).toContain("The estimated annual cost of $54,021 is $14,021 above the family's stated maximum annual contribution of $40,000.");
+  });
+
+  /** $0 is falsy and is a real answer. A truthiness test would hide it. */
+  it('states a maximum of zero as a stated maximum, not as an absent one', () => {
+    const out = lines({
+      contributionSource: 'EXACT_STATED_MAXIMUM', contributionState: 'STATED',
+      statedMaximum: 0, budget: [0, 0], gap: [22000, 22000], cost: [22000, 22000],
+      budgetRange: null,
+    });
+    expect(out.join(' ')).toContain('stated maximum annual contribution of $0');
+  });
+
+  it('keeps the programme cost visible when cost is not a constraint', () => {
+    const out = lines({
+      contributionSource: 'NOT_A_CONSTRAINT', contributionState: 'NOT_A_CONSTRAINT',
+      notAConstraint: true, budget: null, gap: [0, 0], cost: [54021, 54021], budgetRange: null,
+    });
+    expect(out).toContain('The family has recorded that cost is not a meaningful constraint. The estimated annual cost here is $54,021.');
+    // Never a claim that the programme is cheap, and never an award.
+    expect(out.join(' ')).not.toMatch(/scholarship of|will receive|award of \$/);
+  });
+
+  it('says when a number came from a legacy band rather than a confirmed maximum', () => {
+    const out = lines({});
+    expect(out.join(' ')).toContain('legacy budget range ($20k-$25k/yr)');
+  });
+
+  it('says the ceiling is unconfirmed on the open legacy band', () => {
+    const out = lines({ budgetRange: '$40k+/yr', unbounded: true, budget: [40000, Infinity], gap: [0, 14021] });
+    expect(out.join(' ')).toContain('states no upper limit');
+    expect(out.join(' ')).toContain('has not been confirmed');
+  });
+
+  it('names the out-of-state premium as what it adds to the cost basis', () => {
+    const out = lines({ costBasis: 'NET_PRICE_PUBLIC_OUT_OF_STATE', premium: 21146 });
+    expect(out.join(' ')).toContain('the out-of-state premium adds roughly $21,146 to the estimated cost basis');
+  });
+
+  it('renders every new line without a gap and without forbidden language', () => {
+    const cases = [
+      { contributionSource: 'EXACT_STATED_MAXIMUM', contributionState: 'STATED', statedMaximum: 60000, budget: [60000, 60000], gap: [0, 0], budgetRange: null },
+      { contributionSource: 'NOT_A_CONSTRAINT', contributionState: 'NOT_A_CONSTRAINT', notAConstraint: true, budget: null, gap: [0, 0], budgetRange: null },
+      { budgetRange: '$40k+/yr', unbounded: true, budget: [40000, Infinity], gap: [0, 14021] },
+    ];
+    for (const c of cases) {
+      for (const line of lines(c)) {
+        expect(line).toBeTruthy();
+        expect(line).not.toMatch(/undefined|null|NaN|\$NaN/);
+        for (const word of FORBIDDEN_LANGUAGE) expect(line.toLowerCase()).not.toContain(word);
+      }
+    }
   });
 });

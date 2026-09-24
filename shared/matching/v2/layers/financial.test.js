@@ -26,7 +26,18 @@ describe('the scenarios the layer has to answer', () => {
     expect(r.ok).toBe(true);
     expect(r.value).toBe(1);
     expect(r.basis.fundingGapRange).toEqual([0, 0]);
-    expect(r.grade).toBe(GRADE.MEASURED);
+    /**
+     * PARTIAL since A7.9.2, and the value is unchanged. A band is an interval
+     * the family picked off a list; Financial needs the single number at its
+     * top and was never told it. Only an exact stated maximum - or a stated
+     * absence of constraint - is MEASURED evidence about the family.
+     */
+    expect(r.grade).toBe(GRADE.PARTIAL);
+    expect(r.basis.contributionSource).toBe('LEGACY_BAND');
+
+    const exact = score({ contributionState: 'STATED', maxAnnualContributionUsd: 35000 }, { net_price: 20000 });
+    expect(exact.value).toBe(1);
+    expect(exact.grade).toBe(GRADE.MEASURED);
   });
 
   it('B. a small gap stays high', () => {
@@ -417,10 +428,14 @@ describe('comparability across the categories that must compare', () => {
   });
 
   it('scores a domestic and an international athlete on the same axis', () => {
-    const dom = score({ state: 'CA' }, { control: 1 });
-    const intl = score({ state: null, origin: 'International' }, { control: 1 });
+    const stated = { contributionState: 'STATED', maxAnnualContributionUsd: 25000 };
+    const dom = score({ ...stated, state: 'CA' }, { control: 1 });
+    const intl = score({ ...stated, state: null, origin: 'International' }, { control: 1 });
     expect(dom.value).toBe(intl.value);
     expect(dom.grade).toBe(GRADE.MEASURED);
+    // An exact contribution says nothing about the cost side, which is what
+    // the international caveat is about. A7.9.2 §17.
     expect(intl.grade).toBe(GRADE.PARTIAL);
+    expect(intl.basis.internationalCostCaveat).toBeTruthy();
   });
 });

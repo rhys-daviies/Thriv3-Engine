@@ -46,6 +46,20 @@ const PLAYER_COLUMNS = [
   ['recruiting_class_year', 'INTEGER'],
 
   /**
+   * A7.9.2. The maximum the family can contribute in a year, and which of the
+   * three answers they gave. Both NULL on every existing row, which is the
+   * honest state: nobody has been asked yet, so Financial falls back to
+   * `budget_range` exactly as before.
+   *
+   * Deliberately NOT backfilled from a band. A bounded band states an
+   * interval, not the maximum, and the open `$40k+` band states no ceiling at
+   * all - converting either into a family's stated maximum would invent the
+   * number the whole field exists to stop inventing.
+   */
+  ['max_annual_contribution_usd', 'INTEGER'],
+  ['contribution_state', 'TEXT'],
+
+  /**
    * The athlete's saved template, set aside rather than deleted.
    *
    * Clearing `email_template` is how an athlete is moved onto the structured

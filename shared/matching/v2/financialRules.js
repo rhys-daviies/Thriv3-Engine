@@ -70,6 +70,191 @@ export function budgetInterval(band) {
   return null;
 }
 
+/**
+ * The bands a NEW athlete may be offered.
+ *
+ * `$40k+/yr` is deliberately absent. A7.9.1 proved it carries no information:
+ * because its ceiling is unstated, Financial scores it at the only end the
+ * family actually stated, so replaying Fixture A with a maximum of exactly
+ * $40,000 reproduced production at Kendall tau 1.000 with zero rank changes.
+ * Asking an open-ended band whose upper bound the arithmetic requires is
+ * asking a question whose answer is thrown away.
+ *
+ * `budgetInterval` still parses it, because old records hold it and reading
+ * them is not the same as offering them.
+ */
+export const INTAKE_BUDGET_BANDS = Object.freeze(
+  Object.keys(BUDGET_INTERVALS).filter((b) => Number.isFinite(BUDGET_INTERVALS[b][1])),
+);
+
+/**
+ * What the family has told us about the one quantity Financial needs.
+ *
+ * Financial reads exactly one number from the athlete: the most they can pay
+ * in a year. Everything else about them is a fact about them, not about a
+ * programme. These three states are the only honest answers to that question,
+ * and they must never collapse into each other.
+ */
+export const CONTRIBUTION_STATE = Object.freeze({
+  /** A number was stated. `maxAnnualContributionUsd` is required and >= 0. */
+  STATED: 'STATED',
+  /**
+   * The family has recorded that college cost is not a meaningful constraint
+   * on which programmes they would consider.
+   *
+   * It is a MEASUREMENT, in exactly the sense `Need Full Scholarship` is one:
+   * a stated position, at the opposite end. It does NOT mean infinite wealth,
+   * it does NOT mean any award is expected or certain, and it says nothing
+   * about what a programme costs - the cost still travels in the basis.
+   */
+  NOT_A_CONSTRAINT: 'NOT_A_CONSTRAINT',
+  /**
+   * Nobody has answered yet. Financial must REFUSE, through the same
+   * NO_FAMILY_CONTRIBUTION path an absent band takes.
+   *
+   * Never zero. Zero is the full-scholarship request and means the opposite.
+   */
+  NEEDS_CONFIRMATION: 'NEEDS_CONFIRMATION',
+});
+
+/** Where a resolved contribution interval came from. Recorded on every result. */
+export const CONTRIBUTION_SOURCE = Object.freeze({
+  /** The new field: a stated maximum, read as the exact interval [max, max]. */
+  EXACT_STATED_MAXIMUM: 'EXACT_STATED_MAXIMUM',
+  /** The new field: cost stated not to constrain. */
+  NOT_A_CONSTRAINT: 'NOT_A_CONSTRAINT',
+  /** No new field; scored from the older `budget_range` band. */
+  LEGACY_BAND: 'LEGACY_BAND',
+  /** Nothing usable. Financial refuses. */
+  NEEDS_CONFIRMATION: 'NEEDS_CONFIRMATION',
+});
+
+const CONTRIBUTION_STATES = new Set(Object.values(CONTRIBUTION_STATE));
+
+/**
+ * Validate a contribution pair, WITHOUT coercing it.
+ *
+ * Returns null when the pair is a legal combination, or a string naming what
+ * is wrong. An illegal pair is never silently repaired: a numeric maximum
+ * sitting beside NOT_A_CONSTRAINT is two different answers to one question,
+ * and guessing which one the family meant is how a model invents a budget.
+ *
+ * A wholly absent pair (both null/undefined) is legal - it is a record from
+ * before the field existed, and the legacy band decides.
+ */
+export function contributionPairError({ contributionState = null, maxAnnualContributionUsd = null } = {}) {
+  const state = contributionState ?? null;
+  const max = maxAnnualContributionUsd ?? null;
+  if (state === null) {
+    return max === null ? null : 'max_annual_contribution_usd requires a contribution_state';
+  }
+  if (!CONTRIBUTION_STATES.has(state)) {
+    return `unknown contribution_state ${JSON.stringify(state)}`;
+  }
+  if (state === CONTRIBUTION_STATE.STATED) {
+    if (max === null) return 'contribution_state STATED requires max_annual_contribution_usd';
+    if (typeof max !== 'number' || !Number.isFinite(max)) return 'max_annual_contribution_usd must be a finite number';
+    if (max < 0) return 'max_annual_contribution_usd must be zero or greater';
+    return null;
+  }
+  return max === null ? null : `contribution_state ${state} requires max_annual_contribution_usd to be null`;
+}
+
+/**
+ * Resolve what the family can pay, as an interval, from whichever answer we
+ * hold.
+ *
+ * PRECEDENCE: the new fields first, then the legacy band, then refusal. The
+ * new fields win outright because they answer the question Financial actually
+ * asks; a record carrying both has been updated and the band is history.
+ *
+ * -- WHY THE NEW FIELD EXISTS --------------------------------------------
+ *
+ * `$40k+/yr` encodes [40000, Infinity). Financial cannot average in an
+ * unstated ceiling without crediting a capacity nobody claimed, so it scores
+ * the end the family did state - which makes the band arithmetically
+ * identical to a maximum of exactly $40,000. A7.9.1 measured that directly:
+ * Fixture A replayed at an exact $40,000 reproduced production at Kendall tau
+ * 1.000 with not one programme moving a single place. The "+" was never read.
+ *
+ * Every one of the five programmes that band demoted - Michigan, Penn State,
+ * Pittsburgh, Vermont, Rutgers - is a public priced out-of-state, where the
+ * non-resident premium carries the cost past $40,000. Michigan's premium
+ * alone is $43,210 on a net price of $13,138.
+ *
+ * NOTHING HERE INFERS AID. The new field is athlete-side only: it improves
+ * what the family told us, and changes no programme-side cost, no aid rule
+ * and no assumption about any award.
+ *
+ * @returns {null|{interval:[number,number], legacy:boolean, source:string,
+ *                 state:string|null, statedMaximum:number|null, unbounded:boolean}}
+ *          null means REFUSE - never treat it as zero.
+ */
+export function familyContribution({
+  contributionState = null, maxAnnualContributionUsd = null, budgetRange = null,
+} = {}) {
+  const err = contributionPairError({ contributionState, maxAnnualContributionUsd });
+  if (err) throw new Error(`familyContribution: ${err}`);
+
+  if (contributionState === CONTRIBUTION_STATE.STATED) {
+    const max = maxAnnualContributionUsd;
+    return {
+      interval: [max, max],
+      legacy: false,
+      source: CONTRIBUTION_SOURCE.EXACT_STATED_MAXIMUM,
+      state: contributionState,
+      statedMaximum: max,
+      unbounded: false,
+    };
+  }
+
+  if (contributionState === CONTRIBUTION_STATE.NOT_A_CONSTRAINT) {
+    /**
+     * No interval, because there is no number. The caller builds a gap of zero
+     * by construction rather than by arithmetic on a made-up ceiling - see
+     * layers/financial.js. `interval` is null so nothing can subtract from it
+     * by accident.
+     */
+    return {
+      interval: null,
+      legacy: false,
+      source: CONTRIBUTION_SOURCE.NOT_A_CONSTRAINT,
+      state: contributionState,
+      statedMaximum: null,
+      unbounded: true,
+    };
+  }
+
+  if (contributionState === CONTRIBUTION_STATE.NEEDS_CONFIRMATION) return null;
+
+  /**
+   * THE OPEN LEGACY BAND STILL SCORES, and that was a decision rather than an
+   * oversight.
+   *
+   * A7.9.2 considered refusing `$40k+/yr` outright, on the grounds that it
+   * confirms no maximum. Measured, that would have taken Fixtures A and C from
+   * 858 ranked programmes to none at all - Pursuit requires all three layers -
+   * which would end the fixture that every diagnostic since A7.7 has been run
+   * on, for no gain on any live record: zero athletes on file carry the band.
+   *
+   * So it keeps scoring exactly as it always has, at the floor the family did
+   * state, and the explanation says out loud that the ceiling is unconfirmed.
+   * What does NOT happen is the other half: migration never writes 40000 into
+   * `max_annual_contribution_usd`, because that would turn a conservative
+   * reading into a claim the family never made.
+   */
+  const band = budgetInterval(budgetRange);
+  if (!band) return null;
+  return {
+    interval: band.interval,
+    legacy: band.legacy,
+    source: CONTRIBUTION_SOURCE.LEGACY_BAND,
+    state: null,
+    statedMaximum: null,
+    unbounded: !Number.isFinite(band.interval[1]),
+  };
+}
+
 /** IPEDS `control`: 1 public, 2 private non-profit, 3 private for-profit. */
 export const CONTROL = Object.freeze({ PUBLIC: 1, PRIVATE_NONPROFIT: 2, PRIVATE_FOR_PROFIT: 3 });
 

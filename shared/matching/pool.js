@@ -506,6 +506,13 @@ export function normaliseAthlete(player) {
     sat: toNum(player.sat_score),
     act: toNum(player.act_score),
     budgetRange: player.budget_range || null,
+    /**
+     * A7.9.2, read ONLY by V2 Financial. V1 scores affordability from
+     * `budgetRange` alone and never looks at these, so carrying them here
+     * changes no V1 output - the pinned baseline is what proves it.
+     */
+    contributionState: player.contribution_state || null,
+    maxAnnualContributionUsd: toNum(player.max_annual_contribution_usd),
     state: player.state || null,
     academicMinimum: toNum(player.academic_minimum),
     // `origin` decides which half of the location criterion applies. Older

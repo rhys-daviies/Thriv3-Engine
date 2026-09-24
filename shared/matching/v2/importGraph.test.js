@@ -48,6 +48,13 @@ const FORBIDDEN_TO_V2 = [
 const MAY_IMPORT_V2 = [
   'shared/matching/v2/',
   'server/lib/v2/',
+  /**
+   * A7.9.2. The Player entity validates a contribution pair on write, using
+   * the same rule the Financial layer reads it with. Restating the legal
+   * combinations in the route would let the database and the model disagree
+   * about what an athlete said.
+   */
+  'server/db/entities/player.js',
   'server/scripts/v2Compare.js',
   'server/scripts/v2Financial.js',
   'server/scripts/v2Recruitability.js',

@@ -60,7 +60,7 @@ import { GRADE, REASON, scoreable, unscoreable } from '../types.js';
 import { AID_POLICY_STATUS, aidAssumption } from '../aidPolicy.js';
 import {
   CONTROL, ATHLETIC_AID_RULES, NO_ATHLETIC_AID_CONFERENCES,
-  budgetInterval, CONTRIBUTION_ANCHOR, HALF_VIABILITY_RELATIVE_GAP,
+  familyContribution, CONTRIBUTION_SOURCE, CONTRIBUTION_ANCHOR, HALF_VIABILITY_RELATIVE_GAP,
 } from '../financialRules.js';
 
 /** What the applicable cost was built from. Recorded on every result. */
@@ -192,7 +192,7 @@ export function viabilityFromRelativeGap(rel) {
 
 /**
  * @param {object} p
- * @param {object} p.athlete  { budgetRange, state, origin }
+ * @param {object} p.athlete  { contributionState, maxAnnualContributionUsd, budgetRange, state, origin }
  * @param {object} p.college  { net_price, control, tuition_in_state, tuition_out_state, state, division, conference }
  * @param {string} p.sport
  */
@@ -224,7 +224,11 @@ export function financialViability({ athlete, college, sport }) {
     athleticAwardBasis: 'no athletic award is modelled: the published equivalency limits are shares of cost of attendance, which is not held',
   };
 
-  const budget = budgetInterval(athlete?.budgetRange);
+  const budget = familyContribution({
+    contributionState: athlete?.contributionState ?? null,
+    maxAnnualContributionUsd: athlete?.maxAnnualContributionUsd ?? null,
+    budgetRange: athlete?.budgetRange ?? null,
+  });
   const cost = applicableCost({
     netPrice: college.net_price,
     control: college.control,
@@ -259,6 +263,8 @@ export function financialViability({ athlete, college, sport }) {
       coverage,
       detail: {
         ...aidBasis,
+        contributionSource: CONTRIBUTION_SOURCE.NEEDS_CONFIRMATION,
+        contributionState: athlete?.contributionState ?? null,
         budgetRange: athlete?.budgetRange ?? null,
         applicableCostRange: [cost.lo, cost.hi],
         costBasis: cost.basis,
@@ -266,14 +272,28 @@ export function financialViability({ athlete, college, sport }) {
     });
   }
 
-  const gap = fundingGap({ cost, budget: budget.interval });
+  /**
+   * COST STATED NOT TO CONSTRAIN.
+   *
+   * The gap is zero BY CONSTRUCTION, not by arithmetic against an invented
+   * ceiling - there is no number here to subtract with, which is why the
+   * resolver hands back a null interval rather than [x, Infinity).
+   *
+   * Financial reaches 1.0 because affordability is not what limits this
+   * athlete's choice. It is not a claim about wealth, about any award, or
+   * about the programme being cheap: the applicable cost is measured and
+   * travels in the basis below exactly as it does for everyone else.
+   */
+  const notAConstraint = budget.source === CONTRIBUTION_SOURCE.NOT_A_CONSTRAINT;
+
+  const gap = notAConstraint ? { lo: 0, hi: 0 } : fundingGap({ cost, budget: budget.interval });
 
   // Denominated in the family's own stated floor, not in the cost. A $10k
   // shortfall is a different problem for a family who said $10k than for one
   // who said $70k, and it is the SAME problem whether the school costs $20k or
   // $80k - they must find $10k either way. Normalising by cost would report
   // the expensive school as the easier one.
-  const anchor = Math.max(budget.interval[0], CONTRIBUTION_ANCHOR);
+  const anchor = Math.max(budget.interval?.[0] ?? 0, CONTRIBUTION_ANCHOR);
   const relLo = gap.lo / anchor;
   const relHi = gap.hi / anchor;
 
@@ -285,19 +305,36 @@ export function financialViability({ athlete, college, sport }) {
    * worst end would score every banded budget as though the family had stated
    * only its floor, which is not what they said. Both ends travel in the basis.
    *
-   * EXCEPT on the open-ended top band. "$40k+" states a floor and no ceiling,
-   * so its best case is always a gap of zero - not because the family can
-   * cover everything, but because the band never said they could not. Averaging
-   * that in credits them with a capacity they never claimed, and it showed:
-   * across the real pool it held the two top-band fixtures at a median of 1.0
-   * and a floor of 0.75, which is V1's saturated affordability wearing new
-   * clothes. With an unstated ceiling the only thing the family actually told
-   * us is the floor, so the worst case is the whole of what we know.
+   * EXCEPT on the open-ended legacy top band. "$40k+" states a floor and no
+   * ceiling, so its best case is always a gap of zero - not because the family
+   * can cover everything, but because the band never said they could not.
+   * Averaging that in credits them with a capacity they never claimed, and it
+   * showed: across the real pool it held the two top-band fixtures at a median
+   * of 1.0 and a floor of 0.75, which is V1's saturated affordability wearing
+   * new clothes. With an unstated ceiling the only thing the family actually
+   * told us is the floor, so the worst case is the whole of what we know.
+   *
+   * A7.9.1 then measured what that costs: it makes the band arithmetically
+   * identical to a stated maximum of exactly $40,000. That is why
+   * CONTRIBUTION_STATE.STATED exists, and why `$40k+/yr` is no longer offered
+   * to new athletes. An EXACT maximum needs none of this - [max, max] has one
+   * end, so both viabilities agree and the midpoint is that same number.
    */
-  const unboundedBudget = !Number.isFinite(budget.interval[1]);
+  const unboundedBudget = !notAConstraint && !Number.isFinite(budget.interval[1]);
   const value = unboundedBudget ? vLo : (vLo + vHi) / 2;
 
-  const grade = (cost.grade === GRADE.MEASURED && !budget.legacy && !isInternational)
+  /**
+   * A BAND IS NOT A CONFIRMED MAXIMUM, however cleanly it parses.
+   *
+   * Every band-sourced result is PARTIAL, including the current vocabulary.
+   * "$20k-$25k" is an interval the family chose off a list; Financial needs
+   * the one number at its top and was never told it. Only an exact stated
+   * maximum, or a stated absence of constraint, is MEASURED evidence about
+   * the family - and either still needs a MEASURED cost on the other side.
+   */
+  const grade = (cost.grade === GRADE.MEASURED
+    && budget.source !== CONTRIBUTION_SOURCE.LEGACY_BAND
+    && !isInternational)
     ? GRADE.MEASURED
     : GRADE.PARTIAL;
 
@@ -310,13 +347,20 @@ export function financialViability({ athlete, college, sport }) {
       ...cost.detail,
       costBasis: cost.basis,
       applicableCostRange: [cost.lo, cost.hi],
-      budgetRange: athlete.budgetRange,
+      /** Which answer this was scored from. The four never collapse. */
+      contributionSource: budget.source,
+      contributionState: budget.state,
+      /** The exact maximum the family stated, or null when they stated none. */
+      statedMaximumUsd: budget.statedMaximum,
+      costNotAConstraint: notAConstraint,
+      budgetRange: athlete.budgetRange ?? null,
       budgetIsLegacyBand: budget.legacy,
+      /** null when there is no number - NOT_A_CONSTRAINT states no interval. */
       familyContributionRange: budget.interval,
       fundingGapRange: [gap.lo, gap.hi],
       relativeGapRange: [relLo, relHi],
       contributionAnchor: anchor,
-      anchorIsFloor: anchor > budget.interval[0],
+      anchorIsFloor: anchor > (budget.interval?.[0] ?? 0),
       viabilityRange: [vLo, vHi],
       budgetCeilingUnstated: unboundedBudget,
       isInternational,

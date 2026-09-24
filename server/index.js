@@ -217,17 +217,27 @@ app.get('/api/entities/:table/:id', (req, res) => {
   res.json(row);
 });
 
-app.post('/api/entities/:table', (req, res) => {
-  const entity = ENTITIES[req.params.table];
-  if (!entity) return res.status(404).json({ error: 'Unknown entity' });
-  res.json(entity.create(req.body));
-});
+/**
+ * An entity may refuse a write whose fields contradict each other - see
+ * `checkContribution` in db/entities/player.js. That is a bad request, not a
+ * server fault, and it must say which pair was wrong rather than 500 with a
+ * stack trace.
+ */
+function writing(run) {
+  return (req, res) => {
+    const entity = ENTITIES[req.params.table];
+    if (!entity) return res.status(404).json({ error: 'Unknown entity' });
+    try {
+      return res.json(run(entity, req));
+    } catch (err) {
+      return res.status(400).json({ error: err.message });
+    }
+  };
+}
 
-app.put('/api/entities/:table/:id', (req, res) => {
-  const entity = ENTITIES[req.params.table];
-  if (!entity) return res.status(404).json({ error: 'Unknown entity' });
-  res.json(entity.update(req.params.id, req.body));
-});
+app.post('/api/entities/:table', writing((entity, req) => entity.create(req.body)));
+
+app.put('/api/entities/:table/:id', writing((entity, req) => entity.update(req.params.id, req.body)));
 
 app.delete('/api/entities/:table/:id', (req, res) => {
   const entity = ENTITIES[req.params.table];

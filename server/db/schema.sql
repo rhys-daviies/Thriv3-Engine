@@ -24,6 +24,13 @@ CREATE TABLE IF NOT EXISTS players (
   forty_yard_dash REAL,
   preferred_conferences TEXT DEFAULT '[]',
   budget_range TEXT,
+
+  -- What the family can actually pay, which is the one number Financial
+  -- needs. `budget_range` is kept for records written before this existed;
+  -- see shared/matching/v2/financialRules.js for why a band is not enough.
+  max_annual_contribution_usd INTEGER,
+  contribution_state TEXT,
+
   highlights_url TEXT,
   additional_notes TEXT,
   email_subject TEXT,

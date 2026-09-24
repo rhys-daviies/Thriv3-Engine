@@ -360,6 +360,53 @@ async function main() {
     }
   }
 
+  /**
+   * A7.9.2 Part 1. The low end, where `anchor = max(stated, CONTRIBUTION_ANCHOR)`
+   * stops tracking what the family said and becomes a constant.
+   */
+  if (args.includes('--low-end')) {
+    const LADDER = [0, 5000, 8000, 10000, 15000, 20000, 30000, 40000, 50000, 60000];
+    const CASES = [['A', 'mens (rating 9, CA)'], ['H', 'womens (rating 8, NC)'], ['D', 'mens (rating 3, TX)']];
+    for (const [k, label] of CASES) {
+      const u = runFixture(fixtureOf(k), 'LEVEL_FIRST');
+      console.log(`\n== Fixture ${k} — ${label} · ${u.rows.length} ranked · CONTRIBUTION_ANCHOR ${money(CONTRIBUTION_ANCHOR)}`);
+      console.log(`${'stated'.padEnd(9)}${'anchor'.padStart(9)}${'anchored?'.padStart(11)}`
+        + `${'Fp10'.padStart(7)}${'Fp25'.padStart(7)}${'Fmed'.padStart(7)}${'Fp75'.padStart(7)}${'Fp90'.padStart(7)}`
+        + `${'F=1'.padStart(6)}${'F<.5'.padStart(6)}${'F<.3'.padStart(6)}${'gFfired'.padStart(9)}${'tau'.padStart(8)}${'dMed'.padStart(7)}`);
+      let prevMed = null;
+      for (const m of LADDER) {
+        const alt = rescore(u.rows, { fOf: (r) => finAtMax(r, m) });
+        const byName = new Map(alt.map((r) => [r.name, r]));
+        const a = []; const b = [];
+        for (const r of u.rows) { a.push(r.rank); b.push(byName.get(r.name).rank2); }
+        const fs = alt.map((r) => r.F2);
+        const anchor = Math.max(m, CONTRIBUTION_ANCHOR);
+        const mm = med(fs);
+        console.log(`${money(m).padEnd(9)}${money(anchor).padStart(9)}${(anchor > m ? 'FLOORED' : 'stated').padStart(11)}`
+          + `${fmt(qu(fs, 0.1)).padStart(7)}${fmt(qu(fs, 0.25)).padStart(7)}${fmt(mm).padStart(7)}${fmt(qu(fs, 0.75)).padStart(7)}${fmt(qu(fs, 0.9)).padStart(7)}`
+          + `${String(fs.filter((x) => x >= 0.9999).length).padStart(6)}${String(fs.filter((x) => x < 0.5).length).padStart(6)}`
+          + `${String(fs.filter((x) => x < 0.3).length).padStart(6)}`
+          + `${String(alt.filter((r) => tailGate(r.F2, G.financial) < 0.9999).length).padStart(9)}`
+          + `${fmt(kendall(a, b)).padStart(8)}${(prevMed === null ? '—' : fmt(mm - prevMed, 3)).padStart(7)}`);
+        prevMed = mm;
+      }
+      /** The viability curve itself, at one programme, so the anchor is visible as arithmetic. */
+      const probe = u.rows.find((r) => r.Fbasis.costBasis === 'NET_PRICE_PRIVATE' && r.Fbasis.applicableCostRange[1] > 40000)
+        ?? u.rows[0];
+      const cost = probe.Fbasis.applicableCostRange;
+      console.log(`\n   viability curve at ${probe.name} (cost ${money(cost[1])}), showing the anchor floor:`);
+      console.log(`   ${'stated'.padEnd(9)}${'gap'.padStart(10)}${'anchor'.padStart(10)}${'relGap'.padStart(9)}${'F'.padStart(8)}${'dF'.padStart(8)}`);
+      let pv = null;
+      for (const m of LADDER) {
+        const gap = Math.max(0, cost[1] - m);
+        const an = Math.max(m, CONTRIBUTION_ANCHOR);
+        const v = finAtMax(probe, m);
+        console.log(`   ${money(m).padEnd(9)}${money(gap).padStart(10)}${money(an).padStart(10)}${fmt(gap / an).padStart(9)}${fmt(v).padStart(8)}${(pv === null ? '—' : fmt(v - pv)).padStart(8)}`);
+        pv = v;
+      }
+    }
+  }
+
   if (args.includes('--interaction')) {
     console.log('== 19. DOES THE FINANCIAL REPAIR CHANGE THE GATE DECISION?');
     console.log('   Only A and C state "$40k+/yr", so only they can move. Both re-run with the');

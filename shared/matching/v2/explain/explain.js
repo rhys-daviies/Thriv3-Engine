@@ -169,10 +169,25 @@ function financialReasons(result) {
   const b = result.basis;
   const out = [];
   const [gapLo, gapHi] = b.fundingGapRange;
+  /**
+   * An exact stated maximum is ONE number, so it is said as one. A band is
+   * still a range and is still said as a range - reporting "$20,000 to
+   * $25,000" as a single figure would invent the precision the band withheld.
+   */
+  const stated = Number.isFinite(b.statedMaximumUsd) ? money(b.statedMaximumUsd) : null;
+  const budget = b.familyContributionRange ? b.familyContributionRange.map(money) : null;
 
-  if (gapHi <= 0) {
+  if (b.costNotAConstraint) {
+    /**
+     * The cost still travels. "Not a constraint" is a fact about the family,
+     * and saying it must never read as a claim that the programme is cheap.
+     */
+    out.push(reason(REASON_CODE.COST_NOT_A_CONSTRAINT, LAYER.FINANCIAL, POLARITY.STRENGTH, BAND.STRONGEST_POSITIVE, {
+      cost: b.applicableCostRange.map(money), costBasis: b.costBasis,
+    }));
+  } else if (gapHi <= 0) {
     out.push(reason(REASON_CODE.COST_WITHIN_BUDGET, LAYER.FINANCIAL, POLARITY.STRENGTH, BAND.STRONGEST_POSITIVE, {
-      cost: b.applicableCostRange.map(money), budget: b.familyContributionRange.map(money), costBasis: b.costBasis,
+      cost: b.applicableCostRange.map(money), budget, stated, costBasis: b.costBasis,
     }));
   } else {
     out.push(reason(REASON_CODE.FUNDING_GAP, LAYER.FINANCIAL, POLARITY.CONCERN, BAND.MAJOR_CONSTRAINT, {
@@ -180,10 +195,23 @@ function financialReasons(result) {
       // unknown. Collapsing it to a point would invent precision.
       gap: [money(gapLo), money(gapHi)],
       cost: b.applicableCostRange.map(money),
-      budget: b.familyContributionRange.map(money),
+      budget,
+      stated,
       costBasis: b.costBasis,
       budgetCeilingUnstated: b.budgetCeilingUnstated,
     }));
+  }
+
+  /**
+   * Said out loud, because a band is weaker evidence than the question we now
+   * ask and the reader is entitled to know which one produced the number.
+   */
+  if (b.budgetRange && b.contributionSource === 'LEGACY_BAND') {
+    out.push(reason(REASON_CODE.CONTRIBUTION_FROM_LEGACY_BAND, LAYER.FINANCIAL, POLARITY.UNKNOWN, BAND.UNKNOWN,
+      // The open band states no ceiling, so it is scored at the floor the
+      // family DID state. Saying so is the difference between a conservative
+      // number and a number that looks like a confirmed maximum.
+      { band: b.budgetRange, unbounded: b.budgetCeilingUnstated }));
   }
 
   if (b.costBasis === 'NET_PRICE_PUBLIC_IN_STATE') {

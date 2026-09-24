@@ -77,6 +77,8 @@ export const REASON_CODE = Object.freeze({
   // Financial
   COST_WITHIN_BUDGET: 'COST_WITHIN_BUDGET',
   FUNDING_GAP: 'FUNDING_GAP',
+  COST_NOT_A_CONSTRAINT: 'COST_NOT_A_CONSTRAINT',
+  CONTRIBUTION_FROM_LEGACY_BAND: 'CONTRIBUTION_FROM_LEGACY_BAND',
   RESIDENCY_IN_STATE: 'RESIDENCY_IN_STATE',
   RESIDENCY_OUT_OF_STATE: 'RESIDENCY_OUT_OF_STATE',
   RESIDENCY_UNKNOWN: 'RESIDENCY_UNKNOWN',
@@ -288,7 +290,7 @@ export const REFUSAL_PHRASE = Object.freeze({
   NO_PROGRAMME_LEVEL: 'this programme carries no strength rating',
   NO_ATHLETE_LEVEL: 'this athlete carries no ability rating',
   NO_COST_BASIS: 'Thriv3 holds no cost figure for this programme',
-  NO_FAMILY_CONTRIBUTION: 'the family has stated no budget',
+  NO_FAMILY_CONTRIBUTION: 'the family\'s maximum annual contribution has not been confirmed',
   NO_AID_RULE: 'no athletic-aid rule is on file',
   NO_ACADEMIC_PROFILE: 'no academic profile is recorded',
   NO_LOCATION: 'no location is recorded',

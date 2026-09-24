@@ -129,13 +129,23 @@ const SENTENCE = {
   [REASON_CODE.INTERNATIONAL_NO_HISTORY]: (e) =>
     `No overseas arrivals are recorded for this programme (0 of ${e.total}), which makes an international approach harder.`,
 
-  [REASON_CODE.COST_WITHIN_BUDGET]: (e) =>
-    `The applicable cost of ${range(e.cost)} sits inside the stated budget of ${range(e.budget)}.`,
-  [REASON_CODE.FUNDING_GAP]: (e) =>
-    `A funding gap of ${range(e.gap)} remains after the stated budget of ${range(e.budget)} against a cost of ${range(e.cost)}.`,
+  // `Number.isFinite`, not truthiness: a stated maximum of $0 is a real
+  // answer — the full-scholarship request — and must not fall through to the
+  // band wording as though nothing had been stated.
+  [REASON_CODE.COST_WITHIN_BUDGET]: (e) => (Number.isFinite(e.stated)
+    ? `The estimated annual cost of ${range(e.cost)} is within the family's stated maximum annual contribution of ${money(e.stated)}.`
+    : `The applicable cost of ${range(e.cost)} sits inside the stated budget of ${range(e.budget)}.`),
+  [REASON_CODE.FUNDING_GAP]: (e) => (Number.isFinite(e.stated)
+    ? `The estimated annual cost of ${range(e.cost)} is ${range(e.gap)} above the family's stated maximum annual contribution of ${money(e.stated)}.`
+    : `A funding gap of ${range(e.gap)} remains after the stated budget of ${range(e.budget)} against a cost of ${range(e.cost)}.`),
+  [REASON_CODE.COST_NOT_A_CONSTRAINT]: (e) =>
+    `The family has recorded that cost is not a meaningful constraint. The estimated annual cost here is ${range(e.cost)}.`,
+  [REASON_CODE.CONTRIBUTION_FROM_LEGACY_BAND]: (e) => (e.unbounded
+    ? `Financial viability is based on a legacy budget range (${e.band}) that states no upper limit, so it is scored at the lower figure the family did state. Their maximum annual contribution has not been confirmed.`
+    : `Financial viability is based on a legacy budget range (${e.band}) rather than a confirmed maximum contribution.`),
   [REASON_CODE.RESIDENCY_IN_STATE]: () => `Priced at the in-state rate.`,
   [REASON_CODE.RESIDENCY_OUT_OF_STATE]: (e) =>
-    `Priced as a non-resident${e.international ? ' (international athletes are non-residents everywhere)' : ''}, adding roughly ${money(e.premium)}.`,
+    `Priced as a non-resident${e.international ? ' (international athletes are non-residents everywhere)' : ''}: the out-of-state premium adds roughly ${money(e.premium)} to the estimated cost basis.`,
   [REASON_CODE.RESIDENCY_UNKNOWN]: (e) =>
     `No home state is on file, so the cost could be anywhere in ${range(e.cost)} depending on residency.`,
   [REASON_CODE.AID_KNOWN_NONE]: (e) =>
