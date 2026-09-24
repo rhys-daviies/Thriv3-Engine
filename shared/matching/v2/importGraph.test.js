@@ -91,6 +91,11 @@ const MAY_IMPORT_V2 = [
   'server/scripts/v2PathwayCalibration.js',
   'server/scripts/v2PursuitAuthority.js',
   'server/scripts/v2GateAndFinancial.js',
+  /**
+   * A7.9.4. Compares V1 affordability against V2 Financial on one axis, which
+   * needs both. Read-only: it scores, it never ranks anything into production.
+   */
+  'server/scripts/v1BridgeDiagnostic.js',
   'server/scripts/v2ValidationFixtures.js',
   'server/scripts/derivePlayingNorms.js',
   'server/scripts/derivePositionalNorms.js',
