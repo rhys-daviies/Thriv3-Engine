@@ -1,0 +1,1882 @@
+[
+ {
+  "domain": "redstormsports.com",
+  "op": "CORRECT",
+  "old_unitid": 195720,
+  "new_unitid": 195809,
+  "old_status": "VERIFIED_ALIAS",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons independent scrape maps redstormsports.com -> UNITID 195809",
+  "reason": "registry mis-mapped; corrected to coach_seasons-corroborated institution"
+ },
+ {
+  "domain": "tommiesports.com",
+  "op": "CORRECT",
+  "old_unitid": 227863,
+  "new_unitid": 174914,
+  "old_status": "VERIFIED_ALIAS",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons independent scrape maps tommiesports.com -> UNITID 174914",
+  "reason": "registry mis-mapped; corrected to coach_seasons-corroborated institution"
+ },
+ {
+  "domain": "uconnhuskies.com",
+  "op": "CORRECT",
+  "old_unitid": 128902,
+  "new_unitid": 129020,
+  "old_status": "VERIFIED_ALIAS",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons independent scrape maps uconnhuskies.com -> UNITID 129020",
+  "reason": "registry mis-mapped; corrected to coach_seasons-corroborated institution"
+ },
+ {
+  "domain": "umassathletics.com",
+  "op": "CORRECT",
+  "old_unitid": 166692,
+  "new_unitid": 166629,
+  "old_status": "VERIFIED_ALIAS",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons independent scrape maps umassathletics.com -> UNITID 166629",
+  "reason": "registry mis-mapped; corrected to coach_seasons-corroborated institution"
+ },
+ {
+  "domain": "westminstergriffins.com",
+  "op": "CORRECT",
+  "old_unitid": 179946,
+  "new_unitid": 230807,
+  "old_status": "VERIFIED_ALIAS",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons independent scrape maps westminstergriffins.com -> UNITID 230807",
+  "reason": "registry mis-mapped; corrected to coach_seasons-corroborated institution"
+ },
+ {
+  "domain": "stmarytx.edu",
+  "op": "CORRECT",
+  "old_unitid": 123554,
+  "new_unitid": 228149,
+  "old_status": "VERIFIED_ALIAS",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "official institutional .edu domain",
+  "reason": "registry mis-mapped; corrected to coach_seasons-corroborated institution"
+ },
+ {
+  "domain": "uwbadgers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 240444,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps uwbadgers.com -> UNITID 240444 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gomonks.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 161518,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gomonks.com -> UNITID 161518 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "navysports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 164155,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps navysports.com -> UNITID 164155 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "sjsuspartans.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 122755,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps sjsuspartans.com -> UNITID 122755 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "smcathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 231059,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps smcathletics.com -> UNITID 231059 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "stacathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 195243,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps stacathletics.com -> UNITID 195243 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ucmercedbobcats.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 445188,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ucmercedbobcats.com -> UNITID 445188 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "westconnathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 130776,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps westconnathletics.com -> UNITID 130776 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gorunners.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 110486,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gorunners.com -> UNITID 110486 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "calbears.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 110635,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps calbears.com -> UNITID 110635 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "loyolaramblers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 146719,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps loyolaramblers.com -> UNITID 146719 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "pittsburghpanthers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 215293,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps pittsburghpanthers.com -> UNITID 215293 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "goseattleu.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 236595,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps goseattleu.com -> UNITID 236595 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "upstatespartans.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 218742,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps upstatespartans.com -> UNITID 218742 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "warriorathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 110495,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps warriorathletics.com -> UNITID 110495 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "spufalcons.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 236577,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps spufalcons.com -> UNITID 236577 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "fdudevils.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 184694,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps fdudevils.com -> UNITID 184694 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "cbulancers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 110361,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps cbulancers.com -> UNITID 110361 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "greenbayphoenix.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 240277,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps greenbayphoenix.com -> UNITID 240277 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "loyolagreyhounds.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 163046,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps loyolagreyhounds.com -> UNITID 163046 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "njithighlanders.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 185828,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps njithighlanders.com -> UNITID 185828 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gopsusports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 214777,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gopsusports.com -> UNITID 214777 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "queensathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 199412,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps queensathletics.com -> UNITID 199412 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "nusports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 147767,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps nusports.com -> UNITID 147767 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "smcgaels.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 123554,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps smcgaels.com -> UNITID 123554 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "goaztecs.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 122409,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps goaztecs.com -> UNITID 122409 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ucirvinesports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 110653,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ucirvinesports.com -> UNITID 110653 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "unlvrebels.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 182281,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps unlvrebels.com -> UNITID 182281 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "virginiasports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 234076,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps virginiasports.com -> UNITID 234076 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "hokiesports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 233921,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps hokiesports.com -> UNITID 233921 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gowasps.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 232025,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gowasps.com -> UNITID 232025 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "hiloathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 141565,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps hiloathletics.com -> UNITID 141565 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "roadrunnersathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 127565,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps roadrunnersathletics.com -> UNITID 127565 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "wilmu.edu",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 131113,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps wilmu.edu -> UNITID 131113 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "fitchburgfalcons.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 165820,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps fitchburgfalcons.com -> UNITID 165820 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gonyuathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 193900,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gonyuathletics.com -> UNITID 193900 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "olivetcomets.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 171599,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps olivetcomets.com -> UNITID 171599 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "uclabruins.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 110662,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps uclabruins.com -> UNITID 110662 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ualbanysports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 196060,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ualbanysports.com -> UNITID 196060 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "bgsufalcons.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 201441,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps bgsufalcons.com -> UNITID 201441 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "uiwcardinals.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 225627,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps uiwcardinals.com -> UNITID 225627 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "kcroos.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 178402,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps kcroos.com -> UNITID 178402 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "pennathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 215062,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps pennathletics.com -> UNITID 215062 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "niuhuskies.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 147703,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps niuhuskies.com -> UNITID 147703 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gousfbulls.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 137351,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gousfbulls.com -> UNITID 137351 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "floridatechsports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 133881,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps floridatechsports.com -> UNITID 133881 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "fhsuathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 155061,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps fhsuathletics.com -> UNITID 155061 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gculions.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 184773,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gculions.com -> UNITID 184773 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "lubluetigers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 177940,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps lubluetigers.com -> UNITID 177940 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "maryvillesaints.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 178059,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps maryvillesaints.com -> UNITID 178059 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "msumustangs.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 226833,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps msumustangs.com -> UNITID 226833 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "umsltritons.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 178420,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps umsltritons.com -> UNITID 178420 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "uttylerpatriots.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 228802,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps uttylerpatriots.com -> UNITID 228802 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "concordia.edu",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 224004,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps concordia.edu -> UNITID 224004 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "curryathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 165529,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps curryathletics.com -> UNITID 165529 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "emersonlions.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 165662,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps emersonlions.com -> UNITID 165662 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gracetigers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 170000,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gracetigers.com -> UNITID 170000 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "moraviansports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 214157,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps moraviansports.com -> UNITID 214157 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "floridagators.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 134130,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps floridagators.com -> UNITID 134130 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "lsusports.net",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 159391,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps lsusports.net -> UNITID 159391 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "purduesports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 243780,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps purduesports.com -> UNITID 243780 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "texastech.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 229115,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps texastech.com -> UNITID 229115 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gostanford.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 243744,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gostanford.com -> UNITID 243744 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ccsubluedevils.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 128771,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ccsubluedevils.com -> UNITID 128771 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "fduknights.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 184603,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps fduknights.com -> UNITID 184603 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "pacifictigers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 120883,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps pacifictigers.com -> UNITID 120883 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ucsbgauchos.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 110705,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ucsbgauchos.com -> UNITID 110705 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "umbcretrievers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 163268,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps umbcretrievers.com -> UNITID 163268 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "vcuathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 234030,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps vcuathletics.com -> UNITID 234030 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "vmikeydets.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 234085,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps vmikeydets.com -> UNITID 234085 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "uahchargers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 100706,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps uahchargers.com -> UNITID 100706 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "aumathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 100830,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps aumathletics.com -> UNITID 100830 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ubknights.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 128744,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ubknights.com -> UNITID 128744 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "otterathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 409698,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps otterathletics.com -> UNITID 409698 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "dominicanathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 113698,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps dominicanathletics.com -> UNITID 113698 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gswcanes.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 139764,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gswcanes.com -> UNITID 139764 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "plnusealions.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 121309,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps plnusealions.com -> UNITID 121309 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "pnwathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 490805,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps pnwathletics.com -> UNITID 490805 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "tampaspartans.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 137847,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps tampaspartans.com -> UNITID 137847 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "tusculumpioneers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 221953,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps tusculumpioneers.com -> UNITID 221953 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "utdcomets.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 228787,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps utdcomets.com -> UNITID 228787 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "uuathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 221971,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps uuathletics.com -> UNITID 221971 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "walsh.edu",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 206437,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps walsh.edu -> UNITID 206437 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "carthage.edu",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 238476,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps carthage.edu -> UNITID 238476 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ecgulls.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 165699,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ecgulls.com -> UNITID 165699 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "juniatasports.net",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 213251,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps juniatasports.net -> UNITID 213251 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "kzoo.edu",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 170532,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps kzoo.edu -> UNITID 170532 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "lasell.edu",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 166391,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps lasell.edu -> UNITID 166391 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "lesleyathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 166452,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps lesleyathletics.com -> UNITID 166452 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "sabreathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 239080,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps sabreathletics.com -> UNITID 239080 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "stoutbluedevils.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 240417,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps stoutbluedevils.com -> UNITID 240417 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "appstatesports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 197869,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps appstatesports.com -> UNITID 197869 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "goblueraiders.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 220978,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps goblueraiders.com -> UNITID 220978 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gobison.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 200332,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gobison.com -> UNITID 200332 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "12thman.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 228723,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps 12thman.com -> UNITID 228723 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "goislanders.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 224147,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps goislanders.com -> UNITID 224147 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "goutsa.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 229027,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps goutsa.com -> UNITID 229027 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "msumavericks.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 173920,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps msumavericks.com -> UNITID 173920 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gobrockport.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 196121,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gobrockport.com -> UNITID 196121 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "fightingirish.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 152080,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps fightingirish.com -> UNITID 152080 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "sfuathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 215743,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps sfuathletics.com -> UNITID 215743 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "cneagles.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 219806,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps cneagles.com -> UNITID 219806 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "cuigoldeneagles.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 112075,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps cuigoldeneagles.com -> UNITID 112075 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "msubsports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 180179,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps msubsports.com -> UNITID 180179 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "sfstategators.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 122597,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps sfstategators.com -> UNITID 122597 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "acroos.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 222983,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps acroos.com -> UNITID 222983 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "bethanybison.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 237181,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps bethanybison.com -> UNITID 237181 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "carleton.edu",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 173258,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps carleton.edu -> UNITID 173258 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gowarriorathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 129215,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gowarriorathletics.com -> UNITID 129215 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "oswegolakers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 196194,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps oswegolakers.com -> UNITID 196194 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "une.edu",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 161457,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps une.edu -> UNITID 161457 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "wentworthathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 168227,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps wentworthathletics.com -> UNITID 168227 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "wittenbergtigers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 206525,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps wittenbergtigers.com -> UNITID 206525 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ubbulls.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 196088,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ubbulls.com -> UNITID 196088 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gomocs.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 221740,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gomocs.com -> UNITID 221740 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "georgiadogs.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 139959,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps georgiadogs.com -> UNITID 139959 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "hawaiiathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 141574,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps hawaiiathletics.com -> UNITID 141574 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ukathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 157085,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ukathletics.com -> UNITID 157085 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ragincajuns.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 160658,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ragincajuns.com -> UNITID 160658 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "latechsports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 159647,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps latechsports.com -> UNITID 159647 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "miamiredhawks.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 204024,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps miamiredhawks.com -> UNITID 204024 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "huskers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 181464,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps huskers.com -> UNITID 181464 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "golobos.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 187985,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps golobos.com -> UNITID 187985 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "utmsports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 221768,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps utmsports.com -> UNITID 221768 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "utepminers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 228796,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps utepminers.com -> UNITID 228796 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "uwgathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 141334,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps uwgathletics.com -> UNITID 141334 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "goaugie.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 219000,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps goaugie.com -> UNITID 219000 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "cspbears.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 173328,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps cspbears.com -> UNITID 173328 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "umdbulldogs.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 174233,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps umdbulldogs.com -> UNITID 174233 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "msubeavers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 200253,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps msubeavers.com -> UNITID 200253 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gogriffons.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 178387,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gogriffons.com -> UNITID 178387 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "abingtonsports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 214801,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps abingtonsports.com -> UNITID 214801 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "purchasecollegeathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 196219,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps purchasecollegeathletics.com -> UNITID 196219 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gothunderwolves.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 128106,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gothunderwolves.com -> UNITID 128106 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "pittjohnstownathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 215284,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps pittjohnstownathletics.com -> UNITID 215284 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "bethel.edu",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 173160,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps bethel.edu -> UNITID 173160 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "huntingdonhawks.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 101435,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps huntingdonhawks.com -> UNITID 101435 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "larochesports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 213358,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps larochesports.com -> UNITID 213358 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "maritimeathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 196291,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps maritimeathletics.com -> UNITID 196291 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "fightingmuskies.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 204264,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps fightingmuskies.com -> UNITID 204264 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "psblions.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 214591,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps psblions.com -> UNITID 214591 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "simpsonathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 154350,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps simpsonathletics.com -> UNITID 154350 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gosuffolkrams.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 168005,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gosuffolkrams.com -> UNITID 168005 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "wsulancers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 168430,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps wsulancers.com -> UNITID 168430 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "aamusports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 100654,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps aamusports.com -> UNITID 100654 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "auburntigers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 100858,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps auburntigers.com -> UNITID 100858 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "hawkeyesports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 153658,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps hawkeyesports.com -> UNITID 153658 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "lrtrojans.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 106245,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps lrtrojans.com -> UNITID 106245 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "liuathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 192448,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps liuathletics.com -> UNITID 192448 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "mcneesesports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 159717,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps mcneesesports.com -> UNITID 159717 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "geauxcolonels.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 159966,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps geauxcolonels.com -> UNITID 159966 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "pvpanthers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 227526,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps pvpanthers.com -> UNITID 227526 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ttusports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 221847,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ttusports.com -> UNITID 221847 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "vucommodores.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 221999,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps vucommodores.com -> UNITID 221999 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "iupathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 213020,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps iupathletics.com -> UNITID 213020 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "uncpbraves.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 199281,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps uncpbraves.com -> UNITID 199281 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "uscbathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 218654,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps uscbathletics.com -> UNITID 218654 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "utpbfalcons.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 229018,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps utpbfalcons.com -> UNITID 229018 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "wscwildcats.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 181783,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps wscwildcats.com -> UNITID 181783 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "buffalostateathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 196130,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps buffalostateathletics.com -> UNITID 196130 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "johnjayathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 190600,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps johnjayathletics.com -> UNITID 190600 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "lehmanathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 190637,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps lehmanathletics.com -> UNITID 190637 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "pctwildcats.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 366252,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps pctwildcats.com -> UNITID 366252 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "psuberksathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 214704,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps psuberksathletics.com -> UNITID 214704 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "schreinermountaineers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 228042,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps schreinermountaineers.com -> UNITID 228042 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "sewaneetigers.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 221519,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps sewaneetigers.com -> UNITID 221519 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "yorkathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 190691,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps yorkathletics.com -> UNITID 190691 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "chargerathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 190761,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps chargerathletics.com -> UNITID 190761 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "gocentenary.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 158477,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps gocentenary.com -> UNITID 158477 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "westfieldstateowls.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 168263,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps westfieldstateowls.com -> UNITID 168263 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "uapblionsroar.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 106412,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps uapblionsroar.com -> UNITID 106412 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "letsgopeay.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 219602,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps letsgopeay.com -> UNITID 219602 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "kentstatesports.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 203517,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps kentstatesports.com -> UNITID 203517 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "lulions.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 213598,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps lulions.com -> UNITID 213598 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "mssulions.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 178341,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps mssulions.com -> UNITID 178341 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ccnyathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 190567,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ccnyathletics.com -> UNITID 190567 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "mecathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 190646,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps mecathletics.com -> UNITID 190646 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "msoeraiders.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 239318,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps msoeraiders.com -> UNITID 239318 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "psaltoonalions.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 214689,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps psaltoonalions.com -> UNITID 214689 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "salemstatevikings.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 167729,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps salemstatevikings.com -> UNITID 167729 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "ustcelts.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 227863,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps ustcelts.com -> UNITID 227863 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ },
+ {
+  "domain": "brooklyncollegeathletics.com",
+  "op": "RECOVER_GAP",
+  "old_unitid": null,
+  "new_unitid": 190549,
+  "old_status": "INSUFFICIENT_EVIDENCE",
+  "new_status": "VERIFIED_ALIAS",
+  "evidence": "coach_seasons scrape maps brooklyncollegeathletics.com -> UNITID 190549 (single institution)",
+  "reason": "gap filled from independent coach_seasons source evidence"
+ }
+]
