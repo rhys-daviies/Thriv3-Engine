@@ -1,0 +1,92 @@
+{
+ "conflicting_aliases": [
+  {
+   "alias_key": "rochester",
+   "unitids": [
+    170967,
+    195030
+   ],
+   "schools": [
+    "Rochester Christian University",
+    "Rochester"
+   ]
+  }
+ ],
+ "suspicious_state_token_aliases": [
+  {
+   "alias_key": "indiana",
+   "unitid": 151351,
+   "school": "Indiana"
+  },
+  {
+   "alias_key": "virginia",
+   "unitid": 234076,
+   "school": "Virginia"
+  },
+  {
+   "alias_key": "maryland",
+   "unitid": 163286,
+   "school": "Maryland"
+  },
+  {
+   "alias_key": "michigan",
+   "unitid": 170976,
+   "school": "Michigan"
+  },
+  {
+   "alias_key": "wisconsin",
+   "unitid": 240444,
+   "school": "Wisconsin"
+  },
+  {
+   "alias_key": "california",
+   "unitid": 110635,
+   "school": "California"
+  },
+  {
+   "alias_key": "texas",
+   "unitid": 228778,
+   "school": "Texas"
+  },
+  {
+   "alias_key": "tennessee",
+   "unitid": 221759,
+   "school": "Tennessee"
+  },
+  {
+   "alias_key": "georgia",
+   "unitid": 139959,
+   "school": "Georgia"
+  },
+  {
+   "alias_key": "kansas",
+   "unitid": 155317,
+   "school": "Kansas"
+  },
+  {
+   "alias_key": "minnesota",
+   "unitid": 174066,
+   "school": "Minnesota"
+  },
+  {
+   "alias_key": "florida",
+   "unitid": 134130,
+   "school": "Florida"
+  },
+  {
+   "alias_key": "ohio",
+   "unitid": 204857,
+   "school": "Ohio"
+  },
+  {
+   "alias_key": "oregon",
+   "unitid": 209551,
+   "school": "Oregon"
+  },
+  {
+   "alias_key": "iowa",
+   "unitid": 153658,
+   "school": "Iowa"
+  }
+ ]
+}

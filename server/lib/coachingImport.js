@@ -19,25 +19,36 @@ const GENERIC_STRIP_PENALTY = 0.08;
  */
 export function normalizeForMatch(raw) {
   if (!raw) return '';
-  let s = String(raw).toLowerCase();
-  s = s.replace(/\([^)]*\)/g, ' '); // drop parenthetical content
-  s = s.replace(/[.']/g, ''); // strip periods and apostrophes
-  s = s.replace(/\bst\b/g, 'saint'); // "St" (post-period-strip) -> "saint"
-  s = s.replace(/[^a-z0-9\s]/g, ' ');
-  s = s.replace(/\s+/g, ' ').trim();
-  return s;
+  const s = String(raw).toLowerCase();
+  // Parenthetical content is a DISAMBIGUATOR (state/campus), not noise and not
+  // an alias. Phase 1/2 proved that dropping it collapses distinct schools
+  // ("St. Mary's (TX)" == "Saint Mary's") and that promoting it as a standalone
+  // candidate produces absurd 100%-confidence maps ("Concordia (Texas)" ->
+  // "Texas"). We therefore KEEP the disambiguator, appended to the base so it
+  // is part of the identity string and two disambiguated siblings never
+  // normalise to the same value.
+  const norm = (t) => t
+    .replace(/[.']/g, '')
+    .replace(/\bst\b/g, 'saint')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const disamb = [...s.matchAll(/\(([^)]*)\)/g)].map((m) => norm(m[1])).filter(Boolean);
+  const base = norm(s.replace(/\([^)]*\)/g, ' '));
+  return disamb.length ? `${base} ${disamb.join(' ')}`.trim() : base;
+}
+
+/** The normalised disambiguator tokens of a name, e.g. "St. Mary's (TX)" -> ["tx"]. */
+export function disambiguatorTokens(raw) {
+  return [...String(raw || '').toLowerCase().matchAll(/\(([^)]*)\)/g)]
+    .map((m) => m[1].replace(/[.']/g, '').replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim())
+    .filter(Boolean);
 }
 
 const GENERIC_WORDS = /\b(university|college|of|the)\b/g;
 
 function stripGenericWords(s) {
   return s.replace(GENERIC_WORDS, ' ').replace(/\s+/g, ' ').trim();
-}
-
-/** Extracts the parenthetical content from a name, e.g. "Connecticut (UConn)" -> "UConn". */
-function extractParenthetical(raw) {
-  const match = String(raw || '').match(/\(([^)]*)\)/);
-  return match ? match[1] : null;
 }
 
 /**
@@ -57,16 +68,19 @@ function buildVariants(raw) {
   const base = normalizeForMatch(raw);
   add(base, 0);
   add(stripGenericWords(base), GENERIC_STRIP_PENALTY);
-
-  const parenthetical = extractParenthetical(raw);
-  if (parenthetical) {
-    const pBase = normalizeForMatch(parenthetical);
-    add(pBase, 0);
-    add(stripGenericWords(pBase), GENERIC_STRIP_PENALTY);
-  }
+  // NOTE: the parenthetical is deliberately NOT added as a standalone variant.
+  // Promoting it (e.g. "Concordia (Texas)" -> "Texas") is the Phase-1 defect.
+  // It is retained by normalizeForMatch as a disambiguator instead, and
+  // matchSchoolName enforces disambiguator consistency below.
 
   return variants;
 }
+
+// Penalty applied when the query carries a disambiguator (e.g. "(TX)") that the
+// candidate does not. Sized to push a base-collision (e.g. "St. Mary's (TX)"
+// against "Saint Mary's") well below any resolve-worthy threshold, so the
+// matcher declines rather than silently picking a different institution.
+const DISAMBIGUATOR_MISMATCH_PENALTY = 0.5;
 
 /** Similarity in [0,1]: 1 - normalized Levenshtein distance. */
 function similarity(a, b) {
@@ -87,13 +101,30 @@ function similarity(a, b) {
  */
 export function matchSchoolName(schoolName, candidateNames) {
   const queryVariants = buildVariants(schoolName);
-  const candidates = candidateNames.map((name) => ({ name, variants: buildVariants(name) }));
+  const queryDisamb = disambiguatorTokens(schoolName);
+  const candidates = candidateNames.map((name) => ({
+    name,
+    variants: buildVariants(name),
+    // The candidate's full normalised string carries its own disambiguator
+    // tokens; we require the query's disambiguator to be present there.
+    tokens: new Set(normalizeForMatch(name).split(' ')),
+  }));
 
   let best = { matched_college: null, confidence: 0 };
-  for (const query of queryVariants) {
-    for (const candidate of candidates) {
+  for (const candidate of candidates) {
+    // Disambiguator consistency: if the query says "(TX)" the candidate must
+    // carry "tx", otherwise this is a different institution and the pair is
+    // penalised out of resolve-worthy range. Prevents "St. Mary's (TX)" from
+    // resolving to "Saint Mary's".
+    const disambPenalty = queryDisamb.some((t) => !candidate.tokens.has(t))
+      ? DISAMBIGUATOR_MISMATCH_PENALTY
+      : 0;
+    for (const query of queryVariants) {
       for (const cVariant of candidate.variants) {
-        const score = Math.max(0, similarity(query.text, cVariant.text) - query.penalty - cVariant.penalty);
+        const score = Math.max(
+          0,
+          similarity(query.text, cVariant.text) - query.penalty - cVariant.penalty - disambPenalty,
+        );
         if (score > best.confidence) {
           best = { matched_college: candidate.name, confidence: score };
         }
