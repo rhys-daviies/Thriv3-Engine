@@ -331,3 +331,51 @@ describe('intended major attribution', () => {
     expect(offered).not.toContain('offers_intended_major');
   });
 });
+
+describe('the family budget token, after A7.9.5', () => {
+  const ctx = (over) => buildEmailContext({ ...player, ...over }, college, 'Coach');
+
+  it('renders a stated maximum as a figure and shows the line', () => {
+    const c = ctx({ budget_range: null, contribution_state: 'STATED', max_annual_contribution_usd: 47500 });
+    expect(c.player_yearly_budget).toBe('$47,500/year');
+    expect(c.has_yearly_budget).toBe('true');
+  });
+
+  it('renders a stated zero, which is a real answer', () => {
+    const c = ctx({ budget_range: null, contribution_state: 'STATED', max_annual_contribution_usd: 0 });
+    expect(c.player_yearly_budget).toBe('$0/year');
+    expect(c.has_yearly_budget).toBe('true');
+  });
+
+  it.each([
+    ['NOT_A_CONSTRAINT', { contribution_state: 'NOT_A_CONSTRAINT', max_annual_contribution_usd: null }],
+    ['NEEDS_CONFIRMATION', { contribution_state: 'NEEDS_CONFIRMATION', max_annual_contribution_usd: null }],
+    ['a corrupt STATED pair', { contribution_state: 'STATED', max_annual_contribution_usd: null }],
+    ['a corrupt negative maximum', { contribution_state: 'STATED', max_annual_contribution_usd: -5 }],
+  ])('gates the line off for %s rather than inventing a figure', (_label, over) => {
+    const c = ctx({ budget_range: null, ...over });
+    expect(c.has_yearly_budget).toBe('');
+    expect(c.player_yearly_budget).toBe('N/A');
+    expect(c.player_yearly_budget).not.toMatch(/\$\d/);
+  });
+
+  it('never leaks a state name to a coach', () => {
+    for (const state of ['NOT_A_CONSTRAINT', 'NEEDS_CONFIRMATION', 'STATED']) {
+      const c = ctx({ budget_range: null, contribution_state: state, max_annual_contribution_usd: 40000 });
+      expect(c.player_yearly_budget).not.toContain('_');
+    }
+  });
+
+  it('leaves a legacy athlete exactly as they were', () => {
+    expect(ctx({}).player_yearly_budget).toBe('$15k-$20k/yr');
+    expect(ctx({}).has_yearly_budget).toBe('true');
+    expect(ctx({ budget_range: 'Undeclared' }).has_yearly_budget).toBe('');
+    expect(ctx({ budget_range: null }).player_yearly_budget).toBe('N/A');
+    expect(ctx({ budget_range: null }).has_yearly_budget).toBe('');
+  });
+
+  it('prefers the new answer when an athlete carries both', () => {
+    const c = ctx({ contribution_state: 'STATED', max_annual_contribution_usd: 30000 });
+    expect(c.player_yearly_budget).toBe('$30,000/year');
+  });
+});

@@ -515,6 +515,7 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
                  A7.9.3 has no band, so the preview shows the uncoupled
                  weights — correct, since V1 has no budget for them either. */
               budgetRange={data.budget_range}
+              contribution={data.contribution}
               state={data.state}
               origin={data.origin}
             />

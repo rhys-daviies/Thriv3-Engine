@@ -710,7 +710,15 @@ function buildMatchingInputs({ athlete, analysis, ref, count, derived = null }) 
       state: athlete.state ?? null,
       city: athlete.city ?? null,
       academic_minimum: athlete.academic_minimum ?? null,
+      /**
+       * All three, because they are three different facts and the snapshot's
+       * job is to record what was true when the campaign was built. A7.9.5:
+       * `budget_range` is null for anyone created after the intake changed,
+       * and is NEVER derived from the exact maximum to fill the gap.
+       */
       budget_range: athlete.budget_range ?? null,
+      contribution_state: athlete.contribution_state ?? null,
+      max_annual_contribution_usd: athlete.max_annual_contribution_usd ?? null,
       preferred_divisions: safeJson(athlete.preferred_divisions),
       preferred_conferences: safeJson(athlete.preferred_conferences),
       match_weights: safeJson(athlete.match_weights),

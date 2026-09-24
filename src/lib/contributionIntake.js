@@ -125,6 +125,29 @@ export function contributionPayload(form) {
 }
 
 /**
+ * The athlete-shaped fields V1's compatibility resolver reads.
+ *
+ * The form holds its own shape; `familyBudgetCeiling` wants the two columns.
+ * Used by the priority preview so that the weights an operator is shown come
+ * from the same answer the ranking will score - A7.9.4 found the preview
+ * reading a band the athlete no longer has.
+ *
+ * A half-typed amount resolves to an unusable maximum on purpose: the preview
+ * then shows the unknown-budget weights, which is what the ranking would do.
+ */
+export function contributionAthleteFields(form) {
+  if (!form) return { contributionState: null, maxAnnualContributionUsd: null };
+  if (form.choice !== CONTRIBUTION_STATE.STATED) {
+    return { contributionState: form.choice, maxAnnualContributionUsd: null };
+  }
+  const bare = stripCurrency(form.amount);
+  return {
+    contributionState: CONTRIBUTION_STATE.STATED,
+    maxAnnualContributionUsd: INTEGER_DOLLARS.test(bare) ? Number(bare) : null,
+  };
+}
+
+/**
  * What the operator should see on a profile. Plain sentences, no model words.
  *
  * `$40k+/yr` renders as the band it is and never as "Maximum contribution:

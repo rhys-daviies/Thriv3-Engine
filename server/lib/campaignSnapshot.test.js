@@ -525,10 +525,47 @@ describe('matching provenance', () => {
     expect(inputs.athlete.origin).toBe('International');
     expect(inputs.athlete.academic_minimum).toBe(6.0);
     expect(inputs.athlete.budget_range).toBe('$10k-$15k/yr');
+    // A legacy athlete has no answer to the new question, and the snapshot
+    // records that rather than deriving one from the band.
+    expect(inputs.athlete.contribution_state).toBeNull();
+    expect(inputs.athlete.max_annual_contribution_usd).toBeNull();
     // JSON columns arrive parsed, not as strings a reader has to unpick.
     expect(inputs.athlete.preferred_divisions).toEqual(['NCAA D1']);
     expect(inputs.athlete.criterion_ranking).toEqual(['geography', 'athletic']);
     expect(inputs.athlete.note).toMatch(/not proof/i);
+  });
+
+  it('freezes an exact family contribution, and does not invent a band for it', () => {
+    /**
+     * A7.9.5. The snapshot's job is to record what was true when the campaign
+     * was built. For an athlete created after the intake changed, the true
+     * facts are the two new columns and a NULL band - deriving a band to fill
+     * the gap would freeze a number the family never stated.
+     */
+    insertAthlete('a-exact', 'Exact Athlete', {
+      budget_range: null, contribution_state: 'STATED', max_annual_contribution_usd: 47500,
+    });
+    giveAnalysis('a-exact', analysisOf(5));
+    const inputs = JSON.parse(createCampaign('a-exact').campaign.matching_inputs);
+
+    expect(inputs.athlete.contribution_state).toBe('STATED');
+    expect(inputs.athlete.max_annual_contribution_usd).toBe(47500);
+    expect(inputs.athlete.budget_range).toBeNull();
+  });
+
+  it.each([
+    ['NOT_A_CONSTRAINT', 'NOT_A_CONSTRAINT'],
+    ['NEEDS_CONFIRMATION', 'NEEDS_CONFIRMATION'],
+  ])('freezes %s with no amount beside it', (_label, state) => {
+    insertAthlete(`a-${state}`, `Athlete ${state}`, {
+      budget_range: null, contribution_state: state, max_annual_contribution_usd: null,
+    });
+    giveAnalysis(`a-${state}`, analysisOf(5));
+    const inputs = JSON.parse(createCampaign(`a-${state}`).campaign.matching_inputs);
+
+    expect(inputs.athlete.contribution_state).toBe(state);
+    expect(inputs.athlete.max_annual_contribution_usd).toBeNull();
+    expect(inputs.athlete.budget_range).toBeNull();
   });
 
   it('records an absent athlete input as null rather than omitting it', () => {

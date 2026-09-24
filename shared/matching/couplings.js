@@ -24,7 +24,7 @@
  * should be the first suspects when results look wrong.
  */
 
-import { budgetCeiling, NO_NEED_BUDGET } from './constants.js';
+import { familyBudgetCeiling, NO_NEED_BUDGET } from './constants.js';
 
 /**
  * How badly the athlete needs money, 0..1.
@@ -32,8 +32,16 @@ import { budgetCeiling, NO_NEED_BUDGET } from './constants.js';
  * Derived from the budget band rather than asked directly, because the form
  * asks what a family can pay and that is the same question from the other end.
  */
-export function scholarshipNeed(budgetRange) {
-  const ceiling = budgetCeiling(budgetRange);
+export function scholarshipNeed(athleteOrBand) {
+  /**
+   * A bare band string is still accepted, because a band is all this ever
+   * took and the tests that pin each band's need say so most clearly that
+   * way. An athlete object is the live form and carries the exact maximum.
+   */
+  const athlete = typeof athleteOrBand === 'string' || athleteOrBand === null || athleteOrBand === undefined
+    ? { budgetRange: athleteOrBand }
+    : athleteOrBand;
+  const ceiling = familyBudgetCeiling(athlete);
   if (ceiling === undefined) return null;        // not stated — no coupling fires
   if (!Number.isFinite(ceiling)) return 0;       // the open-ended top band
   // Derived from the ceiling rather than a table keyed on the labels, so
@@ -138,7 +146,9 @@ export function resolveCouplings(athlete, { academicWeight = null } = {}) {
     fired: [],
   };
   const context = {
-    need: scholarshipNeed(athlete?.budgetRange),
+    // The whole athlete, not just the band: since A7.9.5 the ceiling may come
+    // from the exact contribution instead. Everything below is unchanged.
+    need: scholarshipNeed(athlete),
     academicWeight,
     state: athlete?.state,
     origin: athlete?.origin,

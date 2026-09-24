@@ -220,6 +220,94 @@ export function budgetCeiling(band) {
   return LEGACY_BUDGET_CEILINGS[band];
 }
 
+/* ====================================================================== *
+ *  TEMPORARY V1 COMPATIBILITY BRIDGE - A7.9.5                            *
+ *                                                                        *
+ *  DELETE THIS BLOCK, and the three call sites named below, when live    *
+ *  matchmaking no longer uses V1 affordability and V1 couplings. Nothing  *
+ *  else depends on it and nothing derived from it is ever persisted.      *
+ *                                                                        *
+ *  WHY IT EXISTS. A7.9.3 replaced the budget-band picker with the one    *
+ *  question Financial actually needs - the maximum a family can          *
+ *  contribute in a year - and stopped writing `budget_range`. V1 is      *
+ *  still the live engine and reads a band and nothing else, so a new     *
+ *  athlete arrived at V1 with no budget at all. Measured across A-H,     *
+ *  six of eight fixtures lost between a quarter and three-fifths of      *
+ *  their top 100, and the damage was mostly NOT affordability: a missing *
+ *  band takes scholarshipNeed to null, and null switches off all three   *
+ *  need couplings at once.                                               *
+ *                                                                        *
+ *  WHAT IT IS NOT. It does not put V2 Financial inside V1 - those are    *
+ *  different quantities that agree at Kendall 0.545, and swapping one    *
+ *  for the other moves 433 programmes by 100+ ranks. It changes no V1    *
+ *  formula, constant or threshold. It only lets the SAME number V1 has   *
+ *  always consumed arrive from the field that now holds it.              *
+ *                                                                        *
+ *  CALL SITES: criteria.js affordability(), couplings.js                 *
+ *  scholarshipNeed(), and src/components/PriorityTokens.jsx via the      *
+ *  athlete it passes to resolveCouplings.                                *
+ * ====================================================================== */
+
+/**
+ * The three answers an athlete can give about what their family can pay.
+ *
+ * RESTATED, NOT IMPORTED, for the same reason V2 restates the bands: the
+ * import guard in shared/matching/v2/importGraph.test.js forbids anything in
+ * the live scoring path from reaching into V2, and a bridge is not adoption.
+ * `server/lib/v2/contributionVocabulary.test.js` reads both files and fails if
+ * they drift - which is the one failure mode restating actually has.
+ */
+export const CONTRIBUTION_STATES = Object.freeze({
+  STATED: 'STATED',
+  NOT_A_CONSTRAINT: 'NOT_A_CONSTRAINT',
+  NEEDS_CONFIRMATION: 'NEEDS_CONFIRMATION',
+});
+
+/**
+ * The budget ceiling for an athlete, from whichever answer they gave.
+ *
+ * Returns the same three kinds of value `budgetCeiling` already returns, so
+ * every caller downstream is unchanged:
+ *
+ *   a number     a stated maximum, including 0, which is the full-scholarship
+ *                request and the opposite of "we do not know"
+ *   Infinity     no ceiling constrains this family. V1's EXISTING
+ *                representation, already produced by the `$40k+` band, and it
+ *                short-circuits before any arithmetic rather than being
+ *                divided by
+ *   undefined    unknown. V1's EXISTING representation, already produced by
+ *                `Undeclared`: affordability falls to its neutral prior and
+ *                scholarshipNeed returns null, so no coupling fires
+ *
+ * MALFORMED PAIRS RESOLVE TO UNDEFINED, NEVER TO A LEGACY BAND. A record
+ * claiming STATED with no amount, or a negative amount, or an unrecognised
+ * state, is corrupt - and quietly scoring it from a band that may also be on
+ * the row would hide the corruption behind a plausible number. Unknown is the
+ * truthful answer and it is also the visible one: the card says "no budget
+ * stated" rather than showing a figure nobody can account for.
+ */
+export function familyBudgetCeiling(athlete) {
+  const state = athlete?.contributionState ?? null;
+  const max = athlete?.maxAnnualContributionUsd ?? null;
+
+  if (state === null) {
+    // No answer to the new question. A stray maximum with no state beside it
+    // is corrupt in the same way and is not read.
+    return max === null ? budgetCeiling(athlete?.budgetRange) : undefined;
+  }
+  if (state === CONTRIBUTION_STATES.STATED) {
+    return (typeof max === 'number' && Number.isFinite(max) && max >= 0) ? max : undefined;
+  }
+  if (state === CONTRIBUTION_STATES.NOT_A_CONSTRAINT) {
+    return max === null ? Infinity : undefined;
+  }
+  if (state === CONTRIBUTION_STATES.NEEDS_CONFIRMATION) {
+    return undefined;
+  }
+  // An unrecognised state. Not a band, not a zero, not a guess.
+  return undefined;
+}
+
 /**
  * Budget above which a family is treated as having no scholarship need.
  *

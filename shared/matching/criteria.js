@@ -37,6 +37,7 @@ import {
   INTERNATIONAL_FLOOR,
   NO_ATHLETIC_AID_CONFERENCES,
   budgetCeiling,
+  familyBudgetCeiling,
   UNDECLARED_BUDGET,
   NEUTRAL_PRIOR,
 } from './constants.js';
@@ -302,13 +303,18 @@ function satLabel(delta) {
  * nothing at all before 2026-08-25.
  */
 export function affordability({
-  budgetRange, netPrice, control, tuitionIn, tuitionOut, athleteState, schoolState,
+  budgetRange, contributionState = null, maxAnnualContributionUsd = null,
+  netPrice, control, tuitionIn, tuitionOut, athleteState, schoolState,
   division, sport, conference, athleteLevel, programLevel,
 }) {
-  // Via budgetCeiling, not the map directly: an athlete recorded under the
-  // pre-2026-08-25 bands would otherwise read as having stated no budget, and
-  // affordability would silently drop to its neutral prior rather than erroring.
-  const ceiling = budgetCeiling(budgetRange);
+  /**
+   * Via familyBudgetCeiling, not the map directly. Two reasons, one old and
+   * one new: an athlete recorded under the pre-2026-08-25 bands would
+   * otherwise read as having stated no budget, and since A7.9.5 an athlete
+   * who stated an exact maximum has no band at all. Both resolve to the same
+   * kind of ceiling, and the formula below is untouched either way.
+   */
+  const ceiling = familyBudgetCeiling({ budgetRange, contributionState, maxAnnualContributionUsd });
   if (ceiling === undefined) {
     // Said differently for the deliberate answer than for a blank field: one
     // is a decision the family made and the card should not nag about it, the
