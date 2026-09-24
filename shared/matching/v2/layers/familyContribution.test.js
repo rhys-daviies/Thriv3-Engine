@@ -11,7 +11,7 @@ import { GRADE, REASON } from '../types.js';
 import {
   familyContribution, contributionPairError, budgetInterval,
   CONTRIBUTION_STATE, CONTRIBUTION_SOURCE, CONTRIBUTION_ANCHOR,
-  INTAKE_BUDGET_BANDS, BUDGET_INTERVALS,
+  BUDGET_INTERVALS,
 } from '../financialRules.js';
 
 const SPORT = 'mens-soccer';
@@ -216,10 +216,13 @@ describe('monotonicity — promoted from the A7.9.1 diagnostic', () => {
 });
 
 describe('the intake vocabulary', () => {
-  it('no longer offers the open-ended band, whose ceiling the arithmetic needs', () => {
-    expect(INTAKE_BUDGET_BANDS).not.toContain('$40k+/yr');
-    expect(INTAKE_BUDGET_BANDS).toContain('$35k-$40k/yr');
-    expect(INTAKE_BUDGET_BANDS).toContain('Need Full Scholarship');
+  /**
+   * A7.9.3 retired the picker entirely, so there is no "offered bands" list to
+   * assert against any more - only the read path, which must keep working.
+   */
+  it('offers no bands at all: the vocabulary is read-only', async () => {
+    const rules = await import('../financialRules.js');
+    expect(rules.INTAKE_BUDGET_BANDS).toBeUndefined();
   });
 
   it('still PARSES the open band, because old records hold it', () => {

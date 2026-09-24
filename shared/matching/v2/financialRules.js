@@ -71,21 +71,19 @@ export function budgetInterval(band) {
 }
 
 /**
- * The bands a NEW athlete may be offered.
+ * THE BAND VOCABULARY IS NOW READ-ONLY.
  *
- * `$40k+/yr` is deliberately absent. A7.9.1 proved it carries no information:
- * because its ceiling is unstated, Financial scores it at the only end the
- * family actually stated, so replaying Fixture A with a maximum of exactly
- * $40,000 reproduced production at Kendall tau 1.000 with zero rank changes.
- * Asking an open-ended band whose upper bound the arithmetic requires is
- * asking a question whose answer is thrown away.
+ * A7.9.3 replaced the band picker with a single question - the maximum a
+ * family can contribute in a year - so no band is offered to anyone any more.
+ * `BUDGET_INTERVALS` and `LEGACY_BUDGET_INTERVALS` above exist solely to read
+ * records written before that, and `budgetInterval` is the only thing that
+ * should consult them.
  *
- * `budgetInterval` still parses it, because old records hold it and reading
- * them is not the same as offering them.
+ * A7.9.2 briefly exported an `INTAKE_BUDGET_BANDS` list, being the bands minus
+ * the open-ended `$40k+/yr`. It is gone: the current intake vocabulary is not
+ * a shorter list of bands, it is no bands at all, and a constant nothing
+ * offers would have read like a picker that still existed.
  */
-export const INTAKE_BUDGET_BANDS = Object.freeze(
-  Object.keys(BUDGET_INTERVALS).filter((b) => Number.isFinite(BUDGET_INTERVALS[b][1])),
-);
 
 /**
  * What the family has told us about the one quantity Financial needs.

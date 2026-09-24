@@ -55,6 +55,19 @@ const MAY_IMPORT_V2 = [
    * about what an athlete said.
    */
   'server/db/entities/player.js',
+  /**
+   * A7.9.3. The intake form asks the question Financial answers, so it takes
+   * the three contribution states FROM the model rather than keeping its own
+   * copy of the vocabulary. A second copy is how a form comes to offer a
+   * state the layer cannot read - which is precisely how "$40k+/yr" survived
+   * as an option long after it stopped meaning anything.
+   *
+   * This is the ONLY V2 import under src/, and it is a frozen enum and a
+   * validator, not a scorer.
+   */
+  'src/lib/contributionIntake.js',
+  'src/lib/contributionIntake.test.js',
+  'src/lib/playerPayload.test.js',
   'server/scripts/v2Compare.js',
   'server/scripts/v2Financial.js',
   'server/scripts/v2Recruitability.js',
