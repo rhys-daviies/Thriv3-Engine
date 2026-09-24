@@ -52,7 +52,8 @@
     "test:watch": "vitest",
     "trial:preflight": "node server/scripts/trialPreflight.js",
     "tune:weights": "node server/scripts/tuneMatchingWeights.js",
-    "verify:baseline": "node server/scripts/verifyBaselineInvariants.js"
+    "verify:baseline": "node server/scripts/verifyBaselineInvariants.js",
+    "validate:institution-integrity": "node server/scripts/validateInstitutionIntegrity.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",

@@ -1,0 +1,170 @@
+[
+ {
+  "unitid": 151111,
+  "sport": "mens-soccer",
+  "canonical_name": "IU Indy",
+  "duplicate_name": "Indiana University Columbus",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 151111"
+ },
+ {
+  "unitid": 498562,
+  "sport": "mens-soccer",
+  "canonical_name": "Commonwealth University-Bloomsburg",
+  "duplicate_name": "Commonwealth University-Lock Haven",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 498562"
+ },
+ {
+  "unitid": 205443,
+  "sport": "mens-soccer",
+  "canonical_name": "Shawnee State",
+  "duplicate_name": "Shawnee State University",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 205443"
+ },
+ {
+  "unitid": 140951,
+  "sport": "mens-soccer",
+  "canonical_name": "SCAD",
+  "duplicate_name": "Savannah College of Art and Design",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 140951"
+ },
+ {
+  "unitid": 218821,
+  "sport": "mens-soccer",
+  "canonical_name": "Spartanburg Methodist",
+  "duplicate_name": "Spartanburg Methodist College",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 218821"
+ },
+ {
+  "unitid": 149842,
+  "sport": "mens-soccer",
+  "canonical_name": "Harper",
+  "duplicate_name": "William Rainey Harper",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 149842"
+ },
+ {
+  "unitid": 150172,
+  "sport": "mens-soccer",
+  "canonical_name": "Calumet College",
+  "duplicate_name": "Calumet College of St. Joseph",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 150172"
+ },
+ {
+  "unitid": 179308,
+  "sport": "mens-soccer",
+  "canonical_name": "St. Louis Community-Meramec",
+  "duplicate_name": "St. Louis Community-Florissant Valley",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 179308"
+ },
+ {
+  "unitid": 179308,
+  "sport": "mens-soccer",
+  "canonical_name": "St. Louis Community-Meramec",
+  "duplicate_name": "St. Louis Community-Forest Park",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 179308"
+ },
+ {
+  "unitid": 151111,
+  "sport": "womens-soccer",
+  "canonical_name": "IU Indy",
+  "duplicate_name": "Indiana University Columbus",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 151111"
+ },
+ {
+  "unitid": 498562,
+  "sport": "womens-soccer",
+  "canonical_name": "Commonwealth University-Mansfield",
+  "duplicate_name": "Commonwealth University-Bloomsburg",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 498562"
+ },
+ {
+  "unitid": 498562,
+  "sport": "womens-soccer",
+  "canonical_name": "Commonwealth University-Mansfield",
+  "duplicate_name": "Commonwealth University-Lock Haven",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 498562"
+ },
+ {
+  "unitid": 176053,
+  "sport": "womens-soccer",
+  "canonical_name": "Mississippi College",
+  "duplicate_name": "Mississippi Christian",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 176053"
+ },
+ {
+  "unitid": 121345,
+  "sport": "womens-soccer",
+  "canonical_name": "Pomona-Pitzer",
+  "duplicate_name": "Pomona College",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 121345"
+ },
+ {
+  "unitid": 498571,
+  "sport": "womens-soccer",
+  "canonical_name": "PennWest Clarion",
+  "duplicate_name": "PennWest California",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 498571"
+ },
+ {
+  "unitid": 498571,
+  "sport": "womens-soccer",
+  "canonical_name": "PennWest Clarion",
+  "duplicate_name": "PennWest Edinboro",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 498571"
+ },
+ {
+  "unitid": 110413,
+  "sport": "womens-soccer",
+  "canonical_name": "Cal Lutheran",
+  "duplicate_name": "California Lutheran University",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 110413"
+ },
+ {
+  "unitid": 112260,
+  "sport": "womens-soccer",
+  "canonical_name": "Claremont-Mudd-Scripps",
+  "duplicate_name": "Claremont McKenna College",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 112260"
+ },
+ {
+  "unitid": 195544,
+  "sport": "womens-soccer",
+  "canonical_name": "St. Joseph's University (Brooklyn)",
+  "duplicate_name": "St. Joseph's University (Long Island)",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 195544"
+ },
+ {
+  "unitid": 231165,
+  "sport": "womens-soccer",
+  "canonical_name": "Vermont State University-Lyndon",
+  "duplicate_name": "Vermont State University-Castleton",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 231165"
+ },
+ {
+  "unitid": 231165,
+  "sport": "womens-soccer",
+  "canonical_name": "Vermont State University-Lyndon",
+  "duplicate_name": "Vermont State University-Johnson",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 231165"
+ },
+ {
+  "unitid": 110714,
+  "sport": "womens-soccer",
+  "canonical_name": "UC Santa Cruz",
+  "duplicate_name": "University of California-Santa Cruz",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 110714"
+ },
+ {
+  "unitid": 205443,
+  "sport": "womens-soccer",
+  "canonical_name": "Shawnee State",
+  "duplicate_name": "Shawnee State University",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 205443"
+ },
+ {
+  "unitid": 184694,
+  "sport": "womens-soccer",
+  "canonical_name": "FDU-Florham",
+  "duplicate_name": "Fairleigh Dickinson University-Florham",
+  "reason_canonical_selected": "shortest canonical form; both share UNITID 184694"
+ }
+]

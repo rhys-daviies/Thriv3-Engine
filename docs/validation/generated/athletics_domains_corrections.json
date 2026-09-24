@@ -1,0 +1,192 @@
+[
+ {
+  "domain": "redstormsports.com",
+  "registry_unitid": 195720,
+  "registry_school": "Saint John Fisher",
+  "coach_filed_unitid": 195809,
+  "coach_filed_school": "St. John's",
+  "coach_rows_using_domain": 5,
+  "evidence": "all 5 coach rows with source redstormsports.com are filed under UNITID 195809 (St. John's); registry maps redstormsports.com->195720 (Saint John Fisher)",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains redstormsports.com -> 195809"
+ },
+ {
+  "domain": "tommiesports.com",
+  "registry_unitid": 227863,
+  "registry_school": "University of St Thomas (TX)",
+  "coach_filed_unitid": 174914,
+  "coach_filed_school": "St. Thomas",
+  "coach_rows_using_domain": 6,
+  "evidence": "all 6 coach rows with source tommiesports.com are filed under UNITID 174914 (St. Thomas); registry maps tommiesports.com->227863 (University of St Thomas (TX))",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains tommiesports.com -> 174914"
+ },
+ {
+  "domain": "uconnhuskies.com",
+  "registry_unitid": 128902,
+  "registry_school": "Connecticut College",
+  "coach_filed_unitid": 129020,
+  "coach_filed_school": "UConn",
+  "coach_rows_using_domain": 10,
+  "evidence": "all 10 coach rows with source uconnhuskies.com are filed under UNITID 129020 (UConn); registry maps uconnhuskies.com->128902 (Connecticut College)",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains uconnhuskies.com -> 129020"
+ },
+ {
+  "domain": "umassathletics.com",
+  "registry_unitid": 166692,
+  "registry_school": "Massachusetts Maritime",
+  "coach_filed_unitid": 166629,
+  "coach_filed_school": "UMass",
+  "coach_rows_using_domain": 7,
+  "evidence": "all 7 coach rows with source umassathletics.com are filed under UNITID 166629 (UMass); registry maps umassathletics.com->166692 (Massachusetts Maritime)",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains umassathletics.com -> 166629"
+ },
+ {
+  "domain": "queensknights.com",
+  "registry_unitid": 190664,
+  "registry_school": "Queens (CUNY)",
+  "coach_filed_unitid": 199412,
+  "coach_filed_school": "Queens",
+  "coach_rows_using_domain": 2,
+  "evidence": "all 2 coach rows with source queensknights.com are filed under UNITID 199412 (Queens); registry maps queensknights.com->190664 (Queens (CUNY))",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains queensknights.com -> 199412"
+ },
+ {
+  "domain": "westminstergriffins.com",
+  "registry_unitid": 179946,
+  "registry_school": "Westminster (MO)",
+  "coach_filed_unitid": 230807,
+  "coach_filed_school": "Westminster (UT)",
+  "coach_rows_using_domain": 4,
+  "evidence": "all 4 coach rows with source westminstergriffins.com are filed under UNITID 230807 (Westminster (UT)); registry maps westminstergriffins.com->179946 (Westminster (MO))",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains westminstergriffins.com -> 230807"
+ },
+ {
+  "domain": "dustars.com",
+  "registry_unitid": 148496,
+  "registry_school": "Dominican (IL)",
+  "coach_filed_unitid": 113698,
+  "coach_filed_school": "Dominican (CA)",
+  "coach_rows_using_domain": 12,
+  "evidence": "all 12 coach rows with source dustars.com are filed under UNITID 113698 (Dominican (CA)); registry maps dustars.com->148496 (Dominican (IL))",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains dustars.com -> 113698"
+ },
+ {
+  "domain": "goecsaints.com",
+  "registry_unitid": 165671,
+  "registry_school": "Emmanuel (MA)",
+  "coach_filed_unitid": 139630,
+  "coach_filed_school": "Emmanuel (GA)",
+  "coach_rows_using_domain": 4,
+  "evidence": "all 4 coach rows with source goecsaints.com are filed under UNITID 139630 (Emmanuel (GA)); registry maps goecsaints.com->165671 (Emmanuel (MA))",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains goecsaints.com -> 139630"
+ },
+ {
+  "domain": "mcscots.com",
+  "registry_unitid": 220710,
+  "registry_school": "Maryville (TN)",
+  "coach_filed_unitid": 178059,
+  "coach_filed_school": "Maryville (MO)",
+  "coach_rows_using_domain": 4,
+  "evidence": "all 4 coach rows with source mcscots.com are filed under UNITID 178059 (Maryville (MO)); registry maps mcscots.com->220710 (Maryville (TN))",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains mcscots.com -> 178059"
+ },
+ {
+  "domain": "monmouthscots.com",
+  "registry_unitid": 147341,
+  "registry_school": "Monmouth (IL)",
+  "coach_filed_unitid": 185572,
+  "coach_filed_school": "Monmouth",
+  "coach_rows_using_domain": 1,
+  "evidence": "all 1 coach rows with source monmouthscots.com are filed under UNITID 185572 (Monmouth); registry maps monmouthscots.com->147341 (Monmouth (IL))",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains monmouthscots.com -> 185572"
+ },
+ {
+  "domain": "sjliathletics.com",
+  "registry_unitid": 195544,
+  "registry_school": "St. Joseph's (NY)",
+  "coach_filed_unitid": 215770,
+  "coach_filed_school": "Saint Joseph's",
+  "coach_rows_using_domain": 2,
+  "evidence": "all 2 coach rows with source sjliathletics.com are filed under UNITID 215770 (Saint Joseph's); registry maps sjliathletics.com->195544 (St. Joseph's (NY))",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains sjliathletics.com -> 215770"
+ },
+ {
+  "domain": "unionathletics.com",
+  "registry_unitid": 196866,
+  "registry_school": "Union (NY)",
+  "coach_filed_unitid": 221971,
+  "coach_filed_school": "Union (TN)",
+  "coach_rows_using_domain": 5,
+  "evidence": "all 5 coach rows with source unionathletics.com are filed under UNITID 221971 (Union (TN)); registry maps unionathletics.com->196866 (Union (NY))",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains unionathletics.com -> 221971"
+ },
+ {
+  "domain": "westminster.edu",
+  "registry_unitid": 216807,
+  "registry_school": "Westminster (PA)",
+  "coach_filed_unitid": 230807,
+  "coach_filed_school": "Westminster (UT)",
+  "coach_rows_using_domain": 5,
+  "evidence": "all 5 coach rows with source westminster.edu are filed under UNITID 230807 (Westminster (UT)); registry maps westminster.edu->216807 (Westminster (PA))",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains westminster.edu -> 230807"
+ },
+ {
+  "domain": "wilmingtonquakers.com",
+  "registry_unitid": 206507,
+  "registry_school": "Wilmington (OH)",
+  "coach_filed_unitid": 131113,
+  "coach_filed_school": "Wilmington (DE)",
+  "coach_rows_using_domain": 7,
+  "evidence": "all 7 coach rows with source wilmingtonquakers.com are filed under UNITID 131113 (Wilmington (DE)); registry maps wilmingtonquakers.com->206507 (Wilmington (OH))",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains wilmingtonquakers.com -> 131113"
+ },
+ {
+  "domain": "sterling.edu",
+  "registry_unitid": 155937,
+  "registry_school": "Sterling",
+  "coach_filed_unitid": 154749,
+  "coach_filed_school": "Bethel College (Kansas)",
+  "coach_rows_using_domain": 1,
+  "evidence": "all 1 coach rows with source sterling.edu are filed under UNITID 154749 (Bethel College (Kansas)); registry maps sterling.edu->155937 (Sterling)",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains sterling.edu -> 154749"
+ },
+ {
+  "domain": "msmcknights.com",
+  "registry_unitid": 193353,
+  "registry_school": "Mount Saint Mary College",
+  "coach_filed_unitid": 196866,
+  "coach_filed_school": "Union (NY)",
+  "coach_rows_using_domain": 2,
+  "evidence": "all 2 coach rows with source msmcknights.com are filed under UNITID 196866 (Union (NY)); registry maps msmcknights.com->193353 (Mount Saint Mary College)",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains msmcknights.com -> 196866"
+ },
+ {
+  "domain": "goboxers.com",
+  "registry_unitid": 209612,
+  "registry_school": "Pacific University",
+  "coach_filed_unitid": 120883,
+  "coach_filed_school": "Pacific",
+  "coach_rows_using_domain": 3,
+  "evidence": "all 3 coach rows with source goboxers.com are filed under UNITID 120883 (Pacific); registry maps goboxers.com->209612 (Pacific University)",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains goboxers.com -> 120883"
+ },
+ {
+  "domain": "salemcollegeathletics.com",
+  "registry_unitid": 199607,
+  "registry_school": "Salem College",
+  "coach_filed_unitid": 237783,
+  "coach_filed_school": "Salem",
+  "coach_rows_using_domain": 2,
+  "evidence": "all 2 coach rows with source salemcollegeathletics.com are filed under UNITID 237783 (Salem); registry maps salemcollegeathletics.com->199607 (Salem College)",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains salemcollegeathletics.com -> 237783"
+ },
+ {
+  "domain": "sjbkathletics.com",
+  "registry_unitid": 195544,
+  "registry_school": "St. Joseph's (NY)",
+  "coach_filed_unitid": 215770,
+  "coach_filed_school": "Saint Joseph's",
+  "coach_rows_using_domain": 3,
+  "evidence": "all 3 coach rows with source sjbkathletics.com are filed under UNITID 215770 (Saint Joseph's); registry maps sjbkathletics.com->195544 (St. Joseph's (NY))",
+  "recommended_action": "REVIEW_REGISTRY: verify the domain's true owner; if coaches are correct, correct athletics_domains sjbkathletics.com -> 215770"
+ }
+]

@@ -1,0 +1,1780 @@
+[
+ {
+  "domain": "uwbadgers.com",
+  "coach_rows": 9,
+  "modal_filed_school": "Wisconsin",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gomonks.com",
+  "coach_rows": 9,
+  "modal_filed_school": "Saint Joseph's",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "twbulldogs.com",
+  "coach_rows": 9,
+  "modal_filed_school": "Tennessee Wesleyan University",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "statesmenathletics.com",
+  "coach_rows": 9,
+  "modal_filed_school": "William Penn",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "navysports.com",
+  "coach_rows": 8,
+  "modal_filed_school": "Navy",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "sjsuspartans.com",
+  "coach_rows": 8,
+  "modal_filed_school": "San Jose State",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "smcathletics.com",
+  "coach_rows": 8,
+  "modal_filed_school": "Saint Michael's",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "stacathletics.com",
+  "coach_rows": 8,
+  "modal_filed_school": "St. Thomas Aquinas",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "ucmercedbobcats.com",
+  "coach_rows": 8,
+  "modal_filed_school": "UC Merced",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "westconnathletics.com",
+  "coach_rows": 8,
+  "modal_filed_school": "Western Connecticut",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "fisherfalcons.com",
+  "coach_rows": 8,
+  "modal_filed_school": "Fisher College",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "mbuspartans.com",
+  "coach_rows": 8,
+  "modal_filed_school": "Missouri Baptist",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "mvnucougars.com",
+  "coach_rows": 8,
+  "modal_filed_school": "Mount Vernon Nazarene",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "rioredstorm.com",
+  "coach_rows": 8,
+  "modal_filed_school": "Rio Grande (University of)",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gorunners.com",
+  "coach_rows": 7,
+  "modal_filed_school": "Cal State Bakersfield",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "calbears.com",
+  "coach_rows": 7,
+  "modal_filed_school": "California",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "loyolaramblers.com",
+  "coach_rows": 7,
+  "modal_filed_school": "Loyola Chicago",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "pittsburghpanthers.com",
+  "coach_rows": 7,
+  "modal_filed_school": "Pittsburgh",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "goseattleu.com",
+  "coach_rows": 7,
+  "modal_filed_school": "Seattle",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "upstatespartans.com",
+  "coach_rows": 7,
+  "modal_filed_school": "USC Upstate",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "warriorathletics.com",
+  "coach_rows": 7,
+  "modal_filed_school": "Cal State Stanislaus",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "spufalcons.com",
+  "coach_rows": 7,
+  "modal_filed_school": "Seattle Pacific",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "fdudevils.com",
+  "coach_rows": 7,
+  "modal_filed_school": "FDU-Florham",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "saubees.com",
+  "coach_rows": 7,
+  "modal_filed_school": "Saint Ambrose",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "cbulancers.com",
+  "coach_rows": 6,
+  "modal_filed_school": "California Baptist",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "greenbayphoenix.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Green Bay",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "loyolagreyhounds.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Loyola Maryland",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "njithighlanders.com",
+  "coach_rows": 6,
+  "modal_filed_school": "NJIT",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gopsusports.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Penn State",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "queensathletics.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Queens (NC)",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "nusports.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Northwestern",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "smcgaels.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Saint Mary's",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "goaztecs.com",
+  "coach_rows": 6,
+  "modal_filed_school": "San Diego State",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "ucirvinesports.com",
+  "coach_rows": 6,
+  "modal_filed_school": "UC Irvine",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "unlvrebels.com",
+  "coach_rows": 6,
+  "modal_filed_school": "UNLV",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "virginiasports.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Virginia",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "hokiesports.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Virginia Tech",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gowasps.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Emory & Henry",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "hiloathletics.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Hawaii Hilo",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "roadrunnersathletics.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Metro State Denver",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "sfu.ca",
+  "coach_rows": 6,
+  "modal_filed_school": "Simon Fraser",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "wilmu.edu",
+  "coach_rows": 6,
+  "modal_filed_school": "Wilmington (DE)",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "fitchburgfalcons.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Fitchburg State",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gonyuathletics.com",
+  "coach_rows": 6,
+  "modal_filed_school": "New York University",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "olivetcomets.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Olivet College",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "dwuathletics.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Dakota Wesleyan",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "iuccrimsonpride.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Indiana University Columbus",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "muknights.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Marian University (IN)",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "mountmercymustangs.com",
+  "coach_rows": 6,
+  "modal_filed_school": "Mount Mercy",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "unohracers.com",
+  "coach_rows": 6,
+  "modal_filed_school": "University of Northwestern Ohio",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "uclabruins.com",
+  "coach_rows": 5,
+  "modal_filed_school": "UCLA",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "ualbanysports.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Albany",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "bgsufalcons.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Bowling Green",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "uiwcardinals.com",
+  "coach_rows": 5,
+  "modal_filed_school": "UIW",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "kcroos.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Kansas City",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "pennathletics.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Penn",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "niuhuskies.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Northern Illinois",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gousfbulls.com",
+  "coach_rows": 5,
+  "modal_filed_school": "South Florida",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "floridatechsports.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Florida Tech",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "fhsuathletics.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Fort Hays State",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gculions.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Georgian Court",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "lubluetigers.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Lincoln (MO)",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "maryvillesaints.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Maryville (MO)",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "msumustangs.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Midwestern State",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "umsltritons.com",
+  "coach_rows": 5,
+  "modal_filed_school": "UMSL",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "uttylerpatriots.com",
+  "coach_rows": 5,
+  "modal_filed_school": "UT Tyler",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "cmsathletics.org",
+  "coach_rows": 5,
+  "modal_filed_school": "Claremont-Mudd-Scripps",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "concordia.edu",
+  "coach_rows": 5,
+  "modal_filed_school": "Concordia Texas",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "curryathletics.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Curry",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "emersonlions.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Emerson",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gracetigers.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Grace Christian",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "moraviansports.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Moravian",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "clearycougars.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Cleary University",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "lsuagenerals.com",
+  "coach_rows": 5,
+  "modal_filed_school": "LSU Alexandria",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "skyhawkathletics.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Point University",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "floridagators.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Florida",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "lsusports.net",
+  "coach_rows": 5,
+  "modal_filed_school": "LSU",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "purduesports.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Purdue",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "texastech.com",
+  "coach_rows": 5,
+  "modal_filed_school": "Texas Tech",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "gostanford.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Stanford",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "ccsubluedevils.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Central Connecticut",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "fduknights.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Fairleigh Dickinson",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "pacifictigers.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Pacific",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "ucsbgauchos.com",
+  "coach_rows": 4,
+  "modal_filed_school": "UC Santa Barbara",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "umbcretrievers.com",
+  "coach_rows": 4,
+  "modal_filed_school": "UMBC",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "vcuathletics.com",
+  "coach_rows": 4,
+  "modal_filed_school": "VCU",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "vmikeydets.com",
+  "coach_rows": 4,
+  "modal_filed_school": "VMI",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "uahchargers.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Alabama Huntsville",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "aumathletics.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Auburn Montgomery",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "ubknights.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Bridgeport",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "otterathletics.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Cal State Monterey Bay",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "dominicanathletics.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Dominican (CA)",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gswcanes.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Georgia Southwestern",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "monroeumustangs.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Monroe (NY)",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "upikebears.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Pikeville",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "plnusealions.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Point Loma Nazarene",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "pnwathletics.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Purdue Northwest",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "tampaspartans.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Tampa",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "tusculumpioneers.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Tusculum",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "utdcomets.com",
+  "coach_rows": 4,
+  "modal_filed_school": "UT Dallas",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "uuathletics.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Union (TN)",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "walsh.edu",
+  "coach_rows": 4,
+  "modal_filed_school": "Walsh",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "carthage.edu",
+  "coach_rows": 4,
+  "modal_filed_school": "Carthage College",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "ecgulls.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Endicott",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "juniatasports.net",
+  "coach_rows": 4,
+  "modal_filed_school": "Juniata",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "kzoo.edu",
+  "coach_rows": 4,
+  "modal_filed_school": "Kalamazoo",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "lasell.edu",
+  "coach_rows": 4,
+  "modal_filed_school": "Lasell",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "lesleyathletics.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Lesley",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "sabreathletics.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Marian (WI)",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "stoutbluedevils.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Wisconsin-Stout",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "benuredhawks.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Benedictine University at Mesa",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "bryanlions.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Bryan",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "cmueagles.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Central Methodist",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "clarkepride.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Clarke",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gokoalas.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Columbia College (SC)",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "georgetowncollegeathletics.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Georgetown",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gujackets.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Graceland University",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "hcsaints.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Holy Cross College",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "iueredwolves.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Indiana University Northwest",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "ouazspirit.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Ottawa University Arizona",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gosmcpioneers.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Spartanburg Methodist College",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "scwarriors.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Sterling College (Kansas)",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "taylortrojans.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Taylor",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "saintfranciscougars.com",
+  "coach_rows": 4,
+  "modal_filed_school": "University of Saint Francis (IN)",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gofightingsaints.com",
+  "coach_rows": 4,
+  "modal_filed_school": "University of Saint Francis (IN)",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "goldenbearathletics.com",
+  "coach_rows": 4,
+  "modal_filed_school": "West Virginia University Institute of Technology",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "appstatesports.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Appalachian State",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "goblueraiders.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Middle Tennessee",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "gobison.com",
+  "coach_rows": 4,
+  "modal_filed_school": "North Dakota State",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "12thman.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Texas A&M",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "goislanders.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Texas A&M-Corpus Christi",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "goutsa.com",
+  "coach_rows": 4,
+  "modal_filed_school": "UTSA",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "msumavericks.com",
+  "coach_rows": 4,
+  "modal_filed_school": "Minot State",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "gobrockport.com",
+  "coach_rows": 4,
+  "modal_filed_school": "SUNY College at Brockport",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "fightingirish.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Notre Dame",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "sfuathletics.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Saint Francis (IL)",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "cneagles.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Carson-Newman",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "cuigoldeneagles.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Concord",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "msubsports.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Montana State Billings",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "sfstategators.com",
+  "coach_rows": 3,
+  "modal_filed_school": "San Francisco State",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "acroos.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Austin College",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "bethanybison.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Bethany (KS)",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "carleton.edu",
+  "coach_rows": 3,
+  "modal_filed_school": "Carleton",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gowarriorathletics.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Eastern Connecticut",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "oswegolakers.com",
+  "coach_rows": 3,
+  "modal_filed_school": "SUNY Oswego",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "une.edu",
+  "coach_rows": 3,
+  "modal_filed_school": "University of New England",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "wentworthathletics.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Wentworth",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "wittenbergtigers.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Wittenberg University",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "bubruins.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Bellevue University",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "cscwildcats.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Culver-Stockton College",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "evangelathletics.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Evangel University",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "hastingsbroncos.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Hastings",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "indianatechwarriors.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Indiana Institute of Technology",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "kcuknights.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Kentucky Christian University",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "lsusathletics.com",
+  "coach_rows": 3,
+  "modal_filed_school": "LSU Shreveport",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "msidemustangs.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Morningside University",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "sokaathletics.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Soka University of America",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "tamusasports.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Texas A&M University-San Antonio",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gounionbulldogs.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Union Commonwealth University",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "eutecticsports.com",
+  "coach_rows": 3,
+  "modal_filed_school": "University of Health Sciences and Pharmacy in St. Louis",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "westcliffathletics.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Westcliff University",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "ubbulls.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Buffalo",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "gomocs.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Chattanooga",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "georgiadogs.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Georgia",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "hawaiiathletics.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Hawaii",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "ukathletics.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Kentucky",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "ragincajuns.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Louisiana",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "latechsports.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Louisiana Tech",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "miamiredhawks.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Miami (OH)",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "huskers.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Nebraska",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "golobos.com",
+  "coach_rows": 3,
+  "modal_filed_school": "New Mexico",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "utmsports.com",
+  "coach_rows": 3,
+  "modal_filed_school": "UT Martin",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "utepminers.com",
+  "coach_rows": 3,
+  "modal_filed_school": "UTEP",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "uwgathletics.com",
+  "coach_rows": 3,
+  "modal_filed_school": "West Georgia",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "goaugie.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Augustana (SD)",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "cspbears.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Concordia-St. Paul",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "umdbulldogs.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Minnesota Duluth",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "msubeavers.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Minot State",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "gogriffons.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Missouri Western",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "pittstategorillas.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Fitchburg State University",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "abingtonsports.com",
+  "coach_rows": 3,
+  "modal_filed_school": "Pennsylvania State University-Penn State Abington",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "purchasecollegeathletics.com",
+  "coach_rows": 3,
+  "modal_filed_school": "SUNY Purchase College",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "und.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Notre Dame",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "gothunderwolves.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Colorado State-Pueblo",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "pittjohnstownathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "PennWest Johnstown",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "bethel.edu",
+  "coach_rows": 2,
+  "modal_filed_school": "Bethel (TN)",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "ecblazers.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Elms",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "huntingdonhawks.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Huntingdon",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "larochesports.com",
+  "coach_rows": 2,
+  "modal_filed_school": "La Roche",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "maritimeathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "SUNY Maritime College",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "fightingmuskies.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Muskingum",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "psblions.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Penn State Behrend",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "simpsonathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Simpson (IA)",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "gosuffolkrams.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Suffolk",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "wsulancers.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Worcester State University",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "bresciabearcats.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Brescia University",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gsujaguars.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Governors State University",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "johnsonroyals.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Judson University",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "judsoneagles.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Judson University",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "pioneersathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Pacific Union College",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "reinhardteagles.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Reinhardt University",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "tamut.edu",
+  "coach_rows": 2,
+  "modal_filed_school": "Texas A&M University-Texarkana",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "tamuvathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Texas A&M University-Victoria",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "tcsteersathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Texas College",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "gogeoducks.com",
+  "coach_rows": 2,
+  "modal_filed_school": "The Evergreen State College",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "tougaloobulldogs.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Tougaloo College",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "wileyathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Wiley University",
+  "modal_sport": "mens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "aamusports.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Alabama A&M",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "auburntigers.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Auburn",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "hawkeyesports.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Iowa",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "lrtrojans.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Little Rock",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "liuathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "LIU",
+  "modal_sport": "womens-soccer",
+  "consistent": false
+ },
+ {
+  "domain": "mcneesesports.com",
+  "coach_rows": 2,
+  "modal_filed_school": "McNeese",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "geauxcolonels.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Nicholls",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "pvpanthers.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Prairie View A&M",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "ttusports.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Tennessee Tech",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "vucommodores.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Vanderbilt",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "iupathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "IUP",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "uncpbraves.com",
+  "coach_rows": 2,
+  "modal_filed_school": "UNC Pembroke",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "uscbathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "South Carolina Beaufort",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "utpbfalcons.com",
+  "coach_rows": 2,
+  "modal_filed_school": "UT Permian Basin",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "wscwildcats.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Wayne State (NE)",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "buffalostateathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "SUNY Buffalo State",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "johnjayathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "CUNY John Jay College of Criminal Justice",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "lehmanathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "CUNY Lehman College",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "pctwildcats.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Penn",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "psuberksathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Pennsylvania State University-Penn State Berks",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "usjbluejays.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Saint Joseph's",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "schreinermountaineers.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Schreiner University",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "sewaneetigers.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Sewanee: The University of the South",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "yorkathletics.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Union College (NY)",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "csmflames.com",
+  "coach_rows": 2,
+  "modal_filed_school": "College of Saint Mary",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "shusaints.com",
+  "coach_rows": 2,
+  "modal_filed_school": "Siena Heights University",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "chargerathletics.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Dominican College (NY)",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "gocentenary.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Centenary (LA)",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "westfieldstateowls.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Westfield State University",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "ccsjathletics.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Calumet College of St. Joseph",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "tamuteagles.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Texas A&M University-Texarkana",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "usao.edu",
+  "coach_rows": 1,
+  "modal_filed_school": "Science & Arts (OK)",
+  "modal_sport": "mens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "uapblionsroar.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Arkansas-Pine Bluff",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "letsgopeay.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Austin Peay",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "kentstatesports.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Kent State",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "asugoldenrams.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Alabama State",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "lulions.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Lincoln (MO)",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "mssulions.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Missouri Southern",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "ccnyathletics.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Queens (CUNY)",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "mecathletics.com",
+  "coach_rows": 1,
+  "modal_filed_school": "CUNY Medgar Evers College",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "msoeraiders.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Milwaukee School of Engineering",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "psaltoonalions.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Pennsylvania State University-Penn State Altoona",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "psubrandywineathletics.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Penn State Brandywine",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "salemstatevikings.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Salem State University",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "ustcelts.com",
+  "coach_rows": 1,
+  "modal_filed_school": "St. Thomas",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "mtmaryathletics.com",
+  "coach_rows": 1,
+  "modal_filed_school": "Mount Mary University",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ },
+ {
+  "domain": "brooklyncollegeathletics.com",
+  "coach_rows": 1,
+  "modal_filed_school": "St. Joseph's University (Brooklyn)",
+  "modal_sport": "womens-soccer",
+  "consistent": true
+ }
+]
