@@ -306,4 +306,11 @@ async function main() {
   }
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+/**
+ * Only when run directly. `returningDepth` is imported by
+ * v2ReturningDepth.js, and a bare main() call would run this whole script on
+ * import, against whatever argv the importer happened to be started with.
+ */
+if (process.argv[1] && import.meta.url.endsWith(process.argv[1].split('/').pop())) {
+  main().catch((e) => { console.error(e); process.exit(1); });
+}
