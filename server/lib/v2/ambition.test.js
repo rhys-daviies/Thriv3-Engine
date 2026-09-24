@@ -130,7 +130,7 @@ describe('what a declared playing-opportunity priority does', () => {
     const playingFirst = run(9, 1, 5);
     const levelFirst = run(9, 5, 1);
     const share = (rep) => {
-      const v = rep.pipeline.actionable.map((r) => r.opportunity.basis.playing?.playingShare).filter(Boolean);
+      const v = rep.pipeline.actionable.map((r) => r.opportunity.basis.pathway?.rotation?.playingShare).filter(Boolean);
       return v.reduce((a, b) => a + b, 0) / v.length;
     };
     expect(share(playingFirst)).toBeGreaterThan(share(levelFirst));
@@ -178,7 +178,7 @@ describe('the two fields are not one slider', () => {
   it('each axis moves the result with the other held fixed', () => {
     expect(medianScore(run(9, 5, 3))).not.toBe(medianScore(run(9, 1, 3)));
     const share = (rep) => rep.pipeline.actionable
-      .map((r) => r.opportunity.basis.playing?.playingShare ?? 0)
+      .map((r) => r.opportunity.basis.pathway?.rotation?.playingShare ?? 0)
       .reduce((a, b) => a + b, 0);
     expect(share(run(9, 3, 5))).not.toBe(share(run(9, 3, 1)));
   });

@@ -119,9 +119,9 @@ async function main() {
         A: rb.athleticPlausibility ?? null,
         pos: sig('positionalOpportunity')?.value ?? null,
         R: e.recruitability.value, F: e.financial.value, O: e.opportunity.value, P: e.pursuitPriority.value,
-        playing: ob.components?.playingOpportunity?.value ?? null,
-        playShare: ob.playing?.playingShare ?? null,
-        playLevel: ob.playing?.level ?? null,
+        playing: ob.components?.playingPathway?.value ?? null,
+        playShare: ob.pathway?.rotation?.playingShare ?? null,
+        playLevel: ob.pathway?.rotation?.level ?? null,
         depth,
         positional: rb.positional ?? null,
         rosterRows: bucket?.rows ?? 0,
@@ -222,7 +222,7 @@ async function main() {
           name: e.name, strength: c.soccer_score, academic: c.academic_rating, net: c.net_price,
           A: rb.athleticPlausibility, R: e.recruitability.value, F: e.financial.value,
           O: e.opportunity.value, P: e.pursuitPriority.value, rank: e.rank,
-          playing: ob.components?.playingOpportunity?.value ?? null, depth,
+          playing: ob.components?.playingPathway?.value ?? null, depth,
           mkt: (rb.signals ?? []).find((s) => s.key === 'recruitingMarket')?.value ?? null,
         };
       }).filter((r) => r.depth && r.depth.coverage === 1 && Number.isFinite(r.playing));

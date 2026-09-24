@@ -40,7 +40,7 @@ const opportunity = (v = 0.6) => L(v, {
   objectiveScored: 2, objectiveValue: v, preferencesDeclared: 0, preferenceValue: null,
   preferenceKnown: false, priorities: { applied: false, multipliers: {}, ignored: [], ranking: null },
   ambition: { competitiveLevelPriority: null, playingOpportunityPriority: null, multipliers: {}, declared: false },
-  playing: { playingShare: 0.68, seasons: 4, level: 'programme', scaleP10: 0.42, scaleMedian: 0.59, scaleP90: 0.76, measure: 'x' },
+  pathway: { playingShare: 0.68, seasons: 4, level: 'programme', scaleP10: 0.42, scaleMedian: 0.59, scaleP90: 0.76, measure: 'x' },
   trajectory: { recentWinPct: 0.6, priorWinPct: 0.5, change: 0.1, saturation: 0.3, direction: 'improving' },
   major: null, outcome: null,
 });

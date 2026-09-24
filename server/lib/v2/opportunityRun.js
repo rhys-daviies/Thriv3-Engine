@@ -6,11 +6,13 @@
  * having, not that the athlete can reach it or pay for it.
  */
 import {
-  playingOpportunity, programmeTrajectory, majorFit, locationFit, athleticOutcome,
+  squadRotation, returningCompetition, playingPathway, programmeTrajectory, majorFit, locationFit, athleticOutcome,
   academicStrengthFit,
   athleteOpportunity, isScoreable, isNotApplicable, GRADE,
-  abilityToPercentile, percentileOf, readPriority,
+  abilityToPercentile, percentileOf, readPriority, typicalStarters,
 } from '../../../shared/matching/v2/index.js';
+import { returningDepthFor } from './rosterEvidence.js';
+import { eligibilityRuleFor, ELIGIBILITY_MODEL } from '../../../shared/eligibility.js';
 
 function summarise(values) {
   if (!values.length) return null;
@@ -62,7 +64,9 @@ export function academicPercentileScale(colleges) {
   };
 }
 
-export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overrides = {} }) {
+export function evaluateOpportunity({
+  athlete, colleges, rosterProgrammes, rosterIndex = null, entryYear = null, overrides = {},
+}) {
   const { sport, position } = athlete;
 
   /**
@@ -96,9 +100,34 @@ export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overr
   const academicScale = academicPercentileScale(colleges);
 
   const results = colleges.map((college) => {
-    const playing = playingOpportunity({
-      sport, position, division: college.division, programme: college.name,
-      rosterOnFile: rosterProgrammes.has(college.name),
+    /**
+     * PLAYING PATHWAY, from two facts kept apart until the last step.
+     *
+     * Rotation is a programme trait read from past seasons; competition is
+     * specific to this athlete's entry year. A programme can have one without
+     * the other - a readable roster with no minutes history, or minutes
+     * history for a programme whose current roster we could not parse - so
+     * each refuses on its own terms and the pathway uses whichever it has.
+     */
+    const rosterOnFile = rosterProgrammes.has(college.name);
+    const rotation = squadRotation({
+      sport, position, division: college.division, programme: college.name, rosterOnFile,
+    });
+    const bucket = rosterIndex?.get(college.name)?.positions?.get(position) ?? null;
+    const competition = returningCompetition({
+      returning: bucket ? returningDepthFor(bucket, entryYear) : null,
+      position,
+      places: typicalStarters(sport, position),
+      rosterOnFile: Boolean(bucket && bucket.rows > 0),
+      eligibilityRuled: entryYear !== null
+        && eligibilityRuleFor({ division: college.division, season: entryYear })?.model !== ELIGIBILITY_MODEL.UNKNOWN,
+      squadWeight: overrides.squadWeight,
+      unknownWeight: overrides.unknownWeight,
+      halfAt: overrides.halfAt,
+    });
+    const playing = playingPathway({
+      competition, rotation,
+      competitionShare: overrides.competitionShare,
     });
     const trajectory = programmeTrajectory({
       recentWinPct: college.recent_win_pct, priorWinPct: college.prior_win_pct,
@@ -128,7 +157,7 @@ export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overr
       academicPercentile: academicScale(college.academic_rating, college.academic_rating_source),
     });
     const result = athleteOpportunity({
-      playing, trajectory, major, location, outcome, academic,
+      pathway: playing, trajectory, major, location, outcome, academic,
       priorityRanking: athlete.priorityRanking ?? null,
       competitiveLevelPriority: athlete.competitiveLevelPriority ?? null,
       playingOpportunityPriority: athlete.playingOpportunityPriority ?? null,
@@ -148,7 +177,7 @@ export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overr
   const byReason = {};
   const grades = { [GRADE.MEASURED]: 0, [GRADE.PARTIAL]: 0 };
   const componentCoverage = {
-    playingOpportunity: 0, programmeTrajectory: 0, majorFit: 0, locationFit: 0, athleticOutcome: 0, academicStrengthFit: 0,
+    playingPathway: 0, programmeTrajectory: 0, majorFit: 0, locationFit: 0, athleticOutcome: 0, academicStrengthFit: 0,
   };
   const notApplicable = { majorFit: 0, locationFit: 0, athleticOutcome: 0, academicStrengthFit: 0 };
 
@@ -159,7 +188,7 @@ export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overr
     if (ok) { d.scoreable += 1; d.values.push(r.result.value); grades[r.result.grade] += 1; }
     else byReason[r.result.reason] = (byReason[r.result.reason] || 0) + 1;
 
-    if (isScoreable(r.playing)) componentCoverage.playingOpportunity += 1;
+    if (isScoreable(r.playing)) componentCoverage.playingPathway += 1;
     if (isScoreable(r.trajectory)) componentCoverage.programmeTrajectory += 1;
     if (isScoreable(r.major)) componentCoverage.majorFit += 1;
     if (isScoreable(r.location)) componentCoverage.locationFit += 1;
@@ -184,7 +213,7 @@ export function evaluateOpportunity({ athlete, colleges, rosterProgrammes, overr
     },
     opportunity: summarise(scored.map((r) => r.result.value)),
     objectiveValue: summarise(scored.map((r) => r.result.basis.objectiveValue).filter((v) => v !== null)),
-    playingOpportunity: summarise(results.filter((r) => isScoreable(r.playing)).map((r) => r.playing.value)),
+    playingPathway: summarise(results.filter((r) => isScoreable(r.playing)).map((r) => r.playing.value)),
     programmeTrajectory: summarise(results.filter((r) => isScoreable(r.trajectory)).map((r) => r.trajectory.value)),
     majorFit: summarise(results.filter((r) => isScoreable(r.major)).map((r) => r.major.value)),
     athleticOutcome: summarise(results.filter((r) => isScoreable(r.outcome)).map((r) => r.outcome.value)),
@@ -226,7 +255,7 @@ export function opportunityRow(entry) {
     objectiveValue: b.objectiveValue === null ? null : Number(b.objectiveValue.toFixed(4)),
     preferenceValue: b.preferenceValue === null ? null : Number(b.preferenceValue.toFixed(4)),
     preferenceKnown: b.preferenceKnown,
-    playingOpportunity: isScoreable(entry.playing) ? Number(entry.playing.value.toFixed(4)) : null,
+    playingPathway: isScoreable(entry.playing) ? Number(entry.playing.value.toFixed(4)) : null,
     playingShare: b.playing?.playingShare ?? null,
     playingLevel: b.playing?.level ?? null,
     programmeTrajectory: isScoreable(entry.trajectory) ? Number(entry.trajectory.value.toFixed(4)) : null,

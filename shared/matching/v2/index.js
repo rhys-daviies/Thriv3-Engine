@@ -73,7 +73,7 @@ export {
 } from './opportunityRules.js';
 
 export {
-  playingOpportunity, programmeTrajectory, majorFit, locationFit, athleticOutcome,
+  squadRotation, returningCompetition, playingPathway, returningPressure, competitionFromPressure, programmeTrajectory, majorFit, locationFit, athleticOutcome,
   academicStrengthFit,
 } from './layers/opportunityComponents.js';
 

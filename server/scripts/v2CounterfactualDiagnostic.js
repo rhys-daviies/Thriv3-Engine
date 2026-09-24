@@ -76,7 +76,7 @@ async function main() {
       oAcademicShare: comp('academicStrengthFit')?.share ?? null,
       oTrajectory: comp('programmeTrajectory')?.value ?? null,
       oLocation: comp('locationFit')?.value ?? null,
-      playingBasis: ob.playing ?? null,
+      playingBasis: ob.pathway?.rotation ?? null,
       P: e.pursuitPriority.value,
       gateR: e.pursuitPriority.basis?.recruitabilityGate ?? null,
       gateF: e.pursuitPriority.basis?.financialGate ?? null,

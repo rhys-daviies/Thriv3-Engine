@@ -86,6 +86,9 @@ export const REASON_CODE = Object.freeze({
   INTERNATIONAL_COST_UNDERSTATED: 'INTERNATIONAL_COST_UNDERSTATED',
 
   // Opportunity
+  RETURNING_COMPETITION_MEASURED: 'RETURNING_COMPETITION_MEASURED',
+  RETURNING_COMPETITION_PARTIAL: 'RETURNING_COMPETITION_PARTIAL',
+  RETURNING_NONE_PROJECTED: 'RETURNING_NONE_PROJECTED',
   PLAYING_SHARE_WIDE: 'PLAYING_SHARE_WIDE',
   PLAYING_SHARE_NARROW: 'PLAYING_SHARE_NARROW',
   TRAJECTORY_IMPROVING: 'TRAJECTORY_IMPROVING',
@@ -219,7 +222,7 @@ export const FORBIDDEN_LANGUAGE = Object.freeze([
  * Two different components were being printed by their internal names, and
  * the names collide in English. Coach Recruitability owns
  * `positionalOpportunity` - whether a starting place is opening that a
- * newcomer would take. Athlete Opportunity owns `playingOpportunity` - how
+ * newcomer would take. Athlete Opportunity owns `playingPathway` - how
  * widely a programme spreads its minutes. A limited-data row rendered both,
  * and produced:
  *
@@ -238,7 +241,9 @@ export const COMPONENT_LABEL = Object.freeze({
   athleticPlausibility: 'athletic recruiting compatibility',
   positionalOpportunity: 'positional recruiting evidence',
   internationalPropensity: 'international recruiting history',
-  playingOpportunity: 'playing-time opportunity',
+  playingPathway: 'the positional playing pathway',
+  returningCompetition: 'projected competition at this position',
+  squadRotation: 'how widely this programme shares minutes here',
   programmeTrajectory: 'programme trajectory',
   majorFit: 'major fit',
   locationFit: 'location preference',

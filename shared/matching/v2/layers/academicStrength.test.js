@@ -60,7 +60,7 @@ describe('academic strength is a PREFERENCE, not a quality term', () => {
 const S = (v) => scoreable({ value: v, grade: GRADE.MEASURED, coverage: 1, basis: {} });
 const opp = ({ academicPriority = null, academicPercentile = 0.9, playingValue = 0.5 } = {}) =>
   athleteOpportunity({
-    playing: S(playingValue),
+    pathway: S(playingValue),
     trajectory: S(0.5),
     major: notApplicable({ why: 'not collected' }),
     location: notApplicable({ why: 'not collected' }),
@@ -91,7 +91,7 @@ describe('inside Opportunity/Fit', () => {
 
   it('stays scoreable when the rating is missing, on its other components', () => {
     const r = athleteOpportunity({
-      playing: S(0.6), trajectory: S(0.5),
+      pathway: S(0.6), trajectory: S(0.5),
       major: notApplicable({ why: 'x' }), location: notApplicable({ why: 'x' }),
       outcome: notApplicable({ why: 'x' }),
       academic: academicStrengthFit({ academicStrengthPriority: 5, academicPercentile: null }),
@@ -119,7 +119,7 @@ describe('inside Opportunity/Fit', () => {
 
 describe('major fit stays independent', () => {
   const withMajor = (matched, academicPriority) => athleteOpportunity({
-    playing: S(0.5), trajectory: S(0.5),
+    pathway: S(0.5), trajectory: S(0.5),
     major: S(matched ? 1 : 0), location: notApplicable({ why: 'x' }), outcome: notApplicable({ why: 'x' }),
     academic: academicStrengthFit({ academicStrengthPriority: academicPriority, academicPercentile: 0.9 }),
     academicStrengthPriority: academicPriority,
@@ -127,7 +127,7 @@ describe('major fit stays independent', () => {
 
   it('an undecided-major athlete can still value academic strength', () => {
     const r = athleteOpportunity({
-      playing: S(0.5), trajectory: S(0.5),
+      pathway: S(0.5), trajectory: S(0.5),
       major: notApplicable({ why: 'no intended major' }),
       location: notApplicable({ why: 'x' }), outcome: notApplicable({ why: 'x' }),
       academic: academicStrengthFit({ academicStrengthPriority: 5, academicPercentile: 0.9 }),

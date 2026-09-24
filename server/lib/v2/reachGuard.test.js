@@ -178,3 +178,43 @@ describe('the ranking degrades sensibly away from the athlete\'s level', () => {
     expect(new Set(rows.map((r) => r.rank)).size).toBe(rows.length);
   });
 });
+
+/**
+ * A7.8.2 PLAYING PATHWAY GUARDS.
+ *
+ * The component exists so that a programme with nine midfielders projected to
+ * remain does not read as a better pathway than one with two. These assert
+ * the direction of that response and the two failure modes it must never
+ * acquire: an unreadable roster scoring as an empty one, and an athlete who
+ * cares about minutes being sent to the weakest programme on the board.
+ */
+describe('playing-opportunity priority changes how much competition matters', () => {
+  it('barely moves the list at priority 1 and moves it at priority 5', () => {
+    const low = rank(9, 5, 1);
+    const high = rank(9, 1, 5);
+    const order = (rows) => rows.slice().sort((a, b) => a.rank - b.rank).map((r) => r.name).join('|');
+    expect(order(low)).not.toBe(order(high));
+    // Both orderings must still cover the whole universe.
+    expect(low.length).toBe(colleges.length);
+    expect(high.length).toBe(colleges.length);
+  });
+
+  it('does not hand the list to the weakest programme when minutes are wanted', () => {
+    // The realism guard for this component: an athlete who wants to play is
+    // not thereby asking for the worst programme with the emptiest roster.
+    const rows = rank(9, 3, 5);
+    const eq = equivalent(9);
+    const front = rows.filter((r) => r.rank <= Math.ceil(rows.length * 0.1));
+    const weakest = Math.min(...rows.map((r) => r.strength));
+    expect(Math.min(...front.map((r) => r.strength))).toBeGreaterThan(weakest);
+    expect(band(rows, eq, 10, Infinity).filter((r) => r.rank <= Math.ceil(rows.length * 0.1))).toEqual([]);
+  });
+
+  it('still ranks every programme exactly once at any playing priority', () => {
+    for (const playing of [1, 3, 5]) {
+      const rows = rank(9, 3, playing);
+      expect(rows.length).toBe(colleges.length);
+      expect(new Set(rows.map((r) => r.rank)).size).toBe(rows.length);
+    }
+  });
+});

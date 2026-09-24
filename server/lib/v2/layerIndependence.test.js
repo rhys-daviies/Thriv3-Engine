@@ -34,7 +34,15 @@ const OWNERSHIP = [
   { field: 'aid policy', owner: 'financial', patterns: [/aidPolicy/, /AID_POLICY/, /aidAssumption/] },
   { field: 'soccer_score', owner: 'recruitability', patterns: [/soccerScore/, /soccer_score/] },
   { field: 'athlete rating', owner: 'recruitability', patterns: [/abilityToPercentile/, /athleteRating/] },
-  { field: 'recruiting openings', owner: 'recruitability', patterns: [/vacatedStarters/, /fillPropensity/, /typicalStarters/] },
+  /**
+   * The OPENING signals, not the positional norm beside them. `typicalStarters`
+   * is a denominator - how many starting places this position normally holds -
+   * and both layers need it for different sums: Recruitability turns vacated
+   * places into an opening rate, Athlete Opportunity turns projected returners
+   * into a crowding rate. Sharing a denominator is not sharing a signal, and
+   * A7.8.2 made that explicit rather than leaving it to the pattern list.
+   */
+  { field: 'recruiting openings', owner: 'recruitability', patterns: [/vacatedStarters/, /fillPropensity/] },
   { field: 'international propensity', owner: 'recruitability', patterns: [/internationalArrival/, /internationalPropensity/] },
   { field: 'location preference', owner: 'opportunity', patterns: [/preferredStates/, /maxDistanceMiles/, /preferredRegions/] },
   { field: 'intended major', owner: 'opportunity', patterns: [/intendedMajor/, /notableMajors/] },

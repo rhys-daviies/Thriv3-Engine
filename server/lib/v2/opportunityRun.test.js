@@ -31,7 +31,10 @@ const run = (over, overrides) => evaluateOpportunity({
 describe('scoring a pool', () => {
   const rep = run();
 
-  it('refuses every programme it holds no minutes for', () => {
+  it('refuses every programme it holds neither a roster nor minutes for', () => {
+    // A7.8.2: Playing Pathway can be carried by either half, so a refusal now
+    // means both are missing. This pool passes no roster index, so returning
+    // competition has nothing either way and the minutes history decides.
     expect(rep.byDivision.NJCAA.scoreable).toBe(0);
     expect(rep.unscoreableReasons[REASON.NO_MINUTES_HISTORY]).toBe(20);
   });
@@ -41,7 +44,7 @@ describe('scoring a pool', () => {
   });
 
   it('reports the components and how much of each it could measure', () => {
-    expect(rep.componentCoverage.playingOpportunity).toBe(0.8);
+    expect(rep.componentCoverage.playingPathway).toBe(0.8);
     expect(rep.componentCoverage.programmeTrajectory).toBeCloseTo(0.99, 6);
     expect(rep.componentCoverage.majorFit).toBe(0);
     expect(rep.notApplicable.majorFit).toBe(1);
@@ -107,8 +110,8 @@ describe('the things that must move it', () => {
   });
 
   it('the position, because the measured scale differs by position', () => {
-    expect(run({ position: 'GOALKEEPER' }).playingOpportunity.median)
-      .not.toBe(run({ position: 'MIDFIELD' }).playingOpportunity.median);
+    expect(run({ position: 'GOALKEEPER' }).playingPathway.median)
+      .not.toBe(run({ position: 'MIDFIELD' }).playingPathway.median);
   });
 });
 
@@ -116,7 +119,7 @@ describe('the flattened row', () => {
   it('carries both subtotals and the not-applicable list', () => {
     const row = opportunityRow(run().results.find((r) => r.result.ok));
     for (const k of ['opportunity', 'objectiveValue', 'preferenceKnown',
-      'playingOpportunity', 'playingShare', 'playingLevel', 'programmeTrajectory', 'notApplicable']) {
+      'playingPathway', 'playingShare', 'playingLevel', 'programmeTrajectory', 'notApplicable']) {
       expect(row, k).toHaveProperty(k);
     }
     expect(row.preferenceKnown).toBe(false);

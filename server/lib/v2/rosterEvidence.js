@@ -194,6 +194,39 @@ export function buildArrivalIndex(rows) {
 }
 
 /**
+ * Who is projected to STILL BE HERE at the entry year, split by the role we
+ * can place them in.
+ *
+ * The departing side of these same maps has been read since A7.3; this reads
+ * the other half. `starterLastSeason` and `byLastSeasonUnknown` are already
+ * built by `buildPositionIndex`, so nothing new is ingested or indexed - the
+ * returning cohort was simply never asked for.
+ *
+ * A player whose last eligible season IS the entry year is counted as neither.
+ * They are there FOR that season and gone after it, so they are not a place
+ * that has opened and not competition beyond it - the same rule the departing
+ * side uses, from the other direction.
+ */
+export function returningDepthFor(bucket, entryYear) {
+  if (!bucket) return null;
+  const after = (m) => {
+    let n = 0;
+    for (const [last, count] of m) if (last > entryYear) n += count;
+    return n;
+  };
+  const total = after(bucket.byLastSeason);
+  const starters = after(bucket.starterLastSeason);
+  const unknown = after(bucket.byLastSeasonUnknown);
+  return {
+    total,
+    starters,
+    unknown,
+    squad: Math.max(0, total - starters - unknown),
+    roleKnown: total - unknown,
+  };
+}
+
+/**
  * The evidence `positionalOpportunity` needs, for one programme and position.
  *
  * `vacatedStarters` counts players whose ELIGIBILITY ends before the entry
@@ -230,6 +263,8 @@ export function positionEvidence({
       departingUnknown: 0,
     },
     arrivals: null,
+    /** The returning side, for Athlete Opportunity. Null until the bucket is read. */
+    returning: null,
     fill: fillPropensity({ sport, division, position, programme }),
   };
 
@@ -248,6 +283,7 @@ export function positionEvidence({
       if (lastSeason < entryYear) evidence.starterEvidence.departingUnknown += count;
     }
     evidence.starterEvidence.departing = evidence.openings;
+    evidence.returning = returningDepthFor(bucket, entryYear);
   }
 
   /**

@@ -19,8 +19,11 @@
  * would trade playing time for a stronger programme - and that is exactly the
  * preference `athleticOutcome` would need and does not have.
  */
-import { GRADE, REASON, scoreable, unscoreable, notApplicable } from '../types.js';
-import { playingShareFor, playingScale, TRAJECTORY_SATURATION, COMPETITIVE_LEVEL_SPAN } from '../opportunityRules.js';
+import { GRADE, REASON, scoreable, unscoreable, notApplicable, isScoreable } from '../types.js';
+import {
+  playingShareFor, playingScale, TRAJECTORY_SATURATION, COMPETITIVE_LEVEL_SPAN,
+  RETURNING_SQUAD_WEIGHT, RETURNING_UNKNOWN_WEIGHT, COMPETITION_HALF_PRESSURE, COMPETITION_SHARE,
+} from '../opportunityRules.js';
 import { priorityStrength } from '../athletePreferences.js';
 import { majorLabelFor, academicIntentState, ACADEMIC_INTENT } from '../../../academicMajors.js';
 
@@ -37,11 +40,20 @@ import { majorLabelFor, academicIntentState, ACADEMIC_INTENT } from '../../../ac
 const stated = (v) => v !== null && v !== undefined && v !== '' && Number.isFinite(Number(v));
 
 /**
- * How likely the athlete is to be one of the players who actually plays.
+ * SQUAD ROTATION: how widely this programme has historically shared the
+ * minutes at this position.
  *
  * The programme's measured share, placed on the p10-to-p90 range of programmes
  * at the same position in the same sport. A programme at the tenth percentile
  * of sharing scores 0, one at the ninetieth scores 1.
+ *
+ * A PROGRAMME TRAIT, AND ONLY THAT. It is computed from seasons that ended
+ * before this athlete was recruited, it is identical for every athlete, and it
+ * knows nothing about who will be on the roster when they arrive. That is why
+ * it is half of Playing Pathway and not the whole of it: A7.8 found Saint
+ * Mary's, with nine midfielders projected to remain and one leaving, scoring
+ * ABOVE a programme with seven, because it had rotated widely three years
+ * earlier. `returningCompetition` answers the other half.
  *
  * GOALKEEPERS NEED NO SPECIAL CASE, and that was measured rather than assumed.
  * The distinctive goalkeeping structure - one player taking 86% of the minutes
@@ -51,7 +63,7 @@ const stated = (v) => v !== null && v !== undefined && v !== '' && Number.isFini
  * goalkeeper rule, newcomer minutes share, was rejected for being unstable
  * (split-half r = 0.002 at goalkeeper).
  */
-export function playingOpportunity({ sport, position, division, programme, rosterOnFile }) {
+export function squadRotation({ sport, position, division, programme, rosterOnFile }) {
   if (!rosterOnFile) {
     return unscoreable({ reason: REASON.NO_MINUTES_HISTORY, missing: ['minutesHistory'], available: [] });
   }
@@ -76,6 +88,151 @@ export function playingOpportunity({ sport, position, division, programme, roste
       scaleMedian: scale.median,
       scaleP90: scale.p90,
       measure: 'effective players sharing the minutes, as a share of the position group',
+    },
+  });
+}
+
+/**
+ * How much weighted competition one position is projected to carry, in
+ * STARTING UNITS. Separated from the component so the shape and its constants
+ * can be tested apart.
+ */
+export function returningPressure({ starters = 0, squad = 0, unknown = 0 }, {
+  places,
+  squadWeight = RETURNING_SQUAD_WEIGHT,
+  unknownWeight = RETURNING_UNKNOWN_WEIGHT,
+} = {}) {
+  const weighted = starters + (squadWeight * squad) + (unknownWeight * unknown);
+  return weighted / Math.max(1, Number(places) || 1);
+}
+
+/** Pressure to a bounded value. Strictly decreasing, never reaching either end. */
+export const competitionFromPressure = (pressure, { halfAt = COMPETITION_HALF_PRESSURE } = {}) =>
+  1 / (1 + (Math.max(0, pressure) / halfAt));
+
+/**
+ * RETURNING COMPETITION: how crowded this position is projected to be when the
+ * athlete arrives.
+ *
+ * NOT A PROBABILITY, and not an estimate of minutes. It counts the players
+ * whose eligibility runs past the entry year, weights them by the role we can
+ * place them in, and normalises by the starting places the position normally
+ * holds - so three returning goalkeepers and three returning midfielders do
+ * not read alike.
+ *
+ * -- WHY HEADCOUNT CARRIES THE VALUE AND ROLE CARRIES THE CONFIDENCE --------
+ *
+ * A7.8.1 stood at four past seasons and asked what a class list predicts.
+ * Raw returning headcount predicts the players who actually came back at
+ * r 0.76-0.81 and next season's position group at r 0.73-0.75. Role adds
+ * separately: within position it lifts the prediction of next season's
+ * STARTERS from rho 0.06-0.31 to 0.23-0.58.
+ *
+ * But role coverage collapses with distance. For an entry two years out the
+ * median share of returners we can place is ZERO, because the players still
+ * eligible then are current freshmen who have not played. That is a timing
+ * limit, not a scraping gap - those minutes do not exist yet.
+ *
+ * So the value is built from every returner and the GRADE carries the doubt.
+ * Refusing to score the strongest signal in the inventory because an optional
+ * refinement is missing would have left this component silent for most of the
+ * pool at the horizons Thriv3 actually recruits for.
+ */
+export function returningCompetition({
+  returning = null, position = null, places = null,
+  rosterOnFile = false, eligibilityRuled = true,
+  squadWeight, unknownWeight, halfAt,
+}) {
+  if (!rosterOnFile) {
+    return unscoreable({ reason: REASON.NO_ROSTER_ON_FILE, missing: ['roster'], available: [] });
+  }
+  /**
+   * Without an eligibility rule nobody can be placed as returning or
+   * departing, so a count of zero would be silence rather than a measurement.
+   */
+  if (!eligibilityRuled) {
+    return unscoreable({ reason: REASON.NO_CLASS_LABELS, missing: ['eligibilityRule'], available: ['roster'] });
+  }
+  if (!returning || !Number.isFinite(Number(places))) {
+    return unscoreable({ reason: REASON.NO_ROSTER_ON_FILE, missing: ['returningDepth'], available: ['roster'] });
+  }
+
+  const starters = Math.max(0, Number(returning.starters) || 0);
+  const squad = Math.max(0, Number(returning.squad) || 0);
+  const unknown = Math.max(0, Number(returning.unknown) || 0);
+  const total = starters + squad + unknown;
+  const pressure = returningPressure({ starters, squad, unknown }, { places, squadWeight, unknownWeight });
+  const value = competitionFromPressure(pressure, { halfAt });
+
+  /**
+   * COVERAGE IS ABOUT ROLE, NOT ABOUT THE COUNT. The headcount is known
+   * whenever the roster is readable; what varies is how many of those players
+   * we can place. A readable roster with no returners is a MEASUREMENT of an
+   * empty position group, and must never be confused with a roster we could
+   * not read - which refuses above.
+   */
+  const coverage = total === 0 ? 1 : (total - unknown) / total;
+  return scoreable({
+    value,
+    grade: (total === 0 || unknown === 0) ? GRADE.MEASURED : GRADE.PARTIAL,
+    coverage,
+    basis: {
+      position,
+      returning: total,
+      returningStarters: starters,
+      returningSquad: squad,
+      returningUnknownRole: unknown,
+      typicalStarters: places,
+      pressure,
+      roleCoverage: coverage,
+      squadWeight: squadWeight ?? RETURNING_SQUAD_WEIGHT,
+      unknownWeight: unknownWeight ?? RETURNING_UNKNOWN_WEIGHT,
+      halfAt: halfAt ?? COMPETITION_HALF_PRESSURE,
+      measure: 'weighted returners against the starting places this position normally holds',
+    },
+  });
+}
+
+/**
+ * PLAYING PATHWAY: projected competition, read alongside how this programme
+ * has historically used players at this position.
+ *
+ * Competition leads because it is specific to this athlete's entry year;
+ * rotation is context. Either alone is scoreable - a programme we hold no
+ * minutes history for can still have a readable roster, and vice versa - and
+ * the grade is the weaker of whatever was used.
+ */
+export function playingPathway({ competition, rotation, competitionShare = COMPETITION_SHARE }) {
+  const hasC = isScoreable(competition);
+  const hasR = isScoreable(rotation);
+  if (!hasC && !hasR) {
+    /**
+     * ROTATION'S REASON LEADS when both halves refuse. A caller that never
+     * supplied a roster index has told us nothing about the programme's
+     * roster, so reporting NO_ROSTER_ON_FILE would be a claim we cannot make;
+     * the minutes history is the older and broader contract, and its absence
+     * is true in every case where both fail.
+     */
+    return unscoreable({
+      reason: rotation?.reason ?? competition?.reason ?? REASON.NO_MINUTES_HISTORY,
+      missing: [...new Set([...(rotation?.missing ?? []), ...(competition?.missing ?? [])])],
+      available: [],
+    });
+  }
+  const value = (hasC && hasR)
+    ? (competitionShare * competition.value) + ((1 - competitionShare) * rotation.value)
+    : (hasC ? competition.value : rotation.value);
+  const grades = [hasC ? competition.grade : null, hasR ? rotation.grade : null].filter(Boolean);
+  return scoreable({
+    value,
+    grade: grades.every((g) => g === GRADE.MEASURED) && hasC && hasR ? GRADE.MEASURED : GRADE.PARTIAL,
+    coverage: hasC && hasR ? 1 : competitionShare,
+    basis: {
+      competitionShare,
+      competition: hasC ? { value: competition.value, grade: competition.grade, ...competition.basis } : null,
+      rotation: hasR ? { value: rotation.value, grade: rotation.grade, ...rotation.basis } : null,
+      /** Named so an explanation can say which half it is reading. */
+      usedBoth: hasC && hasR,
     },
   });
 }

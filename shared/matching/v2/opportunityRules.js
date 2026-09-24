@@ -56,9 +56,84 @@ export const TRAJECTORY_SATURATION = 0.3;
  * the answer.
  */
 export const VALUE_WEIGHTS = Object.freeze({
-  playingOpportunity: 0.65,
+  playingPathway: 0.65,
   programmeTrajectory: 0.35,
 });
+
+/**
+ * PLAYING PATHWAY, and the four constants it needs.
+ *
+ * The layer asks "how favourable does this programme's positional pathway look
+ * for this athlete, given the competition projected to be there when they
+ * arrive and how the programme has historically used players at this
+ * position". It is built from two facts that are deliberately kept apart:
+ *
+ *   RETURNING COMPETITION  how crowded this position is projected to be
+ *   SQUAD ROTATION         how widely this coach has shared minutes here
+ *
+ * NEITHER IS A PROBABILITY. Nothing here estimates minutes, a chance of
+ * starting or a likelihood of an offer; we hold no outcome data that could fit
+ * one. These are declared heuristics, chosen from the A7.8.2 robustness
+ * surface rather than fitted.
+ */
+
+/**
+ * What a returner we could place as a SQUAD player counts for, against a
+ * returning starter's 1.0.
+ *
+ * HEURISTIC, selected on the plateau. Across four season transitions and both
+ * sports, a squad player at season T starts at T+1 about 18-20% of the time
+ * against a starter's 85-86%, so they are real competition and not equal
+ * competition. Between 0.3 and 0.5 the universe response moves by about 0.02
+ * of rank correlation, which is why this is a region rather than a point.
+ */
+export const RETURNING_SQUAD_WEIGHT = 0.4;
+
+/**
+ * What a returner whose role we could NOT place counts for.
+ *
+ * HEURISTIC, and anchored rather than assumed. Following players whose role
+ * was unreadable at season T into T+1, they went on to start 17.8% of the time
+ * in the men's game and 25.5% in the women's - against 18.0% and 20.0% for
+ * players we could place as squad, and 84.8% and 86.4% for starters. On a
+ * scale where squad sits at 0 and starter at 1, an unplaceable returner sits
+ * at -0.00 and +0.08.
+ *
+ * So the evidence says they behave like squad players. This sits a little
+ * ABOVE the squad weight anyway, for two reasons: the measurement can only see
+ * the unplaceable players who later became readable, which flatters them
+ * toward the starter end; and asserting that doubt IS squad membership claims
+ * something we did not measure. What it must never be is zero - a player we
+ * cannot describe is still standing in front of the athlete.
+ */
+export const RETURNING_UNKNOWN_WEIGHT = 0.5;
+
+/**
+ * The pressure at which returning competition halves the component.
+ *
+ * HEURISTIC, in STARTING UNITS: pressure 1.0 means one full starting line's
+ * worth of weighted returners at this position, so the constant is read as
+ * "three quarters of a starting line halves it". The map is
+ * `1 / (1 + pressure / 0.75)`, chosen over linear and exponential families
+ * because it never clamps: a position with four starting units of returners
+ * still scores 0.158 against six units' 0.111, and the two remain orderable.
+ * A linear map reaches zero and stops telling crowded programmes apart.
+ */
+export const COMPETITION_HALF_PRESSURE = 0.75;
+
+/**
+ * How much of Playing Pathway is projected competition rather than historical
+ * rotation.
+ *
+ * HEURISTIC. Returning competition is specific to this athlete's entry year
+ * and answers the question directly; rotation is a stable programme trait and
+ * context. Across the surface, 50/50 gives a rank response of 0.37-0.41,
+ * 60/40 gives 0.40-0.45 and 70/30 gives 0.43-0.50 - but 70/30 also raises the
+ * number of programmes moved at playing priority 1 from about 230 to about
+ * 290, which is louder than a near-inert preference should be. 60/40 is the
+ * centre of the region that responds without becoming noisy.
+ */
+export const COMPETITION_SHARE = 0.6;
 
 /**
  * How far BELOW an athlete's own calibrated level a programme must sit before
@@ -123,7 +198,7 @@ export const PRIORITY_LIFT = 0.5;
  * mapping exists and currently moves nothing.
  */
 export const PRIORITY_MAP = Object.freeze({
-  roster: 'playingOpportunity',
+  roster: 'playingPathway',
   academic: 'majorFit',
   geography: 'locationFit',
 });

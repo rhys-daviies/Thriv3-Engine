@@ -72,8 +72,8 @@ describe('the declared heuristics', () => {
   });
 
   it('weights playing opportunity above trajectory', () => {
-    expect(VALUE_WEIGHTS.playingOpportunity).toBeGreaterThan(VALUE_WEIGHTS.programmeTrajectory);
-    expect(VALUE_WEIGHTS.playingOpportunity + VALUE_WEIGHTS.programmeTrajectory).toBeCloseTo(1, 10);
+    expect(VALUE_WEIGHTS.playingPathway).toBeGreaterThan(VALUE_WEIGHTS.programmeTrajectory);
+    expect(VALUE_WEIGHTS.playingPathway + VALUE_WEIGHTS.programmeTrajectory).toBeCloseTo(1, 10);
   });
 
   it('keeps the priority lift modest, because a ranking is an order not a magnitude', () => {
@@ -82,13 +82,13 @@ describe('the declared heuristics', () => {
   });
 
   it('lets the objective half clear the coverage floor on its own', () => {
-    expect(VALUE_WEIGHTS.playingOpportunity).toBeGreaterThan(OPPORTUNITY_COVERAGE_FLOOR);
+    expect(VALUE_WEIGHTS.playingPathway).toBeGreaterThan(OPPORTUNITY_COVERAGE_FLOOR);
   });
 });
 
 describe('the priority map is the cross-layer boundary', () => {
   it('maps only criteria this layer owns', () => {
-    expect(Object.values(PRIORITY_MAP).sort()).toEqual(['locationFit', 'majorFit', 'playingOpportunity']);
+    expect(Object.values(PRIORITY_MAP).sort()).toEqual(['locationFit', 'majorFit', 'playingPathway']);
   });
 
   it('names the criteria belonging elsewhere, and who owns them', () => {

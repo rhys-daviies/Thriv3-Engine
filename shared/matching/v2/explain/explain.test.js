@@ -48,7 +48,7 @@ const opportunity = (over = {}) => L(over.value ?? 0.6, GRADE.MEASURED, {
   objectiveScored: 2, objectiveValue: 0.6, preferencesDeclared: 0, preferenceValue: null,
   preferenceKnown: false, priorities: { applied: false, multipliers: {}, ignored: [], ranking: null },
   ambition: over.ambition ?? { competitiveLevelPriority: null, playingOpportunityPriority: null, multipliers: {}, declared: false },
-  playing: over.playing === null ? null : { playingShare: 0.68, seasons: 4, level: 'programme', scaleP10: 0.42, scaleMedian: 0.59, scaleP90: 0.76, measure: 'x' },
+  pathway: over.playing === null ? null : { playingShare: 0.68, seasons: 4, level: 'programme', scaleP10: 0.42, scaleMedian: 0.59, scaleP90: 0.76, measure: 'x' },
   trajectory: { recentWinPct: 0.6, priorWinPct: 0.5, change: 0.1, saturation: 0.3, direction: 'improving' },
   major: over.major ?? null,
   outcome: over.outcome ?? null,

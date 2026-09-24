@@ -1,13 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { athleteOpportunity, priorityWeights } from './opportunity.js';
 import {
-  playingOpportunity, programmeTrajectory, majorFit, locationFit, athleticOutcome,
+  squadRotation, programmeTrajectory, majorFit, locationFit, athleticOutcome,
 } from './opportunityComponents.js';
 import { GRADE, REASON, scoreable, isNotApplicable } from '../types.js';
 import { PRIORITY_MAP, FOREIGN_PRIORITIES, OPPORTUNITY_COVERAGE_FLOOR } from '../opportunityRules.js';
 
 const SPORT = 'mens-soccer';
-const play = (over = {}) => playingOpportunity({
+const play = (over = {}) => squadRotation({
   sport: SPORT, position: 'MIDFIELD', division: 'NCAA D1', programme: 'Maryland', rosterOnFile: true, ...over,
 });
 const traj = (recent = 0.6, prior = 0.5) => programmeTrajectory({ recentWinPct: recent, priorWinPct: prior });
@@ -16,7 +16,7 @@ const noLocation = locationFit({});
 const noOutcome = athleticOutcome({});
 
 const O = (over = {}) => athleteOpportunity({
-  playing: play(), trajectory: traj(), major: noMajor, location: noLocation, outcome: noOutcome, ...over,
+  pathway: play(), trajectory: traj(), major: noMajor, location: noLocation, outcome: noOutcome, ...over,
 });
 
 describe('the objective half scores without any preference at all', () => {
@@ -48,7 +48,7 @@ describe('the objective half scores without any preference at all', () => {
 
 describe('required evidence', () => {
   it('refuses without playing opportunity, however good the trajectory', () => {
-    const r = O({ playing: play({ rosterOnFile: false }), trajectory: traj(1, 0) });
+    const r = O({ pathway: play({ rosterOnFile: false }), trajectory: traj(1, 0) });
     expect(r.ok).toBe(false);
     expect(r.reason).toBe(REASON.NO_MINUTES_HISTORY);
     expect('value' in r).toBe(false);
@@ -88,19 +88,19 @@ describe('athlete priorities', () => {
   it('moves only the component each surviving criterion maps onto', () => {
     const { multipliers, applied } = priorityWeights(['roster', 'academic', 'geography']);
     expect(applied).toBe(true);
-    expect(Object.keys(multipliers).sort()).toEqual(['locationFit', 'majorFit', 'playingOpportunity']);
+    expect(Object.keys(multipliers).sort()).toEqual(['locationFit', 'majorFit', 'playingPathway']);
   });
 
   it('refuses the criteria that belong to other layers, and names their owner', () => {
     const { multipliers, ignored } = priorityWeights(['athletic', 'affordability', 'programQuality', 'roster']);
-    expect(Object.keys(multipliers)).toEqual(['playingOpportunity']);
+    expect(Object.keys(multipliers)).toEqual(['playingPathway']);
     expect(ignored.map((i) => i.key).sort()).toEqual(['affordability', 'athletic', 'programQuality']);
     expect(ignored.find((i) => i.key === 'athletic').ownedBy).toBe(FOREIGN_PRIORITIES.athletic);
   });
 
   it('lifts what is ranked first and cuts what is ranked last', () => {
-    const first = priorityWeights(['roster', 'academic']).multipliers.playingOpportunity;
-    const last = priorityWeights(['academic', 'roster']).multipliers.playingOpportunity;
+    const first = priorityWeights(['roster', 'academic']).multipliers.playingPathway;
+    const last = priorityWeights(['academic', 'roster']).multipliers.playingPathway;
     expect(first).toBeGreaterThan(1);
     expect(last).toBeLessThan(1);
   });
@@ -153,7 +153,7 @@ describe('what Opportunity cannot see', () => {
     // The signature names five components and none of them is a layer result
     // from elsewhere; a foreign result would have to be smuggled in as one of
     // these, and would then simply be scored as that component.
-    expect(Object.keys(r.basis.components).sort()).toEqual(['playingOpportunity', 'programmeTrajectory']);
+    expect(Object.keys(r.basis.components).sort()).toEqual(['playingPathway', 'programmeTrajectory']);
   });
 
   it('gives an identical answer whatever the athlete ability', () => {
@@ -171,7 +171,7 @@ describe('what Opportunity cannot see', () => {
 
 describe('the grade', () => {
   it('is PARTIAL when the playing share fell back from the programme own seasons', () => {
-    expect(O({ playing: play({ programme: 'Nowhere At All' }) }).grade).toBe(GRADE.PARTIAL);
+    expect(O({ pathway: play({ programme: 'Nowhere At All' }) }).grade).toBe(GRADE.PARTIAL);
   });
 
   it('is MEASURED when every scored component was measured', () => {
@@ -183,7 +183,7 @@ describe('monotonicity', () => {
   it('a better playing opportunity never lowers the result', () => {
     let prev = -1;
     for (const v of [0, 0.25, 0.5, 0.75, 1]) {
-      const r = O({ playing: scoreable({ value: v, grade: GRADE.MEASURED }) });
+      const r = O({ pathway: scoreable({ value: v, grade: GRADE.MEASURED }) });
       expect(r.value).toBeGreaterThanOrEqual(prev);
       prev = r.value;
     }

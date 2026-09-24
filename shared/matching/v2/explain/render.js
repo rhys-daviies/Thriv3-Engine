@@ -29,6 +29,23 @@ const range = ([lo, hi]) => {
 const pct = (n) => `${Math.round(n * 100)}%`;
 const pts = (n) => `${Math.round(n * 100)} percentile points`;
 
+/**
+ * A position is a place on the field; a player is a person. "3 midfields are
+ * projected to remain" is not a sentence anyone says out loud.
+ */
+const PLAYER_NOUN = Object.freeze({
+  GOALKEEPER: { one: 'goalkeeper', plural: 'goalkeepers' },
+  DEFENSE: { one: 'defender', plural: 'defenders' },
+  MIDFIELD: { one: 'midfielder', plural: 'midfielders' },
+  FORWARD: { one: 'forward', plural: 'forwards' },
+});
+const players = (position, n) => {
+  const noun = PLAYER_NOUN[position];
+  if (!noun) return n === 1 ? 'player is' : 'players are';
+  return n === 1 ? `${noun.one} is` : `${noun.plural} are`;
+};
+
+
 /** How a RATE's denominator reads: how many comparable cases stand behind it. */
 const SAMPLE = {
   NONE: 'with no history on file',
@@ -130,6 +147,17 @@ const SENTENCE = {
   [REASON_CODE.INTERNATIONAL_COST_UNDERSTATED]: () =>
     `Net price is measured on domestically aided students, so the real cost to an international athlete is higher by an unknown amount.`,
 
+  /**
+   * FACTS, not a forecast. These say who is projected to still be there and
+   * how much of that we could place - never a chance of starting, expected
+   * minutes or a guaranteed opportunity.
+   */
+  [REASON_CODE.RETURNING_COMPETITION_MEASURED]: (e) =>
+    `${e.returning} ${players(e.position, e.returning)} projected to remain for the entry year, against ${e.typicalStarters} typical starting place${e.typicalStarters === 1 ? '' : 's'}${e.returningStarters > 0 ? `; ${e.returningStarters} of them held a starting place this season` : ''}.`,
+  [REASON_CODE.RETURNING_COMPETITION_PARTIAL]: (e) =>
+    `${e.returning} ${players(e.position, e.returning)} projected to remain for the entry year, against ${e.typicalStarters} typical starting place${e.typicalStarters === 1 ? '' : 's'}. Roles are known for ${e.roleKnown} of the ${e.returning}.`,
+  [REASON_CODE.RETURNING_NONE_PROJECTED]: (e) =>
+    `No returning ${PLAYER_NOUN[e.position]?.plural ?? 'players'} are projected from the readable current roster.`,
   [REASON_CODE.PLAYING_SHARE_WIDE]: (e) =>
     `This programme spreads its minutes at the position more widely than the typical one (${e.share} against a median of ${e.median}), measured ${e.level === 'programme' ? SEASONS[e.strength] : `at ${e.level} level`}.`,
   [REASON_CODE.PLAYING_SHARE_NARROW]: (e) =>

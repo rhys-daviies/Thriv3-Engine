@@ -81,7 +81,7 @@ export function priorityWeights(ranking, { lift = PRIORITY_LIFT } = {}) {
 
 /**
  * @param {object} p
- * @param {object} p.playing    result from playingOpportunity
+ * @param {object} p.pathway    result from playingPathway
  * @param {object} p.trajectory result from programmeTrajectory
  * @param {object} p.major      result from majorFit
  * @param {object} p.location   result from locationFit
@@ -89,7 +89,7 @@ export function priorityWeights(ranking, { lift = PRIORITY_LIFT } = {}) {
  * @param {Array|null} p.priorityRanking  the athlete's stated ordering
  */
 export function athleteOpportunity({
-  playing, trajectory, major, location, outcome,
+  pathway, trajectory, major, location, outcome,
   /**
    * Defaults to NOT_APPLICABLE so that a caller which has never heard of this
    * component behaves exactly as it did before it existed - which is also the
@@ -114,7 +114,7 @@ export function athleteOpportunity({
    */
   const opts = ambitionLift === undefined ? {} : { lift: ambitionLift };
   const explicit = {
-    playingOpportunity: ambitionMultiplier(playingOpportunityPriority, opts),
+    playingPathway: ambitionMultiplier(playingOpportunityPriority, opts),
     athleticOutcome: ambitionMultiplier(competitiveLevelPriority, opts),
     /**
      * The component already scales itself by how strongly the athlete feels,
@@ -133,7 +133,7 @@ export function athleteOpportunity({
      * opportunity is worth having, and a layer that scored a programme we hold
      * no minutes for would be describing the league, not the chance to play.
      */
-    component('playingOpportunity', w('playingOpportunity', valueWeights.playingOpportunity), playing, { required: true }),
+    component('playingPathway', w('playingPathway', valueWeights.playingPathway), pathway, { required: true }),
     component('programmeTrajectory', w('programmeTrajectory', valueWeights.programmeTrajectory), trajectory),
     component('majorFit', w('majorFit', preferenceWeights.majorFit), major),
     component('locationFit', w('locationFit', preferenceWeights.locationFit), location),
@@ -148,7 +148,7 @@ export function athleteOpportunity({
    * it. Absent here, a reader cannot tell a good opportunity nobody asked for
    * from a good opportunity somebody did.
    */
-  const objective = [playing, trajectory].filter(isScoreable);
+  const objective = [pathway, trajectory].filter(isScoreable);
   const preference = [major, location, outcome, academic];
   const declared = preference.filter((r) => !isNotApplicable(r));
   const scoredPreference = preference.filter(isScoreable);
@@ -204,7 +204,7 @@ export function athleteOpportunity({
     basis: {
       ...combined.basis,
       ...summary,
-      playing: isScoreable(playing) ? playing.basis : null,
+      pathway: isScoreable(pathway) ? pathway.basis : null,
       trajectory: isScoreable(trajectory) ? trajectory.basis : null,
       major: isScoreable(major) ? major.basis : null,
     academic: isScoreable(academic) ? academic.basis : null,

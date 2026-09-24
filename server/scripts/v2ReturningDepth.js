@@ -249,9 +249,9 @@ async function main() {
         pos: (rb.signals ?? []).find((s) => s.key === 'positionalOpportunity')?.value ?? null,
         mkt: (rb.signals ?? []).find((s) => s.key === 'recruitingMarket')?.value ?? null,
         R: e.recruitability.value, F: e.financial.value, O: e.opportunity.value, P: e.pursuitPriority.value,
-        rotation: ob.components?.playingOpportunity?.value ?? null,
-        rotationShare: ob.playing?.playingShare ?? null,
-        playShare: ob.components?.playingOpportunity?.share ?? null,
+        rotation: ob.components?.playingPathway?.value ?? null,
+        rotationShare: ob.pathway?.rotation?.playingShare ?? null,
+        playShare: ob.components?.playingPathway?.share ?? null,
         rosterRows: bucket?.rows ?? 0, d, sig, places,
       };
     });
@@ -317,7 +317,7 @@ async function main() {
         return {
           name: e.name, strength: c.soccer_score, net: c.net_price, A: rb.athleticPlausibility,
           mkt: (rb.signals ?? []).find((s) => s.key === 'recruitingMarket')?.value ?? null,
-          rotation: ob.components?.playingOpportunity?.value ?? null,
+          rotation: ob.components?.playingPathway?.value ?? null,
           d, sig: d ? depthSignals(d, { places }) : null, rank: e.rank,
         };
       }).filter((r) => r.d && r.d.total > 0 && r.d.coverage >= 0.5 && Number.isFinite(r.rotation));

@@ -228,13 +228,32 @@ function opportunityReasons(result) {
   const b = result.basis;
   const out = [];
 
-  if (b.playing) {
-    const wide = b.playing.playingShare >= b.playing.scaleMedian;
+  /**
+   * PLAYING PATHWAY, described as its two halves rather than as one number.
+   * Projected competition is a fact about the entry year; rotation is a fact
+   * about past seasons. An athlete reading this should be able to check both.
+   */
+  const comp = b.pathway?.competition ?? null;
+  if (comp) {
+    const roleKnown = comp.returning - comp.returningUnknownRole;
+    const code = comp.returning === 0 ? REASON_CODE.RETURNING_NONE_PROJECTED
+      : comp.returningUnknownRole > 0 ? REASON_CODE.RETURNING_COMPETITION_PARTIAL
+        : REASON_CODE.RETURNING_COMPETITION_MEASURED;
+    out.push(reason(code, LAYER.OPPORTUNITY,
+      comp.pressure >= 1 ? POLARITY.CONCERN : POLARITY.STRENGTH, BAND.SECONDARY_EVIDENCE, {
+        position: comp.position, returning: comp.returning,
+        returningStarters: comp.returningStarters, roleKnown,
+        typicalStarters: comp.typicalStarters,
+      }));
+  }
+  const rot = b.pathway?.rotation ?? null;
+  if (rot) {
+    const wide = rot.playingShare >= rot.scaleMedian;
     out.push(reason(wide ? REASON_CODE.PLAYING_SHARE_WIDE : REASON_CODE.PLAYING_SHARE_NARROW,
       LAYER.OPPORTUNITY, wide ? POLARITY.STRENGTH : POLARITY.CONCERN, BAND.SECONDARY_EVIDENCE, {
-        share: b.playing.playingShare, median: b.playing.scaleMedian,
-        level: b.playing.level, seasons: b.playing.seasons,
-        strength: sampleStrength(b.playing.seasons),
+        share: rot.playingShare, median: rot.scaleMedian,
+        level: rot.level, seasons: rot.seasons,
+        strength: sampleStrength(rot.seasons),
       }));
   }
   if (b.trajectory && b.trajectory.direction !== 'steady') {
@@ -273,9 +292,9 @@ function opportunityReasons(result) {
     // saying anything would describe a preference they did not express.
   }
   if (amb.playingOpportunityPriority !== null && amb.playingOpportunityPriority !== undefined
-      && amb.playingOpportunityPriority >= 4 && b.playing) {
+      && amb.playingOpportunityPriority >= 4 && b.pathway) {
     out.push(reason(REASON_CODE.PLAYING_PREFERENCE_WEIGHTED, LAYER.OPPORTUNITY, POLARITY.CONTEXT,
-      BAND.PREFERENCE_EFFECT, { priority: amb.playingOpportunityPriority, share: b.playing.playingShare }));
+      BAND.PREFERENCE_EFFECT, { priority: amb.playingOpportunityPriority, share: b.pathway.rotation?.playingShare ?? null }));
   }
   /**
    * ACADEMIC STRENGTH IS ONLY EVER MENTIONED WHEN DECLARED. An athlete nobody

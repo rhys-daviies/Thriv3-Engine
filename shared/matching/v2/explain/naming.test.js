@@ -32,8 +32,8 @@ describe('the two opportunities are named apart', () => {
 
   it('gives the recruitability component and the opportunity component different words', () => {
     expect(componentLabel('positionalOpportunity')).toBe('positional recruiting evidence');
-    expect(componentLabel('playingOpportunity')).toBe('playing-time opportunity');
-    expect(componentLabel('positionalOpportunity')).not.toBe(componentLabel('playingOpportunity'));
+    expect(componentLabel('playingPathway')).toBe('the positional playing pathway');
+    expect(componentLabel('positionalOpportunity')).not.toBe(componentLabel('playingPathway'));
   });
 
   it('names the layer rather than capitalising its key', () => {
@@ -59,7 +59,7 @@ describe('the two opportunities are named apart', () => {
 
   it('never leaks an enum into a rendered sentence', () => {
     for (const reason of Object.values(REASON)) {
-      const line = unscoreable(LAYER.OPPORTUNITY, ['playingOpportunity'], reason);
+      const line = unscoreable(LAYER.OPPORTUNITY, ['playingPathway'], reason);
       expect(line).not.toMatch(/[A-Z]{3,}_[A-Z]/);
     }
   });
@@ -72,7 +72,7 @@ describe('the two opportunities are named apart', () => {
 
   it('labels every component any layer can report as missing', () => {
     for (const key of ['athleticPlausibility', 'positionalOpportunity', 'internationalPropensity',
-      'playingOpportunity', 'programmeTrajectory', 'majorFit', 'locationFit', 'athleticOutcome']) {
+      'playingPathway', 'programmeTrajectory', 'majorFit', 'locationFit', 'athleticOutcome']) {
       expect(COMPONENT_LABEL[key], `no label for ${key}`).toBeTruthy();
     }
     for (const key of ['recruitability', 'financial', 'opportunity']) {

@@ -60,6 +60,13 @@ export function runPursuit({
   });
   const opp = evaluateOpportunity({
     athlete: athlete.opportunity, colleges, rosterProgrammes: ctx.rosterProgrammes,
+    /**
+     * The roster index and the entry year, so Playing Pathway can read who is
+     * projected to still be there. Recruitability already reads the departing
+     * side of the same index; this is the returning side of it.
+     */
+    rosterIndex: ctx.rosterIndex ?? null,
+    entryYear: athlete.recruitability?.entryYear ?? null,
     overrides: opportunityOverrides,
   });
   // Carried out so a diagnostic can show which preference produced which list.

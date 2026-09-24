@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import {
-  playingOpportunity, programmeTrajectory, majorFit, locationFit, athleticOutcome,
+  squadRotation, programmeTrajectory, majorFit, locationFit, athleticOutcome,
 } from './opportunityComponents.js';
 import { GRADE, REASON, isNotApplicable } from '../types.js';
 import { playingScale, TRAJECTORY_SATURATION, COMPETITIVE_LEVEL_SPAN } from '../opportunityRules.js';
 
 const SPORT = 'mens-soccer';
-const P = (over = {}) => playingOpportunity({
+const P = (over = {}) => squadRotation({
   sport: SPORT, position: 'MIDFIELD', division: 'NCAA D1', programme: 'Maryland', rosterOnFile: true, ...over,
 });
 
