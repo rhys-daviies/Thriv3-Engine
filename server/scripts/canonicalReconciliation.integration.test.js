@@ -173,7 +173,8 @@ describe('after the repair', () => {
 
   it('applied, and said so', () => {
     expect(applied.out).toContain('APPLIED.');
-    expect(applied.out).toContain('npm run build:recruiting');
+    /* With the flag: without it the next step refuses, which is the one that finishes the job. */
+    expect(applied.out).toContain('npm run build:recruiting -- --canonical');
   });
 
   it('restores programme eligibility exactly', () => {

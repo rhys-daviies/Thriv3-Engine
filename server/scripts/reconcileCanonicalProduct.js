@@ -148,7 +148,15 @@ function main() {
   console.log('\n  APPLIED.');
   report(applied);
   console.log('\n  Derived data is NOT reconciled by this tool. Rebuild it now:');
-  console.log('    npm run build:recruiting\n');
+  /*
+   * `--canonical` IS PART OF THE COMMAND, not a footnote. A database outside
+   * the checkout — which /data/recruitmatch.sqlite on the host is — reads as a
+   * shared canonical corpus to the L7ZM guard, and the rebuild refuses without
+   * the acknowledgement. Printing the command without it sends the operator
+   * into a CanonicalWriteRefused at the one step that finishes the job, with
+   * the reconciliation already applied and the materialisation still unverified.
+   */
+  console.log('    npm run build:recruiting -- --canonical\n');
   console.log(`  Human-owned columns never written: ${HUMAN_COLUMNS.join(', ')}\n`);
 }
 
