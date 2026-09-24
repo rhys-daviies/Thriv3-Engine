@@ -97,6 +97,7 @@ const MAY_IMPORT_V2 = [
    */
   'server/scripts/v1BridgeDiagnostic.js',
   'server/scripts/v1BridgeProof.js',
+  'server/scripts/v2PositionalEvidence.js',
   'server/scripts/v2ValidationFixtures.js',
   'server/scripts/derivePlayingNorms.js',
   'server/scripts/derivePositionalNorms.js',
