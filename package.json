@@ -12,6 +12,8 @@
     "build": "vite build && npm run build:worker",
     "build:recruiting": "node server/scripts/buildRecruitingHistory.js",
     "build:worker": "esbuild worker/index.js --bundle --format=esm --platform=neutral --outfile=build/worker/_worker.js",
+    "canonical:export": "node server/scripts/exportCanonicalProduct.js",
+    "canonical:reconcile": "node server/scripts/reconcileCanonicalProduct.js",
     "closure": "node server/scripts/dependencyClosure.js",
     "coaching-import": "node server/scripts/coachingImport.js",
     "confirm-sends": "node server/scripts/confirmSends.js",
