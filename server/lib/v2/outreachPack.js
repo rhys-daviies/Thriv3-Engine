@@ -146,6 +146,14 @@ export function buildOutreachPack({ athlete: def, ctx, commits, rosterSeason, ge
     basedOn: def.basedOn,
     eliteOversample: Boolean(def.eliteOversample),
     contributionIsNewAnswer: Boolean(def.contributionIsNewAnswer),
+    /**
+     * Null for an athlete generated exactly as preregistered. Where an
+     * operator has authorised an edit to a frozen specification, the pack
+     * carries what was preregistered, what was applied and why, so a reader
+     * of the artifact alone can tell the two apart. Provenance, not blind
+     * content: this sits beside the weights and gates, nowhere near view A.
+     */
+    controlledModification: def.controlledModification ?? null,
   };
 
   /**

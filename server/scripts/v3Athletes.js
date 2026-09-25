@@ -192,10 +192,53 @@ export const V3_ATHLETES = [
     why: 'The fixture where Financial has more authority over the ranking than Recruitability '
       + '(A7.12: corr F x P 0.752 against R x P 0.546, gate firing on 87%). Tests whether money '
       + 'reshapes the list in a way a consultant would actually stand behind.',
+    /**
+     * -- A7.15: AN AUTHORISED EDIT TO A FROZEN SPECIFICATION ----------------
+     *
+     * A7.13 cut this athlete from fixture B and V3-B from fixture A, so the
+     * two arrived carrying different academic profiles as well as different
+     * money. A7.15 asks one question - does a restrictive Financial layer
+     * counterbalance the Recruitability pathology V3-B established - and that
+     * question needs contribution to be the only thing that moved.
+     *
+     * GPA and SAT were measured against the full 1,166-programme universe
+     * BEFORE this edit, not after: substituting V3-B's 3.9/1450 for the
+     * original 3.2/null moved 0 of 858 ranked programmes, gave a maximum
+     * |dPursuit| and |dOpportunity| of exactly 0, left the top 100 identical
+     * by membership and left the equivalent programme strength at 83.58. They
+     * are not scoring inputs, which is what athleteInput.js has always said
+     * and what this now demonstrates rather than asserts.
+     *
+     * They ARE printed on the blind sheet, so an evaluator would have seen a
+     * different academic profile beside the different budget and could quite
+     * reasonably have let it move their answer on a selective programme. That
+     * is the confound this edit removes, and it is an evaluator confound
+     * rather than a model one.
+     *
+     * `contributionIsNewAnswer` stays true. The $8,000 is still a newly
+     * stated figure rather than a band conversion, and that provenance is
+     * unaffected by anything here.
+     */
+    controlledModification: Object.freeze({
+      phase: 'A7.15',
+      authorisedBy: 'explicit operator instruction, recorded in the A7.15 brief',
+      reason: 'isolate Financial as the sole experimental variable against V3-B',
+      preregistered: { gpa: 3.2, sat_score: null, max_annual_contribution_usd: 8000 },
+      applied: { gpa: 3.9, sat_score: 1450, max_annual_contribution_usd: 8000 },
+      proofBeforeModification: {
+        rankMovements: '0 of 858 ranked programmes',
+        maxAbsPursuitDelta: 0,
+        maxAbsOpportunityDelta: 0,
+        top100Membership: 'identical',
+        equivalentProgrammeStrength: 'identical at 83.58',
+      },
+      unchanged: ['contributionIsNewAnswer', 'basedOn', 'every preference', 'every other player field'],
+    }),
     player: {
       ...BASE,
       sport: 'mens-soccer', football_ability: 9, position: 'Midfielder',
-      recruiting_class_year: 2028, gpa: 3.2, sat_score: null,
+      // A7.15 controlled modification; preregistered at A7.13 as 3.2 / null.
+      recruiting_class_year: 2028, gpa: 3.9, sat_score: 1450,
       state: 'CA', city: 'Los Angeles', nationality: 'USA', origin: 'USA',
       intended_major: null,
       contribution_state: 'STATED', max_annual_contribution_usd: 8000,
