@@ -128,6 +128,7 @@ const MAY_IMPORT_V2 = [
    */
   'server/scripts/v3Packs.js',
   'server/scripts/v3Athletes.js',
+  'server/scripts/v3Reveal.js',
   'server/scripts/v2ValidationFixtures.js',
   'server/scripts/derivePlayingNorms.js',
   'server/scripts/derivePositionalNorms.js',
