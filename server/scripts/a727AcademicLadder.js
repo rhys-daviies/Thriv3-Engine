@@ -192,4 +192,10 @@ function main() {
   console.log(`\nRANK INVARIANCE ACROSS THE WHOLE LADDER: ${invariant ? 'HOLDS — no run moved' : 'BROKEN — see above'}`);
   console.log(`written ${out}`);
 }
-main();
+/**
+ * GUARDED, because `LADDER` is imported by the A7.28 shadow harness and an
+ * unguarded `main()` runs 56 pipelines on import. It is also what
+ * `server/scripts/scripts.test.js` requires: that test executes every file in
+ * this directory with no arguments against an empty database.
+ */
+if (arg('out')) main();

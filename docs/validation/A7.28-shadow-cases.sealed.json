@@ -1,0 +1,344 @@
+{
+ "note": "SEALED. Opening this file ends the blind review.",
+ "cases": [
+  {
+   "code": "S-03",
+   "caseId": "d01",
+   "cell": "clear no-concern, selective institution",
+   "base": "V3-A-elite-level-focused",
+   "profileId": "A-very-strong",
+   "programme": "Davidson",
+   "rank": 8,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "NO_MATERIAL_CONCERN",
+    "gap": 31,
+    "acceptanceRate": 0.1337,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "the athlete sits at or above the enrolled body on the evidence we hold",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-17",
+   "caseId": "d02",
+   "cell": "clear no-concern, open institution",
+   "base": "V3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "St. Cloud State",
+   "rank": 4,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "NO_MATERIAL_CONCERN",
+    "gap": 8,
+    "acceptanceRate": 0.948,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "acceptance rate 95% - the institution is not selecting on this margin",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-10",
+   "caseId": "d03",
+   "cell": "clear extreme",
+   "base": "W3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "Massachusetts Institute of Technology",
+   "rank": 4,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -460,
+    "acceptanceRate": 0.0455,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "460 points below the enrolled average at an institution accepting 5%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-13",
+   "caseId": "d04",
+   "cell": "clear extreme, elite athlete",
+   "base": "V3-A-elite-level-focused",
+   "profileId": "E-weak",
+   "programme": "Princeton",
+   "rank": 1,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -603,
+    "acceptanceRate": 0.0462,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "603 points below the enrolled average at an institution accepting 5%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-16",
+   "caseId": "d05",
+   "cell": "just OUTSIDE the gap boundary",
+   "base": "V3-E-academic-priority",
+   "profileId": "C-good",
+   "programme": "Johns Hopkins",
+   "rank": 3,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "ACADEMIC_REVIEW",
+    "gap": -303,
+    "acceptanceRate": 0.0644,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "303 points below the enrolled average at a selective institution",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-11",
+   "caseId": "d06",
+   "cell": "just INSIDE the gap boundary",
+   "base": "V3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "Washington & Lee",
+   "rank": 2,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -398,
+    "acceptanceRate": 0.1397,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "398 points below the enrolled average at an institution accepting 14%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-15",
+   "caseId": "d07",
+   "cell": "just outside, womens",
+   "base": "W3-A-elite-level-focused",
+   "profileId": "C-good",
+   "programme": "Rice",
+   "rank": 6,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "ACADEMIC_REVIEW",
+    "gap": -303,
+    "acceptanceRate": 0.08,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "303 points below the enrolled average at a selective institution",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-12",
+   "caseId": "d08",
+   "cell": "just inside, womens",
+   "base": "W3-A-elite-level-focused",
+   "profileId": "D-moderate",
+   "programme": "Boston University",
+   "rank": 50,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -380,
+    "acceptanceRate": 0.1111,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "380 points below the enrolled average at an institution accepting 11%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-02",
+   "caseId": "d10",
+   "cell": "contested band, large public, weaker athlete",
+   "base": "V3-A-elite-level-focused",
+   "profileId": "E-weak",
+   "programme": "Furman",
+   "rank": 3,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -421,
+    "acceptanceRate": 0.4295,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "421 points below the enrolled average at an institution accepting 43%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-14",
+   "caseId": "d11",
+   "cell": "contested band, selective private",
+   "base": "W3-A-elite-level-focused",
+   "profileId": "D-moderate",
+   "programme": "Villanova",
+   "rank": 65,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -360,
+    "acceptanceRate": 0.2698,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "360 points below the enrolled average at an institution accepting 27%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-05",
+   "caseId": "d12",
+   "cell": "contested band, liberal arts",
+   "base": "V3-E-academic-priority",
+   "profileId": "E-weak",
+   "programme": "Rochester",
+   "rank": 52,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -538,
+    "acceptanceRate": 0.4008,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "538 points below the enrolled average at an institution accepting 40%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-08",
+   "caseId": "d13",
+   "cell": "contested band, mid public",
+   "base": "W3-C-strong-playing-focused",
+   "profileId": "E-weak",
+   "programme": "Soka University of America",
+   "rank": 76,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -490,
+    "acceptanceRate": 0.4338,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "490 points below the enrolled average at an institution accepting 43%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-01",
+   "caseId": "d14",
+   "cell": "large shortfall, HIGH acceptance",
+   "base": "V3-A-elite-level-focused",
+   "profileId": "E-weak",
+   "programme": "Marquette",
+   "rank": 26,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "NO_MATERIAL_CONCERN",
+    "gap": -360,
+    "acceptanceRate": 0.8134,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "acceptance rate 81% - the institution is not selecting on this margin",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-04",
+   "caseId": "d15",
+   "cell": "developmental athlete, shadow fires",
+   "base": "W3-D-developmental-balanced",
+   "profileId": "E-weak",
+   "programme": "Occidental College",
+   "rank": 10,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -502,
+    "acceptanceRate": 0.4417,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "502 points below the enrolled average at an institution accepting 44%",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-07",
+   "caseId": "d16",
+   "cell": "partial evidence, acceptance only",
+   "base": "V3-C-strong-playing-focused",
+   "profileId": "D-moderate",
+   "programme": "Chicago State",
+   "rank": 57,
+   "shadow": {
+    "evidence": "PARTIAL",
+    "outcome": "INSUFFICIENT_EVIDENCE",
+    "gap": null,
+    "acceptanceRate": 0.4326,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "no comparable test evidence, so where this athlete sits relative to the enrolled body is unknown"
+    ]
+   }
+  },
+  {
+   "code": "S-09",
+   "caseId": "d17",
+   "cell": "major match, contested band",
+   "base": "V3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "Trinity (TX)",
+   "rank": 1,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "ACADEMIC_REVIEW",
+    "gap": -316,
+    "acceptanceRate": 0.2592,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "316 points below the enrolled average at a selective institution",
+     "test policy not on file"
+    ]
+   }
+  },
+  {
+   "code": "S-06",
+   "caseId": "d18",
+   "cell": "no major match, deeply selective",
+   "base": "V3-E-academic-priority",
+   "profileId": "D-moderate",
+   "programme": "University of Chicago",
+   "rank": 8,
+   "shadow": {
+    "evidence": "MEASURED",
+    "outcome": "PRE_READ_RECOMMENDED",
+    "gap": -454,
+    "acceptanceRate": 0.0448,
+    "testPolicy": "UNKNOWN",
+    "reasons": [
+     "454 points below the enrolled average at an institution accepting 4%",
+     "test policy not on file"
+    ]
+   }
+  }
+ ]
+}

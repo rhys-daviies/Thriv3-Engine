@@ -162,6 +162,12 @@ const MAY_IMPORT_V2 = [
    * invariance produces. Read-only; it proposes no formula.
    */
   'server/scripts/a727AcademicLadder.js',
+  /**
+   * A7.28. The shadow academic-recruitability assessment. The joint condition
+   * lives in this file and nowhere else; it annotates a ranking it does not
+   * touch, and nothing imports it.
+   */
+  'server/scripts/a728ShadowFlag.js',
 ];
 
 const SEARCH_ROOTS = ['shared', 'server', 'src', 'worker'];

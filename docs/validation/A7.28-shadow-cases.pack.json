@@ -1,0 +1,631 @@
+[
+ {
+  "code": "S-01",
+  "athlete": {
+   "ability": 9,
+   "position": "Midfielder",
+   "gpa": 2.8,
+   "sat": 950,
+   "budget": 40000,
+   "intendedMajor": null,
+   "origin": "USA",
+   "competitiveLevelPriority": 5,
+   "playingOpportunityPriority": 1,
+   "academicStrengthPriority": 3,
+   "equivalentProgrammeScore": 83.58
+  },
+  "profile": {
+   "id": "E-weak",
+   "gpa": 2.8,
+   "sat": 950
+  },
+  "programme": {
+   "rank": 26,
+   "name": "Marquette",
+   "division": "NCAA D1",
+   "strength": 78.8,
+   "netPrice": 31487,
+   "academicRating": 7.7,
+   "academicPercentile": 0.8630017452006981,
+   "programmeSat": 1310,
+   "acceptanceRate": 0.8134,
+   "majorMatch": null,
+   "R": 0.5840371262761312,
+   "F": 1,
+   "O": 0.8118338113104203,
+   "pathway": 0.7425151101579256
+  }
+ },
+ {
+  "code": "S-02",
+  "athlete": {
+   "ability": 9,
+   "position": "Midfielder",
+   "gpa": 2.8,
+   "sat": 950,
+   "budget": 40000,
+   "intendedMajor": null,
+   "origin": "USA",
+   "competitiveLevelPriority": 5,
+   "playingOpportunityPriority": 1,
+   "academicStrengthPriority": 3,
+   "equivalentProgrammeScore": 83.58
+  },
+  "profile": {
+   "id": "E-weak",
+   "gpa": 2.8,
+   "sat": 950
+  },
+  "programme": {
+   "rank": 3,
+   "name": "Furman",
+   "division": "NCAA D1",
+   "strength": 83.6,
+   "netPrice": 30308,
+   "academicRating": 8.7,
+   "academicPercentile": 0.9328097731239092,
+   "programmeSat": 1371,
+   "acceptanceRate": 0.4295,
+   "majorMatch": null,
+   "R": 0.6436332777368567,
+   "F": 1,
+   "O": 0.8916135532002941,
+   "pathway": 0.6051160070189121
+  }
+ },
+ {
+  "code": "S-03",
+  "athlete": {
+   "ability": 9,
+   "position": "Midfielder",
+   "gpa": 4,
+   "sat": 1500,
+   "budget": 40000,
+   "intendedMajor": null,
+   "origin": "USA",
+   "competitiveLevelPriority": 5,
+   "playingOpportunityPriority": 1,
+   "academicStrengthPriority": 3,
+   "equivalentProgrammeScore": 83.58
+  },
+  "profile": {
+   "id": "A-very-strong",
+   "gpa": 4,
+   "sat": 1500
+  },
+  "programme": {
+   "rank": 8,
+   "name": "Davidson",
+   "division": "NCAA D1",
+   "strength": 76.12,
+   "netPrice": 17379,
+   "academicRating": 9.3,
+   "academicPercentile": 0.9698952879581152,
+   "programmeSat": 1469,
+   "acceptanceRate": 0.1337,
+   "majorMatch": null,
+   "R": 0.685069422446105,
+   "F": 1,
+   "O": 0.7800956148059183,
+   "pathway": 0.8368932038834951
+  }
+ },
+ {
+  "code": "S-04",
+  "athlete": {
+   "ability": 3,
+   "position": "Midfielder",
+   "gpa": 2.8,
+   "sat": 950,
+   "budget": 40000,
+   "intendedMajor": null,
+   "origin": "USA",
+   "competitiveLevelPriority": 3,
+   "playingOpportunityPriority": 3,
+   "academicStrengthPriority": 3,
+   "equivalentProgrammeScore": 39.57
+  },
+  "profile": {
+   "id": "E-weak",
+   "gpa": 2.8,
+   "sat": 950
+  },
+  "programme": {
+   "rank": 10,
+   "name": "Occidental College",
+   "division": "NCAA D3",
+   "strength": 37.33,
+   "netPrice": 38263,
+   "academicRating": 8.9,
+   "academicPercentile": 0.93993371996686,
+   "programmeSat": 1452,
+   "acceptanceRate": 0.4417,
+   "majorMatch": null,
+   "R": 0.7060806145267752,
+   "F": 1,
+   "O": 0.7444127020579916,
+   "pathway": 0.791762962962963
+  }
+ },
+ {
+  "code": "S-05",
+  "athlete": {
+   "ability": 6,
+   "position": "Defender",
+   "gpa": 2.8,
+   "sat": 950,
+   "budget": 13000,
+   "intendedMajor": "Engineering",
+   "origin": "USA",
+   "competitiveLevelPriority": 3,
+   "playingOpportunityPriority": 3,
+   "academicStrengthPriority": 5,
+   "equivalentProgrammeScore": 54.57
+  },
+  "profile": {
+   "id": "E-weak",
+   "gpa": 2.8,
+   "sat": 950
+  },
+  "programme": {
+   "rank": 52,
+   "name": "Rochester",
+   "division": "NCAA D3",
+   "strength": 49.15,
+   "netPrice": 29278,
+   "academicRating": 9.3,
+   "academicPercentile": 0.9698952879581152,
+   "programmeSat": 1488,
+   "acceptanceRate": 0.4008,
+   "majorMatch": true,
+   "R": 0.7360256381628032,
+   "F": 0.3740434531820804,
+   "O": 0.8143408846316532,
+   "pathway": 0.46561093705497014
+  }
+ },
+ {
+  "code": "S-06",
+  "athlete": {
+   "ability": 6,
+   "position": "Defender",
+   "gpa": 3.2,
+   "sat": 1100,
+   "budget": 13000,
+   "intendedMajor": "Engineering",
+   "origin": "USA",
+   "competitiveLevelPriority": 3,
+   "playingOpportunityPriority": 3,
+   "academicStrengthPriority": 5,
+   "equivalentProgrammeScore": 54.57
+  },
+  "profile": {
+   "id": "D-moderate",
+   "gpa": 3.2,
+   "sat": 1100
+  },
+  "programme": {
+   "rank": 8,
+   "name": "University of Chicago",
+   "division": "NCAA D3",
+   "strength": 53.03,
+   "netPrice": 14860,
+   "academicRating": 9.7,
+   "academicPercentile": 0.993891797556719,
+   "programmeSat": 1554,
+   "acceptanceRate": 0.0448,
+   "majorMatch": false,
+   "R": 0.7632255317705705,
+   "F": 0.8394752740139813,
+   "O": 0.4082377974332773,
+   "pathway": 0.5990173739675305
+  }
+ },
+ {
+  "code": "S-07",
+  "athlete": {
+   "ability": 7,
+   "position": "Forward",
+   "gpa": 3.2,
+   "sat": 1100,
+   "budget": 18000,
+   "intendedMajor": null,
+   "origin": "International",
+   "competitiveLevelPriority": 2,
+   "playingOpportunityPriority": 5,
+   "academicStrengthPriority": 3,
+   "equivalentProgrammeScore": 62.15
+  },
+  "profile": {
+   "id": "D-moderate",
+   "gpa": 3.2,
+   "sat": 1100
+  },
+  "programme": {
+   "rank": 57,
+   "name": "Chicago State",
+   "division": "NCAA D1",
+   "strength": 56.49,
+   "netPrice": 12335,
+   "academicRating": 4.9,
+   "academicPercentile": 0.5946771378708552,
+   "programmeSat": null,
+   "acceptanceRate": 0.4326,
+   "majorMatch": null,
+   "R": 0.5770588295073179,
+   "F": 1,
+   "O": 0.7130684683132814,
+   "pathway": 0.764173339613754
+  }
+ },
+ {
+  "code": "S-08",
+  "athlete": {
+   "ability": 7,
+   "position": "Forward",
+   "gpa": 2.8,
+   "sat": 950,
+   "budget": 18000,
+   "intendedMajor": null,
+   "origin": "International",
+   "competitiveLevelPriority": 2,
+   "playingOpportunityPriority": 5,
+   "academicStrengthPriority": 3,
+   "equivalentProgrammeScore": 67.67
+  },
+  "profile": {
+   "id": "E-weak",
+   "gpa": 2.8,
+   "sat": 950
+  },
+  "programme": {
+   "rank": 76,
+   "name": "Soka University of America",
+   "division": "NAIA",
+   "strength": 49.05,
+   "netPrice": 18260,
+   "academicRating": 9.2,
+   "academicPercentile": 0.9618889809444905,
+   "programmeSat": 1440,
+   "acceptanceRate": 0.4338,
+   "majorMatch": null,
+   "R": 0.6930220269637971,
+   "F": 0.9739661560028036,
+   "O": 0.8077789744919877,
+   "pathway": 0.7132218774602881
+  }
+ },
+ {
+  "code": "S-09",
+  "athlete": {
+   "ability": 6,
+   "position": "Defender",
+   "gpa": 3.2,
+   "sat": 1100,
+   "budget": 13000,
+   "intendedMajor": "Engineering",
+   "origin": "USA",
+   "competitiveLevelPriority": 3,
+   "playingOpportunityPriority": 3,
+   "academicStrengthPriority": 5,
+   "equivalentProgrammeScore": 54.57
+  },
+  "profile": {
+   "id": "D-moderate",
+   "gpa": 3.2,
+   "sat": 1100
+  },
+  "programme": {
+   "rank": 1,
+   "name": "Trinity (TX)",
+   "division": "NCAA D3",
+   "strength": 53.03,
+   "netPrice": 23464,
+   "academicRating": 8.9,
+   "academicPercentile": 0.9467713787085514,
+   "programmeSat": 1416,
+   "acceptanceRate": 0.2592,
+   "majorMatch": true,
+   "R": 0.7567989571669348,
+   "F": 0.4817492942400079,
+   "O": 0.8784921092260358,
+   "pathway": 0.5604101395613785
+  }
+ },
+ {
+  "code": "S-10",
+  "athlete": {
+   "ability": 6,
+   "position": "Defender",
+   "gpa": 3.2,
+   "sat": 1100,
+   "budget": 13000,
+   "intendedMajor": "Engineering",
+   "origin": "USA",
+   "competitiveLevelPriority": 3,
+   "playingOpportunityPriority": 3,
+   "academicStrengthPriority": 5,
+   "equivalentProgrammeScore": 59.76
+  },
+  "profile": {
+   "id": "D-moderate",
+   "gpa": 3.2,
+   "sat": 1100
+  },
+  "programme": {
+   "rank": 4,
+   "name": "Massachusetts Institute of Technology",
+   "division": "NCAA D3",
+   "strength": 56.65,
+   "netPrice": 20111,
+   "academicRating": 9.9,
+   "academicPercentile": 0.9995857497928748,
+   "programmeSat": 1560,
+   "acceptanceRate": 0.0455,
+   "majorMatch": true,
+   "R": 0.709383890399485,
+   "F": 0.5776814348497447,
+   "O": 0.8792896430445051,
+   "pathway": 0.6339622641509434
+  }
+ },
+ {
+  "code": "S-11",
+  "athlete": {
+   "ability": 6,
+   "position": "Defender",
+   "gpa": 3.2,
+   "sat": 1100,
+   "budget": 13000,
+   "intendedMajor": "Engineering",
+   "origin": "USA",
+   "competitiveLevelPriority": 3,
+   "playingOpportunityPriority": 3,
+   "academicStrengthPriority": 5,
+   "equivalentProgrammeScore": 54.57
+  },
+  "profile": {
+   "id": "D-moderate",
+   "gpa": 3.2,
+   "sat": 1100
+  },
+  "programme": {
+   "rank": 2,
+   "name": "Washington & Lee",
+   "division": "NCAA D3",
+   "strength": 52.42,
+   "netPrice": 23781,
+   "academicRating": 9.5,
+   "academicPercentile": 0.9799301919720768,
+   "programmeSat": 1498,
+   "acceptanceRate": 0.1397,
+   "majorMatch": true,
+   "R": 0.7767755910113214,
+   "F": 0.4743027111371172,
+   "O": 0.8716219194090371,
+   "pathway": 0.7482626032469382
+  }
+ },
+ {
+  "code": "S-12",
+  "athlete": {
+   "ability": 9,
+   "position": "Midfielder",
+   "gpa": 3.2,
+   "sat": 1100,
+   "budget": 40000,
+   "intendedMajor": null,
+   "origin": "USA",
+   "competitiveLevelPriority": 5,
+   "playingOpportunityPriority": 1,
+   "academicStrengthPriority": 3,
+   "equivalentProgrammeScore": 82.71
+  },
+  "profile": {
+   "id": "D-moderate",
+   "gpa": 3.2,
+   "sat": 1100
+  },
+  "programme": {
+   "rank": 50,
+   "name": "Boston University",
+   "division": "NCAA D1",
+   "strength": 73.12,
+   "netPrice": 24402,
+   "academicRating": 9,
+   "academicPercentile": 0.9486329743164872,
+   "programmeSat": 1480,
+   "acceptanceRate": 0.1111,
+   "majorMatch": null,
+   "R": 0.7086783320886256,
+   "F": 1,
+   "O": 0.7267942069419994,
+   "pathway": 0.5378551161330822
+  }
+ },
+ {
+  "code": "S-13",
+  "athlete": {
+   "ability": 9,
+   "position": "Midfielder",
+   "gpa": 2.8,
+   "sat": 950,
+   "budget": 40000,
+   "intendedMajor": null,
+   "origin": "USA",
+   "competitiveLevelPriority": 5,
+   "playingOpportunityPriority": 1,
+   "academicStrengthPriority": 3,
+   "equivalentProgrammeScore": 83.58
+  },
+  "profile": {
+   "id": "E-weak",
+   "gpa": 2.8,
+   "sat": 950
+  },
+  "programme": {
+   "rank": 1,
+   "name": "Princeton",
+   "division": "NCAA D1",
+   "strength": 82.75,
+   "netPrice": 6128,
+   "academicRating": 9.7,
+   "academicPercentile": 0.993891797556719,
+   "programmeSat": 1553,
+   "acceptanceRate": 0.0462,
+   "majorMatch": null,
+   "R": 0.6300880372160499,
+   "F": 1,
+   "O": 0.9429380090440179,
+   "pathway": 0.48027314471292926
+  }
+ },
+ {
+  "code": "S-14",
+  "athlete": {
+   "ability": 9,
+   "position": "Midfielder",
+   "gpa": 3.2,
+   "sat": 1100,
+   "budget": 40000,
+   "intendedMajor": null,
+   "origin": "USA",
+   "competitiveLevelPriority": 5,
+   "playingOpportunityPriority": 1,
+   "academicStrengthPriority": 3,
+   "equivalentProgrammeScore": 82.71
+  },
+  "profile": {
+   "id": "D-moderate",
+   "gpa": 3.2,
+   "sat": 1100
+  },
+  "programme": {
+   "rank": 65,
+   "name": "Villanova",
+   "division": "NCAA D1",
+   "strength": 73.34,
+   "netPrice": 43756,
+   "academicRating": 8.9,
+   "academicPercentile": 0.93993371996686,
+   "programmeSat": 1460,
+   "acceptanceRate": 0.2698,
+   "majorMatch": null,
+   "R": 0.6889037701123302,
+   "F": 0.8418925745074929,
+   "O": 0.7982290325968768,
+   "pathway": 0.7289723905723906
+  }
+ },
+ {
+  "code": "S-15",
+  "athlete": {
+   "ability": 9,
+   "position": "Midfielder",
+   "gpa": 3.5,
+   "sat": 1250,
+   "budget": 40000,
+   "intendedMajor": null,
+   "origin": "USA",
+   "competitiveLevelPriority": 5,
+   "playingOpportunityPriority": 1,
+   "academicStrengthPriority": 3,
+   "equivalentProgrammeScore": 82.71
+  },
+  "profile": {
+   "id": "C-good",
+   "gpa": 3.5,
+   "sat": 1250
+  },
+  "programme": {
+   "rank": 6,
+   "name": "Rice",
+   "division": "NCAA D1",
+   "strength": 78.38,
+   "netPrice": 13370,
+   "academicRating": 9.7,
+   "academicPercentile": 0.9937862468931234,
+   "programmeSat": 1553,
+   "acceptanceRate": 0.08,
+   "majorMatch": null,
+   "R": 0.6093794586584683,
+   "F": 1,
+   "O": 0.8805558445728319,
+   "pathway": 0.4159111111111112
+  }
+ },
+ {
+  "code": "S-16",
+  "athlete": {
+   "ability": 6,
+   "position": "Defender",
+   "gpa": 3.5,
+   "sat": 1250,
+   "budget": 13000,
+   "intendedMajor": "Engineering",
+   "origin": "USA",
+   "competitiveLevelPriority": 3,
+   "playingOpportunityPriority": 3,
+   "academicStrengthPriority": 5,
+   "equivalentProgrammeScore": 54.57
+  },
+  "profile": {
+   "id": "C-good",
+   "gpa": 3.5,
+   "sat": 1250
+  },
+  "programme": {
+   "rank": 3,
+   "name": "Johns Hopkins",
+   "division": "NCAA D3",
+   "strength": 50.91,
+   "netPrice": 18809,
+   "academicRating": 9.7,
+   "academicPercentile": 0.993891797556719,
+   "programmeSat": 1553,
+   "acceptanceRate": 0.0644,
+   "majorMatch": true,
+   "R": 0.7268468119793519,
+   "F": 0.6260942327497426,
+   "O": 0.8620415962574721,
+   "pathway": 0.7748382634170159
+  }
+ },
+ {
+  "code": "S-17",
+  "athlete": {
+   "ability": 6,
+   "position": "Defender",
+   "gpa": 3.2,
+   "sat": 1100,
+   "budget": 13000,
+   "intendedMajor": "Engineering",
+   "origin": "USA",
+   "competitiveLevelPriority": 3,
+   "playingOpportunityPriority": 3,
+   "academicStrengthPriority": 5,
+   "equivalentProgrammeScore": 54.57
+  },
+  "profile": {
+   "id": "D-moderate",
+   "gpa": 3.2,
+   "sat": 1100
+  },
+  "programme": {
+   "rank": 4,
+   "name": "St. Cloud State",
+   "division": "NCAA D2",
+   "strength": 49.85,
+   "netPrice": 13529,
+   "academicRating": 3,
+   "academicPercentile": 0.3089005235602094,
+   "programmeSat": 1092,
+   "acceptanceRate": 0.948,
+   "majorMatch": true,
+   "R": 0.729127668751389,
+   "F": 0.9484204368174727,
+   "O": 0.7220652958622203,
+   "pathway": 0.5212233250753696
+  }
+ }
+]
