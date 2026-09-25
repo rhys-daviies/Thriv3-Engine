@@ -190,6 +190,31 @@ const ROSTER_PLAYER_COLUMNS = [
   // against 77.4% for a player who stayed) but knowing they arrived from
   // somewhere is worth more to an operator than knowing nothing.
   ['prior_programme', 'TEXT'],
+  /*
+   * L7Z — what was OBSERVED when the page was accepted, not what we concluded.
+   *
+   * L7W could not tell whether a row filed under season=2025 came from a page
+   * that said 2025, because nothing recorded what the page said; 641 of 2,123
+   * accepted 2025 rosters still cannot answer it. These three columns stop the
+   * next season creating the same blind spot.
+   *
+   * All three are nullable and stay NULL for every row acquired before this
+   * existed. Absent means NOT RECORDED -- never "recorded as none" -- and
+   * nothing backfills them: a page season inferred from the database season is
+   * precisely the inference they exist to make unnecessary.
+   */
+  // What the PAGE established, via lib.season_ok -- the same authority that let
+  // the roster through. NULL when the page established no season at all, which
+  // is the honest answer for a live current-season page with no year in its
+  // title.
+  ['source_page_season', 'TEXT'],
+  // When the body was fetched, ISO-8601 UTC, from the cache sidecar. For an
+  // archive capture this is when Thriv3 fetched it; the capture's own timestamp
+  // is already inside source_roster_url.
+  ['source_fetched_at', 'TEXT'],
+  // The parser that actually accepted it: sidearm-html, table, nuxt,
+  // nuxt-roster, roster-card, presto-card, list.
+  ['source_parser', 'TEXT'],
 ];
 
 /**

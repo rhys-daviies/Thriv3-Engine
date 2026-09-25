@@ -1,0 +1,17 @@
+# Generated, stateful or refetchable. None of it belongs in history.
+#
+# The pipeline's own README explains why the cache lives in ~/Library/Caches
+# rather than here: it is refetchable, not work product. The same reasoning
+# applies to everything below — 11 MB of resolver state, run logs and per-season
+# output that a re-run reproduces.
+*.json
+*.log
+*.txt
+*.pre-consolidate
+_state/
+# ...except geo25.json, which is not any of those things. It is the reference
+# table that turns a hometown string into a nationality — the authority behind
+# every country claim the Evidence layer makes. L6C's blanket *.json rule
+# swallowed it, and L6D found out by discovering the versioned pipeline could
+# not import lib.py at all. Reference data, not state: it belongs in history.
+!geo25.json

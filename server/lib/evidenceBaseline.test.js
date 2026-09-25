@@ -400,31 +400,61 @@ d('roster_freshness mirrors what production reads', () => {
 });
 
 d('the manifest declares its own definition version', () => {
-  it('reports V3, covers the seven tables the walk reads, and keeps roster_freshness', () => {
+  it('reports V7 and carries every table the product reads', () => {
     const m = datasetManifest();
-    expect(m.version).toBe('V3');
-    /**
-     * The seven are not a preference. They are what instrumenting every
-     * prepared statement of a full `buildBaselines` walk found it reading, and
-     * two of them — recruiting_arrivals and coach_seasons — were the omission
-     * that made the historical EMAIL_BODY pin unreproducible.
+    expect(m.version).toBe('V7');
+    const tables = m.tables.map((t) => t.table);
+    // V2 added roster_freshness (K3A: a re-scrape that only moved timestamps).
+    expect(tables).toContain('roster_freshness');
+    // V3 adds programme_status (L7P): it decides which programmes are eligible
+    // destinations for a season, so matching and outreach change when it does.
+    expect(tables).toContain('programme_status');
+    // V6 adds the two L7ZQ found missing after L7ZP moved every behavioural
+    // baseline while the dataset digest sat still: coach_seasons, which
+    // philosophyQueries reads straight into Evidence, and recruiting_arrivals,
+    // which is DERIVED and whose content V5 could not see at all.
+    expect(tables).toContain('coach_seasons');
+    expect(tables).toContain('recruiting_arrivals');
+    // V7 (L8B-2) adds the table the execution closure proved was missing: the
+    // freshness record every recruiting claim is gated on.
+    expect(tables).toContain('recruiting_arrivals_build');
+    /*
+     * V4 added roster_measurements (L7ZA) because the narrow roster components
+     * could not see a historical measurement change. V7 hashes EVERY column of
+     * roster_players, so that component would now be the same bytes twice and
+     * is gone; the distinction it drew survives in the report, which still
+     * names which table moved.
      */
-    expect(m.tables.map((t) => t.table)).toEqual([
-      'players', 'colleges', 'roster_players', 'coaches', 'athletics_domains',
-      'recruiting_arrivals', 'coach_seasons', 'roster_freshness',
-    ]);
-    // Every column, not a projection: a hand-picked one is a guess, and D3.3
-    // measured that the guesses were wrong in the omitting direction.
+    expect(tables).not.toContain('roster_measurements');
+    /*
+     * V5 adds roster_season_trust (L7ZI), and it is the first component added
+     * BEFORE the gap could be demonstrated rather than after. Its `disposition`
+     * decides whether Evidence reads a programme-season at all, so one row
+     * would change what every roster-derived kind computes while all four
+     * roster components reported UNCHANGED -- they fingerprint roster_players,
+     * and an exclusion changes nothing in it.
+     */
+    expect(tables).toContain('roster_season_trust');
+    expect(tables).toContain('roster_players');
+    /*
+     * EVERY COLUMN, NOT A PROJECTION -- main's D3.3 assertion, kept.
+     * A hand-picked projection is a guess, and D3.3 measured that the guesses
+     * were wrong in the omitting direction: nulling the roster_players columns
+     * V2 did not name moved all six baselines with the dataset line unchanged.
+     * `roster_freshness` is exempt because it is a derived diagnostic, not a
+     * table fingerprint.
+     */
     for (const t of m.tables.filter((x) => x.table !== 'roster_freshness')) {
       expect(t.columns, t.table).toBeGreaterThan(0);
       expect(t.digest, t.table).toMatch(/^[0-9a-f]{64}$/);
     }
   });
 
-  it('reads a V1 pin as a definition change, not a data change', () => {
+  it('reads an older pin as a definition change, not a data change', () => {
     const actual = { manifest: datasetManifest(), stats: {}, invariants: {}, baselines: [] };
     const cmp = compareBaselines({ manifest: { digest: 'old', tables: [] }, baselines: [] }, actual);
     expect(cmp.dataset).toBe('DEFINITION_CHANGED');
-    expect(cmp.manifestVersionExpected).toBe('V1');
+    // An unversioned pin is the version before the current one.
+    expect(cmp.manifestVersionExpected).toBe('V4');
   });
 });

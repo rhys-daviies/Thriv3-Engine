@@ -19,6 +19,7 @@ import {
   verifyRosterSource, SOURCE_STATUS, canonicalHost, safeUrl,
 } from '../../shared/evidence/sourceVerification.js';
 import { classifyRegistry, integrityRefuses, INTEGRITY } from '../../shared/evidence/registryIntegrity.js';
+import { verifiedHostMap, PROFILE } from '../../shared/evidence/domainAuthority.js';
 
 const argv = process.argv.slice(2);
 const arg = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
@@ -34,13 +35,12 @@ const LIST = argv.includes('--list');
  * nothing here.
  */
 export function verifiedDomains() {
-  const out = new Map();
-  for (const d of db.prepare(`
-    SELECT domain, unitid FROM athletics_domains
-    WHERE status IN ('VERIFIED','VERIFIED_ALIAS') AND role = 'ATHLETICS_SITE'
-      AND confidence IN ('CERTAIN','CORROBORATED') AND unitid IS NOT NULL
-  `).all()) out.set(canonicalHost(d.domain), d.unitid);
-  return out;
+  // The rule lives in `domainAuthority`, not here. STRICT is the production
+  // reading: what may be put in front of an operator as a checkable link.
+  return verifiedHostMap(db.prepare(`
+    SELECT domain, unitid, status, role, confidence, identity_strength, evidence_text, wrong_mappings
+    FROM athletics_domains
+  `).all(), PROFILE.STRICT);
 }
 
 /**

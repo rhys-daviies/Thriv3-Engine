@@ -16,8 +16,13 @@ Direction matters: max(games_played) is a LOWER bound on team games, since no pl
 appear in every match. Only player > team is impossible; team > player is normal.
 """
 import csv, sqlite3, collections
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+import corpus as _corpus  # L7ZO: RECRUITMATCH_DB is honoured here too
 
-DB = "/Users/rhysdavies/Documents/Recruitmatch/app/server/data/recruitmatch.sqlite"
+
+DB = _corpus.resolve_db()
 FILES = {"men": ("mens-soccer", "soccer_records.csv"),
          "women": ("womens-soccer", "soccer_records_women.csv")}
 YEARS = [2022, 2023, 2024, 2025]

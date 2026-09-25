@@ -2476,3 +2476,244 @@ CREATE TABLE IF NOT EXISTS programme_messages (
 -- this pursuit. The UNIQUE constraint above already indexes it. Listing by
 -- state, by reviewer or by coach are queries nothing makes yet, and an index
 -- for each would be three guesses about a screen that does not exist.
+
+-- ===========================================================================
+-- What an operator decided about a roster gap.
+--
+-- WHY A DATABASE TABLE AND NOT THE PIPELINE'S STATE FILE.
+--
+-- L7J established that `_state/state<S>.json` is the pipeline's own durable
+-- acquisition state, and that `_targets.csv` is a projection of it rather than
+-- an authority. Both belong to the acquisition engine: they are season-scoped,
+-- regenerated, and `build_targets.py --reset-state` exists precisely to clear
+-- the operational layer.
+--
+-- A human decision must not live anywhere that a pipeline reset can reach. The
+-- separation here is physical rather than promised: the pipeline is Python
+-- talking to CSV and JSON under `~/Documents/Thriv3`, and it has no connection
+-- to this database at all. `--reset-state` cannot clear this table because it
+-- cannot see it, which is a stronger guarantee than a rule someone has to
+-- remember.
+--
+-- It is also where operator decisions already live — `athlete_programmes`
+-- carries `flagged_by_operator_id` and `note_updated_by_operator_id` against
+-- `operator_users`, and this follows that shape.
+--
+-- OPERATIONAL METADATA ONLY. Nothing in Evidence, matching, outreach or
+-- programme inclusion reads this table, and `rosterGapReview.test.js` asserts
+-- that no such import exists. A review says what a person concluded about a
+-- data-acquisition gap; it is not a product fact about a programme, and a
+-- future decision to make it one would be a deliberate, separate change.
+--
+-- Registry truth is NOT here either. A `PROGRAMME_STATUS_QUESTION` records that
+-- whether a programme is fielded is in doubt; `colleges.active` records what
+-- the registry says. Resolving the doubt is a separate act by whoever owns the
+-- registry, and this table may never write that column.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS roster_gap_reviews (
+  -- The gap is a programme in a season: a programme reviewed for 2026 has said
+  -- nothing about 2027, and next season's queue starts empty rather than
+  -- inheriting last season's conclusions.
+  season INTEGER NOT NULL,
+  school TEXT NOT NULL,
+  sport TEXT NOT NULL,
+
+  -- `shared/roster/gapReview.js` owns the vocabulary. Not a CHECK constraint:
+  -- the allowed pairs of disposition and action are a contract with a reason
+  -- attached, and `validateReview` can say WHY a pair is refused where a
+  -- constraint can only fail.
+  disposition TEXT NOT NULL,
+  next_action TEXT NOT NULL,
+  -- Only for RETRY_AFTER, and required there: a temporary condition without a
+  -- date is a permanent one that has not admitted it yet.
+  retry_after TEXT,
+
+  -- What the person saw. A sentence, not a page: this is the record that makes
+  -- a disposition auditable, and storing payloads here would make it a cache.
+  evidence TEXT NOT NULL,
+
+  reviewed_at TEXT NOT NULL,
+  -- Attributed where an operator id is available, and NOT a foreign key.
+  -- `operator_users` is created by the auth path rather than by this file, so a
+  -- REFERENCES clause here makes a database built from schema.sql alone unable
+  -- to accept a review at all — which is how this was found. The column records
+  -- who, when anyone knows; it does not make the auth tables a prerequisite for
+  -- reviewing a roster gap.
+  reviewed_by_operator_id TEXT,
+
+  -- BOUNDED HISTORY: the immediately previous conclusion and when it was
+  -- reached, and nothing older. It answers "has this changed, and from what",
+  -- which is the question an auditor actually asks of a queue this size. A
+  -- full history table would be an event log for ten rows.
+  previous_disposition TEXT,
+  previous_reviewed_at TEXT,
+
+  PRIMARY KEY (season, school, sport)
+);
+
+-- ===========================================================================
+-- When a programme is fielded.
+--
+-- SPARSE. ABSENCE MEANS ACTIVE.
+--
+-- There is deliberately no ACTIVE row and there will not be one. Writing 1,754
+-- rows to say "as before" would make the table's size meaningless and turn every
+-- read into a join that can silently lose programmes. A row exists only where a
+-- person decided something that departs from "active"; everything without one
+-- keeps exactly the behaviour it had. An UNDECIDED programme gets no row either,
+-- because a record saying "we do not know" is indistinguishable in effect from
+-- no record while implying a decision was made.
+--
+-- WHY NOT `colleges.active`.
+--
+-- `colleges` is keyed (name, sport), so `active` is already programme-level —
+-- Montana State Billings has carried `mens-soccer active=0` beside
+-- `womens-soccer active=1` under one unitid for some time. The problem is not
+-- granularity, it is time. Wisconsin-Oshkosh's own navigation reads "Soccer
+-- (Coming in 2027)": not fielded in 2026, fielded from 2027, and `active = 0`
+-- records that as gone forever. Anna Maria genuinely played through Fall 2025
+-- and closed after; a boolean cannot say "not any more" without erasing "used
+-- to". So `colleges.active` keeps its meaning and this table answers the
+-- temporal question. Both must agree before a programme is offered for a season.
+--
+-- SEASONS, NOT DATES. A season is the year its autumn begins: `span(2026)` is
+-- `2026-27` and a roster fetched in Fall 2025 is `season = '2025'`.
+--
+-- `shared/roster/programmeStatus.js` owns the vocabulary and `activeForSeason`.
+-- Not CHECK constraints: the allowed pairings are a contract with a reason
+-- attached, and the validator can say WHY a pair is refused where a constraint
+-- can only fail.
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS programme_status (
+  -- The programme key the whole pipeline already uses.
+  school TEXT NOT NULL,
+  sport TEXT NOT NULL,
+
+  status TEXT NOT NULL,            -- NOT_ACTIVE | FUTURE
+  reason TEXT NOT NULL,            -- INSTITUTION_CLOSED | NOT_SPONSORED
+                                   -- | IDENTITY_TRANSITION | LAUNCHING
+
+  -- Inclusive bounds, either nullable.
+  --   NOT_ACTIVE + active_to_season = T   fielded through T, not after.
+  --   NOT_ACTIVE + active_to_season NULL  never fielded.
+  --   FUTURE     + active_from_season = F not fielded before F.
+  active_from_season INTEGER,
+  active_to_season INTEGER,
+
+  -- A programme leaves the active universe only on first-party evidence, and
+  -- the sentence and the URL that justified it travel with the row. A status
+  -- nobody can audit is a status nobody should trust.
+  evidence TEXT NOT NULL,
+  source_url TEXT NOT NULL,
+
+  recorded_at TEXT NOT NULL,
+  -- Attributed where an operator id is available, and NOT a foreign key:
+  -- `operator_users` is created by the auth path rather than by this file, so a
+  -- REFERENCES clause makes a database built from schema.sql alone unable to
+  -- accept a row — which is how that was found in L7K.
+  recorded_by_operator_id TEXT,
+
+  PRIMARY KEY (school, sport)
+);
+
+-- L7ZI — whether Evidence should trust a historical programme-season.
+--
+-- `roster_players` says these rows exist. It cannot say whether the season they
+-- are stored under is the season the source established, and L7ZG found two
+-- probable duplicate captures and thirteen seasons with no surviving evidence
+-- of their identity at all. Every one must stay on file for audit, inspection,
+-- provenance and future repair, so keep-or-delete was never the right pair of
+-- options. This is the third one.
+--
+-- ONE ROW PER DECISION, NOT PER PLAYER. Trust is a statement about the season,
+-- so it is keyed at the programme-season. L7ZI measured the alternative: of 142
+-- multi-source programme-seasons, 120 collapse to a single origin page once
+-- archive wrappers and per-player bio segments are removed, and only 3 carry
+-- sources naming more than one season. Per-row source provenance already exists
+-- in `roster_players.source_*` from L7Z and answers a different question --
+-- where a row came from, not which season the page was.
+--
+-- ABSENCE MEANS NO OVERRIDE. A programme-season with no row here behaves
+-- exactly as it did before this table existed. There is no implicit TRUSTED and
+-- no implicit UNPROVEN: making either honest would mean backfilling 6,844
+-- programme-seasons with an assertion nobody measured.
+CREATE TABLE IF NOT EXISTS roster_season_trust (
+  -- Keyed as `roster_players` keys itself. `roster_gap_reviews` says `school`
+  -- because it is about a registry gap; this joins roster rows, and a second
+  -- spelling of the same column is how a join silently matches nobody.
+  season TEXT NOT NULL,
+  college_name TEXT NOT NULL,
+  sport TEXT NOT NULL,
+
+  -- THE MACHINE HALF. A measurement, and it never changes Evidence on its own.
+  -- `shared/roster/seasonTrust.js` owns the vocabulary; not a CHECK constraint,
+  -- for the reason roster_gap_reviews gives -- a validator can say WHY a value
+  -- is refused where a constraint can only fail.
+  diagnosis TEXT,
+  -- What the measurement saw. A sentence, not a payload.
+  diagnosis_evidence TEXT,
+  diagnosed_at TEXT,
+
+  -- THE HUMAN HALF. The only half that can remove a season from Evidence, and
+  -- only through EXCLUDE_FROM_EVIDENCE. Separated from the diagnosis because an
+  -- audit heuristic that silently changed product intelligence would be the
+  -- same class of defect this table records.
+  disposition TEXT,
+  disposition_evidence TEXT,
+  reviewed_at TEXT,
+  -- Attributed where an operator id is available, and NOT a foreign key: the
+  -- same reason roster_gap_reviews avoids one -- `operator_users` is created by
+  -- the auth path, and a REFERENCES clause makes a database built from this
+  -- file alone unable to accept a decision.
+  reviewed_by_operator_id TEXT,
+
+  -- What someone intends to do next. Free text on purpose: "retry discovery" and
+  -- "a repair source exists" are next actions, not trust states -- a season is
+  -- not in a different relationship with Evidence because someone means to
+  -- re-fetch it -- and inventing dispositions for them would grow the state
+  -- machine without adding a distinction Evidence can act on.
+  next_action TEXT,
+
+  -- BOUNDED HISTORY, exactly as roster_gap_reviews keeps it: the immediately
+  -- previous conclusion and when it was reached, which answers "has this
+  -- changed, and from what" without becoming an event log for a dozen rows.
+  previous_disposition TEXT,
+  previous_reviewed_at TEXT,
+
+  PRIMARY KEY (season, college_name, sport)
+);
+
+-- L7ZL — what roster `recruiting_arrivals` was actually built from.
+--
+-- The table is MATERIALISED and nothing recorded its inputs, so nothing could
+-- tell whether the answer it serves is still the answer the data supports. It
+-- matters because raw roster reads honour a trust exclusion immediately while
+-- the materialisation does not, and the product would otherwise hold two
+-- truths at once: a season removed from the ladder and still present in the
+-- arrivals behind an outreach-licensed claim.
+--
+-- ONE ROW PER SPORT, because that is the build's own grain: the builder deletes
+-- and rewrites a whole sport in one transaction. A finer key would promise a
+-- partial rebuild the builder cannot perform.
+--
+-- ABSENCE MEANS THE BUILD PREDATES THIS MECHANISM, and is reported as
+-- LEGACY_UNVERIFIED rather than treated as fresh. Stamping the existing table
+-- would have asserted a freshness L7ZL measured to be false.
+CREATE TABLE IF NOT EXISTS recruiting_arrivals_build (
+  sport TEXT PRIMARY KEY,
+
+  -- Digest of the EFFECTIVE input: the roster the builder can actually read,
+  -- with excluded programme-seasons removed, plus coach seasons, plus the
+  -- builder version. Semantic rather than storage-shaped -- see
+  -- server/lib/recruitingMaterialisation.js for why each part is in or out.
+  input_digest TEXT NOT NULL,
+
+  -- A digest over inputs cannot see a change to the transformation. Two builds
+  -- of the same roster by different code are different answers.
+  builder_version TEXT NOT NULL,
+
+  built_at TEXT NOT NULL,
+  -- Increments per successful build. Cheap, and it makes "has this been rebuilt
+  -- since I looked" answerable without comparing timestamps.
+  generation INTEGER NOT NULL
+);

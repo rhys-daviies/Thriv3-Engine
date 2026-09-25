@@ -23,6 +23,7 @@ import path from 'node:path';
 import os from 'node:os';
 import db from '../db/client.js';
 import { parseCsvToObjects } from '../lib/csv.js';
+import { snapshotDatabase } from '../lib/dbSnapshot.js';
 
 const APPLY = process.argv.includes('--apply');
 const RAW = path.join(os.homedir(), 'Documents/Thriv3/University individualisation/_raw');
@@ -253,7 +254,7 @@ function main() {
 
   const dbPath = db.name;
   const backup = `${dbPath}.pre-matching-inputs-${new Date().toISOString().replace(/[:.]/g, '-')}`;
-  fs.copyFileSync(dbPath, backup);
+  snapshotDatabase(dbPath, backup, { overwrite: true });
   console.log(`\nbacked up -> ${path.basename(backup)}`);
 
   const cols = Object.keys(pending[0].values);

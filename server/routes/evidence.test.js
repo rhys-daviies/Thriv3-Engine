@@ -443,8 +443,18 @@ describe('the evidence offer does not move when history is asked for', () => {
 
     expect(plain.history).toBeUndefined();
     expect('history' in plain).toBe(false);
+    /*
+     * NO KEY, which is what this test is called and what `evidenceSummaries`
+     * promises: omitted, a caller "receives exactly the payload it received
+     * before, with no new keys at all". This line asserted `toBeNull()` --
+     * key present, value null -- which is the opposite, and it is what
+     * `operatorEvidence.test.js` has been failing on, on main as well as
+     * here: that suite pins the composer's exact key set and a null
+     * `previouslyUsed` is not in it. Both cannot be satisfied; the prose and
+     * both test names say which one is meant.
+     */
     for (const item of [...plain.selected, ...plain.available]) {
-      expect(item.previouslyUsed).toBeNull();
+      expect('previouslyUsed' in item).toBe(false);
     }
   });
 

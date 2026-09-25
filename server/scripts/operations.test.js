@@ -4,6 +4,7 @@ import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { fileCorpusOr } from '../db/corpusIdentity.js';
 
 /**
  * The commands, run as commands.
@@ -27,7 +28,8 @@ import { fileURLToPath } from 'node:url';
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+/* L7ZO: obey an explicitly selected corpus; see `fileCorpusOr`. */
+const DB = fileCorpusOr(path.join(ROOT, 'server/data/recruitmatch.sqlite'));
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 const d = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) {

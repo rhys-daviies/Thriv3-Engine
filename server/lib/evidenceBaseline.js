@@ -67,6 +67,81 @@ export function canonical(value) {
   return JSON.stringify(walk(value));
 }
 
+/**
+ * Fields a behavioural baseline must not hash, because they are observations
+ * of WHEN we looked rather than statements about what is true.
+ *
+ * There is exactly one, and it earned its place by measurement rather than by
+ * argument. L7D imported 85 roster rows and moved OPERATOR_WIRE and LOG_PAYLOAD
+ * for 3,584 pairs — every one of them differing in `rosterUpdatedAt` and
+ * nothing else, because the import re-stamps `updated_date` on all 1,926
+ * programmes whether or not a single player changed. Two of the six surfaces
+ * could therefore never be stable across a refresh, which makes them useless
+ * for the thing they exist to detect.
+ *
+ * THIS IS NOT "REMOVE THE FIELD UNTIL THE TEST PASSES". The timestamp reaches
+ * behaviour, and it still does: `rosterFreshness` turns it into a `state`, an
+ * `ageDays` and a `reason`, and `applyFreshness` reads the STATE to suppress or
+ * downgrade evidence. Those derived values stay hashed, in full. What is
+ * dropped is only the raw instant they were derived from.
+ *
+ * Measured both ways on the real corpus before the change:
+ *
+ *   +37 seconds on all 58,270 roster rows — a shift that cannot cross a day
+ *   boundary — moved OPERATOR_WIRE and LOG_PAYLOAD and nothing else. Personalised
+ *   pairs 1,758 either way.
+ *
+ *   -400 days on the same rows — enough to turn CURRENT into STALE — moved all
+ *   six surfaces and took personalisation from 1,758 to 1,284.
+ *
+ * So the effect of freshness is still fully visible and only the clock reading
+ * is gone. K3A fixed the other half of this: `BASELINE_NOW` pins `now`, and
+ * this pins the other input to the same subtraction.
+ *
+ * Runtime is untouched. The panel, the wire and the log all still carry the
+ * real timestamp; `projectBehavioural` runs in the baseline harness alone.
+ */
+export const NON_BEHAVIOURAL_FIELDS = Object.freeze(['rosterUpdatedAt']);
+
+/**
+ * `canonical`, with observation instants removed.
+ *
+ * Applied to all six surfaces rather than the two that carry the field today,
+ * so a payload that starts reporting when it was scraped does not quietly
+ * reintroduce the problem. `baselineFieldSites` below keeps that honest by
+ * reporting where the field is actually found, and a test asserts the set.
+ */
+export function projectBehavioural(value) {
+  const walk = (v) => {
+    if (v === null || typeof v !== 'object') return v;
+    if (Array.isArray(v)) return v.map(walk);
+    if (v instanceof Map || v instanceof Set) return v;
+    const out = {};
+    for (const k of Object.keys(v)) {
+      if (NON_BEHAVIOURAL_FIELDS.includes(k)) continue;
+      out[k] = walk(v[k]);
+    }
+    return out;
+  };
+  return canonical(walk(value));
+}
+
+/** Every path at which a non-behavioural field appears in a payload. Diagnostic. */
+export function nonBehaviouralSites(value, surface = '') {
+  const found = [];
+  const walk = (v, path) => {
+    if (v === null || typeof v !== 'object') return;
+    if (Array.isArray(v)) { v.forEach((x, i) => walk(x, `${path}[${i}]`)); return; }
+    for (const k of Object.keys(v)) {
+      const at = path ? `${path}.${k}` : k;
+      if (NON_BEHAVIOURAL_FIELDS.includes(k)) found.push(surface ? `${surface}::${at}` : at);
+      else walk(v[k], at);
+    }
+  };
+  walk(value, '');
+  return found;
+}
+
 /** SHA-256, full. Display truncates; comparison never does. */
 export const digest = (s) => createHash('sha256').update(s, 'utf8').digest('hex');
 
@@ -97,10 +172,50 @@ export const short = (d) => String(d).slice(0, 16);
  * while the dataset line still read UNCHANGED — the precise misdiagnosis the
  * manifest exists to prevent.
  *
- * V1 AND V2 DIGESTS ARE NOT COMPARABLE, and the report says UNCOMPARABLE rather
- * than FAIL when it meets one across the boundary. They describe different
- * questions about the data; a number computed for one is not a wrong answer to
- * the other, it is an answer to something else.
+ * V3 adds `programme_status`, for the same reason one version later. L7O found
+ * that `colleges.active` is absent from the `colleges` fingerprint, which was
+ * harmless while it was a dormant flag nothing read. `programme_status` is not
+ * dormant: it decides which programmes are eligible destinations for a season,
+ * so live matching and outreach change when it changes. A behavioural hash that
+ * moved while the dataset line read UNCHANGED is precisely what the manifest
+ * exists to prevent.
+ *
+ * V4 adds `roster_measurements`, for the same reason two versions later, and
+ * this time the gap was demonstrated rather than reasoned about. L7ZA changed
+ * 1,762 historical rows' `minutes_played` and nothing else — no player added,
+ * removed or renamed — and watched PROGRAMME_POOL_BENCHMARK move while BOTH
+ * roster components reported UNCHANGED. The `roster_players` line projects
+ * `(college_name, sport, season, player_name)`, which is membership, and
+ * `roster_freshness` watches the CURRENT season's timestamps. A historical
+ * measurement appears in neither, so a behavioural hash could move with the
+ * dataset line saying nothing happened — the same misdiagnosis K3A found for
+ * timestamps and L7O found for programme status, in the field the Philosophy
+ * kinds are actually computed from.
+ *
+ * The two roster components are kept APART rather than merged. "The squad
+ * changed" and "the same squad, measured differently" are different events with
+ * different causes, and a single digest covering both would answer neither.
+ *
+ * V5 adds `roster_season_trust`, and it is the first component added BEFORE the
+ * gap could be demonstrated rather than after. L7ZI introduced a table whose
+ * `disposition` decides whether Evidence reads a programme-season at all, so a
+ * single row written there would change what every roster-derived kind
+ * computes while all four roster components reported UNCHANGED — they
+ * fingerprint `roster_players`, and an exclusion changes nothing in it.
+ *
+ * The version moved even though production holds ZERO trust rows. That is the
+ * point of versioning the DEFINITION rather than the data: a V4 digest was
+ * taken over a table list that could not see this input, and a V4 digest taken
+ * now would claim to answer the same question while answering a different one.
+ * The manifest pin therefore moves in a stage where no product data moved at
+ * all, and the behavioural baselines correctly do not.
+ *
+ * SUCCESSIVE VERSIONS ARE NOT COMPARABLE WITH EACH OTHER, and the report says
+ * UNCOMPARABLE rather than FAIL when it meets one across a boundary. They
+ * describe different questions about the data; a number computed for one is not
+ * a wrong answer to the other, it is an answer to something else. Bumping the
+ * version is what keeps that honest — a V2 pin and a V2 digest taken over a
+ * different table list would both claim to be V2 and mean different things.
  */
 /**
  * ---------------------------------------------------------------------------
@@ -150,36 +265,135 @@ export const short = (d) => String(d).slice(0, 16);
  *
  * V2 AND V3 DIGESTS ARE NOT COMPARABLE. The version carries that, and
  * `compareBaselines` reports DEFINITION_CHANGED rather than CHANGED.
+ *
+ * ---------------------------------------------------------------------------
+ * V3 -> V7: THE SAME METHOD OVER A LARGER PRODUCT - L8B-3.
+ *
+ * The two branches reached this design independently and agree on it. What
+ * differs is only how many tables the walk had to read, and that difference is
+ * fully accounted for: main's instrumentation found SEVEN because seven is all
+ * that existed there. `roster_season_trust`, `programme_status` and
+ * `recruiting_arrivals_build` are created by the Evidence branch and by no
+ * other, so main could not have measured them. Seven plus those three is the
+ * ten below, re-measured on the merged tree by `npm run closure` rather than
+ * assumed from the arithmetic.
+ *
+ * The intervening versions are Evidence-side: V4 added `roster_season_trust`,
+ * V5 and V6 closed two holes L7ZP made visible, and V7 is this - main's
+ * every-column `tableFingerprint` applied to the measured ten.
  */
-export const MANIFEST_VERSION = 'V3';
+export const MANIFEST_VERSION = 'V7';
 
-/** The last version before `roster_freshness`, kept so a V1 pin is nameable. */
-export const LEGACY_MANIFEST_VERSION = 'V1';
+/*
+ * L8B-2 — V7: EVERY COLUMN OF EVERY TABLE THE SIX OUTPUTS EXECUTE AGAINST.
+ *
+ * V6 named columns. That is a guess, and L8B-1 measured the guess being wrong:
+ * tampering with `recruiting_arrivals_build.input_digest` moved ALL SIX
+ * behavioural baselines — `assertServable` gates every recruiting claim on it —
+ * while V6 reported the dataset UNCHANGED. The table had been excluded as
+ * "operational metadata" on the strength of what it looked like.
+ *
+ * `main` reached the same conclusion independently at V3, and its wording is
+ * the rule: a hand-picked projection is a guess, and a guess that is wrong in
+ * the omitting direction is silent. V7 adopts main's `tableFingerprint`
+ * verbatim and applies it to a table set that is a MEASUREMENT rather than a
+ * choice — the execution closure of `buildBaselines`, instrumented at the
+ * statement level rather than at prepare, because modules prepare statements at
+ * import whether or not they run.
+ *
+ * WHAT THIS COSTS, AND WHY IT IS FREE HERE. Every-column hashing moves for
+ * `updated_date`, `roster_row_id` and `built_at` — churn that no behavioural
+ * output reflects. On a LIVE corpus that is noise, and noise teaches people to
+ * repin without reading. Acceptance therefore runs against a PINNED IMMUTABLE
+ * snapshot, where nothing writes and the churn cannot occur. The two decisions
+ * are one decision: every-column is safe only with a pinned corpus, and a
+ * pinned corpus makes every-column free.
+ *
+ * `roster_freshness` survives below as a DIAGNOSTIC line, exactly as main keeps
+ * it: subsumed by the full `roster_players` fingerprint, still useful in a
+ * report that has to say what moved.
+ */
+
+/*
+ * L7ZQ — V6 CLOSES TWO HOLES L7ZP MADE VISIBLE.
+ *
+ * L7ZP rebuilt `recruiting_arrivals`, moved all six behavioural baselines, and
+ * left this digest EXACTLY where it was. That breaks the one promise the
+ * manifest makes: if data capable of changing behaviour changes, dataset
+ * identity changes with it. Two independent causes, both demonstrated by
+ * mutating one field against a fixture and watching:
+ *
+ *   SOURCE_INPUT_MISSING          `coach_seasons` is read straight into
+ *                                 Evidence by `philosophyQueries` and reaches
+ *                                 coach tenure and arrival attribution. V5
+ *                                 carried `coaches`, which is a different
+ *                                 table. Renaming coaches moved all six
+ *                                 baselines with V5 unchanged.
+ *
+ *   DERIVED_STATE_NOT_IDENTIFIED  `recruiting_arrivals` is materialised, and
+ *                                 V5 saw only its inputs. Deleting a season of
+ *                                 it moved all six baselines with V5 unchanged
+ *                                 — AND with the L7ZL freshness state still
+ *                                 reporting FRESH, because that fingerprint
+ *                                 covers what the table was built FROM and
+ *                                 never what it now CONTAINS.
+ *
+ * The second point is why the freshness fingerprint could not simply be
+ * borrowed. Freshness answers "does this derived table still match its
+ * inputs"; the manifest answers "what data will the product actually read".
+ * A table truncated after a successful build satisfies the first and fails the
+ * second, so V6 hashes the derived CONTENT rather than trusting a build stamp.
+ *
+ * Operational fields stay out. `built_at` and the build generation counter are
+ * bookkeeping — a rebuild that reproduces identical rows must not move dataset
+ * identity, and L7ZP proved rebuilds are deterministic, so they would only add
+ * churn.
+ */
+
+/** The last version before `roster_season_trust`, kept so a V4 pin is nameable. */
+export const LEGACY_MANIFEST_VERSION = 'V4';
 
 /**
- * The tables `buildBaselines` reads, and only those.
+ * The execution closure of the six behavioural outputs, measured not chosen.
  *
- * Found by instrumenting `db.prepare` across a full walk, not by reading
- * imports: `programme_seasons`, `conference_seasons`, `institution_aliases` and
- * the outreach tables were all plausible and none of them is touched. A
- * manifest that fingerprinted them would report CHANGED for data no baseline
- * can see, which is the same defect pointing the other way.
+ * Statement executions during one `buildBaselines` run, L8B-2:
+ *   roster_players 18,980 · roster_season_trust 18,973 · coach_seasons 8,738
+ *   colleges 4,748 · recruiting_arrivals 4,743 · recruiting_arrivals_build 4,742
+ *   players 2 · athletics_domains 2 · coaches 1 · programme_status 1
+ *
+ * `outreach`, `outreach_send` and `outreach_evidence` are PREPARED at module
+ * import and never executed by the walk, so they are not product identity for
+ * these outputs. `dependencyClosure.test.js` re-measures this and fails if the
+ * walk ever reads a table absent from here.
+ *
+ * AND ONLY THOSE - main's D3.3 note, still true on the merged tree.
+ * `programme_seasons`, `conference_seasons`, `institution_aliases` and the
+ * outreach tables were all plausible and none of them is touched. A manifest
+ * that fingerprinted them would report CHANGED for data no baseline can see,
+ * which is the same defect pointing the other way.
  */
 export const MANIFEST_TABLES = Object.freeze([
   'players',
   'colleges',
   'roster_players',
+  'roster_season_trust',
   'coaches',
   'athletics_domains',
-  'recruiting_arrivals',
+  'programme_status',
   'coach_seasons',
+  'recruiting_arrivals',
+  'recruiting_arrivals_build',
 ]);
 
 /**
- * One table, every column, order-independent.
+ * One table, every column, order-independent — main's V3 semantics verbatim.
  *
- * `rows` and `columns` travel with the digest so a DATASET CHANGED report can
- * say what moved before anyone opens a database.
+ * Column names come from `PRAGMA table_info` and are SORTED, so physical column
+ * order is not data and a new column moves the digest automatically. Each row
+ * is hashed alone and the row hashes are sorted, so the result is a property of
+ * the SET of rows: no ORDER BY to get right, and a VACUUM or a different query
+ * plan cannot move it. `rows` and `columns` travel with the digest so a CHANGED
+ * report can say what moved before anyone opens a database.
  */
 export function tableFingerprint(table) {
   const columns = db.prepare(`PRAGMA table_info("${table}")`).all().map((c) => c.name).sort();
@@ -221,6 +435,126 @@ const ROSTER_FRESHNESS_SQL = `
   WHERE season = ?
   GROUP BY college_name, sport
   ORDER BY sport, college_name`;
+
+/**
+ * Every roster_players field an Evidence generator can actually read.
+ *
+ * NOT every column. The Evidence path loads roster rows through exactly one
+ * projection — `ROSTER_COLUMNS` in server/lib/philosophyQueries.js, used by
+ * both `programmeRows` and `squadRows` — so a column absent from it is
+ * invisible to every generator by construction. This list is that projection
+ * minus `updated_date`, which is a statement about when we looked rather than
+ * what is true: `roster_freshness` already fingerprints it in the one form
+ * production reads, and hashing it raw here would move this component on every
+ * re-import, which is the L7D defect that cost two baselines their usefulness.
+ *
+ * Deliberately included despite looking like provenance: `source_roster_url`.
+ * `rosterSourceFor` in evidenceQueries.js resolves the operator's verification
+ * link from it and returns AMBIGUOUS_SOURCE when a programme-season carries
+ * more than one, so it changes what an operator is shown. It is a behavioural
+ * input that happens to be a URL.
+ *
+ * Deliberately EXCLUDED: `source_page_season`, `source_fetched_at`,
+ * `source_parser` (L7Z), `data_confidence`, `source_stats_url`,
+ * `projected_minutes_season`, `division`, `conference`, `notes`. None is in
+ * ROSTER_COLUMNS, so no generator can see any of them. They are recorded facts
+ * about acquisition, and a manifest that moved for them would report work that
+ * changed nothing an athlete or an operator reads.
+ */
+export const ROSTER_MEASUREMENT_FIELDS = Object.freeze([
+  'college_name', 'sport', 'season', 'player_name',
+  'position', 'class_year_label',
+  'minutes_played', 'games_played', 'games_started',
+  'estimated_graduation_year', 'eligibility_end_year', 'projected_minutes',
+  'nationality', 'country', 'hometown', 'prior_programme',
+  'source_roster_url',
+]);
+
+/**
+ * One row, reduced to what behaviour can distinguish.
+ *
+ * Storage representation must not move the hash where production cannot see
+ * it. The importer writes numbers through `toIntOrNull` and text through
+ * `|| undefined`, so `998`, `'998'` and `'998.0'` are one value to it and `''`
+ * is absence — and this normalises to the same, using those semantics rather
+ * than inventing new ones. Nothing else is canonicalised: `position` is already
+ * stored in production's normalised vocabulary because `normalizePosition`
+ * runs at import, and `class_year_label` is carried RAW into philosophy output
+ * as `classLabel`, so its exact spelling is itself behavioural.
+ */
+const NUMERIC_MEASUREMENTS = new Set(['minutes_played', 'games_played', 'games_started',
+  'estimated_graduation_year', 'eligibility_end_year', 'projected_minutes']);
+
+export function canonicalMeasurement(field, value) {
+  if (value === undefined || value === null) return null;
+  if (NUMERIC_MEASUREMENTS.has(field)) {
+    if (value === '') return null;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+  const s = String(value);
+  return s === '' ? null : s;
+}
+
+/**
+ * The measurements, in an order the database cannot influence.
+ *
+ * Rows are serialised and then SORTED, so neither SQLite's row order nor an
+ * index change can move the digest, and two programme-seasons holding the same
+ * player name twice stay distinguishable.
+ */
+export function rosterMeasurementFingerprint() {
+  const rows = db.prepare(
+    `SELECT ${ROSTER_MEASUREMENT_FIELDS.join(', ')} FROM roster_players`,
+  ).all();
+  const lines = rows
+    .map((r) => canonical(ROSTER_MEASUREMENT_FIELDS.map((f) => canonicalMeasurement(f, r[f]))))
+    .sort();
+  return { table: 'roster_measurements', rows: lines.length, digest: digest(lines.join('\n')) };
+}
+
+/**
+ * The behavioural content of `recruiting_arrivals`, which is DERIVED data.
+ *
+ * Taken from `toArrival` in `recruitingPatterns.js` — the one function that
+ * turns a stored row into the object the aggregations see — so this hashes
+ * what the product reads and nothing else. Two columns are deliberately
+ * absent, and both would otherwise generate pure noise:
+ *
+ *   roster_row_id   loaded into the pattern object and consumed by nothing.
+ *                   L7ZP measured 24,929 rows differing ONLY here after a
+ *                   roster re-import gave the source rows new surrogate ids.
+ *                   A manifest that moved for that would cry wolf about a
+ *                   change no claim can see.
+ *
+ *   region          `toArrival` says in its own comment that it does not read
+ *                   the stored column, because `patterns.js` recomputes region
+ *                   from country so a taxonomy change applies immediately
+ *                   rather than at the next rebuild. The stored value is a
+ *                   cache, so it is not dataset identity.
+ *
+ * `id` and `built_at` are excluded for the same reason as any surrogate or
+ * timestamp: a deterministic rebuild must not move the digest.
+ *
+ * Lines are serialised and SORTED, as `rosterMeasurementFingerprint` does, so
+ * neither SQLite's row order nor a tie in any ORDER BY can move the result.
+ */
+export const ARRIVAL_SEMANTIC_FIELDS = Object.freeze([
+  'programme', 'sport', 'arrival_season', 'prior_season', 'source_transition',
+  'player_name', 'name_key', 'arrival_confidence', 'identity_method', 'reconciled_from',
+  'canonical_position', 'nationality_flag', 'country', 'is_international',
+  'class_label_raw', 'entry_type',
+  'prior_programme', 'prior_confidence', 'prior_candidates',
+  'coach', 'coach_attribution',
+]);
+
+export function recruitingArrivalsFingerprint() {
+  const rows = db.prepare(
+    `SELECT ${ARRIVAL_SEMANTIC_FIELDS.join(', ')} FROM recruiting_arrivals`,
+  ).all();
+  const lines = rows.map((r) => canonical(ARRIVAL_SEMANTIC_FIELDS.map((f) => r[f] ?? null))).sort();
+  return { table: 'recruiting_arrivals', rows: lines.length, digest: digest(lines.join('\n')) };
+}
 
 export function rosterFreshnessFingerprint() {
   const rows = db.prepare(ROSTER_FRESHNESS_SQL).all(SQUAD_SEASON);
@@ -344,7 +678,17 @@ export const BASELINE_NOW = Date.parse('2026-09-06T00:00:00Z');
  * one that moves EMAIL_BODY alone is the template. Reading which subset moved
  * localises the change before anyone opens a diff.
  */
-export function buildBaselines() {
+/**
+ * @param {{ withLines?: boolean }} [opts] — `withLines` also returns the raw
+ *   per-pair corpus lines behind each digest.
+ *
+ * L7ZN. A digest says THAT a surface moved; only the lines say WHICH pairs and
+ * WHAT about them. L7ZM had to report four moved baselines with no way to
+ * sample a single changed pair, and "probably the projection" is not an
+ * explanation. Off by default because the lines are large and nothing in the
+ * normal path wants them.
+ */
+export function buildBaselines({ withLines = false } = {}) {
   const decision = []; const composition = []; const body = [];
   const wire = []; const log = []; const operator = [];
   const stats = {
@@ -397,7 +741,7 @@ export function buildBaselines() {
 
     /* 1. OUTBOUND_DECISION — what the outbound selector decided, and why. */
     const roles = ev.roles ?? { hooks: [], relevance: [], recognition: [], alternatives: [] };
-    decision.push(`${key}|${canonical({
+    decision.push(`${key}|${projectBehavioural({
       hooks: roles.hooks.map((h) => h.kind),
       relevance: roles.relevance.map((h) => h.kind),
       recognition: roles.recognition.map((h) => h.kind),
@@ -421,7 +765,7 @@ export function buildBaselines() {
 
     /* 2. COACH_COMPOSITION — what the email actually says, and where. */
     const comp = ev.composition ?? {};
-    composition.push(`${key}|${canonical({
+    composition.push(`${key}|${projectBehavioural({
       structure: ev.structure?.key ?? null,
       structureSource: ev.structure?.source ?? null,
       sentences: (comp.sentences ?? []).map((s) => [s.order, s.slot, s.kind, s.text]),
@@ -437,17 +781,17 @@ export function buildBaselines() {
         evidence: ev, profileUrl: FIXED_PROFILE_URL,
       });
     } catch (err) { rendered = { body: `THREW:${err.message}`, source: null, structure: null }; }
-    body.push(`${key}|${canonical({
+    body.push(`${key}|${projectBehavioural({
       source: rendered.source ?? null, structure: rendered.structure ?? null, body: rendered.body,
     })}`);
 
     /* 4. OPERATOR_WIRE — what the panel is handed. */
     let sent;
     try { sent = toWire(ev); } catch (err) { sent = { error: err.message }; }
-    wire.push(`${key}|${canonical(sent)}`);
+    wire.push(`${key}|${projectBehavioural(sent)}`);
 
     /* 5. LOG_PAYLOAD — what we record about the email we sent. */
-    log.push(`${key}|${canonical(evidenceLogPayload(ev))}`);
+    log.push(`${key}|${projectBehavioural(evidenceLogPayload(ev))}`);
 
     /**
      * 6. OPERATOR_EVIDENCE — the inspection surface, which is a different
@@ -462,7 +806,7 @@ export function buildBaselines() {
     let opv;
     try { opv = wireOperatorEvidence(operatorEvidenceFor(ev)); }
     catch (err) { opv = { error: err.message }; }
-    operator.push(`${key}|${canonical(opv)}`);
+    operator.push(`${key}|${projectBehavioural(opv)}`);
 
     /* ---- The rendered/recorded invariant, on the objects just built. ---- */
     const logged = evidenceLogPayload(ev);
@@ -544,6 +888,14 @@ export function buildBaselines() {
       { name: 'LOG_PAYLOAD', size: log.length, digest: fingerprint(log) },
       { name: 'OPERATOR_EVIDENCE', size: operator.length, digest: fingerprint(operator) },
     ],
+    ...(withLines ? { lines: {
+      OUTBOUND_DECISION: decision,
+      COACH_COMPOSITION: composition,
+      EMAIL_BODY: body,
+      OPERATOR_WIRE: wire,
+      LOG_PAYLOAD: log,
+      OPERATOR_EVIDENCE: operator,
+    } } : {}),
   };
 }
 
@@ -594,6 +946,23 @@ export function compareBaselines(expected, actual = buildBaselines()) {
     datasetExpected: expected?.manifest?.digest ?? null,
     datasetActual: actual.manifest.digest,
     manifest: actual.manifest,
+    /**
+     * Which components moved, so a reader is not left diffing eight digests.
+     *
+     * "The dataset changed" is not an answer anyone can act on. "Roster
+     * membership unchanged, roster measurements changed" says where to look,
+     * and it is the distinction L7ZB split the two roster components to make.
+     * A component absent from the pin is reported as new rather than moved --
+     * across a version boundary that is the expected state, not a difference.
+     */
+    components: actual.manifest.tables.map((t) => {
+      const want = (expected?.manifest?.tables ?? []).find((x) => x.table === t.table);
+      return {
+        table: t.table, rows: t.rows, digest: t.digest,
+        status: !want ? 'NEW' : (want.digest === t.digest ? 'unchanged' : 'MOVED'),
+        expected: want?.digest ?? null,
+      };
+    }),
     now: actual.now,
     stats: actual.stats,
     invariants: actual.invariants,

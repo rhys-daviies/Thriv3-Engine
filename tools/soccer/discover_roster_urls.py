@@ -32,6 +32,11 @@ import re
 import sys
 from pathlib import Path
 from urllib.parse import urlparse
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+import corpus as _corpus  # L7ZO: RECRUITMATCH_DB is honoured here too
+
 
 import requests
 
@@ -154,7 +159,7 @@ def load_hosts():
     import json
     import sqlite3
     hosts = {}
-    db = sqlite3.connect("file:server/data/recruitmatch.sqlite?mode=ro", uri=True)
+    db = sqlite3.connect(_corpus.read_only_uri(_corpus.resolve_db()), uri=True)
     for name, url in db.execute(
             "SELECT DISTINCT college_name, source_roster_url FROM roster_players "
             "WHERE source_roster_url LIKE 'http%' AND source_roster_url NOT LIKE '%web.archive%'"):

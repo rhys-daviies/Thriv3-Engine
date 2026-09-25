@@ -390,3 +390,68 @@ else. The transition is a one-time explicit repin.
 **The transition moved no behavioural hash.** All six were byte-identical
 across it — proof that the manifest change is comparability only and touches no
 product behaviour.
+
+---
+
+# Which hashes are authoritative — L8B-4
+
+The paragraph at the top of this file says that stages F to H proved their
+changes with hashes that lived in a scratchpad and were quoted in a brief, and
+that by H17 none could be reproduced. **It happened again, one layer down.**
+
+Stages L7ZM through L8B-1 each carried a "no product data changed" table with
+four short per-table hashes:
+
+| table | quoted across 15 stage documents |
+| --- | --- |
+| `roster_players` | `3a83be9932c4c50d` |
+| `roster_season_trust` | `80279ea51e330ff6` |
+| `programme_status` | `2271489bb81e747a` |
+| `recruiting_arrivals` | `2d694ab74f831491` |
+
+**No instrument in this repository produces them, and none ever did.** They
+appear in no committed code on any ref, at any commit, in any branch — only in
+prose. The committed instrument AT THE COMMITS WHERE THEY FIRST APPEARED
+produces different values, and those values are still reproducible today.
+
+## What the data actually says
+
+Three generations of manifest, each run against the current corpus, each
+reproducing the aggregate that was pinned when it was current:
+
+| instrument | pinned then | reproduces now |
+| --- | --- | --- |
+| V5 (`af8a32f`, `423424f`) | `a433a7c149fe1628` | yes, exactly |
+| V6 (`0cc3265`) | `cc28ee6accdb84ed` | yes, exactly |
+| V7 (`fc6c8ee`) | `8bb808b66db9ee3b` | yes, exactly |
+
+An aggregate is taken over the per-table entries, so an aggregate that
+reproduces is a statement about every component inside it. The four values were
+never a measurement of product data that has since moved; they were never
+produced by anything that survives. **This is a provenance defect, not a data
+defect.**
+
+## Classification
+
+`LEGACY_UNREPRODUCIBLE_AUDIT_HASH`. They are retired from acceptance and
+governance language. They stay in the historical stage documents, which record
+what was believed at the time and should not be rewritten to pretend otherwise;
+`docs/L8B4_INTEGRATION_CLOSEOUT.md` records what was tried and what was found.
+
+## The hierarchy, going forward
+
+1. **Manifest V7** — full product-data identity. Every column of the ten tables
+   the six outputs actually execute, re-measured by `npm run closure`, which
+   fails if the walk ever reads a table the manifest does not register.
+2. **The pinned acceptance corpus V7 identity** — what a behavioural digest was
+   taken OVER. Identity is the digest, never the path: same bytes under a
+   different name is the same corpus, and a missing one is refused with exit 2
+   rather than created empty.
+3. **The six behavioural baselines** — what the product SAID about that corpus.
+
+Anything below that line is a diagnostic, not a gate. **A diagnostic hash must
+name the function that produces it** — `tableFingerprint`,
+`rosterMeasurementFingerprint`, `recruitingArrivalsFingerprint`,
+`rosterFreshnessFingerprint` — so a reader can re-run it. A short hash with no
+named instrument beside it is not evidence, and must not be quoted as though it
+were. That is the whole lesson of this file, twice over.

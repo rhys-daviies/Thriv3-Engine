@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { migrate } from './migrate.js';
+import { resolveDbPath } from './corpusIdentity.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.resolve(__dirname, '../data');
@@ -10,7 +11,7 @@ fs.mkdirSync(dataDir, { recursive: true });
 
 // RECRUITMATCH_DB lets tests point at ':memory:' or a throwaway file rather
 // than the working database.
-const dbPath = process.env.RECRUITMATCH_DB || path.join(dataDir, 'recruitmatch.sqlite');
+export const dbPath = resolveDbPath();
 
 /**
  * NO DEFAULT DATABASE FOR A `node -e` ONE-LINER — D3.2.
@@ -35,8 +36,13 @@ const dbPath = process.env.RECRUITMATCH_DB || path.join(dataDir, 'recruitmatch.s
  *
  * It refuses rather than defaults. A one-liner that genuinely wants a database
  * says which one, and the message says how.
+ *
+ * Reconciled with the corpus resolver: the predicate is the TRIMMED value,
+ * which is what `resolveDbPath` actually acts on. `RECRUITMATCH_DB="  "`
+ * otherwise reads as "a database was chosen" here while the resolver falls
+ * through to the default — the exact case this guard exists to refuse.
  */
-if (!process.env.RECRUITMATCH_DB && process.argv[1] === undefined) {
+if (!(process.env.RECRUITMATCH_DB ?? '').trim() && process.argv[1] === undefined) {
   throw new Error(
     'Refusing to open the default database from an inline `node -e` / REPL session.\n'
     + `  Importing this module runs schema.sql and migrate() against ${dbPath}.\n`

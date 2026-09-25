@@ -15,7 +15,8 @@
  * Every join in the product is `roster_players.college_name = colleges.name`,
  * so a school spelled two ways is a school no feature can read at all.
  */
-import db from '../db/client.js';
+import db, { dbPath } from '../db/client.js';
+import { assertCanonicalWrite } from '../db/corpusIdentity.js';
 import { ROSTER_SCHOOL_ALIASES } from '../lib/rosterSchoolAliases.js';
 
 const APPLY = process.argv.includes('--apply');
@@ -57,6 +58,13 @@ function main() {
   }
 
   if (!APPLY) { console.log('\nPass --apply to write.'); return; }
+  /*
+   * L7ZM. This writes product data. When the corpus is one other checkouts
+   * share, say so out loud rather than surprising them — see
+   * `server/db/corpusIdentity.js`.
+   */
+  assertCanonicalWrite({ script: 'alignRosterSchoolNames.js', path: dbPath });
+
 
   const run = db.transaction((items) => {
     for (const p of items) update.run(p.to, p.from, p.sport, p.division);

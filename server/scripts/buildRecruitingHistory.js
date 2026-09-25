@@ -15,12 +15,15 @@
  * transition counts at the end are what a later phase will gate on.
  */
 import 'dotenv/config';
-import db from '../db/client.js';
+import db, { dbPath } from '../db/client.js';
+import { assertCanonicalWrite } from '../db/corpusIdentity.js';
 import { utcNow } from '../lib/time.js';
 import {
   arrivalsFor, buildPriorIndex, ARRIVAL_TRANSITIONS,
   ENTRY_TYPE, PRIOR_CONFIDENCE, COACH_ATTRIBUTION,
 } from '../../shared/recruiting/arrivals.js';
+import { effectiveInputDigest, recordBuild } from '../lib/recruitingMaterialisation.js';
+import { trustedRosterPredicate } from '../../shared/roster/seasonTrust.js';
 
 const argv = process.argv.slice(2);
 const arg = (n, d = null) => { const i = argv.indexOf(`--${n}`); return i >= 0 && argv[i + 1] ? argv[i + 1] : d; };
@@ -54,8 +57,43 @@ const tally = (rows, key) => rows.reduce((m, r) => {
 const show = (obj) => Object.entries(obj).sort((a, b) => b[1] - a[1])
   .map(([k, v]) => `${k}=${v}`).join('  ');
 
-function buildSport(sport) {
-  const rows = db.prepare('SELECT * FROM roster_players WHERE sport = ?').all(sport);
+/**
+ * Rebuild one sport's `recruiting_arrivals`, atomically.
+ *
+ * EXPORTED SINCE L8D so the operator rebuild and the CLI run THE SAME CODE. An
+ * EXCLUDE_FROM_EVIDENCE decision stales this materialisation and a person has
+ * to be able to clear that from the screen where they made the decision; a
+ * second implementation of the rebuild would be a second thing that can be
+ * wrong about what "fresh" means.
+ *
+ * `assertCanonicalWrite` is NOT called here, and that is deliberate.
+ * `corpusIdentity.js` says it in its own words: "THE SERVER NEVER CALLS THIS...
+ * the guard lives at script entry points, not in client.js, precisely so
+ * normal product writes are untouched." It is a CLI acknowledgement, and a
+ * route must never depend on a CLI flag. It now sits at this file's entry
+ * point instead, where it runs once before any work rather than once per
+ * sport — the same protection, taken earlier.
+ */
+export function buildSport(sport, { reportOnly = REPORT_ONLY } = {}) {
+  /*
+   * L7ZL — THE BUILDER READS THE EFFECTIVE ROSTER, not the raw one.
+   *
+   * Without this the fingerprint would be a lie of the worst kind. It digests
+   * the roster with excluded programme-seasons removed, so after an exclusion a
+   * rebuild would stamp itself FRESH against that effective input while the
+   * rows it wrote still contained the excluded season — a materialisation
+   * certified as consistent and demonstrably not. The guard would then be worse
+   * than no guard, because it would assert the thing it exists to check.
+   *
+   * Caught by a fixture rather than by reasoning: the lifecycle test excluded a
+   * season, rebuilt, and found its arrivals still present.
+   *
+   * Removes nothing today — there are no exclusions — so this changes no stored
+   * row, only what a future rebuild is capable of honouring.
+   */
+  const rows = db.prepare(
+    `SELECT * FROM roster_players WHERE sport = ? AND ${trustedRosterPredicate('roster_players')}`,
+  ).all(sport);
   const coachRows = db.prepare('SELECT school, season, coach_name, reason FROM coach_seasons WHERE sport = ? ORDER BY season').all(sport);
 
   const coachBy = new Map();
@@ -92,8 +130,22 @@ function buildSport(sport) {
     transitionCounts.set(programme, out.coverage.comparableCount);
   }
 
-  if (!REPORT_ONLY) {
+  if (!reportOnly) {
     const builtAt = utcNow();
+    /*
+     * L7ZL — the digest is taken BEFORE the write and stamped INSIDE the same
+     * transaction as the rows.
+     *
+     * Before, because it must describe the input this build actually read; a
+     * digest taken afterwards could pick up a roster change that landed during
+     * the build and would then certify rows that were never derived from it.
+     *
+     * Inside, because data and stamp must not be able to diverge. If they could
+     * commit separately, a crash between them would leave a materialisation
+     * claiming a freshness it does not have — the precise failure the stamp
+     * exists to make impossible.
+     */
+    const digest = effectiveInputDigest(sport);
     db.transaction(() => {
       db.prepare('DELETE FROM recruiting_arrivals WHERE sport = ?').run(sport);
       for (const a of allArrivals) {
@@ -105,6 +157,7 @@ function buildSport(sport) {
           builtAt,
         });
       }
+      recordBuild({ sport, digest, now: new Date(builtAt) });
     })();
   }
 
@@ -159,8 +212,23 @@ function report(r) {
     + ' is a name match to more than one school');
 }
 
-const results = SPORTS.map(buildSport);
-results.forEach(report);
+/*
+ * Only when RUN, never when imported. The server imports `buildSport` for the
+ * operator rebuild, and an import that rebuilt both sports as a side effect
+ * would be the worst kind of surprise — the same reasoning as the D3.2 guard
+ * in `client.js`, one layer up.
+ */
+if (import.meta.url === `file://${process.argv[1]}`) {
+  /*
+   * L7ZM. This writes product data. When the corpus is one other checkouts
+   * share, say so out loud rather than surprising them — see
+   * `server/db/corpusIdentity.js`. Once, before any sport is built.
+   */
+  if (!REPORT_ONLY) assertCanonicalWrite({ script: 'buildRecruitingHistory.js', path: dbPath });
 
-console.log(`\n${REPORT_ONLY ? 'REPORT ONLY — nothing written.' : 'recruiting_arrivals rebuilt.'}`);
-console.log('The table is derived from roster_players and can be dropped and rebuilt at any time.\n');
+  const results = SPORTS.map((sport) => buildSport(sport));
+  results.forEach(report);
+
+  console.log(`\n${REPORT_ONLY ? 'REPORT ONLY — nothing written.' : 'recruiting_arrivals rebuilt.'}`);
+  console.log('The table is derived from roster_players and can be dropped and rebuilt at any time.\n');
+}
