@@ -1,0 +1,57 @@
+{
+  "pack": "A7.27-academic-cases",
+  "sealedOpened": false,
+  "architectureConsidered": false,
+  "note": "Written against the blind sheet alone. No architecture family had been compared at the time of writing; A7.27 section 7 was deliberately left until after this file was committed.",
+  "frame": [
+    "An institution's acceptance rate describes its applicant pool. A recruited athlete is not a generic applicant, and the two facts must not be read as one.",
+    "A test-score difference is evidence about where the athlete sits relative to the enrolled body. It is not an admissions decision and it is not a probability.",
+    "Coach support is real and varies enormously by institution type: a highly selective D3 runs a formal pre-read against a limited number of supported places; an open-admission public runs essentially none because it admits almost everyone. The same SAT gap therefore means very different things at the two.",
+    "NCAA and NAIA initial-eligibility standards are a separate system from institutional admission. Neither is on these cards and neither is modelled."
+  ],
+  "verdicts": [
+    { "code": "K-01", "verdict": "NO MEANINGFUL ACADEMIC CONCERN",
+      "why": "The athlete's 1100 sits 12 points ABOVE the enrolled average and the institution admits 78%. There is no academic obstacle here at all. The real problem with this pairing is money — $23,280 against a $13,000 ceiling — and that is a different question that the academic evidence should not be allowed to stand in for." },
+    { "code": "K-02", "verdict": "INSUFFICIENT EVIDENCE",
+      "why": "No SAT average and no acceptance rate on file. An institutional academic rating of 4.9 says something about the institution and nothing about whether this athlete would be admitted to it. Nothing here supports a judgement in either direction, and saying so is the correct answer rather than a hedge." },
+    { "code": "K-03", "verdict": "NO MEANINGFUL ACADEMIC CONCERN",
+      "why": "No SAT average, but a 63.5% acceptance rate with a 3.2 GPA is ordinary. Worth being explicit about the asymmetry: a high acceptance rate IS reasonable evidence that admission is not an obstacle, whereas a low one would not be evidence that it is. Partial evidence can clear a case without being able to condemn one." },
+    { "code": "K-04", "verdict": "SUBSTANTIAL ACADEMIC CONCERN / LOWER PURSUIT",
+      "why": "316 points below the enrolled average, but the institution admits 26% — roughly one applicant in four, not one in twenty. At a selective D3 of this kind coach support is a genuine lever and a gap of this size is the sort a pre-read is designed to resolve. It is a real reach and should be ranked as one; it is not out of reach." },
+    { "code": "K-05", "verdict": "EXTREME ACADEMIC CONCERN / COACH PRE-READ REQUIRED BEFORE MEANINGFUL PURSUIT",
+      "why": "454 points below the enrolled average at an institution admitting 4.5%. Institutions in this band give coaches very little admissions leverage, and a gap of this size is well outside what support bridges. It also does not offer the athlete's intended major, so even a successful admission would not deliver the thing they asked for. The clearest case on the sheet." },
+    { "code": "K-06", "verdict": "ACADEMIC CONCERN BUT STILL REASONABLE TO PURSUE",
+      "why": "98 points below the enrolled average at a 14%-admit institution. This is exactly the band where a coach's support plus a pre-read is routinely decisive — the athlete is close to the middle of the class, not outside it. The binding constraint on this pairing is again cost, not academics." },
+    { "code": "K-07", "verdict": "EXTREME ACADEMIC CONCERN / COACH PRE-READ REQUIRED BEFORE MEANINGFUL PURSUIT",
+      "why": "603 points below the enrolled average — the largest gap on the sheet — at an institution admitting 4.6%. This card is the important one, because ATHLETICALLY IT IS A NEAR-PERFECT FIT: ability 9 against a programme of almost exactly the athlete's own level, and the cost is within budget. Every axis the model can see says pursue; the only thing standing in the way is the one axis it cannot see. Institutions of this type run a formal academic index for recruits with published minimum bands, and a gap of this size does not clear them however good the player is." },
+    { "code": "K-08", "verdict": "EXTREME ACADEMIC CONCERN / COACH PRE-READ REQUIRED BEFORE MEANINGFUL PURSUIT",
+      "why": "548 below at a 14%-admit institution. Same programme as K-06 with a materially weaker academic record, and the verdict moves two whole steps — which is the point: the programme did not change, the athlete did, and the answer should depend on the pairing rather than on the institution alone." },
+    { "code": "K-09", "verdict": "NO MEANINGFUL ACADEMIC CONCERN",
+      "why": "THE SELECTIVITY TRAP, and the answer is no concern. A 13.4% acceptance rate looks forbidding, but the athlete's 1500 is 31 points ABOVE the enrolled average and they are being considered as a recruited athlete rather than through the general pool. Anything that treated low acceptance as academic risk would get this case exactly wrong." },
+    { "code": "K-10", "verdict": "NO MEANINGFUL ACADEMIC CONCERN",
+      "why": "8 points above the enrolled average, 94.8% acceptance. Nothing to weigh." },
+    { "code": "K-11", "verdict": "NO MEANINGFUL ACADEMIC CONCERN",
+      "why": "THE CONVERSE TRAP. 301 points below the enrolled average, which in isolation looks like the K-04 case — but the institution admits 91.9%, so it is not selecting on that margin at all. A gap of this size at an essentially open-admission public is not an admissions obstacle. Gap and selectivity have to be read together or both of these cards come out wrong." },
+    { "code": "K-12", "verdict": "INSUFFICIENT EVIDENCE",
+      "why": "No test score on the athlete's side, so no comparison exists. A 3.3 GPA against a 9%-admit institution is suggestive but weak, and for an international athlete a GPA does not map cleanly onto a US scale anyway. Worth recording that the OPERATIONAL consequence here is the same as for K-05 and K-07 — do not present this as a settled recommendation until somebody asks the coach — even though the EVIDENCE STATE is completely different. Those two things need to stay separable." },
+    { "code": "K-13", "verdict": "EXTREME ACADEMIC CONCERN / COACH PRE-READ REQUIRED BEFORE MEANINGFUL PURSUIT",
+      "why": "430 below at 12.1% acceptance. Offering the intended major does not offset it: being admitted is a precondition of studying anything there." },
+    { "code": "K-14", "verdict": "NO MEANINGFUL ACADEMIC CONCERN",
+      "why": "142 below the enrolled average at a 94.8%-admit institution. The gap is real and it does not matter, for the same reason as K-11." },
+    { "code": "K-15", "verdict": "EXTREME ACADEMIC CONCERN / COACH PRE-READ REQUIRED BEFORE MEANINGFUL PURSUIT",
+      "why": "398 below at 14% acceptance. Nearer the boundary than K-08 and I would not argue hard against 'substantial' — but at an institution admitting one in seven, a shortfall of roughly 400 points is past what coach support reliably bridges, and the honest instruction is to ask before building a plan around it." }
+  ],
+  "gradient": "The verdicts are monotone in both quantities and in neither alone: at acceptance rates under 20%, −98 reads as reasonable (K-06), −398 to −603 as extreme (K-15, K-13, K-08, K-07); at 26% acceptance, −316 reads as substantial (K-04); at acceptance above 90%, −142 and −301 read as no concern at all (K-14, K-11); and at any acceptance rate a non-negative gap reads as no concern (K-09, K-01, K-10).",
+  "X1": {
+    "question": "Is there a point at which a test-score difference should change whether a programme is pursued at all, rather than merely ranked lower?",
+    "answer": "No — not 'pursued at all'. A supported recruit is a real route and nothing on these cards can see whether a particular coach has a place available, so removing a programme would be asserting something we do not know. But there IS a point at which the list should stop presenting a programme as a settled recommendation and start presenting it as conditional on a pre-read. That point requires BOTH a large shortfall AND a selective institution. Neither on its own gets there: K-11 has a 301-point shortfall and no concern, K-09 has a 13% acceptance rate and no concern."
+  },
+  "X2": {
+    "question": "Where the evidence is missing or partial, what should the model do?",
+    "answer": "Say so, and say it distinctly. K-02 (nothing on file) and K-12 (no athlete score) must not end up carrying the same number as K-01 (measured, no concern) or K-05 (measured, extreme). The asymmetry in K-03 matters too: a high acceptance rate is adequate evidence that admission is not an obstacle, while a low one is not adequate evidence that it is — so partial evidence should be allowed to clear a case and never to condemn one. Anything that turned 'unknown' into a middling score would be inventing the one thing we do not have."
+  },
+  "X3": {
+    "question": "Does an institution's acceptance rate, on its own, tell you anything useful about this athlete?",
+    "answer": "On its own, almost nothing, and two cards prove it in opposite directions. K-09: 13.4% acceptance, athlete above the enrolled average, no concern. K-11: 91.9% acceptance, athlete 301 points below, also no concern. The rate is a fact about an applicant pool. It becomes useful only jointly with where this athlete sits relative to the enrolled body — and it has one genuinely useful solo function, which is that a HIGH rate rules a concern out."
+  }
+}
