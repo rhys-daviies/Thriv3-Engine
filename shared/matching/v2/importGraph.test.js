@@ -101,6 +101,7 @@ const MAY_IMPORT_V2 = [
   'server/scripts/v2ObservedSeason.js',
   'server/scripts/v2Turnover.js',
   'server/scripts/v2CoachHistory.js',
+  'server/scripts/v2PositionalStructure.js',
   'server/scripts/v2ValidationFixtures.js',
   'server/scripts/derivePlayingNorms.js',
   'server/scripts/derivePositionalNorms.js',
