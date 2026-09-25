@@ -186,6 +186,19 @@ export function audit({ evidence, mapping, resolvers, now = utcNow() }) {
     }
     const wrong = mine.filter((m) => m.status === DOMAIN_STATUS.WRONG_INSTITUTION);
     const anyVerified = mine.some((m) => m.status === DOMAIN_STATUS.VERIFIED);
+    // A PAGE SELF-IDENTIFICATION MAY ONLY VERIFY AN INSTITUTION A CLAIM AGREES
+    // WITH — Phase 2C. Previously a bare `host.method === EXACT` verified the row
+    // at the host's UNITID even when NO claiming name resolved to it, so a page
+    // that matched the wrong same-state sibling was stamped VERIFIED at that
+    // sibling (uconn.edu's page matched "Connecticut College" 128902 and won
+    // over the "UConn" 129020 claim; the same shape mis-stamped St John's,
+    // Columbia, Anderson, St Thomas, UMass, Westminster, Northwestern...). When
+    // the host names an institution every claim disagrees with, the strong
+    // identifiers CONFLICT — that is a question to verify externally (AMBIGUOUS),
+    // never a silent cross-institution VERIFIED. Loose name similarity does not
+    // outrank the claimants; agreement does.
+    const claimedUnitids = new Set(keys.map((k) => keyResolution[k].unitid).filter((u) => u != null));
+    const hostAgreesWithAClaim = host.unitid != null && claimedUnitids.has(host.unitid);
     rows.push({
       domain,
       unitid: host.unitid ?? null,
@@ -195,8 +208,10 @@ export function audit({ evidence, mapping, resolvers, now = utcNow() }) {
         : host.unitid == null
           ? (host.reason === IDENTITY_UNRESOLVED.AMBIGUOUS ? DOMAIN_STATUS.AMBIGUOUS : DOMAIN_STATUS.INSUFFICIENT_EVIDENCE)
           : wrong.length ? DOMAIN_STATUS.WRONG_INSTITUTION
-            : anyVerified || host.method === IDENTITY_METHOD.EXACT ? DOMAIN_STATUS.VERIFIED
-              : DOMAIN_STATUS.VERIFIED_ALIAS,
+            : anyVerified ? DOMAIN_STATUS.VERIFIED
+              : hostAgreesWithAClaim
+                ? (host.method === IDENTITY_METHOD.EXACT ? DOMAIN_STATUS.VERIFIED : DOMAIN_STATUS.VERIFIED_ALIAS)
+                : DOMAIN_STATUS.AMBIGUOUS,
       role: ev.role,
       claimed_keys: JSON.stringify(keys),
       claimed_unitids: JSON.stringify([...new Set(keys.map((k) => keyResolution[k].unitid).filter((u) => u != null))].sort((a, b) => a - b)),

@@ -13,6 +13,11 @@
  *   - any canonical institution that resolves to a DIFFERENT institution
  *   - any coach whose VERIFIED source domain points at a different UNITID than
  *     the institution it is filed under
+ *   - any VERIFIED/VERIFIED_ALIAS domain whose UNITID DISAGREES with its own
+ *     single, unambiguous claimed UNITID. This flags a domain-ownership
+ *     disagreement to VERIFY EXTERNALLY — it does NOT assert the claim is right
+ *     (Phase 2C proved the fix goes either way: uconn.edu's unitid was the
+ *     error, pct.edu's claim was the error). Detection, not correction.
  * WARNINGS (exit 0, reported):
  *   - ambiguous normalized names, duplicate UNITIDs, conflicting aliases,
  *     domain→UNITID conflicts, registry gaps, multi-domain coach groups.
@@ -31,7 +36,7 @@ const db = new Database(dbPath, { readonly: true, fileMustExist: true });
 const all = (sql) => db.prepare(sql).all();
 
 const colleges = all('SELECT name, sport, unitid, state, division FROM colleges');
-const domains = all('SELECT domain, unitid, status FROM athletics_domains');
+const domains = all('SELECT domain, unitid, status, claimed_unitids FROM athletics_domains');
 const aliases = all('SELECT alias_key, unitid, alias_type FROM institution_aliases');
 const coaches = all("SELECT id, full_name, school, sport, email_source_url FROM coaches");
 
@@ -80,8 +85,38 @@ console.log(`  coaches whose VERIFIED source domain != assigned institution: ${c
 cc.forEach((x) => console.log('    CONFLICT:', x));
 if (coachConflict > 0) critical += coachConflict;
 
-// 3) Warnings: ambiguous normalized names
+// 3) VERIFIED domain UNITID vs its own single unambiguous claimed UNITID.
+// A VERIFIED/VERIFIED_ALIAS domain is trusted by the resolver at 0.99 confidence
+// using its `unitid`. When that UNITID differs from the domain's own single
+// claimed value, the two internal signals DISAGREE — but which one is right is
+// NOT decided here. Phase 2C proved the fix is EITHER direction: usually the
+// host `unitid` is a page-match error and the claim is right (uconn.edu), but
+// sometimes the claim is a bad mapping and the `unitid` is right (pct.edu is
+// Penn College of Technology, not UPenn). So this is a "VERIFY DOMAIN
+// OWNERSHIP" flag, NOT "replace the unitid with the claim". Detection only.
+// Multi-claim domains (e.g. rutgers.edu: Camden+Newark) are a genuine
+// multi-institution/ambiguous signal, reported as a warning not a CRITICAL.
+section('VERIFIED domain UNITID vs single claimed evidence (ownership disagreement — verify externally)');
+let domClaimMismatch = 0; const dcm = []; let domClaimAmbiguous = 0;
+for (const d of domains) {
+  if (!['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) || d.unitid == null) continue;
+  let claimed = [];
+  try { claimed = JSON.parse(d.claimed_unitids || '[]').map(Number).filter((n) => !Number.isNaN(n)); } catch { /* malformed */ }
+  const uniq = [...new Set(claimed)];
+  if (uniq.length === 1 && uniq[0] !== Number(d.unitid)) {
+    domClaimMismatch++; if (dcm.length < 15) dcm.push(`${d.domain}: stamped ${d.unitid}, single claim ${uniq[0]}`);
+  } else if (uniq.length > 1 && !uniq.includes(Number(d.unitid))) {
+    domClaimAmbiguous++;
+  }
+}
+console.log(`  VERIFIED domains whose UNITID disagrees with a single unambiguous claim: ${domClaimMismatch}`);
+dcm.forEach((x) => console.log('    VERIFY-OWNERSHIP:', x));
+if (domClaimAmbiguous) console.log(`  (ambiguous multi-claim mismatches, reported as warning not critical: ${domClaimAmbiguous})`);
+if (domClaimMismatch > 0) critical += domClaimMismatch;
+
+// 4) Warnings: ambiguous normalized names
 section('Warnings');
+warnings.push(`ambiguous multi-claim VERIFIED domain UNITIDs (need human disambiguation): ${domClaimAmbiguous}`);
 const normGroups = new Map();
 for (const c of colleges) { const k = `${c.sport}|${normalizeForMatch(c.name)}`; (normGroups.get(k) || normGroups.set(k, new Set()).get(k)).add(c.unitid); }
 const ambigNames = [...normGroups.entries()].filter(([, u]) => u.size > 1);

@@ -1,0 +1,7503 @@
+[
+  {
+    "unitid": 199412,
+    "variants": [
+      "Queens (NC)",
+      "Queens"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "queens nc",
+      "queens"
+    ],
+    "programme_count": 2,
+    "coach_count": 10,
+    "roster_count": 322,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 149231,
+    "variants": [
+      "SIUE",
+      "SIU Edwardsville"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "siue",
+      "siu edwardsville"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 276,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 199218,
+    "variants": [
+      "UNCW",
+      "UNC Wilmington"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "uncw",
+      "unc wilmington"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 288,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 197036,
+    "variants": [
+      "Army West Point",
+      "Army"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "army west point",
+      "army"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 296,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 151111,
+    "variants": [
+      "IU Indy",
+      "Indiana University Columbus"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "iu indy",
+      "indiana columbus"
+    ],
+    "programme_count": 4,
+    "coach_count": 9,
+    "roster_count": 387,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 220075,
+    "variants": [
+      "ETSU",
+      "East Tennessee State"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "etsu",
+      "east tennessee state"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 277,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 110608,
+    "variants": [
+      "CSUN",
+      "Cal State Northridge"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "csun",
+      "cal state northridge"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 298,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 163046,
+    "variants": [
+      "Loyola Maryland",
+      "Loyola (MD)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "loyola maryland",
+      "loyola md"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 318,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 227368,
+    "variants": [
+      "UTRGV",
+      "UT Rio Grande Valley"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "utrgv",
+      "ut rio grande valley"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 263,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 433660,
+    "variants": [
+      "FGCU",
+      "Florida Gulf Coast"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "fgcu",
+      "florida gulf coast"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 294,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 225627,
+    "variants": [
+      "UIW",
+      "Incarnate Word"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "uiw",
+      "incarnate word"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 270,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 176053,
+    "variants": [
+      "Mississippi College",
+      "Mississippi Christian"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "mississippi",
+      "mississippi christian"
+    ],
+    "programme_count": 3,
+    "coach_count": 8,
+    "roster_count": 386,
+    "coach_seasons_count": 10,
+    "classification": "REAL_DISTINCT_ENTITY"
+  },
+  {
+    "unitid": 498562,
+    "variants": [
+      "Commonwealth University-Bloomsburg",
+      "Commonwealth University-Lock Haven",
+      "Commonwealth University-Mansfield"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "commonwealth bloomsburg",
+      "commonwealth lock haven",
+      "commonwealth mansfield"
+    ],
+    "programme_count": 5,
+    "coach_count": 11,
+    "roster_count": 767,
+    "coach_seasons_count": 25,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 148654,
+    "variants": [
+      "Illinois Springfield",
+      "UIS"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "illinois springfield",
+      "uis"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 329,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 110592,
+    "variants": [
+      "Cal State LA",
+      "Cal State Los Angeles"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "cal state la",
+      "cal state los angeles"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 352,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 156745,
+    "variants": [
+      "Georgetown (KY)",
+      "Georgetown College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "georgetown ky",
+      "georgetown"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 122,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 205443,
+    "variants": [
+      "Shawnee State",
+      "Shawnee State University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "shawnee state"
+    ],
+    "programme_count": 4,
+    "coach_count": 6,
+    "roster_count": 334,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 154590,
+    "variants": [
+      "William Penn",
+      "William Penn University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "william penn"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 80,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 216366,
+    "variants": [
+      "Thomas Jefferson",
+      "Jefferson"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "thomas jefferson",
+      "jefferson"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 333,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 157216,
+    "variants": [
+      "Lindsey Wilson",
+      "Lindsey Wilson University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "lindsey wilson"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 99,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 154855,
+    "variants": [
+      "Central Christian",
+      "Central Christian College of Kansas"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "central christian",
+      "central christian kansas"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 101,
+    "coach_seasons_count": 0,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 156541,
+    "variants": [
+      "Cumberlands",
+      "University of the Cumberlands"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "cumberlands"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 133,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 140252,
+    "variants": [
+      "Life (GA)",
+      "Life University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "life ga",
+      "life"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 168,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 155520,
+    "variants": [
+      "MidAmerica Nazarene",
+      "MidAmerica Nazarene University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "midamerica nazarene"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 152,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 176947,
+    "variants": [
+      "Central Methodist",
+      "Central Methodist University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "central methodist"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 80,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 153375,
+    "variants": [
+      "Grand View",
+      "Grand View University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "grand view"
+    ],
+    "programme_count": 2,
+    "coach_count": 10,
+    "roster_count": 133,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 210146,
+    "variants": [
+      "Southern Oregon",
+      "Southern Oregon University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "southern oregon"
+    ],
+    "programme_count": 2,
+    "coach_count": 10,
+    "roster_count": 118,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 180984,
+    "variants": [
+      "Concordia (NE)",
+      "Concordia University Nebraska"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "concordia ne",
+      "concordia nebraska"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 26,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 138868,
+    "variants": [
+      "Point (GA)",
+      "Point University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "point ga",
+      "point"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 138,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 151801,
+    "variants": [
+      "Indiana Wesleyan",
+      "Indiana Wesleyan University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "indiana wesleyan"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 113,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 137564,
+    "variants": [
+      "Southeastern University",
+      "Southeastern University (Florida)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "southeastern",
+      "southeastern florida"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 138,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 107141,
+    "variants": [
+      "John Brown",
+      "John Brown University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "john brown"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 98,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 180106,
+    "variants": [
+      "Carroll (MT)",
+      "Carroll College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "carroll mt",
+      "carroll"
+    ],
+    "programme_count": 2,
+    "coach_count": 11,
+    "roster_count": 130,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 155627,
+    "variants": [
+      "Ottawa",
+      "Ottawa University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "ottawa"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 103,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 181330,
+    "variants": [
+      "Midland",
+      "Midland University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "midland"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 84,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 154004,
+    "variants": [
+      "Morningside",
+      "Morningside University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "morningside"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 92,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 154721,
+    "variants": [
+      "Bethany (KS)",
+      "Bethany College (Kansas)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bethany ks",
+      "bethany kansas"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 48,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 150677,
+    "variants": [
+      "Grace",
+      "Grace College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "grace"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 100,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 105899,
+    "variants": [
+      "Arizona Christian",
+      "Arizona Christian University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "arizona christian"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 131,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 208646,
+    "variants": [
+      "Eastern Oregon",
+      "Eastern Oregon University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "eastern oregon"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 128,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 219718,
+    "variants": [
+      "Bethel (TN)",
+      "Bethel University (TN)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bethel tn"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 119,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 154688,
+    "variants": [
+      "Baker",
+      "Baker University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "baker"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 158,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 155414,
+    "variants": [
+      "Kansas Wesleyan",
+      "Kansas Wesleyan University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "kansas wesleyan"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 139,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 168786,
+    "variants": [
+      "Aquinas",
+      "Aquinas College (Michigan)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "aquinas",
+      "aquinas michigan"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 123,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 154013,
+    "variants": [
+      "Mount Mercy",
+      "Mount Mercy University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "mount mercy"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 218,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 220215,
+    "variants": [
+      "Freed-Hardeman",
+      "Freed-Hardeman University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "freed hardeman"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 141,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 172334,
+    "variants": [
+      "Spring Arbor",
+      "Spring Arbor University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "spring arbor"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 154,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 229780,
+    "variants": [
+      "Wayland Baptist",
+      "Wayland Baptist University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wayland baptist"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 172,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 180595,
+    "variants": [
+      "Rocky Mountain",
+      "Rocky Mountain College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "rocky mountain"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 113,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 145372,
+    "variants": [
+      "Greenville",
+      "Greenville University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "greenville"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 398,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 178244,
+    "variants": [
+      "Missouri Baptist",
+      "Missouri Baptist University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "missouri baptist"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 151,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 149505,
+    "variants": [
+      "Trinity Christian",
+      "Trinity Christian College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "trinity christian"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 78,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 147828,
+    "variants": [
+      "Olivet Nazarene",
+      "Olivet Nazarene University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "olivet nazarene"
+    ],
+    "programme_count": 2,
+    "coach_count": 10,
+    "roster_count": 107,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 181127,
+    "variants": [
+      "Hastings",
+      "Hastings College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hastings"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 182,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 153250,
+    "variants": [
+      "Dordt",
+      "Dordt University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "dordt"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 118,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 154518,
+    "variants": [
+      "Waldorf",
+      "Waldorf University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "waldorf"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 103,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 133979,
+    "variants": [
+      "Florida Memorial",
+      "Florida Memorial University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "florida memorial"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 93,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 207722,
+    "variants": [
+      "Science & Arts (OK)",
+      "University of Science and Arts of Oklahoma"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "science arts ok",
+      "science and arts oklahoma"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 124,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 155900,
+    "variants": [
+      "Southwestern (KS)",
+      "Southwestern College (Kansas)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "southwestern ks",
+      "southwestern kansas"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 158,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 168148,
+    "variants": [
+      "Tufts",
+      "Tufts University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "tufts"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 309,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 155812,
+    "variants": [
+      "Saint Mary (KS)",
+      "University of Saint Mary"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "saint mary ks",
+      "saint mary"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 132,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 138293,
+    "variants": [
+      "Webber International",
+      "Webber International University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "webber international"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 118,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 190761,
+    "variants": [
+      "Dominican College (NY)",
+      "Dominican (NY)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "dominican ny"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 284,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 174844,
+    "variants": [
+      "Saint Olaf",
+      "St Olaf College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "saint olaf"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 314,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 155973,
+    "variants": [
+      "Tabor",
+      "Tabor College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "tabor"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 168,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 219091,
+    "variants": [
+      "Dakota Wesleyan",
+      "Dakota Wesleyan University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "dakota wesleyan"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 75,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 177339,
+    "variants": [
+      "Evangel",
+      "Evangel University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "evangel"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 146,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 219790,
+    "variants": [
+      "Bryan",
+      "Bryan College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bryan"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 62,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 164465,
+    "variants": [
+      "Amherst",
+      "Amherst College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "amherst"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 294,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 173647,
+    "variants": [
+      "Gustavus Adolphus",
+      "Gustavus Adolphus College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "gustavus adolphus"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 360,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 230959,
+    "variants": [
+      "Middlebury",
+      "Middlebury College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "middlebury"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 324,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 173045,
+    "variants": [
+      "Augsburg",
+      "Augsburg University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "augsburg"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 254,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 229267,
+    "variants": [
+      "Trinity (TX)",
+      "Trinity University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "trinity tx",
+      "trinity"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 338,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 212009,
+    "variants": [
+      "Dickinson",
+      "Dickinson College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "dickinson"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 335,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 173902,
+    "variants": [
+      "Macalester",
+      "Macalester College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "macalester"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 312,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 164580,
+    "variants": [
+      "Babson",
+      "Babson College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "babson"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 326,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 177542,
+    "variants": [
+      "Hannibal-LaGrange",
+      "Hannibal-LaGrange University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hannibal lagrange"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 116,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 234207,
+    "variants": [
+      "Washington & Lee",
+      "Washington and Lee University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "washington lee",
+      "washington and lee"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 310,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 240268,
+    "variants": [
+      "Wisconsin-Eau Claire",
+      "University of Wisconsin-Eau Claire"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wisconsin eau claire"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 325,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 139658,
+    "variants": [
+      "Emory",
+      "Emory University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "emory"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 332,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 169080,
+    "variants": [
+      "Calvin",
+      "Calvin University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "calvin"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 292,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 173258,
+    "variants": [
+      "Carleton",
+      "Carleton College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "carleton"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 317,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 498571,
+    "variants": [
+      "PennWest California",
+      "PennWest Edinboro",
+      "PennWest Clarion"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "pennwest california",
+      "pennwest edinboro",
+      "pennwest clarion"
+    ],
+    "programme_count": 4,
+    "coach_count": 7,
+    "roster_count": 606,
+    "coach_seasons_count": 20,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 185590,
+    "variants": [
+      "Montclair State",
+      "Montclair State University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "montclair state"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 292,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 161004,
+    "variants": [
+      "Bowdoin",
+      "Bowdoin College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bowdoin"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 277,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 152318,
+    "variants": [
+      "Rose-Hulman",
+      "Rose-Hulman Institute of Technology"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "rose hulman",
+      "rose hulman institute technology"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 378,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 150756,
+    "variants": [
+      "Hanover",
+      "Hanover College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hanover"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 390,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 196149,
+    "variants": [
+      "SUNY Cortland",
+      "SUNY College at Cortland"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "suny cortland",
+      "suny at cortland"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 334,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 162928,
+    "variants": [
+      "Johns Hopkins",
+      "Johns Hopkins University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "johns hopkins"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 321,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 179867,
+    "variants": [
+      "Washington (MO)",
+      "Washington University in St Louis"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "washington mo",
+      "washington in saint louis"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 318,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 213996,
+    "variants": [
+      "Messiah",
+      "Messiah University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "messiah"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 262,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 168281,
+    "variants": [
+      "Wheaton (MA)",
+      "Wheaton College (MA)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wheaton ma"
+    ],
+    "programme_count": 2,
+    "coach_count": 10,
+    "roster_count": 290,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 170037,
+    "variants": [
+      "Cornerstone",
+      "Cornerstone University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "cornerstone"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 105,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 236230,
+    "variants": [
+      "Pacific Lutheran",
+      "Pacific Lutheran University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "pacific lutheran"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 389,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 240426,
+    "variants": [
+      "Wisconsin-Superior",
+      "University of Wisconsin-Superior"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wisconsin superior"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 335,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 214175,
+    "variants": [
+      "Muhlenberg",
+      "Muhlenberg College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "muhlenberg"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 310,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 204185,
+    "variants": [
+      "Mount Union",
+      "University of Mount Union"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "mount union"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 389,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 168342,
+    "variants": [
+      "Williams",
+      "Williams College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "williams"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 277,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 202523,
+    "variants": [
+      "Denison",
+      "Denison University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "denison"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 292,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 157535,
+    "variants": [
+      "Pikeville",
+      "University of Pikeville"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "pikeville"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 129,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 173300,
+    "variants": [
+      "Concordia (MN)",
+      "Concordia College-Moorhead"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "concordia mn",
+      "concordia moorhead"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 263,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 203535,
+    "variants": [
+      "Kenyon",
+      "Kenyon College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "kenyon"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 311,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 165024,
+    "variants": [
+      "Bridgewater State",
+      "Bridgewater State University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bridgewater state"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 286,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 195030,
+    "variants": [
+      "Rochester",
+      "University of Rochester"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "rochester"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 304,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 154235,
+    "variants": [
+      "Saint Ambrose",
+      "Saint Ambrose University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "saint ambrose"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 80,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 155089,
+    "variants": [
+      "Friends",
+      "Friends University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "friends"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 175,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 107558,
+    "variants": [
+      "Ozarks (AR)",
+      "University of the Ozarks"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "ozarks ar",
+      "ozarks"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 120,
+    "coach_seasons_count": 5,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 150066,
+    "variants": [
+      "Anderson (IN)",
+      "Anderson University (IN)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "anderson in"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 319,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 211440,
+    "variants": [
+      "Carnegie Mellon",
+      "Carnegie Mellon University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "carnegie mellon"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 334,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 234173,
+    "variants": [
+      "Virginia Wesleyan",
+      "Batten University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "virginia wesleyan",
+      "batten"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 342,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 240189,
+    "variants": [
+      "Wisconsin-Whitewater",
+      "University of Wisconsin-Whitewater"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wisconsin whitewater"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 284,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 133553,
+    "variants": [
+      "Embry-Riddle",
+      "Embry–Riddle Aeronautical"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "embry riddle",
+      "embry riddle aeronautical"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 252,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 212805,
+    "variants": [
+      "Grove City",
+      "Grove City College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "grove city"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 336,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 184782,
+    "variants": [
+      "Rowan",
+      "Rowan University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "rowan"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 301,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 240365,
+    "variants": [
+      "Wisconsin-Oshkosh",
+      "University of Wisconsin-Oshkosh"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wisconsin oshkosh"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 151,
+    "coach_seasons_count": 5,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 155937,
+    "variants": [
+      "Sterling",
+      "Sterling College (Kansas)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "sterling",
+      "sterling kansas"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 95,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 212577,
+    "variants": [
+      "Franklin & Marshall",
+      "Franklin & Marshall College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "franklin marshall"
+    ],
+    "programme_count": 2,
+    "coach_count": 10,
+    "roster_count": 296,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 204936,
+    "variants": [
+      "Otterbein",
+      "Otterbein University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "otterbein"
+    ],
+    "programme_count": 2,
+    "coach_count": 10,
+    "roster_count": 312,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 131283,
+    "variants": [
+      "Catholic",
+      "Catholic University of America"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "catholic",
+      "catholic america"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 330,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 164216,
+    "variants": [
+      "Washington College (MD)",
+      "Washington College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "washington md",
+      "washington"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 293,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 130697,
+    "variants": [
+      "Wesleyan (CT)",
+      "Wesleyan University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wesleyan ct",
+      "wesleyan"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 314,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 237057,
+    "variants": [
+      "Whitman",
+      "Whitman College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "whitman"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 291,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 196006,
+    "variants": [
+      "Alfred State",
+      "SUNY Alfred State"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "alfred state",
+      "suny alfred state"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 281,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 214591,
+    "variants": [
+      "Penn State Behrend",
+      "Pennsylvania State University-Penn State Erie (Behrend College)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "penn state behrend",
+      "pennsylvania state penn state erie behrend"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 279,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 143118,
+    "variants": [
+      "Aurora",
+      "Aurora University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "aurora"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 293,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 201645,
+    "variants": [
+      "Case Western Reserve",
+      "Case Western Reserve University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "case western reserve"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 315,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 170301,
+    "variants": [
+      "Hope",
+      "Hope College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hope"
+    ],
+    "programme_count": 2,
+    "coach_count": 10,
+    "roster_count": 249,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 147679,
+    "variants": [
+      "North Park",
+      "North Park University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "north park"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 401,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 178721,
+    "variants": [
+      "Park",
+      "Park University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "park"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 134,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 195544,
+    "variants": [
+      "St. Joseph's (NY)",
+      "St. Joseph's University (Long Island)",
+      "St. Joseph's University (Brooklyn)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "saint josephs ny",
+      "saint josephs long island",
+      "saint josephs brooklyn"
+    ],
+    "programme_count": 3,
+    "coach_count": 3,
+    "roster_count": 277,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 112260,
+    "variants": [
+      "Claremont-Mudd-Scripps",
+      "Claremont McKenna College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "claremont mudd scripps",
+      "claremont mckenna"
+    ],
+    "programme_count": 3,
+    "coach_count": 7,
+    "roster_count": 320,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 238458,
+    "variants": [
+      "Carroll (WI)",
+      "Carroll University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "carroll wi",
+      "carroll"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 411,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 217518,
+    "variants": [
+      "Roger Williams",
+      "Roger Williams University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "roger williams"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 327,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 153825,
+    "variants": [
+      "Loras",
+      "Loras College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "loras"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 437,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 139393,
+    "variants": [
+      "Covenant",
+      "Covenant College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "covenant"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 278,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 231712,
+    "variants": [
+      "Christopher Newport",
+      "Christopher Newport University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "christopher newport"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 329,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 215929,
+    "variants": [
+      "Scranton",
+      "University of Scranton"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "scranton"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 358,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 220710,
+    "variants": [
+      "Maryville (TN)",
+      "Maryville College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "maryville tn",
+      "maryville"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 296,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 214713,
+    "variants": [
+      "Penn State Harrisburg",
+      "Pennsylvania State University-Penn State Harrisburg"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "penn state harrisburg",
+      "pennsylvania state penn state harrisburg"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 273,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 196246,
+    "variants": [
+      "Plattsburgh State",
+      "SUNY Plattsburgh"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "plattsburgh state",
+      "suny plattsburgh"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 298,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 149781,
+    "variants": [
+      "Wheaton (IL)",
+      "Wheaton College (IL)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wheaton il"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 304,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 212133,
+    "variants": [
+      "Eastern (PA)",
+      "Eastern University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "eastern pa",
+      "eastern"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 309,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 191630,
+    "variants": [
+      "Hobart & William Smith",
+      "Hobart and William Smith Colleges"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hobart william smith",
+      "hobart and william smith colleges"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 316,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 237181,
+    "variants": [
+      "Bethany (WV)",
+      "Bethany College (WV)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bethany wv"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 325,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 173142,
+    "variants": [
+      "Bethany Lutheran",
+      "Bethany Lutheran College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bethany lutheran"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 300,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 157377,
+    "variants": [
+      "Midway",
+      "Midway University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "midway"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 173,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 204635,
+    "variants": [
+      "Ohio Northern",
+      "Ohio Northern University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "ohio northern"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 376,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 204909,
+    "variants": [
+      "Ohio Wesleyan",
+      "Ohio Wesleyan University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "ohio wesleyan"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 334,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 173160,
+    "variants": [
+      "Bethel (MN)",
+      "Bethel University (MN)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bethel mn"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 273,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 205957,
+    "variants": [
+      "Franciscan (OH)",
+      "Franciscan University of Steubenville"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "franciscan oh",
+      "franciscan steubenville"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 369,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 168005,
+    "variants": [
+      "Suffolk",
+      "Suffolk University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "suffolk"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 336,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 163912,
+    "variants": [
+      "St. Mary's College of Maryland",
+      "St Mary's College of Maryland"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "saint marys maryland"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 293,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 165015,
+    "variants": [
+      "Brandeis",
+      "Brandeis University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "brandeis"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 282,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 172264,
+    "variants": [
+      "Siena Heights",
+      "Siena Heights University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "siena heights"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 26,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 238661,
+    "variants": [
+      "Edgewood",
+      "Edgewood College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "edgewood"
+    ],
+    "programme_count": 2,
+    "coach_count": 12,
+    "roster_count": 317,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 212674,
+    "variants": [
+      "Gettysburg",
+      "Gettysburg College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "gettysburg"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 369,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 168421,
+    "variants": [
+      "Worcester Polytechnic",
+      "Worcester Polytechnic Institute"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "worcester polytechnic",
+      "worcester polytechnic institute"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 304,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 146481,
+    "variants": [
+      "Lake Forest",
+      "Lake Forest College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "lake forest"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 302,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 186867,
+    "variants": [
+      "Stevens Tech",
+      "Stevens Institute of Technology"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "stevens tech",
+      "stevens institute technology"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 260,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 164270,
+    "variants": [
+      "McDaniel",
+      "McDaniel College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "mcdaniel"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 278,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 213507,
+    "variants": [
+      "Lebanon Valley",
+      "Lebanon Valley College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "lebanon valley"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 287,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 224004,
+    "variants": [
+      "Concordia Texas",
+      "Concordia University-Texas"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "concordia texas"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 316,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 203368,
+    "variants": [
+      "John Carroll",
+      "John Carroll University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "john carroll"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 409,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 173665,
+    "variants": [
+      "Hamline",
+      "Hamline University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hamline"
+    ],
+    "programme_count": 2,
+    "coach_count": 11,
+    "roster_count": 344,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 196167,
+    "variants": [
+      "SUNY Geneseo",
+      "SUNY College at Geneseo"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "suny geneseo",
+      "suny at geneseo"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 279,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 154527,
+    "variants": [
+      "Wartburg",
+      "Wartburg College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wartburg"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 365,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 193584,
+    "variants": [
+      "Nazareth",
+      "Nazareth University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "nazareth"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 324,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 150400,
+    "variants": [
+      "DePauw",
+      "DePauw University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "depauw"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 317,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 186876,
+    "variants": [
+      "Stockton",
+      "Stockton University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "stockton"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 318,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 175421,
+    "variants": [
+      "Belhaven",
+      "Belhaven University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "belhaven"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 366,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 216287,
+    "variants": [
+      "Swarthmore",
+      "Swarthmore College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "swarthmore"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 275,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 145646,
+    "variants": [
+      "Illinois Wesleyan",
+      "Illinois Wesleyan University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "illinois wesleyan"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 303,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 179894,
+    "variants": [
+      "Webster",
+      "Webster University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "webster"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 279,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 221351,
+    "variants": [
+      "Rhodes",
+      "Rhodes College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "rhodes"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 311,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 165699,
+    "variants": [
+      "Endicott",
+      "Endicott College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "endicott"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 235,
+    "coach_seasons_count": 5,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 231581,
+    "variants": [
+      "Bridgewater (VA)",
+      "Bridgewater College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bridgewater va",
+      "bridgewater"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 307,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 487524,
+    "variants": [
+      "Husson",
+      "Husson University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "husson"
+    ],
+    "programme_count": 2,
+    "coach_count": 1,
+    "roster_count": 297,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 121345,
+    "variants": [
+      "Pomona-Pitzer",
+      "Pomona College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "pomona pitzer",
+      "pomona"
+    ],
+    "programme_count": 3,
+    "coach_count": 6,
+    "roster_count": 309,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 190044,
+    "variants": [
+      "Clarkson",
+      "Clarkson University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "clarkson"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 279,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 212911,
+    "variants": [
+      "Haverford",
+      "Haverford College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "haverford"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 297,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 111948,
+    "variants": [
+      "Chapman",
+      "Chapman University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "chapman"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 337,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 150668,
+    "variants": [
+      "Goshen",
+      "Goshen College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "goshen"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 140,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 204194,
+    "variants": [
+      "Mount Vernon Nazarene",
+      "Mount Vernon Nazarene University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "mount vernon nazarene"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 117,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 184348,
+    "variants": [
+      "Drew",
+      "Drew University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "drew"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 345,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 184694,
+    "variants": [
+      "FDU-Florham",
+      "Fairleigh Dickinson University-Florham"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "fdu florham",
+      "fairleigh dickinson florham"
+    ],
+    "programme_count": 3,
+    "coach_count": 9,
+    "roster_count": 273,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 213668,
+    "variants": [
+      "Lycoming",
+      "Lycoming College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "lycoming"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 315,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 212656,
+    "variants": [
+      "Geneva",
+      "Geneva College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "geneva"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 279,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 179964,
+    "variants": [
+      "William Woods",
+      "William Woods University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "william woods"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 132,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 213251,
+    "variants": [
+      "Juniata",
+      "Juniata College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "juniata"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 296,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 181020,
+    "variants": [
+      "Doane",
+      "Doane University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "doane"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 93,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 168546,
+    "variants": [
+      "Albion",
+      "Albion College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "albion"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 281,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 237066,
+    "variants": [
+      "Whitworth",
+      "Whitworth University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "whitworth"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 290,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 140696,
+    "variants": [
+      "Oglethorpe",
+      "Oglethorpe University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "oglethorpe"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 268,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 239628,
+    "variants": [
+      "Ripon",
+      "Ripon College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "ripon"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 332,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 161086,
+    "variants": [
+      "Colby",
+      "Colby College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "colby"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 326,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 195526,
+    "variants": [
+      "Skidmore",
+      "Skidmore College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "skidmore"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 297,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 199209,
+    "variants": [
+      "North Carolina Wesleyan",
+      "North Carolina Wesleyan University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "north carolina wesleyan"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 390,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 192749,
+    "variants": [
+      "Manhattanville",
+      "Manhattanville University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "manhattanville"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 312,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 191515,
+    "variants": [
+      "Hamilton",
+      "Hamilton College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hamilton"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 316,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 206589,
+    "variants": [
+      "College of Wooster",
+      "The College of Wooster"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wooster"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 318,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 186399,
+    "variants": [
+      "Rutgers-Newark",
+      "Rutgers University-Newark"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "rutgers newark"
+    ],
+    "programme_count": 2,
+    "coach_count": 11,
+    "roster_count": 332,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 190983,
+    "variants": [
+      "Elmira",
+      "Elmira College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "elmira"
+    ],
+    "programme_count": 2,
+    "coach_count": 1,
+    "roster_count": 334,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 233295,
+    "variants": [
+      "Randolph-Macon",
+      "Randolph-Macon College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "randolph macon"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 339,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 215114,
+    "variants": [
+      "Cairn",
+      "Cairn University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "cairn"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 289,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 216807,
+    "variants": [
+      "Westminster (PA)",
+      "Westminster College (PA)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "westminster pa"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 388,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 165662,
+    "variants": [
+      "Emerson",
+      "Emerson College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "emerson"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 257,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 145725,
+    "variants": [
+      "Illinois Tech",
+      "Illinois Institute of Technology"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "illinois tech",
+      "illinois institute technology"
+    ],
+    "programme_count": 2,
+    "coach_count": 1,
+    "roster_count": 364,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 198066,
+    "variants": [
+      "Brevard",
+      "Brevard College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "brevard"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 350,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 211088,
+    "variants": [
+      "Arcadia",
+      "Arcadia University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "arcadia"
+    ],
+    "programme_count": 2,
+    "coach_count": 10,
+    "roster_count": 377,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 156213,
+    "variants": [
+      "Asbury",
+      "Asbury University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "asbury"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 380,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 217536,
+    "variants": [
+      "Salve Regina",
+      "Salve Regina University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "salve regina"
+    ],
+    "programme_count": 2,
+    "coach_count": 10,
+    "roster_count": 319,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 198969,
+    "variants": [
+      "Methodist",
+      "Methodist University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "methodist"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 334,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 225247,
+    "variants": [
+      "Hardin-Simmons",
+      "Hardin-Simmons University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hardin simmons"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 332,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 214157,
+    "variants": [
+      "Moravian",
+      "Moravian University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "moravian"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 333,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 236328,
+    "variants": [
+      "Puget Sound",
+      "University of Puget Sound"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "puget sound"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 298,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 166683,
+    "variants": [
+      "MIT",
+      "Massachusetts Institute of Technology"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "mit",
+      "massachusetts institute technology"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 319,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 195720,
+    "variants": [
+      "Saint John Fisher",
+      "Saint John Fisher University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "saint john fisher"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 297,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 206525,
+    "variants": [
+      "Wittenberg",
+      "Wittenberg University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wittenberg"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 364,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 232706,
+    "variants": [
+      "Marymount (VA)",
+      "Marymount University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "marymount va",
+      "marymount"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 358,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 162654,
+    "variants": [
+      "Goucher",
+      "Goucher College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "goucher"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 47,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 210775,
+    "variants": [
+      "Alvernia",
+      "Alvernia University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "alvernia"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 284,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 233426,
+    "variants": [
+      "Roanoke",
+      "Roanoke College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "roanoke"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 315,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 153384,
+    "variants": [
+      "Grinnell",
+      "Grinnell College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "grinnell"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 266,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 168263,
+    "variants": [
+      "Westfield State",
+      "Westfield State University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "westfield state"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 289,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 206507,
+    "variants": [
+      "Wilmington (OH)",
+      "Wilmington College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wilmington oh",
+      "wilmington"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 326,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 160977,
+    "variants": [
+      "Bates",
+      "Bates College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bates"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 306,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 239017,
+    "variants": [
+      "Lawrence",
+      "Lawrence University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "lawrence"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 302,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 239716,
+    "variants": [
+      "St. Norbert",
+      "Saint Norbert College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "saint norbert"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 314,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 168254,
+    "variants": [
+      "Western New England",
+      "Western New England University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "western new england"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 336,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 216852,
+    "variants": [
+      "Widener",
+      "Widener University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "widener"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 306,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 110404,
+    "variants": [
+      "Caltech",
+      "California Institute of Technology"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "caltech",
+      "california institute technology"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 259,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 140951,
+    "variants": [
+      "SCAD",
+      "Savannah College of Art and Design"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "scad",
+      "savannah art and design"
+    ],
+    "programme_count": 3,
+    "coach_count": 5,
+    "roster_count": 145,
+    "coach_seasons_count": 5,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 151777,
+    "variants": [
+      "Manchester",
+      "Manchester University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "manchester"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 289,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 213400,
+    "variants": [
+      "Lancaster Bible",
+      "Lancaster Bible College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "lancaster bible"
+    ],
+    "programme_count": 2,
+    "coach_count": 11,
+    "roster_count": 274,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 161299,
+    "variants": [
+      "Maine Maritime",
+      "Maine Maritime Academy"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "maine maritime",
+      "maine maritime academy"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 236,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 186371,
+    "variants": [
+      "Rutgers-Camden",
+      "Rutgers University-Camden"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "rutgers camden"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 316,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 216524,
+    "variants": [
+      "Ursinus",
+      "Ursinus College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "ursinus"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 303,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 163851,
+    "variants": [
+      "Salisbury",
+      "Salisbury University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "salisbury"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 333,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 153108,
+    "variants": [
+      "Central (IA)",
+      "Central College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "central ia",
+      "central"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 340,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 154350,
+    "variants": [
+      "Simpson (IA)",
+      "Simpson College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "simpson ia",
+      "simpson"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 373,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 216694,
+    "variants": [
+      "Waynesburg",
+      "Waynesburg University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "waynesburg"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 319,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 211981,
+    "variants": [
+      "Delaware Valley",
+      "Delaware Valley University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "delaware valley"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 278,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 196866,
+    "variants": [
+      "Union (NY)",
+      "Union College (NY)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "union ny"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 303,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 167899,
+    "variants": [
+      "Springfield",
+      "Springfield College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "springfield"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 307,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 148496,
+    "variants": [
+      "Dominican (IL)",
+      "Dominican University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "dominican il",
+      "dominican"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 314,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 226231,
+    "variants": [
+      "LeTourneau",
+      "LeTourneau University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "letourneau"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 301,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 107080,
+    "variants": [
+      "Hendrix",
+      "Hendrix College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hendrix"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 341,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 238476,
+    "variants": [
+      "Carthage",
+      "Carthage College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "carthage"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 357,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 240462,
+    "variants": [
+      "Wisconsin-Platteville",
+      "University of Wisconsin-Platteville"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wisconsin platteville"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 358,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 197045,
+    "variants": [
+      "Utica",
+      "Utica University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "utica"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 326,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 174862,
+    "variants": [
+      "Crown (MN)",
+      "Crown College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "crown mn",
+      "crown"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 246,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 156408,
+    "variants": [
+      "Centre",
+      "Centre College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "centre"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 321,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 140234,
+    "variants": [
+      "LaGrange",
+      "LaGrange College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "lagrange"
+    ],
+    "programme_count": 2,
+    "coach_count": 1,
+    "roster_count": 248,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 110413,
+    "variants": [
+      "Cal Lutheran",
+      "California Lutheran University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "cal lutheran",
+      "california lutheran"
+    ],
+    "programme_count": 3,
+    "coach_count": 8,
+    "roster_count": 381,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 208822,
+    "variants": [
+      "George Fox",
+      "George Fox University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "george fox"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 294,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 152567,
+    "variants": [
+      "Trine",
+      "Trine University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "trine"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 331,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 196158,
+    "variants": [
+      "Fredonia State",
+      "SUNY Fredonia"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "fredonia state",
+      "suny fredonia"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 252,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 210739,
+    "variants": [
+      "DeSales",
+      "DeSales University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "desales"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 323,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 216667,
+    "variants": [
+      "Washington & Jefferson",
+      "Washington & Jefferson College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "washington jefferson"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 336,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 197708,
+    "variants": [
+      "Yeshiva",
+      "Yeshiva University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "yeshiva"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 226,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 240329,
+    "variants": [
+      "Wisconsin-La Crosse",
+      "University of Wisconsin-La Crosse"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wisconsin la crosse"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 149,
+    "coach_seasons_count": 5,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 166692,
+    "variants": [
+      "Massachusetts Maritime",
+      "Massachusetts Maritime Academy"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "massachusetts maritime",
+      "massachusetts maritime academy"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 250,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 191533,
+    "variants": [
+      "Hartwick",
+      "Hartwick College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hartwick"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 251,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 176628,
+    "variants": [
+      "Avila",
+      "Avila University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "avila"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 124,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 185262,
+    "variants": [
+      "Kean",
+      "Kean University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "kean"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 295,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 224527,
+    "variants": [
+      "East Texas Baptist",
+      "East Texas Baptist University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "east texas baptist"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 319,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 201195,
+    "variants": [
+      "Baldwin Wallace",
+      "Baldwin Wallace University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "baldwin wallace"
+    ],
+    "programme_count": 2,
+    "coach_count": 12,
+    "roster_count": 425,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 215798,
+    "variants": [
+      "Saint Vincent",
+      "Saint Vincent College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "saint vincent"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 309,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 210669,
+    "variants": [
+      "Allegheny",
+      "Allegheny College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "allegheny"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 268,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 232043,
+    "variants": [
+      "Eastern Mennonite",
+      "Eastern Mennonite University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "eastern mennonite"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 240,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 233611,
+    "variants": [
+      "Southern Virginia",
+      "Southern Virginia University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "southern virginia"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 323,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 164173,
+    "variants": [
+      "Stevenson",
+      "Stevenson University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "stevenson"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 336,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 189088,
+    "variants": [
+      "Bard",
+      "Bard College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bard"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 239,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 231420,
+    "variants": [
+      "Averett",
+      "Averett University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "averett"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 227,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 213826,
+    "variants": [
+      "Marywood",
+      "Marywood University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "marywood"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 304,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 162760,
+    "variants": [
+      "Hood",
+      "Hood College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hood"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 292,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 201548,
+    "variants": [
+      "Capital",
+      "Capital University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "capital"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 284,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 145619,
+    "variants": [
+      "Benedictine (IL)",
+      "Benedictine University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "benedictine il",
+      "benedictine"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 294,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 185129,
+    "variants": [
+      "New Jersey City",
+      "New Jersey City University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "new jersey city"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 0,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 174817,
+    "variants": [
+      "Saint Mary's (MN)",
+      "Saint Mary's University of Minnesota"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "saint marys mn",
+      "saint marys minnesota"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 365,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 212197,
+    "variants": [
+      "Elizabethtown",
+      "Elizabethtown College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "elizabethtown"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 289,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 165936,
+    "variants": [
+      "Gordon",
+      "Gordon College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "gordon"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 270,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 165529,
+    "variants": [
+      "Curry",
+      "Curry College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "curry"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 302,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 194824,
+    "variants": [
+      "Rensselaer",
+      "Rensselaer Polytechnic Institute"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "rensselaer",
+      "rensselaer polytechnic institute"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 305,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 210571,
+    "variants": [
+      "Albright",
+      "Albright College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "albright"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 277,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 211556,
+    "variants": [
+      "Chatham",
+      "Chatham University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "chatham"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 262,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 138275,
+    "variants": [
+      "Warner",
+      "Warner University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "warner"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 110,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 144351,
+    "variants": [
+      "Concordia Chicago",
+      "Concordia University-Chicago"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "concordia chicago"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 310,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 238616,
+    "variants": [
+      "Concordia Wisconsin",
+      "Concordia University-Wisconsin"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "concordia wisconsin"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 313,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 147244,
+    "variants": [
+      "Millikin",
+      "Millikin University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "millikin"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 302,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 170532,
+    "variants": [
+      "Kalamazoo",
+      "Kalamazoo College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "kalamazoo"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 267,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 165334,
+    "variants": [
+      "Clark (MA)",
+      "Clark University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "clark ma",
+      "clark"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 277,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 144962,
+    "variants": [
+      "Elmhurst",
+      "Elmhurst University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "elmhurst"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 342,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 168430,
+    "variants": [
+      "Worcester State",
+      "Worcester State University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "worcester state"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 279,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 167260,
+    "variants": [
+      "Nichols",
+      "Nichols College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "nichols"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 307,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 216278,
+    "variants": [
+      "Susquehanna",
+      "Susquehanna University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "susquehanna"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 315,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 213321,
+    "variants": [
+      "King's (PA)",
+      "King's College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "kings pa",
+      "kings"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 307,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 168591,
+    "variants": [
+      "Alma",
+      "Alma College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "alma"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 315,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 213011,
+    "variants": [
+      "Immaculata",
+      "Immaculata University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "immaculata"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 305,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 239080,
+    "variants": [
+      "Marian (WI)",
+      "Marian University (WI)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "marian wi"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 315,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 156295,
+    "variants": [
+      "Berea",
+      "Berea College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "berea"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 276,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 203845,
+    "variants": [
+      "Marietta",
+      "Marietta College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "marietta"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 320,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 240471,
+    "variants": [
+      "Wisconsin-River Falls",
+      "University of Wisconsin-River Falls"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wisconsin river falls"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 259,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 168528,
+    "variants": [
+      "Adrian",
+      "Adrian College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "adrian"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 289,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 153144,
+    "variants": [
+      "Coe",
+      "Coe College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "coe"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 311,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 204501,
+    "variants": [
+      "Oberlin",
+      "Oberlin College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "oberlin"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 277,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 165820,
+    "variants": [
+      "Fitchburg State",
+      "Fitchburg State University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "fitchburg state"
+    ],
+    "programme_count": 2,
+    "coach_count": 10,
+    "roster_count": 271,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 198598,
+    "variants": [
+      "Greensboro",
+      "Greensboro College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "greensboro"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 258,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 171599,
+    "variants": [
+      "Olivet",
+      "Olivet College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "olivet"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 325,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 191621,
+    "variants": [
+      "Hilbert",
+      "Hilbert College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hilbert"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 224,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 238980,
+    "variants": [
+      "Lakeland",
+      "Lakeland University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "lakeland"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 323,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 144971,
+    "variants": [
+      "Eureka",
+      "Eureka College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "eureka"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 234,
+    "coach_seasons_count": 5,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 147660,
+    "variants": [
+      "North Central (IL)",
+      "North Central College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "north central il",
+      "north central"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 366,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 168227,
+    "variants": [
+      "Wentworth",
+      "Wentworth Institute of Technology"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wentworth",
+      "wentworth institute technology"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 316,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 211477,
+    "variants": [
+      "Central Penn",
+      "Central Penn College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "central penn"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 11,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 143288,
+    "variants": [
+      "Blackburn",
+      "Blackburn College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "blackburn"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 250,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 228343,
+    "variants": [
+      "Southwestern (TX)",
+      "Southwestern University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "southwestern tx",
+      "southwestern"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 323,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 238333,
+    "variants": [
+      "Beloit",
+      "Beloit College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "beloit"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 262,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 203128,
+    "variants": [
+      "Hiram",
+      "Hiram College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "hiram"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 296,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 150455,
+    "variants": [
+      "Earlham",
+      "Earlham College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "earlham"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 273,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 204264,
+    "variants": [
+      "Muskingum",
+      "Muskingum University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "muskingum"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 271,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 213303,
+    "variants": [
+      "Keystone",
+      "Keystone College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "keystone"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 192,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 175980,
+    "variants": [
+      "Millsaps",
+      "Millsaps College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "millsaps"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 269,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 216931,
+    "variants": [
+      "Wilkes",
+      "Wilkes University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wilkes"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 306,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 191676,
+    "variants": [
+      "Houghton",
+      "Houghton University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "houghton"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 278,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 153001,
+    "variants": [
+      "Buena Vista",
+      "Buena Vista University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "buena vista"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 247,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 158477,
+    "variants": [
+      "Centenary (LA)",
+      "Centenary College of Louisiana"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "centenary la",
+      "centenary louisiana"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 268,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 183974,
+    "variants": [
+      "Centenary (NJ)",
+      "Centenary University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "centenary nj",
+      "centenary"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 260,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 204200,
+    "variants": [
+      "Mount St. Joseph",
+      "Mount St. Joseph University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "mount saint joseph"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 302,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 212832,
+    "variants": [
+      "Gwynedd Mercy",
+      "Gwynedd Mercy University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "gwynedd mercy"
+    ],
+    "programme_count": 2,
+    "coach_count": 10,
+    "roster_count": 268,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 226587,
+    "variants": [
+      "McMurry",
+      "McMurry University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "mcmurry"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 296,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 143084,
+    "variants": [
+      "Augustana (IL)",
+      "Augustana College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "augustana il",
+      "augustana"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 346,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 198613,
+    "variants": [
+      "Guilford",
+      "Guilford College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "guilford"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 290,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 174899,
+    "variants": [
+      "St. Scholastica",
+      "The College of St. Scholastica"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "saint scholastica"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 324,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 147341,
+    "variants": [
+      "Monmouth (IL)",
+      "Monmouth College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "monmouth il",
+      "monmouth"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 235,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 213358,
+    "variants": [
+      "La Roche",
+      "La Roche University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "la roche"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 255,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 165866,
+    "variants": [
+      "Framingham State",
+      "Framingham State University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "framingham state"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 237,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 218821,
+    "variants": [
+      "Spartanburg Methodist",
+      "Spartanburg Methodist College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "spartanburg methodist"
+    ],
+    "programme_count": 3,
+    "coach_count": 4,
+    "roster_count": 127,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 210492,
+    "variants": [
+      "Bryn Athyn",
+      "Bryn Athyn College of the New Church"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bryn athyn",
+      "bryn athyn new church"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 0,
+    "coach_seasons_count": 0,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 101435,
+    "variants": [
+      "Huntingdon",
+      "Huntingdon College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "huntingdon"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 269,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 209065,
+    "variants": [
+      "Linfield",
+      "Linfield University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "linfield"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 384,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 217059,
+    "variants": [
+      "York (PA)",
+      "York College of Pennsylvania"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "york pa",
+      "york pennsylvania"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 355,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 149842,
+    "variants": [
+      "Harper",
+      "William Rainey Harper"
+    ],
+    "sports": [
+      "mens-soccer"
+    ],
+    "bases": [
+      "harper",
+      "william rainey harper"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 0,
+    "coach_seasons_count": 0,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 157100,
+    "variants": [
+      "Kentucky Christian",
+      "Kentucky Christian University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "kentucky christian"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 85,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 165574,
+    "variants": [
+      "Dean College",
+      "Dean"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "dean"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 293,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 150604,
+    "variants": [
+      "Franklin",
+      "Franklin College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "franklin"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 288,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 207041,
+    "variants": [
+      "East Central (OK)",
+      "East Central"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "east central ok",
+      "east central"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 133,
+    "coach_seasons_count": 5,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 225548,
+    "variants": [
+      "Howard Payne",
+      "Howard Payne University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "howard payne"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 283,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 166452,
+    "variants": [
+      "Lesley",
+      "Lesley University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "lesley"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 242,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 153834,
+    "variants": [
+      "Luther",
+      "Luther College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "luther"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 378,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 173452,
+    "variants": [
+      "Martin Luther",
+      "Martin Luther College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "martin luther"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 257,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 232672,
+    "variants": [
+      "Mary Baldwin",
+      "Mary Baldwin University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "mary baldwin"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 277,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 211431,
+    "variants": [
+      "Carlow",
+      "Carlow University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "carlow"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 38,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 240417,
+    "variants": [
+      "Wisconsin-Stout",
+      "University of Wisconsin-Stout"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wisconsin stout"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 285,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 203085,
+    "variants": [
+      "Heidelberg",
+      "Heidelberg University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "heidelberg"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 322,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 192192,
+    "variants": [
+      "Keuka",
+      "Keuka College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "keuka"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 246,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 215284,
+    "variants": [
+      "PennWest Johnstown",
+      "Pitt-Johnstown"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "pennwest johnstown",
+      "pitt johnstown"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 279,
+    "coach_seasons_count": 10,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 164492,
+    "variants": [
+      "Anna Maria",
+      "Anna Maria College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "anna maria"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 0,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 139144,
+    "variants": [
+      "Berry",
+      "Berry College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "berry"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 289,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 201371,
+    "variants": [
+      "Bluffton",
+      "Bluffton University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bluffton"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 269,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 191968,
+    "variants": [
+      "Ithaca",
+      "Ithaca College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "ithaca"
+    ],
+    "programme_count": 2,
+    "coach_count": 8,
+    "roster_count": 334,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 445708,
+    "variants": [
+      "Johnson & Wales (Charlotte)",
+      "Johnson & Wales University-Charlotte"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "johnson wales charlotte"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 244,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 217235,
+    "variants": [
+      "Johnson & Wales (Providence)",
+      "Johnson & Wales University-Providence"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "johnson wales providence"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 295,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 146427,
+    "variants": [
+      "Knox",
+      "Knox College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "knox"
+    ],
+    "programme_count": 2,
+    "coach_count": 1,
+    "roster_count": 280,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 209056,
+    "variants": [
+      "Lewis & Clark",
+      "Lewis & Clark College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "lewis clark"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 283,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 195216,
+    "variants": [
+      "Saint Lawrence",
+      "St Lawrence University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "saint lawrence"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 285,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 233541,
+    "variants": [
+      "Shenandoah",
+      "Shenandoah University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "shenandoah"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 332,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 130590,
+    "variants": [
+      "Trinity (CT)",
+      "Trinity College"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "trinity ct",
+      "trinity"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 287,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 179946,
+    "variants": [
+      "Westminster (MO)",
+      "Westminster University (MO)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "westminster mo"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 301,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 240480,
+    "variants": [
+      "Wisconsin-Stevens Point",
+      "University of Wisconsin-Stevens Point"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "wisconsin stevens point"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 266,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 150145,
+    "variants": [
+      "Bethel (IN)",
+      "Bethel University (IN)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "bethel in"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 114,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 150172,
+    "variants": [
+      "Calumet College",
+      "Calumet College of St. Joseph"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "calumet",
+      "calumet saint joseph"
+    ],
+    "programme_count": 3,
+    "coach_count": 2,
+    "roster_count": 48,
+    "coach_seasons_count": 0,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 153126,
+    "variants": [
+      "Clarke",
+      "Clarke University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "clarke"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 161,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 177065,
+    "variants": [
+      "Columbia (MO)",
+      "Columbia College (MO)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "columbia mo"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 121,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 154101,
+    "variants": [
+      "Northwestern (IA)",
+      "Northwestern College (Iowa)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "northwestern ia",
+      "northwestern iowa"
+    ],
+    "programme_count": 2,
+    "coach_count": 4,
+    "roster_count": 121,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 174491,
+    "variants": [
+      "Northwestern (MN)",
+      "University of Northwestern-St Paul"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "northwestern mn",
+      "northwestern saint paul"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 342,
+    "coach_seasons_count": 10,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 180258,
+    "variants": [
+      "Providence (MT)",
+      "University of Providence"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "providence mt",
+      "providence"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 102,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 137476,
+    "variants": [
+      "Saint Thomas (FL)",
+      "St. Thomas University (Florida)"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "saint thomas fl",
+      "saint thomas florida"
+    ],
+    "programme_count": 2,
+    "coach_count": 5,
+    "roster_count": 133,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 152530,
+    "variants": [
+      "Taylor",
+      "Taylor University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "taylor"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 120,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 157863,
+    "variants": [
+      "Union (KY)",
+      "Union Commonwealth University"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "union ky",
+      "union commonwealth"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 177,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 160904,
+    "variants": [
+      "Xavier (LA)",
+      "Xavier University of Louisiana"
+    ],
+    "sports": [
+      "mens-soccer",
+      "womens-soccer"
+    ],
+    "bases": [
+      "xavier la",
+      "xavier louisiana"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 99,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 179308,
+    "variants": [
+      "St. Louis Community-Florissant Valley",
+      "St. Louis Community-Forest Park",
+      "St. Louis Community-Meramec"
+    ],
+    "sports": [
+      "mens-soccer"
+    ],
+    "bases": [
+      "saint louis community florissant valley",
+      "saint louis community forest park",
+      "saint louis community meramec"
+    ],
+    "programme_count": 3,
+    "coach_count": 0,
+    "roster_count": 0,
+    "coach_seasons_count": 0,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 154712,
+    "variants": [
+      "Benedictine College",
+      "Benedictine (KS)"
+    ],
+    "sports": [
+      "womens-soccer",
+      "mens-soccer"
+    ],
+    "bases": [
+      "benedictine",
+      "benedictine ks"
+    ],
+    "programme_count": 2,
+    "coach_count": 2,
+    "roster_count": 161,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 129525,
+    "variants": [
+      "University of Hartford",
+      "Hartford"
+    ],
+    "sports": [
+      "womens-soccer",
+      "mens-soccer"
+    ],
+    "bases": [
+      "hartford"
+    ],
+    "programme_count": 2,
+    "coach_count": 9,
+    "roster_count": 258,
+    "coach_seasons_count": 10,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 231165,
+    "variants": [
+      "Vermont State University-Johnson",
+      "Vermont State University-Castleton",
+      "Vermont State University-Lyndon"
+    ],
+    "sports": [
+      "womens-soccer"
+    ],
+    "bases": [
+      "vermont state johnson",
+      "vermont state castleton",
+      "vermont state lyndon"
+    ],
+    "programme_count": 3,
+    "coach_count": 5,
+    "roster_count": 323,
+    "coach_seasons_count": 15,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 110714,
+    "variants": [
+      "University of California-Santa Cruz",
+      "UC Santa Cruz"
+    ],
+    "sports": [
+      "womens-soccer"
+    ],
+    "bases": [
+      "california santa cruz",
+      "uc santa cruz"
+    ],
+    "programme_count": 2,
+    "coach_count": 3,
+    "roster_count": 144,
+    "coach_seasons_count": 5,
+    "classification": "AMBIGUOUS"
+  },
+  {
+    "unitid": 188182,
+    "variants": [
+      "University of the Southwest",
+      "University of the Southwest (New Mexico)"
+    ],
+    "sports": [
+      "womens-soccer",
+      "mens-soccer"
+    ],
+    "bases": [
+      "southwest",
+      "southwest new mexico"
+    ],
+    "programme_count": 2,
+    "coach_count": 7,
+    "roster_count": 121,
+    "coach_seasons_count": 0,
+    "classification": "DATA_MODEL_EXCEPTION"
+  },
+  {
+    "unitid": 150941,
+    "variants": [
+      "Huntington University",
+      "Huntington"
+    ],
+    "sports": [
+      "womens-soccer",
+      "mens-soccer"
+    ],
+    "bases": [
+      "huntington"
+    ],
+    "programme_count": 2,
+    "coach_count": 6,
+    "roster_count": 133,
+    "coach_seasons_count": 0,
+    "classification": "SAFE_SAME_UNITID_CANONICALIZATION"
+  },
+  {
+    "unitid": 214810,
+    "variants": [
+      "Pennsylvania State University-Penn State Schuylkill",
+      "Penn State Schuylkill"
+    ],
+    "sports": [
+      "womens-soccer",
+      "mens-soccer"
+    ],
+    "bases": [
+      "pennsylvania state penn state schuylkill",
+      "penn state schuylkill"
+    ],
+    "programme_count": 2,
+    "coach_count": 0,
+    "roster_count": 104,
+    "coach_seasons_count": 0,
+    "classification": "AMBIGUOUS"
+  }
+]
