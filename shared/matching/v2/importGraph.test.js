@@ -142,6 +142,13 @@ const MAY_IMPORT_V2 = [
   'server/scripts/v2Fixtures.js',
   'server/scripts/v2Fixtures.test.js',
   'server/scripts/calibrateAbilityScale.js',
+  /**
+   * A7.25. The blind preference-authority comparison. It runs the shipped
+   * pipeline once and re-sorts the same entries under a candidate multiplier
+   * that exists only inside it; nothing imports it, so the candidate cannot
+   * reach production by any path.
+   */
+  'server/scripts/a725Variants.js',
 ];
 
 const SEARCH_ROOTS = ['shared', 'server', 'src', 'worker'];
