@@ -149,6 +149,13 @@ const MAY_IMPORT_V2 = [
    * reach production by any path.
    */
   'server/scripts/a725Variants.js',
+  /**
+   * A7.26. The academic-realism diagnostic: runs the shipped pipeline once per
+   * (athlete, academic priority) and records what it did. Read-only, and it
+   * scores nothing - the admissions quantities it computes are descriptions of
+   * database evidence and never reach a ranking.
+   */
+  'server/scripts/a726AcademicDiagnostic.js',
 ];
 
 const SEARCH_ROOTS = ['shared', 'server', 'src', 'worker'];
