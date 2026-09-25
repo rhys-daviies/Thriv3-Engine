@@ -60,4 +60,38 @@ untouched (fingerprint `723c2bc4…` unchanged).
 Correcting the shared dev registry changed `athleticsDomainAuthority.test.js`:
 six domains it asserted were quarantined as INSTITUTION_MISMATCH now resolve
 correctly, so that test was updated to assert the corrected mappings rather than
-the contamination.
+the contamination. (Phase 3B updated four L7 fixtures in total —
+`athleticsDomainAuthority`, `rosterSourceAudit` ×2, `operations` — to assert the
+cleared state.)
+
+## Phase 3A — coach source-domain conflict ground truth (127)
+After the domain repairs, 127 coaches remained whose authoritative source/email
+domain disagreed with their filed institution. All 127 were researched (45
+distinct domains externally verified). Every filed institution was wrong: a
+same/near-name institution collision at acquisition (e.g. `@dom.edu`/dustars.com
+coaches filed under Dominican (CA) are Dominican University IL). Artifacts:
+`phase3a_coach_conflicts.json` (127 records + evidence).
+- 121 WRONG_INSTITUTION, 6 DUPLICATE_IDENTITY.
+- Repair sets: 112 SAFE_COACH_REASSIGN, 6 DUPLICATE_RESOLVE, 9 HUMAN_REVIEW
+  (true institution's women's-soccer programme absent from the college set).
+
+## Phase 3B — applied the 118 approved coach filing repairs
+Applied to the shared dev DB (`server/data/recruitmatch.sqlite`, **not** `/data`)
+in one transaction: 112 `coaches.school` reassignments (institution filing only —
+name/email/source/sport/role untouched) + 6 redundant duplicate deletions (their
+correct copy already existed; no downstream references, no evidence merge needed).
+- Result: coaches 6347 → 6341; source conflicts 127 → 9; outreach-safe 3418 → 3412
+  (−6 = the deleted duplicates); 0 eligible coaches at a wrong institution.
+- Fixtures: `phase3b_reassign_fixture.json` (112), `phase3b_duplicate_fixture.json`
+  (6), `phase3b_human_review_held.json` (9, untouched).
+- Applier: `server/scripts/applyCoachInstitutionRepairs.js` (guarded, transactional).
+- **Acquisition root cause fixed:** `server/lib/coachingImport.js` gained a
+  corroboration rule (`resolveCoachInstitution` + `buildInstitutionIndex`) wired
+  into `coachingImportApply`/`coachingImportPreview`: strong source/email domain
+  evidence outranks the fuzzy name match and, when it contradicts the name,
+  returns `REVIEW_INSTITUTION_CONFLICT` instead of filing wrongly. Generic
+  (gmail/outlook) and shared/ambiguous domains never force an assignment.
+  Proven by `coachingImport.corroboration.test.js` (real collision families) and
+  a full-route replay on a disposable dataset (0 wrong filings recreated).
+- The 9 HUMAN_REVIEW are held pending a decision to seed the missing
+  women's-soccer programmes; no programmes were invented.

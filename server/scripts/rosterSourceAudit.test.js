@@ -68,22 +68,25 @@ d('the roster-source audit', () => {
     }
   });
 
-  it('still finds the institution-id disagreements, with both ids', () => {
+  it('has cleared the institution-id disagreements, and still names both ids if one returns', () => {
     /**
-     * Ten of them, and six name the right school while carrying a different
-     * `unitid` — uconnhuskies.com claims "UConn" and 128902 against the college
-     * row's 129020. The repair is an id, not a URL, and the report has to say
-     * so or somebody will go looking for a bad link.
+     * There were ten, six of which named the right school while carrying a
+     * different `unitid` — uconnhuskies.com claimed "UConn" against 128902 while
+     * the college row said 129020. Phase 2D corrected all of them against
+     * external ground truth (docs/validation/integrity-audit), so the
+     * INSTITUTION_MISMATCH class is empty today. The guard now pins the CLEARED
+     * state: UConn resolves correctly rather than as a disagreement, and any
+     * mismatch that ever returns must still carry both ids so the repair is
+     * understood to be an id, not a bad link.
      */
     const mismatch = r.quarantine.filter((q) => q.reason === 'INSTITUTION_MISMATCH');
-    expect(mismatch.length).toBeGreaterThan(0);
     expect(mismatch.length).toBeLessThan(40);
     for (const q of mismatch) {
       expect(q.hostBelongsTo, q.programme).toBeTruthy();
       expect(q.expectedUnitid, q.programme).toBeTruthy();
       expect(q.hostBelongsTo, q.programme).not.toBe(q.expectedUnitid);
     }
-    expect(mismatch.map((q) => q.programme)).toContain('UConn');
+    expect(mismatch.map((q) => q.programme)).not.toContain('UConn');
   });
 
   it('keeps the unverified hosts the largest group, and them alone', () => {
@@ -95,17 +98,19 @@ d('the roster-source audit', () => {
     expect(biggest[0]).toBe('UNVERIFIED_HOST');
   });
 
-  it('finds the registry defect behind the id disagreements', () => {
+  it('no longer flags the corrected cross-institution registry defect', () => {
     /**
      * H15 traced all ten institution-id disagreements to one cause: the
-     * verification pipeline matched each site's own title to a
-     * similarly-named institution. The Citadel is recorded as owning
-     * Concordia Moorhead's and Suffolk's athletics sites; Connecticut College
-     * owns UConn's; Saint John Fisher owns St. John's.
+     * verification pipeline matched each site's own title to a similarly-named
+     * institution. The Citadel was recorded as owning Concordia Moorhead's
+     * (gocobbers.com) and Suffolk's (gosuffolkrams.com) athletics sites;
+     * Connecticut College owned UConn's; Saint John Fisher owned St. John's.
      *
-     * Asserted as a floor rather than a list, because a merged institution
-     * legitimately holds several and the count will move as the registry is
-     * repaired. What must not happen is the check silently finding nothing.
+     * Phase 2D corrected every one against external ground truth, so the
+     * institutions that still legitimately hold several hosts are merged or
+     * dual-brand schools, not cross-institution contamination. Asserted as a
+     * bounded floor, plus the specific proof that The Citadel's stamping is
+     * gone and must not reappear.
      */
     const several = institutionsWithSeveralSites();
     expect(several.length).toBeGreaterThan(0);
@@ -114,10 +119,9 @@ d('the roster-source audit', () => {
       expect(s.hosts.length, String(s.unitid)).toBeGreaterThan(1);
       expect(new Set(s.hosts).size, String(s.unitid)).toBe(s.hosts.length);
     }
-    // The Citadel case, which is the one with no innocent explanation.
-    const citadel = several.find((s) => s.unitid === 217864);
-    expect(citadel, 'The Citadel must still be flagged').toBeTruthy();
-    expect(citadel.hosts).toEqual(expect.arrayContaining(['gocobbers.com', 'gosuffolkrams.com']));
+    // The Citadel's cross-institution stamping (gocobbers.com + gosuffolkrams.com)
+    // was the case with no innocent explanation; Phase 2D fixed it.
+    expect(several.find((s) => s.unitid === 217864), 'The Citadel defect must stay fixed').toBeFalsy();
   });
 
   it('collapses www and a port, but never a subdomain', () => {

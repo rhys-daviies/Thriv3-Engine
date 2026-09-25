@@ -107,24 +107,32 @@ d('identity strength is what separates the good rows from the bad', () => {
     expect(base).toBeLessThan(25);
   });
 
-  it('refuses a base-name assignment as a source for the programme claiming it', () => {
+  it('trusts the Phase-2D externally-verified base-name corrections at their true institution', () => {
     /*
-     * Two checks stand between these hosts and an operator link, and which one
-     * fires depends on the case: `registryIntegrity` refuses an assignment the
-     * assigned institution's own rosters never corroborate, and the unitid
-     * comparison in `verifyRosterSource` refuses the rest. What matters to the
-     * product is only that none is ever offered, so the assertion is made on
-     * the audit's own output: each must appear in the quarantine with a reason,
-     * for both sports.
+     * These six hosts were the BASE_ONLY mis-stampings L7 measured — a short
+     * base name matched the wrong same-name sibling, so uconnhuskies.com carried
+     * Connecticut College's unitid, gocobbers.com The Citadel's, and so on.
+     * Phase 2D (docs/validation/integrity-audit) corrected all six against
+     * external ground truth. The corrected truth is now pinned: each row carries
+     * its verified institution, is VERIFIED/VERIFIED_ALIAS, and no longer appears
+     * in the INSTITUTION_MISMATCH quarantine for either sport.
      */
-    const bad = ['uconnhuskies.com', 'gocobbers.com', 'umassathletics.com',
-      'tommiesports.com', 'redstormsports.com', 'westminstergriffins.com'];
+    const corrected = {
+      'uconnhuskies.com': 129020, 'gocobbers.com': 173300, 'umassathletics.com': 166629,
+      'tommiesports.com': 174914, 'redstormsports.com': 195809, 'westminstergriffins.com': 230807,
+    };
+    const rows = sql(`SELECT domain, unitid, status FROM athletics_domains
+      WHERE domain IN (${Object.keys(corrected).map((h) => `'${h}'`).join(',')})`);
+    expect(rows.length).toBe(Object.keys(corrected).length);
+    for (const r of rows) {
+      expect(r.unitid, r.domain).toBe(corrected[r.domain]);
+      expect(['VERIFIED', 'VERIFIED_ALIAS'], `${r.domain} status`).toContain(r.status);
+    }
     const q = ['mens-soccer', 'womens-soccer'].flatMap((sport) =>
       inDb(`auditRosterSources({ season: '2026', sport: '${sport}' }).quarantine`));
-    const refused = new Map(q.map((x) => [x.host, x.reason]));
-    for (const host of bad) {
-      expect(refused.get(host), `${host} must be quarantined with a reason`)
-        .toBe('INSTITUTION_MISMATCH');
+    const mismatched = new Set(q.filter((x) => x.reason === 'INSTITUTION_MISMATCH').map((x) => x.host));
+    for (const host of Object.keys(corrected)) {
+      expect(mismatched.has(host), `${host} must no longer be an INSTITUTION_MISMATCH`).toBe(false);
     }
   });
 });
