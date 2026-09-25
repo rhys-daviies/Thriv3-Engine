@@ -17,6 +17,7 @@ import { canonicalPosition } from '../../shared/positions.js';
 import { buildValidationAthlete, isScoreable } from '../../shared/matching/v2/index.js';
 import { runPursuit } from '../lib/v2/pursuitRun.js';
 import { V3_ATHLETES } from './v3Athletes.js';
+import { W3_ATHLETES } from './w3Athletes.js';
 
 const SEASON = '2026';
 const arg = (k, d = null) => process.argv.slice(2).find((a) => a.startsWith(`--${k}=`))?.split('=').slice(1).join('=') ?? d;
@@ -79,7 +80,9 @@ function main() {
   const ctxCache = new Map();
   const a = V3_ATHLETES.find((x) => x.id.startsWith('V3-A-'));
   PLAYING_FIRST.player = { ...a.player, competitive_level_priority: 1, playing_opportunity_priority: 5 };
-  const defs = [...V3_ATHLETES, PLAYING_FIRST];
+  // A7.23: the women's set joins the parity surface, so a change has to
+  // reproduce on both universes rather than on the one it was designed against.
+  const defs = [...V3_ATHLETES, ...W3_ATHLETES, PLAYING_FIRST];
   const snap = {};
   for (const def of defs) {
     const sport = def.player.sport;

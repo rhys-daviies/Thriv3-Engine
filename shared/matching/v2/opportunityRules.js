@@ -161,7 +161,55 @@ export const AMBITION_LIFT = 0.8;
 
 /** Weight carried by a declared preference, when one exists. HEURISTIC. */
 export const PREFERENCE_WEIGHTS = Object.freeze({
-  majorFit: 0.4,
+  /**
+   * -- A7.23: WHY A DECLARED MAJOR IS WORTH MORE THAN A PATHWAY -------------
+   *
+   * Raised from 0.4, which A7.19 measured to be doing almost nothing. For the
+   * academic-priority athlete, programmes offering the requested major were
+   * 32% of the universe and 30% of the first hundred - INDISTINGUISHABLE FROM
+   * THE BASE RATE. The signal scored, it ordered correctly, and it changed
+   * essentially nothing: the enrichment was +12 points at rank 25 and gone by
+   * rank 50.
+   *
+   * -- WHY RE-WEIGHTING WORKS HERE AND NOT FOR THE PREFERENCES --------------
+   *
+   * A7.20 established that widening a preference's weight range inside
+   * Opportunity does nothing at all: eight times the range moved playing
+   * churn from 8 to 12. Opportunity renormalises over its scored components,
+   * so `dO/dw = W(v - mean_other) / (w + W)^2` - the leverage is the
+   * component's DEVIATION from the others, and `playingPathway` (0.582) and
+   * `academicStrengthFit` (0.607) sit almost exactly on the weighted mean of
+   * their neighbours (0.512, 0.509). There is nothing for extra weight to
+   * act on.
+   *
+   * `majorFit` is binary. Its deviation is +0.40 or -0.60, never near zero,
+   * so weight converts directly into ordering. The same arithmetic that makes
+   * the preferences inert makes this work.
+   *
+   * -- WHY 1.2, AND WHY IT IS NOT A FILTER ---------------------------------
+   *
+   * A7.22 swept 0.4 through 2.4 on both sports. At 2.4 the women's first
+   * twenty-five held NO non-matching programme, which is a filter wearing a
+   * weight's clothing. At 1.2 the enrichment is +40 and +52 points at rank 25
+   * and +10 and +22 at rank 100, 97% and 99% of matching programmes improve,
+   * and 57 and 41 NON-matching programmes remain in the first hundred with
+   * the best of them ranked tenth and fifteenth. A programme that does not
+   * offer the major still outranks most that do when its other evidence is
+   * stronger, which is the requirement.
+   *
+   * IT IS LARGER THAN playingPathway's 0.65 AND THAT IS NOT A CLAIM THAT A
+   * MAJOR MATTERS MORE THAN PLAYING TIME. The two signals have different
+   * distributions and the weights are not comparable: one is a binary fact
+   * about a course catalogue, the other a continuous estimate that clusters.
+   *
+   * NOT conditional on academicStrengthPriority. "I want Engineering" and
+   * "academic strength matters to me" are different statements, and the
+   * effect is present at priority 1: +12 and +26 points of enrichment.
+   *
+   * THE EVIDENCE IS STILL BINARY. Nothing here makes it more certain; it
+   * makes it count for what it already says.
+   */
+  majorFit: 1.2,
   locationFit: 0.3,
   athleticOutcome: 0.3,
   /**
