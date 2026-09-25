@@ -1,0 +1,38 @@
+{
+  "pack": "A7.28-shadow-cases",
+  "sealedOpened": false,
+  "question": "Based only on the available recruiting and admissions evidence, should Thriv3 recommend checking academic admissibility with the coach, or requesting an academic pre-read, before treating this programme as straightforwardly recruitable?",
+  "frame": [
+    "This is a lower bar than 'the athlete will not be admitted'. It asks whether a competent adviser would pick up the phone before building a plan around the programme.",
+    "The cost of answering YES wrongly is a little extra work, and a chilling effect only if this ever becomes ranking logic. The cost of answering NO wrongly is an athlete building a plan around a place they cannot enter.",
+    "An acceptance rate has to be read against what kind of institution it belongs to. 43% at a college whose enrolled students average 1371 is a real filter; 43% at an urban public with a middling academic profile and no published average is not the same fact."
+  ],
+  "verdicts": [
+    { "code": "S-01", "answer": "NO", "why": "81% acceptance. The institution admits four applicants in five; a 360-point shortfall there is not an admissions obstacle. (A 2.8 GPA raises an NCAA initial-eligibility question, but that is a different system and is not on the card.)" },
+    { "code": "S-02", "answer": "YES", "why": "43% acceptance sounds permissive and is not: the enrolled body averages 1371 and this athlete is 421 points below it with a 2.8 GPA. Roughly half of applicants are turned away and this one sits far outside the middle. Athletically it is a perfect fit and it is ranked third, which is exactly why somebody should ask before the plan is built." },
+    { "code": "S-03", "answer": "NO", "why": "The athlete is 31 points ABOVE the enrolled average. The 13% acceptance rate describes the applicant pool, not this recruit." },
+    { "code": "S-04", "answer": "YES", "why": "502 points below at a genuinely selective liberal arts college. And this is a developmental athlete at a programme of their own modest level, so the coach has LESS admissions pull than at a marquee programme, not more — which makes the check more necessary rather than less." },
+    { "code": "S-05", "answer": "YES", "why": "538 below at 40% acceptance. Also more than double the family ceiling, but the academic question stands on its own." },
+    { "code": "S-06", "answer": "YES", "why": "454 below at 4% acceptance. Unambiguous." },
+    { "code": "S-07", "answer": "NO", "why": "LOW CONFIDENCE, and the reasoning matters. No published SAT average, so there is no comparison to make, and a 43% acceptance rate on its own would not have settled it either way. What settles it is the institution's own academic profile — a rating of 4.9 with an ordinary 3.2/1100 athlete — so there is no reason to suspect a reach. Note that the same 43% acceptance rate points the opposite way on S-02. The rate alone is nearly useless." },
+    { "code": "S-08", "answer": "YES", "why": "490 below an enrolled average of 1440. A 43% acceptance rate at an institution with that profile is selection, not open admission." },
+    { "code": "S-09", "answer": "YES", "why": "316 below at 26% acceptance — and it is the number one recommendation. The shortfall is smaller than most of the others here, but the bar for asking is low and the cost of not asking is highest at rank 1." },
+    { "code": "S-10", "answer": "YES", "why": "460 below at 5% acceptance, ranked fourth. Offering the intended major does not help: admission is a precondition of studying anything." },
+    { "code": "S-11", "answer": "YES", "why": "398 below at 14% acceptance, ranked second." },
+    { "code": "S-12", "answer": "YES", "why": "380 below at 11% acceptance. The athlete is athletically ABOVE this programme's level and could plausibly be wanted; the academic side is the only thing in doubt, which is precisely the case worth asking about." },
+    { "code": "S-13", "answer": "YES", "why": "603 below at 5% acceptance, ranked first, at an institution type that runs a formal academic index for recruits with published minimum bands. Athletically a near-perfect fit and affordable, which is what makes an unasked question expensive." },
+    { "code": "S-14", "answer": "YES", "why": "360 below at 27% acceptance. Also over the family ceiling, separately." },
+    { "code": "S-15", "answer": "YES", "why": "303 below — the smallest shortfall I am answering YES to — but at EIGHT PER CENT acceptance. At that level of selectivity a 300-point shortfall is a long way outside the band, and the shortfall needed to warrant a question should clearly be smaller at 8% than at 43%." },
+    { "code": "S-16", "answer": "YES", "why": "303 below at 6% acceptance, ranked third. Same shape as S-15 and the same reasoning; offering the major changes nothing about admission." },
+    { "code": "S-17", "answer": "NO", "why": "8 points above the enrolled average at 95% acceptance. Nothing to ask." }
+  ],
+  "tally": { "YES": 13, "NO": 4, "UNSURE": 0 },
+  "Y1": {
+    "question": "Where was the decision hardest, and what extra fact would have settled it?",
+    "answer": "S-07, by a distance — the only card with no test comparison at all. What would have settled it is the institution's TEST POLICY: if the average is missing because the institution is test-blind, the absence means nothing, whereas if it is missing because nobody collected it, the athlete might still be facing a filter we cannot see. Second hardest were S-15 and S-16, both 303 points below at 6-8% acceptance, where the shortfall is mid-sized and the selectivity is extreme. Those two convinced me that the shortfall which should trigger a question is not a fixed number: it should be smaller the more selective the institution."
+  },
+  "Y2": {
+    "question": "Is there a kind of programme where recommending a coach check would be actively unhelpful?",
+    "answer": "Yes — anywhere the acceptance rate is high (S-01 at 81%, S-17 at 95%). Telling an athlete to verify their academic standing at an institution that admits four in five wastes the athlete's credibility with a coach on a non-question, and would train them to ignore the flag when it matters. The high-acceptance clearance is the most important part of the rule, not the shortfall."
+  }
+}
