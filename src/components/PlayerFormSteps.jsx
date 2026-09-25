@@ -16,10 +16,14 @@ import ConferencePicker from '@/components/ConferencePicker';
 import { US_STATES, COUNTRIES, ORIGINS } from '@/lib/locations';
 import { DIVISIONS } from '@shared/divisions.js';
 import FamilyContributionField from '@/components/FamilyContributionField';
+import AthletePreferenceFields from '@/components/AthletePreferenceFields';
 import {
   contributionFromPlayer, chooseContribution, setContributionAmount,
   contributionValid, contributionPayload,
 } from '@/lib/contributionIntake';
+import {
+  preferencesFromPlayer, setPreference, preferencesValid, preferencePayload,
+} from '@/lib/preferenceIntake';
 import { positionLabel } from '@shared/positions.js';
 import { TEMPLATE_VARIABLES, DEFAULT_EMAIL_SUBJECT, validateTemplate } from '@/lib/emailTemplate';
 import { cn } from '@/lib/utils';
@@ -93,6 +97,13 @@ function defaultsFrom(initialData) {
      */
     budget_range: initialData?.budget_range || '',
     contribution: contributionFromPlayer(initialData),
+    /**
+     * All three NULL on a record written before A7.12.1, and NULL is what
+     * the form shows. Giving these a display default the way every other
+     * field above gets one would put an answer on screen for every athlete
+     * nobody has asked.
+     */
+    preferences: preferencesFromPlayer(initialData),
     criterion_ranking: initialData?.criterion_ranking ?? null,
     academic_minimum: initialData?.academic_minimum ?? 'Not Important',
     additional_notes: initialData?.additional_notes || '',
@@ -238,8 +249,17 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
       setStep(1);
       return;
     }
-    const { contribution, ...rest } = data;
-    onSubmit({ ...rest, ...contributionPayload(contribution) });
+    /**
+     * Unreachable through the radio group, which can only ever set 1-5 or
+     * clear. It guards the other way in: `initialData` is a database row, and
+     * a row written by a script rather than this form could carry anything.
+     */
+    if (!preferencesValid(data.preferences)) {
+      setStep(1);
+      return;
+    }
+    const { contribution, preferences, ...rest } = data;
+    onSubmit({ ...rest, ...contributionPayload(contribution), ...preferencePayload(preferences) });
   }
 
   function insertVariable(variable) {
@@ -479,6 +499,18 @@ export default function PlayerFormSteps({ initialData, sport = 'mens-soccer', on
             onChoice={(choice) => setData((d) => ({ ...d, contribution: chooseContribution(d.contribution, choice) }))}
             onAmount={(raw) => setData((d) => ({ ...d, contribution: setContributionAmount(d.contribution, raw) }))}
           />
+
+          {/* Above the legacy ranking on purpose: these three are the direct
+              questions, and the ranking below is a coarser ordering of six
+              tokens that an explicit answer overrides for the one component
+              they share. Reading them the other way round would invite an
+              operator to answer the vague question and skip the sharp ones. */}
+          <div className="border-t border-border pt-4">
+            <AthletePreferenceFields
+              value={data.preferences}
+              onChange={(field, v) => setData((d) => ({ ...d, preferences: setPreference(d.preferences, field, v) }))}
+            />
+          </div>
 
           {/* A constraint, not a preference — how much academics *matter* is the
               priority ranking below. Default is no minimum, and whatever it

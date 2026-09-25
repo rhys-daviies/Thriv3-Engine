@@ -25,17 +25,57 @@ describe('the intake contract', () => {
     for (const f of Object.values(PREFERENCE_FIELDS)) {
       expect(f.question).toMatch(/\?$/);
       for (const v of [1, 2, 3, 4, 5]) expect(f.anchors[v], `anchor ${v}`).toBeTruthy();
-      expect(f.helper).toMatch(/what you want/);
     }
   });
 
+  /**
+   * A7.12.1 REPLACED the old `/what you want/` assertion with this.
+   *
+   * That phrase was one way of saying the thing that matters, and asserting
+   * the phrase rather than the thing meant the guard could be satisfied by
+   * wording that said it and broken by wording that said it better. What
+   * actually has to be true is that every question NAMES THE MISREADING AND
+   * REFUSES IT - level is not a division, playing opportunity is not a
+   * promise of minutes, academic preference is not a reading of grades.
+   */
+  it('disclaims, in every helper, the thing its question could be misread as', () => {
+    for (const f of Object.values(PREFERENCE_FIELDS)) {
+      expect(f.helper, `${f.question} has no disclaimer`).toMatch(/\b(does not|do not)\b/);
+    }
+    expect(PREFERENCE_FIELDS.competitive_level_priority.helper).toMatch(/division/i);
+    expect(PREFERENCE_FIELDS.playing_opportunity_priority.helper).toMatch(/predict or guarantee/i);
+    expect(PREFERENCE_FIELDS.academic_strength_priority.helper).toMatch(/grades and test scores/i);
+  });
+
+  /**
+   * NARROWED AT A7.12.1, deliberately and with a cost.
+   *
+   * The list used to contain the bare token "realistic", because A7.7.5 had
+   * just removed "the strongest level you can realistically reach" - a
+   * question that asks a seventeen-year-old to estimate their own ceiling.
+   * A7.12.1 locked the shipped wording as "the highest realistic college
+   * level to you", which uses the word for the opposite purpose: it promises
+   * that Thriv3 will not offer a level the athlete cannot reach.
+   *
+   * So the banned token moves from the word to the CONSTRUCTIONS that put the
+   * assessment on the athlete, and a question that still uses "realistic" has
+   * to have a helper saying who does the assessing. A bare re-ban of the word
+   * would have failed the shipped copy; dropping the guard entirely would
+   * have let "how realistic is D1 for you?" back in.
+   */
   it('never asks the athlete to assess their own ability or chances', () => {
-    // "the strongest level you can realistically reach" invited exactly that.
-    // What is reachable is Coach Recruitability's answer, not the athlete's.
     for (const f of Object.values(PREFERENCE_FIELDS)) {
       const text = `${f.question} ${Object.values(f.anchors).join(' ')}`.toLowerCase();
-      for (const forbidden of ['realistic', 'reach', 'your ability', 'your level', 'good enough', 'likely']) {
+      for (const forbidden of [
+        'realistically reach', 'you can reach', 'could reach', 'able to reach',
+        'your ability', 'your level', 'good enough', 'likely', 'your chances',
+        'do you think you', 'realistic for you',
+      ]) {
         expect(text, `${f.question} contains "${forbidden}"`).not.toContain(forbidden);
+      }
+      if (text.includes('realistic')) {
+        expect(f.helper, `${f.question} uses "realistic" without saying who decides`)
+          .toMatch(/thriv3/i);
       }
     }
   });

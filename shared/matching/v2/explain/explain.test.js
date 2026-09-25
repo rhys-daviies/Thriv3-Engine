@@ -281,7 +281,23 @@ describe('preferences are described only when declared', () => {
     const r = e.layerReasons.opportunity.find((x) => x.code === REASON_CODE.LEVEL_PREFERENCE_BELOW);
     expect(r).toBeTruthy();
     expect(r.band).toBe(BAND.PREFERENCE_EFFECT);
-    expect(renderReason(r)).toMatch(/marked competitive level as a priority/);
+    // A7.12.1: worded by band, because 3 is the neutral midpoint and calling
+    // it "a priority" overstated what the athlete said. 5 is a strong one.
+    expect(renderReason(r)).toMatch(/strong priority for this athlete \(5 of 5\)/);
+  });
+
+  it('calls the neutral midpoint moderate rather than a priority', () => {
+    const e = explainProgramme(entry({
+      opportunity: withAmbition(3, 1, { atOrAboveOwnLevel: false, levelGapBelow: 0.3, competitiveLevelPriority: 3, athletePercentile: 0.9, programmePercentile: 0.6 }),
+    }), ctx());
+    const r = e.layerReasons.opportunity.find((x) => x.code === REASON_CODE.LEVEL_PREFERENCE_BELOW);
+    expect(r).toBeTruthy();
+    const text = renderReason(r);
+    expect(text).toMatch(/moderately important \(3 of 5\)/);
+    expect(text).not.toMatch(/a priority/);
+    // The band, and the gap it describes, are untouched: wording only.
+    expect(r.band).toBe(BAND.PREFERENCE_EFFECT);
+    expect(r.evidence.levelGapBelow).toBeCloseTo(0.3, 6);
   });
 
   it('mentions playing priority only when it is high', () => {

@@ -3,13 +3,16 @@ import db from '../client.js';
 import { extractVideoId } from '../../../shared/youtube.js';
 import { generateSlug, generateUnique } from '../../lib/tokens.js';
 import { contributionPairError } from '../../../shared/matching/v2/financialRules.js';
+import { PREFERENCE_FIELD_NAMES, normalisePriority } from '../../../shared/matching/v2/athletePreferences.js';
 
 const columns = [
   'full_name', 'email', 'phone', 'graduation_year', 'recruiting_class_year', 'match_weights', 'criterion_ranking', 'origin', 'academic_minimum', 'high_school', 'city', 'state',
   'position', 'secondary_position', 'preferred_divisions', 'football_ability',
   'academic_importance', 'gpa', 'sat_score', 'act_score', 'height_inches', 'weight_lbs',
   'forty_yard_dash', 'preferred_conferences', 'budget_range',
-  'max_annual_contribution_usd', 'contribution_state', 'highlights_url',
+  'max_annual_contribution_usd', 'contribution_state',
+  'competitive_level_priority', 'playing_opportunity_priority', 'academic_strength_priority',
+  'highlights_url',
   'additional_notes', 'email_subject', 'email_template', 'recommendations', 'status', 'sport',
 
   // Public profile page (see server/db/migrate.js)
@@ -75,6 +78,40 @@ function checkContribution(data, existing = null) {
   return data;
 }
 
+/**
+ * Normalise the three 1-5 preferences, or refuse the write.
+ *
+ * REFUSES RATHER THAN CLAMPING, for the same reason the contribution pair
+ * does: a 7 clamped to a 5 is an answer the athlete did not give, and a 7
+ * dropped to NULL is a question they would be asked again having already
+ * answered it. Both are worse than a failed save with a message.
+ *
+ * It normalises exactly one thing - a numeric string to an integer - because
+ * the surrounding stack already does: an HTML select and a JSON body both
+ * send "4", and the column's own CHECK would take it either way. Leaving the
+ * two to disagree about that is how a value passes the entity and fails at
+ * SQLite with no message a person can act on.
+ *
+ * ONLY FIELDS PRESENT IN THE PATCH ARE TOUCHED. An update that says nothing
+ * about preferences says nothing about them; unlike the contribution pair
+ * these three are independent of each other, so there is no combination to
+ * check against the row the patch would produce.
+ */
+function checkPriorities(data) {
+  if (!data) return data;
+  let out = data;
+  for (const field of PREFERENCE_FIELD_NAMES) {
+    if (!Object.prototype.hasOwnProperty.call(data, field)) continue;
+    const r = normalisePriority(field, data[field]);
+    if (!r.ok) throw new Error(r.error);
+    if (r.value !== data[field]) {
+      if (out === data) out = { ...data };
+      out[field] = r.value;
+    }
+  }
+  return out;
+}
+
 const slugTaken = (candidate) => !!db.prepare('SELECT 1 FROM players WHERE public_slug = ?').get(candidate);
 
 /**
@@ -90,6 +127,6 @@ function withSlug(data) {
 
 export const Player = {
   ...base,
-  create: (data) => base.create(withSlug(deriveVideoId(checkContribution(data)))),
-  update: (id, data) => base.update(id, deriveVideoId(checkContribution(data, base.get(id)))),
+  create: (data) => base.create(withSlug(deriveVideoId(checkPriorities(checkContribution(data))))),
+  update: (id, data) => base.update(id, deriveVideoId(checkPriorities(checkContribution(data, base.get(id))))),
 };

@@ -295,7 +295,10 @@ export function majorFit({ intendedMajor, notableMajors }) {
     try { offered = JSON.parse(offered); } catch { offered = null; }
   }
   if (!Array.isArray(offered) || offered.length === 0) {
-    return unscoreable({ reason: REASON.NO_STATED_PREFERENCE, missing: ['notableMajors'], available: ['intendedMajor'] });
+    // The athlete DID state a preference; this institution has no list to
+    // check it against. Same refusal, same coverage, same grade - the only
+    // thing that changes is which side is reported as missing.
+    return unscoreable({ reason: REASON.NO_PROGRAMME_MAJOR_EVIDENCE, missing: ['notableMajors'], available: ['intendedMajor'] });
   }
   const matched = offered.includes(wanted);
   return scoreable({

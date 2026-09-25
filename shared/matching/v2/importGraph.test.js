@@ -56,6 +56,13 @@ const MAY_IMPORT_V2 = [
    */
   'server/db/entities/player.js',
   /**
+   * A7.12.1. The entity's own test, which asserts the write boundary against
+   * the same field list and the same anti-inference guard the entity reads -
+   * asserting it against a restated copy would let the two drift and call it
+   * a pass.
+   */
+  'server/db/preferenceWrites.test.js',
+  /**
    * A7.9.3. The intake form asks the question Financial answers, so it takes
    * the three contribution states FROM the model rather than keeping its own
    * copy of the vocabulary. A second copy is how a form comes to offer a
@@ -67,6 +74,16 @@ const MAY_IMPORT_V2 = [
    */
   'src/lib/contributionIntake.js',
   'src/lib/contributionIntake.test.js',
+  /**
+   * A7.12.1. Same rule as the contribution vocabulary above: the three
+   * preference questions, their 1-5 ladder and their validator are read FROM
+   * the layer that scores them, not restated beside the form. A second copy
+   * is how a form comes to offer a scale the scorer cannot read.
+   *
+   * Also a frozen contract and a validator, not a scorer.
+   */
+  'src/lib/preferenceIntake.js',
+  'src/lib/preferenceIntake.test.js',
   'src/lib/playerPayload.test.js',
   'server/scripts/v2Compare.js',
   'server/scripts/v2Financial.js',
@@ -103,6 +120,7 @@ const MAY_IMPORT_V2 = [
   'server/scripts/v2CoachHistory.js',
   'server/scripts/v2PositionalStructure.js',
   'server/scripts/v2ArchitectureCheckpoint.js',
+  'server/scripts/v2PreferenceParity.js',
   'server/scripts/v2ValidationFixtures.js',
   'server/scripts/derivePlayingNorms.js',
   'server/scripts/derivePositionalNorms.js',

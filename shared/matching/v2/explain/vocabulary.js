@@ -295,6 +295,7 @@ export const REFUSAL_PHRASE = Object.freeze({
   NO_ACADEMIC_PROFILE: 'no academic profile is recorded',
   NO_LOCATION: 'no location is recorded',
   NO_STATED_PREFERENCE: 'the athlete has stated no preference',
+  NO_PROGRAMME_MAJOR_EVIDENCE: 'no list of notable majors is recorded for this institution',
   NO_WIN_RATES: 'no season results are recorded',
   NOT_APPLICABLE: 'it does not apply here',
 });

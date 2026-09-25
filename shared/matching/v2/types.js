@@ -53,6 +53,14 @@ export const REASON = Object.freeze({
   NO_ACADEMIC_PROFILE: 'NO_ACADEMIC_PROFILE',
   NO_LOCATION: 'NO_LOCATION',
   NO_STATED_PREFERENCE: 'NO_STATED_PREFERENCE',
+  /**
+   * A7.12.1. The ATHLETE said what they want to study and THIS PROGRAMME has
+   * no major list to check it against. Distinct from NO_STATED_PREFERENCE,
+   * which names the athlete's side: reporting a programme-side gap as the
+   * athlete having stated nothing sends whoever reads it to ask the athlete a
+   * question they already answered.
+   */
+  NO_PROGRAMME_MAJOR_EVIDENCE: 'NO_PROGRAMME_MAJOR_EVIDENCE',
   NO_WIN_RATES: 'NO_WIN_RATES',
   NOT_APPLICABLE: 'NOT_APPLICABLE',
   BELOW_COVERAGE_FLOOR: 'BELOW_COVERAGE_FLOOR',

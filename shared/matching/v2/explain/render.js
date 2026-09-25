@@ -30,6 +30,35 @@ const pct = (n) => `${Math.round(n * 100)}%`;
 const pts = (n) => `${Math.round(n * 100)} percentile points`;
 
 /**
+ * Which of the three things a 1-5 answer actually said.
+ *
+ * A7.12.1. The sentences below used to call any answer of 3 or more "a
+ * priority", which overstates the neutral midpoint - and A7.12.1 made these
+ * fields user-facing, so an athlete who ticked "moderately important" would
+ * read Thriv3 telling a coach they had prioritised it. The bands are the
+ * ones the intake ladder already names: 1-2 lower, 3 moderate, 4-5 strong.
+ *
+ * WORDING ONLY. Nothing here changes which reasons fire, what they carry, or
+ * any score - the `priority` this reads was already in the evidence.
+ */
+function readPriorityBand(priority) {
+  const n = Number(priority);
+  if (!Number.isFinite(n)) return 'UNKNOWN';
+  if (n >= 4) return 'STRONG';
+  if (n === 3) return 'MODERATE';
+  return 'LOWER';
+}
+
+const levelPriorityClause = (priority) => {
+  switch (readPriorityBand(priority)) {
+    case 'STRONG': return `Competitive level is a strong priority for this athlete (${priority} of 5)`;
+    case 'MODERATE': return `The athlete rated competitive level as moderately important (${priority} of 5)`;
+    case 'LOWER': return `Competitive level is a lower priority for this athlete (${priority} of 5)`;
+    default: return 'The athlete stated a competitive-level preference';
+  }
+};
+
+/**
  * A position is a place on the field; a player is a person. "3 midfields are
  * projected to remain" is not a sentence anyone says out loud.
  */
@@ -178,10 +207,10 @@ const SENTENCE = {
     `The programme's win rate has fallen from ${pct(e.prior)} to ${pct(e.recent)}.`,
   [REASON_CODE.MAJOR_OFFERED]: (e) => `Offers ${e.family}, which covers the stated intended major.`,
   [REASON_CODE.MAJOR_NOT_OFFERED]: (e) => `${e.family} is not among this institution's notable majors.`,
-  [REASON_CODE.LEVEL_PREFERENCE_MET]: () =>
-    `The athlete marked competitive level as a priority, and this programme is at or above the standard they are aiming at.`,
+  [REASON_CODE.LEVEL_PREFERENCE_MET]: (e) =>
+    `${levelPriorityClause(e.priority)}, and this programme is at or above the standard they are aiming at.`,
   [REASON_CODE.LEVEL_PREFERENCE_BELOW]: (e) =>
-    `The athlete marked competitive level as a priority, and this programme sits about ${pts(e.levelGapBelow)} below the standard they are aiming at.`,
+    `${levelPriorityClause(e.priority)}, and this programme sits about ${pts(e.levelGapBelow)} below the standard they are aiming at.`,
   /**
    * Preference-aware and factual. It says where the institution sits in the
    * pool this athlete is choosing from and how much they said it matters. It
@@ -192,8 +221,9 @@ const SENTENCE = {
     `Academic strength is one of this athlete's highest priorities, and this institution sits in the top ${pct(1 - e.percentile)} of the programmes available to them academically.`,
   [REASON_CODE.ACADEMIC_PREFERENCE_WEAK_MATCH]: (e) =>
     `Academic strength is one of this athlete's highest priorities, and this institution sits in the lower ${pct(e.percentile)} of the pool academically.`,
-  [REASON_CODE.ACADEMIC_PREFERENCE_MINOR]: (e) =>
-    `Academic strength is not a major stated priority for this athlete (${e.priority} of 5), so it has limited influence here.`,
+  [REASON_CODE.ACADEMIC_PREFERENCE_MINOR]: (e) => (readPriorityBand(e.priority) === 'MODERATE'
+    ? `The athlete rated academic strength as moderately important (${e.priority} of 5), so it carries some weight here without leading.`
+    : `Academic strength is a lower priority for this athlete (${e.priority} of 5), so it has limited influence here.`),
   [REASON_CODE.ACADEMIC_STRENGTH_UNKNOWN]: () =>
     'Thriv3 holds no measured academic rating for this institution, so academic strength was not scored either way.',
   [REASON_CODE.PLAYING_PREFERENCE_WEIGHTED]: () =>

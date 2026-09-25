@@ -31,6 +31,14 @@ CREATE TABLE IF NOT EXISTS players (
   max_annual_contribution_usd INTEGER,
   contribution_state TEXT,
 
+  -- What the athlete WANTS, on 1-5, and NULL where nobody has asked. NULL is
+  -- not 3: an undeclared preference leaves Opportunity's denominator instead
+  -- of scoring at a midpoint. Never derived from ability, grades or the
+  -- legacy criterion_ranking - see shared/matching/v2/athletePreferences.js.
+  competitive_level_priority INTEGER CHECK (competitive_level_priority IS NULL OR (competitive_level_priority >= 1 AND competitive_level_priority <= 5 AND competitive_level_priority = CAST(competitive_level_priority AS INTEGER))),
+  playing_opportunity_priority INTEGER CHECK (playing_opportunity_priority IS NULL OR (playing_opportunity_priority >= 1 AND playing_opportunity_priority <= 5 AND playing_opportunity_priority = CAST(playing_opportunity_priority AS INTEGER))),
+  academic_strength_priority INTEGER CHECK (academic_strength_priority IS NULL OR (academic_strength_priority >= 1 AND academic_strength_priority <= 5 AND academic_strength_priority = CAST(academic_strength_priority AS INTEGER))),
+
   highlights_url TEXT,
   additional_notes TEXT,
   email_subject TEXT,

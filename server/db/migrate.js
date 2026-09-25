@@ -60,6 +60,30 @@ const PLAYER_COLUMNS = [
   ['contribution_state', 'TEXT'],
 
   /**
+   * A7.12.1. The three things only the athlete can tell us: how much they
+   * want the level, how much they want a route into the team, and how much
+   * they want the institution. 1-5, and NULL on every existing row.
+   *
+   * NULL IS NOT 3. An athlete nobody asked ranks exactly as they did before
+   * these columns existed, because Opportunity leaves an undeclared
+   * preference out of its denominator rather than scoring it at a midpoint.
+   * Defaulting these to 3 would give every athlete in the database an opinion
+   * none of them expressed, and it would be indistinguishable afterwards from
+   * the ones who really chose it.
+   *
+   * NOT BACKFILLED FROM ANYTHING. Not from football_ability, not from the
+   * criterion_ranking, not from GPA - see MAY_NOT_INFER_FROM in
+   * shared/matching/v2/athletePreferences.js, which a test asserts against.
+   *
+   * The CHECK is the same rule the entity validates, restated where SQLite
+   * can enforce it: a write that bypassed the entity still cannot leave a 0
+   * or a 7 in a column the scorer reads as a 1-5 answer.
+   */
+  ['competitive_level_priority', 'INTEGER CHECK (competitive_level_priority IS NULL OR (competitive_level_priority >= 1 AND competitive_level_priority <= 5 AND competitive_level_priority = CAST(competitive_level_priority AS INTEGER)))'],
+  ['playing_opportunity_priority', 'INTEGER CHECK (playing_opportunity_priority IS NULL OR (playing_opportunity_priority >= 1 AND playing_opportunity_priority <= 5 AND playing_opportunity_priority = CAST(playing_opportunity_priority AS INTEGER)))'],
+  ['academic_strength_priority', 'INTEGER CHECK (academic_strength_priority IS NULL OR (academic_strength_priority >= 1 AND academic_strength_priority <= 5 AND academic_strength_priority = CAST(academic_strength_priority AS INTEGER)))'],
+
+  /**
    * The athlete's saved template, set aside rather than deleted.
    *
    * Clearing `email_template` is how an athlete is moved onto the structured

@@ -80,8 +80,9 @@ export {
 export { athleteOpportunity, priorityWeights, ambitionMultiplier } from './layers/opportunity.js';
 
 export {
-  UNDECLARED, PRIORITY_SCALE, PREFERENCE_FIELDS,
+  UNDECLARED, PRIORITY_SCALE, PREFERENCE_FIELDS, PREFERENCE_FIELD_NAMES, ANCHORS,
   readPriority, isDeclared, priorityStrength,
+  normalisePriority, priorityFieldErrors, MAY_NOT_INFER_FROM,
 } from './athletePreferences.js';
 
 export { PURSUIT_WEIGHTS, PURSUIT_GATES, TOP_N, WEIGHTING_ARCHITECTURE, smoothstep, tailGate } from './pursuitRules.js';

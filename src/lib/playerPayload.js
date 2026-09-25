@@ -1,9 +1,12 @@
+import { PREFERENCE_FIELD_NAMES } from '@/lib/preferenceIntake';
+
 /**
  * The player row a form submission becomes.
  *
  * Lifted out of NewPlayer.jsx in A7.9.3 so it can be tested without a DOM:
  * the contribution pair has a rule that the generic "drop every empty value"
- * pass gets exactly backwards, and that rule deserves tests of its own.
+ * pass gets exactly backwards, and that rule deserves tests of its own. The
+ * three A7.12.1 preferences have the same rule, for the same reason.
  */
 export function sanitizePlayerData(raw) {
   const out = { ...raw };
@@ -40,6 +43,22 @@ export function sanitizePlayerData(raw) {
     out.max_annual_contribution_usd = raw.contribution_state === 'STATED'
       ? Number(raw.max_annual_contribution_usd)
       : null;
+  }
+
+  /**
+   * The three preferences travel explicitly, including when the answer is
+   * "unanswered".
+   *
+   * Same trap as the contribution pair: the loop above deletes every null,
+   * and an omitted key is "leave this column alone". On an edit that is the
+   * difference between clearing an answer and appearing to clear it - the
+   * radio would come back empty, the save would report success, and the old
+   * value would still be in the row and still be reaching the scorer.
+   */
+  for (const field of PREFERENCE_FIELD_NAMES) {
+    if (Object.prototype.hasOwnProperty.call(raw, field)) {
+      out[field] = raw[field] === '' || raw[field] === undefined ? null : raw[field];
+    }
   }
 
   // A ranking reset to null must reach the server as an explicit empty array,

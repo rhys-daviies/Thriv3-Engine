@@ -5,6 +5,7 @@ import PublishCard from '@/components/PublishCard';
 import { usePlayerWorkspace } from './PlayerWorkspace';
 import { classYearOf } from '@shared/athlete.js';
 import { contributionSummary } from '@/lib/contributionIntake';
+import { preferenceSummary, preferencesComplete } from '@/lib/preferenceIntake';
 
 function present(value) {
   return value !== null && value !== undefined && value !== '';
@@ -53,6 +54,8 @@ export default function ProfileTab() {
   const attributeGroups = describeAttributes(player.sport, player.sport_attributes);
   const chapters = player.video_chapters || [];
   const contribution = contributionSummary(player);
+  const preferences = preferenceSummary(player);
+  const preferencesAnswered = preferencesComplete(player);
 
   return (
     <div className="space-y-4">
@@ -99,6 +102,35 @@ export default function ProfileTab() {
           <Row label="NCAA Eligibility ID" value={player.ncaa_eligibility_id} />
           <Row label="Intended major" value={player.intended_major} />
         </Block>
+
+        {/*
+          A Block, not a Row set inside another: these three are the only
+          things on this screen the ATHLETE stated, and they are rendered
+          unconditionally - including when all three are unanswered, which is
+          the state that needs to be visible. `Block` hides itself when every
+          value is empty, and "Not answered" is exactly what must not be
+          hidden, so this one is written out.
+        */}
+        <Card className="p-5">
+          <h3 className="font-heading text-sm font-semibold mb-2">What the athlete wants</h3>
+          <dl>
+            {preferences.map((p) => (
+              <div key={p.field} className="flex items-baseline justify-between gap-4 py-2 border-b border-border/60 last:border-0">
+                <dt className="text-xs text-muted-foreground shrink-0">{p.label}</dt>
+                <dd className={`text-sm text-right ${p.answered ? 'font-medium' : 'italic text-muted-foreground'}`}>
+                  {p.text}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          {!preferencesAnswered && (
+            <p className="text-[11px] text-muted-foreground mt-2">
+              An unanswered preference is not scored as a middle answer — matching is built from
+              measured evidence until the athlete says what they want. Answer all three in
+              Edit Player to have their preferences reflected.
+            </p>
+          )}
+        </Card>
 
         <Block title="Contact">
           <Row label="Athlete" value={player.email} href={player.email ? `mailto:${player.email}` : null} />

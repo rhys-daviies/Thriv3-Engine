@@ -114,8 +114,25 @@ describe('major fit', () => {
   it('refuses when the athlete stated one and the programme has no list', () => {
     const r = majorFit({ intendedMajor: 'exercise science', notableMajors: null });
     expect(r.ok).toBe(false);
-    expect(r.reason).toBe(REASON.NO_STATED_PREFERENCE);
+    /**
+     * A7.12.1. Names the PROGRAMME's gap, not the athlete's. The old
+     * NO_STATED_PREFERENCE sent whoever read it to ask the athlete for a
+     * major they had already given.
+     */
+    expect(r.reason).toBe(REASON.NO_PROGRAMME_MAJOR_EVIDENCE);
+    expect(r.reason).not.toBe(REASON.NO_STATED_PREFERENCE);
     expect(r.available).toEqual(['intendedMajor']);
+    expect(r.missing).toEqual(['notableMajors']);
+    // Same refusal as before in every other respect - no score, no grade and
+    // no coverage moved with the rename.
+    expect(r.coverage).toBe(0);
+  });
+
+  it('still names the ATHLETE when it is the athlete who said nothing', () => {
+    // NOT_APPLICABLE, not a refusal: nobody asked is not a missing input.
+    const r = majorFit({ intendedMajor: null, notableMajors: '["Kinesiology"]' });
+    expect(r.ok).toBe(false);
+    expect(r.reason).toBe(REASON.NOT_APPLICABLE);
   });
 
   it('accepts an array as readily as the stored JSON string', () => {
