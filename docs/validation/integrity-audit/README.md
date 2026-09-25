@@ -95,3 +95,26 @@ correct copy already existed; no downstream references, no evidence merge needed
   a full-route replay on a disposable dataset (0 wrong filings recreated).
 - The 9 HUMAN_REVIEW are held pending a decision to seed the missing
   women's-soccer programmes; no programmes were invented.
+
+## Phase 3C — verified the five missing women's-soccer programmes (read-only)
+All five (Keene State 183062, Rhode Island College 217420, Southern Maine 161554,
+Emmanuel MA 165671, New England College 182980) externally verified as active
+NCAA D3 women's-soccer programmes for 2026-27, genuinely absent from `colleges`
+(not a naming/join defect; Emmanuel GA 139630 is a distinct institution).
+Simulation: coach conflicts 9→0, no spurious eligibility, 0 new duplicates.
+Women's conference verified independently: LEC for Keene/RIC/USM, **GNAC** for
+Emmanuel MA + NEC (their men's rows carry CCC — flagged, not changed). Evidence:
+`phase3c_proposed_womens_programmes.json` (per-field provenance).
+
+## Phase 3D — applied the five women's-soccer programmes + reassigned nine coaches
+Applied to the shared dev DB (not `/data`) in one transaction via
+`server/scripts/applyWomensProgrammes.js` (guarded, idempotent): 5 women's-soccer
+`colleges` rows (institution fields copied from the men's row; division `NCAA D3`
++ externally-verified conference; every sport-specific metric left NULL) + 9
+`coaches.school` reassignments. Result: colleges 2404→2409, coach source-domain
+conflicts 9→0, KEEP 5108→5117, REASSIGN 107→98, outreach-safe 3412→3412 (no
+spurious eligibility), 0 wrong-institution eligible, 0 new duplicate/round-trip.
+No men's row, alias, roster or coach_seasons touched. Fixture:
+`phase3d_programme_fixture.json`. Two bounded follow-ups recorded (not repaired)
+in `phase3d_followup_queue.json`: (A) verify Emmanuel MA + NEC **men's** CCC vs
+women's GNAC; (B) women's Little East/GNAC conference completeness (peers NULL).
