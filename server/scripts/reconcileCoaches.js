@@ -27,7 +27,7 @@ const all = (s) => db.prepare(s).all();
 const colleges = all('SELECT name, sport, unitid, state, division FROM colleges');
 const domains = all('SELECT domain, unitid, status FROM athletics_domains');
 const aliases = all('SELECT alias_key, unitid, alias_type FROM institution_aliases');
-const coaches = all('SELECT id, full_name, email, school, sport, position_title, email_status, email_source_url FROM coaches');
+const coaches = all('SELECT id, full_name, email, school, sport, position_title, email_status, email_source_url, currentness_status FROM coaches');
 
 // duplicate-UNITID canonical map (identity canonicalisation, no physical merge)
 const dupMap = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../docs/validation/generated/duplicate_unitid_canonical_map.json'), 'utf8'));
@@ -113,11 +113,15 @@ function reconcile(co) {
     && ['VERIFIED', 'VERIFIED_ALIAS'].includes(domByName.get(sdom)?.status)
     && domByName.get(sdom)?.unitid === resolvedUnitid;
   const corroborated = idAtEvidence || idAtCurrent || sourceDomainTrusted;
+  // Currentness fails outreach CLOSED only when a coach is PROVEN_STALE. UNKNOWN
+  // (the default for every un-checked row) never disqualifies here.
+  const provenStale = co.currentness_status === 'PROVEN_STALE';
   const eligible = inst === DECISION.RESOLVED && emailStatus === 'verified' && hasRealEmail && !isTeam
-    && ['KEEP', 'REASSIGN'].includes(cls) && corroborated;
+    && ['KEEP', 'REASSIGN'].includes(cls) && corroborated && !provenStale;
   let ineligibleReason = '';
   if (!eligible) {
-    if (!hasRealEmail || isTeam) ineligibleReason = 'no per-person address';
+    if (provenStale) ineligibleReason = 'coach proven no longer current (PROVEN_STALE)';
+    else if (!hasRealEmail || isTeam) ineligibleReason = 'no per-person address';
     else if (emailStatus !== 'verified') ineligibleReason = `email ${emailStatus}`;
     else if (inst !== DECISION.RESOLVED) ineligibleReason = `institution ${inst}`;
     else if (!corroborated) ineligibleReason = `${cls} not corroborated by coach_seasons`;

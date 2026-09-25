@@ -1,0 +1,13 @@
+{
+  "decision": "DO_NOT_POPULATE_email_confirmed_at_from_page_publication",
+  "field": "coaches.email_confirmed_at (TEXT timestamp, exists via migrate.js COACH_COLUMNS)",
+  "documented_semantics": "Per migrate.js: email_confirmed_at 'stays null until something actually proves the address — a send that does not bounce, or a reply.' It records DELIVERABILITY, distinct from email_status (provenance).",
+  "why_not_populate": [
+    "Seeing the stored address published on a current authoritative staff page proves the address is the current PUBLISHED contact, not that it is DELIVERABLE — the two are different signals and email_confirmed_at means the latter.",
+    "The schema has no companion source/method column for email_confirmed_at, so a bare timestamp could not carry the page evidence; the linkage would be lost and the value misleading.",
+    "Guardrails: do not populate from domain inference, not merely because the person is current, not from historical pages."
+  ],
+  "what_is_captured_instead": "For the externally-verified CURRENT coaches, the page evidence (including that the stored email was published there) is recorded in the currentness_source_url / currentness_checked_at columns and in the phase4a/phase4b currency evidence artifacts (email_status=CURRENT_OFFICIAL_EMAIL + evidence_url + checked_at).",
+  "recommendation_if_wanted": "Add a DISTINCT additive signal next phase, e.g. email_seen_on_source_at (TEXT) + email_seen_source_url (TEXT), meaning 'stored address observed on a current authoritative page at this time'. Keep email_confirmed_at reserved for proven deliverability (bounce/reply). Do not conflate the two.",
+  "counts_that_would_qualify_if_added": "406 externally-verified ELIGIBLE coaches had email_status=CURRENT_OFFICIAL_EMAIL (exact stored address on the current page); these are the exact-match candidates a future email_seen_on_source_at would cover."
+}
