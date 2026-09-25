@@ -1,0 +1,3265 @@
+{
+  "formatVersion": "thriv3-v3-outreach-pack/1",
+  "packId": "V3-B-elite-balanced",
+  "generatedAt": "2026-09-25T06:09:11.367Z",
+  "provenance": {
+    "generatedAt": "2026-09-25T06:09:11.367Z",
+    "packFormat": "thriv3-v3-outreach-pack/1",
+    "v2Commit": "711af51",
+    "preferenceCommit": "3056215",
+    "checkpointCommit": "2ded421",
+    "calibrationId": "ability-scale-2026-09-19",
+    "positionalNormsDigest": "4b2d7902f5f299a7",
+    "playingNormsDigest": "5edc2b0c8f64e9e3",
+    "weights": {
+      "recruitability": 0.5,
+      "financial": 0.2,
+      "opportunity": 0.3
+    },
+    "gates": {
+      "recruitability": {
+        "floor": 0.05,
+        "threshold": 0.25
+      },
+      "financial": {
+        "floor": 0.3,
+        "threshold": 0.5
+      }
+    },
+    "weightingArchitecture": "global",
+    "topN": 100,
+    "rosterSeason": "2026",
+    "athleteId": "V3-B-elite-balanced",
+    "role": "ELITE / BALANCED",
+    "basedOn": "A-strong-high-budget-strong-academics",
+    "eliteOversample": true,
+    "contributionIsNewAnswer": false
+  },
+  "digests": {
+    "athlete": "14877a2eb6061ecf",
+    "pool": "86b911af2515ab10",
+    "sample": "96f6d726084f782a",
+    "viewA": "dc83ca6bbe3be69f",
+    "metrics": "a30c23bf49cae7b8",
+    "orderingSeed": "V3-B-elite-balanced",
+    "orderCorrelation": -0.2425
+  },
+  "athlete": {
+    "label": "V3-B-elite-balanced",
+    "sport": "mens-soccer",
+    "sex": "male",
+    "position": "MIDFIELD",
+    "abilityRating": 9,
+    "abilityBand": "ELITE",
+    "athletePercentile": 0.96,
+    "equivalentProgrammeScore": 83.58,
+    "entryYear": 2028,
+    "eligibilityBasis": "openings computed for entry year 2028 against the roster season on file; class label stands in for years-since-enrolment",
+    "gpa": 3.9,
+    "sat": 1450,
+    "act": null,
+    "budgetRange": "UNDECLARED",
+    "budgetInterval": "UNDECLARED",
+    "origin": "USA",
+    "nationality": "USA",
+    "state": "CA",
+    "city": "Los Angeles",
+    "recruitType": "NOT COLLECTED — V2 reads only domestic/international and the entry year",
+    "competitiveLevelPriority": 3,
+    "playingOpportunityPriority": 3,
+    "academicStrengthPriority": 3,
+    "preferenceProfile": "MIXED",
+    "undeclaredPreferences": [],
+    "intendedMajor": null,
+    "preferredDivisions": [],
+    "preferredConferences": [],
+    "criterionRanking": [],
+    "notCollected": [
+      "intended_major",
+      "location preference (how far from home, or where)",
+      "recruit type (high school / transfer / post-graduate / junior college)",
+      "initial enrolment year and seasons used, which is what eligibility actually runs on",
+      "whether the athlete has already been contacted by any programme"
+    ],
+    "missing": [
+      {
+        "field": "budget_range",
+        "required": false,
+        "consequence": "Financial Viability is UNSCOREABLE and every programme falls to LIMITED_DATA. Not fatal, but the list becomes unrankable in practice."
+      },
+      {
+        "field": "act_score",
+        "required": false,
+        "consequence": "Academic eligibility screens cannot run. Does not affect any V2 layer score."
+      }
+    ],
+    "role": "ELITE / BALANCED",
+    "basedOn": "A-strong-high-budget-strong-academics",
+    "contributionIsNewAnswer": false,
+    "contributionState": "STATED",
+    "maxAnnualContributionUsd": 40000
+  },
+  "universe": {
+    "poolSize": 1166,
+    "ranked": 858,
+    "limitedData": 308,
+    "ineligible": 0,
+    "suppressed": 0
+  },
+  "sample": {
+    "size": 42,
+    "counts": {
+      "TOP_1_10": 6,
+      "SUBSTANTIALLY_BELOW": 2,
+      "HIGH_R_WEAK_PROGRAMME": 2,
+      "RANKS_11_25": 3,
+      "RANKS_26_50": 3,
+      "RANKS_51_100": 4,
+      "RANKS_101_150": 3,
+      "RANKS_151_250": 3,
+      "RANKS_251_500": 3,
+      "RANKS_501_PLUS": 3,
+      "LIMITED_DATA": 3,
+      "NEAR_LEVEL": 3,
+      "MODERATELY_BELOW": 2,
+      "MODEST_REACH": 2,
+      "LOW_R_NEAR_LEVEL": 2
+    },
+    "composition": {
+      "inTop100": 18,
+      "outsideTop100": 21,
+      "limitedData": 3,
+      "divisions": {
+        "NCAA D3": 18,
+        "NAIA": 4,
+        "NCAA D2": 7,
+        "NCAA D1": 11,
+        "NJCAA": 2
+      },
+      "distinctDivisions": 5
+    },
+    "frozenMembership": [
+      "001de5ba-835d-4fc3-9f2d-61a58273feab",
+      "020c5cc8-7ace-4b8e-b17d-ad520fd94e7c",
+      "0a70334b-1c8c-4043-bf01-9041c8b6674e",
+      "0a757568-0fd0-4fcc-b838-59b26ff1e2c7",
+      "1a7533ef-d1b3-48e6-bab6-ea27fb01ba43",
+      "25506340-fc8f-459a-a07d-78d879fd2559",
+      "29cc94cb-890e-495d-9c57-7a27662f8271",
+      "31b7b0ca-829d-4931-9348-473c31a9f36a",
+      "3690c57d-c769-4b3b-bc54-2cd95acf2a76",
+      "3bf568a6-e573-47d1-9371-6657c412eae9",
+      "3cf31f14-5ab6-4792-bff0-4081f598cb5a",
+      "4315ac1d-11d6-4491-b638-637fafd59539",
+      "435c3d97-49d5-4283-8072-c4d0c023d2a2",
+      "4c5dc3ac-7e23-4d11-8370-67b49e452792",
+      "4eba52ae-b8f5-40f4-a6d0-b86b0244a6c4",
+      "527ef283-39c5-47ac-aeb1-ed54de0bee0e",
+      "57b522c9-faa2-438f-80f3-a4d115f801c4",
+      "64d5c0aa-b5a4-4c95-8e85-6ee9e331de9a",
+      "679aa02f-15a4-4899-a566-9b53ba6e64ce",
+      "684f223f-3d4c-4ee9-afd9-a44b36c02c1a",
+      "6bf75e98-d785-4ba6-ad92-23e4dea24a38",
+      "7201889b-5881-41c7-adb7-fe0160f001cb",
+      "754ab2b2-8c7e-4854-bc93-b61ed5e9c568",
+      "7620be75-27f0-4b7f-8254-e36048639572",
+      "78006bf5-e489-4405-9e9b-8bf8a5d7bfce",
+      "7957f1a6-db68-435d-afdf-542a51a3ebca",
+      "79febff5-eef0-4876-99d6-2355894a2c54",
+      "8a3be6df-892b-47a0-b7cd-aa77cefd7593",
+      "918baa0d-b714-4b0f-8a16-853eb193b9b9",
+      "9662887a-797a-4a54-84d3-b5cfc2e065b8",
+      "a11ef3f0-b444-4921-8238-f6e00986f320",
+      "b8392a0a-22ac-4445-b142-d71910932dc9",
+      "b9c8a969-3137-4bdf-bc43-2492d2d310ea",
+      "bed6cb32-856d-4363-8dd6-64c55882df8c",
+      "c834686d-3500-494d-bd46-300a2d88f6e5",
+      "d40431ac-639b-40cc-b526-89f58c3f18e5",
+      "d4df182c-22d3-444a-934d-85ea215dfd41",
+      "db4289ce-d577-43f5-9ea6-d28136cd402f",
+      "f6986698-cbb5-4bab-92f2-d4c355730c35",
+      "fb2e81f1-9eba-4840-bb18-f590102cf60d",
+      "fbf7aa9f-242e-4c48-88a7-94c18e21d9ba",
+      "fd55c4f7-e430-40b9-a80b-f6054ab099a6"
+    ]
+  },
+  "viewA": {
+    "programmes": [
+      {
+        "reviewNo": 1,
+        "id": "684f223f-3d4c-4ee9-afd9-a44b36c02c1a",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 12,
+            "classYears": {
+              "So.": 10,
+              "Gr.": 1,
+              "Sr.": 12,
+              "Jr.": 5,
+              "Fr.": 3,
+              "1st": 1
+            },
+            "departingBeforeEntryYear": 7,
+            "eligibleToRemain": 3,
+            "identifiableDepartingStarters": 6,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 55,
+            "domesticRecruitsPlaced": 23,
+            "recruitsWithin300km": 1,
+            "describedAs": "recruits across a broad area",
+            "athleteDistanceKm": 4037,
+            "internationalRosterShare": 0.22,
+            "internationalMinutesShare": 0.22,
+            "utilisationSampleRosterRows": 32
+          },
+          "academic": {
+            "rating": 2.8,
+            "relativeStanding": "below average for this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Hawaii Pacific",
+          "division": "NCAA D2",
+          "conference": "PacWest",
+          "city": "Honolulu",
+          "state": "HI",
+          "control": 2,
+          "programmeStrength": 48.53,
+          "nationalRanking": 401,
+          "postseason2025": null,
+          "recentWinPct": 0.389,
+          "priorWinPct": 0.402,
+          "academicRating": 2.8,
+          "satAvg": 1111,
+          "admitRate": 0.859,
+          "netPrice": 29657,
+          "tuitionInState": 34392,
+          "tuitionOutState": 34392,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Biology\",\"Psychology\",\"Health Professions\",\"Criminal Justice\"]"
+        }
+      },
+      {
+        "reviewNo": 2,
+        "id": "7201889b-5881-41c7-adb7-fe0160f001cb",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 14,
+            "classYears": {
+              "2nd": 3,
+              "Jr.": 13,
+              "Gr.": 9,
+              "Sr.": 10,
+              "So.": 4,
+              "r-Sr.": 1,
+              "Fr.": 5
+            },
+            "departingBeforeEntryYear": 8,
+            "eligibleToRemain": 3,
+            "identifiableDepartingStarters": 0,
+            "departingPlayersUnplaceable": 2,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 82,
+            "domesticRecruitsPlaced": 14,
+            "recruitsWithin300km": 2,
+            "describedAs": "recruits across a broad area",
+            "athleteDistanceKm": 2670,
+            "internationalRosterShare": 0.62,
+            "internationalMinutesShare": 0.79,
+            "utilisationSampleRosterRows": 45
+          },
+          "academic": {
+            "rating": 4.6,
+            "relativeStanding": "around the middle of this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Christian Brothers",
+          "division": "NCAA D2",
+          "conference": "GSC",
+          "city": "Memphis",
+          "state": "TN",
+          "control": 2,
+          "programmeStrength": 60.13,
+          "nationalRanking": 252,
+          "postseason2025": null,
+          "recentWinPct": 0.559,
+          "priorWinPct": 0.622,
+          "academicRating": 4.6,
+          "satAvg": 1098,
+          "admitRate": 0.867,
+          "netPrice": 9854,
+          "tuitionInState": 38420,
+          "tuitionOutState": 38420,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Computer Science\",\"Biology\",\"Psychology\",\"Health Professions\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 3,
+        "id": "3690c57d-c769-4b3b-bc54-2cd95acf2a76",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 18,
+            "classYears": {
+              "Sr.": 11,
+              "So.": 9,
+              "Jr.": 12,
+              "Fr.": 9
+            },
+            "departingBeforeEntryYear": 6,
+            "eligibleToRemain": 8,
+            "identifiableDepartingStarters": 3,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 53,
+            "domesticRecruitsPlaced": 53,
+            "recruitsWithin300km": 53,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 222,
+            "internationalRosterShare": 0,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 41
+          },
+          "academic": {
+            "rating": 5.9,
+            "relativeStanding": "above average for this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "UC Merced",
+          "division": "NCAA D2",
+          "conference": "CCAA",
+          "city": "Merced",
+          "state": "CA",
+          "control": 1,
+          "programmeStrength": 51.81,
+          "nationalRanking": 347,
+          "postseason2025": null,
+          "recentWinPct": 0.531,
+          "priorWinPct": 0.491,
+          "academicRating": 5.9,
+          "satAvg": null,
+          "admitRate": 0.905,
+          "netPrice": 11983,
+          "tuitionInState": 15623,
+          "tuitionOutState": 49823,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Biology\",\"Psychology\",\"Health Professions\",\"Political Science\"]"
+        }
+      },
+      {
+        "reviewNo": 4,
+        "id": "b9c8a969-3137-4bdf-bc43-2492d2d310ea",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 12,
+            "classYears": {
+              "So.": 8,
+              "Jr.": 8,
+              "Fy.": 13,
+              "Sr.": 6
+            },
+            "departingBeforeEntryYear": 2,
+            "eligibleToRemain": 7,
+            "identifiableDepartingStarters": 1,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 42,
+            "domesticRecruitsPlaced": 39,
+            "recruitsWithin300km": 15,
+            "describedAs": "recruits regionally",
+            "athleteDistanceKm": 3833,
+            "internationalRosterShare": 0.09,
+            "internationalMinutesShare": 0.24,
+            "utilisationSampleRosterRows": 35
+          },
+          "academic": {
+            "rating": 9.4,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Colgate",
+          "division": "NCAA D1",
+          "conference": "Patriot League",
+          "city": "Hamilton",
+          "state": "NY",
+          "control": 2,
+          "programmeStrength": 72.35,
+          "nationalRanking": 133,
+          "postseason2025": null,
+          "recentWinPct": 0.423,
+          "priorWinPct": 0.474,
+          "academicRating": 9.4,
+          "satAvg": 1508,
+          "admitRate": 0.139,
+          "netPrice": 28786,
+          "tuitionInState": 70306,
+          "tuitionOutState": 70306,
+          "notableMajors": "[\"Computer Science\",\"Biology\",\"Psychology\",\"Political Science\",\"Art & Design\",\"English\"]"
+        }
+      },
+      {
+        "reviewNo": 5,
+        "id": "29cc94cb-890e-495d-9c57-7a27662f8271",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 16,
+            "classYears": {
+              "So": 6,
+              "Fr": 16,
+              "Jr": 12,
+              "Sr": 16,
+              "unreadable": 1
+            },
+            "departingBeforeEntryYear": 10,
+            "eligibleToRemain": 5,
+            "identifiableDepartingStarters": 0,
+            "departingPlayersUnplaceable": 10,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "INSUFFICIENT",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "INSUFFICIENT",
+            "recentArrivals": 25
+          },
+          "academic": {
+            "rating": 3.9,
+            "relativeStanding": "around the middle of this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Baker",
+          "division": "NAIA",
+          "conference": "KCAC",
+          "city": "Baldwin City",
+          "state": "KS",
+          "control": 2,
+          "programmeStrength": 59.06,
+          "nationalRanking": 275,
+          "postseason2025": "appearance",
+          "recentWinPct": 0.644,
+          "priorWinPct": 0.5,
+          "academicRating": 3.9,
+          "satAvg": null,
+          "admitRate": 0.942,
+          "netPrice": 25301,
+          "tuitionInState": 35300,
+          "tuitionOutState": 35300,
+          "notableMajors": "[\"Business\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Health Professions\",\"Education\",\"Political Science\"]"
+        }
+      },
+      {
+        "reviewNo": 6,
+        "id": "918baa0d-b714-4b0f-8a16-853eb193b9b9",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 17,
+            "classYears": {
+              "Sr.": 12,
+              "Jr.": 6,
+              "Fr.": 12,
+              "So.": 8
+            },
+            "departingBeforeEntryYear": 7,
+            "eligibleToRemain": 6,
+            "identifiableDepartingStarters": 3,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 56,
+            "domesticRecruitsPlaced": 56,
+            "recruitsWithin300km": 52,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 3879,
+            "internationalRosterShare": 0,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 38
+          },
+          "academic": {
+            "rating": 6.3,
+            "relativeStanding": "above average for this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Salisbury",
+          "division": "NCAA D3",
+          "conference": "CAC",
+          "city": "Salisbury",
+          "state": "MD",
+          "control": 1,
+          "programmeStrength": 40.17,
+          "nationalRanking": 654,
+          "postseason2025": null,
+          "recentWinPct": 0.468,
+          "priorWinPct": 0.398,
+          "academicRating": 6.3,
+          "satAvg": 1252,
+          "admitRate": 0.875,
+          "netPrice": 17743,
+          "tuitionInState": 11084,
+          "tuitionOutState": 22174,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Education\",\"Political Science\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 7,
+        "id": "4315ac1d-11d6-4491-b638-637fafd59539",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 10,
+            "classYears": {
+              "Gr.": 3,
+              "So.": 13,
+              "Sr.": 6,
+              "Jr.": 6,
+              "Fr.": 4
+            },
+            "departingBeforeEntryYear": 3,
+            "eligibleToRemain": 4,
+            "identifiableDepartingStarters": 0,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 46,
+            "domesticRecruitsPlaced": 29,
+            "recruitsWithin300km": 25,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 3945,
+            "internationalRosterShare": 0.31,
+            "internationalMinutesShare": 0.1,
+            "utilisationSampleRosterRows": 32
+          },
+          "academic": {
+            "rating": 8,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Rutgers",
+          "division": "NCAA D1",
+          "conference": "Big Ten Conference",
+          "city": "New Brunswick",
+          "state": "NJ",
+          "control": 1,
+          "programmeStrength": 85.3,
+          "nationalRanking": 44,
+          "postseason2025": null,
+          "recentWinPct": 0.461,
+          "priorWinPct": 0.486,
+          "academicRating": 8,
+          "satAvg": 1410,
+          "admitRate": 0.582,
+          "netPrice": 24406,
+          "tuitionInState": 17929,
+          "tuitionOutState": 37441,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Computer Science\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Political Science\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 8,
+        "id": "6bf75e98-d785-4ba6-ad92-23e4dea24a38",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 8,
+            "classYears": {
+              "So.": 13,
+              "Jr.": 7,
+              "Fr.": 9,
+              "Sr.": 7
+            },
+            "departingBeforeEntryYear": 3,
+            "eligibleToRemain": 1,
+            "identifiableDepartingStarters": 1,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 47,
+            "domesticRecruitsPlaced": 47,
+            "recruitsWithin300km": 38,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 2615,
+            "internationalRosterShare": 0,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 36
+          },
+          "academic": {
+            "rating": 4.6,
+            "relativeStanding": "around the middle of this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Wisconsin-Platteville",
+          "division": "NCAA D3",
+          "conference": "WIAC",
+          "city": "Platteville",
+          "state": "WI",
+          "control": 1,
+          "programmeStrength": 46.96,
+          "nationalRanking": 667,
+          "postseason2025": null,
+          "recentWinPct": 0.633,
+          "priorWinPct": 0.683,
+          "academicRating": 4.6,
+          "satAvg": 1190,
+          "admitRate": 0.894,
+          "netPrice": 16032,
+          "tuitionInState": 8644,
+          "tuitionOutState": 17603,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Computer Science\",\"Biology\",\"Psychology\",\"Education\",\"Criminal Justice\"]"
+        }
+      },
+      {
+        "reviewNo": 9,
+        "id": "435c3d97-49d5-4283-8072-c4d0c023d2a2",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 7,
+            "classYears": {
+              "Jr.": 7,
+              "Fr.": 9,
+              "Sr.": 5,
+              "Gr.": 3,
+              "So.": 5,
+              "R-Sr.": 1
+            },
+            "departingBeforeEntryYear": 3,
+            "eligibleToRemain": 3,
+            "identifiableDepartingStarters": 0,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 66,
+            "domesticRecruitsPlaced": 33,
+            "recruitsWithin300km": 22,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 199,
+            "internationalRosterShare": 0.33,
+            "internationalMinutesShare": 0.07,
+            "utilisationSampleRosterRows": 30
+          },
+          "academic": {
+            "rating": 8.1,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Loyola Marymount",
+          "division": "NCAA D1",
+          "conference": "West Coast Conference",
+          "city": "Los Angeles",
+          "state": "CA",
+          "control": 2,
+          "programmeStrength": 80.13,
+          "nationalRanking": 107,
+          "postseason2025": null,
+          "recentWinPct": 0.41,
+          "priorWinPct": 0.564,
+          "academicRating": 8.1,
+          "satAvg": 1359,
+          "admitRate": 0.451,
+          "netPrice": 48381,
+          "tuitionInState": 62357,
+          "tuitionOutState": 62357,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Computer Science\",\"Biology\",\"Psychology\",\"Communications\",\"Political Science\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 10,
+        "id": "c834686d-3500-494d-bd46-300a2d88f6e5",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 7,
+            "classYears": {
+              "Sr.": 5,
+              "So.": 5,
+              "Jr.": 10,
+              "Fr.": 6,
+              "R-Sr.": 2
+            },
+            "departingBeforeEntryYear": 2,
+            "eligibleToRemain": 2,
+            "identifiableDepartingStarters": 2,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 35,
+            "domesticRecruitsPlaced": 31,
+            "recruitsWithin300km": 30,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 3855,
+            "internationalRosterShare": 0,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 28
+          },
+          "academic": {
+            "rating": 5.3,
+            "relativeStanding": "above average for this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "West Chester",
+          "division": "NCAA D2",
+          "conference": "PSAC",
+          "city": "West Chester",
+          "state": "PA",
+          "control": 1,
+          "programmeStrength": 59.63,
+          "nationalRanking": 247,
+          "postseason2025": null,
+          "recentWinPct": 0.535,
+          "priorWinPct": 0.607,
+          "academicRating": 5.3,
+          "satAvg": 1187,
+          "admitRate": 0.784,
+          "netPrice": 23331,
+          "tuitionInState": 10775,
+          "tuitionOutState": 22599,
+          "notableMajors": "[\"Business\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Health Professions\",\"Education\",\"Criminal Justice\",\"Art & Design\",\"English\"]"
+        }
+      },
+      {
+        "reviewNo": 11,
+        "id": "b8392a0a-22ac-4445-b142-d71910932dc9",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 8,
+            "classYears": {
+              "So.": 5,
+              "Jr.": 11,
+              "Sr.": 3,
+              "Fr.": 11
+            },
+            "departingBeforeEntryYear": 5,
+            "eligibleToRemain": 3,
+            "identifiableDepartingStarters": 3,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 43,
+            "domesticRecruitsPlaced": 35,
+            "recruitsWithin300km": 23,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 3093,
+            "internationalRosterShare": 0,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 30
+          },
+          "academic": {
+            "rating": 8.6,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Centre",
+          "division": "NCAA D3",
+          "conference": "SAA",
+          "city": "Danville",
+          "state": "KY",
+          "control": 2,
+          "programmeStrength": 38.83,
+          "nationalRanking": 670,
+          "postseason2025": null,
+          "recentWinPct": 0.472,
+          "priorWinPct": 0.343,
+          "academicRating": 8.6,
+          "satAvg": 1352,
+          "admitRate": 0.544,
+          "netPrice": 20781,
+          "tuitionInState": 52820,
+          "tuitionOutState": 52820,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Biology\",\"Psychology\",\"Political Science\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 12,
+        "id": "78006bf5-e489-4405-9e9b-8bf8a5d7bfce",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 11,
+            "classYears": {
+              "5th": 7,
+              "Jr.": 6,
+              "So.": 6,
+              "Sr.": 7,
+              "Fr.": 6
+            },
+            "departingBeforeEntryYear": 4,
+            "eligibleToRemain": 4,
+            "identifiableDepartingStarters": 3,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 56,
+            "domesticRecruitsPlaced": 20,
+            "recruitsWithin300km": 11,
+            "describedAs": "recruits regionally",
+            "athleteDistanceKm": 2234,
+            "internationalRosterShare": 0.59,
+            "internationalMinutesShare": 0.69,
+            "utilisationSampleRosterRows": 32
+          },
+          "academic": {
+            "rating": 5.6,
+            "relativeStanding": "above average for this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Kansas City",
+          "division": "NCAA D1",
+          "conference": "The Summit League",
+          "city": "Kansas City",
+          "state": "MO",
+          "control": 1,
+          "programmeStrength": 74.65,
+          "nationalRanking": 21,
+          "postseason2025": "r32",
+          "recentWinPct": 0.667,
+          "priorWinPct": 0.419,
+          "academicRating": 5.6,
+          "satAvg": 1204,
+          "admitRate": 0.722,
+          "netPrice": 13310,
+          "tuitionInState": 12587,
+          "tuitionOutState": 30227,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Computer Science\",\"Biology\",\"Psychology\",\"Health Professions\",\"Political Science\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 13,
+        "id": "7620be75-27f0-4b7f-8254-e36048639572",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 23,
+            "classYears": {
+              "R-So.": 1,
+              "Jr.": 4,
+              "So.": 7,
+              "R-Fr.": 3,
+              "Gr.": 2,
+              "R-Jr.": 4,
+              "Sr.": 7,
+              "Fr.": 18
+            },
+            "departingBeforeEntryYear": 7,
+            "eligibleToRemain": 16,
+            "identifiableDepartingStarters": 3,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 62,
+            "domesticRecruitsPlaced": 55,
+            "recruitsWithin300km": 32,
+            "describedAs": "recruits regionally",
+            "athleteDistanceKm": 886,
+            "internationalRosterShare": 0.04,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 46
+          },
+          "academic": {
+            "rating": 7.1,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Westminster (UT)",
+          "division": "NCAA D2",
+          "conference": "RMAC",
+          "city": "Salt Lake City",
+          "state": "UT",
+          "control": 2,
+          "programmeStrength": 57.61,
+          "nationalRanking": 272,
+          "postseason2025": null,
+          "recentWinPct": 0.509,
+          "priorWinPct": 0.526,
+          "academicRating": 7.1,
+          "satAvg": 1220,
+          "admitRate": 0.666,
+          "netPrice": 27094,
+          "tuitionInState": 43528,
+          "tuitionOutState": 43528,
+          "notableMajors": "[\"Business\",\"Biology\",\"Psychology\",\"Communications\",\"Health Professions\",\"Political Science\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 14,
+        "id": "4c5dc3ac-7e23-4d11-8370-67b49e452792",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 10,
+            "classYears": {
+              "R-Sr.": 2,
+              "Sr.": 7,
+              "Jr.": 11,
+              "So.": 5,
+              "R-Jr.": 1,
+              "Red 5th": 1,
+              "Fr.": 4
+            },
+            "departingBeforeEntryYear": 5,
+            "eligibleToRemain": 2,
+            "identifiableDepartingStarters": 2,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 56,
+            "domesticRecruitsPlaced": 39,
+            "recruitsWithin300km": 0,
+            "describedAs": "recruits across a broad area",
+            "athleteDistanceKm": 4033,
+            "internationalRosterShare": 0,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 31
+          },
+          "academic": {
+            "rating": 4.2,
+            "relativeStanding": "around the middle of this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Chaminade",
+          "division": "NCAA D2",
+          "conference": "PacWest",
+          "city": "Honolulu",
+          "state": "HI",
+          "control": 2,
+          "programmeStrength": 40.02,
+          "nationalRanking": 732,
+          "postseason2025": null,
+          "recentWinPct": 0.173,
+          "priorWinPct": 0.126,
+          "academicRating": 4.2,
+          "satAvg": 1060,
+          "admitRate": 0.914,
+          "netPrice": 28856,
+          "tuitionInState": 30874,
+          "tuitionOutState": 30874,
+          "notableMajors": "[\"Business\",\"Biology\",\"Psychology\",\"Health Professions\",\"Education\",\"Criminal Justice\"]"
+        }
+      },
+      {
+        "reviewNo": 15,
+        "id": "8a3be6df-892b-47a0-b7cd-aa77cefd7593",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 7,
+            "classYears": {
+              "Sophomore": 13,
+              "Senior": 6,
+              "Freshman": 14,
+              "Junior": 9,
+              "Graduate Student": 1
+            },
+            "departingBeforeEntryYear": 4,
+            "eligibleToRemain": 2,
+            "identifiableDepartingStarters": 2,
+            "departingPlayersUnplaceable": 2,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 20,
+            "domesticRecruitsPlaced": 3,
+            "recruitsWithin300km": 3,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 3155
+          },
+          "academic": {
+            "rating": 2.5,
+            "relativeStanding": "below average for this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Point (GA)",
+          "division": "NAIA",
+          "conference": "Southern States Athletic Conference",
+          "city": "West Point",
+          "state": "GA",
+          "control": 2,
+          "programmeStrength": 44.14,
+          "nationalRanking": null,
+          "postseason2025": null,
+          "recentWinPct": 0.417,
+          "priorWinPct": 0.215,
+          "academicRating": 2.5,
+          "satAvg": null,
+          "admitRate": 0.443,
+          "netPrice": 25335,
+          "tuitionInState": 24000,
+          "tuitionOutState": 24000,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Psychology\",\"Kinesiology\",\"Education\",\"Criminal Justice\"]"
+        }
+      },
+      {
+        "reviewNo": 16,
+        "id": "fbf7aa9f-242e-4c48-88a7-94c18e21d9ba",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 10,
+            "classYears": {
+              "Fr.": 15,
+              "Jr.": 3,
+              "So.": 6,
+              "Sr.": 3
+            },
+            "departingBeforeEntryYear": 4,
+            "eligibleToRemain": 4,
+            "identifiableDepartingStarters": 3,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 45,
+            "domesticRecruitsPlaced": 42,
+            "recruitsWithin300km": 36,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 2460,
+            "internationalRosterShare": 0,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 27
+          },
+          "academic": {
+            "rating": 6.2,
+            "relativeStanding": "above average for this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Bethel (MN)",
+          "division": "NCAA D3",
+          "conference": "MIAC",
+          "city": "Saint Paul",
+          "state": "MN",
+          "control": 2,
+          "programmeStrength": 47.01,
+          "nationalRanking": 551,
+          "postseason2025": null,
+          "recentWinPct": 0.579,
+          "priorWinPct": 0.45,
+          "academicRating": 6.2,
+          "satAvg": 1249,
+          "admitRate": 0.878,
+          "netPrice": 28556,
+          "tuitionInState": 44226,
+          "tuitionOutState": 44226,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Education\"]"
+        }
+      },
+      {
+        "reviewNo": 17,
+        "id": "fb2e81f1-9eba-4840-bb18-f590102cf60d",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 15,
+            "classYears": {
+              "So.": 12,
+              "Jr.": 12,
+              "Sr.": 4,
+              "Fr.": 11
+            },
+            "departingBeforeEntryYear": 11,
+            "eligibleToRemain": 1,
+            "identifiableDepartingStarters": 5,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 62,
+            "domesticRecruitsPlaced": 32,
+            "recruitsWithin300km": 24,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 2520,
+            "internationalRosterShare": 0.38,
+            "internationalMinutesShare": 0.7,
+            "utilisationSampleRosterRows": 39
+          },
+          "academic": {
+            "rating": 7.3,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Luther",
+          "division": "NCAA D3",
+          "conference": "Iowa Conference",
+          "city": "Decorah",
+          "state": "IA",
+          "control": 2,
+          "programmeStrength": 43.83,
+          "nationalRanking": 886,
+          "postseason2025": "r32",
+          "recentWinPct": 0.588,
+          "priorWinPct": 0.528,
+          "academicRating": 7.3,
+          "satAvg": 1218,
+          "admitRate": 0.715,
+          "netPrice": 23097,
+          "tuitionInState": 52120,
+          "tuitionOutState": 52120,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Political Science\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 18,
+        "id": "020c5cc8-7ace-4b8e-b17d-ad520fd94e7c",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 7,
+            "classYears": {
+              "2nd Year": 8,
+              "4th Year": 5,
+              "5th Year": 4,
+              "1st Year": 7,
+              "3rd Year": 5
+            },
+            "departingBeforeEntryYear": 1,
+            "eligibleToRemain": 5,
+            "identifiableDepartingStarters": 0,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 24,
+            "domesticRecruitsPlaced": 14,
+            "recruitsWithin300km": 3,
+            "describedAs": "recruits across a broad area",
+            "athleteDistanceKm": 3634,
+            "internationalRosterShare": 0.31,
+            "internationalMinutesShare": 0.38,
+            "utilisationSampleRosterRows": 29
+          },
+          "academic": {
+            "rating": 9.2,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Virginia",
+          "division": "NCAA D1",
+          "conference": "Atlantic Coast Conference",
+          "city": "Charlottesville",
+          "state": "VA",
+          "control": 1,
+          "programmeStrength": 98.75,
+          "nationalRanking": 3,
+          "postseason2025": "appearance",
+          "recentWinPct": 0.642,
+          "priorWinPct": 0.632,
+          "academicRating": 9.2,
+          "satAvg": 1480,
+          "admitRate": 0.168,
+          "netPrice": 21565,
+          "tuitionInState": 21803,
+          "tuitionOutState": 59512,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Computer Science\",\"Biology\",\"Psychology\",\"Health Professions\",\"Political Science\",\"Criminal Justice\",\"Mathematics\"]"
+        }
+      },
+      {
+        "reviewNo": 19,
+        "id": "0a757568-0fd0-4fcc-b838-59b26ff1e2c7",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 5,
+            "classYears": {
+              "Freshman": 7,
+              "Junior": 3,
+              "Sophomore": 5,
+              "Senior": 4,
+              "Redshirt Sophomore": 1,
+              "Graduate Student": 2,
+              "Redshirt Junior": 1
+            },
+            "departingBeforeEntryYear": 4,
+            "eligibleToRemain": 1,
+            "identifiableDepartingStarters": 0,
+            "departingPlayersUnplaceable": 4,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "INSUFFICIENT",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 54,
+            "domesticRecruitsPlaced": 35,
+            "recruitsWithin300km": 16,
+            "describedAs": "recruits regionally",
+            "athleteDistanceKm": 3655,
+            "internationalRosterShare": 0.39,
+            "internationalMinutesShare": 0.52,
+            "utilisationSampleRosterRows": 23
+          },
+          "academic": {
+            "rating": 8.2,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Penn State",
+          "division": "NCAA D1",
+          "conference": "Big Ten Conference",
+          "city": "University Park",
+          "state": "PA",
+          "control": 1,
+          "programmeStrength": 83,
+          "nationalRanking": 75,
+          "postseason2025": null,
+          "recentWinPct": 0.364,
+          "priorWinPct": 0.543,
+          "academicRating": 8.2,
+          "satAvg": 1337,
+          "admitRate": 0.606,
+          "netPrice": 32875,
+          "tuitionInState": 20644,
+          "tuitionOutState": 41790,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Computer Science\",\"Biology\",\"Psychology\",\"Communications\",\"Health Professions\",\"Education\",\"Political Science\"]"
+        }
+      },
+      {
+        "reviewNo": 20,
+        "id": "fd55c4f7-e430-40b9-a80b-f6054ab099a6",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 0,
+            "classYears": {},
+            "departingBeforeEntryYear": 0,
+            "eligibleToRemain": 0,
+            "identifiableDepartingStarters": 0,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "INSUFFICIENT",
+            "rosterOnFile": false,
+            "eligibilityRuleOnFile": false
+          },
+          "recruitingMarket": {
+            "evidenceState": "INSUFFICIENT",
+            "recentArrivals": 0
+          },
+          "academic": {
+            "rating": null,
+            "relativeStanding": null,
+            "evidenceState": "UNKNOWN"
+          },
+          "name": "Lincoln Trail",
+          "division": "NJCAA",
+          "conference": "GRAC",
+          "city": null,
+          "state": null,
+          "control": null,
+          "programmeStrength": 25.8,
+          "nationalRanking": 871,
+          "postseason2025": null,
+          "recentWinPct": 0.222,
+          "priorWinPct": 0.583,
+          "academicRating": 5.8,
+          "satAvg": null,
+          "admitRate": null,
+          "netPrice": null,
+          "tuitionInState": null,
+          "tuitionOutState": null,
+          "notableMajors": "[]"
+        }
+      },
+      {
+        "reviewNo": 21,
+        "id": "1a7533ef-d1b3-48e6-bab6-ea27fb01ba43",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 14,
+            "classYears": {
+              "Fr.": 13,
+              "Sr.": 11,
+              "Jr.": 7,
+              "So.": 5,
+              "Gr.": 1
+            },
+            "departingBeforeEntryYear": 6,
+            "eligibleToRemain": 5,
+            "identifiableDepartingStarters": 3,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 43,
+            "domesticRecruitsPlaced": 43,
+            "recruitsWithin300km": 41,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 3833,
+            "internationalRosterShare": 0,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 37
+          },
+          "academic": {
+            "rating": 7.3,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Scranton",
+          "division": "NCAA D3",
+          "conference": "Landmark",
+          "city": "Scranton",
+          "state": "PA",
+          "control": 2,
+          "programmeStrength": 46.36,
+          "nationalRanking": 537,
+          "postseason2025": "r32",
+          "recentWinPct": 0.641,
+          "priorWinPct": 0.577,
+          "academicRating": 7.3,
+          "satAvg": 1237,
+          "admitRate": 0.812,
+          "netPrice": 32568,
+          "tuitionInState": 53983,
+          "tuitionOutState": 53983,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Education\",\"Political Science\",\"Criminal Justice\"]"
+        }
+      },
+      {
+        "reviewNo": 22,
+        "id": "7957f1a6-db68-435d-afdf-542a51a3ebca",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 9,
+            "classYears": {
+              "Jr.": 6,
+              "Sr.": 11,
+              "Fr.": 5,
+              "So.": 3
+            },
+            "departingBeforeEntryYear": 6,
+            "eligibleToRemain": 2,
+            "identifiableDepartingStarters": 4,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 9,
+            "domesticRecruitsPlaced": 7,
+            "recruitsWithin300km": 4,
+            "describedAs": "recruits regionally",
+            "athleteDistanceKm": 155,
+            "internationalRosterShare": 0.32,
+            "internationalMinutesShare": 0.41,
+            "utilisationSampleRosterRows": 25
+          },
+          "academic": {
+            "rating": 4.5,
+            "relativeStanding": "around the middle of this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "The Master's University",
+          "division": "NAIA",
+          "conference": "Great Southwest Athletic Conference",
+          "city": "Santa Clarita",
+          "state": "CA",
+          "control": 2,
+          "programmeStrength": 47.84,
+          "nationalRanking": 535,
+          "postseason2025": null,
+          "recentWinPct": 0.414,
+          "priorWinPct": 0.486,
+          "academicRating": 4.5,
+          "satAvg": null,
+          "admitRate": 0.84,
+          "netPrice": 32647,
+          "tuitionInState": 39020,
+          "tuitionOutState": 39020,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Biology\",\"Kinesiology\",\"Communications\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 23,
+        "id": "3cf31f14-5ab6-4792-bff0-4081f598cb5a",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 8,
+            "classYears": {
+              "Fr": 9,
+              "So": 8,
+              "Sr": 7,
+              "Jr": 4
+            },
+            "departingBeforeEntryYear": 3,
+            "eligibleToRemain": 4,
+            "identifiableDepartingStarters": 1,
+            "departingPlayersUnplaceable": 2,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "INSUFFICIENT",
+            "recentArrivals": 14
+          },
+          "academic": {
+            "rating": 4.1,
+            "relativeStanding": "around the middle of this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Our Lady of the Lake University",
+          "division": "NAIA",
+          "conference": "Red River Athletic Conference",
+          "city": "San Antonio",
+          "state": "TX",
+          "control": 2,
+          "programmeStrength": 49.51,
+          "nationalRanking": 490,
+          "postseason2025": null,
+          "recentWinPct": 0.514,
+          "priorWinPct": 0.188,
+          "academicRating": 4.1,
+          "satAvg": null,
+          "admitRate": null,
+          "netPrice": 16442,
+          "tuitionInState": 32106,
+          "tuitionOutState": 32106,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Education\",\"Political Science\",\"Criminal Justice\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 24,
+        "id": "bed6cb32-856d-4363-8dd6-64c55882df8c",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 15,
+            "classYears": {
+              "Fr.": 13,
+              "So.": 12,
+              "Jr.": 10,
+              "Sr.": 12,
+              "5th": 1
+            },
+            "departingBeforeEntryYear": 8,
+            "eligibleToRemain": 3,
+            "identifiableDepartingStarters": 5,
+            "departingPlayersUnplaceable": 2,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 89,
+            "domesticRecruitsPlaced": 63,
+            "recruitsWithin300km": 51,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 2830,
+            "internationalRosterShare": 0.02,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 48
+          },
+          "academic": {
+            "rating": 5,
+            "relativeStanding": "above average for this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Carthage",
+          "division": "NCAA D3",
+          "conference": "CCIW",
+          "city": "Kenosha",
+          "state": "WI",
+          "control": 2,
+          "programmeStrength": 39.04,
+          "nationalRanking": 666,
+          "postseason2025": null,
+          "recentWinPct": 0.344,
+          "priorWinPct": 0.547,
+          "academicRating": 5,
+          "satAvg": 1150,
+          "admitRate": 0.871,
+          "netPrice": 26565,
+          "tuitionInState": 38750,
+          "tuitionOutState": 38750,
+          "notableMajors": "[\"Business\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Education\",\"Political Science\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 25,
+        "id": "d4df182c-22d3-444a-934d-85ea215dfd41",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 10,
+            "classYears": {
+              "R-Fr.": 4,
+              "So.": 7,
+              "Fr.": 15,
+              "R-Sr.": 1
+            },
+            "departingBeforeEntryYear": 1,
+            "eligibleToRemain": 9,
+            "identifiableDepartingStarters": 0,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "INSUFFICIENT",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 55,
+            "domesticRecruitsPlaced": 46,
+            "recruitsWithin300km": 11,
+            "describedAs": "recruits across a broad area",
+            "athleteDistanceKm": 1342,
+            "internationalRosterShare": 0.19,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 27
+          },
+          "academic": {
+            "rating": 8.1,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Colorado School of Mines",
+          "division": "NCAA D2",
+          "conference": "RMAC",
+          "city": "Golden",
+          "state": "CO",
+          "control": 1,
+          "programmeStrength": 52.12,
+          "nationalRanking": 334,
+          "postseason2025": null,
+          "recentWinPct": 0.333,
+          "priorWinPct": 0.553,
+          "academicRating": 8.1,
+          "satAvg": 1412,
+          "admitRate": 0.607,
+          "netPrice": 28690,
+          "tuitionInState": 21914,
+          "tuitionOutState": 45824,
+          "notableMajors": "[\"Engineering\",\"Computer Science\",\"Mathematics\"]"
+        }
+      },
+      {
+        "reviewNo": 26,
+        "id": "9662887a-797a-4a54-84d3-b5cfc2e065b8",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 9,
+            "classYears": {
+              "Fr.": 12,
+              "Jr.": 5,
+              "So.": 10,
+              "Sr.": 7
+            },
+            "departingBeforeEntryYear": 6,
+            "eligibleToRemain": 2,
+            "identifiableDepartingStarters": 4,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 74,
+            "domesticRecruitsPlaced": 70,
+            "recruitsWithin300km": 3,
+            "describedAs": "recruits across a broad area",
+            "athleteDistanceKm": 3566,
+            "internationalRosterShare": 0,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 34
+          },
+          "academic": {
+            "rating": 2,
+            "relativeStanding": "among the weaker in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Southern Virginia",
+          "division": "NCAA D3",
+          "conference": "ODAC",
+          "city": "Buena Vista",
+          "state": "VA",
+          "control": 2,
+          "programmeStrength": 39.13,
+          "nationalRanking": 692,
+          "postseason2025": null,
+          "recentWinPct": 0.476,
+          "priorWinPct": 0.352,
+          "academicRating": 2,
+          "satAvg": null,
+          "admitRate": 0.964,
+          "netPrice": 22213,
+          "tuitionInState": 21280,
+          "tuitionOutState": 21280,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Biology\",\"Psychology\",\"Political Science\",\"Art & Design\",\"English\"]"
+        }
+      },
+      {
+        "reviewNo": 27,
+        "id": "754ab2b2-8c7e-4854-bc93-b61ed5e9c568",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 9,
+            "classYears": {
+              "Fr.": 17,
+              "Sr.": 8,
+              "Jr.": 6,
+              "So.": 5
+            },
+            "departingBeforeEntryYear": 4,
+            "eligibleToRemain": 5,
+            "identifiableDepartingStarters": 3,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 50,
+            "domesticRecruitsPlaced": 46,
+            "recruitsWithin300km": 32,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 3466,
+            "internationalRosterShare": 0,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 36
+          },
+          "academic": {
+            "rating": 4.6,
+            "relativeStanding": "around the middle of this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Waynesburg",
+          "division": "NCAA D3",
+          "conference": "PAC",
+          "city": "Waynesburg",
+          "state": "PA",
+          "control": 2,
+          "programmeStrength": 40.75,
+          "nationalRanking": 657,
+          "postseason2025": null,
+          "recentWinPct": 0.486,
+          "priorWinPct": 0.426,
+          "academicRating": 4.6,
+          "satAvg": 1090,
+          "admitRate": 0.898,
+          "netPrice": 18235,
+          "tuitionInState": 30480,
+          "tuitionOutState": 30480,
+          "notableMajors": "[\"Business\",\"Biology\",\"Communications\",\"Health Professions\",\"Education\",\"Political Science\",\"Criminal Justice\"]"
+        }
+      },
+      {
+        "reviewNo": 28,
+        "id": "f6986698-cbb5-4bab-92f2-d4c355730c35",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 0,
+            "classYears": {},
+            "departingBeforeEntryYear": 0,
+            "eligibleToRemain": 0,
+            "identifiableDepartingStarters": 0,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "INSUFFICIENT",
+            "rosterOnFile": false,
+            "eligibilityRuleOnFile": false
+          },
+          "recruitingMarket": {
+            "evidenceState": "INSUFFICIENT",
+            "recentArrivals": 0
+          },
+          "academic": {
+            "rating": 3,
+            "relativeStanding": "below average for this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Lower Columbia",
+          "division": "NJCAA",
+          "conference": "NWAACC",
+          "city": "Longview",
+          "state": "WA",
+          "control": 1,
+          "programmeStrength": null,
+          "nationalRanking": null,
+          "postseason2025": null,
+          "recentWinPct": null,
+          "priorWinPct": null,
+          "academicRating": 3,
+          "satAvg": null,
+          "admitRate": null,
+          "netPrice": 7630,
+          "tuitionInState": 4626,
+          "tuitionOutState": 6003,
+          "notableMajors": "[\"Business\",\"Health Professions\",\"Education\"]"
+        }
+      },
+      {
+        "reviewNo": 29,
+        "id": "64d5c0aa-b5a4-4c95-8e85-6ee9e331de9a",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 16,
+            "classYears": {
+              "Fy.": 9,
+              "So.": 10,
+              "Sr.": 7,
+              "Jr.": 6,
+              "Gr.": 1
+            },
+            "departingBeforeEntryYear": 8,
+            "eligibleToRemain": 4,
+            "identifiableDepartingStarters": 6,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 46,
+            "domesticRecruitsPlaced": 44,
+            "recruitsWithin300km": 7,
+            "describedAs": "recruits across a broad area",
+            "athleteDistanceKm": 3337,
+            "internationalRosterShare": 0.03,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 33
+          },
+          "academic": {
+            "rating": 9.2,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Case Western Reserve",
+          "division": "NCAA D3",
+          "conference": "UAA",
+          "city": "Cleveland",
+          "state": "OH",
+          "control": 2,
+          "programmeStrength": 47.85,
+          "nationalRanking": 525,
+          "postseason2025": null,
+          "recentWinPct": 0.475,
+          "priorWinPct": 0.667,
+          "academicRating": 9.2,
+          "satAvg": 1513,
+          "admitRate": 0.365,
+          "netPrice": 41190,
+          "tuitionInState": 66608,
+          "tuitionOutState": 66608,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Computer Science\",\"Biology\",\"Psychology\",\"Health Professions\",\"Political Science\",\"Mathematics\"]"
+        }
+      },
+      {
+        "reviewNo": 30,
+        "id": "db4289ce-d577-43f5-9ea6-d28136cd402f",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 10,
+            "classYears": {
+              "So.": 8,
+              "Jr.": 7,
+              "Sr.": 8,
+              "1st": 5
+            },
+            "departingBeforeEntryYear": 7,
+            "eligibleToRemain": 1,
+            "identifiableDepartingStarters": 5,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 30,
+            "domesticRecruitsPlaced": 29,
+            "recruitsWithin300km": 19,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 4024,
+            "internationalRosterShare": 0.04,
+            "internationalMinutesShare": 0.07,
+            "utilisationSampleRosterRows": 28
+          },
+          "academic": {
+            "rating": 9.6,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Williams",
+          "division": "NCAA D3",
+          "conference": "NESCAC",
+          "city": "Williamstown",
+          "state": "MA",
+          "control": 2,
+          "programmeStrength": 50.41,
+          "nationalRanking": 484,
+          "postseason2025": "r16",
+          "recentWinPct": 0.632,
+          "priorWinPct": 0.573,
+          "academicRating": 9.6,
+          "satAvg": 1533,
+          "admitRate": 0.083,
+          "netPrice": 17716,
+          "tuitionInState": 68560,
+          "tuitionOutState": 68560,
+          "notableMajors": "[\"Computer Science\",\"Biology\",\"Psychology\",\"Political Science\",\"Art & Design\",\"English\",\"Mathematics\"]"
+        }
+      },
+      {
+        "reviewNo": 31,
+        "id": "0a70334b-1c8c-4043-bf01-9041c8b6674e",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 11,
+            "classYears": {
+              "So.": 7,
+              "Sr.": 3,
+              "Jr.": 8,
+              "Fr.": 10
+            },
+            "departingBeforeEntryYear": 6,
+            "eligibleToRemain": 3,
+            "identifiableDepartingStarters": 6,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 44,
+            "domesticRecruitsPlaced": 40,
+            "recruitsWithin300km": 25,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 2102,
+            "internationalRosterShare": 0,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 28
+          },
+          "academic": {
+            "rating": 7.5,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Southwestern (TX)",
+          "division": "NCAA D3",
+          "conference": "ASC",
+          "city": "Georgetown",
+          "state": "TX",
+          "control": 2,
+          "programmeStrength": 49.35,
+          "nationalRanking": 792,
+          "postseason2025": null,
+          "recentWinPct": 0.746,
+          "priorWinPct": 0.615,
+          "academicRating": 7.5,
+          "satAvg": 1241,
+          "admitRate": 0.43,
+          "netPrice": 29224,
+          "tuitionInState": 53813,
+          "tuitionOutState": 53813,
+          "notableMajors": "[\"Business\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Education\",\"Political Science\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 32,
+        "id": "79febff5-eef0-4876-99d6-2355894a2c54",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 9,
+            "classYears": {
+              "R-So.": 2,
+              "So.": 9,
+              "Gr.": 1,
+              "Jr.": 7,
+              "Sr.": 3,
+              "R-Jr.": 1,
+              "R-Fr.": 1,
+              "Fr.": 6
+            },
+            "departingBeforeEntryYear": 1,
+            "eligibleToRemain": 5,
+            "identifiableDepartingStarters": 0,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 54,
+            "domesticRecruitsPlaced": 29,
+            "recruitsWithin300km": 11,
+            "describedAs": "recruits regionally",
+            "athleteDistanceKm": 3488,
+            "internationalRosterShare": 0.53,
+            "internationalMinutesShare": 0.63,
+            "utilisationSampleRosterRows": 30
+          },
+          "academic": {
+            "rating": 5.2,
+            "relativeStanding": "above average for this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "West Virginia",
+          "division": "NCAA D1",
+          "conference": "Sun Belt Conference",
+          "city": "Morgantown",
+          "state": "WV",
+          "control": 1,
+          "programmeStrength": 85.45,
+          "nationalRanking": 23,
+          "postseason2025": "r32",
+          "recentWinPct": 0.682,
+          "priorWinPct": 0.635,
+          "academicRating": 5.2,
+          "satAvg": 1122,
+          "admitRate": 0.89,
+          "netPrice": 15634,
+          "tuitionInState": 10104,
+          "tuitionOutState": 28608,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Political Science\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 33,
+        "id": "3bf568a6-e573-47d1-9371-6657c412eae9",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 12,
+            "classYears": {
+              "So.": 14,
+              "Fr.": 12,
+              "Sr.": 6,
+              "Jr.": 7
+            },
+            "departingBeforeEntryYear": 6,
+            "eligibleToRemain": 3,
+            "identifiableDepartingStarters": 3,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 60,
+            "domesticRecruitsPlaced": 50,
+            "recruitsWithin300km": 32,
+            "describedAs": "recruits mostly locally",
+            "athleteDistanceKm": 3521,
+            "internationalRosterShare": 0.21,
+            "internationalMinutesShare": 0.41,
+            "utilisationSampleRosterRows": 39
+          },
+          "academic": {
+            "rating": 3.9,
+            "relativeStanding": "around the middle of this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Ferrum",
+          "division": "NCAA D3",
+          "conference": "ODAC",
+          "city": "Ferrum",
+          "state": "VA",
+          "control": 2,
+          "programmeStrength": 35,
+          "nationalRanking": 781,
+          "postseason2025": null,
+          "recentWinPct": 0.324,
+          "priorWinPct": 0.29,
+          "academicRating": 3.9,
+          "satAvg": null,
+          "admitRate": 0.89,
+          "netPrice": 20082,
+          "tuitionInState": 28520,
+          "tuitionOutState": 28520,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Psychology\",\"Kinesiology\",\"Health Professions\",\"Education\",\"Criminal Justice\"]"
+        }
+      },
+      {
+        "reviewNo": 34,
+        "id": "a11ef3f0-b444-4921-8238-f6e00986f320",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 9,
+            "classYears": {
+              "So.": 6,
+              "R-Fr.": 1,
+              "Fr.": 12,
+              "Sr.": 5,
+              "Jr.": 6,
+              "Gr.": 1
+            },
+            "departingBeforeEntryYear": 1,
+            "eligibleToRemain": 6,
+            "identifiableDepartingStarters": 0,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "INSUFFICIENT",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 66,
+            "domesticRecruitsPlaced": 41,
+            "recruitsWithin300km": 11,
+            "describedAs": "recruits across a broad area",
+            "athleteDistanceKm": 3627,
+            "internationalRosterShare": 0.48,
+            "internationalMinutesShare": 0.62,
+            "utilisationSampleRosterRows": 31
+          },
+          "academic": {
+            "rating": 8.9,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "North Carolina",
+          "division": "NCAA D1",
+          "conference": "Atlantic Coast Conference",
+          "city": "Chapel Hill",
+          "state": "NC",
+          "control": 1,
+          "programmeStrength": 92.86,
+          "nationalRanking": 27,
+          "postseason2025": "r32",
+          "recentWinPct": 0.57,
+          "priorWinPct": 0.561,
+          "academicRating": 8.9,
+          "satAvg": 1439,
+          "admitRate": 0.153,
+          "netPrice": 11655,
+          "tuitionInState": 8994,
+          "tuitionOutState": 41203,
+          "notableMajors": "[\"Business\",\"Engineering\",\"Computer Science\",\"Biology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Political Science\",\"Mathematics\"]"
+        }
+      },
+      {
+        "reviewNo": 35,
+        "id": "001de5ba-835d-4fc3-9f2d-61a58273feab",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 12,
+            "classYears": {
+              "Fr.": 7,
+              "Sr.": 8,
+              "Jr.": 11,
+              "So.": 5
+            },
+            "departingBeforeEntryYear": 7,
+            "eligibleToRemain": 3,
+            "identifiableDepartingStarters": 6,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 40,
+            "domesticRecruitsPlaced": 39,
+            "recruitsWithin300km": 16,
+            "describedAs": "recruits regionally",
+            "athleteDistanceKm": 2898,
+            "internationalRosterShare": 0.03,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 31
+          },
+          "academic": {
+            "rating": 8.4,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "DePauw",
+          "division": "NCAA D3",
+          "conference": "NCAC",
+          "city": "Greencastle",
+          "state": "IN",
+          "control": 2,
+          "programmeStrength": 44.31,
+          "nationalRanking": 573,
+          "postseason2025": "appearance",
+          "recentWinPct": 0.626,
+          "priorWinPct": 0.444,
+          "academicRating": 8.4,
+          "satAvg": 1340,
+          "admitRate": 0.572,
+          "netPrice": 22264,
+          "tuitionInState": 59070,
+          "tuitionOutState": 59070,
+          "notableMajors": "[\"Computer Science\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Political Science\",\"Art & Design\",\"English\"]"
+        }
+      },
+      {
+        "reviewNo": 36,
+        "id": "d40431ac-639b-40cc-b526-89f58c3f18e5",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 18,
+            "classYears": {
+              "Fr.": 7,
+              "Jr.": 9,
+              "Sr.": 6,
+              "So.": 6
+            },
+            "departingBeforeEntryYear": 5,
+            "eligibleToRemain": 9,
+            "identifiableDepartingStarters": 4,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 30,
+            "domesticRecruitsPlaced": 20,
+            "recruitsWithin300km": 6,
+            "describedAs": "recruits across a broad area",
+            "athleteDistanceKm": 3744,
+            "internationalRosterShare": 0.29,
+            "internationalMinutesShare": 0.23,
+            "utilisationSampleRosterRows": 28
+          },
+          "academic": {
+            "rating": 8.9,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Georgetown",
+          "division": "NCAA D1",
+          "conference": "Big East Conference",
+          "city": "Washington",
+          "state": "DC",
+          "control": 2,
+          "programmeStrength": 93.24,
+          "nationalRanking": 9,
+          "postseason2025": "r16",
+          "recentWinPct": 0.651,
+          "priorWinPct": 0.675,
+          "academicRating": 8.9,
+          "satAvg": 1487,
+          "admitRate": 0.129,
+          "netPrice": 40815,
+          "tuitionInState": 68017,
+          "tuitionOutState": 68017,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Biology\",\"Psychology\",\"Health Professions\",\"Political Science\"]"
+        }
+      },
+      {
+        "reviewNo": 37,
+        "id": "25506340-fc8f-459a-a07d-78d879fd2559",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 7,
+            "classYears": {
+              "FY": 7,
+              "JR": 5,
+              "SR": 7,
+              "SO": 4
+            },
+            "departingBeforeEntryYear": 5,
+            "eligibleToRemain": 2,
+            "identifiableDepartingStarters": 5,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 43,
+            "domesticRecruitsPlaced": 41,
+            "recruitsWithin300km": 24,
+            "describedAs": "recruits regionally",
+            "athleteDistanceKm": 2451,
+            "internationalRosterShare": 0,
+            "internationalMinutesShare": 0,
+            "utilisationSampleRosterRows": 23
+          },
+          "academic": {
+            "rating": 4.2,
+            "relativeStanding": "around the middle of this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Augsburg",
+          "division": "NCAA D3",
+          "conference": "MIAC",
+          "city": "Minneapolis",
+          "state": "MN",
+          "control": 2,
+          "programmeStrength": 54.16,
+          "nationalRanking": 441,
+          "postseason2025": "quarter",
+          "recentWinPct": 0.726,
+          "priorWinPct": 0.602,
+          "academicRating": 4.2,
+          "satAvg": null,
+          "admitRate": 0.82,
+          "netPrice": 23873,
+          "tuitionInState": 45452,
+          "tuitionOutState": 45452,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Education\",\"Political Science\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 38,
+        "id": "57b522c9-faa2-438f-80f3-a4d115f801c4",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 8,
+            "classYears": {
+              "Sr.": 5,
+              "1st": 5,
+              "Jr.": 12,
+              "So.": 5
+            },
+            "departingBeforeEntryYear": 4,
+            "eligibleToRemain": 2,
+            "identifiableDepartingStarters": 4,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 31,
+            "domesticRecruitsPlaced": 27,
+            "recruitsWithin300km": 1,
+            "describedAs": "recruits across a broad area",
+            "athleteDistanceKm": 3523,
+            "internationalRosterShare": 0.07,
+            "internationalMinutesShare": 0.19,
+            "utilisationSampleRosterRows": 27
+          },
+          "academic": {
+            "rating": 5.7,
+            "relativeStanding": "above average for this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Fredonia State",
+          "division": "NCAA D3",
+          "conference": "SUNYAC",
+          "city": "Fredonia",
+          "state": "NY",
+          "control": 1,
+          "programmeStrength": 39.32,
+          "nationalRanking": 675,
+          "postseason2025": null,
+          "recentWinPct": 0.474,
+          "priorWinPct": 0.343,
+          "academicRating": 5.7,
+          "satAvg": 1250,
+          "admitRate": 0.777,
+          "netPrice": 15897,
+          "tuitionInState": 8831,
+          "tuitionOutState": 19771,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Education\",\"Criminal Justice\",\"Art & Design\"]"
+        }
+      },
+      {
+        "reviewNo": 39,
+        "id": "4eba52ae-b8f5-40f4-a6d0-b86b0244a6c4",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 10,
+            "classYears": {
+              "Gr.": 4,
+              "Jr.": 5,
+              "Sr.": 2,
+              "Fr.": 13,
+              "So.": 9
+            },
+            "departingBeforeEntryYear": 2,
+            "eligibleToRemain": 7,
+            "identifiableDepartingStarters": 0,
+            "departingPlayersUnplaceable": 2,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "INSUFFICIENT",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 95,
+            "domesticRecruitsPlaced": 31,
+            "recruitsWithin300km": 15,
+            "describedAs": "recruits regionally",
+            "athleteDistanceKm": 3410
+          },
+          "academic": {
+            "rating": 4.6,
+            "relativeStanding": "around the middle of this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Gardner-Webb",
+          "division": "NCAA D1",
+          "conference": "Big South Conference",
+          "city": "Boiling Springs",
+          "state": "NC",
+          "control": 2,
+          "programmeStrength": 82.24,
+          "nationalRanking": 35,
+          "postseason2025": null,
+          "recentWinPct": 0.728,
+          "priorWinPct": 0.414,
+          "academicRating": 4.6,
+          "satAvg": 1113,
+          "admitRate": 0.772,
+          "netPrice": 17674,
+          "tuitionInState": 34760,
+          "tuitionOutState": 34760,
+          "notableMajors": "[\"Business\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Education\",\"Criminal Justice\"]"
+        }
+      },
+      {
+        "reviewNo": 40,
+        "id": "31b7b0ca-829d-4931-9348-473c31a9f36a",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 13,
+            "classYears": {
+              "Jr.": 10,
+              "Sr.": 6,
+              "Fr.": 6,
+              "So.": 5,
+              "Gr.": 1,
+              "R-So.": 2
+            },
+            "departingBeforeEntryYear": 4,
+            "eligibleToRemain": 3,
+            "identifiableDepartingStarters": 3,
+            "departingPlayersUnplaceable": 0,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "FULL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 32,
+            "domesticRecruitsPlaced": 30,
+            "recruitsWithin300km": 9,
+            "describedAs": "recruits across a broad area",
+            "athleteDistanceKm": 3349,
+            "internationalRosterShare": 0.07,
+            "internationalMinutesShare": 0.09,
+            "utilisationSampleRosterRows": 30
+          },
+          "academic": {
+            "rating": 8.7,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Furman",
+          "division": "NCAA D1",
+          "conference": "Southern Conference",
+          "city": "Greenville",
+          "state": "SC",
+          "control": 2,
+          "programmeStrength": 83.6,
+          "nationalRanking": 14,
+          "postseason2025": "quarter",
+          "recentWinPct": 0.683,
+          "priorWinPct": 0.523,
+          "academicRating": 8.7,
+          "satAvg": 1371,
+          "admitRate": 0.429,
+          "netPrice": 30308,
+          "tuitionInState": 59770,
+          "tuitionOutState": 59770,
+          "notableMajors": "[\"Business\",\"Computer Science\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Education\",\"Political Science\",\"Art & Design\",\"English\"]"
+        }
+      },
+      {
+        "reviewNo": 41,
+        "id": "679aa02f-15a4-4899-a566-9b53ba6e64ce",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 10,
+            "classYears": {
+              "Jr.": 8,
+              "So.": 10,
+              "Sr.": 8,
+              "Fr.": 5
+            },
+            "departingBeforeEntryYear": 5,
+            "eligibleToRemain": 2,
+            "identifiableDepartingStarters": 4,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 41,
+            "domesticRecruitsPlaced": 40,
+            "recruitsWithin300km": 21,
+            "describedAs": "recruits regionally",
+            "athleteDistanceKm": 3086,
+            "internationalRosterShare": 0.03,
+            "internationalMinutesShare": 0.01,
+            "utilisationSampleRosterRows": 31
+          },
+          "academic": {
+            "rating": 7.3,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Covenant",
+          "division": "NCAA D3",
+          "conference": "SAA",
+          "city": "Lookout Mountain",
+          "state": "GA",
+          "control": 2,
+          "programmeStrength": 46.12,
+          "nationalRanking": 535,
+          "postseason2025": null,
+          "recentWinPct": 0.63,
+          "priorWinPct": 0.634,
+          "academicRating": 7.3,
+          "satAvg": 1294,
+          "admitRate": 0.865,
+          "netPrice": 26265,
+          "tuitionInState": 42040,
+          "tuitionOutState": 42040,
+          "notableMajors": "[\"Business\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Education\",\"Political Science\",\"Art & Design\",\"English\"]"
+        }
+      },
+      {
+        "reviewNo": 42,
+        "id": "527ef283-39c5-47ac-aeb1-ed54de0bee0e",
+        "facts": {
+          "roster": {
+            "position": "MIDFIELD",
+            "entryYear": 2028,
+            "positionalRosterCount": 13,
+            "classYears": {
+              "Sr.": 7,
+              "Fy.": 7,
+              "Jr.": 7,
+              "So.": 7
+            },
+            "departingBeforeEntryYear": 7,
+            "eligibleToRemain": 3,
+            "identifiableDepartingStarters": 4,
+            "departingPlayersUnplaceable": 1,
+            "arrivalsAtPosition": null,
+            "arrivalsRecordedTo": 2026,
+            "evidenceState": "PARTIAL",
+            "rosterOnFile": true,
+            "eligibilityRuleOnFile": true
+          },
+          "recruitingMarket": {
+            "evidenceState": "FULL",
+            "recentArrivals": 36,
+            "domesticRecruitsPlaced": 32,
+            "recruitsWithin300km": 12,
+            "describedAs": "recruits regionally",
+            "athleteDistanceKm": 1178,
+            "internationalRosterShare": 0.07,
+            "internationalMinutesShare": 0.06,
+            "utilisationSampleRosterRows": 28
+          },
+          "academic": {
+            "rating": 8.9,
+            "relativeStanding": "among the strongest in this pool",
+            "evidenceState": "FULL"
+          },
+          "name": "Whitman",
+          "division": "NCAA D3",
+          "conference": "NWC",
+          "city": "Walla Walla",
+          "state": "WA",
+          "control": 2,
+          "programmeStrength": 47.07,
+          "nationalRanking": 521,
+          "postseason2025": "appearance",
+          "recentWinPct": 0.699,
+          "priorWinPct": 0.55,
+          "academicRating": 8.9,
+          "satAvg": 1410,
+          "admitRate": 0.382,
+          "netPrice": 33313,
+          "tuitionInState": 64050,
+          "tuitionOutState": 64050,
+          "notableMajors": "[\"Computer Science\",\"Biology\",\"Psychology\",\"Political Science\",\"Art & Design\",\"English\"]"
+        }
+      }
+    ]
+  },
+  "questionnaire": {
+    "classification": [
+      "PURSUE_STRONGLY",
+      "PURSUE",
+      "BORDERLINE",
+      "LOW_PRIORITY",
+      "WOULD_NOT_PURSUE",
+      "INSUFFICIENT_INFORMATION"
+    ],
+    "first100": {
+      "id": "first100",
+      "question": "If you were building this athlete's outreach list today, should this school be inside roughly the first 100 programmes contacted?",
+      "answers": [
+        "YES",
+        "NO",
+        "UNSURE"
+      ]
+    },
+    "athleteQuestions": [
+      {
+        "id": "strongerProgrammes",
+        "question": "Are the stronger programmes in this sample generally too high, about right, or too low for this athlete?",
+        "answers": [
+          "TOO HIGH",
+          "ABOUT RIGHT",
+          "TOO LOW"
+        ]
+      },
+      {
+        "id": "tooManyBelow",
+        "question": "Does this sample contain too many programmes clearly below the athlete's realistic recruiting level?",
+        "answers": [
+          "YES",
+          "NO",
+          "UNSURE"
+        ]
+      },
+      {
+        "id": "changeFirst",
+        "question": "If you were running outreach for this athlete, what is the main thing you would change about the programme mix?",
+        "answers": null,
+        "freeText": true
+      }
+    ]
+  },
+  "metrics": {
+    "preregistered": [
+      {
+        "id": "pursueInTopN",
+        "group": "containment",
+        "statement": "Of the programmes the reviewer classified PURSUE_STRONGLY or PURSUE, the share the model placed inside its top 10, 25, 50 and 100.",
+        "over": "sampled programmes with a classification in the pursue set",
+        "cuts": [
+          10,
+          25,
+          50,
+          100
+        ]
+      },
+      {
+        "id": "first100YesInsideTop100",
+        "group": "containment",
+        "statement": "Of the programmes the reviewer answered YES to the first-100 question, the count and share the model placed inside its top 100, and the median model rank of the set.",
+        "over": "sampled RANKED programmes answered YES"
+      },
+      {
+        "id": "first100YesRankDistance",
+        "group": "containment",
+        "statement": "For every first-100 YES the model placed outside the top 100, the distance beyond the cutoff (rank - 100), reported in the bands 101-150, 151-250, 251-500 and 501+.",
+        "over": "sampled RANKED programmes answered YES with rank > 100"
+      },
+      {
+        "id": "first100NoInsideTop100",
+        "group": "containment",
+        "statement": "Of the programmes the reviewer answered NO to the first-100 question, the count and share the model nevertheless placed inside its top 100, with their actual ranks.",
+        "over": "sampled RANKED programmes answered NO"
+      },
+      {
+        "id": "pursueSetShape",
+        "group": "shape",
+        "statement": "For the human pursue set: median programme strength, median strength delta against the athlete's equivalent, and median R, F and O.",
+        "over": "sampled RANKED programmes in the pursue set"
+      },
+      {
+        "id": "modelTopShape",
+        "group": "shape",
+        "statement": "The same five medians for the model's own top 100, over the full universe rather than the sample, so the two are comparable in kind.",
+        "over": "the model top 100"
+      },
+      {
+        "id": "eliteRelativeDistribution",
+        "group": "elite",
+        "statement": "For an elite athlete: the share of the model top 100 that is near level, moderately below and substantially below; then the same distribution over the reviewer's first-100 YES set and over their pursue set. THE CENTRAL V3 COMPARISON.",
+        "over": "model top 100, human YES set, human pursue set",
+        "primary": true
+      },
+      {
+        "id": "agreementByRelativeBand",
+        "group": "agreement",
+        "statement": "Classification and first-100 answer, tabulated by athlete-relative strength band: substantially above (>= +10) · moderately above (+3 to +10) · near athlete level (-3 to +3) · moderately below (-15 to -3) · substantially below (< -15)",
+        "over": "sampled RANKED programmes with a programme strength on file"
+      },
+      {
+        "id": "agreementByRankBand",
+        "group": "agreement",
+        "statement": "The same, tabulated by the rank band the programme was sampled from: TOP_1_10 · RANKS_11_25 · RANKS_26_50 · RANKS_51_100 · RANKS_101_150 · RANKS_151_250 · RANKS_251_500 · RANKS_501_PLUS",
+        "over": "all sampled programmes"
+      },
+      {
+        "id": "agreementByDivision",
+        "group": "agreement",
+        "statement": "The same, tabulated by division.",
+        "over": "all sampled programmes"
+      },
+      {
+        "id": "agreementByLayerBand",
+        "group": "agreement",
+        "statement": "The same, tabulated by R band, F band and O band in quintiles of the sampled set.",
+        "over": "sampled RANKED programmes"
+      },
+      {
+        "id": "agreementByEvidence",
+        "group": "agreement",
+        "statement": "The same, tabulated by Pursuit evidence grade (MEASURED / PARTIAL) and by LIMITED_DATA status.",
+        "over": "all sampled programmes"
+      },
+      {
+        "id": "limitedDataReadAsAbsence",
+        "group": "limitedData",
+        "statement": "For sampled LIMITED_DATA programmes: the share classified INSUFFICIENT_INFORMATION or BORDERLINE (read as an absence) against the share classified WOULD_NOT_PURSUE (read as a poor programme). A7.7 scored 0% read-as-absence on both packs.",
+        "over": "sampled LIMITED_DATA programmes"
+      },
+      {
+        "id": "recruitabilityVsLevel",
+        "group": "tradeoff",
+        "statement": "Two groups - (a) human pursue or first-100 YES with model rank > 100, and (b) model rank <= 100 with human LOW_PRIORITY or WOULD_NOT_PURSUE - compared on athletic plausibility, positional opportunity, market fit, R, programme strength, athleticOutcome, playingPathway and F. DESCRIPTIVE ONLY: reported as distributions, not interpreted.",
+        "over": "sampled RANKED programmes falling in either group"
+      },
+      {
+        "id": "kendallTauB",
+        "group": "ordering",
+        "statement": "Kendall tau-b between the classification ordinal and the model rank, over sampled RANKED programmes carrying an ordinal. SECONDARY: the classification is a five-point judgement of a school, not a ranking of the sample, so a low tau is weak evidence about the ordering and none at all about the list.",
+        "over": "sampled RANKED programmes with a classification carrying an ordinal",
+        "primary": false
+      }
+    ],
+    "ids": [
+      "pursueInTopN",
+      "first100YesInsideTop100",
+      "first100YesRankDistance",
+      "first100NoInsideTop100",
+      "pursueSetShape",
+      "modelTopShape",
+      "eliteRelativeDistribution",
+      "agreementByRelativeBand",
+      "agreementByRankBand",
+      "agreementByDivision",
+      "agreementByLayerBand",
+      "agreementByEvidence",
+      "limitedDataReadAsAbsence",
+      "recruitabilityVsLevel",
+      "kendallTauB"
+    ]
+  },
+  "review": {
+    "meta": {
+      "packId": "V3-B-elite-balanced",
+      "v2Commit": "711af51",
+      "calibrationId": "ability-scale-2026-09-19",
+      "athleteDigest": "14877a2eb6061ecf",
+      "poolDigest": "86b911af2515ab10",
+      "sampleDigest": "96f6d726084f782a",
+      "reviewer": null,
+      "startedAt": null,
+      "completedAt": null,
+      "modelRevealed": false,
+      "athleteAnswers": {
+        "strongerProgrammes": null,
+        "tooManyBelow": null,
+        "changeFirst": null
+      }
+    },
+    "rows": [
+      {
+        "reviewNo": 1,
+        "programmeId": "684f223f-3d4c-4ee9-afd9-a44b36c02c1a",
+        "programmeName": "Hawaii Pacific",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 2,
+        "programmeId": "7201889b-5881-41c7-adb7-fe0160f001cb",
+        "programmeName": "Christian Brothers",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 3,
+        "programmeId": "3690c57d-c769-4b3b-bc54-2cd95acf2a76",
+        "programmeName": "UC Merced",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 4,
+        "programmeId": "b9c8a969-3137-4bdf-bc43-2492d2d310ea",
+        "programmeName": "Colgate",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 5,
+        "programmeId": "29cc94cb-890e-495d-9c57-7a27662f8271",
+        "programmeName": "Baker",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 6,
+        "programmeId": "918baa0d-b714-4b0f-8a16-853eb193b9b9",
+        "programmeName": "Salisbury",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 7,
+        "programmeId": "4315ac1d-11d6-4491-b638-637fafd59539",
+        "programmeName": "Rutgers",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 8,
+        "programmeId": "6bf75e98-d785-4ba6-ad92-23e4dea24a38",
+        "programmeName": "Wisconsin-Platteville",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 9,
+        "programmeId": "435c3d97-49d5-4283-8072-c4d0c023d2a2",
+        "programmeName": "Loyola Marymount",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 10,
+        "programmeId": "c834686d-3500-494d-bd46-300a2d88f6e5",
+        "programmeName": "West Chester",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 11,
+        "programmeId": "b8392a0a-22ac-4445-b142-d71910932dc9",
+        "programmeName": "Centre",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 12,
+        "programmeId": "78006bf5-e489-4405-9e9b-8bf8a5d7bfce",
+        "programmeName": "Kansas City",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 13,
+        "programmeId": "7620be75-27f0-4b7f-8254-e36048639572",
+        "programmeName": "Westminster (UT)",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 14,
+        "programmeId": "4c5dc3ac-7e23-4d11-8370-67b49e452792",
+        "programmeName": "Chaminade",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 15,
+        "programmeId": "8a3be6df-892b-47a0-b7cd-aa77cefd7593",
+        "programmeName": "Point (GA)",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 16,
+        "programmeId": "fbf7aa9f-242e-4c48-88a7-94c18e21d9ba",
+        "programmeName": "Bethel (MN)",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 17,
+        "programmeId": "fb2e81f1-9eba-4840-bb18-f590102cf60d",
+        "programmeName": "Luther",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 18,
+        "programmeId": "020c5cc8-7ace-4b8e-b17d-ad520fd94e7c",
+        "programmeName": "Virginia",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 19,
+        "programmeId": "0a757568-0fd0-4fcc-b838-59b26ff1e2c7",
+        "programmeName": "Penn State",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 20,
+        "programmeId": "fd55c4f7-e430-40b9-a80b-f6054ab099a6",
+        "programmeName": "Lincoln Trail",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 21,
+        "programmeId": "1a7533ef-d1b3-48e6-bab6-ea27fb01ba43",
+        "programmeName": "Scranton",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 22,
+        "programmeId": "7957f1a6-db68-435d-afdf-542a51a3ebca",
+        "programmeName": "The Master's University",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 23,
+        "programmeId": "3cf31f14-5ab6-4792-bff0-4081f598cb5a",
+        "programmeName": "Our Lady of the Lake University",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 24,
+        "programmeId": "bed6cb32-856d-4363-8dd6-64c55882df8c",
+        "programmeName": "Carthage",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 25,
+        "programmeId": "d4df182c-22d3-444a-934d-85ea215dfd41",
+        "programmeName": "Colorado School of Mines",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 26,
+        "programmeId": "9662887a-797a-4a54-84d3-b5cfc2e065b8",
+        "programmeName": "Southern Virginia",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 27,
+        "programmeId": "754ab2b2-8c7e-4854-bc93-b61ed5e9c568",
+        "programmeName": "Waynesburg",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 28,
+        "programmeId": "f6986698-cbb5-4bab-92f2-d4c355730c35",
+        "programmeName": "Lower Columbia",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 29,
+        "programmeId": "64d5c0aa-b5a4-4c95-8e85-6ee9e331de9a",
+        "programmeName": "Case Western Reserve",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 30,
+        "programmeId": "db4289ce-d577-43f5-9ea6-d28136cd402f",
+        "programmeName": "Williams",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 31,
+        "programmeId": "0a70334b-1c8c-4043-bf01-9041c8b6674e",
+        "programmeName": "Southwestern (TX)",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 32,
+        "programmeId": "79febff5-eef0-4876-99d6-2355894a2c54",
+        "programmeName": "West Virginia",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 33,
+        "programmeId": "3bf568a6-e573-47d1-9371-6657c412eae9",
+        "programmeName": "Ferrum",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 34,
+        "programmeId": "a11ef3f0-b444-4921-8238-f6e00986f320",
+        "programmeName": "North Carolina",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 35,
+        "programmeId": "001de5ba-835d-4fc3-9f2d-61a58273feab",
+        "programmeName": "DePauw",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 36,
+        "programmeId": "d40431ac-639b-40cc-b526-89f58c3f18e5",
+        "programmeName": "Georgetown",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 37,
+        "programmeId": "25506340-fc8f-459a-a07d-78d879fd2559",
+        "programmeName": "Augsburg",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 38,
+        "programmeId": "57b522c9-faa2-438f-80f3-a4d115f801c4",
+        "programmeName": "Fredonia State",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 39,
+        "programmeId": "4eba52ae-b8f5-40f4-a6d0-b86b0244a6c4",
+        "programmeName": "Gardner-Webb",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 40,
+        "programmeId": "31b7b0ca-829d-4931-9348-473c31a9f36a",
+        "programmeName": "Furman",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 41,
+        "programmeId": "679aa02f-15a4-4899-a566-9b53ba6e64ce",
+        "programmeName": "Covenant",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      },
+      {
+        "reviewNo": 42,
+        "programmeId": "527ef283-39c5-47ac-aeb1-ed54de0bee0e",
+        "programmeName": "Whitman",
+        "classification": null,
+        "first100": null,
+        "notes": "",
+        "reviewedAt": null
+      }
+    ]
+  },
+  "viewB": null
+}
