@@ -27,7 +27,11 @@ const range = ([lo, hi]) => {
   return lo === hi ? money(lo) : `${money(lo)}-${money(hi)}`;
 };
 const pct = (n) => `${Math.round(n * 100)}%`;
-const pts = (n) => `${Math.round(n * 100)} percentile points`;
+const pts = (n) => {
+  // A7.20 E3. "1 percentile points" appeared wherever a gap rounded to one.
+  const v = Math.round(n * 100);
+  return `${v} percentile point${v === 1 ? '' : 's'}`;
+};
 
 /**
  * Which of the three things a 1-5 answer actually said.

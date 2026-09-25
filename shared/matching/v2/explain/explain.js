@@ -543,12 +543,41 @@ export function explainProgramme(entry, context = {}) {
    * priority 5.
    */
   const la = b.levelAnchor;
-  if (la?.applied && la.factor < 1 - 1e-9) {
-    all.unshift(reason(REASON_CODE.LEVEL_ANCHOR_APPLIED, LAYER.PURSUIT, POLARITY.CONTEXT,
-      BAND.ABSOLUTE_CONTEXT, {
+  /**
+   * A7.20 E1. The guard is on the DISPLAYED number, not the raw one. Rendering
+   * rounds the factor to three places, so a programme 0.4 percentile points
+   * from the athlete was being told its priority was "reduced by a factor of
+   * 1" - true to fifteen decimals and nonsense on the page. 19 programmes
+   * inside a top hundred read that way before this.
+   */
+  const anchorShown = la?.applied ? r3(la.factor) : null;
+  if (anchorShown !== null && anchorShown < 1) {
+    /**
+     * A7.20 E2. The anchor no longer leads. It carried ABSOLUTE_CONTEXT,
+     * which sorts above everything, so a consultant reading Cal State LA at
+     * rank 24 for an $8,000 family met a level penalty before the $3,967 net
+     * price that actually put it there.
+     *
+     * PREFERENCE_EFFECT is what it is. The anchor is the athlete's own stated
+     * importance applied to a gap - the same kind of statement as
+     * LEVEL_PREFERENCE_BELOW, which already sits in that band - and it is a
+     * MULTIPLIER on a priority the layers earned, so it can never be the
+     * reason a programme ranks where it does. It can only be the reason it
+     * does not rank higher, and that is a second sentence rather than a first.
+     *
+     * A conditional band was tried first, promoting the anchor to
+     * MAJOR_CONSTRAINT once it cost a fifth of the gated priority. It is not
+     * kept: Cal State LA costs 0.217 and would still have led, and the
+     * arithmetic ceiling on the loss is tau, so any threshold high enough to
+     * be meaningful is one the anchor can never reach. Nothing about the
+     * score changes here - only where the sentence sits.
+     */
+    all.push(reason(REASON_CODE.LEVEL_ANCHOR_APPLIED, LAYER.PURSUIT, POLARITY.CONCERN,
+      BAND.PREFERENCE_EFFECT, {
         alignment: r3(la.alignment),
-        factor: r3(la.factor),
+        factor: anchorShown,
         loss: r3(b.levelAnchorLoss),
+        lossShare: r3(b.gatedValue > 0 ? b.levelAnchorLoss / b.gatedValue : 0),
         // NEGATIVE delta means the programme is ABOVE the athlete: a reach.
         direction: la.athleticDelta < 0 ? 'REACH' : 'BELOW',
         levelGap: r3(Math.abs(la.athleticDelta)),
