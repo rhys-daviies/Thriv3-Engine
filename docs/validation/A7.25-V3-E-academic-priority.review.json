@@ -1,0 +1,86 @@
+{
+  "packId": "A7.25-V3-E-academic-priority",
+  "digests": { "athlete": "4a7b0eecb2696d01", "programmes": "a45cf7efcf46d568", "lists": "970bd013953ece0d" },
+  "sealedOpened": false,
+  "athleteRestated": "Defender, ability 6 (64th percentile, equivalent programme strength 54.6), entry 2028, Austin TX, GPA 3.4 / SAT 1150, family ceiling $13,000/yr, intended major ENGINEERING. Level 3 of 5, playing 3 of 5, ACADEMIC 5 of 5.",
+  "adviserFrame": [
+    "Academic 5 of 5 is a statement about the kind of institution the athlete wants. It is not a claim about their transcript and it is not money. A 1150 SAT against a 1530 median at a 6%-admit college is not an academic ambition, it is a place the athlete will not get into.",
+    "The declared major is the one concrete academic requirement on the page. A college with a 9.4 rating that does not teach Engineering fails this athlete's actual academic ask; a college with a 7.2 rating that does teach it meets it.",
+    "$13,000 is the tightest ceiling in the V3 set and NCAA D3 awards no athletic money, so a D3 net price is close to what this family would actually pay."
+  ],
+  "lists": {
+    "A": {
+      "firstWave": ["P-006 UT Tyler", "P-023 Purdue Northwest", "P-004 South Carolina Aiken", "P-035 Texas A&M-Texarkana", "P-039 Calvin", "P-021 Hanover"],
+      "lowerPriority": ["P-025 St. Cloud State", "P-029 Texas A&M International", "P-037 Shawnee State", "P-019 Bob Jones", "P-024 Oklahoma Christian", "P-032 Dordt", "P-033 Messiah", "P-022 Mount Union"],
+      "questionable": ["P-001 Johns Hopkins", "P-036 Chicago", "P-007 Williams", "P-005 Caltech", "P-014 Washington & Lee", "P-013 Delta State", "P-011 Holy Family", "P-018 UT Southern", "P-003 Sul Ross State"],
+      "substantiallyLower": [
+        "P-001 Johns Hopkins at #3, P-036 Chicago at #8, P-007 Williams at #15, P-005 Caltech at #25 — 6%, 5%, 8% and 3% admit rates against GPA 3.4 / SAT 1150. A recruited defender at the 64th percentile does not move a 400-point SAT gap at a college admitting one applicant in twenty.",
+        "P-036 Chicago at #8 and P-007 Williams at #15 — NEITHER TEACHES ENGINEERING. They are ranked on an academic rating the athlete cannot use, above programmes that offer the exact degree asked for.",
+        "P-013 Delta State #14, P-011 Holy Family #18, P-018 UT Southern #19, P-003 Sul Ross #20 — none teaches Engineering either, and none has an academic profile that could justify overriding the major. These are four wasted places.",
+        "P-006 UT Tyler at #7 is the right programme in the wrong position on pathway: 12 defenders, ZERO departing before 2028 and seven eligible to remain. Correct on level, cost and major; there is nowhere to play."
+      ],
+      "missingFromFirstWave": [
+        "P-009 Berea is absent from this list entirely. Academic rating 7.2, SAT 1249, Engineering offered, and a $6,106 net price — the only programme in the universe that satisfies this athlete's stated academic preference, their declared major and their budget at the same time. Its omission is the single largest miss across all three lists.",
+        "P-008 Illinois Tech is absent — an engineering-specialist institution, rating 7.2, 55% admit rate, and 8 of 11 defenders departing before entry.",
+        "A mid-selectivity academic programme with Engineering and a real defensive opening: the type is almost entirely missing from the first wave, which instead pairs affordable-but-weak public programmes with unreachable elite D3s."
+      ],
+      "calibration": "ABOUT RIGHT",
+      "calibrationWhy": "This is the only one of the three lists that keeps the family's budget in view — twenty of 25 are over the ceiling, which is bad, but the other two are at twenty-four of 25. Its problem is not that it under-serves the academic preference; it is that it serves it with the wrong instrument, reaching for admit-rate prestige instead of academic programmes the athlete could attend.",
+      "wrongTradeOffs": [
+        "Academic RATING is standing in for academic FIT. Chicago at 9.7 without Engineering is ranked above Hanover at 7.1 with Engineering and an 84% admit rate. For an athlete whose academic ask is a named degree, that is backwards.",
+        "The affordable end of the list is academically weak — Purdue Northwest 2.9, Texas A&M International 2.1, Sul Ross 2.4, Shawnee 2.4 — and the academically strong end is unaffordable and unreachable. The list never finds the middle, which is where this athlete's real options are.",
+        "Four programmes that do not teach the declared major sit in the top twenty."
+      ]
+    },
+    "B": {
+      "firstWave": ["P-039 Calvin", "P-021 Hanover", "P-009 Berea"],
+      "lowerPriority": ["P-033 Messiah", "P-008 Illinois Tech", "P-010 Ohio Northern", "P-032 Dordt", "P-006 UT Tyler", "P-038 Soka"],
+      "questionable": ["P-014 Washington & Lee", "P-028 Trinity (TX)", "P-015 Gustavus Adolphus", "P-016 Rochester"],
+      "substantiallyLower": [
+        "P-014 Washington & Lee #1, P-001 Johns Hopkins #2, P-027 Washington (MO) #4, P-036 Chicago #5, P-007 Williams #6, P-005 Caltech #8, P-031 Emory #9, P-026 Bowdoin #11, P-034 MIT #14, P-002 Colby #15, P-030 Amherst #16, P-017 Swarthmore #19 — TWELVE of the first nineteen have admit rates at or below 20%, and eight are at or below 9%. Against GPA 3.4 / SAT 1150 this is not an outreach list, it is a list of places that will not reply.",
+        "P-036 Chicago #5, P-007 Williams #6, P-031 Emory #9, P-020 Carleton #10, P-026 Bowdoin #11, P-002 Colby #15, P-030 Amherst #16, P-015 Gustavus #23 — EIGHT of 25 do not teach Engineering, five of them inside the top sixteen. The list is most confident precisely where it fails the athlete's only concrete academic requirement.",
+        "P-017 Swarthmore at #19 — zero defenders recorded on the roster at all. Either the position data is missing or the squad has none; neither supports a top-twenty placement.",
+        "P-016 Rochester at #13 — $29,278 net price, 125% over the family ceiling, the most expensive programme on the page."
+      ],
+      "missingFromFirstWave": [
+        "Every affordable programme has been removed. Purdue Northwest ($6,079, Engineering), Texas A&M International ($3,637, Engineering), South Carolina Aiken ($11,641, Engineering), Texas A&M-Texarkana ($12,997, Engineering), UT Southern, Sul Ross, Delta State, St. Cloud State, Holy Family and Shawnee State are all gone. Only Berea at #20 comes in under $13,000.",
+        "Texas is gone. The athlete is in Austin and the list retains one Texas programme (Trinity) and one Texas-adjacent D2 (UT Tyler at #24), having dropped four affordable in-state options.",
+        "Programmes with a real defensive opening: the first wave is chosen on institutional rating, and the roster evidence barely appears in the ordering."
+      ],
+      "calibration": "TOO AGGRESSIVE",
+      "calibrationWhy": "This list takes 'academics matter 5 of 5' and answers it with selectivity. The median academic rating is 9.3 and twelve programmes admit fewer than 15% of applicants, but the median net price is $21,829 against a $13,000 ceiling and eight of the 25 do not offer the declared major. It has pursued the preference past the point where the recommendations remain usable.",
+      "wrongTradeOffs": [
+        "Prestige over admissibility. There is no check anywhere that the athlete could be admitted, and stronger academic emphasis makes that missing check far more damaging, because it promotes exactly the schools where it would bite.",
+        "Prestige over the declared major. Chicago, Williams, Emory, Carleton, Bowdoin, Colby and Amherst are all ranked on ratings of 9.3-9.7 while offering no Engineering; Illinois Tech, an engineering institute that admits 55%, is 22nd.",
+        "Prestige over money, comprehensively. Twenty-four of 25 exceed the ceiling and the median overshoot is 68%. A family that stated $13,000 has been handed a list whose middle is $22,000."
+      ]
+    },
+    "C": {
+      "firstWave": ["P-039 Calvin", "P-021 Hanover", "P-009 Berea", "P-006 UT Tyler"],
+      "lowerPriority": ["P-033 Messiah", "P-032 Dordt", "P-012 Benedictine (KS)", "P-025 St. Cloud State", "P-022 Mount Union", "P-019 Bob Jones", "P-038 Soka"],
+      "questionable": ["P-014 Washington & Lee", "P-028 Trinity (TX)", "P-016 Rochester", "P-002 Colby"],
+      "substantiallyLower": [
+        "P-014 Washington & Lee #1, P-001 Johns Hopkins #3, P-027 Washington (MO) #4, P-036 Chicago #5, P-007 Williams #7, P-005 Caltech #9, P-031 Emory #10, P-026 Bowdoin #12, P-034 MIT #16, P-018 Colby #18, P-030 Amherst #25 — eleven programmes admitting under 15%, the same admissibility failure as List B with one fewer instance.",
+        "P-036 Chicago #5, P-007 Williams #7, P-031 Emory #10, P-020 Carleton #11, P-026 Bowdoin #12, P-002 Colby #18, P-030 Amherst #25 — seven with no Engineering, four of them in the top twelve.",
+        "P-009 Berea at #23 — the one programme that satisfies academic preference, declared major AND budget simultaneously, placed twenty-third.",
+        "P-006 UT Tyler at #13 — no defensive pathway whatsoever (12 defenders, none departing, seven eligible to remain), but correctly priced, correctly levelled and offering the major."
+      ],
+      "missingFromFirstWave": [
+        "The same affordability hole as List B: Purdue Northwest, Texas A&M International, South Carolina Aiken, Texas A&M-Texarkana, Holy Family, UT Southern, Sul Ross, Delta State and Shawnee State are all absent.",
+        "Illinois Tech is absent entirely from this list, which List B at least placed 22nd.",
+        "Nothing in the first wave is under the family ceiling."
+      ],
+      "calibration": "TOO AGGRESSIVE",
+      "calibrationWhy": "Materially the same list as B — 21 of 25 programmes in common, same median academic rating of 9.3, same twenty-four over budget — with two affordable programmes restored at #13 and #20. It is a small softening of the same overshoot, not a different answer.",
+      "wrongTradeOffs": [
+        "Same three as List B, in slightly smaller measure: admissibility ignored, declared major outranked by institutional rating, budget abandoned.",
+        "Retaining UT Tyler at #13 while dropping Illinois Tech entirely trades an engineering institute with 8 of 11 defenders departing for a programme with no opening at all.",
+        "Berea at #23 is the clearest evidence that none of these lists is actually reasoning about academic FIT: the programme that best satisfies every academic thing this athlete said is near the bottom in the most academically-driven list of the three."
+      ]
+    }
+  },
+  "acrossLists": {
+    "X1": "The systematic disagreement is affordability against institutional rating, and List A is right about it far more often than B or C. Purdue Northwest at #6 in A and absent from both others; South Carolina Aiken at #23 in A and absent from both others; Texas A&M-Texarkana at #12 in A and absent from both others. All three teach Engineering, all three come in at or under the ceiling, and all three vanish the moment academic emphasis rises. Against that, B and C are right about Calvin, Hanover, Berea, Messiah and Dordt — mid-selectivity, genuinely well-rated, Engineering-offering colleges that A either buries or omits, and which are the best programmes on the page for this athlete. The correct list is neither: it is A's money discipline applied to B and C's middle band.",
+    "X2": "All three share one decisive failure and one smaller one. The decisive failure is that NONE of them asks whether the athlete would be admitted. Johns Hopkins, Chicago, Caltech and Williams appear in all three, at 6%, 5%, 3% and 8% admit rates, against a 3.4 GPA and a 1150 SAT. Academic preference is being read as a licence to reach without any corresponding estimate of academic reach, which is precisely the discipline the model already applies to athletic reach and does not apply here. The smaller failure is that the declared major is not acting as the academic requirement it is: every list ranks colleges that do not teach Engineering above colleges that do, on the strength of a rating."
+  }
+}

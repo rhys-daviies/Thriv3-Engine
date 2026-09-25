@@ -111,7 +111,27 @@ export function renderA725ViewA(pack) {
   w('Facts only. No list membership, no ordering, no model output.', '');
   for (const p of pack.programmes) {
     w(`### \`${p.code}\``, '');
+    /**
+     * THE MAJORS LINE IS ADDED HERE, NOT IN `factBlock`.
+     *
+     * `factBlock` is the A7.13 View A renderer and it does not print
+     * `notableMajors` - which meant the first draft of this sheet told the
+     * evaluator the athlete wants Engineering and then never said which
+     * programmes teach it. A7.25 asks about declared-major fit, so the fact
+     * has to be on the page; it is a course catalogue, not model output, and
+     * belongs in the blind view.
+     *
+     * It is NOT added to `factBlock` because the V3-A/B/F packs are frozen
+     * and their `viewA` digests are what a completed review is pinned to.
+     * Changing the shared renderer would move a digest on a sheet somebody
+     * has already answered.
+     */
+    const majors = p.facts?.notableMajors;
+    const list = Array.isArray(majors) ? majors : (typeof majors === 'string' && majors.trim() ? JSON.parse(majors) : null);
     w(factBlock(p.facts), '');
+    w(list && list.length
+      ? `_Notable majors:_ ${list.join(' · ')}`
+      : '_Notable majors:_ not on file for this institution.', '');
   }
 
   w('---', '');
