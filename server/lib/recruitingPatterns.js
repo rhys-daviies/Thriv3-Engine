@@ -19,6 +19,9 @@ import {
   ARRIVAL_TRANSITIONS, ARRIVAL_CONFIDENCE, currentCoachScope,
 } from '../../shared/recruiting/arrivals.js';
 import { buildProgrammePatterns } from '../../shared/recruiting/patterns.js';
+import { trustedRosterPredicate } from '../../shared/roster/seasonTrust.js';
+import { materialisationState, StaleMaterialisationError, STALE }
+  from './recruitingMaterialisation.js';
 
 /** The stored row, in the shape the pure aggregations expect. */
 function toArrival(r) {
@@ -62,7 +65,11 @@ export function comparableTransitionsFor(seasons = []) {
 /** Roster seasons on file, per programme, for one sport. */
 export function loadSeasonsBySport(sport) {
   const rows = db.prepare(
-    'SELECT college_name, season FROM roster_players WHERE sport = ? GROUP BY college_name, season',
+    // L7ZI: an excluded programme-season must not count as a season on file,
+    // or a transition would be called comparable against data Evidence cannot read.
+    `SELECT college_name, season FROM roster_players
+      WHERE sport = ? AND ${trustedRosterPredicate('roster_players')}
+      GROUP BY college_name, season`,
   ).all(sport);
   const out = new Map();
   for (const r of rows) {
@@ -86,6 +93,26 @@ export function loadCoachRowsBySport(sport) {
 }
 
 /**
+ * L7ZL — refuse to serve a materialisation that no longer describes the roster.
+ *
+ * RAISED, NOT RETURNED. `loadProgrammePatterns` answers `null` for "this
+ * programme has no recruiting history", which is an ordinary and truthful
+ * answer. A stale materialisation is not that: it is "we cannot say", and
+ * returning null would make a data-integrity failure read as a programme with
+ * no arrivals — withholding claims without reporting why.
+ *
+ * LEGACY_UNVERIFIED passes. That build predates this mechanism and reads
+ * continue exactly as they did; the state is visible through
+ * `materialisationState`, and it blocks an exclusion at the write boundary,
+ * which is where the invariant actually needs holding.
+ */
+function assertServable(sport) {
+  const state = materialisationState(sport);
+  if (state.state === STALE) throw new StaleMaterialisationError(state);
+  return state;
+}
+
+/**
  * Every programme's patterns for one sport.
  *
  * Programmes with rosters and no arrivals are still included, with their real
@@ -93,6 +120,7 @@ export function loadCoachRowsBySport(sport) {
  * "we never looked", which is the distinction the whole phase rests on.
  */
 export function loadPatternsForSport(sport) {
+  assertServable(sport);
   const arrivalRows = db.prepare(
     'SELECT * FROM recruiting_arrivals WHERE sport = ? AND arrival_confidence = ?',
   ).all(sport, ARRIVAL_CONFIDENCE.DIRECT);
@@ -124,12 +152,15 @@ export function loadPatternsForSport(sport) {
 
 /** One programme, without building the whole sport. */
 export function loadProgrammePatterns(sport, programme) {
+  assertServable(sport);
   const arrivalRows = db.prepare(
     'SELECT * FROM recruiting_arrivals WHERE sport = ? AND programme = ? AND arrival_confidence = ?',
   ).all(sport, programme, ARRIVAL_CONFIDENCE.DIRECT);
 
   const seasonRows = db.prepare(
-    'SELECT season FROM roster_players WHERE sport = ? AND college_name = ? GROUP BY season',
+    `SELECT season FROM roster_players
+      WHERE sport = ? AND college_name = ? AND ${trustedRosterPredicate('roster_players')}
+      GROUP BY season`,
   ).all(sport, programme);
   if (!seasonRows.length && !arrivalRows.length) return null;
 

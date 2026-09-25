@@ -26,9 +26,14 @@ import argparse
 import re
 import sqlite3
 import unicodedata
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+import corpus as _corpus  # L7ZO: RECRUITMATCH_DB is honoured here too
+
 from collections import Counter, defaultdict
 
-DB = "file:server/data/recruitmatch.sqlite?mode=ro"
+DB = _corpus.read_only_uri(_corpus.resolve_db())
 IN_SCOPE = ("NCAA D1", "NCAA D2", "NCAA D3")
 
 SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
