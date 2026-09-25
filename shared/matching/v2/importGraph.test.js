@@ -121,6 +121,13 @@ const MAY_IMPORT_V2 = [
   'server/scripts/v2PositionalStructure.js',
   'server/scripts/v2ArchitectureCheckpoint.js',
   'server/scripts/v2PreferenceParity.js',
+  /**
+   * A7.13. The V3 outreach packs: athlete definitions, the generator and the
+   * blind audit that gates it. All three are validation instruments - none
+   * serves a route, renders a page or writes a recommendation.
+   */
+  'server/scripts/v3Packs.js',
+  'server/scripts/v3Athletes.js',
   'server/scripts/v2ValidationFixtures.js',
   'server/scripts/derivePlayingNorms.js',
   'server/scripts/derivePositionalNorms.js',

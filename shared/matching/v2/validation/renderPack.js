@@ -89,7 +89,12 @@ function evidenceBlock(f) {
   return out.join('  \n');
 }
 
-function factBlock(f) {
+/**
+ * EXPORTED at A7.13, so the outreach renderer uses this exact block rather
+ * than its own copy. Two renderings of the blind view is two places a model
+ * output can leak, and only one of them would have a test.
+ */
+export function factBlock(f) {
   if (!f) return '_No programme record._';
   const where = [f.city, f.state].filter(Boolean).join(', ');
   return [
@@ -104,7 +109,7 @@ function factBlock(f) {
   ].filter(Boolean).join('  \n');
 }
 
-function athleteBlock(a) {
+export function athleteBlock(a) {
   const row = (k, v) => `| ${k} | ${or(v)} |`;
   return [
     '| input | value |', '|---|---|',
@@ -117,8 +122,18 @@ function athleteBlock(a) {
     row('entry / recruiting class year', a.entryYear),
     row('eligibility basis', a.eligibilityBasis),
     row('GPA', a.gpa), row('SAT', a.sat), row('ACT', a.act),
-    row('budget band (stated)', a.budgetRange),
-    row('family contribution interval used', a.budgetInterval),
+    /**
+     * A7.13. ONE MONEY ANSWER ON THE PAGE, not two.
+     *
+     * An athlete created through the product after A7.9.3 carries an exact
+     * stated contribution and no band, so printing the band rows as well put
+     * "budget band: UNDECLARED" directly above "stated contribution: $40,000"
+     * - a sheet telling a reviewer both that the money is unknown and what it
+     * is. Caught on the first V3 pack.
+     */
+    ...(a.contributionState === 'STATED' && Number.isFinite(a.maxAnnualContributionUsd)
+      ? [row('maximum family contribution (stated)', `$${Number(a.maxAnnualContributionUsd).toLocaleString('en-US')} per year`)]
+      : [row('budget band (stated)', a.budgetRange), row('family contribution interval used', a.budgetInterval)]),
     row('domestic / international', a.origin),
     row('nationality', a.nationality),
     row('home state', a.state),
@@ -126,7 +141,9 @@ function athleteBlock(a) {
     row('**competitive-level priority (1-5)**', a.competitiveLevelPriority ?? '**UNDECLARED**'),
     row('**playing-opportunity priority (1-5)**', a.playingOpportunityPriority ?? '**UNDECLARED**'),
     row('**academic-strength priority (1-5)**', a.academicStrengthPriority ?? '**UNDECLARED**'),
-    row('intended major', a.intendedMajor ?? 'NOT COLLECTED'),
+    // A7.13: the product HAS collected this since A7.9.3, so "NOT COLLECTED"
+    // was describing the form rather than the athlete.
+    row('intended major', a.intendedMajor ?? 'not stated by this athlete'),
     row('preferred divisions', a.preferredDivisions?.length ? a.preferredDivisions.join(', ') : 'none (no division filter)'),
     row('preferred conferences', a.preferredConferences?.length ? a.preferredConferences.join(', ') : 'none'),
     row('legacy criterion ranking', a.criterionRanking?.length ? a.criterionRanking.join(' > ') : 'none'),
