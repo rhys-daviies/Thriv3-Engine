@@ -49,6 +49,56 @@ const STAFF = db.prepare(`
 `);
 
 /**
+ * FEATURE-FLAGGED RECONCILED READ PATH — Phase 3C.
+ *
+ * When THRIV3_USE_RECONCILED_COACHES is on, outreach reads the corrected
+ * projection built by the Phase-3C migration: only coaches marked
+ * outreach_eligibility='YES', keyed on their CANONICAL school. Keying on the
+ * canonical school — not legacy `coaches.school` — is what makes a reassigned
+ * coach appear under their true institution and NEVER under the wrong one,
+ * which is the hard invariant the whole migration exists for.
+ *
+ * The flag is read per request (not memoised at import) so it can be flipped
+ * without a restart and so tests can toggle it. The statement is prepared
+ * lazily and re-checked while absent: `coaches_reconciled` does not exist until
+ * the apply step has run, importing this module must never fail for want of it,
+ * and if the flag is on while the table is still missing we fall back to the
+ * legacy read rather than blank every outreach list.
+ */
+const RECONCILED_FLAG = /^(1|true|yes|on)$/i;
+const useReconciled = () => RECONCILED_FLAG.test(process.env.THRIV3_USE_RECONCILED_COACHES || '');
+
+let reconciledStmt; // undefined until the table is first seen; never negatively cached
+function reconciledStaff(school, sport) {
+  if (!reconciledStmt) {
+    const present = db.prepare(
+      "SELECT 1 FROM sqlite_master WHERE type='table' AND name='coaches_reconciled'",
+    ).get();
+    if (!present) return null; // table not applied yet — re-check next call
+    reconciledStmt = db.prepare(`
+      SELECT coach_id AS id, coach_name AS full_name, email, sport,
+             title AS position_title, email_verification_status AS email_status,
+             canonical_school AS school
+        FROM coaches_reconciled
+       WHERE canonical_school = @school AND sport = @sport
+         AND outreach_eligibility = 'YES'
+         AND email IS NOT NULL AND trim(email) != '' AND upper(trim(email)) != 'N/A'
+       ORDER BY coach_id`);
+  }
+  return reconciledStmt.all({ school, sport });
+}
+
+/** The staff rows for a (school, sport), honouring the reconciled feature flag. */
+function staffRows(school, sport) {
+  if (useReconciled()) {
+    const rows = reconciledStaff(school, sport);
+    if (rows) return rows; // authoritative when the table is present
+    console.warn('[colleges/coaches] THRIV3_USE_RECONCILED_COACHES on but coaches_reconciled absent; serving legacy coaches.');
+  }
+  return STAFF.all({ school, sport });
+}
+
+/**
  * The shape EmailComposer already reads, plus what it could not know before.
  *
  * `name`, `email` and `title` are the three fields the composer and
@@ -90,7 +140,7 @@ programmeCoachesRouter.get('/colleges/:id/coaches', (req, res) => {
      * programme must not do is be SELECTED into a new relationship, and
      * `findCanonicalCollege` is what enforces that, where it belongs.
      */
-    const rows = STAFF.all({ school: college.name, sport: college.sport });
+    const rows = staffRows(college.name, college.sport);
     return res.json({
       college: {
         id: college.id,
@@ -109,7 +159,7 @@ programmeCoachesRouter.get('/colleges/:id/coaches', (req, res) => {
 
 /** Exported for the manual outreach route, which needs the same rows server-side. */
 export function programmeCoaches({ collegeName, sport }) {
-  return STAFF.all({ school: collegeName, sport }).map(contact);
+  return staffRows(collegeName, sport).map(contact);
 }
 
 export { findCanonicalCollege };
