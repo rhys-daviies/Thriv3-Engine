@@ -227,3 +227,64 @@ export const NEAR_BAND_KM = 300;
  * both are 1, which is what keeps plausibility a ceiling rather than a term.
  */
 export const BEHAVIOUR_WEIGHTS = Object.freeze({ positional: 0.75, market: 0.25 });
+
+/**
+ * -- A7.18: WHAT AN UNMEASURED POSITIONAL NEED IS WORTH ---------------------
+ *
+ * HEURISTIC, and the most openly invented number in this file. It is the
+ * share of positional evidence's range that a programme keeps when we have
+ * not measured its opening at all.
+ *
+ * It exists because A7.13-A7.15 measured what happens without it. Positional
+ * evidence entered support linearly, so a programme with no detected opening
+ * contributed nothing and its weight was not redistributed: support could not
+ * exceed 0.25, Recruitability could not exceed A x 0.5125, and across three
+ * athlete profiles NOT ONE of the 220 programmes with a measured zero or an
+ * unreadable roster reached the top hundred. The best any of them managed was
+ * 129th. That is a structural exclusion of 26% of the eligible universe, and
+ * it was produced by an absence of evidence rather than by evidence.
+ *
+ * The operator's position, recorded at A7.16, is that a detected absence of
+ * vacancy is not a coach declining to recruit the position. Transfers,
+ * injuries, eligibility changes, position changes and ordinary coach
+ * behaviour all move places that no roster snapshot predicts. So a measured
+ * zero is mild negative evidence and an unreadable roster is no evidence.
+ */
+export const POSITIONAL_PRIOR = 0.45;
+
+/**
+ * What a MEASURED zero costs against that prior.
+ *
+ * HEURISTIC. 0.35 of the prior, so a detected absence of opening is worth
+ * less than not knowing - which is the whole point of measuring - without
+ * falling to the zero that caused the exclusion. See A7.16 for the tournament
+ * that rejected a plain floor on exactly this ordering.
+ */
+export const POSITIONAL_ZERO_PENALTY = 0.35;
+
+/**
+ * How a positional result becomes its share of Recruitability's behavioural
+ * range. The ordering it enforces, and which A7.16 condition E made
+ * load-bearing:
+ *
+ *   measured zero  <  unknown  <  any positive measurement
+ *
+ *   unknown        prior                      0.45
+ *   measured 0     prior x (1 - penalty)      0.2925
+ *   measured p>0   prior + (1 - prior) x p    (0.45, 1]
+ *
+ * THIS IS NOT RENORMALISATION. The A7.7.3 failure was that an unknown
+ * signal's weight was absorbed by the surviving signal, so a programme we
+ * knew less about could outrank one we had measured. Here the unknown takes a
+ * prior IN ITS OWN SLOT and can never exceed a positive measurement, because
+ * `prior + (1 - prior) * p > prior` for every p > 0.
+ *
+ * @param {number|null} value  the measured positional opportunity, or null when unknown
+ */
+export function positionalSupport(value, {
+  prior = POSITIONAL_PRIOR, zeroPenalty = POSITIONAL_ZERO_PENALTY,
+} = {}) {
+  if (value === null || value === undefined) return prior;
+  if (value <= 0) return prior * (1 - zeroPenalty);
+  return prior + ((1 - prior) * value);
+}

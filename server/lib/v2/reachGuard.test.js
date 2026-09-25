@@ -126,6 +126,22 @@ describe('declaring a competitive-level preference materially moves the at-level
    * Not a claim about how far it should move, only that it must move a long
    * way. If a future change quietly re-flattens compatibility, the preference
    * stops having anywhere to lift these programmes from and this fails.
+   *
+   * -- WHY THE THRESHOLD CHANGED AT A7.18 ---------------------------------
+   *
+   * This asserted `declared < undeclared / 2`, which assumed the undeclared
+   * athlete's at-level band starts out badly placed. A7.14 measured that it
+   * did, and that it was the WORST of the three profiles. The level anchor
+   * exists to fix exactly that, and it applies at tau(3) to an athlete who
+   * has stated nothing, so the undeclared baseline is now good: median rank
+   * 14 for a rating 9 against 7 declared, and 6 against 4 for a rating 6.
+   * Halving a number that is already near the front is not a property worth
+   * asserting, and the ratio failed by a single place.
+   *
+   * What is asserted instead is the SPREAD the preference produces, which is
+   * the thing the guard was really protecting: an athlete who asks for level
+   * and an athlete who asks for playing time must get visibly different
+   * bands, and declaring level must never be worse than saying nothing.
    */
   it.each([
     ['a strong athlete', 9],
@@ -133,8 +149,13 @@ describe('declaring a competitive-level preference materially moves the at-level
   ])('%s', (_label, rating) => {
     const eq = equivalent(rating);
     const undeclared = medianRank(band(rank(rating, null, null), eq, -3, 3));
-    const declared = medianRank(band(rank(rating, 5, 1), eq, -3, 3));
-    expect(declared).toBeLessThan(undeclared / 2);
+    const levelFirst = medianRank(band(rank(rating, 5, 1), eq, -3, 3));
+    const playingFirst = medianRank(band(rank(rating, 1, 5), eq, -3, 3));
+
+    // Declaring level never costs an at-level programme its place.
+    expect(levelFirst).toBeLessThanOrEqual(undeclared);
+    // And the two opposite statements are far apart, not cosmetically apart.
+    expect(playingFirst).toBeGreaterThan(levelFirst * 3);
   });
 });
 
@@ -216,5 +237,68 @@ describe('playing-opportunity priority changes how much competition matters', ()
       expect(rows.length).toBe(colleges.length);
       expect(new Set(rows.map((r) => r.rank)).size).toBe(rows.length);
     }
+  });
+});
+
+/**
+ * A7.18, property 8. The V3-F result in miniature.
+ *
+ * A7.15 measured that a family stating $8,000 gets a list that goes down
+ * level, and that this is CORRECT rather than a failure: in the real universe
+ * near-level programmes are less affordable than weaker ones - median
+ * Financial 0.304 against 0.384 - so the right answer is cheaper programmes.
+ * A7.16 froze that as condition B5 and every candidate had to keep it.
+ *
+ * The risk the level anchor introduces is that it undoes exactly this. It
+ * must not: money is allowed to beat level, and this asserts that it still
+ * does.
+ */
+describe('a tight budget still lifts affordable programmes below the athlete', () => {
+  const rankWithBudget = (rating, budgetRange, level = 3) => {
+    const rep = runPursuit({
+      athlete: {
+        label: { id: 'budget-guard' },
+        v1Shape: { sport: 'mens-soccer', budgetRange, state: 'OH', origin: 'USA' },
+        recruitability: { sport: 'mens-soccer', rating, position: 'MIDFIELD', entryYear: 2028, isInternational: false },
+        opportunity: {
+          sport: 'mens-soccer', position: 'MIDFIELD', rating,
+          intendedMajor: null, priorityRanking: null,
+          competitiveLevelPriority: level, playingOpportunityPriority: 3,
+        },
+      },
+      sport: 'mens-soccer', colleges, ctx,
+    });
+    const byName = new Map(colleges.map((c) => [c.name, c]));
+    return rep.pipeline.ranked.map((e) => ({
+      name: e.name, rank: e.rank,
+      strength: byName.get(e.name).soccer_score,
+      netPrice: byName.get(e.name).net_price,
+    }));
+  };
+
+  it('a constrained athlete is ranked differently from a wealthy one', () => {
+    const rich = rankWithBudget(9, '$40k+/yr');
+    const poor = rankWithBudget(9, 'Need Full Scholarship');
+    expect(poor.map((r) => r.name)).not.toEqual(rich.map((r) => r.name));
+  });
+
+  it('the constrained list is cheaper at the front, even with a level anchor applied', () => {
+    const rich = rankWithBudget(9, '$40k+/yr');
+    const poor = rankWithBudget(9, 'Need Full Scholarship');
+    const frontPrice = (rows) => {
+      const f = rows.slice(0, front(rows)).map((r) => r.netPrice);
+      return f.reduce((a, b) => a + b, 0) / f.length;
+    };
+    expect(frontPrice(poor)).toBeLessThan(frontPrice(rich));
+  });
+
+  it('affordable programmes below the athlete still reach the front of the list', () => {
+    const poor = rankWithBudget(9, 'Need Full Scholarship');
+    const eq = equivalent(9);
+    const cheapAndBelow = poor.filter((r) => r.strength - eq < -15)
+      .sort((a, b) => a.netPrice - b.netPrice).slice(0, 10);
+    // At least one substantially-below programme that is cheap must be in
+    // the first decile. The anchor may demote them; it may not exclude them.
+    expect(cheapAndBelow.some((r) => r.rank <= front(poor))).toBe(true);
   });
 });

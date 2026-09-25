@@ -4,7 +4,9 @@ import { athleticPlausibility } from './athleticPlausibility.js';
 import { positionalOpportunity } from './positionalOpportunity.js';
 import { recruitingMarket } from './recruitingMarket.js';
 import { GRADE, REASON, scoreable, unscoreable, notApplicable } from '../types.js';
-import { fillPropensity, CORE_FLOOR } from '../recruitingRules.js';
+import {
+  fillPropensity, CORE_FLOOR, BEHAVIOUR_WEIGHTS, positionalSupport,
+} from '../recruitingRules.js';
 
 const SPORT = 'mens-soccer';
 const A = (rating, soccerScore) => athleticPlausibility({ rating, soccerScore, sport: SPORT });
@@ -53,11 +55,19 @@ describe('the pathological scenarios', () => {
     expect(r.value).toBeLessThan(0.5);
   });
 
-  it('C. an at-level athlete with no opening and no market evidence keeps the floor and no more', () => {
-    // Both behavioural slices empty, so only phi survives - which is what
-    // phi means. With a market arm present it would be higher, correctly.
+  it('C. an at-level athlete with a measured zero keeps the floor plus what a measured zero is worth', () => {
+    /**
+     * A7.18 changed what this scenario is worth and NOT what it means. A
+     * detected absence of opening used to contribute nothing, which is what
+     * made 220 programmes unreachable; it now contributes the prior reduced
+     * by the zero penalty. The market slice is still empty and still
+     * contributes nothing, because nothing is measured there to contribute.
+     */
     const r = R(A(8, 73.38), O({ vacatedStarters: 0 }), NO_MARKET);
-    expect(r.value).toBeCloseTo(A(8, 73.38).value * CORE_FLOOR, 6);
+    const zeroWorth = BEHAVIOUR_WEIGHTS.positional * positionalSupport(0);
+    expect(r.value).toBeCloseTo(A(8, 73.38).value * (CORE_FLOOR + ((1 - CORE_FLOOR) * zeroWorth)), 6);
+    // Still strictly below what phi alone would have given plus a real opening.
+    expect(r.value).toBeLessThan(R(A(8, 73.38), O({ vacatedStarters: 2 }), NO_MARKET).value);
   });
 
   it('D. a strong athlete at a crowded programme is demoted, not deleted', () => {
@@ -228,7 +238,13 @@ describe('phi', () => {
     void none;
     const empty = scoreable({ value: 0, grade: GRADE.MEASURED });
     const r = coachRecruitability({ athletic: A(8, 73.38), positional: empty, market: NO_MARKET, phi: 0.2 });
-    expect(r.value).toBeCloseTo(A(8, 73.38).value * 0.2, 12);
+    // A7.18: a measured zero is no longer an empty core, so phi's share is
+    // measured against what a measured zero is actually worth.
+    const zeroWorth = BEHAVIOUR_WEIGHTS.positional * positionalSupport(0);
+    expect(r.value).toBeCloseTo(A(8, 73.38).value * (0.2 + (0.8 * zeroWorth)), 12);
+    // What phi does is unchanged: raise it and everything rises.
+    const higher = coachRecruitability({ athletic: A(8, 73.38), positional: empty, market: NO_MARKET, phi: 0.5 });
+    expect(higher.value).toBeGreaterThan(r.value);
   });
 
   it('is recorded so a report can say what it was', () => {

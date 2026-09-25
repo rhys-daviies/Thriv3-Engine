@@ -82,7 +82,12 @@ export function runPursuit({
   for (const r of rec.results) byId.get(r.id).recruitability = r.result;
   for (const r of opp.results) byId.get(r.id).opportunity = r.result;
 
-  const pipeline = rankPool([...byId.values()], { topN, weights, gates });
+  const pipeline = rankPool([...byId.values()], {
+    topN, weights, gates,
+    // A7.18: the athlete's own level statement, given authority outside the
+    // layer that cannot hear it. See pursuitRules.js.
+    competitiveLevelPriority: athlete.opportunity?.competitiveLevelPriority ?? null,
+  });
 
   const priorities = pipeline.ranked.map((r) => r.pursuitPriority.value);
   const gatesFired = {

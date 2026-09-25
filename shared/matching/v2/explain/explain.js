@@ -71,6 +71,19 @@ function recruitabilityReasons(result) {
     }));
 
   const p = b.positional;
+  /**
+   * A7.18. Three positional states, three different things to say. The
+   * scorer distinguishes them and so must this: a detected absence is not a
+   * certainty, and an unreadable roster is not an absence.
+   */
+  if (!p && b.positionalEvidence === 'UNKNOWN') {
+    out.push(reason(REASON_CODE.POSITION_EVIDENCE_UNAVAILABLE, LAYER.RECRUITABILITY, POLARITY.CONTEXT,
+      BAND.SECONDARY_EVIDENCE, {
+        position: b.positionalUnreadable?.position ?? null,
+        departing: b.positionalUnreadable?.departing ?? null,
+        reason: b.signals?.find((x) => x.key === 'positionalOpportunity')?.reason ?? null,
+      }));
+  }
   if (p) {
     if (p.vacatedStarters > 0) {
       out.push(reason(REASON_CODE.POSITION_OPENING_MEASURED, LAYER.RECRUITABILITY, POLARITY.STRENGTH,
@@ -520,6 +533,30 @@ export function explainProgramme(entry, context = {}) {
   }
 
   const b = entry.pursuitPriority.basis;
+
+  /**
+   * A7.18. The level anchor, stated whenever it moved anything. `alignment`
+   * is 1 at the athlete's own estimated level and falls away either side, so
+   * the three cases below are ALIGNED, BELOW and REACH - and the athlete's
+   * own stated importance is carried with them, because a programme far from
+   * the athlete's level costs very little at priority 1 and a great deal at
+   * priority 5.
+   */
+  const la = b.levelAnchor;
+  if (la?.applied && la.factor < 1 - 1e-9) {
+    all.unshift(reason(REASON_CODE.LEVEL_ANCHOR_APPLIED, LAYER.PURSUIT, POLARITY.CONTEXT,
+      BAND.ABSOLUTE_CONTEXT, {
+        alignment: r3(la.alignment),
+        factor: r3(la.factor),
+        loss: r3(b.levelAnchorLoss),
+        // NEGATIVE delta means the programme is ABOVE the athlete: a reach.
+        direction: la.athleticDelta < 0 ? 'REACH' : 'BELOW',
+        levelGap: r3(Math.abs(la.athleticDelta)),
+        competitiveLevelPriority: la.competitiveLevelPriority,
+        priorityDefaulted: la.priorityDefaulted,
+      }));
+  }
+
   const layers = [
     ['recruitability', b.recruitability], ['financial', b.financial], ['opportunity', b.opportunity],
   ].map(([k, v]) => ({ layer: k, value: r3(v), band: bandFor(k, v) }));

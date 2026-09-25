@@ -118,8 +118,33 @@ const SENTENCE = {
     `Well beyond the athlete's assessed range — about ${pts(e.levelGap)} above it — which is what holds this back.`,
   [REASON_CODE.POSITION_OPENING_MEASURED]: (e) =>
     `Roster evidence shows ${e.vacatedStarters} starting ${e.position.toLowerCase()} place${e.vacatedStarters === 1 ? '' : 's'} opening for the entry year, against ${e.typicalStarters} typically held.`,
+  /**
+   * A7.18. NEVER a certainty. The operator's position, and the reason the
+   * scorer stopped treating this as decisive, is that transfers, injuries,
+   * eligibility changes and ordinary coach behaviour move places no roster
+   * snapshot predicts. What we have is a detection, and that is what this
+   * says: "no opening was detected", not "there is no place".
+   */
   [REASON_CODE.POSITION_NO_OPENING_MEASURED]: (e) =>
-    `Available evidence indicates no starting ${e.position.toLowerCase()} place opening for the entry year.`,
+    `No starting ${e.position.toLowerCase()} place opening was detected from the available roster evidence for the entry year. This is not evidence that the programme has stopped recruiting the position.`,
+  [REASON_CODE.POSITION_EVIDENCE_UNAVAILABLE]: (e) =>
+    `There is not enough roster evidence to say whether a ${e.position ? `${e.position.toLowerCase()} ` : ''}place is opening for the entry year. This is missing information, not a finding of no opening.`,
+  /**
+   * A7.18. Pursuit stopped being explainable from the three layers and the
+   * two gates when the level anchor was added, so the anchor says so itself.
+   * It describes the athlete's level as ESTIMATED, because it is: the input
+   * is a 1-10 judgement and A7.17 measured that one step of it is worth
+   * between 3.5 and 16 percentile points.
+   */
+  [REASON_CODE.LEVEL_ANCHOR_APPLIED]: (e) => {
+    const where = e.direction === 'REACH'
+      ? `sits above the athlete's estimated competitive level`
+      : `sits below the athlete's estimated competitive level`;
+    const weight = e.priorityDefaulted
+      ? 'no competitive-level importance was stated, so a moderate weighting was assumed'
+      : `the athlete rated competitive level ${e.competitiveLevelPriority} of 5 in importance`;
+    return `This programme ${where} by about ${pts(e.levelGap)}, and ${weight}, so its priority is reduced by a factor of ${e.factor}. The athlete's level is an estimate and an anchor, not a limit: nothing is excluded for it.`;
+  },
   /**
    * Never "no need exists" when the truth is "we cannot fully determine need".
    * The count stands; the coverage behind it is stated beside it.

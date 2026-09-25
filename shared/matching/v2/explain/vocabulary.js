@@ -54,6 +54,19 @@ export const REASON_CODE = Object.freeze({
   POSITION_OPENING_MEASURED: 'POSITION_OPENING_MEASURED',
   POSITION_NO_OPENING_MEASURED: 'POSITION_NO_OPENING_MEASURED',
   /**
+   * A7.18. The roster could not be read at this position at all, which is a
+   * different statement from reading it and finding nobody leaving. It has
+   * its own code because the scorer now treats the two differently and an
+   * operator is entitled to see which one they are looking at.
+   */
+  POSITION_EVIDENCE_UNAVAILABLE: 'POSITION_EVIDENCE_UNAVAILABLE',
+  /**
+   * A7.18. Pursuit is no longer explainable from R, F, O and the two gates
+   * alone: the athlete's own competitive-level priority scales a multiplier
+   * on the result. Where that multiplier did anything, it is said.
+   */
+  LEVEL_ANCHOR_APPLIED: 'LEVEL_ANCHOR_APPLIED',
+  /**
    * Some of the departing cohort could not be placed as starter or squad. The
    * count is real and the coverage behind it is not complete, and an operator
    * reading "no place opening" is entitled to know which.

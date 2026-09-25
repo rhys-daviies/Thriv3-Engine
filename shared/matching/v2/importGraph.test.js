@@ -109,6 +109,13 @@ const MAY_IMPORT_V2 = [
   'server/scripts/v2PursuitAuthority.js',
   'server/scripts/v2GateAndFinancial.js',
   /**
+   * A7.18. Captures every layer output for the benchmark athletes so the
+   * same run before and after a scorer change can be compared value for
+   * value. Read-only against the model and the database: it is the thing
+   * that proves a change did what it said, so it necessarily imports V2.
+   */
+  'server/scripts/gParityHarness.js',
+  /**
    * A7.9.4. Compares V1 affordability against V2 Financial on one axis, which
    * needs both. Read-only: it scores, it never ranks anything into production.
    */

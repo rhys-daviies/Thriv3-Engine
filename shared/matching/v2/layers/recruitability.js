@@ -52,7 +52,9 @@
  * developmental athlete 17 of the top 100 on the strength of it.
  */
 import { GRADE, REASON, scoreable, unscoreable, isScoreable, isNotApplicable } from '../types.js';
-import { CORE_FLOOR, BEHAVIOUR_WEIGHTS } from '../recruitingRules.js';
+import {
+  CORE_FLOOR, BEHAVIOUR_WEIGHTS, positionalSupport, POSITIONAL_PRIOR,
+} from '../recruitingRules.js';
 
 /**
  * @param {object} p
@@ -84,6 +86,22 @@ export function coachRecruitability({
   const known = signals.filter((s) => isScoreable(s.result));
 
   /**
+   * A7.18. Positional evidence no longer enters support linearly.
+   *
+   * An unreadable roster is uncertainty, so it takes the prior. A measured
+   * zero is mild negative evidence, so it takes less than the prior. Any
+   * positive measurement takes more. `positionalSupport` holds the ordering
+   * and the reasoning; the only thing decided here is WHICH of the three
+   * cases a result falls into.
+   *
+   * NOT_APPLICABLE is deliberately not one of them. "This signal does not
+   * apply" is a different statement from "we could not read it", and giving
+   * it a prior would answer a question nobody asked.
+   */
+  const positionalApplies = !isNotApplicable(positional);
+  const positionalMeasured = isScoreable(positional);
+
+  /**
    * THE EVIDENCE FLOOR. Not a coverage number - a requirement that at least
    * one behavioural signal was actually measured.
    */
@@ -105,10 +123,16 @@ export function coachRecruitability({
   }
 
   /**
-   * Each known signal fills its own slice of the behavioural range. An
-   * unknown one leaves its slice empty; nothing else expands into it.
+   * Each signal fills its own slice of the behavioural range and NOTHING ELSE
+   * EXPANDS INTO IT - the property A7.7.4 chose this form for, and which
+   * A7.18 keeps. What changed is only what positional puts in its own slice
+   * when it was not measured.
    */
-  const support = known.reduce((sum, s) => sum + (s.weight * s.result.value), 0);
+  const positionalContribution = positionalApplies
+    ? weights.positional * positionalSupport(positionalMeasured ? positional.value : null)
+    : 0;
+  const marketContribution = isScoreable(market) ? weights.market * market.value : 0;
+  const support = positionalContribution + marketContribution;
   const value = athletic.value * (phi + ((1 - phi) * support));
 
   /**
@@ -131,6 +155,19 @@ export function coachRecruitability({
       phi,
       weights: { ...weights },
       support,
+      /**
+       * A7.18. What the positional signal actually SAID, kept separate from
+       * what it was worth, so the explanation can never render a measured
+       * zero as a certainty and can never render an unreadable roster as a
+       * zero. `positionalContribution` is the second of those and must not be
+       * read as a measurement.
+       */
+      positionalEvidence: !positionalApplies ? 'NOT_APPLICABLE'
+        : !positionalMeasured ? 'UNKNOWN'
+          : positional.value > 0 ? 'DETECTED' : 'NONE_DETECTED',
+      positionalContribution,
+      positionalPrior: POSITIONAL_PRIOR,
+      positionalPriorUsed: positionalApplies && !positionalMeasured,
       /** What the ceiling cost: the gap between full behavioural support and this. */
       ceilingLoss: (phi + (1 - phi)) - (phi + ((1 - phi) * support)),
       signals: signals.map((s) => ({
@@ -142,6 +179,11 @@ export function coachRecruitability({
         reason: isScoreable(s.result) ? null : (s.result.reason ?? null),
       })),
       positional: isScoreable(positional) ? positional.basis : null,
+      /**
+       * A7.18. What the positional refusal knew, kept so the explanation can
+       * name the position it could not read. Null when positional scored.
+       */
+      positionalUnreadable: isScoreable(positional) ? null : (positional.detail ?? null),
       positionalState: isScoreable(positional) ? positional.grade : (positional.reason ?? 'UNKNOWN'),
       market: isScoreable(market) ? market.basis : null,
       marketState: isScoreable(market) ? market.grade

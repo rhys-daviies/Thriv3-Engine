@@ -34,7 +34,7 @@
  * financial case 0.247, a poor opportunity 0.645, and an excellent case 0.875.
  */
 import { GRADE, REASON, scoreable, unscoreable, isScoreable } from '../types.js';
-import { PURSUIT_WEIGHTS, PURSUIT_GATES, tailGate } from '../pursuitRules.js';
+import { PURSUIT_WEIGHTS, PURSUIT_GATES, tailGate, levelFactor } from '../pursuitRules.js';
 
 /**
  * @param {object} p
@@ -45,6 +45,13 @@ import { PURSUIT_WEIGHTS, PURSUIT_GATES, tailGate } from '../pursuitRules.js';
 export function pursuitPriority({
   recruitability, financial, opportunity,
   weights = PURSUIT_WEIGHTS, gates = PURSUIT_GATES,
+  /**
+   * A7.18. The athlete's stated competitive-level priority, and the
+   * percentile-space delta athletic plausibility already computed. Omitting
+   * either leaves the anchor a no-op, so a caller that does not pass it gets
+   * exactly the pre-A7.18 priority.
+   */
+  competitiveLevelPriority = null, levelAnchor = true,
 }) {
   const missing = [];
   if (!isScoreable(recruitability)) missing.push('recruitability');
@@ -80,7 +87,17 @@ export function pursuitPriority({
   const base = (weights.recruitability * R) + (weights.financial * F) + (weights.opportunity * O);
   const gR = tailGate(R, gates.recruitability);
   const gF = tailGate(F, gates.financial);
-  const value = base * gR * gF;
+  const gated = base * gR * gF;
+
+  /**
+   * The level anchor multiplies AFTER the gates, so it reshapes the ordering
+   * without touching what either gate means or what it cost. It is strictly
+   * positive: see `levelFactor` for why nothing can be excluded by it.
+   */
+  const anchor = levelAnchor
+    ? levelFactor(recruitability.basis?.athleticDelta ?? null, competitiveLevelPriority)
+    : { factor: 1, align: null, tau: null, priorityUsed: null, defaulted: false };
+  const value = gated * anchor.factor;
 
   return scoreable({
     value,
@@ -98,7 +115,19 @@ export function pursuitPriority({
       // What each gate actually cost, in priority points. The number an
       // operator asking "why is this one low" needs first.
       recruitabilityGateLoss: base - (base * gR),
-      financialGateLoss: (base * gR) - value,
+      financialGateLoss: (base * gR) - gated,
+      gatedValue: gated,
+      levelAnchor: {
+        applied: anchor.align !== null,
+        factor: anchor.factor,
+        alignment: anchor.align,
+        tau: anchor.tau,
+        athleticDelta: recruitability.basis?.athleticDelta ?? null,
+        competitiveLevelPriority: anchor.priorityUsed,
+        /** True when the athlete answered nothing and the scoring fallback ran. */
+        priorityDefaulted: anchor.defaulted,
+      },
+      levelAnchorLoss: gated - value,
       recruitabilityGateFired: gR < 1,
       financialGateFired: gF < 1,
       layerCoverage: {

@@ -146,9 +146,22 @@ describe('the things that must move it', () => {
   });
 
   it('the position changes the answer, because the normaliser and fill rate do', () => {
-    const gk = run({ position: 'GOALKEEPER' }).recruitability.median;
-    const mid = run({ position: 'MIDFIELD' }).recruitability.median;
-    expect(gk).not.toBe(mid);
+    /**
+     * On the MEAN rather than the reported median, which is rounded to four
+     * places. A7.18 gave every measured zero the same non-zero worth, so a
+     * pool with many of them has a wide plateau at exactly that value and two
+     * positions can land on it together - goalkeeper and midfield do here, at
+     * 0.4780861655 both. The distributions are not the same and the mean says
+     * so; the median was simply the one statistic that could collide.
+     */
+    const gk = run({ position: 'GOALKEEPER' });
+    const mid = run({ position: 'MIDFIELD' });
+    expect(gk.positionalOpportunity.mean).not.toBe(mid.positionalOpportunity.mean);
+    const meanR = (rep) => {
+      const v = rep.results.filter((r) => r.result.ok).map((r) => r.result.value);
+      return v.reduce((a, b) => a + b, 0) / v.length;
+    };
+    expect(meanR(gk)).not.toBe(meanR(mid));
   });
 });
 

@@ -47,7 +47,7 @@ function limitedDataOrder(entry) {
  * @param {Array} evaluated  [{ id, name, division, recruitability, financial, opportunity,
  *                              suppressed?, ineligible?, ineligibleReason? }]
  */
-export function rankPool(evaluated, { topN = TOP_N, weights, gates } = {}) {
+export function rankPool(evaluated, { topN = TOP_N, weights, gates, competitiveLevelPriority = null, levelAnchor = true } = {}) {
   const suppressed = [];
   const ineligible = [];
   const ranked = [];
@@ -67,6 +67,7 @@ export function rankPool(evaluated, { topN = TOP_N, weights, gates } = {}) {
     }
     const priority = pursuitPriority({
       recruitability: entry.recruitability, financial: entry.financial, opportunity: entry.opportunity, weights, gates,
+      competitiveLevelPriority, levelAnchor,
     });
     if (isScoreable(priority)) {
       ranked.push({ ...entry, rankingState: RANKING_STATE.RANKED, pursuitPriority: priority });

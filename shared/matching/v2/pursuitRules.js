@@ -97,3 +97,91 @@ export function smoothstep(t) {
 export function tailGate(value, { floor, threshold }) {
   return floor + ((1 - floor) * smoothstep(Math.max(0, value) / threshold));
 }
+
+/**
+ * -- A7.18: THE COMPETITIVE-LEVEL ANCHOR -----------------------------------
+ *
+ * Why this sits in Pursuit rather than in Opportunity, where a level
+ * preference already lives.
+ *
+ * A7.14 ran the same elite athlete twice, once saying competitive level was
+ * extremely important and once saying nothing in particular, and measured
+ * that Recruitability came out BIT-IDENTICAL: the preference moves only
+ * `athleticOutcome`, which is one component of Opportunity, which carries
+ * 0.30 of the base against Recruitability's 0.50. Its effective authority
+ * over the final priority is 0.123 at the strongest statement an athlete can
+ * make and 0.056 at the neutral one, against positional evidence's 0.244. The
+ * preference was not being ignored; it was being outvoted roughly two to one,
+ * and four to one for the athlete who states nothing.
+ *
+ * So the athlete's own level statement gets authority OUTSIDE the layer that
+ * cannot hear it. A7.16 measured the alternative - the same anchor placed
+ * inside Opportunity - and it failed: 79% of the balanced athlete's top
+ * hundred still sat more than fifteen strength points below them, because
+ * 0.30 of the base cannot outvote 0.50 however the 0.30 is spent.
+ *
+ * -- IT IS AN ANCHOR AND NOT A BAND ----------------------------------------
+ *
+ * tau never reaches 1, so `levelFactor` is strictly positive for every
+ * programme at every stated priority. NOTHING IS EXCLUDED FOR ITS LEVEL. A
+ * tight budget or a strong playing-time preference still lifts far-below
+ * programmes into the first hundred, which A7.16 measured: the financially
+ * constrained athlete keeps fourteen programmes more than thirty strength
+ * points below them, and the playing-first athlete keeps fifty-six.
+ */
+export const LEVEL_ANCHOR_SIGMA = 0.18;
+
+/**
+ * How much of the anchor each stated priority turns on.
+ *
+ * HEURISTIC, and deliberately linear. The athlete said 1 to 5; there is no
+ * evidence that would justify a curve between those points, and inventing one
+ * would claim a precision the five-point question does not have.
+ */
+export const LEVEL_ANCHOR_TAU = Object.freeze({ 1: 0.10, 2: 0.20, 3: 0.30, 4: 0.40, 5: 0.50 });
+
+/**
+ * What an athlete who has not answered gets.
+ *
+ * A7.12.1 established that NULL and 3 are different objects and must not be
+ * conflated in stored data or in explanation. This is a SCORING fallback and
+ * nothing else: the athlete record keeps its NULL, the basis records that the
+ * fallback was used, and the explanation may not describe an unanswered
+ * question as a moderate answer.
+ */
+export const LEVEL_ANCHOR_DEFAULT_PRIORITY = 3;
+
+/**
+ * Alignment between the athlete's estimated level and the programme's, as a
+ * Gaussian in the same percentile-space delta athletic plausibility uses.
+ *
+ * Symmetric, which is a DECLARED SIMPLIFICATION rather than a finding. A7.17
+ * established that being above the athlete and being below them are not the
+ * same situation, and that the reach side is an open question: for a rating-9
+ * athlete the entire above-level population spans four percentile points,
+ * because the axis compresses savagely at the top. An asymmetric variant was
+ * measured there and did not improve matters. The axis itself is the open
+ * problem and it is not this phase's to solve.
+ */
+export function levelAlignment(delta, { sigma = LEVEL_ANCHOR_SIGMA } = {}) {
+  if (delta === null || delta === undefined || !Number.isFinite(delta)) return null;
+  return Math.exp(-((delta / sigma) ** 2));
+}
+
+/**
+ * The multiplier itself. Returns 1 - a no-op - when there is no delta to
+ * anchor against, so a programme is never penalised for evidence we lack.
+ */
+export function levelFactor(delta, priority, opts = {}) {
+  const align = levelAlignment(delta, opts);
+  if (align === null) return { factor: 1, align: null, tau: null, priorityUsed: null, defaulted: false };
+  // `Number(null)` is 0 and 0 is finite, so the empty cases are excluded by
+  // name before the numeric check - an unanswered question must not become a
+  // priority of zero.
+  const stated = (priority === null || priority === undefined || priority === ''
+    || !Number.isFinite(Number(priority))) ? null : Number(priority);
+  const defaulted = stated === null;
+  const used = defaulted ? LEVEL_ANCHOR_DEFAULT_PRIORITY : stated;
+  const tau = (opts.tau ?? LEVEL_ANCHOR_TAU)[used] ?? LEVEL_ANCHOR_TAU[LEVEL_ANCHOR_DEFAULT_PRIORITY];
+  return { factor: 1 - (tau * (1 - align)), align, tau, priorityUsed: used, defaulted };
+}
