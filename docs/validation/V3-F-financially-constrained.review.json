@@ -1,0 +1,360 @@
+{
+  "formatVersion": "thriv3-v3-outreach-review/1",
+  "packId": "V3-F-financially-constrained",
+  "meta": {
+    "packId": "V3-F-financially-constrained",
+    "reviewer": "INDEPENDENT LLM EVALUATOR (ChatGPT), acting as a blind consultant. NOT the human consultant baseline.",
+    "reviewerKind": "LLM",
+    "humanBaseline": false,
+    "startedAt": null,
+    "completedAt": null,
+    "modelRevealed": false,
+    "viewADigest": "3640f7fb0989090a",
+    "athleteDigest": "e56c03e96194399f",
+    "poolDigest": "86b911af2515ab10",
+    "sampleDigest": "750fdd04c4817c88",
+    "athleteAnswers": {
+      "strongerProgrammes": "ABOUT RIGHT",
+      "tooManyBelow": "YES",
+      "changeFirst": "Financial constraint should substantially narrow the outreach list, but it should narrow it toward programmes combining realistic athletic level with plausible affordability at the athlete\u2019s stated $8,000 maximum, rather than toward any inexpensive programme. Concentrate first-wave outreach approximately around the 65-88 strength range where financial evidence is promising, retain a smaller number of affordable realistic reaches, and sharply reduce inexpensive programmes in the 35-55 strength range when their main advantages are cost and/or projected roster openings."
+    }
+  },
+  "rows": [
+    {
+      "reviewNo": 1,
+      "programmeName": "Cal State LA",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 2,
+      "programmeName": "Delta State",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 3,
+      "programmeName": "Case Western Reserve",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 4,
+      "programmeName": "West Virginia",
+      "classification": "BORDERLINE",
+      "first100": "UNSURE",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 5,
+      "programmeName": "Penn State",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 6,
+      "programmeName": "Mercy",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 7,
+      "programmeName": "Newman",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 8,
+      "programmeName": "Saint Louis",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 9,
+      "programmeName": "Grove City",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 10,
+      "programmeName": "William Carey University",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 11,
+      "programmeName": "UC San Diego",
+      "classification": "BORDERLINE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 12,
+      "programmeName": "Whitworth",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 13,
+      "programmeName": "Hawaii Pacific",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 14,
+      "programmeName": "Colorado School of Mines",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 15,
+      "programmeName": "Eastern Connecticut",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 16,
+      "programmeName": "Cal State East Bay",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 17,
+      "programmeName": "Piedmont Virginia",
+      "classification": "INSUFFICIENT_INFORMATION",
+      "first100": "UNSURE",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 18,
+      "programmeName": "Shepherd",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 19,
+      "programmeName": "UCLA",
+      "classification": "BORDERLINE",
+      "first100": "UNSURE",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 20,
+      "programmeName": "Cal State San Bernardino",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 21,
+      "programmeName": "Bob Jones",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 22,
+      "programmeName": "CSUN",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 23,
+      "programmeName": "Cal State Fullerton",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 24,
+      "programmeName": "Hiram",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 25,
+      "programmeName": "King's (PA)",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 26,
+      "programmeName": "UTRGV",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 27,
+      "programmeName": "Gordon",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 28,
+      "programmeName": "Cal State Bakersfield",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 29,
+      "programmeName": "Loyola Marymount",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 30,
+      "programmeName": "Oakland",
+      "classification": "BORDERLINE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 31,
+      "programmeName": "Rutgers",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 32,
+      "programmeName": "Virginia",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 33,
+      "programmeName": "Princeton",
+      "classification": "PURSUE_STRONGLY",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 34,
+      "programmeName": "North Carolina",
+      "classification": "BORDERLINE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 35,
+      "programmeName": "Lincoln Trail",
+      "classification": "INSUFFICIENT_INFORMATION",
+      "first100": "UNSURE",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 36,
+      "programmeName": "Cal State Stanislaus",
+      "classification": "PURSUE",
+      "first100": "YES",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 37,
+      "programmeName": "Grace Christian",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 38,
+      "programmeName": "Berea",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 39,
+      "programmeName": "Southeastern University",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 40,
+      "programmeName": "Seton Hall",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 41,
+      "programmeName": "Ripon",
+      "classification": "WOULD_NOT_PURSUE",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    },
+    {
+      "reviewNo": 42,
+      "programmeName": "Cal State San Marcos",
+      "classification": "LOW_PRIORITY",
+      "first100": "NO",
+      "notes": "",
+      "reviewedAt": null
+    }
+  ]
+}
