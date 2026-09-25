@@ -156,6 +156,12 @@ const MAY_IMPORT_V2 = [
    * database evidence and never reach a ranking.
    */
   'server/scripts/a726AcademicDiagnostic.js',
+  /**
+   * A7.27. The academic profile ladder: 56 runs that prove rank invariance
+   * under every athlete academic credential, and measure the exposure that
+   * invariance produces. Read-only; it proposes no formula.
+   */
+  'server/scripts/a727AcademicLadder.js',
 ];
 
 const SEARCH_ROOTS = ['shared', 'server', 'src', 'worker'];

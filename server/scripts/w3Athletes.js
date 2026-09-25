@@ -12,7 +12,10 @@
  *
  * NO WOMEN'S-SPECIFIC RECRUITING ASSUMPTION IS ENCODED HERE. The differences
  * that matter are already in the data and the calibration and are reported
- * rather than modelled: 1235 programmes against 1169, no junior colleges at
+ * rather than modelled: 1235 programmes against 1169 (A7.26/A7.27: the
+ * women's pool is now 1240 after five verified Phase-3D additions, which
+ * carry no sport-specific metrics and rank in neither V2 list; the figure
+ * below is left as it was measured at A7.19), no junior colleges at
  * all, 95% roster coverage against 75%, 9.6% international arrivals against
  * 28.8%, and a per-sport ability scale in which a rating 9 means 82.7 rather
  * than 83.58 because there are 349 women's Division I programmes and 213
