@@ -364,14 +364,28 @@ d('roster_freshness mirrors what production reads', () => {
     } finally { fs.rmSync(tmp, { force: true }); }
   };
 
-  const base = probe('');
+  /**
+   * LAZY, and that is the whole fix.
+   *
+   * `describe.skip` marks the TESTS skipped; it still runs the describe
+   * callback. So `const base = probe('')` at this position executed even when
+   * the pinned dataset was absent, and `fs.copyFileSync` threw ENOENT at
+   * collection time - which made the file report "no tests" rather than
+   * "skipped", the one outcome the header above says is worse than red.
+   *
+   * Memoised so the subprocess still runs exactly once for the whole block.
+   */
+  let baseMemo = null;
+  const baseline = () => (baseMemo ??= probe(''));
 
   it('fingerprints one row per programme-sport in the current season', () => {
+    const base = baseline();
     expect(base.rows).toBeGreaterThan(1000);
     expect(base.digest).toMatch(/^[0-9a-f]{64}$/);
   });
 
   it('MOVES when the newest current-season timestamp moves', () => {
+    const base = baseline();
     const moved = probe(`db.prepare("UPDATE roster_players SET updated_date = '2099-01-01T00:00:00.000Z'"
       + " WHERE rowid = (SELECT rowid FROM roster_players WHERE season = '2026' LIMIT 1)").run();`);
     expect(moved.digest).not.toBe(base.digest);
@@ -379,6 +393,7 @@ d('roster_freshness mirrors what production reads', () => {
   });
 
   it('does NOT move when a season production never reads moves', () => {
+    const base = baseline();
     // 2023 is history. `squadRows` filters to SQUAD_SEASON, so no email can
     // see this row's timestamp and no digest should pretend otherwise.
     const still = probe(`db.prepare("UPDATE roster_players SET updated_date = '2099-01-01T00:00:00.000Z'"
