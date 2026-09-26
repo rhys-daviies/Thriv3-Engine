@@ -1,0 +1,20 @@
+{
+  "purpose": "Part L — permanent coach-currency refresh architecture (design only; not built). Programme-page-keyed, not coach-search-keyed.",
+  "keying": "One current official staff-page fetch resolves every coach at that (institution,sport). Measured efficiency across Phases 4A-4D: ~5-8 coaches per page. Refresh iterates programmes, not coaches.",
+  "cadence": {
+    "pre_season": "Full re-verify of all outreach-eligible programmes Jul-Sep (2026-27 staff finalize); this is the authoritative annual pass.",
+    "mid_season": "Oct-Nov spot pass over programmes whose evidence is >season-old or that changed.",
+    "spring": "Jan-Feb lighter pass for spring hires/departures.",
+    "ineligible": "annual, off-peak."
+  },
+  "evidence_expiry": "currentness_checked_at older than one competitive season (=1 year) marks the CHECK stale (needs re-verification) — distinct from the COACH being PROVEN_STALE. Eligibility is unaffected by a stale check; it lowers confidence and reprioritizes the programme for the next pass.",
+  "page_unavailable": "currentness stays at its prior value (or UNKNOWN); never set PROVEN_STALE from an unreachable page. Retry with backoff; try secondary authoritative source (institution directory, conference). Record reason SITE_BLOCKED.",
+  "person_absent": "Absent from a reachable current page => provisional; require a SECOND authoritative source (or a named replacement in the role) before PROVEN_STALE. Single-source unexplained absence => UNKNOWN (PERSON_ABSENT_BUT_NOT_PROVEN_DEPARTED).",
+  "second_source_before_proven_stale": "Required whenever the only signal is absence. A named replacement in the same role on the official page counts as corroboration.",
+  "moved_coaches": "Set currentness PROVEN_STALE at the old programme + record destination in currentness_reason; retain the historical row. A new row at the new institution is a separate acquisition, not a mutation of the old.",
+  "email_observation": "On each pass, if the exact stored address is on the current page, set email_seen_on_source_at/_url (Part G). If a different address is published, queue a DIFFERENT_CURRENT_EMAIL correction. Never touch email_confirmed_at (deliverability only).",
+  "historical_retention": "Never delete a departed coach's identity or evidence; PROVEN_STALE + evidence preserves history. Only true duplicates are removed.",
+  "coach_seasons_relationship": "coach_seasons (yearly roster scrape) may CORROBORATE currency positively; its ABSENCE is never sole negative evidence (assistants routinely unscraped). It can prioritize which programmes to re-fetch.",
+  "outreach_eligibility_relationship": "PROVEN_STALE fails eligibility CLOSED (already implemented). CURRENT is highest confidence. UNKNOWN remains eligible (fail-open) but flagged lower-confidence and surfaced for verification before a campaign.",
+  "unknown_behaviour": "UNKNOWN is a legitimate steady state (esp. SITE_BLOCKED, IDENTITY_AMBIGUOUS). It is never auto-promoted to CURRENT or auto-demoted to STALE; it is re-attempted each pass and via secondary sources."
+}

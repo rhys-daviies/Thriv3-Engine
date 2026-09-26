@@ -749,6 +749,26 @@ const COACH_COLUMNS = [
   ['currentness_checked_at', 'TEXT'],           // ISO timestamp of the currentness check
   ['currentness_source_url', 'TEXT'],           // authoritative page the check used
   ['currentness_reason', 'TEXT'],               // short reason/evidence note
+  /**
+   * Email OBSERVATION provenance (Phase 4F) — records that the EXACT stored
+   * address was seen published on a current authoritative source, and where.
+   * This is a page-observation axis, DISTINCT from `email_confirmed_at`, which
+   * stays reserved for proven deliverability (a non-bounce / a reply). Being
+   * seen on a staff page is not proof the mailbox accepts mail, so the two must
+   * never be conflated.
+   *
+   *   email_seen_on_source_at:  NULL = the stored address has never been observed
+   *     on a current source. A timestamp = the date the EXACT stored string was
+   *     seen published on `email_seen_on_source_url`.
+   *   email_seen_on_source_url: the authoritative page the exact address was on.
+   *
+   * Populated ONLY on an exact string match to the published address, from a
+   * current staff/team/directory/roster page — never a different-current-email,
+   * consumer/generic-shared, inferred, unpublished, historical, or inaccessible
+   * case. Carries no eligibility weight on its own.
+   */
+  ['email_seen_on_source_at', 'TEXT'],          // ISO date the exact stored address was seen on a current source
+  ['email_seen_on_source_url', 'TEXT'],         // authoritative page the exact address was observed on
 ];
 
 /**
