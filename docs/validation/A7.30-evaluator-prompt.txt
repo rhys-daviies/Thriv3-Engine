@@ -1,0 +1,337 @@
+You are an experienced US college soccer recruiting adviser. You advise families on which
+college programmes are realistic targets.
+
+Below are 15 independent cards. Each pairs one athlete with one college programme. The cards are
+unrelated to each other — judge each on its own.
+
+For EACH card, answer this question:
+
+  "Based on the available academic and recruiting evidence, what action should Thriv3 take before
+   treating this programme as a straightforward recruitment option for this athlete?"
+
+Choose exactly one of these four answers:
+
+  NORMAL
+    No special academic verification appears necessary before normal recruitment pursuit.
+
+  VERIFY_EARLY
+    The programme can be pursued normally, but academic viability should be confirmed with the
+    coach relatively early.
+
+  PRE_READ_BEFORE_RELIANCE
+    The programme may still be pursued, but it should not be treated as a dependable recruitment
+    option until academic viability / coach-supported admissions has been checked.
+
+  INSUFFICIENT_EVIDENCE
+    The available evidence is inadequate to support one of the above judgements.
+
+IMPORTANT CONSTRAINTS ON YOUR ANSWER
+- Do NOT estimate or state any probability of admission. You are choosing an action, not predicting
+  an outcome.
+- No programme is being removed from anything. All four answers keep the programme in play.
+- Base your reasoning ONLY on the evidence printed on the card plus your own general knowledge of
+  how US college admissions and athletic recruiting work.
+- Recruited athletes are assessed through a different process from general applicants. How much
+  latitude that provides differs by institution and is NOT stated on any card.
+- An acceptance rate is a fact about an institution's applicant pool, not a decision about this
+  athlete.
+- Give a concise rationale for each card (one to three sentences).
+
+DO NOT use any tools. DO NOT read, search, list or open any file, repository or codebase. Answer
+entirely from this prompt. If you feel tempted to look something up in a project directory, do not:
+everything you need is printed below, and reading project files would invalidate this exercise.
+
+### Card U-01
+
+ATHLETE
+- Sport: women's college soccer, position Midfielder
+- Operator-assessed playing ability: 9 out of 10
+- GPA 3.5 (4.0 scale) · SAT 1250 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: not stated
+- Maximum family contribution: $40,000 per year
+
+PROGRAMME
+- Northwestern — NCAA D1
+- Published average SAT of enrolled students: 1533
+- Published acceptance rate: 8%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 9.6
+- Net price: $29,167 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 1 points above
+
+### Card U-02
+
+ATHLETE
+- Sport: women's college soccer, position Midfielder
+- Operator-assessed playing ability: 9 out of 10
+- GPA 3.5 (4.0 scale) · SAT 1250 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: not stated
+- Maximum family contribution: $40,000 per year
+
+PROGRAMME
+- Dartmouth — NCAA D1
+- Published average SAT of enrolled students: 1534
+- Published acceptance rate: 5%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 9.6
+- Net price: $29,519 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 7 points below
+
+### Card U-03
+
+ATHLETE
+- Sport: men's college soccer, position Midfielder
+- Operator-assessed playing ability: 9 out of 10
+- GPA 3.5 (4.0 scale) · SAT 1250 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: not stated
+- Maximum family contribution: $40,000 per year
+
+PROGRAMME
+- Cornell — NCAA D1
+- Published average SAT of enrolled students: 1535
+- Published acceptance rate: 9%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 9.6
+- Net price: $28,690 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 4 points above
+
+### Card U-04
+
+ATHLETE
+- Sport: women's college soccer, position Defender
+- Operator-assessed playing ability: 6 out of 10
+- GPA 3.2 (4.0 scale) · SAT 1100 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: Engineering
+- Maximum family contribution: $13,000 per year
+
+PROGRAMME
+- Pomona College — NCAA D3
+- Published average SAT of enrolled students: 1534
+- Published acceptance rate: 7%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 9.7
+- Offers the athlete's intended major: no
+- Net price: $19,285 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 5 points below
+
+### Card U-05
+
+ATHLETE
+- Sport: men's college soccer, position Defender
+- Operator-assessed playing ability: 6 out of 10
+- GPA 3.5 (4.0 scale) · SAT 1250 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: Engineering
+- Maximum family contribution: $13,000 per year
+
+PROGRAMME
+- Emory — NCAA D3
+- Published average SAT of enrolled students: 1520
+- Published acceptance rate: 11%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 9.4
+- Offers the athlete's intended major: no
+- Net price: $22,585 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 2 points below
+
+### Card U-06
+
+ATHLETE
+- Sport: women's college soccer, position Defender
+- Operator-assessed playing ability: 6 out of 10
+- GPA 2.8 (4.0 scale) · SAT 950 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: Engineering
+- Maximum family contribution: $13,000 per year
+
+PROGRAMME
+- Berea College — NCAA D3
+- Published average SAT of enrolled students: 1249
+- Published acceptance rate: 19%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 7.2
+- Offers the athlete's intended major: yes
+- Net price: $6,106 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 26 points below
+
+### Card U-07
+
+ATHLETE
+- Sport: men's college soccer, position Midfielder
+- Operator-assessed playing ability: 9 out of 10
+- GPA 3.2 (4.0 scale) · SAT 1100 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: not stated
+- Maximum family contribution: $40,000 per year
+
+PROGRAMME
+- Colgate — NCAA D1
+- Published average SAT of enrolled students: 1508
+- Published acceptance rate: 14%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 9.4
+- Net price: $28,786 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 11 points below
+
+### Card U-08
+
+ATHLETE
+- Sport: women's college soccer, position Midfielder
+- Operator-assessed playing ability: 3 out of 10
+- GPA 3.2 (4.0 scale) · SAT 1100 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: not stated
+- Maximum family contribution: $40,000 per year
+
+PROGRAMME
+- Bryn Mawr College — NCAA D3
+- Published average SAT of enrolled students: 1396
+- Published acceptance rate: 29%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 8.9
+- Net price: $31,759 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 7 points below
+
+### Card U-09
+
+ATHLETE
+- Sport: men's college soccer, position Midfielder
+- Operator-assessed playing ability: 3 out of 10
+- GPA 3.2 (4.0 scale) · SAT 1100 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: not stated
+- Maximum family contribution: $40,000 per year
+
+PROGRAMME
+- Trinity (CT) — NCAA D3
+- Published average SAT of enrolled students: 1415
+- Published acceptance rate: 29%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 9
+- Net price: $34,832 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 2 points below
+
+### Card U-10
+
+ATHLETE
+- Sport: men's college soccer, position Midfielder
+- Operator-assessed playing ability: 9 out of 10
+- GPA 2.8 (4.0 scale) · SAT 950 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: not stated
+- Maximum family contribution: $40,000 per year
+
+PROGRAMME
+- Bucknell — NCAA D1
+- Published average SAT of enrolled students: 1410
+- Published acceptance rate: 29%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 9.1
+- Net price: $40,766 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 12 points below
+
+### Card U-11
+
+ATHLETE
+- Sport: men's college soccer, position Midfielder
+- Operator-assessed playing ability: 9 out of 10
+- GPA 2.8 (4.0 scale) · SAT 950 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: not stated
+- Maximum family contribution: $40,000 per year
+
+PROGRAMME
+- UCF — NCAA D1
+- Published average SAT of enrolled students: 1269
+- Published acceptance rate: 40%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 6.4
+- Net price: $10,411 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 5 points below
+
+### Card U-12
+
+ATHLETE
+- Sport: women's college soccer, position Defender
+- Operator-assessed playing ability: 6 out of 10
+- GPA 2.2 (4.0 scale) · SAT 800 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: Engineering
+- Maximum family contribution: $13,000 per year
+
+PROGRAMME
+- United States Merchant Marine Academy — NCAA D3
+- Published average SAT of enrolled students: 1207
+- Published acceptance rate: 34%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 7
+- Offers the athlete's intended major: yes
+- Net price: $6,174 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 13 points below
+
+### Card U-13
+
+ATHLETE
+- Sport: men's college soccer, position Forward
+- Operator-assessed playing ability: 7 out of 10
+- GPA 4 (4.0 scale) · SAT 1500 (1600 scale) · ACT not on file
+- International athlete
+- Intended major: not stated
+- Maximum family contribution: $18,000 per year
+
+PROGRAMME
+- Carroll (MT) — NAIA
+- Published average SAT of enrolled students: 1200
+- Published acceptance rate: 71%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 6
+- Net price: $23,960 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 5 points below
+
+### Card U-14
+
+ATHLETE
+- Sport: women's college soccer, position Midfielder
+- Operator-assessed playing ability: 9 out of 10
+- GPA 1 (4.0 scale) · SAT 400 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: not stated
+- Maximum family contribution: $40,000 per year
+
+PROGRAMME
+- Old Dominion — NCAA D1
+- Published average SAT of enrolled students: 1197
+- Published acceptance rate: 90%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 5.2
+- Net price: $14,638 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 5 points below
+
+### Card U-15
+
+ATHLETE
+- Sport: men's college soccer, position Midfielder
+- Operator-assessed playing ability: 9 out of 10
+- GPA 4 (4.0 scale) · SAT 1500 (1600 scale) · ACT not on file
+- Domestic (US) athlete
+- Intended major: not stated
+- Maximum family contribution: $40,000 per year
+
+PROGRAMME
+- Harvard — NCAA D1
+- Published average SAT of enrolled students: 1553
+- Published acceptance rate: 4%
+- Test policy (required / optional / blind): NOT ON FILE
+- Institutional academic rating, a Thriv3-internal 0-10 context figure: 9.7
+- Net price: $19,066 per year
+- Athletic level of this programme relative to the athlete's own assessed level: 11 points below
+
+
+OUTPUT FORMAT — return ONLY a JSON object, no prose before or after:
+
+{"answers":[{"code":"U-01","action":"<one of NORMAL|VERIFY_EARLY|PRE_READ_BEFORE_RELIANCE|INSUFFICIENT_EVIDENCE>","rationale":"..."}, ... all 15 ...],
+ "notes":{"whatDroveTheHardCalls":"...","didYouUseGPA":"...","verifyVsPreReadDistinction":"..."}}
