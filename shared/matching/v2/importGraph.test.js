@@ -206,6 +206,13 @@ const MAY_IMPORT_V2 = [
    * does not recognise is refused rather than written.
    */
   'server/scripts/applyClassYearReacquisition.js',
+  /**
+   * A7.41. The position-readability audit. Read-only, writes one JSON file,
+   * mutates nothing. It calls `returningCompetition` to count how many cells
+   * score a confident zero while their programme carries players whose
+   * position could not be read - a measurement, not a scoring path.
+   */
+  'server/scripts/a741PositionAudit.js',
 ];
 
 const SEARCH_ROOTS = ['shared', 'server', 'src', 'worker'];
