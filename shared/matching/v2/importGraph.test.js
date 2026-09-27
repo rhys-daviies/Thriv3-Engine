@@ -213,6 +213,12 @@ const MAY_IMPORT_V2 = [
    * position could not be read - a measurement, not a scoring path.
    */
   'server/scripts/a741PositionAudit.js',
+  /**
+   * A7.42. The contamination applier. It reaches V2 for nothing at all - it is
+   * listed because it sits in the same scanned tree - and deletes only the row
+   * ids its fixture authorises.
+   */
+  'server/scripts/applyContaminationRemoval.js',
 ];
 
 const SEARCH_ROOTS = ['shared', 'server', 'src', 'worker'];

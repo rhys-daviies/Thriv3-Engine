@@ -1,0 +1,173 @@
+[
+ {
+  "kind": "TARGET",
+  "label": "Grand Canyon W",
+  "url": "https://gculopes.com/sports/womens-soccer/roster/season/2026",
+  "fetch": 200,
+  "signals": {
+   "title": "Ashley Fairbanks - Cross Country - Grand Canyon University Athletics",
+   "canonical": "https://gculopes.com/sports/mens-cross-country/roster/season/2026",
+   "displayTitle": "2026 Cross Country Roster",
+   "payloadSeason": null
+  },
+  "sportVerdict": "CONTRADICTS",
+  "seasonVerdict": "AGREES",
+  "yearsSeen": [
+   "2026"
+  ],
+  "mode": "nuxt",
+  "players": 48
+ },
+ {
+  "kind": "TARGET",
+  "label": "Kansas State W",
+  "url": "https://www.kstatesports.com/sports/womens-soccer/roster/season/2026",
+  "fetch": 200,
+  "signals": {
+   "title": "Brady Grunder - Men&#x27;s Track &amp; Field - Kansas State University Athletics",
+   "canonical": "https://www.kstatesports.com/sports/mens-track-and-field/roster/season/1536",
+   "displayTitle": "2016 Men's Track & Field",
+   "payloadSeason": null
+  },
+  "sportVerdict": "CONTRADICTS",
+  "seasonVerdict": "CONTRADICTS",
+  "yearsSeen": [
+   "2016"
+  ],
+  "mode": "nuxt",
+  "players": 35
+ },
+ {
+  "kind": "CONTROL",
+  "label": "Clemson M",
+  "url": "https://clemsontigers.com/sports/mens-soccer/roster/season/2026",
+  "fetch": 200,
+  "signals": {
+   "title": "Men&#x27;s Soccer 2026-27 - Clemson University Athletics",
+   "canonical": null,
+   "displayTitle": null,
+   "payloadSeason": null
+  },
+  "sportVerdict": "AGREES",
+  "seasonVerdict": "AGREES",
+  "yearsSeen": [
+   "2026"
+  ],
+  "mode": "roster-card",
+  "players": 35
+ },
+ {
+  "kind": "CONTROL",
+  "label": "Northwestern M",
+  "url": "https://nusports.com/sports/mens-soccer/roster/season/2026",
+  "fetch": 200,
+  "signals": {
+   "title": "2026 Men&#x27;s Soccer Roster - Northwestern Wildcats - Official Athletics Website",
+   "canonical": null,
+   "displayTitle": null,
+   "payloadSeason": null
+  },
+  "sportVerdict": "AGREES",
+  "seasonVerdict": "AGREES",
+  "yearsSeen": [
+   "2026"
+  ],
+  "mode": "none",
+  "players": 0
+ },
+ {
+  "kind": "CONTROL",
+  "label": "George Mason W",
+  "url": "https://gomason.com/sports/womens-soccer/roster/2026",
+  "fetch": 200,
+  "signals": {
+   "title": "2026 Women's Soccer Roster - George Mason University Athletics",
+   "canonical": "https://gomason.com/sports/womens-soccer/roster/2026",
+   "displayTitle": null,
+   "payloadSeason": null
+  },
+  "sportVerdict": "AGREES",
+  "seasonVerdict": "AGREES",
+  "yearsSeen": [
+   "2026"
+  ],
+  "mode": "none",
+  "players": 0
+ },
+ {
+  "kind": "CONTROL",
+  "label": "Utah State W",
+  "url": "https://utahstateaggies.com/sports/womens-soccer/roster/2026",
+  "fetch": 200,
+  "signals": {
+   "title": "2026 Women's Soccer Roster - Utah State University Athletics",
+   "canonical": "https://utahstateaggies.com/sports/womens-soccer/roster/2026",
+   "displayTitle": null,
+   "payloadSeason": null
+  },
+  "sportVerdict": "AGREES",
+  "seasonVerdict": "AGREES",
+  "yearsSeen": [
+   "2026"
+  ],
+  "mode": "none",
+  "players": 0
+ },
+ {
+  "kind": "CONTROL",
+  "label": "Wright State M",
+  "url": "https://wsuraiders.com/sports/mens-soccer/roster/2026",
+  "fetch": 200,
+  "signals": {
+   "title": "2026 Men&#x27;s Soccer Roster - Wright State University Athletics",
+   "canonical": "https://wsuraiders.com/sports/mens-soccer/roster/2026",
+   "displayTitle": "2026 Men's Soccer Roster",
+   "payloadSeason": null
+  },
+  "sportVerdict": "AGREES",
+  "seasonVerdict": "AGREES",
+  "yearsSeen": [
+   "2026"
+  ],
+  "mode": "nuxt",
+  "players": 30
+ },
+ {
+  "kind": "ALT-SOURCE",
+  "label": "Grand Canyon W alt",
+  "url": "https://gculopes.com/sports/womens-soccer/roster",
+  "fetch": 200,
+  "signals": {
+   "title": "2026 Women&#x27;s Soccer Roster - Grand Canyon University Athletics",
+   "canonical": "https://gculopes.com/sports/womens-soccer/roster",
+   "displayTitle": "2026 Women's Soccer Roster",
+   "payloadSeason": null
+  },
+  "sportVerdict": "AGREES",
+  "seasonVerdict": "AGREES",
+  "yearsSeen": [
+   "2026"
+  ],
+  "mode": "nuxt",
+  "players": 32
+ },
+ {
+  "kind": "ALT-SOURCE",
+  "label": "Kansas State W alt",
+  "url": "https://www.kstatesports.com/sports/womens-soccer/roster",
+  "fetch": 200,
+  "signals": {
+   "title": "Soccer Roster - Kansas State University Athletics",
+   "canonical": "https://www.kstatesports.com/sports/womens-soccer/roster",
+   "displayTitle": "2026 Soccer Roster",
+   "payloadSeason": null
+  },
+  "sportVerdict": "AGREES",
+  "seasonVerdict": "AGREES",
+  "yearsSeen": [
+   "2026"
+  ],
+  "mode": "nuxt",
+  "players": 34
+ }
+]
