@@ -184,6 +184,16 @@ const MAY_IMPORT_V2 = [
    */
   'server/scripts/a736PathwayUniverse.js',
   'server/scripts/a736PathwayCases.js',
+  /**
+   * A7.38. The single-component fallback tournament, as a shadow.
+   *
+   * It runs the FROZEN A7.37 components once over every programme-position
+   * cell at four entry years and then applies five combination rules to the
+   * same evidence, so any difference between candidates is the rule and
+   * nothing else. It mutates no constant, is imported by nothing, and the
+   * tournament returned NO WINNER - so none of its rules reached production.
+   */
+  'server/scripts/a738Tournament.js',
 ];
 
 const SEARCH_ROOTS = ['shared', 'server', 'src', 'worker'];

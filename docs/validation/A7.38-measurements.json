@@ -1,0 +1,756 @@
+{
+ "preregistration": "04f4a1e",
+ "candidates": [
+  "A",
+  "B",
+  "C1",
+  "C2",
+  "D"
+ ],
+ "bAnchor": 0.5,
+ "verdict": "NO WINNER",
+ "note": "Shadow tournament. Frozen A7.37 components run once per (sport, entry year); five combination rules applied to identical evidence. Nothing reached production.",
+ "completeness": {
+  "A": {
+   "mens-soccer": {
+    "strata": 26,
+    "wins": 4,
+    "losses": 22,
+    "ties": 0,
+    "winRate": 15.4,
+    "medianDelta": -0.0957
+   },
+   "womens-soccer": {
+    "strata": 28,
+    "wins": 4,
+    "losses": 24,
+    "ties": 0,
+    "winRate": 14.3,
+    "medianDelta": -0.0838
+   }
+  },
+  "B": {
+   "mens-soccer": {
+    "strata": 26,
+    "wins": 5,
+    "losses": 21,
+    "ties": 0,
+    "winRate": 19.2,
+    "medianDelta": -0.0632
+   },
+   "womens-soccer": {
+    "strata": 28,
+    "wins": 4,
+    "losses": 24,
+    "ties": 0,
+    "winRate": 14.3,
+    "medianDelta": -0.066
+   }
+  },
+  "C1": {
+   "mens-soccer": {
+    "strata": 26,
+    "wins": 11,
+    "losses": 14,
+    "ties": 1,
+    "winRate": 44.0,
+    "medianDelta": -0.0032
+   },
+   "womens-soccer": {
+    "strata": 28,
+    "wins": 13,
+    "losses": 14,
+    "ties": 1,
+    "winRate": 48.1,
+    "medianDelta": -0.006
+   }
+  },
+  "C2": {
+   "mens-soccer": {
+    "strata": 26,
+    "wins": 17,
+    "losses": 9,
+    "ties": 0,
+    "winRate": 65.4,
+    "medianDelta": 0.0101
+   },
+   "womens-soccer": {
+    "strata": 28,
+    "wins": 13,
+    "losses": 14,
+    "ties": 1,
+    "winRate": 48.1,
+    "medianDelta": -0.0028
+   }
+  },
+  "D": {
+   "mens-soccer": {
+    "strata": 1,
+    "wins": 1,
+    "losses": 0,
+    "ties": 0,
+    "winRate": 100.0,
+    "medianDelta": 0.15
+   },
+   "womens-soccer": {
+    "strata": 0,
+    "wins": 0,
+    "losses": 0,
+    "ties": 0,
+    "winRate": null,
+    "medianDelta": null
+   }
+  }
+ },
+ "horizon": {
+  "A": {
+   "mens-soccer": {
+    "2027": {
+     "scoreablePct": 75.9,
+     "bothPct": 97.5,
+     "rotationOnlyPct": 2.5,
+     "atMaxCompetitionPct": 1.5,
+     "p10": 0.3093,
+     "p50": 0.4869,
+     "p90": 0.6511,
+     "interdecileRange": 0.3417
+    },
+    "2028": {
+     "scoreablePct": 75.9,
+     "bothPct": 97.4,
+     "rotationOnlyPct": 2.6,
+     "atMaxCompetitionPct": 9.7,
+     "p10": 0.3694,
+     "p50": 0.5673,
+     "p90": 0.7645,
+     "interdecileRange": 0.3951
+    },
+    "2029": {
+     "scoreablePct": 75.9,
+     "bothPct": 45.9,
+     "rotationOnlyPct": 54.1,
+     "atMaxCompetitionPct": 7.3,
+     "p10": 0.3598,
+     "p50": 0.5376,
+     "p90": 0.8059,
+     "interdecileRange": 0.4461
+    },
+    "2030": {
+     "scoreablePct": 75.9,
+     "bothPct": 0.0,
+     "rotationOnlyPct": 100.0,
+     "atMaxCompetitionPct": 0.0,
+     "p10": 0.1879,
+     "p50": 0.4374,
+     "p90": 0.7905,
+     "interdecileRange": 0.6026
+    }
+   },
+   "womens-soccer": {
+    "2027": {
+     "scoreablePct": 95.1,
+     "bothPct": 97.6,
+     "rotationOnlyPct": 2.4,
+     "atMaxCompetitionPct": 2.9,
+     "p10": 0.3116,
+     "p50": 0.4889,
+     "p90": 0.6822,
+     "interdecileRange": 0.3706
+    },
+    "2028": {
+     "scoreablePct": 95.1,
+     "bothPct": 97.6,
+     "rotationOnlyPct": 2.4,
+     "atMaxCompetitionPct": 10.9,
+     "p10": 0.3745,
+     "p50": 0.5692,
+     "p90": 0.789,
+     "interdecileRange": 0.4146
+    },
+    "2029": {
+     "scoreablePct": 95.1,
+     "bothPct": 50.3,
+     "rotationOnlyPct": 49.7,
+     "atMaxCompetitionPct": 8.2,
+     "p10": 0.3914,
+     "p50": 0.5903,
+     "p90": 0.7953,
+     "interdecileRange": 0.4039
+    },
+    "2030": {
+     "scoreablePct": 95.1,
+     "bothPct": 0.0,
+     "rotationOnlyPct": 100.0,
+     "atMaxCompetitionPct": 0.0,
+     "p10": 0.1703,
+     "p50": 0.5145,
+     "p90": 0.7653,
+     "interdecileRange": 0.595
+    }
+   }
+  },
+  "B": {
+   "mens-soccer": {
+    "2027": {
+     "scoreablePct": 75.9,
+     "bothPct": 97.5,
+     "rotationOnlyPct": 2.5,
+     "atMaxCompetitionPct": 1.5,
+     "p10": 0.3134,
+     "p50": 0.4869,
+     "p90": 0.6488,
+     "interdecileRange": 0.3354
+    },
+    "2028": {
+     "scoreablePct": 75.9,
+     "bothPct": 97.4,
+     "rotationOnlyPct": 2.6,
+     "atMaxCompetitionPct": 9.7,
+     "p10": 0.3749,
+     "p50": 0.5673,
+     "p90": 0.7617,
+     "interdecileRange": 0.3867
+    },
+    "2029": {
+     "scoreablePct": 75.9,
+     "bothPct": 45.9,
+     "rotationOnlyPct": 54.1,
+     "atMaxCompetitionPct": 7.3,
+     "p10": 0.4082,
+     "p50": 0.5211,
+     "p90": 0.7487,
+     "interdecileRange": 0.3405
+    },
+    "2030": {
+     "scoreablePct": 75.9,
+     "bothPct": 0.0,
+     "rotationOnlyPct": 100.0,
+     "atMaxCompetitionPct": 0.0,
+     "p10": 0.3752,
+     "p50": 0.4749,
+     "p90": 0.6162,
+     "interdecileRange": 0.241
+    }
+   },
+   "womens-soccer": {
+    "2027": {
+     "scoreablePct": 95.1,
+     "bothPct": 97.6,
+     "rotationOnlyPct": 2.4,
+     "atMaxCompetitionPct": 2.9,
+     "p10": 0.3139,
+     "p50": 0.4892,
+     "p90": 0.6792,
+     "interdecileRange": 0.3653
+    },
+    "2028": {
+     "scoreablePct": 95.1,
+     "bothPct": 97.6,
+     "rotationOnlyPct": 2.4,
+     "atMaxCompetitionPct": 10.9,
+     "p10": 0.3769,
+     "p50": 0.5684,
+     "p90": 0.7832,
+     "interdecileRange": 0.4064
+    },
+    "2029": {
+     "scoreablePct": 95.1,
+     "bothPct": 50.3,
+     "rotationOnlyPct": 49.7,
+     "atMaxCompetitionPct": 8.2,
+     "p10": 0.4255,
+     "p50": 0.5382,
+     "p90": 0.7204,
+     "interdecileRange": 0.2949
+    },
+    "2030": {
+     "scoreablePct": 95.1,
+     "bothPct": 0.0,
+     "rotationOnlyPct": 100.0,
+     "atMaxCompetitionPct": 0.0,
+     "p10": 0.3681,
+     "p50": 0.5058,
+     "p90": 0.6061,
+     "interdecileRange": 0.238
+    }
+   }
+  },
+  "C1": {
+   "mens-soccer": {
+    "2027": {
+     "scoreablePct": 75.9,
+     "bothPct": 97.5,
+     "rotationOnlyPct": 2.5,
+     "atMaxCompetitionPct": 1.5,
+     "p10": 0.3134,
+     "p50": 0.4869,
+     "p90": 0.6479,
+     "interdecileRange": 0.3345
+    },
+    "2028": {
+     "scoreablePct": 75.9,
+     "bothPct": 97.4,
+     "rotationOnlyPct": 2.6,
+     "atMaxCompetitionPct": 9.7,
+     "p10": 0.3765,
+     "p50": 0.5679,
+     "p90": 0.7617,
+     "interdecileRange": 0.3852
+    },
+    "2029": {
+     "scoreablePct": 75.9,
+     "bothPct": 45.9,
+     "rotationOnlyPct": 54.1,
+     "atMaxCompetitionPct": 7.3,
+     "p10": 0.4673,
+     "p50": 0.6086,
+     "p90": 0.7794,
+     "interdecileRange": 0.3121
+    },
+    "2030": {
+     "scoreablePct": 0.0,
+     "bothPct": 0.0,
+     "rotationOnlyPct": 0.0,
+     "atMaxCompetitionPct": 0.0,
+     "p10": null,
+     "p50": null,
+     "p90": null,
+     "interdecileRange": null
+    }
+   },
+   "womens-soccer": {
+    "2027": {
+     "scoreablePct": 95.1,
+     "bothPct": 97.6,
+     "rotationOnlyPct": 2.4,
+     "atMaxCompetitionPct": 2.9,
+     "p10": 0.3139,
+     "p50": 0.4887,
+     "p90": 0.6791,
+     "interdecileRange": 0.3653
+    },
+    "2028": {
+     "scoreablePct": 95.1,
+     "bothPct": 97.6,
+     "rotationOnlyPct": 2.4,
+     "atMaxCompetitionPct": 10.9,
+     "p10": 0.3781,
+     "p50": 0.5699,
+     "p90": 0.7832,
+     "interdecileRange": 0.4052
+    },
+    "2029": {
+     "scoreablePct": 95.1,
+     "bothPct": 50.3,
+     "rotationOnlyPct": 49.7,
+     "atMaxCompetitionPct": 8.2,
+     "p10": 0.4639,
+     "p50": 0.6377,
+     "p90": 0.7632,
+     "interdecileRange": 0.2993
+    },
+    "2030": {
+     "scoreablePct": 0.0,
+     "bothPct": 0.0,
+     "rotationOnlyPct": 0.0,
+     "atMaxCompetitionPct": 0.0,
+     "p10": null,
+     "p50": null,
+     "p90": null,
+     "interdecileRange": null
+    }
+   }
+  },
+  "C2": {
+   "mens-soccer": {
+    "2027": {
+     "scoreablePct": 75.9,
+     "bothPct": 97.5,
+     "rotationOnlyPct": 2.5,
+     "atMaxCompetitionPct": 1.5,
+     "p10": 0.3133,
+     "p50": 0.4869,
+     "p90": 0.6487,
+     "interdecileRange": 0.3354
+    },
+    "2028": {
+     "scoreablePct": 75.9,
+     "bothPct": 97.4,
+     "rotationOnlyPct": 2.6,
+     "atMaxCompetitionPct": 9.7,
+     "p10": 0.3773,
+     "p50": 0.568,
+     "p90": 0.7626,
+     "interdecileRange": 0.3853
+    },
+    "2029": {
+     "scoreablePct": 75.9,
+     "bothPct": 45.9,
+     "rotationOnlyPct": 54.1,
+     "atMaxCompetitionPct": 7.3,
+     "p10": 0.4598,
+     "p50": 0.6096,
+     "p90": 0.7722,
+     "interdecileRange": 0.3124
+    },
+    "2030": {
+     "scoreablePct": 0.0,
+     "bothPct": 0.0,
+     "rotationOnlyPct": 0.0,
+     "atMaxCompetitionPct": 0.0,
+     "p10": null,
+     "p50": null,
+     "p90": null,
+     "interdecileRange": null
+    }
+   },
+   "womens-soccer": {
+    "2027": {
+     "scoreablePct": 95.1,
+     "bothPct": 97.6,
+     "rotationOnlyPct": 2.4,
+     "atMaxCompetitionPct": 2.9,
+     "p10": 0.3138,
+     "p50": 0.4886,
+     "p90": 0.6791,
+     "interdecileRange": 0.3653
+    },
+    "2028": {
+     "scoreablePct": 95.1,
+     "bothPct": 97.6,
+     "rotationOnlyPct": 2.4,
+     "atMaxCompetitionPct": 10.9,
+     "p10": 0.3781,
+     "p50": 0.5705,
+     "p90": 0.7832,
+     "interdecileRange": 0.4052
+    },
+    "2029": {
+     "scoreablePct": 95.1,
+     "bothPct": 50.3,
+     "rotationOnlyPct": 49.7,
+     "atMaxCompetitionPct": 8.2,
+     "p10": 0.46,
+     "p50": 0.6377,
+     "p90": 0.7659,
+     "interdecileRange": 0.3059
+    },
+    "2030": {
+     "scoreablePct": 0.0,
+     "bothPct": 0.0,
+     "rotationOnlyPct": 0.0,
+     "atMaxCompetitionPct": 0.0,
+     "p10": null,
+     "p50": null,
+     "p90": null,
+     "interdecileRange": null
+    }
+   }
+  },
+  "D": {
+   "mens-soccer": {
+    "2027": {
+     "scoreablePct": 74.0,
+     "bothPct": 100.0,
+     "rotationOnlyPct": 0.0,
+     "atMaxCompetitionPct": 1.6,
+     "p10": 0.3119,
+     "p50": 0.4874,
+     "p90": 0.6497,
+     "interdecileRange": 0.3378
+    },
+    "2028": {
+     "scoreablePct": 74.0,
+     "bothPct": 100.0,
+     "rotationOnlyPct": 0.0,
+     "atMaxCompetitionPct": 9.9,
+     "p10": 0.3749,
+     "p50": 0.57,
+     "p90": 0.7656,
+     "interdecileRange": 0.3907
+    },
+    "2029": {
+     "scoreablePct": 34.8,
+     "bothPct": 100.0,
+     "rotationOnlyPct": 0.0,
+     "atMaxCompetitionPct": 16.0,
+     "p10": 0.4058,
+     "p50": 0.6267,
+     "p90": 0.8128,
+     "interdecileRange": 0.407
+    },
+    "2030": {
+     "scoreablePct": 0.0,
+     "bothPct": 0.0,
+     "rotationOnlyPct": 0.0,
+     "atMaxCompetitionPct": 0.0,
+     "p10": null,
+     "p50": null,
+     "p90": null,
+     "interdecileRange": null
+    }
+   },
+   "womens-soccer": {
+    "2027": {
+     "scoreablePct": 92.8,
+     "bothPct": 100.0,
+     "rotationOnlyPct": 0.0,
+     "atMaxCompetitionPct": 3.0,
+     "p10": 0.3135,
+     "p50": 0.4894,
+     "p90": 0.6811,
+     "interdecileRange": 0.3676
+    },
+    "2028": {
+     "scoreablePct": 92.8,
+     "bothPct": 100.0,
+     "rotationOnlyPct": 0.0,
+     "atMaxCompetitionPct": 11.2,
+     "p10": 0.3766,
+     "p50": 0.5718,
+     "p90": 0.7883,
+     "interdecileRange": 0.4117
+    },
+    "2029": {
+     "scoreablePct": 47.8,
+     "bothPct": 100.0,
+     "rotationOnlyPct": 0.0,
+     "atMaxCompetitionPct": 16.4,
+     "p10": 0.424,
+     "p50": 0.5959,
+     "p90": 0.7795,
+     "interdecileRange": 0.3555
+    },
+    "2030": {
+     "scoreablePct": 0.0,
+     "bothPct": 0.0,
+     "rotationOnlyPct": 0.0,
+     "atMaxCompetitionPct": 0.0,
+     "p10": null,
+     "p50": null,
+     "p90": null,
+     "interdecileRange": null
+    }
+   }
+  }
+ },
+ "priorStability": {
+  "competition": {
+   "mens-soccer": {
+    "global": 0.6,
+    "byDivision": {
+     "values": {
+      "NCAA D1": 0.5814,
+      "NCAA D2": 0.5172,
+      "NAIA": 0.6923,
+      "NCAA D3": 0.6667
+     },
+     "spread": 0.1751
+    },
+    "byPosition": {
+     "values": {
+      "GOALKEEPER": 0.6,
+      "DEFENSE": 0.6122,
+      "MIDFIELD": 0.6522,
+      "FORWARD": 0.6164
+     },
+     "spread": 0.0522
+    },
+    "byStrengthQuartile": {
+     "values": {
+      "3": 0.6,
+      "2": 0.6,
+      "1": 0.6667,
+      "0": 0.6522
+     },
+     "spread": 0.0667
+    },
+    "byHorizon": {
+     "values": {
+      "2027": 0.4658,
+      "2028": 0.6,
+      "2029": 0.7143
+     },
+     "spread": 0.2484
+    }
+   },
+   "womens-soccer": {
+    "global": 0.6,
+    "byDivision": {
+     "values": {
+      "NCAA D1": 0.5455,
+      "NCAA D2": 0.5294,
+      "NAIA": 0.75,
+      "NCAA D3": 0.6923
+     },
+     "spread": 0.2206
+    },
+    "byPosition": {
+     "values": {
+      "GOALKEEPER": 0.6,
+      "DEFENSE": 0.625,
+      "MIDFIELD": 0.6122,
+      "FORWARD": 0.6164
+     },
+     "spread": 0.025
+    },
+    "byStrengthQuartile": {
+     "values": {
+      "3": 0.5556,
+      "2": 0.6,
+      "1": 0.6667,
+      "0": 0.6923
+     },
+     "spread": 0.1368
+    },
+    "byHorizon": {
+     "values": {
+      "2027": 0.4688,
+      "2028": 0.6,
+      "2029": 0.6923
+     },
+     "spread": 0.2236
+    }
+   }
+  },
+  "rotation": {
+   "mens-soccer": {
+    "global": 0.4374,
+    "byDivision": {
+     "values": {
+      "NCAA D1": 0.5117,
+      "NCAA D2": 0.4167,
+      "NAIA": 0.3935,
+      "NCAA D3": 0.552
+     },
+     "spread": 0.1585
+    },
+    "byPosition": {
+     "values": {
+      "GOALKEEPER": 0.4374,
+      "DEFENSE": 0.4583,
+      "MIDFIELD": 0.4695,
+      "FORWARD": 0.4491
+     },
+     "spread": 0.0321
+    },
+    "byStrengthQuartile": {
+     "values": {
+      "3": 0.4374,
+      "2": 0.4013,
+      "1": 0.5138,
+      "0": 0.5528
+     },
+     "spread": 0.1515
+    },
+    "byHorizon": {
+     "values": {
+      "2027": 0.4374,
+      "2028": 0.4374,
+      "2029": 0.4374,
+      "2030": 0.4374
+     },
+     "spread": 0.0
+    }
+   },
+   "womens-soccer": {
+    "global": 0.5145,
+    "byDivision": {
+     "values": {
+      "NCAA D1": 0.396,
+      "NCAA D2": 0.4296,
+      "NAIA": 0.5737,
+      "NCAA D3": 0.5849,
+      "USCAA": 0.4922
+     },
+     "spread": 0.1889
+    },
+    "byPosition": {
+     "values": {
+      "GOALKEEPER": 0.4352,
+      "DEFENSE": 0.5814,
+      "MIDFIELD": 0.5956,
+      "FORWARD": 0.5558
+     },
+     "spread": 0.1603
+    },
+    "byStrengthQuartile": {
+     "values": {
+      "3": 0.3733,
+      "2": 0.4581,
+      "1": 0.5558,
+      "0": 0.5912
+     },
+     "spread": 0.2179
+    },
+    "byHorizon": {
+     "values": {
+      "2027": 0.5145,
+      "2028": 0.5145,
+      "2029": 0.5145,
+      "2030": 0.5145
+     },
+     "spread": 0.0
+    }
+   }
+  }
+ },
+ "saintJosephs": {
+  "A": {
+   "competition": "UNSCOREABLE",
+   "rotation": 0.9995,
+   "pathway": 0.9995,
+   "state": "ROTATION_ONLY"
+  },
+  "B": {
+   "competition": "UNSCOREABLE",
+   "rotation": 0.9995,
+   "pathway": 0.6998,
+   "state": "ROTATION_ONLY"
+  },
+  "C1": {
+   "competition": "UNSCOREABLE",
+   "rotation": 0.9995,
+   "pathway": 0.7598,
+   "state": "ROTATION_ONLY"
+  },
+  "C2": {
+   "competition": "UNSCOREABLE",
+   "rotation": 0.9995,
+   "pathway": 0.7697,
+   "state": "ROTATION_ONLY"
+  },
+  "D": {
+   "competition": "UNSCOREABLE",
+   "rotation": 0.9995,
+   "pathway": "UNSCOREABLE",
+   "state": "REFUSED"
+  }
+ },
+ "thinRosterSplit": {
+  "mens-soccer": {
+   "2027": {
+    "thinForwardCells": 58,
+    "supported": 47,
+    "unsupported": 11
+   },
+   "2028": {
+    "thinForwardCells": 258,
+    "supported": 0,
+    "unsupported": 258
+   }
+  },
+  "womens-soccer": {
+   "2027": {
+    "thinForwardCells": 117,
+    "supported": 107,
+    "unsupported": 10
+   },
+   "2028": {
+    "thinForwardCells": 332,
+    "supported": 0,
+    "unsupported": 332
+   }
+  }
+ }
+}
