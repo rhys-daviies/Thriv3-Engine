@@ -77,7 +77,7 @@ is the one case where an earlier stage's diagnosis was wrong in an instructive w
 **FIRST-PARTY EVIDENCE**
 - `annamaria.edu` — *"Anna Maria College has filed for bankruptcy protection
   under Chapter 11"* and *"**Anna Maria ceased academic operations at the end of
-  the Spring 2026 semester**"*. Contact address is `transition@annamaria.edu`;
+  the Spring 2026 semester**"*. Contact address is `[withheld]@annamaria.edu`;
   the site links a Massachusetts DHE public notification PDF dated April 2026.
 - `goamcats.com` — **all 12 candidates return 403**, every one redirecting to
   `https://annamaria.prestosports.com/site-in-maintenance`.

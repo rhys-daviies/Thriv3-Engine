@@ -279,7 +279,7 @@ export function contactIntelligenceForProgramme({ athleteId, collegeName, sport 
  *
  * KEYED ON `coach_id`, the canonical row, never on an address. `coaches` is
  * unique on (email, school, sport) precisely because a shared inbox like
- * msoccer@cornell.edu is one address across a staff, so counting by address
+ * msoccer@example.edu is one address across a staff, so counting by address
  * would report a message to one person as a message to all of them. The cost
  * runs the other way — duplicate rows for one human read as separate people —
  * which F4 documented and which collapsing safely would need a coach identity
