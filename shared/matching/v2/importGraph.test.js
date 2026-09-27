@@ -194,6 +194,12 @@ const MAY_IMPORT_V2 = [
    * tournament returned NO WINNER - so none of its rules reached production.
    */
   'server/scripts/a738Tournament.js',
+  /**
+   * A7.39. The class-year readability audit. Read-only, writes one JSON file,
+   * touches no database row and is imported by nothing. It reaches V2 only for
+   * the eligibility vocabulary it reports against.
+   */
+  'server/scripts/a739ClassYearAudit.js',
 ];
 
 const SEARCH_ROOTS = ['shared', 'server', 'src', 'worker'];
