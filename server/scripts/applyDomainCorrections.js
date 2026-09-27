@@ -1,10 +1,19 @@
 #!/usr/bin/env node
 /**
- * PHASE 2B — apply the 27 proven SAFE_DETERMINISTIC athletics_domains UNITID
- * corrections from docs/validation/integrity-audit/phase2a_domain_corrections.json.
+ * Apply an EXTERNALLY ADJUDICATED athletics_domains UNITID correction set.
  *
- *   node server/scripts/applyDomainCorrections.js --db <path>            # dry-run
- *   node server/scripts/applyDomainCorrections.js --db <path> --apply    # apply
+ *   node server/scripts/applyDomainCorrections.js --db <path> --fixture <path>            # dry-run
+ *   node server/scripts/applyDomainCorrections.js --db <path> --fixture <path> --apply
+ *
+ * The current correction set is
+ * `docs/validation/integrity-audit/phase2d_approved_corrections.json` (23 rows).
+ *
+ * THE PHASE-2A SET THIS SCRIPT WAS WRITTEN FOR IS DISPROVEN. Phase 2B applied its
+ * 27 rows and reverted all of them: `claimed_unitids` is not authoritative about
+ * who owns a domain, and two of the 27 (pct.edu, wvu.edu) were correct before the
+ * "correction". That file has since been rewritten as an annotated object carrying
+ * each row's Phase-2C verdict, so it is no longer iterable and this script would
+ * throw rather than apply it — see server/scripts/mutationPathSafety.test.js.
  *
  * ALL-OR-NOTHING. Every row must pass its precondition or the entire 27-row
  * apply rolls back — never a partial apply. Idempotent: a row already at the

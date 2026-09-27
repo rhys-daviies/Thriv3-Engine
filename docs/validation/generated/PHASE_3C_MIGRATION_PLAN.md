@@ -1,4 +1,26 @@
-# Phase 3C — Production Migration Procedure (DO NOT EXECUTE YET)
+# Phase 3C — Production Migration Procedure — **SUPERSEDED, NOT EXECUTABLE**
+
+> **RETIRED BY THE PR #49 PRE-MERGE SAFETY CLOSURE. KEPT AS PROVENANCE ONLY.**
+>
+> This plan was never executed and production was never touched. It is retained
+> because the procedure — backup, abort gate, post-apply validation — is sound and
+> a future migration should reuse its shape. **The two scripts it drives no longer
+> exist**, and the decisions it would have applied no longer hold:
+>
+> - `server/scripts/repairAthleticsDomains.js` — **REMOVED**
+> - `server/scripts/applyReconciledToProduction.js` — **REMOVED**
+> - the 188-row fixture both read is now
+>   `athletics_domains_repairs_phase3b_SUPERSEDED.json`: 5 still valid, 180
+>   superseded, 2 contradicted by Phase 6C.4, 1 never adjudicated.
+>
+> Step 7's own ABORT GATE is the reason. It says: *"Do not apply a stale
+> reconstruction."* Phases 2C/2D, 3B, 3D, 4F, 5B, 6B and 6C.1–6C.4 all landed
+> after this plan was written, so the reconstruction it describes IS the stale one,
+> and the gate refuses it. **Merging PR #49 mutates no production data.**
+>
+> A production migration, if one is ever wanted, must be designed and validated
+> against the then-current evidence state. It is not a prerequisite for merging
+> the integrity architecture.
 
 Applies the Phase-3B reconstruction to production `/data/recruitmatch.sqlite` on
 Render. Every write is transactional; every step has an abort/rollback. Nothing
@@ -30,8 +52,9 @@ here runs until this plan is reviewed and explicitly approved.
    that the reconstruction's decisions no longer hold (e.g. new schools, changed
    source URLs), STOP: rebuild the reconstruction from the production snapshot
    and re-review before proceeding. Do not apply a stale reconstruction.
-8. **Apply registry repair** — `repairAthleticsDomains.js --db /data/... --apply`
-   inside a transaction (188 evidence-backed corrections/recoveries). Idempotent.
+8. ~~**Apply registry repair** — `repairAthleticsDomains.js --db /data/... --apply`
+   inside a transaction (188 evidence-backed corrections/recoveries). Idempotent.~~
+   **SUPERSEDED — script removed, fixture superseded. See the banner above.**
 9. **Apply coach reconciliation** — write `coaches_reconciled` on production
    (a NEW table; `coaches` stays as the rollback baseline). Do NOT drop/replace
    `coaches` in this step.

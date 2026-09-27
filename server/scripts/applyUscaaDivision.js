@@ -31,6 +31,7 @@
  * `programQuality` falls back to its prior on a null, which is the honest
  * answer until the USCAA field is acquired.
  */
+import '../db/refuseProductionVolume.js'; // MUST precede db/client.js — see that file
 import db, { dbPath } from '../db/client.js';
 import { assertCanonicalWrite } from '../db/corpusIdentity.js';
 

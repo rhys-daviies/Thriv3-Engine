@@ -1,5 +1,11 @@
 # Athletics-domain identity integrity — audit trail (Phases 2A–2D)
 
+> **PR #49 pre-merge safety closure: [`pr49_premerge_closure.md`](pr49_premerge_closure.md).**
+> The production-apply machinery and the 188-row Phase-3B domain fixture were retired there
+> (183 of the 188 are superseded, contradicted or unadjudicated against the final evidence
+> state), the generated coach ledgers were redacted, and the integrity validator now
+> distinguishes an adjudicated hold from an undetected defect. Production untouched.
+
 This directory records how a set of 28 `athletics_domains` rows whose stored
 UNITID disagreed with their own `claimed_unitids` were investigated and, for the
 subset that external evidence proved wrong, corrected. **The earlier hypotheses

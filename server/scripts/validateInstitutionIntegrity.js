@@ -4,6 +4,7 @@
  *
  *   npm run validate:institution-integrity            (default DB, read-only)
  *   node server/scripts/validateInstitutionIntegrity.js --db <path>
+ *                                    [--ground-truth <phase2c_ground_truth.json>]
  *
  * Opens the SQLite database in READ-ONLY mode (never through the migrating
  * db/client) and reports the institution-identity invariants established in
@@ -13,15 +14,19 @@
  *   - any canonical institution that resolves to a DIFFERENT institution
  *   - any coach whose VERIFIED source domain points at a different UNITID than
  *     the institution it is filed under
- *   - any VERIFIED/VERIFIED_ALIAS domain whose UNITID DISAGREES with its own
- *     single, unambiguous claimed UNITID. This flags a domain-ownership
- *     disagreement to VERIFY EXTERNALLY — it does NOT assert the claim is right
- *     (Phase 2C proved the fix goes either way: uconn.edu's unitid was the
- *     error, pct.edu's claim was the error). Detection, not correction.
+ *   - any UNADJUDICATED VERIFIED/VERIFIED_ALIAS domain whose UNITID DISAGREES
+ *     with its own single, unambiguous claimed UNITID. This flags a
+ *     domain-ownership disagreement to VERIFY EXTERNALLY — it does NOT assert
+ *     the claim is right (Phase 2C proved the fix goes either way: uconn.edu's
+ *     unitid was the error, pct.edu's claim was the error). Detection, not
+ *     correction. A disagreement already carrying an evidence-backed Phase-2C
+ *     verdict reads as CLOSED or as a named HELD warning — see the block at the
+ *     check itself for the three conditions and the anti-suppression clause.
  * WARNINGS (exit 0, reported):
  *   - ambiguous normalized names, duplicate UNITIDs, conflicting aliases,
  *     domain→UNITID conflicts, registry gaps, multi-domain coach groups.
  */
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Database from 'better-sqlite3';
@@ -104,15 +109,80 @@ for (const d of domains) {
   try { claimed = JSON.parse(d.claimed_unitids || '[]').map(Number).filter((n) => !Number.isNaN(n)); } catch { /* malformed */ }
   const uniq = [...new Set(claimed)];
   if (uniq.length === 1 && uniq[0] !== Number(d.unitid)) {
-    domClaimMismatch++; if (dcm.length < 15) dcm.push(`${d.domain}: stamped ${d.unitid}, single claim ${uniq[0]}`);
+    domClaimMismatch++; dcm.push({ domain: d.domain, unitid: d.unitid, claim: uniq[0] });
   } else if (uniq.length > 1 && !uniq.includes(Number(d.unitid))) {
     domClaimAmbiguous++;
   }
 }
 console.log(`  VERIFIED domains whose UNITID disagrees with a single unambiguous claim: ${domClaimMismatch}`);
-dcm.forEach((x) => console.log('    VERIFY-OWNERSHIP:', x));
+
+/**
+ * WHAT "CRITICAL" MEANS HERE — an ownership disagreement NOBODY HAS LOOKED AT.
+ *
+ * A disagreement that HAS been externally adjudicated is not an undetected
+ * defect; it is a recorded decision with evidence behind it. Counting those as
+ * CRITICAL made this validator permanently red — all four of the disagreements
+ * on the shared dev database are Phase-2C verdicts, two of them verdicts that
+ * the EXISTING stamp is correct and Phase 2A was the thing that was wrong. A
+ * guardrail that can never go green stops being read, and this one is the
+ * guardrail for the whole institution-identity architecture.
+ *
+ * So the verdicts are read from the evidence artifact, never hard-coded, and a
+ * row earns relief ONLY if all of these hold:
+ *
+ *   1. `phase2c_ground_truth.json` names the domain,
+ *   2. with a verdict, and at least one evidence URL behind it,
+ *   3. and the CURRENT stamp is still one of the two UNITIDs the adjudication
+ *      was written about (its verified value, or the existing value it ruled on).
+ *
+ * Condition 3 is the anti-suppression clause. If the stamp has since moved to a
+ * third value, the adjudication is no longer about this row, relief is refused
+ * and the row goes back to CRITICAL. Adding a domain to the artifact without
+ * evidence buys nothing either. Everything unadjudicated stays CRITICAL, which
+ * is the case this check exists to catch.
+ *
+ * CLOSED  the DB matches the external verdict — the question is answered.
+ * HELD    adjudicated, evidence on file, deliberately not applied (a merger in
+ *         progress, a parked domain no institution owns). A named warning, so it
+ *         stays visible and owned rather than disappearing.
+ */
+const gtArg = (() => { const i = process.argv.indexOf('--ground-truth'); return i > -1 ? process.argv[i + 1] : null; })();
+const GROUND_TRUTH = gtArg
+  ? path.resolve(gtArg)
+  : path.resolve(__dirname, '../../docs/validation/integrity-audit/phase2c_ground_truth.json');
+const adjudicated = new Map();
+try {
+  const raw = JSON.parse(fs.readFileSync(GROUND_TRUTH, 'utf8'));
+  const rows = Array.isArray(raw) ? raw : (Object.values(raw).find(Array.isArray) ?? []);
+  for (const r of rows) {
+    if (!r || !r.domain || !r.verdict) continue;
+    if (!Array.isArray(r.evidence) || r.evidence.length === 0) continue;
+    adjudicated.set(r.domain, r);
+  }
+} catch { /* absent or malformed: nothing is adjudicated, everything stays CRITICAL */ }
+
+let closed = 0; const held = []; const unadjudicated = [];
+for (const d of dcm) {
+  const a = adjudicated.get(d.domain);
+  const stamped = Number(d.unitid);
+  const describesThisRow = a
+    && (stamped === Number(a.verified_unitid) || stamped === Number(a.existing_unitid));
+  if (!describesThisRow) {
+    unadjudicated.push(`${d.domain}: stamped ${d.unitid}, single claim ${d.claim}`
+      + (a ? ` — Phase 2C adjudicated ${a.existing_unitid} -> ${a.verified_unitid}, but the stamp has since moved` : ''));
+  } else if (a.verified_unitid != null && stamped === Number(a.verified_unitid)) {
+    closed += 1;
+    console.log(`    CLOSED: ${d.domain} stamped ${d.unitid} — externally verified (${a.verdict}); the claim ${d.claim} is the error`);
+  } else {
+    held.push(`${d.domain}: stamped ${d.unitid}, claim ${d.claim} — ${a.verdict}, adjudicated and deliberately held`);
+    console.log(`    HELD:   ${d.domain} stamped ${d.unitid} — ${a.verdict}, deliberately not applied`);
+  }
+}
+unadjudicated.forEach((x) => console.log('    VERIFY-OWNERSHIP:', x));
+console.log(`  externally adjudicated and closed: ${closed} | adjudicated but held: ${held.length} | UNADJUDICATED: ${unadjudicated.length}`);
 if (domClaimAmbiguous) console.log(`  (ambiguous multi-claim mismatches, reported as warning not critical: ${domClaimAmbiguous})`);
-if (domClaimMismatch > 0) critical += domClaimMismatch;
+held.forEach((h) => warnings.push(`domain ownership adjudicated but HELD — ${h}`));
+critical += unadjudicated.length;
 
 // 4) Warnings: ambiguous normalized names
 section('Warnings');

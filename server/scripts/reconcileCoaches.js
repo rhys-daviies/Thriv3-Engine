@@ -19,7 +19,14 @@ import { normalizeForMatch } from '../lib/coachingImport.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dbArg = (() => { const i = process.argv.indexOf('--db'); return i > -1 ? process.argv[i + 1] : null; })();
-const csvArg = (() => { const i = process.argv.indexOf('--csv'); return i > -1 ? process.argv[i + 1] : path.resolve(__dirname, '../../docs/validation/generated/coaches_reconciled.csv'); })();
+/**
+ * The CSV carries a name and a working email address for every coach, and this
+ * repository is public, so the default lands in the UNTRACKED `server/data/generated/`
+ * rather than in the committed evidence directory — which is where it used to go, and
+ * is how 6,347 people's addresses came to be in the PR #49 diff. The committed evidence
+ * is the redacted pair produced by `server/scripts/redactGeneratedLedgers.js`.
+ */
+const csvArg = (() => { const i = process.argv.indexOf('--csv'); return i > -1 ? process.argv[i + 1] : path.resolve(__dirname, '../data/generated/coaches_reconciled.csv'); })();
 if (!dbArg || /\/data\/recruitmatch\.sqlite$/.test(path.resolve(dbArg))) { console.error('Give an explicit non-production --db.'); process.exit(2); }
 
 const db = new Database(dbArg);
@@ -159,6 +166,7 @@ db.transaction(() => rows.forEach((r) => ins.run(r)))();
 
 // CSV artifact
 const esc = (v) => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+fs.mkdirSync(path.dirname(csvArg), { recursive: true });
 fs.writeFileSync(csvArg, cols.join(',') + '\n' + rows.map((r) => cols.map((c) => esc(r[c])).join(',')).join('\n') + '\n');
 
 const count = (f) => rows.reduce((n, r) => n + (f(r) ? 1 : 0), 0);
