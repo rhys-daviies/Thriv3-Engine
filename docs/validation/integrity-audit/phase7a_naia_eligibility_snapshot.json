@@ -1,0 +1,184 @@
+{
+  "milestone": "PHASE 7A — NAIA ELIGIBILITY FAILURE AUDIT (READ-ONLY)",
+  "created_at": "2026-09-28",
+  "db": "server/data/recruitmatch.sqlite (shared dev) — NO MUTATION this phase",
+  "fingerprints_unchanged": {
+    "coaches_total": 6413,
+    "domain_registry_fp": "498eb15f134f4e58d2a9a73bd281611a (post-6C.4, unchanged)",
+    "coach_fp": "209cb89a...",
+    "colleges_fp": "467241bf..."
+  },
+  "part_A_universe": {
+    "active_naia": 384,
+    "men": 186,
+    "women": 198,
+    "coverage": {
+      "COVERED_ELIGIBLE": 2,
+      "COVERED_INELIGIBLE_ONLY": 378,
+      "COACH_SEASONS_ONLY": 0,
+      "NO_COACH_DATA": 4
+    },
+    "naia_coach_rows": 1074,
+    "eligible_coach_rows": 4,
+    "coach_ledger_rows_by_school_attachment": 1061,
+    "coach_seasons_rows_naia_active": 5,
+    "programmes_with_any_coach_seasons": 1,
+    "programmes_with_roster": 380
+  },
+  "part_C_coach_ledger": {
+    "rows": 1061,
+    "eligible": 3,
+    "reconcile_mismatch_vs_pipeline": 0
+  },
+  "part_D_primary_blockers": {
+    "DOMAIN_NOT_SCRAPED": 235,
+    "DOMAIN_INSUFFICIENT": 113,
+    "DOMAIN_WRONG": 8,
+    "DOMAIN_MISSING": 7,
+    "EMAIL_INFERRED": 4,
+    "INSTITUTION_IDENTITY": 3,
+    "EMAIL_UNKNOWN": 2
+  },
+  "part_E_all_blocker_occurrences": {
+    "DOMAIN_NOT_SCRAPED": 238,
+    "INSTITUTION_IDENTITY": 94,
+    "EMAIL_INFERRED": 137,
+    "COACH_SEASONS_MISSING": 92,
+    "DOMAIN_INSUFFICIENT": 57,
+    "DOMAIN_WRONG": 9,
+    "OTHER_TEAM_ROW": 5,
+    "EMAIL_GENERIC": 5,
+    "DOMAIN_MISSING": 3
+  },
+  "part_E_top_combinations": {
+    "DOMAIN_NOT_SCRAPED (alone)": 237,
+    "INSTITUTION_IDENTITY (alone)": 60,
+    "DOMAIN_INSUFFICIENT (alone)": 55,
+    "DOMAIN_WRONG (alone)": 8,
+    "COACH_SEASONS_MISSING+EMAIL_INFERRED": 4,
+    "EMAIL_INFERRED+INSTITUTION_IDENTITY": 3
+  },
+  "part_F_domain_audit": {
+    "distinct_source_domains": 206,
+    "coach_row_status_distribution": {
+      "VERIFIED": 303,
+      "VERIFIED_ALIAS": 222,
+      "INSUFFICIENT_EVIDENCE": 240,
+      "MISSING": 268,
+      "WRONG_INSTITUTION": 21,
+      "UNREACHABLE": 7
+    },
+    "TRUSTED_AND_SCRAPED": {
+      "coaches": 5,
+      "programmes": 4
+    },
+    "TRUSTED_NOT_SCRAPED": {
+      "coaches": 517,
+      "programmes": 236
+    }
+  },
+  "part_G_coach_seasons": {
+    "naia_active_programmes_with_coach_seasons": 1,
+    "of": 376,
+    "coach_seasons_total_rows": 8595,
+    "distinct_programmes_by_division": {
+      "NAIA": 1,
+      "NCAA D1": 562,
+      "NCAA D2": 454,
+      "NCAA D3": 702
+    },
+    "proof": "coach_seasons is populated from an external NCAA-only coach-tenure CSV (importCoachTenure.js, no division filter in code). NAIA was never part of that acquisition. The corroboration gate depends on data NAIA was structurally never given.",
+    "structural_exclusion": true
+  },
+  "part_H_email": {
+    "coach_email_composition": {
+      "verified": 801,
+      "inferred": 255,
+      "generic": 5,
+      "unknown": 0,
+      "malformed": 0
+    },
+    "email_seen_on_source_rows": 6,
+    "consumer_domain_rows": 14,
+    "uncovered_programmes": {
+      "ge1_verified_personal": 365,
+      "inferred_only": 7,
+      "generic_only": 2,
+      "no_usable": 0
+    },
+    "verified_provenance": {
+      "graduating_seniors.coaching_staff": 798,
+      "phase6c3_core_acquisition": 3,
+      "with_email_seen_evidence": 6
+    },
+    "caveat": "798/801 NAIA 'verified' emails are bulk legacy (graduating_seniors) with NO email_seen observation evidence; spot-validation found 1/4 verified-labeled addresses did not match the officially published address (Bryan College). The 'verified' label for NAIA is systematically under-evidenced.",
+    "programmes_verified_resolved_current_blocked_only_by_corroboration": 295
+  },
+  "part_I_currentness": {
+    "coach_distribution": {
+      "UNKNOWN": 1056,
+      "CURRENT": 5,
+      "PROVEN_STALE": 0
+    },
+    "uncovered_programmes": {
+      "ge1_current": 3,
+      "only_unknown": 371,
+      "only_stale": 0
+    },
+    "note": "currentness is NOT a NAIA blocker (UNKNOWN passes the gate); no PROVEN_STALE."
+  },
+  "part_J_tiers": {
+    "TIER1_CORROBORATION_ONLY": 235,
+    "TIER2_DOMAIN_VERIFICATION": 128,
+    "TIER3_EMAIL_RESEARCH": 4,
+    "TIER4_CURRENTNESS_RESEARCH": 0,
+    "TIER5_MULTI_AXIS": 3,
+    "TIER6_IDENTITY_DEFECT": 0,
+    "TIER7_NO_USABLE_COACH_DATA": 2,
+    "sum": 372,
+    "covered": 2,
+    "note": "covered 2 + uncovered 372 + NO_COACH_DATA-not-in-ledger 4 = ... coverage classes reconcile to 384 active (2 covered + 378 ineligible-only + 4 no-coach-data); the 372 tiered are the ineligible-only with >=1 coach row minus the 6 that had no school-attached ledger rows."
+  },
+  "part_K_simulations": {
+    "sim1_trust_verified_correct_domains": {
+      "newly_eligible_coaches": 515,
+      "newly_covered_programmes": 236,
+      "via_VERIFIED_strict": 135,
+      "via_VERIFIED_ALIAS_only": 101
+    },
+    "sim2_domain_fixes_only_gate_kept": {
+      "newly_eligible_coaches": 4,
+      "newly_covered_programmes": 3,
+      "lesson": "domain verification WITHOUT a corroboration path barely helps NAIA"
+    },
+    "sim3_alt_path_strict_email_seen_current": {
+      "coaches": 3,
+      "programmes": 1,
+      "lesson": "an alt-path requiring email_seen+CURRENT unlocks almost nothing because NAIA rows lack observation/currentness evidence (email_seen 6/1061)"
+    },
+    "sim4_inferred_prohibited": {
+      "extra_programmes_inferred_would_add_on_top_of_sim1": 0,
+      "lesson": "the 236-programme unlock relies entirely on verified-labeled emails, not inferred"
+    }
+  },
+  "part_N_spot_validation": {
+    "sampled": 6,
+    "results": {
+      "Aquinas M (TIER1)": "CORRECT — verified email published on official site",
+      "Northwestern IA M (TIER1)": "CORRECT — verified email published",
+      "Pikeville M (TIER2)": "CORRECT — verified email published, domain confirmed upike.edu",
+      "Bryan M (TIER2)": "FALSE POSITIVE — coach current, but DB 'verified' email [withheld]@redacted.invalid != published [withheld]@bryan.edu",
+      "Calumet M (TIER3)": "CORRECT direction — inferred (pattern-fit, not published; site blocked)",
+      "Tougaloo M (TIER5)": "CORRECT direction — identity issue (current coach may be Millsap not Smith) + inferred email wrong (real ahsmith@ not asmith@)"
+    },
+    "false_positives": 1,
+    "false_negatives": 0,
+    "implication": "TIER assignment (blocker mechanism) is directionally accurate, BUT the underlying 'verified' email quality for NAIA is unreliable (bulk provenance) — email re-observation is required as part of any remediation, not just corroboration."
+  },
+  "hashes": {
+    "gate_model": "see phase7a_eligibility_gate_model.json",
+    "coach_ledger": "phase7a_naia_coach_failure_ledger.json",
+    "programme_ledger": "phase7a_naia_programme_failure_ledger.json",
+    "queues": "phase7a_phase7b_candidate_queues.json"
+  }
+}

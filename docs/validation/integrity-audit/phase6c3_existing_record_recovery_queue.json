@@ -1,0 +1,86 @@
+{
+  "phase": "6C.3",
+  "built_at": "2026-09-27",
+  "note": "Part F — existing coach records that require identity repair rather than a fresh insert. HELD for a dedicated review pass (like 6C.2 handled 6C.1's holds); NOT auto-applied in this acquisition phase. Each carries a same-name / shared-domain / name-drift ambiguity.",
+  "entries": [
+    {
+      "programme": "Saint Joseph's (ME)",
+      "unitid": 161518,
+      "sport": "mens-soccer",
+      "case": "EXISTING_RECORD_RECOVERY (same-name collision: SJC Maine D3 vs Saint Joseph's Univ PA D1)",
+      "detail": "5 current @sjcme.edu coaches are mis-filed under bare 'Saint Joseph's' -> unitid 215770 (Saint Joseph's University, D1 Philadelphia), because sjcme.edu is INSUFFICIENT_EVIDENCE/null in athletics_domains so the resolver cannot reassign them.",
+      "reassign_current": [
+        {
+          "coach": "[name withheld]",
+          "email": "[withheld]@redacted.invalid",
+          "role": "Head Coach"
+        },
+        {
+          "coach": "[name withheld]",
+          "email": "[withheld]@redacted.invalid",
+          "role": "Assistant Coach"
+        },
+        {
+          "coach": "[name withheld]",
+          "email": "[withheld]@redacted.invalid",
+          "role": "Assistant Coach"
+        },
+        {
+          "coach": "[name withheld]",
+          "email": "[withheld]@redacted.invalid",
+          "role": "Assistant Coach"
+        },
+        {
+          "coach": "[name withheld]",
+          "email": "[withheld]@redacted.invalid",
+          "role": "Assistant Coach"
+        }
+      ],
+      "stale_departed": [
+        {
+          "coach": "[name withheld]",
+          "email": "[withheld]@redacted.invalid",
+          "note": "no longer on the 2026 staff — do not reassign as current; retire/leave"
+        }
+      ],
+      "new_insert": [
+        {
+          "coach": "[name withheld]",
+          "email": "[withheld]@redacted.invalid",
+          "role": "Assistant Coach",
+          "note": "new assistant, not yet in coaches"
+        }
+      ],
+      "target_unitid_confirmed": 161518,
+      "evidence": "https://gomonks.com/sports/mens-soccer/coaches",
+      "recommended_action": "Reassign the 5 current rows to 'Saint Joseph's (ME)'/161518 with expected-old-value guards; add athletics_domains sjcme.edu->161518 to enable corroboration; insert Jamie Kelly. Do NOT auto-apply here."
+    },
+    {
+      "programme": "Indiana University East",
+      "unitid": 151388,
+      "sport": "mens-soccer",
+      "case": "EXISTING_RECORD_RECOVERY / MOVED (shared iu.edu domain across all IU campuses)",
+      "detail": "[name withheld — coach 9047b2b7-a5b4-4279-9b4f-2cbfa5262eb2] ([withheld]@redacted.invalid) & [name withheld — coach 2e92e874-c7e1-4b70-8e95-d00dcf334640] ([withheld]@redacted.invalid) are confirmed current IU East staff on iueredwolves.com but are filed in coaches under 'Indiana University Northwest' mens-soccer. Likely a move (Soto Jul 2025, Andrews May 2026). IU Northwest also holds [name withheld — coach 0eb32b45-d24a-42d9-ade0-507b35cbc1aa].",
+      "recommended_action": "Adjudicate whether Andrews/Soto moved NW->East; if so, reassign to IU East and record the IU Northwest fallout. Requires per-campus disambiguation the shared iu.edu domain cannot provide. Held.",
+      "evidence": "https://www.iueredwolves.com/sports/msoc/coaches/index"
+    },
+    {
+      "programme": "Loras College",
+      "unitid": 153825,
+      "sport": "womens-soccer",
+      "case": "LEGITIMATE_DUAL_ROLE blocked by name-string inconsistency",
+      "detail": "[name withheld — coach 8a7390db-0dcf-4956-bccd-7ce9bf6a0e7a] ([withheld]@redacted.invalid) is Director of Men's & Women's Soccer / Head Women's coach. His existing men's row is filed under 'Loras' while the women's programme is 'Loras College'; a dual-role women's insert would trip the cross-institution email guard.",
+      "recommended_action": "Normalize the men's coach rows 'Loras' -> 'Loras College' (name-integrity), then insert Pucci women's as EXISTING_DUAL_ROLE. Loras W is already covered this phase via La Belle + Chesterfield, so this is additive. Held.",
+      "evidence": "https://duhawks.com/staff-directory/matt-pucci/24"
+    },
+    {
+      "programme": "Shaw",
+      "unitid": 199643,
+      "sport": "womens-soccer",
+      "case": "AMBIGUOUS PERSON (same name at two schools + name/email surname mismatch)",
+      "detail": "[name withheld — coach 1139d075-5539-475e-8af2-ac92e35baa81] (Associate Head Women's Coach, [withheld]@shawu.edu) — same person appears under Charleston W ([withheld]@redacted.invalid), and her published Shaw name/email surnames differ (Luevano vs zambrano).",
+      "recommended_action": "Verify whether the Charleston row is stale (she moved to Shaw) and reconcile the name/email pairing before inserting. Shaw W is already covered this phase via McClure. Held.",
+      "evidence": "https://shawbears.com/sports/womens-soccer/roster/coaches/salma-luevano/331"
+    }
+  ]
+}

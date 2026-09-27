@@ -1,0 +1,24 @@
+{
+  "currentness": [
+    {
+      "coach_id": "58f000d1-db53-4a26-8f18-087fb9210baa",
+      "status": "CURRENT",
+      "checked_at": "2026-09-26",
+      "source_url": "https://www.mhu.edu/staff/thomas-rhys/",
+      "reason": "CORRECT current on Mars Hill mens staff (batch2)",
+      "expect_name": "[name withheld — coach 58f000d1-db53-4a26-8f18-087fb9210baa]"
+    }
+  ],
+  "email_updates": [
+    {
+      "coach_id": "58f000d1-db53-4a26-8f18-087fb9210baa",
+      "old_email": "[withheld]@redacted.invalid",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://www.mhu.edu/staff/thomas-rhys/",
+      "expect_name": "[name withheld — coach 58f000d1-db53-4a26-8f18-087fb9210baa]"
+    }
+  ],
+  "source_updates": [],
+  "deletes": []
+}

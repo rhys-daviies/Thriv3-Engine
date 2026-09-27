@@ -1,0 +1,259 @@
+{
+  "built_at": "2026-09-26T23:19:54.022Z",
+  "note": "Phase 5B — 26 reopened persons re-adjudicated; stale/moved -> PROVEN_STALE. NOT APPLIED.",
+  "verdicts": {
+    "PROVEN_STALE": 19,
+    "MOVED": 4,
+    "CURRENT_CONFIRMED": 3
+  },
+  "current_confirmed_kept_eligible": [
+    {
+      "coach_id": "f85cde06-b196-4522-8a81-b1736cfe290e",
+      "name": "[name withheld]",
+      "evidence_url": "https://goracers.com/news/2026/2/11/womens-soccer-racers-welcome-salsa-andrade-as-assistant-coach"
+    },
+    {
+      "coach_id": "91afec9b-2b68-4c58-a2b3-f852b7b95a4d",
+      "name": "[name withheld]",
+      "evidence_url": "https://gocardinalsports.com/sports/mens-soccer/roster/coaches/sergio-hernandez/"
+    },
+    {
+      "coach_id": "04a02d8d-091d-48b2-b0a8-76caab58925a",
+      "name": "[name withheld]",
+      "evidence_url": "https://cctigers.com/"
+    }
+  ],
+  "count": 23,
+  "entries": [
+    {
+      "coach_id": "729e9e26-4dff-4b84-ac13-eb9de8abec41",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://sjliathletics.com/sports/mens-soccer/",
+      "destination_institution": null,
+      "replacement_name": "[name withheld — coach bf2abbbb-e97b-41e6-996f-44aa6ee6c79f]",
+      "reason": "PROVEN_STALE — replaced by [name withheld — coach bf2abbbb-e97b-41e6-996f-44aa6ee6c79f] | Current official St. Joseph's (NY) men's soccer coaches page lists [name withheld — coach bf2abbbb-e97b-41e6-996f-44aa6ee6c79f] as Head Coach ([withheld]@redacted.invalid), with"
+    },
+    {
+      "coach_id": "919281a1-cf7e-42c2-aaf6-b55c3a9af02e",
+      "name": "[name withheld]",
+      "category": "MOVED",
+      "checked_at": "2026-09-27",
+      "source_url": "https://uvmathletics.com/news/2026/1/21/mens-soccer-travis-brent-named-associate-head-coach-for-mens-soccer.aspx",
+      "destination_institution": "University of Vermont",
+      "replacement_name": "[name withheld — coach 3045f876-4b74-425f-8e4f-b5b5a414399d]",
+      "reason": "MOVED to University of Vermont (mens-soccer) — old association no longer current | Franklin Pierce official announcement (2026-01-21) 'Franklin Pierce Announces Departure of Head Coach [name withheld — coach 919281a1-cf7e-42c2-aaf6-b55c3a9af02e]; Assi"
+    },
+    {
+      "coach_id": "bc4b5f22-5bf0-41ce-8901-c77445d6ac75",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://uiupeacocks.com/sports/mens-soccer/",
+      "destination_institution": null,
+      "replacement_name": "[name withheld — coach 9cfd7213-40fb-41d4-b086-984de3a87e64]",
+      "reason": "PROVEN_STALE — replaced by [name withheld — coach 9cfd7213-40fb-41d4-b086-984de3a87e64] | Current official Upper Iowa men's soccer coaches page lists [name withheld — coach 9cfd7213-40fb-41d4-b086-984de3a87e64] as Head Men's Soccer Coach (matumona-bau"
+    },
+    {
+      "coach_id": "59733378-bd3d-4f09-a2f7-b80ca5748087",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://guilfordquakers.com/sports/mens-soccer/",
+      "destination_institution": null,
+      "replacement_name": "Sean Reilly",
+      "reason": "PROVEN_STALE — replaced by Sean Reilly | Thomsen was Interim Head Men's Soccer Coach (elevated July 2025). Current official Guilford men's soccer coaches page no"
+    },
+    {
+      "coach_id": "2743cfad-d9c7-47bd-bf69-1c6ee39b8523",
+      "name": "[name withheld]",
+      "category": "MOVED",
+      "checked_at": "2026-09-27",
+      "source_url": "https://gwusports.com/news/2026/5/28/thomsit-selected-as-next-head-coach-of-gardner-webb-womens-soccer",
+      "destination_institution": "Gardner-Webb University",
+      "replacement_name": "Alejo Binaghi",
+      "reason": "MOVED to Gardner-Webb University (womens-soccer) — old association no longer current | Gardner-Webb official announcement (2026-05-28) names [name withheld] next Head Women's Soccer Coach (Big South / D1), "
+    },
+    {
+      "coach_id": "0b8b2834-f7cb-40b1-b759-7615af439623",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://sabreathletics.com/sports/womens-soccer/",
+      "destination_institution": null,
+      "replacement_name": "[name withheld — coach a1759361-a2b4-448b-9dee-b8b1fa82c4a9]",
+      "reason": "PROVEN_STALE — replaced by [name withheld — coach a1759361-a2b4-448b-9dee-b8b1fa82c4a9] | Current official Marian (WI) women's soccer coaches landing page lists Kinsey 'Bob' Gomez as the sole Head Women's Socce"
+    },
+    {
+      "coach_id": "222000db-3881-4f38-b55c-b1888da78571",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://naccsports.org/news/2026/3/7/mateus-tabbed-to-lead-rockford-womens-soccer-program.aspx",
+      "destination_institution": null,
+      "replacement_name": "Rick Mateus",
+      "reason": "PROVEN_STALE — replaced by Rick Mateus | Official NACC conference announcement (2026-03-07) 'Mateus Tabbed to Lead Rockford Women's Soccer Program' names Rick Ma"
+    },
+    {
+      "coach_id": "d5f16799-429a-4393-ac9b-ce9d537dd5b0",
+      "name": "[name withheld]",
+      "category": "MOVED",
+      "checked_at": "2026-09-27",
+      "source_url": "https://ccnyathletics.com/news/2026/7/27/general-ccny-names-melissa-mcturk-assistant-athletic-director-for-compliance-eligibility.aspx",
+      "destination_institution": "City College of New York (CCNY)",
+      "replacement_name": "Kelci Hegg",
+      "reason": "MOVED to City College of New York (CCNY) — old association no longer current | CCNY official announcement (2026-07-27, also carried by CUNYAC 2026-08-04) names [name withheld — coach d5f16799-429a-4393-ac9b-ce9d537dd5b0] Assistant Athletic Direc"
+    },
+    {
+      "coach_id": "c0dcb989-485c-48f7-9a26-15988b8bf181",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://sjsuspartans.com/",
+      "destination_institution": null,
+      "replacement_name": "[name withheld] (Interim Head Coach)",
+      "reason": "PROVEN_STALE — replaced by [name withheld] (Interim Head Coach) | SJSU staff directory lists the men's soccer staff as [name withheld] (Interim Head Coach, [withheld]@redacted.invalid), Jamie"
+    },
+    {
+      "coach_id": "38ccd51e-bb66-4128-a6c9-a7b05bc4135a",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://scsuowls.com/sports/mens-soccer/",
+      "destination_institution": null,
+      "replacement_name": "[name withheld — coach 88cc5e33-5394-40cf-9205-f5f672829fc0] (Interim Head Coach)",
+      "reason": "PROVEN_STALE — replaced by [name withheld — coach 88cc5e33-5394-40cf-9205-f5f672829fc0] (Interim Head Coach) | Current SCSU men's soccer coaches page lists [name withheld — coach 88cc5e33-5394-40cf-9205-f5f672829fc0] as Interim Head Coach ([withheld]@redacted.invalid) plus assistan"
+    },
+    {
+      "coach_id": "8a29c22f-beb6-47ff-b699-dd4e1556b4ce",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://wouwolves.com/sports/mens-soccer/",
+      "destination_institution": null,
+      "replacement_name": "Andrew May (Interim Head Men's Soccer Coach)",
+      "reason": "PROVEN_STALE — replaced by Andrew May (Interim Head Men's Soccer Coach) | Current Western Oregon men's soccer coaches page lists Andrew May as Interim Head Men's Soccer Coach ([withheld]@wou.edu) and"
+    },
+    {
+      "coach_id": "7b308aa0-5a25-4d40-9ca3-ce4da65cc670",
+      "name": "[name withheld]",
+      "category": "MOVED",
+      "checked_at": "2026-09-27",
+      "source_url": "https://thebaynet.com/st-marys-ryken-welcomes-back-pete-staufenberger-as-head-girls-soccer-coach/",
+      "destination_institution": "St. Mary's Ryken High School",
+      "replacement_name": null,
+      "reason": "MOVED to St. Mary's Ryken High School (girls-soccer) — old association no longer current | St. Mary's Ryken High School announced (July 2, 2026) [name withheld — coach 7b308aa0-5a25-4d40-9ca3-ce4da65cc670]'s return as Head Girls Soccer Coach, effective "
+    },
+    {
+      "coach_id": "e7fa1983-0627-453f-9cd6-96a341451751",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://csidolphins.com/sports/womens-soccer/",
+      "destination_institution": null,
+      "replacement_name": "Maddy Wright / Madeline Barbarino (Head Coach)",
+      "reason": "PROVEN_STALE — replaced by Maddy Wright / Madeline Barbarino (Head Coach) | Current College of Staten Island women's soccer coaches page lists Maddy Wright as Head Coach ([withheld]@csi.cu"
+    },
+    {
+      "coach_id": "bd39437d-4ac3-49fb-ba35-10a06e137526",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://camelathletics.com/sports/womens-soccer/",
+      "destination_institution": null,
+      "replacement_name": "Keith Simons (Head Women's Soccer Coach)",
+      "reason": "PROVEN_STALE — replaced by Keith Simons (Head Women's Soccer Coach) | Current Connecticut College women's soccer coaches page lists Keith Simons as Head Women's Soccer Coach (ksimons@conncol"
+    },
+    {
+      "coach_id": "4772e228-4508-4255-9135-198dc3ab549d",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://fightingtigers.cobleskill.edu/sports/womens-soccer/",
+      "destination_institution": null,
+      "replacement_name": "William Bogue (Interim Head Women's Soccer Coach)",
+      "reason": "PROVEN_STALE — replaced by William Bogue (Interim Head Women's Soccer Coach) | Current SUNY Cobleskill women's soccer coaches page lists only William Bogue as Interim Head Women's Soccer Coach (willi"
+    },
+    {
+      "coach_id": "fa5d57ef-7fc3-4cdc-9709-8cb1cb333bc7",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://www.colby-sawyerathletics.com/sports/womens-soccer/",
+      "destination_institution": null,
+      "replacement_name": "[name withheld — coach beeafbdd-44de-4cc5-ada5-d1455357f7b7] (Head Coach)",
+      "reason": "PROVEN_STALE — replaced by [name withheld — coach beeafbdd-44de-4cc5-ada5-d1455357f7b7] (Head Coach) | Current Colby-Sawyer women's soccer coaches page lists [name withheld — coach beeafbdd-44de-4cc5-ada5-d1455357f7b7] as Head Coach ([withheld]@colby-sawyer.edu) an"
+    },
+    {
+      "coach_id": "73e86077-c6ef-4e0e-b543-030318ae7716",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://aupanthers.com/news/2026/6/3/mens-soccer-gary-book-resigns-as-adelphi-mens-soccer-head-coach-to-pursue-professional-opportunity-on-long-island.aspx",
+      "destination_institution": null,
+      "replacement_name": "Chris Megaloudis",
+      "reason": "PROVEN_STALE — replaced by Chris Megaloudis | Official Adelphi release (June 3, 2026): Book resigned as men's soccer head coach after seven seasons to become Managing"
+    },
+    {
+      "coach_id": "df518561-0b24-4c79-8f05-0e580d457ec7",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://csidolphins.com/news/2025/12/31/mens-soccer-donato-curci-accepts-new-role-as-first-assistant-coach-with-ny-cosmos.aspx",
+      "destination_institution": null,
+      "replacement_name": "[name withheld — coach 34fe3c3a-477b-429c-8066-e8ffa8591756]",
+      "reason": "PROVEN_STALE — replaced by [name withheld — coach 34fe3c3a-477b-429c-8066-e8ffa8591756] | Official CSI release (Dec 31, 2025): Curci stepped down as men's soccer head coach to become First Assistant Coach with "
+    },
+    {
+      "coach_id": "462ea474-210b-4322-8351-7a42e5021bb0",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://suriverhawks.com/sports/mens-soccer/",
+      "destination_institution": null,
+      "replacement_name": "Jeremy Payne",
+      "reason": "PROVEN_STALE — replaced by Jeremy Payne | Current Susquehanna men's soccer coaches page lists Jeremy Payne ([withheld]@susqu.edu) as Head Coach; Findlay absent. Corro"
+    },
+    {
+      "coach_id": "ca0ecc6d-443a-4eec-b2cd-5d87c661c752",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://eastbaypioneers.com/news/2026/8/19/jessica-clinton-named-cal-state-east-bay-womens-soccer-head-coach.aspx",
+      "destination_institution": null,
+      "replacement_name": "[name withheld — coach 68402e1d-bd08-4ac1-8467-90827deb7e62]",
+      "reason": "PROVEN_STALE — replaced by [name withheld — coach 68402e1d-bd08-4ac1-8467-90827deb7e62] | Official CSU East Bay release (Aug 19, 2026): [name withheld — coach 68402e1d-bd08-4ac1-8467-90827deb7e62] ([withheld]@redacted.invalid) named head women's soccer"
+    },
+    {
+      "coach_id": "af731dae-2cad-417a-a397-7b7447755367",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://gobatesbobcats.com/news/2026/2/23/womens-soccer-bates-womens-soccer-head-coach-joe-vari-to-step-down.aspx",
+      "destination_institution": null,
+      "replacement_name": "Jonny Macadam",
+      "reason": "PROVEN_STALE — replaced by Jonny Macadam | Official Bates release (Feb 23, 2026): Vari stepped down as women's soccer head coach effective March 6, 2026 after six "
+    },
+    {
+      "coach_id": "da6f82d6-5ed6-46d2-8bed-7fb0e8bfa1c7",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://hilberthawks.com/news/2025/12/5/hannah-callaghan-announced-as-next-head-womens-soccer-coach.aspx",
+      "destination_institution": null,
+      "replacement_name": "Hannah Callaghan",
+      "reason": "PROVEN_STALE — replaced by Hannah Callaghan | Official Hilbert release (Dec 5, 2025) and AMCC conference release: Hannah Callaghan ([withheld]@hilbert.edu) named perm"
+    },
+    {
+      "coach_id": "a0478d57-424a-4d96-9d58-8c6ba50b97f3",
+      "name": "[name withheld]",
+      "category": "PROVEN_STALE",
+      "checked_at": "2026-09-27",
+      "source_url": "https://wcpoets.com/staff-directory/nicole-borowinski/",
+      "destination_institution": null,
+      "replacement_name": "[name withheld — coach 60dc4d7a-2a89-47e6-9eed-abd8c17387d8]",
+      "reason": "PROVEN_STALE — replaced by [name withheld — coach 60dc4d7a-2a89-47e6-9eed-abd8c17387d8] | Current Whittier women's soccer coaches page and athletics staff directory list [name withheld — coach 60dc4d7a-2a89-47e6-9eed-abd8c17387d8] ([withheld]@whittier.edu"
+    }
+  ]
+}

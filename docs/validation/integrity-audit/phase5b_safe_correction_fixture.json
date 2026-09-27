@@ -1,0 +1,25 @@
+{
+  "built_at": "2026-09-26T23:19:54.031Z",
+  "note": "Phase 5B — deterministic personal->personal email corrections only. NOT APPLIED.",
+  "count": 2,
+  "entries": [
+    {
+      "coach_id": "d7c244bd-4744-4053-88ce-50eb92c5ef26",
+      "old_email": "[withheld]@redacted.invalid",
+      "new_email": "[withheld]@redacted.invalid",
+      "seen_at": "2026-09-26",
+      "seen_url": "https://angelosports.com/sports/womens-soccer/coaches",
+      "source_type": "official_athletics_staff_page",
+      "reason": "Head coach [name withheld — coach d7c244bd-4744-4053-88ce-50eb92c5ef26] is current on the page, but it publishes [withheld]@redacted.invalid; the stored [withheld]@angelo.edu does not appear."
+    },
+    {
+      "coach_id": "d9a32339-a580-45b9-b94a-8dba80e86b05",
+      "old_email": "[withheld]@redacted.invalid",
+      "new_email": "[withheld]@redacted.invalid",
+      "seen_at": "2026-09-26",
+      "seen_url": "https://ursulinearrows.com/sports/womens-soccer/coaches",
+      "source_type": "official_athletics_staff_page",
+      "reason": "Head coach [name withheld — coach d9a32339-a580-45b9-b94a-8dba80e86b05] is current on the live page, but it now publishes [withheld]@redacted.invalid (Ursuline athletics operates under a Gannon University affiliation); the stored [withheld]@ursuline.edu add"
+    }
+  ]
+}
