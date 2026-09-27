@@ -3,7 +3,8 @@
 > ## The committed copies are REDACTED — the coach columns are empty on purpose
 >
 > Between them these files carried **2,033 head-coach names and 1,947 email addresses**,
-> 802 of which their own `head_coach_email_type` column classifies as `personal`. This
+> **1,854** of which their own `head_coach_email_type` column classifies as `personal`
+> (the remaining 93 are `inferred`). This
 > repository is **public**, and nothing in `server/`, `src/`, `shared/` or `worker/` reads
 > these files — the two tools that do (`repair_athletics_domain.py`,
 > `discover_roster_urls.py`) read `athletics_domain` and the roster URL, never a coach

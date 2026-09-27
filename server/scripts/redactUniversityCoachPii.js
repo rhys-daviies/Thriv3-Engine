@@ -13,9 +13,10 @@
  * data reaches the product through the database, not through git.
  *
  * Between them they carried 2,033 head-coach names and 1,947 addresses, and the
- * files' own `head_coach_email_type` column classifies 802 of the men's as
- * "personal" — by the data's own account these are individuals' mailboxes, not
- * programme role addresses. This repository is public.
+ * files' own `head_coach_email_type` column classifies 1,854 of them as
+ * "personal" and the other 93 as "inferred" — by the data's own account almost
+ * every one is an individual's mailbox, not a programme role address. This
+ * repository is public.
  *
  * WHAT IS REMOVED — the person, and nothing else
  *   head_coach         the name
