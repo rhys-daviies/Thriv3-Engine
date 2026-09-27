@@ -32,10 +32,27 @@ if (!dbArg || /\/data\/recruitmatch\.sqlite$/.test(path.resolve(dbArg))) { conso
 
 const db = new Database(dbArg);
 const all = (s) => db.prepare(s).all();
-const colleges = all('SELECT name, sport, unitid, state, division FROM colleges');
+// Defensive column selection: minimal test fixtures may omit newer columns, so
+// alias any absent one rather than failing the query.
+const hasCols = (tbl) => new Set(db.prepare(`PRAGMA table_info(${tbl})`).all().map((c) => c.name));
+const collCols = hasCols('colleges');
+const colleges = all(`SELECT name, sport, unitid, state, division, ${collCols.has('active') ? 'active' : '1 AS active'} FROM colleges`);
 const domains = all('SELECT domain, unitid, status FROM athletics_domains');
 const aliases = all('SELECT alias_key, unitid, alias_type FROM institution_aliases');
-const coaches = all('SELECT id, full_name, email, school, sport, position_title, email_status, email_source_url, currentness_status FROM coaches');
+const coachCols = hasCols('coaches');
+const coachSel = ['id', 'full_name', 'email', 'school', 'sport', 'position_title', 'email_status', 'email_source_url', 'currentness_status', 'currentness_source_url', 'email_seen_on_source_at', 'email_seen_on_source_url']
+  .map((c) => (coachCols.has(c) ? c : `NULL AS ${c}`)).join(', ');
+const coaches = all(`SELECT ${coachSel} FROM coaches`);
+
+// PHASE 7B.2 — strict authoritative corroboration activation scope. The evidence model
+// is division-agnostic, but activation is gated conservatively (default NAIA-only) so no
+// NCAA behaviour can change. `STRICT_CORROB_SCOPE`: comma list of divisions, 'ALL', or
+// 'OFF' (disables the alternative path entirely — the pre-7B.2 behaviour).
+const STRICT_SCOPE_RAW = (process.env.STRICT_CORROB_SCOPE ?? 'NAIA');
+const STRICT_OFF = STRICT_SCOPE_RAW === 'OFF';
+const STRICT_ALL = STRICT_SCOPE_RAW === 'ALL';
+const STRICT_DIVS = new Set(STRICT_SCOPE_RAW.split(',').map((s) => s.trim()));
+const inStrictScope = (division) => !STRICT_OFF && (STRICT_ALL || STRICT_DIVS.has(division));
 
 // duplicate-UNITID canonical map (identity canonicalisation, no physical merge)
 const dupMap = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../docs/validation/generated/duplicate_unitid_canonical_map.json'), 'utf8'));
@@ -120,10 +137,42 @@ function reconcile(co) {
   const sourceDomainTrusted = sdom && csTrustedDomains.has(sdom)
     && ['VERIFIED', 'VERIFIED_ALIAS'].includes(domByName.get(sdom)?.status)
     && domByName.get(sdom)?.unitid === resolvedUnitid;
-  const corroborated = idAtEvidence || idAtCurrent || sourceDomainTrusted;
   // Currentness fails outreach CLOSED only when a coach is PROVEN_STALE. UNKNOWN
   // (the default for every un-checked row) never disqualifies here.
   const provenStale = co.currentness_status === 'PROVEN_STALE';
+
+  // ---- Corroboration as an explicit, auditable method (Phase 7B.2) ----
+  // Existing registry-corruption-immune paths (coach_seasons) are preserved EXACTLY.
+  let corroborationMethod = null;
+  if (sourceDomainTrusted) corroborationMethod = 'COACH_SEASONS_SOURCE_DOMAIN';
+  else if (idAtEvidence || idAtCurrent) corroborationMethod = 'COACH_SEASONS_IDENTITY';
+
+  // STRICT_AUTHORITATIVE_CURRENT — an alternative independent corroboration proven in
+  // Phase 7B.1. It never fires for a coach the coach_seasons paths already corroborate,
+  // and it is gated by activation scope (default NAIA-only) so NCAA behaviour cannot change.
+  // Every one of these must hold — positive evidence never overrides a contradiction.
+  const progRow = collByNS.get(`${co.school}|${co.sport}`);
+  const strictDomainOk = !!sdom && domByName.has(sdom) && !isHeldDomain(sdom)
+    && ['VERIFIED', 'VERIFIED_ALIAS'].includes(domByName.get(sdom)?.status)
+    && domByName.get(sdom)?.unitid != null && domByName.get(sdom)?.unitid === resolvedUnitid;
+  const strictAuthoritative = !corroborationMethod
+    && inStrictScope(progRow?.division)               // activation scope (contradiction gate: division)
+    && inst === DECISION.RESOLVED                       // (1) resolver RESOLVED, (15) no unresolved ambiguity
+    && cls === 'KEEP'                                   // (2) canonical == programme (no REASSIGN/REVIEW)
+    && resolvedUnitid != null && resolvedUnitid === curUnitid
+    && progRow?.active === 1                            // (3) programme active
+    && !!curUnitid                                      // (4) sport-scoped programme exists (reconcile is per-sport)
+    && co.currentness_status === 'CURRENT'             // (5) currentness CURRENT
+    && !!co.currentness_source_url                     // (6) authoritative currentness source present
+    && strictDomainOk                                  // (7)(10) source domain independently trusted for same UNITID
+    && !!co.email_seen_on_source_at                    // (9) observation timestamp
+    && !!co.email_seen_on_source_url                   // (8)(10) observation URL
+    && emailStatus === 'verified'                       // (12) verified + (11) personal/consumer (generic/inferred excluded)
+    && hasRealEmail && !isTeam                          // real per-person address
+    && !provenStale;                                   // (13) not proven stale (contradiction gate: departed)
+  if (strictAuthoritative) corroborationMethod = 'STRICT_AUTHORITATIVE_CURRENT';
+
+  const corroborated = corroborationMethod != null;
   const eligible = inst === DECISION.RESOLVED && emailStatus === 'verified' && hasRealEmail && !isTeam
     && ['KEEP', 'REASSIGN'].includes(cls) && corroborated && !provenStale;
   let ineligibleReason = '';
@@ -132,7 +181,7 @@ function reconcile(co) {
     else if (!hasRealEmail || isTeam) ineligibleReason = 'no per-person address';
     else if (emailStatus !== 'verified') ineligibleReason = `email ${emailStatus}`;
     else if (inst !== DECISION.RESOLVED) ineligibleReason = `institution ${inst}`;
-    else if (!corroborated) ineligibleReason = `${cls} not corroborated by coach_seasons`;
+    else if (!corroborated) ineligibleReason = `${cls} not corroborated (coach_seasons or strict-authoritative)`;
     else ineligibleReason = cls;
   }
 
@@ -144,7 +193,7 @@ function reconcile(co) {
     classification: cls, institution_resolution_status: inst,
     coach_identity_status: identityStatus, email_verification_status: emailStatus,
     outreach_eligibility: eligible ? 'YES' : 'NO', ineligible_reason: ineligibleReason,
-    resolution_method: method || 'NONE', evidence: evNote,
+    resolution_method: method || 'NONE', corroboration_method: corroborationMethod || 'NONE', evidence: evNote,
     reassigned: cls === 'REASSIGN' ? 1 : 0,
     canonicalized: resolvedName && resolvedName !== co.school ? 1 : 0,
   };
@@ -160,7 +209,7 @@ db.exec(`CREATE TABLE coaches_reconciled (
   source_url TEXT, source_domain TEXT, email_domain TEXT,
   classification TEXT, institution_resolution_status TEXT, coach_identity_status TEXT,
   email_verification_status TEXT, outreach_eligibility TEXT, ineligible_reason TEXT,
-  resolution_method TEXT, evidence TEXT, reassigned INTEGER, canonicalized INTEGER)`);
+  resolution_method TEXT, corroboration_method TEXT, evidence TEXT, reassigned INTEGER, canonicalized INTEGER)`);
 const cols = Object.keys(rows[0]);
 const ins = db.prepare(`INSERT INTO coaches_reconciled (${cols.join(',')}) VALUES (${cols.map((c) => '@' + c).join(',')})`);
 db.transaction(() => rows.forEach((r) => ins.run(r)))();

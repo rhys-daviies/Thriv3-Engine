@@ -37,6 +37,14 @@ All 30 = **ACTIVE_CONFIRMED**. All 5 shared-unitid name collisions resolved to a
 - **Person defect rate = 8.3% (6/72)** — 4 departed + 2 wrong-sport.
 - **Legacy VERIFIED email defect rate = 10.7% (6/56)** — the other 50/56 (89%) were the exact address literally
   published on the official page today.
+  - **[Corrected terminology, Phase 7B.2 Part A]** All 6 are **ASSOCIATION_DEFECTs, not ADDRESS_DEFECTs**. The
+    stored addresses themselves are all real and valid; the defect is that the coach *row* is not valid for the
+    programme now. Mutually-exclusive reconciliation of the 56: exact-current-valid-association **50** +
+    current-email-changed **0** + no-longer-published **0** + **departed-person association 4** +
+    **wrong-sport association 2** + wrong-institution association **0** + unverifiable **0**. So
+    **ADDRESS_DEFECT = 0 / ASSOCIATION_DEFECT = 6**. Architecturally this matters: association defects are caught
+    by the strict path's *contradiction gate* (departed → PROVEN_STALE; wrong-sport → currentness only set for
+    the correct programme+sport), not by the email checks.
 - **Legacy INFERRED emails: 15 of 16 are unpublished/unconfirmable** — inferred addresses are pattern-shaped and
   almost never appear on the official source.
 - **Consumer-domain "verified" emails were a false alarm**: the three sampled (a gemcorp.com and two yahoo
