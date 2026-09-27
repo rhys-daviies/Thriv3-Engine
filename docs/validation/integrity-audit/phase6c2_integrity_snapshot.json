@@ -1,0 +1,104 @@
+{
+  "milestone": "PHASE 6C.2 — EXISTING COACH RECOVERY APPLIED",
+  "created_at": "2026-09-27T05:35:32.528Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev — NOT production /data)",
+  "coach_fingerprint_sha256": "6d87d8eb85a37aa522b13eab2f8da1df9dc7936bc6eaf1b26e63b2ec24df0868",
+  "coaches_total": 6388,
+  "eligible_coaches": 3343,
+  "coverage_scorecard": {
+    "COVERED_ELIGIBLE": 1482,
+    "COVERED_INELIGIBLE_ONLY": 632,
+    "COACH_SEASONS_ONLY": 16,
+    "NO_COACH_DATA": 269
+  },
+  "core_covered_eligible_pct": "68.3%",
+  "div_pct": {
+    "D1": "84.3%",
+    "D2": "87.4%",
+    "D3": "81.2%"
+  },
+  "adjudication_29": {
+    "case": {
+      "WRONG_FILED_INSTITUTION": 25,
+      "SOURCE_ERROR": 3,
+      "LEGITIMATE_DUAL_ROLE": 1
+    },
+    "historical": {
+      "NEVER_CORRECT": 25,
+      "NA": 4
+    }
+  },
+  "repaired_coach_ids": [
+    "399ae906-1387-47f1-af4d-c02273ff8916",
+    "cb286a9c-b98c-4a1c-8f52-13a40fcd4659",
+    "d6b6ed2f-0440-425e-a120-588e804078b4",
+    "f2e9369e-de2a-4829-96ef-e3fcc3594286",
+    "864c558b-0507-469b-a514-71373abf3f91",
+    "06e2ec53-581c-48d2-8386-670aad42fd79",
+    "f16e81c4-a6df-471f-bff5-b2e6e4bd3083",
+    "c7f47ef2-6a37-4339-aa60-53f78398199c",
+    "3ba77ec1-c50c-461c-ba71-1592f01e8739",
+    "b767e557-bd82-4226-8fa2-398524776c5c",
+    "8a4c43a3-5f01-4a88-ac94-3f032322f2e2",
+    "7e6dd582-e5e8-4af8-8db9-596c3a8983ab",
+    "f8d1d5f6-a95c-49a1-8d40-37b91b05d7cd",
+    "bdb4d2f5-7291-41e9-989a-f2fae7ee059d",
+    "4fbced68-6ecb-43d2-b943-b00d1983f839",
+    "44ffa94a-f67a-413a-8760-98db4ab368ac",
+    "37b8bde0-170d-4edf-be8d-e6eece693e92",
+    "5165303b-358c-4692-88ae-161215037933",
+    "d2e8a36c-80c9-4ad8-941f-d119f8aafc19",
+    "6fd01d98-ac0b-4756-baf7-9f1543780ae3",
+    "f8f8cba1-b0c0-43f7-a01f-c7bd3a14c7f6",
+    "53ff77e7-50ae-4b07-a826-cee16c64615a",
+    "732bd910-b4cf-4077-8b2c-f1fccc9779a7",
+    "40be0c4e-5861-44b3-97d5-7b1bcdea04d6",
+    "f51b354a-a4d0-436b-a533-99aa14cf1429"
+  ],
+  "repaired_count": 25,
+  "held": [
+    {
+      "id": "ef29a1d1-c14d-4a33-8a39-8c388d65db6e",
+      "name": "Miranda Armstrong",
+      "case": "SOURCE_ERROR",
+      "reason": "consortium/ambiguous target — stored record already correct"
+    },
+    {
+      "id": "868b6c02-ab23-4c6e-b250-e5ca355e3f1e",
+      "name": "David Nolan",
+      "case": "SOURCE_ERROR",
+      "reason": "consortium/ambiguous target — stored record already correct"
+    },
+    {
+      "id": "ebdde498-f023-4dad-9d85-b3b1dc398368",
+      "name": "Brandon Wachholz",
+      "case": "LEGITIMATE_DUAL_ROLE",
+      "reason": "dual-role needs a new record (insert), not a reassignment"
+    },
+    {
+      "id": "868b6c02-ab23-4c6e-b250-e5ca355e3f1e",
+      "name": "David Nolan",
+      "case": "SOURCE_ERROR",
+      "reason": "consortium/ambiguous target — stored record already correct"
+    }
+  ],
+  "target_gains": 16,
+  "source_losses": 0,
+  "net_covered_change": 16,
+  "source_fallout_queue": 3,
+  "integrity": {
+    "source_domain_conflicts": 0,
+    "wrong_institution_eligible": 0,
+    "canonical_round_trip": 0,
+    "duplicate_emails": 118,
+    "duplicate_identity_rows": 0,
+    "orphan_coaches": 1,
+    "email_confirmed_at": 0,
+    "integrity_check": "ok"
+  },
+  "hashes": {
+    "recovery_fixture": "7032c54a561eb34d",
+    "fallout": "b722b689b5b0b51a",
+    "adjudication": "e03d4f5da51056cb"
+  }
+}
