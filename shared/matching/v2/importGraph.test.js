@@ -219,6 +219,13 @@ const MAY_IMPORT_V2 = [
    * ids its fixture authorises.
    */
   'server/scripts/applyContaminationRemoval.js',
+  /**
+   * A7.43. The re-acquisition applier. It reaches V2 for `readClassYear` and
+   * `normalizePosition` only - the same two normalisers `importRosterSheets`
+   * uses - so the rows it writes carry the importer's semantics rather than
+   * new ones.
+   */
+  'server/scripts/applyReacquiredRosters.js',
 ];
 
 const SEARCH_ROOTS = ['shared', 'server', 'src', 'worker'];

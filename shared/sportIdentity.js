@@ -89,9 +89,21 @@ export function assessPageIdentity({ requestedSport = 'soccer', requestedSeason 
      * contain the word we wanted - a combined athletics page can mention both,
      * and the safe reading of an ambiguous page is not "yes".
      */
+    /**
+     * A7.43. A page naming NEITHER is UNKNOWN, not a contradiction - corrected
+     * after porting this spec into the pipeline and measuring it against the
+     * 2,060 real 2026 acquisitions. Eight legitimate pages are simply silent
+     * about the sport: "Pomona Pitzer Athletics", "Long Island University
+     * Athletics", "2026 Kangaroos", and one carrying a typo, "Men's Socccer".
+     * Reading silence as contradiction would have refused all eight.
+     *
+     * SILENCE IS NOT CONTRADICTION. Both contaminated pages named a foreign
+     * sport, so the harm this contract exists to stop is caught by the first
+     * branch; the third branch would only have cost working acquisitions.
+     */
     if (saysForeign) sport = IDENTITY.CONTRADICTS;
     else if (saysWanted) sport = IDENTITY.AGREES;
-    else sport = IDENTITY.CONTRADICTS;
+    else sport = IDENTITY.UNKNOWN;
   }
 
   /**

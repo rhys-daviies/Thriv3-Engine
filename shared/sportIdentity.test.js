@@ -84,6 +84,22 @@ describe('absence of a contradiction is never agreement', () => {
     expect(r.action).toBe(IDENTITY_ACTION.EXTRACT);
   });
 
+  it('a page that names NO sport is UNKNOWN, not a contradiction', () => {
+    /**
+     * A7.43, corrected after measuring the port against 2,060 real 2026
+     * acquisitions: eight legitimate pages are simply silent about the sport.
+     * "Pomona Pitzer Athletics" and "2026 Kangaroos" are real titles, and so
+     * is "Men's Socccer" - a typo that spells no sport this check knows.
+     * Reading silence as contradiction would have refused all eight.
+     */
+    for (const title of ['Pomona Pitzer Athletics', '2026 Kangaroos - Austin College Kangaroos',
+      'Long Island University Athletics', "Men's Socccer 2026 - Old Dominion Athletics"]) {
+      const r = at({ title });
+      expect(r.sport, title).toBe(IDENTITY.UNKNOWN);
+      expect(r.action, title).toBe(IDENTITY_ACTION.REVIEW);
+    }
+  });
+
   it('a page naming a foreign sport contradicts even if it also says soccer', () => {
     // A combined athletics page mentions many sports; the safe reading of an
     // ambiguous page is not "yes".
