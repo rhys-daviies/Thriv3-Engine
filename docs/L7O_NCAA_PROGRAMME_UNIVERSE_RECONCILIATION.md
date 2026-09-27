@@ -142,7 +142,7 @@ they are marked `UNKNOWN`.
 `annamaria.edu`, re-read today: *"Anna Maria College has filed for bankruptcy
 protection under Chapter 11"* and *"**Anna Maria ceased academic operations at
 the end of the Spring 2026 semester**"*, with teach-out and transfer partnerships
-and a `transition@annamaria.edu` contact. Its athletics site returns **403 on
+and a `[withheld]@annamaria.edu` contact. Its athletics site returns **403 on
 every route including the root**, redirecting to `annamaria.prestosports.com/site-in-maintenance`.
 `active_to_season 2025`. **Evidence: HIGH.**
 

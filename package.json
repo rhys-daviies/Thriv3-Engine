@@ -62,6 +62,7 @@
     "trial:preflight": "node server/scripts/trialPreflight.js",
     "tune:weights": "node server/scripts/tuneMatchingWeights.js",
     "verify:baseline": "node server/scripts/verifyBaselineInvariants.js",
+    "scan:committed-pii": "node server/scripts/committedPiiScan.js",
     "validate:institution-integrity": "node server/scripts/validateInstitutionIntegrity.js"
   },
   "dependencies": {
