@@ -107,6 +107,9 @@ function rowsOf(run, ctx, position, entryYear) {
       vacatedStarters: e.recruitability?.basis?.positional?.vacatedStarters ?? null,
       positionRows: bucket?.rows ?? 0,
       positionUnreadable: bucket?.unreadable ?? 0,
+      /** A7.37. Undefined on a pre-repair tree, which is how the A/B tells them apart. */
+      pathwayGrade: isScoreable(opp) ? (opp.basis?.components?.playingPathway?.grade ?? null) : null,
+      rotationOnly: isScoreable(opp) ? Boolean(opp.basis?.components?.playingPathway?.rotationOnly) : false,
       returning: returning?.total ?? null,
       returningUnknown: returning?.unknown ?? null,
     });

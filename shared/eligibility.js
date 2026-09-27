@@ -276,6 +276,41 @@ export function eligibilityCeiling({ klass, redshirt = false, season, division }
  * may play. This is the quantity `players.recruiting_class_year` is compared
  * against, and naming it here keeps the off-by-one in one place.
  */
+/**
+ * The furthest season any row in a roster of `season` could still be eligible
+ * for, at this division. A7.37.
+ *
+ * PURELY DERIVED, AND ADDITIVE. It asks `eligibilityCeiling` the same question
+ * for every class and both redshirt states and keeps the largest answer, so it
+ * cannot drift from the rule it summarises and no threshold is written down
+ * here. Nothing existing reads it and no existing behaviour changes.
+ *
+ * -- WHY THE OPPORTUNITY LAYER NEEDS IT ------------------------------------
+ *
+ * `returningCompetition` counts players whose last season is AFTER the entry
+ * year. Once the entry year reaches this ceiling, that count is zero for every
+ * programme in the division no matter what its roster holds - the calendar has
+ * decided it, not the evidence. A7.36 measured the consequence: at a 2030
+ * entry, 100% of men's programme-position cells scored the maximum competition
+ * value and every one was graded MEASURED.
+ *
+ * From a 2026 roster this is 2030 at Division I and II and 2029 at Division III
+ * and the NAIA, which is exactly the five-season and four-season windows.
+ *
+ * @returns {number|null} null when the division has no rule on file, which the
+ *   callers already refuse on separately.
+ */
+export function maxAttainableLastSeason({ season, division }) {
+  let max = null;
+  for (const klass of Object.keys(ADVANCE_ONE_CLASS)) {
+    for (const redshirt of [false, true]) {
+      const { lastSeason } = eligibilityCeiling({ klass, redshirt, season, division });
+      if (lastSeason !== null && (max === null || lastSeason > max)) max = lastSeason;
+    }
+  }
+  return max;
+}
+
 export function openingSeason({ klass, redshirt = false, season, division }) {
   const c = eligibilityCeiling({ klass, redshirt, season, division });
   return c.lastSeason === null ? null : c.lastSeason + 1;

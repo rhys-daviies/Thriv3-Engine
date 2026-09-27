@@ -37,6 +37,12 @@ export function buildPoolContext({ db, sport, season = '2026', nearBandKm }) {
   return {
     colleges,
     roster,
+    /**
+     * A7.37. The season the roster above was read from, carried so Playing
+     * Pathway can tell how far past its own evidence an entry year sits. It
+     * was a parameter that never left this function.
+     */
+    rosterSeason: Number(season),
     rosterProgrammes: new Set(roster.map((r) => r.college_name)),
     rosterIndex: buildPositionIndex(roster),
     v1RosterIndex: buildRosterIndex(roster),

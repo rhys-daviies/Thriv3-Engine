@@ -225,7 +225,22 @@ const SENTENCE = {
   [REASON_CODE.RETURNING_COMPETITION_PARTIAL]: (e) =>
     `${e.returning} ${players(e.position, e.returning)} projected to remain for the entry year, against ${e.typicalStarters} typical starting place${e.typicalStarters === 1 ? '' : 's'}. Roles are known for ${e.roleKnown} of the ${e.returning}.`,
   [REASON_CODE.RETURNING_NONE_PROJECTED]: (e) =>
-    `No returning ${PLAYER_NOUN[e.position]?.plural ?? 'players'} are projected from the readable current roster.`,
+    `No returning ${PLAYER_NOUN[e.position]?.plural ?? 'players'} are projected from the readable current roster`
+    + `${e.unreadable > 0 ? `, and ${e.unreadable} of the ${e.positionRows} on file could not be read` : ''}.`,
+  /**
+   * A7.37. NEVER "few returning players". The whole point of these three is
+   * that not knowing is a different sentence from knowing there are none.
+   */
+  [REASON_CODE.RETURNING_HORIZON_UNREADABLE]: (e) =>
+    `How many ${PLAYER_NOUN[e.position]?.plural ?? 'players'} return for the entry year could not be established: `
+    + `${e.unreadable} of the ${e.positionRows} on file carry no readable year. `
+    + `That is not evidence that the position is open.`,
+  [REASON_CODE.RETURNING_BEYOND_ROSTER_REACH]: (e) =>
+    `The ${e.entryYear} entry year is beyond what this roster can see - nobody currently listed could still `
+    + `be eligible after it - so returning competition has not been assessed for any programme at this level.`,
+  [REASON_CODE.PATHWAY_ROTATION_ONLY]: () =>
+    `This reads only how the programme has shared minutes in past seasons. It carries no assessment of who `
+    + `will be competing for the place when the athlete arrives.`,
   [REASON_CODE.PLAYING_SHARE_WIDE]: (e) =>
     `This programme spreads its minutes at the position more widely than the typical one (${e.share} against a median of ${e.median}), measured ${e.level === 'programme' ? SEASONS[e.strength] : `at ${e.level} level`}.`,
   [REASON_CODE.PLAYING_SHARE_NARROW]: (e) =>

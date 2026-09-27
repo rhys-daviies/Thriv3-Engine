@@ -74,6 +74,7 @@ export {
 
 export {
   squadRotation, returningCompetition, playingPathway, returningPressure, competitionFromPressure, programmeTrajectory, majorFit, locationFit, athleticOutcome,
+  RETURNER_STATE, ZERO_CLAIM_READABLE_SHARE, MEASURED_HORIZON_DEPTH,
   academicStrengthFit,
 } from './layers/opportunityComponents.js';
 

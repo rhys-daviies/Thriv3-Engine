@@ -67,6 +67,8 @@ export function runPursuit({
      */
     rosterIndex: ctx.rosterIndex ?? null,
     entryYear: athlete.recruitability?.entryYear ?? null,
+    /** A7.37. How far the entry year sits past the roster this is read from. */
+    rosterSeason: ctx.rosterSeason ?? null,
     overrides: opportunityOverrides,
   });
   // Carried out so a diagnostic can show which preference produced which list.

@@ -138,9 +138,72 @@ export const competitionFromPressure = (pressure, { halfAt = COMPETITION_HALF_PR
  * refinement is missing would have left this component silent for most of the
  * pool at the horizons Thriv3 actually recruits for.
  */
+/**
+ * A7.37. What the three returner states are called, so the vocabulary is in
+ * one place and an explanation cannot invent a fourth.
+ *
+ * The third is the one this component did not have before. A row whose class
+ * year could not be read yields no eligibility ceiling, so it entered neither
+ * `byLastSeason` nor `starterLastSeason` and simply vanished - and a position
+ * group that vanished entirely read as a MEASURED empty one.
+ */
+export const RETURNER_STATE = Object.freeze({
+  KNOWN_RETURNING: 'KNOWN_RETURNING',
+  KNOWN_DEPARTING: 'KNOWN_DEPARTING',
+  /** Rows with no readable eligibility horizon. NOT the same as unknown ROLE. */
+  UNKNOWN_HORIZON: 'UNKNOWN_HORIZON',
+});
+
+/**
+ * A7.37 F1-b. How much of a position group must be readable before a count of
+ * ZERO returners is allowed to stand as a measurement.
+ *
+ * HEURISTIC, and preregistered with its reason before it was measured: a zero
+ * is a claim about the WHOLE group, and one half is the smallest share at which
+ * the rows we read cannot be outvoted by the rows we did not. Below it, the
+ * unread remainder could by itself hold enough returners to overturn the
+ * conclusion, so the claim is not ours to make.
+ *
+ * IT GOVERNS THE ZERO CLAIM ONLY. A non-zero count is affirmative evidence
+ * that competition exists, and refusing it would throw away a real observation
+ * because of rows that could only have made it larger.
+ */
+export const ZERO_CLAIM_READABLE_SHARE = 0.5;
+
+/**
+ * A7.37 F2-b. How far past the roster season a MEASURED grade may survive.
+ *
+ * HEURISTIC, preregistered with its reason. At depth d the entry-year squad
+ * contains roughly d x (first-year share) players who have not been recruited
+ * yet and are therefore invisible to this roster. `shared/matching/pool.js`
+ * records the men's first-year share as 29.5%, so about 30% of the entry-year
+ * squad is unobserved at depth 1 and about 59% at depth 2. DEPTH 2 IS WHERE
+ * THE MAJORITY OF THE THING BEING ESTIMATED IS NOT IN THE DATA, and a MEASURED
+ * grade must not survive that. A7.8.1 found the same boundary from the other
+ * side: the median placeable share of returners falls to zero at two years.
+ *
+ * IT MOVES NO VALUE. Depth changes the grade and nothing else - there is no
+ * year penalty anywhere in this file, because a further entry year is not
+ * evidence of a worse opportunity.
+ */
+export const MEASURED_HORIZON_DEPTH = 1;
+
 export function returningCompetition({
   returning = null, position = null, places = null,
   rosterOnFile = false, eligibilityRuled = true,
+  /**
+   * A7.37 F1. The size of the observed position group and how much of it had
+   * no readable eligibility ceiling. Both already existed at the call site and
+   * were already consumed by `positionalOpportunity`; only this component was
+   * never told.
+   */
+  positionRows = null, unreadable = 0,
+  /**
+   * A7.37 F2. The horizon, so the component can grade its own decay. It could
+   * not before: the entry year was applied by the caller before this function
+   * saw anything, which is why the decay was invisible from in here.
+   */
+  entryYear = null, rosterSeason = null, maxLastSeason = null,
   squadWeight, unknownWeight, halfAt,
 }) {
   if (!rosterOnFile) {
@@ -157,24 +220,142 @@ export function returningCompetition({
     return unscoreable({ reason: REASON.NO_ROSTER_ON_FILE, missing: ['returningDepth'], available: ['roster'] });
   }
 
+  /**
+   * A7.37 F2-a. STRUCTURAL SILENCE, and the rule is derived rather than
+   * chosen. A returner needs a last season AFTER the entry year. Once the
+   * entry year reaches the furthest season any row in this roster could still
+   * be eligible for, that is impossible for every programme in the division
+   * alike - so a count of zero has been decided by the calendar and measures
+   * nothing about anybody. From a 2026 roster the ceiling is 2030 at Division
+   * I and II and 2029 at Division III and the NAIA.
+   *
+   * This is the rule that answers A7.36's worst finding: at a 2030 entry every
+   * cell in the men's universe scored the maximum and every one was MEASURED.
+   */
+  /**
+   * READ THROUGH `stated`, NOT `Number.isFinite`. The header of this file
+   * records that trap biting twice within an hour; writing this guard as a
+   * bare finiteness test made it three, because `Number(null)` is 0 and 0 is
+   * finite - so an absent entry year read as "entry year 0", which is past
+   * every horizon, and refused the whole universe.
+   */
+  const horizon = (stated(maxLastSeason) && stated(entryYear))
+    ? { entryYear: Number(entryYear), maxLastSeason: Number(maxLastSeason) } : null;
+  if (horizon && horizon.entryYear >= horizon.maxLastSeason) {
+    return unscoreable({
+      reason: REASON.NO_CLASS_LABELS,
+      missing: ['eligibilityHorizon'],
+      available: ['roster', 'classYears', 'eligibilityRule'],
+      coverage: 0,
+      detail: {
+        position,
+        entryYear: horizon.entryYear,
+        maxLastSeason: horizon.maxLastSeason,
+        note: 'no player on this roster could still be eligible after the entry year, so a count of zero '
+          + 'returners is forced by the eligibility window rather than measured from this programme',
+      },
+    });
+  }
+
+  const rows = stated(positionRows) ? Math.max(0, Number(positionRows)) : null;
+  const unread = Math.max(0, Number(unreadable) || 0);
+  const readable = rows === null ? null : Math.max(0, rows - unread);
+  /**
+   * How much of the observed group produced an eligibility horizon at all.
+   * `null` positionRows means a caller that predates A7.37 and has not been
+   * told; it is treated as fully readable so the component keeps its old
+   * behaviour rather than refusing on a caller's silence.
+   */
+  const readableShare = rows === null || rows === 0 ? 1 : readable / rows;
+
+  /**
+   * A7.37 F1-a. THE MIRROR OF "A ZERO MUST REST ON SOMETHING".
+   *
+   * `positionalOpportunity` has carried this guard on the DEPARTING side since
+   * A7.7.2, when it measured 307 men's and 341 women's cells scoring a
+   * confident zero on a cohort nobody could classify. This component reads the
+   * RETURNING side of the very same index and had no equivalent, which is the
+   * whole of A7.36's root cause. Saint Joseph's (ME) at forward carries ten
+   * observed players, ten of them unreadable, and scored 1.000 MEASURED.
+   */
+  if (rows !== null && rows > 0 && readable === 0) {
+    return unscoreable({
+      reason: REASON.NO_CLASS_LABELS,
+      missing: ['classYears'],
+      available: ['roster', 'eligibilityRule'],
+      coverage: 0,
+      detail: {
+        position,
+        positionRows: rows,
+        unreadable: unread,
+        note: 'no player at this position has a readable eligibility horizon, so nothing is known about '
+          + 'who returns - which is not the same as knowing that nobody does',
+      },
+    });
+  }
+
   const starters = Math.max(0, Number(returning.starters) || 0);
   const squad = Math.max(0, Number(returning.squad) || 0);
   const unknown = Math.max(0, Number(returning.unknown) || 0);
   const total = starters + squad + unknown;
+
+  /**
+   * A7.37 F1-b. A ZERO CLAIM NEEDS A READABLE MAJORITY.
+   *
+   * Only the zero. A non-zero count is affirmative evidence that competition
+   * exists, and the rows we could not read could only ever have made it
+   * larger - refusing it would discard a real observation for being
+   * incomplete in the athlete's favour.
+   */
+  if (total === 0 && readableShare < ZERO_CLAIM_READABLE_SHARE) {
+    return unscoreable({
+      reason: REASON.NO_CLASS_LABELS,
+      missing: ['classYears'],
+      available: ['roster', 'eligibilityRule'],
+      coverage: readableShare,
+      detail: {
+        position,
+        positionRows: rows,
+        unreadable: unread,
+        readableShare,
+        note: 'no returners were counted, but a minority of this position group had a readable eligibility '
+          + 'horizon, so the zero rests on too little to stand as a measurement of the group',
+      },
+    });
+  }
+
   const pressure = returningPressure({ starters, squad, unknown }, { places, squadWeight, unknownWeight });
   const value = competitionFromPressure(pressure, { halfAt });
 
   /**
-   * COVERAGE IS ABOUT ROLE, NOT ABOUT THE COUNT. The headcount is known
-   * whenever the roster is readable; what varies is how many of those players
-   * we can place. A readable roster with no returners is a MEASUREMENT of an
-   * empty position group, and must never be confused with a roster we could
-   * not read - which refuses above.
+   * TWO INDEPENDENT DOUBTS, AND THEY MULTIPLY.
+   *
+   * `roleCoverage` is the share of counted returners we could place as starter
+   * or squad. `readableShare` is the share of the position group that produced
+   * an eligibility horizon at all. The first was here before A7.37 and was
+   * doing its job; the second is the one that was missing, and conflating them
+   * was how an unreadable group became a measured empty one.
+   *
+   * THE VALUE IS UNTOUCHED BY BOTH. `coverage.js` rule 1 - value and coverage
+   * are never combined - so unreadable players become neither returners nor
+   * absentees. Counting them as returners would swap an optimistic bias for a
+   * pessimistic one, which is not a repair.
    */
-  const coverage = total === 0 ? 1 : (total - unknown) / total;
+  const roleCoverage = total === 0 ? 1 : (total - unknown) / total;
+  const coverage = readableShare * roleCoverage;
+
+  /**
+   * A7.37 F2-b. Depth degrades authority and never value. A further entry year
+   * is not evidence of a worse opportunity; it is evidence that we can see
+   * less of the squad the athlete would actually join.
+   */
+  const depth = (stated(entryYear) && stated(rosterSeason))
+    ? Number(entryYear) - Number(rosterSeason) : null;
+  const withinMeasuredHorizon = depth === null || depth <= MEASURED_HORIZON_DEPTH;
+
   return scoreable({
     value,
-    grade: (total === 0 || unknown === 0) ? GRADE.MEASURED : GRADE.PARTIAL,
+    grade: (unknown === 0 && readableShare === 1 && withinMeasuredHorizon) ? GRADE.MEASURED : GRADE.PARTIAL,
     coverage,
     basis: {
       position,
@@ -184,7 +365,19 @@ export function returningCompetition({
       returningUnknownRole: unknown,
       typicalStarters: places,
       pressure,
-      roleCoverage: coverage,
+      roleCoverage,
+      /** A7.37. The evidence behind the count, so an explanation can say what it does not know. */
+      positionRows: rows,
+      unreadableHorizon: unread,
+      readableShare,
+      entryYear: stated(entryYear) ? Number(entryYear) : null,
+      rosterSeason: stated(rosterSeason) ? Number(rosterSeason) : null,
+      horizonDepth: depth,
+      withinMeasuredHorizon,
+      states: {
+        [RETURNER_STATE.KNOWN_RETURNING]: total,
+        [RETURNER_STATE.UNKNOWN_HORIZON]: unread,
+      },
       squadWeight: squadWeight ?? RETURNING_SQUAD_WEIGHT,
       unknownWeight: unknownWeight ?? RETURNING_UNKNOWN_WEIGHT,
       halfAt: halfAt ?? COMPETITION_HALF_PRESSURE,
@@ -223,16 +416,42 @@ export function playingPathway({ competition, rotation, competitionShare = COMPE
     ? (competitionShare * competition.value) + ((1 - competitionShare) * rotation.value)
     : (hasC ? competition.value : rotation.value);
   const grades = [hasC ? competition.grade : null, hasR ? rotation.grade : null].filter(Boolean);
+  /**
+   * A7.37 F0. COVERAGE IS THE WEIGHT OF THE HALF WE ACTUALLY HAVE.
+   *
+   * It used to report `competitionShare` for BOTH single-half cases. That is
+   * right for competition-only, which carries 0.6, and wrong for
+   * rotation-only, which carries 0.4 - it was reporting the weight of the
+   * MISSING half. A7.36 found 52 men's and 72 women's cells in that state and
+   * every one of them was rotation-only, so the error only ever overstated.
+   * A reporting correction: no weight, value or threshold moves.
+   */
+  const coverage = (hasC && hasR) ? 1 : (hasC ? competitionShare : 1 - competitionShare);
   return scoreable({
     value,
+    /**
+     * A7.37. A single half is never a MEASURED pathway, whatever the grade of
+     * the half that survived. A programme's rotation habit is a true thing to
+     * know and it is not an answer to "how crowded will this position be when
+     * the athlete arrives" - so it may carry the value and must not carry the
+     * certainty.
+     */
     grade: grades.every((g) => g === GRADE.MEASURED) && hasC && hasR ? GRADE.MEASURED : GRADE.PARTIAL,
-    coverage: hasC && hasR ? 1 : competitionShare,
+    coverage,
     basis: {
       competitionShare,
       competition: hasC ? { value: competition.value, grade: competition.grade, ...competition.basis } : null,
       rotation: hasR ? { value: rotation.value, grade: rotation.grade, ...rotation.basis } : null,
       /** Named so an explanation can say which half it is reading. */
       usedBoth: hasC && hasR,
+      /**
+       * A7.37. Set when the entry-year half is missing, with the reason the
+       * component gave, so an explanation can say WHICH thing is unknown
+       * instead of implying that few players are returning.
+       */
+      rotationOnly: hasR && !hasC,
+      competitionRefusedBecause: hasC ? null : (competition?.reason ?? null),
+      competitionRefusalDetail: hasC ? null : (competition?.detail ?? null),
     },
   });
 }

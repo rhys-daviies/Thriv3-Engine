@@ -12,7 +12,7 @@ import {
   abilityToPercentile, percentileOf, readPriority, typicalStarters,
 } from '../../../shared/matching/v2/index.js';
 import { returningDepthFor } from './rosterEvidence.js';
-import { eligibilityRuleFor, ELIGIBILITY_MODEL } from '../../../shared/eligibility.js';
+import { eligibilityRuleFor, ELIGIBILITY_MODEL, maxAttainableLastSeason } from '../../../shared/eligibility.js';
 
 function summarise(values) {
   if (!values.length) return null;
@@ -65,7 +65,12 @@ export function academicPercentileScale(colleges) {
 }
 
 export function evaluateOpportunity({
-  athlete, colleges, rosterProgrammes, rosterIndex = null, entryYear = null, overrides = {},
+  athlete, colleges, rosterProgrammes, rosterIndex = null, entryYear = null,
+  /**
+   * A7.37. The season the roster index was built from. Needed so Playing
+   * Pathway can tell how far past its own evidence the entry year sits.
+   */
+  rosterSeason = null, overrides = {},
 }) {
   const { sport, position } = athlete;
 
@@ -99,6 +104,19 @@ export function evaluateOpportunity({
    */
   const academicScale = academicPercentileScale(colleges);
 
+  /**
+   * A7.37. Memoised per division: `maxAttainableLastSeason` depends only on the
+   * roster season and the division's eligibility model, so computing it per
+   * programme would ask the same question 2,400 times.
+   */
+  const maxLastSeasonMemo = new Map();
+  const maxLastSeasonFor = (division) => {
+    if (!maxLastSeasonMemo.has(division)) {
+      maxLastSeasonMemo.set(division, maxAttainableLastSeason({ season: rosterSeason, division }));
+    }
+    return maxLastSeasonMemo.get(division);
+  };
+
   const results = colleges.map((college) => {
     /**
      * PLAYING PATHWAY, from two facts kept apart until the last step.
@@ -121,6 +139,23 @@ export function evaluateOpportunity({
       rosterOnFile: Boolean(bucket && bucket.rows > 0),
       eligibilityRuled: entryYear !== null
         && eligibilityRuleFor({ division: college.division, season: entryYear })?.model !== ELIGIBILITY_MODEL.UNKNOWN,
+      /**
+       * A7.37 F1. The readability of the position group, which this call site
+       * has always held and never passed. `positionalOpportunity` was already
+       * being given the same two numbers; only the returning side was blind.
+       */
+      positionRows: bucket?.rows ?? null,
+      unreadable: bucket?.unreadable ?? 0,
+      /**
+       * A7.37 F2. The horizon, so the component can grade its own decay
+       * instead of the caller silently applying it and leaving no trace.
+       * `maxLastSeason` is derived per division from the eligibility rule
+       * itself - see shared/eligibility.js - and is memoised because it is a
+       * property of the division and the roster season, not of the programme.
+       */
+      entryYear,
+      rosterSeason,
+      maxLastSeason: rosterSeason === null ? null : maxLastSeasonFor(college.division),
       squadWeight: overrides.squadWeight,
       unknownWeight: overrides.unknownWeight,
       halfAt: overrides.halfAt,

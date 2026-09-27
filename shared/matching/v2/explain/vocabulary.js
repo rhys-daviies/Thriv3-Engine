@@ -104,6 +104,18 @@ export const REASON_CODE = Object.freeze({
   RETURNING_COMPETITION_MEASURED: 'RETURNING_COMPETITION_MEASURED',
   RETURNING_COMPETITION_PARTIAL: 'RETURNING_COMPETITION_PARTIAL',
   RETURNING_NONE_PROJECTED: 'RETURNING_NONE_PROJECTED',
+  /**
+   * A7.37. The three things the pathway may not know, each said as itself.
+   *
+   * Before A7.37 all three were SILENT: when the competition term refused,
+   * nothing was emitted at all, and the reader was left with a rotation
+   * sentence that looked like a full answer. A7.36 found the product turning
+   * "we could not read who returns" into "few players are returning", which is
+   * the specific false statement these codes exist to make impossible.
+   */
+  RETURNING_HORIZON_UNREADABLE: 'RETURNING_HORIZON_UNREADABLE',
+  RETURNING_BEYOND_ROSTER_REACH: 'RETURNING_BEYOND_ROSTER_REACH',
+  PATHWAY_ROTATION_ONLY: 'PATHWAY_ROTATION_ONLY',
   PLAYING_SHARE_WIDE: 'PLAYING_SHARE_WIDE',
   PLAYING_SHARE_NARROW: 'PLAYING_SHARE_NARROW',
   TRAJECTORY_IMPROVING: 'TRAJECTORY_IMPROVING',

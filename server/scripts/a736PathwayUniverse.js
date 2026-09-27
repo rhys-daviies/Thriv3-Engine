@@ -27,7 +27,7 @@ import { returningDepthFor } from '../lib/v2/rosterEvidence.js';
 import {
   squadRotation, returningCompetition, playingPathway, typicalStarters, isScoreable, percentileOf,
 } from '../../shared/matching/v2/index.js';
-import { eligibilityRuleFor, ELIGIBILITY_MODEL } from '../../shared/eligibility.js';
+import { eligibilityRuleFor, ELIGIBILITY_MODEL, maxAttainableLastSeason } from '../../shared/eligibility.js';
 
 const arg = (k, d = null) => process.argv.slice(2).find((a) => a.startsWith(`--${k}=`))?.split('=').slice(1).join('=') ?? d;
 const SEASON = '2026';
@@ -67,6 +67,18 @@ export function universeFor(sport, { entryYear = ENTRY_YEAR, season = SEASON, ov
         returning, position, places: typicalStarters(sport, position),
         rosterOnFile: Boolean(bucket && bucket.rows > 0),
         eligibilityRuled: entryYear !== null && ruled,
+        /**
+         * A7.37. Mirrors `opportunityRun.js` exactly. An instrument that does
+         * not pass production's inputs is not measuring production - so these
+         * were added here the moment they were added there. The PRE-A7.37
+         * numbers this script produced are preserved in A7.37-measurements.json
+         * and in the A7.36 report; re-running it now measures the repair.
+         */
+        positionRows: bucket?.rows ?? null,
+        unreadable: bucket?.unreadable ?? 0,
+        entryYear,
+        rosterSeason: ctx.rosterSeason ?? null,
+        maxLastSeason: maxAttainableLastSeason({ season: ctx.rosterSeason, division: college.division }),
         ...overrides.competition,
       });
       const pathway = playingPathway({ competition, rotation, ...overrides.pathway });
@@ -88,6 +100,9 @@ export function universeFor(sport, { entryYear = ENTRY_YEAR, season = SEASON, ov
         rotation: isScoreable(rotation) ? rotation.value : null,
         rotationGrade: isScoreable(rotation) ? rotation.grade : 'UNSCOREABLE',
         rotationLevel: isScoreable(rotation) ? rotation.basis.level : null,
+        rotationOnly: isScoreable(pathway) ? Boolean(pathway.basis.rotationOnly) : false,
+        readableShare: isScoreable(competition) ? competition.basis.readableShare : null,
+        horizonDepth: isScoreable(competition) ? competition.basis.horizonDepth : null,
         // --- the roster facts the value is built from -----------------------
         pressure: isScoreable(competition) ? competition.basis.pressure : null,
         typicalStarters: typicalStarters(sport, position),

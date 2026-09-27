@@ -285,7 +285,29 @@ function opportunityReasons(result) {
         position: comp.position, returning: comp.returning,
         returningStarters: comp.returningStarters, roleKnown,
         typicalStarters: comp.typicalStarters,
+        /** A7.37. So a zero can say how much of the group it actually rests on. */
+        positionRows: comp.positionRows ?? null,
+        unreadable: comp.unreadableHorizon ?? 0,
       }));
+  } else if (b.pathway?.rotationOnly) {
+    /**
+     * A7.37. THE SILENCE THAT USED TO BE HERE WAS THE PROBLEM. When the
+     * entry-year half refused, nothing was emitted and the rotation sentence
+     * below stood alone, reading like a complete answer. Now the refusal says
+     * which thing is unknown, and the pathway says it is resting on one half.
+     */
+    const d = b.pathway.competitionRefusalDetail ?? {};
+    if (d.maxLastSeason !== undefined && d.maxLastSeason !== null) {
+      out.push(reason(REASON_CODE.RETURNING_BEYOND_ROSTER_REACH, LAYER.OPPORTUNITY,
+        POLARITY.UNKNOWN, BAND.SECONDARY_EVIDENCE,
+        { position: d.position, entryYear: d.entryYear, maxLastSeason: d.maxLastSeason }));
+    } else if (d.positionRows) {
+      out.push(reason(REASON_CODE.RETURNING_HORIZON_UNREADABLE, LAYER.OPPORTUNITY,
+        POLARITY.UNKNOWN, BAND.SECONDARY_EVIDENCE,
+        { position: d.position, positionRows: d.positionRows, unreadable: d.unreadable ?? 0 }));
+    }
+    out.push(reason(REASON_CODE.PATHWAY_ROTATION_ONLY, LAYER.OPPORTUNITY,
+      POLARITY.CONTEXT, BAND.SECONDARY_EVIDENCE, {}));
   }
   const rot = b.pathway?.rotation ?? null;
   if (rot) {
