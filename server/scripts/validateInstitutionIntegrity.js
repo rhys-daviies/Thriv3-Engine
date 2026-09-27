@@ -122,11 +122,25 @@ for (const c of colleges) { const k = `${c.sport}|${normalizeForMatch(c.name)}`;
 const ambigNames = [...normGroups.entries()].filter(([, u]) => u.size > 1);
 warnings.push(`ambiguous normalized names (same key, >1 UNITID): ${ambigNames.length}`);
 
-// duplicate UNITIDs (same unitid+sport, >1 name)
+// duplicate UNITIDs (same unitid+sport, >1 name).
+// LEGITIMATE MULTI-CAMPUS EXCEPTION (Phase 6B): some merged/multi-campus institutions
+// share ONE IPEDS UNITID across genuinely distinct campus programmes (each with its
+// own roster/coaches/history), so a shared UNITID there is correct, not a duplicate.
+// These are recognised so they no longer flag; a NEW shared UNITID still warns.
+const LEGIT_MULTI_CAMPUS_UNITIDS = new Set([
+  231165, // Vermont State University (Johnson / Castleton / Lyndon)
+  498562, // Commonwealth University of PA (Bloomsburg / Lock Haven / Mansfield)
+  498571, // PennWest (California / Clarion / Edinboro)
+  179308, // St. Louis Community College (Florissant Valley / Forest Park / Meramec)
+  195544, // St. Joseph's University NY (Long Island / Brooklyn campuses)
+]);
 const uniGroups = new Map();
 for (const c of colleges) { if (c.unitid == null) continue; const k = `${c.unitid}|${c.sport}`; (uniGroups.get(k) || uniGroups.set(k, new Set()).get(k)).add(c.name); }
-const dupUnitids = [...uniGroups.entries()].filter(([, n]) => n.size > 1);
-warnings.push(`duplicate UNITIDs (same UNITID+sport, >1 name): ${dupUnitids.length}`);
+const dupUnitidsAll = [...uniGroups.entries()].filter(([, n]) => n.size > 1);
+const dupUnitids = dupUnitidsAll.filter(([k]) => !LEGIT_MULTI_CAMPUS_UNITIDS.has(Number(k.split('|')[0])));
+const dupMultiCampus = dupUnitidsAll.length - dupUnitids.length;
+warnings.push(`duplicate UNITIDs (same UNITID+sport, >1 name, excl. legitimate multi-campus): ${dupUnitids.length}`);
+warnings.push(`legitimate multi-campus shared UNITIDs (recognised exception): ${dupMultiCampus}`);
 
 // conflicting aliases (one alias_key -> >1 unitid)
 const aliasGroups = new Map();
