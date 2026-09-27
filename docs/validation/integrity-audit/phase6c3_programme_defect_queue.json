@@ -1,0 +1,42 @@
+{
+  "phase": "6C.3",
+  "built_at": "2026-09-27",
+  "note": "Part C — structural/identity defects discovered while confirming target-programme activity. NOT mutated in this acquisition phase (no programme-structure changes). Queued for a dedicated structural pass.",
+  "entries": [
+    {
+      "programme": "University of Valley Forge", "unitid": 216542, "sport": "womens-soccer",
+      "defect": "DISCONTINUED — institution closed",
+      "detail": "Board voted 29 Jul 2026 to suspend operations at end of Summer 2026; will not reopen fall 2026 (financial deficit + Middle States 'Show Cause'). Athletics sites dead (uvfpatriots.com -> athletics.valleyforge.edu 404). NOTE: the official NCAA directory (orgDetail id=30166) STILL stale-lists UVF as D3 Active / United East with WSOC HC Maira De Campos — treat as a directory data-integrity defect, not evidence of activity.",
+      "recommended_action": "Retire (active=0) with retirement reason; do not delete. Reverses the 6A false-positive-then-active decision: UVF was active during 6A/6B but has since actually closed.",
+      "evidence": ["https://valleyforge.edu/announcement-2026/", "https://www.d3sports.com/notables/2026/07/valley-forge-closing", "https://www.insidehighered.com/news/business/financial-health/2026/07/30/university-valley-forge-close"]
+    },
+    {
+      "programme": "Bryn Athyn College of the New Church", "unitid": 210492, "sport": "womens-soccer",
+      "defect": "DISCONTINUED — all athletics eliminated",
+      "detail": "Announced 26 Mar 2025 it is ending all 11 NCAA D3 sports at end of 2024-25 (transition to club), citing a $3.4M deficit. No 2025/2026 roster or schedule published. Only generic athletics@brynathyn.edu remains.",
+      "recommended_action": "Retire (active=0) with retirement reason; do not delete.",
+      "evidence": ["https://brynathynathletics.com/news/2025/3/26/athletics-bryn-athyn-college-to-end-athletic-program-offerings-at-the-end-of-2025-school-year.aspx", "https://www.d3sports.com/notables/2025/03/bryn-athyn-dropping-all-athletics"]
+    },
+    {
+      "programme": "Dallas Christian", "unitid": 224244, "sport": "mens-soccer",
+      "defect": "AFFILIATION DEFECT (division/association wrong) + roster unpopulated",
+      "detail": "Stored as NAIA, but every official source shows Dallas Christian College competes in NCCAA Division II (and ACCA), not NAIA. Sponsors men's soccer (2025 played) but the 2026 roster/schedule pages are unpopulated (0 players / 0-0). HC Peyton Frick (efrick@dallas.edu).",
+      "recommended_action": "Re-classify association (NAIA -> NCCAA), then decide CORE membership; not a clean CORE acquisition target while affiliation and current-roster status are unresolved. Held.",
+      "evidence": ["https://dccsports.com/sports/mens-soccer/coaches", "https://thenccaa.org/teamstats.aspx?path=msoc2&year=2025&school=dallas+christian"]
+    },
+    {
+      "programme": "Shaw", "unitid": 199643, "sport": "womens-soccer",
+      "defect": "POSSIBLE DIVISION/ASSOCIATION MISLABEL",
+      "detail": "Stored as NCAA D2 CIAA, but the head coach's official bio credits a 2023 USCAA Division I women's soccer national title and USCAA Coach of the Year — the soccer programme's competitive affiliation may be USCAA, not NCAA D2. Acquisition (McClure) proceeded regardless (school identity confirmed via shawu.edu); division label flagged only.",
+      "recommended_action": "Verify Shaw women's soccer's current competitive association; correct the division label if needed. No structural change this phase.",
+      "evidence": ["https://shawbears.com/staff-directory/randy-mcclure/35"]
+    },
+    {
+      "programme": "Trinity Washington University", "unitid": 131876, "sport": "womens-soccer",
+      "defect": "ROSTER-CURRENCY / POSSIBLE DORMANCY",
+      "detail": "Head coach Luis Zúñiga still on the official Nov-2025 staff directory (so listed ACTIVE), but the most recent posted roster is 'Fall 2024', no upcoming games, and no Fall-2025 schedule/recaps found (latest recaps 2023). No coach email published. Outcome recorded as CURRENT_STAFF_NO_EMAIL with an activity flag.",
+      "recommended_action": "Re-confirm 2025/2026 competition before treating as fully active; monitor. No structural change this phase.",
+      "evidence": ["https://web.archive.org/web/20251108181734id_/https://discover.trinitydc.edu/athletics/staff-directory/"]
+    }
+  ]
+}
