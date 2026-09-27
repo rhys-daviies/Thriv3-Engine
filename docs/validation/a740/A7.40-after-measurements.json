@@ -1,0 +1,88 @@
+{
+ "mens-soccer": {
+  "2027": {
+   "readabilityRefusals": 9,
+   "horizonRefusals": 0,
+   "dirty": 10,
+   "matched": {
+    "strata": 9,
+    "wins": 6,
+    "losses": 3,
+    "ties": 0,
+    "winRate": 66.7,
+    "medianDelta": 0.0257
+   },
+   "thinForward": {
+    "thin": 51,
+    "supported": 47,
+    "unsupported": 4
+   }
+  },
+  "2028": {
+   "readabilityRefusals": 10,
+   "horizonRefusals": 0,
+   "dirty": 10,
+   "matched": {
+    "strata": 9,
+    "wins": 3,
+    "losses": 6,
+    "ties": 0,
+    "winRate": 33.3,
+    "medianDelta": -0.0431
+   }
+  },
+  "2029": {
+   "readabilityRefusals": 31,
+   "horizonRefusals": 1818,
+   "dirty": 10
+  },
+  "2030": {
+   "readabilityRefusals": 40,
+   "horizonRefusals": 3428,
+   "dirty": 10
+  }
+ },
+ "womens-soccer": {
+  "2027": {
+   "readabilityRefusals": 11,
+   "horizonRefusals": 0,
+   "dirty": 10,
+   "matched": {
+    "strata": 8,
+    "wins": 7,
+    "losses": 1,
+    "ties": 0,
+    "winRate": 87.5,
+    "medianDelta": 0.0177
+   },
+   "thinForward": {
+    "thin": 111,
+    "supported": 109,
+    "unsupported": 2
+   }
+  },
+  "2028": {
+   "readabilityRefusals": 11,
+   "horizonRefusals": 0,
+   "dirty": 10,
+   "matched": {
+    "strata": 8,
+    "wins": 0,
+    "losses": 8,
+    "ties": 0,
+    "winRate": 0,
+    "medianDelta": -0.0851
+   }
+  },
+  "2029": {
+   "readabilityRefusals": 15,
+   "horizonRefusals": 2251,
+   "dirty": 10
+  },
+  "2030": {
+   "readabilityRefusals": 20,
+   "horizonRefusals": 4627,
+   "dirty": 10
+  }
+ }
+}

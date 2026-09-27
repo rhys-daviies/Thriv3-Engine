@@ -200,6 +200,12 @@ const MAY_IMPORT_V2 = [
    * the eligibility vocabulary it reports against.
    */
   'server/scripts/a739ClassYearAudit.js',
+  /**
+   * A7.40. The applier for the re-acquired 2026 class-year labels. It reaches
+   * V2 only for `readClassYear`, which it uses as a GUARD - a value the parser
+   * does not recognise is refused rather than written.
+   */
+  'server/scripts/applyClassYearReacquisition.js',
 ];
 
 const SEARCH_ROOTS = ['shared', 'server', 'src', 'worker'];
