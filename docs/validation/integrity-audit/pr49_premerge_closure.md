@@ -120,3 +120,97 @@ nothing.** `render.yaml` points the running app at `/data/recruitmatch.sqlite`, 
 correct — the app serves from production. What must not exist is a *script* that writes it,
 and after this closure none does. Every repair described in the audit trail was applied to
 the shared **development** database at `server/data/recruitmatch.sqlite`.
+
+---
+
+# Final closure — approved decisions
+
+Two decisions were approved after the audit above: **purge the historical PII from the
+branch**, and **hold `stmarytx.edu` rather than repair it**.
+
+## A. The PII purge was much larger than the two named files
+
+The closure named `coach_contact_ledger.csv` and `coaches_reconciled.csv`. Sweeping every
+blob in every commit of the PR — classifying an address as real by membership in the
+`coaches` table — found the same disclosure in **51 more artifacts**: the Phase 4/5/6/7
+evidence ledgers, the currency waves, and the applier fixtures. They were never the
+headline. They are the same data spread thinner, and the only reason they were found is
+that the sweep looked past the two files that had been named.
+
+**53 paths were purged from all 19 commits** and the branch force-pushed.
+
+### What replaced them, and why it is not a hash
+
+An address that resolves to a coach row becomes `coach-<uuid>@redacted.invalid`; a name
+becomes `[name withheld — coach <uuid>]`. The row id is already throughout these files,
+resolves to a person only inside the database, and keeps the audit trail **linkable** — the
+same coach reads as the same token in every artifact, so "this is the row Phase 4B repaired
+and Phase 6C.2 later recovered" survives redaction.
+
+A salted digest was the obvious alternative and is worse. To stay linkable the salt must be
+committed, and a committed salt over `firstname.lastname` at ~1,200 known athletics domains
+is enumerable in minutes. It would have looked like protection while being reversible.
+
+### The first pass was not enough, and the reason matters
+
+Keying redaction on membership in `coaches` left **117 real addresses** in place, including
+a personal Gmail. "Is it in our table?" is a fact about our import coverage, not about
+whether a mailbox belongs to a person. Under `docs/validation/` no mailbox now survives: one
+that resolves to a coach becomes its id, and one that does not keeps its **domain** and
+loses its local part, which answers every question the integrity checks ask of an address.
+`committedEvidencePrivacy.test.js` asserts this with no allow-list, because an allow-list is
+where the next one would hide.
+
+### The quiet failure this created, and the guard for it
+
+Twelve of the redacted artifacts are **applier inputs**, and two of them insert
+`coaches.full_name` and `coaches.email` verbatim. Re-running one against its published copy
+would have written `coach-<uuid>@redacted.invalid` into the database as an address —
+silently, and looking entirely successful, because it is a well-formed address at a domain
+that does not exist. The redaction that made the repository safe to publish would have made
+the database wrong. `assertUnredacted` refuses at the door of all eleven appliers and names
+the untracked local path holding the real file.
+
+### What a branch rewrite cannot reach
+
+- **GitHub still serves the pre-rewrite commits by SHA.** The original ledger is retrievable
+  from `raw.githubusercontent.com` at the old commit, HTTP 200, all 6,347 addresses. Force-
+  pushing makes objects unreachable from refs; it does not delete them, and the PR keeps
+  them alive. Permanent removal requires a GitHub Support request.
+- **`data/university-individualisation/{mens,womens}_soccer_universities.csv` are on `main`**
+  and carry ~1,919 of the same addresses. They were never in this PR and rewriting this
+  branch cannot touch them.
+
+## B. `stmarytx.edu` is held, and the hold has teeth
+
+Stored `VERIFIED_ALIAS` at 123554 (Saint Mary's, CA) while its own `claimed_unitids` are
+`[123554, 228149]`. It is **multi-claim**, which is why the single-claim ownership check
+never surfaced it through the whole audit — it sat in the ambiguous-multi-claim warning
+bucket. Five coach rows are filed at 123554 through this domain and two at 228149.
+
+It is **not repaired**. The domain name is suggestive; Phase 2A is what happens when
+suggestive is treated as evidence, and Phase 2B had to revert all 27 of its results.
+
+A hold keeps the row exactly as it is and **suspends its authority**. `institutionResolver`,
+`coachingImport`, `reconcileCoaches` and `importInstitutionAliases` no longer accept a held
+domain as institution evidence, so it can no longer resolve an institution or make a coach
+outreach-eligible on its own. The validator names it and **asserts the suspension is in
+force** — a held domain still being trusted is a CRITICAL failure, so the hold cannot decay
+into documentation. Tests pin that it does not spread: unheld domains resolve normally, and
+both disputed institutions still resolve by their own names.
+
+Register: `shared/heldDomainAdjudications.js`. Follow-up: `held_domain_followup.json`.
+
+## Verification
+
+| check | result |
+|---|---|
+| purged paths in any commit of the branch | 0 |
+| unredacted real-PII blobs reachable from the branch | 0 |
+| unredacted mailboxes under `docs/validation/` | 0 |
+| executable path that can apply the superseded 188-row fixture | none |
+| scripts able to target `/data` | none |
+| production mutation performed by merging | none |
+| `stmarytx.edu` conferring institution evidence | no |
+| `validate:institution-integrity` | CRITICAL failures: 0 |
+| new test failures vs `origin/main` | 0 |
