@@ -38,7 +38,7 @@ import { MESSAGE_STATE } from '../../shared/outreachMessageState.js';
  *
  * NOT grouped by email address, and that is a deliberate refusal rather than
  * an oversight. `coaches` is keyed on (email, school, sport) precisely because
- * a generic address like msoccer@cornell.edu is legitimately shared across a
+ * a generic address like msoccer@example.edu is legitimately shared across a
  * staff — so collapsing on the address would merge two people into one line
  * and report a message to one of them as a message to both.
  *

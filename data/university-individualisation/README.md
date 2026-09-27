@@ -1,5 +1,26 @@
 # University Individualisation
 
+> ## The committed copies are REDACTED — the coach columns are empty on purpose
+>
+> Between them these files carried **2,033 head-coach names and 1,947 email addresses**,
+> 802 of which their own `head_coach_email_type` column classifies as `personal`. This
+> repository is **public**, and nothing in `server/`, `src/`, `shared/` or `worker/` reads
+> these files — the two tools that do (`repair_athletics_domain.py`,
+> `discover_roster_urls.py`) read `athletics_domain` and the roster URL, never a coach
+> field. Coach contact data reaches the product through the database.
+>
+> So in the committed copies: **`head_coach` and `head_coach_email` are empty**, and
+> `coach_source_url` is truncated to its directory wherever the path spelled the coach's
+> name. `head_coach_title` is kept (48 distinct job titles, none embedding a name) and so
+> is `head_coach_email_type` — "a personal address was published here" is provenance worth
+> having once the address is gone. Every other column is untouched, and the row and column
+> counts are unchanged, so a diff against a fresh build shows only the redaction.
+>
+> **If you refresh these from a build, do not copy the output over them unredacted.** Run
+> `node server/scripts/redactUniversityCoachPii.js` afterwards. `npm run scan:committed-pii`
+> fails if any tracked file carries an unapproved address, and it is enforced in the test
+> suite — the rule is about the address, not about these two filenames.
+
 One CSV per sport. **One row per university-sport**, holding everything we use to
 individualise a school — identity, achievement, program strength, staff, roster pointers.
 Individual player statistics are deliberately **not** here; they stay in the roster and
@@ -50,8 +71,9 @@ neither database column is exported. One rank, from one source.
 `_ps` is the postseason round reached: `appearance`, `r32`, `r16`, `quarter`, `semi`,
 `final`, `champion`. Low fill is expected — most programs do not reach the postseason.
 
-**Staff and roster** — `head_coach`, `head_coach_title`, `head_coach_email`,
-`head_coach_email_type`, `roster_url_2025`, `graduating_seniors_2025`
+**Staff and roster** — `head_coach` *(redacted — empty)*, `head_coach_title`,
+`head_coach_email` *(redacted — empty)*, `head_coach_email_type`, `roster_url_2025`,
+`graduating_seniors_2025`
 
 Only the actual head coach. `"Associate Head Coach"` and `"Assistant Head Coach"` both
 contain the word "head", and taking the first match put the wrong person's name on
