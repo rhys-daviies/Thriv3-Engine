@@ -168,6 +168,22 @@ const MAY_IMPORT_V2 = [
    * touch, and nothing imports it.
    */
   'server/scripts/a728ShadowFlag.js',
+  /**
+   * A7.36. The Playing Pathway confound diagnostic, in two parts.
+   *
+   * `a736PathwayUniverse.js` calls the pathway components directly for every
+   * programme-position cell in both sports; `a736PathwayCases.js` runs the
+   * shipped pipeline for six V3/W3 profiles under a set of SHADOW PROBES.
+   *
+   * THE PROBES ARE INSTRUMENTS, NOT CANDIDATES. Each one disables part of the
+   * component to find out what that part was carrying, and every one of them
+   * reaches the scorer through the documented `opportunityOverrides` seam
+   * rather than by mutating a constant. Neither file is imported by anything,
+   * and neither proposes a replacement - A7.36 was forbidden from selecting
+   * one before the diagnosis was complete.
+   */
+  'server/scripts/a736PathwayUniverse.js',
+  'server/scripts/a736PathwayCases.js',
 ];
 
 const SEARCH_ROOTS = ['shared', 'server', 'src', 'worker'];
