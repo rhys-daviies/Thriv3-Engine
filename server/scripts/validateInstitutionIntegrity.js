@@ -32,6 +32,7 @@ import { fileURLToPath } from 'node:url';
 import Database from 'better-sqlite3';
 import { createResolver, registrableDomain, DECISION } from '../lib/institutionResolver.js';
 import { normalizeForMatch } from '../lib/coachingImport.js';
+import { HELD_DOMAIN_ADJUDICATIONS } from '../../shared/heldDomainAdjudications.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const argDb = (() => { const i = process.argv.indexOf('--db'); return i > -1 ? process.argv[i + 1] : null; })();
@@ -48,6 +49,16 @@ const coaches = all("SELECT id, full_name, school, sport, email_source_url FROM 
 const resolver = createResolver({ colleges, domains, aliases });
 
 let critical = 0; const warnings = [];
+/** Does the shared resolver still treat this domain as institution evidence? */
+const trustedByResolver = (domain) => {
+  const probe = createResolver({ colleges, domains, aliases });
+  const row = domains.find((d) => String(d.domain).toLowerCase() === domain);
+  if (!row || row.unitid == null) return false;
+  const c = colleges.find((x) => x.unitid === row.unitid);
+  if (!c) return false;
+  const r = probe.resolve('a name that matches nothing at all', { sport: c.sport, sourceUrl: `https://${domain}/staff` });
+  return r.decision === DECISION.RESOLVED && r.unitid === row.unitid;
+};
 const section = (t) => console.log(`\n=== ${t} ===`);
 
 // 1) Canonical round-trip — the load-bearing invariant, per sport
@@ -183,6 +194,28 @@ console.log(`  externally adjudicated and closed: ${closed} | adjudicated but he
 if (domClaimAmbiguous) console.log(`  (ambiguous multi-claim mismatches, reported as warning not critical: ${domClaimAmbiguous})`);
 held.forEach((h) => warnings.push(`domain ownership adjudicated but HELD — ${h}`));
 critical += unadjudicated.length;
+
+// 3b) Domains whose OWNERSHIP is under external adjudication.
+// These are named, never silent. A held domain keeps its stored row and loses
+// its authority as institution evidence, so the thing worth reporting is not
+// the disagreement — it is that the suspension is actually in force. The check
+// below asserts that: a held domain that is still being trusted somewhere is a
+// CRITICAL failure, because the hold would be documentation rather than effect.
+section('Domains held under external ownership adjudication');
+let heldLeaking = 0;
+for (const h of HELD_DOMAIN_ADJUDICATIONS) {
+  const row = domains.find((d) => String(d.domain).toLowerCase() === h.domain);
+  const stored = row ? `${row.status} at ${row.unitid}` : 'absent from the registry';
+  console.log(`    HELD-ADJUDICATION: ${h.domain} — stored ${stored}, disputed between `
+    + `${h.disputed_between.join(' and ')}; unresolved, not trusted as evidence`);
+  // The suspension, asserted rather than assumed.
+  if (row && !trustedByResolver(h.domain)) continue;
+  if (row) { console.error(`    NOT SUSPENDED: ${h.domain} is still trusted as institution evidence`); heldLeaking += 1; }
+}
+console.log(`  held domains: ${HELD_DOMAIN_ADJUDICATIONS.length} | still conferring evidence: ${heldLeaking}`);
+HELD_DOMAIN_ADJUDICATIONS.forEach((h) => warnings.push(
+  `domain ownership HELD for external adjudication — ${h.domain} (disputed between ${h.disputed_between.join(', ')})`));
+critical += heldLeaking;
 
 // 4) Warnings: ambiguous normalized names
 section('Warnings');

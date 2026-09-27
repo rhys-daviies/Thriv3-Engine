@@ -30,6 +30,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Database from 'better-sqlite3';
+import { assertUnredacted } from '../lib/redactedFixtureGuard.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i > -1 ? process.argv[i + 1] : null; };
@@ -42,6 +43,7 @@ if (/^\/data\//.test(path.resolve(dbArg))) {
 const fixtureArg = arg('fixture');
 if (!fixtureArg) { console.error('Give --fixture <path> (e.g. docs/validation/integrity-audit/phase2d_approved_corrections.json).'); process.exit(2); }
 const fixture = JSON.parse(fs.readFileSync(path.resolve(fixtureArg), 'utf8'));
+assertUnredacted(fixture, path.resolve(fixtureArg));
 
 const db = new Database(dbArg, { fileMustExist: true });
 const getDom = db.prepare('SELECT unitid, status, claimed_unitids FROM athletics_domains WHERE domain = ?');

@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import Database from 'better-sqlite3';
 import { createResolver, registrableDomain, emailDomain, DECISION } from '../lib/institutionResolver.js';
 import { normalizeForMatch } from '../lib/coachingImport.js';
+import { isHeldDomain } from '../../shared/heldDomainAdjudications.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dbArg = (() => { const i = process.argv.indexOf('--db'); return i > -1 ? process.argv[i + 1] : null; })();
@@ -73,12 +74,12 @@ function reconcile(co) {
   let evUnitid = null, method = null, evNote = '';
   if (sdom && domByName.has(sdom)) {
     const d = domByName.get(sdom);
-    if (['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) && d.unitid != null) { evUnitid = d.unitid; method = 'SOURCE_DOMAIN'; evNote = `${sdom}→${d.unitid}`; }
+    if (!isHeldDomain(sdom) && ['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) && d.unitid != null) { evUnitid = d.unitid; method = 'SOURCE_DOMAIN'; evNote = `${sdom}→${d.unitid}`; }
     else if (['WRONG_INSTITUTION', 'AMBIGUOUS'].includes(d.status)) { method = `DOMAIN_${d.status}`; evNote = `${sdom} ${d.status}`; }
   }
   if (evUnitid == null && !method && edom && domByName.has(edom)) {
     const d = domByName.get(edom);
-    if (['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) && d.unitid != null) { evUnitid = d.unitid; method = 'EMAIL_DOMAIN'; evNote = `${edom}→${d.unitid} (email)`; }
+    if (!isHeldDomain(edom) && ['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status) && d.unitid != null) { evUnitid = d.unitid; method = 'EMAIL_DOMAIN'; evNote = `${edom}→${d.unitid} (email)`; }
   }
   const idAtCurrent = csHas(co.school, co.sport, co.full_name);
   const idAtEvidence = evUnitid != null && csHas(nameByUnitid.get(`${evUnitid}|${co.sport}`), co.sport, co.full_name);

@@ -27,6 +27,7 @@
  * stripped to a collision nor promoted to a standalone alias.
  */
 import { normalizeForMatch, disambiguatorTokens, matchSchoolName } from './coachingImport.js';
+import { isHeldDomain } from '../../shared/heldDomainAdjudications.js';
 
 export const DECISION = { RESOLVED: 'RESOLVED', REVIEW: 'REVIEW', WITHHOLD: 'WITHHOLD' };
 
@@ -48,6 +49,21 @@ export function emailDomain(email) {
 }
 
 const DOMAIN_TRUSTED = new Set(['VERIFIED', 'VERIFIED_ALIAS']);
+
+/**
+ * A domain is trusted institution evidence when its STATUS says so AND its
+ * ownership is not under adjudication.
+ *
+ * Status alone was the gate, and it is not enough. `stmarytx.edu` is stored
+ * VERIFIED_ALIAS at 123554 while claiming both 123554 and 228149, so the
+ * resolver trusted it at 0.99 and filed five coaches at one of two institutions
+ * that nobody has ever externally decided between. A held domain keeps its row
+ * and loses its authority: callers fall through to the other evidence they
+ * have, exactly as they would for a domain the registry had never seen.
+ */
+function trustedDomain(d) {
+  return !!d && DOMAIN_TRUSTED.has(d.status) && !isHeldDomain(d.domain);
+}
 
 /**
  * @param {object} data
@@ -112,7 +128,7 @@ export function createResolver(data) {
       if (d.status === 'WRONG_INSTITUTION' || d.status === 'AMBIGUOUS') {
         return result(null, sport, `DOMAIN_${d.status}`, 0.2, `source domain ${sdom} flagged ${d.status}`, DECISION.REVIEW);
       }
-      if (DOMAIN_TRUSTED.has(d.status) && d.unitid != null && s.byUnitid.has(d.unitid)) {
+      if (trustedDomain(d) && d.unitid != null && s.byUnitid.has(d.unitid)) {
         return result(d.unitid, sport, 'DOMAIN', 0.99, `${sdom} → UNITID ${d.unitid} (${d.status})`, DECISION.RESOLVED);
       }
     }
@@ -146,8 +162,8 @@ export function createResolver(data) {
       const uid = row?.unitid ?? null;
       // corroboration: state agrees, or source/email domain resolves to same unitid
       const edom = emailDomain(email);
-      const domUid = (sdom && DOMAIN_TRUSTED.has(domainMap.get(sdom)?.status) ? domainMap.get(sdom).unitid : null)
-        || (edom && DOMAIN_TRUSTED.has(domainMap.get(edom)?.status) ? domainMap.get(edom).unitid : null);
+      const domUid = (sdom && trustedDomain(domainMap.get(sdom)) ? domainMap.get(sdom).unitid : null)
+        || (edom && trustedDomain(domainMap.get(edom)) ? domainMap.get(edom).unitid : null);
       const stateOk = state && row && (row.state || '').toUpperCase() === state.toUpperCase();
       const domainOk = domUid != null && domUid === uid;
       // disambiguator must be consistent (matchSchoolName already penalises, but re-assert)

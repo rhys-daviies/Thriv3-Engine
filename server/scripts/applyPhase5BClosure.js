@@ -29,13 +29,14 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';
+import { assertUnredacted } from '../lib/redactedFixtureGuard.js';
 
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i > -1 ? process.argv[i + 1] : null; };
 const apply = process.argv.includes('--apply');
 const dbArg = arg('db');
 if (!dbArg) { console.error('Give --db <target>.'); process.exit(2); }
 if (/^\/data\//.test(path.resolve(dbArg))) { console.error('Refusing to target the production /data volume.'); process.exit(2); }
-const readJson = (p) => (p && fs.existsSync(path.resolve(p)) ? JSON.parse(fs.readFileSync(path.resolve(p), 'utf8')) : null);
+const readJson = (p) => (p && fs.existsSync(path.resolve(p)) ? assertUnredacted(JSON.parse(fs.readFileSync(path.resolve(p), 'utf8')), p) : null);
 const norm = (s) => String(s || '').trim().toLowerCase();
 
 const personFx = readJson(arg('person')) || { entries: [] };

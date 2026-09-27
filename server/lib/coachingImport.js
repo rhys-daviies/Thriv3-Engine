@@ -1,6 +1,7 @@
 import { distance } from 'fastest-levenshtein';
 import { parseCsvToObjects } from './csv.js';
 import { registrableDomain, emailDomain } from './institutionResolver.js';
+import { isHeldDomain } from '../../shared/heldDomainAdjudications.js';
 
 /**
  * Free/consumer mailbox providers. A generic email domain is corroboration of
@@ -169,6 +170,11 @@ export function buildInstitutionIndex({ domains = [], colleges = [] } = {}) {
     domainUnitids.get(d).add(Number(unitid));
   };
   for (const r of domains) {
+    // A domain under ownership adjudication is not strong evidence. It is
+    // precisely the case where a confident domain signal would outrank the name
+    // match and file the coach at one of two institutions nobody has decided
+    // between — the collision this corroboration rule exists to prevent.
+    if (isHeldDomain(r.domain)) continue;
     if (['VERIFIED', 'VERIFIED_ALIAS'].includes(r.status) && r.unitid != null) add(r.domain, r.unitid);
   }
   for (const c of colleges) if (c.website_domain) add(c.website_domain, c.unitid);

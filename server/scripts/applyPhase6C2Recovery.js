@@ -19,6 +19,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';
+import { assertUnredacted } from '../lib/redactedFixtureGuard.js';
 
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i > -1 ? process.argv[i + 1] : null; };
 const apply = process.argv.includes('--apply');
@@ -26,6 +27,7 @@ const dbArg = arg('db');
 if (!dbArg) { console.error('Give --db.'); process.exit(2); }
 if (/^\/data\//.test(path.resolve(dbArg))) { console.error('Refusing /data.'); process.exit(2); }
 const j = JSON.parse(fs.readFileSync(path.resolve(arg('recovery')), 'utf8'));
+assertUnredacted(j, path.resolve(arg('recovery')));
 const entries = (j.entries || j).filter((e) => e.auto_apply_safe === true);
 const norm = (s) => String(s || '').trim().toLowerCase();
 // held identities that must never be a reassignment target

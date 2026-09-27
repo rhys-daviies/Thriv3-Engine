@@ -1,0 +1,36 @@
+{
+  "record": "BOUNDED FOLLOW-UP — external domain-ownership adjudication",
+  "status": "OPEN",
+  "opened": "2026-09-28",
+  "opened_by": "PR #49 final pre-merge closure",
+  "not_a_blocker_for": "PR #49. The hold removes the domain's evidentiary force; merging code mutates no data.",
+  "scope_rule": "One domain per entry. A hold suspends that domain's authority and nothing else — no other domain, institution, coach or programme is affected by it.",
+  "items": [
+    {
+      "domain": "stmarytx.edu",
+      "stored": { "unitid": 123554, "institution": "Saint Mary's (CA, NCAA D1)", "status": "VERIFIED_ALIAS" },
+      "disputed_between": [
+        { "unitid": 123554, "institution": "Saint Mary's (CA, NCAA D1)" },
+        { "unitid": 228149, "institution": "St. Mary's (TX, NCAA D2)" }
+      ],
+      "why_it_was_never_caught": "claimed_unitids is [123554, 228149] — a MULTI-CLAIM domain. The single-claim ownership check only fires when exactly one claim disagrees with the stamp, so this sat in the ambiguous-multi-claim warning bucket for the whole audit.",
+      "measured_blast_radius": {
+        "coach_rows_filed_at_123554_via_this_domain": 5,
+        "coach_rows_filed_at_228149": 2,
+        "note": "Counts only. No coach is named here, and none was changed."
+      },
+      "prior_signals_not_acted_on": [
+        "docs/validation/generated/coach_contact_ledger_README.md listed \"stmarytx.edu→CA\" among the registry's confirmed errors.",
+        "The superseded 188-row Phase-3B fixture proposed 228149 — on 'official institutional .edu domain', which is the Phase-2A style of reasoning that Phase 2B had to revert in all 27 of its cases."
+      ],
+      "what_would_settle_it": [
+        "The site's own self-identification at stmarytx.edu.",
+        "NCES/IPEDS for both 123554 and 228149.",
+        "Which institution's athletics staff actually publish at this domain."
+      ],
+      "standard_required": "Phase 6C.4's: evidence URLs, a written rationale, an enumerated blast radius, and an auto_apply_safe decision, recorded in phase2c_ground_truth.json.",
+      "explicitly_not_done_here": "No UNITID change, no status change, no coach reassignment, and no web research. The adjudication is a separate phase by decision.",
+      "release_procedure": "Record the external verdict in phase2c_ground_truth.json, remove the entry from shared/heldDomainAdjudications.js, and re-run validate:institution-integrity."
+    }
+  ]
+}

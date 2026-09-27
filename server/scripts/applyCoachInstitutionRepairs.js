@@ -22,6 +22,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';
+import { assertUnredacted } from '../lib/redactedFixtureGuard.js';
 
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i > -1 ? process.argv[i + 1] : null; };
 const apply = process.argv.includes('--apply');
@@ -31,7 +32,9 @@ if (/^\/data\//.test(path.resolve(dbArg))) {
   console.error('Refusing to target the production /data volume.'); process.exit(2);
 }
 const reassign = JSON.parse(fs.readFileSync(path.resolve(arg('reassign')), 'utf8'));
+assertUnredacted(reassign, path.resolve(arg('reassign')));
 const dedupe = JSON.parse(fs.readFileSync(path.resolve(arg('dedupe')), 'utf8'));
+assertUnredacted(dedupe, path.resolve(arg('dedupe')));
 
 const db = new Database(dbArg, { fileMustExist: true });
 const coachById = db.prepare('SELECT id, full_name, email, school, sport FROM coaches WHERE id = ?');

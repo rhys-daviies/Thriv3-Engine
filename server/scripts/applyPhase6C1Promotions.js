@@ -23,13 +23,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import Database from 'better-sqlite3';
+import { assertUnredacted } from '../lib/redactedFixtureGuard.js';
 
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i > -1 ? process.argv[i + 1] : null; };
 const apply = process.argv.includes('--apply');
 const dbArg = arg('db');
 if (!dbArg) { console.error('Give --db.'); process.exit(2); }
 if (/^\/data\//.test(path.resolve(dbArg))) { console.error('Refusing /data.'); process.exit(2); }
-const readEntries = (p) => { if (!p || !fs.existsSync(path.resolve(p))) return []; const j = JSON.parse(fs.readFileSync(path.resolve(p), 'utf8')); return (j.entries || j).filter((e) => e.auto_apply_safe !== false); };
+const readEntries = (p) => { if (!p || !fs.existsSync(path.resolve(p))) return []; const j = JSON.parse(fs.readFileSync(path.resolve(p), 'utf8'));
+assertUnredacted(j, path.resolve(p)); return (j.entries || j).filter((e) => e.auto_apply_safe !== false); };
 const norm = (s) => String(s || '').trim().toLowerCase();
 
 const promo = readEntries(arg('promotion'));

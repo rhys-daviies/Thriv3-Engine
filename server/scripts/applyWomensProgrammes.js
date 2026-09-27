@@ -22,6 +22,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import Database from 'better-sqlite3';
+import { assertUnredacted } from '../lib/redactedFixtureGuard.js';
 
 const arg = (n) => { const i = process.argv.indexOf(`--${n}`); return i > -1 ? process.argv[i + 1] : null; };
 const apply = process.argv.includes('--apply');
@@ -29,6 +30,7 @@ const dbArg = arg('db');
 if (!dbArg) { console.error('Give --db <target>.'); process.exit(2); }
 if (/^\/data\//.test(path.resolve(dbArg))) { console.error('Refusing to target the production /data volume.'); process.exit(2); }
 const fixture = JSON.parse(fs.readFileSync(path.resolve(arg('fixture')), 'utf8'));
+assertUnredacted(fixture, path.resolve(arg('fixture')));
 
 const db = new Database(dbArg, { fileMustExist: true });
 const cols = db.prepare('PRAGMA table_info(colleges)').all().map((c) => c.name);
