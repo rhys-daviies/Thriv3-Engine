@@ -80,16 +80,19 @@ describe('C and D. Division III is two rules wearing one name', () => {
 });
 
 describe('E, F, G. unverified associations are named, never guessed', () => {
-  it.each(['NAIA', 'NJCAA', 'USCAA'])('%s is RULE_UNVERIFIED', (division) => {
+  /**
+   * A7.35 MOVED NAIA OUT OF THIS LIST by reading the bylaw. NJCAA and USCAA
+   * were not researched that phase and are unchanged, which is the point of
+   * asserting them here: closing one gap must not quietly close the others.
+   */
+  it.each(['NJCAA', 'USCAA'])('%s is RULE_UNVERIFIED', (division) => {
     expect(at(division).result).toBe(INITIAL_ELIGIBILITY_RESULT.RULE_UNVERIFIED);
   });
 
-  it('NAIA records that a PROBABLE standard exists and is deliberately not encoded', () => {
-    const naia = UNVERIFIED_ASSOCIATIONS.find((a) => a.association === 'NAIA');
-    expect(naia.verificationStatus).toBe(VERIFICATION_STATUS.PARTIAL);
-    expect(naia.why).toMatch(/404/);
-    // PARTIAL is not VERIFIED, and no NAIA rule may be in the rule table.
-    expect(INITIAL_ELIGIBILITY_RULES.some((r) => r.association === 'NAIA')).toBe(false);
+  it('NAIA is no longer among them, and left only by verification', () => {
+    expect(UNVERIFIED_ASSOCIATIONS.some((a) => a.association === 'NAIA')).toBe(false);
+    const naia = INITIAL_ELIGIBILITY_RULES.find((r) => r.association === 'NAIA');
+    expect(naia.verificationStatus).toBe(VERIFICATION_STATUS.VERIFIED);
   });
 
   it('USCAA records the naming hazard, so nobody encodes the corporate body', () => {
@@ -220,14 +223,274 @@ describe('L. continuing eligibility is a different module and is untouched', () 
     expect(eligibilityRuleFor({ division: 'NJCAA', season: 2026 }).model).toBe(ELIGIBILITY_MODEL.UNKNOWN);
   });
 
-  it('and the two modules disagree about NAIA WITHOUT either being wrong', () => {
+  it('and the two modules answer DIFFERENTLY about NAIA without either being wrong', () => {
     /**
-     * The clearest demonstration that these are different questions: NAIA
-     * continuing eligibility is ruled and sourced, while NAIA INITIAL
-     * eligibility is not. A reader who expected one answer for "NAIA
-     * eligibility" is the reader this separation exists for.
+     * A7.33 wrote this test on the observation that NAIA continuing
+     * eligibility was ruled while NAIA initial eligibility was not. A7.35
+     * verified the initial rule, so BOTH are now sourced - and the answers
+     * still differ, which is a stronger demonstration than the original.
+     * Continuing eligibility resolves to a model; initial eligibility
+     * resolves to NOT_ESTABLISHED, because knowing a rule and holding an
+     * athlete's evidence for it are different things. A reader who expected
+     * one answer for "NAIA eligibility" is the reader this separation exists
+     * for.
      */
     expect(eligibilityRuleFor({ division: 'NAIA', season: 2026 }).model).toBe(ELIGIBILITY_MODEL.FOUR_SEASONS);
-    expect(at('NAIA').result).toBe(INITIAL_ELIGIBILITY_RESULT.RULE_UNVERIFIED);
+    expect(at('NAIA').result).toBe(INITIAL_ELIGIBILITY_RESULT.NOT_ESTABLISHED);
+  });
+
+  it('continuing eligibility is byte-for-byte unaffected by the A7.35 rule landing', () => {
+    // The NAIA record was added to the OTHER module; this one must not notice.
+    expect(eligibilityRuleFor({ division: 'NAIA', season: 2026 }).model).toBe(ELIGIBILITY_MODEL.FOUR_SEASONS);
+    expect(UNRULED_DIVISIONS).toEqual(['NJCAA', 'USCAA']);
+  });
+});
+
+/**
+ * =============================================================================
+ * A7.35 — the NAIA rule, verified from the 2026-2027 Official Handbook.
+ *
+ * The suite's job here is NOT to re-assert the numbers. It is to hold the line
+ * between the two facts A7.35 established separately: THE RULE IS KNOWN and
+ * THE ATHLETE'S EVIDENCE IS ABSENT. Every plausible future mistake collapses
+ * those - reading `players.gpa` as the bylaw's GPA, converting ACT to SAT the
+ * way admissions does, inventing a class rank, or converting an international
+ * grade the NAIA says it converts itself. Each one has a test below.
+ * =============================================================================
+ */
+describe('M. the NAIA rule is sourced, and sourced is not the same as evaluable', () => {
+  const naia = () => INITIAL_ELIGIBILITY_RULES.find((r) => r.association === 'NAIA');
+
+  it('carries the bylaw down to the item, the page and the file it was read from', () => {
+    const r = naia();
+    expect(r.sourceSection).toMatch(/Article V, Section C, Item 2/);
+    expect(r.sourcePage).toBe(70);
+    expect(r.sourceUrl).toMatch(/2026_Official_Handbook\.pdf$/);
+    // The digest is what makes "we read this document" checkable later.
+    expect(r.sourceDigestSha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(r.verificationStatus).toBe(VERIFICATION_STATUS.VERIFIED);
+  });
+
+  it('represents the effective period by EDITION, and invents no commencement date', () => {
+    const r = naia();
+    expect(r.edition).toMatch(/41st edition/);
+    expect(r.editionEffectiveFor).toBe('2026-2027');
+    expect(r.lastRevised).toBe(2021);
+    expect(r.amendedInCurrentEdition).toBe(false);
+    /**
+     * NULL IS THE ASSERTION. The operative text states no commencement date for
+     * Item 2, so encoding one would be the invention this phase forbids. The
+     * one date the bylaw does give lives on the option it governs.
+     */
+    expect(r.effectiveFrom).toBeNull();
+    expect(r.effectiveTo).toBeNull();
+    const test = r.facts.twoOfThree.options.find((o) => o.id === 'standardizedTest');
+    expect(test.effectiveFrom).toBe('2019-05-01');
+  });
+
+  it('states the required inputs explicitly, including the one Thriv3 has no field for', () => {
+    expect(naia().requires).toContain('highSchoolClassRank');
+    expect(naia().requires).toContain('finalOverallHighSchoolGpaOn4Scale');
+    expect(naia().whyNotEvaluable).toMatch(/CLASS RANK HAS NO FIELD IN THRIV3/);
+  });
+
+  it('encodes TWO of three, not one of three - the A7.32 conflict, settled', () => {
+    const t = naia().facts.twoOfThree;
+    expect(t.required).toBe(2);
+    expect(t.of).toBe(3);
+    expect(t.options.map((o) => o.id).sort())
+      .toEqual(['classRank', 'overallHighSchoolGpa', 'standardizedTest']);
+  });
+
+  it('records the 2.300 standalone pathway as standing ALONE', () => {
+    const p = naia().facts.standaloneGpaPathway;
+    expect(p.minimumGpa).toBe(2.300);
+    expect(p.scale).toBe(4.000);
+    // Overall, not core-course. The structural difference from the NCAA.
+    expect(naia().facts.coreCourseRequirement).toBe(false);
+  });
+
+  it('corrects A7.32 on the SAT sections - the bylaw, not the stale interpretation page', () => {
+    const test = naia().facts.twoOfThree.options.find((o) => o.id === 'standardizedTest');
+    expect(test.satSections).toMatch(/Evidence-Based Reading and Writing/);
+    expect(test.satSections).not.toMatch(/Critical Reading/);
+    expect(test.minimumSat).toBe(970);
+    expect(test.minimumAct).toBe(18);
+    expect(test.superScoresAccepted).toBe(false);
+    expect(test.singleSittingRequired).toBe(true);
+  });
+});
+
+describe('N. a verified NAIA rule still returns NOT_ESTABLISHED, and says why', () => {
+  it('is NOT_ESTABLISHED, not RULE_UNVERIFIED and never a clearance', () => {
+    const r = at('NAIA');
+    expect(r.result).toBe(INITIAL_ELIGIBILITY_RESULT.NOT_ESTABLISHED);
+    expect(r.rule.evaluable).toBe(false);
+    expect(r.thriv3Certifies).toBe(false);
+    expect(r.certifyingAuthority).toBe('NAIA Eligibility Center (PlayNAIA)');
+  });
+
+  it('gives a reason that is TRUE OF THE NAIA, not the NCAA sentence', () => {
+    const r = at('NAIA');
+    /**
+     * THE BUG THIS CATCHES, recorded because it was live until A7.35: the
+     * shared reason claimed "standardized test scores are not part of this
+     * standard". For the NAIA that is simply false - a test is one of the
+     * three. A wrong explanation of a right answer is still wrong.
+     */
+    expect(r.reason).not.toMatch(/not part of this standard/);
+    expect(r.reason).not.toMatch(/core-course/);
+    expect(r.reason).toMatch(/CLASS RANK HAS NO FIELD IN THRIV3/);
+  });
+
+  it('and the NCAA reason is untouched by that change', () => {
+    expect(at('NCAA D1').reason).toMatch(/transcript GPA is not a core-course GPA/);
+    expect(at('NCAA D2').reason).toMatch(/transcript GPA is not a core-course GPA/);
+  });
+});
+
+describe('O. no athlete academic field reaches the NAIA answer', () => {
+  /**
+   * The NAIA is the one association where `players.gpa` and `players.sat_score`
+   * LOOK like the right quantities - overall GPA, an SAT - so this is where an
+   * inference would actually be tempting. Hence the widest fixtures in the
+   * file, including a class_rank that does not exist in the schema and a
+   * perfect record that would clear every published threshold.
+   */
+  const clears = {
+    origin: 'USA', gpa: 4.0, sat_score: 1600, act_score: 36, class_rank: 1, class_size: 400,
+  };
+  const fails = {
+    origin: 'USA', gpa: 0.4, sat_score: 400, act_score: 1, class_rank: 400, class_size: 400,
+  };
+  const borderline = { origin: 'USA', gpa: 2.300, sat_score: 970, act_score: 18 };
+
+  it.each([['clears', clears], ['fails', fails], ['borderline', borderline]])(
+    'an athlete who %s every published NAIA threshold gets the identical answer', (_label, athlete) => {
+      const base = initialEligibilityForAthlete({ athlete: clears, division: 'NAIA', asOf: NOW });
+      const other = initialEligibilityForAthlete({ athlete, division: 'NAIA', asOf: NOW });
+      expect(other.result).toBe(base.result);
+      expect(other.reason).toBe(base.reason);
+    },
+  );
+
+  it('exactly at 2.300 it does NOT report eligible - the standalone pathway is not applied', () => {
+    const r = initialEligibilityForAthlete({ athlete: borderline, division: 'NAIA', asOf: NOW });
+    expect(r.result).toBe(INITIAL_ELIGIBILITY_RESULT.NOT_ESTABLISHED);
+    expect(r.result).not.toBe(INITIAL_ELIGIBILITY_RESULT.NO_ISSUE_IDENTIFIED);
+  });
+
+  it('no ACT-to-SAT conversion happens, the way admissions does it', () => {
+    // Admissions converts an ACT to an SAT equivalent. The NAIA does not, and
+    // a converted score is a score the athlete never sat.
+    const actOnly = { origin: 'USA', gpa: null, sat_score: null, act_score: 36 };
+    const neither = { origin: 'USA', gpa: null, sat_score: null, act_score: null };
+    const a = initialEligibilityForAthlete({ athlete: actOnly, division: 'NAIA', asOf: NOW });
+    const b = initialEligibilityForAthlete({ athlete: neither, division: 'NAIA', asOf: NOW });
+    expect(a.reason).toBe(b.reason);
+  });
+
+  it('the assessor takes no GPA, SAT or ACT parameter at all', () => {
+    // The guarantee is structural: there is nothing to pass in, so nothing to
+    // misuse. Extra properties are inert rather than merely unused.
+    const direct = assessInitialEligibility({
+      division: 'NAIA', asOf: NOW, gpa: 4.0, sat_score: 1600, act_score: 36, classRank: 1,
+    });
+    expect(direct.reason).toBe(at('NAIA').reason);
+    expect(direct.result).toBe(INITIAL_ELIGIBILITY_RESULT.NOT_ESTABLISHED);
+  });
+});
+
+describe('P. international handling follows the sourced rule and converts nothing', () => {
+  it('applies the SAME criteria, because NOTE 3 says it does', () => {
+    const naia = INITIAL_ELIGIBILITY_RULES.find((r) => r.association === 'NAIA');
+    expect(naia.facts.internationalSameCriteria).toBe(true);
+    // Same result as a domestic athlete - the criteria do not change.
+    expect(at('NAIA', { isInternational: true }).result)
+      .toBe(at('NAIA', { isInternational: false }).result);
+  });
+
+  it('but says the NAIA determines the GPA, rather than Thriv3 converting one', () => {
+    const r = at('NAIA', { isInternational: true });
+    expect(r.reason).toMatch(/NAIA determines high-school graduation and GPA/);
+    expect(r.reason).toMatch(/must not substitute a home-country grade/);
+    // The domestic reason must NOT carry the international sentence.
+    expect(at('NAIA').reason).not.toMatch(/InCred/);
+  });
+
+  it('records that the country-by-country guidelines were NOT retrieved', () => {
+    const naia = INITIAL_ELIGIBILITY_RULES.find((r) => r.association === 'NAIA');
+    expect(naia.caveats.some((c) => /country conversion is encoded/.test(c))).toBe(true);
+    // No country name may appear anywhere in the rule record.
+    const text = JSON.stringify(naia);
+    for (const country of ['New Zealand', 'Australia', 'NZCEA', 'NCEA', 'A-Level', 'Abitur']) {
+      expect(text, country).not.toContain(country);
+    }
+  });
+
+  it('an international athlete\'s own grade still moves nothing', () => {
+    const strong = initialEligibilityForAthlete({
+      athlete: { origin: 'International', gpa: 4.0, sat_score: 1600 }, division: 'NAIA', asOf: NOW,
+    });
+    const weak = initialEligibilityForAthlete({
+      athlete: { origin: 'International', gpa: 0.5, sat_score: 400 }, division: 'NAIA', asOf: NOW,
+    });
+    expect(strong.result).toBe(weak.result);
+    expect(strong.reason).toBe(weak.reason);
+  });
+});
+
+describe('Q. the NAIA rule degrades exactly like every other rule', () => {
+  it('goes RULE_UNVERIFIED once it is out of cycle, rather than staying applied', () => {
+    const r = assessInitialEligibility({ division: 'NAIA', asOf: '2027-09-01' });
+    expect(r.staleness).toBe(STALENESS.STALE_CYCLE);
+    expect(r.result).toBe(INITIAL_ELIGIBILITY_RESULT.RULE_UNVERIFIED);
+  });
+
+  it('goes RULE_UNVERIFIED when the handbook PDF stops resolving', () => {
+    const gone = INITIAL_ELIGIBILITY_RULES.map((r) => (r.association === 'NAIA'
+      ? { ...r, sourceStatus: SOURCE_STATUS.UNREACHABLE } : r));
+    const r = assessInitialEligibility({ division: 'NAIA', asOf: NOW, rules: gone });
+    expect(r.staleness).toBe(STALENESS.STALE_SOURCE);
+    expect(r.result).toBe(INITIAL_ELIGIBILITY_RESULT.RULE_UNVERIFIED);
+  });
+
+  it('a stale NAIA rule does not drag the NCAA rules down with it', () => {
+    const gone = INITIAL_ELIGIBILITY_RULES.map((r) => (r.association === 'NAIA'
+      ? { ...r, sourceStatus: SOURCE_STATUS.UNREACHABLE } : r));
+    expect(assessInitialEligibility({ division: 'NCAA D1', asOf: NOW, rules: gone }).result)
+      .toBe(INITIAL_ELIGIBILITY_RESULT.NOT_ESTABLISHED);
+    expect(assessInitialEligibility({ division: 'NCAA D3', asOf: NOW, rules: gone }).result)
+      .toBe(INITIAL_ELIGIBILITY_RESULT.NOT_APPLICABLE);
+  });
+});
+
+describe('R. NCAA behaviour is unchanged by A7.35', () => {
+  it.each([
+    ['NCAA D1', INITIAL_ELIGIBILITY_RESULT.NOT_ESTABLISHED],
+    ['NCAA D2', INITIAL_ELIGIBILITY_RESULT.NOT_ESTABLISHED],
+    ['NCAA D3', INITIAL_ELIGIBILITY_RESULT.NOT_APPLICABLE],
+  ])('%s still resolves to %s', (division, expected) => {
+    expect(at(division).result).toBe(expected);
+  });
+
+  it('no NCAA rule gained a test-score requirement from its NAIA neighbour', () => {
+    for (const r of INITIAL_ELIGIBILITY_RULES.filter((x) => x.association === 'NCAA')) {
+      if (r.ruleType === 'NO_NATIONAL_STANDARD') continue;
+      expect(r.facts.standardizedTestRequired, r.division).toBe(false);
+      expect(r.facts.standardizedTestRole, r.division).toBeUndefined();
+      expect(r.facts.coreCourses, r.division).toBe(16);
+    }
+  });
+
+  it('and no NAIA fact leaked a core-course concept', () => {
+    const naia = INITIAL_ELIGIBILITY_RULES.find((r) => r.association === 'NAIA');
+    expect(naia.facts.coreCourses).toBeUndefined();
+    expect(naia.facts.coreCourseRequirement).toBe(false);
+  });
+
+  it('VERIFIED_ELIGIBLE still does not exist anywhere in the contract', () => {
+    expect(Object.keys(INITIAL_ELIGIBILITY_RESULT)).not.toContain('VERIFIED_ELIGIBLE');
+    expect(Object.values(INITIAL_ELIGIBILITY_RESULT)).not.toContain('VERIFIED_ELIGIBLE');
   });
 });
