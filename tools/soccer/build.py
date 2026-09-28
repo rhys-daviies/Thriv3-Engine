@@ -237,6 +237,12 @@ COLS = (
     + [f"{y}_{c}" for y in YEARS for c in ("W", "L", "D")]
     + [f"{y}_ps" for y in YEARS]
     # --- staff and roster pointers -----------------------------------------
+    # NOTE: these coach columns carry real names and addresses. The copies of
+    # this build output committed under data/university-individualisation/ are
+    # REDACTED (head_coach and head_coach_email emptied) because that repository
+    # is public and nothing in the product reads these files. If you refresh the
+    # committed copies, run server/scripts/redactUniversityCoachPii.js afterwards;
+    # npm run scan:committed-pii fails the build if you forget.
     + ["head_coach", "head_coach_title", "head_coach_email", "head_coach_email_type",
        "roster_url_2025", "graduating_seniors_2025"]
     # --- provenance ---------------------------------------------------------
