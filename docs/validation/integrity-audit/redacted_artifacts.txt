@@ -49,3 +49,7 @@ docs/validation/integrity-audit/phase7a_naia_coach_failure_ledger.json
 docs/validation/integrity-audit/phase7a_naia_eligibility_snapshot.json
 docs/validation/integrity-audit/phase7a_naia_programme_failure_ledger.json
 docs/validation/integrity-audit/phase7a_phase7b_candidate_queues.json
+docs/validation/integrity-audit/phase7b3_tier1_population.redacted.json
+docs/validation/integrity-audit/phase7b3_batch_manifest.redacted.json
+docs/validation/integrity-audit/phase7b3_batch_A_snapshot.json
+docs/validation/integrity-audit/phase7b3_batch_A_evidence.redacted.json
