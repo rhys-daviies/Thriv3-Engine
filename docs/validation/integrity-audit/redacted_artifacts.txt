@@ -83,3 +83,7 @@ docs/validation/integrity-audit/phase7b5c_batch_B_coverage.redacted.json
 docs/validation/integrity-audit/phase7b5c_batch_C_coverage.redacted.json
 docs/validation/integrity-audit/phase7b5c_quality_metrics.redacted.json
 docs/validation/integrity-audit/phase7b5c_closure_notes.md
+docs/validation/integrity-audit/phase7b5d_naia_tier2_hold_closure_snapshot.json
+docs/validation/integrity-audit/phase7b5d_domain_repairs.redacted.json
+docs/validation/integrity-audit/phase7b5d_tier2_disposition.redacted.json
+docs/validation/integrity-audit/phase7b5d_closure_notes.md
