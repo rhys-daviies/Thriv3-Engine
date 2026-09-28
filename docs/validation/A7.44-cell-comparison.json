@@ -1,0 +1,3746 @@
+{
+ "phase": "A7.44",
+ "what": "Preregistered vs actual, per cell, for the returningCompetition (Playing Pathway) side. Both runs read the same frozen 2026 roster snapshot, at entry year 2027.",
+ "preregistrationCellDigest": "6577cab25d65577474abad5af9e21edf669251f537390599103be5a44f390999",
+ "cellIdentitySetsIdentical": true,
+ "entryYear": 2027,
+ "summary": {
+  "preregistered": {
+   "STAY_MEASURED": 6922,
+   "SCOREABLE_TO_UNSCOREABLE": 273,
+   "MEASURED_TO_PARTIAL": 932,
+   "REFUSAL_REASON_CORRECTED": 107,
+   "REFUSING_UNCHANGED": 6
+  },
+  "actual": {
+   "UNCHANGED": 7776,
+   "SCOREABLE_TO_NO_READABLE_POSITIONS": 270,
+   "MEASURED_TO_PARTIAL": 87,
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS": 107
+  },
+  "numericChangesAmongStillScoreableCells": 0,
+  "unexpectedTransitions": 0
+ },
+ "movedCellFormat": [
+  "programme|sport",
+  "position",
+  "preregistered",
+  "actual",
+  "gradeOrReasonBefore",
+  "gradeOrReasonAfter"
+ ],
+ "movedCells": [
+  [
+   "Agnes Scott College|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Agnes Scott College|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Aurora University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Bethany Lutheran College|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Bethany Lutheran College|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Bethany Lutheran College|womens-soccer",
+   "MIDFIELD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Bethany Lutheran College|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Bethel University (IN)|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Blue Mountain Christian University|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Boston College|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Brewton-Parker Christian University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Brewton-Parker Christian University|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Bryant|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Bryant|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Cairn University|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Central Christian College of Kansas|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Central Christian College of Kansas|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Central Christian College of Kansas|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Central Christian College of Kansas|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Chestnut Hill|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Christian Brothers|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Christian Brothers|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Colby College|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Colby-Sawyer|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Columbia International University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Columbus State|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Columbus State|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Columbus State|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Columbus State|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "D'Youville|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Defiance College|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Delaware State|womens-soccer",
+   "DEFENSE",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Drew University|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Elmira College|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Elmira College|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Elmira College|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "George Mason|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "George Mason|womens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "George Mason|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "George Mason|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Georgia Southern|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Grand Canyon|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Grand View University|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Grinnell College|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Grinnell College|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Grinnell College|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Grinnell College|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hamilton College|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Hannibal-LaGrange University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hannibal-LaGrange University|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hannibal-LaGrange University|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hannibal-LaGrange University|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hanover College|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hanover College|womens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hanover College|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hanover College|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Holy Cross College|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Holy Cross College|womens-soccer",
+   "DEFENSE",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Holy Cross College|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Hope College|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hope College|womens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hope College|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hope College|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "IUP|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Illinois Institute of Technology|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Illinois Institute of Technology|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Illinois Institute of Technology|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Immaculata University|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Jackson State|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Jackson State|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Jefferson|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Jefferson|womens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Jefferson|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Jefferson|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "John Carroll University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "John Carroll University|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "John Carroll University|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "John Carroll University|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Kansas State|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Kentucky Wesleyan|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Kentucky Wesleyan|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Kentucky Wesleyan|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Kentucky Wesleyan|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Keystone College|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Keystone College|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Keystone College|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Keystone College|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Knox College|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Knox College|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "LSU Shreveport|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Lancaster Bible College|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lancaster Bible College|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lancaster Bible College|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lancaster Bible College|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lawrence University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lawrence University|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lawrence University|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lawrence University|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lebanon Valley College|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lebanon Valley College|womens-soccer",
+   "DEFENSE",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Lebanon Valley College|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Life Pacific University|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Life Pacific University|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Life Pacific University|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Life Pacific University|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Macalester College|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Macalester College|womens-soccer",
+   "DEFENSE",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Macalester College|womens-soccer",
+   "MIDFIELD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Macalester College|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Malone|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Malone|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Malone|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Mary Baldwin University|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Mary Baldwin University|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Massachusetts Maritime Academy|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Massachusetts Maritime Academy|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Massachusetts Maritime Academy|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Massachusetts Maritime Academy|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "McKendree|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "McKendree|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Millsaps College|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Millsaps College|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Millsaps College|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Millsaps College|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Milwaukee School of Engineering|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Milwaukee School of Engineering|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Milwaukee School of Engineering|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Milwaukee School of Engineering|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Missouri Baptist University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Missouri Southern|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Mount Mercy University|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Mount Olive|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Muskingum University|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Nelson University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Nelson University|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Nelson University|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Nelson University|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Notre Dame of Maryland University|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Notre Dame of Maryland University|womens-soccer",
+   "MIDFIELD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Ottawa University Arizona|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Ottawa University Arizona|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Ottawa University Arizona|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Otterbein University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Otterbein University|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Otterbein University|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Otterbein University|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Park University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Park University|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Park University|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Penn|womens-soccer",
+   "DEFENSE",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Penn State|womens-soccer",
+   "DEFENSE",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Pennsylvania State University-Penn State Schuylkill|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Regent University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Regent University|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Rockford University|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Roger Williams University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Roger Williams University|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Roger Williams University|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Roger Williams University|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "SUNY Old Westbury|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "SUNY Old Westbury|womens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "SUNY Old Westbury|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "SUNY Old Westbury|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Elizabeth University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Elizabeth University|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Elizabeth University|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Elizabeth University|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Mary's University of Minnesota|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Mary's University of Minnesota|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Mary's University of Minnesota|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Mary's University of Minnesota|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Southern|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Southern|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Southern Connecticut State|womens-soccer",
+   "MIDFIELD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Southwestern Christian University|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Southwestern Christian University|womens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Southwestern Christian University|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Southwestern Christian University|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Southwestern College (Kansas)|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "St. Thomas University (Florida)|womens-soccer",
+   "MIDFIELD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Stevens Institute of Technology|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Stevens Institute of Technology|womens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Stevens Institute of Technology|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Stevens Institute of Technology|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Tabor College|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Tabor College|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Tampa|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Tampa|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Tampa|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Trine University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Trine University|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "UC Merced|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Union (TN)|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Union (TN)|womens-soccer",
+   "DEFENSE",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Union Commonwealth University|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Union Commonwealth University|womens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Union Commonwealth University|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Union Commonwealth University|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "United States Merchant Marine Academy|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "United States Merchant Marine Academy|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of Dallas|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of Dallas|womens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of Dallas|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of Dallas|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of La Verne|womens-soccer",
+   "MIDFIELD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "University of La Verne|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "University of Mobile|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "University of Mount Union|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of Mount Union|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of Mount Union|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of Mount Union|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of Pikeville|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "University of Pittsburgh-Bradford|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "University of Providence|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "University of Redlands|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "University of St Thomas (TX)|womens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "University of the Cumberlands|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of the Cumberlands|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Ursinus College|womens-soccer",
+   "DEFENSE",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Utah State|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Utah State|womens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Utah State|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Utah State|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Vermont State University-Johnson|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Vermont State University-Johnson|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Vermont State University-Johnson|womens-soccer",
+   "MIDFIELD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Vermont State University-Johnson|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wartburg College|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wartburg College|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wartburg College|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wartburg College|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "West Virginia University Institute of Technology|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "West Virginia University Institute of Technology|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "West Virginia University Institute of Technology|womens-soccer",
+   "MIDFIELD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "West Virginia University Institute of Technology|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Westminster University (MO)|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Westminster University (MO)|womens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Westminster University (MO)|womens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Westminster University (MO)|womens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Whittier College|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Whittier College|womens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Whittier College|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Whittier College|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wiley University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wiley University|womens-soccer",
+   "DEFENSE",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Wyoming|womens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wyoming|womens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wyoming|womens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wyoming|womens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Yeshiva University|womens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Yeshiva University|womens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Adams State|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Adams State|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Albertus Magnus|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Alfred State|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Alfred State|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Aquinas|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Aquinas|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Aquinas|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Ave Maria University|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Baldwin Wallace|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Belmont Abbey|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Beloit|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Beloit|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Beloit|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Beloit|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Berry|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Bethany Lutheran|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Bethany Lutheran|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Bethany Lutheran|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Bethany Lutheran|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Bethel College (Kansas)|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Brewton-Parker Christian University|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Brewton-Parker Christian University|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Briar Cliff University|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Briar Cliff University|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Briar Cliff University|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Caltech|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Caltech|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Caltech|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Caltech|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Carthage|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Centenary (NJ)|mens-soccer",
+   "DEFENSE",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Central Christian|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Central Christian|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Central Christian|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Christian Brothers|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Christian Brothers|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Christian Brothers|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Christian Brothers|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Clark (MA)|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Clark (MA)|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Clark (MA)|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Clark (MA)|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Clarkson|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Clarkson|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Clarkson|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Clarkson|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Coe|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Colby-Sawyer|mens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Cumberlands|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Cumberlands|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Cumberlands|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Dominican (IL)|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Dominican (IL)|mens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Dominican (IL)|mens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Dominican (IL)|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Eastern Mennonite|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Eastern Mennonite|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Eastern Mennonite|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Eastern Oregon|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Eastern Oregon|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Eastern Oregon|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Franciscan (OH)|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Geneva|mens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Hannibal-LaGrange|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hannibal-LaGrange|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hannibal-LaGrange|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hannibal-LaGrange|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hawaii Pacific|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Hawaii Pacific|mens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Hesston College|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hope|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hope|mens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hope|mens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Hope|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Howard|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Howard|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "John Carroll|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "John Carroll|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "John Carroll|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "John Carroll|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Johnson University|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Judson University|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Kentucky Christian|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Kentucky Christian|mens-soccer",
+   "DEFENSE",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "King's (PA)|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Knox|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Knox|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Knox|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Knox|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lakeland|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lancaster Bible|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lancaster Bible|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lancaster Bible|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lancaster Bible|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lawrence|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lawrence|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lawrence|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lawrence|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Lebanon Valley|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Malone|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Manchester|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Marymount (VA)|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Marymount (VA)|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Marymount (VA)|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Marymount (VA)|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Marywood|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Massachusetts Maritime|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Massachusetts Maritime|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Massachusetts Maritime|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Massachusetts Maritime|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Montclair State|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Montclair State|mens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Montclair State|mens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Montclair State|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Mount Olive|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Mount Olive|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Mount Union|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Mount Union|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Mount Union|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Mount Union|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "New Haven|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "North Carolina Wesleyan|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "North Carolina Wesleyan|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Northwood|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Oakland|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Oral Roberts|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Pacific Lutheran|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Pacific Union College|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Pacific Union College|mens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Pacific Union College|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Park|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Paul Quinn College|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Paul Quinn College|mens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Paul Quinn College|mens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Paul Quinn College|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Penn State Behrend|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Rensselaer|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Rensselaer|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Rensselaer|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Rensselaer|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Francis (PA)|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Francis (PA)|mens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Francis (PA)|mens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Francis (PA)|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Joseph's (ME)|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Saint Mary's (MN)|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Mary's (MN)|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Mary's (MN)|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Saint Mary's (MN)|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Seton Hill|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Shorter|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Shorter|mens-soccer",
+   "MIDFIELD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Southern Virginia|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Southwest Baptist|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Southwestern (TX)|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Staten Island|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Stevens Tech|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Stevens Tech|mens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Stevens Tech|mens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Stevens Tech|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Swarthmore|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Swarthmore|mens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Swarthmore|mens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Swarthmore|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Tampa|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Tampa|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Texas A&M International|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Texas A&M University-Texarkana|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Thomas Jefferson|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Thomas Jefferson|mens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Thomas Jefferson|mens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Thomas Jefferson|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Truett McConnell University|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Truett McConnell University|mens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Truett McConnell University|mens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Truett McConnell University|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "UMBC|mens-soccer",
+   "MIDFIELD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Union (KY)|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Union (KY)|mens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Union (KY)|mens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Union (KY)|mens-soccer",
+   "FORWARD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of Mobile|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of Mobile|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of Mobile|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of the Southwest (New Mexico)|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of the Southwest (New Mexico)|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of the Southwest (New Mexico)|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "University of the Southwest (New Mexico)|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Ursinus|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Ursinus|mens-soccer",
+   "DEFENSE",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Ursinus|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Ursinus|mens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Walsh|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "West Texas A&M|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "West Texas A&M|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "West Texas A&M|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "West Texas A&M|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Westminster (MO)|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Westminster (MO)|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Westminster (MO)|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Westminster (MO)|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wheeling|mens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Wiley University|mens-soccer",
+   "GOALKEEPER",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wiley University|mens-soccer",
+   "DEFENSE",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wiley University|mens-soccer",
+   "MIDFIELD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "MEASURED",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wiley University|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wilkes|mens-soccer",
+   "FORWARD",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Wilmington (OH)|mens-soccer",
+   "GOALKEEPER",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED_TO_PARTIAL",
+   "MEASURED",
+   "PARTIAL"
+  ],
+  [
+   "Wright State|mens-soccer",
+   "GOALKEEPER",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wright State|mens-soccer",
+   "DEFENSE",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wright State|mens-soccer",
+   "MIDFIELD",
+   "REFUSAL_REASON_CORRECTED",
+   "REASON_NO_ROSTER_ON_FILE_TO_NO_READABLE_POSITIONS",
+   "NO_ROSTER_ON_FILE",
+   "NO_READABLE_POSITIONS"
+  ],
+  [
+   "Wright State|mens-soccer",
+   "FORWARD",
+   "SCOREABLE_TO_UNSCOREABLE",
+   "SCOREABLE_TO_NO_READABLE_POSITIONS",
+   "PARTIAL",
+   "NO_READABLE_POSITIONS"
+  ]
+ ]
+}
