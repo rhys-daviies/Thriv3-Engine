@@ -32,6 +32,7 @@
  * Grand Canyon and Kansas State become a recorded roster gap, and MISSING
  * EVIDENCE IS PREFERABLE TO KNOWN-FALSE EVIDENCE.
  */
+import '../db/refuseProductionVolume.js'; // MUST precede db/client.js — see that file
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import path from 'node:path';

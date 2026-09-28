@@ -26,6 +26,7 @@
  * A missing field stays missing - A7.43 section 16 forbids filling one from a
  * prior season.
  */
+import '../db/refuseProductionVolume.js'; // MUST precede db/client.js — see that file
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import path from 'node:path';

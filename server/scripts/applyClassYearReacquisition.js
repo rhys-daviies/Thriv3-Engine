@@ -31,6 +31,7 @@
  *     acquisition as a complete one.
  *   - every column except `class_year_label`.
  */
+import '../db/refuseProductionVolume.js'; // MUST precede db/client.js — see that file
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import path from 'node:path';
