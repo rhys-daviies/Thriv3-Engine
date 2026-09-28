@@ -168,7 +168,6 @@ describe('L7ZB — nothing else moves it', () => {
     ['notes only', "UPDATE roster_players SET notes = 'a note' WHERE id = 'b'"],
     ['updated_date only (a re-import re-stamps every row)', "UPDATE roster_players SET updated_date = '2099-01-01T00:00:00Z'"],
     ['created_date only', "UPDATE roster_players SET created_date = '2099-01-01T00:00:00Z' WHERE id = 'b'"],
-    ['division only', "UPDATE roster_players SET division = 'NCAA D3' WHERE id = 'b'"],
     ['conference only', "UPDATE roster_players SET conference = 'Other Conf' WHERE id = 'b'"],
   ];
   for (const [name, sql] of cases) {
@@ -176,6 +175,25 @@ describe('L7ZB — nothing else moves it', () => {
       expect(mutate(sql).measurementMoved).toBe(false);
     });
   }
+
+  /**
+   * DIVISION MOVED SIDES, and the reason is not cosmetic.
+   *
+   * It used to sit in the list above: acquisition metadata, invisible to every
+   * generator, and a manifest that moved for it would have reported work that
+   * changed nothing anyone reads. The V2 matchmaking work made that false.
+   * Eligibility is a rule and the rule depends on the association, so
+   * `philosophyQueries.ROSTER_COLUMNS` now carries `division` and `squadRows`
+   * hands it to `eligibilityCeiling` through the V2 roster index.
+   *
+   * Without it that function returns `{ lastSeason: null, model: UNKNOWN,
+   * basis: NO_RULE }` instead of `{ lastSeason: 2030, model: NCAA_AGE_BASED_5Y }`
+   * for the same player — which is the whole A7.37 eligibility-horizon
+   * architecture. A field that decides that is a measurement field.
+   */
+  it('division DOES move the measurement component, because eligibility depends on it', () => {
+    expect(mutate("UPDATE roster_players SET division = 'NCAA D3' WHERE id = 'b'").measurementMoved).toBe(true);
+  });
 });
 
 describe('L7ZB — canonicalisation does not invent movement', () => {

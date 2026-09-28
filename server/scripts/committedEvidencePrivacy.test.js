@@ -17,11 +17,25 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { isAlwaysAllowed } from './committedPiiScan.js';
 
 const REPO = path.resolve(import.meta.dirname, '../..');
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
-/** `coach-<id>@redacted.invalid` keeps the row link; `[withheld]@domain` keeps only the domain. */
-const isToken = (a) => a.endsWith('@redacted.invalid') || a.startsWith('[withheld]@');
+/**
+ * ONE RULE, IN ONE PLACE.
+ *
+ * This file used to carry its own definition — redaction tokens and nothing
+ * else — which was correct when it was the only guard. `committedPiiScan.js`
+ * then arrived with a fuller rule that also permits reserved domains and the
+ * ones we own, and the two disagreed: `npm run scan:committed-pii` reported
+ * zero findings while this test failed on three of the operator's OWN addresses
+ * in their own review artifacts. A second, stricter, silently divergent copy of
+ * a privacy rule is worse than either rule alone, because it teaches people to
+ * decide which guard to believe.
+ *
+ * So this defers. The scanner owns the definition; this test owns the sweep.
+ */
+const isToken = (a) => isAlwaysAllowed(a);
 
 const tracked = (dir) => execFileSync('git', ['ls-files', dir], { cwd: REPO, encoding: 'utf8' })
   .split('\n').filter(Boolean);

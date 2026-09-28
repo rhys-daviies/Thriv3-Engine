@@ -456,13 +456,21 @@ const ROSTER_FRESHNESS_SQL = `
  *
  * Deliberately EXCLUDED: `source_page_season`, `source_fetched_at`,
  * `source_parser` (L7Z), `data_confidence`, `source_stats_url`,
- * `projected_minutes_season`, `division`, `conference`, `notes`. None is in
- * ROSTER_COLUMNS, so no generator can see any of them. They are recorded facts
- * about acquisition, and a manifest that moved for them would report work that
+ * `projected_minutes_season`, `conference`, `notes`. None is in ROSTER_COLUMNS,
+ * so no generator can see any of them. They are recorded facts about
+ * acquisition, and a manifest that moved for them would report work that
  * changed nothing an athlete or an operator reads.
+ *
+ * `division` USED TO BE ON THAT LIST AND IS NOT ANY MORE. The V2 matchmaking
+ * branch added it to `philosophyQueries.ROSTER_COLUMNS`, because eligibility
+ * ceilings are division-dependent — `eligibilityCeiling` reaches a different
+ * answer for the same player at NCAA D1 and at NAIA. The exclusion's reason was
+ * that no generator could see it; that stopped being true, so the exclusion
+ * stopped being correct. `rosterMeasurementManifest.test.js` is the thing that
+ * noticed, which is what it was written to do.
  */
 export const ROSTER_MEASUREMENT_FIELDS = Object.freeze([
-  'college_name', 'sport', 'season', 'player_name',
+  'college_name', 'sport', 'season', 'division', 'player_name',
   'position', 'class_year_label',
   'minutes_played', 'games_played', 'games_started',
   'estimated_graduation_year', 'eligibility_end_year', 'projected_minutes',
