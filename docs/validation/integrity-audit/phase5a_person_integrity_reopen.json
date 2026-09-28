@@ -1,0 +1,241 @@
+{
+  "built_at": "2026-09-26T11:21:25.055Z",
+  "note": "Phase 5A Part H — coaches whose email research contradicts Phase-4 person-currentness. NOT repaired; queued for a person-integrity re-check.",
+  "count": 26,
+  "queue": [
+    {
+      "coach_id": "729e9e26-4dff-4b84-ac13-eb9de8abec41",
+      "name": "[name withheld]",
+      "school": "St. Joseph's (NY)",
+      "sport": "mens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://sjliathletics.com/sports/mens-soccer/",
+      "notes": "Stored as Head Coach, but [name withheld — coach 729e9e26-4dff-4b84-ac13-eb9de8abec41] is not listed on the current 2026 men's soccer coaches page. [name withheld — coach bf2abbbb-e97b-41e6-996f-44aa6ee6c79f] is now listed as Head Coach. Gomez appears to have departed the role."
+    },
+    {
+      "coach_id": "c0dcb989-485c-48f7-9a26-15988b8bf181",
+      "name": "[name withheld]",
+      "school": "San Jose State",
+      "sport": "mens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://sjsuspartans.com/",
+      "notes": "Tobin is NOT on the current SJSU staff directory. Men's Soccer now lists [name withheld] as Interim Head Coach ([withheld]@redacted.invalid). Tobin's bio stated he would retire after the 2025 season; he has departed the role. Stored email/person-currentness is superseded."
+    },
+    {
+      "coach_id": "73e86077-c6ef-4e0e-b543-030318ae7716",
+      "name": "[name withheld]",
+      "school": "Adelphi",
+      "sport": "mens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://aupanthers.com/sports/mens-soccer/",
+      "notes": "[name withheld — coach 73e86077-c6ef-4e0e-b543-030318ae7716] is NOT listed on the current Adelphi men's soccer coaches page. The current head coach is Chris Megaloudis ([withheld]@adelphi.edu). Book appears to have departed the head-coach role; stored person-currentness contradicted."
+    },
+    {
+      "coach_id": "919281a1-cf7e-42c2-aaf6-b55c3a9af02e",
+      "name": "[name withheld]",
+      "school": "Franklin Pierce",
+      "sport": "mens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://fpuravens.com/sports/msoc/coaches",
+      "notes": "[name withheld — coach 919281a1-cf7e-42c2-aaf6-b55c3a9af02e] is no longer listed on the current men's soccer coaching page. The 2026 head coach is [name withheld — coach 3045f876-4b74-425f-8e4f-b5b5a414399d] ([withheld]@redacted.invalid); staff shown are [name withheld — coach 3045f876-4b74-425f-8e4f-b5b5a414399d], Scotty Murray, [name withheld — coach 4016bbb9-d7a6-4c4c-95fe-61c44f7cbb1d]. Recorded person-currentness is contradicted (coach departed)."
+    },
+    {
+      "coach_id": "38ccd51e-bb66-4128-a6c9-a7b05bc4135a",
+      "name": "[name withheld]",
+      "school": "Southern Connecticut State",
+      "sport": "mens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://scsuowls.com/sports/mens-soccer/",
+      "notes": "[name withheld — coach 38ccd51e-bb66-4128-a6c9-a7b05bc4135a] no longer appears on the current SCSU men's soccer staff page. [name withheld — coach 88cc5e33-5394-40cf-9205-f5f672829fc0] is now listed as Interim Head Coach; other staff are [name withheld — coach e90d34e7-0525-4d38-b512-99fd6b60d7cc], [name withheld — coach 7aa694f3-2e3d-4a0d-aee6-50a924753ef4], etc. Stored email [withheld]@redacted.invalid not published anywhere on current page."
+    },
+    {
+      "coach_id": "df518561-0b24-4c79-8f05-0e580d457ec7",
+      "name": "[name withheld]",
+      "school": "Staten Island",
+      "sport": "mens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://csidolphins.com/sports/mens-soccer/",
+      "notes": "Current 2026 men's soccer staff page does not list [name withheld — coach df518561-0b24-4c79-8f05-0e580d457ec7]. [name withheld — coach 34fe3c3a-477b-429c-8066-e8ffa8591756] is now Head Coach. Curci appears to have departed the head-coach role; his stored email is not published on the current page."
+    },
+    {
+      "coach_id": "bc4b5f22-5bf0-41ce-8901-c77445d6ac75",
+      "name": "[name withheld]",
+      "school": "Upper Iowa",
+      "sport": "mens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://uiupeacocks.com/sports/mens-soccer/",
+      "notes": "[name withheld] no longer appears on the current men's soccer coaching staff. The page now lists [name withheld — coach 9cfd7213-40fb-41d4-b086-984de3a87e64] as Head Men's Soccer Coach. Carlson appears to have departed; his stored email is not published anywhere on the current page."
+    },
+    {
+      "coach_id": "8a29c22f-beb6-47ff-b699-dd4e1556b4ce",
+      "name": "[name withheld]",
+      "school": "Western Oregon",
+      "sport": "mens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://wouwolves.com/sports/mens-soccer/",
+      "notes": "[name withheld] is NOT on the current 2026 men's soccer staff. The page now lists Andrew May as Interim Head Men's Soccer Coach ([withheld]@wou.edu). Behonick appears to have departed the head coaching role."
+    },
+    {
+      "coach_id": "04a02d8d-091d-48b2-b0a8-76caab58925a",
+      "name": "[name withheld]",
+      "school": "Colorado College",
+      "sport": "mens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://cctigers.com/sports/mens-soccer/",
+      "notes": "Not listed on current CC men's soccer staff page (2026 staff = Palguta, [name withheld — coach 3b620eb7-8a8c-4c84-b901-b3e113e5c77c], [name withheld — coach 5802c643-3293-49da-a540-3b2940667de3]). Coach appears departed; stored email currency cannot be confirmed."
+    },
+    {
+      "coach_id": "59733378-bd3d-4f09-a2f7-b80ca5748087",
+      "name": "[name withheld]",
+      "school": "Guilford",
+      "sport": "mens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://guilfordquakers.com/sports/mens-soccer/",
+      "notes": "Recorded as Interim Head Men's Soccer Coach, but the current coaches page no longer lists [name withheld — coach 59733378-bd3d-4f09-a2f7-b80ca5748087]. The Head Men's Soccer Coach is now Sean Reilly ([withheld]@guilford.edu). Thomsen appears to have departed / been replaced; stored email not present on current page."
+    },
+    {
+      "coach_id": "91afec9b-2b68-4c58-a2b3-f852b7b95a4d",
+      "name": "[name withheld]",
+      "school": "Plattsburgh State",
+      "sport": "mens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://gocardinalsports.com/sports/mens-soccer/",
+      "notes": "[name withheld — coach 91afec9b-2b68-4c58-a2b3-f852b7b95a4d] is NOT on the current 2026 men's soccer staff. Page lists Head Coach [name withheld — coach 4ee6a523-007c-48da-8cb3-e4de5ccd27c3] and assistants Jake Pawlika, Michael Considine, Brett Rotz. He appears to have departed the assistant role."
+    },
+    {
+      "coach_id": "462ea474-210b-4322-8351-7a42e5021bb0",
+      "name": "[name withheld]",
+      "school": "Susquehanna",
+      "sport": "mens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://suriverhawks.com/sports/mens-soccer/",
+      "notes": "Stored as Head Coach, but [name withheld — coach 462ea474-210b-4322-8351-7a42e5021bb0] is not on the current 2026 men's soccer coaches page. Jeremy Payne ([withheld]@susqu.edu) is now listed as Head Coach. Findlay appears to have departed the role."
+    },
+    {
+      "coach_id": "f85cde06-b196-4522-8a81-b1736cfe290e",
+      "name": "[name withheld]",
+      "school": "Murray State",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://goracers.com/sports/womens-soccer/",
+      "notes": "[name withheld — coach f85cde06-b196-4522-8a81-b1736cfe290e] (Assistant Coach) is NOT listed on the current 2026 women's soccer staff page; only Head Coach [name withheld — coach 1c09e05e-c4f2-4b1f-ad55-33fb33a21df0] and Graduate Assistant [name withheld — coach fbbd7495-dc06-4a12-b5fd-7ef3ca4ef5e4] appear. Person appears to have departed."
+    },
+    {
+      "coach_id": "7b308aa0-5a25-4d40-9ca3-ce4da65cc670",
+      "name": "[name withheld]",
+      "school": "St Mary's College of Maryland",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://smcmathletics.com/sports/womens-soccer/",
+      "notes": "Not listed on current 2026 women's soccer staff. Current staff: [name withheld — coach 958ec7ff-be1c-4c3f-8990-fb2e646f006d] (HC), [name withheld — coach eadf8710-37a5-4469-9fed-c784c1cc9988], [name withheld — coach b839db96-83e1-400f-bc4d-e643b81194a2], Heather Vetreno, Chad Reed. Staufenberger no longer appears; departed/no longer on roster."
+    },
+    {
+      "coach_id": "ca0ecc6d-443a-4eec-b2cd-5d87c661c752",
+      "name": "[name withheld]",
+      "school": "Cal State East Bay",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://eastbaypioneers.com/sports/womens-soccer/",
+      "notes": "[name withheld — coach ca0ecc6d-443a-4eec-b2cd-5d87c661c752] no longer appears on the current women's soccer staff page. [name withheld — coach 68402e1d-bd08-4ac1-8467-90827deb7e62] is now listed as Head Women's Soccer Coach. Whipple has departed / been replaced."
+    },
+    {
+      "coach_id": "2743cfad-d9c7-47bd-bf69-1c6ee39b8523",
+      "name": "[name withheld]",
+      "school": "Spring Hill",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://shcbadgers.com/sports/womens-soccer/",
+      "notes": "Current women's soccer staff page lists Alejo Binaghi as Head Coach. [name withheld] is no longer on the page; stored email not published."
+    },
+    {
+      "coach_id": "e7fa1983-0627-453f-9cd6-96a341451751",
+      "name": "[name withheld]",
+      "school": "Staten Island",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://csidolphins.com/sports/womens-soccer/",
+      "notes": "Current 2026 women's soccer staff page lists Maddy Wright as Head Coach ([withheld]@csi.cuny.edu). [name withheld — coach e7fa1983-0627-453f-9cd6-96a341451751] (former Interim Head Coach) is no longer on the page; stored email not published."
+    },
+    {
+      "coach_id": "af731dae-2cad-417a-a397-7b7447755367",
+      "name": "[name withheld]",
+      "school": "Bates College",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://gobatesbobcats.com/sports/womens-soccer/",
+      "notes": "[name withheld — coach af731dae-2cad-417a-a397-7b7447755367] is NOT on the current Bates women's soccer staff. The current Head Coach is Jonny Macadam ([withheld]@bates.edu). Stored source_url was a Wayback capture; person appears to have departed."
+    },
+    {
+      "coach_id": "0b8b2834-f7cb-40b1-b759-7615af439623",
+      "name": "[name withheld]",
+      "school": "Marian University (WI)",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://sabreathletics.com/sports/womens-soccer/",
+      "notes": "[name withheld — coach 0b8b2834-f7cb-40b1-b759-7615af439623] is NOT listed on the current 2026 Marian (WI) women's soccer staff page. The page lists Kinsey 'Bob' Gomez as the current Head Women's Soccer Coach ([withheld]@redacted.invalid). Recorded person-currentness contradicted: Gaskin appears to have departed the women's program."
+    },
+    {
+      "coach_id": "bd39437d-4ac3-49fb-ba35-10a06e137526",
+      "name": "[name withheld]",
+      "school": "Connecticut College",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://camelathletics.com/sports/womens-soccer/",
+      "notes": "[name withheld — coach bd39437d-4ac3-49fb-ba35-10a06e137526] not listed on current women's soccer coaches page; current head women's soccer coach is Keith Simons ([withheld]@conncoll.edu). Recorded person appears departed/superseded."
+    },
+    {
+      "coach_id": "da6f82d6-5ed6-46d2-8bed-7fb0e8bfa1c7",
+      "name": "[name withheld]",
+      "school": "Hilbert College",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://hilberthawks.com/sports/womens-soccer/",
+      "notes": "[name withheld — coach da6f82d6-5ed6-46d2-8bed-7fb0e8bfa1c7] is no longer listed on the current women's soccer coaching page. The 2026 head coach is Hannah Callaghan ([withheld]@hilbert.edu). Recorded person-currentness is contradicted (interim coach replaced/departed)."
+    },
+    {
+      "coach_id": "222000db-3881-4f38-b55c-b1888da78571",
+      "name": "[name withheld]",
+      "school": "Rockford University",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://rockfordregents.com/sports/womens-soccer/",
+      "notes": "Stored as Head Coach, but [name withheld — coach 222000db-3881-4f38-b55c-b1888da78571] is not on the current 2026 women's soccer coaches page. Rick Mateus ([withheld]@rockford.edu) is now listed as Head Coach. Golden appears to have departed the role."
+    },
+    {
+      "coach_id": "4772e228-4508-4255-9135-198dc3ab549d",
+      "name": "[name withheld]",
+      "school": "SUNY Cobleskill",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://fightingtigers.cobleskill.edu/sports/womens-soccer/",
+      "notes": "[name withheld — coach 4772e228-4508-4255-9135-198dc3ab549d] (recorded as Interim Head Women's Soccer Coach) is NOT on the current women's soccer coaches page. The only staff member listed is William Bogue, Interim Head Women's Soccer Coach ([withheld]@cobleskill.edu). Recorded person-currentness is contradicted; the stored email [withheld]@redacted.invalid does not appear."
+    },
+    {
+      "coach_id": "a0478d57-424a-4d96-9d58-8c6ba50b97f3",
+      "name": "[name withheld]",
+      "school": "Whittier College",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://wcpoets.com/sports/womens-soccer/",
+      "notes": "[name withheld — coach a0478d57-424a-4d96-9d58-8c6ba50b97f3] is NOT on the current women's soccer staff. The current Head Women's Soccer Coach is [name withheld — coach 60dc4d7a-2a89-47e6-9eed-abd8c17387d8] ([withheld]@whittier.edu). Hanks has departed the role; the stored record is stale."
+    },
+    {
+      "coach_id": "d5f16799-429a-4393-ac9b-ce9d537dd5b0",
+      "name": "[name withheld]",
+      "school": "SUNY Maritime College",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://maritimeathletics.com/sports/womens-soccer/",
+      "notes": "Stored as Head Coach, but [name withheld — coach d5f16799-429a-4393-ac9b-ce9d537dd5b0] is not on the current 2026 women's soccer coaches page. Kelci Hegg ([withheld]@sunymaritime.edu) is now the only listed Head Coach. McTurk appears to have departed the role (stored email mguglielmo@ reflects a prior surname)."
+    },
+    {
+      "coach_id": "fa5d57ef-7fc3-4cdc-9709-8cb1cb333bc7",
+      "name": "[name withheld]",
+      "school": "Colby-Sawyer",
+      "sport": "womens-soccer",
+      "stored_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://www.colby-sawyerathletics.com/sports/womens-soccer/",
+      "notes": "[name withheld — coach fa5d57ef-7fc3-4cdc-9709-8cb1cb333bc7] is NOT on the current 2026 women's soccer staff page; the listed Head Coach is [name withheld — coach beeafbdd-44de-4cc5-ada5-d1455357f7b7] ([withheld]@colby-sawyer.edu). Recorded coach appears departed/replaced; stored email not published."
+    }
+  ]
+}

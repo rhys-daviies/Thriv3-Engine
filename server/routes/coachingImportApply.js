@@ -1,6 +1,23 @@
+import db from '../db/client.js';
 import { College } from '../db/entities/college.js';
 import { GraduatingSenior } from '../db/entities/graduatingSenior.js';
-import { parseAndGroupCoachingCsv, matchSchoolName } from '../lib/coachingImport.js';
+import {
+  parseAndGroupCoachingCsv, buildInstitutionIndex, resolveCoachInstitution,
+} from '../lib/coachingImport.js';
+
+/** Reads the institution index (VERIFIED athletics hosts + college academic domains). */
+function loadInstitutionIndex() {
+  const domains = db.prepare('SELECT domain, unitid, status FROM athletics_domains').all();
+  const colleges = db.prepare('SELECT name, unitid, website_domain FROM colleges').all();
+  return buildInstitutionIndex({ domains, colleges });
+}
+
+/** A representative (source_url, email) for a school group — first coach with real evidence. */
+function groupEvidence(imported) {
+  const withSrc = imported.find((c) => c.source_url);
+  const withEmail = imported.find((c) => c.email && c.email.includes('@'));
+  return { sourceUrl: withSrc?.source_url || null, email: withEmail?.email || null };
+}
 
 const DEFAULT_STUB_SEASON = '2025-2026';
 
@@ -33,12 +50,15 @@ export async function coachingImportApply({ csv_text, sport = 'mens-soccer', ove
   if (!csv_text) throw new Error('csv_text is required');
 
   const existingCollegeNames = College.filter({ sport }).map((c) => c.name);
+  const existingCollegeSet = new Set(existingCollegeNames);
+  const institutionIndex = loadInstitutionIndex();
   const { bySchool, droppedNoEmail } = parseAndGroupCoachingCsv(csv_text);
 
   const summary = {
     schools_updated: [],
     stub_records_created: [],
     schools_skipped_low_confidence: [],
+    schools_flagged_institution_conflict: [],
     coaches_imported: 0,
     coaches_skipped_no_email: droppedNoEmail,
   };
@@ -49,9 +69,36 @@ export async function coachingImportApply({ csv_text, sport = 'mens-soccer', ove
     let confidence = override ? 1 : 0;
 
     if (!targetCollegeName) {
-      const match = matchSchoolName(schoolName, existingCollegeNames);
-      targetCollegeName = match.matched_college;
-      confidence = match.confidence;
+      // Corroboration rule: strong source/email domain evidence outranks the
+      // fuzzy name match and blocks a wrong same-name filing (Phase 3A / 3B).
+      const { sourceUrl, email } = groupEvidence(entry.imported);
+      const res = resolveCoachInstitution({ scrapedName: schoolName, sourceUrl, email, candidateNames: existingCollegeNames, institutionIndex });
+
+      if (res.decision === 'REVIEW_INSTITUTION_CONFLICT') {
+        summary.schools_flagged_institution_conflict.push({
+          school_name: schoolName, proposed_by_name: res.proposedCanonical, proposed_unitid: res.proposedUnitid,
+          domain_institution: res.domainInstitution, source_domain: res.sourceDomain, email_domain: res.emailDomain,
+          competing_unitids: res.competingUnitids, domain_signal: res.domainSignal,
+        });
+        continue; // never file at the name-matched wrong institution
+      }
+      if (res.decision === 'RESOLVED' && res.basis !== 'NAME_MATCH') {
+        // strong domain evidence: file at the domain institution IF we track it for this sport
+        if (res.matched_college && existingCollegeSet.has(res.matched_college)) {
+          targetCollegeName = res.matched_college; confidence = res.confidence;
+        } else {
+          // domain resolves to an institution whose programme is absent for this sport -> do not guess
+          summary.schools_flagged_institution_conflict.push({
+            school_name: schoolName, proposed_by_name: res.proposedCanonical, proposed_unitid: res.proposedUnitid,
+            domain_institution: res.matched_college, source_domain: res.sourceDomain, email_domain: res.emailDomain,
+            competing_unitids: [res.proposedUnitid, res.unitid], domain_signal: res.basis,
+            note: 'domain institution not in college set for this sport',
+          });
+          continue;
+        }
+      } else {
+        targetCollegeName = res.matched_college; confidence = res.confidence;
+      }
     }
 
     if (!targetCollegeName || confidence < min_confidence) {

@@ -8,7 +8,7 @@ import {
   AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogTitle,
   AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
-import { entities } from '@/api/client';
+import { players as playersApi } from '@/api/client';
 
 const STATUS_VARIANT = {
   New: 'blue',
@@ -31,10 +31,11 @@ export default function Players() {
   const [players, setPlayers] = useState([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   async function load() {
     setLoading(true);
-    const rows = await entities.Player.list('-created_date', 100);
+    const rows = await playersApi.listActive('-created_date', 100);
     setPlayers(rows);
     setLoading(false);
   }
@@ -49,13 +50,31 @@ export default function Players() {
     );
   }, [players, search]);
 
+  /**
+   * "Delete" archives. The row and its history survive, the athlete's coach
+   * links are revoked, and they leave this list.
+   *
+   * The removal happens only after the server has confirmed it. The previous
+   * version spliced the row out first, so a refused delete — which is what a
+   * player with any outreach always got, on a foreign-key error — looked like
+   * it had worked until the next reload put them back.
+   */
   async function handleDelete(id) {
-    await entities.Player.delete(id);
-    setPlayers((prev) => prev.filter((p) => p.id !== id));
+    setError(null);
+    try {
+      await playersApi.archive(id);
+      setPlayers((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   return (
     <div className="space-y-6">
+      {error && (
+        <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">{error}</p>
+      )}
+
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-heading text-2xl font-bold">Players</h1>
@@ -103,8 +122,12 @@ export default function Players() {
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Delete {p.full_name}?</AlertDialogTitle>
-                  <AlertDialogDescription>This permanently removes the player and their match history.</AlertDialogDescription>
+                  <AlertDialogTitle>Delete player?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This removes {p.full_name} from Thriv3 and stops future recruitment outreach.
+                    Their public recruiting profile will be removed after the next successful
+                    profile-site publish.
+                  </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>

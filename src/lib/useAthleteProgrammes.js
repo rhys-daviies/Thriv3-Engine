@@ -227,6 +227,27 @@ export function useAthleteProgrammes(playerId) {
     { relationship }, { flagged: false },
   ), [apply]);
 
+  /**
+   * WHETHER THE AUTOMATED CAMPAIGN MAY WRITE TO THIS SCHOOL — F5b.
+   *
+   * A THIRD DECISION, AND ONLY THE THIRD FIELD TRAVELS. `{ contact_stance }`
+   * and nothing else, exactly like `setVisibility` beside it: a stance change
+   * must not disturb a flag, a ranking decision, a note or a request, and the
+   * cheapest way to guarantee that is never to name them.
+   *
+   * `manual_only` leaves the school everywhere it already is — the Top 100,
+   * Specific Schools, the match cards — and leaves manual outreach available.
+   * It says the campaign is not the path, not that the school is closed.
+   *
+   * `do_not_contact` is NOT set from here. It is a stronger rule with its own
+   * workflow, and a control that could install it beside "allow campaign
+   * outreach" would put the two most different answers one click apart.
+   */
+  const setContactStance = useCallback((target, contactStance) => apply(
+    target?.id && target?.athlete_id ? { relationship: target } : { college: target },
+    { contact_stance: contactStance },
+  ), [apply]);
+
   /** `default` or `suppressed`, and nothing else travels with it. */
   const setVisibility = useCallback((target, visibility) => apply(
     target.id && target.athlete_id ? { relationship: target } : { college: target },
@@ -262,6 +283,7 @@ export function useAthleteProgrammes(playerId) {
     flag,
     unflag,
     setVisibility,
+    setContactStance,
     saveNote,
     reload: load,
   };

@@ -1,0 +1,19 @@
+[
+  {
+    "email": "[withheld]@redacted.invalid",
+    "rows": [
+      {
+        "full_name": "[name withheld]",
+        "school": "Dakota Wesleyan",
+        "sport": "mens-soccer",
+        "email_source_url": "https://dwuathletics.com/sports/msoc/coaches/Cole"
+      },
+      {
+        "full_name": "[name withheld]",
+        "school": "Dakota Wesleyan University",
+        "sport": "womens-soccer",
+        "email_source_url": "https://dwuathletics.com/sports/msoc/coaches/Cole"
+      }
+    ]
+  }
+]

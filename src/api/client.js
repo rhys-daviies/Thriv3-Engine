@@ -103,6 +103,25 @@ function makeEntity(name) {
   };
 }
 
+/**
+ * Athlete lifecycle, which is deliberately not part of the generic entity
+ * surface: `Player.delete` no longer exists as far as the app is concerned,
+ * and the server refuses it.
+ */
+export const players = {
+  /** Only the athletes currently being represented. */
+  listActive(sort, limit) {
+    const qs = new URLSearchParams();
+    if (sort) qs.set('_sort', sort);
+    if (limit) qs.set('_limit', String(limit));
+    return request(`/api/players/active${qs.toString() ? `?${qs}` : ''}`);
+  },
+  /** "Delete" in the UI. Archives: the record survives, the links stop. */
+  archive(playerId) {
+    return request(`/api/players/${playerId}/archive`, { method: 'POST' });
+  },
+};
+
 export const entities = {
   Player: makeEntity('players'),
   College: makeEntity('colleges'),
@@ -392,6 +411,83 @@ export const campaigns = {
   reviewMessage(messageId) {
     return request(`/api/programme-messages/${messageId}/review`, { method: 'POST' });
   },
+
+  /**
+   * WOULD THIS MESSAGE GO, IF SOMEBODY PRESSED SEND NOW? — D4.9.
+   *
+   * ADVISORY, and the response says so in its own payload: `advisory` and
+   * `claimRechecksEverything` are both on it. Every fact in it can move before
+   * a send, so it is for greying out a button and explaining why — never for
+   * deciding that a send is safe. The server asks everything again.
+   *
+   * `blockers` is EVERY reason, not the first, so an operator fixing one does
+   * not discover the next by pressing send.
+   */
+  executionReadiness(messageId, { connectedMailboxId } = {}) {
+    const query = connectedMailboxId
+      ? `?connectedMailboxId=${encodeURIComponent(connectedMailboxId)}`
+      : '';
+    return request(`/api/programme-messages/${messageId}/execution-readiness${query}`);
+  },
+
+  /**
+   * SEND A REVIEWED MESSAGE — D4.9, and the only function here that can cause
+   * an email.
+   *
+   * ===========================================================================
+   * TWO FIELDS, AND NEITHER IS AUTHORITY.
+   *
+   *   bodyHash            the reviewed hash this client was shown. If the words
+   *                       have been edited since, the server refuses with 409
+   *                       MESSAGE_REVIEW_CHANGED rather than sending a body
+   *                       nobody on this screen has read.
+   *   connectedMailboxId  which of the athlete's mailboxes to send from. The
+   *                       server proves it belongs to this operator AND this
+   *                       athlete, is connected and holds a credential.
+   *
+   * Everything else — recipient, subject, body, provider, campaign, coach,
+   * step, budget, timing — is derived server-side, and naming any of them is a
+   * 400 that says which field was refused.
+   * ===========================================================================
+   *
+   * THE RESULT IS DURABLE STATE, NOT A TRANSPORT ANSWER. A 200 means the
+   * request ran and `state` is what is on file: ACCEPTED, FAILED, or
+   * UNKNOWN_PROVIDER_RESULT. UNKNOWN IS A 200 ON PURPOSE — a 5xx would invite a
+   * retry, and an ambiguous send is the one thing that must never be retried.
+   *
+   * IN THIS BUILD IT ALWAYS REFUSES with 503 TRANSPORT_NOT_CONFIGURED: there is
+   * no production transport yet. Nothing is claimed and no capacity is spent.
+   */
+  sendMessage(messageId, { bodyHash, connectedMailboxId }) {
+    return request(`/api/programme-messages/${messageId}/send`, {
+      method: 'POST',
+      body: JSON.stringify({ bodyHash, connectedMailboxId }),
+    });
+  },
+
+  /**
+   * ATTEMPT AGAIN AN EXECUTION THAT PROVABLY NEVER LEFT — D5.0.
+   *
+   * ------------------------------------------------------------------------
+   * KEYED ON THE EXECUTION ID, AND IT SENDS NOTHING WITH IT.
+   *
+   * The only messages this applies to are the ones `sendMessage` answered with
+   * `retryable: true` — a transport that stopped before it could submit
+   * anything. Everything else is refused 409, including the case that matters
+   * most: an ambiguous send, which may already be in the coach's inbox and can
+   * never be attempted again by any path.
+   *
+   * NO BODY. The bytes are frozen on the execution row and cannot be
+   * influenced, the mailbox is the one the message was authorised from, and
+   * there is nothing left for a caller to supply or to override.
+   *
+   * NOTHING IN THE UI CALLS THIS AUTOMATICALLY, and nothing should. A retry is
+   * somebody deciding to try again after fixing what broke.
+   * ------------------------------------------------------------------------
+   */
+  retrySend(outreachSendId) {
+    return request(`/api/outreach-sends/${outreachSendId}/retry`, { method: 'POST' });
+  },
 };
 
 /**
@@ -433,10 +529,21 @@ export const evidence = {
    * evidence supports, and refuses rather than honours anything else — which
    * is why the client is allowed to ask at all.
    */
-  summaries(playerId, collegeNames, { prefer = null, preferStructure = null } = {}) {
+  /**
+   * @param {string[]} [opts.coachIds]  who this email is for - F9e. OPTIONAL.
+   *
+   * Supplied, the response marks findings this athlete has already put to one
+   * of these coaches. Omitted, the payload is exactly what it was before.
+   *
+   * COACHES, NEVER HISTORY. The client may say who it is writing to; it may
+   * not say what they have been told. There is deliberately no `previousKinds`
+   * or `usedKinds` field to send, because a claim about what a coach has
+   * already read is a server fact.
+   */
+  summaries(playerId, collegeNames, { prefer = null, preferStructure = null, coachIds = null } = {}) {
     return request(`/api/players/${playerId}/evidence`, {
       method: 'POST',
-      body: JSON.stringify({ collegeNames, prefer, preferStructure }),
+      body: JSON.stringify({ collegeNames, prefer, preferStructure, coachIds }),
     });
   },
 };
@@ -467,6 +574,28 @@ export const operatorEvidence = {
  * twenty-six kinds may appear beside a match score, and none of them is
  * anything the score already consumes.
  */
+/**
+ * The NCAA roster-gap queue and the operator review of one gap.
+ *
+ * Read and write are separate calls on purpose: the queue is derived from the
+ * registry and the pipeline's own state, and a review is the one thing here a
+ * person authors.
+ */
+export const rosterGaps = {
+  queue(season) {
+    const qs = season ? `?season=${encodeURIComponent(season)}` : '';
+    return request(`/api/roster-gaps${qs}`);
+  },
+  review(body) {
+    return request('/api/roster-gaps/review', { method: 'POST', body: JSON.stringify(body) });
+  },
+  /** Programme status, read only — there is no write route by design. */
+  programmeStatus(season) {
+    const qs = season ? `?season=${encodeURIComponent(season)}` : '';
+    return request(`/api/programme-status${qs}`);
+  },
+};
+
 export const matchingSummary = {
   summaries(playerId, collegeNames) {
     return request(`/api/players/${playerId}/matching-summary`, {
@@ -719,6 +848,44 @@ export const manualOutreach = {
       body: JSON.stringify(payload),
     });
   },
+
+  /**
+   * EVERY MANUAL DRAFT THIS ATHLETE HAS WAITING, IN ONE REQUEST — F7b.
+   *
+   * Athlete-level for the same reason `/contact-intelligence` is: Specific
+   * Schools renders a list, and a per-card lookup would be an N+1 that grows
+   * with exactly the athletes who have the most outreach. The client indexes it
+   * by programme and every row reads a local entry.
+   */
+  pendingDrafts(playerId) {
+    return request(`/api/players/${playerId}/pending-manual-drafts`);
+  },
+
+  /**
+   * "I SENT THIS ONE." An operator assertion about a specific message, and the
+   * only kind of evidence available — Outlook hands back no message id, so
+   * nothing can be observed or polled. Addressed by `outreach_send.id` rather
+   * than by relationship, so an operator who drafted to three coaches and sent
+   * two can say exactly that.
+   */
+  confirmSent(playerId, relationshipId, sendId) {
+    return request(
+      `/api/players/${playerId}/programmes/${relationshipId}/outreach/${sendId}/confirm-sent`,
+      { method: 'POST' },
+    );
+  },
+
+  /**
+   * "I NEVER SENT THIS ONE." Clears Thriv3's expectation of an answer and keeps
+   * the record of what it drafted. It does not touch Outlook, which this build
+   * cannot see.
+   */
+  discardDraft(playerId, relationshipId, sendId) {
+    return request(
+      `/api/players/${playerId}/programmes/${relationshipId}/outreach/${sendId}/discard`,
+      { method: 'POST' },
+    );
+  },
 };
 
 
@@ -737,5 +904,37 @@ export const manualOutreach = {
 export const contactIntelligence = {
   forAthlete(playerId) {
     return request(`/api/players/${playerId}/contact-intelligence`);
+  },
+};
+
+/**
+ * Historical season trust — the L8D operator review surface.
+ *
+ * `disposition` is the governed write: the server owns the reviewer and the
+ * timestamp, refuses either if a caller sends them, and refuses a decision
+ * taken against a stale reading. `expectedDisposition` is not optional
+ * padding — it is what the caller believed the current state to be, and the
+ * server answers 409 if it has moved since.
+ *
+ * `rebuild` is separate from `disposition` on purpose. An exclusion stales the
+ * derived recruiting data and clearing that rewrites tens of thousands of
+ * rows; hiding it inside the decision would make one act look like another.
+ */
+export const seasonTrust = {
+  queue(params = {}) {
+    const qs = new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v != null && v !== ''),
+    ).toString();
+    return request(`/api/roster-season-trust${qs ? `?${qs}` : ''}`);
+  },
+  disposition(body) {
+    return request('/api/roster-season-trust/disposition', {
+      method: 'POST', body: JSON.stringify(body),
+    });
+  },
+  rebuild(sport) {
+    return request('/api/roster-season-trust/rebuild', {
+      method: 'POST', body: JSON.stringify({ sport }),
+    });
   },
 };

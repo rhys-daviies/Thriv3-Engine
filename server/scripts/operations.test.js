@@ -4,6 +4,7 @@ import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { fileCorpusOr } from '../db/corpusIdentity.js';
 
 /**
  * The commands, run as commands.
@@ -27,7 +28,8 @@ import { fileURLToPath } from 'node:url';
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const DB = path.join(ROOT, 'server/data/recruitmatch.sqlite');
+/* L7ZO: obey an explicitly selected corpus; see `fileCorpusOr`. */
+const DB = fileCorpusOr(path.join(ROOT, 'server/data/recruitmatch.sqlite'));
 const HAVE_DB = fs.existsSync(DB) && fs.statSync(DB).size > 1_000_000;
 const d = HAVE_DB ? describe : describe.skip;
 if (!HAVE_DB) {
@@ -178,12 +180,14 @@ d('npm run roster-sources', () => {
     expect(r.out).toMatch(/to repair: \d+/);
   });
 
-  it('names the institution-id disagreements with both ids', () => {
-    // The queue's only genuine defect class, and the one whose repair is an id
-    // rather than a URL. If the report stops saying so, somebody goes hunting
-    // for a bad link that is not there.
-    expect(r.out).toContain('INSTITUTION ID DISAGREES');
-    expect(r.out).toMatch(/registry says institution \d+, the college row says \d+/);
+  it('shows the institution-id disagreement class cleared', () => {
+    // This was the queue's only genuine defect class, repaired by an id rather
+    // than a URL. Phase 2D corrected the base-name mis-stampings against
+    // external ground truth, so mens-soccer 2026 has no institution-id
+    // disagreements left and the report no longer prints the section. The
+    // report's ability to name both ids for any future mismatch is pinned by
+    // rosterSourceAudit.test.js.
+    expect(r.out).not.toContain('INSTITUTION ID DISAGREES');
   });
 
   it('says it changed nothing', () => {

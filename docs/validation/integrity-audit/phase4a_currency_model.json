@@ -1,0 +1,32 @@
+{
+  "purpose": "Define what constitutes proof of coach currency before large-scale research. Read-only; establishes the semantics email_confirmed_at and a coach freshness field could carry in future.",
+  "as_of": "2026-09-26",
+  "person_currency_bands": {
+    "CURRENT_CONFIRMED": "Coach is named on an authoritative CURRENT 2026 / 2026-27 staff or team source (official athletics staff directory, current team coaches page, current-season roster/staff).",
+    "RECENT_CONFIRMED": "Authoritative evidence exists from 2024 or 2025 but current (2026) status has not been independently confirmed.",
+    "STALE_CONFIRMED": "Authoritative current evidence establishes the stored record is no longer current: a replacement is named in the role, a departure/move is documented, or only archived presence exists with contrary current evidence.",
+    "UNKNOWN": "No adequate evidence either way."
+  },
+  "non_proofs": [
+    "Absence from coach_seasons does NOT prove departure (assistants are frequently not scraped).",
+    "A working institutional email domain does NOT prove the person remains employed.",
+    "A correct source domain does NOT prove the individual remains on staff.",
+    "Historical evidence (an old roster/staff snapshot) must NOT be treated as current."
+  ],
+  "email_currency_bands": {
+    "CURRENT_OFFICIAL_EMAIL": "Stored address appears on a current authoritative source.",
+    "DIFFERENT_CURRENT_EMAIL": "Current source publishes a different address than stored.",
+    "NO_CURRENT_EMAIL_PUBLISHED": "Coach is current but no address is published.",
+    "GENERIC": "Team/department mailbox, not a person.",
+    "CONSUMER_DOMAIN": "gmail/outlook/etc — never institution proof.",
+    "UNRESOLVED": "Could not determine."
+  },
+  "rule_email_independent_of_person": "An email is not current merely because the coach is current; the stored address must be independently observed on a current source.",
+  "internal_freshness_thresholds": {
+    "basis": "coach_seasons max season at the coach's resolved institution (staff turnover is annual).",
+    "CURRENT": ">= 2025 season",
+    "RECENT": "2023-2024",
+    "STALE": "<= 2022",
+    "UNKNOWN": "name not present in coach_seasons at the institution"
+  }
+}

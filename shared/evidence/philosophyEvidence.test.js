@@ -113,10 +113,22 @@ describe('the adapter translates rather than recomputes', () => {
   it('matches the benchmark it was given, and names the pool', () => {
     const history = rows();
     const ev = programmePoolBenchmark(athlete, ctxFor(history, { benchmarks: bench }));
-    expect(ev.comparison.poolSize).toBe(920);
+    /*
+     * `bench` deliberately carries two different counts: `programmes: 920`
+     * and a rank-1 pool of 900. L7ZC made `poolSize` the second one — the
+     * population the quantiles below it were taken from — because the basis
+     * string promises "a readable freshman ladder" and 920 counts programmes
+     * that had not been filtered for readability. It read 920 until then, on
+     * every claim the product made.
+     */
+    expect(ev.comparison.poolSize).toBe(900);
+    expect(ev.comparison.poolSize).toBe(ev.data.pool.n);
+    expect(ev.comparison.poolSize).not.toBe(bench.programmes);
     expect(ev.comparison.statistic).toBe('ladder-rank-1-median-minutes');
     expect(ev.comparison.basis).toContain('mens-soccer');
     expect(ev.data.pool).toEqual({ rank: 1, n: 900, p25: 901, median: 1118, p75: 1289 });
+    // The wider count is still carried, named for what it counts.
+    expect(ev.data.poolProgrammes).toBe(920);
     expect(ev.data.programmeMedian).toBe(ctxFor(history).philosophy.ladder[0].median);
   });
 

@@ -250,7 +250,7 @@ describe('one address cannot be double-counted inside one programme', () => {
    *
    * Collapsing on the address would also be WRONG rather than merely
    * unnecessary: school and sport are in that key precisely because a generic
-   * address like msoccer@cornell.edu is shared across a staff, so merging on
+   * address like msoccer@example.edu is shared across a staff, so merging on
    * it would report a message to one person as a message to all of them.
    */
   it('refuses a second coach row for the same address at the same programme', () => {

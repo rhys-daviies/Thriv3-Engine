@@ -204,37 +204,43 @@ describe('PROVIDER_RECONCILED', () => {
     expect(out.accepted_source).toBe('PROVIDER_RECONCILED');
   });
 
-  it('nothing in this build produces it, or PROVIDER_ACCEPTED', () => {
+  /**
+   * NARROWED IN D4.7, AND ONLY FOR PROVIDER_ACCEPTED.
+   *
+   * This asserted that NEITHER provider source had a producer, which was true
+   * of a build with no transport. D4.7 adds one: `executionResult` writes
+   * PROVIDER_ACCEPTED when a transport answers yes, which is exactly what that
+   * value was named for. Keeping the old assertion would mean the vocabulary
+   * could never be used by the slice it was declared for.
+   *
+   * PROVIDER_RECONCILED KEEPS ITS GUARD, unchanged and for the original
+   * reason. It means "an ambiguous send was later established to have been
+   * accepted" — found afterwards, by a person or a mailbox search, not watched.
+   * Nothing in this build establishes that, reconciliation is D4.8, and a
+   * live 2xx must never be recorded as it.
+   */
+  it('has exactly one producer, and it is not PROVIDER_RECONCILED', () => {
     /**
-     * The CODE form, not the word. Both names appear in migrate.js prose,
-     * explaining why the forty-one historical rows are OPERATOR_ASSERTED and
-     * not something stronger — which is the opposite of a producer. What would
-     * make one is a reference through the enum.
+     * `--exclude-dir=data` is load-bearing, not tidiness (kept from the V2 branch).
+     * `server` contains `server/data`: the working database and forty-odd backups
+     * of it, 4.7GB, which this walked in full on every run — over two minutes, and
+     * worse, racing. Another suite opening the database creates and removes a
+     * `-shm` file mid-walk, grep reports it missing and exits 2, and the test
+     * fails for a reason that has nothing to do with the enum.
      */
-    /**
-     * `server/data` is excluded because it is not source. It holds the working
-     * database and forty-odd backups of it - 4.7GB - which this walked in full
-     * on every run, taking over two minutes and, worse, racing: another suite
-     * opening the database creates and removes a `-shm` file mid-walk, grep
-     * reports it missing and exits 2, and the whole test fails for a reason
-     * that has nothing to do with the enum. Neither data directory contains a
-     * line of JavaScript.
-     */
-    let hits;
-    try {
-      hits = execFileSync('grep', [
-        '-rl', '--exclude-dir=data', '--exclude-dir=node_modules',
-        'ACCEPTED_SOURCE.PROVIDER_', 'server', 'src', 'shared',
-      ], { cwd: ROOT, encoding: 'utf8' });
-    } catch (err) {
-      // grep exits 1 for "no matches", which is the outcome this test WANTS.
-      // Anything else is a real failure and must not be swallowed.
-      if (err.status !== 1) throw err;
-      hits = '';
-    }
-    const produced = hits.trim().split('\n').filter(Boolean)
-      .filter((f) => !f.endsWith('.test.js'));
-    expect(produced).toEqual([]);
+    const producersOf = (value) => execFileSync('grep', [
+      '-rl', '--exclude-dir=data', '--exclude-dir=node_modules',
+      `ACCEPTED_SOURCE.${value}`, 'server', 'src', 'shared',
+    ], { cwd: ROOT, encoding: 'utf8' })
+      .trim().split('\n').filter(Boolean).filter((f) => !f.endsWith('.test.js'));
+
+    // The transport result boundary, and nothing else.
+    expect(producersOf('PROVIDER_ACCEPTED')).toEqual(['server/lib/executionResult.js']);
+
+    // Still nobody. A grep that matches nothing exits 1, which is the answer.
+    let reconciled = [];
+    try { reconciled = producersOf('PROVIDER_RECONCILED'); } catch { reconciled = []; }
+    expect(reconciled).toEqual([]);
   });
 });
 

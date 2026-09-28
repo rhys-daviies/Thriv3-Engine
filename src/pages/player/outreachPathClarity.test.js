@@ -8,8 +8,8 @@ import MatchingTab from './MatchingTab.jsx';
 import ManualOutreachDialog from '@/components/ManualOutreachDialog';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
 import {
-  RELATIONSHIP_OUTREACH, RECOMMENDATION_OUTREACH, BOTH_PATHS_HINT,
-  MANUAL_ONLY_HINT, DO_NOT_CONTACT_TITLE, DO_NOT_CONTACT_BODY,
+  CREATE_EMAIL_DRAFT, RECOMMENDATION_OUTREACH, BOTH_PATHS_HINT,
+  MANUAL_ONLY_HINT, MANUAL_ONLY_BADGE, DO_NOT_CONTACT_TITLE, DO_NOT_CONTACT_BODY,
   RELATIONSHIP_DIALOG_HINT, RECOMMENDATION_DIALOG_HINT,
 } from '@/lib/outreachLabels';
 import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
@@ -159,7 +159,7 @@ describe('the two paths are distinguishable on the card', () => {
     await renderTab();
     // Neither workflow was removed to solve the ambiguity — they mean
     // different things and both are legitimate.
-    expect(withText(RELATIONSHIP_OUTREACH)).toHaveLength(1);
+    expect(withText(CREATE_EMAIL_DRAFT)).toHaveLength(1);
     await expandCard('Alpha');
     expect(withText(RECOMMENDATION_OUTREACH).length).toBeGreaterThanOrEqual(1);
   });
@@ -167,13 +167,13 @@ describe('the two paths are distinguishable on the card', () => {
   it('gives them different labels AND different icons', async () => {
     stubFetch({ programmes: [relationship({ flagged: true, flag_reason: 'x' })] });
     await renderTab();
-    const relButton = withText(RELATIONSHIP_OUTREACH)[0];
-    expect(RELATIONSHIP_OUTREACH).not.toBe(RECOMMENDATION_OUTREACH);
+    const relButton = withText(CREATE_EMAIL_DRAFT)[0];
+    expect(CREATE_EMAIL_DRAFT).not.toBe(RECOMMENDATION_OUTREACH);
     // The icon is the faster discrimination in a row of small buttons, so the
     // two must not share a glyph.
     expect(relButton.querySelector('svg')?.getAttribute('class'))
       .toBeTruthy();
-    expect(relButton.textContent).toContain(RELATIONSHIP_OUTREACH);
+    expect(relButton.textContent).toContain(CREATE_EMAIL_DRAFT);
   });
 
   it('explains the difference only where both are reachable', async () => {
@@ -188,7 +188,7 @@ describe('the two paths are distinguishable on the card', () => {
     await renderTab();
     await expandCard('Alpha');
     // One way to write to it, so nothing to tell apart.
-    expect(withText(RELATIONSHIP_OUTREACH)).toHaveLength(0);
+    expect(withText(CREATE_EMAIL_DRAFT)).toHaveLength(0);
     expect(body()).not.toContain(BOTH_PATHS_HINT);
   });
 
@@ -206,7 +206,7 @@ describe('the same word on every relationship surface', () => {
     await renderTab();
     await click(tab('Specific Schools'));
     const row = container.querySelector('[data-testid="specific-school-row"]');
-    expect(buttonsIn(row).some((b) => b.textContent.includes(RELATIONSHIP_OUTREACH))).toBe(true);
+    expect(buttonsIn(row).some((b) => b.textContent.includes(CREATE_EMAIL_DRAFT))).toBe(true);
   });
 
   it('uses it in the removed-programmes panel, beside an independent Restore', async () => {
@@ -218,9 +218,9 @@ describe('the same word on every relationship surface', () => {
     // Two separate buttons: one changes a ranking decision, one writes an
     // email. Neither label implies the other.
     const labels = buttonsIn(list).map((b) => b.textContent.trim());
-    expect(labels.some((l) => l.includes(RELATIONSHIP_OUTREACH))).toBe(true);
+    expect(labels.some((l) => l.includes(CREATE_EMAIL_DRAFT))).toBe(true);
     expect(labels.some((l) => l.includes('Keep in Top 100'))).toBe(true);
-    expect(labels.some((l) => /restore/i.test(l) && l.includes(RELATIONSHIP_OUTREACH))).toBe(false);
+    expect(labels.some((l) => /restore/i.test(l) && l.includes(CREATE_EMAIL_DRAFT))).toBe(false);
   });
 });
 
@@ -228,9 +228,9 @@ describe('the dialogs say which composer they are', () => {
   it('the relationship composer names its context', async () => {
     stubFetch({ programmes: [relationship({ flagged: true, flag_reason: 'x' })] });
     await renderTab();
-    await click(withText(RELATIONSHIP_OUTREACH)[0]);
+    await click(withText(CREATE_EMAIL_DRAFT)[0]);
     expect(body()).toContain(RELATIONSHIP_DIALOG_HINT);
-    expect(body()).toContain(RELATIONSHIP_OUTREACH);
+    expect(body()).toContain(CREATE_EMAIL_DRAFT);
   });
 
   it('the recommendation composer names its own', async () => {
@@ -277,19 +277,32 @@ describe('the relationship dialog explains why this school is here', () => {
 
   it('shows nothing where there is nothing to say', async () => {
     await open(relationship());
-    for (const empty of ['Specific Request', 'Existing relationship', 'Not in Top 100', 'Manual only']) {
+    for (const empty of ['Specific Request', 'Existing relationship', 'Not in Top 100', MANUAL_ONLY_BADGE]) {
       expect(body(), empty).not.toContain(empty);
     }
     expect(body()).toContain('None to this programme.');
   });
 
-  it('describes manual_only without claiming enforcement it does not have', async () => {
+  it('describes manual_only in the one wording the whole product uses', async () => {
     await open(relationship({ contact_stance: 'manual_only' }));
-    expect(body()).toContain('Manual only');
+    /**
+     * THROUGH THE CONSTANT — F6b. The dialog used to hardcode "Manual only"
+     * while the list surfaces read MANUAL_ONLY_BADGE, so one relationship had
+     * two names depending on which screen you were on.
+     */
+    expect(body()).toContain(MANUAL_ONLY_BADGE);
     expect(body()).toContain(MANUAL_ONLY_HINT);
-    // Campaign execution does not consult this stance yet. Saying it is
-    // "excluded from automated outreach" would be believed and would be false.
-    expect(MANUAL_ONLY_HINT).not.toMatch(/excluded|blocked|prevented/i);
+    /**
+     * IT SAYS WHAT STOPS AND WHAT DOES NOT. The enforcement is real —
+     * `campaignStanceDecision` refuses RELATIONSHIP_MANUAL_ONLY at the one
+     * chokepoint every campaign write passes through — so the sentence is
+     * allowed to state it, which it did not used to be. What it must never do
+     * is read as a closure: an operator who stops at "won't be contacted" and
+     * does not learn the school is still theirs to write to by hand has been
+     * told the wrong thing.
+     */
+    expect(MANUAL_ONLY_HINT).toMatch(/won't be contacted by the automated campaign/i);
+    expect(MANUAL_ONLY_HINT).toMatch(/still contact it manually/i);
   });
 
   it('reports previous contact as fact, with no warning language', async () => {
@@ -359,7 +372,7 @@ describe('rendering the controls costs nothing', () => {
     stubFetch({ programmes: [relationship({ flagged: true, flag_reason: 'x' })] });
     await renderTab();
     expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0);
-    await click(withText(RELATIONSHIP_OUTREACH)[0]);
+    await click(withText(CREATE_EMAIL_DRAFT)[0]);
     expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(1);
   });
 });

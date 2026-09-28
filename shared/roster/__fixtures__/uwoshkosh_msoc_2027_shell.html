@@ -1,0 +1,167 @@
+<!doctype html>
+<!-- uwoshkoshtitans.com/sports/mens-soccer/roster - a 2027 programme served as an empty shell -->
+<html><head>
+<meta property="og:title" content="2027 Men&#39;s Soccer Roster">
+<title>2027 Men's Soccer Roster - University of Wisconsin–Oshkosh Athletics</title>
+</head>
+<body>
+<div class="roster">
+<tr data-bind="foreach: headings">
+														                        <th scope="col" data-bind="text: $data">Statistic</th>
+													                        </tr>
+<tr>
+															                        <!-- ko foreach: $data -->
+																                        <td data-bind="click: function() { return true; }, clickBubble: false, html: value, attr: { 'data-label': label }"></td>
+															                        <!-- /ko -->
+														                        </tr>
+<tr data-bind="foreach: headings">
+														                        <th scope="col" class="text-left text-uppercase" data-bind="text: $data">Statistic</th>
+													                        </tr>
+<tr>
+															                        <!-- ko foreach: $data -->
+																                        <td data-bind="click: function() { return true; }, clickBubble: false, html: value, attr: { 'data-label': label }"></td>
+															                        <!-- /ko -->
+														                        </tr>
+<tr>
+                                                                <th scope="col" class="text-left text-hide noprint">Image</th>
+                                                                <th scope="col" class="text-left text-uppercase">Name</th>
+                                                                <th scope="col" class="text-left text-uppercase">Title</th>
+                                                            </tr>
+<tr>
+                                                                    <td class="image_combined_path noprint">
+                                                                        
+                                                                            <img data-src="/images/2026/5/26/GallagherDarren.JPG?width=50" alt="Darren Gallagher Mount St. Joseph Headshot" class="lazyload">
+                                                                        
+                                                                    </td>
+                                                                    <td><a href="/sports/mens-soccer/roster/coaches/darren-gallagher/717">Darren Gallagher</a></td>
+                                                                    <td>Head Coach</td>
+                                                                </tr>
+<tr>
+                                                                    <td class="image_combined_path noprint">
+                                                                        
+                                                                            <img data-src="/images/2024/4/19/dwyercj.jpg?width=50" alt="CJ Dwyer" class="lazyload">
+                                                                        
+                                                                    </td>
+                                                                    <td><a href="/sports/mens-soccer/roster/coaches/cj-dwyer/760">CJ Dwyer</a></td>
+                                                                    <td>Assistant Coach</td>
+                                                                </tr>
+<tr>
+                                                                    <th scope="col" class="hide-on-small-down text-left text-hide noprint">Image</th>
+                                                                    <th scope="col" class="text-left text-uppercase">Name</th>
+                                                                    <th scope="col" class="text-left text-uppercase">Title</th>
+                                                                </tr>
+<div class="sidearm-roster-players-container">
+<= 0 ) {
+
+                                    $(".sidearm-roster-default-template .sidearm-roster-player.show-extra .sidearm-roster-player-extra").hide();
+                                    $(".sidearm-roster-default-template .sidearm-roster-player.show-extra").removeClass("show-extra");
+
+                                }
+
+                            });
+
+				            var sharedVm = new vm();
+
+                            var Player = function (id, url, hide_bio) {
+			                    var self = this;
+
+			                    self.isLoading = ko.observable(true);
+                                self.id = id;
+                                self.hideBio = hide_bio;
+			                    self.stats = ko.observableArray();
+			                    self.stories = ko.observableArray();
+                                self.pressclips = ko.observableArray();
+                                self.url = url;
+			                    $.getJSON('/services/responsive-roster.ashx', { player_id: id, sport_id: '7', sport_shortname: 'msoc', year: '2027' }, function (response) {
+			                        if (response === null || response.stats === null)
+			                            self.stats(null);
+			                        else {
+			                            response.stats.map(function (stat) {
+			                                self.stats.push(new Stat(stat));
+			                            });
+			                            self.stats()[0].selected(true);
+			                        }
+
+			                        if (response === null || response.stories === null || response.stories.length === 0)
+			                            self.stories(null);
+			                        else {
+			                            var stories = ko.utils.arrayMap(response.stories, function (story) {
+			                                self.stories.push(new Story(story));
+			                            });
+			                        }
+
+			                        self.isLoading(false);
+			                    });
+
+			                    self.selectStatCategory = function (stat) {
+			                        for (var i = 0; i < self.stats().length; i++)
+			                            self.stats()[i].selected(false);
+			                        stat.selected(true);
+			                    };
+			                };
+
+			                var Stat = function (data) {
+			                    var self = this;
+
+			                    self.title = data.title;
+			                    self.title_short = data.title_short;
+			                    self.headings = data.headings;
+			                    self.data = data.data;
+
+			                    self.selected = ko.observable(false);                
+			                }
+
+			                var Story = function (data) {
+			                    var self = this;
+
+			                    self.id = data.id,
+						        self.headline = data.headline,
+						        self.teaser = data.teaser,
+						        self.date = data.date,
+						        self.image = data.image,
+						        self.image_alt_text = data.image_alt_text,
+						        self.url = data.url,
+						        self.video = data.video
+										        ? new ShowcasePlayer({ youtube: data.youtube, Archive: data.Archive })
+										        : null;
+			                }
+
+                            var PressClips = function (data) {
+			                    var self = this;
+
+			                    self.id = data.id,
+						        self.title = data.title,
+						        self.author = data.author,
+						        self.summary = data.summary,
+                                self.date = data.date,
+                                self.date = data.datedisplay,
+						        self.image = data.image,
+						        self.image_alt_text = data.image_alt_text,
+						        self.url = data.url
+			                }
+
+			                ko.applyBindings(sharedVm, $('.sidearm-roster-templates-container')[0]);
+			                ko.applyBindings(sharedVm, $('.sidearm-roster-header')[0]);
+
+                            $(function() {
+
+                                //download dropdown keyboard focus
+                                $(document).on("focusin focusout", ".sidearm-roster-view .sidearm-roster-header-download ul a", function (e) {
+                                    if (e.type === "focusin") {
+                                        $(this).closest(".sidearm-roster-header-download").addClass("sidearm-hover");
+                                    } else if (e.type === "focusout") {
+                                        $(this).closest(".sidearm-roster-header-download").removeClass("sidearm-hover");
+                                    }
+                                });
+
+                            });
+
+                            var imglazyload = new LazyLoad({
+                                elements_selector: ".lazy",
+                                data_src: "original"
+                            });
+
+                        });
+                    </script>
+</div>
+</body></html>

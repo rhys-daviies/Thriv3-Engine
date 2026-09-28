@@ -1,0 +1,704 @@
+{
+  "PROVEN_STALE": [
+    {
+      "coach_id": "21b6b365-6f5d-4104-b07a-5066d463103d",
+      "reason": "OTHER",
+      "evidence_url": "https://aupanthers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page + official_athletics_news (megaloudis-appointed 2026-07-28)"
+    },
+    {
+      "coach_id": "862104e0-8251-4a3d-ad8f-3e5c1d6587ab",
+      "reason": "STALE",
+      "evidence_url": "https://aupanthers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "de0b6189-7c35-41f3-b36e-7265a547070a",
+      "reason": "OTHER",
+      "evidence_url": "https://aupanthers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page + official_athletics_news"
+    },
+    {
+      "coach_id": "136c006d-b0fa-459c-891d-af94cfd79cda",
+      "reason": "STALE",
+      "evidence_url": "https://gotiffindragons.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "21037f8d-0838-4af0-ba0a-67766c465edc",
+      "reason": "OTHER",
+      "evidence_url": "https://gotiffindragons.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "0b0c81d5-c636-4615-9791-c26b39e1e435",
+      "reason": "STALE",
+      "evidence_url": "https://posteagles.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "ee7813f5-4ab4-4ef2-8239-7dbffc92572d",
+      "reason": "OTHER",
+      "evidence_url": "https://widenerpride.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "38fda62d-8d3a-4cfe-9433-07f6df678af2",
+      "reason": "STALE",
+      "evidence_url": "https://www.oldwestburypanthers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "7172598f-fb63-4d9c-bdaf-5731b9bdf11d",
+      "reason": "OTHER",
+      "evidence_url": "https://www.oldwestburypanthers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "9b01a6ab-cf31-46ab-a185-0f659db1098e",
+      "reason": "OTHER",
+      "evidence_url": "https://albrightathletics.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "9ab81af2-a38b-44ad-b031-d7ec2f2169e3",
+      "reason": "STALE",
+      "evidence_url": "https://athletics.stolaf.edu/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "1f64c07f-1a53-49ed-aac9-61ede4f6cd61",
+      "reason": "OTHER",
+      "evidence_url": "https://athletics.stolaf.edu/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "f6cb7f61-356a-4c8f-a862-a3d68ee73fc2",
+      "reason": "STALE",
+      "evidence_url": "https://otterbeincardinals.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "82bd5096-c9be-48c9-a33e-c04e1a446bf3",
+      "reason": "OTHER",
+      "evidence_url": "https://otterbeincardinals.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "d669e3f5-ebe1-4e45-b693-28394efd8259",
+      "reason": "STALE",
+      "evidence_url": "https://otterbeincardinals.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "092da2b3-6464-4cdf-83e5-06dd11c7d3b8",
+      "reason": "OTHER",
+      "evidence_url": "https://salveathletics.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "2b9f783a-73f6-4e32-b6c9-949fb29ef6c2",
+      "reason": "STALE",
+      "evidence_url": "https://salveathletics.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "847de277-3d42-47bc-9fc4-0578544077db",
+      "reason": "OTHER",
+      "evidence_url": "https://salveathletics.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "d1966514-9652-41c9-a230-f7d1597cdda6",
+      "reason": "STALE",
+      "evidence_url": "https://eastbaypioneers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "62ce339f-a4ef-4823-8060-645b9d5015f9",
+      "reason": "OTHER",
+      "evidence_url": "https://eastbaypioneers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "5a0a9b6c-7204-4677-beed-d92954655b20",
+      "reason": "STALE",
+      "evidence_url": "https://highpointpanthers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "c2cd81fd-a019-405e-83d5-eacc0a4e80f9",
+      "reason": "OTHER",
+      "evidence_url": "https://dupanthers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "a6813079-3ea4-41f9-96d7-dfc4e9c21c22",
+      "reason": "STALE",
+      "evidence_url": "https://lewisflyers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "343b1d50-4b0f-48e1-a851-ece294ab3ed5",
+      "reason": "OTHER",
+      "evidence_url": "https://gojaspers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "60a8f56b-7cbb-430c-ae56-9c1220d55704",
+      "reason": "STALE",
+      "evidence_url": "https://athletics.plymouth.edu/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "3a66e867-5dbd-470d-8821-b4fbf60afed8",
+      "reason": "OTHER",
+      "evidence_url": "https://unionathletics.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "9f0b687f-7d18-41c1-90f3-397d2ff78f52",
+      "reason": "OTHER",
+      "evidence_url": "https://umassathletics.com/sports/msoc/coaches",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page + official_athletics_news (Ebanks 2026-05-01)"
+    },
+    {
+      "coach_id": "706f70bf-8535-4a86-a5d2-23f5c4388846",
+      "reason": "OTHER",
+      "evidence_url": "https://ursinusathletics.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "568be906-64b6-4c92-9456-4cca6a790c70",
+      "reason": "STALE",
+      "evidence_url": "https://ursinusathletics.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "5c65458c-35d4-4e55-8695-525e4f43eb69",
+      "reason": "STALE",
+      "evidence_url": "https://athletics.setonhill.edu/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "c3e31bc8-7da3-496d-9fb8-78f9dcb1f345",
+      "reason": "STALE",
+      "evidence_url": "https://depauwtigers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_staff_page"
+    },
+    {
+      "coach_id": "598e3399-8f9e-4251-9129-7b8d85056e18",
+      "reason": "STALE",
+      "evidence_url": "https://washcollsports.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_staff_page"
+    },
+    {
+      "coach_id": "a064e218-a38d-4b30-8273-77975b373fdc",
+      "reason": "STALE",
+      "evidence_url": "https://goetbutigers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_team_staff_page"
+    },
+    {
+      "coach_id": "0d2818f7-f857-445e-b591-74b7b929cb6b",
+      "reason": "STALE",
+      "evidence_url": "https://wheatoncollegelyons.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "OFFICIAL_TEAM_PAGE"
+    },
+    {
+      "coach_id": "574d4c06-642b-4d13-b143-da4f1da1cda1",
+      "reason": "STALE",
+      "evidence_url": "https://wheatoncollegelyons.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "9b31f911-055a-4c62-9f17-7873ee23e4d3",
+      "reason": "OTHER",
+      "evidence_url": "https://jimmiepride.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "41809ed9-f75e-4a1c-81c8-ffeac94dbde9",
+      "reason": "STALE",
+      "evidence_url": "https://lmcbobcats.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_staff_page"
+    },
+    {
+      "coach_id": "ee22f4e5-f45e-42e0-a28b-143865b85421",
+      "reason": "STALE",
+      "evidence_url": "https://lmcbobcats.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_staff_page"
+    },
+    {
+      "coach_id": "2a5286a7-c80b-470f-9af3-11b484560d02",
+      "reason": "OTHER",
+      "evidence_url": "https://www.eurekareddevils.com/sports/msoc/index",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics + coaching-change announcement ([name withheld — coach 4ba94735-97d9-45f4-8469-78cfcfb44198] 2026-05-18)"
+    },
+    {
+      "coach_id": "6fba402c-2ace-4ab3-830a-96d2e1ca60b2",
+      "reason": "STALE",
+      "evidence_url": "https://www.kingtornado.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_staff_page"
+    },
+    {
+      "coach_id": "7274bd22-6d65-4bf8-a53e-2885c96e8c42",
+      "reason": "STALE",
+      "evidence_url": "https://athletics.geneva.edu/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_team_coaches_page_plus_staff_directory"
+    },
+    {
+      "coach_id": "944a15f9-c6ee-4bc3-a5fb-ac7bd7ce65d2",
+      "reason": "STALE",
+      "evidence_url": "https://goargos.com/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_team_coaches_page_plus_staff_directory"
+    },
+    {
+      "coach_id": "88e84b9e-828f-4988-8b26-3beea6ae1506",
+      "reason": "STALE",
+      "evidence_url": "https://guilfordquakers.com/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_team_coaches_page_plus_staff_directory"
+    },
+    {
+      "coach_id": "6209031b-9a50-4880-b986-a0ec376e9be3",
+      "reason": "STALE",
+      "evidence_url": "https://guilfordquakers.com/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_team_coaches_page_plus_staff_directory"
+    },
+    {
+      "coach_id": "0e2344e5-10ca-44f1-87bc-f5f3d4510870",
+      "reason": "STALE",
+      "evidence_url": "https://newberrywolves.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_team_coaches_page"
+    },
+    {
+      "coach_id": "0f673d0e-f479-4777-b62b-1ec0425bd449",
+      "reason": "STALE",
+      "evidence_url": "https://usctrojans.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_team_coaches_page"
+    },
+    {
+      "coach_id": "a58ad23e-3c27-47f6-91f8-ddc26de6ad4d",
+      "reason": "STALE",
+      "evidence_url": "https://www.hartwickhawks.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "4b30123d-4c78-40be-a669-3a9768beb9b0",
+      "reason": "OTHER",
+      "evidence_url": "https://rockhursthawks.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "4d63d7f9-7105-46d4-9295-b8b194549d0e",
+      "reason": "STALE",
+      "evidence_url": "https://shepherdrams.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "28efc451-f07a-4bbd-ac85-e3e88613be90",
+      "reason": "OTHER",
+      "evidence_url": "https://hilberthawks.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "82aa1e39-55b4-4dbf-a1c5-a22971506d9b",
+      "reason": "STALE",
+      "evidence_url": "https://hilberthawks.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_team_coaches_page"
+    },
+    {
+      "coach_id": "0286be67-5a4b-416d-84c0-7f953ca96514",
+      "reason": "STALE",
+      "evidence_url": "https://auwolves.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "21da0b8e-b763-485b-a113-d5f514a7432a",
+      "reason": "OTHER",
+      "evidence_url": "https://hiramterriers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "208ea235-c01b-4245-912a-f51624f6a6dd",
+      "reason": "STALE",
+      "evidence_url": "https://golinfieldwildcats.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "54eca36b-6b76-4857-9e56-101a5b675e5c",
+      "reason": "CONFLICTING_EVIDENCE",
+      "evidence_url": "https://yellowjackets.cedarville.edu/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_coaches_page"
+    },
+    {
+      "coach_id": "453c5e46-542b-40ce-b4e9-bf0bc5cb2eba",
+      "reason": "STALE",
+      "evidence_url": "https://cbubucs.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "5bc31870-42b5-49c4-965a-fdeff65ec556",
+      "reason": "STALE",
+      "evidence_url": "https://cbubucs.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "41959609-670c-4ff2-b3b4-b8b0a9593648",
+      "reason": "STALE",
+      "evidence_url": "https://athletics.middlebury.edu/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "3b7417d2-74ca-4271-81cb-d642878989f8",
+      "reason": "STALE",
+      "evidence_url": "https://nkunorse.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "b83c1148-61d0-4b2c-9312-b1740a0500a8",
+      "reason": "STALE",
+      "evidence_url": "https://nkunorse.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "cfccb2b2-9377-4ee7-8562-b28182ca50e1",
+      "reason": "STALE",
+      "evidence_url": "https://athletics.nec.edu/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "839baab8-5690-413d-87b3-fe1b7b0d407e",
+      "reason": "STALE",
+      "evidence_url": "https://marymountsaints.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "b8ffd232-ebae-41cf-88a1-709886b0763c",
+      "reason": "STALE",
+      "evidence_url": "https://marymountsaints.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "704a941c-c176-44dc-82d2-33ff27e9afdb",
+      "reason": "STALE",
+      "evidence_url": "https://rpiathletics.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "e3111392-323c-4f6c-85d7-151f6f43c0fe",
+      "reason": "STALE",
+      "evidence_url": "https://rpiathletics.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "e03d7be4-2495-4262-9114-433a54a6d3be",
+      "reason": "STALE",
+      "evidence_url": "https://pointparksports.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "6e743229-53dc-483c-b015-39c2fbbbd7be",
+      "reason": "STALE",
+      "evidence_url": "https://athletics.misericordia.edu/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "dee92156-524e-4cc4-bb04-4e5ce4f06f4b",
+      "reason": "STALE",
+      "evidence_url": "https://wvsuyellowjackets.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "a727a6f4-c3e7-44d3-8fd0-faa216463eef",
+      "reason": "STALE",
+      "evidence_url": "https://jimmiepride.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_staff_page"
+    },
+    {
+      "coach_id": "14e585c0-dbe8-460f-b361-cb6e658c8401",
+      "reason": "STALE",
+      "evidence_url": "https://spaldingathletics.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page_absence_plus_404"
+    },
+    {
+      "coach_id": "30682b99-8811-4c2c-bb54-ea5f28faab9f",
+      "reason": "STALE",
+      "evidence_url": "https://www.gocsucougars.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_staff_page"
+    },
+    {
+      "coach_id": "2b4a79e1-b579-4758-9a22-5ded23eeb623",
+      "reason": "STALE",
+      "evidence_url": "https://shcbadgers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_staff_page"
+    },
+    {
+      "coach_id": "785817ab-a897-463f-acc3-39cd25bd093e",
+      "reason": "STALE",
+      "evidence_url": "https://shcbadgers.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_staff_page"
+    },
+    {
+      "coach_id": "ee75bc3e-2640-4d38-ab1b-0a3e60b9fe35",
+      "reason": "STALE",
+      "evidence_url": "https://eastbaypioneers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "official_athletics_staff_page"
+    },
+    {
+      "coach_id": "dc336c32-db23-45f0-a67d-ca4010a6f84d",
+      "reason": "STALE",
+      "evidence_url": "https://goriverhawksgo.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26",
+      "evidence_type": "OFFICIAL_TEAM_STAFF_PAGE"
+    }
+  ],
+  "MOVED": [
+    {
+      "coach_id": "5ef38c45-0f78-46a4-9eb3-68e413fb2284",
+      "from": "Alvernia",
+      "new_email": null,
+      "evidence_url": "https://auwolves.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "fc7f418e-8ce9-4b27-b53a-3b3ff35cbf7d",
+      "from": "Wisconsin-Superior",
+      "new_email": null,
+      "evidence_url": "https://uwsyellowjackets.com/news/2026/2/24/club-mens-soccer-brandon-johnson-tabbed-as-head-club-mens-soccer-coach.aspx",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "ceec25c2-0198-4e98-b597-2337e0c62a59",
+      "from": "MOVED",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://blugolds.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "b8c68a7d-bc10-47a7-b5df-51f6780ce8de",
+      "name": "[name withheld]",
+      "from": "Emmanuel (MA)",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://athletics.amherst.edu/sports/mens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "60dc4d7a-2a89-47e6-9eed-abd8c17387d8",
+      "from": "Newberry",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://wcpoets.com/staff-directory/nicole-borowinski/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "f87ba5de-eb03-49ad-a095-3abfcd645fce",
+      "from": "Western Illinois (was Ohio Dominican)",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://goleathernecks.com/staff-directory/justin-evans/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "88bc9505-31f6-4bd2-be79-c593776c12db",
+      "from": "Wilmington College (was Hiram)",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://wilmingtonquakers.com/staff-directory/omar-najjar/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "cf94b41f-d105-4e67-b281-70775af1d3bf",
+      "from": "McDaniel",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://umbcretrievers.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "d6f90982-b17d-4ca8-a9b5-6993bb2f1103",
+      "from": "University of Redlands",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://goredlands.com/sports/mens-soccer/roster/coaches/alex-ortega/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "d8a4f9a1-766d-48da-846d-232d9153c309",
+      "from": "West Chester University",
+      "new_email": null,
+      "evidence_url": "https://wcupagoldenrams.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "50e27cb4-b6dd-41d0-b226-46a29b2ffe90",
+      "from": "Harvard",
+      "new_email": null,
+      "evidence_url": "https://babsonathletics.com/news/2026/7/30/kerry-baldwin-named-head-womens-soccer-coach-at-babson.aspx",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "ce4859ce-291b-4ffc-b5c8-c1777e82e211",
+      "from": "MIT",
+      "new_email": null,
+      "evidence_url": "https://www.wsulancers.com/sports/msoc/2025-26/releases/20260407h6nbur",
+      "checked_at": "2026-09-26"
+    }
+  ],
+  "WRONG_SPORT": [
+    {
+      "coach_id": "9ea15477-e3e4-4bba-9347-4945d7df75f2",
+      "evidence_url": "https://esuwarriors.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "16cc4f10-8b77-460c-bc21-4ed58b37cf9e",
+      "evidence_url": "https://jimmiepride.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26"
+    }
+  ],
+  "EMAIL_CORRECTION": [
+    {
+      "coach_id": "8c79c1aa-326e-4eb5-9e94-8ab0f72eb79c",
+      "name": "[name withheld]",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://rutgersnewarkathletics.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "58f000d1-db53-4a26-8f18-087fb9210baa",
+      "name": "[name withheld]",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://www.mhu.edu/staff/thomas-rhys/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "6217a0fb-26f8-445a-948e-ac9fc1284a30",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://dupanthers.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "79ee4b7e-fe9d-41b1-8c00-bdf62484e1f1",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://athletics.stvincent.edu/sports/mens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "13e4a392-f3d9-456b-9a47-42295d97d5b2",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://utahtechtrailblazers.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "4192d800-db9d-42f2-8b7e-29c4f52a2a3c",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://edgewoodeagles.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "95dbe30b-cae5-4d79-b701-3c8612fb7def",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://shepherdrams.com/sports/mens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "3afbd328-43a8-420f-a391-e2269fefc7c5",
+      "name": "[name withheld]",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://nsusharks.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "53f2ed7c-b10c-4157-b52f-249c21f3180a",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://gogryphons.com/sports/womens-soccer/",
+      "checked_at": "2026-09-26"
+    },
+    {
+      "coach_id": "9c6f5205-a483-43b0-b31e-013827bdf4c3",
+      "new_email": "[withheld]@redacted.invalid",
+      "evidence_url": "https://athletics.aurora.edu/sports/mens-soccer/",
+      "checked_at": "2026-09-26"
+    }
+  ],
+  "SOURCE_CORRECTION": [],
+  "NAME_CORRECTION": [
+    {
+      "coach_id": "79ee4b7e-fe9d-41b1-8c00-bdf62484e1f1",
+      "name_stored": "[name withheld — coach 79ee4b7e-fe9d-41b1-8c00-bdf62484e1f1]",
+      "name_proposed": "Andres Matteos-Carrion",
+      "reason": "official page double-t spelling; GUARDED — not auto-applied (coach_seasons name-join risk)",
+      "evidence_url": "https://athletics.stvincent.edu/sports/mens-soccer/",
+      "checked_at": "2026-09-26"
+    }
+  ]
+}

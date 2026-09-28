@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import db from '../db/client.js';
+import { retiredSlugs } from './orphanRetirement.js';
 
 /**
  * The gate that stands between a generated directory and Cloudflare.
@@ -125,6 +126,7 @@ export function validateCandidate({
   endpoint,
   skipped = [],
   ledger = null,
+  retirements = null,
   database = db,
 } = {}) {
   const failures = [];
@@ -211,14 +213,36 @@ export function validateCandidate({
   // 6. Anything the last deployment demonstrably served, that is not archived,
   //    must still be here. Catches the athlete the database no longer counts
   //    as expected but who is nonetheless live.
+  //
+  //    TWO WAYS OUT, BOTH DELIBERATE. An athlete who still exists is archived
+  //    through the normal lifecycle. A slug no athlete owns at all — the row
+  //    was deleted rather than archived, so nothing is left to carry the flag
+  //    — is retired by name in the register beside the ledger. Anything else
+  //    still fails closed, including a slug whose owner simply vanished: a
+  //    missing database row is the symptom, never the authorisation.
+  const retired = retiredSlugs(retirements);
+  if (retirements?.error) {
+    failures.push(
+      `the retirement register could not be read, so no page may be dropped: ${retirements.error}. `
+      + 'Fix or remove the file rather than working around it.'
+    );
+  }
+
   if (ledger) {
     for (const slug of ledger.slugs) {
       if (present.has(slug)) continue;
       const owner = byslug.get(slug);
-      if (owner?.archived_at) continue; // the sanctioned way out
+      if (owner?.archived_at) continue;  // archived: the sanctioned way out
+      if (!owner && retired.has(slug)) continue;  // orphan: retired by name
+
       failures.push(
-        `${owner?.full_name || `slug ${slug}`} was in the last deployment and is not in this one, `
-        + 'and has not been archived. A deployment may only lose a page through a deliberate archive.'
+        owner
+          ? `${owner.full_name} was in the last deployment and is not in this one, and has not been `
+            + 'archived. A deployment may only lose a page through a deliberate archive.'
+          : `slug ${slug} was in the last deployment, is not in this one, and belongs to no athlete `
+            + 'in the database. If it is an athlete who should still be public, restore their record. '
+            + 'If it is a retired test or historical page, retire it by name: '
+            + `\`npm run retire-profile -- ${slug} --reason "<why>"\`.`
       );
     }
   }

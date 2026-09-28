@@ -1,0 +1,287 @@
+{
+  "proven_stale": [
+    {
+      "coach_id": "c3e31bc8-7da3-496d-9fb8-78f9dcb1f345",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://depauwtigers.com/sports/mens-soccer/",
+      "reason": "STALE (DePauw)"
+    },
+    {
+      "coach_id": "598e3399-8f9e-4251-9129-7b8d85056e18",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://washcollsports.com/sports/womens-soccer/",
+      "reason": "STALE (Washington College (MD))"
+    },
+    {
+      "coach_id": "a064e218-a38d-4b30-8273-77975b373fdc",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://goetbutigers.com/sports/mens-soccer/",
+      "reason": "STALE (East Texas Baptist)"
+    },
+    {
+      "coach_id": "41809ed9-f75e-4a1c-81c8-ffeac94dbde9",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://lmcbobcats.com/sports/mens-soccer/",
+      "reason": "STALE (Lees-McRae)"
+    },
+    {
+      "coach_id": "ee22f4e5-f45e-42e0-a28b-143865b85421",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://lmcbobcats.com/sports/mens-soccer/",
+      "reason": "STALE (Lees-McRae)"
+    },
+    {
+      "coach_id": "6fba402c-2ace-4ab3-830a-96d2e1ca60b2",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://www.kingtornado.com/sports/womens-soccer/",
+      "reason": "STALE (King (TN))"
+    },
+    {
+      "coach_id": "7274bd22-6d65-4bf8-a53e-2885c96e8c42",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://athletics.geneva.edu/sports/mens-soccer/",
+      "reason": "STALE (Geneva)"
+    },
+    {
+      "coach_id": "944a15f9-c6ee-4bc3-a5fb-ac7bd7ce65d2",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://goargos.com/",
+      "reason": "STALE (West Florida)"
+    },
+    {
+      "coach_id": "88e84b9e-828f-4988-8b26-3beea6ae1506",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://guilfordquakers.com/",
+      "reason": "STALE (Guilford)"
+    },
+    {
+      "coach_id": "6209031b-9a50-4880-b986-a0ec376e9be3",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://guilfordquakers.com/",
+      "reason": "STALE (Guilford)"
+    },
+    {
+      "coach_id": "0e2344e5-10ca-44f1-87bc-f5f3d4510870",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://newberrywolves.com/sports/womens-soccer/",
+      "reason": "STALE (Newberry)"
+    },
+    {
+      "coach_id": "0f673d0e-f479-4777-b62b-1ec0425bd449",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://usctrojans.com/sports/womens-soccer/",
+      "reason": "STALE (USC)"
+    },
+    {
+      "coach_id": "82aa1e39-55b4-4dbf-a1c5-a22971506d9b",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://hilberthawks.com/sports/womens-soccer/",
+      "reason": "STALE (Hilbert)"
+    },
+    {
+      "coach_id": "453c5e46-542b-40ce-b4e9-bf0bc5cb2eba",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://cbubucs.com/sports/womens-soccer/",
+      "reason": "STALE (Christian Brothers)"
+    },
+    {
+      "coach_id": "5bc31870-42b5-49c4-965a-fdeff65ec556",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://cbubucs.com/sports/womens-soccer/",
+      "reason": "STALE (Christian Brothers)"
+    },
+    {
+      "coach_id": "41959609-670c-4ff2-b3b4-b8b0a9593648",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://athletics.middlebury.edu/sports/womens-soccer/",
+      "reason": "STALE (Middlebury)"
+    },
+    {
+      "coach_id": "3b7417d2-74ca-4271-81cb-d642878989f8",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://nkunorse.com/sports/mens-soccer/",
+      "reason": "STALE (Northern Kentucky)"
+    },
+    {
+      "coach_id": "b83c1148-61d0-4b2c-9312-b1740a0500a8",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://nkunorse.com/sports/mens-soccer/",
+      "reason": "STALE (Northern Kentucky)"
+    },
+    {
+      "coach_id": "cfccb2b2-9377-4ee7-8562-b28182ca50e1",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://athletics.nec.edu/sports/mens-soccer/",
+      "reason": "STALE (New England College)"
+    },
+    {
+      "coach_id": "839baab8-5690-413d-87b3-fe1b7b0d407e",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://marymountsaints.com/sports/mens-soccer/",
+      "reason": "STALE (Marymount (VA))"
+    },
+    {
+      "coach_id": "b8ffd232-ebae-41cf-88a1-709886b0763c",
+      "status": "PROVEN_STALE",
+      "checked_at": "2026-09-26",
+      "source_url": "https://marymountsaints.com/sports/womens-soccer/",
+      "reason": "STALE (Marymount (VA))"
+    }
+  ],
+  "moved": [
+    {
+      "coach_id": "b8c68a7d-bc10-47a7-b5df-51f6780ce8de",
+      "name": "[name withheld]",
+      "from": "Emmanuel (MA)",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://athletics.amherst.edu/sports/mens-soccer/",
+      "reason": "MOVED to another institution"
+    },
+    {
+      "coach_id": "60dc4d7a-2a89-47e6-9eed-abd8c17387d8",
+      "from": "Newberry",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://wcpoets.com/staff-directory/nicole-borowinski/",
+      "reason": "MOVED to another institution"
+    },
+    {
+      "coach_id": "f87ba5de-eb03-49ad-a095-3abfcd645fce",
+      "from": "Western Illinois (was Ohio Dominican)",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://goleathernecks.com/staff-directory/justin-evans/",
+      "reason": "MOVED to another institution"
+    },
+    {
+      "coach_id": "88bc9505-31f6-4bd2-be79-c593776c12db",
+      "from": "Wilmington College (was Hiram)",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://wilmingtonquakers.com/staff-directory/omar-najjar/",
+      "reason": "MOVED to another institution"
+    },
+    {
+      "coach_id": "cf94b41f-d105-4e67-b281-70775af1d3bf",
+      "from": "McDaniel",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://umbcretrievers.com/sports/womens-soccer/",
+      "reason": "MOVED to another institution"
+    }
+  ],
+  "wrong_sport": [
+    {
+      "coach_id": "9ea15477-e3e4-4bba-9347-4945d7df75f2",
+      "institution": "East Stroudsburg",
+      "checked_at": "2026-09-26",
+      "source_url": "https://esuwarriors.com/sports/womens-soccer/",
+      "reason": "WRONG_SPORT filing"
+    },
+    {
+      "coach_id": "16cc4f10-8b77-460c-bc21-4ed58b37cf9e",
+      "institution": "Jamestown",
+      "checked_at": "2026-09-26",
+      "source_url": "https://jimmiepride.com/sports/womens-soccer/",
+      "reason": "WRONG_SPORT filing"
+    }
+  ],
+  "changed_emails": [
+    {
+      "coach_id": "8c79c1aa-326e-4eb5-9e94-8ab0f72eb79c",
+      "name": "[name withheld]",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://rutgersnewarkathletics.com/sports/mens-soccer/"
+    },
+    {
+      "coach_id": "58f000d1-db53-4a26-8f18-087fb9210baa",
+      "name": "[name withheld]",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://www.mhu.edu/staff/thomas-rhys/"
+    },
+    {
+      "coach_id": "6217a0fb-26f8-445a-948e-ac9fc1284a30",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://dupanthers.com/sports/mens-soccer/"
+    },
+    {
+      "coach_id": "79ee4b7e-fe9d-41b1-8c00-bdf62484e1f1",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://athletics.stvincent.edu/sports/mens-soccer/"
+    },
+    {
+      "coach_id": "13e4a392-f3d9-456b-9a47-42295d97d5b2",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://utahtechtrailblazers.com/sports/womens-soccer/"
+    },
+    {
+      "coach_id": "b8c68a7d-bc10-47a7-b5df-51f6780ce8de",
+      "name": "[name withheld]",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://athletics.amherst.edu/sports/mens-soccer/"
+    },
+    {
+      "coach_id": "4192d800-db9d-42f2-8b7e-29c4f52a2a3c",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://edgewoodeagles.com/sports/womens-soccer/"
+    },
+    {
+      "coach_id": "60dc4d7a-2a89-47e6-9eed-abd8c17387d8",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://wcpoets.com/staff-directory/nicole-borowinski/"
+    },
+    {
+      "coach_id": "95dbe30b-cae5-4d79-b701-3c8612fb7def",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://shepherdrams.com/sports/mens-soccer/"
+    },
+    {
+      "coach_id": "f87ba5de-eb03-49ad-a095-3abfcd645fce",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://goleathernecks.com/staff-directory/justin-evans/"
+    },
+    {
+      "coach_id": "88bc9505-31f6-4bd2-be79-c593776c12db",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://wilmingtonquakers.com/staff-directory/omar-najjar/"
+    },
+    {
+      "coach_id": "cf94b41f-d105-4e67-b281-70775af1d3bf",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://umbcretrievers.com/sports/womens-soccer/"
+    }
+  ]
+}

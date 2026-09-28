@@ -1,0 +1,195 @@
+{
+  "_SUPERSEDED_BY": "phase2c_ground_truth.json",
+  "_NOTE": "Phase 2A wrongly assumed claimed_unitids is authoritative. Phase 2C established external ground truth. These rows are NO LONGER a deterministic correction set. See verdict per row.",
+  "rows": [
+    {
+      "domain": "uconn.edu",
+      "phase2a_proposed_new_unitid": 129020,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 129020,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "uconnhuskies.com",
+      "phase2a_proposed_new_unitid": 129020,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 129020,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "nwciowa.edu",
+      "phase2a_proposed_new_unitid": 154101,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 154101,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "njcu.edu",
+      "phase2a_proposed_new_unitid": 185129,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 185129,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "stjohns.edu",
+      "phase2a_proposed_new_unitid": 195809,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 195809,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "nwcraiders.com",
+      "phase2a_proposed_new_unitid": 154101,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 154101,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "umassathletics.com",
+      "phase2a_proposed_new_unitid": 166629,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 166629,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "lmunet.edu",
+      "phase2a_proposed_new_unitid": 220631,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 220631,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "stu.edu",
+      "phase2a_proposed_new_unitid": 137476,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 137476,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "tommiesports.com",
+      "phase2a_proposed_new_unitid": 174914,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 174914,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "columbiacougars.com",
+      "phase2a_proposed_new_unitid": 177065,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 177065,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "andersonuniversity.edu",
+      "phase2a_proposed_new_unitid": 217633,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 217633,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "hcc-nd.edu",
+      "phase2a_proposed_new_unitid": 150774,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 150774,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "redstormsports.com",
+      "phase2a_proposed_new_unitid": 195809,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 195809,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "maryville.edu",
+      "phase2a_proposed_new_unitid": 178059,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 178059,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "ccis.edu",
+      "phase2a_proposed_new_unitid": 177065,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 177065,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "pnw.edu",
+      "phase2a_proposed_new_unitid": 490805,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 490805,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "westminstergriffins.com",
+      "phase2a_proposed_new_unitid": 230807,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 230807,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "westminsteru.edu",
+      "phase2a_proposed_new_unitid": 230807,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 230807,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "westminster-mo.edu",
+      "phase2a_proposed_new_unitid": 179946,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 179946,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "columbiasc.edu",
+      "phase2a_proposed_new_unitid": 217934,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 217934,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "gocobbers.com",
+      "phase2a_proposed_new_unitid": 173300,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 173300,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "stubobcats.com",
+      "phase2a_proposed_new_unitid": 137476,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 137476,
+      "phase2c_correct": "claim proven correct"
+    },
+    {
+      "domain": "pct.edu",
+      "phase2a_proposed_new_unitid": 215062,
+      "phase2c_verdict": "EXISTING_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 366252,
+      "phase2c_correct": "EXISTING_MAPPING_CORRECT"
+    },
+    {
+      "domain": "wvu.edu",
+      "phase2a_proposed_new_unitid": 237950,
+      "phase2c_verdict": "EXISTING_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 238032,
+      "phase2c_correct": "EXISTING_MAPPING_CORRECT"
+    },
+    {
+      "domain": "floridasports.com",
+      "phase2a_proposed_new_unitid": 133881,
+      "phase2c_verdict": "AMBIGUOUS_REQUIRES_HUMAN",
+      "phase2c_verified_unitid": null,
+      "phase2c_correct": "AMBIGUOUS_REQUIRES_HUMAN"
+    },
+    {
+      "domain": "www.gosuffolkrams.com",
+      "phase2a_proposed_new_unitid": 168005,
+      "phase2c_verdict": "CLAIMED_MAPPING_CORRECT",
+      "phase2c_verified_unitid": 168005,
+      "phase2c_correct": "claim proven correct"
+    }
+  ]
+}

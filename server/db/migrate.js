@@ -248,6 +248,31 @@ const ROSTER_PLAYER_COLUMNS = [
   // against 77.4% for a player who stayed) but knowing they arrived from
   // somewhere is worth more to an operator than knowing nothing.
   ['prior_programme', 'TEXT'],
+  /*
+   * L7Z — what was OBSERVED when the page was accepted, not what we concluded.
+   *
+   * L7W could not tell whether a row filed under season=2025 came from a page
+   * that said 2025, because nothing recorded what the page said; 641 of 2,123
+   * accepted 2025 rosters still cannot answer it. These three columns stop the
+   * next season creating the same blind spot.
+   *
+   * All three are nullable and stay NULL for every row acquired before this
+   * existed. Absent means NOT RECORDED -- never "recorded as none" -- and
+   * nothing backfills them: a page season inferred from the database season is
+   * precisely the inference they exist to make unnecessary.
+   */
+  // What the PAGE established, via lib.season_ok -- the same authority that let
+  // the roster through. NULL when the page established no season at all, which
+  // is the honest answer for a live current-season page with no year in its
+  // title.
+  ['source_page_season', 'TEXT'],
+  // When the body was fetched, ISO-8601 UTC, from the cache sidecar. For an
+  // archive capture this is when Thriv3 fetched it; the capture's own timestamp
+  // is already inside source_roster_url.
+  ['source_fetched_at', 'TEXT'],
+  // The parser that actually accepted it: sidearm-html, table, nuxt,
+  // nuxt-roster, roster-card, presto-card, list.
+  ['source_parser', 'TEXT'],
 ];
 
 /**
@@ -529,6 +554,61 @@ const OUTREACH_SEND_COLUMNS = [
    */
   ['claimed_at', 'TEXT'],
   ['claim_run_id', 'TEXT'],
+
+  /* ---- D4.7: what a claim freezes before any network call ---------------- */
+
+  /**
+   * THE EXACT BYTES INTENDED FOR THE WIRE.
+   *
+   * `subject` and `body_hash` have always been here; the BODY itself never
+   * was, because nothing before D4.7 needed to reproduce a message it had
+   * already handed to Outlook. A provider transport does: it must encode the
+   * body that was FROZEN, not a fresh opinion of it derived after the claim
+   * committed.
+   *
+   * ---------------------------------------------------------------------------
+   * A DIGEST CANNOT RECREATE BYTES, WHICH IS THE WHOLE ARGUMENT FOR THE COLUMN.
+   *
+   * The wire body is the approved words plus the substituted profile link plus
+   * the compliance footer, and of the seven inputs that produce it only two —
+   * `programme_messages.body` and `outreach.token` — are durable. The athlete's
+   * name and public slug are mutable columns, and the base URL, sender identity
+   * and postal address are environment variables. Re-deriving the body after
+   * any of those five moved yields DIFFERENT bytes, and `wire_body_sha256`
+   * below would then prove the mismatch without recovering the original.
+   *
+   * So the bytes are kept. Plaintext, like `programme_messages.subject` and
+   * `.body` one table over: the same words, already stored the same way, and
+   * encrypting only this copy would give one class of data two protections
+   * while making the reconciliation the column exists for impossible without a
+   * key.
+   * ---------------------------------------------------------------------------
+   *
+   * NULL FOR EVERY LEGACY AND MANUAL ROW. Those paths hand a body straight to
+   * Outlook and have no execution claim behind them; there was never a frozen
+   * wire body to record and inventing one would claim a transmission boundary
+   * they never crossed.
+   */
+  ['body', 'TEXT'],
+
+  /**
+   * THE DIGEST OF THOSE EXACT BYTES, BESIDE THE CANONICAL ONE — and the reason
+   * there are two is worth the column.
+   *
+   * `body_hash` normalises every `?ref=<token>` URL to a fixed placeholder
+   * before digesting. That is right for its job — comparing what two emails
+   * SAID, where a per-coach tracking token is noise — and exactly wrong for
+   * "which message left this mailbox": two coaches sent identical words share
+   * a `body_hash` and always will.
+   *
+   * So this is the un-normalised SHA-256 of the same bytes. Reconciling an
+   * ambiguous send reads this one; every existing analytics reader keeps
+   * reading the other, unchanged.
+   *
+   * NOT UNIQUE. Two athletes may legitimately send the same words to the same
+   * coach, and a constraint here would refuse the second.
+   */
+  ['wire_body_sha256', 'TEXT'],
 ];
 
 /**
@@ -565,6 +645,74 @@ const OUTREACH_SEND_COLUMNS = [
  */
 const OUTBOUND_SEND_ATTEMPT_COLUMNS = [
   ['outreach_send_id', 'TEXT REFERENCES outreach_send(id)'],
+
+  /**
+   * WHAT BECAME OF THE CAPACITY THIS ROW RESERVED — D5.0.
+   *
+   * ===========================================================================
+   * THE LEDGER STILL HOLDS EVERY ROW. THIS SAYS WHICH OF THEM SPENT A DAY.
+   *
+   * Capacity is reserved BEFORE a provider is called, because a message that
+   * reaches a provider must already have been paid for. That was the whole of
+   * the model until D5.0, and it had one wrong answer in it: an attempt that
+   * PROVABLY never reached a provider — no credential, no connection ever
+   * established, an identity that disagreed before a single byte went out —
+   * charged a real mailbox a real unit of its day for a transmission that did
+   * not happen.
+   *
+   * The fix is NOT a refund. Nothing deletes a row, nothing decrements a
+   * counter, and `outboundBudget.js` still exports no such operation. The row
+   * stays exactly where it is, saying what was attempted and when; this column
+   * says whether the attempt consumed the world's attention or merely this
+   * process's.
+   * ===========================================================================
+   *
+   * See OUTBOUND_ATTEMPT_DISPOSITION in server/lib/outboundBudget.js for the
+   * vocabulary. In short:
+   *
+   *   RESERVED                 taken, outcome not yet settled. COUNTS.
+   *   SUBMITTED_OR_AMBIGUOUS   a provider was reached, or may have been.
+   *                            COUNTS — including UNKNOWN, because the message
+   *                            may genuinely be in an inbox.
+   *   REFUSED_BEFORE_TRANSPORT provably no submission occurred. DOES NOT COUNT.
+   *
+   * ---------------------------------------------------------------------------
+   * NULL COUNTS AS CONSUMED, AND IT IS NOT A MISSING VALUE — it is the honest
+   * record of every row written before this column existed.
+   *
+   * The 41 historical AppleScript sends, every `OUTLOOK_MANUAL` confirmation,
+   * and every legacy attempt carry NULL and always will. NOT BACKFILLED: those
+   * attempts were made through a transport this system never observed
+   * returning, so no disposition was ever established for them and inventing
+   * one would manufacture exactly the certainty this column exists to record.
+   *
+   * So NULL means "disposition not recorded", and the counting rule resolves it
+   * conservatively: it consumed. The alternative reading — "unknown, therefore
+   * free" — would hand every historical row's capacity back at once and
+   * understate a shared mailbox's real usage, which is the failure the ledger
+   * was built to prevent.
+   * ---------------------------------------------------------------------------
+   *
+   * NO CHECK CONSTRAINT, for the reason `origin` and `provider` give on
+   * `outreach_send`: SQLite cannot alter one, so a fourth disposition would
+   * become a table rebuild. The vocabulary is owned in code and enforced where
+   * it is written.
+   *
+   * NO INDEX. Every capacity count is already keyed on (athlete_id | sending
+   * _identity, attempted_at) and this is an extra predicate on the rows those
+   * have already narrowed to a single day — a handful. An index here would buy
+   * nothing on a database this size and would make the guarded insert harder
+   * to read, which is the thing most worth protecting about it.
+   *
+   * IT IS OUTSIDE `trg_outbound_send_attempt_append_only` DELIBERATELY. That
+   * trigger names its columns — id, sending_identity, transport, attempted_at,
+   * created_at — and every one of them is a fact about what was attempted,
+   * which must never change. A disposition is what was LEARNED afterwards, so
+   * it is written once at reservation and settled once at the outcome. The
+   * accounting facts stay append-only; only the verdict on them moves, and
+   * `settleOutboundAttempt` is the single guarded writer.
+   */
+  ['disposition', 'TEXT'],
 ];
 
 /**
@@ -638,6 +786,47 @@ const COACH_COLUMNS = [
   ['email_source_url', 'TEXT'],
   ['email_confirmed_at', 'TEXT'],
   ['source', 'TEXT'],                            // which import produced the row
+  /**
+   * Coach CURRENTNESS — whether the person is still on staff at the stored
+   * programme — is a distinct axis from where the address came from
+   * (`email_status`), whether the address works (`email_confirmed_at`),
+   * institution reconciliation, or coach_seasons history. Phase 4A proved
+   * eligible coaches who have departed, so this is recorded explicitly rather
+   * than smuggled into another field.
+   *
+   *   currentness_status: NULL/absent == UNKNOWN (the default for every existing
+   *     row — NOT stale). 'CURRENT' = confirmed present on a current authoritative
+   *     source. 'PROVEN_STALE' = authoritative current evidence shows they are no
+   *     longer at the stored programme.
+   *
+   * Only PROVEN_STALE fails outreach closed. UNKNOWN is never auto-disqualified.
+   * Absence from coach_seasons, an unreachable page, or a working email domain
+   * must NEVER set PROVEN_STALE.
+   */
+  ['currentness_status', 'TEXT'],               // NULL(=UNKNOWN) | CURRENT | PROVEN_STALE
+  ['currentness_checked_at', 'TEXT'],           // ISO timestamp of the currentness check
+  ['currentness_source_url', 'TEXT'],           // authoritative page the check used
+  ['currentness_reason', 'TEXT'],               // short reason/evidence note
+  /**
+   * Email OBSERVATION provenance (Phase 4F) — records that the EXACT stored
+   * address was seen published on a current authoritative source, and where.
+   * This is a page-observation axis, DISTINCT from `email_confirmed_at`, which
+   * stays reserved for proven deliverability (a non-bounce / a reply). Being
+   * seen on a staff page is not proof the mailbox accepts mail, so the two must
+   * never be conflated.
+   *
+   *   email_seen_on_source_at:  NULL = the stored address has never been observed
+   *     on a current source. A timestamp = the date the EXACT stored string was
+   *     seen published on `email_seen_on_source_url`.
+   *   email_seen_on_source_url: the authoritative page the exact address was on.
+   *
+   * Populated ONLY on an exact string match to the published address, from a
+   * current staff/team/directory/roster page — never a different-current-email,
+   * consumer/generic-shared, inferred, unpublished, historical, or inaccessible
+   * case. Carries no eligibility weight on its own.
+   */
+  ['email_seen_on_source_at', 'TEXT'],          // ISO date the exact stored address was seen on a current source
+  ['email_seen_on_source_url', 'TEXT'],         // authoritative page the exact address was observed on
 ];
 
 /**
@@ -1205,6 +1394,28 @@ export function migrate(db) {
   db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_outreach_send_provider_message
              ON outreach_send(connected_mailbox_id, provider, provider_message_id)
              WHERE provider_message_id IS NOT NULL`);
+  /**
+   * ONE REVIEWED MESSAGE, ONE EXECUTION RECORD — D4.5.
+   *
+   * A `programme_message` is content a person approved; `outreach_send` is the
+   * execution of it. Two execution records for one approved message would mean
+   * the same words were separately claimed, budgeted and — once a provider
+   * exists — separately sent, which is the double send in a different costume.
+   *
+   * A RETRY IS NOT A SECOND EXECUTION RECORD. It is another
+   * `outbound_send_attempt` against the same `outreach_send`, which is exactly
+   * why that pointer is deliberately not unique. A message whose transport
+   * failed goes FAILED then QUEUED then SENDING again on the SAME row.
+   * Different words need a different `programme_message` — a different step,
+   * or a composition that does not exist yet — and that is a different row
+   * here too.
+   *
+   * PARTIAL, so every manual, legacy and historical send is outside it: they
+   * carry NULL, and NULL does not collide with NULL.
+   */
+  db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_outreach_send_programme_message
+             ON outreach_send(programme_message_id)
+             WHERE programme_message_id IS NOT NULL`);
   addMissingColumns(db, 'outbound_send_attempt', OUTBOUND_SEND_ATTEMPT_COLUMNS);
   /**
    * Every attempt spent on one message, oldest first — D4.4. Ordinary, not

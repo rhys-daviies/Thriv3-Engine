@@ -1,0 +1,58 @@
+{
+  "phase": "7A",
+  "built_at": "2026-09-28",
+  "source_of_truth": "server/scripts/reconcileCoaches.js (reconcile() + outreach eligibility block). Gates read from code, not inferred.",
+  "final_eligibility_expression": "eligible = inst===RESOLVED && emailStatus==='verified' && hasRealEmail && !isTeam && classification IN (KEEP,REASSIGN) && corroborated && !provenStale   [reconcileCoaches.js ~L119-120]",
+  "gates": [
+    {
+      "id": "G1_REAL_EMAIL", "code": "reconcileCoaches.js L100 (hasRealEmail), used L119",
+      "input": "coaches.email", "pass": "email contains '@' and !== 'N/A'", "fail": "null/blank/N/A/malformed",
+      "hardness": "hard", "recoverable": "yes via email research", "interacts_with": []
+    },
+    {
+      "id": "G2_NOT_TEAM", "code": "L101 (isTeam), used L119",
+      "input": "coaches.full_name", "pass": "non-empty person name", "fail": "empty (team/department row)",
+      "hardness": "hard", "recoverable": "yes via research", "interacts_with": []
+    },
+    {
+      "id": "G3_EMAIL_VERIFIED", "code": "L99 emailStatus, L119",
+      "input": "coaches.email_status", "pass": "=== 'verified'", "fail": "inferred / generic / unknown",
+      "hardness": "hard", "recoverable": "yes via authoritative email observation", "interacts_with": []
+    },
+    {
+      "id": "G4_INSTITUTION_RESOLVED", "code": "L66-97 (evUnitid/method/inst), L119 inst===RESOLVED",
+      "input": "email_source_url domain (sdom) + athletics_domains status/unitid; else email domain (edom) VERIFIED; else coach_seasons identity at current school",
+      "pass": "sdom VERIFIED/VERIFIED_ALIAS -> evUnitid (SOURCE_DOMAIN); OR edom VERIFIED -> evUnitid (EMAIL_DOMAIN); OR idAtCurrent -> RESOLVED via COACH_SEASONS",
+      "fail": "sdom WRONG_INSTITUTION/AMBIGUOUS -> REVIEW; no VERIFIED domain and no coach_seasons identity -> WITHHOLD",
+      "hardness": "hard", "recoverable": "yes via domain verification (6C.4 pattern)", "interacts_with": ["G5", "G6"]
+    },
+    {
+      "id": "G5_ACTIONABLE_CLASS", "code": "L80-90 (cls), L120 classification IN (KEEP,REASSIGN)",
+      "input": "evUnitid vs curUnitid", "pass": "KEEP (evUnitid==curUnitid) or REASSIGN (evUnitid!=curUnitid, both RESOLVED)",
+      "fail": "REVIEW (domain says elsewhere) or WITHHOLD (no evidence)",
+      "hardness": "hard", "recoverable": "yes via domain verification", "interacts_with": ["G4"]
+    },
+    {
+      "id": "G6_CORROBORATED", "code": "L112-115 (sourceDomainTrusted), L76-77 (idAtCurrent/idAtEvidence), L120",
+      "input": "coach_seasons (csBySchool identities; csTrustedDomains = registrable domains coach_seasons scraped)",
+      "pass": "idAtCurrent (coach name in coach_seasons at current school) OR idAtEvidence (coach name in coach_seasons at evidence school) OR sourceDomainTrusted (email_source_url registrable domain is in csTrustedDomains AND that domain is VERIFIED/VERIFIED_ALIAS AND its unitid === resolvedUnitid)",
+      "fail": "coach_seasons has neither the identity nor a scraped source domain resolving to the same unitid",
+      "hardness": "hard", "recoverable": "ONLY by adding coach_seasons evidence (scrape) or the coach identity; NOT by domain verification alone",
+      "interacts_with": ["G4"],
+      "note": "THIS is the structural NAIA blocker: a VERIFIED domain + authoritative exact email is NOT sufficient without a coach_seasons scrape of that domain (or the coach name in coach_seasons)."
+    },
+    {
+      "id": "G7_NOT_PROVEN_STALE", "code": "L118 provenStale, L120",
+      "input": "coaches.currentness_status", "pass": "!== 'PROVEN_STALE' (UNKNOWN is allowed)", "fail": "=== 'PROVEN_STALE'",
+      "hardness": "hard (only when explicitly proven stale)", "recoverable": "yes via currentness re-check", "interacts_with": []
+    }
+  ],
+  "sport_scope_note": "Institution resolution is sport-scoped: uni(name,sport) and coach_seasons keys are (school,sport). A cross-sport mismatch fails resolution/corroboration for that programme, not a separate gate.",
+  "wrong_institution_protection": "sdom WRONG_INSTITUTION/AMBIGUOUS forces REVIEW and resolvedUnitid=null (L83-84,95-96); sourceDomainTrusted additionally requires the trusted domain's unitid === resolvedUnitid (L114), blocking the Columbia-College->Columbia-University class of false positive.",
+  "hard_vs_recoverable_summary": {
+    "recoverable_by_domain_verification": ["G4", "G5"],
+    "recoverable_by_email_research": ["G1", "G3"],
+    "recoverable_by_currentness": ["G7"],
+    "recoverable_only_by_coach_seasons_or_equivalent": ["G6"]
+  }
+}

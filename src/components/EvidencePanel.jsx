@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { ArrowDown, ArrowUp, Plus, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { kindLabel, FLOWS } from '@shared/evidence/index.js';
+import {
+  evidenceUsedBefore, evidenceInOpenDraft, EVIDENCE_USE_ORIGIN,
+  EVIDENCE_HISTORY_UNAVAILABLE,
+} from '@/lib/outreachLabels';
 
 /**
  * Why this email says what it says — and, where the operator disagrees, a way
@@ -125,6 +129,51 @@ function Meta({ ev }) {
 }
 
 /**
+ * WHAT THIS COACH HAS ALREADY BEEN PUT - F9e.
+ *
+ * ===========================================================================
+ * IT ANNOTATES. IT REMOVES NOTHING, REORDERS NOTHING AND DISABLES NOTHING.
+ *
+ * The same findings are offered in the same order whether or not there is any
+ * history, and a marked claim remains fully selectable - which is the whole
+ * design. Campaign hard-excludes a previously-used reason because nobody is
+ * watching; here somebody is, and the only thing they were missing was the
+ * fact. Sometimes the claim that was used before is the only true thing there
+ * is to say, and that is the operator's call rather than a policy's.
+ * ===========================================================================
+ *
+ * TWO FACTS, TWO SENTENCES. A confirmed use and an open draft are not the same
+ * thing and never share wording. Neither says a coach received or read
+ * anything - see the labels for why that ceiling is where it is.
+ *
+ * Deliberately quiet: one small line beneath the claim, below the tier badge
+ * and the sentence, because what the evidence SAYS still matters more than
+ * where it has been.
+ */
+function PriorUse({ used }) {
+  if (!used) return null;
+  const count = used.coachCount ?? 1;
+  const text = used.source === 'OPEN'
+    ? evidenceInOpenDraft(count)
+    : evidenceUsedBefore(count);
+  /**
+   * Origin where it was recorded, dropped where it was not. A null origin is
+   * the honest record for a message written before the column existed, and
+   * naming one for it would manufacture the provenance the column exists to
+   * protect.
+   */
+  const origins = [...new Set((used.origins ?? [])
+    .map((o) => EVIDENCE_USE_ORIGIN[o])
+    .filter(Boolean))].sort();
+  return (
+    <span className="mt-0.5 block text-[11px] text-muted-foreground" data-testid="prior-use">
+      {text}
+      {origins.length ? ` (${origins.join(', ')})` : ''}
+    </span>
+  );
+}
+
+/**
  * One line of the panel.
  *
  * `actions` is rendered rather than assumed, because the three lists want
@@ -153,6 +202,7 @@ function EvidenceLine({ ev, index = null, reason = null, slot = null, actions = 
           )}
         </span>
         {ev.text && <span className="mt-0.5 block text-muted-foreground">{ev.text}</span>}
+        <PriorUse used={ev.previouslyUsed} />
         {reason && <span className="mt-0.5 block text-[11px] text-muted-foreground">{reason}</span>}
         {/* Shown per item only where freshness actually changed something —
             a timestamp beside every current fact would be noise on the
@@ -230,6 +280,15 @@ export default function EvidencePanel({
     selected = [], available = [], internal = [], otherKnown = [],
     structure, structureLabel, structureOptions = [], structureSource, structureRefused,
     programme, paragraph, operatorSelected, maxEvidence = DEFAULT_MAX,
+    /**
+     * F9e - whether the prior-use question could be answered at all.
+     *
+     * Absent when no coaches were named, which is every surface that does not
+     * ask. Present and FAILED means the markers below are missing because the
+     * lookup failed rather than because nothing has been said - said once,
+     * here, rather than as a caveat on every line.
+     */
+    history = null,
   } = evidence;
 
   // The operator's working order when they have one, the server's otherwise.
@@ -237,6 +296,7 @@ export default function EvidencePanel({
   const {
     chosen, byKind, others, dropped,
   } = groupEvidence(evidence, selection ?? null);
+  const historyFailed = history?.status === 'FAILED';
   const slotByKind = new Map(selected.map((e) => [e.kind, e.slot]));
   const atLimit = chosen.length >= maxEvidence;
   const editable = typeof onSelectionChange === 'function';
@@ -294,6 +354,18 @@ export default function EvidencePanel({
 
   return (
     <div className={`space-y-2.5 rounded-md border p-2.5 ${className}`}>
+      {/*
+        SAID ONCE, AT THE PANEL - F9e. A failed history lookup leaves every
+        line unmarked, which is indistinguishable from a coach nothing has ever
+        been said to. The evidence itself is unaffected and the email is still
+        correct; only the annotation is missing, and this is what stops its
+        absence being read as an answer.
+      */}
+      {historyFailed && (
+        <p className="text-[11px] text-amber-700 dark:text-amber-500" data-testid="history-unavailable">
+          {EVIDENCE_HISTORY_UNAVAILABLE}
+        </p>
+      )}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs font-medium">Why this email is personalised this way</span>
         {/* Only the shapes this evidence can honestly carry. A structure whose

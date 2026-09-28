@@ -224,7 +224,14 @@ describe('manual_only stops the campaign and nothing else', () => {
       });
     } catch (err) { thrown = err; }
     expect(thrown.code).toBe('RELATIONSHIP_MANUAL_ONLY');
-    expect(thrown.message).toMatch(/Relationship Outreach|Email Coaches/);
+    /*
+      F8c — the SAME assertion against the CURRENT button names. The
+      property under test is unchanged and deliberately not weakened: the
+      refusal must name a control the operator can actually press, and
+      "Relationship Outreach" stopped being one when F8b renamed it.
+    */
+    expect(thrown.message).toMatch(/Create email draft|Email Coaches/);
+    expect(thrown.message).not.toMatch(/Relationship Outreach/);
   });
 });
 

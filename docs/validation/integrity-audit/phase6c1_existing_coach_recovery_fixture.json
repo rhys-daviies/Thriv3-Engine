@@ -1,0 +1,587 @@
+{
+  "built_at": "2026-09-27T04:50:39.257Z",
+  "note": "Phase 6C.1 — existing-record recoveries (email/person already in coaches elsewhere). All auto_apply_safe=false pending manual review — no duplicate insert.",
+  "count": 29,
+  "entries": [
+    {
+      "existing_coach_id": "399ae906-1387-47f1-af4d-c02273ff8916",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Bethany (KS)",
+        "sport": "mens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 237181,
+      "target_programme": "Bethany (WV)",
+      "target_sport": "mens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://bethanybison.com/staff-directory/matthew-wolf/90"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "c7f47ef2-6a37-4339-aa60-53f78398199c",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Johnson & Wales (Charlotte)",
+        "sport": "mens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 217235,
+      "target_programme": "Johnson & Wales (Providence)",
+      "target_sport": "mens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://providence.jwuathletics.com/sports/mens-soccer/roster/coaches/david-kulik/221"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "bdb4d2f5-7291-41e9-989a-f2fae7ee059d",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Utah",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 100706,
+      "target_programme": "Alabama Huntsville",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://uahchargers.com/staff-directory/james-ballamy/144"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "868b6c02-ab23-4c6e-b250-e5ca355e3f1e",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Claremont-Mudd-Scripps",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 115409,
+      "target_programme": "Harvey Mudd College",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://cmsathletics.org/staff-directory/david-nolan/214"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "cb286a9c-b98c-4a1c-8f52-13a40fcd4659",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Saint Mary's",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 174817,
+      "target_programme": "Saint Mary's University of Minnesota",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://saintmaryssports.com/sports/womens-soccer/roster/coaches/averi-cash/1594"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "3ba77ec1-c50c-461c-ba71-1592f01e8739",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Northwestern",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 174491,
+      "target_programme": "University of Northwestern-St Paul",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://unweagles.com/staff-directory/danny-brandt/337"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "4fbced68-6ecb-43d2-b943-b00d1983f839",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Bethel (TN)",
+        "sport": "mens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 173160,
+      "target_programme": "Bethel (MN)",
+      "target_sport": "mens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://athletics.bethel.edu/sports/mens-soccer/coaches"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "6fd01d98-ac0b-4756-baf7-9f1543780ae3",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Trinity (TX)",
+        "sport": "mens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 130590,
+      "target_programme": "Trinity (CT)",
+      "target_sport": "mens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://bantamsports.com/sports/mens-soccer/roster/coaches/methembe-ndlovu/978"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "d6b6ed2f-0440-425e-a120-588e804078b4",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Providence",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 217235,
+      "target_programme": "Johnson & Wales University-Providence",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://providence.jwuathletics.com/sports/womens-soccer/roster/coaches/chris-flint/215"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "868b6c02-ab23-4c6e-b250-e5ca355e3f1e",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Claremont-Mudd-Scripps",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 123165,
+      "target_programme": "Scripps College",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://cmsathletics.org/sports/womens-soccer/roster/coaches/david-nolan/300"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "44ffa94a-f67a-413a-8760-98db4ab368ac",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Queens (CUNY)",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 190567,
+      "target_programme": "CUNY City College",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://ccnyathletics.com/sports/womens-soccer/roster/coaches/yanique-newman/1102"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "f8f8cba1-b0c0-43f7-a01f-c7bd3a14c7f6",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Saint Mary's",
+        "sport": "mens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 174817,
+      "target_programme": "Saint Mary's (MN)",
+      "target_sport": "mens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://saintmaryssports.com/staff-directory/leo-barbosa/369"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "ef29a1d1-c14d-4a33-8a39-8c388d65db6e",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Pomona-Pitzer",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 121257,
+      "target_programme": "Pitzer College",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://sagehens.com/staff-directory/miranda-armstrong/248"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "b767e557-bd82-4226-8fa2-398524776c5c",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Texas",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 224004,
+      "target_programme": "Concordia University-Texas",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://athletics.concordia.edu/staff-directory/andy-tunnicliffe/212"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "37b8bde0-170d-4edf-be8d-e6eece693e92",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Saint Mary's",
+        "sport": "mens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 228149,
+      "target_programme": "St. Mary's (TX)",
+      "target_sport": "mens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://rattlerathletics.com/staff-directory/johnny-clifford/115"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "53ff77e7-50ae-4b07-a826-cee16c64615a",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Saint Francis (IL)",
+        "sport": "mens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 215743,
+      "target_programme": "Saint Francis (PA)",
+      "target_sport": "mens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://sfuathletics.com/staff-directory/shelby-edwards/670"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "f2e9369e-de2a-4829-96ef-e3fcc3594286",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Minot State",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 173920,
+      "target_programme": "Minnesota State Mankato",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://msumavericks.com/staff-directory/brian-bahl/161"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "8a4c43a3-5f01-4a88-ac94-3f032322f2e2",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Trinity University",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 130590,
+      "target_programme": "Trinity College",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://bantamsports.com/staff-directory/rachael-schroeder/268"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "ebdde498-f023-4dad-9d85-b3b1dc398368",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Beloit",
+        "sport": "mens-soccer"
+      },
+      "dedup_class": "EXISTING_DUAL_ROLE",
+      "target_unitid": 238333,
+      "target_programme": "Beloit College",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://beloitcollegeathletics.com/staff-directory/brandon-wachholz/102"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "732bd910-b4cf-4077-8b2c-f1fccc9779a7",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Bethel University (MN)",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 174437,
+      "target_programme": "North Central University",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://ncurams.com/sports/womens-soccer/coaches"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "864c558b-0507-469b-a514-71373abf3f91",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Anderson (SC)",
+        "sport": "mens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 150066,
+      "target_programme": "Anderson (IN)",
+      "target_sport": "mens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://athletics.anderson.edu/sports/msoc/coaches/fridleys"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "7e6dd582-e5e8-4af8-8db9-596c3a8983ab",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Southwestern (KS)",
+        "sport": "mens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 228343,
+      "target_programme": "Southwestern (TX)",
+      "target_sport": "mens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://southwesternpirates.com/staff-directory/dustin-norman/33"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "5165303b-358c-4692-88ae-161215037933",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Concord",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 112075,
+      "target_programme": "Concordia Irvine",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://cuigoldeneagles.com/staff-directory/chris-gould/33"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "40be0c4e-5861-44b3-97d5-7b1bcdea04d6",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "St. Thomas",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 227863,
+      "target_programme": "University of St Thomas (TX)",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://ustcelts.com/staff-directory/nathan-day/123"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "06e2ec53-581c-48d2-8386-670aad42fd79",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Charleston (WV)",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 237181,
+      "target_programme": "Bethany College (WV)",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://bethanybison.com/staff-directory/olivia-wilkerson/180"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "f8d1d5f6-a95c-49a1-8d40-37b91b05d7cd",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "St. Joseph's University (Brooklyn)",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 190549,
+      "target_programme": "CUNY Brooklyn College",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://www.brooklyncollegeathletics.com/staff-directory/agathangelos-tsantsaridis/161"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "d2e8a36c-80c9-4ad8-941f-d119f8aafc19",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Wheaton (MA)",
+        "sport": "mens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 149781,
+      "target_programme": "Wheaton (IL)",
+      "target_sport": "mens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://athletics.wheaton.edu/staff-directory/steve-mccrath/360"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "f51b354a-a4d0-436b-a533-99aa14cf1429",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Saint Mary's",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 228149,
+      "target_programme": "St. Mary's (TX)",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://rattlerathletics.com/staff-directory/kevin-driggs/194"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    },
+    {
+      "existing_coach_id": "f16e81c4-a6df-471f-bff5-b2e6e4bd3083",
+      "existing_values": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "school": "Lincoln (MO)",
+        "sport": "womens-soccer"
+      },
+      "dedup_class": "EXISTING_OTHER_INSTITUTION",
+      "target_unitid": 213598,
+      "target_programme": "Lincoln (PA)",
+      "target_sport": "womens-soccer",
+      "proposed_current_coach": {
+        "name": "[name withheld]",
+        "email": "[withheld]@redacted.invalid",
+        "source": "https://lulions.com/staff-directory/sal-minor/184"
+      },
+      "note": "existing coaches row already holds this person/email — recover/reassociate rather than insert; NEEDS MANUAL REVIEW (auto_apply_safe=false)",
+      "auto_apply_safe": false
+    }
+  ]
+}

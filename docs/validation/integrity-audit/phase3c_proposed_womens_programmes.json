@@ -1,0 +1,757 @@
+[
+  {
+    "sport": {
+      "value": "womens-soccer",
+      "provenance": "DERIVED"
+    },
+    "unitid": {
+      "value": 183062,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "division": {
+      "value": "NCAA D3",
+      "provenance": "EXTERNALLY_VERIFIED"
+    },
+    "conference": {
+      "value": "Little East Conference",
+      "provenance": "EXTERNALLY_VERIFIED",
+      "note": "women's conf verified independently; NOT copied from men's (Emmanuel MA & NEC differ: GNAC not CCC). Little East/GNAC not yet populated on women's side (peer members carry null) — could alternatively be left null."
+    },
+    "active": {
+      "value": 1,
+      "provenance": "EXTERNALLY_VERIFIED"
+    },
+    "name": {
+      "value": "Keene State",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "city": {
+      "value": "Keene",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "state": {
+      "value": "NH",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "latitude": {
+      "value": 42.926452,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "longitude": {
+      "value": -72.279276,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "control": {
+      "value": 1,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "academic_rating": {
+      "value": 3.4,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "academic_rating_source": {
+      "value": "scorecard-v1",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "net_price": {
+      "value": 17887,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "tuition_in_state": {
+      "value": 14784,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "tuition_out_state": {
+      "value": 26840,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "sat_avg": {
+      "value": null,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "admit_rate": {
+      "value": 0.9033,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "notable_majors": {
+      "value": "[\"Business\",\"Engineering\",\"Computer Science\",\"Psychology\",\"Kinesiology\",\"Communications\",\"Health Professions\",\"Education\",\"Political Science\",\"Art & Design\"]",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "nickname": {
+      "value": "Owls",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "mascot": {
+      "value": "Hootie the Owl",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "identity_source": {
+      "value": "wikipedia:Keene State College",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "rating": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "soccer_score": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "national_ranking": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "recent_win_pct": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "prior_win_pct": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_2025": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_name": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_source": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_notes": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "postseason_2025_round": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "logo_url": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "primary_color": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "secondary_color": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "website_domain": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "id": {
+      "value": "(generated at insert)",
+      "provenance": "DERIVED"
+    }
+  },
+  {
+    "sport": {
+      "value": "womens-soccer",
+      "provenance": "DERIVED"
+    },
+    "unitid": {
+      "value": 217420,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "division": {
+      "value": "NCAA D3",
+      "provenance": "EXTERNALLY_VERIFIED"
+    },
+    "conference": {
+      "value": "Little East Conference",
+      "provenance": "EXTERNALLY_VERIFIED",
+      "note": "women's conf verified independently; NOT copied from men's (Emmanuel MA & NEC differ: GNAC not CCC). Little East/GNAC not yet populated on women's side (peer members carry null) — could alternatively be left null."
+    },
+    "active": {
+      "value": 1,
+      "provenance": "EXTERNALLY_VERIFIED"
+    },
+    "name": {
+      "value": "Rhode Island College",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "city": {
+      "value": "Providence",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "state": {
+      "value": "RI",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "latitude": {
+      "value": 41.842415,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "longitude": {
+      "value": -71.46556,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "control": {
+      "value": 1,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "academic_rating": {
+      "value": 3.2,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "academic_rating_source": {
+      "value": "scorecard-v1",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "net_price": {
+      "value": 9478,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "tuition_in_state": {
+      "value": 11300,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "tuition_out_state": {
+      "value": 27299,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "sat_avg": {
+      "value": 990,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "admit_rate": {
+      "value": 0.9182,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "notable_majors": {
+      "value": "[\"Business\",\"Psychology\",\"Health Professions\",\"Education\",\"Criminal Justice\",\"Art & Design\"]",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "nickname": {
+      "value": "Anchormen",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "mascot": {
+      "value": "Anchorman",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "identity_source": {
+      "value": "wikipedia:Rhode Island College",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "rating": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "soccer_score": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "national_ranking": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "recent_win_pct": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "prior_win_pct": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_2025": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_name": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_source": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_notes": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "postseason_2025_round": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "logo_url": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "primary_color": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "secondary_color": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "website_domain": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "id": {
+      "value": "(generated at insert)",
+      "provenance": "DERIVED"
+    }
+  },
+  {
+    "sport": {
+      "value": "womens-soccer",
+      "provenance": "DERIVED"
+    },
+    "unitid": {
+      "value": 161554,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "division": {
+      "value": "NCAA D3",
+      "provenance": "EXTERNALLY_VERIFIED"
+    },
+    "conference": {
+      "value": "Little East Conference",
+      "provenance": "EXTERNALLY_VERIFIED",
+      "note": "women's conf verified independently; NOT copied from men's (Emmanuel MA & NEC differ: GNAC not CCC). Little East/GNAC not yet populated on women's side (peer members carry null) — could alternatively be left null."
+    },
+    "active": {
+      "value": 1,
+      "provenance": "EXTERNALLY_VERIFIED"
+    },
+    "name": {
+      "value": "Southern Maine",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "city": {
+      "value": "Portland",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "state": {
+      "value": "ME",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "latitude": {
+      "value": 43.662863,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "longitude": {
+      "value": -70.274247,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "control": {
+      "value": 1,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "academic_rating": {
+      "value": 3.2,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "academic_rating_source": {
+      "value": "scorecard-v1",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "net_price": {
+      "value": 13596,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "tuition_in_state": {
+      "value": 11284,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "tuition_out_state": {
+      "value": 27944,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "sat_avg": {
+      "value": 1116,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "admit_rate": {
+      "value": 0.7923,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "notable_majors": {
+      "value": "[\"Business\",\"Computer Science\",\"Biology\",\"Psychology\",\"Communications\",\"Health Professions\",\"Education\",\"Political Science\",\"Art & Design\"]",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "nickname": {
+      "value": "Huskies",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "mascot": {
+      "value": "Champ the Husky",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "identity_source": {
+      "value": "wikipedia:University of Southern Maine",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "rating": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "soccer_score": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "national_ranking": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "recent_win_pct": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "prior_win_pct": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_2025": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_name": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_source": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_notes": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "postseason_2025_round": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "logo_url": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "primary_color": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "secondary_color": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "website_domain": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "id": {
+      "value": "(generated at insert)",
+      "provenance": "DERIVED"
+    }
+  },
+  {
+    "sport": {
+      "value": "womens-soccer",
+      "provenance": "DERIVED"
+    },
+    "unitid": {
+      "value": 165671,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "division": {
+      "value": "NCAA D3",
+      "provenance": "EXTERNALLY_VERIFIED"
+    },
+    "conference": {
+      "value": "Greater Northeast Athletic Conference",
+      "provenance": "EXTERNALLY_VERIFIED",
+      "note": "women's conf verified independently; NOT copied from men's (Emmanuel MA & NEC differ: GNAC not CCC). Little East/GNAC not yet populated on women's side (peer members carry null) — could alternatively be left null."
+    },
+    "active": {
+      "value": 1,
+      "provenance": "EXTERNALLY_VERIFIED"
+    },
+    "name": {
+      "value": "Emmanuel (MA)",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "city": {
+      "value": "Boston",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "state": {
+      "value": "MA",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "latitude": {
+      "value": 42.340602,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "longitude": {
+      "value": -71.103634,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "control": {
+      "value": 2,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "academic_rating": {
+      "value": 6.4,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "academic_rating_source": {
+      "value": "scorecard-v1",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "net_price": {
+      "value": 26706,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "tuition_in_state": {
+      "value": 48550,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "tuition_out_state": {
+      "value": 48550,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "sat_avg": {
+      "value": 1250,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "admit_rate": {
+      "value": 0.7565,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "notable_majors": {
+      "value": "[\"Business\",\"Biology\",\"Psychology\",\"Communications\",\"Health Professions\",\"Education\",\"Political Science\",\"Art & Design\",\"English\"]",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "nickname": {
+      "value": "Saints",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "mascot": {
+      "value": "Halo the Saint Bernard",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "identity_source": {
+      "value": "wikipedia:Emmanuel College (Massachusetts)",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "rating": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "soccer_score": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "national_ranking": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "recent_win_pct": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "prior_win_pct": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_2025": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_name": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_source": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_notes": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "postseason_2025_round": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "logo_url": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "primary_color": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "secondary_color": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "website_domain": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "id": {
+      "value": "(generated at insert)",
+      "provenance": "DERIVED"
+    }
+  },
+  {
+    "sport": {
+      "value": "womens-soccer",
+      "provenance": "DERIVED"
+    },
+    "unitid": {
+      "value": 182980,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "division": {
+      "value": "NCAA D3",
+      "provenance": "EXTERNALLY_VERIFIED"
+    },
+    "conference": {
+      "value": "Greater Northeast Athletic Conference",
+      "provenance": "EXTERNALLY_VERIFIED",
+      "note": "women's conf verified independently; NOT copied from men's (Emmanuel MA & NEC differ: GNAC not CCC). Little East/GNAC not yet populated on women's side (peer members carry null) — could alternatively be left null."
+    },
+    "active": {
+      "value": 1,
+      "provenance": "EXTERNALLY_VERIFIED"
+    },
+    "name": {
+      "value": "New England College",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "city": {
+      "value": "Henniker",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "state": {
+      "value": "NH",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "latitude": {
+      "value": 43.176403,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "longitude": {
+      "value": -71.822282,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "control": {
+      "value": 2,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "academic_rating": {
+      "value": 2.2,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "academic_rating_source": {
+      "value": "scorecard-v1",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "net_price": {
+      "value": 26972,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "tuition_in_state": {
+      "value": 41938,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "tuition_out_state": {
+      "value": 41938,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "sat_avg": {
+      "value": null,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "admit_rate": {
+      "value": 0.9213,
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "notable_majors": {
+      "value": "[\"Business\",\"Biology\",\"Psychology\",\"Kinesiology\",\"Health Professions\",\"Education\",\"Political Science\",\"Criminal Justice\",\"Art & Design\"]",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "nickname": {
+      "value": "Pilgrims",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "mascot": {
+      "value": "Patty the Pilgrim",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "identity_source": {
+      "value": "wikipedia:New England College",
+      "provenance": "COPIED_FROM_SAME_INSTITUTION"
+    },
+    "rating": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "soccer_score": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "national_ranking": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "recent_win_pct": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "prior_win_pct": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_2025": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_name": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_source": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "conference_champion_notes": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "postseason_2025_round": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "logo_url": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "primary_color": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "secondary_color": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "website_domain": {
+      "value": null,
+      "provenance": "UNKNOWN"
+    },
+    "id": {
+      "value": "(generated at insert)",
+      "provenance": "DERIVED"
+    }
+  }
+]

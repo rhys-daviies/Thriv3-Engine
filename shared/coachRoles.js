@@ -9,7 +9,7 @@
  * What it deliberately does NOT do is exclude a title naming the other sport.
  * That looked like an obvious guard — 31 rows in the men's table carry a
  * women's title — until the rows were read: they are either team-email
- * addresses that are plainly men's (menssoccer@humboldt.edu, mislabelled), or
+ * addresses that are plainly men's (menssoccer@example.edu, mislabelled), or
  * people who genuinely coach both ("Head Men's & Women's Soccer Coach"). In
  * both cases the contact is right and the title is noise.
  */

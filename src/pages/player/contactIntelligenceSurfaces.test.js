@@ -6,7 +6,9 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Routes, Route, Outlet } from 'react-router-dom';
 import MatchingTab from './MatchingTab.jsx';
 import { useActionableRecommendations } from '@/lib/useActionableRecommendations';
-import { RELATIONSHIP_OUTREACH, CONTACT_UNAVAILABLE_NOTICE } from '@/lib/outreachLabels';
+import {
+  CREATE_EMAIL_DRAFT, CONTACT_UNAVAILABLE_NOTICE, NO_CONTACT_RECORDED,
+} from '@/lib/outreachLabels';
 import { ZERO } from '@/lib/__fixtures__/recruitingSignals.js';
 
 /**
@@ -323,7 +325,15 @@ describe('the relationship surfaces show it too', () => {
     });
     await render();
     await click(tab('Specific Schools'));
+    /**
+     * F8b — THE SUMMARY MOVED INTO THE ROW'S EXPANSION, UNCHANGED.
+     * The collapsed row carries a one-phrase version of the same fact; the
+     * full derived summary is one click away and is still the same component
+     * with the same guards.
+     */
     const row = container.querySelector('[data-testid="specific-school-row"]');
+    await click(Array.from(row.querySelectorAll('button'))
+      .find((b) => b.textContent.trim().startsWith('Details')));
     expect(row.querySelector('[data-testid="contact-summary"]')).toBeTruthy();
   });
 
@@ -344,7 +354,7 @@ describe('the relationship surfaces show it too', () => {
       intelligence: [summary()],
     });
     await render();
-    await click(buttonsIn(document.body).find((b) => b.textContent.includes(RELATIONSHIP_OUTREACH)));
+    await click(buttonsIn(document.body).find((b) => b.textContent.includes(CREATE_EMAIL_DRAFT)));
 
     // The dialog's own payload carries the summary for its one programme, so
     // opening it costs one relationship request and no second athlete sweep.
@@ -476,7 +486,7 @@ describe('UNKNOWN IS NOT NONE', () => {
     expect(body()).toContain('Programme1');
     expect(body()).toContain('Programme20');
     expect(tab('Specific Schools')).toBeTruthy();
-    expect(buttonsIn(container).some((b) => b.textContent.includes(RELATIONSHIP_OUTREACH)
+    expect(buttonsIn(container).some((b) => b.textContent.includes(CREATE_EMAIL_DRAFT)
       || b.textContent.includes('Flag'))).toBe(true);
   });
 
@@ -560,12 +570,30 @@ describe('A PROGRAMME IS A COLLEGE AND A SPORT', () => {
     await render();
     await click(tab('Specific Schools'));
 
-    // The men's programme has history and the women's has none. A miss is the
-    // answer for the women's row; borrowing the men's summary would be the
-    // exact confident-wrong claim this key prevents.
+    /**
+     * The men's programme has history and the women's has none. A miss is the
+     * answer for the women's row; borrowing the men's summary would be the
+     * exact confident-wrong claim this key prevents.
+     *
+     * RE-POINTED IN F6b, AND THE PROPERTY IS UNCHANGED. This used to assert
+     * the row rendered no summary element at all. A Specific School row now
+     * says "No contact recorded" out loud where the history has LOADED and the
+     * programme is genuinely absent from it — which is this case, and which is
+     * the same fact stated rather than implied by silence. What must still be
+     * true, and is asserted below, is that none of the men's history reaches
+     * this row.
+     */
     const row = container.querySelector('[data-testid="specific-school-row"]');
-    expect(row.querySelector('[data-testid="contact-summary"]')).toBeNull();
+    // Said at the glance, in the compressed form F8b put on the collapsed row.
+    expect(row.querySelector('[data-testid="contact-state"]').textContent)
+      .toBe(NO_CONTACT_RECORDED);
+    // And said in full, by the same component as before, in the expansion.
+    await click(Array.from(row.querySelectorAll('button'))
+      .find((b) => b.textContent.trim().startsWith('Details')));
+    expect(row.querySelector('[data-testid="contact-summary"]').textContent)
+      .toBe(NO_CONTACT_RECORDED);
     expect(row.textContent).not.toContain('Sent 2x');
+    expect(row.textContent).not.toContain('Profile visit recorded');
   });
 
   it('leaves ordinary single-sport behaviour alone', async () => {

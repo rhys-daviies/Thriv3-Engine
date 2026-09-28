@@ -1,0 +1,146 @@
+[
+  {
+    "domain": "andersonuniversity.edu",
+    "old_unitid": 150066,
+    "new_unitid": 217633,
+    "institution": "Anderson University, Anderson, South Carolina"
+  },
+  {
+    "domain": "ccis.edu",
+    "old_unitid": 190150,
+    "new_unitid": 177065,
+    "institution": "Columbia College, Columbia, Missouri"
+  },
+  {
+    "domain": "columbiacougars.com",
+    "old_unitid": 190150,
+    "new_unitid": 177065,
+    "institution": "Columbia College, Columbia, Missouri (Cougars, NAIA / American Midwest Conference)"
+  },
+  {
+    "domain": "columbiasc.edu",
+    "old_unitid": 190150,
+    "new_unitid": 217934,
+    "institution": "Columbia College, Columbia, South Carolina"
+  },
+  {
+    "domain": "gocobbers.com",
+    "old_unitid": 217864,
+    "new_unitid": 173300,
+    "institution": "Concordia College at Moorhead, MN (self-IDs 'Official Athletic Website for Concordia Moorhead'; 'Cobbers' nickname is unique to Concordia Moorhead; NCAA DIII, MIAC)"
+  },
+  {
+    "domain": "hcc-nd.edu",
+    "old_unitid": 166124,
+    "new_unitid": 150774,
+    "institution": "Holy Cross College, Notre Dame, IN (P.O. Box 308, Notre Dame IN 46556)"
+  },
+  {
+    "domain": "lmunet.edu",
+    "old_unitid": 117946,
+    "new_unitid": 220631,
+    "institution": "Lincoln Memorial University (LMU), Harrogate, TN"
+  },
+  {
+    "domain": "maryville.edu",
+    "old_unitid": 179159,
+    "new_unitid": 178059,
+    "institution": "Maryville University of St. Louis, Missouri. Distinct from Maryville College, Tennessee (UnitID 220710)."
+  },
+  {
+    "domain": "njcu.edu",
+    "old_unitid": 185262,
+    "new_unitid": 185129,
+    "institution": "New Jersey City University, Jersey City, NJ (UnitID 185129) — the historical owner of njcu.edu"
+  },
+  {
+    "domain": "nwciowa.edu",
+    "old_unitid": 147767,
+    "new_unitid": 154101,
+    "institution": "Northwestern College, Orange City, Iowa (Christian college, Raiders/Red Raiders, NAIA)"
+  },
+  {
+    "domain": "nwcraiders.com",
+    "old_unitid": 147767,
+    "new_unitid": 154101,
+    "institution": "Northwestern College, Orange City, Iowa (athletics site footer '(c) Northwestern College Red Raiders, Orange City, Iowa'; NAIA)"
+  },
+  {
+    "domain": "pnw.edu",
+    "old_unitid": 243780,
+    "new_unitid": 490805,
+    "institution": "Purdue University Northwest (Hammond & Westville, IN)"
+  },
+  {
+    "domain": "redstormsports.com",
+    "old_unitid": 195720,
+    "new_unitid": 195809,
+    "institution": "St. John's University Athletics, Queens, NY (Red Storm)"
+  },
+  {
+    "domain": "stjohns.edu",
+    "old_unitid": 193900,
+    "new_unitid": 195809,
+    "institution": "St. John's University, Queens, NY (Catholic/Vincentian; Red Storm)"
+  },
+  {
+    "domain": "stu.edu",
+    "old_unitid": 174914,
+    "new_unitid": 137476,
+    "institution": "St. Thomas University, Miami Gardens, FL (Bobcats, Catholic, NAIA)"
+  },
+  {
+    "domain": "stubobcats.com",
+    "old_unitid": 174914,
+    "new_unitid": 137476,
+    "institution": "St. Thomas University Athletics, Miami Gardens, FL (Bobcats)"
+  },
+  {
+    "domain": "tommiesports.com",
+    "old_unitid": 227863,
+    "new_unitid": 174914,
+    "institution": "University of St. Thomas, St. Paul/Minneapolis, MN (Tommies, D1 Summit League)"
+  },
+  {
+    "domain": "uconn.edu",
+    "old_unitid": 128902,
+    "new_unitid": 129020,
+    "institution": "University of Connecticut (Storrs, CT; Huskies)"
+  },
+  {
+    "domain": "uconnhuskies.com",
+    "old_unitid": 128902,
+    "new_unitid": 129020,
+    "institution": "University of Connecticut (official athletics site self-IDs as 'University of Connecticut Athletics', Huskies)"
+  },
+  {
+    "domain": "umassathletics.com",
+    "old_unitid": 166692,
+    "new_unitid": 166629,
+    "institution": "University of Massachusetts Amherst (Minutemen/Minutewomen; UMass Amherst flagship, Amherst MA)"
+  },
+  {
+    "domain": "westminster-mo.edu",
+    "old_unitid": 216807,
+    "new_unitid": 179946,
+    "institution": "Westminster College, Fulton, Missouri"
+  },
+  {
+    "domain": "westminstergriffins.com",
+    "old_unitid": 179946,
+    "new_unitid": 230807,
+    "institution": "Westminster University, Salt Lake City, Utah (Griffins)"
+  },
+  {
+    "domain": "westminsteru.edu",
+    "old_unitid": 179946,
+    "new_unitid": 230807,
+    "institution": "Westminster University, Salt Lake City, Utah"
+  },
+  {
+    "domain": "www.gosuffolkrams.com",
+    "old_unitid": 217864,
+    "new_unitid": 168005,
+    "institution": "Suffolk University, Boston, MA (self-IDs 'The Official Athletics Site of Suffolk University'; Rams; NCAA DIII, GNAC)"
+  }
+]

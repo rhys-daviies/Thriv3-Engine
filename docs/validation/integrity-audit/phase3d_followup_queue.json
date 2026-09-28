@@ -1,0 +1,16 @@
+{
+  "A_mens_conference_verification_queue": {
+    "status": "RECORDED_NOT_REPAIRED",
+    "why": "Phase 3C externally verified the WOMEN'S soccer conference for these two schools as GNAC, while their existing MEN'S colleges rows carry CCC. This does not prove the men's rows are wrong (conference can differ by gender), but it is a discrepancy worth an independent check.",
+    "items": [
+      {"unitid": 165671, "institution": "Emmanuel (MA)", "mens_conference_current": "CCC", "womens_conference_verified": "Greater Northeast Athletic Conference", "action": "independently verify the men's-soccer conference"},
+      {"unitid": 182980, "institution": "New England College", "mens_conference_current": "CCC", "womens_conference_verified": "Greater Northeast Athletic Conference", "action": "independently verify the men's-soccer conference"}
+    ]
+  },
+  "B_womens_conference_completeness": {
+    "status": "RECORDED_NOT_REPAIRED",
+    "why": "Little East and GNAC are absent as populated conference values on the women's-soccer side; member schools already in the women's file carry NULL conference. The five Phase 3D rows are the first women's rows to carry 'Little East Conference'/'Greater Northeast Athletic Conference'.",
+    "measurement": "0 women's-soccer rows had conference 'Little East Conference' or 'Greater Northeast Athletic Conference' before Phase 3D; known members (UMass Dartmouth, Plymouth State, Eastern Connecticut, UMass Boston, Simmons, Elms, Dean, Mitchell, Norwich, Lasell) carry NULL conference.",
+    "action": "bounded women's conference-completeness backfill (NOT started this phase)"
+  }
+}

@@ -70,6 +70,50 @@ function checkLanded(expectedLive, reported) {
 }
 
 /**
+ * Makes a named token usable at the edge, and touches nothing else — R4C.
+ *
+ * ===========================================================================
+ * THE NARROW HALF OF `pushTokens`, AND THE DIFFERENCE IS `reconcile`.
+ *
+ * `pushTokens` below sends the WHOLE allowlist with `reconcile: true`, which
+ * is what makes deleting outreach locally take the link down at the edge. It
+ * is the right operation for a periodic reconciliation and the wrong one for
+ * "this one new link must work now": it is O(every token) on every call, and
+ * its reconcile arm revokes anything the edge holds that the list omits.
+ *
+ * SENDING ONE TOKEN WITH `reconcile: true` WOULD REVOKE EVERY OTHER LIVE LINK
+ * IN THE WILD. That is the reason this is a separate function rather than an
+ * argument to that one — a boolean with a blast radius that large should not
+ * be reachable from a call site that is thinking about a single coach.
+ *
+ * The edge already supports exactly this: `syncTokens` upserts each token it
+ * is given and only reconciles when asked, so nothing at the edge changes.
+ * ===========================================================================
+ *
+ * @param {Array<{token: string, revoked: boolean|number}>} tokens
+ * @returns {{synced: number, liveAtEdge: number|null}} `synced` is how many
+ *   upserts the edge ran. It is the proof the caller needs: the statement sets
+ *   `revoked` to what we sent, so a token we sent as live is live afterwards.
+ */
+export async function activateTokens(tokens) {
+  requireEdge();
+  const payload = (tokens ?? [])
+    .filter((t) => t && typeof t.token === 'string' && t.token)
+    .map((t) => ({ token: t.token, revoked: t.revoked ? 1 : 0 }));
+  if (!payload.length) return { synced: 0, liveAtEdge: null };
+
+  // NO `reconcile`. See above — this is the whole safety property.
+  const result = await edgeFetch('/api/tokens', {
+    method: 'POST',
+    body: JSON.stringify({ tokens: payload }),
+  });
+  return {
+    synced: result.synced ?? 0,
+    liveAtEdge: typeof result.liveAtEdge === 'number' ? result.liveAtEdge : null,
+  };
+}
+
+/**
  * Pushes the current token allowlist up.
  *
  * This is what makes revocation bite at the edge: a deactivated athlete's

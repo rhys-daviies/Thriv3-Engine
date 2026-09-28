@@ -22,9 +22,14 @@ Nothing is deleted without a backup of both files.
 Usage: python3 dedupe_schools.py [--apply]
 """
 import csv, json, shutil, sqlite3, sys, os
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+import corpus as _corpus  # L7ZO: RECRUITMATCH_DB is honoured here too
+
 
 RECORDS = "/Users/rhysdavies/Documents/Thriv3/Soccer Records/soccer_records.csv"
-DB = "/Users/rhysdavies/Documents/Recruitmatch/app/server/data/recruitmatch.sqlite"
+DB = _corpus.resolve_db()
 BASE = "/Users/rhysdavies/Documents/Recruitmatch/individualisation"
 APPLY = "--apply" in sys.argv
 
@@ -104,6 +109,9 @@ def main():
         print("\nDry run -- re-run with --apply to write.")
         con.close()
         return
+
+    # L7ZO: writing a corpus other checkouts share needs saying so.
+    _corpus.assert_canonical_write("dedupe_schools.py", DB)
 
     shutil.copy2(RECORDS, RECORDS.replace(".csv", ".pre_dedupe.csv"))
     with open(RECORDS, "w", newline="", encoding="utf-8") as f:

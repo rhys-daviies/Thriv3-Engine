@@ -16,8 +16,10 @@
  * Usage:
  *   node server/scripts/applyConferenceChampions2025.js [--apply]
  */
+import '../db/refuseProductionVolume.js'; // MUST precede db/client.js — see that file
 import { College } from '../db/entities/college.js';
 import { CHAMPIONS_2025 } from './populateConferenceChampions2025.data.js';
+
 
 const APPLY = process.argv.includes('--apply');
 

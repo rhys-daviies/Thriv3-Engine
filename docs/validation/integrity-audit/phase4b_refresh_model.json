@@ -1,0 +1,28 @@
+{
+  "purpose": "Design (not implementation) of the permanent coach-currency refresh, from Phase 4A/4B evidence. Read-only recommendation.",
+  "cadence": {
+    "principle": "Recheck by programme page, prioritized by outreach-eligibility; do not recheck every coach individually.",
+    "eligible_coaches": "full re-verify each pre-season (Jul-Sep, when 2026-27 staff finalize) + one mid-season spot pass (Oct-Nov); a lighter Jan-Feb pass for spring transitions.",
+    "ineligible_coaches": "annual, off-peak.",
+    "season_sensitivity": "staff churn peaks May-Aug (hiring cycle); weight fetches to late summer."
+  },
+  "programme_page_to_many_coaches": "One current staff-page fetch verifies every coach at that (institution,sport); Phase 4A measured ~7.8 coaches per fetch. Refresh is keyed on (source_domain / programme), and stamps all its coaches in one pass.",
+  "checked_at": "currentness_checked_at is set per coach at each verification; a programme fetch stamps all coaches it covered, even those confirmed absent (PROVEN_STALE) — absence is a result, not a skipped check.",
+  "email_confirmation": {
+    "email_confirmed_at": "set when the stored address is independently observed on a current authoritative page OR proven deliverable (non-bounce/reply). Distinct from currentness_status.",
+    "changed_email": "when the current page shows a different address, update email and record the prior value in the audit trail (schema has no previous_email column; keep provenance in the evidence artifact or add one only if a durable in-DB history is required)."
+  },
+  "moved_or_departed_retention": "Never delete a departed coach's identity or evidence. Set currentness_status=PROVEN_STALE with currentness_reason + currentness_source_url + currentness_checked_at. History is preserved; only a genuine DUPLICATE (e.g. the wrong-sport copies) is removed.",
+  "currentness_to_eligibility": {
+    "PROVEN_STALE": "fails outreach CLOSED (implemented in reconcileCoaches.js).",
+    "UNKNOWN": "remains eligible (fail-open) but is lower-confidence; surface it for verification before a campaign. Never auto-disqualified.",
+    "CURRENT": "preferred/highest confidence."
+  },
+  "guardrails": {
+    "unreachable_page": "currentness stays UNKNOWN (never STALE); retry with backoff; try an alternate authoritative source.",
+    "ambiguous_disappearance": "coach absent from a page but departure unconfirmable => UNKNOWN, corroborate with a second source before PROVEN_STALE.",
+    "coach_seasons": "may positively CORROBORATE currency; absence from coach_seasons is NEVER sole negative evidence (assistants are routinely unscraped).",
+    "never": ["absence-from-coach_seasons => stale", "unreachable => stale", "UNKNOWN => stale", "email-domain => currentness", "institution-correctness => currentness", "delete history on departure", "extrapolate a prioritized sample rate to the population"]
+  },
+  "stale_check_vs_proven_stale": "A currentness_checked_at older than one season means the CHECK is stale (needs re-verification) — not the same as the COACH being PROVEN_STALE."
+}

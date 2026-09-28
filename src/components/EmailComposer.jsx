@@ -16,7 +16,10 @@ import {
 import { outreach } from '@/api/client';
 import { useEvidence, evidenceForCollege } from '@/lib/useEvidence';
 import EvidencePanel from '@/components/EvidencePanel';
-import { RECOMMENDATION_DIALOG_HINT } from '@/lib/outreachLabels';
+import {
+  RECOMMENDATION_DIALOG_HINT, PREPARE_EMAILS, LINK_NOT_ACTIVATED, LINK_NOT_ACTIVATED_HINT,
+} from '@/lib/outreachLabels';
+import HandoffSection, { handoffsFrom } from '@/components/HandoffSection';
 
 /**
  * Whose name seeds the greeting in the editable draft. Every selected coach
@@ -31,7 +34,32 @@ function greetingSeed(coaches) {
   return pickBestContact(coaches) || coaches[0];
 }
 
+/**
+ * Per-coach outcomes that draw their own word on the row, so the catch-all
+ * refusal badge below must not draw a second one for them.
+ */
+const OWN_BADGE = new Set(['link-not-activated']);
+
 export default function EmailComposer({
+  /**
+   * WHETHER THIS SURFACE MAY ASK THRIV3 TO SEND — F7b.
+   *
+   * ---------------------------------------------------------------------------
+   * DEFAULTS TRUE, AND THE DEFAULT IS THE POINT. This composer is shared by
+   * three surfaces — the Top 100 match cards, the bulk composer and the
+   * relationship dialog — and only the last of them is changing. A default of
+   * false would have quietly removed a capability from two callers that never
+   * asked, which is exactly the kind of change a shared component should not
+   * make on anyone's behalf.
+   *
+   * Specific Search passes false explicitly. That workflow is deliberately
+   * draft-only: Thriv3 opens the draft, a PERSON reviews and edits and presses
+   * Send in Outlook, and then tells Thriv3 it went. The server refuses
+   * `send: true` on that route regardless of what any screen offers, so this
+   * prop is the courtesy and not the guarantee.
+   * ---------------------------------------------------------------------------
+   */
+  allowImmediateSend = true,
   player, college, open, onOpenChange,
   /**
    * WHO ACTUALLY PERFORMS THE SEND. One injected function, not a mode.
@@ -101,8 +129,27 @@ export default function EmailComposer({
     };
   }, [college?.name, selection, structureChoice]);
 
+  /**
+   * WHICH CANONICAL COACHES THIS EMAIL IS CURRENTLY FOR - F9e.
+   *
+   * Wiring, and only wiring. Recipient selection, addresses, the greeting and
+   * the submitted `coachIds` are all exactly as they were; this reads the same
+   * selection a second time so the evidence request can ask what these people
+   * have already been told.
+   *
+   * EMPTY ON THE TOP 100 PATH, AND CORRECTLY SO. A match card's
+   * `coaching_staff` comes from the matching blob and carries no `coach_id`;
+   * only the relationship dialog supplies canonical `coaches` rows. So the
+   * ranked and bulk composers send no coach ids, receive no history, and
+   * behave precisely as before.
+   */
+  const selectedCoachIds = useMemo(
+    () => validCoaches.filter((c) => selected.has(c.email) && c.coach_id).map((c) => c.coach_id),
+    [validCoaches, selected],
+  );
+
   const { evidence: evidenceMap, loading: evidenceLoading, failed: evidenceFailed } =
-    useEvidence(player.id, collegeNames, overrides);
+    useEvidence(player.id, collegeNames, overrides, selectedCoachIds);
   const evidence = evidenceForCollege(evidenceMap, college?.name);
 
   /**
@@ -164,9 +211,31 @@ export default function EmailComposer({
       setSubject(fillTemplate(player.email_subject || DEFAULT_EMAIL_SUBJECT, composed.context));
     }
   }, [evidence, player, college, initialGreetingName, bodyEdited, subjectEdited]);
-  const [results, setResults] = useState({}); // email -> { status, error, url }
+  const [results, setResults] = useState({}); // email -> { status, error, url, handoff }
   const [sending, setSending] = useState(false);
   const [sendImmediately, setSendImmediately] = useState(false);
+  /**
+   * The state above is per-surface and starts false everywhere, but a surface
+   * that may not send must not be able to reach true by any route — a stale
+   * value after a prop change, or a future control somebody adds. Derived once
+   * here so every read below goes through the capability.
+   */
+  /**
+   * THE COACHES WHOSE EMAIL WAS ACTUALLY PREPARED, IN THE ORDER THEY WERE.
+   *
+   * ---------------------------------------------------------------------------
+   * DERIVED FROM `results`, SO IT CANNOT INCLUDE A COACH THE SERVER REFUSED.
+   * `handoff` is set by the route on exactly one branch — a coach whose draft
+   * composed AND persisted — and is absent on every other outcome:
+   * suppressed, rate-capped, revoked, budget-refused, campaign-refused, or an
+   * error. Filtering on its presence rather than on a list of statuses means
+   * this cannot fall behind a guard that is added later: a new refusal
+   * returns no handoff and no row appears, without this line being touched.
+   * ---------------------------------------------------------------------------
+   */
+  const handoffs = useMemo(() => handoffsFrom(results), [results]);
+
+  const immediate = allowImmediateSend && sendImmediately;
   const [error, setError] = useState(null);
   const [reachable, setReachable] = useState(true);
   const [from, setFrom] = useState(null);
@@ -198,7 +267,7 @@ export default function EmailComposer({
         subject,
         body,
         greetingName: initialGreetingName,
-        send: sendImmediately,
+        send: immediate,
         // Kinds and a structure key — never sentences, never facts. The server
         // validates each against the evidence it generated for this pairing,
         // refuses a structure that evidence does not support, and re-renders
@@ -255,12 +324,70 @@ export default function EmailComposer({
               {validCoaches.map((c) => (
                 <label key={c.email} className="flex items-center gap-2 text-sm">
                   <Checkbox checked={selected.has(c.email)} onCheckedChange={() => toggle(c.email)} />
-                  <span>{c.name} <span className="text-muted-foreground">({c.email})</span></span>
+                  <span className="min-w-0">
+                    <span className="block">
+                      {c.name} <span className="text-muted-foreground">({c.email})</span>
+                    </span>
+                    {/*
+                      THE ROLE, BECAUSE THIS IS THE ROW WHERE ONE COACH IS
+                      CHOSEN OVER ANOTHER.
+
+                      Manual Specific Search outreach goes to ONE coach at a
+                      programme, and until now this list gave an operator a
+                      name and an address to choose between — nothing that
+                      distinguishes a head coach from a graduate assistant or
+                      a shared team inbox. The title was already here: the
+                      route maps `coaches.position_title` to `title`, this
+                      component already posts it back on send and already
+                      feeds it to `pickBestContact` for the greeting. It was
+                      simply never drawn.
+
+                      RENDERED ONLY WHEN PRESENT, and never substituted. A
+                      coach with no recorded title gets no line rather than a
+                      guess — the same rule the two surfaces that already show
+                      this use (PriorContact, ContactedCoachDetail), and the
+                      reason they all read `x && <span>` rather than a
+                      fallback string.
+
+                      Its own line rather than inline, because the name is
+                      what is scanned and the title is what decides; second
+                      line, muted, smaller keeps that order without hiding it.
+                    */}
+                    {c.title && (
+                      <span className="block text-xs text-muted-foreground" data-testid="coach-title">
+                        {c.title}
+                      </span>
+                    )}
+                  </span>
                   <EmailRiskBadge status={statusOf(statuses, c.email)} loaded={statuses !== null} />
                   {(results[c.email]?.status === 'sent' || results[c.email]?.status === 'drafted') && (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
                       <CheckCircle2 className="h-4 w-4" />
-                      {results[c.email].status === 'sent' ? 'sent' : 'draft open in Outlook'}
+                      {/*
+                        NEUTRAL SINCE R2B. It said "draft open in Outlook",
+                        which was true when AppleScript was the only transport
+                        and is a guess about somebody else's machine now. What
+                        Thriv3 knows is that it prepared the email and wrote
+                        the row; the handoff section below says the rest.
+                      */}
+                      {results[c.email].status === 'sent' ? 'sent' : 'prepared'}
+                    </span>
+                  )}
+                  {/*
+                    R4C — THE EMAIL IS FINE AND THE LINK IS NOT. Given its own
+                    branch rather than folded into the generic refusal below,
+                    because "not sent" alone would send an operator looking
+                    for a mail problem that does not exist. The server's own
+                    `message` is the tooltip; this is the word on the row.
+                  */}
+                  {results[c.email]?.status === 'link-not-activated' && (
+                    <span
+                      className="inline-flex items-center gap-1 text-xs text-amber-400"
+                      title={results[c.email].message || LINK_NOT_ACTIVATED_HINT}
+                      role="status"
+                      data-testid="link-not-activated"
+                    >
+                      <XCircle className="h-4 w-4" /> {LINK_NOT_ACTIVATED}
                     </span>
                   )}
                   {results[c.email]?.status === 'error' && (
@@ -277,8 +404,16 @@ export default function EmailComposer({
                     statuses, so the branch cannot fall behind the guards —
                     a refusal that carries an explanation shows it, and the
                     ones that do not are unchanged.
+
+                    R4C: EXCEPT the ones that have a badge of their own. A
+                    `link-not-activated` result carries a `message` too, and
+                    without this it would draw both its own word and a second
+                    "not sent" beside it — one refusal reading as two. The
+                    catch-all still catches everything else, including
+                    refusals nobody has written a branch for yet.
                   */}
-                  {results[c.email]?.message && (
+                  {results[c.email]?.message
+                    && !OWN_BADGE.has(results[c.email]?.status) && (
                     <span
                       className="inline-flex items-center gap-1 text-xs text-amber-400"
                       title={results[c.email].message}
@@ -363,19 +498,37 @@ export default function EmailComposer({
           <p className="rounded-md border border-destructive/40 bg-destructive/10 p-2.5 text-xs">{error}</p>
         )}
 
-        <label className="flex items-start gap-2.5 text-sm">
-          <Checkbox
-            className="mt-0.5 shrink-0"
-            checked={sendImmediately}
-            onCheckedChange={(v) => setSendImmediately(v === true)}
-          />
-          <span className="text-xs leading-relaxed">
-            <span className="text-sm font-medium">Send immediately</span>
-            <span className="text-muted-foreground">
-              {' '}— leave this off and each message opens in Outlook for you to read and send yourself.
+        {/*
+          WHAT TO DO NOW THE EMAILS ARE PREPARED — R2B.
+          
+          Present only on the hosted path: `handoff` is null when the server
+          drove Outlook itself, because handing a macOS operator a clipboard
+          as well would put two competing copies of one email on one screen.
+          Rendered here, directly above the footer, so it appears where the
+          operator's attention already is after pressing the button.
+        */}
+        <HandoffSection handoffs={handoffs} />
+
+        {/*
+          ABSENT RATHER THAN DISABLED where the surface may not send. A greyed
+          checkbox reads as "this is how you would turn it on", and on Specific
+          Search there is no turning it on — the server refuses it.
+        */}
+        {allowImmediateSend && (
+          <label className="flex items-start gap-2.5 text-sm">
+            <Checkbox
+              className="mt-0.5 shrink-0"
+              checked={sendImmediately}
+              onCheckedChange={(v) => setSendImmediately(v === true)}
+            />
+            <span className="text-xs leading-relaxed">
+              <span className="text-sm font-medium">Send immediately</span>
+              <span className="text-muted-foreground">
+                {' '}— leave this off and each message opens in Outlook for you to read and send yourself.
+              </span>
             </span>
-          </span>
-        </label>
+          </label>
+        )}
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
@@ -383,9 +536,16 @@ export default function EmailComposer({
             <Send className="h-3.5 w-3.5 mr-1.5" />
             {sending
               ? 'Working…'
-              : sendImmediately
+              : immediate
                 ? `Send ${selected.size} email${selected.size === 1 ? '' : 's'}`
-                : `Open ${selected.size} draft${selected.size === 1 ? '' : 's'} in Outlook`}
+                /*
+                  "Prepare" rather than "Open ... in Outlook", because on the
+                  hosted path nothing opens until the operator clicks a row
+                  below, and on no path does Thriv3 know which application
+                  will. Preparing is the thing this button actually does: it
+                  composes, validates and records the DRAFT.
+                */
+                : PREPARE_EMAILS(selected.size)}
           </Button>
         </DialogFooter>
       </DialogContent>

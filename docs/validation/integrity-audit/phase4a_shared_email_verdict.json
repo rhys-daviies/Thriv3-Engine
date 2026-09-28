@@ -1,0 +1,27 @@
+{
+  "email": "[withheld]@redacted.invalid",
+  "classify": "ALIAS_NAME_VARIATION",
+  "verdict": "Same person. The two rows ('[name withheld — coach 47c20b3f-feba-4724-8d0a-c9575211741b]' filed under mens-soccer and '[name withheld — coach 9fab32a1-803f-4a4b-a6a2-85a521bdb0ab]' filed under womens-soccer) are one individual; 'Schriner' is a misspelling (missing 'e') of the correct surname 'Schreiner'. He is a single dual-role coach at Dakota Wesleyan University serving as Assistant/Goalkeepers Coach for BOTH the men's and women's soccer programs, so his genuine personal address legitimately appears on both listings. Not data-entry contamination (not two different people), not a shared/departmental address (it is his individual named address), not stale.",
+  "same_person": true,
+  "is_departmental_address": false,
+  "dual_role": true,
+  "rows": [
+    {
+      "full_name": "[name withheld]",
+      "school": "Dakota Wesleyan",
+      "sport": "mens-soccer",
+      "email_source_url": "https://dwuathletics.com/sports/msoc/coaches/Cole",
+      "resolution": "Correct spelling; Assistant Coach (Goalkeepers), Men's Soccer."
+    },
+    {
+      "full_name": "[name withheld]",
+      "school": "Dakota Wesleyan University",
+      "sport": "womens-soccer",
+      "email_source_url": "https://dwuathletics.com/sports/msoc/coaches/Cole",
+      "resolution": "Misspelled surname of the same person; Assistant Coach (Goalkeepers), Women's Soccer."
+    }
+  ],
+  "evidence": "Official DWU athletics coach profile and roster listings (dwuathletics.com) confirm [name withheld — coach 47c20b3f-feba-4724-8d0a-c9575211741b] as Assistant/Goalkeepers Coach for both the men's and women's soccer teams. Direct browser and WebFetch access returned CloudFront 403; verified via the site's own indexed pages (dwuathletics.com/sports/msoc/coaches/Cole_Schreiner, dwuathletics.com/sports/wsoc/coaches/index).",
+  "evidence_url": "https://dwuathletics.com/sports/msoc/coaches/",
+  "checked_at": "2026-09-26T00:00:00Z"
+}

@@ -1,0 +1,2217 @@
+{
+  "domains": [
+    {
+      "domain": "uconn.edu",
+      "from_unitid": 128902,
+      "to_unitid": 129020,
+      "evidence": [
+        129020
+      ]
+    },
+    {
+      "domain": "uconnhuskies.com",
+      "from_unitid": 128902,
+      "to_unitid": 129020,
+      "evidence": [
+        129020
+      ]
+    },
+    {
+      "domain": "nwciowa.edu",
+      "from_unitid": 147767,
+      "to_unitid": 154101,
+      "evidence": [
+        154101
+      ]
+    },
+    {
+      "domain": "njcu.edu",
+      "from_unitid": 185262,
+      "to_unitid": 185129,
+      "evidence": [
+        185129
+      ]
+    },
+    {
+      "domain": "stjohns.edu",
+      "from_unitid": 193900,
+      "to_unitid": 195809,
+      "evidence": [
+        195809
+      ]
+    },
+    {
+      "domain": "nwcraiders.com",
+      "from_unitid": 147767,
+      "to_unitid": 154101,
+      "evidence": [
+        154101
+      ]
+    },
+    {
+      "domain": "umassathletics.com",
+      "from_unitid": 166692,
+      "to_unitid": 166629,
+      "evidence": [
+        166629
+      ]
+    },
+    {
+      "domain": "lmunet.edu",
+      "from_unitid": 117946,
+      "to_unitid": 220631,
+      "evidence": [
+        220631
+      ]
+    },
+    {
+      "domain": "stu.edu",
+      "from_unitid": 174914,
+      "to_unitid": 137476,
+      "evidence": [
+        137476
+      ]
+    },
+    {
+      "domain": "tommiesports.com",
+      "from_unitid": 227863,
+      "to_unitid": 174914,
+      "evidence": [
+        174914
+      ]
+    },
+    {
+      "domain": "columbiacougars.com",
+      "from_unitid": 190150,
+      "to_unitid": 177065,
+      "evidence": [
+        177065
+      ]
+    },
+    {
+      "domain": "andersonuniversity.edu",
+      "from_unitid": 150066,
+      "to_unitid": 217633,
+      "evidence": [
+        217633
+      ]
+    },
+    {
+      "domain": "hcc-nd.edu",
+      "from_unitid": 166124,
+      "to_unitid": 150774,
+      "evidence": [
+        150774
+      ]
+    },
+    {
+      "domain": "redstormsports.com",
+      "from_unitid": 195720,
+      "to_unitid": 195809,
+      "evidence": [
+        195809
+      ]
+    },
+    {
+      "domain": "maryville.edu",
+      "from_unitid": 179159,
+      "to_unitid": 178059,
+      "evidence": [
+        178059
+      ]
+    },
+    {
+      "domain": "ccis.edu",
+      "from_unitid": 190150,
+      "to_unitid": 177065,
+      "evidence": [
+        177065
+      ]
+    },
+    {
+      "domain": "pnw.edu",
+      "from_unitid": 243780,
+      "to_unitid": 490805,
+      "evidence": [
+        490805
+      ]
+    },
+    {
+      "domain": "westminstergriffins.com",
+      "from_unitid": 179946,
+      "to_unitid": 230807,
+      "evidence": [
+        230807
+      ]
+    },
+    {
+      "domain": "westminsteru.edu",
+      "from_unitid": 179946,
+      "to_unitid": 230807,
+      "evidence": [
+        230807
+      ]
+    },
+    {
+      "domain": "westminster-mo.edu",
+      "from_unitid": 216807,
+      "to_unitid": 179946,
+      "evidence": [
+        179946
+      ]
+    },
+    {
+      "domain": "columbiasc.edu",
+      "from_unitid": 190150,
+      "to_unitid": 217934,
+      "evidence": [
+        217934
+      ]
+    },
+    {
+      "domain": "gocobbers.com",
+      "from_unitid": 217864,
+      "to_unitid": 173300,
+      "evidence": [
+        173300
+      ]
+    },
+    {
+      "domain": "stubobcats.com",
+      "from_unitid": 174914,
+      "to_unitid": 137476,
+      "evidence": [
+        137476
+      ]
+    },
+    {
+      "domain": "pct.edu",
+      "from_unitid": 366252,
+      "to_unitid": 215062,
+      "evidence": [
+        215062
+      ]
+    },
+    {
+      "domain": "wvu.edu",
+      "from_unitid": 238032,
+      "to_unitid": 237950,
+      "evidence": [
+        237950
+      ]
+    },
+    {
+      "domain": "floridasports.com",
+      "from_unitid": 134130,
+      "to_unitid": 133881,
+      "evidence": [
+        133881
+      ]
+    },
+    {
+      "domain": "www.gosuffolkrams.com",
+      "from_unitid": 217864,
+      "to_unitid": 168005,
+      "evidence": [
+        168005
+      ]
+    }
+  ],
+  "name_canonicalizations": [
+    {
+      "unitid": 205443,
+      "variants": [
+        "Shawnee State",
+        "Shawnee State University"
+      ]
+    },
+    {
+      "unitid": 154590,
+      "variants": [
+        "William Penn",
+        "William Penn University"
+      ]
+    },
+    {
+      "unitid": 157216,
+      "variants": [
+        "Lindsey Wilson",
+        "Lindsey Wilson University"
+      ]
+    },
+    {
+      "unitid": 156541,
+      "variants": [
+        "Cumberlands",
+        "University of the Cumberlands"
+      ]
+    },
+    {
+      "unitid": 155520,
+      "variants": [
+        "MidAmerica Nazarene",
+        "MidAmerica Nazarene University"
+      ]
+    },
+    {
+      "unitid": 176947,
+      "variants": [
+        "Central Methodist",
+        "Central Methodist University"
+      ]
+    },
+    {
+      "unitid": 153375,
+      "variants": [
+        "Grand View",
+        "Grand View University"
+      ]
+    },
+    {
+      "unitid": 210146,
+      "variants": [
+        "Southern Oregon",
+        "Southern Oregon University"
+      ]
+    },
+    {
+      "unitid": 151801,
+      "variants": [
+        "Indiana Wesleyan",
+        "Indiana Wesleyan University"
+      ]
+    },
+    {
+      "unitid": 107141,
+      "variants": [
+        "John Brown",
+        "John Brown University"
+      ]
+    },
+    {
+      "unitid": 155627,
+      "variants": [
+        "Ottawa",
+        "Ottawa University"
+      ]
+    },
+    {
+      "unitid": 181330,
+      "variants": [
+        "Midland",
+        "Midland University"
+      ]
+    },
+    {
+      "unitid": 154004,
+      "variants": [
+        "Morningside",
+        "Morningside University"
+      ]
+    },
+    {
+      "unitid": 150677,
+      "variants": [
+        "Grace",
+        "Grace College"
+      ]
+    },
+    {
+      "unitid": 105899,
+      "variants": [
+        "Arizona Christian",
+        "Arizona Christian University"
+      ]
+    },
+    {
+      "unitid": 208646,
+      "variants": [
+        "Eastern Oregon",
+        "Eastern Oregon University"
+      ]
+    },
+    {
+      "unitid": 219718,
+      "variants": [
+        "Bethel (TN)",
+        "Bethel University (TN)"
+      ]
+    },
+    {
+      "unitid": 154688,
+      "variants": [
+        "Baker",
+        "Baker University"
+      ]
+    },
+    {
+      "unitid": 155414,
+      "variants": [
+        "Kansas Wesleyan",
+        "Kansas Wesleyan University"
+      ]
+    },
+    {
+      "unitid": 154013,
+      "variants": [
+        "Mount Mercy",
+        "Mount Mercy University"
+      ]
+    },
+    {
+      "unitid": 220215,
+      "variants": [
+        "Freed-Hardeman",
+        "Freed-Hardeman University"
+      ]
+    },
+    {
+      "unitid": 172334,
+      "variants": [
+        "Spring Arbor",
+        "Spring Arbor University"
+      ]
+    },
+    {
+      "unitid": 229780,
+      "variants": [
+        "Wayland Baptist",
+        "Wayland Baptist University"
+      ]
+    },
+    {
+      "unitid": 180595,
+      "variants": [
+        "Rocky Mountain",
+        "Rocky Mountain College"
+      ]
+    },
+    {
+      "unitid": 145372,
+      "variants": [
+        "Greenville",
+        "Greenville University"
+      ]
+    },
+    {
+      "unitid": 178244,
+      "variants": [
+        "Missouri Baptist",
+        "Missouri Baptist University"
+      ]
+    },
+    {
+      "unitid": 149505,
+      "variants": [
+        "Trinity Christian",
+        "Trinity Christian College"
+      ]
+    },
+    {
+      "unitid": 147828,
+      "variants": [
+        "Olivet Nazarene",
+        "Olivet Nazarene University"
+      ]
+    },
+    {
+      "unitid": 181127,
+      "variants": [
+        "Hastings",
+        "Hastings College"
+      ]
+    },
+    {
+      "unitid": 153250,
+      "variants": [
+        "Dordt",
+        "Dordt University"
+      ]
+    },
+    {
+      "unitid": 154518,
+      "variants": [
+        "Waldorf",
+        "Waldorf University"
+      ]
+    },
+    {
+      "unitid": 133979,
+      "variants": [
+        "Florida Memorial",
+        "Florida Memorial University"
+      ]
+    },
+    {
+      "unitid": 168148,
+      "variants": [
+        "Tufts",
+        "Tufts University"
+      ]
+    },
+    {
+      "unitid": 138293,
+      "variants": [
+        "Webber International",
+        "Webber International University"
+      ]
+    },
+    {
+      "unitid": 190761,
+      "variants": [
+        "Dominican College (NY)",
+        "Dominican (NY)"
+      ]
+    },
+    {
+      "unitid": 174844,
+      "variants": [
+        "Saint Olaf",
+        "St Olaf College"
+      ]
+    },
+    {
+      "unitid": 155973,
+      "variants": [
+        "Tabor",
+        "Tabor College"
+      ]
+    },
+    {
+      "unitid": 219091,
+      "variants": [
+        "Dakota Wesleyan",
+        "Dakota Wesleyan University"
+      ]
+    },
+    {
+      "unitid": 177339,
+      "variants": [
+        "Evangel",
+        "Evangel University"
+      ]
+    },
+    {
+      "unitid": 219790,
+      "variants": [
+        "Bryan",
+        "Bryan College"
+      ]
+    },
+    {
+      "unitid": 164465,
+      "variants": [
+        "Amherst",
+        "Amherst College"
+      ]
+    },
+    {
+      "unitid": 173647,
+      "variants": [
+        "Gustavus Adolphus",
+        "Gustavus Adolphus College"
+      ]
+    },
+    {
+      "unitid": 230959,
+      "variants": [
+        "Middlebury",
+        "Middlebury College"
+      ]
+    },
+    {
+      "unitid": 173045,
+      "variants": [
+        "Augsburg",
+        "Augsburg University"
+      ]
+    },
+    {
+      "unitid": 212009,
+      "variants": [
+        "Dickinson",
+        "Dickinson College"
+      ]
+    },
+    {
+      "unitid": 173902,
+      "variants": [
+        "Macalester",
+        "Macalester College"
+      ]
+    },
+    {
+      "unitid": 164580,
+      "variants": [
+        "Babson",
+        "Babson College"
+      ]
+    },
+    {
+      "unitid": 177542,
+      "variants": [
+        "Hannibal-LaGrange",
+        "Hannibal-LaGrange University"
+      ]
+    },
+    {
+      "unitid": 240268,
+      "variants": [
+        "Wisconsin-Eau Claire",
+        "University of Wisconsin-Eau Claire"
+      ]
+    },
+    {
+      "unitid": 139658,
+      "variants": [
+        "Emory",
+        "Emory University"
+      ]
+    },
+    {
+      "unitid": 169080,
+      "variants": [
+        "Calvin",
+        "Calvin University"
+      ]
+    },
+    {
+      "unitid": 173258,
+      "variants": [
+        "Carleton",
+        "Carleton College"
+      ]
+    },
+    {
+      "unitid": 185590,
+      "variants": [
+        "Montclair State",
+        "Montclair State University"
+      ]
+    },
+    {
+      "unitid": 161004,
+      "variants": [
+        "Bowdoin",
+        "Bowdoin College"
+      ]
+    },
+    {
+      "unitid": 150756,
+      "variants": [
+        "Hanover",
+        "Hanover College"
+      ]
+    },
+    {
+      "unitid": 162928,
+      "variants": [
+        "Johns Hopkins",
+        "Johns Hopkins University"
+      ]
+    },
+    {
+      "unitid": 213996,
+      "variants": [
+        "Messiah",
+        "Messiah University"
+      ]
+    },
+    {
+      "unitid": 168281,
+      "variants": [
+        "Wheaton (MA)",
+        "Wheaton College (MA)"
+      ]
+    },
+    {
+      "unitid": 170037,
+      "variants": [
+        "Cornerstone",
+        "Cornerstone University"
+      ]
+    },
+    {
+      "unitid": 236230,
+      "variants": [
+        "Pacific Lutheran",
+        "Pacific Lutheran University"
+      ]
+    },
+    {
+      "unitid": 240426,
+      "variants": [
+        "Wisconsin-Superior",
+        "University of Wisconsin-Superior"
+      ]
+    },
+    {
+      "unitid": 214175,
+      "variants": [
+        "Muhlenberg",
+        "Muhlenberg College"
+      ]
+    },
+    {
+      "unitid": 204185,
+      "variants": [
+        "Mount Union",
+        "University of Mount Union"
+      ]
+    },
+    {
+      "unitid": 168342,
+      "variants": [
+        "Williams",
+        "Williams College"
+      ]
+    },
+    {
+      "unitid": 202523,
+      "variants": [
+        "Denison",
+        "Denison University"
+      ]
+    },
+    {
+      "unitid": 157535,
+      "variants": [
+        "Pikeville",
+        "University of Pikeville"
+      ]
+    },
+    {
+      "unitid": 203535,
+      "variants": [
+        "Kenyon",
+        "Kenyon College"
+      ]
+    },
+    {
+      "unitid": 165024,
+      "variants": [
+        "Bridgewater State",
+        "Bridgewater State University"
+      ]
+    },
+    {
+      "unitid": 195030,
+      "variants": [
+        "Rochester",
+        "University of Rochester"
+      ]
+    },
+    {
+      "unitid": 154235,
+      "variants": [
+        "Saint Ambrose",
+        "Saint Ambrose University"
+      ]
+    },
+    {
+      "unitid": 155089,
+      "variants": [
+        "Friends",
+        "Friends University"
+      ]
+    },
+    {
+      "unitid": 150066,
+      "variants": [
+        "Anderson (IN)",
+        "Anderson University (IN)"
+      ]
+    },
+    {
+      "unitid": 211440,
+      "variants": [
+        "Carnegie Mellon",
+        "Carnegie Mellon University"
+      ]
+    },
+    {
+      "unitid": 240189,
+      "variants": [
+        "Wisconsin-Whitewater",
+        "University of Wisconsin-Whitewater"
+      ]
+    },
+    {
+      "unitid": 212805,
+      "variants": [
+        "Grove City",
+        "Grove City College"
+      ]
+    },
+    {
+      "unitid": 184782,
+      "variants": [
+        "Rowan",
+        "Rowan University"
+      ]
+    },
+    {
+      "unitid": 240365,
+      "variants": [
+        "Wisconsin-Oshkosh",
+        "University of Wisconsin-Oshkosh"
+      ]
+    },
+    {
+      "unitid": 212577,
+      "variants": [
+        "Franklin & Marshall",
+        "Franklin & Marshall College"
+      ]
+    },
+    {
+      "unitid": 204936,
+      "variants": [
+        "Otterbein",
+        "Otterbein University"
+      ]
+    },
+    {
+      "unitid": 237057,
+      "variants": [
+        "Whitman",
+        "Whitman College"
+      ]
+    },
+    {
+      "unitid": 143118,
+      "variants": [
+        "Aurora",
+        "Aurora University"
+      ]
+    },
+    {
+      "unitid": 201645,
+      "variants": [
+        "Case Western Reserve",
+        "Case Western Reserve University"
+      ]
+    },
+    {
+      "unitid": 170301,
+      "variants": [
+        "Hope",
+        "Hope College"
+      ]
+    },
+    {
+      "unitid": 147679,
+      "variants": [
+        "North Park",
+        "North Park University"
+      ]
+    },
+    {
+      "unitid": 178721,
+      "variants": [
+        "Park",
+        "Park University"
+      ]
+    },
+    {
+      "unitid": 217518,
+      "variants": [
+        "Roger Williams",
+        "Roger Williams University"
+      ]
+    },
+    {
+      "unitid": 153825,
+      "variants": [
+        "Loras",
+        "Loras College"
+      ]
+    },
+    {
+      "unitid": 139393,
+      "variants": [
+        "Covenant",
+        "Covenant College"
+      ]
+    },
+    {
+      "unitid": 231712,
+      "variants": [
+        "Christopher Newport",
+        "Christopher Newport University"
+      ]
+    },
+    {
+      "unitid": 215929,
+      "variants": [
+        "Scranton",
+        "University of Scranton"
+      ]
+    },
+    {
+      "unitid": 149781,
+      "variants": [
+        "Wheaton (IL)",
+        "Wheaton College (IL)"
+      ]
+    },
+    {
+      "unitid": 237181,
+      "variants": [
+        "Bethany (WV)",
+        "Bethany College (WV)"
+      ]
+    },
+    {
+      "unitid": 173142,
+      "variants": [
+        "Bethany Lutheran",
+        "Bethany Lutheran College"
+      ]
+    },
+    {
+      "unitid": 157377,
+      "variants": [
+        "Midway",
+        "Midway University"
+      ]
+    },
+    {
+      "unitid": 204635,
+      "variants": [
+        "Ohio Northern",
+        "Ohio Northern University"
+      ]
+    },
+    {
+      "unitid": 204909,
+      "variants": [
+        "Ohio Wesleyan",
+        "Ohio Wesleyan University"
+      ]
+    },
+    {
+      "unitid": 173160,
+      "variants": [
+        "Bethel (MN)",
+        "Bethel University (MN)"
+      ]
+    },
+    {
+      "unitid": 168005,
+      "variants": [
+        "Suffolk",
+        "Suffolk University"
+      ]
+    },
+    {
+      "unitid": 163912,
+      "variants": [
+        "St. Mary's College of Maryland",
+        "St Mary's College of Maryland"
+      ]
+    },
+    {
+      "unitid": 165015,
+      "variants": [
+        "Brandeis",
+        "Brandeis University"
+      ]
+    },
+    {
+      "unitid": 172264,
+      "variants": [
+        "Siena Heights",
+        "Siena Heights University"
+      ]
+    },
+    {
+      "unitid": 238661,
+      "variants": [
+        "Edgewood",
+        "Edgewood College"
+      ]
+    },
+    {
+      "unitid": 212674,
+      "variants": [
+        "Gettysburg",
+        "Gettysburg College"
+      ]
+    },
+    {
+      "unitid": 146481,
+      "variants": [
+        "Lake Forest",
+        "Lake Forest College"
+      ]
+    },
+    {
+      "unitid": 164270,
+      "variants": [
+        "McDaniel",
+        "McDaniel College"
+      ]
+    },
+    {
+      "unitid": 213507,
+      "variants": [
+        "Lebanon Valley",
+        "Lebanon Valley College"
+      ]
+    },
+    {
+      "unitid": 224004,
+      "variants": [
+        "Concordia Texas",
+        "Concordia University-Texas"
+      ]
+    },
+    {
+      "unitid": 203368,
+      "variants": [
+        "John Carroll",
+        "John Carroll University"
+      ]
+    },
+    {
+      "unitid": 173665,
+      "variants": [
+        "Hamline",
+        "Hamline University"
+      ]
+    },
+    {
+      "unitid": 154527,
+      "variants": [
+        "Wartburg",
+        "Wartburg College"
+      ]
+    },
+    {
+      "unitid": 193584,
+      "variants": [
+        "Nazareth",
+        "Nazareth University"
+      ]
+    },
+    {
+      "unitid": 150400,
+      "variants": [
+        "DePauw",
+        "DePauw University"
+      ]
+    },
+    {
+      "unitid": 186876,
+      "variants": [
+        "Stockton",
+        "Stockton University"
+      ]
+    },
+    {
+      "unitid": 175421,
+      "variants": [
+        "Belhaven",
+        "Belhaven University"
+      ]
+    },
+    {
+      "unitid": 216287,
+      "variants": [
+        "Swarthmore",
+        "Swarthmore College"
+      ]
+    },
+    {
+      "unitid": 145646,
+      "variants": [
+        "Illinois Wesleyan",
+        "Illinois Wesleyan University"
+      ]
+    },
+    {
+      "unitid": 179894,
+      "variants": [
+        "Webster",
+        "Webster University"
+      ]
+    },
+    {
+      "unitid": 221351,
+      "variants": [
+        "Rhodes",
+        "Rhodes College"
+      ]
+    },
+    {
+      "unitid": 165699,
+      "variants": [
+        "Endicott",
+        "Endicott College"
+      ]
+    },
+    {
+      "unitid": 487524,
+      "variants": [
+        "Husson",
+        "Husson University"
+      ]
+    },
+    {
+      "unitid": 190044,
+      "variants": [
+        "Clarkson",
+        "Clarkson University"
+      ]
+    },
+    {
+      "unitid": 212911,
+      "variants": [
+        "Haverford",
+        "Haverford College"
+      ]
+    },
+    {
+      "unitid": 111948,
+      "variants": [
+        "Chapman",
+        "Chapman University"
+      ]
+    },
+    {
+      "unitid": 150668,
+      "variants": [
+        "Goshen",
+        "Goshen College"
+      ]
+    },
+    {
+      "unitid": 204194,
+      "variants": [
+        "Mount Vernon Nazarene",
+        "Mount Vernon Nazarene University"
+      ]
+    },
+    {
+      "unitid": 184348,
+      "variants": [
+        "Drew",
+        "Drew University"
+      ]
+    },
+    {
+      "unitid": 213668,
+      "variants": [
+        "Lycoming",
+        "Lycoming College"
+      ]
+    },
+    {
+      "unitid": 212656,
+      "variants": [
+        "Geneva",
+        "Geneva College"
+      ]
+    },
+    {
+      "unitid": 179964,
+      "variants": [
+        "William Woods",
+        "William Woods University"
+      ]
+    },
+    {
+      "unitid": 213251,
+      "variants": [
+        "Juniata",
+        "Juniata College"
+      ]
+    },
+    {
+      "unitid": 181020,
+      "variants": [
+        "Doane",
+        "Doane University"
+      ]
+    },
+    {
+      "unitid": 168546,
+      "variants": [
+        "Albion",
+        "Albion College"
+      ]
+    },
+    {
+      "unitid": 237066,
+      "variants": [
+        "Whitworth",
+        "Whitworth University"
+      ]
+    },
+    {
+      "unitid": 140696,
+      "variants": [
+        "Oglethorpe",
+        "Oglethorpe University"
+      ]
+    },
+    {
+      "unitid": 239628,
+      "variants": [
+        "Ripon",
+        "Ripon College"
+      ]
+    },
+    {
+      "unitid": 161086,
+      "variants": [
+        "Colby",
+        "Colby College"
+      ]
+    },
+    {
+      "unitid": 195526,
+      "variants": [
+        "Skidmore",
+        "Skidmore College"
+      ]
+    },
+    {
+      "unitid": 199209,
+      "variants": [
+        "North Carolina Wesleyan",
+        "North Carolina Wesleyan University"
+      ]
+    },
+    {
+      "unitid": 192749,
+      "variants": [
+        "Manhattanville",
+        "Manhattanville University"
+      ]
+    },
+    {
+      "unitid": 191515,
+      "variants": [
+        "Hamilton",
+        "Hamilton College"
+      ]
+    },
+    {
+      "unitid": 206589,
+      "variants": [
+        "College of Wooster",
+        "The College of Wooster"
+      ]
+    },
+    {
+      "unitid": 186399,
+      "variants": [
+        "Rutgers-Newark",
+        "Rutgers University-Newark"
+      ]
+    },
+    {
+      "unitid": 190983,
+      "variants": [
+        "Elmira",
+        "Elmira College"
+      ]
+    },
+    {
+      "unitid": 233295,
+      "variants": [
+        "Randolph-Macon",
+        "Randolph-Macon College"
+      ]
+    },
+    {
+      "unitid": 215114,
+      "variants": [
+        "Cairn",
+        "Cairn University"
+      ]
+    },
+    {
+      "unitid": 216807,
+      "variants": [
+        "Westminster (PA)",
+        "Westminster College (PA)"
+      ]
+    },
+    {
+      "unitid": 165662,
+      "variants": [
+        "Emerson",
+        "Emerson College"
+      ]
+    },
+    {
+      "unitid": 198066,
+      "variants": [
+        "Brevard",
+        "Brevard College"
+      ]
+    },
+    {
+      "unitid": 211088,
+      "variants": [
+        "Arcadia",
+        "Arcadia University"
+      ]
+    },
+    {
+      "unitid": 156213,
+      "variants": [
+        "Asbury",
+        "Asbury University"
+      ]
+    },
+    {
+      "unitid": 217536,
+      "variants": [
+        "Salve Regina",
+        "Salve Regina University"
+      ]
+    },
+    {
+      "unitid": 198969,
+      "variants": [
+        "Methodist",
+        "Methodist University"
+      ]
+    },
+    {
+      "unitid": 225247,
+      "variants": [
+        "Hardin-Simmons",
+        "Hardin-Simmons University"
+      ]
+    },
+    {
+      "unitid": 214157,
+      "variants": [
+        "Moravian",
+        "Moravian University"
+      ]
+    },
+    {
+      "unitid": 236328,
+      "variants": [
+        "Puget Sound",
+        "University of Puget Sound"
+      ]
+    },
+    {
+      "unitid": 195720,
+      "variants": [
+        "Saint John Fisher",
+        "Saint John Fisher University"
+      ]
+    },
+    {
+      "unitid": 206525,
+      "variants": [
+        "Wittenberg",
+        "Wittenberg University"
+      ]
+    },
+    {
+      "unitid": 162654,
+      "variants": [
+        "Goucher",
+        "Goucher College"
+      ]
+    },
+    {
+      "unitid": 210775,
+      "variants": [
+        "Alvernia",
+        "Alvernia University"
+      ]
+    },
+    {
+      "unitid": 233426,
+      "variants": [
+        "Roanoke",
+        "Roanoke College"
+      ]
+    },
+    {
+      "unitid": 153384,
+      "variants": [
+        "Grinnell",
+        "Grinnell College"
+      ]
+    },
+    {
+      "unitid": 168263,
+      "variants": [
+        "Westfield State",
+        "Westfield State University"
+      ]
+    },
+    {
+      "unitid": 160977,
+      "variants": [
+        "Bates",
+        "Bates College"
+      ]
+    },
+    {
+      "unitid": 239017,
+      "variants": [
+        "Lawrence",
+        "Lawrence University"
+      ]
+    },
+    {
+      "unitid": 239716,
+      "variants": [
+        "St. Norbert",
+        "Saint Norbert College"
+      ]
+    },
+    {
+      "unitid": 168254,
+      "variants": [
+        "Western New England",
+        "Western New England University"
+      ]
+    },
+    {
+      "unitid": 216852,
+      "variants": [
+        "Widener",
+        "Widener University"
+      ]
+    },
+    {
+      "unitid": 151777,
+      "variants": [
+        "Manchester",
+        "Manchester University"
+      ]
+    },
+    {
+      "unitid": 213400,
+      "variants": [
+        "Lancaster Bible",
+        "Lancaster Bible College"
+      ]
+    },
+    {
+      "unitid": 186371,
+      "variants": [
+        "Rutgers-Camden",
+        "Rutgers University-Camden"
+      ]
+    },
+    {
+      "unitid": 216524,
+      "variants": [
+        "Ursinus",
+        "Ursinus College"
+      ]
+    },
+    {
+      "unitid": 163851,
+      "variants": [
+        "Salisbury",
+        "Salisbury University"
+      ]
+    },
+    {
+      "unitid": 216694,
+      "variants": [
+        "Waynesburg",
+        "Waynesburg University"
+      ]
+    },
+    {
+      "unitid": 211981,
+      "variants": [
+        "Delaware Valley",
+        "Delaware Valley University"
+      ]
+    },
+    {
+      "unitid": 196866,
+      "variants": [
+        "Union (NY)",
+        "Union College (NY)"
+      ]
+    },
+    {
+      "unitid": 167899,
+      "variants": [
+        "Springfield",
+        "Springfield College"
+      ]
+    },
+    {
+      "unitid": 226231,
+      "variants": [
+        "LeTourneau",
+        "LeTourneau University"
+      ]
+    },
+    {
+      "unitid": 107080,
+      "variants": [
+        "Hendrix",
+        "Hendrix College"
+      ]
+    },
+    {
+      "unitid": 238476,
+      "variants": [
+        "Carthage",
+        "Carthage College"
+      ]
+    },
+    {
+      "unitid": 240462,
+      "variants": [
+        "Wisconsin-Platteville",
+        "University of Wisconsin-Platteville"
+      ]
+    },
+    {
+      "unitid": 197045,
+      "variants": [
+        "Utica",
+        "Utica University"
+      ]
+    },
+    {
+      "unitid": 156408,
+      "variants": [
+        "Centre",
+        "Centre College"
+      ]
+    },
+    {
+      "unitid": 140234,
+      "variants": [
+        "LaGrange",
+        "LaGrange College"
+      ]
+    },
+    {
+      "unitid": 208822,
+      "variants": [
+        "George Fox",
+        "George Fox University"
+      ]
+    },
+    {
+      "unitid": 152567,
+      "variants": [
+        "Trine",
+        "Trine University"
+      ]
+    },
+    {
+      "unitid": 210739,
+      "variants": [
+        "DeSales",
+        "DeSales University"
+      ]
+    },
+    {
+      "unitid": 216667,
+      "variants": [
+        "Washington & Jefferson",
+        "Washington & Jefferson College"
+      ]
+    },
+    {
+      "unitid": 197708,
+      "variants": [
+        "Yeshiva",
+        "Yeshiva University"
+      ]
+    },
+    {
+      "unitid": 240329,
+      "variants": [
+        "Wisconsin-La Crosse",
+        "University of Wisconsin-La Crosse"
+      ]
+    },
+    {
+      "unitid": 191533,
+      "variants": [
+        "Hartwick",
+        "Hartwick College"
+      ]
+    },
+    {
+      "unitid": 176628,
+      "variants": [
+        "Avila",
+        "Avila University"
+      ]
+    },
+    {
+      "unitid": 185262,
+      "variants": [
+        "Kean",
+        "Kean University"
+      ]
+    },
+    {
+      "unitid": 224527,
+      "variants": [
+        "East Texas Baptist",
+        "East Texas Baptist University"
+      ]
+    },
+    {
+      "unitid": 201195,
+      "variants": [
+        "Baldwin Wallace",
+        "Baldwin Wallace University"
+      ]
+    },
+    {
+      "unitid": 215798,
+      "variants": [
+        "Saint Vincent",
+        "Saint Vincent College"
+      ]
+    },
+    {
+      "unitid": 210669,
+      "variants": [
+        "Allegheny",
+        "Allegheny College"
+      ]
+    },
+    {
+      "unitid": 232043,
+      "variants": [
+        "Eastern Mennonite",
+        "Eastern Mennonite University"
+      ]
+    },
+    {
+      "unitid": 233611,
+      "variants": [
+        "Southern Virginia",
+        "Southern Virginia University"
+      ]
+    },
+    {
+      "unitid": 164173,
+      "variants": [
+        "Stevenson",
+        "Stevenson University"
+      ]
+    },
+    {
+      "unitid": 189088,
+      "variants": [
+        "Bard",
+        "Bard College"
+      ]
+    },
+    {
+      "unitid": 231420,
+      "variants": [
+        "Averett",
+        "Averett University"
+      ]
+    },
+    {
+      "unitid": 213826,
+      "variants": [
+        "Marywood",
+        "Marywood University"
+      ]
+    },
+    {
+      "unitid": 162760,
+      "variants": [
+        "Hood",
+        "Hood College"
+      ]
+    },
+    {
+      "unitid": 201548,
+      "variants": [
+        "Capital",
+        "Capital University"
+      ]
+    },
+    {
+      "unitid": 185129,
+      "variants": [
+        "New Jersey City",
+        "New Jersey City University"
+      ]
+    },
+    {
+      "unitid": 212197,
+      "variants": [
+        "Elizabethtown",
+        "Elizabethtown College"
+      ]
+    },
+    {
+      "unitid": 165936,
+      "variants": [
+        "Gordon",
+        "Gordon College"
+      ]
+    },
+    {
+      "unitid": 165529,
+      "variants": [
+        "Curry",
+        "Curry College"
+      ]
+    },
+    {
+      "unitid": 210571,
+      "variants": [
+        "Albright",
+        "Albright College"
+      ]
+    },
+    {
+      "unitid": 211556,
+      "variants": [
+        "Chatham",
+        "Chatham University"
+      ]
+    },
+    {
+      "unitid": 138275,
+      "variants": [
+        "Warner",
+        "Warner University"
+      ]
+    },
+    {
+      "unitid": 144351,
+      "variants": [
+        "Concordia Chicago",
+        "Concordia University-Chicago"
+      ]
+    },
+    {
+      "unitid": 238616,
+      "variants": [
+        "Concordia Wisconsin",
+        "Concordia University-Wisconsin"
+      ]
+    },
+    {
+      "unitid": 147244,
+      "variants": [
+        "Millikin",
+        "Millikin University"
+      ]
+    },
+    {
+      "unitid": 170532,
+      "variants": [
+        "Kalamazoo",
+        "Kalamazoo College"
+      ]
+    },
+    {
+      "unitid": 144962,
+      "variants": [
+        "Elmhurst",
+        "Elmhurst University"
+      ]
+    },
+    {
+      "unitid": 168430,
+      "variants": [
+        "Worcester State",
+        "Worcester State University"
+      ]
+    },
+    {
+      "unitid": 167260,
+      "variants": [
+        "Nichols",
+        "Nichols College"
+      ]
+    },
+    {
+      "unitid": 216278,
+      "variants": [
+        "Susquehanna",
+        "Susquehanna University"
+      ]
+    },
+    {
+      "unitid": 168591,
+      "variants": [
+        "Alma",
+        "Alma College"
+      ]
+    },
+    {
+      "unitid": 213011,
+      "variants": [
+        "Immaculata",
+        "Immaculata University"
+      ]
+    },
+    {
+      "unitid": 239080,
+      "variants": [
+        "Marian (WI)",
+        "Marian University (WI)"
+      ]
+    },
+    {
+      "unitid": 156295,
+      "variants": [
+        "Berea",
+        "Berea College"
+      ]
+    },
+    {
+      "unitid": 203845,
+      "variants": [
+        "Marietta",
+        "Marietta College"
+      ]
+    },
+    {
+      "unitid": 240471,
+      "variants": [
+        "Wisconsin-River Falls",
+        "University of Wisconsin-River Falls"
+      ]
+    },
+    {
+      "unitid": 168528,
+      "variants": [
+        "Adrian",
+        "Adrian College"
+      ]
+    },
+    {
+      "unitid": 153144,
+      "variants": [
+        "Coe",
+        "Coe College"
+      ]
+    },
+    {
+      "unitid": 204501,
+      "variants": [
+        "Oberlin",
+        "Oberlin College"
+      ]
+    },
+    {
+      "unitid": 165820,
+      "variants": [
+        "Fitchburg State",
+        "Fitchburg State University"
+      ]
+    },
+    {
+      "unitid": 198598,
+      "variants": [
+        "Greensboro",
+        "Greensboro College"
+      ]
+    },
+    {
+      "unitid": 171599,
+      "variants": [
+        "Olivet",
+        "Olivet College"
+      ]
+    },
+    {
+      "unitid": 191621,
+      "variants": [
+        "Hilbert",
+        "Hilbert College"
+      ]
+    },
+    {
+      "unitid": 238980,
+      "variants": [
+        "Lakeland",
+        "Lakeland University"
+      ]
+    },
+    {
+      "unitid": 144971,
+      "variants": [
+        "Eureka",
+        "Eureka College"
+      ]
+    },
+    {
+      "unitid": 211477,
+      "variants": [
+        "Central Penn",
+        "Central Penn College"
+      ]
+    },
+    {
+      "unitid": 143288,
+      "variants": [
+        "Blackburn",
+        "Blackburn College"
+      ]
+    },
+    {
+      "unitid": 238333,
+      "variants": [
+        "Beloit",
+        "Beloit College"
+      ]
+    },
+    {
+      "unitid": 203128,
+      "variants": [
+        "Hiram",
+        "Hiram College"
+      ]
+    },
+    {
+      "unitid": 150455,
+      "variants": [
+        "Earlham",
+        "Earlham College"
+      ]
+    },
+    {
+      "unitid": 204264,
+      "variants": [
+        "Muskingum",
+        "Muskingum University"
+      ]
+    },
+    {
+      "unitid": 213303,
+      "variants": [
+        "Keystone",
+        "Keystone College"
+      ]
+    },
+    {
+      "unitid": 175980,
+      "variants": [
+        "Millsaps",
+        "Millsaps College"
+      ]
+    },
+    {
+      "unitid": 216931,
+      "variants": [
+        "Wilkes",
+        "Wilkes University"
+      ]
+    },
+    {
+      "unitid": 191676,
+      "variants": [
+        "Houghton",
+        "Houghton University"
+      ]
+    },
+    {
+      "unitid": 153001,
+      "variants": [
+        "Buena Vista",
+        "Buena Vista University"
+      ]
+    },
+    {
+      "unitid": 204200,
+      "variants": [
+        "Mount St. Joseph",
+        "Mount St. Joseph University"
+      ]
+    },
+    {
+      "unitid": 212832,
+      "variants": [
+        "Gwynedd Mercy",
+        "Gwynedd Mercy University"
+      ]
+    },
+    {
+      "unitid": 226587,
+      "variants": [
+        "McMurry",
+        "McMurry University"
+      ]
+    },
+    {
+      "unitid": 198613,
+      "variants": [
+        "Guilford",
+        "Guilford College"
+      ]
+    },
+    {
+      "unitid": 174899,
+      "variants": [
+        "St. Scholastica",
+        "The College of St. Scholastica"
+      ]
+    },
+    {
+      "unitid": 213358,
+      "variants": [
+        "La Roche",
+        "La Roche University"
+      ]
+    },
+    {
+      "unitid": 165866,
+      "variants": [
+        "Framingham State",
+        "Framingham State University"
+      ]
+    },
+    {
+      "unitid": 218821,
+      "variants": [
+        "Spartanburg Methodist",
+        "Spartanburg Methodist College"
+      ]
+    },
+    {
+      "unitid": 101435,
+      "variants": [
+        "Huntingdon",
+        "Huntingdon College"
+      ]
+    },
+    {
+      "unitid": 209065,
+      "variants": [
+        "Linfield",
+        "Linfield University"
+      ]
+    },
+    {
+      "unitid": 157100,
+      "variants": [
+        "Kentucky Christian",
+        "Kentucky Christian University"
+      ]
+    },
+    {
+      "unitid": 165574,
+      "variants": [
+        "Dean College",
+        "Dean"
+      ]
+    },
+    {
+      "unitid": 150604,
+      "variants": [
+        "Franklin",
+        "Franklin College"
+      ]
+    },
+    {
+      "unitid": 225548,
+      "variants": [
+        "Howard Payne",
+        "Howard Payne University"
+      ]
+    },
+    {
+      "unitid": 166452,
+      "variants": [
+        "Lesley",
+        "Lesley University"
+      ]
+    },
+    {
+      "unitid": 153834,
+      "variants": [
+        "Luther",
+        "Luther College"
+      ]
+    },
+    {
+      "unitid": 173452,
+      "variants": [
+        "Martin Luther",
+        "Martin Luther College"
+      ]
+    },
+    {
+      "unitid": 232672,
+      "variants": [
+        "Mary Baldwin",
+        "Mary Baldwin University"
+      ]
+    },
+    {
+      "unitid": 211431,
+      "variants": [
+        "Carlow",
+        "Carlow University"
+      ]
+    },
+    {
+      "unitid": 240417,
+      "variants": [
+        "Wisconsin-Stout",
+        "University of Wisconsin-Stout"
+      ]
+    },
+    {
+      "unitid": 203085,
+      "variants": [
+        "Heidelberg",
+        "Heidelberg University"
+      ]
+    },
+    {
+      "unitid": 192192,
+      "variants": [
+        "Keuka",
+        "Keuka College"
+      ]
+    },
+    {
+      "unitid": 164492,
+      "variants": [
+        "Anna Maria",
+        "Anna Maria College"
+      ]
+    },
+    {
+      "unitid": 139144,
+      "variants": [
+        "Berry",
+        "Berry College"
+      ]
+    },
+    {
+      "unitid": 201371,
+      "variants": [
+        "Bluffton",
+        "Bluffton University"
+      ]
+    },
+    {
+      "unitid": 191968,
+      "variants": [
+        "Ithaca",
+        "Ithaca College"
+      ]
+    },
+    {
+      "unitid": 445708,
+      "variants": [
+        "Johnson & Wales (Charlotte)",
+        "Johnson & Wales University-Charlotte"
+      ]
+    },
+    {
+      "unitid": 217235,
+      "variants": [
+        "Johnson & Wales (Providence)",
+        "Johnson & Wales University-Providence"
+      ]
+    },
+    {
+      "unitid": 146427,
+      "variants": [
+        "Knox",
+        "Knox College"
+      ]
+    },
+    {
+      "unitid": 209056,
+      "variants": [
+        "Lewis & Clark",
+        "Lewis & Clark College"
+      ]
+    },
+    {
+      "unitid": 195216,
+      "variants": [
+        "Saint Lawrence",
+        "St Lawrence University"
+      ]
+    },
+    {
+      "unitid": 233541,
+      "variants": [
+        "Shenandoah",
+        "Shenandoah University"
+      ]
+    },
+    {
+      "unitid": 179946,
+      "variants": [
+        "Westminster (MO)",
+        "Westminster University (MO)"
+      ]
+    },
+    {
+      "unitid": 240480,
+      "variants": [
+        "Wisconsin-Stevens Point",
+        "University of Wisconsin-Stevens Point"
+      ]
+    },
+    {
+      "unitid": 150145,
+      "variants": [
+        "Bethel (IN)",
+        "Bethel University (IN)"
+      ]
+    },
+    {
+      "unitid": 153126,
+      "variants": [
+        "Clarke",
+        "Clarke University"
+      ]
+    },
+    {
+      "unitid": 177065,
+      "variants": [
+        "Columbia (MO)",
+        "Columbia College (MO)"
+      ]
+    },
+    {
+      "unitid": 152530,
+      "variants": [
+        "Taylor",
+        "Taylor University"
+      ]
+    },
+    {
+      "unitid": 129525,
+      "variants": [
+        "University of Hartford",
+        "Hartford"
+      ]
+    },
+    {
+      "unitid": 150941,
+      "variants": [
+        "Huntington University",
+        "Huntington"
+      ]
+    }
+  ]
+}

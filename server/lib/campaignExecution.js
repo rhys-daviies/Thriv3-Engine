@@ -1,8 +1,14 @@
 import { getCampaign, listProgrammeCampaigns } from './campaigns.js';
 import {
-  programmePursuitPlan, PURSUIT_ACTION, PURSUIT_REASON, FOLLOW_UP_DELAY_DAYS,
+  programmePursuitPlan, PURSUIT_ACTION, PURSUIT_REASON,
   contactAttemptPreparation,
 } from './pursuitPolicy.js';
+/**
+ * MOVED OUT IN D4.8 and imported rather than kept here: the execution claim now
+ * refuses an early follow-up, so the rule has two callers, and a rule with two
+ * implementations eventually becomes two rules.
+ */
+import { followUpTiming } from './followUpTiming.js';
 import { currentMessagesForAttempts } from './programmeMessages.js';
 import { utcToday } from './time.js';
 import { OUTLOOK_FROM_ADDRESS } from './config.js';
@@ -124,53 +130,13 @@ export const ACTION_CLASS = Object.freeze({
 const CLASS_ORDER = Object.freeze({ FIRST_CONTACT: 0, FOLLOW_UP: 1, NEXT_COACH: 2 });
 const TIER_ORDER = Object.freeze({ A: 0, B: 1, C: 2 });
 
-const day = (value) => (value ? String(value).slice(0, 10) : null);
-
-/** A date-only shift, in calendar days. No calendar, no timezone, no clock. */
-function addDays(isoDate, days) {
-  const t = Date.parse(`${isoDate}T00:00:00.000Z`);
-  if (Number.isNaN(t)) return null;
-  return new Date(t + days * 86_400_000).toISOString().slice(0, 10);
-}
+/* `day` and `addDays` moved to pursuitPolicy with `followUpTiming` in D4.8 —
+   they existed only to serve it. */
 
 /* -------------------------------------------------------------------------- */
 /* One programme                                                               */
 /* -------------------------------------------------------------------------- */
 
-/**
- * WHEN A FOLLOW-UP BECOMES ELIGIBLE, as a DATE and never as an instant.
- *
- * The only trustworthy execution timestamp in the build is `outreach_send.sent_at`
- * on the accepted message, which B6 reports as `lastAcceptedAt`. Four policy
- * days after the date of that message, the follow-up may be considered. That is
- * a date because everything it is compared against — `onDate`, the campaign's
- * own boundaries — is a date; resolving it to an instant would need a timezone
- * that nothing in this build has.
- *
- * A MISSING TIMESTAMP IS NOT "DUE NOW". An accepted message with no `sent_at`
- * cannot be produced by `acceptSend`, but if one is ever met the honest answer
- * is that we do not know when the clock started — so it becomes a person's
- * problem rather than a message.
- */
-function followUpTiming(coach, onDate) {
-  const sentOn = day(coach?.lastAcceptedAt);
-  if (!sentOn) {
-    return {
-      policyEligibleOn: null,
-      due: false,
-      unresolved: true,
-    };
-  }
-  const eligibleOn = addDays(sentOn, FOLLOW_UP_DELAY_DAYS);
-  return {
-    policyEligibleOn: eligibleOn,
-    // Inclusive: the fourth day IS the day it becomes eligible, not the day
-    // before it does. Stated because an off-by-one here is a follow-up that
-    // goes out three days after the first message.
-    due: Boolean(eligibleOn) && onDate >= eligibleOn,
-    unresolved: false,
-  };
-}
 
 /**
  * THE TWO STEP TRUTHS, COMPARED RATHER THAN CHOSEN BETWEEN.

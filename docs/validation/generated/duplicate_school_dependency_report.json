@@ -1,0 +1,118 @@
+[
+ {
+  "table": "players",
+  "school_columns": [
+   "high_school"
+  ],
+  "rows": 4
+ },
+ {
+  "table": "colleges",
+  "school_columns": [
+   "name"
+  ],
+  "rows": 2404
+ },
+ {
+  "table": "graduating_seniors",
+  "school_columns": [
+   "college_name"
+  ],
+  "rows": 2110
+ },
+ {
+  "table": "coaches",
+  "school_columns": [
+   "school"
+  ],
+  "rows": 6347
+ },
+ {
+  "table": "roster_players",
+  "school_columns": [
+   "college_name"
+  ],
+  "rows": 281159
+ },
+ {
+  "table": "coach_seasons",
+  "school_columns": [
+   "school"
+  ],
+  "rows": 8595
+ },
+ {
+  "table": "outreach_evidence",
+  "school_columns": [
+   "college_name"
+  ],
+  "rows": 26
+ },
+ {
+  "table": "programme_seasons",
+  "school_columns": [
+   "college_id",
+   "source_record_name"
+  ],
+  "rows": 8685
+ },
+ {
+  "table": "programme_conference_seasons",
+  "school_columns": [
+   "college_id"
+  ],
+  "rows": 7219
+ },
+ {
+  "table": "generated_reports",
+  "school_columns": [
+   "college_id",
+   "college_name"
+  ],
+  "rows": 0
+ },
+ {
+  "table": "outreach_send",
+  "school_columns": [
+   "college_name"
+  ],
+  "rows": 41
+ },
+ {
+  "table": "programme_campaigns",
+  "school_columns": [
+   "college_name",
+   "college_id"
+  ],
+  "rows": 0
+ },
+ {
+  "table": "athlete_programmes",
+  "school_columns": [
+   "college_name",
+   "college_id"
+  ],
+  "rows": 0
+ },
+ {
+  "table": "roster_gap_reviews",
+  "school_columns": [
+   "school"
+  ],
+  "rows": 7
+ },
+ {
+  "table": "programme_status",
+  "school_columns": [
+   "school"
+  ],
+  "rows": 6
+ },
+ {
+  "table": "roster_season_trust",
+  "school_columns": [
+   "college_name"
+  ],
+  "rows": 15
+ }
+]

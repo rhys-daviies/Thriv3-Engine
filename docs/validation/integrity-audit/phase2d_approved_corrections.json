@@ -1,0 +1,163 @@
+[
+  {
+    "domain": "andersonuniversity.edu",
+    "old_unitid": 150066,
+    "new_unitid": 217633,
+    "verified_institution": "Anderson University, Anderson, South Carolina",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "ccis.edu",
+    "old_unitid": 190150,
+    "new_unitid": 177065,
+    "verified_institution": "Columbia College, Columbia, Missouri",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "columbiacougars.com",
+    "old_unitid": 190150,
+    "new_unitid": 177065,
+    "verified_institution": "Columbia College, Columbia, Missouri (Cougars, NAIA / American Midwest Conference)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "columbiasc.edu",
+    "old_unitid": 190150,
+    "new_unitid": 217934,
+    "verified_institution": "Columbia College, Columbia, South Carolina",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "gocobbers.com",
+    "old_unitid": 217864,
+    "new_unitid": 173300,
+    "verified_institution": "Concordia College at Moorhead, MN (self-IDs 'Official Athletic Website for Concordia Moorhead'; 'Cobbers' nickname is unique to Concordia Moorhead; NCAA DIII, MIAC)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "hcc-nd.edu",
+    "old_unitid": 166124,
+    "new_unitid": 150774,
+    "verified_institution": "Holy Cross College, Notre Dame, IN (P.O. Box 308, Notre Dame IN 46556)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "lmunet.edu",
+    "old_unitid": 117946,
+    "new_unitid": 220631,
+    "verified_institution": "Lincoln Memorial University (LMU), Harrogate, TN",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "maryville.edu",
+    "old_unitid": 179159,
+    "new_unitid": 178059,
+    "verified_institution": "Maryville University of St. Louis, Missouri. Distinct from Maryville College, Tennessee (UnitID 220710).",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "nwciowa.edu",
+    "old_unitid": 147767,
+    "new_unitid": 154101,
+    "verified_institution": "Northwestern College, Orange City, Iowa (Christian college, Raiders/Red Raiders, NAIA)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "nwcraiders.com",
+    "old_unitid": 147767,
+    "new_unitid": 154101,
+    "verified_institution": "Northwestern College, Orange City, Iowa (athletics site footer '(c) Northwestern College Red Raiders, Orange City, Iowa'; NAIA)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "pnw.edu",
+    "old_unitid": 243780,
+    "new_unitid": 490805,
+    "verified_institution": "Purdue University Northwest (Hammond & Westville, IN)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "redstormsports.com",
+    "old_unitid": 195720,
+    "new_unitid": 195809,
+    "verified_institution": "St. John's University Athletics, Queens, NY (Red Storm)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "stjohns.edu",
+    "old_unitid": 193900,
+    "new_unitid": 195809,
+    "verified_institution": "St. John's University, Queens, NY (Catholic/Vincentian; Red Storm)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "stu.edu",
+    "old_unitid": 174914,
+    "new_unitid": 137476,
+    "verified_institution": "St. Thomas University, Miami Gardens, FL (Bobcats, Catholic, NAIA)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "stubobcats.com",
+    "old_unitid": 174914,
+    "new_unitid": 137476,
+    "verified_institution": "St. Thomas University Athletics, Miami Gardens, FL (Bobcats)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "tommiesports.com",
+    "old_unitid": 227863,
+    "new_unitid": 174914,
+    "verified_institution": "University of St. Thomas, St. Paul/Minneapolis, MN (Tommies, D1 Summit League)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "uconn.edu",
+    "old_unitid": 128902,
+    "new_unitid": 129020,
+    "verified_institution": "University of Connecticut (Storrs, CT; Huskies)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "uconnhuskies.com",
+    "old_unitid": 128902,
+    "new_unitid": 129020,
+    "verified_institution": "University of Connecticut (official athletics site self-IDs as 'University of Connecticut Athletics', Huskies)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "umassathletics.com",
+    "old_unitid": 166692,
+    "new_unitid": 166629,
+    "verified_institution": "University of Massachusetts Amherst (Minutemen/Minutewomen; UMass Amherst flagship, Amherst MA)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "westminster-mo.edu",
+    "old_unitid": 216807,
+    "new_unitid": 179946,
+    "verified_institution": "Westminster College, Fulton, Missouri",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "westminstergriffins.com",
+    "old_unitid": 179946,
+    "new_unitid": 230807,
+    "verified_institution": "Westminster University, Salt Lake City, Utah (Griffins)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "westminsteru.edu",
+    "old_unitid": 179946,
+    "new_unitid": 230807,
+    "verified_institution": "Westminster University, Salt Lake City, Utah",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  },
+  {
+    "domain": "www.gosuffolkrams.com",
+    "old_unitid": 217864,
+    "new_unitid": 168005,
+    "verified_institution": "Suffolk University, Boston, MA (self-IDs 'The Official Athletics Site of Suffolk University'; Rams; NCAA DIII, GNAC)",
+    "provenance": "Phase 2C external ground-truth (site self-ID + NCES/IPEDS)"
+  }
+]

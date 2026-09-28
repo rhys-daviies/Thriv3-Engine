@@ -8,6 +8,8 @@ const columns = [
   'projected_games_started', 'projected_games_played', 'projected_games_season',
   'prior_programme',
   'source_stats_url', 'source_roster_url', 'data_confidence', 'notes',
+  // L7Z acquisition provenance. See ROSTER_PLAYER_COLUMNS in server/db/migrate.js.
+  'source_page_season', 'source_fetched_at', 'source_parser',
 ];
 
 export const RosterPlayer = createEntity('roster_players', columns, []);

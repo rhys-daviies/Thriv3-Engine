@@ -65,6 +65,49 @@ const ALLOWED = new Map([
   // which the test below asserts rather than assumes.
   ['server/seed/seedEngagement.js', 'local engagement fixtures'],
   ['server/seed/simulateEngagement.js', 'local engagement fixtures'],
+  /**
+   * R2B — THE ONE LEGITIMATE mailto, AND WHY IT IS NOT THE BYPASS THIS FILE
+   * WAS WRITTEN AGAINST.
+   *
+   * =======================================================================
+   * THE 2026-08-28 BYPASS WAS A RAW LINK BESIDE A COACH ADDRESS ON A CARD.
+   * It reached a coach's inbox WITHOUT passing suppression, the per-inbox
+   * cap, the compliance footer, the tracking token or any record at all —
+   * which is why an opted-out coach could be written to again and the
+   * engagement data would show them as never contacted.
+   *
+   * This one is the opposite of that in every respect that matters. It is
+   * built by the SERVER, at the END of `sendOutreach`, downstream of every
+   * one of those guards, from a DRAFT that has already been persisted and
+   * whose digest it is checked against. The recipient is refused outright if
+   * it carries a character that is structural in a URI. And it carries no
+   * body: the operator pastes one that came from the same row.
+   *
+   * SO THE ALLOWLIST IS NOT THE WHOLE PROTECTION. The test below requires
+   * that the URL is CONSTRUCTED in exactly one file, so a second `mailto:`
+   * appearing anywhere — including inside these allowed files — still fails.
+   * =======================================================================
+   */
+  ['server/lib/emailHandoff.js', 'R2B: the one governed mailto, built after every guard'],
+  ['server/lib/emailHandoff.test.js', 'proves what that URL may and may not carry'],
+  // Receives a finished URL and navigates to it. Constructs nothing — which
+  // the construction test below is what actually enforces.
+  ['src/lib/emailHandoff.js', 'R2B: navigates to the server\u2019s URL, builds none'],
+  ['src/components/emailHandoff.test.js', 'proves the client builds no URL of its own'],
+  /**
+   * R2C.1 added this file and did not add it here, so this guard has been
+   * failing on main since PR #37 — which means the one test standing between
+   * the product and a second coach-contact path has not been protecting
+   * anything. The escape is instructive: that slice was frontend-only and
+   * correctly did not re-run the backend suite, and an allowlist in a server
+   * test is exactly the thing a frontend change cannot see itself break.
+   *
+   * The file's only `mailto:` is at line 61, inside `handoffFor()` — a test
+   * double fabricating the shape the SERVER returns so the component can be
+   * rendered without one. It builds no URL the product uses, and nothing
+   * imports it.
+   */
+  ['src/components/bulkHandoff.test.js', 'fixture handoffs; the construction tests below are the guard'],
 ]);
 
 const allowed = (f) => ALLOWED.has(f);
@@ -100,6 +143,47 @@ describe('there is exactly one coach-contact path', () => {
     expect(offenders).toEqual([]);
   });
 
+  /**
+   * THE TEETH THE ALLOWLIST WOULD OTHERWISE REMOVE — R2B.
+   *
+   * `mailto:` is now permitted in four files, so the line scan above no
+   * longer catches a second one appearing inside them. This asserts the
+   * property that actually matters: a URL is BUILT from a coach address in
+   * exactly one place, and that place is a server module running after every
+   * guard.
+   *
+   * Same exclusions as the scan above, for the same reasons. The athlete's
+   * own people are mail links on their own profile and always were; Thriv3's
+   * opt-out address is a CAN-SPAM obligation. Neither is coach outreach.
+   *
+   * A construction anywhere else — a component, a hook, a worker, a script —
+   * fails here whatever the allowlist says.
+   */
+  const ATHLETE_CONTACT_LINE = /(athlete|player|guardian|club_coach|contactEmail)/i;
+  const BUILDS_MAILTO = /(`|'|")mailto:[^'"`]*\$\{|(`|'|")mailto:['"`]\s*\+/;
+
+  const linesBuildingMailto = (f) => read(f).split('\n')
+    .filter((line) => BUILDS_MAILTO.test(line) && !ATHLETE_CONTACT_LINE.test(line));
+
+  it('builds a mailto: URL from a coach address in exactly one governed file', () => {
+    const builders = FILES.filter((f) => (
+      !f.endsWith('.test.js') && linesBuildingMailto(f).length > 0
+    ));
+    expect(builders).toEqual(['server/lib/emailHandoff.js']);
+  });
+
+  /**
+   * And the client builds none at all. It is handed a finished URL and
+   * navigates to it — the courier property, asserted as source text because
+   * the failure mode is a new file nobody wired into a test.
+   */
+  it('builds no coach mailto: anywhere under src/', () => {
+    const offenders = FILES.filter((f) => (
+      f.startsWith('src/') && !f.endsWith('.test.js') && linesBuildingMailto(f).length > 0
+    ));
+    expect(offenders).toEqual([]);
+  });
+
   it('routes every Outlook compose through sendOutreach', () => {
     const callers = FILES.filter((f) => (
       /composeInOutlook\s*\(/.test(read(f))
@@ -109,14 +193,46 @@ describe('there is exactly one coach-contact path', () => {
     expect(callers).toEqual(['server/routes/sendOutreach.js']);
   });
 
-  it('creates outreach records in exactly one place', () => {
+  /**
+   * TWO PATHS NOW OPEN A RELATIONSHIP, AND BOTH ARE GOVERNED — D4.5.
+   *
+   * This asserted ONE file, and the reason was never the number: it was that
+   * every path to a coach must carry suppression, the per-inbox cap, the
+   * tracking token and the campaign gates. `sendOutreach` is the legacy
+   * AppleScript path. `executionClaim` is the provider execution claim, and it
+   * was built to carry exactly those guarantees — which the test below now
+   * requires of it rather than taking on trust.
+   *
+   * The list is named and closed. A third file appearing here still fails, and
+   * a second path that skipped a guard would fail the companion test even if
+   * somebody added it to this list.
+   */
+  const CONTACT_PATHS = ['server/lib/executionClaim.js', 'server/routes/sendOutreach.js'];
+
+  it('creates outreach records in exactly two governed places', () => {
     const callers = FILES.filter((f) => (
       /createOutreach\s*\(/.test(read(f))
       && !f.endsWith('lib/outreach.js')
       && !f.endsWith('.test.js')
       && !allowed(f)
     ));
-    expect(callers).toEqual(['server/routes/sendOutreach.js']);
+    expect(callers.sort()).toEqual(CONTACT_PATHS);
+  });
+
+  it('makes every contact path carry the guarantees the single one carried', () => {
+    /**
+     * The assertion that keeps the list above honest. A path that opens a
+     * relationship with a coach must check the global suppression list and the
+     * per-inbox cap; without both, an opted-out coach can be written to again
+     * and a popular programme's head coach can be written to by five athletes
+     * in a fortnight. Named by symbol rather than by behaviour because this
+     * file scans source text — the behavioural proof is each path's own suite.
+     */
+    for (const f of CONTACT_PATHS) {
+      const src = read(f);
+      expect(src, `${f} must consult the suppression list`).toMatch(/isSuppressed|campaignContactDecision/);
+      expect(src, `${f} must consult the per-inbox send cap`).toMatch(/isSendCapped/);
+    }
   });
 
   /**

@@ -1,0 +1,67 @@
+{
+  "built_at": "2026-09-27T00:26:16.119Z",
+  "note": "Phase 6B J1 — confirmed discontinued/closed/merged current-status changes (active=0). Valley Forge EXCLUDED (re-proof found ACTIVE). History preserved.",
+  "count": 6,
+  "entries": [
+    {
+      "programme_id": "a3fa33f9-0323-4774-a485-e7daf1082673",
+      "expect_name": "Concordia (MI)",
+      "expect_active": 1,
+      "new_active": 0,
+      "verdict": "DISCONTINUED_CONFIRMED",
+      "reason": "Concordia Univ. Ann Arbor dropped all athletics after 2024-25",
+      "evidence_url": "https://www.cbsnews.com/detroit/news/concordia-university-ann-arbor-discontinuing-all-sports-programs",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "2549aab5-b0d8-4119-b47e-5f64ab4e0634",
+      "expect_name": "Ozarks (MO)",
+      "expect_active": 1,
+      "new_active": 0,
+      "verdict": "DISCONTINUED_CONFIRMED",
+      "reason": "College of the Ozarks sponsors no men's soccer (phantom programme row)",
+      "evidence_url": "https://bobcats.cofo.edu/Teams",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "c3cad736-19a0-4905-8c2e-b9c39935f8be",
+      "expect_name": "Iowa Wesleyan",
+      "expect_active": 1,
+      "new_active": 0,
+      "verdict": "INSTITUTION_CLOSED",
+      "reason": "Iowa Wesleyan University ceased operations end of 2022-23",
+      "evidence_url": "https://www.iw.edu/iowa-wesleyan-university-announces-closure/",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "41b96f70-57be-4e82-8990-b3d500fec39c",
+      "expect_name": "Southwest Minnesota State",
+      "expect_active": 1,
+      "new_active": 0,
+      "verdict": "DISCONTINUED_CONFIRMED",
+      "reason": "SMSU fields women's soccer only; NSIC does not sponsor men's soccer (data artifact)",
+      "evidence_url": "https://smsumustangs.com/sports/mens-soccer",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "c8cfc2de-8003-4bcf-9538-a72d59436647",
+      "expect_name": "Siena Heights",
+      "expect_active": 1,
+      "new_active": 0,
+      "verdict": "INSTITUTION_CLOSED",
+      "reason": "Siena Heights University closing after 2025-26 (final season now)",
+      "evidence_url": "https://www.crescent-news.com/push/siena-heights-to-close-after-2025-26-school-year/article_ff2d6a34-84d5-4234-8bb8-1ef0d0aa5967.html",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "51b62824-865b-45b6-8c7a-35790b8f75d4",
+      "expect_name": "New Jersey City",
+      "expect_active": 1,
+      "new_active": 0,
+      "verdict": "PROGRAMME_MERGED",
+      "reason": "NJCU merged into Kean (Kean Jersey City); D3 men's soccer terminated end of 2025-26. History preserved under NJCU unitid 185129; NOT folded into Kean.",
+      "evidence_url": "https://www.d3sports.com/notables/2026/01/kean-to-absorb-njcu-athletics",
+      "checked_at": "2026-09-27"
+    }
+  ]
+}

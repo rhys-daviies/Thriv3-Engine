@@ -34,16 +34,38 @@
     "outcome": {
       "EMAIL_BODY": "a756b5a0e877581794880f5a04ff0f81fe57b9800695899ab54b0d7da06dd41b -> 54a718f9aa8f2ab1e7ba84969096efd0b5d225cb636c0fa44235c5ef2c0129d5  (the orphaned pin, replaced)",
       "otherFive": "unchanged — OUTBOUND_DECISION, COACH_COMPOSITION, OPERATOR_WIRE, LOG_PAYLOAD, OPERATOR_EVIDENCE all re-pinned to the identical digests they already held."
+    },
+    "supersededBy": {
+      "event": "MANIFEST V2 -> V3 (main) and V3 -> V7 (L8B-3). The reset above is main-side history and is kept because it is why every column is fingerprinted at all.",
+      "note": "The six digests in this file are NOT the ones named in `outcome` below. Those were taken on main, under V3, against main's own snapshot. The pins here were taken PRE-MERGE on the L8B-2 pinned acceptance corpus, whose V7 identity is recorded in `manifest.digest`, and they are what the merged tree is accepted against."
+    },
+    "l8b3Repin": {
+      "event": "L8B-3 merge of the Evidence branch into main 9a18d78, accepted on the pinned corpus 8bb808b66db9ee3b.",
+      "corpusMoved": "NO. Identical V7 digest and identical per-table digests before and after, so this is code movement only.",
+      "emailsMoved": "NO. EMAIL_BODY and COACH_COMPOSITION are byte-identical across 4,742 pairs and were NOT repinned.",
+      "repinned": {
+        "OUTBOUND_DECISION": "cf1e7968 -> dd49dadd, 183 pairs. Only REMOVALS of NOT_LICENSED dispositions for kinds main no longer generates. A NOT_LICENSED claim was never permitted in an email, which is why no email moved.",
+        "OPERATOR_WIRE": "8d502959 -> 9af185f0, 217 pairs: the 183 above plus internal[] content from the same causes. It was 2,311 before the previouslyUsed defect below was fixed.",
+        "LOG_PAYLOAD": "37544f26 -> 6c1c2454, 3,315 pairs. 2,722 gain ladder contributions[] (9b700db); the pool percentiles move (9c0a036).",
+        "OPERATOR_EVIDENCE": "7ca0e350 -> cdc14d31, 2,802 pairs. The same causes surfaced in the operator sections."
+      },
+      "causes": {
+        "9c0a036": "\"A season nobody read is not a season nobody played.\" Programme-seasons whose stats page was never read stop counting as measured zeros. Every one of 2,720 pool movements is SMALLER (770 -> 736 seasons); none is larger. Movement is uniformly toward refusal.",
+        "2555ff7 + 655dfc0": "tenureFor accepted any name in the coach row, so a strength coach or a department became the head coach. 35 pairs across 16 programmes lose COACH_CONTEXT — e.g. Elms was filed under a coach named \"Sports Management\".",
+        "241fadc": "Surface prior evidence use in manual outreach. The additive previouslyUsed field was spread UNCONDITIONALLY, so every finding of every caller that never asked for history carried previouslyUsed: null. `evidenceSummaries` promises the opposite in its own comment -- omitted, a caller \"receives exactly the payload it received before, with no new keys at all\" -- and operatorEvidence.test.js fails on it AT 9a18d78, before any merge. Made absent-when-unasked here; OPERATOR_WIRE moved 2,311 -> 217 pairs as a result, and no previouslyUsed path remains in the residual.",
+        "9b700db": "Expose the seasons behind each ladder rung: the additive contributions[] field."
+      },
+      "mergeContribution": "NONE. The one resolution that touches a behavioural query — adding main's `division` column to the pool SELECT that carries Evidence's TRUSTED predicate — was measured against all six outputs with the column removed and every digest was identical."
     }
   },
   "manifest": {
-    "version": "V3",
+    "version": "V7",
     "tables": [
       {
         "table": "players",
         "rows": 4,
         "columns": 58,
-        "digest": "cba9fe42383379e5c859e2f8528765a8a0313947120da177d12f543e28e34735"
+        "digest": "81e0bbc14dbd239f3ddb3679e9159f0ed7d355aec6543e89a741b5c5bc66ed46"
       },
       {
         "table": "colleges",
@@ -53,9 +75,15 @@
       },
       {
         "table": "roster_players",
-        "rows": 276745,
+        "rows": 281159,
         "columns": 30,
-        "digest": "e4a8b16c4fe581e4afcc01459e023e33f1b4f469678557a825aa51f415bc1bd5"
+        "digest": "3c9ae42653ad7bc71e41bfd0d1c88582c107e1231b3606a5ef30922dc78332dd"
+      },
+      {
+        "table": "roster_season_trust",
+        "rows": 15,
+        "columns": 13,
+        "digest": "6b4b925529560830d8fbb5923b45e92145ff568a2e910eb71ecb85d643ce83f1"
       },
       {
         "table": "coaches",
@@ -65,15 +93,15 @@
       },
       {
         "table": "athletics_domains",
-        "rows": 2717,
+        "rows": 2723,
         "columns": 18,
-        "digest": "e42ad164df1f8af51328941b04c27349ea650f640146f49f3487ff9712bc676c"
+        "digest": "c52a19ecc56cacef6d652cf6e11fefd1e9dce741c2ea6141bba1f09bdaaea1ab"
       },
       {
-        "table": "recruiting_arrivals",
-        "rows": 87449,
-        "columns": 25,
-        "digest": "c4e90faa349c3eb448dbb9278ba808df18d30efde6e7f5d03a0b7f60ffa7966b"
+        "table": "programme_status",
+        "rows": 6,
+        "columns": 10,
+        "digest": "32daab29b8c5a9ddd49abed5e6f40d0eedf3628c0f1f63c43d030b2fefa75f24"
       },
       {
         "table": "coach_seasons",
@@ -82,43 +110,55 @@
         "digest": "89d07aa030be1eb40c110add4668760f6f06b9a2ed8b4864b95a86760c087679"
       },
       {
+        "table": "recruiting_arrivals",
+        "rows": 88879,
+        "columns": 25,
+        "digest": "fe7359e5b20a431b67e61f0b634dca1dec75b0f760c362c589eb82ca7a031f04"
+      },
+      {
+        "table": "recruiting_arrivals_build",
+        "rows": 2,
+        "columns": 5,
+        "digest": "950457029abf81480a10a00cdd4d6371611ade136704626b2fab7d79b05cfd4d"
+      },
+      {
         "table": "roster_freshness",
-        "rows": 1910,
-        "digest": "80ab2d600fdb4462966c5de02b0efbaa5f87fadb2fa02961f09ec13dceb19189"
+        "rows": 2060,
+        "digest": "3d70ff0168dc6842af1bd285845b01e5dbead34bc07ece0cdfe68098b0999551"
       }
     ],
-    "digest": "514f452dd8a1aede5de9865f36a7274dd88807691d40da2077e9de7736bc2416"
+    "digest": "8bb808b66db9ee3b6aec56255a428867d61da804e6a27455eab3e149f51a5c5e"
   },
   "baselines": [
     {
       "name": "OUTBOUND_DECISION",
       "size": 4742,
-      "digest": "d3fd5ba336849ccb3ceef75023eb2cb74d20098291f6846af0d95a4c34b5bb3f"
+      "digest": "dd49daddf7292d3704fd013acf0d056346fd150786ce6a686a15c4c4eaae048c"
     },
     {
       "name": "COACH_COMPOSITION",
       "size": 4742,
-      "digest": "36b31c1803b78f91e2ac772621920f6c9971d8f89a05ec987bf7967cd2fb19fd"
+      "digest": "5e6fb62e12c3a02227803ca37e24ecf3cc8a72ef8b425f2402159e1077c82564"
     },
     {
       "name": "EMAIL_BODY",
       "size": 4742,
-      "digest": "70a1f6e0fb1eca93a5d2b7635c2ac78af07b62dc03c66e3da69bea7e464c8466"
+      "digest": "54a05ec90e8937fd6d06e60f4b935ec64ecd265791cc566f2eba3ee917d72541"
     },
     {
       "name": "OPERATOR_WIRE",
       "size": 4742,
-      "digest": "a529303d5697678add055d0d4d8a2f4a31e77a5b97f3676c95c6735e63303a94"
+      "digest": "9af185f0786665fdac038a147a9cf294922e31c691bae65300226ae37c015f9e"
     },
     {
       "name": "LOG_PAYLOAD",
       "size": 4742,
-      "digest": "42d0f27e66bfba8a7abbf9b505eb47e60b0d072d587d31b49f16ac24ceaf4b3a"
+      "digest": "6c1c24546ea2d310d8a0d99b1d39b263fe0667d9850f80757074abbd976652e8"
     },
     {
       "name": "OPERATOR_EVIDENCE",
       "size": 4742,
-      "digest": "6f2e46c9ba8443bc6c41a9d2754eba8cf61601a770f4f10abc87dd6fcf178766"
+      "digest": "cdc14d31bd3fdc648f52289d565881d58d5dc10c640bc56a71486120db523853"
     }
   ]
 }

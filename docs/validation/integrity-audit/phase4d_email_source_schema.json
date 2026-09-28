@@ -1,0 +1,18 @@
+{
+  "purpose": "Part G — minimal additive representation for 'this exact stored email was observed on an authoritative current source on this date', distinct from email_confirmed_at (deliverability).",
+  "proposed_columns_on_coaches": [
+    {"name":"email_seen_on_source_at","type":"TEXT","nullable":true,"meaning":"ISO timestamp the exact stored address was observed on a current authoritative page. NULL = never observed."},
+    {"name":"email_seen_on_source_url","type":"TEXT","nullable":true,"meaning":"the authoritative page URL where the exact address was seen."}
+  ],
+  "naming_rationale": "Matches the existing coach column style (email_status, email_source_url, email_confirmed_at, currentness_source_url). Parallel to currentness_checked_at/currentness_source_url.",
+  "rules": {
+    "additive": true,
+    "nullable_default": "NULL",
+    "distinct_from_email_confirmed_at": "email_confirmed_at stays reserved for proven deliverability (non-bounce/reply). email_seen_on_source_* records page-observation only.",
+    "exact_match_only": "Populate ONLY when the stored address string equals the address published on the page (case-insensitive). Never on a different-current-email, consumer/generic, or unpublished case.",
+    "current_source_only": "Only from a current authoritative page (staff/team/directory/roster), never a historical/archived page or an aggregator.",
+    "retain_source_and_timestamp": true
+  },
+  "migration": "Add via migrate.js COACH_COLUMNS (same idempotent addMissingColumns path as currentness_*). Not implemented in Part G; implemented only if needed for the Part J promotion simulation (simulated on a disposable copy).",
+  "candidates_now": "Exact-match candidates from Phase 4A-4D external evidence: coaches with email_status=CURRENT_OFFICIAL_EMAIL (stored address exactly on the current page)."
+}

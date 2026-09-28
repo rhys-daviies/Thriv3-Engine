@@ -123,7 +123,7 @@ export default function PlayerWorkspace() {
     actionableRecommendations, actionableStatus, derived,
     programmes, specific, byCollegeId, byCollegeName,
     loading, settled, failed, pending, error, clearError,
-    add, withdraw, apply, flag, unflag, setVisibility, saveNote, reload,
+    add, withdraw, apply, flag, unflag, setVisibility, setContactStance, saveNote, reload,
   } = useActionableRecommendations({ playerId: player?.id, recommendations, reserve });
 
   useEffect(() => {
@@ -308,6 +308,7 @@ export default function PlayerWorkspace() {
         flag,
         unflag,
         setVisibility,
+        setContactStance,
         saveNote,
         reload,
         analyzing,

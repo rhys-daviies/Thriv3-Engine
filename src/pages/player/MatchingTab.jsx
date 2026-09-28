@@ -13,10 +13,15 @@ import SuppressedProgrammes from '@/components/SuppressedProgrammes';
 import ManualOutreachDialog from '@/components/ManualOutreachDialog';
 import { BOTH_PATHS_HINT } from '@/lib/outreachLabels';
 import ProgrammeContactSummary from '@/components/ProgrammeContactSummary';
-import { CONTACT_UNAVAILABLE_NOTICE } from '@/lib/outreachLabels';
+import {
+  CONTACT_UNAVAILABLE_NOTICE, PENDING_UNAVAILABLE_NOTICE, TAB_AWAITING,
+  CONFIRM_FAILED, DISCARD_FAILED,
+} from '@/lib/outreachLabels';
 import { contactIntelligenceKey } from '@shared/contactIntelligenceKey.js';
 import { DEFAULT_SPORT } from '@shared/sportProfiles.js';
 import { useContactIntelligence, CONTACT_INTELLIGENCE } from '@/lib/useContactIntelligence';
+import { usePendingManualDrafts } from '@/lib/usePendingManualDrafts';
+import { manualOutreach } from '@/api/client';
 import { pickBestContact } from '@shared/coachRoles.js';
 import { entities } from '@/api/client';
 import { cn } from '@/lib/utils';
@@ -67,7 +72,7 @@ export default function MatchingTab() {
     programmes: relationships, specific, byCollegeId, byCollegeName,
     loading: programmesLoading, failed: programmesFailed,
     pending, error: programmeError, clearError, add, withdraw,
-    flag, unflag, setVisibility, saveNote,
+    flag, unflag, setVisibility, setContactStance, saveNote,
   } = usePlayerWorkspace();
   const [emailTarget, setEmailTarget] = useState(null);
   /**
@@ -100,6 +105,87 @@ export default function MatchingTab() {
    */
   const contactUnavailable = contactStatus === CONTACT_INTELLIGENCE.FAILED;
   /**
+   * THE ANSWER HAS ARRIVED — F6b, AND `!contactUnavailable` IS NOT THE SAME TEST.
+   *
+   * FAILED is one of four statuses; IDLE and LOADING are the other two that
+   * mean "we do not know yet", and during both the map is empty for exactly
+   * the same reason it is empty for a programme nobody has written to. A row
+   * reading "No contact recorded" off an unsettled map would be asserting an
+   * absence it has not established — the one false statement this slice could
+   * make. Only READY licenses it.
+   */
+  const contactKnown = contactStatus === CONTACT_INTELLIGENCE.READY;
+
+  /**
+   * MANUAL DRAFTS STILL AWAITING A PERSON'S WORD — F7b.
+   *
+   * A second athlete-level request beside the history one, and kept separate on
+   * purpose: that payload is derived read-only intelligence with no row ids,
+   * this one carries an actionable `outreach_send.id`. Two bounded calls for
+   * the page, still none per card.
+   */
+  const {
+    byProgramme: pendingByProgramme, failed: pendingUnavailable, reload: reloadPendingDrafts,
+  } = usePendingManualDrafts(player?.id);
+
+  /**
+   * A CONFIRMATION OR A DISCARD THAT DID NOT LAND — F8b.
+   *
+   * Held by `send_id` so the sentence renders against the message it is about
+   * rather than against the page. Before this, both handlers awaited a request
+   * with no `catch` anywhere in the chain: a rejection became an unhandled
+   * promise, the row was unchanged, and the operator was told nothing at all —
+   * which on this particular screen reads as "the confirmation worked".
+   */
+  const [draftError, setDraftError] = useState(null);
+
+  /**
+   * THE OPERATOR SAYS THEY SENT IT, OR SAYS THEY DID NOT.
+   *
+   * Both refetch rather than patching state, because each changes two things
+   * this page shows — what is pending, and what the contact history says — and
+   * only the server knows the second. A screen that removed the pending row but
+   * left the summary reading "Drafted" would be disagreeing with itself about
+   * whether a coach was written to.
+   */
+  const afterDraftDecision = async () => {
+    reloadPendingDrafts();
+    reloadContact();
+    await reload();
+  };
+
+  /**
+   * NOTHING IS REMOVED BEFORE THE SERVER AGREES — F8b.
+   *
+   * No optimistic update: on this screen the pending row IS the outstanding
+   * obligation, and taking it away on a request that then failed would tell
+   * the operator the one thing that must never be told falsely here — that a
+   * message is accounted for when it is not. So the row stays, the failure is
+   * said against it, and both answers remain offered.
+   */
+  const decide = async (draft, call, message) => {
+    const relationship = byCollegeName.get(draft.college_name);
+    if (!relationship) {
+      setDraftError({ sendId: draft.send_id, message });
+      return;
+    }
+    setDraftError(null);
+    try {
+      await call(player.id, relationship.id, draft.send_id);
+    } catch (err) {
+      // The server's own sentence where it sent one — it names the actual
+      // refusal (already confirmed, revoked, not a manual message) — and the
+      // generic one only where the request never produced a message at all.
+      setDraftError({ sendId: draft.send_id, message: err?.message || message });
+      return;
+    }
+    await afterDraftDecision();
+  };
+
+  const confirmDraftSent = (draft) => decide(draft, manualOutreach.confirmSent, CONFIRM_FAILED);
+
+  const discardDraft = (draft) => decide(draft, manualOutreach.discardDraft, DISCARD_FAILED);
+  /**
    * THE SPORT THESE RECOMMENDATIONS ARE FOR, and half of every programme key.
    *
    * `analyze()` scouts colleges filtered by `player.sport || DEFAULT_SPORT`, so
@@ -108,6 +194,15 @@ export default function MatchingTab() {
    * looked up with that instead — the surfaces do not assume they match.
    */
   const athleteSport = player?.sport || DEFAULT_SPORT;
+
+  /**
+   * How many MESSAGES are waiting on a person, not how many schools are.
+   *
+   * A relationship holds at most one open message at a time
+   * (`idx_outreach_send_one_open`), but an athlete may be waiting on several
+   * schools, and the operator's question is how many confirmations they owe.
+   */
+  const pendingCount = [...pendingByProgramme.values()].reduce((n, d) => n + d.length, 0);
   const [showBulk, setShowBulk] = useState(false);
   /**
    * MATCH PRIORITIES HAS NO VISIBLE TRIGGER ANY MORE, AND IS NOT DELETED.
@@ -244,6 +339,47 @@ export default function MatchingTab() {
    */
   const openManualOutreach = (relationship) => setManualTarget(relationship?.id ?? null);
 
+  /**
+   * THE DRAFT THE OPERATOR JUST MADE HAS TO BE ON THE SCREEN THEY RETURN TO — F8b.
+   *
+   * ===========================================================================
+   * F7b BUILT THE CONFIRMATION AND THEN NEVER SHOWED IT TO THE PERSON WHO
+   * NEEDED IT MOST.
+   *
+   * `usePendingManualDrafts` keys its effect on `[playerId, attempt]`, and
+   * before this the only thing that moved `attempt` was a confirm or a
+   * discard. So the sequence the whole slice exists for — draft, send in
+   * Outlook, come back — ended on a row showing no pending draft and no
+   * "Drafted" badge, because neither bounded read had been asked again. The
+   * obligation appeared on the next page load, to an operator who by then had
+   * no reason to look.
+   *
+   * That is the forgotten-confirmation failure arriving through the front
+   * door, and it is two refetches to close.
+   * ===========================================================================
+   *
+   * ON CLOSE, NOT ON A CALLBACK. `ManualOutreachDialog` composes through
+   * `EmailComposer` and reports its results inside itself; learning whether a
+   * draft was actually created would mean a new signal out of a component
+   * whose lifecycle this slice deliberately does not touch. So a dialog closed
+   * without drafting costs two bounded athlete-level reads — the same two the
+   * page already makes on mount, never per card — and that is the price of not
+   * reaching into the composer to save them.
+   *
+   * ONLY THIS DIALOG. Not the Top 100 composer, not the bulk composer, not the
+   * search panel: none of them can produce a manual draft against a
+   * relationship, so none of them has anything to refetch.
+   *
+   * NO POLLING AND NO RECONCILIATION. This asks again at the one moment
+   * something may have changed. It never asks a provider anything.
+   */
+  const closeManualOutreach = (isOpen) => {
+    if (isOpen) return;
+    setManualTarget(null);
+    reloadPendingDrafts();
+    reloadContact();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -263,6 +399,25 @@ export default function MatchingTab() {
               {v.label}
               {v.key === 'specific' && specific.length > 0 && (
                 <span className="ml-1.5 opacity-70">({specific.length})</span>
+              )}
+              {/*
+                BOTH FACTS, AND NEITHER AT THE OTHER'S EXPENSE — F8b.
+
+                The school count is what this tab has always meant and what
+                operators navigate by; replacing it with the pending count
+                would silently change what a familiar number says. The pending
+                count is the reason to look NOW, and it is visible from the
+                Recommended tab — which is where an operator coming back from
+                Outlook very often lands.
+
+                Zero renders nothing. "0 awaiting" is a standing reminder of an
+                obligation nobody has, and a reminder that is always there is
+                one nobody reads.
+              */}
+              {v.key === 'specific' && pendingCount > 0 && (
+                <span className="ml-1.5 font-semibold" data-testid="tab-awaiting">
+                  · {TAB_AWAITING(pendingCount)}
+                </span>
               )}
             </button>
           ))}
@@ -302,6 +457,38 @@ export default function MatchingTab() {
         </div>
       )}
 
+      {/*
+        THE PENDING READ FAILED, AND SILENCE WOULD HAVE MEANT "NOTHING TO DO" — F8b.
+
+        ===========================================================================
+        THE SAME SHAPE AS THE NOTICE ABOVE, FOR A WORSE FAILURE.
+
+        `usePendingManualDrafts` has always computed `failed` precisely so a
+        caller could tell "nothing is pending" from "we could not ask" — and
+        until now the only caller did not destructure it. A failed request
+        emptied the map, so the workspace rendered as one with no outstanding
+        actions at all: no section, no tab count, no row band. That is the exact
+        screen an operator reads before concluding they owe nobody a
+        confirmation.
+
+        UNKNOWN IS NOT NONE, and this is the page's sentence saying which one it
+        is looking at.
+        ===========================================================================
+
+        ONE NOTICE, NOT ONE PER ROW. The request is athlete-level, so a failure
+        is a fact about the page rather than about any school on it.
+      */}
+      {pendingUnavailable && (
+        <div
+          className="flex items-center justify-between gap-2 rounded-lg border border-border p-2.5"
+          role="status"
+          data-testid="pending-unavailable"
+        >
+          <p className="text-xs text-muted-foreground">{PENDING_UNAVAILABLE_NOTICE}</p>
+          <Button size="sm" variant="outline" onClick={() => reloadPendingDrafts()}>Try again</Button>
+        </div>
+      )}
+
       {showSearch && (
         <SpecificSearch
           sport={player?.sport}
@@ -323,8 +510,28 @@ export default function MatchingTab() {
           error={programmeError}
           onRemove={withdraw}
           onManualOutreach={openManualOutreach}
+          onSetContactStance={setContactStance}
+          onFlag={flag}
+          /*
+            THE THREE CONTROLS THAT HAD NOWHERE TO LIVE — F8b.
+
+            All three already existed on the workspace and were handed to
+            `ProgrammeRelationship`, which renders ONLY in the Top 100 card
+            footer. So for a specific school outside the Top 100 there was no
+            path anywhere in the product to write a note, record why it
+            mattered, or reverse a ranking decision the row was displaying a
+            badge about. Nothing new is built here; they are simply passed to
+            the surface that needed them.
+          */
+          onSaveNote={saveNote}
+          onSetVisibility={setVisibility}
           contactByProgramme={contactByProgramme}
           contactUnavailable={contactUnavailable}
+          contactKnown={contactKnown}
+          pendingByProgramme={pendingByProgramme}
+          draftError={draftError}
+          onConfirmSent={confirmDraftSent}
+          onDiscardDraft={discardDraft}
         />
       )}
 
@@ -449,6 +656,7 @@ export default function MatchingTab() {
                     onFlag={flag}
                     onUnflag={unflag}
                     onSetVisibility={setVisibility}
+                    onSetContactStance={setContactStance}
                     onSaveNote={saveNote}
                     onManualOutreach={openManualOutreach}
                   />
@@ -484,7 +692,7 @@ export default function MatchingTab() {
           player={player}
           relationshipId={manualTarget}
           open={!!manualTarget}
-          onOpenChange={(v) => !v && setManualTarget(null)}
+          onOpenChange={closeManualOutreach}
         />
       )}
 

@@ -1,0 +1,377 @@
+{
+  "milestone": "PHASE 6C.1 — COACH_SEASONS RECOVERY APPLIED",
+  "created_at": "2026-09-27T04:53:22.627Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev — NOT production /data)",
+  "coach_fingerprint_sha256": "8b63822e2c82a720e91afa563a1f4830fb82e9cf55b001cd78b877781980ae6a",
+  "colleges_fingerprint_sha256": "b6f66ea83290b36817bf1d52be762458fd82e7a7d6f43b9e5a5df3c1f728eaf9",
+  "coaches_total": 6388,
+  "eligible_coaches": 3327,
+  "coverage_scorecard": {
+    "COVERED_ELIGIBLE": 1466,
+    "COVERED_INELIGIBLE_ONLY": 626,
+    "COACH_SEASONS_ONLY": 39,
+    "NO_COACH_DATA": 268
+  },
+  "core_covered_eligible_pct": "67.6%",
+  "div_pct": {
+    "D1": "84.2%",
+    "D2": "86.6%",
+    "D3": "79.8%",
+    "NAIA": "0.5%",
+    "USCAA": "0.0%"
+  },
+  "programme_outcomes_84": {
+    "CURRENT_STAFF_NO_EMAIL": 9,
+    "EXISTING_RECORD_RECOVERY": 29,
+    "PROMOTION_READY": 45,
+    "PROGRAMME_DEFECT": 1
+  },
+  "inserted_coach_ids": [
+    "24188309-b8ba-494a-907c-87f73c84e46c",
+    "dd070b57-8316-485d-9f6d-422d3e1c0abd",
+    "e18dee4d-3e98-4e19-bf53-70261177066b",
+    "07de3ba7-3af2-492b-ab2e-b8368d3c77b2",
+    "fc95394c-d52b-4e11-b4fd-5c6449245a1b",
+    "aec24b72-4c04-4162-80bb-abc4fd5f83e8",
+    "9b3b7c29-63f8-47fc-85a9-a3dd25531f64",
+    "5c13e618-ba37-4fe6-9c98-1103dfe0c053",
+    "6a033e33-95e4-4f18-8640-b833bba82f4a",
+    "a061a1b0-27ad-455a-847d-df0c04995f49",
+    "acebd645-95d8-4655-861d-95f45be1f94e",
+    "80a0edfc-0b97-4b56-b163-6029580fb687",
+    "feb56bc4-b29c-4413-a236-5f2da8ac0239",
+    "0daf6ed1-3449-4aae-8ae6-4e0b7c777339",
+    "13e57bb3-3c09-41e3-ab65-81448827f2bf",
+    "fb5ef276-d0ff-4f67-bf22-14bb6d636a36",
+    "392aa804-4784-48df-bb03-047e825e63bd",
+    "548c4577-4272-460f-86e9-c12254735f82",
+    "a85123ef-7040-47da-b2c6-c441ec298236",
+    "07131308-ffc0-4b65-bbc4-e417cffbe4be",
+    "02fcfad0-160d-49be-baba-53a9a52a7d19",
+    "9bb74181-6951-4e08-a353-541792dbc71a",
+    "b0408734-e4b8-4c26-9270-e58a147e6caf",
+    "7a1d3596-e18d-43bb-94b3-04c1ef7e3a55",
+    "0b669e9f-99ae-4166-a85b-c8dcaf07e516",
+    "d38842b6-75e6-4600-b4a8-17cb5811c9e2",
+    "7ffe9cdb-79ec-432a-88ae-bc15d48ee34a",
+    "df86783a-f8c6-4526-a194-93bc48f74327",
+    "3c7e3ff8-1819-4896-a2aa-87a4fc395994",
+    "c67b9e28-78c4-46c8-8b3a-8df2b26029f2",
+    "39a8a850-8e2b-48cd-8e83-f7bb74c68b47",
+    "c297ac7a-77c3-4e7e-afc2-4e01f507208d",
+    "56a8a0f5-f8ca-40ca-aafd-64e09b134216",
+    "39f649b8-35de-4586-af93-252d2e2dcf7c",
+    "0c55a437-2d00-4112-aedf-c599f98eaeb6",
+    "f7039e86-ac1d-4f9f-b1c6-c862a5f80f60",
+    "e074e5c6-8152-4d37-b6e6-27f95245182d",
+    "c7d7fa5b-4495-469c-99f3-5f40e7dd542a",
+    "1fcb69a8-50d1-4bf8-a2c2-1565445497f3",
+    "c1e16a11-f253-4b04-9a98-bff324b5c9b3",
+    "3e3b5954-e979-4d7c-928b-8949bcb467ba",
+    "cd67fc0e-77d7-45f1-8186-09161b5a60b1",
+    "ecaff0c5-e310-45aa-af87-0b0ddec617db",
+    "217280a3-cd59-4265-a751-9bb7a8285d6c",
+    "721ce5d6-bafd-42e4-8226-9b3e6c11d091",
+    "db751c7d-5993-4d60-b0d5-d869e2e5f2c5",
+    "c82bb593-03da-405e-ae9e-1e085732538e",
+    "08eb522f-0cee-4f8b-8e9c-c3f8ec4e1197",
+    "c1c16c94-fbda-45e4-b8d0-8d5a0d135b1c"
+  ],
+  "inserted_count": 49,
+  "recovered_coach_ids": [],
+  "unresolved_84_remainder": [
+    {
+      "programme_id": "495d43fa-5489-474b-9b44-85747a273cf4",
+      "name": "Charleston (WV)",
+      "sport": "mens-soccer",
+      "outcome": "CURRENT_STAFF_NO_EMAIL",
+      "reconcile": "NO_EMAIL_PUBLISHED"
+    },
+    {
+      "programme_id": "008cef9a-523f-4696-a9f1-1d355e2f0164",
+      "name": "Bethany (WV)",
+      "sport": "mens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "18adc211-3e9d-4c12-a375-4781bd24096e",
+      "name": "Johnson & Wales (Providence)",
+      "sport": "mens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "e8386564-efdb-4203-95cd-689fcdc33787",
+      "name": "Alabama Huntsville",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "5aaa5518-7676-46a8-b7da-72ad0a3287f1",
+      "name": "Bluefield State",
+      "sport": "womens-soccer",
+      "outcome": "CURRENT_STAFF_NO_EMAIL",
+      "reconcile": "NO_EMAIL_PUBLISHED"
+    },
+    {
+      "programme_id": "86ecd7a9-bcff-498a-ad15-8586691362d9",
+      "name": "Harvey Mudd College",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "126ce6ec-1b19-4eb2-8aef-e2e587bebbcd",
+      "name": "Saint Mary's University of Minnesota",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "5274284f-3163-4f58-9284-9281cf964f55",
+      "name": "University of Northwestern-St Paul",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "5f67720c-612c-45d0-8b5f-a5d58f5a5179",
+      "name": "Westminster University (MO)",
+      "sport": "womens-soccer",
+      "outcome": "CURRENT_STAFF_NO_EMAIL",
+      "reconcile": "NO_EMAIL_PUBLISHED"
+    },
+    {
+      "programme_id": "b358be30-0f19-4629-bfe5-d06101592b80",
+      "name": "Salem",
+      "sport": "womens-soccer",
+      "outcome": "CURRENT_STAFF_NO_EMAIL",
+      "reconcile": "NO_EMAIL_PUBLISHED"
+    },
+    {
+      "programme_id": "d28fb060-9c0e-48cd-b2b1-004c86073f5e",
+      "name": "Air Force",
+      "sport": "mens-soccer",
+      "outcome": "CURRENT_STAFF_NO_EMAIL",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "fbf7aa9f-242e-4c48-88a7-94c18e21d9ba",
+      "name": "Bethel (MN)",
+      "sport": "mens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "404cdd2f-90d6-4703-90ab-d39782e268ba",
+      "name": "Trinity (CT)",
+      "sport": "mens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "3a582b2d-f39a-4301-ae0d-c1e8a7f59a1b",
+      "name": "Johnson & Wales University-Providence",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "8f97caf7-2a8b-4958-8029-31d7612c4076",
+      "name": "Scripps College",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "179ea3a0-e44c-41ef-8c8e-c2bd57e35303",
+      "name": "Wilson College",
+      "sport": "womens-soccer",
+      "outcome": "CURRENT_STAFF_NO_EMAIL",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "38185826-5d35-45be-8ef5-ef06f7d39fb2",
+      "name": "Anderson University (IN)",
+      "sport": "womens-soccer",
+      "outcome": "CURRENT_STAFF_NO_EMAIL",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "36eb4dfe-baf2-4112-baaa-daecaa99ba63",
+      "name": "CUNY City College",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "643d10b5-a3e4-40d4-8d49-edd69b9f6322",
+      "name": "LaGrange College",
+      "sport": "womens-soccer",
+      "outcome": "CURRENT_STAFF_NO_EMAIL",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "861fcc66-1a0f-48e7-bf2d-64f14b411901",
+      "name": "Saint Mary's (MN)",
+      "sport": "mens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "dd686974-8770-4e31-927e-66b14284500b",
+      "name": "Pitzer College",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "0ba3211a-309c-4f81-a1e8-370ddbefd2b9",
+      "name": "Concordia University-Texas",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "4d5a244f-f15c-4f49-8ef6-0c4d6c4904f4",
+      "name": "St. Mary's (TX)",
+      "sport": "mens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "e2d292db-5ab9-4286-9b17-f990b0a4b741",
+      "name": "Saint Francis (PA)",
+      "sport": "mens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "c3601fc9-5099-43be-b715-ddae06c7bd4b",
+      "name": "Minnesota State Mankato",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "6fedf1dc-440b-48f4-8da5-064a721d6005",
+      "name": "Trinity College",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "04513305-343e-4608-bfa9-dacac75f881b",
+      "name": "Beloit College",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "a845cd10-d30a-486d-b08d-4525d4203519",
+      "name": "Maranatha Baptist University",
+      "sport": "womens-soccer",
+      "outcome": "CURRENT_STAFF_NO_EMAIL",
+      "reconcile": "NO_EMAIL_PUBLISHED"
+    },
+    {
+      "programme_id": "45990e42-1618-4f45-b769-e5fd437823bc",
+      "name": "North Central University",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "3d7af7df-9bad-418a-95ad-a5d750f26500",
+      "name": "Anderson (IN)",
+      "sport": "mens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "0a70334b-1c8c-4043-bf01-9041c8b6674e",
+      "name": "Southwestern (TX)",
+      "sport": "mens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "d2231ece-3e43-4f97-a5ac-a6dc07257599",
+      "name": "Concordia Irvine",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "31699ba0-2d37-4ec5-8015-3eeca2a0692b",
+      "name": "University of St Thomas (TX)",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "6e25c031-f444-46b5-a6f3-e914b670eca8",
+      "name": "Bethany College (WV)",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "a70a6e05-4d7f-4169-a973-ed07814ba767",
+      "name": "CUNY Brooklyn College",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "fe94350c-094e-4aab-9782-14776161a328",
+      "name": "Wheaton (IL)",
+      "sport": "mens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "bde5ae42-4ed9-4117-860d-fed8c7fffdab",
+      "name": "St. Mary's (TX)",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "22bafa10-1d1b-41d6-aa28-d2c7a5f57139",
+      "name": "Lincoln (PA)",
+      "sport": "womens-soccer",
+      "outcome": "EXISTING_RECORD_RECOVERY",
+      "reconcile": "MATCH_CURRENT"
+    },
+    {
+      "programme_id": "e73fd355-d84b-42c3-a30e-eda9972a290e",
+      "name": "CUNY York College",
+      "sport": "womens-soccer",
+      "outcome": "PROGRAMME_DEFECT",
+      "reconcile": "PROGRAMME_STATUS_ISSUE"
+    }
+  ],
+  "integrity": {
+    "source_domain_conflicts": 0,
+    "wrong_institution_eligible": 0,
+    "canonical_round_trip": 0,
+    "duplicate_emails": 118,
+    "duplicate_identity_rows": 0,
+    "orphan_coaches": 1,
+    "email_confirmed_at": 0,
+    "integrity_check": "ok"
+  },
+  "fixture_and_evidence_hashes": {
+    "phase6c1_coach_seasons_promotion_fixture.json": "194175ff8c65ae1e",
+    "phase6c1_existing_coach_recovery_fixture.json": "7bd5199cfd82f521",
+    "p6c1_result_0.json (evidence)": "ed501d5d6d5e8461",
+    "p6c1_result_1.json (evidence)": "b6162eb18f657469",
+    "p6c1_result_2.json (evidence)": "31bb7ebf64bae091",
+    "p6c1_result_3.json (evidence)": "2212c60a895cb8e4",
+    "p6c1_result_4.json (evidence)": "05a3f7af89262790",
+    "p6c1_result_5.json (evidence)": "662e9aa1bb7cb539"
+  }
+}

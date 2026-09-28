@@ -820,6 +820,32 @@ export const EVIDENCE_KINDS = Object.freeze({
    * comparison basis is required on the object because "above the pool" is not
    * a claim until the pool is named.
    */
+  /**
+   * THE COHORT THIS KIND COMPARES WITHIN, named because the claim is a
+   * ranking and a ranking is meaningless until the field is stated.
+   *
+   *   same sport                  — and therefore gender, which sport identity
+   *                                 carries; there is no separate gender axis
+   *   historical seasons only     — the closed window, never the squad season
+   *   readable freshman ladder    — a programme enters only if
+   *                                 `programmePhilosophy` could read one
+   *   division POOLED             — a D3 programme is ranked against D1
+   *   association POOLED          — NCAA, NAIA, NJCAA and USCAA together
+   *   equal programme weighting   — one median per programme per rank, so a
+   *                                 programme with four seasons on file does
+   *                                 not outvote one with two
+   *   self-inclusive              — the programme is in its own pool; L7ZA
+   *                                 measured the leave-one-out band impact at
+   *                                 0 of 1,045
+   *
+   * Deliberately no count here. The population is whatever the roster data
+   * supports on the day, and a number written into the semantics would be
+   * stale the next import — `comparison.poolSize` reports it per claim.
+   *
+   * Division and association pooling are the two most surprising lines and are
+   * intentional: L7ZA confirmed them against the code rather than the docs. Do
+   * not narrow them without a stage that owns the consequences.
+   */
   PROGRAMME_POOL_BENCHMARK: {
     tier: TIERS.FACT,
     temporality: TEMPORALITY.HISTORICAL,
@@ -1040,6 +1066,31 @@ export const COMPARISON_BAND_KEYS = Object.freeze(Object.values(COMPARISON_BANDS
  * pool" is not a claim until the pool is named, which is why `basis` and
  * `statistic` are required together rather than left to `data`, where nothing
  * could insist on them.
+ *
+ * ---------------------------------------------------------------------------
+ * `poolSize` MEANS ONE THING: the number of programmes that contributed a
+ * usable observation to the exact comparison this claim reports.
+ *
+ * Not programmes with any historical rows. Not programmes considered before
+ * readability filtering. Not every programme in the sport. Not the active
+ * NCAA universe. The population the statistic was computed over, and only
+ * that — so `poolSize` and `band` are always two readings of the same set.
+ *
+ * L7ZC wrote this down because it had been violated. PROGRAMME_POOL_BENCHMARK
+ * set `poolSize` from `buildPoolBenchmarks().programmes`, a count of every
+ * programme with a row in the window, while its band came from the quantiles
+ * of a strictly smaller set — the programmes whose freshman ladder could
+ * actually be read. Every one of 3,355 canonical claims printed a pool it had
+ * not been ranked within: 1,202 for 1,045 in women's soccer, 920 for 770 in
+ * men's. The basis string was already correct, which is how the disagreement
+ * stayed invisible; it read "programmes with a readable freshman ladder"
+ * beside a number that had not been filtered for readability.
+ *
+ * The rule a future kind needs from this: `poolSize` is not metadata about the
+ * dataset, it is part of the claim. It comes from the same array as the
+ * statistic. A broader count may be worth carrying, but it belongs in `data`
+ * under a name that says which population it counts.
+ * ---------------------------------------------------------------------------
  */
 function validateComparison(comparison) {
   if (comparison == null) return null;

@@ -208,8 +208,6 @@ services:
         sync: false
       - key: THRIV3_POSTAL_ADDRESS
         sync: false
-      - key: THRIV3_SYNC_SECRET
-        sync: false
       # THE FOURTH PERSISTENT PATH — generated athlete pages.
       #
       # Same class of bug as THRIV3_UPLOAD_DIR above, and found by audit rather
@@ -243,6 +241,27 @@ services:
       #   CLOUDFLARE_API_TOKEN     deploy credential for Cloudflare Pages
       #   CLOUDFLARE_ACCOUNT_ID    which account that token belongs to
       #   THRIV3_PUBLIC_BASE_URL   where coach-facing profile links point
+      #   THRIV3_SYNC_SECRET       shared with the Cloudflare edge collector
+      #
+      # THE FOURTH ONE WAS MISSED, AND IT COST THE ENGAGEMENT LOOP.
+      #
+      # `THRIV3_SYNC_SECRET` had exactly the same `sync: false` declaration and
+      # was not removed with the other three on 2026-09-10. The empty
+      # service-level entry has won ever since, so `isEdgeConfigured()` has
+      # been false in production: the Engagement tab renders no "Sync now"
+      # button at all, and since R4C a manual Specific Search draft refuses
+      # with LINK_NOT_ACTIVATED rather than handing over an email whose
+      # tracking link the edge would not recognise.
+      #
+      # It worked once. Production's `tokens_pushed_at` is 2026-09-03T06:06Z,
+      # which is before the Blueprint took ownership of this service's
+      # environment — so the value existed, and the declaration took it away
+      # rather than never having been set.
+      #
+      # IT IS A SHARED SECRET, NOT A LOCAL ONE. The Cloudflare Pages project
+      # `thriv3-profiles` authenticates every token push against its own
+      # `THRIV3_SYNC_SECRET`, byte for byte. Whatever the group holds must be
+      # identical to what the edge holds, or the push returns 401.
       #
       # They were declared here as `sync: false`, which creates a service-level
       # entry with no value — and a service-level entry takes precedence over

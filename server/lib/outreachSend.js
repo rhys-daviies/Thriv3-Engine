@@ -3,6 +3,7 @@ import db from '../db/client.js';
 import { normaliseOrigin, OUTREACH_ORIGIN } from '../../shared/outreachOrigin.js';
 import { utcNow } from './time.js';
 import { buildSendSnapshot } from '../../shared/evidence/sendSnapshot.js';
+import { wireBodySha256 } from './executionContent.js';
 import { LEGACY_POLICY_VERSION } from '../../shared/evidence/outreachPolicy.js';
 import { authorisedProgrammeCampaignId } from './campaignAttribution.js';
 import { assertFirstTouchReviewed } from './campaignFirstTouchGate.js';
@@ -50,19 +51,21 @@ const insertSend = db.prepare(`
   INSERT INTO outreach_send (
     id, outreach_id, sequence, drafted_at, sent_at,
     athlete_id, coach_id, college_name, sport, programme_campaign_id, origin, policy_version,
+    programme_message_id, connected_mailbox_id, sending_identity, provider,
     state, accepted_source,
     structure, structure_source, body_source, template_variant,
     has_personalisation, primary_kind, primary_role, hook_kind,
     rendered_kinds, rendered_roles, rendered_count,
-    subject, body_hash, payload, created_at
+    subject, body_hash, body, wire_body_sha256, payload, created_at
   ) VALUES (
     @id, @outreach_id, @sequence, @drafted_at, @sent_at,
     @athlete_id, @coach_id, @college_name, @sport, @programme_campaign_id, @origin, @policy_version,
+    @programme_message_id, @connected_mailbox_id, @sending_identity, @provider,
     @state, @accepted_source,
     @structure, @structure_source, @body_source, @template_variant,
     @has_personalisation, @primary_kind, @primary_role, @hook_kind,
     @rendered_kinds, @rendered_roles, @rendered_count,
-    @subject, @body_hash, @payload, @created_at
+    @subject, @body_hash, @body, @wire_body_sha256, @payload, @created_at
   )
 `);
 
@@ -84,6 +87,32 @@ const pendingFor = db.prepare(
 /** The open message for a relationship, or null. Message-level truth. */
 export function openSendFor(outreachId) {
   return parse(pendingFor.get(outreachId));
+}
+
+/**
+ * THE MESSAGE ON THIS RELATIONSHIP WHOSE OUTCOME NOBODY KNOWS — D4.8.
+ *
+ * `openSendFor` deliberately excludes UNKNOWN_PROVIDER_RESULT, because for its
+ * three callers an ambiguous message must not read as a draft still being
+ * written. This is the other half of that decision: the question "may another
+ * message be written to this coach at all", which UNKNOWN answers NO to.
+ *
+ * It exists so generation and the claim can say so IN WORDS, before composing a
+ * body or spending capacity. `idx_outreach_send_one_open` has always refused
+ * the second row — but it refuses at the last write, as a unique-index
+ * violation, which is the right final invariant and a terrible way to tell
+ * somebody their campaign is waiting on a reconciliation.
+ *
+ * NOT A NEW FLAG. The state is D4.4's and the predicate is one value from it.
+ */
+const UNRESOLVED_FOR = db.prepare(
+  `SELECT * FROM outreach_send WHERE outreach_id = ? AND state = '${MESSAGE_STATE.UNKNOWN_PROVIDER_RESULT}'
+   ORDER BY sequence DESC LIMIT 1`,
+);
+
+export function unresolvedSendFor(outreachId) {
+  if (!outreachId) return null;
+  return parse(UNRESOLVED_FOR.get(outreachId));
 }
 
 /**
@@ -141,6 +170,41 @@ export function recordDraft({
    * and every campaign whose campaign row was later deleted.
    */
   origin = null,
+  /**
+   * EXECUTION ATTRIBUTION — D4.5. Which reviewed composition this send carries,
+   * and which mailbox is going to send it.
+   *
+   * NULL FOR EVERY MANUAL AND LEGACY DRAFT, which is every caller that existed
+   * before the execution claim: there was no composed message and no connected
+   * mailbox, and naming either would invent one. Only
+   * `claimProgrammeMessageForExecution` supplies them, and it supplies all four
+   * together — a send attributed to a mailbox but not to a message, or the
+   * reverse, would be a half-answer to "what was executed, and from where".
+   */
+  programmeMessageId = null,
+  connectedMailboxId = null,
+  sendingIdentity = null,
+  provider = null,
+  /**
+   * THE EXACT BYTES A TRANSPORT WILL ENCODE — D4.7.
+   *
+   * Distinct from `body` above, and the distinction is the point. `body` is
+   * hashed and discarded, which was sufficient while the only transport was
+   * Outlook and the message had already reached it by the time this ran. A
+   * provider transport has to be HANDED the body after the claim commits, and
+   * it must be handed the one that was frozen rather than one re-derived from
+   * inputs that may have moved since — see the column's note in migrate.js.
+   *
+   * NULL FOR EVERY LEGACY AND MANUAL CALLER, which is every caller but the
+   * execution claim. Passing `body` alone keeps today's behaviour exactly:
+   * hashed, not stored. Only a caller that has genuinely frozen a wire body
+   * says so, and it says so with a second argument rather than by changing what
+   * the first one means.
+   *
+   * The digest is derived here rather than taken from the caller, so the two
+   * columns cannot disagree about one body.
+   */
+  wireBody = null,
   at = utcNow(),
 }) {
   /**
@@ -196,6 +260,10 @@ export function recordDraft({
      * request body can reach.
      */
     origin: verifiedCampaign ? OUTREACH_ORIGIN.CAMPAIGN : normaliseOrigin(origin),
+    programme_message_id: programmeMessageId,
+    connected_mailbox_id: connectedMailboxId,
+    sending_identity: sendingIdentity,
+    provider,
     // A body exists and may still be rewritten in place. Nothing has been
     // handed to a transport by the time this is written.
     state: MESSAGE_STATE.DRAFT,
@@ -214,6 +282,15 @@ export function recordDraft({
     rendered_count: snapshot.rendered_count,
     subject: snapshot.subject,
     body_hash: snapshot.body_hash,
+    /**
+     * The frozen bytes and their exact digest, or NULL for both. They move
+     * together always: a body with no digest cannot be verified and a digest
+     * with no body cannot be reproduced, and either alone is a worse record
+     * than neither.
+     */
+    body: wireBody,
+    wire_body_sha256: wireBody === null || wireBody === undefined
+      ? null : wireBodySha256(wireBody),
     payload: JSON.stringify(snapshot.payload),
     created_at: open?.created_at ?? at,
   };
@@ -234,7 +311,20 @@ export function recordDraft({
         -- Moves with the body. Re-drafting to the same coach under a different
         -- campaign replaces the pending message, and the row must not keep the
         -- previous campaign's attribution while carrying the new one's text.
-        programme_campaign_id = @programme_campaign_id
+        programme_campaign_id = @programme_campaign_id,
+        -- D4.5, and the same reasoning: an open draft being claimed for
+        -- provider execution takes that execution's attribution. COALESCE
+        -- because the legacy path passes null for all four and must not blank
+        -- attribution a claim already wrote.
+        programme_message_id = COALESCE(@programme_message_id, programme_message_id),
+        connected_mailbox_id = COALESCE(@connected_mailbox_id, connected_mailbox_id),
+        sending_identity = COALESCE(@sending_identity, sending_identity),
+        provider = COALESCE(@provider, provider),
+        -- D4.7, and COALESCE'd for the same reason: a legacy re-draft over a
+        -- row a claim already froze passes null for both and must not blank
+        -- the bytes a transport is going to need.
+        body = COALESCE(@body, body),
+        wire_body_sha256 = COALESCE(@wire_body_sha256, wire_body_sha256)
       -- The guard is the STATE. An accepted message is history and no re-draft
       -- may reach it. The old guard on sent_at said the same thing, until a
       -- message could be QUEUED or FAILED without a timestamp of any kind.
@@ -275,7 +365,31 @@ const SEND_BY_ID = db.prepare('SELECT * FROM outreach_send WHERE id = ?');
  * person told us the message was accepted for sending. Whether it reached an
  * inbox is not knowable here and is not claimed anywhere.
  */
-export function transitionSend(sendId, nextState, { acceptedSource = null, at = utcNow() } = {}) {
+export function transitionSend(sendId, nextState, {
+  acceptedSource = null, at = utcNow(),
+  /**
+   * WHETHER THE CAMPAIGN'S STEP MOVES WITH THE ACCEPTANCE — D4.7.
+   *
+   * TRUE FOR EVERY CALLER THAT EXISTED BEFORE, so nothing about the legacy
+   * Outlook path or `confirm-sends` changes: they accept a message and its
+   * campaign step advances in the same breath, which is what they have always
+   * done and what their tests assert.
+   *
+   * The provider result boundary passes FALSE, and the reason is the one
+   * principle D4.1 settled: a provider's acceptance is primary truth and must
+   * not be rolled back because secondary bookkeeping failed. Advancing the
+   * attempt inside this transaction makes that impossible to honour — a
+   * constraint problem in a campaign table would unwind the only record that a
+   * real email reached a real coach. So `executionResult` commits the
+   * acceptance alone, then advances the attempt in a second transaction where
+   * a failure costs the bookkeeping and not the truth.
+   *
+   * IT IS NOT A LICENCE TO SKIP THE ADVANCE. The caller that passes false owes
+   * the advance immediately afterwards; it is a change of transaction, not of
+   * outcome.
+   */
+  advanceAttempt = true,
+} = {}) {
   if (!isMessageState(nextState)) {
     throw fail('INVALID_MESSAGE_STATE', `Unknown message state "${nextState}"`);
   }
@@ -344,17 +458,85 @@ export function transitionSend(sendId, nextState, { acceptedSource = null, at = 
      * than an exception. Recording that a message was accepted is the more
      * important of the two operations and must not break because of the lesser.
      */
-    const accepted = SEND_BY_ID.get(sendId);
-    advanceAttemptForConfirmedSend({
-      programmeCampaignId: accepted?.programme_campaign_id ?? null,
-      coachId: accepted?.coach_id ?? null,
-      at,
-    });
+    if (advanceAttempt) {
+      const accepted = SEND_BY_ID.get(sendId);
+      advanceAttemptForConfirmedSend({
+        programmeCampaignId: accepted?.programme_campaign_id ?? null,
+        coachId: accepted?.coach_id ?? null,
+        at,
+      });
+    }
   } else {
     db.prepare('UPDATE outreach_send SET state = ? WHERE id = ?').run(nextState, sendId);
   }
 
   return { ...parse(SEND_BY_ID.get(sendId)), changed: true };
+}
+
+/* -------------------------------------------------------------------------- */
+/* The execution claim — D4.5                                                  */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * TAKE THIS MESSAGE FOR EXECUTION, OR LOSE THE RACE. One statement.
+ *
+ * The guard and the write are ONE UPDATE, and `changes` says which happened.
+ * That is the whole mechanism: two callers that both read DRAFT and both
+ * decide to send is the failure a send path cannot survive, and reading the
+ * state and then writing it — which is what `transitionSend` does, correctly,
+ * for every other transition — leaves a window between the two. Here the
+ * database decides.
+ *
+ * IT IS NOT A SECOND STATE AUTHORITY. The legal graph is still
+ * shared/outreachMessageState.js and is asked below before anything is
+ * written; what this adds is atomicity, not permission. Only the states the
+ * graph says may reach SENDING appear in the WHERE clause.
+ *
+ * THE CLAIM IS ALSO THE LOCK ACROSS PROCESSES. `claim_run_id` records which
+ * run holds it, so a row still SENDING whose run is gone is a claim whose
+ * owner died — the fact D4.6's recovery will read. Nothing here resolves one.
+ *
+ * @returns {{claimed: boolean, send: object|null}} `claimed: false` means
+ *   somebody else has it, and the caller must write nothing further.
+ */
+const CLAIMABLE = [MESSAGE_STATE.DRAFT, MESSAGE_STATE.QUEUED];
+const CLAIM_LIST = CLAIMABLE.map((s) => `'${s}'`).join(', ');
+
+export function claimSendForExecution(sendId, { runId, at = utcNow() } = {}) {
+  if (typeof runId !== 'string' || !runId.trim() || /\s/.test(runId) || runId.length > 64) {
+    throw fail(
+      'CLAIM_RUN_ID_REQUIRED',
+      'An execution claim must say which run holds it: a non-empty identifier of at most 64 '
+      + 'characters with no whitespace, minted by the process doing the work. A claim nobody '
+      + 'can be attributed to cannot be recovered when the process that took it dies.',
+    );
+  }
+  const row = SEND_BY_ID.get(sendId);
+  if (!row) throw fail('SEND_NOT_FOUND', `No outreach_send ${sendId}`);
+
+  /**
+   * A MESSAGE THAT IS NOT CLAIMABLE AND A RACE THAT WAS LOST ARE ONE ANSWER.
+   *
+   * Both mean the same thing to a caller — somebody else has this message, or
+   * it has already been executed, so write nothing — and returning the state
+   * beside the answer says which without needing two vocabularies for one
+   * outcome. Throwing is reserved for a caller bug: a missing row, or a run id
+   * that could never be recovered from.
+   *
+   * The graph decides what may be claimed; this only says it atomically.
+   */
+  if (!CLAIMABLE.includes(row.state) || !canTransition(row.state, MESSAGE_STATE.SENDING)) {
+    return { claimed: false, send: parse(row) };
+  }
+
+  const result = db.prepare(`
+    UPDATE outreach_send
+       SET state = ?, claimed_at = ?, claim_run_id = ?
+     WHERE id = ? AND state IN (${CLAIM_LIST})
+  `).run(MESSAGE_STATE.SENDING, at, runId.trim(), sendId);
+
+  if (result.changes !== 1) return { claimed: false, send: parse(SEND_BY_ID.get(sendId)) };
+  return { claimed: true, send: parse(SEND_BY_ID.get(sendId)) };
 }
 
 /**

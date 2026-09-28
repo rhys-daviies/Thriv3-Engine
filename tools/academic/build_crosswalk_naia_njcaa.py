@@ -32,13 +32,19 @@ import re
 import sqlite3
 import sys
 from collections import defaultdict
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+import corpus as _corpus  # L7ZO: RECRUITMATCH_DB is honoured here too
+
 from pathlib import Path
 
 RAW = Path.home()/"Documents"/"Thriv3"/"University individualisation"/"_raw"
 SCORECARD = RAW/"academic_raw_scorecard.csv"
 OUT = RAW/"academic_crosswalk_naia_njcaa.csv"
 UNMATCHED = RAW/"academic_unmatched_naia_njcaa.csv"
-DB = "file:" + str(Path(__file__).resolve().parents[2]/"server"/"data"/"recruitmatch.sqlite") + "?mode=ro"
+DB = _corpus.read_only_uri(_corpus.resolve_db(
+    Path(__file__).resolve().parents[2] / "server" / "data" / "recruitmatch.sqlite"))
 
 GENERIC = {"university", "college", "the", "of", "at", "and", "campus", "main"}
 # Tolerated as an extra word on the Scorecard side only, and only when what

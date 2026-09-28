@@ -1,0 +1,108 @@
+{
+  "milestone": "PHASE 6C.3 — TRUE CORE ACQUISITION APPLIED",
+  "created_at": "2026-09-27T07:55:00Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev — NOT production /data)",
+  "pre_snapshot": "server/data/recruitmatch.sqlite.snapshot-pre-phase6c3-2026-09-27T075039Z",
+  "fingerprints": {
+    "algorithm": "sha256 over rows sorted by id, joined 'id|full_name|email|school|sport' (NOTE: differs from pre-6C.3 snapshots' algorithm)",
+    "coach_pre": "d34c2eb3a449f745cdf8b7e9c34b37ae58d0d7f1d4dd5a218fbca164ce5e5781",
+    "coach_post": "209cb89a564e317cd1b503a06aed05ecc852b2b418fb8f07b2d1bc0ec5779f70",
+    "colleges_post": "467241bfc7b8be299ec98e1e3f8384ecd9e149b34afc8f672b3db7d7b356a669_(unchanged — no programme mutation)"
+  },
+  "hashes": {
+    "acquisition_fixture": "e682c082235b8464",
+    "target_population": "00d5d2840b5b248f",
+    "existing_record_recovery_queue": "51964feda6515664",
+    "programme_defect_queue": "00a51de883876bc0"
+  },
+  "scope": {
+    "core_nodata_pre": 41,
+    "uscaa_excluded_out_of_scope": 21,
+    "phase6c3_target": 20,
+    "target_classification": { "TRUE_NO_DATA": 18, "SOURCE_FALLOUT": 1, "INELIGIBLE_EXISTING": 1 }
+  },
+  "activity_confirmation": {
+    "ACTIVE_CONFIRMED": 15,
+    "DISCONTINUED": 2,
+    "AFFILIATION_OR_STRUCTURAL_DEFECT": 1,
+    "ACTIVE_WITH_ROSTER_CURRENCY_FLAG": 1,
+    "held_recovery_active": 1,
+    "note": "20 targets: 11 acquired, 2 discontinued (Bryn Athyn, Valley Forge), 1 affiliation defect (Dallas Christian), 1 roster-currency flag (Trinity Washington, CURRENT_STAFF_NO_EMAIL), 2 existing-record-recovery held (Saint Joseph's ME active-confirmed; IU East active-confirmed), 3 CURRENT_STAFF_NO_EMAIL (Miami FL, Milligan M, Milligan W)."
+  },
+  "target_outcomes": {
+    "ACQUISITION_READY": 11,
+    "CURRENT_STAFF_NO_EMAIL": 4,
+    "EXISTING_RECORD_RECOVERY_held": 2,
+    "PROGRAMME_DEFECT": 3,
+    "GENERIC_ONLY": 0,
+    "VACANCY": 0,
+    "BLOCKED": 0,
+    "UNKNOWN": 0,
+    "sum": 20
+  },
+  "research": {
+    "coaches_researched": "~55 staff across 20 programmes",
+    "CURRENT_PERSONAL_EMAIL_used": 25,
+    "CURRENT_CONSUMER_EMAIL_used": 0,
+    "generic_only_programmes": 0,
+    "no_email_staff_or_programmes": "Miami FL, Milligan M/W, Trinity Washington (coach found, no published email)",
+    "duplicate_existing_person_findings": "Shaw McClure (dual-role, inserted), Loras Pucci (dual-role, HELD name-string), Pacific Union Granados+Perez (dual-role, inserted), Shaw Luevano (same-name+mismatch, HELD), Saint Joseph's ME 5 rows + IU East 2 rows (mis-filed/moved, HELD)"
+  },
+  "inserted": {
+    "count": 25,
+    "programmes": 11,
+    "became_covered_eligible": 3,
+    "rows_added_still_ineligible_programmes": 8,
+    "eligible_ids_note": "3 programmes flipped to COVERED_ELIGIBLE (Shaw, Loras, Trinity University); the other 8 got correct current rows but remain ineligible pending domain corroboration (a separate axis).",
+    "ids": [
+      "cc37fc64-4fe0-4bad-9e6d-16e9be5d4394", "3a3351c3-5845-4939-a8c0-925073d9ba7c", "84fb7bbe-6e2c-4f30-8a62-7e3aaf1c3e5d",
+      "79da6219-4285-4c72-bd04-bb2de1a6303f", "3e0a26bd-dfb5-43e7-a86f-f7d65c13b6a3",
+      "d2e37b8c-b252-44c1-b206-b006704fde90", "fe9c2c0c-9557-45fa-b360-91e87fe2451f",
+      "f9fbf247-eeee-4973-9d8a-24d989bc87cb", "465600d9-5371-43e3-ac90-a5c479c86100",
+      "447c1fee-61e0-45dc-bf4d-0d2d0de913e4", "daa47adc-0e5c-45de-861d-c95cfb2e8c2a", "61b353ce-df95-4088-b4e2-cf25ceec74d3",
+      "96c76847-8d57-4b4e-8548-4a631cdd031f", "768d87cd-6fc2-4091-84fa-f5c425f6e104", "8c4456da-cc43-40da-a084-9a0251a38b3d", "2c7a8b0f-1cf7-423b-9c5b-020c166b5334",
+      "9b82a64c-cdf0-49aa-b9de-e496c4809c82",
+      "06eb1026-5bbc-4544-a8a3-1b4bda4868a7", "66fd6cda-ae04-46e2-bae3-0c5b244f6bbf",
+      "6b4a27b5-c542-42b4-8010-29f1784a1ffa", "e179ecc1-5b5c-4f0b-8fdc-8bb57a4b7619",
+      "10bafa6d-aa8e-4d57-8fd9-180ddaaf8f3d",
+      "e8033cfa-bf69-4aff-a092-01418b771c02", "7ad5a143-7b13-4662-8598-8ba5b6c1bf96", "46b2c36c-1da2-4abf-a990-acafcc3d1f1e"
+    ]
+  },
+  "before_after": {
+    "coaches": [6388, 6413],
+    "eligible_coaches": [3343, 3348],
+    "COVERED_ELIGIBLE": [1482, 1485],
+    "COVERED_INELIGIBLE_ONLY": [631, 639],
+    "COACH_SEASONS_ONLY": [16, 16],
+    "NO_COACH_DATA_core": [41, 30],
+    "core_pct": ["68.3%", "68.4%"],
+    "div_pct": { "D1": "84.3%", "D2": "87.7%", "D3": "81.5%", "NAIA": "0.5%", "USCAA": "0.0%" },
+    "gender_pct": { "men": "67.0%", "women": "69.5%" }
+  },
+  "integrity": {
+    "critical_failures": "4 (pre-existing, unrelated: floridasports.com/wvu.edu/njcu.edu/pct.edu) — unchanged",
+    "source_domain_conflicts": 0,
+    "wrong_institution_eligible": 0,
+    "canonical_round_trip": 0,
+    "duplicate_identity_rows": 0,
+    "duplicate_emails": [118, 121],
+    "duplicate_emails_note": "+3 = legitimate dual-roles (McClure Shaw M+W; Granados+Perez PUC M+W), not defects",
+    "orphan_coaches": 1,
+    "email_confirmed_at": 0,
+    "integrity_check": "ok"
+  },
+  "remaining_core_backlog": {
+    "total_core_nodata_or_uncovered": "30 NODATA + 639 ineligible-only (mostly 377 NAIA out of scope)",
+    "buckets": {
+      "1_remaining_true_acquisition_gaps": "0 non-USCAA true-no-data with an acquirable email remain unaddressed",
+      "2_current_staff_no_eligible_email": "4 (Miami FL W, Milligan M, Milligan W, Trinity Washington W)",
+      "3_coach_seasons_exceptions": 16,
+      "4_existing_record_recovery_held": "2 programmes (Saint Joseph's ME M ~5+1, IU East M) + 2 held dual-role/ambiguous (Loras Pucci, Shaw Luevano)",
+      "5_programme_structural_issues": "3 (Bryn Athyn discontinued, Valley Forge closed, Dallas Christian affiliation) + flags (Shaw division, Trinity Washington currency)",
+      "6_vacancies": 0,
+      "7_blocked_unknown": 0,
+      "8_domain_corroboration_pending": "8 acquired programmes have correct current rows but need athletics_domains/coach_seasons corroboration to become covered-eligible (Tuskegee, Wayne State MI, Simpson, Huntingdon, Ozarks AR, Pacific Union, Saint Mary's IN, Anna Maria)",
+      "9_uscaa_out_of_scope": 21
+    }
+  }
+}

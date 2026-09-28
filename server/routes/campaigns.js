@@ -8,6 +8,13 @@ import {
 } from '../lib/campaigns.js';
 import { campaignExecutionPlan } from '../lib/campaignExecution.js';
 import {
+  executeProgrammeMessage, reattemptExecution, EXECUTION_REFUSAL,
+} from '../lib/executeProgrammeMessage.js';
+import { RETRY_REFUSAL } from '../lib/executionRetry.js';
+import { executionReadiness } from '../lib/executionReadiness.js';
+import { CLAIM_REFUSAL } from '../lib/executionClaim.js';
+import { BUDGET_REFUSAL } from '../lib/outboundBudget.js';
+import {
   programmePursuitPlan, materialiseNextContactAttempt, PREPARATION_REFUSAL,
 } from '../lib/pursuitPolicy.js';
 import { CONTACT_REFUSAL } from '../lib/campaignAttribution.js';
@@ -292,6 +299,77 @@ const STATUS_BY_CODE = Object.freeze({
   ANALYSIS_EMPTY: 422,
   ANALYSIS_TOO_LARGE: 422,
   ANALYSIS_INVALID: 422,
+
+  /* ---- D4.9: sending a reviewed message ---------------------------------- */
+  /**
+   * THE STATUSES ARE CHOSEN TO DISCOURAGE A RETRY THAT COULD SEND TWICE.
+   *
+   * ===========================================================================
+   * THE RULE: A REQUEST THAT REACHED A PROVIDER IS A 200, WHATEVER IT LEARNED.
+   *
+   * ACCEPTED, FAILED and UNKNOWN_PROVIDER_RESULT are all answered 200 with the
+   * durable state in the body, and UNKNOWN especially. A 5xx for an ambiguous
+   * send would invite the client, a proxy or a service worker to retry it —
+   * and the one thing that must never be retried is a message that may already
+   * be in a coach's inbox. The request succeeded; the outcome is the payload.
+   * ===========================================================================
+   *
+   * 409 — the world is not as the caller believed, and they can look and retry:
+   *      the review moved, this message has already gone, somebody else holds
+   *      the claim, an earlier message to this coach is unresolved.
+   *
+   * 422 — well-formed, naming real things, and not allowed to be true. A retry
+   *      changes none of them: a closed campaign, a suppression, a spent cap or
+   *      budget, an unreviewed first touch, a revoked mailbox, a follow-up that
+   *      is not due. Somebody has to do something else first.
+   *
+   * 503 — there is no transport. Nothing was claimed and no capacity was spent,
+   *      and it is the server's condition rather than the request's, so this is
+   *      the one refusal a client may reasonably retry later.
+   */
+  [EXECUTION_REFUSAL.MESSAGE_REVIEW_CHANGED]: 409,
+  /* ---- D5.0: explicit re-execution of a proven non-send ------------------ */
+  /**
+   * 409, NOT 422, AND THE DIFFERENCE IS DELIBERATE. Each of these says the
+   * execution is not in a state a re-attempt applies to — accepted, unresolved,
+   * already in flight, a mailbox that is not the frozen one, or another open
+   * message on the relationship. That is a conflict with the resource as it
+   * stands, which a caller resolves by looking at it rather than by waiting.
+   */
+  /**
+   * 404: THE EXECUTION IS NOT THERE. Answered like any other missing resource,
+   * and before any policy refusal could imply that it is.
+   */
+  [RETRY_REFUSAL.EXECUTION_NOT_FOUND]: 404,
+  [RETRY_REFUSAL.EXECUTION_NOT_RETRYABLE]: 409,
+  [RETRY_REFUSAL.NO_PRE_TRANSPORT_EVIDENCE]: 409,
+  [RETRY_REFUSAL.RETRY_CLAIM_LOST]: 409,
+  [RETRY_REFUSAL.RETRY_MAILBOX_MISMATCH]: 409,
+  [RETRY_REFUSAL.RELATIONSHIP_HAS_OPEN_MESSAGE]: 409,
+  [RETRY_REFUSAL.EXECUTION_SNAPSHOT_INCOMPLETE]: 409,
+  EXECUTION_RETRY_ARGUMENT_REQUIRED: 422,
+  [CLAIM_REFUSAL.MESSAGE_ALREADY_EXECUTED]: 409,
+  [CLAIM_REFUSAL.SEND_CLAIM_LOST]: 409,
+  [CLAIM_REFUSAL.RELATIONSHIP_HAS_UNRESOLVED_SEND]: 409,
+
+  [EXECUTION_REFUSAL.MESSAGE_NOT_REVIEWED]: 422,
+  [CLAIM_REFUSAL.MESSAGE_NOT_REVIEWED]: 422,
+  [CLAIM_REFUSAL.MESSAGE_NOT_CURRENT]: 422,
+  [CLAIM_REFUSAL.RECIPIENT_EMAIL_CHANGED]: 422,
+  [CLAIM_REFUSAL.NO_ACTION_TO_EXECUTE]: 422,
+  [CLAIM_REFUSAL.SEND_CAP_REACHED]: 422,
+  [CLAIM_REFUSAL.FOLLOW_UP_NOT_DUE]: 422,
+  [CLAIM_REFUSAL.MAILBOX_NOT_FOUND]: 422,
+  [CLAIM_REFUSAL.MAILBOX_NOT_CONNECTED]: 422,
+  [CLAIM_REFUSAL.MAILBOX_ATHLETE_MISMATCH]: 422,
+  [CLAIM_REFUSAL.MAILBOX_CREDENTIAL_MISSING]: 422,
+  [BUDGET_REFUSAL.ATHLETE_DAILY_BUDGET_EXHAUSTED]: 422,
+  [BUDGET_REFUSAL.MAILBOX_DAILY_BUDGET_EXHAUSTED]: 422,
+  [BUDGET_REFUSAL.SENDING_IDENTITY_REQUIRED]: 422,
+  [BUDGET_REFUSAL.MAILBOX_LIMIT_REQUIRED]: 422,
+  EXECUTION_ARGUMENT_REQUIRED: 422,
+
+  [EXECUTION_REFUSAL.TRANSPORT_NOT_CONFIGURED]: 503,
 });
 
 /**
@@ -313,10 +391,24 @@ const OPAQUE_CODES = Object.freeze({
  * One handler for every route, so no endpoint can develop its own opinion
  * about what a 404 is.
  */
+/**
+ * ASYNC-SAFE SINCE D4.9, AND SYNCHRONOUS HANDLERS ARE UNAFFECTED.
+ *
+ * Every route here was synchronous, so `fn(req)` was destructured directly.
+ * The execution endpoint cannot be: it claims, then awaits a transport, then
+ * persists the result. Handed an async `fn`, the old form destructured a
+ * Promise — `status` and `body` both undefined — and a rejection became an
+ * unhandled promise rejection with no response ever written.
+ *
+ * `await` on a non-promise is the value itself, so the twenty-odd existing
+ * routes behave exactly as before and their tests prove it. The catch now
+ * covers a rejected promise as well as a throw, so there is still exactly one
+ * place that decides what a 404 is, and exactly one response per request.
+ */
 function handle(label, fn) {
-  return (req, res) => {
+  return async (req, res) => {
     try {
-      const { status = 200, body } = fn(req);
+      const { status = 200, body } = await fn(req);
       return res.status(status).json(body);
     } catch (err) {
       if (err.status) return res.status(err.status).json({ error: err.message });
@@ -777,9 +869,11 @@ function refusalSentence(reason, out) {
       return `${where} is set to do-not-contact for this athlete. Change the contact stance on `
         + 'the relationship first.';
     case CONTACT_REFUSAL.RELATIONSHIP_MANUAL_ONLY:
+      // F8c — named as the UI names it since F8b. Wording only; the code,
+      // the status and the response shape are unchanged.
       return `${where} is set to manual contact only for this athlete, so an automated campaign `
-        + 'may not pursue it. A person still may — send it from Relationship Outreach or Email '
-        + 'Coaches, or change the contact stance.';
+        + 'may not pursue it. A person still may — use "Create email draft" or "Email '
+        + 'Coaches", or change the contact stance.';
     case CONTACT_REFUSAL.SUPPRESSED:
       return 'This address has opted out of Thriv3, across every athlete and campaign.';
     default:
@@ -1011,6 +1105,164 @@ campaignsRouter.post(
       operatorId: req.operator.id,
     });
     return { body: programmeMessageBody(reviewed) };
+  }),
+);
+
+/**
+ * ---- SEND A REVIEWED MESSAGE — D4.9 ---------------------------------------
+ *
+ * ===========================================================================
+ * THE BODY CARRIES TWO FIELDS, AND NEITHER IS EXECUTION AUTHORITY.
+ *
+ *   bodyHash            the reviewed hash the client was shown, so a message
+ *                       edited since it was loaded is refused rather than sent
+ *   connectedMailboxId  which of the athlete's mailboxes to send from
+ *
+ * Everything else is DERIVED SERVER-SIDE from rows a request cannot write: the
+ * athlete, the campaign, the programme, the coach, the recipient, the subject,
+ * the body, the step, the sequence, the evidence, the provider, the sending
+ * identity, the budget, the timing and every policy. `readBody` refuses any
+ * other field by name, so a caller cannot smuggle a recipient or a subject past
+ * it and be told it worked.
+ *
+ * THE OPERATOR COMES FROM THE SESSION, never the body — the same rule review
+ * follows, and for a stronger reason: this one sends an email.
+ * ===========================================================================
+ *
+ * THE MAILBOX IS NAMED BUT NOT TRUSTED. A caller may choose among the
+ * athlete's mailboxes; `executionClaim` independently proves the one named
+ * exists, belongs to this operator AND this athlete, is CONNECTED, holds a
+ * credential and has a supported provider. Naming a mailbox is not authority to
+ * send from it.
+ */
+campaignsRouter.post(
+  '/programme-messages/:messageId/send',
+  handle('campaigns/send-message', async (req) => {
+    const body = readBody(req.body, ['bodyHash', 'connectedMailboxId'], 'programme message send');
+    refuseQuery(req);
+
+    for (const field of ['bodyHash', 'connectedMailboxId']) {
+      if (typeof body[field] !== 'string' || !body[field].trim()) {
+        throw badRequest(`A programme message send request needs ${field}.`);
+      }
+    }
+
+    /**
+     * 404 BEFORE ANYTHING ELSE, so a message that does not exist is not
+     * answered with a policy refusal that implies it does.
+     */
+    if (!programmeMessageWithContext(req.params.messageId)) {
+      throw notFoundMessage(req.params.messageId);
+    }
+
+    const out = await executeProgrammeMessage({
+      programmeMessageId: req.params.messageId,
+      operatorUserId: req.operator.id,
+      connectedMailboxId: body.connectedMailboxId,
+      bodyHash: body.bodyHash,
+    });
+
+    /**
+     * 200 WITH THE DURABLE STATE, INCLUDING FOR UNKNOWN — see STATUS_BY_CODE.
+     * The request succeeded; what the provider said is the payload. A 5xx for
+     * an ambiguous send would invite the retry that must never happen.
+     */
+    return { body: out };
+  }),
+);
+
+/**
+ * ---- ATTEMPT AGAIN A MESSAGE THAT PROVABLY NEVER LEFT — D5.0 --------------
+ *
+ * ===========================================================================
+ * KEYED ON THE EXECUTION, NOT ON THE MESSAGE, BECAUSE THAT IS WHAT IT REPEATS.
+ *
+ * `POST /programme-messages/:id/send` creates an execution; there is exactly
+ * one per approved message and a second is refused. This endpoint does not
+ * create anything — it re-attempts the execution that already exists, reusing
+ * its id, its frozen bytes, its sequence and its mailbox. Naming it after the
+ * message would suggest a second send of the same words was on offer, which is
+ * the one thing MESSAGE_ALREADY_EXECUTED exists to prevent.
+ *
+ * It is on this router rather than a new one: `campaignsRouter` is mounted at
+ * /api and already owns every execution route, and a router per resource noun
+ * would be architecture for its own sake.
+ * ===========================================================================
+ *
+ * ---------------------------------------------------------------------------
+ * IT TAKES NO BODY AT ALL, AND THAT IS THE STRONGEST VERSION OF THE RULE.
+ *
+ * A first send needs `bodyHash`, because the operator is approving words they
+ * were shown and those words could have moved. A re-attempt cannot have that
+ * problem: the bytes are frozen on `outreach_send` and are the only bytes that
+ * can go — nothing regenerates them, and `programme_messages` is not read for
+ * content here. There is nothing for an acknowledgement to acknowledge.
+ *
+ * `connectedMailboxId` is likewise absent. A retry goes from the mailbox the
+ * message was authorised to be sent from; the authority refuses any other, and
+ * an endpoint that accepted one would imply a choice that does not exist.
+ * ---------------------------------------------------------------------------
+ *
+ * NOT AUTOMATIC, ANYWHERE. Nothing in the product calls this on a timer, on a
+ * failure, or on a page load. It runs because somebody asked.
+ */
+campaignsRouter.post(
+  '/outreach-sends/:sendId/retry',
+  handle('campaigns/retry-send', async (req) => {
+    readBody(req.body, [], 'execution re-attempt');
+    refuseQuery(req);
+
+    const out = await reattemptExecution({
+      outreachSendId: req.params.sendId,
+      operatorUserId: req.operator.id,
+    });
+
+    /** 200 with the durable state, on the same terms as a first send. */
+    return { body: out };
+  }),
+);
+
+/**
+ * ---- IS THIS MESSAGE READY TO SEND? — D4.9 --------------------------------
+ *
+ * ===========================================================================
+ * ADVISORY. IT IS NOT PERMISSION AND IT CANNOT BE TRADED FOR ANY.
+ *
+ * Every fact here can move between this answer and a send: an address, a
+ * stance, a suppression, a mailbox, a day's capacity, the four-day clock. So
+ * `readyNow` means READY WHEN ASKED and nothing stronger, and
+ * `claimRechecksEverything` is on the response to say so in the payload rather
+ * than only in this comment.
+ *
+ * There is no code path from a readiness answer into the claim. The claim takes
+ * ids and re-establishes every one of these itself, inside the transaction that
+ * writes. A design where "readiness said yes" let the claim skip a check would
+ * be a preview of a world that had already moved.
+ * ===========================================================================
+ *
+ * IT WRITES NOTHING AND SPENDS NOTHING. No claim, no send row, no budget, no
+ * token, no attempt. Budget is READ through the athlete-level decision, which
+ * consumes nothing.
+ */
+campaignsRouter.get(
+  '/programme-messages/:messageId/execution-readiness',
+  handle('campaigns/execution-readiness', (req) => {
+    const mailboxId = req.query?.connectedMailboxId ?? null;
+    for (const key of Object.keys(req.query ?? {})) {
+      if (key !== 'connectedMailboxId') {
+        throw badRequest(`Unknown query parameter: ${key}. This request takes connectedMailboxId.`);
+      }
+    }
+    if (!programmeMessageWithContext(req.params.messageId)) {
+      throw notFoundMessage(req.params.messageId);
+    }
+    return {
+      body: executionReadiness({
+        programmeMessageId: req.params.messageId,
+        operatorUserId: req.operator.id,
+        connectedMailboxId: typeof mailboxId === 'string' && mailboxId.trim() ? mailboxId : null,
+      }),
+    };
   }),
 );
 

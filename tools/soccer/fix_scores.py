@@ -28,8 +28,13 @@ count, since another session has been writing those files throughout.
 Usage: python3 fix_scores.py [--apply]
 """
 import csv, sqlite3, sys
+import sys as _sys
+from pathlib import Path as _Path
+_sys.path.insert(0, str(_Path(__file__).resolve().parents[1]))
+import corpus as _corpus  # L7ZO: RECRUITMATCH_DB is honoured here too
 
-DB = "/Users/rhysdavies/Documents/Recruitmatch/app/server/data/recruitmatch.sqlite"
+
+DB = _corpus.resolve_db()
 RECORDS = {"mens-soccer": "soccer_records.csv", "womens-soccer": "soccer_records_women.csv"}
 FRESH = {"mens-soccer": "rank_men.csv", "womens-soccer": "rank_women.csv"}
 BASE = "/Users/rhysdavies/Documents/Recruitmatch/individualisation"
@@ -86,6 +91,8 @@ if skipped:
 if not APPLY:
     print("\nDry run -- re-run with --apply to write.")
 else:
+    # L7ZO: writing a corpus other checkouts share needs saying so.
+    _corpus.assert_canonical_write("fix_scores.py", DB)
     cur = con.cursor()
     for i, n, s, a, b in stale:
         cur.execute("UPDATE colleges SET soccer_score=?, updated_date=datetime('now') WHERE id=?", (b, i))

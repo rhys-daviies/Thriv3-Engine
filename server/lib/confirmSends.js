@@ -25,6 +25,7 @@ import { utcNow } from './time.js';
 import { markOutreachSent } from './outreach.js';
 import { acceptSend } from './outreachSend.js';
 import { recordManualOutboundAttempt } from './outboundBudget.js';
+import { establishManualOnlyForConfirmedSend } from './manualContactStance.js';
 import { MESSAGE_STATE, OPEN_STATES, ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
 
 const OPEN_LIST = OPEN_STATES.map((s) => `'${s}'`).join(', ');
@@ -198,6 +199,44 @@ export function confirmSent(ids = [], { at = utcNow() } = {}) {
         recordManualOutboundAttempt({ outreachId: id, at });
       } catch (err) {
         console.warn(`  outbound attempt not recorded for ${id}: ${err.message}`);
+      }
+
+      /**
+       * AND THE CAMPAIGN NOW LEAVES THIS SCHOOL ALONE — F5b.
+       *
+       * ---------------------------------------------------------------------
+       * THIS IS THE COMMON PATH, NOT THE RARE ONE. Today's manual workflow is
+       * draft twenty in Outlook, send them by hand, then confirm the batch —
+       * so a seam that existed only on the route's `send: true` branch would
+       * catch the exception and miss the rule.
+       *
+       * IT IS ALSO THE PATH WHERE PROVENANCE MUST BE CHECKED, because this
+       * function confirms whatever the operator was shown and a campaign
+       * message can be in that list. `establishManualOnlyForConfirmedSend`
+       * reads `outreach_send.origin` for THIS message and establishes nothing
+       * unless it says `manual` — a campaign confirmation must never write
+       * manual-contact policy, and a row from before the origin vocabulary
+       * existed records no provenance to act on.
+       *
+       * The relationship is resolved from `coaches.school` and `coaches.sport`
+       * — where the message actually went — rather than from any label the
+       * caller was holding.
+       *
+       * IDEMPOTENT. Re-confirming a batch reaches an already-manual_only
+       * relationship, which changes nothing and bumps no timestamp; and two
+       * confirmed messages to two coaches at one school establish the one
+       * programme-level policy once.
+       * ---------------------------------------------------------------------
+       *
+       * Best-effort for the same reason as the ledger write above, and no
+       * stronger: by the time a batch is being confirmed the coaches already
+       * have their email, and declining to write down the send because a
+       * policy write failed would lose the more important of the two facts.
+       */
+      try {
+        establishManualOnlyForConfirmedSend({ outreachId: id, outreachSendId: sendId ?? null });
+      } catch (err) {
+        console.warn(`  contact stance not established for ${id}: ${err.message}`);
       }
     }
   })();

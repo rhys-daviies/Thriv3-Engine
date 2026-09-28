@@ -29,6 +29,8 @@ import { programmeCoachesRouter } from './routes/programmeCoaches.js';
 import { manualOutreachRouter } from './routes/manualOutreach.js';
 import { contactIntelligenceRouter } from './routes/contactIntelligence.js';
 import { OUTREACH_ORIGIN } from '../shared/outreachOrigin.js';
+import { rosterGapsRouter } from './routes/rosterGaps.js';
+import { rosterSeasonTrustRouter } from './routes/rosterSeasonTrust.js';
 import { UPLOADS_DIR } from './lib/uploadPath.js';
 import { athleteEngagement, coachSessions } from './lib/engagementQueries.js';
 import { sendOutreach } from './routes/sendOutreach.js';
@@ -36,6 +38,7 @@ import { emailStatusMap } from './lib/coaches.js';
 import { publicProfileHandler } from './routes/publicProfile.js';
 import { OUTPUT_DIR } from './export/exportProfiles.js';
 import { publishStatus, regenerate, publish } from './routes/publish.js';
+import { playerLifecycleRouter, blockPlayerHardDelete } from './routes/playerLifecycle.js';
 import { syncWithEdge, isEdgeConfigured, lastSyncedAt } from './lib/edgeSync.js';
 import { startSyncScheduler, syncStatus } from './lib/syncScheduler.js';
 import { markResponded, clearResponded } from './lib/engagementRollup.js';
@@ -53,6 +56,7 @@ import {
 } from './lib/operatorAuth.js';
 import { securityHeaders, corsPolicy } from './lib/httpSecurity.js';
 import { assertRuntime, describeRuntime, resolveConfig } from './lib/runtimeConfig.js';
+import { recoverPriorRunSendingClaims } from './lib/executionRecovery.js';
 import { renderProgramReport, reportFilename, asciiFilename } from './lib/philosophyReport.js';
 import {
   generateReport, listReports, readArtifact, selectableAthletes, selectableProgrammes,
@@ -239,7 +243,8 @@ app.post('/api/entities/:table', writing((entity, req) => entity.create(req.body
 
 app.put('/api/entities/:table/:id', writing((entity, req) => entity.update(req.params.id, req.body)));
 
-app.delete('/api/entities/:table/:id', (req, res) => {
+// Players are archived, never hard-deleted — see blockPlayerHardDelete.
+app.delete('/api/entities/:table/:id', blockPlayerHardDelete, (req, res) => {
   const entity = ENTITIES[req.params.table];
   if (!entity) return res.status(404).json({ error: 'Unknown entity' });
   res.json(entity.delete(req.params.id));
@@ -337,6 +342,9 @@ app.post('/api/players/:playerId/evidence', (req, res) => {
       // validated: `resolveStructure` refuses one the selected evidence does
       // not support rather than silently using it.
       preferStructure: (req.body || {}).preferStructure || null,
+      // F9e - which coaches this email is for. Optional; the server derives
+      // what they have already been told and the client never asserts it.
+      coachIds: (req.body || {}).coachIds || null,
     }));
   } catch (err) {
     console.error('[evidence/summaries]', err);
@@ -583,6 +591,22 @@ app.use('/api', manualOutreachRouter);
 // screen. Read-only: there is no sibling that writes, and nothing here marks a
 // programme contacted.
 app.use('/api', contactIntelligenceRouter);
+// ---- NCAA roster-gap review ----
+//
+// Purpose-built for the same reason as campaignsRouter: `roster_gap_reviews`
+// must not be reachable through the unvalidated ENTITIES pass-through, where a
+// client could store a disposition the vocabulary refuses.
+app.use('/api', rosterGapsRouter);
+
+// ---- Historical season trust review ----
+//
+// Same reason again, and one more: `roster_season_trust.disposition` is the one
+// operator-writable field in the product that CHANGES WHAT EVIDENCE BELIEVES.
+// Reachable through the ENTITIES pass-through it could be set anonymously, with
+// no evidence and no reviewer, which is precisely the governance rule L7ZK
+// exists to enforce. The write path here is built and deliberately disabled
+// until the application has an authenticated operator.
+app.use('/api', rosterSeasonTrustRouter);
 
 // ---- Uploads (UploadFile integration replacement) ----
 //
@@ -602,6 +626,9 @@ app.post('/api/csv-agent/chat', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// ---- Athlete lifecycle: the active list, and Delete ----
+app.use('/api', playerLifecycleRouter);
 
 // ---- Publishing an athlete's public page ----
 
@@ -792,21 +819,62 @@ if (config.clientDir) {
 const isMain = process.argv[1]
   && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
-if (isMain) {
-  assertRuntime({ env: process.env });
+/**
+ * THE ORDER OF BOOT, EXTRACTED SO IT CAN BE PROVED — D4.6.
+ *
+ * It was three statements inside `if (isMain)`, which is fine until one of them
+ * is a correctness requirement rather than a convenience. Recovery is one:
+ *
+ *   assertRuntime   refuse to start half-configured
+ *   RECOVERY        resolve the claims a dead process left behind
+ *   listen          only now may a request arrive
+ *
+ * RECOVERY MUST PRECEDE THE FIRST REQUEST, and the reason is the state it
+ * resolves. Between a crash and the sweep, every abandoned message is still
+ * SENDING — which reads as "a transport is working on it". A request served in
+ * that window sees a live claim where there is a dead one. There is no
+ * execution route yet, so nothing can observe it today; the ordering is
+ * established now because adding the route later is not the moment to remember
+ * this, and because a sweep that ran after `listen` would be a race nobody
+ * would think to look for.
+ *
+ * It runs HERE and nowhere else. Importing `executionRecovery.js` recovers
+ * nothing, so a CLI script that reaches the execution modules for its own work
+ * cannot silently rewrite SENDING rows as a side effect of starting up.
+ *
+ * The seams are for the ordering test and for `assertRuntime`'s own contract;
+ * nothing else about startup moved.
+ */
+export function boot({
+  env = process.env, log = console, exit = process.exit,
+  recover = recoverPriorRunSendingClaims,
+  listen = (...args) => app.listen(...args),
+} = {}) {
+  assertRuntime({ env, log, exit });
 
-  app.listen(config.port, config.host, () => {
-    console.log(`Thriv3 API listening on http://${config.host === '0.0.0.0' ? 'localhost' : config.host}:${config.port}`);
-    console.log(`  ${describeRuntime(config)}`);
+  const recovery = recover();
+  // Said out loud even when it is zero: a boot that quietly adopted messages
+  // from a dead run is exactly the thing somebody needs to be able to see.
+  log.log(recovery.recovered
+    ? `Recovered ${recovery.recovered} abandoned execution claim(s) — now UNKNOWN_PROVIDER_RESULT.`
+    : 'No abandoned execution claims to recover.');
+
+  const server = listen(config.port, config.host, () => {
+    log.log(`Thriv3 API listening on http://${config.host === '0.0.0.0' ? 'localhost' : config.host}:${config.port}`);
+    log.log(`  ${describeRuntime(config)}`);
 
     // Said out loud either way. "Nothing schedules the sync" was true for four
     // days without anybody knowing, and silence at boot is what allowed that.
     const scheduler = startSyncScheduler();
-    console.log(scheduler.started
+    log.log(scheduler.started
       ? `Engagement sync scheduled every ${scheduler.intervalMinutes} minute(s).`
       : `Engagement sync NOT scheduled — ${scheduler.reason}.`);
   });
+
+  return { recovery, server };
 }
+
+if (isMain) boot();
 
 /**
  * Exported so a test can bind it to an ephemeral port and exercise the real

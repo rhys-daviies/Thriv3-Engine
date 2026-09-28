@@ -5,7 +5,7 @@ import { normalizeDivision } from '../../shared/divisions.js';
 
 /**
  * Coaches are identified by (email, school, sport). A generic address like
- * msoccer@cornell.edu is legitimately shared across a staff, so the school and
+ * msoccer@example.edu is legitimately shared across a staff, so the school and
  * sport are part of the key rather than the address alone. An email is
  * required: a coach we cannot mail cannot be sent outreach.
  */

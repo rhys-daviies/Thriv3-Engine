@@ -1,0 +1,132 @@
+{
+  "programmes": [
+    {
+      "unitid": 161554,
+      "name": "Southern Maine",
+      "division": "NCAA D3",
+      "conference": "Little East Conference",
+      "active": 1,
+      "copy_from_sport": "mens-soccer",
+      "womens_soccer": "EXTERNALLY_VERIFIED_ACTIVE_2026_27"
+    },
+    {
+      "unitid": 165671,
+      "name": "Emmanuel (MA)",
+      "division": "NCAA D3",
+      "conference": "Greater Northeast Athletic Conference",
+      "active": 1,
+      "copy_from_sport": "mens-soccer",
+      "womens_soccer": "EXTERNALLY_VERIFIED_ACTIVE_2026_27"
+    },
+    {
+      "unitid": 182980,
+      "name": "New England College",
+      "division": "NCAA D3",
+      "conference": "Greater Northeast Athletic Conference",
+      "active": 1,
+      "copy_from_sport": "mens-soccer",
+      "womens_soccer": "EXTERNALLY_VERIFIED_ACTIVE_2026_27"
+    },
+    {
+      "unitid": 183062,
+      "name": "Keene State",
+      "division": "NCAA D3",
+      "conference": "Little East Conference",
+      "active": 1,
+      "copy_from_sport": "mens-soccer",
+      "womens_soccer": "EXTERNALLY_VERIFIED_ACTIVE_2026_27"
+    },
+    {
+      "unitid": 217420,
+      "name": "Rhode Island College",
+      "division": "NCAA D3",
+      "conference": "Little East Conference",
+      "active": 1,
+      "copy_from_sport": "mens-soccer",
+      "womens_soccer": "EXTERNALLY_VERIFIED_ACTIVE_2026_27"
+    }
+  ],
+  "coaches": [
+    {
+      "coach_id": "4b019adb-2c71-46d1-958b-90842c2962a4",
+      "name": "Sarah Testo",
+      "current_school": "Kent State",
+      "sport": "womens-soccer",
+      "target_school": "Keene State",
+      "target_unitid": 183062,
+      "source_domain": "keeneowls.com"
+    },
+    {
+      "coach_id": "481678ab-eff8-4c8f-b338-bdc4ebd16cfe",
+      "name": "Ike McMillan",
+      "current_school": "Kent State",
+      "sport": "womens-soccer",
+      "target_school": "Keene State",
+      "target_unitid": 183062,
+      "source_domain": "keeneowls.com"
+    },
+    {
+      "coach_id": "a92b9c8d-8070-4e0a-a01e-573977af3c53",
+      "name": "Phil Pincince",
+      "current_school": "Rhode Island",
+      "sport": "womens-soccer",
+      "target_school": "Rhode Island College",
+      "target_unitid": 217420,
+      "source_domain": "goanchormen.com"
+    },
+    {
+      "coach_id": "5aec2575-c02c-40fc-9deb-b00d68a7f5b9",
+      "name": "Luis Faria",
+      "current_school": "Rhode Island",
+      "sport": "womens-soccer",
+      "target_school": "Rhode Island College",
+      "target_unitid": 217420,
+      "source_domain": "goanchormen.com"
+    },
+    {
+      "coach_id": "6b4c7c55-f4a7-4d2e-8cd6-e9070664fc77",
+      "name": "Martyn Keen",
+      "current_school": "Southern Miss",
+      "sport": "womens-soccer",
+      "target_school": "Southern Maine",
+      "target_unitid": 161554,
+      "source_domain": "southernmainehuskies.com"
+    },
+    {
+      "coach_id": "9ad2aedd-1e35-43c6-9b16-036ac1f09545",
+      "name": "Erinn Ring",
+      "current_school": "Emmanuel (GA)",
+      "sport": "womens-soccer",
+      "target_school": "Emmanuel (MA)",
+      "target_unitid": 165671,
+      "source_domain": "goecsaints.com"
+    },
+    {
+      "coach_id": "b6772e8c-b6c3-4dde-a5da-9d86d198b580",
+      "name": "Paul Vazquez",
+      "current_school": "University of New England",
+      "sport": "womens-soccer",
+      "target_school": "New England College",
+      "target_unitid": 182980,
+      "source_domain": "nec.edu"
+    },
+    {
+      "coach_id": "753f372e-cc08-41b9-b171-0e34a32c24b2",
+      "name": "Jeff Vogt",
+      "current_school": "University of New England",
+      "sport": "womens-soccer",
+      "target_school": "New England College",
+      "target_unitid": 182980,
+      "source_domain": "nec.edu"
+    },
+    {
+      "coach_id": "f7bac008-f612-467b-9a4c-3528db0d68f9",
+      "name": "Nicole Cotrone",
+      "current_school": "University of New England",
+      "sport": "womens-soccer",
+      "target_school": "New England College",
+      "target_unitid": 182980,
+      "source_domain": "nec.edu"
+    }
+  ]
+}

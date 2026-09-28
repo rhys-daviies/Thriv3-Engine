@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { EXISTING_RELATIONSHIP } from '@/lib/outreachLabels';
 import { athleteProgrammes as api } from '@/api/client';
 
 /**
@@ -182,7 +183,7 @@ export default function SpecificSearch({
                     operator who cannot see that is one who thinks they are
                     creating something.
                   */}
-                  {existing?.flagged && <Badge variant="amber">Flagged</Badge>}
+                  {existing?.flagged && <Badge variant="amber">{EXISTING_RELATIONSHIP}</Badge>}
                   {requested ? (
                     <span className="text-xs text-muted-foreground flex items-center gap-1">
                       <Check className="h-3.5 w-3.5" /> Added

@@ -1,0 +1,111 @@
+{
+  "source_file": "coaches_reconciled.csv",
+  "status": "REDACTED MANIFEST — the raw CSV is generated locally and deliberately untracked.",
+  "why": "The source carries coach names and working email addresses for 6,347 real people and this repository is public. Decisions are reproducible from these columns plus coach_id; identity resolves only inside the database.",
+  "rows_published_as": "coaches_reconciled_redacted.csv",
+  "regenerate": "node server/scripts/reconcileCoaches.js --db <non-production db> then node server/scripts/redactGeneratedLedgers.js --in server/data/generated",
+  "source_sha256": "2bd3bbce5d9120e6832e7909956f8c96a6323248b0825460d8dd60f8363dd879",
+  "source_rows": 6347,
+  "columns_kept": [
+    "coach_id",
+    "sport",
+    "legacy_school",
+    "legacy_unitid",
+    "canonical_unitid",
+    "canonical_school",
+    "source_domain",
+    "email_domain",
+    "classification",
+    "institution_resolution_status",
+    "coach_identity_status",
+    "email_verification_status",
+    "outreach_eligibility",
+    "ineligible_reason",
+    "resolution_method",
+    "evidence",
+    "reassigned",
+    "canonicalized"
+  ],
+  "columns_dropped": {
+    "coach_name": "the person",
+    "email": "the person's mailbox",
+    "title": "free text that names a person when paired with a school",
+    "source_url": "staff-bio paths spell coach names; source_domain is kept instead"
+  },
+  "free_text_values_redacted_for_quoting_a_person": 0,
+  "distributions": {
+    "sport": {
+      "womens-soccer": 3450,
+      "mens-soccer": 2897
+    },
+    "legacy_school": {
+      "(distinct values)": 1481
+    },
+    "legacy_unitid": {
+      "(distinct values)": 1174
+    },
+    "canonical_unitid": {
+      "(distinct values)": 1166
+    },
+    "canonical_school": {
+      "(distinct values)": 1478
+    },
+    "source_domain": {
+      "(distinct values)": 1220
+    },
+    "email_domain": {
+      "(distinct values)": 1267
+    },
+    "classification": {
+      "KEEP": 5292,
+      "WITHHOLD": 572,
+      "REASSIGN": 273,
+      "REVIEW": 210
+    },
+    "institution_resolution_status": {
+      "RESOLVED": 5565,
+      "WITHHOLD": 572,
+      "REVIEW": 210
+    },
+    "coach_identity_status": {
+      "UNVERIFIED": 4893,
+      "VERIFIED": 1454
+    },
+    "email_verification_status": {
+      "verified": 4993,
+      "inferred": 1159,
+      "generic": 169,
+      "unknown": 26
+    },
+    "outreach_eligibility": {
+      "YES": 3890,
+      "NO": 2457
+    },
+    "ineligible_reason": {
+      "(null)": 3890,
+      "email inferred": 1159,
+      "KEEP not corroborated by coach_seasons": 620,
+      "institution WITHHOLD": 211,
+      "institution REVIEW": 202,
+      "no per-person address": 169,
+      "REASSIGN not corroborated by coach_seasons": 70,
+      "email unknown": 26
+    },
+    "resolution_method": {
+      "SOURCE_DOMAIN": 4587,
+      "EMAIL_DOMAIN": 938,
+      "NONE": 572,
+      "DOMAIN_WRONG_INSTITUTION": 209,
+      "COACH_SEASONS": 40,
+      "DOMAIN_AMBIGUOUS": 1
+    },
+    "reassigned": {
+      "0": 6074,
+      "1": 273
+    },
+    "canonicalized": {
+      "0": 6071,
+      "1": 276
+    }
+  }
+}

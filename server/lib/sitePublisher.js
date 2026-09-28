@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 import { exportAll, writeRobotsTxt, trackingEndpoint, OUTPUT_DIR } from '../export/exportProfiles.js';
 import { PAGES_PROJECT, cloudflareCredentials } from './config.js';
 import { validateCandidate, readLedger, writeLedger } from './publishManifest.js';
+import { readRetirements } from './orphanRetirement.js';
 
 const runFile = promisify(execFile);
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
@@ -186,6 +187,9 @@ export async function publishSite({
     endpoint: readiness.endpoint,
     skipped: assembled.skipped,
     ledger: readLedger(outputDir),
+    // Read, never written, by publishing. A deploy that fails must leave the
+    // next attempt facing exactly the same decision as this one.
+    retirements: readRetirements(outputDir),
   });
   if (!verdict.ok) {
     discard();

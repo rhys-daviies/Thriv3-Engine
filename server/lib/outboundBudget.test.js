@@ -114,10 +114,36 @@ describe('the ledger', () => {
       // still not an outcome: a retry is a second attempt and a second row.
       'outreach_send_id',
       'outreach_id', 'sending_identity', 'transport',
+      /**
+       * D5.0 — AND THIS COLUMN IS A DELIBERATE REVERSAL OF THE SENTENCE THAT
+       * USED TO SIT BELOW THIS LIST.
+       *
+       * That sentence read: "an outcome would have to be written after the
+       * fact, which the trigger forbids". Both halves turned out to be about
+       * something else.
+       *
+       * The trigger does not forbid it. `trg_outbound_send_attempt_append_only`
+       * names five columns — id, sending_identity, transport, attempted_at,
+       * created_at — and every one of them is a fact about WHAT WAS ATTEMPTED,
+       * which must never move. A disposition is not one of those. It is what
+       * was learned about the attempt afterwards, and the test below still
+       * proves all five remain frozen.
+       *
+       * And it is not an outcome. The provider's answer lives on
+       * `outreach_send` and in its events, where it always has; `outcome` and
+       * `status` are still forbidden here and still would be. This says only
+       * whether the row counts against a daily ceiling, which is an accounting
+       * question the accounting table is the right place to answer.
+       *
+       * What made it necessary: a transport that PROVES it never submitted
+       * anything had, until D5.0, still charged a real mailbox a real unit of
+       * its day. See OUTBOUND_ATTEMPT_DISPOSITION.
+       */
+      'disposition',
     ].sort());
-    // No outcome, no counters, no campaign columns. An accounting ledger that
-    // also reports is one that grows a column every quarter — and an outcome
-    // would have to be written after the fact, which the trigger forbids.
+    // Still no provider outcome, no counters, no campaign columns. An
+    // accounting ledger that also reports is one that grows a column every
+    // quarter, and what the provider said belongs on the message.
     const names = cols.map((c) => c.name);
     for (const forbidden of ['outcome', 'status', 'campaign_id', 'programme_campaign_id',
       'tier', 'attempts', 'count']) {
@@ -184,10 +210,45 @@ describe('the ledger', () => {
     // this module's own comments say the word "refunded", and a guard that
     // trips on its own explanation is not a guard.
     expect(src).not.toMatch(/DELETE\s+FROM\s+outbound_send_attempt/i);
-    expect(src).not.toMatch(/UPDATE\s+outbound_send_attempt/i);
     for (const name of Object.keys(budget)) {
       expect(name).not.toMatch(/refund|decrement|reverse|release|reset|clear/i);
     }
+
+    /**
+     * THE BLANKET `UPDATE outbound_send_attempt` BAN IS NARROWED IN D5.0, AND
+     * NARROWED IS THE OPERATIVE WORD — the substance it protected is still
+     * asserted, and more precisely than before.
+     *
+     * The ban was the right rule while every column in this table was a fact
+     * about what was attempted. D5.0 adds one that is not: `disposition`
+     * records what was LEARNED afterwards, and settling it is the entire
+     * mechanism by which a provably-never-submitted attempt stops consuming a
+     * mailbox's day. A rule forbidding all updates would forbid that, and the
+     * cost would be charging real capacity for messages that demonstrably
+     * never left the process.
+     *
+     * So the assertion becomes exact instead of absent: there is ONE update
+     * statement, it writes ONE column, and it is guarded so a row can only ever
+     * leave RESERVED. Everything the old rule actually defended survives —
+     * nothing is deleted, no count is decremented, and the five accounting
+     * facts stay frozen by the trigger, which the test above still proves.
+     */
+    const updates = src.match(/UPDATE\s+outbound_send_attempt[\s\S]*?`/gi) ?? [];
+    expect(updates).toHaveLength(1);
+    expect(updates[0]).toMatch(/SET\s+disposition\s*=\s*@disposition/i);
+    expect(updates[0]).toMatch(/WHERE\s+id\s*=\s*@id/i);
+    /**
+     * The guard is written through the constant rather than a bare literal, so
+     * this matches the constant. Asserting the interpolated STRING would only
+     * prove the file contains the word; the behavioural proof that a settled
+     * row cannot be re-settled lives in outboundDisposition.test.js.
+     */
+    expect(updates[0]).toMatch(
+      /AND\s+disposition\s*=\s*'\$\{OUTBOUND_ATTEMPT_DISPOSITION\.RESERVED\}'/,
+    );
+    // It sets nothing else. Any second assignment would be a second column
+    // moving after the fact, which is the thing the original rule was about.
+    expect(updates[0].split('SET')[1]).not.toMatch(/,/);
   });
 
   it('orders attempts deterministically, even when they share a timestamp', () => {
