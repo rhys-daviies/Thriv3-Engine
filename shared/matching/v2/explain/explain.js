@@ -289,6 +289,23 @@ function opportunityReasons(result) {
         positionRows: comp.positionRows ?? null,
         unreadable: comp.unreadableHorizon ?? 0,
       }));
+    /**
+     * A7.44. The count above still stands - it is a real observation of real
+     * players - and it may be an undercount, because this programme lists
+     * people it does not place anywhere. Said as its own sentence rather than
+     * folded into the one above, so the FACT and the DOUBT stay separable.
+     */
+    const unplaceable = (comp.positionUnreadable ?? 0) + (comp.positionMissing ?? 0);
+    if (unplaceable > 0) {
+      out.push(reason(REASON_CODE.POSITION_EVIDENCE_PARTIAL, LAYER.OPPORTUNITY,
+        POLARITY.UNKNOWN, BAND.SECONDARY_EVIDENCE, {
+          position: comp.position,
+          unplaceable,
+          placed: comp.positionRows ?? null,
+          rosterRows: comp.programmeRows ?? null,
+          positionReadableShare: comp.positionReadableShare ?? null,
+        }));
+    }
   } else if (b.pathway?.rotationOnly) {
     /**
      * A7.37. THE SILENCE THAT USED TO BE HERE WAS THE PROBLEM. When the
@@ -297,7 +314,23 @@ function opportunityReasons(result) {
      * which thing is unknown, and the pathway says it is resting on one half.
      */
     const d = b.pathway.competitionRefusalDetail ?? {};
-    if (d.maxLastSeason !== undefined && d.maxLastSeason !== null) {
+    /**
+     * A7.44 LEADS THE DISPATCH, and that ordering is load-bearing. The
+     * positional refusal detail also carries `positionRows`, so leaving it to
+     * fall through would render RETURNING_HORIZON_UNREADABLE - blaming the
+     * class years of a roster whose class years may be perfect, which is the
+     * same species of false sentence this phase exists to remove.
+     */
+    if (d.positionUnreadable !== undefined || d.positionMissing !== undefined) {
+      out.push(reason(REASON_CODE.POSITION_EVIDENCE_INSUFFICIENT, LAYER.OPPORTUNITY,
+        POLARITY.UNKNOWN, BAND.SECONDARY_EVIDENCE, {
+          position: d.position,
+          unplaceable: (d.positionUnreadable ?? 0) + (d.positionMissing ?? 0),
+          placed: d.positionRows ?? 0,
+          rosterRows: d.programmeRows ?? null,
+          positionReadableShare: d.positionReadableShare ?? null,
+        }));
+    } else if (d.maxLastSeason !== undefined && d.maxLastSeason !== null) {
       out.push(reason(REASON_CODE.RETURNING_BEYOND_ROSTER_REACH, LAYER.OPPORTUNITY,
         POLARITY.UNKNOWN, BAND.SECONDARY_EVIDENCE,
         { position: d.position, entryYear: d.entryYear, maxLastSeason: d.maxLastSeason }));

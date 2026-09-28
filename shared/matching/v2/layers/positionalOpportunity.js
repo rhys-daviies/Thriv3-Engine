@@ -53,6 +53,9 @@
  */
 import { GRADE, REASON, scoreable, unscoreable } from '../types.js';
 import { typicalStarters, ARRIVAL_CLAIM_WEIGHT, MAX_CLAIM_SHARE } from '../recruitingRules.js';
+import {
+  POSITION_READABLE_SHARE_FLOOR, positionReadableShare, positionEvidenceState,
+} from '../positionReadability.js';
 
 /**
  * @param {object} p
@@ -66,6 +69,8 @@ import { typicalStarters, ARRIVAL_CLAIM_WEIGHT, MAX_CLAIM_SHARE } from '../recru
  * @param {number}  p.evidence.openings          all places eligibility vacates. CONTEXT ONLY
  * @param {number}  p.evidence.eligibleToRemain  players the rules permit to stay
  * @param {number}  p.evidence.unreadable        rows with no readable class
+ * @param {number}  p.evidence.programmePositionUnreadable  rows AT THE PROGRAMME placed at no position
+ * @param {number}  p.evidence.programmePositionMissing     rows AT THE PROGRAMME carrying no position at all
  * @param {number|null} p.evidence.arrivals      newcomers already recruited into the entry class
  * @param {object|null} p.evidence.fill          { rate, hits, trials, level }
  */
@@ -90,7 +95,41 @@ export function positionalOpportunity({ sport, position, evidence, weights = {} 
     // which is not the same as saying nobody's does.
     return unscoreable({ reason: REASON.NO_ELIGIBILITY_RULE, missing: ['eligibilityRule'], available: ['roster'] });
   }
+  /**
+   * A7.44. The programme-level positional doubt that this layer has been
+   * blind to since it was written. It reads the SAME index `returningCompetition`
+   * reads, from the departing side, and had the same hole: rows that reached
+   * no bucket were counted at the programme and told to nobody.
+   *
+   * NOT ADDABLE TO `evidence.unreadable`. That counts players placed at this
+   * position whose class could not be read; these are players placed nowhere.
+   */
+  const unplaceableUnreadable = Math.max(0, Number(evidence.programmePositionUnreadable) || 0);
+  const unplaceableMissing = Math.max(0, Number(evidence.programmePositionMissing) || 0);
+  const unplaceable = unplaceableUnreadable + unplaceableMissing;
+
   if (!evidence.positionRows) {
+    /**
+     * A7.44. An empty group at a programme carrying unplaceable players is
+     * what we could not read, not what the programme does not have - and
+     * blaming the class labels of a roster whose class labels may be perfect
+     * sends a reader to the wrong column.
+     */
+    if (unplaceable > 0) {
+      return unscoreable({
+        reason: REASON.NO_READABLE_POSITIONS,
+        missing: ['readablePositions'],
+        available: ['roster'],
+        coverage: 0,
+        detail: {
+          position,
+          positionUnreadable: unplaceableUnreadable,
+          positionMissing: unplaceableMissing,
+          note: 'nobody at this programme could be placed at this position, and it carries players whose '
+            + 'position could not be read at all, so the empty group is a gap in what we read',
+        },
+      });
+    }
     return unscoreable({ reason: REASON.NO_CLASS_LABELS, missing: ['positionRows'], available: ['roster'] });
   }
   if (!evidence.fill) {
@@ -139,6 +178,37 @@ export function positionalOpportunity({ sport, position, evidence, weights = {} 
     });
   }
 
+  /**
+   * A7.44. A ZERO MUST REST ON SOMETHING - ON THE POSITIONAL AXIS TOO.
+   *
+   * The guard above this one asks whether the DEPARTING cohort could be
+   * placed as starter or squad. This asks the prior question: whether the
+   * group we are reading is most of the group at all. `vacatedStarters = 0`
+   * taken from four readable players at a programme carrying twenty-three
+   * unplaceable ones is not a measurement that no starting place opens.
+   *
+   * It runs after the A7.7.2 guard so a cell already refusing for a starter-
+   * evidence reason keeps that reason, which is the one naming the data to fix.
+   */
+  const positionShare = positionReadableShare({ placed: evidence.positionRows, unplaceable });
+  if (positionShare < POSITION_READABLE_SHARE_FLOOR) {
+    return unscoreable({
+      reason: REASON.NO_READABLE_POSITIONS,
+      missing: ['readablePositions'],
+      available: ['roster', 'classYears', 'eligibilityRule'],
+      coverage: positionShare,
+      detail: {
+        position,
+        positionRows: evidence.positionRows,
+        positionUnreadable: unplaceableUnreadable,
+        positionMissing: unplaceableMissing,
+        positionReadableShare: positionShare,
+        note: 'the players we could place at this position are a minority of those who could belong to '
+          + 'it, so a count of the places opening here could be overturned by the players we could not read',
+      },
+    });
+  }
+
   const vacated = Math.max(0, Number(evidence.vacatedStarters) || 0);
   const remain = Math.max(0, Number(evidence.eligibleToRemain) || 0);
   const arrivals = evidence.arrivals === null || evidence.arrivals === undefined
@@ -168,9 +238,20 @@ export function positionalOpportunity({ sport, position, evidence, weights = {} 
      */
     grade: (evidence.unreadable > 0
       || departingUnknown > 0
+      /** A7.44. A group we could only partly assemble is an estimate, not a measurement. */
+      || unplaceable > 0
       || (evidence.arrivalsApplicable !== false && (evidence.arrivals === null || evidence.arrivals === undefined)))
       ? GRADE.PARTIAL : GRADE.MEASURED,
-    coverage: 1,
+    /**
+     * A7.44. Was a hard-coded 1, which asserted that this layer always sees
+     * the whole position. It does not when the programme carries players it
+     * could not place. Coverage moves; the value above does not, because
+     * `coverage.js` rule 1 forbids combining them - and because `combine`
+     * derives a LAYER's coverage from component weights rather than from this
+     * number, so lowering it reports the doubt without silently refusing
+     * Coach Recruitability through a floor it never crossed.
+     */
+    coverage: positionShare,
     basis: {
       position,
       typicalStarters: places,
@@ -196,6 +277,11 @@ export function positionalOpportunity({ sport, position, evidence, weights = {} 
         // r = 0.928 and the fill rate already prices internal competition.
         eligibleToRemain: remain,
         unreadableRows: evidence.unreadable ?? 0,
+        /** A7.44. Programme-level, and deliberately NOT summed with the line above. */
+        programmePositionUnreadable: unplaceableUnreadable,
+        programmePositionMissing: unplaceableMissing,
+        positionReadableShare: positionShare,
+        positionEvidence: positionEvidenceState(positionShare),
       },
       /**
        * Carried so an explanation can say which of the three states this is,

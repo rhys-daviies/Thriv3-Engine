@@ -25,6 +25,9 @@ import {
   RETURNING_SQUAD_WEIGHT, RETURNING_UNKNOWN_WEIGHT, COMPETITION_HALF_PRESSURE, COMPETITION_SHARE,
 } from '../opportunityRules.js';
 import { priorityStrength } from '../athletePreferences.js';
+import {
+  POSITION_READABLE_SHARE_FLOOR, positionReadableShare, positionEvidenceState,
+} from '../positionReadability.js';
 import { majorLabelFor, academicIntentState, ACADEMIC_INTENT } from '../../../academicMajors.js';
 
 /**
@@ -152,6 +155,18 @@ export const RETURNER_STATE = Object.freeze({
   KNOWN_DEPARTING: 'KNOWN_DEPARTING',
   /** Rows with no readable eligibility horizon. NOT the same as unknown ROLE. */
   UNKNOWN_HORIZON: 'UNKNOWN_HORIZON',
+  /**
+   * A7.44. Rows at this PROGRAMME that reached no position bucket at all.
+   *
+   * The comment above says an explanation cannot invent a fourth state. This
+   * is that fourth state, added on purpose rather than invented: these rows
+   * were always there and were counted nowhere, which is the defect A7.44
+   * repairs. They are not returners, not departers and not unknown-horizon
+   * returners - they are players whose position we could not read, and the
+   * whole point is that they must not be silently folded into any of the
+   * three groups that ARE about this position.
+   */
+  UNPLACEABLE_POSITION: 'UNPLACEABLE_POSITION',
 });
 
 /**
@@ -199,6 +214,22 @@ export function returningCompetition({
    */
   positionRows = null, unreadable = 0,
   /**
+   * A7.44. PROGRAMME-LEVEL positional doubt - rows at this programme that
+   * reached no position bucket at all - and whether the programme has a
+   * roster on file independently of whether THIS position does.
+   *
+   * NOT ADDABLE TO `unreadable`. That counts players placed here whose year
+   * we could not read; these are players placed nowhere. A row can be both,
+   * and summing the two would count it twice.
+   */
+  positionUnreadable = 0, positionMissing = 0, programmeRosterOnFile = false,
+  /**
+   * The programme's whole roster size, carried ONLY so an explanation has a
+   * truthful denominator - "23 of 31 listed players" rather than a bare 23.
+   * Nothing scores it.
+   */
+  programmeRows = null,
+  /**
    * A7.37 F2. The horizon, so the component can grade its own decay. It could
    * not before: the entry year was applied by the caller before this function
    * saw anything, which is why the decay was invisible from in here.
@@ -206,7 +237,43 @@ export function returningCompetition({
   entryYear = null, rosterSeason = null, maxLastSeason = null,
   squadWeight, unknownWeight, halfAt,
 }) {
+  const unplaceableUnreadable = Math.max(0, Number(positionUnreadable) || 0);
+  const unplaceableMissing = Math.max(0, Number(positionMissing) || 0);
+  const unplaceable = unplaceableUnreadable + unplaceableMissing;
+
   if (!rosterOnFile) {
+    /**
+     * A7.44. AN EMPTY BUCKET IS NOT AN EMPTY POSITION.
+     *
+     * A programme whose roster we hold, whose forwards bucket is empty and
+     * which carries players we could not place, has not told us it has no
+     * forwards. It has told us we cannot read who plays where. Reporting
+     * NO_ROSTER_ON_FILE there is false twice over: the roster is on file, and
+     * the sentence sends a reader to acquire data Thriv3 already has.
+     *
+     * The genuine measured zero - a programme whose roster reads completely
+     * and holds nobody at this position - keeps its existing refusal. That is
+     * a separate question, it changes rankings, and A7.44 is not the phase to
+     * answer it. What A7.44 buys is that the two are now TELLABLE APART by
+     * their reason, which they were not before.
+     */
+    if (programmeRosterOnFile && unplaceable > 0) {
+      return unscoreable({
+        reason: REASON.NO_READABLE_POSITIONS,
+        missing: ['readablePositions'],
+        available: ['roster'],
+        coverage: 0,
+        detail: {
+          position,
+          positionUnreadable: unplaceableUnreadable,
+          positionMissing: unplaceableMissing,
+          programmeRows,
+          note: 'this programme has a roster on file and nobody could be placed at this position, but it '
+            + 'also carries players whose position could not be read at all - so an empty group here is '
+            + 'what we failed to read, not what the programme does not have',
+        },
+      });
+    }
     return unscoreable({ reason: REASON.NO_ROSTER_ON_FILE, missing: ['roster'], available: [] });
   }
   /**
@@ -294,6 +361,41 @@ export function returningCompetition({
     });
   }
 
+  /**
+   * A7.44. HOW MUCH OF THE PLAUSIBLE POSITION GROUP WE COULD PLACE HERE.
+   *
+   * Placed AFTER the A7.37 guards on purpose. A cell that already refuses for
+   * a class-year reason keeps the class-year reason: A7.44 is not entitled to
+   * relabel a refusal it did not cause, and the existing reason is the one
+   * that names the data somebody would go and fix.
+   *
+   * The asymmetry with A7.37 F1-b is in `positionReadability.js` and is the
+   * reason this guard is not restricted to a zero count: unplaceable players
+   * can only ever ADD competition, so they undermine a LOW returner count -
+   * and a low count is exactly what scores as a wide-open position. The
+   * optimistic reading is the one that needs the floor here.
+   */
+  const positionShare = positionReadableShare({ placed: rows, unplaceable });
+  if (positionShare < POSITION_READABLE_SHARE_FLOOR) {
+    return unscoreable({
+      reason: REASON.NO_READABLE_POSITIONS,
+      missing: ['readablePositions'],
+      available: ['roster', 'classYears', 'eligibilityRule'],
+      coverage: positionShare,
+      detail: {
+        position,
+        positionRows: rows,
+        positionUnreadable: unplaceableUnreadable,
+        positionMissing: unplaceableMissing,
+        positionReadableShare: positionShare,
+        programmeRows,
+        note: 'most of the players who could belong to this position group could not be placed at any '
+          + 'position, so the ones we did place are a minority of the group and any count taken from '
+          + 'them could be overturned by the players we could not read',
+      },
+    });
+  }
+
   const starters = Math.max(0, Number(returning.starters) || 0);
   const squad = Math.max(0, Number(returning.squad) || 0);
   const unknown = Math.max(0, Number(returning.unknown) || 0);
@@ -342,7 +444,19 @@ export function returningCompetition({
    * pessimistic one, which is not a repair.
    */
   const roleCoverage = total === 0 ? 1 : (total - unknown) / total;
-  const coverage = readableShare * roleCoverage;
+  /**
+   * A7.44. THREE INDEPENDENT DOUBTS NOW, AND THEY STILL MULTIPLY.
+   *
+   * `positionShare` is the third and it is about a different population from
+   * the other two: not how much of this group we could read, but how much of
+   * the group is this group at all. Coverage reporting 1.0 while a fifth of
+   * the roster sits at no position was the reporting half of the same defect.
+   *
+   * THE VALUE IS UNTOUCHED BY ALL THREE. An unplaceable player becomes
+   * neither a returner nor an absentee here, exactly as an unreadable-horizon
+   * player does above.
+   */
+  const coverage = readableShare * roleCoverage * positionShare;
 
   /**
    * A7.37 F2-b. Depth degrades authority and never value. A further entry year
@@ -355,7 +469,12 @@ export function returningCompetition({
 
   return scoreable({
     value,
-    grade: (unknown === 0 && readableShare === 1 && withinMeasuredHorizon) ? GRADE.MEASURED : GRADE.PARTIAL,
+    /**
+     * A7.44 adds the third condition. A count taken from a group we could
+     * only partly assemble is a usable estimate and is not a measurement.
+     */
+    grade: (unknown === 0 && readableShare === 1 && positionShare === 1 && withinMeasuredHorizon)
+      ? GRADE.MEASURED : GRADE.PARTIAL,
     coverage,
     basis: {
       position,
@@ -370,6 +489,16 @@ export function returningCompetition({
       positionRows: rows,
       unreadableHorizon: unread,
       readableShare,
+      /**
+       * A7.44. The programme-level positional evidence, machine-readable, so
+       * an explanation can say which of the three states this is without
+       * re-deriving it and without ever printing a raw counter at a reader.
+       */
+      positionUnreadable: unplaceableUnreadable,
+      positionMissing: unplaceableMissing,
+      positionReadableShare: positionShare,
+      positionEvidence: positionEvidenceState(positionShare),
+      programmeRows: programmeRows === null ? null : Math.max(0, Number(programmeRows) || 0),
       entryYear: stated(entryYear) ? Number(entryYear) : null,
       rosterSeason: stated(rosterSeason) ? Number(rosterSeason) : null,
       horizonDepth: depth,
@@ -377,6 +506,7 @@ export function returningCompetition({
       states: {
         [RETURNER_STATE.KNOWN_RETURNING]: total,
         [RETURNER_STATE.UNKNOWN_HORIZON]: unread,
+        [RETURNER_STATE.UNPLACEABLE_POSITION]: unplaceable,
       },
       squadWeight: squadWeight ?? RETURNING_SQUAD_WEIGHT,
       unknownWeight: unknownWeight ?? RETURNING_UNKNOWN_WEIGHT,

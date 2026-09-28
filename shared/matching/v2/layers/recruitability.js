@@ -199,6 +199,8 @@ export function coachRecruitability({
 /** The four states a recruitability refusal can carry, for report grouping. */
 export const RECRUITABILITY_REFUSALS = Object.freeze([
   REASON.NO_ATHLETE_LEVEL,
+  /** A7.44. The roster is on file and its positions could not be read. */
+  REASON.NO_READABLE_POSITIONS,
   REASON.NO_PROGRAMME_LEVEL,
   REASON.NO_ROSTER_ON_FILE,
   REASON.NO_ELIGIBILITY_RULE,

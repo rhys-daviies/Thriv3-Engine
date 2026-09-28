@@ -131,7 +131,14 @@ export function evaluateOpportunity({
     const rotation = squadRotation({
       sport, position, division: college.division, programme: college.name, rosterOnFile,
     });
-    const bucket = rosterIndex?.get(college.name)?.positions?.get(position) ?? null;
+    /**
+     * A7.44. The PROGRAMME entry, not just the position bucket. The bucket is
+     * built only from rows we could place; the entry is the only thing that
+     * knows how many rows never reached a bucket at all, and this call site
+     * has been reading past it since the index was written.
+     */
+    const programmeRoster = rosterIndex?.get(college.name) ?? null;
+    const bucket = programmeRoster?.positions?.get(position) ?? null;
     const competition = returningCompetition({
       returning: bucket ? returningDepthFor(bucket, entryYear) : null,
       position,
@@ -146,6 +153,17 @@ export function evaluateOpportunity({
        */
       positionRows: bucket?.rows ?? null,
       unreadable: bucket?.unreadable ?? 0,
+      /**
+       * A7.44 F1. The programme-level positional doubt. `rosterOnFile` above
+       * is about THIS POSITION and is false for an empty bucket, so the
+       * component also needs to know whether the PROGRAMME has a roster -
+       * otherwise it cannot tell "no forwards here" from "we could not read
+       * who plays where", and it reported the first for both.
+       */
+      positionUnreadable: programmeRoster?.positionUnreadable ?? 0,
+      positionMissing: programmeRoster?.positionMissing ?? 0,
+      programmeRosterOnFile: Boolean(programmeRoster && programmeRoster.rows > 0),
+      programmeRows: programmeRoster?.rows ?? null,
       /**
        * A7.37 F2. The horizon, so the component can grade its own decay
        * instead of the caller silently applying it and leaving no trace.

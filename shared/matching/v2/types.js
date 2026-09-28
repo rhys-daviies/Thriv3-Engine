@@ -62,6 +62,17 @@ export const REASON = Object.freeze({
    */
   NO_PROGRAMME_MAJOR_EVIDENCE: 'NO_PROGRAMME_MAJOR_EVIDENCE',
   NO_WIN_RATES: 'NO_WIN_RATES',
+  /**
+   * A7.44. The roster IS on file and its POSITIONS could not be read - either
+   * at all, or in enough of the group for a positional claim to stand.
+   *
+   * A NEW WORD BECAUSE THE EXISTING ONES WERE UNTRUE, not because the
+   * vocabulary wanted enriching. NO_ROSTER_ON_FILE said Thriv3 holds no roster
+   * for a programme whose roster it holds and has read; NO_CLASS_LABELS blamed
+   * the class years of a roster whose class years may be perfect. Both sent
+   * whoever read them to look for data that is already there.
+   */
+  NO_READABLE_POSITIONS: 'NO_READABLE_POSITIONS',
   NOT_APPLICABLE: 'NOT_APPLICABLE',
   BELOW_COVERAGE_FLOOR: 'BELOW_COVERAGE_FLOOR',
 });

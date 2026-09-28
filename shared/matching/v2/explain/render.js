@@ -238,6 +238,30 @@ const SENTENCE = {
   [REASON_CODE.RETURNING_BEYOND_ROSTER_REACH]: (e) =>
     `The ${e.entryYear} entry year is beyond what this roster can see - nobody currently listed could still `
     + `be eligible after it - so returning competition has not been assessed for any programme at this level.`,
+  /**
+   * A7.44. RECRUITMENT-FACING, AND NEVER A COUNTER AT A READER.
+   *
+   * The machine-readable evidence - positionUnreadable, positionMissing,
+   * positionReadableShare - stays in `basis`. What an athlete needs from
+   * these two sentences is whether Thriv3 is confident about who plays where
+   * at this programme, and neither is allowed to shade into "the position
+   * looks open", which is the false reading A7.36 caught.
+   *
+   * BOTH LEAD WITH THE POSITION GROUP, not with the roster. Five unplaceable
+   * players out of twenty-nine sounds negligible and is not: at goalkeeper,
+   * where two were placed, those five are most of the group that matters.
+   */
+  [REASON_CODE.POSITION_EVIDENCE_PARTIAL]: (e) =>
+    `This programme's roster does not list a position for every player: ${e.unplaceable} of the `
+    + `${e.rosterRows} listed could not be placed anywhere, and any of them could play here. The `
+    + `${e.placed} ${PLAYER_NOUN[e.position]?.plural ?? 'players'} counted are most of that group but not `
+    + `certainly all of it, so there may be more competition than is shown.`,
+  [REASON_CODE.POSITION_EVIDENCE_INSUFFICIENT]: (e) =>
+    `Thriv3 cannot say how crowded this position is. Only ${e.placed} of the ${e.placed + e.unplaceable} `
+    + `players who could be ${PLAYER_NOUN[e.position]?.plural ?? 'playing here'} could actually be placed `
+    + `there: this programme's roster does not record a usable position for ${e.unplaceable} of its `
+    + `${e.rosterRows} listed players. That is a gap in what is published about the squad, and it is not `
+    + `evidence that the position is open.`,
   [REASON_CODE.PATHWAY_ROTATION_ONLY]: () =>
     `This reads only how the programme has shared minutes in past seasons. It carries no assessment of who `
     + `will be competing for the place when the athlete arrives.`,

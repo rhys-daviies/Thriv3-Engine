@@ -26,6 +26,35 @@ const readPosition = (raw) => {
   const p = canonicalPosition(raw);
   return p && p !== 'UNKNOWN' ? p : null;
 };
+
+/**
+ * A7.44. THREE STATES, AND THE MIDDLE ONE IS THE WHOLE PHASE.
+ *
+ *   READABLE    the row can be placed at one of the four supported positions.
+ *   UNREADABLE  a position WAS recorded and cannot be canonicalised. Today
+ *               every one of the 1,695 carries the single literal value
+ *               'UNKNOWN' - a recorded absence written upstream, which is what
+ *               A7.41 established and `positionReadability.test.js` pins.
+ *   MISSING     no position was recorded at all.
+ *
+ * MISSING IS ZERO TODAY AND IS COUNTED ANYWAY. "Nobody wrote it down" and "we
+ * cannot read what they wrote" are different failures with different repairs -
+ * one is an acquisition gap, the other a vocabulary gap - and collapsing them
+ * now would hide whichever appears first behind the other's explanation.
+ */
+export const POSITION_READABILITY = Object.freeze({
+  READABLE: 'READABLE', UNREADABLE: 'UNREADABLE', MISSING: 'MISSING',
+});
+
+export function readPositionState(raw) {
+  if (raw === null || raw === undefined || String(raw).trim() === '') {
+    return { state: POSITION_READABILITY.MISSING, position: null };
+  }
+  const position = readPosition(raw);
+  return position
+    ? { state: POSITION_READABILITY.READABLE, position }
+    : { state: POSITION_READABILITY.UNREADABLE, position: null };
+}
 import { fillPropensity } from '../../../shared/matching/v2/index.js';
 
 /** The same threshold the norms were derived at. */
@@ -122,10 +151,36 @@ export function buildPositionIndex(rows) {
   assertStarterInputsSelected(rows);
   const index = new Map();
   for (const row of rows) {
-    const position = readPosition(row.position);
+    const { state: positionState, position } = readPositionState(row.position);
     const programme = row.college_name;
     if (!programme) continue;
-    if (!index.has(programme)) index.set(programme, { positions: new Map(), rows: 0, unreadable: 0 });
+    if (!index.has(programme)) {
+      index.set(programme, {
+        positions: new Map(),
+        rows: 0,
+        /**
+         * EVERY row we could not fully read, for any reason. Kept with its
+         * existing meaning because the diagnostics that read it mean exactly
+         * that, and it is the UNION of the two counters below rather than a
+         * third fact - so it must never be added to either.
+         */
+        unreadable: 0,
+        /**
+         * A7.44. The two programme-level position failures, apart. A row
+         * counted here entered NO position bucket, so it is missing from
+         * every bucket at this programme - which is precisely why it is held
+         * at the programme and not at a position.
+         */
+        positionUnreadable: 0,
+        positionMissing: 0,
+        /**
+         * Rows we DID place at a position and whose eligibility horizon we
+         * could not read. The doubt A7.37 already propagated, named here so
+         * the two can be told apart at a glance instead of by subtraction.
+         */
+        classUnreadable: 0,
+      });
+    }
     const entry = index.get(programme);
     entry.rows += 1;
 
@@ -139,6 +194,12 @@ export function buildPositionIndex(rows) {
       // counts toward the programme's doubt about its own roster, whether or
       // not its class was readable - an unplaceable player is a gap in what we
       // know about every position.
+      //
+      // A7.44. Recorded at the programme under WHICH failure it was, and
+      // propagated from here. Until A7.44 this line was the end of the row's
+      // life: the count was kept and never read by anything that scores.
+      if (positionState === POSITION_READABILITY.MISSING) entry.positionMissing += 1;
+      else entry.positionUnreadable += 1;
       entry.unreadable += 1;
       continue;
     }
@@ -157,6 +218,7 @@ export function buildPositionIndex(rows) {
     bucket.rows += 1;
     if (ceiling.lastSeason === null) {
       bucket.unreadable += 1;
+      entry.classUnreadable += 1;
       entry.unreadable += 1;
       continue;
     }
@@ -250,6 +312,19 @@ export function positionEvidence({
     openings: 0,
     eligibleToRemain: 0,
     unreadable: bucket?.unreadable ?? 0,
+    /**
+     * A7.44. PROGRAMME-LEVEL positional readability, which is a different fact
+     * from `unreadable` directly above and must never be added to it.
+     * `unreadable` counts players placed AT this position whose year could not
+     * be read; these are players placed at no position at all, so they are
+     * absent from this bucket and from every other bucket here.
+     *
+     * `programmeRows` is carried so a reader can see the denominator rather
+     * than having to reconstruct it.
+     */
+    programmeRows: programmeRoster?.rows ?? 0,
+    programmePositionUnreadable: programmeRoster?.positionUnreadable ?? 0,
+    programmePositionMissing: programmeRoster?.positionMissing ?? 0,
     /**
      * How much of the position, and of the departing cohort, could be placed
      * as starter or squad at all. `positionalOpportunity` reads this to decide

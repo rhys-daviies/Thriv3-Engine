@@ -115,6 +115,15 @@ export const REASON_CODE = Object.freeze({
    */
   RETURNING_HORIZON_UNREADABLE: 'RETURNING_HORIZON_UNREADABLE',
   RETURNING_BEYOND_ROSTER_REACH: 'RETURNING_BEYOND_ROSTER_REACH',
+  /**
+   * A7.44. The two positional-visibility states a reader must be able to tell
+   * apart from each other and from a confident answer. The third state -
+   * complete positional evidence - is deliberately SILENT: a sentence saying
+   * "we could read this roster" on the 6,922 cells where nothing went wrong
+   * would be noise, and the confident sentence above already IS that state.
+   */
+  POSITION_EVIDENCE_PARTIAL: 'POSITION_EVIDENCE_PARTIAL',
+  POSITION_EVIDENCE_INSUFFICIENT: 'POSITION_EVIDENCE_INSUFFICIENT',
   PATHWAY_ROTATION_ONLY: 'PATHWAY_ROTATION_ONLY',
   PLAYING_SHARE_WIDE: 'PLAYING_SHARE_WIDE',
   PLAYING_SHARE_NARROW: 'PLAYING_SHARE_NARROW',
@@ -311,6 +320,7 @@ export const REFUSAL_PHRASE = Object.freeze({
   NO_ROSTER_ON_FILE: 'Thriv3 holds no current roster for this programme',
   NO_ELIGIBILITY_RULE: 'no eligibility rule is established for this association',
   NO_CLASS_LABELS: 'the roster carries no readable class years',
+  NO_READABLE_POSITIONS: 'the roster is on file and it does not say clearly enough who plays where',
   NO_MINUTES_HISTORY: 'nobody leaving this position could be placed as a starter or a squad player, so a count of zero would be silence rather than a measurement',
   NO_PROGRAMME_LEVEL: 'this programme carries no strength rating',
   NO_ATHLETE_LEVEL: 'this athlete carries no ability rating',
