@@ -1,0 +1,287 @@
+{
+  "batch": "B",
+  "count": 40,
+  "coverage": [
+    {
+      "unitid": "145336",
+      "sport": "mens-soccer",
+      "programme": "Governors State University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "180814",
+      "sport": "mens-soccer",
+      "programme": "Bellevue University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "224545",
+      "sport": "mens-soccer",
+      "programme": "Texas A&M University-Texarkana",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "157535",
+      "sport": "mens-soccer",
+      "programme": "Pikeville",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "140872",
+      "sport": "mens-soccer",
+      "programme": "Reinhardt University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "219790",
+      "sport": "mens-soccer",
+      "programme": "Bryan",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "152530",
+      "sport": "mens-soccer",
+      "programme": "Taylor",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "151786",
+      "sport": "mens-soccer",
+      "programme": "Marian University (IN)",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "154590",
+      "sport": "mens-soccer",
+      "programme": "William Penn",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "159416",
+      "sport": "mens-soccer",
+      "programme": "LSU Shreveport",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "237950",
+      "sport": "mens-soccer",
+      "programme": "West Virginia University Institute of Technology",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "464226",
+      "sport": "mens-soccer",
+      "programme": "Ottawa University Arizona",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "150774",
+      "sport": "mens-soccer",
+      "programme": "Holy Cross College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "171137",
+      "sport": "mens-soccer",
+      "programme": "University of Michigan-Dearborn",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "217934",
+      "sport": "mens-soccer",
+      "programme": "Columbia College (SC)",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "151290",
+      "sport": "mens-soccer",
+      "programme": "Indiana Institute of Technology",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "229887",
+      "sport": "mens-soccer",
+      "programme": "Wiley University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "145336",
+      "sport": "womens-soccer",
+      "programme": "Governors State University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "154590",
+      "sport": "womens-soccer",
+      "programme": "William Penn University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "181127",
+      "sport": "womens-soccer",
+      "programme": "Hastings College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "179265",
+      "sport": "womens-soccer",
+      "programme": "University of Health Sciences and Pharmacy in St. Louis",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "218821",
+      "sport": "womens-soccer",
+      "programme": "Spartanburg Methodist College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "146339",
+      "sport": "womens-soccer",
+      "programme": "Judson University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "165802",
+      "sport": "womens-soccer",
+      "programme": "Fisher College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "152530",
+      "sport": "womens-soccer",
+      "programme": "Taylor University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "176406",
+      "sport": "womens-soccer",
+      "programme": "Tougaloo College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "177339",
+      "sport": "womens-soccer",
+      "programme": "Evangel University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "156356",
+      "sport": "womens-soccer",
+      "programme": "Brescia University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "117104",
+      "sport": "womens-soccer",
+      "programme": "Life Pacific University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "154004",
+      "sport": "womens-soccer",
+      "programme": "Morningside University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "205203",
+      "sport": "womens-soccer",
+      "programme": "Rio Grande (University of)",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "181020",
+      "sport": "womens-soccer",
+      "programme": "Doane University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "151290",
+      "sport": "womens-soccer",
+      "programme": "Indiana Institute of Technology",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "204194",
+      "sport": "womens-soccer",
+      "programme": "Mount Vernon Nazarene University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "154013",
+      "sport": "womens-soccer",
+      "programme": "Mount Mercy University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "176947",
+      "sport": "womens-soccer",
+      "programme": "Central Methodist University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "151388",
+      "sport": "womens-soccer",
+      "programme": "Indiana University East",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "152336",
+      "sport": "womens-soccer",
+      "programme": "University of Saint Francis (IN)",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "204486",
+      "sport": "womens-soccer",
+      "programme": "University of Northwestern Ohio",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "229887",
+      "sport": "womens-soccer",
+      "programme": "Wiley University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    }
+  ],
+  "domain_reopen": []
+}

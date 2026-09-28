@@ -74,3 +74,12 @@ docs/validation/integrity-audit/phase7b5b_applied_repairs.redacted.json
 docs/validation/integrity-audit/phase7b5b_tier2_residual_queue.redacted.json
 docs/validation/integrity-audit/phase7b5b_needs_fresh_evidence.redacted.json
 docs/validation/integrity-audit/phase7b5b_closure_notes.md
+docs/validation/integrity-audit/phase7b5c_naia_tier2_fresh_evidence_closure_snapshot.json
+docs/validation/integrity-audit/phase7b5c_batch_A_snapshot.json
+docs/validation/integrity-audit/phase7b5c_batch_B_snapshot.json
+docs/validation/integrity-audit/phase7b5c_batch_C_snapshot.json
+docs/validation/integrity-audit/phase7b5c_batch_A_coverage.redacted.json
+docs/validation/integrity-audit/phase7b5c_batch_B_coverage.redacted.json
+docs/validation/integrity-audit/phase7b5c_batch_C_coverage.redacted.json
+docs/validation/integrity-audit/phase7b5c_quality_metrics.redacted.json
+docs/validation/integrity-audit/phase7b5c_closure_notes.md

@@ -1,0 +1,210 @@
+{
+  "batch": "C",
+  "count": 29,
+  "coverage": [
+    {
+      "unitid": "228884",
+      "sport": "mens-soccer",
+      "programme": "Texas College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "225502",
+      "sport": "mens-soccer",
+      "programme": "Texas A&M University-Victoria",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "207722",
+      "sport": "mens-soccer",
+      "programme": "Science & Arts (OK)",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "177339",
+      "sport": "mens-soccer",
+      "programme": "Evangel",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "218821",
+      "sport": "mens-soccer",
+      "programme": "Spartanburg Methodist College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "490133",
+      "sport": "mens-soccer",
+      "programme": "Westcliff University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "154235",
+      "sport": "mens-soccer",
+      "programme": "Saint Ambrose",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "219091",
+      "sport": "mens-soccer",
+      "programme": "Dakota Wesleyan",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "177144",
+      "sport": "mens-soccer",
+      "programme": "Culver-Stockton College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "459949",
+      "sport": "mens-soccer",
+      "programme": "Texas A&M University-San Antonio",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "138868",
+      "sport": "mens-soccer",
+      "programme": "Point (GA)",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "153250",
+      "sport": "mens-soccer",
+      "programme": "Dordt",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "154004",
+      "sport": "mens-soccer",
+      "programme": "Morningside",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "175430",
+      "sport": "mens-soccer",
+      "programme": "Blue Mountain Christian University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "154013",
+      "sport": "mens-soccer",
+      "programme": "Mount Mercy",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "152336",
+      "sport": "mens-soccer",
+      "programme": "University of Saint Francis (IN)",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "219790",
+      "sport": "womens-soccer",
+      "programme": "Bryan College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "150172",
+      "sport": "womens-soccer",
+      "programme": "Calumet College of St. Joseph",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "228884",
+      "sport": "womens-soccer",
+      "programme": "Texas College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "159416",
+      "sport": "womens-soccer",
+      "programme": "LSU Shreveport",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "140872",
+      "sport": "womens-soccer",
+      "programme": "Reinhardt University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "221731",
+      "sport": "womens-soccer",
+      "programme": "Tennessee Wesleyan University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "150774",
+      "sport": "womens-soccer",
+      "programme": "Holy Cross College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "180814",
+      "sport": "womens-soccer",
+      "programme": "Bellevue University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "219091",
+      "sport": "womens-soccer",
+      "programme": "Dakota Wesleyan University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "178244",
+      "sport": "womens-soccer",
+      "programme": "Missouri Baptist University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "156745",
+      "sport": "womens-soccer",
+      "programme": "Georgetown College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "237950",
+      "sport": "womens-soccer",
+      "programme": "West Virginia University Institute of Technology",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "153250",
+      "sport": "womens-soccer",
+      "programme": "Dordt University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    }
+  ],
+  "domain_reopen": []
+}

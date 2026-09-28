@@ -1,0 +1,33 @@
+{
+  "programmes": 109,
+  "programme_identity": {
+    "ACTIVE_CONFIRMED": 109
+  },
+  "staff_outcome": {
+    "CURRENT_NO_ELIGIBLE_EMAIL": 2,
+    "CURRENT_ELIGIBLE_EMAIL": 107
+  },
+  "source_accessibility": {
+    "BROWSER_FALLBACK_READ": 51,
+    "LIVE_AUTHORITATIVE_READ": 49,
+    "OFFICIAL_DIRECTORY_FALLBACK": 9
+  },
+  "stored_coaches_researched": 308,
+  "person_adjudication": {
+    "UNKNOWN": 6,
+    "CURRENT_SAME_ROLE": 262,
+    "CURRENT_ROLE_CHANGED": 6,
+    "DEPARTED": 29,
+    "WRONG_INSTITUTION": 5
+  },
+  "verified_legacy_addresses_researched": 308,
+  "email_adjudication": {
+    "UNPUBLISHED": 65,
+    "EXACT_CURRENT": 205,
+    "UNVERIFIABLE": 29,
+    "CHANGED": 4,
+    "WRONG_PERSON": 5
+  },
+  "ADDRESS_DEFECT_RATE": "9/308 = 2.9%",
+  "ASSOCIATION_DEFECT_RATE": "34/308 = 11%"
+}

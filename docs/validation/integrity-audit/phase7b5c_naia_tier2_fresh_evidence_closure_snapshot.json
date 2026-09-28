@@ -1,0 +1,209 @@
+{
+  "milestone": "PHASE 7B.5C — NAIA TIER-2 FRESH AUTHORITATIVE EVIDENCE RECOVERY (APPLIED, shared dev)",
+  "created_at": "2026-09-28T09:52:05.392Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev). Production untouched. No athletics_domains mutation.",
+  "preserved_7b5b_commit": "7ba1a5b",
+  "frozen_109": 109,
+  "batch_manifest": {
+    "A": {
+      "size": 40,
+      "balance": {
+        "n": 40,
+        "M": 17,
+        "W": 23,
+        "VERIFIED": 40,
+        "VERIFIED_ALIAS": 0,
+        "collision": 7,
+        "multi_coach": 32,
+        "legacy_verified": 40,
+        "legacy_inferred": 0
+      },
+      "fixtures_applied": {
+        "current": 11,
+        "email": 1,
+        "stale": 16,
+        "evidence": 80,
+        "name": 0,
+        "reassign": 0
+      },
+      "coverage": {
+        "counts": {
+          "CURRENT_NO_ELIGIBLE_EMAIL": 1,
+          "COVERED_AUTHORITATIVE": 37,
+          "DOMAIN_REOPEN": 2
+        },
+        "domain_reopen": [
+          {
+            "key": "224545|womens-soccer",
+            "programme": "Texas A&M University-Texarkana",
+            "sport": "womens-soccer",
+            "current_athletics_host": "tamuteagles.prestosports.com",
+            "reason": "Current official athletics site is served from tamuteagles.prestosports.com (PrestoSports shared platform, Cloudflare bot-challenged), which is NOT among the verified domains (only tamut.edu was verified). Coach identity/email confirmed via the official institution directory on the verified host tamut.edu.",
+            "verified_host_expected": null
+          },
+          {
+            "key": "239390|womens-soccer",
+            "programme": "Mount Mary University",
+            "sport": "womens-soccer",
+            "current_athletics_host": "mountmary.prestosports.com",
+            "reason": "Live official athletics platform is mountmary.prestosports.com (PrestoSports shared platform, Cloudflare bot-challenged), not in the verified set (mtmary.edu, mtmaryathletics.com); the verified mtmaryathletics.com host is CloudFront-blocked. Coach identity confirmed via official Mount Mary institution news site.",
+            "verified_host_expected": null
+          }
+        ]
+      }
+    },
+    "B": {
+      "size": 40,
+      "balance": {
+        "n": 40,
+        "M": 17,
+        "W": 23,
+        "VERIFIED": 38,
+        "VERIFIED_ALIAS": 2,
+        "collision": 9,
+        "multi_coach": 31,
+        "legacy_verified": 40,
+        "legacy_inferred": 0
+      },
+      "fixtures_applied": {
+        "current": 8,
+        "email": 2,
+        "stale": 8,
+        "evidence": 71,
+        "name": 0,
+        "reassign": 0
+      },
+      "coverage": {
+        "counts": {
+          "COVERED_AUTHORITATIVE": 40
+        },
+        "domain_reopen": []
+      }
+    },
+    "C": {
+      "size": 29,
+      "balance": {
+        "n": 29,
+        "M": 16,
+        "W": 13,
+        "VERIFIED": 29,
+        "VERIFIED_ALIAS": 0,
+        "collision": 3,
+        "multi_coach": 21,
+        "legacy_verified": 29,
+        "legacy_inferred": 0
+      },
+      "fixtures_applied": {
+        "current": 8,
+        "email": 1,
+        "stale": 9,
+        "evidence": 50,
+        "name": 0,
+        "reassign": 0
+      },
+      "coverage": {
+        "counts": {
+          "COVERED_AUTHORITATIVE": 29
+        },
+        "domain_reopen": []
+      }
+    }
+  },
+  "research_classifications": {
+    "programme_identity": {
+      "ACTIVE_CONFIRMED": 109
+    },
+    "staff_outcome": {
+      "CURRENT_NO_ELIGIBLE_EMAIL": 2,
+      "CURRENT_ELIGIBLE_EMAIL": 107
+    },
+    "source_accessibility": {
+      "BROWSER_FALLBACK_READ": 51,
+      "LIVE_AUTHORITATIVE_READ": 49,
+      "OFFICIAL_DIRECTORY_FALLBACK": 9
+    },
+    "person_adjudication": {
+      "UNKNOWN": 6,
+      "CURRENT_SAME_ROLE": 262,
+      "CURRENT_ROLE_CHANGED": 6,
+      "DEPARTED": 29,
+      "WRONG_INSTITUTION": 5
+    },
+    "email_adjudication": {
+      "UNPUBLISHED": 65,
+      "EXACT_CURRENT": 205,
+      "UNVERIFIABLE": 29,
+      "CHANGED": 4,
+      "WRONG_PERSON": 5
+    },
+    "stored_coaches_researched": 308,
+    "verified_legacy_addresses_researched": 308,
+    "ADDRESS_DEFECT_RATE": "9/308 = 2.9%",
+    "ASSOCIATION_DEFECT_RATE": "34/308 = 11%"
+  },
+  "factual_repairs_total": {
+    "current": 27,
+    "email": 4,
+    "stale": 33,
+    "evidence": 201,
+    "name": 0,
+    "reassign": 0
+  },
+  "coverage_closure_109": {
+    "covered": 106,
+    "residual": {
+      "CURRENT_NO_ELIGIBLE_EMAIL": 1,
+      "DOMAIN_REOPEN": 2
+    }
+  },
+  "tier2_poststate_128": {
+    "covered": 106,
+    "residual_from_109": {
+      "CURRENT_NO_ELIGIBLE_EMAIL": 1,
+      "DOMAIN_REOPEN": 2
+    },
+    "held_19": {
+      "COLLISION_HOLD": 11,
+      "NON_DOMAIN_BLOCKER": 2,
+      "INSUFFICIENT_HOLD": 3,
+      "SHARED_DOMAIN_HOLD": 3
+    }
+  },
+  "naia_measurement": {
+    "active_naia_programmes": 384,
+    "eligible_coaches": "519 -> 750",
+    "covered_programmes": "234 -> 340",
+    "coverage_pct": "60.9% -> 88.5%",
+    "strict_path_coaches": "516 -> 747"
+  },
+  "non_regression": {
+    "global_eligible": "3876 -> 4107",
+    "ncaa_membership_hash": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+    "ncaa_delta_vs_baseline": 0,
+    "other_division_hash": "3d9181c9d5cd1ddb4a48d856dcf856deeafbc88c2a4c15195938a77273c077d0",
+    "other_delta_vs_baseline": 0
+  },
+  "prevention_observations": {
+    "note": "Quantified findings for a later integrity-prevention phase; NOT implemented here.",
+    "ip_blocked_sources": "The datacenter/built-in-browser IP is hard-blocked (CloudFront 403 / Cloudflare challenge) on ~70% of NAIA athletics hosts (Sidearm, PrestoSports). Recovery required the operator's residential browser. A durable pipeline needs a non-datacenter fetch path or a documented BLOCKED residual.",
+    "stale_staff": "29 legacy coaches proven DEPARTED; 6 role-changed (e.g. promoted to HC).",
+    "same_name_contamination": "5 legacy rows filed under the wrong same-name school (University of Saint Francis IN used Joliet-IL stfrancis.edu; correct host sf.edu).",
+    "changed_email": "4 coaches whose stored (often inferred) email no longer matches the published address; 5 wrong-person.",
+    "inferred_email_gap": "65 legacy addresses were inferred and are simply not published on the official page (cannot be corroborated) -> confirms inferred emails must never be promoted.",
+    "unverifiable": "29 addresses unverifiable from any readable official page.",
+    "source_host_changed": "Several schools moved athletics to a main-.edu subdomain or a new branded host (e.g. athletics.umdearborn.edu); 2 DOMAIN_REOPEN programmes (TAMU-Texarkana tamuteagles.prestosports.com, Mount Mary mountmary.prestosports.com) held for a domain phase.",
+    "programme_lifecycle": "Siena Heights University announced closure at the end of 2025-26 (active this year) — flag for lifecycle handling."
+  },
+  "residual_detail": {
+    "CURRENT_NO_ELIGIBLE_EMAIL": "University of Health Sciences & Pharmacy in St. Louis (men) — men's soccer active but no men's coach email published on the official site.",
+    "DOMAIN_REOPEN": "Texas A&M-Texarkana (women) and Mount Mary (women) — current athletics platform is an unverified PrestoSports host; held for a domain phase (no domain mutation in 7B.5C)."
+  },
+  "fingerprints": {
+    "domain_fp": "4d3ce59c93a4ad868b5a8acd0f13b900ee32eee1af409773ebd920650c26f18f",
+    "coach_fp": "b0719ae0fbbf00b36d5655de373c553de754ca62330dec79658ba5dfdae9d79b",
+    "college_fp": "40d9660b4611a295c6d81b92869ddbe0fd08176aed2b0079e557610cfb8791ed"
+  },
+  "privacy": {
+    "note": "No coach PII in committed artifacts; institutional domains/UNITIDs/URLs only. Raw research fixtures untracked."
+  }
+}

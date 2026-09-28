@@ -1,0 +1,304 @@
+{
+  "batch": "A",
+  "count": 40,
+  "coverage": [
+    {
+      "unitid": "179265",
+      "sport": "mens-soccer",
+      "programme": "University of Health Sciences and Pharmacy in St. Louis",
+      "class": "CURRENT_NO_ELIGIBLE_EMAIL",
+      "reason": "CURRENT_NO_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "156356",
+      "sport": "mens-soccer",
+      "programme": "Brescia University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "137564",
+      "sport": "mens-soccer",
+      "programme": "Southeastern University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "157100",
+      "sport": "mens-soccer",
+      "programme": "Kentucky Christian",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "178244",
+      "sport": "mens-soccer",
+      "programme": "Missouri Baptist",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "221731",
+      "sport": "mens-soccer",
+      "programme": "Tennessee Wesleyan University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "235167",
+      "sport": "mens-soccer",
+      "programme": "The Evergreen State College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "165802",
+      "sport": "mens-soccer",
+      "programme": "Fisher College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "399911",
+      "sport": "mens-soccer",
+      "programme": "Soka University of America",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "153126",
+      "sport": "mens-soccer",
+      "programme": "Clarke",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "205203",
+      "sport": "mens-soccer",
+      "programme": "Rio Grande (University of)",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "169327",
+      "sport": "mens-soccer",
+      "programme": "Cleary University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "170675",
+      "sport": "mens-soccer",
+      "programme": "Lawrence Technological University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "181127",
+      "sport": "mens-soccer",
+      "programme": "Hastings",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "204194",
+      "sport": "mens-soccer",
+      "programme": "Mount Vernon Nazarene",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "176947",
+      "sport": "mens-soccer",
+      "programme": "Central Methodist",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "204486",
+      "sport": "mens-soccer",
+      "programme": "University of Northwestern Ohio",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "490133",
+      "sport": "womens-soccer",
+      "programme": "Westcliff University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "399911",
+      "sport": "womens-soccer",
+      "programme": "Soka University of America",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "459949",
+      "sport": "womens-soccer",
+      "programme": "Texas A&M University-San Antonio",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "171137",
+      "sport": "womens-soccer",
+      "programme": "University of Michigan-Dearborn",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "157535",
+      "sport": "womens-soccer",
+      "programme": "University of Pikeville",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "235167",
+      "sport": "womens-soccer",
+      "programme": "The Evergreen State College",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "154235",
+      "sport": "womens-soccer",
+      "programme": "Saint Ambrose University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "151786",
+      "sport": "womens-soccer",
+      "programme": "Marian University (IN)",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "464226",
+      "sport": "womens-soccer",
+      "programme": "Ottawa University Arizona",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "155937",
+      "sport": "womens-soccer",
+      "programme": "Sterling College (Kansas)",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "225502",
+      "sport": "womens-soccer",
+      "programme": "Texas A&M University-Victoria",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "172264",
+      "sport": "womens-soccer",
+      "programme": "Siena Heights University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "170675",
+      "sport": "womens-soccer",
+      "programme": "Lawrence Technological University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "153126",
+      "sport": "womens-soccer",
+      "programme": "Clarke University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "157100",
+      "sport": "womens-soccer",
+      "programme": "Kentucky Christian University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "138868",
+      "sport": "womens-soccer",
+      "programme": "Point University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "169327",
+      "sport": "womens-soccer",
+      "programme": "Cleary University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "224545",
+      "sport": "womens-soccer",
+      "programme": "Texas A&M University-Texarkana",
+      "class": "DOMAIN_REOPEN",
+      "reason": "Current official athletics site is served from tamuteagles.prestosports.com (PrestoSports shared platform, Cloudflare bot-challenged), which is NOT among the verified domains (only tamut.edu was verified). Coach identity/email confirmed via the official institution directory on the verified host tamut.edu."
+    },
+    {
+      "unitid": "137564",
+      "sport": "womens-soccer",
+      "programme": "Southeastern University (Florida)",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "175430",
+      "sport": "womens-soccer",
+      "programme": "Blue Mountain Christian University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "239390",
+      "sport": "womens-soccer",
+      "programme": "Mount Mary University",
+      "class": "DOMAIN_REOPEN",
+      "reason": "Live official athletics platform is mountmary.prestosports.com (PrestoSports shared platform, Cloudflare bot-challenged), not in the verified set (mtmary.edu, mtmaryathletics.com); the verified mtmaryathletics.com host is CloudFront-blocked. Coach identity confirmed via official Mount Mary institution news site."
+    },
+    {
+      "unitid": "181604",
+      "sport": "womens-soccer",
+      "programme": "College of Saint Mary",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    },
+    {
+      "unitid": "153366",
+      "sport": "womens-soccer",
+      "programme": "Graceland University",
+      "class": "COVERED_AUTHORITATIVE",
+      "reason": "CURRENT_ELIGIBLE_EMAIL"
+    }
+  ],
+  "domain_reopen": [
+    {
+      "key": "224545|womens-soccer",
+      "programme": "Texas A&M University-Texarkana",
+      "sport": "womens-soccer",
+      "current_athletics_host": "tamuteagles.prestosports.com",
+      "reason": "Current official athletics site is served from tamuteagles.prestosports.com (PrestoSports shared platform, Cloudflare bot-challenged), which is NOT among the verified domains (only tamut.edu was verified). Coach identity/email confirmed via the official institution directory on the verified host tamut.edu.",
+      "verified_host_expected": null
+    },
+    {
+      "key": "239390|womens-soccer",
+      "programme": "Mount Mary University",
+      "sport": "womens-soccer",
+      "current_athletics_host": "mountmary.prestosports.com",
+      "reason": "Live official athletics platform is mountmary.prestosports.com (PrestoSports shared platform, Cloudflare bot-challenged), not in the verified set (mtmary.edu, mtmaryathletics.com); the verified mtmaryathletics.com host is CloudFront-blocked. Coach identity confirmed via official Mount Mary institution news site.",
+      "verified_host_expected": null
+    }
+  ]
+}
