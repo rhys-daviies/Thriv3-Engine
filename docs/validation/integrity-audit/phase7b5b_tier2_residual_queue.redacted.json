@@ -1,0 +1,1048 @@
+{
+  "phase": "7B.5B Tier-2 residual (post domain-repair; institutional; no PII)",
+  "counts": {
+    "NEEDS_FRESH_EVIDENCE": 109,
+    "COLLISION_HOLD": 11,
+    "SHARED_DOMAIN_HOLD": 3,
+    "INSUFFICIENT_HOLD": 3,
+    "NON_DOMAIN_BLOCKER": 2,
+    "OTHER": 0
+  },
+  "buckets": {
+    "NEEDS_FRESH_EVIDENCE": [
+      {
+        "unitid": 157535,
+        "sport": "mens-soccer",
+        "programme": "Pikeville",
+        "conference": "AMC",
+        "source_domain": "upikebears.com",
+        "domain_status_now": "VERIFIED/157535"
+      },
+      {
+        "unitid": 219790,
+        "sport": "mens-soccer",
+        "programme": "Bryan",
+        "conference": "Appalachian",
+        "source_domain": "bryanlions.com",
+        "domain_status_now": "VERIFIED/219790"
+      },
+      {
+        "unitid": 176947,
+        "sport": "mens-soccer",
+        "programme": "Central Methodist",
+        "conference": "Heart",
+        "source_domain": "cmueagles.com",
+        "domain_status_now": "VERIFIED/176947"
+      },
+      {
+        "unitid": 153126,
+        "sport": "mens-soccer",
+        "programme": "Clarke",
+        "conference": "Heart",
+        "source_domain": "clarkepride.com",
+        "domain_status_now": "VERIFIED/153126"
+      },
+      {
+        "unitid": 219091,
+        "sport": "mens-soccer",
+        "programme": "Dakota Wesleyan",
+        "conference": "GPAC",
+        "source_domain": "dwuathletics.com",
+        "domain_status_now": "VERIFIED/219091"
+      },
+      {
+        "unitid": 153250,
+        "sport": "mens-soccer",
+        "programme": "Dordt",
+        "conference": "GPAC",
+        "source_domain": "godordt.com",
+        "domain_status_now": "VERIFIED/153250"
+      },
+      {
+        "unitid": 177339,
+        "sport": "mens-soccer",
+        "programme": "Evangel",
+        "conference": "AMC",
+        "source_domain": "evangelathletics.com",
+        "domain_status_now": "VERIFIED/177339"
+      },
+      {
+        "unitid": 181127,
+        "sport": "mens-soccer",
+        "programme": "Hastings",
+        "conference": "GPAC",
+        "source_domain": "hastingsbroncos.com",
+        "domain_status_now": "VERIFIED/181127"
+      },
+      {
+        "unitid": 151290,
+        "sport": "mens-soccer",
+        "programme": "Indiana Institute of Technology",
+        "conference": "WHAC",
+        "source_domain": "indianatechwarriors.com",
+        "domain_status_now": "VERIFIED/151290"
+      },
+      {
+        "unitid": 157100,
+        "sport": "mens-soccer",
+        "programme": "Kentucky Christian",
+        "conference": "AMC",
+        "source_domain": "kcuknights.com",
+        "domain_status_now": "VERIFIED/157100"
+      },
+      {
+        "unitid": 178244,
+        "sport": "mens-soccer",
+        "programme": "Missouri Baptist",
+        "conference": "AMC",
+        "source_domain": "mbuspartans.com",
+        "domain_status_now": "VERIFIED/178244"
+      },
+      {
+        "unitid": 154004,
+        "sport": "mens-soccer",
+        "programme": "Morningside",
+        "conference": "GPAC",
+        "source_domain": "msidemustangs.com",
+        "domain_status_now": "VERIFIED/154004"
+      },
+      {
+        "unitid": 154013,
+        "sport": "mens-soccer",
+        "programme": "Mount Mercy",
+        "conference": "HAAC",
+        "source_domain": "mountmercymustangs.com",
+        "domain_status_now": "VERIFIED/154013"
+      },
+      {
+        "unitid": 204194,
+        "sport": "mens-soccer",
+        "programme": "Mount Vernon Nazarene",
+        "conference": "AMC",
+        "source_domain": "mvnucougars.com",
+        "domain_status_now": "VERIFIED/204194"
+      },
+      {
+        "unitid": 138868,
+        "sport": "mens-soccer",
+        "programme": "Point (GA)",
+        "conference": "Southern States Athletic Conference",
+        "source_domain": "skyhawkathletics.com",
+        "domain_status_now": "VERIFIED/138868"
+      },
+      {
+        "unitid": 154235,
+        "sport": "mens-soccer",
+        "programme": "Saint Ambrose",
+        "conference": "CCAC",
+        "source_domain": "saubees.com",
+        "domain_status_now": "VERIFIED/154235"
+      },
+      {
+        "unitid": 207722,
+        "sport": "mens-soccer",
+        "programme": "Science & Arts (OK)",
+        "conference": "Sooner",
+        "source_domain": "usao.edu",
+        "domain_status_now": "VERIFIED/207722"
+      },
+      {
+        "unitid": 137564,
+        "sport": "mens-soccer",
+        "programme": "Southeastern University",
+        "conference": "Mid-South",
+        "source_domain": "seu.edu",
+        "domain_status_now": "VERIFIED/137564"
+      },
+      {
+        "unitid": 152530,
+        "sport": "mens-soccer",
+        "programme": "Taylor",
+        "conference": "CCAC",
+        "source_domain": "taylortrojans.com",
+        "domain_status_now": "VERIFIED/152530"
+      },
+      {
+        "unitid": 154590,
+        "sport": "mens-soccer",
+        "programme": "William Penn",
+        "conference": "HAAC",
+        "source_domain": "statesmenathletics.com",
+        "domain_status_now": "VERIFIED/154590"
+      },
+      {
+        "unitid": 180814,
+        "sport": "mens-soccer",
+        "programme": "Bellevue University",
+        "conference": "Continental Athletic Conference",
+        "source_domain": "bubruins.com",
+        "domain_status_now": "VERIFIED/180814"
+      },
+      {
+        "unitid": 175430,
+        "sport": "mens-soccer",
+        "programme": "Blue Mountain Christian University",
+        "conference": "Southern States Athletic Conference",
+        "source_domain": "bmcusports.com",
+        "domain_status_now": "VERIFIED/175430"
+      },
+      {
+        "unitid": 156356,
+        "sport": "mens-soccer",
+        "programme": "Brescia University",
+        "conference": "River States Conference",
+        "source_domain": "bresciabearcats.com",
+        "domain_status_now": "VERIFIED/156356"
+      },
+      {
+        "unitid": 169327,
+        "sport": "mens-soccer",
+        "programme": "Cleary University",
+        "conference": "Wolverine-Hoosier Athletic Conference",
+        "source_domain": "clearycougars.com",
+        "domain_status_now": "VERIFIED/169327"
+      },
+      {
+        "unitid": 217934,
+        "sport": "mens-soccer",
+        "programme": "Columbia College (SC)",
+        "conference": "Appalachian Athletic Conference",
+        "source_domain": "gokoalas.com",
+        "domain_status_now": "VERIFIED/217934"
+      },
+      {
+        "unitid": 177144,
+        "sport": "mens-soccer",
+        "programme": "Culver-Stockton College",
+        "conference": "Heart of America Athletic Conference",
+        "source_domain": "cscwildcats.com",
+        "domain_status_now": "VERIFIED/177144"
+      },
+      {
+        "unitid": 165802,
+        "sport": "mens-soccer",
+        "programme": "Fisher College",
+        "conference": "Continental Athletic Conference",
+        "source_domain": "fisherfalcons.com",
+        "domain_status_now": "VERIFIED/165802"
+      },
+      {
+        "unitid": 145336,
+        "sport": "mens-soccer",
+        "programme": "Governors State University",
+        "conference": "Chicagoland Collegiate Athletic Conference",
+        "source_domain": "gsujaguars.com",
+        "domain_status_now": "VERIFIED/145336"
+      },
+      {
+        "unitid": 150774,
+        "sport": "mens-soccer",
+        "programme": "Holy Cross College",
+        "conference": "Chicagoland Collegiate Athletic Conference",
+        "source_domain": "hcsaints.com",
+        "domain_status_now": "VERIFIED/150774"
+      },
+      {
+        "unitid": 170675,
+        "sport": "mens-soccer",
+        "programme": "Lawrence Technological University",
+        "conference": "Wolverine-Hoosier Athletic Conference",
+        "source_domain": "ltuathletics.com",
+        "domain_status_now": "VERIFIED/170675"
+      },
+      {
+        "unitid": 159416,
+        "sport": "mens-soccer",
+        "programme": "LSU Shreveport",
+        "conference": "Red River Athletic Conference",
+        "source_domain": "lsusathletics.com",
+        "domain_status_now": "VERIFIED/159416"
+      },
+      {
+        "unitid": 151786,
+        "sport": "mens-soccer",
+        "programme": "Marian University (IN)",
+        "conference": "Crossroads League",
+        "source_domain": "muknights.com",
+        "domain_status_now": "VERIFIED/151786"
+      },
+      {
+        "unitid": 140872,
+        "sport": "mens-soccer",
+        "programme": "Reinhardt University",
+        "conference": "Appalachian Athletic Conference",
+        "source_domain": "reinhardteagles.com",
+        "domain_status_now": "VERIFIED/140872"
+      },
+      {
+        "unitid": 205203,
+        "sport": "mens-soccer",
+        "programme": "Rio Grande (University of)",
+        "conference": "River States Conference",
+        "source_domain": "rioredstorm.com",
+        "domain_status_now": "VERIFIED/205203"
+      },
+      {
+        "unitid": 399911,
+        "sport": "mens-soccer",
+        "programme": "Soka University of America",
+        "conference": "Great Southwest Athletic Conference",
+        "source_domain": "sokaathletics.com",
+        "domain_status_now": "VERIFIED/399911"
+      },
+      {
+        "unitid": 218821,
+        "sport": "mens-soccer",
+        "programme": "Spartanburg Methodist College",
+        "conference": "Appalachian Athletic Conference",
+        "source_domain": "gosmcpioneers.com",
+        "domain_status_now": "VERIFIED/218821"
+      },
+      {
+        "unitid": 221731,
+        "sport": "mens-soccer",
+        "programme": "Tennessee Wesleyan University",
+        "conference": "Appalachian Athletic Conference",
+        "source_domain": "twbulldogs.com",
+        "domain_status_now": "VERIFIED/221731"
+      },
+      {
+        "unitid": 459949,
+        "sport": "mens-soccer",
+        "programme": "Texas A&M University-San Antonio",
+        "conference": "Red River Athletic Conference",
+        "source_domain": "tamusasports.com",
+        "domain_status_now": "VERIFIED/459949"
+      },
+      {
+        "unitid": 224545,
+        "sport": "mens-soccer",
+        "programme": "Texas A&M University-Texarkana",
+        "conference": "Red River Athletic Conference",
+        "source_domain": "tamut.edu",
+        "domain_status_now": "VERIFIED/224545"
+      },
+      {
+        "unitid": 225502,
+        "sport": "mens-soccer",
+        "programme": "Texas A&M University-Victoria",
+        "conference": "Red River Athletic Conference",
+        "source_domain": "tamuvathletics.com",
+        "domain_status_now": "VERIFIED/225502"
+      },
+      {
+        "unitid": 228884,
+        "sport": "mens-soccer",
+        "programme": "Texas College",
+        "conference": "Red River Athletic Conference",
+        "source_domain": "tcsteersathletics.com",
+        "domain_status_now": "VERIFIED/228884"
+      },
+      {
+        "unitid": 235167,
+        "sport": "mens-soccer",
+        "programme": "The Evergreen State College",
+        "conference": "Cascade Collegiate Conference",
+        "source_domain": "gogeoducks.com",
+        "domain_status_now": "VERIFIED/235167"
+      },
+      {
+        "unitid": 179265,
+        "sport": "mens-soccer",
+        "programme": "University of Health Sciences and Pharmacy in St. Louis",
+        "conference": "American Midwest Conference",
+        "source_domain": "eutecticsports.com",
+        "domain_status_now": "VERIFIED/179265"
+      },
+      {
+        "unitid": 171137,
+        "sport": "mens-soccer",
+        "programme": "University of Michigan-Dearborn",
+        "conference": "Wolverine-Hoosier Athletic Conference",
+        "source_domain": "umdearborn.edu",
+        "domain_status_now": "VERIFIED/171137"
+      },
+      {
+        "unitid": 204486,
+        "sport": "mens-soccer",
+        "programme": "University of Northwestern Ohio",
+        "conference": "Wolverine-Hoosier Athletic Conference",
+        "source_domain": "unohracers.com",
+        "domain_status_now": "VERIFIED/204486"
+      },
+      {
+        "unitid": 152336,
+        "sport": "mens-soccer",
+        "programme": "University of Saint Francis (IN)",
+        "conference": "Crossroads League",
+        "source_domain": "saintfranciscougars.com",
+        "domain_status_now": "VERIFIED/152336"
+      },
+      {
+        "unitid": 237950,
+        "sport": "mens-soccer",
+        "programme": "West Virginia University Institute of Technology",
+        "conference": "River States Conference",
+        "source_domain": "goldenbearathletics.com",
+        "domain_status_now": "VERIFIED/237950"
+      },
+      {
+        "unitid": 490133,
+        "sport": "mens-soccer",
+        "programme": "Westcliff University",
+        "conference": "California Pacific Conference",
+        "source_domain": "westcliffathletics.com",
+        "domain_status_now": "VERIFIED/490133"
+      },
+      {
+        "unitid": 229887,
+        "sport": "mens-soccer",
+        "programme": "Wiley University",
+        "conference": "Continental Athletic Conference",
+        "source_domain": "wileyathletics.com",
+        "domain_status_now": "VERIFIED_ALIAS/229887"
+      },
+      {
+        "unitid": 180814,
+        "sport": "womens-soccer",
+        "programme": "Bellevue University",
+        "conference": "Continental Athletic Conference",
+        "source_domain": "bubruins.com",
+        "domain_status_now": "VERIFIED/180814"
+      },
+      {
+        "unitid": 175430,
+        "sport": "womens-soccer",
+        "programme": "Blue Mountain Christian University",
+        "conference": "Southern States Athletic Conference",
+        "source_domain": "bmcusports.com",
+        "domain_status_now": "VERIFIED/175430"
+      },
+      {
+        "unitid": 156356,
+        "sport": "womens-soccer",
+        "programme": "Brescia University",
+        "conference": "River States Conference",
+        "source_domain": "bresciabearcats.com",
+        "domain_status_now": "VERIFIED/156356"
+      },
+      {
+        "unitid": 219790,
+        "sport": "womens-soccer",
+        "programme": "Bryan College",
+        "conference": "Appalachian Athletic Conference",
+        "source_domain": "bryanlions.com",
+        "domain_status_now": "VERIFIED/219790"
+      },
+      {
+        "unitid": 150172,
+        "sport": "womens-soccer",
+        "programme": "Calumet College of St. Joseph",
+        "conference": "Chicagoland Collegiate Athletic Conference",
+        "source_domain": "ccsjathletics.com",
+        "domain_status_now": "VERIFIED/150172"
+      },
+      {
+        "unitid": 176947,
+        "sport": "womens-soccer",
+        "programme": "Central Methodist University",
+        "conference": "Heart of America Athletic Conference",
+        "source_domain": "cmueagles.com",
+        "domain_status_now": "VERIFIED/176947"
+      },
+      {
+        "unitid": 153126,
+        "sport": "womens-soccer",
+        "programme": "Clarke University",
+        "conference": "Heart of America Athletic Conference",
+        "source_domain": "clarkepride.com",
+        "domain_status_now": "VERIFIED/153126"
+      },
+      {
+        "unitid": 169327,
+        "sport": "womens-soccer",
+        "programme": "Cleary University",
+        "conference": "Wolverine-Hoosier Athletic Conference",
+        "source_domain": "clearycougars.com",
+        "domain_status_now": "VERIFIED/169327"
+      },
+      {
+        "unitid": 181604,
+        "sport": "womens-soccer",
+        "programme": "College of Saint Mary",
+        "conference": "Great Plains Athletic Conference",
+        "source_domain": "csmflames.com",
+        "domain_status_now": "VERIFIED/181604"
+      },
+      {
+        "unitid": 219091,
+        "sport": "womens-soccer",
+        "programme": "Dakota Wesleyan University",
+        "conference": "Great Plains Athletic Conference",
+        "source_domain": "dwuathletics.com",
+        "domain_status_now": "VERIFIED/219091"
+      },
+      {
+        "unitid": 181020,
+        "sport": "womens-soccer",
+        "programme": "Doane University",
+        "conference": "Great Plains Athletic Conference",
+        "source_domain": "doane.edu",
+        "domain_status_now": "VERIFIED/181020"
+      },
+      {
+        "unitid": 153250,
+        "sport": "womens-soccer",
+        "programme": "Dordt University",
+        "conference": "Great Plains Athletic Conference",
+        "source_domain": "godordt.com",
+        "domain_status_now": "VERIFIED/153250"
+      },
+      {
+        "unitid": 177339,
+        "sport": "womens-soccer",
+        "programme": "Evangel University",
+        "conference": "Kansas Collegiate Athletic Conference",
+        "source_domain": "evangelathletics.com",
+        "domain_status_now": "VERIFIED/177339"
+      },
+      {
+        "unitid": 165802,
+        "sport": "womens-soccer",
+        "programme": "Fisher College",
+        "conference": "Continental Athletic Conference",
+        "source_domain": "fisherfalcons.com",
+        "domain_status_now": "VERIFIED/165802"
+      },
+      {
+        "unitid": 156745,
+        "sport": "womens-soccer",
+        "programme": "Georgetown College",
+        "conference": "Mid-South Conference",
+        "source_domain": "georgetowncollegeathletics.com",
+        "domain_status_now": "VERIFIED/156745"
+      },
+      {
+        "unitid": 145336,
+        "sport": "womens-soccer",
+        "programme": "Governors State University",
+        "conference": "Chicagoland Collegiate Athletic Conference",
+        "source_domain": "gsujaguars.com",
+        "domain_status_now": "VERIFIED/145336"
+      },
+      {
+        "unitid": 153366,
+        "sport": "womens-soccer",
+        "programme": "Graceland University",
+        "conference": "Heart of America Athletic Conference",
+        "source_domain": "gujackets.com",
+        "domain_status_now": "VERIFIED/153366"
+      },
+      {
+        "unitid": 181127,
+        "sport": "womens-soccer",
+        "programme": "Hastings College",
+        "conference": "Great Plains Athletic Conference",
+        "source_domain": "hastingsbroncos.com",
+        "domain_status_now": "VERIFIED/181127"
+      },
+      {
+        "unitid": 150774,
+        "sport": "womens-soccer",
+        "programme": "Holy Cross College",
+        "conference": "Chicagoland Collegiate Athletic Conference",
+        "source_domain": "hcsaints.com",
+        "domain_status_now": "VERIFIED/150774"
+      },
+      {
+        "unitid": 151290,
+        "sport": "womens-soccer",
+        "programme": "Indiana Institute of Technology",
+        "conference": "Wolverine-Hoosier Athletic Conference",
+        "source_domain": "indianatechwarriors.com",
+        "domain_status_now": "VERIFIED/151290"
+      },
+      {
+        "unitid": 151388,
+        "sport": "womens-soccer",
+        "programme": "Indiana University East",
+        "conference": "River States Conference",
+        "source_domain": "iueredwolves.com",
+        "domain_status_now": "VERIFIED/151388"
+      },
+      {
+        "unitid": 146339,
+        "sport": "womens-soccer",
+        "programme": "Judson University",
+        "conference": "Chicagoland Collegiate Athletic Conference",
+        "source_domain": "judsoneagles.com",
+        "domain_status_now": "VERIFIED/146339"
+      },
+      {
+        "unitid": 157100,
+        "sport": "womens-soccer",
+        "programme": "Kentucky Christian University",
+        "conference": "River States Conference",
+        "source_domain": "kcuknights.com",
+        "domain_status_now": "VERIFIED/157100"
+      },
+      {
+        "unitid": 170675,
+        "sport": "womens-soccer",
+        "programme": "Lawrence Technological University",
+        "conference": "Wolverine-Hoosier Athletic Conference",
+        "source_domain": "ltuathletics.com",
+        "domain_status_now": "VERIFIED/170675"
+      },
+      {
+        "unitid": 117104,
+        "sport": "womens-soccer",
+        "programme": "Life Pacific University",
+        "conference": "Great Southwest Athletic Conference",
+        "source_domain": "lpuwarriors.com",
+        "domain_status_now": "VERIFIED/117104"
+      },
+      {
+        "unitid": 159416,
+        "sport": "womens-soccer",
+        "programme": "LSU Shreveport",
+        "conference": "Red River Athletic Conference",
+        "source_domain": "lsusathletics.com",
+        "domain_status_now": "VERIFIED/159416"
+      },
+      {
+        "unitid": 151786,
+        "sport": "womens-soccer",
+        "programme": "Marian University (IN)",
+        "conference": "Crossroads League",
+        "source_domain": "muknights.com",
+        "domain_status_now": "VERIFIED/151786"
+      },
+      {
+        "unitid": 178244,
+        "sport": "womens-soccer",
+        "programme": "Missouri Baptist University",
+        "conference": "Heart of America Athletic Conference",
+        "source_domain": "mbuspartans.com",
+        "domain_status_now": "VERIFIED/178244"
+      },
+      {
+        "unitid": 154004,
+        "sport": "womens-soccer",
+        "programme": "Morningside University",
+        "conference": "Great Plains Athletic Conference",
+        "source_domain": "msidemustangs.com",
+        "domain_status_now": "VERIFIED/154004"
+      },
+      {
+        "unitid": 239390,
+        "sport": "womens-soccer",
+        "programme": "Mount Mary University",
+        "conference": "Chicagoland Collegiate Athletic Conference",
+        "source_domain": "mtmaryathletics.com",
+        "domain_status_now": "VERIFIED/239390"
+      },
+      {
+        "unitid": 154013,
+        "sport": "womens-soccer",
+        "programme": "Mount Mercy University",
+        "conference": "Heart of America Athletic Conference",
+        "source_domain": "mountmercymustangs.com",
+        "domain_status_now": "VERIFIED/154013"
+      },
+      {
+        "unitid": 204194,
+        "sport": "womens-soccer",
+        "programme": "Mount Vernon Nazarene University",
+        "conference": "Crossroads League",
+        "source_domain": "mvnucougars.com",
+        "domain_status_now": "VERIFIED/204194"
+      },
+      {
+        "unitid": 464226,
+        "sport": "womens-soccer",
+        "programme": "Ottawa University Arizona",
+        "conference": "Great Southwest Athletic Conference",
+        "source_domain": "ouazspirit.com",
+        "domain_status_now": "VERIFIED/464226"
+      },
+      {
+        "unitid": 138868,
+        "sport": "womens-soccer",
+        "programme": "Point University",
+        "conference": "Southern States Athletic Conference",
+        "source_domain": "skyhawkathletics.com",
+        "domain_status_now": "VERIFIED/138868"
+      },
+      {
+        "unitid": 140872,
+        "sport": "womens-soccer",
+        "programme": "Reinhardt University",
+        "conference": "Appalachian Athletic Conference",
+        "source_domain": "reinhardteagles.com",
+        "domain_status_now": "VERIFIED/140872"
+      },
+      {
+        "unitid": 205203,
+        "sport": "womens-soccer",
+        "programme": "Rio Grande (University of)",
+        "conference": "River States Conference",
+        "source_domain": "rioredstorm.com",
+        "domain_status_now": "VERIFIED/205203"
+      },
+      {
+        "unitid": 154235,
+        "sport": "womens-soccer",
+        "programme": "Saint Ambrose University",
+        "conference": "Chicagoland Collegiate Athletic Conference",
+        "source_domain": "saubees.com",
+        "domain_status_now": "VERIFIED/154235"
+      },
+      {
+        "unitid": 172264,
+        "sport": "womens-soccer",
+        "programme": "Siena Heights University",
+        "conference": "Wolverine-Hoosier Athletic Conference",
+        "source_domain": "shusaints.com",
+        "domain_status_now": "VERIFIED/172264"
+      },
+      {
+        "unitid": 399911,
+        "sport": "womens-soccer",
+        "programme": "Soka University of America",
+        "conference": "Great Southwest Athletic Conference",
+        "source_domain": "sokaathletics.com",
+        "domain_status_now": "VERIFIED/399911"
+      },
+      {
+        "unitid": 137564,
+        "sport": "womens-soccer",
+        "programme": "Southeastern University (Florida)",
+        "conference": "Sun Conference",
+        "source_domain": "seu.edu",
+        "domain_status_now": "VERIFIED/137564"
+      },
+      {
+        "unitid": 218821,
+        "sport": "womens-soccer",
+        "programme": "Spartanburg Methodist College",
+        "conference": "Appalachian Athletic Conference",
+        "source_domain": "gosmcpioneers.com",
+        "domain_status_now": "VERIFIED/218821"
+      },
+      {
+        "unitid": 155937,
+        "sport": "womens-soccer",
+        "programme": "Sterling College (Kansas)",
+        "conference": "Kansas Collegiate Athletic Conference",
+        "source_domain": "scwarriors.com",
+        "domain_status_now": "VERIFIED/155937"
+      },
+      {
+        "unitid": 152530,
+        "sport": "womens-soccer",
+        "programme": "Taylor University",
+        "conference": "Crossroads League",
+        "source_domain": "taylortrojans.com",
+        "domain_status_now": "VERIFIED/152530"
+      },
+      {
+        "unitid": 221731,
+        "sport": "womens-soccer",
+        "programme": "Tennessee Wesleyan University",
+        "conference": "Appalachian Athletic Conference",
+        "source_domain": "twbulldogs.com",
+        "domain_status_now": "VERIFIED/221731"
+      },
+      {
+        "unitid": 459949,
+        "sport": "womens-soccer",
+        "programme": "Texas A&M University-San Antonio",
+        "conference": "Red River Athletic Conference",
+        "source_domain": "tamusasports.com",
+        "domain_status_now": "VERIFIED/459949"
+      },
+      {
+        "unitid": 224545,
+        "sport": "womens-soccer",
+        "programme": "Texas A&M University-Texarkana",
+        "conference": "Red River Athletic Conference",
+        "source_domain": "tamut.edu",
+        "domain_status_now": "VERIFIED/224545"
+      },
+      {
+        "unitid": 225502,
+        "sport": "womens-soccer",
+        "programme": "Texas A&M University-Victoria",
+        "conference": "Red River Athletic Conference",
+        "source_domain": "tamuvathletics.com",
+        "domain_status_now": "VERIFIED/225502"
+      },
+      {
+        "unitid": 228884,
+        "sport": "womens-soccer",
+        "programme": "Texas College",
+        "conference": "Red River Athletic Conference",
+        "source_domain": "tcsteersathletics.com",
+        "domain_status_now": "VERIFIED/228884"
+      },
+      {
+        "unitid": 235167,
+        "sport": "womens-soccer",
+        "programme": "The Evergreen State College",
+        "conference": "Cascade Collegiate Conference",
+        "source_domain": "gogeoducks.com",
+        "domain_status_now": "VERIFIED/235167"
+      },
+      {
+        "unitid": 176406,
+        "sport": "womens-soccer",
+        "programme": "Tougaloo College",
+        "conference": "HBCU Athletic Conference",
+        "source_domain": "tougaloobulldogs.com",
+        "domain_status_now": "VERIFIED/176406"
+      },
+      {
+        "unitid": 179265,
+        "sport": "womens-soccer",
+        "programme": "University of Health Sciences and Pharmacy in St. Louis",
+        "conference": "American Midwest Conference",
+        "source_domain": "eutecticsports.com",
+        "domain_status_now": "VERIFIED/179265"
+      },
+      {
+        "unitid": 171137,
+        "sport": "womens-soccer",
+        "programme": "University of Michigan-Dearborn",
+        "conference": "Wolverine-Hoosier Athletic Conference",
+        "source_domain": "umdearborn.edu",
+        "domain_status_now": "VERIFIED/171137"
+      },
+      {
+        "unitid": 204486,
+        "sport": "womens-soccer",
+        "programme": "University of Northwestern Ohio",
+        "conference": "Wolverine-Hoosier Athletic Conference",
+        "source_domain": "unohracers.com",
+        "domain_status_now": "VERIFIED/204486"
+      },
+      {
+        "unitid": 157535,
+        "sport": "womens-soccer",
+        "programme": "University of Pikeville",
+        "conference": "Appalachian Athletic Conference",
+        "source_domain": "upikebears.com",
+        "domain_status_now": "VERIFIED/157535"
+      },
+      {
+        "unitid": 152336,
+        "sport": "womens-soccer",
+        "programme": "University of Saint Francis (IN)",
+        "conference": "Crossroads League",
+        "source_domain": "saintfranciscougars.com",
+        "domain_status_now": "VERIFIED/152336"
+      },
+      {
+        "unitid": 237950,
+        "sport": "womens-soccer",
+        "programme": "West Virginia University Institute of Technology",
+        "conference": "River States Conference",
+        "source_domain": "goldenbearathletics.com",
+        "domain_status_now": "VERIFIED/237950"
+      },
+      {
+        "unitid": 490133,
+        "sport": "womens-soccer",
+        "programme": "Westcliff University",
+        "conference": "California Pacific Conference",
+        "source_domain": "westcliffathletics.com",
+        "domain_status_now": "VERIFIED/490133"
+      },
+      {
+        "unitid": 229887,
+        "sport": "womens-soccer",
+        "programme": "Wiley University",
+        "conference": "HBCU Athletic Conference",
+        "source_domain": "wileyathletics.com",
+        "domain_status_now": "VERIFIED_ALIAS/229887"
+      },
+      {
+        "unitid": 154590,
+        "sport": "womens-soccer",
+        "programme": "William Penn University",
+        "conference": "Heart of America Athletic Conference",
+        "source_domain": "statesmenathletics.com",
+        "domain_status_now": "VERIFIED/154590"
+      },
+      {
+        "unitid": 464226,
+        "sport": "mens-soccer",
+        "programme": "Ottawa University Arizona",
+        "conference": null,
+        "source_domain": "ouazspirit.com",
+        "domain_status_now": "VERIFIED/464226"
+      }
+    ],
+    "COLLISION_HOLD": [
+      {
+        "unitid": 148575,
+        "sport": "mens-soccer",
+        "programme": "Saint Francis (IL)",
+        "conference": "CCAC",
+        "source_domain": "sfuathletics.com",
+        "domain_status_now": "INSUFFICIENT_EVIDENCE/null"
+      },
+      {
+        "unitid": 157863,
+        "sport": "mens-soccer",
+        "programme": "Union (KY)",
+        "conference": "Appalachian Athletic Conference",
+        "source_domain": "gounionbulldogs.com",
+        "domain_status_now": "INSUFFICIENT_EVIDENCE/null"
+      },
+      {
+        "unitid": 151111,
+        "sport": "mens-soccer",
+        "programme": "Indiana University Columbus",
+        "conference": "River States Conference",
+        "source_domain": "iuccrimsonpride.com",
+        "domain_status_now": "INSUFFICIENT_EVIDENCE/null"
+      },
+      {
+        "unitid": 146339,
+        "sport": "mens-soccer",
+        "programme": "Judson University",
+        "conference": "Chicagoland Collegiate Athletic Conference",
+        "source_domain": "johnsonroyals.com",
+        "domain_status_now": "INSUFFICIENT_EVIDENCE/null"
+      },
+      {
+        "unitid": 117627,
+        "sport": "mens-soccer",
+        "programme": "La Sierra University",
+        "conference": "Great Southwest Athletic Conference",
+        "source_domain": "lsugoldeneagles.com",
+        "domain_status_now": "WRONG_INSTITUTION/117627"
+      },
+      {
+        "unitid": 159382,
+        "sport": "mens-soccer",
+        "programme": "LSU Alexandria",
+        "conference": "Red River Athletic Conference",
+        "source_domain": "lsuagenerals.com",
+        "domain_status_now": "INSUFFICIENT_EVIDENCE/null"
+      },
+      {
+        "unitid": 151111,
+        "sport": "womens-soccer",
+        "programme": "Indiana University Columbus",
+        "conference": "River States Conference",
+        "source_domain": "iuccrimsonpride.com",
+        "domain_status_now": "INSUFFICIENT_EVIDENCE/null"
+      },
+      {
+        "unitid": 220473,
+        "sport": "womens-soccer",
+        "programme": "Johnson University",
+        "conference": "Appalachian Athletic Conference",
+        "source_domain": "johnsonroyals.com",
+        "domain_status_now": "INSUFFICIENT_EVIDENCE/null"
+      },
+      {
+        "unitid": 117627,
+        "sport": "womens-soccer",
+        "programme": "La Sierra University",
+        "conference": "Great Southwest Athletic Conference",
+        "source_domain": "lsugoldeneagles.com",
+        "domain_status_now": "WRONG_INSTITUTION/117627"
+      },
+      {
+        "unitid": 159382,
+        "sport": "womens-soccer",
+        "programme": "LSU Alexandria",
+        "conference": "Red River Athletic Conference",
+        "source_domain": "lsuagenerals.com",
+        "domain_status_now": "INSUFFICIENT_EVIDENCE/null"
+      },
+      {
+        "unitid": 157863,
+        "sport": "womens-soccer",
+        "programme": "Union Commonwealth University",
+        "conference": "Appalachian Athletic Conference",
+        "source_domain": "gounionbulldogs.com",
+        "domain_status_now": "INSUFFICIENT_EVIDENCE/null"
+      }
+    ],
+    "SHARED_DOMAIN_HOLD": [
+      {
+        "unitid": 202514,
+        "sport": "womens-soccer",
+        "programme": "Defiance College",
+        "conference": "Wolverine-Hoosier Athletic Conference",
+        "source_domain": "prestosports.com",
+        "domain_status_now": "ABSENT"
+      },
+      {
+        "unitid": 133809,
+        "sport": "womens-soccer",
+        "programme": "Florida College",
+        "conference": "Continental Athletic Conference",
+        "source_domain": "prestosports.com",
+        "domain_status_now": "ABSENT"
+      },
+      {
+        "unitid": 240107,
+        "sport": "womens-soccer",
+        "programme": "Viterbo University",
+        "conference": "Chicagoland Collegiate Athletic Conference",
+        "source_domain": "prestosports.com",
+        "domain_status_now": "ABSENT"
+      }
+    ],
+    "INSUFFICIENT_HOLD": [
+      {
+        "unitid": null,
+        "sport": "womens-soccer",
+        "programme": "Christendom College",
+        "conference": "Eastern States Athletic Conference",
+        "source_domain": null,
+        "domain_status_now": "ABSENT"
+      },
+      {
+        "unitid": null,
+        "sport": "womens-soccer",
+        "programme": "Christendom College",
+        "conference": "Eastern States Athletic Conference",
+        "source_domain": null,
+        "domain_status_now": "ABSENT"
+      },
+      {
+        "unitid": null,
+        "sport": "womens-soccer",
+        "programme": "Christendom College",
+        "conference": "Eastern States Athletic Conference",
+        "source_domain": null,
+        "domain_status_now": "ABSENT"
+      }
+    ],
+    "NON_DOMAIN_BLOCKER": [
+      {
+        "unitid": null,
+        "sport": "mens-soccer",
+        "programme": "Park University Gilbert",
+        "conference": null,
+        "source_domain": "parkathletics.com",
+        "domain_status_now": "VERIFIED/178721"
+      },
+      {
+        "unitid": null,
+        "sport": "mens-soccer",
+        "programme": "Park University Gilbert",
+        "conference": null,
+        "source_domain": "parkathletics.com",
+        "domain_status_now": "VERIFIED/178721"
+      }
+    ],
+    "OTHER": []
+  }
+}

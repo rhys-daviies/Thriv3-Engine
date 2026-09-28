@@ -1,0 +1,79 @@
+{
+  "milestone": "PHASE 7B.5B — NAIA TIER-2 SAFE DOMAIN REPAIR (APPLIED, shared dev)",
+  "created_at": "2026-09-28T08:08:16.255Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev). Production untouched.",
+  "preserved_7b5a_commit": "b6e7b03",
+  "frozen_fixture_hash": "3429466bda413229007ae566fe9be8c89e959b900a0b8a3d1c463ac1935d8a37",
+  "approved_repair_count": 62,
+  "applied": {
+    "UPDATE": 60,
+    "INSERT": 2,
+    "NOOP": 0,
+    "REJECT": 0
+  },
+  "domain_fp_pre": "498eb15f134f4e58d2a9a73bd281611a21e8885f7ab8568ffa7e61fe411699cc",
+  "domain_fp_post": "4d3ce59c93a4ad868b5a8acd0f13b900ee32eee1af409773ebd920650c26f18f",
+  "domain_fp_changed": true,
+  "row_count_pre": 2723,
+  "row_count_post": 2725,
+  "status_dist_pre": {
+    "INSUFFICIENT_EVIDENCE": 690,
+    "UNREACHABLE": 229,
+    "VERIFIED": 1004,
+    "VERIFIED_ALIAS": 727,
+    "AMBIGUOUS": 17,
+    "WRONG_INSTITUTION": 56
+  },
+  "status_dist_post": {
+    "INSUFFICIENT_EVIDENCE": 635,
+    "UNREACHABLE": 227,
+    "VERIFIED": 1065,
+    "VERIFIED_ALIAS": 728,
+    "AMBIGUOUS": 17,
+    "WRONG_INSTITUTION": 53
+  },
+  "eligibility_non_effect": {
+    "eligible_pre": 3876,
+    "eligible_post": 3876,
+    "delta": 0,
+    "ncaa_hash_pre": "6d2df77fc5c96759",
+    "ncaa_hash_post": "6d2df77fc5c96759",
+    "ncaa_delta": 0,
+    "ncaa_matches_7b3_baseline": true
+  },
+  "held_unchanged": {
+    "note": "The 3 wrong mappings and LSU/Union collision families + prestosports (shared) were NOT trusted.",
+    "domains": [
+      "johnsonroyals.com",
+      "sfuathletics.com",
+      "iuccrimsonpride.com",
+      "prestosports.com",
+      "lsugoldeneagles.com",
+      "lsuagenerals.com",
+      "gounionbulldogs.com"
+    ]
+  },
+  "residual_taxonomy": {
+    "NEEDS_FRESH_EVIDENCE": 109,
+    "COLLISION_HOLD": 11,
+    "SHARED_DOMAIN_HOLD": 3,
+    "INSUFFICIENT_HOLD": 3,
+    "NON_DOMAIN_BLOCKER": 2,
+    "OTHER": 0
+  },
+  "needs_fresh_evidence_count": 109,
+  "prevention_gap_design": {
+    "scope": "DESIGN ONLY — not implemented in 7B.5B.",
+    "items": [
+      "read-side ownership-review flag: surface any coach with a verified personal email whose source/athletics domain is INSUFFICIENT_EVIDENCE/UNREACHABLE/MISSING, so the domain-authority gap is visible at ingest rather than discovered phases later (no schema change; a read-side view over coaches ⋈ athletics_domains).",
+      "Wayback-source detection: flag when a coach email_source_url is a web.archive.org capture (unwrap to the embedded real host) — archival sources can locate a page but never establish CURRENT/email_seen.",
+      "shared-CDN/source-host detection: flag when a source host is a shared platform (prestosports.com, sidearmsports.com, *.wixsite.com, *.squarespace.com) so it is never auto-promoted to a single UNITID.",
+      "page self-identification remains insufficient for auto-promotion: a page claiming a school name does not prove one-to-one ownership; promotion still requires independent institution↔athletics corroboration (this is what correctly withheld johnsonroyals/sfuathletics/iuccrimsonpride).",
+      "same-name collision protection remains authoritative: when >1 UNITID can credibly claim a host (LSU=La Sierra vs Louisiana State; Union families; Saint Francis IL/IN/PA), the host is HELD for manual adjudication, never auto-mapped."
+    ]
+  },
+  "ncaa_membership_hash": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+  "privacy": {
+    "note": "No coach PII in committed artifacts; domains/unitids/URLs are institutional."
+  }
+}
