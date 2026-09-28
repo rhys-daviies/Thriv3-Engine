@@ -1,0 +1,76 @@
+{
+  "milestone": "PHASE 7B.4A — TIER-1 NAIA EXCEPTION CLOSURE APPLIED",
+  "created_at": "2026-09-28T04:07:31.304Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev). Eligibility derived on temp copies.",
+  "git_reconciliation": {
+    "divergence_cause": "The remote feature branch had been rewritten by a separate PII-redaction rebuild (pr49-rebuild + privacy-wt worktrees); the app also auto-pushed a WIP checkpoint (0353ad2) of the 7B.3 work; origin/main advanced via the PR #49 merge (225ca29). The complete 7B.3 work (406ba50) diverged from both, tracking origin/feature/coach-corroboration-7b (ahead 1 / behind 1 = clean 406ba50 vs WIP 0353ad2).",
+    "reconciliation_method": "Two normal merges (no force, no reset): merged origin/feature/coach-corroboration-7b (WIP subset) then origin/main into local; resolved a batch_A_snapshot add/add + redacted_artifacts union (took the complete 406ba50 superset) and one committedPiiScan.js allow-list conflict (UNION — no real address allow-listed). The scan surfaced real-domain addresses in the new 7B.3 applier test; rewritten to RFC 2606 reserved domains. 406ba50 preserved as an ancestor.",
+    "local_head_after": "698484a (before 7B.4A commit)",
+    "remote_head_after_checkpoint": "698484a (origin/feature/coach-corroboration-7b)",
+    "ahead_behind_vs_main": "9 ahead / 0 behind (before 7B.4A commit)",
+    "pii_history_result": "committed-PII scan + committed-evidence privacy pass; no raw fixtures/sqlite tracked; no unredacted PII resurrected."
+  },
+  "tier1_exit_classification_235": {
+    "COVERED_AUTHORITATIVE": 232,
+    "AUTHORITATIVE_SOURCE_BLOCKED": 1,
+    "PROGRAMME_DEFECT": 2
+  },
+  "tier1_residual_documented": [
+    {
+      "key": "155937|mens-soccer",
+      "programme": "Sterling",
+      "sport": "mens-soccer",
+      "klass": "AUTHORITATIVE_SOURCE_BLOCKED"
+    },
+    {
+      "key": "152099|mens-soccer",
+      "programme": "Oakland City University",
+      "sport": "mens-soccer",
+      "klass": "PROGRAMME_DEFECT"
+    },
+    {
+      "key": "152099|womens-soccer",
+      "programme": "Oakland City University",
+      "sport": "womens-soccer",
+      "klass": "PROGRAMME_DEFECT"
+    }
+  ],
+  "unexplained_residual": 0,
+  "applied": {
+    "inserts": 3,
+    "email_corrections": 2,
+    "stale": 10,
+    "evidence": 21,
+    "name_corrections": 2,
+    "domain_repairs": 0,
+    "held": 5
+  },
+  "naia_universe_after": {
+    "active": 384,
+    "COVERED_ELIGIBLE": 234,
+    "COVERED_INELIGIBLE_ONLY": 140,
+    "COACH_SEASONS_ONLY": 0,
+    "NO_COACH_DATA": 10,
+    "coverage_pct": "60.9%",
+    "eligible_coaches": 519,
+    "strict_path": 516
+  },
+  "ncaa_non_regression": {
+    "hash_before": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+    "hash_after": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+    "delta_zero": true,
+    "ncaa_eligible": 3356,
+    "other_division_delta_zero": true
+  },
+  "remaining_naia_tiers": {
+    "tier2_domain_verification": 128,
+    "tier3_email_research": 4,
+    "tier4_currentness": 0,
+    "tier5_6_7": 5,
+    "note": "unchanged by 7B.4A"
+  },
+  "fingerprints": {
+    "coach_fp": "6479d02a536e545b9a1a624c999e92e908ae026f5b8ff8bc5dc74c4d6cf0fbf3",
+    "domain_fp": "498eb15f134f4e58d2a9a73bd281611a21e8885f7ab8568ffa7e61fe411699cc"
+  }
+}

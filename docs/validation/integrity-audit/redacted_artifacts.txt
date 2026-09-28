@@ -64,3 +64,5 @@ docs/validation/integrity-audit/phase7b3_batch_E_evidence.redacted.json
 docs/validation/integrity-audit/phase7b3_batch_F_snapshot.json
 docs/validation/integrity-audit/phase7b3_batch_F_evidence.redacted.json
 docs/validation/integrity-audit/phase7b3_naia_tier1_closure_snapshot.json
+docs/validation/integrity-audit/phase7b4a_naia_tier1_exception_closure_snapshot.json
+docs/validation/integrity-audit/phase7b4a_exception_evidence.redacted.json
