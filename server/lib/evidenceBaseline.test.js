@@ -402,6 +402,7 @@ d('roster_freshness mirrors what production reads', () => {
   });
 
   it('does NOT move when a non-max row in the current season moves backwards', () => {
+    const base = baseline();
     const still = probe(`
       const row = db.prepare("SELECT college_name, sport FROM roster_players WHERE season = '2026'"
         + " GROUP BY college_name, sport HAVING COUNT(*) > 2 LIMIT 1").get();
