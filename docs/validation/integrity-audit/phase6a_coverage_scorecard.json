@@ -1,0 +1,97 @@
+{
+  "built_at": "2026-09-27T00:10:19.613Z",
+  "by_division": {
+    "NCAA D1": {
+      "active": 562,
+      "covered_eligible": 473,
+      "ineligible_only": 86,
+      "coach_seasons_only": 2,
+      "no_coach_data": 1,
+      "active_confirmed_gap": 0,
+      "gap_with_published_email": 0,
+      "pct_covered_eligible": "84.2%",
+      "men": 213,
+      "women": 349
+    },
+    "NCAA D2": {
+      "active": 463,
+      "covered_eligible": 396,
+      "ineligible_only": 49,
+      "coach_seasons_only": 14,
+      "no_coach_data": 4,
+      "active_confirmed_gap": 2,
+      "gap_with_published_email": 2,
+      "pct_covered_eligible": "85.5%",
+      "men": 203,
+      "women": 260
+    },
+    "NCAA D3": {
+      "active": 741,
+      "covered_eligible": 553,
+      "ineligible_only": 110,
+      "coach_seasons_only": 68,
+      "no_coach_data": 10,
+      "active_confirmed_gap": 7,
+      "gap_with_published_email": 5,
+      "pct_covered_eligible": "74.6%",
+      "men": 318,
+      "women": 423
+    },
+    "NAIA": {
+      "active": 391,
+      "covered_eligible": 2,
+      "ineligible_only": 377,
+      "coach_seasons_only": 0,
+      "no_coach_data": 12,
+      "active_confirmed_gap": 3,
+      "gap_with_published_email": 1,
+      "pct_covered_eligible": "0.5%",
+      "men": 193,
+      "women": 198
+    },
+    "NJCAA": {
+      "active": 228,
+      "covered_eligible": 0,
+      "ineligible_only": 1,
+      "coach_seasons_only": 0,
+      "no_coach_data": 227,
+      "active_confirmed_gap": 0,
+      "gap_with_published_email": 0,
+      "pct_covered_eligible": "0.0%",
+      "men": 228,
+      "women": 0
+    },
+    "USCAA": {
+      "active": 21,
+      "covered_eligible": 0,
+      "ineligible_only": 0,
+      "coach_seasons_only": 0,
+      "no_coach_data": 21,
+      "active_confirmed_gap": 20,
+      "gap_with_published_email": 7,
+      "pct_covered_eligible": "0.0%",
+      "men": 11,
+      "women": 10
+    }
+  },
+  "core_totals": {
+    "active": 2178,
+    "COVERED_ELIGIBLE": 1424,
+    "COVERED_INELIGIBLE_ONLY": 622,
+    "COACH_SEASONS_ONLY": 84,
+    "NO_COACH_DATA": 48,
+    "active_confirmed_gap": 32,
+    "gap_with_email": 15,
+    "pct_covered_eligible": "65.4%"
+  },
+  "njcaa_totals": {
+    "active": 228,
+    "COVERED_ELIGIBLE": 0,
+    "COVERED_INELIGIBLE_ONLY": 1,
+    "COACH_SEASONS_ONLY": 0,
+    "NO_COACH_DATA": 227,
+    "active_confirmed_gap": 0,
+    "gap_with_email": 0,
+    "pct_covered_eligible": "0.0%"
+  }
+}

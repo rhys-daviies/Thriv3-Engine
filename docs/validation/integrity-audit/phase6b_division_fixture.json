@@ -1,0 +1,37 @@
+{
+  "built_at": "2026-09-27T00:26:16.135Z",
+  "note": "Phase 6B J2 — current division corrections (historical seasons unchanged).",
+  "count": 3,
+  "entries": [
+    {
+      "programme_id": "8e84135c-94f6-4738-a267-5287abdf7939",
+      "expect_name": "Bethesda",
+      "expect_division": "NAIA",
+      "new_division": "NCCAA",
+      "new_conference": "Southwestern States (SWS)",
+      "reason": "current association NCCAA Division I (historical NAIA legitimate for old seasons)",
+      "evidence_url": "https://www.buc.edu/athletics/mens-soccer",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "3d3be345-d997-4321-871f-84005a7d0538",
+      "expect_name": "Ozarks (AR)",
+      "expect_division": "NAIA",
+      "new_division": "NCAA D3",
+      "new_conference": "Southern Collegiate Athletic Conference",
+      "reason": "University of the Ozarks is NCAA D3/SCAC (stored NAIA wrong for modern era)",
+      "evidence_url": "https://uofoathletics.com/sports/mens-soccer",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "19786b14-edf6-491a-9cdc-d0bafbb3e007",
+      "expect_name": "Barclay",
+      "expect_division": "NAIA",
+      "new_division": "NCCAA",
+      "new_conference": "Midwest Christian College Conference",
+      "reason": "Barclay College is NCCAA/MCCC (no NAIA membership found)",
+      "evidence_url": "https://bears.barclay.college/bears-soccer-ranked-8-in-nccaa-dii/",
+      "checked_at": "2026-09-27"
+    }
+  ]
+}

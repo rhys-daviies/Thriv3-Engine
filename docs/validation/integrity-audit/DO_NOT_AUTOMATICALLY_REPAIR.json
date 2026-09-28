@@ -1,0 +1,392 @@
+{
+  "real_distinct_entity": [
+    {
+      "unitid": 176053,
+      "variants": [
+        "Mississippi College",
+        "Mississippi Christian"
+      ]
+    }
+  ],
+  "data_model_exception": [
+    {
+      "unitid": 199412,
+      "variants": [
+        "Queens (NC)",
+        "Queens"
+      ]
+    },
+    {
+      "unitid": 163046,
+      "variants": [
+        "Loyola Maryland",
+        "Loyola (MD)"
+      ]
+    },
+    {
+      "unitid": 156745,
+      "variants": [
+        "Georgetown (KY)",
+        "Georgetown College"
+      ]
+    },
+    {
+      "unitid": 140252,
+      "variants": [
+        "Life (GA)",
+        "Life University"
+      ]
+    },
+    {
+      "unitid": 180984,
+      "variants": [
+        "Concordia (NE)",
+        "Concordia University Nebraska"
+      ]
+    },
+    {
+      "unitid": 138868,
+      "variants": [
+        "Point (GA)",
+        "Point University"
+      ]
+    },
+    {
+      "unitid": 137564,
+      "variants": [
+        "Southeastern University",
+        "Southeastern University (Florida)"
+      ]
+    },
+    {
+      "unitid": 180106,
+      "variants": [
+        "Carroll (MT)",
+        "Carroll College"
+      ]
+    },
+    {
+      "unitid": 154721,
+      "variants": [
+        "Bethany (KS)",
+        "Bethany College (Kansas)"
+      ]
+    },
+    {
+      "unitid": 168786,
+      "variants": [
+        "Aquinas",
+        "Aquinas College (Michigan)"
+      ]
+    },
+    {
+      "unitid": 207722,
+      "variants": [
+        "Science & Arts (OK)",
+        "University of Science and Arts of Oklahoma"
+      ]
+    },
+    {
+      "unitid": 155900,
+      "variants": [
+        "Southwestern (KS)",
+        "Southwestern College (Kansas)"
+      ]
+    },
+    {
+      "unitid": 155812,
+      "variants": [
+        "Saint Mary (KS)",
+        "University of Saint Mary"
+      ]
+    },
+    {
+      "unitid": 229267,
+      "variants": [
+        "Trinity (TX)",
+        "Trinity University"
+      ]
+    },
+    {
+      "unitid": 179867,
+      "variants": [
+        "Washington (MO)",
+        "Washington University in St Louis"
+      ]
+    },
+    {
+      "unitid": 173300,
+      "variants": [
+        "Concordia (MN)",
+        "Concordia College-Moorhead"
+      ]
+    },
+    {
+      "unitid": 107558,
+      "variants": [
+        "Ozarks (AR)",
+        "University of the Ozarks"
+      ]
+    },
+    {
+      "unitid": 155937,
+      "variants": [
+        "Sterling",
+        "Sterling College (Kansas)"
+      ]
+    },
+    {
+      "unitid": 164216,
+      "variants": [
+        "Washington College (MD)",
+        "Washington College"
+      ]
+    },
+    {
+      "unitid": 130697,
+      "variants": [
+        "Wesleyan (CT)",
+        "Wesleyan University"
+      ]
+    },
+    {
+      "unitid": 214591,
+      "variants": [
+        "Penn State Behrend",
+        "Pennsylvania State University-Penn State Erie (Behrend College)"
+      ]
+    },
+    {
+      "unitid": 195544,
+      "variants": [
+        "St. Joseph's (NY)",
+        "St. Joseph's University (Long Island)",
+        "St. Joseph's University (Brooklyn)"
+      ]
+    },
+    {
+      "unitid": 238458,
+      "variants": [
+        "Carroll (WI)",
+        "Carroll University"
+      ]
+    },
+    {
+      "unitid": 220710,
+      "variants": [
+        "Maryville (TN)",
+        "Maryville College"
+      ]
+    },
+    {
+      "unitid": 212133,
+      "variants": [
+        "Eastern (PA)",
+        "Eastern University"
+      ]
+    },
+    {
+      "unitid": 205957,
+      "variants": [
+        "Franciscan (OH)",
+        "Franciscan University of Steubenville"
+      ]
+    },
+    {
+      "unitid": 231581,
+      "variants": [
+        "Bridgewater (VA)",
+        "Bridgewater College"
+      ]
+    },
+    {
+      "unitid": 232706,
+      "variants": [
+        "Marymount (VA)",
+        "Marymount University"
+      ]
+    },
+    {
+      "unitid": 206507,
+      "variants": [
+        "Wilmington (OH)",
+        "Wilmington College"
+      ]
+    },
+    {
+      "unitid": 153108,
+      "variants": [
+        "Central (IA)",
+        "Central College"
+      ]
+    },
+    {
+      "unitid": 154350,
+      "variants": [
+        "Simpson (IA)",
+        "Simpson College"
+      ]
+    },
+    {
+      "unitid": 148496,
+      "variants": [
+        "Dominican (IL)",
+        "Dominican University"
+      ]
+    },
+    {
+      "unitid": 174862,
+      "variants": [
+        "Crown (MN)",
+        "Crown College"
+      ]
+    },
+    {
+      "unitid": 145619,
+      "variants": [
+        "Benedictine (IL)",
+        "Benedictine University"
+      ]
+    },
+    {
+      "unitid": 174817,
+      "variants": [
+        "Saint Mary's (MN)",
+        "Saint Mary's University of Minnesota"
+      ]
+    },
+    {
+      "unitid": 165334,
+      "variants": [
+        "Clark (MA)",
+        "Clark University"
+      ]
+    },
+    {
+      "unitid": 213321,
+      "variants": [
+        "King's (PA)",
+        "King's College"
+      ]
+    },
+    {
+      "unitid": 147660,
+      "variants": [
+        "North Central (IL)",
+        "North Central College"
+      ]
+    },
+    {
+      "unitid": 228343,
+      "variants": [
+        "Southwestern (TX)",
+        "Southwestern University"
+      ]
+    },
+    {
+      "unitid": 158477,
+      "variants": [
+        "Centenary (LA)",
+        "Centenary College of Louisiana"
+      ]
+    },
+    {
+      "unitid": 183974,
+      "variants": [
+        "Centenary (NJ)",
+        "Centenary University"
+      ]
+    },
+    {
+      "unitid": 143084,
+      "variants": [
+        "Augustana (IL)",
+        "Augustana College"
+      ]
+    },
+    {
+      "unitid": 147341,
+      "variants": [
+        "Monmouth (IL)",
+        "Monmouth College"
+      ]
+    },
+    {
+      "unitid": 217059,
+      "variants": [
+        "York (PA)",
+        "York College of Pennsylvania"
+      ]
+    },
+    {
+      "unitid": 207041,
+      "variants": [
+        "East Central (OK)",
+        "East Central"
+      ]
+    },
+    {
+      "unitid": 130590,
+      "variants": [
+        "Trinity (CT)",
+        "Trinity College"
+      ]
+    },
+    {
+      "unitid": 154101,
+      "variants": [
+        "Northwestern (IA)",
+        "Northwestern College (Iowa)"
+      ]
+    },
+    {
+      "unitid": 174491,
+      "variants": [
+        "Northwestern (MN)",
+        "University of Northwestern-St Paul"
+      ]
+    },
+    {
+      "unitid": 180258,
+      "variants": [
+        "Providence (MT)",
+        "University of Providence"
+      ]
+    },
+    {
+      "unitid": 137476,
+      "variants": [
+        "Saint Thomas (FL)",
+        "St. Thomas University (Florida)"
+      ]
+    },
+    {
+      "unitid": 157863,
+      "variants": [
+        "Union (KY)",
+        "Union Commonwealth University"
+      ]
+    },
+    {
+      "unitid": 160904,
+      "variants": [
+        "Xavier (LA)",
+        "Xavier University of Louisiana"
+      ]
+    },
+    {
+      "unitid": 154712,
+      "variants": [
+        "Benedictine College",
+        "Benedictine (KS)"
+      ]
+    },
+    {
+      "unitid": 188182,
+      "variants": [
+        "University of the Southwest",
+        "University of the Southwest (New Mexico)"
+      ]
+    }
+  ]
+}

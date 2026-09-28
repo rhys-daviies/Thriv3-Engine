@@ -1,0 +1,445 @@
+{
+  "built_at": "2026-09-27T00:25:31.543Z",
+  "groups": [
+    {
+      "unitid": 110413,
+      "sport": "womens-soccer",
+      "n": 2,
+      "classification": "CANONICAL_NAME_DRIFT",
+      "canonical": "Cal Lutheran",
+      "held": true,
+      "note": "Same programme under two spellings with SPLIT data across both rows — reference migration would collide on season/roster keys, so HELD for a conflict-safe migration pass. Canonical (data home): \"Cal Lutheran\".",
+      "rows": [
+        {
+          "name": "California Lutheran University",
+          "division": "NCAA D3",
+          "total_refs": 240
+        },
+        {
+          "name": "Cal Lutheran",
+          "division": "NCAA D3",
+          "total_refs": 269
+        }
+      ]
+    },
+    {
+      "unitid": 110714,
+      "sport": "womens-soccer",
+      "n": 2,
+      "classification": "CANONICAL_NAME_DRIFT",
+      "canonical": "University of California-Santa Cruz",
+      "held": true,
+      "note": "Same programme under two spellings with SPLIT data across both rows — reference migration would collide on season/roster keys, so HELD for a conflict-safe migration pass. Canonical (data home): \"University of California-Santa Cruz\".",
+      "rows": [
+        {
+          "name": "University of California-Santa Cruz",
+          "division": "NCAA D3",
+          "total_refs": 196
+        },
+        {
+          "name": "UC Santa Cruz",
+          "division": "NCAA D3",
+          "total_refs": 7
+        }
+      ]
+    },
+    {
+      "unitid": 112260,
+      "sport": "womens-soccer",
+      "n": 2,
+      "classification": "CANONICAL_NAME_DRIFT",
+      "canonical": "Claremont-Mudd-Scripps",
+      "held": true,
+      "note": "Same programme under two spellings with SPLIT data across both rows — reference migration would collide on season/roster keys, so HELD for a conflict-safe migration pass. Canonical (data home): \"Claremont-Mudd-Scripps\".",
+      "rows": [
+        {
+          "name": "Claremont McKenna College",
+          "division": "NCAA D3",
+          "total_refs": 201
+        },
+        {
+          "name": "Claremont-Mudd-Scripps",
+          "division": "NCAA D3",
+          "total_refs": 221
+        }
+      ]
+    },
+    {
+      "unitid": 121345,
+      "sport": "womens-soccer",
+      "n": 2,
+      "classification": "CANONICAL_NAME_DRIFT",
+      "canonical": "Pomona-Pitzer",
+      "held": true,
+      "note": "Same programme under two spellings with SPLIT data across both rows — reference migration would collide on season/roster keys, so HELD for a conflict-safe migration pass. Canonical (data home): \"Pomona-Pitzer\".",
+      "rows": [
+        {
+          "name": "Pomona College",
+          "division": "NCAA D3",
+          "total_refs": 199
+        },
+        {
+          "name": "Pomona-Pitzer",
+          "division": "NCAA D3",
+          "total_refs": 208
+        }
+      ]
+    },
+    {
+      "unitid": 140951,
+      "sport": "mens-soccer",
+      "n": 2,
+      "classification": "TRUE_DUPLICATE",
+      "canonical": "SCAD",
+      "held": true,
+      "note": "Same programme under two spellings with SPLIT data across both rows — reference migration would collide on season/roster keys, so HELD for a conflict-safe migration pass. Canonical (data home): \"SCAD\".",
+      "rows": [
+        {
+          "name": "SCAD",
+          "division": "NCAA D3",
+          "total_refs": 140
+        },
+        {
+          "name": "Savannah College of Art and Design",
+          "division": "NAIA",
+          "total_refs": 57
+        }
+      ]
+    },
+    {
+      "unitid": 149842,
+      "sport": "mens-soccer",
+      "n": 2,
+      "classification": "CANONICAL_NAME_DRIFT",
+      "canonical": "Harper",
+      "held": false,
+      "note": "Empty duplicate stub (\"William Rainey Harper\", 0 refs) safely retired; canonical \"Harper\".",
+      "rows": [
+        {
+          "name": "Harper",
+          "division": "NJCAA",
+          "total_refs": 4
+        },
+        {
+          "name": "William Rainey Harper",
+          "division": "NJCAA",
+          "total_refs": 0
+        }
+      ]
+    },
+    {
+      "unitid": 150172,
+      "sport": "mens-soccer",
+      "n": 2,
+      "classification": "CANONICAL_NAME_DRIFT",
+      "canonical": "Calumet College of St. Joseph",
+      "held": true,
+      "note": "Same programme under two spellings with SPLIT data across both rows — reference migration would collide on season/roster keys, so HELD for a conflict-safe migration pass. Canonical (data home): \"Calumet College of St. Joseph\".",
+      "rows": [
+        {
+          "name": "Calumet College",
+          "division": "NAIA",
+          "total_refs": 4
+        },
+        {
+          "name": "Calumet College of St. Joseph",
+          "division": "NAIA",
+          "total_refs": 57
+        }
+      ]
+    },
+    {
+      "unitid": 151111,
+      "sport": "mens-soccer",
+      "n": 2,
+      "classification": "SPORT_IDENTITY_ERROR",
+      "canonical": null,
+      "held": true,
+      "note": "One row (Indiana University Columbus) wrongly carries IU Indy UNITID 151111; fix via unitid correction (J3), not a merge.",
+      "rows": [
+        {
+          "name": "IU Indy",
+          "division": "NCAA D1",
+          "total_refs": 383
+        },
+        {
+          "name": "Indiana University Columbus",
+          "division": "NAIA",
+          "total_refs": 152
+        }
+      ]
+    },
+    {
+      "unitid": 151111,
+      "sport": "womens-soccer",
+      "n": 2,
+      "classification": "SPORT_IDENTITY_ERROR",
+      "canonical": null,
+      "held": true,
+      "note": "One row (Indiana University Columbus) wrongly carries IU Indy UNITID 151111; fix via unitid correction (J3), not a merge.",
+      "rows": [
+        {
+          "name": "IU Indy",
+          "division": "NCAA D1",
+          "total_refs": 386
+        },
+        {
+          "name": "Indiana University Columbus",
+          "division": "NAIA",
+          "total_refs": 152
+        }
+      ]
+    },
+    {
+      "unitid": 176053,
+      "sport": "womens-soccer",
+      "n": 2,
+      "classification": "CANONICAL_NAME_DRIFT",
+      "canonical": "Mississippi Christian",
+      "held": true,
+      "note": "Same programme under two spellings with SPLIT data across both rows — reference migration would collide on season/roster keys, so HELD for a conflict-safe migration pass. Canonical (data home): \"Mississippi Christian\".",
+      "rows": [
+        {
+          "name": "Mississippi Christian",
+          "division": "NCAA D2",
+          "total_refs": 267
+        },
+        {
+          "name": "Mississippi College",
+          "division": "NCAA D2",
+          "total_refs": 263
+        }
+      ]
+    },
+    {
+      "unitid": 179308,
+      "sport": "mens-soccer",
+      "n": 3,
+      "classification": "CAMPUS_OR_ENTITY_COLLISION",
+      "canonical": null,
+      "held": true,
+      "note": "Distinct campuses of a merged/multi-campus institution sharing one IPEDS UNITID; legitimately separate programmes — DO NOT MERGE. Validator exception added.",
+      "rows": [
+        {
+          "name": "St. Louis Community-Florissant Valley",
+          "division": "NJCAA",
+          "total_refs": 0
+        },
+        {
+          "name": "St. Louis Community-Forest Park",
+          "division": "NJCAA",
+          "total_refs": 0
+        },
+        {
+          "name": "St. Louis Community-Meramec",
+          "division": "NJCAA",
+          "total_refs": 0
+        }
+      ]
+    },
+    {
+      "unitid": 184694,
+      "sport": "womens-soccer",
+      "n": 2,
+      "classification": "CANONICAL_NAME_DRIFT",
+      "canonical": "FDU-Florham",
+      "held": true,
+      "note": "Same programme under two spellings with SPLIT data across both rows — reference migration would collide on season/roster keys, so HELD for a conflict-safe migration pass. Canonical (data home): \"FDU-Florham\".",
+      "rows": [
+        {
+          "name": "Fairleigh Dickinson University-Florham",
+          "division": "NCAA D3",
+          "total_refs": 174
+        },
+        {
+          "name": "FDU-Florham",
+          "division": "NCAA D3",
+          "total_refs": 205
+        }
+      ]
+    },
+    {
+      "unitid": 195544,
+      "sport": "womens-soccer",
+      "n": 2,
+      "classification": "CAMPUS_OR_ENTITY_COLLISION",
+      "canonical": null,
+      "held": true,
+      "note": "Distinct campuses of a merged/multi-campus institution sharing one IPEDS UNITID; legitimately separate programmes — DO NOT MERGE. Validator exception added.",
+      "rows": [
+        {
+          "name": "St. Joseph's University (Long Island)",
+          "division": "NCAA D3",
+          "total_refs": 184
+        },
+        {
+          "name": "St. Joseph's University (Brooklyn)",
+          "division": "NCAA D3",
+          "total_refs": 10
+        }
+      ]
+    },
+    {
+      "unitid": 205443,
+      "sport": "mens-soccer",
+      "n": 2,
+      "classification": "TRUE_DUPLICATE",
+      "canonical": "Shawnee State",
+      "held": true,
+      "note": "Same programme under two spellings with SPLIT data across both rows — reference migration would collide on season/roster keys, so HELD for a conflict-safe migration pass. Canonical (data home): \"Shawnee State\".",
+      "rows": [
+        {
+          "name": "Shawnee State",
+          "division": "NCAA D2",
+          "total_refs": 336
+        },
+        {
+          "name": "Shawnee State University",
+          "division": "NAIA",
+          "total_refs": 133
+        }
+      ]
+    },
+    {
+      "unitid": 205443,
+      "sport": "womens-soccer",
+      "n": 2,
+      "classification": "TRUE_DUPLICATE",
+      "canonical": "Shawnee State",
+      "held": true,
+      "note": "Same programme under two spellings with SPLIT data across both rows — reference migration would collide on season/roster keys, so HELD for a conflict-safe migration pass. Canonical (data home): \"Shawnee State\".",
+      "rows": [
+        {
+          "name": "Shawnee State University",
+          "division": "NAIA",
+          "total_refs": 138
+        },
+        {
+          "name": "Shawnee State",
+          "division": "NCAA D2",
+          "total_refs": 329
+        }
+      ]
+    },
+    {
+      "unitid": 218821,
+      "sport": "mens-soccer",
+      "n": 2,
+      "classification": "TRUE_DUPLICATE",
+      "canonical": "Spartanburg Methodist College",
+      "held": true,
+      "note": "Same programme under two spellings with SPLIT data across both rows — reference migration would collide on season/roster keys, so HELD for a conflict-safe migration pass. Canonical (data home): \"Spartanburg Methodist College\".",
+      "rows": [
+        {
+          "name": "Spartanburg Methodist",
+          "division": "NJCAA",
+          "total_refs": 2
+        },
+        {
+          "name": "Spartanburg Methodist College",
+          "division": "NAIA",
+          "total_refs": 155
+        }
+      ]
+    },
+    {
+      "unitid": 231165,
+      "sport": "womens-soccer",
+      "n": 3,
+      "classification": "CAMPUS_OR_ENTITY_COLLISION",
+      "canonical": null,
+      "held": true,
+      "note": "Distinct campuses of a merged/multi-campus institution sharing one IPEDS UNITID; legitimately separate programmes — DO NOT MERGE. Validator exception added.",
+      "rows": [
+        {
+          "name": "Vermont State University-Johnson",
+          "division": "NCAA D3",
+          "total_refs": 138
+        },
+        {
+          "name": "Vermont State University-Castleton",
+          "division": "NCAA D3",
+          "total_refs": 195
+        },
+        {
+          "name": "Vermont State University-Lyndon",
+          "division": "NCAA D3",
+          "total_refs": 123
+        }
+      ]
+    },
+    {
+      "unitid": 498562,
+      "sport": "mens-soccer",
+      "n": 2,
+      "classification": "CAMPUS_OR_ENTITY_COLLISION",
+      "canonical": null,
+      "held": true,
+      "note": "Distinct campuses of a merged/multi-campus institution sharing one IPEDS UNITID; legitimately separate programmes — DO NOT MERGE. Validator exception added.",
+      "rows": [
+        {
+          "name": "Commonwealth University-Bloomsburg",
+          "division": "NCAA D2",
+          "total_refs": 503
+        },
+        {
+          "name": "Commonwealth University-Lock Haven",
+          "division": "NCAA D2",
+          "total_refs": 384
+        }
+      ]
+    },
+    {
+      "unitid": 498562,
+      "sport": "womens-soccer",
+      "n": 3,
+      "classification": "CAMPUS_OR_ENTITY_COLLISION",
+      "canonical": null,
+      "held": true,
+      "note": "Distinct campuses of a merged/multi-campus institution sharing one IPEDS UNITID; legitimately separate programmes — DO NOT MERGE. Validator exception added.",
+      "rows": [
+        {
+          "name": "Commonwealth University-Bloomsburg",
+          "division": "NCAA D2",
+          "total_refs": 501
+        },
+        {
+          "name": "Commonwealth University-Lock Haven",
+          "division": "NCAA D2",
+          "total_refs": 384
+        },
+        {
+          "name": "Commonwealth University-Mansfield",
+          "division": "NCAA D2",
+          "total_refs": 149
+        }
+      ]
+    },
+    {
+      "unitid": 498571,
+      "sport": "womens-soccer",
+      "n": 3,
+      "classification": "CAMPUS_OR_ENTITY_COLLISION",
+      "canonical": null,
+      "held": true,
+      "note": "Distinct campuses of a merged/multi-campus institution sharing one IPEDS UNITID; legitimately separate programmes — DO NOT MERGE. Validator exception added.",
+      "rows": [
+        {
+          "name": "PennWest Edinboro",
+          "division": "NCAA D2",
+          "total_refs": 234
+        },
+        {
+          "name": "PennWest Clarion",
+          "division": "NCAA D2",
+          "total_refs": 203
+        },
+        {
+          "name": "PennWest California",
+          "division": "NCAA D2",
+          "total_refs": 390
+        }
+      ]
+    }
+  ]
+}

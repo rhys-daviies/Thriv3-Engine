@@ -1,0 +1,324 @@
+[
+  {
+    "domain": "andersonuniversity.edu",
+    "existing_unitid": 150066,
+    "verified_unitid": 217633,
+    "verified_institution": "Anderson University, Anderson, South Carolina",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.andersonuniversity.edu",
+      "https://nces.ed.gov/collegenavigator/?q=Anderson+University&s=SC"
+    ]
+  },
+  {
+    "domain": "ccis.edu",
+    "existing_unitid": 190150,
+    "verified_unitid": 177065,
+    "verified_institution": "Columbia College, Columbia, Missouri",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.ccis.edu",
+      "https://nces.ed.gov/collegenavigator/?q=Columbia+College&s=MO"
+    ]
+  },
+  {
+    "domain": "columbiacougars.com",
+    "existing_unitid": 190150,
+    "verified_unitid": 177065,
+    "verified_institution": "Columbia College, Columbia, Missouri (Cougars, NAIA / American Midwest Conference)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.columbiacougars.com",
+      "https://nces.ed.gov/collegenavigator/?q=Columbia+College&s=MO"
+    ]
+  },
+  {
+    "domain": "columbiasc.edu",
+    "existing_unitid": 190150,
+    "verified_unitid": 217934,
+    "verified_institution": "Columbia College, Columbia, South Carolina",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.columbiasc.edu",
+      "https://nces.ed.gov/collegenavigator/?q=Columbia+College&s=SC"
+    ]
+  },
+  {
+    "domain": "floridasports.com",
+    "existing_unitid": 134130,
+    "verified_unitid": null,
+    "verified_institution": "None - domain is a parked 'This website is for sale!' Sedo holding page with no institutional affiliation. Belongs to neither University of Florida nor Florida Tech.",
+    "verdict": "AMBIGUOUS_REQUIRES_HUMAN",
+    "evidence": [
+      "https://www.floridasports.com"
+    ]
+  },
+  {
+    "domain": "gocobbers.com",
+    "existing_unitid": 217864,
+    "verified_unitid": 173300,
+    "verified_institution": "Concordia College at Moorhead, MN (self-IDs 'Official Athletic Website for Concordia Moorhead'; 'Cobbers' nickname is unique to Concordia Moorhead; NCAA DIII, MIAC)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://gocobbers.com/sports/index/websitewelcome",
+      "https://www.ncaa.com/schools/concordia-mhead",
+      "https://nces.ed.gov/ipeds/institution-profile/173300",
+      "https://en.wikipedia.org/wiki/Concordia_College_(Moorhead,_Minnesota)"
+    ]
+  },
+  {
+    "domain": "hcc-nd.edu",
+    "existing_unitid": 166124,
+    "verified_unitid": 150774,
+    "verified_institution": "Holy Cross College, Notre Dame, IN (P.O. Box 308, Notre Dame IN 46556)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "http://www.hcc-nd.edu/",
+      "https://nces.ed.gov/ipeds/dfr/2023/ReportHTML.aspx?unitId=150774",
+      "https://en.wikipedia.org/wiki/Holy_Cross_College_(Indiana)"
+    ]
+  },
+  {
+    "domain": "lmunet.edu",
+    "existing_unitid": 117946,
+    "verified_unitid": 220631,
+    "verified_institution": "Lincoln Memorial University (LMU), Harrogate, TN",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.lmunet.edu",
+      "https://nces.ed.gov/collegenavigator/?q=Lincoln+Memorial+University"
+    ]
+  },
+  {
+    "domain": "maryville.edu",
+    "existing_unitid": 179159,
+    "verified_unitid": 178059,
+    "verified_institution": "Maryville University of St. Louis, Missouri. Distinct from Maryville College, Tennessee (UnitID 220710).",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.maryville.edu",
+      "https://nces.ed.gov/collegenavigator/?q=Maryville+University"
+    ]
+  },
+  {
+    "domain": "njcu.edu",
+    "existing_unitid": 185262,
+    "verified_unitid": 185129,
+    "verified_institution": "New Jersey City University, Jersey City, NJ (UnitID 185129) — the historical owner of njcu.edu",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://nces.ed.gov/ipeds/institution-profile/185129",
+      "https://www.njcu.edu/about/news/2026/04/middle-states-commission-higher-education-advances-historic-merger-kean-university-and-new-jersey-city-university",
+      "https://www.kean.edu/news/kean-university-and-njcu-sign-definitive-merger-agreement-launch-kean-jersey-city",
+      "https://www.highereddive.com/news/new-jersey-city-university-kean-university-merger-definitive-agreement/801857/"
+    ]
+  },
+  {
+    "domain": "nwciowa.edu",
+    "existing_unitid": 147767,
+    "verified_unitid": 154101,
+    "verified_institution": "Northwestern College, Orange City, Iowa (Christian college, Raiders/Red Raiders, NAIA)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://nwciowa.edu",
+      "https://nces.ed.gov/ipeds/institution-profile/154101",
+      "https://en.wikipedia.org/wiki/Northwestern_College_(Iowa)"
+    ]
+  },
+  {
+    "domain": "nwcraiders.com",
+    "existing_unitid": 147767,
+    "verified_unitid": 154101,
+    "verified_institution": "Northwestern College, Orange City, Iowa (athletics site footer '(c) Northwestern College Red Raiders, Orange City, Iowa'; NAIA)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://nwcraiders.com",
+      "https://nces.ed.gov/ipeds/institution-profile/154101"
+    ]
+  },
+  {
+    "domain": "pct.edu",
+    "existing_unitid": 366252,
+    "verified_unitid": 366252,
+    "verified_institution": "Pennsylvania College of Technology (Penn College), Williamsport, PA (NCAA D3)",
+    "verdict": "EXISTING_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.pct.edu",
+      "https://nces.ed.gov/collegenavigator/?q=Pennsylvania+College+of+Technology"
+    ]
+  },
+  {
+    "domain": "pnw.edu",
+    "existing_unitid": 243780,
+    "verified_unitid": 490805,
+    "verified_institution": "Purdue University Northwest (Hammond & Westville, IN)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.pnw.edu",
+      "https://nces.ed.gov/collegenavigator/?q=Purdue+University+Northwest"
+    ]
+  },
+  {
+    "domain": "redstormsports.com",
+    "existing_unitid": 195720,
+    "verified_unitid": 195809,
+    "verified_institution": "St. John's University Athletics, Queens, NY (Red Storm)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://redstormsports.com",
+      "https://nces.ed.gov/ipeds/dfr/2024/ReportHTML.aspx?unitId=195809"
+    ]
+  },
+  {
+    "domain": "rutgers.edu",
+    "existing_unitid": 186380,
+    "verified_unitid": 186380,
+    "verified_institution": "Rutgers, The State University of New Jersey - SYSTEM domain serving all campuses (New Brunswick 186380, Newark 186399, Camden 186371). Homepage self-identifies campuses in New Brunswick, Newark, and Camden.",
+    "verdict": "MULTI_INSTITUTION_DOMAIN",
+    "evidence": [
+      "https://www.rutgers.edu"
+    ]
+  },
+  {
+    "domain": "stjohns.edu",
+    "existing_unitid": 193900,
+    "verified_unitid": 195809,
+    "verified_institution": "St. John's University, Queens, NY (Catholic/Vincentian; Red Storm)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://stjohns.edu",
+      "https://nces.ed.gov/ipeds/institution-profile/195809",
+      "https://en.wikipedia.org/wiki/St._John%27s_University_(New_York_City)"
+    ]
+  },
+  {
+    "domain": "stu.edu",
+    "existing_unitid": 174914,
+    "verified_unitid": 137476,
+    "verified_institution": "St. Thomas University, Miami Gardens, FL (Bobcats, Catholic, NAIA)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://stu.edu",
+      "https://nces.ed.gov/ipeds/dfr/2023/ReportHTML.aspx?unitId=137476",
+      "https://en.wikipedia.org/wiki/St._Thomas_University_(Florida)"
+    ]
+  },
+  {
+    "domain": "stubobcats.com",
+    "existing_unitid": 174914,
+    "verified_unitid": 137476,
+    "verified_institution": "St. Thomas University Athletics, Miami Gardens, FL (Bobcats)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://stubobcats.com",
+      "https://en.wikipedia.org/wiki/St._Thomas_Bobcats",
+      "https://nces.ed.gov/ipeds/dfr/2023/ReportHTML.aspx?unitId=137476"
+    ]
+  },
+  {
+    "domain": "tommiesports.com",
+    "existing_unitid": 227863,
+    "verified_unitid": 174914,
+    "verified_institution": "University of St. Thomas, St. Paul/Minneapolis, MN (Tommies, D1 Summit League)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://tommiesports.com/",
+      "https://en.wikipedia.org/wiki/St._Thomas_Tommies_(Minnesota)",
+      "https://nces.ed.gov/ipeds/institution-profile/174914"
+    ]
+  },
+  {
+    "domain": "uconn.edu",
+    "existing_unitid": 128902,
+    "verified_unitid": 129020,
+    "verified_institution": "University of Connecticut (Storrs, CT; Huskies)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://uconn.edu",
+      "https://nces.ed.gov/ipeds/institution-profile/129020",
+      "https://nces.ed.gov/ipeds/reported-data/128902"
+    ]
+  },
+  {
+    "domain": "uconnhuskies.com",
+    "existing_unitid": 128902,
+    "verified_unitid": 129020,
+    "verified_institution": "University of Connecticut (official athletics site self-IDs as 'University of Connecticut Athletics', Huskies)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://uconnhuskies.com",
+      "https://nces.ed.gov/ipeds/institution-profile/129020"
+    ]
+  },
+  {
+    "domain": "umassathletics.com",
+    "existing_unitid": 166692,
+    "verified_unitid": 166629,
+    "verified_institution": "University of Massachusetts Amherst (Minutemen/Minutewomen; UMass Amherst flagship, Amherst MA)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://umassathletics.com/",
+      "https://en.wikipedia.org/wiki/UMass_Minutemen_and_Minutewomen",
+      "https://nces.ed.gov/ipeds/institution-profile/166629"
+    ]
+  },
+  {
+    "domain": "westminster-mo.edu",
+    "existing_unitid": 216807,
+    "verified_unitid": 179946,
+    "verified_institution": "Westminster College, Fulton, Missouri",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.westminster-mo.edu",
+      "https://www.wcmo.edu/",
+      "https://nces.ed.gov/collegenavigator/?q=Westminster+College&s=MO"
+    ]
+  },
+  {
+    "domain": "westminstergriffins.com",
+    "existing_unitid": 179946,
+    "verified_unitid": 230807,
+    "verified_institution": "Westminster University, Salt Lake City, Utah (Griffins)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.westminstergriffins.com",
+      "https://nces.ed.gov/collegenavigator/?q=Westminster&s=UT"
+    ]
+  },
+  {
+    "domain": "westminsteru.edu",
+    "existing_unitid": 179946,
+    "verified_unitid": 230807,
+    "verified_institution": "Westminster University, Salt Lake City, Utah",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.westminsteru.edu",
+      "https://nces.ed.gov/collegenavigator/?q=Westminster&s=UT"
+    ]
+  },
+  {
+    "domain": "wvu.edu",
+    "existing_unitid": 238032,
+    "verified_unitid": 238032,
+    "verified_institution": "West Virginia University flagship / main campus, Morgantown WV. WVU Tech (Beckley) is a separate divisional campus that operates on its own domain wvutech.edu.",
+    "verdict": "EXISTING_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.wvu.edu/about-wvu/wvu-facts/",
+      "https://catalog.wvu.edu/morgantown/",
+      "https://www.wvutech.edu/",
+      "https://en.wikipedia.org/wiki/West_Virginia_University"
+    ]
+  },
+  {
+    "domain": "www.gosuffolkrams.com",
+    "existing_unitid": 217864,
+    "verified_unitid": 168005,
+    "verified_institution": "Suffolk University, Boston, MA (self-IDs 'The Official Athletics Site of Suffolk University'; Rams; NCAA DIII, GNAC)",
+    "verdict": "CLAIMED_MAPPING_CORRECT",
+    "evidence": [
+      "https://www.gosuffolkrams.com/landing/index",
+      "https://www.gosuffolkrams.com/insideathletics/about_us",
+      "https://nces.ed.gov/ipeds/institution-profile/168005"
+    ]
+  }
+]

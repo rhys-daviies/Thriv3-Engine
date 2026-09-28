@@ -728,6 +728,47 @@ const COACH_COLUMNS = [
   ['email_source_url', 'TEXT'],
   ['email_confirmed_at', 'TEXT'],
   ['source', 'TEXT'],                            // which import produced the row
+  /**
+   * Coach CURRENTNESS — whether the person is still on staff at the stored
+   * programme — is a distinct axis from where the address came from
+   * (`email_status`), whether the address works (`email_confirmed_at`),
+   * institution reconciliation, or coach_seasons history. Phase 4A proved
+   * eligible coaches who have departed, so this is recorded explicitly rather
+   * than smuggled into another field.
+   *
+   *   currentness_status: NULL/absent == UNKNOWN (the default for every existing
+   *     row — NOT stale). 'CURRENT' = confirmed present on a current authoritative
+   *     source. 'PROVEN_STALE' = authoritative current evidence shows they are no
+   *     longer at the stored programme.
+   *
+   * Only PROVEN_STALE fails outreach closed. UNKNOWN is never auto-disqualified.
+   * Absence from coach_seasons, an unreachable page, or a working email domain
+   * must NEVER set PROVEN_STALE.
+   */
+  ['currentness_status', 'TEXT'],               // NULL(=UNKNOWN) | CURRENT | PROVEN_STALE
+  ['currentness_checked_at', 'TEXT'],           // ISO timestamp of the currentness check
+  ['currentness_source_url', 'TEXT'],           // authoritative page the check used
+  ['currentness_reason', 'TEXT'],               // short reason/evidence note
+  /**
+   * Email OBSERVATION provenance (Phase 4F) — records that the EXACT stored
+   * address was seen published on a current authoritative source, and where.
+   * This is a page-observation axis, DISTINCT from `email_confirmed_at`, which
+   * stays reserved for proven deliverability (a non-bounce / a reply). Being
+   * seen on a staff page is not proof the mailbox accepts mail, so the two must
+   * never be conflated.
+   *
+   *   email_seen_on_source_at:  NULL = the stored address has never been observed
+   *     on a current source. A timestamp = the date the EXACT stored string was
+   *     seen published on `email_seen_on_source_url`.
+   *   email_seen_on_source_url: the authoritative page the exact address was on.
+   *
+   * Populated ONLY on an exact string match to the published address, from a
+   * current staff/team/directory/roster page — never a different-current-email,
+   * consumer/generic-shared, inferred, unpublished, historical, or inaccessible
+   * case. Carries no eligibility weight on its own.
+   */
+  ['email_seen_on_source_at', 'TEXT'],          // ISO date the exact stored address was seen on a current source
+  ['email_seen_on_source_url', 'TEXT'],         // authoritative page the exact address was observed on
 ];
 
 /**

@@ -1,0 +1,334 @@
+{
+  "built_at": "2026-09-27T00:09:36.335Z",
+  "note": "Phase 6A — deterministic structural programme defects. NOT APPLIED. Separate from coach acquisition.",
+  "counts": {
+    "discontinued": 7,
+    "wrong_division": 3,
+    "identity_join_defect": 6,
+    "duplicate_programme": 0,
+    "missing_unitid": 2,
+    "duplicate_unitid_sport": 20
+  },
+  "count": 38,
+  "entries": [
+    {
+      "programme_id": "8e84135c-94f6-4738-a267-5287abdf7939",
+      "name": "Bethesda",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 110060,
+      "defect": "WRONG_DIVISION_OR_ASSOCIATION",
+      "correct": "NCCAA Division I (Southwestern States / SWS Conference)",
+      "evidence_url": "https://www.buc.edu/athletics/",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "3d3be345-d997-4321-871f-84005a7d0538",
+      "name": "Ozarks (AR)",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 107558,
+      "defect": "WRONG_DIVISION_OR_ASSOCIATION",
+      "correct": "NCAA Division III (Southern Collegiate Athletic Conference / SCAC)",
+      "evidence_url": "https://uofoathletics.com/sports/mens-soccer/",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "19786b14-edf6-491a-9cdc-d0bafbb3e007",
+      "name": "Barclay",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 155070,
+      "defect": "WRONG_DIVISION_OR_ASSOCIATION",
+      "correct": "NCCAA / Midwest Christian College Conference (MCCC)",
+      "evidence_url": "https://bears.barclay.college/coaches/",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "f5ca3326-405c-49d9-94b9-332a9d5104a8",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NAIA",
+      "unitid": 486901,
+      "defect": "IDENTITY_JOIN_DEFECT",
+      "detail": "Milligan University (Milligan, TN), NAIA, Appalachian Athletic Conference — stored division/conference is CORRECT. Coach data plainly exists on the official site, so our DB failed to join (likely the legacy name 'Milligan College' vs 'Milligan University'). Head coach John Newbery (2025-26); only a phone (423.461.8993) is published on the coaches page, no email. GA/support staff listed but not primary.",
+      "coaches_seen": [
+        "John Newbery"
+      ],
+      "evidence_url": "https://milliganbuffs.com/sports/wsoc/coaches",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "92059e86-ab59-4eb2-ad5c-adcad57e5a0c",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NCAA D3",
+      "unitid": 101435,
+      "defect": "IDENTITY_JOIN_DEFECT",
+      "detail": "Huntingdon College (Montgomery, AL), NCAA D3, Collegiate Conference of the South — stored division/conference CORRECT. Coach data plainly exists on official site (join defect). Head coach [name withheld — coach 3e0a26bd-dfb5-43e7-a86f-f7d65c13b6a3] (first full season 2025-26), published personal email [withheld]@redacted.invalid and phone (334) 322-6967.",
+      "coaches_seen": [
+        "[name withheld — coach 3e0a26bd-dfb5-43e7-a86f-f7d65c13b6a3]",
+        "[name withheld — coach 79da6219-4285-4c72-bd04-bb2de1a6303f]"
+      ],
+      "evidence_url": "https://www.huntingdonhawks.com/sports/wsoc/coaches/index",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "f425d0a4-8c84-43be-b16a-f3bf12d74e36",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "USCAA",
+      "unitid": 214795,
+      "defect": "IDENTITY_JOIN_DEFECT",
+      "detail": "Penn State Mont Alto women's soccer. Active with 2025-26 roster; USCAA/PSUAC confirmed. Coach data plainly exists (join defect): Mary Miller, head coach entering her 8th season (2025-26), also profiled on montalto.psu.edu with phone 717-377-8002. A @psu.edu email is published on the official athletics/campus directory but both are Cloudflare bot-protected so the exact string could not be captured; not inferred.",
+      "coaches_seen": [
+        "Mary Miller"
+      ],
+      "evidence_url": "https://www.psumontaltoathletics.com/sports/wsoc/2025-26/roster",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "a3fa33f9-0323-4774-a485-e7daf1082673",
+      "name": "Concordia (MI)",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 169363,
+      "defect": "DISCONTINUED",
+      "detail": "Concordia University Ann Arbor (unitid 169363) announced June 2024 it would discontinue ALL 28 athletic teams after the 2024-25 academic year and leave the WHAC; it is now the only NAIA member school in Michigan without athletics. Men's soccer no longer operates as of the 2025-26 season onward. No current coach to capture.",
+      "evidence_url": "https://www.cbsnews.com/detroit/news/concordia-university-ann-arbor-discontinuing-all-sports-programs",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "2549aab5-b0d8-4119-b47e-5f64ab4e0634",
+      "name": "Ozarks (MO)",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 178697,
+      "defect": "DISCONTINUED",
+      "detail": "unitid 178697 = College of the Ozarks (Point Lookout, MO). Confirmed NAIA member (returned to NAIA in 2023) but it sponsors NO men's soccer program: men's varsity sports are baseball, basketball, cross country, and track & field only. Official athletics site shows no soccer team/handle and competes on the SAC Sports Network (Sooner Athletic Conference), NOT the AMC stored in our DB. This appears to be a phantom/never-existed men's-soccer row, and the stored conference (AMC) is also wrong. Treating as DISCONTINUED (sport not sponsored). Recommend deleting the row or correcting the record.",
+      "evidence_url": "https://bobcats.cofo.edu/",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "c3cad736-19a0-4905-8c2e-b9c39935f8be",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": null,
+      "defect": "DISCONTINUED",
+      "detail": "Iowa Wesleyan University permanently closed after the 2022-23 academic year (announced March 2023) due to financial insolvency; all athletics including men's soccer ceased. Last NAIA men's soccer season on record is 2023-24 stats archive only. No current programme exists.",
+      "evidence_url": "https://en.wikipedia.org/wiki/Iowa_Wesleyan_University",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "ed77cc29-b393-40f3-9fbd-06629e73f90b",
+      "name": "Miami (FL)",
+      "sport": "womens-soccer",
+      "division": "NCAA D1",
+      "unitid": 135726,
+      "defect": "IDENTITY_JOIN_DEFECT",
+      "detail": "Power-conference ACC Division I women's soccer programme, unquestionably active (2026-27 staff/roster live). Head coach Ken Masuhr (2nd season, hired Dec 2023), assistants Kelly Keelan and Peter-John Falloon. Our DB holding ZERO coach rows for a stable major-program identity (unitid 135726) is almost certainly a name/unitid/sport join defect rather than a genuine data gap. Correct naming: 'Miami' / 'Miami (FL)' / 'Miami Hurricanes', sport womens-soccer (site uses sport code 'soc'). Only a generic official program inbox [withheld]@miami.edu is published (departmental, not personal); no individual coach emails published.",
+      "coaches_seen": [
+        "Ken Masuhr",
+        "Kelly Keelan",
+        "Peter-John Falloon"
+      ],
+      "evidence_url": "https://miamihurricanes.com/sports/soc/roster/season/2026-27/staff/",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "86ce15a2-9bb9-4c5e-8958-c0d6b6b0cf84",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NCAA D3",
+      "unitid": 216542,
+      "defect": "DISCONTINUED",
+      "detail": "University of Valley Forge (Phoenixville, PA) announced 29-30 July 2026 it will suspend/cease operations at the end of the summer 2026 semester (final day Aug 14, 2026), following Middle States 'show cause' status and chronic deficits; teach-out agreements with Eastern, Messiah, Southeastern. As of checked_at the institution is closed and the women's soccer programme no longer operates. Head coach through the final active season was Maira Abreu de Campos (staff page https://uvfpatriots.com/staff-directory/maira-abreu-de-campos/221). Separately, stored division 'NCAA D3' appears wrong — UVF athletics competed in the USCAA (formerly NCCAA), not NCAA D3; and stored conference 'United East Conference' is also inconsistent with that. Moot now given closure.",
+      "evidence_url": "https://www.insidehighered.com/news/business/financial-health/2026/07/30/",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "41b96f70-57be-4e82-8990-b3d500fec39c",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NCAA D2",
+      "unitid": 175078,
+      "defect": "DISCONTINUED",
+      "detail": "No men's soccer program exists at SMSU. The NSIC does not sponsor men's soccer, and the official SMSU staff directory lists ONLY women's soccer staff ([name withheld — coach c505aa2b-af21-4dfa-85e0-93e0f4994011], Head Women's Soccer Coach; asst [name withheld — coach 92c32313-7337-439c-8569-210855ff1258], [name withheld — coach 3c9925eb-c080-46ae-8138-8fe9dde6d0ae]; vol Edison Peralta). No men's soccer roster, schedule, or coach found on smsumustangs.com. This DB row appears to be an erroneous/non-existent men's programme (likely never sponsored). If the intent was the women's programme, it is a separate row.",
+      "evidence_url": "https://smsumustangs.com/",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "c8cfc2de-8003-4bcf-9538-a72d59436647",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 172264,
+      "defect": "DISCONTINUED",
+      "detail": "Siena Heights University (Adrian, MI) permanently closed June 30, 2026 at the end of the 2025-26 academic year. Men's soccer played its FINAL season in fall 2025 (2025-26 roster/schedule existed at shusaints.com/sports/msoc/2025-26; last match a WHAC Tournament QF loss Nov 1, 2025). As of fall 2026 the institution and all athletics no longer operate. Not active this season.",
+      "evidence_url": "https://www.sienaheights.edu/siena-heights-university-announces-closure/",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "15ad83d7-c44e-406e-a8b3-9f0bcbd4ce02",
+      "name": "Shaw",
+      "sport": "womens-soccer",
+      "division": "NCAA D2",
+      "unitid": 199643,
+      "defect": "IDENTITY_JOIN_DEFECT",
+      "detail": "Coach data plainly exists on the official Shaw athletics site (shawbears.com) with a published email, so our DB failed to join on name/UNITID/sport. [name withheld — coach 9b82a64c-cdf0-49aa-b9de-e496c4809c82] coaches BOTH the men's and women's programmes (single person, two programme rows). Stored conference 'Independent' should likely be CIAA (Shaw competes in the CIAA in D2).",
+      "coaches_seen": [
+        "[name withheld — coach 22ff7c6c-7bf0-40ad-98d1-0b01370a82e5]"
+      ],
+      "evidence_url": "https://shawbears.com/staff-directory/randy-mcclure/",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "faffb393-0cb8-48a3-ac0d-127ed4ff99e1",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NAIA",
+      "unitid": 120865,
+      "defect": "IDENTITY_JOIN_DEFECT",
+      "detail": "Programme active 2025-26 (clinched Cal Pac playoff berth Oct 2025, conference honors Nov 2025). Coach data exists on official site pioneersathletics.com, so DB failed to join. Head coach [name withheld] is also the AD; email [withheld]@puc.edu published in the athletics staff directory (surfaced from the official pioneersathletics.com directory index; site itself is CDN-protected against automated fetch). Division/association NAIA (California Pacific Conference) matches stored.",
+      "coaches_seen": [
+        "[name withheld]",
+        "[name withheld — coach daa47adc-0e5c-45de-861d-c95cfb2e8c2a]",
+        "[name withheld — coach 1c076d97-754b-4bcc-a7c4-2ee45e5a476f]"
+      ],
+      "evidence_url": "https://www.pioneersathletics.com/sports/wsoc/coaches/index",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "51b62824-865b-45b6-8c7a-35790b8f75d4",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NCAA D3",
+      "unitid": 185129,
+      "defect": "DISCONTINUED",
+      "detail": "NJCU completed a merger with Kean University on July 1, 2026, forming 'Kean Jersey City'. Per official Kean/NJCU merger announcements and D3sports coverage, ALL NCAA Division III sports on the NJCU (Jersey City) campus are eliminated at the end of the 2025-26 academic year. Kean Jersey City competes in the USCAA and sponsors ONLY women's soccer and men's basketball beginning 2026-27 — men's soccer is NOT continued. Former NJCU men's soccer players must try out to join Kean's NCAA teams. Therefore the NCAA D3 men's-soccer programme (unitid 185129, NJAC) no longer operates as of fall 2026. Last head coach Brendan Guzman (2023-2025, email [withheld]@njcu.edu) left in April 2026 to become head men's soccer coach at Centenary University. Domain evidence: njcugothicknights.com now redirects to keanathletics.com and njcu.edu to kean.edu/jersey-city.",
+      "evidence_url": "https://www.kean.edu/keanjerseycity",
+      "checked_at": "2026-09-27"
+    },
+    {
+      "programme_id": "c3cad736-19a0-4905-8c2e-b9c39935f8be",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": null,
+      "defect": "MISSING_UNITID_CANONICAL",
+      "detail": "programme has no unitid; resolve canonical identity before any join"
+    },
+    {
+      "programme_id": "b592bd31-9d25-4b1d-9949-8491a4637cc5",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "USCAA",
+      "unitid": null,
+      "defect": "MISSING_UNITID_CANONICAL",
+      "detail": "programme has no unitid; resolve canonical identity before any join"
+    }
+  ],
+  "duplicate_unitid_sport": [
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "151111|mens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "498562|mens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "205443|mens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "140951|mens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "218821|mens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "149842|mens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "150172|mens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "179308|mens-soccer",
+      "row_count": 3
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "151111|womens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "498562|womens-soccer",
+      "row_count": 3
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "176053|womens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "121345|womens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "498571|womens-soccer",
+      "row_count": 3
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "110413|womens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "112260|womens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "195544|womens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "231165|womens-soccer",
+      "row_count": 3
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "110714|womens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "205443|womens-soccer",
+      "row_count": 2
+    },
+    {
+      "defect": "DUPLICATE_UNITID_SPORT",
+      "unitid_sport": "184694|womens-soccer",
+      "row_count": 2
+    }
+  ]
+}

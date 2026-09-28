@@ -1,0 +1,28 @@
+{
+  "currentness": [],
+  "email_updates": [
+    {
+      "coach_id": "6217a0fb-26f8-445a-948e-ac9fc1284a30",
+      "old_email": "[withheld]@redacted.invalid",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://dupanthers.com/sports/mens-soccer/"
+    },
+    {
+      "coach_id": "79ee4b7e-fe9d-41b1-8c00-bdf62484e1f1",
+      "old_email": "[withheld]@redacted.invalid",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://athletics.stvincent.edu/sports/mens-soccer/"
+    },
+    {
+      "coach_id": "13e4a392-f3d9-456b-9a47-42295d97d5b2",
+      "old_email": "[withheld]@redacted.invalid",
+      "new_email": "[withheld]@redacted.invalid",
+      "checked_at": "2026-09-26",
+      "source_url": "https://utahtechtrailblazers.com/sports/womens-soccer/"
+    }
+  ],
+  "source_updates": [],
+  "deletes": []
+}

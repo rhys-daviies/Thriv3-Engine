@@ -1,0 +1,361 @@
+{
+  "domains": [
+    {
+      "domain": "rutgers.edu",
+      "current": 186380,
+      "claimed": [
+        186371,
+        186399
+      ]
+    }
+  ],
+  "name_ambiguous": [
+    {
+      "unitid": 149231,
+      "variants": [
+        "SIUE",
+        "SIU Edwardsville"
+      ]
+    },
+    {
+      "unitid": 199218,
+      "variants": [
+        "UNCW",
+        "UNC Wilmington"
+      ]
+    },
+    {
+      "unitid": 197036,
+      "variants": [
+        "Army West Point",
+        "Army"
+      ]
+    },
+    {
+      "unitid": 151111,
+      "variants": [
+        "IU Indy",
+        "Indiana University Columbus"
+      ]
+    },
+    {
+      "unitid": 220075,
+      "variants": [
+        "ETSU",
+        "East Tennessee State"
+      ]
+    },
+    {
+      "unitid": 110608,
+      "variants": [
+        "CSUN",
+        "Cal State Northridge"
+      ]
+    },
+    {
+      "unitid": 227368,
+      "variants": [
+        "UTRGV",
+        "UT Rio Grande Valley"
+      ]
+    },
+    {
+      "unitid": 433660,
+      "variants": [
+        "FGCU",
+        "Florida Gulf Coast"
+      ]
+    },
+    {
+      "unitid": 225627,
+      "variants": [
+        "UIW",
+        "Incarnate Word"
+      ]
+    },
+    {
+      "unitid": 498562,
+      "variants": [
+        "Commonwealth University-Bloomsburg",
+        "Commonwealth University-Lock Haven",
+        "Commonwealth University-Mansfield"
+      ]
+    },
+    {
+      "unitid": 148654,
+      "variants": [
+        "Illinois Springfield",
+        "UIS"
+      ]
+    },
+    {
+      "unitid": 110592,
+      "variants": [
+        "Cal State LA",
+        "Cal State Los Angeles"
+      ]
+    },
+    {
+      "unitid": 216366,
+      "variants": [
+        "Thomas Jefferson",
+        "Jefferson"
+      ]
+    },
+    {
+      "unitid": 154855,
+      "variants": [
+        "Central Christian",
+        "Central Christian College of Kansas"
+      ]
+    },
+    {
+      "unitid": 234207,
+      "variants": [
+        "Washington & Lee",
+        "Washington and Lee University"
+      ]
+    },
+    {
+      "unitid": 498571,
+      "variants": [
+        "PennWest California",
+        "PennWest Edinboro",
+        "PennWest Clarion"
+      ]
+    },
+    {
+      "unitid": 152318,
+      "variants": [
+        "Rose-Hulman",
+        "Rose-Hulman Institute of Technology"
+      ]
+    },
+    {
+      "unitid": 196149,
+      "variants": [
+        "SUNY Cortland",
+        "SUNY College at Cortland"
+      ]
+    },
+    {
+      "unitid": 234173,
+      "variants": [
+        "Virginia Wesleyan",
+        "Batten University"
+      ]
+    },
+    {
+      "unitid": 133553,
+      "variants": [
+        "Embry-Riddle",
+        "Embry–Riddle Aeronautical"
+      ]
+    },
+    {
+      "unitid": 131283,
+      "variants": [
+        "Catholic",
+        "Catholic University of America"
+      ]
+    },
+    {
+      "unitid": 196006,
+      "variants": [
+        "Alfred State",
+        "SUNY Alfred State"
+      ]
+    },
+    {
+      "unitid": 112260,
+      "variants": [
+        "Claremont-Mudd-Scripps",
+        "Claremont McKenna College"
+      ]
+    },
+    {
+      "unitid": 214713,
+      "variants": [
+        "Penn State Harrisburg",
+        "Pennsylvania State University-Penn State Harrisburg"
+      ]
+    },
+    {
+      "unitid": 196246,
+      "variants": [
+        "Plattsburgh State",
+        "SUNY Plattsburgh"
+      ]
+    },
+    {
+      "unitid": 191630,
+      "variants": [
+        "Hobart & William Smith",
+        "Hobart and William Smith Colleges"
+      ]
+    },
+    {
+      "unitid": 168421,
+      "variants": [
+        "Worcester Polytechnic",
+        "Worcester Polytechnic Institute"
+      ]
+    },
+    {
+      "unitid": 186867,
+      "variants": [
+        "Stevens Tech",
+        "Stevens Institute of Technology"
+      ]
+    },
+    {
+      "unitid": 196167,
+      "variants": [
+        "SUNY Geneseo",
+        "SUNY College at Geneseo"
+      ]
+    },
+    {
+      "unitid": 121345,
+      "variants": [
+        "Pomona-Pitzer",
+        "Pomona College"
+      ]
+    },
+    {
+      "unitid": 184694,
+      "variants": [
+        "FDU-Florham",
+        "Fairleigh Dickinson University-Florham"
+      ]
+    },
+    {
+      "unitid": 145725,
+      "variants": [
+        "Illinois Tech",
+        "Illinois Institute of Technology"
+      ]
+    },
+    {
+      "unitid": 166683,
+      "variants": [
+        "MIT",
+        "Massachusetts Institute of Technology"
+      ]
+    },
+    {
+      "unitid": 110404,
+      "variants": [
+        "Caltech",
+        "California Institute of Technology"
+      ]
+    },
+    {
+      "unitid": 140951,
+      "variants": [
+        "SCAD",
+        "Savannah College of Art and Design"
+      ]
+    },
+    {
+      "unitid": 161299,
+      "variants": [
+        "Maine Maritime",
+        "Maine Maritime Academy"
+      ]
+    },
+    {
+      "unitid": 110413,
+      "variants": [
+        "Cal Lutheran",
+        "California Lutheran University"
+      ]
+    },
+    {
+      "unitid": 196158,
+      "variants": [
+        "Fredonia State",
+        "SUNY Fredonia"
+      ]
+    },
+    {
+      "unitid": 166692,
+      "variants": [
+        "Massachusetts Maritime",
+        "Massachusetts Maritime Academy"
+      ]
+    },
+    {
+      "unitid": 194824,
+      "variants": [
+        "Rensselaer",
+        "Rensselaer Polytechnic Institute"
+      ]
+    },
+    {
+      "unitid": 168227,
+      "variants": [
+        "Wentworth",
+        "Wentworth Institute of Technology"
+      ]
+    },
+    {
+      "unitid": 210492,
+      "variants": [
+        "Bryn Athyn",
+        "Bryn Athyn College of the New Church"
+      ]
+    },
+    {
+      "unitid": 149842,
+      "variants": [
+        "Harper",
+        "William Rainey Harper"
+      ]
+    },
+    {
+      "unitid": 215284,
+      "variants": [
+        "PennWest Johnstown",
+        "Pitt-Johnstown"
+      ]
+    },
+    {
+      "unitid": 150172,
+      "variants": [
+        "Calumet College",
+        "Calumet College of St. Joseph"
+      ]
+    },
+    {
+      "unitid": 179308,
+      "variants": [
+        "St. Louis Community-Florissant Valley",
+        "St. Louis Community-Forest Park",
+        "St. Louis Community-Meramec"
+      ]
+    },
+    {
+      "unitid": 231165,
+      "variants": [
+        "Vermont State University-Johnson",
+        "Vermont State University-Castleton",
+        "Vermont State University-Lyndon"
+      ]
+    },
+    {
+      "unitid": 110714,
+      "variants": [
+        "University of California-Santa Cruz",
+        "UC Santa Cruz"
+      ]
+    },
+    {
+      "unitid": 214810,
+      "variants": [
+        "Pennsylvania State University-Penn State Schuylkill",
+        "Penn State Schuylkill"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "milestone": "PHASE 6B — PROGRAMME UNIVERSE INTEGRITY APPLIED",
+  "created_at": "2026-09-27T00:30:42.761Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev — NOT production /data)",
+  "colleges_fingerprint_sha256": "b6f66ea83290b36817bf1d52be762458fd82e7a7d6f43b9e5a5df3c1f728eaf9",
+  "coach_fingerprint_sha256": "a8bc52f764a42c2ded9730522e6ee645f8cfe3fc15bef73012447ebfdd71a86a",
+  "programme_counts": {
+    "total": 2409,
+    "active": 2399,
+    "inactive": 10,
+    "core_active": 2170,
+    "njcaa_active": 227
+  },
+  "duplicate_unitid_sport": 20,
+  "null_unitid": 13,
+  "coverage": {
+    "COVERED_ELIGIBLE": 1424,
+    "COVERED_INELIGIBLE_ONLY": 623,
+    "COACH_SEASONS_ONLY": 84,
+    "NO_COACH_DATA": 268
+  },
+  "core_true_acquisition_gaps_remaining": 40,
+  "core_coach_seasons_only_remaining": 84,
+  "applied": {
+    "status_retired": 6,
+    "harper_stub_retired": 1,
+    "division_corrected": 3,
+    "unitid_corrected": 0
+  },
+  "held": {
+    "unitid_iu_columbus": 2,
+    "duplicate_split_data": 11,
+    "campus_collision": 6,
+    "join_repairs_to_6c": 6
+  },
+  "integrity": {
+    "source_domain_conflicts": 0,
+    "wrong_institution_eligible": 0,
+    "canonical_round_trip": 0,
+    "integrity_check": "ok"
+  },
+  "fixture_and_evidence_hashes": {
+    "phase6b_programme_status_fixture.json": "667ad4670664c437",
+    "phase6b_division_fixture.json": "02b4e6a590bd30ec",
+    "phase6b_unitid_fixture.json": "062724a9c719c262",
+    "phase6b_duplicate_migration_fixture.json": "d82a64f2209a2872",
+    "phase6b_join_repair_fixture.json": "a3947086aef64a61",
+    "phase6b_duplicate_classification.json": "539c66d0c3797726",
+    "phase6a_programme_repair_fixture.json": "aac0858fc59a567c",
+    "phase6a_missing_coach_acquisition_fixture.json": "5158bdecbdf74fe5"
+  }
+}

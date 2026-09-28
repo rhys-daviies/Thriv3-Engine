@@ -27,6 +27,7 @@ import db from '../db/client.js';
 import { utcNow } from '../lib/time.js';
 import { normaliseInstitution, ALIAS_TYPE, parseInstitutionName } from '../../shared/institutionIdentity.js';
 import { CURATED_INSTITUTION_ALIASES, CONFERENCE_SCOPED_ALIASES } from '../../shared/institutionAliasData.js';
+import { isHeldDomain } from '../../shared/heldDomainAdjudications.js';
 
 const argv = process.argv.slice(2);
 const APPLY = argv.includes('--apply');
@@ -59,6 +60,7 @@ export function athleticsNameAliases(rows) {
   const out = [];
   for (const r of rows) {
     if (r.unitid == null) continue;
+    if (isHeldDomain(r.domain)) continue;   // ownership under adjudication: it may not mint an alias
     if (r.status !== 'VERIFIED' && r.status !== 'VERIFIED_ALIAS') continue;
     if (r.role !== 'ATHLETICS_SITE') continue;
     if (r.wrong_mappings) continue;

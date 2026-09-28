@@ -1,0 +1,68 @@
+{
+  "milestone": "PHASE 6C.4 — DOMAIN CORROBORATION CLOSURE APPLIED",
+  "created_at": "2026-09-28T09:05:00Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev — NOT production /data)",
+  "pre_snapshot": "server/data/recruitmatch.sqlite.snapshot-pre-phase6c4-2026-09-27T200141Z",
+  "fingerprints": {
+    "domain_registry_pre": "ff873b07fb25a6754ea5733e850ed237 (short)",
+    "domain_registry_post": "498eb15f134f4e58d2a9a73bd281611a21e8885f7ab8568ffa7e61fe411699cc",
+    "coach_fp": "209cb89a564e317cd1b503a06aed05ecc852b2b418fb8f07b2d1bc0ec5779f70 (unchanged — no coach mutation)",
+    "colleges_fp": "467241bfc7b8be299ec98e1e3f8384ecd9e149b34afc8f672b3db7d7b356a669 (unchanged — no programme mutation)"
+  },
+  "hashes": { "domain_fixture": "a88280c601cea930", "target": "e0f960bbccc1faed" },
+  "target_eight": ["Ozarks (AR) M", "Simpson College W", "Huntingdon College W", "Tuskegee W", "Wayne State (MI) W", "Anna Maria College W", "Pacific Union College W", "Saint Mary's College (IN) W"],
+  "domain_adjudications": [
+    { "domain": "uofoathletics.com", "verdict": "VERIFIED->University of the Ozarks 107558", "was": "WRONG_INSTITUTION (same-name dual claim by College of the Ozarks MO 178697; MO actually uses bobcats.cofo.edu)", "corrected": true },
+    { "domain": "simpsonathletics.com", "verdict": "VERIFIED->Simpson College 154350", "was": "INSUFFICIENT_EVIDENCE/null", "corrected": true },
+    { "domain": "huntingdonhawks.com", "verdict": "VERIFIED->Huntingdon College 101435", "was": "INSUFFICIENT_EVIDENCE/null", "corrected": true },
+    { "domain": "pioneersathletics.com", "verdict": "VERIFIED->Pacific Union College 120865", "was": "INSUFFICIENT_EVIDENCE/null", "corrected": true, "flips_coverage": false, "note": "not coach_seasons-scraped; registry integrity only" },
+    { "domain": "goldentigersports.com", "verdict": "VERIFIED->Tuskegee 102377 (already correct)", "corrected": false, "note": "not coach_seasons-scraped -> blocked" },
+    { "domain": "wsuathletics.com", "verdict": "VERIFIED->Wayne State (MI) 172644 (already correct)", "corrected": false, "note": "not coach_seasons-scraped -> blocked" },
+    { "domain": "goamcats.com", "verdict": "VERIFIED->Anna Maria 164492 (already correct)", "corrected": false, "note": "not coach_seasons-scraped -> blocked; coach source is Wayback mirror" },
+    { "domain": "saintmarys.edu", "verdict": "VERIFIED-ownership (Saint Mary's College IN main domain)", "corrected": false, "held": true, "note": "institution MAIN domain, not athletics-specific; not scraped; held for a belles.saintmarys.edu subdomain registration pass" }
+  ],
+  "distinct_domains_investigated": 8,
+  "classification_counts": { "VERIFIED": 8, "VERIFIED_ALIAS": 0, "SHARED_PLATFORM": 0, "WRONG_INSTITUTION": 0, "INSUFFICIENT_EVIDENCE": 0, "UNREACHABLE": 0 },
+  "applied_corrections": ["uofoathletics.com", "simpsonathletics.com", "huntingdonhawks.com", "pioneersathletics.com"],
+  "held_corrections": ["saintmarys.edu (institution main domain)"],
+  "eligibility_changes": {
+    "eligible_before": 3348, "eligible_after": 3360, "delta": 12,
+    "newly_eligible_by_domain": {
+      "uofoathletics.com": ["Aaron Brueckner (Ozarks AR M)", "Denzel Sequeira Chavez (Ozarks AR M)", "Natalie Dreyer (Univ of the Ozarks W)", "Iseah Hernandez (Univ of the Ozarks W)"],
+      "simpsonathletics.com": ["Jeremy Reinert (Simpson College W)", "Alexis Ponce (Simpson College W)", "Rick Isaacson (Simpson IA M)", "Marcus Varnum (Simpson IA M)"],
+      "huntingdonhawks.com": ["Katie Williams (Huntingdon College W)", "Jodie Smith (Huntingdon College W)", "Robert Spain (Huntingdon M)", "Jordan Fiorani (Huntingdon M)"]
+    },
+    "newly_ineligible": []
+  },
+  "programme_coverage_changes": {
+    "covered_eligible_before": 1485, "covered_eligible_after": 1491, "delta": 6,
+    "target_programmes_covered": ["Ozarks (AR) M", "Simpson College W", "Huntingdon College W"],
+    "bonus_sibling_programmes_covered": ["University of the Ozarks W", "Simpson (IA) M", "Huntingdon M"],
+    "core_pct_before": "68.4%", "core_pct_after": "68.7%",
+    "div_pct_after": { "D1": "84.3%", "D2": "87.7%", "D3": "82.3%", "NAIA": "0.5%", "USCAA": "0.0%" },
+    "gender_pct_after": { "men": "67.3%", "women": "69.8%" }
+  },
+  "blast_radius_ledger": {
+    "coach_rows_touched_by_classification": 17,
+    "newly_eligible": 12,
+    "programmes_flipped": 6,
+    "outside_target_flipped": 3,
+    "unchanged_coaches_total": 6413
+  },
+  "domain_status_counts": {
+    "VERIFIED": [1000, 1004], "VERIFIED_ALIAS": [727, 727], "WRONG_INSTITUTION": [57, 56], "INSUFFICIENT_EVIDENCE": [693, 690], "AMBIGUOUS": [17, 17]
+  },
+  "validator": { "critical_failures": "4 (pre-existing, unrelated) -> 4", "source_domain_conflicts": "0 -> 0", "coach_groups_multi_domain": "38 -> 38" },
+  "integrity": { "coaches": [6413, 6413], "duplicate_identity_rows": 0, "duplicate_emails": 121, "wrong_institution_eligible": 0, "canonical_round_trip": 0, "orphan_coaches": 1, "email_confirmed_at": 0, "integrity_check": "ok" },
+  "root_cause_breakdown_of_8": {
+    "DOMAIN_WRONG_STATUS_fixed_and_flipped": 3,
+    "DOMAIN_WRONG_STATUS_fixed_no_flip_coach_seasons_dependency": 1,
+    "ATHLETICS_DOMAIN_NOT_SCRAPED_domain_already_correct": 3,
+    "DOMAIN_MISSING_main_domain_held": 1
+  },
+  "remaining_unresolved_domain_cases": {
+    "coach_seasons_not_scraped": ["goldentigersports.com (Tuskegee)", "wsuathletics.com (Wayne State MI)", "goamcats.com (Anna Maria)", "pioneersathletics.com (Pacific Union — now VERIFIED but not scraped)"],
+    "main_domain_held": ["saintmarys.edu (Saint Mary's IN) — register belles.saintmarys.edu subdomain instead"],
+    "wayback_sourced_coach_rows": "Pacific Union + Anna Maria phase6c3 rows use a Wayback source URL; re-fetch from the live official page when reachable"
+  }
+}

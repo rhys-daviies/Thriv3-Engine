@@ -13,6 +13,11 @@ export default defineConfig({
     // Node CLI also loads — is covered where it lives rather than only through
     // whatever happens to import it.
     include: ['server/**/*.test.js', 'shared/**/*.test.js', 'worker/**/*.test.js', 'src/**/*.test.js', 'tools/**/*.test.js'],
+    // `server/data/` is DATA, not source. It is gitignored and holds the working
+    // database, snapshots, and the untracked unredacted originals of the audit
+    // fixtures — including a verbatim copy of a test file, which the glob above
+    // happily collected and ran as a third, stale copy of that suite.
+    exclude: ['**/node_modules/**', '**/dist/**', 'server/data/**'],
     // Every test file gets its own worker, and therefore its own throwaway
     // in-memory database — never the working one in server/data.
     env: {

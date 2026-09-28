@@ -9,8 +9,10 @@
  * Usage:
  *   node server/scripts/applyConferenceChampions2025Women.js [--apply]
  */
+import '../db/refuseProductionVolume.js'; // MUST precede db/client.js — see that file
 import { College } from '../db/entities/college.js';
 import { CHAMPIONS_2025_WOMEN } from './populateConferenceChampions2025DataWomen.js';
+
 
 const APPLY = process.argv.includes('--apply');
 

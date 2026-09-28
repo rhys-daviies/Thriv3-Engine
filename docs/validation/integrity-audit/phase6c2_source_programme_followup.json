@@ -1,0 +1,37 @@
+{
+  "built_at": "2026-09-27T05:31:24.216Z",
+  "note": "Phase 6C.2 Part H — source programmes left without a real coach after a mis-file was corrected away. NOT acquired this phase.",
+  "count": 3,
+  "entries": [
+    {
+      "programme": "Charleston (WV)",
+      "unitid": 237312,
+      "sport": "womens-soccer",
+      "moved_coach": "Olivia Wilkerson",
+      "reason": "record was a same-name mis-file (bethanywv.edu); it never belonged here",
+      "remaining_coach_count": 0,
+      "remaining_eligible": 0,
+      "current_staff_acquisition_required": true
+    },
+    {
+      "programme": "Trinity University",
+      "unitid": 229267,
+      "sport": "womens-soccer",
+      "moved_coach": "Rachael Schroeder",
+      "reason": "record was a same-name mis-file (trincoll.edu); it never belonged here",
+      "remaining_coach_count": 0,
+      "remaining_eligible": 0,
+      "current_staff_acquisition_required": true
+    },
+    {
+      "programme": "Queens (CUNY)",
+      "unitid": 190664,
+      "sport": "womens-soccer",
+      "moved_coach": "Yanique Newman",
+      "reason": "record was a same-name mis-file (ccny.cuny.edu); it never belonged here",
+      "remaining_coach_count": 0,
+      "remaining_eligible": 0,
+      "current_staff_acquisition_required": true
+    }
+  ]
+}

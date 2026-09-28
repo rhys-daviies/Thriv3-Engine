@@ -1,0 +1,1303 @@
+{
+  "built_at": "2026-09-27T00:09:36.335Z",
+  "note": "Phase 6A Parts E+F — verification + coach discovery for the 48 CORE true-no-data programmes.",
+  "count": 48,
+  "results": [
+    {
+      "programme_id": "8e84135c-94f6-4738-a267-5287abdf7939",
+      "name": "Bethesda",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 110060,
+      "status": "WRONG_DIVISION_OR_ASSOCIATION",
+      "correct_division_or_association": "NCCAA Division I (Southwestern States / SWS Conference)",
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Men's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://bethesdaathletics.com/sports/msoc/coaches/index",
+          "email_source_url": null
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Men's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://bethesdaathletics.com/sports/msoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.buc.edu/athletics/",
+      "checked_at": "2026-09-27",
+      "notes": "Bethesda University of California (Anaheim). Programme is active and has a coaching staff on the official athletics site (bethesdaathletics.com), so coach data plainly exists (also an identity/join failure). Stored association 'NAIA' is WRONG: the school is an NCCAA Division I member (confirmed by buc.edu athletics page and public NCCAA statement), not NAIA. Official athletics coaches page is behind Cloudflare bot protection so exact emails could not be captured; not inferred."
+    },
+    {
+      "programme_id": "3d3be345-d997-4321-871f-84005a7d0538",
+      "name": "Ozarks (AR)",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 107558,
+      "status": "WRONG_DIVISION_OR_ASSOCIATION",
+      "correct_division_or_association": "NCAA Division III (Southern Collegiate Athletic Conference / SCAC)",
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Men's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://uofoathletics.com/sports/mens-soccer/coaches",
+          "email_source_url": "https://uofoathletics.com/sports/mens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Men's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://uofoathletics.com/sports/mens-soccer/coaches",
+          "email_source_url": "https://uofoathletics.com/sports/mens-soccer/"
+        }
+      ],
+      "evidence_url": "https://uofoathletics.com/sports/mens-soccer/",
+      "checked_at": "2026-09-27",
+      "notes": "University of the Ozarks, Clarksville AR (unitid 107558). Active programme with full staff page. Stored division/conference 'NAIA / AMC' is WRONG: it is NCAA Division III, Southern Collegiate Athletic Conference (SCAC). Two published official personal emails captured. Volunteer assistants Truman Hensley and Bradley Rice are also listed (no emails)."
+    },
+    {
+      "programme_id": "19786b14-edf6-491a-9cdc-d0bafbb3e007",
+      "name": "Barclay",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 155070,
+      "status": "WRONG_DIVISION_OR_ASSOCIATION",
+      "correct_division_or_association": "NCCAA / Midwest Christian College Conference (MCCC)",
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Men's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://bears.barclay.college/coaches/",
+          "email_source_url": "https://bears.barclay.college/coaches/"
+        }
+      ],
+      "evidence_url": "https://bears.barclay.college/coaches/",
+      "checked_at": "2026-09-27",
+      "notes": "Barclay College, Haviland KS. Active programme, official coaches page names Jhon Cano as head coach. Stored 'NAIA / KCAC' is WRONG: Barclay competes in the NCCAA and the Midwest Christian College Conference (MCCC), confirmed on the official athletics site/roster page. Email [withheld]@barclaycollege.edu is an official but shared/departmental inbox (not a personal address), so not counted as a personal email."
+    },
+    {
+      "programme_id": "f5ca3326-405c-49d9-94b9-332a9d5104a8",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NAIA",
+      "unitid": 486901,
+      "status": "IDENTITY_JOIN_DEFECT",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Women's Soccer Coach",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://milliganbuffs.com/sports/wsoc/coaches",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://milliganbuffs.com/sports/wsoc/coaches",
+      "checked_at": "2026-09-27",
+      "notes": "Milligan University (Milligan, TN), NAIA, Appalachian Athletic Conference — stored division/conference is CORRECT. Coach data plainly exists on the official site, so our DB failed to join (likely the legacy name 'Milligan College' vs 'Milligan University'). Head coach John Newbery (2025-26); only a phone (423.461.8993) is published on the coaches page, no email. GA/support staff listed but not primary."
+    },
+    {
+      "programme_id": "92059e86-ab59-4eb2-ad5c-adcad57e5a0c",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NCAA D3",
+      "unitid": 101435,
+      "status": "IDENTITY_JOIN_DEFECT",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Women's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://www.huntingdonhawks.com/sports/wsoc/coaches/index",
+          "email_source_url": "https://www.huntingdonhawks.com/sports/wsoc/coaches/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Women's Soccer Coach",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://www.huntingdonhawks.com/sports/wsoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.huntingdonhawks.com/sports/wsoc/coaches/index",
+      "checked_at": "2026-09-27",
+      "notes": "Huntingdon College (Montgomery, AL), NCAA D3, Collegiate Conference of the South — stored division/conference CORRECT. Coach data plainly exists on official site (join defect). Head coach [name withheld — coach 3e0a26bd-dfb5-43e7-a86f-f7d65c13b6a3] (first full season 2025-26), published personal email [withheld]@redacted.invalid and phone (334) 322-6967."
+    },
+    {
+      "programme_id": "4f33a38e-74da-4e97-b398-e3eae0157277",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NCAA D3",
+      "unitid": 131876,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "Luis R. Zuniga",
+          "role": "Head Women's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://discover.trinitydc.edu/athletics/staff-directory/",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://discover.trinitydc.edu/athletics/team/soccer/",
+      "checked_at": "2026-09-27",
+      "notes": "Trinity Washington University (Washington, DC), NCAA D3 — active soccer programme on official athletics site. Luis R. Zuniga was named head women's soccer coach on 2024-05-01 (official announcement); a separate part-time head-coach job posting on insidehighered has since expired, so current identity should be re-confirmed against the live staff directory. Official athletics site (discover.trinitydc.edu) is behind Cloudflare bot protection so the staff-directory email could not be captured; not inferred."
+    },
+    {
+      "programme_id": "3a2bbb30-22b9-4c6a-b9e9-8d3f3c4c4ee6",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "USCAA",
+      "unitid": 188517,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [],
+      "evidence_url": "https://albany.bscbobcats.com/sports/msoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Bryant & Stratton College - Albany (NY). Active: official athletics site (albany.bscbobcats.com) hosts a 2025-26 men's soccer roster; USCAA affiliation confirmed. Official coaches/staff page is behind Cloudflare bot protection and could not be read. Head-coach identity appears only on aggregators with conflicting names (FieldLevel lists both 'Ed Wisniewski' and 'Andrew Knight'), so no coach is asserted here — needs the official staff page to resolve safely."
+    },
+    {
+      "programme_id": "be346b6b-7d37-4024-b24c-836f4fa84700",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "USCAA",
+      "unitid": 214795,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": null,
+          "role": "Head Men's Soccer Coach (currently listed 'To Be Announced')",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://www.psumontaltoathletics.com/sports/msoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.psumontaltoathletics.com/sports/msoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Penn State Mont Alto men's soccer. Active: official 2025-26 roster exists; USCAA/PSUAC confirmed (also a PSUAC member). Official men's-soccer coaches page currently resolves to a 'To Be Announced' bio (msoc/coaches/To_Be_Announced), i.e. head-coach vacancy for 2025-26; Ed Franchi was the 2024-25 head coach and Dylan Youmans the assistant. Official site is Cloudflare-protected so no email captured."
+    },
+    {
+      "programme_id": "90daeb79-9ee9-4634-9b27-da390d64ba31",
+      "name": "Bryant & Stratton-Syracuse",
+      "sport": "womens-soccer",
+      "division": "USCAA",
+      "unitid": 189565,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Women's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://newyork.bscbobcats.com/sports/wsoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://newyork.bscbobcats.com/sports/wsoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Bryant & Stratton College - Syracuse (NY). Active: official athletics site (newyork.bscbobcats.com) hosts a 2025-26 women's soccer roster; USCAA affiliation confirmed. Coach name David Pittman appears via SportsRecruits and a recent coaching job posting rather than a readable official staff page (Cloudflare-protected), so identity is provisional and email could not be captured."
+    },
+    {
+      "programme_id": "f425d0a4-8c84-43be-b16a-f3bf12d74e36",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "USCAA",
+      "unitid": 214795,
+      "status": "IDENTITY_JOIN_DEFECT",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Women's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://www.psumontaltoathletics.com/sports/wsoc/coaches/Women-s_Soccer",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.psumontaltoathletics.com/sports/wsoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Penn State Mont Alto women's soccer. Active with 2025-26 roster; USCAA/PSUAC confirmed. Coach data plainly exists (join defect): Mary Miller, head coach entering her 8th season (2025-26), also profiled on montalto.psu.edu with phone 717-377-8002. A @psu.edu email is published on the official athletics/campus directory but both are Cloudflare bot-protected so the exact string could not be captured; not inferred."
+    },
+    {
+      "programme_id": "a3fa33f9-0323-4774-a485-e7daf1082673",
+      "name": "Concordia (MI)",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 169363,
+      "status": "DISCONTINUED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [],
+      "evidence_url": "https://www.cbsnews.com/detroit/news/concordia-university-ann-arbor-discontinuing-all-sports-programs",
+      "checked_at": "2026-09-27",
+      "notes": "Concordia University Ann Arbor (unitid 169363) announced June 2024 it would discontinue ALL 28 athletic teams after the 2024-25 academic year and leave the WHAC; it is now the only NAIA member school in Michigan without athletics. Men's soccer no longer operates as of the 2025-26 season onward. No current coach to capture."
+    },
+    {
+      "programme_id": "2549aab5-b0d8-4119-b47e-5f64ab4e0634",
+      "name": "Ozarks (MO)",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 178697,
+      "status": "DISCONTINUED",
+      "correct_division_or_association": "NAIA - Sooner Athletic Conference (SAC)",
+      "duplicate_of": null,
+      "coaches": [],
+      "evidence_url": "https://bobcats.cofo.edu/",
+      "checked_at": "2026-09-27",
+      "notes": "unitid 178697 = College of the Ozarks (Point Lookout, MO). Confirmed NAIA member (returned to NAIA in 2023) but it sponsors NO men's soccer program: men's varsity sports are baseball, basketball, cross country, and track & field only. Official athletics site shows no soccer team/handle and competes on the SAC Sports Network (Sooner Athletic Conference), NOT the AMC stored in our DB. This appears to be a phantom/never-existed men's-soccer row, and the stored conference (AMC) is also wrong. Treating as DISCONTINUED (sport not sponsored). Recommend deleting the row or correcting the record."
+    },
+    {
+      "programme_id": "a63900f2-d659-4ab8-9ac4-277c720ff21a",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "USCAA",
+      "unitid": 214768,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach - Men's Soccer",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://psuhazletonsports.com/information/directory/index",
+          "email_source_url": "https://psuhazletonsports.com/information/directory/index"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach - Men's Soccer",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://psuhazletonsports.com/information/directory/index",
+          "email_source_url": "https://psuhazletonsports.com/information/directory/index"
+        }
+      ],
+      "evidence_url": "https://psuhazletonsports.com/sports/msoc/coaches/index",
+      "checked_at": "2026-09-27",
+      "notes": "Active PSUAC/USCAA program with 2025-26 roster and a published staff directory listing head coach Kelly Rowan and assistant Daniel Mendoza with official @psu.edu emails. Coach data plainly exists on the official site, so our 0-coach-row state is an ingestion/join gap (likely name/UNITID/sport join failure), not a real absence."
+    },
+    {
+      "programme_id": "ae831e26-7278-41be-b827-f6f3a55fce1a",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NCAA D3",
+      "unitid": 154350,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach - Women's Soccer",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://www.simpsonathletics.com/sports/wsoc/coaches/index",
+          "email_source_url": "https://www.simpsonathletics.com/sports/wsoc/coaches/index"
+        }
+      ],
+      "evidence_url": "https://www.simpsonathletics.com/sports/wsoc/coaches/index",
+      "checked_at": "2026-09-27",
+      "notes": "Active NCAA D3 American Rivers Conference program (Indianola, IA); 2025-26 season underway. Head coach [name withheld — coach 66fd6cda-ae04-46e2-bae3-0c5b244f6bbf] with published official email on the coaches page. Coach data exists on official site so DB 0-coach state is a join/ingestion gap."
+    },
+    {
+      "programme_id": "0188cdc3-f0c7-44fc-a6cb-b70a93af2bec",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NCAA D3",
+      "unitid": 164492,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach - Women's Soccer",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://www.goamcats.com/sports/wsoc/coaches/index",
+          "email_source_url": null
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach - Women's Soccer",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://www.goamcats.com/sports/wsoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.goamcats.com/sports/wsoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Active NCAA D3 program; Anna Maria joined MASCAC as a core member in 2025-26. Official 2025-26 women's soccer roster confirmed active; head coach [name withheld — coach 3dd80ea1-08b0-4593-94dd-7c8d2a7f7685] (2nd season) and assistant Cristina Turley (6th season) per the official roster/staff listing. Email NOT captured because the official PrestoSports site (goamcats.com / annamaria.prestosports.com) is currently in site-wide maintenance mode, so no email could be verified from an authoritative page on 2026-09-27. Re-check when the site is restored. Coach data exists on the official site, so DB 0-coach state is a join/ingestion gap."
+    },
+    {
+      "programme_id": "f6209643-e8c6-4353-96d3-9011abd77e02",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 486901,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach - Men's Soccer",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://milliganbuffs.com/staff-directory",
+          "email_source_url": null
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach - Men's Soccer",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://milliganbuffs.com/staff-directory",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://milliganbuffs.com/",
+      "checked_at": "2026-09-27",
+      "notes": "Active NAIA Appalachian Athletic Conference program. Brad Camp is the current head coach (hired April 2026 for the fall 2026 campaign, succeeding Paddy Sweeney), assistant Tim Kolb. Confirmed on the official staff directory. Emails are hidden behind obfuscated 'Send Email' links (no plain-text address published), so recorded as NO_CURRENT_EMAIL_PUBLISHED per the no-inference rule. Head coach phone 423.461.8469 is published. Coach data exists on official site so DB 0-coach state is a join/ingestion gap."
+    },
+    {
+      "programme_id": "f7c3c346-1bc8-4485-8e8c-975133543c68",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "USCAA",
+      "unitid": 191205,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach - Men's Soccer",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://athletics.ftc.edu/information/directory/index",
+          "email_source_url": "https://athletics.ftc.edu/information/directory/index"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Men's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://athletics.ftc.edu/information/directory/index",
+          "email_source_url": "https://athletics.ftc.edu/information/directory/index"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Men's Soccer Coach / Goalkeeper Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://athletics.ftc.edu/information/directory/index",
+          "email_source_url": "https://athletics.ftc.edu/information/directory/index"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Men's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://athletics.ftc.edu/information/directory/index",
+          "email_source_url": "https://athletics.ftc.edu/information/directory/index"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Men's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://athletics.ftc.edu/information/directory/index",
+          "email_source_url": "https://athletics.ftc.edu/information/directory/index"
+        }
+      ],
+      "evidence_url": "https://ftcsound.com/general/2026-27/releases/20260825kg6co6",
+      "checked_at": "2026-09-27",
+      "notes": "Active USCAA program (Dix Hills, NY); official release confirms the men's soccer team launching its 2026 fall season. Head coach Jason Fiscina plus four assistants, all with published official @ftc.edu emails on the staff directory. Coach data exists on official site so DB 0-coach state is a join/ingestion gap."
+    },
+    {
+      "programme_id": "807821ff-919e-4746-a83a-0fb144a4f1c5",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "USCAA",
+      "unitid": 214625,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Men's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://www.psnkathletics.com/information/directory/index",
+          "email_source_url": "https://www.psnkathletics.com/information/directory/index"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Soccer Coach",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://www.psnkathletics.com/information/directory/index",
+          "email_source_url": null
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Soccer Coach",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://www.psnkathletics.com/information/directory/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.psnkathletics.com/sports/msoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Active PSUAC/USCAA program; 2025-26 men's soccer roster confirmed. Head coach Mark Duffield with published official @psu.edu email (also serves as Interim Assistant AD/Recruiting Coordinator); assistants Brennan Foster and Owen Anderson have no published email. Coach data exists on official site so DB 0-coach state is a join/ingestion gap. NOTE: this is one of two same-named PSNK rows (men's here, women's = programme 1df8f53e)."
+    },
+    {
+      "programme_id": "0896b557-1d01-426c-9f65-69904271025c",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "USCAA",
+      "unitid": 211477,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Women's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://www.centralpennknights.com/information/directory/index",
+          "email_source_url": "https://www.centralpennknights.com/information/directory/index"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Women's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://www.centralpennknights.com/information/directory/index",
+          "email_source_url": "https://www.centralpennknights.com/information/directory/index"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Women's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://www.centralpennknights.com/information/directory/index",
+          "email_source_url": "https://www.centralpennknights.com/information/directory/index"
+        }
+      ],
+      "evidence_url": "https://www.centralpennknights.com/sports/wsoc/index",
+      "checked_at": "2026-09-27",
+      "notes": "Active USCAA (Division II) program (Summerdale, PA); no closure found and women's soccer active in 2025/2026. Head coach Rudy Grubesky plus two assistants, all with published official @centralpenn.edu emails on the staff directory. Coach data exists on official site so DB 0-coach state is a join/ingestion gap."
+    },
+    {
+      "programme_id": "1df8f53e-c3bc-48ce-aa1f-673dd19adaf3",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "USCAA",
+      "unitid": 214625,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Women's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://www.psnkathletics.com/information/directory/index",
+          "email_source_url": "https://www.psnkathletics.com/information/directory/index"
+        }
+      ],
+      "evidence_url": "https://www.psnkathletics.com/sports/wsoc/index",
+      "checked_at": "2026-09-27",
+      "notes": "Active PSUAC/USCAA program. Head coach Blair Gantz with published official @psu.edu email (phone 724-712-9363). Coach data exists on official site so DB 0-coach state is a join/ingestion gap. NOTE: same-named PSNK institution as the men's row (programme 807821ff), same unitid 214625 — distinguished by sport."
+    },
+    {
+      "programme_id": "c3cad736-19a0-4905-8c2e-b9c39935f8be",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": null,
+      "status": "DISCONTINUED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [],
+      "evidence_url": "https://en.wikipedia.org/wiki/Iowa_Wesleyan_University",
+      "checked_at": "2026-09-27",
+      "notes": "Iowa Wesleyan University permanently closed after the 2022-23 academic year (announced March 2023) due to financial insolvency; all athletics including men's soccer ceased. Last NAIA men's soccer season on record is 2023-24 stats archive only. No current programme exists."
+    },
+    {
+      "programme_id": "6e52f561-b859-4e3d-b3a6-f3227336ac59",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 224244,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Men's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://dccsports.com/sports/mens-soccer/coaches",
+          "email_source_url": "https://dccsports.com/sports/mens-soccer/"
+        }
+      ],
+      "evidence_url": "https://dccsports.com/sports/mens-soccer/",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active with current roster (2025/2026) and official coaches page. Current head coach per official coaches page is Peyton Frick, published email [withheld]@dallas.edu (note: name shows Peyton Frick but email localpart 'efrick' — string captured exactly as published on the official athletics domain dallas.edu). Earlier search snippet referenced a prior coach Logan Lowry, now superseded. Coach data plainly published on official site, so our DB's missing-coach row is likely an identity/join defect on this programme. Division: DCC competes in NAIA (also historically NCCAA D2); stored NAIA appears correct. Official athletics site is dccsports.com; institution email domain is dallas.edu — a domain mismatch that could defeat naive email/domain joins."
+    },
+    {
+      "programme_id": "ed77cc29-b393-40f3-9fbd-06629e73f90b",
+      "name": "Miami (FL)",
+      "sport": "womens-soccer",
+      "division": "NCAA D1",
+      "unitid": 135726,
+      "status": "IDENTITY_JOIN_DEFECT",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://miamihurricanes.com/sports/soc/roster/season/2026-27/staff/ken-masuhr",
+          "email_source_url": "https://miamihurricanes.com/sports/soc/roster/season/2026-27/staff/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://miamihurricanes.com/sports/womens-soccer/roster/coaches/",
+          "email_source_url": null
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://miamihurricanes.com/sports/womens-soccer/roster/coaches/",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://miamihurricanes.com/sports/soc/roster/season/2026-27/staff/",
+      "checked_at": "2026-09-27",
+      "notes": "Power-conference ACC Division I women's soccer programme, unquestionably active (2026-27 staff/roster live). Head coach Ken Masuhr (2nd season, hired Dec 2023), assistants Kelly Keelan and Peter-John Falloon. Our DB holding ZERO coach rows for a stable major-program identity (unitid 135726) is almost certainly a name/unitid/sport join defect rather than a genuine data gap. Correct naming: 'Miami' / 'Miami (FL)' / 'Miami Hurricanes', sport womens-soccer (site uses sport code 'soc'). Only a generic official program inbox [withheld]@miami.edu is published (departmental, not personal); no individual coach emails published."
+    },
+    {
+      "programme_id": "ee432bc0-a89b-4812-8994-dc672f5a6c4d",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NCAA D3",
+      "unitid": 210492,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://brynathynathletics.com/sports/womens-soccer/coaches",
+          "email_source_url": "https://brynathynathletics.com/sports/womens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://brynathynathletics.com/sports/womens-soccer/coaches",
+          "email_source_url": "https://brynathynathletics.com/sports/womens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Volunteer Assistant Coach",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://brynathynathletics.com/sports/womens-soccer/coaches",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://brynathynathletics.com/sports/womens-soccer/",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active; official women's soccer coaches page live with current roster (2024/2025). Head coach [name withheld — coach 34a82cb2-f049-4432-9779-49ae611e6b23] (published personal email [withheld]@redacted.invalid, phone 267-502-4836), assistant Chelsea Czarnik (published email [withheld]@brynathyn.edu), volunteer assistant Mike Haas. Coach data plainly published on official site -> DB missing-coach row is a join defect. Stored division NCAA D3 is correct. CONFERENCE FLAG: stored conference 'United East Conference' looks stale — Bryn Athyn left the NEAC/United East for the Colonial States Athletic Conference (CSAC) effective 2018-19; verify current conference filing."
+    },
+    {
+      "programme_id": "86ce15a2-9bb9-4c5e-8958-c0d6b6b0cf84",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NCAA D3",
+      "unitid": 216542,
+      "status": "DISCONTINUED",
+      "correct_division_or_association": "N/A — institution closed; note stored division 'NCAA D3' was also incorrect: UVF competed in the USCAA (historically NCCAA), not NCAA",
+      "duplicate_of": null,
+      "coaches": [],
+      "evidence_url": "https://www.insidehighered.com/news/business/financial-health/2026/07/30/",
+      "checked_at": "2026-09-27",
+      "notes": "University of Valley Forge (Phoenixville, PA) announced 29-30 July 2026 it will suspend/cease operations at the end of the summer 2026 semester (final day Aug 14, 2026), following Middle States 'show cause' status and chronic deficits; teach-out agreements with Eastern, Messiah, Southeastern. As of checked_at the institution is closed and the women's soccer programme no longer operates. Head coach through the final active season was Maira Abreu de Campos (staff page https://uvfpatriots.com/staff-directory/maira-abreu-de-campos/221). Separately, stored division 'NCAA D3' appears wrong — UVF athletics competed in the USCAA (formerly NCCAA), not NCAA D3; and stored conference 'United East Conference' is also inconsistent with that. Moot now given closure."
+    },
+    {
+      "programme_id": "1a6a7939-6b9d-42f1-9a79-49bf1c7f8136",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 151388,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Men's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://www.iueredwolves.com/sports/msoc/coaches/index",
+          "email_source_url": null
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://www.iueredwolves.com/sports/msoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.iueredwolves.com/sports/msoc/2025-26/releases/ms_070925_soto",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active — official 2025-26 men's soccer release (July 2025) announcing assistant 'Soto', confirming current activity. Head coach is Dalton Clement (Red Wolves); NAIA, River States Conference — matches stored division/conference. Coach identities confirmed via authoritative athletics-site releases and current search; individual emails NOT verified because the official athletics site (iueredwolves.com, CloudFront-fronted) returns HTTP 403 to every automated fetch (WebFetch, headless browser, and Wayback snapshots all captured the 403). email_status UNKNOWN, not a confirmed absence. Missing-coach DB row is a likely join defect since a current staff page exists."
+    },
+    {
+      "programme_id": "8be91d0d-3df4-4f0e-aef0-1da75a046f6c",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "USCAA",
+      "unitid": 214698,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Men's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://beaverathletics.com/sports/msoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://beaverathletics.com/sports/msoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active — 2025-26 men's soccer roster live; competed in PSUAC playoffs (fell to Penn State New Kensington). Head coach Martin Freese (official bio page beaverathletics.com/sports/msoc/coaches/Coach_Martin_Freese_Bio). Stored division USCAA / PSUAC consistent (PSUAC Commonwealth-campus teams are USCAA-affiliated). Email unverified: beaverathletics.com and beaver.psu.edu both return HTTP 403 (CloudFront) to all automated fetch methods, so no published email could be read; email_status UNKNOWN. Missing-coach DB row likely a join defect (current staff page exists)."
+    },
+    {
+      "programme_id": "c047400f-84f0-4613-a3ed-3576b0986015",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "USCAA",
+      "unitid": 214810,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Men's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://www.psuschuylkillathletics.com/sports/msoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.psuschuylkillathletics.com/sports/msoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active — 2025-26 men's soccer roster and in-season release (Oct 2025 vs Lehigh Valley) live. Current head coach Lucas Redmond (first season leading the programme, 2025-26). Stored division USCAA / PSUAC consistent (per prior finding Penn State Schuylkill is USCAA-affiliated, not NCAA D3). Email unverified: psuschuylkillathletics.com returns HTTP 403 (CloudFront) to all automated fetch; email_status UNKNOWN. Missing-coach DB row likely a join defect."
+    },
+    {
+      "programme_id": "b592bd31-9d25-4b1d-9949-8491a4637cc5",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "USCAA",
+      "unitid": null,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Women's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://www.christendomathletics.com/sports/wsoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.christendom.edu/2025/11/05/christendom-secures-3-seed-for-uscaa-national-championship-tournament/",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active and competitive — earned #3 seed for the USCAA National Championship (Nov 2025) and official 2026-27 schedule released July 2026. Current head coach is Christine McLaughlin (first-year, appointed for the 2026 season per official July 2026 release); predecessor Erly Moya (with assistant Courtney Nelson) led the 2024-25 side. Stored division USCAA / Eastern States Athletic Conference consistent. Email unverified: christendomathletics.com returns HTTP 403 (CloudFront) to all automated fetch; email_status UNKNOWN. Programme has no stored unitid — resolve identity before joining."
+    },
+    {
+      "programme_id": "2e7fe852-a713-4cf0-b78a-5f827f0a17b7",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "USCAA",
+      "unitid": 214652,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Women's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://www.psuscrantonathletics.com/sports/wsoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.psuscrantonathletics.com/sports/wsoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active — 2025-26 women's soccer roster live. Head coach Steve Milutinovic (also listed on scranton.psu.edu/person/steve-milutinovic). Stored division USCAA / PSUAC consistent. Email unverified: psuscrantonathletics.com and scranton.psu.edu both return HTTP 403 (CloudFront) to all automated fetch methods; email_status UNKNOWN. Missing-coach DB row likely a join defect (current staff page exists)."
+    },
+    {
+      "programme_id": "41b96f70-57be-4e82-8990-b3d500fec39c",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NCAA D2",
+      "unitid": 175078,
+      "status": "DISCONTINUED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [],
+      "evidence_url": "https://smsumustangs.com/",
+      "checked_at": "2026-09-27",
+      "notes": "No men's soccer program exists at SMSU. The NSIC does not sponsor men's soccer, and the official SMSU staff directory lists ONLY women's soccer staff ([name withheld — coach c505aa2b-af21-4dfa-85e0-93e0f4994011], Head Women's Soccer Coach; asst [name withheld — coach 92c32313-7337-439c-8569-210855ff1258], [name withheld — coach 3c9925eb-c080-46ae-8138-8fe9dde6d0ae]; vol Edison Peralta). No men's soccer roster, schedule, or coach found on smsumustangs.com. This DB row appears to be an erroneous/non-existent men's programme (likely never sponsored). If the intent was the women's programme, it is a separate row."
+    },
+    {
+      "programme_id": "c8cfc2de-8003-4bcf-9538-a72d59436647",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NAIA",
+      "unitid": 172264,
+      "status": "DISCONTINUED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [],
+      "evidence_url": "https://www.sienaheights.edu/siena-heights-university-announces-closure/",
+      "checked_at": "2026-09-27",
+      "notes": "Siena Heights University (Adrian, MI) permanently closed June 30, 2026 at the end of the 2025-26 academic year. Men's soccer played its FINAL season in fall 2025 (2025-26 roster/schedule existed at shusaints.com/sports/msoc/2025-26; last match a WHAC Tournament QF loss Nov 1, 2025). As of fall 2026 the institution and all athletics no longer operate. Not active this season."
+    },
+    {
+      "programme_id": "15ad83d7-c44e-406e-a8b3-9f0bcbd4ce02",
+      "name": "Shaw",
+      "sport": "womens-soccer",
+      "division": "NCAA D2",
+      "unitid": 199643,
+      "status": "IDENTITY_JOIN_DEFECT",
+      "correct_division_or_association": "NCAA D2 (CIAA)",
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Interim Athletic Director / Head Men's & Women's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://shawbears.com/staff-directory/randy-mcclure/35",
+          "email_source_url": "https://shawbears.com/staff-directory/randy-mcclure/"
+        }
+      ],
+      "evidence_url": "https://shawbears.com/staff-directory/randy-mcclure/",
+      "checked_at": "2026-09-27",
+      "notes": "Coach data plainly exists on the official Shaw athletics site (shawbears.com) with a published email, so our DB failed to join on name/UNITID/sport. [name withheld — coach 9b82a64c-cdf0-49aa-b9de-e496c4809c82] coaches BOTH the men's and women's programmes (single person, two programme rows). Stored conference 'Independent' should likely be CIAA (Shaw competes in the CIAA in D2)."
+    },
+    {
+      "programme_id": "faffb393-0cb8-48a3-ac0d-127ed4ff99e1",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NAIA",
+      "unitid": 120865,
+      "status": "IDENTITY_JOIN_DEFECT",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Women's Soccer Coach / Athletic Director",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://www.pioneersathletics.com/sports/wsoc/coaches/index",
+          "email_source_url": "https://www.pioneersathletics.com/information/directory/bios/Grandos-_Hernan"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://www.pioneersathletics.com/sports/wsoc/coaches/index",
+          "email_source_url": null
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://www.pioneersathletics.com/sports/wsoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.pioneersathletics.com/sports/wsoc/coaches/index",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active 2025-26 (clinched Cal Pac playoff berth Oct 2025, conference honors Nov 2025). Coach data exists on official site pioneersathletics.com, so DB failed to join. Head coach [name withheld] is also the AD; email [withheld]@puc.edu published in the athletics staff directory (surfaced from the official pioneersathletics.com directory index; site itself is CDN-protected against automated fetch). Division/association NAIA (California Pacific Conference) matches stored."
+    },
+    {
+      "programme_id": "740543df-eac3-46ed-996b-550138f8bb0e",
+      "name": "Tuskegee",
+      "sport": "womens-soccer",
+      "division": "NCAA D2",
+      "unitid": 102377,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": "NCAA D2 (SIAC)",
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Women's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://goldentigersports.com/staff-directory/emanuel-stephens/164",
+          "email_source_url": "https://goldentigersports.com/staff-directory/emanuel-stephens/"
+        }
+      ],
+      "evidence_url": "https://goldentigersports.com/staff-directory/emanuel-stephens/",
+      "checked_at": "2026-09-27",
+      "notes": "NEWLY LAUNCHED programme (Tuskegee announced adding soccer; first head coach [name withheld — coach 10bafa6d-aa8e-4d57-8fd9-180ddaaf8f3d], hired from UAPB, listed on official goldentigersports.com staff directory). Email [withheld]@redacted.invalid surfaced from the official staff directory. Coach_rows 0 in DB is consistent with a brand-new programme. Stored conference 'Independent' should be SIAC (Southern Intercollegiate Athletic Conference, D2)."
+    },
+    {
+      "programme_id": "bb409d56-c462-4746-aad4-e23905c7b394",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "USCAA",
+      "unitid": 164632,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "David (Dave) LaPorte",
+          "role": "Head Women's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://athletics.baypath.edu/sports/wsoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://athletics.baypath.edu/general/2025-26/releases/20250716ydz3sr",
+      "checked_at": "2026-09-27",
+      "notes": "Active. David 'Dave' LaPorte hired July 2025 as head women's soccer coach, effective Fall 2025 (official Bay Path release + baypath.edu news). Bay Path competes in USCAA (joined USCAA; women's-focused university in Longmeadow/Springfield MA area), consistent with stored division. Could not capture an exact published email: athletics.baypath.edu (Sidearm/CloudFront) returns 403 to automated fetch and the psu-style pages are bot-protected; no email string verified, so email left null rather than inferred."
+    },
+    {
+      "programme_id": "89df7c72-d138-4579-9cbd-abc80e645972",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "USCAA",
+      "unitid": 214786,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Director of Athletics / Head Men's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://www.athleticsga.com/sports/msoc/coaches/JasonBroadwater",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.athleticsga.com/sports/msoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Active; 2025-26 men's soccer roster present at athleticsga.com. Jason Broadwater is the head men's soccer coach (4th in program history, since Jan 2020) and also Director of Athletics. Competes in USCAA / PSUAC (member listed at theuscaa.com). Could not capture an exact published email: athleticsga.com (Sidearm/CloudFront) returns 403 and greaterallegheny.psu.edu person page is behind Cloudflare bot verification; email not inferred."
+    },
+    {
+      "programme_id": "38e850e3-b5fd-4d8b-8ac7-65527e36ebf9",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "USCAA",
+      "unitid": 214652,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Men's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://www.psuscrantonathletics.com/sports/msoc/coaches/Robert_Denney",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.psuscrantonathletics.com/sports/msoc/2025-26/releases/20250811il890d",
+      "checked_at": "2026-09-27",
+      "notes": "Active; recruited Class of 2029 (Aug 2025 release) and 2025-26 roster present at psuscrantonathletics.com. Head coach Robert 'Bob' Denney Jr. (arrived 2023). Competes in USCAA / PSUAC. Could not capture an exact published email: psuscrantonathletics.com (Sidearm/CloudFront) returns 403 and scranton.psu.edu person page returns 403/bot-protected; email not inferred (phone 570-963-2617 listed for the program)."
+    },
+    {
+      "programme_id": "9c1ce711-8d8d-4358-a750-f4da11a99f92",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "USCAA",
+      "unitid": 214698,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Women's Soccer Coach",
+          "email": null,
+          "email_status": "UNKNOWN",
+          "staff_url": "https://beaverathletics.com/sports/wsoc/roster",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.psu.edu/news/beaver/story/built-beaver-county-sharpless-takes-womens-soccer-reins-penn-state-beaver",
+      "checked_at": "2026-09-27",
+      "notes": "Active; women's soccer roster present at beaverathletics.com. NEW head coach Sam Sharpless (Penn State Beaver alumnus, Beaver County native) hired April 2026, succeeding Brittany Zahn (2025-26; asst Rand Warsaw). Competes in USCAA / PSUAC. Could not capture an exact published email: beaverathletics.com (Sidearm/CloudFront) returns 403 and psu.edu pages are bot-protected; email not inferred."
+    },
+    {
+      "programme_id": "49069eb2-6088-4921-b71d-8aacf996114e",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NCAA D3",
+      "unitid": 161518,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://gomonks.com/sports/mens-soccer/coaches",
+          "email_source_url": "https://gomonks.com/sports/mens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://gomonks.com/sports/mens-soccer/coaches",
+          "email_source_url": "https://gomonks.com/sports/mens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://gomonks.com/sports/mens-soccer/coaches",
+          "email_source_url": "https://gomonks.com/sports/mens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://gomonks.com/sports/mens-soccer/coaches",
+          "email_source_url": "https://gomonks.com/sports/mens-soccer/"
+        }
+      ],
+      "evidence_url": "https://gomonks.com/sports/mens-soccer/",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active; official '2026 Men's Soccer Coaching Staff' page lists a full staff with @sjcme.edu emails, so our zero coach_rows is a DB join defect, not a missing programme. Head coach [name withheld — coach a51598b4-4062-4d62-a3b2-79ffc07d4161] '11 (7th year in 2025). Two graduate assistants (Chris Theodore '25, [name withheld — coach 0f9c67ee-6af3-4d23-a895-8db1bfea988e] '25) also listed with emails. Minor: our stored conference 'NAC' may be stale — SJCME competes in the GNAC; conference not re-verified in depth here."
+    },
+    {
+      "programme_id": "51b62824-865b-45b6-8c7a-35790b8f75d4",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "NCAA D3",
+      "unitid": 185129,
+      "status": "DISCONTINUED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [],
+      "evidence_url": "https://www.kean.edu/keanjerseycity",
+      "checked_at": "2026-09-27",
+      "notes": "NJCU completed a merger with Kean University on July 1, 2026, forming 'Kean Jersey City'. Per official Kean/NJCU merger announcements and D3sports coverage, ALL NCAA Division III sports on the NJCU (Jersey City) campus are eliminated at the end of the 2025-26 academic year. Kean Jersey City competes in the USCAA and sponsors ONLY women's soccer and men's basketball beginning 2026-27 — men's soccer is NOT continued. Former NJCU men's soccer players must try out to join Kean's NCAA teams. Therefore the NCAA D3 men's-soccer programme (unitid 185129, NJAC) no longer operates as of fall 2026. Last head coach Brendan Guzman (2023-2025, email [withheld]@njcu.edu) left in April 2026 to become head men's soccer coach at Centenary University. Domain evidence: njcugothicknights.com now redirects to keanathletics.com and njcu.edu to kean.edu/jersey-city."
+    },
+    {
+      "programme_id": "60b24a96-c32a-47b8-8137-92a188684446",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NCAA D3",
+      "unitid": 153825,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Director of Soccer / Head Women's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://duhawks.com/sports/womens-soccer/coaches",
+          "email_source_url": "https://duhawks.com/sports/womens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Women's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://duhawks.com/sports/womens-soccer/coaches",
+          "email_source_url": "https://duhawks.com/sports/womens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Women's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://duhawks.com/sports/womens-soccer/coaches",
+          "email_source_url": "https://duhawks.com/sports/womens-soccer/"
+        }
+      ],
+      "evidence_url": "https://duhawks.com/sports/womens-soccer/",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active (2025 schedule, roster and full coaching staff published). Our zero coach_rows is a DB join defect. [name withheld — coach 8a7390db-0dcf-4956-bccd-7ce9bf6a0e7a] is head coach (2024: 20-0-2, American Rivers regular-season + tournament champions, NCAA Sweet 16). Volunteer assistant Amani Dorsey listed without email."
+    },
+    {
+      "programme_id": "648af062-3be5-4692-8220-023baa0a86b1",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NCAA D3",
+      "unitid": 152390,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://belles.saintmarys.edu/sports/womens-soccer/coaches",
+          "email_source_url": "https://belles.saintmarys.edu/sports/womens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Assistant Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://belles.saintmarys.edu/sports/womens-soccer/coaches",
+          "email_source_url": "https://belles.saintmarys.edu/sports/womens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://belles.saintmarys.edu/sports/womens-soccer/coaches",
+          "email_source_url": "https://belles.saintmarys.edu/sports/womens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://belles.saintmarys.edu/sports/womens-soccer/coaches",
+          "email_source_url": "https://belles.saintmarys.edu/sports/womens-soccer/"
+        }
+      ],
+      "evidence_url": "https://belles.saintmarys.edu/sports/womens-soccer/",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active (Belles, MIAA). Official athletics site is belles.saintmarys.edu (not the general saintmarys.edu/soccer path, which 403s). Full staff published with @saintmarys.edu emails, so our zero coach_rows is a DB join defect. Head coach [name withheld — coach 768d87cd-6fc2-4091-84fa-f5c425f6e104]."
+    },
+    {
+      "programme_id": "25a8966f-c370-4786-ba6f-f7941dd6e7ba",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "NCAA D2",
+      "unitid": 172644,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://wsuathletics.com/sports/womens-soccer/coaches",
+          "email_source_url": "https://wsuathletics.com/sports/womens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach / Director of Operations",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://wsuathletics.com/sports/womens-soccer/coaches",
+          "email_source_url": "https://wsuathletics.com/sports/womens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Coach / Recruiting Coordinator",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://wsuathletics.com/sports/womens-soccer/coaches",
+          "email_source_url": "https://wsuathletics.com/sports/womens-soccer/"
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Goalkeeper Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://wsuathletics.com/sports/womens-soccer/coaches",
+          "email_source_url": "https://wsuathletics.com/sports/womens-soccer/"
+        }
+      ],
+      "evidence_url": "https://wsuathletics.com/sports/womens-soccer/",
+      "checked_at": "2026-09-27",
+      "notes": "NEW programme built from the ground up; first season is 2026 (NCAA.com feature 'Creating a women's soccer team from the ground up, Wayne State (MI) style', Aug 2026). GLIAC, NCAA D2. Full staff published with @wayne.edu emails, so zero coach_rows reflects that the programme did not exist when our data was last built (recently added) plus a join gap. Head coach [name withheld — coach 7ad5a143-7b13-4662-8598-8ba5b6c1bf96]. Two further assistants listed (Emily O'Malley post-grad intern; Mahmoud Faraj)."
+    },
+    {
+      "programme_id": "378df3fdb28a7811ec8ffb1455de17ce",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "USCAA",
+      "unitid": 214810,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://www.psuschuylkillathletics.com/sports/wsoc/coaches/index",
+          "email_source_url": "https://www.psuschuylkillathletics.com/sports/wsoc/coaches/index"
+        }
+      ],
+      "evidence_url": "https://www.psuschuylkillathletics.com/sports/wsoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active: 2025-26 roster published; PSUAC/USCAA/ECAC; back-to-back PSUAC champions with a 2025 USCAA National Tournament bid. Head coach Kaylee Berkheiser (5th year). The official psuschuylkillathletics.com Sidearm site is CloudFront/bot-blocked (403 to both WebFetch and the browser), so the email [withheld]@psu.edu was read from the search engine's index of the official athletics directory page rather than fetched live; the PSU access-ID format (not derivable from the name) indicates it is a genuine published value. Flag for a live re-verification when the CDN block can be bypassed."
+    },
+    {
+      "programme_id": "5a40a884-355f-4313-8298-788b1795f6af",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "USCAA",
+      "unitid": 214670,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://psulehighvalleyathletics.com/sports/msoc/coaches/index",
+          "email_source_url": null
+        },
+        {
+          "coach_name": "[name withheld]",
+          "role": "Assistant Men's Soccer Coach",
+          "email": "[withheld]@redacted.invalid",
+          "email_status": "CURRENT_OFFICIAL_EMAIL",
+          "staff_url": "https://psulehighvalleyathletics.com/sports/msoc/coaches/index",
+          "email_source_url": "https://psulehighvalleyathletics.com/sports/msoc/coaches/"
+        }
+      ],
+      "evidence_url": "https://psulehighvalleyathletics.com/sports/msoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active: 2025-26 men's soccer roster published; PSUAC/USCAA; PSUAC champions. Head coach Abe Mamari (since 2017), assistant Blaine Silfies Jr. The official psulehighvalleyathletics.com Sidearm site and lehighvalley.psu.edu person pages are CloudFront/bot-blocked (403). No published email for Mamari surfaced via search. Silfies' email [withheld]@psu.edu (PSU access-ID format) was read from the search index of his official coach page; flag for live re-verification."
+    },
+    {
+      "programme_id": "fc1a042e-78ac-4f6a-907b-d22e6959ce72",
+      "name": "[name withheld]",
+      "sport": "mens-soccer",
+      "division": "USCAA",
+      "unitid": 214829,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://pennstateyorksports.com/sports/msoc/coaches/index",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://www.psuacsports.com/sports/msoc/2025-26/teams/pennstateyork",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active: PSUAC 2025-26 men's soccer stats/team page exists; PSUAC/USCAA. Head coach Christian Schmoyer. Official pennstateyorksports.com Sidearm site and york.psu.edu person page are CloudFront/bot-blocked (403). No official email found; the only email surfaced ([withheld]@gmail.com) came from an aggregator (FieldLevel), not an official page, so it was NOT recorded per the no-inference / official-source rule."
+    },
+    {
+      "programme_id": "1bc541e5-abab-41c4-9d3f-feb1ca6b4004",
+      "name": "[name withheld]",
+      "sport": "womens-soccer",
+      "division": "USCAA",
+      "unitid": 214768,
+      "status": "ACTIVE_CONFIRMED",
+      "correct_division_or_association": null,
+      "duplicate_of": null,
+      "coaches": [
+        {
+          "coach_name": "[name withheld]",
+          "role": "Head Coach",
+          "email": null,
+          "email_status": "NO_CURRENT_EMAIL_PUBLISHED",
+          "staff_url": "https://psuhazletonsports.com/sports/wsoc/coaches",
+          "email_source_url": null
+        }
+      ],
+      "evidence_url": "https://psuhazletonsports.com/sports/wsoc/2025-26/roster",
+      "checked_at": "2026-09-27",
+      "notes": "Programme active: 2025-26 women's soccer roster published; PSUAC/USCAA. Head coach Linsey Fisk. Official psuhazletonsports.com Sidearm site, athletics.hn.psu.edu and hazleton.psu.edu directory pages are all CloudFront/bot-blocked (403). No published email surfaced via search; recorded as NO_CURRENT_EMAIL_PUBLISHED pending a live-fetch pass that can bypass the CDN block."
+    }
+  ]
+}

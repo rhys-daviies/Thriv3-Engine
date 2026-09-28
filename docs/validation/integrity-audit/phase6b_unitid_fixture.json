@@ -1,0 +1,29 @@
+{
+  "built_at": "2026-09-27T00:26:16.135Z",
+  "note": "Phase 6B J3 — HELD. IU Columbus 151111->15111102 is correct identity, but stamping it introduces 2 canonical round-trip failures because the institution resolver registry (institution_aliases/athletics_domains) still maps IU Columbus to 151111. Needs a resolver-registry update first (deferred). Christendom left NULL (no IPEDS unitid).",
+  "count": 2,
+  "entries": [
+    {
+      "programme_id": "d0a640fc-ca19-453b-8c54-21d912cffd3c",
+      "expect_name": "Indiana University Columbus",
+      "expect_unitid": 151111,
+      "new_unitid": 15111102,
+      "reason": "IU Columbus (IUPUC) wrongly shares IU Indy 151111; correct distinct IPEDS unitid 15111102 (NAIA River States)",
+      "evidence_url": "https://nces.ed.gov/collegenavigator/?q=Indiana+University+Columbus",
+      "checked_at": "2026-09-27",
+      "auto_apply_safe": false,
+      "held_reason": "round-trip regression until resolver registry updated"
+    },
+    {
+      "programme_id": "cad25149-5788-4a4c-8d21-fa6e745ebd9a",
+      "expect_name": "Indiana University Columbus",
+      "expect_unitid": 151111,
+      "new_unitid": 15111102,
+      "reason": "IU Columbus (IUPUC) wrongly shares IU Indy 151111; correct distinct IPEDS unitid 15111102 (NAIA River States)",
+      "evidence_url": "https://nces.ed.gov/collegenavigator/?q=Indiana+University+Columbus",
+      "checked_at": "2026-09-27",
+      "auto_apply_safe": false,
+      "held_reason": "round-trip regression until resolver registry updated"
+    }
+  ]
+}

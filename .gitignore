@@ -41,3 +41,8 @@ worker/dist/
 
 # Generated client report artefacts — never commit these
 server/reports/
+
+# Generated coach ledgers — one row per real person, with names and working
+# email addresses. This repository is public; the committed evidence is the
+# redacted manifest in docs/validation/generated/, not these.
+server/data/generated/

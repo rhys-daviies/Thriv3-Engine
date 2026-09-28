@@ -1,0 +1,98 @@
+{
+  "built_at": "2026-09-26T23:24:37.210Z",
+  "note": "Phase 5B Part I — personal->generic replacements HELD for policy. DO NOT APPLY. Options: A prefer known personal, B replace with generic, C retain both w/ preference, D withhold until personal found.",
+  "count": 9,
+  "policy_decision": "DEFERRED — not decided this phase",
+  "entries": [
+    {
+      "coach_id": "659748fa-cd98-472d-a8e2-ee916455f88d",
+      "coach": "[name withheld]",
+      "programme": "Chattanooga womens-soccer",
+      "old_personal_email": "[withheld]@redacted.invalid",
+      "currently_published_generic_email": "[withheld]@redacted.invalid",
+      "generic_mailbox_type": "PROGRAMME_SOCCER_INBOX",
+      "evidence_url": "https://gomocs.com/sports/womens-soccer/",
+      "personal_address_status": "MERELY_NO_LONGER_PUBLISHED (personal address not disproven; page now lists the generic inbox for this coach)"
+    },
+    {
+      "coach_id": "ac07a345-5b18-4faa-bea3-93995585f91a",
+      "coach": "[name withheld]",
+      "programme": "Drake womens-soccer",
+      "old_personal_email": "[withheld]@redacted.invalid",
+      "currently_published_generic_email": "[withheld]@redacted.invalid",
+      "generic_mailbox_type": "PROGRAMME_SOCCER_INBOX",
+      "evidence_url": "https://godrakebulldogs.com/sports/womens-soccer/",
+      "personal_address_status": "MERELY_NO_LONGER_PUBLISHED (personal address not disproven; page now lists the generic inbox for this coach)"
+    },
+    {
+      "coach_id": "6ac9d02c-478e-4efb-8045-f9b1192fcb37",
+      "coach": "[name withheld]",
+      "programme": "Long Beach State womens-soccer",
+      "old_personal_email": "[withheld]@redacted.invalid",
+      "currently_published_generic_email": "[withheld]@csulb.edu",
+      "generic_mailbox_type": "PROGRAMME_SOCCER_INBOX",
+      "evidence_url": "https://longbeachstate.com/sports/womens-soccer/",
+      "personal_address_status": "MERELY_NO_LONGER_PUBLISHED (personal address not disproven; page now lists the generic inbox for this coach)"
+    },
+    {
+      "coach_id": "469fdc75-4603-407f-8092-2099fc5eea68",
+      "coach": "[name withheld]",
+      "programme": "Long Beach State womens-soccer",
+      "old_personal_email": "[withheld]@redacted.invalid",
+      "currently_published_generic_email": "[withheld]@csulb.edu",
+      "generic_mailbox_type": "PROGRAMME_SOCCER_INBOX",
+      "evidence_url": "https://longbeachstate.com/sports/womens-soccer/",
+      "personal_address_status": "MERELY_NO_LONGER_PUBLISHED (personal address not disproven; page now lists the generic inbox for this coach)"
+    },
+    {
+      "coach_id": "3becca73-5ec5-47ba-baf4-bffe82c857c3",
+      "coach": "[name withheld]",
+      "programme": "Long Beach State womens-soccer",
+      "old_personal_email": "[withheld]@redacted.invalid",
+      "currently_published_generic_email": "[withheld]@csulb.edu",
+      "generic_mailbox_type": "PROGRAMME_SOCCER_INBOX",
+      "evidence_url": "https://longbeachstate.com/sports/womens-soccer/",
+      "personal_address_status": "MERELY_NO_LONGER_PUBLISHED (personal address not disproven; page now lists the generic inbox for this coach)"
+    },
+    {
+      "coach_id": "b71003f0-c344-4bfb-93a0-2cf7a661e38d",
+      "coach": "[name withheld]",
+      "programme": "Long Beach State womens-soccer",
+      "old_personal_email": "[withheld]@redacted.invalid",
+      "currently_published_generic_email": "[withheld]@csulb.edu",
+      "generic_mailbox_type": "PROGRAMME_SOCCER_INBOX",
+      "evidence_url": "https://longbeachstate.com/sports/womens-soccer/",
+      "personal_address_status": "MERELY_NO_LONGER_PUBLISHED (personal address not disproven; page now lists the generic inbox for this coach)"
+    },
+    {
+      "coach_id": "9078d676-718e-41c9-86c5-2d1d201ed509",
+      "coach": "[name withheld]",
+      "programme": "USC womens-soccer",
+      "old_personal_email": "[withheld]@redacted.invalid",
+      "currently_published_generic_email": "[withheld]@redacted.invalid",
+      "generic_mailbox_type": "PROGRAMME_SOCCER_INBOX",
+      "evidence_url": "https://usctrojans.com/sports/womens-soccer/",
+      "personal_address_status": "MERELY_NO_LONGER_PUBLISHED (personal address not disproven; page now lists the generic inbox for this coach)"
+    },
+    {
+      "coach_id": "23f947bc-f877-4b79-a1e7-a2322cff90cb",
+      "coach": "[name withheld]",
+      "programme": "USC womens-soccer",
+      "old_personal_email": "[withheld]@redacted.invalid",
+      "currently_published_generic_email": "[withheld]@redacted.invalid",
+      "generic_mailbox_type": "PROGRAMME_SOCCER_INBOX",
+      "evidence_url": "https://usctrojans.com/sports/womens-soccer/",
+      "personal_address_status": "MERELY_NO_LONGER_PUBLISHED (personal address not disproven; page now lists the generic inbox for this coach)"
+    },
+    {
+      "coach_id": "c57b6025-fe3d-44d7-a5c6-ce9b3ea7d191",
+      "coach": "[name withheld]",
+      "programme": "LeTourneau University womens-soccer",
+      "old_personal_email": "[withheld]@redacted.invalid",
+      "currently_published_generic_email": "[withheld]@redacted.invalid",
+      "generic_mailbox_type": "PROGRAMME_SOCCER_INBOX",
+      "evidence_url": "https://letuathletics.com/sports/womens-soccer/",
+      "personal_address_status": "MERELY_NO_LONGER_PUBLISHED (personal address not disproven; page now lists the generic inbox for this coach)"
+    }
+  ]
+}

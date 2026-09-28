@@ -1,0 +1,154 @@
+{
+  "source_file": "coach_contact_ledger.csv",
+  "status": "REDACTED MANIFEST — the raw CSV is generated locally and deliberately untracked.",
+  "why": "The source carries coach names and working email addresses for 6,347 real people and this repository is public. Decisions are reproducible from these columns plus coach_id; identity resolves only inside the database.",
+  "rows_published_as": "coach_contact_ledger_redacted.csv",
+  "regenerate": "node server/scripts/reconcileCoaches.js --db <non-production db> then node server/scripts/redactGeneratedLedgers.js --in server/data/generated",
+  "source_sha256": "992b32ad8e6883bfad18b97b1a206ebf9f22a4a00a28ea7010785e3ac15c1ea2",
+  "source_rows": 6347,
+  "columns_kept": [
+    "coach_id",
+    "sport",
+    "current_school",
+    "current_school_unitid",
+    "source_domain",
+    "email_domain",
+    "resolved_unitid",
+    "resolved_school",
+    "resolution_method",
+    "resolution_confidence",
+    "classification",
+    "reason",
+    "email_status",
+    "state",
+    "division",
+    "coach_seasons_at_current",
+    "coach_seasons_at_resolved"
+  ],
+  "columns_dropped": {
+    "coach_name": "the person",
+    "email": "the person's mailbox",
+    "title": "free text that names a person when paired with a school",
+    "source_url": "staff-bio paths spell coach names; source_domain is kept instead",
+    "evidence": "not needed to reproduce a decision"
+  },
+  "free_text_values_redacted_for_quoting_a_person": 0,
+  "distributions": {
+    "sport": {
+      "womens-soccer": 3450,
+      "mens-soccer": 2897
+    },
+    "current_school": {
+      "(distinct values)": 1481
+    },
+    "current_school_unitid": {
+      "(distinct values)": 1174
+    },
+    "source_domain": {
+      "(distinct values)": 1220
+    },
+    "email_domain": {
+      "(distinct values)": 1267
+    },
+    "resolved_unitid": {
+      "(distinct values)": 987
+    },
+    "resolved_school": {
+      "(distinct values)": 1280
+    },
+    "resolution_method": {
+      "DOMAIN_VERIFIED_ALIAS": 2459,
+      "DOMAIN_VERIFIED": 1421,
+      "NONE": 1074,
+      "EMAIL_VERIFIED": 921,
+      "EMAIL_VERIFIED_ALIAS": 262,
+      "DOMAIN_WRONG": 209,
+      "DOMAIN_AMBIGUOUS": 1
+    },
+    "resolution_confidence": {
+      "high": 3740,
+      "medium": 1352,
+      "low": 876,
+      "none": 379
+    },
+    "classification": {
+      "KEEP": 4920,
+      "WITHHOLD": 877,
+      "REVIEW": 401,
+      "REASSIGN": 149
+    },
+    "email_status": {
+      "verified": 4993,
+      "inferred": 1159,
+      "generic": 169,
+      "unknown": 26
+    },
+    "state": {
+      "PA": 487,
+      "NY": 438,
+      "CA": 434,
+      "MA": 296,
+      "OH": 277,
+      "TX": 275,
+      "NC": 229,
+      "IL": 215,
+      "IN": 198,
+      "FL": 196,
+      "MO": 189,
+      "MI": 176,
+      "VA": 174,
+      "TN": 164,
+      "NJ": 163,
+      "GA": 158,
+      "SC": 150,
+      "WI": 147,
+      "IA": 135,
+      "MN": 128,
+      "KY": 115,
+      "CT": 114,
+      "KS": 110,
+      "WA": 96,
+      "MD": 96,
+      "OR": 91,
+      "CO": 90,
+      "OK": 85,
+      "WV": 79,
+      "AL": 76,
+      "LA": 57,
+      "NH": 56,
+      "RI": 56,
+      "NE": 56,
+      "UT": 55,
+      "MS": 53,
+      "DC": 44,
+      "ME": 43,
+      "AR": 42,
+      "SD": 39,
+      "AZ": 37,
+      "VT": 34,
+      "HI": 27,
+      "DE": 26,
+      "MT": 26,
+      "(null)": 26,
+      "NM": 25,
+      "ND": 25,
+      "ID": 23,
+      "NV": 12,
+      "WY": 4
+    },
+    "division": {
+      "NCAA D1": 2002,
+      "NCAA D3": 1893,
+      "NCAA D2": 1407,
+      "NAIA": 1045
+    },
+    "coach_seasons_at_current": {
+      "0": 4938,
+      "1": 1409
+    },
+    "coach_seasons_at_resolved": {
+      "0": 5138,
+      "1": 1209
+    }
+  }
+}

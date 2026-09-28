@@ -851,7 +851,8 @@
 ],
 "West Virginia": [
 "mail.wvu.edu",
-"wvusports.com"
+"wvusports.com",
+"wvu.edu"
 ],
 "Western Illinois": [
 "goleathernecks.com",
@@ -3895,8 +3896,7 @@
 ],
 "West Virginia University Institute of Technology": [
 "goldenbearathletics.com",
-"mail.wvu.edu",
-"wvu.edu"
+"wvutech.edu"
 ],
 "Westcliff University": [
 "westcliff.edu",
@@ -5287,10 +5287,6 @@
 "goboxers.com",
 "pacificu.edu"
 ],
-"Penn College": [
-"pct.edu",
-"pctwildcats.com"
-],
 "Penn State Abington": [
 "abingtonsports.com",
 "psu.edu"
@@ -6448,6 +6444,7 @@
 "cairnhighlanders.com"
 ],
 "Pennsylvania College of Technology": [
+"pct.edu",
 "pctwildcats.com",
 "www.pct.edu"
 ],
