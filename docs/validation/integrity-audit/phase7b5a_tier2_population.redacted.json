@@ -1,0 +1,2031 @@
+{
+  "phase": "7B.5A Tier-2 population (redacted)",
+  "count": 128,
+  "failure_taxonomy": {
+    "DOMAIN_INSUFFICIENT": 86,
+    "DOMAIN_WRONG_STATUS": 8,
+    "SOURCE_DOMAIN_STALE": 18,
+    "SOURCE_USES_MAIN_DOMAIN": 8,
+    "DOMAIN_WRONG_UNITID": 2,
+    "OTHER": 3,
+    "SHARED_PLATFORM": 2,
+    "DOMAIN_MISSING": 1
+  },
+  "programmes": [
+    {
+      "unitid": 157535,
+      "sport": "mens-soccer",
+      "programme": "Pikeville",
+      "conference": "AMC",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "upikebears.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-0ad99c55-7f7f-4cb2-8551-9e9c03772703@redacted.invalid"
+    },
+    {
+      "unitid": 219790,
+      "sport": "mens-soccer",
+      "programme": "Bryan",
+      "conference": "Appalachian",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "bryanlions.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-caac94cd-7efa-457e-b5de-7ec610eaef31@redacted.invalid"
+    },
+    {
+      "unitid": 176947,
+      "sport": "mens-soccer",
+      "programme": "Central Methodist",
+      "conference": "Heart",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "cmueagles.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-845ae2db-5d8a-4194-8df4-6d153efc8aec@redacted.invalid"
+    },
+    {
+      "unitid": 153126,
+      "sport": "mens-soccer",
+      "programme": "Clarke",
+      "conference": "Heart",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "clarkepride.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-70a775e9-3b70-4880-9f0c-78afe31a0de2@redacted.invalid"
+    },
+    {
+      "unitid": 219091,
+      "sport": "mens-soccer",
+      "programme": "Dakota Wesleyan",
+      "conference": "GPAC",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "dwuathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-cbef0d6b-b319-4eae-95c1-1bd1207a37a2@redacted.invalid"
+    },
+    {
+      "unitid": 153250,
+      "sport": "mens-soccer",
+      "programme": "Dordt",
+      "conference": "GPAC",
+      "failure": "DOMAIN_WRONG_STATUS",
+      "source_domain": "godordt.com",
+      "domain_registry": {
+        "status": "WRONG_INSTITUTION",
+        "mapped_unitid": 153250
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-5fdba685-8ea8-4a40-bb23-554bf56ed3a0@redacted.invalid"
+    },
+    {
+      "unitid": 177339,
+      "sport": "mens-soccer",
+      "programme": "Evangel",
+      "conference": "AMC",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "evangelathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-628d54f9-d92b-4ad9-8686-e533cd126387@redacted.invalid"
+    },
+    {
+      "unitid": 181127,
+      "sport": "mens-soccer",
+      "programme": "Hastings",
+      "conference": "GPAC",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "hastingsbroncos.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-151c045e-4bd0-4868-924a-60ec8d069b38@redacted.invalid"
+    },
+    {
+      "unitid": 151290,
+      "sport": "mens-soccer",
+      "programme": "Indiana Institute of Technology",
+      "conference": "WHAC",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "indianatechwarriors.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-93607522-52ce-4e73-8d61-74a1892a87fa@redacted.invalid"
+    },
+    {
+      "unitid": 157100,
+      "sport": "mens-soccer",
+      "programme": "Kentucky Christian",
+      "conference": "AMC",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "kcuknights.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-5f5f4c76-7075-4c11-8ac0-7550e7a616ac@redacted.invalid"
+    },
+    {
+      "unitid": 178244,
+      "sport": "mens-soccer",
+      "programme": "Missouri Baptist",
+      "conference": "AMC",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "mbuspartans.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-9bcf3df0-c8c9-4d8e-ae7b-3563234f5c14@redacted.invalid"
+    },
+    {
+      "unitid": 154004,
+      "sport": "mens-soccer",
+      "programme": "Morningside",
+      "conference": "GPAC",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "msidemustangs.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-37100ac7-1120-4073-8c5a-cc11298079a3@redacted.invalid"
+    },
+    {
+      "unitid": 154013,
+      "sport": "mens-soccer",
+      "programme": "Mount Mercy",
+      "conference": "HAAC",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "mountmercymustangs.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-7faca0d2-b221-410a-a108-720edf93e1fd@redacted.invalid"
+    },
+    {
+      "unitid": 204194,
+      "sport": "mens-soccer",
+      "programme": "Mount Vernon Nazarene",
+      "conference": "AMC",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "mvnucougars.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-01a1aac2-c8ee-472b-a2bb-eafa2ce7ad46@redacted.invalid"
+    },
+    {
+      "unitid": 138868,
+      "sport": "mens-soccer",
+      "programme": "Point (GA)",
+      "conference": "Southern States Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "skyhawkathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-4c6a2dd4-c3c0-4ac0-9b45-4dcfc32616bf@redacted.invalid"
+    },
+    {
+      "unitid": 154235,
+      "sport": "mens-soccer",
+      "programme": "Saint Ambrose",
+      "conference": "CCAC",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "saubees.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-982fd65b-2573-49e6-a4a0-b46f4dcd638a@redacted.invalid"
+    },
+    {
+      "unitid": 148575,
+      "sport": "mens-soccer",
+      "programme": "Saint Francis (IL)",
+      "conference": "CCAC",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "sfuathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-b1da45de-a443-455a-a199-7a4a7411240c@redacted.invalid"
+    },
+    {
+      "unitid": 207722,
+      "sport": "mens-soccer",
+      "programme": "Science & Arts (OK)",
+      "conference": "Sooner",
+      "failure": "SOURCE_USES_MAIN_DOMAIN",
+      "source_domain": "usao.edu",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-7bf396a2-59c0-473f-8756-b305cab48df7@redacted.invalid"
+    },
+    {
+      "unitid": 137564,
+      "sport": "mens-soccer",
+      "programme": "Southeastern University",
+      "conference": "Mid-South",
+      "failure": "SOURCE_USES_MAIN_DOMAIN",
+      "source_domain": "seu.edu",
+      "domain_registry": {
+        "status": "UNREACHABLE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-f15d088c-9d2d-4adc-a706-479d3cc188c1@redacted.invalid"
+    },
+    {
+      "unitid": 152530,
+      "sport": "mens-soccer",
+      "programme": "Taylor",
+      "conference": "CCAC",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "taylortrojans.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-16eeb4ad-9518-4d94-b2c5-4e50a8af5b98@redacted.invalid"
+    },
+    {
+      "unitid": 157863,
+      "sport": "mens-soccer",
+      "programme": "Union (KY)",
+      "conference": "Appalachian Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "gounionbulldogs.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-b13d7bda-2307-4879-838a-fcec8cad25c6@redacted.invalid"
+    },
+    {
+      "unitid": 154590,
+      "sport": "mens-soccer",
+      "programme": "William Penn",
+      "conference": "HAAC",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "statesmenathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-dfdc6480-f3a3-45f6-8b8a-4e76782d3f9a@redacted.invalid"
+    },
+    {
+      "unitid": 180814,
+      "sport": "mens-soccer",
+      "programme": "Bellevue University",
+      "conference": "Continental Athletic Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "bubruins.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-e7b916be-5bcb-49f7-a986-9e6458adc53c@redacted.invalid"
+    },
+    {
+      "unitid": null,
+      "sport": "mens-soccer",
+      "programme": "Park University Gilbert",
+      "conference": null,
+      "failure": "DOMAIN_WRONG_UNITID",
+      "source_domain": "parkathletics.com",
+      "domain_registry": {
+        "status": "VERIFIED",
+        "mapped_unitid": 178721
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-c2f459d3-fc5b-4ebe-9a91-5db2c02020bc@redacted.invalid"
+    },
+    {
+      "unitid": 175430,
+      "sport": "mens-soccer",
+      "programme": "Blue Mountain Christian University",
+      "conference": "Southern States Athletic Conference",
+      "failure": "DOMAIN_WRONG_STATUS",
+      "source_domain": "bmcusports.com",
+      "domain_registry": {
+        "status": "WRONG_INSTITUTION",
+        "mapped_unitid": 175430
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-aec63f0b-5c83-43e4-9bbe-d63e3e45f07b@redacted.invalid"
+    },
+    {
+      "unitid": 156356,
+      "sport": "mens-soccer",
+      "programme": "Brescia University",
+      "conference": "River States Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "bresciabearcats.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-e645df91-ff2b-4693-bede-627ca9c48e65@redacted.invalid"
+    },
+    {
+      "unitid": 169327,
+      "sport": "mens-soccer",
+      "programme": "Cleary University",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "clearycougars.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-ce189b69-df06-440d-8468-c8cca6e39f4c@redacted.invalid"
+    },
+    {
+      "unitid": 217934,
+      "sport": "mens-soccer",
+      "programme": "Columbia College (SC)",
+      "conference": "Appalachian Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "gokoalas.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-ce4947bb-9e71-4204-bef4-5dcbe43d1d89@redacted.invalid"
+    },
+    {
+      "unitid": 177144,
+      "sport": "mens-soccer",
+      "programme": "Culver-Stockton College",
+      "conference": "Heart of America Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "cscwildcats.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-f40b9007-90dc-475f-8800-11318aa8adea@redacted.invalid"
+    },
+    {
+      "unitid": 165802,
+      "sport": "mens-soccer",
+      "programme": "Fisher College",
+      "conference": "Continental Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "fisherfalcons.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-449876f3-b688-411a-9753-5d079aa45cce@redacted.invalid"
+    },
+    {
+      "unitid": 145336,
+      "sport": "mens-soccer",
+      "programme": "Governors State University",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "gsujaguars.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-6bdfd505-719d-4ec9-9a14-63b4d53b5e2b@redacted.invalid"
+    },
+    {
+      "unitid": 150774,
+      "sport": "mens-soccer",
+      "programme": "Holy Cross College",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "hcsaints.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-91d9d763-4793-4a1b-9afa-0c7b0d96c0c1@redacted.invalid"
+    },
+    {
+      "unitid": 151111,
+      "sport": "mens-soccer",
+      "programme": "Indiana University Columbus",
+      "conference": "River States Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "iuccrimsonpride.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-45901e34-a62a-4a1d-96a7-20c79a2b2e40@redacted.invalid"
+    },
+    {
+      "unitid": 146339,
+      "sport": "mens-soccer",
+      "programme": "Judson University",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "johnsonroyals.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-17f808e7-ef2a-4566-8e39-03cfb102593f@redacted.invalid"
+    },
+    {
+      "unitid": 117627,
+      "sport": "mens-soccer",
+      "programme": "La Sierra University",
+      "conference": "Great Southwest Athletic Conference",
+      "failure": "DOMAIN_WRONG_STATUS",
+      "source_domain": "lsugoldeneagles.com",
+      "domain_registry": {
+        "status": "WRONG_INSTITUTION",
+        "mapped_unitid": 117627
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-7014d2ce-d7b5-4308-adb1-fac938e35d67@redacted.invalid"
+    },
+    {
+      "unitid": 170675,
+      "sport": "mens-soccer",
+      "programme": "Lawrence Technological University",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "failure": "DOMAIN_WRONG_STATUS",
+      "source_domain": "ltuathletics.com",
+      "domain_registry": {
+        "status": "WRONG_INSTITUTION",
+        "mapped_unitid": 170675
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-5249fbcc-ccfe-485c-a783-1dabf6e224ad@redacted.invalid"
+    },
+    {
+      "unitid": 159382,
+      "sport": "mens-soccer",
+      "programme": "LSU Alexandria",
+      "conference": "Red River Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "lsuagenerals.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-c432aea2-b338-4fd0-a98e-0a93d428478e@redacted.invalid"
+    },
+    {
+      "unitid": 159416,
+      "sport": "mens-soccer",
+      "programme": "LSU Shreveport",
+      "conference": "Red River Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "lsusathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-870166b1-6261-495f-a918-0b283422a968@redacted.invalid"
+    },
+    {
+      "unitid": 151786,
+      "sport": "mens-soccer",
+      "programme": "Marian University (IN)",
+      "conference": "Crossroads League",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "muknights.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-d6cae2ae-354b-4446-b247-d35efd789ea2@redacted.invalid"
+    },
+    {
+      "unitid": 140872,
+      "sport": "mens-soccer",
+      "programme": "Reinhardt University",
+      "conference": "Appalachian Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "reinhardteagles.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-102b27dd-1107-4b27-aca0-585ddf817ae9@redacted.invalid"
+    },
+    {
+      "unitid": 205203,
+      "sport": "mens-soccer",
+      "programme": "Rio Grande (University of)",
+      "conference": "River States Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "rioredstorm.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-06192d22-e06a-4c0d-acd8-987a1e3e85e4@redacted.invalid"
+    },
+    {
+      "unitid": 399911,
+      "sport": "mens-soccer",
+      "programme": "Soka University of America",
+      "conference": "Great Southwest Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "sokaathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-c0e0638b-bad2-4ba0-9be9-73f5f8a4c10b@redacted.invalid"
+    },
+    {
+      "unitid": 218821,
+      "sport": "mens-soccer",
+      "programme": "Spartanburg Methodist College",
+      "conference": "Appalachian Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "gosmcpioneers.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-5d75705a-b4be-4f50-aac7-0e3ca4363767@redacted.invalid"
+    },
+    {
+      "unitid": 221731,
+      "sport": "mens-soccer",
+      "programme": "Tennessee Wesleyan University",
+      "conference": "Appalachian Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "twbulldogs.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-697880b1-a504-4fe7-94f4-f4a0e1cd9e99@redacted.invalid"
+    },
+    {
+      "unitid": 459949,
+      "sport": "mens-soccer",
+      "programme": "Texas A&M University-San Antonio",
+      "conference": "Red River Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "tamusasports.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-b636d111-9c69-4ce7-bd77-ce7a76572325@redacted.invalid"
+    },
+    {
+      "unitid": 224545,
+      "sport": "mens-soccer",
+      "programme": "Texas A&M University-Texarkana",
+      "conference": "Red River Athletic Conference",
+      "failure": "SOURCE_USES_MAIN_DOMAIN",
+      "source_domain": "tamut.edu",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-48267051-e71d-4e7c-af2e-082dfc3c5d28@redacted.invalid"
+    },
+    {
+      "unitid": 225502,
+      "sport": "mens-soccer",
+      "programme": "Texas A&M University-Victoria",
+      "conference": "Red River Athletic Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "tamuvathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-2bed047b-b5ad-41b2-86b9-c1f68eba4037@redacted.invalid"
+    },
+    {
+      "unitid": 228884,
+      "sport": "mens-soccer",
+      "programme": "Texas College",
+      "conference": "Red River Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "tcsteersathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-9cfadaf0-0e16-4211-8f29-fd57e9241c7b@redacted.invalid"
+    },
+    {
+      "unitid": 235167,
+      "sport": "mens-soccer",
+      "programme": "The Evergreen State College",
+      "conference": "Cascade Collegiate Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "gogeoducks.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-a91edd5b-9a5a-4ed4-961e-5b09f5c0522c@redacted.invalid"
+    },
+    {
+      "unitid": 179265,
+      "sport": "mens-soccer",
+      "programme": "University of Health Sciences and Pharmacy in St. Louis",
+      "conference": "American Midwest Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "eutecticsports.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-f68006f7-7b3f-4951-9a4f-bd4e050c8714@redacted.invalid"
+    },
+    {
+      "unitid": 171137,
+      "sport": "mens-soccer",
+      "programme": "University of Michigan-Dearborn",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "failure": "SOURCE_USES_MAIN_DOMAIN",
+      "source_domain": "umdearborn.edu",
+      "domain_registry": null,
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-d2c63f83-c283-4738-852c-bbf6f5a00dff@redacted.invalid"
+    },
+    {
+      "unitid": 204486,
+      "sport": "mens-soccer",
+      "programme": "University of Northwestern Ohio",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "unohracers.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-04408124-869d-4ad5-a313-5bc6082883c7@redacted.invalid"
+    },
+    {
+      "unitid": 152336,
+      "sport": "mens-soccer",
+      "programme": "University of Saint Francis (IN)",
+      "conference": "Crossroads League",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "saintfranciscougars.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-fb492f41-3528-4e24-9d01-0fe9496f7c0d@redacted.invalid"
+    },
+    {
+      "unitid": 237950,
+      "sport": "mens-soccer",
+      "programme": "West Virginia University Institute of Technology",
+      "conference": "River States Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "goldenbearathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-2907ba8b-e4fe-47d4-8d35-d0754ef36a44@redacted.invalid"
+    },
+    {
+      "unitid": 490133,
+      "sport": "mens-soccer",
+      "programme": "Westcliff University",
+      "conference": "California Pacific Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "westcliffathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-7eb56170-ea99-415f-ba91-073a4f806a03@redacted.invalid"
+    },
+    {
+      "unitid": 229887,
+      "sport": "mens-soccer",
+      "programme": "Wiley University",
+      "conference": "Continental Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "wileyathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-130c6bf5-5c3d-4cd8-8ade-3322aa267a0a@redacted.invalid"
+    },
+    {
+      "unitid": 180814,
+      "sport": "womens-soccer",
+      "programme": "Bellevue University",
+      "conference": "Continental Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "bubruins.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-44b4fb8f-8a84-4207-bf72-ec6663bc2e45@redacted.invalid"
+    },
+    {
+      "unitid": null,
+      "sport": "womens-soccer",
+      "programme": "Christendom College",
+      "conference": "Eastern States Athletic Conference",
+      "failure": "OTHER",
+      "source_domain": null,
+      "domain_registry": null,
+      "email_seen": false,
+      "best_coach": null
+    },
+    {
+      "unitid": 175430,
+      "sport": "womens-soccer",
+      "programme": "Blue Mountain Christian University",
+      "conference": "Southern States Athletic Conference",
+      "failure": "DOMAIN_WRONG_STATUS",
+      "source_domain": "bmcusports.com",
+      "domain_registry": {
+        "status": "WRONG_INSTITUTION",
+        "mapped_unitid": 175430
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-2ad40fe9-f517-4163-8845-415ddfdcce35@redacted.invalid"
+    },
+    {
+      "unitid": 156356,
+      "sport": "womens-soccer",
+      "programme": "Brescia University",
+      "conference": "River States Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "bresciabearcats.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-bd386cf0-e659-41be-831d-55e79e774d9b@redacted.invalid"
+    },
+    {
+      "unitid": 219790,
+      "sport": "womens-soccer",
+      "programme": "Bryan College",
+      "conference": "Appalachian Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "bryanlions.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-ca406c44-38cf-435a-b28e-e9d1f762e5b1@redacted.invalid"
+    },
+    {
+      "unitid": 150172,
+      "sport": "womens-soccer",
+      "programme": "Calumet College of St. Joseph",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "ccsjathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-5b58f07c-cb9f-4158-bf2f-89f5f8117cfd@redacted.invalid"
+    },
+    {
+      "unitid": 176947,
+      "sport": "womens-soccer",
+      "programme": "Central Methodist University",
+      "conference": "Heart of America Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "cmueagles.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-23ee6b4e-d57f-41b7-87ab-b54eb8b75ed7@redacted.invalid"
+    },
+    {
+      "unitid": 153126,
+      "sport": "womens-soccer",
+      "programme": "Clarke University",
+      "conference": "Heart of America Athletic Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "clarkepride.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-5a436be1-f308-44bb-bf75-ef9ae926c392@redacted.invalid"
+    },
+    {
+      "unitid": 169327,
+      "sport": "womens-soccer",
+      "programme": "Cleary University",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "clearycougars.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-1bd91662-6d32-4985-b6b3-5c8db7ed1323@redacted.invalid"
+    },
+    {
+      "unitid": 181604,
+      "sport": "womens-soccer",
+      "programme": "College of Saint Mary",
+      "conference": "Great Plains Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "csmflames.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-0f4dd4d6-ecfa-42a1-ac00-08645d216bd6@redacted.invalid"
+    },
+    {
+      "unitid": 219091,
+      "sport": "womens-soccer",
+      "programme": "Dakota Wesleyan University",
+      "conference": "Great Plains Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "dwuathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-0f03700f-ffe0-41e5-bb80-3cfb4ec356dc@redacted.invalid"
+    },
+    {
+      "unitid": 202514,
+      "sport": "womens-soccer",
+      "programme": "Defiance College",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "failure": "SHARED_PLATFORM",
+      "source_domain": "prestosports.com",
+      "domain_registry": null,
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-7df4c054-8a77-4c98-838b-8d98b6e1d0c7@redacted.invalid"
+    },
+    {
+      "unitid": 181020,
+      "sport": "womens-soccer",
+      "programme": "Doane University",
+      "conference": "Great Plains Athletic Conference",
+      "failure": "SOURCE_USES_MAIN_DOMAIN",
+      "source_domain": "doane.edu",
+      "domain_registry": {
+        "status": "UNREACHABLE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-becb69f6-94fb-4485-9ab5-e65fd3fbf626@redacted.invalid"
+    },
+    {
+      "unitid": 153250,
+      "sport": "womens-soccer",
+      "programme": "Dordt University",
+      "conference": "Great Plains Athletic Conference",
+      "failure": "DOMAIN_WRONG_STATUS",
+      "source_domain": "godordt.com",
+      "domain_registry": {
+        "status": "WRONG_INSTITUTION",
+        "mapped_unitid": 153250
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-edb68137-f0e7-4b6b-b790-cd6f551b27fe@redacted.invalid"
+    },
+    {
+      "unitid": 177339,
+      "sport": "womens-soccer",
+      "programme": "Evangel University",
+      "conference": "Kansas Collegiate Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "evangelathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-65e22013-a93e-4584-bc61-8efd9efaba85@redacted.invalid"
+    },
+    {
+      "unitid": 165802,
+      "sport": "womens-soccer",
+      "programme": "Fisher College",
+      "conference": "Continental Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "fisherfalcons.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-51033abe-2fdf-4685-8fc0-24b7aae8535e@redacted.invalid"
+    },
+    {
+      "unitid": 133809,
+      "sport": "womens-soccer",
+      "programme": "Florida College",
+      "conference": "Continental Athletic Conference",
+      "failure": "SHARED_PLATFORM",
+      "source_domain": "prestosports.com",
+      "domain_registry": null,
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-858b5c28-c0a2-49d3-8851-3c384971df88@redacted.invalid"
+    },
+    {
+      "unitid": 156745,
+      "sport": "womens-soccer",
+      "programme": "Georgetown College",
+      "conference": "Mid-South Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "georgetowncollegeathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-daa6e8f0-12f7-4205-a1b8-32b0f74f8361@redacted.invalid"
+    },
+    {
+      "unitid": 145336,
+      "sport": "womens-soccer",
+      "programme": "Governors State University",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "gsujaguars.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-c0bf5010-e1eb-428f-b442-3f512ee4c11b@redacted.invalid"
+    },
+    {
+      "unitid": 153366,
+      "sport": "womens-soccer",
+      "programme": "Graceland University",
+      "conference": "Heart of America Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "gujackets.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-5de8e0d2-2ac2-418e-9e0b-9bdbcf517960@redacted.invalid"
+    },
+    {
+      "unitid": 181127,
+      "sport": "womens-soccer",
+      "programme": "Hastings College",
+      "conference": "Great Plains Athletic Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "hastingsbroncos.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-f6494a31-1526-4cd4-bc28-f9ccf94d4b35@redacted.invalid"
+    },
+    {
+      "unitid": 150774,
+      "sport": "womens-soccer",
+      "programme": "Holy Cross College",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "hcsaints.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-bae41ff4-2eab-40b4-ab58-b8eb8d28d742@redacted.invalid"
+    },
+    {
+      "unitid": 151290,
+      "sport": "womens-soccer",
+      "programme": "Indiana Institute of Technology",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "indianatechwarriors.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-7ee1a87a-3a57-46d4-8262-9914b48f4f0d@redacted.invalid"
+    },
+    {
+      "unitid": 151111,
+      "sport": "womens-soccer",
+      "programme": "Indiana University Columbus",
+      "conference": "River States Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "iuccrimsonpride.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-7b063d54-3bae-41f4-8c96-efe18a7758d7@redacted.invalid"
+    },
+    {
+      "unitid": 151388,
+      "sport": "womens-soccer",
+      "programme": "Indiana University East",
+      "conference": "River States Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "iueredwolves.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-0cc04c88-93d0-47bd-9eef-365e4772611e@redacted.invalid"
+    },
+    {
+      "unitid": 220473,
+      "sport": "womens-soccer",
+      "programme": "Johnson University",
+      "conference": "Appalachian Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "johnsonroyals.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-457644ec-de9d-4ce6-b2a2-a758452554cc@redacted.invalid"
+    },
+    {
+      "unitid": 146339,
+      "sport": "womens-soccer",
+      "programme": "Judson University",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "judsoneagles.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-80baab04-41a8-40e0-bdc8-b3ecfdef9a22@redacted.invalid"
+    },
+    {
+      "unitid": 157100,
+      "sport": "womens-soccer",
+      "programme": "Kentucky Christian University",
+      "conference": "River States Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "kcuknights.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-9cf854ed-7b02-4089-9323-6345f9926744@redacted.invalid"
+    },
+    {
+      "unitid": 117627,
+      "sport": "womens-soccer",
+      "programme": "La Sierra University",
+      "conference": "Great Southwest Athletic Conference",
+      "failure": "DOMAIN_WRONG_STATUS",
+      "source_domain": "lsugoldeneagles.com",
+      "domain_registry": {
+        "status": "WRONG_INSTITUTION",
+        "mapped_unitid": 117627
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-ad2de12a-228e-4b49-b9d7-4e4998848e8f@redacted.invalid"
+    },
+    {
+      "unitid": 170675,
+      "sport": "womens-soccer",
+      "programme": "Lawrence Technological University",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "failure": "DOMAIN_WRONG_STATUS",
+      "source_domain": "ltuathletics.com",
+      "domain_registry": {
+        "status": "WRONG_INSTITUTION",
+        "mapped_unitid": 170675
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-16350beb-92ef-4cc5-b23c-7873add6257b@redacted.invalid"
+    },
+    {
+      "unitid": 117104,
+      "sport": "womens-soccer",
+      "programme": "Life Pacific University",
+      "conference": "Great Southwest Athletic Conference",
+      "failure": "DOMAIN_MISSING",
+      "source_domain": "lpuwarriors.com",
+      "domain_registry": null,
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-b1d63a9d-3185-4151-b0de-49ab6d24375a@redacted.invalid"
+    },
+    {
+      "unitid": 159382,
+      "sport": "womens-soccer",
+      "programme": "LSU Alexandria",
+      "conference": "Red River Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "lsuagenerals.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-7028568c-d283-479b-a75a-7bd41c68d9e9@redacted.invalid"
+    },
+    {
+      "unitid": 159416,
+      "sport": "womens-soccer",
+      "programme": "LSU Shreveport",
+      "conference": "Red River Athletic Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "lsusathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-f77c4900-2229-41f1-adee-fde2f1749a29@redacted.invalid"
+    },
+    {
+      "unitid": 151786,
+      "sport": "womens-soccer",
+      "programme": "Marian University (IN)",
+      "conference": "Crossroads League",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "muknights.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-cad97d1e-607f-4fdf-84d1-415a1a53ed0f@redacted.invalid"
+    },
+    {
+      "unitid": 178244,
+      "sport": "womens-soccer",
+      "programme": "Missouri Baptist University",
+      "conference": "Heart of America Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "mbuspartans.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-2c55dd09-e341-4b63-a245-18bcc32e6786@redacted.invalid"
+    },
+    {
+      "unitid": 154004,
+      "sport": "womens-soccer",
+      "programme": "Morningside University",
+      "conference": "Great Plains Athletic Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "msidemustangs.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-86cb7fc8-5e97-4793-ae48-47dd2b2acf61@redacted.invalid"
+    },
+    {
+      "unitid": 239390,
+      "sport": "womens-soccer",
+      "programme": "Mount Mary University",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "mtmaryathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-435c953f-1a44-4c7d-bbf5-b3db9d2abf71@redacted.invalid"
+    },
+    {
+      "unitid": 154013,
+      "sport": "womens-soccer",
+      "programme": "Mount Mercy University",
+      "conference": "Heart of America Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "mountmercymustangs.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-54bf2792-0d35-434b-8691-3d9173e1e98a@redacted.invalid"
+    },
+    {
+      "unitid": 204194,
+      "sport": "womens-soccer",
+      "programme": "Mount Vernon Nazarene University",
+      "conference": "Crossroads League",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "mvnucougars.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-b2a6b537-4dfc-4194-bfcf-8f579aab778b@redacted.invalid"
+    },
+    {
+      "unitid": 464226,
+      "sport": "womens-soccer",
+      "programme": "Ottawa University Arizona",
+      "conference": "Great Southwest Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "ouazspirit.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-0266cd71-6c53-4521-94b4-f8b89b9e0fb0@redacted.invalid"
+    },
+    {
+      "unitid": null,
+      "sport": "womens-soccer",
+      "programme": "Christendom College",
+      "conference": "Eastern States Athletic Conference",
+      "failure": "OTHER",
+      "source_domain": null,
+      "domain_registry": null,
+      "email_seen": false,
+      "best_coach": null
+    },
+    {
+      "unitid": 138868,
+      "sport": "womens-soccer",
+      "programme": "Point University",
+      "conference": "Southern States Athletic Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "skyhawkathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-ed91efd1-7728-4628-9db4-6206cbb4e3f1@redacted.invalid"
+    },
+    {
+      "unitid": 140872,
+      "sport": "womens-soccer",
+      "programme": "Reinhardt University",
+      "conference": "Appalachian Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "reinhardteagles.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-ad1c7fff-22ab-4d7b-ad21-64ea6eafd368@redacted.invalid"
+    },
+    {
+      "unitid": 205203,
+      "sport": "womens-soccer",
+      "programme": "Rio Grande (University of)",
+      "conference": "River States Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "rioredstorm.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-1380bbfb-e816-4efe-bc49-a8f4708bfdd2@redacted.invalid"
+    },
+    {
+      "unitid": 154235,
+      "sport": "womens-soccer",
+      "programme": "Saint Ambrose University",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "saubees.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-228f9bee-3389-4ecb-b6b3-292471925382@redacted.invalid"
+    },
+    {
+      "unitid": 172264,
+      "sport": "womens-soccer",
+      "programme": "Siena Heights University",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "shusaints.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-00244e5d-b8e0-4f42-96e9-51284518418d@redacted.invalid"
+    },
+    {
+      "unitid": 399911,
+      "sport": "womens-soccer",
+      "programme": "Soka University of America",
+      "conference": "Great Southwest Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "sokaathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-fa482d4b-529c-4d21-a8bb-49a42d6f6dd3@redacted.invalid"
+    },
+    {
+      "unitid": 137564,
+      "sport": "womens-soccer",
+      "programme": "Southeastern University (Florida)",
+      "conference": "Sun Conference",
+      "failure": "SOURCE_USES_MAIN_DOMAIN",
+      "source_domain": "seu.edu",
+      "domain_registry": {
+        "status": "UNREACHABLE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-3c5cf72f-db00-4fc5-b759-2e221e70c922@redacted.invalid"
+    },
+    {
+      "unitid": 218821,
+      "sport": "womens-soccer",
+      "programme": "Spartanburg Methodist College",
+      "conference": "Appalachian Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "gosmcpioneers.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-624d05ce-00b7-4545-a8d7-7490373e4152@redacted.invalid"
+    },
+    {
+      "unitid": null,
+      "sport": "womens-soccer",
+      "programme": "Christendom College",
+      "conference": "Eastern States Athletic Conference",
+      "failure": "OTHER",
+      "source_domain": null,
+      "domain_registry": null,
+      "email_seen": false,
+      "best_coach": null
+    },
+    {
+      "unitid": 155937,
+      "sport": "womens-soccer",
+      "programme": "Sterling College (Kansas)",
+      "conference": "Kansas Collegiate Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "scwarriors.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-59f04c4c-8e5f-4086-bc0a-31abd8a9124f@redacted.invalid"
+    },
+    {
+      "unitid": 152530,
+      "sport": "womens-soccer",
+      "programme": "Taylor University",
+      "conference": "Crossroads League",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "taylortrojans.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-74f9f660-857b-4756-9553-f29e7b74beb9@redacted.invalid"
+    },
+    {
+      "unitid": 221731,
+      "sport": "womens-soccer",
+      "programme": "Tennessee Wesleyan University",
+      "conference": "Appalachian Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "twbulldogs.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-c7f26fc0-aac8-47b2-a8d0-f60e5674af29@redacted.invalid"
+    },
+    {
+      "unitid": 459949,
+      "sport": "womens-soccer",
+      "programme": "Texas A&M University-San Antonio",
+      "conference": "Red River Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "tamusasports.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-81b34c86-10b3-4731-a4fa-fa3b67d0e72d@redacted.invalid"
+    },
+    {
+      "unitid": 224545,
+      "sport": "womens-soccer",
+      "programme": "Texas A&M University-Texarkana",
+      "conference": "Red River Athletic Conference",
+      "failure": "SOURCE_USES_MAIN_DOMAIN",
+      "source_domain": "tamut.edu",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-382094fe-cca8-4b9e-b178-40fa214223c1@redacted.invalid"
+    },
+    {
+      "unitid": 225502,
+      "sport": "womens-soccer",
+      "programme": "Texas A&M University-Victoria",
+      "conference": "Red River Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "tamuvathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-3295d930-26ff-4756-914e-83813119fed5@redacted.invalid"
+    },
+    {
+      "unitid": 228884,
+      "sport": "womens-soccer",
+      "programme": "Texas College",
+      "conference": "Red River Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "tcsteersathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-4726c8ee-fa91-411d-b2e3-cbc2812eefa5@redacted.invalid"
+    },
+    {
+      "unitid": 235167,
+      "sport": "womens-soccer",
+      "programme": "The Evergreen State College",
+      "conference": "Cascade Collegiate Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "gogeoducks.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-589af777-4100-4b8a-9744-feca3d29ea4d@redacted.invalid"
+    },
+    {
+      "unitid": 176406,
+      "sport": "womens-soccer",
+      "programme": "Tougaloo College",
+      "conference": "HBCU Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "tougaloobulldogs.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-1b1f01b6-010f-4dab-a071-2db06803e3b8@redacted.invalid"
+    },
+    {
+      "unitid": 157863,
+      "sport": "womens-soccer",
+      "programme": "Union Commonwealth University",
+      "conference": "Appalachian Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "gounionbulldogs.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-9b4d11f1-76b5-46f0-b17b-6d2df3dc838a@redacted.invalid"
+    },
+    {
+      "unitid": 179265,
+      "sport": "womens-soccer",
+      "programme": "University of Health Sciences and Pharmacy in St. Louis",
+      "conference": "American Midwest Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "eutecticsports.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-6151ea5b-b746-4497-8bca-152d62eea6e7@redacted.invalid"
+    },
+    {
+      "unitid": 171137,
+      "sport": "womens-soccer",
+      "programme": "University of Michigan-Dearborn",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "failure": "SOURCE_USES_MAIN_DOMAIN",
+      "source_domain": "umdearborn.edu",
+      "domain_registry": null,
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-30f74afd-5795-486a-a9a4-691c110e54ef@redacted.invalid"
+    },
+    {
+      "unitid": 204486,
+      "sport": "womens-soccer",
+      "programme": "University of Northwestern Ohio",
+      "conference": "Wolverine-Hoosier Athletic Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "unohracers.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-3eb622d5-61a9-44b8-a6f9-0c40c4daae27@redacted.invalid"
+    },
+    {
+      "unitid": 157535,
+      "sport": "womens-soccer",
+      "programme": "University of Pikeville",
+      "conference": "Appalachian Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "upikebears.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-7e789ee3-4cf1-43ac-9d3d-706a63237d5d@redacted.invalid"
+    },
+    {
+      "unitid": 152336,
+      "sport": "womens-soccer",
+      "programme": "University of Saint Francis (IN)",
+      "conference": "Crossroads League",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "saintfranciscougars.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-ec05b719-ddf9-4e5b-ba02-e7e2c85d9d0f@redacted.invalid"
+    },
+    {
+      "unitid": 240107,
+      "sport": "womens-soccer",
+      "programme": "Viterbo University",
+      "conference": "Chicagoland Collegiate Athletic Conference",
+      "failure": "SOURCE_DOMAIN_STALE",
+      "source_domain": "prestosports.com",
+      "domain_registry": null,
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-d9598e6d-e329-4708-9aeb-8d321952f13a@redacted.invalid"
+    },
+    {
+      "unitid": 237950,
+      "sport": "womens-soccer",
+      "programme": "West Virginia University Institute of Technology",
+      "conference": "River States Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "goldenbearathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-76a56428-e7b0-4c4e-8031-6766002d1b05@redacted.invalid"
+    },
+    {
+      "unitid": 490133,
+      "sport": "womens-soccer",
+      "programme": "Westcliff University",
+      "conference": "California Pacific Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "westcliffathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-afa7913b-f8b2-48fe-a704-c0274bd49029@redacted.invalid"
+    },
+    {
+      "unitid": 229887,
+      "sport": "womens-soccer",
+      "programme": "Wiley University",
+      "conference": "HBCU Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "wileyathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-372c5239-4cc4-49a0-8f6b-8d76c06d68b2@redacted.invalid"
+    },
+    {
+      "unitid": 154590,
+      "sport": "womens-soccer",
+      "programme": "William Penn University",
+      "conference": "Heart of America Athletic Conference",
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "statesmenathletics.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-d46b25d9-4cc4-405f-a472-49b4ba6d3a4f@redacted.invalid"
+    },
+    {
+      "unitid": 464226,
+      "sport": "mens-soccer",
+      "programme": "Ottawa University Arizona",
+      "conference": null,
+      "failure": "DOMAIN_INSUFFICIENT",
+      "source_domain": "ouazspirit.com",
+      "domain_registry": {
+        "status": "INSUFFICIENT_EVIDENCE",
+        "mapped_unitid": null
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-1ccde679-31bc-41d3-96b4-bf7775439057@redacted.invalid"
+    },
+    {
+      "unitid": null,
+      "sport": "mens-soccer",
+      "programme": "Park University Gilbert",
+      "conference": null,
+      "failure": "DOMAIN_WRONG_UNITID",
+      "source_domain": "parkathletics.com",
+      "domain_registry": {
+        "status": "VERIFIED",
+        "mapped_unitid": 178721
+      },
+      "email_seen": false,
+      "currentness": null,
+      "best_email_status": "verified",
+      "best_coach": "coach-c2f459d3-fc5b-4ebe-9a91-5db2c02020bc@redacted.invalid"
+    }
+  ]
+}
