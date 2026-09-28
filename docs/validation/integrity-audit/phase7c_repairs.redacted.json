@@ -1,0 +1,116 @@
+{
+  "phase": "7C repairs (institutional, no PII)",
+  "domain": {
+    "count": 1,
+    "fixture_hash": "05a33401f2dce102d34754cf2cb0d1f1d04bdd250d324aa46cf2886f91fe591c",
+    "entries": [
+      {
+        "domain": "cbcmustangs.com",
+        "unitid": 106713,
+        "op": "UPDATE",
+        "new_status": "VERIFIED",
+        "expected_old_status": "INSUFFICIENT_EVIDENCE",
+        "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN"
+      }
+    ]
+  },
+  "INSERT_CURRENT": [
+    {
+      "coach": "Bryan Courtney",
+      "role": "Head Coach",
+      "programme": "Graceland University",
+      "unitid": 153366,
+      "sport": "mens-soccer",
+      "source_domain": "gujackets.com"
+    },
+    {
+      "coach": "Peyton Frick",
+      "role": "Head Men’s Soccer Coach",
+      "programme": "Dallas Christian",
+      "unitid": 224244,
+      "sport": "mens-soccer",
+      "source_domain": "dccsports.com"
+    },
+    {
+      "coach": "Bernie Ochoa",
+      "role": "Head Men’s Soccer Coach",
+      "programme": "Concordia (NE)",
+      "unitid": 180984,
+      "sport": "mens-soccer",
+      "source_domain": "cune.edu"
+    },
+    {
+      "coach": "Nic Martinez",
+      "role": "Director of Soccer",
+      "programme": "Sterling",
+      "unitid": 155937,
+      "sport": "mens-soccer",
+      "source_domain": "scwarriors.com"
+    },
+    {
+      "coach": "Taylor Cool",
+      "role": "Head Men’s Soccer Coach",
+      "programme": "Calumet College",
+      "unitid": 150172,
+      "sport": "mens-soccer",
+      "source_domain": "ccsjathletics.com"
+    }
+  ],
+  "CORRECT_EMAIL": [
+    {
+      "coach_id_prefix": "bfa8dd24",
+      "programme_unitid": 106713,
+      "source_domain": "cbcmustangs.com"
+    },
+    {
+      "coach_id_prefix": "57f35da0",
+      "programme_unitid": 106713,
+      "source_domain": "cbcmustangs.com"
+    },
+    {
+      "coach_id_prefix": "afd17f6d",
+      "programme_unitid": 217934,
+      "source_domain": "gokoalas.com"
+    },
+    {
+      "coach_id_prefix": "9047b2b7",
+      "programme_unitid": 151388,
+      "source_domain": "iueredwolves.com"
+    },
+    {
+      "coach_id_prefix": "60411f2b",
+      "programme_unitid": 156745,
+      "source_domain": "georgetowncollegeathletics.com"
+    }
+  ],
+  "MARK_STALE": [
+    {
+      "coach_id_prefix": "2737e55f",
+      "expected_old_school": "Concordia (NE)"
+    },
+    {
+      "coach_id_prefix": "65f5490a",
+      "expected_old_school": "Calumet College"
+    }
+  ],
+  "REASSIGN": [
+    {
+      "coach_id_prefix": "afd17f6d",
+      "from": "Columbia College (MO)",
+      "to": "Columbia College (SC)",
+      "evidence_domain": "gokoalas.com"
+    },
+    {
+      "coach_id_prefix": "9047b2b7",
+      "from": "Indiana University Northwest",
+      "to": "Indiana University East",
+      "evidence_domain": "iueredwolves.com"
+    },
+    {
+      "coach_id_prefix": "60411f2b",
+      "from": "Georgetown",
+      "to": "Georgetown (KY)",
+      "evidence_domain": "georgetowncollegeathletics.com"
+    }
+  ]
+}

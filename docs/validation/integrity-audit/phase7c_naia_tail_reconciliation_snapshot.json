@@ -1,0 +1,391 @@
+{
+  "milestone": "PHASE 7C — NAIA TAIL RECONCILIATION + FINAL REMEDIATION (APPLIED, shared dev)",
+  "created_at": "2026-09-28T23:03:06.321Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev). Production untouched. STRICT_CORROB_SCOPE=NAIA.",
+  "preserved_7b5d_commit": "7855a66",
+  "canonical_programme_universe": {
+    "active_db_rows": 384,
+    "distinct_logical_programmes": 383,
+    "duplicate_rows": 1,
+    "null_unitid_programmes": 5
+  },
+  "denominator_reconciliation": {
+    "authoritative_metric": "covered distinct logical programmes / all distinct active logical programmes",
+    "pre_repair": {
+      "covered": 354,
+      "of": 383,
+      "pct": 92.43
+    },
+    "post_repair": {
+      "covered": 364,
+      "of": 383,
+      "pct": 95.04
+    },
+    "prior_number_spread_explained": {
+      "354_lineage": "correct distinct-programme covered at 7B.5D close",
+      "356_intersection": "distinct-key intersection variant (rounded null handling)",
+      "359_row_level": "row-level count: double-counted the Calumet 150172|M duplicate row + collapsed the 5 null-unitid programmes into 2 keys",
+      "resolution": "canonical distinct-programme ledger is the single source of truth: 354/383 pre, 364/383 post"
+    },
+    "tier3_discrepancy": "report said Tier-3=5 but email_research_queue has 4 distinct keys; the phantom 5th was the Calumet 150172|mens-soccer DUPLICATE ROW bucketing twice. Tier-3 = 4 distinct programmes / 5 rows.",
+    "other_baseline_identified": "the ~9 \"other/baseline\" were programmes that lost eligibility under strict reconcile (not a queue): Georgetown KY M, Dallas Christian M, Milligan M+W, Columbia SC W, St. Francis IL W(148584), IU East M, Johnson U M, Graceland M.",
+    "christendom_note": "Christendom College is USCAA, not NAIA — never in the NAIA denominator; the \"x3\" residual was 3 coach rows, not NAIA programmes."
+  },
+  "identity_adjudications": [
+    {
+      "case": "IU Columbus",
+      "finding": "Branch reported under Indiana University Indianapolis/IUPUI UNITID 151111; NO own 6-digit federal UNITID. \"15111102\" is an NCES Global Locator campus code, NOT an IPEDS UNITID. Fields NAIA M+W soccer (Crimson Pride, iuccrimsonpride.com).",
+      "decision": "IDENTITY_NOT_REPRESENTABLE_SAFELY (never verify iuccrimsonpride.com->151111; would collide with NCAA D1 IU Indy).",
+      "source": "nces.ed.gov Global Locator + IPEDS"
+    },
+    {
+      "case": "St. Francis (IL)",
+      "finding": "148584 = University of St. Francis, Joliet IL (NAIA Fighting Saints, gofightingsaints.com, M+W soccer). 148575 = Saint Francis Medical Center College of Nursing, Peoria IL — real Title IV school, NO athletics.",
+      "decision": "148575 soccer is erroneous; belongs to 148584. Deferred to Part O row cleanup (college-row surgery), NOT applied this phase.",
+      "source": "nces.ed.gov IPEDS DFR 148584/148575"
+    },
+    {
+      "case": "Benedictine University at Mesa",
+      "finding": "Open (not closed); fields NAIA M+W soccer (GSAC). Branch of Benedictine (Lisle IL) 145619; NO own UNITID.",
+      "decision": "IDENTITY_NOT_REPRESENTABLE_SAFELY.",
+      "source": "ben.edu/mesa + Wikipedia"
+    },
+    {
+      "case": "Stanton University",
+      "finding": "Anaheim CA, active NAIA (Cal Pac) women’s soccer. Not Title IV -> NO IPEDS UNITID at all.",
+      "decision": "IDENTITY_NOT_REPRESENTABLE_SAFELY.",
+      "source": "stantonelks.com + Wikipedia"
+    },
+    {
+      "case": "Park University Gilbert",
+      "finding": "Gilbert AZ; own NAIA M+W teams (GSAC Buccaneers), distinct from Parkville MO. Branch of Park 178721; NO own UNITID.",
+      "decision": "IDENTITY_NOT_REPRESENTABLE_SAFELY.",
+      "source": "park.edu + NCES 178721"
+    },
+    {
+      "case": "Milligan University",
+      "finding": "UNITID 486901 is a validly-issued 6-digit IPEDS id; NAIA M+W soccer, milliganbuffs.com.",
+      "decision": "Valid identity; residual is no published coach email (CURRENT_NO_ELIGIBLE_EMAIL), not identity.",
+      "source": "NCES 486901"
+    }
+  ],
+  "identity_model_decision": {
+    "decision": "DEFER the additive identity model; document the 7 branch/non-Title-IV programmes as IDENTITY_NOT_REPRESENTABLE_SAFELY residuals.",
+    "recommended_model": "nullable federal_unitid + internal athletics_entity_id (stable) + parent_unitid + campus_label + provenance; coverage keys on athletics_entity_id falling back to federal_unitid.",
+    "rationale": "Preserves federal-UNITID semantics, no fabricated identifiers, no broad migration this phase (would touch reconcile, coverage keying, athletics_domains, matching). Implement in a dedicated phase only if a future division needs it to close identity cases."
+  },
+  "repairs": {
+    "domain": {
+      "count": 1,
+      "fixture_hash": "05a33401f2dce102d34754cf2cb0d1f1d04bdd250d324aa46cf2886f91fe591c",
+      "entries": [
+        {
+          "domain": "cbcmustangs.com",
+          "unitid": 106713,
+          "op": "UPDATE",
+          "new_status": "VERIFIED",
+          "expected_old_status": "INSUFFICIENT_EVIDENCE",
+          "collision_class": "ONE_TO_ONE_CORRECTION_PROVEN"
+        }
+      ]
+    },
+    "INSERT_CURRENT": [
+      {
+        "coach": "Bryan Courtney",
+        "role": "Head Coach",
+        "programme": "Graceland University",
+        "unitid": 153366,
+        "sport": "mens-soccer",
+        "source_domain": "gujackets.com"
+      },
+      {
+        "coach": "Peyton Frick",
+        "role": "Head Men’s Soccer Coach",
+        "programme": "Dallas Christian",
+        "unitid": 224244,
+        "sport": "mens-soccer",
+        "source_domain": "dccsports.com"
+      },
+      {
+        "coach": "Bernie Ochoa",
+        "role": "Head Men’s Soccer Coach",
+        "programme": "Concordia (NE)",
+        "unitid": 180984,
+        "sport": "mens-soccer",
+        "source_domain": "cune.edu"
+      },
+      {
+        "coach": "Nic Martinez",
+        "role": "Director of Soccer",
+        "programme": "Sterling",
+        "unitid": 155937,
+        "sport": "mens-soccer",
+        "source_domain": "scwarriors.com"
+      },
+      {
+        "coach": "Taylor Cool",
+        "role": "Head Men’s Soccer Coach",
+        "programme": "Calumet College",
+        "unitid": 150172,
+        "sport": "mens-soccer",
+        "source_domain": "ccsjathletics.com"
+      }
+    ],
+    "CORRECT_EMAIL": [
+      {
+        "coach_id_prefix": "bfa8dd24",
+        "programme_unitid": 106713,
+        "source_domain": "cbcmustangs.com"
+      },
+      {
+        "coach_id_prefix": "57f35da0",
+        "programme_unitid": 106713,
+        "source_domain": "cbcmustangs.com"
+      },
+      {
+        "coach_id_prefix": "afd17f6d",
+        "programme_unitid": 217934,
+        "source_domain": "gokoalas.com"
+      },
+      {
+        "coach_id_prefix": "9047b2b7",
+        "programme_unitid": 151388,
+        "source_domain": "iueredwolves.com"
+      },
+      {
+        "coach_id_prefix": "60411f2b",
+        "programme_unitid": 156745,
+        "source_domain": "georgetowncollegeathletics.com"
+      }
+    ],
+    "MARK_STALE": [
+      {
+        "coach_id_prefix": "2737e55f",
+        "expected_old_school": "Concordia (NE)"
+      },
+      {
+        "coach_id_prefix": "65f5490a",
+        "expected_old_school": "Calumet College"
+      }
+    ],
+    "REASSIGN": [
+      {
+        "coach_id_prefix": "afd17f6d",
+        "from": "Columbia College (MO)",
+        "to": "Columbia College (SC)",
+        "evidence_domain": "gokoalas.com"
+      },
+      {
+        "coach_id_prefix": "9047b2b7",
+        "from": "Indiana University Northwest",
+        "to": "Indiana University East",
+        "evidence_domain": "iueredwolves.com"
+      },
+      {
+        "coach_id_prefix": "60411f2b",
+        "from": "Georgetown",
+        "to": "Georgetown (KY)",
+        "evidence_domain": "georgetowncollegeathletics.com"
+      }
+    ]
+  },
+  "coverage_result": {
+    "covered_distinct_programmes": 364,
+    "total_distinct_programmes": 383,
+    "coverage_pct": 95.04,
+    "newly_covered": 10
+  },
+  "residual_standard": {
+    "counts": {
+      "CURRENT_NO_ELIGIBLE_EMAIL": 8,
+      "AUTHORITATIVE_SOURCE_BLOCKED": 3,
+      "IDENTITY_NOT_REPRESENTABLE_SAFELY": 8
+    },
+    "total": 19,
+    "detail": {
+      "CURRENT_NO_ELIGIBLE_EMAIL": [
+        {
+          "programme": "Savannah College of Art and Design",
+          "sport": "womens-soccer",
+          "unitid": 140951
+        },
+        {
+          "programme": "Milligan University",
+          "sport": "womens-soccer",
+          "unitid": 486901
+        },
+        {
+          "programme": "Washington Adventist University",
+          "sport": "womens-soccer",
+          "unitid": 162210
+        },
+        {
+          "programme": "Milligan University",
+          "sport": "mens-soccer",
+          "unitid": 486901
+        },
+        {
+          "programme": "Savannah College of Art and Design",
+          "sport": "mens-soccer",
+          "unitid": 140951
+        },
+        {
+          "programme": "Tougaloo College",
+          "sport": "mens-soccer",
+          "unitid": 176406
+        },
+        {
+          "programme": "University of Health Sciences and Pharmacy in St. Louis",
+          "sport": "mens-soccer",
+          "unitid": 179265
+        },
+        {
+          "programme": "Johnson University",
+          "sport": "mens-soccer",
+          "unitid": 220473
+        }
+      ],
+      "AUTHORITATIVE_SOURCE_BLOCKED": [
+        {
+          "programme": "Oakland City University",
+          "sport": "womens-soccer",
+          "unitid": 152099
+        },
+        {
+          "programme": "Jarvis Christian University",
+          "sport": "womens-soccer",
+          "unitid": 225885
+        },
+        {
+          "programme": "Oakland City University",
+          "sport": "mens-soccer",
+          "unitid": 152099
+        }
+      ],
+      "IDENTITY_NOT_REPRESENTABLE_SAFELY": [
+        {
+          "programme": "Stanton University",
+          "sport": "womens-soccer",
+          "unitid": null
+        },
+        {
+          "programme": "Park University Gilbert",
+          "sport": "womens-soccer",
+          "unitid": null
+        },
+        {
+          "programme": "Benedictine University at Mesa",
+          "sport": "womens-soccer",
+          "unitid": null
+        },
+        {
+          "programme": "Indiana University Columbus",
+          "sport": "womens-soccer",
+          "unitid": 151111
+        },
+        {
+          "programme": "Benedictine University at Mesa",
+          "sport": "mens-soccer",
+          "unitid": null
+        },
+        {
+          "programme": "Indiana University Columbus",
+          "sport": "mens-soccer",
+          "unitid": 151111
+        },
+        {
+          "programme": "University of St. Francis (IL)",
+          "sport": "womens-soccer",
+          "unitid": 148584
+        },
+        {
+          "programme": "Park University Gilbert",
+          "sport": "mens-soccer",
+          "unitid": null
+        }
+      ]
+    }
+  },
+  "naia_measurement": {
+    "eligible_coaches": "773 -> 783",
+    "covered": "354 -> 364",
+    "strict_path": "770 -> 780"
+  },
+  "non_regression": {
+    "global_eligible": "4130 -> 4140",
+    "ncaa_membership_hash": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+    "ncaa_delta_vs_baseline": 0,
+    "other_division_hash": "3d9181c9d5cd1ddb4a48d856dcf856deeafbc88c2a4c15195938a77273c077d0",
+    "other_delta_vs_baseline": 0,
+    "no_fabricated_federal_id": true
+  },
+  "strict_evidence_quality": {
+    "strict_path_coaches": 780,
+    "currentness_CURRENT": 780,
+    "email_seen_complete": 780,
+    "verified_email": 780,
+    "currentness_source_present": 780,
+    "resolved_unitid": 780,
+    "coach_seasons_identity": 246,
+    "coach_seasons_source_domain": 3114
+  },
+  "row_level_cleanup_queue": [
+    {
+      "type": "DUPLICATE_ROW",
+      "detail": "unitid 150172 mens-soccer has two college rows (\"Calumet College\" + \"Calumet College of St. Joseph\"); collapse to one.",
+      "count": 1
+    },
+    {
+      "type": "WRONG_UNITID_SPLIT",
+      "detail": "University of St. Francis (Joliet, IL) split across 148575 (Peoria nursing college, no soccer) [mens row] and 148584 [womens row]; men’s soccer belongs to 148584. Unify to 148584; 148575 soccer is erroneous.",
+      "count": 1
+    },
+    {
+      "type": "CROSS_DIVISION_DUPLICATE",
+      "detail": "unitid 140951 (SCAD) appears as an NCAA D3 \"SCAD\" mens row AND NAIA \"Savannah College of Art and Design\" M+W rows. NAIA is correct; the NCAA D3 row is a stray. Do NOT touch NCAA membership without a separate decision.",
+      "count": 1
+    },
+    {
+      "type": "WRONG_UNITID_SHARED_FEDERAL_ID",
+      "detail": "IU Columbus (NAIA) M+W stapled to 151111 = IU Indianapolis (also our NCAA D1 \"IU Indy\"). IU Columbus has no distinct federal UNITID; needs additive identity model.",
+      "count": 2
+    },
+    {
+      "type": "NULL_UNITID_BRANCH",
+      "detail": "Park University Gilbert (M+W), Benedictine University at Mesa (M+W): branch campuses with no distinct federal UNITID; parent 178721 / 145619.",
+      "count": 4
+    },
+    {
+      "type": "NULL_UNITID_NON_TITLE_IV",
+      "detail": "Stanton University (W): active NAIA (Cal Pac), not Title IV, no IPEDS UNITID.",
+      "count": 1
+    },
+    {
+      "type": "NAME_DRIFT",
+      "detail": "75 unitids carry two name spellings across their M/W rows (short in men’s, long in women’s). Cosmetic; not a coverage defect. Normalize college_name==colleges.name per the school-spelled-two-ways rule.",
+      "count": 75
+    }
+  ],
+  "prevention_synthesis": {
+    "absent_coach_seasons_coverage": "branch/new-name programmes never scraped into coach_seasons (Milligan, Dallas Christian) surface as NO_COACH_DATA until fresh research.",
+    "inferred_legacy_emails": "pattern-inferred emails (Perdue, Cloutier, Aberle, Frick predecessors) are never eligible; only email SEEN on the official live source promotes.",
+    "stale_staff": "PROVEN_STALE rows (Kidd, Andrews, Hunter, Jones) were actually current on the live page — currentness must be re-observed, never trusted from an old scrape.",
+    "association_defects": "coaches mis-filed under a wrong legacy school (Hunter->Columbia MO, Andrews->IU Northwest, Jones->Georgetown) block STRICT (cls!=KEEP) until reassigned so legacy==canonical.",
+    "same_name_contamination": "Johnson U (NAIA) vs Johnson & Wales (NCAA); Columbia College MO vs SC; St. Francis IL Joliet(148584) vs Peoria(148575) vs IN(152336).",
+    "domain_registry_gaps": "cbcmustangs.com sat INSUFFICIENT though it is Central Baptist’s official athletics host; one-to-one promotion needed for coverage.",
+    "wrong_domain_mappings": "iuccrimsonpride.com against 151111 (IU Indy) would be a wrong mapping; refused.",
+    "shared_platform_source_issues": "Sidearm/PrestoSports coach pages 403 the datacenter WebFetch but curl -L reaches them; emails often only on profile pages or a /information/directory table.",
+    "branch_campus_identity_limitations": "7 programmes have no distinct federal UNITID (see identity model decision).",
+    "blocked_sites": "gomightyoaks.com 404s all paths; jcubulldogs.com DNS SERVFAIL — Oakland City + Jarvis need the residential-IP Chrome channel.",
+    "no_published_email": "UHSP men, SCAD M+W (generic only), Milligan M+W, WAU W, Tougaloo M (JS-rendered name), Johnson M — valid CURRENT_NO_ELIGIBLE_EMAIL outcomes."
+  },
+  "fingerprints": {
+    "domain_fp": "e6f768e250dbc9adb7f863534a739f822ac76f52834846d38b295544ae1814ce",
+    "coach_fp": "7ff6c2b6efb84a5287070ea6d95396c1058a79b5ffe2c209efc4d3ca69940c02",
+    "college_fp": "d81df1f03c85a9cbdcd745d9a9d0703448fbbc8a839b68deefe3fe3258c4ea35"
+  },
+  "ncaa_membership_hash": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+  "privacy": {
+    "note": "No coach PII in committed artifacts; coach names + institutional domains/UNITIDs/URLs only, no email addresses. Raw research fixtures (real emails) untracked in server/data/generated/audit-fixtures."
+  }
+}

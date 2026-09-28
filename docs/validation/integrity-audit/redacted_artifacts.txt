@@ -87,3 +87,9 @@ docs/validation/integrity-audit/phase7b5d_naia_tier2_hold_closure_snapshot.json
 docs/validation/integrity-audit/phase7b5d_domain_repairs.redacted.json
 docs/validation/integrity-audit/phase7b5d_tier2_disposition.redacted.json
 docs/validation/integrity-audit/phase7b5d_closure_notes.md
+docs/validation/integrity-audit/phase7c_naia_tail_reconciliation_snapshot.json
+docs/validation/integrity-audit/phase7c_canonical_programme_ledger.redacted.json
+docs/validation/integrity-audit/phase7c_repairs.redacted.json
+docs/validation/integrity-audit/phase7c_residuals.redacted.json
+docs/validation/integrity-audit/phase7c_row_cleanup_queue.redacted.json
+docs/validation/integrity-audit/phase7c_closure_notes.md

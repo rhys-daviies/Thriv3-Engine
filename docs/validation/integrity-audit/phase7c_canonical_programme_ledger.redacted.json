@@ -1,0 +1,123 @@
+{
+  "phase": "7C canonical distinct-programme ledger (institutional)",
+  "active_db_rows": 384,
+  "distinct_logical_programmes": 383,
+  "covered": 364,
+  "uncovered": 19,
+  "uncovered_detail": [
+    {
+      "programme": "Savannah College of Art and Design",
+      "sport": "womens-soccer",
+      "unitid": 140951,
+      "tier": "Tier-5/6/7"
+    },
+    {
+      "programme": "Oakland City University",
+      "sport": "womens-soccer",
+      "unitid": 152099,
+      "tier": "Tier-1"
+    },
+    {
+      "programme": "Milligan University",
+      "sport": "womens-soccer",
+      "unitid": 486901,
+      "tier": "other/baseline"
+    },
+    {
+      "programme": "Stanton University",
+      "sport": "womens-soccer",
+      "unitid": null,
+      "tier": "null-branch"
+    },
+    {
+      "programme": "Washington Adventist University",
+      "sport": "womens-soccer",
+      "unitid": 162210,
+      "tier": "Tier-5/6/7"
+    },
+    {
+      "programme": "Park University Gilbert",
+      "sport": "womens-soccer",
+      "unitid": null,
+      "tier": "null-branch"
+    },
+    {
+      "programme": "Benedictine University at Mesa",
+      "sport": "womens-soccer",
+      "unitid": null,
+      "tier": "null-branch"
+    },
+    {
+      "programme": "Indiana University Columbus",
+      "sport": "womens-soccer",
+      "unitid": 151111,
+      "tier": "Tier-2"
+    },
+    {
+      "programme": "Jarvis Christian University",
+      "sport": "womens-soccer",
+      "unitid": 225885,
+      "tier": "Tier-3"
+    },
+    {
+      "programme": "Milligan University",
+      "sport": "mens-soccer",
+      "unitid": 486901,
+      "tier": "other/baseline"
+    },
+    {
+      "programme": "Savannah College of Art and Design",
+      "sport": "mens-soccer",
+      "unitid": 140951,
+      "tier": "Tier-5/6/7"
+    },
+    {
+      "programme": "Oakland City University",
+      "sport": "mens-soccer",
+      "unitid": 152099,
+      "tier": "Tier-1"
+    },
+    {
+      "programme": "Benedictine University at Mesa",
+      "sport": "mens-soccer",
+      "unitid": null,
+      "tier": "null-branch"
+    },
+    {
+      "programme": "Indiana University Columbus",
+      "sport": "mens-soccer",
+      "unitid": 151111,
+      "tier": "Tier-2"
+    },
+    {
+      "programme": "Tougaloo College",
+      "sport": "mens-soccer",
+      "unitid": 176406,
+      "tier": "Tier-5/6/7"
+    },
+    {
+      "programme": "University of Health Sciences and Pharmacy in St. Louis",
+      "sport": "mens-soccer",
+      "unitid": 179265,
+      "tier": "Tier-2"
+    },
+    {
+      "programme": "University of St. Francis (IL)",
+      "sport": "womens-soccer",
+      "unitid": 148584,
+      "tier": "other/baseline"
+    },
+    {
+      "programme": "Park University Gilbert",
+      "sport": "mens-soccer",
+      "unitid": null,
+      "tier": "null-branch"
+    },
+    {
+      "programme": "Johnson University",
+      "sport": "mens-soccer",
+      "unitid": 220473,
+      "tier": "other/baseline"
+    }
+  ]
+}
