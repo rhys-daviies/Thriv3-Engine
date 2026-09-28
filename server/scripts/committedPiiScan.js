@@ -78,6 +78,29 @@ export const ALLOWED_FIXTURE_ADDRESSES = new Set([
   'other@clemson.edu', 'spend@clemson.edu', 'x@clemson.edu',
   'transition@annamaria.edu',
   'athlete@gmail.com',
+
+  /**
+   * PR #49 (institution identity) fixtures, added when that branch reconciled
+   * with this contract. Every one was checked against the real coach data
+   * before being listed: none matches a stored address, none matches a stored
+   * name, and none is name-derived. That last check is the one that mattered —
+   * the branch carried an address built from a real head coach's surname at
+   * their real institution, which a membership test against our own `coaches`
+   * table passed cleanly because we had never imported that particular
+   * address. Belonging to a person is not the same as being in our table.
+   * (Naming it here would republish it, which is why it is described instead.)
+   */
+  'a@aquinas.edu', 'a@bethanylb.edu', 'a@dom.edu', 'a@fiu.edu', 'a@gapu.edu', 'a@held.edu',
+  'a@inactive.edu', 'a@keene.edu', 'a@maine.edu', 'a@mcla.edu', 'a@nec.edu', 'a@ozarks.edu',
+  'a@ric.edu', 'a@sckans.edu', 'a@sterling.edu', 'a@stmarytx.edu', 'a@wilmington.edu',
+  'a@wustl.edu', 'amy@gapu.edu', 'amy@testu.edu', 'ann@eureka.edu', 'bad@faulkner.edu',
+  'bad@gapu.edu', 'bob@realstate.edu', 'cara@eureka.edu', 'coach@faulkner.edu',
+  'coach@gmail.com', 'coach2@gmail.com', 'coach@naiau.edu', 'coachgmail@gmail.com',
+  'good@faulkner.edu', 'good@gapu.edu', 'head@fallout.edu', 'held@gapu.edu',
+  'jane@testville.com', 'newcoach@faulkner.edu', 'newasst@faulkner.edu',
+  'samfixture@bethanywv.edu', 'samfixture@faulkner.edu', 'someoneelse@bethanywv.edu',
+  'soccer@faulkner.edu', 'soccer@gapu.edu', 'someone@stmarytx.edu', 'wrong@faulkner.edu',
+  'x@faulkner.edu',
 ]);
 
 /** Paths that may never carry an address outside rules 1–3. */

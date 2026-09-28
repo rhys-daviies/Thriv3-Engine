@@ -25,10 +25,10 @@ function build() {
   p.run('c1', 'Bethany (WV)', 'mens-soccer', 'NCAA D3', 237181, 1);   // correct target
   p.run('c2', 'Bethany (KS)', 'mens-soccer', 'NAIA', 154721, 1);      // wrong stored
   p.run('c3', 'Campus Merged', 'womens-soccer', 'NCAA D2', 498562, 1); // held campus-collision unitid
-  db.prepare("INSERT INTO coaches (id,full_name,email,school,sport) VALUES ('w','Sam Fixture','sam.fixture@bethanywv.edu','Bethany (KS)','mens-soccer')").run();
+  db.prepare("INSERT INTO coaches (id,full_name,email,school,sport) VALUES ('w','Samfixture Testcase','samfixture@bethanywv.edu','Bethany (KS)','mens-soccer')").run();
   db.close();
 }
-const base = { coach_id: 'w', expected_old_school: 'Bethany (KS)', expected_old_sport: 'mens-soccer', expected_old_email: 'sam.fixture@bethanywv.edu', proposed_school: 'Bethany (WV)', proposed_unitid: 237181, proposed_sport: 'mens-soccer', proposed_division: 'NCAA D3', proposed_email: 'sam.fixture@bethanywv.edu', current_source_url: 'https://bethanybison.com/coaches', email_source_url: 'https://bethanybison.com/coaches', auto_apply_safe: true };
+const base = { coach_id: 'w', expected_old_school: 'Bethany (KS)', expected_old_sport: 'mens-soccer', expected_old_email: 'samfixture@bethanywv.edu', proposed_school: 'Bethany (WV)', proposed_unitid: 237181, proposed_sport: 'mens-soccer', proposed_division: 'NCAA D3', proposed_email: 'samfixture@bethanywv.edu', current_source_url: 'https://bethanybison.com/coaches', email_source_url: 'https://bethanybison.com/coaches', auto_apply_safe: true };
 function fx(entries) { const p = path.join(dir, 'r.json'); fs.writeFileSync(p, JSON.stringify({ entries })); return p; }
 function run(entries, apply = true) { try { const out = execFileSync('node', [APP, '--db', dbPath, '--recovery', fx(entries), ...(apply ? ['--apply'] : [])], { cwd: ROOT, encoding: 'utf8' }); return { ok: true, out }; } catch (e) { return { ok: false, out: (e.stdout || '') + (e.stderr || '') }; } }
 const wolf = () => { const d = new Database(dbPath, { readonly: true }); const r = d.prepare("SELECT * FROM coaches WHERE id='w'").get(); d.close(); return r; };
@@ -46,7 +46,7 @@ describe('Phase 6C.2 recovery applier', () => {
     expect(r.email_confirmed_at).toBeNull();
   });
   it('will not touch the row on an expected-old-value mismatch', () => {
-    const r = run([{ ...base, expected_old_email: 'someone.else@bethanywv.edu' }]);
+    const r = run([{ ...base, expected_old_email: 'someoneelse@bethanywv.edu' }]);
     expect(r.ok).toBe(false);
     expect(wolf().school).toBe('Bethany (KS)');
   });
@@ -60,7 +60,7 @@ describe('Phase 6C.2 recovery applier', () => {
     expect(wolf().school).toBe('Bethany (KS)');
   });
   it('prevents a duplicate: blocks reassignment that would collide at the target', () => {
-    const d = new Database(dbPath); d.prepare("INSERT INTO coaches (id,full_name,email,school,sport) VALUES ('dup','Sam Fixture','sam.fixture@bethanywv.edu','Bethany (WV)','mens-soccer')").run(); d.close();
+    const d = new Database(dbPath); d.prepare("INSERT INTO coaches (id,full_name,email,school,sport) VALUES ('dup','Samfixture Testcase','samfixture@bethanywv.edu','Bethany (WV)','mens-soccer')").run(); d.close();
     const r = run([base]);
     expect(r.ok).toBe(false);
     expect(wolf().school).toBe('Bethany (KS)');

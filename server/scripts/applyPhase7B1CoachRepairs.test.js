@@ -20,7 +20,7 @@ function build() {
   const p = db.prepare('INSERT INTO colleges VALUES (?,?,?,?,?,?)');
   p.run('c1', 'Faulkner University', 'mens-soccer', 'NAIA', 101189, 1);
   p.run('c2', 'Other U', 'mens-soccer', 'NAIA', 999999, 1);
-  db.prepare("INSERT INTO coaches (id,created_at,full_name,email,school,sport,email_status,source,currentness_status) VALUES ('leg','2020-01-01','Sam Fixture','sam.fixture@faulkner.edu','Faulkner University','mens-soccer','verified','graduating_seniors','UNKNOWN')").run();
+  db.prepare("INSERT INTO coaches (id,created_at,full_name,email,school,sport,email_status,source,currentness_status) VALUES ('leg','2020-01-01','Samfixture Testcase','samfixture@faulkner.edu','Faulkner University','mens-soccer','verified','graduating_seniors','UNKNOWN')").run();
   db.prepare("INSERT INTO coaches (id,created_at,full_name,email,school,sport,email_status,source,currentness_status) VALUES ('other','2020-01-01','Reuse Person','reuse@other.edu','Other U','mens-soccer','verified','legacy','UNKNOWN')").run();
   db.close();
 }
@@ -45,25 +45,25 @@ describe('Phase 7B.1 coach-repair applier', () => {
     expect(r.ok).toBe(false); expect(r.out).toMatch(/REDACTED|redacted\.invalid/);
   });
   it('1. ADD_EVIDENCE without email_seen_on_source_url is refused', () => {
-    const r = run({ evidence: [{ coach_id: 'leg', expected_old_email: 'sam.fixture@faulkner.edu', currentness_source_url: 'https://x', auto_apply_safe: true }] });
+    const r = run({ evidence: [{ coach_id: 'leg', expected_old_email: 'samfixture@faulkner.edu', currentness_source_url: 'https://x', auto_apply_safe: true }] });
     expect(r.ok).toBe(false); expect(coach('leg').currentness_status).toBe('UNKNOWN');
   });
   it('2/13. UPDATE_EMAIL requires source evidence AND matching expected-old', () => {
-    const noEv = run({ email: [{ coach_id: 'leg', expected_old_email: 'sam.fixture@faulkner.edu', new_email: 'gdequeiroz@faulkner.edu', auto_apply_safe: true }] });
+    const noEv = run({ email: [{ coach_id: 'leg', expected_old_email: 'samfixture@faulkner.edu', new_email: 'newcoach@faulkner.edu', auto_apply_safe: true }] });
     expect(noEv.ok).toBe(false);
-    const badOld = run({ email: [{ coach_id: 'leg', expected_old_email: 'WRONG@faulkner.edu', new_email: 'gdequeiroz@faulkner.edu', email_source_url: 'https://x', email_seen_on_source_url: 'https://x', auto_apply_safe: true }] });
-    expect(badOld.ok).toBe(false); expect(coach('leg').email).toBe('sam.fixture@faulkner.edu');
+    const badOld = run({ email: [{ coach_id: 'leg', expected_old_email: 'WRONG@faulkner.edu', new_email: 'newcoach@faulkner.edu', email_source_url: 'https://x', email_seen_on_source_url: 'https://x', auto_apply_safe: true }] });
+    expect(badOld.ok).toBe(false); expect(coach('leg').email).toBe('samfixture@faulkner.edu');
   });
   it('2b. a valid email correction applies with fresh evidence, confirmed_at untouched', () => {
-    run({ email: [{ coach_id: 'leg', expected_old_email: 'sam.fixture@faulkner.edu', new_email: 'gdequeiroz@faulkner.edu', email_source_url: 'https://faulknereagles.com/x', email_seen_on_source_url: 'https://faulknereagles.com/x', auto_apply_safe: true }] });
-    const r = coach('leg'); expect(r.email).toBe('gdequeiroz@faulkner.edu'); expect(r.currentness_status).toBe('CURRENT'); expect(r.email_seen_on_source_at).toBeTruthy(); expect(r.email_confirmed_at).toBeNull();
+    run({ email: [{ coach_id: 'leg', expected_old_email: 'samfixture@faulkner.edu', new_email: 'newcoach@faulkner.edu', email_source_url: 'https://faulknereagles.com/x', email_seen_on_source_url: 'https://faulknereagles.com/x', auto_apply_safe: true }] });
+    const r = coach('leg'); expect(r.email).toBe('newcoach@faulkner.edu'); expect(r.currentness_status).toBe('CURRENT'); expect(r.email_seen_on_source_at).toBeTruthy(); expect(r.email_confirmed_at).toBeNull();
   });
   it('3. MARK_STALE sets PROVEN_STALE', () => {
     run({ stale: [{ coach_id: 'leg', expected_old_school: 'Faulkner University', currentness_source_url: 'https://x', auto_apply_safe: true }] });
     expect(coach('leg').currentness_status).toBe('PROVEN_STALE');
   });
   it('4. INSERT replacement does not duplicate an existing identity (idempotent skip)', () => {
-    run({ current: [{ ...INS, name: 'Sam Fixture', email: 'sam.fixture@faulkner.edu' }] });
+    run({ current: [{ ...INS, name: 'Samfixture Testcase', email: 'samfixture@faulkner.edu' }] });
     expect(count()).toBe(2); // no new row; identity already present
   });
   it('5. INSERT is refused when the email already belongs to another institution', () => {
