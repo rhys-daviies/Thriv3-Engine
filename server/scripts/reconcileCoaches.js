@@ -17,6 +17,7 @@ import Database from 'better-sqlite3';
 import { createResolver, registrableDomain, emailDomain, DECISION } from '../lib/institutionResolver.js';
 import { normalizeForMatch } from '../lib/coachingImport.js';
 import { isHeldDomain } from '../../shared/heldDomainAdjudications.js';
+import { buildEntityIndex, hostOf } from '../lib/athleticsEntity.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dbArg = (() => { const i = process.argv.indexOf('--db'); return i > -1 ? process.argv[i + 1] : null; })();
@@ -36,8 +37,9 @@ const all = (s) => db.prepare(s).all();
 // alias any absent one rather than failing the query.
 const hasCols = (tbl) => new Set(db.prepare(`PRAGMA table_info(${tbl})`).all().map((c) => c.name));
 const collCols = hasCols('colleges');
-const colleges = all(`SELECT name, sport, unitid, state, division, ${collCols.has('active') ? 'active' : '1 AS active'} FROM colleges`);
-const domains = all('SELECT domain, unitid, status FROM athletics_domains');
+const colleges = all(`SELECT ${collCols.has('id') ? 'id' : 'NULL AS id'}, name, sport, unitid, state, division, ${collCols.has('active') ? 'active' : '1 AS active'}, ${collCols.has('athletics_entity_id') ? 'athletics_entity_id' : 'NULL AS athletics_entity_id'} FROM colleges`);
+const domCols = hasCols('athletics_domains');
+const domains = all(`SELECT domain, unitid, status, ${domCols.has('athletics_entity_id') ? 'athletics_entity_id' : 'NULL AS athletics_entity_id'} FROM athletics_domains`);
 const aliases = all('SELECT alias_key, unitid, alias_type FROM institution_aliases');
 const coachCols = hasCols('coaches');
 const coachSel = ['id', 'full_name', 'email', 'school', 'sport', 'position_title', 'email_status', 'email_source_url', 'currentness_status', 'currentness_source_url', 'email_seen_on_source_at', 'email_seen_on_source_url']
@@ -83,7 +85,167 @@ const uni = (name, sport) => collByNS.get(`${name}|${sport}`)?.unitid ?? null;
 const nameByUnitid = new Map();
 for (const c of colleges) if (c.unitid != null) nameByUnitid.set(`${c.unitid}|${c.sport}`, canonName(c.name, c.sport));
 
+// ---- PHASE 7D athletics-entity identity (additive) ----
+// With no `athletics_entities` rows this is inert and every coach takes the legacy
+// UNITID path exactly as before. When populated, programmes inside the strict
+// activation scope (default NAIA) resolve by athletics entity instead of UNITID, so
+// a branch campus, a non-Title-IV school, or one of several campuses sharing a
+// UNITID is its own identity. Outside the scope (NCAA) nothing changes.
+const hasEntityTable = !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name='athletics_entities'").get();
+const entities = hasEntityTable ? all('SELECT * FROM athletics_entities') : [];
+const ENTITY_MODEL = entities.length > 0 && colleges.some((c) => c.athletics_entity_id);
+const eidx = buildEntityIndex({ entities, colleges, domains });
+// hosts coach_seasons itself scraped, at full-host granularity: a branch on a
+// subdomain (gilbert.parkathletics.com) is not corroborated by a scrape of the
+// parent's parkathletics.com.
+const csTrustedHosts = new Set();
+for (const r of all("SELECT source_url FROM coach_seasons WHERE source_url LIKE 'http%'")) { const h = hostOf(r.source_url); if (h) csTrustedHosts.add(h); }
+const activeByUS = new Map();
+for (const c of colleges) { if (c.unitid == null || c.active !== 1) continue; const k = `${c.unitid}|${c.sport}`; if (!activeByUS.has(k)) activeByUS.set(k, []); activeByUS.get(k).push(c); }
+const collByNameSport = (name, sport) => (name ? collByNS.get(`${name}|${sport}`) : null);
+const collById = new Map(colleges.filter((c) => c.id).map((c) => [c.id, c]));
+
+/** Canonical programme (colleges.id) for a legacy-path result. KEEP stays on its own row. */
+function legacyCanonicalCollegeId(co, r) {
+  const own = collByNS.get(`${co.school}|${co.sport}`);
+  // resolved to its own institution (including a null==null KEEP on a no-UNITID row): stays on its row
+  if (own && r.canonical_unitid === r.legacy_unitid && r.classification !== 'REVIEW') return own.id ?? null;
+  if (r.canonical_unitid == null) return null;
+  const at = activeByUS.get(`${r.canonical_unitid}|${co.sport}`) || [];
+  if (at.length === 1) return at[0].id ?? null;
+  return collByNameSport(r.canonical_school, co.sport)?.id ?? null;
+}
+
 function reconcile(co) {
+  const progRow = collByNS.get(`${co.school}|${co.sport}`);
+  const useEntity = ENTITY_MODEL && progRow?.athletics_entity_id && inStrictScope(progRow.division);
+  if (useEntity) return reconcileEntity(co, progRow);
+  const r = reconcileLegacy(co);
+  const ccid = legacyCanonicalCollegeId(co, r);
+  const crow = ccid ? collById.get(ccid) : null;
+  return { ...r, canonical_college_id: ccid, canonical_entity_id: crow?.athletics_entity_id ?? null };
+}
+
+/**
+ * Entity-path reconciliation. Same evidence order, same eligibility rules and the
+ * same strict-authoritative conditions as the legacy path, with ONE identity key
+ * swapped: athletics entity for UNITID. Two extra protections follow from it:
+ *   - an email/site domain that proves only the PARENT institution (ben.edu for
+ *     Benedictine Mesa, park.edu for Park Gilbert) cannot move a branch coach into
+ *     the parent's programme — it is parent-only evidence, never a reassignment;
+ *   - an entity-owned host (gilbert.parkathletics.com) is read at full-host
+ *     granularity, before the registrable domain it shares with its parent.
+ */
+function reconcileEntity(co, progRow) {
+  const curEntity = progRow.athletics_entity_id;
+  const curUnitid = progRow.unitid ?? null;
+  const host = hostOf(co.email_source_url);
+  const sdom = registrableDomain(co.email_source_url);
+  const edom = emailDomain(co.email);
+  const trusted = (d) => d && ['VERIFIED', 'VERIFIED_ALIAS'].includes(d.status);
+  const read = (key, kind) => {
+    if (!key) return null;
+    if (kind === 'SOURCE' && host && !isHeldDomain(host)) { const he = eidx.entityForHost(host); if (he) return { entity: he, viaHost: true, method: 'SOURCE_HOST_ENTITY', note: `${host}→${he}` }; }
+    if (isHeldDomain(key) || !domByName.has(key)) return null;
+    const d = domByName.get(key);
+    if (trusted(d)) {
+      if (d.athletics_entity_id) return { entity: d.athletics_entity_id, method: `${kind}_DOMAIN_ENTITY`, note: `${key}→${d.athletics_entity_id}` };
+      if (d.unitid == null) return null;
+      if (eidx.isParentOnly(curEntity, d.unitid)) return { parentOnly: true, method: `${kind}_DOMAIN_PARENT_ONLY`, note: `${key}→${d.unitid} is the parent of ${curEntity}; cannot identify a campus` };
+      const e = eidx.entityForUnitid(d.unitid);
+      if (e) return { entity: e, method: kind === 'SOURCE' ? 'SOURCE_DOMAIN' : 'EMAIL_DOMAIN', note: `${key}→${d.unitid}→${e}` };
+      return { unmodeled: true, method: `${kind}_DOMAIN_NO_ENTITY`, note: `${key}→${d.unitid}: no athletics entity owns this UNITID` };
+    }
+    if (kind === 'SOURCE' && ['WRONG_INSTITUTION', 'AMBIGUOUS'].includes(d.status)) return { contradiction: true, method: `DOMAIN_${d.status}`, note: `${key} ${d.status}` };
+    return null;
+  };
+  const src = read(sdom, 'SOURCE');
+  let ev = src && (src.entity || src.contradiction) ? src : null;
+  const em = ev ? null : read(edom, 'EMAIL');
+  if (!ev && em?.entity) ev = em;
+  const parentOnly = !!(src?.parentOnly || em?.parentOnly);
+  let evEntity = ev?.entity ?? null;
+  let method = ev?.method ?? (parentOnly ? 'PARENT_ONLY_EVIDENCE' : (src?.method || em?.method || null));
+  let evNote = ev?.note ?? (src?.note || em?.note || '');
+  const nameAt = (ent) => (ent === curEntity ? progRow.name : eidx.programmeFor(ent, co.sport)?.name) ?? null;
+  const idAtCurrent = csHas(co.school, co.sport, co.full_name);
+  const idAtEvidence = evEntity != null && csHas(nameAt(evEntity), co.sport, co.full_name);
+
+  let cls, inst;
+  if (evEntity != null) {
+    if (evEntity === curEntity) { cls = 'KEEP'; inst = DECISION.RESOLVED; }
+    else if (eidx.programmeFor(evEntity, co.sport)) { cls = 'REASSIGN'; inst = DECISION.RESOLVED; }
+    else { cls = 'REVIEW'; inst = DECISION.REVIEW; method = `${method}_NO_TARGET_PROGRAMME`; }
+  } else if (ev?.contradiction) {
+    cls = 'REVIEW'; inst = DECISION.REVIEW;
+  } else if (idAtCurrent) {
+    cls = 'KEEP'; inst = DECISION.RESOLVED; method = 'COACH_SEASONS'; evNote = 'identity corroborated at current school'; evEntity = curEntity;
+  } else {
+    cls = 'WITHHOLD'; inst = DECISION.WITHHOLD; method = method || 'NONE';
+  }
+  const resolvedEntity = cls === 'REVIEW' ? null : (evEntity ?? curEntity);
+  const resProg = resolvedEntity == null ? null : (resolvedEntity === curEntity ? progRow : eidx.programmeFor(resolvedEntity, co.sport));
+  const resEnt = resolvedEntity ? eidx.byId.get(resolvedEntity) : null;
+  const resolvedUnitid = resEnt ? (resEnt.federal_unitid ?? null) : null;
+  const resolvedName = resProg ? resProg.name : null;
+  const identityStatus = (evEntity != null && (idAtEvidence || idAtCurrent)) || idAtCurrent ? 'VERIFIED' : 'UNVERIFIED';
+  const emailStatus = (co.email_status || 'unknown');
+  const hasRealEmail = co.email && co.email.includes('@') && co.email.toUpperCase() !== 'N/A';
+  const isTeam = !co.full_name || !co.full_name.trim();
+  const provenStale = co.currentness_status === 'PROVEN_STALE';
+
+  // the entity named by the SOURCE page itself (never the email domain)
+  const srcEntity = src?.entity ?? null;
+  const srcScrapedByCoachSeasons = src?.viaHost ? csTrustedHosts.has(host) : (!!sdom && csTrustedDomains.has(sdom));
+  const sourceDomainTrusted = srcEntity != null && srcScrapedByCoachSeasons && srcEntity === resolvedEntity;
+  let corroborationMethod = null;
+  if (sourceDomainTrusted) corroborationMethod = 'COACH_SEASONS_SOURCE_DOMAIN';
+  else if (idAtEvidence || idAtCurrent) corroborationMethod = 'COACH_SEASONS_IDENTITY';
+  const strictDomainOk = srcEntity != null && srcEntity === resolvedEntity;
+  const strictAuthoritative = !corroborationMethod
+    && inStrictScope(progRow.division)
+    && inst === DECISION.RESOLVED
+    && cls === 'KEEP'
+    && resolvedEntity != null && resolvedEntity === curEntity
+    && progRow.active === 1
+    && co.currentness_status === 'CURRENT'
+    && !!co.currentness_source_url
+    && strictDomainOk
+    && !!co.email_seen_on_source_at
+    && !!co.email_seen_on_source_url
+    && emailStatus === 'verified'
+    && hasRealEmail && !isTeam
+    && !provenStale;
+  if (strictAuthoritative) corroborationMethod = 'STRICT_AUTHORITATIVE_CURRENT';
+
+  const corroborated = corroborationMethod != null;
+  const eligible = inst === DECISION.RESOLVED && emailStatus === 'verified' && hasRealEmail && !isTeam
+    && ['KEEP', 'REASSIGN'].includes(cls) && corroborated && !provenStale && !!resProg;
+  let ineligibleReason = '';
+  if (!eligible) {
+    if (provenStale) ineligibleReason = 'coach proven no longer current (PROVEN_STALE)';
+    else if (!hasRealEmail || isTeam) ineligibleReason = 'no per-person address';
+    else if (emailStatus !== 'verified') ineligibleReason = `email ${emailStatus}`;
+    else if (inst !== DECISION.RESOLVED) ineligibleReason = parentOnly && inst === DECISION.WITHHOLD ? 'institution WITHHOLD (parent-only evidence; campus not proven)' : `institution ${inst}`;
+    else if (!corroborated) ineligibleReason = `${cls} not corroborated (coach_seasons or strict-authoritative)`;
+    else ineligibleReason = cls;
+  }
+  return {
+    coach_id: co.id, coach_name: co.full_name, email: co.email, title: co.position_title, sport: co.sport,
+    legacy_school: co.school, legacy_unitid: curUnitid,
+    canonical_unitid: resolvedUnitid, canonical_school: resolvedName,
+    source_url: co.email_source_url, source_domain: sdom, email_domain: edom,
+    classification: cls, institution_resolution_status: inst,
+    coach_identity_status: identityStatus, email_verification_status: emailStatus,
+    outreach_eligibility: eligible ? 'YES' : 'NO', ineligible_reason: ineligibleReason,
+    resolution_method: method || 'NONE', corroboration_method: corroborationMethod || 'NONE', evidence: evNote,
+    reassigned: cls === 'REASSIGN' ? 1 : 0,
+    canonicalized: resolvedName && resolvedName !== co.school ? 1 : 0,
+    canonical_college_id: resProg?.id ?? null, canonical_entity_id: resolvedEntity,
+  };
+}
+
+function reconcileLegacy(co) {
   const curUnitid = uni(co.school, co.sport);
   const sdom = registrableDomain(co.email_source_url);
   const edom = emailDomain(co.email);
@@ -209,7 +371,8 @@ db.exec(`CREATE TABLE coaches_reconciled (
   source_url TEXT, source_domain TEXT, email_domain TEXT,
   classification TEXT, institution_resolution_status TEXT, coach_identity_status TEXT,
   email_verification_status TEXT, outreach_eligibility TEXT, ineligible_reason TEXT,
-  resolution_method TEXT, corroboration_method TEXT, evidence TEXT, reassigned INTEGER, canonicalized INTEGER)`);
+  resolution_method TEXT, corroboration_method TEXT, evidence TEXT, reassigned INTEGER, canonicalized INTEGER,
+  canonical_college_id TEXT, canonical_entity_id TEXT)`);
 const cols = Object.keys(rows[0]);
 const ins = db.prepare(`INSERT INTO coaches_reconciled (${cols.join(',')}) VALUES (${cols.map((c) => '@' + c).join(',')})`);
 db.transaction(() => rows.forEach((r) => ins.run(r)))();

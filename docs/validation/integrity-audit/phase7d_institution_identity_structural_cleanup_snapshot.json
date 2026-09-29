@@ -1,0 +1,1882 @@
+{
+  "milestone": "PHASE 7D — INSTITUTION IDENTITY MODEL + STRUCTURAL CLEANUP (APPLIED, shared dev)",
+  "created_at": "2026-09-29T02:46:34.339Z",
+  "db": "server/data/recruitmatch.sqlite (shared dev). Production untouched. STRICT_CORROB_SCOPE=NAIA unchanged.",
+  "preserved_7c_commit": "5b16e43",
+  "structural_anomaly_ledger": {
+    "duplicate_unitid_sport_keys": 20,
+    "duplicate_within_division": 14,
+    "duplicate_cross_division": 6,
+    "duplicate_keys": [
+      {
+        "key": "151111|mens-soccer",
+        "rows": [
+          "IU Indy [NCAA D1]",
+          "Indiana University Columbus [NAIA]"
+        ]
+      },
+      {
+        "key": "498562|mens-soccer",
+        "rows": [
+          "Commonwealth University-Bloomsburg [NCAA D2]",
+          "Commonwealth University-Lock Haven [NCAA D2]"
+        ]
+      },
+      {
+        "key": "205443|mens-soccer",
+        "rows": [
+          "Shawnee State [NCAA D2]",
+          "Shawnee State University [NAIA]"
+        ]
+      },
+      {
+        "key": "140951|mens-soccer",
+        "rows": [
+          "SCAD [NCAA D3]",
+          "Savannah College of Art and Design [NAIA]"
+        ]
+      },
+      {
+        "key": "218821|mens-soccer",
+        "rows": [
+          "Spartanburg Methodist [NJCAA]",
+          "Spartanburg Methodist College [NAIA]"
+        ]
+      },
+      {
+        "key": "149842|mens-soccer",
+        "rows": [
+          "Harper [NJCAA]",
+          "William Rainey Harper [NJCAA, inactive]"
+        ]
+      },
+      {
+        "key": "150172|mens-soccer",
+        "rows": [
+          "Calumet College [NAIA]",
+          "Calumet College of St. Joseph [NAIA]"
+        ]
+      },
+      {
+        "key": "179308|mens-soccer",
+        "rows": [
+          "St. Louis Community-Florissant Valley [NJCAA]",
+          "St. Louis Community-Forest Park [NJCAA]",
+          "St. Louis Community-Meramec [NJCAA]"
+        ]
+      },
+      {
+        "key": "151111|womens-soccer",
+        "rows": [
+          "IU Indy [NCAA D1]",
+          "Indiana University Columbus [NAIA]"
+        ]
+      },
+      {
+        "key": "498562|womens-soccer",
+        "rows": [
+          "Commonwealth University-Bloomsburg [NCAA D2]",
+          "Commonwealth University-Lock Haven [NCAA D2]",
+          "Commonwealth University-Mansfield [NCAA D2]"
+        ]
+      },
+      {
+        "key": "176053|womens-soccer",
+        "rows": [
+          "Mississippi Christian [NCAA D2]",
+          "Mississippi College [NCAA D2]"
+        ]
+      },
+      {
+        "key": "121345|womens-soccer",
+        "rows": [
+          "Pomona College [NCAA D3]",
+          "Pomona-Pitzer [NCAA D3]"
+        ]
+      },
+      {
+        "key": "498571|womens-soccer",
+        "rows": [
+          "PennWest Edinboro [NCAA D2]",
+          "PennWest Clarion [NCAA D2]",
+          "PennWest California [NCAA D2]"
+        ]
+      },
+      {
+        "key": "110413|womens-soccer",
+        "rows": [
+          "California Lutheran University [NCAA D3]",
+          "Cal Lutheran [NCAA D3]"
+        ]
+      },
+      {
+        "key": "112260|womens-soccer",
+        "rows": [
+          "Claremont McKenna College [NCAA D3]",
+          "Claremont-Mudd-Scripps [NCAA D3]"
+        ]
+      },
+      {
+        "key": "195544|womens-soccer",
+        "rows": [
+          "St. Joseph's University (Long Island) [NCAA D3]",
+          "St. Joseph's University (Brooklyn) [NCAA D3]"
+        ]
+      },
+      {
+        "key": "231165|womens-soccer",
+        "rows": [
+          "Vermont State University-Johnson [NCAA D3]",
+          "Vermont State University-Castleton [NCAA D3]",
+          "Vermont State University-Lyndon [NCAA D3]"
+        ]
+      },
+      {
+        "key": "110714|womens-soccer",
+        "rows": [
+          "University of California-Santa Cruz [NCAA D3]",
+          "UC Santa Cruz [NCAA D3]"
+        ]
+      },
+      {
+        "key": "205443|womens-soccer",
+        "rows": [
+          "Shawnee State University [NAIA]",
+          "Shawnee State [NCAA D2]"
+        ]
+      },
+      {
+        "key": "184694|womens-soccer",
+        "rows": [
+          "Fairleigh Dickinson University-Florham [NCAA D3]",
+          "FDU-Florham [NCAA D3]"
+        ]
+      }
+    ],
+    "null_unitid_rows": 13,
+    "null_unitid_active": 11,
+    "null_unitid_by_division": {
+      "NCAA D2": 3,
+      "NAIA": 6,
+      "NJCAA": 2,
+      "NCAA D3": 1,
+      "USCAA": 1
+    },
+    "shared_federal_unitid_distinct_entities": [
+      "151111 IU Indy (NCAA D1) + IU Columbus (NAIA, branch)",
+      "498562 Commonwealth: Bloomsburg / Lock Haven / Mansfield",
+      "498571 PennWest: California / Clarion / Edinboro",
+      "231165 Vermont State: Castleton / Johnson / Lyndon",
+      "195544 St. Joseph's NY: Long Island / Brooklyn",
+      "178721 Park University + Park University Gilbert (branch, null colleges.unitid)",
+      "145619 Benedictine (NCAA D3) + Benedictine Mesa (NAIA branch, null colleges.unitid)"
+    ],
+    "branch_campus_cases": [
+      "IU Columbus M/W (parent 151111)",
+      "Park University Gilbert M/W (parent 178721)",
+      "Benedictine University Mesa M/W (parent 145619)"
+    ],
+    "non_title_iv_or_foreign": [
+      "Stanton University W (NAIA, non-Title-IV)",
+      "Christendom College W (USCAA, non-Title-IV)",
+      "Simon Fraser M/W (NCAA D2, Canadian)"
+    ],
+    "wrong_federal_unitid": [
+      "Saint Francis (IL) M: 148575 (Peoria nursing college) -> 148584 (USF Joliet) [REPAIRED]",
+      "East Central (OK) NJCAA M: carries 207041 (ECU Oklahoma); true school unresolved [documented]",
+      "Penn State Brandywine W: NULL, own UNITID 214731 [entity records it; colleges backfill queued]",
+      "gofightingsaints.com + alias \"saint francis il\" -> 148575 [REPAIRED to 148584]"
+    ],
+    "name_drift_unitids_same_division_whole_db": 338,
+    "split_identity_candidates_heuristic": "6 (all false positives: distinct schools with similar names; the real SF-IL split was caught by coach-domain mismatch)",
+    "active_inactive_duplicates": 1,
+    "inactive_rows": 10,
+    "coach_domain_unitid_mismatches": [
+      "Anderson (SC) / mens-soccer / 217633->150066",
+      "Westminster (UT) / mens-soccer / 230807->179946",
+      "Indiana University Northwest / mens-soccer / 151360->151388",
+      "Judson University / mens-soccer / 146339->220473",
+      "Maine / womens-soccer / 161253->161457",
+      "Anderson (SC) / womens-soccer / 217633->150066",
+      "Columbia College (MO) / womens-soccer / 177065->217934",
+      "University of Saint Francis (IN) / womens-soccer / 152336->148575"
+    ]
+  },
+  "identity_semantics": {
+    "federal_unitid": "The entity’s OWN six-digit IPEDS UNITID, or NULL. Never synthetic, never an NCES/College Navigator location code (15111102, 14570703), never a guess. UNIQUE across entities.",
+    "parent_unitid": "IPEDS UNITID of the federal institution a campus/branch entity is reported under; the only sanctioned way two entities share a UNITID; set only when proven.",
+    "athletics_entity_id": "Internal, stable, opaque id of the athletics institution/campus that recruits (AE-U<unitid> for a single institution; AE-X-<slug> for a modeled exception). Never copied into a federal UNITID field.",
+    "programme_identity": "athletics_entity_id + sport, materialised as one active colleges row whose colleges.id is the programme id.",
+    "campus_label": "Human-readable campus disambiguator; required for campus/branch entities.",
+    "colleges_unitid": "Legacy federal UNITID for the programme’s institution; unchanged by the entity layer; must agree with its entity (federal or parent) or be NULL.",
+    "code": "server/lib/athleticsEntity.js (semantics), server/db/schema.sql (table), server/db/migrate.js#ensureAthleticsEntityColumns (columns), server/scripts/validateAthleticsEntityIdentity.js (permanent invariant)."
+  },
+  "model_decision": {
+    "question": "Can the current canonical ids distinguish these entities without corrupting federal UNITID semantics?",
+    "answer": "PARTLY. colleges.id (UNIQUE name+sport) already distinguishes programme ROWS, but the reconciler, athletics_domains, institution_aliases and every coverage/division measure key on UNITID, so entities sharing or lacking a UNITID collapse.",
+    "concrete_failures": {
+      "F1_silent_campus_rename": "33 coaches canonicalised onto a different campus row (14 eligible), e.g. Lock Haven -> Bloomsburg, PennWest California -> Clarion, NAIA Shawnee State -> NCAA D2 row",
+      "F2_branch_into_parent": "15 branch coaches resolved into the parent programme, 5 across divisions (Benedictine Mesa NAIA -> Benedictine NCAA D3; Penn State Brandywine D3 -> Penn State D1)",
+      "F3_coverage_key_collapse": "42 active programmes share 19 (unitid,sport) coverage keys",
+      "F4_ambiguous_eligible": "32 eligible coaches sit on an ambiguous key",
+      "F5_null_unitid": "11 active null-UNITID programmes: reachable only via coach_seasons identity (2 Simon Fraser coaches), never via domain or strict corroboration",
+      "F6_measurement_contamination": "the frozen NCAA gate hash (6d2df77f) divisions coaches by (unitid,sport) last-row-wins: IU Indy and SCAD keys read as NAIA, two NAIA-filed Shawnee coaches and the two Simon Fraser (NCAA D2) coaches are mis-divisioned. Truthful programme-row division hash added alongside.",
+      "F7_outreach_misroute": "runtime reconciled outreach keys on canonical_school, which the duplicate-UNITID name map rewrites across campuses/divisions (5 NAIA coaches routed to NCAA D2 / NJCAA rows)"
+    },
+    "representable_by_current_model_with_data_repair": [
+      "Calumet duplicate row",
+      "SF-IL wrong UNITID",
+      "Spartanburg stale NJCAA row",
+      "same-programme duplicates (CMS, Pomona-Pitzer, MC/MCU, Cal Lutheran, UCSC, FDU-Florham)",
+      "75 cosmetic name-drift unitids"
+    ],
+    "requires_additive_model": [
+      "IU Columbus M/W (shares 151111 with NCAA D1 IU Indy)",
+      "Park Gilbert M/W, Benedictine Mesa M/W (no own UNITID; parent has its own athletics)",
+      "Stanton W, Christendom W (non-Title-IV)",
+      "Simon Fraser M/W (foreign)",
+      "Commonwealth x3, PennWest x3, Vermont State x3, St. Joseph’s NY x2 (campuses sharing one UNITID)"
+    ],
+    "decision": "Additive model REQUIRED and implemented: athletics_entities table + colleges.athletics_entity_id + athletics_domains.athletics_entity_id; colleges.unitid, colleges.id and all college_id references preserved."
+  },
+  "migration_result": {
+    "fixture_hash": "c2b9f98dfe5cb9a845cacfaf9de53689583e2dabe956b0bca7489e015e8298b9",
+    "entities_created": 1482,
+    "by_kind": {
+      "SINGLE": 1460,
+      "BRANCH_CAMPUS": 3,
+      "NON_TITLE_IV": 2,
+      "SYSTEM_CAMPUS": 11,
+      "UNRESOLVED_FEDERAL": 5,
+      "FOREIGN": 1
+    },
+    "rows_assigned": 2409,
+    "structural_repairs": [
+      {
+        "op": "CORRECT_FEDERAL_UNITID",
+        "provenance": "IPEDS 148575 = Saint Francis Medical Center College of Nursing, Peoria (no athletics); 148584 = University of St. Francis, Joliet (NAIA Fighting Saints, M+W). Institution-level Scorecard fields copied from the Joliet twin row; programme-level fields (soccer_score, ranking, win %) untouched."
+      },
+      {
+        "op": "CORRECT_ALIAS_UNITID",
+        "target": "saint francis il",
+        "provenance": "alias names USF Joliet, not the Peoria nursing college"
+      },
+      {
+        "op": "CORRECT_DOMAIN_UNITID",
+        "target": "gofightingsaints.com",
+        "provenance": "gofightingsaints.com is University of St. Francis (Joliet) athletics; claimed_unitids already [148584]; 7B.5D mapped it to the men’s row’s wrong UNITID"
+      },
+      {
+        "op": "DEACTIVATE_STALE_ROW",
+        "provenance": "Spartanburg Methodist College left the NJCAA after 2023-24; NAIA from 2024-25 (AAC from 2025-26). The NAIA row carries the programme; 0 coaches on the NJCAA row."
+      }
+    ],
+    "domain_ownership": [
+      {
+        "domain": "iuccrimsonpride.com",
+        "op": "UPDATE",
+        "entity": "AE-X-IU-COLUMBUS",
+        "provenance": "host self-identifies as IU Columbus Athletics; entity has no own UNITID so unitid stays NULL"
+      },
+      {
+        "domain": "benuredhawks.com",
+        "op": "UPDATE",
+        "entity": "AE-X-BENEDICTINE-MESA",
+        "provenance": "og:site_name \"Benedictine University Mesa\""
+      },
+      {
+        "domain": "gilbert.parkathletics.com",
+        "op": "UPDATE",
+        "entity": "AE-X-PARK-GILBERT",
+        "provenance": "og:site_name \"Park University (AZ)\"; host-level owner (registrable parkathletics.com stays Park University 178721)"
+      },
+      {
+        "domain": "stantonelks.com",
+        "op": "INSERT",
+        "entity": "AE-X-STANTON",
+        "provenance": "page titles \"... - Stanton University Athletics\"; Stanton has no UNITID"
+      }
+    ],
+    "simulation_gates": {
+      "G1_ncaa_truthful_membership_unchanged": true,
+      "G2_ncaa_legacy_hash_unchanged_vs_frozen": true,
+      "G3_other_division_truthful_unchanged": true,
+      "G4_naia_covered_no_regression": true,
+      "G5_no_coach_silently_moved": true,
+      "G6_no_roster_or_record_silently_moved": true,
+      "G7_source_domain_conflicts_0": true,
+      "G8_wrong_institution_eligible_0": true,
+      "G9_wrong_sport_eligible_0": true,
+      "G10_stale_eligible_0": true,
+      "G11_duplicate_identity_no_regression": true,
+      "G12_canonical_round_trip_0": true,
+      "G13_strict_evidence_complete": true,
+      "G14_identity_invariant_hard_0": true,
+      "G15_no_untouched_newly_eligible": true,
+      "G16_no_eligible_lost": true
+    },
+    "validator": {
+      "status": "PASS",
+      "counts": {
+        "entities": 1482,
+        "by_kind": {
+          "SINGLE": 1460,
+          "BRANCH_CAMPUS": 3,
+          "NON_TITLE_IV": 2,
+          "SYSTEM_CAMPUS": 11,
+          "UNRESOLVED_FEDERAL": 5,
+          "FOREIGN": 1
+        },
+        "active_programme_rows": 2398,
+        "active_rows_with_entity": 2398,
+        "distinct_active_programmes": 2386,
+        "entities_without_federal_unitid": 22,
+        "modeled_shared_unitids": 6
+      },
+      "documented": 12,
+      "hard": []
+    },
+    "reversible": "reversal manifests written (untracked); applyPhase7DIdentityModel.js --revert",
+    "live_equals_simulation": true
+  },
+  "repaired_entities": [
+    {
+      "athletics_entity_id": "AE-U214731",
+      "display_name": "Penn State Brandywine",
+      "entity_kind": "SINGLE",
+      "federal_unitid": 214731,
+      "parent_unitid": null,
+      "campus_label": null,
+      "provenance": "NCES profile 214731 (Penn State Brandywine, Media PA; separate from 214777); colleges.unitid backfill queued (NCAA, not mutated)",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-BENEDICTINE-MESA",
+      "display_name": "Benedictine University Mesa (Redhawks)",
+      "entity_kind": "BRANCH_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 145619,
+      "campus_label": "Mesa, AZ",
+      "provenance": "no College Navigator entry; branch of Benedictine University 145619 (Lisle, NCAA D3); host benuredhawks.com; NAIA GSAC; active 2025-26",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-CHRISTENDOM",
+      "display_name": "Christendom College",
+      "entity_kind": "NON_TITLE_IV",
+      "federal_unitid": null,
+      "parent_unitid": null,
+      "campus_label": null,
+      "provenance": "declines Title IV; no IPEDS UNITID (Phase 7B.5D)",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-CU-BLOOMSBURG",
+      "display_name": "Commonwealth University-Bloomsburg",
+      "entity_kind": "SYSTEM_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 498562,
+      "campus_label": "Bloomsburg",
+      "provenance": "Commonwealth University of Pennsylvania 498562 (one IPEDS record); NCAA approved three separate campus athletics programmes after the 2022 merger (PSAC)",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-CU-LOCK-HAVEN",
+      "display_name": "Commonwealth University-Lock Haven",
+      "entity_kind": "SYSTEM_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 498562,
+      "campus_label": "Lock Haven",
+      "provenance": "Commonwealth University of Pennsylvania 498562 (one IPEDS record); NCAA approved three separate campus athletics programmes after the 2022 merger (PSAC)",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-CU-MANSFIELD",
+      "display_name": "Commonwealth University-Mansfield",
+      "entity_kind": "SYSTEM_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 498562,
+      "campus_label": "Mansfield",
+      "provenance": "Commonwealth University of Pennsylvania 498562 (one IPEDS record); NCAA approved three separate campus athletics programmes after the 2022 merger (PSAC)",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-EAST-CENTRAL-NJCAA-UNRESOLVED",
+      "display_name": "East Central (NJCAA; identity mix-up)",
+      "entity_kind": "UNRESOLVED_FEDERAL",
+      "federal_unitid": null,
+      "parent_unitid": null,
+      "campus_label": null,
+      "provenance": "IPEDS has no two-year East Central in Oklahoma; row carries East Central University (OK) 207041 by mistake; likely East Central College MO 177250 or East Central CC MS 175643",
+      "notes": "KNOWN_WRONG_UNITID — colleges.unitid left untouched (NJCAA)"
+    },
+    {
+      "athletics_entity_id": "AE-X-GEORGE-C-WALLACE",
+      "display_name": "George C. Wallace (campus unresolved)",
+      "entity_kind": "UNRESOLVED_FEDERAL",
+      "federal_unitid": null,
+      "parent_unitid": null,
+      "campus_label": null,
+      "provenance": "Wallace-Dothan (101286) has no soccer; soccer row most likely Wallace State-Hanceville 101295 — not assumed",
+      "notes": "NJCAA; identity to resolve in the NJCAA identity phase"
+    },
+    {
+      "athletics_entity_id": "AE-X-INTER-AMERICAN-PR",
+      "display_name": "Inter American University of Puerto Rico (campus unresolved)",
+      "entity_kind": "UNRESOLVED_FEDERAL",
+      "federal_unitid": null,
+      "parent_unitid": null,
+      "campus_label": null,
+      "provenance": "inactive row; campus/UNITID not recorded",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-IOWA-WESLEYAN",
+      "display_name": "Iowa Wesleyan University (closed 2023)",
+      "entity_kind": "UNRESOLVED_FEDERAL",
+      "federal_unitid": null,
+      "parent_unitid": null,
+      "campus_label": null,
+      "provenance": "inactive row; closed 2023; UNITID not recorded",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-IU-COLUMBUS",
+      "display_name": "Indiana University Columbus (IU Columbus Crimson Pride)",
+      "entity_kind": "BRANCH_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 151111,
+      "campus_label": "Columbus, IN",
+      "provenance": "NCES College Navigator: no own UNITID; 15111102 is parent 151111 + location suffix; athletics host iuccrimsonpride.com; NAIA River States",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-LINCOLN-TRAIL",
+      "display_name": "Lincoln Trail College",
+      "entity_kind": "UNRESOLVED_FEDERAL",
+      "federal_unitid": null,
+      "parent_unitid": null,
+      "campus_label": null,
+      "provenance": "College Navigator location id 14570703 (Illinois Eastern CC parent + suffix) is NOT a UNITID; parent not independently verified",
+      "notes": "NJCAA; federal parent to verify in the NJCAA identity phase"
+    },
+    {
+      "athletics_entity_id": "AE-X-PARK-GILBERT",
+      "display_name": "Park University Gilbert (Buccaneers)",
+      "entity_kind": "BRANCH_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 178721,
+      "campus_label": "Gilbert, AZ",
+      "provenance": "no College Navigator entry; branch of Park University 178721; host gilbert.parkathletics.com (\"Official site of Park University Gilbert Buccaneers\"); NAIA GSAC",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-PENNWEST-CALIFORNIA",
+      "display_name": "PennWest California",
+      "entity_kind": "SYSTEM_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 498571,
+      "campus_label": "California",
+      "provenance": "Pennsylvania Western University 498571 (one IPEDS record); three separate NCAA D2 campus programmes (PSAC)",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-PENNWEST-CLARION",
+      "display_name": "PennWest Clarion",
+      "entity_kind": "SYSTEM_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 498571,
+      "campus_label": "Clarion",
+      "provenance": "Pennsylvania Western University 498571 (one IPEDS record); three separate NCAA D2 campus programmes (PSAC)",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-PENNWEST-EDINBORO",
+      "display_name": "PennWest Edinboro",
+      "entity_kind": "SYSTEM_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 498571,
+      "campus_label": "Edinboro",
+      "provenance": "Pennsylvania Western University 498571 (one IPEDS record); three separate NCAA D2 campus programmes (PSAC)",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-SIMON-FRASER",
+      "display_name": "Simon Fraser University (Red Leafs)",
+      "entity_kind": "FOREIGN",
+      "federal_unitid": null,
+      "parent_unitid": null,
+      "campus_label": null,
+      "provenance": "Canadian; not in IPEDS; NCAA D2 GNAC through 2026-27, U SPORTS from 2027-28",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-SJNY-BROOKLYN",
+      "display_name": "St. Joseph's University (Brooklyn)",
+      "entity_kind": "SYSTEM_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 195544,
+      "campus_label": "Brooklyn",
+      "provenance": "St. Joseph's University-New York 195544 (one IPEDS record); two separate NCAA D3 members (Skyline)",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-SJNY-LONG-ISLAND",
+      "display_name": "St. Joseph's University (Long Island)",
+      "entity_kind": "SYSTEM_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 195544,
+      "campus_label": "Long Island",
+      "provenance": "St. Joseph's University-New York 195544 (one IPEDS record); two separate NCAA D3 members (Skyline)",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-STANTON",
+      "display_name": "Stanton University (Elks)",
+      "entity_kind": "NON_TITLE_IV",
+      "federal_unitid": null,
+      "parent_unitid": null,
+      "campus_label": null,
+      "provenance": "WSCUC-accredited, does not participate in Title IV (BPPE); absent from IPEDS; host stantonelks.com; NAIA Cal Pac from 2025-26",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-VTSU-CASTLETON",
+      "display_name": "Vermont State University-Castleton",
+      "entity_kind": "SYSTEM_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 231165,
+      "campus_label": "Castleton",
+      "provenance": "Vermont State University 231165 (one IPEDS record); campus athletics not consolidated after 2023 merger (NCAA D3)",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-VTSU-JOHNSON",
+      "display_name": "Vermont State University-Johnson",
+      "entity_kind": "SYSTEM_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 231165,
+      "campus_label": "Johnson",
+      "provenance": "Vermont State University 231165 (one IPEDS record); campus athletics not consolidated after 2023 merger (NCAA D3)",
+      "notes": null
+    },
+    {
+      "athletics_entity_id": "AE-X-VTSU-LYNDON",
+      "display_name": "Vermont State University-Lyndon",
+      "entity_kind": "SYSTEM_CAMPUS",
+      "federal_unitid": null,
+      "parent_unitid": 231165,
+      "campus_label": "Lyndon",
+      "provenance": "Vermont State University 231165 (one IPEDS record); campus athletics not consolidated after 2023 merger (NCAA D3)",
+      "notes": null
+    }
+  ],
+  "duplicate_programme_allowlist": [
+    {
+      "key": "AE-U179308|mens-soccer",
+      "class": "CONSOLIDATED_ATHLETICS_STALE_CAMPUS_ROWS",
+      "reason": "STLCC campuses now field one combined Archers programme; three NJCAA campus rows are stale (NJCAA not mutated)",
+      "rows": [
+        "St. Louis Community-Forest Park [NJCAA]",
+        "St. Louis Community-Meramec [NJCAA]",
+        "St. Louis Community-Florissant Valley [NJCAA]"
+      ]
+    },
+    {
+      "key": "AE-U121345|womens-soccer",
+      "class": "SAME_PROGRAMME_TWO_NAMES",
+      "reason": "Pomona College row = Pomona-Pitzer joint programme",
+      "rows": [
+        "Pomona-Pitzer [NCAA D3]",
+        "Pomona College [NCAA D3]"
+      ]
+    },
+    {
+      "key": "AE-U140951|mens-soccer",
+      "class": "ERRONEOUS_CROSS_DIVISION_ROW",
+      "reason": "no NCAA D3 SCAD soccer exists (SCAD Savannah is NAIA Sun Conference); NCAA D3 row holds roster/records that need season adjudication before any merge; NCAA data not mutated",
+      "rows": [
+        "Savannah College of Art and Design [NAIA]",
+        "SCAD [NCAA D3]"
+      ]
+    },
+    {
+      "key": "AE-U150172|mens-soccer",
+      "class": "IDENTITY_RESOLVED_PHYSICAL_MERGE_DEFERRED",
+      "reason": "one CCSJ men’s programme; soccer_records.csv + rosters use \"Calumet College of St. Joseph\", coaches + conference seasons use \"Calumet College\"; importProgrammeSeasons matches exact sport|name, so a physical merge would be undone on refresh",
+      "rows": [
+        "Calumet College [NAIA]",
+        "Calumet College of St. Joseph [NAIA]"
+      ]
+    },
+    {
+      "key": "AE-U205443|womens-soccer",
+      "class": "CROSS_DIVISION_TRANSITION",
+      "reason": "Shawnee State: NAIA River States through 2025-26, NCAA D2 (MEC, provisional) from 2026-27; re-homing its coaches changes NCAA membership and needs an explicit decision",
+      "rows": [
+        "Shawnee State [NCAA D2]",
+        "Shawnee State University [NAIA]"
+      ]
+    },
+    {
+      "key": "AE-U110714|womens-soccer",
+      "class": "SAME_PROGRAMME_TWO_NAMES",
+      "reason": "UC Santa Cruz / University of California-Santa Cruz",
+      "rows": [
+        "University of California-Santa Cruz [NCAA D3]",
+        "UC Santa Cruz [NCAA D3]"
+      ]
+    },
+    {
+      "key": "AE-U176053|womens-soccer",
+      "class": "SAME_PROGRAMME_TWO_NAMES",
+      "reason": "Mississippi College renamed Mississippi Christian University 2026-06-01",
+      "rows": [
+        "Mississippi Christian [NCAA D2]",
+        "Mississippi College [NCAA D2]"
+      ]
+    },
+    {
+      "key": "AE-U205443|mens-soccer",
+      "class": "CROSS_DIVISION_TRANSITION",
+      "reason": "Shawnee State: NAIA River States through 2025-26, NCAA D2 (MEC, provisional) from 2026-27; re-homing its coaches changes NCAA membership and needs an explicit decision",
+      "rows": [
+        "Shawnee State [NCAA D2]",
+        "Shawnee State University [NAIA]"
+      ]
+    },
+    {
+      "key": "AE-U184694|womens-soccer",
+      "class": "SAME_PROGRAMME_TWO_NAMES",
+      "reason": "FDU-Florham / Fairleigh Dickinson University-Florham",
+      "rows": [
+        "Fairleigh Dickinson University-Florham [NCAA D3]",
+        "FDU-Florham [NCAA D3]"
+      ]
+    },
+    {
+      "key": "AE-U112260|womens-soccer",
+      "class": "SAME_PROGRAMME_TWO_NAMES",
+      "reason": "Claremont McKenna College row = Claremont-Mudd-Scripps joint programme",
+      "rows": [
+        "Claremont McKenna College [NCAA D3]",
+        "Claremont-Mudd-Scripps [NCAA D3]"
+      ]
+    },
+    {
+      "key": "AE-U110413|womens-soccer",
+      "class": "SAME_PROGRAMME_TWO_NAMES",
+      "reason": "Cal Lutheran / California Lutheran University",
+      "rows": [
+        "Cal Lutheran [NCAA D3]",
+        "California Lutheran University [NCAA D3]"
+      ]
+    }
+  ],
+  "name_drift_classification": {
+    "naia_drift_unitids": 76,
+    "active_only": 75,
+    "note": "75 active (as Phase 7C) + Siena Heights (men’s row inactive)",
+    "whole_db_same_division_drift_unitids": 383,
+    "classes": {
+      "HARMLESS_DISPLAY_DRIFT": 32,
+      "CAMPUS_QUALIFIER_MISSING": 22,
+      "CANONICAL_RENAME_HISTORICAL_NAME": 21,
+      "TRUE_DUPLICATE": 1
+    },
+    "integrity_relevant": 1,
+    "cosmetic_only": 75,
+    "affects": {
+      "coach_matching": 0,
+      "roster_joins": 1,
+      "outreach": 0,
+      "same_name_collision": 0,
+      "programme_identity": 1,
+      "domain_ownership": 0
+    },
+    "decision": "no renames: 75 are cosmetic (no join miss, no same-name collision, no domain/outreach effect); the one integrity-relevant case (Calumet) is resolved at the identity layer",
+    "detail": [
+      {
+        "unitid": 156745,
+        "names": [
+          "Georgetown (KY)",
+          "Georgetown College"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 154590,
+        "names": [
+          "William Penn",
+          "William Penn University"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 157216,
+        "names": [
+          "Lindsey Wilson",
+          "Lindsey Wilson University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Lindsey Wilson College renamed Lindsey Wilson University (2023)",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 154855,
+        "names": [
+          "Central Christian",
+          "Central Christian College of Kansas"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 156541,
+        "names": [
+          "Cumberlands",
+          "University of the Cumberlands"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Cumberland College -> University of the Cumberlands",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 140252,
+        "names": [
+          "Life (GA)",
+          "Life University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 155520,
+        "names": [
+          "MidAmerica Nazarene",
+          "MidAmerica Nazarene University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 176947,
+        "names": [
+          "Central Methodist",
+          "Central Methodist University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Central Methodist College -> University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 153375,
+        "names": [
+          "Grand View",
+          "Grand View University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Grand View College -> University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 210146,
+        "names": [
+          "Southern Oregon",
+          "Southern Oregon University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 180984,
+        "names": [
+          "Concordia (NE)",
+          "Concordia University Nebraska"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 138868,
+        "names": [
+          "Point (GA)",
+          "Point University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 151801,
+        "names": [
+          "Indiana Wesleyan",
+          "Indiana Wesleyan University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 137564,
+        "names": [
+          "Southeastern University",
+          "Southeastern University (Florida)"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 107141,
+        "names": [
+          "John Brown",
+          "John Brown University"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 180106,
+        "names": [
+          "Carroll (MT)",
+          "Carroll College"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 155627,
+        "names": [
+          "Ottawa",
+          "Ottawa University"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 181330,
+        "names": [
+          "Midland",
+          "Midland University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Midland Lutheran College -> Midland University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 154004,
+        "names": [
+          "Morningside",
+          "Morningside University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Morningside College renamed Morningside University (2019)",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 154721,
+        "names": [
+          "Bethany (KS)",
+          "Bethany College (Kansas)"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 150677,
+        "names": [
+          "Grace",
+          "Grace College"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 105899,
+        "names": [
+          "Arizona Christian",
+          "Arizona Christian University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 208646,
+        "names": [
+          "Eastern Oregon",
+          "Eastern Oregon University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 219718,
+        "names": [
+          "Bethel (TN)",
+          "Bethel University (TN)"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 154688,
+        "names": [
+          "Baker",
+          "Baker University"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 155414,
+        "names": [
+          "Kansas Wesleyan",
+          "Kansas Wesleyan University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Kansas Wesleyan College -> University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 168786,
+        "names": [
+          "Aquinas",
+          "Aquinas College (Michigan)"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 154013,
+        "names": [
+          "Mount Mercy",
+          "Mount Mercy University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Mount Mercy College -> University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 220215,
+        "names": [
+          "Freed-Hardeman",
+          "Freed-Hardeman University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 172334,
+        "names": [
+          "Spring Arbor",
+          "Spring Arbor University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Spring Arbor College -> University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 229780,
+        "names": [
+          "Wayland Baptist",
+          "Wayland Baptist University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 180595,
+        "names": [
+          "Rocky Mountain",
+          "Rocky Mountain College"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 178244,
+        "names": [
+          "Missouri Baptist",
+          "Missouri Baptist University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 149505,
+        "names": [
+          "Trinity Christian",
+          "Trinity Christian College"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 147828,
+        "names": [
+          "Olivet Nazarene",
+          "Olivet Nazarene University"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 181127,
+        "names": [
+          "Hastings",
+          "Hastings College"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 153250,
+        "names": [
+          "Dordt",
+          "Dordt University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Dordt College renamed Dordt University (2019)",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 154518,
+        "names": [
+          "Waldorf",
+          "Waldorf University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Waldorf College -> University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 133979,
+        "names": [
+          "Florida Memorial",
+          "Florida Memorial University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 207722,
+        "names": [
+          "Science & Arts (OK)",
+          "University of Science and Arts of Oklahoma"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 155900,
+        "names": [
+          "Southwestern (KS)",
+          "Southwestern College (Kansas)"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 155812,
+        "names": [
+          "Saint Mary (KS)",
+          "University of Saint Mary"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Saint Mary College -> University of Saint Mary",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 138293,
+        "names": [
+          "Webber International",
+          "Webber International University"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 155973,
+        "names": [
+          "Tabor",
+          "Tabor College"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 219091,
+        "names": [
+          "Dakota Wesleyan",
+          "Dakota Wesleyan University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Dakota Wesleyan College -> University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 177339,
+        "names": [
+          "Evangel",
+          "Evangel University"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 219790,
+        "names": [
+          "Bryan",
+          "Bryan College"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 177542,
+        "names": [
+          "Hannibal-LaGrange",
+          "Hannibal-LaGrange University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Hannibal-LaGrange College -> University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 170037,
+        "names": [
+          "Cornerstone",
+          "Cornerstone University"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 157535,
+        "names": [
+          "Pikeville",
+          "University of Pikeville"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Pikeville College -> University of Pikeville",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 154235,
+        "names": [
+          "Saint Ambrose",
+          "Saint Ambrose University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 155089,
+        "names": [
+          "Friends",
+          "Friends University"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 155937,
+        "names": [
+          "Sterling",
+          "Sterling College (Kansas)"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 178721,
+        "names": [
+          "Park",
+          "Park University"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 157377,
+        "names": [
+          "Midway",
+          "Midway University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Midway College -> University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 172264,
+        "names": [
+          "Siena Heights",
+          "Siena Heights University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 150668,
+        "names": [
+          "Goshen",
+          "Goshen College"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 204194,
+        "names": [
+          "Mount Vernon Nazarene",
+          "Mount Vernon Nazarene University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 179964,
+        "names": [
+          "William Woods",
+          "William Woods University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 181020,
+        "names": [
+          "Doane",
+          "Doane University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Doane College -> University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 176628,
+        "names": [
+          "Avila",
+          "Avila University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Avila College -> University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 138275,
+        "names": [
+          "Warner",
+          "Warner University"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 157100,
+        "names": [
+          "Kentucky Christian",
+          "Kentucky Christian University"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 150145,
+        "names": [
+          "Bethel (IN)",
+          "Bethel University (IN)"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 150172,
+        "names": [
+          "Calumet College",
+          "Calumet College of St. Joseph"
+        ],
+        "class": "TRUE_DUPLICATE",
+        "rename_note": null,
+        "integrity_relevant": true
+      },
+      {
+        "unitid": 153126,
+        "names": [
+          "Clarke",
+          "Clarke University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Clarke College -> University",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 177065,
+        "names": [
+          "Columbia (MO)",
+          "Columbia College (MO)"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 154101,
+        "names": [
+          "Northwestern (IA)",
+          "Northwestern College (Iowa)"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 180258,
+        "names": [
+          "Providence (MT)",
+          "University of Providence"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "University of Great Falls renamed University of Providence (2017)",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 137476,
+        "names": [
+          "Saint Thomas (FL)",
+          "St. Thomas University (Florida)"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 152530,
+        "names": [
+          "Taylor",
+          "Taylor University"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 157863,
+        "names": [
+          "Union (KY)",
+          "Union Commonwealth University"
+        ],
+        "class": "CANONICAL_RENAME_HISTORICAL_NAME",
+        "rename_note": "Union College (KY) renamed Union Commonwealth University (2023)",
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 160904,
+        "names": [
+          "Xavier (LA)",
+          "Xavier University of Louisiana"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 154712,
+        "names": [
+          "Benedictine College",
+          "Benedictine (KS)"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 188182,
+        "names": [
+          "University of the Southwest",
+          "University of the Southwest (New Mexico)"
+        ],
+        "class": "HARMLESS_DISPLAY_DRIFT",
+        "rename_note": null,
+        "integrity_relevant": false
+      },
+      {
+        "unitid": 150941,
+        "names": [
+          "Huntington University",
+          "Huntington"
+        ],
+        "class": "CAMPUS_QUALIFIER_MISSING",
+        "rename_note": null,
+        "integrity_relevant": false
+      }
+    ]
+  },
+  "naia_identity_residual_outcomes": {
+    "recovered": [
+      "University of St. Francis (IL) [womens-soccer]",
+      "Benedictine University Mesa (Redhawks) [mens-soccer]",
+      "Benedictine University Mesa (Redhawks) [womens-soccer]",
+      "Indiana University Columbus (IU Columbus Crimson Pride) [mens-soccer]",
+      "Indiana University Columbus (IU Columbus Crimson Pride) [womens-soccer]",
+      "Park University Gilbert (Buccaneers) [mens-soccer]",
+      "Park University Gilbert (Buccaneers) [womens-soccer]",
+      "Stanton University (Elks) [womens-soccer]"
+    ],
+    "coach_evidence": {
+      "EVIDENCE": 18,
+      "REASSIGN": 2,
+      "evidence_hosts": [
+        "iuccrimsonpride.com",
+        "gilbert.parkathletics.com",
+        "benuredhawks.com",
+        "www.stantonelks.com",
+        "gofightingsaints.com"
+      ],
+      "observed": "2026-09-29, official entity-owned athletics hosts; stored addresses unchanged",
+      "entries": [
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "45901e34",
+          "role": "Director of Soccer (IU Columbus M)",
+          "host": "iuccrimsonpride.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "372926be",
+          "role": "Assistant Men's Soccer Coach (IU Columbus)",
+          "host": "iuccrimsonpride.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "0a70dfca",
+          "role": "Goalkeeper Coach (IU Columbus M)",
+          "host": "iuccrimsonpride.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "7b063d54",
+          "role": "Director of Soccer (IU Columbus W)",
+          "host": "iuccrimsonpride.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "499157d5",
+          "role": "Assistant Women's Soccer Coach (IU Columbus)",
+          "host": "iuccrimsonpride.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "4da0fb59",
+          "role": "Goalkeeper Coach (IU Columbus W)",
+          "host": "iuccrimsonpride.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "c2f459d3",
+          "role": "Head Men's Soccer Coach (Park Gilbert) — re-observed current; prior PROVEN_STALE superseded",
+          "host": "gilbert.parkathletics.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "c7144e1c",
+          "role": "Head Women's Soccer Coach (Park Gilbert)",
+          "host": "gilbert.parkathletics.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "75de1de9",
+          "role": "Assistant Coach (Park Gilbert W)",
+          "host": "gilbert.parkathletics.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "899e8ec2",
+          "role": "Head Coach (Benedictine Mesa M)",
+          "host": "benuredhawks.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "37aa680a",
+          "role": "Grad Assistant (Benedictine Mesa M)",
+          "host": "benuredhawks.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "8d60ea4e",
+          "role": "Head Coach (Benedictine Mesa W)",
+          "host": "benuredhawks.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "55764f17",
+          "role": "Graduate Assistant Coach (Benedictine Mesa W)",
+          "host": "benuredhawks.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "7317c3d4",
+          "role": "Head Coach (Stanton W)",
+          "host": "www.stantonelks.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "04f7c610",
+          "role": "Assistant Coach (Stanton W)",
+          "host": "www.stantonelks.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "9cd5ff98",
+          "role": "Assistant Coach (Stanton W)",
+          "host": "www.stantonelks.com"
+        },
+        {
+          "op": "REASSIGN",
+          "coach_id_prefix": "d01a4ff7",
+          "role": null,
+          "host": "gofightingsaints.com"
+        },
+        {
+          "op": "REASSIGN",
+          "coach_id_prefix": "fa57054e",
+          "role": null,
+          "host": "gofightingsaints.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "d01a4ff7",
+          "role": "Head Women's Soccer Coach (USF Joliet) — re-observed current",
+          "host": "gofightingsaints.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "fa57054e",
+          "role": "Assistant Women's Soccer Coach (USF Joliet) — re-observed current",
+          "host": "gofightingsaints.com"
+        }
+      ]
+    },
+    "newly_eligible": 18,
+    "untouched_canonical_changes": "7 Park Gilbert inferred-email staff: legacy REASSIGN into Park (Parkville) -> WITHHOLD on their own Gilbert programme (ineligible before and after)",
+    "universe_gap": "Stanton University also fields men’s soccer (NAIA Cal Pac; head coach listed without email) — not in colleges; not seeded this phase"
+  },
+  "blocked_source_outcomes": {
+    "Oakland City M/W": "HOLD AUTHORITATIVE_SOURCE_BLOCKED — gomightyoaks.com returns HTTP 404 on every path (sandbox AND residential Chrome); athletics.oak.edu unreachable; oak.edu/athletics redirects to the 404 host. Search snippets not used.",
+    "Jarvis Christian W": "HOLD AUTHORITATIVE_SOURCE_BLOCKED — jcubulldogs.com DNS SERVFAIL (sandbox) and fails in residential Chrome; current interim head coach named in an official jarvis.edu announcement (2026) but no address published there."
+  },
+  "no_email_holds": "preserved unchanged (not re-researched): SCAD M/W, Washington Adventist W, Tougaloo M, UHSP M, Johnson M, Milligan M/W",
+  "naia_closure_ledger": {
+    "logical_active_programmes": 383,
+    "active_rows": 384,
+    "covered_authoritative": 372,
+    "coverage_pct": 97.13,
+    "valid_no_email_holds": 8,
+    "valid_blocked_source_holds": 3,
+    "unresolved_identity_holds": 0,
+    "explained_pct": 100,
+    "flagged_covered_cross_division_transition": [
+      "Shawnee State University M/W (NAIA 2025-26 -> NCAA D2 MEC 2026-27; needs an explicit NCAA-membership decision)"
+    ],
+    "residuals": [
+      {
+        "programme": "Savannah College of Art and Design",
+        "sport": "mens-soccer",
+        "athletics_entity_id": "AE-U140951",
+        "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+      },
+      {
+        "programme": "Savannah College of Art and Design",
+        "sport": "womens-soccer",
+        "athletics_entity_id": "AE-U140951",
+        "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+      },
+      {
+        "programme": "Oakland City University",
+        "sport": "mens-soccer",
+        "athletics_entity_id": "AE-U152099",
+        "disposition": "AUTHORITATIVE_SOURCE_BLOCKED"
+      },
+      {
+        "programme": "Oakland City University",
+        "sport": "womens-soccer",
+        "athletics_entity_id": "AE-U152099",
+        "disposition": "AUTHORITATIVE_SOURCE_BLOCKED"
+      },
+      {
+        "programme": "Washington Adventist University",
+        "sport": "womens-soccer",
+        "athletics_entity_id": "AE-U162210",
+        "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+      },
+      {
+        "programme": "Tougaloo College",
+        "sport": "mens-soccer",
+        "athletics_entity_id": "AE-U176406",
+        "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+      },
+      {
+        "programme": "University of Health Sciences and Pharmacy in St. Louis",
+        "sport": "mens-soccer",
+        "athletics_entity_id": "AE-U179265",
+        "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+      },
+      {
+        "programme": "Johnson University",
+        "sport": "mens-soccer",
+        "athletics_entity_id": "AE-U220473",
+        "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+      },
+      {
+        "programme": "Jarvis Christian University",
+        "sport": "womens-soccer",
+        "athletics_entity_id": "AE-U225885",
+        "disposition": "AUTHORITATIVE_SOURCE_BLOCKED"
+      },
+      {
+        "programme": "Milligan University",
+        "sport": "mens-soccer",
+        "athletics_entity_id": "AE-U486901",
+        "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+      },
+      {
+        "programme": "Milligan University",
+        "sport": "womens-soccer",
+        "athletics_entity_id": "AE-U486901",
+        "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+      }
+    ]
+  },
+  "outreach_routing": {
+    "changes": 23,
+    "fixture_driven": 18,
+    "routing_only_corrections": [
+      {
+        "filed": "Shawnee State University [NAIA]",
+        "before": "Shawnee State|mens-soccer [NCAA D2]",
+        "after": "Shawnee State University|mens-soccer [NAIA]"
+      },
+      {
+        "filed": "Spartanburg Methodist College [NAIA]",
+        "before": "Spartanburg Methodist|mens-soccer [NJCAA]",
+        "after": "Spartanburg Methodist College|mens-soccer [NAIA]"
+      },
+      {
+        "filed": "Spartanburg Methodist College [NAIA]",
+        "before": "Spartanburg Methodist|mens-soccer [NJCAA]",
+        "after": "Spartanburg Methodist College|mens-soccer [NAIA]"
+      },
+      {
+        "filed": "Shawnee State University [NAIA]",
+        "before": "Shawnee State|womens-soccer [NCAA D2]",
+        "after": "Shawnee State University|womens-soccer [NAIA]"
+      },
+      {
+        "filed": "Shawnee State University [NAIA]",
+        "before": "Shawnee State|womens-soccer [NCAA D2]",
+        "after": "Shawnee State University|womens-soccer [NAIA]"
+      }
+    ]
+  },
+  "njcaa_uscaa_readiness": {
+    "NJCAA": {
+      "active_programme_rows": 226,
+      "distinct_logical_programmes": 224,
+      "sports": {
+        "mens-soccer": 226
+      },
+      "rows_with_entity": 226,
+      "null_colleges_unitid": [
+        "Lincoln Trail [mens-soccer] -> AE-X-LINCOLN-TRAIL (UNRESOLVED_FEDERAL)",
+        "George C. Wallace [mens-soccer] -> AE-X-GEORGE-C-WALLACE (UNRESOLVED_FEDERAL)"
+      ],
+      "entity_kinds": {
+        "SINGLE": 223,
+        "UNRESOLVED_FEDERAL": 3
+      },
+      "branch_or_campus_entities": [],
+      "unresolved_federal_entities": [
+        "AE-X-LINCOLN-TRAIL",
+        "AE-X-EAST-CENTRAL-NJCAA-UNRESOLVED",
+        "AE-X-GEORGE-C-WALLACE"
+      ],
+      "shared_federal_unitids_multi_entity": [
+        207041
+      ],
+      "cross_division_unitid_rows": [
+        "Central Penn [mens-soccer] 211477 shares with USCAA",
+        "East Central (OK) [mens-soccer] 207041 shares with NCAA D2"
+      ],
+      "duplicate_programme_identities": [
+        "AE-U179308|mens-soccer: St. Louis Community-Florissant Valley | St. Louis Community-Forest Park | St. Louis Community-Meramec"
+      ],
+      "programmes_with_coach_rows": 0,
+      "programmes_with_coach_seasons": 0,
+      "athletics_domains_verified_to_division_unitids": 22
+    },
+    "USCAA": {
+      "active_programme_rows": 21,
+      "distinct_logical_programmes": 21,
+      "sports": {
+        "mens-soccer": 11,
+        "womens-soccer": 10
+      },
+      "rows_with_entity": 21,
+      "null_colleges_unitid": [
+        "Christendom College [womens-soccer] -> AE-X-CHRISTENDOM (NON_TITLE_IV)"
+      ],
+      "entity_kinds": {
+        "SINGLE": 20,
+        "NON_TITLE_IV": 1
+      },
+      "branch_or_campus_entities": [],
+      "unresolved_federal_entities": [],
+      "shared_federal_unitids_multi_entity": [],
+      "cross_division_unitid_rows": [
+        "Central Penn College [womens-soccer] 211477 shares with NJCAA"
+      ],
+      "duplicate_programme_identities": [],
+      "programmes_with_coach_rows": 0,
+      "programmes_with_coach_seasons": 0,
+      "athletics_domains_verified_to_division_unitids": 0
+    }
+  },
+  "non_regression": {
+    "ncaa_legacy_hash": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+    "ncaa_legacy_equals_frozen": true,
+    "ncaa_truthful_hash_pre": "abe344e759a821f32d7d7d20e6fa26fd4ba920e5425bec7a5a5faa4e3ff9b3bf",
+    "ncaa_truthful_hash_post": "abe344e759a821f32d7d7d20e6fa26fd4ba920e5425bec7a5a5faa4e3ff9b3bf",
+    "ncaa_truthful_delta": {
+      "added": [],
+      "removed": []
+    },
+    "ncaa_covered_programme_rows": "1476 -> 1476",
+    "other_division_truthful_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "naia_covered_regression": [],
+    "eligible": "4140 -> 4158",
+    "naia_eligible": "783 -> 801",
+    "strict_path": "780 -> 798",
+    "strict_evidence_complete": true,
+    "integrity": {
+      "source_domain_conflicts": 0,
+      "wrong_institution_eligible": 0,
+      "wrong_sport_eligible": 0,
+      "stale_eligible": 0,
+      "duplicate_identity": 1,
+      "canonical_round_trip": 0
+    },
+    "data_moves": {
+      "roster": [],
+      "programme_seasons": [],
+      "pcs": [],
+      "coach_seasons": [],
+      "seniors": [],
+      "outreach_evidence": [],
+      "outreach_send": [],
+      "reports": []
+    },
+    "coaches_moved": 2
+  },
+  "ncaa_membership_hash": "6d2df77fc5c9675933b1b222598cae2cdb0dfa1bb192673acbdc44e65f9cbb30",
+  "fingerprints": {
+    "domain_fp": "29b1fc2875162b852628f3b859c9d187e859d28948aa0c279bdaeb096038ea18",
+    "coach_fp": "618d13248ea1a0efac9466a480ba8f6af1c55fd7c4315ee1e833f06af149f1f4",
+    "college_fp": "f1e60be1bb575db40a1da3872834a35f485b7b767e197f580884c6d643b30083",
+    "entity_fp": "1858c821e4d6b5d507e4e25cdb3693b37da2787fde799a6e37d1150e57a346f2"
+  },
+  "privacy": "No coach names or addresses in committed artifacts (coach ids as 8-char prefixes, institutional hosts/UNITIDs only). Raw fixtures, manifests and research captures untracked.",
+  "tests": {
+    "new_phase7d_tests": {
+      "files": [
+        "server/lib/athleticsEntity.test.js",
+        "server/scripts/validateAthleticsEntityIdentity.test.js",
+        "server/scripts/applyPhase7DIdentityModel.test.js",
+        "server/scripts/applyPhase7DEntityCoachRepairs.test.js",
+        "server/scripts/reconcileCoaches.entityIdentity.test.js"
+      ],
+      "tests": 44,
+      "passed": 44
+    },
+    "relevant_existing_suites": {
+      "files": 17,
+      "tests": 170,
+      "passed": 170
+    },
+    "broad_suite": {
+      "checkpoint": {
+        "tests": 8662,
+        "passed": 8621,
+        "failed": 41
+      },
+      "post": {
+        "tests": 8709,
+        "passed": 8668,
+        "failed": 41
+      },
+      "new_failures": 0,
+      "fixed": 0,
+      "identical_failures": 41,
+      "pre_existing_failing_files": [
+        "server/lib/baselineProvenance.test.js",
+        "server/lib/campaignAttribution.test.js",
+        "server/lib/campaignSnapshot.test.js",
+        "server/lib/evidenceBaseline.test.js",
+        "server/lib/outreachMessageState.test.js",
+        "server/lib/programmeStatusIntegration.test.js",
+        "server/scripts/operations.test.js",
+        "server/scripts/reacquisitionCohort.test.js",
+        "server/scripts/rosterGapQueue.test.js",
+        "server/scripts/verifiedDomainBackfill.test.js",
+        "shared/academicMajors.test.js",
+        "shared/evidence/k3cRemediation.test.js"
+      ]
+    },
+    "method": "checkpoint = git worktree at 5b16e43 + pre-7D DB backup; post = Phase 7D code + applied shared dev"
+  }
+}

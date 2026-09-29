@@ -1372,6 +1372,53 @@ CREATE INDEX IF NOT EXISTS idx_athletics_domains_unitid ON athletics_domains(uni
 CREATE INDEX IF NOT EXISTS idx_athletics_domains_status ON athletics_domains(status);
 
 -- ===========================================================================
+-- athletics_entities — the institution/campus that actually recruits (Phase 7D)
+--
+-- A federal UNITID names a reporting institution, not an athletics programme.
+-- Measured on this corpus: IU Columbus (NAIA) is reported under IU Indianapolis
+-- 151111, which is also our NCAA D1 "IU Indy"; Commonwealth University 498562
+-- runs three separate NCAA D2 campus programmes; Park University Gilbert and
+-- Benedictine University Mesa are NAIA branches of parents with their own
+-- athletics; Stanton University has no UNITID at all. Keyed on UNITID alone,
+-- 33 coaches were canonicalised onto a different campus's row and 15 branch
+-- coaches resolved into a parent's programme (5 across divisions).
+--
+-- IDENTIFIER SEMANTICS (server/lib/athleticsEntity.js is the one implementation):
+--   federal_unitid  the entity's OWN six-digit IPEDS UNITID, or NULL. Never
+--                   synthetic, never an NCES/College Navigator location code
+--                   (15111102 = parent 151111 + suffix 02), never a guess.
+--                   UNIQUE: one institution owns at most one entity by id.
+--   parent_unitid   the IPEDS UNITID a campus/branch entity is reported under.
+--                   The only sanctioned way two entities share a UNITID.
+--   athletics_entity_id  internal, stable, opaque. AE-U<unitid> for a single
+--                   institution; AE-X-<slug> for a modeled exception.
+--
+-- colleges.unitid is NOT rewritten by this layer; it keeps its legacy meaning.
+-- Programme identity = athletics_entity_id + sport. Additive: a database with
+-- no rows here behaves exactly as before (the reconciler falls back).
+-- ===========================================================================
+CREATE TABLE IF NOT EXISTS athletics_entities (
+  athletics_entity_id TEXT PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  federal_unitid INTEGER,
+  parent_unitid INTEGER,
+  campus_label TEXT,
+  entity_kind TEXT NOT NULL,
+  provenance TEXT NOT NULL,
+  notes TEXT,
+  created_at TEXT NOT NULL,
+  CHECK (entity_kind IN ('SINGLE', 'SYSTEM_CAMPUS', 'BRANCH_CAMPUS', 'NON_TITLE_IV', 'FOREIGN', 'UNRESOLVED_FEDERAL')),
+  CHECK (federal_unitid IS NULL OR (federal_unitid BETWEEN 100000 AND 999999)),
+  CHECK (parent_unitid IS NULL OR (parent_unitid BETWEEN 100000 AND 999999)),
+  CHECK (NOT (entity_kind IN ('SYSTEM_CAMPUS', 'BRANCH_CAMPUS')) OR (parent_unitid IS NOT NULL AND federal_unitid IS NULL AND campus_label IS NOT NULL)),
+  CHECK (NOT (entity_kind IN ('NON_TITLE_IV', 'FOREIGN')) OR federal_unitid IS NULL),
+  CHECK (entity_kind <> 'SINGLE' OR federal_unitid IS NOT NULL)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_athletics_entities_federal ON athletics_entities(federal_unitid) WHERE federal_unitid IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_athletics_entities_parent ON athletics_entities(parent_unitid);
+
+-- ===========================================================================
 -- conference_seasons — one conference's own table, for one sport, one season
 --
 -- The cheapest coverage in this design. One fetch of a conference's standings

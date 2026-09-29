@@ -152,6 +152,21 @@ const COLLEGE_COLUMNS = [
   ['conference_champion_notes', 'TEXT'],
   ['postseason_2025_round', 'TEXT'],
   ['notable_majors', "TEXT DEFAULT '[]'"],
+  // Phase 7D: the athletics entity (institution/campus) this programme row belongs
+  // to — see `athletics_entities` in schema.sql. Nullable here because an unmigrated
+  // database has none; `validateAthleticsEntityIdentity.js` requires it on every
+  // active row once the model is populated. colleges.unitid is not replaced.
+  ['athletics_entity_id', 'TEXT'],
+];
+
+/**
+ * Phase 7D: a host can belong to an athletics entity that has no federal UNITID of
+ * its own (iuccrimsonpride.com -> IU Columbus, reported under IU Indianapolis) or
+ * that shares one with a sibling campus. `unitid` stays "who the host says it is";
+ * this names the entity when that is more specific than a UNITID can be.
+ */
+const ATHLETICS_DOMAIN_COLUMNS = [
+  ['athletics_entity_id', 'TEXT'],
 ];
 
 /**
@@ -843,6 +858,24 @@ function retireProgrammeSeasonDivision(db) {
   db.exec('CREATE INDEX IF NOT EXISTS idx_programme_seasons_pool ON programme_seasons(sport, season)');
 }
 
+/**
+ * Phase 7D athletics-entity columns + indexes. Exported so the guarded identity
+ * applier (server/scripts/applyPhase7DIdentityModel.js) can add exactly these to a
+ * non-production database without running the rest of boot-time migration. The
+ * `athletics_entities` table itself is created by schema.sql. Idempotent.
+ */
+export function ensureAthleticsEntityColumns(db) {
+  const has = (t) => !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(t);
+  if (has('colleges')) {
+    addMissingColumns(db, 'colleges', [['athletics_entity_id', 'TEXT']]);
+    db.exec('CREATE INDEX IF NOT EXISTS idx_colleges_athletics_entity ON colleges(athletics_entity_id, sport)');
+  }
+  if (has('athletics_domains')) {
+    addMissingColumns(db, 'athletics_domains', ATHLETICS_DOMAIN_COLUMNS);
+    db.exec('CREATE INDEX IF NOT EXISTS idx_athletics_domains_entity ON athletics_domains(athletics_entity_id)');
+  }
+}
+
 function addMissingColumns(db, table, columns) {
   const existing = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name));
   for (const [name, ddl] of columns) {
@@ -1231,6 +1264,7 @@ export function migrate(db) {
 
   addMissingColumns(db, 'roster_players', ROSTER_PLAYER_COLUMNS);
   addMissingColumns(db, 'colleges', COLLEGE_COLUMNS);
+  ensureAthleticsEntityColumns(db);
   addMissingColumns(db, 'coaches', COACH_COLUMNS);
   addMissingColumns(db, 'outreach', OUTREACH_COLUMNS);
   backfillDraftedAt(db);

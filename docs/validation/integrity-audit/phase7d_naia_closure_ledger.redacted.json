@@ -1,0 +1,235 @@
+{
+  "phase": "7D NAIA closure ledger (entity-keyed)",
+  "logical_active_programmes": 383,
+  "active_rows": 384,
+  "covered_authoritative": 372,
+  "coverage_pct": 97.13,
+  "valid_no_email_holds": 8,
+  "valid_blocked_source_holds": 3,
+  "unresolved_identity_holds": 0,
+  "explained_pct": 100,
+  "flagged_covered_cross_division_transition": [
+    "Shawnee State University M/W (NAIA 2025-26 -> NCAA D2 MEC 2026-27; needs an explicit NCAA-membership decision)"
+  ],
+  "residuals": [
+    {
+      "programme": "Savannah College of Art and Design",
+      "sport": "mens-soccer",
+      "athletics_entity_id": "AE-U140951",
+      "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+    },
+    {
+      "programme": "Savannah College of Art and Design",
+      "sport": "womens-soccer",
+      "athletics_entity_id": "AE-U140951",
+      "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+    },
+    {
+      "programme": "Oakland City University",
+      "sport": "mens-soccer",
+      "athletics_entity_id": "AE-U152099",
+      "disposition": "AUTHORITATIVE_SOURCE_BLOCKED"
+    },
+    {
+      "programme": "Oakland City University",
+      "sport": "womens-soccer",
+      "athletics_entity_id": "AE-U152099",
+      "disposition": "AUTHORITATIVE_SOURCE_BLOCKED"
+    },
+    {
+      "programme": "Washington Adventist University",
+      "sport": "womens-soccer",
+      "athletics_entity_id": "AE-U162210",
+      "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+    },
+    {
+      "programme": "Tougaloo College",
+      "sport": "mens-soccer",
+      "athletics_entity_id": "AE-U176406",
+      "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+    },
+    {
+      "programme": "University of Health Sciences and Pharmacy in St. Louis",
+      "sport": "mens-soccer",
+      "athletics_entity_id": "AE-U179265",
+      "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+    },
+    {
+      "programme": "Johnson University",
+      "sport": "mens-soccer",
+      "athletics_entity_id": "AE-U220473",
+      "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+    },
+    {
+      "programme": "Jarvis Christian University",
+      "sport": "womens-soccer",
+      "athletics_entity_id": "AE-U225885",
+      "disposition": "AUTHORITATIVE_SOURCE_BLOCKED"
+    },
+    {
+      "programme": "Milligan University",
+      "sport": "mens-soccer",
+      "athletics_entity_id": "AE-U486901",
+      "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+    },
+    {
+      "programme": "Milligan University",
+      "sport": "womens-soccer",
+      "athletics_entity_id": "AE-U486901",
+      "disposition": "CURRENT_NO_ELIGIBLE_EMAIL"
+    }
+  ],
+  "identity_residual_outcomes": {
+    "recovered": [
+      "University of St. Francis (IL) [womens-soccer]",
+      "Benedictine University Mesa (Redhawks) [mens-soccer]",
+      "Benedictine University Mesa (Redhawks) [womens-soccer]",
+      "Indiana University Columbus (IU Columbus Crimson Pride) [mens-soccer]",
+      "Indiana University Columbus (IU Columbus Crimson Pride) [womens-soccer]",
+      "Park University Gilbert (Buccaneers) [mens-soccer]",
+      "Park University Gilbert (Buccaneers) [womens-soccer]",
+      "Stanton University (Elks) [womens-soccer]"
+    ],
+    "coach_evidence": {
+      "EVIDENCE": 18,
+      "REASSIGN": 2,
+      "evidence_hosts": [
+        "iuccrimsonpride.com",
+        "gilbert.parkathletics.com",
+        "benuredhawks.com",
+        "www.stantonelks.com",
+        "gofightingsaints.com"
+      ],
+      "observed": "2026-09-29, official entity-owned athletics hosts; stored addresses unchanged",
+      "entries": [
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "45901e34",
+          "role": "Director of Soccer (IU Columbus M)",
+          "host": "iuccrimsonpride.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "372926be",
+          "role": "Assistant Men's Soccer Coach (IU Columbus)",
+          "host": "iuccrimsonpride.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "0a70dfca",
+          "role": "Goalkeeper Coach (IU Columbus M)",
+          "host": "iuccrimsonpride.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "7b063d54",
+          "role": "Director of Soccer (IU Columbus W)",
+          "host": "iuccrimsonpride.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "499157d5",
+          "role": "Assistant Women's Soccer Coach (IU Columbus)",
+          "host": "iuccrimsonpride.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "4da0fb59",
+          "role": "Goalkeeper Coach (IU Columbus W)",
+          "host": "iuccrimsonpride.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "c2f459d3",
+          "role": "Head Men's Soccer Coach (Park Gilbert) — re-observed current; prior PROVEN_STALE superseded",
+          "host": "gilbert.parkathletics.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "c7144e1c",
+          "role": "Head Women's Soccer Coach (Park Gilbert)",
+          "host": "gilbert.parkathletics.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "75de1de9",
+          "role": "Assistant Coach (Park Gilbert W)",
+          "host": "gilbert.parkathletics.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "899e8ec2",
+          "role": "Head Coach (Benedictine Mesa M)",
+          "host": "benuredhawks.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "37aa680a",
+          "role": "Grad Assistant (Benedictine Mesa M)",
+          "host": "benuredhawks.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "8d60ea4e",
+          "role": "Head Coach (Benedictine Mesa W)",
+          "host": "benuredhawks.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "55764f17",
+          "role": "Graduate Assistant Coach (Benedictine Mesa W)",
+          "host": "benuredhawks.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "7317c3d4",
+          "role": "Head Coach (Stanton W)",
+          "host": "www.stantonelks.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "04f7c610",
+          "role": "Assistant Coach (Stanton W)",
+          "host": "www.stantonelks.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "9cd5ff98",
+          "role": "Assistant Coach (Stanton W)",
+          "host": "www.stantonelks.com"
+        },
+        {
+          "op": "REASSIGN",
+          "coach_id_prefix": "d01a4ff7",
+          "role": null,
+          "host": "gofightingsaints.com"
+        },
+        {
+          "op": "REASSIGN",
+          "coach_id_prefix": "fa57054e",
+          "role": null,
+          "host": "gofightingsaints.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "d01a4ff7",
+          "role": "Head Women's Soccer Coach (USF Joliet) — re-observed current",
+          "host": "gofightingsaints.com"
+        },
+        {
+          "op": "EVIDENCE",
+          "coach_id_prefix": "fa57054e",
+          "role": "Assistant Women's Soccer Coach (USF Joliet) — re-observed current",
+          "host": "gofightingsaints.com"
+        }
+      ]
+    },
+    "newly_eligible": 18,
+    "untouched_canonical_changes": "7 Park Gilbert inferred-email staff: legacy REASSIGN into Park (Parkville) -> WITHHOLD on their own Gilbert programme (ineligible before and after)",
+    "universe_gap": "Stanton University also fields men’s soccer (NAIA Cal Pac; head coach listed without email) — not in colleges; not seeded this phase"
+  },
+  "blocked_source_outcomes": {
+    "Oakland City M/W": "HOLD AUTHORITATIVE_SOURCE_BLOCKED — gomightyoaks.com returns HTTP 404 on every path (sandbox AND residential Chrome); athletics.oak.edu unreachable; oak.edu/athletics redirects to the 404 host. Search snippets not used.",
+    "Jarvis Christian W": "HOLD AUTHORITATIVE_SOURCE_BLOCKED — jcubulldogs.com DNS SERVFAIL (sandbox) and fails in residential Chrome; current interim head coach named in an official jarvis.edu announcement (2026) but no address published there."
+  }
+}

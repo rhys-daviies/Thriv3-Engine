@@ -1,0 +1,64 @@
+{
+  "phase": "7D NJCAA/USCAA identity readiness (inspection only)",
+  "NJCAA": {
+    "active_programme_rows": 226,
+    "distinct_logical_programmes": 224,
+    "sports": {
+      "mens-soccer": 226
+    },
+    "rows_with_entity": 226,
+    "null_colleges_unitid": [
+      "Lincoln Trail [mens-soccer] -> AE-X-LINCOLN-TRAIL (UNRESOLVED_FEDERAL)",
+      "George C. Wallace [mens-soccer] -> AE-X-GEORGE-C-WALLACE (UNRESOLVED_FEDERAL)"
+    ],
+    "entity_kinds": {
+      "SINGLE": 223,
+      "UNRESOLVED_FEDERAL": 3
+    },
+    "branch_or_campus_entities": [],
+    "unresolved_federal_entities": [
+      "AE-X-LINCOLN-TRAIL",
+      "AE-X-EAST-CENTRAL-NJCAA-UNRESOLVED",
+      "AE-X-GEORGE-C-WALLACE"
+    ],
+    "shared_federal_unitids_multi_entity": [
+      207041
+    ],
+    "cross_division_unitid_rows": [
+      "Central Penn [mens-soccer] 211477 shares with USCAA",
+      "East Central (OK) [mens-soccer] 207041 shares with NCAA D2"
+    ],
+    "duplicate_programme_identities": [
+      "AE-U179308|mens-soccer: St. Louis Community-Florissant Valley | St. Louis Community-Forest Park | St. Louis Community-Meramec"
+    ],
+    "programmes_with_coach_rows": 0,
+    "programmes_with_coach_seasons": 0,
+    "athletics_domains_verified_to_division_unitids": 22
+  },
+  "USCAA": {
+    "active_programme_rows": 21,
+    "distinct_logical_programmes": 21,
+    "sports": {
+      "mens-soccer": 11,
+      "womens-soccer": 10
+    },
+    "rows_with_entity": 21,
+    "null_colleges_unitid": [
+      "Christendom College [womens-soccer] -> AE-X-CHRISTENDOM (NON_TITLE_IV)"
+    ],
+    "entity_kinds": {
+      "SINGLE": 20,
+      "NON_TITLE_IV": 1
+    },
+    "branch_or_campus_entities": [],
+    "unresolved_federal_entities": [],
+    "shared_federal_unitids_multi_entity": [],
+    "cross_division_unitid_rows": [
+      "Central Penn College [womens-soccer] 211477 shares with NJCAA"
+    ],
+    "duplicate_programme_identities": [],
+    "programmes_with_coach_rows": 0,
+    "programmes_with_coach_seasons": 0,
+    "athletics_domains_verified_to_division_unitids": 0
+  }
+}

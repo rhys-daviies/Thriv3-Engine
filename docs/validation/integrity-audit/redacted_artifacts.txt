@@ -93,3 +93,10 @@ docs/validation/integrity-audit/phase7c_repairs.redacted.json
 docs/validation/integrity-audit/phase7c_residuals.redacted.json
 docs/validation/integrity-audit/phase7c_row_cleanup_queue.redacted.json
 docs/validation/integrity-audit/phase7c_closure_notes.md
+docs/validation/integrity-audit/phase7d_institution_identity_structural_cleanup_snapshot.json
+docs/validation/integrity-audit/phase7d_structural_anomaly_ledger.redacted.json
+docs/validation/integrity-audit/phase7d_identity_model.redacted.json
+docs/validation/integrity-audit/phase7d_name_drift_classification.redacted.json
+docs/validation/integrity-audit/phase7d_naia_closure_ledger.redacted.json
+docs/validation/integrity-audit/phase7d_njcaa_uscaa_readiness.redacted.json
+docs/validation/integrity-audit/phase7d_closure_notes.md
