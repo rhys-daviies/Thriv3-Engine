@@ -16,6 +16,8 @@ import path from 'node:path';
 import { parseAndGroupCoachingCsv, matchSchoolName } from '../lib/coachingImport.js';
 import { College } from '../db/entities/college.js';
 import { GraduatingSenior } from '../db/entities/graduatingSenior.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
+import db from '../db/client.js';
 
 const sportFlag = process.argv.find((a) => a.startsWith('--sport='));
 const SPORT = sportFlag ? sportFlag.split('=')[1] : 'mens-soccer';
@@ -45,6 +47,7 @@ function normalizeName(name) {
 async function main() {
   const [csvPath, ...flags] = process.argv.slice(2);
   const apply = flags.includes('--apply');
+  if (apply) assertLegacyWriteAllowed(db, { script: 'mergeCoachingContacts.js' });
   if (!csvPath) {
     console.error('Usage: node server/scripts/mergeCoachingContacts.js <csv-path> [--apply]');
     process.exit(1);

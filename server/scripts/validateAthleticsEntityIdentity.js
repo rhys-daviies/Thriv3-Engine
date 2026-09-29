@@ -17,7 +17,15 @@
  *   H7  an entity-owned domain references a real entity, agrees with it on UNITID, and is never a
  *       shared-platform root;
  *   H8  a SINGLE entity whose federal_unitid appears on no colleges row must carry researched
- *       provenance (not the default rule).
+ *       provenance (not the default rule);
+ *   H9  (7E) programme_row_links join rows of the SAME entity + sport, to an active canonical
+ *       row that is not itself linked; only SAME_PROGRAMME_ALT_NAME rows stay active;
+ *   H10 (7E) programme_membership_periods: one open period per programme, no overlap, the
+ *       carrier row agrees with the current membership (colleges.division is its pointer),
+ *       and — once periods are seeded — every active carrier row has an open period.
+ *   H11 (7E) the name alias of an active programme row agrees with that row's UNITID / entity
+ *       (a UNITID correction that leaves its alias behind re-creates the defect on the next import).
+ * H6 treats a duplicate explained by row links (one unlinked carrier) as documented.
  * DOCUMENTED (reported, not failed): allowlisted duplicates; stale allowlist entries.
  * An unmigrated database (no athletics_entities rows) reports MODEL_ABSENT and exits 0.
  *
@@ -28,6 +36,8 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import Database from 'better-sqlite3';
 import { entityProblems, isFederalUnitid } from '../lib/athleticsEntity.js';
+import { periodProblems } from '../lib/refresh/temporal.js';
+import { normaliseInstitution } from '../../shared/institutionIdentity.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SHARED_ROOT = /(^|\.)(prestosports\.com|sidearmsports\.com|wixsite\.com|squarespace\.com|weebly\.com|godaddysites\.com)$/i;
@@ -51,7 +61,7 @@ export function validateEntityIdentity(db, { allowlist, knownWrongUnitid } = {})
   const hard = []; const documented = []; const warnings = [];
   const ents = db.prepare('SELECT * FROM athletics_entities').all();
   const byId = new Map(ents.map((e) => [e.athletics_entity_id, e]));
-  const rows = db.prepare('SELECT id, name, sport, division, unitid, active, athletics_entity_id FROM colleges').all();
+  const rows = db.prepare(`SELECT id, name, sport, division, ${collCols.has('conference') ? 'conference' : 'NULL AS conference'}, unitid, active, athletics_entity_id FROM colleges`).all();
 
   for (const e of ents) for (const p of entityProblems(e)) hard.push(`H2 ${e.athletics_entity_id}: ${p}`);
   const fed = new Map();
@@ -74,7 +84,19 @@ export function validateEntityIdentity(db, { allowlist, knownWrongUnitid } = {})
     if (s.size < 2) continue;
     for (const id of s) { const e = byId.get(id); if (!e || wrongU.has(id)) continue; const ok = Number(e.federal_unitid) === Number(u) || (Number(e.parent_unitid) === Number(u) && ['SYSTEM_CAMPUS', 'BRANCH_CAMPUS'].includes(e.entity_kind)); if (!ok) hard.push(`H5 UNITID ${u} shared by ${[...s].join(', ')} without a proven parent link for ${id}`); }
   }
-  // H6 duplicate programmes
+  // H9 programme row links (Phase 7E): same entity + sport, canonical exists and is not itself linked
+  const links = has('programme_row_links') ? db.prepare('SELECT * FROM programme_row_links').all() : [];
+  const rowById = new Map(rows.map((r) => [r.id, r]));
+  const linkOf = new Map(links.map((l) => [l.college_id, l]));
+  for (const l of links) {
+    const a = rowById.get(l.college_id); const c = rowById.get(l.canonical_college_id);
+    if (!a || !c) { hard.push(`H9 row link ${l.college_id} -> ${l.canonical_college_id} references a missing row`); continue; }
+    if (a.athletics_entity_id !== c.athletics_entity_id || a.sport !== c.sport) hard.push(`H9 row link ${a.name} -> ${c.name} joins different programmes`);
+    if (linkOf.has(c.id)) hard.push(`H9 row link ${a.name} -> ${c.name}: canonical row is itself linked (chain)`);
+    if (c.active !== 1) hard.push(`H9 row link ${a.name} -> ${c.name}: canonical row is inactive`);
+    if (l.link_kind !== 'SAME_PROGRAMME_ALT_NAME' && a.active === 1) hard.push(`H9 ${l.link_kind} row ${a.name} [${a.sport}] is still active`);
+  }
+  // H6 duplicate programmes (a duplicate explained by row links — exactly one unlinked carrier — is documented)
   const allowKey = new Map(allow.map((a) => [a.college_ids.slice().sort().join(','), a]));
   const byES = new Map();
   for (const r of rows) { if (r.active !== 1 || !r.athletics_entity_id) continue; const k = `${r.athletics_entity_id}|${r.sport}`; (byES.get(k) || byES.set(k, []).get(k)).push(r); }
@@ -83,8 +105,26 @@ export function validateEntityIdentity(db, { allowlist, knownWrongUnitid } = {})
     if (list.length < 2) continue;
     const ids = list.map((x) => x.id).sort().join(',');
     const a = allowKey.get(ids);
-    if (a) { documented.push(`${a.class} ${k}: ${list.map((x) => x.name).join(' | ')}`); seenAllow.add(ids); }
+    const carriers = list.filter((x) => !linkOf.has(x.id));
+    if (carriers.length === 1 && list.every((x) => x === carriers[0] || linkOf.get(x.id).canonical_college_id === carriers[0].id)) { documented.push(`LINKED ${k}: ${list.map((x) => (linkOf.has(x.id) ? `${x.name} (${linkOf.get(x.id).link_kind})` : `${x.name} (carrier)`)).join(' | ')}`); if (a) seenAllow.add(ids); }
+    else if (a) { documented.push(`${a.class} ${k}: ${list.map((x) => x.name).join(' | ')}`); seenAllow.add(ids); }
     else hard.push(`H6 duplicate active programme ${k}: ${list.map((x) => `${x.name} [${x.division}]`).join(' | ')}`);
+  }
+  // H11 (7E) a CURRENT_NAME alias of an active row's own name agrees with that row's identity
+  if (has('institution_aliases')) {
+    const ac = new Set(db.prepare('PRAGMA table_info(institution_aliases)').all().map((c) => c.name));
+    const al = new Map(db.prepare(`SELECT alias_key, unitid, ${ac.has('athletics_entity_id') ? 'athletics_entity_id' : 'NULL AS athletics_entity_id'} FROM institution_aliases${ac.has('conference_scope') ? " WHERE conference_scope='*'" : ''}`).all().map((x) => [x.alias_key, x]));
+    for (const r of rows) {
+      if (r.active !== 1) continue;
+      const x = al.get(normaliseInstitution(r.name)); if (!x) continue;
+      const ok = x.athletics_entity_id ? x.athletics_entity_id === r.athletics_entity_id : (r.unitid == null || Number(x.unitid) === Number(r.unitid));
+      if (!ok) hard.push(`H11 alias "${x.alias_key}" -> ${x.athletics_entity_id || x.unitid} disagrees with ${r.name} [${r.sport}] (${r.athletics_entity_id}, UNITID ${r.unitid})`);
+    }
+  }
+  // H10 membership periods (Phase 7E temporal model)
+  if (has('programme_membership_periods')) {
+    const periods = db.prepare('SELECT * FROM programme_membership_periods').all();
+    for (const p of periodProblems(periods, rows, links)) hard.push(`H10 ${p}`);
   }
   for (const a of allow) { const ids = a.college_ids.slice().sort().join(','); if (!seenAllow.has(ids)) warnings.push(`stale allowlist entry (no longer a duplicate): ${a.key}`); }
   // H7 domains

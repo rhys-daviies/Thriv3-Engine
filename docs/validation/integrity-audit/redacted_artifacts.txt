@@ -100,3 +100,11 @@ docs/validation/integrity-audit/phase7d_name_drift_classification.redacted.json
 docs/validation/integrity-audit/phase7d_naia_closure_ledger.redacted.json
 docs/validation/integrity-audit/phase7d_njcaa_uscaa_readiness.redacted.json
 docs/validation/integrity-audit/phase7d_closure_notes.md
+docs/validation/integrity-audit/phase7e_safe_refresh_integrity_freeze_snapshot.json
+docs/validation/integrity-audit/phase7e_ingestion_audit.redacted.json
+docs/validation/integrity-audit/phase7e_structural_fixture.redacted.json
+docs/validation/integrity-audit/phase7e_structural_fixture2.redacted.json
+docs/validation/integrity-audit/phase7e_historical_simulation.redacted.json
+docs/validation/integrity-audit/phase7e_historical_simulation_diff.redacted.md
+docs/validation/integrity-audit/phase7e_njcaa_uscaa_baseline.redacted.json
+docs/validation/integrity-audit/phase7e_closure_notes.md

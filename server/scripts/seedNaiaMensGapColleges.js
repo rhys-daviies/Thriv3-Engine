@@ -13,6 +13,8 @@
 import fs from 'node:fs';
 import { parseCsv } from '../lib/csv.js';
 import { College } from '../db/entities/college.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
+import db from '../db/client.js';
 import { loadAcademicScores } from '../lib/seedData.js';
 import { matchSchoolName } from '../lib/schoolMatch.js';
 
@@ -31,6 +33,7 @@ function loadCsv(filePath) {
 }
 
 function main() {
+  if (APPLY) assertLegacyWriteAllowed(db, { script: 'seedNaiaMensGapColleges.js' });
   const { rows: newRows, idx: newIdx } = loadCsv(NEW_ROWS_PATH);
   const newNames = new Set(newRows.map((r) => r[newIdx.name]));
 

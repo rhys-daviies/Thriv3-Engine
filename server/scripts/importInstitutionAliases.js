@@ -24,6 +24,7 @@
  *   node server/scripts/importInstitutionAliases.js --apply
  */
 import db from '../db/client.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { utcNow } from '../lib/time.js';
 import { normaliseInstitution, ALIAS_TYPE, parseInstitutionName } from '../../shared/institutionIdentity.js';
 import { CURATED_INSTITUTION_ALIASES, CONFERENCE_SCOPED_ALIASES } from '../../shared/institutionAliasData.js';
@@ -145,6 +146,7 @@ export function run({ apply = false, log = console.log } = {}) {
   for (const s of skippedNoUnitid) log(`  NO UNITID  ${s.name} (${s.sport})`);
 
   if (!apply) { log('\ndry run — pass --apply to write'); return { rows, collisions, skippedNoUnitid, written: 0 }; }
+  assertLegacyWriteAllowed(db, { script: 'importInstitutionAliases.js' });
 
   const ins = db.prepare(`INSERT INTO institution_aliases
     (alias_key, alias_raw, unitid, conference_scope, alias_type, source, confidence, notes, imported_at)

@@ -1,0 +1,511 @@
+{
+ "phase": "7E",
+ "part": "B \u2014 ingestion/update architecture audit",
+ "method": "Two independent read-only code audits of every path that can INSERT/UPDATE/DELETE the identity, programme, season, coach, roster and seniors tables, then spot-verified by hand (write statements, DELETE-all rebuilds, the Saint Francis (IL) crosswalk regression, runtime coach read path). No institution-level secrets; no personal data.",
+ "flags_legend": {
+  "SAFE": "guarded, exact, or derived-only",
+  "UNSAFE": "can write wrong facts on normal use",
+  "LEGACY": "pre-entity-model path kept for history",
+  "BYPASS": "writes canonical tables without the athletics-entity model",
+  "DESTRUCTIVE_OVERWRITE": "wholesale delete/rebuild, or NULL-over-value overwrite",
+  "FUZZY_MATCH": "name normalisation/Levenshtein decides identity",
+  "INFERRED_DATA": "writes values nobody observed (patterns, current-state stamped on history, mocks)"
+ },
+ "status_legend": {
+  "CLOSED_GUARDED": "Phase 7E: refuses to write on an integrity-managed database unless --legacy-write-ack --reason; the monitor must run afterwards",
+  "CLOSED_ROUTE": "Phase 7E: HTTP route returns 409 on an integrity-managed database (no override on the product surface)",
+  "SAFE_UNCHANGED": "no change needed",
+  "LEGACY_APPLIER": "one-off reviewed fixture applier from Phases 3-7 (expected-old guards, one transaction); not re-runnable against moved data",
+  "RESIDUAL_OPEN": "left open deliberately, with the reason"
+ },
+ "paths": [
+  {
+   "path": "server/scripts/verifyAthleticsDomains.js",
+   "tables": [
+    "athletics_domains"
+   ],
+   "semantics": "DELETE FROM athletics_domains + rebuild from crawl evidence",
+   "matcher": "institutionFromPage + resolver (UNITID)",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS",
+    "UNSAFE"
+   ],
+   "harm": "wipes every phase domain repair and every athletics_entity_id on hosts (IU Columbus, Park Gilbert, Benedictine Mesa, Stanton, SF-IL, East Central, Central Penn)",
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/importInstitutionAliases.js",
+   "tables": [
+    "institution_aliases"
+   ],
+   "semantics": "DELETE FROM institution_aliases + rebuild from colleges.name/domains/curated",
+   "matcher": "normaliseInstitution; collisions refused",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ],
+   "harm": "discards alias repairs and the 7E entity ties; re-derives aliases from whatever colleges.unitid holds",
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/importCoachTenure.js",
+   "tables": [
+    "coach_seasons"
+   ],
+   "semantics": "DELETE FROM coach_seasons + upsert from CSV",
+   "matcher": "schoolMatch.matchSchoolName (generic-word stripping, containment)",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "FUZZY_MATCH",
+    "BYPASS"
+   ],
+   "harm": "can delete/rewrite every historical coach season (and the reconciler corroboration that depends on it)",
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/importProgrammeSeasons.js (npm import:seasons)",
+   "tables": [
+    "programme_seasons"
+   ],
+   "semantics": "DELETE FROM programme_seasons + full re-insert",
+   "matcher": "exact sport|name",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ],
+   "harm": "rewrites every past season from CSV; undoes a physical programme merge (why Calumet is linked, not merged)",
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/importConferenceSeasons.js",
+   "tables": [
+    "conference_seasons",
+    "programme_conference_seasons",
+    "conference_membership_quarantine"
+   ],
+   "semantics": "DELETE all three + re-insert",
+   "matcher": "resolveProgramme (UNITID), membersOnly by CURRENT division",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "INFERRED_DATA",
+    "BYPASS"
+   ],
+   "harm": "historical division derived from CURRENT colleges.division \u2014 a transition would rewrite history",
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/importOfficialMembership.js",
+   "tables": [
+    "conference_members_official"
+   ],
+   "semantics": "DELETE + re-insert (current snapshot)",
+   "matcher": "conference name",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ],
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/importRosterSheets.js (npm import-rosters)",
+   "tables": [
+    "roster_players"
+   ],
+   "semantics": "broad: deleteWhere(sport,division,season) then bulkCreate in separate transactions; scoped: delete+insert per programme-season",
+   "matcher": "exact sheet School + fixed alias table; division from file location",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ],
+   "harm": "a failed insert leaves a slice empty; blank cells NULL out class/position/nationality; derived columns dropped; division stamped from the file",
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/loadMatchingInputs.js",
+   "tables": [
+    "colleges"
+   ],
+   "semantics": "UPDATE unitid + institution fields from crosswalk; unitid = crosswalk ?? null",
+   "matcher": "exact name vs a prefix/state-heuristic crosswalk",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS",
+    "UNSAFE"
+   ],
+   "harm": "PROVEN: the crosswalk maps 'Saint Francis (IL)' to 148575 (Peoria nursing college); --apply would undo the 7D federal UNITID correction and copy Peoria's geography/cost back",
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/promoteCoaches.js",
+   "tables": [
+    "coaches"
+   ],
+   "semantics": "INSERT + UPDATE division/email_status/email_source_url/source from graduating_seniors.coaching_staff + provenance CSVs",
+   "matcher": "exact college_name; key lower(email)|school|sport",
+   "flags": [
+    "LEGACY",
+    "UNSAFE",
+    "BYPASS",
+    "DESTRUCTIVE_OVERWRITE",
+    "INFERRED_DATA"
+   ],
+   "harm": "audit measured 182 coach rows the phase appliers reassigned/removed/corrected that a re-run would put back (161 addresses already on another school/sport); copies 'inferred' status from CSVs; overwrites repaired email_source_url. Not re-executed here: its provenance CSVs are read-protected in this environment",
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/verifiedDomainBackfill.js",
+   "tables": [
+    "athletics_domains"
+   ],
+   "semantics": "upsert ON CONFLICT DO UPDATE of every column",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ],
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/applyUscaaDivision.js",
+   "tables": [
+    "colleges",
+    "roster_players"
+   ],
+   "semantics": "sets division/conference for ALL seasons of two programmes",
+   "flags": [
+    "LEGACY",
+    "BYPASS",
+    "DESTRUCTIVE_OVERWRITE",
+    "INFERRED_DATA"
+   ],
+   "harm": "rewrites historical roster_players.division",
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/seedRosterGapColleges.js",
+   "tables": [
+    "colleges"
+   ],
+   "semantics": "INSERT colleges from roster orphans; division from roster file",
+   "flags": [
+    "INFERRED_DATA",
+    "BYPASS"
+   ],
+   "harm": "rows with no athletics_entity_id (H1)",
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/refreshGraduationYears.js",
+   "tables": [
+    "roster_players"
+   ],
+   "semantics": "overwrites estimated_graduation_year for every season",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE"
+   ],
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/alignRosterSchoolNames.js",
+   "tables": [
+    "roster_players"
+   ],
+   "semantics": "renames college_name across all seasons",
+   "flags": [
+    "LEGACY"
+   ],
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/cleanupInactiveMensSoccer.js / cleanupInactiveWomensSoccer.js",
+   "tables": [
+    "colleges"
+   ],
+   "semantics": "hard DELETE by exact name",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "LEGACY"
+   ],
+   "harm": "orphans programme_seasons / conference seasons keyed on the row",
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/mergeCoachingContacts.js",
+   "tables": [
+    "graduating_seniors"
+   ],
+   "semantics": "append coaches into coaching_staff JSON",
+   "matcher": "Levenshtein 0.7, no domain check",
+   "flags": [
+    "FUZZY_MATCH",
+    "BYPASS"
+   ],
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/placeBucketB.js",
+   "tables": [
+    "graduating_seniors",
+    "colleges"
+   ],
+   "semantics": "creates placeholder colleges + coaching staff",
+   "flags": [
+    "LEGACY",
+    "BYPASS",
+    "INFERRED_DATA"
+   ],
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/applyWomensProgrammes.js",
+   "tables": [
+    "colleges",
+    "coaches"
+   ],
+   "semantics": "INSERT programmes copied from the men's row by UNITID alone",
+   "flags": [
+    "LEGACY",
+    "BYPASS"
+   ],
+   "harm": "ambiguous for shared-UNITID campuses; rows without entity",
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/scripts/seedNaiaMensGapColleges.js / seedWomensSoccerColleges.js",
+   "tables": [
+    "colleges"
+   ],
+   "semantics": "College.upsert (undefined -> NULL overwrite), timeless division",
+   "matcher": "matchSchoolName",
+   "flags": [
+    "LEGACY",
+    "BYPASS",
+    "DESTRUCTIVE_OVERWRITE",
+    "FUZZY_MATCH"
+   ],
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "server/seed/seedFromLocalData.js (npm seed)",
+   "tables": [
+    "colleges",
+    "graduating_seniors"
+   ],
+   "semantics": "College.upsert, forced NCAA D1 on fuzzy match, NULL overwrite",
+   "flags": [
+    "LEGACY",
+    "FUZZY_MATCH",
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ],
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "tools/soccer/dedupe_schools.py",
+   "tables": [
+    "colleges"
+   ],
+   "semantics": "hard DELETE of men's rows by name",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "LEGACY"
+   ],
+   "status": "CLOSED_GUARDED"
+  },
+  {
+   "path": "POST /api/functions/cleanInactiveSchools",
+   "tables": [
+    "colleges"
+   ],
+   "semantics": "hard delete by name CONTAINS pattern",
+   "flags": [
+    "DESTRUCTIVE_OVERWRITE",
+    "FUZZY_MATCH",
+    "UNSAFE"
+   ],
+   "harm": "PROVEN: would delete the active NAIA row 'West Virginia University Institute of Technology'",
+   "status": "CLOSED_ROUTE"
+  },
+  {
+   "path": "POST /api/functions/importSoccerScores",
+   "tables": [
+    "colleges"
+   ],
+   "semantics": "matchSchoolName then upsert division/conference; creates unmatched rows",
+   "flags": [
+    "LEGACY",
+    "FUZZY_MATCH",
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ],
+   "status": "CLOSED_ROUTE"
+  },
+  {
+   "path": "POST /api/functions/evaluateSoccerProgram",
+   "tables": [
+    "colleges"
+   ],
+   "semantics": "division/conference/domain from the request body; model-generated academic rating",
+   "flags": [
+    "INFERRED_DATA",
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS"
+   ],
+   "status": "CLOSED_ROUTE"
+  },
+  {
+   "path": "POST /api/functions/seedD1Schools",
+   "tables": [
+    "colleges"
+   ],
+   "flags": [
+    "LEGACY",
+    "DESTRUCTIVE_OVERWRITE",
+    "BYPASS",
+    "INFERRED_DATA"
+   ],
+   "status": "CLOSED_ROUTE"
+  },
+  {
+   "path": "POST /api/functions/buildGraduatingDatabase (called by src/pages/GraduatingDatabase.jsx)",
+   "tables": [
+    "graduating_seniors"
+   ],
+   "semantics": "upserts MOCK players and MOCK coaches (headcoach.mock@<slug>.example) over a record's coaching_staff",
+   "flags": [
+    "UNSAFE",
+    "INFERRED_DATA"
+   ],
+   "harm": "promoteCoaches would copy the mock addresses into coaches",
+   "status": "CLOSED_ROUTE",
+   "note": "the Graduating Database page's build button now returns 409 on the managed database \u2014 intended"
+  },
+  {
+   "path": "POST /api/functions/importGraduatingCSV",
+   "tables": [
+    "graduating_seniors"
+   ],
+   "semantics": "fetches any csv_url server-side; upsert with NULL overwrite",
+   "flags": [
+    "UNSAFE"
+   ],
+   "status": "CLOSED_ROUTE"
+  },
+  {
+   "path": "POST /api/coaching-import/apply",
+   "tables": [
+    "graduating_seniors"
+   ],
+   "semantics": "fully replaces coaching_staff; Levenshtein fallback",
+   "flags": [
+    "UNSAFE",
+    "FUZZY_MATCH",
+    "BYPASS",
+    "DESTRUCTIVE_OVERWRITE"
+   ],
+   "status": "CLOSED_ROUTE"
+  },
+  {
+   "path": "POST/PUT/DELETE /api/entities/{colleges,roster_players,graduating_seniors}",
+   "tables": [
+    "colleges",
+    "roster_players",
+    "graduating_seniors"
+   ],
+   "semantics": "unvalidated CRUD; undefined -> NULL; hard delete",
+   "flags": [
+    "UNSAFE",
+    "BYPASS"
+   ],
+   "note": "no frontend writes these three (verified); /api/entities/players unaffected",
+   "status": "CLOSED_ROUTE"
+  },
+  {
+   "path": "server/scripts/reconcileCoaches.js",
+   "tables": [
+    "coaches_reconciled (derived)"
+   ],
+   "semantics": "rebuilds a derived projection; refuses the canonical path name",
+   "flags": [
+    "SAFE"
+   ],
+   "status": "SAFE_UNCHANGED",
+   "note": "7E adds requireActiveCanonical: never eligible at an inactive programme (inert on the pre-7E corpus: 0 of 4,158 eligible affected)"
+  },
+  {
+   "path": "server/scripts/projectRosterMinutes.js, recordSeasonTrust.js, seasonTrustReview/rosterGapReview, reconcileCanonicalProduct.js, loadAcademicRatings.js, cosmetic identity writers (nicknames/colours/champions/majors/scores)",
+   "flags": [
+    "SAFE"
+   ],
+   "status": "SAFE_UNCHANGED",
+   "note": "derived or non-identity columns only (fingerprinted season columns exclude derived projections)"
+  },
+  {
+   "path": "server/scripts/applyPhase*.js / applyCoach*.js / applyDomainCorrections.js (Phases 3-7D)",
+   "flags": [
+    "LEGACY",
+    "BYPASS (all but 7D)"
+   ],
+   "semantics": "reviewed fixtures, expected-old guards, one transaction; refuse /data only",
+   "gaps": [
+    "6C1 treats entries without auto_apply_safe as safe",
+    "7B5C/7C REASSIGN does not check the target programme is active",
+    "6C4/7B4A domain INSERTs omit NOT NULL columns (would throw today)",
+    "hard-coded email_seen dates in 6C1-7C appliers"
+   ],
+   "status": "LEGACY_APPLIER",
+   "note": "historical one-offs \u2014 their fixtures are bound to the state they were reviewed against; new work goes through integrity:promote"
+  },
+  {
+   "path": "server/lib/coaches.js findOrCreateCoach (POST /api/outreach/send)",
+   "tables": [
+    "coaches"
+   ],
+   "semantics": "inserts a coach row from the send request (email, name, college) with email_status 'unknown', source 'send'",
+   "flags": [
+    "UNSAFE (client-supplied school)",
+    "BYPASS"
+   ],
+   "status": "RESIDUAL_OPEN",
+   "reason": "product send path; rows are 'unknown' and never outreach-eligible (eligibility requires verified + corroborated); closing it changes product behaviour and belongs to a product change, not a data phase"
+  },
+  {
+   "path": "server/routes/programmeCoaches.js (read path)",
+   "semantics": "serves legacy coaches rows (incl. inferred and PROVEN_STALE) unless THRIV3_USE_RECONCILED_COACHES is set",
+   "flags": [
+    "UNSAFE (read)"
+   ],
+   "status": "RESIDUAL_OPEN",
+   "reason": "a deployment flag, not a data write \u2014 recommended: enable THRIV3_USE_RECONCILED_COACHES before outreach relies on this data; not changed here (no deploy)"
+  },
+  {
+   "path": "roster_players.projected_games_* columns",
+   "semantics": "present in the live table, written by no code in this repo (an external writer)",
+   "status": "RESIDUAL_OPEN",
+   "reason": "outside the repository; the columns are excluded from season fingerprints"
+  },
+  {
+   "path": "server/lib/institutionResolver.js step 6 FUZZY_CORROBORATED",
+   "semantics": "legacy resolver may RESOLVE on fuzzy + state/domain corroboration",
+   "flags": [
+    "FUZZY_MATCH"
+   ],
+   "status": "SAFE_UNCHANGED",
+   "note": "used by legacy import paths now guarded; the 7E identity hierarchy (server/lib/refresh/identityResolver.js) never resolves on a fuzzy match \u2014 candidates only"
+  }
+ ],
+ "counts": {
+  "path_entries": 36,
+  "by_status": {
+   "CLOSED_GUARDED": 21,
+   "CLOSED_ROUTE": 8,
+   "SAFE_UNCHANGED": 3,
+   "LEGACY_APPLIER": 1,
+   "RESIDUAL_OPEN": 3
+  },
+  "unsafe_or_bypass_entries": 33,
+  "cli_scripts_now_guarded": 23,
+  "http_routes_now_refused": 8,
+  "note": "CLOSED_GUARDED entries cover 23 CLI scripts (22 Node + 1 Python) (two entries group 2 scripts each; dedupe_schools.py included)"
+ }
+}

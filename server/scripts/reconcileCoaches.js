@@ -119,11 +119,30 @@ function legacyCanonicalCollegeId(co, r) {
 function reconcile(co) {
   const progRow = collByNS.get(`${co.school}|${co.sport}`);
   const useEntity = ENTITY_MODEL && progRow?.athletics_entity_id && inStrictScope(progRow.division);
-  if (useEntity) return reconcileEntity(co, progRow);
-  const r = reconcileLegacy(co);
-  const ccid = legacyCanonicalCollegeId(co, r);
-  const crow = ccid ? collById.get(ccid) : null;
-  return { ...r, canonical_college_id: ccid, canonical_entity_id: crow?.athletics_entity_id ?? null };
+  let r;
+  if (useEntity) r = reconcileEntity(co, progRow);
+  else {
+    const l = reconcileLegacy(co);
+    const ccid = legacyCanonicalCollegeId(co, l);
+    const crow = ccid ? collById.get(ccid) : null;
+    r = { ...l, canonical_college_id: ccid, canonical_entity_id: crow?.athletics_entity_id ?? null };
+  }
+  return requireActiveCanonical(r);
+}
+
+/**
+ * Phase 7E: a coach is never outreach-eligible at a programme that does not exist NOW.
+ * The canonical programme row must be present and active — a superseded division row
+ * (Shawnee State's NAIA row after its 2026 move to NCAA D2), a retired phantom row or a
+ * deactivated programme keeps its coaches as history, never as current contacts. Uniform
+ * over both paths; on the pre-7E corpus it changes nothing (0 eligible coaches sat on an
+ * inactive canonical row). A registry without row ids is left exactly as before.
+ */
+function requireActiveCanonical(r) {
+  if (r.outreach_eligibility !== 'YES') return r;
+  const c = r.canonical_college_id ? collById.get(r.canonical_college_id) : null;
+  if (!c || (c.active === 1 && c.sport === r.sport)) return r; // unknown row (legacy/id-less registry): unchanged
+  return { ...r, outreach_eligibility: 'NO', ineligible_reason: 'canonical programme inactive (superseded/retired/discontinued)' };
 }
 
 /**

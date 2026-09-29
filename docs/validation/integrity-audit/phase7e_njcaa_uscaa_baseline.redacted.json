@@ -1,0 +1,79 @@
+{
+ "phase": "7E",
+ "measured_at": "2026-09-29",
+ "note": "Inspection only — no NJCAA/USCAA coach acquisition. Institutional identifiers only.",
+ "NJCAA": {
+  "rows": 227,
+  "active_rows": 225,
+  "inactive_rows": 2,
+  "logical_programmes": 223,
+  "by_sport_logical": {
+   "mens-soccer": 223
+  },
+  "entities": 223,
+  "entity_kinds": {
+   "SINGLE": 221,
+   "UNRESOLVED_FEDERAL": 2
+  },
+  "unresolved_federal": [
+   "AE-X-LINCOLN-TRAIL",
+   "AE-X-GEORGE-C-WALLACE"
+  ],
+  "non_title_iv": [],
+  "documented_duplicates": [
+   "AE-U179308|mens-soccer CONSOLIDATED_ATHLETICS_STALE_CAMPUS_ROWS"
+  ],
+  "entities_with_trusted_host": 22,
+  "trusted_hosts": 23,
+  "membership_open_periods": 223,
+  "membership_seed_only": 223,
+  "membership_verified": 0,
+  "roster_programmes_by_season": {},
+  "roster_rows_by_season": {},
+  "coach_rows": 0,
+  "coach_rows_verified": 0,
+  "coach_seasons_rows": 0
+ },
+ "USCAA": {
+  "rows": 22,
+  "active_rows": 22,
+  "inactive_rows": 0,
+  "logical_programmes": 22,
+  "by_sport_logical": {
+   "mens-soccer": 12,
+   "womens-soccer": 10
+  },
+  "entities": 15,
+  "entity_kinds": {
+   "SINGLE": 14,
+   "NON_TITLE_IV": 1
+  },
+  "unresolved_federal": [],
+  "non_title_iv": [
+   "AE-X-CHRISTENDOM"
+  ],
+  "documented_duplicates": [],
+  "entities_with_trusted_host": 1,
+  "trusted_hosts": 2,
+  "membership_open_periods": 22,
+  "membership_seed_only": 21,
+  "membership_verified": 1,
+  "roster_programmes_by_season": {
+   "2022": 1,
+   "2023": 2,
+   "2024": 2,
+   "2025": 21,
+   "2026": 1
+  },
+  "roster_rows_by_season": {
+   "2022": 14,
+   "2023": 35,
+   "2024": 35,
+   "2025": 384,
+   "2026": 19
+  },
+  "coach_rows": 0,
+  "coach_rows_verified": 0,
+  "coach_seasons_rows": 0
+ }
+}

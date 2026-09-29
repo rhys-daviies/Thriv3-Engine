@@ -63,6 +63,7 @@ import {
   operatorMessage, STORE_ROOT, selectableProgramme,
 } from './lib/reportDelivery.js';
 import db from './db/client.js';
+import { isIntegrityManaged, refuseOnManagedDatabase } from './lib/refresh/canonicalWriteGuard.js';
 import { poolStatus, invalidatePoolBenchmarks, poolBenchmarks } from './lib/philosophyQueries.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -221,20 +222,34 @@ app.get('/api/entities/:table/:id', (req, res) => {
   res.json(row);
 });
 
-app.post('/api/entities/:table', (req, res) => {
+/**
+ * Phase 7E: the generic CRUD is unvalidated pass-through. For the canonical programme,
+ * roster and seniors tables it would bypass identity integrity entirely (no entity id, no
+ * expected-old guard, hard delete), and no client uses it to write them. Refused on an
+ * integrity-managed database; `players` is unaffected.
+ */
+const MANAGED_CANONICAL_ENTITIES = new Set(['colleges', 'roster_players', 'graduating_seniors']);
+function refuseManagedEntityWrite(req, res, next) {
+  if (MANAGED_CANONICAL_ENTITIES.has(req.params.table) && isIntegrityManaged(db)) {
+    return refuseOnManagedDatabase(db, `/api/entities/${req.params.table}`)(req, res, next);
+  }
+  return next();
+}
+
+app.post('/api/entities/:table', refuseManagedEntityWrite, (req, res) => {
   const entity = ENTITIES[req.params.table];
   if (!entity) return res.status(404).json({ error: 'Unknown entity' });
   res.json(entity.create(req.body));
 });
 
-app.put('/api/entities/:table/:id', (req, res) => {
+app.put('/api/entities/:table/:id', refuseManagedEntityWrite, (req, res) => {
   const entity = ENTITIES[req.params.table];
   if (!entity) return res.status(404).json({ error: 'Unknown entity' });
   res.json(entity.update(req.params.id, req.body));
 });
 
 // Players are archived, never hard-deleted — see blockPlayerHardDelete.
-app.delete('/api/entities/:table/:id', blockPlayerHardDelete, (req, res) => {
+app.delete('/api/entities/:table/:id', blockPlayerHardDelete, refuseManagedEntityWrite, (req, res) => {
   const entity = ENTITIES[req.params.table];
   if (!entity) return res.status(404).json({ error: 'Unknown entity' });
   res.json(entity.delete(req.params.id));
@@ -515,7 +530,7 @@ app.post('/api/coaching-import/preview', async (req, res) => {
   }
 });
 
-app.post('/api/coaching-import/apply', async (req, res) => {
+app.post('/api/coaching-import/apply', refuseOnManagedDatabase(db, 'coaching-import/apply'), async (req, res) => {
   try {
     const result = await coachingImportApply(req.body || {});
     res.json(result);
@@ -535,9 +550,21 @@ const FUNCTIONS = {
   cleanInactiveSchools,
 };
 
+/**
+ * Phase 7E: these functions write canonical tables without the athletics-entity model
+ * (fuzzy name matching, timeless division, mock coaches, whole-row NULL overwrite, hard
+ * deletes by name pattern). On an integrity-managed database they are refused; the guarded
+ * refresh workflow (integrity:refresh -> integrity:promote) is the only canonical writer.
+ */
+const CANONICAL_WRITE_FUNCTIONS = new Set(['seedD1Schools', 'importSoccerScores', 'evaluateSoccerProgram',
+  'buildGraduatingDatabase', 'importGraduatingCSV', 'cleanInactiveSchools']);
+
 app.post('/api/functions/:name', async (req, res) => {
   const fn = FUNCTIONS[req.params.name];
   if (!fn) return res.status(404).json({ error: `Unknown function: ${req.params.name}` });
+  if (CANONICAL_WRITE_FUNCTIONS.has(req.params.name) && isIntegrityManaged(db)) {
+    return refuseOnManagedDatabase(db, req.params.name)(req, res);
+  }
   try {
     const result = await fn(req.body || {});
     res.json(result);

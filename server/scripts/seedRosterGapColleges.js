@@ -36,6 +36,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { randomUUID } from 'node:crypto';
 import db from '../db/client.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { parseCsvToObjects } from '../lib/csv.js';
 
 const APPLY = process.argv.includes('--apply');
@@ -135,6 +136,7 @@ function main() {
     for (const r of refused) console.log(`  ${r}`);
   }
   if (!APPLY) { console.log('\nPass --apply to write.'); return; }
+  assertLegacyWriteAllowed(db, { script: 'seedRosterGapColleges.js' });
 
   const now = new Date().toISOString();
   const insert = db.prepare(`INSERT INTO colleges

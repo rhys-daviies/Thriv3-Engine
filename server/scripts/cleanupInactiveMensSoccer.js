@@ -10,6 +10,8 @@
  * Without --apply, runs as a dry run and prints what would change.
  */
 import { College } from '../db/entities/college.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
+import db from '../db/client.js';
 
 const APPLY = process.argv.includes('--apply');
 
@@ -31,6 +33,7 @@ const INACTIVE_NAMES = [
 ];
 
 function main() {
+  if (APPLY) assertLegacyWriteAllowed(db, { script: 'cleanupInactiveMensSoccer.js' });
   let found = 0;
   for (const name of INACTIVE_NAMES) {
     const rows = College.filter({ sport: 'mens-soccer', name });

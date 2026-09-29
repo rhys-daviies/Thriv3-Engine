@@ -22,6 +22,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import db from '../db/client.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { parseCsvToObjects } from '../lib/csv.js';
 import { snapshotDatabase } from '../lib/dbSnapshot.js';
 
@@ -244,6 +245,7 @@ function main() {
     console.log('\ndry run — nothing written. Re-run with --apply.\n');
     return;
   }
+  assertLegacyWriteAllowed(db, { script: 'loadMatchingInputs.js' });
 
   // A mismatch means the identity join is wrong somewhere; writing anyway
   // would put one school's cost and coordinates on another.

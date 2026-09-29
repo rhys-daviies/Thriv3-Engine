@@ -1,0 +1,596 @@
+{
+ "phase": "7E-structural",
+ "created_at": "2026-09-29",
+ "fixture_hash": "c9f166936e28f02bc9b0c93ce0341ec76c471a26b982f62ea201609f20281bfe",
+ "entities": [
+  {
+   "athletics_entity_id": "AE-U175643",
+   "display_name": "East Central Community College (Warriors)",
+   "federal_unitid": 175643,
+   "parent_unitid": null,
+   "campus_label": null,
+   "entity_kind": "SINGLE",
+   "provenance": "Phase 7E: NCES College Navigator IPEDS ID 175643 (East Central Community College, Decatur MS); athletics host ecccathletics.com (MACCC, NJCAA); 2025 men's record 8-7-1 matches the row",
+   "notes": null
+  }
+ ],
+ "entity_notes": [
+  {
+   "athletics_entity_id": "AE-X-EAST-CENTRAL-NJCAA-UNRESOLVED",
+   "expected_old_notes": "KNOWN_WRONG_UNITID \u2014 colleges.unitid left untouched (NJCAA)",
+   "notes": "SUPERSEDED 2026-09-29 (Phase 7E): resolved to AE-U175643 East Central Community College; this entity carries no rows"
+  }
+ ],
+ "repairs": [
+  {
+   "college_id": "5fe51b3f-10e3-438f-8c54-1be4de9b1223",
+   "label": "East Central (OK) [NJCAA mens]",
+   "expected_old": {
+    "unitid": 207041,
+    "athletics_entity_id": "AE-X-EAST-CENTRAL-NJCAA-UNRESOLVED"
+   },
+   "set": {
+    "unitid": 175643,
+    "athletics_entity_id": "AE-U175643"
+   },
+   "note": "Phase 7E: row is East Central Community College (Decatur MS; NJCAA MACCC): 2025 record 8-7-1 matches ecccathletics.com exactly; NCES College Navigator 175643. 207041 is East Central University (OK, NCAA D2) \u2014 a name mix-up. Display name/nickname/logo still carry the ECU mix-up (queued; importers key on the name)."
+  },
+  {
+   "college_id": "cb7ed8eb-839a-4232-8bb4-8cf86851816f",
+   "label": "Penn State Brandywine [NCAA D3 womens]",
+   "expected_old": {
+    "unitid": null
+   },
+   "set": {
+    "unitid": 214731
+   },
+   "note": "Phase 7E: own IPEDS UNITID 214731 (NCES College Navigator: Pennsylvania State University-Penn State Brandywine)."
+  },
+  {
+   "college_id": "14f9e54f-4933-4d0a-9520-e2522b8b113b",
+   "label": "Central Penn [mens]",
+   "expected_old": {
+    "division": "NJCAA",
+    "conference": "EPAC"
+   },
+   "set": {
+    "division": "USCAA",
+    "conference": "Eastern States Athletic Conference"
+   },
+   "note": "Phase 7E: centralpennknights.com 2025-26 men's soccer schedule/roster self-identify USCAA + Eastern States (as the women's row already records); the NJCAA/EPAC label was a data error, not a membership."
+  },
+  {
+   "college_id": "8359a3c6-f5e0-4fe3-a641-8913b13e4ce0",
+   "label": "Shawnee State [NCAA D2 mens]",
+   "expected_old": {
+    "conference": "GMAC"
+   },
+   "set": {
+    "conference": "Mountain East Conference"
+   },
+   "note": "Phase 7E: 2026 schedule on ssubears.com lists MEC matches (provisional NCAA D2 member of the MEC from 2026-27); GMAC was never its conference."
+  },
+  {
+   "college_id": "f6424fb6-b365-460b-829d-6cffeb16da5b",
+   "label": "Shawnee State University [NAIA mens]",
+   "expected_old": {
+    "active": 1
+   },
+   "set": {
+    "active": 0
+   },
+   "note": "Phase 7E: SUPERSEDED \u2014 NAIA membership closed after 2025; programme continues on the NCAA D2 row from 2026 (row link). History on this row is kept."
+  },
+  {
+   "college_id": "d23997f6-7142-445e-84c2-308a1a549539",
+   "label": "Shawnee State University [NAIA womens]",
+   "expected_old": {
+    "active": 1
+   },
+   "set": {
+    "active": 0
+   },
+   "note": "Phase 7E: SUPERSEDED \u2014 NAIA membership closed after 2025; programme continues on the NCAA D2 row from 2026 (row link). History on this row is kept."
+  },
+  {
+   "college_id": "588f94a1-f8ec-4e75-a431-6b4088858798",
+   "label": "SCAD [NCAA D3 mens]",
+   "expected_old": {
+    "active": 1
+   },
+   "set": {
+    "active": 0
+   },
+   "note": "Phase 7E: PHANTOM \u2014 no NCAA D3 SCAD soccer exists; all rosters/records/coach seasons on this row are SCAD Savannah (NAIA, savannah.scadathletics.com). Retired, not deleted; linked to the NAIA programme."
+  }
+ ],
+ "row_links": [
+  {
+   "college_id": "f6424fb6-b365-460b-829d-6cffeb16da5b",
+   "canonical_college_id": "8359a3c6-f5e0-4fe3-a641-8913b13e4ce0",
+   "link_kind": "SUPERSEDED_DIVISION_ROW",
+   "effective_from_season": 2026,
+   "provenance": "NAIA (River States) through 2025; NCAA D2 provisional (MEC) from 2026 \u2014 MEC 2026-02-11 announcement + ssubears.com 2026 schedules",
+   "label": "Shawnee State University -> Shawnee State [mens-soccer]"
+  },
+  {
+   "college_id": "d23997f6-7142-445e-84c2-308a1a549539",
+   "canonical_college_id": "3ee9ff6a-32b7-4171-ad0b-c090333d4c0c",
+   "link_kind": "SUPERSEDED_DIVISION_ROW",
+   "effective_from_season": 2026,
+   "provenance": "NAIA (River States) through 2025; NCAA D2 provisional (MEC) from 2026 \u2014 MEC 2026-02-11 announcement + ssubears.com 2026 schedules",
+   "label": "Shawnee State University -> Shawnee State [womens-soccer]"
+  },
+  {
+   "college_id": "588f94a1-f8ec-4e75-a431-6b4088858798",
+   "canonical_college_id": "35a6996b-58da-419b-9536-31f5ec52f0dd",
+   "link_kind": "PHANTOM_ROW",
+   "effective_from_season": null,
+   "provenance": "phantom NCAA D3 row carrying SCAD Savannah (NAIA) data: all 93 roster rows sourced from savannah.scadathletics.com",
+   "label": "SCAD -> Savannah College of Art and Design [mens-soccer]"
+  },
+  {
+   "college_id": "361005bb-2e32-4ae7-89c7-6ff819c5964a",
+   "canonical_college_id": "b53ba0b7-f9bd-44c4-afd6-a632139ab999",
+   "link_kind": "SAME_PROGRAMME_ALT_NAME",
+   "effective_from_season": null,
+   "provenance": "one CCSJ programme: coaches/conference seasons use \"Calumet College\", rosters/records \"Calumet College of St. Joseph\" (Phase 7D)",
+   "label": "Calumet College -> Calumet College of St. Joseph [mens-soccer]"
+  },
+  {
+   "college_id": "28c5b727-2c52-41ad-8268-edff58b564bd",
+   "canonical_college_id": "d29c000b-1836-4840-8e56-7caddaa7bf64",
+   "link_kind": "SAME_PROGRAMME_ALT_NAME",
+   "effective_from_season": null,
+   "provenance": "one programme, two spellings (Phase 7D): coaches on \"Pomona-Pitzer\", rosters/records on \"Pomona College\"",
+   "label": "Pomona-Pitzer -> Pomona College [womens-soccer]"
+  },
+  {
+   "college_id": "e8dc8eb4-7bc6-4eb2-ab61-b4b2cd0b25a5",
+   "canonical_college_id": "5c5e2b02-bdaa-401f-8f4c-67b1ed9b106f",
+   "link_kind": "SAME_PROGRAMME_ALT_NAME",
+   "effective_from_season": null,
+   "provenance": "one programme, two spellings (Phase 7D): coaches on \"UC Santa Cruz\", rosters/records on \"University of California-Santa Cruz\"",
+   "label": "UC Santa Cruz -> University of California-Santa Cruz [womens-soccer]"
+  },
+  {
+   "college_id": "a1c8c8d3-3788-47ac-a947-e4668f4e456c",
+   "canonical_college_id": "73f4f4fe-bb0d-4d5d-97a8-3e81bbd6fcf2",
+   "link_kind": "SAME_PROGRAMME_ALT_NAME",
+   "effective_from_season": null,
+   "provenance": "one programme, two spellings (Phase 7D): coaches on \"Mississippi College\", rosters/records on \"Mississippi Christian\"",
+   "label": "Mississippi College -> Mississippi Christian [womens-soccer]"
+  },
+  {
+   "college_id": "c8405605-c7fa-4717-8787-61a3ec689a5e",
+   "canonical_college_id": "895b1271-0e57-4c25-87e8-3dae20a0d715",
+   "link_kind": "SAME_PROGRAMME_ALT_NAME",
+   "effective_from_season": null,
+   "provenance": "one programme, two spellings (Phase 7D): coaches on \"FDU-Florham\", rosters/records on \"Fairleigh Dickinson University-Florham\"",
+   "label": "FDU-Florham -> Fairleigh Dickinson University-Florham [womens-soccer]"
+  },
+  {
+   "college_id": "b3d05efe-afda-4cdd-944c-c72c0e7e558a",
+   "canonical_college_id": "9eba427a-6992-406d-83ee-a5de90ea7c33",
+   "link_kind": "SAME_PROGRAMME_ALT_NAME",
+   "effective_from_season": null,
+   "provenance": "one programme, two spellings (Phase 7D): coaches on \"Claremont-Mudd-Scripps\", rosters/records on \"Claremont McKenna College\"",
+   "label": "Claremont-Mudd-Scripps -> Claremont McKenna College [womens-soccer]"
+  },
+  {
+   "college_id": "beadc9d8-d259-4d35-8cab-e39ee6bbe75a",
+   "canonical_college_id": "f1dcd4fe-ba42-443c-9e0a-9d1eefa0fdc6",
+   "link_kind": "SAME_PROGRAMME_ALT_NAME",
+   "effective_from_season": null,
+   "provenance": "one programme, two spellings (Phase 7D): coaches on \"Cal Lutheran\", rosters/records on \"California Lutheran University\"",
+   "label": "Cal Lutheran -> California Lutheran University [womens-soccer]"
+  }
+ ],
+ "periods": [
+  {
+   "athletics_entity_id": "AE-U205443",
+   "sport": "mens-soccer",
+   "first_season": 2022,
+   "last_season": 2022,
+   "governing_body": "NAIA",
+   "division": "NAIA",
+   "membership_status": "ACTIVE",
+   "conference": "Mid-South Conference",
+   "postseason_eligible": null,
+   "college_id": "f6424fb6-b365-460b-829d-6cffeb16da5b",
+   "source_url": null,
+   "source_tier": "B",
+   "provenance": "programme_conference_seasons 2022 (DERIVED_FROM_OFFICIAL_MEMBERSHIP, Mid-South standings); earliest season on record \u2014 the institution has been NAIA since 1988-89 (MEC announcement)",
+   "review_due_season": null
+  },
+  {
+   "athletics_entity_id": "AE-U205443",
+   "sport": "mens-soccer",
+   "first_season": 2023,
+   "last_season": 2025,
+   "governing_body": "NAIA",
+   "division": "NAIA",
+   "membership_status": "ACTIVE",
+   "conference": "River States Conference",
+   "postseason_eligible": null,
+   "college_id": "f6424fb6-b365-460b-829d-6cffeb16da5b",
+   "source_url": null,
+   "source_tier": "B",
+   "provenance": "programme_conference_seasons 2023-2025 (River States standings); final NAIA season 2025 (MEC announcement: MEC competition from 2026-27)",
+   "review_due_season": null
+  },
+  {
+   "athletics_entity_id": "AE-U205443",
+   "sport": "mens-soccer",
+   "first_season": 2026,
+   "last_season": null,
+   "governing_body": "NCAA",
+   "division": "NCAA D2",
+   "membership_status": "PROVISIONAL",
+   "conference": "Mountain East Conference",
+   "postseason_eligible": 0,
+   "college_id": "8359a3c6-f5e0-4fe3-a641-8913b13e4ce0",
+   "source_url": "https://mountaineast.org/news/2026/2/11/general-shawnee-state-university-accepted-into-dii-expedited-membership-process.aspx",
+   "source_tier": "B",
+   "provenance": "NCAA DII expedited provisional membership, MEC competition 2026-27 and 2027-28 (conference announcement 2026-02-11) + https://ssubears.com/sports/mens-soccer/schedule/2026 lists MEC matches; full membership and NCAA championship eligibility from 2028-29 on completion",
+   "review_due_season": 2028
+  },
+  {
+   "athletics_entity_id": "AE-U205443",
+   "sport": "womens-soccer",
+   "first_season": 2022,
+   "last_season": 2022,
+   "governing_body": "NAIA",
+   "division": "NAIA",
+   "membership_status": "ACTIVE",
+   "conference": "Mid-South Conference",
+   "postseason_eligible": null,
+   "college_id": "d23997f6-7142-445e-84c2-308a1a549539",
+   "source_url": null,
+   "source_tier": "B",
+   "provenance": "programme_conference_seasons 2022 (DERIVED_FROM_OFFICIAL_MEMBERSHIP, Mid-South standings); earliest season on record \u2014 the institution has been NAIA since 1988-89 (MEC announcement)",
+   "review_due_season": null
+  },
+  {
+   "athletics_entity_id": "AE-U205443",
+   "sport": "womens-soccer",
+   "first_season": 2023,
+   "last_season": 2025,
+   "governing_body": "NAIA",
+   "division": "NAIA",
+   "membership_status": "ACTIVE",
+   "conference": "River States Conference",
+   "postseason_eligible": null,
+   "college_id": "d23997f6-7142-445e-84c2-308a1a549539",
+   "source_url": null,
+   "source_tier": "B",
+   "provenance": "programme_conference_seasons 2023-2025 (River States standings); final NAIA season 2025 (MEC announcement: MEC competition from 2026-27)",
+   "review_due_season": null
+  },
+  {
+   "athletics_entity_id": "AE-U205443",
+   "sport": "womens-soccer",
+   "first_season": 2026,
+   "last_season": null,
+   "governing_body": "NCAA",
+   "division": "NCAA D2",
+   "membership_status": "PROVISIONAL",
+   "conference": "Mountain East Conference",
+   "postseason_eligible": 0,
+   "college_id": "3ee9ff6a-32b7-4171-ad0b-c090333d4c0c",
+   "source_url": "https://mountaineast.org/news/2026/2/11/general-shawnee-state-university-accepted-into-dii-expedited-membership-process.aspx",
+   "source_tier": "B",
+   "provenance": "NCAA DII expedited provisional membership, MEC competition 2026-27 and 2027-28 (conference announcement 2026-02-11) + https://ssubears.com/sports/womens-soccer/schedule/2026 lists MEC matches; full membership and NCAA championship eligibility from 2028-29 on completion",
+   "review_due_season": 2028
+  },
+  {
+   "athletics_entity_id": "AE-U211477",
+   "sport": "mens-soccer",
+   "first_season": 2025,
+   "last_season": null,
+   "governing_body": "USCAA",
+   "division": "USCAA",
+   "membership_status": "ACTIVE",
+   "conference": "Eastern States Athletic Conference",
+   "postseason_eligible": null,
+   "college_id": "14f9e54f-4933-4d0a-9520-e2522b8b113b",
+   "source_url": "https://centralpennknights.com/sports/msoc/2025-26/schedule",
+   "source_tier": "A",
+   "provenance": "correction: official Central Penn Knights 2025-26 men's soccer pages self-identify USCAA + Eastern States; earlier NJCAA label was a data error, not a membership",
+   "review_due_season": null
+  },
+  {
+   "athletics_entity_id": "AE-X-SIMON-FRASER",
+   "sport": "mens-soccer",
+   "first_season": 2026,
+   "last_season": null,
+   "governing_body": "NCAA",
+   "division": "NCAA D2",
+   "membership_status": "ACTIVE",
+   "conference": "GNAC",
+   "postseason_eligible": null,
+   "college_id": "c243c3e8-bb94-49e5-8bf9-e322f5832a77",
+   "source_url": null,
+   "source_tier": "SEED",
+   "provenance": "SEED + known transition: Simon Fraser leaves NCAA D2 (GNAC) after 2026-27 for U SPORTS (Phase 7D research) \u2014 re-verify before the 2027 season",
+   "review_due_season": 2027
+  },
+  {
+   "athletics_entity_id": "AE-X-SIMON-FRASER",
+   "sport": "womens-soccer",
+   "first_season": 2026,
+   "last_season": null,
+   "governing_body": "NCAA",
+   "division": "NCAA D2",
+   "membership_status": "ACTIVE",
+   "conference": "Great Northwest Athletic Conference",
+   "postseason_eligible": null,
+   "college_id": "70abc561-a071-4a49-8b01-60efeecc672b",
+   "source_url": null,
+   "source_tier": "SEED",
+   "provenance": "SEED + known transition: Simon Fraser leaves NCAA D2 (GNAC) after 2026-27 for U SPORTS (Phase 7D research) \u2014 re-verify before the 2027 season",
+   "review_due_season": 2027
+  }
+ ],
+ "seed_periods": {
+  "first_season": 2026,
+  "source_tier": "SEED",
+  "provenance": "SEED: colleges current state at the Phase 7E cut-over (2026-09-29); not independently verified \u2014 verified on the first guarded refresh"
+ },
+ "alias_entity_ties": [
+  {
+   "alias_key": "benedictine il",
+   "conference_scope": "*",
+   "unitid": 145619,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-U145619",
+   "label": "Benedictine (IL) -> AE-U145619"
+  },
+  {
+   "alias_key": "benedictine university",
+   "conference_scope": "*",
+   "unitid": 145619,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-U145619",
+   "label": "Benedictine University -> AE-U145619"
+  },
+  {
+   "alias_key": "iu indy",
+   "conference_scope": "*",
+   "unitid": 151111,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-U151111",
+   "label": "IU Indy -> AE-U151111"
+  },
+  {
+   "alias_key": "indiana university columbus",
+   "conference_scope": "*",
+   "unitid": 151111,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-X-IU-COLUMBUS",
+   "label": "Indiana University Columbus -> AE-X-IU-COLUMBUS"
+  },
+  {
+   "alias_key": "park",
+   "conference_scope": "*",
+   "unitid": 178721,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-U178721",
+   "label": "Park -> AE-U178721"
+  },
+  {
+   "alias_key": "park university",
+   "conference_scope": "*",
+   "unitid": 178721,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-U178721",
+   "label": "Park University -> AE-U178721"
+  },
+  {
+   "alias_key": "st joseph s ny",
+   "conference_scope": "*",
+   "unitid": 195544,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-U195544",
+   "label": "St. Joseph's (NY) -> AE-U195544"
+  },
+  {
+   "alias_key": "st joseph s university brooklyn",
+   "conference_scope": "*",
+   "unitid": 195544,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-X-SJNY-BROOKLYN",
+   "label": "St. Joseph's University (Brooklyn) -> AE-X-SJNY-BROOKLYN"
+  },
+  {
+   "alias_key": "st joseph s university long island",
+   "conference_scope": "*",
+   "unitid": 195544,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-X-SJNY-LONG-ISLAND",
+   "label": "St. Joseph's University (Long Island) -> AE-X-SJNY-LONG-ISLAND"
+  },
+  {
+   "alias_key": "vermont state university castleton",
+   "conference_scope": "*",
+   "unitid": 231165,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-X-VTSU-CASTLETON",
+   "label": "Vermont State University-Castleton -> AE-X-VTSU-CASTLETON"
+  },
+  {
+   "alias_key": "vermont state university johnson",
+   "conference_scope": "*",
+   "unitid": 231165,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-X-VTSU-JOHNSON",
+   "label": "Vermont State University-Johnson -> AE-X-VTSU-JOHNSON"
+  },
+  {
+   "alias_key": "vermont state university lyndon",
+   "conference_scope": "*",
+   "unitid": 231165,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-X-VTSU-LYNDON",
+   "label": "Vermont State University-Lyndon -> AE-X-VTSU-LYNDON"
+  },
+  {
+   "alias_key": "commonwealth university bloomsburg",
+   "conference_scope": "*",
+   "unitid": 498562,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-X-CU-BLOOMSBURG",
+   "label": "Commonwealth University-Bloomsburg -> AE-X-CU-BLOOMSBURG"
+  },
+  {
+   "alias_key": "commonwealth university lock haven",
+   "conference_scope": "*",
+   "unitid": 498562,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-X-CU-LOCK-HAVEN",
+   "label": "Commonwealth University-Lock Haven -> AE-X-CU-LOCK-HAVEN"
+  },
+  {
+   "alias_key": "commonwealth university mansfield",
+   "conference_scope": "*",
+   "unitid": 498562,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-X-CU-MANSFIELD",
+   "label": "Commonwealth University-Mansfield -> AE-X-CU-MANSFIELD"
+  },
+  {
+   "alias_key": "pennwest california",
+   "conference_scope": "*",
+   "unitid": 498571,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-X-PENNWEST-CALIFORNIA",
+   "label": "PennWest California -> AE-X-PENNWEST-CALIFORNIA"
+  },
+  {
+   "alias_key": "pennwest clarion",
+   "conference_scope": "*",
+   "unitid": 498571,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-X-PENNWEST-CLARION",
+   "label": "PennWest Clarion -> AE-X-PENNWEST-CLARION"
+  },
+  {
+   "alias_key": "pennwest edinboro",
+   "conference_scope": "*",
+   "unitid": 498571,
+   "expected_old_entity": null,
+   "athletics_entity_id": "AE-X-PENNWEST-EDINBORO",
+   "label": "PennWest Edinboro -> AE-X-PENNWEST-EDINBORO"
+  }
+ ],
+ "coach_reassign": [
+  {
+   "coach_id": "ea958cb5\u2026",
+   "expected_old": {
+    "school": "Shawnee State University",
+    "division": "NAIA"
+   },
+   "set": {
+    "school": "Shawnee State",
+    "division": "NCAA D2"
+   },
+   "evidence_url": "https://ssubears.com/sports/womens-soccer/coaches",
+   "rationale": "programme continues on the NCAA D2 row from 2026 (membership transition); same official staff page"
+  },
+  {
+   "coach_id": "fb87ecfa\u2026",
+   "expected_old": {
+    "school": "Shawnee State University",
+    "division": "NAIA"
+   },
+   "set": {
+    "school": "Shawnee State",
+    "division": "NCAA D2"
+   },
+   "evidence_url": "https://ssubears.com/sports/womens-soccer/coaches",
+   "rationale": "programme continues on the NCAA D2 row from 2026 (membership transition); same official staff page"
+  }
+ ],
+ "domains": [
+  {
+   "op": "UPDATE",
+   "domain": "ecccathletics.com",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "unitid": null
+   },
+   "set": {
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "unitid": 175643,
+    "athletics_entity_id": "AE-U175643",
+    "claimed_unitids": "[175643]",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "East Central CC",
+    "identity_method": "OWNERSHIP_CHAIN",
+    "identity_strength": "WHOLE_NAME",
+    "final_url": "https://ecccathletics.com/landing/index",
+    "ownership_class": "CURRENT_PRIMARY"
+   },
+   "provenance": "chain: eccc.edu (East Central Community College) athletics page links http://www.ecccathletics.com -> og:site_name \"East Central CC\", page text \"East Central Community College\", MACCC"
+  },
+  {
+   "op": "INSERT",
+   "domain": "eccc.edu",
+   "set": {
+    "status": "VERIFIED",
+    "role": "INSTITUTION_SITE",
+    "unitid": 175643,
+    "claimed_keys": "[\"East Central (OK)\"]",
+    "claimed_unitids": "[175643]",
+    "evidence_kind": "TITLE",
+    "evidence_text": "Home | East Central Community College",
+    "identity_method": "PAGE_SELF_IDENTIFICATION",
+    "identity_strength": "WHOLE_NAME",
+    "final_url": "https://www.eccc.edu/",
+    "ownership_class": "CURRENT_PRIMARY"
+   },
+   "provenance": "institution site title \"East Central Community College\"; NCES 175643"
+  },
+  {
+   "op": "UPDATE",
+   "domain": "centralpennknights.com",
+   "expected_old": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "unitid": null
+   },
+   "set": {
+    "status": "VERIFIED",
+    "role": "ATHLETICS_SITE",
+    "unitid": 211477,
+    "athletics_entity_id": "AE-U211477",
+    "evidence_kind": "OG_SITE_NAME",
+    "evidence_text": "Central Penn College Athletics",
+    "identity_method": "OWNERSHIP_CHAIN",
+    "identity_strength": "WHOLE_NAME",
+    "final_url": "https://centralpennknights.com/landing/index",
+    "ownership_class": "CURRENT_PRIMARY"
+   },
+   "provenance": "chain: centralpenn.edu/athletics links centralpennknights.com -> og:site_name \"Central Penn College Athletics\""
+  },
+  {
+   "op": "INSERT",
+   "domain": "centralpenn.edu",
+   "set": {
+    "status": "VERIFIED",
+    "role": "INSTITUTION_SITE",
+    "unitid": 211477,
+    "claimed_keys": "[\"Central Penn\",\"Central Penn College\"]",
+    "claimed_unitids": "[211477]",
+    "evidence_kind": "TITLE",
+    "evidence_text": "Central Penn College | Career-focused education since 1881",
+    "identity_method": "PAGE_SELF_IDENTIFICATION",
+    "identity_strength": "WHOLE_NAME",
+    "final_url": "https://www.centralpenn.edu/",
+    "ownership_class": "CURRENT_PRIMARY"
+   },
+   "provenance": "institution site title \"Central Penn College\""
+  }
+ ],
+ "_redaction": "coach ids truncated to 8 chars; no names or addresses are present in the raw fixture either. Raw fixture (gitignored): server/data/generated/audit-fixtures/p7e_structural_fixture.json"
+}

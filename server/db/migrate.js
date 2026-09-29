@@ -876,6 +876,20 @@ export function ensureAthleticsEntityColumns(db) {
   }
 }
 
+/**
+ * Phase 7E refresh-integrity columns. Both nullable, both additive:
+ *   institution_aliases.athletics_entity_id — an alias can name a campus/branch entity that
+ *     has no UNITID of its own ("IU Columbus" cannot be said with unitid 151111 alone);
+ *   athletics_domains.ownership_class — CURRENT_PRIMARY | CURRENT_ALIAS | HISTORICAL |
+ *     SHARED_PLATFORM | UNVERIFIED | WRONG_OWNER, set by the guarded refresh promotion.
+ * The Phase 7E tables themselves are created by schema.sql. Idempotent.
+ */
+export function ensureRefreshIntegrityColumns(db) {
+  const has = (t) => !!db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(t);
+  if (has('institution_aliases')) addMissingColumns(db, 'institution_aliases', [['athletics_entity_id', 'TEXT']]);
+  if (has('athletics_domains')) addMissingColumns(db, 'athletics_domains', [['ownership_class', 'TEXT']]);
+}
+
 function addMissingColumns(db, table, columns) {
   const existing = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((c) => c.name));
   for (const [name, ddl] of columns) {
@@ -1405,6 +1419,8 @@ export function migrate(db) {
   preserveMailboxIdentityAcrossOperators(db);
   retireProgrammeSeasonDivision(db);
   scopeInstitutionAliases(db);
+  // after the alias rebuild above, which copies a fixed column list
+  ensureRefreshIntegrityColumns(db);
   if (db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'programme_conference_seasons'").get().n) {
     addMissingColumns(db, 'programme_conference_seasons', PCS_COLUMNS);
   }

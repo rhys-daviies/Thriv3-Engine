@@ -38,6 +38,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import db from '../db/client.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { parseCsvToObjects } from '../lib/csv.js';
 import { utcNow } from '../lib/time.js';
 
@@ -188,6 +189,7 @@ export function run({ dir = DIR, apply = false, log = console.log } = {}) {
   }
 
   if (!apply) { log('\n  nothing written. re-run with --apply\n'); return { rows, report, written: 0 }; }
+  assertLegacyWriteAllowed(db, { script: 'importProgrammeSeasons.js' });
 
   const saved = backup();
   if (saved) log(`\n  backup: ${saved}`);

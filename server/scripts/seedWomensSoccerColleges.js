@@ -15,6 +15,8 @@
 import fs from 'node:fs';
 import { parseCsv } from '../lib/csv.js';
 import { College } from '../db/entities/college.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
+import db from '../db/client.js';
 import { loadAcademicScores } from '../lib/seedData.js';
 import { matchSchoolName, rankToRating } from '../lib/schoolMatch.js';
 
@@ -40,6 +42,7 @@ function loadRankings() {
 }
 
 function main() {
+  if (APPLY) assertLegacyWriteAllowed(db, { script: 'seedWomensSoccerColleges.js' });
   const rankings = loadRankings();
   const academicScores = loadAcademicScores();
   const academicByDivision = {};

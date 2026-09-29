@@ -29,6 +29,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import db from '../db/client.js';
+import { assertLegacyWriteAllowed } from '../lib/refresh/canonicalWriteGuard.js';
 import { utcNow } from '../lib/time.js';
 import { resolveConference } from '../../shared/conferenceIdentity.js';
 
@@ -74,6 +75,7 @@ export function run({ apply = false, dir = DIR, log = console.log } = {}) {
   log(`conference spellings not resolved        : ${unresolved.length}`);
   for (const [name, n] of unresolved.slice(0, 12)) log(`  ${String(n).padStart(4)}  ${name}`);
   if (!apply) { log('\ndry run — pass --apply to write'); return { rows, unresolved, written: 0 }; }
+  assertLegacyWriteAllowed(db, { script: 'importOfficialMembership.js' });
   const cols = Object.keys(rows[0]);
   const ins = db.prepare(`INSERT INTO conference_members_official (${cols.join(', ')}) VALUES (${cols.map((c) => `@${c}`).join(', ')})`);
   const write = db.transaction((all) => {
