@@ -1,0 +1,300 @@
+{
+ "phase": "8A-universe",
+ "fixture_hash": "480dd710bed817c6fe27abe4ca1ac1800a64a735831d2bd11f8e39553d447661",
+ "action_counts": {
+  "entity_create": 126,
+  "entity_update": 1,
+  "college_repair": 3,
+  "programme_create": 291,
+  "membership_verify": 81,
+  "row_link": 2,
+  "deactivate": 1,
+  "domain_register": 0
+ },
+ "entity_update": [
+  {
+   "label": "Lincoln Trail -> SYSTEM_CAMPUS of Illinois Eastern Community Colleges",
+   "evidence": "College Scorecard INSTNM \"Illinois Eastern Community Colleges-Lincoln Trail College\" (location 14570703, parent 145707); NJCAA Region 24 2026-27",
+   "reason": "federal identity of the Lincoln Trail NJCAA programme",
+   "blast_radius": "one entity; its row gains parent UNITID 145707"
+  }
+ ],
+ "college_repair": [
+  {
+   "label": "East Central (OK) -> East Central Community College",
+   "evidence": "NJCAA Region 23 (macccathletics.com) 2026-27 lists \"East Central Community College\"; ecccathletics.com self-identifies \"East Central CC\" / Warriors; NCES 175643 (Phase 7E)",
+   "reason": "remove the East Central University (Oklahoma) contamination: \"(OK)\" label, Tigers nickname and ECU logo",
+   "blast_radius": "display fields of one NJCAA row; records keyed by college_id are unaffected; an unacknowledged legacy import keyed on the old name would now report it unmatched (legacy importers are guarded)"
+  },
+  {
+   "label": "STLCC carrier row -> St. Louis Community College",
+   "evidence": "NJCAA Region 16 lists one \"St. Louis Community College\" (latest published 2024-25); archersathletics.com \"St. Louis Community College Archers\", MCCAC, Region 16 (Phase 7E); IPEDS 179308 is one institution",
+   "reason": "STLCC athletics are consolidated: one programme, not three campus programmes",
+   "blast_radius": "name/conference of the row that already carries the STLCC membership period; no dependents on any STLCC row"
+  },
+  {
+   "label": "Lincoln Trail unitid -> parent 145707",
+   "evidence": "as above",
+   "reason": "row carries its parent institution UNITID, like other system campuses",
+   "blast_radius": "one NJCAA row; no dependents keyed on unitid"
+  }
+ ],
+ "row_link": [
+  {
+   "label": "St. Louis Community-Florissant Valley -> STLCC (stale campus row)",
+   "evidence": "as above",
+   "reason": "stale campus row of a consolidated programme",
+   "blast_radius": "row made inactive and linked; no dependents"
+  },
+  {
+   "label": "St. Louis Community-Meramec -> STLCC (stale campus row)",
+   "evidence": "as above",
+   "reason": "stale campus row of a consolidated programme",
+   "blast_radius": "row made inactive and linked; no dependents"
+  }
+ ],
+ "deactivate": [
+  {
+   "label": "George C. Wallace [mens-soccer] — phantom",
+   "evidence": "ACCC (NJCAA Region 22) 2026-27 men's soccer teams page lists 5 programmes; of the three George C. Wallace federal institutions (Dothan 101286, Hanceville 101295, Selma 101301) only Hanceville fields soccer, and it is Thriv3's separate \"Wallace State\" row; this row has no records, rosters, coaches or coach seasons",
+   "reason": "phantom programme — no George C. Wallace soccer programme exists apart from Wallace State (Hanceville)",
+   "blast_radius": "one NJCAA row inactive (kept); its seeded membership marked DISCONTINUED"
+  }
+ ],
+ "programme_create_by_division_sport": {
+  "NJCAA|mens-soccer": 96,
+  "NJCAA|womens-soccer": 171,
+  "USCAA|mens-soccer": 12,
+  "USCAA|womens-soccer": 12
+ },
+ "membership_verify_by_tier": {
+  "B": 78,
+  "A": 3
+ },
+ "held": {
+  "cross_association": [],
+  "ambiguous": [],
+  "prior_season_only": [
+   "NJCAA mens-soccer Connors State College (2025, tier C)",
+   "NJCAA mens-soccer Eastern Oklahoma State College (2025, tier C)",
+   "NJCAA mens-soccer Murray State College (2025, tier C)",
+   "NJCAA mens-soccer National Park College (2025, tier C)",
+   "NJCAA mens-soccer Northern Oklahoma College-Enid (2025, tier C)",
+   "NJCAA mens-soccer Rich Mountain (2025, tier C)",
+   "NJCAA mens-soccer University of Arkansas Cossatot (2025, tier C)",
+   "NJCAA womens-soccer Connors State College (2025, tier C)",
+   "NJCAA womens-soccer Eastern Oklahoma State College (2025, tier C)",
+   "NJCAA womens-soccer Murray State College (2025, tier C)",
+   "NJCAA womens-soccer National Park College (2025, tier C)",
+   "NJCAA womens-soccer Northeastern Oklahoma A&M College (2025, tier C)",
+   "NJCAA womens-soccer Northern Oklahoma College-Enid (2025, tier C)",
+   "NJCAA womens-soccer Redlands Community College (2025, tier C)",
+   "NJCAA womens-soccer Rich Mountain (2025, tier C)",
+   "NJCAA womens-soccer Rose State College (2025, tier C)",
+   "NJCAA womens-soccer Seminole State College (2025, tier C)",
+   "NJCAA womens-soccer University of Arkansas Cossatot (2025, tier C)",
+   "NJCAA mens-soccer Black Hawk College (2025, tier C)",
+   "NJCAA mens-soccer Blackhawk Technical College (2025, tier C)",
+   "NJCAA mens-soccer Elgin CC (2025, tier C)",
+   "NJCAA mens-soccer Harry S. Truman College (2025, tier C)",
+   "NJCAA mens-soccer Illinois Valley CC (2025, tier C)",
+   "NJCAA mens-soccer Joliet Junior College (2025, tier C)",
+   "NJCAA mens-soccer Kennedy-King College (2025, tier C)",
+   "NJCAA mens-soccer Kishwaukee College (2025, tier C)",
+   "NJCAA mens-soccer Madison College (2025, tier C)",
+   "NJCAA mens-soccer Malcolm X College (2025, tier C)",
+   "NJCAA mens-soccer McHenry County College (2025, tier C)",
+   "NJCAA mens-soccer Milwaukee Area Technical College (2025, tier C)",
+   "NJCAA mens-soccer Moraine Valley CC (2025, tier C)",
+   "NJCAA mens-soccer Morton College (2025, tier C)",
+   "NJCAA mens-soccer Oakton College (2025, tier C)",
+   "NJCAA mens-soccer South Suburban College (2025, tier C)",
+   "NJCAA mens-soccer Triton College (2025, tier C)",
+   "NJCAA mens-soccer UW-Whitewater at Rock County (2025, tier C)",
+   "NJCAA mens-soccer Waubonsee CC (2025, tier C)",
+   "NJCAA womens-soccer Black Hawk College (2025, tier C)",
+   "NJCAA womens-soccer Blackhawk Technical College (2025, tier C)",
+   "NJCAA womens-soccer Carl Sandburg College (2025, tier C)",
+   "NJCAA womens-soccer College of DuPage (2025, tier C)",
+   "NJCAA womens-soccer College of Lake County (2025, tier C)",
+   "NJCAA womens-soccer Elgin CC (2025, tier C)",
+   "NJCAA womens-soccer Harper College (2025, tier C)",
+   "NJCAA womens-soccer Harry S. Truman College (2025, tier C)",
+   "NJCAA womens-soccer Illinois Valley CC (2025, tier C)",
+   "NJCAA womens-soccer Joliet Junior College (2025, tier C)",
+   "NJCAA womens-soccer Kankakee CC (2025, tier C)",
+   "NJCAA womens-soccer Kishwaukee College (2025, tier C)",
+   "NJCAA womens-soccer Madison College (2025, tier C)",
+   "NJCAA womens-soccer Milwaukee Area Technical College (2025, tier C)",
+   "NJCAA womens-soccer Moraine Valley CC (2025, tier C)",
+   "NJCAA womens-soccer Morton College (2025, tier C)",
+   "NJCAA womens-soccer Oakton College (2025, tier C)",
+   "NJCAA womens-soccer Prairie State College (2025, tier C)",
+   "NJCAA womens-soccer Richard J. Daley College (2025, tier C)",
+   "NJCAA womens-soccer Rock Valley College (2025, tier C)",
+   "NJCAA womens-soccer South Suburban College (2025, tier C)",
+   "NJCAA womens-soccer Triton College (2025, tier C)",
+   "NJCAA womens-soccer UW-Whitewater at Rock County (2025, tier C)",
+   "NJCAA womens-soccer Waubonsee CC (2025, tier C)",
+   "NJCAA womens-soccer Wilbur Wright College (2025, tier C)",
+   "NJCAA mens-soccer Minnesota West Community & Technical College (2025, tier C)",
+   "NJCAA womens-soccer Alexandria Technical & Community College (2025, tier C)",
+   "NJCAA womens-soccer Anoka-Ramsey Community College (2025, tier C)",
+   "NJCAA womens-soccer North Dakota State College of Science (2025, tier C)",
+   "NJCAA womens-soccer Rochester Community and Technical College (2025, tier C)",
+   "NJCAA mens-soccer Metropolitan Community College (2024, tier C)",
+   "NJCAA mens-soccer State Fair Community College (2024, tier C)",
+   "NJCAA womens-soccer Crowder College (2024, tier C)",
+   "NJCAA womens-soccer East Central College (2024, tier C)",
+   "NJCAA womens-soccer Jefferson College (2024, tier C)",
+   "NJCAA womens-soccer Metropolitan Community College (2024, tier C)",
+   "NJCAA womens-soccer Mineral Area College (2024, tier C)",
+   "NJCAA womens-soccer St. Charles Community College (2024, tier C)",
+   "NJCAA womens-soccer St. Louis Community College (2024, tier C)",
+   "NJCAA womens-soccer State Fair Community College (2024, tier C)",
+   "NJCAA mens-soccer CCBC Catonsville (2025, tier C)",
+   "NJCAA mens-soccer CCBC Essex (2025, tier C)",
+   "NJCAA mens-soccer Carroll Community College (2025, tier C)",
+   "NJCAA mens-soccer College of Southern Maryland (2025, tier C)",
+   "NJCAA mens-soccer Prince George's Community College (2025, tier C)",
+   "NJCAA mens-soccer WVU Potomac State College (2025, tier C)",
+   "NJCAA womens-soccer Allegany College of Maryland (2025, tier C)",
+   "NJCAA womens-soccer Anne Arundel Community College (2025, tier C)",
+   "NJCAA womens-soccer CCBC Catonsville (2025, tier C)",
+   "NJCAA womens-soccer CCBC Essex (2025, tier C)",
+   "NJCAA womens-soccer Carroll Community College (2025, tier C)",
+   "NJCAA womens-soccer College of Southern Maryland (2025, tier C)",
+   "NJCAA womens-soccer Frederick Community College (2025, tier C)",
+   "NJCAA womens-soccer Garrett College (2025, tier C)",
+   "NJCAA womens-soccer Hagerstown Community College (2025, tier C)",
+   "NJCAA womens-soccer Harford Community College (2025, tier C)",
+   "NJCAA womens-soccer Howard Community College (2025, tier C)",
+   "NJCAA womens-soccer Montgomery College (MD) (2025, tier C)",
+   "NJCAA womens-soccer Prince George's Community College (2025, tier C)",
+   "NJCAA womens-soccer WVU Potomac State College (2025, tier C)",
+   "USCAA mens-soccer Denmark Technical College (2025, tier C)",
+   "USCAA mens-soccer Stanton (2025, tier C)"
+  ],
+  "name_collision_renamed": []
+ },
+ "simulation": {
+  "gates": {
+   "naia_freeze_exact": true,
+   "ncaa_truthful_unchanged": true,
+   "naia_eligible_unchanged": true,
+   "ncaa_eligible_unchanged": true,
+   "no_coach_eligibility_change": true,
+   "no_coach_row_change": true,
+   "no_roster_or_record_mutation": true,
+   "frozen_seasons_unchanged": true,
+   "identity_invariant": true,
+   "integrity_counters_zero": true,
+   "ncaa_naia_universe_unchanged": true
+  },
+  "pass": true,
+  "pre": {
+   "univ": {
+    "NJCAA": {
+     "logical": 223,
+     "men": 225,
+     "women": 0
+    },
+    "USCAA": {
+     "logical": 22,
+     "men": 12,
+     "women": 10
+    }
+   },
+   "verified": {
+    "NJCAA": 0,
+    "USCAA": 1
+   }
+  },
+  "post": {
+   "univ": {
+    "NJCAA": {
+     "logical": 489,
+     "men": 318,
+     "women": 171
+    },
+    "USCAA": {
+     "logical": 46,
+     "men": 24,
+     "women": 22
+    }
+   },
+   "verified": {
+    "NJCAA": 336,
+    "USCAA": 37
+   }
+  },
+  "validator": {
+   "status": "PASS",
+   "hard": [],
+   "documented": 7,
+   "warnings": [
+    "stale allowlist entry (no longer a duplicate): AE-U179308|mens-soccer"
+   ]
+  },
+  "eligible": "4157 -> 4157"
+ },
+ "live": {
+  "gates": {
+   "naia_freeze_exact": true,
+   "ncaa_truthful_unchanged": true,
+   "naia_eligible_unchanged": true,
+   "ncaa_eligible_unchanged": true,
+   "no_coach_eligibility_change": true,
+   "no_coach_row_change": true,
+   "no_roster_or_record_mutation": true,
+   "frozen_seasons_unchanged": true,
+   "identity_invariant": true,
+   "integrity_counters_zero": true,
+   "ncaa_naia_universe_unchanged": true
+  },
+  "pass": true,
+  "pre": {
+   "univ": {
+    "NJCAA": {
+     "logical": 223,
+     "men": 225,
+     "women": 0
+    },
+    "USCAA": {
+     "logical": 22,
+     "men": 12,
+     "women": 10
+    }
+   },
+   "verified": {
+    "NJCAA": 0,
+    "USCAA": 1
+   }
+  },
+  "post": {
+   "univ": {
+    "NJCAA": {
+     "logical": 489,
+     "men": 318,
+     "women": 171
+    },
+    "USCAA": {
+     "logical": 46,
+     "men": 24,
+     "women": 22
+    }
+   },
+   "verified": {
+    "NJCAA": 336,
+    "USCAA": 37
+   }
+  },
+  "validator": {
+   "status": "PASS",
+   "hard": [],
+   "documented": 7,
+   "warnings": []
+  },
+  "eligible": "4157 -> 4157"
+ }
+}

@@ -108,3 +108,12 @@ docs/validation/integrity-audit/phase7e_historical_simulation.redacted.json
 docs/validation/integrity-audit/phase7e_historical_simulation_diff.redacted.md
 docs/validation/integrity-audit/phase7e_njcaa_uscaa_baseline.redacted.json
 docs/validation/integrity-audit/phase7e_closure_notes.md
+docs/validation/integrity-audit/phase8a_domain_fixture.redacted.json
+docs/validation/integrity-audit/phase8a_identity_outcomes.redacted.json
+docs/validation/integrity-audit/phase8a_njcaa_uscaa_universe_gatherer_foundation_snapshot.json
+docs/validation/integrity-audit/phase8a_pilot.redacted.json
+docs/validation/integrity-audit/phase8a_pilot_refresh_diff.redacted.md
+docs/validation/integrity-audit/phase8a_runtime_coach_audit.redacted.json
+docs/validation/integrity-audit/phase8a_source_discovery.redacted.json
+docs/validation/integrity-audit/phase8a_universe_comparison.redacted.json
+docs/validation/integrity-audit/phase8a_universe_fixture.redacted.json

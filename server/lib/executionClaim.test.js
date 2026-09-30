@@ -17,6 +17,13 @@ import { recordManualOutboundAttempt } from './outboundBudget.js';
 import fs from 'node:fs';
 import { ACCEPTED_SOURCE } from '../../shared/outreachMessageState.js';
 
+// PHASE 8A: this file models outreach mechanics with coaches seeded without a verified,
+// current address — the pre-8A coach offer. It opts in to that explicitly; the default
+// runtime floor (verified address, coach not PROVEN_STALE) is tested in
+// server/lib/coachEligibility.test.js.
+process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+
+
 /**
  * D4.5 — EVERYTHING THAT MUST BE TRUE BEFORE A PROVIDER IS CALLED, COMMITTED
  * WITH THE CLAIM OR NOT AT ALL.

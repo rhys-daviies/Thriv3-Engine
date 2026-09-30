@@ -1,3 +1,4 @@
+import { recipientIneligibility } from '../lib/coachEligibility.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { Player } from '../db/entities/player.js';
@@ -394,6 +395,17 @@ export async function sendOutreach({
       // this loop and only some of them go through a list builder.
       if (isSuppressed(coach.email)) {
         results.push({ email: coach.email, name: coach.name, status: 'suppressed' });
+        continue;
+      }
+
+      // PHASE 8A — the runtime coach floor, here for the same reason as suppression: every
+      // path to a send passes this loop, including recipients that came from the
+      // recommendation blob or a client body rather than the coaches table. The address must
+      // belong to a VERIFIED, not-PROVEN_STALE coach of this programme. Explicit opt-out
+      // only: THRIV3_ALLOW_LEGACY_COACHES=1 (server/lib/coachEligibility.js).
+      const notEligible = recipientIneligibility({ email: coach.email, collegeName, sport: athlete.sport });
+      if (notEligible) {
+        results.push({ email: coach.email, name: coach.name, status: 'not-eligible', reason: notEligible });
         continue;
       }
 

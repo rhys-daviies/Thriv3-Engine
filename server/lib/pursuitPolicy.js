@@ -1,3 +1,4 @@
+import { coachIneligibility, legacyCoachesAllowed } from './coachEligibility.js';
 import db from '../db/client.js';
 import {
   classifyRole, hasUsableEmail, titleOf, CONTACT_LADDER,
@@ -267,6 +268,8 @@ export const INELIGIBLE_REASON = Object.freeze({
   DUPLICATE_ADDRESS: 'DUPLICATE_ADDRESS',
   SUPPRESSED: 'SUPPRESSED',
   TEAM_INBOX_NOT_NEEDED: 'TEAM_INBOX_NOT_NEEDED',
+  /** Phase 8A runtime floor: address not verified, or coach PROVEN_STALE (coachEligibility.js). */
+  NOT_OUTREACH_ELIGIBLE: 'NOT_OUTREACH_ELIGIBLE',
 });
 
 /**
@@ -455,9 +458,10 @@ function pursuitOrder(a, b) {
  *
  * `emailStatus` travels with every candidate and NOTHING TREATS `inferred` AS
  * CONFIRMED. 18.3% of addresses were derived from a programme's pattern rather
- * than read off a page, and they are pursued — the drafting CLI has always
- * included them, and `--skip-inferred` is opt-in — but the plan says which is
- * which so a caller can decide differently without this having decided for it.
+ * than read off a page. Until Phase 8A they were pursued; since 8A the runtime
+ * floor (server/lib/coachEligibility.js) refuses any address that is not
+ * VERIFIED and any PROVEN_STALE coach, as NOT_OUTREACH_ELIGIBLE with the reason.
+ * The pre-8A behaviour is an explicit opt-in: THRIV3_ALLOW_LEGACY_COACHES=1.
  */
 function candidates(staff, { athletePosition }) {
   const ineligible = [];
@@ -472,10 +476,15 @@ function candidates(staff, { athletePosition }) {
     emailStatus: c.email_status || 'unknown',
     usable: hasUsableEmail(c),
   }));
+  const legacy = legacyCoachesAllowed();
+  const floorOf = new Map(staff.map((c) => [c.id, legacy ? null : coachIneligibility(c)]));
 
   const contactable = [];
   for (const c of rows) {
     if (!c.usable) { ineligible.push({ ...c, reason: INELIGIBLE_REASON.NO_USABLE_EMAIL }); continue; }
+    // Phase 8A: the runtime floor comes before role, so an inferred/generic/unknown address or
+    // a departed coach can never be pursued — including as the team-inbox fallback.
+    if (floorOf.get(c.coachId)) { ineligible.push({ ...c, reason: INELIGIBLE_REASON.NOT_OUTREACH_ELIGIBLE, detail: floorOf.get(c.coachId) }); continue; }
     const pursued = PURSUED_ROLES.includes(c.role) || (c.role === 'goalkeeper' && isKeeper);
     if (!pursued && c.role !== FALLBACK_ROLE) {
       ineligible.push({ ...c, reason: INELIGIBLE_REASON.ROLE_NOT_PURSUED });

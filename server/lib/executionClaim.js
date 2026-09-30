@@ -1,3 +1,4 @@
+import { coachIneligibility, legacyCoachesAllowed } from './coachEligibility.js';
 import db from '../db/client.js';
 import { utcNow, utcToday } from './time.js';
 import { programmeMessageWithContext, MESSAGE_STATE as CONTENT_STATE } from './programmeMessages.js';
@@ -134,6 +135,8 @@ export const CLAIM_REFUSAL = Object.freeze({
    * drift apart.
    */
   FOLLOW_UP_NOT_DUE: 'FOLLOW_UP_NOT_DUE',
+  /** Phase 8A runtime floor: the coach's address is no longer VERIFIED, or the coach is PROVEN_STALE. */
+  COACH_NOT_OUTREACH_ELIGIBLE: 'COACH_NOT_OUTREACH_ELIGIBLE',
 });
 
 function fail(code, message) {
@@ -142,7 +145,7 @@ function fail(code, message) {
   return err;
 }
 
-const COACH = db.prepare('SELECT id, full_name, email, school, sport FROM coaches WHERE id = ?');
+const COACH = db.prepare('SELECT id, full_name, email, school, sport, email_status, currentness_status FROM coaches WHERE id = ?');
 const OUTREACH_BY_ID = db.prepare('SELECT id, revoked_at FROM outreach WHERE id = ?');
 /**
  * The two athlete facts the wire content needs — D4.7. Read here rather than
@@ -478,6 +481,17 @@ export function assertExecutionSafety({
     throw fail(CLAIM_REFUSAL.RECIPIENT_EMAIL_CHANGED,
       'This coach\'s address has changed since the message was approved. Somebody needs to look '
       + 'at it rather than send to an inbox nobody agreed to.');
+  }
+  const floor = legacyCoachesAllowed() ? null : coachIneligibility(coach);
+  if (floor) {
+    /**
+     * PHASE 8A — re-checked at claim time, not only when the plan was built: a coach can be
+     * PROVEN_STALE or lose a verified address between approval and send, and an attempt
+     * materialised before 8A may name an inferred address. Refused before any capacity is
+     * spent. Opt-out only via THRIV3_ALLOW_LEGACY_COACHES=1.
+     */
+    throw fail(CLAIM_REFUSAL.COACH_NOT_OUTREACH_ELIGIBLE,
+      `This coach is not outreach-eligible (${floor}). Nothing was claimed and no capacity was spent.`);
   }
   if (isSendCapped(coach.email)) {
     /**

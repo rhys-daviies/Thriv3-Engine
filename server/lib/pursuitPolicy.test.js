@@ -272,17 +272,27 @@ describe('who may be pursued', () => {
     expect(plan.nextAction).toBe(PURSUIT_ACTION.INITIAL_OUTREACH);
   });
 
-  it('carries the address provenance without treating inferred as confirmed', () => {
+  it('Phase 8A: an inferred address is NOT pursued by default — refused as NOT_OUTREACH_ELIGIBLE, with its provenance', () => {
     const campaign = makeCampaign();
     const pc = makeProgramme(campaign, { tier: 'A' });
     coach('Head Coach', { email: 'h@duke.edu', name: 'Aa', status: 'inferred' });
-
     const plan = programmePursuitPlan({ programmeCampaignId: pc });
-    // Pursued — the drafting CLI has always included inferred addresses and
-    // --skip-inferred is opt-in — but the plan says which is which.
-    expect(plan.coaches[0]).toMatchObject({ emailStatus: 'inferred' });
-    const src = fs.readFileSync(new URL('./pursuitPolicy.js', import.meta.url), 'utf8');
-    expect(src).not.toMatch(/emailStatus\s*===\s*'verified'|identity[_ ]confirmed/i);
+    expect(plan.coaches.map((c) => c.email)).not.toContain('h@duke.edu');
+    const refused = plan.ineligible.find((c) => c.email === 'h@duke.edu');
+    expect(refused).toMatchObject({ reason: 'NOT_OUTREACH_ELIGIBLE', emailStatus: 'inferred' });
+    expect(refused.detail).toMatch(/EMAIL_NOT_VERIFIED/);
+  });
+
+  it('pre-8A behaviour (inferred pursued, provenance carried) only under the explicit legacy opt-in', () => {
+    const prev = process.env.THRIV3_ALLOW_LEGACY_COACHES;
+    process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+    try {
+      const campaign = makeCampaign();
+      const pc = makeProgramme(campaign, { tier: 'A' });
+      coach('Head Coach', { email: 'h@duke.edu', name: 'Aa', status: 'inferred' });
+      const plan = programmePursuitPlan({ programmeCampaignId: pc });
+      expect(plan.coaches[0]).toMatchObject({ emailStatus: 'inferred' });
+    } finally { if (prev === undefined) delete process.env.THRIV3_ALLOW_LEGACY_COACHES; else process.env.THRIV3_ALLOW_LEGACY_COACHES = prev; }
   });
 });
 

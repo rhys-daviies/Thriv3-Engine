@@ -1,5 +1,6 @@
 import express from 'express';
 import db from '../db/client.js';
+import { applyCoachFloor } from '../lib/coachEligibility.js';
 import { findCanonicalCollege } from '../lib/collegeSearch.js';
 
 /**
@@ -41,7 +42,7 @@ export const programmeCoachesRouter = express.Router();
  * is the string "N/A" would be offered, selected, and refused at the transport.
  */
 const STAFF = db.prepare(`
-  SELECT id, full_name, email, school, division, sport, position_title, email_status
+  SELECT id, full_name, email, school, division, sport, position_title, email_status, currentness_status
     FROM coaches
    WHERE school = @school AND sport = @sport
      AND email IS NOT NULL AND trim(email) != '' AND upper(trim(email)) != 'N/A'
@@ -66,7 +67,9 @@ const STAFF = db.prepare(`
  * legacy read rather than blank every outreach list.
  */
 const RECONCILED_FLAG = /^(1|true|yes|on)$/i;
-const useReconciled = () => RECONCILED_FLAG.test(process.env.THRIV3_USE_RECONCILED_COACHES || '');
+const useReconciled = () => RECONCILED_FLAG.test(String(process.env.THRIV3_USE_RECONCILED_COACHES || '').trim());
+/** Live row for a reconciled coach: the snapshot is re-checked against what the coach is NOW. */
+const LIVE_COACH = db.prepare('SELECT id, email, email_status, currentness_status FROM coaches WHERE id = ?');
 
 let reconciledStmt; // undefined until the table is first seen; never negatively cached
 function reconciledStaff(school, sport) {
@@ -88,14 +91,31 @@ function reconciledStaff(school, sport) {
   return reconciledStmt.all({ school, sport });
 }
 
-/** The staff rows for a (school, sport), honouring the reconciled feature flag. */
+/**
+ * The staff rows for a (school, sport).
+ *
+ * PHASE 8A — FAIL-SAFE BY DEFAULT. Whatever the source, a row is offered only if it passes
+ * the runtime floor (server/lib/coachEligibility.js: verified address, coach not
+ * PROVEN_STALE). The reconciled projection, when switched on AND present AND non-empty, is
+ * preferred — it also proves institution corroboration — and each of its rows is re-checked
+ * against the live coach (a snapshot cannot keep serving a coach who has since departed or
+ * whose address changed). An empty reconciled table is treated as absent, never as "nobody".
+ * THRIV3_ALLOW_LEGACY_COACHES=1 is the explicit opt-in to the pre-8A unfiltered legacy list.
+ */
 function staffRows(school, sport) {
   if (useReconciled()) {
     const rows = reconciledStaff(school, sport);
-    if (rows) return rows; // authoritative when the table is present
-    console.warn('[colleges/coaches] THRIV3_USE_RECONCILED_COACHES on but coaches_reconciled absent; serving legacy coaches.');
+    const populated = rows && db.prepare('SELECT 1 FROM coaches_reconciled LIMIT 1').get();
+    if (populated) {
+      return rows.filter((r) => {
+        const live = LIVE_COACH.get(r.id);
+        return live && String(live.email || '').toLowerCase() === String(r.email || '').toLowerCase()
+          && live.currentness_status !== 'PROVEN_STALE' && live.email_status === 'verified';
+      });
+    }
+    console.warn('[colleges/coaches] THRIV3_USE_RECONCILED_COACHES on but coaches_reconciled absent or empty; serving the runtime-eligibility floor over legacy coaches.');
   }
-  return STAFF.all({ school, sport });
+  return applyCoachFloor(STAFF.all({ school, sport }));
 }
 
 /**

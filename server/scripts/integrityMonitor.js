@@ -33,6 +33,8 @@ import { classRank } from '../../shared/lifecycle/lifecycle.js';
 
 const NAIA_FREEZE = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../../shared/naiaIntegrityFreeze.json');
 export function loadNaiaFreeze(p = NAIA_FREEZE) { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; } }
+const DIVISION_BASELINE = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../../shared/njcaaUscaaBaseline.json');
+export function loadDivisionBaseline(p = DIVISION_BASELINE) { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return null; } }
 
 export function runMonitor(dbPath, { now = new Date(), season, reconcile = true } = {}) {
   const db = new Database(dbPath, { readonly: true, fileMustExist: true });
@@ -57,6 +59,30 @@ export function runMonitor(dbPath, { now = new Date(), season, reconcile = true 
     add('PROGRAMME', 'provisional_memberships', 'INFO', ctx.periods.filter((p) => p.last_season == null && p.membership_status === 'PROVISIONAL').map((p) => `${p.athletics_entity_id}|${p.sport} ${p.division} ${p.conference || ''} postseason ${p.postseason_eligible}`));
     const freezes = db.prepare("SELECT name FROM sqlite_master WHERE name='season_freezes'").get() ? db.prepare('SELECT * FROM season_freezes').all() : [];
     add('PROGRAMME', 'frozen_season_changed', 'HARD', freezes.filter((f) => JSON.stringify(seasonFingerprint(db, f.season)) !== f.fingerprint_json).map((f) => `${f.season}/${f.scope}`), `${freezes.length} frozen season(s)`);
+
+    // DIVISIONS STILL BEING ESTABLISHED (Phase 8A) — NJCAA / USCAA. Reported, never enforced:
+    // no coverage freeze yet. Drift is measured against the committed Phase 8A baseline.
+    const base8a = loadDivisionBaseline();
+    for (const div of ['NJCAA', 'USCAA']) {
+      const act = ctx.colleges.filter((c) => c.division === div && c.active === 1 && !linked.has(c.id) && c.athletics_entity_id);
+      const keys = new Set(act.map((c) => `${c.athletics_entity_id}|${c.sport}`));
+      const bySport = { m: act.filter((c) => c.sport === 'mens-soccer').length, w: act.filter((c) => c.sport === 'womens-soccer').length };
+      const b = base8a?.[div];
+      const added = b ? [...keys].filter((k) => !b.keys.includes(k)) : []; const removed = b ? b.keys.filter((k) => !keys.has(k)) : [];
+      checks.push({ category: div, id: 'programme_universe', severity: 'INFO', count: keys.size, sample: [], note: `logical ${keys.size} (men ${bySport.m}, women ${bySport.w})${b ? ` · drift vs Phase 8A baseline +${added.length}/-${removed.length}` : ''}` });
+      add(div, 'universe_drift_vs_baseline', 'WARN', [...added.map((k) => `+${k}`), ...removed.map((k) => `-${k}`)], 'changes since the Phase 8A baseline must come from guarded promotions');
+      const open = ctx.periods.filter((p) => p.last_season == null && act.some((c) => c.id === p.college_id));
+      add(div, 'membership_unverified', 'INFO', open.filter((p) => p.source_tier === 'SEED').map((p) => `${p.athletics_entity_id}|${p.sport}`), `${open.filter((p) => ['A', 'B'].includes(p.source_tier)).length} verified by an authoritative listing`);
+      add(div, 'membership_verification_stale', 'WARN', open.filter((p) => ['A', 'B'].includes(p.source_tier) && freshnessOf('membership', p, { now }).state === 'STALE').map((p) => `${p.athletics_entity_id}|${p.sport}`));
+      const ents = new Map(ctx.entities.map((e) => [e.athletics_entity_id, e]));
+      add(div, 'unresolved_entity', 'WARN', [...new Set(act.filter((c) => ents.get(c.athletics_entity_id)?.entity_kind === 'UNRESOLVED_FEDERAL').map((c) => `${c.name} (${c.athletics_entity_id})`))]);
+      const byEnt = new Map(); for (const c of act) (byEnt.get(c.athletics_entity_id) || byEnt.set(c.athletics_entity_id, new Set()).get(c.athletics_entity_id)).add(c.sport);
+      add(div, 'single_gender_entities', 'INFO', [...byEnt].filter(([, s]) => s.size === 1).map(([e, s]) => `${e} ${[...s][0]}`), 'an entity with one soccer programme — confirm the other is genuinely not sponsored');
+      add(div, 'entities_without_trusted_host', 'INFO', [...byEnt.keys()].filter((e) => !ctx.resolver.entityHosts(e).size));
+    }
+    if (db.prepare("SELECT name FROM sqlite_master WHERE name='refresh_observations'").get()) {
+      add('STAGING', 'unpromoted_contradictions', 'INFO', db.prepare("SELECT batch_id||' '||dataset||' '||coalesce(raw_name,'') k FROM refresh_observations WHERE classification='CONTRADICTION' AND promoted_at IS NULL").all().map((r) => r.k));
+    }
 
     // ROSTER
     const roster = db.prepare('SELECT id, college_name, sport, season, player_name, class_year_label FROM roster_players').all();

@@ -311,6 +311,9 @@ export default function BulkEmailComposer({ player, colleges, open, onOpenChange
                     {result?.status === 'suppressed' && (
                       <span className="shrink-0 text-xs text-muted-foreground" title="This coach opted out">opted out</span>
                     )}
+                    {result?.status === 'not-eligible' && (
+                      <span className="shrink-0 text-xs text-muted-foreground" title={`Not outreach-eligible: ${result.reason || 'address not verified or coach departed'}`}>not eligible</span>
+                    )}
                     {result?.status === 'error' && (
                       <XCircle className="h-4 w-4 shrink-0 text-destructive" title={result.error} />
                     )}

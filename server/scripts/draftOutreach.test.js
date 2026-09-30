@@ -2,6 +2,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
+// PHASE 8A: this file models drafting mechanics with coaches seeded without a verified,
+// current address — the pre-8A coach offer. It opts in to that explicitly; the default
+// runtime floor (verified address, coach not PROVEN_STALE) is tested in
+// server/lib/coachEligibility.test.js.
+process.env.THRIV3_ALLOW_LEGACY_COACHES = '1';
+
 /**
  * The one production path that WRITES, and the last one with no test.
  *

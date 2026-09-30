@@ -1,0 +1,533 @@
+{
+ "phase": "8A",
+ "rules": "College Scorecard (May 2026) federal registry; closed name rules (exact, core+state, words-contained, acronym) unique within region states; 57 curated overrides; no fuzzy scores; 8-digit ids are location codes (parent = floor(id/100)), never UNITIDs; no synthetic UNITIDs",
+ "counts": {
+  "RESOLVED_EXISTING_ENTITY": 230,
+  "RESOLVED_NEW_ENTITY": 264,
+  "SHARED_PARENT_UNITID": 22,
+  "IDENTITY_AMBIGUOUS": 6,
+  "BRANCH_CAMPUS": 5,
+  "UNRESOLVED": 2,
+  "NON_TITLE_IV": 1
+ },
+ "counts_by_association": {
+  "NJCAA|RESOLVED_EXISTING_ENTITY": 197,
+  "NJCAA|RESOLVED_NEW_ENTITY": 242,
+  "NJCAA|SHARED_PARENT_UNITID": 20,
+  "NJCAA|IDENTITY_AMBIGUOUS": 6,
+  "NJCAA|BRANCH_CAMPUS": 4,
+  "NJCAA|UNRESOLVED": 1,
+  "USCAA|RESOLVED_EXISTING_ENTITY": 33,
+  "USCAA|RESOLVED_NEW_ENTITY": 22,
+  "USCAA|UNRESOLVED": 1,
+  "USCAA|SHARED_PARENT_UNITID": 2,
+  "USCAA|NON_TITLE_IV": 1,
+  "USCAA|BRANCH_CAMPUS": 1
+ },
+ "non_trivial": [
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "Northern Oklahoma College-Enid",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Northern Oklahoma College 207281 (Tonkawa) — the Enid campus fields its own NJCAA teams",
+   "athletics_entity_id": "AE-X-NOC-ENID",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 207281,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Northern Oklahoma College-Enid",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Northern Oklahoma College 207281 (Tonkawa) — the Enid campus fields its own NJCAA teams",
+   "athletics_entity_id": "AE-X-NOC-ENID",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 207281,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "Bryant & Stratton College (WI)",
+   "identity": "IDENTITY_AMBIGUOUS",
+   "resolution_method": "SCORECARD_EXACT_NAME: 2 federal candidates",
+   "athletics_entity_id": null,
+   "federal": {
+    "unitid": null,
+    "parent_unitid": null,
+    "ipeds_name": null,
+    "method": "SCORECARD_EXACT_NAME"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "UW-Whitewater at Rock County",
+   "identity": "BRANCH_CAMPUS",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: branch campus of University of Wisconsin-Whitewater 240189 (former UW-Rock County, merged 2018); no own UNITID",
+   "athletics_entity_id": "AE-X-UWW-ROCK-COUNTY",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 240189,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Bryant and Stratton College (WI)",
+   "identity": "IDENTITY_AMBIGUOUS",
+   "resolution_method": "SCORECARD_EXACT_NAME: 2 federal candidates",
+   "athletics_entity_id": null,
+   "federal": {
+    "unitid": null,
+    "parent_unitid": null,
+    "ipeds_name": null,
+    "method": "SCORECARD_EXACT_NAME"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "UW-Whitewater at Rock County",
+   "identity": "BRANCH_CAMPUS",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: branch campus of University of Wisconsin-Whitewater 240189 (former UW-Rock County, merged 2018); no own UNITID",
+   "athletics_entity_id": "AE-X-UWW-ROCK-COUNTY",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 240189,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "Dallas College Cedar Valley",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Dallas College 224615 (one IPEDS institution since the 2020 consolidation); each campus fields its own NJCAA teams",
+   "athletics_entity_id": "AE-X-DALLAS-COLLEGE-CEDAR-VALLEY",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 224615,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "Dallas College Mountain View",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Dallas College 224615 (one IPEDS institution since the 2020 consolidation); each campus fields its own NJCAA teams",
+   "athletics_entity_id": "AE-X-DALLAS-COLLEGE-MOUNTAIN-VIEW",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 224615,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "Dallas College Richland",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Dallas College 224615 (one IPEDS institution since the 2020 consolidation); each campus fields its own NJCAA teams",
+   "athletics_entity_id": "AE-X-DALLAS-COLLEGE-RICHLAND",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 224615,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Cedar Valley College",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: pre-2020 name of Dallas College Cedar Valley",
+   "athletics_entity_id": "AE-X-DALLAS-COLLEGE-CEDAR-VALLEY",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 224615,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Dallas College Brookhaven",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Dallas College 224615 (one IPEDS institution since the 2020 consolidation); each campus fields its own NJCAA teams",
+   "athletics_entity_id": "AE-X-DALLAS-COLLEGE-BROOKHAVEN",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 224615,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Dallas College Cedar Valley",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Dallas College 224615 (one IPEDS institution since the 2020 consolidation); each campus fields its own NJCAA teams",
+   "athletics_entity_id": "AE-X-DALLAS-COLLEGE-CEDAR-VALLEY",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 224615,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Dallas College Eastfield",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Dallas College 224615 (one IPEDS institution since the 2020 consolidation); each campus fields its own NJCAA teams",
+   "athletics_entity_id": "AE-X-DALLAS-COLLEGE-EASTFIELD",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 224615,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Dallas College Mountain View",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Dallas College 224615 (one IPEDS institution since the 2020 consolidation); each campus fields its own NJCAA teams",
+   "athletics_entity_id": "AE-X-DALLAS-COLLEGE-MOUNTAIN-VIEW",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 224615,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Dallas College North Lake",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Dallas College 224615 (one IPEDS institution since the 2020 consolidation); each campus fields its own NJCAA teams",
+   "athletics_entity_id": "AE-X-DALLAS-COLLEGE-NORTH-LAKE",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 224615,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Dallas College Richland",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Dallas College 224615 (one IPEDS institution since the 2020 consolidation); each campus fields its own NJCAA teams",
+   "athletics_entity_id": "AE-X-DALLAS-COLLEGE-RICHLAND",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 224615,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Eastfield College",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: pre-2020 name of Dallas College Eastfield",
+   "athletics_entity_id": "AE-X-DALLAS-COLLEGE-EASTFIELD",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 224615,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Stratford University",
+   "identity": "UNRESOLVED",
+   "resolution_method": "no federal or Thriv3 match",
+   "athletics_entity_id": null,
+   "federal": {
+    "unitid": null,
+    "parent_unitid": null,
+    "ipeds_name": null,
+    "method": "NONE"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "East Central College",
+   "identity": "IDENTITY_AMBIGUOUS",
+   "resolution_method": "CURATED_FEDERAL_MATCH (College Scorecard record reviewed: name + state) -> federal UNITID 177250 (no Thriv3 entity yet); Thriv3 row \"East Central (OK)\" carries UNITID 175643",
+   "athletics_entity_id": "AE-U177250",
+   "federal": {
+    "unitid": 177250,
+    "parent_unitid": null,
+    "ipeds_name": "East Central College",
+    "method": "CURATED_FEDERAL_MATCH (College Scorecard record reviewed: name + state)"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "Jefferson College",
+   "identity": "IDENTITY_AMBIGUOUS",
+   "resolution_method": "CURATED_FEDERAL_MATCH (College Scorecard record reviewed: name + state) -> federal UNITID 177676 (no Thriv3 entity yet); Thriv3 row \"Jefferson (NY)\" carries UNITID 192022",
+   "athletics_entity_id": "AE-U177676",
+   "federal": {
+    "unitid": 177676,
+    "parent_unitid": null,
+    "ipeds_name": "Jefferson College",
+    "method": "CURATED_FEDERAL_MATCH (College Scorecard record reviewed: name + state)"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "Montgomery",
+   "identity": "IDENTITY_AMBIGUOUS",
+   "resolution_method": "CURATED_FEDERAL_MATCH (College Scorecard record reviewed: name + state) -> federal UNITID 214111 (no Thriv3 entity yet); Thriv3 row \"Montgomery\" carries UNITID 163426",
+   "athletics_entity_id": "AE-U214111",
+   "federal": {
+    "unitid": 214111,
+    "parent_unitid": null,
+    "ipeds_name": "Montgomery County Community College",
+    "method": "CURATED_FEDERAL_MATCH (College Scorecard record reviewed: name + state)"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "Lewis & Clark Community College",
+   "identity": "IDENTITY_AMBIGUOUS",
+   "resolution_method": "CURATED_FEDERAL_MATCH (College Scorecard record reviewed: name + state) -> federal UNITID 146603 (no Thriv3 entity yet); Thriv3 row \"Lewis & Clark (ID)\" carries UNITID 142328",
+   "athletics_entity_id": "AE-U146603",
+   "federal": {
+    "unitid": 146603,
+    "parent_unitid": null,
+    "ipeds_name": "Lewis and Clark Community College",
+    "method": "CURATED_FEDERAL_MATCH (College Scorecard record reviewed: name + state)"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "Lincoln Trail College",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Illinois Eastern Community Colleges 145707; College Scorecard location 14570703 is its Lincoln Trail campus (a location code, never a UNITID)",
+   "athletics_entity_id": "AE-X-LINCOLN-TRAIL",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 145707,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Lincoln Trail College",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Illinois Eastern Community Colleges 145707; College Scorecard location 14570703 is its Lincoln Trail campus (a location code, never a UNITID)",
+   "athletics_entity_id": "AE-X-LINCOLN-TRAIL",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 145707,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Wabash Valley College",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Illinois Eastern Community Colleges 145707; Scorecard location 14570704 = Wabash Valley campus",
+   "athletics_entity_id": "AE-X-IECC-WABASH-VALLEY",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 145707,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "CCBC Catonsville",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Community College of Baltimore County 434672 (one IPEDS institution); campuses field separate NJCAA teams",
+   "athletics_entity_id": "AE-X-CCBC-CATONSVILLE",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 434672,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "CCBC Essex",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Community College of Baltimore County 434672 (one IPEDS institution); campuses field separate NJCAA teams",
+   "athletics_entity_id": "AE-X-CCBC-ESSEX",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 434672,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "CCBC Catonsville",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Community College of Baltimore County 434672 (one IPEDS institution); campuses field separate NJCAA teams",
+   "athletics_entity_id": "AE-X-CCBC-CATONSVILLE",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 434672,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "CCBC Essex",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Community College of Baltimore County 434672 (one IPEDS institution); campuses field separate NJCAA teams",
+   "athletics_entity_id": "AE-X-CCBC-ESSEX",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 434672,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "official_name": "Utah State Eastern",
+   "identity": "BRANCH_CAMPUS",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Utah State University Eastern — merged into Utah State University 230728 (2010); separate NJCAA athletics; no own UNITID",
+   "athletics_entity_id": "AE-X-USU-EASTERN",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 230728,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "NJCAA",
+   "sport": "womens-soccer",
+   "official_name": "Utah State Eastern",
+   "identity": "BRANCH_CAMPUS",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Utah State University Eastern — merged into Utah State University 230728 (2010); separate NJCAA athletics; no own UNITID",
+   "athletics_entity_id": "AE-X-USU-EASTERN",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 230728,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "USCAA",
+   "sport": "mens-soccer",
+   "official_name": "Bryant & Stratton (Rochester)",
+   "identity": "UNRESOLVED",
+   "resolution_method": "no federal or Thriv3 match",
+   "athletics_entity_id": null,
+   "federal": {
+    "unitid": null,
+    "parent_unitid": null,
+    "ipeds_name": null,
+    "method": "NONE"
+   }
+  },
+  {
+   "association": "USCAA",
+   "sport": "mens-soccer",
+   "official_name": "Bryant & Stratton-Syracuse",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "SCORECARD_CORE_NAME_STATE; 18956501 is a College Scorecard location code (parent 189565) — a campus of a federal institution, never a UNITID; campus entity needs review",
+   "athletics_entity_id": null,
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 189565,
+    "ipeds_name": "Bryant & Stratton College-Syracuse",
+    "method": "SCORECARD_CORE_NAME_STATE"
+   }
+  },
+  {
+   "association": "USCAA",
+   "sport": "mens-soccer",
+   "official_name": "Stanton",
+   "identity": "NON_TITLE_IV",
+   "resolution_method": "CURATED_KNOWN_ENTITY: Stanton University (non-Title-IV; Phase 7D); USCAA listing is 2025-26 only — NAIA from 2025-26",
+   "athletics_entity_id": "AE-X-STANTON",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": null,
+    "ipeds_name": null,
+    "method": "CURATED_KNOWN_ENTITY"
+   }
+  },
+  {
+   "association": "USCAA",
+   "sport": "womens-soccer",
+   "official_name": "Kean University- Jersey City",
+   "identity": "BRANCH_CAMPUS",
+   "resolution_method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION: Kean University 185262 location in Jersey City; USCAA member listed separately",
+   "athletics_entity_id": "AE-X-KEAN-JERSEY-CITY",
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 185262,
+    "ipeds_name": null,
+    "method": "CURATED_CAMPUS_OF_FEDERAL_INSTITUTION"
+   }
+  },
+  {
+   "association": "USCAA",
+   "sport": "womens-soccer",
+   "official_name": "Bryant & Stratton-Syracuse",
+   "identity": "SHARED_PARENT_UNITID",
+   "resolution_method": "SCORECARD_CORE_NAME_STATE; 18956501 is a College Scorecard location code (parent 189565) — a campus of a federal institution, never a UNITID; campus entity needs review",
+   "athletics_entity_id": null,
+   "federal": {
+    "unitid": null,
+    "parent_unitid": 189565,
+    "ipeds_name": "Bryant & Stratton College-Syracuse",
+    "method": "SCORECARD_CORE_NAME_STATE"
+   }
+  }
+ ]
+}

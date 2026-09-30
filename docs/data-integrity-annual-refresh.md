@@ -50,6 +50,7 @@ they disagree, the system says so and a person decides.
 
 | Command | What it does | Writes |
 |---|---|---|
+| `npm run integrity:gather -- --db <db> --plan <plan.json> --season 2026 --scope NJCAA --out <gathered.json> [--report <f>]` | Run the adapters (roster, staff, programme listing) over a plan of targets. The database is opened read-only. Refused pages go to the report. | the gathered file only |
 | `npm run integrity:refresh -- --db <db> --input <gathered.json> --season 2027 --division NAIA` | Stage + resolve + classify + diff report. **Dry run by default.** | nothing |
 | `… integrity:refresh … --stage` | Same, and saves the batch for review. | staging tables only |
 | `npm run integrity:promote -- --db <db> --batch <id> --batch-hash <hash> [--reviews <file>]` | Simulate on a copy, run the 12 gates, print what would change. | nothing |
@@ -202,6 +203,72 @@ Cycles run 1 July – 30 June. A check is **CURRENT** if made this cycle, **AGIN
 A stale check means "re-verify". It **never** marks a coach as departed.
 
 ---
+
+## Gathering (adapters)
+
+`integrity:gather` produces the input for `integrity:refresh`. The adapters live in
+`server/lib/refresh/adapters/`. They cover PrestoSports (table and card themes), Sidearm, and
+region/conference team listings. They never write the database.
+
+A page is **refused**, and written to the report instead of the gathered file, when it is:
+- blocked (403 / 429 / 503, a 202 or AWS-WAF bot challenge, Cloudflare, a tiny body);
+- for an older season, or a different sport;
+- mostly staff when a roster was expected;
+- on a shared platform root, or it redirects to a foreign host;
+- on a host the entity does not own;
+- ambiguous;
+- empty;
+- or much shorter than last year (a collapse).
+
+**A refusal is never evidence that a programme, player or coach disappeared.**
+
+Some Presto hosts challenge every non-browser request. Others challenge once the request rate
+across Presto rises. Gather serially, one request every ≥ 6 s. A host still challenged after one
+retry is recorded `BLOCKED` and left for a serial real-browser pass. Never retry it in a loop.
+
+**Registering a host.** Discovery proves an ownership chain: the institution's site links to
+the host, and the host names the institution. That chain cannot tell an athletics site from the
+institution's own main site, because that site always links to and names itself. So:
+- the institution's main domain is never registered as an athletics site;
+- an institution subdomain is accepted only if it looks like an athletics site: an
+  `athletics`/`sports`/`go…` label, or a Sidearm/Presto site that is not admissions, esports or a
+  portal;
+- a host already owned or decided on the DB is never changed by a registration fixture.
+
+Phase 8A held 38 institution domains and 2 non-athletics subdomains under this rule.
+
+**Check the parse before you stage.** Some responsive Presto rosters print a mobile-only
+duplicate cell and hidden "No.:" labels. Before `presto-roster-2`, those shifted every column,
+and each player's name read "No.:". The staging classifier caught it as IDENTITY_AMBIGUOUS.
+When a whole roster stages as ambiguous, inspect the parse before looking at the people.
+
+## Divisions still being established (NJCAA, USCAA)
+
+These have no coverage freeze. The monitor reports them against `shared/njcaaUscaaBaseline.json`:
+- universe drift (WARN);
+- unverified or stale memberships;
+- unresolved entities;
+- single-gender entities;
+- entities without a trusted host.
+
+Membership comes from region/conference team listings (tier B) or theuscaa.com (tier A). A
+prior-season listing (tier C) is history, never current membership. A Thriv3 programme that
+appears on no listing is **queued, not deactivated**, unless a complete listing proves its absence.
+
+## Coach floor (runtime)
+
+Every recipient chokepoint uses `server/lib/coachEligibility.js`:
+- coach lists;
+- campaign selection;
+- the send route;
+- the execution claim;
+- the draft CLI;
+- the composer.
+
+A coach is outreach-eligible only with a usable, verified email, and only if not `PROVEN_STALE`.
+The send route also checks that the address belongs to the programme (alternate row names
+included). Legacy behaviour is available only with `THRIV3_ALLOW_LEGACY_COACHES=1`, and is for
+tests that model it. Never set it in a deployed environment.
 
 ## When something goes wrong
 
