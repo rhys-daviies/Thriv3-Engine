@@ -1,0 +1,2484 @@
+{
+ "phase": "8B.1",
+ "rule": "CCCAA/NWAC by the associations' own 2025-26 + 2026-27 men's listings; a retirement needs TWO independent sources (complete 2026-27 listing + 2025-26 listing or the institution's own verified host); a 2025 record or a current official roster is never retired on a listing alone; NO_SUCH_PROGRAMME is added to the requested classes for a row with no evidence the programme ever existed",
+ "counts": {
+  "NJCAA|WRONG_INSTITUTION": 2,
+  "NJCAA|SOURCE_UNAVAILABLE": 31,
+  "NJCAA|CURRENT_CCCAA": 18,
+  "NJCAA|NO_SUCH_PROGRAMME": 49,
+  "NJCAA|CURRENT_NWAC": 4,
+  "NJCAA|WRONG_ASSOCIATION": 6,
+  "NJCAA|UNRESOLVED": 16,
+  "NJCAA|DISCONTINUED": 1,
+  "NJCAA|HISTORICAL_ONLY": 1,
+  "USCAA|UNRESOLVED": 2,
+  "USCAA|CURRENT_USCAA": 1,
+  "USCAA|SOURCE_UNAVAILABLE": 2
+ },
+ "rows": [
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Richland",
+   "college_id": "9d40df95-8a5f-4475-a1aa-939948548927",
+   "athletics_entity_id": "AE-U148292",
+   "state": "IL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "WRONG_INSTITUTION",
+   "why": "row carries UNITID 148292 (Richland Community College, Decatur IL) but WJCAC + a 16-0-1 2022 record fit Dallas College Richland (TX, AE-X-DALLAS-COLLEGE-RICHLAND); its 2022-2025 records are frozen history — HELD for review, nothing moved",
+   "evidence": [
+    "NJCAA Region 5 listing",
+    "programme_seasons 2022-2025"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Nassau Community",
+   "college_id": "222771e4-0e65-487d-af91-2f0f0318e1e4",
+   "athletics_entity_id": "AE-U193478",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2023,2024,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Suffolk County",
+   "college_id": "f0d1d707-4fc1-4030-9085-c5867ad9bef7",
+   "athletics_entity_id": "AE-U366395",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2024,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "El Camino",
+   "college_id": "56d14a7d-5738-4873-8f21-9560478dbe87",
+   "athletics_entity_id": "AE-U113980",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Southwestern (CA)",
+   "college_id": "0e67c286-06e6-419c-b0c7-191af3261ba5",
+   "athletics_entity_id": "AE-U123800",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Finger Lakes Community",
+   "college_id": "eacb2298-12a7-47d2-ba1d-8d28c21c1a3b",
+   "athletics_entity_id": "AE-U191199",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2023,2024,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "McLennan",
+   "college_id": "8ae73966-7ba6-4df0-870c-2a3a7d67d26e",
+   "athletics_entity_id": "AE-U226578",
+   "state": "TX",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 5/14",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 5/14 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Hillsborough",
+   "college_id": "71bb4208-aa78-41e9-b98b-0db3ab0354ed",
+   "athletics_entity_id": "AE-U134495",
+   "state": "FL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 8",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 8 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Monroe Community",
+   "college_id": "e21dcb56-2ed8-461f-80a2-b8d42c74f6cf",
+   "athletics_entity_id": "AE-U193326",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2023,2024,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Everett",
+   "college_id": "9fb09c2c-ba42-484b-b12d-3e67d067edb1",
+   "athletics_entity_id": "AE-U235149",
+   "state": "WA",
+   "queued_reason": "OTHER_ASSOCIATION_NWAC",
+   "classification": "CURRENT_NWAC",
+   "why": "listed by NWAC for 2026-27",
+   "evidence": [
+    "https://nwacsports.com/sports/msoc/2026-27/teams"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Onondaga Community",
+   "college_id": "db8739f4-95bc-4f36-90c5-498241bb321f",
+   "athletics_entity_id": "AE-U194222",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15 — the programme HAS a current official roster (programme current; membership unverified)",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2023,2024,2025",
+    "crawl CURRENT_ROSTER_FOUND https://onondagalazers.com/sports/mens-soccer/roster"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Sierra",
+   "college_id": "07135904-948e-4ae9-a41d-25a3aacc5d91",
+   "athletics_entity_id": "AE-U123341",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "WRONG_ASSOCIATION",
+   "why": "CCCAA institution, not NJCAA; absent from the complete CCCAA men's listings for 2025-26 and 2026-27; records 2022,2023,2024,2025",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings",
+    "https://www.cccaasports.org/sports/msoc/2025-26/standings"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "San Bernardino Valley",
+   "college_id": "f2bd75c6-6c31-48a1-a847-e7fab4cb7534",
+   "athletics_entity_id": "AE-U123527",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Georgia Military",
+   "college_id": "9d36ab5a-0623-4213-9ecb-724662c87d0f",
+   "athletics_entity_id": "AE-U485111",
+   "state": "GA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "records through 2025 and absent from the complete 2026-27 listing, but no second source confirms the programme ended — held",
+   "evidence": [
+    "regions 17",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2023,2024,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Skagit Valley",
+   "college_id": "c3f90756-21a4-439b-bf44-689ced2b7ed0",
+   "athletics_entity_id": "AE-U236638",
+   "state": "WA",
+   "queued_reason": "OTHER_ASSOCIATION_NWAC",
+   "classification": "CURRENT_NWAC",
+   "why": "listed by NWAC for 2026-27",
+   "evidence": [
+    "https://nwacsports.com/sports/msoc/2026-27/teams"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Vernon",
+   "college_id": "fbd2ad46-4899-4112-9294-5d23fffcc735",
+   "athletics_entity_id": "AE-U229504",
+   "state": "TX",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 5/14",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 5/14 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "South Mountain Community",
+   "college_id": "006f3c1f-4c46-4af0-b252-725dd93e501c",
+   "athletics_entity_id": "AE-U105792",
+   "state": "AZ",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "records through 2025 and absent from the complete 2026-27 listing, but no second source confirms the programme ended — held",
+   "evidence": [
+    "regions 1",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2023,2024,2025",
+    "crawl BLOCKED https://www.southmountaincc.edu/",
+    "the entity's women's programme IS listed"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Eastern Wyoming",
+   "college_id": "edb928d1-eac5-4232-bb1f-fecdc6afc339",
+   "athletics_entity_id": "AE-U240596",
+   "state": "WY",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "absent from the complete 2026-27 listing, no record — but no second independent source yet (prior listing unavailable, own site not checked): held, not retired",
+   "evidence": [
+    "regions 9",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Hudson Valley",
+   "college_id": "5141c86c-0388-4170-b674-c46f229035a8",
+   "athletics_entity_id": "AE-U191719",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2023,2024,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Jefferson (NY)",
+   "college_id": "e82cbbbf-a132-4bd9-8b8f-99a6cef045f9",
+   "athletics_entity_id": "AE-U192022",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2024,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Queensborough",
+   "college_id": "532d7984-8ee9-486c-ba84-f92b4007e867",
+   "athletics_entity_id": "AE-U190673",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2023,2024,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Mount San Antonio",
+   "college_id": "426c513e-bfdf-48d0-81bc-5435feb6a21b",
+   "athletics_entity_id": "AE-U119164",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Genesee Community",
+   "college_id": "04dc73c4-ca84-47be-8cee-a55d8fb946b9",
+   "athletics_entity_id": "AE-U191339",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15 — the programme HAS a current official roster (programme current; membership unverified)",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2023,2024,2025",
+    "crawl CURRENT_ROSTER_FOUND https://geneseeathletics.com/sports/msoc/2026-27/roster"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "York County",
+   "college_id": "ea9ca715-90b5-4a3f-85a9-229bfdc00dfe",
+   "athletics_entity_id": "AE-U420440",
+   "state": "ME",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "records through 2025 and absent from the complete 2026-27 listing, but no second source confirms the programme ended — held",
+   "evidence": [
+    "regions 21",
+    "not on a current listing",
+    "no prior listing",
+    "records 2024,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "College of Marin",
+   "college_id": "7ca8ab1b-3967-4a09-a9bb-6c2cc0c7ecad",
+   "athletics_entity_id": "AE-U118347",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Delta College (MI)",
+   "college_id": "19cef64f-ff6d-4333-8750-4f1e9cd43271",
+   "athletics_entity_id": "AE-U169521",
+   "state": "MI",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 12 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+   "evidence": [
+    "regions 12",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "the entity's women's programme IS listed",
+    "absent from the 2025-26 region 12 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Panola",
+   "college_id": "f16009d4-cc07-4636-8f8c-a44d3240a60b",
+   "athletics_entity_id": "AE-U227386",
+   "state": "TX",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 5/14",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 5/14 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Lone Star",
+   "college_id": "a4770e84-ca36-47f1-ae5e-20540f06f520",
+   "athletics_entity_id": "AE-U227182",
+   "state": "TX",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 5/14",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 5/14 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Victor Valley",
+   "college_id": "d9f08ada-2bb0-4db1-9c4c-2312c33defc9",
+   "athletics_entity_id": "AE-U125091",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Blue Mountain",
+   "college_id": "30dd1d64-823a-4c15-b6c1-9eb449517007",
+   "athletics_entity_id": "AE-U208275",
+   "state": "OR",
+   "queued_reason": "OTHER_ASSOCIATION_NWAC",
+   "classification": "CURRENT_NWAC",
+   "why": "listed by NWAC for 2026-27",
+   "evidence": [
+    "https://nwacsports.com/sports/msoc/2026-27/teams"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Rockland Community",
+   "college_id": "4234f445-2f99-4f6c-b06e-24b2b502594b",
+   "athletics_entity_id": "AE-U195058",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2023,2024,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Hocking",
+   "college_id": "47d971cc-133a-48ce-932d-498ce4abe3fa",
+   "athletics_entity_id": "AE-U203155",
+   "state": "OH",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "absent from the 2026-27 listing but NAMED on the 2025-26 listing (or a name rule matches it) — possible discontinuation, held for a second source",
+   "evidence": [
+    "regions 12",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "on the 2025-26 listing"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "San Diego Mesa",
+   "college_id": "a786982f-b585-486b-abd2-ec1c455a3a7b",
+   "athletics_entity_id": "AE-U122375",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Orange Coast",
+   "college_id": "3dfe8a76-dbc7-489a-b94c-ab88a7f8601f",
+   "athletics_entity_id": "AE-U120342",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Lincoln Land",
+   "college_id": "af2ab9d8-8554-47a3-8267-45949c017b23",
+   "athletics_entity_id": "AE-U146685",
+   "state": "IL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 24 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+   "evidence": [
+    "regions 24",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "the entity's women's programme IS listed",
+    "absent from the 2025-26 region 24 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Niagara County",
+   "college_id": "0f7032f6-2cad-4b58-8f90-ae5aae76e732",
+   "athletics_entity_id": "AE-U193946",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2023,2024",
+    "crawl NOT_FOUND https://ncccathletics.com/sports/msoc/2026-27/roster"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Terra State",
+   "college_id": "de6f77ae-0fd5-4e13-a6a6-bf28edd941d5",
+   "athletics_entity_id": "AE-U206011",
+   "state": "OH",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "records through 2025 and absent from the complete 2026-27 listing, but no second source confirms the programme ended — held",
+   "evidence": [
+    "regions 12",
+    "not on a current listing",
+    "no prior listing",
+    "records 2023,2024,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Allan Hancock",
+   "college_id": "17ae3c5d-66a5-4404-8225-35fb517cd1a0",
+   "athletics_entity_id": "AE-U108807",
+   "state": "CA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "American River",
+   "college_id": "6343a211-8bb6-4d0a-bee0-9d23d2450e04",
+   "athletics_entity_id": "AE-U109208",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Bossier Parish",
+   "college_id": "627afcbf-6e67-4475-9730-cd64c49afd45",
+   "athletics_entity_id": "AE-U158431",
+   "state": "LA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 14/23 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 14/23",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 14/23 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Broward",
+   "college_id": "986bcdc5-4438-4ede-8f72-f22d718bf732",
+   "athletics_entity_id": "AE-U132709",
+   "state": "FL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 8",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 8 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Buffalo-Erie",
+   "college_id": "70cf7584-8bcd-4705-a3b9-3f2f2df386e1",
+   "athletics_entity_id": "AE-U191083",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2024,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Butler County",
+   "college_id": "b3e8d023-5ad8-466f-bd21-c5e726153ddb",
+   "athletics_entity_id": "AE-U211343",
+   "state": "PA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/20",
+   "evidence": [
+    "regions 3/19/20",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Cascadia",
+   "college_id": "6eb827ba-85a3-460d-9c3e-22537a64a786",
+   "athletics_entity_id": "AE-U439190",
+   "state": "WA",
+   "queued_reason": "OTHER_ASSOCIATION_NWAC",
+   "classification": "WRONG_ASSOCIATION",
+   "why": "NWAC institution, not NJCAA; absent from the complete NWAC men's listings for 2025-26 and 2026-27; no records, rosters or coaches",
+   "evidence": [
+    "https://nwacsports.com/sports/msoc/2026-27/teams",
+    "https://nwacsports.com/sports/msoc/2025-26/teams"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Central Alabama",
+   "college_id": "02701b2d-7eab-434f-8cb8-d5b5730ceb03",
+   "athletics_entity_id": "AE-U100760",
+   "state": "AL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 22 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 22",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_FOUND https://www.cacc.edu/",
+    "absent from the 2025-26 region 22 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Central Arizona",
+   "college_id": "d2d932bd-1a2c-4c1b-b1a4-b371ef87b82e",
+   "athletics_entity_id": "AE-U104346",
+   "state": "AZ",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 1 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 1",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 1 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Central Lakes",
+   "college_id": "28699712-39c7-4d85-9182-7965e04c291d",
+   "athletics_entity_id": "AE-U173203",
+   "state": "MN",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 13",
+   "evidence": [
+    "regions 13",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Chipola",
+   "college_id": "36d927fa-cbc3-45ae-ac1b-b77337ccd58a",
+   "athletics_entity_id": "AE-U133021",
+   "state": "FL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 8",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 8 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "City Colleges Chicago-Harold Washington",
+   "college_id": "3358b763-5e4e-42c8-af23-66b805b6722d",
+   "athletics_entity_id": "AE-U144209",
+   "state": "IL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 4",
+   "evidence": [
+    "regions 4/24",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "City Colleges Chicago-Olive Harvey",
+   "college_id": "f171a8ca-4255-4b01-95f7-2f0066a65204",
+   "athletics_entity_id": "AE-U144175",
+   "state": "IL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 4",
+   "evidence": [
+    "regions 4/24",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Collin College",
+   "college_id": "4c200b44-45fe-4fca-8876-1676aa818125",
+   "athletics_entity_id": "AE-U247834",
+   "state": "TX",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 5/14",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 5/14 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Contra Costa",
+   "college_id": "2a790e83-2bb4-4477-890d-f9dcc8e0c367",
+   "athletics_entity_id": "AE-U112826",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Des Moines Area",
+   "college_id": "813e10b1-39ed-4321-aa0b-482e2ab37223",
+   "athletics_entity_id": "AE-U153214",
+   "state": "IA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "absent from the complete 2026-27 listing, no record — but no second independent source yet (prior listing unavailable, own site not checked): held, not retired",
+   "evidence": [
+    "regions 11",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Diablo Valley",
+   "college_id": "897b301d-e84e-4274-aa89-5c2070311d8b",
+   "athletics_entity_id": "AE-U113634",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "WRONG_ASSOCIATION",
+   "why": "CCCAA institution, not NJCAA; absent from the complete CCCAA men's listings for 2025-26 and 2026-27; no records, rosters or coaches",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings",
+    "https://www.cccaasports.org/sports/msoc/2025-26/standings"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Ellsworth",
+   "college_id": "9dd6d801-deea-4b0e-8438-317a061e9375",
+   "athletics_entity_id": "AE-U153296",
+   "state": "IA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "absent from the complete 2026-27 listing, no record — but no second independent source yet (prior listing unavailable, own site not checked): held, not retired",
+   "evidence": [
+    "regions 11",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Florida State College Jacksonville",
+   "college_id": "461d3d66-e8ca-4e8f-a532-6c2b867e938d",
+   "athletics_entity_id": "AE-U133702",
+   "state": "FL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 8",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 8 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Fort Scott Community",
+   "college_id": "e29b2df3-aa55-4394-82ec-8f7a4ad86185",
+   "athletics_entity_id": "AE-U155098",
+   "state": "KS",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 6 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 6",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 6 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Front Range",
+   "college_id": "8a8b10a1-8fce-4d12-b347-330189099433",
+   "athletics_entity_id": "AE-U127200",
+   "state": "CO",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "absent from the complete 2026-27 listing, no record — but no second independent source yet (prior listing unavailable, own site not checked): held, not retired",
+   "evidence": [
+    "regions 9/18",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Gadsden State",
+   "college_id": "ed764957-36b9-461a-8561-1b2cb2468a96",
+   "athletics_entity_id": "AE-U101240",
+   "state": "AL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 22 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 22",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 22 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "George C. Wallace",
+   "college_id": "aad05ddd-efe5-4e95-85ae-736d5aef8d84",
+   "athletics_entity_id": "AE-X-GEORGE-C-WALLACE",
+   "state": null,
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "DISCONTINUED",
+   "why": "already retired (Phase 8A phantom)",
+   "evidence": [
+    "Phase 8A deactivation"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Georgia Highlands",
+   "college_id": "01890bc4-4060-4a0e-92de-0a816bd62a8d",
+   "athletics_entity_id": "AE-U139700",
+   "state": "GA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 17 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 17",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_FOUND https://ghcchargers.com/sports/msoc/2026-27/roster",
+    "absent from the 2025-26 region 17 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Georgia Northwestern",
+   "college_id": "3525f007-69f4-4c8c-9456-3f4564acfe0b",
+   "athletics_entity_id": "AE-U139384",
+   "state": "GA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 17 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 17",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 17 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Georgia Piedmont",
+   "college_id": "ea26d69e-ed2f-464d-aca7-b21392e7725f",
+   "athletics_entity_id": "AE-U244446",
+   "state": "GA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 17 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 17",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 17 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Highland",
+   "college_id": "12fbb506-5aab-4bd5-ae32-6993c900b716",
+   "athletics_entity_id": "AE-U155186",
+   "state": "KS",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 6 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+   "evidence": [
+    "regions 6",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_FOUND https://scottieathletics.com/404-1.aspx?url=%2froster.aspx%3fpath%3dgeneral%26",
+    "the entity's women's programme IS listed",
+    "absent from the 2025-26 region 6 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "J. Sargeant Reynolds",
+   "college_id": "65459f82-ed6c-4d55-8224-59af37c8f271",
+   "athletics_entity_id": "AE-U232414",
+   "state": "VA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 10",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 10 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Jefferson Davis",
+   "college_id": "8a051add-a028-4336-9955-292223761895",
+   "athletics_entity_id": "AE-U101161",
+   "state": "AL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 22 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 22",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 22 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Kalamazoo Valley",
+   "college_id": "64f8e26c-bae1-432c-8d23-167d3bcf8fc5",
+   "athletics_entity_id": "AE-U170541",
+   "state": "MI",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 12 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 12",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 12 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Kellogg Community",
+   "college_id": "51638762-0f8e-4456-bbd0-b3fa2780de79",
+   "athletics_entity_id": "AE-U170550",
+   "state": "MI",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 12 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+   "evidence": [
+    "regions 12",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "the entity's women's programme IS listed",
+    "absent from the 2025-26 region 12 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Kilgore",
+   "college_id": "5bc65715-ebb7-4fd7-9ab5-79dcca519062",
+   "athletics_entity_id": "AE-U226019",
+   "state": "TX",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 5/14",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 5/14 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Kirkwood",
+   "college_id": "710a9cff-7535-463c-b1d3-c0b053bde320",
+   "athletics_entity_id": "AE-U153737",
+   "state": "IA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "absent from the complete 2026-27 listing, no record — but no second independent source yet (prior listing unavailable, own site not checked): held, not retired",
+   "evidence": [
+    "regions 11",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Labette",
+   "college_id": "434c3d4e-1939-4954-bf5d-422ccb997706",
+   "athletics_entity_id": "AE-U155450",
+   "state": "KS",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 6 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 6",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 6 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Lake Land",
+   "college_id": "7126cd0c-9d04-4914-8f64-bd48f9834f16",
+   "athletics_entity_id": "AE-U146506",
+   "state": "IL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 4",
+   "evidence": [
+    "regions 4/24",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Lamar Institute",
+   "college_id": "578cd06b-ede3-4c26-9162-13b5386ea583",
+   "athletics_entity_id": "AE-U441760",
+   "state": "TX",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 5/14",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 5/14 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Lewis & Clark (ID)",
+   "college_id": "d0aea410-83f5-47af-aa19-480d9580f415",
+   "athletics_entity_id": "AE-U142328",
+   "state": "ID",
+   "queued_reason": "OTHER_ASSOCIATION_NWAC",
+   "classification": "WRONG_INSTITUTION",
+   "why": "UNITID 142328 is Lewis-Clark State College (Lewiston, ID; NAIA) — not an NWAC member, on neither the 2025-26 nor 2026-27 NWAC men's listing, no records/rosters/coaches",
+   "evidence": [
+    "https://nwacsports.com/sports/msoc/2026-27/teams",
+    "https://nwacsports.com/sports/msoc/2025-26/teams",
+    "College Scorecard 142328"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Lord Fairfax",
+   "college_id": "7d509f75-08a0-483a-b436-d81d25250552",
+   "athletics_entity_id": "AE-U232575",
+   "state": "VA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 10",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 10 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Louisiana Delta",
+   "college_id": "5493ac9e-f35c-4706-b5a1-4e20fe311dee",
+   "athletics_entity_id": "AE-U483212",
+   "state": "LA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 14/23 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 14/23",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 14/23 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Lower Columbia",
+   "college_id": "f6986698-cbb5-4bab-92f2-d4c355730c35",
+   "athletics_entity_id": "AE-U235750",
+   "state": "WA",
+   "queued_reason": "OTHER_ASSOCIATION_NWAC",
+   "classification": "WRONG_ASSOCIATION",
+   "why": "NWAC institution, not NJCAA; absent from the complete NWAC men's listings for 2025-26 and 2026-27; no records, rosters or coaches",
+   "evidence": [
+    "https://nwacsports.com/sports/msoc/2026-27/teams",
+    "https://nwacsports.com/sports/msoc/2025-26/teams"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Lurleen B. Wallace",
+   "college_id": "b11b62f6-abd1-481d-8794-af2f5ac06b84",
+   "athletics_entity_id": "AE-U101602",
+   "state": "AL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 22 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 22",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 22 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Merced",
+   "college_id": "dbb3d6cc-ccdc-4550-9224-6ff9f5d19eea",
+   "athletics_entity_id": "AE-U118718",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Missouri State-West Plains",
+   "college_id": "c57c12ff-f508-4285-830b-26caae7441d1",
+   "athletics_entity_id": "AE-U179344",
+   "state": "MO",
+   "queued_reason": "REGION_SOURCE_STALE_R16",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 16",
+   "evidence": [
+    "regions 16/24",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Moberly Area",
+   "college_id": "7134e2b4-ee3b-4720-9fe4-4211dbbd99d7",
+   "athletics_entity_id": "AE-U178448",
+   "state": "MO",
+   "queued_reason": "REGION_SOURCE_STALE_R16",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 16",
+   "evidence": [
+    "regions 16/24",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Motlow State",
+   "college_id": "58d50bd9-11a1-46f5-b236-b0b8ee61ccfd",
+   "athletics_entity_id": "AE-U221096",
+   "state": "TN",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND the entity's verified host motlowsports.com returns no mens-soccer roster (404) while serving a current womens-soccer roster; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+   "evidence": [
+    "regions 7",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_FOUND https://motlowsports.com/sports/msoc/2026-27/roster",
+    "the entity's women's programme IS listed",
+    "the entity's verified host motlowsports.com returns no mens-soccer roster (404) while serving a current womens-soccer roster"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "New Mexico Junior",
+   "college_id": "dd94896b-0889-4a85-bb13-80c3c9ad5dbb",
+   "athletics_entity_id": "AE-U187903",
+   "state": "NM",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 5",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 5 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "North Arkansas",
+   "college_id": "e1fad159-2279-4b24-a04f-df0b2ac04bd7",
+   "athletics_entity_id": "AE-U107460",
+   "state": "AR",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 2",
+   "evidence": [
+    "regions 2",
+    "not on a current listing",
+    "no prior listing",
+    "records 2023",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "North Central Missouri",
+   "college_id": "699c808f-4dff-4881-8e94-163167c7fa72",
+   "athletics_entity_id": "AE-U179715",
+   "state": "MO",
+   "queued_reason": "REGION_SOURCE_STALE_R16",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 16",
+   "evidence": [
+    "regions 16/24",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Northeast Mississippi",
+   "college_id": "da56028a-dfc1-4f5c-be53-eb3a2c3b8e61",
+   "athletics_entity_id": "AE-U176169",
+   "state": "MS",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 23 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 23",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 23 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Northland Pioneer",
+   "college_id": "b59aaef8-ebc2-4a77-b924-846823281aa5",
+   "athletics_entity_id": "AE-U105349",
+   "state": "AZ",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 1 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 1",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 1 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Northwest Shoals",
+   "college_id": "f9fffec4-dc5b-4368-9f30-8e10d673513f",
+   "athletics_entity_id": "AE-U101736",
+   "state": "AL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 22 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 22",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 22 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Odessa",
+   "college_id": "b390a744-894a-46d5-b8d1-50ceea8e18dc",
+   "athletics_entity_id": "AE-U227304",
+   "state": "TX",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+   "evidence": [
+    "regions 5",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_FOUND https://wranglersports.com/sports/msoc/2026-27/roster",
+    "the entity's women's programme IS listed",
+    "absent from the 2025-26 region 5 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Oklahoma City Community",
+   "college_id": "c6d59dfa-e2fe-4afc-a1f9-dc4ba10a27b8",
+   "athletics_entity_id": "AE-U207449",
+   "state": "OK",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 2",
+   "evidence": [
+    "regions 2/5",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Ozarka",
+   "college_id": "c9eaffa8-3ed4-4390-8433-e98843980252",
+   "athletics_entity_id": "AE-U107549",
+   "state": "AR",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 2",
+   "evidence": [
+    "regions 2",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Passaic County",
+   "college_id": "5f452c71-7f04-4bbb-bccd-68a6c66fda17",
+   "athletics_entity_id": "AE-U186034",
+   "state": "NJ",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 19 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 19",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 19 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Pensacola State",
+   "college_id": "ab03b07c-0bf9-475e-980d-62eacadd8fdb",
+   "athletics_entity_id": "AE-U136473",
+   "state": "FL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+   "evidence": [
+    "regions 8",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_FOUND https://athletics.pensacolastate.edu/sports/msoc/2026-27/roster",
+    "the entity's women's programme IS listed",
+    "absent from the 2025-26 region 8 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Piedmont Virginia",
+   "college_id": "843848aa-e397-4b2a-b334-3d1227395ca1",
+   "athletics_entity_id": "AE-U233116",
+   "state": "VA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 10",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 10 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Polk State",
+   "college_id": "65d4a4a3-df94-4337-a04e-dc686d17bb96",
+   "athletics_entity_id": "AE-U136516",
+   "state": "FL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+   "evidence": [
+    "regions 8",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_FOUND https://polkeagles.com/404-1.aspx?url=%2froster.aspx%3fpath%3dgeneral%26",
+    "the entity's women's programme IS listed",
+    "absent from the 2025-26 region 8 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Reading Area",
+   "college_id": "84358d48-6b7f-4e01-a7e5-bc94d6437833",
+   "athletics_entity_id": "AE-U215585",
+   "state": "PA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/20",
+   "evidence": [
+    "regions 3/19/20",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Rend Lake",
+   "college_id": "9b55308c-d3f2-48cc-ad7f-d05168f6e960",
+   "athletics_entity_id": "AE-U148256",
+   "state": "IL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 4",
+   "evidence": [
+    "regions 4/24",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Riverside",
+   "college_id": "64f5fc5f-8c93-4625-96f2-279b2d08c804",
+   "athletics_entity_id": "AE-U121901",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "WRONG_ASSOCIATION",
+   "why": "CCCAA institution, not NJCAA; absent from the complete CCCAA men's listings for 2025-26 and 2026-27; no records, rosters or coaches",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings",
+    "https://www.cccaasports.org/sports/msoc/2025-26/standings"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Roane State",
+   "college_id": "ba6f08d1-eddd-4cee-bbf4-d8845cdedb79",
+   "athletics_entity_id": "AE-U221397",
+   "state": "TN",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "absent from the complete 2026-27 listing, no record — but no second independent source yet (prior listing unavailable, own site not checked): held, not retired",
+   "evidence": [
+    "regions 7",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "the entity's women's programme IS listed"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "San Diego Miramar",
+   "college_id": "bdc2af9a-f954-4364-b878-8615d0603bf9",
+   "athletics_entity_id": "AE-U122384",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "San Joaquin Delta",
+   "college_id": "07d3f453-8097-423b-9704-3312c9a78a79",
+   "athletics_entity_id": "AE-U122658",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Sandhills",
+   "college_id": "0d5b7135-e62f-4ff4-b47b-c93c86ccd2d7",
+   "athletics_entity_id": "AE-U199634",
+   "state": "NC",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 10",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl BLOCKED https://sccflyersathletics.com/",
+    "absent from the 2025-26 region 10 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Santa Ana",
+   "college_id": "91dc018c-bfce-4de0-9b95-503dff168bec",
+   "athletics_entity_id": "AE-U121619",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Santa Barbara City",
+   "college_id": "a6bb0c5b-9208-4689-9e1d-c3075a20ab89",
+   "athletics_entity_id": "AE-U122889",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Santa Monica",
+   "college_id": "72193888-947d-498f-b365-93bbb2d478c8",
+   "athletics_entity_id": "AE-U122977",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Santa Rosa Junior",
+   "college_id": "6c95f43d-96be-4d97-a836-eb5edf3560b6",
+   "athletics_entity_id": "AE-U123013",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "CURRENT_CCCAA",
+   "why": "listed by CCCAA for 2026-27",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Shawnee Community",
+   "college_id": "3985fe5f-53dd-4f0f-8308-6914a71fcadb",
+   "athletics_entity_id": "AE-U148821",
+   "state": "IL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 4",
+   "evidence": [
+    "regions 4/24",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Sinclair",
+   "college_id": "bcfdbcc1-0eb2-4b44-a865-388fb0f7a690",
+   "athletics_entity_id": "AE-U205470",
+   "state": "OH",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 12 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 12",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 12 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Somerset",
+   "college_id": "69456bc5-5496-4afe-9127-452d4374de7d",
+   "athletics_entity_id": "AE-U157711",
+   "state": "KY",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "absent from the complete 2026-27 listing, no record — but no second independent source yet (prior listing unavailable, own site not checked): held, not retired",
+   "evidence": [
+    "regions 7",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "South Plains",
+   "college_id": "4db18e70-52c6-4a9f-9c71-98a1d88ec49a",
+   "athletics_entity_id": "AE-U228158",
+   "state": "TX",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 5/14",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 5/14 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "South Puget Sound",
+   "college_id": "3e8e94ef-e2df-4934-aa9b-ceca0cc1a945",
+   "athletics_entity_id": "AE-U236656",
+   "state": "WA",
+   "queued_reason": "OTHER_ASSOCIATION_NWAC",
+   "classification": "CURRENT_NWAC",
+   "why": "listed by NWAC for 2026-27",
+   "evidence": [
+    "https://nwacsports.com/sports/msoc/2026-27/teams"
+   ],
+   "action": "association_correct"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Sullivan County",
+   "college_id": "8f6fc4d3-4938-40d6-968f-04ae1d8e361d",
+   "athletics_entity_id": "AE-U195988",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Surry",
+   "college_id": "651eee66-a073-41a7-94ca-2adf73ae8a12",
+   "athletics_entity_id": "AE-U199768",
+   "state": "NC",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 10",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 10 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Tallahassee",
+   "college_id": "9c2fb741-410f-480c-bcc0-a137f423f93d",
+   "athletics_entity_id": "AE-U137759",
+   "state": "FL",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 8",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 8 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Three Rivers",
+   "college_id": "7f681b1d-f0a6-4acf-b3e8-5c3b97d15a89",
+   "athletics_entity_id": "AE-U179645",
+   "state": "MO",
+   "queued_reason": "REGION_SOURCE_STALE_R16",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 16",
+   "evidence": [
+    "regions 16/24",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Tidewater",
+   "college_id": "f57302b1-ad80-4dbc-a0b9-2287dd798a46",
+   "athletics_entity_id": "AE-U233772",
+   "state": "VA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "absent from the 2026-27 listing but NAMED on the 2025-26 listing (or a name rule matches it) — possible discontinuation, held for a second source",
+   "evidence": [
+    "regions 10",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "on the 2025-26 listing"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Tompkins Cortland",
+   "college_id": "a228ecac-56c9-4fa4-96f7-5eede27a91b3",
+   "athletics_entity_id": "AE-U196565",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 3/15",
+   "evidence": [
+    "regions 3/15",
+    "not on a current listing",
+    "no prior listing",
+    "records 2023,2025",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Trinity Valley",
+   "college_id": "25719817-86e1-4fba-9ae6-e12c0c14a5db",
+   "athletics_entity_id": "AE-U225308",
+   "state": "TX",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "HISTORICAL_ONLY",
+   "why": "absent from the complete 2026-27 region listing and every prior listing; last record 2023",
+   "evidence": [
+    "regions 14",
+    "not on a current listing",
+    "no prior listing",
+    "records 2022,2023",
+    "crawl PRIOR_ROSTER_ONLY https://tvccsports.com/sports/mbkb/2025-26/roster",
+    "the entity's women's programme IS listed"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Tulsa Community",
+   "college_id": "fba6b435-9f4d-4133-87fd-4356d2ca4b45",
+   "athletics_entity_id": "AE-U207935",
+   "state": "OK",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 2",
+   "evidence": [
+    "regions 2/5",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Ventura",
+   "college_id": "5588b010-0099-446a-9a98-14b9516e1532",
+   "athletics_entity_id": "AE-U125028",
+   "state": "CA",
+   "queued_reason": "OTHER_ASSOCIATION_CCCAA",
+   "classification": "WRONG_ASSOCIATION",
+   "why": "CCCAA institution, not NJCAA; absent from the complete CCCAA men's listings for 2025-26 and 2026-27; no records, rosters or coaches",
+   "evidence": [
+    "https://www.cccaasports.org/sports/msoc/2026-27/standings",
+    "https://www.cccaasports.org/sports/msoc/2025-26/standings"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Vincennes",
+   "college_id": "68789865-bbd9-4361-8e96-986be1a5dcb0",
+   "athletics_entity_id": "AE-U152637",
+   "state": "IN",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "no reachable current governing/conference listing for region 4",
+   "evidence": [
+    "regions 4/12/24",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Virginia Highlands",
+   "college_id": "c240e042-51cc-4749-b911-f1185643172e",
+   "athletics_entity_id": "AE-U233903",
+   "state": "VA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 10",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 10 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Virginia Western",
+   "college_id": "d3c673fa-8792-4bf5-9349-8f8ae39fb8cf",
+   "athletics_entity_id": "AE-U233949",
+   "state": "VA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 10",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 10 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Volunteer State",
+   "college_id": "be4a904e-2758-48cc-9947-b5bc640d7dd5",
+   "athletics_entity_id": "AE-U222053",
+   "state": "TN",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "absent from the complete 2026-27 listing, no record — but no second independent source yet (prior listing unavailable, own site not checked): held, not retired",
+   "evidence": [
+    "regions 7",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "the entity's women's programme IS listed"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Walters State",
+   "college_id": "7fb30447-a391-4a88-8854-9d48f3304663",
+   "athletics_entity_id": "AE-U222062",
+   "state": "TN",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "absent from the complete 2026-27 listing, no record — but no second independent source yet (prior listing unavailable, own site not checked): held, not retired",
+   "evidence": [
+    "regions 7",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Weatherford",
+   "college_id": "7c678c32-05d8-4193-8d16-7c68244d217e",
+   "athletics_entity_id": "AE-U229799",
+   "state": "TX",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 5/14",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 5/14 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Western Wyoming",
+   "college_id": "c4ad7b59-4acf-4433-8783-79740be3a085",
+   "athletics_entity_id": "AE-U240693",
+   "state": "WY",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "absent from the complete 2026-27 listing, no record — but no second independent source yet (prior listing unavailable, own site not checked): held, not retired",
+   "evidence": [
+    "regions 9",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "the entity's women's programme IS listed"
+   ],
+   "action": null
+  },
+  {
+   "association": "NJCAA",
+   "sport": "mens-soccer",
+   "programme": "Wharton County Junior",
+   "college_id": "eefc5d83-0cee-4688-97a8-5d862bf301c9",
+   "athletics_entity_id": "AE-U229841",
+   "state": "TX",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "NO_SUCH_PROGRAMME",
+   "why": "absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+   "evidence": [
+    "regions 5/14",
+    "not on a current listing",
+    "no prior listing",
+    "no records",
+    "crawl NOT_SEARCHED",
+    "absent from the 2025-26 region 5/14 listing"
+   ],
+   "action": "deactivate"
+  },
+  {
+   "association": "USCAA",
+   "sport": "mens-soccer",
+   "programme": "Central Penn",
+   "college_id": "14f9e54f-4933-4d0a-9520-e2522b8b113b",
+   "athletics_entity_id": "AE-U211477",
+   "state": "PA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "not on the 2026-27 USCAA/PSUAC listing, yet an official current roster exists: the programme is current but its 2026 association is unproven (a move out of USCAA is possible) — held, history kept",
+   "evidence": [
+    "not on https://theuscaa.com/sports/msoc/2026-27/teams",
+    "crawl CURRENT_ROSTER_FOUND https://centralpennknights.com/sports/msoc/2026-27/roster",
+    "rosters 0"
+   ],
+   "action": null
+  },
+  {
+   "association": "USCAA",
+   "sport": "womens-soccer",
+   "programme": "Bryant & Stratton-Syracuse",
+   "college_id": "90daeb79-9ee9-4634-9b27-da390d64ba31",
+   "athletics_entity_id": "AE-U189565",
+   "state": "NY",
+   "queued_reason": "REGION_SOURCE_UNAVAILABLE_R3_R15",
+   "classification": "CURRENT_USCAA",
+   "why": "on the theuscaa.com 2026-27 women's soccer teams listing (Phase 8A queued it only because NY Region 3/15 sources were unavailable — the USCAA listing, not an NJCAA region, is its authority)",
+   "evidence": [
+    "https://theuscaa.com/sports/wsoc/2026-27/teams"
+   ],
+   "action": "membership_verify"
+  },
+  {
+   "association": "USCAA",
+   "sport": "womens-soccer",
+   "programme": "Central Penn College",
+   "college_id": "0896b557-1d01-426c-9f65-69904271025c",
+   "athletics_entity_id": "AE-U211477",
+   "state": "PA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "UNRESOLVED",
+   "why": "not on the 2026-27 USCAA/PSUAC listing, yet an official current roster exists: the programme is current but its 2026 association is unproven (a move out of USCAA is possible) — held, history kept",
+   "evidence": [
+    "not on https://theuscaa.com/sports/wsoc/2026-27/teams",
+    "crawl CURRENT_ROSTER_FOUND https://centralpennknights.com/sports/wsoc/2026-27/roster",
+    "rosters 11"
+   ],
+   "action": null
+  },
+  {
+   "association": "USCAA",
+   "sport": "womens-soccer",
+   "programme": "Christendom College",
+   "college_id": "b592bd31-9d25-4b1d-9949-8491a4637cc5",
+   "athletics_entity_id": "AE-X-CHRISTENDOM",
+   "state": null,
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "not on the 2026-27 USCAA/PSUAC listing and no current official roster found — absence is an investigation trigger, not a deactivation; held, history kept",
+   "evidence": [
+    "not on https://theuscaa.com/sports/wsoc/2026-27/teams",
+    "crawl NOT_SEARCHED",
+    "rosters 18"
+   ],
+   "action": null
+  },
+  {
+   "association": "USCAA",
+   "sport": "womens-soccer",
+   "programme": "Penn State Scranton",
+   "college_id": "2e7fe852-a713-4cf0-b78a-5f827f0a17b7",
+   "athletics_entity_id": "AE-U214652",
+   "state": "PA",
+   "queued_reason": "NOT_ON_AUTHORITATIVE_LISTING",
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "not on the 2026-27 USCAA/PSUAC listing and no current official roster found — absence is an investigation trigger, not a deactivation; held, history kept",
+   "evidence": [
+    "not on https://theuscaa.com/sports/wsoc/2026-27/teams",
+    "crawl NOT_SEARCHED",
+    "rosters 10"
+   ],
+   "action": null
+  }
+ ]
+}

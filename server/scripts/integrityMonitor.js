@@ -79,15 +79,34 @@ export function runMonitor(dbPath, { now = new Date(), season, reconcile = true 
       const byEnt = new Map(); for (const c of act) (byEnt.get(c.athletics_entity_id) || byEnt.set(c.athletics_entity_id, new Set()).get(c.athletics_entity_id)).add(c.sport);
       add(div, 'single_gender_entities', 'INFO', [...byEnt].filter(([, s]) => s.size === 1).map(([e, s]) => `${e} ${[...s][0]}`), 'an entity with one soccer programme — confirm the other is genuinely not sponsored');
       add(div, 'entities_without_trusted_host', 'INFO', [...byEnt.keys()].filter((e) => !ctx.resolver.entityHosts(e).size));
+      // Phase 8B.1 triage (reported, never fatal)
+      const locEnts = new Set((ctx.locations || []).filter((l) => l.status === 'VERIFIED').map((l) => l.athletics_entity_id));
+      add(div, 'current_programme_without_source_location', 'INFO', act.filter((c) => !ctx.resolver.entityHosts(c.athletics_entity_id).size && !locEnts.has(c.athletics_entity_id)).map((c) => `${c.athletics_entity_id}|${c.sport}`), 'no trusted athletics host and no verified host + path-scope location');
+      add(div, 'current_programme_without_verified_membership', 'INFO', act.filter((c) => { const p = open.find((x) => x.college_id === c.id); return !p || !['A', 'B'].includes(p.source_tier); }).map((c) => `${c.athletics_entity_id}|${c.sport}`));
+      // CA/WA/OR community colleges are CCCAA / NWAC; an NJCAA row there is suspect UNLESS an NJCAA listing verified it
+      // (e.g. Pacific Northwest Christian, NJCAA Region 18) — measured on shared dev, Phase 8B.1
+      if (div === 'NJCAA') add(div, 'association_mismatch_state', 'WARN', act.filter((c) => ['CA', 'WA', 'OR'].includes(c.state) && !['A', 'B'].includes(open.find((x) => x.college_id === c.id)?.source_tier)).map((c) => `${c.name} [${c.sport}] ${c.state}`), 'an unverified NJCAA row in CA/WA/OR — those programmes are normally CCCAA / NWAC');
     }
+    if ((ctx.locations || []).length) add('DOMAIN', 'source_location_stale', 'WARN', ctx.locations.filter((l) => l.status === 'VERIFIED' && freshnessOf('domain', { checked_at: l.last_verified_at || l.recorded_at }, { now }).state === 'STALE').map((l) => `${l.host}${l.path_prefix} (${l.athletics_entity_id})`), 'a verified path scope not re-checked within the freshness window');
     if (db.prepare("SELECT name FROM sqlite_master WHERE name='refresh_observations'").get()) {
       add('STAGING', 'unpromoted_contradictions', 'INFO', db.prepare("SELECT batch_id||' '||dataset||' '||coalesce(raw_name,'') k FROM refresh_observations WHERE classification='CONTRADICTION' AND promoted_at IS NULL").all().map((r) => r.k));
+      // refusal / ambiguity spike on the latest staged roster batch (a parser or identity regression shows here first)
+      const lastB = db.prepare("SELECT batch_id FROM refresh_observations WHERE dataset='ROSTER' GROUP BY batch_id ORDER BY MAX(fetched_at) DESC LIMIT 1").get();
+      if (lastB) {
+        const st = db.prepare("SELECT COUNT(*) n, SUM(classification='IDENTITY_AMBIGUOUS') amb, SUM(classification IN ('SOURCE_UNTRUSTED','CONTRADICTION')) bad, SUM(requires_review) rev FROM refresh_observations WHERE batch_id=? AND dataset='ROSTER' AND NOT (classification='DISAPPEARED_FROM_SOURCE')").get(lastB.batch_id);
+        const rate = st.n ? (st.amb + st.bad) / st.n : 0;
+        add('STAGING', 'roster_batch_refusal_spike', 'WARN', rate > 0.1 ? [`${lastB.batch_id}: ${st.amb} ambiguous + ${st.bad} untrusted/contradiction of ${st.n} (${(rate * 100).toFixed(1)}%)`] : [], `latest roster batch: ${st.n} observations, ${st.rev} review-required`);
+      }
     }
 
     // ROSTER
     const roster = db.prepare('SELECT id, college_name, sport, season, player_name, class_year_label FROM roster_players').all();
     const rowByNS = new Map(ctx.colleges.map((c) => [`${c.name}|${c.sport}`, c]));
     add('ROSTER', 'orphan_roster_rows', 'WARN', [...new Set(roster.filter((r) => !rowByNS.has(`${r.college_name}|${r.sport}`)).map((r) => `${r.college_name} [${r.sport}]`))]);
+    // roster count collapse vs the prior season (unexpected zero is current_programme_without_current_roster)
+    { const cnt = new Map(); for (const r of roster) { const k = `${r.college_name}|${r.sport}|${r.season}`; cnt.set(k, (cnt.get(k) || 0) + 1); }
+      const collapse = []; for (const [k, n] of cnt) { const [c, sp, se] = k.split('|'); if (Number(se) !== cur) continue; const prev = cnt.get(`${c}|${sp}|${cur - 1}`) || 0; if (prev >= 10 && n < prev * 0.5 && prev - n >= 5) collapse.push(`${c} [${sp}] ${prev} -> ${n}`); }
+      add('ROSTER', 'roster_count_collapse', 'WARN', collapse, 'a current roster under half the prior season — an incomplete source or a parser regression until shown otherwise'); }
     const latest = new Map();
     for (const r of roster) { const c = rowByNS.get(`${r.college_name}|${r.sport}`); if (!c) continue; const canon = ctx.resolver.canonicalRow(c.id) || c; latest.set(canon.id, Math.max(latest.get(canon.id) ?? 0, Number(r.season))); }
     const carriers = ctx.colleges.filter((c) => c.active === 1 && !linked.has(c.id));

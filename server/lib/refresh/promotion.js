@@ -50,8 +50,10 @@ export function planPromotion({ batch, observations }, { frozen = new Set() } = 
 function guardFail(msg) { const e = new Error(msg); e.guard = true; return e; }
 const now = () => new Date().toISOString();
 
-/** Apply ONE op inside the caller's transaction. Returns a manifest entry, or {noop:true}. */
-function applyOp(db, op) {
+/** Apply ONE op inside the caller's transaction. Returns a manifest entry, or {noop:true}.
+ *  Exported (Phase 8B.1) for the promotion-readiness simulation, which runs each op under its own SAVEPOINT on a
+ *  disposable copy; applyPromotion remains the only path that commits. */
+export function applyOp(db, op) {
   const P = op.proposed; const E = op.expected;
   if (op.dataset === 'COACH' && COACH_UPDATE_ACTIONS.has(op.action)) {
     const row = db.prepare('SELECT * FROM coaches WHERE id=?').get(E.id);

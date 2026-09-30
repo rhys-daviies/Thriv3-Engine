@@ -249,11 +249,88 @@ These have no coverage freeze. The monitor reports them against `shared/njcaaUsc
 - unverified or stale memberships;
 - unresolved entities;
 - single-gender entities;
-- entities without a trusted host.
+- entities without a trusted host;
+- current programmes without verified membership, or without any source location (8B.1);
+- NJCAA rows in CA/WA/OR (association mismatch, WARN);
+- stale source locations, a refusal/ambiguity spike in the latest staged roster batch, and roster
+  count collapse against the prior season (all reporting only, never HARD).
 
 Membership comes from region/conference team listings (tier B) or theuscaa.com (tier A). A
 prior-season listing (tier C) is history, never current membership. A Thriv3 programme that
 appears on no listing is **queued, not deactivated**, unless a complete listing proves its absence.
+
+**Retiring a queued programme needs two independent sources** (Phase 8B.1). The complete
+current listing must omit it, and so must either the prior-season listing or the institution's own
+athletics site. Thriv3's own records are not a second source: 25% of genuinely listed NJCAA men's
+programmes have no record at all. A programme with a 2025 record, or with a current official
+roster, is never retired on a listing alone. It is held for review.
+
+**Other associations are recorded, not deleted.** California programmes are CCCAA, and
+Washington/Oregon programmes are NWAC, whatever the legacy data said. Record them with
+`association_correct`:
+- `colleges.division` becomes `CCCAA`/`NWAC`;
+- their SEED period becomes `governing_body OTHER` with the association's listing as source.
+
+These associations are outside Thriv3's recruiting scope. They are not measured as NJCAA and never
+enter NJCAA roster targeting. The monitor's `association_mismatch_state` reports any NJCAA row in CA/WA/OR whose NJCAA
+membership is unverified. A listing-verified member stays, for example Pacific Northwest Christian
+College (Region 18).
+
+**Regions with no reachable current listing.** Regions 2, 3, 4, 13, 15, 16 and 20 had no
+reachable 2026-27 listing at the Phase 8B.1 measurement:
+- 2, 4 and 13 were not yet published;
+- 3 is CloudFront-blocked, even in a real browser;
+- 15's site is down;
+- 16 is stale since 2024-25;
+- 20 is unreachable.
+
+The national `njcaastats` site is disabled. Programmes in those regions stay unverified,
+`SOURCE_UNAVAILABLE`. An athletics site alone never establishes membership.
+
+## Source locations (host + path scope)
+
+`athletics_domains` says which entity owns a whole host. Some colleges publish athletics under
+their own site, for example `institution.edu/athletics/...`. Registering that host would make
+every page on it "official". Instead, record an `athletics_source_locations` row with the entity,
+the exact host, the path prefix (`/athletics`), the source type and, optionally, the sport. Then:
+- `sourceOwnedBy(url, entity)` accepts a URL only on that host, under the prefix, on a segment
+  boundary;
+- an institution path can never be `/`;
+- validator H12 refuses a location on a shared root, on another entity's host, or overlapping another
+  entity's scope;
+- adapters check ownership on the URL, so an institution-path roster stages and the same page
+  anywhere else on that host is refused.
+
+## Parsers fail closed
+
+Roster parsers map columns by header meaning, never by position. The whole page is refused as
+`PARSER_STRUCTURE_UNKNOWN` when any of these holds:
+- a row's width does not match the header row;
+- a "name" is a label, a number or a staff title;
+- the parser does not recognise the roster markup.
+
+An empty roster table is a ZERO refusal. Neither refusal is ever evidence that a player left.
+When a batch shows many `ROSTER_PAGE_UNPARSED` sources on one platform, build an adapter for that
+layout. Never loosen the checks.
+
+## Players
+
+A `roster_players` row is a **season roster observation** of a programme. There is no global
+player identity, and a name alone never creates one. The refresh classifier:
+- matches a player-season only within the same programme and season;
+- flags the same name twice on one roster, or on another programme's roster that season, for
+  review;
+- holds a same-season name-format variant ("Smith, John" / "John Smith", "O'Neil" / "ONeil") as
+  IDENTITY_AMBIGUOUS instead of inserting a duplicate;
+- writes a transfer (A in 2026, B in 2027) as a new B row with a TRANSFER CANDIDATE note, never
+  linked and never touching A;
+- reports a player absent from a complete current roster as `NOT_OBSERVED_CURRENT_SEASON`
+  (informational). The prior row stays.
+
+**Known unsafe name-only link (blocker for broad promotion).** `projectRosterMinutes.js` sets
+`roster_players.prior_programme` by name alone, nationally. Of 4,431 cross-programme links on
+shared dev, 1,139 point at a prior row with a different hometown city. Fix it (require
+corroboration) before promoting NJCAA/USCAA rosters at scale.
 
 ## Coach floor (runtime)
 

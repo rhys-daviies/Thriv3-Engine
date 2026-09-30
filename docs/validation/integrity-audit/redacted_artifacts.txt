@@ -117,3 +117,11 @@ docs/validation/integrity-audit/phase8a_runtime_coach_audit.redacted.json
 docs/validation/integrity-audit/phase8a_source_discovery.redacted.json
 docs/validation/integrity-audit/phase8a_universe_comparison.redacted.json
 docs/validation/integrity-audit/phase8a_universe_fixture.redacted.json
+docs/validation/integrity-audit/phase8b1_membership_verification.redacted.json
+docs/validation/integrity-audit/phase8b1_player_identity_audit.redacted.json
+docs/validation/integrity-audit/phase8b1_promotion_readiness.redacted.json
+docs/validation/integrity-audit/phase8b1_queued_adjudication.redacted.json
+docs/validation/integrity-audit/phase8b1_source_recovery.redacted.json
+docs/validation/integrity-audit/phase8b1_staging_quality.redacted.json
+docs/validation/integrity-audit/phase8b1_structural_fixture.redacted.json
+docs/validation/integrity-audit/phase8b1_universe_closure_roster_source_recovery_snapshot.json

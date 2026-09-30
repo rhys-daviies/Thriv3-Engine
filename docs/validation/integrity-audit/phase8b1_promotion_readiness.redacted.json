@@ -1,0 +1,36 @@
+{
+ "phase": "8B.1",
+ "batch_id": "RB-2026-*-a2f7ea5fbb96",
+ "observations": 4933,
+ "planned_ops": 4703,
+ "AUTO_SAFE": 4703,
+ "REVIEW_REQUIRED": 150,
+ "HELD": 34,
+ "CONTRADICTION": 46,
+ "NOOP_CONFIRMED": 0,
+ "rates": {
+  "AUTO_SAFE": 95.3,
+  "REVIEW_REQUIRED": 3,
+  "HELD": 0.7,
+  "CONTRADICTION": 0.9
+ },
+ "why": {
+  "REVIEW_REQUIRED": {
+   "INSERT_ROSTER_ROW requires an APPROVED review": 150
+  },
+  "HELD": {
+   "NOT_OBSERVED_CURRENT_SEASON (informational, never written)": 26,
+   "IDENTITY_AMBIGUOUS: name appears more than once on this roster": 2,
+   "SOURCE_UNTRUSTED: not a player (staff/manager row or no name)": 6
+  },
+  "CONTRADICTION": {
+   "page is the 2027 roster, claimed as 2026 — an old roster is never the current one": 46
+  }
+ },
+ "non_roster_tables_unchanged_on_copy": true,
+ "integrity_after_all_ops": "ok",
+ "actions": {
+  "INSERT_ROSTER_ROW|AUTO_SAFE": 4703
+ },
+ "note": "simulated on a disposable copy; the shared DB was opened read-only; nothing was promoted"
+}

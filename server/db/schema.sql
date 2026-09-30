@@ -1453,14 +1453,51 @@ CREATE TABLE IF NOT EXISTS programme_membership_periods (
   recorded_at TEXT NOT NULL,
   PRIMARY KEY (athletics_entity_id, sport, first_season),
   CHECK (last_season IS NULL OR last_season >= first_season),
+  -- CCCAA / NWAC (Phase 8B.1): associations outside Thriv3's recruiting scope, recorded
+  -- truthfully (governing_body OTHER) instead of as NJCAA — never deleted, never promoted into scope
   CHECK (governing_body IN ('NCAA', 'NAIA', 'NJCAA', 'USCAA', 'NCCAA', 'OTHER')),
-  CHECK (division IN ('NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA', 'USCAA', 'NCCAA')),
+  CHECK (division IN ('NCAA D1', 'NCAA D2', 'NCAA D3', 'NAIA', 'NJCAA', 'USCAA', 'NCCAA', 'CCCAA', 'NWAC')),
   CHECK (membership_status IN ('ACTIVE', 'PROVISIONAL', 'RECLASSIFYING', 'DISCONTINUED')),
   CHECK (postseason_eligible IS NULL OR postseason_eligible IN (0, 1)),
   CHECK (source_tier IN ('A', 'B', 'C', 'D', 'SEED'))
 );
 CREATE INDEX IF NOT EXISTS idx_pmp_open ON programme_membership_periods(athletics_entity_id, sport, last_season);
 CREATE INDEX IF NOT EXISTS idx_pmp_college ON programme_membership_periods(college_id);
+
+-- athletics_source_locations — WHERE A PROGRAMME'S OFFICIAL PAGES LIVE, as host + PATH SCOPE.
+--
+-- athletics_domains answers "which entity owns this HOST", and a host-level claim is exactly
+-- wrong for a college whose athletics live under its own site (institution.edu/athletics/...):
+-- registering institution.edu would make every page on it proof of athletics ownership
+-- (Phase 8A held 38 such hosts rather than do that). A location scopes the claim to a path
+-- prefix. A URL is inside it only when it is on that exact host AND its path starts with the
+-- prefix on a segment boundary. An INSTITUTION_ATHLETICS_PATH can never be the host root, and
+-- a location never widens host ownership: athletics_domains is unchanged by it.
+--   ATHLETICS_HOST              a whole host already owned in athletics_domains (mirror, optional)
+--   INSTITUTION_ATHLETICS_PATH  institution.edu/<prefix> (e.g. /athletics)
+--   SPORT_PAGE                  a single programme's pages (<prefix> = the sport path), sport required
+CREATE TABLE IF NOT EXISTS athletics_source_locations (
+  location_id TEXT PRIMARY KEY,           -- deterministic: entity|host|prefix|sport
+  athletics_entity_id TEXT NOT NULL,
+  host TEXT NOT NULL,                     -- exact host, lower case, no www.
+  path_prefix TEXT NOT NULL,              -- '/athletics'; '/' only for ATHLETICS_HOST
+  source_type TEXT NOT NULL,
+  sport TEXT,                             -- NULL = every sport of the entity
+  status TEXT NOT NULL,                   -- VERIFIED | HISTORICAL | REVIEW
+  evidence_url TEXT,
+  provenance TEXT NOT NULL,
+  first_seen_season INTEGER,
+  last_verified_at TEXT,
+  recorded_at TEXT NOT NULL,
+  CHECK (source_type IN ('ATHLETICS_HOST', 'INSTITUTION_ATHLETICS_PATH', 'SPORT_PAGE')),
+  CHECK (status IN ('VERIFIED', 'HISTORICAL', 'REVIEW')),
+  CHECK (path_prefix LIKE '/%' AND path_prefix NOT LIKE '%?%' AND path_prefix NOT LIKE '%#%'),
+  CHECK (source_type = 'ATHLETICS_HOST' OR length(path_prefix) > 1),
+  CHECK (source_type <> 'SPORT_PAGE' OR sport IS NOT NULL),
+  CHECK (sport IS NULL OR sport IN ('mens-soccer', 'womens-soccer'))
+);
+CREATE INDEX IF NOT EXISTS idx_asl_host ON athletics_source_locations(host);
+CREATE INDEX IF NOT EXISTS idx_asl_entity ON athletics_source_locations(athletics_entity_id);
 
 -- programme_row_links — one programme, more than one colleges row, said explicitly.
 --

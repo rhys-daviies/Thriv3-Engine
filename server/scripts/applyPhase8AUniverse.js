@@ -17,6 +17,11 @@
  *   row_link           programme_row_links for stale campus rows
  *   deactivate         a phantom programme: period -> DISCONTINUED, row inactive (never deleted)
  *   domain_register    ownership-chain-verified athletics hosts (absent or unowned rows only)
+ *   association_correct (8B.1) a row the legacy DB labelled NJCAA that its real association (CCCAA /
+ *                      NWAC) lists: colleges.division/conference + its SEED open period, never a
+ *                      verified period, never a history row (expected-old guarded)
+ *   location_register  (8B.1) a verified host + PATH SCOPE source location (absent-guarded; never the
+ *                      whole host for an institution path; never on a host another entity owns)
  * Postcondition: identity validator (H1-H11) PASS + integrity_check ok, else ROLLBACK.
  */
 import fs from 'node:fs';
@@ -46,7 +51,7 @@ assertUnredacted(fx, arg('fixture'));
 const { phase, created_at, fixture_hash, ...body } = fx;
 const got = crypto.createHash('sha256').update(JSON.stringify(body)).digest('hex');
 if (got !== fixture_hash || got !== arg('fixture-hash')) fail(`fixture hash mismatch (computed ${got.slice(0, 12)})`, 1);
-for (const k of ['entity_create', 'entity_update', 'college_repair', 'programme_create', 'membership_verify', 'row_link', 'deactivate', 'domain_register']) {
+for (const k of ['entity_create', 'entity_update', 'college_repair', 'programme_create', 'membership_verify', 'row_link', 'deactivate', 'domain_register', 'association_correct', 'location_register']) {
   for (const a of body[k] || []) for (const f of ['proposed', 'evidence', 'reason', 'blast_radius']) if (a[f] == null) fail(`${k} ${a.label || ''}: missing ${f} — every action needs expected_old, proposed, evidence, reason and blast radius`);
 }
 const db = new Database(dbArg, { fileMustExist: true });
@@ -115,6 +120,28 @@ for (const a of body.domain_register || []) {
   if (cur && (cur.athletics_entity_id || ['VERIFIED', 'VERIFIED_ALIAS', 'WRONG_INSTITUTION'].includes(cur.status))) { problems.push(`${d}: already owned/decided (${cur.status}${cur.athletics_entity_id ? ` ${cur.athletics_entity_id}` : ''}) — ownership change is a protected action`); continue; }
   P('domain_register').push({ a, cur });
 }
+const OTHER_ASSOC = new Set(['CCCAA', 'NWAC']);
+for (const a of body.association_correct || []) {
+  const r = db.prepare('SELECT * FROM colleges WHERE id=?').get(a.college_id);
+  if (!r) { problems.push(`${a.label}: absent`); continue; }
+  const pp = db.prepare('SELECT * FROM programme_membership_periods WHERE college_id=? AND last_season IS NULL').get(r.id);
+  if (r.division === a.proposed.division && pp && pp.division === a.proposed.division) { noop++; continue; }
+  if (!OTHER_ASSOC.has(a.proposed.division)) { problems.push(`${a.label}: ${a.proposed.division} is not an out-of-scope association this action may record`); continue; }
+  if (Object.entries(a.expected_old).some(([k, v]) => !same(r[k], v))) { problems.push(`${a.label}: expected-old mismatch`); continue; }
+  if (!pp || pp.source_tier !== 'SEED') { problems.push(`${a.label}: only a SEED open period may be corrected (found ${pp ? pp.source_tier : 'none'})`); continue; }
+  P('association_correct').push({ a, r, pp });
+}
+for (const a of body.location_register || []) {
+  const L = a.proposed;
+  if (SHARED_PLATFORM_ROOT.test(L.host)) { problems.push(`${a.label}: shared platform root`); continue; }
+  if (L.source_type !== 'ATHLETICS_HOST' && (!L.path_prefix || L.path_prefix === '/')) { problems.push(`${a.label}: an institution path cannot be the whole host`); continue; }
+  const cur = db.prepare('SELECT * FROM athletics_source_locations WHERE location_id=?').get(L.location_id);
+  if (cur) { if (cur.status === L.status && cur.athletics_entity_id === L.athletics_entity_id) { noop++; continue; } problems.push(`${a.label}: location exists with a different state — a change is a protected action`); continue; }
+  const owner = db.prepare("SELECT athletics_entity_id e FROM athletics_domains WHERE domain=? AND athletics_entity_id IS NOT NULL AND status IN ('VERIFIED','VERIFIED_ALIAS')").get(L.host);
+  if (owner && owner.e !== L.athletics_entity_id) { problems.push(`${a.label}: ${L.host} is owned by ${owner.e}`); continue; }
+  if (!db.prepare('SELECT 1 FROM athletics_entities WHERE athletics_entity_id=?').get(L.athletics_entity_id)) { problems.push(`${a.label}: entity absent`); continue; }
+  P('location_register').push({ a });
+}
 console.log(`PHASE 8A universe plan (fixture ${got.slice(0, 12)})`);
 console.log('  ' + Object.entries(plan).map(([k, v]) => `${k} ${v.length}`).join(' · ') + ` · noop ${noop}`);
 problems.slice(0, 40).forEach((p) => console.log('  BLOCKED:', p));
@@ -153,6 +180,16 @@ try {
     if (pp) { db.prepare("UPDATE programme_membership_periods SET college_id=? WHERE athletics_entity_id=? AND sport=? AND first_season=?").run(link.canonical_college_id, pp.athletics_entity_id, pp.sport, pp.first_season); entries.push({ kind: 'UPDATE', table: 'programme_membership_periods', key: { athletics_entity_id: pp.athletics_entity_id, sport: pp.sport, first_season: pp.first_season }, old: { college_id: pp.college_id }, new: { college_id: link.canonical_college_id } }); }
     put(entries, a.label);
   }
+  // association correction BEFORE deactivation: a phantom at another association is re-labelled, then retired
+  for (const { a, r, pp } of plan.association_correct || []) {
+    const set = { division: a.proposed.division, conference: a.proposed.conference ?? r.conference, identity_notes: `${r.identity_notes ? `${r.identity_notes} | ` : ''}Phase 8B.1: ${a.reason}`.slice(0, 2000) };
+    db.prepare('UPDATE colleges SET division=@division, conference=@conference, identity_notes=@identity_notes WHERE id=@id').run({ ...set, id: r.id });
+    const P2 = { ...a.period, recorded_at: now };
+    db.prepare('UPDATE programme_membership_periods SET governing_body=@governing_body, division=@division, membership_status=@membership_status, conference=@conference, source_tier=@source_tier, source_url=@source_url, provenance=@provenance, recorded_at=@recorded_at WHERE athletics_entity_id=@e AND sport=@s AND first_season=@f AND last_season IS NULL')
+      .run({ ...P2, e: pp.athletics_entity_id, s: pp.sport, f: pp.first_season });
+    put([{ kind: 'UPDATE', table: 'colleges', key: { id: r.id }, old: { division: r.division, conference: r.conference ?? null, identity_notes: r.identity_notes ?? null }, new: set },
+      { kind: 'UPDATE', table: 'programme_membership_periods', key: { athletics_entity_id: pp.athletics_entity_id, sport: pp.sport, first_season: pp.first_season }, old: Object.fromEntries(Object.keys(P2).map((k) => [k, pp[k] ?? null])), new: P2 }], a.label);
+  }
   for (const { a, r } of plan.deactivate || []) {
     const pp = db.prepare('SELECT * FROM programme_membership_periods WHERE college_id=? AND last_season IS NULL').get(r.id);
     const entries = [];
@@ -167,6 +204,7 @@ try {
     if (cur) { db.prepare(`UPDATE athletics_domains SET ${Object.keys(set).filter((k) => k !== 'domain').map((k) => `${k}=@${k}`).join(', ')} WHERE domain=@domain`).run(set); put([{ kind: 'UPDATE', table: 'athletics_domains', key: { domain: set.domain }, old: Object.fromEntries(Object.keys(set).filter((k) => k !== 'domain').map((k) => [k, cur[k] ?? null])), new: Object.fromEntries(Object.entries(set).filter(([k]) => k !== 'domain')) }], a.label); }
     else { const row = { claimed_keys: '[]', claimed_unitids: JSON.stringify(set.unitid ? [set.unitid] : []), ...set }; insert('athletics_domains', row); put([{ kind: 'INSERT', table: 'athletics_domains', key: { domain: row.domain }, new: row }], a.label); }
   }
+  for (const { a } of plan.location_register || []) { const row = { ...a.proposed, recorded_at: now }; insert('athletics_source_locations', row); put([{ kind: 'INSERT', table: 'athletics_source_locations', key: { location_id: row.location_id }, new: row }], a.label); }
   const v = validateEntityIdentity(db);
   if (v.status !== 'PASS') throw new Error(`identity invariant FAIL:\n  ${v.hard.slice(0, 20).join('\n  ')}`);
   const integ = db.pragma('integrity_check', { simple: true }); if (integ !== 'ok') throw new Error(`integrity ${integ}`);

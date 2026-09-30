@@ -1,0 +1,1482 @@
+{
+ "phase": "8B.1",
+ "counts": {
+  "NJCAA|AMBIGUOUS": 16,
+  "NJCAA|SOURCE_UNAVAILABLE": 57,
+  "NJCAA|CONTRADICTED": 79,
+  "USCAA|AMBIGUOUS": 1,
+  "USCAA|SOURCE_UNAVAILABLE": 7,
+  "NJCAA|VERIFIED_HISTORICAL": 1,
+  "USCAA|VERIFIED_CURRENT": 1
+ },
+ "rows": [
+  {
+   "association": "NJCAA",
+   "programme": "South Mountain Community",
+   "sport": "mens-soccer",
+   "college_id": "006f3c1f-4c46-4af0-b252-725dd93e501c",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Mineral Area",
+   "sport": "mens-soccer",
+   "college_id": "013b9e45-59f4-418e-8773-a16568b9daa7",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2024-25 njcaaregion16.org listing (tier C, history); the region 16 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Georgia Highlands",
+   "sport": "mens-soccer",
+   "college_id": "01890bc4-4060-4a0e-92de-0a816bd62a8d",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Central Alabama",
+   "sport": "mens-soccer",
+   "college_id": "02701b2d-7eab-434f-8cb8-d5b5730ceb03",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Montgomery",
+   "sport": "mens-soccer",
+   "college_id": "0276554b-f285-4e81-9372-c9401923c6b1",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 njcaaregion20.org listing (tier C, history); the region 20 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Genesee Community",
+   "sport": "mens-soccer",
+   "college_id": "04dc73c4-ca84-47be-8cee-a55d8fb946b9",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Sierra",
+   "sport": "mens-soccer",
+   "college_id": "07135904-948e-4ae9-a41d-25a3aacc5d91",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: WRONG_ASSOCIATION"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "San Joaquin Delta",
+   "sport": "mens-soccer",
+   "college_id": "07d3f453-8097-423b-9704-3312c9a78a79",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "USCAA",
+   "programme": "Central Penn College",
+   "sport": "womens-soccer",
+   "college_id": "0896b557-1d01-426c-9f65-69904271025c",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Sandhills",
+   "sport": "mens-soccer",
+   "college_id": "0d5b7135-e62f-4ff4-b47b-c93c86ccd2d7",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Southwestern (CA)",
+   "sport": "mens-soccer",
+   "college_id": "0e67c286-06e6-419c-b0c7-191af3261ba5",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Westmoreland County",
+   "sport": "mens-soccer",
+   "college_id": "0eb1a94e-5cb6-4549-a0d2-635817744994",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 njcaaregion20.org listing (tier C, history); the region 20 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "St. Louis Community College",
+   "sport": "mens-soccer",
+   "college_id": "0f26ab17-f636-4c36-8cc2-ecab305a15bd",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2024-25 njcaaregion16.org listing (tier C, history); the region 16 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Niagara County",
+   "sport": "mens-soccer",
+   "college_id": "0f7032f6-2cad-4b58-8f90-ae5aae76e732",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "College of Lake County",
+   "sport": "mens-soccer",
+   "college_id": "12bcae40-d627-48f9-aa3c-d654751a319e",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 region4sports.com listing (tier C, history); the region 4 2026-27 listing is not published/reachable; the programme has a current official roster"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Highland",
+   "sport": "mens-soccer",
+   "college_id": "12fbb506-5aab-4bd5-ae32-6993c900b716",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Anne Arundel",
+   "sport": "mens-soccer",
+   "college_id": "139e1d62-4266-42cc-9f00-d7a9ec76d00a",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 njcaaregion20.org listing (tier C, history); the region 20 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Allan Hancock",
+   "sport": "mens-soccer",
+   "college_id": "17ae3c5d-66a5-4404-8225-35fb517cd1a0",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Delta College (MI)",
+   "sport": "mens-soccer",
+   "college_id": "19cef64f-ff6d-4333-8750-4f1e9cd43271",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "USCAA",
+   "programme": "Penn State Hazleton",
+   "sport": "womens-soccer",
+   "college_id": "1bc541e5-abab-41c4-9d3f-feb1ca6b4004",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 psuacsports.com listing (tier C, history); the psuacsports.com 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Howard Community",
+   "sport": "mens-soccer",
+   "college_id": "1beadd47-8c0c-40ee-8a26-5565ed9419f3",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 njcaaregion20.org listing (tier C, history); the region 20 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "USCAA",
+   "programme": "Penn State New Kensington",
+   "sport": "womens-soccer",
+   "college_id": "1df8f53e-c3bc-48ce-aa1f-673dd19adaf3",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 psuacsports.com listing (tier C, history); the psuacsports.com 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Nassau Community",
+   "sport": "mens-soccer",
+   "college_id": "222771e4-0e65-487d-af91-2f0f0318e1e4",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Trinity Valley",
+   "sport": "mens-soccer",
+   "college_id": "25719817-86e1-4fba-9ae6-e12c0c14a5db",
+   "queued": true,
+   "classification": "VERIFIED_HISTORICAL",
+   "why": "queued programme: HISTORICAL_ONLY"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Central Lakes",
+   "sport": "mens-soccer",
+   "college_id": "28699712-39c7-4d85-9182-7965e04c291d",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Contra Costa",
+   "sport": "mens-soccer",
+   "college_id": "2a790e83-2bb4-4477-890d-f9dcc8e0c367",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "City Colleges Chicago-Wilbur Wright",
+   "sport": "mens-soccer",
+   "college_id": "2a7c0c6c-4a25-4077-8436-48c2ef20a628",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 region4sports.com listing (tier C, history); the region 4 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "USCAA",
+   "programme": "Penn State Scranton",
+   "sport": "womens-soccer",
+   "college_id": "2e7fe852-a713-4cf0-b78a-5f827f0a17b7",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Blue Mountain",
+   "sport": "mens-soccer",
+   "college_id": "30dd1d64-823a-4c15-b6c1-9eb449517007",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_NWAC"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "City Colleges Chicago-Harold Washington",
+   "sport": "mens-soccer",
+   "college_id": "3358b763-5e4e-42c8-af23-66b805b6722d",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Georgia Northwestern",
+   "sport": "mens-soccer",
+   "college_id": "3525f007-69f4-4c8c-9456-3f4564acfe0b",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Chipola",
+   "sport": "mens-soccer",
+   "college_id": "36d927fa-cbc3-45ae-ac1b-b77337ccd58a",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Cecil",
+   "sport": "mens-soccer",
+   "college_id": "38a94468-5fac-4aeb-af44-30ae933154ea",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 njcaaregion20.org listing (tier C, history); the region 20 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Shawnee Community",
+   "sport": "mens-soccer",
+   "college_id": "3985fe5f-53dd-4f0f-8308-6914a71fcadb",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Orange Coast",
+   "sport": "mens-soccer",
+   "college_id": "3dfe8a76-dbc7-489a-b94c-ab88a7f8601f",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "South Puget Sound",
+   "sport": "mens-soccer",
+   "college_id": "3e8e94ef-e2df-4934-aa9b-ceca0cc1a945",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_NWAC"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Rockland Community",
+   "sport": "mens-soccer",
+   "college_id": "4234f445-2f99-4f6c-b06e-24b2b502594b",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Mount San Antonio",
+   "sport": "mens-soccer",
+   "college_id": "426c513e-bfdf-48d0-81bc-5435feb6a21b",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Labette",
+   "sport": "mens-soccer",
+   "college_id": "434c3d4e-1939-4954-bf5d-422ccb997706",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Florida State College Jacksonville",
+   "sport": "mens-soccer",
+   "college_id": "461d3d66-e8ca-4e8f-a532-6c2b867e938d",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Hocking",
+   "sport": "mens-soccer",
+   "college_id": "47d971cc-133a-48ce-932d-498ce4abe3fa",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Collin College",
+   "sport": "mens-soccer",
+   "college_id": "4c200b44-45fe-4fca-8876-1676aa818125",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "St. Charles Community",
+   "sport": "mens-soccer",
+   "college_id": "4c636c99-fc27-4b04-b913-15a71a9ddc04",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2024-25 njcaaregion16.org listing (tier C, history); the region 16 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "South Plains",
+   "sport": "mens-soccer",
+   "college_id": "4db18e70-52c6-4a9f-9c71-98a1d88ec49a",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Hudson Valley",
+   "sport": "mens-soccer",
+   "college_id": "5141c86c-0388-4170-b674-c46f229035a8",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Kellogg Community",
+   "sport": "mens-soccer",
+   "college_id": "51638762-0f8e-4456-bbd0-b3fa2780de79",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Queensborough",
+   "sport": "mens-soccer",
+   "college_id": "532d7984-8ee9-486c-ba84-f92b4007e867",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Louisiana Delta",
+   "sport": "mens-soccer",
+   "college_id": "5493ac9e-f35c-4706-b5a1-4e20fe311dee",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Ventura",
+   "sport": "mens-soccer",
+   "college_id": "5588b010-0099-446a-9a98-14b9516e1532",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: WRONG_ASSOCIATION"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "El Camino",
+   "sport": "mens-soccer",
+   "college_id": "56d14a7d-5738-4873-8f21-9560478dbe87",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Lamar Institute",
+   "sport": "mens-soccer",
+   "college_id": "578cd06b-ede3-4c26-9162-13b5386ea583",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Motlow State",
+   "sport": "mens-soccer",
+   "college_id": "58d50bd9-11a1-46f5-b236-b0b8ee61ccfd",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Northeast Oklahoma A&M",
+   "sport": "mens-soccer",
+   "college_id": "5acf40d1-c7d0-4c95-b2ea-807604e04045",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 region2athletics.com listing (tier C, history); the region 2 2026-27 listing is not published/reachable; the programme has a current official roster"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Kilgore",
+   "sport": "mens-soccer",
+   "college_id": "5bc65715-ebb7-4fd7-9ab5-79dcca519062",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Passaic County",
+   "sport": "mens-soccer",
+   "college_id": "5f452c71-7f04-4bbb-bccd-68a6c66fda17",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Bossier Parish",
+   "sport": "mens-soccer",
+   "college_id": "627afcbf-6e67-4475-9730-cd64c49afd45",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "American River",
+   "sport": "mens-soccer",
+   "college_id": "6343a211-8bb6-4d0a-bee0-9d23d2450e04",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Riverside",
+   "sport": "mens-soccer",
+   "college_id": "64f5fc5f-8c93-4625-96f2-279b2d08c804",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: WRONG_ASSOCIATION"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Kalamazoo Valley",
+   "sport": "mens-soccer",
+   "college_id": "64f8e26c-bae1-432c-8d23-167d3bcf8fc5",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Surry",
+   "sport": "mens-soccer",
+   "college_id": "651eee66-a073-41a7-94ca-2adf73ae8a12",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "J. Sargeant Reynolds",
+   "sport": "mens-soccer",
+   "college_id": "65459f82-ed6c-4d55-8224-59af37c8f271",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Polk State",
+   "sport": "mens-soccer",
+   "college_id": "65d4a4a3-df94-4337-a04e-dc686d17bb96",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Vincennes",
+   "sport": "mens-soccer",
+   "college_id": "68789865-bbd9-4361-8e96-986be1a5dcb0",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Somerset",
+   "sport": "mens-soccer",
+   "college_id": "69456bc5-5496-4afe-9127-452d4374de7d",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "North Central Missouri",
+   "sport": "mens-soccer",
+   "college_id": "699c808f-4dff-4881-8e94-163167c7fa72",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Santa Rosa Junior",
+   "sport": "mens-soccer",
+   "college_id": "6c95f43d-96be-4d97-a836-eb5edf3560b6",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Cascadia",
+   "sport": "mens-soccer",
+   "college_id": "6eb827ba-85a3-460d-9c3e-22537a64a786",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: WRONG_ASSOCIATION"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Buffalo-Erie",
+   "sport": "mens-soccer",
+   "college_id": "70cf7584-8bcd-4705-a3b9-3f2f2df386e1",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Kirkwood",
+   "sport": "mens-soccer",
+   "college_id": "710a9cff-7535-463c-b1d3-c0b053bde320",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Lake Land",
+   "sport": "mens-soccer",
+   "college_id": "7126cd0c-9d04-4914-8f64-bd48f9834f16",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Moberly Area",
+   "sport": "mens-soccer",
+   "college_id": "7134e2b4-ee3b-4720-9fe4-4211dbbd99d7",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Hillsborough",
+   "sport": "mens-soccer",
+   "college_id": "71bb4208-aa78-41e9-b98b-0db3ab0354ed",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Santa Monica",
+   "sport": "mens-soccer",
+   "college_id": "72193888-947d-498f-b365-93bbb2d478c8",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Weatherford",
+   "sport": "mens-soccer",
+   "college_id": "7c678c32-05d8-4193-8d16-7c68244d217e",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "College of Marin",
+   "sport": "mens-soccer",
+   "college_id": "7ca8ab1b-3967-4a09-a9bb-6c2cc0c7ecad",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Lord Fairfax",
+   "sport": "mens-soccer",
+   "college_id": "7d509f75-08a0-483a-b436-d81d25250552",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Three Rivers",
+   "sport": "mens-soccer",
+   "college_id": "7f681b1d-f0a6-4acf-b3e8-5c3b97d15a89",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Walters State",
+   "sport": "mens-soccer",
+   "college_id": "7fb30447-a391-4a88-8854-9d48f3304663",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "USCAA",
+   "programme": "Penn State New Kensington",
+   "sport": "mens-soccer",
+   "college_id": "807821ff-919e-4746-a83a-0fb144a4f1c5",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 psuacsports.com listing (tier C, history); the psuacsports.com 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Des Moines Area",
+   "sport": "mens-soccer",
+   "college_id": "813e10b1-39ed-4321-aa0b-482e2ab37223",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Allegany",
+   "sport": "mens-soccer",
+   "college_id": "8287610d-eca1-4e01-9c4b-9e06e0bf4545",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 njcaaregion20.org listing (tier C, history); the region 20 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Reading Area",
+   "sport": "mens-soccer",
+   "college_id": "84358d48-6b7f-4e01-a7e5-bc94d6437833",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Piedmont Virginia",
+   "sport": "mens-soccer",
+   "college_id": "843848aa-e397-4b2a-b334-3d1227395ca1",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Diablo Valley",
+   "sport": "mens-soccer",
+   "college_id": "897b301d-e84e-4274-aa89-5c2070311d8b",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: WRONG_ASSOCIATION"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Jefferson Davis",
+   "sport": "mens-soccer",
+   "college_id": "8a051add-a028-4336-9955-292223761895",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Front Range",
+   "sport": "mens-soccer",
+   "college_id": "8a8b10a1-8fce-4d12-b347-330189099433",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "McLennan",
+   "sport": "mens-soccer",
+   "college_id": "8ae73966-7ba6-4df0-870c-2a3a7d67d26e",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Sullivan County",
+   "sport": "mens-soccer",
+   "college_id": "8f6fc4d3-4938-40d6-968f-04ae1d8e361d",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "USCAA",
+   "programme": "Bryant & Stratton-Syracuse",
+   "sport": "womens-soccer",
+   "college_id": "90daeb79-9ee9-4634-9b27-da390d64ba31",
+   "queued": true,
+   "classification": "VERIFIED_CURRENT",
+   "why": "queued programme: CURRENT_USCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Harper",
+   "sport": "mens-soccer",
+   "college_id": "9125412d-1ee8-41ec-874b-c19f361e964a",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 region4sports.com listing (tier C, history); the region 4 2026-27 listing is not published/reachable; the programme has a current official roster"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Santa Ana",
+   "sport": "mens-soccer",
+   "college_id": "91dc018c-bfce-4de0-9b95-503dff168bec",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Garrett",
+   "sport": "mens-soccer",
+   "college_id": "9585bee2-1f38-4e28-ab96-bb6aa62adfee",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 njcaaregion20.org listing (tier C, history); the region 20 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Broward",
+   "sport": "mens-soccer",
+   "college_id": "986bcdc5-4438-4ede-8f72-f22d718bf732",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Rend Lake",
+   "sport": "mens-soccer",
+   "college_id": "9b55308c-d3f2-48cc-ad7f-d05168f6e960",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Tallahassee",
+   "sport": "mens-soccer",
+   "college_id": "9c2fb741-410f-480c-bcc0-a137f423f93d",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Georgia Military",
+   "sport": "mens-soccer",
+   "college_id": "9d36ab5a-0623-4213-9ecb-724662c87d0f",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Richland",
+   "sport": "mens-soccer",
+   "college_id": "9d40df95-8a5f-4475-a1aa-939948548927",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: WRONG_INSTITUTION"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Ellsworth",
+   "sport": "mens-soccer",
+   "college_id": "9dd6d801-deea-4b0e-8438-317a061e9375",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Everett",
+   "sport": "mens-soccer",
+   "college_id": "9fb09c2c-ba42-484b-b12d-3e67d067edb1",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_NWAC"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Tompkins Cortland",
+   "sport": "mens-soccer",
+   "college_id": "a228ecac-56c9-4fa4-96f7-5eede27a91b3",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Lone Star",
+   "sport": "mens-soccer",
+   "college_id": "a4770e84-ca36-47f1-ae5e-20540f06f520",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Santa Barbara City",
+   "sport": "mens-soccer",
+   "college_id": "a6bb0c5b-9208-4689-9e1d-c3075a20ab89",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "San Diego Mesa",
+   "sport": "mens-soccer",
+   "college_id": "a786982f-b585-486b-abd2-ec1c455a3a7b",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Pensacola State",
+   "sport": "mens-soccer",
+   "college_id": "ab03b07c-0bf9-475e-980d-62eacadd8fdb",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Carl Sandburg",
+   "sport": "mens-soccer",
+   "college_id": "ab77df27-0044-4467-bda4-f403d7fd22bc",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 region4sports.com listing (tier C, history); the region 4 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Lincoln Land",
+   "sport": "mens-soccer",
+   "college_id": "af2ab9d8-8554-47a3-8267-45949c017b23",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "College of DuPage",
+   "sport": "mens-soccer",
+   "college_id": "af5c0c41-6156-4ef6-aea1-432b7599b20b",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 region4sports.com listing (tier C, history); the region 4 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Lurleen B. Wallace",
+   "sport": "mens-soccer",
+   "college_id": "b11b62f6-abd1-481d-8794-af2f5ac06b84",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Odessa",
+   "sport": "mens-soccer",
+   "college_id": "b390a744-894a-46d5-b8d1-50ceea8e18dc",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Butler County",
+   "sport": "mens-soccer",
+   "college_id": "b3e8d023-5ad8-466f-bd21-c5e726153ddb",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "USCAA",
+   "programme": "Christendom College",
+   "sport": "womens-soccer",
+   "college_id": "b592bd31-9d25-4b1d-9949-8491a4637cc5",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Northland Pioneer",
+   "sport": "mens-soccer",
+   "college_id": "b59aaef8-ebc2-4a77-b924-846823281aa5",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Roane State",
+   "sport": "mens-soccer",
+   "college_id": "ba6f08d1-eddd-4cee-bbf4-d8845cdedb79",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Sinclair",
+   "sport": "mens-soccer",
+   "college_id": "bcfdbcc1-0eb2-4b44-a865-388fb0f7a690",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "San Diego Miramar",
+   "sport": "mens-soccer",
+   "college_id": "bdc2af9a-f954-4364-b878-8615d0603bf9",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "USCAA",
+   "programme": "Penn State Mont Alto",
+   "sport": "mens-soccer",
+   "college_id": "be346b6b-7d37-4024-b24c-836f4fa84700",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 psuacsports.com listing (tier C, history); the psuacsports.com 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Volunteer State",
+   "sport": "mens-soccer",
+   "college_id": "be4a904e-2758-48cc-9947-b5bc640d7dd5",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Kankakee Community",
+   "sport": "mens-soccer",
+   "college_id": "c0ce68e5-40e0-4866-9ba6-43634a9ec972",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 region4sports.com listing (tier C, history); the region 4 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Hagerstown",
+   "sport": "mens-soccer",
+   "college_id": "c1cfbb2f-3feb-41e1-b77d-0fed512c3dad",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 njcaaregion20.org listing (tier C, history); the region 20 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Virginia Highlands",
+   "sport": "mens-soccer",
+   "college_id": "c240e042-51cc-4749-b911-f1185643172e",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "City Colleges Chicago-Richard Daley",
+   "sport": "mens-soccer",
+   "college_id": "c3025186-5854-46f5-b7e7-5ddfa6348cc7",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 region4sports.com listing (tier C, history); the region 4 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Skagit Valley",
+   "sport": "mens-soccer",
+   "college_id": "c3f90756-21a4-439b-bf44-689ced2b7ed0",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_NWAC"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Western Wyoming",
+   "sport": "mens-soccer",
+   "college_id": "c4ad7b59-4acf-4433-8783-79740be3a085",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Missouri State-West Plains",
+   "sport": "mens-soccer",
+   "college_id": "c57c12ff-f508-4285-830b-26caae7441d1",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Oklahoma City Community",
+   "sport": "mens-soccer",
+   "college_id": "c6d59dfa-e2fe-4afc-a1f9-dc4ba10a27b8",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Ozarka",
+   "sport": "mens-soccer",
+   "college_id": "c9eaffa8-3ed4-4390-8433-e98843980252",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Rose State",
+   "sport": "mens-soccer",
+   "college_id": "ca0d6329-d881-4be3-9670-8c48ed1704f2",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 region2athletics.com listing (tier C, history); the region 2 2026-27 listing is not published/reachable; the programme has a current official roster"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Rock Valley",
+   "sport": "mens-soccer",
+   "college_id": "cc510bd1-9b30-4c42-b831-0771907d8192",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 region4sports.com listing (tier C, history); the region 4 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Harford County",
+   "sport": "mens-soccer",
+   "college_id": "cdd15d3d-44b1-4ea4-8a80-5e1841eb846c",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 njcaaregion20.org listing (tier C, history); the region 20 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Lewis & Clark (ID)",
+   "sport": "mens-soccer",
+   "college_id": "d0aea410-83f5-47af-aa19-480d9580f415",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: WRONG_INSTITUTION"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Central Arizona",
+   "sport": "mens-soccer",
+   "college_id": "d2d932bd-1a2c-4c1b-b1a4-b371ef87b82e",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Virginia Western",
+   "sport": "mens-soccer",
+   "college_id": "d3c673fa-8792-4bf5-9349-8f8ae39fb8cf",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Crowder",
+   "sport": "mens-soccer",
+   "college_id": "d625acb4-8490-4357-932c-88bc2dd7a15c",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2024-25 njcaaregion16.org listing (tier C, history); the region 16 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Victor Valley",
+   "sport": "mens-soccer",
+   "college_id": "d9f08ada-2bb0-4db1-9c4c-2312c33defc9",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Northeast Mississippi",
+   "sport": "mens-soccer",
+   "college_id": "da56028a-dfc1-4f5c-be53-eb3a2c3b8e61",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Onondaga Community",
+   "sport": "mens-soccer",
+   "college_id": "db8739f4-95bc-4f36-90c5-498241bb321f",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Merced",
+   "sport": "mens-soccer",
+   "college_id": "dbb3d6cc-ccdc-4550-9224-6ff9f5d19eea",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "New Mexico Junior",
+   "sport": "mens-soccer",
+   "college_id": "dd94896b-0889-4a85-bb13-80c3c9ad5dbb",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Terra State",
+   "sport": "mens-soccer",
+   "college_id": "de6f77ae-0fd5-4e13-a6a6-bf28edd941d5",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "North Arkansas",
+   "sport": "mens-soccer",
+   "college_id": "e1fad159-2279-4b24-a04f-df0b2ac04bd7",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Monroe Community",
+   "sport": "mens-soccer",
+   "college_id": "e21dcb56-2ed8-461f-80a2-b8d42c74f6cf",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Fort Scott Community",
+   "sport": "mens-soccer",
+   "college_id": "e29b2df3-aa55-4394-82ec-8f7a4ad86185",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Frederick",
+   "sport": "mens-soccer",
+   "college_id": "e7c722d5-45c0-4657-85a4-24634f685259",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 njcaaregion20.org listing (tier C, history); the region 20 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Jefferson (NY)",
+   "sport": "mens-soccer",
+   "college_id": "e82cbbbf-a132-4bd9-8b8f-99a6cef045f9",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Georgia Piedmont",
+   "sport": "mens-soccer",
+   "college_id": "ea26d69e-ed2f-464d-aca7-b21392e7725f",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "York County",
+   "sport": "mens-soccer",
+   "college_id": "ea9ca715-90b5-4a3f-85a9-229bfdc00dfe",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Finger Lakes Community",
+   "sport": "mens-soccer",
+   "college_id": "eacb2298-12a7-47d2-ba1d-8d28c21c1a3b",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Gadsden State",
+   "sport": "mens-soccer",
+   "college_id": "ed764957-36b9-461a-8561-1b2cb2468a96",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Eastern Wyoming",
+   "sport": "mens-soccer",
+   "college_id": "edb928d1-eac5-4232-bb1f-fecdc6afc339",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Wharton County Junior",
+   "sport": "mens-soccer",
+   "college_id": "eefc5d83-0cee-4688-97a8-5d862bf301c9",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Suffolk County",
+   "sport": "mens-soccer",
+   "college_id": "f0d1d707-4fc1-4030-9085-c5867ad9bef7",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Panola",
+   "sport": "mens-soccer",
+   "college_id": "f16009d4-cc07-4636-8f8c-a44d3240a60b",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "City Colleges Chicago-Olive Harvey",
+   "sport": "mens-soccer",
+   "college_id": "f171a8ca-4255-4b01-95f7-2f0066a65204",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "San Bernardino Valley",
+   "sport": "mens-soccer",
+   "college_id": "f2bd75c6-6c31-48a1-a847-e7fab4cb7534",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: CURRENT_CCCAA"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Chesapeake",
+   "sport": "mens-soccer",
+   "college_id": "f3f34534-3e75-4c1c-a4f1-78f0d6f1dbfb",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 njcaaregion20.org listing (tier C, history); the region 20 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Tidewater",
+   "sport": "mens-soccer",
+   "college_id": "f57302b1-ad80-4dbc-a0b9-2287dd798a46",
+   "queued": true,
+   "classification": "AMBIGUOUS",
+   "why": "queued programme: UNRESOLVED"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Lower Columbia",
+   "sport": "mens-soccer",
+   "college_id": "f6986698-cbb5-4bab-92f2-d4c355730c35",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: WRONG_ASSOCIATION"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Northwest Shoals",
+   "sport": "mens-soccer",
+   "college_id": "f9fffec4-dc5b-4368-9f30-8e10d673513f",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Tulsa Community",
+   "sport": "mens-soccer",
+   "college_id": "fba6b435-9f4d-4133-87fd-4356d2ca4b45",
+   "queued": true,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "queued programme: SOURCE_UNAVAILABLE"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Vernon",
+   "sport": "mens-soccer",
+   "college_id": "fbd2ad46-4899-4112-9294-5d23fffcc735",
+   "queued": true,
+   "classification": "CONTRADICTED",
+   "why": "queued programme: NO_SUCH_PROGRAMME"
+  },
+  {
+   "association": "USCAA",
+   "programme": "Penn State York",
+   "sport": "mens-soccer",
+   "college_id": "fc1a042e-78ac-4f6a-907b-d22e6959ce72",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 psuacsports.com listing (tier C, history); the psuacsports.com 2026-27 listing is not published/reachable"
+  },
+  {
+   "association": "NJCAA",
+   "programme": "Prairie State",
+   "sport": "mens-soccer",
+   "college_id": "ff493756-2dba-4430-aeee-a36b9def47ae",
+   "queued": false,
+   "classification": "SOURCE_UNAVAILABLE",
+   "why": "on the 2025-26 region4sports.com listing (tier C, history); the region 4 2026-27 listing is not published/reachable"
+  }
+ ],
+ "unreachable_regions": {
+  "2": "no 2026-27 page (404)",
+  "3": "CloudFront 403, also in a real browser",
+  "4": "no 2026-27 page (404)",
+  "13": "no 2026-27 page (404)",
+  "15": "site unreachable (curl and browser)",
+  "16": "stale since 2024-25",
+  "20": "unreachable",
+  "national": "njcaa.org CloudFront error; njcaastats.prestosports.com \"Site Disabled\""
+ }
+}

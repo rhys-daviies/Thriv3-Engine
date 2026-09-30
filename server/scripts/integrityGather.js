@@ -30,13 +30,15 @@ const ctx = loadRefreshContext(db);
 const priorRoster = db.prepare('SELECT COUNT(*) n FROM roster_players r JOIN colleges c ON c.name = r.college_name AND c.sport = r.sport WHERE c.athletics_entity_id = ? AND r.sport = ? AND CAST(r.season AS INTEGER) = ?');
 const priorStaff = db.prepare('SELECT COUNT(*) n FROM coaches k JOIN colleges c ON c.name = k.school AND c.sport = k.sport WHERE c.athletics_entity_id = ? AND k.sport = ?');
 const ownsHost = (h, e) => ctx.resolver.hostOwnedBy(h, e);
+// Phase 8B.1: URL-level ownership — a host owned by the entity OR a verified host + path-scope location
+const ownsSource = (u, e, sport) => ctx.resolver.sourceOwnedBy(u, e, { sport });
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const pages = []; const refusals = []; const counts = { ROSTER: 0, COACH: 0 };
 for (const t of plan.targets || []) {
   for (const kind of t.kinds || ['ROSTER', 'COACH']) {
     await wait(Number(process.env.DELAY_MS || 2500));
     const target = { ...t, season, prior_count: kind === 'ROSTER' ? priorRoster.get(t.athletics_entity_id, t.sport, season - 1)?.n : priorStaff.get(t.athletics_entity_id, t.sport)?.n };
-    const r = kind === 'ROSTER' ? await rosterAdapter(target, { ownsHost, url: t.roster_url }) : await staffAdapter(target, { ownsHost, url: t.staff_url });
+    const r = kind === 'ROSTER' ? await rosterAdapter(target, { ownsHost, ownsSource, url: t.roster_url }) : await staffAdapter(target, { ownsHost, ownsSource, url: t.staff_url });
     if (r.page) { pages.push(r.page); counts[kind]++; } else refusals.push({ kind, ...r.refusal });
     console.log(`${kind.padEnd(6)} ${t.institution_label} [${t.sport}] -> ${r.page ? `${(r.page.players || r.page.people).length} records` : `REFUSED ${r.refusal.code} (${r.refusal.detail})`}`);
   }

@@ -6,6 +6,8 @@
  * `sidearm-roster-player` list, the newer `s-person-card` cards, and table views), so every
  * reader here tries all of them and reports a COUNT the caller checks against expectations.
  */
+import { parseRosterTableStrict, validateRecords, STRUCTURE, decodeEntities } from './rosterStructure.js';
+
 const decode = (s) => String(s || '').replace(/&amp;/g, '&').replace(/&#39;|&#039;|&rsquo;/g, "'").replace(/&quot;/g, '"').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
 const strip = (s) => decode(String(s || '').replace(/<[^>]+>/g, ' '));
 
@@ -39,7 +41,18 @@ export function parseSidearmRoster(html) {
   }
   return out;
 }
-export const countSidearmRoster = (html) => parseSidearmRoster(html).length;
+/**
+ * Sidearm roster with structural validation (Phase 8B.1): list or card markup, else the Sidearm
+ * TABLE view through the semantic table parser. -> { records, structure }
+ */
+export function parseSidearmRosterStrict(html) {
+  const h = String(html || '');
+  const records = parseSidearmRoster(h).map((r) => ({ ...r, player_name: decodeEntities(r.player_name) }));
+  const markupSeen = /sidearm-roster-player|s-person-card/i.test(h);
+  if (records.length || markupSeen) return { records, structure: validateRecords(records, { markupSeen }) };
+  return parseRosterTableStrict(h);
+}
+export const countSidearmRoster = (html) => { const r = parseSidearmRosterStrict(html); return r.structure.code === STRUCTURE.OK ? r.records.length : 0; };
 
 /** Sidearm coaching staff: name, title, and ONLY an address printed as a mailto link. */
 export function parseSidearmStaff(html) {

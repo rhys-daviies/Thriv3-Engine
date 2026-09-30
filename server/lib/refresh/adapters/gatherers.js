@@ -22,12 +22,14 @@
  */
 import { fetchPage } from './fetchPage.js';
 import { parseRosterTable, parseStaffTable, pageSeason, SPORT_PRESTO, pageTitle } from './presto.js';
-import { detectPlatform, parseSidearmRoster, parseSidearmStaff } from './sidearm.js';
-import { refusePage } from './adapterSafety.js';
+import { detectPlatform, parseSidearmRosterStrict, parseSidearmStaff } from './sidearm.js';
+import { parseRosterTableStrict, STRUCTURE, prestoListViewHref, prestoCardNames, crossCheckCards } from './rosterStructure.js';
+import { refusePage, REFUSAL } from './adapterSafety.js';
 import { nameKey, coreKey, wordsContained } from './institutionNames.js';
 
 // -2: responsive Presto roster tables (mobile-only cells / hidden labels) parsed correctly (Phase 8A pilot)
-export const ADAPTER_VERSION = 'p8a-gatherers-2';
+// -3: structure-validated, fail-closed roster parsing (PARSER_STRUCTURE_UNKNOWN) — Phase 8B.1
+export const ADAPTER_VERSION = 'p8b1-gatherers-3';
 const seasonToken = (y) => `${y}-${String((y + 1) % 100).padStart(2, '0')}`;
 
 /* ------------------------------------------------------------ DISCOVERY helpers */
@@ -93,30 +95,41 @@ function staffUrl(host, platform, sport) {
  * ctx.ownsHost(host, entity) — identityResolver.hostOwnedBy (host ownership from the DB).
  * Returns { page } (staging ROSTER page) or { refusal }.
  */
-export async function rosterAdapter(target, { ownsHost, fetch = fetchPage, url } = {}) {
+export async function rosterAdapter(target, { ownsHost, ownsSource, fetch = fetchPage, url } = {}) {
   const u = url || rosterUrl(target.host, target.platform, target.sport, target.season);
   const p = await fetch(u);
   const platform = target.platform || detectPlatform(p.body);
-  const players = p.block ? [] : (platform === 'SIDEARM' ? parseSidearmRoster(p.body) : parseRosterTable(p.body));
-  const refusal = refusePage(p, { kind: 'ROSTER', sport: target.sport, season: target.season, entityOwnsHost: ownsHost ? (h) => ownsHost(h, target.athletics_entity_id) : null }, players, target.prior_count ? { count: target.prior_count } : null);
+  // structure-validated parse (fail closed): an unrecognised layout is a refusal, never records
+  let parsed = p.block ? { records: [], structure: { code: STRUCTURE.NONE } } : (platform === 'SIDEARM' ? parseSidearmRosterStrict(p.body) : parseRosterTableStrict(p.body));
+  // Presto player-card theme: follow the page's OWN declared list view, parse it strictly, cross-check the cards
+  let listView = null;
+  if (!p.block && platform === 'PRESTO' && parsed.structure.code === STRUCTURE.UNKNOWN && prestoListViewHref(p.body)) {
+    const href = new URL(prestoListViewHref(p.body), p.final_url || u).href;
+    const lp = await fetch(href);
+    if (!lp.block && (lp.final_host || lp.host) === (p.final_host || p.host)) { parsed = crossCheckCards(parseRosterTableStrict(lp.body), prestoCardNames(p.body)); listView = { url: lp.final_url || href, sha256: lp.sha256 }; }
+  }
+  const players = parsed.structure.code === STRUCTURE.OK ? parsed.records : [];
+  const pre = refusePage(p, { kind: 'ROSTER', sport: target.sport, season: target.season, entityOwnsHost: ownsHost ? (h) => ownsHost(h, target.athletics_entity_id) : null, entityOwnsUrl: ownsSource ? (u) => ownsSource(u, target.athletics_entity_id, target.sport) : null }, players, target.prior_count ? { count: target.prior_count } : null);
+  // an unreadable layout is named as such: it outranks "zero records" / "count collapse", which it causes
+  const refusal = parsed.structure.code === STRUCTURE.UNKNOWN && (!pre || [REFUSAL.ZERO, REFUSAL.COLLAPSE].includes(pre.code)) ? { code: REFUSAL.STRUCTURE, detail: parsed.structure.detail } : pre;
   const meta = { source_url: p.final_url || u, fetched_at: p.fetched_at, http: p.status, platform, title: p.block ? null : pageTitle(p.body).slice(0, 120), sha256: p.sha256 };
   if (refusal) return { refusal: { ...refusal, target: { entity: target.athletics_entity_id, sport: target.sport }, ...meta } };
   return { page: {
     dataset: 'ROSTER', source_kind: 'OFFICIAL_ROSTER', source_url: meta.source_url, fetched_at: meta.fetched_at, page_season: pageSeason(p.body) ?? target.season,
     observed_season: target.season, institution_label: target.institution_label, raw_programme: `${target.institution_label} ${target.sport}`, sport: target.sport,
-    athletics_entity_id: target.athletics_entity_id, source_complete: true, parser_version: platform === 'SIDEARM' ? 'sidearm-roster-1' : `${platform.toLowerCase()}-roster-2`, adapter_version: ADAPTER_VERSION,
-    adapter_evidence: { platform, title: meta.title, sha256: meta.sha256, records: players.length },
+    athletics_entity_id: target.athletics_entity_id, source_complete: true, parser_version: platform === 'SIDEARM' ? 'sidearm-roster-2' : listView ? 'presto-cards-listview-1' : `${platform.toLowerCase()}-roster-3`, adapter_version: ADAPTER_VERSION,
+    adapter_evidence: { platform, title: meta.title, sha256: meta.sha256, records: players.length, ...(listView ? { list_view: listView, parse: 'presto card theme -> declared list view, cross-checked against the cards' } : {}) },
     players: players.map((r) => ({ player_name: r.player_name, position: r.position || null, class_year_label: r.class_year_label || null, hometown: r.hometown || null, ...(r.nationality ? { nationality: r.nationality } : {}) })),
   } };
 }
 
 /** One programme's staff page (coach observations are staged, never promoted, in 8A). */
-export async function staffAdapter(target, { ownsHost, fetch = fetchPage, url } = {}) {
+export async function staffAdapter(target, { ownsHost, ownsSource, fetch = fetchPage, url } = {}) {
   const u = url || staffUrl(target.host, target.platform, target.sport);
   const p = await fetch(u);
   const platform = target.platform || detectPlatform(p.body);
   const people = p.block ? [] : (platform === 'SIDEARM' ? parseSidearmStaff(p.body) : parseStaffTable(p.body));
-  const refusal = refusePage(p, { kind: 'COACH', sport: target.sport, season: null, entityOwnsHost: ownsHost ? (h) => ownsHost(h, target.athletics_entity_id) : null }, people, target.prior_count ? { count: target.prior_count } : null);
+  const refusal = refusePage(p, { kind: 'COACH', sport: target.sport, season: null, entityOwnsHost: ownsHost ? (h) => ownsHost(h, target.athletics_entity_id) : null, entityOwnsUrl: ownsSource ? (u) => ownsSource(u, target.athletics_entity_id, target.sport) : null }, people, target.prior_count ? { count: target.prior_count } : null);
   const meta = { source_url: p.final_url || u, fetched_at: p.fetched_at, http: p.status, platform, title: p.block ? null : pageTitle(p.body).slice(0, 120), sha256: p.sha256 };
   if (refusal) return { refusal: { ...refusal, target: { entity: target.athletics_entity_id, sport: target.sport }, ...meta } };
   return { page: {

@@ -31,7 +31,7 @@ export const SHARED_PLATFORM_ROOT = /(^|\.)(prestosports\.com|sidearmsports\.com
 const TRUSTED = new Set(['VERIFIED', 'VERIFIED_ALIAS']);
 const CONF = { KNOWN_ENTITY: 1, AUTHORITATIVE_HOST: 0.99, AUTHORITATIVE_DOMAIN: 0.97, ALIAS_ENTITY: 0.95, FEDERAL_UNITID: 0.95, PARENT_PLUS_EXACT_NAME: 0.85, EXACT_PROGRAMME_NAME: 0.8 };
 
-export function createIdentityResolver({ entities = [], colleges = [], domains = [], aliases = [], rowLinks = [] } = {}) {
+export function createIdentityResolver({ entities = [], colleges = [], domains = [], aliases = [], rowLinks = [], locations = [] } = {}) {
   const eidx = buildEntityIndex({ entities, colleges, domains });
   const domBy = new Map(domains.map((d) => [String(d.domain).toLowerCase(), d]));
   const linkOf = new Map(rowLinks.map((l) => [l.college_id, l]));
@@ -183,5 +183,24 @@ export function createIdentityResolver({ entities = [], colleges = [], domains =
     return domainEntity(d)?.entity === entityId;
   }
 
-  return { resolve, programmeRow, canonicalRow, entityHosts, hostOwnedBy, unitidEntity, index: eidx };
+  /**
+   * Is this URL an official source of this entity (Phase 8B.1)? True if the entity owns the
+   * HOST (hostOwnedBy), or if a VERIFIED athletics_source_locations row scopes it: same exact
+   * host, path under the prefix on a segment boundary ("/athletics" covers "/athletics/msoc/..."
+   * but never "/athleticsfoo" or "/admissions"), and the sport, when the location names one.
+   * A location never makes the rest of its host proof of anything.
+   */
+  const locBy = new Map();
+  for (const l of locations) if (l.status === 'VERIFIED' && !SHARED_PLATFORM_ROOT.test(l.host)) (locBy.get(l.host) || locBy.set(l.host, []).get(l.host)).push(l);
+  function sourceOwnedBy(url, entityId, { sport = null } = {}) {
+    let u; try { u = new URL(url); } catch { return false; }
+    const host = u.hostname.toLowerCase().replace(/^www\./, '');
+    if (hostOwnedBy(host, entityId)) return true;
+    const pathLower = u.pathname.toLowerCase();
+    return (locBy.get(host) || []).some((l) => l.athletics_entity_id === entityId && (!l.sport || !sport || l.sport === sport)
+      && (pathLower === l.path_prefix.toLowerCase() || pathLower.startsWith(`${l.path_prefix.toLowerCase().replace(/\/$/, '')}/`)));
+  }
+  function entityLocations(entityId) { return locations.filter((l) => l.athletics_entity_id === entityId && l.status === 'VERIFIED'); }
+
+  return { resolve, programmeRow, canonicalRow, entityHosts, hostOwnedBy, sourceOwnedBy, entityLocations, unitidEntity, index: eidx };
 }

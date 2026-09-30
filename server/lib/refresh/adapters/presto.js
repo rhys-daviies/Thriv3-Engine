@@ -5,6 +5,8 @@
  *   /sports/<msoc|wsoc>/<YYYY-YY>/[<div>/]{teams|standings|roster|coaches|schedule}
  * and a fall season "2026-27" is the 2026 fall season.
  */
+import { parseRosterTableStrict, STRUCTURE } from './rosterStructure.js';
+
 const decode = (s) => String(s || '').replace(/&amp;/g, '&').replace(/&#39;|&#039;|&rsquo;|&#8217;/g, "'").replace(/&quot;/g, '"').replace(/&nbsp;/g, ' ').replace(/&#8211;|&ndash;/g, '-').replace(/\s+/g, ' ').trim();
 const stripTags = (s) => decode(String(s || '').replace(/<[^>]+>/g, ' '));
 
@@ -107,17 +109,14 @@ export function parseTables(html) {
 
 const col = (row, ...keys) => { for (const k of Object.keys(row)) if (keys.some((x) => (x instanceof RegExp ? x.test(k) : k === x))) return row[k]; return null; };
 
-/** Roster players from a Presto (or generic tabular) roster page. */
+/**
+ * Roster players from a Presto (or generic tabular) roster page. FAIL-CLOSED since Phase 8B.1:
+ * the semantic, structure-validated parser (rosterStructure.js) decides, and anything it cannot
+ * validate yields NO records here. Use parseRosterTableStrict for the reason.
+ */
 export function parseRosterTable(html) {
-  const players = [];
-  for (const t of parseTables(html)) {
-    if (!t.headers.some((h) => /^name$|player/.test(h))) continue;
-    for (const r of t.rows) {
-      const name = col(r, 'name', /player/)?.text; if (!name) continue;
-      players.push({ player_name: name.replace(/\s+\d+$/, '').trim(), position: col(r, /^pos/)?.text || null, class_year_label: col(r, /^cl|^yr|year|class|elig/)?.text || null, hometown: col(r, /hometown/)?.text || null, nationality: col(r, /nation|country/)?.text || null });
-    }
-  }
-  return players;
+  const { records, structure } = parseRosterTableStrict(html);
+  return structure.code === STRUCTURE.OK ? records : [];
 }
 
 /** Staff from a Presto coaches page: name, title, and ONLY a printed mailto address. */

@@ -1,0 +1,102 @@
+{
+ "phase": "8B.1",
+ "scope": "STAGING ONLY — integrity:promote not run",
+ "plan": {
+  "targets": 199,
+  "by_division_sport": {
+   "NJCAA|mens-soccer": 102,
+   "USCAA|mens-soccer": 7,
+   "USCAA|womens-soccer": 6,
+   "NJCAA|womens-soccer": 84
+  },
+  "by_platform": {
+   "PRESTO": 151,
+   "SIDEARM": 48
+  },
+  "by_via": {
+   "phase8a-discovery": 168,
+   "phase8b1-recovery SEPARATE_ATHLETICS_HOST_CANDIDATE": 12,
+   "phase8b1-recovery ATHLETICS_HOST": 10,
+   "phase8b1-recovery OWNED_HOST_RECHECK": 9
+  },
+  "skipped_unowned": 5
+ },
+ "quality": {
+  "pages_attempted": 199,
+  "pages_staged": 199,
+  "pages_refused": 0,
+  "pages_blocked": 0,
+  "pages_blocked_detail": {},
+  "parser_refusals": {
+   "PARSER_STRUCTURE_UNKNOWN": 0,
+   "PARSER_RETURNED_ZERO_RECORDS": 0
+  },
+  "wrong_season": 46,
+  "wrong_sport": 0,
+  "wrong_entity": 0,
+  "source_ownership_failure": 0,
+  "staff_in_roster": 0,
+  "count_collapse": 0,
+  "players_parsed": 4907,
+  "observations_staged": 4933,
+  "observations_player_seasons": 4907,
+  "not_observed_current_season": 26,
+  "identity_ambiguous": 2,
+  "duplicate_on_page": 2,
+  "name_format_variant_held": 0,
+  "transfer_candidates": 268,
+  "same_name_other_programme_same_season": 150,
+  "missing_fields": {
+   "position": 428,
+   "class_year": 130,
+   "hometown": 208
+  },
+  "by_classification": {
+   "CONTRADICTION": 46,
+   "IDENTITY_AMBIGUOUS": 2,
+   "NEW_RECORD": 4853,
+   "SOURCE_UNTRUSTED": 6
+  },
+  "review_required": 150,
+  "review_required_rate_pct": 3.1,
+  "page_refusal_rate_pct": 0
+ },
+ "refusals": [],
+ "refresh": {
+  "by_classification": {
+   "CONTRADICTION": 46,
+   "DISAPPEARED_FROM_SOURCE": 26,
+   "IDENTITY_AMBIGUOUS": 2,
+   "NEW_RECORD": 4853,
+   "SOURCE_UNTRUSTED": 6
+  },
+  "requires_review": 150,
+  "promoted": 0
+ },
+ "canonical_mutation": {
+  "pre": "7ce8c8a63bd37f76228053efb99e3eeb30c771528c7e1696f408053bf9713626",
+  "post": "7ce8c8a63bd37f76228053efb99e3eeb30c771528c7e1696f408053bf9713626",
+  "unchanged": true,
+  "changed_tables": [],
+  "staging_pre": {
+   "refresh_batches": {
+    "rows": 1,
+    "sha256": "cc210eb6b06dff50f6cbc42c2efeab29e849a11d2abdf7ba5b677c77793519a4"
+   },
+   "refresh_observations": {
+    "rows": 154,
+    "sha256": "c99b1cff7f219102bd98dd00e9e612547eddb8150379df31f49e99fad1ae2f4a"
+   }
+  },
+  "staging_post": {
+   "refresh_batches": {
+    "rows": 2,
+    "sha256": "16da2e75616868827337bc9ea8427ec63196d4519d39bdac3bfd76fc9bde6687"
+   },
+   "refresh_observations": {
+    "rows": 5087,
+    "sha256": "1f8e74d55cf748de0e96881188f9870160306957c66ccbd7a973a4dca8b877af"
+   }
+  }
+ }
+}

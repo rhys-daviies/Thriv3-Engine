@@ -21,6 +21,7 @@ export const REFUSAL = Object.freeze({
   AMBIGUOUS: 'AMBIGUOUS_PROGRAMME',
   ZERO: 'PARSER_RETURNED_ZERO_RECORDS',
   COLLAPSE: 'COUNT_COLLAPSE_VS_PRIOR_OBSERVATION',
+  STRUCTURE: 'PARSER_STRUCTURE_UNKNOWN',
 });
 
 const NON_PLAYER = /\b(head coach|assistant coach|coach|manager|trainer|director|coordinator|staff)\b/i;
@@ -33,9 +34,13 @@ const NON_PLAYER = /\b(head coach|assistant coach|coach|manager|trainer|director
 export function refusePage(page, intent, records = [], prior = null) {
   if (page.block) return { code: REFUSAL.BLOCKED, detail: page.block };
   const host = page.final_host || page.host;
-  if (host && SHARED_PLATFORM_ROOT.test(host) && !(intent.entityOwnsHost && intent.entityOwnsHost(host))) return { code: REFUSAL.SHARED_ROOT, detail: host };
-  if (page.final_host && page.host && page.final_host !== page.host && !(intent.entityOwnsHost && intent.entityOwnsHost(page.final_host))) return { code: REFUSAL.FOREIGN_REDIRECT, detail: `${page.host} -> ${page.final_host}` };
-  if (intent.entityOwnsHost && host && !intent.entityOwnsHost(host)) return { code: REFUSAL.INSTITUTION_MISMATCH, detail: `${host} is not owned by the programme's athletics entity` };
+  // ownership is decided on the URL when a path-scoped check is supplied (Phase 8B.1: an
+  // institution-path source owns /athletics/..., never the rest of its host), else on the host
+  const finalUrl = page.final_url || page.url;
+  const owns = intent.entityOwnsUrl ? () => intent.entityOwnsUrl(finalUrl) : intent.entityOwnsHost ? (h) => intent.entityOwnsHost(h) : null;
+  if (host && SHARED_PLATFORM_ROOT.test(host) && !(owns && owns(host))) return { code: REFUSAL.SHARED_ROOT, detail: host };
+  if (page.final_host && page.host && page.final_host !== page.host && !(owns && owns(page.final_host))) return { code: REFUSAL.FOREIGN_REDIRECT, detail: `${page.host} -> ${page.final_host}` };
+  if (owns && host && !owns(host)) return { code: REFUSAL.INSTITUTION_MISMATCH, detail: intent.entityOwnsUrl ? `${finalUrl} is not inside a source owned by the programme's athletics entity` : `${host} is not owned by the programme's athletics entity` };
   const urlSport = sportOfUrl(page.final_url || page.url); const titleSport = pageSportFromTitle(page.body);
   if ((urlSport && urlSport !== intent.sport) || (titleSport && titleSport !== intent.sport)) return { code: REFUSAL.WRONG_SPORT, detail: `page is ${urlSport || titleSport}, wanted ${intent.sport}` };
   const ps = pageSeason(page.body);

@@ -22,10 +22,11 @@ export function loadRefreshContext(db) {
   const rowLinks = sel(db, 'programme_row_links', 'SELECT * FROM programme_row_links');
   const periods = sel(db, 'programme_membership_periods', 'SELECT * FROM programme_membership_periods');
   const freezes = sel(db, 'season_freezes', 'SELECT * FROM season_freezes');
+  const locations = sel(db, 'athletics_source_locations', 'SELECT * FROM athletics_source_locations');
   const conferenceHosts = new Set();
   for (const r of sel(db, 'conference_seasons', 'SELECT DISTINCT source_url FROM conference_seasons')) { const h = hostOf(r.source_url); if (h) conferenceHosts.add(h); }
-  const resolver = createIdentityResolver({ entities, colleges, domains, aliases, rowLinks });
-  return { colleges, domains, aliases, entities, rowLinks, periods, freezes, conferenceHosts, resolver, managed: entities.length > 0 };
+  const resolver = createIdentityResolver({ entities, colleges, domains, aliases, rowLinks, locations });
+  return { colleges, domains, aliases, entities, rowLinks, periods, freezes, locations, conferenceHosts, resolver, managed: entities.length > 0 };
 }
 
 /** Frozen seasons applicable to a scope (a '*' freeze covers every scope). */

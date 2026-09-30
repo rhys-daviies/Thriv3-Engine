@@ -186,7 +186,12 @@ describe('rosters: history is preserved', () => {
     const out = classifyPage(rosterPage({ source_url: 'https://concordiatx.example/sports/mens-soccer/roster/2026', page_season: 2026, observed_season: 2026, players: [{ player_name: 'Alex Keeper', class_year_label: 'So.', position: 'GK', nationality: 'USA' }] }), ctx, { ...opts, season: 2026 });
     const gone = out.find((o) => o.target_key === 'r-b26');
     expect(gone.classification).toBe('DISAPPEARED_FROM_SOURCE'); expect(gone.proposed_action).toBeNull();
-    expect(out.some((o) => o.target_key === 'r-c25')).toBe(false); // prior season untouched
+    // prior season untouched: the 2025 player absent from 2026 is NOT_OBSERVED_CURRENT_SEASON — informational,
+    // no action, never promotable, and the 2025 row itself is never a write target (Phase 8B.1 Part O)
+    for (const o of out.filter((x) => x.target_key === 'r-c25')) {
+      expect(o.classification).toBe('DISAPPEARED_FROM_SOURCE'); expect(o.proposed_action).toBeNull();
+      expect(JSON.parse(JSON.stringify(o.evidence_json)).status).toBe('NOT_OBSERVED_CURRENT_SEASON');
+    }
   });
   it('class going backwards on a same-name continuation is IDENTITY_AMBIGUOUS', () => {
     const out = classifyPage(rosterPage({ players: [{ player_name: 'Blake Mid', class_year_label: 'Fr.' }] }), ctx, { ...opts, season: 2027 });

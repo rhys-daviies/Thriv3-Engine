@@ -1433,4 +1433,38 @@ export function migrate(db) {
   if (db.prepare("SELECT COUNT(*) n FROM sqlite_master WHERE name = 'generated_reports'").get().n) {
     addMissingColumns(db, 'generated_reports', GENERATED_REPORT_COLUMNS);
   }
+  extendMembershipDivisions(db);
+}
+
+/**
+ * PHASE 8B.1 — the membership vocabulary gains CCCAA and NWAC.
+ *
+ * Twenty-nine legacy rows labelled NJCAA are California (CCCAA) or Pacific-Northwest (NWAC)
+ * programmes; both associations list them. Recording them truthfully needs the division
+ * CHECK on programme_membership_periods to accept those values, and SQLite cannot alter a
+ * CHECK: the table is rebuilt. Guarded and idempotent:
+ *   - runs only when the table exists AND its CHECK lacks 'CCCAA';
+ *   - one transaction: create the new table, copy EVERY row, verify the count, drop, rename,
+ *     recreate both indexes; any mismatch throws and rolls the whole rebuild back;
+ *   - no row, value or key changes — only the constraint widens.
+ */
+export function extendMembershipDivisions(db) {
+  const t = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'programme_membership_periods'").get();
+  if (!t || /'CCCAA'/.test(t.sql)) return false;
+  const newSql = t.sql
+    .replace(/CREATE TABLE (IF NOT EXISTS )?"?programme_membership_periods"?/, 'CREATE TABLE programme_membership_periods_8b1')
+    .replace(/CHECK \(division IN \(([^)]*)\)\)/, (m, list) => `CHECK (division IN (${list}, 'CCCAA', 'NWAC'))`);
+  if (!/'CCCAA'/.test(newSql)) throw new Error('extendMembershipDivisions: could not locate the division CHECK');
+  db.transaction(() => {
+    const before = db.prepare('SELECT COUNT(*) n FROM programme_membership_periods').get().n;
+    db.exec(newSql);
+    db.exec('INSERT INTO programme_membership_periods_8b1 SELECT * FROM programme_membership_periods');
+    const after = db.prepare('SELECT COUNT(*) n FROM programme_membership_periods_8b1').get().n;
+    if (after !== before) throw new Error(`extendMembershipDivisions: copied ${after} of ${before} rows`);
+    db.exec('DROP TABLE programme_membership_periods');
+    db.exec('ALTER TABLE programme_membership_periods_8b1 RENAME TO programme_membership_periods');
+    db.exec('CREATE INDEX IF NOT EXISTS idx_pmp_open ON programme_membership_periods(athletics_entity_id, sport, last_season)');
+    db.exec('CREATE INDEX IF NOT EXISTS idx_pmp_college ON programme_membership_periods(college_id)');
+  })();
+  return true;
 }

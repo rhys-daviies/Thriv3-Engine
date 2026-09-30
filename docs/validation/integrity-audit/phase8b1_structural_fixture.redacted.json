@@ -1,0 +1,692 @@
+{
+ "phase": "8B1-structural",
+ "fixture_hash": "39f1e556ac57b06fcce7079aced4820a87619be0990bb49a19b3e63b7299f075",
+ "action_counts": {
+  "entity_create": 0,
+  "entity_update": 0,
+  "college_repair": 0,
+  "programme_create": 0,
+  "membership_verify": 1,
+  "row_link": 0,
+  "deactivate": 56,
+  "domain_register": 13,
+  "association_correct": 28,
+  "location_register": 0
+ },
+ "actions": {
+  "membership_verify": [
+   {
+    "label": "Bryant & Stratton-Syracuse [womens-soccer] verified",
+    "evidence": "https://theuscaa.com/sports/wsoc/2026-27/teams lists \"Bryant & Stratton-Syracuse\"",
+    "reason": "governing-body listing",
+    "blast_radius": "one membership period source tier; division/conference untouched"
+   }
+  ],
+  "deactivate": [
+   {
+    "label": "Bossier Parish [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 14/23; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 14/23 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 14/23 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Broward [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 8; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 8 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Cascadia [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "https://nwacsports.com/sports/msoc/2026-27/teams; https://nwacsports.com/sports/msoc/2025-26/teams",
+    "reason": "NO_SUCH_PROGRAMME: NWAC institution, not NJCAA; absent from the complete NWAC men's listings for 2025-26 and 2026-27; no records, rosters or coaches",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Central Alabama [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 22; not on a current listing; no prior listing; no records; crawl NOT_FOUND https://www.cacc.edu/; absent from the 2025-26 region 22 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 22 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Central Arizona [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 1; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 1 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 1 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Chipola [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 8; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 8 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Collin College [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 5/14; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 5/14 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Delta College (MI) [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 12; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; the entity's women's programme IS listed; absent from the 2025-26 region 12 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 12 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Diablo Valley [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings; https://www.cccaasports.org/sports/msoc/2025-26/standings",
+    "reason": "NO_SUCH_PROGRAMME: CCCAA institution, not NJCAA; absent from the complete CCCAA men's listings for 2025-26 and 2026-27; no records, rosters or coaches",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Florida State College Jacksonville [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 8; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 8 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Fort Scott Community [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 6; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 6 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 6 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Gadsden State [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 22; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 22 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 22 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Georgia Highlands [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 17; not on a current listing; no prior listing; no records; crawl NOT_FOUND https://ghcchargers.com/sports/msoc/2026-27/roster; absent from the 2025-26 region 17 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 17 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Georgia Northwestern [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 17; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 17 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 17 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Georgia Piedmont [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 17; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 17 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 17 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Highland [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 6; not on a current listing; no prior listing; no records; crawl NOT_FOUND https://scottieathletics.com/404-1.aspx?url=%2froster.aspx%3fpath%3dgeneral%26; the entity's women's programme IS listed; absent from the 2025-26 region 6 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 6 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Hillsborough [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 8; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 8 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "J. Sargeant Reynolds [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 10; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 10 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Jefferson Davis [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 22; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 22 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 22 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Kalamazoo Valley [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 12; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 12 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 12 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Kellogg Community [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 12; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; the entity's women's programme IS listed; absent from the 2025-26 region 12 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 12 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Kilgore [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 5/14; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 5/14 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Labette [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 6; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 6 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 6 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Lamar Institute [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 5/14; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 5/14 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Lewis & Clark (ID) [mens-soccer] WRONG_INSTITUTION",
+    "evidence": "https://nwacsports.com/sports/msoc/2026-27/teams; https://nwacsports.com/sports/msoc/2025-26/teams",
+    "reason": "WRONG_INSTITUTION: UNITID 142328 is Lewis-Clark State College (Lewiston, ID; NAIA) — not an NWAC member, on neither the 2025-26 nor 2026-27 NWAC men's listing, no records/rosters/coaches",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Lincoln Land [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 24; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; the entity's women's programme IS listed; absent from the 2025-26 region 24 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 24 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Lone Star [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 5/14; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 5/14 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Lord Fairfax [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 10; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 10 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Louisiana Delta [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 14/23; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 14/23 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 14/23 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Lower Columbia [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "https://nwacsports.com/sports/msoc/2026-27/teams; https://nwacsports.com/sports/msoc/2025-26/teams",
+    "reason": "NO_SUCH_PROGRAMME: NWAC institution, not NJCAA; absent from the complete NWAC men's listings for 2025-26 and 2026-27; no records, rosters or coaches",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Lurleen B. Wallace [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 22; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 22 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 22 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "McLennan [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 5/14; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 5/14 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Motlow State [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 7; not on a current listing; no prior listing; no records; crawl NOT_FOUND https://motlowsports.com/sports/msoc/2026-27/roster; the entity's women's programme IS listed; the entity's verified host motlowsports.com returns no mens-soccer roster (404) while serving a current womens-soccer roster",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND the entity's verified host motlowsports.com returns no mens-soccer roster (404) while serving a current womens-soccer roster; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "New Mexico Junior [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 5; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 5 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Northeast Mississippi [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 23; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 23 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 23 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Northland Pioneer [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 1; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 1 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 1 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Northwest Shoals [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 22; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 22 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 22 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Odessa [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 5; not on a current listing; no prior listing; no records; crawl NOT_FOUND https://wranglersports.com/sports/msoc/2026-27/roster; the entity's women's programme IS listed; absent from the 2025-26 region 5 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Panola [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 5/14; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 5/14 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Passaic County [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 19; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 19 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 19 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Pensacola State [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 8; not on a current listing; no prior listing; no records; crawl NOT_FOUND https://athletics.pensacolastate.edu/sports/msoc/2026-27/roster; the entity's women's programme IS listed; absent from the 2025-26 region 8 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Piedmont Virginia [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 10; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 10 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Polk State [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 8; not on a current listing; no prior listing; no records; crawl NOT_FOUND https://polkeagles.com/404-1.aspx?url=%2froster.aspx%3fpath%3dgeneral%26; the entity's women's programme IS listed; absent from the 2025-26 region 8 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster; the entity's women's programme is the one listed",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Riverside [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings; https://www.cccaasports.org/sports/msoc/2025-26/standings",
+    "reason": "NO_SUCH_PROGRAMME: CCCAA institution, not NJCAA; absent from the complete CCCAA men's listings for 2025-26 and 2026-27; no records, rosters or coaches",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Sandhills [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 10; not on a current listing; no prior listing; no records; crawl BLOCKED https://sccflyersathletics.com/; absent from the 2025-26 region 10 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Sinclair [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 12; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 12 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 12 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "South Plains [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 5/14; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 5/14 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Surry [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 10; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 10 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Tallahassee [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 8; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 8 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 8 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Trinity Valley [mens-soccer] HISTORICAL_ONLY",
+    "evidence": "regions 14; not on a current listing; no prior listing; records 2022,2023; crawl PRIOR_ROSTER_ONLY https://tvccsports.com/sports/mbkb/2025-26/roster; the entity's women's programme IS listed",
+    "reason": "HISTORICAL_ONLY: absent from the complete 2026-27 region listing and every prior listing; last record 2023",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (2 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Ventura [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings; https://www.cccaasports.org/sports/msoc/2025-26/standings",
+    "reason": "NO_SUCH_PROGRAMME: CCCAA institution, not NJCAA; absent from the complete CCCAA men's listings for 2025-26 and 2026-27; no records, rosters or coaches",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Vernon [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 5/14; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 5/14 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Virginia Highlands [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 10; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 10 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Virginia Western [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 10; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 10 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 10 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Weatherford [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 5/14; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 5/14 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   },
+   {
+    "label": "Wharton County Junior [mens-soccer] NO_SUCH_PROGRAMME",
+    "evidence": "regions 5/14; not on a current listing; no prior listing; no records; crawl NOT_SEARCHED; absent from the 2025-26 region 5/14 listing",
+    "reason": "NO_SUCH_PROGRAMME: absent from the complete 2026-27 region listing AND absent from the 2025-26 region 5/14 listing; no programme-season record, roster, coach or official current roster",
+    "blast_radius": "one NJCAA row inactive + its SEED 2026 period DISCONTINUED; history rows (0 programme-season record(s)) kept, nothing deleted; NCAA/NAIA untouched"
+   }
+  ],
+  "domain_register": [
+   {
+    "label": "AE-U101897 naccathletics.com",
+    "evidence": "institution site nacc.edu links naccathletics.com; naccathletics.com self-identifies as the institution; CURRENT_ROSTER_FOUND at https://naccathletics.com/sports/msoc/2026-27/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Northeast Alabama Community College verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes naccathletics.com trusted for AE-U101897 only; no coach, roster, programme or membership change"
+   },
+   {
+    "label": "AE-U106148 ycathletics.com",
+    "evidence": "institution site yc.edu links ycathletics.com; ycathletics.com self-identifies as the institution; CURRENT_ROSTER_FOUND at https://ycathletics.com/sports/msoc/2026-27/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Yavapai College verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes ycathletics.com trusted for AE-U106148 only; no coach, roster, programme or membership change"
+   },
+   {
+    "label": "AE-U153533 iowalakesathletics.com",
+    "evidence": "institution site iowalakes.edu links iowalakesathletics.com; iowalakesathletics.com self-identifies as the institution; CURRENT_ROSTER_FOUND at https://iowalakesathletics.com/sports/msoc/2026-27/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Iowa Lakes verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes iowalakesathletics.com trusted for AE-U153533 only; no coach, roster, programme or membership change"
+   },
+   {
+    "label": "AE-U154572 witcomets.com",
+    "evidence": "institution site witcc.edu links witcomets.com; witcomets.com self-identifies as the institution; CURRENT_ROSTER_FOUND at https://witcomets.com/sports/msoc/2026-27/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Western Iowa Tech verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes witcomets.com trusted for AE-U154572 only; no coach, roster, programme or membership change"
+   },
+   {
+    "label": "AE-U172963 arccgoldenrams.com",
+    "evidence": "institution site anokaramsey.edu links arccgoldenrams.com; arccgoldenrams.com self-identifies as the institution; CURRENT_ROSTER_FOUND at https://arccgoldenrams.com/sports/msoc/2026-27/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Anoka-Ramsey CC verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes arccgoldenrams.com trusted for AE-U172963 only; no coach, roster, programme or membership change"
+   },
+   {
+    "label": "AE-U173063 riverlandbluedevils.com",
+    "evidence": "institution site riverland.edu links riverlandbluedevils.com; riverlandbluedevils.com self-identifies as the institution; ROSTER_SEASON_UNKNOWN at https://riverlandbluedevils.com/sports/msoc/2026-27/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Riverland CC verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes riverlandbluedevils.com trusted for AE-U173063 only; no coach, roster, programme or membership change"
+   },
+   {
+    "label": "AE-U173638 mnwestathletics.com",
+    "evidence": "institution site mnwest.edu links mnwestathletics.com; mnwestathletics.com self-identifies as the institution; ROSTER_SEASON_UNKNOWN at https://mnwestathletics.com/sports/msoc/2026-27/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Minnesota West Community and Technical College verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes mnwestathletics.com trusted for AE-U173638 only; no coach, roster, programme or membership change"
+   },
+   {
+    "label": "AE-U181491 northeasthawks.com",
+    "evidence": "institution site northeast.edu links northeasthawks.com; northeasthawks.com self-identifies as the institution; ROSTER_SEASON_UNKNOWN at https://northeasthawks.com/sports/msoc/2026-27/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Northeast Community College verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes northeasthawks.com trusted for AE-U181491 only; no coach, roster, programme or membership change"
+   },
+   {
+    "label": "AE-U191339 geneseeathletics.com",
+    "evidence": "institution site genesee.edu links geneseeathletics.com; geneseeathletics.com self-identifies as the institution; CURRENT_ROSTER_FOUND at https://geneseeathletics.com/sports/msoc/2026-27/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Genesee Community verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes geneseeathletics.com trusted for AE-U191339 only; no coach, roster, programme or membership change"
+   },
+   {
+    "label": "AE-U222053 volstatepioneers.com",
+    "evidence": "institution site volstate.edu links volstatepioneers.com; volstatepioneers.com self-identifies as the institution; CURRENT_ROSTER_FOUND at https://volstatepioneers.com/sports/wsoc/2026-27/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Volunteer State Community College verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes volstatepioneers.com trusted for AE-U222053 only; no coach, roster, programme or membership change"
+   },
+   {
+    "label": "AE-U240657 nwctrappers.com",
+    "evidence": "institution site nwc.edu links nwctrappers.com; nwctrappers.com self-identifies as the institution; ROSTER_PAGE_UNPARSED at https://nwctrappers.com/sports/msoc/2026-27/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Northwest College verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes nwctrappers.com trusted for AE-U240657 only; no coach, roster, programme or membership change"
+   },
+   {
+    "label": "AE-U251260 susccathletics.com",
+    "evidence": "institution site suscc.edu links susccathletics.com; susccathletics.com self-identifies as the institution; ROSTER_PAGE_UNPARSED at https://susccathletics.com/sports/msoc/2026-27/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Southern Union State Community College verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes susccathletics.com trusted for AE-U251260 only; no coach, roster, programme or membership change"
+   },
+   {
+    "label": "AE-U495147 pnwccgladiators.com",
+    "evidence": "institution site pnwcc.edu links pnwccgladiators.com; pnwccgladiators.com self-identifies as the institution; CURRENT_ROSTER_FOUND at https://pnwccgladiators.com/sports/mens-soccer/roster; collision audit clean (domains, colleges, coaches, roster sources)",
+    "reason": "separate athletics host for Pacific Northwest Christian College verified by the ownership chain (Phase 8B.1 recovery)",
+    "blast_radius": "1 athletics_domains row; makes pnwccgladiators.com trusted for AE-U495147 only; no coach, roster, programme or membership change"
+   }
+  ],
+  "association_correct": [
+   {
+    "label": "Allan Hancock [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"Allan Hancock\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"Allan Hancock\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "American River [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"American River\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"American River\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Blue Mountain [mens-soccer] -> NWAC",
+    "evidence": "https://nwacsports.com/sports/msoc/2026-27/teams lists \"Blue Mountain\"; https://nwacsports.com/sports/msoc/2025-26/teams lists \"Blue Mountain\"",
+    "reason": "a NWAC programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Cascadia [mens-soccer] -> NWAC",
+    "evidence": "https://nwacsports.com/sports/msoc/2026-27/teams does not list it; https://nwacsports.com/sports/msoc/2025-26/teams does not list it",
+    "reason": "a NWAC programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "College of Marin [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"Marin\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"Marin\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Contra Costa [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"Contra Costa\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"Contra Costa\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Diablo Valley [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings does not list it; https://www.cccaasports.org/sports/msoc/2025-26/standings does not list it",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "El Camino [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"El Camino\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"El Camino\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Everett [mens-soccer] -> NWAC",
+    "evidence": "https://nwacsports.com/sports/msoc/2026-27/teams lists \"Everett\"; https://nwacsports.com/sports/msoc/2025-26/teams lists \"Everett\"",
+    "reason": "a NWAC programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Lower Columbia [mens-soccer] -> NWAC",
+    "evidence": "https://nwacsports.com/sports/msoc/2026-27/teams does not list it; https://nwacsports.com/sports/msoc/2025-26/teams does not list it",
+    "reason": "a NWAC programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Merced [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"Merced\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"Merced\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Mount San Antonio [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"Mt. San Antonio\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"Mt. San Antonio\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Orange Coast [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"Orange Coast\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"Orange Coast\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Riverside [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings does not list it; https://www.cccaasports.org/sports/msoc/2025-26/standings does not list it",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "San Bernardino Valley [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"San Bernardino Valley\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"San Bernardino Valley\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "San Diego Mesa [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"San Diego Mesa\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"San Diego Mesa\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "San Diego Miramar [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"San Diego Miramar\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"San Diego Miramar\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "San Joaquin Delta [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"San Joaquin Delta\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"San Joaquin Delta\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Santa Ana [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"Santa Ana\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"Santa Ana\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Santa Barbara City [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"Santa Barbara\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"Santa Barbara\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Santa Monica [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"Santa Monica\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"Santa Monica\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Santa Rosa Junior [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"Santa Rosa\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"Santa Rosa\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Sierra [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings does not list it; https://www.cccaasports.org/sports/msoc/2025-26/standings does not list it",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Skagit Valley [mens-soccer] -> NWAC",
+    "evidence": "https://nwacsports.com/sports/msoc/2026-27/teams lists \"Skagit Valley\"; https://nwacsports.com/sports/msoc/2025-26/teams lists \"Skagit Valley\"",
+    "reason": "a NWAC programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "South Puget Sound [mens-soccer] -> NWAC",
+    "evidence": "https://nwacsports.com/sports/msoc/2026-27/teams lists \"S. Puget Sound\"; https://nwacsports.com/sports/msoc/2025-26/teams lists \"S. Puget Sound\"",
+    "reason": "a NWAC programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Southwestern (CA) [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"Southwestern\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"Southwestern\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Ventura [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings does not list it; https://www.cccaasports.org/sports/msoc/2025-26/standings does not list it",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   },
+   {
+    "label": "Victor Valley [mens-soccer] -> CCCAA",
+    "evidence": "https://www.cccaasports.org/sports/msoc/2026-27/standings lists \"Victor Valley\"; https://www.cccaasports.org/sports/msoc/2025-26/standings lists \"Victor Valley\"",
+    "reason": "a CCCAA programme the legacy database labelled NJCAA",
+    "blast_radius": "one colleges row division/conference + its SEED 2026 period; no history row, coach, roster or NCAA/NAIA row changes"
+   }
+  ]
+ },
+ "simulation": {
+  "gates": {
+   "naia_freeze_exact": true,
+   "ncaa_truthful_unchanged": true,
+   "naia_eligible_unchanged": true,
+   "ncaa_eligible_unchanged": true,
+   "no_coach_eligibility_change": true,
+   "no_coach_row_change": true,
+   "no_roster_or_record_mutation": true,
+   "frozen_seasons_unchanged": true,
+   "identity_invariant": true,
+   "integrity_counters_zero": true,
+   "ncaa_naia_universe_unchanged": true,
+   "college_changes_only_in_fixture": true,
+   "only_njcaa_uscaa_rows_changed": true,
+   "every_fixture_row_changed": true,
+   "domain_changes_only_in_fixture": true,
+   "no_prior_trusted_domain_changed": true,
+   "location_changes_only_in_fixture": true,
+   "membership_periods_preserved": true
+  },
+  "pass": true
+ },
+ "live": {
+  "gates": {
+   "naia_freeze_exact": true,
+   "ncaa_truthful_unchanged": true,
+   "naia_eligible_unchanged": true,
+   "ncaa_eligible_unchanged": true,
+   "no_coach_eligibility_change": true,
+   "no_coach_row_change": true,
+   "no_roster_or_record_mutation": true,
+   "frozen_seasons_unchanged": true,
+   "identity_invariant": true,
+   "integrity_counters_zero": true,
+   "ncaa_naia_universe_unchanged": true,
+   "college_changes_only_in_fixture": true,
+   "only_njcaa_uscaa_rows_changed": true,
+   "every_fixture_row_changed": true,
+   "domain_changes_only_in_fixture": true,
+   "no_prior_trusted_domain_changed": true,
+   "location_changes_only_in_fixture": true,
+   "membership_periods_preserved": true
+  },
+  "pass": true
+ },
+ "tier_correction": {
+  "fixture_hash": "bcb0a854ff8286b66444244175b3b80f805347d5a6d043c01aadf941970d63ba",
+  "why": "6 association periods (CA/WA programmes NOT on their association's listing) had been recorded tier B; corrected to tier D (inferred, never promotes) by a second guarded fixture",
+  "actions": [
+   {
+    "label": "Cascadia [mens-soccer] NWAC period tier B -> D",
+    "reason": "the period recorded tier B for an association inferred, not listed: correct the tier, not the association"
+   },
+   {
+    "label": "Diablo Valley [mens-soccer] CCCAA period tier B -> D",
+    "reason": "the period recorded tier B for an association inferred, not listed: correct the tier, not the association"
+   },
+   {
+    "label": "Lower Columbia [mens-soccer] NWAC period tier B -> D",
+    "reason": "the period recorded tier B for an association inferred, not listed: correct the tier, not the association"
+   },
+   {
+    "label": "Riverside [mens-soccer] CCCAA period tier B -> D",
+    "reason": "the period recorded tier B for an association inferred, not listed: correct the tier, not the association"
+   },
+   {
+    "label": "Sierra [mens-soccer] CCCAA period tier B -> D",
+    "reason": "the period recorded tier B for an association inferred, not listed: correct the tier, not the association"
+   },
+   {
+    "label": "Ventura [mens-soccer] CCCAA period tier B -> D",
+    "reason": "the period recorded tier B for an association inferred, not listed: correct the tier, not the association"
+   }
+  ],
+  "simulation_pass": true,
+  "live_pass": true
+ }
+}

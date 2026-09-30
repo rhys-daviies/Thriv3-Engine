@@ -23,6 +23,8 @@
  *   H10 (7E) programme_membership_periods: one open period per programme, no overlap, the
  *       carrier row agrees with the current membership (colleges.division is its pointer),
  *       and — once periods are seeded — every active carrier row has an open period.
+ *   H12 (8B.1) athletics_source_locations: entity exists; never a shared root; a path source is never
+ *       the whole host; never on a host owned by another entity; no overlapping scopes across entities.
  *   H11 (7E) the name alias of an active programme row agrees with that row's UNITID / entity
  *       (a UNITID correction that leaves its alias behind re-creates the defect on the next import).
  * H6 treats a duplicate explained by row links (one unlinked carrier) as documented.
@@ -136,6 +138,22 @@ export function validateEntityIdentity(db, { allowlist, knownWrongUnitid } = {})
       if (SHARED_ROOT.test(d.domain)) hard.push(`H7 shared-platform root ${d.domain} owned by an entity`);
       if (d.unitid != null && Number(d.unitid) !== Number(e.federal_unitid) && Number(d.unitid) !== Number(e.parent_unitid)) hard.push(`H7 domain ${d.domain} unitid ${d.unitid} disagrees with entity ${e.athletics_entity_id}`);
     }
+  }
+  // H12 (8B.1) athletics_source_locations: a path scope never widens or contradicts host ownership
+  if (has('athletics_source_locations')) {
+    const locs = db.prepare('SELECT * FROM athletics_source_locations').all();
+    const hostOwner = new Map(domCols.has('athletics_entity_id') ? db.prepare("SELECT domain, athletics_entity_id FROM athletics_domains WHERE athletics_entity_id IS NOT NULL AND status IN ('VERIFIED','VERIFIED_ALIAS')").all().map((d) => [String(d.domain).toLowerCase(), d.athletics_entity_id]) : []);
+    const live = locs.filter((l) => l.status === 'VERIFIED');
+    for (const l of locs) {
+      if (!byId.get(l.athletics_entity_id)) hard.push(`H12 location ${l.host}${l.path_prefix} -> missing entity ${l.athletics_entity_id}`);
+      if (SHARED_ROOT.test(l.host)) hard.push(`H12 location on a shared-platform root ${l.host}`);
+      if (l.source_type !== 'ATHLETICS_HOST' && (!l.path_prefix || l.path_prefix === '/')) hard.push(`H12 ${l.source_type} ${l.host} scoped to the whole host`);
+      const owner = hostOwner.get(String(l.host).toLowerCase());
+      if (owner && owner !== l.athletics_entity_id) hard.push(`H12 location ${l.host}${l.path_prefix} (${l.athletics_entity_id}) sits on a host owned by ${owner}`);
+    }
+    // two entities may not claim the same or nested path scopes on one host
+    const within = (a, b) => a === b || a.startsWith(`${b.replace(/\/$/, '')}/`);
+    for (const a of live) for (const b of live) if (a !== b && a.host === b.host && a.athletics_entity_id !== b.athletics_entity_id && within(a.path_prefix.toLowerCase(), b.path_prefix.toLowerCase())) hard.push(`H12 overlapping path scopes on ${a.host}: ${a.path_prefix} (${a.athletics_entity_id}) inside ${b.path_prefix} (${b.athletics_entity_id})`);
   }
   // H8
   const rowUnitids = new Set(rows.filter((r) => r.unitid != null).map((r) => Number(r.unitid)));

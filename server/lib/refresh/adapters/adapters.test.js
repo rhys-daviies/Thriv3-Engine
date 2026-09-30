@@ -110,14 +110,14 @@ describe('adapter safety — refusals, never empty observations', () => {
 });
 
 describe('gatherers emit the staging contract and nothing else', () => {
-  const presto = `<title>2026-27 Women's Soccer Roster - Casper College</title><div class="presto"></div><table><thead><tr><th>No.</th><th>Name</th><th>Pos.</th><th>Cl.</th><th>Hometown</th></tr></thead><tbody>${Array.from({ length: 12 }, (_, i) => `<tr><td>${i}</td><td><a href="#">Player ${i}</a></td><td>MF</td><td>Fr.</td><td>Town, WY</td></tr>`).join('')}</tbody></table>${'x'.repeat(900)} prestosports`;
+  const presto = `<title>2026-27 Women's Soccer Roster - Casper College</title><div class="presto"></div><table><thead><tr><th>No.</th><th>Name</th><th>Pos.</th><th>Cl.</th><th>Hometown</th></tr></thead><tbody>${Array.from({ length: 12 }, (_, i) => `<tr><td>${i}</td><td><a href="#">Alex Keeper${String.fromCharCode(65 + i)}</a></td><td>MF</td><td>Fr.</td><td>Town, WY</td></tr>`).join('')}</tbody></table>${'x'.repeat(900)} prestosports`;
   const staff = `<title>Women's Soccer Coaches - Casper College</title><table><thead><tr><th>Name</th><th>Title</th><th>Email</th></tr></thead><tbody><tr><td>Pat Coach</td><td>Head Coach</td><td><a href="mailto:pat.coach@casper.example">Email</a></td></tr><tr><td>Sam Aide</td><td>Assistant Coach</td><td></td></tr></tbody></table>${'x'.repeat(900)} prestosports`;
   const fetch = (body) => async (url) => capturedPage({ url, fetched_at: '2026-09-30T00:00:00Z', body });
   const target = { athletics_entity_id: 'AE-U240000', institution_label: 'Casper College', sport: 'womens-soccer', host: 'casperathletics.example', platform: 'PRESTO', season: 2026 };
   const ownsHost = (h, e) => h === 'casperathletics.example' && e === 'AE-U240000';
   it('roster: a ROSTER page with provenance, parser/adapter versions and players (nationality only when printed)', async () => {
     const { page } = await rosterAdapter(target, { ownsHost, fetch: fetch(presto) });
-    expect(page).toMatchObject({ dataset: 'ROSTER', source_kind: 'OFFICIAL_ROSTER', observed_season: 2026, page_season: 2026, sport: 'womens-soccer', athletics_entity_id: 'AE-U240000', adapter_version: 'p8a-gatherers-2' });
+    expect(page).toMatchObject({ dataset: 'ROSTER', source_kind: 'OFFICIAL_ROSTER', observed_season: 2026, page_season: 2026, sport: 'womens-soccer', athletics_entity_id: 'AE-U240000', adapter_version: 'p8b1-gatherers-3' });
     expect(page.players).toHaveLength(12); expect(page.players[0]).not.toHaveProperty('nationality');
   });
   it('staff: only a PRINTED address is carried; nobody gets an inferred one', async () => {

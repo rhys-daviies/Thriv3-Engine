@@ -30,6 +30,12 @@ export const CLASSIFICATIONS = Object.freeze(['CONFIRMED_UNCHANGED', 'NEW_RECORD
 export const PROMOTABLE = new Set(['CONFIRMED_UNCHANGED', 'NEW_RECORD', 'VERIFIED_UPDATE', 'STALE_CANDIDATE']);
 
 export const personKey = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z ]/g, ' ').replace(/\s+/g, ' ').trim();
+/**
+ * A FORMAT-INSENSITIVE key (Phase 8B.1): the sorted letters of a name, so "Smith, John" /
+ * "John Smith" and "O'Neil" / "ONeil" collide. Used ONLY to stop an insert (a possible false
+ * duplicate of a held player-season) — never to link or merge two rows.
+ */
+export const nameFormatKey = (s) => personKey(s).replace(/[^a-z]/g, '').split('').sort().join('');
 const lc = (s) => String(s || '').trim().toLowerCase();
 export const isGenericEmail = (e) => /^(soccer|msoc|wsoc|athletics|info|sports?info|sid|coach|coaches|wsoccer|msoccer|office|admin|menssoccer|womenssoccer|recruit|recruiting)@/i.test(String(e || ''));
 const NON_PLAYER = /\b(coach|coaches|manager|trainer|staff|director|coordinator|analyst|operations|student assistant|volunteer)\b/i;
@@ -215,6 +221,11 @@ export function classifyRosterPage(page, ctx, { season, frozen = new Set() }) {
     if (pageCount.get(k) > 1) { out.push(obs(b, 'IDENTITY_AMBIGUOUS', null, { evidence_json: { why: ['name appears more than once on this roster'] } })); continue; }
     const held = thisBy.get(k) || [];
     if (held.length > 1) { out.push(obs(b, 'IDENTITY_AMBIGUOUS', null, { evidence_json: { why: [`${held.length} held rows for this player-season (duplicate)`] } })); continue; }
+    if (!held.length) {
+      // same player-season under another name format (reversed / punctuation): never insert a second row
+      const fk = nameFormatKey(p.player_name); const alt = heldThis.filter((r) => nameFormatKey(r.player_name) === fk && personKey(r.player_name) !== k);
+      if (alt.length) { out.push(obs(b, 'IDENTITY_AMBIGUOUS', null, { requires_review: 1, expected_old_json: { ids: alt.map((r) => r.id) }, evidence_json: { why: [`a held ${tSeason} row carries the same letters under another name format — possible duplicate of a held player-season; not inserted, not merged`] } })); for (const r of alt) seen.add(r.id); continue; }
+    }
     const notes = [];
     if (held.length === 1) {
       const h = held[0]; seen.add(h.id);
@@ -251,6 +262,15 @@ export function classifyRosterPage(page, ctx, { season, frozen = new Set() }) {
   }
   if (page.source_complete) {
     for (const h of heldThis) if (!seen.has(h.id)) out.push(obs(base(page, 'ROSTER', g.res, g.src, { target_table: 'roster_players', target_key: h.id }), 'DISAPPEARED_FROM_SOURCE', null, { evidence_json: { why: ['held for this season, absent from the complete official roster — kept; roster membership is never deleted by a refresh'] } }));
+    // prior-season players not on the complete current page: NOT_OBSERVED_CURRENT_SEASON (informational).
+    // The prior observation is history and stays; absence alone is not departure (graduation, transfer,
+    // redshirt off the page, or a name-format change are all possible). No action, no review.
+    const onPage = new Set(players.map((p) => key(p))); const onPageFmt = new Set(players.map((p) => nameFormatKey(p.player_name)));
+    for (const h of heldPrev) {
+      const hk = personKey(h.player_name); if (!hk || onPage.has(hk)) continue;
+      const formatOnly = onPageFmt.has(nameFormatKey(h.player_name));
+      out.push(obs(base(page, 'ROSTER', g.res, g.src, { target_table: 'roster_players', target_key: h.id }), 'DISAPPEARED_FROM_SOURCE', null, { evidence_json: { status: 'NOT_OBSERVED_CURRENT_SEASON', why: [`on the ${tSeason - 1} roster, not on the complete ${tSeason} roster${formatOnly ? ' under the same name format (a differently formatted name with the same letters IS on the page)' : ''} — the ${tSeason - 1} observation is kept; absence is not departure evidence by itself`] } }));
+    }
   }
   return out;
 }
