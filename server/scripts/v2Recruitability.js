@@ -82,35 +82,19 @@ async function main() {
 
   const { default: db } = await import('../db/client.js');
   const { canonicalPosition } = await import('../../shared/positions.js');
-  const { buildPositionIndex, buildArrivalIndex, divisionArrivalRates } = await import('../lib/v2/rosterEvidence.js');
+  const { buildPoolContext } = await import('../lib/v2/poolContext.js');
   const { evaluateRecruitability, recruitabilityRow } = await import('../lib/v2/recruitabilityRun.js');
 
   const cache = new Map();
+  /**
+   * A7.46. The canonical builder. The hand-rolled copy this replaces predated
+   * the appearance columns, so `buildPositionIndex` threw and this script had
+   * not run since 38dc671; it also omitted `marketIndex` and `centroids`, so
+   * the recruiting-market component had nothing to read even before that.
+   */
   const contextFor = (sport) => {
-    if (cache.has(sport)) return cache.get(sport);
-    const colleges = db.prepare('SELECT * FROM colleges WHERE sport = ? AND active = 1').all(sport);
-    const roster = db.prepare(`
-      SELECT college_name, position, class_year_label, division, season, minutes_played, projected_minutes
-        FROM roster_players WHERE sport = ? AND season = ?
-    `).all(sport, SEASON);
-    // Every season we hold, so the horizon is a fact rather than a query
-    // parameter: an entry year past it means the class is simply not recruited
-    // yet, which is not the same as a programme having recruited nobody.
-    const arrivals = db.prepare(`
-      SELECT programme, sport, arrival_season, canonical_position, is_international
-        FROM recruiting_arrivals WHERE sport = ?
-    `).all(sport);
-    const arrivalsHorizon = arrivals.reduce((m, r) => Math.max(m, Number(r.arrival_season) || 0), 0);
-    const byName = new Map(colleges.map((c) => [c.name, c]));
-    const ctx = {
-      colleges,
-      rosterIndex: buildPositionIndex(roster),
-      arrivalIndex: buildArrivalIndex(arrivals),
-      divisionArrivals: divisionArrivalRates(arrivals, byName),
-      arrivalsHorizon,
-    };
-    cache.set(sport, ctx);
-    return ctx;
+    if (!cache.has(sport)) cache.set(sport, buildPoolContext({ db, sport, season: SEASON }));
+    return cache.get(sport);
   };
 
   const out = [];

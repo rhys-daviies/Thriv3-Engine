@@ -186,6 +186,13 @@ function runFixture(f, ctxCache) {
       arrivalIndex: buildArrivalIndex(arr),
       divisionArrivals: divisionArrivalRates(arr, new Map(colleges.map((c) => [c.name, c]))),
       arrivalsHorizon: arr.reduce((m, r) => Math.max(m, Number(r.arrival_season) || 0), 0),
+      /**
+       * A7.46. Held by every other caller and missing here, so `pursuitRun`
+       * passed `rosterSeason: null` and A7.37's horizon-depth grading was
+       * silently disabled - a cell could be graded MEASURED that the canonical
+       * path grades PARTIAL. It changes no value; it changed authority.
+       */
+      rosterSeason: Number(SEASON),
       behaviour: behaviour(sport),
     });
   }

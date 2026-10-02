@@ -56,28 +56,25 @@ async function main() {
   const { evaluateOpportunity, opportunityRow } = await import('../lib/v2/opportunityRun.js');
   const { evaluateFinancial } = await import('../lib/v2/financialRun.js');
   const { evaluateRecruitability } = await import('../lib/v2/recruitabilityRun.js');
-  const { buildPositionIndex, buildArrivalIndex, divisionArrivalRates } = await import('../lib/v2/rosterEvidence.js');
+  const { buildPoolContext } = await import('../lib/v2/poolContext.js');
   const { isScoreable } = await import('../../shared/matching/v2/index.js');
 
+  /**
+   * A7.46. THE CANONICAL BUILDER, not a hand-rolled copy of it.
+   *
+   * This script used to assemble its own context, and it had drifted from the
+   * engine in exactly the way `poolContext.js` was written to prevent: its
+   * roster query predated the appearance columns, so `buildPositionIndex`
+   * threw and the script had not run at all since 38dc671 (2026-09-23). The
+   * copy also omitted `rosterSeason`, which A7.37 needs to grade horizon
+   * depth, and - in the `--correlate` path - `marketIndex` and `centroids`.
+   *
+   * One builder, one query, one place to change.
+   */
   const cache = new Map();
   const contextFor = (sport) => {
-    if (cache.has(sport)) return cache.get(sport);
-    const colleges = db.prepare('SELECT * FROM colleges WHERE sport = ? AND active = 1').all(sport);
-    const roster = db.prepare(`
-      SELECT college_name, position, class_year_label, division, season, minutes_played, projected_minutes
-        FROM roster_players WHERE sport = ? AND season = ?
-    `).all(sport, SEASON);
-    const arrivals = db.prepare('SELECT programme, sport, arrival_season, canonical_position, is_international FROM recruiting_arrivals WHERE sport = ?').all(sport);
-    const ctx = {
-      colleges,
-      rosterProgrammes: new Set(roster.map((r) => r.college_name)),
-      rosterIndex: buildPositionIndex(roster),
-      arrivalIndex: buildArrivalIndex(arrivals),
-      divisionArrivals: divisionArrivalRates(arrivals, new Map(colleges.map((c) => [c.name, c]))),
-      arrivalsHorizon: arrivals.reduce((m, r) => Math.max(m, Number(r.arrival_season) || 0), 0),
-    };
-    cache.set(sport, ctx);
-    return ctx;
+    if (!cache.has(sport)) cache.set(sport, buildPoolContext({ db, sport, season: SEASON }));
+    return cache.get(sport);
   };
 
   const out = [];
@@ -104,7 +101,24 @@ async function main() {
         : (f.player.criterion_ranking ? JSON.parse(f.player.criterion_ranking) : null),
       preferredStates: null, preferredRegions: null, maxDistanceMiles: null, levelPreference: null,
     };
-    const rep = evaluateOpportunity({ athlete, colleges: ctx.colleges, rosterProgrammes: ctx.rosterProgrammes });
+    /**
+     * A7.46. THE POSITIONAL EVIDENCE THE ENGINE IS SUPPOSED TO SCORE.
+     *
+     * `rosterIndex`, `entryYear` and `rosterSeason` were held by the context
+     * and never passed. Before A7.45B that was invisible - positional
+     * competition refused for every programme and Playing Pathway quietly
+     * continued on rotation alone, so the report looked complete and was
+     * measuring a different question. It is the same three arguments
+     * `pursuitRun.js` has always passed.
+     */
+    const rep = evaluateOpportunity({
+      athlete,
+      colleges: ctx.colleges,
+      rosterProgrammes: ctx.rosterProgrammes,
+      rosterIndex: ctx.rosterIndex,
+      entryYear: f.player.recruiting_class_year,
+      rosterSeason: ctx.rosterSeason,
+    });
     out.push({ fixture: f.id, report: rep });
 
     if (!json) {
@@ -114,7 +128,7 @@ async function main() {
       console.log(`  athlete: ${position} · major ${athlete.intendedMajor ?? '(none stated)'} · priorities ${athlete.priorityRanking ? 'stated' : '(none stated)'}`);
       console.log(`  pool ${c.programmes}: scoreable ${c.scoreable} (${(c.scoreableRate * 100).toFixed(1)}%)  MEASURED ${(c.measuredRate * 100).toFixed(1)}% PARTIAL ${(c.partialRate * 100).toFixed(1)}%`);
       console.log(`  opportunity:   ${dist(rep.opportunity)}`);
-      console.log(`  playing:       ${dist(rep.playingOpportunity)}`);
+      console.log(`  playing:       ${dist(rep.playingPathway)}`);
       console.log(`  trajectory:    ${dist(rep.programmeTrajectory)}`);
       console.log(`  major fit:     ${dist(rep.majorFit)}`);
       console.log(`  component coverage: ${Object.entries(rep.componentCoverage).map(([k, v]) => `${k} ${(v * 100).toFixed(0)}%`).join(', ')}`);
@@ -129,7 +143,7 @@ async function main() {
         const rows = rep.results.filter((r) => r.result.ok).map(opportunityRow).sort((x, y) => y.opportunity - x.opportunity);
         console.log(`  best ${Math.min(top, rows.length)}:`);
         for (const r of rows.slice(0, top)) {
-          console.log(`    ${r.opportunity.toFixed(3)} ${String(r.name).slice(0, 30).padEnd(31)}${String(r.division).padEnd(9)} play=${r.playingOpportunity} traj=${r.programmeTrajectory} share=${r.playingShare} (${r.playingLevel})`);
+          console.log(`    ${r.opportunity.toFixed(3)} ${String(r.name).slice(0, 30).padEnd(31)}${String(r.division).padEnd(9)} play=${r.playingPathway} traj=${r.programmeTrajectory} share=${r.playingShare} (${r.playingLevel})`);
         }
       }
     }
